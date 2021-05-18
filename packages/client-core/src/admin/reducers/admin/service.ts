@@ -12,7 +12,9 @@ import {
   instanceRemoved,
   instancePatched,
   userRoleRetrieved,
-  userRoleCreated
+  userRoleCreated,
+  partyAdminCreated,
+  partyRetrievedAction
 } from './actions';
 
 import axios from 'axios';
@@ -119,12 +121,12 @@ export function fetchUsersAsAdmin(offset: string) {
             $limit: limit,
             action: 'admin'
           }
-        });        
+        });
         dispatch(loadedUsers(users));
       }
     } catch (err) {
-       console.error(err);
-       dispatchAlertError(dispatch, err.message);
+      console.error(err);
+      dispatchAlertError(dispatch, err.message);
     }
   };
 }
@@ -144,8 +146,6 @@ export function fetchAdminInstances() {
             action: 'admin'
           }
         });
-        console.log(instances);
-
         dispatch(instancesRetrievedAction(instances));
       }
     } catch (err) {
@@ -219,7 +219,7 @@ export function patchInstance(id: string, instance) {
       const result = await client.service('instance').patch(id, instance);
       dispatch(instancePatched(result));
     } catch (error) {
-
+      console.error(error);
     }
   };
 }
@@ -290,34 +290,41 @@ export const fetchUserRole = (data) => {
 export const createUserRoleAction = (data) => {
   return async (dispatch: Dispatch): Promise<any> => {
     const result = await client.service("user-role").create(data);
-    console.log(result);
-
     dispatch(userRoleCreated(result));
   };
 };
 
-export function fetchUsersForProject(offset: string, projectId) {
-  return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    console.log(projectId);
-
-    const user = getState().get('auth').get('user');
-    const skip = getState().get('admin').get('users').get('skip');
-    const limit = getState().get('admin').get('users').get('limit');
-
-    if (user.userRole === 'admin') {
-      const users = await client.service('user').find({
-        query: {
-          $sort: {
-            name: 1
-          },
-          $skip: offset === 'decrement' ? skip - limit : offset === 'increment' ? skip + limit : skip,
-          $limit: limit,
-          action: 'admin'
-        }
-      });
-
-      console.log(users);
-
+export const createAdminParty = (data) => {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const result = await client.service("party").create(data);
+      dispatch(partyAdminCreated(result));
+    } catch (err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
     }
   };
-}
+};
+
+export const fetchAdminParty = () => {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    const user = getState().get('auth').get('user');
+    try {
+      if (user.userRole === 'admin') {
+        const parties = await client.service('party').find({
+          query: {
+            $sort: {
+              createdAt: -1
+            },
+            $skip: getState().get('admin').get('users').get('skip'),
+            $limit: getState().get('admin').get('users').get('limit'),
+          }
+        });
+        dispatch(partyRetrievedAction(parties));
+      }
+    } catch (err) {
+      console.error(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}; 

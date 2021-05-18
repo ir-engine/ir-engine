@@ -16,7 +16,7 @@ export default {
     find: [],
     get: [],
     create: [
-      async (context): Promise<HookContext> => {
+      async (context): Promise<HookContext> => {      
         const loggedInUser = extractLoggedInUserFromParams(context.params);
         const currentPartyUser = await context.app.service('party-user').find({
           query: {
@@ -24,11 +24,15 @@ export default {
           }
         });
         if (currentPartyUser.total > 0) {
-          await context.app.service('party-user').remove(currentPartyUser.data[0].id);
+          try {
+            await context.app.service('party-user').remove(currentPartyUser.data[0].id);
+          } catch (error) {
+            console.error(error);  
+          }
           await context.app.service('user').patch(loggedInUser.userId, {
             partyId: null
           });
-        }
+        } 
         return context;
       }
     ],

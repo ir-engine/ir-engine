@@ -14,7 +14,7 @@ import { connect } from "react-redux";
 import { selectAdminState } from "../../reducers/admin/selector";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 import { bindActionCreators, Dispatch } from "redux";
-import { fetchUsersAsAdmin, fetchUsersForProject, fetchAdminLocations, fetchUserRole  } from "../../reducers/admin/service";
+import { fetchUsersAsAdmin, fetchAdminLocations, fetchUserRole  } from "../../reducers/admin/service";
 import { withApi } from "../../../world/components/editor/contexts/ApiContext";
 import Api from "../../../world/components/editor/Api";
 import { selectAppState } from '../../../common/reducers/app/selector';
@@ -31,7 +31,6 @@ interface Props {
     authState?: any;
     fetchAdminLocations?: any;
     api?: Api;
-    fetchUsersForProject?: any
 }
 
 const mapStateToProps = (state: any): any => {
@@ -45,7 +44,6 @@ const mapStateToProps = (state: any): any => {
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch),
     fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
-    fetchUsersForProject: bindActionCreators(fetchUsersForProject, dispatch)
 });
 
 const TabPanel = (props: TabPanelProps) => {
@@ -87,7 +85,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 const Users = (props: Props) => {
-    const { api, adminState, fetchUsersAsAdmin, authState, fetchAdminLocations, fetchUsersForProject } = props;
+    const { api, adminState, fetchUsersAsAdmin, authState, fetchAdminLocations } = props;
     const classes = useStyles();
     const initialUser = {
         id: null,

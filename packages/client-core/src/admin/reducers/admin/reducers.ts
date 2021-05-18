@@ -3,11 +3,12 @@ import {
   InstanceRemovedResponse,
   InstancesRetrievedResponse,
   LocationTypesRetrievedResponse,
+  partyAdminCreatedResponse,
   userRoleRetrievedResponse,
   VideoCreatedAction
 } from './actions';
 
-import { VIDEO_CREATED } from "../actions";
+import { VIDEO_CREATED , PARTY_ADMIN_CREATED, PARTY_ADMIN_DISPLAYED} from "../actions";
 import {
   LOCATIONS_RETRIEVED,
   LOCATION_CREATED,
@@ -79,6 +80,16 @@ export const initialAdminState = {
   },
   instances: {
     instances: [],
+    skip: 0,
+    limit: PAGE_LIMIT,
+    total: 0,
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true,
+    lastFetched: new Date()
+  },
+  parties: {
+    parties: [],
     skip: 0,
     limit: PAGE_LIMIT,
     total: 0,
@@ -231,6 +242,19 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('updateNeeded', true);
       return state
         .set('userRole', updateMap);
+
+    case PARTY_ADMIN_DISPLAYED: 
+      result = (action as partyAdminCreatedResponse).data;
+      updateMap = new Map(state.get("parties"));
+      updateMap.set("parties", result);
+      updateMap.set("updateNeeded", false);
+
+      return state.set("parties", updateMap);
+
+    case PARTY_ADMIN_CREATED: 
+      updateMap = new Map(state.get("parties"));
+      updateMap.set("updateNeeded", true);
+      return state.set("parties", updateMap);
   }
 
   return state;

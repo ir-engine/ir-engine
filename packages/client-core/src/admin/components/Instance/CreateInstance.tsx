@@ -20,7 +20,7 @@ import { fetchAdminLocations } from "../../reducers/admin/service";
 import { useFormik } from "formik";
 import { validationSchema } from "./validation";
 import DialogContentText from '@material-ui/core/DialogContentText';
-
+import Typography from '@material-ui/core/Typography';
 
 
 const mapStateToProps = (state: any): any => {
@@ -60,6 +60,9 @@ const useStyles = makeStyles((theme: Theme) =>
             marginLeft: "5px",
             textDecoration: "none",
             color: "#ff9966"
+        },
+        marginTop: {
+            marginTop: "30px"
         }
     })
 );
@@ -130,29 +133,29 @@ function CreateInstance(props: Props) {
     };
 
     const formik = useFormik({
-       initialValues: {
-           currentUsers: "",
-           ipAddress: ""
-       },
-       validationSchema: validationSchema,
-       onSubmit: async (values, {resetForm }) => {
-        const data = {
-            ipAddress: values.ipAddress,
-            currentUsers: values.currentUsers,
-            locationId: location
-        };
-        if (editing) {
-            patchInstance(instanceEdit.id, data);
-        } else {
-            createInstance(data);
-            setIpAddress("");
-            setCurrentUser("");
-        }
+        initialValues: {
+            currentUsers: "",
+            ipAddress: ""
+        },
+        validationSchema: validationSchema,
+        onSubmit: async (values, { resetForm }) => {
+            const data = {
+                ipAddress: values.ipAddress,
+                currentUsers: values.currentUsers,
+                locationId: location
+            };
+            if (editing) {
+                patchInstance(instanceEdit.id, data);
+            } else {
+                createInstance(data);
+                setIpAddress("");
+                setCurrentUser("");
+            }
 
-        fetchAdminInstances();
-        handleClose();
-        resetForm();
-       }
+            fetchAdminInstances();
+            handleClose();
+            resetForm();
+        }
     });
     const defaultProps = {
         options: locationData,
@@ -178,86 +181,89 @@ function CreateInstance(props: Props) {
                         [styles.paper]: true,
                         [styles['modal-content']]: true
                     })}>
+                        <Typography variant="h5" gutterBottom={true} className={classes.marginTop}>
+                            Create new instance
+                        </Typography>
                         <form onSubmit={formik.handleSubmit}>
-                        {editing && <TextField
-                            variant="outlined"
-                            margin="normal"
-                            fullWidth
-                            id="id"
-                            label="ID"
-                            name="id"
-                            disabled
-                            defaultValue={instanceEdit?.id}
-                        >
-                            {instanceEdit.id}
-                        </TextField>
-                        }
-                        <TextField
-                            variant="outlined"
-                            margin="normal"
-                            fullWidth
-                            id="ipAddress"
-                            label="Ip Address"
-                            name="ipAddress"
-                            value={formik.values.ipAddress}
-                            onChange={formik.handleChange}
-                            error={formik.touched.ipAddress && Boolean(formik.errors.ipAddress)}
-                            helperText={formik.touched.ipAddress && formik.errors.ipAddress}
-                        />
-                        <TextField
-                            variant="outlined"
-                            className={classes.marginBottm}
-                            margin="normal"
-                            fullWidth
-                            id="maxUsers"
-                            label="current users"
-                            name="currentUsers"
-                            value={formik.values.currentUsers}
-                            onChange={formik.handleChange}
-                            error={formik.touched.currentUsers && Boolean(formik.errors.currentUsers)}
-                            helperText={formik.touched.currentUsers && formik.errors.currentUsers}
-                        />
-
-                        <Autocomplete
-                            onChange={(e, newValue) => setLocation(newValue.id as string)}
-                            {...defaultProps}
-                            id="debug"
-                            debug
-                            renderInput={(params) => <TextField {...params} label="Locations" className={classes.marginBottm} />}
-                        />
-
-                        <DialogContentText className={classes.marginBottm}>  Don't see location? <a href="/admin/locations" className={classes.textLink}>Create new one</a>  </DialogContentText>
-
-                        <FormGroup row className={styles.locationModalButtons}>
-                            {
-                                editing &&
-                                <Button
-                                    type="submit"
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={submitInstance}
-                                >
-                                    Update
-                                </Button>
-                            }
-                            {
-                                !editing &&
-                                <Button
-                                    type="submit"
-                                    variant="contained"
-                                    color="primary"
-                                >
-                                    Create
-                                </Button>
-                            }
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                onClick={handleClose}
+                            {editing && <TextField
+                                variant="outlined"
+                                margin="normal"
+                                fullWidth
+                                id="id"
+                                label="ID"
+                                name="id"
+                                disabled
+                                defaultValue={instanceEdit?.id}
                             >
-                                Cancel
+                                {instanceEdit.id}
+                            </TextField>
+                            }
+                            <TextField
+                                variant="outlined"
+                                margin="normal"
+                                fullWidth
+                                id="ipAddress"
+                                label="Ip Address"
+                                name="ipAddress"
+                                value={formik.values.ipAddress}
+                                onChange={formik.handleChange}
+                                error={formik.touched.ipAddress && Boolean(formik.errors.ipAddress)}
+                                helperText={formik.touched.ipAddress && formik.errors.ipAddress}
+                            />
+                            <TextField
+                                variant="outlined"
+                                className={classes.marginBottm}
+                                margin="normal"
+                                fullWidth
+                                id="maxUsers"
+                                label="current users"
+                                name="currentUsers"
+                                value={formik.values.currentUsers}
+                                onChange={formik.handleChange}
+                                error={formik.touched.currentUsers && Boolean(formik.errors.currentUsers)}
+                                helperText={formik.touched.currentUsers && formik.errors.currentUsers}
+                            />
+
+                            <Autocomplete
+                                onChange={(e, newValue) => setLocation(newValue.id as string)}
+                                {...defaultProps}
+                                id="debug"
+                                debug
+                                renderInput={(params) => <TextField {...params} label="Locations" className={classes.marginBottm} />}
+                            />
+
+                            <DialogContentText className={classes.marginBottm}>  Don't see location? <a href="/admin/locations" className={classes.textLink}>Create new one</a>  </DialogContentText>
+
+                            <FormGroup row className={styles.locationModalButtons}>
+                                {
+                                    editing &&
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={submitInstance}
+                                    >
+                                        Update
+                                </Button>
+                                }
+                                {
+                                    !editing &&
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        color="primary"
+                                    >
+                                        Create
+                                </Button>
+                                }
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                    onClick={handleClose}
+                                >
+                                    Cancel
                             </Button>
-                        </FormGroup>
+                            </FormGroup>
                         </form>
                     </div>
                 </Fade>

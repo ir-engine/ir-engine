@@ -7,12 +7,14 @@ import {
   INSTANCE_REMOVED_ROW,
   LOCATION_TYPES_RETRIEVED,
   USER_ROLE_RETRIEVED,
-  USER_ROLE_CREATED
+  USER_ROLE_CREATED,
 } from '../../../world/reducers/actions';
 import {
   VIDEO_CREATED,
   VIDEO_DELETED,
-  VIDEO_UPDATED
+  VIDEO_UPDATED,
+  PARTY_ADMIN_CREATED,
+  PARTY_ADMIN_DISPLAYED,
 } from '../actions';
 
 export interface VideoCreationForm {
@@ -97,6 +99,11 @@ export interface userRoleRetrievedResponse {
   types: any[];
 }
 
+export interface partyAdminCreatedResponse {
+  type: string,
+  data: any;
+}
+
 export function videoCreated (data: VideoCreatedResponse): VideoCreatedAction {
   return {
     type: VIDEO_CREATED,
@@ -173,4 +180,19 @@ export const userRoleCreated = (data: any): userRoleRetrievedResponse => {
     type: USER_ROLE_CREATED,
     types: data
   }; 
+};
+
+
+export const partyAdminCreated = (data: any): partyAdminCreatedResponse => {
+  return {
+    type: PARTY_ADMIN_CREATED,
+    data: data
+  };
+};
+
+export const partyRetrievedAction = (data: any): partyAdminCreatedResponse => {
+  return {
+    type: PARTY_ADMIN_DISPLAYED,
+    data: data
+  };
 };

@@ -7,62 +7,41 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
+import { fetchAdminParty } from "../../reducers/admin/service";
+import { bindActionCreators, Dispatch } from 'redux';
+import { connect } from 'react-redux';
+import { selectAuthState } from '../../../user/reducers/auth/selector';
+import { selectAdminState } from "../../reducers/admin/selector";
 
 interface Column {
-    id: 'name' | 'avatar' | 'status' | 'party' | 'channelInstanceId' | 'instanceId' | 'action';
+    id: 'instance' | 'location' | 'action';
     label: string;
     minWidth?: number;
     align?: 'right';
 }
 
 const columns: Column[] = [
-    { id: 'name', label: 'Name', minWidth: 170 },
-    { id: 'avatar', label: 'Avatar', minWidth: 100 },
-    {
-        id: 'status',
-        label: 'Status',
-        minWidth: 170,
-        align: 'right',
-    },
-    {
-        id: 'party',
-        label: 'Party',
-        minWidth: 170,
-        align: 'right',
-    },
-    {
-        id: 'channelInstanceId',
-        label: "Channel Instance",
-        minWidth: 170,
-        align: 'right'
-    },
-    {
-        id: 'instanceId',
-        label: 'Instance',
-        minWidth: 170,
-        align: 'right'
-    },
+    { id: 'instance', label: 'Instance', minWidth: 170 },
+    { id: 'location', label: 'Location', minWidth: 100 },
     {
         id: 'action',
         label: 'Action',
         minWidth: 170,
         align: 'right',
-    },
+    }
 ];
 
 interface Data {
-    name: string;
-    avatar: string;
-    status: string;
-    party: string;
-    channelInstanceId: string,
-    instanceId: string,
+    id: string;
+    instance: string;
+    location: string;
     action: any
 }
 
 const useStyles = makeStyles({
     root: {
         width: '100%',
+        background: "#fff"
     },
     container: {
         maxHeight: "80vh",
@@ -75,14 +54,31 @@ const useStyles = makeStyles({
 });
 
 interface Props {
-    adminUsers: any
+   fetchAdminParty?: any;
+   authState?: any;
+   adminState?: any;
 }
 
-const UserTable = (props: Props) => {
-    const { adminUsers } = props;
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+    fetchAdminParty: bindActionCreators(fetchAdminParty, dispatch)
+});
+
+const mapStateToProps = (state: any): any => {
+    return {
+        adminState: selectAdminState(state),
+        authState: selectAuthState(state)
+    };
+};
+
+const PartyTable = (props: Props) => {
     const classes = useStyles();
+    const { fetchAdminParty, adminState, authState } = props;
+
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
+
+    const user = authState.get("user");
+    const adminParty = adminState.get("parties");
 
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
@@ -93,26 +89,28 @@ const UserTable = (props: Props) => {
         setPage(0);
     };
 
+    React.useEffect(()=> {
+        if(user.id && adminParty.get('updateNeeded') == true){
+            fetchAdminParty();
+        }
+    }, [authState, adminState]);
 
-    const createData = (name: string, avatar: string, status: string, party: string, channelInstanceId: string, instanceId: string): Data => {
+   const createData = (id: string, instance: string, location: string ): Data => {
         return {
-            name,
-            avatar,
-            status,
-            party,
-            channelInstanceId,
-            instanceId,
+            id,
+            instance,
+            location,
             action: (
                 <>
-                    <a href="#h" className={classes.actionStyle}> View </a>
-                    <a href="#h" className={classes.actionStyle}> Edit </a>
-                    <a href="#h" className={classes.actionStyle}> Delete </a>
-                </>
+                <a href="#h" className={classes.actionStyle}> View </a>
+                <a href="#h" className={classes.actionStyle}> Edit </a>
+                <a href="#h" className={classes.actionStyle}> Delete </a>
+            </>
             )
         };
-    };
+   };
 
-    const rows = adminUsers.map(el => createData(el.name, el.avatarId || "coming soon", el.userRole, el.partyId || "", el.channelInstanceId || "", el.instanceId || "" ));
+   const rows = adminParty.get("parties").map(el => createData(el.id, el.instanceId, el.locationId || "coming soon" ));
 
     return (
         <div className={classes.root}>
@@ -134,7 +132,7 @@ const UserTable = (props: Props) => {
                     <TableBody>
                         {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                             return (
-                                <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
+                                <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                                     {columns.map((column) => {
                                         const value = row[column.id];
                                         return (
@@ -152,7 +150,7 @@ const UserTable = (props: Props) => {
             <TablePagination
                 rowsPerPageOptions={[10, 25, 100]}
                 component="div"
-                count={rows.size}
+                count={10}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onChangePage={handleChangePage}
@@ -163,4 +161,4 @@ const UserTable = (props: Props) => {
 };
 
 
-export default UserTable;
+export default connect(mapStateToProps, mapDispatchToProps)(PartyTable);

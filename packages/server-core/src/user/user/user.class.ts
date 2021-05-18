@@ -207,6 +207,21 @@ export class User extends Service {
         ]
       });
 
+      const test = await this.app.service('user').Model.findAll({
+        offset: skip,
+        limit: limit,
+        include: 
+          {
+            model: this.app.service('instance').Model,
+            required: false
+          },
+        raw: true,
+        nest: true,
+      });
+
+      console.log(test);
+      
+
       return {
         skip: skip,
         limit: limit,
