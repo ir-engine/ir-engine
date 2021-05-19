@@ -26,12 +26,11 @@ export const addHole: Behavior = (entity: Entity, args?: any, delta?: number, en
   const shapeBox = createShapeFromConfig({
     shape: SHAPES.Box,
     options: { boxExtents: { x: scale.x, y: scale.y, z: scale.z } },
-
     config: {
+      isTrigger: true,
       collisionLayer: GolfCollisionGroups.Hole,
       collisionMask: DefaultCollisionMask | GolfCollisionGroups.Ball | GolfCollisionGroups.Club
     }
-
   });
 
   const body = new Body({

@@ -25,7 +25,7 @@ export const addBall: Behavior = (entity: Entity, args?: any, delta?: number, en
 
   const shapeBall = createShapeFromConfig({
     shape: SHAPES.Sphere,
-    options: { radius: 0.1 },
+    options: { radius: 0.025 },
 
     config: {
       collisionLayer: GolfCollisionGroups.Ball,
