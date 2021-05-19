@@ -8,6 +8,7 @@ import { CollisionGroups, DefaultCollisionMask } from '../../../../physics/enums
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
 import { GameObject } from "../../../components/GameObject";
 import { getComponent } from '../../../../ecs/functions/EntityFunctions';
+import { GolfCollisionGroups } from '../GolfGameConstants';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -20,25 +21,24 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
   const rot = storageTransform.rotation ?? { x:0, y:0, z:0, w:1 };
   const scale = storageTransform.scale  ?? { x:1, y:1, z:1 };
 
-  const shapeHandle: Shape = createShapeFromConfig({
+  const shapeHandle = createShapeFromConfig({
     shape: SHAPES.Box,
     options: { boxExtents: { x: 0.05, y: 0.05, z: 0.25 } },
-    // TODO: upgrade three-physx and uncomment following commented lines
-    // config: {
-      collisionLayer: 1 << 6,
-      collisionMask: CollisionGroups.Default
-    // }
+    config: {
+      collisionLayer: GolfCollisionGroups.Club,
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground
+    }
   });
-  const shapeHead: Shape = createShapeFromConfig({
+  const shapeHead = createShapeFromConfig({
     shape: SHAPES.Box,
     options: { boxExtents: { x: 0.05, y: 0.1, z: 0.05 } },
     transform: new Transform({
       translation: { x: 0, y: 0.1, z: -1.7 }
     }),
-    // config: {
-      collisionLayer: 1 << 6,
-      collisionMask: CollisionGroups.Default
-    // }
+    config: {
+      collisionLayer: GolfCollisionGroups.Club,
+      collisionMask: DefaultCollisionMask | GolfCollisionGroups.Ball
+    }
   });
 
   const body = new Body({
