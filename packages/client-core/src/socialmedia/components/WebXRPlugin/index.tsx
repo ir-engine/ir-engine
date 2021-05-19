@@ -19,6 +19,26 @@ import FlipCameraIosIcon from '@material-ui/icons/FlipCameraIos';
 
 //@ts-ignore
 import styles from './WebXRPlugin.module.scss';
+import { connect } from 'react-redux';
+import { updateNewFeedPageState } from '../../reducers/popupsState/service';
+import { bindActionCreators, Dispatch } from 'redux';
+import { selectPopupsState } from '../../reducers/popupsState/selector';
+
+const mapStateToProps = (state: any): any => {
+    return {
+        popupsState: selectPopupsState(state),
+     
+    };
+  };
+
+  const mapDispatchToProps = (dispatch: Dispatch): any => ({
+    updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
+});
+
+interface Props{
+    popupsState?: any;
+    updateNewFeedPageState?: typeof updateNewFeedPageState;
+  }
 
 const { isNative } = Capacitor;
 
@@ -38,7 +58,7 @@ const correctionQuaternionZ = new Quaternion().setFromAxisAngle(new Vector3(0,0,
 const _DEBUG = false;
 const DEBUG_MINI_VIEWPORT_SIZE = 100;
 
-export const WebXRPlugin = (): any => {
+export const WebXRPlugin = ({popupsState, updateNewFeedPageState}:Props) => {
     const [initializationResponse, setInitializationResponse] = useState("");
     const [cameraStartedState, setCameraStartedState] = useState("");
     const [cameraPoseState, setCameraPoseState] = useState("");
@@ -303,9 +323,11 @@ export const WebXRPlugin = (): any => {
                 then(({ result, filePath }) => {
                     console.log("END RECORDING, result IS", result);
                     console.log("filePath IS", filePath);
-
+                  
                     setSavedFilePath("file://" + filePath);
+                    updateNewFeedPageState(true, filePath)
                 });
+                
         }
     };
 
@@ -381,4 +403,4 @@ export const WebXRPlugin = (): any => {
     );
 };
 
-export default WebXRPlugin;
+export default connect(mapStateToProps, mapDispatchToProps) (WebXRPlugin);
