@@ -92,7 +92,7 @@ const interact: Behavior = (entity: Entity, args: any = { side: ParityValue }, d
   const interactive = getComponent(focusedEntity, Interactable);
   const intPosition = getComponent(focusedEntity, TransformComponent).position;
 
-  if (getInteractiveIsInReachDistance(entity, intPosition)) {
+  if (getInteractiveIsInReachDistance(entity, intPosition, args.side)) {
     if (interactive && typeof interactive.onInteraction === 'function') {
       if (!hasComponent(focusedEntity, VehicleComponent)) {
         interactive.onInteraction(entity, args, delta, focusedEntity);

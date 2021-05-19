@@ -38,18 +38,20 @@ class BotManager {
         this.actions.push({botName, action});
     }
 
-    async keyPress(bot, key, numMiliSeconds) {
+    async keyPress(bot, key, numMilliSeconds) {
         console.log('Running with key ' + key);
         await bot.setFocus('canvas');
+        await bot.clickElementById('canvas', 'engine-renderer-canvas');
         const interval = setInterval(() => {
+            console.log('Pressing', key);
             bot.pressKey(key);
         }, 100);
         return new Promise((resolve) => setTimeout(() => {
-            console.log('Clearing button press for ' + key, numMiliSeconds);
+            console.log('Clearing button press for ' + key, numMilliSeconds);
             bot.releaseKey(key);
             clearInterval(interval);
             resolve()
-        }, numMiliSeconds));
+        }, numMilliSeconds));
     }
 
     async sendMessage(bot, message) {
@@ -61,13 +63,13 @@ class BotManager {
 
     async sendAudio(bot, duration) {
         console.log("Sending audio...");
-        await bot.clickElementById('svg', 'micOff');
+        await bot.clickElementById('button', 'UserAudio');
         await bot.waitForTimeout(duration);
     }
 
     async stopAudio(bot) {
         console.log("Stop audio...");
-        await bot.clickElementById('svg', 'micOn');
+        await bot.clickElementById('button', 'UserAudio');
     }
 
     async recvAudio(bot, duration) {
@@ -77,13 +79,13 @@ class BotManager {
 
     async sendVideo(bot, duration) {
         console.log("Sending video...");
-        await bot.clickElementById('svg', 'videoOff');
+        await bot.clickElementById('button', 'UserVideo');
         await bot.waitForTimeout(duration);
     }
 
     async stopVideo(bot) {
         console.log("Stop video...");
-        await bot.clickElementById('svg', 'videoOn');
+        await bot.clickElementById('button', 'UserVideo');
     }
 
     async recvVideo(bot, duration) {

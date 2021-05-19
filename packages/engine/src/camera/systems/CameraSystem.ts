@@ -79,8 +79,10 @@ export class CameraSystem extends System {
       const cameraFollow = getComponent(entity, FollowCameraComponent, true);
       PhysicsSystem.instance.removeRaycastQuery(cameraFollow.raycastQuery)
       const activeCameraComponent = getMutableComponent(CameraSystem.instance.activeCamera, CameraComponent);
-      activeCameraComponent.followTarget = null;
-      removeComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) as DesiredTransformComponent;
+      if (activeCameraComponent) {
+        activeCameraComponent.followTarget = null;
+        removeComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) as DesiredTransformComponent;
+      }
     });
 
     // follow camera component should only ever be on the character
@@ -203,7 +205,8 @@ CameraSystem.queries = {
     components: [FollowCameraComponent, TransformComponent, CharacterComponent],
     listen: {
       added: true,
-      changed: true
+      changed: true,
+      removed: true,
     }
   },
 };

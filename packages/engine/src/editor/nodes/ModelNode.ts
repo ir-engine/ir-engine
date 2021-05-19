@@ -238,7 +238,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     return [vehicleSaved, deepColliders];
   }
 
-parseColliders( data, type, mass, position, quaternion, scale, mesh, collisionLayer, collisionMask ) {
+parseColliders( data, type, mass, position, quaternion, scale, mesh, collisionLayer = undefined, collisionMask = undefined ) {
 
   let geometry = null;
   if(type == "trimesh") {

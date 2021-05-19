@@ -24,7 +24,7 @@ class PageUtils {
         if (this.autoLog) console.log(`Clicking for a ${selector} matching ${id}`)
 
         await this.page.evaluate((selector, id) => {
-            let matches = Array.from(document.querySelectorAll(selector))
+            let matches = Array.from(document.querySelectorAll(selector));
             let singleMatch = matches.find(button => button.id === id);
             let result;
             if (singleMatch && singleMatch.click) {
@@ -164,13 +164,14 @@ class XREngineBot {
         console.log('Launching browser');
         const options = {
             headless: this.headless,
+            ignoreHTTPSErrors: true,
             args: [
                 "--disable-gpu",
                 "--use-fake-ui-for-media-stream=1",
                 "--use-fake-device-for-media-stream=1",
                 `--use-file-for-fake-video-capture=${this.fakeMediaPath}/video.y4m`,
                 `--use-file-for-fake-audio-capture=${this.fakeMediaPath}/audio.wav`,
-                // '--disable-web-security',
+                '--disable-web-security=1',
             //     '--use-fake-device-for-media-stream',
             //     '--use-file-for-fake-video-capture=/Users/apple/Downloads/football_qcif_15fps.y4m',
             //     // '--use-file-for-fake-audio-capture=/Users/apple/Downloads/BabyElephantWalk60.wav',
@@ -228,7 +229,7 @@ class XREngineBot {
      */
     async enterRoom(roomUrl, {name = 'bot'} = {}) {
         await this.navigate(roomUrl);
-        await this.page.waitForSelector("button.join_world", { timeout: 100000})
+        await this.page.waitForSelector("div[class*=\"instance-chat-container\"]", { timeout: 100000});
 
         if (name) {
             this.name = name
@@ -245,14 +246,14 @@ class XREngineBot {
         //@ts-ignore
         if (this.setName != null) this.setName(name)
 
-        await new Promise(resolve => {setTimeout(async() => {
-            await this.pu.clickSelectorClassRegex("button", /join_world/);
-            setTimeout(async() => {
-                // await this.page.waitForSelector('button.openChat');
-                await this.page.mouse.click(0, 0);
-                resolve();
-            }, 30000)
-        }, 2000) });
+        await this.page.mouse.click(0, 0);
+        // await new Promise(resolve => {setTimeout(async() => {
+        //     // await this.pu.clickSelectorClassRegex("button", /join_world/);
+        //     setTimeout(async() => {
+        //         // await this.page.waitForSelector('button.openChat');
+        //         resolve();
+        //     }, 30000)
+        // }, 2000) });
     }
 
     onMessage(callback) {

@@ -63,12 +63,12 @@ export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityV
         if (interactive.interactionPartsPosition.length > 0) {
           interactive.interactionPartsPosition.forEach((v,i) => {
             const partPosition = new Vector3(...v).applyQuaternion(intRotation).add(intPosition);
-            if (getInteractiveIsInReachDistance(entity, intPosition)) {
+            if (getInteractiveIsInReachDistance(entity, intPosition, args.side)) {
               focusedArrays.push([isEntityInteractable, position.distanceTo(partPosition), i])
             }
           })
         } else {
-          if (getInteractiveIsInReachDistance(entity, intPosition)) {
+          if (getInteractiveIsInReachDistance(entity, intPosition, args.side)) {
             focusedArrays.push([isEntityInteractable, position.distanceTo(intPosition), null])
           }
         }
