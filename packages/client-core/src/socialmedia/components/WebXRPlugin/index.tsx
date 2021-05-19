@@ -59,6 +59,7 @@ const _DEBUG = false;
 const DEBUG_MINI_VIEWPORT_SIZE = 100;
 
 export const WebXRPlugin = ({popupsState, updateNewFeedPageState}:Props) => {
+    const canvasRef = React.useRef();
     const [initializationResponse, setInitializationResponse] = useState("");
     const [cameraStartedState, setCameraStartedState] = useState("");
     const [cameraPoseState, setCameraPoseState] = useState("");
@@ -162,13 +163,13 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState}:Props) => {
                 debugCamera.overview.lookAt(new Vector3());
             }
             scene.background = null;
-            renderer = new WebGLRenderer({ alpha: true });
+            renderer = new WebGLRenderer({ alpha: true, canvas:canvasRef.current });
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
             renderer.domElement.style.position = "fixed";
             renderer.domElement.style.width = "100vw";
             renderer.domElement.style.height = "100vh";
-            renderer.domElement.style.zIndex = "-1";
+            renderer.domElement.style.zIndex = "1";
 
             renderer.domElement.style.top = "0";
             renderer.domElement.style.left = "0";
@@ -394,6 +395,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState}:Props) => {
                 <button type="button" className={styles.closeButton} onClick={() => stopRecord()}><ChevronLeftIcon />Slide to cancel</button> 
             </section>
           </div>
+          <canvas ref={canvasRef} className={styles.arcCanvas} id={'arcCanvas'} onClick={() => handleTap()} />
         {/* <VolumetricPlayer
                         meshFilePath={meshFilePath}
                         videoFilePath={videoFilePath}
