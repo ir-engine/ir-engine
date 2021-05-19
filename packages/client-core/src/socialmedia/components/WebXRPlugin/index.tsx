@@ -163,13 +163,13 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
                 debugCamera.overview.lookAt(new Vector3());
             }
             scene.background = null;
-            renderer = new WebGLRenderer({ alpha: true });
+            renderer = new WebGLRenderer({ alpha: true, canvas:canvasRef.current });
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
             renderer.domElement.style.position = "fixed";
             renderer.domElement.style.width = "100vw";
             renderer.domElement.style.height = "100vh";
-            renderer.domElement.style.zIndex = "-1";
+            renderer.domElement.style.zIndex = "1";
 
             renderer.domElement.style.top = "0";
             renderer.domElement.style.left = "0";
@@ -318,7 +318,6 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
         else if (recordingState === RecordingStates.ON) {
             setRecordingState(RecordingStates.OFF);
             setContentHidden()
-
             // @ts-ignore
             Plugins.XRPlugin.stopRecording().
                 // @ts-ignore
@@ -332,15 +331,6 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
                 
         }
     };
-
-    fetch('',{
-        'method': 'get',
-
-    }).then(()=>{
-
-    })
-
-
 
     const handleTap = () => {
         Plugins.XRPlugin.handleTap();
