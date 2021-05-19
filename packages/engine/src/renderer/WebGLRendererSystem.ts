@@ -252,12 +252,12 @@ export class WebGLRendererSystem extends System {
   execute(delta: number): void {
     const startTime = now();
 
-    // if (Engine.renderer.xr.isPresenting) {
+    if (Engine.renderer.xr.isPresenting) {
 
-    //   this.csm.update();
-    //   Engine.renderer.render(Engine.scene, Engine.camera);
+      this.csm.update();
+      Engine.renderer.render(Engine.scene, Engine.camera);
 
-    // } else {
+    } else {
 
       if (this.needsResize) {
         const curPixelRatio = Engine.renderer.getPixelRatio();
@@ -294,7 +294,7 @@ export class WebGLRendererSystem extends System {
         Engine.renderer.autoClear = true;
         Engine.renderer.render(Engine.scene, Engine.camera);
       }
-    // }
+    }
 
     const lastTime = now();
     const deltaRender = (lastTime - startTime);
