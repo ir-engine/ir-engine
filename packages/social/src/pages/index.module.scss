@@ -22,5 +22,13 @@ body{
   flex-direction: column;
 }
 .hideContent{
-  display: none
+  nav{
+    display: none;
+  }
+  p{
+    display: none;
+  }
+  .plugintestControls{
+    display: block;
+  }
 }

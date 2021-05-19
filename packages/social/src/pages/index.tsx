@@ -77,21 +77,10 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState, webxrnativeSt
 
 
 
-  useEffect(() => {
-    console.log('webxrRecorderActivity',webxrRecorderActivity)
-    webxrRecorderActivity && console.log('mine class')
-  }, [webxrRecorderActivity]);
-
-
-
   if(!onborded) return <Onboard setOnborded={setOnborded} image={image} mockupIPhone={mockupIPhone} />;
 
-  const change = () => {
-    changeWebXrNative()
-  }
 
   return (<>
-    <button onClick={()=>{change()}}>Change View</button>
     <div className={webxrRecorderActivity ? styles.hideContent+' '+styles.viewport : styles.viewport}>
         <AppHeader logo="/assets/logoBlack.png" />
         {/* <Stories stories={stories} /> */}
@@ -101,7 +90,7 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState, webxrnativeSt
         <FeedPopup />
         <CreatorFormPopup />
         <ArMediaPopup />
-        <WebXRStart />
+        <WebXRStart setContentHidden={changeWebXrNative} />
         <FeedFormPopup />
         <SharedFormPopup />
     </div>
