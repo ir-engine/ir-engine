@@ -14,6 +14,9 @@
             box-sizing: border-box;
             padding: 20px;
             text-align: center;
+            input[type=file]{
+                font-size: 10pt
+            }
             h2{
                 display: flex;
                 flex-direction: column;
@@ -94,6 +97,14 @@
         }
         input{
             font-size: 14pt;
+        }
+        .flexContainer{
+            .preCard{
+                input[type=file]{
+                    font-size: 6pt
+                }
+
+            }
         }
     }
     @media screen and (max-height: 699px){
