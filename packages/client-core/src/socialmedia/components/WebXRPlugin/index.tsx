@@ -326,7 +326,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState}:Props) => {
                   
                     setSavedFilePath("file://" + filePath);
                     updateNewFeedPageState(true, filePath)
-                });
+                }).catch(error => alert(error.message));
                 
         }
     };
