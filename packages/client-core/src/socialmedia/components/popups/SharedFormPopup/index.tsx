@@ -36,8 +36,10 @@ const renderShareFormModal = () =>
           onClose={handleShareFormClose} 
           className={styles.shareFormPopup}
       >
-          <ShareForm />      
-          <AppFooter />
+          <ShareForm />
+          <div className={styles.popUpFooter}>
+            <AppFooter />
+          </div>
       </SharedModal>;
 const shareFormState = popupsState?.get('shareForm');
 useEffect(()=>{renderShareFormModal();}, [shareFormState]);

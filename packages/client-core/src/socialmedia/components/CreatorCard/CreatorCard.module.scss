@@ -10,7 +10,12 @@
     justify-content: space-between;
     .backButton{
         width: fit-content;
-        transform: translate(40px);
+        transform: translate(23pt);
+        //margin: 0 7pt;
+        font-size: 17pt;
+        text-transform: capitalize;
+        font-weight: 400;
+        padding: 6px 0;
     }
     .moreButton{
         width: fit-content;
@@ -19,11 +24,11 @@
 }
 
 .avatarImage{
-    height: 110px;
-    width: 110px;
+    height: 110pt;
+    width: 110pt;
     border-radius: 50%;
     margin: 0 auto;
-    transform: translate(0, -115px);
+    transform: translate(0, -98pt);
     background-color: #CA3E7B;
 }
 .content{
@@ -55,3 +60,19 @@
     }
 }
 // }
+
+@media screen and (max-width: 499px){
+    .controls{
+        .backButton{
+            font-size: 15pt;
+        }
+    }
+    .avatarImage{
+        height: 86pt;
+        width: 86pt;
+        transform: translate(0, -85pt);
+    }
+    .bgImage{
+        height: 232px;
+    }
+}
