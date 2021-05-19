@@ -6,16 +6,17 @@ import { addColliderWithoutEntity } from '../../physics/behaviors/colliderCreate
  */
 
 export const createBoxCollider: Behavior = (entity, args: any) => {
-  // console.log('****** Collider from Scene data, type: ', args);
   addColliderWithoutEntity(
-    {type:args.objArgs.type},
-    args.objArgs.position,
-    args.objArgs.quaternion,
-    args.objArgs.scale,
+    { type:args.type },
+    args.position,
+    args.quaternion,
+    args.scale,
     {
-      mesh: args.objArgs.mesh,
-      vertices:  args.objArgs.vertices,
-      indices:   args.objArgs.indices
-    }
+      mesh: args.mesh,
+      vertices: args.vertices,
+      indices: args.indices,
+      collisionLayer: args.collisionLayer,
+      collisionMask: args.collisionMask
+    },
   );
 };

@@ -56,47 +56,38 @@ const onMediaInteractionHover: Behavior = (entityInitiator, { focused }: { focus
   });
 };
 
-export function createAudio(entity, args: {
-  obj3d;
-  objArgs: any
-}): void {
-  addObject3DComponent(entity, { obj3d: new Audio(Engine.audioListener), objArgs: args.objArgs });
+export function createAudio(entity, args: any): void {
+  addObject3DComponent(entity, { obj3d: new Audio(Engine.audioListener), objArgs: args });
   addInteraction(entity)
 }
 
 
-export function createVideo(entity, args: {
-  obj3d;
-  objArgs: any
-}): void {
-  addObject3DComponent(entity, { obj3d: new Video(Engine.audioListener), objArgs: args.objArgs });
+export function createVideo(entity, args: any): void {
+  addObject3DComponent(entity, { obj3d: new Video(Engine.audioListener), objArgs: args });
   addInteraction(entity)
 }
 
-export const createVolumetric: Behavior = (entity, args: { objArgs }) => {
+export const createVolumetric: Behavior = (entity, args: any) => {
   addComponent(entity, VolumetricComponent);
   const volumetricComponent = getMutableComponent(entity, VolumetricComponent);
   const container = new Object3D();
   const DracosisSequence = new DracosisPlayer({
     scene: container,
     renderer: Engine.renderer,
-    meshFilePath: args.objArgs.src,
-    videoFilePath: args.objArgs.src.replace(".drcs", ".mp4"),
-    loop: args.objArgs.loop,
-    autoplay: args.objArgs.autoPlay,
+    meshFilePath: args.src,
+    videoFilePath: args.src.replace(".drcs", ".mp4"),
+    loop: args.loop,
+    autoplay: args.autoPlay,
     scale: 1,
     frameRate: 25
   });
   volumetricComponent.player = DracosisSequence;
-  addObject3DComponent(entity, { obj3d: container });//, objArgs: args.objArgs });
+  addObject3DComponent(entity, { obj3d: container });
   addInteraction(entity)
 };
 
-export function createMediaServer(entity, args: {
-  obj3d;
-  objArgs: any
-}): void {
-  addObject3DComponent(entity, { obj3d: new Object3D(), objArgs: args.objArgs });
+export function createMediaServer(entity, args: any): void {
+  addObject3DComponent(entity, { obj3d: new Object3D(), objArgs: args });
   addInteraction(entity)
 }
 

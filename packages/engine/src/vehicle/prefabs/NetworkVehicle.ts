@@ -181,23 +181,21 @@ export function addCollidersToNetworkVehicle( args:{ parameters?: any, entity?: 
 }
 
 export function createVehicleFromSceneData( entity: Entity, args: any) {
-  console.warn(args.objArgs.mass);
   createNetworkVehicle({
     parameters: {
-      vehicleCollider: addCollidersShapeInOneBody( entity, [], args.objArgs.mass ),
-      seatsArray: args.objArgs.seatsArray,
-      entrancesArray: args.objArgs.entrancesArray,
-      arrayWheelsPosition: args.objArgs.arrayWheelsPosition,
-      suspensionRestLength: args.objArgs.suspensionRestLength,
-      startPosition: [ ...args.objArgs.startPosition],
-      startQuaternion: [ ...args.objArgs.startQuaternion],
-      interactionPartsPosition: args.objArgs.interactionPartsPosition
+      vehicleCollider: addCollidersShapeInOneBody( entity, [], args.mass ),
+      seatsArray: args.seatsArray,
+      entrancesArray: args.entrancesArray,
+      arrayWheelsPosition: args.arrayWheelsPosition,
+      suspensionRestLength: args.suspensionRestLength,
+      startPosition: [ ...args.startPosition],
+      startQuaternion: [ ...args.startQuaternion],
+      interactionPartsPosition: args.interactionPartsPosition
     },
     //@ts-ignore
-    uniqueId: args.objArgs.sceneEntityId,
+    uniqueId: args.sceneEntityId,
     entity: entity
   });
-
 }
 
 export function createVehicleFromModel( entity: Entity, mesh: any, sceneEntityId: string) {
@@ -239,6 +237,7 @@ export function createNetworkVehicle( args:{ parameters?: any, networkId?: strin
       entity: args.entity,
       prefabType: PrefabType.Vehicle,
       uniqueId: args.uniqueId,
+      ownerId: null,
       override: {
         networkComponents: [
           {

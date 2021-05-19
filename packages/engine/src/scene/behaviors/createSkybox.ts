@@ -9,10 +9,7 @@ import { addObject3DComponent } from './addObject3DComponent';
 import { CubeTextureLoader } from '../../assets/loaders/tex/CubeTextureLoader';
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 
-export default function createSkybox(entity, args: {
-  obj3d;
-  objArgs: any
-}): void {
+export default function createSkybox(entity, args: any): void {
   
   if (!isClient) {
     return;
@@ -22,29 +19,27 @@ export default function createSkybox(entity, args: {
 
   const pmremGenerator = new PMREMGenerator(renderer);
 
-  args.objArgs.skytype = "cubemap";
-  args.objArgs.texture = "cubemap/"
+  args.skytype = "cubemap";
+  args.texture = "cubemap/"
   const negx = "/cubemap/negx.jpg";
   const negy = "/cubemap/negy.jpg";
   const negz = "/cubemap/negz.jpg";
   const posx = "/cubemap/posx.jpg";
   const posy = "/cubemap/posy.jpg";
   const posz = "/cubemap/posz.jpg";
-  
-  if (args.objArgs.skytype === "cubemap") {
-  
-    
+
+  if (args.skytype === "cubemap") {
     Engine.scene.background = new CubeTextureLoader()
-      // .setPath(args.objArgs.texture)
+      // .setPath(args.texture)
       .load([posx, negx, posy, negy, posz, negz],
       (texture) => {
-       const EnvMap = pmremGenerator.fromCubemap(texture).texture;
-        
-       Engine.scene.background = EnvMap;
-       Engine.scene.environment = EnvMap;
+        const EnvMap = pmremGenerator.fromCubemap(texture).texture;
 
-       texture.dispose();
-       pmremGenerator.dispose();
+        Engine.scene.background = EnvMap;
+        Engine.scene.environment = EnvMap;
+
+        texture.dispose();
+        pmremGenerator.dispose();
       },
       (res)=> {
         console.log(res);
@@ -54,9 +49,8 @@ export default function createSkybox(entity, args: {
       }
       );
   }
-  else if (args.objArgs.skytype === "equirectangular") {
-    new TextureLoader().load(args.objArgs.texture, (texture) => {
-
+  else if (args.skytype === "equirectangular") {
+    new TextureLoader().load(args.texture, (texture) => {
       const EnvMap = pmremGenerator.fromEquirectangular(texture).texture;
 
       Engine.scene.background = EnvMap;
@@ -69,25 +63,25 @@ export default function createSkybox(entity, args: {
     });
   }
   else {
-    addObject3DComponent(entity, { obj3d: Sky, objArgs: args.objArgs });
+    addObject3DComponent(entity, { obj3d: Sky, objArgs: args });
     addComponent(entity, ScaleComponent);
 
     const component = getComponent(entity, Object3DComponent);
     const skyboxObject3D = component.value;
     const scaleComponent = getMutableComponent<ScaleComponent>(entity, ScaleComponent);
-    scaleComponent.scale = [args.objArgs.distance, args.objArgs.distance, args.objArgs.distance];
+    scaleComponent.scale = [args.distance, args.distance, args.distance];
     const uniforms = Sky.material.uniforms;
     const sun = new Vector3();
-    const theta = Math.PI * (args.objArgs.inclination - 0.5);
-    const phi = 2 * Math.PI * (args.objArgs.azimuth - 0.5);
+    const theta = Math.PI * (args.inclination - 0.5);
+    const phi = 2 * Math.PI * (args.azimuth - 0.5);
 
     sun.x = Math.cos(phi);
     sun.y = Math.sin(phi) * Math.sin(theta);
     sun.z = Math.sin(phi) * Math.cos(theta);
-    uniforms.mieCoefficient.value = args.objArgs.mieCoefficient;
-    uniforms.mieDirectionalG.value = args.objArgs.mieDirectionalG;
-    uniforms.rayleigh.value = args.objArgs.rayleigh;
-    uniforms.turbidity.value = args.objArgs.turbidity;
+    uniforms.mieCoefficient.value = args.mieCoefficient;
+    uniforms.mieDirectionalG.value = args.mieDirectionalG;
+    uniforms.rayleigh.value = args.rayleigh;
+    uniforms.turbidity.value = args.turbidity;
     uniforms.sunPosition.value = sun;
     WebGLRendererSystem.instance.csm && WebGLRendererSystem.instance.csm.lightDirection.set(-sun.x, -sun.y, -sun.z);
 

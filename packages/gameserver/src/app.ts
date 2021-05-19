@@ -22,7 +22,6 @@ import feathersLogger from 'feathers-logger';
 import { EventEmitter } from 'events';
 import services from '@xrengine/server-core/src/services';
 import sequelize from '@xrengine/server-core/src/sequelize';
-import { awaitSceneLoaded } from '@xrengine/engine/src/scene/functions/SceneLoading';
 import { awaitEngineLoaded } from '@xrengine/engine/src/ecs/classes/Engine';
 
 const emitter = new EventEmitter();

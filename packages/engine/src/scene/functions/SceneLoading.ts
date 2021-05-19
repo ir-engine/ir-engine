@@ -1,3 +1,4 @@
+import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
 import { LOADER_STATUS } from "../../assets/constants/LoaderConstants";
 import { isClient } from "../../common/functions/isClient";
 import { isServer } from "../../common/functions/isServer";
@@ -6,9 +7,35 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from "../../ecs/classes/Entity";
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
 import { SceneTagComponent } from '../components/Object3DTagComponents';
-import { SceneObjectLoadingSchema } from '../constants/SceneObjectLoadingSchema';
 import { SceneData } from "../interfaces/SceneData";
 import { SceneDataComponent } from "../interfaces/SceneDataComponent";
+import { addObject3DComponent } from '../behaviors/addObject3DComponent';
+import { createGame, createGameObject } from "../behaviors/createGame";
+import { LightTagComponent, VisibleTagComponent } from '../components/Object3DTagComponents';
+import { AssetLoader } from '../../assets/classes/AssetLoader';
+import { parseModelColliders, clearFromColliders } from '../../physics/behaviors/parseModelColliders';
+import { createVehicleFromSceneData } from '../../vehicle/prefabs/NetworkVehicle';
+import { createParticleEmitterObject } from '../../particles/functions/particleHelpers';
+import { createBackground } from '../behaviors/createBackground';
+import { createBoxCollider } from '../behaviors/createBoxCollider';
+import { createMeshCollider } from '../behaviors/createMeshCollider';
+import { createCommonInteractive } from "../behaviors/createCommonInteractive";
+import { createGroup } from '../behaviors/createGroup';
+import { createLink } from '../behaviors/createLink';
+import { createAudio, createMediaServer, createVideo, createVolumetric } from "../behaviors/createMedia";
+import { createShadow } from '../behaviors/createShadow';
+import createSkybox from '../behaviors/createSkybox';
+import { createTransformComponent } from "../behaviors/createTransformComponent";
+import { createTriggerVolume } from '../behaviors/createTriggerVolume';
+import { handleAudioSettings } from '../behaviors/handleAudioSettings';
+import { setFog } from '../behaviors/setFog';
+import ScenePreviewCameraTagComponent from "../components/ScenePreviewCamera";
+import SpawnPointComponent from "../components/SpawnPointComponent";
+import WalkableTagComponent from '../components/Walkable';
+import Image from '../classes/Image';
+import { setPostProcessing } from "../behaviors/setPostProcessing";
+import { CameraSystem } from "../../camera/systems/CameraSystem";
+import { CopyTransformComponent } from "../../transform/components/CopyTransformComponent";
 
 export function loadScene(scene: SceneData): void {
   const loadPromises = [];
@@ -19,9 +46,7 @@ export function loadScene(scene: SceneData): void {
     const entity = createEntity();
     addComponent(entity, SceneTagComponent);
     sceneEntity.components.forEach(component => {
-      if (['game-object', 'gltf-model', 'mesh-collider', 'vehicle-saved-in-scene'].includes(component.name)) {
-        component.data.sceneEntityId = sceneEntity.entityId;
-      }
+      component.data.sceneEntityId = sceneEntity.entityId;
 
       if (isClient && component.name === 'gltf-model' && !component.data.dontParseModel) {
         loadPromises.push(new Promise<void>((resolve) => {
@@ -44,55 +69,190 @@ export function loadScene(scene: SceneData): void {
   });
 }
 
-export const awaitSceneLoaded = (): Promise<void> => {
-  return new Promise<void>((resolve) => {
-    if(Engine.sceneLoaded) resolve();
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, resolve)
-  })
-}
+function loadComponent(entity: Entity, component: SceneDataComponent): void {
+  const name = component.name.replace(/(-\d+)|(\s)/g, "");
 
-export function loadComponent(entity: Entity, component: SceneDataComponent): void {
-  const name = component.name.replace(/-\d+/, "").replace(" ", "")
-  // Override for loading mesh colliders
+  switch(component.name) {
+    case 'game':
+      createGame(entity, component.data);
+      break;
 
-  if (SceneObjectLoadingSchema[name] === undefined)
-    return console.warn("Couldn't load ", name);
-  
-  const componentSchema = SceneObjectLoadingSchema[name];
-  // console.log(entity, component, componentSchema)
-  // for each component in component name, call behavior
-  componentSchema.behaviors?.forEach(b => {
-    // its allow to work colliders without download glb
-    // For each value, from component.data
-    const values = {};
-    b.values?.forEach(val => {
-      // dont load glb model if dont need to parse colliders
-      if (isServer && component.name === 'gltf-model' && component.data.dontParseModel) {
-        // console.log('Stop download glb if dontParseModel');
-        return;
+    case 'game-object':
+      createGameObject(entity, component.data);
+      break;
+
+    case 'ambient-light':
+      addObject3DComponent(entity, { obj3d: AmbientLight, objArgs: component.data });
+      addComponent(entity, LightTagComponent);
+      break;
+
+    // case 'directional-light':
+    //   addObject3DComponent(
+    //     entity,
+    //     {
+    //       obj3d: DirectionalLight,
+    //       objArgs: {
+    //         'shadow.mapSize': component.data.shadowMapResolution,
+    //         'shadow.bias': component.data.shadowBias,
+    //         'shadow.radius': component.data.shadowRadius,
+    //         intensity: component.data.intensity,
+    //         color: component.data.color,
+    //         castShadow: true,
+    //       }
+    //     },
+    //   );
+    //   addComponent(entity, LightTagComponent);
+    //   break;
+
+    case 'collidable':
+      console.warn("'Collidable' is not implemented");
+      break;
+
+    case 'floor-plan':
+      break;
+
+    case 'gltf-model':
+      if (isServer && component.data.dontParseModel) return;
+
+      AssetLoader.load({
+        url: component.data.src,
+        entity,
+      }, (res) => {
+        if (component.data.dontParseModel) clearFromColliders(entity, { asset: res });
+        else parseModelColliders(entity, { asset: res, uniqueId: component.data.sceneEntityId });
+      });
+      break;
+
+    case 'interact':
+      createCommonInteractive(entity, component.data);
+      break;
+
+    case 'ground-plane':
+      const mesh = new Mesh(
+        new CircleBufferGeometry(1000, 32).rotateX(-Math.PI / 2),
+        new MeshPhongMaterial({
+          color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464)
+        })
+      );
+
+      addObject3DComponent(
+        entity,
+        {
+          obj3d: mesh,
+          objArgs: { receiveShadow: true, 'material.color': component.data.color },
+        },
+      );
+      break;
+
+    case 'hemisphere-light':
+      addObject3DComponent(entity, { obj3d: HemisphereLight, objArgs: component.data });
+      break;
+
+    case 'point-light':
+      addObject3DComponent(entity, { obj3d: PointLight, objArgs: component.data });
+      break;
+
+    case 'skybox':
+      createSkybox(entity, component.data);
+      break;
+
+    case 'image':
+      addObject3DComponent(entity, { obj3d: Image, objArgs: component.data });
+      break;
+
+    case 'video':
+      if (isClient) createVideo(entity, component.data);
+      else createMediaServer(entity, component.data);
+      break;
+
+    case 'audio':
+      if (isClient) createAudio(entity, component.data);
+      else createMediaServer(entity, component.data);
+      break;
+
+    case 'volumetric':
+      if (isClient) createVolumetric(entity, component.data);
+      else createMediaServer(entity, component.data);
+      break;
+
+    case 'spot-light':
+      addObject3DComponent(entity, { obj3d: SpotLight, objArgs: component.data });
+      break;
+
+    case 'transform':
+      createTransformComponent(entity, component.data);
+      break;
+
+    case 'visible':
+      addComponent(entity, VisibleTagComponent);
+      break;
+
+    case 'walkable':
+      addComponent(entity, WalkableTagComponent);
+      break;
+
+    case 'fog':
+      setFog(entity, component.data);
+      break;
+
+    case 'background':
+      createBackground(entity, component.data);
+      break;
+
+    case 'audio-settings':
+      handleAudioSettings(entity, component.data);
+      break;
+
+    case 'spawn-point':
+      addComponent(entity, SpawnPointComponent);
+      break;
+
+    case 'scene-preview-camera':
+      addComponent(entity, ScenePreviewCameraTagComponent);
+      if (!isServer && CameraSystem.instance.activeCamera) {
+        addComponent(CameraSystem.instance.activeCamera, CopyTransformComponent, { input: entity });
       }
+      break;
 
-      // Does it have a from and to field? Let's map to that
-      if (val['from'] !== undefined) {
-        values[val['to']] = component.data[val['from']];
-      }
-      else {
-        values[val] = component.data[val];
-      }
-    });
+    case 'shadow':
+      createShadow(entity, {
+        castShadow: component.data.cast,
+        receiveShadow: component.data.receive,
+      });
+      break;
 
-    // run behavior after load model
-  //  if ((b as any).onLoaded) values['onLoaded'] = (b as any).onLoaded;
+    case 'group':
+      createGroup(entity, component.data);
+      break;
 
-    // Invoke behavior with args and spread args
-    b.behavior(entity, { ...b.args, objArgs: { ...b.args?.objArgs, ...values } });
-  });
+    case 'box-collider':
+      createBoxCollider(entity, component.data);
+      break;
 
-  // for each component in component name, add component
-  componentSchema.components?.forEach(c => {
-    // For each value, from component.data, add to args object
-    const values = c.values ? c.values.map(val => component.data[val]) : {};
-    // Add component with args
-    addComponent(entity, c.type, values);
-  });
+    case 'mesh-collider':
+      createMeshCollider(entity, component.data);
+      break;
+
+    case 'vehicle-saved-in-scene':
+      createVehicleFromSceneData(entity, component.data);
+      break;
+
+    case 'trigger-volume':
+      createTriggerVolume(entity, component.data);
+      break;
+
+    case 'link':
+      createLink(entity, component.data);
+      break;
+
+    case 'particle-emitter':
+      createParticleEmitterObject(entity, component.data);
+      break;
+
+    case 'postprocessing':
+      setPostProcessing(entity, component.data);
+      break;
+
+    default: return console.warn("Couldn't load Component", name);
+  }
 }

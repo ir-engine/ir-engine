@@ -1,5 +1,4 @@
 import { Behavior } from "../../common/interfaces/Behavior";
-import { Vector3Type } from "../../common/types/NumericalTypes";
 import { addComponent } from "../../ecs/functions/EntityFunctions";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { Euler, Quaternion, Vector3 } from "three";
@@ -11,9 +10,9 @@ interface XYZInterface {
   z: number
 }
 
-export function createTransformComponent(entity: Entity, args:{ objArgs: { position:XYZInterface, rotation:XYZInterface, scale:XYZInterface } }): void {
+export const createTransformComponent: Behavior = (entity: Entity, args: { position:XYZInterface, rotation:XYZInterface, scale:XYZInterface }): void => {
   // TODO: scale?
-  const { position, rotation, scale } = args.objArgs;
+  const { position, rotation, scale } = args;
   const values:{ position?: Vector3, rotation?: Quaternion, scale?: Vector3 } = {};
 
   if (position) {

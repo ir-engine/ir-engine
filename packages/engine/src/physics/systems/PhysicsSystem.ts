@@ -74,6 +74,10 @@ export class PhysicsSystem extends System {
       this.isSimulating = ev.enable;
       PhysXInstance.instance.startPhysX(ev.enable);
     });
+
+    if (!PhysXInstance.instance) {
+      PhysXInstance.instance = new PhysXInstance();
+    }
   }
 
   async initialize() {
@@ -85,6 +89,7 @@ export class PhysicsSystem extends System {
     this.frame = 0;
     this.broadphase = null;
     EngineEvents.instance.removeAllListenersForEvent(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT);
+    PhysXInstance.instance.dispose();
   }
 
   execute(delta: number): void {

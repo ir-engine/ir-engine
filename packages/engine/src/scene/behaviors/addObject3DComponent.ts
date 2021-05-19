@@ -107,9 +107,9 @@ export const addObject3DComponent: Behavior = (
   });
 
   if (args.parentEntity && hasComponent(args.parentEntity, ShadowComponent)) {
-    createShadow(entity, { objArgs: getMutableComponent(args.parentEntity, ShadowComponent) })
+    createShadow(entity, getMutableComponent(args.parentEntity, ShadowComponent));
   }
-    
+
   const hasShadow = getMutableComponent(entity, ShadowComponent)
 
   object3d.traverse((obj) => {
