@@ -48,6 +48,7 @@ export class Avatar {
   skeleton: any;
   fingerBones: { left: { thumb: any; index: any; middle: any; ring: any; little: any; }; right: { thumb: any; index: any; middle: any; ring: any; little: any; }; };
   eyeToHipsOffset: any;
+  
   constructor(object, options: AvatarOptions = { top: true, bottom: true, visemes: true, hair: true, fingers: true} )
   {
     console.log("CONSTRUCTING AVATAR!")

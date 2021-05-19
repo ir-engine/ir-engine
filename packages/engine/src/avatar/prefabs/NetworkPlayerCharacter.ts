@@ -32,7 +32,7 @@ import { AnimationManager } from "../classes/AnimationManager";
 import { AnimationComponent } from "../components/AnimationComponent";
 import { CharacterComponent } from '../components/CharacterComponent';
 import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
-import { IKComponent } from '../components/IKComponent';
+import { AvatarIKComponent } from '../components/AvatarIKComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
 import { standardizeSkeletion } from "../functions/standardizeSkeleton";
 import { CharacterInputSchema } from '../schema/CharacterInputSchema';
@@ -41,7 +41,7 @@ export const loadDefaultActorAvatar: Behavior = (entity) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 	AnimationManager.instance._defaultModel?.children?.forEach(child => actor.modelContainer.add(child));
 	actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-	// if (hasComponent(entity, IKComponent)) {
+	// if (hasComponent(entity, AvatarIKComponent)) {
 	// 	initiateIK(entity)
 	// }
 }
@@ -110,7 +110,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 			controller.controller.height = 1;
 		// }
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-		if (hasComponent(entity, IKComponent)) {
+		if (hasComponent(entity, AvatarIKComponent)) {
 			// initiateIK(entity)
 
       actor.modelContainer.children[0]?.traverse((child) => {

@@ -64,7 +64,6 @@ export abstract class System {
    * 
    * @author Fernando Serrano, Robert Long
    */
-  static instance: System;
   static queries: SystemQueries = {};
   
   /** Name of the property. */
@@ -76,7 +75,7 @@ export abstract class System {
   executeTime: number
   initialized: boolean
 
-  updateType = SystemUpdateType.Free
+  updateType = SystemUpdateType.Fixed
 
   /**
    * The results of the queries.

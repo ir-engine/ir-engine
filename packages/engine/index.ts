@@ -44,7 +44,6 @@ export * from './src/avatar/schema/CharacterInputSchema';
 export * from './src/avatar/components/AnimationComponent';
 export * from './src/avatar/components/CharacterComponent';
 export * from './src/avatar/components/ControllerColliderComponent';
-export * from './src/avatar/components/IKComponent';
 export * from './src/avatar/components/NamePlateComponent';
 export * from './src/avatar/functions/standardizeSkeleton';
 export * from './src/avatar/functions/updateVectorAnimation';

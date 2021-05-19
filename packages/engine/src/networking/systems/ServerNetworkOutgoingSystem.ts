@@ -1,4 +1,4 @@
-import { IKComponent } from '../../avatar/components/IKComponent';
+import { AvatarIKComponent } from '../../avatar/components/AvatarIKComponent';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
@@ -49,7 +49,7 @@ export class ServerNetworkOutgoingSystem extends System {
         qW: transformComponent.rotation.w
       });
 
-      const ikComponent = getComponent(entity, IKComponent)
+      const ikComponent = getComponent(entity, AvatarIKComponent)
       if(ikComponent) {
         const transforms = ikComponent.avatarIKRig.inputs
         Network.instance.worldState.ikTransforms.push({

@@ -27,7 +27,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { VehicleComponent } from '../../vehicle/components/VehicleComponent';
 import { XRUserSettings, XR_ROTATION_MODE } from '../../xr/types/XRUserSettings';
 import { CharacterComponent } from "../components/CharacterComponent";
-import { IKComponent } from '../components/IKComponent';
+import { AvatarIKComponent } from '../components/AvatarIKComponent';
 import { getInteractiveIsInReachDistance } from '../functions/getInteractiveIsInReachDistance';
 
 /**
@@ -444,7 +444,7 @@ const lookByInputAxis = (
 
 const updateIKRig: Behavior = (entity, args): void => {
 
-  const avatarIK = getMutableComponent(entity, IKComponent);
+  const avatarIK = getMutableComponent(entity, AvatarIKComponent);
   const inputs = getMutableComponent(entity, Input);
   if(!avatarIK?.avatarIKRig) return;
   const obj3d = getComponent(entity, Object3DComponent).value as Object3D;

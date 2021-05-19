@@ -16,7 +16,7 @@ import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { AnimationComponent } from "../components/AnimationComponent";
 import { CharacterComponent } from "../components/CharacterComponent";
-import { IKComponent } from "../components/IKComponent";
+import { AvatarIKComponent } from "../components/AvatarIKComponent";
 import { updateVectorAnimation } from "../functions/updateVectorAnimation";
 import { loadActorAvatar } from "../prefabs/NetworkPlayerCharacter";
 
@@ -187,7 +187,7 @@ export class CharacterControllerSystem extends System {
     })
 
     this.queryResults.ikavatar.all?.forEach((entity) => {
-      const ikComponent = getMutableComponent(entity, IKComponent);
+      const ikComponent = getMutableComponent(entity, AvatarIKComponent);
       ikComponent.avatarIKRig?.update(delta);
     })
   }
@@ -230,7 +230,7 @@ CharacterControllerSystem.queries = {
     }
   },
   ikavatar: {
-    components: [IKComponent],
+    components: [AvatarIKComponent],
     listen: {
       added: true,
       removed: true

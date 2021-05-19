@@ -111,8 +111,21 @@ export class CharacterComponent extends Component<CharacterComponent> {
 
 	collisionMask: number;
 
+	object = null; // TODO: Rename me to avatar or avatarobject or something
+	top = true; // ???
+	bottom = true; // ???
+	visemes = true;
+	hair = true;
+	fingers = true;
+
 	static _schema = {
 		tiltContainer: { type: Types.Ref, default: null },
 		collisionMask: { type: Types.Number, default: DefaultCollisionMask },
+		object: { type: Types.Ref, default: null },
+		top: { type: Types.Boolean, default: true },
+		bottom: { type: Types.Boolean, default: true },
+		visemes: { type: Types.Boolean, default: true },
+		hair: { type: Types.Boolean, default: true },
+		fingers: { type: Types.Boolean, default: true }
 	};
 }

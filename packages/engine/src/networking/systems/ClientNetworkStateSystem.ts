@@ -2,7 +2,7 @@ import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBo
 import { NetworkObject } from '../components/NetworkObject';
 import { createNetworkPlayer } from '../../avatar/prefabs/NetworkPlayerCharacter';
 import { createNetworkVehicle } from '../../vehicle/prefabs/NetworkVehicle';
-import { IKComponent } from '../../avatar/components/IKComponent';
+import { AvatarIKComponent } from '../../avatar/components/AvatarIKComponent';
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
 import { CharacterComponent } from "../../avatar/components/CharacterComponent";
 import { NetworkObjectUpdateSchema } from '../../networking/templates/NetworkObjectUpdateSchema';
@@ -223,11 +223,11 @@ export class ClientNetworkStateSystem extends System {
       worldStateBuffer.ikTransforms?.forEach((ikTransform: StateEntityIK) => {
         if (!Network.instance.networkObjects[ikTransform.networkId]) return;
         const entity = Network.instance.networkObjects[ikTransform.networkId].component.entity;
-        if (!hasComponent(entity, IKComponent)) {
-          addComponent(entity, IKComponent);
+        if (!hasComponent(entity, AvatarIKComponent)) {
+          addComponent(entity, AvatarIKComponent);
         }
         const actor = getComponent(entity, CharacterComponent);
-        const ikComponent = getMutableComponent(entity, IKComponent);
+        const ikComponent = getMutableComponent(entity, AvatarIKComponent);
         if (!ikComponent.avatarIKRig && actor.modelContainer.children.length) {
           initiateIK(entity)
         }
