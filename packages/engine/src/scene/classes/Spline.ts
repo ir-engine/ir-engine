@@ -6,7 +6,7 @@ import {
 	Object3D
   } from "three";
 import SplineHelperNode from "../../editor/nodes/SplineHelperNode";
-import { removeElementFromArray } from "@xr3ngine/engine/src/editor/functions/utils";
+import { removeElementFromArray } from "@xrengine/engine/src/editor/functions/utils";
 
 
 export default class Spline extends Object3D {
@@ -49,14 +49,20 @@ export default class Spline extends Object3D {
 		const geometry = new BufferGeometry();
 		geometry.setAttribute( 'position', new BufferAttribute( new Float32Array( this.ARC_SEGMENTS * 3 ), 3 ) );
 
-		const curve = new CatmullRomCurve3( this._positions );
-		curve.curveType = 'catmullrom';
-		curve.mesh = new Line( geometry.clone(), new LineBasicMaterial( {
+		const catmullRomCurve3 = new CatmullRomCurve3( this._positions );
+		// curve.curveType = 'catmullrom';
+		let curveMesh = new Line( geometry.clone(), new LineBasicMaterial( {
 			color: 0xff0000,
 			opacity: 0.35
 		} ) );
-		curve.mesh.castShadow = true;
-		this._splines.uniform = curve;
+		curveMesh.castShadow = true;
+
+		let spline = {
+			curve: catmullRomCurve3,
+			mesh: curveMesh,
+		}
+
+		this._splines.uniform = spline;
 
 		// curve = new CatmullRomCurve3( this._positions );
 		// curve.curveType = 'centripetal';
@@ -168,15 +174,17 @@ export default class Spline extends Object3D {
 
 		for ( const k in this._splines ) {
 
-			const spline = this._splines[ k ];
+			var spline = this._splines[ k ];
 
 			const splineMesh = spline.mesh;
 			const position = splineMesh.geometry.attributes.position;
 
+			var splineCurve = spline.curve;
+
 			for ( let i = 0; i < this.ARC_SEGMENTS; i ++ ) {
 
 				const t = i / ( this.ARC_SEGMENTS - 1 );
-				spline.getPoint( t, this._point );
+				splineCurve.getPoint( t, this._point );
 				position.setXYZ( i, this._point.x, this._point.y, this._point.z );
 
 			}
