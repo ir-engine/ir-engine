@@ -115,7 +115,7 @@ const FeedCard = (props: Props) : any => {
 //     };
     useEffect(()=> {
          getFeedFires(feed.id, setFeedFiresCreators);
-         console.log('feed', feed)
+         console.log('feed', feed);
     }, []);
 
     const { t } = useTranslation();

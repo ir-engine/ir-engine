@@ -65,7 +65,7 @@ const CreatorForm = ({creatorData, creatorsState, updateCreator, updateCreatorFo
     EditIcon: '/assets/creator-form/edit.svg',
     MailIcon: '/assets/creator-form/envelope.svg',
     ChainIcon: '/assets/creator-form/url.svg',
-    }
+    };
 
     useEffect(()=>setCreator(creatorsState.get('currentCreator')), [creatorsState.get('currentCreator')]);
     
