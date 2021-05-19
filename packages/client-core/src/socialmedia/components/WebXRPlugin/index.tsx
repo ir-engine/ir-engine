@@ -194,7 +194,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState}:Props) => {
 
             await XRPlugin.initialize({}).then(response => {
                 setInitializationResponse(response.status);
-            });
+            }).catch(error => alert(error.message));
 
             // @ts-ignore
             XRPlugin.addListener('poseDataReceived', (data: any) => {
@@ -293,7 +293,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState}:Props) => {
 
             XRPlugin.start({}).then(() => {
                 setCameraStartedState(isNative ? "Camera started on native" : "Camera started on web");
-            });
+            }).catch(error => alert(error.message));
         })();
     }, []);
 
@@ -312,7 +312,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState}:Props) => {
                 filePath: "/test.mp4"
             }).then(({ status }) => {
                 console.log("RECORDING, STATUS IS", status);
-            });
+            }).catch(error => alert(error.message));
         }
         else if (recordingState === RecordingStates.ON) {
             setRecordingState(RecordingStates.OFF);
