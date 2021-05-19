@@ -378,11 +378,11 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState}:Props) => {
                       </section>
                     </section>
                 </section>
-                <button className={styles.flipCamera} onClick={() => {}}><FlipCameraIosIcon /></button> 
-                <button className={styles.changeOrientation} onClick={() => {}}><FlipCameraIosIcon /></button> 
+                <button type="button" className={styles.flipCamera} onClick={() => {}}><FlipCameraIosIcon /></button> 
+                <button type="button" className={styles.changeOrientation} onClick={() => {}}><FlipCameraIosIcon /></button> 
                 <section className={recordingState === RecordingStates.OFF ? styles.startButtonWrapper : styles.stopButtonWrapper}>
                     {/*{recordingState === RecordingStates.OFF ? "Record" : "Stop Recording"}*/}
-                    <button className={recordingState === RecordingStates.OFF ? styles.startButton : styles.stopButton} onClick={() => toggleRecording()}>
+                    <button type="button" className={recordingState === RecordingStates.OFF ? styles.startButton : styles.stopButton} onClick={() => toggleRecording()}>
                         <VideocamIcon />
                     </button>
                 </section>
@@ -391,7 +391,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState}:Props) => {
               {/* <button type="button" style={{ padding: "1em" }} onClick={() => playVideo()}>playVideo</button> */}
               {/* <button type="button" style={{ padding: "1em" }} onClick={() => pauseVideo()}>pauseVideo</button> */}
               <section className={styles.closeButtonWrapper}>
-                <button className={styles.closeButton} onClick={() => stopRecord()}><ChevronLeftIcon />Slide to cancel</button> 
+                <button type="button" className={styles.closeButton} onClick={() => stopRecord()}><ChevronLeftIcon />Slide to cancel</button> 
             </section>
           </div>
         {/* <VolumetricPlayer
