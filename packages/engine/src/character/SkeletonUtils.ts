@@ -565,14 +565,14 @@ class SkeletonUtils {
 
 		const clone = source.clone();
 
-		parallelTraverse( source, clone, function ( sourceNode, clonedNode ) {
+		parallelTraverse( source, clone, ( sourceNode, clonedNode ) => {
 
 			sourceLookup.set( clonedNode, sourceNode );
 			cloneLookup.set( sourceNode, clonedNode );
 
 		} );
 
-		clone.traverse( function ( node ) {
+		clone.traverse( ( node ) => {
 
 			if ( ! node.isSkinnedMesh ) return;
 
@@ -583,7 +583,7 @@ class SkeletonUtils {
 			clonedMesh.skeleton = sourceMesh.skeleton.clone();
 			clonedMesh.bindMatrix.copy( sourceMesh.bindMatrix );
 
-			clonedMesh.skeleton.bones = sourceBones.map( function ( bone ) {
+			clonedMesh.skeleton.bones = sourceBones.map( ( bone ) => {
 
 				return cloneLookup.get( bone );
 

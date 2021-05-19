@@ -37,10 +37,10 @@ const CreatorAsTitle = ({creator, updateCreatorPageState, popupsState} : Props) 
                             updateCreatorPageState(false);
                             const intervalDelay = setTimeout(()=>{
                                 clearInterval(intervalDelay);
-                                updateCreatorPageState(true, creator.id)
+                                updateCreatorPageState(true, creator.id);
                                 }, 100);
                         }else{
-                            updateCreatorPageState(true, creator.id)
+                            updateCreatorPageState(true, creator.id);
                         }
                     }}/>} 
                     title={<Typography variant="h6">
