@@ -27,9 +27,7 @@ interface TabPanelProps {
 
 interface Props {
     adminState?: any;
-    fetchUsersAsAdmin?: any;
     authState?: any;
-    fetchAdminLocations?: any;
     api?: Api;
 }
 
@@ -85,7 +83,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 }));
 
 const Users = (props: Props) => {
-    const { api, adminState, fetchUsersAsAdmin, authState, fetchAdminLocations } = props;
+    const { api, adminState, authState } = props;
     const classes = useStyles();
     const initialUser = {
         id: null,
@@ -98,20 +96,10 @@ const Users = (props: Props) => {
     const [userEdit, setUserEdit] = React.useState(initialUser);
     const [projects, setProjects] = React.useState([{ name: "All Users", project_id: "001"}]);
 
-    const user = authState.get("user");
-    const adminUsers = adminState.get("users").get("users");
     const adminLocations = adminState.get('locations').get('locations');
     const authUser = authState.get("authUser");
 
 
-    React.useEffect(()=> {
-        const fetchData = async () => {
-            await fetchUsersAsAdmin();
-        };
-        if((adminState.get('users').get('updateNeeded') === true) && user.id) fetchData();
-
-        if( user?.id && (adminState.get("locations").get("updateNeeded") === true )) fetchAdminLocations();
-    }, [adminState, user, fetchUsersAsAdmin]);
 
     // React.useEffect(()=> {
     //     if(authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null) {
@@ -177,10 +165,7 @@ const Users = (props: Props) => {
                     }
                 </Tabs>
                 <TabPanel value={value} index={0}>
-                    {
-                        adminUsers.size > 0 &&
-                        <UserTable adminUsers={adminUsers}/>
-                    }
+                  <UserTable />
                 </TabPanel>
             </div>
 

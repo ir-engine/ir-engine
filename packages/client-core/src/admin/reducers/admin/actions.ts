@@ -15,6 +15,7 @@ import {
   VIDEO_UPDATED,
   PARTY_ADMIN_CREATED,
   PARTY_ADMIN_DISPLAYED,
+  USER_ADMIN_REMOVED
 } from '../actions';
 
 export interface VideoCreationForm {
@@ -101,6 +102,11 @@ export interface userRoleRetrievedResponse {
 
 export interface partyAdminCreatedResponse {
   type: string,
+  data: any;
+}
+
+export interface userAdminRemovedResponse {
+  type: string;
   data: any;
 }
 
@@ -193,6 +199,13 @@ export const partyAdminCreated = (data: any): partyAdminCreatedResponse => {
 export const partyRetrievedAction = (data: any): partyAdminCreatedResponse => {
   return {
     type: PARTY_ADMIN_DISPLAYED,
+    data: data
+  };
+};
+
+export const userAdminRemoved = (data): userAdminRemovedResponse => {
+  return {
+    type: USER_ADMIN_REMOVED,
     data: data
   };
 };

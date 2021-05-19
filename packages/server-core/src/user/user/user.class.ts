@@ -196,32 +196,29 @@ export class User extends Service {
       const user = await super.get(loggedInUser.userId);
       if (user.userRole !== 'admin') throw new Forbidden ('Must be system admin to execute this action');
       
-      const users = await this.app.service('user').Model.findAndCountAll({
+      const users = await (this.app.service('user') as any).Model.findAndCountAll({
         offset: skip,
         limit: limit,
         include: [
           {
-            model: this.app.service('instance').Model,
-            required: false
-          },
-        ]
-      });
-
-      const test = await this.app.service('user').Model.findAll({
-        offset: skip,
-        limit: limit,
-        include: 
-          {
-            model: this.app.service('instance').Model,
-            required: false
-          },
+            model: (this.app.service("party") as any).Model,
+            required: false,
+            include: [
+              {
+                model: (this.app.service("location") as any).Model,
+                required: false
+              },
+              {
+                model: (this.app.service("instance") as any).Model,
+                required: false
+              }
+            ]
+          }
+        ],
         raw: true,
         nest: true,
       });
-
-      console.log(test);
       
-
       return {
         skip: skip,
         limit: limit,

@@ -4,11 +4,12 @@ import {
   InstancesRetrievedResponse,
   LocationTypesRetrievedResponse,
   partyAdminCreatedResponse,
+  userAdminRemovedResponse,
   userRoleRetrievedResponse,
   VideoCreatedAction
 } from './actions';
 
-import { VIDEO_CREATED , PARTY_ADMIN_CREATED, PARTY_ADMIN_DISPLAYED} from "../actions";
+import { VIDEO_CREATED , PARTY_ADMIN_CREATED, PARTY_ADMIN_DISPLAYED, USER_ADMIN_REMOVED} from "../actions";
 import {
   LOCATIONS_RETRIEVED,
   LOCATION_CREATED,
@@ -255,6 +256,15 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap = new Map(state.get("parties"));
       updateMap.set("updateNeeded", true);
       return state.set("parties", updateMap);
+    
+    case USER_ADMIN_REMOVED: 
+      result = (action as userAdminRemovedResponse).data;
+      updateMap = new Map(state.get("users"));
+      let userRemove = updateMap.get('users');
+      userRemove = userRemove.filter(user => user.id !== result.id);
+      updateMap.set("updateNeeded", true);
+      updateMap.set('users', userRemove);
+      return state.set("users", updateMap);
   }
 
   return state;

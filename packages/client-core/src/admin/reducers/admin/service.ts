@@ -14,7 +14,8 @@ import {
   userRoleRetrieved,
   userRoleCreated,
   partyAdminCreated,
-  partyRetrievedAction
+  partyRetrievedAction,
+  userAdminRemoved
 } from './actions';
 
 import axios from 'axios';
@@ -24,7 +25,7 @@ import { dispatchAlertSuccess, dispatchAlertError } from '../../../common/reduce
 import { PublicVideo, videosFetchedSuccess, videosFetchedError } from '../../../media/components/video/actions';
 import { locationsRetrieved, locationCreated, locationPatched, locationRemoved } from '../../../social/reducers/location/actions';
 import Store from '../../../store';
-import { loadedUsers, userCreated, userPatched, userRemoved } from '../../../user/reducers/user/actions';
+import { loadedUsers, userCreated, userPatched } from '../../../user/reducers/user/actions';
 import { collectionsFetched } from '../../../world/reducers/scenes/actions';
 
 const store = Store.store;
@@ -197,7 +198,7 @@ export function patchUser(id: string, user: any) {
 export function removeUserAdmin(id: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     const result = await client.service('user').remove(id);
-    dispatch(userRemoved(result));
+    dispatch(userAdminRemoved(result));
   };
 }
 
@@ -281,8 +282,6 @@ if (!Config.publicRuntimeConfig.offlineMode) {
 export const fetchUserRole = (data) => {
   return async (dispatch: Dispatch): Promise<any> => {
     const userRole = await client.service("user-role").find();
-    console.log(userRole);
-
     dispatch(userRoleRetrieved(userRole));
   };
 };

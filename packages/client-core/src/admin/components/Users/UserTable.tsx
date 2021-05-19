@@ -7,9 +7,14 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
+import { removeUserAdmin, fetchUsersAsAdmin } from '../../reducers/admin/service';
+import { bindActionCreators, Dispatch } from "redux";
+import { connect } from 'react-redux';
+import { selectAuthState } from '../../../user/reducers/auth/selector';
+import { selectAdminState } from '../../reducers/admin/selector';
 
 interface Column {
-    id: 'name' | 'avatar' | 'status' | 'party' | 'channelInstanceId' | 'instanceId' | 'action';
+    id: 'name' | 'avatar' | 'status' | 'location' | 'inviteCode' | 'instanceId' | 'action';
     label: string;
     minWidth?: number;
     align?: 'right';
@@ -25,14 +30,14 @@ const columns: Column[] = [
         align: 'right',
     },
     {
-        id: 'party',
-        label: 'Party',
+        id: 'location',
+        label: 'Location',
         minWidth: 170,
         align: 'right',
     },
     {
-        id: 'channelInstanceId',
-        label: "Channel Instance",
+        id: 'inviteCode',
+        label: "Invite code",
         minWidth: 170,
         align: 'right'
     },
@@ -54,8 +59,8 @@ interface Data {
     name: string;
     avatar: string;
     status: string;
-    party: string;
-    channelInstanceId: string,
+    location: string;
+    inviteCode: string,
     instanceId: string,
     action: any
 }
@@ -75,15 +80,32 @@ const useStyles = makeStyles({
 });
 
 interface Props {
-    adminUsers: any
+    removeUserAdmin?: any;
+    authState?: any;
+    adminState?: any;
+    fetchUsersAsAdmin?: any
 }
 
+const mapStateToProps = (state: any): any => {
+    return {
+        authState: selectAuthState(state),
+        adminState: selectAdminState(state)
+    };
+};
+
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+    removeUserAdmin: bindActionCreators(removeUserAdmin, dispatch),
+    fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch)
+});
+
 const UserTable = (props: Props) => {
-    const { adminUsers } = props;
+    const { removeUserAdmin, fetchUsersAsAdmin, authState, adminState } = props;
     const classes = useStyles();
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
+    const user = authState.get("user");
+    const adminUsers = adminState.get("users").get("users");
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
     };
@@ -93,26 +115,45 @@ const UserTable = (props: Props) => {
         setPage(0);
     };
 
+    React.useEffect(()=> {
+        const fetchData = async () => {
+            await fetchUsersAsAdmin();
+        };
+        if((adminState.get('users').get('updateNeeded') === true) && user.id) fetchData();
 
-    const createData = (name: string, avatar: string, status: string, party: string, channelInstanceId: string, instanceId: string): Data => {
+    }, [adminState, user, fetchUsersAsAdmin]);
+
+
+    const createData = (id: any, name: string, avatar: string, status: string, location: string, inviteCode: string, instanceId: string): Data => {
         return {
             name,
             avatar,
             status,
-            party,
-            channelInstanceId,
+            location,
+            inviteCode,
             instanceId,
             action: (
                 <>
                     <a href="#h" className={classes.actionStyle}> View </a>
                     <a href="#h" className={classes.actionStyle}> Edit </a>
-                    <a href="#h" className={classes.actionStyle}> Delete </a>
+                    <a href="#h" className={classes.actionStyle} onClick={async ()=> await removeUserAdmin(id)}> Delete </a>
                 </>
             )
         };
     };
 
-    const rows = adminUsers.map(el => createData(el.name, el.avatarId || "coming soon", el.userRole, el.partyId || "", el.channelInstanceId || "", el.instanceId || "" ));
+
+   console.log('====================================');
+   console.log(adminUsers);
+   console.log('====================================');
+    const rows = adminUsers.map(el =>{
+        const loc = el.party.id ? el.party.location : null;
+        const loca = loc ? loc.name || "" : "";
+        const ins = el.party.id ? el.party.instance : null;
+        const inst = ins ? ins.ipAddress || "" : "";
+
+        return createData(el.id, el.name, el.avatarId || "", el.userRole, loca, el.inviteCode || "", inst );
+    });
 
     return (
         <div className={classes.root}>
@@ -134,7 +175,7 @@ const UserTable = (props: Props) => {
                     <TableBody>
                         {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                             return (
-                                <TableRow hover role="checkbox" tabIndex={-1} key={row.name}>
+                                <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                                     {columns.map((column) => {
                                         const value = row[column.id];
                                         return (
@@ -163,4 +204,4 @@ const UserTable = (props: Props) => {
 };
 
 
-export default UserTable;
+export default connect(mapStateToProps, mapDispatchToProps)(UserTable);

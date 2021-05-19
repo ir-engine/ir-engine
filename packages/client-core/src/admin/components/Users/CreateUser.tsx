@@ -18,6 +18,7 @@ import { validationSchema } from "./validation";
 import { useFormik } from "formik";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 import { fetchAdminInstances } from '../../reducers/admin/service';
+import { fetchAdminParty } from "../../reducers/admin/service";
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -61,13 +62,15 @@ interface Props {
     userEdit: any;
     patchUser?: any;
     fetchUserRole?: any;
-    fetchAdminInstances?: any
+    fetchAdminInstances?: any;
+    fetchAdminParty?: any
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createUserAction: bindActionCreators(createUserAction, dispatch),
     fetchUserRole: bindActionCreators(fetchUserRole, dispatch),
-    fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch)
+    fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch),
+    fetchAdminParty: bindActionCreators(fetchAdminParty, dispatch)
 });
 
 const mapStateToProps = (state: any): any => {
@@ -78,18 +81,21 @@ const mapStateToProps = (state: any): any => {
 };
 
 const CreateUser = (props: Props) => {
-    const { open, handleClose, createUserAction, authState, fetchAdminInstances, fetchUserRole, adminState } = props;
+    const { open, handleClose, createUserAction, authState, fetchAdminInstances, fetchUserRole, fetchAdminParty, adminState } = props;
     const classes = useStyles();
     const classesx = useStyle();
     const [status, setStatus] = React.useState('');
     const [openCreateaUserRole, setOpenCreateUserRole] = React.useState(false);
     const [instance, setInstance] = React.useState("");
+    const [party, setParty] = React.useState("");
 
     const user = authState.get("user");
     const userRole = adminState.get("userRole");
     const userRoleData = userRole ? userRole.get("userRole") : [];
     const adminInstances = adminState.get('instances');
     const instanceData = adminInstances.get("instances");
+    const adminParty = adminState.get("parties");
+    const adminPartyData = adminParty.get("parties").data ? adminParty.get("parties").data : [];
 
     React.useEffect(() => {
         const fetchData = async () => {
@@ -99,6 +105,10 @@ const CreateUser = (props: Props) => {
 
         if (user.id && adminInstances.get("updateNeeded")) {
             fetchAdminInstances();
+        }
+
+        if (user.id && adminParty.get('updateNeeded') == true) {
+            fetchAdminParty();
         }
     }, [adminState, user]);
 
@@ -117,6 +127,12 @@ const CreateUser = (props: Props) => {
         getOptionLabel: (option: any) => option.ipAddress
     };
 
+    const partyData = adminPartyData.map(el => ({ ...el, label: `Location: ${el.location.name || ""}  ____  Instance: ${el.instance.ipAddress || ""}` }));
+    const PartyProps = {
+        options: partyData,
+        getOptionLabel: (option: any) => option.label
+    };
+
     const createUserRole = () => {
         setOpenCreateUserRole(true);
     };
@@ -128,18 +144,24 @@ const CreateUser = (props: Props) => {
     const formik = useFormik({
         initialValues: {
             name: "",
-            avatar: ""
+            avatar: "",
+            inviteCode: ""
         },
         validationSchema: validationSchema,
         onSubmit: async (values, { resetForm }) => {
             const data = {
                 name: values.name,
                 avatarId: values.avatar,
+                inviteCode: values.inviteCode,
                 instanceId: instance,
                 userRole: status,
+                partyId: party
             };
             await createUserAction(data);
             handleClose(false);
+            setInstance("");
+            setStatus("");
+            setParty("");
             resetForm();
         }
     });
@@ -172,6 +194,20 @@ const CreateUser = (props: Props) => {
                         <TextField
                             autoFocus
                             margin="dense"
+                            id="inviteCode"
+                            label="Invite code"
+                            type="text"
+                            fullWidth
+                            value={formik.values.inviteCode}
+                            className={classes.marginBottm}
+                            onChange={formik.handleChange}
+                            error={formik.touched.inviteCode && Boolean(formik.errors.inviteCode)}
+                            helperText={formik.touched.inviteCode && formik.errors.inviteCode}
+                        />
+
+                        <TextField
+                            autoFocus
+                            margin="dense"
                             id="avatar"
                             label="Avatar"
                             type="text"
@@ -184,7 +220,7 @@ const CreateUser = (props: Props) => {
                         />
 
                         <Autocomplete
-                            onChange={(e, newValue) => setStatus(newValue.name as string)}
+                            onChange={(e, newValue) => setStatus(newValue.role as string)}
                             {...defaultProps}
                             id="debug"
                             debug
@@ -202,6 +238,16 @@ const CreateUser = (props: Props) => {
                         />
 
                         <DialogContentText className={classes.marginBottm}>  Don't see Instance? <a href="/admin/instance" className={classes.textLink}>Create One</a>  </DialogContentText>
+
+                        <Autocomplete
+                            onChange={(e, newValue) => setParty(newValue.id as string)}
+                            {...PartyProps}
+                            id="debug"
+                            debug
+                            renderInput={(params) => <TextField {...params} label="Party" className={classes.marginBottm} />}
+                        />
+
+                        <DialogContentText className={classes.marginBottm}>  Don't see Party? <a href="/admin/parties" className={classes.textLink}>Create One</a>  </DialogContentText>
 
                         <DialogActions>
                             <Button type="submit" color="primary">

@@ -64,12 +64,6 @@ export type UserAction =
     };
   }
 
-export function userRemoved (  user: any ): UserRemovedInstance {
-  return {
-    type: USER_REMOVED_ROW,
-    user: user
-  };
-}
 
 export function userPatched ( user: User ): UserCreatedAction {
   return {

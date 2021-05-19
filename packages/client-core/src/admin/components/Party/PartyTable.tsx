@@ -79,6 +79,7 @@ const PartyTable = (props: Props) => {
 
     const user = authState.get("user");
     const adminParty = adminState.get("parties");
+    const adminPartyData = adminParty.get("parties").data ? adminParty.get("parties").data : [];
 
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
@@ -110,7 +111,7 @@ const PartyTable = (props: Props) => {
         };
    };
 
-   const rows = adminParty.get("parties").map(el => createData(el.id, el.instanceId, el.locationId || "coming soon" ));
+   const rows = adminPartyData.map(el => createData(el.id, el.instance.ipAddress || "", el.location.name || "" ));
 
     return (
         <div className={classes.root}>
