@@ -86,7 +86,6 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
            
 
     };
-    console.log(popupsState?.get('videoPath'))
 
     
     useEffect(()=> {videoUrl && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
