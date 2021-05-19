@@ -12,6 +12,10 @@ import { bindActionCreators, Dispatch } from "redux";
 import { connect } from 'react-redux';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectAdminState } from '../../reducers/admin/selector';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Button from '@material-ui/core/Button';
 
 interface Column {
     id: 'name' | 'avatar' | 'status' | 'location' | 'inviteCode' | 'instanceId' | 'action';
@@ -103,6 +107,8 @@ const UserTable = (props: Props) => {
     const classes = useStyles();
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const [popConfirmOpen, setPopConfirmOpen] = React.useState(false);
+    const [userId, setUserId] = React.useState("");
 
     const user = authState.get("user");
     const adminUsers = adminState.get("users").get("users");
@@ -115,11 +121,11 @@ const UserTable = (props: Props) => {
         setPage(0);
     };
 
-    React.useEffect(()=> {
+    React.useEffect(() => {
         const fetchData = async () => {
             await fetchUsersAsAdmin();
         };
-        if((adminState.get('users').get('updateNeeded') === true) && user.id) fetchData();
+        if ((adminState.get('users').get('updateNeeded') === true) && user.id) fetchData();
 
     }, [adminState, user, fetchUsersAsAdmin]);
 
@@ -135,24 +141,19 @@ const UserTable = (props: Props) => {
             action: (
                 <>
                     <a href="#h" className={classes.actionStyle}> View </a>
-                    <a href="#h" className={classes.actionStyle}> Edit </a>
-                    <a href="#h" className={classes.actionStyle} onClick={async ()=> await removeUserAdmin(id)}> Delete </a>
+                    <a href="#h" className={classes.actionStyle} onClick={() => { setPopConfirmOpen(true); setUserId(id) }}> Delete </a>
                 </>
             )
         };
     };
 
-
-   console.log('====================================');
-   console.log(adminUsers);
-   console.log('====================================');
-    const rows = adminUsers.map(el =>{
+    const rows = adminUsers.map(el => {
         const loc = el.party.id ? el.party.location : null;
         const loca = loc ? loc.name || "" : "";
         const ins = el.party.id ? el.party.instance : null;
         const inst = ins ? ins.ipAddress || "" : "";
 
-        return createData(el.id, el.name, el.avatarId || "", el.userRole, loca, el.inviteCode || "", inst );
+        return createData(el.id, el.name, el.avatarId || "", el.userRole, loca, el.inviteCode || "", inst);
     });
 
     return (
@@ -199,6 +200,22 @@ const UserTable = (props: Props) => {
                 onChangePage={handleChangePage}
                 onChangeRowsPerPage={handleChangeRowsPerPage}
             />
+            <Dialog
+                open={popConfirmOpen}
+                onClose={() => setPopConfirmOpen(false)}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">Confirm to delete this user!</DialogTitle>
+                <DialogActions>
+                    <Button onClick={() => setPopConfirmOpen(false)}  color="primary">
+                        Cancel
+                    </Button>
+                    <Button  color="primary" onClick={async () => { await removeUserAdmin(userId); setPopConfirmOpen(false) }} autoFocus>
+                        Confirm
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 };

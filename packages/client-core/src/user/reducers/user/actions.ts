@@ -1,5 +1,5 @@
 import { ADDED_LAYER_USER, CHANGED_RELATION, CLEAR_LAYER_USERS, LOADED_LAYER_USERS, LOADED_RELATIONSHIP, LOADED_USERS, REMOVED_LAYER_USER, USER_TOAST } from '../../../common/reducers/actions';
-import { USER_CREATED, USER_PATCHED, USER_REMOVED_ROW } from '../../reducers/actions';
+import {  USER_PATCHED } from '../../reducers/actions';
 import { ADDED_CHANNEL_LAYER_USER, CLEAR_CHANNEL_LAYER_USERS, LOADED_CHANNEL_LAYER_USERS, REMOVED_CHANNEL_LAYER_USER } from '../../../world/reducers/actions';
 import { Relationship } from '@xrengine/common/src/interfaces/Relationship';
 import { User } from '@xrengine/common/src/interfaces/User';
@@ -56,13 +56,6 @@ export type UserAction =
   | LoadedUsersAction
   | LoadedLayerUsersAction
   | ClearLayersUsersAction
-
-  export function userCreated (user: User): UserCreatedAction {
-    return {
-      type: USER_CREATED,
-      user: user
-    };
-  }
 
 
 export function userPatched ( user: User ): UserCreatedAction {

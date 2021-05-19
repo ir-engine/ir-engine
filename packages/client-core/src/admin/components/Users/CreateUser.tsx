@@ -19,7 +19,8 @@ import { useFormik } from "formik";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 import { fetchAdminInstances } from '../../reducers/admin/service';
 import { fetchAdminParty } from "../../reducers/admin/service";
-
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -51,6 +52,10 @@ const useStyle = makeStyles({
         width: "40%"
     }
 });
+
+const Alert = (props) => {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 interface Props {
     open: boolean;
@@ -88,6 +93,8 @@ const CreateUser = (props: Props) => {
     const [openCreateaUserRole, setOpenCreateUserRole] = React.useState(false);
     const [instance, setInstance] = React.useState("");
     const [party, setParty] = React.useState("");
+    const [snackOpen, setSnackOpen] = React.useState(false);
+    const [warning, setWarning] = React.useState("");
 
     const user = authState.get("user");
     const userRole = adminState.get("userRole");
@@ -149,20 +156,31 @@ const CreateUser = (props: Props) => {
         },
         validationSchema: validationSchema,
         onSubmit: async (values, { resetForm }) => {
-            const data = {
-                name: values.name,
-                avatarId: values.avatar,
-                inviteCode: values.inviteCode,
-                instanceId: instance,
-                userRole: status,
-                partyId: party
-            };
-            await createUserAction(data);
-            handleClose(false);
-            setInstance("");
-            setStatus("");
-            setParty("");
-            resetForm();
+            if (!status) {
+                setWarning("Please select user role from the list")
+                setSnackOpen(true)
+            } else if(!instance) {
+                setWarning("Please select Instance from the list")
+                setSnackOpen(true)
+            } else if(!party){
+                setWarning("Please select Party from the list")
+                setSnackOpen(true)
+            } else {
+                const data = {
+                    name: values.name,
+                    avatarId: values.avatar,
+                    inviteCode: values.inviteCode,
+                    instanceId: instance,
+                    userRole: status,
+                    partyId: party
+                };
+                createUserAction(data);
+                handleClose(false);
+                setInstance("");
+                setStatus("");
+                setParty("");
+                resetForm();
+            }
         }
     });
 
@@ -258,6 +276,17 @@ const CreateUser = (props: Props) => {
                             </Button>
                         </DialogActions>
                     </form>
+
+                    <Snackbar
+                        autoHideDuration={6000}
+                        anchorOrigin={{ vertical: 'top', horizontal: "center" }}
+                        open={snackOpen}
+                        onClose={() => setSnackOpen(false)}
+                    >
+                        <Alert onClose={() => setSnackOpen(false)} severity="warning">
+                            {warning}
+                        </Alert>
+                    </Snackbar>
                 </Container>
             </Drawer>
             <CreateUserRole

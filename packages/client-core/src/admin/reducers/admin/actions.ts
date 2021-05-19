@@ -15,8 +15,10 @@ import {
   VIDEO_UPDATED,
   PARTY_ADMIN_CREATED,
   PARTY_ADMIN_DISPLAYED,
-  USER_ADMIN_REMOVED
+  USER_ADMIN_REMOVED,
+  USER_ADMIN_CREATED
 } from '../actions';
+import { User } from '@xrengine/common/src/interfaces/User';
 
 export interface VideoCreationForm {
   name: string;
@@ -108,6 +110,18 @@ export interface partyAdminCreatedResponse {
 export interface userAdminRemovedResponse {
   type: string;
   data: any;
+}
+
+export interface UserCreatedAction {
+  type: string,
+  user: User
+}
+
+export function userCreated (user: User): UserCreatedAction {
+  return {
+    type: USER_ADMIN_CREATED,
+    user: user
+  };
 }
 
 export function videoCreated (data: VideoCreatedResponse): VideoCreatedAction {

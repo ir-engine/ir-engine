@@ -15,7 +15,8 @@ import {
   userRoleCreated,
   partyAdminCreated,
   partyRetrievedAction,
-  userAdminRemoved
+  userAdminRemoved, 
+  userCreated
 } from './actions';
 
 import axios from 'axios';
@@ -25,7 +26,7 @@ import { dispatchAlertSuccess, dispatchAlertError } from '../../../common/reduce
 import { PublicVideo, videosFetchedSuccess, videosFetchedError } from '../../../media/components/video/actions';
 import { locationsRetrieved, locationCreated, locationPatched, locationRemoved } from '../../../social/reducers/location/actions';
 import Store from '../../../store';
-import { loadedUsers, userCreated, userPatched } from '../../../user/reducers/user/actions';
+import { loadedUsers, userPatched } from '../../../user/reducers/user/actions';
 import { collectionsFetched } from '../../../world/reducers/scenes/actions';
 
 const store = Store.store;
@@ -170,12 +171,8 @@ export function createLocation(location: any) {
 export function createUser(user: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      console.log(user);
-
       const result = await client.service('user').create(user);
       dispatch(userCreated(result));
-      console.log(result);
-
     } catch (error) {
       dispatchAlertError(dispatch, error.message);
     }
