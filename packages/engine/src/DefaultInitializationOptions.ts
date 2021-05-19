@@ -1,11 +1,11 @@
-import { CharacterInputSchema } from './character/CharacterInputSchema';
+import { PhysXConfig } from 'three-physx';
+import { CharacterInputSchema } from './avatar/schema/CharacterInputSchema';
 import { DefaultGameMode } from './game/templates/DefaultGameMode';
-import { DefaultNetworkSchema } from './networking/templates/DefaultNetworkSchema';
-import { GamesSchema, GameType } from  './game/templates/GamesSchema';
+import { GamesSchema } from './game/templates/GamesSchema';
+import { GameMode } from './game/types/GameMode';
 import { InputSchema } from './input/interfaces/InputSchema';
 import { NetworkSchema } from './networking/interfaces/NetworkSchema';
-import { GameMode } from './game/types/GameMode';
-import { PhysXConfig } from 'three-physx';
+import { DefaultNetworkSchema } from './networking/templates/DefaultNetworkSchema';
 
 export type InitializeOptions = {
   input?: {

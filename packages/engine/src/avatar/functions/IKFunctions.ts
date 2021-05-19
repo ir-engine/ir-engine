@@ -1,9 +1,9 @@
 import { Entity } from "../../ecs/classes/Entity";
 import { addComponent, getMutableComponent, hasComponent, removeComponent, } from "../../ecs/functions/EntityFunctions";
-import { CharacterComponent } from "../../character/components/CharacterComponent";
-import { IKComponent } from "../../character/components/IKComponent";
-import { Avatar } from "../classes/IKAvatar";
-import { AnimationComponent } from "../../character/components/AnimationComponent";
+import { CharacterComponent } from "../../avatar/components/CharacterComponent";
+import { IKComponent } from "../../avatar/components/IKComponent";
+import { IKAvatarRig } from "../classes/IKAvatarRig";
+import { AnimationComponent } from "../../avatar/components/AnimationComponent";
 import { Network } from "../../networking/classes/Network";
 
 /**
@@ -21,12 +21,12 @@ export function initiateIK(entity: Entity) {
     removeComponent(entity, AnimationComponent);
   }
   const avatarIK = getMutableComponent(entity, IKComponent);
-  avatarIK.avatarIKRig = new Avatar(actor.modelContainer.children[0], {
-    debug: true,
+  avatarIK.avatarIKRig = new IKAvatarRig(actor.modelContainer.children[0], {
     top: true,
     bottom: true,
     visemes: true,
     hair: true,
+    fingers: true
   });
   if(Network.instance.localClientEntity === entity) {
     // avatarIK.avatarIKRig.decapitate()

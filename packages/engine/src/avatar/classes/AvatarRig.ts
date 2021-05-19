@@ -1,13 +1,13 @@
-import XRPose from './XRPose';
-import LegsManager from './LegsManager';
-import {VRMSpringBoneImporter} from "@pixiv/three-vrm";
-import { Quaternion, Vector3, Matrix4, Object3D, Bone, Scene } from 'three';
-import { importSkeleton, findHips, findArmature, copySkeleton, makeDebugMeshes, getTailBones, findEye, findHead, findSpine, findShoulder, findHand, findFinger, findFoot, findClosestParentBone, countCharacters, findFurthestParentBone, localMatrix, localVector, localVector2, AnimationMapping, localEuler, localQuaternion, leftRotation, rightRotation, upRotation } from '../functions/AvatarFunctions';
+import { VRMSpringBoneImporter } from "@pixiv/three-vrm";
+import { Bone, Matrix4, Object3D, Quaternion, Scene, Vector3 } from 'three';
 import skeletonString from '../constants/Skeleton';
+import { AnimationMapping, copySkeleton, countCharacters, findArmature, findClosestParentBone, findEye, findFinger, findFoot, findFurthestParentBone, findHand, findHead, findHips, findShoulder, findSpine, getTailBones, importSkeleton, leftRotation, localEuler, localMatrix, localQuaternion, localVector, localVector2, rightRotation, upRotation } from '../../avatar/functions/AvatarFunctions';
+import LegsManager from './LegsManager';
 import ShoulderTransforms from './ShoulderTransforms';
-import { fixSkeletonZForward } from './SkeletonUtils';
+import { fixSkeletonZForward } from '../functions/SkeletonUtils';
+import XRPose from './XRPose';
 
-type AvatarOptions = { debug: boolean, top: boolean, bottom: boolean, visemes: boolean, hair: boolean }
+export type AvatarOptions = { top: boolean, bottom: boolean, visemes: boolean, hair: boolean, fingers: boolean }
 
 /**
  * 
@@ -18,12 +18,9 @@ export class Avatar {
   legsManager: any;
   poseManager: any;
   modelBones: any;
-  debugMeshes: any;
-  decapitated: boolean;
   sdkInputs: any;
   inputs: any;
   options: AvatarOptions;
-  debug = true;
   springBoneManager: any;
   lastModelScaleFactor: any;
   model: any;
@@ -46,19 +43,12 @@ export class Avatar {
   handOffsetLeft: Vector3;
   handOffsetRight: Vector3;
   animationMappings: AnimationMapping[];
-  direction: Vector3;
-  velocity: Vector3;
-  jumpState: boolean;
-  jumpTime: number;
-  flyState: boolean;
-  flyTime: number;
-  useTime: number;
-  useAnimation: any;
-  sitState: boolean;
-  sitAnimation: any;
-  sitTarget: Object3D;
+  direction: Vector3 = new Vector3();
+  velocity: Vector3 = new Vector3();
   skeleton: any;
-  constructor(object, options: AvatarOptions = { debug: true, top: true, bottom: true, visemes: true, hair: true } )
+  fingerBones: { left: { thumb: any; index: any; middle: any; ring: any; little: any; }; right: { thumb: any; index: any; middle: any; ring: any; little: any; }; };
+  eyeToHipsOffset: any;
+  constructor(object, options: AvatarOptions = { top: true, bottom: true, visemes: true, hair: true, fingers: true} )
   {
     console.log("CONSTRUCTING AVATAR!")
     this.object = object;
@@ -105,14 +95,6 @@ export class Avatar {
     if (poseSkeleton) {
       copySkeleton(poseSkeleton, skeleton);
       poseSkeletonSkinnedMesh.bind(skeleton);
-    }
-
-    if (this.debug) {
-      const debugMeshes = makeDebugMeshes();
-      this.model.add(debugMeshes);
-      this.debugMeshes = debugMeshes;
-    } else {
-      this.debugMeshes = null;
     }
 
     const _getOptional = o => o || new Bone();
@@ -235,11 +217,11 @@ export class Avatar {
       Right_ankle,
     };
     this.modelBones = modelBones;
-    /* for (const k in modelBones) {
+    for (const k in modelBones) {
       if (!modelBones[k]) {
         console.warn('missing bone', k);
       }
-    } */
+    }
     const armature = findArmature(Hips);
 
     const _getEyePosition = () => {
@@ -381,7 +363,7 @@ export class Avatar {
       const fingerRootBone = fingerTipBone.length > 0 ? findFurthestParentBone(fingerTipBone[0], bone => r.test(bone.name)) : null;
       return fingerRootBone;
     };
-    /* const fingerBones = {
+    const fingerBones = {
       left: {
         thumb: findFingerBone(/thumb/gi, true),
         index: findFingerBone(/index/gi, true),
@@ -397,7 +379,7 @@ export class Avatar {
         little: findFingerBone(/little/gi, false) || findFingerBone(/pinky/gi, false),
       },
     };
-    this.fingerBones = fingerBones; */
+    this.fingerBones = fingerBones;
 
     const preRotations = {};
     const _ensurePrerotation = k => {
@@ -596,61 +578,62 @@ export class Avatar {
     this.fingerBoneMap = fingerBoneMap;
 
     const _getOffset = (bone, parent = bone.parent) => bone.getWorldPosition(new Vector3()).sub(parent.getWorldPosition(new Vector3()));
-    this.initializeBonePositions({
-      spine: _getOffset(modelBones.Spine),
-      chest: _getOffset(modelBones.Chest, modelBones.Spine),
-      neck: _getOffset(modelBones.Neck),
-      head: _getOffset(modelBones.Head),
-      eyes: eyePosition.clone().sub(Head.getWorldPosition(new Vector3())),
 
-      leftShoulder: _getOffset(modelBones.Right_shoulder),
-      leftUpperArm: _getOffset(modelBones.Right_arm),
-      leftLowerArm: _getOffset(modelBones.Right_elbow),
-      leftHand: _getOffset(modelBones.Right_wrist),
-      leftThumb2: _getOffset(modelBones.Right_thumb2),
-      leftThumb1: _getOffset(modelBones.Right_thumb1),
-      leftThumb0: _getOffset(modelBones.Right_thumb0),
-      leftIndexFinger1: _getOffset(modelBones.Right_indexFinger1),
-      leftIndexFinger2: _getOffset(modelBones.Right_indexFinger2),
-      leftIndexFinger3: _getOffset(modelBones.Right_indexFinger3),
-      leftMiddleFinger1: _getOffset(modelBones.Right_middleFinger1),
-      leftMiddleFinger2: _getOffset(modelBones.Right_middleFinger2),
-      leftMiddleFinger3: _getOffset(modelBones.Right_middleFinger3),
-      leftRingFinger1: _getOffset(modelBones.Right_ringFinger1),
-      leftRingFinger2: _getOffset(modelBones.Right_ringFinger2),
-      leftRingFinger3: _getOffset(modelBones.Right_ringFinger3),
-      leftLittleFinger1: _getOffset(modelBones.Right_littleFinger1),
-      leftLittleFinger2: _getOffset(modelBones.Right_littleFinger2),
-      leftLittleFinger3: _getOffset(modelBones.Right_littleFinger3),
+    this.shoulderTransforms.spine.position.copy(_getOffset(modelBones.Spine));
+    this.shoulderTransforms.transform.position.copy( _getOffset(modelBones.Chest, modelBones.Spine));
+    this.shoulderTransforms.neck.position.copy(_getOffset(modelBones.Neck));
+    this.shoulderTransforms.head.position.copy(_getOffset(modelBones.Head));
+    this.shoulderTransforms.eyes.position.copy(eyePosition.clone().sub(Head.getWorldPosition(new Vector3())));
 
-      rightShoulder: _getOffset(modelBones.Left_shoulder),
-      rightUpperArm: _getOffset(modelBones.Left_arm),
-      rightLowerArm: _getOffset(modelBones.Left_elbow),
-      rightHand: _getOffset(modelBones.Left_wrist),
-      rightThumb2: _getOffset(modelBones.Left_thumb2),
-      rightThumb1: _getOffset(modelBones.Left_thumb1),
-      rightThumb0: _getOffset(modelBones.Left_thumb0),
-      rightIndexFinger1: _getOffset(modelBones.Left_indexFinger1),
-      rightIndexFinger2: _getOffset(modelBones.Left_indexFinger2),
-      rightIndexFinger3: _getOffset(modelBones.Left_indexFinger3),
-      rightMiddleFinger1: _getOffset(modelBones.Left_middleFinger1),
-      rightMiddleFinger2: _getOffset(modelBones.Left_middleFinger2),
-      rightMiddleFinger3: _getOffset(modelBones.Left_middleFinger3),
-      rightRingFinger1: _getOffset(modelBones.Left_ringFinger1),
-      rightRingFinger2: _getOffset(modelBones.Left_ringFinger2),
-      rightRingFinger3: _getOffset(modelBones.Left_ringFinger3),
-      rightLittleFinger1: _getOffset(modelBones.Left_littleFinger1),
-      rightLittleFinger2: _getOffset(modelBones.Left_littleFinger2),
-      rightLittleFinger3: _getOffset(modelBones.Left_littleFinger3),
+    this.shoulderTransforms.leftShoulderAnchor.position.copy(_getOffset(modelBones.Left_shoulder));
+    this.shoulderTransforms.leftArm.upperArm.position.copy(_getOffset(modelBones.Left_arm));
+    this.shoulderTransforms.leftArm.lowerArm.position.copy(_getOffset(modelBones.Left_elbow));
+    this.shoulderTransforms.leftArm.hand.position.copy(_getOffset(modelBones.Left_wrist));
+    this.shoulderTransforms.leftArm.thumb2.position.copy(_getOffset(modelBones.Left_thumb2));
+    this.shoulderTransforms.leftArm.thumb1.position.copy(_getOffset(modelBones.Left_thumb1));
+    this.shoulderTransforms.leftArm.thumb0.position.copy(_getOffset(modelBones.Left_thumb0));
+    this.shoulderTransforms.leftArm.indexFinger3.position.copy(_getOffset(modelBones.Left_indexFinger3));
+    this.shoulderTransforms.leftArm.indexFinger2.position.copy(_getOffset(modelBones.Left_indexFinger2));
+    this.shoulderTransforms.leftArm.indexFinger1.position.copy(_getOffset(modelBones.Left_indexFinger1));
+    this.shoulderTransforms.leftArm.middleFinger3.position.copy(_getOffset(modelBones.Left_middleFinger3));
+    this.shoulderTransforms.leftArm.middleFinger2.position.copy(_getOffset(modelBones.Left_middleFinger2));
+    this.shoulderTransforms.leftArm.middleFinger1.position.copy(_getOffset(modelBones.Left_middleFinger1));
+    this.shoulderTransforms.leftArm.ringFinger3.position.copy(_getOffset(modelBones.Left_ringFinger3));
+    this.shoulderTransforms.leftArm.ringFinger2.position.copy(_getOffset(modelBones.Left_ringFinger2));
+    this.shoulderTransforms.leftArm.ringFinger1.position.copy(_getOffset(modelBones.Left_ringFinger1));
+    this.shoulderTransforms.leftArm.littleFinger3.position.copy(_getOffset(modelBones.Left_littleFinger3));
+    this.shoulderTransforms.leftArm.littleFinger2.position.copy(_getOffset(modelBones.Left_littleFinger2));
+    this.shoulderTransforms.leftArm.littleFinger1.position.copy(_getOffset(modelBones.Left_littleFinger1));
 
-      leftUpperLeg: _getOffset(modelBones.Right_leg),
-      leftLowerLeg: _getOffset(modelBones.Right_knee),
-      leftFoot: _getOffset(modelBones.Right_ankle),
+    this.shoulderTransforms.rightShoulderAnchor.position.copy(_getOffset(modelBones.Right_shoulder));
+    this.shoulderTransforms.rightArm.upperArm.position.copy(_getOffset(modelBones.Right_arm));
+    this.shoulderTransforms.rightArm.lowerArm.position.copy(_getOffset(modelBones.Right_elbow));
+    this.shoulderTransforms.rightArm.hand.position.copy(_getOffset(modelBones.Right_wrist));
+    this.shoulderTransforms.rightArm.thumb2.position.copy(_getOffset(modelBones.Right_thumb2));
+    this.shoulderTransforms.rightArm.thumb1.position.copy(_getOffset(modelBones.Right_thumb1));
+    this.shoulderTransforms.rightArm.thumb0.position.copy(_getOffset(modelBones.Right_thumb0));
+    this.shoulderTransforms.rightArm.indexFinger3.position.copy(_getOffset(modelBones.Right_indexFinger3));
+    this.shoulderTransforms.rightArm.indexFinger2.position.copy(_getOffset(modelBones.Right_indexFinger2));
+    this.shoulderTransforms.rightArm.indexFinger1.position.copy(_getOffset(modelBones.Right_indexFinger1));
+    this.shoulderTransforms.rightArm.middleFinger3.position.copy(_getOffset(modelBones.Right_middleFinger3));
+    this.shoulderTransforms.rightArm.middleFinger2.position.copy(_getOffset(modelBones.Right_middleFinger2));
+    this.shoulderTransforms.rightArm.middleFinger1.position.copy(_getOffset(modelBones.Right_middleFinger1));
+    this.shoulderTransforms.rightArm.ringFinger3.position.copy(_getOffset(modelBones.Right_ringFinger3));
+    this.shoulderTransforms.rightArm.ringFinger2.position.copy(_getOffset(modelBones.Right_ringFinger2));
+    this.shoulderTransforms.rightArm.ringFinger1.position.copy(_getOffset(modelBones.Right_ringFinger1));
+    this.shoulderTransforms.rightArm.littleFinger3.position.copy(_getOffset(modelBones.Right_littleFinger3));
+    this.shoulderTransforms.rightArm.littleFinger2.position.copy(_getOffset(modelBones.Right_littleFinger2));
+    this.shoulderTransforms.rightArm.littleFinger1.position.copy(_getOffset(modelBones.Right_littleFinger1));
 
-      rightUpperLeg: _getOffset(modelBones.Left_leg),
-      rightLowerLeg: _getOffset(modelBones.Left_knee),
-      rightFoot: _getOffset(modelBones.Left_ankle),
-    });
+    this.legsManager.leftLeg.upperLeg.position.copy(_getOffset(modelBones.Left_leg));
+    this.legsManager.leftLeg.lowerLeg.position.copy(_getOffset(modelBones.Left_knee));
+    this.legsManager.leftLeg.foot.position.copy(_getOffset(modelBones.Left_ankle));
+
+    this.legsManager.rightLeg.upperLeg.position.copy(_getOffset(modelBones.Right_leg));
+    this.legsManager.rightLeg.lowerLeg.position.copy(_getOffset(modelBones.Right_knee));
+    this.legsManager.rightLeg.foot.position.copy(_getOffset(modelBones.Right_ankle));
+
+    this.shoulderTransforms.hips.updateMatrixWorld();
 
     this.height = eyePosition.clone().sub(_averagePoint([modelBones.Left_ankle.getWorldPosition(new Vector3()), modelBones.Right_ankle.getWorldPosition(new Vector3())])).y;
     this.shoulderWidth = modelBones.Left_arm.getWorldPosition(new Vector3()).distanceTo(modelBones.Right_arm.getWorldPosition(new Vector3()));
@@ -831,22 +814,11 @@ export class Avatar {
     this.legsManager.Start();
 
     if (options.top !== undefined) {
-      this.setTopEnabled(!!options.top);
+      this.shoulderTransforms.enabled = !!options.top;
     }
     if (options.bottom !== undefined) {
-      this.setBottomEnabled(!!options.bottom);
+      this.legsManager.enabled = !!options.bottom;
     }
-
-    /* this.decapitated = false;
-    if (options.decapitate) {
-      if (springBoneManagerPromise) {
-        springBoneManagerPromise.then(() => {
-          this.decapitate();
-        });
-      } else {
-        this.decapitate();
-      }
-    } */
 
     this.animationMappings = [
       new AnimationMapping('mixamorigHips.quaternion', this.outputs.hips.quaternion, false),
@@ -906,113 +878,10 @@ export class Avatar {
       new AnimationMapping('mixamorigLeftFoot.quaternion', this.outputs.rightFoot.quaternion, false),
       // new AnimationMapping('mixamorigLeftToeBase.quaternion', null, false),
     ];
-
-    this.direction = new Vector3();
-    this.velocity = new Vector3();
-    this.jumpState = false;
-    this.jumpTime = NaN;
-    this.flyState = false;
-    this.flyTime = NaN;
-    this.useTime = NaN;
-    this.useAnimation = null;
-    this.sitState = false;
-    this.sitAnimation = null;
-    this.sitTarget = new Object3D();
-  }
-  initializeBonePositions(setups) {
-    this.shoulderTransforms.spine.position.copy(setups.spine);
-    this.shoulderTransforms.transform.position.copy(setups.chest);
-    this.shoulderTransforms.neck.position.copy(setups.neck);
-    this.shoulderTransforms.head.position.copy(setups.head);
-    this.shoulderTransforms.eyes.position.copy(setups.eyes);
-
-    this.shoulderTransforms.leftShoulderAnchor.position.copy(setups.leftShoulder);
-    this.shoulderTransforms.leftArm.upperArm.position.copy(setups.leftUpperArm);
-    this.shoulderTransforms.leftArm.lowerArm.position.copy(setups.leftLowerArm);
-    this.shoulderTransforms.leftArm.hand.position.copy(setups.leftHand);
-    this.shoulderTransforms.leftArm.thumb2.position.copy(setups.leftThumb2);
-    this.shoulderTransforms.leftArm.thumb1.position.copy(setups.leftThumb1);
-    this.shoulderTransforms.leftArm.thumb0.position.copy(setups.leftThumb0);
-    this.shoulderTransforms.leftArm.indexFinger3.position.copy(setups.leftIndexFinger3);
-    this.shoulderTransforms.leftArm.indexFinger2.position.copy(setups.leftIndexFinger2);
-    this.shoulderTransforms.leftArm.indexFinger1.position.copy(setups.leftIndexFinger1);
-    this.shoulderTransforms.leftArm.middleFinger3.position.copy(setups.leftMiddleFinger3);
-    this.shoulderTransforms.leftArm.middleFinger2.position.copy(setups.leftMiddleFinger2);
-    this.shoulderTransforms.leftArm.middleFinger1.position.copy(setups.leftMiddleFinger1);
-    this.shoulderTransforms.leftArm.ringFinger3.position.copy(setups.leftRingFinger3);
-    this.shoulderTransforms.leftArm.ringFinger2.position.copy(setups.leftRingFinger2);
-    this.shoulderTransforms.leftArm.ringFinger1.position.copy(setups.leftRingFinger1);
-    this.shoulderTransforms.leftArm.littleFinger3.position.copy(setups.leftLittleFinger3);
-    this.shoulderTransforms.leftArm.littleFinger2.position.copy(setups.leftLittleFinger2);
-    this.shoulderTransforms.leftArm.littleFinger1.position.copy(setups.leftLittleFinger1);
-
-    this.shoulderTransforms.rightShoulderAnchor.position.copy(setups.rightShoulder);
-    this.shoulderTransforms.rightArm.upperArm.position.copy(setups.rightUpperArm);
-    this.shoulderTransforms.rightArm.lowerArm.position.copy(setups.rightLowerArm);
-    this.shoulderTransforms.rightArm.hand.position.copy(setups.rightHand);
-    this.shoulderTransforms.rightArm.thumb2.position.copy(setups.rightThumb2);
-    this.shoulderTransforms.rightArm.thumb1.position.copy(setups.rightThumb1);
-    this.shoulderTransforms.rightArm.thumb0.position.copy(setups.rightThumb0);
-    this.shoulderTransforms.rightArm.indexFinger3.position.copy(setups.rightIndexFinger3);
-    this.shoulderTransforms.rightArm.indexFinger2.position.copy(setups.rightIndexFinger2);
-    this.shoulderTransforms.rightArm.indexFinger1.position.copy(setups.rightIndexFinger1);
-    this.shoulderTransforms.rightArm.middleFinger3.position.copy(setups.rightMiddleFinger3);
-    this.shoulderTransforms.rightArm.middleFinger2.position.copy(setups.rightMiddleFinger2);
-    this.shoulderTransforms.rightArm.middleFinger1.position.copy(setups.rightMiddleFinger1);
-    this.shoulderTransforms.rightArm.ringFinger3.position.copy(setups.rightRingFinger3);
-    this.shoulderTransforms.rightArm.ringFinger2.position.copy(setups.rightRingFinger2);
-    this.shoulderTransforms.rightArm.ringFinger1.position.copy(setups.rightRingFinger1);
-    this.shoulderTransforms.rightArm.littleFinger3.position.copy(setups.rightLittleFinger3);
-    this.shoulderTransforms.rightArm.littleFinger2.position.copy(setups.rightLittleFinger2);
-    this.shoulderTransforms.rightArm.littleFinger1.position.copy(setups.rightLittleFinger1);
-
-    this.legsManager.leftLeg.upperLeg.position.copy(setups.leftUpperLeg);
-    this.legsManager.leftLeg.lowerLeg.position.copy(setups.leftLowerLeg);
-    this.legsManager.leftLeg.foot.position.copy(setups.leftFoot);
-
-    this.legsManager.rightLeg.upperLeg.position.copy(setups.rightUpperLeg);
-    this.legsManager.rightLeg.lowerLeg.position.copy(setups.rightLowerLeg);
-    this.legsManager.rightLeg.foot.position.copy(setups.rightFoot);
-
-    this.shoulderTransforms.hips.updateMatrixWorld();
-  }
-  setHandEnabled(i, enabled) {
-    this.shoulderTransforms.handsEnabled[i] = enabled;
-  }
-  getHandEnabled(i) {
-    return this.shoulderTransforms.handsEnabled[i];
-  }
-  setTopEnabled(enabled) {
-    this.shoulderTransforms.enabled = enabled;
-  }
-  getTopEnabled() {
-    return this.shoulderTransforms.enabled;
-  }
-  setBottomEnabled(enabled) {
-    this.legsManager.enabled = enabled;
-  }
-  getBottomEnabled() {
-    return this.legsManager.enabled;
   }
   update(timeDiff) {
-    /* const wasDecapitated = this.decapitated;
-    if (this.springBoneManager && wasDecapitated) {
-      this.undecapitate();
-    } */
-
     const now = Date.now();
-    if (this.getTopEnabled()) {
-      this.sdkInputs.hmd.position.copy(this.inputs.hmd.position);
-      this.sdkInputs.hmd.quaternion.copy(this.inputs.hmd.quaternion);
-      this.sdkInputs.leftGamepad.position.copy(this.inputs.leftGamepad.position).add(localVector.copy(this.handOffsetLeft).applyQuaternion(this.inputs.leftGamepad.quaternion));
-      this.sdkInputs.leftGamepad.quaternion.copy(this.inputs.leftGamepad.quaternion);
-      this.sdkInputs.leftGamepad.pointer = this.inputs.leftGamepad.pointer;
-      this.sdkInputs.leftGamepad.grip = this.inputs.leftGamepad.grip;
-      this.sdkInputs.rightGamepad.position.copy(this.inputs.rightGamepad.position).add(localVector.copy(this.handOffsetRight).applyQuaternion(this.inputs.rightGamepad.quaternion));
-      this.sdkInputs.rightGamepad.quaternion.copy(this.inputs.rightGamepad.quaternion);
-      this.sdkInputs.rightGamepad.pointer = this.inputs.rightGamepad.pointer;
-      this.sdkInputs.rightGamepad.grip = this.inputs.rightGamepad.grip;
-
+    if (this.shoulderTransforms.enabled) {
       const modelScaleFactor = this.sdkInputs.hmd.scaleFactor;
       if (modelScaleFactor !== this.lastModelScaleFactor) {
         this.model.scale.set(modelScaleFactor, modelScaleFactor, modelScaleFactor);
@@ -1027,39 +896,38 @@ export class Avatar {
           });
         });
       }
-      // @ts-ignore
-      if (this.options.fingers) {
-        const _traverse = (o, fn) => {
-          fn(o);
-          for (const child of o.children) {
-            _traverse(child, fn);
-          }
-        };
-        const _processFingerBones = left => {
-          const fingerBones = left ? this.fingerBoneMap.left : this.fingerBoneMap.right;
-          const gamepadInput = left ? this.sdkInputs.leftGamepad : this.sdkInputs.rightGamepad;
-          for (const fingerBone of fingerBones) {
-            // if (fingerBone) {
-            const { bones, finger } = fingerBone;
-            let setter;
-            if (finger === 'thumb') {
-              setter = (q, i) => q.setFromAxisAngle(localVector.set(0, left ? -1 : 1, 0), gamepadInput.grip * Math.PI * (i === 0 ? 0.125 : 0.25));
-            } else if (finger === 'index') {
-              setter = (q, i) => q.setFromAxisAngle(localVector.set(0, 0, left ? 1 : -1), gamepadInput.pointer * Math.PI * 0.5);
-            } else {
-              setter = (q, i) => q.setFromAxisAngle(localVector.set(0, 0, left ? 1 : -1), gamepadInput.grip * Math.PI * 0.5);
-            }
-            for (let i = 0; i < bones.length; i++) {
-              setter(bones[i].quaternion, i);
-            }
-            // }
-          }
-        };
-        _processFingerBones(true);
-        _processFingerBones(false);
-      }
+      // if (this.options.fingers) {
+      //   const _traverse = (o, fn) => {
+      //     fn(o);
+      //     for (const child of o.children) {
+      //       _traverse(child, fn);
+      //     }
+      //   };
+      //   const _processFingerBones = left => {
+      //     const fingerBones = left ? this.fingerBoneMap.left : this.fingerBoneMap.right;
+      //     const gamepadInput = left ? this.sdkInputs.leftGamepad : this.sdkInputs.rightGamepad;
+      //     for (const fingerBone of fingerBones) {
+      //       // if (fingerBone) {
+      //       const { bones, finger } = fingerBone;
+      //       let setter;
+      //       if (finger === 'thumb') {
+      //         setter = (q, i) => q.setFromAxisAngle(localVector.set(0, left ? -1 : 1, 0), gamepadInput.grip * Math.PI * (i === 0 ? 0.125 : 0.25));
+      //       } else if (finger === 'index') {
+      //         setter = (q, i) => q.setFromAxisAngle(localVector.set(0, 0, left ? 1 : -1), gamepadInput.pointer * Math.PI * 0.5);
+      //       } else {
+      //         setter = (q, i) => q.setFromAxisAngle(localVector.set(0, 0, left ? 1 : -1), gamepadInput.grip * Math.PI * 0.5);
+      //       }
+      //       for (let i = 0; i < bones.length; i++) {
+      //         setter(bones[i].quaternion, i);
+      //       }
+      //       // }
+      //     }
+      //   };
+      //   _processFingerBones(true);
+      //   _processFingerBones(false);
+      // }
     }
-    if (!this.getBottomEnabled()) {
+    if (!this.legsManager.enabled) {
       this.outputs.hips.position.copy(this.inputs.hmd.position)
         .add(this.eyeToHipsOffset);
 
@@ -1069,7 +937,7 @@ export class Avatar {
       localEuler.y += Math.PI;
       this.outputs.hips.quaternion.premultiply(localQuaternion.setFromEuler(localEuler));
     }
-    if (!this.getTopEnabled() && this.debugMeshes) {
+    if (!this.shoulderTransforms.enabled) {
       this.outputs.hips.updateMatrixWorld();
     }
 
@@ -1085,18 +953,18 @@ export class Avatar {
       }
       modelBone.quaternion.multiplyQuaternions(modelBoneOutput.quaternion, modelBone.initialQuaternion)
 
-      if (this.getTopEnabled()) {
+      if (this.shoulderTransforms.enabled) {
         if (k === 'Left_wrist') {
-          if (this.getHandEnabled(1)) {
+          if (this.shoulderTransforms.handsEnabled[1]) {
             modelBone.quaternion.multiply(leftRotation); // center
           }
         } else if (k === 'Right_wrist') {
-          if (this.getHandEnabled(0)) {
+          if (this.shoulderTransforms.handsEnabled[0]) {
             modelBone.quaternion.multiply(rightRotation); // center
           }
         }
       }
-      if (this.getBottomEnabled()) {
+      if (this.legsManager.enabled) {
         if (k === 'Left_ankle' || k === 'Right_ankle') {
           modelBone.quaternion.multiply(upRotation);
         }
@@ -1138,69 +1006,5 @@ export class Avatar {
         }
       }
     }
-
-    if (this.debugMeshes) {
-      if (this.getTopEnabled()) {
-        this.getHandEnabled(0) && this.outputs.leftHand.quaternion.multiply(rightRotation); // center
-        this.outputs.leftHand.updateMatrixWorld();
-        this.getHandEnabled(1) && this.outputs.rightHand.quaternion.multiply(leftRotation); // center
-        this.outputs.rightHand.updateMatrixWorld();
-      }
-
-      for (const k in this.debugMeshes.attributes) {
-        const attribute = this.debugMeshes.attributes[k];
-        if (attribute.visible) {
-          const output = this.outputs[k];
-          attribute.array.set(attribute.srcGeometry.attributes.position.array);
-          attribute.applyMatrix4(localMatrix.multiplyMatrices(this.model.matrixWorld, output.matrixWorld));
-        } else {
-          attribute.array.fill(0);
-        }
-      }
-      this.debugMeshes.geometry.attributes.position.needsUpdate = true;
-    }
-  }
-  eyeToHipsOffset(eyeToHipsOffset: any) {
-    throw new Error('Method not implemented.');
-  }
-  decapitate() {
-    if (!this.decapitated) {
-      this.modelBones.Head.traverse(o => {
-        if (o.savedPosition) { // three-vrm adds vrmColliderSphere which will not be saved
-          o.savedPosition.copy(o.position);
-          o.savedMatrixWorld.copy(o.matrixWorld);
-          o.position.set(NaN, NaN, NaN);
-          o.matrixWorld.set(NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN);
-        }
-      });
-      if (this.debugMeshes) {
-        [this.debugMeshes.attributes.eyes, this.debugMeshes.attributes.head].forEach(attribute => {
-          attribute.visible = false;
-        });
-      }
-      this.decapitated = true;
-    }
-  }
-  undecapitate() {
-    if (this.decapitated) {
-      this.modelBones.Head.traverse(o => {
-        if (o.savedPosition) {
-          o.position.copy(o.savedPosition);
-          o.matrixWorld.copy(o.savedMatrixWorld);
-        }
-      });
-      if (this.debugMeshes) {
-        [this.debugMeshes.attributes.eyes, this.debugMeshes.attributes.head].forEach(attribute => {
-          attribute.visible = true;
-        });
-      }
-      this.decapitated = false;
-    }
-  }
-  setFloorHeight(floorHeight) {
-    this.poseManager.vrTransforms.floorHeight = floorHeight;
-  }
-  getFloorHeight() {
-    return this.poseManager.vrTransforms.floorHeight;
   }
 }

@@ -1,5 +1,6 @@
 import { AnimationClip, MathUtils } from "three";
-import { AnimationConfigInterface, defaultAvatarAnimations } from "../CharacterAvatars";
+import { defaultAvatarAnimations } from "../schema/defaultAvatarAnimations";
+import { AnimationConfigInterface } from "../interfaces/AnimationConfigInterface";
 import { CharacterComponent } from '../components/CharacterComponent';
 import { AnimationComponent } from "../components/AnimationComponent";
 import { isServer } from "../../common/functions/isServer";

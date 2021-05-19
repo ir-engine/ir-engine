@@ -2,7 +2,7 @@ import { detect, detectOS } from 'detect-browser';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 import { CameraSystem } from '@xrengine/engine/src/camera/systems/CameraSystem';
-import { CharacterControllerSystem } from '@xrengine/engine/src/character/CharacterControllerSystem';
+import { CharacterControllerSystem } from '@xrengine/engine/src/avatar/systems/CharacterControllerSystem';
 import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
 import { Timer } from '@xrengine/engine/src/common/functions/Timer';
 import { DebugHelpersSystem } from '@xrengine/engine/src/debug/systems/DebugHelpersSystem';
@@ -21,7 +21,7 @@ import { ParticleSystem } from '@xrengine/engine/src/particles/systems/ParticleS
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
 import { HighlightSystem } from '@xrengine/engine/src/renderer/HighlightSystem';
 import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem';
-import { AnimationManager } from "@xrengine/engine/src/character/AnimationManager";
+import { AnimationManager } from "@xrengine/engine/src/avatar/classes/AnimationManager";
 import { TransformSystem } from '@xrengine/engine/src/transform/systems/TransformSystem';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 //@ts-ignore
@@ -44,11 +44,14 @@ if (typeof window !== 'undefined') {
   // Add iOS and safari flag to window object -- To use it for creating an iOS compatible WebGLRenderer for example
   (window as any).iOS = os === 'iOS' || /iPad|iPhone|iPod/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   (window as any).safariWebBrowser = browser?.name === 'safari';
+  const el = document.createElement('canvas');
+  (window as any).isWebGL2Supported = !!el.getContext('webgl2')
+  el.remove();
 }
 
 /**
  *
- * @author Shaw Walters and Josh Field
+ * @author Shaw and Josh Field
  * @param initOptions
  */
 

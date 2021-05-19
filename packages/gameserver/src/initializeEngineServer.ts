@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { BufferGeometry, Mesh, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
-import { CharacterControllerSystem } from '@xrengine/engine/src/character/CharacterControllerSystem';
+import { CharacterControllerSystem } from '@xrengine/engine/src/avatar/systems/CharacterControllerSystem';
 import { Timer } from '@xrengine/engine/src/common/functions/Timer';
 import { DefaultInitializationOptions, InitializeOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
@@ -23,7 +23,7 @@ import path from 'path';
 import { now } from '@xrengine/engine/src/common/functions/now';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { loadScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
-import { AnimationManager } from '@xrengine/engine/src/character/AnimationManager';
+import { AnimationManager } from '@xrengine/engine/src/avatar/classes/AnimationManager';
 import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 

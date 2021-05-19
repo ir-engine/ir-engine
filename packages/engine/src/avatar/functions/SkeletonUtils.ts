@@ -5,7 +5,7 @@
 *
 * Must rebind the model to it's skeleton after this function.
 *
-*@author Avaer Kazmer
+* @author Avaer Kazmer
 * @param {Bone} rootBone
 * @param {Object} context - options and buffer for stateful bone calculations
 *                 context.exclude: [ boneNames to exclude ]

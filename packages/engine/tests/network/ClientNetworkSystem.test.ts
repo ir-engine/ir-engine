@@ -14,7 +14,7 @@ import * as initializeNetworkObjectModule from "../../src/networking/functions/i
 import { NetworkObject } from "../../src/networking/components/NetworkObject";
 import { TransformComponent } from "../../src/transform/components/TransformComponent";
 import { getComponent, hasComponent } from "../../src/ecs/functions/EntityFunctions";
-import { CharacterComponent } from "../../src/character/components/CharacterComponent";
+import { CharacterComponent } from "../../src/avatar/components/CharacterComponent";
 import { WorldStateModel } from "../../src/networking/schema/worldStateSchema";
 import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput';
 import { LifecycleValue } from "../../src/common/enums/LifecycleValue";

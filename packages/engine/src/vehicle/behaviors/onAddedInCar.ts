@@ -1,10 +1,10 @@
 import { Euler, Matrix4, Vector3 } from 'three';
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent';
 import { CameraModes } from '../../camera/types/CameraModes';
-import { initializeDriverState } from '../../character/animations/DrivingAnimations';
-import { CharacterAnimations } from '../../character/CharacterAnimations';
-import { CharacterComponent } from '../../character/components/CharacterComponent';
-import { changeAnimation } from '../../character/functions/updateVectorAnimation';
+import { initializeDriverState } from '../../avatar/behaviors/DrivingAnimations';
+import { CharacterAnimations } from '../../avatar/enums/CharacterAnimations';
+import { CharacterComponent } from '../../avatar/components/CharacterComponent';
+import { changeAnimation } from '../../avatar/functions/updateVectorAnimation';
 import { isServer } from '../../common/functions/isServer';
 import { Entity } from '../../ecs/classes/Entity';
 import { getMutableComponent, getComponent, addComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
@@ -17,7 +17,7 @@ import { PhysicsSystem } from '../../physics/systems/PhysicsSystem';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { VehicleComponent } from '../components/VehicleComponent';
 import { VehicleState } from '../enums/VehicleStateEnum';
-import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent';
+import { ControllerColliderComponent } from '../../avatar/components/ControllerColliderComponent';
 
 /**
  * @author HydraFire <github.com/HydraFire>

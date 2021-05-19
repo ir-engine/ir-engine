@@ -1,24 +1,22 @@
-import { Engine } from "../../ecs/classes/Engine";
-import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Group, Line, LineBasicMaterial, Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, Quaternion, RingGeometry, Vector3 } from 'three';
+import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, Quaternion, RingGeometry, Vector3 } from 'three';
 import { getLoader } from "../../assets/functions/LoadGLTF";
-// import { GLTF } from "../../assets/loaders/gltf/GLTFLoader";
+import { initializeMovingState } from "../../avatar/behaviors/MovingAnimations";
+import { CharacterComponent } from "../../avatar/components/CharacterComponent";
+import { stopIK } from "../../avatar/functions/IKFunctions";
+import { CHARACTER_STATES } from "../../avatar/state/CharacterStates";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { CameraModes } from "../../camera/types/CameraModes";
+import { ParityValue } from "../../common/enums/ParityValue";
+import { clearBit, getBit, setBit } from "../../common/functions/bitFunctions";
+import { SIXDOFType } from "../../common/types/NumericalTypes";
+import { Engine } from "../../ecs/classes/Engine";
+import { Entity } from "../../ecs/classes/Entity";
 import { addComponent, getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
+import { Input } from "../../input/components/Input";
+import { XRInputReceiver } from '../../input/components/XRInputReceiver';
+import { BaseInput } from "../../input/enums/BaseInput";
 import { Network } from "../../networking/classes/Network";
 import { XRSystem } from "../systems/XRSystem";
-import { CharacterComponent } from "../../character/components/CharacterComponent";
-import { XRInputReceiver } from '../../input/components/XRInputReceiver';
-import { initiateIK, stopIK } from "./IKFunctions";
-import { initializeMovingState } from "../../character/animations/MovingAnimations";
-import { CHARACTER_STATES } from "../../character/state/CharacterStates";
-import { clearBit, setBit } from "../../common/functions/bitFunctions";
-import { getBit } from "../../common/functions/bitFunctions";
-import { Entity } from "../../ecs/classes/Entity";
-import { ParityValue } from "../../common/enums/ParityValue";
-import { Input } from "../../input/components/Input";
-import { BaseInput } from "../../input/enums/BaseInput";
-import { SIXDOFType } from "../../common/types/NumericalTypes";
 
 let head, controllerGripLeft, controllerLeft, controllerRight, controllerGripRight;
 

@@ -1,5 +1,5 @@
 import { System, SystemAttributes } from "../../ecs/classes/System";
-import { CharacterComponent } from "../../character/components/CharacterComponent";
+import { CharacterComponent } from "../../avatar/components/CharacterComponent";
 import { ArrowHelper, Box3, Box3Helper, BoxHelper, Object3D, Vector3 } from "three";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { Engine } from "../../ecs/classes/Engine";

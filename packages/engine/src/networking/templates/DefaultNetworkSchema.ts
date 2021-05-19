@@ -1,4 +1,4 @@
-import { NetworkPlayerCharacter } from '../../character/prefabs/NetworkPlayerCharacter';
+import { NetworkPlayerCharacter } from '../../avatar/prefabs/NetworkPlayerCharacter';
 import { NetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
 import { NetworkVehicle } from '../../vehicle/prefabs/NetworkVehicle';
 import { MessageTypes } from '../enums/MessageTypes';

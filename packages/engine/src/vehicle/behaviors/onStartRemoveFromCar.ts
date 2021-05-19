@@ -1,15 +1,15 @@
 import { Matrix4, Vector3 } from 'three';
-import { initializeMovingState } from '../../character/animations/MovingAnimations';
-import { CharacterAnimations } from '../../character/CharacterAnimations';
-import { CharacterComponent } from '../../character/components/CharacterComponent';
-import { changeAnimation } from '../../character/functions/updateVectorAnimation';
+import { initializeMovingState } from '../../avatar/behaviors/MovingAnimations';
+import { CharacterAnimations } from '../../avatar/enums/CharacterAnimations';
+import { CharacterComponent } from '../../avatar/components/CharacterComponent';
+import { changeAnimation } from '../../avatar/functions/updateVectorAnimation';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { PlayerInCar } from '../components/PlayerInCar';
 import { PhysicsSystem } from '../../physics/systems/PhysicsSystem';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { VehicleComponent } from '../components/VehicleComponent';
-import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent';
+import { ControllerColliderComponent } from '../../avatar/components/ControllerColliderComponent';
 
 /**
  * @author HydraFire <github.com/HydraFire>

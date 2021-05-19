@@ -17,7 +17,7 @@ import { HighlightSystem } from '@xrengine/engine/src/renderer/HighlightSystem';
 import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem';
 import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem';
 import { StateSystem } from '@xrengine/engine/src/state/systems/StateSystem';
-import { CharacterInputSchema } from '@xrengine/engine/src/character/CharacterInputSchema';
+import { CharacterInputSchema } from '@xrengine/engine/src/avatar/schema/CharacterInputSchema';
 import { DefaultNetworkSchema } from '@xrengine/engine/src/networking/templates/DefaultNetworkSchema';
 import { TransformSystem } from '@xrengine/engine/src/transform/systems/TransformSystem';
 import { MainProxy } from '@xrengine/engine/src/worker/MessageQueue';
@@ -27,8 +27,8 @@ import { proxyEngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 import { receiveWorker } from '@xrengine/engine/src/worker/MessageQueue';
-import { AnimationManager } from "@xrengine/engine/src/character/AnimationManager";
-import { CharacterControllerSystem } from '@xrengine/engine/src/character/CharacterControllerSystem';
+import { AnimationManager } from "@xrengine/engine/src/avatar/classes/AnimationManager";
+import { CharacterControllerSystem } from '@xrengine/engine/src/avatar/systems/CharacterControllerSystem';
 import { UIPanelSystem } from '@xrengine/engine/src/ui/systems/UIPanelSystem';
 //@ts-ignore
 import { PhysXInstance } from "three-physx";

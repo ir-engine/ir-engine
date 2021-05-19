@@ -6,21 +6,15 @@ const stepHeight = 0.2;
 const stepMinDistance = 0;
 const stepMaxDistance = 0.25;
 const stepRestitutionDistance = 0.8;
-// const minStepDistanceTimeFactor = 0.2;
 const minHmdVelocityTimeFactor = 0.015;
-// const velocityLearningFactor = 1;
 const maxVelocity = 0.015;
 const velocityRestitutionFactor = 25;
 const crossStepFactor = 0.9;
 
 const zeroVector = new Vector3();
 const oneVector = new Vector3(1, 1, 1);
-const identityRotation = new Quaternion();
 const downHalfRotation = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI/2);
 const upHalfRotation = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI/2);
-const downJumpRotation = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI/4);
-// const downQuarterRotation = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI/4);
-
 const localVector = new Vector3();
 const localVector2 = new Vector3();
 const localVector3 = new Vector3();
@@ -35,13 +29,6 @@ const localEuler = new Euler();
 const localMatrix = new Matrix4();
 const localMatrix2 = new Matrix4();
 const localMatrix3 = new Matrix4();
-
-const _mod = (a, n) => (a % n + n) % n;
-const _angleDiff = (targetA, sourceA) => {
-  let a = targetA - sourceA;
-  a = _mod((a + Math.PI), Math.PI*2) - Math.PI;
-  return a;
-};
 
 /**
  * 

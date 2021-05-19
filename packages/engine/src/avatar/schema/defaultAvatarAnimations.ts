@@ -1,24 +1,6 @@
-import { CharacterAnimations } from "./CharacterAnimations";
-import { AnimationActionLoopStyles, LoopOnce } from 'three';
-
-export interface CharacterAvatarData {
-  id: string;
-  title: string;
-  src: string;
-  height?: number;
-  animations?: { [key: number]: AnimationConfigInterface };
-  /**
-   * default - animations from Animations.glb
-   * vrm - animations from AnimationsVRM file
-   * own - animations from avatar file
-   */
-  animationsSource?: 'default' | 'vrm' | 'own'
-}
-
-export interface AnimationConfigInterface {
-  name: string
-  loop?: AnimationActionLoopStyles
-}
+import { CharacterAnimations } from "../enums/CharacterAnimations";
+import { LoopOnce } from 'three';
+import { AnimationConfigInterface } from "../interfaces/AnimationConfigInterface";
 
 export const defaultAvatarAnimations: { [key: number]: AnimationConfigInterface } = {
   [CharacterAnimations.IDLE]: { name: 'idle' },

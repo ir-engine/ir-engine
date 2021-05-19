@@ -1,7 +1,7 @@
 import { Behavior } from '../../common/interfaces/Behavior';
 import { hasComponent, getMutableComponent, getComponent } from '../../ecs/functions/EntityFunctions';
-import { CharacterAnimations } from '../CharacterAnimations';
-import { defaultAvatarAnimations } from '../CharacterAvatars';
+import { CharacterAnimations } from '../enums/CharacterAnimations';
+import { defaultAvatarAnimations } from '../schema/defaultAvatarAnimations';
 import { AnimationComponent } from '../components/AnimationComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
 

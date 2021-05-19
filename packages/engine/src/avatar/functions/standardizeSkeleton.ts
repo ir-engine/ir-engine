@@ -1,20 +1,30 @@
-import { AnimationClip, Bone, Matrix4, Object3D, Quaternion, SkinnedMesh, Vector3 } from "three";
-import { fixSkeletonZForward } from "../../xr/classes/SkeletonUtils";
-import { findEye, findFoot, findHead, findHips, findShoulder, findSpine, getTailBones } from "../../xr/functions/AvatarFunctions";
-import { AnimationManager } from "../AnimationManager";
-import { SkeletonUtils } from "../SkeletonUtils";
+import { AnimationClip, Bone, Matrix4, Quaternion, SkinnedMesh, Vector3 } from "three";
+import { AnimationManager } from "../classes/AnimationManager";
+import { findEye, findFoot, findHead, findHips, findShoulder, findSpine, getTailBones } from "./AvatarFunctions";
+import { fixSkeletonZForward } from "./SkeletonUtils";
 
 const localVector = new Vector3();
 const localVector2 = new Vector3();
 const localMatrix = new Matrix4();
 
+const options = {
+  hip: "hips",
+  preservePosition: true,
+  preserveHipPosition: true,
+  useTargetMatrix: true
+};
+
+
 export const standardizeSkeletion = (target: SkinnedMesh, source: SkinnedMesh) => {
 
-  // console.log('target', ...target.skeleton.bones)
-  // console.log('source', ...source.skeleton.bones)
-  
   const targetBones = GetBones(target);
   const sourceBones = GetBones(source);
+
+  console.log('target', ...target.skeleton.bones)
+  console.log('source', ...source.skeleton.bones)
+
+
+  // SkeletonUtils.retarget(target, source, options);
 
   // console.log("Targetbones are ", targetBones)
   Object.values(targetBones).forEach((element, id) => {

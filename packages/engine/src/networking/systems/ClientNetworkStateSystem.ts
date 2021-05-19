@@ -1,10 +1,10 @@
 import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
 import { NetworkObject } from '../components/NetworkObject';
-import { createNetworkPlayer } from '../../character/prefabs/NetworkPlayerCharacter';
+import { createNetworkPlayer } from '../../avatar/prefabs/NetworkPlayerCharacter';
 import { createNetworkVehicle } from '../../vehicle/prefabs/NetworkVehicle';
-import { IKComponent } from '../../character/components/IKComponent';
+import { IKComponent } from '../../avatar/components/IKComponent';
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
-import { CharacterComponent } from "../../character/components/CharacterComponent";
+import { CharacterComponent } from "../../avatar/components/CharacterComponent";
 import { NetworkObjectUpdateSchema } from '../../networking/templates/NetworkObjectUpdateSchema';
 import { initiateIK } from "../../xr/functions/IKFunctions";
 import { Network } from '../classes/Network';

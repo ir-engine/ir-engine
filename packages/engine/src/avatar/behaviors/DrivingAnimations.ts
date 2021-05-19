@@ -6,8 +6,8 @@ import { getMutableComponent, getComponent, hasComponent } from "../../ecs/funct
 import { Input } from "../../input/components/Input";
 import { Network } from "../../networking/classes/Network";
 import { PlayerInCar } from "../../vehicle/components/PlayerInCar";
-import { CharacterAnimations } from "../CharacterAnimations";
-import { defaultAvatarAnimations } from '../CharacterAvatars';
+import { CharacterAnimations } from "../enums/CharacterAnimations";
+import { defaultAvatarAnimations } from '../schema/defaultAvatarAnimations';
 import { AnimationComponent } from '../components/AnimationComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
 

@@ -6,7 +6,7 @@ import { NumericalType, Vector2Type } from "../../common/types/NumericalTypes";
 import { Engine } from '../../ecs/classes/Engine';
 import { System, SystemAttributes } from '../../ecs/classes/System';
 import { addComponent, createEntity, getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { CharacterComponent } from "../../character/components/CharacterComponent";
+import { CharacterComponent } from "../../avatar/components/CharacterComponent";
 import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { CameraComponent } from '../components/CameraComponent';

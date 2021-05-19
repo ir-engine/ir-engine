@@ -1,6 +1,6 @@
 import { Matrix4, Vector3 } from 'three';
-import { CharacterAnimations } from '../../character/CharacterAnimations';
-import { changeAnimation } from '../../character/functions/updateVectorAnimation';
+import { CharacterAnimations } from '../../avatar/enums/CharacterAnimations';
+import { changeAnimation } from '../../avatar/functions/updateVectorAnimation';
 import { isServer } from '../../common/functions/isServer';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';

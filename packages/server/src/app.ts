@@ -108,7 +108,7 @@ if (config.server.enabled) {
       });
     }
 
-    // Configure other middleware (see `middleware/index.js`)
+    // Configure other middleware (see `middleware/index.js`)   
     app.configure(authentication);
     // Set up our services (see `services/index.js`)
 

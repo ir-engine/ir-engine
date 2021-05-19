@@ -21,8 +21,8 @@ import { ClientNetworkSystem } from "../../../src/networking/systems/ClientNetwo
 import { PhysicsSystem } from "../../../src/physics/systems/PhysicsSystem";
 import { State } from "../../../src/state/components/State";
 import { StateSystem } from "../../../src/state/systems/StateSystem";
-import { CharacterAnimations } from "../../../src/character/CharacterAnimations";
-import { CharacterComponent } from "../../../src/character/components/CharacterComponent";
+import { CharacterAnimations } from "../../../src/avatar/CharacterAnimations";
+import { CharacterComponent } from "../../../src/avatar/components/CharacterComponent";
 import { DefaultNetworkSchema } from "../../../src/networking/templates/DefaultNetworkSchema";
 import { createRemoteUserOnClient } from "../../_helpers/createRemoteUserOnClient";
 

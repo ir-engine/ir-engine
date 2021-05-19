@@ -1,12 +1,12 @@
 import { Matrix4, Vector3 } from 'three';
-import { CharacterComponent } from '../../character/components/CharacterComponent';
+import { CharacterComponent } from '../../avatar/components/CharacterComponent';
 import { Entity } from '../../ecs/classes/Entity';
 import { getMutableComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { PlayerInCar } from '../components/PlayerInCar';
 import { PhysicsSystem } from '../../physics/systems/PhysicsSystem';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { VehicleComponent } from '../components/VehicleComponent';
-import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent';
+import { ControllerColliderComponent } from '../../avatar/components/ControllerColliderComponent';
 
 /**
  * @author HydraFire <github.com/HydraFire>

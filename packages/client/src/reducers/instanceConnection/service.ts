@@ -80,7 +80,7 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
           videoEnabled: currentLocation?.locationSettings?.videoEnabled === true || !(currentLocation?.locationSettings?.locationType === 'showroom' && user.locationAdmins?.find(locationAdmin => locationAdmin.locationId === currentLocation.id) == null)
         });
       } catch (error){
-        console.error("Network transport could not initialize, transport is: ", Network.instance.transport);
+        console.error(error);
       }
       
       EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers);

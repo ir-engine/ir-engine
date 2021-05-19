@@ -1,5 +1,5 @@
 import { initializeEngine } from '@xrengine/client-core/src/initialize';
-import { CharacterInputSchema } from '@xrengine/engine/src/character/CharacterInputSchema';
+import { CharacterInputSchema } from '@xrengine/engine/src/avatar/schema/CharacterInputSchema';
 import React, { useEffect } from 'react';
 
 const LocationPage = () => {
