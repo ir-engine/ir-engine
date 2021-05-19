@@ -305,6 +305,15 @@ export const WebXRPlugin = (): any => {
         }
     };
 
+    fetch('',{
+        'method': 'get',
+
+    }).then(()=>{
+
+    })
+
+
+
     const handleTap = () => {
         Plugins.XRPlugin.handleTap();
     };
