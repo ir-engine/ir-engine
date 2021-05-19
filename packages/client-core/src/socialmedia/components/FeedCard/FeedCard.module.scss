@@ -4,11 +4,13 @@
     position: relative;
 
     .previewImage{
-        height: 210pt;
+        height: auto;
         object-fit: cover;
         background-color: #DDDDDD;
         padding: 0px;
-
+        margin: 0 17pt;
+        width: calc(100% - 34pt);
+        border-radius: 13pt;
     }
     .eyeLine{
         width: 100%;
@@ -25,14 +27,20 @@
             margin: 0 0 0 5px;
         }
     }
+    .iconSubContainer{
+        svg{
+            height: 23pt;
+            width: auto;
+        }
+    }
     .cardContent{
-        padding: 0px 16pt;
+        padding: 0px 19pt;
         :global(.MuiCardHeader-root){
             padding: 0;
         }
     }
     .iconsContainer{
-        text-align: right;
+        text-align: left;
         display: flex;
         justify-content: space-between;
     }
@@ -47,9 +55,17 @@
     .cartText{
         font-size: 17pt;
     }
+    .avatar{
+        height: max-content;
+        width: max-content;
+        img{
+            height: 40pt;
+            width: 40pt;
+        }
+    }
     @media screen and (max-width: 499px){
         .previewImage{
-            height: 167pt;
+            height: auto;
         }
         .titleContainer{
             font-size: 16pt;
@@ -58,7 +74,19 @@
             font-size: 14pt;
         }
         .cardContent{
-            padding: 0px 13pt;
+            padding: 0px 15pt;
+        }
+        .iconSubContainer{
+            svg{
+                height: 18pt;
+                width: auto;
+            }
+        }
+        .avatar{
+            img{
+                height: 32pt;
+                width: 32pt;
+            }
         }
     }
 }

@@ -3,9 +3,9 @@
     flex-wrap: wrap;
     width: 100vw;
     box-sizing: border-box;
-    padding: 0 29.7pt;
-    @media screen and (max-width: 500px){
-        padding: 0 23pt;
+    padding: 0 19pt;
+    @media screen and (max-width: 499px){
+        padding: 0 15pt;
     }
 
     .emptyList{

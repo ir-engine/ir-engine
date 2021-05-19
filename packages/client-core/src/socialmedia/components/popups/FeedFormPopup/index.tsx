@@ -30,6 +30,7 @@ export const FeedFormPopup = ({popupsState, updateNewFeedPageState}: Props) =>{
 const handleNewFeedClose = () => {
   updateNewFeedPageState(false);
 };
+
 const renderNewFeedModal = () =>
   popupsState?.get('shareFeedPage') === true &&  
       // <SharedModal 
@@ -37,10 +38,10 @@ const renderNewFeedModal = () =>
       //     onClose={handleNewFeedClose} 
       //     className={styles.feedFormPopup}
       // >
-          <WebXRPlugin/>
-          {/* <FeedForm />       */}
-          <AppFooter />
-      // </SharedModal>;
+        
+          <FeedForm />      
+          // <AppFooter />
+      //  </SharedModal>;
 const newFeedPageState = popupsState?.get('shareFeedPage');
 useEffect(()=>{renderNewFeedModal();}, [newFeedPageState]);
     return  renderNewFeedModal();         

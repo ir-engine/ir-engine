@@ -7,9 +7,10 @@ import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunc
 import { getStorage, setStorage } from '../../../functions/functionsStorage';
 import { onInteraction, onInteractionHover } from '../../../../scene/behaviors/createCommonInteractive';
 import { Interactable } from '../../../../interaction/components/Interactable';
-import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
+import { CollisionGroups, DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
 import { GameObject } from "../../../components/GameObject";
+import { GolfCollisionGroups } from '../GolfGameConstants';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -22,15 +23,14 @@ export const addBall: Behavior = (entity: Entity, args?: any, delta?: number, en
   const rot = storageTransform.rotation ?? { x:0, y:0, z:0, w:1 };
   const scale = storageTransform.scale  ?? { x:1, y:1, z:1 };
 
-  const shapeBall: Shape = createShapeFromConfig({
+  const shapeBall = createShapeFromConfig({
     shape: SHAPES.Sphere,
-    options: { radius: 0.1 },
+    options: { radius: 0.025 },
 
-    // TODO: upgrade three-physx and uncomment following commented lines
-    // config: {
-      collisionLayer: 15,
-      collisionMask: 42
-    // }
+    config: {
+      collisionLayer: GolfCollisionGroups.Ball,
+      collisionMask: DefaultCollisionMask | GolfCollisionGroups.Hole | GolfCollisionGroups.Club
+    }
 
   });
 

@@ -92,20 +92,18 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
       break;
   }
 
-  const shape: Shape = createShapeFromConfig(shapeArgs);
+  const shape = createShapeFromConfig(shapeArgs);
   shape.config.material = { restitution: userData.restitution ?? 0 };
- /*
- shape.config.collisionLayer = model.collisionLayer ?? CollisionGroups.All;
+ 
+ shape.config.collisionLayer = model.collisionLayer ?? CollisionGroups.Default;
  switch(model.collisionMask) {
-   case undefined: case -1: case '-1': case '': shape.config.collisionMask = CollisionGroups.All; break;
+   case undefined: case -1: case '-1': case '': shape.config.collisionMask = DefaultCollisionMask; break;
    default: if(/all/i.test(model.collisionMask))
-       shape.config.collisionMask = CollisionGroups.All;
+       shape.config.collisionMask = DefaultCollisionMask;
      else
        shape.config.collisionMask = Number(model.collisionMask);
      break;
-     */
-  shape.config.collisionLayer = userData.collisionLayer ?? CollisionGroups.Default;
-  shape.config.collisionMask = userData.collisionMask ?? DefaultCollisionMask;
+ }
 
   if(userData.type === 'ground') {
     shape.config.collisionLayer = CollisionGroups.Ground;
