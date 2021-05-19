@@ -61,6 +61,12 @@ export const NetworkDebug = ({ reinit  }) => {
     if (transport.instanceSocket && typeof transport.instanceSocket.disconnect === 'function') await transport.instanceSocket.disconnect();
     if (transport.channelSocket && typeof transport.channelSocket.disconnect === 'function') await transport.channelSocket.disconnect();
 
+    EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_AVATAR, enabled: false });
+    setAvatarDebug(false);
+
+    EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS, enabled: false });
+    setPhysicsDebug(false);
+
     resetEngine();
   };
 

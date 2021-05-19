@@ -3,7 +3,6 @@ import { Behavior } from '../../../../common/interfaces/Behavior';
 import { Entity } from '../../../../ecs/classes/Entity';
 import { getMutableComponent } from "../../../../ecs/functions/EntityFunctions";
 import { addStateComponent, removeStateComponent } from '../../../../game/functions/functionsState';
-import { TransformComponent } from '../../../../transform/components/TransformComponent';
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
 
