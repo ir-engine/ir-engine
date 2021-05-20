@@ -94,7 +94,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
          setVideo(myFile);
          setPreview(myFile)
          console.log(myFile)
-      });
+      }).catch(error => console.log(error.message));
     }, [] ); 
      
     
