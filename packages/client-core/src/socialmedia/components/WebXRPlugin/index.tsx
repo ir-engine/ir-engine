@@ -38,6 +38,7 @@ const mapStateToProps = (state: any): any => {
 interface Props{
     popupsState?: any;
     updateNewFeedPageState?: typeof updateNewFeedPageState;
+    setContentHidden?: any
   }
 
 const { isNative } = Capacitor;
@@ -58,7 +59,7 @@ const correctionQuaternionZ = new Quaternion().setFromAxisAngle(new Vector3(0,0,
 const _DEBUG = false;
 const DEBUG_MINI_VIEWPORT_SIZE = 100;
 
-export const WebXRPlugin = ({popupsState, updateNewFeedPageState}:Props) => {
+export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidden}:Props) => {
     const canvasRef = React.useRef();
     const [initializationResponse, setInitializationResponse] = useState("");
     const [cameraStartedState, setCameraStartedState] = useState("");
@@ -301,7 +302,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState}:Props) => {
     const toggleRecording = () => {
         if (recordingState === RecordingStates.OFF) {
             setRecordingState(RecordingStates.ON);
-
+            setContentHidden()
             //TODO: check why there are errors
             // @ts-ignore
             Plugins.XRPlugin.startRecording({
@@ -317,7 +318,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState}:Props) => {
         }
         else if (recordingState === RecordingStates.ON) {
             setRecordingState(RecordingStates.OFF);
-
+            setContentHidden()
             // @ts-ignore
             Plugins.XRPlugin.stopRecording().
                 // @ts-ignore

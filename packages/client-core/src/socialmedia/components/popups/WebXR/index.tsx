@@ -24,14 +24,15 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props{
     popupsState?: any;
     updateWebXRState?: typeof  updateWebXRState;
+    setContentHidden?: any
 }
-export const WebXRStart = ({popupsState, updateWebXRState}: Props) =>{
+export const WebXRStart = ({popupsState, updateWebXRState, setContentHidden}: Props) =>{
   //common for web xr
 
 const renderWebXRModal = () =>
   popupsState?.get('webxr') === true &&  
     
-        <WebXRPlugin/> 
+        <WebXRPlugin setContentHidden={setContentHidden} />
          
       
 const webXRstate = popupsState?.get('webxr');
