@@ -33,6 +33,12 @@ body{
   }
   section{
     display: none;
+    &:nth-child(1){
+      display: block;
+      section{
+        display: block;
+      }
+    }
   }
   .plugintestControls{
     display: block;
