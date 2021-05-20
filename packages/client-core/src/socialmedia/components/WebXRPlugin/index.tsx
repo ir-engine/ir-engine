@@ -307,8 +307,8 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
             // @ts-ignore
             Plugins.XRPlugin.startRecording({
                 isAudio: true,
-                width: 500,
-                height: 500,
+                width: 1024,
+                height: 1024,
                 bitRate: 1000,
                 dpi: 100,
                 filePath: "/test.mp4"
@@ -325,9 +325,9 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
                 then(({ result, filePath }) => {
                     console.log("END RECORDING, result IS", result);
                     console.log("filePath IS", filePath);
-                  
                     setSavedFilePath("file://" + filePath);
-                    updateNewFeedPageState(true, filePath)
+                    const videoPath = Capacitor.convertFileSrc(filePath);
+                    updateNewFeedPageState(true, videoPath)
                 }).catch(error => alert(error.message));
                 
         }
