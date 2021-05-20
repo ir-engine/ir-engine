@@ -28,7 +28,6 @@ export const handleInputFromNonLocalClients: Behavior = (entity: Entity, args: {
 
   // For each input currently on the input object:
   input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-
     // If the input is a button
     if (value.type === InputType.BUTTON) {
       // If the input exists on the input map (otherwise ignore it)
