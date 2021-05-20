@@ -1,7 +1,7 @@
 import '@feathersjs/transport-commons';
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
-import { loadScene } from "@xrengine/engine/src/scene/functions/SceneLoading";
+import { WorldScene } from "@xrengine/engine/src/scene/functions/SceneLoading";
 import config from '@xrengine/server-core/src/appconfig';
 import { Application } from '@xrengine/server-core/declarations';
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip';
@@ -96,13 +96,12 @@ export default (app: Application): void => {
                                 const result = await app.service(service).get(serviceId);
 
                                 if (!Engine.sceneLoaded) {
-                                    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, () => {
+                                    WorldScene.load(result, () => {
                                         EngineEvents.instance.dispatchEvent({
                                             type: EngineEvents.EVENTS.ENABLE_SCENE,
                                             enable: true
                                         });
                                     });
-                                    loadScene(result);
                                 }
                             }
                         } else {

@@ -34,7 +34,6 @@ import { UIPanelSystem } from '@xrengine/engine/src/ui/systems/UIPanelSystem';
 import { PhysXInstance } from "three-physx";
 import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem';
 import { now } from '@xrengine/engine/src/common/functions/now';
-import { loadScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -64,7 +63,6 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   const options = _.defaultsDeep({}, initOptions, DefaultOffscreenInitializationOptions);
 
   proxyEngineEvents(proxy);
-  EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); });
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
   });

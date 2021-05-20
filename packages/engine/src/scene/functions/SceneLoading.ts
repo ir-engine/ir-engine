@@ -1,7 +1,6 @@
-import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
-import { LOADER_STATUS } from "../../assets/constants/LoaderConstants";
+import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, Scene, SpotLight } from 'three';
+// import { LOADER_STATUS } from "../../assets/constants/LoaderConstants";
 import { isClient } from "../../common/functions/isClient";
-import { isServer } from "../../common/functions/isServer";
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from "../../ecs/classes/Entity";
@@ -37,222 +36,234 @@ import { setPostProcessing } from "../behaviors/setPostProcessing";
 import { CameraSystem } from "../../camera/systems/CameraSystem";
 import { CopyTransformComponent } from "../../transform/components/CopyTransformComponent";
 
-export function loadScene(scene: SceneData): void {
-  const loadPromises = [];
-  let loaded = 0;
 
-  Object.keys(scene.entities).forEach(key => {
-    const sceneEntity = scene.entities[key];
-    const entity = createEntity();
-    addComponent(entity, SceneTagComponent);
-    sceneEntity.components.forEach(component => {
-      component.data.sceneEntityId = sceneEntity.entityId;
+export class WorldScene {
+  loadedModels = 0;
+  loaders: Promise<void>[] = [];
 
-      if (isClient && component.name === 'gltf-model' && !component.data.dontParseModel) {
-        loadPromises.push(new Promise<void>((resolve) => {
-          EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ASSET_LOADER, (e) => {
-            if (e.data.entityId === entity.id && e.data.status !== LOADER_STATUS.LOADING) {
-              loaded++;
-              resolve();
-              EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENTITY_LOADED, left: (loadPromises.length - loaded) });
-            }
+  constructor(private onCompleted?: Function, private onProgress?: Function) { }
+
+  loadScene = (scene: SceneData) => {
+    Object.keys(scene.entities).forEach(key => {
+      const sceneEntity = scene.entities[key];
+      const entity = createEntity();
+
+      addComponent(entity, SceneTagComponent);
+
+      sceneEntity.components.forEach(component => {
+        component.data.sceneEntityId = sceneEntity.entityId;
+        this.loadComponent(entity, component);
+      });
+    });
+
+    Promise.all(this.loaders).then(() => {
+      Engine.sceneLoaded = true;
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED });
+
+      this.onCompleted();
+    });
+  }
+
+  _onModelLoaded = () => {
+    this.loadedModels++;
+    if (typeof this.onProgress === 'function') this.onProgress(this.loaders.length - this.loadedModels);
+  }
+
+
+  loadComponent = (entity: Entity, component: SceneDataComponent): void => {
+    const name = component.name.replace(/(-\d+)|(\s)/g, "");
+
+    switch(component.name) {
+      case 'game':
+        createGame(entity, component.data);
+        break;
+
+      case 'game-object':
+        createGameObject(entity, component.data);
+        break;
+
+      case 'ambient-light':
+        addObject3DComponent(entity, { obj3d: AmbientLight, objArgs: component.data });
+        addComponent(entity, LightTagComponent);
+        break;
+
+      // case 'directional-light':
+      //   addObject3DComponent(
+      //     entity,
+      //     {
+      //       obj3d: DirectionalLight,
+      //       objArgs: {
+      //         'shadow.mapSize': component.data.shadowMapResolution,
+      //         'shadow.bias': component.data.shadowBias,
+      //         'shadow.radius': component.data.shadowRadius,
+      //         intensity: component.data.intensity,
+      //         color: component.data.color,
+      //         castShadow: true,
+      //       }
+      //     },
+      //   );
+      //   addComponent(entity, LightTagComponent);
+      //   break;
+
+      case 'collidable':
+        console.warn("'Collidable' is not implemented");
+        break;
+
+      case 'floor-plan':
+        break;
+
+      case 'gltf-model':
+        if (!isClient && component.data.dontParseModel) return;
+
+        this.loaders.push(new Promise<void>(resolve => {
+          AssetLoader.load({
+            url: component.data.src,
+            entity,
+          }, (res) => {
+            if (component.data.dontParseModel) clearFromColliders(entity, { asset: res });
+            else parseModelColliders(entity, { asset: res, uniqueId: component.data.sceneEntityId });
+            this._onModelLoaded();
+            resolve();
           });
         }));
-      }
-      loadComponent(entity, component);
-    });
-  });
+        break;
 
-  Promise.all(loadPromises).then(() => {
-    Engine.sceneLoaded = true;
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED });
-  });
-}
+      case 'interact':
+        createCommonInteractive(entity, component.data);
+        break;
 
-function loadComponent(entity: Entity, component: SceneDataComponent): void {
-  const name = component.name.replace(/(-\d+)|(\s)/g, "");
+      case 'ground-plane':
+        const mesh = new Mesh(
+          new CircleBufferGeometry(1000, 32).rotateX(-Math.PI / 2),
+          new MeshPhongMaterial({
+            color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464)
+          })
+        );
 
-  switch(component.name) {
-    case 'game':
-      createGame(entity, component.data);
-      break;
+        addObject3DComponent(
+          entity,
+          {
+            obj3d: mesh,
+            objArgs: { receiveShadow: true, 'material.color': component.data.color },
+          },
+        );
+        break;
 
-    case 'game-object':
-      createGameObject(entity, component.data);
-      break;
+      case 'hemisphere-light':
+        addObject3DComponent(entity, { obj3d: HemisphereLight, objArgs: component.data });
+        break;
 
-    case 'ambient-light':
-      addObject3DComponent(entity, { obj3d: AmbientLight, objArgs: component.data });
-      addComponent(entity, LightTagComponent);
-      break;
+      case 'point-light':
+        addObject3DComponent(entity, { obj3d: PointLight, objArgs: component.data });
+        break;
 
-    // case 'directional-light':
-    //   addObject3DComponent(
-    //     entity,
-    //     {
-    //       obj3d: DirectionalLight,
-    //       objArgs: {
-    //         'shadow.mapSize': component.data.shadowMapResolution,
-    //         'shadow.bias': component.data.shadowBias,
-    //         'shadow.radius': component.data.shadowRadius,
-    //         intensity: component.data.intensity,
-    //         color: component.data.color,
-    //         castShadow: true,
-    //       }
-    //     },
-    //   );
-    //   addComponent(entity, LightTagComponent);
-    //   break;
+      case 'skybox':
+        createSkybox(entity, component.data);
+        break;
 
-    case 'collidable':
-      console.warn("'Collidable' is not implemented");
-      break;
+      case 'image':
+        addObject3DComponent(entity, { obj3d: Image, objArgs: component.data });
+        break;
 
-    case 'floor-plan':
-      break;
+      case 'video':
+        if (isClient) createVideo(entity, component.data);
+        else createMediaServer(entity, component.data);
+        break;
 
-    case 'gltf-model':
-      if (isServer && component.data.dontParseModel) return;
+      case 'audio':
+        if (isClient) createAudio(entity, component.data);
+        else createMediaServer(entity, component.data);
+        break;
 
-      AssetLoader.load({
-        url: component.data.src,
-        entity,
-      }, (res) => {
-        if (component.data.dontParseModel) clearFromColliders(entity, { asset: res });
-        else parseModelColliders(entity, { asset: res, uniqueId: component.data.sceneEntityId });
-      });
-      break;
+      case 'volumetric':
+        if (isClient) createVolumetric(entity, component.data);
+        else createMediaServer(entity, component.data);
+        break;
 
-    case 'interact':
-      createCommonInteractive(entity, component.data);
-      break;
+      case 'spot-light':
+        addObject3DComponent(entity, { obj3d: SpotLight, objArgs: component.data });
+        break;
 
-    case 'ground-plane':
-      const mesh = new Mesh(
-        new CircleBufferGeometry(1000, 32).rotateX(-Math.PI / 2),
-        new MeshPhongMaterial({
-          color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464)
-        })
-      );
+      case 'transform':
+        createTransformComponent(entity, component.data);
+        break;
 
-      addObject3DComponent(
-        entity,
-        {
-          obj3d: mesh,
-          objArgs: { receiveShadow: true, 'material.color': component.data.color },
-        },
-      );
-      break;
+      case 'visible':
+        addComponent(entity, VisibleTagComponent);
+        break;
 
-    case 'hemisphere-light':
-      addObject3DComponent(entity, { obj3d: HemisphereLight, objArgs: component.data });
-      break;
+      case 'walkable':
+        addComponent(entity, WalkableTagComponent);
+        break;
 
-    case 'point-light':
-      addObject3DComponent(entity, { obj3d: PointLight, objArgs: component.data });
-      break;
+      case 'fog':
+        setFog(entity, component.data);
+        break;
 
-    case 'skybox':
-      createSkybox(entity, component.data);
-      break;
+      case 'background':
+        createBackground(entity, component.data);
+        break;
 
-    case 'image':
-      addObject3DComponent(entity, { obj3d: Image, objArgs: component.data });
-      break;
+      case 'audio-settings':
+        handleAudioSettings(entity, component.data);
+        break;
 
-    case 'video':
-      if (isClient) createVideo(entity, component.data);
-      else createMediaServer(entity, component.data);
-      break;
+      case 'spawn-point':
+        addComponent(entity, SpawnPointComponent);
+        break;
 
-    case 'audio':
-      if (isClient) createAudio(entity, component.data);
-      else createMediaServer(entity, component.data);
-      break;
+      case 'scene-preview-camera':
+        addComponent(entity, ScenePreviewCameraTagComponent);
+        if (isClient && CameraSystem.instance.activeCamera) {
+          addComponent(CameraSystem.instance.activeCamera, CopyTransformComponent, { input: entity });
+        }
+        break;
 
-    case 'volumetric':
-      if (isClient) createVolumetric(entity, component.data);
-      else createMediaServer(entity, component.data);
-      break;
+      case 'shadow':
+        createShadow(entity, {
+          castShadow: component.data.cast,
+          receiveShadow: component.data.receive,
+        });
+        break;
 
-    case 'spot-light':
-      addObject3DComponent(entity, { obj3d: SpotLight, objArgs: component.data });
-      break;
+      case 'group':
+        createGroup(entity, component.data);
+        break;
 
-    case 'transform':
-      createTransformComponent(entity, component.data);
-      break;
+      case 'box-collider':
+        createBoxCollider(entity, component.data);
+        break;
 
-    case 'visible':
-      addComponent(entity, VisibleTagComponent);
-      break;
+      case 'mesh-collider':
+        createMeshCollider(entity, component.data);
+        break;
 
-    case 'walkable':
-      addComponent(entity, WalkableTagComponent);
-      break;
+      case 'vehicle-saved-in-scene':
+        createVehicleFromSceneData(entity, component.data);
+        break;
 
-    case 'fog':
-      setFog(entity, component.data);
-      break;
+      case 'trigger-volume':
+        createTriggerVolume(entity, component.data);
+        break;
 
-    case 'background':
-      createBackground(entity, component.data);
-      break;
+      case 'link':
+        createLink(entity, component.data);
+        break;
 
-    case 'audio-settings':
-      handleAudioSettings(entity, component.data);
-      break;
+      case 'particle-emitter':
+        createParticleEmitterObject(entity, component.data);
+        break;
 
-    case 'spawn-point':
-      addComponent(entity, SpawnPointComponent);
-      break;
+      case 'postprocessing':
+        setPostProcessing(entity, component.data);
+        break;
 
-    case 'scene-preview-camera':
-      addComponent(entity, ScenePreviewCameraTagComponent);
-      if (!isServer && CameraSystem.instance.activeCamera) {
-        addComponent(CameraSystem.instance.activeCamera, CopyTransformComponent, { input: entity });
-      }
-      break;
+      default: return console.warn("Couldn't load Component", name);
+    }
+  }
 
-    case 'shadow':
-      createShadow(entity, {
-        castShadow: component.data.cast,
-        receiveShadow: component.data.receive,
-      });
-      break;
-
-    case 'group':
-      createGroup(entity, component.data);
-      break;
-
-    case 'box-collider':
-      createBoxCollider(entity, component.data);
-      break;
-
-    case 'mesh-collider':
-      createMeshCollider(entity, component.data);
-      break;
-
-    case 'vehicle-saved-in-scene':
-      createVehicleFromSceneData(entity, component.data);
-      break;
-
-    case 'trigger-volume':
-      createTriggerVolume(entity, component.data);
-      break;
-
-    case 'link':
-      createLink(entity, component.data);
-      break;
-
-    case 'particle-emitter':
-      createParticleEmitterObject(entity, component.data);
-      break;
-
-    case 'postprocessing':
-      setPostProcessing(entity, component.data);
-      break;
-
-    default: return console.warn("Couldn't load Component", name);
+  static load = (scene: SceneData, onCompleted: Function, onProgress?: Function) => {
+    const world = new WorldScene(onCompleted, onProgress);
+    world.loadScene(scene);
   }
 }
