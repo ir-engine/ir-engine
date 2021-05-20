@@ -14,6 +14,7 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { addComponent, getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups';
+import { InterpolationComponent } from '../../physics/components/InterpolationComponent';
 import { GameObject } from "../../game/components/GameObject";
 import { UserControlledColliderComponent } from '../../physics/components/UserControllerObjectComponent';
 import { Interactable } from "../../interaction/components/Interactable";
@@ -26,6 +27,7 @@ export function spawnNetworkRigidBody( args:{ url: string, game: string, role: s
   console.warn('spawnNetworkRigidBody');
   const entity = new Entity();
   const networkObject = addComponent(entity, NetworkObject, { ownerId: 'server', networkId: args.networkId, uniqueId: args.uniqueId } );
+  addComponent(entity, TransformComponent);
 
   AssetLoader.load({
     url: Engine.publicPath + args.url,
@@ -42,13 +44,14 @@ export function spawnNetworkRigidBody( args:{ url: string, game: string, role: s
     addComponent(entity, Object3DComponent, { value: group });
     addComponent(entity, SceneTagComponent);
     addComponent(entity, VisibleTagComponent);
-    addComponent(entity, TransformComponent);
+
 
 
     const body = addBall();
     addComponent(entity, ColliderComponent, { body, bodytype: BodyType.DYNAMIC });
     addComponent(entity, GameObject, { game: args.game, role: args.role, uuid: args.uniqueId});
-    addComponent(entity, UserControlledColliderComponent, { ownerNetworkId: args.ownerId });
+    addComponent(entity, InterpolationComponent );
+    //addComponent(entity, UserControlledColliderComponent, { ownerNetworkId: args.ownerId });
     console.warn(entity);
     });
 }
@@ -65,7 +68,7 @@ export function createNetworkRigidBody( args:{ parameters?: any, spawn?: any, ne
     };
 
   } else {
-    console.warn(args.spawn);
+  //  console.warn(args.spawn);
     initializeNetworkObject({
       entity: args.entity,
       prefabType: PrefabType.RigidBody,

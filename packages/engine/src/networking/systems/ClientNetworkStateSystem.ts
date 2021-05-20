@@ -178,7 +178,7 @@ export class ClientNetworkStateSystem extends System {
       // Handle all network objects created this frame
       for (const objectToCreateKey in worldStateBuffer.createObjects) {
         const objectToCreate = worldStateBuffer.createObjects[objectToCreateKey];
-        console.warn(objectToCreate);
+        //console.warn(objectToCreate);
         const isIdEmpty = Network.instance.networkObjects[objectToCreate.networkId] === undefined;
         const isIdFull = Network.instance.networkObjects[objectToCreate.networkId] != undefined;
         const isPlayerPref = objectToCreate.prefabType === PrefabType.Player;
@@ -219,7 +219,7 @@ export class ClientNetworkStateSystem extends System {
       }
       syncNetworkObjectsTest(worldStateBuffer.createObjects)
 
-
+      !window.t?window.t=1:window.t==50?console.warn(window.t = 0,"| ",worldStateBuffer.transforms):window.t+=1;
       //  it looks like if there is one player, we get 2 times a package with a transform.
       if (worldStateBuffer.transforms.length) {
         const myPlayerTime = worldStateBuffer.transforms.find(v => v.networkId == Network.instance.localAvatarNetworkId);
