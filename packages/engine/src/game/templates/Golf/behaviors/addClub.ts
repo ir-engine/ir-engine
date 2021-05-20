@@ -31,7 +31,7 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
   });
   const shapeHead = createShapeFromConfig({
     shape: SHAPES.Box,
-    options: { boxExtents: { x: 0.05, y: 0.1, z: 0.05 } },
+    options: { boxExtents: { x: 0.025, y: 0.1, z: 0.05 } },
     transform: new Transform({
       translation: { x: 0, y: 0.1, z: -1.7 }
     }),
@@ -52,6 +52,7 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
   });
 
   PhysicsSystem.instance.addBody(body);
+  console.log(body.shapes[0].config, body.shapes[1].config)
 
   createNetworkRigidBody({
     entity,

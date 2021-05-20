@@ -57,7 +57,7 @@ async function run() {
 
     // botManager.addAction("monitor", BotAction.opIf((stats) => console.log(stats)));
 
-    botManager.addAction("bot1", BotAction.delay(60000));
+    botManager.addAction("bot1", BotAction.delay(6000000));
     botManager.addAction("bot1", BotAction.disconnect());
     // botManager.addAction("bot2", BotAction.disconnect());
 

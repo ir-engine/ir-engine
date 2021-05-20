@@ -18,6 +18,13 @@ import { useTranslation } from 'react-i18next';
 import styles from './FeedForm.module.scss';
 import { createFeed, updateFeedAsAdmin } from '../../reducers/feed/service';
 import { updateNewFeedPageState, updateShareFormState, updateArMediaState } from '../../reducers/popupsState/service';
+import { selectPopupsState } from '../../reducers/popupsState/selector';
+
+const mapStateToProps = (state: any): any => {
+    return {
+      popupsState: selectPopupsState(state),
+    };
+  };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createFeed: bindActionCreators(createFeed, dispatch),
@@ -29,13 +36,14 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 interface Props{
     feed?:any;
+    popupsState?: any;
     createFeed?: typeof createFeed;
     updateFeedAsAdmin?: typeof updateFeedAsAdmin;
     updateNewFeedPageState?: typeof updateNewFeedPageState; 
     updateShareFormState?: typeof updateShareFormState;
     updateArMediaState?: typeof updateArMediaState;
 }
-const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, updateShareFormState, updateArMediaState} : Props) => { 
+const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, updateShareFormState, updateArMediaState, popupsState } : Props) => { 
     const [isSended, setIsSended] = useState(false);
     const [isRecordVideo, setRecordVideo] = useState(false);
     const [isVideo, setIsVideo] = useState(false);
@@ -52,6 +60,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value);
     const handleComposingTextChange = (event: any): void => setComposingText(event.target.value);
     const handleCreateFeed = async () => {
+        
         const newFeed = {
             title: composingTitle.trim(),
             description: composingText.trim(),
@@ -62,6 +71,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         }else{
            setVideoUrl(await createFeed(newFeed)); 
         }
+        console.log(newFeed)
 
         setComposingTitle('');
         setComposingText('');
@@ -77,19 +87,20 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
 
     };
 
+    
     useEffect(()=> {videoUrl && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
-    const handlePickVideo = async (file) => setVideo(file.target.files[0]);
+    const handlePickVideo = async (file) => setVideo(popupsState?.get('videoPath'));
     const handlePickPreview = async (file) => setPreview(file.target.files[0]);
     
 return <section className={styles.feedFormContainer}>
-    <nav>               
+    {/* <nav>               
         <Button variant="text" className={styles.backButton} onClick={()=>{updateArMediaState(true); updateNewFeedPageState(false);}}><ArrowBackIosIcon />{t('social:feedForm.back')}</Button>
-    </nav>  
+    </nav>   */}
     {isSended ? 
         <Typography>{t('social:feedForm.thanks')}</Typography>
         :
         <section>
-            <Typography>{t('social:feedForm.share')}</Typography>            
+            {/* <Typography>{t('social:feedForm.share')}</Typography>            
                 {feed && <CardMedia   
                     className={styles.previewImage}                  
                     src={feed.videoUrl}
@@ -110,14 +121,14 @@ return <section className={styles.feedFormContainer}>
                             <br/><BackupIcon onClick={()=>{(videoRef.current as HTMLInputElement).click();}} />
                             <input required ref={videoRef} type="file" className={styles.displayNone} name="video" onChange={handlePickVideo} placeholder={t('social:feedForm.ph-selectVideo')}/>
                         </Typography> 
-                    </Card>
+                    </Card> */}
                 {/* <Card className={styles.preCard}>
                    <Typography variant="h2" align="center">
                         <p>Record from camera</p>
                         <p><CameraIcon  onClick={()=>setRecordVideo(true)} /></p>
                     </Typography> 
                 </Card> */}
-                <Card className={styles.preCard}>
+                {/* <Card className={styles.preCard}>
                     <Typography>{t('social:feedForm.preview')}<input required type="file" name="preview" onChange={handlePickPreview} placeholder={t('social:feedForm.ph-selectPreview')}/></Typography>  
                 </Card>  
             </section>            
@@ -127,7 +138,7 @@ return <section className={styles.feedFormContainer}>
                 onChange={handleComposingTitleChange}
                 fullWidth 
                 placeholder={t('social:feedForm.ph-videoName')}
-                />    
+                />     */}
             {/* <TextField className={styles.textArea} ref={textRef} 
                 value={composingText}
                 onChange={handleComposingTextChange}
@@ -142,7 +153,7 @@ return <section className={styles.feedFormContainer}>
                 >
                 {t('social:feedForm.lbl-share')}
                 </Button>   
-
+                
             {isRecordVideo === true && 
                 <section className={styles.videoWrapper}>
                     <VideoRecorder
@@ -168,4 +179,4 @@ return <section className={styles.feedFormContainer}>
 </section>;
 };
 
-export default connect(null, mapDispatchToProps)(FeedForm);
+export default connect(mapStateToProps, mapDispatchToProps)(FeedForm);

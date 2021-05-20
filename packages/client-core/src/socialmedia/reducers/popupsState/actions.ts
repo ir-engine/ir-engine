@@ -8,6 +8,7 @@ import {
   CHANGE_ARMEDIA_CHOOSE_STATE,
   CHANGE_NEW_FEED_PAGE_STATE,
   CHANGE_SHARE_FORM_STATE,
+  CHANGE_WEB_XR_STATE,
 } from '../actions';
 
 export interface PopupsActions {
@@ -46,10 +47,11 @@ export function changeArMedia (state): PopupsActions {
   };
 }
 
-export function changeNewFeedPage (state): PopupsActions {
+export function changeNewFeedPage (state, id): PopupsActions {
   return {
     type: CHANGE_NEW_FEED_PAGE_STATE,
     state,
+    id
   };
 }
 
@@ -60,4 +62,12 @@ export function changeShareForm (state, id): PopupsActions {
     id
   };
 }
+
+export function changeWebXR (state): PopupsActions {
+  return {
+    type: CHANGE_WEB_XR_STATE,
+    state,
+  };
+}
+
 
