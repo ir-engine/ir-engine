@@ -26,7 +26,6 @@ import { LightTagComponent, VisibleTagComponent } from '../components/Object3DTa
 import ScenePreviewCameraTagComponent from "../components/ScenePreviewCamera";
 import SpawnPointComponent from "../components/SpawnPointComponent";
 import WalkableTagComponent from '../components/Walkable';
-import { LoadingSchema } from '../interfaces/LoadingSchema';
 import Image from '../classes/Image';
 import { createGame, createGameObject } from "../behaviors/createGame";
 import { setPostProcessing } from "../behaviors/setPostProcessing";
@@ -61,7 +60,7 @@ export function addTagComponentFromBehavior<C>(
   addComponent(entity, args.component);
 }
 
-export const SceneObjectLoadingSchema: LoadingSchema = {
+export const SceneObjectLoadingSchema = {
   'game': {
     behaviors: [{
       behavior: createGame,

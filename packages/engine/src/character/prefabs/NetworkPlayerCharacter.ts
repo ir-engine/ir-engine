@@ -58,7 +58,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 	const tmpGroup = new Group();
 	console.log("Loading Actor Avatar =>", avatarURL)
 
-	createShadow(entity, { objArgs: { castShadow: true, receiveShadow: true } })
+	createShadow(entity, { castShadow: true, receiveShadow: true });
 
 	AssetLoader.load({
 		url: avatarURL,
