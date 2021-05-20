@@ -99,7 +99,8 @@ export default (app: Application): void => {
                                     WorldScene.load(result, () => {
                                         EngineEvents.instance.dispatchEvent({
                                             type: EngineEvents.EVENTS.ENABLE_SCENE,
-                                            enable: true
+                                            renderer: true,
+                                            physics: true
                                         });
                                     });
                                 }
@@ -203,9 +204,10 @@ export default (app: Application): void => {
                         console.log('user instanceId: ' + user.instanceId);
 
                         if (instanceId != null && instance != null) {
+                            const activeUsers = Object.keys(Network.instance.clients);
                             try {
                                 await app.service('instance').patch(instanceId, {
-                                    currentUsers: --instance.currentUsers
+                                    currentUsers: activeUsers.length
                                 });
                             } catch (err) {
                                 console.log('Failed to patch instance user count, likely because it was destroyed');
@@ -228,7 +230,7 @@ export default (app: Application): void => {
 
                             app.channel(`instanceIds/${instanceId as string}`).leave(connection);
 
-                            if (instance.currentUsers < 1) {
+                            if (activeUsers.length < 1) {
                                 console.log('Deleting instance ' + instanceId);
                                 try {
                                     await app.service('instance').remove(instanceId);

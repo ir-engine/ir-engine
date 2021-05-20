@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { createArMedia, getArMedia } from '../../reducers/arMedia/service';
 import { selectAdMediaState } from '../../reducers/arMedia/selector';
-import { updateArMediaState, updateNewFeedPageState } from '../../reducers/popupsState/service';
+import { updateArMediaState,  updateWebXRState } from '../../reducers/popupsState/service';
 
 // @ts-ignore
 import styles from './ArMedia.module.scss';
@@ -26,7 +26,7 @@ const mapStateToProps = (state: any): any => {
     createArMedia: bindActionCreators(createArMedia, dispatch),
     getArMedia: bindActionCreators(getArMedia, dispatch),
     updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
-    updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
+    updateWebXRState: bindActionCreators(updateWebXRState, dispatch),
 });
   interface Props{
     projects?:any[];
@@ -36,10 +36,10 @@ const mapStateToProps = (state: any): any => {
     createArMedia?: typeof createArMedia; 
     getArMedia?:typeof getArMedia; 
     updateArMediaState?:typeof updateArMediaState; 
-    updateNewFeedPageState?: typeof updateNewFeedPageState;
+    updateWebXRState?: typeof updateWebXRState;
   }
 
-const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateNewFeedPageState}:Props) => {
+const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateWebXRState}:Props) => {
   const [type, setType] = useState('clip');
   const [list, setList] = useState(null);
   useEffect(()=> {getArMedia();}, []);
@@ -71,7 +71,7 @@ const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateNewFeedPag
             </section>
         )}
       </section>
-      <Button className={styles.startRecirding} onClick={()=> {updateArMediaState(false); updateNewFeedPageState(true);}} variant="contained" >
+      <Button className={styles.startRecirding} onClick={()=> {updateArMediaState(false); updateWebXRState(true);}} variant="contained" >
           {t('social:arMedia.start')}
       </Button>
     </section>;

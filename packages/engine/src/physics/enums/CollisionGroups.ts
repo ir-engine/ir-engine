@@ -11,7 +11,6 @@ export enum CollisionGroups {
 	TrimeshColliders = 1 << 3,
 	TriggerCollider = 1 << 4,
   Ground = 1 << 5,
-  All = (2**32)-1//Default | Characters | Car | TrimeshColliders | TriggerCollider | Ground
 }
 
 export const DefaultCollisionMask = CollisionGroups.Default | CollisionGroups.Characters | CollisionGroups.Ground | CollisionGroups.TrimeshColliders;

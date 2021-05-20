@@ -1,0 +1,112 @@
+.waterMarkWrapper{
+    width: 67pt;
+    height: 40pt;
+    box-sizing: border-box;
+    position: fixed;
+    left: 20pt;
+    bottom: 30pt;
+
+    .waterMark{
+        height: 40pt;
+        width: 67pt;
+        background-image: url('../../../../../social/public/assets/createdWith.png');
+        background-size: 65pt 10pt;
+        background-position: 10% top;
+        background-repeat: no-repeat;
+        padding-top: 12pt;
+    
+        .subContainer{
+            height: 28pt;
+            width: 100%;
+            background-image: url('../../../../../social/public/assets/arcLogoVanishinglinesWhite.png');
+            background-size: 67pt 24pt;
+            background-position: left;
+            background-repeat: no-repeat;
+        }
+    }
+}
+
+.startButtonWrapper,
+.stopButtonWrapper{
+    background-color: rgba(208, 2, 27, 0.2);
+    border-radius: 50%;
+    padding: 26pt;
+    width: 126pt;
+    height: 126pt;
+    right: 10pt;
+    position: fixed;
+    bottom: 20pt;
+    box-sizing: border-box;
+    z-index: 1;
+
+    .startButton, .stopButton{
+        background-color: rgba(208, 2, 27, 1);
+        border-radius: 50%;
+        height: 74pt;
+        width: 74pt;
+        border: none;
+
+        svg{
+            color: #FFFFFF;
+            width: 19pt;
+            height: 13pt;
+        }
+    }
+}
+.stopButtonWrapper{
+    background-color: rgba(255, 255, 255, 0.2);
+    .stopButton{
+        background-color: #FFFFFF;
+        svg{
+            color: rgba(208, 2, 27, 1);
+        }
+    }
+}
+
+    
+
+.flipCamera{
+    color: #000000;
+    border: none;
+    background: transparent;
+    background-color: #FFFFFF;
+    border-radius: 50%;
+    height: 44pt;
+    width: 44pt;
+    padding: 13pt;
+    box-sizing: border-box;
+    bottom: 145pt;
+    left: 10pt;
+    position: fixed;
+}
+
+.changeOrientation{
+    color: #000000;
+    border: none;
+    background: transparent;
+    background-color: #FFFFFF;
+    border-radius: 50%;
+    height: 44pt;
+    width: 44pt;
+    padding: 13pt;
+    box-sizing: border-box;
+    bottom: 95pt;
+    left: 10pt;
+    position: fixed;
+}
+.closeButtonWrapper{
+    position: fixed;
+    bottom: 0px;
+    background-color: rgba(0, 0, 0, 0.5);
+    width: 100vw;
+    height: 88pt;
+    display: flex;
+    .closeButton{
+        margin: 0 auto;
+        border: 0px;
+        background: transparent;
+        color: #FFFFFF;
+        display: flex;
+        align-items: center;
+    }
+}

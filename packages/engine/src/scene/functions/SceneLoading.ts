@@ -71,9 +71,10 @@ export class WorldScene {
 
 
   loadComponent = (entity: Entity, component: SceneDataComponent): void => {
+    // remove '-1', '-2' etc suffixes
     const name = component.name.replace(/(-\d+)|(\s)/g, "");
 
-    switch(component.name) {
+    switch(name) {
       case 'game':
         createGame(entity, component.data);
         break;
@@ -106,7 +107,7 @@ export class WorldScene {
       //   break;
 
       case 'collidable':
-        console.warn("'Collidable' is not implemented");
+        // console.warn("'Collidable' is not implemented");
         break;
 
       case 'floor-plan':
@@ -122,6 +123,9 @@ export class WorldScene {
           }, (res) => {
             if (component.data.dontParseModel) clearFromColliders(entity, { asset: res });
             else parseModelColliders(entity, { asset: res, uniqueId: component.data.sceneEntityId });
+            this._onModelLoaded();
+            resolve();
+          }, null, (err) => {
             this._onModelLoaded();
             resolve();
           });

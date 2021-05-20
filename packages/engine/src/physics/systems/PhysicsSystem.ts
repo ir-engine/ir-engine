@@ -71,8 +71,8 @@ export class PhysicsSystem extends System {
     this.worker = attributes.worker;
 
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
-      this.isSimulating = ev.enable;
-      PhysXInstance.instance.startPhysX(ev.enable);
+      this.isSimulating = ev.physics;
+      PhysXInstance.instance.startPhysX(ev.physics);
     });
 
     if (!PhysXInstance.instance) {
@@ -101,7 +101,7 @@ export class PhysicsSystem extends System {
       }
       */
       collider.body.addEventListener(CollisionEvents.COLLISION_START, (ev: ColliderHitEvent) => {
-        (ev.bodyOther as any).shapes[0].config.collisionLayer == (ev.bodySelf as any).shapes[0].config.collisionMask ? collider.collisions.push(ev):'';
+        ev.bodyOther.shapes[0].config.collisionLayer == ev.bodySelf.shapes[0].config.collisionMask ? collider.collisions.push(ev):'';
       })
       /*
       collider.body.addEventListener(CollisionEvents.COLLISION_PERSIST, (ev: ColliderHitEvent) => {
