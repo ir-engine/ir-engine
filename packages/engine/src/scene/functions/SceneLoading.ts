@@ -70,9 +70,11 @@ export function loadScene(scene: SceneData): void {
 }
 
 function loadComponent(entity: Entity, component: SceneDataComponent): void {
+  
+  // remove '-1' '-2' etc suffixes
   const name = component.name.replace(/(-\d+)|(\s)/g, "");
 
-  switch(component.name) {
+  switch(name) {
     case 'game':
       createGame(entity, component.data);
       break;
@@ -105,7 +107,7 @@ function loadComponent(entity: Entity, component: SceneDataComponent): void {
     //   break;
 
     case 'collidable':
-      console.warn("'Collidable' is not implemented");
+      // console.warn("'Collidable' is not implemented");
       break;
 
     case 'floor-plan':

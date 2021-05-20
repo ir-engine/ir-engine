@@ -31,7 +31,7 @@ export const createGame: Behavior = (entity, args: any) => {
 };
 
 export const createGameObject: Behavior = (entity, args: any) => {
-  if (args.objArgs.uuid === undefined) {
+  if (args.sceneEntityId === undefined) {
     console.warn("DONT SAVE COLLIDER FOR GAME OBJECT");
   }
 
@@ -41,8 +41,8 @@ export const createGameObject: Behavior = (entity, args: any) => {
   // }
 
   addComponent(entity, GameObject, {
-    game: args.objArgs.gameName,
-    role: args.objArgs.role,
-    uuid: args.objArgs.sceneEntityId
+    game: args.gameName,
+    role: args.role,
+    uuid: args.sceneEntityId
   });
 };
