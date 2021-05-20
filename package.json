@@ -55,7 +55,6 @@
   },
   "types": "lib/",
   "pre-push": [
-    "check-errors",
     "lint"
   ],
   "pre-commit": [],

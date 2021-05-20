@@ -43,7 +43,7 @@ export const initializeEngineServer = async (initOptions: InitializeOptions = De
 
   EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); });
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: true, physics: true });
   });
 
   Engine.lastTime = now() / 1000;

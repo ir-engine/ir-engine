@@ -7,10 +7,11 @@ import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunctions';
 import { onInteraction, onInteractionHover } from '../../../../scene/behaviors/createCommonInteractive';
 import { Interactable } from '../../../../interaction/components/Interactable';
-import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
+import { CollisionGroups, DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
 import { GameObject } from "../../../components/GameObject";
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
+import { GolfCollisionGroups } from '../GolfGameConstants';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -22,16 +23,14 @@ export const addHole: Behavior = (entity: Entity, args?: any, delta?: number, en
   const rot = storageTransform.rotation ?? { x:0, y:0, z:0, w:1 };
   const scale = storageTransform.scale  ?? { x:1, y:1, z:1 };
 
-  const shapeBox: Shape = createShapeFromConfig({
+  const shapeBox = createShapeFromConfig({
     shape: SHAPES.Box,
     options: { boxExtents: { x: scale.x, y: scale.y, z: scale.z } },
-
-    // TODO: upgrade three-physx and uncomment following commented lines
-    // config: {
-      collisionLayer: 42,
-      collisionMask: 15
-    // }
-
+    config: {
+      isTrigger: true,
+      collisionLayer: GolfCollisionGroups.Hole,
+      collisionMask: DefaultCollisionMask | GolfCollisionGroups.Ball | GolfCollisionGroups.Club
+    }
   });
 
   const body = new Body({

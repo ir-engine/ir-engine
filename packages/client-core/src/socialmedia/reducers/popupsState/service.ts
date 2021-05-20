@@ -9,7 +9,8 @@ import {
   changeFeedPage,
   changeArMedia,
   changeNewFeedPage,
-  changeShareForm
+  changeShareForm,
+  changeWebXR
 } from './actions';
 
 export function updateCreatorPageState(state: boolean, id?:string) {
@@ -45,10 +46,10 @@ export function updateFeedPageState(state: boolean, id?:string) {
   };  
 }
 
-export function updateNewFeedPageState(state: boolean) {
+export function updateNewFeedPageState(state: boolean,  id?:string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      dispatch(changeNewFeedPage(state));      
+      dispatch(changeNewFeedPage(state, id || null));      
     } catch (err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
@@ -72,6 +73,17 @@ export function updateArMediaState(state: boolean) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
       dispatch(changeArMedia(state));      
+    } catch (err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+export function updateWebXRState(state: boolean) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    try {
+      dispatch(changeWebXR(state));      
     } catch (err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);

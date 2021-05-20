@@ -21,15 +21,15 @@ export class HighlightSystem extends System {
 
   /** Executes the system. */
   execute(deltaTime, time): void {
-    if(!WebGLRendererSystem.instance.composer.outlineEffect) return;
+    if (!WebGLRendererSystem.instance.composer.outlineEffect) return;
     for (const entity of this.queryResults.highlights.added) {
       const highlightedObject = getComponent(entity, Object3DComponent).value;
       const compHL = getComponent(entity, HighlightComponent);
       highlightedObject.traverse(obj => {
         if (obj !== undefined) {
           WebGLRendererSystem.instance.composer.outlineEffect.selection.add(obj);
-          WebGLRendererSystem.instance.composer.outlineEffect.setEdgeColor(compHL.color);
-          WebGLRendererSystem.instance.composer.outlineEffect.setHiddenEdgeColor(compHL.hiddenColor);
+          WebGLRendererSystem.instance.composer.outlineEffect.visibleEdgeColor = compHL.color;
+          WebGLRendererSystem.instance.composer.outlineEffect.hiddenEdgeColor = compHL.hiddenColor;
         }
       });
     }

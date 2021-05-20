@@ -57,7 +57,10 @@ export const ViewMode = ({updateArMediaState}:Props) => {
     setOpen(false);
   };
 
-  const handleOpenNewFeedPage = () => updateArMediaState(true);
+  const handleOpenNewFeedPage = () => {
+    setOpen(false);
+    updateArMediaState(true);
+  }
   return (
     <div className={classes.mainBlock}>
 {/*     <AddCircleIcon onClick={handleClickOpen} style={{fontSize: '5em'}} /> */}

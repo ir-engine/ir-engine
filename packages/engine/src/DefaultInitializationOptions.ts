@@ -31,7 +31,7 @@ export type InitializeOptions = {
 
 /**
  * 
- * @author Shaw Walters
+ * @author Shaw
  * If you just want to start up multiplayer worlds, use this.
  * Otherwise you should copy this into your own into your initializeEngine call.
  */

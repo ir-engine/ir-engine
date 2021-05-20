@@ -71,9 +71,13 @@ export class PhysicsSystem extends System {
     this.worker = attributes.worker;
 
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
-      this.isSimulating = ev.enable;
-      PhysXInstance.instance.startPhysX(ev.enable);
+      this.isSimulating = ev.physics;
+      PhysXInstance.instance.startPhysX(ev.physics);
     });
+
+    if (!PhysXInstance.instance) {
+      PhysXInstance.instance = new PhysXInstance();
+    }
   }
 
   async initialize() {
@@ -85,6 +89,7 @@ export class PhysicsSystem extends System {
     this.frame = 0;
     this.broadphase = null;
     EngineEvents.instance.removeAllListenersForEvent(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT);
+    PhysXInstance.instance.dispose();
   }
 
   execute(delta: number): void {

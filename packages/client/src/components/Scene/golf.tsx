@@ -50,7 +50,6 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
-import { CharacterInputSchema } from '@xrengine/engine/src/character/CharacterInputSchema';
 import { GolfGameMode } from '@xrengine/engine/src/game/templates/GolfGameMode';
 
 const store = Store.store;

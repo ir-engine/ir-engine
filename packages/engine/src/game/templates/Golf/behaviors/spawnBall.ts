@@ -13,6 +13,7 @@ import { Vector3, MathUtils } from 'three';
 
 import { isServer } from '../../../../common/functions/isServer';
 import { UserControlledColliderComponent } from '../../../../physics/components/UserControllerObjectComponent';
+import { GolfCollisionGroups } from '../GolfGameConstants';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -22,7 +23,11 @@ export const spawnBall = (playerEntity: Entity): void => {
   if(isServer) {
     const body = addBall();
     const uuid = MathUtils.generateUUID();
-
+/*
+material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.9 },
+collisionLayer: GolfCollisionGroups.Ball,
+collisionMask: DefaultCollisionMask | GolfCollisionGroups.Hole | GolfCollisionGroups.Club,
+*/
     createNetworkRigidBody({
       parameters: { body, bodytype: BodyType.DYNAMIC },
       uniqueId: uuid,
@@ -40,7 +45,7 @@ export const spawnBall = (playerEntity: Entity): void => {
   const data = {
     game: "Game",
     role: "GolfTee",
-    uuid,
+    // uuid,
   };
   addComponent(ballEntity, GameObject, data);
   addComponent(ballEntity, UserControlledColliderComponent, { ownerNetworkId: playerNetworkObject.uniqueId });

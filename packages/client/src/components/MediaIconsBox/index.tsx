@@ -136,20 +136,20 @@ const MediaIconsBox = (props) => {
     return (
         <section className={styles.drawerBox}>
             {instanceMediaChatEnabled
-                ? <button type="button" className={styles.iconContainer + ' ' + (isCamAudioEnabled ? styles.on : '')} onClick={handleMicClick}>
+                ? <button type="button" id='UserAudio' className={styles.iconContainer + ' ' + (isCamAudioEnabled ? styles.on : '')} onClick={handleMicClick}>
                     <MicIcon />
                 </button> : null}
             {videoEnabled
                 ? <>
-                    <button type="button" className={styles.iconContainer + ' ' + (isCamVideoEnabled ? styles.on : '')} onClick={handleCamClick}>
+                    <button type="button" id='UserVideo' className={styles.iconContainer + ' ' + (isCamVideoEnabled ? styles.on : '')} onClick={handleCamClick}>
                         <VideocamIcon />
                     </button>
-                    <button type="button" className={styles.iconContainer + ' ' + (isFaceTrackingEnabled ? styles.on : '')} onClick={handleFaceClick}>
+                    <button type="button" id='UserFaceTracking' className={styles.iconContainer + ' ' + (isFaceTrackingEnabled ? styles.on : '')} onClick={handleFaceClick}>
                         <FaceIcon />
                     </button>
                 </> : null}
             {xrSupported
-                ? <button type="button" className={styles.iconContainer + ' ' + (!xrEnabled ? '' : styles.on)} onClick={handleVRClick}>
+                ? <button type="button" id='UserXR' className={styles.iconContainer + ' ' + (!xrEnabled ? '' : styles.on)} onClick={handleVRClick}>
                     <VrIcon />
                     
                 </button> : null}

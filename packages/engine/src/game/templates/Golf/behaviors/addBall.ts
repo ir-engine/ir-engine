@@ -10,6 +10,7 @@ import { Interactable } from '../../../../interaction/components/Interactable';
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
 import { GameObject } from "../../../components/GameObject";
 import { CollisionGroups, DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
+import { GolfCollisionGroups } from '../GolfGameConstants';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -28,15 +29,13 @@ export const addBall: Behavior = (entity: Entity, args?: any, delta?: number, en
 
   const shapeBall: Shape = createShapeFromConfig({
     shape: SHAPES.Sphere,
-    options: { radius: 0.5 },
+    options: { radius: 0.5 },//{ radius: 0.025 },
     config: {
-      material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.9 },
-      // TODO - bump physx
-      // collisionLayer: CollisionGroups.Default,
-      // collisionMask: DefaultCollisionMask,
-    },
-    collisionLayer: CollisionGroups.Default,
-    collisionMask: DefaultCollisionMask,
+      //material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.9 },
+      collisionLayer: GolfCollisionGroups.Ball,
+      collisionMask: DefaultCollisionMask | GolfCollisionGroups.Hole | GolfCollisionGroups.Club
+    }
+
   });
 
   const body = new Body({

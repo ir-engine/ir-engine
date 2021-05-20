@@ -29,6 +29,8 @@ import { updateCreator } from '../../reducers/creator/service';
 import { updateCreatorFormState } from '../../reducers/popupsState/service';
 import { useTranslation } from 'react-i18next';
 
+
+
 const mapStateToProps = (state: any): any => {
     return {
       creatorsState: selectCreatorsState(state),
@@ -56,7 +58,15 @@ const CreatorForm = ({creatorData, creatorsState, updateCreator, updateCreatorFo
     };
     const handlePickAvatar = async (file) => setCreator({...creator, newAvatar: file.target.files[0]});
 	const { t } = useTranslation();
-   
+
+    const icons = {
+    UserIcon: '/assets/creator-form/userpic.png',
+    EmailIcon: '/assets/creator-form/at.svg',
+    EditIcon: '/assets/creator-form/edit.svg',
+    MailIcon: '/assets/creator-form/envelope.svg',
+    ChainIcon: '/assets/creator-form/url.svg',
+    };
+
     useEffect(()=>setCreator(creatorsState.get('currentCreator')), [creatorsState.get('currentCreator')]);
     
 
@@ -84,23 +94,23 @@ const CreatorForm = ({creatorData, creatorsState, updateCreator, updateCreatorFo
             <input  className={styles.displayNone} type="file" ref={avatarRef} name="newAvatar" onChange={handlePickAvatar} placeholder={t('social:creatorForm.ph-selectPreview')}/>
             <section className={styles.content}>
                 <div className={styles.formLine}>
-                    <AccountCircle className={styles.fieldLabelIcon} />
+                    <img src={icons.UserIcon} className={styles.fieldLabelIcon} />
                     <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, name: e.target.value})} fullWidth id="name" placeholder={t('social:creatorForm.ph-name')} value={creator.name} />
                 </div>
                 <div className={styles.formLine}>                
-                    <AlternateEmailIcon className={styles.fieldLabelIcon} />
+                    <img src={icons.EmailIcon} className={styles.fieldLabelIcon} />
                     <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, username: e.target.value})} fullWidth id="username" placeholder={t('social:creatorForm.ph-username')} value={creator.username} />
                 </div> 
                 <div className={styles.formLine}>
-                    <MailOutlineIcon className={styles.fieldLabelIcon} />
+                    <img src={icons.MailIcon} className={styles.fieldLabelIcon} />
                     <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, email: e.target.value})} fullWidth id="email" placeholder={t('social:creatorForm.ph-email')} value={creator.email} />
                 </div>
                 <div className={styles.formLine}>
-                    <EditIcon className={styles.fieldLabelIcon} />
+                    <img src={icons.EditIcon} className={styles.fieldLabelIcon} />
                     <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, tags: e.target.value})} fullWidth id="tags" placeholder={t('social:creatorForm.ph-tags')} value={creator.tags} />
                 </div>  
                 <div className={styles.formLine}>
-                    <LinkIcon className={styles.fieldLabelIcon} />
+                    <img src={icons.ChainIcon} className={styles.fieldLabelIcon} />
                     <TextField className={styles.textFieldContainer} onChange={(e)=>setCreator({...creator, link: e.target.value})} fullWidth id="link" placeholder={t('social:creatorForm.ph-link')} value={creator.link} />
                 </div>  
                 <div className={styles.formLine}>
