@@ -3,7 +3,7 @@ import { Body, BodyType, createShapeFromConfig, Shape, SHAPES } from 'three-phys
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { createNetworkRigidBody } from '../../../../interaction/prefabs/NetworkRigidBody';
 import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunctions';
-import { CollisionGroups, DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
+import { DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
 import { GameObject } from "../../../components/GameObject";
 import { SceneTagComponent, VisibleTagComponent } from '../../../../scene/components/Object3DTagComponents';
@@ -11,9 +11,9 @@ import { Vector3, MathUtils } from 'three';
 import { AssetLoader } from '../../../../assets/classes/AssetLoader';
 import { Engine } from '../../../../ecs/classes/Engine';
 import { NetworkObject } from '../../../../networking/components/NetworkObject';
-import { isServer } from '../../../../common/functions/isServer';
 import { UserControlledColliderComponent } from '../../../../physics/components/UserControllerObjectComponent';
 import { GolfCollisionGroups } from '../GolfGameConstants';
+import { isClient } from '../../../../common/functions/isClient';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -53,7 +53,7 @@ export const spawnBall = (playerEntity: Entity): void => {
       }
     }));
 
-    if(isServer) {
+    if(!isClient) {
       const uuid = MathUtils.generateUUID();
       createNetworkRigidBody({
         entity: ballEntity,

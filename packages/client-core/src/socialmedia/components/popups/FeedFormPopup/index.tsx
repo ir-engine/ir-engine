@@ -39,7 +39,7 @@ const renderNewFeedModal = () =>
       //     className={styles.feedFormPopup}
       // >
         
-          <FeedForm />      
+          <FeedForm />;      
           // <AppFooter />
       //  </SharedModal>;
 const newFeedPageState = popupsState?.get('shareFeedPage');

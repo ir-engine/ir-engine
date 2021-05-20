@@ -20,7 +20,7 @@ import { Interactor } from '../interaction/components/Interactor';
 import { Object3DComponent } from '../scene/components/Object3DComponent';
 import { interactOnServer } from '../interaction/systems/InteractiveSystem';
 import { CharacterComponent } from "./components/CharacterComponent";
-import { isServer } from "../common/functions/isServer";
+import { isClient } from "../common/functions/isClient";
 import { VehicleComponent } from '../vehicle/components/VehicleComponent';
 import { isMobileOrTablet } from '../common/functions/isMobile';
 import { SIXDOFType } from '../common/types/NumericalTypes';
@@ -51,7 +51,7 @@ const interact: Behavior = (entity: Entity, args: any = { side: ParityValue }, d
 
   interactOnServer(entity, args); //TODO: figure out all this cases
 
-  if (isServer) {
+  if (!isClient) {
     //TODO: all this function needs to re-think
     return;
   }
@@ -359,7 +359,7 @@ let switchChangedToZero = true;
 const xrLookMultiplier = 0.1;
 
 const lookFromXRInputs: Behavior = (entity, args): void => {
-  if (isServer) return; // we only set viewVector here, which is sent to the server
+  if (!isClient) return; // we only set viewVector here, which is sent to the server
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const input = getComponent<Input>(entity, Input as any);
   const values = input.data.get(BaseInput.XR_LOOK)?.value;

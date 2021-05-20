@@ -326,7 +326,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState}:Props) => {
                     console.log("filePath IS", filePath);
                   
                     setSavedFilePath("file://" + filePath);
-                    updateNewFeedPageState(true, filePath)
+                    updateNewFeedPageState(true, filePath);
                 }).catch(error => alert(error.message));
                 
         }
@@ -354,7 +354,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState}:Props) => {
 
     const stopRecord = () => {
         // @ts-ignore
-        Plugins.XRPlugin.stop({})
+        Plugins.XRPlugin.stop({});
     };
 
     // useEffect(() => {
@@ -375,8 +375,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState}:Props) => {
           <div className="plugintestControls">
               <section className={styles.waterMarkWrapper}>
                   <section className={styles.waterMark}>
-                      <section className={styles.subContainer}>
-                      </section>
+                      <section className={styles.subContainer} />
                     </section>
                 </section>
                 <button type="button" className={styles.flipCamera} onClick={() => {}}><FlipCameraIosIcon /></button> 

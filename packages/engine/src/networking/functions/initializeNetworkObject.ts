@@ -1,4 +1,4 @@
-import { isServer } from '../../common/functions/isServer';
+import { isClient } from '../../common/functions/isClient';
 import { Component } from '../../ecs/classes/Component';
 import { Entity } from '../../ecs/classes/Entity';
 import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
@@ -66,13 +66,13 @@ function createNetworkPrefab( entity: Entity, prefab: NetworkPrefab, ownerId: st
     initComponents(entity, prefab.localClientComponents, overrideMaps.localClientComponents);
   }
 
-  if (!isServer && prefab.clientComponents)
+  if (isClient && prefab.clientComponents)
   // For each client component on the prefab...
   {
     initComponents(entity, prefab.clientComponents, overrideMaps.clientComponents);
   }
 
-  if (isServer)
+  if (!isClient)
   // For each server component on the prefab...
   {
     initComponents(entity, prefab.serverComponents, overrideMaps.serverComponents);
@@ -163,7 +163,7 @@ export function initializeNetworkObject( args: { entity?: Entity, prefabType?: s
     uniqueId
   };
 
-  if (isServer) {
+  if (!isClient) {
     Network.instance.createObjects.push({
         networkId: networkId,
         ownerId: ownerId,

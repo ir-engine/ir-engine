@@ -1,5 +1,4 @@
 import { isClient } from '../../common/functions/isClient';
-import { isServer } from '../../common/functions/isServer';
 import { Component } from "../../ecs/classes/Component";
 import { Entity } from '../../ecs/classes/Entity';
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
@@ -28,7 +27,7 @@ export const addActionComponent = (entity: Entity, component: ComponentConstruct
   if (isClient && !game.isGlobal) {
     addComponent(entity, component, componentArgs);
   //// Server apply actions to himself send Actions and clients apply its
-  } else if (isServer && game.isGlobal) {
+  } else if (!isClient && game.isGlobal) {
     addComponent(entity, component, componentArgs);
     sendActionComponent(entity, component, componentArgs);
   }
