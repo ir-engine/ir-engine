@@ -45,7 +45,7 @@ export const fragmentShader = `
 
 export const createParticleEmitterObject = (entity, configs): void => {
   if (!isClient) return;
-  ParticleEmitterMesh.fromArgs(configs.objArgs).then(mesh => {
+  ParticleEmitterMesh.fromArgs(configs).then(mesh => {
     addComponent(entity, ParticleEmitterComponent, { particleEmitterMesh: mesh });
     Engine.scene.add(mesh);
   });

@@ -32,7 +32,7 @@ export const onInteractionHover: Behavior = (entityInitiator, { focused }: { foc
 };
 
 export const createCommonInteractive: Behavior = (entity, args: any) => {
-  if (!args.objArgs.interactable) {
+  if (!args.interactable) {
     return;
   }
 
@@ -40,7 +40,7 @@ export const createCommonInteractive: Behavior = (entity, args: any) => {
     onInteraction: onInteraction,
     onInteractionFocused: onInteractionHover,
     onInteractionCheck: () => { return true },
-    data: args.objArgs
+    data: args
   };
 
   addComponent(entity, Interactable, interactiveData);

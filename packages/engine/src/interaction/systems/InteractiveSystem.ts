@@ -442,8 +442,9 @@ export class InteractiveSystem extends System {
         const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
         if(!input) return;
         const sixdof = input.value as SIXDOFType;
-        vector3.set(sixdof.x, sixdof.y, sixdof.z).add(equipperTransform.position);
-        quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW);
+        actor.tiltContainer.updateMatrixWorld(true);
+        vector3.set(sixdof.x, sixdof.y, sixdof.z).applyMatrix4(actor.tiltContainer.matrixWorld);
+        quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW).multiply(equipperTransform.rotation);
       } else {
         vector3.set(-0.5, 0, 0).applyQuaternion(actor.tiltContainer.quaternion).add(equipperTransform.position);
         quat.setFromUnitVectors(new Vector3(0, 0, -1), actor.viewVector);

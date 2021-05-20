@@ -170,7 +170,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
             renderer.domElement.style.position = "fixed";
             renderer.domElement.style.width = "100vw";
             renderer.domElement.style.height = "100vh";
-            renderer.domElement.style.zIndex = "-1";
+            renderer.domElement.style.zIndex = "1";
 
             renderer.domElement.style.top = "0";
             renderer.domElement.style.left = "0";
@@ -299,57 +299,58 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
         })();
     }, []);
 
-
     const finishRecord = () => {
 
-           setRecordingState(RecordingStates.OFF);
-           setContentHidden()
-           if(setHorizontalOrientation){
-                    setHorizontalOrientation(false)
-           }
-           document.removeEventListener('dblclick', function(){
-               console.log('Double Click listener was removed')
-           }, false);
+               setRecordingState(RecordingStates.OFF);
+               setContentHidden()
+               if(setHorizontalOrientation){
+                        setHorizontalOrientation(false)
+               }
+               document.removeEventListener('dblclick', function(){
+                   console.log('Double Click listener was removed')
+               }, false);
 
-           // @ts-ignore
-           Plugins.XRPlugin.stopRecording().
-           // @ts-ignore
-           then(({ result, filePath }) => {
-               console.log("END RECORDING, result IS", result);
-               console.log("filePath IS", filePath);
+               // @ts-ignore
+               Plugins.XRPlugin.stopRecording().
+               // @ts-ignore
+               then(({ result, filePath }) => {
+                   console.log("END RECORDING, result IS", result);
+                   console.log("filePath IS", filePath);
+                   setSavedFilePath("file://" + filePath);
+                   const videoPath = Capacitor.convertFileSrc(filePath);
+                   updateNewFeedPageState(true, filePath)
+               }).catch(error => alert(error.message));
+        }
 
-               setSavedFilePath("file://" + filePath);
-               updateNewFeedPageState(true, filePath)
-           }).catch(error => alert(error.message));
 
-    }
 
     const toggleRecording = () => {
         if (recordingState === RecordingStates.OFF) {
             setRecordingState(RecordingStates.ON);
             setContentHidden()
             if (window.confirm("Double click to finish the record.")) {
-                //TODO: check why there are errors
-                // @ts-ignore
-                Plugins.XRPlugin.startRecording({
-                   isAudio: true,
-                   width: 500,
-                   height: 500,
-                   bitRate: 1000,
-                   dpi: 100,
-                   filePath: "/test.mp4"
-                }).then(({ status }) => {
-                   console.log("RECORDING, STATUS IS", status);
-                }).catch(error => alert(error.message));
+            //TODO: check why there are errors
+            // @ts-ignore
+            Plugins.XRPlugin.startRecording({
+                 isAudio: true,
+                 width: 500,
+                 height: 500,
+                 bitRate: 1000,
+                 dpi: 100,
+                 filePath: "/test.mp4"
+              }).then(({ status }) => {
+                 console.log("RECORDING, STATUS IS", status);
+              }).catch(error => alert(error.message));
             }
 
 
             document.addEventListener('dblclick', function (e) {
                 finishRecord()
             });
+
         }
         else if (recordingState === RecordingStates.ON) {
-                finishRecord()
+            finishRecord()
         }
     };
 
@@ -382,8 +383,6 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
     //     setSecondState("Initialized and effected");
     // }, [initializationResponse]);
 
-
-
     return (<>
         {/* <div className="plugintest">
             <div className="plugintestReadout">
@@ -395,7 +394,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
             </div>
         </div> */}
 
-          <div className={horizontalOrientation ? styles.horizontalOrientation + " plugintestControls" : "plugintestControls"}>
+         <div className={horizontalOrientation ? styles.horizontalOrientation + " plugintestControls" : "plugintestControls"}>
               <section className={styles.waterMarkWrapper}>
                   <section className={styles.waterMark}>
                       <section className={styles.subContainer}>
