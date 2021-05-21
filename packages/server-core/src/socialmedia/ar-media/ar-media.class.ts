@@ -23,8 +23,8 @@ export class ArMedia extends Service {
   /**
    * @function
    *
-   * @param params 
-   * @returns {@Array} 
+   * @param params
+   * @returns {@Array}
    * @author Vykliuk Tetiana <tanya.vykliuk@gmail.com>
    */
 
@@ -96,83 +96,50 @@ export class ArMedia extends Service {
       };
    }
 
-    /**
-   * A function which is used to find specific project 
-   * 
-   * @param id of single feed
-   * @param params contains current user 
-   * @returns {@Object} contains specific feed
+  /**
+   * A function which is used to find specific ar media item
+   *
+   * @param id of single item
+   * @param params contains current user
+   * @returns {@Object} contains specific item
    * @author Vykliuk Tetiana <tanya.vykliuk@gmail.com>
    */
     async get (id: Id, params?: Params): Promise<any> {
-      let select = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, sr3.url as avatar, 
-      creator.verified as creatorVerified, COUNT(ff.id) as fires, sr1.url as videoUrl, sr2.url as previewUrl `;
-      const from = ` FROM \`feed\` as feed`;
-      let join = ` JOIN \`creator\` as creator ON creator.id=feed.creatorId
-                    LEFT JOIN \`feed_fires\` as ff ON ff.feedId=feed.id 
-                    JOIN \`static_resource\` as sr1 ON sr1.id=feed.videoId
-                    JOIN \`static_resource\` as sr2 ON sr2.id=feed.previewId
-                    LEFT JOIN \`static_resource\` as sr3 ON sr3.id=creator.avatarId
-                    `;
-      const where = ` WHERE feed.id=:id`;      
 
-      const queryParamsReplacements = {
-        id,
-      } as any;
+      const dataQuery = `SELECT ar.*,
+                                sr1.url as manifestUrl, sr2.url as previewUrl, sr3.url as dracosisUrl, sr4.url as audioUrl
+                         FROM \`ar_media\` as ar
+                                  JOIN \`static_resource\` as sr1 ON sr1.id=ar.manifestId
+                                  JOIN \`static_resource\` as sr2 ON sr2.id=ar.previewId
+                                  JOIN \`static_resource\` as sr3 ON sr3.id=ar.dracosisId
+                                  JOIN \`static_resource\` as sr4 ON sr4.id=ar.audioId
+                         WHERE ar.id=:id
+                         LIMIT 1`;
 
-      const creatorId = await getCreatorByUserId(extractLoggedInUserFromParams(params)?.userId, this.app.get('sequelizeClient'));
-
-      if(creatorId){
-        select += ` , isf.id as fired, isb.id as bookmarked `;
-        join += ` LEFT JOIN \`feed_fires\` as isf ON isf.feedId=feed.id  AND isf.creatorId=:creatorId
-                  LEFT JOIN \`feed_bookmark\` as isb ON isb.feedId=feed.id  AND isb.creatorId=:creatorId`;
-        queryParamsReplacements.creatorId = creatorId; 
-      }
-  
-      const dataQuery = select + from + join + where;
-      const [feed] = await this.app.get('sequelizeClient').query(dataQuery,
+      const [item] = await this.app.get('sequelizeClient').query(dataQuery,
         {
           type: QueryTypes.SELECT,
           raw: true,
-          replacements: queryParamsReplacements
+          replacements: { id }
         });
 
-      const newFeed: any = ({
-        creator: {
-          id: feed.creatorId,
-          avatar: feed.avatar,
-          name: feed.creatorName,
-          username: feed.creatorUserName,
-          verified : !!+feed.creatorVerified,
-        },
-        description: feed.description,
-        fires: feed.fires,
-        isFired: feed.fired ? true : false,
-        isBookmarked: feed.bookmarked ? true : false,
-        id: feed.id,
-        videoUrl: feed.videoUrl,
-        previewUrl: feed.previewUrl,
-        title: feed.title,
-        viewsCount: feed.viewsCount
-      });     
-      return newFeed;
+      return item;
     }
 
     async create (data: any,  params?: Params): Promise<any> {
       const {ar_media:ArMediaModel} = this.app.get('sequelizeClient').models;
-      console.log('create aredia data', data);
       return await ArMediaModel.create(data);
     }
 
-      /**
+  /**
    * A function which is used to update
-   * 
-   * @param id to update 
-   * @param params 
-   * @returns updated 
+   *
+   * @param id to update
+   * @param params
+   * @returns updated
    * @author Vykliuk Tetiana <tanya.vykliuk@gmail.com>
    */
   async patch (id: string, data?: any, params?: Params): Promise<any> {
-    return await super.patch(id, data);    
+    return await super.patch(id, data);
   }
 }
