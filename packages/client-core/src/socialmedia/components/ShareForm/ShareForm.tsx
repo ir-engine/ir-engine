@@ -60,9 +60,9 @@ const ShareForm = ({updateShareFormState, popupsState}:Props) => {
 
    const shareVia = () => {
     Share.share({
-        title: t('social:shareForm.seeCoolStuff'),
+        title: t('social:shareForm.arcMedia'),
         text: t('social:shareForm.videoCreated'),
-        url: videoUrl,
+        url: encodeURI(videoUrl),
         dialogTitle: t('social:shareForm.shareWithBuddies')
       });
    };
