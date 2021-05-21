@@ -40,29 +40,35 @@ For on OSX / Linux / WSL2 for Windows:
 First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.npmjs.com/) installed (and if you are using it, [docker](https://docs.docker.com/)).
 
 #### 1.  Install your dependencies 
-    ```
-    cd path/to/xrengine
-    yarn install
-    ```
-    Error with mediasoup? Optional: https://mediasoup.org/documentation/v3/mediasoup/installation/
+```
+cd path/to/xrengine
+yarn install
+```
+
+
+Error with mediasoup? Optional: https://mediasoup.org/documentation/v3/mediasoup/installation/
     
-    If on WSL2:	
-	```
-	sudo apt-get update
-	sudo apt-get install build-essential
-	npm install -g node-gypPYTHON=python3 yarn install
-	npm config set python /usr/bin/python
-	PYTHON=python3 yarn install
-	```
+If on WSL2:	
+	
+```
+sudo apt-get update
+sudo apt-get install build-essential
+npm install -g node-gypPYTHON=python3 yarn install
+npm config set python /usr/bin/python
+PYTHON=python3 yarn install
+```
 #### 2. Make sure you have a mysql database installed and running -- our recommendation is Mariadb. 
-    We've provided a docker container for easy setup:
-    ```
-    cd scripts && sudo bash start-db.sh
-    ```
-    This creates a Docker container of mariadb named xrengine_db. You must have docker installed on your machine for this script to work.
-    If you do not have Docker installed and do not wish to install it, you'll have to manually create a MariaDB server.
+    
+We've provided a docker container for easy setup:
+
+```
+cd scripts && sudo bash start-db.sh
+```
+
+This creates a Docker container of mariadb named xrengine_db. You must have docker installed on your machine for this script to work.
+If you do not have Docker installed and do not wish to install it, you'll have to manually create a MariaDB server.
    
-   The default username is 'server', the default password is 'password', the default database name is 'xrengine', the default hostname is '127.0.0.1', and the default port is '3306'.
+The default username is 'server', the default password is 'password', the default database name is 'xrengine', the default hostname is '127.0.0.1', and the default port is '3306'.
    
    Seeing errors connecting to the local DB? Shut off your local firewall.
 #### 3. Have redis installed and running
