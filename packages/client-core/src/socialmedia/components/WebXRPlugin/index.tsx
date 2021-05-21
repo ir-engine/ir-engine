@@ -198,7 +198,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
 
             await XRPlugin.initialize({}).then(response => {
                 setInitializationResponse(response.status);
-                setContentHidden()
+                setContentHidden();
             }).catch(error => alert(error.message));
 
             // @ts-ignore
@@ -303,43 +303,41 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
     }, []);
 
     const createPreviewUrl = () => {
-                const canvas = document.createElement('canvas');
-                const video = document.getElementById('video');
-                canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-                const dataURL = canvas.toDataURL();
-                return dataURL;
-
-            }
+       const canvas = document.createElement('canvas');
+       const video = document.getElementById('arcCanvas');
+       canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+       const dataURL = canvas.toDataURL();
+       return dataURL;
+    };
 
     const finishRecord = () => {
-
-               setRecordingState(RecordingStates.OFF);
-               setContentHidden()
-               if(horizontalOrientation){
-                   setHorizontalOrientation(false)
-               }
-               document.removeEventListener('dblclick', ()=> {
-                   console.log('Double Click listener was removed');
-               }, false);
-
-               // @ts-ignore
-               Plugins.XRPlugin.stopRecording().
-               // @ts-ignore
-               then(({ result, filePath }) => {
-                   console.log("END RECORDING, result IS", result);
-                   console.log("filePath IS", filePath);
-                   setSavedFilePath("file://" + filePath);
-                   const videoPath = Capacitor.convertFileSrc(filePath);
-                   updateNewFeedPageState(true, videoPath, createPreviewUrl())
-               }).catch(error => alert(error.message));
+        setRecordingState(RecordingStates.OFF);
+        setContentHidden();
+        if(horizontalOrientation){
+            setHorizontalOrientation(false);
         }
+        document.removeEventListener('dblclick', ()=> {
+            console.log('Double Click listener was removed');
+        }, false);
+
+        // @ts-ignore
+        Plugins.XRPlugin.stopRecording().
+        // @ts-ignore
+        then(({ result, filePath }) => {
+            console.log("END RECORDING, result IS", result);
+            console.log("filePath IS", filePath);
+            setSavedFilePath("file://" + filePath);
+            const videoPath = Capacitor.convertFileSrc(filePath);
+            updateNewFeedPageState(true, videoPath, createPreviewUrl());
+        }).catch(error => alert(error.message));
+    };
 
 
 
     const toggleRecording = () => {
         if (recordingState === RecordingStates.OFF) {
             setRecordingState(RecordingStates.ON);
-            setContentHidden()
+
             if (window.confirm("Double click to finish the record.")) {
             //TODO: check why there are errors
             // @ts-ignore
@@ -356,13 +354,13 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
             }
 
 
-            document.addEventListener('dblclick', function (e) {
-                finishRecord()
+            document.addEventListener('dblclick', (e) => {
+                finishRecord();
             });
 
         }
         else if (recordingState === RecordingStates.ON) {
-            finishRecord()
+            finishRecord();
         }
     };
 
@@ -388,7 +386,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
 
     const stopRecord = () => {
         // @ts-ignore
-        Plugins.XRPlugin.stop({})
+        Plugins.XRPlugin.stop({});
     };
 
     // useEffect(() => {
@@ -410,12 +408,11 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
             <div className={recordingState === RecordingStates.OFF ? '' : styles.hideButtons}>
               <section className={styles.waterMarkWrapper}>
                   <section className={styles.waterMark}>
-                      <section className={styles.subContainer}>
-                      </section>
+                      <section className={styles.subContainer} />
                     </section>
                 </section>
                 <button type="button" className={styles.flipCamera} onClick={() => {}}><FlipCameraIosIcon /></button> 
-                <button type="button" className={styles.changeOrientation} onClick={() => {setHorizontalOrientation(!horizontalOrientation)}}><FlipCameraIosIcon /></button>
+                <button type="button" className={styles.changeOrientation} onClick={() => {setHorizontalOrientation(!horizontalOrientation);}}><FlipCameraIosIcon /></button>
                 <section className={recordingState === RecordingStates.OFF ? styles.startButtonWrapper : styles.stopButtonWrapper}>
                     {/*{recordingState === RecordingStates.OFF ? "Record" : "Stop Recording"}*/}
                     <button type="button" className={recordingState === RecordingStates.OFF ? styles.startButton : styles.stopButton} onClick={() => toggleRecording()}>

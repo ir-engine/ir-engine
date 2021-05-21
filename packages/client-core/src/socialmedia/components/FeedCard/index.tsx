@@ -86,7 +86,7 @@ const FeedCard = (props: Props) : any => {
 //     const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addViewToFeed} = props;
     const {feed, authState, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed} = props;
     const [firedCount, setFiredCount] = useState(feed.fires);
-    const [videoDisplay, setVideoDisplay] = useState(false)
+    const [videoDisplay, setVideoDisplay] = useState(false);
     const [feedFiresCreators, setFeedFiresCreators] = useState(null);
 
     const handleAddFireClick = (feedId) =>{

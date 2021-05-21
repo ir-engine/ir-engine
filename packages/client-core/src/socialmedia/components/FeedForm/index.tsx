@@ -57,7 +57,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const videoRef = React.useRef<HTMLInputElement>();
 	const { t } = useTranslation();
     const videoPath = popupsState?.get('videoPath');
-const { XRPlugin } = Plugins;
+    const { XRPlugin } = Plugins;
 
     const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value);
     const handleComposingTextChange = (event: any): void => setComposingText(event.target.value);
@@ -73,7 +73,7 @@ const { XRPlugin } = Plugins;
         }else{
            setVideoUrl(await createFeed(newFeed)); 
         }
-        console.log(newFeed)
+        console.log(newFeed);
 
         setComposingTitle('');
         setComposingText('');
@@ -90,16 +90,16 @@ const { XRPlugin } = Plugins;
 
 
     const dataURItoBlob = (dataURI) => {
-                  let byteString = atob(dataURI.split(',')[1]);
-                  const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-                  const ab = new ArrayBuffer(byteString.length);
-                  const ia = new Uint8Array(ab);
-                  for (let i = 0; i < byteString.length; i++) {
-                    ia[i] = byteString.charCodeAt(i);
-                  }
-                  const blob = new Blob([ab], { type: mimeString });
-                  return new File([blob], "previewImg.png");
-            }
+        let byteString = atob(dataURI.split(',')[1]);
+        const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+        }
+        const blob = new Blob([ab], { type: mimeString });
+        return new File([blob], "previewImg.png");
+    };
 
     useEffect(()=> {
         fetch(videoPath)
@@ -107,11 +107,11 @@ const { XRPlugin } = Plugins;
         .then((myBlob) => {
          const myFile = new File([myBlob], "test.mp4");
          setVideo(myFile);
-         console.log(myFile)
-      }).catch(error => console.log(error.message));
+         console.log(myFile);
+        }).catch(error => console.log(error.message));
 
-      const prevImage = dataURItoBlob(popupsState?.get('imgSrc'))
-      setPreview(prevImage)
+        const prevImage = dataURItoBlob(popupsState?.get('imgSrc'));
+        setPreview(prevImage);
     }, [] ); 
      
     
