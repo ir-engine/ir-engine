@@ -34,7 +34,7 @@ const renderWebXRModal = () =>
     
         <div>
         <WebXRPlugin setContentHidden={setContentHidden} />
-        </div>
+        </div>;
          
       
 const webXRstate = popupsState?.get('webxr');

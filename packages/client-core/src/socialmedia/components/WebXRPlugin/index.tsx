@@ -305,7 +305,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
     const toggleRecording = () => {
         if (recordingState === RecordingStates.OFF) {
             setRecordingState(RecordingStates.ON);
-            setContentHidden()
+            setContentHidden();
             //TODO: check why there are errors
             // @ts-ignore
             Plugins.XRPlugin.startRecording({
@@ -321,7 +321,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
         }
         else if (recordingState === RecordingStates.ON) {
             setRecordingState(RecordingStates.OFF);
-            setContentHidden()
+            setContentHidden();
             // @ts-ignore
             Plugins.XRPlugin.stopRecording().
                 // @ts-ignore
@@ -331,8 +331,8 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
                     setSavedFilePath("file://" + filePath);
                     const videoPath = Capacitor.convertFileSrc(filePath);
                     // Plugins.XRPlugin.stop()
-                    updateWebXRState(false)
-                    updateNewFeedPageState(true, videoPath)
+                    updateWebXRState(false);
+                    updateNewFeedPageState(true, videoPath);
                 }).catch(error => console.log(error.message));
                 
         }
@@ -360,7 +360,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
 
     const stopRecord = () => {
         // @ts-ignore
-        Plugins.XRPlugin.stop({})
+        Plugins.XRPlugin.stop({});
     };
 
     // useEffect(() => {
@@ -381,8 +381,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
           <div className="plugintestControls">
               <section className={styles.waterMarkWrapper}>
                   <section className={styles.waterMark}>
-                      <section className={styles.subContainer}>
-                      </section>
+                      <section className={styles.subContainer} />
                     </section>
                 </section>
                 <button type="button" className={styles.flipCamera} onClick={() => {}}><FlipCameraIosIcon /></button> 

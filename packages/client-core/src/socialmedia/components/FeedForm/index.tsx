@@ -57,7 +57,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const textRef = React.useRef<HTMLInputElement>();
     const videoRef = React.useRef<HTMLInputElement>();
 	const { t } = useTranslation();
-    const videoPath = popupsState?.get('videoPath')
+    const videoPath = popupsState?.get('videoPath');
     const { XRPlugin } = Plugins;
 
     const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value);
@@ -74,14 +74,14 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         }else{
            setVideoUrl(await createFeed(newFeed)); 
         }
-        console.log(newFeed)
+        console.log(newFeed);
 
         setComposingTitle('');
         setComposingText('');
         setVideo(null);
         setPreview(null);
         setIsSended(true);
-        Plugins.XRPlugin.stop()
+        Plugins.XRPlugin.stop();
         const thanksTimeOut = setTimeout(()=>{
             setIsSended(false); 
             clearTimeout(thanksTimeOut);
@@ -95,8 +95,8 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         .then((myBlob) => {
          const myFile = new File([myBlob], "test.mp4");
          setVideo(myFile);
-         setPreview(myFile)
-         console.log(myFile)
+         setPreview(myFile);
+         console.log(myFile);
       }).catch(error => console.log(error.message));
     }, [] ); 
      
