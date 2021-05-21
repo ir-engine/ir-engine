@@ -14,7 +14,7 @@
         background-position: 10% top;
         background-repeat: no-repeat;
         padding-top: 12pt;
-    
+        display: block;
         .subContainer{
             height: 28pt;
             width: 100%;
@@ -38,14 +38,13 @@
     bottom: 20pt;
     box-sizing: border-box;
     z-index: 1;
-
+    display: block !important;
     .startButton, .stopButton{
         background-color: rgba(208, 2, 27, 1);
         border-radius: 50%;
         height: 74pt;
         width: 74pt;
         border: none;
-
         svg{
             color: #FFFFFF;
             width: 19pt;
@@ -103,7 +102,7 @@
     background-color: rgba(0, 0, 0, 0.5);
     width: 100vw;
     height: 88pt;
-    display: flex;
+    display: flex !important;
     .closeButton{
         margin: 0 auto;
         border: 0px;
@@ -141,7 +140,24 @@
     }
     .startButtonWrapper,
     .stopButtonWrapper{
+        display: block;
         transform: rotate(90deg);
         left: 20px;
+    }
+}
+
+.hideButtons{
+    button{
+        display: none
+    }
+    .waterMarkWrapper{
+        display: block;
+    }
+    .startButtonWrapper,
+    .stopButtonWrapper{
+        display: none !important;
+    }
+    section{
+        display: none !important;
     }
 }

@@ -46,10 +46,10 @@ export function updateFeedPageState(state: boolean, id?:string) {
   };  
 }
 
-export function updateNewFeedPageState(state: boolean,  id?:string) {
+export function updateNewFeedPageState(state: boolean,  id?:string, imgSrc?:string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      dispatch(changeNewFeedPage(state, id || null));      
+      dispatch(changeNewFeedPage(state, id || null, imgSrc || null));
     } catch (err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
