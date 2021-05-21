@@ -56,11 +56,12 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const textRef = React.useRef<HTMLInputElement>();
     const videoRef = React.useRef<HTMLInputElement>();
 	const { t } = useTranslation();
+    const videoPath = popupsState?.get('videoPath')
 
     const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value);
     const handleComposingTextChange = (event: any): void => setComposingText(event.target.value);
     const handleCreateFeed = async () => {
-        
+
         const newFeed = {
             title: composingTitle.trim(),
             description: composingText.trim(),
@@ -82,15 +83,24 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
             setIsSended(false); 
             clearTimeout(thanksTimeOut);
         }, 2000);
-        
-           
-
+    
     };
 
+    useEffect(()=> {
+        fetch(videoPath)
+        .then((res) => res.blob())
+        .then((myBlob) => {
+         const myFile = new File([myBlob], "test.mp4");
+         setVideo(myFile);
+         setPreview(myFile)
+         console.log(myFile)
+      }).catch(error => console.log(error.message));
+    }, [] ); 
+     
     
     useEffect(()=> {videoUrl && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
-    const handlePickVideo = async (file) => setVideo(popupsState?.get('videoPath'));
-    const handlePickPreview = async (file) => setPreview(file.target.files[0]);
+    // const handlePickVideo = async (file) => setVideo(popupsState?.get('videoPath'));
+    // const handlePickPreview = async (file) => setPreview('');
     
 return <section className={styles.feedFormContainer}>
     {/* <nav>               
@@ -152,7 +162,8 @@ return <section className={styles.feedFormContainer}>
                 onClick={()=>handleCreateFeed()}
                 >
                 {t('social:feedForm.lbl-share')}
-                </Button>   
+                </Button> 
+
                 
             {isRecordVideo === true && 
                 <section className={styles.videoWrapper}>

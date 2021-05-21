@@ -21,3 +21,14 @@ body{
   display: flex;
   flex-direction: column;
 }
+.hideContent{
+  nav{
+    display: none;
+  }
+  p{
+    display: none;
+  }
+  .plugintestControls{
+    display: block;
+  }
+}

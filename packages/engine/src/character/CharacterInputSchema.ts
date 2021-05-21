@@ -4,9 +4,8 @@ import { Entity } from '../ecs/classes/Entity';
 import { getComponent } from '../ecs/functions/EntityFunctions';
 import { Input } from '../input/components/Input';
 import { BaseInput } from '../input/enums/BaseInput';
-import { Material, Mesh, Vector3, Object3D } from "three";
+import { Material, Mesh, Object3D } from "three";
 import { SkinnedMesh } from 'three/src/objects/SkinnedMesh';
-import { CameraComponent } from "../camera/components/CameraComponent";
 import { CameraModes } from "../camera/types/CameraModes";
 import { LifecycleValue } from "../common/enums/LifecycleValue";
 import { GamepadAxis, XRAxes } from '../input/enums/InputEnums';
@@ -344,12 +343,11 @@ const moveFromXRInputs: Behavior = (entity, args): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const input = getComponent<Input>(entity, Input as any);
   const values = input.data.get(BaseInput.XR_MOVE)?.value;
+  if(!values) return;
 
-  if(values) {
-    actor.localMovementDirection.x = values[0] ?? actor.localMovementDirection.x;
-    actor.localMovementDirection.z = values[1] ?? actor.localMovementDirection.z;
-    actor.localMovementDirection.normalize();
-  }
+  actor.localMovementDirection.x = values[0] ?? actor.localMovementDirection.x;
+  actor.localMovementDirection.z = values[1] ?? actor.localMovementDirection.z;
+  actor.localMovementDirection.normalize();
 };
 
 //const forwardVector = new Vector3(0, 0, 1);

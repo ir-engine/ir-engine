@@ -21,7 +21,9 @@ import { SIXDOFType } from '../../common/types/NumericalTypes';
 
 const forwardVector = new Vector3(0, 0, 1);
 const upVector = new Vector3(0, 1, 0);
+const camVector = new Vector3(0, 0, -1);
 const quat = new Quaternion();
+const quat2 = new Quaternion();
 
 export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
@@ -29,30 +31,6 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
   if (!actor.initialized || !collider.controller || !actor.movementEnabled) return;
 
-  if (isInXR(entity)) {
-    const inputs = getComponent(entity, Input);
-    switch (XRUserSettings.moving) {
-      case XR_FOLLOW_MODE.CONTROLLER:
-        const data = XRUserSettings.invertRotationAndMoveSticks ? inputs.data.get(BaseInput.XR_RIGHT_HAND) : inputs.data.get(BaseInput.XR_LEFT_HAND);
-        if(data?.value) {
-          const sixdof = data.value as SIXDOFType;
-          quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW)//.invert();          
-          const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();
-          const orientationVector = applyVectorMatrixXZ(flatViewVector, forwardVector);
-          const viewVectorFlatQuaternion = new Quaternion().setFromUnitVectors(forwardVector, orientationVector.setY(0));
-          quat.multiply(viewVectorFlatQuaternion);
-        }
-        break;
-      case XR_FOLLOW_MODE.HEAD:
-        const headTransform = inputs.data.get(BaseInput.XR_HEAD);
-        if(headTransform?.value) {
-          const sixdof = headTransform.value as SIXDOFType;
-          quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW);
-        }
-        break;
-      }
-    // TODO - apply quat to camera rotation
-  }
   const newVelocity = new Vector3();
   const onGroundVelocity = new Vector3();
   if (actor.isGrounded) {
@@ -65,6 +43,17 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
     actor.velocity.copy(actor.velocitySimulator.position);
     newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed * actor.speedMultiplier);
     newVelocity.applyQuaternion(transform.rotation)
+
+    if(isInXR(entity)) {
+      // Apply head direction
+      const input = getComponent<Input>(entity, Input as any);
+      const headTransform = input.data.get(BaseInput.XR_HEAD);
+      if(!headTransform?.value) return
+      const sixdof = headTransform.value as SIXDOFType;
+      quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW);
+      // actor.localMovementDirection.applyQuaternion(quat);
+      newVelocity.applyQuaternion(quat);
+    }
 
     if (actor.closestHit) {
       onGroundVelocity.copy(newVelocity).setY(0);

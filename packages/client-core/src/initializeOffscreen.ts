@@ -64,13 +64,7 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
 
   proxyEngineEvents(proxy);
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
-    const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl');
-    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-    const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-    const enableRenderer = !(/SwiftShader/.test(renderer));
-    canvas.remove();
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: enableRenderer, physics: true });
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: true, physics: true });
   });
 
   Engine.lastTime = now() / 1000;
