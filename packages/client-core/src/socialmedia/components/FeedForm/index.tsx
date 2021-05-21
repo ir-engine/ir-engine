@@ -80,7 +80,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         setVideo(null);
         setPreview(null);
         setIsSended(true);
-        // Plugins.XRPlugin.stop();
+        Plugins.XRPlugin.stop();
         const thanksTimeOut = setTimeout(()=>{
             setIsSended(false); 
             clearTimeout(thanksTimeOut);
@@ -110,8 +110,9 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
          console.log(myFile);
         }).catch(error => console.log(error.message));
 
-        const prevImage = dataURItoBlob(popupsState?.get('imgSrc'));
-        setPreview(prevImage);
+//         const prevImage = dataURItoBlob(popupsState?.get('imgSrc'));
+        console.log(popupsState?.get('imgSrc'))
+        setPreview('prevImage');
     }, [] ); 
      
     
