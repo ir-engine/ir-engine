@@ -9,7 +9,7 @@ export interface NetworkSchema {
     [key: string]: any;
   };
   /** Default prefab for the client. */
-  defaultClientPrefab: string | number;
+  defaultClientPrefab: number;
   /** Prefabs for the schema. */
   prefabs: {
     [key: string]: NetworkPrefab;

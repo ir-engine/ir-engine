@@ -86,6 +86,7 @@ export class ServerNetworkOutgoingSystem extends System {
       }
     });
 
+    // TODO: split reliable and unreliable into seperate schemas
     if (
       Network.instance.worldState.clientsConnected.length ||
       Network.instance.worldState.clientsDisconnected.length ||

@@ -31,7 +31,7 @@ export function createSnapshot (state: StateEntityGroup): Snapshot {
     if (!Array.isArray(state)) throw new Error('You have to pass an Array to createSnapshot()');
 
     // check if each entity has an id
-    const withoutID = state.filter(e => typeof e.networkId !== 'string' && typeof e.networkId !== 'number');
+    const withoutID = state.filter(e => typeof e.networkId !== 'number');
     if (withoutID.length > 0) throw new Error('Each Entity needs to have a id');
   };
 

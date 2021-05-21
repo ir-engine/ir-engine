@@ -9,8 +9,8 @@ import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import { useTranslation } from 'react-i18next';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { createArMedia, getArMedia } from '../../reducers/arMedia/service';
-import { selectAdMediaState } from '../../reducers/arMedia/selector';
-import { updateArMediaState, updateNewFeedPageState } from '../../reducers/popupsState/service';
+import { selectArMediaState } from '../../reducers/arMedia/selector';
+import { updateArMediaState,  updateWebXRState } from '../../reducers/popupsState/service';
 
 // @ts-ignore
 import styles from './ArMedia.module.scss';
@@ -18,7 +18,7 @@ import styles from './ArMedia.module.scss';
 const mapStateToProps = (state: any): any => {
     return {
       creatorsState: selectCreatorsState(state),
-      arMediaState: selectAdMediaState(state),
+      arMediaState: selectArMediaState(state),
     };
   };
 
@@ -26,22 +26,23 @@ const mapStateToProps = (state: any): any => {
     createArMedia: bindActionCreators(createArMedia, dispatch),
     getArMedia: bindActionCreators(getArMedia, dispatch),
     updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
-    updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
+    updateWebXRState: bindActionCreators(updateWebXRState, dispatch),
 });
   interface Props{
     projects?:any[];
     view?:any;
     creatorsState?: any;
     arMediaState?: any;
-    createArMedia?: typeof createArMedia; 
-    getArMedia?:typeof getArMedia; 
-    updateArMediaState?:typeof updateArMediaState; 
-    updateNewFeedPageState?: typeof updateNewFeedPageState;
+    createArMedia?: typeof createArMedia;
+    getArMedia?:typeof getArMedia;
+    updateArMediaState?:typeof updateArMediaState;
+    updateWebXRState?: typeof updateWebXRState;
   }
 
-const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateNewFeedPageState}:Props) => {
+const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateWebXRState}:Props) => {
   const [type, setType] = useState('clip');
   const [list, setList] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
   useEffect(()=> {getArMedia();}, []);
 	const { t } = useTranslation();
 
@@ -54,16 +55,16 @@ const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateNewFeedPag
     return <section className={styles.arMediaContainer}>
       <Button variant="text" className={styles.backButton} onClick={()=>updateArMediaState(false)}><ArrowBackIosIcon />{t('social:arMedia.back')}</Button>
       <section className={styles.switcher}>
-        <Button variant={type === 'clip' ? 'contained' : 'text'} className={styles.switchButton+(type === 'clip' ? ' '+styles.active : '')} 
+        <Button variant={type === 'clip' ? 'contained' : 'text'} className={styles.switchButton+(type === 'clip' ? ' '+styles.active : '')}
             onClick={()=>setType('clip')}>{t('social:arMedia.clip')}</Button>
-        <Button variant={type === 'background' ? 'contained' : 'text'} className={styles.switchButton+(type === 'background' ? ' '+styles.active : '')} 
+        <Button variant={type === 'background' ? 'contained' : 'text'} className={styles.switchButton+(type === 'background' ? ' '+styles.active : '')}
             onClick={()=>setType('background')}>{t('social:arMedia.backgrounds')}</Button>
       </section>
       <section className={styles.flexContainer}>
         {list?.map((item, itemIndex)=>
-            <section className={styles.previewImageContainer}>
-              <CardMedia 
-              key={itemIndex}
+            <section key={item.id} className={styles.previewImageContainer}>
+              <CardMedia
+                onClick={() => setSelectedItem(item)}
                 className={styles.previewImage}
                 image={item.previewUrl}
               />
@@ -71,9 +72,14 @@ const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateNewFeedPag
             </section>
         )}
       </section>
-      <Button className={styles.startRecirding} onClick={()=> {updateArMediaState(false); updateNewFeedPageState(true);}} variant="contained" >
+      {!selectedItem ? null :
+        <Button className={styles.startRecirding} onClick={() => {
+          updateArMediaState(false);
+          updateWebXRState(true, selectedItem.id);
+        }} variant="contained">
           {t('social:arMedia.start')}
-      </Button>
+        </Button>
+      }
     </section>;
 };
 

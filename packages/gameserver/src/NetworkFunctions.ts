@@ -280,31 +280,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     const transform = getMutableComponent(networkObject.entity, TransformComponent);
     transform.position = spawnPos.position;
     transform.rotation = spawnPos.rotation;
-/*
-    // Add the network object to our list of network objects
-    Network.instance.networkObjects[networkObject.networkId] = {
-        ownerId: userId, // Owner's socket ID
-        prefabType: Network.instance.schema.defaultClientPrefab, // All network objects need to be a registered prefab
-        component: networkObject,
-        uniqueId: ''
-    };
-*/
-    // Added new object to the worldState with networkId and ownerId
-    /*
-    Network.instance.createObjects.push({
-        networkId: networkObject.networkId,
-        ownerId: userId,
-        prefabType: Network.instance.schema.defaultClientPrefab,
-        uniqueId: '',
-        x: transform.position.x,
-        y: transform.position.y,
-        z: transform.position.z,
-        qX: transform.rotation.x,
-        qY: transform.rotation.y,
-        qZ: transform.rotation.z,
-        qW: transform.rotation.w
-    });
-*/
+
     // Create a new worldtate object that we can fill
     const worldState = {
         tick: Network.instance.tick,
@@ -321,19 +297,12 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
 
     // Get all network objects and add to createObjects
     Object.keys(Network.instance.networkObjects).forEach(networkId => {
-        const transform = getComponent(Network.instance.networkObjects[networkId].component.entity, TransformComponent);
         worldState.createObjects.push({
             prefabType: Network.instance.networkObjects[networkId].prefabType,
-            networkId: networkId,
+            networkId: Number(networkId),
             ownerId: Network.instance.networkObjects[networkId].ownerId,
             uniqueId: Network.instance.networkObjects[networkId].uniqueId,
-            x: transform.position.x,
-            y: transform.position.y,
-            z: transform.position.z,
-            qX: transform.rotation.x,
-            qY: transform.rotation.y,
-            qZ: transform.rotation.z,
-            qW: transform.rotation.w
+            parameters: ''
         });
     });
 

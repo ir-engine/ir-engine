@@ -1,4 +1,4 @@
-import { Euler, Matrix4, Quaternion, Vector3 } from "three";
+import { Matrix4, Quaternion, Vector3 } from "three";
 import { addObject3DComponent } from '../../scene/behaviors/addObject3DComponent';
 import { CameraTagComponent } from '../../scene/components/Object3DTagComponents';
 import { isMobileOrTablet } from "../../common/functions/isMobile";
@@ -14,14 +14,10 @@ import { FollowCameraComponent } from '../components/FollowCameraComponent';
 import { CameraModes } from "../types/CameraModes";
 import { Entity } from "../../ecs/classes/Entity";
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
-import { CollisionGroups } from "../../physics/enums/CollisionGroups";
 import { SceneQueryType } from "three-physx";
 import { Not } from "../../ecs/functions/ComponentFunctions";
 import { Input } from "../../input/components/Input";
-import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { BaseInput } from "../../input/enums/BaseInput";
-import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
-import { CopyTransformComponent } from "../../transform/components/CopyTransformComponent";
 
 let direction = new Vector3();
 const upVector = new Vector3(0, 1, 0);
@@ -176,7 +172,8 @@ export class CameraSystem extends System {
       //     cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
       // }
       // if (followCamera.mode === CameraModes.FirstPerson) {
-      //   cameraDesiredTransform.position.copy(targetPosition);
+      //   cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
+      //   cameraTransform.position.copy(cameraDesiredTransform.position);
       // }
       // apply user input
       

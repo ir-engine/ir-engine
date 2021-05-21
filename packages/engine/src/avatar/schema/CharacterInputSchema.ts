@@ -17,18 +17,17 @@ import { CameraInput, GamepadAxis, GamepadButtons, MouseInput, TouchInputs, XRAx
 import { InputType } from "../../input/enums/InputType";
 import { InputSchema } from '../../input/interfaces/InputSchema';
 import { InputAlias } from "../../input/types/InputAlias";
-import { EquippedComponent } from '../../interaction/components/EquippedComponent';
+import { EquipperComponent } from "../../interaction/components/EquipperComponent";
 import { Interactable } from '../../interaction/components/Interactable';
 import { Interactor } from '../../interaction/components/Interactor';
-import { unequipEntity } from '../../interaction/functions/equippableFunctions';
 import { interactOnServer } from '../../interaction/systems/InteractiveSystem';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { VehicleComponent } from '../../vehicle/components/VehicleComponent';
 import { XRUserSettings, XR_ROTATION_MODE } from '../../xr/types/XRUserSettings';
 import { CharacterComponent } from "../components/CharacterComponent";
-import { interactableIsInReach } from '../functions/interactableIsInReach';
 import { XRAvatarRig } from "../components/XRAvatarRig";
+import { interactableIsInReach } from '../functions/interactableIsInReach';
 
 /**
  *
@@ -39,14 +38,13 @@ import { XRAvatarRig } from "../components/XRAvatarRig";
 
 const interact: Behavior = (entity: Entity, args: any = { side: ParityValue }, delta): void => {
 
-  // TODO: figure out how to best handle equippables & interactables at the same time
-  const equippedComponent = getComponent(entity, EquippedComponent)
-  if(equippedComponent) {
-    unequipEntity(entity)
+  interactOnServer(entity, args); //TODO: figure out all this cases
+  
+  const equipperComponent = getComponent(entity, EquipperComponent)
+  if(equipperComponent) {
     return;
   }
 
-  interactOnServer(entity, args); //TODO: figure out all this cases
 
   if (isServer) {
     //TODO: all this function needs to re-think
@@ -341,12 +339,11 @@ const moveFromXRInputs: Behavior = (entity, args): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const input = getComponent<Input>(entity, Input as any);
   const values = input.data.get(BaseInput.XR_MOVE)?.value;
+  if(!values) return;
 
-  if(values) {
-    actor.localMovementDirection.x = values[0] ?? actor.localMovementDirection.x;
-    actor.localMovementDirection.z = values[1] ?? actor.localMovementDirection.z;
-    actor.localMovementDirection.normalize();
-  }
+  actor.localMovementDirection.x = values[0] ?? actor.localMovementDirection.x;
+  actor.localMovementDirection.z = values[1] ?? actor.localMovementDirection.z;
+  actor.localMovementDirection.normalize();
 };
 
 //const forwardVector = new Vector3(0, 0, 1);

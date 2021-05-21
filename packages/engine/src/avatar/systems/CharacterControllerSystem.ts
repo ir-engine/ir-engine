@@ -106,9 +106,7 @@ export class CharacterControllerSystem extends System {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 
       if (!actor.movementEnabled || !actor.initialized) return;
-      // do head rotation for XR from input view vector - TODO: figure out where to put this
-      // if(XRSystem.instance?.cameraDolly) XRSystem.instance.cameraDolly.setRotationFromAxisAngle(downVector, Math.atan2(actor.viewVector.z, actor.viewVector.x))
-
+      
       const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
       const transform = getComponent<TransformComponent>(entity, TransformComponent as any);
 

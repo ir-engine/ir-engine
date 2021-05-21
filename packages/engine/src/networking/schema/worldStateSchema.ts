@@ -83,13 +83,7 @@ const createNetworkObjectSchema = new Schema({
     ownerId: string,
     prefabType: uint8,
     uniqueId: string,
-    x: float32,
-    y: float32,
-    z: float32,
-    qX: float32,
-    qY: float32,
-    qZ: float32,
-    qW: float32
+    parameters: string,
 });
 
 const editNetworkObjectSchema = new Schema({

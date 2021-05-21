@@ -5,6 +5,8 @@ import { isInXR } from '../../xr/functions/WebXRFunctions';
 import { isClient } from '../../common/functions/isClient';
 import { ParityValue } from '../../common/enums/ParityValue';
 import { EquippableAttachmentPoint } from '../enums/EquippedEnums';
+import { NetworkObject } from '../../networking/components/NetworkObject';
+import { getComponent } from '../../ecs/functions/EntityFunctions';
 
 
 /**
@@ -12,7 +14,9 @@ import { EquippableAttachmentPoint } from '../enums/EquippedEnums';
  */
 
 export const grabEquippable: Behavior = (grabbableEntity: Entity, args?: any, delta?: number, playerEquippingEntity?: Entity, time?: number, checks?: any): void => {
-  // if(isClient) console.log('grabEquippable', grabbableEntity, args, delta, playerEquippingEntity, time, checks);
+  if(!playerEquippingEntity) return;
+  // console.log(grabbableEntity, playerEquippingEntity)
+  // console.log('grabEquippable', getComponent(grabbableEntity, NetworkObject).networkId, args, delta, getComponent(playerEquippingEntity, NetworkObject).networkId, time, checks);
   if(isInXR(playerEquippingEntity)) {
     if(args.side === ParityValue.LEFT) {
       equipEntity(playerEquippingEntity, grabbableEntity, EquippableAttachmentPoint.LEFT_HAND);

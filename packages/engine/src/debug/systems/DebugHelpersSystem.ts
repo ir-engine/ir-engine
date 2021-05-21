@@ -98,7 +98,7 @@ export class DebugHelpersSystem extends System {
       const velocityArrowHelper = this.helpersByEntity.velocityArrow.get(entity) as ArrowHelper;
       if (velocityArrowHelper != null) {
         velocityArrowHelper.setDirection(actor.velocity.clone().normalize());
-        velocityArrowHelper.setLength(actor.velocity.length());
+        velocityArrowHelper.setLength(actor.velocity.length() * 60);
         velocityArrowHelper.position.copy(transform.position);
       }
     });

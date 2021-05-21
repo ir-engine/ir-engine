@@ -56,7 +56,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 	const tmpGroup = new Group();
 	console.log("Loading Actor Avatar =>", avatarURL)
 
-	createShadow(entity, { objArgs: { castShadow: true, receiveShadow: true } })
+	createShadow(entity, { castShadow: true, receiveShadow: true });
 
 	AssetLoader.load({
 		url: avatarURL,
@@ -246,6 +246,7 @@ export const characterInterpolationSchema: InterpolationInterface = {
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkPlayerCharacter: NetworkPrefab = {
+  initialize: createNetworkPlayer,
 	// These will be created for all players on the network
 	networkComponents: [
 		// ActorComponent has values like movement speed, deceleration, jump height, etc

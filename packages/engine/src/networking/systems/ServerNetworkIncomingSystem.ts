@@ -200,10 +200,6 @@ export class ServerNetworkIncomingSystem extends System {
 
       // Apply button input
       for (let i = 0; i < clientInput.buttons.length; i++) {
-
-        //  console.warn(clientInput.buttons[i].input, ['start','continue','end'][clientInput.buttons[i].lifecycleState], 'value: '+clientInput.buttons[i].value);
-
-
         input.data.set(clientInput.buttons[i].input,
           {
             type: InputType.BUTTON,
@@ -251,7 +247,6 @@ export class ServerNetworkIncomingSystem extends System {
 
       clientInput.transforms?.forEach((transform: StateEntity) => {
         const networkObject = Network.instance.networkObjects[transform.networkId];
-        console.log(transform, networkObject, Network.instance.clients[clientInput.networkId])
         if(networkObject && networkObject.ownerId === Network.instance.clients[clientInput.networkId].userId) {
           const collider = getComponent(networkObject.component.entity, ColliderComponent)
           collider.body.updateTransform({

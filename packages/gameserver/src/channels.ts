@@ -1,7 +1,7 @@
 import '@feathersjs/transport-commons';
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
-import { awaitSceneLoaded, loadScene } from "@xrengine/engine/src/scene/functions/SceneLoading";
+import { loadScene } from "@xrengine/engine/src/scene/functions/SceneLoading";
 import config from '@xrengine/server-core/src/appconfig';
 import { Application } from '@xrengine/server-core/declarations';
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip';
@@ -99,7 +99,8 @@ export default (app: Application): void => {
                                     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, () => {
                                         EngineEvents.instance.dispatchEvent({
                                             type: EngineEvents.EVENTS.ENABLE_SCENE,
-                                            enable: true
+                                            renderer: true,
+                                            physics: true
                                         });
                                     });
                                     loadScene(result);
@@ -204,9 +205,10 @@ export default (app: Application): void => {
                         console.log('user instanceId: ' + user.instanceId);
 
                         if (instanceId != null && instance != null) {
+                            const activeUsers = Object.keys(Network.instance.clients);
                             try {
                                 await app.service('instance').patch(instanceId, {
-                                    currentUsers: --instance.currentUsers
+                                    currentUsers: activeUsers.length
                                 });
                             } catch (err) {
                                 console.log('Failed to patch instance user count, likely because it was destroyed');
@@ -229,7 +231,7 @@ export default (app: Application): void => {
 
                             app.channel(`instanceIds/${instanceId as string}`).leave(connection);
 
-                            if (instance.currentUsers < 1) {
+                            if (activeUsers.length < 1) {
                                 console.log('Deleting instance ' + instanceId);
                                 try {
                                     await app.service('instance').remove(instanceId);

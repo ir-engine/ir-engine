@@ -29,15 +29,9 @@ export const startXR = async () => {
 
   try{
 
-    const dolly = new Group();
-    XRSystem.instance.cameraDolly = dolly;
-
     const cameraFollow = getMutableComponent<FollowCameraComponent>(Network.instance.localClientEntity, FollowCameraComponent) as FollowCameraComponent;
     cameraFollow.mode = CameraModes.XR;
     const actor = getMutableComponent(Network.instance.localClientEntity, CharacterComponent);
-    actor.tiltContainer.add(dolly);
-    Engine.scene.remove(Engine.camera);
-    dolly.add(Engine.camera);
 
     actor.state = setBit(actor.state, CHARACTER_STATES.VR);
 
@@ -54,9 +48,12 @@ export const startXR = async () => {
     head = Engine.renderer.xr.getCamera(Engine.camera);
     controllerLeft = Engine.renderer.xr.getController(1);
     controllerRight = Engine.renderer.xr.getController(0);
-    dolly.add(controllerLeft);
-    dolly.add(controllerRight);
-    // dolly.add(head);
+    actor.tiltContainer.add(controllerLeft);
+    actor.tiltContainer.add(controllerRight);
+
+    Engine.scene.remove(Engine.camera);
+    actor.tiltContainer.add(Engine.camera);
+    
 
     // obviously unfinished
     [controllerLeft, controllerRight].forEach((controller) => {
@@ -95,8 +92,6 @@ export const startXR = async () => {
       controllerGripRight: controllerGripRight
     })
 
-    console.log(getComponent(Network.instance.localClientEntity, XRInputReceiver));
-
     const obj: any = await new Promise((resolve) => { getLoader().load('/models/webxr/controllers/valve_controller_knu_1_0_right.glb', obj => { resolve(obj) }, console.warn, console.error)});
     const controller3DModel = obj.scene.children[2] as any;
 
@@ -114,10 +109,11 @@ export const startXR = async () => {
     controllerGripRight.add(controllerMeshRight);
     controllerGripLeft.add(controllerMeshLeft);
 
-    dolly.add(controllerGripRight);
-    dolly.add(controllerGripLeft);
+    
+    actor.tiltContainer.add(controllerGripRight);
+    actor.tiltContainer.add(controllerGripLeft);
 
-    console.log('Loaded Model Controllers Done');
+    // console.log('Loaded Model Controllers Done');
 
     return true;
   } catch (e) {
@@ -138,7 +134,6 @@ export const endXR = () => {
   Engine.xrSession = null;
   // Engine.renderer.setAnimationLoop(null);
   const actor = getMutableComponent(Network.instance.localClientEntity, CharacterComponent);
-  actor.tiltContainer.remove(XRSystem.instance.cameraDolly);
   Engine.scene.add(Engine.camera);
   stopIK(Network.instance.localClientEntity)
   initializeMovingState(Network.instance.localClientEntity)

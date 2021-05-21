@@ -42,6 +42,7 @@ import { getLoggedCreator } from '../../reducers/creator/service';
 import Featured from '../Featured';
 import { Plugins } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
+import { updateCreatorPageState } from '../../reducers/popupsState/service';
 
 const { Share } = Plugins;
 
@@ -85,7 +86,7 @@ const FeedCard = (props: Props) : any => {
 //     const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addViewToFeed} = props;
     const {feed, authState, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed} = props;
     const [firedCount, setFiredCount] = useState(feed.fires);
-
+    const [videoDisplay, setVideoDisplay] = useState(false);
     const [feedFiresCreators, setFeedFiresCreators] = useState(null);
 
     const handleAddFireClick = (feedId) =>{
@@ -121,9 +122,9 @@ const FeedCard = (props: Props) : any => {
     const { t } = useTranslation();
     const shareVia = () => {
         Share.share({
-            title: t('social:shareForm.seeCoolStuff'),
+            title: t('social:shareForm.arcMedia'),
             text: t('social:shareForm.videoCreated'),
-            url: feed.videoUrl,
+            url: encodeURI(feed.videoUrl),
             dialogTitle: t('social:shareForm.shareWithBuddies')
           });
        };
@@ -163,13 +164,18 @@ const FeedCard = (props: Props) : any => {
 {/*                     title={feed.title}                       */}
 {/*                     onClick={()=>setIsVideo(true)}                */}
 {/*                 />} */}
-                {feed.videoUrl ? <CardMedia
-                    className={styles.previewImage}
-                    component='video'
-                    src={feed.videoUrl}
-                    title={feed.title}
-                    controls
-                /> : ''}
+                {!videoDisplay ? <img src={feed.previewUrl}
+                                  className={styles.previewImage}
+                                  alt={feed.title}
+                                  onClick={setVideoDisplay}
+                                  />
+                 : <CardMedia className={styles.previewImage}
+                              component='video'
+                              src={feed.videoUrl}
+                              title={feed.title}
+                              controls
+                              />}
+
                 <span className={styles.eyeLine}>{feed.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
                 <CardContent className={styles.cardContent}>                     
                     <section className={styles.iconsContainer}>

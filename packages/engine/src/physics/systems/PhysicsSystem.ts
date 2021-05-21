@@ -21,7 +21,6 @@ import { UserControlledColliderComponent } from '../components/UserControllerObj
 import { HasHadCollision } from "../../game/actions/HasHadCollision";
 import { GameObject } from "../../game/components/GameObject";
 import { addActionComponent } from '../../game/functions/functionsActions';
-import { EquippedComponent } from '../../interaction/components/EquippedComponent';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -71,9 +70,13 @@ export class PhysicsSystem extends System {
     this.worker = attributes.worker;
 
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
-      this.isSimulating = ev.enable;
-      PhysXInstance.instance.startPhysX(ev.enable);
+      this.isSimulating = ev.physics;
+      PhysXInstance.instance.startPhysX(ev.physics);
     });
+
+    if (!PhysXInstance.instance) {
+      PhysXInstance.instance = new PhysXInstance();
+    }
   }
 
   async initialize() {
@@ -85,6 +88,7 @@ export class PhysicsSystem extends System {
     this.frame = 0;
     this.broadphase = null;
     EngineEvents.instance.removeAllListenersForEvent(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT);
+    PhysXInstance.instance.dispose();
   }
 
   execute(delta: number): void {
@@ -96,7 +100,7 @@ export class PhysicsSystem extends System {
       }
       */
       collider.body.addEventListener(CollisionEvents.COLLISION_START, (ev: ColliderHitEvent) => {
-        (ev.bodyOther as any).shapes[0].config.collisionLayer == (ev.bodySelf as any).shapes[0].config.collisionMask ? collider.collisions.push(ev):'';
+        ev.bodyOther.shapes[0].config.collisionLayer == ev.bodySelf.shapes[0].config.collisionMask ? collider.collisions.push(ev):'';
       })
       /*
       collider.body.addEventListener(CollisionEvents.COLLISION_PERSIST, (ev: ColliderHitEvent) => {
@@ -211,7 +215,6 @@ export class PhysicsSystem extends System {
       // only on server
       this.queryResults.correctionFromClient.all?.forEach(entity => {
         const networkObject = getMutableComponent(entity, NetworkObject);
-        console.log('correctionFromClient', entity, networkObject.ownerId, Network.instance.userId)
         if(networkObject.ownerId === Network.instance.userId) {
           const collider = getMutableComponent(entity, ColliderComponent);
           Network.instance.clientInputState.transforms.push({

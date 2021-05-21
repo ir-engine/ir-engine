@@ -134,7 +134,7 @@ function checkIfIdHavePrepair( uniqueId ) {
  *
  * @returns Newly created object.
  */
-export function initializeNetworkObject( args: { entity?: Entity, prefabType?: string | number, ownerId: string, networkId?: number, uniqueId: string, override?: any}): NetworkObject {
+export function initializeNetworkObject( args: { entity?: Entity, prefabType?: number, ownerId: string, networkId?: number, uniqueId: string, override?: any}): NetworkObject {
   // Instantiate into the world
   const entity = args.entity ?? createEntity();
   const prefabType = args.prefabType ?? Network.instance.schema.defaultClientPrefab;
@@ -169,19 +169,12 @@ export function initializeNetworkObject( args: { entity?: Entity, prefabType?: s
         ownerId: ownerId,
         prefabType: prefabType,
         uniqueId: uniqueId,
-        x: 0,
-        y: 0,
-        z: 0,
-        qX: 0,
-        qY: 0,
-        qZ: 0,
-        qW: 1
+        parameters: ''
     });
   }
 
   if (prefabType === PrefabType.Player && ownerId === (Network.instance).userId) {
-    // console.warn('Give Player Id by Server '+ networkId, ownerId, Network.instance.userId);
-    // console.warn(Network.instance.networkObjects);
+    // console.log('Give Player Id by Server', networkId, args.networkId, typeof networkId, typeof args.networkId, ownerId, Network.instance.userId);
     Network.instance.localAvatarNetworkId = networkId;
     Network.instance.localClientEntity = networkEntity;
   }

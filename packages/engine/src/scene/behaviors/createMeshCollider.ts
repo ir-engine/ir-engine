@@ -11,26 +11,23 @@ import { addCollidersToNetworkVehicle } from '../../vehicle/prefabs/NetworkVehic
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const createMeshCollider: Behavior = ( entity: Entity, args: any ) => { //{ data:string, type: string,}
-  //console.log('****** Collider from Scene data: ', args);
-
-  switch (args.objArgs.data) {
-
+export const createMeshCollider: Behavior = ( entity: Entity, args: any ) => {
+  switch (args.data) {
     case 'physics':
       addColliderWithoutEntity(
         {
           bodytype: BodyType.STATIC,
-          type: args.objArgs.type
+          type: args.type
         },
-        args.objArgs.position,
-        args.objArgs.quaternion,
-        args.objArgs.scale,
+        args.position,
+        args.quaternion,
+        args.scale,
         {
           mesh: null,
-          vertices: args.objArgs.vertices,
-          indices: args.objArgs.indices,
-          collisionLayer: args.objArgs.collisionLayer,
-          collisionMask: args.objArgs.collisionMask
+          vertices: args.vertices,
+          indices: args.indices,
+          collisionLayer: args.collisionLayer,
+          collisionMask: args.collisionMask
         }
       );
       break;
@@ -38,16 +35,16 @@ export const createMeshCollider: Behavior = ( entity: Entity, args: any ) => { /
     case 'kinematic':
       addComponent(entity, ColliderComponent, {
         bodytype: BodyType.KINEMATIC,
-        type: args.objArgs.type,
-        position: args.objArgs.position,
-        quaternion: args.objArgs.quaternion,
-        scale: args.objArgs.scale,
+        type: args.type,
+        position: args.position,
+        quaternion: args.quaternion,
+        scale: args.scale,
         mesh: null,
-        vertices: args.objArgs.vertices,
-        indices: args.objArgs.indices,
-        collisionLayer: args.objArgs.collisionLayer,
-        collisionMask: args.objArgs.collisionMask,
-        mass: args.objArgs.mass ?? 1
+        vertices: args.vertices,
+        indices: args.indices,
+        collisionLayer: args.collisionLayer,
+        collisionMask: args.collisionMask,
+        mass: args.mass ?? 1
       })
       break;
 
@@ -55,18 +52,18 @@ export const createMeshCollider: Behavior = ( entity: Entity, args: any ) => { /
       createNetworkRigidBody({
         parameters: {
           bodytype: BodyType.DYNAMIC,
-          type: args.objArgs.type,
-          scale: args.objArgs.scale,
-          position: args.objArgs.position,
-          quaternion: args.objArgs.quaternion,
+          type: args.type,
+          scale: args.scale,
+          position: args.position,
+          quaternion: args.quaternion,
           mesh: null,
-          mass: args.objArgs.mass ?? 1,
-          vertices: args.objArgs.vertices,
-          indices: args.objArgs.indices,
-          collisionLayer: args.objArgs.collisionLayer,
-          collisionMask: args.objArgs.collisionMask
+          mass: args.mass ?? 1,
+          vertices: args.vertices,
+          indices: args.indices,
+          collisionLayer: args.collisionLayer,
+          collisionMask: args.collisionMask
         },
-        uniqueId: args.objArgs.sceneEntityId,
+        uniqueId: args.sceneEntityId,
         entity: entity
       });
       break;
@@ -74,21 +71,21 @@ export const createMeshCollider: Behavior = ( entity: Entity, args: any ) => { /
     case 'vehicle':
       addCollidersToNetworkVehicle({
         parameters: {
-          type: args.objArgs.type,
-          scale: args.objArgs.scale,
-          position: args.objArgs.position,
-          quaternion: args.objArgs.quaternion,
+          type: args.type,
+          scale: args.scale,
+          position: args.position,
+          quaternion: args.quaternion,
           mesh: null,
-          mass: args.objArgs.mass ?? 1,
-          vertices: args.objArgs.vertices,
-          indices: args.objArgs.indices
+          mass: args.mass ?? 1,
+          vertices: args.vertices,
+          indices: args.indices
         },
         entity: entity
       });
       break;
 
     default:
-      console.warn('args.objArgs.data: '+args.objArgs.data);
+      console.warn('Invalid Args for Mesh Collider: ' + args.data);
       break;
   }
 };
