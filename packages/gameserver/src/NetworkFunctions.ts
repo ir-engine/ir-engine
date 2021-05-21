@@ -324,7 +324,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
         const transform = getComponent(Network.instance.networkObjects[networkId].component.entity, TransformComponent);
         worldState.createObjects.push({
             prefabType: Network.instance.networkObjects[networkId].prefabType,
-            networkId: networkId,
+            networkId: Number(networkId),
             ownerId: Network.instance.networkObjects[networkId].ownerId,
             uniqueId: Network.instance.networkObjects[networkId].uniqueId,
             x: transform.position.x,

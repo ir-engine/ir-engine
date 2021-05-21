@@ -328,7 +328,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
         if (recordingState === RecordingStates.OFF) {
             setRecordingState(RecordingStates.ON);
             setContentHidden()
-            if (window.confirm("Double click to finish the record.")) {
+            window.alert("Double click to finish the record."));
             //TODO: check why there are errors
             // @ts-ignore
             Plugins.XRPlugin.startRecording({
@@ -341,7 +341,6 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
               }).then(({ status }) => {
                  console.log("RECORDING, STATUS IS", status);
               }).catch(error => alert(error.message));
-            }
 
 
             document.addEventListener('dblclick', function (e) {
@@ -376,7 +375,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
 
     const stopRecord = () => {
         // @ts-ignore
-        Plugins.XRPlugin.stop({})
+        Plugins.XRPlugin.stop({});
     };
 
     // useEffect(() => {
@@ -397,8 +396,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
          <div className={horizontalOrientation ? styles.horizontalOrientation + " plugintestControls" : "plugintestControls"}>
               <section className={styles.waterMarkWrapper}>
                   <section className={styles.waterMark}>
-                      <section className={styles.subContainer}>
-                      </section>
+                      <section className={styles.subContainer} />
                     </section>
                 </section>
                 <button type="button" className={styles.flipCamera} onClick={() => {}}><FlipCameraIosIcon /></button> 

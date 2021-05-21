@@ -32,7 +32,7 @@ export const WebXRStart = ({popupsState, updateWebXRState, setContentHidden}: Pr
 const renderWebXRModal = () =>
   popupsState?.get('webxr') === true &&  
     
-        <WebXRPlugin setContentHidden={setContentHidden} />
+        <WebXRPlugin setContentHidden={setContentHidden} />;
          
       
 const webXRstate = popupsState?.get('webxr');
