@@ -86,19 +86,36 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     
     };
 
+    const dataURItoBlob = (dataURI) => {
+              let byteString = atob(dataURI.split(',')[1]);
+              const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+              const ab = new ArrayBuffer(byteString.length);
+              const ia = new Uint8Array(ab);
+              for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+              }
+              const blob = new Blob([ab], { type: mimeString });
+              return new File([blob], "previewImg.png");
+        }
+
     useEffect(()=> {
         fetch(videoPath)
         .then((res) => res.blob())
         .then((myBlob) => {
          const myFile = new File([myBlob], "test.mp4");
          setVideo(myFile);
-         setPreview(myFile)
          console.log(myFile)
       }).catch(error => console.log(error.message));
+
+
+      const prevImage = dataURItoBlob(popupsState?.get('imgSrc'))
+      setPreview(prevImage)
     }, [] ); 
      
     
-    useEffect(()=> {videoUrl && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
+    useEffect(()=> {
+        videoUrl && updateShareFormState(true, videoUrl);
+    }, [videoUrl] );
     // const handlePickVideo = async (file) => setVideo(popupsState?.get('videoPath'));
     // const handlePickPreview = async (file) => setPreview('');
     

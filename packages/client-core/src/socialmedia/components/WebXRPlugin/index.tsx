@@ -196,6 +196,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
 
             await XRPlugin.initialize({}).then(response => {
                 setInitializationResponse(response.status);
+                setContentHidden()
             }).catch(error => alert(error.message));
 
             // @ts-ignore
@@ -299,10 +300,18 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
         })();
     }, []);
 
-    const finishRecord = () => {
 
+    const createPreviewUrl = () => {
+            const canvas = document.createElement('canvas');
+            const video = document.getElementById('video');
+            canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+            const dataURL = canvas.toDataURL();
+            return dataURL;
+
+        }
+
+    const finishRecord = () => {
                setRecordingState(RecordingStates.OFF);
-               setContentHidden()
                if(horizontalOrientation){
                    setHorizontalOrientation(false)
                }
@@ -316,18 +325,17 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
                then(({ result, filePath }) => {
                    console.log("END RECORDING, result IS", result);
                    console.log("filePath IS", filePath);
+                   setContentHidden()
                    setSavedFilePath("file://" + filePath);
                    const videoPath = Capacitor.convertFileSrc(filePath);
-                   updateNewFeedPageState(true, filePath)
+                   updateNewFeedPageState(true, videoPath, createPreviewUrl())
                }).catch(error => alert(error.message));
         }
-
 
 
     const toggleRecording = () => {
         if (recordingState === RecordingStates.OFF) {
             setRecordingState(RecordingStates.ON);
-            setContentHidden()
             if (window.confirm("Double click to finish the record.")) {
             //TODO: check why there are errors
             // @ts-ignore
@@ -339,6 +347,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
                  dpi: 100,
                  filePath: "/test.mp4"
               }).then(({ status }) => {
+//                  createPreview()
                  console.log("RECORDING, STATUS IS", status);
               }).catch(error => alert(error.message));
             }
@@ -395,6 +404,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
         </div> */}
 
          <div className={horizontalOrientation ? styles.horizontalOrientation + " plugintestControls" : "plugintestControls"}>
+            <div className={recordingState === RecordingStates.OFF ? '' : styles.hideButtons}>
               <section className={styles.waterMarkWrapper}>
                   <section className={styles.waterMark}>
                       <section className={styles.subContainer}>
@@ -415,7 +425,8 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
               {/* <button type="button" style={{ padding: "1em" }} onClick={() => pauseVideo()}>pauseVideo</button> */}
               <section className={styles.closeButtonWrapper}>
                 <button type="button" className={styles.closeButton} onClick={() => stopRecord()}><ChevronLeftIcon />Slide to cancel</button> 
-            </section>
+              </section>
+            </div>
           </div>
           <canvas ref={canvasRef} className={styles.arcCanvas} id={'arcCanvas'} onClick={() => handleTap()} />
         {/* <VolumetricPlayer
