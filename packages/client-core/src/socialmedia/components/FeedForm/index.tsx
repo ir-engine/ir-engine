@@ -56,7 +56,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const textRef = React.useRef<HTMLInputElement>();
     const videoRef = React.useRef<HTMLInputElement>();
 	const { t } = useTranslation();
-    const videoPath = popupsState?.get('videoPath')
+    const videoPath = popupsState?.get('videoPath');
 
     const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value);
     const handleComposingTextChange = (event: any): void => setComposingText(event.target.value);
@@ -92,8 +92,8 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         .then((myBlob) => {
          const myFile = new File([myBlob], "test.mp4");
          setVideo(myFile);
-         setPreview(myFile)
-         console.log(myFile)
+         setPreview(myFile);
+         console.log(myFile);
       }).catch(error => console.log(error.message));
     }, [] ); 
      

@@ -16,7 +16,7 @@ export const getGameEntityFromName = (name: string): Entity => {
 
 export const getEntityFromRoleUuid = (game: Game, role: string, uuid: string): Entity => (game.gameObjects[role] || game.gamePlayers[role]).find(entity => getUuid(entity) === uuid);
 
-export const getEntityArrFromRole = (game: Game, role: string, ): Entity => (game.gameObjects[role] || game.gamePlayers[role]);
+export const getEntityArrFromRole = (game: Game, role: string, ): Entity[] => (game.gameObjects[role] || game.gamePlayers[role]);
 
 export const getRole = (entity: Entity) => {
   return hasComponent(entity, GameObject) ? getComponent(entity, GameObject).role : getComponent(entity, GamePlayer).role;
@@ -32,16 +32,23 @@ export const getUuid = (entity: Entity) => {
 };
 
 //console.warn('giveOpenOrCloseState, you must give argument on: me, or on: target');
-export const getTargetEntity = (entity: Entity, entityTarget: Entity, args: any) => {
+export const getTargetEntitys = (entity: Entity, entityTarget: Entity, args: any): Entity | Entity[] => {
   if (args === undefined || args.on === undefined || args.on === 'me') {
     return entity;
   } else if (args.on === 'target') {
-    return entityTarget
+    return entityTarget;
   } else if (checkRolesNames(entity, args.on)) {
     const game = getGame(entity);
     return getEntityArrFromRole(game, args.on)
   }
 };
+
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
+export const getTargetEntity = (entity: Entity, entityTarget: Entity, args: any): Entity => {
+  return args.on === 'target' ? entityTarget : entity;
+}
 
 export const checkRolesNames = ( entity: Entity, str: string ) => {
   const game = getGame(entity);

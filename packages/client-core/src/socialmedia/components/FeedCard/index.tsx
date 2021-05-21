@@ -37,6 +37,8 @@ import PopupLogin from '../PopupLogin/PopupLogin';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { getLoggedCreator } from '../../reducers/creator/service';
+import { updateCreatorPageState } from '../../reducers/popupsState/service';
+
 
 
 import Featured from '../Featured';
@@ -58,7 +60,8 @@ const mapStateToProps = (state: any): any => {
 //     removeFireToFeed: bindActionCreators(removeFireToFeed, dispatch),
     getFeedFires: bindActionCreators(getFeedFires, dispatch),
     addFireToFeed: bindActionCreators(addFireToFeed, dispatch),
-    removeFireToFeed: bindActionCreators(removeFireToFeed, dispatch)
+    removeFireToFeed: bindActionCreators(removeFireToFeed, dispatch),
+    updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
     // addBookmarkToFeed: bindActionCreators(addBookmarkToFeed, dispatch),
     // removeBookmarkToFeed: bindActionCreators(removeBookmarkToFeed, dispatch),
 //     addViewToFeed : bindActionCreators(addViewToFeed, dispatch),
@@ -73,6 +76,7 @@ interface Props{
     getFeedFires?: any,
     addFireToFeed?: any,
     removeFireToFeed?: any,
+    updateCreatorPageState?: any,
     // addBookmarkToFeed?: typeof addBookmarkToFeed;
     // removeBookmarkToFeed?: typeof removeBookmarkToFeed;
 //     addViewToFeed?: typeof addViewToFeed;
@@ -190,7 +194,7 @@ const FeedCard = (props: Props) : any => {
                             />}
                             title={<Typography variant="h6">
                             {feed.creator.name}
-                            <p variant="subtitle2">@{feed.creator.username} · {feed.fires} flames</p>
+                            <Typography variant="subtitle2">@{feed.creator.username} · {feed.fires} flames</Typography>
                             {feed.creator.verified === true && <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>}
                         </Typography> } />
 

@@ -59,8 +59,8 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState, webxrnativeSt
   },[auth]);
 
   useEffect(() => {
-    doLoginAuto(true)
-    getWebXrNative()
+    doLoginAuto(true);
+    getWebXrNative();
   }, []);
 
   const [onborded, setOnborded] = useState(true);
