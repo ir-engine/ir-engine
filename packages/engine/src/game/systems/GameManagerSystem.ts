@@ -115,11 +115,13 @@ export class GameManagerSystem extends System {
       // OBJECTS
       // its needet for allow dynamicly adding objects and exept errors when enitor gives object without created game
       this.queryResults.gameObject.added?.forEach(entity => {
+        console.warn('ADD GAME OBJECT');
         if (getComponent(entity, GameObject).game != game.name) return;
         getMutableComponent(entity, GameObject).game = game;
         // add to gameObjects list sorted by role
         gameObjects[getComponent(entity, GameObject).role].push(entity);
         // add init Tag components for start state of Games
+        console.warn(gameObjects);
         const schema = gameSchema.initGameState[getComponent(entity, GameObject).role];
         if (schema != undefined) {
           schema.components?.forEach(component => addStateComponent(entity, component));
@@ -176,7 +178,7 @@ export class GameManagerSystem extends System {
 
               if(b.args != undefined) {
                 if(typeof b.args === 'function')  {
-                  args = b.args(entity) 
+                  args = b.args(entity)
                 } else {
                   args = b.args;
                 }
@@ -236,12 +238,13 @@ export class GameManagerSystem extends System {
       // execute all behavior after all preparing
       executeComplexResult.forEach(v => v.behavior(v.entity, v.args, delta, v.entityOther, time, v.checkersResult));
       // Clean onetime Tag components for every gameobject
+      /*
       Object.keys(gamePlayers).concat(Object.keys(gameObjects)).forEach((role: string) => {
         (gameObjects[role] || gamePlayers[role]).forEach(entity => {
           gameSchema.registerActionTagComponents.forEach(component => hasComponent(entity, component) ? removeComponent(entity, component):'');
         })
       });
-
+*/
       // end of frame circle one game
     });
   }

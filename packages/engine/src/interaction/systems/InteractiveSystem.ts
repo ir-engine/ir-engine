@@ -57,7 +57,7 @@ export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityV
     unequipEntity(entity)
     return;
   }
-  
+
     let focusedArrays = [];
     for (let i = 0; i < Engine.entities.length; i++) {
       const isEntityInteractable = Engine.entities[i];
@@ -91,7 +91,9 @@ export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityV
 
     if (interactable.data.interactionType === "gameobject") {
       if (interactionFunction) {
+        console.warn('interactionFunction');
         if (interactionCheck) {
+          console.warn(focusedArrays[0][0]);
           addActionComponent(focusedArrays[0][0], HaveBeenInteracted, { args, entityNetworkId: getComponent(entity, NetworkObject).networkId });
         }
       } else {
@@ -459,7 +461,7 @@ export class InteractiveSystem extends System {
       equippableTransform.position.copy(vector3);
       equippableTransform.rotation.copy(quat);
       if(isServer) {
-        this.queryResults.network_user.added.forEach((userEntity) => {   
+        this.queryResults.network_user.added.forEach((userEntity) => {
           const networkObject = getComponent(equipperComponent.equippedEntity, NetworkObject)
           sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, networkObject.networkId] as EquippedStateUpdateSchema)
         })

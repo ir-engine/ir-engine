@@ -12,6 +12,7 @@ import { ColliderComponent } from '../../../../physics/components/ColliderCompon
  */
 
 export const addForce: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
+  console.warn('ADD FORCE');
   const collider = getComponent(entityTarget, ColliderComponent);
   const transform = getComponent(entity, TransformComponent);
   const q = new Quaternion().copy(transform.rotation);

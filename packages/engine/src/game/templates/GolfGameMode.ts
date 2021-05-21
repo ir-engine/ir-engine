@@ -209,11 +209,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {
-                watchers:[ [ HaveBeenInteracted ] ],
-                checkers:[{
-                  function: ifNamed,
-                  args: { on: 'target', name: '1' }
-                }]
+                watchers:[ [ HaveBeenInteracted ] ]
               }
             }
           }
@@ -251,6 +247,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             }
           }
         },
+        /*
         {
           behavior: nextTurn,
           watchers:[ [ YourTurn ] ],
@@ -266,6 +263,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             }
           }
         },
+        */
         {
           behavior: nextTurn,
           watchers:[ [ YourTurn ] ],
@@ -485,9 +483,9 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             return { ...getComponent(entityGolfclub, HaveBeenInteracted).args }
           },
           watchers:[ [ HaveBeenInteracted ] ],
-          takeEffectOn: (entityGolfclub) =>  { 
+          takeEffectOn: (entityGolfclub) =>  {
             if(!getComponent(entityGolfclub, HaveBeenInteracted).entityNetworkId) return;
-            return Network.instance.networkObjects[getComponent(entityGolfclub, HaveBeenInteracted).entityNetworkId].component.entity }, 
+            return Network.instance.networkObjects[getComponent(entityGolfclub, HaveBeenInteracted).entityNetworkId].component.entity },
         },
       ]
     },

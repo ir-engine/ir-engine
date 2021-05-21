@@ -16,6 +16,8 @@ import { Body, BodyType, createShapeFromConfig, SHAPES } from 'three-physx';
 import { DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions';
+import { onInteraction, onInteractionHover } from '../../../../scene/behaviors/createCommonInteractive';
+import { Interactable } from '../../../../interaction/components/Interactable';
 
 /**
 * @author Josh Field <github.com/HexaField>
@@ -57,7 +59,7 @@ export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: numbe
     uniqueId: args.uniqueId,
     ownerId: args.ownerId,
     networkId: args.networkId,
-    override: { 
+    override: {
       networkComponents: [
         {
           type: UserControlledColliderComponent,
@@ -75,6 +77,17 @@ export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: numbe
     }
   });
 }
+
+const interactiveData = {
+  onInteraction: onInteraction,
+  onInteractionFocused: onInteractionHover,
+  onInteractionCheck: () => { return true },
+  data: {
+    interactionType: "gameobject",
+    interactionText: "1"
+  }
+};
+
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const GolfBallPrefab: NetworkPrefab = {
   initialize: createGolfBallPrefab,
@@ -83,6 +96,7 @@ export const GolfBallPrefab: NetworkPrefab = {
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent, data: { position: new Vector3(4.166, -0.05, -7.9) } },
     { type: ColliderComponent },
+    { type: Interactable, data: interactiveData },
     { type: RigidBodyComponent },
     { type: UserControlledColliderComponent },
     { type: GameObject }
@@ -95,7 +109,7 @@ export const GolfBallPrefab: NetworkPrefab = {
   onAfterCreate: [
     {
       behavior: initializeGolfBall,
-      networked: true 
+      networked: true
     }
   ],
   onBeforeDestroy: []

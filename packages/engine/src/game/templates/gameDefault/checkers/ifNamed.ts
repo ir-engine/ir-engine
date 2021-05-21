@@ -10,7 +10,7 @@ import { getTargetEntity } from '../../../../game/functions/functions';
 export const ifNamed: Checker = (entity: Entity, args?: any, entityTarget?: Entity ): any | undefined => {
    const entityArg = getTargetEntity(entity, entityTarget, args);
    const nameObject = getComponent(entityArg, Interactable).data.interactionText;
-
+   console.warn(args.name === nameObject);
    if (args.name === undefined) {
      console.warn('ifNamed, you must give argument name:');
      return false;
