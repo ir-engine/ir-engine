@@ -352,6 +352,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                    console.log("filePath IS", filePath);
                    setSavedFilePath("file://" + filePath);
                    const videoPath = Capacitor.convertFileSrc(filePath);
+                   updateWebXRState(false, null);
                    updateNewFeedPageState(true, videoPath, createPreviewUrl());
                }).catch(error => alert(error.message));
         };
