@@ -215,7 +215,6 @@ export class PhysicsSystem extends System {
       // only on server
       this.queryResults.correctionFromClient.all?.forEach(entity => {
         const networkObject = getMutableComponent(entity, NetworkObject);
-        console.log('correctionFromClient', entity, networkObject.ownerId, Network.instance.userId)
         if(networkObject.ownerId === Network.instance.userId) {
           const collider = getMutableComponent(entity, ColliderComponent);
           Network.instance.clientInputState.transforms.push({
