@@ -70,7 +70,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
     const [anchorPoseState, setAnchorPoseState] = useState("");
     const [intrinsicsState, setCameraIntrinsicsState] = useState("");
     const [savedFilePath, setSavedFilePath] = useState("");
-    const [horizontalOrientation, setHorizontalOrientation] = useState(false);
+//     const [horizontalOrientation, setHorizontalOrientation] = useState(false);
     const [recordingState, setRecordingState] = useState(RecordingStates.OFF);
     let renderer: WebGLRenderer, scene: Scene, camera: PerspectiveCamera;
     const debugCamera: {
@@ -307,9 +307,9 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
 
               setRecordingState(RecordingStates.OFF);
                setContentHidden();
-               if(horizontalOrientation){
-                   setHorizontalOrientation(false);
-               }
+//                if(horizontalOrientation){
+//                    setHorizontalOrientation(false);
+//                }
                document.removeEventListener('dblclick', ()=> {
                    console.log('Double Click listener was removed');
                }, false);
@@ -396,7 +396,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
             </div>
         </div> */}
 
-         <div className={horizontalOrientation ? styles.horizontalOrientation + " plugintestControls" : "plugintestControls"}>
+         <div className="plugintestControls">
             <div className={recordingState === RecordingStates.OFF ? '' : styles.hideButtons}>
               <section className={styles.waterMarkWrapper}>
                   <section className={styles.waterMark}>
@@ -404,7 +404,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
                     </section>
                 </section>
                 <button type="button" className={styles.flipCamera} onClick={() => {}}><FlipCameraIosIcon /></button> 
-                <button type="button" className={styles.changeOrientation} onClick={() => {setHorizontalOrientation(!horizontalOrientation);}}><FlipCameraIosIcon /></button>
+{/*                 <button type="button" className={styles.changeOrientation} onClick={() => {setHorizontalOrientation(!horizontalOrientation);}}><FlipCameraIosIcon /></button> */}
                 <section className={recordingState === RecordingStates.OFF ? styles.startButtonWrapper : styles.stopButtonWrapper}>
                     {/*{recordingState === RecordingStates.OFF ? "Record" : "Stop Recording"}*/}
                     <button type="button" className={recordingState === RecordingStates.OFF ? styles.startButton : styles.stopButton} onClick={() => toggleRecording()}>
