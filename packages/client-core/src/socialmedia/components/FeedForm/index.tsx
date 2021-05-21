@@ -80,7 +80,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         setVideo(null);
         setPreview(null);
         setIsSended(true);
-        // Plugins.XRPlugin.stop();
+        Plugins.XRPlugin.stop();
         const thanksTimeOut = setTimeout(()=>{
             setIsSended(false); 
             clearTimeout(thanksTimeOut);
