@@ -20,7 +20,6 @@ class AvatarShoulders extends Component<AvatarShoulders> {
   rightShoulderAnchor: Object3D;
   leftArm: LeftArm;
   rightArm: RightArm;
-  shoulderPoser: ShoulderPoser;
   leftArmIk: XRArmIK;
   rightArmIk: XRArmIK;
 

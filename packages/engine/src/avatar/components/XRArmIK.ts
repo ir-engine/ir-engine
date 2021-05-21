@@ -8,7 +8,6 @@ import { Side } from '../functions/AvatarBodyFunctions';
 class XRArmIK extends Component<XRArmIK> {
   arm: any;
   shoulder: any;
-  shoulderPoser: any;
   target: any;
   side: Side;
   upperArmLength: number;

@@ -94,7 +94,6 @@ export const initXRArmIK = (entity: Entity, armSide: Side, target) => {
 
   armIK.arm = arm;
   armIK.shoulder = shoulders;
-  armIK.shoulderPoser = shoulders;
   armIK.target = target;
 
   armIK.upperArmLength = getWorldPosition(armIK.arm.lowerArm, localVector).distanceTo(getWorldPosition(armIK.arm.upperArm, localVector2));
@@ -181,7 +180,7 @@ export const updateXRArmIK = (entity, side: Side) => {
   }
 }
 
-export const updateShoulders = (shoulders: AvatarShoulders) => {
+export const updateAvatarShoulders = (shoulders: AvatarShoulders) => {
   shoulders.spine.quaternion.set(0, 0, 0, 1);
 
   // Update hips
@@ -307,10 +306,7 @@ export const initAvatarShoulders = (entity: Entity) => {
   avatarShoulders.rightShoulderAnchor.add(avatarShoulders.rightArm.transform);
   
   avatarShoulders.leftArmIk = (hasComponent(entity, LeftXRArmIK) ? getComponent(entity, LeftXRArmIK) : addComponent(entity, LeftXRArmIK)) as XRArmIK;
-  avatarShoulders.leftArmIk.shoulderPoser = avatarShoulders.shoulderPoser;
-  
-  avatarShoulders.leftArmIk = (hasComponent(entity, LeftXRArmIK) ? getComponent(entity, LeftXRArmIK) : addComponent(entity, LeftXRArmIK)) as XRArmIK;
-  avatarShoulders.leftArmIk.shoulderPoser = avatarShoulders.shoulderPoser;
+  avatarShoulders.rightArmIk = (hasComponent(entity, RightXRArmIK) ? getComponent(entity, RightXRArmIK) : addComponent(entity, RightXRArmIK)) as XRArmIK;
   
   initXRArmIK(entity, Side.Left, avatarShoulders.leftHand);
   initXRArmIK(entity, Side.Right, avatarShoulders.rightHand);
@@ -365,7 +361,7 @@ const initArm = (entity, armSide) => {
   arm.littleFinger2.add(arm.littleFinger3);
 }
 
-export const setupAvatarLegs = (entity, rig) => {
+export const initAvatarLegs = (entity, rig) => {
   if (!hasComponent(entity, AvatarLegs))
     addComponent(entity, AvatarLegs);
   const avatarLegs = getMutableComponent(entity, AvatarLegs);
