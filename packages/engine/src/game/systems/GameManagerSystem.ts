@@ -178,7 +178,12 @@ export class GameManagerSystem extends System {
                 }
               }
 
-              if (b.takeEffectOn === undefined || b.takeEffectOn.targetsRole === undefined) {
+              if(typeof b.takeEffectOn === 'function') {
+                const entityOther = b.takeEffectOn(entity);
+                if(entityOther) {
+                  executeComplexResult.push({ behavior: b.behavior, entity: entity, entityOther, args, checkersResult });
+                }
+              } else if (typeof b.takeEffectOn === 'undefined' || typeof b.takeEffectOn.targetsRole === 'undefined') {
                 //b.behavior(entity, undefined, args, checkersResult);
                 executeComplexResult.push({ behavior: b.behavior, entity: entity, entityOther: undefined, args, checkersResult });
               } else {

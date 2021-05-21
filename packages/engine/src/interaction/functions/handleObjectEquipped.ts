@@ -7,10 +7,15 @@ import { equipEntity, unequipEntity } from "./equippableFunctions";
 export const handleObjectEquipped = (editObject: NetworkObjectEditInterface): void => {
   
   const [isEquipped, equippedEntityId] = editObject.values as EquippedStateUpdateSchema;
-  if(!Network.instance.networkObjects[editObject.networkId] || !Network.instance.networkObjects[equippedEntityId]) return;
+  
+  if(!Network.instance.networkObjects[editObject.networkId]) return console.warn("Equipper entity does not exist! You should probably reconnect...");
+  
   const entityEquipper: Entity = Network.instance.networkObjects[editObject.networkId].component.entity;
-  console.log(editObject)
+
   if(isEquipped) {
+    if(!!Network.instance.networkObjects[equippedEntityId]) return console.warn("Equipped entity does not exist! You should probably reconnect...");
+    // we only care about equipping if we are the user doing so, otherwise network transforms take care of it
+    // if(Network.instance.localAvatarNetworkId !== editObject.networkId) return; 
     const entityEquipped = Network.instance.networkObjects[equippedEntityId].component.entity;
     equipEntity(entityEquipper, entityEquipped);
   } else {
