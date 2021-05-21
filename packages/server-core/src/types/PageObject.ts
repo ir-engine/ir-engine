@@ -1,3 +1,4 @@
+/* eslint-disable */
 export default interface Page<D> {
     total: number;
     limit: number;

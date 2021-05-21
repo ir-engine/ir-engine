@@ -31,7 +31,7 @@ import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/system
 import { now } from '@xrengine/engine/src/common/functions/now';
 import { loadScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 import { UIPanelSystem } from '@xrengine/engine/src/ui/systems/UIPanelSystem';
-import { AvatarAnimationSystem } from "@xrengine/engine/src/avatar/systems/AvatarAnimationSystem"
+import { AvatarAnimationSystem } from "@xrengine/engine/src/avatar/systems/AvatarAnimationSystem";
 
 import { PositionalAudioSystem } from '@xrengine/engine/src/audio/systems/PositionalAudioSystem';
 
@@ -45,7 +45,7 @@ if (typeof window !== 'undefined') {
   (window as any).iOS = os === 'iOS' || /iPad|iPhone|iPod/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   (window as any).safariWebBrowser = browser?.name === 'safari';
   const el = document.createElement('canvas');
-  (window as any).isWebGL2Supported = !!el.getContext('webgl2')
+  (window as any).isWebGL2Supported = !!el.getContext('webgl2');
   el.remove();
 }
 
