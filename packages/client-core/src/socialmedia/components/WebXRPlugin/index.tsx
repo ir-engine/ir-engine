@@ -170,7 +170,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
             renderer.domElement.style.position = "fixed";
             renderer.domElement.style.width = "100vw";
             renderer.domElement.style.height = "100vh";
-            renderer.domElement.style.zIndex = "1";
+            renderer.domElement.style.zIndex = "-1";
 
             renderer.domElement.style.top = "0";
             renderer.domElement.style.left = "0";
@@ -303,8 +303,8 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
 
                setRecordingState(RecordingStates.OFF);
                setContentHidden()
-               if(setHorizontalOrientation){
-                        setHorizontalOrientation(false)
+               if(horizontalOrientation){
+                   setHorizontalOrientation(false)
                }
                document.removeEventListener('dblclick', function(){
                    console.log('Double Click listener was removed')
@@ -333,8 +333,8 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
             // @ts-ignore
             Plugins.XRPlugin.startRecording({
                  isAudio: true,
-                 width: 500,
-                 height: 500,
+                 width: 1024,
+                 height: 1024,
                  bitRate: 1000,
                  dpi: 100,
                  filePath: "/test.mp4"
