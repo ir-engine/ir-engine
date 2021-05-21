@@ -16,7 +16,7 @@ import {
 export function updateCreatorPageState(state: boolean, id?:string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      dispatch(changeCreatorPage(state, id || null));      
+      dispatch(changeCreatorPage(state, id || null));
     } catch (err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
@@ -27,7 +27,7 @@ export function updateCreatorPageState(state: boolean, id?:string) {
 export function updateCreatorFormState(state: boolean) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      dispatch(changeCreatorForm(state));      
+      dispatch(changeCreatorForm(state));
     } catch (err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
@@ -38,41 +38,7 @@ export function updateCreatorFormState(state: boolean) {
 export function updateFeedPageState(state: boolean, id?:string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      dispatch(changeFeedPage(state, id || null));      
-    } catch (err) {
-      console.log(err);
-      dispatchAlertError(dispatch, err.message);
-    }
-  };  
-}
-
-export function updateNewFeedPageState(state: boolean,  id?:string) {
-  return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    try {
-      dispatch(changeNewFeedPage(state, id || null));      
-    } catch (err) {
-      console.log(err);
-      dispatchAlertError(dispatch, err.message);
-    }
-  };  
-}
-
-export function updateShareFormState(state: boolean, id?:string) {
-  return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    try {
-      dispatch(changeShareForm(state, id || null));      
-    } catch (err) {
-      console.log(err);
-      dispatchAlertError(dispatch, err.message);
-    }
-  };  
-}
-
-
-export function updateArMediaState(state: boolean) {
-  return async (dispatch: Dispatch, getState: any): Promise<any> => {
-    try {
-      dispatch(changeArMedia(state));      
+      dispatch(changeFeedPage(state, id || null));
     } catch (err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
@@ -80,10 +46,44 @@ export function updateArMediaState(state: boolean) {
   };
 }
 
-export function updateWebXRState(state: boolean) {
+export function updateNewFeedPageState(state: boolean,  id?:string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      dispatch(changeWebXR(state));      
+      dispatch(changeNewFeedPage(state, id || null));
+    } catch (err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+export function updateShareFormState(state: boolean, id?:string) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    try {
+      dispatch(changeShareForm(state, id || null));
+    } catch (err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+
+export function updateArMediaState(state: boolean) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    try {
+      dispatch(changeArMedia(state));
+    } catch (err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+export function updateWebXRState(state: boolean, itemId: number) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    try {
+      dispatch(changeWebXR(state, itemId));
     } catch (err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);

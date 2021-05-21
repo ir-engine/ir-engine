@@ -1,13 +1,13 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { CHANGE_CREATOR_PAGE_STATE, 
-  CHANGE_CREATOR_FORM_STATE, 
-  CHANGE_FEED_PAGE_STATE, 
-  CHANGE_ARMEDIA_CHOOSE_STATE, 
-  CHANGE_NEW_FEED_PAGE_STATE, 
-  CHANGE_SHARE_FORM_STATE, 
-  CHANGE_WEB_XR_STATE} 
+import { CHANGE_CREATOR_PAGE_STATE,
+  CHANGE_CREATOR_FORM_STATE,
+  CHANGE_FEED_PAGE_STATE,
+  CHANGE_ARMEDIA_CHOOSE_STATE,
+  CHANGE_NEW_FEED_PAGE_STATE,
+  CHANGE_SHARE_FORM_STATE,
+  CHANGE_WEB_XR_STATE}
 from '../actions';
 import Immutable from 'immutable';
 import { PopupsActions } from './actions';
@@ -38,7 +38,7 @@ const popupsStateReducer = (state = immutableState, action: PopupsActions): any 
     case CHANGE_ARMEDIA_CHOOSE_STATE : return state.set('arMedia', (action as PopupsActions).state);
     case CHANGE_NEW_FEED_PAGE_STATE : return state.set('shareFeedPage', (action as PopupsActions).state).set('videoPath', (action as PopupsActions).id);
     case CHANGE_SHARE_FORM_STATE : return state.set('shareForm', (action as PopupsActions).state).set('videoUrl', (action as PopupsActions).id);
-    case CHANGE_WEB_XR_STATE : return state.set('webxr', (action as PopupsActions).state);
+    case CHANGE_WEB_XR_STATE : return state.set('webxr', (action as PopupsActions).state).set('itemId', (action as PopupsActions).id);
   }
   return state;
 };
