@@ -23,25 +23,29 @@ import { connect } from 'react-redux';
 import { updateNewFeedPageState, updateWebXRState } from '../../reducers/popupsState/service';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
+import { selectArMediaState } from "../../reducers/arMedia/selector";
+import { getArMediaItem } from "../../reducers/arMedia/service";
 
 const mapStateToProps = (state: any): any => {
     return {
         popupsState: selectPopupsState(state),
-     
+        arMediaState: selectArMediaState(state)
     };
   };
 
   const mapDispatchToProps = (dispatch: Dispatch): any => ({
     updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
     updateWebXRState: bindActionCreators(updateWebXRState, dispatch),
-    
+    getArMediaItem: bindActionCreators(getArMediaItem, dispatch),
 });
 
 interface Props{
     popupsState?: any;
+    arMediaState?: any;
     updateNewFeedPageState?: typeof updateNewFeedPageState;
     updateWebXRState?: typeof updateWebXRState;
-    setContentHidden?: any
+    setContentHidden?: any;
+    getArMediaItem?:typeof getArMediaItem;
   }
 
 const { isNative } = Capacitor;
@@ -53,16 +57,12 @@ enum RecordingStates {
     ENDING = "ending"
 }
 
-const meshFilePath = typeof location !== 'undefined' ? location.origin + "/volumetric/liam.drcs" : "";
-const videoFilePath = typeof location !== 'undefined' ? location.origin + "/volumetric/liam.mp4" : "";
-const PI2 = Math.PI * 2;
-
 const correctionQuaternionZ = new Quaternion().setFromAxisAngle(new Vector3(0,0,1), Math.PI/2);
 
 const _DEBUG = false;
 const DEBUG_MINI_VIEWPORT_SIZE = 100;
 
-export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRState, setContentHidden}:Props) => {
+export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNewFeedPageState, updateWebXRState, setContentHidden}:Props) => {
     const canvasRef = React.useRef();
     const [initializationResponse, setInitializationResponse] = useState("");
     const [cameraStartedState, setCameraStartedState] = useState("");
@@ -71,6 +71,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
     const [intrinsicsState, setCameraIntrinsicsState] = useState("");
     const [savedFilePath, setSavedFilePath] = useState("");
     const [horizontalOrientation, setHorizontalOrientation] = useState(false);
+    const [mediaItem, setMediaItem] = useState(null);
     const [recordingState, setRecordingState] = useState(RecordingStates.OFF);
     let renderer: WebGLRenderer, scene: Scene, camera: PerspectiveCamera;
     const debugCamera: {
@@ -121,7 +122,28 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
 
         requestAnimationFrame(raf);
     };
+
+    const arMediaFetching = arMediaState.get('fetchingItem');
+    const itemId = popupsState.get('itemId');
+    useEffect(()=> {
+        if (!getArMediaItem) {
+            return;
+        }
+        getArMediaItem(itemId);
+    }, [getArMediaItem,itemId]);
+    useEffect(()=> {
+        if(!arMediaFetching){
+            setMediaItem(arMediaState.get('item'));
+        }
+    }, [arMediaFetching, arMediaState, itemId]);
+
+    const mediaItemId = mediaItem?.id;
     useEffect(() => {
+        if (!mediaItemId) {
+            console.log('Media item is not here yet', itemId, arMediaState?.get('fetchingItem'));
+            return;
+        }
+
         (async function () {
             scene = new Scene();
 
@@ -301,7 +323,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
                 setCameraStartedState(isNative ? "Camera started on native" : "Camera started on web");
             }).catch(error => console.log(error.message));
         })();
-    }, []);
+    }, [mediaItemId]);
 
     const finishRecord = () => {
 

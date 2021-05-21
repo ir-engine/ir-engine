@@ -6,7 +6,7 @@ import Immutable from 'immutable';
 /**
  * Commenting code to compile TSDOC Docusaurus
  * this file contain some issues with
- * FeedFiresAction, FeedFiresRetriveAction imports are not available in actions.ts file its empty file.
+ * FeedFiresAction, FeedFiresRetrieveAction imports are not available in actions.ts file its empty file.
  *
  */
 
@@ -15,15 +15,23 @@ import {
   ARMEDIA_ADMIN_RETRIEVED,
   ARMEDIA_RETRIEVED,
   ADD_ARMEDIA,
-  REMOVE_ARMEDIA
+  REMOVE_ARMEDIA, ARMEDIA_FETCHING_ITEM, ARMEDIA_RETRIEVED_ITEM
 } from '../actions';
-import { ArMediaAction, ArMediaOneAction, ArMediaRetriveAction, FetchingArMediaItemAction } from './actions';
+import {
+  ArMediaAction,
+  ArMediaOneAction,
+  ArMediaRetrievedItemAction,
+  ArMediaRetriveAction,
+  FetchingArMediaItemAction
+} from './actions';
 
 export const initialArMediaState = {
   arMedia: {
     adminList: [],
     list: [],
-    fetching: false
+    fetching: false,
+    item: {},
+    fetchingItem: false
   },
 };
 
@@ -43,6 +51,11 @@ const arMediaReducer = (state = immutableState, action: ArMediaAction): any => {
       const list = state.get('list');
       return state.set('adminList', adminList ? adminList.splice(adminList.findIndex(item=>item.id === (action as FetchingArMediaItemAction).id),1) : [])
         .set('list', list ? list.splice(list.findIndex(item=>item.id === (action as FetchingArMediaItemAction).id),1) : []);
+    case ARMEDIA_FETCHING_ITEM : return state.set('fetchingItem', true);
+    case ARMEDIA_RETRIEVED_ITEM :
+      return state
+        .set('item', (action as ArMediaRetrievedItemAction).item)
+        .set('fetchingItem', false);
   }
 
   return state;
