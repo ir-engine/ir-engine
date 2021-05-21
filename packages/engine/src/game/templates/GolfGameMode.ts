@@ -50,6 +50,7 @@ import { grabEquippable } from "../../interaction/functions/grabEquippable";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { disableInteractiveToOthers, disableInteractive, addInteractable } from "./Golf/behaviors/disableInteractiveToOthers";
 import { spawnBall } from "./Golf/behaviors/spawnBall";
+import { Network } from "../../networking/classes/Network";
 /**
  * @author HydraFire
  */
@@ -461,24 +462,13 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       'grab': [
         {
           behavior: grabEquippable,
-          args: (entityGolfclub) =>  { return { ...getComponent(entityGolfclub, HaveBeenInteracted).args } },
+          args: (entityGolfclub) =>  {
+            return { ...getComponent(entityGolfclub, HaveBeenInteracted).args }
+          },
           watchers:[ [ HaveBeenInteracted ] ],
-          takeEffectOn: {
-            targetsRole: {
-              '1-Player': {
-                checkers:[{
-                  function: isPlayersInGame,
-                  args: { invert: false }
-                }]
-              },
-              '2-Player' : {
-                checkers:[{
-                  function: isPlayersInGame,
-                  args: { invert: false }
-                }]
-              }
-            }
-          }
+          takeEffectOn: (entityGolfclub) =>  { 
+            if(!getComponent(entityGolfclub, HaveBeenInteracted).entityNetworkId) return;
+            return Network.instance.networkObjects[getComponent(entityGolfclub, HaveBeenInteracted).entityNetworkId].component.entity }, 
         },
       ]
     },
