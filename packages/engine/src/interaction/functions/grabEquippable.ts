@@ -15,8 +15,8 @@ import { getComponent } from '../../ecs/functions/EntityFunctions';
 
 export const grabEquippable: Behavior = (grabbableEntity: Entity, args?: any, delta?: number, playerEquippingEntity?: Entity, time?: number, checks?: any): void => {
   if(!playerEquippingEntity) return;
-  console.log(grabbableEntity, playerEquippingEntity)
-  console.log('grabEquippable', getComponent(grabbableEntity, NetworkObject).networkId, args, delta, getComponent(playerEquippingEntity, NetworkObject).networkId, time, checks);
+  // console.log(grabbableEntity, playerEquippingEntity)
+  // console.log('grabEquippable', getComponent(grabbableEntity, NetworkObject).networkId, args, delta, getComponent(playerEquippingEntity, NetworkObject).networkId, time, checks);
   if(isInXR(playerEquippingEntity)) {
     if(args.side === ParityValue.LEFT) {
       equipEntity(playerEquippingEntity, grabbableEntity, EquippableAttachmentPoint.LEFT_HAND);
