@@ -327,8 +327,8 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
     const toggleRecording = () => {
         if (recordingState === RecordingStates.OFF) {
             setRecordingState(RecordingStates.ON);
-            setContentHidden()
-            window.alert("Double click to finish the record."));
+            setContentHidden();
+            window.alert("Double click to finish the record.");
             //TODO: check why there are errors
             // @ts-ignore
             Plugins.XRPlugin.startRecording({
