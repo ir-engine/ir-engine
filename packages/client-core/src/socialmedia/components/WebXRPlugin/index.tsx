@@ -321,6 +321,8 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
                    console.log("filePath IS", filePath);
                    setSavedFilePath("file://" + filePath);
                    const videoPath = Capacitor.convertFileSrc(filePath);
+                   updateWebXRState(false);
+                   Plugins.XRPlugin.stop()
                    updateNewFeedPageState(true, videoPath);
                }).catch(error => alert(error.message));
         };
