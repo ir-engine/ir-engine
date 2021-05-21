@@ -331,7 +331,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
         canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
         const dataURL = canvas.toDataURL();
         return dataURL;
-    }
+    };
 
     const finishRecord = () => {
 
