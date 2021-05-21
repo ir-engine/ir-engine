@@ -343,6 +343,10 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
             }).then(({ status }) => {
                 console.log("RECORDING, STATUS IS", status);
             }).catch(error => console.log(error.message));
+            
+             document.addEventListener('dblclick', function (e) {
+                finishRecord()
+            });
         }
         else if (recordingState === RecordingStates.ON) {
             finishRecord()
