@@ -71,7 +71,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         }else{
            setVideoUrl(await createFeed(newFeed)); 
         }
-        console.log(newFeed)
+        console.log(newFeed);
 
         setComposingTitle('');
         setComposingText('');

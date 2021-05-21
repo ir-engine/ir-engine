@@ -20,7 +20,7 @@ import ArMediaPopup from "@xrengine/client-core/src/socialmedia/components/popup
 import FeedFormPopup from "@xrengine/client-core/src/socialmedia/components/popups/FeedFormPopup";
 import SharedFormPopup from "@xrengine/client-core/src/socialmedia/components/popups/SharedFormPopup";
 import Onboard from "@xrengine/client-core/src/socialmedia/components/OnBoard";
-import WebXRStart from "@xrengine/client-core/src/socialmedia/components/popups/WebXR"
+import WebXRStart from "@xrengine/client-core/src/socialmedia/components/popups/WebXR";
 // @ts-ignore
 import styles from './index.module.scss';
 

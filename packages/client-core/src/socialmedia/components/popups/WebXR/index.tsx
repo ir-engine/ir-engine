@@ -31,7 +31,7 @@ export const WebXRStart = ({popupsState, updateWebXRState}: Props) =>{
 const renderWebXRModal = () =>
   popupsState?.get('webxr') === true &&  
     
-        <WebXRPlugin/> 
+        <WebXRPlugin/>; 
          
       
 const webXRstate = popupsState?.get('webxr');
