@@ -180,8 +180,7 @@ export function initializeNetworkObject( args: { entity?: Entity, prefabType?: s
   }
 
   if (prefabType === PrefabType.Player && ownerId === (Network.instance).userId) {
-    // console.warn('Give Player Id by Server '+ networkId, ownerId, Network.instance.userId);
-    // console.warn(Network.instance.networkObjects);
+    // console.log('Give Player Id by Server', networkId, args.networkId, typeof networkId, typeof args.networkId, ownerId, Network.instance.userId);
     Network.instance.localAvatarNetworkId = networkId;
     Network.instance.localClientEntity = networkEntity;
   }
