@@ -304,7 +304,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
 
     const finishRecord = () => {
 
-               setRecordingState(RecordingStates.OFF);
+              setRecordingState(RecordingStates.OFF);
                setContentHidden()
                if(horizontalOrientation){
                    setHorizontalOrientation(false)
@@ -345,21 +345,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
             }).catch(error => console.log(error.message));
         }
         else if (recordingState === RecordingStates.ON) {
-            setRecordingState(RecordingStates.OFF);
-            setContentHidden();
-            // @ts-ignore
-            Plugins.XRPlugin.stopRecording().
-                // @ts-ignore
-                then(({ result, filePath }) => {
-                    console.log("END RECORDING, result IS", result);
-                    console.log("filePath IS", filePath);
-                    setSavedFilePath("file://" + filePath);
-                    const videoPath = Capacitor.convertFileSrc(filePath);
-                    // Plugins.XRPlugin.stop()
-                    updateWebXRState(false);
-                    updateNewFeedPageState(true, videoPath);
-                }).catch(error => console.log(error.message));
-                
+            finishRecord()
         }
     };
 
