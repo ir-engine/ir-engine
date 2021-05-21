@@ -302,7 +302,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
     const toggleRecording = () => {
         if (recordingState === RecordingStates.OFF) {
             setRecordingState(RecordingStates.ON);
-            setContentHidden()
+            setContentHidden();
             //TODO: check why there are errors
             // @ts-ignore
             Plugins.XRPlugin.startRecording({
@@ -318,7 +318,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
         }
         else if (recordingState === RecordingStates.ON) {
             setRecordingState(RecordingStates.OFF);
-            setContentHidden()
+            setContentHidden();
             // @ts-ignore
             Plugins.XRPlugin.stopRecording().
                 // @ts-ignore

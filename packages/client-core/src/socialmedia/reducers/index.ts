@@ -7,7 +7,7 @@ import popupsStateReducer from './popupsState/reducers';
 import tipsAndTricksReducer from './tips_and_tricks/reducers';
 import thefeedsReducer from './thefeeds/reducers';
 import thefeedsFiresReducer from './thefeedsFires/reducers';
-import webxrnativeReducer from './webxr_native/reducers'
+import webxrnativeReducer from './webxr_native/reducers';
 
 export default {
   creators: creatorReducer,

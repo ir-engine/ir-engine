@@ -171,6 +171,10 @@ export * from './src/socialmedia/reducers/tips_and_tricks/actions';
 export * from './src/socialmedia/reducers/tips_and_tricks/reducers';
 export * from './src/socialmedia/reducers/tips_and_tricks/selector';
 export * from './src/socialmedia/reducers/tips_and_tricks/service';
+export * from './src/socialmedia/reducers/webxr_native/actions';
+export * from './src/socialmedia/reducers/webxr_native/reducers';
+export * from './src/socialmedia/reducers/webxr_native/selector';
+export * from './src/socialmedia/reducers/webxr_native/service';
 export * from './src/store';
 export * from './src/user/components/Auth/ForgotPasswordApp';
 export * from './src/user/components/Auth/PasswordLogin';
@@ -448,6 +452,7 @@ export { default as srcSocialmediaReducersThefeedsReducers } from './src/socialm
 export { default as srcSocialmediaReducersThefeedsBookmarkReducers } from './src/socialmedia/reducers/thefeedsBookmark/reducers';
 export { default as srcSocialmediaReducersThefeedsFiresReducers } from './src/socialmedia/reducers/thefeedsFires/reducers';
 export { default as srcSocialmediaReducersTipsAndTricksReducers } from './src/socialmedia/reducers/tips_and_tricks/reducers';
+export { default as srcSocialmediaReducersWebxrNativeReducers } from './src/socialmedia/reducers/webxr_native/reducers';
 export { default as srcStore } from './src/store';
 export { default as srcTheme } from './src/theme';
 export { default as srcUserComponentsAuthConfirmEmail } from './src/user/components/Auth/ConfirmEmail';
