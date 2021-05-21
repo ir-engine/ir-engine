@@ -1,5 +1,5 @@
 import { Component } from '../../ecs/classes/Component';
-import { Side } from '../functions/AvatarBodyFunctions';
+import { Side } from "../enums/Side";
 
 /**
  * 
