@@ -1,40 +1,35 @@
-import _ from 'lodash';
-import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
-import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
+import { CharacterInputSchema } from '@xrengine/engine/src/avatar/schema/CharacterInputSchema';
+import { AvatarAnimationSystem } from '@xrengine/engine/src/avatar/systems/AvatarAnimationSystem';
+import { CharacterControllerSystem } from '@xrengine/engine/src/avatar/systems/CharacterControllerSystem';
 import { CameraSystem } from '@xrengine/engine/src/camera/systems/CameraSystem';
+import { now } from '@xrengine/engine/src/common/functions/now';
 import { Timer } from '@xrengine/engine/src/common/functions/Timer';
 import { DebugHelpersSystem } from '@xrengine/engine/src/debug/systems/DebugHelpersSystem';
-import { Engine, AudioListener } from '@xrengine/engine/src/ecs/classes/Engine';
+import { AudioListener, Engine } from '@xrengine/engine/src/ecs/classes/Engine';
+import { EngineEvents, proxyEngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { execute } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "@xrengine/engine/src/ecs/functions/SystemUpdateType";
+import { ActionSystem } from '@xrengine/engine/src/input/systems/ActionSystem';
 import { InteractiveSystem } from "@xrengine/engine/src/interaction/systems/InteractiveSystem";
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
+import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem';
 import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
+import { DefaultNetworkSchema } from '@xrengine/engine/src/networking/templates/DefaultNetworkSchema';
 import { ParticleSystem } from '@xrengine/engine/src/particles/systems/ParticleSystem';
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
 import { HighlightSystem } from '@xrengine/engine/src/renderer/HighlightSystem';
 import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem';
+import { loadScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem';
 import { StateSystem } from '@xrengine/engine/src/state/systems/StateSystem';
-import { CharacterInputSchema } from '@xrengine/engine/src/avatar/schema/CharacterInputSchema';
-import { DefaultNetworkSchema } from '@xrengine/engine/src/networking/templates/DefaultNetworkSchema';
 import { TransformSystem } from '@xrengine/engine/src/transform/systems/TransformSystem';
-import { MainProxy } from '@xrengine/engine/src/worker/MessageQueue';
-import { ActionSystem } from '@xrengine/engine/src/input/systems/ActionSystem';
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
-import { proxyEngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
-import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
-// import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
-import { receiveWorker } from '@xrengine/engine/src/worker/MessageQueue';
-import { AnimationManager } from "@xrengine/engine/src/avatar/classes/AnimationManager";
-import { CharacterControllerSystem } from '@xrengine/engine/src/avatar/systems/CharacterControllerSystem';
 import { UIPanelSystem } from '@xrengine/engine/src/ui/systems/UIPanelSystem';
-//@ts-ignore
-import { PhysXInstance } from "three-physx";
-import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem';
-import { now } from '@xrengine/engine/src/common/functions/now';
-import { loadScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
+import { MainProxy, receiveWorker } from '@xrengine/engine/src/worker/MessageQueue';
+import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
+import _ from 'lodash';
+import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
+import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -89,19 +84,13 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   // }
   Engine.workers.push(physicsWorker);
 
-  new AnimationManager();
-
-  // promise in parallel to speed things up
-  await Promise.all([
-    AnimationManager.instance.getDefaultModel(),
-    AnimationManager.instance.getAnimations(),
-  ]);
-
   registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig });
   registerSystem(ActionSystem);
   registerSystem(StateSystem);
   registerSystem(ClientNetworkStateSystem);
   registerSystem(CharacterControllerSystem);
+  registerSystem(AvatarAnimationSystem);
+
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });
   registerSystem(UIPanelSystem);

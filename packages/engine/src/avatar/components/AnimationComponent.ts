@@ -8,6 +8,5 @@ export class AnimationComponent extends Component<AnimationComponent> {
 
 AnimationComponent._schema = {
 	animationsSchema: { type: Types.Ref, default: null },
-	updateAnimationsValues: { type: Types.Ref, default: null },
-
+	updateAnimationsValues: { type: Types.Ref, default: null }
 };

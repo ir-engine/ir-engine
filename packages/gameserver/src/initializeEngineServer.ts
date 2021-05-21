@@ -23,8 +23,8 @@ import path from 'path';
 import { now } from '@xrengine/engine/src/common/functions/now';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { loadScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
-import { AnimationManager } from '@xrengine/engine/src/avatar/classes/AnimationManager';
 import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
+import { AvatarAnimationSystem } from '@xrengine/engine/src/avatar/systems/AvatarAnimationSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 const isWindows = process.platform === "win32";
@@ -54,19 +54,13 @@ export const initializeEngineServer = async (initOptions: InitializeOptions = De
   registerSystem(MediaStreamSystem);
   registerSystem(StateSystem);
 
-  new AnimationManager();
-
   const currentPath = (isWindows ? 'file:///' : '') + path.dirname(__filename);
   const worker = new Worker(currentPath + "/physx/loadPhysXNode.ts");
   Engine.workers.push(worker);
-  
-  await Promise.all([
-    // AnimationManager.instance.getDefaultModel(),
-    // AnimationManager.instance.getAnimations(),
-  ]);
 
   registerSystem(PhysicsSystem, { worker, physicsWorldConfig });
   registerSystem(CharacterControllerSystem);
+  registerSystem(AvatarAnimationSystem);
 
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });

@@ -8,7 +8,7 @@ import { getHandPosition, isInXR } from "../../xr/functions/WebXRFunctions";
 export const interactiveReachDistance = 3;
 export const interactiveReachDistanceVR = 1.5;
 
-export const getInteractiveIsInReachDistance = (entityUser: Entity, interactivePosition: Vector3, side: ParityValue): boolean => {
+export const interactableIsInReach = (entityUser: Entity, interactivePosition: Vector3, side: ParityValue): boolean => {
 
   if(isInXR(entityUser)) {
     if(side === ParityValue.LEFT) {

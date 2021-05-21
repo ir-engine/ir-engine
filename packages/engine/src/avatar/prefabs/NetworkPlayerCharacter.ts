@@ -28,18 +28,17 @@ import { TransformComponent } from "../../transform/components/TransformComponen
 import { getMovementValues, initializeMovingState, movingAnimationSchema } from "../behaviors/MovingAnimations";
 import { characterCorrectionBehavior } from '../behaviors/characterCorrectionBehavior';
 import { characterInterpolationBehavior } from '../behaviors/characterInterpolationBehavior';
-import { AnimationManager } from "../classes/AnimationManager";
 import { AnimationComponent } from "../components/AnimationComponent";
 import { CharacterComponent } from '../components/CharacterComponent';
 import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
-import { AvatarIKComponent } from '../components/AvatarIKComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
 import { standardizeSkeletion } from "../functions/standardizeSkeleton";
 import { CharacterInputSchema } from '../schema/CharacterInputSchema';
+import { AvatarAnimationSystem } from "../systems/AvatarAnimationSystem";
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-	AnimationManager.instance._defaultModel?.children?.forEach(child => actor.modelContainer.add(child));
+	AvatarAnimationSystem.instance._defaultModel?.children?.forEach(child => actor.modelContainer.add(child));
 	actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 	// if (hasComponent(entity, AvatarIKComponent)) {
 	// 	initiateIK(entity)
@@ -85,7 +84,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 					targetSkeleton = child;
 			}
 		})
-		standardizeSkeletion(targetSkeleton, AnimationManager.instance._defaultSkeleton);
+		standardizeSkeletion(targetSkeleton, AvatarAnimationSystem.instance._defaultSkeleton);
 
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
 		// const geom = getGeometry(actor.modelContainer);
@@ -110,7 +109,8 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 			controller.controller.height = 1;
 		// }
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-		if (hasComponent(entity, AvatarIKComponent)) {
+		// TODO: Do we need this?
+		if (hasComponent(entity, CharacterComponent)) {
 			// initiateIK(entity)
 
       actor.modelContainer.children[0]?.traverse((child) => {
@@ -163,8 +163,8 @@ const initializeCharacter: Behavior = (entity): void => {
 	addObject3DComponent(entity, { obj3d: actor.tiltContainer });
 
 	if (isClient) {
-		AnimationManager.instance.getAnimations().then(() => {
-			actor.animations = AnimationManager.instance._animations;
+		AvatarAnimationSystem.instance.getAnimations().then(() => {
+			actor.animations = AvatarAnimationSystem.instance._animations;
 		})
 	}
 

@@ -1,18 +1,18 @@
-import { mergeBufferGeometries } from "../../common/classes/BufferGeometryUtils";
-import { Quaternion, Vector3, Euler, Matrix4, ConeBufferGeometry, Color, BufferAttribute, MeshPhongMaterial, Mesh, Object3D, Bone, Skeleton } from 'three';
+import {
+  Bone,
+  Euler,
+  Matrix4,
+  Object3D,
+  Quaternion,
+  Skeleton,
+  Vector3
+} from 'three';
 
 export const localVector = new Vector3();
 export const localVector2 = new Vector3();
 export const localQuaternion = new Quaternion();
 export const localEuler = new Euler();
 export const localMatrix = new Matrix4();
-
-export const upRotation = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI * 0.5);
-export const leftRotation = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI * 0.5);
-export const rightRotation = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -Math.PI * 0.5);
-export const defaultSitAnimation = 'chair';
-export const defaultUseAnimation = 'combo';
-export const useAnimationRate = 750;
 
 /**
  * 
@@ -70,117 +70,6 @@ export const copySkeleton = (src, dst) => {
   localizeMatrixWorld(armature);
 
   dst.calculateInverses();
-};
-
-/**
- * 
- * @author Avaer Kazmer
- */
-export const cubeGeometry = new ConeBufferGeometry(0.05, 0.2, 3)
-  .applyMatrix4(new Matrix4().makeRotationFromQuaternion(
-    new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(0, 0, 1)))
-  );
-export const cubeGeometryPositions = cubeGeometry.attributes.position.array;
-export const numCubeGeometryPositions = cubeGeometryPositions.length;
-export const srcCubeGeometries = {};
-export const makeDebugMeshes = () => {
-  const geometries = [];
-  const makeCubeMesh = (color, scale = 1) => {
-    color = new Color(color);
-
-    let srcGeometry = srcCubeGeometries[scale];
-    if (!srcGeometry) {
-      srcGeometry = cubeGeometry.clone()
-        .applyMatrix4(localMatrix.makeScale(scale, scale, scale));
-      srcCubeGeometries[scale] = srcGeometry;
-    }
-    const geometry = srcGeometry.clone();
-    const colors = new Float32Array(cubeGeometry.attributes.position.array.length);
-    for (let i = 0; i < colors.length; i += 3) {
-      color.toArray(colors, i);
-    }
-    geometry.setAttribute('color', new BufferAttribute(colors, 3));
-    const index = geometries.length;
-    geometries.push(geometry);
-    return [index, srcGeometry];
-  };
-  const fingerScale = 0.25;
-  const attributes = {
-    eyes: makeCubeMesh(0xFF0000),
-    head: makeCubeMesh(0xFF8080),
-
-    chest: makeCubeMesh(0xFFFF00),
-    leftShoulder: makeCubeMesh(0x00FF00),
-    rightShoulder: makeCubeMesh(0x008000),
-    leftUpperArm: makeCubeMesh(0x00FFFF),
-    rightUpperArm: makeCubeMesh(0x008080),
-    leftLowerArm: makeCubeMesh(0x0000FF),
-    rightLowerArm: makeCubeMesh(0x000080),
-    leftHand: makeCubeMesh(0xFFFFFF),
-    rightHand: makeCubeMesh(0x808080),
-
-    leftThumb2: makeCubeMesh(0xFF0000, fingerScale),
-    leftThumb1: makeCubeMesh(0x00FF00, fingerScale),
-    leftThumb0: makeCubeMesh(0x0000FF, fingerScale),
-    leftIndexFinger3: makeCubeMesh(0xFF0000, fingerScale),
-    leftIndexFinger2: makeCubeMesh(0x00FF00, fingerScale),
-    leftIndexFinger1: makeCubeMesh(0x0000FF, fingerScale),
-    leftMiddleFinger3: makeCubeMesh(0xFF0000, fingerScale),
-    leftMiddleFinger2: makeCubeMesh(0x00FF00, fingerScale),
-    leftMiddleFinger1: makeCubeMesh(0x0000FF, fingerScale),
-    leftRingFinger3: makeCubeMesh(0xFF0000, fingerScale),
-    leftRingFinger2: makeCubeMesh(0x00FF00, fingerScale),
-    leftRingFinger1: makeCubeMesh(0x0000FF, fingerScale),
-    leftLittleFinger3: makeCubeMesh(0xFF0000, fingerScale),
-    leftLittleFinger2: makeCubeMesh(0x00FF00, fingerScale),
-    leftLittleFinger1: makeCubeMesh(0x0000FF, fingerScale),
-    rightThumb2: makeCubeMesh(0xFF0000, fingerScale),
-    rightThumb1: makeCubeMesh(0x00FF00, fingerScale),
-    rightThumb0: makeCubeMesh(0x0000FF, fingerScale),
-    rightIndexFinger3: makeCubeMesh(0xFF0000, fingerScale),
-    rightIndexFinger2: makeCubeMesh(0x00FF00, fingerScale),
-    rightIndexFinger1: makeCubeMesh(0x0000FF, fingerScale),
-    rightMiddleFinger3: makeCubeMesh(0xFF0000, fingerScale),
-    rightMiddleFinger2: makeCubeMesh(0x00FF00, fingerScale),
-    rightMiddleFinger1: makeCubeMesh(0x0000FF, fingerScale),
-    rightRingFinger3: makeCubeMesh(0xFF0000, fingerScale),
-    rightRingFinger2: makeCubeMesh(0x00FF00, fingerScale),
-    rightRingFinger1: makeCubeMesh(0x0000FF, fingerScale),
-    rightLittleFinger3: makeCubeMesh(0xFF0000, fingerScale),
-    rightLittleFinger2: makeCubeMesh(0x00FF00, fingerScale),
-    rightLittleFinger1: makeCubeMesh(0x0000FF, fingerScale),
-
-    hips: makeCubeMesh(0xFF0000),
-    leftUpperLeg: makeCubeMesh(0xFFFF00),
-    rightUpperLeg: makeCubeMesh(0x808000),
-    leftLowerLeg: makeCubeMesh(0x00FF00),
-    rightLowerLeg: makeCubeMesh(0x008000),
-    leftFoot: makeCubeMesh(0xFFFFFF),
-    rightFoot: makeCubeMesh(0x808080),
-  };
-  const geometry = mergeBufferGeometries(geometries);
-  for (const k in attributes) {
-    const [index, srcGeometry] = attributes[k];
-    const attribute = new BufferAttribute(
-      // @ts-ignore
-      new Float32Array(geometry.attributes.position.array.buffer, geometry.attributes.position.array.byteOffset + index * numCubeGeometryPositions * Float32Array.BYTES_PER_ELEMENT, numCubeGeometryPositions),
-      3
-    );
-    // @ts-ignore
-    attribute.srcGeometry = srcGeometry;
-    // @ts-ignore
-    attribute.visible = true;
-    attributes[k] = attribute;
-  }
-  const material = new MeshPhongMaterial({
-    flatShading: true,
-    vertexColors: true,
-  });
-  const mesh = new Mesh(geometry, material);
-  mesh.frustumCulled = false;
-  // @ts-ignore
-  mesh.attributes = attributes;
-  return mesh;
 };
 
 /**

@@ -21,7 +21,6 @@ import { ParticleSystem } from '@xrengine/engine/src/particles/systems/ParticleS
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
 import { HighlightSystem } from '@xrengine/engine/src/renderer/HighlightSystem';
 import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem';
-import { AnimationManager } from "@xrengine/engine/src/avatar/classes/AnimationManager";
 import { TransformSystem } from '@xrengine/engine/src/transform/systems/TransformSystem';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 //@ts-ignore
@@ -130,13 +129,8 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
         // const { default: PhysXWorker } = await import('@xrengine/engine/src/physics/functions/loadPhysX.ts?worker&inline');
         // physicsWorker = new PhysXWorker();)
       // }
-      new AnimationManager();
 
       // promise in parallel to speed things up
-      await Promise.all([
-        AnimationManager.instance.getDefaultModel(),
-        AnimationManager.instance.getAnimations(),
-      ]);
       Engine.workers.push(physicsWorker);
 
       registerSystem(CharacterControllerSystem);

@@ -36,7 +36,7 @@ import { isServer } from "../../common/functions/isServer";
 import { BodyType } from "three-physx";
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { ParityValue } from "../../common/enums/ParityValue";
-import { getInteractiveIsInReachDistance } from "../../avatar/functions/getInteractiveIsInReachDistance";
+import { interactableIsInReach } from "../../avatar/functions/interactableIsInReach";
 import { getHandPosition, getHandRotation, isInXR } from "../../xr/functions/WebXRFunctions";
 import { Input } from "../../input/components/Input";
 import { BaseInput } from "../../input/enums/BaseInput";
@@ -63,12 +63,12 @@ export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityV
         if (interactive.interactionPartsPosition.length > 0) {
           interactive.interactionPartsPosition.forEach((v,i) => {
             const partPosition = new Vector3(...v).applyQuaternion(intRotation).add(intPosition);
-            if (getInteractiveIsInReachDistance(entity, intPosition, args.side)) {
+            if (interactableIsInReach(entity, intPosition, args.side)) {
               focusedArrays.push([isEntityInteractable, position.distanceTo(partPosition), i])
             }
           })
         } else {
-          if (getInteractiveIsInReachDistance(entity, intPosition, args.side)) {
+          if (interactableIsInReach(entity, intPosition, args.side)) {
             focusedArrays.push([isEntityInteractable, position.distanceTo(intPosition), null])
           }
         }
