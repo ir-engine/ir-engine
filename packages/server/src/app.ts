@@ -85,7 +85,7 @@ if (config.server.enabled) {
     app.configure(socketio({
       serveClient: false,
       cors: {
-        origin: config.server.clientHost,
+        origin: true,
         methods: ['OPTIONS', 'GET', 'POST'],
         allowedHeaders: '*',
         credentials: true
