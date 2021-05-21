@@ -14,6 +14,7 @@ import AvatarShoulders from '../components/AvatarShoulders';
 import XRArmIK from '../components/XRArmIK';
 import LeftXRArmIK from '../components/LeftXRArmIK';
 import RightXRArmIK from '../components/RightXRArmIK';
+import Arm from '../components/Arm';
 
 export const upRotation = new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI * 0.5);
 export const leftRotation = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI * 0.5);
@@ -296,21 +297,23 @@ export const initAvatarShoulders = (entity: Entity) => {
   avatarShoulders.rightShoulderAnchor = new Object3D();
   avatarShoulders.transform.add(avatarShoulders.rightShoulderAnchor);
 
-  avatarShoulders.leftArm = addComponent(entity, LeftArm) as any;
-  avatarShoulders.rightArm = addComponent(entity, RightArm) as any;
+  avatarShoulders.leftArm = (hasComponent(entity, LeftArm) ? getComponent(entity, LeftArm) : addComponent(entity, LeftArm)) as Arm;
+  avatarShoulders.rightArm = (hasComponent(entity, RightArm) ? getComponent(entity, RightArm) : addComponent(entity, RightArm)) as Arm;
+
+  initArm(entity, Side.Left);
+  initArm(entity, Side.Right);
 
   avatarShoulders.leftShoulderAnchor.add(avatarShoulders.leftArm.transform);
   avatarShoulders.rightShoulderAnchor.add(avatarShoulders.rightArm.transform);
   
-  const leftArmXRIK = hasComponent(entity, )
-
-  avatarShoulders.leftArmIk = new XRArmIK(avatarShoulders.leftArm, this, avatarShoulders.shoulderPoser, avatarShoulders.vrTransforms.leftHand, true);
-  avatarShoulders.rightArmIk = new XRArmIK(avatarShoulders.rightArm, this, avatarShoulders.shoulderPoser, avatarShoulders.vrTransforms.rightHand, false);
-
-  avatarShoulders.handsEnabled = [true, true];
-
-  avatarShoulders.leftArmIk.Start();
-  avatarShoulders.rightArmIk.Start();
+  avatarShoulders.leftArmIk = (hasComponent(entity, LeftXRArmIK) ? getComponent(entity, LeftXRArmIK) : addComponent(entity, LeftXRArmIK)) as XRArmIK;
+  avatarShoulders.leftArmIk.shoulderPoser = avatarShoulders.shoulderPoser;
+  
+  avatarShoulders.leftArmIk = (hasComponent(entity, LeftXRArmIK) ? getComponent(entity, LeftXRArmIK) : addComponent(entity, LeftXRArmIK)) as XRArmIK;
+  avatarShoulders.leftArmIk.shoulderPoser = avatarShoulders.shoulderPoser;
+  
+  initXRArmIK(entity, Side.Left, avatarShoulders.leftHand);
+  initXRArmIK(entity, Side.Right, avatarShoulders.rightHand);
 }
 
 const initArm = (entity, armSide) => {

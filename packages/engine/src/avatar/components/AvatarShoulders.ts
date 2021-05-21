@@ -23,7 +23,6 @@ class AvatarShoulders extends Component<AvatarShoulders> {
   shoulderPoser: ShoulderPoser;
   leftArmIk: XRArmIK;
   rightArmIk: XRArmIK;
-  handsEnabled: boolean[];
 
   rig: any;
   shoulder: any;

@@ -927,7 +927,7 @@ export class AvatarRigSystem extends System {
       avatarShoulders.leftArmIk.Update();
       avatarShoulders.rightArmIk.Update();
     });
-  };
+  }
 }
 
 AvatarRigSystem.queries = {
