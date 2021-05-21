@@ -97,14 +97,9 @@ export interface NetworkObjectCreateInterface {
   /** Entity unique Id from editor scene. */
   uniqueId: string,
   /** Type of prefab used to create this object. */
-  prefabType: string | number,
-  x: number,
-  y: number,
-  z: number,
-  qX: number,
-  qY: number,
-  qZ: number,
-  qW: number
+  prefabType: number,
+  /** Parameters to initialze the prefab with. */
+  parameters: string,
 }
 
 /** Interface for world state snapshot. */

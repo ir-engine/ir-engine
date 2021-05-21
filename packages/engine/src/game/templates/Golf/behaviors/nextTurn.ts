@@ -12,6 +12,7 @@ import { isServer } from '../../../../common/functions/isServer';
  */
 
 export const nextTurn: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
+  console.log('NEXT TURN')
   const game = getGame(entity);
   const arrPlayersInGame = Object.keys(game.gamePlayers).filter(role => game.gamePlayers[role].length);
   if (arrPlayersInGame.length < 2) return;
