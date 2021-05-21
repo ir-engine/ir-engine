@@ -221,6 +221,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
 
             await XRPlugin.initialize({}).then(response => {
                 setInitializationResponse(response.status);
+                setContentHidden();
             }).catch(error => console.log(error.message));
 
             // @ts-ignore
@@ -343,8 +344,6 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                    console.log("filePath IS", filePath);
                    setSavedFilePath("file://" + filePath);
                    const videoPath = Capacitor.convertFileSrc(filePath);
-                   updateWebXRState(false, null);
-                   Plugins.XRPlugin.stop();
                    updateNewFeedPageState(true, videoPath);
                }).catch(error => alert(error.message));
         };
@@ -354,20 +353,22 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
     const toggleRecording = () => {
         if (recordingState === RecordingStates.OFF) {
             setRecordingState(RecordingStates.ON);
-            setContentHidden();
+
+            if (window.confirm("Double click to finish the record.")) {
             //TODO: check why there are errors
             // @ts-ignore
             Plugins.XRPlugin.startRecording({
-                isAudio: true,
-                width: 1024,
-                height: 1024,
-                bitRate: 1000,
-                dpi: 100,
-                filePath: "/test.mp4"
-            }).then(({ status }) => {
-                console.log("RECORDING, STATUS IS", status);
-            }).catch(error => console.log(error.message));
-            
+                    isAudio: true,
+                    width: 1024,
+                    height: 1024,
+                    bitRate: 1000,
+                    dpi: 100,
+                    filePath: "/test.mp4"
+                }).then(({ status }) => {
+                    console.log("RECORDING, STATUS IS", status);
+                }).catch(error => alert(error.message));
+            }
+
              document.addEventListener('dblclick', (e) => {
                 finishRecord();
             });
@@ -418,6 +419,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
         </div> */}
 
          <div className={horizontalOrientation ? styles.horizontalOrientation + " plugintestControls" : "plugintestControls"}>
+            <div className={recordingState === RecordingStates.OFF ? '' : styles.hideButtons}>
               <section className={styles.waterMarkWrapper}>
                   <section className={styles.waterMark}>
                       <section className={styles.subContainer} />
@@ -438,6 +440,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
               <section className={styles.closeButtonWrapper}>
                 <button type="button" className={styles.closeButton} onClick={() => stopRecord()}><ChevronLeftIcon />Slide to cancel</button> 
             </section>
+            </div>
           </div>
           <canvas ref={canvasRef} className={styles.arcCanvas} id={'arcCanvas'} onClick={() => handleTap()} />
         {/* <VolumetricPlayer
