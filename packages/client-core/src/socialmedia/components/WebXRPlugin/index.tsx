@@ -303,6 +303,15 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
         })();
     }, []);
 
+
+    const createPreviewUrl = () => {
+        const canvas = document.createElement('canvas');
+        const video = document.getElementById('video');
+        canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+        const dataURL = canvas.toDataURL();
+        return dataURL;
+    }
+
     const finishRecord = () => {
 
               setRecordingState(RecordingStates.OFF);
@@ -322,7 +331,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
                    console.log("filePath IS", filePath);
                    setSavedFilePath("file://" + filePath);
                    const videoPath = Capacitor.convertFileSrc(filePath);
-                   updateNewFeedPageState(true, videoPath);
+                   updateNewFeedPageState(true, videoPath, createPreviewUrl());
                }).catch(error => alert(error.message));
         };
 
