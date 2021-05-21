@@ -13,6 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import BackupIcon from '@material-ui/icons/Backup';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import { useTranslation } from 'react-i18next';
+import { Capacitor, Plugins } from '@capacitor/core';
 
 // @ts-ignore
 import styles from './FeedForm.module.scss';
@@ -57,6 +58,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const videoRef = React.useRef<HTMLInputElement>();
 	const { t } = useTranslation();
     const videoPath = popupsState?.get('videoPath');
+    const { XRPlugin } = Plugins;
 
     const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value);
     const handleComposingTextChange = (event: any): void => setComposingText(event.target.value);
@@ -79,6 +81,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         setVideo(null);
         setPreview(null);
         setIsSended(true);
+        Plugins.XRPlugin.stop();
         const thanksTimeOut = setTimeout(()=>{
             setIsSended(false); 
             clearTimeout(thanksTimeOut);
@@ -98,7 +101,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     }, [] ); 
      
     
-    useEffect(()=> {videoUrl && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
+    useEffect(()=> {videoUrl && updateShareFormState(true, videoUrl) && updateNewFeedPageState(false);}, [videoUrl] ); 
     // const handlePickVideo = async (file) => setVideo(popupsState?.get('videoPath'));
     // const handlePickPreview = async (file) => setPreview('');
     

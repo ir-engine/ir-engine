@@ -20,7 +20,7 @@ import FlipCameraIosIcon from '@material-ui/icons/FlipCameraIos';
 //@ts-ignore
 import styles from './WebXRPlugin.module.scss';
 import { connect } from 'react-redux';
-import { updateNewFeedPageState } from '../../reducers/popupsState/service';
+import { updateNewFeedPageState, updateWebXRState } from '../../reducers/popupsState/service';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
 
@@ -33,11 +33,14 @@ const mapStateToProps = (state: any): any => {
 
   const mapDispatchToProps = (dispatch: Dispatch): any => ({
     updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
+    updateWebXRState: bindActionCreators(updateWebXRState, dispatch),
+    
 });
 
 interface Props{
     popupsState?: any;
     updateNewFeedPageState?: typeof updateNewFeedPageState;
+    updateWebXRState?: typeof updateWebXRState;
     setContentHidden?: any
   }
 
@@ -59,7 +62,7 @@ const correctionQuaternionZ = new Quaternion().setFromAxisAngle(new Vector3(0,0,
 const _DEBUG = false;
 const DEBUG_MINI_VIEWPORT_SIZE = 100;
 
-export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidden}:Props) => {
+export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRState, setContentHidden}:Props) => {
     const canvasRef = React.useRef();
     const [initializationResponse, setInitializationResponse] = useState("");
     const [cameraStartedState, setCameraStartedState] = useState("");
@@ -196,7 +199,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
 
             await XRPlugin.initialize({}).then(response => {
                 setInitializationResponse(response.status);
-            }).catch(error => alert(error.message));
+            }).catch(error => console.log(error.message));
 
             // @ts-ignore
             XRPlugin.addListener('poseDataReceived', (data: any) => {
@@ -295,13 +298,13 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
 
             XRPlugin.start({}).then(() => {
                 setCameraStartedState(isNative ? "Camera started on native" : "Camera started on web");
-            }).catch(error => alert(error.message));
+            }).catch(error => console.log(error.message));
         })();
     }, []);
 
     const finishRecord = () => {
 
-               setRecordingState(RecordingStates.OFF);
+              setRecordingState(RecordingStates.OFF);
                setContentHidden()
                if(horizontalOrientation){
                    setHorizontalOrientation(false)
@@ -318,7 +321,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
                    console.log("filePath IS", filePath);
                    setSavedFilePath("file://" + filePath);
                    const videoPath = Capacitor.convertFileSrc(filePath);
-                   updateNewFeedPageState(true, filePath)
+                   updateNewFeedPageState(true, videoPath)
                }).catch(error => alert(error.message));
         }
 
@@ -328,25 +331,22 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
         if (recordingState === RecordingStates.OFF) {
             setRecordingState(RecordingStates.ON);
             setContentHidden();
-            window.alert("Double click to finish the record.");
             //TODO: check why there are errors
             // @ts-ignore
             Plugins.XRPlugin.startRecording({
-                 isAudio: true,
-                 width: 1024,
-                 height: 1024,
-                 bitRate: 1000,
-                 dpi: 100,
-                 filePath: "/test.mp4"
-              }).then(({ status }) => {
-                 console.log("RECORDING, STATUS IS", status);
-              }).catch(error => alert(error.message));
-
-
-            document.addEventListener('dblclick', function (e) {
+                isAudio: true,
+                width: 1024,
+                height: 1024,
+                bitRate: 1000,
+                dpi: 100,
+                filePath: "/test.mp4"
+            }).then(({ status }) => {
+                console.log("RECORDING, STATUS IS", status);
+            }).catch(error => console.log(error.message));
+            
+             document.addEventListener('dblclick', function (e) {
                 finishRecord()
             });
-
         }
         else if (recordingState === RecordingStates.ON) {
             finishRecord()
