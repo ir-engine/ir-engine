@@ -37,13 +37,10 @@ import PopupLogin from '../PopupLogin/PopupLogin';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { getLoggedCreator } from '../../reducers/creator/service';
-import { updateCreatorPageState } from '../../reducers/popupsState/service';
-
-
-
 import Featured from '../Featured';
 import { Plugins } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
+import { updateCreatorPageState } from '../../reducers/popupsState/service';
 
 const { Share } = Plugins;
 
@@ -125,9 +122,9 @@ const FeedCard = (props: Props) : any => {
     const { t } = useTranslation();
     const shareVia = () => {
         Share.share({
-            title: t('social:shareForm.seeCoolStuff'),
+            title: t('social:shareForm.arcMedia'),
             text: t('social:shareForm.videoCreated'),
-            url: feed.videoUrl,
+            url: encodeURI(feed.videoUrl),
             dialogTitle: t('social:shareForm.shareWithBuddies')
           });
        };

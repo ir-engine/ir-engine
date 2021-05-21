@@ -15,6 +15,7 @@ import { initStorage } from '../functions/functionsStorage';
 import { GamesSchema } from "../../game/templates/GamesSchema";
 import { PrefabType } from '../../networking/templates/PrefabType';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
+import { GameMode } from '../types/GameMode';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -63,10 +64,13 @@ export class GameManagerSystem extends System {
 
     this.queryResults.game.added?.forEach(entity => {
       const game = getMutableComponent(entity, Game);
-      const gameSchema = GamesSchema[game.gameMode];
+      const gameSchema = GamesSchema[game.gameMode] as GameMode;
       game.priority = gameSchema.priority;// DOTO: set its from editor
       initState(game, gameSchema);
       this.createdGames.push(entity);
+
+      // TODO: add start & stop functions to be able to start and end games
+      gameSchema.onGameStart(entity);
     });
 
     this.queryResults.game.all?.forEach(entityGame => {
@@ -178,7 +182,12 @@ export class GameManagerSystem extends System {
                 }
               }
 
-              if (b.takeEffectOn === undefined || b.takeEffectOn.targetsRole === undefined) {
+              if(typeof b.takeEffectOn === 'function') {
+                const entityOther = b.takeEffectOn(entity);
+                if(entityOther) {
+                  executeComplexResult.push({ behavior: b.behavior, entity: entity, entityOther, args, checkersResult });
+                }
+              } else if (typeof b.takeEffectOn === 'undefined' || typeof b.takeEffectOn.targetsRole === 'undefined') {
                 //b.behavior(entity, undefined, args, checkersResult);
                 executeComplexResult.push({ behavior: b.behavior, entity: entity, entityOther: undefined, args, checkersResult });
               } else {

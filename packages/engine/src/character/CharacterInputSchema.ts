@@ -24,7 +24,7 @@ import { VehicleComponent } from '../vehicle/components/VehicleComponent';
 import { isMobileOrTablet } from '../common/functions/isMobile';
 import { SIXDOFType } from '../common/types/NumericalTypes';
 import { IKComponent } from './components/IKComponent';
-import { EquippedComponent } from '../interaction/components/EquippedComponent';
+import { EquipperComponent } from '../interaction/components/EquipperComponent';
 import { unequipEntity } from '../interaction/functions/equippableFunctions';
 import { TransformComponent } from '../transform/components/TransformComponent';
 import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings';
@@ -41,14 +41,13 @@ import { getInteractiveIsInReachDistance } from './functions/getInteractiveIsInR
 
 const interact: Behavior = (entity: Entity, args: any = { side: ParityValue }, delta): void => {
 
-  // TODO: figure out how to best handle equippables & interactables at the same time
-  const equippedComponent = getComponent(entity, EquippedComponent)
-  if(equippedComponent) {
-    unequipEntity(entity)
+  interactOnServer(entity, args); //TODO: figure out all this cases
+  
+  const equipperComponent = getComponent(entity, EquipperComponent)
+  if(equipperComponent) {
     return;
   }
 
-  interactOnServer(entity, args); //TODO: figure out all this cases
 
   if (!isClient) {
     //TODO: all this function needs to re-think

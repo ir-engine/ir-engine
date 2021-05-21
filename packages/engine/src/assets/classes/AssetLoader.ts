@@ -30,7 +30,7 @@ export class AssetLoader {
 
     constructor(
         private params: AssetLoaderParamType,
-        private onLoad: ( response: any ) => void,
+        private onLoad?: ( response: any ) => void,
         private onProgress?: ( request: ProgressEvent ) => void,
         private onError?: ( event: ErrorEvent | Error ) => void,
     ) {
@@ -230,10 +230,9 @@ export class AssetLoader {
         if (typeof this.onError === 'function') this.onError(event);
     }
 
-
     static load(
         params: AssetLoaderParamType,
-        onLoad: ( response: any ) => void,
+        onLoad?: ( response: any ) => void,
         onProgress?: ( request: ProgressEvent ) => void,
         onError?: ( event: ErrorEvent | Error ) => void,
     ) {

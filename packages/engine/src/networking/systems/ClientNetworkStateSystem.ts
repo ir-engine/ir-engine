@@ -75,6 +75,16 @@ function syncPhysicsObjects(objectToCreate) {
   }
 }
 
+function createEmptyNetworkObjectBeforeSceneLoad(args: { networkId: number, prefabType: number, uniqueId: string }) {
+  console.log('*createObjects* creating space in networkObjects for futured object at id: ' + args.networkId);
+  Network.instance.networkObjects[args.networkId] = {
+    ownerId: 'server',
+    prefabType: args.prefabType,
+    component: null,
+    uniqueId: args.uniqueId
+  };
+}
+
 
 /** System class for network system of client. */
 export class ClientNetworkStateSystem extends System {
@@ -179,6 +189,8 @@ export class ClientNetworkStateSystem extends System {
       for (const objectToCreateKey in worldStateBuffer.createObjects) {
         const objectToCreate = worldStateBuffer.createObjects[objectToCreateKey];
 
+        if(!Network.instance.schema.prefabs[objectToCreate.prefabType]) continue;
+
         const isIdEmpty = Network.instance.networkObjects[objectToCreate.networkId] === undefined;
         const isIdFull = Network.instance.networkObjects[objectToCreate.networkId] != undefined;
         const isPlayerPref = objectToCreate.prefabType === PrefabType.Player;
@@ -203,12 +215,20 @@ export class ClientNetworkStateSystem extends System {
           } else if (objectToCreate.ownerId != Network.instance.userId) {
             createNetworkPlayer(objectToCreate);
           }
-        } else if (objectToCreate.prefabType === PrefabType.Vehicle) {
-          console.warn('*createObjects* creating space in networkObjects for futured object at id: ' + objectToCreate.networkId);
-          createNetworkVehicle({ networkId: objectToCreate.networkId, uniqueId: objectToCreate.uniqueId });
-        } else if (objectToCreate.prefabType === PrefabType.RigidBody) {
-          console.warn('*createObjects* creating space in networkObjects for futured object at id: ' + objectToCreate.networkId);
-          createNetworkRigidBody({ networkId: objectToCreate.networkId, uniqueId: objectToCreate.uniqueId });
+        } else {
+          console.log()
+          let parameters;
+          try {
+            parameters = JSON.parse(objectToCreate.parameters.replace(/'/g, '"'));
+          } catch (e) { }
+          if(parameters) {
+            // we have parameters, so we should spawn the object in the world via the prefab type
+            Network.instance.schema.prefabs[objectToCreate.prefabType].initialize({ ...objectToCreate, parameters });
+          } else {
+            // otherwise this is for an object loaded via the scene, 
+            // so we just create a skeleton network object while we wait for the scene to load
+            createEmptyNetworkObjectBeforeSceneLoad(objectToCreate);
+          }
         }
       }
       syncNetworkObjectsTest(worldStateBuffer.createObjects)

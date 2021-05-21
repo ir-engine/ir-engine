@@ -49,13 +49,21 @@ import { grabEquippable } from "../../interaction/functions/grabEquippable";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { disableInteractiveToOthers, disableInteractive } from "./Golf/behaviors/disableInteractiveToOthers";
 import { spawnBall } from "./Golf/behaviors/spawnBall";
+import { Network } from "../../networking/classes/Network";
+import { giveBall } from "./Golf/behaviors/giveBall";
+import { Entity } from "../../ecs/classes/Entity";
+import { GolfPrefabs } from "./Golf/GolfGameConstants";
+import { AssetLoader } from "../../assets/classes/AssetLoader";
+import { Engine } from "../../ecs/classes/Engine";
+import { Object3DComponent } from "../../scene/components/Object3DComponent";
+import { Material, Mesh } from "three";
 /**
  * @author HydraFire
  */
 
 const templates = {
 
-  'switchState -> objectMove': ({x=0, y=0, z=0, stateToMove, stateToMoveBack, min=0.2, max=3 }) => {
+  switchStateTAndObjectMove: ({x=0, y=0, z=0, stateToMove, stateToMoveBack, min=0.2, max=3 }) => {
     return [{
       behavior: objectMove,
       args:{ vectorAndSpeed: { x: x * -1, y: y * -1, z: z * -1} },
@@ -73,7 +81,7 @@ const templates = {
     }];
   },
 
-  'isPlayersInGame -> switchState': ({ remove, add }) => {
+  isPlayerInGameAndSwitchState: ({ remove, add }) => {
     return [{
       behavior: switchState,
       args: { on: 'me', add: remove, remove: add  },
@@ -85,7 +93,7 @@ const templates = {
     }]
   },
 
-  'HaveBeenInteracted -> switchState': ({ remove, add }) => {
+  haveBeenInteractedAndSwitchState: ({ remove, add }) => {
     return [{
       behavior: switchState,
       watchers:[ [ HaveBeenInteracted, remove ] ], // components in one array means HaveBeenInteracted && Close, in different means HaveBeenInteracted || Close
@@ -116,11 +124,24 @@ function copleNameRolesInOneString( object ) {
   return Object.assign(object, objectWithCorrectRoles);
 }
 
+const onGolfGameStart = (entity: Entity) => {
 
+  // Load our static assets
+  AssetLoader.load({
+    url: Engine.publicPath + '/models/golf/golf_ball.glb',
+    entity,
+  });
+
+  // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
+  Object.entries(GolfPrefabs).forEach(([prefabType, prefab]) => {
+    Network.instance.schema.prefabs[prefabType] = prefab;
+  })
+}
 
 export const GolfGameMode: GameMode = somePrepareFunction({
   name: "Golf",
   priority: 1,
+  onGameStart: onGolfGameStart,
   registerActionTagComponents: [
     HaveBeenInteracted,
     HasHadCollision
@@ -137,16 +158,16 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   ],
   initGameState: {
     'newPlayer': {
-      behaviors: [addRole]//, spawnBall]
+      behaviors: [addRole, giveBall]
     },
     '1-Player': {
-      behaviors: [addTurn, initScore]
+      behaviors: [addTurn, initScore, spawnBall]
     },
     '2-Player': {
       behaviors: [initScore]
     },
     'GolfBall': {
-      behaviors: [addBall, addRestitution, disableInteractiveToOthers]
+      behaviors: []
     },
     'GolfClub': {
       behaviors: [addClub],
@@ -460,47 +481,36 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       'grab': [
         {
           behavior: grabEquippable,
-          args: (entityGolfclub) =>  { return { ...getComponent(entityGolfclub, HaveBeenInteracted).args } },
+          args: (entityGolfclub) =>  {
+            return { ...getComponent(entityGolfclub, HaveBeenInteracted).args }
+          },
           watchers:[ [ HaveBeenInteracted ] ],
-          takeEffectOn: {
-            targetsRole: {
-              '1-Player': {
-                checkers:[{
-                  function: isPlayersInGame,
-                  args: { invert: false }
-                }]
-              },
-              '2-Player' : {
-                checkers:[{
-                  function: isPlayersInGame,
-                  args: { invert: false }
-                }]
-              }
-            }
-          }
+          takeEffectOn: (entityGolfclub) =>  { 
+            if(!getComponent(entityGolfclub, HaveBeenInteracted).entityNetworkId) return;
+            return Network.instance.networkObjects[getComponent(entityGolfclub, HaveBeenInteracted).entityNetworkId].component.entity }, 
         },
       ]
     },
     'GoalPanel': {
-      'objectMove': templates['switchState -> objectMove']( { y:1, stateToMoveBack: PanelDown, stateToMove: PanelUp,  min: 0.2, max: 3 })
+      'objectMove': templates.switchStateTAndObjectMove( { y:1, stateToMoveBack: PanelDown, stateToMove: PanelUp,  min: 0.2, max: 3 })
     },
     '1stTurnPanel': {
-      'objectMove' : templates['switchState -> objectMove']({ y:1, min: 0.2, max: 4, stateToMoveBack: PanelDown, stateToMove: PanelUp })
+      'objectMove' : templates.switchStateTAndObjectMove({ y:1, min: 0.2, max: 4, stateToMoveBack: PanelDown, stateToMove: PanelUp })
     },
     '2stTurnPanel': {
-      'objectMove' : templates['switchState -> objectMove']({ y:1, min: 0.2, max: 4, stateToMoveBack: PanelDown, stateToMove: PanelUp })
+      'objectMove' : templates.switchStateTAndObjectMove({ y:1, min: 0.2, max: 4, stateToMoveBack: PanelDown, stateToMove: PanelUp })
     },
     'StartGamePanel': {
-      'switchState': templates['isPlayersInGame -> switchState']({ remove: PanelUp, add: PanelDown }),
-      'objectMove': templates['switchState -> objectMove']({ y:1, min: 0.2, max: 5, stateToMoveBack: PanelDown, stateToMove: PanelUp })
+      'switchState': templates.isPlayerInGameAndSwitchState({ remove: PanelUp, add: PanelDown }),
+      'objectMove': templates.switchStateTAndObjectMove({ y:1, min: 0.2, max: 5, stateToMoveBack: PanelDown, stateToMove: PanelUp })
     },
     'WaitingPanel': {
-      'switchState': templates['isPlayersInGame -> switchState']({ remove: PanelDown, add: PanelUp }),
-      'objectMove': templates['switchState -> objectMove']({ y:1, min: 0.2, max: 5, stateToMoveBack: PanelDown, stateToMove: PanelUp })
+      'switchState': templates.isPlayerInGameAndSwitchState({ remove: PanelDown, add: PanelUp }),
+      'objectMove': templates.switchStateTAndObjectMove({ y:1, min: 0.2, max: 5, stateToMoveBack: PanelDown, stateToMove: PanelUp })
     },
     'Door': {
-      'switchState': templates['HaveBeenInteracted -> switchState']({ remove: Closed, add: Open }),
-      'objectMove': templates['switchState -> objectMove']({ z:1, min: 0.2, max: 3, stateToMoveBack: Closed, stateToMove: Open })
+      'switchState': templates.haveBeenInteractedAndSwitchState({ remove: Closed, add: Open }),
+      'objectMove': templates.switchStateTAndObjectMove({ z:1, min: 0.2, max: 3, stateToMoveBack: Closed, stateToMove: Open })
     }
   }
 });

@@ -20,7 +20,7 @@ import FlipCameraIosIcon from '@material-ui/icons/FlipCameraIos';
 //@ts-ignore
 import styles from './WebXRPlugin.module.scss';
 import { connect } from 'react-redux';
-import { updateNewFeedPageState } from '../../reducers/popupsState/service';
+import { updateNewFeedPageState, updateWebXRState } from '../../reducers/popupsState/service';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
 
@@ -33,11 +33,14 @@ const mapStateToProps = (state: any): any => {
 
   const mapDispatchToProps = (dispatch: Dispatch): any => ({
     updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
+    updateWebXRState: bindActionCreators(updateWebXRState, dispatch),
+    
 });
 
 interface Props{
     popupsState?: any;
     updateNewFeedPageState?: typeof updateNewFeedPageState;
+    updateWebXRState?: typeof updateWebXRState;
     setContentHidden?: any
   }
 
@@ -59,7 +62,7 @@ const correctionQuaternionZ = new Quaternion().setFromAxisAngle(new Vector3(0,0,
 const _DEBUG = false;
 const DEBUG_MINI_VIEWPORT_SIZE = 100;
 
-export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidden}:Props) => {
+export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRState, setContentHidden}:Props) => {
     const canvasRef = React.useRef();
     const [initializationResponse, setInitializationResponse] = useState("");
     const [cameraStartedState, setCameraStartedState] = useState("");
@@ -67,7 +70,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
     const [anchorPoseState, setAnchorPoseState] = useState("");
     const [intrinsicsState, setCameraIntrinsicsState] = useState("");
     const [savedFilePath, setSavedFilePath] = useState("");
-
+    const [horizontalOrientation, setHorizontalOrientation] = useState(false);
     const [recordingState, setRecordingState] = useState(RecordingStates.OFF);
     let renderer: WebGLRenderer, scene: Scene, camera: PerspectiveCamera;
     const debugCamera: {
@@ -170,7 +173,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
             renderer.domElement.style.position = "fixed";
             renderer.domElement.style.width = "100vw";
             renderer.domElement.style.height = "100vh";
-            renderer.domElement.style.zIndex = "1";
+            renderer.domElement.style.zIndex = "-1";
 
             renderer.domElement.style.top = "0";
             renderer.domElement.style.left = "0";
@@ -196,7 +199,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
 
             await XRPlugin.initialize({}).then(response => {
                 setInitializationResponse(response.status);
-            }).catch(error => alert(error.message));
+            }).catch(error => console.log(error.message));
 
             // @ts-ignore
             XRPlugin.addListener('poseDataReceived', (data: any) => {
@@ -295,9 +298,34 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
 
             XRPlugin.start({}).then(() => {
                 setCameraStartedState(isNative ? "Camera started on native" : "Camera started on web");
-            }).catch(error => alert(error.message));
+            }).catch(error => console.log(error.message));
         })();
     }, []);
+
+    const finishRecord = () => {
+
+              setRecordingState(RecordingStates.OFF);
+               setContentHidden();
+               if(horizontalOrientation){
+                   setHorizontalOrientation(false);
+               }
+               document.removeEventListener('dblclick', ()=> {
+                   console.log('Double Click listener was removed');
+               }, false);
+
+               // @ts-ignore
+               Plugins.XRPlugin.stopRecording().
+               // @ts-ignore
+               then(({ result, filePath }) => {
+                   console.log("END RECORDING, result IS", result);
+                   console.log("filePath IS", filePath);
+                   setSavedFilePath("file://" + filePath);
+                   const videoPath = Capacitor.convertFileSrc(filePath);
+                   updateNewFeedPageState(true, videoPath);
+               }).catch(error => alert(error.message));
+        };
+
+
 
     const toggleRecording = () => {
         if (recordingState === RecordingStates.OFF) {
@@ -314,22 +342,14 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
                 filePath: "/test.mp4"
             }).then(({ status }) => {
                 console.log("RECORDING, STATUS IS", status);
-            }).catch(error => alert(error.message));
+            }).catch(error => console.log(error.message));
+            
+             document.addEventListener('dblclick', (e) => {
+                finishRecord();
+            });
         }
         else if (recordingState === RecordingStates.ON) {
-            setRecordingState(RecordingStates.OFF);
-            setContentHidden();
-            // @ts-ignore
-            Plugins.XRPlugin.stopRecording().
-                // @ts-ignore
-                then(({ result, filePath }) => {
-                    console.log("END RECORDING, result IS", result);
-                    console.log("filePath IS", filePath);
-                    setSavedFilePath("file://" + filePath);
-                    const videoPath = Capacitor.convertFileSrc(filePath);
-                    updateNewFeedPageState(true, videoPath);
-                }).catch(error => alert(error.message));
-                
+            finishRecord();
         }
     };
 
@@ -373,14 +393,14 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, setContentHidd
             </div>
         </div> */}
 
-          <div className="plugintestControls">
+         <div className={horizontalOrientation ? styles.horizontalOrientation + " plugintestControls" : "plugintestControls"}>
               <section className={styles.waterMarkWrapper}>
                   <section className={styles.waterMark}>
                       <section className={styles.subContainer} />
                     </section>
                 </section>
                 <button type="button" className={styles.flipCamera} onClick={() => {}}><FlipCameraIosIcon /></button> 
-                <button type="button" className={styles.changeOrientation} onClick={() => {}}><FlipCameraIosIcon /></button> 
+                <button type="button" className={styles.changeOrientation} onClick={() => {setHorizontalOrientation(!horizontalOrientation);}}><FlipCameraIosIcon /></button>
                 <section className={recordingState === RecordingStates.OFF ? styles.startButtonWrapper : styles.stopButtonWrapper}>
                     {/*{recordingState === RecordingStates.OFF ? "Record" : "Stop Recording"}*/}
                     <button type="button" className={recordingState === RecordingStates.OFF ? styles.startButton : styles.stopButton} onClick={() => toggleRecording()}>

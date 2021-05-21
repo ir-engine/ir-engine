@@ -222,47 +222,34 @@ export function createVehicleFromModel( entity: Entity, mesh: any, sceneEntityId
 }
 
 export function createNetworkVehicle( args:{ parameters?: any, networkId?: string | number, uniqueId: string, entity?: Entity }) {
-  if (args.parameters === undefined) {
-
-    Network.instance.networkObjects[args.networkId] = {
-      ownerId: 'server',
-      prefabType: PrefabType.Vehicle,
-      component: null,
-      uniqueId: args.uniqueId
-    };
-
-  } else {
-    console.warn(Network.instance.networkObjects);
-    initializeNetworkObject({
-      entity: args.entity,
-      prefabType: PrefabType.Vehicle,
-      uniqueId: args.uniqueId,
-      ownerId: null,
-      override: {
-        networkComponents: [
-          {
-            type: VehicleComponent,
-            data: args.parameters
-          },
-          {
-            type: Interactable,
-            data: {
-                interactionParts: ['door_front_left', 'door_front_right'],
-                onInteraction: getInCar,
-                onInteractionCheck: getInCarPossible,
-                //onInteractionFocused: onInteractionHover,
-                //@ts-ignore
-                interactionPartsPosition: args.parameters.interactionPartsPosition,
-                data: {
-                  interactionText: 'get in car'
-                }
+  initializeNetworkObject({
+    entity: args.entity,
+    prefabType: PrefabType.Vehicle,
+    uniqueId: args.uniqueId,
+    ownerId: null,
+    override: {
+      networkComponents: [
+        {
+          type: VehicleComponent,
+          data: args.parameters
+        },
+        {
+          type: Interactable,
+          data: {
+              interactionParts: ['door_front_left', 'door_front_right'],
+              onInteraction: getInCar,
+              onInteractionCheck: getInCarPossible,
+              //onInteractionFocused: onInteractionHover,
+              //@ts-ignore
+              interactionPartsPosition: args.parameters.interactionPartsPosition,
+              data: {
+                interactionText: 'get in car'
               }
-          }
-        ]
-      }
-    });
-
-  }
+            }
+        }
+      ]
+    }
+  });
 }
 
 export const VehicleInterpolationSchema: InterpolationInterface = {
@@ -272,6 +259,7 @@ export const VehicleInterpolationSchema: InterpolationInterface = {
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkVehicle: NetworkPrefab = {
+  initialize: createNetworkVehicle,
   // These will be created for all players on the network
   networkComponents: [
     { type: TransformComponent },
