@@ -94,6 +94,9 @@
     left: 10pt;
     position: fixed;
 }
+
+
+
 .closeButtonWrapper{
     position: fixed;
     bottom: 0px;
@@ -108,5 +111,37 @@
         color: #FFFFFF;
         display: flex;
         align-items: center;
+    }
+}
+
+
+.horizontalOrientation{
+    height: 100vh;
+    top: 0;
+    position: fixed;
+    width: 100%;
+    .flipCamera{
+        top: 40px;
+        right: 40px;
+        left: auto;
+        transform: rotate(90deg);
+    }
+
+    .changeOrientation{
+        top: 30pt;
+        z-index: 999;
+        right: 120px;
+        left: auto;
+        transform: rotate(90deg);
+    }
+    .waterMarkWrapper{
+        left: 20px;
+        top: 50px;
+        transform: rotate(90deg);
+    }
+    .startButtonWrapper,
+    .stopButtonWrapper{
+        transform: rotate(90deg);
+        left: 20px;
     }
 }
