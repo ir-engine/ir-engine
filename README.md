@@ -54,7 +54,6 @@ If on WSL2:
 sudo apt-get update
 sudo apt-get install build-essential
 npm install -g node-gyp
-PYTHON=python3 yarn install
 npm config set python /usr/bin/python
 PYTHON=python3 yarn install
 ```
