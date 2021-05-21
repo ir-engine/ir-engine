@@ -27,6 +27,7 @@ export interface InitStorageInterface {
 export interface GameMode {
   name: string
   priority: number
+  onGameStart: (gameEntity: Entity) => void
   registerActionTagComponents: ComponentConstructor<Component<any>>[]
   registerStateTagComponents: ComponentConstructor<Component<any>>[]
   initGameState: {
@@ -54,6 +55,7 @@ export interface RoleBehaviorWithTarget {
   }
 }
 
+export type RoleBehaviorTarget = (entity: Entity) => Entity;
 
 export interface RoleBehaviors {
   [key: string]: Array<{
@@ -64,7 +66,7 @@ export interface RoleBehaviors {
       function: Checker,
       args?: any
     }>,
-    takeEffectOn?: RoleBehaviorWithTarget;
+    takeEffectOn?: RoleBehaviorWithTarget | RoleBehaviorTarget;
   }>;
 }
 

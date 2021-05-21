@@ -52,7 +52,6 @@ export const addClub: Behavior = (entity: Entity, args?: any, delta?: number, en
   });
 
   PhysicsSystem.instance.addBody(body);
-  console.log(body.shapes[0].config, body.shapes[1].config)
 
   createNetworkRigidBody({
     entity,

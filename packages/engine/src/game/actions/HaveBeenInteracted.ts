@@ -5,10 +5,10 @@ import { Types } from "../../ecs/types/Types";
  * @author HydraFire <github.com/HydraFire>
  */
 export class HaveBeenInteracted extends Component<any> {
-  interactingEntity?: Entity;
+  entityNetworkId?: number;
   args?: any;
   static _schema = { 
-    interactingEntity: { type: Types.Ref, default: null },
+    entityNetworkId: { type: Types.Number, default: null },
     args: { type: Types.Ref, default: null }
   }
 }

@@ -13,7 +13,7 @@ import Typography from '@material-ui/core/Typography';
 import BackupIcon from '@material-ui/icons/Backup';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import { useTranslation } from 'react-i18next';
-
+import { Capacitor, Plugins } from '@capacitor/core';
 // @ts-ignore
 import styles from './FeedForm.module.scss';
 import { createFeed, updateFeedAsAdmin } from '../../reducers/feed/service';
@@ -56,7 +56,8 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const textRef = React.useRef<HTMLInputElement>();
     const videoRef = React.useRef<HTMLInputElement>();
 	const { t } = useTranslation();
-    const videoPath = popupsState?.get('videoPath')
+    const videoPath = popupsState?.get('videoPath');
+const { XRPlugin } = Plugins;
 
     const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value);
     const handleComposingTextChange = (event: any): void => setComposingText(event.target.value);
@@ -79,6 +80,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         setVideo(null);
         setPreview(null);
         setIsSended(true);
+        Plugins.XRPlugin.stop();
         const thanksTimeOut = setTimeout(()=>{
             setIsSended(false); 
             clearTimeout(thanksTimeOut);
@@ -86,17 +88,18 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     
     };
 
+
     const dataURItoBlob = (dataURI) => {
-              let byteString = atob(dataURI.split(',')[1]);
-              const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-              const ab = new ArrayBuffer(byteString.length);
-              const ia = new Uint8Array(ab);
-              for (let i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
-              }
-              const blob = new Blob([ab], { type: mimeString });
-              return new File([blob], "previewImg.png");
-        }
+                  let byteString = atob(dataURI.split(',')[1]);
+                  const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+                  const ab = new ArrayBuffer(byteString.length);
+                  const ia = new Uint8Array(ab);
+                  for (let i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                  }
+                  const blob = new Blob([ab], { type: mimeString });
+                  return new File([blob], "previewImg.png");
+            }
 
     useEffect(()=> {
         fetch(videoPath)
@@ -107,15 +110,12 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
          console.log(myFile)
       }).catch(error => console.log(error.message));
 
-
       const prevImage = dataURItoBlob(popupsState?.get('imgSrc'))
       setPreview(prevImage)
     }, [] ); 
      
     
-    useEffect(()=> {
-        videoUrl && updateShareFormState(true, videoUrl);
-    }, [videoUrl] );
+    useEffect(()=> {videoUrl && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
     // const handlePickVideo = async (file) => setVideo(popupsState?.get('videoPath'));
     // const handlePickPreview = async (file) => setPreview('');
     

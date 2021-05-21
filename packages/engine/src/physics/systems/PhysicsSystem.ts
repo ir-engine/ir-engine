@@ -21,7 +21,6 @@ import { UserControlledColliderComponent } from '../components/UserControllerObj
 import { HasHadCollision } from "../../game/actions/HasHadCollision";
 import { GameObject } from "../../game/components/GameObject";
 import { addActionComponent } from '../../game/functions/functionsActions';
-import { EquippedComponent } from '../../interaction/components/EquippedComponent';
 
 /**
  * @author HydraFire <github.com/HydraFire>
