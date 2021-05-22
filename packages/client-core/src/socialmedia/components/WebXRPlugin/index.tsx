@@ -124,24 +124,25 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
 
     const arMediaFetching = arMediaState.get('fetchingItem');
     const itemId = popupsState.get('itemId');
-    useEffect(()=> {
-        if (!getArMediaItem) {
-            return;
-        }
-        getArMediaItem(itemId);
-    }, [getArMediaItem,itemId]);
-    useEffect(()=> {
-        if(!arMediaFetching){
-            setMediaItem(arMediaState.get('item'));
-        }
-    }, [arMediaFetching, arMediaState, itemId]);
+    
+    // useEffect(()=> {
+    //     if (!getArMediaItem) {
+    //         return;
+    //     }
+    //     getArMediaItem(itemId);
+    // }, [getArMediaItem,itemId]);
+    // useEffect(()=> {
+    //     if(!arMediaFetching){
+    //         setMediaItem(arMediaState.get('item'));
+    //     }
+    // }, [arMediaFetching, arMediaState, itemId]);
 
-    const mediaItemId = mediaItem?.id;
+    // const mediaItemId = mediaItem?.id;
     useEffect(() => {
-        if (!mediaItemId) {
-            console.log('Media item is not here yet', itemId, arMediaState?.get('fetchingItem'));
-            return;
-        }
+        // if (!mediaItemId) {
+        //     console.log('Media item is not here yet', itemId, arMediaState?.get('fetchingItem'));
+        //     return;
+        // }
 
         (async function () {
             scene = new Scene();
@@ -322,16 +323,18 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                 setCameraStartedState(isNative ? "Camera started on native" : "Camera started on web");
             }).catch(error => console.log(error.message));
         })();
-    }, [mediaItemId]);
+    }, []);
 
 
     const createPreviewUrl = () => {
         const canvas = document.createElement('canvas');
-        const video = document.getElementById('video');
+        const video = document.getElementById('arcCanvas');
         canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
         const dataURL = canvas.toDataURL();
         return dataURL;
     };
+
+    
 
     const finishRecord = () => {
 
@@ -426,7 +429,6 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                 <p>APS:{anchorPoseState}</p>
             </div>
         </div> */}
-
          <div className="plugintestControls">
             <div className={recordingState === RecordingStates.OFF ? '' : styles.hideButtons}>
               <section className={styles.waterMarkWrapper}>
@@ -450,7 +452,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                 <button type="button" className={styles.closeButton} onClick={() => stopRecord()}><ChevronLeftIcon />Slide to cancel</button> 
             </section>
             </div>
-          </div>
+          </div> 
           <canvas ref={canvasRef} className={styles.arcCanvas} id={'arcCanvas'} onClick={() => handleTap()} />
         {/* <VolumetricPlayer
                         meshFilePath={meshFilePath}

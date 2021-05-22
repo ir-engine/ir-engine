@@ -63,6 +63,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const handleComposingTextChange = (event: any): void => setComposingText(event.target.value);
     const handleCreateFeed = async () => {
 
+        Plugins.XRPlugin.stop();
         const newFeed = {
             title: composingTitle.trim(),
             description: composingText.trim(),
@@ -74,13 +75,11 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
            setVideoUrl(await createFeed(newFeed)); 
         }
         console.log(newFeed);
-
         setComposingTitle('');
         setComposingText('');
         setVideo(null);
         setPreview(null);
         setIsSended(true);
-        Plugins.XRPlugin.stop();
         const thanksTimeOut = setTimeout(()=>{
             setIsSended(false); 
             clearTimeout(thanksTimeOut);
@@ -110,13 +109,13 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
          console.log(myFile);
         }).catch(error => console.log(error.message));
 
-//         const prevImage = dataURItoBlob(popupsState?.get('imgSrc'));
+       const prevImage = dataURItoBlob(popupsState?.get('imgSrc'));
         console.log(popupsState?.get('imgSrc'));
-        setPreview('prevImage');
+        setPreview(prevImage);
     }, [] ); 
      
     
-    useEffect(()=> {videoUrl && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
+    useEffect(()=> {videoUrl && updateNewFeedPageState(false, null, null) && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
     // const handlePickVideo = async (file) => setVideo(popupsState?.get('videoPath'));
     // const handlePickPreview = async (file) => setPreview('');
     
