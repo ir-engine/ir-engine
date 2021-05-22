@@ -8,7 +8,6 @@ import { ParityValue } from '../../common/enums/ParityValue';
 import { isMobileOrTablet } from '../../common/functions/isMobile';
 import { isServer } from "../../common/functions/isServer";
 import { Behavior } from '../../common/interfaces/Behavior';
-import { SIXDOFType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { Input } from '../../input/components/Input';

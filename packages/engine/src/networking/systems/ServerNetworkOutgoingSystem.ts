@@ -1,5 +1,4 @@
 import { IKAvatarRig } from '../../avatar/components/IKAvatarRig';
-import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { SIXDOFType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
@@ -7,7 +6,6 @@ import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFun
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { Input } from '../../input/components/Input';
 import { BaseInput } from '../../input/enums/BaseInput';
-import { InputType } from '../../input/enums/InputType';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
