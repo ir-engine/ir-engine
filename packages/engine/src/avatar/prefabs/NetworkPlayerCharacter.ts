@@ -40,9 +40,6 @@ export const loadDefaultActorAvatar: Behavior = (entity) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 	AvatarAnimationSystem.instance._defaultModel?.children?.forEach(child => actor.modelContainer.add(child));
 	actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-	// if (hasComponent(entity, AvatarIKComponent)) {
-	// 	initiateIK(entity)
-	// }
 }
 
 export const loadActorAvatar: Behavior = (entity) => {

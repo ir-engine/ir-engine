@@ -1,4 +1,4 @@
-import { AvatarIKComponent } from '../../avatar/components/AvatarIKComponent';
+import { IKAvatarRig } from '../../avatar/components/IKAvatarRig';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
@@ -8,8 +8,6 @@ import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { WorldStateModel } from '../schema/worldStateSchema';
-import { ControllerColliderComponent } from '../../avatar/components/ControllerColliderComponent';
-import { CharacterComponent } from '../../avatar/components/CharacterComponent';
 
 /** System class to handle outgoing messages. */
 export class ServerNetworkOutgoingSystem extends System {
@@ -49,9 +47,9 @@ export class ServerNetworkOutgoingSystem extends System {
         qW: transformComponent.rotation.w
       });
 
-      const ikComponent = getComponent(entity, AvatarIKComponent)
-      if(ikComponent) {
-        const transforms = ikComponent.avatarIKRig.inputs
+      const avatarRig = getComponent(entity, IKAvatarRig)
+      if(avatarRig) {
+        const transforms = avatarRig.inputs
         Network.instance.worldState.ikTransforms.push({
           networkId: networkObject.networkId,
           snapShotTime: snapShotTime,

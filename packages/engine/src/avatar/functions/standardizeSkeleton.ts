@@ -1,8 +1,7 @@
 import { AnimationClip, Bone, Matrix4, Quaternion, SkinnedMesh, Vector3 } from "three";
-import { SkeletonUtils } from "../classes/SkeletonUtils";
 import { AvatarAnimationSystem } from "../systems/AvatarAnimationSystem";
 import { findEye, findFoot, findHead, findHips, findShoulder, findSpine, getTailBones } from "./AvatarMathFunctions";
-import { fixSkeletonZForward } from "./SkeletonUtils";
+import { fixSkeletonZForward, retargetClip } from "./SkeletonUtils";
 
 const localVector = new Vector3();
 const localVector2 = new Vector3();
@@ -50,7 +49,7 @@ export const standardizeSkeletion = (target: SkinnedMesh, source: SkinnedMesh) =
 
   const newClips: AnimationClip[] = [];
   AvatarAnimationSystem.instance._animations.forEach((clip) => {
-    const newClip = SkeletonUtils.retargetClip(target, source, clip, { hip: sourceBones.Hips.name });
+    const newClip = retargetClip(target, source, clip, { hip: sourceBones.Hips.name });
     newClips.push(newClip);
     // console.log(newClip)
   })

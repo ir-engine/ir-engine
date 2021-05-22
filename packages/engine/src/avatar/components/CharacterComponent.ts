@@ -41,8 +41,8 @@ export class CharacterComponent extends Component<CharacterComponent> {
 
 	// === Movement === //
 
-	public walkSpeed = 0.5;
-	public runSpeed = 1;
+	public walkSpeed = 1;
+	public runSpeed = 2;
 	public jumpHeight = 4;
 	public speedMultiplier = 3;
 

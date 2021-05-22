@@ -5,19 +5,17 @@ import { isClient } from "../../common/functions/isClient";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { System, SystemAttributes } from "../../ecs/classes/System";
 import { Not } from "../../ecs/functions/ComponentFunctions";
-import { getMutableComponent, getComponent, getRemovedComponent, getEntityByID } from "../../ecs/functions/EntityFunctions";
+import { getComponent, getEntityByID, getMutableComponent, getRemovedComponent } from "../../ecs/functions/EntityFunctions";
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
-import { characterMoveBehavior } from "../behaviors/characterMoveBehavior";
-import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
 import { InterpolationComponent } from "../../physics/components/InterpolationComponent";
-import { CollisionGroups, DefaultCollisionMask } from "../../physics/enums/CollisionGroups";
+import { DefaultCollisionMask } from "../../physics/enums/CollisionGroups";
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { TransformComponent } from "../../transform/components/TransformComponent";
+import { characterMoveBehavior } from "../behaviors/characterMoveBehavior";
 import { AnimationComponent } from "../components/AnimationComponent";
 import { CharacterComponent } from "../components/CharacterComponent";
-import { AvatarIKComponent } from "../components/AvatarIKComponent";
-import { updateVectorAnimation } from "../functions/updateVectorAnimation";
+import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
 import { loadActorAvatar } from "../prefabs/NetworkPlayerCharacter";
 
 const forwardVector = new Vector3(0, 0, 1);
@@ -179,15 +177,6 @@ export class CharacterControllerSystem extends System {
       transform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
       characterMoveBehavior(entity, delta);
     })
-
-    this.queryResults.animation.all?.forEach((entity) => {
-      updateVectorAnimation(entity, delta)
-    })
-
-    this.queryResults.ikavatar.all?.forEach((entity) => {
-      const ikComponent = getMutableComponent(entity, AvatarIKComponent);
-      ikComponent.avatarIKRig?.update(delta);
-    })
   }
 }
 
@@ -226,12 +215,5 @@ CharacterControllerSystem.queries = {
       added: true,
       removed: true
     }
-  },
-  ikavatar: {
-    components: [AvatarIKComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
+  }
 };

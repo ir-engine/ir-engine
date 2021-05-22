@@ -1204,12 +1204,14 @@ export const resetAvatarLegs = (entity: Entity) => {
   copyTransform(leftLeg.upperLeg, rig.modelBones.Right_leg);
   copyTransform(leftLeg.lowerLeg, rig.modelBones.Right_knee);
   copyTransform(leftLeg.foot, rig.modelBones.Right_ankle);
+  
   leftLeg.foot.getWorldPosition(leftLeg.foot["stickTransform"].position);
   leftLeg.foot.getWorldQuaternion(leftLeg.foot["stickTransform"].quaternion);
 
   copyTransform(rightLeg.upperLeg, rig.modelBones.Left_leg);
   copyTransform(rightLeg.lowerLeg, rig.modelBones.Left_knee);
   copyTransform(rightLeg.foot, rig.modelBones.Left_ankle);
+
   rightLeg.foot.getWorldPosition(rightLeg.foot["stickTransform"].position);
   rightLeg.foot.getWorldQuaternion(rightLeg.foot["stickTransform"].quaternion);
 };
