@@ -23,25 +23,29 @@ import { connect } from 'react-redux';
 import { updateNewFeedPageState, updateWebXRState } from '../../reducers/popupsState/service';
 import { bindActionCreators, Dispatch } from 'redux';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
+import { selectArMediaState } from "../../reducers/arMedia/selector";
+import { getArMediaItem } from "../../reducers/arMedia/service";
 
 const mapStateToProps = (state: any): any => {
     return {
         popupsState: selectPopupsState(state),
-     
+        arMediaState: selectArMediaState(state)
     };
   };
 
   const mapDispatchToProps = (dispatch: Dispatch): any => ({
     updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
     updateWebXRState: bindActionCreators(updateWebXRState, dispatch),
-    
+    getArMediaItem: bindActionCreators(getArMediaItem, dispatch),
 });
 
 interface Props{
     popupsState?: any;
+    arMediaState?: any;
     updateNewFeedPageState?: typeof updateNewFeedPageState;
     updateWebXRState?: typeof updateWebXRState;
-    setContentHidden?: any
+    setContentHidden?: any;
+    getArMediaItem?:typeof getArMediaItem;
   }
 
 const { isNative } = Capacitor;
@@ -53,16 +57,12 @@ enum RecordingStates {
     ENDING = "ending"
 }
 
-const meshFilePath = typeof location !== 'undefined' ? location.origin + "/volumetric/liam.drcs" : "";
-const videoFilePath = typeof location !== 'undefined' ? location.origin + "/volumetric/liam.mp4" : "";
-const PI2 = Math.PI * 2;
-
 const correctionQuaternionZ = new Quaternion().setFromAxisAngle(new Vector3(0,0,1), Math.PI/2);
 
 const _DEBUG = false;
 const DEBUG_MINI_VIEWPORT_SIZE = 100;
 
-export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRState, setContentHidden}:Props) => {
+export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNewFeedPageState, updateWebXRState, setContentHidden}:Props) => {
     const canvasRef = React.useRef();
     const [initializationResponse, setInitializationResponse] = useState("");
     const [cameraStartedState, setCameraStartedState] = useState("");
@@ -70,7 +70,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
     const [anchorPoseState, setAnchorPoseState] = useState("");
     const [intrinsicsState, setCameraIntrinsicsState] = useState("");
     const [savedFilePath, setSavedFilePath] = useState("");
-    const [horizontalOrientation, setHorizontalOrientation] = useState(false);
+//     const [horizontalOrientation, setHorizontalOrientation] = useState(false);
     const [recordingState, setRecordingState] = useState(RecordingStates.OFF);
     let renderer: WebGLRenderer, scene: Scene, camera: PerspectiveCamera;
     const debugCamera: {
@@ -121,7 +121,28 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
 
         requestAnimationFrame(raf);
     };
+
+    const arMediaFetching = arMediaState.get('fetchingItem');
+    const itemId = popupsState.get('itemId');
+    useEffect(()=> {
+        if (!getArMediaItem) {
+            return;
+        }
+        getArMediaItem(itemId);
+    }, [getArMediaItem,itemId]);
+    useEffect(()=> {
+        if(!arMediaFetching){
+            setMediaItem(arMediaState.get('item'));
+        }
+    }, [arMediaFetching, arMediaState, itemId]);
+
+    const mediaItemId = mediaItem?.id;
     useEffect(() => {
+        if (!mediaItemId) {
+            console.log('Media item is not here yet', itemId, arMediaState?.get('fetchingItem'));
+            return;
+        }
+
         (async function () {
             scene = new Scene();
 
@@ -199,6 +220,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
 
             await XRPlugin.initialize({}).then(response => {
                 setInitializationResponse(response.status);
+                setContentHidden();
             }).catch(error => console.log(error.message));
 
             // @ts-ignore
@@ -300,15 +322,24 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
                 setCameraStartedState(isNative ? "Camera started on native" : "Camera started on web");
             }).catch(error => console.log(error.message));
         })();
-    }, []);
+    }, [mediaItemId]);
+
+
+    const createPreviewUrl = () => {
+        const canvas = document.createElement('canvas');
+        const video = document.getElementById('video');
+        canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+        const dataURL = canvas.toDataURL();
+        return dataURL;
+    };
 
     const finishRecord = () => {
 
               setRecordingState(RecordingStates.OFF);
                setContentHidden();
-               if(horizontalOrientation){
-                   setHorizontalOrientation(false);
-               }
+//                if(horizontalOrientation){
+//                    setHorizontalOrientation(false);
+//                }
                document.removeEventListener('dblclick', ()=> {
                    console.log('Double Click listener was removed');
                }, false);
@@ -321,7 +352,8 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
                    console.log("filePath IS", filePath);
                    setSavedFilePath("file://" + filePath);
                    const videoPath = Capacitor.convertFileSrc(filePath);
-                   updateNewFeedPageState(true, videoPath);
+                   updateWebXRState(false, null);
+                   updateNewFeedPageState(true, videoPath, createPreviewUrl());
                }).catch(error => alert(error.message));
         };
 
@@ -330,20 +362,22 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
     const toggleRecording = () => {
         if (recordingState === RecordingStates.OFF) {
             setRecordingState(RecordingStates.ON);
-            setContentHidden();
+
+            if (window.confirm("Double click to finish the record.")) {
             //TODO: check why there are errors
             // @ts-ignore
             Plugins.XRPlugin.startRecording({
-                isAudio: true,
-                width: 1024,
-                height: 1024,
-                bitRate: 1000,
-                dpi: 100,
-                filePath: "/test.mp4"
-            }).then(({ status }) => {
-                console.log("RECORDING, STATUS IS", status);
-            }).catch(error => console.log(error.message));
-            
+                    isAudio: true,
+                    width: 1024,
+                    height: 1024,
+                    bitRate: 1000,
+                    dpi: 100,
+                    filePath: "/test.mp4"
+                }).then(({ status }) => {
+                    console.log("RECORDING, STATUS IS", status);
+                }).catch(error => alert(error.message));
+            }
+
              document.addEventListener('dblclick', (e) => {
                 finishRecord();
             });
@@ -393,14 +427,15 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
             </div>
         </div> */}
 
-         <div className={horizontalOrientation ? styles.horizontalOrientation + " plugintestControls" : "plugintestControls"}>
+         <div className="plugintestControls">
+            <div className={recordingState === RecordingStates.OFF ? '' : styles.hideButtons}>
               <section className={styles.waterMarkWrapper}>
                   <section className={styles.waterMark}>
                       <section className={styles.subContainer} />
                     </section>
                 </section>
                 <button type="button" className={styles.flipCamera} onClick={() => {}}><FlipCameraIosIcon /></button> 
-                <button type="button" className={styles.changeOrientation} onClick={() => {setHorizontalOrientation(!horizontalOrientation);}}><FlipCameraIosIcon /></button>
+{/*                 <button type="button" className={styles.changeOrientation} onClick={() => {setHorizontalOrientation(!horizontalOrientation);}}><FlipCameraIosIcon /></button> */}
                 <section className={recordingState === RecordingStates.OFF ? styles.startButtonWrapper : styles.stopButtonWrapper}>
                     {/*{recordingState === RecordingStates.OFF ? "Record" : "Stop Recording"}*/}
                     <button type="button" className={recordingState === RecordingStates.OFF ? styles.startButton : styles.stopButton} onClick={() => toggleRecording()}>
@@ -414,6 +449,7 @@ export const WebXRPlugin = ({popupsState, updateNewFeedPageState, updateWebXRSta
               <section className={styles.closeButtonWrapper}>
                 <button type="button" className={styles.closeButton} onClick={() => stopRecord()}><ChevronLeftIcon />Slide to cancel</button> 
             </section>
+            </div>
           </div>
           <canvas ref={canvasRef} className={styles.arcCanvas} id={'arcCanvas'} onClick={() => handleTap()} />
         {/* <VolumetricPlayer

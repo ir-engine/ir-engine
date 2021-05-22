@@ -141,7 +141,6 @@ export function initializeNetworkObject( args: { entity?: Entity, prefabType?: n
   const ownerId = args.ownerId ?? 'server';
   const networkId = args.networkId ?? checkIfIdHavePrepair(args.uniqueId);
   const uniqueId = args.uniqueId;
-  console.log('networkId', networkId, prefabType, ownerId, uniqueId)
 
   const networkEntity = createNetworkPrefab(
     entity,

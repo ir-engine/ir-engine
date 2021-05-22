@@ -247,7 +247,6 @@ export class ServerNetworkIncomingSystem extends System {
 
       clientInput.transforms?.forEach((transform: StateEntity) => {
         const networkObject = Network.instance.networkObjects[transform.networkId];
-        console.log(transform, networkObject, Network.instance.clients[clientInput.networkId])
         if(networkObject && networkObject.ownerId === Network.instance.clients[clientInput.networkId].userId) {
           const collider = getComponent(networkObject.component.entity, ColliderComponent)
           collider.body.updateTransform({
