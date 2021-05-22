@@ -293,7 +293,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                         debugCamera.xy.position.x = camera.position.x;
                         debugCamera.xy.position.y = camera.position.y;
                     }
-                    if (debugCamera) {
+                    if (debugCamera.zy) {
                         debugCamera.zy.position.z = camera.position.z;
                         debugCamera.zy.position.y = camera.position.y;
                     }
