@@ -7,7 +7,7 @@ import IKArmLeft from '../components/IKArmLeft';
 import IKArmRight from '../components/IKArmRight';
 import { IKAvatarLegs } from "../components/IKAvatarLegs";
 import { IKAvatarRig } from "../components/IKAvatarRig";
-import IKAvatarShoulders from '../components/IKAvatarShoulders';
+import IKAvatarArms from '../components/IKAvatarArms';
 import { Leg } from '../components/IKLeg';
 import { LeftLeg } from '../components/IKLegLeft';
 import { RightLeg } from '../components/IKLegRight';
@@ -621,7 +621,7 @@ export const initializeAvatarRig = (entity) => {
   pose.playerHeightHmd = 1.70;
   pose.playerWidthWrist = 1.39;
   pose
-  addComponent(entity, IKAvatarShoulders);
+  addComponent(entity, IKAvatarArms);
 
   addComponent(entity, IKAvatarLegs);
   const avatarLegs = getMutableComponent(entity, IKAvatarLegs);
@@ -676,7 +676,7 @@ export const initializeAvatarRig = (entity) => {
 
   const _getOffset = (bone, parent = bone.parent) => bone.getWorldPosition(new Vector3()).sub(parent.getWorldPosition(new Vector3()));
 
-  const avatarShoulders = getMutableComponent(entity, IKAvatarShoulders)
+  const avatarShoulders = getMutableComponent(entity, IKAvatarArms)
 
   avatarShoulders.spine.position.copy(_getOffset(modelBones.Spine));
   avatarShoulders.transform.position.copy(_getOffset(modelBones.Chest, modelBones.Spine));
@@ -972,7 +972,7 @@ export const initializeAvatarRig = (entity) => {
 
 const updateIKArm = (entity, side: Side) => {
   const armIK = getMutableComponent(entity, side === Side.Left ? IKArmLeft : IKArmRight);
-  const avatarShoulders = getMutableComponent(entity, IKAvatarShoulders);
+  const avatarShoulders = getMutableComponent(entity, IKAvatarArms);
 
   updateMatrixWorld(armIK.transform);
   updateMatrixWorld(armIK.upperArm);
@@ -1051,7 +1051,7 @@ const updateIKArm = (entity, side: Side) => {
 }
 
 export const updateAvatarShoulders = (entity, delta) => {
-  const shoulders = getMutableComponent(entity, IKAvatarShoulders);
+  const shoulders = getMutableComponent(entity, IKAvatarArms);
   shoulders.spine.quaternion.set(0, 0, 0, 1);
 
   // Update hips
@@ -1148,9 +1148,9 @@ updateMatrixWorld(shoulders.transform);
 }
 
 export const initAvatarShoulders = (entity: Entity) => {
-  if(hasComponent(entity, IKAvatarShoulders)) return console.log("Tried to init avatar shoulders but already init")
-    addComponent(entity, IKAvatarShoulders);
-  const avatarShoulders = getMutableComponent(entity, IKAvatarShoulders);
+  if(hasComponent(entity, IKAvatarArms)) return console.log("Tried to init avatar shoulders but already init")
+    addComponent(entity, IKAvatarArms);
+  const avatarShoulders = getMutableComponent(entity, IKAvatarArms);
 
   avatarShoulders.transform = new Object3D();
   avatarShoulders.hips = new Object3D();
@@ -1236,7 +1236,7 @@ const initArm = (entity, armSide) => {
 
 export const initAvatarLegs = (entity) => {
   const rig = getMutableComponent(entity, IKAvatarRig);
-  const shoulders = getMutableComponent(entity, IKAvatarShoulders);
+  const shoulders = getMutableComponent(entity, IKAvatarArms);
   const pose = getMutableComponent(entity, XRPose);
 
   if (!hasComponent(entity, IKAvatarLegs))
@@ -1499,7 +1499,7 @@ const initLeg = (entity: Entity, legSide: Side) => {
   leg.lowerLegLength = leg.foot.position.length();
   leg.legLength = leg.upperLegLength + leg.lowerLegLength;
 
-  const avatarShoulders = getMutableComponent(entity, IKAvatarShoulders);
+  const avatarShoulders = getMutableComponent(entity, IKAvatarArms);
   getWorldPosition(leg.upperLeg, leg.eyesToUpperLegOffset)
     .sub(getWorldPosition(avatarShoulders.eyes, localVector));
 }
