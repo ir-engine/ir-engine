@@ -439,7 +439,7 @@ const lookByInputAxis = (
   }
 }
 
-// TODO: Updating rig is questionable right now if we are trying to consolidate inputs...
+// TODO: Updating rig is questionable right now if we are trying to consolidate
 const updateIKRig: Behavior = (entity, args): void => {
   const avatarIK = getMutableComponent(entity, IKAvatarRig);
   if(!avatarIK) return console.warn("IKAvatarRig is null");

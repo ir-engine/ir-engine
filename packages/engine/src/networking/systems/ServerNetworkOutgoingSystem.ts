@@ -59,53 +59,7 @@ export class ServerNetworkOutgoingSystem extends System {
       let left = input.data.get(BaseInput.XR_LEFT_HAND)?.value as SIXDOFType;
       let right = input.data.get(BaseInput.XR_RIGHT_HAND)?.value as SIXDOFType;
 
-      if(!head){
-        input.data.set(BaseInput.XR_HEAD, {
-          type: InputType.SIXDOF,
-          value: {
-            x: 0,
-            y: 0,
-            z: 0,
-            qW: 1,
-            qX: 0,
-            qY: 0,
-            qZ: 0,
-          },
-          lifecycleState: LifecycleValue.CHANGED
-        })
-        input.data.set(BaseInput.XR_LEFT_HAND, {
-          type: InputType.SIXDOF,
-          value: {
-            x: 0,
-            y: 0,
-            z: 0,
-            qW: 1,
-            qX: 0,
-            qY: 0,
-            qZ: 0,
-          },
-          lifecycleState: LifecycleValue.CHANGED
-        })
-        input.data.set(BaseInput.XR_RIGHT_HAND, {
-          type: InputType.SIXDOF,
-          value: {
-            x: 0,
-            y: 0,
-            z: 0,
-            qW: 1,
-            qX: 0,
-            qY: 0,
-            qZ: 0,
-          },
-          lifecycleState: LifecycleValue.CHANGED
-        })
-
-        head = input.data.get(BaseInput.XR_HEAD).value as SIXDOFType;
-        left = input.data.get(BaseInput.XR_LEFT_HAND).value as SIXDOFType;
-        right = input.data.get(BaseInput.XR_RIGHT_HAND).value as SIXDOFType;
-  
-      }
-      if(avatarRig) {
+      if(avatarRig && head && left && right) {
         Network.instance.worldState.ikTransforms.push({
           networkId: networkObject.networkId,
           snapShotTime: snapShotTime,
