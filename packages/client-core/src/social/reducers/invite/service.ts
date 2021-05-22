@@ -131,11 +131,8 @@ export function retrieveSentInvites(skip?: number, limit?: number) {
           $skip: skip != null ? skip : getState().get('invite').get('sentInvites').get('skip')
         }
       });
-      console.log(inviteResult);
-      
       dispatch(retrievedSentInvites(inviteResult));
     } catch(err) {
-      console.log(err);
       dispatchAlertError(dispatch, err.message);
     }
   };

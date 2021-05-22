@@ -62,5 +62,5 @@ export const spawnBall = (playerEntity: Entity): void => {
     uniqueId: uuid,
     prefabType: GolfPrefabTypes.Ball,
     parameters: JSON.stringify(parameters).replace(/"/g, '\''),
-  })
+  } as any)
 };

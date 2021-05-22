@@ -9,7 +9,6 @@ import { CameraModes } from "../camera/types/CameraModes";
 import { LifecycleValue } from "../common/enums/LifecycleValue";
 import { isClient } from "../common/functions/isClient";
 import { isMobileOrTablet } from "../common/functions/isMobile";
-import { isServer } from "../common/functions/isServer";
 import { Behavior } from "../common/interfaces/Behavior";
 import { Entity } from "../ecs/classes/Entity";
 import { getComponent, getMutableComponent, removeComponent } from "../ecs/functions/EntityFunctions";
@@ -36,7 +35,7 @@ const getOutCar: Behavior = (entityCar: Entity): void => {
   const entity = Network.instance.networkObjects[vehicle.driver].component.entity;
   getMutableComponent(entity, PlayerInCar).state = VehicleState.onStartRemove;
   sendClientObjectUpdate(entity, NetworkObjectUpdateType.VehicleStateChange, [VehicleState.onStartRemove] as VehicleStateUpdateSchema);
-  if(isServer) {
+  if(!isClient) {
     removeComponent(entity, DelegatedInputReceiver)
   }
 };

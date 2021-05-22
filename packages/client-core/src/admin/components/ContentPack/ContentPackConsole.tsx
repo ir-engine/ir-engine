@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
 import Button from '@material-ui/core/Button';
@@ -19,18 +18,6 @@ import ContentPackDetailsModal from './ContentPackDetailsModal';
 // @ts-ignore
 import styles from './ContentPack.module.scss';
 
-interface TabPanelProps {
-    children?: React.ReactNode;
-    index: any;
-    value: any;
-}
-
-const useStyles = makeStyles((theme: Theme) => ({
-    root: {
-        flexGrow: 1,
-        backgroundColor: theme.palette.background.paper,
-    },
-}));
 
 interface Props {
     adminState?: any,
@@ -56,7 +43,6 @@ const ContentPacksConsole = (props: Props) => {
         fetchContentPacks,
         contentPackState
     } = props;
-    const classes = useStyles();
     const [downloadModalOpen, setDownloadModalOpen] = useState(false);
     const [contentPackDetailsModalOpen, setContentPackDetailsModalOpen] = useState(false);
     const [selectedContentPack, setSelectedContentPack] = useState({ avatars: [], scenes: []});

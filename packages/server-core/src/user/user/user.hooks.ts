@@ -31,6 +31,9 @@ export default {
           },
           {
             model: 'user-settings'
+          },
+          {
+            model: 'instance'
           }
         ]
       })

@@ -1,8 +1,6 @@
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { Entity } from '../../../../ecs/classes/Entity';
-import { getComponent, hasComponent } from "../../../../ecs/functions/EntityFunctions";
-import { getStorage, setStorage } from '../../../../game/functions/functionsStorage';
-import { getTargetEntity } from '../../../../game/functions/functions';
+import { getComponent } from "../../../../ecs/functions/EntityFunctions";
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
 /**

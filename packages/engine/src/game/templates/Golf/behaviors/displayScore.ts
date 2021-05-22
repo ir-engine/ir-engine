@@ -1,16 +1,7 @@
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { Entity } from '../../../../ecs/classes/Entity';
-import { addStateComponent, removeStateComponent } from '../../../../game/functions/functionsState';
 import { getStorage, setStorage } from '../../../../game/functions/functionsStorage';
-
-/**
- * @author HydraFire <github.com/HydraFire>
- */
-
-function getTargetEntity(entity, entityTarget, args) {
-  return args.on === 'target' ? entityTarget : entity;
-  //console.warn('giveOpenOrCloseState, you must give argument on: me, or on: target');
-}
+import { getTargetEntity } from '../../../functions/functions';
 
 export const displayScore: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
   const entityArg = getTargetEntity(entity, entityTarget, args);

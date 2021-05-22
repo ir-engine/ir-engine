@@ -15,7 +15,6 @@ export const saveScore: Behavior = (entity: Entity, args?: any, delta?: number, 
   const gameScore = getStorage(entityArg, { name: 'GameScore' });
   gameScore.score.hits += 1;
   setStorage(entityArg, { name: 'GameScore' }, gameScore);
-
 };
 
 

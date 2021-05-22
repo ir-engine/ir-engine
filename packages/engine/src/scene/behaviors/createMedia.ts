@@ -9,7 +9,7 @@ import { getComponent } from "../../ecs/functions/EntityFunctions";
 import AudioSource from '../classes/AudioSource';
 import { Object3DComponent } from '../components/Object3DComponent';
 import { isWebWorker } from '../../common/functions/getEnvironment';
-import VolumetricComponent from "../components/VolumetricComponent"
+import VolumetricComponent from "../components/VolumetricComponent";
 import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { InteractiveSystem } from '../../interaction/systems/InteractiveSystem';
@@ -17,10 +17,13 @@ import { InteractiveSystem } from '../../interaction/systems/InteractiveSystem';
 const isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
 
 let DracosisPlayer = null;
-if (isBrowser())
-  import("volumetric/src/Player").then(imported => {
+if (isBrowser()) {
+  import("volumetric/src/decoder/Player").then(imported => {
     DracosisPlayer = imported;
   });
+  // @ts-ignore
+  // import PlayerWorker from 'volumetric/src/decoder/workerFunction.ts?worker';
+}
 
 
 
@@ -35,7 +38,7 @@ const onMediaInteraction: Behavior = (entityInitiator, args, delta, entityIntera
     // TODO handle volumetric interaction here
     return
   }
-  
+
   const source = getComponent(entityInteractive, Object3DComponent).value as AudioSource;
 
   if (elementPlaying(source.el)) {
@@ -48,8 +51,8 @@ const onMediaInteraction: Behavior = (entityInitiator, args, delta, entityIntera
 const onMediaInteractionHover: Behavior = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
   const { el: mediaElement } = getComponent(entityInteractive, Object3DComponent).value as AudioSource;
 
-  EngineEvents.instance.dispatchEvent({ 
-    type: InteractiveSystem.EVENTS.OBJECT_HOVER, 
+  EngineEvents.instance.dispatchEvent({
+    type: InteractiveSystem.EVENTS.OBJECT_HOVER,
     focused,
     interactionType: 'mediaSource',
     interactionText: elementPlaying(mediaElement) ? 'pause video' : 'play video'
@@ -58,22 +61,25 @@ const onMediaInteractionHover: Behavior = (entityInitiator, { focused }: { focus
 
 export function createAudio(entity, args: any): void {
   addObject3DComponent(entity, { obj3d: new Audio(Engine.audioListener), objArgs: args });
-  addInteraction(entity)
+  addInteraction(entity);
 }
 
 
 export function createVideo(entity, args: any): void {
   addObject3DComponent(entity, { obj3d: new Video(Engine.audioListener), objArgs: args });
-  addInteraction(entity)
+  addInteraction(entity);
 }
 
 export const createVolumetric: Behavior = (entity, args: any) => {
   addComponent(entity, VolumetricComponent);
   const volumetricComponent = getMutableComponent(entity, VolumetricComponent);
   const container = new Object3D();
+  // const worker = new PlayerWorker();
   const DracosisSequence = new DracosisPlayer({
     scene: container,
     renderer: Engine.renderer,
+    // worker: worker,
+    manifestFilePath: args.src.replace(".drcs", ".manifest"),
     meshFilePath: args.src,
     videoFilePath: args.src.replace(".drcs", ".mp4"),
     loop: args.loop,
@@ -83,7 +89,7 @@ export const createVolumetric: Behavior = (entity, args: any) => {
   });
   volumetricComponent.player = DracosisSequence;
   addObject3DComponent(entity, { obj3d: container });
-  addInteraction(entity)
+  addInteraction(entity);
 };
 
 export function createMediaServer(entity, args: any): void {
@@ -106,17 +112,17 @@ function addInteraction(entity): void {
   addComponent(entity, Interactable, interactiveData);
 
   const onVideoStateChange = (didPlay) => {
-    EngineEvents.instance.dispatchEvent({ 
-      type: InteractiveSystem.EVENTS.OBJECT_HOVER, 
+    EngineEvents.instance.dispatchEvent({
+      type: InteractiveSystem.EVENTS.OBJECT_HOVER,
       focused: true,
       interactionType: 'mediaSource',
-      interactionText: didPlay ? 'pause media' : 'play media' 
+      interactionText: didPlay ? 'pause media' : 'play media'
     })
   };
 
   const { el: mediaElement } = getComponent(entity, Object3DComponent).value as AudioSource;
-  
-  if(mediaElement) { 
+
+  if(mediaElement) {
     mediaElement.addEventListener('play', () => {
       onVideoStateChange(true);
     });

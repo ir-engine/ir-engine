@@ -127,9 +127,10 @@ const UserConsole = (props: Props) => {
         users: [
             { id: 'id', numeric: false, disablePadding: true, label: 'ID' },
             { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-            { id: 'instanceId', numeric: false, disablePadding: false, label: 'Instance ID' },
+            { id: 'avatar', numeric: false, disablePadding: false, label: 'Avatar' },
+            { id: 'instanceId', numeric: false, disablePadding: false, label: 'Instance' },
             { id: 'userRole', numeric: false, disablePadding: false, label: 'User Role' },
-            { id: 'partyId', numeric: false, disablePadding: false, label: 'Party ID' },
+            { id: 'partyId', numeric: false, disablePadding: false, label: 'Party' },
             { id: 'action', numeric: false, disablePadding: false, label: 'Action' }
         ]
     };
@@ -355,6 +356,7 @@ const UserConsole = (props: Props) => {
                                                 align="right" scope="row" padding="none">
                                                 {row.id}
                                             </TableCell>
+                                            <TableCell className={styles.tcell} align="right">{row.name}</TableCell>
                                             <TableCell className={styles.tcell} align="right">{row.name}</TableCell>
                                             <TableCell className={(row.instanceId != null && row.instanceId !== '') ? styles.tcellSelectable : styles.tcell}
                                                 align="right"

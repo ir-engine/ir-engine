@@ -72,7 +72,7 @@ const AppFooter = ({creatorState, getLoggedCreator, authState, updateCreatorPage
     <>
     <nav className={styles.footerContainer}>
         {/* <HomeIcon onClick={()=> {checkGuest ? setButtonPopup(true) : history.push('/');}} fontSize="large" className={styles.footerItem}/> */}
-        <img src='/assets/tabBar.png' onClick={()=> onGoHome()} fontSize="large" className={styles.footerItem}/>
+        <img src='/assets/tabBar.png' onClick={()=> onGoHome()} className={styles.footerItem}/>
         {/* <PopupLogin trigger={buttonPopup} setTrigger={setButtonPopup}>
           <IndexPage />
         </PopupLogin> */}

@@ -15,6 +15,7 @@ import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import React, { useEffect, useState } from 'react';
 import {XR360Player} from './app';
 import {testScene} from './test';
+import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 
 const MobileGamepad = React.lazy(() => import("@xrengine/client-core/src/common/components/MobileGamepad"));
 const engineRendererCanvasId = 'engine-renderer-canvas';
@@ -57,12 +58,11 @@ export const XR360PlayerPage = (props: Props) => {
     addUIEvents();
 
     const loadScene = new Promise<void>((resolve) => {
-      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
+      WorldScene.load(sceneData, () => {
         store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
         setAppLoaded(true);
         resolve();
       });
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_SCENE, sceneData });
     });
 
     const getWorldState = new Promise<any>((resolve) => {

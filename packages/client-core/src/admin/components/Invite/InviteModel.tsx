@@ -75,7 +75,6 @@ const InviteModel = (props: Props) => {
     const [warning, setWarning] = React.useState("");
     const [openSnabar, setOpenSnabar] = React.useState(false);
     const [providerType, setProviderType] = React.useState("email");
-    const [personName, setPersonName] = React.useState<string[]>([]);
     const currencies = [];
     const provide = [
         {

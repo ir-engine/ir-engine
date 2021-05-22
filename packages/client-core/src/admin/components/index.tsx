@@ -35,7 +35,7 @@ import {
 import Grid from '@material-ui/core/Grid';
 // @ts-ignore
 import styles from './Admin.module.scss';
-import InstanceModal from './InstanceModal';
+import InstanceModal from './Instance/InstanceModal';
 import LocationModal from './LocationModal';
 import Search from "./Search";
 import { useTranslation } from 'react-i18next';
