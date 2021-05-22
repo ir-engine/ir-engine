@@ -44,11 +44,13 @@ export const spawnBall = (playerEntity: Entity): void => {
   // send position to spawn
   // now we have just one location
   // but soon
-  const teeEntity = getEntityArrFromRole(game, 'GolfTee')[0];
+  const teeEntity = game.gameObjects['GolfTee'][0]
+  console.warn(game.gameObjects);
   const teeTransform = getComponent(teeEntity, TransformComponent);
 
   const parameters = {
-    game: game.name,
+    gameName: game.name,
+    role: 'GolfBall',
     spawnPosition: { x: teeTransform.position.x, y: teeTransform.position.y, z: teeTransform.position.z},
     uuid
   };

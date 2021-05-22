@@ -17,6 +17,6 @@ export const ifNamed: Checker = (entity: Entity, args?: any, entityTarget?: Enti
      console.warn('ifNamed, you must give in editor interactionText, its will be name of object');
      return false;
    }
-
+   console.warn(args.name === nameObject);
    return args.name === nameObject;
 };

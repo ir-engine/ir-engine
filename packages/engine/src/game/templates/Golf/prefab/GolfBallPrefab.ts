@@ -21,6 +21,7 @@ import { getGameEntityFromName, getGameFromName } from '../../../functions/funct
 import { GameObject } from '../../../components/GameObject';
 import { onInteraction, onInteractionHover } from '../../../../scene/behaviors/createCommonInteractive';
 import { Interactable } from '../../../../interaction/components/Interactable';
+import { InterpolationComponent } from "../../../../physics/components/InterpolationComponent";
 /**
 * @author Josh Field <github.com/HexaField>
  */
@@ -31,7 +32,7 @@ export const initializeGolfBall = (entity: Entity) => {
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
   const transform = getComponent(entity, TransformComponent);
 
-  console.log('initializeGolfBall', getComponent(entity, GameObject).game.name)
+  console.log('initializeGolfBall', getComponent(entity, GameObject).game) // its string now, and its right, if you do game, its != game name in system and do not add in state and else ...
 
   if(isClient) {
     AssetLoader.load({
@@ -88,8 +89,8 @@ export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: numbe
         {
           type: GameObject,
           data: {
-            game: getGameFromName(args.parameters.gameName),
-            role: 'GolfBall', // TODO: make this a constant
+            game: args.parameters.gameName,
+            role: args.parameters.role,//maybe we will add it in one place 'ballSpawn' //'GolfBall', // TODO: make this a constant
             uuid: args.parameters.uuid
           }
         },
@@ -97,7 +98,7 @@ export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: numbe
           type: TransformComponent,
           data: {
             position: new Vector3(args.parameters.spawnPosition.x, args.parameters.spawnPosition.y, args.parameters.spawnPosition.z),
-            //scale: new Vector3().setScalar(golfBallRadius)
+            scale: new Vector3().setScalar(golfBallRadius)
           }
         }
       ]
@@ -125,12 +126,13 @@ export const GolfBallPrefab: NetworkPrefab = {
     { type: ColliderComponent },
     { type: Interactable, data: interactiveData },
     { type: RigidBodyComponent },
-    { type: UserControlledColliderComponent },
+  //  { type: UserControlledColliderComponent },
     { type: GameObject }
     // Local player input mapped to behaviors in the input map
   ],
   // These are only created for the local player who owns this prefab
   localClientComponents: [],
+  //clientComponents: [{ type: InterpolationComponent, data: { } }],
   clientComponents: [],
   serverComponents: [],
   onAfterCreate: [

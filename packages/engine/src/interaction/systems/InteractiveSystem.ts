@@ -76,13 +76,20 @@ export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityV
           })
         } else {
           if (getInteractiveIsInReachDistance(entity, intPosition, args.side)) {
-            focusedArrays.push([isEntityInteractable, position.distanceTo(intPosition), null])
+            if (typeof interactive.onInteractionCheck === 'function') {
+              if (interactive.onInteractionCheck(entity, isEntityInteractable, null)) {
+                focusedArrays.push([isEntityInteractable, position.distanceTo(intPosition), null])
+              }
+            } else {
+              focusedArrays.push([isEntityInteractable, position.distanceTo(intPosition), null])
+            }
           }
         }
       }
     }
 
     focusedArrays = focusedArrays.sort((a: any, b: any) => a[1] - b[1]);
+    console.warn(focusedArrays.length);
     if (focusedArrays.length < 1) return;
 
     const interactable = getComponent(focusedArrays[0][0], Interactable);
@@ -90,13 +97,7 @@ export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityV
     const interactionCheck = interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2]);
 
     if (interactable.data.interactionType === "gameobject") {
-      if (interactionFunction) {
-        if (interactionCheck) {
-          addActionComponent(focusedArrays[0][0], HaveBeenInteracted, { args, entityNetworkId: getComponent(entity, NetworkObject).networkId });
-        }
-      } else {
-        addActionComponent(focusedArrays[0][0], HaveBeenInteracted, { args, entityNetworkId: getComponent(entity, NetworkObject).networkId });
-      }
+      addActionComponent(focusedArrays[0][0], HaveBeenInteracted, { args, entityNetworkId: getComponent(entity, NetworkObject).networkId });
       return;
     }
     // Not Game Object

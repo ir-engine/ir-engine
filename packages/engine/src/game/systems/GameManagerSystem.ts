@@ -79,6 +79,7 @@ export class GameManagerSystem extends System {
       this.createdGames.push(entity);
       // TODO: add start & stop functions to be able to start and end games
       gameSchema.onGameStart(entity);
+      console.warn('CREATE GAME');
     });
 
     this.queryResults.game.all?.forEach(entityGame => {
@@ -242,13 +243,11 @@ export class GameManagerSystem extends System {
         const game = getComponent(entityGame, Game);
         const gameSchema = GamesSchema[game.gameMode];
         const gameObjects = game.gameObjects;
-
         if (getComponent(entity, GameObject).game != game.name) return;
         getMutableComponent(entity, GameObject).game = game;
         // add to gameObjects list sorted by role
         gameObjects[getComponent(entity, GameObject).role].push(entity);
         // add init Tag components for start state of Games
-        console.warn(gameObjects);
         const schema = gameSchema.initGameState[getComponent(entity, GameObject).role];
         if (schema != undefined) {
           schema.components?.forEach(component => addStateComponent(entity, component));

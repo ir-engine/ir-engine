@@ -46,7 +46,7 @@ export class AnimationManager {
       if (!isClient) {
         resolve(new Group());
       }
-			getLoader().load(Engine.publicPath + '/models/avatars/Andy.glb', gltf => {
+			getLoader().load(Engine.publicPath + '/models/avatars/Rose.glb', gltf => {
 				console.log('default model loaded');
 				this._defaultModel = gltf.scene;
 				this._defaultModel.traverse((obj: Mesh) => {
