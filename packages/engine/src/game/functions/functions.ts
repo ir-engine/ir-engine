@@ -16,7 +16,7 @@ export const getGameEntityFromName = (name: string): Entity => {
 
 export const getEntityFromRoleUuid = (game: Game, role: string, uuid: string): Entity => (game.gameObjects[role] || game.gamePlayers[role]).find(entity => getUuid(entity) === uuid);
 
-export const getEntityArrFromRole = (game: Game, role: string, ): Entity => (game.gameObjects[role] || game.gamePlayers[role]);
+export const getEntityArrFromRole = (game: Game, role: string, ): Array<Entity> => (game.gameObjects[role] || game.gamePlayers[role]);
 
 export const getRole = (entity: Entity) => {
   return hasComponent(entity, GameObject) ? getComponent(entity, GameObject).role : getComponent(entity, GamePlayer).role;
