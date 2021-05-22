@@ -76,7 +76,6 @@ function syncPhysicsObjects(objectToCreate) {
 }
 
 function createEmptyNetworkObjectBeforeSceneLoad(args: { networkId: number, prefabType: number, uniqueId: string }) {
-  console.log('*createObjects* creating space in networkObjects for futured object at id: ' + args.networkId);
   Network.instance.networkObjects[args.networkId] = {
     ownerId: 'server',
     prefabType: args.prefabType,
@@ -216,7 +215,6 @@ export class ClientNetworkStateSystem extends System {
             createNetworkPlayer(objectToCreate);
           }
         } else {
-          console.log()
           let parameters;
           try {
             parameters = JSON.parse(objectToCreate.parameters.replace(/'/g, '"'));

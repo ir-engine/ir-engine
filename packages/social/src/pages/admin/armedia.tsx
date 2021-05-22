@@ -8,16 +8,16 @@
  import ArMediaConsole  from "@xrengine/client-core/src/admin/components/ArMediaConsole";
  import { bindActionCreators, Dispatch } from "redux";
  import { connect } from "react-redux";
- 
- import { selectAdMediaState } from "@xrengine/client-core/src/socialmedia/reducers/arMedia/selector";
+
+ import { selectArMediaState } from "@xrengine/client-core/src/socialmedia/reducers/arMedia/selector";
  import { getArMediaService } from "@xrengine/client-core/src/socialmedia/reducers/arMedia/service";
- 
+
  const mapStateToProps = (state: any): any => {
    return {
-     arMediaState: selectAdMediaState(state),
+     arMediaState: selectArMediaState(state),
    };
  };
- 
+
  const mapDispatchToProps = (dispatch: Dispatch): any => ({
    getArMedia: bindActionCreators(getArMediaService, dispatch),
  });
@@ -25,7 +25,7 @@
    arMediaState?: any,
    getArMedia?: any
  }
- 
+
   const ArMediaPage = ({arMediaState, getArMedia}:Props) => {
      useEffect(()=> getArMedia('admin'), []);
      const arMediaList = arMediaState.get('fetching') === false && arMediaState?.get('adminList') ? arMediaState.get('adminList') : null;
@@ -38,5 +38,5 @@
    </>
    );
  };
- 
- export default connect(mapStateToProps, mapDispatchToProps)(ArMediaPage); 
+
+ export default connect(mapStateToProps, mapDispatchToProps)(ArMediaPage);

@@ -1,6 +1,5 @@
 
 import { Entity } from '../../../../ecs/classes/Entity';
-import { Network } from '../../../../networking/classes/Network';
 import { NetworkPrefab } from '../../../../networking/interfaces/NetworkPrefab';
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
@@ -8,32 +7,53 @@ import { RigidBodyComponent } from '../../../../physics/components/RigidBody';
 import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject';
 import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants';
 import { UserControlledColliderComponent } from '../../../../physics/components/UserControllerObjectComponent';
-import { GameObject } from '../../../components/GameObject';
-import { Vector3 } from 'three';
+import { Group, Mesh, Vector3 } from 'three';
 import { AssetLoader } from '../../../../assets/classes/AssetLoader';
 import { Engine } from '../../../../ecs/classes/Engine';
 import { Body, BodyType, createShapeFromConfig, SHAPES } from 'three-physx';
 import { DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
-import { getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions';
+import { addComponent, getComponent, getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions';
+import { isClient } from '../../../../common/functions/isClient';
+import { Object3DComponent } from '../../../../scene/components/Object3DComponent';
+import { WebGLRendererSystem } from '../../../../renderer/WebGLRendererSystem';
+import { getGameEntityFromName, getGameFromName } from '../../../functions/functions';
+import { GameObject } from '../../../components/GameObject';
 import { onInteraction, onInteractionHover } from '../../../../scene/behaviors/createCommonInteractive';
 import { Interactable } from '../../../../interaction/components/Interactable';
-
 /**
 * @author Josh Field <github.com/HexaField>
  */
 
+const golfBallRadius = 0.03;
+
 export const initializeGolfBall = (entity: Entity) => {
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
   const transform = getComponent(entity, TransformComponent);
-  AssetLoader.load({
-    url: Engine.publicPath + '/models/golf/golf_ball.glb',
-    entity,
-  });
+
+  console.log('initializeGolfBall', getComponent(entity, GameObject).game.name)
+
+  if(isClient) {
+    AssetLoader.load({
+      url: Engine.publicPath + '/models/golf/golf_ball.glb',
+    }, (group: Group) => {
+      const ballGroup = group.clone(true);
+      const ballMesh = ballGroup.children[0] as Mesh;
+      group.remove(group.children[0]);
+      ballMesh.position.copy(transform.position);
+      ballMesh.scale.copy(transform.scale);
+      ballMesh.castShadow = true;
+      ballMesh.receiveShadow = true;
+      ballMesh.material && WebGLRendererSystem.instance.csm.setupMaterial(ballMesh.material);
+      addComponent(entity, Object3DComponent, { value: ballMesh });
+      Engine.scene.add(ballMesh);
+      console.log('loaded golf ball model')
+    });
+  }
 
   const shape = createShapeFromConfig({
     shape: SHAPES.Sphere,
-    options: { radius: 0.025 },
+    options: { radius: golfBallRadius },
     config: {
       material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.9 },
       collisionLayer: GolfCollisionGroups.Ball,
@@ -68,7 +88,7 @@ export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: numbe
         {
           type: GameObject,
           data: {
-            game: args.parameters.game,
+            game: getGameFromName(args.parameters.gameName),
             role: 'GolfBall', // TODO: make this a constant
             uuid: args.parameters.uuid
           }
@@ -76,7 +96,8 @@ export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: numbe
         {
           type: TransformComponent,
           data: {
-            position: new Vector3(args.parameters.spawnPosition.x, args.parameters.spawnPosition.y, args.parameters.spawnPosition.z)
+            position: new Vector3(args.parameters.spawnPosition.x, args.parameters.spawnPosition.y, args.parameters.spawnPosition.z),
+            //scale: new Vector3().setScalar(golfBallRadius)
           }
         }
       ]

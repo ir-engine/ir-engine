@@ -15,6 +15,7 @@ export interface PopupsActions {
   type: string;
   state: boolean;
   id?: string;
+  imgSrc?: string
 }
 
 export function changeCreatorPage (state, id): PopupsActions {
@@ -47,11 +48,12 @@ export function changeArMedia (state): PopupsActions {
   };
 }
 
-export function changeNewFeedPage (state, id): PopupsActions {
+export function changeNewFeedPage (state, id, imgSrc): PopupsActions {
   return {
     type: CHANGE_NEW_FEED_PAGE_STATE,
     state,
-    id
+    id,
+    imgSrc
   };
 }
 
@@ -63,10 +65,11 @@ export function changeShareForm (state, id): PopupsActions {
   };
 }
 
-export function changeWebXR (state): PopupsActions {
+export function changeWebXR (state, id): PopupsActions {
   return {
     type: CHANGE_WEB_XR_STATE,
     state,
+    id
   };
 }
 

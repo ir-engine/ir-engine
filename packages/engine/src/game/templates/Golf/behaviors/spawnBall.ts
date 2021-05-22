@@ -1,5 +1,5 @@
 import { Entity } from '../../../../ecs/classes/Entity';
-import { getComponent } from '../../../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions';
 import { NetworkObject } from '../../../../networking/components/NetworkObject';
 import { createGolfBallPrefab } from '../prefab/GolfBallPrefab';
 import { Network } from '../../../../networking/classes/Network';
@@ -20,19 +20,40 @@ export const spawnBall = (playerEntity: Entity): void => {
   if (isClient) return;
 
   const game = getComponent(playerEntity, GamePlayer).game as Game;
-  const teeEntity = getEntityArrFromRole(game, 'GolfTee')[0];
-  const teeTransform = getComponent(teeEntity, TransformComponent);
   const ownerId = getComponent(playerEntity, NetworkObject).ownerId;
-  console.warn( teeTransform.position);
+
+  // console.log(ownerId, 'ball exists', game.gameObjects['GolfBall'].length > 0)
+
+  // if a ball already exists in the world, it obviously isn't our turn
+  if (game.gameObjects['GolfBall'].length > 0) return;
+
+  const playerHasBall = game.gameObjects['GolfBall']
+    .filter((entity) => getComponent(entity, NetworkObject)?.ownerId === ownerId)
+    .length > 0;
+
+
+  // console.log(ownerId, 'playerHasBall', playerHasBall)
+
+  // if we already have a ball in the world, we shouldn't spawn a new one
+  if(playerHasBall) return;
+
+  console.log('making ball for player', ownerId)
+
   const networkId = Network.getNetworkId();
   const uuid = MathUtils.generateUUID();
+  // send position to spawn
+  // now we have just one location
+  // but soon
+  const teeEntity = getEntityArrFromRole(game, 'GolfTee')[0];
+  const teeTransform = getComponent(teeEntity, TransformComponent);
 
   const parameters = {
     game: game.name,
     spawnPosition: { x: teeTransform.position.x, y: teeTransform.position.y, z: teeTransform.position.z},
     uuid
-  }
+  };
 
+  // this spawns the ball on the server
   createGolfBallPrefab({
     networkId,
     uniqueId: uuid,
@@ -40,7 +61,7 @@ export const spawnBall = (playerEntity: Entity): void => {
     parameters
   })
 
-
+  // this sends the ball to the clients
   Network.instance.worldState.createObjects.push({
     networkId,
     ownerId,

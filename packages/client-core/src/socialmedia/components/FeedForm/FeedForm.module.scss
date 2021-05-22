@@ -1,9 +1,15 @@
 .feedFormContainer{
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     padding: 20px;
     margin: auto 0;
     overflow: scroll;
+    height: 20%;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    background: #fff;
+    z-index: 999;
 
     .flexContainer{
         display: flex;
@@ -47,10 +53,12 @@
         background-color: #000;
         margin-top: 20px;
         padding: 10pt;
-        width: 100%;
         border-radius: 13px;
         font-size: 17pt;
         text-transform: capitalize;
+        z-index: 999;
+        width: 100%;
+
     }
 
     .videoWrapper{

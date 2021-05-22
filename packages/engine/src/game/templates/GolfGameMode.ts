@@ -22,7 +22,6 @@ import { switchState } from "./gameDefault/behaviors/switchState";
 import { giveState } from "./gameDefault/behaviors/giveState";
 //
 import { addForce } from "./Golf/behaviors/addForce";
-import { addRestitution } from "./Golf/behaviors/addRestitution";
 import { teleportObject } from "./Golf/behaviors/teleportObject";
 //
 import { addRole } from "./Golf/behaviors/addRole";
@@ -53,10 +52,10 @@ import { Network } from "../../networking/classes/Network";
 import { giveBall } from "./Golf/behaviors/giveBall";
 import { Entity } from "../../ecs/classes/Entity";
 import { GolfPrefabs } from "./Golf/GolfGameConstants";
-import { AssetLoader } from "../../assets/classes/AssetLoader";
-import { Engine } from "../../ecs/classes/Engine";
-import { Object3DComponent } from "../../scene/components/Object3DComponent";
-import { Material, Mesh } from "three";
+
+
+
+
 /**
  * @author HydraFire
  */
@@ -126,12 +125,6 @@ function copleNameRolesInOneString( object ) {
 
 const onGolfGameStart = (entity: Entity) => {
 
-  // Load our static assets
-  AssetLoader.load({
-    url: Engine.publicPath + '/models/golf/golf_ball.glb',
-    entity,
-  });
-
   // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
   Object.entries(GolfPrefabs).forEach(([prefabType, prefab]) => {
     Network.instance.schema.prefabs[prefabType] = prefab;
@@ -158,10 +151,10 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   ],
   initGameState: {
     'newPlayer': {
-      behaviors: [addRole, giveBall]
+      behaviors: [addRole, spawnBall]
     },
     '1-Player': {
-      behaviors: [addTurn, initScore, spawnBall]
+      behaviors: [addTurn, initScore]
     },
     '2-Player': {
       behaviors: [initScore]
@@ -247,23 +240,6 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             }
           }
         },
-        /*
-        {
-          behavior: nextTurn,
-          watchers:[ [ YourTurn ] ],
-          takeEffectOn: {
-            targetsRole: {
-              'GolfBall': {
-                watchers:[ [ HaveBeenInteracted ] ],
-                checkers:[{
-                  function: ifNamed,
-                  args: { on: 'target', name: '1' }
-                }]
-              }
-            }
-          }
-        },
-        */
         {
           behavior: nextTurn,
           watchers:[ [ YourTurn ] ],

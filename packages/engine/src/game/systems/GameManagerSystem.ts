@@ -46,7 +46,8 @@ export class GameManagerSystem extends System {
   updateType = SystemUpdateType.Fixed;
   updateNewPlayersRate: number;
   updateLastTime: number;
-  createdGames: Entity[];
+  createdGames: Game[];
+  gameEntities: Entity[];
 
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);
@@ -54,10 +55,16 @@ export class GameManagerSystem extends System {
     this.updateNewPlayersRate = 60;
     this.updateLastTime = 0;
     this.createdGames = [];
+    this.gameEntities = [];
   }
 
   dispose(): void {
     super.dispose();
+  }
+
+  registerGame(entity, gameData) {
+    addComponent(entity, Game, gameData)
+    this.createdGames.push(getComponent(entity, Game));
   }
 
   execute (delta: number, time: number): void {
@@ -67,6 +74,8 @@ export class GameManagerSystem extends System {
       const gameSchema = GamesSchema[game.gameMode] as GameMode;
       game.priority = gameSchema.priority;// DOTO: set its from editor
       initState(game, gameSchema);
+      this.gameEntities.push(entity);
+      // its for client, to get game entity whan came Action Message with only name of Game
       this.createdGames.push(entity);
       // TODO: add start & stop functions to be able to start and end games
       gameSchema.onGameStart(entity);

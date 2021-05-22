@@ -30,6 +30,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public timer = 0;
 	public animationsTimeScale = .5;
 	public avatarId: string;
+	public thumbnailURL: string;
 	public avatarURL: string;
 	public height = 0;
 	public tiltContainer: Group;
@@ -114,5 +115,8 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	static _schema = {
 		tiltContainer: { type: Types.Ref, default: null },
 		collisionMask: { type: Types.Number, default: DefaultCollisionMask },
+		avatarId: { type: Types.String, default: null },
+		thumbnailURL: { type: Types.String, default: null },
+		avatarURL: { type: Types.String, default: null },
 	};
 }

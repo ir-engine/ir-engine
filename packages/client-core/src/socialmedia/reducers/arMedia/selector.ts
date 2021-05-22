@@ -4,4 +4,4 @@
 import { createSelector } from 'reselect';
 
 const selectState = (state: any): any => state.get('arMedia');
-export const selectAdMediaState = createSelector([selectState], (arMedia) => arMedia);
+export const selectArMediaState = createSelector([selectState], (arMedia) => arMedia);
