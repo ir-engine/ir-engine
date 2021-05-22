@@ -25,6 +25,7 @@ import { sendState } from '../../game/functions/functionsState';
 import { StateEntity } from '../types/SnapshotDataTypes';
 import { ColliderComponent } from '../../physics/components/ColliderComponent';
 import { isClient } from '../../common/functions/isClient';
+import { getGameFromName } from '../../game/functions/functions';
 
 
 // function switchInputs(clientInput) {
@@ -156,7 +157,7 @@ export class ServerNetworkIncomingSystem extends System {
             const entity = Network.instance.networkObjects[clientInput.networkId].component.entity;
             const playerComp = getComponent<GamePlayer>(entity, GamePlayer);
             if (playerComp === undefined) return;
-            sendState(playerComp.game, playerComp);
+            sendState(getGameFromName(playerComp.gameName), playerComp);
           }
         })
       }

@@ -36,8 +36,6 @@ import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { addObject3DComponent } from "../../scene/behaviors/addObject3DComponent";
 import { createShadow } from "../../scene/behaviors/createShadow";
 import { TransformComponent } from "../../transform/components/TransformComponent";
-import { initiateIK } from "../../xr/functions/IKFunctions";
-import { isServer } from "../../common/functions/isServer";
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);

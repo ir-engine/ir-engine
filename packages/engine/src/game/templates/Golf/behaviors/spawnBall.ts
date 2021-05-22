@@ -5,7 +5,7 @@ import { createGolfBallPrefab } from '../prefab/GolfBallPrefab';
 import { Network } from '../../../../networking/classes/Network';
 import { isClient } from '../../../../common/functions/isClient';
 import { GamePlayer } from '../../../components/GamePlayer';
-import { getEntityArrFromRole } from '../../../functions/functions';
+import { getEntityArrFromRole, getGame } from '../../../functions/functions';
 import { Game } from '../../../components/Game';
 import { MathUtils } from 'three';
 import { GolfPrefabTypes } from '../GolfGameConstants';
@@ -19,7 +19,7 @@ export const spawnBall = (playerEntity: Entity): void => {
   // server sends clients the entity data
   if (isClient) return;
 
-  const game = getComponent(playerEntity, GamePlayer).game as Game;
+  const game = getGame(playerEntity);
   const ownerId = getComponent(playerEntity, NetworkObject).ownerId;
 
   // console.log(ownerId, 'ball exists', game.gameObjects['GolfBall'].length > 0)
@@ -70,5 +70,5 @@ export const spawnBall = (playerEntity: Entity): void => {
     uniqueId: uuid,
     prefabType: GolfPrefabTypes.Ball,
     parameters: JSON.stringify(parameters).replace(/"/g, '\''),
-  } as any)
+  })
 };
