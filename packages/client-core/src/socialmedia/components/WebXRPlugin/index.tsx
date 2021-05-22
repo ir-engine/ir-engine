@@ -361,7 +361,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
 
     const createPreviewUrl = () => {
         const canvas = document.createElement('canvas');
-        const video = document.getElementById('video') as HTMLVideoElement;
+        const video = document.getElementById('arcCanvas') as HTMLVideoElement;
         canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
         const dataURL = canvas.toDataURL();
         return dataURL;
