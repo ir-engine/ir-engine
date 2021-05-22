@@ -1,12 +1,9 @@
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { Entity } from '../../../../ecs/classes/Entity';
-import { getComponent, hasComponent } from "../../../../ecs/functions/EntityFunctions";
+import { hasComponent } from "../../../../ecs/functions/EntityFunctions";
 import { addStateComponent, removeStateComponent } from '../../../../game/functions/functionsState';
-import { addActionComponent } from '../../../functions/functionsActions';
 import { getGame } from '../../../../game/functions/functions';
-import { GamePlayer } from "../../../components/GamePlayer";
 import { YourTurn } from "../components/YourTurnTagComponent";
-import { isServer } from '../../../../common/functions/isServer';
 /**
  * @author HydraFire <github.com/HydraFire>
  */

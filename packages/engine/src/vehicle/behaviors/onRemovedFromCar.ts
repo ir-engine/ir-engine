@@ -1,4 +1,4 @@
-import { isServer } from "../../common/functions/isServer";
+import { isClient } from "../../common/functions/isClient";
 import { Entity } from "../../ecs/classes/Entity";
 import { getMutableComponent, hasComponent, getComponent, removeComponent, addComponent } from "../../ecs/functions/EntityFunctions";
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
@@ -31,7 +31,7 @@ export const onRemovedFromCar = (entity: Entity, entityCar: Entity, seat: number
   vehicle[vehicle.seatPlane[seat]] = null;
   vehicle.wantsExit = [null, null];
 
-  if (isServer) return;
+  if (!isClient) return;
   // LocalPlayer and others
 
   // Player only

@@ -2,14 +2,10 @@
   "name": "@xrengine/docs",
   "version": "0.2.27",
   "private": true,
-  "nohoist": [
-    "**/html-minifier-terser",
-    "*/@docusaurus/*"
-  ],
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
-    "build": "docusaurus build",
+    "build": "cross-env NODE_OPTIONS=--max_old_space_size=8192 docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
@@ -54,6 +50,7 @@
     "@types/react": "17.0.4",
     "@types/react-helmet": "6.1.1",
     "@types/react-router-dom": "5.1.7",
+    "cross-env": "7.0.3",
     "docusaurus-plugin-typedoc": "0.13.0",
     "typedoc": "0.20.36",
     "typedoc-plugin-markdown": "3.7.2",

@@ -22,7 +22,6 @@ import Worker from 'web-worker';
 import path from 'path';
 import { now } from '@xrengine/engine/src/common/functions/now';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
-import { loadScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 import { AnimationManager } from '@xrengine/engine/src/character/AnimationManager';
 import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
@@ -41,7 +40,6 @@ export const initializeEngineServer = async (initOptions: InitializeOptions = De
   Engine.publicPath = publicPath;
   Network.instance = new Network();
 
-  EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); });
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: true, physics: true });
   });

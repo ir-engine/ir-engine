@@ -1,16 +1,15 @@
 import { Entity } from '../../../../ecs/classes/Entity';
-import { getComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions';
-import { getStorage } from '../../../../game/functions/functionsStorage';
+import { hasComponent } from '../../../../ecs/functions/EntityFunctions';
 import { Checker } from '../../../../game/types/Checker';
-import { getTargetEntity } from '../../../../game/functions/functions';
+import { getTargetEntitys } from '../../../../game/functions/functions';
+
 /**
  * @author HydraFire <github.com/HydraFire>
  */
-
 export const customChecker: Checker = (entity: Entity, args?: any, entityTarget?: Entity): any => {
-  const entityArg = getTargetEntity(entity, entityTarget, args);
+  const entityArg = getTargetEntitys(entity, entityTarget, args);
 
-  if (Array.isArray(entityArg))  {
+  if (Array.isArray(entityArg)) {
     return entityArg.some(entityFinded => {
 
       if (args.watchers != undefined) {

@@ -30,7 +30,6 @@ import { DefaultInitializationOptions, InitializeOptions } from '@xrengine/engin
 import _ from 'lodash';
 import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem';
 import { now } from '@xrengine/engine/src/common/functions/now';
-import { loadScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 import { UIPanelSystem } from '@xrengine/engine/src/ui/systems/UIPanelSystem';
 
 import { PositionalAudioSystem } from '@xrengine/engine/src/audio/systems/PositionalAudioSystem';
@@ -84,7 +83,6 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     // Engine.viewportElement = options.renderer.canvas;
   } else {
     Engine.scene = new Scene();
-    EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); });
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
       const canvas = document.createElement('canvas');
       const gl = canvas.getContext('webgl');

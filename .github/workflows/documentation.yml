@@ -21,6 +21,7 @@ jobs:
         run: |
           yarn install --frozen-lockfile
           cd packages/docs
+          yarn install --frozen-lockfile
           npm run build
   gh-release:
     if: github.event_name != 'pull_request'
@@ -44,4 +45,5 @@ jobs:
           git config --global user.name "gh-actions"
           yarn install --frozen-lockfile
           cd packages/docs
+          yarn install --frozen-lockfile
           npm run deploy

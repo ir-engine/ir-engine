@@ -13,7 +13,7 @@ export class Component<C> {
   static _schema: ComponentSchema
 
   /**
-   * The unique ID for this type of component (<C>).
+   * The unique ID for this type of component (&lt;C&gt;).
    */
   static _typeId: number
 

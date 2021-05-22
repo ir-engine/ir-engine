@@ -1,13 +1,12 @@
-import { isServer } from "../../common/functions/isServer";
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { VehicleComponent } from '../components/VehicleComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { CollisionGroups } from "../../physics/enums/CollisionGroups";
-import { PhysicsSystem } from '../../physics/systems/PhysicsSystem';
 import { PhysicsLifecycleState } from "../../physics/enums/PhysicsStates";
 import { Vector3 } from "three";
+import { isClient } from '../../common/functions/isClient';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -135,7 +134,7 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
         chassisBody.quaternion.z,
         chassisBody.quaternion.w
       );
-      if(isServer) {
+      if(!isClient) {
         for (let i = 0; i < wheels.length; i++) {
           vehicle.updateWheelTransform(i);
         }
