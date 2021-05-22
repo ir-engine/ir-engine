@@ -7,7 +7,7 @@ import { TransformComponent } from '../../../../transform/components/TransformCo
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const isDifferent: Checker = (entity: Entity, args?: any, entityTarget?: Entity): any => {
+export const isDifferent: Checker = (entity: Entity, args?: any, entityTarget?: Entity): boolean => {
   const position = getComponent(entity, TransformComponent).position;
   const positionStart = getStorage(entity, TransformComponent).position;
 
@@ -19,5 +19,5 @@ export const isDifferent: Checker = (entity: Entity, args?: any, entityTarget?: 
   const chooseMinOrMax = args.min != undefined ? 'min' : 'max';
   const value = args[chooseMinOrMax];
   const differensNow = Math.abs(positionStart.x - position.x) + Math.abs(positionStart.y - position.y) + Math.abs(positionStart.z - position.z);
-  return  chooseMinOrMax === 'min' ? value < differensNow : value > differensNow;
+  return chooseMinOrMax === 'min' ? value < differensNow : value > differensNow;
 };

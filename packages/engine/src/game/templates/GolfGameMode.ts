@@ -52,10 +52,10 @@ import { Network } from "../../networking/classes/Network";
 import { giveBall } from "./Golf/behaviors/giveBall";
 import { Entity } from "../../ecs/classes/Entity";
 import { GolfPrefabs } from "./Golf/GolfGameConstants";
-import { AssetLoader } from "../../assets/classes/AssetLoader";
-import { Engine } from "../../ecs/classes/Engine";
-import { Object3DComponent } from "../../scene/components/Object3DComponent";
-import { Material, Mesh } from "three";
+
+
+
+
 /**
  * @author HydraFire
  */
@@ -202,11 +202,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {
-                watchers:[ [ HaveBeenInteracted ] ],
-                checkers:[{
-                  function: ifNamed,
-                  args: { on: 'target', name: '1' }
-                }]
+                watchers:[ [ HaveBeenInteracted ] ]
               }
             }
           }
@@ -231,21 +227,6 @@ export const GolfGameMode: GameMode = somePrepareFunction({
         {
           behavior: saveScore,
           args: { on: 'me' },
-          watchers:[ [ YourTurn ] ],
-          takeEffectOn: {
-            targetsRole: {
-              'GolfBall': {
-                watchers:[ [ HaveBeenInteracted ] ],
-                checkers:[{
-                  function: ifNamed,
-                  args: { on: 'target', name: '1' }
-                }]
-              }
-            }
-          }
-        },
-        {
-          behavior: nextTurn,
           watchers:[ [ YourTurn ] ],
           takeEffectOn: {
             targetsRole: {
@@ -478,9 +459,9 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             return { ...getComponent(entityGolfclub, HaveBeenInteracted).args }
           },
           watchers:[ [ HaveBeenInteracted ] ],
-          takeEffectOn: (entityGolfclub) =>  { 
+          takeEffectOn: (entityGolfclub) =>  {
             if(!getComponent(entityGolfclub, HaveBeenInteracted).entityNetworkId) return;
-            return Network.instance.networkObjects[getComponent(entityGolfclub, HaveBeenInteracted).entityNetworkId].component.entity }, 
+            return Network.instance.networkObjects[getComponent(entityGolfclub, HaveBeenInteracted).entityNetworkId].component.entity },
         },
       ]
     },

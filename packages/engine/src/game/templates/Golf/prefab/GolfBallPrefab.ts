@@ -19,7 +19,9 @@ import { Object3DComponent } from '../../../../scene/components/Object3DComponen
 import { WebGLRendererSystem } from '../../../../renderer/WebGLRendererSystem';
 import { getGameEntityFromName, getGameFromName } from '../../../functions/functions';
 import { GameObject } from '../../../components/GameObject';
-
+import { onInteraction, onInteractionHover } from '../../../../scene/behaviors/createCommonInteractive';
+import { Interactable } from '../../../../interaction/components/Interactable';
+import { InterpolationComponent } from "../../../../physics/components/InterpolationComponent";
 /**
 * @author Josh Field <github.com/HexaField>
  */
@@ -27,9 +29,10 @@ import { GameObject } from '../../../components/GameObject';
 const golfBallRadius = 0.03;
 
 export const initializeGolfBall = (entity: Entity) => {
-  const teeTransform = getComponent(entity, TransformComponent);
+  // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
+  const transform = getComponent(entity, TransformComponent);
 
-  console.log('initializeGolfBall', getComponent(entity, GameObject).game.name)
+  console.log('initializeGolfBall', getComponent(entity, GameObject).game) // its string now, and its right, if you do game, its != game name in system and do not add in state and else ...
 
   if(isClient) {
     AssetLoader.load({
@@ -38,8 +41,8 @@ export const initializeGolfBall = (entity: Entity) => {
       const ballGroup = group.clone(true);
       const ballMesh = ballGroup.children[0] as Mesh;
       group.remove(group.children[0]);
-      ballMesh.position.copy(teeTransform.position);
-      ballMesh.scale.copy(teeTransform.scale);
+      ballMesh.position.copy(transform.position);
+      ballMesh.scale.copy(transform.scale);
       ballMesh.castShadow = true;
       ballMesh.receiveShadow = true;
       ballMesh.material && WebGLRendererSystem.instance.csm.setupMaterial(ballMesh.material);
@@ -63,7 +66,7 @@ export const initializeGolfBall = (entity: Entity) => {
     shapes: [shape],
     type:  BodyType.DYNAMIC,
     transform: {
-      translation: { x: teeTransform.position.x, y: teeTransform.position.y, z: teeTransform.position.z }
+      translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
     }
   }));
 
@@ -77,7 +80,7 @@ export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: numbe
     uniqueId: args.uniqueId,
     ownerId: args.ownerId,
     networkId: args.networkId,
-    override: { 
+    override: {
       networkComponents: [
         {
           type: UserControlledColliderComponent,
@@ -86,36 +89,56 @@ export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: numbe
         {
           type: GameObject,
           data: {
-            game: getGameFromName(args.parameters.gameName),
-            role: 'GolfBall', // TODO: make this a constant
+            game: args.parameters.gameName,
+            role: args.parameters.role,//maybe we will add it in one place 'ballSpawn' //'GolfBall', // TODO: make this a constant
             uuid: args.parameters.uuid
+          }
+        },
+        {
+          type: TransformComponent,
+          data: {
+            position: new Vector3(args.parameters.spawnPosition.x, args.parameters.spawnPosition.y, args.parameters.spawnPosition.z),
+            scale: new Vector3().setScalar(golfBallRadius)
           }
         }
       ]
     }
   });
 }
+
+const interactiveData = {
+  onInteraction: onInteraction,
+  onInteractionFocused: onInteractionHover,
+  onInteractionCheck: () => { return true },
+  data: {
+    interactionType: "gameobject",
+    interactionText: "1"
+  }
+};
+
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const GolfBallPrefab: NetworkPrefab = {
   initialize: createGolfBallPrefab,
   // These will be created for all players on the network
   networkComponents: [
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
-    { type: TransformComponent, data: { position: new Vector3(4.166, -0.05, -7.9), scale: new Vector3().setScalar(golfBallRadius) } },
+    { type: TransformComponent },
     { type: ColliderComponent },
+    { type: Interactable, data: interactiveData },
     { type: RigidBodyComponent },
-    { type: UserControlledColliderComponent },
+  //  { type: UserControlledColliderComponent },
     { type: GameObject }
     // Local player input mapped to behaviors in the input map
   ],
   // These are only created for the local player who owns this prefab
   localClientComponents: [],
+  //clientComponents: [{ type: InterpolationComponent, data: { } }],
   clientComponents: [],
   serverComponents: [],
   onAfterCreate: [
     {
       behavior: initializeGolfBall,
-      networked: true 
+      networked: true
     }
   ],
   onBeforeDestroy: []

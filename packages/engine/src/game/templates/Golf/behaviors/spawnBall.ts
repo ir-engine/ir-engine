@@ -5,11 +5,11 @@ import { createGolfBallPrefab } from '../prefab/GolfBallPrefab';
 import { Network } from '../../../../networking/classes/Network';
 import { isClient } from '../../../../common/functions/isClient';
 import { GamePlayer } from '../../../components/GamePlayer';
+import { getEntityArrFromRole } from '../../../functions/functions';
 import { Game } from '../../../components/Game';
 import { MathUtils } from 'three';
 import { GolfPrefabTypes } from '../GolfGameConstants';
-import { addStateComponent } from '../../../functions/functionsState';
-import { YourTurn } from '../components/YourTurnTagComponent';
+import { TransformComponent } from "../../../../transform/components/TransformComponent";
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -25,11 +25,11 @@ export const spawnBall = (playerEntity: Entity): void => {
   // console.log(ownerId, 'ball exists', game.gameObjects['GolfBall'].length > 0)
 
   // if a ball already exists in the world, it obviously isn't our turn
-  if(game.gameObjects['GolfBall'].length > 0) return;
-  
-  const playerHasBall = game.gameObjects['GolfBall'].filter((entity) => {
-    return getComponent(entity, NetworkObject)?.ownerId === ownerId;
-  }).length > 0;
+  if (game.gameObjects['GolfBall'].length > 0) return;
+
+  const playerHasBall = game.gameObjects['GolfBall']
+    .filter((entity) => getComponent(entity, NetworkObject)?.ownerId === ownerId)
+    .length > 0;
 
 
   // console.log(ownerId, 'playerHasBall', playerHasBall)
@@ -38,12 +38,20 @@ export const spawnBall = (playerEntity: Entity): void => {
   if(playerHasBall) return;
 
   console.log('making ball for player', ownerId)
-  
+
   const networkId = Network.getNetworkId();
   const uuid = MathUtils.generateUUID();
+  // send position to spawn
+  // now we have just one location
+  // but soon
+  const teeEntity = game.gameObjects['GolfTee'][0]
+  console.warn(game.gameObjects);
+  const teeTransform = getComponent(teeEntity, TransformComponent);
 
   const parameters = {
     gameName: game.name,
+    role: 'GolfBall',
+    spawnPosition: { x: teeTransform.position.x, y: teeTransform.position.y, z: teeTransform.position.z},
     uuid
   };
 
