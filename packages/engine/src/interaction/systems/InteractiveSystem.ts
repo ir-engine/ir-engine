@@ -91,9 +91,7 @@ export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityV
 
     if (interactable.data.interactionType === "gameobject") {
       if (interactionFunction) {
-        console.warn('interactionFunction');
         if (interactionCheck) {
-          console.warn(focusedArrays[0][0]);
           addActionComponent(focusedArrays[0][0], HaveBeenInteracted, { args, entityNetworkId: getComponent(entity, NetworkObject).networkId });
         }
       } else {

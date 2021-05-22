@@ -31,7 +31,6 @@ export const getUuid = (entity: Entity) => {
   return hasComponent(entity, GameObject) ? getComponent(entity, GameObject).uuid : getComponent(entity, GamePlayer).uuid;
 };
 
-//console.warn('giveOpenOrCloseState, you must give argument on: me, or on: target');
 export const getTargetEntity = (entity: Entity, entityTarget: Entity, args: any) => {
   if (args === undefined || args.on === undefined || args.on === 'me') {
     return entity;

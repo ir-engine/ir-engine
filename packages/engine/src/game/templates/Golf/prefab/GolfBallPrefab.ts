@@ -24,8 +24,8 @@ import { Interactable } from '../../../../interaction/components/Interactable';
  */
 
 export const initializeGolfBall = (entity: Entity) => {
-  const teeTransform = getComponent(entity, TransformComponent);
-
+  // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
+  const transform = getComponent(entity, TransformComponent);
   AssetLoader.load({
     url: Engine.publicPath + '/models/golf/golf_ball.glb',
     entity,
@@ -45,7 +45,7 @@ export const initializeGolfBall = (entity: Entity) => {
     shapes: [shape],
     type:  BodyType.DYNAMIC,
     transform: {
-      translation: { x: teeTransform.position.x, y: teeTransform.position.y, z: teeTransform.position.z }
+      translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
     }
   }));
 
@@ -72,6 +72,12 @@ export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: numbe
             role: 'GolfBall', // TODO: make this a constant
             uuid: args.parameters.uuid
           }
+        },
+        {
+          type: TransformComponent,
+          data: {
+            position: new Vector3(args.parameters.spawnPosition.x, args.parameters.spawnPosition.y, args.parameters.spawnPosition.z)
+          }
         }
       ]
     }
@@ -94,7 +100,7 @@ export const GolfBallPrefab: NetworkPrefab = {
   // These will be created for all players on the network
   networkComponents: [
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
-    { type: TransformComponent, data: { position: new Vector3(4.166, -0.05, -7.9) } },
+    { type: TransformComponent },
     { type: ColliderComponent },
     { type: Interactable, data: interactiveData },
     { type: RigidBodyComponent },

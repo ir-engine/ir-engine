@@ -5,9 +5,11 @@ import { createGolfBallPrefab } from '../prefab/GolfBallPrefab';
 import { Network } from '../../../../networking/classes/Network';
 import { isClient } from '../../../../common/functions/isClient';
 import { GamePlayer } from '../../../components/GamePlayer';
+import { getEntityArrFromRole } from '../../../functions/functions';
 import { Game } from '../../../components/Game';
 import { MathUtils } from 'three';
 import { GolfPrefabTypes } from '../GolfGameConstants';
+import { TransformComponent } from "../../../../transform/components/TransformComponent";
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -18,14 +20,16 @@ export const spawnBall = (playerEntity: Entity): void => {
   if (isClient) return;
 
   const game = getComponent(playerEntity, GamePlayer).game as Game;
-
+  const teeEntity = getEntityArrFromRole(game, 'GolfTee')[0];
+  const teeTransform = getComponent(teeEntity, TransformComponent);
   const ownerId = getComponent(playerEntity, NetworkObject).ownerId;
-
+  console.warn( teeTransform.position);
   const networkId = Network.getNetworkId();
   const uuid = MathUtils.generateUUID();
 
   const parameters = {
     game: game.name,
+    spawnPosition: { x: teeTransform.position.x, y: teeTransform.position.y, z: teeTransform.position.z},
     uuid
   }
 
