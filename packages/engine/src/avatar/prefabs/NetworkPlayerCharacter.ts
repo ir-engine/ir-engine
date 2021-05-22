@@ -238,6 +238,15 @@ export function createNetworkPlayer(args: { ownerId: string | number, networkId?
 		}
 	}
 	);
+  if (!isClient) {
+    Network.instance.createObjects.push({
+        networkId: networkComponent.networkId,
+        ownerId: networkComponent.ownerId,
+        prefabType: PrefabType.Player,
+        uniqueId: networkComponent.uniqueId,
+        parameters: ''
+    });
+  }
 	return networkComponent;
 }
 
@@ -249,7 +258,7 @@ export const characterInterpolationSchema: InterpolationInterface = {
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkPlayerCharacter: NetworkPrefab = {
-  initialize: createNetworkPlayer,
+  	initialize: createNetworkPlayer,
 	// These will be created for all players on the network
 	networkComponents: [
 		// ActorComponent has values like movement speed, deceleration, jump height, etc
