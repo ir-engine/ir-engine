@@ -55,7 +55,7 @@ const useStyle = makeStyles({
 
 const Alert = (props) => {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
-}
+};
 
 interface Props {
     open: boolean;
@@ -63,8 +63,6 @@ interface Props {
     adminState?: any;
     createUserAction?: any;
     authState?: any;
-    editing: boolean;
-    userEdit: any;
     patchUser?: any;
     fetchUserRole?: any;
     fetchAdminInstances?: any;
@@ -108,7 +106,8 @@ const CreateUser = (props: Props) => {
         const fetchData = async () => {
             await fetchUserRole();
         };
-        if ((adminState.get('users').get('updateNeeded') === true) && user.id) fetchData();
+        const role = userRole ? userRole.get('updateNeeded') : false;
+        if ((role === true) && user.id) fetchData();
 
         if (user.id && adminInstances.get("updateNeeded")) {
             fetchAdminInstances();
@@ -119,7 +118,7 @@ const CreateUser = (props: Props) => {
         }
     }, [adminState, user]);
 
-    const defaultProps = {
+    const userRoleProps = {
         options: userRoleData,
         getOptionLabel: (option: any) => option.role,
     };
@@ -157,14 +156,14 @@ const CreateUser = (props: Props) => {
         validationSchema: validationSchema,
         onSubmit: async (values, { resetForm }) => {
             if (!status) {
-                setWarning("Please select user role from the list")
-                setSnackOpen(true)
-            } else if(!instance) {
-                setWarning("Please select Instance from the list")
-                setSnackOpen(true)
-            } else if(!party){
-                setWarning("Please select Party from the list")
-                setSnackOpen(true)
+                setWarning("Please select user role from the list");
+                setSnackOpen(true);
+            } else if (!instance) {
+                setWarning("Please select Instance from the list");
+                setSnackOpen(true);
+            } else if (!party) {
+                setWarning("Please select Party from the list");
+                setSnackOpen(true);
             } else {
                 const data = {
                     name: values.name,
@@ -238,8 +237,14 @@ const CreateUser = (props: Props) => {
                         />
 
                         <Autocomplete
-                            onChange={(e, newValue) => setStatus(newValue.role as string)}
-                            {...defaultProps}
+                            onChange={(e, newValue) => {
+                                if (newValue) {
+                                    setStatus(newValue.role as string);
+                                } else {
+                                    setStatus("");
+                                }
+                            }}
+                            {...userRoleProps}
                             id="debug"
                             debug
                             renderInput={(params) => <TextField {...params} label="User Role" className={classes.marginBottm} />}
@@ -248,7 +253,13 @@ const CreateUser = (props: Props) => {
                         <DialogContentText className={classes.marginBottm}>  Don't see user role? <a href="#h" className={classes.textLink} onClick={createUserRole}>Create One</a>  </DialogContentText>
 
                         <Autocomplete
-                            onChange={(e, newValue) => setInstance(newValue.id as string)}
+                            onChange={(e, newValue) => {
+                                if (newValue) {
+                                    setInstance(newValue.id as string);
+                                } else {
+                                    setInstance("");
+                                }
+                            }}
                             {...InstanceProps}
                             id="debug"
                             debug
@@ -258,7 +269,13 @@ const CreateUser = (props: Props) => {
                         <DialogContentText className={classes.marginBottm}>  Don't see Instance? <a href="/admin/instance" className={classes.textLink}>Create One</a>  </DialogContentText>
 
                         <Autocomplete
-                            onChange={(e, newValue) => setParty(newValue.id as string)}
+                            onChange={(e, newValue) => {
+                                if (newValue) {
+                                    setParty(newValue.id as string);
+                                } else {
+                                    setParty("");
+                                }
+                            }}
                             {...PartyProps}
                             id="debug"
                             debug

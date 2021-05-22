@@ -100,9 +100,6 @@ function InstanceConsole(props: Props) {
     const [instanceModalOpen, setInstanceModalOpen] = useState(false);
     const adminInstances = adminState.get('instances').get('instances');
 
-    console.log('====================================');
-    console.log(adminState);
-    console.log('====================================');
 
     const headCells = {
         instances: [

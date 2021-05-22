@@ -16,6 +16,7 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
+import ViewUser from "./ViewUser";
 
 interface Column {
     id: 'name' | 'avatar' | 'status' | 'location' | 'inviteCode' | 'instanceId' | 'action';
@@ -60,6 +61,8 @@ const columns: Column[] = [
 ];
 
 interface Data {
+    id: string;
+    user: any;
     name: string;
     avatar: string;
     status: string;
@@ -109,6 +112,8 @@ const UserTable = (props: Props) => {
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [popConfirmOpen, setPopConfirmOpen] = React.useState(false);
     const [userId, setUserId] = React.useState("");
+    const [viewModel, setViewModel] = React.useState(false);
+    const [userAdmin, setUserAdmin] = React.useState("");
 
     const user = authState.get("user");
     const adminUsers = adminState.get("users").get("users");
@@ -129,9 +134,25 @@ const UserTable = (props: Props) => {
 
     }, [adminState, user, fetchUsersAsAdmin]);
 
+    const openViewModel = ( open: boolean, user: any) => 
+    (
+        event: React.KeyboardEvent | React.MouseEvent,
+      ) => {
+        if (
+          event.type === 'keydown' &&
+          ((event as React.KeyboardEvent).key === 'Tab' ||
+            (event as React.KeyboardEvent).key === 'Shift')
+        ) {
+          return;
+        }
+        setUserAdmin(user);
+        setViewModel(open);
+      };
 
-    const createData = (id: any, name: string, avatar: string, status: string, location: string, inviteCode: string, instanceId: string): Data => {
+    const createData = (id: any, user: any,  name: string, avatar: string, status: string, location: string, inviteCode: string, instanceId: string): Data => {
         return {
+            id,
+            user,
             name,
             avatar,
             status,
@@ -140,8 +161,8 @@ const UserTable = (props: Props) => {
             instanceId,
             action: (
                 <>
-                    <a href="#h" className={classes.actionStyle}> View </a>
-                    <a href="#h" className={classes.actionStyle} onClick={() => { setPopConfirmOpen(true); setUserId(id) }}> Delete </a>
+                    <a href="#h" className={classes.actionStyle} onClick={ openViewModel(true, user) }> View </a>
+                    <a href="#h" className={classes.actionStyle} onClick={() => { setPopConfirmOpen(true); setUserId(id); }}> Delete </a>
                 </>
             )
         };
@@ -153,8 +174,9 @@ const UserTable = (props: Props) => {
         const ins = el.party.id ? el.party.instance : null;
         const inst = ins ? ins.ipAddress || "" : "";
 
-        return createData(el.id, el.name, el.avatarId || "", el.userRole, loca, el.inviteCode || "", inst);
+        return createData(el.id, el, el.name, el.avatarId || "", el.userRole, loca, el.inviteCode || "", inst);
     });
+
 
     return (
         <div className={classes.root}>
@@ -174,7 +196,7 @@ const UserTable = (props: Props) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                        {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row, id) => {
                             return (
                                 <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                                     {columns.map((column) => {
@@ -211,11 +233,16 @@ const UserTable = (props: Props) => {
                     <Button onClick={() => setPopConfirmOpen(false)}  color="primary">
                         Cancel
                     </Button>
-                    <Button  color="primary" onClick={async () => { await removeUserAdmin(userId); setPopConfirmOpen(false) }} autoFocus>
+                    <Button  color="primary" onClick={async () => { await removeUserAdmin(userId); setPopConfirmOpen(false); }} autoFocus>
                         Confirm
                     </Button>
                 </DialogActions>
             </Dialog>
+            <ViewUser
+              open={viewModel}
+              handleClose={openViewModel}
+              userAdmin={userAdmin}
+              />
         </div>
     );
 };

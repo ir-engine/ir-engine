@@ -5,7 +5,7 @@ import Button from '@material-ui/core/Button';
 // @ts-ignore
 import styles from '../Admin.module.scss';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import IntanceTable from './IntanceTable';
+import InstanceTable from './InstanceTable';
 import CreateInstance from "./CreateInstance";
 
 
@@ -48,7 +48,7 @@ const Instance = () => {
                 </Grid>
             </Grid>
             
-           <IntanceTable/>
+           <InstanceTable/>
 
            <CreateInstance
                     open={instanceModelOpen}

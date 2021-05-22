@@ -46,17 +46,15 @@ const useStyles = makeStyles((theme: Theme) =>
     })
 );
 const createUser = (props: Props) => {
-    const { open,  handleClose, adminState, createUserRoleAction } = props;
+    const { open,  handleClose, createUserRoleAction } = props;
     const classes = useStyles();
     const [role, setRole] = React.useState('');
-    
-    const userRole = adminState.get("userRole");
-    const userRoleData = userRole ? userRole.get("userRole") : [];
 
 
     const createUserRole = async () => {
         await createUserRoleAction({ role });
         handleClose();
+        setRole("");
     };
 
 

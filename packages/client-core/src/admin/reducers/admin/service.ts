@@ -45,7 +45,6 @@ export function createVideo(data: VideoCreationForm) {
       dispatchAlertSuccess(dispatch, 'Video uploaded');
       dispatch(videoCreated(result));
     } catch (err) {
-      console.log(err);
       dispatchAlertError(dispatch, 'Video upload error: ' + err.response.data.message);
     }
   };
@@ -185,7 +184,6 @@ export function patchUser(id: string, user: any) {
       const result = await client.service('user').patch(id, user);
       dispatch(userPatched(result));
     } catch (error) {
-      console.log(error);
       dispatchAlertError(dispatch, error.message);
     }
   };
@@ -235,7 +233,6 @@ export function patchLocation(id: string, location: any) {
       const result = await client.service('location').patch(id, location);
       dispatch(locationPatched(result));
     } catch (err) {
-      console.log(err);
       dispatchAlertError(dispatch, err.message);
     }
   };
@@ -296,7 +293,6 @@ export const createAdminParty = (data) => {
       const result = await client.service("party").create(data);
       dispatch(partyAdminCreated(result));
     } catch (err) {
-      console.log(err);
       dispatchAlertError(dispatch, err.message);
     }
   };

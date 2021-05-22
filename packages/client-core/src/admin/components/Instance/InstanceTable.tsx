@@ -92,7 +92,7 @@ const useStyles = makeStyles({
  * @returns DOM Element
  * @author KIMENYI Kevin
  */
-const IntanceTable = (props: Props) => {
+const InstanceTable = (props: Props) => {
     const { fetchAdminInstances, adminState, authState } = props;
     const classes = useStyles();
     const [page, setPage] = React.useState(0);
@@ -183,4 +183,4 @@ const IntanceTable = (props: Props) => {
 };
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(IntanceTable);
+export default connect(mapStateToProps, mapDispatchToProps)(InstanceTable);

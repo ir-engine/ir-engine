@@ -222,9 +222,6 @@ const UserConsole = (props: Props) => {
     const [open, setOpen] = React.useState(false);
 
     const adminUsers = adminState.get('users').get('users');
-    console.log('====================================');
-    console.log(adminUsers);
-    console.log('====================================');
     const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
         const isAsc = orderBy === property && order === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');

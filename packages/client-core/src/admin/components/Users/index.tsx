@@ -10,14 +10,7 @@ import styles from '../Admin.module.scss';
 import Button from '@material-ui/core/Button';
 import UserModel from "./CreateUser";
 import UserTable from "./UserTable";
-import { connect } from "react-redux";
-import { selectAdminState } from "../../reducers/admin/selector";
-import { selectAuthState } from "../../../user/reducers/auth/selector";
-import { bindActionCreators, Dispatch } from "redux";
-import { fetchUsersAsAdmin, fetchAdminLocations, fetchUserRole  } from "../../reducers/admin/service";
-import { withApi } from "../../../world/components/editor/contexts/ApiContext";
-import Api from "../../../world/components/editor/Api";
-import { selectAppState } from '../../../common/reducers/app/selector';
+
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -25,24 +18,6 @@ interface TabPanelProps {
     value: any;
 }
 
-interface Props {
-    adminState?: any;
-    authState?: any;
-    api?: Api;
-}
-
-const mapStateToProps = (state: any): any => {
-    return {
-        appState: selectAppState(state),
-        adminState: selectAdminState(state),
-        authState: selectAuthState(state),
-    };
-};
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
-    fetchUsersAsAdmin: bindActionCreators(fetchUsersAsAdmin, dispatch),
-    fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
-});
 
 const TabPanel = (props: TabPanelProps) => {
     const { children, value, index, ...other } = props;
@@ -82,36 +57,11 @@ const useStyles = makeStyles((theme: Theme) => ({
     }
 }));
 
-const Users = (props: Props) => {
-    const { api, adminState, authState } = props;
+const Users = () => {
     const classes = useStyles();
-    const initialUser = {
-        id: null,
-        name: '',
-        avatarId: ''
-    };
     const [value, setValue] = React.useState(0);
-    const [userEditing, setUserEditing] = React.useState(false);
     const [userModalOpen, setUserModalOpen] = React.useState(false);
-    const [userEdit, setUserEdit] = React.useState(initialUser);
-    const [projects, setProjects] = React.useState([{ name: "All Users", project_id: "001"}]);
 
-    const adminLocations = adminState.get('locations').get('locations');
-    const authUser = authState.get("authUser");
-
-
-
-    // React.useEffect(()=> {
-    //     if(authUser?.accessToken != null && authUser.accessToken.length > 0 && user?.id != null) {
-    //        api.getProjects()
-    //           .then(project => {
-    //              setProjects([...projects ,...project]);
-    //           })
-    //           .catch(error => {
-    //               console.error(error);                 
-    //           });
-    //     }
-    // }, [authUser, user]);
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         setValue(newValue);
@@ -129,8 +79,8 @@ const Users = (props: Props) => {
           return;
         }
         setUserModalOpen(open);
-        setUserEditing(false);
       };
+
 
     return (
         <div>
@@ -160,9 +110,7 @@ const Users = (props: Props) => {
                     scrollButtons="auto"
                     aria-label="scrollable auto tabs example"
                 >
-                    {
-                       projects.map(el => <Tab  label={el.name} {...a11yProps(el.project_id)} />)
-                    }
+                    <Tab  label="USERS" {...a11yProps(0)} />
                 </Tabs>
                 <TabPanel value={value} index={0}>
                   <UserTable />
@@ -172,11 +120,9 @@ const Users = (props: Props) => {
             <UserModel
                 open={userModalOpen}
                 handleClose={openModalCreate}
-                editing={userEditing}
-                userEdit={userEdit}
             />
         </div>
     );
 };
 
-export default withApi(connect(mapStateToProps, mapDispatchToProps)(Users));
+export default Users;
