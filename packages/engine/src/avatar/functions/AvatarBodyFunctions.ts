@@ -2,18 +2,15 @@ import { VRMSpringBoneImporter } from "@pixiv/three-vrm";
 import { Bone, Euler, Matrix4, Object3D, Quaternion, Scene, Vector3 } from 'three';
 import { Entity } from "../../ecs/classes/Entity";
 import { addComponent, getComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
-import Arm from '../components/Arm';
-import { AvatarLegs } from "../components/AvatarLegs";
-import AvatarShoulders from '../components/AvatarShoulders';
-import LeftArm from '../components/LeftArm';
-import { LeftLeg } from '../components/LeftLeg';
-import LeftXRArmIK from '../components/LeftXRArmIK';
-import { Leg } from '../components/Leg';
-import RightArm from '../components/RightArm';
-import { RightLeg } from '../components/RightLeg';
-import RightXRArmIK from '../components/RightXRArmIK';
-import XRArmIK from '../components/XRArmIK';
-import { XRAvatarRig } from "../components/XRAvatarRig";
+import Arm from '../components/IKArm';
+import IKArmLeft from '../components/IKArmLeft';
+import IKArmRight from '../components/IKArmRight';
+import { IKAvatarLegs } from "../components/IKAvatarLegs";
+import { IKAvatarRig } from "../components/IKAvatarRig";
+import IKAvatarShoulders from '../components/IKAvatarShoulders';
+import { Leg } from '../components/IKLeg';
+import { LeftLeg } from '../components/IKLegLeft';
+import { RightLeg } from '../components/IKLegRight';
 import XRPose from "../components/XRPose";
 import skeletonString from '../constants/Skeleton';
 import { Side } from '../enums/Side';
@@ -94,7 +91,7 @@ const _makeFingers = () => {
 };
 
 export const initializeAvatarRig = (entity) => {
-  const avatarRig = getMutableComponent(entity, XRAvatarRig);
+  const avatarRig = getMutableComponent(entity, IKAvatarRig);
   avatarRig.options = { top: true, bottom: true, visemes: true, hair: true, fingers: true }
   const model = (() => {
     let o = avatarRig.object;
@@ -571,64 +568,63 @@ export const initializeAvatarRig = (entity) => {
 
 
   addComponent(entity, XRPose);
-  avatarRig.pose = getComponent(entity, XRPose);
+  const pose = getMutableComponent(entity, XRPose);
 
-  avatarRig.pose.head = new Object3D();
-  avatarRig.pose.leftHand = new Object3D();
-  avatarRig.pose.leftHand.pointer = 0;
-  avatarRig.pose.leftHand.grip = 0;
-  avatarRig.pose.leftHand.fingers = _makeFingers();
-  avatarRig.pose.leftHand.leftThumb0 = avatarRig.pose.leftHand.fingers[1];
-  avatarRig.pose.leftHand.leftThumb1 = avatarRig.pose.leftHand.fingers[2];
-  avatarRig.pose.leftHand.leftThumb2 = avatarRig.pose.leftHand.fingers[3];
-  avatarRig.pose.leftHand.leftIndexFinger1 = avatarRig.pose.leftHand.fingers[6];
-  avatarRig.pose.leftHand.leftIndexFinger2 = avatarRig.pose.leftHand.fingers[7];
-  avatarRig.pose.leftHand.leftIndexFinger3 = avatarRig.pose.leftHand.fingers[8];
-  avatarRig.pose.leftHand.leftMiddleFinger1 = avatarRig.pose.leftHand.fingers[11];
-  avatarRig.pose.leftHand.leftMiddleFinger2 = avatarRig.pose.leftHand.fingers[12];
-  avatarRig.pose.leftHand.leftMiddleFinger3 = avatarRig.pose.leftHand.fingers[13];
-  avatarRig.pose.leftHand.leftRingFinger1 = avatarRig.pose.leftHand.fingers[16];
-  avatarRig.pose.leftHand.leftRingFinger2 = avatarRig.pose.leftHand.fingers[17];
-  avatarRig.pose.leftHand.leftRingFinger3 = avatarRig.pose.leftHand.fingers[18];
-  avatarRig.pose.leftHand.leftLittleFinger1 = avatarRig.pose.leftHand.fingers[21];
-  avatarRig.pose.leftHand.leftLittleFinger2 = avatarRig.pose.leftHand.fingers[22];
-  avatarRig.pose.leftHand.leftLittleFinger3 = avatarRig.pose.leftHand.fingers[23];
+  pose.head = new Object3D();
+  pose.leftHand = new Object3D();
+  pose.leftHand.pointer = 0;
+  pose.leftHand.grip = 0;
+  pose.leftHand.fingers = _makeFingers();
+  pose.leftHand.leftThumb0 = pose.leftHand.fingers[1];
+  pose.leftHand.leftThumb1 = pose.leftHand.fingers[2];
+  pose.leftHand.leftThumb2 = pose.leftHand.fingers[3];
+  pose.leftHand.leftIndexFinger1 = pose.leftHand.fingers[6];
+  pose.leftHand.leftIndexFinger2 = pose.leftHand.fingers[7];
+  pose.leftHand.leftIndexFinger3 = pose.leftHand.fingers[8];
+  pose.leftHand.leftMiddleFinger1 = pose.leftHand.fingers[11];
+  pose.leftHand.leftMiddleFinger2 = pose.leftHand.fingers[12];
+  pose.leftHand.leftMiddleFinger3 = pose.leftHand.fingers[13];
+  pose.leftHand.leftRingFinger1 = pose.leftHand.fingers[16];
+  pose.leftHand.leftRingFinger2 = pose.leftHand.fingers[17];
+  pose.leftHand.leftRingFinger3 = pose.leftHand.fingers[18];
+  pose.leftHand.leftLittleFinger1 = pose.leftHand.fingers[21];
+  pose.leftHand.leftLittleFinger2 = pose.leftHand.fingers[22];
+  pose.leftHand.leftLittleFinger3 = pose.leftHand.fingers[23];
 
-  avatarRig.pose.rightHand = new Object3D();
-  avatarRig.pose.rightHand.pointer = 0;
-  avatarRig.pose.rightHand.grip = 0;
-  avatarRig.pose.rightHand.fingers = _makeFingers();
-  avatarRig.pose.rightHand.rightThumb0 = avatarRig.pose.rightHand.fingers[1];
-  avatarRig.pose.rightHand.rightThumb1 = avatarRig.pose.rightHand.fingers[2];
-  avatarRig.pose.rightHand.rightThumb2 = avatarRig.pose.rightHand.fingers[3];
-  avatarRig.pose.rightHand.rightIndexFinger1 = avatarRig.pose.rightHand.fingers[6];
-  avatarRig.pose.rightHand.rightIndexFinger2 = avatarRig.pose.rightHand.fingers[7];
-  avatarRig.pose.rightHand.rightIndexFinger3 = avatarRig.pose.rightHand.fingers[8];
-  avatarRig.pose.rightHand.rightMiddleFinger1 = avatarRig.pose.rightHand.fingers[11];
-  avatarRig.pose.rightHand.rightMiddleFinger2 = avatarRig.pose.rightHand.fingers[12];
-  avatarRig.pose.rightHand.rightMiddleFinger3 = avatarRig.pose.rightHand.fingers[13];
-  avatarRig.pose.rightHand.rightRingFinger1 = avatarRig.pose.rightHand.fingers[16];
-  avatarRig.pose.rightHand.rightRingFinger2 = avatarRig.pose.rightHand.fingers[17];
-  avatarRig.pose.rightHand.rightRingFinger3 = avatarRig.pose.rightHand.fingers[18];
-  avatarRig.pose.rightHand.rightLittleFinger1 = avatarRig.pose.rightHand.fingers[21];
-  avatarRig.pose.rightHand.rightLittleFinger2 = avatarRig.pose.rightHand.fingers[22];
-  avatarRig.pose.rightHand.rightLittleFinger3 = avatarRig.pose.rightHand.fingers[23];
+  pose.rightHand = new Object3D();
+  pose.rightHand.pointer = 0;
+  pose.rightHand.grip = 0;
+  pose.rightHand.fingers = _makeFingers();
+  pose.rightHand.rightThumb0 = pose.rightHand.fingers[1];
+  pose.rightHand.rightThumb1 = pose.rightHand.fingers[2];
+  pose.rightHand.rightThumb2 = pose.rightHand.fingers[3];
+  pose.rightHand.rightIndexFinger1 = pose.rightHand.fingers[6];
+  pose.rightHand.rightIndexFinger2 = pose.rightHand.fingers[7];
+  pose.rightHand.rightIndexFinger3 = pose.rightHand.fingers[8];
+  pose.rightHand.rightMiddleFinger1 = pose.rightHand.fingers[11];
+  pose.rightHand.rightMiddleFinger2 = pose.rightHand.fingers[12];
+  pose.rightHand.rightMiddleFinger3 = pose.rightHand.fingers[13];
+  pose.rightHand.rightRingFinger1 = pose.rightHand.fingers[16];
+  pose.rightHand.rightRingFinger2 = pose.rightHand.fingers[17];
+  pose.rightHand.rightRingFinger3 = pose.rightHand.fingers[18];
+  pose.rightHand.rightLittleFinger1 = pose.rightHand.fingers[21];
+  pose.rightHand.rightLittleFinger2 = pose.rightHand.fingers[22];
+  pose.rightHand.rightLittleFinger3 = pose.rightHand.fingers[23];
 
-  avatarRig.pose.floorHeight = 0;
+  pose.floorHeight = 0;
 
-  avatarRig.pose.vrTransforms = getComponent(entity, avatarRig.pose);
   // Oculus uses a different reference position -> 0 is the reference head position if the user is standing in the middle of the room. 
   // In OpenVR, the 0 position is the ground position and the user is then at (0, playerHeightHmd, 0) if he is in the middle of the room, so I need to correct this for shoulder calculation 
   // this.vrSystemOffsetHeight = 0.0;
-  avatarRig.pose.referencePlayerHeightHmd = 1.7;
-  avatarRig.pose.referencePlayerWidthWrist = 1.39;
-  avatarRig.pose.playerHeightHmd = 1.70;
-  avatarRig.pose.playerWidthWrist = 1.39;
-  avatarRig.pose
-  addComponent(entity, AvatarShoulders);
-  avatarRig.shoulderTransforms = getComponent(entity, AvatarShoulders);
+  pose.referencePlayerHeightHmd = 1.7;
+  pose.referencePlayerWidthWrist = 1.39;
+  pose.playerHeightHmd = 1.70;
+  pose.playerWidthWrist = 1.39;
+  pose
+  addComponent(entity, IKAvatarShoulders);
 
-  avatarRig.avatarLegs = addComponent(entity, AvatarLegs);
+  addComponent(entity, IKAvatarLegs);
+  const avatarLegs = getMutableComponent(entity, IKAvatarLegs);
 
   const fingerBoneMap = {
     left: [
@@ -680,66 +676,68 @@ export const initializeAvatarRig = (entity) => {
 
   const _getOffset = (bone, parent = bone.parent) => bone.getWorldPosition(new Vector3()).sub(parent.getWorldPosition(new Vector3()));
 
-  avatarRig.shoulderTransforms.spine.position.copy(_getOffset(modelBones.Spine));
-  avatarRig.shoulderTransforms.transform.position.copy(_getOffset(modelBones.Chest, modelBones.Spine));
-  avatarRig.shoulderTransforms.neck.position.copy(_getOffset(modelBones.Neck));
-  avatarRig.shoulderTransforms.head.position.copy(_getOffset(modelBones.Head));
-  avatarRig.shoulderTransforms.eyes.position.copy(eyePosition.clone().sub(Head.getWorldPosition(new Vector3())));
+  const avatarShoulders = getMutableComponent(entity, IKAvatarShoulders)
 
-  avatarRig.shoulderTransforms.leftShoulderAnchor.position.copy(_getOffset(modelBones.Left_shoulder));
-  avatarRig.shoulderTransforms.leftArm.upperArm.position.copy(_getOffset(modelBones.Left_arm));
-  avatarRig.shoulderTransforms.leftArm.lowerArm.position.copy(_getOffset(modelBones.Left_elbow));
-  avatarRig.shoulderTransforms.leftArm.hand.position.copy(_getOffset(modelBones.Left_wrist));
-  avatarRig.shoulderTransforms.leftArm.thumb2.position.copy(_getOffset(modelBones.Left_thumb2));
-  avatarRig.shoulderTransforms.leftArm.thumb1.position.copy(_getOffset(modelBones.Left_thumb1));
-  avatarRig.shoulderTransforms.leftArm.thumb0.position.copy(_getOffset(modelBones.Left_thumb0));
-  avatarRig.shoulderTransforms.leftArm.indexFinger3.position.copy(_getOffset(modelBones.Left_indexFinger3));
-  avatarRig.shoulderTransforms.leftArm.indexFinger2.position.copy(_getOffset(modelBones.Left_indexFinger2));
-  avatarRig.shoulderTransforms.leftArm.indexFinger1.position.copy(_getOffset(modelBones.Left_indexFinger1));
-  avatarRig.shoulderTransforms.leftArm.middleFinger3.position.copy(_getOffset(modelBones.Left_middleFinger3));
-  avatarRig.shoulderTransforms.leftArm.middleFinger2.position.copy(_getOffset(modelBones.Left_middleFinger2));
-  avatarRig.shoulderTransforms.leftArm.middleFinger1.position.copy(_getOffset(modelBones.Left_middleFinger1));
-  avatarRig.shoulderTransforms.leftArm.ringFinger3.position.copy(_getOffset(modelBones.Left_ringFinger3));
-  avatarRig.shoulderTransforms.leftArm.ringFinger2.position.copy(_getOffset(modelBones.Left_ringFinger2));
-  avatarRig.shoulderTransforms.leftArm.ringFinger1.position.copy(_getOffset(modelBones.Left_ringFinger1));
-  avatarRig.shoulderTransforms.leftArm.littleFinger3.position.copy(_getOffset(modelBones.Left_littleFinger3));
-  avatarRig.shoulderTransforms.leftArm.littleFinger2.position.copy(_getOffset(modelBones.Left_littleFinger2));
-  avatarRig.shoulderTransforms.leftArm.littleFinger1.position.copy(_getOffset(modelBones.Left_littleFinger1));
+  avatarShoulders.spine.position.copy(_getOffset(modelBones.Spine));
+  avatarShoulders.transform.position.copy(_getOffset(modelBones.Chest, modelBones.Spine));
+  avatarShoulders.neck.position.copy(_getOffset(modelBones.Neck));
+  avatarShoulders.head.position.copy(_getOffset(modelBones.Head));
+  avatarShoulders.eyes.position.copy(eyePosition.clone().sub(Head.getWorldPosition(new Vector3())));
 
-  avatarRig.shoulderTransforms.rightShoulderAnchor.position.copy(_getOffset(modelBones.Right_shoulder));
-  avatarRig.shoulderTransforms.rightArm.upperArm.position.copy(_getOffset(modelBones.Right_arm));
-  avatarRig.shoulderTransforms.rightArm.lowerArm.position.copy(_getOffset(modelBones.Right_elbow));
-  avatarRig.shoulderTransforms.rightArm.hand.position.copy(_getOffset(modelBones.Right_wrist));
-  avatarRig.shoulderTransforms.rightArm.thumb2.position.copy(_getOffset(modelBones.Right_thumb2));
-  avatarRig.shoulderTransforms.rightArm.thumb1.position.copy(_getOffset(modelBones.Right_thumb1));
-  avatarRig.shoulderTransforms.rightArm.thumb0.position.copy(_getOffset(modelBones.Right_thumb0));
-  avatarRig.shoulderTransforms.rightArm.indexFinger3.position.copy(_getOffset(modelBones.Right_indexFinger3));
-  avatarRig.shoulderTransforms.rightArm.indexFinger2.position.copy(_getOffset(modelBones.Right_indexFinger2));
-  avatarRig.shoulderTransforms.rightArm.indexFinger1.position.copy(_getOffset(modelBones.Right_indexFinger1));
-  avatarRig.shoulderTransforms.rightArm.middleFinger3.position.copy(_getOffset(modelBones.Right_middleFinger3));
-  avatarRig.shoulderTransforms.rightArm.middleFinger2.position.copy(_getOffset(modelBones.Right_middleFinger2));
-  avatarRig.shoulderTransforms.rightArm.middleFinger1.position.copy(_getOffset(modelBones.Right_middleFinger1));
-  avatarRig.shoulderTransforms.rightArm.ringFinger3.position.copy(_getOffset(modelBones.Right_ringFinger3));
-  avatarRig.shoulderTransforms.rightArm.ringFinger2.position.copy(_getOffset(modelBones.Right_ringFinger2));
-  avatarRig.shoulderTransforms.rightArm.ringFinger1.position.copy(_getOffset(modelBones.Right_ringFinger1));
-  avatarRig.shoulderTransforms.rightArm.littleFinger3.position.copy(_getOffset(modelBones.Right_littleFinger3));
-  avatarRig.shoulderTransforms.rightArm.littleFinger2.position.copy(_getOffset(modelBones.Right_littleFinger2));
-  avatarRig.shoulderTransforms.rightArm.littleFinger1.position.copy(_getOffset(modelBones.Right_littleFinger1));
+  avatarShoulders.leftShoulderAnchor.position.copy(_getOffset(modelBones.Left_shoulder));
+  avatarShoulders.leftArm.upperArm.position.copy(_getOffset(modelBones.Left_arm));
+  avatarShoulders.leftArm.lowerArm.position.copy(_getOffset(modelBones.Left_elbow));
+  avatarShoulders.leftArm.hand.position.copy(_getOffset(modelBones.Left_wrist));
+  avatarShoulders.leftArm.thumb2.position.copy(_getOffset(modelBones.Left_thumb2));
+  avatarShoulders.leftArm.thumb1.position.copy(_getOffset(modelBones.Left_thumb1));
+  avatarShoulders.leftArm.thumb0.position.copy(_getOffset(modelBones.Left_thumb0));
+  avatarShoulders.leftArm.indexFinger3.position.copy(_getOffset(modelBones.Left_indexFinger3));
+  avatarShoulders.leftArm.indexFinger2.position.copy(_getOffset(modelBones.Left_indexFinger2));
+  avatarShoulders.leftArm.indexFinger1.position.copy(_getOffset(modelBones.Left_indexFinger1));
+  avatarShoulders.leftArm.middleFinger3.position.copy(_getOffset(modelBones.Left_middleFinger3));
+  avatarShoulders.leftArm.middleFinger2.position.copy(_getOffset(modelBones.Left_middleFinger2));
+  avatarShoulders.leftArm.middleFinger1.position.copy(_getOffset(modelBones.Left_middleFinger1));
+  avatarShoulders.leftArm.ringFinger3.position.copy(_getOffset(modelBones.Left_ringFinger3));
+  avatarShoulders.leftArm.ringFinger2.position.copy(_getOffset(modelBones.Left_ringFinger2));
+  avatarShoulders.leftArm.ringFinger1.position.copy(_getOffset(modelBones.Left_ringFinger1));
+  avatarShoulders.leftArm.littleFinger3.position.copy(_getOffset(modelBones.Left_littleFinger3));
+  avatarShoulders.leftArm.littleFinger2.position.copy(_getOffset(modelBones.Left_littleFinger2));
+  avatarShoulders.leftArm.littleFinger1.position.copy(_getOffset(modelBones.Left_littleFinger1));
 
-  avatarRig.avatarLegs.leftLeg.upperLeg.position.copy(_getOffset(modelBones.Left_leg));
-  avatarRig.avatarLegs.leftLeg.lowerLeg.position.copy(_getOffset(modelBones.Left_knee));
-  avatarRig.avatarLegs.leftLeg.foot.position.copy(_getOffset(modelBones.Left_ankle));
+  avatarShoulders.rightShoulderAnchor.position.copy(_getOffset(modelBones.Right_shoulder));
+  avatarShoulders.rightArm.upperArm.position.copy(_getOffset(modelBones.Right_arm));
+  avatarShoulders.rightArm.lowerArm.position.copy(_getOffset(modelBones.Right_elbow));
+  avatarShoulders.rightArm.hand.position.copy(_getOffset(modelBones.Right_wrist));
+  avatarShoulders.rightArm.thumb2.position.copy(_getOffset(modelBones.Right_thumb2));
+  avatarShoulders.rightArm.thumb1.position.copy(_getOffset(modelBones.Right_thumb1));
+  avatarShoulders.rightArm.thumb0.position.copy(_getOffset(modelBones.Right_thumb0));
+  avatarShoulders.rightArm.indexFinger3.position.copy(_getOffset(modelBones.Right_indexFinger3));
+  avatarShoulders.rightArm.indexFinger2.position.copy(_getOffset(modelBones.Right_indexFinger2));
+  avatarShoulders.rightArm.indexFinger1.position.copy(_getOffset(modelBones.Right_indexFinger1));
+  avatarShoulders.rightArm.middleFinger3.position.copy(_getOffset(modelBones.Right_middleFinger3));
+  avatarShoulders.rightArm.middleFinger2.position.copy(_getOffset(modelBones.Right_middleFinger2));
+  avatarShoulders.rightArm.middleFinger1.position.copy(_getOffset(modelBones.Right_middleFinger1));
+  avatarShoulders.rightArm.ringFinger3.position.copy(_getOffset(modelBones.Right_ringFinger3));
+  avatarShoulders.rightArm.ringFinger2.position.copy(_getOffset(modelBones.Right_ringFinger2));
+  avatarShoulders.rightArm.ringFinger1.position.copy(_getOffset(modelBones.Right_ringFinger1));
+  avatarShoulders.rightArm.littleFinger3.position.copy(_getOffset(modelBones.Right_littleFinger3));
+  avatarShoulders.rightArm.littleFinger2.position.copy(_getOffset(modelBones.Right_littleFinger2));
+  avatarShoulders.rightArm.littleFinger1.position.copy(_getOffset(modelBones.Right_littleFinger1));
 
-  avatarRig.avatarLegs.rightLeg.upperLeg.position.copy(_getOffset(modelBones.Right_leg));
-  avatarRig.avatarLegs.rightLeg.lowerLeg.position.copy(_getOffset(modelBones.Right_knee));
-  avatarRig.avatarLegs.rightLeg.foot.position.copy(_getOffset(modelBones.Right_ankle));
+  avatarLegs.leftLeg.upperLeg.position.copy(_getOffset(modelBones.Left_leg));
+  avatarLegs.leftLeg.lowerLeg.position.copy(_getOffset(modelBones.Left_knee));
+  avatarLegs.leftLeg.foot.position.copy(_getOffset(modelBones.Left_ankle));
 
-  avatarRig.shoulderTransforms.hips.updateMatrixWorld();
+  avatarLegs.rightLeg.upperLeg.position.copy(_getOffset(modelBones.Right_leg));
+  avatarLegs.rightLeg.lowerLeg.position.copy(_getOffset(modelBones.Right_knee));
+  avatarLegs.rightLeg.foot.position.copy(_getOffset(modelBones.Right_ankle));
+
+  avatarShoulders.hips.updateMatrixWorld();
 
   avatarRig.height = eyePosition.clone().sub(_averagePoint([modelBones.Left_ankle.getWorldPosition(new Vector3()), modelBones.Right_ankle.getWorldPosition(new Vector3())])).y;
   avatarRig.shoulderWidth = modelBones.Left_arm.getWorldPosition(new Vector3()).distanceTo(modelBones.Right_arm.getWorldPosition(new Vector3()));
-  avatarRig.leftArmLength = avatarRig.shoulderTransforms.leftArm.armLength;
-  avatarRig.rightArmLength = avatarRig.shoulderTransforms.rightArm.armLength;
+  avatarRig.leftArmLength = avatarShoulders.leftArm.armLength;
+  avatarRig.rightArmLength = avatarShoulders.rightArm.armLength;
   const indexDistance = modelBones.Left_indexFinger1.getWorldPosition(new Vector3())
     .distanceTo(modelBones.Left_wrist.getWorldPosition(new Vector3()));
   const handWidth = modelBones.Left_indexFinger1.getWorldPosition(new Vector3())
@@ -768,56 +766,56 @@ export const initializeAvatarRig = (entity) => {
   avatarRig.sdkInputs.hmd.scaleFactor = 1;
   avatarRig.lastModelScaleFactor = 1;
   avatarRig.outputs = {
-    eyes: avatarRig.shoulderTransforms.eyes,
-    head: avatarRig.shoulderTransforms.head,
-    hips: avatarRig.avatarLegs.hips,
-    spine: avatarRig.shoulderTransforms.spine,
-    chest: avatarRig.shoulderTransforms.transform,
-    neck: avatarRig.shoulderTransforms.neck,
-    leftShoulder: avatarRig.shoulderTransforms.leftShoulderAnchor,
-    leftUpperArm: avatarRig.shoulderTransforms.leftArm.upperArm,
-    leftLowerArm: avatarRig.shoulderTransforms.leftArm.lowerArm,
-    leftHand: avatarRig.shoulderTransforms.leftArm.hand,
-    rightShoulder: avatarRig.shoulderTransforms.rightShoulderAnchor,
-    rightUpperArm: avatarRig.shoulderTransforms.rightArm.upperArm,
-    rightLowerArm: avatarRig.shoulderTransforms.rightArm.lowerArm,
-    rightHand: avatarRig.shoulderTransforms.rightArm.hand,
-    leftUpperLeg: avatarRig.avatarLegs.leftLeg.upperLeg,
-    leftLowerLeg: avatarRig.avatarLegs.leftLeg.lowerLeg,
-    leftFoot: avatarRig.avatarLegs.leftLeg.foot,
-    rightUpperLeg: avatarRig.avatarLegs.rightLeg.upperLeg,
-    rightLowerLeg: avatarRig.avatarLegs.rightLeg.lowerLeg,
-    rightFoot: avatarRig.avatarLegs.rightLeg.foot,
-    leftThumb2: avatarRig.shoulderTransforms.rightArm.thumb2,
-    leftThumb1: avatarRig.shoulderTransforms.rightArm.thumb1,
-    leftThumb0: avatarRig.shoulderTransforms.rightArm.thumb0,
-    leftIndexFinger3: avatarRig.shoulderTransforms.rightArm.indexFinger3,
-    leftIndexFinger2: avatarRig.shoulderTransforms.rightArm.indexFinger2,
-    leftIndexFinger1: avatarRig.shoulderTransforms.rightArm.indexFinger1,
-    leftMiddleFinger3: avatarRig.shoulderTransforms.rightArm.middleFinger3,
-    leftMiddleFinger2: avatarRig.shoulderTransforms.rightArm.middleFinger2,
-    leftMiddleFinger1: avatarRig.shoulderTransforms.rightArm.middleFinger1,
-    leftRingFinger3: avatarRig.shoulderTransforms.rightArm.ringFinger3,
-    leftRingFinger2: avatarRig.shoulderTransforms.rightArm.ringFinger2,
-    leftRingFinger1: avatarRig.shoulderTransforms.rightArm.ringFinger1,
-    leftLittleFinger3: avatarRig.shoulderTransforms.rightArm.littleFinger3,
-    leftLittleFinger2: avatarRig.shoulderTransforms.rightArm.littleFinger2,
-    leftLittleFinger1: avatarRig.shoulderTransforms.rightArm.littleFinger1,
-    rightThumb2: avatarRig.shoulderTransforms.leftArm.thumb2,
-    rightThumb1: avatarRig.shoulderTransforms.leftArm.thumb1,
-    rightThumb0: avatarRig.shoulderTransforms.leftArm.thumb0,
-    rightIndexFinger3: avatarRig.shoulderTransforms.leftArm.indexFinger3,
-    rightIndexFinger2: avatarRig.shoulderTransforms.leftArm.indexFinger2,
-    rightIndexFinger1: avatarRig.shoulderTransforms.leftArm.indexFinger1,
-    rightMiddleFinger3: avatarRig.shoulderTransforms.leftArm.middleFinger3,
-    rightMiddleFinger2: avatarRig.shoulderTransforms.leftArm.middleFinger2,
-    rightMiddleFinger1: avatarRig.shoulderTransforms.leftArm.middleFinger1,
-    rightRingFinger3: avatarRig.shoulderTransforms.leftArm.ringFinger3,
-    rightRingFinger2: avatarRig.shoulderTransforms.leftArm.ringFinger2,
-    rightRingFinger1: avatarRig.shoulderTransforms.leftArm.ringFinger1,
-    rightLittleFinger3: avatarRig.shoulderTransforms.leftArm.littleFinger3,
-    rightLittleFinger2: avatarRig.shoulderTransforms.leftArm.littleFinger2,
-    rightLittleFinger1: avatarRig.shoulderTransforms.leftArm.littleFinger1,
+    eyes: avatarShoulders.eyes,
+    head: avatarShoulders.head,
+    hips: avatarLegs.hips,
+    spine: avatarShoulders.spine,
+    chest: avatarShoulders.transform,
+    neck: avatarShoulders.neck,
+    leftShoulder: avatarShoulders.leftShoulderAnchor,
+    leftUpperArm: avatarShoulders.leftArm.upperArm,
+    leftLowerArm: avatarShoulders.leftArm.lowerArm,
+    leftHand: avatarShoulders.leftArm.hand,
+    rightShoulder: avatarShoulders.rightShoulderAnchor,
+    rightUpperArm: avatarShoulders.rightArm.upperArm,
+    rightLowerArm: avatarShoulders.rightArm.lowerArm,
+    rightHand: avatarShoulders.rightArm.hand,
+    leftUpperLeg: avatarLegs.leftLeg.upperLeg,
+    leftLowerLeg: avatarLegs.leftLeg.lowerLeg,
+    leftFoot: avatarLegs.leftLeg.foot,
+    rightUpperLeg: avatarLegs.rightLeg.upperLeg,
+    rightLowerLeg: avatarLegs.rightLeg.lowerLeg,
+    rightFoot: avatarLegs.rightLeg.foot,
+    leftThumb2: avatarShoulders.rightArm.thumb2,
+    leftThumb1: avatarShoulders.rightArm.thumb1,
+    leftThumb0: avatarShoulders.rightArm.thumb0,
+    leftIndexFinger3: avatarShoulders.rightArm.indexFinger3,
+    leftIndexFinger2: avatarShoulders.rightArm.indexFinger2,
+    leftIndexFinger1: avatarShoulders.rightArm.indexFinger1,
+    leftMiddleFinger3: avatarShoulders.rightArm.middleFinger3,
+    leftMiddleFinger2: avatarShoulders.rightArm.middleFinger2,
+    leftMiddleFinger1: avatarShoulders.rightArm.middleFinger1,
+    leftRingFinger3: avatarShoulders.rightArm.ringFinger3,
+    leftRingFinger2: avatarShoulders.rightArm.ringFinger2,
+    leftRingFinger1: avatarShoulders.rightArm.ringFinger1,
+    leftLittleFinger3: avatarShoulders.rightArm.littleFinger3,
+    leftLittleFinger2: avatarShoulders.rightArm.littleFinger2,
+    leftLittleFinger1: avatarShoulders.rightArm.littleFinger1,
+    rightThumb2: avatarShoulders.leftArm.thumb2,
+    rightThumb1: avatarShoulders.leftArm.thumb1,
+    rightThumb0: avatarShoulders.leftArm.thumb0,
+    rightIndexFinger3: avatarShoulders.leftArm.indexFinger3,
+    rightIndexFinger2: avatarShoulders.leftArm.indexFinger2,
+    rightIndexFinger1: avatarShoulders.leftArm.indexFinger1,
+    rightMiddleFinger3: avatarShoulders.leftArm.middleFinger3,
+    rightMiddleFinger2: avatarShoulders.leftArm.middleFinger2,
+    rightMiddleFinger1: avatarShoulders.leftArm.middleFinger1,
+    rightRingFinger3: avatarShoulders.leftArm.ringFinger3,
+    rightRingFinger2: avatarShoulders.leftArm.ringFinger2,
+    rightRingFinger1: avatarShoulders.leftArm.ringFinger1,
+    rightLittleFinger3: avatarShoulders.leftArm.littleFinger3,
+    rightLittleFinger2: avatarShoulders.leftArm.littleFinger2,
+    rightLittleFinger1: avatarShoulders.leftArm.littleFinger1,
   };
   avatarRig.modelBoneOutputs = {
     Hips: avatarRig.outputs.hips,
@@ -909,17 +907,8 @@ export const initializeAvatarRig = (entity) => {
     avatarRig.skinnedMeshesVisemeMappings = [];
   }
 
-  // avatarRig.lastTimestamp = Date.now();
-
-  avatarRig.shoulderTransforms.Start();
-  avatarRig.avatarLegs.Start();
-
-  if (avatarRig.options.top !== undefined) {
-    avatarRig.shoulderTransforms.enabled = !!avatarRig.options.top;
-  }
-  if (avatarRig.options.bottom !== undefined) {
-    avatarRig.avatarLegs.enabled = !!avatarRig.options.bottom;
-  }
+  initAvatarShoulders(entity);
+  initAvatarLegs(entity);
 
   avatarRig.animationMappings = [
     new AnimationMapping('mixamorigHips.quaternion', avatarRig.outputs.hips.quaternion, false),
@@ -981,33 +970,13 @@ export const initializeAvatarRig = (entity) => {
   ];
 }
 
-export const initXRArmIK = (entity: Entity, armSide: Side, target) => {
-  const shoulders = getComponent(entity, AvatarShoulders);
-  const armIK = getMutableComponent(entity, armSide === Side.Left ? LeftXRArmIK : RightXRArmIK) as XRArmIK;
+const updateIKArm = (entity, side: Side) => {
+  const armIK = getMutableComponent(entity, side === Side.Left ? IKArmLeft : IKArmRight);
 
-  const arm =
-    hasComponent(entity, armSide === Side.Left ? LeftArm : RightArm) ? 
-    getMutableComponent(entity, armSide === Side.Left ? LeftArm : RightArm) :
-    addComponent(entity, armSide === Side.Left ? LeftArm : RightArm);
-    
-  getMutableComponent(entity, armSide === Side.Left ? LeftXRArmIK : RightXRArmIK) as XRArmIK;
+  updateMatrixWorld(armIK.transform);
+  updateMatrixWorld(armIK.upperArm);
 
-  armIK.arm = arm;
-  armIK.shoulder = shoulders;
-  armIK.target = target;
-
-  armIK.upperArmLength = getWorldPosition(armIK.arm.lowerArm, localVector).distanceTo(getWorldPosition(armIK.arm.upperArm, localVector2));
-  armIK.lowerArmLength = getWorldPosition(armIK.arm.hand, localVector).distanceTo(getWorldPosition(armIK.arm.lowerArm, localVector2));
-  armIK.armLength = armIK.upperArmLength + armIK.lowerArmLength;
-}
-
-export const updateXRArmIK = (entity, side: Side) => {
-  const armIK = getMutableComponent(entity, side === Side.Left ? LeftXRArmIK : RightXRArmIK);
-
-  updateMatrixWorld(armIK.arm.transform);
-  updateMatrixWorld(armIK.arm.upperArm);
-
-  const upperArmPosition = getWorldPosition(armIK.arm.upperArm, localVector);
+  const upperArmPosition = getWorldPosition(armIK.upperArm, localVector);
   const handRotation = armIK.target.quaternion;
   const handPosition = localVector2.copy(armIK.target.position);
 
@@ -1027,7 +996,7 @@ export const updateXRArmIK = (entity, side: Side) => {
       .premultiply(z180Quaternion),
     'XYZ'
   );
-  if (armIK.side === Side.Left) {
+  if (side === Side.Left) {
     const yFactor = Math.min(Math.max((targetEuler.y + Math.PI * 0.1) / (Math.PI / 2), 0), 1);
     targetEuler.z = Math.min(Math.max(targetEuler.z, -Math.PI / 2), 0);
     targetEuler.z = (targetEuler.z * (1 - yFactor)) + (-Math.PI / 2 * yFactor);
@@ -1043,44 +1012,45 @@ export const updateXRArmIK = (entity, side: Side) => {
 
   const elbowPosition = localVector4.copy(upperArmPosition).add(handPosition).divideScalar(2)
     .add(localVector5.copy(offsetDirection).multiplyScalar(offsetDistance));
-  const upVector = localVector5.set(armIK.side === Side.Left ? -1 : 1, 0, 0).applyQuaternion(shoulderRotation);
-  armIK.arm.upperArm.quaternion.setFromRotationMatrix(
+  const upVector = localVector5.set(side === Side.Left ? -1 : 1, 0, 0).applyQuaternion(shoulderRotation);
+  armIK.upperArm.quaternion.setFromRotationMatrix(
     localMatrix.lookAt(
       zeroVector,
       localVector6.copy(elbowPosition).sub(upperArmPosition),
       upVector
     )
   )
-    .multiply(armIK.side === Side.Left ? rightRotation : leftRotation)
-    .premultiply(getWorldQuaternion(armIK.arm.upperArm.parent, localQuaternion3).invert());
-  updateMatrixMatrixWorld(armIK.arm.upperArm);
+    .multiply(side === Side.Left ? rightRotation : leftRotation)
+    .premultiply(getWorldQuaternion(armIK.upperArm.parent, localQuaternion3).invert());
+  updateMatrixMatrixWorld(armIK.upperArm);
 
   // this.arm.lowerArm.position = elbowPosition;
-  armIK.arm.lowerArm.quaternion.setFromRotationMatrix(
+  armIK.lowerArm.quaternion.setFromRotationMatrix(
     localMatrix.lookAt(
       zeroVector,
       localVector6.copy(handPosition).sub(elbowPosition),
       upVector
     )
   )
-    .multiply(armIK.side === Side.Left ? rightRotation : leftRotation)
-    .premultiply(getWorldQuaternion(armIK.arm.lowerArm.parent, localQuaternion3).invert());
-  updateMatrixMatrixWorld(armIK.arm.lowerArm);
+    .multiply(side === Side.Left ? rightRotation : leftRotation)
+    .premultiply(getWorldQuaternion(armIK.lowerArm.parent, localQuaternion3).invert());
+  updateMatrixMatrixWorld(armIK.lowerArm);
 
   // this.arm.hand.position = handPosition;
-  armIK.arm.hand.quaternion.copy(armIK.target.quaternion)
-    .multiply(armIK.side === Side.Left ? bankRightRotation : bankLeftRotation)
-    .premultiply(getWorldQuaternion(armIK.arm.hand.parent, localQuaternion3).invert());
-  updateMatrixMatrixWorld(armIK.arm.hand);
+  armIK.hand.quaternion.copy(armIK.target.quaternion)
+    .multiply(side === Side.Left ? bankRightRotation : bankLeftRotation)
+    .premultiply(getWorldQuaternion(armIK.hand.parent, localQuaternion3).invert());
+  updateMatrixMatrixWorld(armIK.hand);
 
   for (const fingerSpec of FINGER_SPECS) {
     const [index, key] = fingerSpec;
-    armIK.arm[key].quaternion.copy(armIK.target.fingers[index].quaternion);
-    updateMatrixMatrixWorld(armIK.arm[key]);
+    armIK[key].quaternion.copy(armIK.target.fingers[index].quaternion);
+    updateMatrixMatrixWorld(armIK[key]);
   }
 }
 
-export const updateAvatarShoulders = (shoulders: AvatarShoulders) => {
+export const updateAvatarShoulders = (entity, delta) => {
+  const shoulders = getMutableComponent(entity, IKAvatarShoulders);
   shoulders.spine.quaternion.set(0, 0, 0, 1);
 
   // Update hips
@@ -1171,12 +1141,15 @@ updateMatrixWorld(shoulders.transform);
   updateMatrixMatrixWorld(shoulders.head);
 
   updateMatrixWorld(shoulders.eyes);
+
+  updateIKArm(entity, Side.Left);
+  updateIKArm(entity, Side.Right);
 }
 
 export const initAvatarShoulders = (entity: Entity) => {
-  if(!hasComponent(entity, AvatarShoulders))
-    addComponent(entity, AvatarShoulders);
-  const avatarShoulders = getMutableComponent(entity, AvatarShoulders);
+  if(hasComponent(entity, IKAvatarShoulders)) return console.log("Tried to init avatar shoulders but already init")
+    addComponent(entity, IKAvatarShoulders);
+  const avatarShoulders = getMutableComponent(entity, IKAvatarShoulders);
 
   avatarShoulders.transform = new Object3D();
   avatarShoulders.hips = new Object3D();
@@ -1196,24 +1169,17 @@ export const initAvatarShoulders = (entity: Entity) => {
   avatarShoulders.rightShoulderAnchor = new Object3D();
   avatarShoulders.transform.add(avatarShoulders.rightShoulderAnchor);
 
-  avatarShoulders.leftArm = (hasComponent(entity, LeftArm) ? getComponent(entity, LeftArm) : addComponent(entity, LeftArm)) as Arm;
-  avatarShoulders.rightArm = (hasComponent(entity, RightArm) ? getComponent(entity, RightArm) : addComponent(entity, RightArm)) as Arm;
+  avatarShoulders.leftArm = (hasComponent(entity, IKArmLeft) ? getComponent(entity, IKArmLeft) : addComponent(entity, IKArmLeft)) as Arm;
+  avatarShoulders.rightArm = (hasComponent(entity, IKArmRight) ? getComponent(entity, IKArmRight) : addComponent(entity, IKArmRight)) as Arm;
 
   initArm(entity, Side.Left);
   initArm(entity, Side.Right);
 
   avatarShoulders.leftShoulderAnchor.add(avatarShoulders.leftArm.transform);
-  avatarShoulders.rightShoulderAnchor.add(avatarShoulders.rightArm.transform);
-  
-  avatarShoulders.leftArmIk = (hasComponent(entity, LeftXRArmIK) ? getComponent(entity, LeftXRArmIK) : addComponent(entity, LeftXRArmIK)) as XRArmIK;
-  avatarShoulders.rightArmIk = (hasComponent(entity, RightXRArmIK) ? getComponent(entity, RightXRArmIK) : addComponent(entity, RightXRArmIK)) as XRArmIK;
-  
-  initXRArmIK(entity, Side.Left, avatarShoulders.leftHand);
-  initXRArmIK(entity, Side.Right, avatarShoulders.rightHand);
-}
+  avatarShoulders.rightShoulderAnchor.add(avatarShoulders.rightArm.transform);}
 
 const initArm = (entity, armSide) => {
-  const Arm = armSide === Side.Left ? LeftArm : RightArm;
+  const Arm = armSide === Side.Left ? IKArmLeft : IKArmRight;
   addComponent(entity, Arm);
   const arm = getMutableComponent(entity, Arm);
   arm.transform = new Object3D();
@@ -1259,16 +1225,27 @@ const initArm = (entity, armSide) => {
   arm.hand.add(arm.littleFinger1);
   arm.littleFinger1.add(arm.littleFinger2);
   arm.littleFinger2.add(arm.littleFinger3);
+
+  const shoulders = getComponent(entity, IKAvatarShoulders);
+
+  arm.shoulder = shoulders;
+  arm.target = arm.hand;
+
+  arm.upperArmLength = getWorldPosition(arm.lowerArm, localVector).distanceTo(getWorldPosition(arm.upperArm, localVector2));
+  arm.lowerArmLength = getWorldPosition(arm.hand, localVector).distanceTo(getWorldPosition(arm.lowerArm, localVector2));
+  arm.armLength = arm.upperArmLength + arm.lowerArmLength;
 }
 
 export const initAvatarLegs = (entity) => {
-  const rig = getMutableComponent(entity, XRAvatarRig);
+  const rig = getMutableComponent(entity, IKAvatarRig);
+  const shoulders = getMutableComponent(entity, IKAvatarShoulders);
+  const pose = getMutableComponent(entity, XRPose);
 
-  if (!hasComponent(entity, AvatarLegs))
-    addComponent(entity, AvatarLegs);
-  const avatarLegs = getMutableComponent(entity, AvatarLegs);
+  if (!hasComponent(entity, IKAvatarLegs))
+    addComponent(entity, IKAvatarLegs);
+  const avatarLegs = getMutableComponent(entity, IKAvatarLegs);
 
-  avatarLegs.hips = rig.shoulderTransforms.hips;
+  avatarLegs.hips = shoulders.hips;
   if(!hasComponent(entity, LeftLeg)){
     avatarLegs.leftLeg = addComponent(entity, LeftLeg) as any;
   }
@@ -1280,7 +1257,6 @@ export const initAvatarLegs = (entity) => {
   avatarLegs.hips.add(avatarLegs.rightLeg.transform);
 
   avatarLegs.rig = rig;
-  avatarLegs.poseManager = rig.poseManager;
 
   avatarLegs.legSeparation = 0;
   avatarLegs.lastHmdPosition = new Vector3();
@@ -1292,14 +1268,14 @@ export const initAvatarLegs = (entity) => {
 
   avatarLegs.legSeparation = getWorldPosition(avatarLegs.leftLeg.upperLeg, localVector)
     .distanceTo(getWorldPosition(avatarLegs.rightLeg.upperLeg, localVector2));
-  avatarLegs.lastHmdPosition.copy(avatarLegs.poseManager.vrTransforms.head.position);
+  avatarLegs.lastHmdPosition.copy(pose.head.position);
   initLeg(entity, Side.Left);
   initLeg(entity, Side.Right);
   resetAvatarLegs(entity);
 };
 
 export const resetAvatarLegs = (entity: Entity) => {
-  const avatarLegs = getMutableComponent(entity, AvatarLegs);
+  const avatarLegs = getMutableComponent(entity, IKAvatarLegs);
 
   copyTransform(avatarLegs.leftLeg.upperLeg, avatarLegs.rig.modelBones.Right_leg);
   copyTransform(avatarLegs.leftLeg.lowerLeg, avatarLegs.rig.modelBones.Right_knee);
@@ -1314,8 +1290,10 @@ export const resetAvatarLegs = (entity: Entity) => {
   avatarLegs.rightLeg.foot.getWorldQuaternion(avatarLegs.rightLeg.foot["stickTransform"].quaternion);
 };
 
-export const updateAvatarLegs = (entity: Entity) => {
-  const avatarLegs = getMutableComponent(entity, AvatarLegs);
+export const updateAvatarLegs = (entity: Entity, delta) => {
+  const avatarLegs = getMutableComponent(entity, IKAvatarLegs);
+  const pose = getMutableComponent(entity, XRPose);
+
   if (avatarLegs.enabled) {
     if (!avatarLegs.lastEnabled) {
       resetAvatarLegs(entity);
@@ -1331,11 +1309,9 @@ export const updateAvatarLegs = (entity: Entity) => {
     updateMatrixWorld(avatarLegs.rightLeg.lowerLeg);
     updateMatrixWorld(avatarLegs.rightLeg.foot);
 
-    const now = Date.now();
+    avatarLegs.hmdVelocity.copy(pose.head.position).sub(avatarLegs.lastHmdPosition);
 
-    avatarLegs.hmdVelocity.copy(avatarLegs.poseManager.vrTransforms.head.position).sub(avatarLegs.lastHmdPosition);
-
-    const floorHeight = avatarLegs.poseManager.vrTransforms.floorHeight;
+    const floorHeight = pose.floorHeight;
 
     const hipsFloorPosition = localVector.copy(avatarLegs.hips.position);
     hipsFloorPosition.y = floorHeight;
@@ -1392,12 +1368,9 @@ export const updateAvatarLegs = (entity: Entity) => {
     // step
     const _getLegStepFactor = leg => {
       if (leg.stepping) {
-        const timeDiff = now - leg.lastStepTimestamp;
-        leg.lastStepTimestamp = now;
-
         const scaledStepRate = stepRate
           * Math.max(localVector2.set(avatarLegs.hmdVelocity.x, 0, avatarLegs.hmdVelocity.z).length() / avatarLegs.rig.height, minHmdVelocityTimeFactor);
-        return Math.min(Math.max(leg["stepFactor"] + scaledStepRate * timeDiff, 0), 1);
+        return Math.min(Math.max(leg["stepFactor"] + scaledStepRate * delta, 0), 1);
       } else {
         return 0;
       }
@@ -1454,9 +1427,7 @@ export const updateAvatarLegs = (entity: Entity) => {
         }
         velocityVector.multiplyScalar(velocityRestitutionFactor);
         leg.foot["endTransform"].position.add(velocityVector);
-        leg.foot["startHmdFloorTransform"].position.set(avatarLegs.poseManager.vrTransforms.head.position.x, 0, avatarLegs.poseManager.vrTransforms.head.position.z);
-
-        leg.lastStepTimestamp = now;
+        leg.foot["startHmdFloorTransform"].position.set(pose.head.position.x, 0, pose.head.position.z);
         leg.stepping = true;
       };
 
@@ -1503,14 +1474,14 @@ export const updateAvatarLegs = (entity: Entity) => {
     updateLeg(entity, Side.Left);
     updateLeg(entity, Side.Right);
   }
-  avatarLegs.lastHmdPosition.copy(avatarLegs.poseManager.vrTransforms.head.position);
+  avatarLegs.lastHmdPosition.copy(pose.head.position);
   avatarLegs.lastEnabled = avatarLegs.enabled;
 };
 
-export const initLeg = (entity: Entity, legSide: Side) => {  
+const initLeg = (entity: Entity, legSide: Side) => {  
   const leg = getMutableComponent(entity, legSide === Side.Right ? RightLeg : LeftLeg) as Leg<any>;
-  
-  const avatarLegs = getMutableComponent(entity, AvatarLegs);
+
+  const avatarLegs = getMutableComponent(entity, IKAvatarLegs);
 
   leg.transform = new Object3D();
   leg.upperLeg = new Object3D();
@@ -1533,7 +1504,6 @@ export const initLeg = (entity: Entity, legSide: Side) => {
   leg.avatarLegs = avatarLegs;
 
   leg.stepping = false;
-  leg.lastStepTimestamp = 0;
 
   leg.balance = 1;
 
@@ -1541,11 +1511,12 @@ export const initLeg = (entity: Entity, legSide: Side) => {
   leg.lowerLegLength = leg.foot.position.length();
   leg.legLength = leg.upperLegLength + leg.lowerLegLength;
 
+  const avatarShoulders = getMutableComponent(entity, IKAvatarShoulders);
   getWorldPosition(leg.upperLeg, leg.eyesToUpperLegOffset)
-    .sub(getWorldPosition(leg.avatarLegs.rig.shoulderTransforms.eyes, localVector));
+    .sub(getWorldPosition(avatarShoulders.eyes, localVector));
 }
 
-export const updateLeg = (entity, legSide) => {
+const updateLeg = (entity, legSide) => {
   const leg = getMutableComponent(entity, legSide === Side.Right ? RightLeg : LeftLeg) as Leg<any>;
 
   const footPosition = localVector.copy(leg.foot["stickTransform"].position);

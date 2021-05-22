@@ -1,4 +1,4 @@
-import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, Quaternion, RingGeometry, Vector3 } from 'three';
+import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, Quaternion, RingGeometry, Vector3 } from 'three';
 import { getLoader } from "../../assets/functions/LoadGLTF";
 import { initializeMovingState } from "../../avatar/behaviors/MovingAnimations";
 import { CharacterComponent } from "../../avatar/components/CharacterComponent";
@@ -16,7 +16,6 @@ import { Input } from "../../input/components/Input";
 import { XRInputReceiver } from '../../input/components/XRInputReceiver';
 import { BaseInput } from "../../input/enums/BaseInput";
 import { Network } from "../../networking/classes/Network";
-import { XRSystem } from "../systems/XRSystem";
 
 let head, controllerGripLeft, controllerLeft, controllerRight, controllerGripRight;
 
@@ -112,8 +111,6 @@ export const startXR = async () => {
     
     actor.tiltContainer.add(controllerGripRight);
     actor.tiltContainer.add(controllerGripLeft);
-
-    // console.log('Loaded Model Controllers Done');
 
     return true;
   } catch (e) {

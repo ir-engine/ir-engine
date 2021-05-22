@@ -15,8 +15,6 @@ import { defaultAvatarAnimations } from "../schema/defaultAvatarAnimations";
 const EPSILON = 0.001;
 const animationSpeedMultiplier = 0.8;
 
-
-
 export class AvatarAnimationSystem extends System {
     static instance: AvatarAnimationSystem;
     updateType = SystemUpdateType.Fixed;

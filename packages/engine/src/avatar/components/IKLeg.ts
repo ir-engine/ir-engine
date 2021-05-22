@@ -17,6 +17,5 @@ export class Leg<T> extends Component<T>{
   eyesToUpperLegOffset: Vector3;
   avatarLegs: any;
   stepping: boolean;
-  lastStepTimestamp: number;
   balance: number;
 }

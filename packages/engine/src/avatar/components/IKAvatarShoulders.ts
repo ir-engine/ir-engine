@@ -1,15 +1,13 @@
 import { Object3D } from 'three';
 import { Component } from '../../ecs/classes/Component';
-import ShoulderPoser from '../classes/ShoulderPoser';
-import XRArmIK from './XRArmIK';
-import RightArm from './RightArm';
-import LeftArm from './LeftArm';
+import IKArmLeft from './IKArmLeft';
+import IKArmRight from './IKArmRight';
 
 /**
  * 
  * @author Avaer Kazmer
  */
-class AvatarShoulders extends Component<AvatarShoulders> {
+class IKAvatarShoulders extends Component<IKAvatarShoulders> {
   transform: Object3D;
   hips: Object3D;
   spine: Object3D;
@@ -18,10 +16,8 @@ class AvatarShoulders extends Component<AvatarShoulders> {
   eyes: Object3D;
   leftShoulderAnchor: Object3D;
   rightShoulderAnchor: Object3D;
-  leftArm: LeftArm;
-  rightArm: RightArm;
-  leftArmIk: XRArmIK;
-  rightArmIk: XRArmIK;
+  leftArm: IKArmLeft;
+  rightArm: IKArmRight;
 
   rig: any;
   shoulder: any;
@@ -39,4 +35,4 @@ class AvatarShoulders extends Component<AvatarShoulders> {
 	playerWidthWrist: number;
 }
 
-export default AvatarShoulders;
+export default IKAvatarShoulders;

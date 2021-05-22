@@ -1,4 +1,4 @@
-import { Leg } from './Leg';
+import { Leg } from './IKLeg';
 
 /**
  *

@@ -1,11 +1,16 @@
-import { Object3D } from "three";
 import { Component } from "../../ecs/classes/Component";
 
 /**
  * 
  * @author Avaer Kazmer
  */
-class Arm extends Component<Arm> {
+abstract class Arm extends Component<Arm> {
+	shoulder: any;
+	target: any;
+	upperArmLength: number;
+	lowerArmLength: number;
+	armLength: number;
+
 	transform: any;
 	upperArm: any;
 	lowerArm: any;

@@ -1,5 +1,4 @@
 import { Component } from '../../ecs/classes/Component';
-import XRTrackingReference from './XRTrackingReferences';
 
 /**
  * 

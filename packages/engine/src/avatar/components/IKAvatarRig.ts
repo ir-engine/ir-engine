@@ -10,9 +10,18 @@ export type AvatarOptions = { top: boolean, bottom: boolean, visemes: boolean, h
  * 
  * @author Avaer Kazmer
  */
-export class XRAvatarRig extends Component<XRAvatarRig> {
-  shoulderTransforms: any;
-  avatarLegs: any;
+export class IKAvatarRig extends Component<IKAvatarRig> {
+
+	head: any;
+	leftHand: any;
+	rightHand: any;
+	floorHeight: number;
+
+	referencePlayerHeightHmd: number;
+	referencePlayerWidthWrist: number;
+	playerHeightHmd: number;
+	playerWidthWrist: number;
+
   pose: any;
   modelBones: any;
   sdkInputs: any;
