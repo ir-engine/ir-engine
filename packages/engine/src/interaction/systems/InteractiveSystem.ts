@@ -32,12 +32,11 @@ import { EquippableAttachmentPoint, EquippedStateUpdateSchema } from "../enums/E
 import { ColliderComponent } from "../../physics/components/ColliderComponent";
 import { NetworkObjectUpdateType } from "../../networking/templates/NetworkObjectUpdateSchema";
 import { sendClientObjectUpdate } from "../../networking/functions/sendClientObjectUpdate";
-import { isServer } from "../../common/functions/isServer";
 import { BodyType } from "three-physx";
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { ParityValue } from "../../common/enums/ParityValue";
 import { getInteractiveIsInReachDistance } from "../../character/functions/getInteractiveIsInReachDistance";
-import { getHandPosition, getHandRotation, isInXR } from "../../xr/functions/WebXRFunctions";
+import { isInXR } from "../../xr/functions/WebXRFunctions";
 import { Input } from "../../input/components/Input";
 import { BaseInput } from "../../input/enums/BaseInput";
 import { SIXDOFType } from "../../common/types/NumericalTypes";
@@ -434,7 +433,7 @@ export class InteractiveSystem extends System {
       const collider = getComponent(equippedEntity, ColliderComponent)
       collider.body.type = BodyType.KINEMATIC;
       // send equip to clients
-      if(isServer) {
+      if(!isClient) {
         const networkObject = getComponent(equippedEntity, NetworkObject)
         sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, networkObject.networkId] as EquippedStateUpdateSchema)
       }
@@ -478,7 +477,7 @@ export class InteractiveSystem extends System {
         rotation: equippedTransform.rotation,
       })
       // send unequip to clients
-      if(isServer) {
+      if(!isClient) {
         sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.FALSE] as EquippedStateUpdateSchema)
       }
     })

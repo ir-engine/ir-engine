@@ -14,7 +14,7 @@ export const initialWebXrNative = {
 
 const immutableState = Immutable.fromJS(initialWebXrNative);
 
-const webxrnativeReducer = (state = immutableState, action: WebXrNativeAction): any => {
+const webxrnativeReducer = (state = immutableState, action: any): any => {
   switch (action.type) {
     case SET_WEBXRNATIVE:
       return state.set('webxrnative', false);

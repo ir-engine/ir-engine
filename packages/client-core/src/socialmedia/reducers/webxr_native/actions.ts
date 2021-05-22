@@ -2,8 +2,6 @@
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
 
-import { WebXrNativeShort } from '@xrengine/common/src/interfaces/WebXrNativeShort';
-
 export const TOUGLE_WEBXRNATIVE = 'TOUGLE_WEBXRNATIVE';
 export const SET_WEBXRNATIVE = 'SET_WEBXRNATIVE';
 

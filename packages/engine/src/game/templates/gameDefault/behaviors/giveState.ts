@@ -1,7 +1,7 @@
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { Entity } from '../../../../ecs/classes/Entity';
+import { addStateComponent } from '../../../../game/functions/functionsState';
 import { getTargetEntity } from '../../../functions/functions';
-import { addStateComponent, removeStateComponent } from '../../../../game/functions/functionsState';
 /**
  * @author HydraFire <github.com/HydraFire>
  */

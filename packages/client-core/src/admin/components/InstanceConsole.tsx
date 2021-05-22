@@ -15,8 +15,8 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 // @ts-ignore
 import styles from './Admin.module.scss';
-import InstanceModal from './InstanceModal';
-import CreateInstance from "./CreateInstance";
+import InstanceModal from './Instance/InstanceModal';
+import CreateInstance from "./Instance/CreateInstance";
 import { Delete, Edit } from '@material-ui/icons';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -99,6 +99,7 @@ function InstanceConsole(props: Props) {
     const [instanceCreateOpen, setInstanceCreateOpen] = useState(false);
     const [instanceModalOpen, setInstanceModalOpen] = useState(false);
     const adminInstances = adminState.get('instances').get('instances');
+
 
     const headCells = {
         instances: [

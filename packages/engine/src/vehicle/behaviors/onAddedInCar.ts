@@ -5,7 +5,6 @@ import { initializeDriverState } from '../../character/animations/DrivingAnimati
 import { CharacterAnimations } from '../../character/CharacterAnimations';
 import { CharacterComponent } from '../../character/components/CharacterComponent';
 import { changeAnimation } from '../../character/functions/updateVectorAnimation';
-import { isServer } from '../../common/functions/isServer';
 import { Entity } from '../../ecs/classes/Entity';
 import { getMutableComponent, getComponent, addComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
@@ -18,6 +17,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { VehicleComponent } from '../components/VehicleComponent';
 import { VehicleState } from '../enums/VehicleStateEnum';
 import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent';
+import { isClient } from '../../common/functions/isClient';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -72,7 +72,7 @@ export const onAddedInCar = (entity: Entity, entityCar: Entity, seat: number, de
 	  transitionDuration: 0.3
    })
 
-   if (isServer || Network.instance.localAvatarNetworkId !== networkDriverId) return;
+   if (!isClient || Network.instance.localAvatarNetworkId !== networkDriverId) return;
   addComponent(entityCar, LocalInputReceiver);
   removeComponent(entity, FollowCameraComponent);
   addComponent(entity, FollowCameraComponent, {

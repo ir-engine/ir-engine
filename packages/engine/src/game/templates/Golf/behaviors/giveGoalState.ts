@@ -4,12 +4,6 @@ import { getComponent } from "../../../../ecs/functions/EntityFunctions";
 import { Interactable } from '../../../../interaction/components/Interactable';
 import { GamesSchema } from "../../../../game/templates/GamesSchema";
 import { getGame } from '../../../../game/functions/functions';
-/**
- * @author HydraFire <github.com/HydraFire>
- */
- function getTargetEntity(entity, entityTarget, args) {
-   return args.on === 'target' ? entityTarget : entity;
- }
 
 export const giveGoalState: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
   const game = getGame(entity);

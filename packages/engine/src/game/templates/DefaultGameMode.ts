@@ -50,6 +50,7 @@ export const DefaultGameMode: GameMode = {
         { component: TransformComponent, variables: ['position'] }
       ]
     }
+    */
   },
   gamePlayerRoles: {
     'Playing': {
@@ -58,7 +59,6 @@ export const DefaultGameMode: GameMode = {
     'itsYourTurn': {
       'allowHitBall': []
     }
-    */
   },
   gameObjectRoles: {
     /*

@@ -70,7 +70,7 @@ export const onStartRemoveFromCar = (entity: Entity, entityCar: Entity, seat: nu
 
   const playerInCar = getMutableComponent(entity, PlayerInCar);
   playerInCar.currentFrame += playerInCar.animationSpeed;
-  const carTimeOut = playerInCar.timeOut//isServer ? playerInCar.timeOut / delta : playerInCar.timeOut;
+  const carTimeOut = playerInCar.timeOut//!isClient ? playerInCar.timeOut / delta : playerInCar.timeOut;
 
   doorAnimation(entityCar, seat, playerInCar.currentFrame, carTimeOut, playerInCar.angel);
 
@@ -100,7 +100,7 @@ export const onStartRemoveFromCar = (entity: Entity, entityCar: Entity, seat: nu
 
   }
 
-  // if (isServer) return;
+  // if (!isClient) return;
 
 
 

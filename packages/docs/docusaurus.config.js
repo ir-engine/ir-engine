@@ -79,7 +79,7 @@ module.exports = {
       {
         id: 'engine',
         entryPoints: ['../engine/src/'],
-        tsconfig: '../engine/tsconfig.typedoc.json',
+        tsconfig: '../engine/tsconfig.json',
         exclude: ['**/node_modules/**'],
         out: 'docs-engine',
         readme: 'none',

@@ -2,7 +2,7 @@ import { AnimationClip, MathUtils } from "three";
 import { AnimationConfigInterface, defaultAvatarAnimations } from "../CharacterAvatars";
 import { CharacterComponent } from '../components/CharacterComponent';
 import { AnimationComponent } from "../components/AnimationComponent";
-import { isServer } from "../../common/functions/isServer";
+import { isClient } from "../../common/functions/isClient";
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Entity } from "../../ecs/classes/Entity";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
@@ -81,7 +81,7 @@ function consoleGrafics(obj) {
 */
 //
 export const updateVectorAnimation = (entity, delta: number): void => {
-  if (isServer) return;
+  if (!isClient) return;
   // Actor isn't initialized yet, so skip the animation
 	const actor = getMutableComponent(entity, CharacterComponent);
 	const animationComponent = getMutableComponent(entity, AnimationComponent);
@@ -159,7 +159,7 @@ export const clearAnimOnChange: Behavior = (entity: Entity, args: { animationsSc
 
 export const changeAnimation: Behavior = (entity, args: {}, deltaTime: number): void => {
 
-  if(isServer) return;
+  if(!isClient) return;
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 	if (!actor.initialized || !actor.mixer) return;
 	//@ts-ignore

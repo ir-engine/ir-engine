@@ -10,7 +10,13 @@ import { TransformComponent } from '../../../../transform/components/TransformCo
 export const isDifferent: Checker = (entity: Entity, args?: any, entityTarget?: Entity): boolean => {
   const position = getComponent(entity, TransformComponent).position;
   const positionStart = getStorage(entity, TransformComponent).position;
-  const chooseMinOrMax = (args.min != undefined && args.min != null && args.max === undefined) ? 'min' : (args.max != undefined && args.max != null && args.min === undefined) ? 'max' : console.error('need arg.max: 3, or rg.max: 0.1, but not both in one args');
+
+  if (args.min != undefined && args.max != undefined) {
+    console.error('need arg.max: 3, or rg.max: 0.1, but not both in one args');
+    return;
+  }
+
+  const chooseMinOrMax = args.min != undefined ? 'min' : 'max';
   const value = args[chooseMinOrMax];
   const differensNow = Math.abs(positionStart.x - position.x) + Math.abs(positionStart.y - position.y) + Math.abs(positionStart.z - position.z);
   return chooseMinOrMax === 'min' ? value < differensNow : value > differensNow;

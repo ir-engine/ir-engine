@@ -36,7 +36,7 @@ export const createGameObject: Behavior = (entity, args: any) => {
     console.warn("DONT SAVE COLLIDER FOR GAME OBJECT");
   }
 
-  // if (isServer && !args.isGlobal) {
+  // if (!isClient && !args.isGlobal) {
   //   removeEntity(entity);
   //   return;
   // }
