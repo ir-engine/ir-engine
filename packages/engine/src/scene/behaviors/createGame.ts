@@ -2,6 +2,8 @@ import { Behavior } from "../../common/interfaces/Behavior";
 import { addComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { Game } from "../../game/components/Game";
 import { GameObject } from "../../game/components/GameObject";
+import { getGameFromName } from "../../game/functions/functions";
+import { GameManagerSystem } from "../../game/systems/GameManagerSystem";
 import { TransformComponent } from '../../transform/components/TransformComponent';
 
 export const createGame: Behavior = (entity, args: any) => {
@@ -27,7 +29,7 @@ export const createGame: Behavior = (entity, args: any) => {
     gameArea: { min, max }
   };
 
-  addComponent(entity, Game, gameData);
+  GameManagerSystem.instance.registerGame(entity, gameData);
 };
 
 export const createGameObject: Behavior = (entity, args: any) => {
@@ -41,7 +43,7 @@ export const createGameObject: Behavior = (entity, args: any) => {
   // }
 
   addComponent(entity, GameObject, {
-    game: args.gameName,
+    game: getGameFromName(args.gameName),
     role: args.role,
     uuid: args.sceneEntityId
   });

@@ -2,6 +2,7 @@ import { isClient } from '../../common/functions/isClient';
 import { Component } from '../../ecs/classes/Component';
 import { Entity } from '../../ecs/classes/Entity';
 import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { GameObject } from '../../game/components/GameObject';
 import { PrefabType } from "../../networking/templates/PrefabType";
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
@@ -98,8 +99,6 @@ function createNetworkPrefab( entity: Entity, prefab: NetworkPrefab, ownerId: st
  */
 function initComponents(entity: Entity, components: Array<{ type: any, data?: any }>, override?: Map<any, any>) {
   components?.forEach(component => {
-    // The component to the entity
-    addComponent(entity, component.type);
 
     const initData = component.data ?? {};
     if (override.has(component.type)) {
@@ -107,15 +106,20 @@ function initComponents(entity: Entity, components: Array<{ type: any, data?: an
       Object.keys(overrideData).forEach(key => initData[key] = overrideData[key]);
     }
 
-    // If the component has no initialization data, return
-    if (typeof initData !== 'object' || Object.keys(initData).length === 0) return;
-    // Get a mutable reference to the component
-    const addedComponent = getMutableComponent(entity, component.type);
-    // Set initialization data for each key
-    Object.keys(initData).forEach(key => {
-      // Get the component on the entity, and set it to the initializing value from the prefab
-      addedComponent[key] = initData[key];
-    });
+    // The component to the entity
+    addComponent(entity, component.type, initData);
+
+    // // If the component has no initialization data, return
+    // if (typeof initData !== 'object' || Object.keys(initData).length === 0) return;
+    // // Get a mutable reference to the component
+    // const addedComponent = getMutableComponent(entity, component.type);
+
+    // return;
+    // // Set initialization data for each key
+    // Object.keys(initData).forEach(key => {
+    //   // Get the component on the entity, and set it to the initializing value from the prefab
+    //   addedComponent[key] = initData[key];
+    // });
   });
 }
 
@@ -163,6 +167,7 @@ export function initializeNetworkObject( args: { entity?: Entity, prefabType?: n
     uniqueId
   };
 
+  // TODO: This could need to be commented out for merge conflict reasons, please check
   if (!isClient) {
     Network.instance.createObjects.push({
         networkId: networkId,

@@ -222,7 +222,7 @@ export function createVehicleFromModel( entity: Entity, mesh: any, sceneEntityId
 }
 
 export function createNetworkVehicle( args:{ parameters?: any, networkId?: string | number, uniqueId: string, entity?: Entity }) {
-  initializeNetworkObject({
+  const networkComponent = initializeNetworkObject({
     entity: args.entity,
     prefabType: PrefabType.Vehicle,
     uniqueId: args.uniqueId,
@@ -250,6 +250,15 @@ export function createNetworkVehicle( args:{ parameters?: any, networkId?: strin
       ]
     }
   });
+  if (!isClient) {
+    Network.instance.createObjects.push({
+        networkId: networkComponent.networkId,
+        ownerId: networkComponent.ownerId,
+        prefabType: PrefabType.Vehicle,
+        uniqueId: networkComponent.uniqueId,
+        parameters: ''
+    });
+  }
 }
 
 export const VehicleInterpolationSchema: InterpolationInterface = {
