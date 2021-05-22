@@ -180,7 +180,7 @@ export class GameManagerSystem extends System {
                 //b.behavior(entity, undefined, args, checkersResult);
                 executeComplexResult.push({ behavior: b.behavior, entity: entity, entityOther: undefined, args, checkersResult });
               } else {
-                let complexResultObjects = Object.keys(b.takeEffectOn.targetsRole).reduce((acc, searchedRoleName) => {
+                const complexResultObjects = Object.keys(b.takeEffectOn.targetsRole).reduce((acc, searchedRoleName) => {
                   const targetRoleSchema = b.takeEffectOn.targetsRole[searchedRoleName];
                   // search second entity
                   let resultObjects = (gameObjects[searchedRoleName] || gamePlayers[searchedRoleName]) as any;
