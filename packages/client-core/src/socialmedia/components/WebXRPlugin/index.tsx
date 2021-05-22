@@ -481,9 +481,11 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
               {/* <button type="button" style={{ padding: "1em" }} onClick={() => clearAnchors()}>clearAnchors</button> */}
               {/* <button type="button" style={{ padding: "1em" }} onClick={() => playVideo()}>playVideo</button> */}
               {/* <button type="button" style={{ padding: "1em" }} onClick={() => pauseVideo()}>pauseVideo</button> */}
-              <section className={styles.closeButtonWrapper}>
-                <button type="button" className={styles.closeButton} onClick={() => stopRecord()}><ChevronLeftIcon />Slide to cancel</button>
-            </section>
+              {/*
+                <section className={styles.closeButtonWrapper}>
+                    <button type="button" className={styles.closeButton} onClick={() => stopRecord()}><ChevronLeftIcon />Slide to cancel</button>
+                </section>
+              */}
             </div>
           </div>
           <canvas ref={canvasRef} className={styles.arcCanvas} id={'arcCanvas'} onClick={() => handleTap()} />
