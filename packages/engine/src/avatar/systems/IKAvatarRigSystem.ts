@@ -1,7 +1,5 @@
 import { System } from "../../ecs/classes/System";
-import { IKAvatarLegs } from "../components/IKAvatarLegs";
 import { IKAvatarRig } from "../components/IKAvatarRig";
-import IKAvatarArms from "../components/IKAvatarArms";
 import { initializeAvatarRig, updateAvatarLegs, updateAvatarShoulders } from "../functions/AvatarBodyFunctions";
 
 export class AvatarRigSystem extends System {
@@ -19,37 +17,15 @@ export class AvatarRigSystem extends System {
       updateAvatarShoulders(entity, delta);
       updateAvatarLegs(entity, delta);
      });
-
-    // this.queryResults.avatarWithShoulders.all?.forEach((entity) => {
-    //   updateAvatarShoulders(entity, delta);
-    // });
-
-    // this.queryResults.avatarWithLegs.all?.forEach((entity) => {
-    //   updateAvatarLegs(entity, delta);
-    // });
   }
 }
 
 AvatarRigSystem.queries = {
   avatarRig: {
-    components: [IKAvatarRig, IKAvatarLegs, IKAvatarArms],
+    components: [IKAvatarRig],
     listen: {
       added: true,
       removed: true
     }
-  },
-  // avatarWithLegs: {
-  //   components: [IKAvatarRig, ],
-  //   listen: {
-  //     added: true,
-  //     removed: true
-  //   }
-  // },
-  // avatarWithShoulders: {
-  //   components: [IKAvatarRig, IKAvatarArms],
-  //   listen: {
-  //     added: true,
-  //     removed: true
-  //   }
-  // }
+  }
 };

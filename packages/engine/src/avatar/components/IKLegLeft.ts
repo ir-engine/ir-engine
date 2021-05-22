@@ -1,9 +1,9 @@
-import { Leg } from './IKLeg';
+import IKLeg from './IKLeg';
 
 /**
  *
  * @author Shaw
  */
 
-export class LeftLeg extends Leg<LeftLeg> {
+export default class IKLegLeft extends IKLeg<IKLegLeft> {
 }

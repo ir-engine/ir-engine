@@ -1,4 +1,4 @@
-import { Vector3 } from 'three';
+import { Object3D, Vector3 } from 'three';
 import { AnimationMapping } from '../functions/AvatarMathFunctions';
 import { Component } from "../../ecs/classes/Component";
 import { Types } from "../../ecs/types/Types";
@@ -12,25 +12,23 @@ export type AvatarOptions = { top: boolean, bottom: boolean, visemes: boolean, h
  */
 export class IKAvatarRig extends Component<IKAvatarRig> {
 
-	head: any;
-	leftHand: any;
-	rightHand: any;
-	floorHeight: number;
-
-	referencePlayerHeightHmd: number;
-	referencePlayerWidthWrist: number;
-	playerHeightHmd: number;
-	playerWidthWrist: number;
-
-  pose: any;
-  modelBones: any;
+  transform: Object3D;
+  hips: Object3D;
+  spine: Object3D;
+  neck: Object3D;
+  head: Object3D;
+  eyes: Object3D;
+  leftShoulderAnchor: Object3D;
+  rightShoulderAnchor: Object3D;
+  legSeparation: number;
+  lastHmdPosition: Vector3;
+  hmdVelocity: Vector3;
+  
   sdkInputs: any;
   inputs: any;
   options: AvatarOptions;
-  springBoneManager: any;
   lastModelScaleFactor: any;
   model: any;
-  modelBoneOutputs: any;
   outputs: any;
   skinnedMeshesVisemeMappings: any;
   volume: number;

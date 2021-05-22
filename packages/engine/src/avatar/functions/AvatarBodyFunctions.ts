@@ -5,12 +5,10 @@ import { addComponent, getComponent, getMutableComponent, hasComponent } from ".
 import Arm from '../components/IKArm';
 import IKArmLeft from '../components/IKArmLeft';
 import IKArmRight from '../components/IKArmRight';
-import { IKAvatarLegs } from "../components/IKAvatarLegs";
 import { IKAvatarRig } from "../components/IKAvatarRig";
-import IKAvatarArms from '../components/IKAvatarArms';
-import { Leg } from '../components/IKLeg';
-import { LeftLeg } from '../components/IKLegLeft';
-import { RightLeg } from '../components/IKLegRight';
+import IKLeg from '../components/IKLeg';
+import IKLegLeft from '../components/IKLegLeft';
+import IKLegRight from '../components/IKLegRight';
 import XRPose from "../components/XRPose";
 import skeletonString from '../constants/Skeleton';
 import { Side } from '../enums/Side';
@@ -92,9 +90,12 @@ const _makeFingers = () => {
 
 export const initializeAvatarRig = (entity) => {
   const avatarRig = getMutableComponent(entity, IKAvatarRig);
-  avatarRig.options = { top: true, bottom: true, visemes: true, hair: true, fingers: true }
+
+  const obj = avatarRig.object;
+
+  const options = { top: true, bottom: true, visemes: true, hair: true, fingers: true }
   const model = (() => {
-    let o = avatarRig.object;
+    let o = obj;
     if (!o) {
       const object = new Scene();
 
@@ -115,7 +116,6 @@ export const initializeAvatarRig = (entity) => {
     }
     return o;
   })();
-  avatarRig.model = model;
 
   model.updateMatrixWorld(true);
   const skinnedMeshes = [];
@@ -125,7 +125,6 @@ export const initializeAvatarRig = (entity) => {
     }
   });
   skinnedMeshes.sort((a, b) => b.skeleton.bones.length - a.skeleton.bones.length);
-  avatarRig.skinnedMeshes = skinnedMeshes;
 
   const skeletonSkinnedMesh = skinnedMeshes.find(o => o.skeleton.bones[0].parent) || null;
   const skeleton = skeletonSkinnedMesh && skeletonSkinnedMesh.skeleton;
@@ -256,7 +255,6 @@ export const initializeAvatarRig = (entity) => {
     Right_knee,
     Right_ankle,
   };
-  avatarRig.modelBones = modelBones;
   for (const k in modelBones) {
     if (!modelBones[k]) {
       console.warn('missing bone', k);
@@ -285,9 +283,6 @@ export const initializeAvatarRig = (entity) => {
   const legDirection = new Vector3(0, 0, -1).applyQuaternion(Left_leg.getWorldQuaternion(new Quaternion()).premultiply(armature.quaternion.clone().invert()));
   const flipLeg = legDirection.y < 0.5;
   // console.log('flip', flipZ, flipY, flipLeg);
-  avatarRig.flipZ = flipZ;
-  avatarRig.flipY = flipY;
-  avatarRig.flipLeg = flipLeg;
 
   const armatureQuaternion = armature.quaternion.clone();
   const armatureMatrixInverse = armature.matrixWorld.clone().invert();
@@ -320,15 +315,11 @@ export const initializeAvatarRig = (entity) => {
     }
     return null;
   }).filter(bone => bone);
-  avatarRig.allHairBones = allHairBones;
-  avatarRig.hairBones = hairBones;
-
-  avatarRig.springBoneManager = null;
-  var springBoneManagerPromise = null;
-  if (avatarRig.options.hair) {
+//   var springBoneManagerPromise = null;
+  if (options.hair) {
     new Promise((accept, reject) => {
       let object;
-      if (!avatarRig.object) {
+      if (!obj) {
         object = {};
       }
       if (!object.parser) {
@@ -344,10 +335,10 @@ export const initializeAvatarRig = (entity) => {
       if (!object.parser.json.extensions.VRM) {
         object.parser.json.extensions.VRM = {
           secondaryAnimation: {
-            boneGroups: avatarRig.hairBones.map(hairBone => {
+            boneGroups: hairBones.map(hairBone => {
               const boneIndices = [];
               const _recurse = bone => {
-                boneIndices.push(avatarRig.allHairBones.indexOf(bone));
+                boneIndices.push(allHairBones.indexOf(bone));
                 if (bone.children.length > 0) {
                   _recurse(bone.children[0]);
                 }
@@ -373,17 +364,17 @@ export const initializeAvatarRig = (entity) => {
         };
         object.parser.getDependency = async (type, nodeIndex) => {
           if (type === 'node') {
-            return avatarRig.allHairBones[nodeIndex];
+            return allHairBones[nodeIndex];
           } else {
             throw new Error('unsupported type');
           }
         };
       }
 
-      springBoneManagerPromise = new VRMSpringBoneImporter().import(object)
-        .then(springBoneManager => {
-          avatarRig.springBoneManager = springBoneManager;
-        });
+      // springBoneManagerPromise = new VRMSpringBoneImporter().import(object)
+      //   .then(springBoneManager => {
+      //     avatarRig.springBoneManager = springBoneManager;
+      //   });
     });
   }
 
@@ -420,7 +411,6 @@ export const initializeAvatarRig = (entity) => {
       little: findFingerBone(/little/gi, false) || findFingerBone(/pinky/gi, false),
     },
   };
-  avatarRig.fingerBones = fingerBones;
 
   const preRotations = {};
   const _ensurePrerotation = k => {
@@ -567,6 +557,7 @@ export const initializeAvatarRig = (entity) => {
   const eyePosition = _getEyePosition();
 
 
+
   addComponent(entity, XRPose);
   const pose = getMutableComponent(entity, XRPose);
 
@@ -620,54 +611,59 @@ export const initializeAvatarRig = (entity) => {
   pose.referencePlayerWidthWrist = 1.39;
   pose.playerHeightHmd = 1.70;
   pose.playerWidthWrist = 1.39;
-  pose
-  addComponent(entity, IKAvatarArms);
 
-  addComponent(entity, IKAvatarLegs);
-  const avatarLegs = getMutableComponent(entity, IKAvatarLegs);
-
+  avatarRig.fingerBones = fingerBones;
+  avatarRig.allHairBones = allHairBones;
+  avatarRig.hairBones = hairBones;
+  avatarRig.flipZ = flipZ;
+  avatarRig.flipY = flipY;
+  avatarRig.flipLeg = flipLeg;
+  avatarRig.skinnedMeshes = skinnedMeshes;
+  avatarRig.model = model;
+  // avatarRig.springBoneManager = null;
+  avatarRig.options = options;
   const fingerBoneMap = {
     left: [
       {
-        bones: [avatarRig.pose.vrTransforms.leftHand.leftThumb0, avatarRig.pose.vrTransforms.leftHand.leftThumb1, avatarRig.pose.vrTransforms.leftHand.leftThumb2],
+        bones: [pose.leftHand.leftThumb0, pose.leftHand.leftThumb1, pose.leftHand.leftThumb2],
         finger: 'thumb',
       },
       {
-        bones: [avatarRig.pose.vrTransforms.leftHand.leftIndexFinger1, avatarRig.pose.vrTransforms.leftHand.leftIndexFinger2, avatarRig.pose.vrTransforms.leftHand.leftIndexFinger3],
+        bones: [pose.leftHand.leftIndexFinger1, pose.leftHand.leftIndexFinger2, pose.leftHand.leftIndexFinger3],
         finger: 'index',
       },
       {
-        bones: [avatarRig.pose.vrTransforms.leftHand.leftMiddleFinger1, avatarRig.pose.vrTransforms.leftHand.leftMiddleFinger2, avatarRig.pose.vrTransforms.leftHand.leftMiddleFinger3],
+        bones: [pose.leftHand.leftMiddleFinger1, pose.leftHand.leftMiddleFinger2, pose.leftHand.leftMiddleFinger3],
         finger: 'middle',
       },
       {
-        bones: [avatarRig.pose.vrTransforms.leftHand.leftRingFinger1, avatarRig.pose.vrTransforms.leftHand.leftRingFinger2, avatarRig.pose.vrTransforms.leftHand.leftRingFinger3],
+        bones: [pose.leftHand.leftRingFinger1, pose.leftHand.leftRingFinger2, pose.leftHand.leftRingFinger3],
         finger: 'ring',
       },
       {
-        bones: [avatarRig.pose.vrTransforms.leftHand.leftLittleFinger1, avatarRig.pose.vrTransforms.leftHand.leftLittleFinger2, avatarRig.pose.vrTransforms.leftHand.leftLittleFinger3],
+        bones: [pose.leftHand.leftLittleFinger1, pose.leftHand.leftLittleFinger2, pose.leftHand.leftLittleFinger3],
         finger: 'little',
       },
     ],
     right: [
       {
-        bones: [avatarRig.pose.vrTransforms.rightHand.rightThumb0, avatarRig.pose.vrTransforms.rightHand.rightThumb1, avatarRig.pose.vrTransforms.rightHand.rightThumb2],
+        bones: [pose.rightHand.rightThumb0, pose.rightHand.rightThumb1, pose.rightHand.rightThumb2],
         finger: 'thumb',
       },
       {
-        bones: [avatarRig.pose.vrTransforms.rightHand.rightIndexFinger1, avatarRig.pose.vrTransforms.rightHand.rightIndexFinger2, avatarRig.pose.vrTransforms.rightHand.rightIndexFinger3],
+        bones: [pose.rightHand.rightIndexFinger1, pose.rightHand.rightIndexFinger2, pose.rightHand.rightIndexFinger3],
         finger: 'index',
       },
       {
-        bones: [avatarRig.pose.vrTransforms.rightHand.rightMiddleFinger1, avatarRig.pose.vrTransforms.rightHand.rightMiddleFinger2, avatarRig.pose.vrTransforms.rightHand.rightMiddleFinger3],
+        bones: [pose.rightHand.rightMiddleFinger1, pose.rightHand.rightMiddleFinger2, pose.rightHand.rightMiddleFinger3],
         finger: 'middle',
       },
       {
-        bones: [avatarRig.pose.vrTransforms.rightHand.rightRingFinger1, avatarRig.pose.vrTransforms.rightHand.rightRingFinger2, avatarRig.pose.vrTransforms.rightHand.rightRingFinger3],
+        bones: [pose.rightHand.rightRingFinger1, pose.rightHand.rightRingFinger2, pose.rightHand.rightRingFinger3],
         finger: 'ring',
       },
       {
-        bones: [avatarRig.pose.vrTransforms.rightHand.rightLittleFinger1, avatarRig.pose.vrTransforms.rightHand.rightLittleFinger2, avatarRig.pose.vrTransforms.rightHand.rightLittleFinger3],
+        bones: [pose.rightHand.rightLittleFinger1, pose.rightHand.rightLittleFinger2, pose.rightHand.rightLittleFinger3],
         finger: 'little',
       },
     ],
@@ -676,68 +672,71 @@ export const initializeAvatarRig = (entity) => {
 
   const _getOffset = (bone, parent = bone.parent) => bone.getWorldPosition(new Vector3()).sub(parent.getWorldPosition(new Vector3()));
 
-  const avatarShoulders = getMutableComponent(entity, IKAvatarArms)
+  const leftArm = getMutableComponent(entity, IKArmLeft);
+  const rightArm = getMutableComponent(entity, IKArmLeft);
+  const leftLeg = getMutableComponent(entity, IKLegLeft);
+  const rightLeg = getMutableComponent(entity, IKLegRight);
 
-  avatarShoulders.spine.position.copy(_getOffset(modelBones.Spine));
-  avatarShoulders.transform.position.copy(_getOffset(modelBones.Chest, modelBones.Spine));
-  avatarShoulders.neck.position.copy(_getOffset(modelBones.Neck));
-  avatarShoulders.head.position.copy(_getOffset(modelBones.Head));
-  avatarShoulders.eyes.position.copy(eyePosition.clone().sub(Head.getWorldPosition(new Vector3())));
+  avatarRig.spine.position.copy(_getOffset(modelBones.Spine));
+  avatarRig.transform.position.copy(_getOffset(modelBones.Chest, modelBones.Spine));
+  avatarRig.neck.position.copy(_getOffset(modelBones.Neck));
+  avatarRig.head.position.copy(_getOffset(modelBones.Head));
+  avatarRig.eyes.position.copy(eyePosition.clone().sub(Head.getWorldPosition(new Vector3())));
 
-  avatarShoulders.leftShoulderAnchor.position.copy(_getOffset(modelBones.Left_shoulder));
-  avatarShoulders.leftArm.upperArm.position.copy(_getOffset(modelBones.Left_arm));
-  avatarShoulders.leftArm.lowerArm.position.copy(_getOffset(modelBones.Left_elbow));
-  avatarShoulders.leftArm.hand.position.copy(_getOffset(modelBones.Left_wrist));
-  avatarShoulders.leftArm.thumb2.position.copy(_getOffset(modelBones.Left_thumb2));
-  avatarShoulders.leftArm.thumb1.position.copy(_getOffset(modelBones.Left_thumb1));
-  avatarShoulders.leftArm.thumb0.position.copy(_getOffset(modelBones.Left_thumb0));
-  avatarShoulders.leftArm.indexFinger3.position.copy(_getOffset(modelBones.Left_indexFinger3));
-  avatarShoulders.leftArm.indexFinger2.position.copy(_getOffset(modelBones.Left_indexFinger2));
-  avatarShoulders.leftArm.indexFinger1.position.copy(_getOffset(modelBones.Left_indexFinger1));
-  avatarShoulders.leftArm.middleFinger3.position.copy(_getOffset(modelBones.Left_middleFinger3));
-  avatarShoulders.leftArm.middleFinger2.position.copy(_getOffset(modelBones.Left_middleFinger2));
-  avatarShoulders.leftArm.middleFinger1.position.copy(_getOffset(modelBones.Left_middleFinger1));
-  avatarShoulders.leftArm.ringFinger3.position.copy(_getOffset(modelBones.Left_ringFinger3));
-  avatarShoulders.leftArm.ringFinger2.position.copy(_getOffset(modelBones.Left_ringFinger2));
-  avatarShoulders.leftArm.ringFinger1.position.copy(_getOffset(modelBones.Left_ringFinger1));
-  avatarShoulders.leftArm.littleFinger3.position.copy(_getOffset(modelBones.Left_littleFinger3));
-  avatarShoulders.leftArm.littleFinger2.position.copy(_getOffset(modelBones.Left_littleFinger2));
-  avatarShoulders.leftArm.littleFinger1.position.copy(_getOffset(modelBones.Left_littleFinger1));
+  avatarRig.leftShoulderAnchor.position.copy(_getOffset(modelBones.Left_shoulder));
+  leftArm.upperArm.position.copy(_getOffset(modelBones.Left_arm));
+  leftArm.lowerArm.position.copy(_getOffset(modelBones.Left_elbow));
+  leftArm.hand.position.copy(_getOffset(modelBones.Left_wrist));
+  leftArm.thumb2.position.copy(_getOffset(modelBones.Left_thumb2));
+  leftArm.thumb1.position.copy(_getOffset(modelBones.Left_thumb1));
+  leftArm.thumb0.position.copy(_getOffset(modelBones.Left_thumb0));
+  leftArm.indexFinger3.position.copy(_getOffset(modelBones.Left_indexFinger3));
+  leftArm.indexFinger2.position.copy(_getOffset(modelBones.Left_indexFinger2));
+  leftArm.indexFinger1.position.copy(_getOffset(modelBones.Left_indexFinger1));
+  leftArm.middleFinger3.position.copy(_getOffset(modelBones.Left_middleFinger3));
+  leftArm.middleFinger2.position.copy(_getOffset(modelBones.Left_middleFinger2));
+  leftArm.middleFinger1.position.copy(_getOffset(modelBones.Left_middleFinger1));
+  leftArm.ringFinger3.position.copy(_getOffset(modelBones.Left_ringFinger3));
+  leftArm.ringFinger2.position.copy(_getOffset(modelBones.Left_ringFinger2));
+  leftArm.ringFinger1.position.copy(_getOffset(modelBones.Left_ringFinger1));
+  leftArm.littleFinger3.position.copy(_getOffset(modelBones.Left_littleFinger3));
+  leftArm.littleFinger2.position.copy(_getOffset(modelBones.Left_littleFinger2));
+  leftArm.littleFinger1.position.copy(_getOffset(modelBones.Left_littleFinger1));
 
-  avatarShoulders.rightShoulderAnchor.position.copy(_getOffset(modelBones.Right_shoulder));
-  avatarShoulders.rightArm.upperArm.position.copy(_getOffset(modelBones.Right_arm));
-  avatarShoulders.rightArm.lowerArm.position.copy(_getOffset(modelBones.Right_elbow));
-  avatarShoulders.rightArm.hand.position.copy(_getOffset(modelBones.Right_wrist));
-  avatarShoulders.rightArm.thumb2.position.copy(_getOffset(modelBones.Right_thumb2));
-  avatarShoulders.rightArm.thumb1.position.copy(_getOffset(modelBones.Right_thumb1));
-  avatarShoulders.rightArm.thumb0.position.copy(_getOffset(modelBones.Right_thumb0));
-  avatarShoulders.rightArm.indexFinger3.position.copy(_getOffset(modelBones.Right_indexFinger3));
-  avatarShoulders.rightArm.indexFinger2.position.copy(_getOffset(modelBones.Right_indexFinger2));
-  avatarShoulders.rightArm.indexFinger1.position.copy(_getOffset(modelBones.Right_indexFinger1));
-  avatarShoulders.rightArm.middleFinger3.position.copy(_getOffset(modelBones.Right_middleFinger3));
-  avatarShoulders.rightArm.middleFinger2.position.copy(_getOffset(modelBones.Right_middleFinger2));
-  avatarShoulders.rightArm.middleFinger1.position.copy(_getOffset(modelBones.Right_middleFinger1));
-  avatarShoulders.rightArm.ringFinger3.position.copy(_getOffset(modelBones.Right_ringFinger3));
-  avatarShoulders.rightArm.ringFinger2.position.copy(_getOffset(modelBones.Right_ringFinger2));
-  avatarShoulders.rightArm.ringFinger1.position.copy(_getOffset(modelBones.Right_ringFinger1));
-  avatarShoulders.rightArm.littleFinger3.position.copy(_getOffset(modelBones.Right_littleFinger3));
-  avatarShoulders.rightArm.littleFinger2.position.copy(_getOffset(modelBones.Right_littleFinger2));
-  avatarShoulders.rightArm.littleFinger1.position.copy(_getOffset(modelBones.Right_littleFinger1));
+  avatarRig.rightShoulderAnchor.position.copy(_getOffset(modelBones.Right_shoulder));
+  rightArm.upperArm.position.copy(_getOffset(modelBones.Right_arm));
+  rightArm.lowerArm.position.copy(_getOffset(modelBones.Right_elbow));
+  rightArm.hand.position.copy(_getOffset(modelBones.Right_wrist));
+  rightArm.thumb2.position.copy(_getOffset(modelBones.Right_thumb2));
+  rightArm.thumb1.position.copy(_getOffset(modelBones.Right_thumb1));
+  rightArm.thumb0.position.copy(_getOffset(modelBones.Right_thumb0));
+  rightArm.indexFinger3.position.copy(_getOffset(modelBones.Right_indexFinger3));
+  rightArm.indexFinger2.position.copy(_getOffset(modelBones.Right_indexFinger2));
+  rightArm.indexFinger1.position.copy(_getOffset(modelBones.Right_indexFinger1));
+  rightArm.middleFinger3.position.copy(_getOffset(modelBones.Right_middleFinger3));
+  rightArm.middleFinger2.position.copy(_getOffset(modelBones.Right_middleFinger2));
+  rightArm.middleFinger1.position.copy(_getOffset(modelBones.Right_middleFinger1));
+  rightArm.ringFinger3.position.copy(_getOffset(modelBones.Right_ringFinger3));
+  rightArm.ringFinger2.position.copy(_getOffset(modelBones.Right_ringFinger2));
+  rightArm.ringFinger1.position.copy(_getOffset(modelBones.Right_ringFinger1));
+  rightArm.littleFinger3.position.copy(_getOffset(modelBones.Right_littleFinger3));
+  rightArm.littleFinger2.position.copy(_getOffset(modelBones.Right_littleFinger2));
+  rightArm.littleFinger1.position.copy(_getOffset(modelBones.Right_littleFinger1));
 
-  avatarLegs.leftLeg.upperLeg.position.copy(_getOffset(modelBones.Left_leg));
-  avatarLegs.leftLeg.lowerLeg.position.copy(_getOffset(modelBones.Left_knee));
-  avatarLegs.leftLeg.foot.position.copy(_getOffset(modelBones.Left_ankle));
+  leftLeg.upperLeg.position.copy(_getOffset(modelBones.Left_leg));
+  leftLeg.lowerLeg.position.copy(_getOffset(modelBones.Left_knee));
+  leftLeg.foot.position.copy(_getOffset(modelBones.Left_ankle));
 
-  avatarLegs.rightLeg.upperLeg.position.copy(_getOffset(modelBones.Right_leg));
-  avatarLegs.rightLeg.lowerLeg.position.copy(_getOffset(modelBones.Right_knee));
-  avatarLegs.rightLeg.foot.position.copy(_getOffset(modelBones.Right_ankle));
+  rightLeg.upperLeg.position.copy(_getOffset(modelBones.Right_leg));
+  rightLeg.lowerLeg.position.copy(_getOffset(modelBones.Right_knee));
+  rightLeg.foot.position.copy(_getOffset(modelBones.Right_ankle));
 
-  avatarShoulders.hips.updateMatrixWorld();
+  avatarRig.hips.updateMatrixWorld();
 
   avatarRig.height = eyePosition.clone().sub(_averagePoint([modelBones.Left_ankle.getWorldPosition(new Vector3()), modelBones.Right_ankle.getWorldPosition(new Vector3())])).y;
   avatarRig.shoulderWidth = modelBones.Left_arm.getWorldPosition(new Vector3()).distanceTo(modelBones.Right_arm.getWorldPosition(new Vector3()));
-  avatarRig.leftArmLength = avatarShoulders.leftArm.armLength;
-  avatarRig.rightArmLength = avatarShoulders.rightArm.armLength;
+  avatarRig.leftArmLength = leftArm.armLength;
+  avatarRig.rightArmLength = rightArm.armLength;
   const indexDistance = modelBones.Left_indexFinger1.getWorldPosition(new Vector3())
     .distanceTo(modelBones.Left_wrist.getWorldPosition(new Vector3()));
   const handWidth = modelBones.Left_indexFinger1.getWorldPosition(new Vector3())
@@ -746,132 +745,60 @@ export const initializeAvatarRig = (entity) => {
   avatarRig.handOffsetRight = new Vector3(-handWidth * 0.7, -handWidth * 0.75, indexDistance * 0.5);
   avatarRig.eyeToHipsOffset = modelBones.Hips.getWorldPosition(new Vector3()).sub(eyePosition);
 
-  const _makeInput = () => {
-    const result = new Object3D();
-    result["pointer"] = 0;
-    result["grip"] = 0;
-    result["enabled"] = false;
-    return result;
+  const outputs = {
+    eyes: avatarRig.eyes,
+    head: avatarRig.head,
+    hips: avatarRig.hips,
+    spine: avatarRig.spine,
+    chest: avatarRig.transform,
+    neck: avatarRig.neck,
+    leftShoulder: avatarRig.leftShoulderAnchor,
+    leftUpperArm: leftArm.upperArm,
+    leftLowerArm: leftArm.lowerArm,
+    leftHand: leftArm.hand,
+    rightShoulder: avatarRig.rightShoulderAnchor,
+    rightUpperArm: rightArm.upperArm,
+    rightLowerArm: rightArm.lowerArm,
+    rightHand: rightArm.hand,
+    leftUpperLeg: leftLeg.upperLeg,
+    leftLowerLeg: leftLeg.lowerLeg,
+    leftFoot: leftLeg.foot,
+    rightUpperLeg: rightLeg.upperLeg,
+    rightLowerLeg: rightLeg.lowerLeg,
+    rightFoot: rightLeg.foot,
+    leftThumb2: rightArm.thumb2,
+    leftThumb1: rightArm.thumb1,
+    leftThumb0: rightArm.thumb0,
+    leftIndexFinger3: rightArm.indexFinger3,
+    leftIndexFinger2: rightArm.indexFinger2,
+    leftIndexFinger1: rightArm.indexFinger1,
+    leftMiddleFinger3: rightArm.middleFinger3,
+    leftMiddleFinger2: rightArm.middleFinger2,
+    leftMiddleFinger1: rightArm.middleFinger1,
+    leftRingFinger3: rightArm.ringFinger3,
+    leftRingFinger2: rightArm.ringFinger2,
+    leftRingFinger1: rightArm.ringFinger1,
+    leftLittleFinger3: rightArm.littleFinger3,
+    leftLittleFinger2: rightArm.littleFinger2,
+    leftLittleFinger1: rightArm.littleFinger1,
+    rightThumb2: leftArm.thumb2,
+    rightThumb1: leftArm.thumb1,
+    rightThumb0: leftArm.thumb0,
+    rightIndexFinger3: leftArm.indexFinger3,
+    rightIndexFinger2: leftArm.indexFinger2,
+    rightIndexFinger1: leftArm.indexFinger1,
+    rightMiddleFinger3: leftArm.middleFinger3,
+    rightMiddleFinger2: leftArm.middleFinger2,
+    rightMiddleFinger1: leftArm.middleFinger1,
+    rightRingFinger3: leftArm.ringFinger3,
+    rightRingFinger2: leftArm.ringFinger2,
+    rightRingFinger1: leftArm.ringFinger1,
+    rightLittleFinger3: leftArm.littleFinger3,
+    rightLittleFinger2: leftArm.littleFinger2,
+    rightLittleFinger1: leftArm.littleFinger1,
   };
-  avatarRig.inputs = {
-    hmd: _makeInput(),
-    leftGamepad: _makeInput(),
-    rightGamepad: _makeInput(),
-  };
-  avatarRig.sdkInputs = {
-    hmd: avatarRig.pose.vrTransforms.head,
-    leftGamepad: avatarRig.pose.vrTransforms.leftHand,
-    rightGamepad: avatarRig.pose.vrTransforms.rightHand,
-  };
-  avatarRig.sdkInputs.hmd.scaleFactor = 1;
-  avatarRig.lastModelScaleFactor = 1;
-  avatarRig.outputs = {
-    eyes: avatarShoulders.eyes,
-    head: avatarShoulders.head,
-    hips: avatarLegs.hips,
-    spine: avatarShoulders.spine,
-    chest: avatarShoulders.transform,
-    neck: avatarShoulders.neck,
-    leftShoulder: avatarShoulders.leftShoulderAnchor,
-    leftUpperArm: avatarShoulders.leftArm.upperArm,
-    leftLowerArm: avatarShoulders.leftArm.lowerArm,
-    leftHand: avatarShoulders.leftArm.hand,
-    rightShoulder: avatarShoulders.rightShoulderAnchor,
-    rightUpperArm: avatarShoulders.rightArm.upperArm,
-    rightLowerArm: avatarShoulders.rightArm.lowerArm,
-    rightHand: avatarShoulders.rightArm.hand,
-    leftUpperLeg: avatarLegs.leftLeg.upperLeg,
-    leftLowerLeg: avatarLegs.leftLeg.lowerLeg,
-    leftFoot: avatarLegs.leftLeg.foot,
-    rightUpperLeg: avatarLegs.rightLeg.upperLeg,
-    rightLowerLeg: avatarLegs.rightLeg.lowerLeg,
-    rightFoot: avatarLegs.rightLeg.foot,
-    leftThumb2: avatarShoulders.rightArm.thumb2,
-    leftThumb1: avatarShoulders.rightArm.thumb1,
-    leftThumb0: avatarShoulders.rightArm.thumb0,
-    leftIndexFinger3: avatarShoulders.rightArm.indexFinger3,
-    leftIndexFinger2: avatarShoulders.rightArm.indexFinger2,
-    leftIndexFinger1: avatarShoulders.rightArm.indexFinger1,
-    leftMiddleFinger3: avatarShoulders.rightArm.middleFinger3,
-    leftMiddleFinger2: avatarShoulders.rightArm.middleFinger2,
-    leftMiddleFinger1: avatarShoulders.rightArm.middleFinger1,
-    leftRingFinger3: avatarShoulders.rightArm.ringFinger3,
-    leftRingFinger2: avatarShoulders.rightArm.ringFinger2,
-    leftRingFinger1: avatarShoulders.rightArm.ringFinger1,
-    leftLittleFinger3: avatarShoulders.rightArm.littleFinger3,
-    leftLittleFinger2: avatarShoulders.rightArm.littleFinger2,
-    leftLittleFinger1: avatarShoulders.rightArm.littleFinger1,
-    rightThumb2: avatarShoulders.leftArm.thumb2,
-    rightThumb1: avatarShoulders.leftArm.thumb1,
-    rightThumb0: avatarShoulders.leftArm.thumb0,
-    rightIndexFinger3: avatarShoulders.leftArm.indexFinger3,
-    rightIndexFinger2: avatarShoulders.leftArm.indexFinger2,
-    rightIndexFinger1: avatarShoulders.leftArm.indexFinger1,
-    rightMiddleFinger3: avatarShoulders.leftArm.middleFinger3,
-    rightMiddleFinger2: avatarShoulders.leftArm.middleFinger2,
-    rightMiddleFinger1: avatarShoulders.leftArm.middleFinger1,
-    rightRingFinger3: avatarShoulders.leftArm.ringFinger3,
-    rightRingFinger2: avatarShoulders.leftArm.ringFinger2,
-    rightRingFinger1: avatarShoulders.leftArm.ringFinger1,
-    rightLittleFinger3: avatarShoulders.leftArm.littleFinger3,
-    rightLittleFinger2: avatarShoulders.leftArm.littleFinger2,
-    rightLittleFinger1: avatarShoulders.leftArm.littleFinger1,
-  };
-  avatarRig.modelBoneOutputs = {
-    Hips: avatarRig.outputs.hips,
-    Spine: avatarRig.outputs.spine,
-    Chest: avatarRig.outputs.chest,
-    Neck: avatarRig.outputs.neck,
-    Head: avatarRig.outputs.head,
-
-    Left_shoulder: avatarRig.outputs.rightShoulder,
-    Left_arm: avatarRig.outputs.rightUpperArm,
-    Left_elbow: avatarRig.outputs.rightLowerArm,
-    Left_wrist: avatarRig.outputs.rightHand,
-    Left_thumb2: avatarRig.outputs.leftThumb2,
-    Left_thumb1: avatarRig.outputs.leftThumb1,
-    Left_thumb0: avatarRig.outputs.leftThumb0,
-    Left_indexFinger3: avatarRig.outputs.leftIndexFinger3,
-    Left_indexFinger2: avatarRig.outputs.leftIndexFinger2,
-    Left_indexFinger1: avatarRig.outputs.leftIndexFinger1,
-    Left_middleFinger3: avatarRig.outputs.leftMiddleFinger3,
-    Left_middleFinger2: avatarRig.outputs.leftMiddleFinger2,
-    Left_middleFinger1: avatarRig.outputs.leftMiddleFinger1,
-    Left_ringFinger3: avatarRig.outputs.leftRingFinger3,
-    Left_ringFinger2: avatarRig.outputs.leftRingFinger2,
-    Left_ringFinger1: avatarRig.outputs.leftRingFinger1,
-    Left_littleFinger3: avatarRig.outputs.leftLittleFinger3,
-    Left_littleFinger2: avatarRig.outputs.leftLittleFinger2,
-    Left_littleFinger1: avatarRig.outputs.leftLittleFinger1,
-    Left_leg: avatarRig.outputs.rightUpperLeg,
-    Left_knee: avatarRig.outputs.rightLowerLeg,
-    Left_ankle: avatarRig.outputs.rightFoot,
-
-    Right_shoulder: avatarRig.outputs.leftShoulder,
-    Right_arm: avatarRig.outputs.leftUpperArm,
-    Right_elbow: avatarRig.outputs.leftLowerArm,
-    Right_wrist: avatarRig.outputs.leftHand,
-    Right_thumb2: avatarRig.outputs.rightThumb2,
-    Right_thumb1: avatarRig.outputs.rightThumb1,
-    Right_thumb0: avatarRig.outputs.rightThumb0,
-    Right_indexFinger3: avatarRig.outputs.rightIndexFinger3,
-    Right_indexFinger2: avatarRig.outputs.rightIndexFinger2,
-    Right_indexFinger1: avatarRig.outputs.rightIndexFinger1,
-    Right_middleFinger3: avatarRig.outputs.rightMiddleFinger3,
-    Right_middleFinger2: avatarRig.outputs.rightMiddleFinger2,
-    Right_middleFinger1: avatarRig.outputs.rightMiddleFinger1,
-    Right_ringFinger3: avatarRig.outputs.rightRingFinger3,
-    Right_ringFinger2: avatarRig.outputs.rightRingFinger2,
-    Right_ringFinger1: avatarRig.outputs.rightRingFinger1,
-    Right_littleFinger3: avatarRig.outputs.rightLittleFinger3,
-    Right_littleFinger2: avatarRig.outputs.rightLittleFinger2,
-    Right_littleFinger1: avatarRig.outputs.rightLittleFinger1,
-    Right_leg: avatarRig.outputs.leftUpperLeg,
-    Right_knee: avatarRig.outputs.leftLowerLeg,
-    Right_ankle: avatarRig.outputs.leftFoot,
-  };
-
-  if (avatarRig.options.visemes) {
+  let skinnedMeshesVisemeMappings = [];
+  if (options.visemes) {
     const vrmExtension = avatarRig.object && avatarRig.object.userData && avatarRig.object.userData.gltfExtensions && avatarRig.object.userData.gltfExtensions.VRM;
     const blendShapes = vrmExtension && vrmExtension.blendShapeMaster && vrmExtension.blendShapeMaster.blendShapeGroups;
     // ["Neutral", "A", "I", "U", "E", "O", "Blink", "Blink_L", "Blink_R", "Angry", "Fun", "Joy", "Sorrow", "Surprised"]
@@ -887,7 +814,7 @@ export const initializeAvatarRig = (entity) => {
         return null;
       }
     };
-    avatarRig.skinnedMeshesVisemeMappings = avatarRig.skinnedMeshes.map(o => {
+    skinnedMeshesVisemeMappings = skinnedMeshes.map(o => {
       const { morphTargetDictionary, morphTargetInfluences } = o;
       if (morphTargetDictionary && morphTargetInfluences) {
         const aaIndex = _getVrmBlendShapeIndex(/^a$/i) || morphTargetDictionary['vrc.v_aa'] || null;
@@ -903,76 +830,79 @@ export const initializeAvatarRig = (entity) => {
         return null;
       }
     });
-  } else {
-    avatarRig.skinnedMeshesVisemeMappings = [];
   }
+  const animationMappings = [
+    new AnimationMapping('mixamorigHips.quaternion', outputs.hips.quaternion, false),
+    new AnimationMapping('mixamorigSpine.quaternion', outputs.spine.quaternion, false),
+    // new AnimationMapping('mixamorigSpine1.quaternion', null, false),
+    new AnimationMapping('mixamorigSpine2.quaternion', outputs.chest.quaternion, false),
+    new AnimationMapping('mixamorigNeck.quaternion', outputs.neck.quaternion, false),
+    new AnimationMapping('mixamorigHead.quaternion', outputs.head.quaternion, false),
+
+    new AnimationMapping('mixamorigLeftShoulder.quaternion', outputs.rightShoulder.quaternion, true),
+    new AnimationMapping('mixamorigLeftArm.quaternion', outputs.rightUpperArm.quaternion, true),
+    new AnimationMapping('mixamorigLeftForeArm.quaternion', outputs.rightLowerArm.quaternion, true),
+    new AnimationMapping('mixamorigLeftHand.quaternion', outputs.leftHand.quaternion, true),
+    new AnimationMapping('mixamorigLeftHandMiddle1.quaternion', outputs.leftMiddleFinger1.quaternion, true),
+    new AnimationMapping('mixamorigLeftHandMiddle2.quaternion', outputs.leftMiddleFinger2.quaternion, true),
+    new AnimationMapping('mixamorigLeftHandMiddle3.quaternion', outputs.leftMiddleFinger3.quaternion, true),
+    new AnimationMapping('mixamorigLeftHandThumb1.quaternion', outputs.leftThumb0.quaternion, true),
+    new AnimationMapping('mixamorigLeftHandThumb2.quaternion', outputs.leftThumb1.quaternion, true),
+    new AnimationMapping('mixamorigLeftHandThumb3.quaternion', outputs.leftThumb2.quaternion, true),
+    new AnimationMapping('mixamorigLeftHandIndex1.quaternion', outputs.leftIndexFinger1.quaternion, true),
+    new AnimationMapping('mixamorigLeftHandIndex2.quaternion', outputs.leftIndexFinger2.quaternion, true),
+    new AnimationMapping('mixamorigLeftHandIndex3.quaternion', outputs.leftIndexFinger3.quaternion, true),
+    new AnimationMapping('mixamorigLeftHandRing1.quaternion', outputs.leftRingFinger1.quaternion, true),
+    new AnimationMapping('mixamorigLeftHandRing2.quaternion', outputs.leftRingFinger2.quaternion, true),
+    new AnimationMapping('mixamorigLeftHandRing3.quaternion', outputs.leftRingFinger3.quaternion, true),
+    new AnimationMapping('mixamorigLeftHandPinky1.quaternion', outputs.leftLittleFinger1.quaternion, true),
+    new AnimationMapping('mixamorigLeftHandPinky2.quaternion', outputs.leftLittleFinger2.quaternion, true),
+    new AnimationMapping('mixamorigLeftHandPinky3.quaternion', outputs.leftLittleFinger3.quaternion, true),
+
+    new AnimationMapping('mixamorigRightShoulder.quaternion', outputs.leftShoulder.quaternion, true),
+    new AnimationMapping('mixamorigRightArm.quaternion', outputs.leftUpperArm.quaternion, true),
+    new AnimationMapping('mixamorigRightForeArm.quaternion', outputs.leftLowerArm.quaternion, true),
+    new AnimationMapping('mixamorigRightHand.quaternion', outputs.rightHand.quaternion, true),
+    new AnimationMapping('mixamorigRightHandMiddle1.quaternion', outputs.rightMiddleFinger1.quaternion, true),
+    new AnimationMapping('mixamorigRightHandMiddle2.quaternion', outputs.rightMiddleFinger2.quaternion, true),
+    new AnimationMapping('mixamorigRightHandMiddle3.quaternion', outputs.rightMiddleFinger3.quaternion, true),
+    new AnimationMapping('mixamorigRightHandThumb1.quaternion', outputs.rightThumb0.quaternion, true),
+    new AnimationMapping('mixamorigRightHandThumb2.quaternion', outputs.rightThumb1.quaternion, true),
+    new AnimationMapping('mixamorigRightHandThumb3.quaternion', outputs.rightThumb2.quaternion, true),
+    new AnimationMapping('mixamorigRightHandIndex1.quaternion', outputs.rightIndexFinger1.quaternion, true),
+    new AnimationMapping('mixamorigRightHandIndex2.quaternion', outputs.rightIndexFinger2.quaternion, true),
+    new AnimationMapping('mixamorigRightHandIndex3.quaternion', outputs.rightIndexFinger3.quaternion, true),
+    new AnimationMapping('mixamorigRightHandRing1.quaternion', outputs.rightRingFinger1.quaternion, true),
+    new AnimationMapping('mixamorigRightHandRing2.quaternion', outputs.rightRingFinger2.quaternion, true),
+    new AnimationMapping('mixamorigRightHandRing3.quaternion', outputs.rightRingFinger3.quaternion, true),
+    new AnimationMapping('mixamorigRightHandPinky1.quaternion', outputs.rightLittleFinger1.quaternion, true),
+    new AnimationMapping('mixamorigRightHandPinky2.quaternion', outputs.rightLittleFinger2.quaternion, true),
+    new AnimationMapping('mixamorigRightHandPinky3.quaternion', outputs.rightLittleFinger3.quaternion, true),
+
+    new AnimationMapping('mixamorigRightUpLeg.quaternion', outputs.leftUpperLeg.quaternion, false),
+    new AnimationMapping('mixamorigRightLeg.quaternion', outputs.leftLowerLeg.quaternion, false),
+    new AnimationMapping('mixamorigRightFoot.quaternion', outputs.leftFoot.quaternion, false),
+    // new AnimationMapping('mixamorigRightToeBase.quaternion', null, false),
+
+    new AnimationMapping('mixamorigLeftUpLeg.quaternion', outputs.rightUpperLeg.quaternion, false),
+    new AnimationMapping('mixamorigLeftLeg.quaternion', outputs.rightLowerLeg.quaternion, false),
+    new AnimationMapping('mixamorigLeftFoot.quaternion', outputs.rightFoot.quaternion, false),
+    // new AnimationMapping('mixamorigLeftToeBase.quaternion', null, false),
+  ];
 
   initAvatarShoulders(entity);
   initAvatarLegs(entity);
 
-  avatarRig.animationMappings = [
-    new AnimationMapping('mixamorigHips.quaternion', avatarRig.outputs.hips.quaternion, false),
-    new AnimationMapping('mixamorigSpine.quaternion', avatarRig.outputs.spine.quaternion, false),
-    // new AnimationMapping('mixamorigSpine1.quaternion', null, false),
-    new AnimationMapping('mixamorigSpine2.quaternion', avatarRig.outputs.chest.quaternion, false),
-    new AnimationMapping('mixamorigNeck.quaternion', avatarRig.outputs.neck.quaternion, false),
-    new AnimationMapping('mixamorigHead.quaternion', avatarRig.outputs.head.quaternion, false),
 
-    new AnimationMapping('mixamorigLeftShoulder.quaternion', avatarRig.outputs.rightShoulder.quaternion, true),
-    new AnimationMapping('mixamorigLeftArm.quaternion', avatarRig.outputs.rightUpperArm.quaternion, true),
-    new AnimationMapping('mixamorigLeftForeArm.quaternion', avatarRig.outputs.rightLowerArm.quaternion, true),
-    new AnimationMapping('mixamorigLeftHand.quaternion', avatarRig.outputs.leftHand.quaternion, true),
-    new AnimationMapping('mixamorigLeftHandMiddle1.quaternion', avatarRig.outputs.leftMiddleFinger1.quaternion, true),
-    new AnimationMapping('mixamorigLeftHandMiddle2.quaternion', avatarRig.outputs.leftMiddleFinger2.quaternion, true),
-    new AnimationMapping('mixamorigLeftHandMiddle3.quaternion', avatarRig.outputs.leftMiddleFinger3.quaternion, true),
-    new AnimationMapping('mixamorigLeftHandThumb1.quaternion', avatarRig.outputs.leftThumb0.quaternion, true),
-    new AnimationMapping('mixamorigLeftHandThumb2.quaternion', avatarRig.outputs.leftThumb1.quaternion, true),
-    new AnimationMapping('mixamorigLeftHandThumb3.quaternion', avatarRig.outputs.leftThumb2.quaternion, true),
-    new AnimationMapping('mixamorigLeftHandIndex1.quaternion', avatarRig.outputs.leftIndexFinger1.quaternion, true),
-    new AnimationMapping('mixamorigLeftHandIndex2.quaternion', avatarRig.outputs.leftIndexFinger2.quaternion, true),
-    new AnimationMapping('mixamorigLeftHandIndex3.quaternion', avatarRig.outputs.leftIndexFinger3.quaternion, true),
-    new AnimationMapping('mixamorigLeftHandRing1.quaternion', avatarRig.outputs.leftRingFinger1.quaternion, true),
-    new AnimationMapping('mixamorigLeftHandRing2.quaternion', avatarRig.outputs.leftRingFinger2.quaternion, true),
-    new AnimationMapping('mixamorigLeftHandRing3.quaternion', avatarRig.outputs.leftRingFinger3.quaternion, true),
-    new AnimationMapping('mixamorigLeftHandPinky1.quaternion', avatarRig.outputs.leftLittleFinger1.quaternion, true),
-    new AnimationMapping('mixamorigLeftHandPinky2.quaternion', avatarRig.outputs.leftLittleFinger2.quaternion, true),
-    new AnimationMapping('mixamorigLeftHandPinky3.quaternion', avatarRig.outputs.leftLittleFinger3.quaternion, true),
 
-    new AnimationMapping('mixamorigRightShoulder.quaternion', avatarRig.outputs.leftShoulder.quaternion, true),
-    new AnimationMapping('mixamorigRightArm.quaternion', avatarRig.outputs.leftUpperArm.quaternion, true),
-    new AnimationMapping('mixamorigRightForeArm.quaternion', avatarRig.outputs.leftLowerArm.quaternion, true),
-    new AnimationMapping('mixamorigRightHand.quaternion', avatarRig.outputs.rightHand.quaternion, true),
-    new AnimationMapping('mixamorigRightHandMiddle1.quaternion', avatarRig.outputs.rightMiddleFinger1.quaternion, true),
-    new AnimationMapping('mixamorigRightHandMiddle2.quaternion', avatarRig.outputs.rightMiddleFinger2.quaternion, true),
-    new AnimationMapping('mixamorigRightHandMiddle3.quaternion', avatarRig.outputs.rightMiddleFinger3.quaternion, true),
-    new AnimationMapping('mixamorigRightHandThumb1.quaternion', avatarRig.outputs.rightThumb0.quaternion, true),
-    new AnimationMapping('mixamorigRightHandThumb2.quaternion', avatarRig.outputs.rightThumb1.quaternion, true),
-    new AnimationMapping('mixamorigRightHandThumb3.quaternion', avatarRig.outputs.rightThumb2.quaternion, true),
-    new AnimationMapping('mixamorigRightHandIndex1.quaternion', avatarRig.outputs.rightIndexFinger1.quaternion, true),
-    new AnimationMapping('mixamorigRightHandIndex2.quaternion', avatarRig.outputs.rightIndexFinger2.quaternion, true),
-    new AnimationMapping('mixamorigRightHandIndex3.quaternion', avatarRig.outputs.rightIndexFinger3.quaternion, true),
-    new AnimationMapping('mixamorigRightHandRing1.quaternion', avatarRig.outputs.rightRingFinger1.quaternion, true),
-    new AnimationMapping('mixamorigRightHandRing2.quaternion', avatarRig.outputs.rightRingFinger2.quaternion, true),
-    new AnimationMapping('mixamorigRightHandRing3.quaternion', avatarRig.outputs.rightRingFinger3.quaternion, true),
-    new AnimationMapping('mixamorigRightHandPinky1.quaternion', avatarRig.outputs.rightLittleFinger1.quaternion, true),
-    new AnimationMapping('mixamorigRightHandPinky2.quaternion', avatarRig.outputs.rightLittleFinger2.quaternion, true),
-    new AnimationMapping('mixamorigRightHandPinky3.quaternion', avatarRig.outputs.rightLittleFinger3.quaternion, true),
+  avatarRig.outputs = outputs;
+  avatarRig.animationMappings = animationMappings;
+  avatarRig.skinnedMeshesVisemeMappings = skinnedMeshesVisemeMappings;
 
-    new AnimationMapping('mixamorigRightUpLeg.quaternion', avatarRig.outputs.leftUpperLeg.quaternion, false),
-    new AnimationMapping('mixamorigRightLeg.quaternion', avatarRig.outputs.leftLowerLeg.quaternion, false),
-    new AnimationMapping('mixamorigRightFoot.quaternion', avatarRig.outputs.leftFoot.quaternion, false),
-    // new AnimationMapping('mixamorigRightToeBase.quaternion', null, false),
-
-    new AnimationMapping('mixamorigLeftUpLeg.quaternion', avatarRig.outputs.rightUpperLeg.quaternion, false),
-    new AnimationMapping('mixamorigLeftLeg.quaternion', avatarRig.outputs.rightLowerLeg.quaternion, false),
-    new AnimationMapping('mixamorigLeftFoot.quaternion', avatarRig.outputs.rightFoot.quaternion, false),
-    // new AnimationMapping('mixamorigLeftToeBase.quaternion', null, false),
-  ];
 }
 
 const updateIKArm = (entity, side: Side) => {
   const armIK = getMutableComponent(entity, side === Side.Left ? IKArmLeft : IKArmRight);
-  const avatarShoulders = getMutableComponent(entity, IKAvatarArms);
 
   updateMatrixWorld(armIK.transform);
   updateMatrixWorld(armIK.upperArm);
@@ -981,7 +911,7 @@ const updateIKArm = (entity, side: Side) => {
   const handRotation = armIK.target.quaternion;
   const handPosition = localVector2.copy(armIK.target.position);
 
-  const shoulderRotation = getWorldQuaternion(avatarShoulders.transform, localQuaternion);
+  const shoulderRotation = getWorldQuaternion(armIK.transform, localQuaternion);
   const shoulderRotationInverse = localQuaternion2.copy(shoulderRotation).invert();
 
   const hypotenuseDistance = armIK.upperArmLength;
@@ -1051,50 +981,51 @@ const updateIKArm = (entity, side: Side) => {
 }
 
 export const updateAvatarShoulders = (entity, delta) => {
-  const shoulders = getMutableComponent(entity, IKAvatarArms);
-  shoulders.spine.quaternion.set(0, 0, 0, 1);
+  const avatarRig = getMutableComponent(entity, IKAvatarRig);
+  const pose = getMutableComponent(entity, XRPose);
+
+  avatarRig.spine.quaternion.set(0, 0, 0, 1);
 
   // Update hips
 
-  let hmdRotation = localQuaternion.copy(shoulders.head.quaternion)
+  let hmdRotation = localQuaternion.copy(avatarRig.head.quaternion)
   .multiply(z180Quaternion);
 let hmdEuler = localEuler.setFromQuaternion(hmdRotation, 'YXZ');
 hmdEuler.x = 0;
 hmdEuler.z = 0;
 let hmdXYRotation = localQuaternion2.setFromEuler(hmdEuler);
 
-const headPosition = localVector.copy(shoulders.head.position)
-  .sub(localVector2.copy(shoulders.eyes.position).applyQuaternion(hmdRotation));
-const neckPosition = headPosition.sub(localVector2.copy(shoulders.head.position).applyQuaternion(hmdRotation));
-const chestPosition = neckPosition.sub(localVector2.copy(shoulders.neck.position).applyQuaternion(hmdXYRotation));
-const spinePosition = chestPosition.sub(localVector2.copy(shoulders.transform.position).applyQuaternion(hmdXYRotation));
-const hipsPosition = spinePosition.sub(localVector2.copy(shoulders.spine.position).applyQuaternion(hmdXYRotation));
+const headPosition = localVector.copy(avatarRig.head.position)
+  .sub(localVector2.copy(avatarRig.eyes.position).applyQuaternion(hmdRotation));
+const neckPosition = headPosition.sub(localVector2.copy(avatarRig.head.position).applyQuaternion(hmdRotation));
+const chestPosition = neckPosition.sub(localVector2.copy(avatarRig.neck.position).applyQuaternion(hmdXYRotation));
+const spinePosition = chestPosition.sub(localVector2.copy(avatarRig.transform.position).applyQuaternion(hmdXYRotation));
+const hipsPosition = spinePosition.sub(localVector2.copy(avatarRig.spine.position).applyQuaternion(hmdXYRotation));
 
-shoulders.hips.position.copy(hipsPosition);
-if (shoulders.rig?.legsManager?.enabled) {
-  shoulders.hips.quaternion.copy(hmdXYRotation);
-}
-updateMatrix(shoulders.hips);
-shoulders.hips.matrixWorld.copy(shoulders.hips.matrix);
-updateMatrixWorld(shoulders.spine);
-updateMatrixWorld(shoulders.transform);
+avatarRig.hips.position.copy(hipsPosition);
+avatarRig.hips.quaternion.copy(hmdXYRotation);
+
+updateMatrix(avatarRig.hips);
+avatarRig.hips.matrixWorld.copy(avatarRig.hips.matrix);
+updateMatrixWorld(avatarRig.spine);
+updateMatrixWorld(avatarRig.transform);
 
 // Update 
   
-  shoulders.leftShoulderAnchor.quaternion.set(0, 0, 0, 1);
-  shoulders.rightShoulderAnchor.quaternion.set(0, 0, 0, 1);
+  avatarRig.leftShoulderAnchor.quaternion.set(0, 0, 0, 1);
+  avatarRig.rightShoulderAnchor.quaternion.set(0, 0, 0, 1);
 
 
-  const hipsRotation = localQuaternion.copy(shoulders.hips.quaternion)
+  const hipsRotation = localQuaternion.copy(avatarRig.hips.quaternion)
     .multiply(z180Quaternion);
   const hipsRotationInverse = localQuaternion2.copy(hipsRotation)
     .invert();
 
-  const distanceLeftHand = localVector.copy(shoulders.leftHand.position)
-    .sub(shoulders.head.position)
+  const distanceLeftHand = localVector.copy(pose.leftHand.position)
+    .sub(avatarRig.head.position)
     .applyQuaternion(hipsRotationInverse);
-  const distanceRightHand = localVector2.copy(shoulders.rightHand.position)
-    .sub(shoulders.head.position)
+  const distanceRightHand = localVector2.copy(pose.rightHand.position)
+    .sub(avatarRig.head.position)
     .applyQuaternion(hipsRotationInverse);
 
   distanceLeftHand.y = 0;
@@ -1112,20 +1043,20 @@ updateMatrixWorld(shoulders.transform);
   const combinedDirection = localVector.addVectors(distanceLeftHand.normalize(), distanceRightHand.normalize());
   const angleY = Math.atan2(combinedDirection.x, combinedDirection.z);
 
-  shoulders.transform.quaternion.setFromEuler(localEuler.set(0, angleY, 0, 'YXZ'))
+  avatarRig.transform.quaternion.setFromEuler(localEuler.set(0, angleY, 0, 'YXZ'))
     .premultiply(
-      localQuaternion.copy(shoulders.hips.quaternion)
+      localQuaternion.copy(avatarRig.hips.quaternion)
       .multiply(z180Quaternion)
     );
 
-  shoulders.transform.quaternion
-    .premultiply(getWorldQuaternion(shoulders.transform.parent, localQuaternion).invert());
-  updateMatrixMatrixWorld(shoulders.transform);
-  updateMatrixWorld(shoulders.leftShoulderAnchor);
-  updateMatrixWorld(shoulders.rightShoulderAnchor);
+  avatarRig.transform.quaternion
+    .premultiply(getWorldQuaternion(avatarRig.transform.parent, localQuaternion).invert());
+  updateMatrixMatrixWorld(avatarRig.transform);
+  updateMatrixWorld(avatarRig.leftShoulderAnchor);
+  updateMatrixWorld(avatarRig.rightShoulderAnchor);
   
 
-  hmdRotation = localQuaternion.copy(shoulders.head.quaternion)
+  hmdRotation = localQuaternion.copy(avatarRig.head.quaternion)
     .multiply(z180Quaternion);
 
   hmdEuler = localEuler.setFromQuaternion(hmdRotation, 'YXZ');
@@ -1133,51 +1064,50 @@ updateMatrixWorld(shoulders.transform);
   hmdEuler.z = 0;
   hmdXYRotation = localQuaternion2.setFromEuler(hmdEuler);
 
-  shoulders.neck.quaternion.copy(hmdXYRotation)
-    .premultiply(getWorldQuaternion(shoulders.neck.parent, localQuaternion3).invert());
-  updateMatrixMatrixWorld(shoulders.neck);
+  avatarRig.neck.quaternion.copy(hmdXYRotation)
+    .premultiply(getWorldQuaternion(avatarRig.neck.parent, localQuaternion3).invert());
+  updateMatrixMatrixWorld(avatarRig.neck);
 
-  shoulders.head.quaternion.copy(hmdRotation)
-    .premultiply(getWorldQuaternion(shoulders.head.parent, localQuaternion3).invert());
-  updateMatrixMatrixWorld(shoulders.head);
+  avatarRig.head.quaternion.copy(hmdRotation)
+    .premultiply(getWorldQuaternion(avatarRig.head.parent, localQuaternion3).invert());
+  updateMatrixMatrixWorld(avatarRig.head);
 
-  updateMatrixWorld(shoulders.eyes);
+  updateMatrixWorld(avatarRig.eyes);
 
   updateIKArm(entity, Side.Left);
   updateIKArm(entity, Side.Right);
 }
 
 export const initAvatarShoulders = (entity: Entity) => {
-  if(hasComponent(entity, IKAvatarArms)) return console.log("Tried to init avatar shoulders but already init")
-    addComponent(entity, IKAvatarArms);
-  const avatarShoulders = getMutableComponent(entity, IKAvatarArms);
+  const avatarRig = getMutableComponent(entity, IKAvatarRig);
 
-  avatarShoulders.transform = new Object3D();
-  avatarShoulders.hips = new Object3D();
-  avatarShoulders.spine = new Object3D();
-  avatarShoulders.neck = new Object3D();
-  avatarShoulders.head = new Object3D();
-  avatarShoulders.eyes = new Object3D();
+  avatarRig.transform = new Object3D();
+  avatarRig.hips = new Object3D();
+  avatarRig.spine = new Object3D();
+  avatarRig.neck = new Object3D();
+  avatarRig.head = new Object3D();
+  avatarRig.eyes = new Object3D();
 
-  avatarShoulders.hips.add(avatarShoulders.spine);
-  avatarShoulders.spine.add(avatarShoulders.transform);
-  avatarShoulders.transform.add(avatarShoulders.neck);
-  avatarShoulders.neck.add(avatarShoulders.head);
-  avatarShoulders.head.add(avatarShoulders.eyes);
+  avatarRig.hips.add(avatarRig.spine);
+  avatarRig.spine.add(avatarRig.transform);
+  avatarRig.transform.add(avatarRig.neck);
+  avatarRig.neck.add(avatarRig.head);
+  avatarRig.head.add(avatarRig.eyes);
 
-  avatarShoulders.leftShoulderAnchor = new Object3D();
-  avatarShoulders.transform.add(avatarShoulders.leftShoulderAnchor);
-  avatarShoulders.rightShoulderAnchor = new Object3D();
-  avatarShoulders.transform.add(avatarShoulders.rightShoulderAnchor);
+  avatarRig.leftShoulderAnchor = new Object3D();
+  avatarRig.transform.add(avatarRig.leftShoulderAnchor);
+  avatarRig.rightShoulderAnchor = new Object3D();
+  avatarRig.transform.add(avatarRig.rightShoulderAnchor);
 
-  avatarShoulders.leftArm = (hasComponent(entity, IKArmLeft) ? getComponent(entity, IKArmLeft) : addComponent(entity, IKArmLeft)) as Arm;
-  avatarShoulders.rightArm = (hasComponent(entity, IKArmRight) ? getComponent(entity, IKArmRight) : addComponent(entity, IKArmRight)) as Arm;
+  const leftArm = (hasComponent(entity, IKArmLeft) ? getComponent(entity, IKArmLeft) : addComponent(entity, IKArmLeft)) as Arm;
+  const rightArm = (hasComponent(entity, IKArmRight) ? getComponent(entity, IKArmRight) : addComponent(entity, IKArmRight)) as Arm;
 
   initArm(entity, Side.Left);
   initArm(entity, Side.Right);
 
-  avatarShoulders.leftShoulderAnchor.add(avatarShoulders.leftArm.transform);
-  avatarShoulders.rightShoulderAnchor.add(avatarShoulders.rightArm.transform);}
+  avatarRig.leftShoulderAnchor.add(leftArm.transform);
+  avatarRig.rightShoulderAnchor.add(rightArm.transform);
+}
 
 const initArm = (entity, armSide) => {
   const Arm = armSide === Side.Left ? IKArmLeft : IKArmRight;
@@ -1235,74 +1165,80 @@ const initArm = (entity, armSide) => {
 }
 
 export const initAvatarLegs = (entity) => {
-  const rig = getMutableComponent(entity, IKAvatarRig);
-  const shoulders = getMutableComponent(entity, IKAvatarArms);
+  const avatarRig = getMutableComponent(entity, IKAvatarRig);
   const pose = getMutableComponent(entity, XRPose);
 
-  if (!hasComponent(entity, IKAvatarLegs))
-    addComponent(entity, IKAvatarLegs);
-  const avatarLegs = getMutableComponent(entity, IKAvatarLegs);
+  const leftLeg = (hasComponent(entity, IKLegLeft) ?
+    getComponent(entity, IKLegLeft) :
+    addComponent(entity, IKLegLeft)) as IKLeg<any>;
 
-  avatarLegs.hips = shoulders.hips;
-  if(!hasComponent(entity, LeftLeg)){
-    avatarLegs.leftLeg = addComponent(entity, LeftLeg) as any;
-  }
-  if(!hasComponent(entity, RightLeg)){
-    avatarLegs.rightLeg = addComponent(entity, RightLeg)  as any;
-  }
+  const rightLeg = (hasComponent(entity, IKLegRight) ?
+    getComponent(entity, IKLegRight) :
+    addComponent(entity, IKLegRight)) as IKLeg<any>;
 
-  avatarLegs.hips.add(avatarLegs.leftLeg.transform);
-  avatarLegs.hips.add(avatarLegs.rightLeg.transform);
+  avatarRig.hips.add(leftLeg.transform);
+  avatarRig.hips.add(rightLeg.transform);
 
-  avatarLegs.lastHmdPosition = new Vector3();
+  avatarRig.lastHmdPosition = new Vector3();
 
-  avatarLegs.hmdVelocity = new Vector3();
-  avatarLegs.legSeparation = getWorldPosition(avatarLegs.leftLeg.upperLeg, localVector)
-    .distanceTo(getWorldPosition(avatarLegs.rightLeg.upperLeg, localVector2));
-  avatarLegs.lastHmdPosition.copy(pose.head.position);
+  avatarRig.hmdVelocity = new Vector3();
+  avatarRig.legSeparation = getWorldPosition(leftLeg.upperLeg, localVector)
+    .distanceTo(getWorldPosition(rightLeg.upperLeg, localVector2));
+    avatarRig.lastHmdPosition.copy(pose.head.position);
   initLeg(entity, Side.Left);
   initLeg(entity, Side.Right);
   resetAvatarLegs(entity);
 };
 
 export const resetAvatarLegs = (entity: Entity) => {
-  const avatarLegs = getMutableComponent(entity, IKAvatarLegs);
+  const leftLeg = (hasComponent(entity, IKLegLeft) ?
+    getComponent(entity, IKLegLeft) :
+    addComponent(entity, IKLegLeft)) as IKLeg<any>;
+
+  const rightLeg = (hasComponent(entity, IKLegRight) ?
+    getComponent(entity, IKLegRight) :
+    addComponent(entity, IKLegRight)) as IKLeg<any>;
+
   const rig = getMutableComponent(entity, IKAvatarRig);
 
-  copyTransform(avatarLegs.leftLeg.upperLeg, rig.modelBones.Right_leg);
-  copyTransform(avatarLegs.leftLeg.lowerLeg, rig.modelBones.Right_knee);
-  copyTransform(avatarLegs.leftLeg.foot, rig.modelBones.Right_ankle);
-  avatarLegs.leftLeg.foot.getWorldPosition(avatarLegs.leftLeg.foot["stickTransform"].position);
-  avatarLegs.leftLeg.foot.getWorldQuaternion(avatarLegs.leftLeg.foot["stickTransform"].quaternion);
+  copyTransform(leftLeg.upperLeg, rig.modelBones.Right_leg);
+  copyTransform(leftLeg.lowerLeg, rig.modelBones.Right_knee);
+  copyTransform(leftLeg.foot, rig.modelBones.Right_ankle);
+  leftLeg.foot.getWorldPosition(leftLeg.foot["stickTransform"].position);
+  leftLeg.foot.getWorldQuaternion(leftLeg.foot["stickTransform"].quaternion);
 
-  copyTransform(avatarLegs.rightLeg.upperLeg, rig.modelBones.Left_leg);
-  copyTransform(avatarLegs.rightLeg.lowerLeg, rig.modelBones.Left_knee);
-  copyTransform(avatarLegs.rightLeg.foot, rig.modelBones.Left_ankle);
-  avatarLegs.rightLeg.foot.getWorldPosition(avatarLegs.rightLeg.foot["stickTransform"].position);
-  avatarLegs.rightLeg.foot.getWorldQuaternion(avatarLegs.rightLeg.foot["stickTransform"].quaternion);
+  copyTransform(rightLeg.upperLeg, rig.modelBones.Left_leg);
+  copyTransform(rightLeg.lowerLeg, rig.modelBones.Left_knee);
+  copyTransform(rightLeg.foot, rig.modelBones.Left_ankle);
+  rightLeg.foot.getWorldPosition(rightLeg.foot["stickTransform"].position);
+  rightLeg.foot.getWorldQuaternion(rightLeg.foot["stickTransform"].quaternion);
 };
 
 export const updateAvatarLegs = (entity: Entity, delta) => {
-  const avatarLegs = getMutableComponent(entity, IKAvatarLegs);
-  const pose = getMutableComponent(entity, XRPose);
+  const avatarRig = getMutableComponent(entity, IKAvatarRig);
 
-    updateMatrixWorld(avatarLegs.leftLeg.transform);
-    updateMatrixWorld(avatarLegs.leftLeg.upperLeg);
-    updateMatrixWorld(avatarLegs.leftLeg.lowerLeg);
-    updateMatrixWorld(avatarLegs.leftLeg.foot);
+  const leftLeg = getComponent(entity, IKLegLeft) as IKLeg<any>;
+  const rightLeg = getComponent(entity, IKLegRight) as IKLeg<any>;
+    
+    const pose = getMutableComponent(entity, XRPose);
 
-    updateMatrixWorld(avatarLegs.rightLeg.transform);
-    updateMatrixWorld(avatarLegs.rightLeg.upperLeg);
-    updateMatrixWorld(avatarLegs.rightLeg.lowerLeg);
-    updateMatrixWorld(avatarLegs.rightLeg.foot);
+    updateMatrixWorld(leftLeg.transform);
+    updateMatrixWorld(leftLeg.upperLeg);
+    updateMatrixWorld(leftLeg.lowerLeg);
+    updateMatrixWorld(leftLeg.foot);
 
-    avatarLegs.hmdVelocity.copy(pose.head.position).sub(avatarLegs.lastHmdPosition);
+    updateMatrixWorld(rightLeg.transform);
+    updateMatrixWorld(rightLeg.upperLeg);
+    updateMatrixWorld(rightLeg.lowerLeg);
+    updateMatrixWorld(rightLeg.foot);
+
+    avatarRig.hmdVelocity.copy(pose.head.position).sub(avatarRig.lastHmdPosition);
 
     const floorHeight = pose.floorHeight;
 
-    const hipsFloorPosition = localVector.copy(avatarLegs.hips.position);
+    const hipsFloorPosition = localVector.copy(avatarRig.hips.position);
     hipsFloorPosition.y = floorHeight;
-    const hipsFloorEuler = localEuler.setFromQuaternion(avatarLegs.hips.quaternion, 'YXZ');
+    const hipsFloorEuler = localEuler.setFromQuaternion(avatarRig.hips.quaternion, 'YXZ');
     hipsFloorEuler.x = 0;
     hipsFloorEuler.z = 0;
     const planeMatrix = localMatrix.compose(hipsFloorPosition, localQuaternion.setFromEuler(hipsFloorEuler), oneVector);
@@ -1313,13 +1249,13 @@ export const updateAvatarLegs = (entity: Entity, delta) => {
 
     const leftFootPosition = localVector4;
     const leftFootRotation = localQuaternion;
-    localMatrix3.compose(avatarLegs.leftLeg.foot["stickTransform"].position, avatarLegs.leftLeg.foot["stickTransform"].quaternion, oneVector)
+    localMatrix3.compose(leftLeg.foot["stickTransform"].position, leftLeg.foot["stickTransform"].quaternion, oneVector)
       .premultiply(planeMatrixInverse)
       .decompose(leftFootPosition, leftFootRotation, fakeScale);
 
     const rightFootPosition = localVector5;
     const rightFootRotation = localQuaternion2;
-    localMatrix3.compose(avatarLegs.rightLeg.foot["stickTransform"].position, avatarLegs.rightLeg.foot["stickTransform"].quaternion, oneVector)
+    localMatrix3.compose(rightLeg.foot["stickTransform"].position, rightLeg.foot["stickTransform"].quaternion, oneVector)
       .premultiply(planeMatrixInverse)
       .decompose(rightFootPosition, rightFootRotation, fakeScale);
 
@@ -1336,7 +1272,7 @@ export const updateAvatarLegs = (entity: Entity, delta) => {
       }
       localMatrix3.compose(zeroVector, localQuaternion3.setFromEuler(leftFootEuler), oneVector)
         .premultiply(planeMatrix)
-        .decompose(fakePosition, avatarLegs.leftLeg.foot["stickTransform"].quaternion, fakeScale);
+        .decompose(fakePosition, leftLeg.foot["stickTransform"].quaternion, fakeScale);
 
       const rightFootEuler = localEuler.setFromQuaternion(rightFootRotation, 'YXZ');
       rightFootEuler.x = 0;
@@ -1349,7 +1285,7 @@ export const updateAvatarLegs = (entity: Entity, delta) => {
       }
       localMatrix3.compose(zeroVector, localQuaternion3.setFromEuler(rightFootEuler), oneVector)
         .premultiply(planeMatrix)
-        .decompose(fakePosition, avatarLegs.rightLeg.foot["stickTransform"].quaternion, fakeScale);
+        .decompose(fakePosition, rightLeg.foot["stickTransform"].quaternion, fakeScale);
 
         const rig = getMutableComponent(entity, IKAvatarRig);
 
@@ -1357,17 +1293,17 @@ export const updateAvatarLegs = (entity: Entity, delta) => {
     const _getLegStepFactor = leg => {
       if (leg.stepping) {
         const scaledStepRate = stepRate
-          * Math.max(localVector2.set(avatarLegs.hmdVelocity.x, 0, avatarLegs.hmdVelocity.z).length() / rig.height, minHmdVelocityTimeFactor);
+          * Math.max(localVector2.set(avatarRig.hmdVelocity.x, 0, avatarRig.hmdVelocity.z).length() / rig.height, minHmdVelocityTimeFactor);
         return Math.min(Math.max(leg["stepFactor"] + scaledStepRate * delta, 0), 1);
       } else {
         return 0;
       }
     };
-    avatarLegs.leftLeg["stepFactor"] = _getLegStepFactor(avatarLegs.leftLeg);
-    avatarLegs.rightLeg["stepFactor"] = _getLegStepFactor(avatarLegs.rightLeg);
+    leftLeg["stepFactor"] = _getLegStepFactor(leftLeg);
+    rightLeg["stepFactor"] = _getLegStepFactor(rightLeg);
 
-    const leftCanStep = !avatarLegs.leftLeg.stepping && (!avatarLegs.rightLeg.stepping || avatarLegs.rightLeg["stepFactor"] >= crossStepFactor);
-    const rightCanStep = !avatarLegs.rightLeg.stepping && (!avatarLegs.leftLeg.stepping || avatarLegs.leftLeg["stepFactor"] >= crossStepFactor);
+    const leftCanStep = !leftLeg.stepping && (!rightLeg.stepping || rightLeg["stepFactor"] >= crossStepFactor);
+    const rightCanStep = !rightLeg.stepping && (!leftLeg.stepping || leftLeg["stepFactor"] >= crossStepFactor);
     const maxStepAngleFactor = 0;
     if (leftCanStep || rightCanStep) {
       let leftStepDistance = 0;
@@ -1396,11 +1332,11 @@ export const updateAvatarLegs = (entity: Entity, delta) => {
       }
 
       const _stepLeg = leg => {
-        const footDistance = avatarLegs.legSeparation * stepRestitutionDistance;
+        const footDistance = avatarRig.legSeparation * stepRestitutionDistance;
         leg.foot["startTransform"].position.copy(leg.foot["stickTransform"].position);
         leg.foot["endTransform"].position.copy(hipsFloorPosition)
           .add(localVector6.set((leg.left ? -1 : 1) * footDistance, 0, 0).applyQuaternion(leg.foot["stickTransform"].quaternion));
-        const velocityVector = localVector6.set(avatarLegs.hmdVelocity.x, 0, avatarLegs.hmdVelocity.z);
+        const velocityVector = localVector6.set(avatarRig.hmdVelocity.x, 0, avatarRig.hmdVelocity.z);
         const velocityVectorLength = velocityVector.length();
         if (velocityVectorLength > maxVelocity * rig.height) {
           velocityVector.multiplyScalar(maxVelocity * rig.height / velocityVectorLength);
@@ -1412,55 +1348,53 @@ export const updateAvatarLegs = (entity: Entity, delta) => {
       };
 
       if ((leftStepDistance !== 0 || leftStepAngleDiff !== 0) &&
-        (rightStepDistance === 0 || Math.abs(leftStepDistance * avatarLegs.leftLeg.balance) >= Math.abs(rightStepDistance * avatarLegs.rightLeg.balance)) &&
-        (rightStepAngleDiff === 0 || Math.abs(leftStepAngleDiff * avatarLegs.leftLeg.balance) >= Math.abs(rightStepAngleDiff * avatarLegs.rightLeg.balance))) {
-        _stepLeg(avatarLegs.leftLeg);
-        avatarLegs.leftLeg.balance = 0;
-        avatarLegs.rightLeg.balance = 1;
+        (rightStepDistance === 0 || Math.abs(leftStepDistance * leftLeg.balance) >= Math.abs(rightStepDistance * rightLeg.balance)) &&
+        (rightStepAngleDiff === 0 || Math.abs(leftStepAngleDiff * leftLeg.balance) >= Math.abs(rightStepAngleDiff * rightLeg.balance))) {
+        _stepLeg(leftLeg);
+        leftLeg.balance = 0;
+        rightLeg.balance = 1;
       } else if (rightStepDistance !== 0 || rightStepAngleDiff !== 0) {
-        _stepLeg(avatarLegs.rightLeg);
-        avatarLegs.rightLeg.balance = 0;
-        avatarLegs.leftLeg.balance = 1;
+        _stepLeg(rightLeg);
+        rightLeg.balance = 0;
+        leftLeg.balance = 1;
       }
     }
 
     // position
-    if (avatarLegs.leftLeg.stepping) {
-      avatarLegs.leftLeg.foot["stickTransform"].position.copy(avatarLegs.leftLeg.foot["startTransform"].position)
-        .lerp(avatarLegs.leftLeg.foot["endTransform"].position, avatarLegs.leftLeg["stepFactor"])
-        .add(localVector6.set(0, Math.sin(avatarLegs.leftLeg["stepFactor"] * Math.PI) * stepHeight * rig.height, 0));
+    if (leftLeg.stepping) {
+      leftLeg.foot["stickTransform"].position.copy(leftLeg.foot["startTransform"].position)
+        .lerp(leftLeg.foot["endTransform"].position, leftLeg["stepFactor"])
+        .add(localVector6.set(0, Math.sin(leftLeg["stepFactor"] * Math.PI) * stepHeight * rig.height, 0));
 
-      if (avatarLegs.leftLeg["stepFactor"] >= 1) {
-        avatarLegs.leftLeg.stepping = false;
+      if (leftLeg["stepFactor"] >= 1) {
+        leftLeg.stepping = false;
       }
     } else {
-      const targetPosition = localVector6.copy(avatarLegs.leftLeg.foot["stickTransform"].position);
+      const targetPosition = localVector6.copy(leftLeg.foot["stickTransform"].position);
       targetPosition.y = floorHeight;
-      avatarLegs.leftLeg.foot["stickTransform"].position.lerp(targetPosition, 0.2);
+      leftLeg.foot["stickTransform"].position.lerp(targetPosition, 0.2);
     }
-    if (avatarLegs.rightLeg.stepping) {
-      avatarLegs.rightLeg.foot["stickTransform"].position.copy(avatarLegs.rightLeg.foot["startTransform"].position)
-        .lerp(avatarLegs.rightLeg.foot["endTransform"].position, avatarLegs.rightLeg["stepFactor"])
-        .add(localVector6.set(0, Math.sin(avatarLegs.rightLeg["stepFactor"] * Math.PI) * stepHeight * rig.height, 0));
-      if (avatarLegs.rightLeg["stepFactor"] >= 1) {
-        avatarLegs.rightLeg.stepping = false;
+    if (rightLeg.stepping) {
+      rightLeg.foot["stickTransform"].position.copy(rightLeg.foot["startTransform"].position)
+        .lerp(rightLeg.foot["endTransform"].position, rightLeg["stepFactor"])
+        .add(localVector6.set(0, Math.sin(rightLeg["stepFactor"] * Math.PI) * stepHeight * rig.height, 0));
+      if (rightLeg["stepFactor"] >= 1) {
+        rightLeg.stepping = false;
       }
     } else {
-      const targetPosition = localVector6.copy(avatarLegs.rightLeg.foot["stickTransform"].position);
+      const targetPosition = localVector6.copy(rightLeg.foot["stickTransform"].position);
       targetPosition.y = floorHeight;
-      avatarLegs.rightLeg.foot["stickTransform"].position.lerp(targetPosition, 0.2);
+      rightLeg.foot["stickTransform"].position.lerp(targetPosition, 0.2);
     }
 
     updateLeg(entity, Side.Left);
     updateLeg(entity, Side.Right);
   
-  avatarLegs.lastHmdPosition.copy(pose.head.position);
+    avatarRig.lastHmdPosition.copy(pose.head.position);
 };
 
 const initLeg = (entity: Entity, legSide: Side) => {  
-  const leg = getMutableComponent(entity, legSide === Side.Right ? RightLeg : LeftLeg) as Leg<any>;
-
-  const avatarLegs = getMutableComponent(entity, IKAvatarLegs);
+  const leg = getMutableComponent(entity, legSide === Side.Right ? IKLegLeft : IKLegLeft) as IKLeg<any>;
 
   leg.transform = new Object3D();
   leg.upperLeg = new Object3D();
@@ -1478,8 +1412,6 @@ const initLeg = (entity: Entity, legSide: Side) => {
   leg.legLength = 0;
   leg.eyesToUpperLegOffset = new Vector3();
 
-  leg.avatarLegs = avatarLegs;
-
   leg.stepping = false;
 
   leg.balance = 1;
@@ -1488,13 +1420,13 @@ const initLeg = (entity: Entity, legSide: Side) => {
   leg.lowerLegLength = leg.foot.position.length();
   leg.legLength = leg.upperLegLength + leg.lowerLegLength;
 
-  const avatarShoulders = getMutableComponent(entity, IKAvatarArms);
+  const avatarRig = getMutableComponent(entity, IKAvatarRig);
   getWorldPosition(leg.upperLeg, leg.eyesToUpperLegOffset)
-    .sub(getWorldPosition(avatarShoulders.eyes, localVector));
+    .sub(getWorldPosition(avatarRig.eyes, localVector));
 }
 
 const updateLeg = (entity, legSide) => {
-  const leg = getMutableComponent(entity, legSide === Side.Right ? RightLeg : LeftLeg) as Leg<any>;
+  const leg = getMutableComponent(entity, legSide === Side.Right ? IKLegLeft : IKLegLeft) as IKLeg<any>;
 
   const footPosition = localVector.copy(leg.foot["stickTransform"].position);
   const upperLegPosition = getWorldPosition(leg.upperLeg, localVector2);

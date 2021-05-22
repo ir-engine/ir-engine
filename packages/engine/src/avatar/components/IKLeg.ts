@@ -6,7 +6,7 @@ import { Component } from '../../ecs/classes/Component';
  * @author Avaer Kazmer
  */
 
-export class Leg<T> extends Component<T>{
+export default class IKLeg<T> extends Component<T>{
   transform: Object3D;
   upperLeg: Object3D;
   lowerLeg: Object3D;
@@ -15,7 +15,6 @@ export class Leg<T> extends Component<T>{
   lowerLegLength: number;
   legLength: number;
   eyesToUpperLegOffset: Vector3;
-  avatarLegs: any;
   stepping: boolean;
   balance: number;
 }
