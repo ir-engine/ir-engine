@@ -22,7 +22,6 @@ import { switchState } from "./gameDefault/behaviors/switchState";
 import { giveState } from "./gameDefault/behaviors/giveState";
 //
 import { addForce } from "./Golf/behaviors/addForce";
-import { addRestitution } from "./Golf/behaviors/addRestitution";
 import { teleportObject } from "./Golf/behaviors/teleportObject";
 //
 import { addRole } from "./Golf/behaviors/addRole";
@@ -126,12 +125,6 @@ function copleNameRolesInOneString( object ) {
 
 const onGolfGameStart = (entity: Entity) => {
 
-  // Load our static assets
-  AssetLoader.load({
-    url: Engine.publicPath + '/models/golf/golf_ball.glb',
-    entity,
-  });
-
   // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
   Object.entries(GolfPrefabs).forEach(([prefabType, prefab]) => {
     Network.instance.schema.prefabs[prefabType] = prefab;
@@ -158,10 +151,10 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   ],
   initGameState: {
     'newPlayer': {
-      behaviors: [addRole, giveBall]
+      behaviors: [addRole, spawnBall]
     },
     '1-Player': {
-      behaviors: [addTurn, initScore, spawnBall]
+      behaviors: [addTurn, initScore]
     },
     '2-Player': {
       behaviors: [initScore]

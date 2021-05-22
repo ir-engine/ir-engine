@@ -46,7 +46,8 @@ export class GameManagerSystem extends System {
   updateType = SystemUpdateType.Fixed;
   updateNewPlayersRate: number;
   updateLastTime: number;
-  createdGames: Entity[];
+  createdGames: Game[];
+  gameEntities: Entity[];
 
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);
@@ -54,10 +55,16 @@ export class GameManagerSystem extends System {
     this.updateNewPlayersRate = 60;
     this.updateLastTime = 0;
     this.createdGames = [];
+    this.gameEntities = [];
   }
 
   dispose(): void {
     super.dispose();
+  }
+
+  registerGame(entity, gameData) {
+    addComponent(entity, Game, gameData)
+    this.createdGames.push(getComponent(entity, Game));
   }
 
   execute (delta: number, time: number): void {
@@ -67,7 +74,7 @@ export class GameManagerSystem extends System {
       const gameSchema = GamesSchema[game.gameMode] as GameMode;
       game.priority = gameSchema.priority;// DOTO: set its from editor
       initState(game, gameSchema);
-      this.createdGames.push(entity);
+      this.gameEntities.push(entity);
 
       // TODO: add start & stop functions to be able to start and end games
       gameSchema.onGameStart(entity);
@@ -115,7 +122,8 @@ export class GameManagerSystem extends System {
       // OBJECTS
       // its needet for allow dynamicly adding objects and exept errors when enitor gives object without created game
       this.queryResults.gameObject.added?.forEach(entity => {
-        if (getComponent(entity, GameObject).game != game.name) return;
+        console.log('ADDED GAME OBJECT', getComponent(entity, GameObject, true).role)
+        if (getComponent(entity, GameObject).game.name != game.name) return;
         getMutableComponent(entity, GameObject).game = game;
         // add to gameObjects list sorted by role
         gameObjects[getComponent(entity, GameObject).role].push(entity);
