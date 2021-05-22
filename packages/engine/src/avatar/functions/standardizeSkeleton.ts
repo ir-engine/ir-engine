@@ -15,7 +15,13 @@ const options = {
 };
 
 
-export const standardizeSkeletion = (target: SkinnedMesh, source: SkinnedMesh) => {
+export const standardizeSkeletion = (target: SkinnedMesh) => {
+  const source =  AvatarAnimationSystem.instance._defaultSkeleton;
+  if(source === undefined){
+    return setTimeout(() => {
+      standardizeSkeletion(target);
+    }, 100);
+  }
 
   const targetBones = GetBones(target);
   const sourceBones = GetBones(source);
@@ -203,7 +209,6 @@ const GetBones = (armature: SkinnedMesh) => {
     Right_ankle,
   };
 
-  return modelBones;
 
   // everything below this is from webaverse, doesnt seem to have an impact on the models
 

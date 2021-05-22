@@ -21,7 +21,7 @@ let head, controllerGripLeft, controllerLeft, controllerRight, controllerGripRig
 
 /**
  * 
- * @author Avaer Kazmer
+ * @author Josh Field
  * @returns 
  */
 export const startXR = async () => {
@@ -39,7 +39,7 @@ export const startXR = async () => {
 
     actor.modelContainer.children[0]?.traverse((child) => {
       if(child.visible) {
-        child.visible = false;
+        // child.visible = false;
       }
     })
 

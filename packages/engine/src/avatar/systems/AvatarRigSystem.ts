@@ -2,7 +2,7 @@ import { System } from "../../ecs/classes/System";
 import { IKAvatarRig } from "../components/IKAvatarRig";
 import { initializeAvatarRig, updateAvatarLegs, updateAvatarShoulders } from "../functions/AvatarBodyFunctions";
 
-export class AvatarRigSystem extends System {
+export default class AvatarRigSystem extends System {
 
   /**
    * Executes the system. Called each frame by default from the Engine.

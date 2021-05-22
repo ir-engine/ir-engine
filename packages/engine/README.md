@@ -53,7 +53,7 @@ Let's take a look at the input system to see what's going on. To simplify, we'll
 
 ```typescript
 // this is called in execute() every frame
-    this.queryResults.inputs.results.forEach(entity => handleInput(entity, args: { delta }))
+this.queryResults.inputs.results.forEach(entity => handleInput(entity, args: { delta }))
 
 // where the magic happens
 export const handleInput: Behavior = (entity: Entity, delta: number): void => {

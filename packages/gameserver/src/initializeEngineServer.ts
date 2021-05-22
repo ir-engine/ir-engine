@@ -25,6 +25,8 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { loadScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
 import { AvatarAnimationSystem } from '@xrengine/engine/src/avatar/systems/AvatarAnimationSystem';
+import AvatarRigSystem from '@xrengine/engine/src/avatar/systems/AvatarRigSystem';
+
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
 const isWindows = process.platform === "win32";
@@ -61,6 +63,7 @@ export const initializeEngineServer = async (initOptions: InitializeOptions = De
   registerSystem(PhysicsSystem, { worker, physicsWorldConfig });
   registerSystem(CharacterControllerSystem);
   registerSystem(AvatarAnimationSystem);
+  registerSystem(AvatarRigSystem);
 
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });

@@ -1,8 +1,13 @@
 import { IKAvatarRig } from '../../avatar/components/IKAvatarRig';
+import { LifecycleValue } from '../../common/enums/LifecycleValue';
+import { SIXDOFType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
-import { getComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
+import { Input } from '../../input/components/Input';
+import { BaseInput } from '../../input/enums/BaseInput';
+import { InputType } from '../../input/enums/InputType';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
@@ -48,37 +53,88 @@ export class ServerNetworkOutgoingSystem extends System {
       });
 
       const avatarRig = getComponent(entity, IKAvatarRig)
+      const input = getMutableComponent(entity, Input);
+
+      let head = input.data.get(BaseInput.XR_HEAD)?.value as SIXDOFType;
+      let left = input.data.get(BaseInput.XR_LEFT_HAND)?.value as SIXDOFType;
+      let right = input.data.get(BaseInput.XR_RIGHT_HAND)?.value as SIXDOFType;
+
+      if(!head){
+        input.data.set(BaseInput.XR_HEAD, {
+          type: InputType.SIXDOF,
+          value: {
+            x: 0,
+            y: 0,
+            z: 0,
+            qW: 1,
+            qX: 0,
+            qY: 0,
+            qZ: 0,
+          },
+          lifecycleState: LifecycleValue.CHANGED
+        })
+        input.data.set(BaseInput.XR_LEFT_HAND, {
+          type: InputType.SIXDOF,
+          value: {
+            x: 0,
+            y: 0,
+            z: 0,
+            qW: 1,
+            qX: 0,
+            qY: 0,
+            qZ: 0,
+          },
+          lifecycleState: LifecycleValue.CHANGED
+        })
+        input.data.set(BaseInput.XR_RIGHT_HAND, {
+          type: InputType.SIXDOF,
+          value: {
+            x: 0,
+            y: 0,
+            z: 0,
+            qW: 1,
+            qX: 0,
+            qY: 0,
+            qZ: 0,
+          },
+          lifecycleState: LifecycleValue.CHANGED
+        })
+
+        head = input.data.get(BaseInput.XR_HEAD).value as SIXDOFType;
+        left = input.data.get(BaseInput.XR_LEFT_HAND).value as SIXDOFType;
+        right = input.data.get(BaseInput.XR_RIGHT_HAND).value as SIXDOFType;
+  
+      }
       if(avatarRig) {
-        const transforms = avatarRig.inputs
         Network.instance.worldState.ikTransforms.push({
           networkId: networkObject.networkId,
           snapShotTime: snapShotTime,
           hmd: {
-            x: transforms.hmd.position.x,
-            y: transforms.hmd.position.y,
-            z: transforms.hmd.position.z,
-            qW: transforms.hmd.quaternion.w,
-            qX: transforms.hmd.quaternion.x,
-            qY: transforms.hmd.quaternion.y,
-            qZ: transforms.hmd.quaternion.z,
+            x: head.x,
+            y: head.y,
+            z: head.z,
+            qW: head.qW,
+            qX: head.qX,
+            qY: head.qY,
+            qZ: head.qZ,
           },
           left: {
-            x: transforms.leftGamepad.position.x,
-            y: transforms.leftGamepad.position.y,
-            z: transforms.leftGamepad.position.z,
-            qW: transforms.leftGamepad.quaternion.w,
-            qX: transforms.leftGamepad.quaternion.x,
-            qY: transforms.leftGamepad.quaternion.y,
-            qZ: transforms.leftGamepad.quaternion.z,
+            x: left.x,
+            y: left.y,
+            z: left.z,
+            qW: left.qW,
+            qX: left.qX,
+            qY: left.qY,
+            qZ: left.qZ
           },
           right: {
-            x: transforms.rightGamepad.position.x,
-            y: transforms.rightGamepad.position.y,
-            z: transforms.rightGamepad.position.z,
-            qW: transforms.rightGamepad.quaternion.w,
-            qX: transforms.rightGamepad.quaternion.x,
-            qY: transforms.rightGamepad.quaternion.y,
-            qZ: transforms.rightGamepad.quaternion.z,
+            x: right.x,
+            y: right.y,
+            z: right.z,
+            qW: right.qW,
+            qX: right.qX,
+            qY: right.qY,
+            qZ: right.qZ
           },
         })
       }

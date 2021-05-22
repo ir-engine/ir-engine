@@ -1,5 +1,3 @@
-// TODO: Instantiate, but only on client
-
 import { AnimationClip, Group, Material, MathUtils, Mesh, SkinnedMesh } from "three";
 import { getLoader } from "../../assets/functions/LoadGLTF";
 import { Behavior } from "../../common/interfaces/Behavior";

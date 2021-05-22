@@ -59,13 +59,13 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public arcadeVelocityInfluence: Vector3 = new Vector3(1, 0, 1);
 	public velocityTarget: Vector3 = new Vector3();
 
-	public currentInputHash: any = ""
+	public currentInputHash: any = "";
 
 	public defaultVelocitySimulatorDamping = 0.8;
 	public defaultVelocitySimulatorMass = 50;
-	public velocitySimulator: VectorSpringSimulator
-	public animationVectorSimulator: VectorSpringSimulator
-	public moveVectorSmooth: VectorSpringSimulator
+	public velocitySimulator: VectorSpringSimulator;
+	public animationVectorSimulator: VectorSpringSimulator;
+	public moveVectorSmooth: VectorSpringSimulator;
 	public moveSpeed = 1;
 	public otherPlayerMaxSpeedCount = 0;
 	public angularVelocity = 0;

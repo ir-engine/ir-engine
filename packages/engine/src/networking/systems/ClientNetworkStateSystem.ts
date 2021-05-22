@@ -1,28 +1,26 @@
-import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
-import { NetworkObject } from '../components/NetworkObject';
-import { createNetworkPlayer } from '../../avatar/prefabs/NetworkPlayerCharacter';
-import { createNetworkVehicle } from '../../vehicle/prefabs/NetworkVehicle';
-import { AvatarIKComponent } from '../../avatar/components/AvatarIKComponent';
-import { addComponent, getComponent, getMutableComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
 import { CharacterComponent } from "../../avatar/components/CharacterComponent";
-import { NetworkObjectUpdateSchema } from '../../networking/templates/NetworkObjectUpdateSchema';
-import { initiateIK } from "../../xr/functions/IKFunctions";
-import { Network } from '../classes/Network';
-import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
-import { WorldStateInterface } from "../interfaces/WorldState";
-import { StateEntityIK } from "../types/SnapshotDataTypes";
-import { PrefabType } from '../../networking/templates/PrefabType';
-import { GameStateActionMessage, GameStateUpdateMessage } from '../../game/types/GameMessage';
+import { IKAvatarRig } from "../../avatar/components/IKAvatarRig";
+import { initiateIK } from "../../avatar/functions/IKFunctions";
+import { createNetworkPlayer } from '../../avatar/prefabs/NetworkPlayerCharacter';
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
+import { System, SystemAttributes } from '../../ecs/classes/System';
+import { addComponent, getComponent, getMutableComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
+import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { applyActionComponent } from '../../game/functions/functionsActions';
 import { applyStateToClient } from '../../game/functions/functionsState';
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
-import { System, SystemAttributes } from '../../ecs/classes/System';
-import { EngineEvents } from '../../ecs/classes/EngineEvents';
-import { ClientNetworkSystem } from './ClientNetworkSystem';
-import { ClientInputModel } from '../schema/clientInputSchema';
+import { GameStateActionMessage, GameStateUpdateMessage } from '../../game/types/GameMessage';
 import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
+import { NetworkObjectUpdateSchema } from '../../networking/templates/NetworkObjectUpdateSchema';
+import { PrefabType } from '../../networking/templates/PrefabType';
+import { Network } from '../classes/Network';
 import { Vault } from '../classes/Vault';
+import { NetworkObject } from '../components/NetworkObject';
+import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
+import { WorldStateInterface } from "../interfaces/WorldState";
+import { ClientInputModel } from '../schema/clientInputSchema';
+import { StateEntityIK } from "../types/SnapshotDataTypes";
+import { ClientNetworkSystem } from './ClientNetworkSystem';
 
 /**
  * Apply State received over the network to the client.
@@ -100,7 +98,6 @@ export class ClientNetworkStateSystem extends System {
    */
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);
-    ClientNetworkStateSystem.instance = this;
 
     EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, ({ worldState }) => {
       this.receivedServerState.push(worldState);
@@ -247,22 +244,13 @@ export class ClientNetworkStateSystem extends System {
       worldStateBuffer.ikTransforms?.forEach((ikTransform: StateEntityIK) => {
         if (!Network.instance.networkObjects[ikTransform.networkId]) return;
         const entity = Network.instance.networkObjects[ikTransform.networkId].component.entity;
-        if (!hasComponent(entity, AvatarIKComponent)) {
-          addComponent(entity, AvatarIKComponent);
-        }
         const actor = getComponent(entity, CharacterComponent);
-        const ikComponent = getMutableComponent(entity, AvatarIKComponent);
-        if (!ikComponent.avatarIKRig && actor.modelContainer.children.length) {
-          initiateIK(entity)
-        }
-        if (ikComponent.avatarIKRig) {
-          const { hmd, left, right } = ikTransform;
-          ikComponent.avatarIKRig.inputs.hmd.position.set(hmd.x, hmd.y, hmd.z);
-          ikComponent.avatarIKRig.inputs.hmd.quaternion.set(hmd.qX, hmd.qY, hmd.qZ, hmd.qW);
-          ikComponent.avatarIKRig.inputs.leftGamepad.position.set(left.x, left.y, left.z);
-          ikComponent.avatarIKRig.inputs.leftGamepad.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
-          ikComponent.avatarIKRig.inputs.rightGamepad.position.set(right.x, right.y, right.z);
-          ikComponent.avatarIKRig.inputs.rightGamepad.quaternion.set(right.qX, right.qY, right.qZ, right.qW);
+
+        if (!hasComponent(entity, IKAvatarRig)) {
+          addComponent(entity, IKAvatarRig);
+          if (actor.modelContainer.children.length) {
+            initiateIK(entity)
+          }
         }
       })
 

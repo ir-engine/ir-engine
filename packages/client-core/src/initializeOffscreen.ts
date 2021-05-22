@@ -30,6 +30,7 @@ import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import _ from 'lodash';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
+import AvatarRigSystem from "@xrengine/engine/src/avatar/systems/AvatarRigSystem";
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -85,12 +86,16 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   Engine.workers.push(physicsWorker);
 
   registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig });
-  registerSystem(ActionSystem);
   registerSystem(StateSystem);
   registerSystem(ClientNetworkStateSystem);
   registerSystem(CharacterControllerSystem);
-  registerSystem(AvatarAnimationSystem);
+  registerSystem(HighlightSystem);
 
+  registerSystem(ActionSystem);
+
+  registerSystem(AvatarAnimationSystem);
+  registerSystem(AvatarRigSystem);
+  
   registerSystem(ServerSpawnSystem, { priority: 899 });
   registerSystem(TransformSystem, { priority: 900 });
   registerSystem(UIPanelSystem);
@@ -98,7 +103,6 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
   Engine.scene.add(Engine.camera);
 
-  registerSystem(HighlightSystem);
 
   Engine.audioListener = new AudioListener();
   Engine.camera.add(Engine.audioListener);

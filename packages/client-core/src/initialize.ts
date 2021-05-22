@@ -32,6 +32,7 @@ import { now } from '@xrengine/engine/src/common/functions/now';
 import { loadScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 import { UIPanelSystem } from '@xrengine/engine/src/ui/systems/UIPanelSystem';
 import { AvatarAnimationSystem } from "@xrengine/engine/src/avatar/systems/AvatarAnimationSystem";
+import AvatarRigSystem from "@xrengine/engine/src/avatar/systems/AvatarRigSystem";
 
 import { PositionalAudioSystem } from '@xrengine/engine/src/audio/systems/PositionalAudioSystem';
 
@@ -140,11 +141,11 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
       Engine.workers.push(physicsWorker);
 
       registerSystem(CharacterControllerSystem);
-      registerSystem(AvatarAnimationSystem);
-
       registerSystem(HighlightSystem);
       registerSystem(ActionSystem);
-
+      registerSystem(AvatarAnimationSystem);
+      registerSystem(AvatarRigSystem);
+      
       registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig });
       registerSystem(TransformSystem, { priority: 900 });
       // audio breaks webxr currently

@@ -5,7 +5,7 @@
 *
 * Must rebind the model to it's skeleton after this function.
 *
-* @author Avaer Kazmer
+* @author mrdoob and three.js community
 * @param {Bone} rootBone
 * @param {Object} context - options and buffer for stateful bone calculations
 *                 context.exclude: [ boneNames to exclude ]
@@ -49,8 +49,8 @@ export function retarget(target, source, options: Options) {
   options.hip = options.hip !== undefined ? options.hip : 'hip';
   options.names = options.names || {};
 
-  const sourceBones = source.isObject3D ? source.skeleton.bones : this.getBones(source),
-    bones = target.isObject3D ? target.skeleton.bones : this.getBones(target);
+  const sourceBones = source.isObject3D ? source.skeleton.bones : getBones(source),
+    bones = target.isObject3D ? target.skeleton.bones : getBones(target);
 
   let bindBones,
     bone, name, boneTo,
@@ -59,26 +59,17 @@ export function retarget(target, source, options: Options) {
   // reset bones
 
   if (target.isObject3D) {
-
     target.skeleton.pose();
-
   } else {
-
     options.useTargetMatrix = true;
     options.preserveMatrix = false;
-
   }
 
   if (options.preservePosition) {
-
     bonesPosition = [];
-
     for (let i = 0; i < bones.length; i++) {
-
       bonesPosition.push(bones[i].position.clone());
-
     }
-
   }
 
   if (options.preserveMatrix) {
@@ -86,15 +77,12 @@ export function retarget(target, source, options: Options) {
     // reset matrix
 
     target.updateMatrixWorld();
-
     target.matrixWorld.identity();
 
     // reset children matrix
 
     for (let i = 0; i < target.children.length; ++i) {
-
       target.children[i].updateMatrixWorld(true);
-
     }
 
   }
@@ -129,7 +117,7 @@ export function retarget(target, source, options: Options) {
     bone = bones[i];
     name = options.names[bone.name] || bone.name;
 
-    boneTo = this.getBoneByName(name, sourceBones);
+    boneTo = getBoneByName(name, sourceBones);
 
     globalMatrix.copy(bone.matrixWorld);
 
@@ -228,7 +216,7 @@ export function retargetClip(target, source, clip, options: RetargetOptions = {}
 
   if (!source.isObject3D) {
 
-    source = this.getHelperFromSkeleton(source);
+    source = getHelperFromSkeleton(source);
 
   }
 
@@ -236,7 +224,7 @@ export function retargetClip(target, source, clip, options: RetargetOptions = {}
     delta = 1 / options.fps,
     convertedTracks = [],
     mixer = new AnimationMixer(source),
-    bones = this.getBones(target.skeleton),
+    bones = getBones(target.skeleton),
     boneDatas = [];
   let positionOffset,
     bone, boneTo, boneData,
@@ -251,13 +239,13 @@ export function retargetClip(target, source, clip, options: RetargetOptions = {}
 
     const time = i * delta;
 
-    this.retarget(target, source, options);
+    retarget(target, source, options);
 
     for (let j = 0; j < bones.length; ++j) {
 
       name = options.names[bones[j].name] || bones[j].name;
 
-      boneTo = this.getBoneByName(name, source.skeleton);
+      boneTo = getBoneByName(name, source.skeleton);
 
       if (boneTo) {
 
@@ -371,14 +359,14 @@ export function getSkeletonOffsets(target, source, options: ShortOptions = {}) {
 
   if (!source.isObject3D) {
 
-    source = this.getHelperFromSkeleton(source);
+    source = getHelperFromSkeleton(source);
 
   }
 
   const nameKeys = Object.keys(options.names),
     nameValues = Object.values(options.names),
-    sourceBones = source.isObject3D ? source.skeleton.bones : this.getBones(source),
-    bones = target.isObject3D ? target.skeleton.bones : this.getBones(target),
+    sourceBones = source.isObject3D ? source.skeleton.bones : getBones(source),
+    bones = target.isObject3D ? target.skeleton.bones : getBones(target),
     offsets = [];
 
   let bone, boneTo,
@@ -391,12 +379,12 @@ export function getSkeletonOffsets(target, source, options: ShortOptions = {}) {
     bone = bones[i];
     name = options.names[bone.name] || bone.name;
 
-    boneTo = this.getBoneByName(name, sourceBones);
+    boneTo = getBoneByName(name, sourceBones);
 
     if (boneTo && name !== options.hip) {
 
-      const boneParent = this.getNearestBone(bone.parent, nameKeys),
-        boneToParent = this.getNearestBone(boneTo.parent, nameValues);
+      const boneParent = getNearestBone(bone.parent, nameKeys),
+        boneToParent = getNearestBone(boneTo.parent, nameValues);
 
       boneParent.updateMatrixWorld();
       boneToParent.updateMatrixWorld();
@@ -445,7 +433,7 @@ export function getSkeletonOffsets(target, source, options: ShortOptions = {}) {
 
 export function renameBones(skeleton, names) {
 
-  const bones = this.getBones(skeleton);
+  const bones = getBones(skeleton);
 
   for (let i = 0; i < bones.length; ++i) {
 
@@ -471,7 +459,7 @@ export function getBones(skeleton) {
 
 export function getBoneByName(name, skeleton) {
 
-  for (let i = 0, bones = this.getBones(skeleton); i < bones.length; i++) {
+  for (let i = 0, bones = getBones(skeleton); i < bones.length; i++) {
 
     if (name === bones[i].name)
 
@@ -522,8 +510,8 @@ export function findBoneTrackData(name, tracks) {
 
 export function getEqualsBonesNames(skeleton, targetSkeleton) {
 
-  const sourceBones = this.getBones(skeleton),
-    targetBones = this.getBones(targetSkeleton),
+  const sourceBones = getBones(skeleton),
+    targetBones = getBones(targetSkeleton),
     bones = [];
 
   search: for (let i = 0; i < sourceBones.length; i++) {
@@ -682,7 +670,8 @@ function calculateAverages(parentBone, worldPos, averagedDirs) {
   const childBones = parentBone.children.filter(c => c.isBone);
   childBones.forEach((childBone) => {
     //average the child bone world pos
-    const childBonePosWorld = worldPos[childBone.id][0];
+    const childBonePosWorld = worldPos[childBone.id];
+
     averagedDir.add(childBonePosWorld);
   });
 
@@ -727,7 +716,7 @@ function updateTransformations(parentBone, worldPos, averagedDirs, preRotations)
   //set child bone position relative to the new parent matrix.
   const childBones = parentBone.children.filter(c => c.isBone);
   childBones.forEach((childBone) => {
-    const childBonePosWorld = worldPos[childBone.id][0].clone();
+    const childBonePosWorld = worldPos[childBone.id].clone();
     parentBone.worldToLocal(childBonePosWorld);
     childBone.position.copy(childBonePosWorld);
   });

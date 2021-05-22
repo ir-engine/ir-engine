@@ -439,34 +439,38 @@ const lookByInputAxis = (
   }
 }
 
+// TODO: Updating rig is questionable right now if we are trying to consolidate inputs...
 const updateIKRig: Behavior = (entity, args): void => {
-
   const avatarIK = getMutableComponent(entity, IKAvatarRig);
+  if(!avatarIK) return console.warn("IKAvatarRig is null");
   const inputs = getMutableComponent(entity, Input);
   const obj3d = getComponent(entity, Object3DComponent).value as Object3D;
-
+try{
   if(args.type === BaseInput.XR_HEAD) {
 
-    const cam = inputs.data.get(BaseInput.XR_HEAD).value as SIXDOFType;
-    avatarIK.inputs.hmd.position.set(cam.x, cam.y, cam.z).sub(obj3d.position);
-    avatarIK.inputs.hmd.quaternion.set(cam.qX, cam.qY, cam.qZ, cam.qW)
+    // const cam = inputs.data.get(BaseInput.XR_HEAD).value as SIXDOFType;
+    // avatarIK.inputs?.hmd.position.set(cam.x, cam.y, cam.z).sub(obj3d.position);
+    // avatarIK.inputs?.hmd.quaternion.set(cam.qX, cam.qY, cam.qZ, cam.qW)
     // avatarIK.inputs.hmd.rotateY(Math.PI / 2)
 
   } else if(args.type === BaseInput.XR_LEFT_HAND) {
 
-    const left = inputs.data.get(BaseInput.XR_LEFT_HAND).value as SIXDOFType;
-    avatarIK.inputs.leftGamepad.position.set(left.x, left.y, left.z);
-    avatarIK.inputs.leftGamepad.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
+    // const left = inputs.data.get(BaseInput.XR_LEFT_HAND).value as SIXDOFType;
+    // avatarIK.inputs?.leftGamepad.position.set(left.x, left.y, left.z);
+    // avatarIK.inputs?.leftGamepad.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
     // avatar.inputs.leftGamepad.pointer = ; // for finger animation
     // avatar.inputs.leftGamepad.grip = ;
 
   } else if(args.type === BaseInput.XR_RIGHT_HAND) {
 
-    const right = inputs.data.get(BaseInput.XR_RIGHT_HAND).value as SIXDOFType;
-    avatarIK.inputs.rightGamepad.position.set(right.x, right.y, right.z);
-    avatarIK.inputs.rightGamepad.quaternion.set( right.qX, right.qY, right.qZ, right.qW);
+    // const right = inputs.data.get(BaseInput.XR_RIGHT_HAND).value as SIXDOFType;
+    // avatarIK.inputs?.rightGamepad.position.set(right.x, right.y, right.z);
+    // avatarIK.inputs?.rightGamepad.quaternion.set( right.qX, right.qY, right.qZ, right.qW);
 
   }
+} catch(error) {
+  console.log(error);
+}
 }
 
 // what do we want this to look like?

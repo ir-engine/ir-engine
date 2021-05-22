@@ -81,7 +81,7 @@ export class XRSystem extends System {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    if(Engine.renderer?.xr?.isPresenting) {
+    if(Engine.renderer?.xr?.isPresenting && this.xrFrame) {
       const session = this.xrFrame.session;
       session.inputSources.forEach((source) => {
         if(source.gamepad) {

@@ -156,11 +156,14 @@ export class ActionSystem extends System {
           }
         });
 
-        input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+        input.data?.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
           if (!input.prevData.has(key)) {
             return;
           }
+          if(!value){
+            console.log("value is", value);
 
+          }
           if (value.type === InputType.BUTTON) {
             const prevValue = input.prevData.get(key);
             if (

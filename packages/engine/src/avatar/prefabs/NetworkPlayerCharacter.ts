@@ -81,7 +81,12 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 					targetSkeleton = child;
 			}
 		})
-		standardizeSkeletion(targetSkeleton, AvatarAnimationSystem.instance._defaultSkeleton);
+
+		console.log("Target skeleton is", targetSkeleton);
+		console.log("Default sekeleton is", AvatarAnimationSystem.instance._defaultSkeleton);
+
+
+		standardizeSkeletion(targetSkeleton);
 
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
 		// const geom = getGeometry(actor.modelContainer);
@@ -112,7 +117,8 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 
       actor.modelContainer.children[0]?.traverse((child) => {
         if(child.visible) {
-          child.visible = false;
+			// TODO: Disabled, but why do we need this exactly?
+          // child.visible = false;
         }
       })
 		}

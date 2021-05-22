@@ -11,7 +11,7 @@ export type AvatarOptions = { top: boolean, bottom: boolean, visemes: boolean, h
  * @author Avaer Kazmer
  */
 export class IKAvatarRig extends Component<IKAvatarRig> {
-
+  modelBones: any;
   transform: Object3D;
   hips: Object3D;
   spine: Object3D;
