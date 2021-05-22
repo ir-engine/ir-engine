@@ -165,26 +165,26 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                 debugCamera.zy.rotateY(Math.PI / 2);
             }
 
-            const geometry = new BoxGeometry(.1, .1, .1);
-            const materialX = new MeshBasicMaterial({ color: 0xff0000 });
-            const materialY = new MeshBasicMaterial({ color: 0x00ff00 });
-            const materialZ = new MeshBasicMaterial({ color: 0x0000ff });
-            const materialC = new MeshBasicMaterial({ color: 0xffffff });
+            // const geometry = new BoxGeometry(.1, .1, .1);
+            // const materialX = new MeshBasicMaterial({ color: 0xff0000 });
+            // const materialY = new MeshBasicMaterial({ color: 0x00ff00 });
+            // const materialZ = new MeshBasicMaterial({ color: 0x0000ff });
+            // const materialC = new MeshBasicMaterial({ color: 0xffffff });
             const anchor = new Group();
-            anchor.add(new AxesHelper(0.3));
-            const anchorC = new Mesh(geometry, materialC);
-            anchor.add(anchorC);
-            const anchorX = new Mesh(geometry, materialX);
-            anchorX.position.x = 0.3;
-            anchor.add(anchorX);
-            const anchorY = new Mesh(geometry, materialY);
-            anchorY.position.y = 0.3;
-            anchor.add(anchorY);
-            const anchorZ = new Mesh(geometry, materialZ);
-            anchorZ.position.z = 0.3;
-            anchor.add(anchorZ);
-
-            scene.add(new AxesHelper(0.2));
+            // anchor.add(new AxesHelper(0.3));
+            // const anchorC = new Mesh(geometry, materialC);
+            // anchor.add(anchorC);
+            // const anchorX = new Mesh(geometry, materialX);
+            // anchorX.position.x = 0.3;
+            // anchor.add(anchorX);
+            // const anchorY = new Mesh(geometry, materialY);
+            // anchorY.position.y = 0.3;
+            // anchor.add(anchorY);
+            // const anchorZ = new Mesh(geometry, materialZ);
+            // anchorZ.position.z = 0.3;
+            // anchor.add(anchorZ);
+            //
+            // scene.add(new AxesHelper(0.2));
 
             camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 100);
 
@@ -216,9 +216,9 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
             scene.add(anchor);
             anchor.position.set(0, 0, 0);
 
-            scene.add(new AxesHelper(2));
-            const gh = new GridHelper(2);
-            scene.add(gh);
+            // scene.add(new AxesHelper(2));
+            // const gh = new GridHelper(2);
+            // scene.add(gh);
 
             if (!playerRef.current) { // setup player if not exists
                 // sr1.url as manifestUrl, sr2.url as previewUrl, sr3.url as dracosisUrl, sr4.url as audioUrl
@@ -284,13 +284,19 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                 camera.updateProjectionMatrix();
 
                 if (_DEBUG) {// sync cams
-                    debugCamera.overview.lookAt(camera.position);
-                    debugCamera.xz.position.x = camera.position.x;
-                    debugCamera.xz.position.z = camera.position.z;
-                    debugCamera.xy.position.x = camera.position.x;
-                    debugCamera.xy.position.y = camera.position.y;
-                    debugCamera.zy.position.z = camera.position.z;
-                    debugCamera.zy.position.y = camera.position.y;
+                    debugCamera.overview?.lookAt(camera.position);
+                    if (debugCamera.xz) {
+                        debugCamera.xz.position.x = camera.position.x;
+                        debugCamera.xz.position.z = camera.position.z;
+                    }
+                    if (debugCamera.xy) {
+                        debugCamera.xy.position.x = camera.position.x;
+                        debugCamera.xy.position.y = camera.position.y;
+                    }
+                    if (debugCamera) {
+                        debugCamera.zy.position.z = camera.position.z;
+                        debugCamera.zy.position.y = camera.position.y;
+                    }
                 }// sync cams
 
 
@@ -318,7 +324,8 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                     anchor.quaternion
                       .set(anchorRotationX, anchorRotationY, anchorRotationZ, anchorRotationW)
                       .multiply(correctionQuaternionZ);
-                    anchor.position.set(anchorPositionX, anchorPositionY, anchorPositionZ);
+                    // TODO: remove -1.5 when anchor will be placed on ground
+                    anchor.position.set(anchorPositionX, anchorPositionY - 1.5, anchorPositionZ);
                 }
 
             });
@@ -416,6 +423,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
 
     const handleTap = () => {
         Plugins.XRPlugin.handleTap();
+        playerRef.current?.play();
     };
 
     const playVideo = () => {

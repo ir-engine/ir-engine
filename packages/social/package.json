@@ -47,7 +47,6 @@
     "sass": "1.32.12",
     "styled-components": "5.2.3",
     "three": "0.128.0",
-    "volumetric": "https://github.com/XRFoundation/UniversalVolumetric",
     "webxr-native": "^0.2.19"
   },
   "devDependencies": {

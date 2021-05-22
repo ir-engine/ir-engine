@@ -98,7 +98,8 @@
     "use-debounce": "6.0.1",
     "use-http": "1.0.20",
     "uuid": "8.3.2",
-    "yup": "^0.32.9"
+    "yup": "^0.32.9",
+    "volumetric": "https://github.com/XRFoundation/UniversalVolumetric"
   },
   "devDependencies": {
     "@rollup/plugin-json": "4.1.0",
