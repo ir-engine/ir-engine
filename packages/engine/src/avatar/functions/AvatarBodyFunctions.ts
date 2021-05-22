@@ -1254,7 +1254,6 @@ export const initAvatarLegs = (entity) => {
   avatarLegs.hips.add(avatarLegs.leftLeg.transform);
   avatarLegs.hips.add(avatarLegs.rightLeg.transform);
 
-  avatarLegs.legSeparation = 0;
   avatarLegs.lastHmdPosition = new Vector3();
 
   avatarLegs.hmdVelocity = new Vector3();
@@ -1376,14 +1375,10 @@ export const updateAvatarLegs = (entity: Entity, delta) => {
       if (leftCanStep) {
         const leftDistance = Math.sqrt(leftFootPosition.x * leftFootPosition.x + leftFootPosition.z * leftFootPosition.z);
         const leftAngleDiff = Math.atan2(leftFootPosition.x, leftFootPosition.z);
-        if (leftDistance < rig.height * stepMinDistance) {
-          leftStepDistance = leftDistance;
-        } else if (leftDistance > rig.height * stepMaxDistance) {
+        if (leftDistance < rig.height * stepMinDistance || leftDistance > rig.height * stepMaxDistance) {
           leftStepDistance = leftDistance;
         }
-        if (leftAngleDiff > -Math.PI * maxStepAngleFactor) {
-          leftStepAngleDiff = leftAngleDiff;
-        } else if (leftAngleDiff < -Math.PI + Math.PI * maxStepAngleFactor) {
+        if (leftAngleDiff > -Math.PI * maxStepAngleFactor || leftAngleDiff < -Math.PI + Math.PI * maxStepAngleFactor) {
           leftStepAngleDiff = leftAngleDiff;
         }
       }
@@ -1392,14 +1387,10 @@ export const updateAvatarLegs = (entity: Entity, delta) => {
       if (rightCanStep) {
         const rightDistance = Math.sqrt(rightFootPosition.x * rightFootPosition.x + rightFootPosition.z * rightFootPosition.z);
         const rightAngleDiff = Math.atan2(rightFootPosition.x, rightFootPosition.z);
-        if (rightDistance < rig.height * stepMinDistance) {
-          rightStepDistance = rightDistance;
-        } else if (rightDistance > rig.height * stepMaxDistance) {
+        if (rightDistance < rig.height * stepMinDistance || rightDistance > rig.height * stepMaxDistance) {
           rightStepDistance = rightDistance;
         }
-        if (rightAngleDiff < Math.PI * maxStepAngleFactor) {
-          rightStepAngleDiff = rightAngleDiff;
-        } else if (rightAngleDiff > Math.PI - Math.PI * maxStepAngleFactor) {
+        if (rightAngleDiff < Math.PI * maxStepAngleFactor || rightAngleDiff > Math.PI - Math.PI * maxStepAngleFactor) {
           rightStepAngleDiff = rightAngleDiff;
         }
       }
@@ -1484,8 +1475,6 @@ const initLeg = (entity: Entity, legSide: Side) => {
   leg.upperLeg.add(leg.lowerLeg);
   leg.lowerLeg.add(leg.foot);
 
-  leg.upperLegLength = 0;
-  leg.lowerLegLength = 0;
   leg.legLength = 0;
   leg.eyesToUpperLegOffset = new Vector3();
 

@@ -790,7 +790,7 @@ function setQuaternionFromDirection(direction, up, target) {
  */
 function getOriginalWorldPositions(rootBone, worldPos) {
   const rootBoneWorldPos = rootBone.getWorldPosition(new Vector3())
-  worldPos[rootBone.id] = [rootBoneWorldPos];
+  worldPos[rootBone.id] = rootBoneWorldPos;
   rootBone.children.forEach((child) => {
     child.isBone && getOriginalWorldPositions(child, worldPos)
   })
