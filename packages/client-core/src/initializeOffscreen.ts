@@ -1,5 +1,6 @@
 import { CharacterInputSchema } from '@xrengine/engine/src/avatar/schema/CharacterInputSchema';
 import { AvatarAnimationSystem } from '@xrengine/engine/src/avatar/systems/AvatarAnimationSystem';
+import AvatarRigSystem from "@xrengine/engine/src/avatar/systems/AvatarRigSystem";
 import { CharacterControllerSystem } from '@xrengine/engine/src/avatar/systems/CharacterControllerSystem';
 import { CameraSystem } from '@xrengine/engine/src/camera/systems/CameraSystem';
 import { now } from '@xrengine/engine/src/common/functions/now';
@@ -20,7 +21,6 @@ import { ParticleSystem } from '@xrengine/engine/src/particles/systems/ParticleS
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
 import { HighlightSystem } from '@xrengine/engine/src/renderer/HighlightSystem';
 import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem';
-import { loadScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem';
 import { StateSystem } from '@xrengine/engine/src/state/systems/StateSystem';
 import { TransformSystem } from '@xrengine/engine/src/transform/systems/TransformSystem';
@@ -30,8 +30,6 @@ import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import _ from 'lodash';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
-import AvatarRigSystem from "@xrengine/engine/src/avatar/systems/AvatarRigSystem";
-
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 
@@ -60,7 +58,6 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   const options = _.defaultsDeep({}, initOptions, DefaultOffscreenInitializationOptions);
 
   proxyEngineEvents(proxy);
-  EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); });
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: true, physics: true });
   });

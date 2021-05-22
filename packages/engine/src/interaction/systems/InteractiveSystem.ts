@@ -1,8 +1,15 @@
-import { Box3, Frustum, Matrix4, Mesh, Object3D, Quaternion, Scene, Vector3 } from "three";
+import { Box3, Frustum, Matrix4, Mesh, Quaternion, Vector3 } from "three";
+import { BodyType } from "three-physx";
+import { CharacterComponent } from "../../avatar/components/CharacterComponent";
+import { NamePlateComponent } from "../../avatar/components/NamePlateComponent";
+import { interactableIsInReach } from "../../avatar/functions/interactableIsInReach";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
+import { BinaryValue } from "../../common/enums/BinaryValue";
+import { ParityValue } from "../../common/enums/ParityValue";
 import { isClient } from "../../common/functions/isClient";
 import { vectorToScreenXYZ } from "../../common/functions/vectorToScreenXYZ";
 import { Behavior } from "../../common/interfaces/Behavior";
+import { SIXDOFType } from "../../common/types/NumericalTypes";
 import { Engine } from "../../ecs/classes/Engine";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { Entity } from "../../ecs/classes/Entity";
@@ -10,38 +17,30 @@ import { System, SystemAttributes } from "../../ecs/classes/System";
 import { Not } from "../../ecs/functions/ComponentFunctions";
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from "../../ecs/functions/EntityFunctions";
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
+import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
+import { addActionComponent } from '../../game/functions/functionsActions';
+import { Input } from "../../input/components/Input";
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
+import { BaseInput } from "../../input/enums/BaseInput";
 import { NetworkObject } from "../../networking/components/NetworkObject";
+import { sendClientObjectUpdate } from "../../networking/functions/sendClientObjectUpdate";
+import { NetworkObjectUpdateType } from "../../networking/templates/NetworkObjectUpdateSchema";
+import { ColliderComponent } from "../../physics/components/ColliderComponent";
 import { RigidBodyComponent } from "../../physics/components/RigidBody";
 import { HighlightComponent } from "../../renderer/components/HighlightComponent";
 import { Object3DComponent } from "../../scene/components/Object3DComponent";
-import { CharacterComponent } from "../../avatar/components/CharacterComponent";
-import { NamePlateComponent } from "../../avatar/components/NamePlateComponent";
-import { VehicleComponent } from "../../vehicle/components/VehicleComponent";
 import { TransformComponent } from "../../transform/components/TransformComponent";
+import { VehicleComponent } from "../../vehicle/components/VehicleComponent";
+import { isInXR } from "../../xr/functions/WebXRFunctions";
 import { BoundingBox } from "../components/BoundingBox";
+import { EquipperComponent } from "../components/EquipperComponent";
 import { Interactable } from "../components/Interactable";
 import { InteractiveFocused } from "../components/InteractiveFocused";
 import { Interactor } from "../components/Interactor";
 import { SubFocused } from "../components/SubFocused";
-import { InteractBehaviorArguments } from "../types/InteractionTypes";
-import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
-import { addActionComponent } from '../../game/functions/functionsActions';
-import { EquipperComponent } from "../components/EquipperComponent";
 import { EquippableAttachmentPoint, EquippedStateUpdateSchema } from "../enums/EquippedEnums";
-import { ColliderComponent } from "../../physics/components/ColliderComponent";
-import { NetworkObjectUpdateType } from "../../networking/templates/NetworkObjectUpdateSchema";
-import { sendClientObjectUpdate } from "../../networking/functions/sendClientObjectUpdate";
-import { isServer } from "../../common/functions/isServer";
-import { BodyType } from "three-physx";
-import { BinaryValue } from "../../common/enums/BinaryValue";
-import { ParityValue } from "../../common/enums/ParityValue";
-import { interactableIsInReach } from "../../avatar/functions/interactableIsInReach";
-import { getHandPosition, getHandRotation, isInXR } from "../../xr/functions/WebXRFunctions";
-import { Input } from "../../input/components/Input";
-import { BaseInput } from "../../input/enums/BaseInput";
-import { SIXDOFType } from "../../common/types/NumericalTypes";
 import { unequipEntity } from "../functions/equippableFunctions";
+import { InteractBehaviorArguments } from "../types/InteractionTypes";
 
 const vector3 = new Vector3();
 const quat = new Quaternion();
@@ -57,7 +56,7 @@ export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityV
     unequipEntity(entity)
     return;
   }
-  
+
     let focusedArrays = [];
     for (let i = 0; i < Engine.entities.length; i++) {
       const isEntityInteractable = Engine.entities[i];
@@ -76,13 +75,20 @@ export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityV
           })
         } else {
           if (interactableIsInReach(entity, intPosition, args.side)) {
-            focusedArrays.push([isEntityInteractable, position.distanceTo(intPosition), null])
+            if (typeof interactive.onInteractionCheck === 'function') {
+              if (interactive.onInteractionCheck(entity, isEntityInteractable, null)) {
+                focusedArrays.push([isEntityInteractable, position.distanceTo(intPosition), null])
+              }
+            } else {
+              focusedArrays.push([isEntityInteractable, position.distanceTo(intPosition), null])
+            }
           }
         }
       }
     }
 
     focusedArrays = focusedArrays.sort((a: any, b: any) => a[1] - b[1]);
+    console.warn(focusedArrays.length);
     if (focusedArrays.length < 1) return;
 
     const interactable = getComponent(focusedArrays[0][0], Interactable);
@@ -90,13 +96,7 @@ export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityV
     const interactionCheck = interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2]);
 
     if (interactable.data.interactionType === "gameobject") {
-      if (interactionFunction) {
-        if (interactionCheck) {
-          addActionComponent(focusedArrays[0][0], HaveBeenInteracted, { args, entityNetworkId: getComponent(entity, NetworkObject).networkId });
-        }
-      } else {
-        addActionComponent(focusedArrays[0][0], HaveBeenInteracted, { args, entityNetworkId: getComponent(entity, NetworkObject).networkId });
-      }
+      addActionComponent(focusedArrays[0][0], HaveBeenInteracted, { args, entityNetworkId: getComponent(entity, NetworkObject).networkId });
       return;
     }
     // Not Game Object
@@ -433,7 +433,7 @@ export class InteractiveSystem extends System {
       const collider = getComponent(equippedEntity, ColliderComponent)
       collider.body.type = BodyType.KINEMATIC;
       // send equip to clients
-      if(isServer) {
+      if(!isClient) {
         const networkObject = getComponent(equippedEntity, NetworkObject)
         sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, networkObject.networkId] as EquippedStateUpdateSchema)
       }
@@ -458,8 +458,8 @@ export class InteractiveSystem extends System {
       }
       equippableTransform.position.copy(vector3);
       equippableTransform.rotation.copy(quat);
-      if(isServer) {
-        this.queryResults.network_user.added.forEach((userEntity) => {   
+      if(!isClient) {
+        this.queryResults.network_user.added.forEach((userEntity) => {
           const networkObject = getComponent(equipperComponent.equippedEntity, NetworkObject)
           sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, networkObject.networkId] as EquippedStateUpdateSchema)
         })
@@ -477,7 +477,7 @@ export class InteractiveSystem extends System {
         rotation: equippedTransform.rotation,
       })
       // send unequip to clients
-      if(isServer) {
+      if(!isClient) {
         sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.FALSE] as EquippedStateUpdateSchema)
       }
     })

@@ -6,6 +6,6 @@ import { Entity } from '../../../../ecs/classes/Entity';
  */
 
 
-export const executeBehaviorArray = (args): void => {
+export const executeBehaviorArray = (args): any => {
   return (entity: Entity, args?: any, delta?: number, entityOther?: Entity, time?: number, checks?: any) => { args.forEach(behavior => behavior(entity, args, delta, entityOther, time, checks)) };
 };

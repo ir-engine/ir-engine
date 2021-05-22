@@ -12,17 +12,15 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import CreateUserRole from "./CreateUserRole";
 import DialogActions from '@material-ui/core/DialogActions';
 import TextField from '@material-ui/core/TextField';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import Container from '@material-ui/core/Container';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { validationSchema } from "./validation";
 import { useFormik } from "formik";
-
-
-
+import { selectAuthState } from "../../../user/reducers/auth/selector";
+import { fetchAdminInstances } from '../../reducers/admin/service';
+import { fetchAdminParty } from "../../reducers/admin/service";
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -55,59 +53,90 @@ const useStyle = makeStyles({
     }
 });
 
+const Alert = (props) => {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+};
+
 interface Props {
     open: boolean;
     handleClose: any;
     adminState?: any;
     createUserAction?: any;
-    adminLocations: Array<any>;
-    editing: boolean;
-    userEdit: any;
+    authState?: any;
     patchUser?: any;
-    projects: Array<any>;
     fetchUserRole?: any;
+    fetchAdminInstances?: any;
+    fetchAdminParty?: any
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createUserAction: bindActionCreators(createUserAction, dispatch),
-    fetchUserRole: bindActionCreators(fetchUserRole, dispatch)
-
+    fetchUserRole: bindActionCreators(fetchUserRole, dispatch),
+    fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch),
+    fetchAdminParty: bindActionCreators(fetchAdminParty, dispatch)
 });
 
 const mapStateToProps = (state: any): any => {
     return {
         adminState: selectAdminState(state),
+        authState: selectAuthState(state),
     };
 };
 
 const CreateUser = (props: Props) => {
-    const { open, handleClose, createUserAction, adminLocations, projects, fetchUserRole, adminState } = props;
+    const { open, handleClose, createUserAction, authState, fetchAdminInstances, fetchUserRole, fetchAdminParty, adminState } = props;
     const classes = useStyles();
     const classesx = useStyle();
-
-    const [game, setGame] = React.useState('');
     const [status, setStatus] = React.useState('');
-    const [location, setLocation] = React.useState('');
     const [openCreateaUserRole, setOpenCreateUserRole] = React.useState(false);
+    const [instance, setInstance] = React.useState("");
+    const [party, setParty] = React.useState("");
+    const [snackOpen, setSnackOpen] = React.useState(false);
+    const [warning, setWarning] = React.useState("");
 
+    const user = authState.get("user");
     const userRole = adminState.get("userRole");
     const userRoleData = userRole ? userRole.get("userRole") : [];
-
-    const handleChange = async (event: React.ChangeEvent<{ value: unknown }>) => {
-        const selectedProject = event.target.value;
-        setGame(selectedProject as string);
-        await fetchUserRole(selectedProject);
-    };
+    const adminInstances = adminState.get('instances');
+    const instanceData = adminInstances.get("instances");
+    const adminParty = adminState.get("parties");
+    const adminPartyData = adminParty.get("parties").data ? adminParty.get("parties").data : [];
 
     React.useEffect(() => {
-        if (userRoleData.length > 0) {
-            if (userRole.get("updateNeeded")) fetchUserRole(game);
-        }
-    }, [adminState]);
+        const fetchData = async () => {
+            await fetchUserRole();
+        };
+        const role = userRole ? userRole.get('updateNeeded') : false;
+        if ((role === true) && user.id) fetchData();
 
-    const defaultProps = {
-        options: adminLocations,
-        getOptionLabel: (option: any) => option.name,
+        if (user.id && adminInstances.get("updateNeeded")) {
+            fetchAdminInstances();
+        }
+
+        if (user.id && adminParty.get('updateNeeded') == true) {
+            fetchAdminParty();
+        }
+    }, [adminState, user]);
+
+    const userRoleProps = {
+        options: userRoleData,
+        getOptionLabel: (option: any) => option.role,
+    };
+
+    const data = [];
+    instanceData.forEach(element => {
+        data.push(element);
+    });
+
+    const InstanceProps = {
+        options: data,
+        getOptionLabel: (option: any) => option.ipAddress
+    };
+
+    const partyData = adminPartyData.map(el => ({ ...el, label: `Location: ${el.location.name || ""}  ____  Instance: ${el.instance.ipAddress || ""}` }));
+    const PartyProps = {
+        options: partyData,
+        getOptionLabel: (option: any) => option.label
     };
 
     const createUserRole = () => {
@@ -120,21 +149,37 @@ const CreateUser = (props: Props) => {
 
     const formik = useFormik({
         initialValues: {
-            email: "",
-            name: ""
+            name: "",
+            avatar: "",
+            inviteCode: ""
         },
         validationSchema: validationSchema,
         onSubmit: async (values, { resetForm }) => {
-            const data = {
-                email: values.email,
-                name: values.name,
-                location,
-                project_id: game,
-                userRole: status,
-            };
-            await createUserAction(data);
-            handleClose(false);
-            resetForm();
+            if (!status) {
+                setWarning("Please select user role from the list");
+                setSnackOpen(true);
+            } else if (!instance) {
+                setWarning("Please select Instance from the list");
+                setSnackOpen(true);
+            } else if (!party) {
+                setWarning("Please select Party from the list");
+                setSnackOpen(true);
+            } else {
+                const data = {
+                    name: values.name,
+                    avatarId: values.avatar,
+                    inviteCode: values.inviteCode,
+                    instanceId: instance,
+                    userRole: status,
+                    partyId: party
+                };
+                createUserAction(data);
+                handleClose(false);
+                setInstance("");
+                setStatus("");
+                setParty("");
+                resetForm();
+            }
         }
     });
 
@@ -149,87 +194,121 @@ const CreateUser = (props: Props) => {
                 <Container maxWidth="sm" className={classes.marginTp}>
                     <DialogTitle id="form-dialog-title" className={classes.texAlign} >Create New User</DialogTitle>
                     <form onSubmit={formik.handleSubmit}>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="email"
-                        label="E-mail"
-                        fullWidth
-                        value={formik.values.email}                
-                        className={classes.marginBottm}
-                        onChange={formik.handleChange}
-                        error={formik.touched.email && Boolean(formik.errors.email)}
-                        helperText={formik.touched.email && formik.errors.email}
-                    />
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        id="name"
-                        label="Name"
-                        type="text"
-                        fullWidth
-                        value={formik.values.name}
-                        className={classes.marginBottm}
-                        onChange={formik.handleChange}
-                        error={formik.touched.name && Boolean(formik.errors.name)}
-                        helperText={formik.touched.name && formik.errors.name}
-                    />
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="name"
+                            label="Name"
+                            type="text"
+                            fullWidth
+                            value={formik.values.name}
+                            className={classes.marginBottm}
+                            onChange={formik.handleChange}
+                            error={formik.touched.name && Boolean(formik.errors.name)}
+                            helperText={formik.touched.name && formik.errors.name}
+                        />
 
-                    <Autocomplete
-                        onChange={(e, newValue) => setLocation(newValue.name as string)}
-                        {...defaultProps}
-                        id="debug"
-                        debug
-                        renderInput={(params) => <TextField {...params} label="Location" className={classes.marginBottm} />}
-                    />
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="inviteCode"
+                            label="Invite code"
+                            type="text"
+                            fullWidth
+                            value={formik.values.inviteCode}
+                            className={classes.marginBottm}
+                            onChange={formik.handleChange}
+                            error={formik.touched.inviteCode && Boolean(formik.errors.inviteCode)}
+                            helperText={formik.touched.inviteCode && formik.errors.inviteCode}
+                        />
 
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="avatar"
+                            label="Avatar"
+                            type="text"
+                            fullWidth
+                            value={formik.values.avatar}
+                            className={classes.marginBottm}
+                            onChange={formik.handleChange}
+                            error={formik.touched.avatar && Boolean(formik.errors.avatar)}
+                            helperText={formik.touched.avatar && formik.errors.avatar}
+                        />
 
-                    <FormControl fullWidth className={classes.marginBottm}>
-                        <InputLabel id="demo-simple-select-label">Projects</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={game}
-                            onChange={handleChange}
-                        >
-                            {
-                                projects.slice(1).map(el => <MenuItem value={el.name} key={el.project_id}>{el.name}</MenuItem>)
-                            }
-                        </Select>
-                    </FormControl>
-                    {
-                        game && <DialogContentText className={classes.marginBottm}>  Don't have User Role for this Project? <a href="#h" className={classes.textLink} onClick={createUserRole}>Create One</a>  </DialogContentText>
-                    }
-                    <FormControl fullWidth className={classes.marginBottm}>
-                        <InputLabel id="demo-simple-select-label">User Role</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={status}
-                            disabled={userRoleData.length > 0 ? false : true}
-                            onChange={(e) => setStatus(e.target.value as string)}
-                        >
-                            {
-                                userRoleData.map((el, index) => <MenuItem value={el.role} key={`${el.role}_${index}`}>{el.role}</MenuItem>)
-                            }
-                        </Select>
-                    </FormControl>
+                        <Autocomplete
+                            onChange={(e, newValue) => {
+                                if (newValue) {
+                                    setStatus(newValue.role as string);
+                                } else {
+                                    setStatus("");
+                                }
+                            }}
+                            {...userRoleProps}
+                            id="debug"
+                            debug
+                            renderInput={(params) => <TextField {...params} label="User Role" className={classes.marginBottm} />}
+                        />
 
-                    <DialogActions>
-                        <Button onClick={handleClose(false)} color="primary">
-                            Cancel
-                    </Button>
-                        <Button type="submit" color="primary">
-                            Submit
-                    </Button>
-                    </DialogActions>
+                        <DialogContentText className={classes.marginBottm}>  Don't see user role? <a href="#h" className={classes.textLink} onClick={createUserRole}>Create One</a>  </DialogContentText>
+
+                        <Autocomplete
+                            onChange={(e, newValue) => {
+                                if (newValue) {
+                                    setInstance(newValue.id as string);
+                                } else {
+                                    setInstance("");
+                                }
+                            }}
+                            {...InstanceProps}
+                            id="debug"
+                            debug
+                            renderInput={(params) => <TextField {...params} label="Instance" className={classes.marginBottm} />}
+                        />
+
+                        <DialogContentText className={classes.marginBottm}>  Don't see Instance? <a href="/admin/instance" className={classes.textLink}>Create One</a>  </DialogContentText>
+
+                        <Autocomplete
+                            onChange={(e, newValue) => {
+                                if (newValue) {
+                                    setParty(newValue.id as string);
+                                } else {
+                                    setParty("");
+                                }
+                            }}
+                            {...PartyProps}
+                            id="debug"
+                            debug
+                            renderInput={(params) => <TextField {...params} label="Party" className={classes.marginBottm} />}
+                        />
+
+                        <DialogContentText className={classes.marginBottm}>  Don't see Party? <a href="/admin/parties" className={classes.textLink}>Create One</a>  </DialogContentText>
+
+                        <DialogActions>
+                            <Button type="submit" color="primary">
+                                Submit
+                            </Button>
+                            <Button onClick={handleClose(false)} color="primary">
+                                Cancel
+                            </Button>
+                        </DialogActions>
                     </form>
+
+                    <Snackbar
+                        autoHideDuration={6000}
+                        anchorOrigin={{ vertical: 'top', horizontal: "center" }}
+                        open={snackOpen}
+                        onClose={() => setSnackOpen(false)}
+                    >
+                        <Alert onClose={() => setSnackOpen(false)} severity="warning">
+                            {warning}
+                        </Alert>
+                    </Snackbar>
                 </Container>
             </Drawer>
             <CreateUserRole
                 open={openCreateaUserRole}
                 handleClose={handleUserRoleClose}
-                projectName={game}
             />
         </React.Fragment>
     );

@@ -51,6 +51,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
 import { GolfGameMode } from '@xrengine/engine/src/game/templates/GolfGameMode';
+import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 
 const store = Store.store;
 
@@ -272,14 +273,12 @@ export const EnginePage = (props: Props) => {
     if(!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
 
     const loadScene = new Promise<void>((resolve) => {
-      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
+      WorldScene.load(sceneData, () => {
         setProgressEntity(0);
         store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
-        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.ENTITY_LOADED, onSceneLoadedEntity);
         setAppLoaded(true);
         resolve();
-      });
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_SCENE, sceneData });
+      }, onSceneLoadedEntity);
     });
 
     const getWorldState = new Promise<any>((resolve) => {
@@ -299,8 +298,8 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
   }
 
-  const onSceneLoadedEntity = (event: any): void => {
-    setProgressEntity(event.left || 0);
+  const onSceneLoadedEntity = (left: number): void => {
+    setProgressEntity(left || 0);
   };
 
   const onObjectHover = ({ focused, interactionText }: { focused: boolean, interactionText: string }): void => {
@@ -320,7 +319,6 @@ export const EnginePage = (props: Props) => {
   };
 
   const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENTITY_LOADED, onSceneLoadedEntity);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);

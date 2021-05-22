@@ -2,7 +2,6 @@ import { Matrix4, Vector3 } from 'three';
 import { initializeMovingState } from '../../avatar/behaviors/MovingAnimations';
 import { CharacterAnimations } from '../../avatar/enums/CharacterAnimations';
 import { CharacterComponent } from '../../avatar/components/CharacterComponent';
-import { changeAnimation } from '../../avatar/functions/updateVectorAnimation';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { PlayerInCar } from '../components/PlayerInCar';
@@ -10,6 +9,7 @@ import { PhysicsSystem } from '../../physics/systems/PhysicsSystem';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { VehicleComponent } from '../components/VehicleComponent';
 import { ControllerColliderComponent } from '../../avatar/components/ControllerColliderComponent';
+import { changeAnimation } from '../../character/functions/AnimationFunctions';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -70,7 +70,7 @@ export const onStartRemoveFromCar = (entity: Entity, entityCar: Entity, seat: nu
 
   const playerInCar = getMutableComponent(entity, PlayerInCar);
   playerInCar.currentFrame += playerInCar.animationSpeed;
-  const carTimeOut = playerInCar.timeOut//isServer ? playerInCar.timeOut / delta : playerInCar.timeOut;
+  const carTimeOut = playerInCar.timeOut//!isClient ? playerInCar.timeOut / delta : playerInCar.timeOut;
 
   doorAnimation(entityCar, seat, playerInCar.currentFrame, carTimeOut, playerInCar.angel);
 
@@ -100,7 +100,7 @@ export const onStartRemoveFromCar = (entity: Entity, entityCar: Entity, seat: nu
 
   }
 
-  // if (isServer) return;
+  // if (!isClient) return;
 
 
 

@@ -1,6 +1,5 @@
 import { AnimationClip, Group, Material, MathUtils, Mesh, SkinnedMesh } from "three";
 import { getLoader } from "../../assets/functions/LoadGLTF";
-import { Behavior } from "../../common/interfaces/Behavior";
 import { Engine } from "../../ecs/classes/Engine";
 import { System } from "../../ecs/classes/System";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
@@ -189,54 +188,3 @@ export function mathMixesAnimFromSchemaValues(entity, animationsSchema, objectVa
     return mathMixesAnimArray;
 }
 
-
-export const changeAnimation: Behavior = (entity, args: {}, deltaTime: number): void => {
-
-    const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-    if (!actor.initialized || !actor.mixer) return;
-    //@ts-ignore
-    const animationId = args.animationId;
-    //@ts-ignore
-    const transitionDuration = args.transitionDuration;
-    // if actor model is not yet loaded mixer could be empty
-    const avatarAnimations = defaultAvatarAnimations;
-
-    const avatarAnimation: AnimationConfigInterface = avatarAnimations[animationId];
-
-    const animationRoot = actor.modelContainer.children[0];
-
-    const clip = AnimationClip.findByName(actor.animations, avatarAnimation.name);
-
-    let newAction = actor.mixer.existingAction(clip, animationRoot);
-    if (!newAction) {
-        // get new action
-        newAction = actor.mixer.clipAction(clip, animationRoot);
-        if (!newAction) {
-            console.warn('setActorAnimation', avatarAnimation.name, ', not found');
-            return;
-        }
-    }
-    newAction.fadeIn(transitionDuration);
-    if (typeof avatarAnimation.loop !== "undefined")
-        newAction.setLoop(avatarAnimation.loop, Infinity);
-
-    // Clear existing animations
-    actor.currentAnimationAction.forEach(currentAnimationAction => {
-        if (currentAnimationAction.getClip().name === newAction.getClip().name) return;
-        console.log("Fading out current animation action");
-        currentAnimationAction.fadeOut(transitionDuration);
-        currentAnimationAction.setEffectiveWeight(0);
-    })
-
-    newAction
-        .reset()
-        .setEffectiveWeight(1)
-        .setEffectiveTimeScale(1)
-        .fadeIn(0.01)
-        .play();
-    console.log("New action is ", newAction);
-
-    actor.currentAnimationAction = [newAction];
-    actor.currentAnimationLength = newAction.getClip().duration;
-
-};

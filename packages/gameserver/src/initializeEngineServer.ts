@@ -1,31 +1,29 @@
-import _ from 'lodash';
-import { BufferGeometry, Mesh, Scene } from 'three';
-import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
+import { AvatarAnimationSystem } from '@xrengine/engine/src/avatar/systems/AvatarAnimationSystem';
+import AvatarRigSystem from '@xrengine/engine/src/avatar/systems/AvatarRigSystem';
 import { CharacterControllerSystem } from '@xrengine/engine/src/avatar/systems/CharacterControllerSystem';
+import { now } from '@xrengine/engine/src/common/functions/now';
 import { Timer } from '@xrengine/engine/src/common/functions/Timer';
 import { DefaultInitializationOptions, InitializeOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
+import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { execute } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions';
 import { SystemUpdateType } from "@xrengine/engine/src/ecs/functions/SystemUpdateType";
+import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem';
+import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
 import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem';
 import { ServerNetworkIncomingSystem } from '@xrengine/engine/src/networking/systems/ServerNetworkIncomingSystem';
 import { ServerNetworkOutgoingSystem } from '@xrengine/engine/src/networking/systems/ServerNetworkOutgoingSystem';
-import { PhysXInstance } from "three-physx";
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
 import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem';
 import { StateSystem } from '@xrengine/engine/src/state/systems/StateSystem';
-import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem';
 import { TransformSystem } from '@xrengine/engine/src/transform/systems/TransformSystem';
-import Worker from 'web-worker';
+import _ from 'lodash';
 import path from 'path';
-import { now } from '@xrengine/engine/src/common/functions/now';
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
-import { loadScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
-import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
-import { AvatarAnimationSystem } from '@xrengine/engine/src/avatar/systems/AvatarAnimationSystem';
-import AvatarRigSystem from '@xrengine/engine/src/avatar/systems/AvatarRigSystem';
+import { BufferGeometry, Mesh, Scene } from 'three';
+import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
+import Worker from 'web-worker';
 
 // import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 
@@ -43,7 +41,6 @@ export const initializeEngineServer = async (initOptions: InitializeOptions = De
   Engine.publicPath = publicPath;
   Network.instance = new Network();
 
-  EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); });
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: true, physics: true });
   });

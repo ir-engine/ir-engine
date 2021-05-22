@@ -1,23 +1,23 @@
 import { Euler, Matrix4, Vector3 } from 'three';
+import { initializeDriverState } from '../../avatar/behaviors/DrivingAnimations';
+import { CharacterComponent } from '../../avatar/components/CharacterComponent';
+import { ControllerColliderComponent } from '../../avatar/components/ControllerColliderComponent';
+import { CharacterAnimations } from '../../avatar/enums/CharacterAnimations';
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent';
 import { CameraModes } from '../../camera/types/CameraModes';
-import { initializeDriverState } from '../../avatar/behaviors/DrivingAnimations';
-import { CharacterAnimations } from '../../avatar/enums/CharacterAnimations';
-import { CharacterComponent } from '../../avatar/components/CharacterComponent';
-import { changeAnimation } from '../../avatar/functions/updateVectorAnimation';
-import { isServer } from '../../common/functions/isServer';
+import { changeAnimation } from '../../character/functions/AnimationFunctions';
+import { isClient } from '../../common/functions/isClient';
 import { Entity } from '../../ecs/classes/Entity';
-import { getMutableComponent, getComponent, addComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { Network } from '../../networking/classes/Network';
 import { NetworkObject } from '../../networking/components/NetworkObject';
-import { PlayerInCar } from '../components/PlayerInCar';
 import { CollisionGroups } from '../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../physics/systems/PhysicsSystem';
 import { TransformComponent } from '../../transform/components/TransformComponent';
+import { PlayerInCar } from '../components/PlayerInCar';
 import { VehicleComponent } from '../components/VehicleComponent';
 import { VehicleState } from '../enums/VehicleStateEnum';
-import { ControllerColliderComponent } from '../../avatar/components/ControllerColliderComponent';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -72,7 +72,7 @@ export const onAddedInCar = (entity: Entity, entityCar: Entity, seat: number, de
 	  transitionDuration: 0.3
    })
 
-   if (isServer || Network.instance.localAvatarNetworkId !== networkDriverId) return;
+   if (!isClient || Network.instance.localAvatarNetworkId !== networkDriverId) return;
   addComponent(entityCar, LocalInputReceiver);
   removeComponent(entity, FollowCameraComponent);
   addComponent(entity, FollowCameraComponent, {

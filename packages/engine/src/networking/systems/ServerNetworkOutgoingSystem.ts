@@ -53,9 +53,9 @@ export class ServerNetworkOutgoingSystem extends System {
       const avatarRig = getComponent(entity, IKAvatarRig)
       const input = getMutableComponent(entity, Input);
 
-      let head = input.data.get(BaseInput.XR_HEAD)?.value as SIXDOFType;
-      let left = input.data.get(BaseInput.XR_LEFT_HAND)?.value as SIXDOFType;
-      let right = input.data.get(BaseInput.XR_RIGHT_HAND)?.value as SIXDOFType;
+      const head = input.data.get(BaseInput.XR_HEAD)?.value as SIXDOFType;
+      const left = input.data.get(BaseInput.XR_LEFT_HAND)?.value as SIXDOFType;
+      const right = input.data.get(BaseInput.XR_RIGHT_HAND)?.value as SIXDOFType;
 
       if(avatarRig && head && left && right) {
         Network.instance.worldState.ikTransforms.push({

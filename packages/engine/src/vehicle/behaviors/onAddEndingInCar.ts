@@ -1,11 +1,11 @@
 import { Matrix4, Vector3 } from 'three';
 import { CharacterAnimations } from '../../avatar/enums/CharacterAnimations';
-import { changeAnimation } from '../../avatar/functions/updateVectorAnimation';
-import { isServer } from '../../common/functions/isServer';
+import { changeAnimation } from '../../character/functions/AnimationFunctions';
+import { isClient } from '../../common/functions/isClient';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { PlayerInCar } from '../components/PlayerInCar';
 import { TransformComponent } from '../../transform/components/TransformComponent';
+import { PlayerInCar } from '../components/PlayerInCar';
 import { VehicleComponent } from '../components/VehicleComponent';
 import { VehicleState } from '../enums/VehicleStateEnum';
 
@@ -60,7 +60,7 @@ export const onAddEndingInCar = (entity: Entity, entityCar: Entity, seat: number
 
   const playerInCar = getMutableComponent(entity, PlayerInCar);
 
-  const carTimeOut = playerInCar.timeOut;//isServer ? playerInCar.timeOut / delta : playerInCar.timeOut;
+  const carTimeOut = playerInCar.timeOut;//!isClient ? playerInCar.timeOut / delta : playerInCar.timeOut;
 
   playerInCar.currentFrame += playerInCar.animationSpeed;
 
@@ -74,7 +74,7 @@ export const onAddEndingInCar = (entity: Entity, entityCar: Entity, seat: number
     getMutableComponent(entity, PlayerInCar).state = VehicleState.onUpdate;
   }
 
-  if (isServer) return;
+  if (!isClient) return;
 
   if (timeOut) {
     changeAnimation(entity, {

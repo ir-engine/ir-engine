@@ -110,9 +110,9 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
          console.log(myFile);
         }).catch(error => console.log(error.message));
 
-//         const prevImage = dataURItoBlob(popupsState?.get('imgSrc'));
+        const prevImage = dataURItoBlob(popupsState?.get('imgSrc'));
         console.log(popupsState?.get('imgSrc'));
-        setPreview('prevImage');
+        setPreview(prevImage);
     }, [] ); 
      
     

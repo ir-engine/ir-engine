@@ -34,7 +34,7 @@
         "save": "Save",
         "manifest-file": "Manifest .manifest file",
         "audio-file": "Mp4 file",
-        "dracosis-file": "Dracosis .drcs file",
+        "dracosis-file": "Dracosis .uvol file",
         "preview-file": "Preview image file"
     },
     "creator": {

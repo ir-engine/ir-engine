@@ -3,7 +3,7 @@ import { initiateIK, stopIK } from '../../avatar/functions/IKFunctions';
 import { CHARACTER_STATES } from '../../avatar/state/CharacterStates';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { getBit } from '../../common/functions/bitFunctions';
-import { isServer } from '../../common/functions/isServer';
+import { isClient } from '../../common/functions/isClient';
 import { NumericalType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
@@ -79,7 +79,7 @@ export class ServerNetworkIncomingSystem extends System {
     // Buffer model for worldState
     //  Network.instance.snapshotModel = new Model(snapshotSchema)
 
-    this.isServer = isServer;
+    this.isServer = !isClient;
 
     // Initialize the server automatically - client is initialized in connectToServer
     if (process.env.SERVER_MODE !== undefined && (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')) {

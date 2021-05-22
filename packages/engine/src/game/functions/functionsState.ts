@@ -1,5 +1,4 @@
 import { isClient } from '../../common/functions/isClient';
-import { isServer } from '../../common/functions/isServer';
 import { Component } from "../../ecs/classes/Component";
 import { Entity } from '../../ecs/classes/Entity';
 import { addComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
@@ -60,7 +59,7 @@ export const reInitState = (game: Game): void => {
 };
 
 export const sendState = (game: Game, playerComp: GamePlayer): void => {
-  if (isServer && game.isGlobal) {
+  if (!isClient && game.isGlobal) {
     const message: GameStateUpdateMessage = { game: game.name, ownerId: playerComp.uuid, state: game.state };
   //  console.warn('sendState', message);
     Network.instance.worldState.gameState.push(message);

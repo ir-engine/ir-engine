@@ -5,8 +5,8 @@ import { CameraModes } from "../../camera/types/CameraModes";
 import { BinaryValue } from '../../common/enums/BinaryValue';
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { ParityValue } from '../../common/enums/ParityValue';
+import { isClient } from "../../common/functions/isClient";
 import { isMobileOrTablet } from '../../common/functions/isMobile';
-import { isServer } from "../../common/functions/isServer";
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
@@ -45,7 +45,7 @@ const interact: Behavior = (entity: Entity, args: any = { side: ParityValue }, d
   }
 
 
-  if (isServer) {
+  if (!isClient) {
     //TODO: all this function needs to re-think
     return;
   }
@@ -352,7 +352,7 @@ let switchChangedToZero = true;
 const xrLookMultiplier = 0.1;
 
 const lookFromXRInputs: Behavior = (entity, args): void => {
-  if (isServer) return; // we only set viewVector here, which is sent to the server
+  if (!isClient) return; // we only set viewVector here, which is sent to the server
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const input = getComponent<Input>(entity, Input as any);
   const values = input.data.get(BaseInput.XR_LOOK)?.value;

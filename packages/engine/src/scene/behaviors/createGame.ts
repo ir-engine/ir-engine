@@ -8,7 +8,6 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 
 export const createGame: Behavior = (entity, args: any) => {
   const transform = getMutableComponent(entity, TransformComponent);
-
   transform.scale.set(
     Math.abs(transform.scale.x) / 2,
     Math.abs(transform.scale.y) / 2,
@@ -37,13 +36,13 @@ export const createGameObject: Behavior = (entity, args: any) => {
     console.warn("DONT SAVE COLLIDER FOR GAME OBJECT");
   }
 
-  // if (isServer && !args.isGlobal) {
+  // if (!isClient && !args.isGlobal) {
   //   removeEntity(entity);
   //   return;
   // }
 
   addComponent(entity, GameObject, {
-    game: getGameFromName(args.gameName),
+    game: args.gameName,
     role: args.role,
     uuid: args.sceneEntityId
   });
