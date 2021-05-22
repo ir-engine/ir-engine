@@ -22,22 +22,16 @@ export class IKAvatarLegs extends Component<IKAvatarLegs> {
   hips: any;
   leftLeg: LeftLeg;
   rightLeg: RightLeg;
-  rig: any;
   legSeparation: number;
   lastHmdPosition: Vector3;
   hmdVelocity: Vector3;
-  enabled: boolean;
-  lastEnabled: boolean;
 }
 
 IKAvatarLegs._schema = {
 	hips: { type: Types.Ref, default: null },
 	leftLeg: { type: Types.Ref, default: null },
 	rightLeg: { type: Types.Ref, default: null },
-	rig: { type: Types.Ref, default: null },
 	legSeparation: { type: Types.Number, default: 0 },
 	lastHmdPosition: { type: Types.Vector3Type, default: new Vector3(0,0,0) },
-	hmdVelocity: { type: Types.Vector3Type, default: new Vector3(0,0,0) },
-	enabled: { type: Types.Boolean, default: false },
-	lastEnabled: { type: Types.Boolean, default: false }
+	hmdVelocity: { type: Types.Vector3Type, default: new Vector3(0,0,0) }
 }

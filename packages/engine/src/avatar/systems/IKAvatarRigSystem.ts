@@ -1,7 +1,7 @@
 import { System } from "../../ecs/classes/System";
 import { IKAvatarLegs } from "../components/IKAvatarLegs";
 import { IKAvatarRig } from "../components/IKAvatarRig";
-import IKAvatarShoulders from "../components/IKAvatarShoulders";
+import IKAvatarArms from "../components/IKAvatarArms";
 import { initializeAvatarRig, updateAvatarLegs, updateAvatarShoulders } from "../functions/AvatarBodyFunctions";
 
 export class AvatarRigSystem extends System {
@@ -32,7 +32,7 @@ export class AvatarRigSystem extends System {
 
 AvatarRigSystem.queries = {
   avatarRig: {
-    components: [IKAvatarRig, IKAvatarLegs, IKAvatarShoulders],
+    components: [IKAvatarRig, IKAvatarLegs, IKAvatarArms],
     listen: {
       added: true,
       removed: true
@@ -46,7 +46,7 @@ AvatarRigSystem.queries = {
   //   }
   // },
   // avatarWithShoulders: {
-  //   components: [IKAvatarRig, IKAvatarShoulders],
+  //   components: [IKAvatarRig, IKAvatarArms],
   //   listen: {
   //     added: true,
   //     removed: true

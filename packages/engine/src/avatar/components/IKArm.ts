@@ -5,7 +5,6 @@ import { Component } from "../../ecs/classes/Component";
  * @author Avaer Kazmer
  */
 abstract class Arm extends Component<Arm> {
-	shoulder: any;
 	target: any;
 	upperArmLength: number;
 	lowerArmLength: number;

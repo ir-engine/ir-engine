@@ -7,7 +7,7 @@ import IKArmRight from './IKArmRight';
  * 
  * @author Avaer Kazmer
  */
-class IKAvatarShoulders extends Component<IKAvatarShoulders> {
+class IKAvatarArms extends Component<IKAvatarArms> {
   transform: Object3D;
   hips: Object3D;
   spine: Object3D;
@@ -35,4 +35,4 @@ class IKAvatarShoulders extends Component<IKAvatarShoulders> {
 	playerWidthWrist: number;
 }
 
-export default IKAvatarShoulders;
+export default IKAvatarArms;

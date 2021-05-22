@@ -14,7 +14,7 @@ import { RightLeg } from '../components/IKLegRight';
 import XRPose from "../components/XRPose";
 import skeletonString from '../constants/Skeleton';
 import { Side } from '../enums/Side';
-import { AnimationMapping, copySkeleton, countCharacters, findArmature, findClosestParentBone, findEye, findFinger, findFoot, findFurthestParentBone, findHand, findHead, findHips, findShoulder, findSpine, getTailBones, importSkeleton, localVector, localVector2 } from '../functions/AvatarMathFunctions';
+import { AnimationMapping, copySkeleton, countCharacters, findArmature, findClosestParentBone, findEye, findFinger, findFoot, findFurthestParentBone, findHand, findHead, findHips, findShoulder, findSpine, getTailBones, importSkeleton } from '../functions/AvatarMathFunctions';
 import { fixSkeletonZForward } from '../functions/SkeletonUtils';
 import { copyTransform, getWorldPosition, getWorldQuaternion, updateMatrix, updateMatrixMatrixWorld, updateMatrixWorld } from "./UnityHelpers";
 
@@ -972,6 +972,7 @@ export const initializeAvatarRig = (entity) => {
 
 const updateIKArm = (entity, side: Side) => {
   const armIK = getMutableComponent(entity, side === Side.Left ? IKArmLeft : IKArmRight);
+  const avatarShoulders = getMutableComponent(entity, IKAvatarShoulders);
 
   updateMatrixWorld(armIK.transform);
   updateMatrixWorld(armIK.upperArm);
@@ -980,7 +981,7 @@ const updateIKArm = (entity, side: Side) => {
   const handRotation = armIK.target.quaternion;
   const handPosition = localVector2.copy(armIK.target.position);
 
-  const shoulderRotation = getWorldQuaternion(armIK.shoulder.transform, localQuaternion);
+  const shoulderRotation = getWorldQuaternion(avatarShoulders.transform, localQuaternion);
   const shoulderRotationInverse = localQuaternion2.copy(shoulderRotation).invert();
 
   const hypotenuseDistance = armIK.upperArmLength;
@@ -1226,10 +1227,7 @@ const initArm = (entity, armSide) => {
   arm.littleFinger1.add(arm.littleFinger2);
   arm.littleFinger2.add(arm.littleFinger3);
 
-  const shoulders = getComponent(entity, IKAvatarShoulders);
-
-  arm.shoulder = shoulders;
-  arm.target = arm.hand;
+  arm.target = arm.hand; // TODO: Consolidate?
 
   arm.upperArmLength = getWorldPosition(arm.lowerArm, localVector).distanceTo(getWorldPosition(arm.upperArm, localVector2));
   arm.lowerArmLength = getWorldPosition(arm.hand, localVector).distanceTo(getWorldPosition(arm.lowerArm, localVector2));
@@ -1256,16 +1254,10 @@ export const initAvatarLegs = (entity) => {
   avatarLegs.hips.add(avatarLegs.leftLeg.transform);
   avatarLegs.hips.add(avatarLegs.rightLeg.transform);
 
-  avatarLegs.rig = rig;
-
   avatarLegs.legSeparation = 0;
   avatarLegs.lastHmdPosition = new Vector3();
 
   avatarLegs.hmdVelocity = new Vector3();
-
-  avatarLegs.enabled = true;
-  avatarLegs.lastEnabled = false;
-
   avatarLegs.legSeparation = getWorldPosition(avatarLegs.leftLeg.upperLeg, localVector)
     .distanceTo(getWorldPosition(avatarLegs.rightLeg.upperLeg, localVector2));
   avatarLegs.lastHmdPosition.copy(pose.head.position);
@@ -1276,16 +1268,17 @@ export const initAvatarLegs = (entity) => {
 
 export const resetAvatarLegs = (entity: Entity) => {
   const avatarLegs = getMutableComponent(entity, IKAvatarLegs);
+  const rig = getMutableComponent(entity, IKAvatarRig);
 
-  copyTransform(avatarLegs.leftLeg.upperLeg, avatarLegs.rig.modelBones.Right_leg);
-  copyTransform(avatarLegs.leftLeg.lowerLeg, avatarLegs.rig.modelBones.Right_knee);
-  copyTransform(avatarLegs.leftLeg.foot, avatarLegs.rig.modelBones.Right_ankle);
+  copyTransform(avatarLegs.leftLeg.upperLeg, rig.modelBones.Right_leg);
+  copyTransform(avatarLegs.leftLeg.lowerLeg, rig.modelBones.Right_knee);
+  copyTransform(avatarLegs.leftLeg.foot, rig.modelBones.Right_ankle);
   avatarLegs.leftLeg.foot.getWorldPosition(avatarLegs.leftLeg.foot["stickTransform"].position);
   avatarLegs.leftLeg.foot.getWorldQuaternion(avatarLegs.leftLeg.foot["stickTransform"].quaternion);
 
-  copyTransform(avatarLegs.rightLeg.upperLeg, avatarLegs.rig.modelBones.Left_leg);
-  copyTransform(avatarLegs.rightLeg.lowerLeg, avatarLegs.rig.modelBones.Left_knee);
-  copyTransform(avatarLegs.rightLeg.foot, avatarLegs.rig.modelBones.Left_ankle);
+  copyTransform(avatarLegs.rightLeg.upperLeg, rig.modelBones.Left_leg);
+  copyTransform(avatarLegs.rightLeg.lowerLeg, rig.modelBones.Left_knee);
+  copyTransform(avatarLegs.rightLeg.foot, rig.modelBones.Left_ankle);
   avatarLegs.rightLeg.foot.getWorldPosition(avatarLegs.rightLeg.foot["stickTransform"].position);
   avatarLegs.rightLeg.foot.getWorldQuaternion(avatarLegs.rightLeg.foot["stickTransform"].quaternion);
 };
@@ -1293,11 +1286,6 @@ export const resetAvatarLegs = (entity: Entity) => {
 export const updateAvatarLegs = (entity: Entity, delta) => {
   const avatarLegs = getMutableComponent(entity, IKAvatarLegs);
   const pose = getMutableComponent(entity, XRPose);
-
-  if (avatarLegs.enabled) {
-    if (!avatarLegs.lastEnabled) {
-      resetAvatarLegs(entity);
-    }
 
     updateMatrixWorld(avatarLegs.leftLeg.transform);
     updateMatrixWorld(avatarLegs.leftLeg.upperLeg);
@@ -1364,12 +1352,13 @@ export const updateAvatarLegs = (entity: Entity, delta) => {
         .premultiply(planeMatrix)
         .decompose(fakePosition, avatarLegs.rightLeg.foot["stickTransform"].quaternion, fakeScale);
 
+        const rig = getMutableComponent(entity, IKAvatarRig);
 
     // step
     const _getLegStepFactor = leg => {
       if (leg.stepping) {
         const scaledStepRate = stepRate
-          * Math.max(localVector2.set(avatarLegs.hmdVelocity.x, 0, avatarLegs.hmdVelocity.z).length() / avatarLegs.rig.height, minHmdVelocityTimeFactor);
+          * Math.max(localVector2.set(avatarLegs.hmdVelocity.x, 0, avatarLegs.hmdVelocity.z).length() / rig.height, minHmdVelocityTimeFactor);
         return Math.min(Math.max(leg["stepFactor"] + scaledStepRate * delta, 0), 1);
       } else {
         return 0;
@@ -1387,9 +1376,9 @@ export const updateAvatarLegs = (entity: Entity, delta) => {
       if (leftCanStep) {
         const leftDistance = Math.sqrt(leftFootPosition.x * leftFootPosition.x + leftFootPosition.z * leftFootPosition.z);
         const leftAngleDiff = Math.atan2(leftFootPosition.x, leftFootPosition.z);
-        if (leftDistance < avatarLegs.rig.height * stepMinDistance) {
+        if (leftDistance < rig.height * stepMinDistance) {
           leftStepDistance = leftDistance;
-        } else if (leftDistance > avatarLegs.rig.height * stepMaxDistance) {
+        } else if (leftDistance > rig.height * stepMaxDistance) {
           leftStepDistance = leftDistance;
         }
         if (leftAngleDiff > -Math.PI * maxStepAngleFactor) {
@@ -1403,9 +1392,9 @@ export const updateAvatarLegs = (entity: Entity, delta) => {
       if (rightCanStep) {
         const rightDistance = Math.sqrt(rightFootPosition.x * rightFootPosition.x + rightFootPosition.z * rightFootPosition.z);
         const rightAngleDiff = Math.atan2(rightFootPosition.x, rightFootPosition.z);
-        if (rightDistance < avatarLegs.rig.height * stepMinDistance) {
+        if (rightDistance < rig.height * stepMinDistance) {
           rightStepDistance = rightDistance;
-        } else if (rightDistance > avatarLegs.rig.height * stepMaxDistance) {
+        } else if (rightDistance > rig.height * stepMaxDistance) {
           rightStepDistance = rightDistance;
         }
         if (rightAngleDiff < Math.PI * maxStepAngleFactor) {
@@ -1422,8 +1411,8 @@ export const updateAvatarLegs = (entity: Entity, delta) => {
           .add(localVector6.set((leg.left ? -1 : 1) * footDistance, 0, 0).applyQuaternion(leg.foot["stickTransform"].quaternion));
         const velocityVector = localVector6.set(avatarLegs.hmdVelocity.x, 0, avatarLegs.hmdVelocity.z);
         const velocityVectorLength = velocityVector.length();
-        if (velocityVectorLength > maxVelocity * avatarLegs.rig.height) {
-          velocityVector.multiplyScalar(maxVelocity * avatarLegs.rig.height / velocityVectorLength);
+        if (velocityVectorLength > maxVelocity * rig.height) {
+          velocityVector.multiplyScalar(maxVelocity * rig.height / velocityVectorLength);
         }
         velocityVector.multiplyScalar(velocityRestitutionFactor);
         leg.foot["endTransform"].position.add(velocityVector);
@@ -1448,7 +1437,7 @@ export const updateAvatarLegs = (entity: Entity, delta) => {
     if (avatarLegs.leftLeg.stepping) {
       avatarLegs.leftLeg.foot["stickTransform"].position.copy(avatarLegs.leftLeg.foot["startTransform"].position)
         .lerp(avatarLegs.leftLeg.foot["endTransform"].position, avatarLegs.leftLeg["stepFactor"])
-        .add(localVector6.set(0, Math.sin(avatarLegs.leftLeg["stepFactor"] * Math.PI) * stepHeight * avatarLegs.rig.height, 0));
+        .add(localVector6.set(0, Math.sin(avatarLegs.leftLeg["stepFactor"] * Math.PI) * stepHeight * rig.height, 0));
 
       if (avatarLegs.leftLeg["stepFactor"] >= 1) {
         avatarLegs.leftLeg.stepping = false;
@@ -1461,7 +1450,7 @@ export const updateAvatarLegs = (entity: Entity, delta) => {
     if (avatarLegs.rightLeg.stepping) {
       avatarLegs.rightLeg.foot["stickTransform"].position.copy(avatarLegs.rightLeg.foot["startTransform"].position)
         .lerp(avatarLegs.rightLeg.foot["endTransform"].position, avatarLegs.rightLeg["stepFactor"])
-        .add(localVector6.set(0, Math.sin(avatarLegs.rightLeg["stepFactor"] * Math.PI) * stepHeight * avatarLegs.rig.height, 0));
+        .add(localVector6.set(0, Math.sin(avatarLegs.rightLeg["stepFactor"] * Math.PI) * stepHeight * rig.height, 0));
       if (avatarLegs.rightLeg["stepFactor"] >= 1) {
         avatarLegs.rightLeg.stepping = false;
       }
@@ -1473,9 +1462,8 @@ export const updateAvatarLegs = (entity: Entity, delta) => {
 
     updateLeg(entity, Side.Left);
     updateLeg(entity, Side.Right);
-  }
+  
   avatarLegs.lastHmdPosition.copy(pose.head.position);
-  avatarLegs.lastEnabled = avatarLegs.enabled;
 };
 
 const initLeg = (entity: Entity, legSide: Side) => {  
