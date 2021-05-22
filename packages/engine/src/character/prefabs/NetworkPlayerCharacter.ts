@@ -37,6 +37,7 @@ import { addObject3DComponent } from "../../scene/behaviors/addObject3DComponent
 import { createShadow } from "../../scene/behaviors/createShadow";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { initiateIK } from "../../xr/functions/IKFunctions";
+import { isServer } from "../../common/functions/isServer";
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
@@ -236,6 +237,15 @@ export function createNetworkPlayer(args: { ownerId: string | number, networkId?
 		}
 	}
 	);
+  if (!isClient) {
+    Network.instance.createObjects.push({
+        networkId: networkComponent.networkId,
+        ownerId: networkComponent.ownerId,
+        prefabType: PrefabType.Player,
+        uniqueId: networkComponent.uniqueId,
+        parameters: ''
+    });
+  }
 	return networkComponent;
 }
 

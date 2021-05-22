@@ -121,8 +121,8 @@ export class AssetLoader {
         asset.traverse((child) => {
             if (!child.isMesh) return;
 
-            child.receiveShadow = this.params.receiveShadow;
-            child.castShadow = this.params.castShadow;
+            if(typeof this.params.receiveShadow !== 'undefined') child.receiveShadow = this.params.receiveShadow;
+            if(typeof this.params.castShadow !== 'undefined') child.castShadow = this.params.castShadow;
 
             if (this.params.envMapOverride) {
                 child.material.envMap = this.params.envMapOverride;
