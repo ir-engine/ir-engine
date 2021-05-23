@@ -364,7 +364,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
             
             await XRPlugin.initialize({}).then(() => {
                 setContentHidden();
-            })
+            }).catch(error => console.log(error.message));
             XRPlugin.start({}).then(() => {
                 setCameraStartedState(isNative ? "Camera started on native" : "Camera started on web");
             }).catch(error => console.log(error.message));
