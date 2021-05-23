@@ -145,10 +145,10 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
 
     const mediaItemId = mediaItem?.id;
     useEffect(() => {
-        // if (!mediaItemId) {
-        //     console.log('Media item is not here yet', itemId, arMediaState?.get('fetchingItem'));
-        //     return;
-        // }
+        if (!mediaItemId) {
+            console.log('Media item is not here yet', itemId, arMediaState?.get('fetchingItem'));
+            return;
+        }
 
         (async function () {
             scene = new Scene();
