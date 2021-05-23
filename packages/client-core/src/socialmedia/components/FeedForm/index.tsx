@@ -88,19 +88,6 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     
     };
 
-
-    const dataURItoBlob = (dataURI) => {
-        let byteString = atob(dataURI.split(',')[1]);
-        const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-        const ab = new ArrayBuffer(byteString.length);
-        const ia = new Uint8Array(ab);
-        for (let i = 0; i < byteString.length; i++) {
-            ia[i] = byteString.charCodeAt(i);
-        }
-        const blob = new Blob([ab], { type: mimeString });
-        return new File([blob], "previewImg.png");
-    };
-
     useEffect(()=> {
         fetch(videoPath)
         .then((res) => res.blob())
@@ -108,11 +95,56 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
          const myFile = new File([myBlob], "test.mp4");
          setVideo(myFile);
          console.log(myFile);
+
+         /*Preview Begin*/
+         const file = myFile;
+         const fileReader = new FileReader();
+
+         fileReader.onload = function() {
+            const blob = new Blob([fileReader.result], {type: file.type});
+            const url = URL.createObjectURL(blob);
+            const video = document.createElement('video');
+            const timeupdate = function() {
+                if (snapImage()) {
+                   video.removeEventListener('timeupdate', timeupdate);
+                   video.pause();
+                }
+            };
+            video.addEventListener('loadeddata', function() {
+                if (snapImage()) {
+                   video.removeEventListener('timeupdate', timeupdate);
+                }
+            });
+            const snapImage = function() {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                const image = canvas.toDataURL();
+                const success = image.length > 100000;
+                if (success) {
+                    const img = document.createElement('img');
+                    img.src = image;
+                    document.getElementById('qqq').appendChild(img);
+                    setPreview(img);
+                    console.log(img)
+                    URL.revokeObjectURL(url);
+                }
+                return success;
+            };
+            video.addEventListener('timeupdate', timeupdate);
+            video.preload = 'metadata';
+            video.src = url;
+            // Load video in Safari / IE11
+            video.muted = true;
+            video.playsInline = true;
+            video.play();
+         };
+         fileReader.readAsArrayBuffer(file);
+         /*Preview Finish*/
+
         }).catch(error => console.log(error.message));
 
-//         const prevImage = dataURItoBlob(popupsState?.get('imgSrc'));
-        console.log(popupsState?.get('imgSrc'))
-        setPreview('prevImage');
     }, [] ); 
      
     
