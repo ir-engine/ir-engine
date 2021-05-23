@@ -17,9 +17,8 @@ import { Capacitor, Plugins } from '@capacitor/core';
 // @ts-ignore
 import styles from './FeedForm.module.scss';
 import { createFeed, updateFeedAsAdmin } from '../../reducers/feed/service';
-import { updateNewFeedPageState, updateShareFormState, updateArMediaState} from '../../reducers/popupsState/service';
+import { updateNewFeedPageState, updateShareFormState, updateArMediaState } from '../../reducers/popupsState/service';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
-
 
 const mapStateToProps = (state: any): any => {
     return {
