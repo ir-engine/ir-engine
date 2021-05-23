@@ -245,7 +245,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
             requestAnimationFrame(raf);
 
             const { XRPlugin } = Plugins;
-           console.log(statusXR)
+          
             if(statusXR === false) {
              
             await XRPlugin.initialize({}).then(response => {
