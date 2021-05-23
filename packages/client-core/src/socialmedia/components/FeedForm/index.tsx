@@ -80,7 +80,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         setVideo(null);
         setPreview(null);
         setIsSended(true);
-        // Plugins.XRPlugin.stop();
+        Plugins.XRPlugin.stop();
         const thanksTimeOut = setTimeout(()=>{
             setIsSended(false); 
             clearTimeout(thanksTimeOut);
@@ -110,7 +110,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
                     video.pause();
                 }
              };
-             video.addEventListener('loadeddata', function() {
+             video.addEventListener('loadeddata', () => {
                 if (snapImage()) {
                     video.removeEventListener('timeupdate', timeupdate);
                 }
@@ -125,9 +125,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
                 if (success) {
                     const img = document.createElement('img');
                     img.src = image;
-                    document.getElementById('qqq').appendChild(img);
                     setPreview(img);
-                    console.log(img)
                     URL.revokeObjectURL(url);
                 }
                 return success;

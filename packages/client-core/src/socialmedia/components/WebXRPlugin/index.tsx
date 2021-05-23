@@ -1,6 +1,6 @@
 import { Capacitor, Plugins } from '@capacitor/core';
 import "webxr-native";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     AxesHelper,
     BoxGeometry, CameraHelper, Color,
@@ -145,8 +145,8 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
     const mediaItemId = mediaItem?.id;
     useEffect(() => {
         if (!mediaItemId) {
-                console.log('Media item is not here yet', itemId, arMediaState?.get('fetchingItem'));
-                return;
+            console.log('Media item is not here yet', itemId, arMediaState?.get('fetchingItem'));
+            return;
         }
 
         (async function () {
@@ -325,7 +325,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                       .set(anchorRotationX, anchorRotationY, anchorRotationZ, anchorRotationW)
                       .multiply(correctionQuaternionZ);
                     // TODO: remove -1.5 when anchor will be placed on ground
-                    anchor.position.set(anchorPositionX, anchorPositionY  - 1.5, anchorPositionZ);
+                    anchor.position.set(anchorPositionX, anchorPositionY - 1.5, anchorPositionZ);
                 }
 
             });
@@ -475,8 +475,8 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
               {/* <button type="button" style={{ padding: "1em" }} onClick={() => playVideo()}>playVideo</button> */}
               {/* <button type="button" style={{ padding: "1em" }} onClick={() => pauseVideo()}>pauseVideo</button> */}
               {/*
-               <section className={styles.closeButtonWrapper}>
-                   <button type="button" className={styles.closeButton} onClick={() => stopRecord()}><ChevronLeftIcon />Slide to cancel</button>
+                <section className={styles.closeButtonWrapper}>
+                    <button type="button" className={styles.closeButton} onClick={() => stopRecord()}><ChevronLeftIcon />Slide to cancel</button>
                 </section>
               */}
             </div>
