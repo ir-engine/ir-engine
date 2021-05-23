@@ -4,13 +4,10 @@
   "version": "0.2.5",
   "homepage": "lagunalabs.io",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
-  "nohoist": [
-    "**/html-minifier-terser",
-    "*/@docusaurus/*"
-  ],
+  "workspaces": {
+    "nohoist": ["packages/docs"],
+    "packages": ["packages/!(docs)"]
+  },
   "keywords": [
     "three",
     "three.js",

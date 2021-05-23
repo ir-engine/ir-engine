@@ -1,8 +1,5 @@
-import { Vector3 } from 'three';
-import { BinaryValue } from '../../common/enums/BinaryValue';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { getBit } from '../../common/functions/bitFunctions';
-import { isServer } from '../../common/functions/isServer';
 import { NumericalType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
@@ -10,7 +7,6 @@ import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFun
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { DelegatedInputReceiver } from '../../input/components/DelegatedInputReceiver';
 import { Input } from '../../input/components/Input';
-import { BaseInput } from '../../input/enums/BaseInput';
 import { InputType } from '../../input/enums/InputType';
 import { InputValue } from '../../input/interfaces/InputValue';
 import { InputAlias } from '../../input/types/InputAlias';
@@ -26,8 +22,10 @@ import { ClientInputModel } from '../schema/clientInputSchema';
 import { WorldStateModel } from '../schema/worldStateSchema';
 import { GamePlayer } from '../../game/components/GamePlayer';
 import { sendState } from '../../game/functions/functionsState';
-import { StateEntity, StateEntityGroup } from '../types/SnapshotDataTypes';
+import { StateEntity } from '../types/SnapshotDataTypes';
 import { ColliderComponent } from '../../physics/components/ColliderComponent';
+import { isClient } from '../../common/functions/isClient';
+import { getGameFromName } from '../../game/functions/functions';
 
 
 // function switchInputs(clientInput) {
@@ -82,7 +80,7 @@ export class ServerNetworkIncomingSystem extends System {
     // Buffer model for worldState
     //  Network.instance.snapshotModel = new Model(snapshotSchema)
 
-    this.isServer = isServer;
+    this.isServer = !isClient;
 
     // Initialize the server automatically - client is initialized in connectToServer
     if (process.env.SERVER_MODE !== undefined && (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')) {
@@ -159,7 +157,7 @@ export class ServerNetworkIncomingSystem extends System {
             const entity = Network.instance.networkObjects[clientInput.networkId].component.entity;
             const playerComp = getComponent<GamePlayer>(entity, GamePlayer);
             if (playerComp === undefined) return;
-            sendState(playerComp.game, playerComp);
+            sendState(getGameFromName(playerComp.gameName), playerComp);
           }
         })
       }
@@ -250,7 +248,6 @@ export class ServerNetworkIncomingSystem extends System {
 
       clientInput.transforms?.forEach((transform: StateEntity) => {
         const networkObject = Network.instance.networkObjects[transform.networkId];
-        console.log(transform, networkObject, Network.instance.clients[clientInput.networkId])
         if(networkObject && networkObject.ownerId === Network.instance.clients[clientInput.networkId].userId) {
           const collider = getComponent(networkObject.component.entity, ColliderComponent)
           collider.body.updateTransform({

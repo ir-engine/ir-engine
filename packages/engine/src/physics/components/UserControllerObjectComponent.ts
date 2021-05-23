@@ -5,7 +5,7 @@ import { Types } from '../../ecs/types/Types';
  * @author Josh Field <github.com/HexaField>
  */
 
-export class UserControlledColliderComponent extends Component<any> {
+export class UserControlledColliderComponent extends Component<UserControlledColliderComponent> {
   ownerNetworkId: number;
 }
 

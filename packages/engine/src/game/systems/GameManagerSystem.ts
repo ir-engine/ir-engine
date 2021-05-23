@@ -16,6 +16,7 @@ import { GamesSchema } from "../../game/templates/GamesSchema";
 import { PrefabType } from '../../networking/templates/PrefabType';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { GameMode } from '../types/GameMode';
+import { getGameFromName } from '../functions/functions';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -46,14 +47,16 @@ export class GameManagerSystem extends System {
   updateType = SystemUpdateType.Fixed;
   updateNewPlayersRate: number;
   updateLastTime: number;
-  createdGames: Entity[];
+  currentGames: Map<string, Game>;
+  gameEntities: Entity[];
 
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     GameManagerSystem.instance = this;
     this.updateNewPlayersRate = 60;
     this.updateLastTime = 0;
-    this.createdGames = [];
+    this.currentGames = new Map<string, Game>();
+    this.gameEntities = [];
   }
 
   dispose(): void {
@@ -67,10 +70,12 @@ export class GameManagerSystem extends System {
       const gameSchema = GamesSchema[game.gameMode] as GameMode;
       game.priority = gameSchema.priority;// DOTO: set its from editor
       initState(game, gameSchema);
-      this.createdGames.push(entity);
-
+      this.gameEntities.push(entity);
+      // its for client, to get game entity whan came Action Message with only name of Game
+      this.currentGames.set(game.name, game);
       // TODO: add start & stop functions to be able to start and end games
       gameSchema.onGameStart(entity);
+      console.warn('CREATE GAME');
     });
 
     this.queryResults.game.all?.forEach(entityGame => {
@@ -90,19 +95,19 @@ export class GameManagerSystem extends System {
           .forEach(v => {
             // is Player in Game Area
             if (v.inGameArea && hasComponent(v.entity, GamePlayer)) {
-              if (getComponent(v.entity, GamePlayer).game.name != game.name) {
-                getComponent(v.entity, GamePlayer).game.priority < game.priority;
+              if (getComponent(v.entity, GamePlayer).gameName != game.name) {
+                getGameFromName(getComponent(v.entity, GamePlayer).gameName).priority < game.priority;
                 removeComponent(v.entity, GamePlayer);
               }
             } else if (v.inGameArea && !hasComponent(v.entity, GamePlayer)) {
 
               addComponent(v.entity, GamePlayer, {
-                game: game,
+                gameName: game.name,
                 role: Object.keys(gameSchema.gamePlayerRoles)[0],
                 uuid: getComponent(v.entity, NetworkObject).ownerId
               });
             } else if (!v.inGameArea && hasComponent(v.entity, GamePlayer)) {
-              if (getComponent(v.entity, GamePlayer).game.name === game.name) {
+              if (getComponent(v.entity, GamePlayer).gameName === game.name) {
                 removeComponent(v.entity, GamePlayer);
               }
             }
@@ -112,25 +117,9 @@ export class GameManagerSystem extends System {
         this.updateLastTime += 1;
       }
 
-      // OBJECTS
-      // its needet for allow dynamicly adding objects and exept errors when enitor gives object without created game
-      this.queryResults.gameObject.added?.forEach(entity => {
-        if (getComponent(entity, GameObject).game != game.name) return;
-        getMutableComponent(entity, GameObject).game = game;
-        // add to gameObjects list sorted by role
-        gameObjects[getComponent(entity, GameObject).role].push(entity);
-        // add init Tag components for start state of Games
-        const schema = gameSchema.initGameState[getComponent(entity, GameObject).role];
-        if (schema != undefined) {
-          schema.components?.forEach(component => addStateComponent(entity, component));
-          initStorage(entity, schema.storage);
-          schema.behaviors?.forEach(behavior => behavior(entity));
-        }
-      });
-
       // PLAYERS
       this.queryResults.gamePlayers.added?.forEach(entity => {
-        if (getComponent(entity, GamePlayer).game.name != game.name) return;
+        if (getComponent(entity, GamePlayer).gameName != game.name) return;
         // befor adding first player
         if (this.queryResults.gamePlayers.all.length == 1) saveInitStateCopy(entityGame);
         // add to gamePlayers list sorted by role
@@ -176,7 +165,7 @@ export class GameManagerSystem extends System {
 
               if(b.args != undefined) {
                 if(typeof b.args === 'function')  {
-                  args = b.args(entity) 
+                  args = b.args(entity)
                 } else {
                   args = b.args;
                 }
@@ -191,7 +180,7 @@ export class GameManagerSystem extends System {
                 //b.behavior(entity, undefined, args, checkersResult);
                 executeComplexResult.push({ behavior: b.behavior, entity: entity, entityOther: undefined, args, checkersResult });
               } else {
-                let complexResultObjects = Object.keys(b.takeEffectOn.targetsRole).reduce((acc, searchedRoleName) => {
+                const complexResultObjects = Object.keys(b.takeEffectOn.targetsRole).reduce((acc, searchedRoleName) => {
                   const targetRoleSchema = b.takeEffectOn.targetsRole[searchedRoleName];
                   // search second entity
                   let resultObjects = (gameObjects[searchedRoleName] || gamePlayers[searchedRoleName]) as any;
@@ -214,11 +203,11 @@ export class GameManagerSystem extends System {
                   return acc.concat(resultObjects);
                 },[]);
 
-
+                /*
                 if (b.takeEffectOn.sortMethod != undefined && complexResultObjects.length > 1 ) {
                   complexResultObjects = b.takeEffectOn.sortMethod(complexResultObjects)
                 }
-
+                */
                 complexResultObjects.forEach(complexResult => {
                   executeComplexResult.push({
                     behavior: b.behavior,
@@ -241,9 +230,28 @@ export class GameManagerSystem extends System {
           gameSchema.registerActionTagComponents.forEach(component => hasComponent(entity, component) ? removeComponent(entity, component):'');
         })
       });
-
       // end of frame circle one game
     });
+    // OBJECTS
+    // its needet for allow dynamicly adding objects and exept errors when enitor gives object without created game
+    this.queryResults.gameObject.added?.forEach(entity => {
+      this.queryResults.game.all?.forEach(entityGame => {
+        const game = getComponent(entityGame, Game);
+        const gameSchema = GamesSchema[game.gameMode];
+        const gameObjects = game.gameObjects;
+        if (getComponent(entity, GameObject).gameName != game.name) return;
+        // add to gameObjects list sorted by role
+        gameObjects[getComponent(entity, GameObject).role].push(entity);
+        // add init Tag components for start state of Games
+        const schema = gameSchema.initGameState[getComponent(entity, GameObject).role];
+        if (schema != undefined) {
+          schema.components?.forEach(component => addStateComponent(entity, component));
+          initStorage(entity, schema.storage);
+          schema.behaviors?.forEach(behavior => behavior(entity));
+        }
+      })
+    });
+    // END
   }
 }
 

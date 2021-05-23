@@ -106,16 +106,16 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
             const video = document.createElement('video');
             const timeupdate = function() {
                 if (snapImage()) {
-                   video.removeEventListener('timeupdate', timeupdate);
-                   video.pause();
+                    video.removeEventListener('timeupdate', timeupdate);
+                    video.pause();
                 }
-            };
-            video.addEventListener('loadeddata', function() {
+             };
+             video.addEventListener('loadeddata', function() {
                 if (snapImage()) {
-                   video.removeEventListener('timeupdate', timeupdate);
+                    video.removeEventListener('timeupdate', timeupdate);
                 }
-            });
-            const snapImage = function() {
+             });
+             const snapImage = function() {
                 const canvas = document.createElement('canvas');
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
@@ -131,19 +131,21 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
                     URL.revokeObjectURL(url);
                 }
                 return success;
-            };
-            video.addEventListener('timeupdate', timeupdate);
-            video.preload = 'metadata';
-            video.src = url;
-            // Load video in Safari / IE11
-            video.muted = true;
-            video.playsInline = true;
-            video.play();
-         };
-         fileReader.readAsArrayBuffer(file);
-         /*Preview Finish*/
+             };
+             video.addEventListener('timeupdate', timeupdate);
+             video.preload = 'metadata';
+             video.src = url;
+             // Load video in Safari / IE11
+             video.muted = true;
+             video.playsInline = true;
+             video.play();
+          };
+          fileReader.readAsArrayBuffer(file);
+          /*Preview Finish*/
+
 
         }).catch(error => console.log(error.message));
+
 
     }, [] ); 
      

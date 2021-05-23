@@ -65,10 +65,11 @@ export function changeShareForm (state, id): PopupsActions {
   };
 }
 
-export function changeWebXR (state): PopupsActions {
+export function changeWebXR (state, id): PopupsActions {
   return {
     type: CHANGE_WEB_XR_STATE,
     state,
+    id
   };
 }
 

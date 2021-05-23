@@ -2,11 +2,12 @@ import { Behavior } from "../../common/interfaces/Behavior";
 import { addComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { Game } from "../../game/components/Game";
 import { GameObject } from "../../game/components/GameObject";
+import { getGameFromName } from "../../game/functions/functions";
+import { GameManagerSystem } from "../../game/systems/GameManagerSystem";
 import { TransformComponent } from '../../transform/components/TransformComponent';
 
 export const createGame: Behavior = (entity, args: any) => {
   const transform = getMutableComponent(entity, TransformComponent);
-
   transform.scale.set(
     Math.abs(transform.scale.x) / 2,
     Math.abs(transform.scale.y) / 2,
@@ -27,7 +28,7 @@ export const createGame: Behavior = (entity, args: any) => {
     gameArea: { min, max }
   };
 
-  addComponent(entity, Game, gameData);
+  addComponent(entity, Game, gameData)
 };
 
 export const createGameObject: Behavior = (entity, args: any) => {
@@ -35,13 +36,13 @@ export const createGameObject: Behavior = (entity, args: any) => {
     console.warn("DONT SAVE COLLIDER FOR GAME OBJECT");
   }
 
-  // if (isServer && !args.isGlobal) {
+  // if (!isClient && !args.isGlobal) {
   //   removeEntity(entity);
   //   return;
   // }
 
   addComponent(entity, GameObject, {
-    game: args.gameName,
+    gameName: args.gameName,
     role: args.role,
     uuid: args.sceneEntityId
   });

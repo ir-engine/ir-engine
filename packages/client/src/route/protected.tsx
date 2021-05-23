@@ -13,6 +13,7 @@ const invites = React.lazy(() => import("../pages/admin/invites"));
 const locations = React.lazy(() => import("../pages/admin/locations"));
 const scenes = React.lazy(() => import("../pages/admin/scenes"));
 const users = React.lazy(() => import("../pages/admin/users"));
+const party = React.lazy(() => import("../pages/admin/party"));
 
 
 interface Props {
@@ -29,11 +30,11 @@ const mapStateToProps = (state: any): any => {
 const ProtectedRoutes = (props: Props) => {
     const { authState } = props;
     const admin = authState.get("user");
-    // if (admin["userRole"]) {
-    //     if (admin["userRole"]  !== "admin") {
-    //         return <Redirect to="/login" />;
-    //     }
-    // }
+    if (admin["userRole"]) {
+        if (admin["userRole"]  !== "admin") {
+            return <Redirect to="/login" />;
+        }
+    }
     
     return (
         <Fragment >
@@ -59,6 +60,7 @@ const ProtectedRoutes = (props: Props) => {
                     <PrivateRoute exact path="/admin/invites" component={invites} />
                     <PrivateRoute exact path="/admin/locations" component={locations} />
                     <PrivateRoute exact path="/admin/scenes" component={scenes} />
+                    <PrivateRoute exact path="/admin/parties" component={party} />
                     <PrivateRoute exact Path="/admin/users" component={users} />
                 </Switch>
             </Suspense>

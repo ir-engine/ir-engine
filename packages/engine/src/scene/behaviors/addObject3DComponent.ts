@@ -111,10 +111,12 @@ export const addObject3DComponent: Behavior = (
   }
 
   const hasShadow = getMutableComponent(entity, ShadowComponent)
+  const castShadow = Boolean(hasShadow?.castShadow || args.objArgs?.castShadow);
+  const receiveshadow = Boolean(hasShadow?.receiveShadow || args.objArgs?.receiveShadow);
 
   object3d.traverse((obj) => {
-    obj.castShadow = Boolean(hasShadow?.castShadow || args.objArgs?.castShadow);
-    obj.receiveShadow = Boolean(hasShadow?.receiveShadow || args.objArgs?.receiveShadow);
+    obj.castShadow = castShadow;
+    obj.receiveShadow = receiveshadow;
     if(isClient) {
       obj.material && WebGLRendererSystem.instance?.csm?.setupMaterial(obj.material);
     }

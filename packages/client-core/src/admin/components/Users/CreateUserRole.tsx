@@ -20,7 +20,6 @@ interface Props {
     patchUser?: any;
     fetchUserRole?: any;
     createUserRoleAction?: any;
-    projectName: any
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
@@ -47,24 +46,22 @@ const useStyles = makeStyles((theme: Theme) =>
     })
 );
 const createUser = (props: Props) => {
-    const { open, projectName, handleClose, adminState, createUserRoleAction } = props;
+    const { open,  handleClose, createUserRoleAction } = props;
     const classes = useStyles();
     const [role, setRole] = React.useState('');
-    
-    const userRole = adminState.get("userRole");
-    const userRoleData = userRole ? userRole.get("userRole") : [];
 
 
     const createUserRole = async () => {
-        await createUserRoleAction({ role, project_id: projectName });
+        await createUserRoleAction({ role });
         handleClose();
+        setRole("");
     };
 
 
     return (
         <div>
             <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-                <DialogTitle id="form-dialog-title">Create new user role for specific project</DialogTitle>
+                <DialogTitle id="form-dialog-title">Create new user role </DialogTitle>
                 <DialogContent>
 
                 <TextField

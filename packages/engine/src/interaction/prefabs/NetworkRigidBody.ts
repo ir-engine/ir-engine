@@ -5,13 +5,15 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent';
 import { RigidBodyComponent } from '../../physics/components/RigidBody';
 import { initializeNetworkObject } from '../../networking/functions/initializeNetworkObject';
 import { PrefabType } from '../../networking/templates/PrefabType';
+import { isClient } from '../../common/functions/isClient';
+import { Network } from '../../networking/classes/Network';
 
 /**
 * @author HydraFire <github.com/HydraFire>
  */
 
 export function createNetworkRigidBody( args:{ parameters?: any, networkId?: number, uniqueId: string, entity?: Entity, ownerId?: string }) {
-  initializeNetworkObject({
+  const networkComponent = initializeNetworkObject({
     entity: args.entity,
     prefabType: PrefabType.RigidBody,
     uniqueId: args.uniqueId,
@@ -36,6 +38,15 @@ export function createNetworkRigidBody( args:{ parameters?: any, networkId?: num
       ]
     }
   });
+  if (!isClient) {
+    Network.instance.createObjects.push({
+        networkId: networkComponent.networkId,
+        ownerId: networkComponent.ownerId,
+        prefabType: PrefabType.RigidBody,
+        uniqueId: networkComponent.uniqueId,
+        parameters: ''
+    });
+  }
 }
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkRigidBody: NetworkPrefab = {

@@ -193,6 +193,7 @@ export class PhysicsSystem extends System {
       this.queryResults.correctionFromServer.all?.forEach(entity => {
         const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot);
         if (snapshot == null) return;
+        if(getComponent(entity, UserControlledColliderComponent)?.ownerNetworkId !== Network.instance.localAvatarNetworkId) return; 
         const collider = getMutableComponent(entity, ColliderComponent)
         // dynamic objects should be interpolated, kinematic objects should not
         if (collider && collider.body.type !== BodyType.KINEMATIC) {
@@ -215,8 +216,8 @@ export class PhysicsSystem extends System {
       // only on server
       this.queryResults.correctionFromClient.all?.forEach(entity => {
         const networkObject = getMutableComponent(entity, NetworkObject);
-        console.log('correctionFromClient', entity, networkObject.ownerId, Network.instance.userId)
-        if(networkObject.ownerId === Network.instance.userId) {
+        const ownerNetworkId = getComponent(entity, UserControlledColliderComponent).ownerNetworkId;
+        if(networkObject.networkId === ownerNetworkId) {
           const collider = getMutableComponent(entity, ColliderComponent);
           Network.instance.clientInputState.transforms.push({
             networkId: networkObject.networkId,
@@ -260,7 +261,7 @@ PhysicsSystem.queries = {
     components: [Not(LocalInputReceiver), InterpolationComponent, NetworkObject],
   },
   correctionFromServer: {
-    components: [Not(UserControlledColliderComponent), NetworkObject],
+    components: [NetworkObject],
   },
   correctionFromClient: {
     components: [UserControlledColliderComponent, NetworkObject],

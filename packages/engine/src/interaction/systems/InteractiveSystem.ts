@@ -32,12 +32,11 @@ import { EquippableAttachmentPoint, EquippedStateUpdateSchema } from "../enums/E
 import { ColliderComponent } from "../../physics/components/ColliderComponent";
 import { NetworkObjectUpdateType } from "../../networking/templates/NetworkObjectUpdateSchema";
 import { sendClientObjectUpdate } from "../../networking/functions/sendClientObjectUpdate";
-import { isServer } from "../../common/functions/isServer";
 import { BodyType } from "three-physx";
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { ParityValue } from "../../common/enums/ParityValue";
 import { getInteractiveIsInReachDistance } from "../../character/functions/getInteractiveIsInReachDistance";
-import { getHandPosition, getHandRotation, isInXR } from "../../xr/functions/WebXRFunctions";
+import { isInXR } from "../../xr/functions/WebXRFunctions";
 import { Input } from "../../input/components/Input";
 import { BaseInput } from "../../input/enums/BaseInput";
 import { SIXDOFType } from "../../common/types/NumericalTypes";
@@ -57,7 +56,7 @@ export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityV
     unequipEntity(entity)
     return;
   }
-  
+
     let focusedArrays = [];
     for (let i = 0; i < Engine.entities.length; i++) {
       const isEntityInteractable = Engine.entities[i];
@@ -76,13 +75,20 @@ export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityV
           })
         } else {
           if (getInteractiveIsInReachDistance(entity, intPosition, args.side)) {
-            focusedArrays.push([isEntityInteractable, position.distanceTo(intPosition), null])
+            if (typeof interactive.onInteractionCheck === 'function') {
+              if (interactive.onInteractionCheck(entity, isEntityInteractable, null)) {
+                focusedArrays.push([isEntityInteractable, position.distanceTo(intPosition), null])
+              }
+            } else {
+              focusedArrays.push([isEntityInteractable, position.distanceTo(intPosition), null])
+            }
           }
         }
       }
     }
 
     focusedArrays = focusedArrays.sort((a: any, b: any) => a[1] - b[1]);
+    console.warn(focusedArrays.length);
     if (focusedArrays.length < 1) return;
 
     const interactable = getComponent(focusedArrays[0][0], Interactable);
@@ -90,13 +96,7 @@ export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityV
     const interactionCheck = interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2]);
 
     if (interactable.data.interactionType === "gameobject") {
-      if (interactionFunction) {
-        if (interactionCheck) {
-          addActionComponent(focusedArrays[0][0], HaveBeenInteracted, { args, entityNetworkId: getComponent(entity, NetworkObject).networkId });
-        }
-      } else {
-        addActionComponent(focusedArrays[0][0], HaveBeenInteracted, { args, entityNetworkId: getComponent(entity, NetworkObject).networkId });
-      }
+      addActionComponent(focusedArrays[0][0], HaveBeenInteracted, { args, entityNetworkId: getComponent(entity, NetworkObject).networkId });
       return;
     }
     // Not Game Object
@@ -433,7 +433,7 @@ export class InteractiveSystem extends System {
       const collider = getComponent(equippedEntity, ColliderComponent)
       collider.body.type = BodyType.KINEMATIC;
       // send equip to clients
-      if(isServer) {
+      if(!isClient) {
         const networkObject = getComponent(equippedEntity, NetworkObject)
         sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, networkObject.networkId] as EquippedStateUpdateSchema)
       }
@@ -458,8 +458,8 @@ export class InteractiveSystem extends System {
       }
       equippableTransform.position.copy(vector3);
       equippableTransform.rotation.copy(quat);
-      if(isServer) {
-        this.queryResults.network_user.added.forEach((userEntity) => {   
+      if(!isClient) {
+        this.queryResults.network_user.added.forEach((userEntity) => {
           const networkObject = getComponent(equipperComponent.equippedEntity, NetworkObject)
           sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, networkObject.networkId] as EquippedStateUpdateSchema)
         })
@@ -477,7 +477,7 @@ export class InteractiveSystem extends System {
         rotation: equippedTransform.rotation,
       })
       // send unequip to clients
-      if(isServer) {
+      if(!isClient) {
         sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.FALSE] as EquippedStateUpdateSchema)
       }
     })

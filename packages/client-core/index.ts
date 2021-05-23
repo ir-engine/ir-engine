@@ -1,6 +1,7 @@
 // created from ctix
 
 export * from './src/admin/components/AdminHelpers';
+export * from './src/admin/components/Instance/validation';
 export * from './src/admin/components/Users/validation';
 export * from './src/admin/reducers/actions';
 export * from './src/admin/reducers/admin/actions';
@@ -342,19 +343,24 @@ export { default as srcAdminComponentsArMediaConsole } from './src/admin/compone
 export { default as srcAdminComponentsContentPackContentPackConsole } from './src/admin/components/ContentPack/ContentPackConsole';
 export { default as srcAdminComponentsContentPackContentPackDetailsModal } from './src/admin/components/ContentPack/ContentPackDetailsModal';
 export { default as srcAdminComponentsContentPackDownloadModal } from './src/admin/components/ContentPack/DownloadModal';
-export { default as srcAdminComponentsCreateInstance } from './src/admin/components/CreateInstance';
 export { default as srcAdminComponentsCreatorConsole } from './src/admin/components/CreatorConsole';
 export { default as srcAdminComponentsFeedConsole } from './src/admin/components/FeedConsole';
 export { default as srcAdminComponentsFeeds } from './src/admin/components/Feeds';
 export { default as srcAdminComponentsGroupsConsole } from './src/admin/components/GroupsConsole';
 export { default as srcAdminComponentsIndex } from './src/admin/components/index';
+export { default as srcAdminComponentsInstanceCreateInstance } from './src/admin/components/Instance/CreateInstance';
+export { default as srcAdminComponentsInstanceIndex } from './src/admin/components/Instance/index';
+export { default as srcAdminComponentsInstanceInstanceModal } from './src/admin/components/Instance/InstanceModal';
+export { default as srcAdminComponentsInstanceInstanceTable } from './src/admin/components/Instance/InstanceTable';
 export { default as srcAdminComponentsInstanceConsole } from './src/admin/components/InstanceConsole';
-export { default as srcAdminComponentsInstanceModal } from './src/admin/components/InstanceModal';
 export { default as srcAdminComponentsInviteIndex } from './src/admin/components/Invite/index';
 export { default as srcAdminComponentsInviteInviteModel } from './src/admin/components/Invite/InviteModel';
 export { default as srcAdminComponentsInviteRecievedInvite } from './src/admin/components/Invite/RecievedInvite';
 export { default as srcAdminComponentsInviteSentInvite } from './src/admin/components/Invite/SentInvite';
 export { default as srcAdminComponentsLocationModal } from './src/admin/components/LocationModal';
+export { default as srcAdminComponentsPartyCreateParty } from './src/admin/components/Party/CreateParty';
+export { default as srcAdminComponentsPartyIndex } from './src/admin/components/Party/index';
+export { default as srcAdminComponentsPartyPartyTable } from './src/admin/components/Party/PartyTable';
 export { default as srcAdminComponentsScenesAddToContentPackModal } from './src/admin/components/Scenes/AddToContentPackModal';
 export { default as srcAdminComponentsScenesScenes } from './src/admin/components/Scenes/Scenes';
 export { default as srcAdminComponentsSearch } from './src/admin/components/Search';
@@ -366,6 +372,7 @@ export { default as srcAdminComponentsUsersCreateUser } from './src/admin/compon
 export { default as srcAdminComponentsUsersCreateUserRole } from './src/admin/components/Users/CreateUserRole';
 export { default as srcAdminComponentsUsersIndex } from './src/admin/components/Users/index';
 export { default as srcAdminComponentsUsersUserTable } from './src/admin/components/Users/UserTable';
+export { default as srcAdminComponentsUsersViewUser } from './src/admin/components/Users/ViewUser';
 export { default as srcAdminComponentsVideoModal } from './src/admin/components/VideoModal';
 export { default as srcAdminReducersAdminReducers } from './src/admin/reducers/admin/reducers';
 export { default as srcAdminReducersContentPackReducers } from './src/admin/reducers/contentPack/reducers';
