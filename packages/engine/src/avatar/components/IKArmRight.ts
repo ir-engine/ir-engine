@@ -1,10 +1,10 @@
-import Arm from "./IKArm";
+import IKArm from "./IKArm";
 
 /**
  * 
  * @author Avaer Kazmer
  */
-class IKArmRight extends Arm {
+class IKArmRight extends IKArm {
 }
 
 export default IKArmRight;

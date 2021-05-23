@@ -32,7 +32,7 @@ import { AnimationComponent } from "../components/AnimationComponent";
 import { CharacterComponent } from '../components/CharacterComponent';
 import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
 import { NamePlateComponent } from '../components/NamePlateComponent';
-import { standardizeSkeletion } from "../functions/standardizeSkeleton";
+import { initializeAvatarRig } from "../functions/AvatarBodyFunctions";
 import { CharacterInputSchema } from '../schema/CharacterInputSchema';
 import { AvatarAnimationSystem } from "../systems/AvatarAnimationSystem";
 
@@ -74,21 +74,23 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		([...actor.modelContainer.children])
 			.forEach(child => actor.modelContainer.remove(child));
 
-		let targetSkeleton;
+		let targetSkinnedMesh;
 		tmpGroup.traverse((child) => {
 			if (child.type === "SkinnedMesh") {
-				if (!targetSkeleton)
-					targetSkeleton = child;
+				if (!targetSkinnedMesh)
+					targetSkinnedMesh = child;
 			}
 		})
 
-		console.log("Target skeleton is", targetSkeleton);
-		console.log("Default sekeleton is", AvatarAnimationSystem.instance._defaultSkeleton);
+		console.log("Target skeleton is", targetSkinnedMesh);
 
-
-		standardizeSkeletion(targetSkeleton);
+		initializeAvatarRig(entity, tmpGroup);
 
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
+
+
+		// standardizeSkeletion(targetSkeleton);
+
 		// const geom = getGeometry(actor.modelContainer);
 		// if (geom) {
 		// 	geom.computeBoundingBox()

@@ -111,14 +111,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	rotationSpeed: any;
 
 	collisionMask: number;
-
-	object = null; // TODO: Rename me to avatar or avatarobject or something
-	top = true; // ???
-	bottom = true; // ???
-	visemes = true;
-	hair = true;
-	fingers = true;
-
+	
 	static _schema = {
 		tiltContainer: { type: Types.Ref, default: null },
 		collisionMask: { type: Types.Number, default: DefaultCollisionMask },

@@ -23,23 +23,19 @@ export class IKAvatarRig extends Component<IKAvatarRig> {
   legSeparation: number;
   lastHmdPosition: Vector3;
   hmdVelocity: Vector3;
-  
-  sdkInputs: any;
-  inputs: any;
+    inputs: any;
   options: AvatarOptions;
   lastModelScaleFactor: any;
   model: any;
   outputs: any;
   skinnedMeshesVisemeMappings: any;
   volume: number;
-  fingerBoneMap: any;
   object: any;
   skinnedMeshes: any[];
   flipZ: boolean;
   flipY: boolean;
   flipLeg: boolean;
   allHairBones: any[];
-  hairBones: any[];
   height: any;
   shoulderWidth: any;
   leftArmLength: any;
@@ -52,6 +48,12 @@ export class IKAvatarRig extends Component<IKAvatarRig> {
   skeleton: any;
   fingerBones: { left: { thumb: any; index: any; middle: any; ring: any; little: any; }; right: { thumb: any; index: any; middle: any; ring: any; little: any; }; };
   eyeToHipsOffset: any;
+
+	top = true; // ???
+	bottom = true; // ???
+	visemes = true;
+	hair = true;
+	fingers = true;
 
   static _schema = {
 		tiltContainer: { type: Types.Ref, default: null },

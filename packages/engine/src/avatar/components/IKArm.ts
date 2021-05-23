@@ -1,34 +1,35 @@
+import { Object3D } from "three";
 import { Component } from "../../ecs/classes/Component";
 
 /**
  * 
  * @author Avaer Kazmer
  */
-abstract class Arm extends Component<Arm> {
+abstract class IKArm extends Component<IKArm> {
 	target: any;
 	upperArmLength: number;
 	lowerArmLength: number;
 	armLength: number;
 
 	transform: any;
-	upperArm: any;
-	lowerArm: any;
-	hand: any;
-	thumb0: any;
-	thumb1: any;
-	thumb2: any;
-	indexFinger1: any;
-	indexFinger2: any;
-	indexFinger3: any;
-	middleFinger1: any;
-	middleFinger2: any;
-	middleFinger3: any;
-	ringFinger1: any;
-	ringFinger2: any;
-	ringFinger3: any;
-	littleFinger1: any;
-	littleFinger2: any;
-	littleFinger3: any;
+	upperArm: Object3D;
+	lowerArm: Object3D;
+	hand: Object3D;
+	thumb0: Object3D;
+	thumb1: Object3D;
+	thumb2: Object3D;
+	indexFinger1: Object3D;
+	indexFinger2: Object3D;
+	indexFinger3: Object3D;
+	middleFinger1: Object3D;
+	middleFinger2: Object3D;
+	middleFinger3: Object3D;
+	ringFinger1: Object3D;
+	ringFinger2: Object3D;
+	ringFinger3: Object3D;
+	littleFinger1: Object3D;
+	littleFinger2: Object3D;
+	littleFinger3: Object3D;
 }
 
-export default Arm;
+export default IKArm;
