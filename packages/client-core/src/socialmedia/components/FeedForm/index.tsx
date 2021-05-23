@@ -17,8 +17,9 @@ import { Capacitor, Plugins } from '@capacitor/core';
 // @ts-ignore
 import styles from './FeedForm.module.scss';
 import { createFeed, updateFeedAsAdmin } from '../../reducers/feed/service';
-import { updateNewFeedPageState, updateShareFormState, updateArMediaState } from '../../reducers/popupsState/service';
+import { updateNewFeedPageState, updateShareFormState, updateArMediaState, updateWebXRState } from '../../reducers/popupsState/service';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
+
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -32,6 +33,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
     updateShareFormState: bindActionCreators(updateShareFormState, dispatch),
     updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
+    updateWebXRState: bindActionCreators(updateWebXRState, dispatch),
 });
 
 interface Props{
@@ -42,8 +44,9 @@ interface Props{
     updateNewFeedPageState?: typeof updateNewFeedPageState; 
     updateShareFormState?: typeof updateShareFormState;
     updateArMediaState?: typeof updateArMediaState;
+    updateWebXRState?: typeof updateWebXRState;
 }
-const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, updateShareFormState, updateArMediaState, popupsState } : Props) => { 
+const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, updateShareFormState, updateArMediaState,  updateWebXRState, popupsState } : Props) => { 
     const [isSended, setIsSended] = useState(false);
     const [isRecordVideo, setRecordVideo] = useState(false);
     const [isVideo, setIsVideo] = useState(false);
@@ -116,7 +119,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     }, [] ); 
      
     
-    useEffect(()=> {videoUrl && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
+    useEffect(()=> {videoUrl && updateNewFeedPageState(false, null, null) && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
     // const handlePickVideo = async (file) => setVideo(popupsState?.get('videoPath'));
     // const handlePickPreview = async (file) => setPreview('');
     
