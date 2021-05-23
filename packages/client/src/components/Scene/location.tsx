@@ -332,8 +332,8 @@ export const EnginePage = (props: Props) => {
     await new Promise<void>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
         resolve();
-      })
-    })
+      });
+    });
     
     await new Promise<void>((resolve) => {
       WorldScene.load(sceneData, () => {
