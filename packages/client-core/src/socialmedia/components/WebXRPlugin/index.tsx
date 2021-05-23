@@ -64,6 +64,7 @@ const correctionQuaternionZ = new Quaternion().setFromAxisAngle(new Vector3(0,0,
 
 const _DEBUG = false;
 const DEBUG_MINI_VIEWPORT_SIZE = 100;
+let statusXR = false
 
 export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNewFeedPageState, updateWebXRState, setContentHidden}:Props) => {
     const canvasRef = React.useRef();
@@ -244,12 +245,14 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
             requestAnimationFrame(raf);
 
             const { XRPlugin } = Plugins;
-
+          
+            if(statusXR === false) {
+             
             await XRPlugin.initialize({}).then(response => {
                 setInitializationResponse(response.status);
                 setContentHidden();
             }).catch(error => console.log(error.message));
-
+        
             // @ts-ignore
             XRPlugin.addListener('poseDataReceived', (data: any) => {
 
@@ -350,11 +353,22 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                 // Set camera position and rotation
                 // Enable cube and move to position/rotation if placed is true
             });
-
+        
 
             XRPlugin.start({}).then(() => {
                 setCameraStartedState(isNative ? "Camera started on native" : "Camera started on web");
             }).catch(error => console.log(error.message));
+            statusXR = true;
+            
+        } else {
+            
+            await XRPlugin.initialize({}).then(() => {
+                setContentHidden();
+            }).catch(error => console.log(error.message));
+            XRPlugin.start({}).then(() => {
+                setCameraStartedState(isNative ? "Camera started on native" : "Camera started on web");
+            }).catch(error => console.log(error.message));
+        }
         })();
     }, [mediaItemId]);
 
@@ -374,10 +388,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
 //                if(horizontalOrientation){
 //                    setHorizontalOrientation(false);
 //                }
-               document.removeEventListener('dblclick', ()=> {
-                   console.log('Double Click listener was removed');
-               }, false);
-
+               // @ts-ignore
                // @ts-ignore
                Plugins.XRPlugin.stopRecording().
                // @ts-ignore
@@ -386,8 +397,8 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                    console.log("filePath IS", filePath);
                    setSavedFilePath("file://" + filePath);
                    const videoPath = Capacitor.convertFileSrc(filePath);
-                   updateWebXRState(false, null);
                    updateNewFeedPageState(true, videoPath, createPreviewUrl());
+                   updateWebXRState(false, null);
                }).catch(error => alert(error.message));
         };
 
@@ -411,10 +422,6 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                     console.log("RECORDING, STATUS IS", status);
                 }).catch(error => alert(error.message));
             }
-
-             document.addEventListener('dblclick', (e) => {
-                finishRecord();
-            });
         }
         else if (recordingState === RecordingStates.ON) {
             finishRecord();
@@ -488,7 +495,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
               */}
             </div>
           </div>
-          <canvas ref={canvasRef} className={styles.arcCanvas} id={'arcCanvas'} onClick={() => handleTap()} />
+          <canvas ref={canvasRef} className={styles.arcCanvas} id={'arcCanvas'} onClick={() => handleTap()} onDoubleClick={finishRecord} />
         {/* <VolumetricPlayer
                         meshFilePath={meshFilePath}
                         videoFilePath={videoFilePath}
