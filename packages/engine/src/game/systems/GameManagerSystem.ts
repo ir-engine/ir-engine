@@ -16,6 +16,7 @@ import { GamesSchema } from "../../game/templates/GamesSchema";
 import { PrefabType } from '../../networking/templates/PrefabType';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { GameMode } from '../types/GameMode';
+import { getGameFromName } from '../functions/functions';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -46,7 +47,7 @@ export class GameManagerSystem extends System {
   updateType = SystemUpdateType.Fixed;
   updateNewPlayersRate: number;
   updateLastTime: number;
-  createdGames: Game[];
+  currentGames: Map<string, Game>;
   gameEntities: Entity[];
 
   constructor(attributes: SystemAttributes = {}) {
@@ -54,17 +55,12 @@ export class GameManagerSystem extends System {
     GameManagerSystem.instance = this;
     this.updateNewPlayersRate = 60;
     this.updateLastTime = 0;
-    this.createdGames = [];
+    this.currentGames = new Map<string, Game>();
     this.gameEntities = [];
   }
 
   dispose(): void {
     super.dispose();
-  }
-
-  registerGame(entity, gameData) {
-    addComponent(entity, Game, gameData)
-    this.createdGames.push(getComponent(entity, Game));
   }
 
   execute (delta: number, time: number): void {
@@ -76,7 +72,7 @@ export class GameManagerSystem extends System {
       initState(game, gameSchema);
       this.gameEntities.push(entity);
       // its for client, to get game entity whan came Action Message with only name of Game
-      this.createdGames.push(entity);
+      this.currentGames.set(game.name, game);
       // TODO: add start & stop functions to be able to start and end games
       gameSchema.onGameStart(entity);
       console.warn('CREATE GAME');
@@ -99,19 +95,19 @@ export class GameManagerSystem extends System {
           .forEach(v => {
             // is Player in Game Area
             if (v.inGameArea && hasComponent(v.entity, GamePlayer)) {
-              if (getComponent(v.entity, GamePlayer).game.name != game.name) {
-                getComponent(v.entity, GamePlayer).game.priority < game.priority;
+              if (getComponent(v.entity, GamePlayer).gameName != game.name) {
+                getGameFromName(getComponent(v.entity, GamePlayer).gameName).priority < game.priority;
                 removeComponent(v.entity, GamePlayer);
               }
             } else if (v.inGameArea && !hasComponent(v.entity, GamePlayer)) {
 
               addComponent(v.entity, GamePlayer, {
-                game: game,
+                gameName: game.name,
                 role: Object.keys(gameSchema.gamePlayerRoles)[0],
                 uuid: getComponent(v.entity, NetworkObject).ownerId
               });
             } else if (!v.inGameArea && hasComponent(v.entity, GamePlayer)) {
-              if (getComponent(v.entity, GamePlayer).game.name === game.name) {
+              if (getComponent(v.entity, GamePlayer).gameName === game.name) {
                 removeComponent(v.entity, GamePlayer);
               }
             }
@@ -123,7 +119,7 @@ export class GameManagerSystem extends System {
 
       // PLAYERS
       this.queryResults.gamePlayers.added?.forEach(entity => {
-        if (getComponent(entity, GamePlayer).game.name != game.name) return;
+        if (getComponent(entity, GamePlayer).gameName != game.name) return;
         // befor adding first player
         if (this.queryResults.gamePlayers.all.length == 1) saveInitStateCopy(entityGame);
         // add to gamePlayers list sorted by role
@@ -184,7 +180,7 @@ export class GameManagerSystem extends System {
                 //b.behavior(entity, undefined, args, checkersResult);
                 executeComplexResult.push({ behavior: b.behavior, entity: entity, entityOther: undefined, args, checkersResult });
               } else {
-                let complexResultObjects = Object.keys(b.takeEffectOn.targetsRole).reduce((acc, searchedRoleName) => {
+                const complexResultObjects = Object.keys(b.takeEffectOn.targetsRole).reduce((acc, searchedRoleName) => {
                   const targetRoleSchema = b.takeEffectOn.targetsRole[searchedRoleName];
                   // search second entity
                   let resultObjects = (gameObjects[searchedRoleName] || gamePlayers[searchedRoleName]) as any;
@@ -243,8 +239,7 @@ export class GameManagerSystem extends System {
         const game = getComponent(entityGame, Game);
         const gameSchema = GamesSchema[game.gameMode];
         const gameObjects = game.gameObjects;
-        if (getComponent(entity, GameObject).game != game.name) return;
-        getMutableComponent(entity, GameObject).game = game;
+        if (getComponent(entity, GameObject).gameName != game.name) return;
         // add to gameObjects list sorted by role
         gameObjects[getComponent(entity, GameObject).role].push(entity);
         // add init Tag components for start state of Games

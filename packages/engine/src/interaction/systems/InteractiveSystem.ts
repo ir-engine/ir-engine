@@ -458,7 +458,7 @@ export class InteractiveSystem extends System {
       }
       equippableTransform.position.copy(vector3);
       equippableTransform.rotation.copy(quat);
-      if(isServer) {
+      if(!isClient) {
         this.queryResults.network_user.added.forEach((userEntity) => {
           const networkObject = getComponent(equipperComponent.equippedEntity, NetworkObject)
           sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, networkObject.networkId] as EquippedStateUpdateSchema)

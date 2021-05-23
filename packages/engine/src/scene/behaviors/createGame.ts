@@ -28,7 +28,7 @@ export const createGame: Behavior = (entity, args: any) => {
     gameArea: { min, max }
   };
 
-  GameManagerSystem.instance.registerGame(entity, gameData);
+  addComponent(entity, Game, gameData)
 };
 
 export const createGameObject: Behavior = (entity, args: any) => {
@@ -42,7 +42,7 @@ export const createGameObject: Behavior = (entity, args: any) => {
   // }
 
   addComponent(entity, GameObject, {
-    game: args.gameName,
+    gameName: args.gameName,
     role: args.role,
     uuid: args.sceneEntityId
   });

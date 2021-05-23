@@ -167,17 +167,6 @@ export function initializeNetworkObject( args: { entity?: Entity, prefabType?: n
     uniqueId
   };
 
-  // TODO: This could need to be commented out for merge conflict reasons, please check
-  if (!isClient) {
-    Network.instance.createObjects.push({
-        networkId: networkId,
-        ownerId: ownerId,
-        prefabType: prefabType,
-        uniqueId: uniqueId,
-        parameters: ''
-    });
-  }
-
   if (prefabType === PrefabType.Player && ownerId === (Network.instance).userId) {
     // console.log('Give Player Id by Server', networkId, args.networkId, typeof networkId, typeof args.networkId, ownerId, Network.instance.userId);
     Network.instance.localAvatarNetworkId = networkId;

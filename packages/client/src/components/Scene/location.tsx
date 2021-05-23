@@ -329,7 +329,13 @@ export const EnginePage = (props: Props) => {
 
     if(!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
 
-    const loadScene = new Promise<void>((resolve) => {
+    await new Promise<void>((resolve) => {
+      EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
+        resolve();
+      });
+    });
+    
+    await new Promise<void>((resolve) => {
       WorldScene.load(sceneData, () => {
         setProgressEntity(0);
         store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
@@ -338,19 +344,15 @@ export const EnginePage = (props: Props) => {
       }, onSceneLoadedEntity);
     });
 
-    const getWorldState = new Promise<any>((resolve) => {
+    const worldState = await new Promise<any>(async (resolve) => {
       if(Config.publicRuntimeConfig.offlineMode) {
         EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId });
         resolve(testWorldState);
       } else {
-        EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
-          const { worldState } =  await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
-          resolve(worldState);
-        });
+        const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
+        resolve(worldState);
       }
     });
-
-    const [sceneLoaded, worldState] = await Promise.all([loadScene, getWorldState]);
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
   }

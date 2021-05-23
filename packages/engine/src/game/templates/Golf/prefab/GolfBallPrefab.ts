@@ -22,6 +22,7 @@ import { GameObject } from '../../../components/GameObject';
 import { onInteraction, onInteractionHover } from '../../../../scene/behaviors/createCommonInteractive';
 import { Interactable } from '../../../../interaction/components/Interactable';
 import { InterpolationComponent } from "../../../../physics/components/InterpolationComponent";
+import { NetworkObject } from '../../../../networking/components/NetworkObject';
 /**
 * @author Josh Field <github.com/HexaField>
  */
@@ -32,7 +33,8 @@ export const initializeGolfBall = (entity: Entity) => {
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
   const transform = getComponent(entity, TransformComponent);
 
-  console.log('initializeGolfBall', getComponent(entity, GameObject).game) // its string now, and its right, if you do game, its != game name in system and do not add in state and else ...
+  const networkObject = getComponent(entity, NetworkObject);
+  addComponent(entity, UserControlledColliderComponent, { ownerNetworkId: networkObject.networkId });
 
   if(isClient) {
     AssetLoader.load({
@@ -75,6 +77,7 @@ export const initializeGolfBall = (entity: Entity) => {
 }
 
 export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: number, uniqueId: string, ownerId?: string }) => {
+  console.log('createGolfBallPrefab')
   initializeNetworkObject({
     prefabType: GolfPrefabTypes.Ball,
     uniqueId: args.uniqueId,
@@ -83,14 +86,10 @@ export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: numbe
     override: {
       networkComponents: [
         {
-          type: UserControlledColliderComponent,
-          data: { ownerNetworkId: args.ownerId }
-        },
-        {
           type: GameObject,
           data: {
-            game: args.parameters.gameName,
-            role: args.parameters.role,//maybe we will add it in one place 'ballSpawn' //'GolfBall', // TODO: make this a constant
+            gameName: args.parameters.gameName,
+            role: args.parameters.role,
             uuid: args.parameters.uuid
           }
         },
@@ -106,16 +105,6 @@ export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: numbe
   });
 }
 
-const interactiveData = {
-  onInteraction: onInteraction,
-  onInteractionFocused: onInteractionHover,
-  onInteractionCheck: () => { return true },
-  data: {
-    interactionType: "gameobject",
-    interactionText: "1"
-  }
-};
-
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const GolfBallPrefab: NetworkPrefab = {
   initialize: createGolfBallPrefab,
@@ -124,9 +113,7 @@ export const GolfBallPrefab: NetworkPrefab = {
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
     { type: ColliderComponent },
-    { type: Interactable, data: interactiveData },
     { type: RigidBodyComponent },
-  //  { type: UserControlledColliderComponent },
     { type: GameObject }
     // Local player input mapped to behaviors in the input map
   ],
