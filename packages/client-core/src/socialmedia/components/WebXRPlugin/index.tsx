@@ -368,8 +368,6 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
             XRPlugin.start({}).then(() => {
                 setCameraStartedState(isNative ? "Camera started on native" : "Camera started on web");
             }).catch(error => console.log(error.message));
-
-           
         }
         })();
     }, [mediaItemId]);
