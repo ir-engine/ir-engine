@@ -1,4 +1,4 @@
-import Player from "volumetric/src/decoder/Player";
+import Player from "volumetric/src/Player";
 import { useTranslation } from 'react-i18next';
 import React, { useEffect, useRef, useState } from 'react';
 import { PerspectiveCamera, Scene, sRGBEncoding, Vector3, WebGLRenderer } from "three";

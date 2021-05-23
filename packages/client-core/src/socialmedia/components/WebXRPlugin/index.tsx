@@ -166,26 +166,26 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                 debugCamera.zy.rotateY(Math.PI / 2);
             }
 
-            // const geometry = new BoxGeometry(.1, .1, .1);
-            // const materialX = new MeshBasicMaterial({ color: 0xff0000 });
-            // const materialY = new MeshBasicMaterial({ color: 0x00ff00 });
-            // const materialZ = new MeshBasicMaterial({ color: 0x0000ff });
-            // const materialC = new MeshBasicMaterial({ color: 0xffffff });
-            const anchor = new Group();
-            // anchor.add(new AxesHelper(0.3));
-            // const anchorC = new Mesh(geometry, materialC);
-            // anchor.add(anchorC);
-            // const anchorX = new Mesh(geometry, materialX);
-            // anchorX.position.x = 0.3;
-            // anchor.add(anchorX);
-            // const anchorY = new Mesh(geometry, materialY);
-            // anchorY.position.y = 0.3;
-            // anchor.add(anchorY);
-            // const anchorZ = new Mesh(geometry, materialZ);
-            // anchorZ.position.z = 0.3;
-            // anchor.add(anchorZ);
-            //
-            // scene.add(new AxesHelper(0.2));
+//             const geometry = new BoxGeometry(.1, .1, .1);
+//             const materialX = new MeshBasicMaterial({ color: 0xff0000 });
+//             const materialY = new MeshBasicMaterial({ color: 0x00ff00 });
+//             const materialZ = new MeshBasicMaterial({ color: 0x0000ff });
+//             const materialC = new MeshBasicMaterial({ color: 0xffffff });
+//             const anchor = new Group();
+//             anchor.add(new AxesHelper(0.3));
+//             const anchorC = new Mesh(geometry, materialC);
+//             anchor.add(anchorC);
+//             const anchorX = new Mesh(geometry, materialX);
+//             anchorX.position.x = 0.3;
+//             anchor.add(anchorX);
+//             const anchorY = new Mesh(geometry, materialY);
+//             anchorY.position.y = 0.3;
+//             anchor.add(anchorY);
+//             const anchorZ = new Mesh(geometry, materialZ);
+//             anchorZ.position.z = 0.3;
+//             anchor.add(anchorZ);
+//
+//             scene.add(new AxesHelper(0.2));
 
             camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 100);
 
@@ -373,13 +373,6 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
     }, [mediaItemId]);
 
 
-    const createPreviewUrl = () => {
-        const canvas = document.createElement('canvas');
-        const video = document.getElementById('arcCanvas') as HTMLVideoElement;
-        canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-        const dataURL = canvas.toDataURL();
-        return dataURL;
-    };
 
     const finishRecord = () => {
 
@@ -476,7 +469,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                       <section className={styles.subContainer} />
                     </section>
                 </section>
-                <button type="button" className={styles.flipCamera} onClick={() => {}}><FlipCameraIosIcon /></button>
+                <button type="button" className={styles.flipCamera} onClick={() => {}}><FlipCameraIosIcon /></button> 
 {/*                 <button type="button" className={styles.changeOrientation} onClick={() => {setHorizontalOrientation(!horizontalOrientation);}}><FlipCameraIosIcon /></button> */}
                 <section className={recordingState === RecordingStates.OFF ? styles.startButtonWrapper : styles.stopButtonWrapper}>
                     {/*{recordingState === RecordingStates.OFF ? "Record" : "Stop Recording"}*/}
