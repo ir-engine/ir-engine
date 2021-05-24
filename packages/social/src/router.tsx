@@ -48,8 +48,6 @@ export const RouterComp = () => {
             <Route path="/onboarding" component={React.lazy(() => import('./pages/onboarding'))} />
             <Route path="/videorecord" component={React.lazy(() => import('./pages/videorecord'))} />
 
-            <Route path="/volumetric" component={React.lazy(() => import('./pages/volumetric'))} />
-
             <Route path="/:pid" component={React.lazy(() => import('./pages/[pid]'))} />
 
             <Route path="*" component={React.lazy(() => import('./pages/404'))} />
