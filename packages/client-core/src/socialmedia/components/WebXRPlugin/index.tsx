@@ -393,25 +393,27 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
 
 
     const finishRecord = () => {
+        console.log('finishRecord');
+        if (recordingState !== RecordingStates.ON) {
+            console.log('finishRecord - record is not started skip.');
+            return;
+        }
+
+        // @ts-ignore
+        Plugins.XRPlugin.stopRecording().
+          // @ts-ignore
+          then(({ result, filePath }) => {
+              console.log("END RECORDING, result IS", result);
+              console.log("filePath IS", filePath);
+              setSavedFilePath("file://" + filePath);
+              const videoPath = Capacitor.convertFileSrc(filePath);
+              updateNewFeedPageState(true, videoPath);
+              updateWebXRState(false, null);
 
               setRecordingState(RecordingStates.OFF);
-               setContentHidden();
-//                if(horizontalOrientation){
-//                    setHorizontalOrientation(false);
-//                }
-               // @ts-ignore
-               // @ts-ignore
-               Plugins.XRPlugin.stopRecording().
-               // @ts-ignore
-               then(({ result, filePath }) => {
-                   console.log("END RECORDING, result IS", result);
-                   console.log("filePath IS", filePath);
-                   setSavedFilePath("file://" + filePath);
-                   const videoPath = Capacitor.convertFileSrc(filePath);
-                   updateNewFeedPageState(true, videoPath, createPreviewUrl());
-                   updateWebXRState(false, null);
-               }).catch(error => alert(error.message));
-        };
+              setContentHidden();
+          }).catch(error => alert(error.message));
+    };
 
 
 
