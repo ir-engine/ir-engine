@@ -94,6 +94,24 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
         zy: null
     };
 
+    useEffect(() => {
+        // console.log('WebXRComponent MOUNTED');
+
+        return () => {
+            // console.log('WebXRComponent UNMOUNT');
+            if (playerRef.current) {
+                console.log('WebXRComponent - dispose player');
+                playerRef.current.dispose();
+                playerRef.current = null;
+            }
+            console.log('WebXRComponent - stop plugin');
+            // @ts-ignore
+            Plugins.XRPlugin.stop({});
+
+            // console.log('WebXRComponent - UNMOUNT END');
+        };
+    }, []);
+
     const raf = () => {
         requestAnimationFrame(raf);
         playerRef.current?.handleRender(() => {
