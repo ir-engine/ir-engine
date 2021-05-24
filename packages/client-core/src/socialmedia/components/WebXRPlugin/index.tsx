@@ -426,8 +426,11 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
     };
 
     const handleTap = () => {
+        if (recordingState === RecordingStates.OFF)
+        {
         Plugins.XRPlugin.handleTap();
         playerRef.current?.play();
+        }
     };
 
     const playVideo = () => {
