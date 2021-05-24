@@ -189,7 +189,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
 //             const materialY = new MeshBasicMaterial({ color: 0x00ff00 });
 //             const materialZ = new MeshBasicMaterial({ color: 0x0000ff });
 //             const materialC = new MeshBasicMaterial({ color: 0xffffff });
-//             const anchor = new Group();
+            const anchor = new Group();
 //             anchor.add(new AxesHelper(0.3));
 //             const anchorC = new Mesh(geometry, materialC);
 //             anchor.add(anchorC);
