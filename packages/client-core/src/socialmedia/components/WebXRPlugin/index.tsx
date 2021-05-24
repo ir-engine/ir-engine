@@ -108,7 +108,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
             // @ts-ignore
             Plugins.XRPlugin.stop({});
 
-//             console.log('WebXRComponent - UNMOUNT END');
+            //console.log('WebXRComponent - UNMOUNT END');
         };
     }, []);
 
