@@ -293,6 +293,7 @@ export const createAdminParty = (data) => {
       const result = await client.service("party").create(data);
       dispatch(partyAdminCreated(result));
     } catch (err) {
+      console.error(err);
       dispatchAlertError(dispatch, err.message);
     }
   };

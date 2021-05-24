@@ -83,6 +83,9 @@ const useStyles = makeStyles({
         textDecoration: "none",
         color: "#000",
         marginRight: "10px"
+    },
+    spanDange: {
+        color: "red"
     }
 });
 
@@ -134,22 +137,22 @@ const UserTable = (props: Props) => {
 
     }, [adminState, user, fetchUsersAsAdmin]);
 
-    const openViewModel = ( open: boolean, user: any) => 
-    (
-        event: React.KeyboardEvent | React.MouseEvent,
-      ) => {
-        if (
-          event.type === 'keydown' &&
-          ((event as React.KeyboardEvent).key === 'Tab' ||
-            (event as React.KeyboardEvent).key === 'Shift')
-        ) {
-          return;
-        }
-        setUserAdmin(user);
-        setViewModel(open);
-      };
+    const openViewModel = (open: boolean, user: any) =>
+        (
+            event: React.KeyboardEvent | React.MouseEvent,
+        ) => {
+            if (
+                event.type === 'keydown' &&
+                ((event as React.KeyboardEvent).key === 'Tab' ||
+                    (event as React.KeyboardEvent).key === 'Shift')
+            ) {
+                return;
+            }
+            setUserAdmin(user);
+            setViewModel(open);
+        };
 
-    const createData = (id: any, user: any,  name: string, avatar: string, status: string, location: string, inviteCode: string, instanceId: string): Data => {
+    const createData = (id: any, user: any, name: string, avatar: string, status: string, location: string, inviteCode: string, instanceId: string): Data => {
         return {
             id,
             user,
@@ -161,8 +164,8 @@ const UserTable = (props: Props) => {
             instanceId,
             action: (
                 <>
-                    <a href="#h" className={classes.actionStyle} onClick={ openViewModel(true, user) }> View </a>
-                    <a href="#h" className={classes.actionStyle} onClick={() => { setPopConfirmOpen(true); setUserId(id); }}> Delete </a>
+                    <a href="#h" className={classes.actionStyle} onClick={openViewModel(true, user)}> View </a>
+                    <a href="#h" className={classes.actionStyle} onClick={() => { setPopConfirmOpen(true); setUserId(id); }}> <span className={classes.spanDange}>Delete</span> </a>
                 </>
             )
         };
@@ -170,11 +173,11 @@ const UserTable = (props: Props) => {
 
     const rows = adminUsers.map(el => {
         const loc = el.party.id ? el.party.location : null;
-        const loca = loc ? loc.name || "" : "";
+        const loca = loc ? loc.name || <span className={classes.spanDange}>None</span> : <span className={classes.spanDange}>None</span>;
         const ins = el.party.id ? el.party.instance : null;
-        const inst = ins ? ins.ipAddress || "" : "";
+        const inst = ins ? ins.ipAddress || <span className={classes.spanDange}>None</span> : <span className={classes.spanDange}>None</span>;
 
-        return createData(el.id, el, el.name, el.avatarId || "", el.userRole, loca, el.inviteCode || "", inst);
+        return createData(el.id, el, el.name, el.avatarId || <span className={classes.spanDange}>None</span>, el.userRole || <span className={classes.spanDange}>None</span>, loca, el.inviteCode || <span className={classes.spanDange}>None</span>, inst);
     });
 
 
@@ -230,19 +233,19 @@ const UserTable = (props: Props) => {
             >
                 <DialogTitle id="alert-dialog-title">Confirm to delete this user!</DialogTitle>
                 <DialogActions>
-                    <Button onClick={() => setPopConfirmOpen(false)}  color="primary">
+                    <Button onClick={() => setPopConfirmOpen(false)} color="primary">
                         Cancel
                     </Button>
-                    <Button  color="primary" onClick={async () => { await removeUserAdmin(userId); setPopConfirmOpen(false); }} autoFocus>
+                    <Button color="primary" onClick={async () => { await removeUserAdmin(userId); setPopConfirmOpen(false); }} autoFocus>
                         Confirm
                     </Button>
                 </DialogActions>
             </Dialog>
             <ViewUser
-              open={viewModel}
-              handleClose={openViewModel}
-              userAdmin={userAdmin}
-              />
+                open={viewModel}
+                handleClose={openViewModel}
+                userAdmin={userAdmin}
+            />
         </div>
     );
 };

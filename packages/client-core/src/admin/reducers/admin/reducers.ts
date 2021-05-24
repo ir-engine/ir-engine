@@ -254,8 +254,11 @@ const adminReducer = (state = immutableState, action: any): any => {
       return state.set("parties", updateMap);
 
     case PARTY_ADMIN_CREATED: 
+      
       updateMap = new Map(state.get("parties"));
       updateMap.set("updateNeeded", true);
+      console.log(updateMap);
+      
       return state.set("parties", updateMap);
     
     case USER_ADMIN_REMOVED: 

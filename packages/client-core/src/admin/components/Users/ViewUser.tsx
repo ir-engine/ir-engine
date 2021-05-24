@@ -126,12 +126,18 @@ const ViewUser = (props: Props) => {
                                     <div className={classes.titleH4}>
                                         <Typography variant="h4" component="span">{userAdmin.name}</Typography><br />
                                         {
-                                            userAdmin.userRole &&
+                                            userAdmin.userRole ?
                                             <Chip
                                                 label={userAdmin.userRole}
                                                 onDelete={handleClick}
                                                 deleteIcon={<Edit />}
                                             />
+                                            :
+                                            <Chip
+                                            label="None"
+                                            onDelete={handleClick}
+                                            deleteIcon={<Edit />}
+                                        />
                                         }
                                     </div>
                                 </Grid>

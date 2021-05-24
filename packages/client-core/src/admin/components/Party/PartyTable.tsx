@@ -91,7 +91,7 @@ const PartyTable = (props: Props) => {
     };
 
     React.useEffect(()=> {
-        if(user.id && adminParty.get('updateNeeded') == true){
+        if(user.id && adminParty.get('updateNeeded') === true){
             fetchAdminParty();
         }
     }, [authState, adminState]);
