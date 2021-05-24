@@ -80,12 +80,23 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         setVideo(null);
         setPreview(null);
         setIsSended(true);
-        Plugins.XRPlugin.stop();
         const thanksTimeOut = setTimeout(()=>{
             setIsSended(false); 
             clearTimeout(thanksTimeOut);
         }, 2000);
     
+    };
+
+    const dataURItoBlob = (dataURI) => {
+        let byteString = atob(dataURI.split(',')[1]);
+        const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+        }
+        const blob = new Blob([ab], { type: mimeString });
+        return new File([blob], "previewImg.png");
     };
 
     useEffect(()=> {
@@ -95,7 +106,6 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
          const myFile = new File([myBlob], "test.mp4");
          setVideo(myFile);
          console.log(myFile);
-
          /*Preview Begin*/
          const file = myFile;
          const fileReader = new FileReader();
@@ -123,9 +133,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
                 const image = canvas.toDataURL();
                 const success = image.length > 100000;
                 if (success) {
-                    const img = document.createElement('img');
-                    img.src = image;
-                    setPreview(img);
+                    setPreview(dataURItoBlob(image));
                     URL.revokeObjectURL(url);
                 }
                 return success;
@@ -148,7 +156,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     }, [] ); 
      
     
-    useEffect(()=> {videoUrl && updateNewFeedPageState(false, null, null) && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
+    useEffect(()=> {videoUrl && updateNewFeedPageState(false, null) && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
     // const handlePickVideo = async (file) => setVideo(popupsState?.get('videoPath'));
     // const handlePickPreview = async (file) => setPreview('');
     
