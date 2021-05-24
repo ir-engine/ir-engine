@@ -108,7 +108,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
             // @ts-ignore
             Plugins.XRPlugin.stop({});
 
-            // console.log('WebXRComponent - UNMOUNT END');
+            console.log('WebXRComponent - UNMOUNT END');
         };
     }, []);
 
@@ -239,26 +239,26 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
             // const gh = new GridHelper(2);
             // scene.add(gh);
 
-            if (!playerRef.current) { // setup player if not exists
-                // sr1.url as manifestUrl, sr2.url as previewUrl, sr3.url as dracosisUrl, sr4.url as audioUrl
-                playerRef.current = new Player({
-                    scene: anchor,
-                    renderer,
-                    worker: new PlayerWorker(),
-                    meshFilePath: mediaItem.dracosisUrl,
-                    videoFilePath: mediaItem.audioUrl,
-                    manifestFilePath: mediaItem.manifestUrl,
-                    onMeshBuffering: (progress) => {
-                        console.warn('BUFFERING!!', progress);
-                        // setBufferingProgress(Math.round(progress * 100));
-                        // setIsBuffering(true);
-                    },
-                    onFrameShow: () => {
-                        // setIsBuffering(false);
-                    }
-                    // video: document.getElementById("video")
-                });
-            }
+            // if (!playerRef.current) { // setup player if not exists
+            //     // sr1.url as manifestUrl, sr2.url as previewUrl, sr3.url as dracosisUrl, sr4.url as audioUrl
+            //     playerRef.current = new Player({
+            //         scene: anchor,
+            //         renderer,
+            //         worker: new PlayerWorker(),
+            //         meshFilePath: mediaItem.dracosisUrl,
+            //         videoFilePath: mediaItem.audioUrl,
+            //         manifestFilePath: mediaItem.manifestUrl,
+            //         onMeshBuffering: (progress) => {
+            //             console.warn('BUFFERING!!', progress);
+            //             // setBufferingProgress(Math.round(progress * 100));
+            //             // setIsBuffering(true);
+            //         },
+            //         onFrameShow: () => {
+            //             // setIsBuffering(false);
+            //         }
+            //         // video: document.getElementById("video")
+            //     });
+            // }
 
             requestAnimationFrame(raf);
 
@@ -426,8 +426,11 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
     };
 
     const handleTap = () => {
+        if (recordingState === RecordingStates.OFF)
+        {
         Plugins.XRPlugin.handleTap();
         playerRef.current?.play();
+        }
     };
 
     const playVideo = () => {
