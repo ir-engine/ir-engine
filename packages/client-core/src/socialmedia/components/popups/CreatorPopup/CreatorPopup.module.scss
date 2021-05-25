@@ -5,4 +5,9 @@
         max-height: 100%;
         width: 100%;
     }
-  }
+    @media screen and (orientation: landscape){
+        :global(.MuiDialog-paper){
+            max-width: 100%;
+        }
+    }
+}

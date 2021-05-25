@@ -161,22 +161,25 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     }, [] );
 
     const closePopUp = () => {
-        updateNewFeedPageState(false)
-        const webxrRecorderActivity = webxrnativeState.get('webxrnative')
+        updateNewFeedPageState(false);
+        const webxrRecorderActivity = webxrnativeState.get('webxrnative');
         if(webxrRecorderActivity){
-            changeWebXrNative()
+            changeWebXrNative();
         }
-    }
-     
-    
+    };
+    const [preloader, setPreloader] = useState(false)
+
+
+
     useEffect(()=> {videoUrl && updateNewFeedPageState(false, null) && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
     // const handlePickVideo = async (file) => setVideo(popupsState?.get('videoPath'));
     // const handlePickPreview = async (file) => setPreview('');
-    
+
 return <section className={styles.feedFormContainer}>
     {/* <nav>               
         <Button variant="text" className={styles.backButton} onClick={()=>{updateArMediaState(true); updateNewFeedPageState(false);}}><ArrowBackIosIcon />{t('social:feedForm.back')}</Button>
     </nav>   */}
+    {/*  <div className={classes.ldsRing}><div></div><div></div><div></div><div></div></div>  */}
     {isSended ? 
         <Typography>{t('social:feedForm.thanks')}</Typography>
         :
