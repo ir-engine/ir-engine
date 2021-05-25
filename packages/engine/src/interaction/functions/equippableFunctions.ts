@@ -15,8 +15,8 @@ export const equipEntity = (equipperEntity: Entity, equippedEntity: Entity, atta
 }
 
 export const unequipEntity = (equipperEntity: Entity): void => {
-  const equipperComponent = getComponent(equipperEntity, EquipperComponent);
-  if(!equipperComponent) return;
-  removeComponent(equipperComponent.equippedEntity, EquippedComponent);
-  removeComponent(equipperEntity, EquipperComponent);
+  // const equipperComponent = getComponent(equipperEntity, EquipperComponent);
+  // if(!equipperComponent) return;
+  // removeComponent(equipperComponent.equippedEntity, EquippedComponent);
+  // removeComponent(equipperEntity, EquipperComponent);
 }

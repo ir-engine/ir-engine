@@ -7,11 +7,11 @@ import { RigidBodyComponent } from '../../../../physics/components/RigidBody';
 import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject';
 import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants';
 import { UserControlledColliderComponent } from '../../../../physics/components/UserControllerObjectComponent';
-import { Group, Mesh, Vector3 } from 'three';
+import { BoxBufferGeometry, Group, Mesh, MeshStandardMaterial, Vector3 } from 'three';
 import { AssetLoader } from '../../../../assets/classes/AssetLoader';
 import { Engine } from '../../../../ecs/classes/Engine';
-import { Body, BodyType, createShapeFromConfig, SHAPES } from 'three-physx';
-import { DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
+import { Body, BodyType, createShapeFromConfig, SHAPES, Transform } from 'three-physx';
+import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions';
 import { isClient } from '../../../../common/functions/isClient';
@@ -19,15 +19,15 @@ import { Object3DComponent } from '../../../../scene/components/Object3DComponen
 import { WebGLRendererSystem } from '../../../../renderer/WebGLRendererSystem';
 import { GameObject } from '../../../components/GameObject';
 import { NetworkObject } from '../../../../networking/components/NetworkObject';
+import { equipEntity } from '../../../../interaction/functions/equippableFunctions';
 import { Network } from '../../../../networking/classes/Network';
+import { EquippableAttachmentPoint } from '../../../../interaction/enums/EquippedEnums';
 /**
 * @author Josh Field <github.com/HexaField>
  */
 
-const golfBallRadius = 0.03;
-
-export const initializeGolfBall = (entity: Entity) => {
-  // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
+export const initializeGolfClub = (entity: Entity) => {
+  // its transform was set in createGolfClubPrefab from parameters (its transform Golf Tee);
   const transform = getComponent(entity, TransformComponent);
 
   const networkObject = getComponent(entity, NetworkObject);
@@ -35,37 +35,58 @@ export const initializeGolfBall = (entity: Entity) => {
       return obj.ownerId === networkObject.ownerId;
   }).component;
   addComponent(entity, UserControlledColliderComponent, { ownerNetworkId: ownerNetworkObject.networkId });
-  
+
+
+  // if(isClient) {
+  //   const clubGroup = new Group();
+  //   const clubHandleMesh = new Mesh(new BoxBufferGeometry(0.05, 0.05, 0.25), new MeshStandardMaterial({ color: 0xff2126 }))
+  //   WebGLRendererSystem.instance.csm.setupMaterial(clubHandleMesh.material)
+  //   const clubHeadMesh = new Mesh(new BoxBufferGeometry(0.025, 0.1, 0.05), new MeshStandardMaterial({ color: 0xff2126 }))
+  //   clubHeadMesh.position.set(0, 0.1, -1.7)
+  //   clubGroup.add(clubHandleMesh, clubHeadMesh)
+  //   WebGLRendererSystem.instance.csm.setupMaterial(clubHandleMesh.material)
+  //   WebGLRendererSystem.instance.csm.setupMaterial(clubHeadMesh.material)
+  //   addComponent(entity, Object3DComponent, { value: clubGroup })
+  //   Engine.scene.add(clubGroup)
+  // }
+
   if(isClient) {
     AssetLoader.load({
-      url: Engine.publicPath + '/models/golf/golf_ball.glb',
+      url: Engine.publicPath + '/models/golf/golf_club.glb',
     }, (group: Group) => {
+      console.log(group)
       const ballGroup = group.clone(true);
-      const ballMesh = ballGroup.children[0] as Mesh;
-      group.remove(group.children[0]);
-      ballMesh.position.copy(transform.position);
-      ballMesh.scale.copy(transform.scale);
-      ballMesh.castShadow = true;
-      ballMesh.receiveShadow = true;
-      ballMesh.material && WebGLRendererSystem.instance.csm.setupMaterial(ballMesh.material);
-      addComponent(entity, Object3DComponent, { value: ballMesh });
-      Engine.scene.add(ballMesh);
+      ballGroup.castShadow = true;
+      ballGroup.receiveShadow = true;
+      (ballGroup.children[0] as Mesh).material && WebGLRendererSystem.instance.csm.setupMaterial((ballGroup.children[0] as Mesh).material);
+      addComponent(entity, Object3DComponent, { value: ballGroup });
+      Engine.scene.add(ballGroup);
       console.log('loaded golf ball model')
     });
   }
 
-  const shape = createShapeFromConfig({
-    shape: SHAPES.Sphere,
-    options: { radius: golfBallRadius },
+  const shapeHandle = createShapeFromConfig({
+    shape: SHAPES.Box,
+    options: { boxExtents: { x: 0.05, y: 0.05, z: 0.25 } },
     config: {
-      material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.9 },
-      collisionLayer: GolfCollisionGroups.Ball,
-      collisionMask: DefaultCollisionMask | GolfCollisionGroups.Hole | GolfCollisionGroups.Club,
-    },
+      collisionLayer: GolfCollisionGroups.Club,
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground
+    }
+  });
+  const shapeHead = createShapeFromConfig({
+    shape: SHAPES.Box,
+    options: { boxExtents: { x: 0.25, y: 0.2, z: 0.2 } },
+    transform: new Transform({
+      translation: { x: 0.25, y: 0.1, z: -1.7 }
+    }),
+    config: {
+      collisionLayer: GolfCollisionGroups.Club,
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Hole
+    }
   });
 
   const body = PhysicsSystem.instance.addBody(new Body({
-    shapes: [shape],
+    shapes: [shapeHandle, shapeHead],
     type:  BodyType.DYNAMIC,
     transform: {
       translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
@@ -74,12 +95,14 @@ export const initializeGolfBall = (entity: Entity) => {
 
   const collider = getMutableComponent(entity, ColliderComponent);
   collider.body = body;
+
+  equipEntity(ownerNetworkObject.entity, entity, EquippableAttachmentPoint.RIGHT_HAND);
 }
 
-export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: number, uniqueId: string, ownerId?: string }) => {
-  console.log('createGolfBallPrefab')
+export const createGolfClubPrefab = ( args:{ parameters?: any, networkId?: number, uniqueId: string, ownerId?: string }) => {
+  console.log('createGolfClubPrefab')
   initializeNetworkObject({
-    prefabType: GolfPrefabTypes.Ball,
+    prefabType: GolfPrefabTypes.Club,
     uniqueId: args.uniqueId,
     ownerId: args.ownerId,
     networkId: args.networkId,
@@ -93,21 +116,14 @@ export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: numbe
             uuid: args.parameters.uuid
           }
         },
-        {
-          type: TransformComponent,
-          data: {
-            position: new Vector3(args.parameters.spawnPosition.x, args.parameters.spawnPosition.y, args.parameters.spawnPosition.z),
-            scale: new Vector3().setScalar(golfBallRadius)
-          }
-        }
       ]
     }
   });
 }
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
-export const GolfBallPrefab: NetworkPrefab = {
-  initialize: createGolfBallPrefab,
+export const GolfClubPrefab: NetworkPrefab = {
+  initialize: createGolfClubPrefab,
   // These will be created for all players on the network
   networkComponents: [
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
@@ -124,7 +140,7 @@ export const GolfBallPrefab: NetworkPrefab = {
   serverComponents: [],
   onAfterCreate: [
     {
-      behavior: initializeGolfBall,
+      behavior: initializeGolfClub,
       networked: true
     }
   ],

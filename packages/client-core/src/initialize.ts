@@ -45,6 +45,8 @@ if (typeof window !== 'undefined') {
   (window as any).safariWebBrowser = browser?.name === 'safari';
 }
 
+const isHMD = /Oculus/i.test(navigator.platform)// || TODO: more HMDs
+
 /**
  *
  * @author Shaw Walters and Josh Field
@@ -61,6 +63,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
   const { useCanvas, postProcessing, useOfflineMode, physicsWorldConfig } = options;
 
   Engine.offlineMode = useOfflineMode;
+  Engine.isHMD = isHMD;
 
   Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr');
 

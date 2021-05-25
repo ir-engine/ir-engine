@@ -60,6 +60,7 @@ export class Engine {
   public static xrSupported = false;
 
   public static offlineMode = false;
+  public static isHMD = false;
 
   //public static stats: Stats
   // Move for sure

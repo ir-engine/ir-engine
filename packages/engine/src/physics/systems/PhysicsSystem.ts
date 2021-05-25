@@ -35,7 +35,6 @@ export class PhysicsSystem extends System {
   frame: number
   diffSpeed: number = Engine.physicsFrameRate / Engine.networkFramerate;
 
-  isSimulating: boolean
   serverCorrectionForRigidBodyTick = 1000
 
   freezeTimes = 0
@@ -54,23 +53,13 @@ export class PhysicsSystem extends System {
     this.physicsFrameTime = 1 / this.physicsFrameRate;
     this.physicsWorldConfig = attributes.physicsWorldConfig ?? {
       tps: 120,
-      lengthScale: 1000,
+      // lengthScale: 1,
       start: false
     }
     this.worker = attributes.worker;
-
-    this.isSimulating = false;
     this.frame = 0;
 
-    this.physicsWorldConfig = attributes.physicsWorldConfig ?? {
-      tps: 120,
-      lengthScale: 1000,
-      start: false
-    }
-    this.worker = attributes.worker;
-
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
-      this.isSimulating = ev.physics;
       PhysXInstance.instance.startPhysX(ev.physics);
     });
 
@@ -193,7 +182,27 @@ export class PhysicsSystem extends System {
       this.queryResults.correctionFromServer.all?.forEach(entity => {
         const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot);
         if (snapshot == null) return;
-        if(getComponent(entity, UserControlledColliderComponent)?.ownerNetworkId !== Network.instance.localAvatarNetworkId) return; 
+        // ignore interpolation on client for objects we are the primary simulator of
+        const userControlled = getComponent(entity, UserControlledColliderComponent)
+        if(userControlled && userControlled.ownerNetworkId === Network.instance.localAvatarNetworkId) {
+          const ownerNetworkId = getComponent(entity, UserControlledColliderComponent).ownerNetworkId;
+          const networkObject = getMutableComponent(entity, NetworkObject);
+          if(networkObject.networkId === ownerNetworkId) {
+            const collider = getMutableComponent(entity, ColliderComponent);
+            Network.instance.clientInputState.transforms.push({
+              networkId: networkObject.networkId,
+              x: collider.body.transform.translation.x,
+              y: collider.body.transform.translation.y,
+              z: collider.body.transform.translation.z,
+              qX: collider.body.transform.rotation.x,
+              qY: collider.body.transform.rotation.y,
+              qZ: collider.body.transform.rotation.z,
+              qW: collider.body.transform.rotation.w,
+              snapShotTime: networkObject.snapShotTime ?? 0,
+            });
+          }
+          return;
+        }
         const collider = getMutableComponent(entity, ColliderComponent)
         // dynamic objects should be interpolated, kinematic objects should not
         if (collider && collider.body.type !== BodyType.KINEMATIC) {
@@ -212,28 +221,8 @@ export class PhysicsSystem extends System {
           });
         }
       });
-    } else {
-      // only on server
-      this.queryResults.correctionFromClient.all?.forEach(entity => {
-        const networkObject = getMutableComponent(entity, NetworkObject);
-        const ownerNetworkId = getComponent(entity, UserControlledColliderComponent).ownerNetworkId;
-        if(networkObject.networkId === ownerNetworkId) {
-          const collider = getMutableComponent(entity, ColliderComponent);
-          Network.instance.clientInputState.transforms.push({
-            networkId: networkObject.networkId,
-            x: collider.body.transform.translation.x,
-            y: collider.body.transform.translation.y,
-            z: collider.body.transform.translation.z,
-            qX: collider.body.transform.rotation.x,
-            qY: collider.body.transform.rotation.y,
-            qZ: collider.body.transform.rotation.z,
-            qW: collider.body.transform.rotation.w,
-            snapShotTime: networkObject.snapShotTime ?? 0,
-          });
-        }
-      });
     }
-
+    console.log(delta)
     PhysXInstance.instance.update();
   }
 
@@ -262,9 +251,6 @@ PhysicsSystem.queries = {
   },
   correctionFromServer: {
     components: [NetworkObject],
-  },
-  correctionFromClient: {
-    components: [UserControlledColliderComponent, NetworkObject],
   },
   collider: {
     components: [ColliderComponent, TransformComponent],
