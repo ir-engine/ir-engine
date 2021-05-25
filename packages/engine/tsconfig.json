@@ -22,6 +22,6 @@
     ],
     "jsx": "react"
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/editor/nodes/helper/RectAreaLightHelper.js", "src/editor/nodes/helper/RectAreaLightHelper.js"],
   "exclude": ["src/**/*.d.ts", "node_modules", "dist", "tsconfig.json", "tests/"]
 }

@@ -5,7 +5,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader';
 import { addComponent } from "../../ecs/functions/EntityFunctions";
 import { parseModelColliders, clearFromColliders } from '../../physics/behaviors/parseModelColliders';
 import { createVehicleFromSceneData } from '../../vehicle/prefabs/NetworkVehicle';
-import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, SpotLight } from 'three';
+import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, MeshStandardMaterial, PointLight, SpotLight } from 'three';
 import { ComponentConstructor } from "../../ecs/interfaces/ComponentInterfaces";
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers';
 import { addObject3DComponent } from '../behaviors/addObject3DComponent';
@@ -33,6 +33,7 @@ import { setPostProcessing } from "../behaviors/setPostProcessing";
 import { CameraSystem } from "../../camera/systems/CameraSystem";
 import { CopyTransformComponent } from "../../transform/components/CopyTransformComponent";
 import { isServer } from "../../common/functions/isServer";
+import { setReflectionProbe } from "../behaviors/setReflectionProbe";
 /**
  * Add Component into Entity from the Behavior.
  * @param entity Entity in which component will be added.
@@ -175,13 +176,14 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
           // obj3d: new GridHelper( 1000, 5000 )
           obj3d: new Mesh(
             new CircleBufferGeometry(1000, 32).rotateX(-Math.PI / 2),
-            new MeshPhongMaterial({
-              color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464)
+            new MeshStandardMaterial({
+              color: new Color(1, 1, 1),
+              roughness:0,
             })
           ),
           objArgs: { receiveShadow: true }
         },
-        values: [{ from: 'color', to: 'material.color' }]
+        values: [{ from: '#ffffff', to: 'material.color' }]
       }
     ]
   },
@@ -470,5 +472,17 @@ export const SceneObjectLoadingSchema: LoadingSchema = {
         values:["options"]
       }
     ]
+  },
+
+  'reflectionprobe':
+  {
+    behaviors:[
+      {
+        behavior:setReflectionProbe,
+        values:["options"]
+      }
+    ]
   }
+
+
 };

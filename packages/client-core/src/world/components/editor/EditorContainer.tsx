@@ -159,7 +159,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       } else if (queryParams.has("sceneId")) {
         this.loadScene(queryParams.get("sceneId"));
       } else {
-        this.loadProjectTemplate(defaultTemplateUrl);
+        //this.loadProjectTemplate(defaultTemplateUrl);
       }
     } else if (projectId === "tutorial") {
       this.loadProjectTemplate(tutorialTemplateUrl);

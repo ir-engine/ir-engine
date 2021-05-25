@@ -47,6 +47,8 @@ export function loadScene(scene: SceneData): void {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED });
     Engine.sceneLoaded = true;
   });
+
+  console.log("Scene is Loaded from SceneLoading");
 }
 
 export function loadComponent(entity: Entity, component: SceneDataComponent): void {

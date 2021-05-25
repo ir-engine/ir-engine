@@ -21,6 +21,7 @@ import SpotLightNode from "@xrengine/engine/src/editor/nodes/SpotLightNode";
 import TriggerVolumeNode from "@xrengine/engine/src/editor/nodes/TriggerVolumeNode";
 import VideoNode from "@xrengine/engine/src/editor/nodes/VideoNode";
 import VolumetricNode from "@xrengine/engine/src/editor/nodes/VolumetricNode";
+import ReflectionProbeNode from "@xrengine/engine/src/editor/nodes/ReflectionProbeNode";
 import ElementsSource from "./assets/sources/ElementsSource";
 import MyAssetsSource from "./assets/sources/MyAssetsSource";
 import Editor from "./Editor";
@@ -39,6 +40,7 @@ import ModelNodeEditor from "./properties/ModelNodeEditor";
 import ParticleEmitterNodeEditor from "./properties/ParticleEmitterNodeEditor";
 import PointLightNodeEditor from "./properties/PointLightNodeEditor";
 import PostProcessingNodeEditor from "./properties/PostProcessingNodeEditor";
+import ReflectionProbeNodeEditor from "./properties/ReflectionProbeNodeEditor";
 import SceneNodeEditor from "./properties/SceneNodeEditor";
 import ScenePreviewCameraNodeEditor from "./properties/ScenePreviewCameraNodeEditor";
 import SkyboxNodeEditor from "./properties/SkyboxNodeEditor";
@@ -84,6 +86,7 @@ export function createEditor(api, settings, Engine) {
   editor.registerSource(new ElementsSource(editor));
   editor.registerSource(new MyAssetsSource(editor));
   editor.registerNode(GameNode, GameNodeEditor);
+  editor.registerNode(ReflectionProbeNode,ReflectionProbeNodeEditor);
 
   return editor;
 }
