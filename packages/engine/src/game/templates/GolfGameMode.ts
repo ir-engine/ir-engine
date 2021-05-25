@@ -2,6 +2,7 @@ import { GameMode } from "../../game/types/GameMode";
 // others componennt
 import { TransformComponent } from '../../transform/components/TransformComponent';
 // game State Tag Component
+import { SpawnedObject } from './gameDefault/components/SpawnedObjectTagComponent';
 import { Open } from "./gameDefault/components/OpenTagComponent";
 import { Closed } from "./gameDefault/components/ClosedTagComponent";
 import { ButtonUp } from "./gameDefault/components/ButtonUpTagComponent";
@@ -147,7 +148,8 @@ export const GolfGameMode: GameMode = somePrepareFunction({
     YourTurn,
     Active,
     Deactive,
-    Goal
+    Goal,
+    SpawnedObject
   ],
   initGameState: {
     'newPlayer': {
@@ -160,7 +162,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       behaviors: [initScore]
     },
     'GolfBall': {
-      behaviors: []
+      components: [SpawnedObject]
     },
     'GolfClub': {
       behaviors: [addClub],
