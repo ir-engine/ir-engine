@@ -179,7 +179,6 @@ export const componentSeed = {
           probePositionOffset:new Vector3(0),
           probeScale:new Vector3(1,1,1),
           reflectionType:1,
-          importance:1,
           intensity:1,
           boxProjection:false,
           resolution:512,

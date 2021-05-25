@@ -50,14 +50,6 @@ const DefaultReflectionProbeSettings=[
         label:"Settings",
         options:[
             {
-                label:"Importance",
-                propertyName:"importance",
-                type:ReflectionPropertyTypes.Numeric,
-                min:1,
-                max:10,
-                step:1,
-            },
-            {
                 label:"Intensity",
                 propertyName:"intensity",
                 type:ReflectionPropertyTypes.Numeric,
@@ -102,13 +94,13 @@ export const  ReflectionProbeNodeEditor =(props:ReflectionProbeNodeEditorProps)=
     const renderReflectionProbeProperties=()=>{
         const renderedProperty=DefaultReflectionProbeSettings.map((element,id) => {
             if(((props.node as any).reflectionProbeSettings.reflectionType==1)&&(element.label=="Realtime Settings")){
-                return <div key={id+"Realtime"}></div>;
+                return <div key={id+"Realtime"} />;
             }
             const renderProp=element.label?[<div key={id+"title"}>{element.label}</div>]:[];
             element?.options?.map((property,propertyid)=>{
                 renderProp.push(<ReflectionProbeProperties key={id+""+propertyid} element={property} {...props}/>);
             });
-            renderProp.push(<br key={id+"break"}/>)
+            renderProp.push(<br key={id+"break"}/>);
             return renderProp;
         });
         return <>{renderedProperty}</>;

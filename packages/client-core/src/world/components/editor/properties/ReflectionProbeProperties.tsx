@@ -34,10 +34,10 @@ const reflectionProbeRefreshSelectTypes=[
         label:"On Awake",
         value:ReflectionProbeRefreshTypes.OnAwake,
     },
-    {
-        label:"Every Frame",
-        value:ReflectionProbeRefreshTypes.EveryFrame,
-    }
+    // {
+    //     label:"Every Frame",
+    //     value:ReflectionProbeRefreshTypes.EveryFrame,
+    // }
 ];
 
 const reflectionResolutionTypes=[
@@ -108,10 +108,10 @@ export const  ReflectionProbeProperties =(props:ReflectionProbePropertyEditorPro
             break;
 
         case ReflectionPropertyTypes.Vector:
-            renderVal=<Vector3Input onChange={(id)=>{onChangeProperty(id,propertyName);}} value={getPropertyValue(propertyName)} />
+            renderVal=<Vector3Input onChange={(id)=>{onChangeProperty(id,propertyName);}} value={getPropertyValue(propertyName)} />;
             break;
         default:
-            renderVal=<div>Undefined value Type</div>
+            renderVal=<div>Undefined value Type</div>;
             break;
     }
     return(

@@ -23,7 +23,6 @@ export type ReflectionProbeSettings={
     probePositionOffset:Vector3,
     probeScale:Vector3,
     reflectionType:ReflectionProbeTypes,
-    importance:number,
     intensity:number,
     boxProjection:boolean,
     resolution:number,
@@ -56,7 +55,6 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
             probePositionOffset:new Vector3(0),
             probeScale:new Vector3(1,1,1),
             reflectionType:ReflectionProbeTypes.Baked,
-            importance:1,
             intensity:1,
             boxProjection:false,
             resolution:512,
@@ -64,9 +62,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
             refreshMode:ReflectionProbeRefreshTypes.OnAwake,
         }
         this.geometry=new BoxHelper(new Mesh(new BoxBufferGeometry()),0xff0000);
-        //this.geometry.add(centerBall);
         this.add(this.geometry);
-        console.log("This is the Constructor");
     }
 
 
@@ -86,10 +82,13 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
         this.reflectionProbeSettings.probePosition=this.position.clone();
         this.reflectionProbeSettings.probePosition.add(this.reflectionProbeSettings.probePositionOffset);
         this.geometry.matrix.compose(this.reflectionProbeSettings.probePositionOffset,new Quaternion(0),this.reflectionProbeSettings.probeScale);
+        this.editor.scene.traverse(child=>{
+            if (child.isMesh || child.isSkinnedMesh)
+                child.material.envMapIntensity??=this.reflectionProbeSettings.intensity;
+        });
     }
 
     setEnvMap(renderResult:Texture){
-
         this.editor.scene.traverse(child=>{
             if (child.isMesh || child.isSkinnedMesh) {
                 child.material.envMapIntensity??=this.reflectionProbeSettings.intensity;

@@ -64,7 +64,7 @@ export default class CubemapCapturer{
 	sceneToRender:Scene;
 	downloadAfterCapture:boolean;
 
-	constructor(renderer:WebGLRenderer,sceneToRender:Scene,resolution:number,downloadAfterCapture:boolean=false){
+	constructor(renderer:WebGLRenderer,sceneToRender:Scene,resolution:number,downloadAfterCapture=false){
 		this.width = resolution;
 		this.height = resolution;
 		this.sceneToRender=sceneToRender;
@@ -93,7 +93,7 @@ export default class CubemapCapturer{
 		this.ctx = this.canvas.getContext( '2d' );
 	
 		this.cubeCamera = null;
-		var gl = this.renderer.getContext();
+		const gl = this.renderer.getContext();
 		this.cubeMapSize = gl.getParameter( gl.MAX_CUBE_MAP_TEXTURE_SIZE )
 		this.setSize(this.width,this.height );
 		
@@ -135,9 +135,9 @@ export default class CubemapCapturer{
 
 		this.quad.material.uniforms.map.value = this.cubeCamera.renderTarget.texture;
 		this.renderer.render( this.scene, this.camera, this.renderTarget, true );
-		var pixels = new Uint8Array( 4 * this.width * this.height );
+		const pixels = new Uint8Array( 4 * this.width * this.height );
 		this.renderer.readRenderTargetPixels( this.renderTarget, 0, 0, this.width, this.height, pixels );
-		var imageData = new ImageData( new Uint8ClampedArray( pixels ), this.width, this.height );
+		const imageData = new ImageData( new Uint8ClampedArray( pixels ), this.width, this.height );
 		this.download( imageData );
 		return imageData
 	
@@ -147,18 +147,18 @@ export default class CubemapCapturer{
 	download = function( imageData ) {
 		this.ctx.putImageData( imageData, 0, 0 );
 	
-		this.canvas.toBlob( function( blob ) {
+		this.canvas.toBlob( ( blob ) => {
 	
-			var url = URL.createObjectURL(blob);
-			var fileName = 'envMap.png';
-			var anchor = document.createElement( 'a' );
+			const url = URL.createObjectURL(blob);
+			const fileName = 'envMap.png';
+			const anchor = document.createElement( 'a' );
 			anchor.href = url;
 			anchor.setAttribute("download", fileName);
 			anchor.className = "download-js-link";
 			anchor.innerHTML = "downloading...";
 			anchor.style.display = "none";
 			document.body.appendChild(anchor);
-			setTimeout(function() {
+			setTimeout(() => {
 				anchor.click();
 				document.body.removeChild(anchor);
 			}, 1 );
@@ -170,7 +170,7 @@ export default class CubemapCapturer{
 
 	update = function( position:Vector3) {
 
-		var autoClear = this.renderer.autoClear;
+		const autoClear = this.renderer.autoClear;
 		this.renderer.autoClear = true;
 		this.cubeCamera.position.copy(position );
 		this.cubeCamera.updateCubeMap( this.renderer, this.sceneToRender );
