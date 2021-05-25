@@ -26,5 +26,5 @@ export default (app: Application): void => {
 
   const service = app.service('email');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

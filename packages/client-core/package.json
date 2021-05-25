@@ -1,6 +1,7 @@
 {
   "name": "@xrengine/client-core",
-  "version": "0.2.22",
+  "version": "0.2.27",
+  "module": "dist/client-core.es.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -16,6 +17,7 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "build": "rimraf dist && mkdir dist && ctix entrypoint ./src && node build.js",
+    "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
     "buildx": "esbuild",
     "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
   },
@@ -28,7 +30,7 @@
     "react": "^17.0.0"
   },
   "dependencies": {
-    "@feathersjs/client": "4.5.11",
+    "@feathersjs/client": "5.0.0-pre.3",
     "@google/model-viewer": "1.6.0",
     "@material-ui/core": "4.11.4",
     "@material-ui/icons": "4.11.2",
@@ -45,8 +47,8 @@
     "@types/styled-components": "5.1.9",
     "@typescript-eslint/eslint-plugin": "4.22.0",
     "@typescript-eslint/parser": "4.22.0",
-    "@xrengine/common": "^0.2.22",
-    "@xrengine/engine": "^0.2.22",
+    "@xrengine/common": "^0.2.27",
+    "@xrengine/engine": "^0.2.27",
     "antd": "4.15.4",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
@@ -59,6 +61,7 @@
     "emailjs-com": "2.6.4",
     "esbuild-plugin-sass": "0.5.0",
     "eventemitter3": "4.0.7",
+    "formik": "^2.2.6",
     "i18next": "20.2.2",
     "immutable": "4.0.0-rc.12",
     "jwt-decode": "3.1.2",
@@ -88,13 +91,15 @@
     "redux-thunk": "2.3.0",
     "reselect": "4.0.0",
     "semantic-ui-react": "2.0.3",
-    "socket.io-client": "2.4.0",
+    "socket.io-client": "4.0.1",
     "styled-components": "5.2.3",
     "three": "0.128.0",
     "url-toolkit": "2.2.2",
     "use-debounce": "6.0.1",
     "use-http": "1.0.20",
-    "uuid": "8.3.2"
+    "uuid": "8.3.2",
+    "yup": "^0.32.9",
+    "volumetric": "https://github.com/XRFoundation/UniversalVolumetric"
   },
   "devDependencies": {
     "@rollup/plugin-json": "4.1.0",

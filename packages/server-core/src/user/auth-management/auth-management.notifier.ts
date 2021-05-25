@@ -18,7 +18,7 @@ export default (app: Application): any => {
     identifyUserProps: ['token', 'type'],
     sanitizeUserForClient: async (identityProvider: any): Promise<any> => {
       const authService = app.service('authentication');
-      const accessToken = await authService.createAccessToken({},
+      const accessToken = await (authService as any).createAccessToken({},
         { subject: identityProvider.id.toString() });
 
       return {

@@ -30,26 +30,23 @@ import { RelativeSpringSimulator } from "../../physics/classes/SpringSimulator";
 import { VectorSpringSimulator } from "../../physics/classes/VectorSpringSimulator";
 import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
 import { InterpolationComponent } from "../../physics/components/InterpolationComponent";
-import { CollisionGroups } from "../../physics/enums/CollisionGroups";
+import { CollisionGroups, DefaultCollisionMask } from "../../physics/enums/CollisionGroups";
 import { InterpolationInterface } from "../../physics/interfaces/InterpolationInterface";
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { addObject3DComponent } from "../../scene/behaviors/addObject3DComponent";
 import { createShadow } from "../../scene/behaviors/createShadow";
 import { TransformComponent } from "../../transform/components/TransformComponent";
-import { initiateIK } from "../../xr/functions/IKFunctions";
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 	AnimationManager.instance._defaultModel?.children?.forEach(child => actor.modelContainer.add(child));
 	actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-	if (hasComponent(entity, IKComponent)) {
-		initiateIK(entity)
-	}
+	// if (hasComponent(entity, IKComponent)) {
+	// 	initiateIK(entity)
+	// }
 }
 
 export const loadActorAvatar: Behavior = (entity) => {
-	console.log("Loading Actor Avatar")
-
 	const avatarURL = getComponent(entity, CharacterComponent)?.avatarURL;
 	if (avatarURL) {
 		loadActorAvatarFromURL(entity, avatarURL);
@@ -58,9 +55,9 @@ export const loadActorAvatar: Behavior = (entity) => {
 
 export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 	const tmpGroup = new Group();
-	console.log("Loading Actor Avatar")
+	console.log("Loading Actor Avatar =>", avatarURL)
 
-	createShadow(entity, { objArgs: { castShadow: true, receiveShadow: true } })
+	createShadow(entity, { castShadow: true, receiveShadow: true });
 
 	AssetLoader.load({
 		url: avatarURL,
@@ -69,7 +66,6 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		receiveShadow: true,
 		parent: tmpGroup,
 	}, () => {
-		console.log("Loaded")
 		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 		const controller = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
 		if (!actor) return
@@ -89,35 +85,40 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 					targetSkeleton = child;
 			}
 		})
-		console.log("*** Standardizing skeleton")
 		standardizeSkeletion(targetSkeleton, AnimationManager.instance._defaultSkeleton);
 
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
-		const geom = getGeometry(actor.modelContainer);
-		if (geom) {
-			geom.computeBoundingBox()
-			const modelX = (geom.boundingBox.max.x - geom.boundingBox.min.x) / 2;
-			const modelY = (geom.boundingBox.max.y - geom.boundingBox.min.y) / 2;
-			const modelZ = (geom.boundingBox.max.z - geom.boundingBox.min.z) / 2;
+		// const geom = getGeometry(actor.modelContainer);
+		// if (geom) {
+		// 	geom.computeBoundingBox()
+		// 	const modelX = (geom.boundingBox.max.x - geom.boundingBox.min.x) / 2;
+		// 	const modelY = (geom.boundingBox.max.y - geom.boundingBox.min.y) / 2;
+		// 	const modelZ = (geom.boundingBox.max.z - geom.boundingBox.min.z) / 2;
 			//controller.controller.resize(modelHeight - (modelWidth*2));
-			const modelSize = modelX + modelY + modelZ;
-			if (!modelSize) return;
+			// const modelSize = modelX + modelY + modelZ;
+			// if (!modelSize) return;
 
 			// TODO: controller size should be calculated entirely from the model bounds, not relying to constants & tweaking
 
 			// instead, set model to IDLE state, then calculate total bounds and resize
 
-			const modelWidth = ((modelX * actor.modelScaleWidth.x) + (modelY * actor.modelScaleWidth.y) + (modelZ * actor.modelScaleWidth.z));
-			const modelHeight = ((modelX * actor.modelScaleHeight.x) + (modelY * actor.modelScaleHeight.y) + (modelZ * actor.modelScaleHeight.z)) / (modelSize * actor.modelScaleFactor.size);
-			const height = modelHeight * actor.modelScaleFactor.height;
-			const width = modelWidth * actor.modelScaleFactor.radius;
-			controller.controller.radius = width;
-			controller.controller.height = height;
-		}
-		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-		// if (hasComponent(entity, IKComponent)) {
-		// 	initiateIK(entity)
+			// const modelWidth = ((modelX * actor.modelScaleWidth.x) + (modelY * actor.modelScaleWidth.y) + (modelZ * actor.modelScaleWidth.z));
+			// const modelHeight = ((modelX * actor.modelScaleHeight.x) + (modelY * actor.modelScaleHeight.y) + (modelZ * actor.modelScaleHeight.z)) / (modelSize * actor.modelScaleFactor.size);
+			// const height = modelHeight * actor.modelScaleFactor.height;
+			// const width = modelWidth * actor.modelScaleFactor.radius;
+			controller.controller.radius = 0.25;
+			controller.controller.height = 1;
 		// }
+		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
+		if (hasComponent(entity, IKComponent)) {
+			// initiateIK(entity)
+
+      actor.modelContainer.children[0]?.traverse((child) => {
+        if(child.visible) {
+          child.visible = false;
+        }
+      })
+		}
 	});
 };
 
@@ -177,7 +178,7 @@ const initializeCharacter: Behavior = (entity): void => {
 	const transform = getComponent(entity, TransformComponent);
 	// Physics
 	// TODO: This "any" is unnecessary and the type error should be fixed
-	(actor.actorCapsule as any) = addComponent(entity, ControllerColliderComponent, {
+	addComponent(entity, ControllerColliderComponent, {
 		mass: actor.actorMass,
 		position: transform.position,
 		height: actor.actorHeight,
@@ -188,7 +189,7 @@ const initializeCharacter: Behavior = (entity): void => {
 		controller: PhysicsSystem.instance.createController(new Controller({
 			isCapsule: true,
 			collisionLayer: CollisionGroups.Characters,
-			collisionMask: CollisionGroups.All,
+			collisionMask: DefaultCollisionMask,
 			height: actor.actorHeight,
 			contactOffset: actor.contactOffset,
 			radius: actor.capsuleRadius,
@@ -212,6 +213,7 @@ const initializeCharacter: Behavior = (entity): void => {
 export function createNetworkPlayer(args: { ownerId: string | number, networkId?: number, entity?: Entity }) {
 	const networkComponent = initializeNetworkObject({
 		ownerId: String(args.ownerId),
+		uniqueId: String(args.ownerId),
 		networkId: args.networkId,
 		prefabType: PrefabType.Player,
 		override: {
@@ -226,13 +228,22 @@ export function createNetworkPlayer(args: { ownerId: string | number, networkId?
 				},
 				{
 					type: CharacterComponent,
-					data: Network.instance.clients[args.ownerId].avatarDetail ?? {},
+					data: Network.instance.clients[args.ownerId]?.avatarDetail ?? {},
 				}
 			],
 			serverComponents: []
 		}
 	}
 	);
+  if (!isClient) {
+    Network.instance.createObjects.push({
+        networkId: networkComponent.networkId,
+        ownerId: networkComponent.ownerId,
+        prefabType: PrefabType.Player,
+        uniqueId: networkComponent.uniqueId,
+        parameters: ''
+    });
+  }
 	return networkComponent;
 }
 
@@ -244,6 +255,7 @@ export const characterInterpolationSchema: InterpolationInterface = {
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkPlayerCharacter: NetworkPrefab = {
+  initialize: createNetworkPlayer,
 	// These will be created for all players on the network
 	networkComponents: [
 		// ActorComponent has values like movement speed, deceleration, jump height, etc

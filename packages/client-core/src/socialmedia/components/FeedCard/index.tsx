@@ -17,6 +17,10 @@ import TelegramIcon from '@material-ui/icons/Telegram';
 // import BookmarkIcon from '@material-ui/icons/Bookmark';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 
+import CardHeader from '@material-ui/core/CardHeader';
+import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
+import Avatar from '@material-ui/core/Avatar';
+
 import { Feed } from '@xrengine/common/src/interfaces/Feed';
 import CreatorAsTitle from '../CreatorAsTitle';
 // @ts-ignore
@@ -25,26 +29,24 @@ import SimpleModal from '../SimpleModal';
 import { addViewToFeed } from '../../reducers/feed/service';
 // import { addBookmarkToFeed, removeBookmarkToFeed } from '../../reducers/feedBookmark/service';
 import { selectFeedFiresState } from '../../reducers/feedFires/selector';
-import { selectTheFeedsFiresState } from '../../reducers/thefeedsFires/selector';
 
 // import { getFeedFires, addFireToFeed, removeFireToFeed } from '../../reducers/feedFires/service';
-import { getTheFeedsFires, addFireToTheFeeds, removeFireToTheFeeds } from '../../reducers/thefeedsFires/service';
+import { getFeedFires, addFireToFeed, removeFireToFeed } from '../../reducers/feedFires/service';
 import PopupLogin from '../PopupLogin/PopupLogin';
 // import { IndexPage } from '@xrengine/social/pages/login';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { getLoggedCreator } from '../../reducers/creator/service';
-
-
 import Featured from '../Featured';
 import { Plugins } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
+import { updateCreatorPageState } from '../../reducers/popupsState/service';
 
 const { Share } = Plugins;
 
 const mapStateToProps = (state: any): any => {
     return {
-        thefeedsFiresState: selectTheFeedsFiresState(state),
+        feedFiresState: selectFeedFiresState(state),
         authState: selectCreatorsState(state),
     };
   };
@@ -53,23 +55,25 @@ const mapStateToProps = (state: any): any => {
 //     getFeedFires: bindActionCreators(getFeedFires, dispatch),
 //     addFireToFeed: bindActionCreators(addFireToFeed, dispatch),
 //     removeFireToFeed: bindActionCreators(removeFireToFeed, dispatch),
-    getTheFeedsFires: bindActionCreators(getTheFeedsFires, dispatch),
-    addFireToTheFeeds: bindActionCreators(addFireToTheFeeds, dispatch),
-    removeFireToTheFeeds: bindActionCreators(removeFireToTheFeeds, dispatch)
+    getFeedFires: bindActionCreators(getFeedFires, dispatch),
+    addFireToFeed: bindActionCreators(addFireToFeed, dispatch),
+    removeFireToFeed: bindActionCreators(removeFireToFeed, dispatch),
+    updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
     // addBookmarkToFeed: bindActionCreators(addBookmarkToFeed, dispatch),
     // removeBookmarkToFeed: bindActionCreators(removeBookmarkToFeed, dispatch),
 //     addViewToFeed : bindActionCreators(addViewToFeed, dispatch),
 });
 interface Props{
     feed : Feed;
-    thefeedsFiresState?: any;
+    feedFiresState?: any;
     authState?: any;
 //     getFeedFires?: typeof getFeedFires;
 //     addFireToFeed? : typeof addFireToFeed;
 //     removeFireToFeed?: typeof removeFireToFeed;
-    getTheFeedsFires?: any,
-    addFireToTheFeeds?: any,
-    removeFireToTheFeeds?: any,
+    getFeedFires?: any,
+    addFireToFeed?: any,
+    removeFireToFeed?: any,
+    updateCreatorPageState?: any,
     // addBookmarkToFeed?: typeof addBookmarkToFeed;
     // removeBookmarkToFeed?: typeof removeBookmarkToFeed;
 //     addViewToFeed?: typeof addViewToFeed;
@@ -80,18 +84,18 @@ const FeedCard = (props: Props) : any => {
 //     const [isVideo, setIsVideo] = useState(false);
 //     const [openFiredModal, setOpenFiredModal] = useState(false);
 //     const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addViewToFeed} = props;
-    const {feed, authState, getTheFeedsFires, thefeedsFiresState, addFireToTheFeeds, removeFireToTheFeeds} = props;
+    const {feed, authState, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed} = props;
     const [firedCount, setFiredCount] = useState(feed.fires);
-
-    const [thefeedsFiresCreators, setThefeedsFiresCreators] = useState(null);
+    const [videoDisplay, setVideoDisplay] = useState(false);
+    const [feedFiresCreators, setFeedFiresCreators] = useState(null);
 
     const handleAddFireClick = (feedId) =>{
-        addFireToTheFeeds(feedId);
+        addFireToFeed(feedId);
         setFiredCount(firedCount+1);
         setFired(true);
     };
     const handleRemoveFireClick = (feedId) =>{
-        removeFireToTheFeeds(feedId);
+        removeFireToFeed(feedId);
         setFiredCount(firedCount-1);
         setFired(false);
     };
@@ -111,15 +115,16 @@ const FeedCard = (props: Props) : any => {
 //         }
 //     };
     useEffect(()=> {
-         getTheFeedsFires(feed.id, setThefeedsFiresCreators);
+         getFeedFires(feed.id, setFeedFiresCreators);
+         console.log('feed', feed);
     }, []);
 
     const { t } = useTranslation();
     const shareVia = () => {
         Share.share({
-            title: t('social:shareForm.seeCoolStuff'),
+            title: t('social:shareForm.arcMedia'),
             text: t('social:shareForm.videoCreated'),
-            url: feed.videoUrl,
+            url: encodeURI(feed.videoUrl),
             dialogTitle: t('social:shareForm.shareWithBuddies')
           });
        };
@@ -131,14 +136,18 @@ const FeedCard = (props: Props) : any => {
     //     }
     // };
     
-    const checkGuest = props.authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
+//     const checkGuest = props.authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
-    const theFeedsFiresList = thefeedsFiresState?.get('thefeedsFires');
     const creatorId = authState.get('currentCreator').id;
 
     useEffect(()=> {
-            setFired(!!thefeedsFiresCreators?.data.find(i=>i.id === creatorId));
-    },[thefeedsFiresCreators]);
+        setFired(!!feedFiresCreators?.data.find(i=>i.id === creatorId));
+    },[feedFiresCreators]);
+
+
+
+
+
     return  feed ? <><Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
 {/*                 {isVideo ? <CardMedia    */}
 {/*                     className={styles.previewImage}                   */}
@@ -155,24 +164,46 @@ const FeedCard = (props: Props) : any => {
 {/*                     title={feed.title}                       */}
 {/*                     onClick={()=>setIsVideo(true)}                */}
 {/*                 />} */}
-                {feed.videoUrl ? <CardMedia
-                    className={styles.previewImage}
-                    component='video'
-                    src={feed.videoUrl}
-                    title={feed.title}
-                    controls
-                /> : ''}
+                {!videoDisplay ? <img src={feed.previewUrl}
+                                  className={styles.previewImage}
+                                  alt={feed.title}
+                                  onClick={setVideoDisplay}
+                                  />
+                 : <CardMedia className={styles.previewImage}
+                              component='video'
+                              src={feed.videoUrl}
+                              title={feed.title}
+                              controls
+                              />}
+
                 <span className={styles.eyeLine}>{feed.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
                 <CardContent className={styles.cardContent}>                     
                     <section className={styles.iconsContainer}>
-                        <Typography className={styles.titleContainer} gutterBottom variant="h4"
-//                         onClick={()=>history.push('/feed?feedId=' + feed.id)}
-                        >
-                            {feed.title}
-                        </Typography>
-                        <CreatorAsTitle creator={feed.creator} />
+{/*                         <Typography className={styles.titleContainer} gutterBottom variant="h4" */}
+{/* //                         onClick={()=>history.push('/feed?feedId=' + feed.id)} */}
+{/*                         > */}
+{/*                             {feed.title} */}
+{/*                         </Typography> */}
+
+
+                        <CardHeader
+                            avatar={<Avatar src={feed.creator.avatar
+                                ? feed.creator.avatar
+                                : '/assets/userpic.png'}
+                                alt={feed.creator.username}
+                                onClick={()=>updateCreatorPageState(true, feed.creator.id)}
+                                className={styles.avatar}
+                            />}
+                            title={<Typography variant="h6">
+                            {feed.creator.name}
+                            <Typography variant="subtitle2">@{feed.creator.username} · {feed.fires} flames</Typography>
+                            {feed.creator.verified === true && <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>}
+                        </Typography> } />
+
+
+
                         <section className={styles.iconSubContainer}>
-                            {fired ?
+                            {feed.isFired ?
                                 <WhatshotIcon className={styles.fireIcon} htmlColor="#FF6201"
                                     onClick={()=>handleRemoveFireClick(feed.id)} />
                                 :
@@ -187,8 +218,8 @@ const FeedCard = (props: Props) : any => {
                     </section>
 
 {/*                     <Typography variant="h2" onClick={()=>checkGuest ? setButtonPopup(true) : handleGetFeedFiredUsers(feed.id)}><span className={styles.flamesCount}>{feed.fires}</span>Flames</Typography> */}
-                    <Typography variant="subtitle2">{firedCount} flames</Typography>
-                    <Typography variant="h6">{feed.description}</Typography>
+
+                    <Typography className={styles.cartText} variant="h6">{feed.description}</Typography>
                 </CardContent>
             </Card>
             {/* <SimpleModal type={'feed-fires'} list={feedFiresState.get('feedFires')} open={openFiredModal} onClose={()=>setOpenFiredModal(false)} /> */}

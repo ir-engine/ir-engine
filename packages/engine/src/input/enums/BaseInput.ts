@@ -10,6 +10,8 @@ export enum BaseInput {
   LEFT,
   RIGHT,
   INTERACT,
+  GRAB_LEFT,
+  GRAB_RIGHT,
   CROUCH,
   JUMP,
   WALK,

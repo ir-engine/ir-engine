@@ -1,5 +1,5 @@
 import config from '@xrengine/server-core/src/appconfig';
-import seeder from 'feathers-seeder';
+import seeder from '@xrengine/server-core/src/util/seeder';
 import { Sequelize } from 'sequelize';
 import { setTimeout } from 'timers';
 import { Application } from '../declarations';
@@ -9,6 +9,8 @@ export default (app: Application): void => {
   try {
     const {forceRefresh} = config.db;
     const {performDryRun} = config.server;
+
+    console.log("Starting app");
 
     const sequelize = new Sequelize({
       ...config.db,
@@ -21,6 +23,8 @@ export default (app: Application): void => {
 
     app.set('sequelizeClient', sequelize);
 
+    // eslint-disable-next-line  @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     app.setup = function (...args: any): Application {
       sequelize
           .query('SET FOREIGN_KEY_CHECKS = 0')

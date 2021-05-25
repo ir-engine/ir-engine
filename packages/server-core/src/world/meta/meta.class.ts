@@ -15,6 +15,8 @@ export class Meta implements ServiceMethods<Data> {
     this.app = app;
   }
 
+  async setup() {}
+
   /**
    * A function which is used to find meta 
    * 

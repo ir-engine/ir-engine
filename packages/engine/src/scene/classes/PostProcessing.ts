@@ -1,23 +1,24 @@
 import { Object3D } from "three";
-import { BlendFunction } from "../../renderer/postprocessing/blending/BlendFunction";
-import { BloomEffect } from "../../renderer/postprocessing/BloomEffect";
-import { BrightnessContrastEffect } from "../../renderer/postprocessing/BrightnessContrastEffect";
-import { ColorDepthEffect } from "../../renderer/postprocessing/ColorDepthEffect";
-import { Resizer } from "../../renderer/postprocessing/core/Resizer";
-import { DepthOfFieldEffect } from "../../renderer/postprocessing/DepthOfFieldEffect";
-import { FXAAEffect } from "../../renderer/postprocessing/FXAAEffect";
-import { HueSaturationEffect } from "../../renderer/postprocessing/HueSaturationEffect";
-import { LinearTosRGBEffect } from "../../renderer/postprocessing/LinearTosRGBEffect";
-import { KernelSize } from "../../renderer/postprocessing/materials/ConvolutionMaterial";
-import { OutlineEffect } from "../../renderer/postprocessing/OutlineEffect";
-import { SSAOEffect } from "../../renderer/postprocessing/SSAOEffect";
-import { ToneMappingEffect } from "../../renderer/postprocessing/ToneMappingEffect";
+import {
+  BlendFunction,
+  BloomEffect,
+  BrightnessContrastEffect,
+  ColorDepthEffect,
+  Resizer,
+  DepthOfFieldEffect,
+  HueSaturationEffect,
+  KernelSize,
+  OutlineEffect,
+  SSAOEffect,
+  ToneMappingEffect
+ } from "postprocessing";
+ import { LinearTosRGBEffect } from '@xrengine/engine/src/renderer/effects/LinearTosRGBEffect';
+
+ import { FXAAEffect } from '@xrengine/engine/src/renderer/effects/FXAAEffect';
 
 /**
- * @author Abhishek Pathak <abhi.pathak401@gmail.com>
+ * @author Shaw & Abhishek Pathak <abhi.pathak401@gmail.com>
  */
-
-
 
 export const effectType = {
   FXAAEffect: {

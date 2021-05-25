@@ -2,7 +2,6 @@ import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal';
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader';
-import { MobileGamepadProps } from "@xrengine/client-core/src/common/components/MobileGamepad/MobileGamepadProps";
 import NamePlate from '@xrengine/client-core/src/world/components/NamePlate';
 import NetworkDebug from '../../components/NetworkDebug';
 import { OpenLink } from '@xrengine/client-core/src/world/components/OpenLink';
@@ -31,8 +30,7 @@ import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { getComponent, getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
-import { initializeEngine } from '@xrengine/engine/src/initialize';
-import { DefaultInitializationOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
+import { initializeEngine } from '@xrengine/client-core/src/initialize';
 import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
@@ -41,7 +39,6 @@ import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/Cli
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
 import { styleCanvas } from '@xrengine/engine/src/renderer/functions/styleCanvas';
 import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent';
-import { DefaultNetworkSchema } from '@xrengine/engine/src/networking/templates/DefaultNetworkSchema';
 import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import { Config } from '@xrengine/client-core/src/helper';
@@ -51,10 +48,9 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
-import { CharacterInputSchema } from '@xrengine/engine/src/character/CharacterInputSchema';
-import { GamesSchema } from "@xrengine/engine/src/game/templates/GamesSchema";
 import WarningRefreshModal from "../AlertModals/WarningRetryModal";
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem';
+import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 
 const store = Store.store;
 
@@ -218,7 +214,6 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     const currentLocation = locationState.get('currentLocation').get('location');
-
     if (currentLocation.id != null &&
       userBanned != true &&
       instanceConnectionState.get('instanceProvisioned') !== true &&
@@ -249,11 +244,7 @@ export const EnginePage = (props: Props) => {
       instanceConnectionState.get('instanceServerConnecting') === false &&
       instanceConnectionState.get('connected') === false
     ) {
-      const currentLocation = locationState.get('currentLocation').get('location');
-      if (sceneId === null && currentLocation.sceneId !== null) {
-        sceneId = currentLocation.sceneId;
-      }
-      init(sceneId);
+      reinit();
     }
   }, [instanceConnectionState]);
 
@@ -289,6 +280,14 @@ export const EnginePage = (props: Props) => {
     }
   }, [noGameserverProvision]);
 
+  const reinit = () => {
+    const currentLocation = locationState.get('currentLocation').get('location');
+    if (sceneId === null && currentLocation.sceneId !== null) {
+      sceneId = currentLocation.sceneId;
+    }
+    init(sceneId);
+  };
+
   async function init(sceneId: string): Promise<any> { // auth: any,
     let sceneData;
     if(Config.publicRuntimeConfig.offlineMode) {
@@ -310,21 +309,11 @@ export const EnginePage = (props: Props) => {
     styleCanvas(canvas);
 
     const InitializationOptions = {
-      input: {
-        schema: CharacterInputSchema,
-      },
-      gameModes: {
-        schema: GamesSchema
-      },
-      publicPath: '',
-      postProcessing: true,
-      editor: false,
+      publicPath: location.origin,
       networking: {
         schema: {
-        ...DefaultNetworkSchema,
-        transport: SocketWebRTCClientTransport,
+          transport: SocketWebRTCClientTransport,
         } as NetworkSchema,
-        transport: SocketWebRTCClientTransport
       },
       renderer: {
         canvas,
@@ -332,44 +321,38 @@ export const EnginePage = (props: Props) => {
       useOfflineMode: Config.publicRuntimeConfig.offlineMode
     };
 
-    // console.log("Initialization options are: ", InitializationOptions);
-
     await initializeEngine(InitializationOptions);
-
-    // console.log("Engine initialized");
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
 
     addUIEvents();
 
-    // console.log("**** OFFLINE MODE? ", Config.publicRuntimeConfig.offlineMode);
-
     if(!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
 
-    const loadScene = new Promise<void>((resolve) => {
-      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
-        setProgressEntity(0);
-        store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
-        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.ENTITY_LOADED, onSceneLoadedEntity);
-        setAppLoaded(true);
+    await new Promise<void>((resolve) => {
+      EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
         resolve();
       });
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOAD_SCENE, sceneData });
+    });
+    
+    await new Promise<void>((resolve) => {
+      WorldScene.load(sceneData, () => {
+        setProgressEntity(0);
+        store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
+        setAppLoaded(true);
+        resolve();
+      }, onSceneLoadedEntity);
     });
 
-    const getWorldState = new Promise<any>((resolve) => {
+    const worldState = await new Promise<any>(async (resolve) => {
       if(Config.publicRuntimeConfig.offlineMode) {
         EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId });
         resolve(testWorldState);
       } else {
-        EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
-          const { worldState } =  await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
-          resolve(worldState);
-        });
+        const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
+        resolve(worldState);
       }
     });
-
-    const [sceneLoaded, worldState] = await Promise.all([loadScene, getWorldState]);
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
   }
@@ -378,8 +361,8 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, keyboard: isInputEnabled, mouse: isInputEnabled });
   }, [isInputEnabled]);
 
-  const onSceneLoadedEntity = (event: any): void => {
-    setProgressEntity(event.left || 0);
+  const onSceneLoadedEntity = (left: number): void => {
+    setProgressEntity(left || 0);
   };
 
   const onObjectHover = ({ focused, interactionText }: { focused: boolean, interactionText: string }): void => {
@@ -399,7 +382,6 @@ export const EnginePage = (props: Props) => {
   };
 
   const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENTITY_LOADED, onSceneLoadedEntity);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);
@@ -459,7 +441,8 @@ export const EnginePage = (props: Props) => {
   const mobileGamepadProps = { hovered: objectHovered, layout: 'default' };
   const mobileGamepad = isMobileOrTablet() ? <MobileGamepad {...mobileGamepadProps} /> : null;
 
-  return userBanned !== true && !isInXR ? (
+  if(userBanned) return (<div className="banned">You have been banned from this location</div>);
+  return isInXR ? <></> : (
     <>
       {isValidLocation && <UserMenu />}
       <Snackbar open={!isValidLocation}
@@ -473,7 +456,7 @@ export const EnginePage = (props: Props) => {
         </>
       </Snackbar>
 
-      <NetworkDebug />
+      <NetworkDebug reinit={reinit} />
       <LoadingScreen objectsToLoad={progressEntity} />
       { harmonyOpen !== true && <MediaIconsBox />}
       { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
@@ -492,7 +475,7 @@ export const EnginePage = (props: Props) => {
           timeout={10000}
       />
     </>
-  ) : (<div className="banned">You have been banned from this location</div>);
+  );
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EnginePage);

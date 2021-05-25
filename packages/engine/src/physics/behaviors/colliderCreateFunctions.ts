@@ -1,6 +1,6 @@
 import { PhysicsSystem } from '../systems/PhysicsSystem';
-import { CollisionGroups } from "../enums/CollisionGroups";
-import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arrayOfPointsToArrayOfVector3, CollisionEvents } from "three-physx";
+import { CollisionGroups, DefaultCollisionMask } from "../enums/CollisionGroups";
+import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arrayOfPointsToArrayOfVector3 } from "three-physx";
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
@@ -18,14 +18,14 @@ export function addColliderWithEntity(entity: Entity) {
   const colliderComponent = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
   const transformComponent = getComponent<TransformComponent>(entity, TransformComponent);
 
-  const { mesh, vertices, indices } = colliderComponent;
+  const { mesh, vertices, indices, collisionLayer, collisionMask } = colliderComponent;
 
   const body = addColliderWithoutEntity(
-    { type: colliderComponent.type },
-    transformComponent.position,
-    transformComponent.rotation,
-    transformComponent.scale,
-    { mesh, vertices, indices }
+    { bodytype: colliderComponent.bodytype, type: colliderComponent.type },
+    colliderComponent.position,
+    colliderComponent.quaternion,
+    colliderComponent.scale,
+    { mesh, vertices, indices, collisionLayer, collisionMask }
   );
   colliderComponent.body = body;
 }
@@ -35,8 +35,9 @@ const quat2 = new Quaternion();
 const xVec = new Vector3(1, 0, 0);
 const halfPI = Math.PI / 2;
 
-export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = new Quaternion(), scale = new Vector3(), model = { mesh: null, vertices: null, indices: null }): Body {
-  // console.log(userData, pos, rot, scale, model)
+export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = new Quaternion(), scale = new Vector3(),
+ model = { mesh: null, vertices: null, indices: null, collisionLayer: null, collisionMask: null }): Body {
+  //console.log(userData, pos, rot, scale, model)
   if(model.mesh && !model.vertices) {
     const mergedGeom = getGeometry(model.mesh);
     model.vertices = Array.from(mergedGeom.attributes.position.array);
@@ -91,32 +92,43 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
       break;
   }
 
-  const shape: Shape = createShapeFromConfig(shapeArgs);
-  // console.log('shape', shape);
+  const shape = createShapeFromConfig(shapeArgs);
+  shape.config.material = { restitution: userData.restitution ?? 0 };
+ 
+ shape.config.collisionLayer = model.collisionLayer ?? CollisionGroups.Default;
+ switch(model.collisionMask) {
+   case undefined: case -1: case '-1': case '': shape.config.collisionMask = DefaultCollisionMask; break;
+   default: if(/all/i.test(model.collisionMask))
+       shape.config.collisionMask = DefaultCollisionMask;
+     else
+       shape.config.collisionMask = Number(model.collisionMask);
+     break;
+ }
 
-  shape.config.collisionLayer = userData.collisionLayer ?? CollisionGroups.Default;
-  shape.config.collisionMask = userData.collisionMask ?? CollisionGroups.All;
+  if(userData.type === 'ground') {
+    shape.config.collisionLayer = CollisionGroups.Ground;
+  }
 
   if(userData.action === 'portal') {
     shape.config.collisionLayer |= CollisionGroups.TriggerCollider;
+    // TODO: This was commented out in dev, do we want this?
     shape.userData = { action: 'portal', link: userData.link };
+
   }
 
-  const bodyConfig = new Body({
+  const body = new Body({
     shapes: [shape],
-    type: BodyType.STATIC,
+    type: userData.bodytype ?? BodyType.STATIC,
     transform: {
       translation: { x: pos.x, y: pos.y, z: pos.z },
       rotation: { x: rot.x, y: rot.y, z: rot.z, w: rot.w },
       scale: { x: scale.x, y: scale.y, z: scale.z },
       linearVelocity: { x: 0, y: 0, z: 0 },
       angularVelocity: { x: 0, y: 0, z: 0 },
-    }
+    },
   });
 
-
-
-  const body: Body = PhysicsSystem.instance.addBody(bodyConfig);
+  PhysicsSystem.instance.addBody(body);
 
   return body;
 }

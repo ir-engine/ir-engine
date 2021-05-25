@@ -7,6 +7,7 @@ import { Types } from '../../ecs/types/Types';
  */
 
 export class ColliderComponent extends Component<ColliderComponent> {
+  bodytype: any
   body: Body
   type: string
   mass: number
@@ -16,10 +17,13 @@ export class ColliderComponent extends Component<ColliderComponent> {
   mesh: any
   vertices: any
   indices: any
+  collisionLayer: any
+  collisionMask: any
   collisions: ColliderHitEvent[] = [];
 }
 
 ColliderComponent._schema = {
+  bodytype: { type: Types.Ref, default: null },
   body: { type: Types.Ref, default: null },
   type: { type: Types.String, default: 'box' },
   mass: { type: Types.Number, default: 0 },
@@ -28,5 +32,7 @@ ColliderComponent._schema = {
   scale: { type: Types.Ref, default: {x: 1, y: 1, z: 1}},
   mesh: { type: Types.Ref, default: null},
   vertices: { type: Types.Ref, default: null},
-  indices: { type: Types.Ref, default: null}
+  indices: { type: Types.Ref, default: null},
+  collisionLayer: { type: Types.Number, default: null },
+  collisionMask: { type: Types.Number, default: -1 }
 };

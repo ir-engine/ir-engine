@@ -24,7 +24,7 @@ export default () => {
         const location = await context.app.service('location').get(instance.locationId);
         if (params.oldInstanceId !== instance.id && instance.currentUsers + 1 > location.maxUsersPerInstance) {
           logger.info('Putting party onto a new server');
-          const availableLocationInstances = await context.app.service('instance').Model.findAll({
+          const availableLocationInstances = await (context.app.service('instance') as any).Model.findAll({
             where: {
               locationId: location.id,
               '$location.maxUsersPerInstance$': {
@@ -33,7 +33,7 @@ export default () => {
             },
             include: [
               {
-                model: context.app.service('location').Model,
+                model: (context.app.service('location') as any).Model,
                 where: {
                 }
               }
@@ -74,7 +74,7 @@ export default () => {
             });
           } else {
             logger.info('Putting party on existing server with space');
-            const instanceModel = context.app.service('instance').Model;
+            const instanceModel = (context.app.service('instance') as any).Model;
             const instanceUserSort = _.sortBy(availableLocationInstances, (instance: typeof instanceModel) => instance.currentUsers);
             const selectedInstance = instanceUserSort[0];
             if (!config.kubernetes.enabled) {

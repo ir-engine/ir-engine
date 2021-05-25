@@ -36,7 +36,7 @@ export default function (app: Application): void {
    */
   const service = app.service('location-ban');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 
   service.publish('created', async (data, params): Promise<any> => {
     try {

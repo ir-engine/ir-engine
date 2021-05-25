@@ -32,5 +32,5 @@ export default (app: Application): any => {
 
   const service = app.service('project-asset');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

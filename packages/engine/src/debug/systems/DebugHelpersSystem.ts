@@ -21,7 +21,7 @@ export class DebugHelpersSystem extends System {
     TOGGLE_AVATAR: 'DEBUG_HELPERS_SYSTEM_TOGGLE_AVATAR',
   }
 
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     DebugHelpersSystem.instance = this;
     this.physicsDebugRenderer = new DebugRenderer(Engine.scene);
@@ -43,6 +43,11 @@ export class DebugHelpersSystem extends System {
     EngineEvents.instance.addEventListener(DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS, ({ enabled }) => {
       this.physicsDebugRenderer.setEnabled(enabled);
     })
+  }
+
+  dispose() {
+    EngineEvents.instance.removeAllListenersForEvent(DebugHelpersSystem.EVENTS.TOGGLE_AVATAR);
+    EngineEvents.instance.removeAllListenersForEvent(DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS);
   }
 
   execute(delta: number, time: number): void {
@@ -93,7 +98,7 @@ export class DebugHelpersSystem extends System {
       const velocityArrowHelper = this.helpersByEntity.velocityArrow.get(entity) as ArrowHelper;
       if (velocityArrowHelper != null) {
         velocityArrowHelper.setDirection(actor.velocity.clone().normalize());
-        velocityArrowHelper.setLength(actor.velocity.length());
+        velocityArrowHelper.setLength(actor.velocity.length() * 60);
         velocityArrowHelper.position.copy(transform.position);
       }
     });

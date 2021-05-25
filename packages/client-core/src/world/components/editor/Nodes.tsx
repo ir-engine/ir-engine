@@ -1,3 +1,4 @@
+
 import AmbientLightNode from "@xrengine/engine/src/editor/nodes/AmbientLightNode";
 import AudioNode from "@xrengine/engine/src/editor/nodes/AudioNode";
 import BoxColliderNode from "@xrengine/engine/src/editor/nodes/BoxColliderNode";
@@ -22,6 +23,7 @@ import TriggerVolumeNode from "@xrengine/engine/src/editor/nodes/TriggerVolumeNo
 import VideoNode from "@xrengine/engine/src/editor/nodes/VideoNode";
 import VolumetricNode from "@xrengine/engine/src/editor/nodes/VolumetricNode";
 import ReflectionProbeNode from "@xrengine/engine/src/editor/nodes/ReflectionProbeNode";
+import SplineNode from "@xrengine/engine/src/editor/nodes/SplineNode";
 import ElementsSource from "./assets/sources/ElementsSource";
 import MyAssetsSource from "./assets/sources/MyAssetsSource";
 import Editor from "./Editor";
@@ -45,6 +47,7 @@ import SceneNodeEditor from "./properties/SceneNodeEditor";
 import ScenePreviewCameraNodeEditor from "./properties/ScenePreviewCameraNodeEditor";
 import SkyboxNodeEditor from "./properties/SkyboxNodeEditor";
 import SpawnPointNodeEditor from "./properties/SpawnPointNodeEditor";
+import SplineNodeEditor from "./properties/SplineNodeEditor";
 import SpotLightNodeEditor from "./properties/SpotLightNodeEditor";
 import TriggerVolumeNodeEditor from "./properties/TriggerVolumeNodeEditor";
 import VideoNodeEditor from "./properties/VideoNodeEditor";
@@ -83,6 +86,7 @@ export function createEditor(api, settings, Engine) {
   editor.registerNode(LinkNode, LinkNodeEditor);
   editor.registerNode(ScenePreviewCameraNode, ScenePreviewCameraNodeEditor);
   editor.registerNode(ParticleEmitterNode, ParticleEmitterNodeEditor);
+  editor.registerNode(SplineNode, SplineNodeEditor);
   editor.registerSource(new ElementsSource(editor));
   editor.registerSource(new MyAssetsSource(editor));
   editor.registerNode(GameNode, GameNodeEditor);

@@ -11,7 +11,7 @@ import { LocalInputReceiver } from "../input/components/LocalInputReceiver";
 import { characterMoveBehavior } from "./behaviors/characterMoveBehavior";
 import { ControllerColliderComponent } from "./components/ControllerColliderComponent";
 import { InterpolationComponent } from "../physics/components/InterpolationComponent";
-import { CollisionGroups } from "../physics/enums/CollisionGroups";
+import { CollisionGroups, DefaultCollisionMask } from "../physics/enums/CollisionGroups";
 import { PhysicsSystem } from "../physics/systems/PhysicsSystem";
 import { TransformComponent } from "../transform/components/TransformComponent";
 import { AnimationComponent } from "./components/AnimationComponent";
@@ -31,7 +31,7 @@ export class CharacterControllerSystem extends System {
   }
 
   updateType = SystemUpdateType.Fixed;
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
 
     EngineEvents.instance.addEventListener(CharacterControllerSystem.EVENTS.LOAD_AVATAR, ({ entityID, avatarId, avatarURL }) => {
@@ -48,6 +48,7 @@ export class CharacterControllerSystem extends System {
   /** Removes resize listener. */
   dispose(): void {
     super.dispose();
+    EngineEvents.instance.removeAllListenersForEvent(CharacterControllerSystem.EVENTS.LOAD_AVATAR)
   }
 
   /**
@@ -63,7 +64,7 @@ export class CharacterControllerSystem extends System {
         origin: new Vector3(),
         direction: new Vector3(0, -1, 0),
         maxDistance: 0.1,
-        collisionMask: CollisionGroups.All,
+        collisionMask: DefaultCollisionMask,
       });
     });
 
@@ -105,20 +106,19 @@ export class CharacterControllerSystem extends System {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 
       if (!actor.movementEnabled || !actor.initialized) return;
-      // do head rotation for XR from input view vector - TODO: figure out where to put this
-      // if(XRSystem.instance?.cameraDolly) XRSystem.instance.cameraDolly.setRotationFromAxisAngle(downVector, Math.atan2(actor.viewVector.z, actor.viewVector.x))
-
+      
       const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
       const transform = getComponent<TransformComponent>(entity, TransformComponent as any);
 
       // reset if vals are invalid
       if (isNaN(collider.controller.transform.translation.x) || collider.controller.transform.translation.y < -10) {
-        console.warn("WARNING: Character physics data reporting NaN")
-        collider.controller.transform.translation.x = 0;
-        collider.controller.transform.translation.y = 10;
-        collider.controller.transform.translation.z = 0;
-        collider.playerStuck = 1000;
-        return;
+        // console.warn("WARNING: Character physics data reporting NaN")
+        collider.controller.updateTransform({
+          translation: { x: 0, y: 10, z: 10 },
+          rotation: {}
+        });
+        // collider.playerStuck = 1000;
+        // return;
       }
 
       transform.position.set(
@@ -127,8 +127,10 @@ export class CharacterControllerSystem extends System {
         collider.controller.transform.translation.z
       );
 
+      // console.log(collider.controller.transform.translation)
+
       const actorRaycastStart = new Vector3(collider.controller.transform.translation.x, collider.controller.transform.translation.y, collider.controller.transform.translation.z);
-      actor.raycastQuery.origin = new Vector3(actorRaycastStart.x, actorRaycastStart.y - (actor.actorCapsule.height * 0.5) - actor.actorCapsule.radius, actorRaycastStart.z);
+      actor.raycastQuery.origin = new Vector3(actorRaycastStart.x, actorRaycastStart.y - (collider.height * 0.5) - collider.radius, actorRaycastStart.z);
       actor.raycastQuery.direction = new Vector3(0, -1, 0);
       actor.closestHit = actor.raycastQuery.hits[0];
       actor.isGrounded = actor.closestHit ? true : collider.controller.collisions.down;
@@ -165,7 +167,6 @@ export class CharacterControllerSystem extends System {
       // its beacose we need physicsMove on server and for localCharacter, not for all character
       characterMoveBehavior(entity, delta);
     });
-
 
     // PhysicsMove Characters On Server
     // its beacose we need physicsMove on server and for localCharacter, not for all character

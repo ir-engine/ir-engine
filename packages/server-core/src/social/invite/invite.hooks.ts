@@ -22,8 +22,8 @@ export default {
     get: [
       commonHooks.iff(
         commonHooks.isProvider('external'),
-        authenticate('jwt'),
-        attachOwnerIdInQuery('userId')
+        authenticate('jwt') as any,
+        attachOwnerIdInQuery('userId') as any,
       )
     ],
     create: [

@@ -13,8 +13,13 @@ import('./env-config').then((module) => {
             ReactDOM.render(
                 <Suspense fallback="Loading...">
                     <StoreProvider/>
-                </Suspense>,
+                </Suspense>
+                ,
                 document.getElementById('root')
             );
         });
 });
+
+// <!--<Suspense fallback="Loading...">
+//                     <StoreProvider/>
+//                 </Suspense> -->

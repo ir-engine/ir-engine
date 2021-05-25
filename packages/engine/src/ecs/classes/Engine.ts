@@ -7,7 +7,6 @@
 
 import {
   AudioListener as THREE_AudioListener,
-  Clock,
   PerspectiveCamera,
   Scene,
   WebGLRenderer,
@@ -29,7 +28,8 @@ import { VideoTextureProxy } from '../../worker/VideoTexture';
 import { PositionalAudioObjectProxy, AudioObjectProxy, AudioListenerProxy, AudioLoaderProxy } from '../../worker/Audio';
 import { NumericalType } from '../../common/types/NumericalTypes';
 import { InputValue } from '../../input/interfaces/InputValue';
-
+import { GameMode } from "../../game/types/GameMode";
+import { EngineEvents } from './EngineEvents';
 
 export const Audio = isWebWorker ? AudioObjectProxy : THREE_Audio;
 export const AudioListener = isWebWorker ? AudioListenerProxy : THREE_AudioListener;
@@ -52,10 +52,10 @@ export type VideoTexture = VideoTextureProxy | THREE_VideoTexture;
  */
 export class Engine {
 
-  public static engineTimer: { start: Function; stop: Function } = null
-  public static engineTimerTimeout = null;
+  public static engineTimer: { start: Function; stop: Function, clear: Function } = null
 
-  public static gameModes = [];
+  public static supportedGameModes: { [key: string]: GameMode };
+  public static gameMode: GameMode;
 
   public static xrSupported = false;
 
@@ -91,7 +91,6 @@ export class Engine {
    * @default 1
    */
   public static timeScaleTarget = 1;
-  public static clock = new Clock;
 
   /**
    * Reference to the three.js renderer object.
@@ -286,5 +285,16 @@ export class Engine {
   static isInitialized = false;
 
   static publicPath: string;
+
+  static workers = [];
 }
+
+export const awaitEngineLoaded = (): Promise<void> => {
+  return new Promise<void>((resolve) => {
+    if(Engine.isInitialized) resolve();
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.INITIALIZED_ENGINE, resolve)
+  })
+}
+
+
 globalThis.Engine = Engine;

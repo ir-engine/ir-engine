@@ -238,7 +238,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     return [vehicleSaved, deepColliders];
   }
 
-parseColliders( data, type, mass, position, quaternion, scale, mesh ) {
+parseColliders( data, type, mass, position, quaternion, scale, mesh, collisionLayer = undefined, collisionMask = undefined ) {
 
   let geometry = null;
   if(type == "trimesh") {
@@ -260,14 +260,15 @@ parseColliders( data, type, mass, position, quaternion, scale, mesh ) {
       z: quaternion.z,
       w: quaternion.w
     },
-
     scale: {
       x: scale.x,
       y: scale.y,
       z: scale.z
     },
     vertices: (geometry != null ? Array.from(geometry.attributes.position.array).map((v: number) => parseFloat((Math.round(v * 10000)/10000).toFixed(4))): null),
-    indices: (geometry != null && geometry.index ? Array.from(geometry.index.array): null)
+    indices: (geometry != null && geometry.index ? Array.from(geometry.index.array): null),
+    collisionLayer,
+    collisionMask
   }
 
   return meshCollider;
@@ -281,13 +282,13 @@ parseColliders( data, type, mass, position, quaternion, scale, mesh ) {
       const vehicleMain = [];
 
         const parseGroupColliders = ( group ) => {
-          if (group.userData.data === 'physics' || group.userData.data === 'dynamic' ) {
+          if (group.userData.data === 'physics' || group.userData.data === 'kinematic' || group.userData.data === 'dynamic' ) {
             if (group.type == 'Group') {
               for (let i = 0; i < group.children.length; i++) {
-                colliders.push(this.parseColliders(group.userData.data, group.userData.type, group.userData.mass, group.position, group.quaternion, group.scale, group.children[i] ));
+                colliders.push(this.parseColliders(group.userData.data, group.userData.type, group.userData.mass, group.position, group.quaternion, group.scale, group.children[i], group.userData.collisionLayer, group.userData.collisionMask ));
               }
             } else if (group.type == 'Mesh') {
-              colliders.push(this.parseColliders(group.userData.data, group.userData.type, group.userData.mass, group.position, group.quaternion, group.scale, group ));
+              colliders.push(this.parseColliders(group.userData.data, group.userData.type, group.userData.mass, group.position, group.quaternion, group.scale, group, group.userData.collisionLayer, group.userData.collisionMask ));
             }
           } else if ( group.userData.data === 'vehicle') {
             const [vehicleSaved, deepArrayColliders] = this.parseVehicle(group);

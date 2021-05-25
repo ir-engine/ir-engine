@@ -4,10 +4,8 @@ import { Entity } from "../../ecs/classes/Entity";
 
 export class EquippedComponent extends Component<EquippedComponent> {
   static _schema = {
-    equippedEntity:  { type: Types.Ref, default: null},
-    data: { type: Types.Ref }
+    equipperEntity: { type: Types.Ref, default: null },
   }
 
-  public equippedEntity: Entity
-  public data: any
+  public equipperEntity: Entity
 }

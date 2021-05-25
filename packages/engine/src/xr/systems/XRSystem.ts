@@ -39,7 +39,7 @@ export class XRSystem extends System {
   cameraDolly: Group;
   static instance: XRSystem;
 
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
 
     XRSystem.instance = this;
@@ -72,6 +72,8 @@ export class XRSystem extends System {
   /** Removes resize listener. */
   dispose(): void {
     super.dispose();
+    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_START);
+    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_END);
   }
 
   /**
@@ -95,12 +97,14 @@ export class XRSystem extends System {
           if(source.gamepad.axes.length > 2) {
             Engine.inputState.set(mapping.axes, {
               type: InputType.TWODIM,
-              value: [source.gamepad.axes[2], source.gamepad.axes[3]]
+              value: [source.gamepad.axes[2], source.gamepad.axes[3]],
+              lifecycleState: LifecycleValue.STARTED
             })
           } else {
             Engine.inputState.set(mapping.axes, {
               type: InputType.TWODIM,
-              value: [source.gamepad.axes[0], source.gamepad.axes[1]]
+              value: [source.gamepad.axes[0], source.gamepad.axes[1]],
+              lifecycleState: LifecycleValue.STARTED
             })
           }
         }

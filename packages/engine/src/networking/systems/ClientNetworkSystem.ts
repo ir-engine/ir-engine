@@ -21,7 +21,7 @@ export class ClientNetworkSystem extends System {
    * Constructs the system. Adds Network Components, initializes transport and initializes server.
    * @param attributes Attributes to be passed to super class constructor.
    */
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     
     const { schema } = attributes;
@@ -33,6 +33,10 @@ export class ClientNetworkSystem extends System {
       Network.instance.transport.sendReliableData(buffer);
       // Network.instance.transport.sendData(buffer);
     });
+  }
+
+  dispose() {
+    EngineEvents.instance.removeAllListenersForEvent(ClientNetworkSystem.EVENTS.SEND_DATA);
   }
 
   /**

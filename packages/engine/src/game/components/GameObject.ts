@@ -4,14 +4,14 @@ import { Types } from "../../ecs/types/Types";
 /**
  * @author HydraFire <github.com/HydraFire>
  */
-export class GameObject extends Component<GameObject> {
-  game: Game | string
+export class GameObject extends Component<any> {
+  gameName: string
   role: string
   uuid: string
+  
+  static _schema = {
+    gameName: { type: Types.String, default: null },
+    role: { type: Types.String, default: null },
+    uuid: { type: Types.String, default: null }
+  }; 
 }
-
-GameObject._schema = {
-  game: { type: Types.Ref, default: null },
-  role: { type: Types.String, default: null },
-  uuid: { type: Types.String, default: null }
-};

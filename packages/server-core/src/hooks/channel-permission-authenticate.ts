@@ -20,7 +20,7 @@ export default () => {
         throw new Forbidden('You are not a member of that channel');
       }
     } else if (channel.channelType === 'group') {
-      const groupUser = await app.service('group-user').Model.findOne({
+      const groupUser = await (app.service('group-user') as any).Model.findOne({
         where: {
           groupId: channel.groupId,
           userId: userId
@@ -30,7 +30,7 @@ export default () => {
         throw new Forbidden('You are not a member of that channel');
       }
     } else if (channel.channelType === 'party') {
-      const partyUser = await app.service('party-user').Model.findOne({
+      const partyUser = await (app.service('party-user') as any).Model.findOne({
         where: {
           partyId: channel.partyId,
           userId: userId

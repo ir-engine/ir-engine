@@ -1,7 +1,8 @@
-import { isServer } from '../../common/functions/isServer';
+import { isClient } from '../../common/functions/isClient';
 import { Component } from '../../ecs/classes/Component';
 import { Entity } from '../../ecs/classes/Entity';
 import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { GameObject } from '../../game/components/GameObject';
 import { PrefabType } from "../../networking/templates/PrefabType";
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
@@ -66,13 +67,13 @@ function createNetworkPrefab( entity: Entity, prefab: NetworkPrefab, ownerId: st
     initComponents(entity, prefab.localClientComponents, overrideMaps.localClientComponents);
   }
 
-  if (!isServer && prefab.clientComponents)
+  if (isClient && prefab.clientComponents)
   // For each client component on the prefab...
   {
     initComponents(entity, prefab.clientComponents, overrideMaps.clientComponents);
   }
 
-  if (isServer)
+  if (!isClient)
   // For each server component on the prefab...
   {
     initComponents(entity, prefab.serverComponents, overrideMaps.serverComponents);
@@ -98,8 +99,6 @@ function createNetworkPrefab( entity: Entity, prefab: NetworkPrefab, ownerId: st
  */
 function initComponents(entity: Entity, components: Array<{ type: any, data?: any }>, override?: Map<any, any>) {
   components?.forEach(component => {
-    // The component to the entity
-    addComponent(entity, component.type);
 
     const initData = component.data ?? {};
     if (override.has(component.type)) {
@@ -107,15 +106,20 @@ function initComponents(entity: Entity, components: Array<{ type: any, data?: an
       Object.keys(overrideData).forEach(key => initData[key] = overrideData[key]);
     }
 
-    // If the component has no initialization data, return
-    if (typeof initData !== 'object' || Object.keys(initData).length === 0) return;
-    // Get a mutable reference to the component
-    const addedComponent = getMutableComponent(entity, component.type);
-    // Set initialization data for each key
-    Object.keys(initData).forEach(key => {
-      // Get the component on the entity, and set it to the initializing value from the prefab
-      addedComponent[key] = initData[key];
-    });
+    // The component to the entity
+    addComponent(entity, component.type, initData);
+
+    // // If the component has no initialization data, return
+    // if (typeof initData !== 'object' || Object.keys(initData).length === 0) return;
+    // // Get a mutable reference to the component
+    // const addedComponent = getMutableComponent(entity, component.type);
+
+    // return;
+    // // Set initialization data for each key
+    // Object.keys(initData).forEach(key => {
+    //   // Get the component on the entity, and set it to the initializing value from the prefab
+    //   addedComponent[key] = initData[key];
+    // });
   });
 }
 
@@ -134,13 +138,13 @@ function checkIfIdHavePrepair( uniqueId ) {
  *
  * @returns Newly created object.
  */
-export function initializeNetworkObject( args: { entity?: Entity, prefabType?: string | number, ownerId?: string, networkId?: number, uniqueId?: string, override?: any}): NetworkObject {
+export function initializeNetworkObject( args: { entity?: Entity, prefabType?: number, ownerId: string, networkId?: number, uniqueId: string, override?: any}): NetworkObject {
   // Instantiate into the world
   const entity = args.entity ?? createEntity();
   const prefabType = args.prefabType ?? Network.instance.schema.defaultClientPrefab;
   const ownerId = args.ownerId ?? 'server';
   const networkId = args.networkId ?? checkIfIdHavePrepair(args.uniqueId);
-  const uniqueId = args.uniqueId ?? 'character';
+  const uniqueId = args.uniqueId;
 
   const networkEntity = createNetworkPrefab(
     entity,
@@ -163,25 +167,8 @@ export function initializeNetworkObject( args: { entity?: Entity, prefabType?: s
     uniqueId
   };
 
-  if (isServer) {
-    Network.instance.createObjects.push({
-        networkId: networkId,
-        ownerId: ownerId,
-        prefabType: prefabType,
-        uniqueId: uniqueId,
-        x: 0,
-        y: 0,
-        z: 0,
-        qX: 0,
-        qY: 0,
-        qZ: 0,
-        qW: 1
-    });
-  }
-
   if (prefabType === PrefabType.Player && ownerId === (Network.instance).userId) {
-    // console.warn('Give Player Id by Server '+ networkId, ownerId, Network.instance.userId);
-    // console.warn(Network.instance.networkObjects);
+    // console.log('Give Player Id by Server', networkId, args.networkId, typeof networkId, typeof args.networkId, ownerId, Network.instance.userId);
     Network.instance.localAvatarNetworkId = networkId;
     Network.instance.localClientEntity = networkEntity;
   }

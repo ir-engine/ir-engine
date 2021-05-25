@@ -26,6 +26,7 @@ export interface GameStateActionMessage {
   role: string
   component: string
   uuid: string
+  componentArgs: string
 }
 
 export interface GameStateUpdateMessage {

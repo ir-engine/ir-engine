@@ -7,13 +7,18 @@ import {
   INSTANCE_REMOVED_ROW,
   LOCATION_TYPES_RETRIEVED,
   USER_ROLE_RETRIEVED,
-  USER_ROLE_CREATED
+  USER_ROLE_CREATED,
 } from '../../../world/reducers/actions';
 import {
   VIDEO_CREATED,
   VIDEO_DELETED,
-  VIDEO_UPDATED
+  VIDEO_UPDATED,
+  PARTY_ADMIN_CREATED,
+  PARTY_ADMIN_DISPLAYED,
+  USER_ADMIN_REMOVED,
+  USER_ADMIN_CREATED
 } from '../actions';
+import { User } from '@xrengine/common/src/interfaces/User';
 
 export interface VideoCreationForm {
   name: string;
@@ -97,6 +102,28 @@ export interface userRoleRetrievedResponse {
   types: any[];
 }
 
+export interface partyAdminCreatedResponse {
+  type: string,
+  data: any;
+}
+
+export interface userAdminRemovedResponse {
+  type: string;
+  data: any;
+}
+
+export interface UserCreatedAction {
+  type: string,
+  user: User
+}
+
+export function userCreated (user: User): UserCreatedAction {
+  return {
+    type: USER_ADMIN_CREATED,
+    user: user
+  };
+}
+
 export function videoCreated (data: VideoCreatedResponse): VideoCreatedAction {
   return {
     type: VIDEO_CREATED,
@@ -173,4 +200,26 @@ export const userRoleCreated = (data: any): userRoleRetrievedResponse => {
     type: USER_ROLE_CREATED,
     types: data
   }; 
+};
+
+
+export const partyAdminCreated = (data: any): partyAdminCreatedResponse => {
+  return {
+    type: PARTY_ADMIN_CREATED,
+    data: data
+  };
+};
+
+export const partyRetrievedAction = (data: any): partyAdminCreatedResponse => {
+  return {
+    type: PARTY_ADMIN_DISPLAYED,
+    data: data
+  };
+};
+
+export const userAdminRemoved = (data): userAdminRemovedResponse => {
+  return {
+    type: USER_ADMIN_REMOVED,
+    data: data
+  };
 };

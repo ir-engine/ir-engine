@@ -32,5 +32,5 @@ export default (app: Application): void => {
    */
   const service = app.service('magic-link');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

@@ -1,4 +1,5 @@
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers';
+import Paginated from '../../types/PageObject';
 import { Forbidden } from '@feathersjs/errors';
 import { Transaction } from 'sequelize/types';
 import { Application } from '../../../declarations';
@@ -25,6 +26,8 @@ export class PublishProject implements ServiceMethods<Data> {
     this.options = options;
     this.app = app;
   }
+
+  async setup() {}
 
   /**
    * A function which is used to display all published project 
@@ -58,7 +61,7 @@ export class PublishProject implements ServiceMethods<Data> {
    * @author Vyacheslav Solovjov
    */
   async create (data: any, params: Params): Promise<Data> {
-    const CollectionModel = this.app.service('collection').Model;
+    const CollectionModel = (this.app.service('collection') as any).Model;
     const projectId = params?.query?.projectId;
     // const loggedInUser = extractLoggedInUserFromParams(params)
     const provider = new StorageProvider();

@@ -19,6 +19,10 @@ import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { System, SystemAttributes } from '../../ecs/classes/System';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { ClientNetworkSystem } from './ClientNetworkSystem';
+import { ClientInputModel } from '../schema/clientInputSchema';
+import { Input } from '../../input/components/Input';
+import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
+import { Vault } from '../classes/Vault';
 
 /**
  * Apply State received over the network to the client.
@@ -71,6 +75,15 @@ function syncPhysicsObjects(objectToCreate) {
   }
 }
 
+function createEmptyNetworkObjectBeforeSceneLoad(args: { networkId: number, prefabType: number, uniqueId: string }) {
+  Network.instance.networkObjects[args.networkId] = {
+    ownerId: 'server',
+    prefabType: args.prefabType,
+    component: null,
+    uniqueId: args.uniqueId
+  };
+}
+
 
 /** System class for network system of client. */
 export class ClientNetworkStateSystem extends System {
@@ -85,20 +98,32 @@ export class ClientNetworkStateSystem extends System {
    * Constructs the system. Adds Network Components, initializes transport and initializes server.
    * @param attributes SystemAttributes to be passed to super class constructor.
    */
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     ClientNetworkStateSystem.instance = this;
-    
-    EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, ({ worldState }) => { 
+
+    EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, ({ worldState }) => {
       this.receivedServerState.push(worldState);
     });
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, ({ worldState }) => {
       this.receivedServerState.push(worldState);
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl');
+      const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+      const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+      const enableRenderer = !(/SwiftShader/.test(renderer));
+      canvas.remove();
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: enableRenderer, physics: true });
     })
     EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.RECEIVE_DATA, ({ unbufferedState, delta }) => {
       this.receivedServerState.push(unbufferedState);
     })
+  }
+
+  dispose() {
+    EngineEvents.instance.removeAllListenersForEvent(ClientNetworkSystem.EVENTS.RECEIVE_DATA);
+    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.CONNECT_TO_WORLD);
+    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.JOINED_WORLD);
   }
 
   /**
@@ -108,7 +133,6 @@ export class ClientNetworkStateSystem extends System {
    * @param delta Time since last frame.
    */
   execute = (delta: number): void => {
-
     const receivedClientInput = [...this.receivedServerState];
     this.receivedServerState = [];
     receivedClientInput?.forEach((worldStateBuffer: WorldStateInterface) => {
@@ -163,6 +187,10 @@ export class ClientNetworkStateSystem extends System {
       // Handle all network objects created this frame
       for (const objectToCreateKey in worldStateBuffer.createObjects) {
         const objectToCreate = worldStateBuffer.createObjects[objectToCreateKey];
+        if(!Network.instance.schema.prefabs[objectToCreate.prefabType]) {
+          console.log('prefabType not found', objectToCreate.prefabType)
+          continue;
+        }
 
         const isIdEmpty = Network.instance.networkObjects[objectToCreate.networkId] === undefined;
         const isIdFull = Network.instance.networkObjects[objectToCreate.networkId] != undefined;
@@ -188,12 +216,19 @@ export class ClientNetworkStateSystem extends System {
           } else if (objectToCreate.ownerId != Network.instance.userId) {
             createNetworkPlayer(objectToCreate);
           }
-        } else if (objectToCreate.prefabType === PrefabType.Vehicle) {
-          console.warn('*createObjects* creating space in networkObjects for futured object at id: ' + objectToCreate.networkId);
-          createNetworkVehicle({ networkId: objectToCreate.networkId, uniqueId: objectToCreate.uniqueId });
-        } else if (objectToCreate.prefabType === PrefabType.RigidBody) {
-          console.warn('*createObjects* creating space in networkObjects for futured object at id: ' + objectToCreate.networkId);
-          createNetworkRigidBody({ networkId: objectToCreate.networkId, uniqueId: objectToCreate.uniqueId });
+        } else {
+          let parameters;
+          try {
+            parameters = JSON.parse(objectToCreate.parameters.replace(/'/g, '"'));
+          } catch (e) { }
+          if(parameters) {
+            // we have parameters, so we should spawn the object in the world via the prefab type
+            Network.instance.schema.prefabs[objectToCreate.prefabType].initialize({ ...objectToCreate, parameters });
+          } else {
+            // otherwise this is for an object loaded via the scene, 
+            // so we just create a skeleton network object while we wait for the scene to load
+            createEmptyNetworkObjectBeforeSceneLoad(objectToCreate);
+          }
         }
       }
       syncNetworkObjectsTest(worldStateBuffer.createObjects)
@@ -253,8 +288,48 @@ export class ClientNetworkStateSystem extends System {
         delete Network.instance.networkObjects[networkId];
       })
     });
+
+    function sendOnes() {
+      let copy = [];
+      if (Network.instance.clientGameAction.length > 0) {
+        copy = Network.instance.clientGameAction;
+        Network.instance.clientGameAction = [];
+      }
+      return copy;
+    }
+
+    const inputSnapshot = Vault.instance?.get();
+    if (inputSnapshot !== undefined) {
+      this.queryResults.localClientInput.all?.forEach((entity) => {
+        const buffer = ClientInputModel.toBuffer(Network.instance.clientInputState);
+        EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.SEND_DATA, buffer }, false, [buffer]);
+        Network.instance.clientInputState = {
+          networkId: Network.instance.localAvatarNetworkId,
+          snapShotTime: inputSnapshot.time - Network.instance.timeSnaphotCorrection ?? 0,
+          buttons: [],
+          axes1d: [],
+          axes2d: [],
+          axes6DOF: [],
+          viewVector: {
+            x: 0, y: 0, z: 0
+          },
+          characterState: hasComponent(entity, CharacterComponent) ? getComponent(entity, CharacterComponent).state : 0,
+          clientGameAction: sendOnes(),// Network.instance.clientGameAction,
+          transforms: []
+        }
+      });
+    }
   }
 
+
   /** Queries for the system. */
-  static queries: any = {}
+  static queries: any = {
+    localClientInput: {
+      components: [Input, LocalInputReceiver, CharacterComponent],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+  }
 }

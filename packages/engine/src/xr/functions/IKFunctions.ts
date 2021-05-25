@@ -4,10 +4,7 @@ import { CharacterComponent } from "../../character/components/CharacterComponen
 import { IKComponent } from "../../character/components/IKComponent";
 import { Avatar } from "../classes/IKAvatar";
 import { AnimationComponent } from "../../character/components/AnimationComponent";
-import { clearBit, setBit } from "../../common/functions/bitFunctions";
-import { CHARACTER_STATES } from "../../character/state/CharacterStates";
 import { Network } from "../../networking/classes/Network";
-import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 
 /**
  * 
@@ -23,9 +20,6 @@ export function initiateIK(entity: Entity) {
   if(hasComponent(entity, AnimationComponent)) {
     removeComponent(entity, AnimationComponent);
   }
-  if(hasComponent(entity, FollowCameraComponent)) {
-    removeComponent(entity, FollowCameraComponent);
-  }
   const avatarIK = getMutableComponent(entity, IKComponent);
   avatarIK.avatarIKRig = new Avatar(actor.modelContainer.children[0], {
     debug: true,
@@ -37,7 +31,6 @@ export function initiateIK(entity: Entity) {
   if(Network.instance.localClientEntity === entity) {
     // avatarIK.avatarIKRig.decapitate()
   }
-  actor.state = setBit(actor.state, CHARACTER_STATES.VR);
 
 }
 
@@ -50,13 +43,7 @@ export function stopIK(entity) {
   if(!hasComponent(entity, AnimationComponent)) {
     addComponent(entity, AnimationComponent);
   }
-  if(!hasComponent(entity, FollowCameraComponent)) {
-    addComponent(entity, FollowCameraComponent);
-    // TODO: add params for follow cam
-  }
   if(hasComponent(entity, IKComponent)) {
     removeComponent(entity, IKComponent);
   }
-  const actor = getMutableComponent(entity, CharacterComponent);
-  actor.state = clearBit(actor.state, CHARACTER_STATES.VR);
 }

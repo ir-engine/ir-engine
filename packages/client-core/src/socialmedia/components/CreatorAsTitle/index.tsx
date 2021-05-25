@@ -2,14 +2,23 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators, Dispatch } from 'redux';
 
 import Typography from '@material-ui/core/Typography';
 import CardHeader from '@material-ui/core/CardHeader';
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import Avatar from '@material-ui/core/Avatar';
-import { bindActionCreators, Dispatch } from 'redux';
+
 import { updateCreatorPageState } from '../../reducers/popupsState/service';
-import { connect } from 'react-redux';
+import { selectPopupsState } from '../../reducers/popupsState/selector';
+
+
+const mapStateToProps = (state: any): any => {
+    return {      
+        popupsState: selectPopupsState(state),
+    };
+  };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
@@ -17,12 +26,23 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 interface Props{
     creator?: any;
+    popupsState?: any;
     updateCreatorPageState?: typeof updateCreatorPageState;
 }
-const CreatorAsTitle = ({creator, updateCreatorPageState} : Props) => { 
+const CreatorAsTitle = ({creator, updateCreatorPageState, popupsState} : Props) => { 
     return  creator ? 
                 <CardHeader
-                    avatar={<Avatar src={creator.avatar} alt={creator.username} onClick={()=>updateCreatorPageState(true, creator.id)}/>} 
+                    avatar={<Avatar src={creator.avatar} alt={creator.username} onClick={()=>{
+                        if(popupsState.get('creatorPage') === true){
+                            updateCreatorPageState(false);
+                            const intervalDelay = setTimeout(()=>{
+                                clearInterval(intervalDelay);
+                                updateCreatorPageState(true, creator.id);
+                                }, 100);
+                        }else{
+                            updateCreatorPageState(true, creator.id);
+                        }
+                    }}/>} 
                     title={<Typography variant="h6">
                     {creator.username}
                     {creator.verified === true && <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>}
@@ -31,4 +51,4 @@ const CreatorAsTitle = ({creator, updateCreatorPageState} : Props) => {
         :<></>;
 };
 
-export default connect(null, mapDispatchToProps)(CreatorAsTitle);
+export default connect(mapStateToProps, mapDispatchToProps)(CreatorAsTitle);

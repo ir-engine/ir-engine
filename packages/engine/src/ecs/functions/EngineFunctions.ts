@@ -1,46 +1,45 @@
 /** Functions to provide engine level functionalities. */
 
-import { XRFrame } from "three";
+import { AssetLoader } from "../../assets/classes/AssetLoader";
+import { disposeDracoLoaderWorkers } from "../../assets/functions/LoadGLTF";
 import { now } from "../../common/functions/now";
+import { Network } from "../../networking/classes/Network";
+import { Vault } from "../../networking/classes/Vault";
+import disposeScene from "../../renderer/functions/disposeScene";
 import { Engine } from '../classes/Engine';
-import { Entity } from "../classes/Entity";
 import { System } from '../classes/System';
-import { EngineOptions } from '../interfaces/EngineOptions';
 import { removeAllComponents, removeAllEntities } from "./EntityFunctions";
 import { executeSystem } from './SystemFunctions';
 import { SystemUpdateType } from "./SystemUpdateType";
 
-/**
- * Initialize options on the engine object and fire a command for devtools.\
- * **WARNING:** This is called by {@link initialize.initializeEngine | initializeEngine()}.\
- * You probably don't want to use this.
- * 
- * @author Fernando Serrano, Robert Long
- */
-export function initialize (options?: EngineOptions): void {
-  Engine.options = { ...Engine.options, ...options };
-  // if ( typeof window !== 'undefined' && typeof CustomEvent !== 'undefined') {
-  //   const event = new CustomEvent('world-created');
-  //   window.dispatchEvent(event);
-  // }
-
-  Engine.lastTime = now() / 1000;
-}
-
 /** Reset the engine and remove everything from memory. */
-export function reset(): void {
+export async function reset(): Promise<void> {
   console.log("RESETTING ENGINE");
+  // Stop all running workers
+  Engine.workers.forEach(w => w.terminate());
+  Engine.workers.length = 0;
+
+  disposeDracoLoaderWorkers();
+
   // clear all entities components
-  Engine.entities.forEach(entity => {
-    removeAllComponents(entity, false);
+  await new Promise<void>(resolve => {
+    Engine.entities.forEach(entity => {
+      removeAllComponents(entity, false);
+    });
+    setTimeout(() => {
+      executeSystemBeforeReset(); // for systems to handle components deletion
+      resolve();
+    }, 500);
   });
-  execute(0.001); // for systems to handle components deletion
 
-  // delete all entities
-  removeAllEntities();
-
-  // for systems to handle components deletion
-  execute(0.001);
+  await new Promise<void>(resolve => {
+    // delete all entities
+    removeAllEntities();
+    setTimeout(() => {
+      executeSystemBeforeReset(); // for systems to handle components deletion
+      resolve();
+    }, 500);
+  });
 
   if (Engine.entities.length) {
     console.log('Engine.entities.length', Engine.entities.length);
@@ -76,16 +75,28 @@ export function reset(): void {
 
   // delete all what is left on scene
   if (Engine.scene) {
-    // TODO: check if we need to add materials, textures, geometries detections and dispose() call?
+    disposeScene(Engine.scene);
     Engine.scene = null;
   }
 
   Engine.camera = null;
 
   if (Engine.renderer) {
+    Engine.renderer.clear(true, true, true);
     Engine.renderer.dispose();
     Engine.renderer = null;
   }
+
+  Network.instance.dispose();
+
+  Vault.instance.clear();
+  AssetLoader.Cache.clear();
+
+  // Engine.enabled = false;
+  Engine.gameMode = null;
+  Engine.inputState.clear();
+  Engine.prevInputState.clear();
+  Engine.viewportElement = null;
 }
 
 /**
@@ -107,6 +118,19 @@ export function execute (delta?: number, time?: number, updateType = SystemUpdat
   if (Engine.enabled) {
     Engine.systemsToExecute
       .forEach(system => executeSystem(system, delta, time, updateType));
+    processDeferredEntityRemoval();
+  }
+}
+
+function executeSystemBeforeReset() {
+  Engine.tick++;
+  const time = now() / 1000;
+  const delta = 0.001;
+  Engine.lastTime = time;
+
+  if (Engine.enabled) {
+    Engine.systemsToExecute
+      .forEach(system => executeSystem(system, delta, time, system.updateType));
     processDeferredEntityRemoval();
   }
 }
@@ -209,10 +233,8 @@ export function stats (): { entities: any; system: any } {
 
 /** Reset the engine and clear all the timers. */
 export function resetEngine():void {
-  if (Engine.engineTimerTimeout) {
-    clearTimeout(Engine.engineTimerTimeout);
-  }
-  Engine.engineTimer?.stop();
+  Engine.engineTimer?.clear();
+  Engine.engineTimer = null;
 
   reset();
 }

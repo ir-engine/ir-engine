@@ -31,5 +31,5 @@ export default (app: Application): any => {
    */
   const service = app.service('scene-listing');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

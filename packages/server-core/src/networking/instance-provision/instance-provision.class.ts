@@ -1,4 +1,4 @@
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers';
 import { Application } from '../../../declarations';
 import {BadRequest} from '@feathersjs/errors';
 import _ from 'lodash';
@@ -30,6 +30,8 @@ export class InstanceProvision implements ServiceMethods<Data> {
     this.options = options;
     this.app = app;
   }
+
+  async setup() {}
 
   /**
    * An method which start server for instance 
@@ -67,7 +69,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
    */
 
   async getGSInService(availableLocationInstances): Promise<any> {
-    const instanceModel = this.app.service('instance').Model;
+    const instanceModel = (this.app.service('instance') as any).Model;
     const instanceUserSort = _.sortBy(availableLocationInstances, (instance: typeof instanceModel) => instance.currentUsers);
     if (!config.kubernetes.enabled) {
       logger.info('Resetting local instance to ' + instanceUserSort[0].id);
@@ -139,7 +141,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
       if (channelId != null) {
         // Check if JWT resolves to a user
         if (token != null) {
-          const authResult = await this.app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
+          const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate({accessToken: token}, {});
           const identityProvider = authResult['identity-provider'];
           if (identityProvider != null) {
             userId = identityProvider.userId;
@@ -147,7 +149,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
             throw new BadRequest('Invalid user credentials');
           }
         }
-        const channelInstance = await this.app.service('instance').Model.findOne({
+        const channelInstance = await (this.app.service('instance') as any).Model.findOne({
           where: {
             channelId: channelId
           }
@@ -181,7 +183,7 @@ export class InstanceProvision implements ServiceMethods<Data> {
         }
         // Check if JWT resolves to a user
         if (token != null) {
-          const authResult = await this.app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
+          const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate({accessToken: token}, {});
           const identityProvider = authResult['identity-provider'];
           if (identityProvider != null) {
             userId = identityProvider.userId;
@@ -242,17 +244,17 @@ export class InstanceProvision implements ServiceMethods<Data> {
         //     }
         //   }
         // }
-        const friendsAtLocationResult = await this.app.service('user').Model.findAndCountAll({
+        const friendsAtLocationResult = await (this.app.service('user') as any).Model.findAndCountAll({
           include: [
             {
-              model: this.app.service('user-relationship').Model,
+              model: (this.app.service('user-relationship') as any).Model,
               where: {
                 relatedUserId: userId,
                 userRelationshipType: 'friend'
               }
             },
             {
-              model: this.app.service('instance').Model,
+              model: (this.app.service('instance') as any).Model,
               where: {
                 locationId: locationId
               }
@@ -291,13 +293,13 @@ export class InstanceProvision implements ServiceMethods<Data> {
             port: ipAddressSplit[1]
           };
         }
-        const availableLocationInstances = await this.app.service('instance').Model.findAll({
+        const availableLocationInstances = await (this.app.service('instance') as any).Model.findAll({
           where: {
             locationId: location.id
           },
           include: [
             {
-              model: this.app.service('location').Model,
+              model: (this.app.service('location') as any).Model,
               where: {
                 maxUsersPerInstance: {
                   [Op.gt]: Sequelize.col('instance.currentUsers')

@@ -3,11 +3,14 @@ import {
   InstanceRemovedResponse,
   InstancesRetrievedResponse,
   LocationTypesRetrievedResponse,
+  partyAdminCreatedResponse,
+  userAdminRemovedResponse,
+  UserCreatedAction,
   userRoleRetrievedResponse,
   VideoCreatedAction
 } from './actions';
 
-import { VIDEO_CREATED } from "../actions";
+import { VIDEO_CREATED , PARTY_ADMIN_CREATED, USER_ADMIN_CREATED,  PARTY_ADMIN_DISPLAYED, USER_ADMIN_REMOVED} from "../actions";
 import {
   LOCATIONS_RETRIEVED,
   LOCATION_CREATED,
@@ -79,6 +82,16 @@ export const initialAdminState = {
   },
   instances: {
     instances: [],
+    skip: 0,
+    limit: PAGE_LIMIT,
+    total: 0,
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true,
+    lastFetched: new Date()
+  },
+  parties: {
+    parties: [],
     skip: 0,
     limit: PAGE_LIMIT,
     total: 0,
@@ -231,6 +244,33 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('updateNeeded', true);
       return state
         .set('userRole', updateMap);
+
+    case PARTY_ADMIN_DISPLAYED: 
+      result = (action as partyAdminCreatedResponse).data;
+      updateMap = new Map(state.get("parties"));
+      updateMap.set("parties", result);
+      updateMap.set("updateNeeded", false);
+
+      return state.set("parties", updateMap);
+
+    case PARTY_ADMIN_CREATED: 
+      updateMap = new Map(state.get("parties"));
+      updateMap.set("updateNeeded", true);
+      return state.set("parties", updateMap);
+    
+    case USER_ADMIN_REMOVED: 
+      result = (action as userAdminRemovedResponse).data;
+      updateMap = new Map(state.get("users"));
+      let userRemove = updateMap.get('users');
+      userRemove = userRemove.filter(user => user.id !== result.id);
+      updateMap.set("updateNeeded", true);
+      updateMap.set('users', userRemove);
+      return state.set("users", updateMap);
+    case USER_ADMIN_CREATED: 
+      result = (action as UserCreatedAction).user;
+      updateMap = new Map(state.get("users"));
+      updateMap.set("updateNeeded", true);
+      return state.set("users", updateMap);
   }
 
   return state;

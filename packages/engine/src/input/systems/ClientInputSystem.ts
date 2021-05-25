@@ -57,7 +57,7 @@ export class ClientInputSystem extends System {
   mouseInputEnabled = true;
   keyboardInputEnabled = true;
 
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
 
     ClientInputSystem.instance = this;
@@ -118,7 +118,8 @@ export class ClientInputSystem extends System {
     });
     this.boundListeners.forEach(({ domElement, eventName, listener }) => {
       domElement.removeEventListener(eventName, listener);
-    })
+    });
+    EngineEvents.instance.removeAllListenersForEvent(ClientInputSystem.EVENTS.ENABLE_INPUT);
   }
 
   /**
@@ -127,7 +128,10 @@ export class ClientInputSystem extends System {
    */
 
   public execute(delta: number): void {
-    handleGamepads();
+    // we get XR gamepad input from XRSystem, grabbing from gamepad api again breaks stuff
+    if(!Engine.xrSession) {
+      handleGamepads();
+    }
     const newState = new Map();
     Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
       if (!Engine.prevInputState.has(key)) {
@@ -138,13 +142,15 @@ export class ClientInputSystem extends System {
         const prevValue = Engine.prevInputState.get(key);
         // auto ENDED when event not continue
         if (
-          prevValue.lifecycleState === LifecycleValue.STARTED &&
-          value.lifecycleState === LifecycleValue.STARTED
+          (prevValue.lifecycleState === LifecycleValue.STARTED &&
+          value.lifecycleState === LifecycleValue.STARTED)
+          || (prevValue.lifecycleState === LifecycleValue.CONTINUED &&
+            value.lifecycleState === LifecycleValue.STARTED)
         ) {
           // auto-switch to CONTINUED
           value.lifecycleState = LifecycleValue.CONTINUED;
-          Engine.inputState.set(key, value);
         }
+        return;
       }
 
       if (value.lifecycleState === LifecycleValue.ENDED) {
@@ -155,7 +161,6 @@ export class ClientInputSystem extends System {
       value.lifecycleState = JSON.stringify(value.value) === JSON.stringify(Engine.prevInputState.get(key).value)
         ? LifecycleValue.UNCHANGED
         : LifecycleValue.CHANGED;
-      Engine.inputState.set(key, value);
     });
 
     // deep copy

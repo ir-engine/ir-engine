@@ -38,9 +38,10 @@ const server = {
   mode: process.env.SERVER_MODE,
   hostname: process.env.SERVER_HOST,
   port: process.env.SERVER_PORT,
+  clientHost: process.env.APP_URL,
   // Public directory (used for favicon.ico, logo, etc)
-  rootDir: path.resolve(appRootPath.path, 'packages', 'server'),
-  publicDir: process.env.SERVER_PUBLIC_DIR || path.resolve(appRootPath.path, 'packages', 'server', 'public'),
+  rootDir: process.env.BUILD_MODE === 'individual' ? path.resolve(appRootPath.path) : path.resolve(appRootPath.path, 'packages', 'server'),
+  publicDir: process.env.SERVER_PUBLIC_DIR || (process.env.BUILD_MODE === 'individual' ? path.resolve(appRootPath.path, 'public') : path.resolve(appRootPath.path, 'packages', 'server', 'public')),
   nodeModulesDir: path.resolve(__dirname, '../..', 'node_modules'),
   localStorageProvider: process.env.LOCAL_STORAGE_PROVIDER,
   // Used for CI/tests to force Sequelize init an empty database
@@ -79,6 +80,7 @@ const client = {
 };
 
 const gameserver = {
+  clientHost: process.env.APP_URL,
   enabled: process.env.GAMESERVER_ENABLED === 'true',
   rtc_start_port: parseInt(process.env.RTC_START_PORT),
   rtc_end_port: parseInt(process.env.RTC_END_PORT),
@@ -227,7 +229,7 @@ const redis = {
   enabled: process.env.REDIS_ENABLED === 'true',
   address: process.env.REDIS_ADDRESS,
   port: process.env.REDIS_PORT,
-  password: process.env.REDIS_PASSWORD,
+  password: process.env.REDIS_PASSWORD == '' || process.env.REDIS_PASSWORD == null ? null : process.env.REDIS_PASSWORD,
 };
 
 /**

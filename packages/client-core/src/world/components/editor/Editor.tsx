@@ -2762,7 +2762,7 @@ export class Editor extends EventEmitter {
       this.getSpawnPosition(node.position);
       this.addObject(node, parent, before);
       await node.load(url);
-     } else if(url.contains(".drcs")) {
+     } else if(url.contains(".uvol")) {
       console.log("Dracosis volumetric file detected");
       node = new VolumetricNode(this);
       this.getSpawnPosition(node.position);

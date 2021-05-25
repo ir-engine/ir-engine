@@ -1,8 +1,8 @@
-import { Euler, Matrix4, Quaternion, Vector3 } from "three";
+import { Matrix4, Quaternion, Vector3 } from "three";
 import { addObject3DComponent } from '../../scene/behaviors/addObject3DComponent';
 import { CameraTagComponent } from '../../scene/components/Object3DTagComponents';
 import { isMobileOrTablet } from "../../common/functions/isMobile";
-import { NumericalType } from "../../common/types/NumericalTypes";
+import { NumericalType, Vector2Type } from "../../common/types/NumericalTypes";
 import { Engine } from '../../ecs/classes/Engine';
 import { System, SystemAttributes } from '../../ecs/classes/System';
 import { addComponent, createEntity, getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
@@ -14,15 +14,10 @@ import { FollowCameraComponent } from '../components/FollowCameraComponent';
 import { CameraModes } from "../types/CameraModes";
 import { Entity } from "../../ecs/classes/Entity";
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
-import { CollisionGroups } from "../../physics/enums/CollisionGroups";
 import { SceneQueryType } from "three-physx";
 import { Not } from "../../ecs/functions/ComponentFunctions";
 import { Input } from "../../input/components/Input";
-import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { BaseInput } from "../../input/enums/BaseInput";
-import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
-import { FirstPersonCameraComponent } from "../components/FirstPersonCameraComponent";
-import { CopyTransformComponent } from "../../transform/components/CopyTransformComponent";
 
 let direction = new Vector3();
 const upVector = new Vector3(0, 1, 0);
@@ -32,37 +27,6 @@ const PI_2Deg = Math.PI / 180;
 const mx = new Matrix4();
 const vec3 = new Vector3();
 
-let prevState;
-const emptyInputValue = [0, 0] as NumericalType;
-
-/**
- * Get Input data from the device.
- *
- * @param inputComponent Input component which is holding input data.
- * @param inputAxes Axes of the input.
- * @param prevValue
- *
- * @returns Input value from input component.
- */
- const getInputData = (inputComponent: Input, inputAxes: number, prevValue: NumericalType ): {
-  currentInputValue: NumericalType;
-  inputValue: NumericalType
-} => {
-  const result = {
-    currentInputValue: emptyInputValue,
-    inputValue: emptyInputValue,
-  }
-  if (!inputComponent?.data.has(inputAxes)) return result;
-
-  const inputData = inputComponent.data.get(inputAxes);
-  result.currentInputValue = inputData.value;
-  result.inputValue = inputData.lifecycleState === LifecycleValue.ENDED ||
-    JSON.stringify(result.currentInputValue) === JSON.stringify(prevValue)
-      ? emptyInputValue : result.currentInputValue;
-  return result;
-}
-
-
 /** System class which provides methods for Camera system. */
 export class CameraSystem extends System {
   static instance: CameraSystem;
@@ -71,7 +35,7 @@ export class CameraSystem extends System {
   prevState = [0, 0] as NumericalType;
 
   /** Constructs camera system. */
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     CameraSystem.instance = this;
     
@@ -111,16 +75,10 @@ export class CameraSystem extends System {
       const cameraFollow = getComponent(entity, FollowCameraComponent, true);
       PhysicsSystem.instance.removeRaycastQuery(cameraFollow.raycastQuery)
       const activeCameraComponent = getMutableComponent(CameraSystem.instance.activeCamera, CameraComponent);
-      activeCameraComponent.followTarget = null;
-      removeComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) as DesiredTransformComponent;
-    });
-
-    this.queryResults.firstPersonCameraComponent.added?.forEach(entity => {
-      addComponent(CameraSystem.instance.activeCamera, CopyTransformComponent, { input: entity });
-    });
-
-    this.queryResults.firstPersonCameraComponent.removed?.forEach(entity => {
-      removeComponent(CameraSystem.instance.activeCamera, CopyTransformComponent);
+      if (activeCameraComponent) {
+        activeCameraComponent.followTarget = null;
+        removeComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) as DesiredTransformComponent;
+      }
     });
 
     // follow camera component should only ever be on the character
@@ -149,8 +107,7 @@ export class CameraSystem extends System {
       // } else {
         const inputAxes = BaseInput.LOOKTURN_PLAYERONE;
       // }
-      const { inputValue, currentInputValue } = getInputData(inputComponent, inputAxes, prevState);
-      prevState = currentInputValue;
+      const inputValue = inputComponent.data.get(inputAxes)?.value ?? [0, 0] as Vector2Type;
 
       if(followCamera.locked && actor) {
         followCamera.theta = Math.atan2(actor.orientation.x, actor.orientation.z) * 180 / Math.PI + 180
@@ -161,6 +118,7 @@ export class CameraSystem extends System {
 
       followCamera.phi -= inputValue[1] * (isMobileOrTablet() ? 60 : 100);
       followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi));
+      actor.viewVector.y = followCamera.phi;
 
       let camDist = followCamera.distance;
       if (followCamera.mode === CameraModes.FirstPerson) camDist = 0.01;
@@ -214,7 +172,8 @@ export class CameraSystem extends System {
       //     cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
       // }
       // if (followCamera.mode === CameraModes.FirstPerson) {
-      //   cameraDesiredTransform.position.copy(targetPosition);
+      //   cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
+      //   cameraTransform.position.copy(cameraDesiredTransform.position);
       // }
       // apply user input
       
@@ -243,14 +202,8 @@ CameraSystem.queries = {
     components: [FollowCameraComponent, TransformComponent, CharacterComponent],
     listen: {
       added: true,
-      changed: true
+      changed: true,
+      removed: true,
     }
   },
-  firstPersonCameraComponent: {
-    components: [FirstPersonCameraComponent, TransformComponent, CharacterComponent],
-    listen: {
-      added: true,
-      changed: true
-    }
-  }
 };
