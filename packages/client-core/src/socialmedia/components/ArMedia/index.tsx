@@ -72,14 +72,14 @@ const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateWebXRState
             </section>
         )}
       </section>
-
+      {!selectedItem ? null :
         <Button className={styles.startRecirding} onClick={() => {
           updateArMediaState(false);
-          updateWebXRState(true, null);
+          updateWebXRState(true, selectedItem.id);
         }} variant="contained">
           {t('social:arMedia.start')}
         </Button>
-
+      }
     </section>;
 };
 
