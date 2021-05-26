@@ -80,7 +80,8 @@ function createEmptyNetworkObjectBeforeSceneLoad(args: { networkId: number, pref
     ownerId: 'server',
     prefabType: args.prefabType,
     component: null,
-    uniqueId: args.uniqueId
+    uniqueId: args.uniqueId,
+    parameters: ''
   };
 }
 
