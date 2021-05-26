@@ -21,10 +21,13 @@ import { updateNewFeedPageState, updateShareFormState, updateArMediaState } from
 import { selectPopupsState } from '../../reducers/popupsState/selector';
 import { selectWebXrNativeState } from "@xrengine/client-core/src/socialmedia/reducers/webxr_native/selector";
 import { changeWebXrNative } from "@xrengine/client-core/src/socialmedia/reducers/webxr_native/service";
+import Preloader from "@xrengine/client-core/src/socialmedia/components/Preloader";
+import {selectFeedsState} from "../../reducers/feed/selector";
 
 const mapStateToProps = (state: any): any => {
     return {
       popupsState: selectPopupsState(state),
+      feedsState: selectFeedsState(state),
       webxrnativeState: selectWebXrNativeState(state),
     };
   };
@@ -41,6 +44,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props{
     feed?:any;
     popupsState?: any;
+    feedsState?: any;
     createFeed?: typeof createFeed;
     updateFeedAsAdmin?: typeof updateFeedAsAdmin;
     updateNewFeedPageState?: typeof updateNewFeedPageState; 
@@ -48,7 +52,7 @@ interface Props{
     updateArMediaState?: typeof updateArMediaState;
     changeWebXrNative?: any
 }
-const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, updateShareFormState, updateArMediaState, popupsState, webxrnativeState, changeWebXrNative } : Props) => {
+const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, updateShareFormState, updateArMediaState, popupsState, feedsState, webxrnativeState, changeWebXrNative } : Props) => {
     const [isSended, setIsSended] = useState(false);
     const [isRecordVideo, setRecordVideo] = useState(false);
     const [isVideo, setIsVideo] = useState(false);
@@ -57,7 +61,6 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const [video, setVideo] = useState(null);
     const [videoUrl, setVideoUrl] = useState(null);
     const [preview, setPreview] = useState(null);
-    const [preloader, setPreloader] = useState(false)
     const titleRef = React.useRef<HTMLInputElement>();
     const textRef = React.useRef<HTMLInputElement>();
     const videoRef = React.useRef<HTMLInputElement>();
@@ -173,11 +176,13 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     // const handlePickVideo = async (file) => setVideo(popupsState?.get('videoPath'));
     // const handlePickPreview = async (file) => setPreview('');
 
+    const feedsFetching = feedsState.get('feedsFetching');
+
 return <section className={styles.feedFormContainer}>
     {/* <nav>               
         <Button variant="text" className={styles.backButton} onClick={()=>{updateArMediaState(true); updateNewFeedPageState(false);}}><ArrowBackIosIcon />{t('social:feedForm.back')}</Button>
     </nav>   */}
-    {/*  <div className={classes.ldsRing}><div></div><div></div><div></div><div></div></div>  */}
+    {feedsFetching && <Preloader />}
     {isSended ? 
         <Typography>{t('social:feedForm.thanks')}</Typography>
         :

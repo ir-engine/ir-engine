@@ -20,8 +20,9 @@
     }
     .flexContainer{
         display: flex;
+        padding: 0 9pt;
         .previewImageContainer{
-            margin: 10px;
+            margin: 7pt;
             text-align: center;
             color: rgba(60, 60, 67, 0.6);
             &:hover{

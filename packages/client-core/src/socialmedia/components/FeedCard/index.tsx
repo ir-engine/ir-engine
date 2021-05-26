@@ -147,11 +147,14 @@ const FeedCard = (props: Props) : any => {
         setFired(!!feedFiresCreators?.data.find(i=>i.id === creatorId));
     },[feedFiresCreators]);
 
+    useEffect(()=> {
+        setVideoDisplay(false);
+    },[feed.id]);
 
     const previewImageClick = () => {
-        setVideoDisplay(true)
-        addViewToFeed(feed.id)
-    }
+        setVideoDisplay(true);
+        addViewToFeed(feed.id);
+    };
 
 
     return  feed ? <><Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
