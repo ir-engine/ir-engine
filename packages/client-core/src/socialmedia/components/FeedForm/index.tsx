@@ -19,10 +19,13 @@ import styles from './FeedForm.module.scss';
 import { createFeed, updateFeedAsAdmin } from '../../reducers/feed/service';
 import { updateNewFeedPageState, updateShareFormState, updateArMediaState } from '../../reducers/popupsState/service';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
+import { selectWebXrNativeState } from "@xrengine/client-core/src/socialmedia/reducers/webxr_native/selector";
+import { changeWebXrNative } from "@xrengine/client-core/src/socialmedia/reducers/webxr_native/service";
 
 const mapStateToProps = (state: any): any => {
     return {
       popupsState: selectPopupsState(state),
+      webxrnativeState: selectWebXrNativeState(state),
     };
   };
 
@@ -32,6 +35,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
     updateShareFormState: bindActionCreators(updateShareFormState, dispatch),
     updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
+    changeWebXrNative: bindActionCreators(changeWebXrNative, dispatch)
 });
 
 interface Props{
@@ -42,8 +46,9 @@ interface Props{
     updateNewFeedPageState?: typeof updateNewFeedPageState; 
     updateShareFormState?: typeof updateShareFormState;
     updateArMediaState?: typeof updateArMediaState;
+    changeWebXrNative?: any
 }
-const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, updateShareFormState, updateArMediaState, popupsState } : Props) => { 
+const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, updateShareFormState, updateArMediaState, popupsState, webxrnativeState, changeWebXrNative } : Props) => {
     const [isSended, setIsSended] = useState(false);
     const [isRecordVideo, setRecordVideo] = useState(false);
     const [isVideo, setIsVideo] = useState(false);
@@ -153,7 +158,15 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         }).catch(error => console.log(error.message));
 
 
-    }, [] ); 
+    }, [] );
+
+    const closePopUp = () => {
+        updateNewFeedPageState(false)
+        const webxrRecorderActivity = webxrnativeState.get('webxrnative')
+        if(webxrRecorderActivity){
+            changeWebXrNative()
+        }
+    }
      
     
     useEffect(()=> {videoUrl && updateNewFeedPageState(false, null) && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
@@ -214,13 +227,22 @@ return <section className={styles.feedFormContainer}>
                 multiline
                 placeholder={t('social:feedForm.ph-type')}
                 />     */}
-            <Button
-                variant="contained"                
-                className={styles.submit}
-                onClick={()=>handleCreateFeed()}
-                >
-                {t('social:feedForm.lbl-share')}
-                </Button> 
+            <div className={styles.buttonWraper}>
+                <Button
+                    variant="contained"
+                    className={styles.submit}
+                    onClick={()=>handleCreateFeed()}
+                    >
+                        {t('social:feedForm.lbl-share')}
+                    </Button>
+                <Button
+                    variant="contained"
+                    className={styles.submit}
+                    onClick={()=>closePopUp()}
+                    >
+                        Cancel
+                    </Button>
+            </div>
 
                 
             {isRecordVideo === true && 

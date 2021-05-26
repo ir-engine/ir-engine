@@ -41,16 +41,14 @@ import { getInteractiveIsInReachDistance } from './functions/getInteractiveIsInR
 
 const interact: Behavior = (entity: Entity, args: any = { side: ParityValue }, delta): void => {
 
-  interactOnServer(entity, args); //TODO: figure out all this cases
-  
-  const equipperComponent = getComponent(entity, EquipperComponent)
-  if(equipperComponent) {
+  if (!isClient) {
+    //TODO: all this function needs to re-think
+    interactOnServer(entity, args); //TODO: figure out all this cases
     return;
   }
 
-
-  if (!isClient) {
-    //TODO: all this function needs to re-think
+  const equipperComponent = getComponent(entity, EquipperComponent)
+  if(equipperComponent) {
     return;
   }
 
