@@ -166,6 +166,7 @@ export class WebGLRendererSystem extends System {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
       this.enabled = ev.renderer;
     });
+    this.enabled = false;
   }
 
   async initialize() {
