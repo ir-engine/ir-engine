@@ -1,4 +1,4 @@
-import { Engine, PositionalAudio } from '../../ecs/classes/Engine';
+import { Engine, PositionalAudio, AudioListener } from '../../ecs/classes/Engine';
 import { System, SystemAttributes } from '../../ecs/classes/System';
 import {
   getComponent,
@@ -11,6 +11,7 @@ import { MediaStreamSystem } from '../../networking/systems/MediaStreamSystem';
 import { CharacterComponent } from '../../character/components/CharacterComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent';
+import { isClient } from '../../common/functions/isClient';
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== "undefined" && /chrome/i.test(navigator.userAgent);
 function createSilentAudioEl(streamsLive) {
@@ -22,12 +23,21 @@ function createSilentAudioEl(streamsLive) {
   return audioEl;
 }
 
+const createAudioContext = () => {
+  if(isClient) {
+    Engine.audioListener = new AudioListener();
+    Engine.camera.add(Engine.audioListener);
+  }
+  PositionalAudioSystem.instance.audioInitialised = true;
+}
+
 /** System class which provides methods for Positional Audio system. */
 export class PositionalAudioSystem extends System {
   /** Static instance for positional audio. */
   public static instance: PositionalAudioSystem = null
 
   characterAudioStream = new Map();
+  audioInitialised: boolean = false;
 
   /** Constructs Positional Audio System. */
   constructor(attributes: SystemAttributes = {}) {
@@ -39,6 +49,7 @@ export class PositionalAudioSystem extends System {
   /** Execute the positional audio system for different events of queries. */
   execute(): void {
     for (const entity of this.queryResults.audio.added) {
+      if(!this.audioInitialised) createAudioContext();
       const positionalAudio = getMutableComponent(entity, PositionalAudioComponent);
       if (positionalAudio != null) positionalAudio.value = new PositionalAudio(Engine.audioListener);
     }

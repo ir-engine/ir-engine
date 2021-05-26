@@ -20,7 +20,6 @@ export function initiateIK(entity: Entity) {
   if(hasComponent(entity, AnimationComponent)) {
     removeComponent(entity, AnimationComponent);
   }
-  // return // uncomment this if IK lags VR
   const avatarIK = getMutableComponent(entity, IKComponent);
   avatarIK.avatarIKRig = new Avatar(actor.modelContainer.children[0], {
     debug: true,
