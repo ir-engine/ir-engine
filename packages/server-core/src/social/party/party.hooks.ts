@@ -22,7 +22,7 @@ export default {
           query: {
             userId: loggedInUser.userId
           }
-        });
+        });     
         if (currentPartyUser.total > 0) {
           try {
             await context.app.service('party-user').remove(currentPartyUser.data[0].id);

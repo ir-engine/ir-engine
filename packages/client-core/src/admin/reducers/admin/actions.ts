@@ -8,6 +8,7 @@ import {
   LOCATION_TYPES_RETRIEVED,
   USER_ROLE_RETRIEVED,
   USER_ROLE_CREATED,
+  USER_ROLE_UPDATED
 } from '../../../world/reducers/actions';
 import {
   VIDEO_CREATED,
@@ -16,7 +17,8 @@ import {
   PARTY_ADMIN_CREATED,
   PARTY_ADMIN_DISPLAYED,
   USER_ADMIN_REMOVED,
-  USER_ADMIN_CREATED
+  USER_ADMIN_CREATED,
+  USER_ADMIN_PATCHED
 } from '../actions';
 import { User } from '@xrengine/common/src/interfaces/User';
 
@@ -124,6 +126,13 @@ export function userCreated (user: User): UserCreatedAction {
   };
 }
 
+export function userPatched ( user: User ): UserCreatedAction {
+  return {
+    type: USER_ADMIN_PATCHED,
+    user: user
+  };
+}
+
 export function videoCreated (data: VideoCreatedResponse): VideoCreatedAction {
   return {
     type: VIDEO_CREATED,
@@ -220,6 +229,13 @@ export const partyRetrievedAction = (data: any): partyAdminCreatedResponse => {
 export const userAdminRemoved = (data): userAdminRemovedResponse => {
   return {
     type: USER_ADMIN_REMOVED,
+    data: data
+  };
+};
+
+export const userRoleUpdated = (data: any): any => {
+  return {
+    type: USER_ROLE_UPDATED,
     data: data
   };
 };

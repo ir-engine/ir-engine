@@ -16,7 +16,9 @@ import {
   partyAdminCreated,
   partyRetrievedAction,
   userAdminRemoved, 
-  userCreated
+  userCreated,
+  userPatched,
+  userRoleUpdated
 } from './actions';
 
 import axios from 'axios';
@@ -26,7 +28,7 @@ import { dispatchAlertSuccess, dispatchAlertError } from '../../../common/reduce
 import { PublicVideo, videosFetchedSuccess, videosFetchedError } from '../../../media/components/video/actions';
 import { locationsRetrieved, locationCreated, locationPatched, locationRemoved } from '../../../social/reducers/location/actions';
 import Store from '../../../store';
-import { loadedUsers, userPatched } from '../../../user/reducers/user/actions';
+import { loadedUsers } from '../../../user/reducers/user/actions';
 import { collectionsFetched } from '../../../world/reducers/scenes/actions';
 
 const store = Store.store;
@@ -273,10 +275,15 @@ if (!Config.publicRuntimeConfig.offlineMode) {
 }
 
 
-export const fetchUserRole = (data) => {
+export const fetchUserRole = () => {
   return async (dispatch: Dispatch): Promise<any> => {
-    const userRole = await client.service("user-role").find();
-    dispatch(userRoleRetrieved(userRole));
+    try {
+      const userRole = await client.service("user-role").find();
+      dispatch(userRoleRetrieved(userRole));
+    } catch (err) {
+      console.error(err);
+      dispatchAlertError(dispatch, err.message);
+    }
   };
 };
 
@@ -293,6 +300,7 @@ export const createAdminParty = (data) => {
       const result = await client.service("party").create(data);
       dispatch(partyAdminCreated(result));
     } catch (err) {
+      console.error(err);
       dispatchAlertError(dispatch, err.message);
     }
   };
@@ -320,3 +328,15 @@ export const fetchAdminParty = () => {
     }
   };
 }; 
+
+export const updateUserRole = (id: string, role: string ) => {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const userRole = await client.service("user").patch(id, { userRole: role });
+      dispatch(userRoleUpdated(userRole));
+    } catch (err) {
+      console.error(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+};

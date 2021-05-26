@@ -50,6 +50,12 @@ const useStyles = makeStyles({
         textDecoration: "none",
         color: "#000",
         marginRight: "10px"
+    },
+    spanDange: {
+        color: "#8C001A"
+    },
+    spanNone: {
+        color: "#808080"
     }
 });
 
@@ -91,7 +97,7 @@ const PartyTable = (props: Props) => {
     };
 
     React.useEffect(()=> {
-        if(user.id && adminParty.get('updateNeeded') == true){
+        if(user.id && adminParty.get('updateNeeded') === true){
             fetchAdminParty();
         }
     }, [authState, adminState]);
@@ -105,13 +111,13 @@ const PartyTable = (props: Props) => {
                 <>
                 <a href="#h" className={classes.actionStyle}> View </a>
                 <a href="#h" className={classes.actionStyle}> Edit </a>
-                <a href="#h" className={classes.actionStyle}> Delete </a>
+                <a href="#h" className={classes.actionStyle}><span className={classes.spanDange}>Delete</span></a>
             </>
             )
         };
    };
 
-   const rows = adminPartyData.map(el => createData(el.id, el.instance.ipAddress || "", el.location.name || "" ));
+   const rows = adminPartyData.map(el => createData(el.id, el.instance.ipAddress || <span className={classes.spanNone}>None</span>, el.location.name || <span className={classes.spanNone}>None</span> ));
 
     return (
         <div className={classes.root}>
@@ -151,7 +157,7 @@ const PartyTable = (props: Props) => {
             <TablePagination
                 rowsPerPageOptions={[10, 25, 100]}
                 component="div"
-                count={10}
+                count={rows.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onChangePage={handleChangePage}
