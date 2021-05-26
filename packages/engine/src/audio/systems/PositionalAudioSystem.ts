@@ -37,7 +37,7 @@ export class PositionalAudioSystem extends System {
   public static instance: PositionalAudioSystem = null
 
   characterAudioStream = new Map();
-  audioInitialised: boolean = false;
+  audioInitialised = false;
 
   /** Constructs Positional Audio System. */
   constructor(attributes: SystemAttributes = {}) {
