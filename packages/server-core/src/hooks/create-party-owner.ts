@@ -9,7 +9,7 @@ export default () => {
     
     const loggedInUser = extractLoggedInUserFromParams(context.params);
     const user = await context.app.service('user').get(loggedInUser.userId);
-    const ownerUser = user.location_admins.length > 0 ? user.location_admins.find(locationAdmin => locationAdmin.locationId === result.locationId) != null : false
+    const ownerUser = user.location_admins.length > 0 ? user.location_admins.find(locationAdmin => locationAdmin.locationId === result.locationId) != null : false;
     try  {
       await context.app.service('party-user').create({
         partyId: result.id,

@@ -8,6 +8,7 @@ import {
   LOCATION_TYPES_RETRIEVED,
   USER_ROLE_RETRIEVED,
   USER_ROLE_CREATED,
+  USER_ROLE_UPDATED
 } from '../../../world/reducers/actions';
 import {
   VIDEO_CREATED,
@@ -228,6 +229,13 @@ export const partyRetrievedAction = (data: any): partyAdminCreatedResponse => {
 export const userAdminRemoved = (data): userAdminRemovedResponse => {
   return {
     type: USER_ADMIN_REMOVED,
+    data: data
+  };
+};
+
+export const userRoleUpdated = (data: any): any => {
+  return {
+    type: USER_ROLE_UPDATED,
     data: data
   };
 };

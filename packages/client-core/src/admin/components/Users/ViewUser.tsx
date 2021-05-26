@@ -23,7 +23,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { fetchUserRole } from "../../reducers/admin/service";
 import { connect } from 'react-redux';
 import { client } from "../../../feathers";
-import { fetchAdminParty } from "../../reducers/admin/service";
+import { fetchAdminParty, updateUserRole } from "../../reducers/admin/service";
 import { useFormik } from 'formik';
 import { useStyles, useStyle } from "./styles";
 import { validationSchema } from "./validation";
@@ -39,6 +39,8 @@ interface Props {
     fetchUserRole?: any;
     fetchAdminParty?: any;
     patchUser?: any;
+    closeViewModel?: any;
+    updateUserRole?: any
 }
 
 const mapStateToProps = (state: any): any => {
@@ -51,13 +53,14 @@ const mapStateToProps = (state: any): any => {
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchUserRole: bindActionCreators(fetchUserRole, dispatch),
     fetchAdminParty: bindActionCreators(fetchAdminParty, dispatch),
-    patchUser: bindActionCreators(patchUser, dispatch)
+    patchUser: bindActionCreators(patchUser, dispatch),
+    updateUserRole: bindActionCreators(updateUserRole, dispatch)
 });
 
 const ViewUser = (props: Props) => {
     const classx = useStyle();
     const classes = useStyles();
-    const { open, handleClose, fetchUserRole, adminState, authState, userAdmin, fetchAdminParty, patchUser } = props;
+    const { open, handleClose, closeViewModel, fetchUserRole, adminState, authState, userAdmin, fetchAdminParty, patchUser, updateUserRole } = props;
     const [openDialog, setOpenDialog] = React.useState(false);
     const [status, setStatus] = React.useState("");
     const [editMode, setEditMode] = React.useState(false);
@@ -90,6 +93,7 @@ const ViewUser = (props: Props) => {
         }
     }, [adminState, user]);
 
+
     const defaultProps = {
         options: userRoleData,
         getOptionLabel: (option: any) => option.role,
@@ -113,9 +117,7 @@ const ViewUser = (props: Props) => {
 
 
     const patchUserRole = async (user: any, role: string) => {
-        await client.service('user').patch(user, {
-            userRole: role
-        });
+        await updateUserRole(user, role);
         handleCloseDialog();
     };
 
@@ -123,20 +125,21 @@ const ViewUser = (props: Props) => {
         name: userAdmin.name,
         avatar: userAdmin.avatarId,
         inviteCode: userAdmin.inviteCode || "",
-    }
-    
+    };
+
     const formik = useFormik({
         initialValues: initialValue,
         validationSchema: validationSchema,
-        onSubmit: async (values ) => {
+        onSubmit: async (values) => {
             const data = {
                 name: values.name,
                 avatarId: values.avatar,
                 inviteCode: values.inviteCode,
                 instanceId: instance.id,
                 partyId: party.id
-            }
+            };
             patchUser(userAdmin.id, data);
+            closeViewModel(false);
         }
     });
 
@@ -148,7 +151,10 @@ const ViewUser = (props: Props) => {
                 onClose={handleClose(false)}
                 classes={{ paper: classx.paper }}
             >
-                <form onSubmit={formik.handleSubmit}>
+                <form onSubmit={(e) => {
+                    e.preventDefault();
+                    formik.handleSubmit(e);
+                }}>
                     {userAdmin &&
                         <Paper elevation={3} className={classes.paperHeight} >
                             <Container maxWidth="sm">
@@ -312,19 +318,19 @@ const ViewUser = (props: Props) => {
                                     <div>
                                         <Button type="submit" color="primary" >
                                             <span style={{ marginRight: "15px" }}><Save /></span> Submit
-                                    </Button>
+                                        </Button>
                                         <Button onClick={() => setEditMode(false)} color="primary">
                                             Clear
-                                   </Button>
+                                        </Button>
                                     </div>
                                     :
                                     <div>
-                                        <Button type="submit" color="primary" onClick={() => setEditMode(true)}>
-                                            <span style={{ marginRight: "15px" }}><Edit /></span> Edit
-                                    </Button>
-                                        <Button onClick={handleClose(false)} color="primary">
-                                            Cancel
-                                    </Button>
+                                        <a href="#h" className={classx.actionStyle} style={{ fontSize: "1.2rem", marginRight: "25px" }} onClick={() => setEditMode(true)}>
+                                            EDIT
+                                        </a>
+                                        <a href="#h" onClick={handleClose(false)} className={classx.actionStyle} style={{ fontSize: "1.2rem" }}>
+                                            CANCEL
+                                        </a>
                                     </div>
                             }
                         </DialogActions>

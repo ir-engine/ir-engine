@@ -1,5 +1,4 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -135,6 +134,10 @@ const UserTable = (props: Props) => {
             setViewModel(open);
         };
 
+    const closeViewModel = (open) => {
+        setViewModel(open);
+    };
+
     const createData = (id: any, user: any, name: string, avatar: string, status: string, location: string, inviteCode: string, instanceId: string): Data => {
         return {
             id,
@@ -230,6 +233,7 @@ const UserTable = (props: Props) => {
                     open={viewModel}
                     handleClose={openViewModel}
                     userAdmin={userAdmin}
+                    closeViewModel={closeViewModel}
                 />
             }
         </div>

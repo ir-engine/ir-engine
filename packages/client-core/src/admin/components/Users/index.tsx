@@ -67,19 +67,23 @@ const Users = () => {
         setValue(newValue);
     };
 
-    const openModalCreate = ( open: boolean) =>
-    (
-        event: React.KeyboardEvent | React.MouseEvent,
-      ) => {
-        if (
-          event.type === 'keydown' &&
-          ((event as React.KeyboardEvent).key === 'Tab' ||
-            (event as React.KeyboardEvent).key === 'Shift')
-        ) {
-          return;
-        }
+    const openModalCreate = (open: boolean) =>
+        (
+            event: React.KeyboardEvent | React.MouseEvent,
+        ) => {
+            if (
+                event.type === 'keydown' &&
+                ((event as React.KeyboardEvent).key === 'Tab' ||
+                    (event as React.KeyboardEvent).key === 'Shift')
+            ) {
+                return;
+            }
+            setUserModalOpen(open);
+        };
+
+    const closeViewModel = (open: boolean) => {
         setUserModalOpen(open);
-      };
+    };
 
 
     return (
@@ -110,16 +114,17 @@ const Users = () => {
                     scrollButtons="auto"
                     aria-label="scrollable auto tabs example"
                 >
-                    <Tab  label="USERS" {...a11yProps(0)} />
+                    <Tab label="USERS" {...a11yProps(0)} />
                 </Tabs>
                 <TabPanel value={value} index={0}>
-                  <UserTable />
+                    <UserTable />
                 </TabPanel>
             </div>
 
             <UserModel
                 open={userModalOpen}
                 handleClose={openModalCreate}
+                closeViewModel={closeViewModel}
             />
         </div>
     );

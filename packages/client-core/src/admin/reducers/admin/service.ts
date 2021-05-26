@@ -17,7 +17,8 @@ import {
   partyRetrievedAction,
   userAdminRemoved, 
   userCreated,
-  userPatched
+  userPatched,
+  userRoleUpdated
 } from './actions';
 
 import axios from 'axios';
@@ -274,10 +275,15 @@ if (!Config.publicRuntimeConfig.offlineMode) {
 }
 
 
-export const fetchUserRole = (data) => {
+export const fetchUserRole = () => {
   return async (dispatch: Dispatch): Promise<any> => {
-    const userRole = await client.service("user-role").find();
-    dispatch(userRoleRetrieved(userRole));
+    try {
+      const userRole = await client.service("user-role").find();
+      dispatch(userRoleRetrieved(userRole));
+    } catch (err) {
+      console.error(err);
+      dispatchAlertError(dispatch, err.message);
+    }
   };
 };
 
@@ -322,3 +328,15 @@ export const fetchAdminParty = () => {
     }
   };
 }; 
+
+export const updateUserRole = (id: string, role: string ) => {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const userRole = await client.service("user").patch(id, { userRole: role });
+      dispatch(userRoleUpdated(userRole));
+    } catch (err) {
+      console.error(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+};
