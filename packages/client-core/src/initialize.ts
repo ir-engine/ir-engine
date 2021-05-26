@@ -45,7 +45,7 @@ if (typeof window !== 'undefined') {
   (window as any).safariWebBrowser = browser?.name === 'safari';
 }
 
-const isHMD = /Oculus/i.test(navigator.platform)// || TODO: more HMDs
+const isHMD = /Oculus/i.test(navigator.platform);// || TODO: more HMDs
 
 /**
  *

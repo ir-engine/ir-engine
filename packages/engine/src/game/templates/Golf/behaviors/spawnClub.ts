@@ -60,22 +60,3 @@ export const spawnClub: Behavior = (entityPlayer: Entity, args?: any, delta?: nu
     parameters: JSON.stringify(parameters).replace(/"/g, '\''),
   })
 };
-
-export const updateClub: Behavior = (entity: Entity) => {
-  // client controls club and ball, so we don't need to worry about updating logic here on server
-  // if(!isClient) return;
-  // const collider = getComponent(entity, ColliderComponent)
-  // const obj3d = getComponent(entity, Object3DComponent).value
-  // const localActor = getComponent(Network.instance.localClientEntity, CharacterComponent)
-  // if(collider.body.type === BodyType.KINEMATIC) {
-  //   const theta = Math.atan2(localActor.orientation.x, localActor.orientation.z) * 180 / Math.PI + 180
-  //   const flatRot = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), (theta - 180) * (Math.PI / 180));
-  //   collider.body.shapes[0].transform.rotation.x = flatRot.x
-  //   collider.body.shapes[0].transform.rotation.y = flatRot.y
-  //   collider.body.shapes[0].transform.rotation.z = flatRot.z
-  //   collider.body.shapes[0].transform.rotation.w = flatRot.w
-  //   // child 1 is the club head
-  //   obj3d.children[1].quaternion.set(flatRot.x, flatRot.y, flatRot.z, flatRot.w)
-  //   console.log(localActor, theta, flatRot)
-  // }
-}

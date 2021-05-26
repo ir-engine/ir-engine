@@ -35,7 +35,8 @@ export const spawnBall = (playerEntity: Entity): void => {
   // console.log(ownerId, 'playerHasBall', playerHasBall)
 
   // if we already have a ball in the world, we shouldn't spawn a new one
-  if(playerHasBall) return;
+  /// TODO: just give them one until we have unspawning etc working
+  // if(playerHasBall) return;
 
   console.log('making ball for player', ownerId)
 

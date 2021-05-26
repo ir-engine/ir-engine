@@ -35,7 +35,7 @@ import { initScore, saveScore } from "./Golf/behaviors/saveScore";
 import { displayScore } from "./Golf/behaviors/displayScore";
 import { giveGoalState } from "./Golf/behaviors/giveGoalState";
 //
-import { spawnClub, updateClub } from "./Golf/behaviors/spawnClub";
+import { spawnClub } from "./Golf/behaviors/spawnClub";
 import { addBall } from "./Golf/behaviors/addBall";
 import { addHole } from "./Golf/behaviors/addHole";
 // checkers
@@ -455,11 +455,6 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       ]
     },
     'GolfClub': {
-      'align' : [
-        {
-          behavior: updateClub
-        }
-      ],
       'grab': [
         {
           behavior: grabEquippable,
