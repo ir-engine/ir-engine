@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styles from './FeedOnboarding.module.scss'
+import styles from './FeedOnboarding.module.scss';
 
 interface Props{
     setFeedOnborded?: setFeedOnborded
@@ -12,36 +12,36 @@ const FeedOnboarding = (props: Props) => {
     const { setFeedOnborded } = props;
 
     useEffect(()=>{
-        setTimeout(function(){
-            changeVisibility(true)
-        }, 1000)
-    }, [])
+        setTimeout(()=> {
+            changeVisibility(true);
+        }, 1000);
+    }, []);
 
     const closeFeedOnboarding = () => {
-        changeVisibility(false)
-        setTimeout(function(){
-            setFeedOnborded(true)
-        }, 1000)
-    }
+        changeVisibility(false);
+        setTimeout(()=> {
+            setFeedOnborded(true);
+        }, 1000);
+    };
     switch(screen){
 
         case(1):
             return <div className={!visibility ? styles.firstScreen
                     +" "+styles.onboarding+" "+styles.unvisibile : styles.firstScreen+" "+styles.onboarding}>
-                <button type="button" onClick={()=>{closeFeedOnboarding(true)}} className={styles.skip}>Skip</button>
+                <button type="button" onClick={()=>{closeFeedOnboarding();}} className={styles.skip}>Skip</button>
                 <div className={styles.relativeImage}>
                     <img src="/assets/feedOnboarding/plus.png" className={styles.mobImage} />
                     <ul className={styles.loadingFrame}>
-                        <div className={styles.circle}></div>
-                        <div className={styles.circle}></div>
-                        <div className={styles.circle}></div>
-                        <div className={styles.circle}></div>
-                        <div className={styles.circle}></div>
-                        <div className={styles.circle}></div>
-                        <div className={styles.circle}></div>
-                        <div className={styles.circle}></div>
-                        <div className={styles.circle}></div>
-                        <div className={styles.circle}></div>
+                        <div className={styles.circle} />
+                        <div className={styles.circle} />
+                        <div className={styles.circle} />
+                        <div className={styles.circle} />
+                        <div className={styles.circle} />
+                        <div className={styles.circle} />
+                        <div className={styles.circle} />
+                        <div className={styles.circle} />
+                        <div className={styles.circle} />
+                        <div className={styles.circle} />
                     </ul>
                     <p className={styles.offsetImg}>Click to create the new feed.</p>
                     <button type="button" onClick={()=>{setScreen(2);}}> Next </button>
@@ -54,22 +54,22 @@ const FeedOnboarding = (props: Props) => {
                     <img src="/assets/feedOnboarding/clip.png" className={styles.mobImage} />
                     <div className={styles.relativePointer}>
                         <ul className={styles.loadingFrame}>
-                            <div className={styles.circle}></div>
-                            <div className={styles.circle}></div>
-                            <div className={styles.circle}></div>
-                            <div className={styles.circle}></div>
-                            <div className={styles.circle}></div>
-                            <div className={styles.circle}></div>
-                            <div className={styles.circle}></div>
-                            <div className={styles.circle}></div>
-                            <div className={styles.circle}></div>
-                            <div className={styles.circle}></div>
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
                         </ul>
                         <p className={styles.offsetImg}>Select the clip.</p>
                     </div>
                 </div>
                 <button type="button" onClick={()=>{setScreen(3);}}> Next </button>
-                <button type="button" onClick={()=>{closeFeedOnboarding(true)}} className={styles.skip}>Skip</button>
+                <button type="button" onClick={()=>{closeFeedOnboarding();}} className={styles.skip}>Skip</button>
             </div>;
 
         case(3):
@@ -78,22 +78,22 @@ const FeedOnboarding = (props: Props) => {
                     <img src="/assets/feedOnboarding/camera.png" className={styles.mobImage} />
                     <div className={styles.relativePointer}>
                         <ul className={styles.loadingFrame}>
-                            <div className={styles.circle}></div>
-                            <div className={styles.circle}></div>
-                            <div className={styles.circle}></div>
-                            <div className={styles.circle}></div>
-                            <div className={styles.circle}></div>
-                            <div className={styles.circle}></div>
-                            <div className={styles.circle}></div>
-                            <div className={styles.circle}></div>
-                            <div className={styles.circle}></div>
-                            <div className={styles.circle}></div>
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
                         </ul>
                         <p className={styles.offsetImg}>Tab to set the figure on screen.</p>
                     </div>
                 </div>
-                <button type="button" onClick={()=>{closeFeedOnboarding(true)}}> Get Started ! </button>
-                <button type="button" onClick={()=>{closeFeedOnboarding(true)}} className={styles.skip}>Skip</button>
+                <button type="button" onClick={()=>{closeFeedOnboarding();}}> Get Started ! </button>
+                <button type="button" onClick={()=>{closeFeedOnboarding();}} className={styles.skip}>Skip</button>
             </div>;
         }
 };

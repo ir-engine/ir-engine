@@ -79,9 +79,9 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState, webxrnativeSt
   const webxrRecorderActivity = webxrnativeState.get('webxrnative');
 
   const changeOnboarding = () => {
-    setOnborded(true)
-    setFeedOnborded(false)
-  }
+    setOnborded(true);
+    setFeedOnborded(false);
+  };
 
   if(!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />;
 

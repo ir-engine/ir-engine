@@ -22,7 +22,7 @@ import { selectPopupsState } from '../../reducers/popupsState/selector';
 import { selectWebXrNativeState } from "@xrengine/client-core/src/socialmedia/reducers/webxr_native/selector";
 import { changeWebXrNative } from "@xrengine/client-core/src/socialmedia/reducers/webxr_native/service";
 import Preloader from "@xrengine/client-core/src/socialmedia/components/Preloader";
-import {selectFeedsState} from "../../reducers/feed/selector"
+import {selectFeedsState} from "../../reducers/feed/selector";
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -61,7 +61,6 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const [video, setVideo] = useState(null);
     const [videoUrl, setVideoUrl] = useState(null);
     const [preview, setPreview] = useState(null);
-    const [preloader, setPreloader] = useState(false);
     const titleRef = React.useRef<HTMLInputElement>();
     const textRef = React.useRef<HTMLInputElement>();
     const videoRef = React.useRef<HTMLInputElement>();
@@ -177,7 +176,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     // const handlePickVideo = async (file) => setVideo(popupsState?.get('videoPath'));
     // const handlePickPreview = async (file) => setPreview('');
 
-    const feedsFetching = feedsState.get('feedsFetching')
+    const feedsFetching = feedsState.get('feedsFetching');
 
 return <section className={styles.feedFormContainer}>
     {/* <nav>               

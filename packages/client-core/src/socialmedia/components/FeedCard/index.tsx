@@ -148,7 +148,7 @@ const FeedCard = (props: Props) : any => {
     },[feedFiresCreators]);
 
     useEffect(()=> {
-        setVideoDisplay(false)
+        setVideoDisplay(false);
     },[feed.id]);
 
     const previewImageClick = () => {
