@@ -26,7 +26,7 @@ import { EquippableAttachmentPoint } from '../../../../interaction/enums/Equippe
 * @author Josh Field <github.com/HexaField>
  */
 
-const clubPowerMultiplier = 5;
+const clubPowerMultiplier = 2;
 
 export const initializeGolfClub = (entity: Entity) => {
   // its transform was set in createGolfClubPrefab from parameters (its transform Golf Tee);
@@ -98,17 +98,33 @@ export const initializeGolfClub = (entity: Entity) => {
 
   const collider = getMutableComponent(entity, ColliderComponent);
   collider.body = body;
+  let hasBeenHit = false
+
+
+  // https://github.com/PersoSirEduard/OculusQuest-Godot-MiniGolfGame/blob/master/Scripts/GolfClub/GolfClub.gd#L18
 
   // temporary, once it's all working this will be a game mode behavior
   body.addEventListener(CollisionEvents.TRIGGER_START, (ev: ColliderHitEvent) => {
+    if(hasBeenHit) return;
+    // this is to ensure we dont have mutliple hits in a single swing, when we have 'turns' set up this can be removed 
+    hasBeenHit = true;
+    setTimeout(() => {
+      hasBeenHit = false
+    }, 500)
     const otherEntity = ev.bodyOther.userData as Entity;
     if(typeof otherEntity === 'undefined') return
     const ballObject = getComponent<GameObject>(otherEntity, GameObject)
     if(!ballObject || ballObject.role !== 'GolfBall') return;
+    // undo our delta so we get our transform velocity in units/second instead of units/frame
+    const invDelta = 1 / Engine.delta;
+    // force is in grams, we need it in kg, so x1000
+    const velocityMultiplier = invDelta * clubPowerMultiplier * 1000;
+    // console.log(ev.bodySelf.transform.linearVelocity.x, ev.bodySelf.transform.linearVelocity.z, velocityMultiplier);
+    // console.log(ev.bodySelf.transform.linearVelocity.x * velocityMultiplier, ev.bodySelf.transform.linearVelocity.z * velocityMultiplier);
     (ev.bodyOther as any).addForce({
-      x: ev.bodySelf.transform.linearVelocity.x * clubPowerMultiplier * 1000, // force is in grams, we need it in kg
-      y: ev.bodySelf.transform.linearVelocity.y * clubPowerMultiplier * 1000,
-      z: ev.bodySelf.transform.linearVelocity.z * clubPowerMultiplier * 1000,
+      x: ev.bodySelf.transform.linearVelocity.x * velocityMultiplier,
+      y: 0, // lock to XZ plane
+      z: ev.bodySelf.transform.linearVelocity.z * velocityMultiplier,
     })
   })
 

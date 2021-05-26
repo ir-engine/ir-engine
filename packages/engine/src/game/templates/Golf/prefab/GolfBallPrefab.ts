@@ -11,7 +11,7 @@ import { Group, Mesh, Vector3 } from 'three';
 import { AssetLoader } from '../../../../assets/classes/AssetLoader';
 import { Engine } from '../../../../ecs/classes/Engine';
 import { Body, BodyType, ColliderHitEvent, CollisionEvents, createShapeFromConfig, SHAPES } from 'three-physx';
-import { DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
+import { CollisionGroups, DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions';
 import { isClient } from '../../../../common/functions/isClient';
@@ -60,7 +60,7 @@ export const initializeGolfBall = (entity: Entity) => {
     config: {
       material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.9 },
       collisionLayer: GolfCollisionGroups.Ball,
-      collisionMask: DefaultCollisionMask | GolfCollisionGroups.Hole,
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.TrimeshColliders | GolfCollisionGroups.Hole,
     },
   });
 
