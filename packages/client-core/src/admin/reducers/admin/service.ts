@@ -16,7 +16,8 @@ import {
   partyAdminCreated,
   partyRetrievedAction,
   userAdminRemoved, 
-  userCreated
+  userCreated,
+  userPatched
 } from './actions';
 
 import axios from 'axios';
@@ -26,7 +27,7 @@ import { dispatchAlertSuccess, dispatchAlertError } from '../../../common/reduce
 import { PublicVideo, videosFetchedSuccess, videosFetchedError } from '../../../media/components/video/actions';
 import { locationsRetrieved, locationCreated, locationPatched, locationRemoved } from '../../../social/reducers/location/actions';
 import Store from '../../../store';
-import { loadedUsers, userPatched } from '../../../user/reducers/user/actions';
+import { loadedUsers } from '../../../user/reducers/user/actions';
 import { collectionsFetched } from '../../../world/reducers/scenes/actions';
 
 const store = Store.store;

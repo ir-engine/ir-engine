@@ -10,7 +10,7 @@ import {
   VideoCreatedAction
 } from './actions';
 
-import { VIDEO_CREATED , PARTY_ADMIN_CREATED, USER_ADMIN_CREATED,  PARTY_ADMIN_DISPLAYED, USER_ADMIN_REMOVED} from "../actions";
+import { VIDEO_CREATED , PARTY_ADMIN_CREATED, USER_ADMIN_CREATED, USER_ADMIN_PATCHED,  PARTY_ADMIN_DISPLAYED, USER_ADMIN_REMOVED} from "../actions";
 import {
   LOCATIONS_RETRIEVED,
   LOCATION_CREATED,
@@ -250,15 +250,12 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap = new Map(state.get("parties"));
       updateMap.set("parties", result);
       updateMap.set("updateNeeded", false);
-
       return state.set("parties", updateMap);
 
     case PARTY_ADMIN_CREATED: 
       
       updateMap = new Map(state.get("parties"));
       updateMap.set("updateNeeded", true);
-      console.log(updateMap);
-      
       return state.set("parties", updateMap);
     
     case USER_ADMIN_REMOVED: 
@@ -274,6 +271,11 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap = new Map(state.get("users"));
       updateMap.set("updateNeeded", true);
       return state.set("users", updateMap);
+    case USER_ADMIN_PATCHED: 
+      result = (action as UserCreatedAction).user;
+      updateMap = new Map(state.get("users"));
+      updateMap.set("updateNeeded", true);
+      return state.set("users", updateMap); 
   }
 
   return state;

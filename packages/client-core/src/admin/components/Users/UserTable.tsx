@@ -17,6 +17,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import ViewUser from "./ViewUser";
+import { useStyle } from "./styles";
 
 interface Column {
     id: 'name' | 'avatar' | 'status' | 'location' | 'inviteCode' | 'instanceId' | 'action';
@@ -71,24 +72,6 @@ interface Data {
     instanceId: string,
     action: any
 }
-
-const useStyles = makeStyles({
-    root: {
-        width: '100%',
-    },
-    container: {
-        maxHeight: "80vh",
-    },
-    actionStyle: {
-        textDecoration: "none",
-        color: "#000",
-        marginRight: "10px"
-    },
-    spanDange: {
-        color: "red"
-    }
-});
-
 interface Props {
     removeUserAdmin?: any;
     authState?: any;
@@ -110,7 +93,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const UserTable = (props: Props) => {
     const { removeUserAdmin, fetchUsersAsAdmin, authState, adminState } = props;
-    const classes = useStyles();
+    const classes = useStyle();
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [popConfirmOpen, setPopConfirmOpen] = React.useState(false);
@@ -173,11 +156,11 @@ const UserTable = (props: Props) => {
 
     const rows = adminUsers.map(el => {
         const loc = el.party.id ? el.party.location : null;
-        const loca = loc ? loc.name || <span className={classes.spanDange}>None</span> : <span className={classes.spanDange}>None</span>;
+        const loca = loc ? loc.name || <span className={classes.spanNone}>None</span> : <span className={classes.spanNone}>None</span>;
         const ins = el.party.id ? el.party.instance : null;
-        const inst = ins ? ins.ipAddress || <span className={classes.spanDange}>None</span> : <span className={classes.spanDange}>None</span>;
+        const inst = ins ? ins.ipAddress || <span className={classes.spanNone}>None</span> : <span className={classes.spanNone}>None</span>;
 
-        return createData(el.id, el, el.name, el.avatarId || <span className={classes.spanDange}>None</span>, el.userRole || <span className={classes.spanDange}>None</span>, loca, el.inviteCode || <span className={classes.spanDange}>None</span>, inst);
+        return createData(el.id, el, el.name, el.avatarId || <span className={classes.spanNone}>None</span>, el.userRole || <span className={classes.spanNone}>None</span>, loca, el.inviteCode || <span className={classes.spanNone}>None</span>, inst);
     });
 
 
@@ -233,19 +216,22 @@ const UserTable = (props: Props) => {
             >
                 <DialogTitle id="alert-dialog-title">Confirm to delete this user!</DialogTitle>
                 <DialogActions>
-                    <Button onClick={() => setPopConfirmOpen(false)} color="primary">
+                    <Button onClick={() => setPopConfirmOpen(false)} className={classes.spanNone}>
                         Cancel
                     </Button>
-                    <Button color="primary" onClick={async () => { await removeUserAdmin(userId); setPopConfirmOpen(false); }} autoFocus>
+                    <Button className={classes.spanDange} onClick={async () => { await removeUserAdmin(userId); setPopConfirmOpen(false); }} autoFocus>
                         Confirm
                     </Button>
                 </DialogActions>
             </Dialog>
-            <ViewUser
-                open={viewModel}
-                handleClose={openViewModel}
-                userAdmin={userAdmin}
-            />
+            {
+                userAdmin &&
+                <ViewUser
+                    open={viewModel}
+                    handleClose={openViewModel}
+                    userAdmin={userAdmin}
+                />
+            }
         </div>
     );
 };

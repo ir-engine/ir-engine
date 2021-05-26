@@ -16,7 +16,8 @@ import {
   PARTY_ADMIN_CREATED,
   PARTY_ADMIN_DISPLAYED,
   USER_ADMIN_REMOVED,
-  USER_ADMIN_CREATED
+  USER_ADMIN_CREATED,
+  USER_ADMIN_PATCHED
 } from '../actions';
 import { User } from '@xrengine/common/src/interfaces/User';
 
@@ -120,6 +121,13 @@ export interface UserCreatedAction {
 export function userCreated (user: User): UserCreatedAction {
   return {
     type: USER_ADMIN_CREATED,
+    user: user
+  };
+}
+
+export function userPatched ( user: User ): UserCreatedAction {
+  return {
+    type: USER_ADMIN_PATCHED,
     user: user
   };
 }
