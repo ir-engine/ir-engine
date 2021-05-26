@@ -1,6 +1,9 @@
 .mainBlock{
     display: flex;
 }
+//.dialogWindow{
+//    max-width: 311pt;
+//}
 .popup{
     //position: fixed;
     //top: 0;
@@ -43,7 +46,7 @@
     .title {
         align-self: center;
         letter-spacing: 0.36pt;
-        margin-top: 7%;
+        margin-top: 17pt;
         font-size: 28pt;
         color: #000;
         padding-bottom: 0;
@@ -113,6 +116,80 @@
         }
         .media2 {
             margin-top: 16pt;
+        }
+    }
+}
+@media screen and (orientation: landscape) {
+    .box{
+        display: none;
+    }
+    .dialogWindow{
+        max-width: 90% !important;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .horizontalMode{
+        display: flex;
+        justify-content: space-around;
+    }
+    .popup{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        .title{
+            margin-top: 0;
+            font-size: 21pt;
+        }
+        p{
+            font-size: 14pt;
+            max-width: unset;
+        }
+        .media2 {
+            margin-top: 0;
+        }
+    }
+}
+
+
+@keyframes ldsring {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+
+@media screen and (orientation: landscape) and (max-width: 899px) {
+    .popup{
+        .title{
+            font-size: 18pt;
+        }
+        p{
+            padding-bottom: 10pt;
+            line-height: 16pt;
+        }
+        .horizontalMode{
+            p{
+                padding-bottom: 0;
+            }
+        }
+        .media{
+            height: 55pt;
+            width: 55pt;
+            align-self: center;
+            background-position: 19pt 12pt;
+            background-size: 33%;
+        }
+        .media2{
+            height: 55pt;
+            width: 55pt;
+            background-position: 10.5pt 19pt;
+            background-size: 65%;
+        }
+        .btn_start {
+            padding: 6pt;
         }
     }
 }
