@@ -1,12 +1,10 @@
 import { Entity } from '../../../../ecs/classes/Entity';
-import { getComponent, getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions';
+import { getComponent } from '../../../../ecs/functions/EntityFunctions';
 import { NetworkObject } from '../../../../networking/components/NetworkObject';
 import { createGolfBallPrefab } from '../prefab/GolfBallPrefab';
 import { Network } from '../../../../networking/classes/Network';
 import { isClient } from '../../../../common/functions/isClient';
-import { GamePlayer } from '../../../components/GamePlayer';
-import { getEntityArrFromRole, getGame } from '../../../functions/functions';
-import { Game } from '../../../components/Game';
+import { getGame } from '../../../functions/functions';
 import { MathUtils } from 'three';
 import { GolfPrefabTypes } from '../GolfGameConstants';
 import { TransformComponent } from "../../../../transform/components/TransformComponent";
@@ -35,7 +33,8 @@ export const spawnBall = (playerEntity: Entity): void => {
   // console.log(ownerId, 'playerHasBall', playerHasBall)
 
   // if we already have a ball in the world, we shouldn't spawn a new one
-  if(playerHasBall) return;
+  /// TODO: just give them one until we have unspawning etc working
+  // if(playerHasBall) return;
 
   console.log('making ball for player', ownerId)
 

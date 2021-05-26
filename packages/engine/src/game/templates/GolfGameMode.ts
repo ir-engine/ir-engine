@@ -36,7 +36,7 @@ import { initScore, saveScore } from "./Golf/behaviors/saveScore";
 import { displayScore } from "./Golf/behaviors/displayScore";
 import { giveGoalState } from "./Golf/behaviors/giveGoalState";
 //
-import { addClub } from "./Golf/behaviors/addClub";
+import { spawnClub } from "./Golf/behaviors/spawnClub";
 import { addBall } from "./Golf/behaviors/addBall";
 import { addHole } from "./Golf/behaviors/addHole";
 // checkers
@@ -53,6 +53,9 @@ import { Network } from "../../networking/classes/Network";
 import { giveBall } from "./Golf/behaviors/giveBall";
 import { Entity } from "../../ecs/classes/Entity";
 import { GolfPrefabs } from "./Golf/GolfGameConstants";
+import { ColliderComponent } from "../../physics/components/ColliderComponent";
+import { BodyType } from "three-physx";
+import { Euler, Quaternion, Vector3 } from "three";
 
 
 
@@ -153,7 +156,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   ],
   initGameState: {
     'newPlayer': {
-      behaviors: [addRole, spawnBall]
+      behaviors: [addRole, spawnBall, spawnClub]
     },
     '1-Player': {
       behaviors: [addTurn, initScore]
@@ -165,7 +168,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       components: [SpawnedObject]
     },
     'GolfClub': {
-      behaviors: [addClub],
+      behaviors: [],
     },
     'GolfHole': {
       behaviors: [addHole, disableInteractive]

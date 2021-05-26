@@ -108,9 +108,6 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
   Engine.scene.add(Engine.camera);
 
   registerSystem(HighlightSystem);
-
-  Engine.audioListener = new AudioListener();
-  Engine.camera.add(Engine.audioListener);
   // registerSystem(PositionalAudioSystem);
 
   registerSystem(InteractiveSystem);

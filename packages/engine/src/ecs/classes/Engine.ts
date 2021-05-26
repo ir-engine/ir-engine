@@ -60,6 +60,7 @@ export class Engine {
   public static xrSupported = false;
 
   public static offlineMode = false;
+  public static isHMD = false;
 
   //public static stats: Stats
   // Move for sure
@@ -271,6 +272,13 @@ export class Engine {
   static systemsToExecute: any[] = []
   static vehicles: any;
   static lastTime: number;
+
+  /**
+   * The current frame delta for use if needed outside the execute loop (such as events and callbacks)
+   *
+   * @author Josh Field
+   */
+  static delta: number = 1/60;
   static tick = 0;
   /** HTML Element in which Engine renders. */
   static viewportElement: HTMLElement;
