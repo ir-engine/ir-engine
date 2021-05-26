@@ -154,7 +154,7 @@ export const correctState = (): void => {
 export const removeFromState = (entity: Entity): void => {
   const game = getGame(entity);
   const uuid = getUuid(entity);
-  const index = game.state.findIndex(v => v.uuid === uuid);
+  let index = game.state.findIndex(v => v.uuid === uuid);
   if (index === -1) {
     game.state.splice(index, 1);
   } else {
@@ -167,7 +167,7 @@ export const removeFromGame = (entity: Entity): void => {
   const role = getRole(entity);
   const uuid = getUuid(entity);
 
-  const index = game.gamePlayers[role].findIndex(v => v.uuid === uuid);
+  let index = game.gamePlayers[role].findIndex(v => v.uuid === uuid);
   if (index === -1) {
     game.gamePlayers[role].splice(index, 1);
   } else {
