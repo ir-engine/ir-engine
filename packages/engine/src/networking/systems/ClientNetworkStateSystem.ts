@@ -218,7 +218,7 @@ export class ClientNetworkStateSystem extends System {
             // we have parameters, so we should spawn the object in the world via the prefab type
             Network.instance.schema.prefabs[objectToCreate.prefabType].initialize({ ...objectToCreate, parameters });
           } else {
-            // otherwise this is for an object loaded via the scene, 
+            // otherwise this is for an object loaded via the scene,
             // so we just create a skeleton network object while we wait for the scene to load
             createEmptyNetworkObjectBeforeSceneLoad(objectToCreate);
           }

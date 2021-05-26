@@ -27,6 +27,10 @@ import { Vector3 } from 'three';
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
  */
+
+ const vec0 = new Vector3();
+ const vec1 = new Vector3();
+
 export class PhysicsSystem extends System {
   static EVENTS = {
     PORTAL_REDIRECT_EVENT: 'PHYSICS_SYSTEM_PORTAL_REDIRECT',
@@ -123,10 +127,18 @@ export class PhysicsSystem extends System {
 
       const transform = getComponent(entity, TransformComponent);
       if (collider.body.type === BodyType.KINEMATIC) {
-        const velocity = new Vector3().subVectors(transform.position, collider.lastPosition);
-        collider.lastPosition.copy(transform.position);
+        if(collider.lastPositions[1]) {
+          collider.body.transform.linearVelocity = vec0
+            .subVectors(transform.position, collider.lastPositions[0])
+            .add(vec1.subVectors(collider.lastPositions[0], collider.lastPositions[1]))
+            .multiplyScalar(0.5);
+        } else {
+          collider.lastPositions[1] = new Vector3();
+          collider.lastPositions[0] = new Vector3();
+        }
+        collider.lastPositions[1].copy(collider.lastPositions[0]);
+        collider.lastPositions[0].copy(transform.position);
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation });
-        collider.body.transform.linearVelocity = velocity;
       } else {
         // collider.lastPosition.copy(transform.position)
         transform.position.set(

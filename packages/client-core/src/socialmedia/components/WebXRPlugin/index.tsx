@@ -94,11 +94,23 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
         zy: null
     };
 
+    const onBackButton = () => {
+        if (recordingState === RecordingStates.ON) {
+            finishRecord();
+        } else {
+            // exit this popup
+            updateWebXRState(false, null);
+        }
+    };
+
     useEffect(() => {
         // console.log('WebXRComponent MOUNTED');
+        document.addEventListener("backbutton", onBackButton);
 
         return () => {
             // console.log('WebXRComponent UNMOUNT');
+            document.removeEventListener("backbutton", onBackButton);
+
             if (playerRef.current) {
                 console.log('WebXRComponent - dispose player');
                 playerRef.current.dispose();
@@ -108,6 +120,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
             // @ts-ignore
             Plugins.XRPlugin.stop({});
 
+            setContentHidden();
             // console.log('WebXRComponent - UNMOUNT END');
         };
     }, []);
@@ -397,7 +410,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
               updateWebXRState(false, null);
 
               setRecordingState(RecordingStates.OFF);
-              setContentHidden();
+              // setContentHidden();
           }).catch(error => alert(error.message));
     };
 

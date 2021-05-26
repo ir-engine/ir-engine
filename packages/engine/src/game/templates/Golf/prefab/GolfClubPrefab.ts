@@ -26,7 +26,7 @@ import { EquippableAttachmentPoint } from '../../../../interaction/enums/Equippe
 * @author Josh Field <github.com/HexaField>
  */
 
-const clubPowerMultiplier = 2;
+const clubPowerMultiplier = 1;
 
 export const initializeGolfClub = (entity: Entity) => {
   // its transform was set in createGolfClubPrefab from parameters (its transform Golf Tee);
@@ -106,7 +106,7 @@ export const initializeGolfClub = (entity: Entity) => {
   // temporary, once it's all working this will be a game mode behavior
   body.addEventListener(CollisionEvents.TRIGGER_START, (ev: ColliderHitEvent) => {
     if(hasBeenHit) return;
-    // this is to ensure we dont have mutliple hits in a single swing, when we have 'turns' set up this can be removed 
+    // this is to ensure we dont have mutliple hits in a single swing, when we have 'turns' set up this can be removed
     hasBeenHit = true;
     setTimeout(() => {
       hasBeenHit = false
@@ -116,11 +116,18 @@ export const initializeGolfClub = (entity: Entity) => {
     const ballObject = getComponent<GameObject>(otherEntity, GameObject)
     if(!ballObject || ballObject.role !== 'GolfBall') return;
     // undo our delta so we get our transform velocity in units/second instead of units/frame
-    const invDelta = 1 / Engine.delta;
+    const deltaSeconds = Engine.delta * 1000;
     // force is in grams, we need it in kg, so x1000
-    const velocityMultiplier = invDelta * clubPowerMultiplier * 1000;
-    // console.log(ev.bodySelf.transform.linearVelocity.x, ev.bodySelf.transform.linearVelocity.z, velocityMultiplier);
-    // console.log(ev.bodySelf.transform.linearVelocity.x * velocityMultiplier, ev.bodySelf.transform.linearVelocity.z * velocityMultiplier);
+    const velocityMultiplier = deltaSeconds * clubPowerMultiplier * 1000;
+    // console.log(collider.lastPositions[0], collider.lastPositions[1])
+    // console.log(
+    //   Engine.delta,
+    //   velocityMultiplier,
+    //   ev.bodySelf.transform.linearVelocity.x,
+    //   ev.bodySelf.transform.linearVelocity.z, 
+    //   ev.bodySelf.transform.linearVelocity.x * deltaSeconds,
+    //   ev.bodySelf.transform.linearVelocity.z * deltaSeconds
+    //   );
     (ev.bodyOther as any).addForce({
       x: ev.bodySelf.transform.linearVelocity.x * velocityMultiplier,
       y: 0, // lock to XZ plane
@@ -138,6 +145,7 @@ export const createGolfClubPrefab = ( args:{ parameters?: any, networkId?: numbe
     uniqueId: args.uniqueId,
     ownerId: args.ownerId,
     networkId: args.networkId,
+    prefabParameters: args.parameters,
     override: {
       networkComponents: [
         {

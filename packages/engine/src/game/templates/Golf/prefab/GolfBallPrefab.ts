@@ -35,7 +35,7 @@ export const initializeGolfBall = (entity: Entity) => {
       return obj.ownerId === networkObject.ownerId;
   }).component;
   addComponent(entity, UserControlledColliderComponent, { ownerNetworkId: ownerNetworkObject.networkId });
-  
+
   if(isClient) {
     AssetLoader.load({
       url: Engine.publicPath + '/models/golf/golf_ball.glb',
@@ -84,6 +84,7 @@ export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: numbe
     uniqueId: args.uniqueId,
     ownerId: args.ownerId,
     networkId: args.networkId,
+    prefabParameters: args.parameters,
     override: {
       networkComponents: [
         {
