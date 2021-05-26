@@ -57,10 +57,11 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const [video, setVideo] = useState(null);
     const [videoUrl, setVideoUrl] = useState(null);
     const [preview, setPreview] = useState(null);
+    const [preloader, setPreloader] = useState(false)
     const titleRef = React.useRef<HTMLInputElement>();
     const textRef = React.useRef<HTMLInputElement>();
     const videoRef = React.useRef<HTMLInputElement>();
-	const { t } = useTranslation();
+    const { t } = useTranslation();
     const videoPath = popupsState?.get('videoPath');
     const { XRPlugin } = Plugins;
 
@@ -167,16 +168,16 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
             changeWebXrNative();
         }
     };
-     
-    
+
     useEffect(()=> {videoUrl && updateNewFeedPageState(false, null) && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
     // const handlePickVideo = async (file) => setVideo(popupsState?.get('videoPath'));
     // const handlePickPreview = async (file) => setPreview('');
-    
+
 return <section className={styles.feedFormContainer}>
     {/* <nav>               
         <Button variant="text" className={styles.backButton} onClick={()=>{updateArMediaState(true); updateNewFeedPageState(false);}}><ArrowBackIosIcon />{t('social:feedForm.back')}</Button>
     </nav>   */}
+    {/*  <div className={classes.ldsRing}><div></div><div></div><div></div><div></div></div>  */}
     {isSended ? 
         <Typography>{t('social:feedForm.thanks')}</Typography>
         :

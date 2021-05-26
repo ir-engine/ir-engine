@@ -9,4 +9,9 @@
             line-height: 2.25rem;;
         }
     }
-  }
+    @media screen and (orientation: landscape){
+        :global(.MuiDialog-paper){
+            max-width: 100%;
+        }
+    }
+}
