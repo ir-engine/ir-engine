@@ -115,7 +115,7 @@ export const applyState = (game: Game): void => {
     if (localUuids.every(uuid => uuid != v.uuid)) {
       // spawn
       if (v.components.some(s => s === 'SpawnedObject')) {
-        console.warn('SPAWN', v);
+        console.warn('NEED TO SPAWN', v);
       } else {
         console.warn('////////////////////////////////////////////////////////////////');
         console.warn('  WE HAVE A PROBLEM');
@@ -139,8 +139,8 @@ export const applyState = (game: Game): void => {
             console.warn("Couldn't find component", componentName);
         });
       } else {
-        console.warn('Local object dont have state, v.uuid != uuid');
-        console.warn( role, uuid );
+        console.log('Local object dont have state, v.uuid != uuid');
+        console.log( role, uuid );
       }
     })
   });
@@ -149,6 +149,30 @@ export const applyState = (game: Game): void => {
 
 export const correctState = (): void => {
   //TODO:
+};
+
+export const removeFromState = (entity: Entity): void => {
+  const game = getGame(entity);
+  const uuid = getUuid(entity);
+  let index = game.state.findIndex(v => v.uuid === uuid);
+  if (index === -1) {
+    game.state.splice(index, 1);
+  } else {
+    console.warn('cant remove from state, dont have it already', uuid);
+  }
+};
+
+export const removeFromGame = (entity: Entity): void => {
+  const game = getGame(entity);
+  const role = getRole(entity);
+  const uuid = getUuid(entity);
+
+  let index = game.gamePlayers[role].findIndex(v => v.uuid === uuid);
+  if (index === -1) {
+    game.gamePlayers[role].splice(index, 1);
+  } else {
+    console.warn('cant remove from gamePlayers, dont have it already', role, uuid);
+  }
 };
 
 export const addStateComponent = (entity: Entity, component: ComponentConstructor<Component<any>>): void => {

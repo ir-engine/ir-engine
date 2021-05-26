@@ -127,17 +127,21 @@ function copleNameRolesInOneString( object ) {
   return Object.assign(object, objectWithCorrectRoles);
 }
 
-const onGolfGameStart = (entity: Entity) => {
+const onGolfGameStart = (entity: Entity) => {}
 
+const onGolfGameLoading = (entity: Entity) => {
   // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
   Object.entries(GolfPrefabs).forEach(([prefabType, prefab]) => {
     Network.instance.schema.prefabs[prefabType] = prefab;
   })
 }
 
+
+
 export const GolfGameMode: GameMode = somePrepareFunction({
   name: "Golf",
   priority: 1,
+  onGameLoading: onGolfGameLoading,
   onGameStart: onGolfGameStart,
   registerActionTagComponents: [
     HaveBeenInteracted,
@@ -168,7 +172,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       components: [SpawnedObject]
     },
     'GolfClub': {
-      behaviors: [],
+      components: [SpawnedObject]
     },
     'GolfHole': {
       behaviors: [addHole, disableInteractive]

@@ -281,7 +281,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     transform.position = spawnPos.position;
     transform.rotation = spawnPos.rotation;
 
-    // Create a new worldtate object that we can fill
+    // Create a new worldState object that we can fill
     const worldState = {
         tick: Network.instance.tick,
         transforms: [],
@@ -297,13 +297,13 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
 
     // Get all network objects and add to createObjects
     Object.keys(Network.instance.networkObjects).forEach(networkId => {
-        worldState.createObjects.push({
-            prefabType: Network.instance.networkObjects[networkId].prefabType,
-            networkId: Number(networkId),
-            ownerId: Network.instance.networkObjects[networkId].ownerId,
-            uniqueId: Network.instance.networkObjects[networkId].uniqueId,
-            parameters: ''
-        });
+      worldState.createObjects.push({
+        prefabType: Network.instance.networkObjects[networkId].prefabType,
+        networkId: Number(networkId),
+        ownerId: Network.instance.networkObjects[networkId].ownerId,
+        uniqueId: Network.instance.networkObjects[networkId].uniqueId,
+        parameters: Network.instance.networkObjects[networkId].parameters // prefabParameters if from project scene, this is ''
+      });
     });
 
     // Get all clients and add to clientsConnected and push to world state frame
