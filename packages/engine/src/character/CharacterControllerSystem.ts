@@ -184,7 +184,7 @@ export class CharacterControllerSystem extends System {
     // temporarily disable animations on Oculus until we have buffer animation system / GPU animations
     if(!Engine.isHMD) {
       this.queryResults.animation.all?.forEach((entity) => {
-        // updateVectorAnimation(entity, delta)
+        updateVectorAnimation(entity, delta)
       })
     }
 

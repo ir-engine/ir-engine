@@ -109,11 +109,6 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 			controller.controller.radius = 0.25;
 			controller.controller.height = 1;
 		// }
-    actor.modelContainer.children[0]?.traverse((child) => {
-      if(child.visible) {
-        child.visible = false;
-      }
-    })
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 		if (hasComponent(entity, IKComponent)) {
 			// initiateIK(entity)

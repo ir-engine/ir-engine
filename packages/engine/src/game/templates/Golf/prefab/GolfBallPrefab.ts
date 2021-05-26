@@ -10,7 +10,7 @@ import { UserControlledColliderComponent } from '../../../../physics/components/
 import { Group, Mesh, Vector3 } from 'three';
 import { AssetLoader } from '../../../../assets/classes/AssetLoader';
 import { Engine } from '../../../../ecs/classes/Engine';
-import { Body, BodyType, createShapeFromConfig, SHAPES } from 'three-physx';
+import { Body, BodyType, ColliderHitEvent, CollisionEvents, createShapeFromConfig, SHAPES } from 'three-physx';
 import { DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions';
@@ -60,7 +60,7 @@ export const initializeGolfBall = (entity: Entity) => {
     config: {
       material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.9 },
       collisionLayer: GolfCollisionGroups.Ball,
-      collisionMask: DefaultCollisionMask | GolfCollisionGroups.Hole | GolfCollisionGroups.Club,
+      collisionMask: DefaultCollisionMask | GolfCollisionGroups.Hole,
     },
   });
 
@@ -69,7 +69,8 @@ export const initializeGolfBall = (entity: Entity) => {
     type:  BodyType.DYNAMIC,
     transform: {
       translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
-    }
+    },
+    userData: entity
   }));
 
   const collider = getMutableComponent(entity, ColliderComponent);

@@ -10,7 +10,7 @@ import { UserControlledColliderComponent } from '../../../../physics/components/
 import { BoxBufferGeometry, Group, Mesh, MeshStandardMaterial, Vector3 } from 'three';
 import { AssetLoader } from '../../../../assets/classes/AssetLoader';
 import { Engine } from '../../../../ecs/classes/Engine';
-import { Body, BodyType, createShapeFromConfig, SHAPES, Transform } from 'three-physx';
+import { Body, BodyType, ColliderHitEvent, CollisionEvents, createShapeFromConfig, SHAPES, Transform } from 'three-physx';
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions';
@@ -25,6 +25,8 @@ import { EquippableAttachmentPoint } from '../../../../interaction/enums/Equippe
 /**
 * @author Josh Field <github.com/HexaField>
  */
+
+const clubPowerMultiplier = 5;
 
 export const initializeGolfClub = (entity: Entity) => {
   // its transform was set in createGolfClubPrefab from parameters (its transform Golf Tee);
@@ -80,8 +82,9 @@ export const initializeGolfClub = (entity: Entity) => {
       translation: { x: 0.25, y: 0.1, z: -1.7 }
     }),
     config: {
+      isTrigger: true,
       collisionLayer: GolfCollisionGroups.Club,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Hole
+      collisionMask: GolfCollisionGroups.Ball// | CollisionGroups.Ground
     }
   });
 
@@ -95,6 +98,19 @@ export const initializeGolfClub = (entity: Entity) => {
 
   const collider = getMutableComponent(entity, ColliderComponent);
   collider.body = body;
+
+  // temporary, once it's all working this will be a game mode behavior
+  body.addEventListener(CollisionEvents.TRIGGER_START, (ev: ColliderHitEvent) => {
+    const otherEntity = ev.bodyOther.userData as Entity;
+    if(typeof otherEntity === 'undefined') return
+    const ballObject = getComponent<GameObject>(otherEntity, GameObject)
+    if(!ballObject || ballObject.role !== 'GolfBall') return;
+    (ev.bodyOther as any).addForce({
+      x: ev.bodySelf.transform.linearVelocity.x * clubPowerMultiplier * 1000, // force is in grams, we need it in kg
+      y: ev.bodySelf.transform.linearVelocity.y * clubPowerMultiplier * 1000,
+      z: ev.bodySelf.transform.linearVelocity.z * clubPowerMultiplier * 1000,
+    })
+  })
 
   equipEntity(ownerNetworkObject.entity, entity, EquippableAttachmentPoint.RIGHT_HAND);
 }
