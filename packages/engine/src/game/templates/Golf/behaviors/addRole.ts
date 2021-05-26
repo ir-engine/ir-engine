@@ -14,6 +14,5 @@ export const addRole: Behavior = (entity: Entity, args?: any, delta?: number, en
   const game = getGame(entity);
   const gameSchema = GamesSchema[game.gameMode];
   const newPlayerNumber = Object.keys(game.gamePlayers).reduce((acc,v) => acc + game.gamePlayers[v].length, 0);
-  console.log(Object.keys(gameSchema.gamePlayerRoles)[newPlayerNumber]);
   changeRole(entity, Object.keys(gameSchema.gamePlayerRoles)[newPlayerNumber]);
 };

@@ -91,7 +91,7 @@ export function Timer (
     if (last !== null) {
       delta = Math.min((time - last) / 1000, 10 / fixedRate); // limit to between 1 update in 10 frames, to not have wildly high delta
       accumulated = accumulated + delta;
-
+      Engine.delta = delta;
       if (fixedRunner) {
         tpsSubMeasureStart('fixed');
         fixedRunner.run(delta);

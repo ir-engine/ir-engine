@@ -451,7 +451,7 @@ export class InteractiveSystem extends System {
         const sixdof = input.value as SIXDOFType;
         actor.tiltContainer.updateMatrixWorld(true);
         vector3.set(sixdof.x, sixdof.y, sixdof.z).applyMatrix4(actor.tiltContainer.matrixWorld);
-        quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW).multiply(equipperTransform.rotation);
+        quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW).premultiply(equipperTransform.rotation);
       } else {
         vector3.set(-0.5, 0, 0).applyQuaternion(actor.tiltContainer.quaternion).add(equipperTransform.position);
         quat.setFromUnitVectors(new Vector3(0, 0, -1), actor.viewVector);
@@ -471,11 +471,13 @@ export class InteractiveSystem extends System {
       const equippedEntity = equipperComponent.equippedEntity;
       const equippedTransform = getComponent(equippedEntity, TransformComponent)
       const collider = getComponent(equippedEntity, ColliderComponent)
-      collider.body.type = BodyType.DYNAMIC;
-      collider.body.updateTransform({
-        translation: equippedTransform.position,
-        rotation: equippedTransform.rotation,
-      })
+      if(collider) {
+        collider.body.type = BodyType.DYNAMIC;
+        collider.body.updateTransform({
+          translation: equippedTransform.position,
+          rotation: equippedTransform.rotation,
+        })
+      }
       // send unequip to clients
       if(!isClient) {
         sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.FALSE] as EquippedStateUpdateSchema)

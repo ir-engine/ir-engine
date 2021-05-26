@@ -57,10 +57,11 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const [video, setVideo] = useState(null);
     const [videoUrl, setVideoUrl] = useState(null);
     const [preview, setPreview] = useState(null);
+    const [preloader, setPreloader] = useState(false)
     const titleRef = React.useRef<HTMLInputElement>();
     const textRef = React.useRef<HTMLInputElement>();
     const videoRef = React.useRef<HTMLInputElement>();
-	const { t } = useTranslation();
+    const { t } = useTranslation();
     const videoPath = popupsState?.get('videoPath');
     const { XRPlugin } = Plugins;
 
@@ -167,9 +168,6 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
             changeWebXrNative();
         }
     };
-    const [preloader, setPreloader] = useState(false)
-
-
 
     useEffect(()=> {videoUrl && updateNewFeedPageState(false, null) && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
     // const handlePickVideo = async (file) => setVideo(popupsState?.get('videoPath'));

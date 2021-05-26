@@ -6,7 +6,7 @@ import { TransformComponent } from "../../transform/components/TransformComponen
 import { getHandPosition, isInXR } from "../../xr/functions/WebXRFunctions";
 
 export const interactiveReachDistance = 3;
-export const interactiveReachDistanceVR = 1.5;
+export const interactiveReachDistanceVR = 3;
 
 export const getInteractiveIsInReachDistance = (entityUser: Entity, interactivePosition: Vector3, side: ParityValue): boolean => {
 

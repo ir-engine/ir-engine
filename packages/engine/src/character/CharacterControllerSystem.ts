@@ -19,6 +19,7 @@ import { CharacterComponent } from "./components/CharacterComponent";
 import { IKComponent } from "./components/IKComponent";
 import { updateVectorAnimation } from "./functions/updateVectorAnimation";
 import { loadActorAvatar } from "./prefabs/NetworkPlayerCharacter";
+import { Engine } from "../ecs/classes/Engine";
 
 const forwardVector = new Vector3(0, 0, 1);
 const prevControllerColliderPosition = new Vector3();
@@ -180,9 +181,12 @@ export class CharacterControllerSystem extends System {
       characterMoveBehavior(entity, delta);
     })
 
-    this.queryResults.animation.all?.forEach((entity) => {
-      updateVectorAnimation(entity, delta)
-    })
+    // temporarily disable animations on Oculus until we have buffer animation system / GPU animations
+    if(!Engine.isHMD) {
+      this.queryResults.animation.all?.forEach((entity) => {
+        updateVectorAnimation(entity, delta)
+      })
+    }
 
     this.queryResults.ikavatar.all?.forEach((entity) => {
       const ikComponent = getMutableComponent(entity, IKComponent);

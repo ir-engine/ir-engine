@@ -19,6 +19,7 @@ import { ParityValue } from "../../common/enums/ParityValue";
 import { Input } from "../../input/components/Input";
 import { BaseInput } from "../../input/enums/BaseInput";
 import { SIXDOFType } from "../../common/types/NumericalTypes";
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
 
 let head, controllerGripLeft, controllerLeft, controllerRight, controllerGripRight;
 
