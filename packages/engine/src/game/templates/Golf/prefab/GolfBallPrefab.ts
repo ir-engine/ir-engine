@@ -10,19 +10,16 @@ import { UserControlledColliderComponent } from '../../../../physics/components/
 import { Group, Mesh, Vector3 } from 'three';
 import { AssetLoader } from '../../../../assets/classes/AssetLoader';
 import { Engine } from '../../../../ecs/classes/Engine';
-import { Body, BodyType, createShapeFromConfig, SHAPES } from 'three-physx';
+import { Body, BodyType, ColliderHitEvent, CollisionEvents, createShapeFromConfig, SHAPES } from 'three-physx';
 import { DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
-import { addComponent, getComponent, getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions';
+import { addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions';
 import { isClient } from '../../../../common/functions/isClient';
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent';
 import { WebGLRendererSystem } from '../../../../renderer/WebGLRendererSystem';
-import { getGameEntityFromName, getGameFromName } from '../../../functions/functions';
 import { GameObject } from '../../../components/GameObject';
-import { onInteraction, onInteractionHover } from '../../../../scene/behaviors/createCommonInteractive';
-import { Interactable } from '../../../../interaction/components/Interactable';
-import { InterpolationComponent } from "../../../../physics/components/InterpolationComponent";
 import { NetworkObject } from '../../../../networking/components/NetworkObject';
+import { Network } from '../../../../networking/classes/Network';
 /**
 * @author Josh Field <github.com/HexaField>
  */
@@ -34,8 +31,11 @@ export const initializeGolfBall = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent);
 
   const networkObject = getComponent(entity, NetworkObject);
-  addComponent(entity, UserControlledColliderComponent, { ownerNetworkId: networkObject.networkId });
-
+  const ownerNetworkObject = Object.values(Network.instance.networkObjects).find((obj) => {
+      return obj.ownerId === networkObject.ownerId;
+  }).component;
+  addComponent(entity, UserControlledColliderComponent, { ownerNetworkId: ownerNetworkObject.networkId });
+  
   if(isClient) {
     AssetLoader.load({
       url: Engine.publicPath + '/models/golf/golf_ball.glb',
@@ -60,7 +60,7 @@ export const initializeGolfBall = (entity: Entity) => {
     config: {
       material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.9 },
       collisionLayer: GolfCollisionGroups.Ball,
-      collisionMask: DefaultCollisionMask | GolfCollisionGroups.Hole | GolfCollisionGroups.Club,
+      collisionMask: DefaultCollisionMask | GolfCollisionGroups.Hole,
     },
   });
 
@@ -69,7 +69,8 @@ export const initializeGolfBall = (entity: Entity) => {
     type:  BodyType.DYNAMIC,
     transform: {
       translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
-    }
+    },
+    userData: entity
   }));
 
   const collider = getMutableComponent(entity, ColliderComponent);
