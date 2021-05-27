@@ -22,6 +22,7 @@ import { NetworkObject } from '../../../../networking/components/NetworkObject';
 import { equipEntity } from '../../../../interaction/functions/equippableFunctions';
 import { Network } from '../../../../networking/classes/Network';
 import { EquippableAttachmentPoint } from '../../../../interaction/enums/EquippedEnums';
+import { GolfClubComponent } from '../components/GolfClubComponent';
 /**
 * @author Josh Field <github.com/HexaField>
  */
@@ -57,14 +58,12 @@ export const initializeGolfClub = (entity: Entity) => {
     AssetLoader.load({
       url: Engine.publicPath + '/models/golf/golf_club.glb',
     }, (group: Group) => {
-      console.log(group)
       const ballGroup = group.clone(true);
       ballGroup.castShadow = true;
       ballGroup.receiveShadow = true;
       (ballGroup.children[0] as Mesh).material && WebGLRendererSystem.instance.csm.setupMaterial((ballGroup.children[0] as Mesh).material);
       addComponent(entity, Object3DComponent, { value: ballGroup });
       Engine.scene.add(ballGroup);
-      console.log('loaded golf ball model')
     });
   }
 
@@ -91,11 +90,10 @@ export const initializeGolfClub = (entity: Entity) => {
 
   const collider = getMutableComponent(entity, ColliderComponent);
   collider.body = body;
-  let hasBeenHit = false
-
-
+  
   // https://github.com/PersoSirEduard/OculusQuest-Godot-MiniGolfGame/blob/master/Scripts/GolfClub/GolfClub.gd#L18
-
+  
+  let hasBeenHit = false
   // temporary, once it's all working this will be a game mode behavior
   body.addEventListener(CollisionEvents.TRIGGER_START, (ev: ColliderHitEvent) => {
     if(hasBeenHit) return;
@@ -112,15 +110,7 @@ export const initializeGolfClub = (entity: Entity) => {
     const clampedDelta = Math.max(1/30, Math.min(Engine.delta, 1/60)) * 1000;
     // force is in kg, we need it in grams, so x1000
     const velocityMultiplier = clampedDelta * clubPowerMultiplier * 1000;
-    // console.log(collider.lastPositions[0], collider.lastPositions[1])
-    // console.log(
-    //   clampedDelta,
-    //   velocityMultiplier,
-    //   ev.bodySelf.transform.linearVelocity.x,
-    //   ev.bodySelf.transform.linearVelocity.z, 
-    //   ev.bodySelf.transform.linearVelocity.x * clampedDelta,
-    //   ev.bodySelf.transform.linearVelocity.z * clampedDelta
-    // );
+    const { canDoChipShots } = getComponent(entity, GolfClubComponent);
     (ev.bodyOther as any).addForce({
       x: ev.bodySelf.transform.linearVelocity.x * velocityMultiplier,
       y: canDoChipShots ? ev.bodySelf.transform.linearVelocity.y * velocityMultiplier : 0, // lock to XZ plane if we disable chip shots
@@ -163,7 +153,8 @@ export const GolfClubPrefab: NetworkPrefab = {
     { type: TransformComponent },
     { type: ColliderComponent },
     { type: RigidBodyComponent },
-    { type: GameObject }
+    { type: GameObject },
+    { type: GolfClubComponent }
     // Local player input mapped to behaviors in the input map
   ],
   // These are only created for the local player who owns this prefab

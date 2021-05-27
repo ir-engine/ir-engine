@@ -33,6 +33,7 @@ ColliderComponent._schema = {
   type: { type: Types.String, default: 'box' },
   mass: { type: Types.Number, default: 0 },
   position: { type: Types.Ref, default: new Vector3() },
+  velocityPositionsToCalculate: { type: Types.Number, default: 4 },
   lastPosition: { type: Types.Array, default: [] },
   quaternion: { type: Types.Ref, default: new Quaternion() },
   scale: { type: Types.Ref, default: new Vector3() },
