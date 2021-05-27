@@ -35,7 +35,7 @@ async function run() {
     botManager.addBot("bot1");
     botManager.addBot("bot2");
 
-    botManager.addAction("bot1", BotAction.delay(Math.random() * 100000));
+    // botManager.addAction("bot1", BotAction.delay(Math.random() * 100000));
     botManager.addAction("bot1", BotAction.connect());
     botManager.addAction("bot1", BotAction.enterRoom(domain, locationName));
     botManager.addAction("bot1", BotAction.delay(10000));
