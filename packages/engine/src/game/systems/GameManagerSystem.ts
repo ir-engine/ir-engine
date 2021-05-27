@@ -78,6 +78,32 @@ export class GameManagerSystem extends System {
       console.log('CREATE GAME');
     });
 
+    // PLAYERS REMOVE
+    this.queryResults.gamePlayer.removed?.forEach(entity => {
+      this.queryResults.game.all?.forEach(entityGame => {
+        const game = getComponent(entityGame, Game);
+        const gamePlayer = getComponent(entity, GamePlayer, true);
+        if (gamePlayer.gameName != game.name) return;
+        const gameSchema = GamesSchema[game.gameMode];
+        gameSchema.onPlayerLeave(entity);
+        removeEntityFromState(gamePlayer, game);
+        clearRemovedEntitysFromGame(game);
+        console.warn('player remove');
+        game.gamePlayers[gamePlayer.role] = game.gamePlayers[gamePlayer.role].filter(entityFind => hasComponent(entityFind, GamePlayer))
+      })
+    });
+
+    // OBJECTS REMOVE
+    this.queryResults.gameObject.removed?.forEach(entity => {
+      this.queryResults.game.all?.forEach(entityGame => {
+        const game = getComponent(entityGame, Game);
+        const gameObject = getComponent(entity, GameObject, true);
+        if (gameObject.gameName != game.name) return;
+        removeEntityFromState(gameObject, game);
+        clearRemovedEntitysFromGame(game);
+      })
+    });
+
     this.queryResults.game.all?.forEach(entityGame => {
       const game = getComponent(entityGame, Game);
       const gameArea = game.gameArea;
@@ -234,18 +260,7 @@ export class GameManagerSystem extends System {
         requireState(game, gamePlayer);
       })
     });
-    // PLAYERS REMOVE
-    this.queryResults.gamePlayer.removed?.forEach(entity => {
-      this.queryResults.game.all?.forEach(entityGame => {
-        const game = getComponent(entityGame, Game);
-        const gamePlayer = getComponent(entity, GamePlayer, true);
-        if (gamePlayer.gameName != game.name) return;
-        const gameSchema = GamesSchema[game.gameMode];
-        gameSchema.onPlayerLeave(entity);
-        removeEntityFromState(gamePlayer, game);
-        clearRemovedEntitysFromGame(game);
-      })
-    });
+
     // OBJECTS ADDIND
     // its needet for allow dynamicly adding objects and exept errors when enitor gives object without created game
     this.queryResults.gameObject.added?.forEach(entity => {
@@ -266,16 +281,7 @@ export class GameManagerSystem extends System {
         }
       })
     });
-    // OBJECTS REMOVE
-    this.queryResults.gameObject.removed?.forEach(entity => {
-      this.queryResults.game.all?.forEach(entityGame => {
-        const game = getComponent(entityGame, Game);
-        const gameObject = getComponent(entity, GameObject, true);
-        if (gameObject.gameName != game.name) return;
-        removeEntityFromState(gameObject, game);
-        clearRemovedEntitysFromGame(game);
-      })
-    });
+
     // end of execute
   }
 }

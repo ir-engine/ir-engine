@@ -427,6 +427,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             }
           }
         },
+        /* NEED WORK
         {
           behavior: giveState,
           args: { on: 'target', component: Goal },
@@ -462,6 +463,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             }
           }
         },
+        */
       ]
     },
     'GolfClub': {
