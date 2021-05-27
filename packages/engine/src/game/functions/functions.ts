@@ -23,12 +23,14 @@ export const getEntityFromRoleUuid = (game: Game, role: string, uuid: string): E
 
 export const getEntityArrFromRole = (game: Game, role: string, ): Array<Entity> => (game.gameObjects[role] || game.gamePlayers[role]);
 
+
 export const getRole = (entity: Entity) => {
   return hasComponent(entity, GameObject) ? getComponent(entity, GameObject).role : getComponent(entity, GamePlayer).role;
 };
 export const setRole = (entity: Entity, newGameRole: string) => {
   return hasComponent(entity, GameObject) ? getMutableComponent(entity, GameObject).role = newGameRole : getMutableComponent(entity, GamePlayer).role = newGameRole;
 };
+
 export const getGame = (entity: Entity): Game => {
   const name = hasComponent(entity, GameObject) ? getComponent(entity, GameObject).gameName : getComponent(entity, GamePlayer).gameName;
   return getGameFromName(name);

@@ -136,6 +136,9 @@ const onGolfGameLoading = (entity: Entity) => {
   })
 }
 
+const onGolfPlayerLeave = (entity: Entity) => {
+  //console.warn('need clean score');
+}
 
 
 export const GolfGameMode: GameMode = somePrepareFunction({
@@ -143,6 +146,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   priority: 1,
   onGameLoading: onGolfGameLoading,
   onGameStart: onGolfGameStart,
+  onPlayerLeave: onGolfPlayerLeave, // not disconnected, in future we will allow to Leave game witout disconnect from location
   registerActionTagComponents: [
     HaveBeenInteracted,
     HasHadCollision
