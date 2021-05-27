@@ -134,7 +134,7 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
         return {...feed};
       })).set('feed', currentFeed ? {...currentFeed, viewsCount: ++currentFeed.viewsCount} : {});
     case ADD_FEED:
-      return state.set('feeds', [...state.get('feeds'), (action as FeedRetrievedAction).feed]);
+      return state.set('feeds', [...state.get('feeds'), (action as FeedRetrievedAction).feed]).set('feedsFetching', false);
 
     case ADD_FEED_FEATURED:
       return state.set('feedsCreator', state.get('feedsCreator').map(feed => {

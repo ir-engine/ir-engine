@@ -192,6 +192,7 @@ const initializeCharacter: Behavior = (entity): void => {
 			collisionMask: DefaultCollisionMask,
 			height: actor.actorHeight,
 			contactOffset: actor.contactOffset,
+      stepOffset: 0.25,
 			radius: actor.capsuleRadius,
 			position: {
 				x: transform.position.x,

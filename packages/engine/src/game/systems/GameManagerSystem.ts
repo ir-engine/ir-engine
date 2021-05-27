@@ -9,7 +9,7 @@ import { GameObject } from "../components/GameObject";
 import { GamePlayer } from "../components/GamePlayer";
 
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { initState, saveInitStateCopy, requireState, addStateComponent  } from '../functions/functionsState';
+import { initState, removeFromState, removeFromGame, saveInitStateCopy, requireState, addStateComponent  } from '../functions/functionsState';
 import { initStorage } from '../functions/functionsStorage';
 
 import { GamesSchema } from "../../game/templates/GamesSchema";
@@ -75,7 +75,7 @@ export class GameManagerSystem extends System {
       this.currentGames.set(game.name, game);
       // TODO: add start & stop functions to be able to start and end games
       gameSchema.onGameStart(entity);
-      console.warn('CREATE GAME');
+      console.log('CREATE GAME');
     });
 
     this.queryResults.game.all?.forEach(entityGame => {
@@ -97,6 +97,8 @@ export class GameManagerSystem extends System {
             if (v.inGameArea && hasComponent(v.entity, GamePlayer)) {
               if (getComponent(v.entity, GamePlayer).gameName != game.name) {
                 getGameFromName(getComponent(v.entity, GamePlayer).gameName).priority < game.priority;
+                removeFromGame(v.entity);
+                removeFromState(v.entity);
                 removeComponent(v.entity, GamePlayer);
               }
             } else if (v.inGameArea && !hasComponent(v.entity, GamePlayer)) {
@@ -108,6 +110,8 @@ export class GameManagerSystem extends System {
               });
             } else if (!v.inGameArea && hasComponent(v.entity, GamePlayer)) {
               if (getComponent(v.entity, GamePlayer).gameName === game.name) {
+                removeFromGame(v.entity);
+                removeFromState(v.entity);
                 removeComponent(v.entity, GamePlayer);
               }
             }
@@ -136,11 +140,14 @@ export class GameManagerSystem extends System {
         requireState(game, playerComp);
       });
       // PLAYERS
+      /*
       this.queryResults.gamePlayers.removed?.forEach(entity => {
         Object.keys(game.gamePlayers).forEach((role: string) => {
           game.gamePlayers[role] = game.gamePlayers[role].filter((entityFromState: Entity) => hasComponent(entityFromState, GamePlayer));
         });
+        console.warn(game.gamePlayers);
       });
+      */
       // MAIN EXECUTE
       const executeComplexResult = [];
       // its case beter then this.queryResults.gameObject.all, becose its sync execute all role groubs entity, and you not think about behavior do work on haotic case

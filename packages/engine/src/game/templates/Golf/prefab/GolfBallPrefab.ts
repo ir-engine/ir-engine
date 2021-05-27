@@ -11,7 +11,7 @@ import { Group, Mesh, Vector3 } from 'three';
 import { AssetLoader } from '../../../../assets/classes/AssetLoader';
 import { Engine } from '../../../../ecs/classes/Engine';
 import { Body, BodyType, ColliderHitEvent, CollisionEvents, createShapeFromConfig, SHAPES } from 'three-physx';
-import { DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
+import { CollisionGroups, DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions';
 import { isClient } from '../../../../common/functions/isClient';
@@ -35,7 +35,7 @@ export const initializeGolfBall = (entity: Entity) => {
       return obj.ownerId === networkObject.ownerId;
   }).component;
   addComponent(entity, UserControlledColliderComponent, { ownerNetworkId: ownerNetworkObject.networkId });
-  
+
   if(isClient) {
     AssetLoader.load({
       url: Engine.publicPath + '/models/golf/golf_ball.glb',
@@ -60,7 +60,7 @@ export const initializeGolfBall = (entity: Entity) => {
     config: {
       material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.9 },
       collisionLayer: GolfCollisionGroups.Ball,
-      collisionMask: DefaultCollisionMask | GolfCollisionGroups.Hole,
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.TrimeshColliders | GolfCollisionGroups.Hole,
     },
   });
 
@@ -84,6 +84,7 @@ export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: numbe
     uniqueId: args.uniqueId,
     ownerId: args.ownerId,
     networkId: args.networkId,
+    prefabParameters: args.parameters,
     override: {
       networkComponents: [
         {

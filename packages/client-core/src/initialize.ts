@@ -6,7 +6,7 @@ import { CharacterControllerSystem } from '@xrengine/engine/src/character/Charac
 import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
 import { Timer } from '@xrengine/engine/src/common/functions/Timer';
 import { DebugHelpersSystem } from '@xrengine/engine/src/debug/systems/DebugHelpersSystem';
-import { Engine, AudioListener } from '@xrengine/engine/src/ecs/classes/Engine';
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { EngineEvents, proxyEngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { execute } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions';
@@ -148,9 +148,6 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
 
       registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig });
       registerSystem(TransformSystem, { priority: 900 });
-      // audio breaks webxr currently
-      Engine.audioListener = new AudioListener();
-      Engine.camera.add(Engine.audioListener);
       registerSystem(PositionalAudioSystem);
       registerSystem(ParticleSystem);
       registerSystem(DebugHelpersSystem);
