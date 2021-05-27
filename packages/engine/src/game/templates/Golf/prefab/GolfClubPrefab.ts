@@ -116,18 +116,18 @@ export const initializeGolfClub = (entity: Entity) => {
     const ballObject = getComponent<GameObject>(otherEntity, GameObject)
     if(!ballObject || ballObject.role !== 'GolfBall') return;
     // undo our delta so we get our transform velocity in units/second instead of units/frame
-    const deltaSeconds = Engine.delta * 1000;
+    const clampedDelta = Math.max(1/30, Math.min(Engine.delta, 1/60)) * 1000;
     // force is in grams, we need it in kg, so x1000
-    const velocityMultiplier = deltaSeconds * clubPowerMultiplier * 1000;
-    // console.log(collider.lastPositions[0], collider.lastPositions[1])
-    // console.log(
-    //   Engine.delta,
-    //   velocityMultiplier,
-    //   ev.bodySelf.transform.linearVelocity.x,
-    //   ev.bodySelf.transform.linearVelocity.z, 
-    //   ev.bodySelf.transform.linearVelocity.x * deltaSeconds,
-    //   ev.bodySelf.transform.linearVelocity.z * deltaSeconds
-    //   );
+    const velocityMultiplier = clampedDelta * clubPowerMultiplier * 1000;
+    console.log(collider.lastPositions[0], collider.lastPositions[1])
+    console.log(
+      clampedDelta,
+      velocityMultiplier,
+      ev.bodySelf.transform.linearVelocity.x,
+      ev.bodySelf.transform.linearVelocity.z, 
+      ev.bodySelf.transform.linearVelocity.x * clampedDelta,
+      ev.bodySelf.transform.linearVelocity.z * clampedDelta
+    );
     (ev.bodyOther as any).addForce({
       x: ev.bodySelf.transform.linearVelocity.x * velocityMultiplier,
       y: 0, // lock to XZ plane

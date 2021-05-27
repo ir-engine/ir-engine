@@ -148,7 +148,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
 
       registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig });
       registerSystem(TransformSystem, { priority: 900 });
-      registerSystem(PositionalAudioSystem);
+      // registerSystem(PositionalAudioSystem);
       registerSystem(ParticleSystem);
       registerSystem(DebugHelpersSystem);
       registerSystem(InteractiveSystem);
@@ -159,7 +159,6 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
       registerSystem(UIPanelSystem);
 
       Engine.viewportElement = Engine.renderer.domElement;
-      Engine.renderer.xr.enabled = Engine.xrSupported;
     }
   }
 

@@ -186,12 +186,12 @@ export class CharacterControllerSystem extends System {
       this.queryResults.animation.all?.forEach((entity) => {
         updateVectorAnimation(entity, delta)
       })
-    }
 
-    this.queryResults.ikavatar.all?.forEach((entity) => {
-      const ikComponent = getMutableComponent(entity, IKComponent);
-      ikComponent.avatarIKRig?.update(delta);
-    })
+      this.queryResults.ikavatar.all?.forEach((entity) => {
+        const ikComponent = getMutableComponent(entity, IKComponent);
+        ikComponent.avatarIKRig?.update(delta);
+      })
+    }
   }
 }
 

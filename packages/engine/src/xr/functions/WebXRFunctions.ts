@@ -48,9 +48,9 @@ export const startXR = async () => {
     })
 
 
-    head = Engine.renderer.xr.getCamera(Engine.camera);
-    controllerLeft = Engine.renderer.xr.getController(1);
-    controllerRight = Engine.renderer.xr.getController(0);
+    head = Engine.xrRenderer.getCamera(Engine.camera);
+    controllerLeft = Engine.xrRenderer.getController(0);
+    controllerRight = Engine.xrRenderer.getController(1);
     actor.tiltContainer.add(controllerLeft);
     actor.tiltContainer.add(controllerRight);
 
@@ -84,8 +84,8 @@ export const startXR = async () => {
 
     })
 
-    controllerGripLeft = Engine.renderer.xr.getControllerGrip(1);
-    controllerGripRight = Engine.renderer.xr.getControllerGrip(0);
+    controllerGripLeft = Engine.xrRenderer.getControllerGrip(0);
+    controllerGripRight = Engine.xrRenderer.getControllerGrip(1);
 
     addComponent(Network.instance.localClientEntity, XRInputReceiver, {
       head: head,

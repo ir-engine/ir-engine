@@ -30,6 +30,7 @@ import { NumericalType } from '../../common/types/NumericalTypes';
 import { InputValue } from '../../input/interfaces/InputValue';
 import { GameMode } from "../../game/types/GameMode";
 import { EngineEvents } from './EngineEvents';
+import { WebXRManager } from '../../xr/WebXRManager';
 
 export const Audio = isWebWorker ? AudioObjectProxy : THREE_Audio;
 export const AudioListener = isWebWorker ? AudioListenerProxy : THREE_AudioListener;
@@ -100,6 +101,7 @@ export class Engine {
    * @author Fernando Serrano, Robert Long
    */
   static renderer: WebGLRenderer = null
+  static xrRenderer: WebXRManager = null
   static xrSession: XRSession = null
   static context = null
 

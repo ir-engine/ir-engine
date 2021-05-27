@@ -24,7 +24,8 @@ import { Network } from '../../../../networking/classes/Network';
 * @author Josh Field <github.com/HexaField>
  */
 
-const golfBallRadius = 0.03;
+const golfBallRadius = 0.03; // this is the graphical size of the golf ball
+const golfBallColliderExpansion = 0.03; // this is the size of the ball collider
 
 export const initializeGolfBall = (entity: Entity) => {
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
@@ -56,8 +57,10 @@ export const initializeGolfBall = (entity: Entity) => {
 
   const shape = createShapeFromConfig({
     shape: SHAPES.Sphere,
-    options: { radius: golfBallRadius },
+    options: { radius: golfBallRadius + golfBallColliderExpansion },
     config: {
+      restOffset: -golfBallColliderExpansion, // we add a rest offset to make the contact detection of the ball bigger, without making the actual size of the ball bigger
+      contactOffset: -golfBallColliderExpansion + 0.01, // we mostly reverse the expansion
       material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.9 },
       collisionLayer: GolfCollisionGroups.Ball,
       collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.TrimeshColliders | GolfCollisionGroups.Hole,
