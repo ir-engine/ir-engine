@@ -472,7 +472,13 @@ export async function handleWebRtcResumeConsumer(socket, data, callback): Promis
         consumer = MediaStreamSystem.instance?.consumers.find(c => c.id === consumerId);
     if (consumer != null) {
         console.log("resume-consumer", consumer.id);
-        await consumer.resume();
+        try {
+            await consumer.resume();
+        } catch(err) {
+            console.log('Resume consumer', consumer.id, 'errored out, trying again');
+            console.log(err);
+            await consumer.resume();
+        }
         console.log('resume-consumer worked', consumer.id);
     }
     callback({ resumed: true });
