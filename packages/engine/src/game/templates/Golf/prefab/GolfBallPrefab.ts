@@ -10,7 +10,7 @@ import { UserControlledColliderComponent } from '../../../../physics/components/
 import { Group, Mesh, Vector3 } from 'three';
 import { AssetLoader } from '../../../../assets/classes/AssetLoader';
 import { Engine } from '../../../../ecs/classes/Engine';
-import { Body, BodyType, createShapeFromConfig, SHAPES } from 'three-physx';
+import { Body, BodyType, CollisionEvents, createShapeFromConfig, SHAPES } from 'three-physx';
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions';
@@ -20,7 +20,8 @@ import { WebGLRendererSystem } from '../../../../renderer/WebGLRendererSystem';
 import { GameObject } from '../../../components/GameObject';
 import { NetworkObject } from '../../../../networking/components/NetworkObject';
 import { Network } from '../../../../networking/classes/Network';
-
+import { HasHadCollision } from '../../../../game/actions/HasHadCollision';
+import { addActionComponent } from '../../../../game/functions/functionsActions';
 /**
 * @author Josh Field <github.com/HexaField>
  */
@@ -88,10 +89,9 @@ export const initializeGolfBall = (entity: Entity) => {
     if(typeof otherEntity === 'undefined') return
     const ballObject = getComponent<GameObject>(otherEntity, GameObject)
     if(!ballObject || ballObject.role !== 'GolfHole') return;
-
-    // ...
+    addActionComponent(otherEntity, HasHadCollision);
   })
-  */
+*/
 }
 
 export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: number, uniqueId: string, ownerId?: string }) => {
