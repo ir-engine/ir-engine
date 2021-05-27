@@ -60,7 +60,7 @@ export class CharacterControllerSystem extends System {
 
     this.queryResults.character.added?.forEach((entity) => {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-      actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery({
+      if (actor) actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery({
         type: SceneQueryType.Closest,
         origin: new Vector3(),
         direction: new Vector3(0, -1, 0),
@@ -90,7 +90,7 @@ export class CharacterControllerSystem extends System {
         // TODO: figure out how we expose specific behaviors like this
         if (isClient) {
           const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-          if(shape.userData?.action === 'portal') {
+          if(shape?.userData?.action === 'portal') {
             actor.playerInPortal += 1
             if (actor.playerInPortal > 120) {
               EngineEvents.instance.dispatchEvent({ type: PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, location: shape.userData?.link });
