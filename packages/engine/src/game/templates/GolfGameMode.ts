@@ -36,7 +36,7 @@ import { initScore, saveScore } from "./Golf/behaviors/saveScore";
 import { displayScore } from "./Golf/behaviors/displayScore";
 import { giveGoalState } from "./Golf/behaviors/giveGoalState";
 //
-import { spawnClub } from "./Golf/behaviors/spawnClub";
+import { spawnClub, updateClub } from "./Golf/prefab/GolfClubPrefab";
 import { addBall } from "./Golf/behaviors/addBall";
 import { addHole } from "./Golf/behaviors/addHole";
 // checkers
@@ -52,7 +52,7 @@ import { spawnBall } from "./Golf/behaviors/spawnBall";
 import { Network } from "../../networking/classes/Network";
 import { giveBall } from "./Golf/behaviors/giveBall";
 import { Entity } from "../../ecs/classes/Entity";
-import { GolfPrefabs } from "./Golf/GolfGameConstants";
+import { GolfPrefabs } from "./Golf/prefab/GolfGamePrefabs";
 import { ColliderComponent } from "../../physics/components/ColliderComponent";
 import { BodyType } from "three-physx";
 import { Euler, Quaternion, Vector3 } from "three";
@@ -461,6 +461,12 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       ]
     },
     'GolfClub': {
+      'update': [
+        {
+          behavior: updateClub,
+          args: {},
+        }
+      ],
       'grab': [
         {
           behavior: grabEquippable,
