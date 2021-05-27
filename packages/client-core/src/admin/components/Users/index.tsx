@@ -10,6 +10,7 @@ import styles from '../Admin.module.scss';
 import Button from '@material-ui/core/Button';
 import UserModel from "./CreateUser";
 import UserTable from "./UserTable";
+import SearchUser from "./SearchUser";
 
 
 interface TabPanelProps {
@@ -67,26 +68,30 @@ const Users = () => {
         setValue(newValue);
     };
 
-    const openModalCreate = ( open: boolean) =>
-    (
-        event: React.KeyboardEvent | React.MouseEvent,
-      ) => {
-        if (
-          event.type === 'keydown' &&
-          ((event as React.KeyboardEvent).key === 'Tab' ||
-            (event as React.KeyboardEvent).key === 'Shift')
-        ) {
-          return;
-        }
+    const openModalCreate = (open: boolean) =>
+        (
+            event: React.KeyboardEvent | React.MouseEvent,
+        ) => {
+            if (
+                event.type === 'keydown' &&
+                ((event as React.KeyboardEvent).key === 'Tab' ||
+                    (event as React.KeyboardEvent).key === 'Shift')
+            ) {
+                return;
+            }
+            setUserModalOpen(open);
+        };
+
+    const closeViewModel = (open: boolean) => {
         setUserModalOpen(open);
-      };
+    };
 
 
     return (
         <div>
             <Grid container spacing={3} className={classes.marginBottom}>
                 <Grid item xs={9}>
-                    <Search typeName="users" />
+                    <SearchUser />
                 </Grid>
                 <Grid item xs={3}>
                     <Button
@@ -110,16 +115,17 @@ const Users = () => {
                     scrollButtons="auto"
                     aria-label="scrollable auto tabs example"
                 >
-                    <Tab  label="USERS" {...a11yProps(0)} />
+                    <Tab label="USERS" {...a11yProps(0)} />
                 </Tabs>
                 <TabPanel value={value} index={0}>
-                  <UserTable />
+                    <UserTable />
                 </TabPanel>
             </div>
 
             <UserModel
                 open={userModalOpen}
                 handleClose={openModalCreate}
+                closeViewModel={closeViewModel}
             />
         </div>
     );

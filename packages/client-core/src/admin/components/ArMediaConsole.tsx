@@ -20,7 +20,6 @@ import {
 import styles from './Admin.module.scss';
 import Backdrop from '@material-ui/core/Backdrop';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import {  Edit } from '@material-ui/icons';
 import Slide from '@material-ui/core/Slide';
 import { TransitionProps } from '@material-ui/core/transitions';
 import { EnhancedTableHead } from './AdminHelpers';

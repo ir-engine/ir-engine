@@ -20,6 +20,7 @@ import { Input } from "../../input/components/Input";
 import { BaseInput } from "../../input/enums/BaseInput";
 import { SIXDOFType } from "../../common/types/NumericalTypes";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { TransformComponent } from "../../transform/components/TransformComponent";
 
 let head, controllerGripLeft, controllerLeft, controllerRight, controllerGripRight;
 
@@ -48,9 +49,9 @@ export const startXR = async () => {
     })
 
 
-    head = Engine.renderer.xr.getCamera(Engine.camera);
-    controllerLeft = Engine.renderer.xr.getController(1);
-    controllerRight = Engine.renderer.xr.getController(0);
+    head = Engine.xrRenderer.getCamera(Engine.camera);
+    controllerLeft = Engine.xrRenderer.getController(1);
+    controllerRight = Engine.xrRenderer.getController(0);
     actor.tiltContainer.add(controllerLeft);
     actor.tiltContainer.add(controllerRight);
 
@@ -84,8 +85,8 @@ export const startXR = async () => {
 
     })
 
-    controllerGripLeft = Engine.renderer.xr.getControllerGrip(1);
-    controllerGripRight = Engine.renderer.xr.getControllerGrip(0);
+    controllerGripLeft = Engine.xrRenderer.getControllerGrip(1);
+    controllerGripRight = Engine.xrRenderer.getControllerGrip(0);
 
     addComponent(Network.instance.localClientEntity, XRInputReceiver, {
       head: head,
@@ -175,24 +176,49 @@ export const isInXR = (entity: Entity) => {
   return Boolean(getBit(actor.state, CHARACTER_STATES.VR));
 }
 
+const vec3 = new Vector3();
+const quat = new Quaternion();
+const forward = new Vector3(0, 0, 1);
+
 export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.NONE): Vector3 | undefined => {
-  const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
-  if(!input) return;
-  const sixdof = input.value as SIXDOFType;
-  return new Vector3(sixdof.x, sixdof.y, sixdof.z);
+  if(isInXR(entity)) {
+    const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
+    if(input) {
+      const sixdof = input.value as SIXDOFType;
+      return vec3.set(sixdof.x, sixdof.y, sixdof.z);
+    }
+  }
+  const actor = getComponent(entity, CharacterComponent);
+  const transform = getComponent(entity, TransformComponent);
+  return vec3.set(-0.5, 0, 0).applyQuaternion(actor.tiltContainer.quaternion).add(transform.position);
 }
 export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.NONE): Quaternion | undefined => {
-  const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
-  if(!input) return;
-  const sixdof = input.value as SIXDOFType;
-  return new Quaternion(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW);
+  if(isInXR(entity)) {
+    const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
+    if(input) {
+      const sixdof = input.value as SIXDOFType;
+      return quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW);
+    }
+  }
+  const actor = getComponent(entity, CharacterComponent);
+  return quat.setFromUnitVectors(forward, actor.viewVector)
 }
+
 export const getHandTransform = (entity: Entity, hand: ParityValue = ParityValue.NONE): { position: Vector3, rotation: Quaternion } | undefined => {
-  const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
-  if(!input) return;
-  const sixdof = input.value as SIXDOFType;
-  return { 
-    position: new Vector3(sixdof.x, sixdof.y, sixdof.z),
-    rotation: new Quaternion(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW)
+  if(isInXR(entity)) {
+    const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
+    if(input) {
+      const sixdof = input.value as SIXDOFType;
+      return { 
+        position: vec3.set(sixdof.x, sixdof.y, sixdof.z),
+        rotation: quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW)
+      }
+    }
+  }
+  const actor = getComponent(entity, CharacterComponent);
+  const transform = getComponent(entity, TransformComponent);
+  return {
+    position: vec3.set(-0.5, 0, 0).applyQuaternion(actor.tiltContainer.quaternion).add(transform.position),
+    rotation: quat.setFromUnitVectors(forward, actor.viewVector)
   }
 }

@@ -159,7 +159,6 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
       registerSystem(UIPanelSystem);
 
       Engine.viewportElement = Engine.renderer.domElement;
-      Engine.renderer.xr.enabled = Engine.xrSupported;
     }
   }
 

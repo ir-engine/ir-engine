@@ -80,7 +80,8 @@ function createEmptyNetworkObjectBeforeSceneLoad(args: { networkId: number, pref
     ownerId: 'server',
     prefabType: args.prefabType,
     component: null,
-    uniqueId: args.uniqueId
+    uniqueId: args.uniqueId,
+    parameters: ''
   };
 }
 
@@ -179,6 +180,7 @@ export class ClientNetworkStateSystem extends System {
 
       // Handle all network objects created this frame
       for (const objectToCreateKey in worldStateBuffer.createObjects) {
+
         const objectToCreate = worldStateBuffer.createObjects[objectToCreateKey];
         if(!Network.instance.schema.prefabs[objectToCreate.prefabType]) {
           console.log('prefabType not found', objectToCreate.prefabType)

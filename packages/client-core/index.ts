@@ -2,6 +2,7 @@
 
 export * from './src/admin/components/AdminHelpers';
 export * from './src/admin/components/Instance/validation';
+export * from './src/admin/components/Users/styles';
 export * from './src/admin/components/Users/validation';
 export * from './src/admin/reducers/actions';
 export * from './src/admin/reducers/admin/actions';
@@ -422,6 +423,7 @@ export { default as srcSocialmediaComponentsFeedIndex } from './src/socialmedia/
 export { default as srcSocialmediaComponentsFeedCardIndex } from './src/socialmedia/components/FeedCard/index';
 export { default as srcSocialmediaComponentsFeedFormIndex } from './src/socialmedia/components/FeedForm/index';
 export { default as srcSocialmediaComponentsFeedMenuIndex } from './src/socialmedia/components/FeedMenu/index';
+export { default as srcSocialmediaComponentsFeedOnboardingIndex } from './src/socialmedia/components/FeedOnboarding/index';
 export { default as srcSocialmediaComponentsFooterIndex } from './src/socialmedia/components/Footer/index';
 export { default as srcSocialmediaComponentsHeaderIndex } from './src/socialmedia/components/Header/index';
 export { default as srcSocialmediaComponentsLoginIndex } from './src/socialmedia/components/Login/index';
@@ -438,6 +440,7 @@ export { default as srcSocialmediaComponentsPopupsFeedFormPopupIndex } from './s
 export { default as srcSocialmediaComponentsPopupsFeedPopupIndex } from './src/socialmedia/components/popups/FeedPopup/index';
 export { default as srcSocialmediaComponentsPopupsSharedFormPopupIndex } from './src/socialmedia/components/popups/SharedFormPopup/index';
 export { default as srcSocialmediaComponentsPopupsWebXrIndex } from './src/socialmedia/components/popups/WebXR/index';
+export { default as srcSocialmediaComponentsPreloaderIndex } from './src/socialmedia/components/Preloader/index';
 export { default as srcSocialmediaComponentsSharedModalIndex } from './src/socialmedia/components/SharedModal/index';
 export { default as srcSocialmediaComponentsShareFormShareForm } from './src/socialmedia/components/ShareForm/ShareForm';
 export { default as srcSocialmediaComponentsSimpleModalIndex } from './src/socialmedia/components/SimpleModal/index';

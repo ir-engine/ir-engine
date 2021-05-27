@@ -14,6 +14,7 @@ export class ColliderComponent extends Component<ColliderComponent> {
   type: string
   mass: number
   position: Vector3
+  velocityPositionsToCalculate: number = 4;
   lastPositions: Vector3[] = [] // for kinematic body interpolation
   quaternion: Quaternion
   scale: Vector3
@@ -32,6 +33,7 @@ ColliderComponent._schema = {
   type: { type: Types.String, default: 'box' },
   mass: { type: Types.Number, default: 0 },
   position: { type: Types.Ref, default: new Vector3() },
+  velocityPositionsToCalculate: { type: Types.Number, default: 4 },
   lastPosition: { type: Types.Array, default: [] },
   quaternion: { type: Types.Ref, default: new Quaternion() },
   scale: { type: Types.Ref, default: new Vector3() },

@@ -37,7 +37,7 @@ export default (app: Application): void => {
    * @returns {@Object} created party 
    * @author Vyacheslav Solovjov
    */
-  service.publish('created', async (data): Promise<any> => {    
+  service.publish('created', async (data): Promise<any> => {   
     try {
       const partyUsers = await app.service('party-user').find({
         query: {

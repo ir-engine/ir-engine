@@ -183,8 +183,10 @@ export class ServerNetworkIncomingSystem extends System {
       // clientInput.switchInputs ? clearFreezeInputs(clientInput) : '';
 
       const networkObject = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, NetworkObject);
-      networkObject.snapShotTime = clientInput.snapShotTime;
-      if (networkObject.snapShotTime > clientInput.snapShotTime) return;
+      if (networkObject != null) {
+        networkObject.snapShotTime = clientInput.snapShotTime;
+        if (networkObject.snapShotTime > clientInput.snapShotTime) return;
+      }
       // clientInput.networkId = switchInputs(clientInput);
       const delegatedInputReceiver = getComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, DelegatedInputReceiver);
 

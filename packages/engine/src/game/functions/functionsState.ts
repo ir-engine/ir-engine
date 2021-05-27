@@ -151,28 +151,22 @@ export const correctState = (): void => {
   //TODO:
 };
 
-export const removeFromState = (entity: Entity): void => {
-  const game = getGame(entity);
-  const uuid = getUuid(entity);
-  let index = game.state.findIndex(v => v.uuid === uuid);
-  if (index === -1) {
+export const removeEntityFromState = (objectOrPlayerComponent, game): void => {
+  const index = game.state.findIndex(v => v.uuid === objectOrPlayerComponent.uuid);
+  if (index != -1) {
     game.state.splice(index, 1);
   } else {
     console.warn('cant remove from state, dont have it already', uuid);
   }
 };
 
-export const removeFromGame = (entity: Entity): void => {
-  const game = getGame(entity);
-  const role = getRole(entity);
-  const uuid = getUuid(entity);
-
-  let index = game.gamePlayers[role].findIndex(v => v.uuid === uuid);
-  if (index === -1) {
-    game.gamePlayers[role].splice(index, 1);
-  } else {
-    console.warn('cant remove from gamePlayers, dont have it already', role, uuid);
-  }
+export const clearRemovedEntitysFromGame = (game): void => {
+  Object.keys(game.gamePlayers).forEach(role => {
+    game.gamePlayers[role] = game.gamePlayers[role].filter(entity => entity.queries.length != 0);
+  })
+  Object.keys(game.gameObjects).forEach(role => {
+    game.gameObjects[role] = game.gameObjects[role].filter(entity => entity.queries.length != 0);
+  })
 };
 
 export const addStateComponent = (entity: Entity, component: ComponentConstructor<Component<any>>): void => {
