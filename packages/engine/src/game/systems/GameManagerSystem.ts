@@ -9,7 +9,7 @@ import { GameObject } from "../components/GameObject";
 import { GamePlayer } from "../components/GamePlayer";
 
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { initState, removeFromState, removeFromGame, saveInitStateCopy, requireState, addStateComponent  } from '../functions/functionsState';
+import { initState, removeEntityFromState, clearRemovedEntitysFromGame, saveInitStateCopy, requireState, addStateComponent  } from '../functions/functionsState';
 import { initStorage } from '../functions/functionsStorage';
 
 import { GamesSchema } from "../../game/templates/GamesSchema";
@@ -97,9 +97,7 @@ export class GameManagerSystem extends System {
             if (v.inGameArea && hasComponent(v.entity, GamePlayer)) {
               if (getComponent(v.entity, GamePlayer).gameName != game.name) {
                 getGameFromName(getComponent(v.entity, GamePlayer).gameName).priority < game.priority;
-                removeFromGame(v.entity);
-                removeFromState(v.entity);
-                removeComponent(v.entity, GamePlayer);
+                removeComponent(v.entity, GamePlayer, true);
               }
             } else if (v.inGameArea && !hasComponent(v.entity, GamePlayer)) {
 
@@ -110,9 +108,7 @@ export class GameManagerSystem extends System {
               });
             } else if (!v.inGameArea && hasComponent(v.entity, GamePlayer)) {
               if (getComponent(v.entity, GamePlayer).gameName === game.name) {
-                removeFromGame(v.entity);
-                removeFromState(v.entity);
-                removeComponent(v.entity, GamePlayer);
+                removeComponent(v.entity, GamePlayer, true);
               }
             }
           })
@@ -121,33 +117,6 @@ export class GameManagerSystem extends System {
         this.updateLastTime += 1;
       }
 
-      // PLAYERS
-      this.queryResults.gamePlayers.added?.forEach(entity => {
-        if (getComponent(entity, GamePlayer).gameName != game.name) return;
-        // befor adding first player
-        if (this.queryResults.gamePlayers.all.length == 1) saveInitStateCopy(entityGame);
-        // add to gamePlayers list sorted by role
-        const playerComp = getComponent(entity, GamePlayer);
-        gamePlayers[playerComp.role].push(entity);
-        // add init Tag components for start state of Games
-        const schema = gameSchema.initGameState[playerComp.role];
-        if (schema != undefined) {
-          schema.components?.forEach(component => addStateComponent(entity, component));
-          //initStorage(entity, schema.storage);
-          schema.behaviors?.forEach(behavior => behavior(entity));
-        }
-        //console.warn(game.state);
-        requireState(game, playerComp);
-      });
-      // PLAYERS
-      /*
-      this.queryResults.gamePlayers.removed?.forEach(entity => {
-        Object.keys(game.gamePlayers).forEach((role: string) => {
-          game.gamePlayers[role] = game.gamePlayers[role].filter((entityFromState: Entity) => hasComponent(entityFromState, GamePlayer));
-        });
-        console.warn(game.gamePlayers);
-      });
-      */
       // MAIN EXECUTE
       const executeComplexResult = [];
       // its case beter then this.queryResults.gameObject.all, becose its sync execute all role groubs entity, and you not think about behavior do work on haotic case
@@ -239,14 +208,53 @@ export class GameManagerSystem extends System {
       });
       // end of frame circle one game
     });
-    // OBJECTS
+
+
+    // PLAYERS ADDIND
+    this.queryResults.gamePlayer.added?.forEach(entity => {
+      this.queryResults.game.all?.forEach(entityGame => {
+        const game = getComponent(entityGame, Game);
+        const gamePlayer = getComponent(entity, GamePlayer);
+        if (gamePlayer.gameName != game.name) return;
+
+        const gameSchema = GamesSchema[game.gameMode];
+        // befor adding first player
+        const countAllPlayersInGame = Object.keys(game.gamePlayers).reduce((acc,v) => acc + game.gamePlayers[v].length, 0);
+        if (countAllPlayersInGame == 1) saveInitStateCopy(entityGame);
+        // add to gamePlayers list sorted by role
+        game.gamePlayers[gamePlayer.role].push(entity);
+        // add init Tag components for start state of Games
+        const schema = gameSchema.initGameState[gamePlayer.role];
+        if (schema != undefined) {
+          schema.components?.forEach(component => addStateComponent(entity, component));
+          //initStorage(entity, schema.storage);
+          schema.behaviors?.forEach(behavior => behavior(entity));
+        }
+        //console.warn(game.state);
+        requireState(game, gamePlayer);
+      })
+    });
+    // PLAYERS REMOVE
+    this.queryResults.gamePlayer.removed?.forEach(entity => {
+      this.queryResults.game.all?.forEach(entityGame => {
+        const game = getComponent(entityGame, Game);
+        const gamePlayer = getComponent(entity, GamePlayer, true);
+        if (gamePlayer.gameName != game.name) return;
+        const gameSchema = GamesSchema[game.gameMode];
+        gameSchema.onPlayerLeave(entity);
+        removeEntityFromState(gamePlayer, game);
+        clearRemovedEntitysFromGame(game);
+      })
+    });
+    // OBJECTS ADDIND
     // its needet for allow dynamicly adding objects and exept errors when enitor gives object without created game
     this.queryResults.gameObject.added?.forEach(entity => {
       this.queryResults.game.all?.forEach(entityGame => {
         const game = getComponent(entityGame, Game);
+        if (getComponent(entity, GameObject).gameName != game.name) return;
+
         const gameSchema = GamesSchema[game.gameMode];
         const gameObjects = game.gameObjects;
-        if (getComponent(entity, GameObject).gameName != game.name) return;
         // add to gameObjects list sorted by role
         gameObjects[getComponent(entity, GameObject).role].push(entity);
         // add init Tag components for start state of Games
@@ -258,10 +266,26 @@ export class GameManagerSystem extends System {
         }
       })
     });
-    // END
+    // OBJECTS REMOVE
+    this.queryResults.gameObject.removed?.forEach(entity => {
+      this.queryResults.game.all?.forEach(entityGame => {
+        const game = getComponent(entityGame, Game);
+        const gameObject = getComponent(entity, GameObject, true);
+        if (gameObject.gameName != game.name) return;
+        removeEntityFromState(gameObject, game);
+        clearRemovedEntitysFromGame(game);
+      })
+    });
+    // end of execute
   }
 }
-
+/*
+this.queryResults.gameObject.removed?.forEach(entity => {
+  removeFromGame(entity);
+  removeFromState(entity);
+  console.warn('ONE OBJECT REMOVED');
+});
+*/
 GameManagerSystem.queries = {
   game: {
     components: [Game],
@@ -277,7 +301,7 @@ GameManagerSystem.queries = {
       removed: true
     }
   },
-  gamePlayers: {
+  gamePlayer: {
     components: [GamePlayer],
     listen: {
       added: true,

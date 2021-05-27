@@ -180,6 +180,7 @@ export class ClientNetworkStateSystem extends System {
 
       // Handle all network objects created this frame
       for (const objectToCreateKey in worldStateBuffer.createObjects) {
+
         const objectToCreate = worldStateBuffer.createObjects[objectToCreateKey];
         if(!Network.instance.schema.prefabs[objectToCreate.prefabType]) {
           console.log('prefabType not found', objectToCreate.prefabType)
