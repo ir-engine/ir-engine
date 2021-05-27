@@ -257,7 +257,7 @@ export class User extends Service {
           limit: limit,
           total: searchUser.length,
           data: searchedUser
-        }
+        };
     }  else if (action === 'invite-code-lookup') {
       return super.find({
         query: {

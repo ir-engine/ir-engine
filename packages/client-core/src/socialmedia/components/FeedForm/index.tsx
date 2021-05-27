@@ -61,6 +61,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const [video, setVideo] = useState(null);
     const [videoUrl, setVideoUrl] = useState(null);
     const [preview, setPreview] = useState(null);
+    const [preloader, setPreloader] = useState(false);
     const titleRef = React.useRef<HTMLInputElement>();
     const textRef = React.useRef<HTMLInputElement>();
     const videoRef = React.useRef<HTMLInputElement>();

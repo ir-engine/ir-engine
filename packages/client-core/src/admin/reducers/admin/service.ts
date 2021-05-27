@@ -364,5 +364,5 @@ export const searchUserAction = (data: any, offset: string) => {
       console.error(err);
       dispatchAlertError(dispatch, err.message);
     }
-  }
-}
+  };
+};
