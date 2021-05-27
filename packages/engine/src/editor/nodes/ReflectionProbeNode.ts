@@ -2,7 +2,7 @@
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
 
-import { AudioAnalyser, BoxBufferGeometry, BoxGeometry, BoxHelper, ClampToEdgeWrapping, Color, CubeCamera, Group, LinearMipmapLinearFilter, Loader, Matrix4, Mesh, MeshPhysicalMaterial, Object3D, PlaneGeometry, PMREMGenerator, Quaternion, RectAreaLight, RepeatWrapping, RGBFormat, Scene, SphereBufferGeometry, SphereGeometry, Texture, TextureLoader, Vector, Vector3, WebGLCubeRenderTarget, WebGLRenderer, WebGLRenderTarget } from "three";
+import { AudioAnalyser, BoxBufferGeometry, BoxGeometry, BoxHelper, ClampToEdgeWrapping, Color, CubeCamera, Group, LinearMipmapLinearFilter, Loader, Matrix4, Mesh, MeshPhysicalMaterial, MeshStandardMaterial, Object3D, PlaneGeometry, PMREMGenerator, Quaternion, RectAreaLight, RepeatWrapping, RGBFormat, Scene, SphereBufferGeometry, SphereGeometry, Texture, TextureLoader, Vector, Vector3, WebGLCubeRenderTarget, WebGLRenderer, WebGLRenderTarget } from "three";
 import { PMREMCubeUVPacker } from "../../scene/classes/PMREMCubeUVPacker";
 import Renderer from "../renderer/Renderer";
 import EditorNodeMixin from "./EditorNodeMixin";
@@ -62,6 +62,25 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
             refreshMode:ReflectionProbeRefreshTypes.OnAwake,
         }
         this.geometry=new BoxHelper(new Mesh(new BoxBufferGeometry()),0xff0000);
+        centerBall.material=new MeshStandardMaterial({
+            roughness:0,
+        })
+        centerBall.material.onBeforeCompile = function ( shader ) {
+            shader.uniforms.cubeMapSize = { value: this.reflectionProbeSettings.probeScale};
+            shader.uniforms.cubeMapPos = { value: this.reflectionProbeSettings.probePosition};
+            console.log("On Before Compile Material:"+shader.uniforms);
+            //replace shader chunks with box projection chunks
+            shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader;
+            shader.vertexShader = shader.vertexShader.replace(
+                '#include <worldpos_vertex>',
+                worldposReplace
+            );
+            shader.fragmentShader = shader.fragmentShader.replace(
+                '#include <envmap_physical_pars_fragment>',
+                envmapPhysicalParsReplace
+            );
+
+        }.bind(this);
         this.add(this.geometry);
     }
 
@@ -70,7 +89,8 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
         const sceneToBake=this.editor.scene;//this.getSceneForBaking(this.editor.scene);
         const cubemapCapturer=new CubemapCapturer(this.editor.renderer.renderer,sceneToBake,this.reflectionProbeSettings.resolution,this.reflectionProbeSettings.reflectionType==1);
         const currentEnvMap=cubemapCapturer.update(this.reflectionProbeSettings.probePosition).texture;
-        this.setEnvMap(currentEnvMap);
+        this.setSceneObjects();
+        this.editor.scene.environment=currentEnvMap;
         console.log("Capture CubeMap");
     }
 
@@ -83,23 +103,26 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
         this.reflectionProbeSettings.probePosition.add(this.reflectionProbeSettings.probePositionOffset);
         this.geometry.matrix.compose(this.reflectionProbeSettings.probePositionOffset,new Quaternion(0),this.reflectionProbeSettings.probeScale);
         this.editor.scene.traverse(child=>{
-            if (child.isMesh || child.isSkinnedMesh)
-                child.material.envMapIntensity??=this.reflectionProbeSettings.intensity;
+            const mat=child.material;
+            if(mat!==undefined){
+                mat.envMapIntensity=this.reflectionProbeSettings.intensity;
+
+                if(mat.uniforms!==undefined){
+                    mat.uniforms.cubeMapSize = { value: this.reflectionProbeSettings.probeScale};
+                    mat.uniforms.cubeMapPos = { value: this.reflectionProbeSettings.probePosition};
+                }
+            }
         });
     }
 
-    setEnvMap(renderResult:Texture){
+    setSceneObjects(){
+        //if box projection is enabled
         this.editor.scene.traverse(child=>{
-            if (child.isMesh || child.isSkinnedMesh) {
-                child.material.envMapIntensity??=this.reflectionProbeSettings.intensity;
-                child.material.envMap??=renderResult;
+            if(child.material!==undefined){
                 child.material.onBeforeCompile = function ( shader ) {
-
-                    //these parameters are for the cubeCamera texture
-                    console.log("BeforeCompiling The Shader")
                     shader.uniforms.cubeMapSize = { value: this.reflectionProbeSettings.probeScale};
                     shader.uniforms.cubeMapPos = { value: this.reflectionProbeSettings.probePosition};
-        
+                    console.log("On Before Compile Material:"+shader.uniforms);
                     //replace shader chunks with box projection chunks
                     shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader;
                     shader.vertexShader = shader.vertexShader.replace(
@@ -112,10 +135,10 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
                     );
         
                 }.bind(this);
-
               }
         });
     }
+
 
     serialize(){
         let data:any={}

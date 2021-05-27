@@ -35,12 +35,19 @@ export const setReflectionProbe: Behavior = (entity, args: {}) => {
         Engine.scene.environment = EnvMap;
         break;
     }
-    
+
+
+      Engine.scene.traverse(child=>{
+        const mat=(child as any).material;
+        if(mat!==undefined)
+          mat.envMapIntensity=options.intensity;
+        console.log("Reflection");
+   });
+
+
     if(options.boxProjection){
       Engine.scene.traverse(child=>{
-      child=child as any;
       if ((child as any).isMesh || (child as any).isSkinnedMesh) {
-        (child as any).material.envMapIntensity??=options.intensity;
         (child as any).material.onBeforeCompile = function ( shader ) {
               //these parameters are for the cubeCamera texture
               shader.uniforms.cubeMapSize = { value: options.probeScale};

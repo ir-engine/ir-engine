@@ -53,7 +53,7 @@ const DefaultReflectionProbeSettings=[
                 label:"Intensity",
                 propertyName:"intensity",
                 type:ReflectionPropertyTypes.Numeric,
-                min:1,
+                min:0,
                 max:10,
                 step:0.1,
             },

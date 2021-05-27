@@ -161,12 +161,12 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     }, [] );
 
     const closePopUp = () => {
-        updateNewFeedPageState(false)
-        const webxrRecorderActivity = webxrnativeState.get('webxrnative')
+        updateNewFeedPageState(false);
+        const webxrRecorderActivity = webxrnativeState.get('webxrnative');
         if(webxrRecorderActivity){
-            changeWebXrNative()
+            changeWebXrNative();
         }
-    }
+    };
      
     
     useEffect(()=> {videoUrl && updateNewFeedPageState(false, null) && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
