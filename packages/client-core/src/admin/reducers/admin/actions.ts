@@ -245,5 +245,5 @@ export const searchedUser = (data: any): any => {
   return {
     type: USER_SEARCH_ADMIN,
     data: data
-  }
-}
+  };
+};

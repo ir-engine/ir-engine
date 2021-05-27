@@ -15,16 +15,16 @@ interface Props {
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     searchUserAction: bindActionCreators(searchUserAction, dispatch)
-})
+});
 
 const SearchUser = (props: Props) =>  {
     const { searchUserAction } = props;
    const classes = useStyles();
    const [search, setSearch] = React.useState("");
    const handleChange = (e: any) => {
-     searchUserAction(search)
-     setSearch(e.target.value)
-   }
+     searchUserAction(search);
+     setSearch(e.target.value);
+   };
 
     return (
         <Paper 
@@ -44,7 +44,7 @@ const SearchUser = (props: Props) =>  {
           <SearchIcon />
         </IconButton>
       </Paper>
-    )
-}
+    );
+};
 
 export default connect(null, mapDispatchToProps)(SearchUser);
