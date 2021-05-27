@@ -10,6 +10,7 @@ import styles from '../Admin.module.scss';
 import Button from '@material-ui/core/Button';
 import UserModel from "./CreateUser";
 import UserTable from "./UserTable";
+import SearchUser from "./SearchUser";
 
 
 interface TabPanelProps {
@@ -90,7 +91,7 @@ const Users = () => {
         <div>
             <Grid container spacing={3} className={classes.marginBottom}>
                 <Grid item xs={9}>
-                    <Search typeName="users" />
+                    <SearchUser />
                 </Grid>
                 <Grid item xs={3}>
                     <Button

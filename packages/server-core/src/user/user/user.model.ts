@@ -43,7 +43,6 @@ export default (app: Application): any => {
 
   (User as any).associate = (models: any): void => {
     (User as any).belongsTo(models.user_role, { foreignKey: 'userRole' });
-    (User as any).belongsTo(models.user_project, { foreignKey: 'project_id' });
     (User as any).belongsTo(models.instance, { foreignKey: { allowNull: true } }); // user can only be in one room at a time
     (User as any).belongsTo(models.instance, { foreignKey: { name: 'channelInstanceId', allowNull: true } });
     (User as any).hasOne(models.user_settings);

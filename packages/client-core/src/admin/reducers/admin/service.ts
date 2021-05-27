@@ -18,7 +18,8 @@ import {
   userAdminRemoved, 
   userCreated,
   userPatched,
-  userRoleUpdated
+  userRoleUpdated,
+  searchedUser
 } from './actions';
 
 import axios from 'axios';
@@ -340,3 +341,28 @@ export const updateUserRole = (id: string, role: string ) => {
     }
   };
 };
+
+export const searchUserAction = (data: any, offset: string) => {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    try {
+      const user = getState().get('auth').get('user');
+      const skip = getState().get('admin').get('users').get('skip');
+      const limit = getState().get('admin').get('users').get('limit');  
+        const result = await client.service("user").find({
+          query: {
+            $sort: {
+              name: 1
+            },
+            $skip: skip || 0,
+            $limit: limit,
+            action: 'search',
+            data
+          }
+        });
+        dispatch(searchedUser(result));        
+    } catch (err){
+      console.error(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  }
+}
