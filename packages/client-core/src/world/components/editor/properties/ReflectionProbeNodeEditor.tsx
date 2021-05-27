@@ -73,11 +73,6 @@ const DefaultReflectionProbeSettings=[
                 propertyName:"resolution",
                 type:ReflectionPropertyTypes.Resolution,
             },
-            {
-                label:"HDR",
-                propertyName:"hdr",
-                type:ReflectionPropertyTypes.Boolean,
-            },
         ]
     },
 
