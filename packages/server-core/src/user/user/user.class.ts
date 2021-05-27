@@ -3,7 +3,7 @@ import { Application } from '../../../declarations';
 import {
   Params
 } from '@feathersjs/feathers';
-import { QueryTypes } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils';
 import { Forbidden } from '@feathersjs/errors';
 
@@ -32,7 +32,8 @@ export class User extends Service {
     const action = params.query?.action;
     const skip = params.query?.$skip ? params.query.$skip : 0;
     const limit = params.query?.$limit ? params.query.$limit : 10;
-    
+    const searchUser = params.query?.data;
+
     if (action === 'withRelation') {
       const userId = params.query?.userId;
       const search = params.query?.search as string;
@@ -225,7 +226,39 @@ export class User extends Service {
         total: users.count,
         data: users.rows
       };
-    } else if (action === 'invite-code-lookup') {
+    } else if(action === "search"){
+        const searchedUser = await (this.app.service('user') as any).Model.findAll({
+            where: {
+              name: {
+                [Op.like]: `%${searchUser}%`
+            }
+            },
+            include: [
+              {
+                model: (this.app.service("party") as any).Model,
+                required: false,
+                include: [
+                  {
+                    model: (this.app.service("location") as any).Model,
+                    required: false
+                  },
+                  {
+                    model: (this.app.service("instance") as any).Model,
+                    required: false
+                  }
+                ]
+              }
+            ],
+            raw: true,
+            nest: true
+        });
+        return {
+          skip: skip,
+          limit: limit,
+          total: searchUser.length,
+          data: searchedUser
+        }
+    }  else if (action === 'invite-code-lookup') {
       return super.find({
         query: {
           $skip: params.query.$skip || 0,
