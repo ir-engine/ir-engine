@@ -41,6 +41,7 @@ import { Input } from "../../input/components/Input";
 import { BaseInput } from "../../input/enums/BaseInput";
 import { SIXDOFType } from "../../common/types/NumericalTypes";
 import { unequipEntity } from "../functions/equippableFunctions";
+import { EquippedComponent } from "../components/EquippedComponent";
 
 const vector3 = new Vector3();
 const quat = new Quaternion();
@@ -431,7 +432,7 @@ export class InteractiveSystem extends System {
       const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity;
       // all equippables must have a collider to grab by in VR
       const collider = getComponent(equippedEntity, ColliderComponent)
-      collider.body.type = BodyType.KINEMATIC;
+      if(collider) collider.body.type = BodyType.KINEMATIC;
       // send equip to clients
       if(!isClient) {
         const networkObject = getComponent(equippedEntity, NetworkObject)
@@ -443,9 +444,10 @@ export class InteractiveSystem extends System {
       const actor = getComponent(entity, CharacterComponent);
       const equipperComponent = getComponent(entity, EquipperComponent);
       const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent);
+      const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent);
       const equipperTransform = getComponent(entity, TransformComponent);
       if(isInXR(entity)) {
-        const hand = equipperComponent.attachmentPoint === EquippableAttachmentPoint.LEFT_HAND ? ParityValue.LEFT : ParityValue.RIGHT;
+        const hand = equippedComponent.attachmentPoint === EquippableAttachmentPoint.LEFT_HAND ? ParityValue.LEFT : ParityValue.RIGHT;
         const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
         if(!input) return;
         const sixdof = input.value as SIXDOFType;
