@@ -415,15 +415,19 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
             closeConsumer(consumer);
         });
         consumer.on('producerpause', () => {
-            console.log('producerpause for', consumer.id);
-            if (consumer && typeof consumer.pause === 'function') consumer.pause();
-            console.log(consumer.id, 'paused after producerpause');
+            if (consumer && typeof consumer.pause === 'function')
+            Network.instance.mediasoupOperationQueue.add({
+                object: consumer,
+                action: 'pause'
+            });
             socket.emit(MessageTypes.WebRTCPauseConsumer.toString(), consumer.id);
         });
         consumer.on('producerresume', () => {
-            console.log('producerresume for', consumer.id);
-            if (consumer && typeof consumer.resume === 'function') consumer.resume();
-            console.log(consumer.id, 'resumed after producerresume');
+            if (consumer && typeof consumer.resume === 'function')
+            Network.instance.mediasoupOperationQueue.add({
+                object: consumer,
+                action: 'resume'
+            });
             socket.emit(MessageTypes.WebRTCResumeConsumer.toString(), consumer.id);
         });
 
@@ -460,9 +464,10 @@ export async function handleWebRtcPauseConsumer(socket, data, callback): Promise
     const { consumerId } = data,
         consumer = MediaStreamSystem.instance?.consumers.find(c => c.id === consumerId);
     if (consumer != null) {
-        console.log("pause-consumer", consumer.id);
-        await consumer.pause();
-        console.log('pause-consumer worked', consumer.id);
+        Network.instance.mediasoupOperationQueue.add({
+            object: consumer,
+            action: 'pause'
+        });
     }
     callback({ paused: true });
 }
@@ -471,15 +476,10 @@ export async function handleWebRtcResumeConsumer(socket, data, callback): Promis
     const { consumerId } = data,
         consumer = MediaStreamSystem.instance?.consumers.find(c => c.id === consumerId);
     if (consumer != null) {
-        console.log("resume-consumer", consumer.id);
-        try {
-            await consumer.resume();
-        } catch(err) {
-            console.log('Resume consumer', consumer.id, 'errored out, trying again');
-            console.log(err);
-            await consumer.resume();
-        }
-        console.log('resume-consumer worked', consumer.id);
+        Network.instance.mediasoupOperationQueue.add({
+            object: consumer,
+            action: 'resume'
+        });
     }
     callback({ resumed: true });
 }
@@ -506,9 +506,11 @@ export async function handleWebRtcResumeProducer(socket, data, callback): Promis
         producer = MediaStreamSystem.instance?.producers.find(p => p.id === producerId);
     logger.info("resume-producer", producer.appData);
     if (producer != null) {
-        console.log('resume-producer for', producer.id);
-        await producer.resume();
-        console.log('resume-producer worked for', producer.id);
+        Network.instance.mediasoupOperationQueue.add({
+            object: producer,
+            action: 'resume'
+        });
+        // await producer.resume();
         if (userId != null && Network.instance.clients[userId] != null) {
             Network.instance.clients[userId].media[producer.appData.mediaTag].paused = false;
             Network.instance.clients[userId].media[producer.appData.mediaTag].globalMute = false;
@@ -526,9 +528,10 @@ export async function handleWebRtcPauseProducer(socket, data, callback): Promise
     const { producerId, globalMute } = data,
         producer = MediaStreamSystem.instance?.producers.find(p => p.id === producerId);
     if (producer != null) {
-        console.log('pause-producer for', producer.id);
-        await producer.pause();
-        console.log('pause-producer worked for', producer.id);
+        Network.instance.mediasoupOperationQueue.add({
+            object: producer,
+            action: 'pause'
+        });
         if (userId != null && Network.instance.clients[userId] != null && Network.instance.clients[userId].media[producer.appData.mediaTag] != null) {
             Network.instance.clients[userId].media[producer.appData.mediaTag].paused = true;
             Network.instance.clients[userId].media[producer.appData.mediaTag].globalMute = globalMute || false;
