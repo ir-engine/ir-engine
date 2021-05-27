@@ -27,6 +27,7 @@ import { EquippableAttachmentPoint } from '../../../../interaction/enums/Equippe
  */
 
 const clubPowerMultiplier = 1;
+const canDoChipShots = true;
 
 export const initializeGolfClub = (entity: Entity) => {
   // its transform was set in createGolfClubPrefab from parameters (its transform Golf Tee);
@@ -67,14 +68,6 @@ export const initializeGolfClub = (entity: Entity) => {
     });
   }
 
-  const shapeHandle = createShapeFromConfig({
-    shape: SHAPES.Box,
-    options: { boxExtents: { x: 0.05, y: 0.05, z: 0.25 } },
-    config: {
-      collisionLayer: GolfCollisionGroups.Club,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground
-    }
-  });
   const shapeHead = createShapeFromConfig({
     shape: SHAPES.Box,
     options: { boxExtents: { x: 0.25, y: 0.2, z: 0.2 } },
@@ -89,7 +82,7 @@ export const initializeGolfClub = (entity: Entity) => {
   });
 
   const body = PhysicsSystem.instance.addBody(new Body({
-    shapes: [shapeHandle, shapeHead],
+    shapes: [shapeHead],
     type:  BodyType.DYNAMIC,
     transform: {
       translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
@@ -117,7 +110,7 @@ export const initializeGolfClub = (entity: Entity) => {
     if(!ballObject || ballObject.role !== 'GolfBall') return;
     // undo our delta so we get our transform velocity in units/second instead of units/frame
     const clampedDelta = Math.max(1/30, Math.min(Engine.delta, 1/60)) * 1000;
-    // force is in grams, we need it in kg, so x1000
+    // force is in kg, we need it in grams, so x1000
     const velocityMultiplier = clampedDelta * clubPowerMultiplier * 1000;
     // console.log(collider.lastPositions[0], collider.lastPositions[1])
     // console.log(
@@ -130,7 +123,7 @@ export const initializeGolfClub = (entity: Entity) => {
     // );
     (ev.bodyOther as any).addForce({
       x: ev.bodySelf.transform.linearVelocity.x * velocityMultiplier,
-      y: 0, // lock to XZ plane
+      y: canDoChipShots ? ev.bodySelf.transform.linearVelocity.y * velocityMultiplier : 0, // lock to XZ plane if we disable chip shots
       z: ev.bodySelf.transform.linearVelocity.z * velocityMultiplier,
     })
   })

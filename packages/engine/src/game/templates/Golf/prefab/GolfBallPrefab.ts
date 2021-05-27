@@ -59,9 +59,12 @@ export const initializeGolfBall = (entity: Entity) => {
     shape: SHAPES.Sphere,
     options: { radius: golfBallRadius + golfBallColliderExpansion },
     config: {
-      restOffset: -golfBallColliderExpansion, // we add a rest offset to make the contact detection of the ball bigger, without making the actual size of the ball bigger
-      contactOffset: -golfBallColliderExpansion + 0.01, // we mostly reverse the expansion
-      material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.9 },
+       // we add a rest offset to make the contact detection of the ball bigger, without making the actual size of the ball bigger
+      restOffset: -golfBallColliderExpansion,
+      // we mostly reverse the expansion for contact detection (so the ball rests on the ground)
+      // this will not reverse the expansion for trigger colliders
+      contactOffset: golfBallColliderExpansion,
+      material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.95 },
       collisionLayer: GolfCollisionGroups.Ball,
       collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.TrimeshColliders | GolfCollisionGroups.Hole,
     },
