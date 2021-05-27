@@ -2,6 +2,7 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { System, SystemAttributes } from '../../ecs/classes/System';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { localMediaConstraints } from '../constants/VideoConstants';
+import {Network} from "../classes/Network";
 
 /** System class for media streaming. */
 export class MediaStreamSystem extends System {
@@ -40,6 +41,8 @@ export class MediaStreamSystem extends System {
   public screenShareVideoPaused = false
   /** Indication of whether the audio while screen sharing is paused or not. */
   public screenShareAudioPaused = false
+
+  public executeInProgress = false
 
   /** Whether the component is initialized or not. */
   public initialized = false
@@ -141,7 +144,20 @@ export class MediaStreamSystem extends System {
   }
 
   /** Execute the media stream system. */
-  public execute = null;
+  public execute = async (): Promise<void> => {
+    if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && this.executeInProgress === false) {
+      this.executeInProgress = true;
+      console.log('Set executeInProgress to', this.executeInProgress);
+      const buffer = Network.instance.mediasoupOperationQueue.pop() as any;
+      console.log(buffer.action, ' on ', buffer.object);
+      if (buffer.object && buffer.object.closed !== true) {
+        if (buffer.action === 'resume') await buffer.object.resume();
+        else if (buffer.action === 'pause') await buffer.object.pause();
+      }
+      this.executeInProgress = false;
+      console.log('Set executeInProgress to', this.executeInProgress);
+    }
+  }
 
   /**
    * Start the camera.
