@@ -60,10 +60,6 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
 
         this.add(this.geometry);
 
-        const groundPlane = new Mesh( new PlaneGeometry( 200, 100, 100 ),  this.centerBall.material);
-        groundPlane.rotateX( - Math.PI / 2 );
-        groundPlane.position.set( 0, - 49, 0 );
-        this.add( groundPlane );
     }
 
 
@@ -88,7 +84,6 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
                 child.material.envMapIntensity=this.reflectionProbeSettings.intensity;
         });
     }
-
     injectShader(){
         this.editor.scene.traverse(child=>{
             if(child.material){
@@ -105,7 +100,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
                         envmapPhysicalParsReplace
                     );
                 }.bind(this);
-              };
+              }
         });
     }
 
