@@ -18,6 +18,7 @@ import { SceneQueryType } from "three-physx";
 import { Not } from "../../ecs/functions/ComponentFunctions";
 import { Input } from "../../input/components/Input";
 import { BaseInput } from "../../input/enums/BaseInput";
+import PersistTagComponent from "../../scene/components/PersistTagComponent";
 
 let direction = new Vector3();
 const upVector = new Vector3(0, 1, 0);
@@ -38,12 +39,13 @@ export class CameraSystem extends System {
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     CameraSystem.instance = this;
-    
+
     const cameraEntity = createEntity();
     addComponent(cameraEntity, CameraComponent );
     addComponent(cameraEntity, CameraTagComponent );
     addObject3DComponent(cameraEntity, { obj3d: Engine.camera });
     addComponent(cameraEntity, TransformComponent);
+    addComponent(cameraEntity, PersistTagComponent);
     CameraSystem.instance.activeCamera = cameraEntity;
   }
 

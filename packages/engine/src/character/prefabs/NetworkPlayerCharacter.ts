@@ -36,6 +36,7 @@ import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { addObject3DComponent } from "../../scene/behaviors/addObject3DComponent";
 import { createShadow } from "../../scene/behaviors/createShadow";
 import { TransformComponent } from "../../transform/components/TransformComponent";
+import PersistTagComponent from "../../scene/components/PersistTagComponent";
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
@@ -272,7 +273,8 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
 	localClientComponents: [
 		{ type: LocalInputReceiver },
 		{ type: FollowCameraComponent, data: { distance: 3, mode: CameraModes.ThirdPerson } },
-		{ type: Interactor }
+		{ type: Interactor },
+		{ type: PersistTagComponent }
 	],
 	clientComponents: [
 		// Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player
