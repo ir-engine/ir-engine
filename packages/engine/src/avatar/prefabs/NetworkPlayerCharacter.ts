@@ -83,7 +83,6 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		})
 
 		console.log("Target skeleton is", targetSkinnedMesh);
-
 		initializeAvatarRig(entity, tmpGroup);
 
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
