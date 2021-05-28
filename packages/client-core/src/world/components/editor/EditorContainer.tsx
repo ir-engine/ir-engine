@@ -849,8 +849,9 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                     queryParams={assigneeScene}
                   />}
                   <WorkspaceContainer>
+                    <ViewportPanelContainer />
                     <Resizeable axis="x" initialSizes={[0.7, 0.3]} onChange={this.onResize}>
-                      <ViewportPanelContainer />
+                      <div />
                       <Resizeable axis="y" initialSizes={[0.5, 0.5]}>
                         <HierarchyPanelContainer />
                         <PropertiesPanelContainer />

@@ -15,6 +15,8 @@ import { ChartArea } from "@styled-icons/fa-solid/ChartArea";
 import { InfoTooltip } from "../layout/Tooltip";
 import Stats from "./Stats";
 import { useTranslation } from 'react-i18next';
+// @ts-ignore
+import styles from "./styles.module.scss";
 
 /**
  * BorderColor used to get border color.
@@ -76,7 +78,7 @@ const ViewportContainer = (styled as any).div`
  */
 const ControlsText = (styled as any).div`
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
   pointer-events: none;
   color: white;
@@ -346,6 +348,7 @@ export function ViewportPanelContainer() {
   return (
     <Panel
     /* @ts-ignore */
+      className={styles.viewportPanel}
       id="viewport-panel"
       title={t('editor:viewport.title')}
       icon={WindowMaximize}
