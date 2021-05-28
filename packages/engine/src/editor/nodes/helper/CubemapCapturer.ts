@@ -176,7 +176,7 @@ export default class CubemapCapturer{
 		this.cubeCamera.updateCubeMap( this.renderer, this.sceneToRender );
 		this.renderer.autoClear = autoClear;
 		this.downloadAfterCapture&&this.convert();
-		return (new PMREMGenerator(this.renderer)).fromCubemap(this.cubeRenderTarget.texture);
+		return (this.cubeRenderTarget);
 	}
 
 

@@ -49,7 +49,9 @@ const FeedOnboarding = (props: Props) => {
             </div>;
 
         case(2):
-            return <div className={styles.secondScreen+" "+styles.onboarding}>
+
+            return <div className={!visibility ? styles.firstScreen
+                +" "+styles.onboarding+" "+styles.unvisibile : styles.secondScreen+" "+styles.onboarding}>
                 <div className={styles.relativeImage}>
                     <img src="/assets/feedOnboarding/clip.png" className={styles.mobImage} />
                     <div className={styles.relativePointer}>
@@ -73,7 +75,9 @@ const FeedOnboarding = (props: Props) => {
             </div>;
 
         case(3):
-            return <div className={styles.thirdScreen+" "+styles.onboarding}>
+
+            return <div className={!visibility ? styles.firstScreen
+                +" "+styles.onboarding+" "+styles.unvisibile : styles.thirdScreen+" "+styles.onboarding}>
                 <div className={styles.relativeImage}>
                     <img src="/assets/feedOnboarding/camera.png" className={styles.mobImage} />
                     <div className={styles.relativePointer}>

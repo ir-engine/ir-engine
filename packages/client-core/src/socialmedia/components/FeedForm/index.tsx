@@ -81,7 +81,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         if(feed){                    
             updateFeedAsAdmin(feed.id, newFeed);
         }else{
-           setVideoUrl(await createFeed(newFeed)); 
+           setVideoUrl(await createFeed(newFeed));
         }
         console.log(newFeed);
 
@@ -176,6 +176,13 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     useEffect(()=> {videoUrl && updateNewFeedPageState(false, null) && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
     // const handlePickVideo = async (file) => setVideo(popupsState?.get('videoPath'));
     // const handlePickPreview = async (file) => setPreview('');
+
+    useEffect(()=>{
+        return ()=>{
+            // cleaning up memory to avoid leaks
+            setIsSended(null)
+        }
+    })
 
     const feedsFetching = feedsState.get('feedsFetching');
 
