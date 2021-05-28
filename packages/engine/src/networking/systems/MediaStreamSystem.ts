@@ -147,15 +147,18 @@ export class MediaStreamSystem extends System {
   public execute = async (): Promise<void> => {
     if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && this.executeInProgress === false) {
       this.executeInProgress = true;
-      console.log('Set executeInProgress to', this.executeInProgress);
       const buffer = Network.instance.mediasoupOperationQueue.pop() as any;
-      console.log(buffer.action, ' on ', buffer.object);
       if (buffer.object && buffer.object.closed !== true) {
-        if (buffer.action === 'resume') await buffer.object.resume();
-        else if (buffer.action === 'pause') await buffer.object.pause();
+        try {
+          if (buffer.action === 'resume') await buffer.object.resume();
+          else if (buffer.action === 'pause') await buffer.object.pause();
+        } catch(err) {
+          console.log('Pause or resume error');
+          console.log(err);
+          console.log(buffer.object)
+        }
       }
       this.executeInProgress = false;
-      console.log('Set executeInProgress to', this.executeInProgress);
     }
   }
 
