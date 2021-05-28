@@ -33,21 +33,19 @@ export default function EditorNodeMixin(Object3DClass) {
       const node = new this(editor);
       node.name = json.name;
       if (json.components) {
-        const transformComponent = json.components.find(
-          c => c.name === "transform"
-        );
+        const transformComponent = json.components.find(c => c.name === "transform");
         if (transformComponent) {
           const { position, rotation, scale } = transformComponent.props;
           node.position.set(position.x, position.y, position.z);
           node.rotation.set(rotation.x, rotation.y, rotation.z);
           node.scale.set(scale.x, scale.y, scale.z);
         }
-        const visibleComponent = json.components.find(
-          c => c.name === "visible"
-        );
-        if (visibleComponent) {
-          node.visible = visibleComponent.props.visible;
-        }
+
+        const visibleComponent = json.components.find(c => c.name === "visible");
+        if (visibleComponent) node.visible = visibleComponent.props.visible;
+
+        const persistComponent = json.components.find(c => c.name === "persist");
+        node.persist = !!persistComponent;
       }
       return node;
     }
@@ -125,9 +123,17 @@ export default function EditorNodeMixin(Object3DClass) {
             props: {
               visible: this.visible
             }
-          }
+          },
         ]
       };
+
+      if (this.persist) {
+        entityJson.components.push({
+          name: "persist",
+          props: {} as any,
+        })
+      }
+
       if (components) {
         for (const componentName in components) {
           if (!Object.prototype.hasOwnProperty.call(components, componentName))

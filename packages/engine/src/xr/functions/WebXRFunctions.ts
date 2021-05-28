@@ -49,7 +49,7 @@ export const startXR = async (): Promise<boolean> => {
     })
 
 
-    head = Engine.xrRenderer.getCamera(Engine.camera);
+    head = Engine.xrRenderer.getCamera();
     controllerLeft = Engine.xrRenderer.getController(1);
     controllerRight = Engine.xrRenderer.getController(0);
     actor.tiltContainer.add(controllerLeft);

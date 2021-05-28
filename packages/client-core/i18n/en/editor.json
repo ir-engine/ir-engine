@@ -116,6 +116,7 @@
     "properties": {
         "title": "Properties",
         "lbl-visible": "Visible",
+        "lbl-persist": "Persist",
         "multipleNodeSelected": "Multiple Nodes of different types selected",
         "noNodeSelected": "No node selected",
         "ambientLight": {

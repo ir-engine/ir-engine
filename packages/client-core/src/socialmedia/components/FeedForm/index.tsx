@@ -50,7 +50,8 @@ interface Props{
     updateNewFeedPageState?: typeof updateNewFeedPageState; 
     updateShareFormState?: typeof updateShareFormState;
     updateArMediaState?: typeof updateArMediaState;
-    changeWebXrNative?: any
+    changeWebXrNative?: any;
+    webxrnativeState?: any;
 }
 const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, updateShareFormState, updateArMediaState, popupsState, feedsState, webxrnativeState, changeWebXrNative } : Props) => {
     const [isSended, setIsSended] = useState(false);
