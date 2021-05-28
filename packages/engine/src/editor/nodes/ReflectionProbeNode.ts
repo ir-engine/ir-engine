@@ -24,7 +24,6 @@ export type ReflectionProbeSettings={
     probeScale:Vector3,
     reflectionType:ReflectionProbeTypes,
     intensity:number,
-    boxProjection:boolean,
     resolution:number,
     hdr:boolean,
     refreshMode:ReflectionProbeRefreshTypes,
@@ -50,7 +49,6 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
             probeScale:new Vector3(1,1,1),
             reflectionType:ReflectionProbeTypes.Baked,
             intensity:1,
-            boxProjection:false,
             resolution:512,
             hdr:false,
             refreshMode:ReflectionProbeRefreshTypes.OnAwake,
@@ -73,7 +71,8 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
         const sceneToBake=this.getSceneForBaking(this.editor.scene);
         const cubemapCapturer=new CubemapCapturer(this.editor.renderer.renderer,sceneToBake,this.reflectionProbeSettings.resolution,this.reflectionProbeSettings.reflectionType==1);
         const currentEnvMap=cubemapCapturer.update(this.position);
-        this.setSceneObjects(currentEnvMap.texture);
+        this.injectShader();
+        this.editor.scene.environment=currentEnvMap.texture;
     }
 
     Bake=()=>{
@@ -90,10 +89,9 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
         });
     }
 
-    setSceneObjects(texture:Texture){
+    injectShader(){
         this.editor.scene.traverse(child=>{
             if(child.material){
-                child.material.envMap=texture;
                 child.material.onBeforeCompile = function ( shader ) {
                     shader.uniforms.cubeMapSize={value: this.reflectionProbeSettings.probeScale}
                     shader.uniforms.cubeMapPos={value: this.reflectionProbeSettings.probePosition}

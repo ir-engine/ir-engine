@@ -57,11 +57,6 @@ const DefaultReflectionProbeSettings=[
                 max:10,
                 step:0.1,
             },
-            {
-                label:"Box Projection",
-                propertyName:"boxProjection",
-                type:ReflectionPropertyTypes.Boolean,
-            },
         ]
     },
 

@@ -20,14 +20,16 @@ export const setReflectionProbe: Behavior = (entity, args: {}) => {
     
     switch(options.reflectionType){
       case ReflectionProbeTypes.Baked:
-        const envMapAddress="/ReflectionProbe/envMap.png";
-        new TextureLoader().load(envMapAddress, (texture) => {
-          const pmremGenerator = new PMREMGenerator(Engine.renderer);
-          const EnvMap = pmremGenerator.fromEquirectangular(texture).texture;
-          Engine.scene.environment = EnvMap;
-          texture.dispose();
-          pmremGenerator.dispose();
-        });
+        // const envMapAddress="/ReflectionProbe/envMap.png";
+        // new TextureLoader().load(envMapAddress, (texture) => {
+        //   const pmremGenerator = new PMREMGenerator(Engine.renderer);
+        //   const EnvMap = pmremGenerator.fromEquirectangular(texture).texture;
+        //   Engine.scene.environment = EnvMap;
+        //   texture.dispose();
+        //   pmremGenerator.dispose();
+        // });
+
+        //TO DO
         break;
       case ReflectionProbeTypes.Realtime:
         const map=new CubemapCapturer(Engine.renderer,Engine.scene,options.resolution,false);
@@ -39,20 +41,11 @@ export const setReflectionProbe: Behavior = (entity, args: {}) => {
 
       Engine.scene.traverse(child=>{
         const mat=(child as any).material;
-        if(mat!==undefined)
+        if(mat){
           mat.envMapIntensity=options.intensity;
-        console.log("Reflection");
-   });
-
-
-    if(options.boxProjection){
-      Engine.scene.traverse(child=>{
-      if ((child as any).isMesh || (child as any).isSkinnedMesh) {
-        (child as any).material.onBeforeCompile = function ( shader ) {
-              //these parameters are for the cubeCamera texture
+          mat.onBeforeCompile = function ( shader ) {
               shader.uniforms.cubeMapSize = { value: options.probeScale};
               shader.uniforms.cubeMapPos = { value: options.probePosition};
-              //replace shader chunks with box projection chunks
               shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader;
               shader.vertexShader = shader.vertexShader.replace(
                   '#include <worldpos_vertex>',
@@ -63,9 +56,8 @@ export const setReflectionProbe: Behavior = (entity, args: {}) => {
                   envmapPhysicalParsReplace
               );
         };
-        }
-      });
-    }
-  }
-};
-
+      }
+    });
+  
+}
+}
