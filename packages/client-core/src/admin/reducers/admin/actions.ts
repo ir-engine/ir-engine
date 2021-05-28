@@ -18,7 +18,8 @@ import {
   PARTY_ADMIN_DISPLAYED,
   USER_ADMIN_REMOVED,
   USER_ADMIN_CREATED,
-  USER_ADMIN_PATCHED
+  USER_ADMIN_PATCHED,
+  USER_SEARCH_ADMIN
 } from '../actions';
 import { User } from '@xrengine/common/src/interfaces/User';
 
@@ -236,6 +237,13 @@ export const userAdminRemoved = (data): userAdminRemovedResponse => {
 export const userRoleUpdated = (data: any): any => {
   return {
     type: USER_ROLE_UPDATED,
+    data: data
+  };
+};
+
+export const searchedUser = (data: any): any => {
+  return {
+    type: USER_SEARCH_ADMIN,
     data: data
   };
 };

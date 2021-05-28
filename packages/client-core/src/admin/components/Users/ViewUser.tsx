@@ -161,7 +161,7 @@ const ViewUser = (props: Props) => {
                                 <Grid container spacing={2}>
                                     <Grid item xs={4}>
                                         <Avatar className={classes.large}>{
-                                            !userAdmin.avatarId ? <Skeleton animation="wave" variant="circle" width={40} height={40} /> : userAdmin.avatarId.charAt(0)
+                                            !userAdmin.avatarId ? <Skeleton animation="wave" variant="circle" width={40} height={40} /> : userAdmin.avatarId.charAt(0).toUpperCase()
                                         }
                                         </Avatar>
                                     </Grid>

@@ -46,6 +46,8 @@ export function Timer (
   let prevTimerRuns = 0;
 
   function xrAnimationLoop(time, xrFrame) {
+    Engine.xrRenderer?.onAnimationFrame(time, xrFrame);
+    XRSystem.instance.xrFrame = xrFrame;
     if (last !== null) {
       delta = (time - last) / 1000;
       accumulated = accumulated + delta;
@@ -55,19 +57,19 @@ export function Timer (
       if (networkRunner) {
         networkRunner.run(delta);
       }
-      XRSystem.instance.xrFrame = xrFrame;
       if (callbacks.update) {
         callbacks.update(delta, accumulated);
       }
     }
     last = time;
+    Engine.xrSession.requestAnimationFrame( xrAnimationLoop )
 	}
 
   EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => {
     stop();
   });
   EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_SESSION, async (ev: any) => {
-    Engine.renderer?.xr?.setAnimationLoop(xrAnimationLoop);
+    Engine.xrSession.requestAnimationFrame( xrAnimationLoop )
   });
   EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => {
     start();

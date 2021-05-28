@@ -10,8 +10,8 @@ import { UserControlledColliderComponent } from '../../../../physics/components/
 import { Group, Mesh, Vector3 } from 'three';
 import { AssetLoader } from '../../../../assets/classes/AssetLoader';
 import { Engine } from '../../../../ecs/classes/Engine';
-import { Body, BodyType, ColliderHitEvent, CollisionEvents, createShapeFromConfig, SHAPES } from 'three-physx';
-import { CollisionGroups, DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
+import { Body, BodyType, CollisionEvents, createShapeFromConfig, SHAPES } from 'three-physx';
+import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions';
 import { isClient } from '../../../../common/functions/isClient';
@@ -20,11 +20,14 @@ import { WebGLRendererSystem } from '../../../../renderer/WebGLRendererSystem';
 import { GameObject } from '../../../components/GameObject';
 import { NetworkObject } from '../../../../networking/components/NetworkObject';
 import { Network } from '../../../../networking/classes/Network';
+import { HasHadCollision } from '../../../../game/actions/HasHadCollision';
+import { addActionComponent } from '../../../../game/functions/functionsActions';
 /**
 * @author Josh Field <github.com/HexaField>
  */
 
-const golfBallRadius = 0.03;
+const golfBallRadius = 0.03; // this is the graphical size of the golf ball
+const golfBallColliderExpansion = 0.03; // this is the size of the ball collider
 
 export const initializeGolfBall = (entity: Entity) => {
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
@@ -56,11 +59,16 @@ export const initializeGolfBall = (entity: Entity) => {
 
   const shape = createShapeFromConfig({
     shape: SHAPES.Sphere,
-    options: { radius: golfBallRadius },
+    options: { radius: golfBallRadius + golfBallColliderExpansion },
     config: {
-      material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.9 },
+       // we add a rest offset to make the contact detection of the ball bigger, without making the actual size of the ball bigger
+      restOffset: -golfBallColliderExpansion,
+      // we mostly reverse the expansion for contact detection (so the ball rests on the ground)
+      // this will not reverse the expansion for trigger colliders
+      contactOffset: golfBallColliderExpansion,
+      material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.95 },
       collisionLayer: GolfCollisionGroups.Ball,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.TrimeshColliders | GolfCollisionGroups.Hole,
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Hole,
     },
   });
 
@@ -75,6 +83,15 @@ export const initializeGolfBall = (entity: Entity) => {
 
   const collider = getMutableComponent(entity, ColliderComponent);
   collider.body = body;
+/*
+  body.addEventListener(CollisionEvents.TRIGGER_START, (ev: ColliderHitEvent) => {
+    const otherEntity = ev.bodyOther.userData as Entity;
+    if(typeof otherEntity === 'undefined') return
+    const ballObject = getComponent<GameObject>(otherEntity, GameObject)
+    if(!ballObject || ballObject.role !== 'GolfHole') return;
+    addActionComponent(otherEntity, HasHadCollision);
+  })
+*/
 }
 
 export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: number, uniqueId: string, ownerId?: string }) => {

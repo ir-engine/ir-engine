@@ -16,7 +16,8 @@ import {
   USER_ADMIN_CREATED,
   USER_ADMIN_PATCHED,
   PARTY_ADMIN_DISPLAYED,
-  USER_ADMIN_REMOVED
+  USER_ADMIN_REMOVED,
+  USER_SEARCH_ADMIN
 } from "../actions";
 import {
   LOCATIONS_RETRIEVED,
@@ -298,7 +299,19 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('updateNeeded', true);
       return state
         .set('users', updateMap);
-
+    case USER_SEARCH_ADMIN:
+      result = (action as any).data;
+      updateMap = new Map(state.get("users"));
+      updateMap.set("users", (result as any).data);
+      updateMap.set('skip', (result as any).skip);
+      updateMap.set('limit', (result as any).limit);
+      updateMap.set('total', (result as any).total);
+      updateMap.set('retrieving', false);
+      updateMap.set('fetched', true);
+      updateMap.set('updateNeeded', false);
+      updateMap.set('lastFetched', new Date());
+      return state
+        .set("users", updateMap);
   }
 
   return state;

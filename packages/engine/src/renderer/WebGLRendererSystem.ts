@@ -29,6 +29,7 @@ import { EngineEvents } from '../ecs/classes/EngineEvents';
 import { System, SystemAttributes } from '../ecs/classes/System';
 import { defaultPostProcessingSchema, effectType } from '../scene/classes/PostProcessing';
 import { PostProcessingSchema } from './interfaces/PostProcessingSchema';
+import { WebXRManager } from '../xr/WebXRManager.js'
 
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',
@@ -124,6 +125,8 @@ export class WebGLRendererSystem extends System {
     renderer.toneMapping = LinearToneMapping;
     renderer.toneMappingExposure = 0.8;
     Engine.renderer = renderer;
+    Engine.xrRenderer = new WebXRManager(renderer, context);
+    Engine.xrRenderer.enabled = Engine.xrSupported;
 
     // Cascaded shadow maps
     const csm = new CSM({
@@ -253,10 +256,16 @@ export class WebGLRendererSystem extends System {
   execute(delta: number): void {
     const startTime = now();
 
-    if (Engine.renderer.xr.isPresenting) {
+    if (Engine.xrRenderer.isPresenting) {
 
       this.csm.update();
-      Engine.renderer.render(Engine.scene, Engine.camera);
+
+      // override default threejs behavior, use our own WebXRManager
+      // we still need to apply the WebXR camera array
+
+      Engine.xrRenderer.updateCamera(Engine.camera);
+      const camera = Engine.xrRenderer.getCamera();
+      Engine.renderer.render(Engine.scene, camera);
 
     } else {
 
@@ -284,8 +293,8 @@ export class WebGLRendererSystem extends System {
       this.csm.update();
       if (this.usePostProcessing && this.postProcessingSchema) {
         // TODO: support webxr, requires changes to postprocessing package
-        // if(Engine.renderer.xr.isPresenting) {
-        //   const xrCam = Engine.renderer.xr.getCamera(Engine.camera);
+        // if(Engine.xrRenderer.isPresenting) {
+        //   const xrCam = Engine.xrRenderer.getCamera(Engine.camera);
         //   this.composer.passes.forEach((pass) => {
         //     pass.camera = xrCam;
         //   })
@@ -379,7 +388,7 @@ export class WebGLRendererSystem extends System {
       default: break;
       case this.maxQualityLevel - 2: mapSize = 1024; break;
       case this.maxQualityLevel - 1: mapSize = 2048; break;
-      case this.maxQualityLevel: mapSize = Engine.renderer.xr.isPresenting ? 2048 : 4096; break;
+      case this.maxQualityLevel: mapSize = Engine.xrRenderer.isPresenting ? 2048 : 4096; break;
     }
     this.csm.setShadowMapSize(mapSize);
     ClientStorage.set(databasePrefix + RENDERER_SETTINGS.SHADOW_QUALITY, this.shadowQuality);
@@ -387,7 +396,7 @@ export class WebGLRendererSystem extends System {
 
   setUsePostProcessing(usePostProcessing) {
     if (!this._supportWebGL2) return;
-    if (Engine.renderer?.xr?.isPresenting) return;
+    if (Engine.xrRenderer?.isPresenting) return;
     this.usePostProcessing = usePostProcessing;
     Engine.renderer.outputEncoding = this.usePostProcessing ? sRGBEncoding : sRGBEncoding;
     Engine.renderer.toneMapping = this.usePostProcessing ? LinearToneMapping : LinearToneMapping;

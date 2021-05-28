@@ -51,7 +51,7 @@ export const addHole: Behavior = (entity: Entity, args?: any, delta?: number, en
   })
 
   // if we loaded this collider with a model, make it invisible
-  getComponent(entity, Object3DComponent)?.value?.traverse(obj => obj.visible = false)
+//  getComponent(entity, Object3DComponent)?.value?.traverse(obj => obj.visible = false)
 
   //addColliderWithEntity(entity);
 };

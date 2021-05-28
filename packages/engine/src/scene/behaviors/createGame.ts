@@ -3,9 +3,8 @@ import { addComponent, getMutableComponent } from "../../ecs/functions/EntityFun
 import { GamesSchema } from "../../game/templates/GamesSchema";
 import { Game } from "../../game/components/Game";
 import { GameObject } from "../../game/components/GameObject";
-import { getGameFromName } from "../../game/functions/functions";
-import { GameManagerSystem } from "../../game/systems/GameManagerSystem";
 import { TransformComponent } from '../../transform/components/TransformComponent';
+import { GameMode } from "../../game/types/GameMode";
 
 export const createGame: Behavior = (entity, args: any) => {
   console.log(args.gameMode+' GAME LOADING ...');
