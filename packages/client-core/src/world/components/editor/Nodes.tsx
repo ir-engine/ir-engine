@@ -22,6 +22,11 @@ import SpotLightNode from "@xrengine/engine/src/editor/nodes/SpotLightNode";
 import TriggerVolumeNode from "@xrengine/engine/src/editor/nodes/TriggerVolumeNode";
 import VideoNode from "@xrengine/engine/src/editor/nodes/VideoNode";
 import VolumetricNode from "@xrengine/engine/src/editor/nodes/VolumetricNode";
+<<<<<<< Updated upstream
+=======
+import ReflectionProbeNode from "@xrengine/engine/src/editor/nodes/ReflectionProbeNode";
+import TestNode from "@xrengine/engine/src/editor/nodes/TestNode";
+>>>>>>> Stashed changes
 import SplineNode from "@xrengine/engine/src/editor/nodes/SplineNode";
 import ElementsSource from "./assets/sources/ElementsSource";
 import MyAssetsSource from "./assets/sources/MyAssetsSource";
@@ -41,6 +46,11 @@ import ModelNodeEditor from "./properties/ModelNodeEditor";
 import ParticleEmitterNodeEditor from "./properties/ParticleEmitterNodeEditor";
 import PointLightNodeEditor from "./properties/PointLightNodeEditor";
 import PostProcessingNodeEditor from "./properties/PostProcessingNodeEditor";
+<<<<<<< Updated upstream
+=======
+import ReflectionProbeNodeEditor from "./properties/ReflectionProbeNodeEditor";
+import TestNodeEditor from "./properties/TestNodeEditor";
+>>>>>>> Stashed changes
 import SceneNodeEditor from "./properties/SceneNodeEditor";
 import ScenePreviewCameraNodeEditor from "./properties/ScenePreviewCameraNodeEditor";
 import SkyboxNodeEditor from "./properties/SkyboxNodeEditor";
@@ -88,6 +98,11 @@ export function createEditor(api, settings, Engine) {
   editor.registerSource(new ElementsSource(editor));
   editor.registerSource(new MyAssetsSource(editor));
   editor.registerNode(GameNode, GameNodeEditor);
+<<<<<<< Updated upstream
+=======
+  editor.registerNode(ReflectionProbeNode,ReflectionProbeNodeEditor);
+  editor.registerNode(TestNode,TestNodeEditor);
+>>>>>>> Stashed changes
 
   return editor;
 }
