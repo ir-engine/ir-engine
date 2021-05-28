@@ -410,7 +410,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                   // setContentHidden();
               }).catch(error => alert(error.message));
         }else{
-            return console.log('Record state is OFF')
+            return console.log('Record state is OFF');
         }
 
     };
@@ -432,11 +432,11 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                 console.log("RECORDING, STATUS IS", status);
             }).catch(error => alert(error.message));
         }
-    }
+    };
 
     const toggleRecording = () => {
         if (recordingState === RecordingStates.OFF) {
-            startRecord()
+            startRecord();
         }
         else if (recordingState === RecordingStates.ON) {
             finishRecord();

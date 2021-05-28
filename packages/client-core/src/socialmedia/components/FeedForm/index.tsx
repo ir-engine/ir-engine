@@ -119,7 +119,6 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         .then((myBlob) => {
          const myFile = new File([myBlob], "test.mp4");
          setVideo(myFile);
-         setPreview(myFile);
          console.log(myFile);
          /*Preview Begin*/
          const file = myFile;
@@ -148,7 +147,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
                 const image = canvas.toDataURL();
                 const success = image.length > 100000;
                 if (success) {
-//                     setPreview(dataURItoBlob(image));
+                    setPreview(dataURItoBlob(image));
                     URL.revokeObjectURL(url);
                 }
                 return success;
