@@ -2,85 +2,145 @@
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { Button, CardMedia, Typography} from '@material-ui/core';
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-import { useTranslation } from 'react-i18next';
-import { selectCreatorsState } from '../../reducers/creator/selector';
-import { createArMedia, getArMedia } from '../../reducers/arMedia/service';
-import { selectArMediaState } from '../../reducers/arMedia/selector';
-import { updateArMediaState,  updateWebXRState } from '../../reducers/popupsState/service';
 
+import { Typography } from '@material-ui/core';
+import Card from '@material-ui/core/Card';
+import CardMedia from '@material-ui/core/CardMedia';
+import VisibilityIcon from '@material-ui/icons/Visibility';
+
+import { selectAuthState } from '../../../user/reducers/auth/selector';
+import { selectCreatorsState } from '../../reducers/creator/selector';
+import { selectFeedsState } from '../../reducers/feed/selector';
+import { getFeeds, setFeedAsFeatured, setFeedNotFeatured } from '../../reducers/feed/service';
+import { selectPopupsState } from '../../reducers/popupsState/selector';
+import { updateFeedPageState } from '../../reducers/popupsState/service';
 // @ts-ignore
-import styles from './ArMedia.module.scss';
+import styles from './Featured.module.scss';
 
 const mapStateToProps = (state: any): any => {
     return {
-      creatorsState: selectCreatorsState(state),
-      arMediaState: selectArMediaState(state),
+        feedsState: selectFeedsState(state),
+        creatorState: selectCreatorsState(state),
+        authState: selectAuthState(state),
+        popupsState: selectPopupsState(state),
     };
   };
 
   const mapDispatchToProps = (dispatch: Dispatch): any => ({
-    createArMedia: bindActionCreators(createArMedia, dispatch),
-    getArMedia: bindActionCreators(getArMedia, dispatch),
-    updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
-    updateWebXRState: bindActionCreators(updateWebXRState, dispatch),
-});
-  interface Props{
-    projects?:any[];
-    view?:any;
-    creatorsState?: any;
-    arMediaState?: any;
-    createArMedia?: typeof createArMedia;
-    getArMedia?:typeof getArMedia;
-    updateArMediaState?:typeof updateArMediaState;
-    updateWebXRState?: typeof updateWebXRState;
-  }
+    getFeeds: bindActionCreators(getFeeds, dispatch),
+    setFeedAsFeatured: bindActionCreators(setFeedAsFeatured, dispatch),
+    setFeedNotFeatured: bindActionCreators(setFeedNotFeatured, dispatch),
+    updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch),
+  });
+interface Props{
+    feedsState?: any,
+    authState?:any;
+    popupsState?:any;
+    getFeeds?: any,
+    type?:string,
+    creatorId?: string,
+    creatorState?: any;
+    setFeedAsFeatured?: typeof setFeedAsFeatured;
+    setFeedNotFeatured?: typeof setFeedNotFeatured;
+    updateFeedPageState?: typeof updateFeedPageState;
+}
 
-const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateWebXRState}:Props) => {
-  const [type, setType] = useState('clip');
-  const [list, setList] = useState(null);
-  const [selectedItem, setSelectedItem] = useState(null);
-  useEffect(()=> {getArMedia();}, []);
-	const { t } = useTranslation();
+const Featured = ({feedsState, getFeeds, type, creatorId, popupsState, creatorState, setFeedAsFeatured, setFeedNotFeatured, authState, updateFeedPageState} : Props) => { 
+    const [feedsList, setFeedList] = useState([]);
+    const { t } = useTranslation();
 
-  useEffect(()=> {
-      if(arMediaState.get('fetching') === false){
-      setList(arMediaState?.get('list').filter(item=>item.type === type));
-    }
-  }, [arMediaState.get('fetching'), type]);
+    useEffect(()=> {
+        if(type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired'){
+            getFeeds(type, creatorId);
+        }else{
+          const userIdentityType = authState.get('authUser')?.identityProvider?.type ?? 'guest';
+          userIdentityType !== 'guest' ? getFeeds('featured') : getFeeds('featuredGuest');
+        }
+    }, [type, creatorId, feedsState.get('feeds')]);
 
-    return <section className={styles.arMediaContainer}>
-      <Button variant="text" className={styles.backButton} onClick={()=>updateArMediaState(false)}><ArrowBackIosIcon />{t('social:arMedia.back')}</Button>
-      <section className={styles.switcher}>
-        <Button variant={type === 'clip' ? 'contained' : 'text'} className={styles.switchButton+(type === 'clip' ? ' '+styles.active : '')}
-            onClick={()=>setType('clip')}>{t('social:arMedia.clip')}</Button>
-        <Button variant={type === 'background' ? 'contained' : 'text'} className={styles.switchButton+(type === 'background' ? ' '+styles.active : '')}
-            onClick={()=>setType('background')}>{t('social:arMedia.backgrounds')}</Button>
-      </section>
-      <section className={styles.flexContainer}>
-        {list?.map((item, itemIndex)=>
-            <section key={item.id} className={styles.previewImageContainer}>
-              <CardMedia
-                onClick={() => setSelectedItem(item)}
-                className={styles.previewImage}
-                image={item.previewUrl}
-              />
-              <Typography>{item.title}</Typography>
-            </section>
-        )}
-      </section>
-      {!selectedItem ? null :
-        <Button className={styles.startRecirding} onClick={() => {
-          updateArMediaState(false);
-          updateWebXRState(true, selectedItem.id);
-        }} variant="contained">
-          {t('social:arMedia.start')}
-        </Button>
-      }
-    </section>;
+
+    useEffect(()=> (type === 'featured' || !type) && feedsState.get('feedsFetching') === false && setFeedList(feedsState.get('feedsFeatured'))
+    ,[feedsState.get('feedsFetching'), feedsState.get('feedsFeatured')]);
+
+    useEffect(()=> (type === 'featured' || !type) && feedsState.get('feedsFeaturedFetching') === false && setFeedList(feedsState.get('feedsFeatured'))
+    ,[feedsState.get('feedsFeaturedFetching'), feedsState.get('feedsFeatured')]);
+    
+    useEffect(()=> type === 'creator' && feedsState.get('feedsCreatorFetching') === false &&setFeedList(feedsState.get('feedsCreator'))
+    ,[feedsState.get('feedsCreatorFetching'), feedsState.get('feedsCreator')]);
+
+    useEffect(()=> type === 'bookmark' && feedsState.get('feedsBookmarkFetching') === false &&setFeedList(feedsState.get('feedsBookmark'))
+    ,[feedsState.get('feedsBookmarkFetching'), feedsState.get('feedsBookmark')]);
+
+    useEffect(()=> type === 'myFeatured' && feedsState.get('myFeaturedFetching') === false &&setFeedList(feedsState.get('myFeatured'))
+    ,[feedsState.get('myFeaturedFetching'), feedsState.get('myFeatured')]);
+
+    useEffect(()=> type === 'fired' && feedsState.get('feedsFiredFetching') === false && setFeedList(feedsState.get('feedsFired'))
+    ,[feedsState.get('feedsFiredFetching'), feedsState.get('feedsFired')]);
+
+    // if(type === 'creator'){
+    //     setFeedList(feedsState.get('feedsCreator'));
+    // }else if(type === 'bookmark'){
+    //     setFeedList(feedsState.get('feedsBookmark'));
+    // }else if(type === 'myFeatured'){
+    //     setFeedList(feedsState.get('myFeatured'));
+    // }else{
+    
+    // if(feedsState.get('fetching') === false){
+    //    if(type === 'creator'){
+    //         feedsList = feedsState?.get('feedsCreator');
+    //     }else if(type === 'bookmark'){
+    //         feedsList = feedsState?.get('feedsBookmark');
+    //     }else if(type === 'myFeatured'){
+    //         feedsList = feedsState?.get('myFeatured');
+    //     }else{
+    //         feedsList = feedsState?.get('feedsFeatured');
+    //     }
+    // }
+
+    // const featureFeed = feedId =>setFeedAsFeatured(feedId);
+    // const unfeatureFeed = feedId =>setFeedNotFeatured(feedId);
+
+    // const renderFeaturedStar = (feedId ,creatorId, featured) =>{
+    //     if(creatorId === creatorState.get('currentCreator')?.id){
+    //         return <span className={styles.starLine} onClick={()=>featured ? unfeatureFeed(feedId) : featureFeed(feedId)} >{featured ? <StarIcon /> : <StarOutlineIcon />}</span>;
+    //     }
+    // };
+
+
+    return <section className={styles.feedContainer}>
+        {feedsList && feedsList.length > 0  ? feedsList.map((item, itemIndex)=>{
+            const sizeIndex = (itemIndex === 0 || itemIndex%8 === 0 || itemIndex%8 === 2 || itemIndex%8 === 5) ? 'listItem_width2' 
+            : itemIndex%8 === 1 ? 'listItem_width3' : 'listItem_width1';
+            const topIndex =  itemIndex%8 === 2  ? 'listItem_top1' :  itemIndex%8 === 5 ? 'listItem_top2' : '';
+            const width1_no_right_padding =  itemIndex%8 === 4 || itemIndex%8 === 7 ? 'width1_no_right_padding' : '';
+            return <Card className={styles.creatorItem
+            +' ' + styles[sizeIndex]
+            +' ' + styles[topIndex] 
+            + ' ' + styles[width1_no_right_padding]} elevation={0} key={itemIndex}>
+                    {/* {renderFeaturedStar( item.id, item.creatorId, !!+item.featured)} */}
+                <CardMedia
+                    className={styles.previewImage}
+                    image={item.previewUrl}
+                    onClick={()=>{
+                        if(popupsState.get('creatorPage') === true && popupsState.get('feedPage') === true){
+                            updateFeedPageState(false);
+                            const intervalDelay = setTimeout(()=>{
+                                clearInterval(intervalDelay);
+                                updateFeedPageState(true, item.id);
+                                }, 100);
+                        }else{
+                            updateFeedPageState(true, item.id);
+                        }
+                    }
+                }
+                />
+                <span className={styles.eyeLine}>{item.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
+            </Card>;}
+        ) : <Typography className={styles.emptyList}>{t('social:featured.empty-list')}</Typography>}
+        </section>;
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ArMedia);
+export default  connect(mapStateToProps, mapDispatchToProps)(Featured);
