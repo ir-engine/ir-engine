@@ -80,7 +80,7 @@ export const enableClub = (entityClub: Entity, enable: boolean): void => {
   golfClubComponent.canHitBall = enable;
   golfClubComponent.meshGroup.traverse((obj: Mesh) => {
     if(obj.material) {
-      (obj.material as Material).opacity = enable ? 1 : 0.4;
+      (obj.material as Material).opacity = enable ? 1 : 0.3;
     }
   })
 }
@@ -100,18 +100,21 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   const actor = getComponent(ownerEntity, CharacterComponent);
 
   const handTransform = getHandTransform(ownerEntity);
-  if(!handTransform) return;
-
   const { position, rotation } = handTransform;
+
   golfClubComponent.raycast.origin = { 
     x: position.x,
     y: position.y,
     z: position.z,
   }
-  golfClubComponent.raycast.direction = vec3.set(0, 0, 1).applyQuaternion(rotation);
+  
+  golfClubComponent.raycast.direction = vec3.set(0, 0, -1).applyQuaternion(rotation);
 
   const hit = golfClubComponent.raycast.hits[0];
-  golfClubComponent.canHitBall = typeof hit !== 'undefined';
+  const canHitBall = typeof hit !== 'undefined';
+  if(canHitBall !== golfClubComponent.canHitBall) {
+    enableClub(entityClub, canHitBall);
+  }
   const headDistance = (hit ? hit.distance : clubLength) - 0.1;
   
   golfClubComponent.headGroup.position.setZ(-headDistance);
@@ -119,16 +122,18 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   golfClubComponent.neckObject.scale.setZ(headDistance * 0.5);
 
   golfClubComponent.headGroup.getWorldQuaternion(quat);
-  golfClubComponent.headGroup.children[0].quaternion.copy(quat).invert().multiply(actor.tiltContainer.quaternion);
+  golfClubComponent.headGroup.children[0].quaternion.copy(quat).multiply(actor.tiltContainer.quaternion);
   golfClubComponent.headGroup.updateMatrixWorld(true);
 
   // TODO: fix collider
-  // const collider = getMutableComponent(entityClub, ColliderComponent);
-  // const transform = getMutableComponent(entityClub, TransformComponent);
-  // transform.position = golfClubComponent.meshGroup.getWorldPosition(vec3);
-  // transform.rotation = golfClubComponent.meshGroup.getWorldQuaternion(quat);
-  // collider.body.shapes[0].transform.translation = golfClubComponent.headGroup.position;
-  // collider.body.shapes[0].transform.rotation = golfClubComponent.headGroup.quaternion;
+  const collider = getMutableComponent(entityClub, ColliderComponent);
+  const transform = getMutableComponent(entityClub, TransformComponent);
+  transform.position.copy(position);
+  transform.rotation.copy(rotation);
+  collider.body.shapes[0].transform = {
+    translation: golfClubComponent.headGroup.position,
+    rotation: golfClubComponent.headGroup.quaternion
+  }
 }
 
 /**
@@ -161,19 +166,19 @@ export const initializeGolfClub = (entity: Entity) => {
   };
 
   if(isClient) {
-    const handleObject = new Mesh(new BoxBufferGeometry(0.05, 0.05, 0.25), new MeshStandardMaterial({ color: 0xff2126 }));
+    const handleObject = new Mesh(new BoxBufferGeometry(0.05, 0.05, 0.25), new MeshStandardMaterial({ color: 0xff2126, transparent: true }));
     WebGLRendererSystem.instance.csm.setupMaterial(handleObject.material);
     golfClubComponent.handleObject = handleObject;
     
     const headGroup = new Group();
-    const headObject = new Mesh(new BoxBufferGeometry(0.05, 0.05, 0.1), new MeshStandardMaterial({ color: 0x2126ff }));
+    const headObject = new Mesh(new BoxBufferGeometry(0.05, 0.05, 0.1), new MeshStandardMaterial({ color: 0x2126ff , transparent: true }));
     WebGLRendererSystem.instance.csm.setupMaterial(headObject.material);
     headObject.position.set(0, 0.1, 0);
     headGroup.position.set(0, -0.05, 0);
     headGroup.add(headObject);
     golfClubComponent.headGroup = headGroup;
 
-    const neckObject = new Mesh(new BoxBufferGeometry(0.025, 0.025, -1.75), new MeshStandardMaterial({ color: 0x21ff26 }));
+    const neckObject = new Mesh(new BoxBufferGeometry(0.025, 0.025, -1.75), new MeshStandardMaterial({ color: 0x21ff26, transparent: true }));
     WebGLRendererSystem.instance.csm.setupMaterial(handleObject.material);
     golfClubComponent.neckObject = neckObject;
 
@@ -213,7 +218,7 @@ export const initializeGolfClub = (entity: Entity) => {
 
   const body = PhysicsSystem.instance.addBody(new Body({
     shapes: [shapeHead],
-    type:  BodyType.DYNAMIC,
+    type: BodyType.KINEMATIC,
     transform: {
       translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
     }
@@ -249,7 +254,7 @@ export const initializeGolfClub = (entity: Entity) => {
     })
   })
 
-  equipEntity(ownerNetworkObject.entity, entity, EquippableAttachmentPoint.RIGHT_HAND);
+  // equipEntity(ownerNetworkObject.entity, entity, EquippableAttachmentPoint.RIGHT_HAND);
 }
 
 export const createGolfClubPrefab = ( args:{ parameters?: any, networkId?: number, uniqueId: string, ownerId?: string }) => {
