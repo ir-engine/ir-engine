@@ -94,7 +94,11 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
             setIsSended(false); 
             clearTimeout(thanksTimeOut);
         }, 2000);
-    
+
+        const webxrRecorderActivity = webxrnativeState.get('webxrnative');
+        if(webxrRecorderActivity){
+            changeWebXrNative();
+        }
     };
 
     const dataURItoBlob = (dataURI) => {
@@ -115,6 +119,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         .then((myBlob) => {
          const myFile = new File([myBlob], "test.mp4");
          setVideo(myFile);
+         setPreview(myFile);
          console.log(myFile);
          /*Preview Begin*/
          const file = myFile;
@@ -143,7 +148,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
                 const image = canvas.toDataURL();
                 const success = image.length > 100000;
                 if (success) {
-                    setPreview(dataURItoBlob(image));
+//                     setPreview(dataURItoBlob(image));
                     URL.revokeObjectURL(url);
                 }
                 return success;
@@ -180,9 +185,9 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     useEffect(()=>{
         return ()=>{
             // cleaning up memory to avoid leaks
-            setIsSended(null)
-        }
-    })
+            setIsSended(null);
+        };
+    });
 
     const feedsFetching = feedsState.get('feedsFetching');
 
@@ -247,7 +252,8 @@ return <section className={styles.feedFormContainer}>
                     className={styles.submit}
                     onClick={()=>handleCreateFeed()}
                     >
-                        {t('social:feedForm.lbl-share')}
+{/*                         {t('social:feedForm.lbl-share')} */}
+                        Add Feed
                     </Button>
                 <Button
                     variant="contained"

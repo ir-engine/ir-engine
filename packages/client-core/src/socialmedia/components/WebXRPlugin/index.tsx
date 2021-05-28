@@ -391,47 +391,52 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
         })();
     }, [mediaItemId]);
 
-    const finishRecord = () => {
-        console.log('finishRecord');
-        if (recordingState !== RecordingStates.ON) {
-            console.log('finishRecord - record is not started skip.');
-            return;
+    let finishRecord = () => {
+        if (recordingState === RecordingStates.ON) {
+            console.log('finishRecord');
+
+            // @ts-ignore
+            Plugins.XRPlugin.stopRecording().
+              // @ts-ignore
+              then(({ result, filePath }) => {
+                  console.log("END RECORDING, result IS", result);
+                  console.log("filePath IS", filePath);
+                  setSavedFilePath("file://" + filePath);
+                  const videoPath = Capacitor.convertFileSrc(filePath);
+                  updateNewFeedPageState(true, videoPath);
+                  updateWebXRState(false, null);
+
+                  setRecordingState(RecordingStates.OFF);
+                  // setContentHidden();
+              }).catch(error => alert(error.message));
+        }else{
+            return console.log('Record state is OFF')
         }
 
-        // @ts-ignore
-        Plugins.XRPlugin.stopRecording().
-          // @ts-ignore
-          then(({ result, filePath }) => {
-              console.log("END RECORDING, result IS", result);
-              console.log("filePath IS", filePath);
-              setSavedFilePath("file://" + filePath);
-              const videoPath = Capacitor.convertFileSrc(filePath);
-              updateNewFeedPageState(true, videoPath);
-              updateWebXRState(false, null);
-
-              setRecordingState(RecordingStates.OFF);
-              // setContentHidden();
-          }).catch(error => alert(error.message));
     };
+
+    const startRecord = () => {
+        setRecordingState(RecordingStates.ON);
+
+        if (window.confirm("Double click to finish the record.")) {
+        //TODO: check why there are errors
+        // @ts-ignore
+        Plugins.XRPlugin.startRecording({
+            isAudio: true,
+            width: document.body.clientWidth,
+            height: document.body.clientHeight,
+            bitRate: 6000000,
+            dpi: 100,
+            filePath: "/test.mp4"
+            }).then(({ status }) => {
+                console.log("RECORDING, STATUS IS", status);
+            }).catch(error => alert(error.message));
+        }
+    }
 
     const toggleRecording = () => {
         if (recordingState === RecordingStates.OFF) {
-            setRecordingState(RecordingStates.ON);
-
-            if (window.confirm("Double click to finish the record.")) {
-            //TODO: check why there are errors
-            // @ts-ignore
-            Plugins.XRPlugin.startRecording({
-                    isAudio: true,
-                    width: 1024,
-                    height: 1024,
-                    bitRate: 1000,
-                    dpi: 100,
-                    filePath: "/test.mp4"
-                }).then(({ status }) => {
-                    console.log("RECORDING, STATUS IS", status);
-                }).catch(error => alert(error.message));
-            }
+            startRecord()
         }
         else if (recordingState === RecordingStates.ON) {
             finishRecord();
@@ -470,6 +475,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
     // useEffect(() => {
     //     setSecondState("Initialized and effected");
     // }, [initializationResponse]);
+
 
     return (<>
         {/* <div className="plugintest">

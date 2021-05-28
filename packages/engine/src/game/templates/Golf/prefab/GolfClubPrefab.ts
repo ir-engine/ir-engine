@@ -158,7 +158,7 @@ export const initializeGolfClub = (entity: Entity) => {
       maxDistance: clubLength,
       collisionMask: CollisionGroups.Default | CollisionGroups.Ground,
     });
-  };
+  }
 
   if(isClient) {
     const handleObject = new Mesh(new BoxBufferGeometry(0.05, 0.05, 0.25), new MeshStandardMaterial({ color: 0xff2126 }));
