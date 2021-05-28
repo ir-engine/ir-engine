@@ -95,39 +95,38 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
 
   const ownerEntity = Network.instance.networkObjects[getComponent(entityClub, UserControlledColliderComponent).ownerNetworkId].component.entity;
-  const actor = getComponent(ownerEntity, CharacterComponent);
 
   const handTransform = getHandTransform(ownerEntity);
   const { position, rotation } = handTransform;
 
-  golfClubComponent.raycast.origin = { 
-    x: position.x,
-    y: position.y,
-    z: position.z,
-  }
-  
-  // TODO: fix three-physx internally to clone given vector instead of reference, keep 'new Vector3()' here for now
-  golfClubComponent.raycast.direction = new Vector3(0, 0, -1).applyQuaternion(rotation);
+  // TODO: fix three-physx internally to clone given vector instead of reference, keep this for now
+  (golfClubComponent.raycast.origin as Vector3).copy(position);
+  (golfClubComponent.raycast.direction as Vector3).set(0, 0, -1).applyQuaternion(rotation);
+
+  // find the rotation along the XZ plane the hand is pointing
+  quat2.setFromUnitVectors(
+    vector0.set(0, 0, -1),
+    vector1.set(0, 0, -1).applyQuaternion(rotation).setY(0).normalize()
+  );
 
   const hit = golfClubComponent.raycast.hits[0];
   const canHitBall = typeof hit !== 'undefined';
   if(canHitBall !== golfClubComponent.canHitBall) {
     enableClub(entityClub, canHitBall);
   }
-  const headDistance = (hit ? hit.distance : clubLength) - 0.1;
+  const headDistance = (hit ? hit.distance : clubLength);
 
   const collider = getMutableComponent(entityClub, ColliderComponent);
   const transform = getMutableComponent(entityClub, TransformComponent);
 
   // update position of club
-
-  golfClubComponent.headGroup.position.setZ(-headDistance);
+  golfClubComponent.headGroup.position.setZ(-headDistance)
   golfClubComponent.neckObject.position.setZ(-headDistance * 0.5);
-  golfClubComponent.neckObject.scale.setZ(headDistance * 0.5);
+  golfClubComponent.neckObject.scale.setZ((headDistance * 0.5));
 
   golfClubComponent.meshGroup.getWorldQuaternion(quat);
-  golfClubComponent.headGroup.quaternion.copy(quat).invert().multiply(actor.tiltContainer.quaternion);
-  // golfClubComponent.headGroup.quaternion.copy(quat).invert().multiply(rotation);
+  // get rotation of club relative to parent
+  golfClubComponent.headGroup.quaternion.copy(quat).invert().multiply(quat2);
   golfClubComponent.headGroup.updateMatrixWorld(true);
 
   transform.position.copy(position);
@@ -153,23 +152,14 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
 
   // calculate relative rotation of club head
   quat.set(collider.body.transform.rotation.x, collider.body.transform.rotation.y, collider.body.transform.rotation.z, collider.body.transform.rotation.w)
-  quat.invert().multiply(rotation)
-
-  // TODO: make club head & collider flush to ground - need to use the normal
-
-
-  // TODO: club head collider snaps to either side of the club to ensure a large enough collider and the contact position is directly on the club
-  // need to add a minimum velocity for it to change sides, or to not 
-
-  // // get velocity in local space
-  // vector0.applyQuaternion(golfClubComponent.headGroup.getWorldQuaternion(quat2).invert())
-  // golfClubComponent.swingVelocity = vector0.x
-
-  // // get velocity of club head relative to parent
-  // vector1.set(clubColliderSize.x * Math.sign(golfClubComponent.swingVelocity), 0, 0).applyQuaternion(golfClubComponent.headGroup.quaternion)
+  quat.invert().multiply(quat2)
 
   collider.body.shapes[0].transform = {
-    translation: golfClubComponent.headGroup.position,
+    translation: {
+      x: golfClubComponent.headGroup.position.x,
+      y: golfClubComponent.headGroup.position.y,
+      z: golfClubComponent.headGroup.position.z
+    },
     rotation: quat
   }
 }
@@ -185,7 +175,7 @@ const clubPutterLength = 0.1;
 const clubLength = 2.5;
 
 export const initializeGolfClub = (entity: Entity) => {
-  // its transform was set in createGolfClubPrefab from parameters (its transform Golf Tee);
+
   const transform = getComponent(entity, TransformComponent);
 
   const networkObject = getComponent(entity, NetworkObject);
@@ -205,6 +195,9 @@ export const initializeGolfClub = (entity: Entity) => {
       maxDistance: clubLength,
       collisionMask: CollisionGroups.Default | CollisionGroups.Ground,
     });
+    // manually do this until three-physx is fixed
+    golfClubComponent.raycast.origin = new Vector3();
+    golfClubComponent.raycast.direction = new Vector3();
   }
 
   if(isClient) {
@@ -214,7 +207,7 @@ export const initializeGolfClub = (entity: Entity) => {
     const headGroup = new Group();
     const headObject = new Mesh(new BoxBufferGeometry(clubHalfWidth, clubHalfWidth, clubPutterLength * 2), new MeshStandardMaterial({ color: 0x2126ff , transparent: true }));
     // raise the club by half it's height and move it out by half it's length so it's flush to ground and attached at end
-    headObject.position.set(0, clubHalfWidth, clubPutterLength * 0.5);
+    headObject.position.set(0, clubHalfWidth, - (clubPutterLength * 0.5));
     headGroup.add(headObject);
     golfClubComponent.headGroup = headGroup;
 
@@ -237,7 +230,7 @@ export const initializeGolfClub = (entity: Entity) => {
     config: {
       isTrigger: true,
       collisionLayer: GolfCollisionGroups.Club,
-      collisionMask: GolfCollisionGroups.Ball// | CollisionGroups.Ground
+      collisionMask: GolfCollisionGroups.Ball
     }
   });
 
