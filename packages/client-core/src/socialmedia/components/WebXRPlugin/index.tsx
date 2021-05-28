@@ -119,6 +119,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
             console.log('WebXRComponent - stop plugin');
             // @ts-ignore
             Plugins.XRPlugin.stop({});
+            window.screen.orientation.unlock();
 
             setContentHidden();
             // console.log('WebXRComponent - UNMOUNT END');
@@ -385,6 +386,8 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                 });
                 statusXR = true;
             }
+
+            await window.screen.orientation.lock('portrait');
             XRPlugin.start({}).then(() => {
                 setCameraStartedState(isNative ? "Camera started on native" : "Camera started on web");
             }).catch(error => console.log(error.message));
