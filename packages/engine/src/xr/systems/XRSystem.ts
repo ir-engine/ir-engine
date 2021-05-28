@@ -86,7 +86,7 @@ export class XRSystem extends System {
       session.inputSources.forEach((source) => {
         if(source.gamepad) {
           const mapping = gamepadMapping[source.gamepad.mapping || 'xr-standard'][source.handedness];
-          source.gamepad.buttons.forEach((button, index) => {
+          source.gamepad?.buttons.forEach((button, index) => {
             // TODO : support button.touched and button.value
             Engine.inputState.set(mapping.buttons[index], {
               type: InputType.BUTTON,
@@ -94,7 +94,7 @@ export class XRSystem extends System {
               lifecycleState: button.pressed ? LifecycleValue.STARTED : LifecycleValue.ENDED
             })
           })
-          if(source.gamepad.axes.length > 2) {
+          if(source.gamepad?.axes.length > 2) {
             Engine.inputState.set(mapping.axes, {
               type: InputType.TWODIM,
               value: [source.gamepad.axes[2], source.gamepad.axes[3]],

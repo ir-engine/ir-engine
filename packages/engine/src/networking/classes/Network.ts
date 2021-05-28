@@ -106,6 +106,9 @@ export class Network {
   /** Buffer holding all incoming Messages. */
   incomingMessageQueue: RingBuffer<any> = new RingBuffer<any>(100)
 
+  /** Buffer holding Mediasoup operations */
+  mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
+
   /** State of the world. */
   worldState: WorldStateInterface = {
     tick: 0,

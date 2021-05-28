@@ -127,25 +127,8 @@ export class PhysicsSystem extends System {
 
       const transform = getComponent(entity, TransformComponent);
       if (collider.body.type === BodyType.KINEMATIC) {
-        if(typeof collider.lastPositions[0] !== 'undefined') {
-          vec0.subVectors(transform.position, collider.lastPositions[0])
-          for(let i = 0; i < collider.velocityPositionsToCalculate - 1; i++) {
-            vec0.add(vec1.subVectors(collider.lastPositions[i], collider.lastPositions[i + 1]))
-          }
-          vec0.multiplyScalar(1 / collider.velocityPositionsToCalculate);
-          collider.body.transform.linearVelocity.copy(vec0);
-        } else {
-          for(let i = 0; i < collider.velocityPositionsToCalculate; i++) {
-            collider.lastPositions[i] = new Vector3();
-          }
-        }
-        for(let i = collider.velocityPositionsToCalculate - 1; i > 0; i--) {
-          collider.lastPositions[i].copy(collider.lastPositions[i - 1]);
-        }
-        collider.lastPositions[0].copy(transform.position);
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation });
       } else {
-        // collider.lastPosition.copy(transform.position)
         transform.position.set(
           collider.body.transform.translation.x,
           collider.body.transform.translation.y,
