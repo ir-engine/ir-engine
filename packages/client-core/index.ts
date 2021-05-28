@@ -372,6 +372,7 @@ export { default as srcAdminComponentsUserModel } from './src/admin/components/U
 export { default as srcAdminComponentsUsersCreateUser } from './src/admin/components/Users/CreateUser';
 export { default as srcAdminComponentsUsersCreateUserRole } from './src/admin/components/Users/CreateUserRole';
 export { default as srcAdminComponentsUsersIndex } from './src/admin/components/Users/index';
+export { default as srcAdminComponentsUsersSearchUser } from './src/admin/components/Users/SearchUser';
 export { default as srcAdminComponentsUsersUserTable } from './src/admin/components/Users/UserTable';
 export { default as srcAdminComponentsUsersViewUser } from './src/admin/components/Users/ViewUser';
 export { default as srcAdminComponentsVideoModal } from './src/admin/components/VideoModal';

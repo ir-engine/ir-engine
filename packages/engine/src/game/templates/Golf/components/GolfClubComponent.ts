@@ -13,7 +13,7 @@ export class GolfClubComponent extends Component<GolfClubComponent> {
   raycast: SceneQuery;
   canHitBall: boolean;
   body: Body;
-  velocityPositionsToCalculate: number = 4;
+  velocityPositionsToCalculate = 4;
   lastPositions: Vector3[] = [];
   velocity: Vector3;
   swingVelocity: number;
