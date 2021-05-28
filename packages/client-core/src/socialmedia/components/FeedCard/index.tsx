@@ -205,7 +205,7 @@ const FeedCard = (props: Props) : any => {
                             />}
                             title={<Typography variant="h6">
                             {feed.creator.name}
-                            <Typography variant="subtitle2">@{feed.creator.username} · {feed.fires} flames</Typography>
+                            <p>@{feed.creator.username} · {feed.fires} flames</p>
                             {feed.creator.verified === true && <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>}
                         </Typography> } />
 
