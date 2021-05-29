@@ -37,14 +37,15 @@ import { addObject3DComponent } from "../../scene/behaviors/addObject3DComponent
 import { createShadow } from "../../scene/behaviors/createShadow";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import PersistTagComponent from "../../scene/components/PersistTagComponent";
+import { initiateIK } from "../../xr/functions/IKFunctions";
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 	AnimationManager.instance._defaultModel?.children?.forEach(child => actor.modelContainer.add(child));
 	actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-	// if (hasComponent(entity, IKComponent)) {
-	// 	initiateIK(entity)
-	// }
+	if (hasComponent(entity, IKComponent)) {
+		initiateIK(entity)
+	}
 }
 
 export const loadActorAvatar: Behavior = (entity) => {
@@ -112,13 +113,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		// }
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 		if (hasComponent(entity, IKComponent)) {
-			// initiateIK(entity)
-
-      actor.modelContainer.children[0]?.traverse((child) => {
-        if(child.visible) {
-          child.visible = false;
-        }
-      })
+			initiateIK(entity)
 		}
 	});
 };

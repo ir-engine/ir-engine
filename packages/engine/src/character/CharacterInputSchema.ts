@@ -31,6 +31,7 @@ import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings';
 import { BinaryValue } from '../common/enums/BinaryValue';
 import { ParityValue } from '../common/enums/ParityValue';
 import { getInteractiveIsInReachDistance } from './functions/getInteractiveIsInReachDistance';
+import { initiateIK } from '../xr/functions/IKFunctions';
 
 /**
  *
@@ -444,7 +445,13 @@ const updateIKRig: Behavior = (entity, args): void => {
 
   const avatarIK = getMutableComponent(entity, IKComponent);
   const inputs = getMutableComponent(entity, Input);
-  if(!avatarIK?.avatarIKRig) return;
+  if(!avatarIK) { 
+    initiateIK(entity);
+    return;
+  }
+  if(!avatarIK.avatarIKRig) {
+    return;
+  }
   const obj3d = getComponent(entity, Object3DComponent).value as Object3D;
 
   if(args.type === BaseInput.XR_HEAD) {
