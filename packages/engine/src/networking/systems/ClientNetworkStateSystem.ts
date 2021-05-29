@@ -23,7 +23,7 @@ import { ClientInputModel } from '../schema/clientInputSchema';
 import { Input } from '../../input/components/Input';
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { Vault } from '../classes/Vault';
-
+import { Object3DComponent } from '../../scene/components/Object3DComponent';
 /**
  * Apply State received over the network to the client.
  * @param worldStateBuffer State of the world received over the network.
@@ -262,6 +262,8 @@ export class ClientNetworkStateSystem extends System {
       })
 
       worldStateBuffer.editObjects?.forEach((editObject) => {
+        console.warn('try delete');
+        console.warn(editObject);
         NetworkObjectUpdateSchema[editObject.type]?.forEach((element) => {
           element.behavior(editObject);
         })
@@ -269,12 +271,15 @@ export class ClientNetworkStateSystem extends System {
 
       // Handle all network objects destroyed this frame
       worldStateBuffer.destroyObjects?.forEach(({ networkId }) => {
-        // console.log("Destroying ", networkId);
+         console.log("Destroying ", networkId);
         if (Network.instance.networkObjects[networkId] === undefined)
           return console.warn("Can't destroy object as it doesn't appear to exist");
         // console.log("Destroying network object ", Network.instance.networkObjects[networkId].component.networkId);
         // get network object
         const entity = Network.instance.networkObjects[networkId].component.entity;
+        if (hasComponent(entity, Object3DComponent)) {
+          Engine.scene.remove( Engine.scene.getObjectByName(getComponent(entity, Object3DComponent).value.name) );
+        }
         // Remove the entity and all of it's components
         removeEntity(entity);
         // Remove network object from list
