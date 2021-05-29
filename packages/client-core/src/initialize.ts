@@ -228,7 +228,6 @@ export const initializeEditor = async (initOptions: InitializeOptions): Promise<
   registerSystem(TransformSystem, { priority: 7 });
   registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig, priority: 8 });
 
-  registerSystem(HighlightSystem, { priority: 9 });
   registerSystem(ParticleSystem, { priority: 10 });
   registerSystem(DebugHelpersSystem, { priority: 11 });
 
