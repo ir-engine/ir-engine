@@ -27,13 +27,17 @@ export default class Spline extends Object3D {
 		super();
 	}
 
-	init(editor = null) {
+	init(editor = null, loadedSplinePositions = null) {
 		
 		/*******
 		 * Curves
 		 *********/
 
 		console.log("Spline Init");
+
+		if(loadedSplinePositions != null) {
+			this._splinePointsLength = loadedSplinePositions.length;
+		}
 
 		this._editor = editor;
 
@@ -95,8 +99,12 @@ export default class Spline extends Object3D {
 
 		}
 
-		this.load( [ new Vector3( 0, 0.514, 0.10018915737797 ),
-			new Vector3( 1.56300074753207, 1.49711742836848, 1.495472686253045 )] );
+		if(loadedSplinePositions != null) {
+			this.load(loadedSplinePositions);
+		}
+		else {
+			this.load( [ new Vector3( 0, 0.514, 0.10018915737797 ), new Vector3( 1.56300074753207, 1.49711742836848, 1.495472686253045 )] );	
+		}
 	}
 
 	getCurrentSplineHelperObjects() {
@@ -210,13 +218,11 @@ export default class Spline extends Object3D {
 		for ( let i = 0; i < this._splinePointsLength; i ++ ) {
 
 			const p = this._splineHelperObjects[ i ].position;
-			strplace.push( `new Vector3(${p.x}, ${p.y}, ${p.z})` );
+			strplace.push(p);
 
 		}
 
-		console.log( strplace.join( ',\n' ) );
-		const code = '[' + ( strplace.join( ',\n\t' ) ) + ']';
-		prompt( 'copy and paste code', code );
+		return strplace;
 
 	}
 
