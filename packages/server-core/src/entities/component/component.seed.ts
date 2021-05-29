@@ -175,16 +175,26 @@ export const componentSeed = {
       id: "09cc03c4-24e9-sd1b-bc2e-e7e742fb069f",
       data: {
         options: {
-          probePosition:new Vector3(0),
-          probePositionOffset:new Vector3(0),
-          probeScale:new Vector3(1,1,1),
+          probePosition:{
+              "x": 0,
+              "y": 0,
+              "z": 0
+          },
+          probePositionOffset:{
+              "x": 0,
+              "y": 0,
+              "z": 0
+          },
+          probeScale:{
+              "x": 1,
+              "y": 1,
+              "z": 1
+          },
           reflectionType:1,
           intensity:1,
-          boxProjection:false,
           resolution:512,
-          hdr:false,
           refreshMode:0,
-        },
+      },
       },
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
