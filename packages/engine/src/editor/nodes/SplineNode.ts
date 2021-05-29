@@ -37,7 +37,7 @@ export default class SplineNode extends EditorNodeMixin(Object3D) {
   }
   onAdd() {
     this.helper.init(this.editor);
-    let initialSplineHelperObjects = this.helper.getCurrentSplineHelperObjects();
+    const initialSplineHelperObjects = this.helper.getCurrentSplineHelperObjects();
     for (let index = 0; index < initialSplineHelperObjects.length; index++) {
       const object = initialSplineHelperObjects[index];
       this.addSplineHelperObjectToEditorNodes(object); 

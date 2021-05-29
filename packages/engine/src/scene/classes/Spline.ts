@@ -56,13 +56,13 @@ export default class Spline extends Object3D {
 
 		const catmullRomCurve3 = new CatmullRomCurve3( this._positions );
 		// curve.curveType = 'catmullrom';
-		let curveMesh = new Line( geometry.clone(), new LineBasicMaterial( {
+		const curveMesh = new Line( geometry.clone(), new LineBasicMaterial( {
 			color: 0xff0000,
 			opacity: 0.35
 		} ) );
 		curveMesh.castShadow = true;
 
-		let spline = {
+		const spline = {
 			curve: catmullRomCurve3,
 			mesh: curveMesh,
 		}
@@ -182,12 +182,12 @@ export default class Spline extends Object3D {
 
 		for ( const k in this._splines ) {
 
-			var spline = this._splines[ k ];
+			const spline = this._splines[ k ];
 
 			const splineMesh = spline.mesh;
 			const position = splineMesh.geometry.attributes.position;
 
-			var splineCurve = spline.curve;
+			const splineCurve = spline.curve;
 
 			for ( let i = 0; i < this.ARC_SEGMENTS; i ++ ) {
 
