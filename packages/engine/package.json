@@ -38,7 +38,7 @@
     "three": "^0.128.0"
   },
   "dependencies": {
-    "@pixiv/three-vrm": "^0.6.0",
+    "@pixiv/three-vrm": "^0.6.4",
     "@xrengine/common": "^0.2.27",
     "browserfs": "^1.4.3",
     "cross-fetch": "^3.0.6",
