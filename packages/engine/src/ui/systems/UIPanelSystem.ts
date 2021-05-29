@@ -13,6 +13,7 @@ import { NumericalType } from "../../common/types/NumericalTypes";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
+import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 
 const getUIPanelFromHit = (hit: any) => {
   if (!( hit instanceof Block )) {
@@ -62,6 +63,7 @@ export class UIPanelSystem extends System {
   raycaster: Raycaster = new Raycaster();
   panelContainer: Group = new Group();
   lastRaycastTargets: Block[] = [];
+  updateType = SystemUpdateType.Fixed;
 
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);

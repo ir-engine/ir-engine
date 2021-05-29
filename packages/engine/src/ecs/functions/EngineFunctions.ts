@@ -109,7 +109,7 @@ export async function reset(): Promise<void> {
  * 
  * @author Fernando Serrano, Robert Long
  */
-export function execute (delta?: number, time?: number, updateType = SystemUpdateType.Free): void {
+export function execute (delta: number, time: number, updateType: SystemUpdateType): void {
   Engine.tick++;
   time = now() / 1000;
   if (!delta) {
