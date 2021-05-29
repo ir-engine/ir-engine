@@ -407,9 +407,10 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                   setSavedFilePath("file://" + filePath);
                   const videoPath = Capacitor.convertFileSrc(filePath);
                   updateNewFeedPageState(true, videoPath);
+                  setRecordingState(RecordingStates.OFF);
                   updateWebXRState(false, null);
 
-                  setRecordingState(RecordingStates.OFF);
+
                   // setContentHidden();
               }).catch(error => alert(error.message));
         }else{
