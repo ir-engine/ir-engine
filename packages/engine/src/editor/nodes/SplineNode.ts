@@ -2,9 +2,11 @@
 
 import EditorNodeMixin from "./EditorNodeMixin";
 import Spline from "../../scene/classes/Spline";
+import { Object3D } from "three";
 
-export default class SplineNode extends EditorNodeMixin(Spline) {
+export default class SplineNode extends EditorNodeMixin(Object3D) {
   static nodeName = "Spline";
+  helper = null;
   // static async deserialize(editor, json) {
   //   const node = await super.deserialize(editor, json);
   //   const {
@@ -29,9 +31,17 @@ export default class SplineNode extends EditorNodeMixin(Spline) {
   // }
   constructor(editor) {
     super(editor);
+    this.helper = new Spline();
+
+    super.add(this.helper);
   }
   onAdd() {
-    this.init();
+    this.helper.init(this.editor);
+    let initialSplineHelperObjects = this.helper.getCurrentSplineHelperObjects();
+    for (let index = 0; index < initialSplineHelperObjects.length; index++) {
+      const object = initialSplineHelperObjects[index];
+      this.addSplineHelperObjectToEditorNodes(object); 
+    }
   }
   onChange() {
   }
@@ -40,9 +50,14 @@ export default class SplineNode extends EditorNodeMixin(Spline) {
   onDeselect() {
   }
   onAddNodeToSpline() {
-    const newSplineObject = this.addPoint();
+    const newSplineObject = this.helper.addPoint();
+    
+    this.addSplineHelperObjectToEditorNodes(newSplineObject);
+  }
+  addSplineHelperObjectToEditorNodes(splineHelperObject) {
+    super.add(splineHelperObject);
     // Maybe this should not be done here?
-    this.editor.nodes.push(newSplineObject);
+    this.editor.nodes.push(splineHelperObject);
   }
   // copy(source, recursive = true) {
   //   super.copy(source, false);

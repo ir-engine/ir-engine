@@ -20,11 +20,13 @@ export default class Spline extends Object3D {
 
 	_splines = {} as any;
 
+	_editor = null;
+
 	constructor() {
 		super();
 	}
 
-	init() {
+	init(editor = null) {
 		
 		/*******
 		 * Curves
@@ -32,7 +34,9 @@ export default class Spline extends Object3D {
 
 		console.log("Spline Init");
 
-		 for ( let i = 0; i < this._splinePointsLength; i ++ ) {
+		this._editor = editor;
+
+		for ( let i = 0; i < this._splinePointsLength; i ++ ) {
 
 			this.addSplineObject( this._positions[ i ] );
 
@@ -94,11 +98,14 @@ export default class Spline extends Object3D {
 			new Vector3( 1.56300074753207, 1.49711742836848, 1.495472686253045 )] );
 	}
 
+	getCurrentSplineHelperObjects() {
+		return this._splineHelperObjects;
+	}
+
 	addSplineObject( position = null ) {
 
-		// this.editor is added when object is instantiated.
-		const splineHelperNode = new SplineHelperNode(this.editor, this);
-		const object = splineHelperNode; //.children[0];
+		const splineHelperNode = new SplineHelperNode(this._editor, this);
+		const object = splineHelperNode;
 
 		if ( position ) {
 
@@ -114,7 +121,7 @@ export default class Spline extends Object3D {
 
 		object.castShadow = true;
 		object.receiveShadow = true;
-		super.add( object );
+		// super.add( object );
 		this._splineHelperObjects.push( object );
 		return object;
 
