@@ -10,7 +10,15 @@ import {
   VideoCreatedAction
 } from './actions';
 
-import { VIDEO_CREATED , PARTY_ADMIN_CREATED, USER_ADMIN_CREATED,  PARTY_ADMIN_DISPLAYED, USER_ADMIN_REMOVED} from "../actions";
+import {
+  VIDEO_CREATED,
+  PARTY_ADMIN_CREATED,
+  USER_ADMIN_CREATED,
+  USER_ADMIN_PATCHED,
+  PARTY_ADMIN_DISPLAYED,
+  USER_ADMIN_REMOVED,
+  USER_SEARCH_ADMIN
+} from "../actions";
 import {
   LOCATIONS_RETRIEVED,
   LOCATION_CREATED,
@@ -23,7 +31,8 @@ import {
   LOCATION_TYPES_RETRIEVED,
   USER_ROLE_RETRIEVED,
   INSTANCES_RETRIEVED,
-  USER_ROLE_CREATED
+  USER_ROLE_CREATED,
+  USER_ROLE_UPDATED
 } from "../../../world/reducers/actions";
 import {
   LOADED_USERS,
@@ -99,6 +108,15 @@ export const initialAdminState = {
     fetched: false,
     updateNeeded: true,
     lastFetched: new Date()
+  },
+  userRole: {
+    userRole: [],
+    skip: 0,
+    limit: PAGE_LIMIT,
+    total: 0,
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true,
   }
 };
 
@@ -245,20 +263,20 @@ const adminReducer = (state = immutableState, action: any): any => {
       return state
         .set('userRole', updateMap);
 
-    case PARTY_ADMIN_DISPLAYED: 
+    case PARTY_ADMIN_DISPLAYED:
       result = (action as partyAdminCreatedResponse).data;
       updateMap = new Map(state.get("parties"));
       updateMap.set("parties", result);
       updateMap.set("updateNeeded", false);
-
       return state.set("parties", updateMap);
 
-    case PARTY_ADMIN_CREATED: 
+    case PARTY_ADMIN_CREATED:
+
       updateMap = new Map(state.get("parties"));
       updateMap.set("updateNeeded", true);
       return state.set("parties", updateMap);
-    
-    case USER_ADMIN_REMOVED: 
+
+    case USER_ADMIN_REMOVED:
       result = (action as userAdminRemovedResponse).data;
       updateMap = new Map(state.get("users"));
       let userRemove = updateMap.get('users');
@@ -266,11 +284,34 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set("updateNeeded", true);
       updateMap.set('users', userRemove);
       return state.set("users", updateMap);
-    case USER_ADMIN_CREATED: 
+    case USER_ADMIN_CREATED:
       result = (action as UserCreatedAction).user;
       updateMap = new Map(state.get("users"));
       updateMap.set("updateNeeded", true);
       return state.set("users", updateMap);
+    case USER_ADMIN_PATCHED:
+      result = (action as UserCreatedAction).user;
+      updateMap = new Map(state.get("users"));
+      updateMap.set("updateNeeded", true);
+      return state.set("users", updateMap);
+    case USER_ROLE_UPDATED:
+      updateMap = new Map(state.get('users'));
+      updateMap.set('updateNeeded', true);
+      return state
+        .set('users', updateMap);
+    case USER_SEARCH_ADMIN:
+      result = (action as any).data;
+      updateMap = new Map(state.get("users"));
+      updateMap.set("users", (result as any).data);
+      updateMap.set('skip', (result as any).skip);
+      updateMap.set('limit', (result as any).limit);
+      updateMap.set('total', (result as any).total);
+      updateMap.set('retrieving', false);
+      updateMap.set('fetched', true);
+      updateMap.set('updateNeeded', false);
+      updateMap.set('lastFetched', new Date());
+      return state
+        .set("users", updateMap);
   }
 
   return state;

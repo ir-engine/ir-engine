@@ -30,6 +30,7 @@ import { NumericalType } from '../../common/types/NumericalTypes';
 import { InputValue } from '../../input/interfaces/InputValue';
 import { GameMode } from "../../game/types/GameMode";
 import { EngineEvents } from './EngineEvents';
+import { WebXRManager } from '../../xr/WebXRManager';
 
 export const Audio = isWebWorker ? AudioObjectProxy : THREE_Audio;
 export const AudioListener = isWebWorker ? AudioListenerProxy : THREE_AudioListener;
@@ -60,6 +61,7 @@ export class Engine {
   public static xrSupported = false;
 
   public static offlineMode = false;
+  public static isHMD = false;
 
   //public static stats: Stats
   // Move for sure
@@ -99,6 +101,7 @@ export class Engine {
    * @author Fernando Serrano, Robert Long
    */
   static renderer: WebGLRenderer = null
+  static xrRenderer: WebXRManager = null
   static xrSession: XRSession = null
   static context = null
 
@@ -271,6 +274,13 @@ export class Engine {
   static systemsToExecute: any[] = []
   static vehicles: any;
   static lastTime: number;
+
+  /**
+   * The current frame delta for use if needed outside the execute loop (such as events and callbacks)
+   *
+   * @author Josh Field
+   */
+  static delta: number = 1/60;
   static tick = 0;
   /** HTML Element in which Engine renders. */
   static viewportElement: HTMLElement;

@@ -31,6 +31,7 @@ import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings';
 import { BinaryValue } from '../common/enums/BinaryValue';
 import { ParityValue } from '../common/enums/ParityValue';
 import { getInteractiveIsInReachDistance } from './functions/getInteractiveIsInReachDistance';
+import { initiateIK } from '../xr/functions/IKFunctions';
 
 /**
  *
@@ -41,16 +42,14 @@ import { getInteractiveIsInReachDistance } from './functions/getInteractiveIsInR
 
 const interact: Behavior = (entity: Entity, args: any = { side: ParityValue }, delta): void => {
 
-  interactOnServer(entity, args); //TODO: figure out all this cases
-  
-  const equipperComponent = getComponent(entity, EquipperComponent)
-  if(equipperComponent) {
+  if (!isClient) {
+    //TODO: all this function needs to re-think
+    interactOnServer(entity, args); //TODO: figure out all this cases
     return;
   }
 
-
-  if (!isClient) {
-    //TODO: all this function needs to re-think
+  const equipperComponent = getComponent(entity, EquipperComponent)
+  if(equipperComponent) {
     return;
   }
 
@@ -446,7 +445,13 @@ const updateIKRig: Behavior = (entity, args): void => {
 
   const avatarIK = getMutableComponent(entity, IKComponent);
   const inputs = getMutableComponent(entity, Input);
-  if(!avatarIK?.avatarIKRig) return;
+  if(!avatarIK) { 
+    initiateIK(entity);
+    return;
+  }
+  if(!avatarIK.avatarIKRig) {
+    return;
+  }
   const obj3d = getComponent(entity, Object3DComponent).value as Object3D;
 
   if(args.type === BaseInput.XR_HEAD) {

@@ -6,17 +6,15 @@ import { EquipperComponent } from "../components/EquipperComponent"
 import { EquippableAttachmentPoint, EquippedStateUpdateSchema } from "../enums/EquippedEnums"
 
 export const equipEntity = (equipperEntity: Entity, equippedEntity: Entity, attachmentPoint: EquippableAttachmentPoint = EquippableAttachmentPoint.RIGHT_HAND): void => {
-  // console.log(getComponent(equippedEntity, NetworkObject)?.uniqueId, getComponent(equippedEntity, NetworkObject)?.networkId, getComponent(equippedEntity, NetworkObject)?.ownerId)
-  // console.log(getComponent(equipperEntity, NetworkObject)?.uniqueId, getComponent(equipperEntity, NetworkObject)?.networkId, getComponent(equipperEntity, NetworkObject)?.ownerId)
   if(!hasComponent(equipperEntity, EquipperComponent) && hasComponent(equippedEntity, NetworkObject) && !hasComponent(equippedEntity, EquippedComponent)) {
-    addComponent(equipperEntity, EquipperComponent, { equippedEntity, attachmentPoint });
-    addComponent(equippedEntity, EquippedComponent, { equipperEntity });
+    addComponent(equipperEntity, EquipperComponent, { equippedEntity });
+    addComponent(equippedEntity, EquippedComponent, { equipperEntity, attachmentPoint });
   }
 }
 
 export const unequipEntity = (equipperEntity: Entity): void => {
-  const equipperComponent = getComponent(equipperEntity, EquipperComponent);
-  if(!equipperComponent) return;
-  removeComponent(equipperComponent.equippedEntity, EquippedComponent);
-  removeComponent(equipperEntity, EquipperComponent);
+  // const equipperComponent = getComponent(equipperEntity, EquipperComponent);
+  // if(!equipperComponent) return;
+  // removeComponent(equipperComponent.equippedEntity, EquippedComponent);
+  // removeComponent(equipperEntity, EquipperComponent);
 }

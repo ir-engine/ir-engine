@@ -41,8 +41,6 @@ export class Party extends Service {
       raw: true,
       nest: true,
     });
-    console.log(party);
-    
     return {
       skip: skip,
       limit: limit,

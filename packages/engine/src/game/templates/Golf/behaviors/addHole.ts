@@ -12,6 +12,7 @@ import { GameObject } from "../../../components/GameObject";
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
 import { GolfCollisionGroups } from '../GolfGameConstants';
+import { Object3DComponent } from '../../../../scene/components/Object3DComponent';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -29,7 +30,7 @@ export const addHole: Behavior = (entity: Entity, args?: any, delta?: number, en
     config: {
       isTrigger: true,
       collisionLayer: GolfCollisionGroups.Hole,
-      collisionMask: DefaultCollisionMask | GolfCollisionGroups.Ball | GolfCollisionGroups.Club
+      collisionMask: GolfCollisionGroups.Ball
     }
   });
 
@@ -48,6 +49,9 @@ export const addHole: Behavior = (entity: Entity, args?: any, delta?: number, en
     type: 'box',
     body: body
   })
+
+  // if we loaded this collider with a model, make it invisible
+//  getComponent(entity, Object3DComponent)?.value?.traverse(obj => obj.visible = false)
 
   //addColliderWithEntity(entity);
 };

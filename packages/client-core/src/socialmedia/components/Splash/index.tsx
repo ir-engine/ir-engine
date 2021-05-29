@@ -20,14 +20,16 @@ const Splash = ({media}: Props) => {
 	const { t } = useTranslation();
 
 return  <>
-        <CardMedia   
-            className={styles.fullPage}                  
-                image={media.screen}
+        <CardMedia
+            className={styles.fullPage}
+//                 image={media.screen}
+                image="/assets/splash/background.jpg"
                 title={t('social:splash.screen')}
             />
-        <CardMedia   
-            className={styles.logo}                  
-                image={media.logo}
+        <CardMedia
+            className={styles.logo}
+//                 image={media.logo}
+                image="/assets/splash/arcLogoVanishinglinesWhite.png"
                 title={t('social:splash.logo')}
             />
         </>;

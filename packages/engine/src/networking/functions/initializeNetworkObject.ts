@@ -126,7 +126,7 @@ function initComponents(entity: Entity, components: Array<{ type: any, data?: an
 function checkIfIdHavePrepair( uniqueId ) {
 
   return Object.keys(Network.instance.networkObjects).map(Number).reduce((result, key) => (Network.instance.networkObjects[key]?.uniqueId === uniqueId ? result = key : result), null) ?? Network.getNetworkId();
-  
+
 }
 /**
  * Initialize Network object
@@ -138,13 +138,14 @@ function checkIfIdHavePrepair( uniqueId ) {
  *
  * @returns Newly created object.
  */
-export function initializeNetworkObject( args: { entity?: Entity, prefabType?: number, ownerId: string, networkId?: number, uniqueId: string, override?: any}): NetworkObject {
+export function initializeNetworkObject( args: { prefabParameters?: any, entity?: Entity, prefabType?: number, ownerId: string, networkId?: number, uniqueId: string, override?: any}): NetworkObject {
   // Instantiate into the world
   const entity = args.entity ?? createEntity();
   const prefabType = args.prefabType ?? Network.instance.schema.defaultClientPrefab;
   const ownerId = args.ownerId ?? 'server';
   const networkId = args.networkId ?? checkIfIdHavePrepair(args.uniqueId);
   const uniqueId = args.uniqueId;
+  const parameters = args.prefabParameters ? JSON.stringify(args.prefabParameters).replace(/"/g, '\'') : '';
 
   const networkEntity = createNetworkPrefab(
     entity,
@@ -164,19 +165,9 @@ export function initializeNetworkObject( args: { entity?: Entity, prefabType?: n
     ownerId,
     prefabType,
     component: networkObject,
-    uniqueId
+    uniqueId,
+    parameters
   };
-
-  // TODO: This could need to be commented out for merge conflict reasons, please check
-  if (!isClient) {
-    Network.instance.createObjects.push({
-        networkId: networkId,
-        ownerId: ownerId,
-        prefabType: prefabType,
-        uniqueId: uniqueId,
-        parameters: ''
-    });
-  }
 
   if (prefabType === PrefabType.Player && ownerId === (Network.instance).userId) {
     // console.log('Give Player Id by Server', networkId, args.networkId, typeof networkId, typeof args.networkId, ownerId, Network.instance.userId);

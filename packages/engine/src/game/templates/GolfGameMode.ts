@@ -2,6 +2,7 @@ import { GameMode } from "../../game/types/GameMode";
 // others componennt
 import { TransformComponent } from '../../transform/components/TransformComponent';
 // game State Tag Component
+import { SpawnedObject } from './gameDefault/components/SpawnedObjectTagComponent';
 import { Open } from "./gameDefault/components/OpenTagComponent";
 import { Closed } from "./gameDefault/components/ClosedTagComponent";
 import { ButtonUp } from "./gameDefault/components/ButtonUpTagComponent";
@@ -35,7 +36,7 @@ import { initScore, saveScore } from "./Golf/behaviors/saveScore";
 import { displayScore } from "./Golf/behaviors/displayScore";
 import { giveGoalState } from "./Golf/behaviors/giveGoalState";
 //
-import { addClub } from "./Golf/behaviors/addClub";
+import { spawnClub, updateClub } from "./Golf/prefab/GolfClubPrefab";
 import { addBall } from "./Golf/behaviors/addBall";
 import { addHole } from "./Golf/behaviors/addHole";
 // checkers
@@ -51,7 +52,10 @@ import { spawnBall } from "./Golf/behaviors/spawnBall";
 import { Network } from "../../networking/classes/Network";
 import { giveBall } from "./Golf/behaviors/giveBall";
 import { Entity } from "../../ecs/classes/Entity";
-import { GolfPrefabs } from "./Golf/GolfGameConstants";
+import { GolfPrefabs } from "./Golf/prefab/GolfGamePrefabs";
+import { ColliderComponent } from "../../physics/components/ColliderComponent";
+import { BodyType } from "three-physx";
+import { Euler, Quaternion, Vector3 } from "three";
 
 
 
@@ -123,18 +127,26 @@ function copleNameRolesInOneString( object ) {
   return Object.assign(object, objectWithCorrectRoles);
 }
 
-const onGolfGameStart = (entity: Entity) => {
+const onGolfGameStart = (entity: Entity) => {}
 
+const onGolfGameLoading = (entity: Entity) => {
   // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
   Object.entries(GolfPrefabs).forEach(([prefabType, prefab]) => {
     Network.instance.schema.prefabs[prefabType] = prefab;
   })
 }
 
+const onGolfPlayerLeave = (entity: Entity) => {
+  //console.warn('need clean score');
+}
+
+
 export const GolfGameMode: GameMode = somePrepareFunction({
   name: "Golf",
   priority: 1,
+  onGameLoading: onGolfGameLoading,
   onGameStart: onGolfGameStart,
+  onPlayerLeave: onGolfPlayerLeave, // not disconnected, in future we will allow to Leave game witout disconnect from location
   registerActionTagComponents: [
     HaveBeenInteracted,
     HasHadCollision
@@ -147,11 +159,12 @@ export const GolfGameMode: GameMode = somePrepareFunction({
     YourTurn,
     Active,
     Deactive,
-    Goal
+    Goal,
+    SpawnedObject
   ],
   initGameState: {
     'newPlayer': {
-      behaviors: [addRole, spawnBall]
+      behaviors: [addRole, spawnBall, spawnClub]
     },
     '1-Player': {
       behaviors: [addTurn, initScore]
@@ -160,10 +173,10 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       behaviors: [initScore]
     },
     'GolfBall': {
-      behaviors: []
+      components: [SpawnedObject]
     },
     'GolfClub': {
-      behaviors: [addClub],
+      components: [SpawnedObject]
     },
     'GolfHole': {
       behaviors: [addHole, disableInteractive]
@@ -414,6 +427,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             }
           }
         },
+        /* NEED WORK
         {
           behavior: giveState,
           args: { on: 'target', component: Goal },
@@ -449,9 +463,16 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             }
           }
         },
+        */
       ]
     },
     'GolfClub': {
+      'update': [
+        {
+          behavior: updateClub,
+          args: {},
+        }
+      ],
       'grab': [
         {
           behavior: grabEquippable,

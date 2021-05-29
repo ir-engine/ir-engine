@@ -66,8 +66,15 @@ interface Props {
     patchUser?: any;
     fetchUserRole?: any;
     fetchAdminInstances?: any;
-    fetchAdminParty?: any
+    fetchAdminParty?: any;
+    closeViewModel: any
 }
+const mapStateToProps = (state: any): any => {
+    return {
+        adminState: selectAdminState(state),
+        authState: selectAuthState(state),
+    };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createUserAction: bindActionCreators(createUserAction, dispatch),
@@ -76,15 +83,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchAdminParty: bindActionCreators(fetchAdminParty, dispatch)
 });
 
-const mapStateToProps = (state: any): any => {
-    return {
-        adminState: selectAdminState(state),
-        authState: selectAuthState(state),
-    };
-};
+
 
 const CreateUser = (props: Props) => {
-    const { open, handleClose, createUserAction, authState, fetchAdminInstances, fetchUserRole, fetchAdminParty, adminState } = props;
+    const { open, handleClose, createUserAction, closeViewModel, authState, fetchAdminInstances, fetchUserRole, fetchAdminParty, adminState } = props;
     const classes = useStyles();
     const classesx = useStyle();
     const [status, setStatus] = React.useState('');
@@ -174,7 +176,7 @@ const CreateUser = (props: Props) => {
                     partyId: party
                 };
                 createUserAction(data);
-                handleClose(false);
+                closeViewModel(false);
                 setInstance("");
                 setStatus("");
                 setParty("");

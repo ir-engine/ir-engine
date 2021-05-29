@@ -261,7 +261,7 @@ class XREngineBot {
     }
 
     async waitForTimeout(timeout) {
-        return this.page.waitForTimeout(timeout);
+        return await new Promise(resolve =>  setTimeout(() => resolve(), timeout));
     }
 
     async waitForSelector(selector, timeout) {

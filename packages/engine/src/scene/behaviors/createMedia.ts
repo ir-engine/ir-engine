@@ -75,7 +75,7 @@ export const createVolumetric: Behavior = (entity, args: any) => {
   const volumetricComponent = getMutableComponent(entity, VolumetricComponent);
   const container = new Object3D();
   // const worker = new PlayerWorker();
-  const DracosisSequence = new Dracosiuvolyer({
+  const DracosisSequence = new DracosisPlayer({
     scene: container,
     renderer: Engine.renderer,
     // worker: worker,

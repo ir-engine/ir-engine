@@ -80,7 +80,8 @@ function createEmptyNetworkObjectBeforeSceneLoad(args: { networkId: number, pref
     ownerId: 'server',
     prefabType: args.prefabType,
     component: null,
-    uniqueId: args.uniqueId
+    uniqueId: args.uniqueId,
+    parameters: ''
   };
 }
 
@@ -107,13 +108,6 @@ export class ClientNetworkStateSystem extends System {
     });
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, ({ worldState }) => {
       this.receivedServerState.push(worldState);
-      const canvas = document.createElement('canvas');
-      const gl = canvas.getContext('webgl');
-      const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-      const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
-      const enableRenderer = !(/SwiftShader/.test(renderer));
-      canvas.remove();
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: enableRenderer, physics: true });
     })
     EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.RECEIVE_DATA, ({ unbufferedState, delta }) => {
       this.receivedServerState.push(unbufferedState);
@@ -186,9 +180,12 @@ export class ClientNetworkStateSystem extends System {
 
       // Handle all network objects created this frame
       for (const objectToCreateKey in worldStateBuffer.createObjects) {
-        const objectToCreate = worldStateBuffer.createObjects[objectToCreateKey];
 
-        if(!Network.instance.schema.prefabs[objectToCreate.prefabType]) continue;
+        const objectToCreate = worldStateBuffer.createObjects[objectToCreateKey];
+        if(!Network.instance.schema.prefabs[objectToCreate.prefabType]) {
+          console.log('prefabType not found', objectToCreate.prefabType)
+          continue;
+        }
 
         const isIdEmpty = Network.instance.networkObjects[objectToCreate.networkId] === undefined;
         const isIdFull = Network.instance.networkObjects[objectToCreate.networkId] != undefined;
@@ -223,7 +220,7 @@ export class ClientNetworkStateSystem extends System {
             // we have parameters, so we should spawn the object in the world via the prefab type
             Network.instance.schema.prefabs[objectToCreate.prefabType].initialize({ ...objectToCreate, parameters });
           } else {
-            // otherwise this is for an object loaded via the scene, 
+            // otherwise this is for an object loaded via the scene,
             // so we just create a skeleton network object while we wait for the scene to load
             createEmptyNetworkObjectBeforeSceneLoad(objectToCreate);
           }
@@ -247,23 +244,21 @@ export class ClientNetworkStateSystem extends System {
       worldStateBuffer.ikTransforms?.forEach((ikTransform: StateEntityIK) => {
         if (!Network.instance.networkObjects[ikTransform.networkId]) return;
         const entity = Network.instance.networkObjects[ikTransform.networkId].component.entity;
-        if (!hasComponent(entity, IKComponent)) {
-          addComponent(entity, IKComponent);
-        }
         const actor = getComponent(entity, CharacterComponent);
         const ikComponent = getMutableComponent(entity, IKComponent);
-        if (!ikComponent.avatarIKRig && actor.modelContainer.children.length) {
-          initiateIK(entity)
+        if (!ikComponent || !ikComponent.avatarIKRig) {
+          if( actor.modelContainer.children.length) {
+            initiateIK(entity)
+          }
+          return;
         }
-        if (ikComponent.avatarIKRig) {
-          const { hmd, left, right } = ikTransform;
-          ikComponent.avatarIKRig.inputs.hmd.position.set(hmd.x, hmd.y, hmd.z);
-          ikComponent.avatarIKRig.inputs.hmd.quaternion.set(hmd.qX, hmd.qY, hmd.qZ, hmd.qW);
-          ikComponent.avatarIKRig.inputs.leftGamepad.position.set(left.x, left.y, left.z);
-          ikComponent.avatarIKRig.inputs.leftGamepad.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
-          ikComponent.avatarIKRig.inputs.rightGamepad.position.set(right.x, right.y, right.z);
-          ikComponent.avatarIKRig.inputs.rightGamepad.quaternion.set(right.qX, right.qY, right.qZ, right.qW);
-        }
+        const { hmd, left, right } = ikTransform;
+        ikComponent.avatarIKRig.inputs.hmd.position.set(hmd.x, hmd.y, hmd.z);
+        ikComponent.avatarIKRig.inputs.hmd.quaternion.set(hmd.qX, hmd.qY, hmd.qZ, hmd.qW);
+        ikComponent.avatarIKRig.inputs.leftGamepad.position.set(left.x, left.y, left.z);
+        ikComponent.avatarIKRig.inputs.leftGamepad.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
+        ikComponent.avatarIKRig.inputs.rightGamepad.position.set(right.x, right.y, right.z);
+        ikComponent.avatarIKRig.inputs.rightGamepad.quaternion.set(right.qX, right.qY, right.qZ, right.qW);
       })
 
       worldStateBuffer.editObjects?.forEach((editObject) => {
@@ -287,7 +282,7 @@ export class ClientNetworkStateSystem extends System {
       })
     });
 
-    function sendOnes() {
+    function getClientGameActions() {
       let copy = [];
       if (Network.instance.clientGameAction.length > 0) {
         copy = Network.instance.clientGameAction;
@@ -311,8 +306,7 @@ export class ClientNetworkStateSystem extends System {
           viewVector: {
             x: 0, y: 0, z: 0
           },
-          characterState: hasComponent(entity, CharacterComponent) ? getComponent(entity, CharacterComponent).state : 0,
-          clientGameAction: sendOnes(),// Network.instance.clientGameAction,
+          clientGameAction: getClientGameActions(),// Network.instance.clientGameAction,
           transforms: []
         }
       });

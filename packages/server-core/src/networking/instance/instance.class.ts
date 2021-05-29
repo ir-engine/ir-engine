@@ -37,12 +37,12 @@ export class Instance extends Service {
       // console.log(user);
       // if (user.userRole !== 'admin') throw new Forbidden ('Must be system admin to execute this action');
 
-      const foundLocation = await this.app.service("instance").Model.findAndCountAll({
+      const foundLocation = await (this.app.service("instance") as any).Model.findAndCountAll({
         offset: skip,
         limit: limit,
         include:
         {
-          model: this.app.service('location').Model,
+          model: (this.app.service('location') as any).Model,
           required: false
         },
         nest: false

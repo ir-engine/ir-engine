@@ -1,7 +1,5 @@
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
-import { getBit } from '../../common/functions/bitFunctions';
 import { NumericalType } from '../../common/types/NumericalTypes';
-import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
@@ -11,8 +9,6 @@ import { InputType } from '../../input/enums/InputType';
 import { InputValue } from '../../input/interfaces/InputValue';
 import { InputAlias } from '../../input/types/InputAlias';
 import { CharacterComponent } from "../../character/components/CharacterComponent";
-import { CHARACTER_STATES } from '../../character/state/CharacterStates';
-import { initiateIK, stopIK } from '../../xr/functions/IKFunctions';
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
 import { handleInputFromNonLocalClients } from '../functions/handleInputOnServer';
@@ -25,35 +21,13 @@ import { sendState } from '../../game/functions/functionsState';
 import { StateEntity } from '../types/SnapshotDataTypes';
 import { ColliderComponent } from '../../physics/components/ColliderComponent';
 import { isClient } from '../../common/functions/isClient';
-
-
-// function switchInputs(clientInput) {
-//   if (hasComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, PlayerInCar)) {
-//     return getComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, PlayerInCar).networkCarId;
-//   } else {
-//     return clientInput.networkId;
-//   }
-// }
+import { getGameFromName } from '../../game/functions/functions';
 
 
 export function cancelAllInputs(entity) {
   getMutableComponent(entity, Input)?.data.forEach((value) => {
     value.lifecycleState = LifecycleValue.ENDED;
   })
-}
-
-const updateCharacterState = (entity: Entity, newState: number) => {
-  const actor = getMutableComponent(entity, CharacterComponent);
-  const stateChanges = newState ^ actor.state; // xor to get state changes
-  if (getBit(stateChanges, CHARACTER_STATES.VR)) {
-    // do server VR stuff for actor
-    if (getBit(newState, CHARACTER_STATES.VR)) {
-      initiateIK(entity)
-    } else {
-      stopIK(entity)
-    }
-  }
-  actor.state = newState;
 }
 
 /** System class to handle incoming messages. */
@@ -156,7 +130,7 @@ export class ServerNetworkIncomingSystem extends System {
             const entity = Network.instance.networkObjects[clientInput.networkId].component.entity;
             const playerComp = getComponent<GamePlayer>(entity, GamePlayer);
             if (playerComp === undefined) return;
-            sendState(playerComp.game, playerComp);
+            sendState(getGameFromName(playerComp.gameName), playerComp);
           }
         })
       }
@@ -169,22 +143,16 @@ export class ServerNetworkIncomingSystem extends System {
           clientInput.viewVector.y,
           clientInput.viewVector.z
         );
-        updateCharacterState(Network.instance.networkObjects[clientInput.networkId].component.entity, clientInput.characterState);
 
       } else {
         console.log('input but no actor...', clientInput.networkId)
       }
-      // its warns the car that a passenger or driver wants to get out
-      // and does not allow the passenger to drive the car
-      // vehicleInputCheck(clientInput);
-      // this function change network id to which the inputs will be applied
-      // clientInput.switchInputs ? console.warn('switchInputs: ' + clientInput.switchInputs) : '';
-      // clientInput.switchInputs ? clearFreezeInputs(clientInput) : '';
 
       const networkObject = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, NetworkObject);
-      networkObject.snapShotTime = clientInput.snapShotTime;
-      if (networkObject.snapShotTime > clientInput.snapShotTime) return;
-      // clientInput.networkId = switchInputs(clientInput);
+      if (networkObject != null) {
+        networkObject.snapShotTime = clientInput.snapShotTime;
+        if (networkObject.snapShotTime > clientInput.snapShotTime) return;
+      }
       const delegatedInputReceiver = getComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, DelegatedInputReceiver);
 
       const inputClientNetworkId = delegatedInputReceiver ? delegatedInputReceiver.networkId : clientInput.networkId;

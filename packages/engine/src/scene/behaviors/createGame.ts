@@ -1,12 +1,14 @@
 import { Behavior } from "../../common/interfaces/Behavior";
 import { addComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import { GamesSchema } from "../../game/templates/GamesSchema";
 import { Game } from "../../game/components/Game";
 import { GameObject } from "../../game/components/GameObject";
-import { getGameFromName } from "../../game/functions/functions";
-import { GameManagerSystem } from "../../game/systems/GameManagerSystem";
 import { TransformComponent } from '../../transform/components/TransformComponent';
+import { GameMode } from "../../game/types/GameMode";
 
 export const createGame: Behavior = (entity, args: any) => {
+  console.log(args.gameMode+' GAME LOADING ...');
+
   const transform = getMutableComponent(entity, TransformComponent);
   transform.scale.set(
     Math.abs(transform.scale.x) / 2,
@@ -28,7 +30,10 @@ export const createGame: Behavior = (entity, args: any) => {
     gameArea: { min, max }
   };
 
-  GameManagerSystem.instance.registerGame(entity, gameData);
+  addComponent(entity, Game, gameData)
+  // register spawn objects prefabs
+  const gameSchema = GamesSchema[args.gameMode] as GameMode;
+  gameSchema.onGameLoading(entity);
 };
 
 export const createGameObject: Behavior = (entity, args: any) => {
@@ -42,7 +47,7 @@ export const createGameObject: Behavior = (entity, args: any) => {
   // }
 
   addComponent(entity, GameObject, {
-    game: args.gameName,
+    gameName: args.gameName,
     role: args.role,
     uuid: args.sceneEntityId
   });

@@ -64,6 +64,9 @@ const correctionQuaternionZ = new Quaternion().setFromAxisAngle(new Vector3(0,0,
 
 const _DEBUG = false;
 const DEBUG_MINI_VIEWPORT_SIZE = 100;
+let statusXR = false;
+const screenHeigth = Math.floor(document.body.clientHeight/2)*2;
+const screenWidth = Math.floor(document.body.clientWidth/2)*2;
 
 export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNewFeedPageState, updateWebXRState, setContentHidden}:Props) => {
     const canvasRef = React.useRef();
@@ -92,6 +95,38 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
         xy: null,
         zy: null
     };
+
+    const onBackButton = () => {
+        if (recordingState === RecordingStates.ON) {
+            finishRecord();
+        } else {
+            // exit this popup
+            updateWebXRState(false, null);
+        }
+    };
+
+    useEffect(() => {
+        // console.log('WebXRComponent MOUNTED');
+        document.addEventListener("backbutton", onBackButton);
+
+        return () => {
+            // console.log('WebXRComponent UNMOUNT');
+            document.removeEventListener("backbutton", onBackButton);
+
+            if (playerRef.current) {
+                console.log('WebXRComponent - dispose player');
+                playerRef.current.dispose();
+                playerRef.current = null;
+            }
+            console.log('WebXRComponent - stop plugin');
+            // @ts-ignore
+            Plugins.XRPlugin.stop({});
+            window.screen.orientation.unlock();
+
+            setContentHidden();
+            // console.log('WebXRComponent - UNMOUNT END');
+        };
+    }, []);
 
     const raf = () => {
         requestAnimationFrame(raf);
@@ -165,26 +200,26 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                 debugCamera.zy.rotateY(Math.PI / 2);
             }
 
-            // const geometry = new BoxGeometry(.1, .1, .1);
-            // const materialX = new MeshBasicMaterial({ color: 0xff0000 });
-            // const materialY = new MeshBasicMaterial({ color: 0x00ff00 });
-            // const materialZ = new MeshBasicMaterial({ color: 0x0000ff });
-            // const materialC = new MeshBasicMaterial({ color: 0xffffff });
+//             const geometry = new BoxGeometry(.1, .1, .1);
+//             const materialX = new MeshBasicMaterial({ color: 0xff0000 });
+//             const materialY = new MeshBasicMaterial({ color: 0x00ff00 });
+//             const materialZ = new MeshBasicMaterial({ color: 0x0000ff });
+//             const materialC = new MeshBasicMaterial({ color: 0xffffff });
             const anchor = new Group();
-            // anchor.add(new AxesHelper(0.3));
-            // const anchorC = new Mesh(geometry, materialC);
-            // anchor.add(anchorC);
-            // const anchorX = new Mesh(geometry, materialX);
-            // anchorX.position.x = 0.3;
-            // anchor.add(anchorX);
-            // const anchorY = new Mesh(geometry, materialY);
-            // anchorY.position.y = 0.3;
-            // anchor.add(anchorY);
-            // const anchorZ = new Mesh(geometry, materialZ);
-            // anchorZ.position.z = 0.3;
-            // anchor.add(anchorZ);
-            //
-            // scene.add(new AxesHelper(0.2));
+//             anchor.add(new AxesHelper(0.3));
+//             const anchorC = new Mesh(geometry, materialC);
+//             anchor.add(anchorC);
+//             const anchorX = new Mesh(geometry, materialX);
+//             anchorX.position.x = 0.3;
+//             anchor.add(anchorX);
+//             const anchorY = new Mesh(geometry, materialY);
+//             anchorY.position.y = 0.3;
+//             anchor.add(anchorY);
+//             const anchorZ = new Mesh(geometry, materialZ);
+//             anchorZ.position.z = 0.3;
+//             anchor.add(anchorZ);
+//
+//             scene.add(new AxesHelper(0.2));
 
             camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 100);
 
@@ -250,171 +285,164 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                 setContentHidden();
             }).catch(error => console.log(error.message));
 
-            // @ts-ignore
-            XRPlugin.addListener('poseDataReceived', (data: any) => {
+            if(statusXR === false) {
+                // @ts-ignore
+                XRPlugin.addListener('poseDataReceived', (data: any) => {
 
-                const {
-                    cameraPositionX,
-                    cameraPositionY,
-                    cameraPositionZ,
-                    cameraRotationX,
-                    cameraRotationY,
-                    cameraRotationZ,
-                    cameraRotationW,
-                } = data;
-
-                // TODO:
-                // Set camera position and rotation
-                // Enable cube and move to position/rotation if placed is true
-                setCameraPoseState(JSON.stringify({
-                    cameraPositionX,
-                    cameraPositionY,
-                    cameraPositionZ,
-                    cameraRotationX,
-                    cameraRotationY,
-                    cameraRotationZ,
-                    cameraRotationW
-                }));
-
-                camera.quaternion
-                  .set(cameraRotationX, cameraRotationY, cameraRotationZ, cameraRotationW)
-                  .multiply(correctionQuaternionZ);
-                camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
-
-                camera.updateProjectionMatrix();
-
-                if (_DEBUG) {// sync cams
-                    debugCamera.overview?.lookAt(camera.position);
-                    if (debugCamera.xz) {
-                        debugCamera.xz.position.x = camera.position.x;
-                        debugCamera.xz.position.z = camera.position.z;
-                    }
-                    if (debugCamera.xy) {
-                        debugCamera.xy.position.x = camera.position.x;
-                        debugCamera.xy.position.y = camera.position.y;
-                    }
-                    if (debugCamera.zy) {
-                        debugCamera.zy.position.z = camera.position.z;
-                        debugCamera.zy.position.y = camera.position.y;
-                    }
-                }// sync cams
-
-
-                if (data.placed) {
                     const {
-                        anchorPositionX,
-                        anchorPositionY,
-                        anchorPositionZ,
-                        anchorRotationX,
-                        anchorRotationY,
-                        anchorRotationZ,
-                        anchorRotationW
+                        cameraPositionX,
+                        cameraPositionY,
+                        cameraPositionZ,
+                        cameraRotationX,
+                        cameraRotationY,
+                        cameraRotationZ,
+                        cameraRotationW,
                     } = data;
 
-                    setAnchorPoseState(JSON.stringify({
-                        anchorPositionX,
-                        anchorPositionY,
-                        anchorPositionZ,
-                        anchorRotationX,
-                        anchorRotationY,
-                        anchorRotationZ,
-                        anchorRotationW
+                    // TODO:
+                    // Set camera position and rotation
+                    // Enable cube and move to position/rotation if placed is true
+                    setCameraPoseState(JSON.stringify({
+                        cameraPositionX,
+                        cameraPositionY,
+                        cameraPositionZ,
+                        cameraRotationX,
+                        cameraRotationY,
+                        cameraRotationZ,
+                        cameraRotationW
                     }));
 
-                    anchor.quaternion
-                      .set(anchorRotationX, anchorRotationY, anchorRotationZ, anchorRotationW)
+                    camera.quaternion
+                      .set(cameraRotationX, cameraRotationY, cameraRotationZ, cameraRotationW)
                       .multiply(correctionQuaternionZ);
-                    // TODO: remove -1.5 when anchor will be placed on ground
-                    anchor.position.set(anchorPositionX, anchorPositionY - 1.5, anchorPositionZ);
-                }
+                    camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
 
-            });
+                    camera.updateProjectionMatrix();
 
-            // @ts-ignore
-            XRPlugin.addListener('cameraIntrinsicsReceived', (data: any) => {
-
-                setCameraIntrinsicsState(JSON.stringify({
-                    fX: data.fX,
-                    fY: data.fY,
-                    cX: data.cX,
-                    cY: data.cy,
-                    x: data.x,
-                    y: data.y
-                }));
-
-                // TODO: checkout focal length
-                // camera.setFocalLength(data.fY/10);
-                // camera.setFocalLength(50);
-
-                // TODO:
-                // Set camera position and rotation
-                // Enable cube and move to position/rotation if placed is true
-            });
+                    if (_DEBUG) {// sync cams
+                        debugCamera.overview?.lookAt(camera.position);
+                        if (debugCamera.xz) {
+                            debugCamera.xz.position.x = camera.position.x;
+                            debugCamera.xz.position.z = camera.position.z;
+                        }
+                        if (debugCamera.xy) {
+                            debugCamera.xy.position.x = camera.position.x;
+                            debugCamera.xy.position.y = camera.position.y;
+                        }
+                        if (debugCamera.zy) {
+                            debugCamera.zy.position.z = camera.position.z;
+                            debugCamera.zy.position.y = camera.position.y;
+                        }
+                    }// sync cams
 
 
+                    if (data.placed) {
+                        const {
+                            anchorPositionX,
+                            anchorPositionY,
+                            anchorPositionZ,
+                            anchorRotationX,
+                            anchorRotationY,
+                            anchorRotationZ,
+                            anchorRotationW
+                        } = data;
+
+                        setAnchorPoseState(JSON.stringify({
+                            anchorPositionX,
+                            anchorPositionY,
+                            anchorPositionZ,
+                            anchorRotationX,
+                            anchorRotationY,
+                            anchorRotationZ,
+                            anchorRotationW
+                        }));
+
+                        anchor.quaternion
+                          .set(anchorRotationX, anchorRotationY, anchorRotationZ, anchorRotationW)
+                          .multiply(correctionQuaternionZ);
+                        // TODO: remove -1.5 when anchor will be placed on ground
+                        anchor.position.set(anchorPositionX, anchorPositionY - 1.5, anchorPositionZ);
+                    }
+
+                });
+
+                // @ts-ignore
+                XRPlugin.addListener('cameraIntrinsicsReceived', (data: any) => {
+
+                    setCameraIntrinsicsState(JSON.stringify({
+                        fX: data.fX,
+                        fY: data.fY,
+                        cX: data.cX,
+                        cY: data.cy,
+                        x: data.x,
+                        y: data.y
+                    }));
+
+                    // TODO: checkout focal length
+                    // camera.setFocalLength(data.fY/10);
+                    // camera.setFocalLength(50);
+
+                    // TODO:
+                    // Set camera position and rotation
+                    // Enable cube and move to position/rotation if placed is true
+                });
+                statusXR = true;
+            }
+
+            await window.screen.orientation.lock('portrait');
             XRPlugin.start({}).then(() => {
                 setCameraStartedState(isNative ? "Camera started on native" : "Camera started on web");
             }).catch(error => console.log(error.message));
         })();
     }, [mediaItemId]);
 
+    let finishRecord = () => {
+        if (recordingState === RecordingStates.ON) {
+            console.log('finishRecord');
 
-    const createPreviewUrl = () => {
-        const canvas = document.createElement('canvas');
-        const video = document.getElementById('arcCanvas') as HTMLVideoElement;
-        canvas.getContext('2d').drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
-        const dataURL = canvas.toDataURL();
-        return dataURL;
+            // @ts-ignore
+            Plugins.XRPlugin.stopRecording().
+              // @ts-ignore
+              then(({ result, filePath }) => {
+                  console.log("END RECORDING, result IS", result);
+                  console.log("filePath IS", filePath);
+                  setSavedFilePath("file://" + filePath);
+                  const videoPath = Capacitor.convertFileSrc(filePath);
+                  updateNewFeedPageState(true, videoPath);
+                  setRecordingState(RecordingStates.OFF);
+                  updateWebXRState(false, null);
+
+
+                  // setContentHidden();
+              }).catch(error => alert(error.message));
+        }else{
+            return console.log('Record state is OFF');
+        }
+
     };
 
-    const finishRecord = () => {
+    const startRecord = () => {
+        setRecordingState(RecordingStates.ON);
 
-              setRecordingState(RecordingStates.OFF);
-               setContentHidden();
-//                if(horizontalOrientation){
-//                    setHorizontalOrientation(false);
-//                }
-               document.removeEventListener('dblclick', ()=> {
-                   console.log('Double Click listener was removed');
-               }, false);
-
-               // @ts-ignore
-               Plugins.XRPlugin.stopRecording().
-               // @ts-ignore
-               then(({ result, filePath }) => {
-                   console.log("END RECORDING, result IS", result);
-                   console.log("filePath IS", filePath);
-                   setSavedFilePath("file://" + filePath);
-                   const videoPath = Capacitor.convertFileSrc(filePath);
-                   updateWebXRState(false, null);
-                   updateNewFeedPageState(true, videoPath, createPreviewUrl());
-               }).catch(error => alert(error.message));
-        };
-
-
+        if (window.confirm("Double click to finish the record.")) {
+        //TODO: check why there are errors
+        // @ts-ignore
+        Plugins.XRPlugin.startRecording({
+            isAudio: true,
+            width: screenWidth,
+            height: screenHeigth,
+            bitRate: 6000000,
+            dpi: 100,
+            filePath: "/test.mp4"
+            }).then(({ status }) => {
+                console.log("RECORDING, STATUS IS", status);
+            }).catch(error => alert(error.message));
+        }
+    };
 
     const toggleRecording = () => {
         if (recordingState === RecordingStates.OFF) {
-            setRecordingState(RecordingStates.ON);
-
-            if (window.confirm("Double click to finish the record.")) {
-            //TODO: check why there are errors
-            // @ts-ignore
-            Plugins.XRPlugin.startRecording({
-                    isAudio: true,
-                    width: 1024,
-                    height: 1024,
-                    bitRate: 1000,
-                    dpi: 100,
-                    filePath: "/test.mp4"
-                }).then(({ status }) => {
-                    console.log("RECORDING, STATUS IS", status);
-                }).catch(error => alert(error.message));
-            }
-
-             document.addEventListener('dblclick', (e) => {
-                finishRecord();
-            });
+            startRecord();
         }
         else if (recordingState === RecordingStates.ON) {
             finishRecord();
@@ -422,8 +450,11 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
     };
 
     const handleTap = () => {
+        if (recordingState === RecordingStates.OFF)
+        {
         Plugins.XRPlugin.handleTap();
         playerRef.current?.play();
+        }
     };
 
     const playVideo = () => {
@@ -450,6 +481,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
     // useEffect(() => {
     //     setSecondState("Initialized and effected");
     // }, [initializationResponse]);
+
 
     return (<>
         {/* <div className="plugintest">
@@ -488,7 +520,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
               */}
             </div>
           </div>
-          <canvas ref={canvasRef} className={styles.arcCanvas} id={'arcCanvas'} onClick={() => handleTap()} />
+          <canvas ref={canvasRef} className={styles.arcCanvas} id={'arcCanvas'} onClick={() => handleTap()} onDoubleClick={finishRecord} />
         {/* <VolumetricPlayer
                         meshFilePath={meshFilePath}
                         videoFilePath={videoFilePath}

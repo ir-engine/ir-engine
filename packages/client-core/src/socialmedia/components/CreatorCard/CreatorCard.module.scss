@@ -76,3 +76,8 @@
         height: 232px;
     }
 }
+@media screen and (orientation: landscape){
+    .bgImage{
+        max-height: 40vh;
+    }
+}
