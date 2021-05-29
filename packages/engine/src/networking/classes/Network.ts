@@ -135,8 +135,6 @@ export class Network {
       x: 0, y: 0, z: 0
     },
     snapShotTime: 0,
-    // switchInputs: sendSwitchInputs ? this.switchId : 0,
-    characterState: 0,
     clientGameAction: [],
     transforms: []
   }
