@@ -1,16 +1,6 @@
 import { DEFAULT_AVATAR_ID } from "@xrengine/common/src/constants/AvatarConstants";
 import { AnimationMixer, Group, Quaternion, Vector3 } from "three";
-import { Controller, getGeometry } from 'three-physx';
-import { getMovementValues, initializeMovingState, movingAnimationSchema } from "../animations/MovingAnimations";
-import { characterCorrectionBehavior } from '../behaviors/characterCorrectionBehavior';
-import { characterInterpolationBehavior } from '../behaviors/characterInterpolationBehavior';
-import { CharacterInputSchema } from '../CharacterInputSchema';
-import { AnimationComponent } from "../components/AnimationComponent";
-import { CharacterComponent } from '../components/CharacterComponent';
-import { IKComponent } from '../components/IKComponent';
-import { NamePlateComponent } from '../components/NamePlateComponent';
-import { standardizeSkeletion } from "../functions/standardizeSkeleton";
-import { AnimationManager } from "../AnimationManager";
+import { Controller } from 'three-physx';
 import { AssetLoader } from "../../assets/classes/AssetLoader";
 import { PositionalAudioComponent } from "../../audio/components/PositionalAudioComponent";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
@@ -18,7 +8,7 @@ import { CameraModes } from "../../camera/types/CameraModes";
 import { isClient } from "../../common/functions/isClient";
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Entity } from "../../ecs/classes/Entity";
-import { getMutableComponent, hasComponent, getComponent, addComponent } from "../../ecs/functions/EntityFunctions";
+import { addComponent, getComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../../input/components/Input";
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
 import { Interactor } from "../../interaction/components/Interactor";
@@ -28,7 +18,6 @@ import { NetworkPrefab } from "../../networking/interfaces/NetworkPrefab";
 import { PrefabType } from "../../networking/templates/PrefabType";
 import { RelativeSpringSimulator } from "../../physics/classes/SpringSimulator";
 import { VectorSpringSimulator } from "../../physics/classes/VectorSpringSimulator";
-import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
 import { InterpolationComponent } from "../../physics/components/InterpolationComponent";
 import { CollisionGroups, DefaultCollisionMask } from "../../physics/enums/CollisionGroups";
 import { InterpolationInterface } from "../../physics/interfaces/InterpolationInterface";
@@ -36,8 +25,16 @@ import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { addObject3DComponent } from "../../scene/behaviors/addObject3DComponent";
 import { createShadow } from "../../scene/behaviors/createShadow";
 import { TransformComponent } from "../../transform/components/TransformComponent";
-import { initiateIK } from "../../xr/functions/IKFunctions";
-import { isServer } from "../../common/functions/isServer";
+import { AnimationManager } from "../AnimationManager";
+import { getMovementValues, initializeMovingState, movingAnimationSchema } from "../animations/MovingAnimations";
+import { characterCorrectionBehavior } from '../behaviors/characterCorrectionBehavior';
+import { characterInterpolationBehavior } from '../behaviors/characterInterpolationBehavior';
+import { CharacterInputSchema } from '../CharacterInputSchema';
+import { AnimationComponent } from "../components/AnimationComponent";
+import { CharacterComponent } from '../components/CharacterComponent';
+import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
+import { IKComponent } from '../components/IKComponent';
+import { NamePlateComponent } from '../components/NamePlateComponent';
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
@@ -87,7 +84,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 					targetSkeleton = child;
 			}
 		})
-		standardizeSkeletion(targetSkeleton, AnimationManager.instance._defaultSkeleton);
+		// standardizeSkeletion(targetSkeleton, AnimationManager.instance._defaultSkeleton);
 
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
 		// const geom = getGeometry(actor.modelContainer);

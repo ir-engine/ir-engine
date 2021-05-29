@@ -13,6 +13,9 @@ export const RouterComp = () => {
             { /* Admin Routes*/}
             <Route path="/admin" component={ProtectedRoute} />
 
+            <Route path="/offlineDev" component={React.lazy(() => import('../pages/offlineDev'))} />
+            <Route path="/examples/helloworld" component={React.lazy(() => import('../pages/examples/ecs_helloworld'))} />
+
 
             {/* Auth Routes */}
             <Route path="/auth/oauth/facebook" component={React.lazy(() => import('../pages/auth/oauth/facebook'))} />
