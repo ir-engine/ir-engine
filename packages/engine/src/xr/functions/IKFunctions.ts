@@ -12,14 +12,15 @@ import { Network } from "../../networking/classes/Network";
  * @param entity 
  */
 export function initiateIK(entity: Entity) {
-
-  const actor = getMutableComponent(entity, CharacterComponent);
   if(!hasComponent(entity, IKComponent)) {
     addComponent(entity, IKComponent);
+  } else {
+    return;
   }
   if(hasComponent(entity, AnimationComponent)) {
     removeComponent(entity, AnimationComponent);
   }
+  const actor = getMutableComponent(entity, CharacterComponent);
   const avatarIK = getMutableComponent(entity, IKComponent);
   avatarIK.avatarIKRig = new Avatar(actor.modelContainer.children[0], {
     debug: true,

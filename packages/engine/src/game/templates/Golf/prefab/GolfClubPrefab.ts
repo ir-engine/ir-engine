@@ -90,6 +90,7 @@ export const enableClub = (entityClub: Entity, enable: boolean): void => {
 export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
   if(!isClient) return;
   // only need to update club if it's our own
+  // TODO: remove this when we have IK rig in and can get the right hand pos data
   if(getComponent(entityClub, UserControlledColliderComponent).ownerNetworkId !== Network.instance.localAvatarNetworkId) return;
 
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
@@ -187,6 +188,7 @@ export const initializeGolfClub = (entity: Entity) => {
   const golfClubComponent = getMutableComponent(entity, GolfClubComponent);
 
   // only raycast if it's our own club
+  // TODO: remove this when we have IK rig in and can get the right hand pos data
   if(ownerNetworkObject.networkId === Network.instance.localAvatarNetworkId) {
     golfClubComponent.raycast = PhysicsSystem.instance.addRaycastQuery({ 
       type: SceneQueryType.Closest,

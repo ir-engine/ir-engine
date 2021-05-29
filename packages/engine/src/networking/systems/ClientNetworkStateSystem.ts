@@ -244,23 +244,21 @@ export class ClientNetworkStateSystem extends System {
       worldStateBuffer.ikTransforms?.forEach((ikTransform: StateEntityIK) => {
         if (!Network.instance.networkObjects[ikTransform.networkId]) return;
         const entity = Network.instance.networkObjects[ikTransform.networkId].component.entity;
-        if (!hasComponent(entity, IKComponent)) {
-          addComponent(entity, IKComponent);
-        }
         const actor = getComponent(entity, CharacterComponent);
         const ikComponent = getMutableComponent(entity, IKComponent);
-        if (!ikComponent.avatarIKRig && actor.modelContainer.children.length) {
-          initiateIK(entity)
+        if (!ikComponent || !ikComponent.avatarIKRig) {
+          if( actor.modelContainer.children.length) {
+            initiateIK(entity)
+          }
+          return;
         }
-        if (ikComponent.avatarIKRig) {
-          const { hmd, left, right } = ikTransform;
-          ikComponent.avatarIKRig.inputs.hmd.position.set(hmd.x, hmd.y, hmd.z);
-          ikComponent.avatarIKRig.inputs.hmd.quaternion.set(hmd.qX, hmd.qY, hmd.qZ, hmd.qW);
-          ikComponent.avatarIKRig.inputs.leftGamepad.position.set(left.x, left.y, left.z);
-          ikComponent.avatarIKRig.inputs.leftGamepad.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
-          ikComponent.avatarIKRig.inputs.rightGamepad.position.set(right.x, right.y, right.z);
-          ikComponent.avatarIKRig.inputs.rightGamepad.quaternion.set(right.qX, right.qY, right.qZ, right.qW);
-        }
+        const { hmd, left, right } = ikTransform;
+        ikComponent.avatarIKRig.inputs.hmd.position.set(hmd.x, hmd.y, hmd.z);
+        ikComponent.avatarIKRig.inputs.hmd.quaternion.set(hmd.qX, hmd.qY, hmd.qZ, hmd.qW);
+        ikComponent.avatarIKRig.inputs.leftGamepad.position.set(left.x, left.y, left.z);
+        ikComponent.avatarIKRig.inputs.leftGamepad.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
+        ikComponent.avatarIKRig.inputs.rightGamepad.position.set(right.x, right.y, right.z);
+        ikComponent.avatarIKRig.inputs.rightGamepad.quaternion.set(right.qX, right.qY, right.qZ, right.qW);
       })
 
       worldStateBuffer.editObjects?.forEach((editObject) => {
@@ -284,7 +282,7 @@ export class ClientNetworkStateSystem extends System {
       })
     });
 
-    function sendOnes() {
+    function getClientGameActions() {
       let copy = [];
       if (Network.instance.clientGameAction.length > 0) {
         copy = Network.instance.clientGameAction;
@@ -308,8 +306,7 @@ export class ClientNetworkStateSystem extends System {
           viewVector: {
             x: 0, y: 0, z: 0
           },
-          characterState: hasComponent(entity, CharacterComponent) ? getComponent(entity, CharacterComponent).state : 0,
-          clientGameAction: sendOnes(),// Network.instance.clientGameAction,
+          clientGameAction: getClientGameActions(),// Network.instance.clientGameAction,
           transforms: []
         }
       });

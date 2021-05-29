@@ -7,10 +7,7 @@ import { Not } from "../../ecs/functions/ComponentFunctions";
 import { getComponent, hasComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { Network } from "../../networking/classes/Network";
-import { Vault } from '../../networking/classes/Vault';
 import { NetworkObject } from "../../networking/components/NetworkObject";
-import { NetworkClientInputInterface } from "../../networking/interfaces/WorldState";
-import { ClientInputModel } from '../../networking/schema/clientInputSchema';
 import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
@@ -19,7 +16,6 @@ import { InputType } from "../enums/InputType";
 import { InputValue } from "../interfaces/InputValue";
 import { InputAlias } from "../types/InputAlias";
 import { BaseInput } from "../enums/BaseInput";
-import { ClientNetworkSystem } from "../../networking/systems/ClientNetworkSystem";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { ClientInputSystem } from "./ClientInputSystem";
 import { WEBCAM_INPUT_EVENTS } from "../constants/InputConstants";
@@ -87,14 +83,7 @@ export class ActionSystem extends System {
    */
 
   public execute(delta: number): void {
-    // Handle XR input
-    // this.queryResults.controllersComponent.added?.forEach(entity => addPhysics(entity));
-
-    // this.queryResults.controllersComponent.removed?.forEach(entity => removeWebXRPhysics(entity, {
-    //   leftControllerPhysicsBody: this.leftControllerId,
-    //   rightControllerPhysicsBody: this.rightControllerId
-    // }));
-
+    
     // TODO: use Vector & Quaternion .toArray & .fromArray to make this faster
     this.queryResults.controllersComponent.all?.forEach(entity => {
       const xrControllers = getComponent(entity, XRInputReceiver);
@@ -251,35 +240,10 @@ export class ActionSystem extends System {
           input.prevData.set(key, value);
         });
 
-        // let sendSwitchInputs = false;
-
-        // if (!hasComponent(Network.instance.networkObjects[Network.instance.localAvatarNetworkId].component.entity, LocalInputReceiver) && !this.needSend) {
-        //   this.needSend = true;
-        //   sendSwitchInputs = true;
-        //   this.switchId = getComponent(entity, NetworkObject).networkId;
-        //   console.warn('Car id: '+ getComponent(entity, NetworkObject).networkId);
-        // } else if (hasComponent(Network.instance.networkObjects[Network.instance.localAvatarNetworkId].component.entity, LocalInputReceiver) && this.needSend) {
-        //   this.needSend = false;
-        //   sendSwitchInputs = true;
-        //   console.warn('Network.instance.userNetworkId: '+ Network.instance.localAvatarNetworkId);
-        // }
-
-
-        //   sendSwitchInputs ? console.warn('switchInputs'):'';
-        //cleanupInput(entity);
-        // If input is the same as last frame, return
-        // if (_.isEqual(input.data, input.lastData))
-        //   return;
         // Repopulate lastData
        input.lastData.clear();
        input.data.forEach((value, key) => input.lastData.set(key, value));
 
-/*
-        if (Network.instance.clientGameAction.length) {
-          Network.instance.clientGameAction = [];
-        }
-        */
-        //console.warn(inputs.snapShotTime);
         // Add all values in input component to schema
         input.data.forEach((value: any, key) => {
           if (value.type === InputType.BUTTON)
@@ -299,7 +263,6 @@ export class ActionSystem extends System {
               qZ: value.value.qZ,
               qW: value.value.qW,
             });
-            // console.log("*********** Pushing 6DOF input from client input system")
           }
         });
 
