@@ -49,8 +49,8 @@ export const initializeEngineServer = async (initOptions: InitializeOptions = De
   const networkSystemOptions = { schema: networking.schema, app: networking.app };
 
   // NETWORK
-  registerSystem(ServerNetworkIncomingSystem, { ...networkSystemOptions, priority: 1 });
-  registerSystem(ServerNetworkOutgoingSystem, { ...networkSystemOptions, priority: 2 });
+  registerSystem(ServerNetworkOutgoingSystem, { ...networkSystemOptions, priority: 1 }); // first
+  registerSystem(ServerNetworkIncomingSystem, { ...networkSystemOptions, priority: 100 }); // last
   registerSystem(MediaStreamSystem, { priority: 3 });
 
   new AnimationManager();

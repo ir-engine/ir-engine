@@ -196,7 +196,7 @@ export class CharacterControllerSystem extends System {
 
 CharacterControllerSystem.queries = {
   localCharacter: {
-    components: [/*LocalInputReceiver, */ControllerColliderComponent, CharacterComponent],
+    components: [LocalInputReceiver, ControllerColliderComponent, CharacterComponent],
     listen: {
       added: true,
       removed: true
