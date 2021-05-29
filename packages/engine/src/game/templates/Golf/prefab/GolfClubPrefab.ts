@@ -15,7 +15,7 @@ import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent';
 import { GameObject } from '../../../components/GameObject';
 import { Behavior } from '../../../../common/interfaces/Behavior';
-import { addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions';
+import { hasComponent, addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions';
 import { MathUtils } from 'three';
 import { Network } from '../../../../networking/classes/Network';
 import { isClient } from '../../../../common/functions/isClient';
@@ -40,7 +40,7 @@ export const spawnClub: Behavior = (entityPlayer: Entity, args?: any, delta?: nu
 
   // server sends clients the entity data
   if (isClient) return;
-  
+
   const game = getGame(entityPlayer);
   const ownerId = getComponent(entityPlayer, NetworkObject).ownerId;
 
@@ -89,6 +89,7 @@ export const enableClub = (entityClub: Entity, enable: boolean): void => {
 
 export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
   if(!isClient) return;
+  if(!hasComponent(entityClub, UserControlledColliderComponent)) return;
   // only need to update club if it's our own
   // TODO: remove this when we have IK rig in and can get the right hand pos data
   if(getComponent(entityClub, UserControlledColliderComponent).ownerNetworkId !== Network.instance.localAvatarNetworkId) return;
@@ -191,7 +192,7 @@ export const initializeGolfClub = (entity: Entity) => {
   // only raycast if it's our own club
   // TODO: remove this when we have IK rig in and can get the right hand pos data
   if(ownerNetworkObject.networkId === Network.instance.localAvatarNetworkId) {
-    golfClubComponent.raycast = PhysicsSystem.instance.addRaycastQuery({ 
+    golfClubComponent.raycast = PhysicsSystem.instance.addRaycastQuery({
       type: SceneQueryType.Closest,
       origin: new Vector3(),
       direction: new Vector3(0, -1, 0),
@@ -206,7 +207,7 @@ export const initializeGolfClub = (entity: Entity) => {
   if(isClient) {
     const handleObject = new Mesh(new BoxBufferGeometry(clubHalfWidth, clubHalfWidth, 0.25), new MeshStandardMaterial({ color: 0xff2126, transparent: true }));
     golfClubComponent.handleObject = handleObject;
-    
+
     const headGroup = new Group();
     const headObject = new Mesh(new BoxBufferGeometry(clubHalfWidth, clubHalfWidth, clubPutterLength * 2), new MeshStandardMaterial({ color: 0x2126ff , transparent: true }));
     // raise the club by half it's height and move it out by half it's length so it's flush to ground and attached at end
@@ -220,11 +221,11 @@ export const initializeGolfClub = (entity: Entity) => {
     const meshGroup = new Group();
     meshGroup.add(handleObject, headGroup, neckObject);
     golfClubComponent.meshGroup = meshGroup;
-    
+
     setupSceneObjects(meshGroup);
 
     addComponent(entity, Object3DComponent, { value: meshGroup });
-    Engine.scene.add(meshGroup); 
+    Engine.scene.add(meshGroup);
   }
 
   const shapeHead = createShapeFromConfig({
@@ -253,9 +254,9 @@ export const initializeGolfClub = (entity: Entity) => {
     golfClubComponent.lastPositions[i] = new Vector3();
   }
   golfClubComponent.velocity = new Vector3();
-  
+
   // https://github.com/PersoSirEduard/OculusQuest-Godot-MiniGolfGame/blob/master/Scripts/GolfClub/GolfClub.gd#L18
-  
+
   let hasBeenHit = false
   // temporary, once it's all working this will be a game mode behavior
   body.addEventListener(CollisionEvents.TRIGGER_START, (ev: ColliderHitEvent) => {

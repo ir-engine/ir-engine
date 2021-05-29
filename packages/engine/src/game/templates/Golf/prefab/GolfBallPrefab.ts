@@ -29,10 +29,27 @@ import { addActionComponent } from '../../../../game/functions/functionsActions'
 const golfBallRadius = 0.03; // this is the graphical size of the golf ball
 const golfBallColliderExpansion = 0.03; // this is the size of the ball collider
 
+function assetLoadCallback(group: Group, entity: Entity) {
+  // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
+  const transform = getComponent(entity, TransformComponent);
+  const gameObject = getComponent(entity, GameObject);
+  const ballMesh = group.children[0].clone(true) as Mesh;
+  ballMesh.name = 'Ball'+gameObject.uuid;
+  ballMesh.position.copy(transform.position);
+  ballMesh.scale.copy(transform.scale);
+  ballMesh.castShadow = true;
+  ballMesh.receiveShadow = true;
+  ballMesh.material && WebGLRendererSystem.instance.csm.setupMaterial(ballMesh.material);
+  addComponent(entity, Object3DComponent, { value: ballMesh });
+  console.warn(getComponent(entity, Object3DComponent));
+  Engine.scene.add(ballMesh);
+  console.log('loaded golf ball model')
+}
+
+
 export const initializeGolfBall = (entity: Entity) => {
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
   const transform = getComponent(entity, TransformComponent);
-
   const networkObject = getComponent(entity, NetworkObject);
   const ownerNetworkObject = Object.values(Network.instance.networkObjects).find((obj) => {
       return obj.ownerId === networkObject.ownerId;
@@ -42,19 +59,7 @@ export const initializeGolfBall = (entity: Entity) => {
   if(isClient) {
     AssetLoader.load({
       url: Engine.publicPath + '/models/golf/golf_ball.glb',
-    }, (group: Group) => {
-      const ballGroup = group.clone(true);
-      const ballMesh = ballGroup.children[0] as Mesh;
-      group.remove(group.children[0]);
-      ballMesh.position.copy(transform.position);
-      ballMesh.scale.copy(transform.scale);
-      ballMesh.castShadow = true;
-      ballMesh.receiveShadow = true;
-      ballMesh.material && WebGLRendererSystem.instance.csm.setupMaterial(ballMesh.material);
-      addComponent(entity, Object3DComponent, { value: ballMesh });
-      Engine.scene.add(ballMesh);
-      console.log('loaded golf ball model')
-    });
+    }, (group: Group) => {assetLoadCallback(group, entity)} );
   }
 
   const shape = createShapeFromConfig({
