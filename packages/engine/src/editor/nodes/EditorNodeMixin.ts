@@ -15,9 +15,11 @@ export default function EditorNodeMixin(Object3DClass) {
     static disableTransform = false;
     static useMultiplePlacementMode = false;
     static ignoreRaycast = false;
+    static haveStaticTags=true;
     // Used for props like src that have side effects that we don't want to happen in the constructor
     static initialElementProps = {};
     static hideInElementsPanel = false;
+    reflectionProbeStatic:boolean;
     static canAddNode(_editor) {
       return true;
     }
@@ -52,11 +54,13 @@ export default function EditorNodeMixin(Object3DClass) {
     constructor(editor, ...args) {
       super(...args);
       this.editor = editor;
+      this.reflectionProbeStatic=false;
       this.nodeName = (this.constructor as any).nodeName;
       this.name = (this.constructor as any).nodeName;
       this.isNode = true;
       this.isCollapsed = false;
       this.disableTransform = (this.constructor as any).disableTransform;
+      this.haveStaticTags=(this.constructor as any).haveStaticTags;
       this.useMultiplePlacementMode = (this.constructor as any).useMultiplePlacementMode;
       this.ignoreRaycast = (this.constructor as any).ignoreRaycast;
       this.staticMode = StaticModes.Inherits;

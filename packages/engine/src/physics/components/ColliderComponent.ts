@@ -14,6 +14,7 @@ export class ColliderComponent extends Component<ColliderComponent> {
   type: string
   mass: number
   position: Vector3
+  lastPositions: Vector3[] = [] // for kinematic body interpolation
   quaternion: Quaternion
   scale: Vector3
   mesh: any
