@@ -47,10 +47,11 @@ export const initializeEngineServer = async (initOptions: InitializeOptions = De
   Engine.lastTime = now() / 1000;
 
   const networkSystemOptions = { schema: networking.schema, app: networking.app };
-  registerSystem(ServerNetworkIncomingSystem, { ...networkSystemOptions, priority: -1 });
-  registerSystem(ServerNetworkOutgoingSystem, { ...networkSystemOptions, priority: 10000 });
-  registerSystem(MediaStreamSystem);
-  registerSystem(StateSystem);
+
+  // NETWORK
+  registerSystem(ServerNetworkIncomingSystem, { ...networkSystemOptions, priority: 1 });
+  registerSystem(ServerNetworkOutgoingSystem, { ...networkSystemOptions, priority: 2 });
+  registerSystem(MediaStreamSystem, { priority: 3 });
 
   new AnimationManager();
 
@@ -63,13 +64,17 @@ export const initializeEngineServer = async (initOptions: InitializeOptions = De
     // AnimationManager.instance.getAnimations(),
   ]);
 
-  registerSystem(PhysicsSystem, { worker, physicsWorldConfig, priority: 901 });
-  registerSystem(CharacterControllerSystem);
+  // LOGIC - Input
+  registerSystem(CharacterControllerSystem, { priority: 4 });
 
-  registerSystem(ServerSpawnSystem, { priority: 899 });
-  registerSystem(TransformSystem, { priority: 900 });
-  registerSystem(GameManagerSystem);// { priority: 901 });
-  registerSystem(InteractiveSystem);
+  // LOGIC - Scene
+  registerSystem(InteractiveSystem, { priority: 5 });
+  registerSystem(GameManagerSystem, { priority: 6 });
+  registerSystem(TransformSystem, { priority: 7 });
+  registerSystem(PhysicsSystem, { worker, physicsWorldConfig, priority: 8 });
+
+    // LOGIC - Miscellaneous
+  registerSystem(ServerSpawnSystem, { priority: 9 });
 
   await Promise.all(Engine.systems.map((system) => { 
     return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }); 

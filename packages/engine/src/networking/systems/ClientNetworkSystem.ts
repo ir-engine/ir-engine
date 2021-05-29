@@ -14,7 +14,7 @@ export class ClientNetworkSystem extends System {
     CONNECTION_LOST: 'CORE_CONNECTION_LOST',
   }
   /** Update type of this system. **Default** to
-     * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
+   * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
   updateType = SystemUpdateType.Fixed;
 
   /**

@@ -294,8 +294,6 @@ export const initializeGolfClub = (entity: Entity) => {
     }
     (ev.bodyOther as any).addForce(vector1);
   })
-
-  // equipEntity(ownerNetworkObject.entity, entity, EquippableAttachmentPoint.RIGHT_HAND);
 }
 
 export const createGolfClubPrefab = ( args:{ parameters?: any, networkId?: number, uniqueId: string, ownerId?: string }) => {

@@ -20,6 +20,7 @@ import { IKComponent } from "./components/IKComponent";
 import { updateVectorAnimation } from "./functions/updateVectorAnimation";
 import { loadActorAvatar } from "./prefabs/NetworkPlayerCharacter";
 import { Engine } from "../ecs/classes/Engine";
+import { roundVectorToPlaces } from "../common/functions/roundVector";
 
 const forwardVector = new Vector3(0, 0, 1);
 const prevControllerColliderPosition = new Vector3();
@@ -128,8 +129,6 @@ export class CharacterControllerSystem extends System {
         collider.controller.transform.translation.z
       );
 
-      // console.log(collider.controller.transform.translation)
-
       const actorRaycastStart = new Vector3(collider.controller.transform.translation.x, collider.controller.transform.translation.y, collider.controller.transform.translation.z);
       actor.raycastQuery.origin = new Vector3(actorRaycastStart.x, actorRaycastStart.y - (collider.height * 0.5) - collider.radius, actorRaycastStart.z);
       actor.raycastQuery.direction = new Vector3(0, -1, 0);
@@ -197,7 +196,7 @@ export class CharacterControllerSystem extends System {
 
 CharacterControllerSystem.queries = {
   localCharacter: {
-    components: [LocalInputReceiver, ControllerColliderComponent, CharacterComponent],
+    components: [/*LocalInputReceiver, */ControllerColliderComponent, CharacterComponent],
     listen: {
       added: true,
       removed: true
