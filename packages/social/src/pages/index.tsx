@@ -30,7 +30,7 @@ import styles from './index.module.scss';
 
 import image from '/static/images/image.jpg';
 import mockupIPhone from '/static/images/mockupIPhone.jpg';
-
+import Splash from '@xrengine/client-core/src/socialmedia/components/Splash';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -82,6 +82,10 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState, webxrnativeSt
     setOnborded(true);
     setFeedOnborded(false);
   };
+
+  if(!currentCreator || currentCreator === null) return <Splash />
+
+
 
   if(!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />;
 

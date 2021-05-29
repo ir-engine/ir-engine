@@ -18,7 +18,7 @@ euler2YXZ.order = 'YXZ';
 const quat = new Quaternion();
 
 export class TransformSystem extends System {
-  updateType = SystemUpdateType.Free;
+  updateType = SystemUpdateType.Fixed;
 
   execute (delta) {
 

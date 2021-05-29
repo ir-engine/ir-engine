@@ -107,17 +107,18 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
 
     Network.instance.schema = networkSystemOptions.schema;
     if (!useOfflineMode) {
-      registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
-      registerSystem(ClientNetworkStateSystem);
+      // Network systems
+      registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: 0 });
+      registerSystem(ClientNetworkStateSystem, { priority: 1 });
     }
-    registerSystem(MediaStreamSystem);
+    registerSystem(MediaStreamSystem, { priority: 2 });
   }
 
   Engine.lastTime = now() / 1000;
 
   if(useCanvas) {
     if (options.input) {
-      registerSystem(ClientInputSystem, { useWebXR: Engine.xrSupported });
+      registerSystem(ClientInputSystem, { useWebXR: Engine.xrSupported, priority: 1 }); // Free
     }
 
     if (!useOffscreen) {
@@ -129,9 +130,9 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
       // if((window as any).safariWebBrowser) {
         physicsWorker = new Worker('/scripts/loadPhysXClassic.js');
       // } else {
-        // //@ts-ignore
+        //@ts-ignore
         // const { default: PhysXWorker } = await import('@xrengine/engine/src/physics/functions/loadPhysX.ts?worker&inline');
-        // physicsWorker = new PhysXWorker();)
+        // physicsWorker = new PhysXWorker();
       // }
       new AnimationManager();
 
@@ -142,21 +143,27 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
       ]);
       Engine.workers.push(physicsWorker);
 
-      registerSystem(CharacterControllerSystem);
-      registerSystem(HighlightSystem);
-      registerSystem(ActionSystem);
+      // FREE systems
+      registerSystem(XRSystem, { priority: 1 }); // Free
+      registerSystem(CameraSystem, { priority: 2 }); // Free
+      registerSystem(WebGLRendererSystem, { priority: 3, canvas, postProcessing }); // Free
+      
+      // LOGIC - Input
+      registerSystem(UIPanelSystem, { priority: 2 });
+      registerSystem(ActionSystem, { priority: 3 });
+      registerSystem(CharacterControllerSystem, { priority: 4 });
 
-      registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig });
-      registerSystem(TransformSystem, { priority: 900 });
-      registerSystem(PositionalAudioSystem);
-      registerSystem(ParticleSystem);
-      registerSystem(DebugHelpersSystem);
-      registerSystem(InteractiveSystem);
-      registerSystem(CameraSystem);
-      registerSystem(WebGLRendererSystem, { priority: 1001, canvas, postProcessing });
-      registerSystem(XRSystem);
-      registerSystem(GameManagerSystem);
-      registerSystem(UIPanelSystem);
+      // LOGIC - Scene
+      registerSystem(InteractiveSystem, { priority: 5 });
+      registerSystem(GameManagerSystem, { priority: 6 });
+      registerSystem(TransformSystem, { priority: 7 }); // Free
+      registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig, priority: 8 });
+            
+      // LOGIC - Miscellaneous
+      registerSystem(HighlightSystem, { priority: 9 });
+      registerSystem(ParticleSystem, { priority: 10 });
+      registerSystem(DebugHelpersSystem, { priority: 11 });
+      registerSystem(PositionalAudioSystem, { priority: 12 });
 
       Engine.viewportElement = Engine.renderer.domElement;
     }
@@ -217,11 +224,12 @@ export const initializeEditor = async (initOptions: InitializeOptions): Promise<
   // }
   Engine.workers.push(physicsWorker);
 
-  registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig });
-  registerSystem(TransformSystem, { priority: 900 });
-  registerSystem(ParticleSystem);
-  registerSystem(DebugHelpersSystem);
-  registerSystem(GameManagerSystem);
+  registerSystem(GameManagerSystem, { priority: 6 });
+  registerSystem(TransformSystem, { priority: 7 });
+  registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig, priority: 8 });
+
+  registerSystem(ParticleSystem, { priority: 10 });
+  registerSystem(DebugHelpersSystem, { priority: 11 });
 
   await Promise.all(Engine.systems.map((system) => { 
     return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); });

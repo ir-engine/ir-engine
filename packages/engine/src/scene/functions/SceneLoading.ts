@@ -36,6 +36,7 @@ import { setPostProcessing } from "../behaviors/setPostProcessing";
 import { CameraSystem } from "../../camera/systems/CameraSystem";
 import { CopyTransformComponent } from "../../transform/components/CopyTransformComponent";
 import { setReflectionProbe } from '../behaviors/setReflectionProbe';
+import PersistTagComponent from '../components/PersistTagComponent';
 
 
 export class WorldScene {
@@ -263,10 +264,15 @@ export class WorldScene {
       case 'postprocessing':
         setPostProcessing(entity, component.data);
         break;
-      
+
       case 'reflectionprobe':
         setReflectionProbe(entity,component.data);
         break;
+
+      case 'persist':
+        addComponent(entity, PersistTagComponent);
+        break;
+
       default: return console.warn("Couldn't load Component", name);
     }
   }

@@ -74,8 +74,6 @@ export const XR360PlayerPage = (props: Props) => {
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
 
-    Engine.scene.children[10].visible = false;      //hide ground
-
     createPanelComponent({ panel: new XR360Player(testScene) });
   }
 

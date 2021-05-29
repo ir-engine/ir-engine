@@ -30,6 +30,7 @@ import { System, SystemAttributes } from '../ecs/classes/System';
 import { defaultPostProcessingSchema, effectType } from '../scene/classes/PostProcessing';
 import { PostProcessingSchema } from './interfaces/PostProcessingSchema';
 import { WebXRManager } from '../xr/WebXRManager.js'
+import { SystemUpdateType } from '../ecs/functions/SystemUpdateType';
 
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',
@@ -51,6 +52,8 @@ export class WebGLRendererSystem extends System {
     SET_USE_AUTOMATIC: 'WEBGL_RENDERER_SYSTEM_EVENT_SET_USE_AUTOMATIC',
   }
 
+  updateType = SystemUpdateType.Free;
+  
   /** Is system Initialized. */
   static instance: WebGLRendererSystem;
   csm: CSM;
