@@ -67,9 +67,6 @@ export abstract class System {
   static instance: System;
   static queries: SystemQueries = {};
   
-  /** Name of the property. */
-  [x: string]: any
-  
   static isSystem: true
   _mandatoryQueries: any
   priority: number

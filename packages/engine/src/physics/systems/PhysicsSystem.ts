@@ -8,14 +8,12 @@ import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
 import { Network } from '../../networking/classes/Network';
 import { Vault } from '../../networking/classes/Vault';
 import { NetworkObject } from '../../networking/components/NetworkObject';
-import { calculateInterpolation, createSnapshot, snapshot } from '../../networking/functions/NetworkInterpolationFunctions';
+import { calculateInterpolation, createSnapshot } from '../../networking/functions/NetworkInterpolationFunctions';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { ColliderComponent } from '../components/ColliderComponent';
-import { RigidBodyComponent } from "../components/RigidBody";
 import { InterpolationComponent } from "../components/InterpolationComponent";
 import { isClient } from '../../common/functions/isClient';
 import { BodyType, ColliderHitEvent, CollisionEvents, PhysXConfig, PhysXInstance } from "three-physx";
-import { addColliderWithEntity } from '../behaviors/colliderCreateFunctions';
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
 import { UserControlledColliderComponent } from '../components/UserControllerObjectComponent';
 import { HasHadCollision } from "../../game/actions/HasHadCollision";
@@ -35,7 +33,7 @@ export class PhysicsSystem extends System {
   static EVENTS = {
     PORTAL_REDIRECT_EVENT: 'PHYSICS_SYSTEM_PORTAL_REDIRECT',
   };
-  instance: PhysicsSystem;
+  static instance: PhysicsSystem;
   updateType = SystemUpdateType.Fixed;
   frame: number
   diffSpeed: number = Engine.physicsFrameRate / Engine.networkFramerate;
@@ -80,7 +78,6 @@ export class PhysicsSystem extends System {
   dispose(): void {
     super.dispose();
     this.frame = 0;
-    this.broadphase = null;
     EngineEvents.instance.removeAllListenersForEvent(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT);
     PhysXInstance.instance.dispose();
   }
@@ -153,7 +150,7 @@ export class PhysicsSystem extends System {
     });
 
     if (isClient) {
-      if (!Network.instance?.snapshot) return;
+      if (!Network.instance.snapshot) return;
       // Interpolate between the current client's data with what the server has sent via snapshots
       const snapshots = {
         interpolation: calculateInterpolation('x y z quat velocity'),
