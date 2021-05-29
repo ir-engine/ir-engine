@@ -21,11 +21,13 @@ export default class Spline extends Object3D {
 	_splines = {} as any;
 	editor: any;
 
+	_editor = null;
+
 	constructor() {
 		super();
 	}
 
-	init() {
+	init(editor = null) {
 		
 		/*******
 		 * Curves
@@ -33,7 +35,9 @@ export default class Spline extends Object3D {
 
 		console.log("Spline Init");
 
-		 for ( let i = 0; i < this._splinePointsLength; i ++ ) {
+		this._editor = editor;
+
+		for ( let i = 0; i < this._splinePointsLength; i ++ ) {
 
 			this.addSplineObject( this._positions[ i ] );
 
@@ -50,14 +54,20 @@ export default class Spline extends Object3D {
 		const geometry = new BufferGeometry();
 		geometry.setAttribute( 'position', new BufferAttribute( new Float32Array( this.ARC_SEGMENTS * 3 ), 3 ) );
 
-		const curve = new CatmullRomCurve3( this._positions ) as any;
-		curve.curveType = 'catmullrom';
-		curve.mesh = new Line( geometry.clone(), new LineBasicMaterial( {
+		const catmullRomCurve3 = new CatmullRomCurve3( this._positions );
+		// curve.curveType = 'catmullrom';
+		let curveMesh = new Line( geometry.clone(), new LineBasicMaterial( {
 			color: 0xff0000,
 			opacity: 0.35
 		} ) );
-		curve.mesh.castShadow = true;
-		this._splines.uniform = curve;
+		curveMesh.castShadow = true;
+
+		let spline = {
+			curve: catmullRomCurve3,
+			mesh: curveMesh,
+		}
+
+		this._splines.uniform = spline;
 
 		// curve = new CatmullRomCurve3( this._positions );
 		// curve.curveType = 'centripetal';
@@ -89,11 +99,14 @@ export default class Spline extends Object3D {
 			new Vector3( 1.56300074753207, 1.49711742836848, 1.495472686253045 )] );
 	}
 
+	getCurrentSplineHelperObjects() {
+		return this._splineHelperObjects;
+	}
+
 	addSplineObject( position = null ) {
 
-		// this.editor is added when object is instantiated.
-		const splineHelperNode = new SplineHelperNode(this.editor, this);
-		const object = splineHelperNode; //.children[0];
+		const splineHelperNode = new SplineHelperNode(this._editor, this);
+		const object = splineHelperNode;
 
 		if ( position ) {
 
@@ -109,7 +122,7 @@ export default class Spline extends Object3D {
 
 		object.castShadow = true;
 		object.receiveShadow = true;
-		super.add( object as any );
+		// super.add( object );
 		this._splineHelperObjects.push( object );
 		return object;
 
@@ -169,15 +182,17 @@ export default class Spline extends Object3D {
 
 		for ( const k in this._splines ) {
 
-			const spline = this._splines[ k ];
+			var spline = this._splines[ k ];
 
 			const splineMesh = spline.mesh;
 			const position = splineMesh.geometry.attributes.position;
 
+			var splineCurve = spline.curve;
+
 			for ( let i = 0; i < this.ARC_SEGMENTS; i ++ ) {
 
 				const t = i / ( this.ARC_SEGMENTS - 1 );
-				spline.getPoint( t, this._point );
+				splineCurve.getPoint( t, this._point );
 				position.setXYZ( i, this._point.x, this._point.y, this._point.z );
 
 			}
