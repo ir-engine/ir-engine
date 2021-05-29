@@ -76,7 +76,7 @@ export abstract class System {
   executeTime: number
   initialized: boolean
 
-  updateType = SystemUpdateType.Free
+  updateType: SystemUpdateType
 
   /**
    * The results of the queries.
