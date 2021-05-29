@@ -174,6 +174,7 @@ const clubColliderSize = new Vector3(0.05, 0.2, 0.2);
 const clubHalfWidth = 0.05;
 const clubPutterLength = 0.1;
 const clubLength = 2.5;
+const hitAdvanceFactor = 1.2;
 
 export const initializeGolfClub = (entity: Entity) => {
 
@@ -268,16 +269,29 @@ export const initializeGolfClub = (entity: Entity) => {
     hasBeenHit = true;
     setTimeout(() => {
       hasBeenHit = false
-    }, 500)
-    // undo our delta so we get our transform velocity in units/second instead of units/frame
-    // const clampedDelta = Math.max(1/30, Math.min(Engine.delta, 1/120)) * 1000;
+    }, 500);
     // force is in kg, we need it in grams, so x1000
     const velocityMultiplier = clubPowerMultiplier * 1000;
-    (ev.bodyOther as any).addForce({
-      x: golfClubComponent.velocity.x * velocityMultiplier,
-      y: golfClubComponent.canDoChipShots ? golfClubComponent.velocity.y * velocityMultiplier : 0, // lock to XZ plane if we disable chip shots
-      z: golfClubComponent.velocity.z * velocityMultiplier,
-    })
+    // vec3 is the direction of the hit
+    vector0.copy(golfClubComponent.velocity).multiplyScalar(hitAdvanceFactor);
+    // lock to XZ plane if we disable chip shots
+    if(!golfClubComponent.canDoChipShots) {
+      vector0.y = 0;
+    }
+    // teleport ball in front of club a little bit
+    (ev.bodyOther as any).updateTransform({
+      translation: {
+        x: ev.bodyOther.transform.translation.x + vector0.x,
+        y: ev.bodyOther.transform.translation.y + vector0.y,
+        z: ev.bodyOther.transform.translation.z + vector0.z,
+      }
+    });
+    console.log(vector0)
+    vector1.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier);
+    if(!golfClubComponent.canDoChipShots) {
+      vector1.y = 0;
+    }
+    (ev.bodyOther as any).addForce(vector1);
   })
 
   // equipEntity(ownerNetworkObject.entity, entity, EquippableAttachmentPoint.RIGHT_HAND);
