@@ -2,11 +2,13 @@
 
 import EditorNodeMixin from "./EditorNodeMixin";
 import SplineHelper from "../../scene/classes/SplineHelper";
+import { Object3D } from "three";
 
-export default class SplineHelperNode extends EditorNodeMixin(SplineHelper) {
+export default class SplineHelperNode extends EditorNodeMixin(Object3D) {
   static nodeName = "SplineHelperNode";
 
-  _splineObj = null;
+  helper = null;
+  splineObject = null;
 
   // static async deserialize(editor, json) {
   //   const node = await super.deserialize(editor, json);
@@ -32,13 +34,18 @@ export default class SplineHelperNode extends EditorNodeMixin(SplineHelper) {
   // }
   constructor(editor, spline) {
     super(editor);
-    this._splineObj = spline;
+
+    this.splineObject = spline;
+    this.helper = new SplineHelper();
+
+    super.add(this.helper);
+    this.splineObject.add(this);
   }
   onAdd() {
     // this.helper.init(); 
   }
   onChange() {
-    this._splineObj.updateSplineOutline();
+    this.splineObject.updateSplineOutline();
     // this.helper.update();
   }
   onSelect() {
@@ -48,7 +55,7 @@ export default class SplineHelperNode extends EditorNodeMixin(SplineHelper) {
     // this.helper.visible = false;
   }
   onRemove() {
-    this._splineObj.removePoint(this);
+    this.splineObject.removePoint(this);
   }
   // copy(source, recursive = true) {
   //   super.copy(source, false);
