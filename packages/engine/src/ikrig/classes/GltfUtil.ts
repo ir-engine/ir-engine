@@ -37,7 +37,7 @@ class GltfUtil{
 
 		static createDebugArmature( m_name, json, bin, mat, m_names=null, armatureName=null ){
 			console.log("Loading debug view");
-			const m = this.loadMesh( json, bin, mat, m_names, true );
+			const m = GltfUtil.loadMesh( json, bin, mat, m_names, true );
 			m.name			= m_name;
 			mat.skinning	= true;		// Make Sure Skinning is enabled on the material
 
@@ -74,17 +74,17 @@ class GltfUtil{
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Mesh can be made up of sub-meshes, So need to loop through em.
-			let n, g, geometryArray
+			let g, geometryArray
 			const list = [];
 			
-			for( n of meshNames ){
+			for(const n of meshNames ){
 				geometryArray = Gltf.getMesh( n, json, bin, false ); // Load Type Arrays
 
 				if( geometryArray.length == 1 )
-					list.push( this.makeGeometryMesh( geometryArray[0], mat, is_skinned ) );
+					list.push( GltfUtil.makeGeometryMesh( geometryArray[0], mat, is_skinned ) );
 				else						
 					for( g of geometryArray ) 
-						list.push( this.makeGeometryMesh( g, mat, is_skinned ) );
+						list.push( GltfUtil.makeGeometryMesh( g, mat, is_skinned ) );
 				
 			}
 
@@ -108,17 +108,17 @@ class GltfUtil{
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Mesh can be made up of sub-meshes, So need to loop through em.
-			let n, g, geometryArray;
+			let g, geometryArray;
 			const list = [];
 			
-			for( n of meshNames ){
+			for( const n of meshNames ){
 				geometryArray = Gltf.getMesh( n, json, bin, false ); // Load Type Arrays
 
 				if( geometryArray.length == 1 )
-					list.push( this.makeGeometry( geometryArray[0] ) );
+					list.push( GltfUtil.makeGeometry( geometryArray[0] ) );
 				else						
 					for( g of geometryArray ) 
-						list.push( this.makeGeometry( g ) );
+						list.push( GltfUtil.makeGeometry( g ) );
 				
 			}
 

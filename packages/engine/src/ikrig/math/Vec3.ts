@@ -6,13 +6,13 @@ class Vec3 extends Float32Array{
 	static RIGHT: Vec3;
 	static BACK: Vec3;
 	static ZERO: any;
-	constructor(...ini){
+	constructor(...ini: any[]){
 		super(3);
 
 		if(ini instanceof Vec3 || (ini && ini.length == 3)){
 			this[0] = ini[0]; this[1] = ini[1]; this[2] = ini[2];
-		}else if(arguments.length == 3){
-			this[0] = arguments[0]; this[1] = arguments[1]; this[2] = arguments[2];
+		}else if(ini.length == 3){
+			this[0] = ini[0]; this[1] = ini[1]; this[2] = ini[2];
 		}else{
 			ini[0] = ini[1] = ini[2] = ini || 0;
 		}
