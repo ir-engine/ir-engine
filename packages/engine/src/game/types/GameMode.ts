@@ -29,7 +29,7 @@ export interface GameMode {
   priority: number
   onGameLoading?: (gameEntity: Entity) => void
   onGameStart?: (gameEntity: Entity) => void
-  onPlayerLeave?: (gameEntity: Entity) => void
+  onPlayerLeave?: (gameEntity: Entity, playerComponent, game) => void
   registerActionTagComponents: ComponentConstructor<Component<any>>[]
   registerStateTagComponents: ComponentConstructor<Component<any>>[]
   initGameState: {

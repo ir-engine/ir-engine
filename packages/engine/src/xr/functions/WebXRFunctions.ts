@@ -191,7 +191,7 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
   // if(ikComponent && ikComponent.avatarIKRig) {
   //   const rigHand: Object3D = hand === ParityValue.LEFT ? ikComponent.avatarIKRig.poseManager.vrTransforms.leftHand : ikComponent.avatarIKRig.poseManager.vrTransforms.rightHand;
   //   if(rigHand) {
-  //     return rigHand.getWorldPosition(vec3).add(actor.tiltContainer.position);
+  //     return rigHand.getWorldPosition(vec3);
   //   }
   // }
   // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
@@ -239,7 +239,6 @@ export const getHandTransform = (entity: Entity, hand: ParityValue = ParityValue
   const actor = getComponent(entity, CharacterComponent);
   const transform = getComponent(entity, TransformComponent);
   if(isInXR(entity)) {
-    console.log('isInXR')
     const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
     if(input) {
       const sixdof = input.value as SIXDOFType;
@@ -255,7 +254,7 @@ export const getHandTransform = (entity: Entity, hand: ParityValue = ParityValue
   //   const rigHand: Object3D = hand === ParityValue.LEFT ? ikComponent.avatarIKRig.poseManager.vrTransforms.leftHand : ikComponent.avatarIKRig.poseManager.vrTransforms.rightHand;
   //   if(rigHand) {
   //     return { 
-  //       position: rigHand.getWorldPosition(vec3).add(actor.tiltContainer.position),
+  //       position: rigHand.getWorldPosition(vec3),
   //       rotation: rigHand.getWorldQuaternion(quat)
   //     }
   //   }

@@ -273,7 +273,7 @@ export const initializeGolfClub = (entity: Entity) => {
     }, 500);
     // force is in kg, we need it in grams, so x1000
     const velocityMultiplier = clubPowerMultiplier * 1000;
-    // vec3 is the direction of the hit
+    // vector0 is the direction of the hit
     vector0.copy(golfClubComponent.velocity).multiplyScalar(hitAdvanceFactor);
     // lock to XZ plane if we disable chip shots
     if(!golfClubComponent.canDoChipShots) {
@@ -287,7 +287,6 @@ export const initializeGolfClub = (entity: Entity) => {
         z: ev.bodyOther.transform.translation.z + vector0.z,
       }
     });
-    console.log(vector0)
     vector1.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier);
     if(!golfClubComponent.canDoChipShots) {
       vector1.y = 0;

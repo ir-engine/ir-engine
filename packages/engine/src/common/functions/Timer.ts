@@ -49,35 +49,30 @@ export function Timer (
   let updateInterval;
 
   function xrAnimationLoop(time, xrFrame) {
-    Engine.xrRenderer?.onAnimationFrame(time, xrFrame);
+    Engine.xrRenderer.onAnimationFrame(time, xrFrame);
     XRSystem.instance.xrFrame = xrFrame;
-    if (lastTime !== null) {
-      delta = (time - lastTime) / 1000;
-      accumulated = accumulated + delta;
-      if (fixedRunner) {
-        fixedRunner.run(delta);
-      }
-      if (networkRunner) {
-        networkRunner.run(delta);
-      }
+    if (lastAnimTime !== null) {
+      frameDelta = (time - lastAnimTime) / 1000;
+      accumulated = accumulated + frameDelta;
       if (callbacks.update) {
-        callbacks.update(delta, accumulated);
+        callbacks.update(frameDelta, accumulated);
       }
     }
-    lastTime = time;
+    lastAnimTime = time;
     Engine.xrSession.requestAnimationFrame( xrAnimationLoop )
 	}
 
   // TODO move xr anim loop to use main timer loops
 
   EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => {
-    stop();
+    cancelAnimationFrame(frameId);
   });
   EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_SESSION, async (ev: any) => {
     Engine.xrSession.requestAnimationFrame( xrAnimationLoop )
   });
   EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => {
-    start();
+    lastAnimTime = null;
+    frameId = window.requestAnimationFrame(onFrame);
   });
 
   const fixedRunner = callbacks.fixedUpdate? new FixedStepsRunner(fixedRate, callbacks.fixedUpdate) : null;
