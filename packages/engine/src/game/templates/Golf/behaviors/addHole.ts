@@ -59,7 +59,7 @@ export const addHole: Behavior = (entity: Entity, args?: any, delta?: number, en
     const otherEntity = ev.bodyOther.userData as Entity;
     if(typeof otherEntity === 'undefined') return
     const ballObject = getComponent<GameObject>(otherEntity, GameObject)
-    if(!ballObject || ballObject.role !== 'GolfHole') return;
+    if(!ballObject || ballObject.role !== 'GolfBall') return;
     addActionComponent(otherEntity, HasHadCollision);
   })
 
