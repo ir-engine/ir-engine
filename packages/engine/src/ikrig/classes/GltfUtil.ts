@@ -26,7 +26,7 @@ class GltfUtil{
 			m.name = m_name;
 			o.setReference(m);
 
-			this.loadBonesInto( entity, json, bin, armatureName );
+			GltfUtil.loadBonesInto( entity, json, bin, armatureName );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			const b = getComponent(entity, Armature).get_root();
@@ -58,7 +58,7 @@ class GltfUtil{
 
 			const armature = getMutableComponent(entity, Armature);
 
-			this.loadBonesInto( entity, json, bin, armatureName );
+			GltfUtil.loadBonesInto( entity, json, bin, armatureName );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// TODO: Handle me, since I'm just adding this and might not be able to clean it up

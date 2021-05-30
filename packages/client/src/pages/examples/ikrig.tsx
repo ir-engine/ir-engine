@@ -727,7 +727,7 @@ const Page = () => {
 		(async function () {
 			registerSystem(TimerSystem);
 			registerSystem(ArmatureSystem);
-			await init_3js();
+			init_3js();
 			Debug = await debug.init();
 
 

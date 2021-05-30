@@ -56,7 +56,7 @@ class Gltf{
 				case Gltf.TYPE_UNSIGNED_INT:	TAry = Uint32Array;		DFunc = "getUint32"; break;
 				case Gltf.TYPE_UNSIGNED_BYTE: 	TAry = Uint8Array; 		DFunc = "getUint8"; break;
 
-				default: console.log("ERROR processAccessor","componentType unknown", acc.componentType); return null; break;
+				default: console.log("ERROR processAccessor","componentType unknown", acc.componentType); return null;
 			}
 			
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
