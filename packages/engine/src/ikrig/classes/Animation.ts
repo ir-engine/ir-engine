@@ -9,16 +9,13 @@ class Animation {
 		this.times = null;
 		this.tracks = null;
 
-		if (anim && !is_struct) this.clone_from(anim);
-		else if (anim && is_struct) this.use_struct(anim);
+		if (anim && !is_struct) this.cloneFrom(anim);
+		else if (anim && is_struct) this.useStruct(anim);
 	}
-	////////////////////////////////////////////////////////////////////
-	// 
-	///////////////////////////////////////////////////////////////////
 
 	// Gltf exports animation in the same format as the object, 
 	// just copy its data to the object.
-	use_struct(s) {
+	useStruct(s) {
 		this.frame_cnt = s.frame_cnt;
 		this.time = s.time;
 		this.times = s.times;
@@ -26,7 +23,7 @@ class Animation {
 		return this;
 	}
 
-	clone_from(anim) {
+	cloneFrom(anim) {
 		let a;
 		this.frame_cnt = anim.frame_cnt;
 		this.time = anim.time;
@@ -48,13 +45,13 @@ class Animation {
 }
 
 class AnimUtil {
-	/*///////////////////////////////////////////////////////////////
+	/*
 	Animation data is saved in a flat array for simplicity & memory sake. 
 	Because of that can not easily use Quaternion / Vector functions. So 
 	recreate any functions needed to work with a flat data buffer.
-	///////////////////////////////////////////////////////////////*/
+	*/
 
-	static quat_buf_copy(buf, q, i) {
+	static QuatBufferCopy(buf, q, i) {
 		q[0] = buf[i];
 		q[1] = buf[i + 1];
 		q[2] = buf[i + 2];
@@ -63,8 +60,8 @@ class AnimUtil {
 	}
 
 	// Special Quaternion NLerp Function. Does DOT checking & Fix
-	static quat_buf_blend(buf, ai, bi, t, out) {
-		let a_x = buf[ai],	// Quaternion From
+	static QuatBufferBlend(buf, ai, bi, t, out) {
+		const a_x = buf[ai],	// Quaternion From
 			a_y = buf[ai + 1],
 			a_z = buf[ai + 2],
 			a_w = buf[ai + 3],
@@ -73,8 +70,8 @@ class AnimUtil {
 			b_z = buf[bi + 2],
 			b_w = buf[bi + 3],
 			dot = a_x * b_x + a_y * b_y + a_z * b_z + a_w * b_w,
-			ti = 1 - t,
-			s = 1;
+			ti = 1 - t
+		let s = 1;
 
 		// if Rotations with a dot less then 0 causes artifacts when lerping,
 		// We can fix this by switching the sign of the To Quaternion.
@@ -83,12 +80,12 @@ class AnimUtil {
 		out[1] = ti * a_y + t * b_y * s;
 		out[2] = ti * a_z + t * b_z * s;
 		out[3] = ti * a_w + t * b_w * s;
-		return q_norm(out);
+		return normalizeQuaternion(out);
 	}
 
 	//--------------------------------------------------
 
-	static vec3_buf_copy(buf, v, i) {
+	static Vec3BufferCopy(buf, v, i) {
 		v[0] = buf[i];
 		v[1] = buf[i + 1];
 		v[2] = buf[i + 2];
@@ -96,7 +93,7 @@ class AnimUtil {
 	}
 
 	// basic vec3 lerp
-	static vec3_buf_lerp(buf, ai, bi, t, out) {
+	static Vec3BufferLerp(buf, ai, bi, t, out) {
 		const ti = 1 - t;
 		out[0] = ti * buf[ai] + t * buf[bi];
 		out[1] = ti * buf[ai + 1] + t * buf[bi + 1];
@@ -105,14 +102,14 @@ class AnimUtil {
 	}
 }
 
-function q_norm(q) {
-	let len = q[0] ** 2 + q[1] ** 2 + q[2] ** 2 + q[3] ** 2;
-	if (len > 0) {
-		len = 1 / Math.sqrt(len);
-		q[0] *= len;
-		q[1] *= len;
-		q[2] *= len;
-		q[3] *= len;
+function normalizeQuaternion(q) {
+	let length = q[0] ** 2 + q[1] ** 2 + q[2] ** 2 + q[3] ** 2;
+	if (length > 0) {
+		length = 1 / Math.sqrt(length);
+		q[0] *= length;
+		q[1] *= length;
+		q[2] *= length;
+		q[3] *= length;
 	}
 	return q;
 }

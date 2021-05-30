@@ -3,4 +3,4 @@ export default interface Page<D> {
     limit: number;
     skip: number;
     data: D[];
-}
+};

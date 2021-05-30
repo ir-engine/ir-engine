@@ -5,6 +5,7 @@ class Vec3 extends Float32Array{
 	static LEFT: Vec3;
 	static RIGHT: Vec3;
 	static BACK: Vec3;
+	static ZERO: any;
 	constructor(...ini){
 		super(3);
 
@@ -35,7 +36,7 @@ class Vec3 extends Float32Array{
 			return this;
 		}
 
-		from_struct( o ){ this[0] = o.x; this[1] = o.y; this[2] = o.z; return this; }
+		fromStruct( o ){ this[0] = o.x; this[1] = o.y; this[2] = o.z; return this; }
 
 		copy( v ){ this[0] = v[0]; this[1] = v[1]; this[2] = v[2]; return this; }
 		
@@ -43,14 +44,14 @@ class Vec3 extends Float32Array{
 		
 		//-------------------------------------------
 
-		from_buf( ary, i ){ this[0] = ary[i]; this[1] = ary[i+1]; this[2] = ary[i+2]; return this;}
-		to_buf( ary, i ){ ary[i] = this[0]; ary[i+1] = this[1]; ary[i+2] = this[2]; return this; }
+		fromBuf( array, i ){ this[0] = array[i]; this[1] = array[i+1]; this[2] = array[i+2]; return this;}
+		toBuf( array, i ){ array[i] = this[0]; array[i+1] = this[1]; array[i+2] = this[2]; return this; }
 
 		//-------------------------------------------
 
-		set_len( len ){ return this.norm().scale(len); }
+		set_len( length ){ return this.normalize().scale(length); }
 
-		len( v ){
+		length( v ){
 			//Only get the magnitude of this vector
 			if( !v ) return Math.sqrt( this[0]**2 + this[1]**2 + this[2]**2 );
 
@@ -62,7 +63,7 @@ class Vec3 extends Float32Array{
 			return Math.sqrt( x*x + y*y + z*z );
 		}
 		
-		len_sqr( v? ){
+		lengthSquared( v? ){
 			//Only get the squared magnitude of this vector
 			if(v === undefined) return this[0]**2 + this[1]**2 + this[2]**2;
 
@@ -101,7 +102,7 @@ class Vec3 extends Float32Array{
 			return this;
 		}
 
-		from_mul( a, b ){
+		setFromMultiply( a, b ){
 			this[0] = a[0] * b[0];
 			this[1] = a[1] * b[1];
 			this[2] = a[2] * b[2];
@@ -135,7 +136,7 @@ class Vec3 extends Float32Array{
 			return this;
 		}
 
-		from_invert( a ){
+		setFromInvert( a ){
 			this[0] = -a[0];
 			this[1] = -a[1];
 			this[2] = -a[2];
@@ -170,7 +171,7 @@ class Vec3 extends Float32Array{
 			return this;
 		}
 
-		from_quat( q, v=Vec3.FORWARD ){
+		fromQuaternion( q, v=Vec3.FORWARD ){
 			//Vec3.transform_quat( dir || Vec3.FORWARD, q, this );
 			const qx = q[0], qy = q[1], qz = q[2], qw = q[3],
 				vx = v[0], vy = v[1], vz = v[2],
@@ -208,7 +209,7 @@ class Vec3 extends Float32Array{
 			return out;
 		}
 
-		mul( v, out=null ){
+		multiply( v, out=null ){
 			out = out || this;
 			out[0] = this[0] * v[0];
 			out[1] = this[1] * v[1];
@@ -283,7 +284,7 @@ class Vec3 extends Float32Array{
 			return out;
 		}
 
-		norm( out=null ){
+		normalize( out=null ){
 			let mag = Math.sqrt( this[0]**2 + this[1]**2 + this[2]**2 );
 			if(mag == 0) return this;
 
@@ -311,8 +312,8 @@ class Vec3 extends Float32Array{
 		}
 
 		transform_mat4( m, out=null ){
-		    let x = this[0], y = this[1], z = this[2],
-		        w = m[3] * x + m[7] * y + m[11] * z + m[15];
+		    const x = this[0], y = this[1], z = this[2];
+		    let w = m[3] * x + m[7] * y + m[11] * z + m[15];
 		    w = w || 1.0;
 
 		    out = out || this;
@@ -414,7 +415,7 @@ class Vec3 extends Float32Array{
 			return out;
 		}
 
-		static mul( a, b, out=null ){
+		static multiply( a, b, out=null ){
 			out = out || new Vec3();
 			out[0] = a[0] * b[0];
 			out[1] = a[1] * b[1];
@@ -440,7 +441,7 @@ class Vec3 extends Float32Array{
 
 		//-------------------------------------------
 
-		static norm( v ){ return new Vec3().from_norm( v ); }
+		static normalize( v ){ return new Vec3().from_norm( v ); }
 
 		static dot( a, b ){ return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
 		
@@ -456,19 +457,19 @@ class Vec3 extends Float32Array{
 		}
 
 		static angle( v0, v1 ){
-			//acos(dot(a,b)/(len(a)*len(b))) 
-			//let theta = this.dot( v0, v1 ) / ( Math.sqrt( v0.len_sqr() * v1.len_sqr() ) );
+			//acos(dot(a,b)/(length(a)*length(b))) 
+			//let theta = this.dot( v0, v1 ) / ( Math.sqrt( v0.lengthSquared() * v1.lengthSquared() ) );
 			//return Math.acos( Math.max( -1, Math.min( 1, theta ) ) ); // clamp ( t, -1, 1 )
 
-			// atan2(len(cross(a,b)),dot(a,b))  
+			// atan2(length(cross(a,b)),dot(a,b))  
 			const d = this.dot( v0, v1 ),
 				c = this.cross( v0, v1 );
-			return Math.atan2( c.len(), d ); 
+			return Math.atan2( c.length(), d ); 
 
 			//let cosine = this.dot( v0, v1 );
 			//if(cosine > 1.0) return 0;
 			//else if(cosine < -1.0) return Math.PI;
-			//else return Math.acos( cosine / ( Math.sqrt( v0.len_sqr() * v1.len_sqr() ) ) );
+			//else return Math.acos( cosine / ( Math.sqrt( v0.lengthSquared() * v1.lengthSquared() ) ) );
 		}
 
 		static project( from, to, out=null ){
@@ -482,27 +483,24 @@ class Vec3 extends Float32Array{
 			const scale	= Vec3.dot( from, to ) / denom;
 			return out.set( to[0] * scale, to[1] * scale, to[2] * scale );
 		}
-	static ZERO(ZERO: any) {
-		throw new Error("Method not implemented.");
-	}
 
-		static project_plane( from, norm, out=null ){
+		static project_plane( from, normalize, out=null ){
 			// a - ( dot( a, b ) / dot( b, b ) * b )
 			out = out || new Vec3();
 
-			const denom = Vec3.dot( norm, norm );
+			const denom = Vec3.dot( normalize, normalize );
 			if( denom < 0.000001 ) return out.copy( Vec3.ZERO );
 		
-			const scale	= Vec3.dot( from, norm ) / denom;
-			out.set( norm[0] * scale, norm[1] * scale, norm[2] * scale );
+			const scale	= Vec3.dot( from, normalize ) / denom;
+			out.set( normalize[0] * scale, normalize[1] * scale, normalize[2] * scale );
 
 			return Vec3.sub( from, out, out );
 		}
 
 		//-------------------------------------------
 
-		static len( a, b ){ return Math.sqrt( (a[0]-b[0]) ** 2 + (a[1]-b[1]) ** 2 + (a[2]-b[2]) ** 2 ); }
-		static len_sqr( a, b ){ return (a[0]-b[0]) ** 2 + (a[1]-b[1]) ** 2 + (a[2]-b[2]) ** 2; }
+		static length( a, b ){ return Math.sqrt( (a[0]-b[0]) ** 2 + (a[1]-b[1]) ** 2 + (a[2]-b[2]) ** 2 ); }
+		static lengthSquared( a, b ){ return (a[0]-b[0]) ** 2 + (a[1]-b[1]) ** 2 + (a[2]-b[2]) ** 2; }
 
 		//-------------------------------------------
 
@@ -548,35 +546,6 @@ class Vec3 extends Float32Array{
 			out[1] = a1*t3 + ( a[1] - b[1] - a1 )*t2 + ( c[1] - a[1] )*t + b[1];
 			out[2] = a2*t3 + ( a[2] - b[2] - a2 )*t2 + ( c[2] - a[2] )*t + b[2];
 			return out;
-		}
-
-	////////////////////////////////////////////////////////////////////
-	// MISC
-	////////////////////////////////////////////////////////////////////
-
-		static struct( o ){ return new Vec3( { x: o.x, y: o.y, z: o.z }); }
-
-		// From a point in space, closest spot to a 3D line
-		static point_to_line( a, b, p, out=null ){
-			const dx	= b[0] - a[0],
-				dy	= b[1] - a[1],
-				dz	= b[2] - a[2],
-				t	= ( (p[0]-a[0])*dx + (p[1]-a[1])*dy + (p[2]-a[2])*dz ) / ( dx*dx + dy*dy + dz*dz ) ;
-
-			if( out ){
-				const ti = 1-t;
-				out[ 0 ] = a[0] * ti + b[0] * t;
-				out[ 1 ] = a[1] * ti + b[1] * t;
-				out[ 2 ] = a[2] * ti + b[2] * t;
-			}
-			return t;
-		}
-
-		// Create an Array of Vectors
-		static create_array( len ){
-			let i, ary = new Array( len );
-			for(i=0; i < len; i++) ary[i] = new Vec3();
-			return ary;
 		}
 }
 

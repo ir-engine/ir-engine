@@ -9,25 +9,18 @@ class Obj extends Component<Obj>{
 
 	dispose(){ this.ref = null; }
 
-	set_pos( ...p ){
+	setPosition( ...p ){
 		if( p.length == 3 ) this.ref.position.fromArray( p );
 		return this;
 	}
 
-	set_scl( x, y, z ){
-		if( arguments.length == 1 ) this.ref.scale.set( x, x, x );
-		else 						this.ref.scale.set( x, y, z );
-		return this;
-	}
-
-	set_rot( q ){ this.ref.quaternion.fromArray( q ); return this; }
 	look( dir, up ){
-		const q = new Quat().from_look( dir, up || Vec3.UP );
+		const q = new Quat().setFromLookRotation( dir, up || Vec3.UP );
 		this.ref.quaternion.fromArray( q );
 		return this;
 	}
 
-	get_transform(){
+	getTransform(){
 		const p = this.ref.position,
 			q = this.ref.quaternion,
 			s = this.ref.scale;

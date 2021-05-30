@@ -7,9 +7,6 @@ import Vec3 from "../math/Vec3";
 import Gltf from "./Gltf";
  
 class GltfUtil{
-	//////////////////////////////////////////////////////////////
-	// GETTERS
-	//////////////////////////////////////////////////////////////
 		static createSkeletalArmature( m_name, json, bin, armatureName=null ){
 
 			const entity = createEntity();
@@ -29,7 +26,7 @@ class GltfUtil{
 			GltfUtil.loadBonesInto( entity, json, bin, armatureName );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			const b = getComponent(entity, Armature).get_root();
+			const b = getComponent(entity, Armature).getRoot();
 			o.ref.add( b );
 			Engine.scene.add( new SkeletonHelper( b ) );
 
@@ -66,30 +63,27 @@ class GltfUtil{
 			return entity;
 		}
 
-	//////////////////////////////////////////////////////////////
-	// LOADERS
-	//////////////////////////////////////////////////////////////
-
 		// Bin loading of Mesh Data into a Drawing Entity
-		static loadMesh( json, bin, mat=null, mesh_names=null, is_skinned=false ){
+		static loadMesh( json, bin, mat=null, meshNames=null, is_skinned=false ){
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Load all meshes in file
-			if( !mesh_names ){
-				mesh_names = [];
-				for( let i=0; i < json.meshes.length; i++ ) mesh_names.push( json.meshes[i].name );
+			if( !meshNames ){
+				meshNames = [];
+				for( let i=0; i < json.meshes.length; i++ ) meshNames.push( json.meshes[i].name );
 			}
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Mesh can be made up of sub-meshes, So need to loop through em.
-			let n, g, geo_ary, list = [];
+			let n, g, geometryArray
+			const list = [];
 			
-			for( n of mesh_names ){
-				geo_ary = Gltf.get_mesh( n, json, bin, false ); // Load Type Arrays
+			for( n of meshNames ){
+				geometryArray = Gltf.getMesh( n, json, bin, false ); // Load Type Arrays
 
-				if( geo_ary.length == 1 )
-					list.push( this.makeGeometryMesh( geo_ary[0], mat, is_skinned ) );
+				if( geometryArray.length == 1 )
+					list.push( this.makeGeometryMesh( geometryArray[0], mat, is_skinned ) );
 				else						
-					for( g of geo_ary ) 
+					for( g of geometryArray ) 
 						list.push( this.makeGeometryMesh( g, mat, is_skinned ) );
 				
 			}
@@ -104,25 +98,26 @@ class GltfUtil{
 			return rtn;
 		}
 
-		static loadGeometry( json, bin, mesh_names=null ){
+		static loadGeometry( json, bin, meshNames=null ){
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Load all meshes in file
-			if( !mesh_names ){
-				mesh_names = [];
-				for( let i=0; i < json.meshes.length; i++ ) mesh_names.push( json.meshes[i].name );
+			if( !meshNames ){
+				meshNames = [];
+				for( let i=0; i < json.meshes.length; i++ ) meshNames.push( json.meshes[i].name );
 			}
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Mesh can be made up of sub-meshes, So need to loop through em.
-			let n, g, geo_ary, list = [];
+			let n, g, geometryArray;
+			const list = [];
 			
-			for( n of mesh_names ){
-				geo_ary = Gltf.get_mesh( n, json, bin, false ); // Load Type Arrays
+			for( n of meshNames ){
+				geometryArray = Gltf.getMesh( n, json, bin, false ); // Load Type Arrays
 
-				if( geo_ary.length == 1 )
-					list.push( this.makeGeometry( geo_ary[0] ) );
+				if( geometryArray.length == 1 )
+					list.push( this.makeGeometry( geometryArray[0] ) );
 				else						
-					for( g of geo_ary ) 
+					for( g of geometryArray ) 
 						list.push( this.makeGeometry( g ) );
 				
 			}
@@ -133,20 +128,19 @@ class GltfUtil{
 		static loadBonesInto( entity, json, bin, armatureName=null, def_len=0.1 ){
 			const n_info	= {} as any, // Node Info
 				armature 	= getMutableComponent(entity, Armature),
-				//bones 	= Gltf.get_skin( json, bin, armatureName, n_info );
-				bones 	= Gltf.get_skin_by_nodes( json, n_info, armatureName);
+				bones 	= Gltf.getSkin( json, n_info, armatureName);
 			
 				console.log("n_info is", n_info);
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Create Bones
-			let len	= bones.length,
-				map = {},			// Create a Map of the First Child of Every Parent
-				i, b, be;
+			const length	= bones.length,
+				map = {}			// Create a Map of the First Child of Every Parent
+			let i, b, be;
 
-			for( i=0; i < len; i++ ){
+			for( i=0; i < length; i++ ){
 				b	= bones[ i ];
-				be	= armature.add_bone( b.name, 1, b.p_idx );
+				be	= armature.addBone( b.name, 1, b.p_idx );
 
 				if( b.rotation ) be.quaternion.fromArray( b.rotation );
 				if( b.position ) be.position.fromArray( b.position );
@@ -167,22 +161,19 @@ class GltfUtil{
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Calc the Length of Each Bone
 			let c;
-			for( i=0; i < len; i++ ){
+			for( i=0; i < length; i++ ){
 				b = armature.bones[ i ];
 
-				if( !map[ i ] ) b.len = def_len;
+				if( !map[ i ] ) b.length = def_len;
 				else{
 					c = armature.bones[ map[ i ] ]; // First Child's World Space Transform
-					b.len = Vec3.len( b.world.position, c.world.position ); // Distance from Parent to Child
+					b.length = Vec3.length( b.world.position, c.world.position ); // Distance from Parent to Child
 				}
 			}
 
 			return entity;
 		}
 
-	//////////////////////////////////////////////////////////////
-	// HELPERS
-	//////////////////////////////////////////////////////////////
 		// Create a Geo Buffer and Mesh from data from bin file.
 		static makeGeometry( g ){
 			const geo = new BufferGeometry();
@@ -233,10 +224,6 @@ class GltfUtil{
 			return m;
 		}
 
-	//////////////////////////////////////////////////////////////
-	// POSES
-	//////////////////////////////////////////////////////////////
-
 		static getPose( entity, json, pose_name=null, do_world_calc=false ){
 			if( !json.poses || json.poses.length == 0 ){ console.error("No Poses in file"); return null; }
 
@@ -253,9 +240,9 @@ class GltfUtil{
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Save pose local space transform
-			let bones	= json.poses[ p_idx ].joints,
-				pose	= getMutableComponent(entity, Armature).new_pose(),
-				i, b;
+			const bones	= json.poses[ p_idx ].joints,
+				pose	= getMutableComponent(entity, Armature).createNewPose();
+			let i, b;
 
 			for( i=0; i < bones.length; i++ ){
 				b = bones[ i ];

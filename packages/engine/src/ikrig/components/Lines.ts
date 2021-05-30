@@ -41,7 +41,7 @@ class Lines extends Component<Lines>{
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// MESH
-		this.mesh = new LineSegments( this.geo, get_material() ); 
+		this.mesh = new LineSegments( this.geo, getMaterial() ); 
 		this.mesh.name = name;
 
 		let obj = getMutableComponent(this.entity, Obj);
@@ -54,14 +54,11 @@ class Lines extends Component<Lines>{
 
 		return this;
 	}
-	entity_id(entity_id: any) {
-		throw new Error("Method not implemented.");
-	}
 
-	add( p0, p1, hex_0=0xff0000, hex_1=null, is_dash=false ){ return this.add_raw( p0.x, p0.y, p0.z, p1.x, p1.y, p1.z, hex_0, hex_1, is_dash ); }
-	add_raw( x0, y0, z0, x1, y1, z1, hex_0=0xff0000, hex_1=null, is_dash=false ){
-		let idx 	= this.cnt * 2,
-			len_0	= -1,
+	add( p0, p1, hex_0=0xff0000, hex_1=null, is_dash=false ){ return this.addRaw( p0.x, p0.y, p0.z, p1.x, p1.y, p1.z, hex_0, hex_1, is_dash ); }
+	addRaw( x0, y0, z0, x1, y1, z1, hex_0=0xff0000, hex_1=null, is_dash=false ){
+		const idx 	= this.cnt * 2;
+		let	len_0	= -1,
 			len_1	= -1;
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -106,7 +103,7 @@ class Lines extends Component<Lines>{
 
 // #region SHADER
 let gMat = null;
-function get_material(){
+function getMaterial(){
 	if( gMat ) return gMat;
 
 	gMat = new RawShaderMaterial( { 

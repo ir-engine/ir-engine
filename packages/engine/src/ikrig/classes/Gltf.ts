@@ -37,15 +37,13 @@ class Gltf{
 		* @public @return {data:TypeArray, min, max, elmCount, compLen, byteStart, byteLen, arrayType }
 		*/
 		//https://github.com/KhronosGroup/glTF-Tutorials/blob/master/gltfTutorial/gltfTutorial_005_BuffersBufferViewsAccessors.md
-		static parse_accessor( idx, json, bin, spec_only = false ){
-			let acc			= json.accessors[ idx ],				// Reference to Accessor JSON Element
+		static parseAccessor( idx, json, bin, spec_only = false ){
+			const acc			= json.accessors[ idx ],				// Reference to Accessor JSON Element
 				bView 		= json.bufferViews[ acc.bufferView ],	// Buffer Information
-				compLen		= Gltf[ "COMP_" + acc.type ],			// Component Length for Data Element
-				ary			= null,									// Final Type array that will be filled with data
-				byteStart	= 0,
-				byteLen		= 0,
-				TAry, 												// Reference to Type Array to create
-				DFunc; 												// Reference to GET function in Type Array
+				compLen		= Gltf[ "COMP_" + acc.type ]			// Component Length for Data Element
+			let TAry, 												// Reference to Type Array to create
+				DFunc,												// Reference to GET function in Type Array
+				array			= null									// Final Type array that will be filled with data
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Figure out which Type Array we need to save the data in
@@ -97,18 +95,18 @@ class Gltf{
 				// console.log("BView", bView );
 				// console.log("Accessor", acc );
 
-				let stride	= bView.byteStride,					// Stride Length in bytes
+				const stride	= bView.byteStride,					// Stride Length in bytes
 					elmCnt	= acc.count, 						// How many stride elements exist.
 					bOffset	= (bView.byteOffset || 0), 			// Buffer Offset
 					sOffset	= (acc.byteOffset || 0),			// Stride Offset
 					bPer	= TAry.BYTES_PER_ELEMENT,			// How many bytes to make one value of the data type
 					aryLen	= elmCnt * compLen,					// How many "floats/ints" need for this array
-					dView 	= new DataView( bin ),				// Access to Binary Array Buffer
-					p 		= 0, 								// Position Index of Byte Array
+					dView 	= new DataView( bin )				// Access to Binary Array Buffer
+				let p 		= 0, 								// Position Index of Byte Array
 					j 		= 0, 								// Loop Component Length ( Like a Vec3 at a time )
 					k 		= 0;								// Position Index of new Type Array
 
-				ary	= new TAry( aryLen );						//Final Array
+				array	= new TAry( aryLen );						//Final Array
 
 				//Loop for each element of by stride
 				for(let i=0; i < elmCnt; i++){
@@ -116,10 +114,10 @@ class Gltf{
 					p = bOffset + ( stride * i ) + sOffset;	//Calc Starting position for the stride of data
 
 					//Then loop by compLen to grab stuff out of the DataView and into the Typed Array
-					for(j=0; j < compLen; j++) ary[ k++ ] = dView[ DFunc ]( p + (j * bPer) , true );
+					for(j=0; j < compLen; j++) array[ k++ ] = dView[ DFunc ]( p + (j * bPer) , true );
 				}
 
-				out.data = ary;
+				out.data = array;
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Data is NOT Interleaved
@@ -141,10 +139,6 @@ class Gltf{
 			return out;
 		}
 
-
-	////////////////////////////////////////////////////////
-	// MESH
-	////////////////////////////////////////////////////////
 		/**
 		* Returns the geometry data for all the primatives that make up a Mesh based on the name
 		* that the mesh appears in the nodes list.
@@ -154,7 +148,7 @@ class Gltf{
 		* @param {bool} specOnly - Returns only Buffer Spec data related to the Bin File
 		* @public @return {Array.{name,mode,position,vertices,normal,uv,weights,joints}}
 		*/
-		static get_mesh( name, json, bin, spec_only = false ){
+		static getMesh( name, json, bin, spec_only = false ){
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Find Mesh to parse out.
 			let i, n = null, mesh_idx = null;
@@ -174,10 +168,10 @@ class Gltf{
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Loop through all the primatives that make up a single mesh
-			let m 		= json.meshes[ mesh_idx ],
+			const m 		= json.meshes[ mesh_idx ],
 				pLen 	= m.primitives.length,
-				ary		= new Array( pLen ),
-				itm,
+				array		= new Array( pLen )
+			let itm,
 				prim,
 				attr;
 
@@ -201,158 +195,25 @@ class Gltf{
 
 				//.......................................
 				// Parse out all the raw Geometry Data from the Bin file
-				itm.vertices = Gltf.parse_accessor( attr.POSITION, json, bin, spec_only );
-				if( prim.indices != undefined ) 		itm.indices	= Gltf.parse_accessor( prim.indices,	json, bin, spec_only );
-				if( attr.NORMAL != undefined )			itm.normal	= Gltf.parse_accessor( attr.NORMAL,		json, bin, spec_only );
-				if( attr.TEXCOORD_0 != undefined )		itm.uv		= Gltf.parse_accessor( attr.TEXCOORD_0,	json, bin, spec_only );
-				if( attr.WEIGHTS_0 != undefined )		itm.weights	= Gltf.parse_accessor( attr.WEIGHTS_0,	json, bin, spec_only ); 
-				if( attr.JOINTS_0 != undefined )		itm.joints	= Gltf.parse_accessor( attr.JOINTS_0,	json, bin, spec_only );
-				if( attr.COLOR_0 != undefined )			itm.color	= Gltf.parse_accessor( attr.COLOR_0,	json, bin, spec_only );
+				itm.vertices = Gltf.parseAccessor( attr.POSITION, json, bin, spec_only );
+				if( prim.indices != undefined ) 		itm.indices	= Gltf.parseAccessor( prim.indices,	json, bin, spec_only );
+				if( attr.NORMAL != undefined )			itm.normal	= Gltf.parseAccessor( attr.NORMAL,		json, bin, spec_only );
+				if( attr.TEXCOORD_0 != undefined )		itm.uv		= Gltf.parseAccessor( attr.TEXCOORD_0,	json, bin, spec_only );
+				if( attr.WEIGHTS_0 != undefined )		itm.weights	= Gltf.parseAccessor( attr.WEIGHTS_0,	json, bin, spec_only ); 
+				if( attr.JOINTS_0 != undefined )		itm.joints	= Gltf.parseAccessor( attr.JOINTS_0,	json, bin, spec_only );
+				if( attr.COLOR_0 != undefined )			itm.color	= Gltf.parseAccessor( attr.COLOR_0,	json, bin, spec_only );
 
 				//.......................................
 				// Save to return array
-				ary[ i ] = itm;
+				array[ i ] = itm;
 			}
 
-			return ary;
+			return array;
 		}
-
-
-	////////////////////////////////////////////////////////
-	// SKIN
-	// https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#skins
-	// https://github.com/KhronosGroup/glTF-Tutorials/blob/master/gltfTutorial/gltfTutorial_020_Skins.md
-	////////////////////////////////////////////////////////
-				
-		// This one uses the Inverted Bind Matrices in the bin file then converts
-		// to local space transforms.
-		static get_skin( json, bin, name=null, node_info=null ){
-			if( !json.skins ){
-				console.error( "There is no skin in the GLTF file." );
-				return null;
-			}
-
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			// Skin Checking
-			let ji, skin = null;
-			if( name != null ){
-				for( ji of json.skins ) if( ji.name == name ){ skin = ji; break; }
-				if( !skin ){ console.error( "skin not found", name ); return null; }
-			}else{
-				// Not requesting one, Use the first one available
-				for( ji of json.skins ){ 
-					skin = ji;
-					name = ji.name; // Need name to fill in node_info
-					break;
-				}
-			}
-
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			// Create Bone Items
-			let boneCnt = skin.joints.length,
-				bones 	= new Array(boneCnt),
-				n2j 	= {},			// Lookup table to link Parent-Child (Node Idx to Joint Idx) Key:NodeIdx, Value:JointIdx
-				n, 						// Node
-				ni, 					// Node Index
-				itm;					// Bone Item
-
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			// Create Bone Array and Loopup Table.
-			for(ji=0; ji < boneCnt; ji++ ){
-				ni				= skin.joints[ ji ];
-				n2j[ "n"+ni ] 	= ji;
-
-				bones[ ji ] = {
-					idx : ji, p_idx : null, lvl : 0, name : null,
-					position : null, rotation : null, scale : null };
-			}
-
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			// Get Bone's name and set it's parent index value
-			for( ji=0; ji < boneCnt; ji++){
-				n				= json.nodes[ skin.joints[ ji ] ];
-				itm 			= bones[ ji ];
-				
-				// Each Bone Needs a Name, create one if one does not exist.
-				if( n.name === undefined || n.name == "" )	itm.name = "bone_" + ji;
-				else{
-					itm.name = n.name.replace("mixamorig:", "");
-				} 										
-
-				// Set Children who the parent is.
-				if( n.children && n.children.length > 0 ){
-					for( ni of n.children ) bones[ n2j["n"+ni] ].p_idx = ji;
-				}
-			}
-
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			// Set the Hierarchy Level for each bone
-			let lvl;
-			for( ji=0; ji < boneCnt; ji++){
-				// Check for Root Bones
-				itm = bones[ ji ];
-				if( itm.p_idx == null ){ itm.lvl = 0; continue; }
-
-				// Traverse up the tree to count how far down the bone is
-				lvl = 0;
-				while( itm.p_idx != null ){ lvl++; itm = bones[ itm.p_idx ]; }
-
-				bones[ ji ].lvl = lvl;
-			}
-
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			// Get Parent Node Transform, Node with the same name as the armature.
-			if( node_info ){
-				for( ji of json.nodes ){ 
-					if( ji.name == name ){ 
-						if( ji.rotation )	node_info["rotation"] = ji.rotation;
-						if( ji.scale )		node_info["scale"] = ji.scale;
-						if( ji.position )	node_info["position"] = ji.position;
-						break;
-					}
-				}
-			}
-
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			// Bind Pose from Inverted Model Space Matrices
-			const bind		= Gltf.parse_accessor( skin.inverseBindMatrices, json, bin ),
-				m0			= new Mat4(),
-				m1			= new Mat4(),
-				near_one	= ( v )=>{	// Need to cleanup scale, ex: 0.9999 is pretty much 1
-					if(1 - Math.abs(v[0]) <= 1e-4) v[0] = 1;
-					if(1 - Math.abs(v[1]) <= 1e-4) v[1] = 1;
-					if(1 - Math.abs(v[2]) <= 1e-4) v[2] = 1;
-					return v;
-				};
-
-			for( ji=0; ji < boneCnt; ji++ ){
-				itm = bones[ ji ];
-
-				// If no parent bone, The inverse is enough
-				if( itm.p_idx == null ){
-					m1.copy( bind.data, ji * 16 ).invert();
-
-				// if parent exists, keep it parent inverted since thats how it exists in gltf
-				// BUT invert the child bone then multiple to get local space matrix.
-				// parent_worldspace_mat4_invert * child_worldspace_mat4 = child_localspace_mat4
-				}else{
-					m0.copy( bind.data, itm.p_idx * 16 );	// Parent Bone Inverted
-					m1.copy( bind.data, ji * 16 ).invert();	// Child Bone UN-Inverted
-					Mat4.mul( m0, m1, m1 );
-				}
-
-				itm.position = m1.get_translation( new Vec3() ).near_zero();
-				itm.rotation = m1.get_rotation( new Quat() ).norm();
-				itm.scale = near_one( m1.get_scale( new Vec3() ) );
-			}
-
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			return bones;
-		}
-
+		
 		// Uses the nodes to get the local space bind pose transform. But the real bind pose
 		// isn't always available there, blender export has a habit of using the current pose/frame in nodes.
-		static get_skin_by_nodes( json, node_info, name=null ){
+		static getSkin( json, node_info, name=null ){
 			console.log("json is")
 			console.log(json);
 			if( !json.skins ){
@@ -377,10 +238,10 @@ class Gltf{
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Create Bone Items
-			let boneCnt = skin.joints.length,
+			const boneCnt = skin.joints.length,
 				bones 	= new Array(boneCnt),
-				n2j 	= {},			// Lookup table to link Parent-Child (Node to Joint Indexes)
-				n, 						// Node
+				n2j 	= {}			// Lookup table to link Parent-Child (Node to Joint Indexes)
+			let	n, 						// Node
 				ni, 					// Node Index
 				itm;					// Bone Item
 
@@ -456,9 +317,6 @@ class Gltf{
 			return bones;
 		}
 
-	////////////////////////////////////////////////////////
-	// ANIMATION
-	////////////////////////////////////////////////////////
 		/*
 		https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#animations
 		https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#appendix-c-spline-interpolation (Has math for cubic spline)
@@ -478,7 +336,7 @@ class Gltf{
 			]
 		}
 		*/
-		static get_animation( json, bin, name=null, limit=true ){
+		static getAnimation( json, bin, name=null, limit=true ){
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Validate there is animations and an anaimtion by a name exists in the json file.
 			if( json.animations === undefined || json.animations.length == 0 ){ console.error("There is no animations in gltf"); return null; }
@@ -502,11 +360,12 @@ class Gltf{
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			let chi = 0, ch, s, n, prop,
 				t_idx, n_name, s_time,
-				ch_ary		= [],	// Store all the channel information structs
-				time_ary	= [],	// Shared Time Information between Tracks
-				time_tbl	= {},	// Keep Track of Time Accessor ID thats been extracted
 				time_max	= 0,	// Max Time of the Track Animations
 				frame_max	= 0;
+			const	ch_ary		= [],	// Store all the channel information structs
+					time_ary	= [],	// Shared Time Information between Tracks
+					time_tbl	= {}	// Keep Track of Time Accessor ID thats been extracted
+					
 
 			for( chi=0; chi < a.channels.length; chi++ ){
 				//.......................
@@ -547,7 +406,7 @@ class Gltf{
 				t_idx = time_tbl[ s.input ];
 				if( t_idx == undefined ){
 					time_tbl[ s.input ] = t_idx = time_ary.length;
-					s_time = this.parse_accessor( s.input, json, bin );
+					s_time = this.parseAccessor( s.input, json, bin );
 
 					time_ary.push( s_time.data );
 
@@ -562,36 +421,13 @@ class Gltf{
 					time_idx 	: t_idx,
 					joint_idx	: joints[ n ],
 					interp 		: s.interpolation,
-					data		: this.parse_accessor( s.output, json, bin ).data,
+					data		: this.parseAccessor( s.output, json, bin ).data,
 				});
 			}
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			const rtn = { time:time_max, frame_cnt: frame_max, times: time_ary, tracks:ch_ary };
 			return rtn;
-		}
-
-
-	////////////////////////////////////////////////////////
-	// MISC
-	////////////////////////////////////////////////////////
-		
-		// Binary Buffer can exist in GLTF file encoded in base64. 
-		// This function converts the data into an ArrayBuffer.
-		static parse_b64_buffer( json ){
-			const buf = json.buffers[ 0 ];
-			if( buf.uri.substr(0,5) != "data:" ) return null;
-
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			// Create and Fill DataView with buffer data
-			const position		= buf.uri.indexOf( "base64," ) + 7,
-				blob	= window.atob( buf.uri.substr( position ) ),
-				ary_buf = new ArrayBuffer( blob.length ),
-				dv		= new DataView( ary_buf );
-
-			for( let i=0; i < blob.length; i++ ) dv.setUint8( i, blob.charCodeAt( i ) );
-
-			return ary_buf;
 		}
 }
 
@@ -623,77 +459,5 @@ class Gltf{
 
 	Gltf.TARGET_ARY_BUF			= 34962;	// bufferview.target
 	Gltf.TARGET_ELM_ARY_BUF		= 34963;
-
-
-/*
-//https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#glb-file-format-specification
-const GLB_MAGIC	= 0x46546C67;
-const GLB_JSON	= 0x4E4F534A;
-const GLB_BIN	= 0x004E4942;
-function parse_glb( arybuf ){
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	let dv		= new DataView( arybuf );
-	let magic	= dv.getUint32( 0, true );
-	if( magic != GLB_MAGIC ){
-		console.error("GLB's Magic Number does not match.");
-		return null;
-	}
-
-	let version	= dv.getUint32( 4, true );
-	if( version != 2 ){
-		console.error("GLB is number version 2.");
-		return null;
-	}
-
-	let main_blen	= dv.getUint32( 8, true );
-	console.log( "Version :", version );
-	console.log( "Binary Length :", main_blen );
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// LOAD CHUNK 0 & 1 TESTING
-
-	let chk0_len	= dv.getUint32( 12, true );
-	let chk0_type	= dv.getUint32( 16, true );
-
-	if( chk0_type != GLB_JSON ){
-		console.error("GLB Chunk 0 is not the type: JSON ");
-		return null;
-	}
-
-	let chk0_offset	= 20;						// Start of JSON
-	let chk1_offset	= chk0_offset + chk0_len;	// Start of BIN's 8 byte header
-
-	let chk1_len	= dv.getUint32( chk1_offset, true );
-	let chk1_type	= dv.getUint32( chk1_offset+4, true );
-
-	if( chk1_type != GLB_BIN ){ //TODO, this does not have to exist, just means no bin data.
-		console.error("GLB Chunk 1 is not the type: BIN ");
-		return null;
-	}
-
-	chk1_offset += 8; // Skip the Header
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// PARSE JSON
-	let txt_decoder	= new TextDecoder( "utf8" );
-	let json_bytes	= new Uint8Array( arybuf, chk0_offset, chk0_len );
-	let json_text	= txt_decoder.decode( json_bytes );
-	let json		= JSON.parse( json_text );
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// PARSE BIN - TODO, Not efficent to slice the array buffer
-	// but need to fix GLTF parser to have a root offset to use 
-	// original buffer.
-	let bin = arybuf.slice( chk1_offset );
-
-	if( bin.byteLength != chk1_len ){
-		console.error( "GLB Bin length does not match value in header.");
-		return null;
-	}
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	return [ json, bin ];
-}
-*/
 
 export default Gltf;

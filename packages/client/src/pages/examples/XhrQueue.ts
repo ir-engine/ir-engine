@@ -13,14 +13,14 @@ class XhrQueue{
 	on_abort_bind: any;
 	on_timeout_bind: any;
     constructor( cnt=2 ){
-		this.pool		= new Array();
-		this.queue		= new Array();
+		this.pool		= [];
+		this.queue		= [];
 		this.pre_url	= "";
 		this.callback	= null;
 		this.active 	= false;
 		
 		this.complete 	= {};
-		this.wait_ary	= new Array();
+		this.wait_ary	= [];
 
 		this.resolve 	= null;
 		this.reject 	= null;
@@ -141,14 +141,14 @@ class XhrQueue{
 
 			// Sort Array by order inserted, 
 			// Then reduce it into an array of just data
-			if( this.complete.ary ){
-				this.complete.ary.sort( (a,b)=>{ return (a.order == b.order)? 0 : (a.order < b.order)? -1 : 1;} );
-				this.complete.ary = this.complete.ary.map( x=>x.data );
+			if( this.complete.array ){
+				this.complete.array.sort( (a,b)=>{ return (a.order == b.order)? 0 : (a.order < b.order)? -1 : 1;} );
+				this.complete.array = this.complete.array.map( x=>x.data );
 			}
 
 			//	Return just an array ot the whole struct.
 			let keys	= Object.keys( this.complete ),
-				rtn		= ( keys.length == 1 && keys[0] == "ary" )? this.complete.ary : this.complete;
+				rtn		= ( keys.length == 1 && keys[0] == "array" )? this.complete.array : this.complete;
 
 			// If just a single element array, just return that object.
 			if( Array.isArray( rtn ) && rtn.length == 1 ) rtn = rtn[ 0 ];
@@ -201,8 +201,8 @@ class XhrQueue{
 			if( !grp ) grp = this.complete[ itm.grp_name ] = {};
 			grp[ itm.itm_name ] = itm.data;
 		}else{
-			if( !this.complete.ary ) this.complete.ary = new Array();
-			this.complete.ary.push( itm );
+			if( !this.complete.array ) this.complete.array = [];
+			this.complete.array.push( itm );
 		}
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -276,9 +276,9 @@ class XhrQueue{
 	}
 	static size( cnt ){ return new XhrQueue( cnt ); }
 	static add( url, type=null, grp_name=null, itm_name=null ){ return new XhrQueue().add( url, type, grp_name, itm_name ); }
-	static grp(){
+	static grp(...args){
 		let xhr = new XhrQueue();
-		xhr.grp.apply( xhr, arguments );
+		xhr.grp(...args);
 		return xhr;
 	}
 	// #endregion /////////////////////////////////////////////////////

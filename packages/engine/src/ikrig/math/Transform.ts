@@ -48,18 +48,18 @@ class Transform{
 		from_add( tp, tc ){
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// POSITION - parent.position + ( parent.rotation * ( parent.scale * child.position ) )
-			const v = new Vec3().from_mul( tp.scale, tc.position ); // parent.scale * child.position;
+			const v = new Vec3().setFromMultiply( tp.scale, tc.position ); // parent.scale * child.position;
 			v.transform_quat( tp.rotation ); //Vec3.transform_quat( v, tp.rotation, v );
 			this.position.from_add( tp.position, v ); // Vec3.add( tp.position, v, this.position );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// SCALE - parent.scale * child.scale
-			this.scale.from_mul( tp.scale, tc.scale );
+			this.scale.setFromMultiply( tp.scale, tc.scale );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// ROTATION - parent.rotation * child.rotation
-			this.rotation.from_mul( tp.rotation, tc.rotation );
-			//this.rotation.from_mul( tc.rotation, tp.rotation );
+			this.rotation.setFromMultiply( tp.rotation, tc.rotation );
+			//this.rotation.setFromMultiply( tc.rotation, tp.rotation );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			return this;
@@ -77,15 +77,15 @@ class Transform{
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// POSITION - parent.position + ( parent.rotation * ( parent.scale * child.position ) )
-			this.position.add( Vec3.mul( this.scale, cp ).transform_quat( this.rotation ) );
+			this.position.add( Vec3.multiply( this.scale, cp ).transform_quat( this.rotation ) );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// SCALE - parent.scale * child.scale
-			if( cs ) this.scale.mul( cs );
+			if( cs ) this.scale.multiply( cs );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// ROTATION - parent.rotation * child.rotation
-			this.rotation.mul( cr );
+			this.rotation.multiply( cr );
 
 			return this;
 		}
@@ -104,15 +104,15 @@ class Transform{
 			// POSITION - parent.position + ( parent.rotation * ( parent.scale * child.position ) )
 			// The only difference for this func, We use the IN.scale & IN.rotation instead of THIS.scale * THIS.rotation
 			// Consider that this Object is the child and the input is the Parent.
-			this.position.mul( ps ).transform_quat( pr ).add( pp );
+			this.position.multiply( ps ).transform_quat( pr ).add( pp );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// SCALE - parent.scale * child.scale
-			if( ps ) this.scale.mul( ps );
+			if( ps ) this.scale.multiply( ps );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// ROTATION - parent.rotation * child.rotation
-			this.rotation.pmul( pr ); // Must Rotate from Parent->Child, need PMUL
+			this.rotation.premultiply( pr ); // Must Rotate from Parent->Child, need PMUL
 
 			return this
 		}
@@ -134,7 +134,7 @@ class Transform{
 		transform_vec( v, out = null ){
 			//GLSL - vecQuatRotation(model.rotation, a_position.xyz * model.scale) + model.position;
 			return (out || v)
-				.from_mul( v, this.scale )
+				.setFromMultiply( v, this.scale )
 				.transform_quat( this.rotation )
 				.add( this.position );
 		}
@@ -154,16 +154,16 @@ class Transform{
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			//POSITION - parent.position + ( parent.rotation * ( parent.scale * child.position ) )
 			
-			//tOut.position.from_add( tp.position, Vec3.mul( tp.scale, tc.position ).transform_quat( tp.rotation ) );
+			//tOut.position.from_add( tp.position, Vec3.multiply( tp.scale, tc.position ).transform_quat( tp.rotation ) );
 			tOut.position.from_add( tp.position, new Vec3( tc.position ).transform_quat( tp.rotation ) );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// SCALE - parent.scale * child.scale
-			tOut.scale.from_mul( tp.scale, tc.scale ); //Vec3.mul( tp.scale, tc.scale, tOut.scale );
+			tOut.scale.setFromMultiply( tp.scale, tc.scale ); //Vec3.multiply( tp.scale, tc.scale, tOut.scale );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// ROTATION - parent.rotation * child.rotation
-			tOut.rotation.from_mul( tp.rotation, tc.rotation ); //Quat.mul( tp.rotation, tc.rotation, tOut.rotation );
+			tOut.rotation.setFromMultiply( tp.rotation, tc.rotation ); //Quat.multiply( tp.rotation, tc.rotation, tOut.rotation );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			return tOut;
@@ -181,13 +181,13 @@ class Transform{
 			inv.scale.z = ( t.scale.z != 0 )? 1 / t.scale.z : 0;
 
 			// Invert Position : rotInv * ( invScl * invPos )
-			t.position.invert( inv.position ).mul( inv.scale );
+			t.position.invert( inv.position ).multiply( inv.scale );
 			Vec3.transform_quat( inv.position, inv.rotation, inv.position );
 
 			return inv;
 		}
 
-		static from_pos( x, y, z ){
+		static fromPosition( x, y, z ){
 			const t = new Transform();
 			if( arguments.length == 3 )			t.position.set( x, y, z );
 			else if( arguments.length == 1 )	t.position.copy( x );

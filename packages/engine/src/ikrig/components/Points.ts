@@ -48,7 +48,7 @@ class PointsComponent extends Component<PointsComponent>{
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// MESH
-		this.mesh = new Points( this.geo, get_material() );
+		this.mesh = new Points( this.geo, getMaterial() );
 		this.mesh.name = name;
 
 		let obj = getMutableComponent(this.entity, Obj);
@@ -60,13 +60,9 @@ class PointsComponent extends Component<PointsComponent>{
 
 		return this;
 	}
-	entity_id(entity_id: any) {
-		throw new Error("Method not implemented.");
-	}
-
 	
-	add( p, hex=0xff0000, shape=null, size=null ){ return this.add_raw( p.x, p.y, p.z, hex, shape, size ); }
-	add_raw( x, y, z, hex=0xff0000, shape=null, size=null ){
+	add( p, hex=0xff0000, shape=null, size=null ){ return this.addRaw( p.x, p.y, p.z, hex, shape, size ); }
+	addRaw( x, y, z, hex=0xff0000, shape=null, size=null ){
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// VERTEX POSITION - SIZE
 		this.buf_pos.setXYZW( this.cnt, x, y, z, (size || this.use_size) );
@@ -96,7 +92,7 @@ class PointsComponent extends Component<PointsComponent>{
 
 // #region SHADER
 let gMat = null;
-function get_material(){
+function getMaterial(){
 	if( gMat ) return gMat;
 
 	gMat = new RawShaderMaterial( { 

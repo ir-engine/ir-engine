@@ -11,19 +11,15 @@ class Armature extends Component<Armature> {
 	bones: any[] = [];
 	name_map: {} = {};
 
-	/////////////////////////////////////////////////
-	// SKELETON CONSTRUCTION
-	/////////////////////////////////////////////////
-
 	// Bones must be inserted in the order they will be used in a skinned shader.
 	// Must keep the bone index and parent index correctly.
-	add_bone(name, len = 1, p_idx = null) {
+	addBone(name, length = 1, p_idx = null) {
 		const b = {
 			ref: new Bone(),
 			name: name,					// Bone Name
 			idx: this.bones.length,	// Bone Index
 			p_idx: p_idx,				// Parent Bone Index
-			len: len,					// Length of the Bones
+			length: length,					// Length of the Bones
 			local: new Transform(),		// Local Space Bind Transform
 			world: new Transform(),		// World Space Bind Transform
 		};
@@ -37,7 +33,7 @@ class Armature extends Component<Armature> {
 			const p = this.bones[p_idx];
 
 			p.ref.add(b.ref);						// Make Bone a child 
-			if (p.len) b.ref.position.y = p.len;	// Move bone to parent's tail location
+			if (p.length) b.ref.position.y = p.length;	// Move bone to parent's tail location
 		} else {
 			b.p_idx = null;
 		}
@@ -49,14 +45,14 @@ class Armature extends Component<Armature> {
 	// Compute the Fungi Local & World Transform Bind Pose
 	// THREE will compute the inverse matrix bind pose on its own when bones 
 	// are given to THREE.Skeleton
-	compute_bind_pose() {
+	computeBindPose() {
 		let b, p;
 		for (b of this.bones) {
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Copy current local space transform of the bone
-			b.local.rotation.from_struct(b.ref.quaternion);
-			b.local.position.from_struct(b.ref.position);
-			b.local.scale.from_struct(b.ref.scale);
+			b.local.rotation.fromStruct(b.ref.quaternion);
+			b.local.position.fromStruct(b.ref.position);
+			b.local.scale.fromStruct(b.ref.scale);
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Compute its world space transform based on parent's ws transform.
@@ -71,14 +67,15 @@ class Armature extends Component<Armature> {
 	finalize() {
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Setup the Inverted Bind Pose
-		this.compute_bind_pose();
+		this.computeBindPose();
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Build THREE.JS Skeleton
-		let i, b_ary = new Array(this.bones.length);
-		for (i = 0; i < this.bones.length; i++) b_ary[i] = this.bones[i].ref;
+		let i;
+		const boneArray = new Array(this.bones.length);
+		for (i = 0; i < this.bones.length; i++) boneArray[i] = this.bones[i].ref;
 
-		this.skeleton = new Skeleton(b_ary);
+		this.skeleton = new Skeleton(boneArray);
 
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -104,26 +101,17 @@ class Armature extends Component<Armature> {
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		return this;
 	}
-
-	/////////////////////////////////////////////////
-	// METHODS
-	/////////////////////////////////////////////////
-
 	// Get the Root Bone
-	get_root() { return this.bones[0].ref; }
+	getRoot() { return this.bones[0].ref; }
 
 	// Get Bone by Name
 	getBone(b_name) { return this.bones[this.name_map[b_name]].ref; }
 
-	/////////////////////////////////////////////////
-	// POSE MANAGEMENT
-	/////////////////////////////////////////////////
-
 	// Create a pose that copies the Bind Pose
-	new_pose() { return new Pose(this); }
+	createNewPose() { return new Pose(this); }
 
 	// Copies modified Local Transforms of the Pose to the Bone Entities.
-	load_pose(p) {
+	loadPose(p) {
 		let i,
 			pb, // Pose Bone
 			o;	// Bone Object
@@ -148,41 +136,6 @@ class Armature extends Component<Armature> {
 		}
 
 		this.updated = true;
-		return this;
-	}
-
-	// Serialize the Bone Data
-	serialize_bones(inc_scale = false) {
-		let out = new Array(this.bones.length),
-			i = 0,
-			b;
-
-		for (b of this.bones) {
-			out[i] = {
-				name: b.name,
-				len: b.len,
-				idx: b.idx,
-				p_idx: b.p_idx,
-				position: Array.from(b.local.position),
-				rotation: Array.from(b.local.rotation),
-			};
-
-			if (inc_scale) out[i].scale = Array.from(b.local.scale);
-
-			i++;
-		}
-		return out;
-	}
-
-	// Serialize the Bone Data
-	deserialize_bones(ary) {
-		let itm, b;
-		for (itm of ary) {
-			b = this.add_bone(itm.name, itm.len, itm.p_idx);
-			b.position.fromArray(itm.position);
-			b.quaternion.fromArray(itm.rotation);
-			if (b.scale) b.scale.fromArray(itm.scale);
-		}
 		return this;
 	}
 }

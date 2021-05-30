@@ -21,10 +21,6 @@ class Axis{
 		this.y = new Vec3( Vec3.UP );
 		this.z = new Vec3( Vec3.FORWARD );
 	}
-
-	////////////////////////////////////////////////////////////////////
-	// SETTERS / GETTERS
-	////////////////////////////////////////////////////////////////////
 		//Passing in Vectors.
 		set( x, y, z, do_norm = false ){
 			this.x.copy( x );
@@ -32,16 +28,14 @@ class Axis{
 			this.z.copy( z );
 
 			if(do_norm){
-				this.x.norm();
-				this.y.norm();
-				this.z.norm();
+				this.x.normalize();
+				this.y.normalize();
+				this.z.normalize();
 			}
 			return this;
 		}
 
-		//Create axis based on a Quaternion
-		to_quat( out ){ return (out || new Quat()).from_axis( this.x, this.y, this.z ); }
-		from_quat( q ){
+		fromQuaternion( q ){
 			// Same code for Quat to Matrix 3 conversion
 			const x = q[0], y = q[1], z = q[2], w = q[3],
 				x2 = x + x,
@@ -63,60 +57,19 @@ class Axis{
 			return this;
 		}
 
-		//Create an axis based on a looking direction
-		/*
-		lookAt( v ){
-			//If the vector is pretty much forward, just do set default axis.
-			var test = Vec3.nearZero( v );
-			if(test.x == 0 && test.y == 0){
-				this.z.copy( Vec3.FORWARD );
-				this.y.copy( Vec3.UP );
-				this.x.copy( Vec3.LEFT );
-				return this;
-			}
-
-			Vec3.norm(v, this.z);	//Direction is the forward vector
-			let dot = Vec3.dot(Vec3.LEFT, this.z);
-
-			// If dot product is in the negative, need to use BACK (0,0,-1) 
-			// to get the correct up direction, else up will point down.
-			if(dot >= 0)	Vec3.cross(Vec3.FORWARD, this.z, this.y).normalize();
-			else			Vec3.cross(Vec3.BACK, this.z, this.y).normalize();
-
-			Vec3.cross(this.z, this.y, this.x).normalize();
+		fromDirection( fwd, up ){
+			this.z.copy( fwd ).normalize();
+			this.x.from_cross( up, this.z ).normalize();
+			this.y.from_cross( this.z, this.x ).normalize();			
 			return this;
-		}
-		*/
-
-		from_dir( fwd, up ){
-			this.z.copy( fwd ).norm();
-			this.x.from_cross( up, this.z ).norm();
-			this.y.from_cross( this.z, this.x ).norm();			
-			return this;
-		}
-
-
-	////////////////////////////////////////////////////////////////////
-	//  
-	////////////////////////////////////////////////////////////////////
-
-		// Axis is pretty much a Rotation Matrix, so easy to apply rotation to a vector.
-		transform_vec3( v, out ){
-			const x = v[0], y = v[1], z = v[2];
-			
-			out = out || new Vec3();
-			out[0] = x * this.x[0] + y * this.y[0] + z * this.z[0];
-			out[1] = x * this.x[1] + y * this.y[1] + z * this.z[1];
-			out[2] = x * this.x[2] + y * this.y[2] + z * this.z[2];
-			return out;
 		}
 
 		rotate( rad, axis = "x", out = null ){
 			out = out || this;
 
-			let sin = Math.sin(rad),
-				cos = Math.cos(rad),
-				x, y, z;
+			const sin = Math.sin(rad),
+				cos = Math.cos(rad)
+			let x, y, z;
 
 			switch(axis){
 				case "y": //..........................
@@ -150,11 +103,6 @@ class Axis{
 
 			return out;
 		}
-
-
-	////////////////////////////////////////////////////////////////////
-	// STATIC
-	////////////////////////////////////////////////////////////////////
 }
 
 export default Axis;
