@@ -163,6 +163,10 @@ class PropertiesPanelContainer extends Component<{t: Function}> {
     ((this.props as any).editor as any).setPropertySelected("visible", value);
   };
 
+  onChangeProbeStatic = value => {
+    ((this.props as any).editor as any).setPropertySelected("reflectionProbeStatic", value);
+  };
+
   onChangePersist = value => {
     ((this.props as any).editor as any).setPropertySelected("persist", value);
   };
@@ -200,16 +204,24 @@ class PropertiesPanelContainer extends Component<{t: Function}> {
       }
 
       const disableTransform = selected.some(node => node.disableTransform);
-
+      const haveStaticTags=selected.some(node=>node.haveStaticTags);
+      
       content = (
         <StyledNodeEditor>
           <PropertiesHeader>
             <NameInputGroupContainer>
               <NameInputGroup node={activeNode} editor={editor} />
               {activeNode.nodeName !== "Scene" && (
+                <>
                 <VisibleInputGroup name="Visible" label={this.props.t('editor:properties.lbl-visible')}>
                   <BooleanInput value={activeNode.visible} onChange={this.onChangeVisible} />
                 </VisibleInputGroup>
+                {(haveStaticTags)&&(
+                <VisibleInputGroup name="Probe Static" label="Probe Static">
+                <BooleanInput value={activeNode.reflectionProbeStatic} onChange={this.onChangeProbeStatic} />
+                </VisibleInputGroup>
+                )}
+              </>
               )}
             </NameInputGroupContainer>
             <PersistInputGroup name="Persist" label={this.props.t('editor:properties.lbl-persist')}>

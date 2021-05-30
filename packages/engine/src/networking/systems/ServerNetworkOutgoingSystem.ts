@@ -7,9 +7,8 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
+import { TransformStateModel } from '../schema/transformStateSchema';
 import { WorldStateModel } from '../schema/worldStateSchema';
-import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent';
-import { CharacterComponent } from '../../character/components/CharacterComponent';
 
 /** System class to handle outgoing messages. */
 export class ServerNetworkOutgoingSystem extends System {
@@ -37,7 +36,7 @@ export class ServerNetworkOutgoingSystem extends System {
       const snapShotTime = networkObject.snapShotTime ?? 0;
 
 
-      Network.instance.worldState.transforms.push({
+      Network.instance.transformState.transforms.push({
         networkId: networkObject.networkId,
         snapShotTime: snapShotTime,
         x: currentPosition.x,
@@ -52,7 +51,7 @@ export class ServerNetworkOutgoingSystem extends System {
       const ikComponent = getComponent(entity, IKComponent)
       if(ikComponent) {
         const transforms = ikComponent.avatarIKRig.inputs
-        Network.instance.worldState.ikTransforms.push({
+        Network.instance.transformState.ikTransforms.push({
           networkId: networkObject.networkId,
           snapShotTime: snapShotTime,
           hmd: {
@@ -86,7 +85,6 @@ export class ServerNetworkOutgoingSystem extends System {
       }
     });
 
-    // TODO: split reliable and unreliable into seperate schemas
     if (
       Network.instance.worldState.clientsConnected.length ||
       Network.instance.worldState.clientsDisconnected.length ||
@@ -96,16 +94,16 @@ export class ServerNetworkOutgoingSystem extends System {
       Network.instance.worldState.gameState.length ||
       Network.instance.worldState.gameStateActions.length
     ) {
-      const bufferReliable = WorldStateModel.toBuffer(Network.instance.worldState, 'Reliable');
+      const bufferReliable = WorldStateModel.toBuffer(Network.instance.worldState);
       if(!bufferReliable){
         console.warn("Reliable buffer is null");
         console.warn(Network.instance.worldState);
+      } else {
+        Network.instance.transport.sendReliableData(bufferReliable);
       }
-            else
-      Network.instance.transport.sendReliableData(bufferReliable);
     }
 
-    const bufferUnreliable = WorldStateModel.toBuffer(Network.instance.worldState, 'Unreliable');
+    const bufferUnreliable = TransformStateModel.toBuffer(Network.instance.transformState);
     try {
       Network.instance.transport.sendData(bufferUnreliable);
     } catch (error) {

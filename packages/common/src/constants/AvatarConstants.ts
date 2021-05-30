@@ -1,4 +1,4 @@
-export const DEFAULT_AVATARS = ['Sonny', 'Erik']; // 'Allison', , 'Rose', 'Andy', 'Geoff', 'Jace', 'Karthik'
+export const DEFAULT_AVATARS = ['Sonny']; // 'Allison', , 'Rose', 'Andy', 'Erik', 'Geoff', 'Jace', 'Karthik'
 export const DEFAULT_AVATAR_ID = 'Sonny';
 export const AVATAR_FILE_ALLOWED_EXTENSIONS = '.glb,.gltf,.vrm,.fbx';
 export const MIN_AVATAR_FILE_SIZE = 0

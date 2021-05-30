@@ -208,7 +208,7 @@ export async function createInternalDataConsumer(dataProducer: DataProducer, use
         ordered: false,
     });
     consumer.on('message', (message) => {
-        Network.instance.incomingMessageQueue.add(toArrayBuffer(message));
+        Network.instance.incomingMessageQueueUnreliable.add(toArrayBuffer(message));
     });
     return consumer;
 }

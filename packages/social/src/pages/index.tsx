@@ -83,7 +83,7 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState, webxrnativeSt
     setFeedOnborded(false);
   };
 
-  if(!currentCreator || currentCreator === null) return <Splash />
+  if(!currentCreator || currentCreator === null) return <Splash />;
 
 
 

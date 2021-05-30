@@ -2,6 +2,7 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { System, SystemAttributes } from '../../ecs/classes/System';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { Network } from '../classes/Network';
+import { TransformStateModel } from '../schema/transformStateSchema';
 import { WorldStateModel } from '../schema/worldStateSchema';
 
 /** System class for network system of client. */
@@ -10,11 +11,12 @@ export class ClientNetworkSystem extends System {
   static EVENTS = {
     CONNECT: 'CLIENT_NETWORK_SYSTEM_CONNECT',
     SEND_DATA: 'CLIENT_NETWORK_SYSTEM_SEND_DATA',
-    RECEIVE_DATA: 'CLIENT_NETWORK_SYSTEM_RECEIVE_DATA',
+    RECEIVE_DATA_UNRELIABLE: 'CLIENT_NETWORK_SYSTEM_RECEIVE_DATA_UNRELIABLE',
+    RECEIVE_DATA_RELIABLE: 'CLIENT_NETWORK_SYSTEM_RECEIVE_DATA_RELIABLE',
     CONNECTION_LOST: 'CORE_CONNECTION_LOST',
   }
   /** Update type of this system. **Default** to
-     * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
+   * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
   updateType = SystemUpdateType.Fixed;
 
   /**
@@ -31,7 +33,6 @@ export class ClientNetworkSystem extends System {
 
     EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.SEND_DATA, ({ buffer }) => {
       Network.instance.transport.sendReliableData(buffer);
-      // Network.instance.transport.sendData(buffer);
     });
   }
 
@@ -47,16 +48,26 @@ export class ClientNetworkSystem extends System {
    */
   execute = (delta: number): void => {
     // Client logic
-    const queue = Network.instance.incomingMessageQueue;
+    const reliableQueue = Network.instance.incomingMessageQueueReliable;
     // For each message, handle and process
-    while (queue.getBufferLength() > 0) {
-      const buffer = queue.pop();
-      // debugger;
-      let unbufferedState;
+    while (reliableQueue.getBufferLength() > 0) {
+      const buffer = reliableQueue.pop();
       try {
-        unbufferedState = WorldStateModel.fromBuffer(buffer);
-        if(!unbufferedState) throw new Error("Couldn't deserialize buffer, probably still reading the wrong one");
-        EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.RECEIVE_DATA, unbufferedState, delta });
+        const worldState = WorldStateModel.fromBuffer(buffer);
+        if(!worldState) throw new Error("Couldn't deserialize buffer, probably still reading the wrong one");
+        EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.RECEIVE_DATA_RELIABLE, worldState, delta });
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
+    const unreliableQueue = Network.instance.incomingMessageQueueUnreliable;
+    while (unreliableQueue.getBufferLength() > 0) {
+      const buffer = unreliableQueue.pop();
+      try {
+        const transformState = TransformStateModel.fromBuffer(buffer);
+        if(!transformState) throw new Error("Couldn't deserialize buffer, probably still reading the wrong one");
+        EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.RECEIVE_DATA_UNRELIABLE, transformState, delta });
       } catch (e) {
         console.log(e);
       }

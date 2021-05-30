@@ -20,7 +20,6 @@ import { GamePlayer } from '../../game/components/GamePlayer';
 import { sendState } from '../../game/functions/functionsState';
 import { StateEntity } from '../types/SnapshotDataTypes';
 import { ColliderComponent } from '../../physics/components/ColliderComponent';
-import { isClient } from '../../common/functions/isClient';
 import { getGameFromName } from '../../game/functions/functions';
 
 
@@ -36,7 +35,7 @@ export class ServerNetworkIncomingSystem extends System {
   private _inputComponent: Input
 
   /** Update type of this system. **Default** to
-     * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
+   * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
   updateType = SystemUpdateType.Fixed;
 
   /**
@@ -50,10 +49,6 @@ export class ServerNetworkIncomingSystem extends System {
     Network.instance.schema = schema;
     // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
     Network.instance.transport = new schema.transport(app);
-    // Buffer model for worldState
-    //  Network.instance.snapshotModel = new Model(snapshotSchema)
-
-    this.isServer = !isClient;
 
     // Initialize the server automatically - client is initialized in connectToServer
     if (process.env.SERVER_MODE !== undefined && (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')) {
@@ -67,11 +62,6 @@ export class ServerNetworkIncomingSystem extends System {
     // Create a new worldstate frame for next tick
     Network.instance.tick++;
     Network.instance.worldState = {
-      tick: Network.instance.tick,
-      time: 0,
-      transforms: [],
-      ikTransforms: [],
-      inputs: [],
       clientsConnected: Network.instance.clientsConnected,
       clientsDisconnected: Network.instance.clientsDisconnected,
       createObjects: Network.instance.createObjects,
@@ -79,6 +69,13 @@ export class ServerNetworkIncomingSystem extends System {
       destroyObjects: Network.instance.destroyObjects,
       gameState: Network.instance.gameState,//.length > 0 ? JSON.stringify(Network.instance.gameState) : [],
       gameStateActions: Network.instance.gameStateActions
+    };
+
+    Network.instance.transformState = {
+      tick: Network.instance.tick,
+      time: 0,
+      transforms: [],
+      ikTransforms: [],
     };
 
     Network.instance.clientsConnected = [];
@@ -91,8 +88,8 @@ export class ServerNetworkIncomingSystem extends System {
 
     // Set input values on server to values sent from clients
     // Parse incoming message queue
-    while (Network.instance.incomingMessageQueue.getBufferLength() > 0) {
-      const buffer = Network.instance.incomingMessageQueue.pop() as any;
+    while (Network.instance.incomingMessageQueueReliable.getBufferLength() > 0) {
+      const buffer = Network.instance.incomingMessageQueueReliable.pop() as any;
 
       let clientInput: NetworkClientInputInterface;
       try {
