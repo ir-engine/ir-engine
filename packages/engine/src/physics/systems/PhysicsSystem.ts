@@ -189,7 +189,7 @@ export class PhysicsSystem extends System {
               qY: collider.body.transform.rotation.y,
               qZ: collider.body.transform.rotation.z,
               qW: collider.body.transform.rotation.w,
-              snapShotTime: networkObject.snapShotTime ?? 0,
+              snapShotTime: networkObject.snapShotTime,
             });
             return;
           }

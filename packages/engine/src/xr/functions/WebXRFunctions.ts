@@ -38,7 +38,6 @@ export const startXR = async (): Promise<boolean> => {
     cameraFollow.mode = CameraModes.XR;
     const actor = getMutableComponent(Network.instance.localClientEntity, CharacterComponent);
 
-    // until retargeting is fixed, we can simply just not init IK
     initiateIK(Network.instance.localClientEntity)
 
     head = Engine.xrRenderer.getCamera();
@@ -240,6 +239,7 @@ export const getHandTransform = (entity: Entity, hand: ParityValue = ParityValue
   const actor = getComponent(entity, CharacterComponent);
   const transform = getComponent(entity, TransformComponent);
   if(isInXR(entity)) {
+    console.log('isInXR')
     const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
     if(input) {
       const sixdof = input.value as SIXDOFType;
