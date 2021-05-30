@@ -9,6 +9,7 @@ import { BoundingBox } from "../../interaction/components/BoundingBox";
 import { Object3DComponent } from "../../scene/components/Object3DComponent";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { DebugRenderer } from "three-physx";
+import { ColliderComponent } from "../../physics/components/ColliderComponent";
 
 type ComponentHelpers = 'viewVector' | 'velocityArrow';
 
@@ -103,6 +104,57 @@ export class DebugHelpersSystem extends System {
       }
     });
 
+    this.queryResults.colliderComponent.added?.forEach(entity => {
+      const collider = getComponent(entity, ColliderComponent);
+
+      // view vector
+      const origin = new Vector3( 0, 2, 0 );
+      const length = 0.5;
+      const hex = 0xffff00;
+      if(!collider || !collider.body) return console.warn ("collider.body is null")
+      const arrowHelper = new ArrowHelper( collider.body.transform.translation.clone().normalize(), origin, length, hex );
+      arrowHelper.visible = false;
+      Engine.scene.add( arrowHelper );
+      this.helpersByEntity.viewVector.set(entity, arrowHelper);
+
+      // velocity
+      const velocityColor = 0x0000ff;
+      const velocityArrowHelper = new ArrowHelper( new Vector3(), new Vector3( 0, 0, 0 ), 0.5, velocityColor );
+      velocityArrowHelper.visible = false;
+      Engine.scene.add( velocityArrowHelper );
+      this.helpersByEntity.velocityArrow.set(entity, velocityArrowHelper);
+    });
+
+    this.queryResults.colliderComponent.removed?.forEach(entity => {
+      // view vector
+      const arrowHelper = this.helpersByEntity.viewVector.get(entity);
+      Engine.scene.remove( arrowHelper );
+
+      // velocity
+      const velocityArrowHelper = this.helpersByEntity.velocityArrow.get(entity);
+      Engine.scene.remove( velocityArrowHelper );
+    });
+
+    this.queryResults.colliderComponent.all?.forEach(entity => {
+      // view vector
+      const collider = getComponent(entity, ColliderComponent);
+      const transform = getComponent(entity, TransformComponent);
+      const arrowHelper = this.helpersByEntity.viewVector.get(entity) as ArrowHelper;
+
+      if (arrowHelper != null) {
+        arrowHelper.setDirection(collider.body.transform.translation.clone().setY(0).normalize());
+        arrowHelper.position.copy(transform.position);
+      }
+
+      // velocity
+      const velocityArrowHelper = this.helpersByEntity.velocityArrow.get(entity) as ArrowHelper;
+      if (velocityArrowHelper != null) {
+        velocityArrowHelper.setDirection(collider.body.transform.linearVelocity.clone().normalize());
+        velocityArrowHelper.setLength(collider.body.transform.linearVelocity.length() * 60);
+        velocityArrowHelper.position.copy(transform.position);
+      }
+    });
+
     // bounding box
     this.queryResults.boundingBoxComponent?.added.forEach(entity => {
       const boundingBox = getComponent(entity, BoundingBox);
@@ -140,6 +192,13 @@ DebugHelpersSystem.queries = {
   },
   boundingBoxComponent: {
     components: [ BoundingBox ],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  colliderComponent: {
+    components: [ ColliderComponent ],
     listen: {
       added: true,
       removed: true

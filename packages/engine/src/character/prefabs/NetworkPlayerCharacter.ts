@@ -35,14 +35,16 @@ import { CharacterComponent } from '../components/CharacterComponent';
 import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
 import { IKComponent } from '../components/IKComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
+import PersistTagComponent from "../../scene/components/PersistTagComponent";
+import { initiateIK } from "../../xr/functions/IKFunctions";
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 	AnimationManager.instance._defaultModel?.children?.forEach(child => actor.modelContainer.add(child));
 	actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-	// if (hasComponent(entity, IKComponent)) {
-	// 	initiateIK(entity)
-	// }
+	if (hasComponent(entity, IKComponent)) {
+		initiateIK(entity)
+	}
 }
 
 export const loadActorAvatar: Behavior = (entity) => {
@@ -110,13 +112,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		// }
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 		if (hasComponent(entity, IKComponent)) {
-			// initiateIK(entity)
-
-      actor.modelContainer.children[0]?.traverse((child) => {
-        if(child.visible) {
-          child.visible = false;
-        }
-      })
+			initiateIK(entity)
 		}
 	});
 };
@@ -191,6 +187,7 @@ const initializeCharacter: Behavior = (entity): void => {
 			collisionMask: DefaultCollisionMask,
 			height: actor.actorHeight,
 			contactOffset: actor.contactOffset,
+      stepOffset: 0.25,
 			radius: actor.capsuleRadius,
 			position: {
 				x: transform.position.x,
@@ -270,7 +267,8 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
 	localClientComponents: [
 		{ type: LocalInputReceiver },
 		{ type: FollowCameraComponent, data: { distance: 3, mode: CameraModes.ThirdPerson } },
-		{ type: Interactor }
+		{ type: Interactor },
+		{ type: PersistTagComponent }
 	],
 	clientComponents: [
 		// Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player

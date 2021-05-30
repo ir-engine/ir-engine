@@ -40,7 +40,6 @@ export interface NetworkInputInterface {
   /** Viewport vector of the client. */
   viewVector: {  x: number, y: number, z: number  },
   snapShotTime: number,
-  characterState: number,
   clientGameAction: ClientGameActionMessage[]
 }
 
@@ -48,8 +47,6 @@ export interface NetworkInputInterface {
 export interface NetworkClientInputInterface extends NetworkInputInterface {
   /** Time of the snapshot. */
   snapShotTime: number,
-  // switchInputs: number,
-  characterState: number
   /** transform of objects controller by user. */
   transforms: StateEntityGroup
 }

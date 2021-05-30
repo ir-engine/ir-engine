@@ -28,7 +28,7 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
 import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
-import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
+import { processLocationPort, resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { getComponent, getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
 import { initializeEngine } from '@xrengine/client-core/src/initialize';
 import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
@@ -216,7 +216,7 @@ export const EnginePage = (props: Props) => {
     const currentLocation = locationState.get('currentLocation').get('location');
     if (currentLocation.id != null &&
       userBanned != true &&
-      instanceConnectionState.get('instanceProvisioned') !== true &&
+      instanceConnectionState.get('instanceProvisioned') === false &&
       instanceConnectionState.get('instanceProvisioning') === false) {
       const search = window.location.search;
       let instanceId;
@@ -294,7 +294,7 @@ export const EnginePage = (props: Props) => {
       sceneData = testScenes[sceneId] || testScenes.test;
     } else {
       let service, serviceId;
-      const projectResult = !Config.publicRuntimeConfig.offlineMode ? await client.service('project').get(sceneId) : '';
+      const projectResult = await client.service('project').get(sceneId);
       setCurrentScene(projectResult);
       const projectUrl = projectResult.project_url;
       const regexResult = projectUrl.match(projectRegex);
@@ -329,7 +329,13 @@ export const EnginePage = (props: Props) => {
 
     if(!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
 
-    const loadScene = new Promise<void>((resolve) => {
+    await new Promise<void>((resolve) => {
+      EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
+        resolve();
+      });
+    });
+    
+    await new Promise<void>((resolve) => {
       WorldScene.load(sceneData, () => {
         setProgressEntity(0);
         store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
@@ -338,19 +344,15 @@ export const EnginePage = (props: Props) => {
       }, onSceneLoadedEntity);
     });
 
-    const getWorldState = new Promise<any>((resolve) => {
+    const worldState = await new Promise<any>(async (resolve) => {
       if(Config.publicRuntimeConfig.offlineMode) {
         EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId });
         resolve(testWorldState);
       } else {
-        EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
-          const { worldState } =  await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
-          resolve(worldState);
-        });
+        const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
+        resolve(worldState);
       }
     });
-
-    const [sceneLoaded, worldState] = await Promise.all([loadScene, getWorldState]);
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
   }
@@ -379,11 +381,20 @@ export const EnginePage = (props: Props) => {
     setonUserPosition(focused ? position : null);
   };
 
+  const portToLocation = async (portalDetail) => {
+    // "action": "portal", "link": "sky-high"
+
+    console.debug(portalDetail.location);
+    history.replace('/location/' + portalDetail.location);
+
+    await processLocationPort();
+  };
+
   const addUIEvents = () => {
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);
-    EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, ({ location }) => { window.location.replace(location); });
+    EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation);
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => { setIsInXR(true); });
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => { setIsInXR(false); });
   };

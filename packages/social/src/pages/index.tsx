@@ -24,12 +24,13 @@ import FeedFormPopup from "@xrengine/client-core/src/socialmedia/components/popu
 import SharedFormPopup from "@xrengine/client-core/src/socialmedia/components/popups/SharedFormPopup";
 import Onboard from "@xrengine/client-core/src/socialmedia/components/OnBoard";
 import WebXRStart from "@xrengine/client-core/src/socialmedia/components/popups/WebXR";
+import FeedOnboarding from "@xrengine/client-core/src/socialmedia/components/FeedOnboarding";
 // @ts-ignore
 import styles from './index.module.scss';
 
 import image from '/static/images/image.jpg';
 import mockupIPhone from '/static/images/mockupIPhone.jpg';
-
+import Splash from '@xrengine/client-core/src/socialmedia/components/Splash';
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -64,6 +65,8 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState, webxrnativeSt
   }, []);
 
   const [onborded, setOnborded] = useState(true);
+  const [feedOnborded, setFeedOnborded] = useState(true);
+
   const currentCreator = creatorsState.get('currentCreator');
   const currentTime = new Date(Date.now()).toISOString();
 
@@ -75,12 +78,21 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState, webxrnativeSt
 
   const webxrRecorderActivity = webxrnativeState.get('webxrnative');
 
+  const changeOnboarding = () => {
+    setOnborded(true);
+    setFeedOnborded(false);
+  };
+
+  if(!currentCreator || currentCreator === null) return <Splash />
 
 
-  if(!onborded) return <Onboard setOnborded={setOnborded} image={image} mockupIPhone={mockupIPhone} />;
+
+  if(!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />;
+
 
 
   return (<>
+    {!feedOnborded && <FeedOnboarding setFeedOnborded={setFeedOnborded} />}
     <div className={webxrRecorderActivity ? styles.hideContent+' '+styles.viewport : styles.viewport}>
         <AppHeader logo="/assets/logoBlack.png" />
         {/* <Stories stories={stories} /> */}

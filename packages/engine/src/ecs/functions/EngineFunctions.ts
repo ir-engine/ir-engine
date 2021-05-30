@@ -6,11 +6,13 @@ import { now } from "../../common/functions/now";
 import { Network } from "../../networking/classes/Network";
 import { Vault } from "../../networking/classes/Vault";
 import disposeScene from "../../renderer/functions/disposeScene";
+import PersistTagComponent from "../../scene/components/PersistTagComponent";
 import { Engine } from '../classes/Engine';
 import { System } from '../classes/System';
-import { removeAllComponents, removeAllEntities } from "./EntityFunctions";
+import { hasComponent, removeAllComponents, removeAllEntities, removeEntity } from "./EntityFunctions";
 import { executeSystem } from './SystemFunctions';
 import { SystemUpdateType } from "./SystemUpdateType";
+import { Color } from 'three';
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {
@@ -232,9 +234,50 @@ export function stats (): { entities: any; system: any } {
 }
 
 /** Reset the engine and clear all the timers. */
-export function resetEngine():void {
+export async function resetEngine():Promise<void> {
   Engine.engineTimer?.clear();
   Engine.engineTimer = null;
 
-  reset();
+  await reset();
+}
+
+const delay = (delay: number) => {
+  return new Promise<void>(resolve => {
+    setTimeout(() => {
+      resolve();
+    }, delay);
+  })
+}
+
+export const processLocationPort = async () => {
+  const entitiesToRemove = [];
+  const removedEntities = [];
+  const sceneObjectsToRemove = [];
+
+  Engine.entities.forEach(entity => {
+    if (!hasComponent(entity, PersistTagComponent)) {
+      removeAllComponents(entity, false);
+      entitiesToRemove.push(entity);
+      removedEntities.push(entity.id);
+    }
+  });
+
+  await delay(200);
+
+  Engine.scene.background = new Color('black');
+  Engine.scene.environment = null;
+
+  Engine.scene.traverse((o: any) => {
+    if (!o.entity) return;
+    if (!removedEntities.includes(o.entity.id)) return;
+
+    sceneObjectsToRemove.push(o);
+  });
+
+  sceneObjectsToRemove.forEach(o => Engine.scene.remove(o));
+
+  await delay(2000);
+  entitiesToRemove.forEach(entity => {
+    removeEntity(entity, false);
+  });
 }

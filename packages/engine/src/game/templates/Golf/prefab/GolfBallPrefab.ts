@@ -10,29 +10,34 @@ import { UserControlledColliderComponent } from '../../../../physics/components/
 import { Group, Mesh, Vector3 } from 'three';
 import { AssetLoader } from '../../../../assets/classes/AssetLoader';
 import { Engine } from '../../../../ecs/classes/Engine';
-import { Body, BodyType, createShapeFromConfig, SHAPES } from 'three-physx';
-import { DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
+import { Body, BodyType, CollisionEvents, createShapeFromConfig, SHAPES } from 'three-physx';
+import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
-import { addComponent, getComponent, getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions';
+import { addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions';
 import { isClient } from '../../../../common/functions/isClient';
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent';
 import { WebGLRendererSystem } from '../../../../renderer/WebGLRendererSystem';
-import { getGameEntityFromName, getGameFromName } from '../../../functions/functions';
 import { GameObject } from '../../../components/GameObject';
-import { onInteraction, onInteractionHover } from '../../../../scene/behaviors/createCommonInteractive';
-import { Interactable } from '../../../../interaction/components/Interactable';
-import { InterpolationComponent } from "../../../../physics/components/InterpolationComponent";
+import { NetworkObject } from '../../../../networking/components/NetworkObject';
+import { Network } from '../../../../networking/classes/Network';
+import { HasHadCollision } from '../../../../game/actions/HasHadCollision';
+import { addActionComponent } from '../../../../game/functions/functionsActions';
 /**
 * @author Josh Field <github.com/HexaField>
  */
 
-const golfBallRadius = 0.03;
+const golfBallRadius = 0.03; // this is the graphical size of the golf ball
+const golfBallColliderExpansion = 0.03; // this is the size of the ball collider
 
 export const initializeGolfBall = (entity: Entity) => {
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
   const transform = getComponent(entity, TransformComponent);
 
-  console.log('initializeGolfBall', getComponent(entity, GameObject).game) // its string now, and its right, if you do game, its != game name in system and do not add in state and else ...
+  const networkObject = getComponent(entity, NetworkObject);
+  const ownerNetworkObject = Object.values(Network.instance.networkObjects).find((obj) => {
+      return obj.ownerId === networkObject.ownerId;
+  }).component;
+  addComponent(entity, UserControlledColliderComponent, { ownerNetworkId: ownerNetworkObject.networkId });
 
   if(isClient) {
     AssetLoader.load({
@@ -54,11 +59,16 @@ export const initializeGolfBall = (entity: Entity) => {
 
   const shape = createShapeFromConfig({
     shape: SHAPES.Sphere,
-    options: { radius: golfBallRadius },
+    options: { radius: golfBallRadius + golfBallColliderExpansion },
     config: {
-      material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.9 },
+       // we add a rest offset to make the contact detection of the ball bigger, without making the actual size of the ball bigger
+      restOffset: -golfBallColliderExpansion,
+      // we mostly reverse the expansion for contact detection (so the ball rests on the ground)
+      // this will not reverse the expansion for trigger colliders
+      contactOffset: golfBallColliderExpansion,
+      material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.95 },
       collisionLayer: GolfCollisionGroups.Ball,
-      collisionMask: DefaultCollisionMask | GolfCollisionGroups.Hole | GolfCollisionGroups.Club,
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Hole,
     },
   });
 
@@ -67,30 +77,38 @@ export const initializeGolfBall = (entity: Entity) => {
     type:  BodyType.DYNAMIC,
     transform: {
       translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
-    }
+    },
+    userData: entity
   }));
 
   const collider = getMutableComponent(entity, ColliderComponent);
   collider.body = body;
+/*
+  body.addEventListener(CollisionEvents.TRIGGER_START, (ev: ColliderHitEvent) => {
+    const otherEntity = ev.bodyOther.userData as Entity;
+    if(typeof otherEntity === 'undefined') return
+    const ballObject = getComponent<GameObject>(otherEntity, GameObject)
+    if(!ballObject || ballObject.role !== 'GolfHole') return;
+    addActionComponent(otherEntity, HasHadCollision);
+  })
+*/
 }
 
 export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: number, uniqueId: string, ownerId?: string }) => {
+  console.log('createGolfBallPrefab')
   initializeNetworkObject({
     prefabType: GolfPrefabTypes.Ball,
     uniqueId: args.uniqueId,
     ownerId: args.ownerId,
     networkId: args.networkId,
+    prefabParameters: args.parameters,
     override: {
       networkComponents: [
         {
-          type: UserControlledColliderComponent,
-          data: { ownerNetworkId: args.ownerId }
-        },
-        {
           type: GameObject,
           data: {
-            game: args.parameters.gameName,
-            role: args.parameters.role,//maybe we will add it in one place 'ballSpawn' //'GolfBall', // TODO: make this a constant
+            gameName: args.parameters.gameName,
+            role: args.parameters.role,
             uuid: args.parameters.uuid
           }
         },
@@ -106,16 +124,6 @@ export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: numbe
   });
 }
 
-const interactiveData = {
-  onInteraction: onInteraction,
-  onInteractionFocused: onInteractionHover,
-  onInteractionCheck: () => { return true },
-  data: {
-    interactionType: "gameobject",
-    interactionText: "1"
-  }
-};
-
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const GolfBallPrefab: NetworkPrefab = {
   initialize: createGolfBallPrefab,
@@ -124,9 +132,7 @@ export const GolfBallPrefab: NetworkPrefab = {
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
     { type: ColliderComponent },
-    { type: Interactable, data: interactiveData },
     { type: RigidBodyComponent },
-  //  { type: UserControlledColliderComponent },
     { type: GameObject }
     // Local player input mapped to behaviors in the input map
   ],

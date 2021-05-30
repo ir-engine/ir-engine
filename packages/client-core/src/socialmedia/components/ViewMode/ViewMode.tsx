@@ -72,10 +72,11 @@ export const ViewMode = ({updateArMediaState}:Props) => {
      onClose={handleClose}
      aria-labelledby="alert-dialog-slide-title"
      aria-describedby="alert-dialog-slide-description"
+     className={classes.dialogWindow}
      PaperProps={{
        style: {
          width: '100%',
-         maxWidth: '311pt',
+         maxWidth: '100%',
          height: 'max-content',
          borderRadius: '12px',
        }
@@ -90,23 +91,29 @@ export const ViewMode = ({updateArMediaState}:Props) => {
          <Typography style={{textAlign: 'center', paddingTop: '8pt', color: 'rgba(60 60 67, 0.6)'}}>
             {t('social:view.choice')}
          </Typography>
-         <CardMedia
-           className={classes.media}
-           image='https://cdn.zeplin.io/601d63dc422d9dad3473e3ab/assets/C9623B05-AC7F-4D88-B8EC-2D1951CE2767.svg'
-           title="Arc"
-         />
-         <Typography style={{textAlign: 'center', color: 'rgba(60 60 67, 0.6)'}}>
-            {t('social:view.verticalMode')}
-         </Typography>
-         <Box className={classes.box} borderTop={1} style={{color: '#e6e5eb', height: '2px'}} />
-         <CardMedia
-           className={classes.media2}
-           image='https://cdn.zeplin.io/601d63dc422d9dad3473e3ab/assets/802EB928-4227-4940-BA8E-0A8119FE4CDF.svg'
-           title="Arc"
-         />
-         <Typography style={{textAlign: 'center', color: 'rgba(60 60 67, 0.6)'}}>
-              {t('social:view.horizontalMode')}
-         </Typography>
+         <div className={classes.horizontalMode}>
+            <div>
+                <CardMedia
+                    className={classes.media}
+                    image='https://cdn.zeplin.io/601d63dc422d9dad3473e3ab/assets/C9623B05-AC7F-4D88-B8EC-2D1951CE2767.svg'
+                    title="Arc"
+                />
+                <Typography style={{textAlign: 'center', color: 'rgba(60 60 67, 0.6)'}}>
+                    {t('social:view.verticalMode')}
+                </Typography>
+            </div>
+             <Box className={classes.box} borderTop={1} style={{color: '#e6e5eb', height: '2px'}} />
+            <div>
+                <CardMedia
+                    className={classes.media2}
+                    image='https://cdn.zeplin.io/601d63dc422d9dad3473e3ab/assets/802EB928-4227-4940-BA8E-0A8119FE4CDF.svg'
+                    title="Arc"
+                />
+                <Typography style={{textAlign: 'center', color: 'rgba(60 60 67, 0.6)'}}>
+                    {t('social:view.horizontalMode')}
+                </Typography>
+            </div>
+         </div>
          <Button onClick={()=> {handleOpenNewFeedPage();}} color="primary" className={classes.btn_start}>
              {t('social:view.start')}
          </Button>

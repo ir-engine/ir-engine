@@ -36,11 +36,12 @@ import { BodyType } from "three-physx";
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { ParityValue } from "../../common/enums/ParityValue";
 import { getInteractiveIsInReachDistance } from "../../character/functions/getInteractiveIsInReachDistance";
-import { isInXR } from "../../xr/functions/WebXRFunctions";
+import { getHandTransform, isInXR } from "../../xr/functions/WebXRFunctions";
 import { Input } from "../../input/components/Input";
 import { BaseInput } from "../../input/enums/BaseInput";
 import { SIXDOFType } from "../../common/types/NumericalTypes";
 import { unequipEntity } from "../functions/equippableFunctions";
+import { EquippedComponent } from "../components/EquippedComponent";
 
 const vector3 = new Vector3();
 const quat = new Quaternion();
@@ -431,7 +432,7 @@ export class InteractiveSystem extends System {
       const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity;
       // all equippables must have a collider to grab by in VR
       const collider = getComponent(equippedEntity, ColliderComponent)
-      collider.body.type = BodyType.KINEMATIC;
+      if(collider) collider.body.type = BodyType.KINEMATIC;
       // send equip to clients
       if(!isClient) {
         const networkObject = getComponent(equippedEntity, NetworkObject)
@@ -440,25 +441,13 @@ export class InteractiveSystem extends System {
     })
 
     this.queryResults.equippable.all?.forEach(entity => {
-      const actor = getComponent(entity, CharacterComponent);
       const equipperComponent = getComponent(entity, EquipperComponent);
       const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent);
-      const equipperTransform = getComponent(entity, TransformComponent);
-      if(isInXR(entity)) {
-        const hand = equipperComponent.attachmentPoint === EquippableAttachmentPoint.LEFT_HAND ? ParityValue.LEFT : ParityValue.RIGHT;
-        const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
-        if(!input) return;
-        const sixdof = input.value as SIXDOFType;
-        actor.tiltContainer.updateMatrixWorld(true);
-        vector3.set(sixdof.x, sixdof.y, sixdof.z).applyMatrix4(actor.tiltContainer.matrixWorld);
-        quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW).multiply(equipperTransform.rotation);
-      } else {
-        vector3.set(-0.5, 0, 0).applyQuaternion(actor.tiltContainer.quaternion).add(equipperTransform.position);
-        quat.setFromUnitVectors(new Vector3(0, 0, -1), actor.viewVector);
-      }
-      equippableTransform.position.copy(vector3);
-      equippableTransform.rotation.copy(quat);
-      if(isServer) {
+      const handTransform = getHandTransform(entity);
+      const { position, rotation } = handTransform;    
+      equippableTransform.position.copy(position);
+      equippableTransform.rotation.copy(rotation);
+      if(!isClient) {
         this.queryResults.network_user.added.forEach((userEntity) => {
           const networkObject = getComponent(equipperComponent.equippedEntity, NetworkObject)
           sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, networkObject.networkId] as EquippedStateUpdateSchema)
@@ -471,11 +460,13 @@ export class InteractiveSystem extends System {
       const equippedEntity = equipperComponent.equippedEntity;
       const equippedTransform = getComponent(equippedEntity, TransformComponent)
       const collider = getComponent(equippedEntity, ColliderComponent)
-      collider.body.type = BodyType.DYNAMIC;
-      collider.body.updateTransform({
-        translation: equippedTransform.position,
-        rotation: equippedTransform.rotation,
-      })
+      if(collider) {
+        collider.body.type = BodyType.DYNAMIC;
+        collider.body.updateTransform({
+          translation: equippedTransform.position,
+          rotation: equippedTransform.rotation,
+        })
+      }
       // send unequip to clients
       if(!isClient) {
         sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.FALSE] as EquippedStateUpdateSchema)

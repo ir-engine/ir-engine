@@ -11,4 +11,11 @@
         height: 70vh;
         top: 30vh;
     }
-  }
+    @media screen and (orientation: landscape) {
+        :global(.MuiDialog-paperScrollPaper){
+            max-height: 100vh;
+            height: 90vh;
+            top: 10vh;
+        }
+    }
+}

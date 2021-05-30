@@ -61,7 +61,7 @@ const mapStateToProps = (state: any): any => {
     updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
     // addBookmarkToFeed: bindActionCreators(addBookmarkToFeed, dispatch),
     // removeBookmarkToFeed: bindActionCreators(removeBookmarkToFeed, dispatch),
-//     addViewToFeed : bindActionCreators(addViewToFeed, dispatch),
+    addViewToFeed: bindActionCreators(addViewToFeed, dispatch),
 });
 interface Props{
     feed : Feed;
@@ -76,7 +76,7 @@ interface Props{
     updateCreatorPageState?: any,
     // addBookmarkToFeed?: typeof addBookmarkToFeed;
     // removeBookmarkToFeed?: typeof removeBookmarkToFeed;
-//     addViewToFeed?: typeof addViewToFeed;
+    addViewToFeed?: typeof addViewToFeed;
 }
 const FeedCard = (props: Props) : any => {
     const [buttonPopup , setButtonPopup] = useState(false);
@@ -84,7 +84,10 @@ const FeedCard = (props: Props) : any => {
 //     const [isVideo, setIsVideo] = useState(false);
 //     const [openFiredModal, setOpenFiredModal] = useState(false);
 //     const {feed, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed, addViewToFeed} = props;
-    const {feed, authState, getFeedFires, feedFiresState, addFireToFeed, removeFireToFeed} = props;
+    const {feed, authState, getFeedFires,
+           feedFiresState, addFireToFeed,
+           removeFireToFeed, addViewToFeed,
+           updateCreatorPageState} = props;
     const [firedCount, setFiredCount] = useState(feed.fires);
     const [videoDisplay, setVideoDisplay] = useState(false);
     const [feedFiresCreators, setFeedFiresCreators] = useState(null);
@@ -144,8 +147,14 @@ const FeedCard = (props: Props) : any => {
         setFired(!!feedFiresCreators?.data.find(i=>i.id === creatorId));
     },[feedFiresCreators]);
 
+    useEffect(()=> {
+        setVideoDisplay(false);
+    },[feed.id]);
 
-
+    const previewImageClick = () => {
+        setVideoDisplay(true);
+        addViewToFeed(feed.id);
+    };
 
 
     return  feed ? <><Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
@@ -167,14 +176,14 @@ const FeedCard = (props: Props) : any => {
                 {!videoDisplay ? <img src={feed.previewUrl}
                                   className={styles.previewImage}
                                   alt={feed.title}
-                                  onClick={setVideoDisplay}
+                                  onClick={previewImageClick}
                                   />
-                 : <CardMedia className={styles.previewImage}
-                              component='video'
-                              src={feed.videoUrl}
-                              title={feed.title}
-                              controls
-                              />}
+                : <CardMedia className={styles.previewImage}
+                             component='video'
+                             src={feed.videoUrl}
+                             title={feed.title}
+                             controls
+                             />}
 
                 <span className={styles.eyeLine}>{feed.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
                 <CardContent className={styles.cardContent}>                     
@@ -196,7 +205,7 @@ const FeedCard = (props: Props) : any => {
                             />}
                             title={<Typography variant="h6">
                             {feed.creator.name}
-                            <Typography variant="subtitle2">@{feed.creator.username} · {feed.fires} flames</Typography>
+                            <p>@{feed.creator.username} · {feed.fires} flames</p>
                             {feed.creator.verified === true && <VerifiedUserIcon htmlColor="#007AFF" style={{fontSize:'13px', margin: '0 0 0 5px'}}/>}
                         </Typography> } />
 

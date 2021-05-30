@@ -63,7 +63,7 @@ export const initializeEngineServer = async (initOptions: InitializeOptions = De
     // AnimationManager.instance.getAnimations(),
   ]);
 
-  registerSystem(PhysicsSystem, { worker, physicsWorldConfig });
+  registerSystem(PhysicsSystem, { worker, physicsWorldConfig, priority: 901 });
   registerSystem(CharacterControllerSystem);
 
   registerSystem(ServerSpawnSystem, { priority: 899 });

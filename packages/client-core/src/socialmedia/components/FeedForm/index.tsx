@@ -19,10 +19,16 @@ import styles from './FeedForm.module.scss';
 import { createFeed, updateFeedAsAdmin } from '../../reducers/feed/service';
 import { updateNewFeedPageState, updateShareFormState, updateArMediaState } from '../../reducers/popupsState/service';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
+import { selectWebXrNativeState } from "@xrengine/client-core/src/socialmedia/reducers/webxr_native/selector";
+import { changeWebXrNative } from "@xrengine/client-core/src/socialmedia/reducers/webxr_native/service";
+import Preloader from "@xrengine/client-core/src/socialmedia/components/Preloader";
+import {selectFeedsState} from "../../reducers/feed/selector";
 
 const mapStateToProps = (state: any): any => {
     return {
       popupsState: selectPopupsState(state),
+      feedsState: selectFeedsState(state),
+      webxrnativeState: selectWebXrNativeState(state),
     };
   };
 
@@ -32,18 +38,22 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
     updateShareFormState: bindActionCreators(updateShareFormState, dispatch),
     updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
+    changeWebXrNative: bindActionCreators(changeWebXrNative, dispatch)
 });
 
 interface Props{
     feed?:any;
     popupsState?: any;
+    feedsState?: any;
     createFeed?: typeof createFeed;
     updateFeedAsAdmin?: typeof updateFeedAsAdmin;
     updateNewFeedPageState?: typeof updateNewFeedPageState; 
     updateShareFormState?: typeof updateShareFormState;
     updateArMediaState?: typeof updateArMediaState;
+    changeWebXrNative?: any;
+    webxrnativeState?: any;
 }
-const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, updateShareFormState, updateArMediaState, popupsState } : Props) => { 
+const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, updateShareFormState, updateArMediaState, popupsState, feedsState, webxrnativeState, changeWebXrNative } : Props) => {
     const [isSended, setIsSended] = useState(false);
     const [isRecordVideo, setRecordVideo] = useState(false);
     const [isVideo, setIsVideo] = useState(false);
@@ -52,10 +62,11 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const [video, setVideo] = useState(null);
     const [videoUrl, setVideoUrl] = useState(null);
     const [preview, setPreview] = useState(null);
+    const [preloader, setPreloader] = useState(false);
     const titleRef = React.useRef<HTMLInputElement>();
     const textRef = React.useRef<HTMLInputElement>();
     const videoRef = React.useRef<HTMLInputElement>();
-	const { t } = useTranslation();
+    const { t } = useTranslation();
     const videoPath = popupsState?.get('videoPath');
     const { XRPlugin } = Plugins;
 
@@ -71,7 +82,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         if(feed){                    
             updateFeedAsAdmin(feed.id, newFeed);
         }else{
-           setVideoUrl(await createFeed(newFeed)); 
+           setVideoUrl(await createFeed(newFeed));
         }
         console.log(newFeed);
 
@@ -80,14 +91,16 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         setVideo(null);
         setPreview(null);
         setIsSended(true);
-        Plugins.XRPlugin.stop();
         const thanksTimeOut = setTimeout(()=>{
             setIsSended(false); 
             clearTimeout(thanksTimeOut);
         }, 2000);
-    
-    };
 
+        const webxrRecorderActivity = webxrnativeState.get('webxrnative');
+        if(webxrRecorderActivity){
+            changeWebXrNative();
+        }
+    };
 
     const dataURItoBlob = (dataURI) => {
         let byteString = atob(dataURI.split(',')[1]);
@@ -108,22 +121,81 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
          const myFile = new File([myBlob], "test.mp4");
          setVideo(myFile);
          console.log(myFile);
+         /*Preview Begin*/
+         const file = myFile;
+         const fileReader = new FileReader();
+
+         fileReader.onload = function() {
+            const blob = new Blob([fileReader.result], {type: file.type});
+            const url = URL.createObjectURL(blob);
+            const video = document.createElement('video');
+            const timeupdate = function() {
+                if (snapImage()) {
+                    video.removeEventListener('timeupdate', timeupdate);
+                    video.pause();
+                }
+             };
+             video.addEventListener('loadeddata', () => {
+                if (snapImage()) {
+                    video.removeEventListener('timeupdate', timeupdate);
+                }
+             });
+             const snapImage = function() {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                const image = canvas.toDataURL();
+                const success = image.length > 100000;
+                if (success) {
+                    setPreview(dataURItoBlob(image));
+                    URL.revokeObjectURL(url);
+                }
+                return success;
+             };
+             video.addEventListener('timeupdate', timeupdate);
+             video.preload = 'metadata';
+             video.src = url;
+             // Load video in Safari / IE11
+             video.muted = true;
+             video.playsInline = true;
+             video.play();
+          };
+          fileReader.readAsArrayBuffer(file);
+          /*Preview Finish*/
+
+
         }).catch(error => console.log(error.message));
 
-        const prevImage = dataURItoBlob(popupsState?.get('imgSrc'));
-        console.log(popupsState?.get('imgSrc'));
-        setPreview(prevImage);
-    }, [] ); 
-     
-    
-    useEffect(()=> {videoUrl && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
+
+    }, [] );
+
+    const closePopUp = () => {
+        updateNewFeedPageState(false);
+        const webxrRecorderActivity = webxrnativeState.get('webxrnative');
+        if(webxrRecorderActivity){
+            changeWebXrNative();
+        }
+    };
+
+    useEffect(()=> {videoUrl && updateNewFeedPageState(false, null) && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
     // const handlePickVideo = async (file) => setVideo(popupsState?.get('videoPath'));
     // const handlePickPreview = async (file) => setPreview('');
-    
+
+    useEffect(()=>{
+        return ()=>{
+            // cleaning up memory to avoid leaks
+            setIsSended(null);
+        };
+    });
+
+    const feedsFetching = feedsState.get('feedsFetching');
+
 return <section className={styles.feedFormContainer}>
     {/* <nav>               
         <Button variant="text" className={styles.backButton} onClick={()=>{updateArMediaState(true); updateNewFeedPageState(false);}}><ArrowBackIosIcon />{t('social:feedForm.back')}</Button>
     </nav>   */}
+    {feedsFetching && <Preloader />}
     {isSended ? 
         <Typography>{t('social:feedForm.thanks')}</Typography>
         :
@@ -174,13 +246,23 @@ return <section className={styles.feedFormContainer}>
                 multiline
                 placeholder={t('social:feedForm.ph-type')}
                 />     */}
-            <Button
-                variant="contained"                
-                className={styles.submit}
-                onClick={()=>handleCreateFeed()}
-                >
-                {t('social:feedForm.lbl-share')}
-                </Button> 
+            <div className={styles.buttonWraper}>
+                <Button
+                    variant="contained"
+                    className={styles.submit}
+                    onClick={()=>handleCreateFeed()}
+                    >
+{/*                         {t('social:feedForm.lbl-share')} */}
+                        Add Feed
+                    </Button>
+                <Button
+                    variant="contained"
+                    className={styles.submit}
+                    onClick={()=>closePopUp()}
+                    >
+                        Cancel
+                    </Button>
+            </div>
 
                 
             {isRecordVideo === true && 

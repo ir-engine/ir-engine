@@ -1,10 +1,10 @@
 import { Engine } from "../../ecs/classes/Engine";
-import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Group, Line, LineBasicMaterial, Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, Quaternion, RingGeometry, Vector3 } from 'three';
+import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Group, Line, LineBasicMaterial, Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, Object3D, Quaternion, RingGeometry, Vector3 } from 'three';
 import { getLoader } from "../../assets/functions/LoadGLTF";
 // import { GLTF } from "../../assets/loaders/gltf/GLTFLoader";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { CameraModes } from "../../camera/types/CameraModes";
-import { addComponent, getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { Network } from "../../networking/classes/Network";
 import { XRSystem } from "../systems/XRSystem";
 import { CharacterComponent } from "../../character/components/CharacterComponent";
@@ -19,15 +19,18 @@ import { ParityValue } from "../../common/enums/ParityValue";
 import { Input } from "../../input/components/Input";
 import { BaseInput } from "../../input/enums/BaseInput";
 import { SIXDOFType } from "../../common/types/NumericalTypes";
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { TransformComponent } from "../../transform/components/TransformComponent";
+import { IKComponent } from "../../character/components/IKComponent";
 
 let head, controllerGripLeft, controllerLeft, controllerRight, controllerGripRight;
 
 /**
- * 
- * @author Avaer Kazmer
- * @returns 
+ * @author Josh Field <github.com/HexaField>
+ * @returns {Promise<boolean>} returns true on success, otherwise throws error and returns false
  */
-export const startXR = async () => {
+
+export const startXR = async (): Promise<boolean> => {
 
   try{
 
@@ -35,21 +38,12 @@ export const startXR = async () => {
     cameraFollow.mode = CameraModes.XR;
     const actor = getMutableComponent(Network.instance.localClientEntity, CharacterComponent);
 
-    actor.state = setBit(actor.state, CHARACTER_STATES.VR);
-
     // until retargeting is fixed, we can simply just not init IK
-    // initiateIK(Network.instance.localClientEntity)
+    initiateIK(Network.instance.localClientEntity)
 
-    actor.modelContainer.children[0]?.traverse((child) => {
-      if(child.visible) {
-        child.visible = false;
-      }
-    })
-
-
-    head = Engine.renderer.xr.getCamera(Engine.camera);
-    controllerLeft = Engine.renderer.xr.getController(1);
-    controllerRight = Engine.renderer.xr.getController(0);
+    head = Engine.xrRenderer.getCamera();
+    controllerLeft = Engine.xrRenderer.getController(1);
+    controllerRight = Engine.xrRenderer.getController(0);
     actor.tiltContainer.add(controllerLeft);
     actor.tiltContainer.add(controllerRight);
 
@@ -83,8 +77,8 @@ export const startXR = async () => {
 
     })
 
-    controllerGripLeft = Engine.renderer.xr.getControllerGrip(1);
-    controllerGripRight = Engine.renderer.xr.getControllerGrip(0);
+    controllerGripLeft = Engine.xrRenderer.getControllerGrip(1);
+    controllerGripRight = Engine.xrRenderer.getControllerGrip(0);
 
     addComponent(Network.instance.localClientEntity, XRInputReceiver, {
       head: head,
@@ -125,10 +119,11 @@ export const startXR = async () => {
 }
 
 /**
- * 
- * @author Avaer Kazmer
+ * @author Josh Field <github.com/HexaField>
+ * @returns {void}
  */
-export const endXR = () => {
+
+export const endXR = (): void => {
   removeComponent(Network.instance.localClientEntity, XRInputReceiver);
   const cameraFollow = getMutableComponent<FollowCameraComponent>(Network.instance.localClientEntity, FollowCameraComponent) as FollowCameraComponent;
   cameraFollow.mode = CameraModes.ThirdPerson;
@@ -139,14 +134,6 @@ export const endXR = () => {
   Engine.scene.add(Engine.camera);
   stopIK(Network.instance.localClientEntity)
   initializeMovingState(Network.instance.localClientEntity)
-
-  actor.modelContainer.children[0].traverse((child: Mesh) => {
-    if(child.isMesh) {
-      child.visible = true;
-    }
-  })
-  
-  actor.state = clearBit(actor.state, CHARACTER_STATES.VR);
 
 }
 
@@ -169,29 +156,113 @@ const createController = (data) => {
   }
 };
 
+/**
+ * @author Josh Field <github.com/HexaField>
+ * @returns {boolean}
+ */
+
 export const isInXR = (entity: Entity) => {
-  const actor = getMutableComponent(entity, CharacterComponent);
-  return Boolean(getBit(actor.state, CHARACTER_STATES.VR));
+  return hasComponent(entity, IKComponent);
 }
 
-export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.NONE): Vector3 | undefined => {
-  const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
-  if(!input) return;
-  const sixdof = input.value as SIXDOFType;
-  return new Vector3(sixdof.x, sixdof.y, sixdof.z);
+const vec3 = new Vector3();
+const quat = new Quaternion();
+const forward = new Vector3(0, 0, -1);
+
+/**
+ * Gets the hand position in world space
+ * @author Josh Field <github.com/HexaField>
+ * @param entity the player entity
+ * @param hand which hand to get
+ * @returns {Vector3}
+ */
+
+export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.NONE): Vector3 => {
+  const actor = getComponent(entity, CharacterComponent);
+  const transform = getComponent(entity, TransformComponent);
+  if(isInXR(entity)) {
+    const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
+    if(input) {
+      const sixdof = input.value as SIXDOFType;
+      return vec3.set(sixdof.x, sixdof.y, sixdof.z).applyMatrix4(actor.tiltContainer.matrixWorld);
+    }
+  }
+  // TODO: once IK rig is fixed
+  // const ikComponent = getComponent(entity, IKComponent);
+  // if(ikComponent && ikComponent.avatarIKRig) {
+  //   const rigHand: Object3D = hand === ParityValue.LEFT ? ikComponent.avatarIKRig.poseManager.vrTransforms.leftHand : ikComponent.avatarIKRig.poseManager.vrTransforms.rightHand;
+  //   if(rigHand) {
+  //     return rigHand.getWorldPosition(vec3).add(actor.tiltContainer.position);
+  //   }
+  // }
+  // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
+  return vec3.set(-0.5, 0, 0).applyQuaternion(actor.tiltContainer.quaternion).add(transform.position);
 }
-export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.NONE): Quaternion | undefined => {
-  const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
-  if(!input) return;
-  const sixdof = input.value as SIXDOFType;
-  return new Quaternion(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW);
+
+/**
+ * Gets the hand rotation in world space
+ * @author Josh Field <github.com/HexaField>
+ * @param entity the player entity
+ * @param hand which hand to get
+ * @returns {Quaternion}
+ */
+
+export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.NONE): Quaternion => {
+  const actor = getComponent(entity, CharacterComponent);
+  if(isInXR(entity)) {
+    const transform = getComponent(entity, TransformComponent);
+    const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
+    if(input) {
+      const sixdof = input.value as SIXDOFType;
+      return quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW).premultiply(transform.rotation)
+    }
+  }
+  // TODO: once IK rig is fixed
+  // const ikComponent = getComponent(entity, IKComponent);
+  // if(ikComponent && ikComponent.avatarIKRig) {
+  //   const rigHand: Object3D = hand === ParityValue.LEFT ? ikComponent.avatarIKRig.poseManager.vrTransforms.leftHand : ikComponent.avatarIKRig.poseManager.vrTransforms.rightHand;
+  //   if(rigHand) {
+  //     return rigHand.getWorldQuaternion(quat)
+  //   }
+  // }
+  return quat.setFromUnitVectors(forward, actor.viewVector)
 }
-export const getHandTransform = (entity: Entity, hand: ParityValue = ParityValue.NONE): { position: Vector3, rotation: Quaternion } | undefined => {
-  const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
-  if(!input) return;
-  const sixdof = input.value as SIXDOFType;
-  return { 
-    position: new Vector3(sixdof.x, sixdof.y, sixdof.z),
-    rotation: new Quaternion(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW)
+
+/**
+ * Gets the hand transform in world space
+ * @author Josh Field <github.com/HexaField>
+ * @param entity the player entity
+ * @param hand which hand to get
+ * @returns { position: Vector3, rotation: Quaternion }
+ */
+
+export const getHandTransform = (entity: Entity, hand: ParityValue = ParityValue.NONE): { position: Vector3, rotation: Quaternion } => {
+  const actor = getComponent(entity, CharacterComponent);
+  const transform = getComponent(entity, TransformComponent);
+  if(isInXR(entity)) {
+    const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
+    if(input) {
+      const sixdof = input.value as SIXDOFType;
+      return { 
+        position: vec3.set(sixdof.x, sixdof.y, sixdof.z).applyMatrix4(actor.tiltContainer.matrixWorld),
+        rotation: quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW).premultiply(transform.rotation)
+      }
+    }
+  }
+  // TODO: once IK rig is fixed
+  // const ikComponent = getComponent(entity, IKComponent);
+  // if(ikComponent && ikComponent.avatarIKRig) {
+  //   const rigHand: Object3D = hand === ParityValue.LEFT ? ikComponent.avatarIKRig.poseManager.vrTransforms.leftHand : ikComponent.avatarIKRig.poseManager.vrTransforms.rightHand;
+  //   if(rigHand) {
+  //     return { 
+  //       position: rigHand.getWorldPosition(vec3).add(actor.tiltContainer.position),
+  //       rotation: rigHand.getWorldQuaternion(quat)
+  //     }
+  //   }
+  // }
+  return {
+    // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
+    position: vec3.set(-0.5, 0, 0).applyQuaternion(actor.tiltContainer.quaternion).add(transform.position),
+    rotation: quat.setFromUnitVectors(forward, actor.viewVector)
   }
 }

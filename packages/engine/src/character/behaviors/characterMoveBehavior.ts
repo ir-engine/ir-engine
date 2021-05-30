@@ -1,17 +1,14 @@
 import { Vector3, Matrix4, Quaternion } from 'three';
 
-import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 
 import { Input } from '../../input/components/Input';
-import { BinaryValue } from "../../common/enums/BinaryValue";
 import { BaseInput } from '../../input/enums/BaseInput';
 
 import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { XRUserSettings, XR_FOLLOW_MODE } from '../../xr/types/XRUserSettings';
 import { isInXR } from '../../xr/functions/WebXRFunctions';
 import { SIXDOFType } from '../../common/types/NumericalTypes';
 
@@ -19,11 +16,8 @@ import { SIXDOFType } from '../../common/types/NumericalTypes';
  * @author HydraFire <github.com/HydraFire>
  */
 
-const forwardVector = new Vector3(0, 0, 1);
 const upVector = new Vector3(0, 1, 0);
-const camVector = new Vector3(0, 0, -1);
 const quat = new Quaternion();
-const quat2 = new Quaternion();
 
 export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
@@ -52,7 +46,9 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
       const sixdof = headTransform.value as SIXDOFType;
       quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW);
       // actor.localMovementDirection.applyQuaternion(quat);
+      // TODO figure out how to apply quaternion only in XZ plane
       newVelocity.applyQuaternion(quat);
+      newVelocity.y = actor.velocity.y;
     }
 
     if (actor.closestHit) {

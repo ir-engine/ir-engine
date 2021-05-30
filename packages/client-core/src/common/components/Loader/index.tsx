@@ -29,6 +29,7 @@ const LoadingScreen = (props: Props) => {
   useEffect(() => {
     if (onBoardingStep === generalStateList.START_STATE) {
       setShowProgressBar(true);
+      setShowEntering(false);
     } else if (showProgressBar && !showEntering) {
       setShowEntering(true);
           // setTimeout(() => { 

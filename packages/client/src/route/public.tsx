@@ -2,12 +2,12 @@ import React from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { Config } from '@xrengine/client-core/src/helper';
 import ProtectedRoute from "./protected";
-
+import homePage from '../pages/index';
 
 export const RouterComp = () => {
     return (
         <Switch>
-            <Route path="/" component={React.lazy(() => import('../pages/index'))} exact />
+            <Route path="/" component={homePage} exact />
             <Route path="/login" component={React.lazy(() => import('../pages/login'))} />
 
             { /* Admin Routes*/}
