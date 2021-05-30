@@ -145,10 +145,10 @@ export class ServerNetworkIncomingSystem extends System {
         console.log('input but no actor...', clientInput.networkId)
       }
 
-      const networkObject = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, NetworkObject);
-      if (networkObject != null) {
-        networkObject.snapShotTime = clientInput.snapShotTime;
-        if (networkObject.snapShotTime > clientInput.snapShotTime) return;
+      const userNetworkObject = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, NetworkObject);
+      if (userNetworkObject != null) {
+        userNetworkObject.snapShotTime = clientInput.snapShotTime;
+        if (userNetworkObject.snapShotTime > clientInput.snapShotTime) return;
       }
       const delegatedInputReceiver = getComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, DelegatedInputReceiver);
 
@@ -212,7 +212,7 @@ export class ServerNetworkIncomingSystem extends System {
 
       clientInput.transforms?.forEach((transform: StateEntity) => {
         const networkObject = Network.instance.networkObjects[transform.networkId];
-        if(networkObject && networkObject.ownerId === Network.instance.clients[clientInput.networkId].userId) {
+        if(networkObject && networkObject.ownerId === userNetworkObject.ownerId) {
           const collider = getComponent(networkObject.component.entity, ColliderComponent)
           collider.body.updateTransform({
             translation: {

@@ -10,7 +10,7 @@ import { initiateIK } from "../../xr/functions/IKFunctions";
 import { Network } from '../classes/Network';
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
 import { TransformStateInterface, WorldStateInterface } from "../interfaces/WorldState";
-import { StateEntityIK } from "../types/SnapshotDataTypes";
+import { StateEntity, StateEntityIK } from "../types/SnapshotDataTypes";
 import { PrefabType } from '../../networking/templates/PrefabType';
 import { GameStateActionMessage, GameStateUpdateMessage } from '../../game/types/GameMessage';
 import { applyActionComponent } from '../../game/functions/functionsActions';
@@ -25,6 +25,8 @@ import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { Vault } from '../classes/Vault';
 import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { Engine } from '../../ecs/classes/Engine';
+import { Quaternion, Vector3 } from 'three';
+import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ';
 /**
  * Apply State received over the network to the client.
  * @param worldStateBuffer State of the world received over the network.
@@ -86,6 +88,9 @@ function createEmptyNetworkObjectBeforeSceneLoad(args: { networkId: number, pref
   };
 }
 
+const vector3 = new Vector3();
+const quat = new Quaternion();
+const forwardVector = new Vector3(0, 0, 1);
 
 /** System class for network system of client. */
 export class ClientNetworkStateSystem extends System {
@@ -137,12 +142,12 @@ export class ClientNetworkStateSystem extends System {
     if(this.receivedServerWorldState.length > 0) {
       const receivedWorldState = [...this.receivedServerWorldState];
       this.receivedServerWorldState = [];
-      receivedWorldState?.forEach((worldStateBuffer: WorldStateInterface) => {
+      receivedWorldState?.forEach((worldState: WorldStateInterface) => {
 
         // Handle all clients that connected this frame
-        for (const connectingClient in worldStateBuffer.clientsConnected) {
+        for (const connectingClient in worldState.clientsConnected) {
           // Add them to our client list
-          const newClient = worldStateBuffer.clientsConnected[connectingClient];
+          const newClient = worldState.clientsConnected[connectingClient];
           Network.instance.clients[newClient.userId] = {
             userId: newClient.userId,
             avatarDetail: newClient.avatarDetail,
@@ -150,18 +155,18 @@ export class ClientNetworkStateSystem extends System {
         }
 
         // Handle all clients that disconnected this frame
-        for (const disconnectingClient in worldStateBuffer.clientsDisconnected) {
-          if (worldStateBuffer.clientsConnected[disconnectingClient] !== undefined) {
+        for (const disconnectingClient in worldState.clientsDisconnected) {
+          if (worldState.clientsConnected[disconnectingClient] !== undefined) {
             // Remove them from our client list
-            console.log(worldStateBuffer.clientsConnected[disconnectingClient].userId, " disconnected");
-            delete Network.instance.clients[worldStateBuffer.clientsConnected[disconnectingClient].userId];
+            console.log(worldState.clientsConnected[disconnectingClient].userId, " disconnected");
+            delete Network.instance.clients[worldState.clientsConnected[disconnectingClient].userId];
           } else {
             console.warn("Client disconnected but was not found in our client list");
           }
         }
         // Game Manager Messages
-        if (worldStateBuffer.gameState && worldStateBuffer.gameState.length > 0) {
-          worldStateBuffer.gameState.forEach((stateMessage: GameStateUpdateMessage) => {
+        if (worldState.gameState && worldState.gameState.length > 0) {
+          worldState.gameState.forEach((stateMessage: GameStateUpdateMessage) => {
             if (Network.instance.userId === stateMessage.ownerId) { // DOTO: test, with and without
               console.log('get message', stateMessage);
               applyStateToClient(stateMessage);
@@ -169,14 +174,14 @@ export class ClientNetworkStateSystem extends System {
           });
         }
 
-        if (worldStateBuffer.gameStateActions && worldStateBuffer.gameStateActions.length > 0) {
-          worldStateBuffer.gameStateActions.forEach((actionMessage: GameStateActionMessage) => applyActionComponent(actionMessage));
+        if (worldState.gameStateActions && worldState.gameStateActions.length > 0) {
+          worldState.gameStateActions.forEach((actionMessage: GameStateActionMessage) => applyActionComponent(actionMessage));
         }
 
         // Handle all network objects created this frame
-        for (const objectToCreateKey in worldStateBuffer.createObjects) {
+        for (const objectToCreateKey in worldState.createObjects) {
 
-          const objectToCreate = worldStateBuffer.createObjects[objectToCreateKey];
+          const objectToCreate = worldState.createObjects[objectToCreateKey];
           if(!Network.instance.schema.prefabs[objectToCreate.prefabType]) {
             console.log('prefabType not found', objectToCreate.prefabType)
             continue;
@@ -221,9 +226,9 @@ export class ClientNetworkStateSystem extends System {
             }
           }
         }
-        syncNetworkObjectsTest(worldStateBuffer.createObjects)
+        syncNetworkObjectsTest(worldState.createObjects)
 
-        worldStateBuffer.editObjects?.forEach((editObject) => {
+        worldState.editObjects?.forEach((editObject) => {
           console.warn('try delete');
           console.warn(editObject);
           NetworkObjectUpdateSchema[editObject.type]?.forEach((element) => {
@@ -232,7 +237,7 @@ export class ClientNetworkStateSystem extends System {
         });
 
         // Handle all network objects destroyed this frame
-        worldStateBuffer.destroyObjects?.forEach(({ networkId }) => {
+        worldState.destroyObjects?.forEach(({ networkId }) => {
           console.log("Destroying ", networkId);
           if (Network.instance.networkObjects[networkId] === undefined)
             return console.warn("Can't destroy object as it doesn't appear to exist");
@@ -254,8 +259,8 @@ export class ClientNetworkStateSystem extends System {
     if(this.receivedServerTransformState.length > 0) {
       const receivedTransformState = [...this.receivedServerTransformState];
       this.receivedServerTransformState = [];
-      receivedTransformState?.forEach((transformStateBuffer: TransformStateInterface) => {
-        if (Network.instance.tick < transformStateBuffer.tick - 1) {
+      receivedTransformState?.forEach((transformState: TransformStateInterface) => {
+        if (Network.instance.tick < transformState.tick - 1) {
           // we dropped packets
           // Check how many
           // If our queue empty? Request immediately
@@ -264,23 +269,47 @@ export class ClientNetworkStateSystem extends System {
           // Send a request for the ones that didn't
         }
 
-        if (transformStateBuffer.transforms.length) {
-          Network.instance.tick = transformStateBuffer.tick
-          Network.instance.transformState = transformStateBuffer
+
+
+        if (transformState.transforms.length) {
+          // do our reverse manipulations back from network
+          // TODO: minimise quaternions to 3 components
+          transformState.transforms.forEach((transform: StateEntity) => {
+            const networkObject = Network.instance.networkObjects[transform.networkId]
+            // for character entities, we are sending the view vector, so we have to 
+            if(networkObject && networkObject.component && hasComponent(networkObject.component.entity, CharacterComponent)) {
+              vector3.set(transform.qX, transform.qY, transform.qZ);
+              const flatViewVector = new Vector3(vector3.x, 0, vector3.z).normalize();
+              quat.setFromUnitVectors(forwardVector, applyVectorMatrixXZ(flatViewVector, forwardVector).setY(0));
+              // we don't want to override our own avatar
+              if(networkObject.component.entity !== Network.instance.localClientEntity) {
+                const actor = getMutableComponent(networkObject.component.entity, CharacterComponent);
+                actor.viewVector.copy(vector3);
+              }
+              // put the transform rotation on the transform to deal with later
+              transform.qX = quat.x;
+              transform.qY = quat.y;
+              transform.qZ = quat.z;
+              transform.qW = quat.w;
+            }
+          })
+
+          Network.instance.tick = transformState.tick
+          Network.instance.transformState = transformState
         }
 
-        if (transformStateBuffer.transforms.length) {
-          const myPlayerTime = transformStateBuffer.transforms.find(v => v.networkId == Network.instance.localAvatarNetworkId);
-          const newServerSnapshot = createSnapshot(transformStateBuffer.transforms)
+        if (transformState.transforms.length) {
+          const myPlayerTime = transformState.transforms.find(v => v.networkId == Network.instance.localAvatarNetworkId);
+          const newServerSnapshot = createSnapshot(transformState.transforms)
           // server correction, time when client send inputs
           newServerSnapshot.timeCorrection = myPlayerTime ? (myPlayerTime.snapShotTime + Network.instance.timeSnaphotCorrection) : 0;
           // interpolation, time when server send transforms
-          newServerSnapshot.time = transformStateBuffer.time;
+          newServerSnapshot.time = transformState.time;
           Network.instance.snapshot = newServerSnapshot;
           addSnapshot(newServerSnapshot);
         }
 
-        transformStateBuffer.ikTransforms?.forEach((ikTransform: StateEntityIK) => {
+        transformState.ikTransforms?.forEach((ikTransform: StateEntityIK) => {
           if (!Network.instance.networkObjects[ikTransform.networkId]) return;
           const entity = Network.instance.networkObjects[ikTransform.networkId].component.entity;
           const actor = getComponent(entity, CharacterComponent);
@@ -323,9 +352,7 @@ export class ClientNetworkStateSystem extends System {
           axes1d: [],
           axes2d: [],
           axes6DOF: [],
-          viewVector: {
-            x: 0, y: 0, z: 0
-          },
+          viewVector: Network.instance.clientInputState.viewVector,
           clientGameAction: getClientGameActions(),// Network.instance.clientGameAction,
           transforms: []
         }

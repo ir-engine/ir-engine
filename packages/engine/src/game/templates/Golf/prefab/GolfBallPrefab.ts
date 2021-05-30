@@ -10,7 +10,7 @@ import { UserControlledColliderComponent } from '../../../../physics/components/
 import { Group, Mesh, Vector3 } from 'three';
 import { AssetLoader } from '../../../../assets/classes/AssetLoader';
 import { Engine } from '../../../../ecs/classes/Engine';
-import { Body, BodyType, CollisionEvents, createShapeFromConfig, SHAPES } from 'three-physx';
+import { Body, BodyType, ColliderHitEvent, CollisionEvents, createShapeFromConfig, SHAPES } from 'three-physx';
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions';
@@ -88,15 +88,15 @@ export const initializeGolfBall = (entity: Entity) => {
 
   const collider = getMutableComponent(entity, ColliderComponent);
   collider.body = body;
-/*
-  body.addEventListener(CollisionEvents.TRIGGER_START, (ev: ColliderHitEvent) => {
-    const otherEntity = ev.bodyOther.userData as Entity;
-    if(typeof otherEntity === 'undefined') return
-    const ballObject = getComponent<GameObject>(otherEntity, GameObject)
-    if(!ballObject || ballObject.role !== 'GolfHole') return;
-    addActionComponent(otherEntity, HasHadCollision);
-  })
-*/
+
+
+  // DEBUG - teleport ball to over hole
+  if(typeof globalThis.document !== 'undefined')
+    document.addEventListener('keypress', (ev) => {
+      if(ev.key === 'o') {
+        collider.body.updateTransform({ translation: { x: -2.2, y: 1, z: 0.23 }})
+      }
+    })
 }
 
 export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: number, uniqueId: string, ownerId?: string }) => {

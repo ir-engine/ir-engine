@@ -6,7 +6,7 @@ import { StateEntityGroup, StateEntityIKGroup } from "../types/SnapshotDataTypes
 
 /** Interface for handling network input. */
 export interface NetworkInputInterface {
-  /** ID of network. */
+  /** network ID of user. */
   networkId: number
   /** Button input received over the network. */
   buttons: Array<{
