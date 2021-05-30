@@ -3,7 +3,7 @@ import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import Armature from "../components/Armature";
 
-export class ArmatureSystem extends System {
+export default class ArmatureSystem extends System {
 
   updateType = SystemUpdateType.Fixed;
 

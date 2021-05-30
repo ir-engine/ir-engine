@@ -38,13 +38,13 @@ class PoseAnimator{
 				if( ti >= anim.times[ track.time_idx ].length ) continue;
 
 				switch( track.type ){
-					case "rot": 
+					case "rotation": 
 						AnimUtil.quat_buf_copy( track.data, q, qi );
-						pose.set_bone( track.joint_idx, q ); 
+						pose.setBone( track.joint_idx, q ); 
 						break;
-					case "pos": 
+					case "position": 
 						AnimUtil.vec3_buf_copy( track.data, v, vi );
-						pose.set_bone( track.joint_idx, null, v );
+						pose.setBone( track.joint_idx, null, v );
 						break;
 				}
 			}
@@ -62,16 +62,16 @@ class PoseAnimator{
 
 				switch( track.type ){
 					// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-					case "rot":
+					case "rotation":
 						switch( track.interp ){
 							case "STEP"	: AnimUtil.quat_buf_copy( track.data, q, ft.a_idx*4 ); break;
 							default		: AnimUtil.quat_buf_blend( track.data, ft.a_idx*4, ft.b_idx*4, ft.time, q ); break;
 						}
-						pose.set_bone( track.joint_idx, q ); 
+						pose.setBone( track.joint_idx, q ); 
 						break;
 
 					// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-					case "pos":
+					case "position":
 						switch( track.interp ){
 							case "STEP"	: AnimUtil.vec3_buf_copy( track.data, v, ft.a_idx*3 ); break;
 							default		: AnimUtil.vec3_buf_lerp( track.data, ft.a_idx*3, ft.b_idx*3, ft.time, v ); break;
@@ -82,7 +82,7 @@ class PoseAnimator{
 							v[ this.root_z ] = 0;
 						}
 
-						pose.set_bone( track.joint_idx, null, v );
+						pose.setBone( track.joint_idx, null, v );
 						break;
 				}
 			}

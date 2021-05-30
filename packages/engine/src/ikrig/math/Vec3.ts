@@ -479,8 +479,8 @@ class Vec3 extends Float32Array{
 			const denom = Vec3.dot( to, to );
 			if( denom < 0.000001 ) return out.copy( Vec3.ZERO );
 		
-			const scl	= Vec3.dot( from, to ) / denom;
-			return out.set( to[0] * scl, to[1] * scl, to[2] * scl );
+			const scale	= Vec3.dot( from, to ) / denom;
+			return out.set( to[0] * scale, to[1] * scale, to[2] * scale );
 		}
 	static ZERO(ZERO: any) {
 		throw new Error("Method not implemented.");
@@ -493,8 +493,8 @@ class Vec3 extends Float32Array{
 			const denom = Vec3.dot( norm, norm );
 			if( denom < 0.000001 ) return out.copy( Vec3.ZERO );
 		
-			const scl	= Vec3.dot( from, norm ) / denom;
-			out.set( norm[0] * scl, norm[1] * scl, norm[2] * scl );
+			const scale	= Vec3.dot( from, norm ) / denom;
+			out.set( norm[0] * scale, norm[1] * scale, norm[2] * scale );
 
 			return Vec3.sub( from, out, out );
 		}

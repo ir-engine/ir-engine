@@ -1,6 +1,6 @@
 import { BufferAttribute, BufferGeometry, DynamicDrawUsage, LineSegments, RawShaderMaterial } from "three";
 import { Component } from "../../ecs/classes/Component";
-import { addComponent, createEntity, getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import { addComponent, createEntity, getComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import Obj from "./Obj";
 
 const	DASH_SEG	= 1 / 0.07;
@@ -15,6 +15,9 @@ class Lines extends Component<Lines>{
 	mesh: LineSegments<any, any>;
 	static $( name="lines", max_len=100 ){
 		const entity = createEntity();
+		if(!hasComponent(entity, Obj)){
+			addComponent(entity, Obj);
+		}
 		addComponent(entity, Lines);
 		getMutableComponent(entity, Lines).init(name, max_len);
 		return entity;
@@ -46,7 +49,7 @@ class Lines extends Component<Lines>{
 			addComponent(this.entity, Obj);
 			obj = getMutableComponent(this.entity, Obj);
 		}
-		obj.set_ref( this.mesh );
+		obj.setReference( this.mesh );
 
 
 		return this;

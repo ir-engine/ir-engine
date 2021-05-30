@@ -2,9 +2,9 @@ import { Quat, Vec3 }	from "../math/Maths";
 import Transform		from "../math/Transform";
 
 class Pose{
-	static ROT: any;
-	static POS: any;
-	static SCL: any;
+	static ROTATION: any;
+	static POSITION: any;
+	static SCALE: any;
 	armature: any;
 	bones: any[];
 	root_offset: any;
@@ -35,59 +35,30 @@ class Pose{
 	// Setters / Getters
 	/////////////////////////////////////////////////////////////////
 
-		set_offset( rot=null, pos=null, scl=null ){ this.root_offset.set( rot, pos, scl ); return this; }
+		setOffset( rotation=null, position=null, scale=null ){ this.root_offset.set( rotation, position, scale ); return this; }
 		
-		set_bone( idx, rot=null, pos=null, scl=null ){
+		setBone( idx, rotation=null, position=null, scale=null ){
 			const b = this.bones[ idx ];
-			b.local.set( rot, pos, scl );
+			b.local.set( rotation, position, scale );
 
 			// Set its Change State
-			if( rot ) b.chg_state |= Pose.ROT;
-			if( pos ) b.chg_state |= Pose.POS;
-			if( scl ) b.chg_state |= Pose.SCL;
+			if( rotation ) b.chg_state |= Pose.ROTATION;
+			if( position ) b.chg_state |= Pose.POSITION;
+			if( scale ) b.chg_state |= Pose.SCALE;
 			return this;
 		}
 
-		set_state( idx, rot=false, pos=false, scl=false ){
+		setState( idx, rotation=false, position=false, scale=false ){
 			const b = this.bones[ idx ];
-			if( rot ) b.chg_state |= Pose.ROT;
-			if( pos ) b.chg_state |= Pose.POS;
-			if( scl ) b.chg_state |= Pose.SCL;
+			if( rotation ) b.chg_state |= Pose.ROTATION;
+			if( position ) b.chg_state |= Pose.POSITION;
+			if( scale ) b.chg_state |= Pose.SCALE;
 			return this;
 		}
 
-		get_bone( bname ){ return this.bones[ this.armature.name_map[ bname ] ]; }
+		getBone( bname ){ return this.bones[ this.armature.name_map[ bname ] ]; }
 
-		get_local_rot( idx ){ return this.bones[ idx ].local.rot; }
-
-		/*
-		rot_local_by( bname, angle, axis="y" ){
-			let b	= this.get_bone( bname );
-			let rad	= angle * Math.PI / 180;
-
-			switch( axis ){
-				case "x" : b.local.rot.rot_x( rad ); break;
-				case "y" : b.local.rot.rot_y( rad ); break;
-				case "z" : b.local.rot.rot_z( rad ); break;
-			}
-
-			this.set_state( b.idx, true );
-			return this;
-		}
-		*/
-
-		rot_world_axis_angle( bname, axis, angle ){
-			//Move bone to WS, do rot, then back to LS
-			const b	= this.get_bone( bname ),
-				qp	= this.get_parent_rot( b.idx ),
-				qc	= Quat
-					.mul( qp, b.local.rot )
-					.pmul_axis_angle( axis, angle )
-					.pmul_invert( qp );
-
-			this.set_bone( b.idx, qc );						
-			return this;
-		}
+		getLocalRotation( idx ){ return this.bones[ idx ].local.rotation; }
 
 	/////////////////////////////////////////////////////////////////
 	// Methods
@@ -95,7 +66,7 @@ class Pose{
 
 		apply(){ this.armature.load_pose( this ); return this; }
 
-		update_world(){
+		updateWorld(){
 			for( const b of this.bones ){
 				if( b.p_idx != null )	b.world.from_add( this.bones[ b.p_idx ].world, b.local ); // Parent.World + Child.Local
 				else					b.world.from_add( this.root_offset, b.local );
@@ -103,7 +74,7 @@ class Pose{
 			return this;
 		}
 
-		get_parent_world( b_idx, pt=null, ct=null, t_offset=null ){
+		getParentWorld( b_idx, pt=null, ct=null, t_offset=null ){
 			const cbone = this.bones[ b_idx ];
 			pt = pt || new Transform();
 
@@ -133,7 +104,7 @@ class Pose{
 			return pt;
 		}
 
-		get_parent_rot( b_idx, q=null ){
+		getParentRotation( b_idx, q=null ){
 			const cbone = this.bones[ b_idx ];
 			q = q || new Quat();
 
@@ -143,73 +114,22 @@ class Pose{
 			else{
 				// Parents Exist, loop till reaching the root
 				let b = this.bones[ cbone.p_idx ];
-				q.copy( b.local.rot );
+				q.copy( b.local.rotation );
 
 				while( b.p_idx != null ){
 					b = this.bones[ b.p_idx ];
-					q.pmul( b.local.rot );
+					q.pmul( b.local.rotation );
 				}
 			}
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			q.pmul( this.root_offset.rot ); // Add Starting Offset
+			q.pmul( this.root_offset.rotation ); // Add Starting Offset
 			return q;
 		}
-
-		/*
-		get_parent_world_OLD( b_idx, pt, ct=null, t_offset=null ){
-			let b	= this.bones[ b_idx ],
-				ary	= [];
-
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			// Move up the Bone Tree
-			while( b.p_idx != null ){
-				ary.push( b.p_idx );
-				b = this.bones[ b.p_idx ];
-			}
-
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			let i 	= ary.length - 1,
-				pb	= this.bones;
-
-			// Figure out what the starting transform.
-			if( !t_offset ) pt.copy( this.root_offset );
-			else			pt.copy( t_offset ).add( this.root_offset );
-			
-			// Then add all the children bones
-			for( i; i > -1; i-- ) pt.add( this.bones[ ary[i] ].local );	
-			
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			if( ct ) ct.from_add( pt, this.bones[ b_idx ].local );	// Then add child current local transform to the parent's
-		}
-		*/
-
-	/////////////////////////////////////////////////////////////////
-	// Serialization
-	/////////////////////////////////////////////////////////////////
-	
-		bare_serialize( inc_scl = false ){
-			let b_len 	= this.bones.length,
-				out		= new Array( b_len ),
-				i, b, o;
-
-			for( i=0; i < b_len; i++ ){
-				b	= this.bones[ i ];
-				o	= {
-					rot : Array.from( b.local.rot ),	// Can not use TypeArrays with JSON.stringify
-					pos : Array.from( b.local.pos )
-				};
-
-				if( inc_scl ) o.scl = Array.from( b.local.scl );
-				out[ i ] = o;
-			}
-			return out;
-		}
-
 }
 
-Pose.ROT = 1;
-Pose.POS = 2;
-Pose.SCL = 4;
+Pose.ROTATION = 1;
+Pose.POSITION = 2;
+Pose.SCALE = 4;
 
 export default Pose;

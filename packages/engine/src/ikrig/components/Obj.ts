@@ -32,13 +32,13 @@ class Obj extends Component<Obj>{
 			q = this.ref.quaternion,
 			s = this.ref.scale;
 		return {
-			pos: [ p.x, p.y, p.z ],
-			rot: [ q.x, q.y, q.z, q.w ],
-			scl: [ s.x, s.y, s.z ],
+			position: [ p.x, p.y, p.z ],
+			rotation: [ q.x, q.y, q.z, q.w ],
+			scale: [ s.x, s.y, s.z ],
 		};
 	}
 
-	set_ref( o ){
+	setReference( o ){
 		this.ref = o; 
 		Engine.scene.add( o );
 		return this;

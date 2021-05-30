@@ -4,22 +4,22 @@ import Quat from "./Quat";
 // http://gabormakesgames.com/blog_transforms_transforms.html
 
 class Transform{
-	pos: any;
-	rot: any;
-	scl: any;
+	position: any;
+	rotation: any;
+	scale: any;
 	constructor( t? ){
-		this.rot	= new Quat();
-		this.pos	= new Vec3();
-		this.scl 	= new Vec3( 1, 1, 1 );
+		this.rotation	= new Quat();
+		this.position	= new Vec3();
+		this.scale 	= new Vec3( 1, 1, 1 );
 
 		if( arguments.length == 1 ){
-			this.rot.copy( t.rot );
-			this.pos.copy( t.pos );
-			this.scl.copy( t.scl );
+			this.rotation.copy( t.rotation );
+			this.position.copy( t.position );
+			this.scale.copy( t.scale );
 		}else if( arguments.length == 3 ){
-			this.rot.copy( arguments[ 0 ] );
-			this.pos.copy( arguments[ 1 ] );
-			this.scl.copy( arguments[ 2 ] );
+			this.rotation.copy( arguments[ 0 ] );
+			this.position.copy( arguments[ 1 ] );
+			this.scale.copy( arguments[ 2 ] );
 		}
 	}
 
@@ -27,16 +27,16 @@ class Transform{
 	// GETTER / SETTER
 	//////////////////////////////////////////////////////////////////////
 		copy( t ){
-			this.rot.copy( t.rot );
-			this.pos.copy( t.pos );
-			this.scl.copy( t.scl );
+			this.rotation.copy( t.rotation );
+			this.position.copy( t.position );
+			this.scale.copy( t.scale );
 			return this;
 		}
 
 		set( r=null, p=null, s=null ){
-			if( r )	this.rot.copy( r );
-			if( p )	this.pos.copy( p );
-			if( s )	this.scl.copy( s );
+			if( r )	this.rotation.copy( r );
+			if( p )	this.position.copy( p );
+			if( s )	this.scale.copy( s );
 			return this;
 		}
 
@@ -48,18 +48,18 @@ class Transform{
 		from_add( tp, tc ){
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// POSITION - parent.position + ( parent.rotation * ( parent.scale * child.position ) )
-			const v = new Vec3().from_mul( tp.scl, tc.pos ); // parent.scale * child.position;
-			v.transform_quat( tp.rot ); //Vec3.transform_quat( v, tp.rot, v );
-			this.pos.from_add( tp.pos, v ); // Vec3.add( tp.pos, v, this.pos );
+			const v = new Vec3().from_mul( tp.scale, tc.position ); // parent.scale * child.position;
+			v.transform_quat( tp.rotation ); //Vec3.transform_quat( v, tp.rotation, v );
+			this.position.from_add( tp.position, v ); // Vec3.add( tp.position, v, this.position );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// SCALE - parent.scale * child.scale
-			this.scl.from_mul( tp.scl, tc.scl );
+			this.scale.from_mul( tp.scale, tc.scale );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// ROTATION - parent.rotation * child.rotation
-			this.rot.from_mul( tp.rot, tc.rot );
-			//this.rot.from_mul( tc.rot, tp.rot );
+			this.rotation.from_mul( tp.rotation, tc.rotation );
+			//this.rotation.from_mul( tc.rotation, tp.rotation );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			return this;
@@ -70,22 +70,22 @@ class Transform{
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// If just passing in Tranform Object
 			if(arguments.length == 1){
-				cr = arguments[0].rot;
-				cp = arguments[0].pos;
-				cs = arguments[0].scl;
+				cr = arguments[0].rotation;
+				cp = arguments[0].position;
+				cs = arguments[0].scale;
 			}
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// POSITION - parent.position + ( parent.rotation * ( parent.scale * child.position ) )
-			this.pos.add( Vec3.mul( this.scl, cp ).transform_quat( this.rot ) );
+			this.position.add( Vec3.mul( this.scale, cp ).transform_quat( this.rotation ) );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// SCALE - parent.scale * child.scale
-			if( cs ) this.scl.mul( cs );
+			if( cs ) this.scale.mul( cs );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// ROTATION - parent.rotation * child.rotation
-			this.rot.mul( cr );
+			this.rotation.mul( cr );
 
 			return this;
 		}
@@ -95,54 +95,54 @@ class Transform{
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// If just passing in Tranform Object
 			if(arguments.length == 1){
-				pr = arguments[0].rot;
-				pp = arguments[0].pos;
-				ps = arguments[0].scl;
+				pr = arguments[0].rotation;
+				pp = arguments[0].position;
+				ps = arguments[0].scale;
 			}
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// POSITION - parent.position + ( parent.rotation * ( parent.scale * child.position ) )
-			// The only difference for this func, We use the IN.scl & IN.rot instead of THIS.scl * THIS.rot
+			// The only difference for this func, We use the IN.scale & IN.rotation instead of THIS.scale * THIS.rotation
 			// Consider that this Object is the child and the input is the Parent.
-			this.pos.mul( ps ).transform_quat( pr ).add( pp );
+			this.position.mul( ps ).transform_quat( pr ).add( pp );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// SCALE - parent.scale * child.scale
-			if( ps ) this.scl.mul( ps );
+			if( ps ) this.scale.mul( ps );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// ROTATION - parent.rotation * child.rotation
-			this.rot.pmul( pr ); // Must Rotate from Parent->Child, need PMUL
+			this.rotation.pmul( pr ); // Must Rotate from Parent->Child, need PMUL
 
 			return this
 		}
 
 		add_pos( cp, ignore_scl = false ){
 			//POSITION - parent.position + ( parent.rotation * ( parent.scale * child.position ) )
-			if( ignore_scl )	this.pos.add( Vec3.transform_quat( cp, this.rot ) );
-			else 				this.pos.add( new Vec3( cp ).transform_quat( this.rot ) );
+			if( ignore_scl )	this.position.add( Vec3.transform_quat( cp, this.rotation ) );
+			else 				this.position.add( new Vec3( cp ).transform_quat( this.rotation ) );
 			return this;
 		}
 
 		clear(){
-			this.pos.set( 0, 0, 0 );
-			this.scl.set( 1, 1, 1 );
-			this.rot.reset();
+			this.position.set( 0, 0, 0 );
+			this.scale.set( 1, 1, 1 );
+			this.rotation.reset();
 			return this;
 		}
 
 		transform_vec( v, out = null ){
 			//GLSL - vecQuatRotation(model.rotation, a_position.xyz * model.scale) + model.position;
 			return (out || v)
-				.from_mul( v, this.scl )
-				.transform_quat( this.rot )
-				.add( this.pos );
+				.from_mul( v, this.scale )
+				.transform_quat( this.rotation )
+				.add( this.position );
 		}
 
 		dispose(){
-			delete this.pos;
-			delete this.rot;
-			delete this.scl;
+			delete this.position;
+			delete this.rotation;
+			delete this.scale;
 		}
 
 	//////////////////////////////////////////////////////////////////////
@@ -154,16 +154,16 @@ class Transform{
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			//POSITION - parent.position + ( parent.rotation * ( parent.scale * child.position ) )
 			
-			//tOut.pos.from_add( tp.pos, Vec3.mul( tp.scl, tc.pos ).transform_quat( tp.rot ) );
-			tOut.pos.from_add( tp.pos, new Vec3( tc.pos ).transform_quat( tp.rot ) );
+			//tOut.position.from_add( tp.position, Vec3.mul( tp.scale, tc.position ).transform_quat( tp.rotation ) );
+			tOut.position.from_add( tp.position, new Vec3( tc.position ).transform_quat( tp.rotation ) );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// SCALE - parent.scale * child.scale
-			tOut.scl.from_mul( tp.scl, tc.scl ); //Vec3.mul( tp.scl, tc.scl, tOut.scl );
+			tOut.scale.from_mul( tp.scale, tc.scale ); //Vec3.mul( tp.scale, tc.scale, tOut.scale );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// ROTATION - parent.rotation * child.rotation
-			tOut.rot.from_mul( tp.rot, tc.rot ); //Quat.mul( tp.rot, tc.rot, tOut.rot );
+			tOut.rotation.from_mul( tp.rotation, tc.rotation ); //Quat.mul( tp.rotation, tc.rotation, tOut.rotation );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			return tOut;
@@ -173,24 +173,24 @@ class Transform{
 			inv = inv || new Transform();
 
 			// Invert Rotation
-			t.rot.invert( inv.rot );		
+			t.rotation.invert( inv.rotation );		
 
 			// Invert Scale
-			inv.scl.x = ( t.scl.x != 0 )? 1 / t.scl.x : 0;
-			inv.scl.y = ( t.scl.y != 0 )? 1 / t.scl.y : 0;
-			inv.scl.z = ( t.scl.z != 0 )? 1 / t.scl.z : 0;
+			inv.scale.x = ( t.scale.x != 0 )? 1 / t.scale.x : 0;
+			inv.scale.y = ( t.scale.y != 0 )? 1 / t.scale.y : 0;
+			inv.scale.z = ( t.scale.z != 0 )? 1 / t.scale.z : 0;
 
 			// Invert Position : rotInv * ( invScl * invPos )
-			t.pos.invert( inv.pos ).mul( inv.scl );
-			Vec3.transform_quat( inv.pos, inv.rot, inv.pos );
+			t.position.invert( inv.position ).mul( inv.scale );
+			Vec3.transform_quat( inv.position, inv.rotation, inv.position );
 
 			return inv;
 		}
 
 		static from_pos( x, y, z ){
 			const t = new Transform();
-			if( arguments.length == 3 )			t.pos.set( x, y, z );
-			else if( arguments.length == 1 )	t.pos.copy( x );
+			if( arguments.length == 3 )			t.position.set( x, y, z );
+			else if( arguments.length == 1 )	t.position.copy( x );
 			return t;
 		}
 }
@@ -200,9 +200,9 @@ export default Transform;
 /*
 	World Space Position to Local Space.
 	
-	V	.copy( gBWorld.eye_lid_upper_mid_l.pos ) // World Space Postion
+	V	.copy( gBWorld.eye_lid_upper_mid_l.position ) // World Space Postion
 	 	.add( [0, -0.05 * t, 0 ] )	//Change it
-		.sub( gBWorld.eye_l.pos )	// Subtract from Parent's WS Position
-		.div( gBWorld.eye_l.scl )	// Div by Parent's WS Scale
+		.sub( gBWorld.eye_l.position )	// Subtract from Parent's WS Position
+		.div( gBWorld.eye_l.scale )	// Div by Parent's WS Scale
 		.transform_quat( gBWorld.eye_l.rot_inv );	// Rotate by Parent's WS Inverse Rotation
 */

@@ -27,13 +27,13 @@ class IKTarget extends Component<IKTarget>{
 			return this;
 		}
 
-		from_pos_dir( pos, dir, up_dir, len_scl ){
-			this.start_pos.copy( pos );
+		from_pos_dir( position, dir, up_dir, len_scl ){
+			this.start_pos.copy( position );
 			this.end_pos
 				.from_scale( dir, len_scl )	// Compute End Effector
-				.add( pos );
+				.add( position );
 
-			this.len_sqr	= Vec3.len_sqr( pos, this.end_pos );
+			this.len_sqr	= Vec3.len_sqr( position, this.end_pos );
 			this.len		= Math.sqrt( this.len_sqr );
 
 			this.axis.from_dir( dir, up_dir ); // Target Axis
@@ -45,15 +45,15 @@ class IKTarget extends Component<IKTarget>{
 	/////////////////////////////////////////////////////////////////////
 		
 		/** Visually see the Target information */
-		debug( d, scl=1.0 ){ 
+		debug( d, scale=1.0 ){ 
 			const v = new Vec3(),
 				p = this.start_pos,
 				a = this.axis;
-			d	.ln( p, v.from_scale( a.z , scl ).add( p ), "green" )
-				.ln( p, v.from_scale( a.x , scl ).add( p ), "red" )
-				.ln( p, v.from_scale( a.y , scl ).add( p ), "blue" )
-				.pnt( p, "green", 0.05, 1 )
-				.pnt( this.end_pos, "red", 0.05, 1 );
+			d	.setLine( p, v.from_scale( a.z , scale ).add( p ), "green" )
+				.setLine( p, v.from_scale( a.x , scale ).add( p ), "red" )
+				.setLine( p, v.from_scale( a.y , scale ).add( p ), "blue" )
+				.setPoint( p, "green", 0.05, 1 )
+				.setPoint( this.end_pos, "red", 0.05, 1 );
 			return this;
 		}
 
@@ -80,14 +80,14 @@ class IKTarget extends Component<IKTarget>{
 			Quat.rotateTo( v1, v2 ). This function creates a rotation needed to get from One Vector dir to the other.
 			*/
 			
-			const rot		= Quat.mul( p_wt.rot, pose.get_local_rot( chain.bones[0].idx ) ),	// Get World Space Rotation for Bone
-				f_dir	= Vec3.transform_quat( Vec3.FORWARD, rot ),					// Get Bone's WS Forward Dir
+			const rotation		= Quat.mul( p_wt.rotation, pose.getLocalRotation( chain.bones[0].idx ) ),	// Get World Space Rotation for Bone
+				f_dir	= Vec3.transform_quat( Vec3.FORWARD, rotation ),					// Get Bone's WS Forward Dir
 				l_dir	= Vec3.cross( this.axis.z, f_dir ).norm();					// WS Left Dir
 
 			f_dir.from_cross( l_dir, this.axis.z ).norm();							// Realign forward to keep axis orthogonal for proper rotation
 
 			out.from_axis( l_dir, this.axis.z, f_dir );								// Final World Space Rotation
-			if( Quat.dot( out, rot ) < 0 ) out.negate();							// If axis is point in the opposite direction of the bind rot, flip the signs : Thx @gszauer
+			if( Quat.dot( out, rotation ) < 0 ) out.negate();							// If axis is point in the opposite direction of the bind rotation, flip the signs : Thx @gszauer
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Need to apply a twist rotation to aim the bending joint 
@@ -105,8 +105,8 @@ class IKTarget extends Component<IKTarget>{
 			const t = new Transform();
 			t.from_add( p_wt, b.local );
 			//console.log(  chain.align_axis  );
-			//App.Debug.ln( t.pos, Vec3.add( t.pos, align_dir ), "orange" );
-			//App.Debug.ln( t.pos, Vec3.add( t.pos, this.axis.y ), "white" );
+			//App.Debug.setLine( t.position, Vec3.add( t.position, align_dir ), "orange" );
+			//App.Debug.setLine( t.position, Vec3.add( t.position, this.axis.y ), "white" );
 			//####################################################
 
 			// Shortest Twisting Direction
@@ -115,49 +115,49 @@ class IKTarget extends Component<IKTarget>{
 			
 
 			// Create and apply twist rotation.
-			rot.from_unit_vecs( align_dir, this.axis.y );
-			out.pmul( rot );
+			rotation.from_unit_vecs( align_dir, this.axis.y );
+			out.pmul( rotation );
 
 
 			return out;
 		}
 
 		aimxxx( chain, tpose, pose, p_wt ){
-			const rot = new Quat();
-			this._aim_bone( chain, tpose, p_wt, rot );
-			rot.pmul_invert( p_wt.rot ); // Convert to Bone's Local Space by mul invert of parent bone rotation
-			pose.set_bone( chain.bones[ 0 ].idx, rot );
+			const rotation = new Quat();
+			this._aim_bone( chain, tpose, p_wt, rotation );
+			rotation.pmul_invert( p_wt.rotation ); // Convert to Bone's Local Space by mul invert of parent bone rotation
+			pose.setBone( chain.bones[ 0 ].idx, rotation );
 		}
-	_aim_bone(chain: any, tpose: any, p_wt: any, rot: Quat) {
+	_aim_bone(chain: any, tpose: any, p_wt: any, rotation: Quat) {
 		throw new Error("Method not implemented.");
 	}
 
 		aim2( chain, tpose, pose, p_wt ){
-			const rot = new Quat();
-			this._aim_bone2( chain, tpose, p_wt, rot );
+			const rotation = new Quat();
+			this._aim_bone2( chain, tpose, p_wt, rotation );
 
-			rot.pmul_invert( p_wt.rot ); // Convert to Bone's Local Space by mul invert of parent bone rotation
-			pose.set_bone( chain.bones[ 0 ].idx, rot );
+			rotation.pmul_invert( p_wt.rotation ); // Convert to Bone's Local Space by mul invert of parent bone rotation
+			pose.setBone( chain.bones[ 0 ].idx, rotation );
 		}
 
 		_aim_bone2( chain, tpose, p_wt, out ){
-			const rot	= Quat.mul( p_wt.rot, tpose.get_local_rot( chain.first() ) ),	// Get World Space Rotation for Bone
-				dir	= Vec3.transform_quat( chain.alt_fwd, rot );					// Get Bone's WS Forward Dir
+			const rotation	= Quat.mul( p_wt.rotation, tpose.getLocalRotation( chain.first() ) ),	// Get World Space Rotation for Bone
+				dir	= Vec3.transform_quat( chain.alt_fwd, rotation );					// Get Bone's WS Forward Dir
 
 			//let ct = new Transform();
 			//let b = tpose.bones[ chain.first() ];
 			//ct.from_add( p_wt, b.local );
-			//App.Debug.pnt( ct.pos, "white", 0.03 );
-			//App.Debug.ln( ct.pos, Vec3.add( ct.pos, f_dir), "orange" );
+			//App.Debug.setPoint( ct.position, "white", 0.03 );
+			//App.Debug.setLine( ct.position, Vec3.add( ct.position, f_dir), "orange" );
 
 			//Swing
 			const q = Quat.unit_vecs( dir, this.axis.z );
-			out.from_mul( q, rot );
+			out.from_mul( q, rotation );
 
 			// Twist 
 			//let u_dir	= Vec3.transform_quat( chain.alt_up, out );
 			//let twist 	= Vec3.angle( u_dir, this.axis.y );
-			//App.Debug.ln( ct.pos, Vec3.add( ct.pos, u_dir), "white" );
+			//App.Debug.setLine( ct.position, Vec3.add( ct.position, u_dir), "white" );
 
 			dir.from_quat( out, chain.alt_up );				// After Swing, Whats the UP Direction
 			let twist 	= Vec3.angle( dir, this.axis.y );	// Get difference between Swing Up and Target Up
@@ -166,21 +166,21 @@ class IKTarget extends Component<IKTarget>{
 			else{
 				//let l_dir  	= Vec3.cross( dir, this.axis.z );
 				dir.from_cross( dir, this.axis.z );	// Get Swing LEFT, used to test if twist is on the negative side.
-				//App.Debug.ln( ct.pos, Vec3.add( ct.pos, l_dir), "black" );
+				//App.Debug.setLine( ct.position, Vec3.add( ct.position, l_dir), "black" );
 
 				if( Vec3.dot( dir, this.axis.y ) >= 0 ) twist = -twist; 
 			}
 	
 			out.pmul_axis_angle( this.axis.z, twist );	// Apply Twist
 
-			//if( Quat.dot( out, rot ) < 0 ) out.negate();	
+			//if( Quat.dot( out, rotation ) < 0 ) out.negate();	
 
-			//console.log( Quat.dot( rot, out ) );
+			//console.log( Quat.dot( rotation, out ) );
 		
 /*
 
 	q.from_unit_vecs( Vec3.FORWARD, p_fwd )			// Rotation Difference From True FWD and Pose FWD, Swing Rotation
-		.mul( tb.world.rot );						// Apply Swing to TPose WS Rotation, gives Swing in WS
+		.mul( tb.world.rotation );						// Apply Swing to TPose WS Rotation, gives Swing in WS
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	let s_up	= Vec3.transform_quat( t_up, q ),	// Get UP Direction of the Swing Rotation
@@ -215,22 +215,22 @@ class IKTarget extends Component<IKTarget>{
 				aLen	= bind_a.len,
 				bLen	= bind_b.len,
 				cLen	= this.len,
-				rot 	= new Quat(),	
+				rotation 	= new Quat(),	
 				rad;
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// FIRST BONE - Aim then rotate by the angle.
-			this._aim_bone2( chain, tpose, p_wt, rot );				// Aim the first bone toward the target oriented with the bend direction.
+			this._aim_bone2( chain, tpose, p_wt, rotation );				// Aim the first bone toward the target oriented with the bend direction.
 
 			rad	= Maths.lawcos_sss( aLen, cLen, bLen );				// Get the Angle between First Bone and Target.
 			
-			rot	.pmul_axis_angle( this.axis.x, -rad )				// Use the Target's X axis for rotation along with the angle from SSS
-				.pmul_invert( p_wt.rot );							// Convert to Bone's Local Space by mul invert of parent bone rotation
+			rotation	.pmul_axis_angle( this.axis.x, -rad )				// Use the Target's X axis for rotation along with the angle from SSS
+				.pmul_invert( p_wt.rotation );							// Convert to Bone's Local Space by mul invert of parent bone rotation
 
-			pose.set_bone( bind_a.idx, rot );						// Save result to bone.
+			pose.setBone( bind_a.idx, rotation );						// Save result to bone.
 			pose_a.world											// Update World Data for future use
 				.copy( p_wt )
-				.add( rot, bind_a.local.pos, bind_a.local.scl );
+				.add( rotation, bind_a.local.position, bind_a.local.scale );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// SECOND BONE
@@ -238,14 +238,14 @@ class IKTarget extends Component<IKTarget>{
 			// the other direction. Ex. L->R 70 degrees == R->L 110 degrees
 			rad	= Math.PI - Maths.lawcos_sss( aLen, bLen, cLen );
 			
-			rot .from_mul( pose_a.world.rot, bind_b.local.rot )		// Add Bone 2's Local Bind Rotation to Bone 1's new World Rotation.
+			rotation .from_mul( pose_a.world.rotation, bind_b.local.rotation )		// Add Bone 2's Local Bind Rotation to Bone 1's new World Rotation.
 				.pmul_axis_angle( this.axis.x, rad )				// Rotate it by the target's x-axis
-				.pmul_invert( pose_a.world.rot );					// Convert to Bone's Local Space
+				.pmul_invert( pose_a.world.rotation );					// Convert to Bone's Local Space
 
-			pose.set_bone( bind_b.idx, rot );						// Save result to bone.
+			pose.setBone( bind_b.idx, rotation );						// Save result to bone.
 			pose_b.world											// Update World Data for future use
 				.copy( pose_a.world )
-				.add( rot, bind_b.local.pos, bind_b.local.scl );
+				.add( rotation, bind_b.local.position, bind_b.local.scale );
 		}
 
 		three_bone( chain, tpose, pose, p_wt ){
@@ -275,50 +275,50 @@ class IKTarget extends Component<IKTarget>{
 				ta_len = this.len * t_ratio,								// Goes with A & B
 				tb_len = this.len - ta_len,									// Goes with B & C
 
-				rot 	= new Quat(),
+				rotation 	= new Quat(),
 				rad;
 				
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Bone A 
-			this._aim_bone2( chain, tpose, p_wt, rot );		// Aim the first bone toward the target oriented with the bend direction.
+			this._aim_bone2( chain, tpose, p_wt, rotation );		// Aim the first bone toward the target oriented with the bend direction.
 
 			rad	= Maths.lawcos_sss( a_len, ta_len, bh_len );	// Get the Angle between First Bone and Target.
-			rot
+			rotation
 				.pmul_axis_angle( this.axis.x, -rad )			// Rotate the the aimed bone by the angle from SSS
-				.pmul_invert( p_wt.rot );							// Convert to Bone's Local Space by mul invert of parent bone rotation
+				.pmul_invert( p_wt.rotation );							// Convert to Bone's Local Space by mul invert of parent bone rotation
 
-			pose.set_bone( bind_a.idx, rot );
+			pose.setBone( bind_a.idx, rotation );
 
 			pose_a.world
 				.copy( p_wt )
-				.add( rot, bind_a.local.pos, bind_a.local.scl );
+				.add( rotation, bind_a.local.position, bind_a.local.scale );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Bone B
 			rad = Math.PI - Maths.lawcos_sss( a_len, bh_len, ta_len );
 
-			rot .from_mul( pose_a.world.rot, bind_b.local.rot )	// Add Bone Local to get its WS rot
+			rotation .from_mul( pose_a.world.rotation, bind_b.local.rotation )	// Add Bone Local to get its WS rotation
 				.pmul_axis_angle( this.axis.x, rad )			// Rotate it by the target's x-axis .pmul( tmp.from_axis_angle( this.axis.x, rad ) )
-				.pmul_invert( pose_a.world.rot );				// Convert to Local Space in temp to save WS rot for next bone.
+				.pmul_invert( pose_a.world.rotation );				// Convert to Local Space in temp to save WS rotation for next bone.
 
-			pose.set_bone( bind_b.idx, rot );
+			pose.setBone( bind_b.idx, rotation );
 
 			pose_b.world
 				.copy( pose_a.world )
-				.add( rot, bind_b.local.pos, bind_b.local.scl );
+				.add( rotation, bind_b.local.position, bind_b.local.scale );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Bone C
 			rad = Math.PI - Maths.lawcos_sss( c_len, bh_len, tb_len );
-			rot	.from_mul( pose_b.world.rot, bind_c.local.rot  )	// Still contains WS from previous bone, Add next bone's local
+			rotation	.from_mul( pose_b.world.rotation, bind_c.local.rotation  )	// Still contains WS from previous bone, Add next bone's local
 				.pmul_axis_angle( this.axis.x, -rad )				// Rotate it by the target's x-axis
-				.pmul_invert( pose_b.world.rot );									// Convert to Bone's Local Space
+				.pmul_invert( pose_b.world.rotation );									// Convert to Bone's Local Space
 
-			pose.set_bone( bind_c.idx, rot );
+			pose.setBone( bind_c.idx, rotation );
 
 			pose_c.world
 				.copy( pose_b.world )
-				.add( rot, bind_c.local.pos, bind_c.local.scl );
+				.add( rotation, bind_c.local.position, bind_c.local.scale );
 		}
 }
 

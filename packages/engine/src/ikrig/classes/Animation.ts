@@ -12,41 +12,6 @@ class Animation {
 		if (anim && !is_struct) this.clone_from(anim);
 		else if (anim && is_struct) this.use_struct(anim);
 	}
-
-	add_time_array(tary) {
-		// Create Main Array if not setup
-		if (!this.times) this.times = [];
-
-		// Get Item Index then save.
-		const i = this.times.length;
-		this.times.push(tary);
-
-		// Update max time.
-		const n = tary[tary.length - 1];
-		if (n > this.time) this.time = n;
-
-		// Update frame count
-		if (tary.length > this.frame_cnt) this.frame_cnt = tary.length;
-
-		return i;
-	}
-
-	add_track(type, time_idx, interp, data) {
-		if (!this.tracks) this.tracks = [];
-
-		const i = this.tracks.length;
-		this.tracks.push({ type, time_idx, interp, data });
-		return i;
-	}
-
-	add_joint_track(type, time_idx, joint_idx, interp, data) {
-		if (!this.tracks) this.tracks = [];
-
-		const i = this.tracks.length;
-		this.tracks.push({ type, time_idx, joint_idx, interp, data });
-		return i;
-	}
-
 	////////////////////////////////////////////////////////////////////
 	// 
 	///////////////////////////////////////////////////////////////////

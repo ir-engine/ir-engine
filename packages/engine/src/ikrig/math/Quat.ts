@@ -580,12 +580,12 @@ class Quat extends Float32Array{
 			return this;
 		}
 
-		scale_angle( scl ){
+		scale_angle( scale ){
 			if( this[3] > 1 ) this.norm();
 
 			const angle	= 2 * Math.acos( this[3] ),
 				len		= 1 / Math.sqrt( this[0]**2 + this[1]**2 + this[2]**2 ), // Get Length to normalize axis
-				half	= (angle * scl) * 0.5, // Calc Angle, Scale it then Half it.
+				half	= (angle * scale) * 0.5, // Calc Angle, Scale it then Half it.
 				s		= Math.sin( half ); // Do Normalize and SinHalf at the same time
 
 			this[0] = (this[0] * len) * s;

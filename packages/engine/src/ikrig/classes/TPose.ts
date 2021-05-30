@@ -40,10 +40,10 @@ function align_chain(pose, dir, b_names) {
 		l = new Vec3(),					// Left
 		r = new Quat(),					// Final Rotation
 		q = new Quat(),					// Temp Rotation
-		b = pose.get_bone(b_names[0]);	// Bone Reference
+		b = pose.getBone(b_names[0]);	// Bone Reference
 
 	// Parent Bone's Transform
-	pose.get_parent_world(b.idx, pt);
+	pose.getParentWorld(b.idx, pt);
 
 	for (let i = 0; i <= aEnd; i++) {
 		ct.from_add(pt, b.local);			// Calc current bones world transform
@@ -54,23 +54,23 @@ function align_chain(pose, dir, b_names) {
 		// to get its left, then finish it off by recalculating
 		// fwd to make it orthogonal. Want to try to keep the orientation
 		// while ( fwd, lft ) realigning the up direction.
-		f.from_quat(ct.rot, Vec3.FORWARD); 		// Find Bone's Forward World Direction
+		f.from_quat(ct.rotation, Vec3.FORWARD); 		// Find Bone's Forward World Direction
 		l.from_cross(u, f).norm();				// Get World Left
 		f.from_cross(l, u).norm();				// Realign Forward
-		r.from_axis(l, u, f);						// Create Rotation from 3x3 rot Matrix
+		r.from_axis(l, u, f);						// Create Rotation from 3x3 rotation Matrix
 
-		if (Quat.dot(r, ct.rot) < 0) r.negate();	// Do a Inverted rotation check, negate it if under zero.
+		if (Quat.dot(r, ct.rotation) < 0) r.negate();	// Do a Inverted rotation check, negate it if under zero.
 
-		//r.pmul( q.from_invert( pt.rot ) );		// Move rotation to local space
-		r.pmul_invert(pt.rot);					// Move rotation to local space
-		pose.set_bone(b.idx, r);					// Update Pose with new ls rotation
+		//r.pmul( q.from_invert( pt.rotation ) );		// Move rotation to local space
+		r.pmul_invert(pt.rotation);					// Move rotation to local space
+		pose.setBone(b.idx, r);					// Update Pose with new ls rotation
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// If not the last bone, take then the new rotation to calc the next parents
 		// world space transform for the next bone on the list.
 		if (i != aEnd) {
-			pt.add(r, b.local.pos, b.local.scl);
-			b = pose.get_bone(b_names[i + 1]);
+			pt.add(r, b.local.position, b.local.scale);
+			b = pose.getBone(b_names[i + 1]);
 		}
 	}
 }
@@ -80,18 +80,18 @@ function spin_bone_forward(pose, foot) {
 		ct = new Transform(),
 		v = new Vec3(),
 		q = new Quat(),
-		b = pose.get_bone(foot);
+		b = pose.getBone(foot);
 
-	pose.get_parent_world(b.idx, pt, ct);		// Get the Parent and Child Transforms. e->Armature,
+	pose.getParentWorld(b.idx, pt, ct);		// Get the Parent and Child Transforms. e->Armature,
 
 	ct.transform_vec([0, b.len, 0], v);			// Get the Tails of the Bone
-	v.sub(ct.pos);							// Get The direction to the tail
+	v.sub(ct.position);							// Get The direction to the tail
 	v[1] = 0;									// Flatten vector to 2D by removing Y Position
 	v.norm();									// Make it a unit vector
 	q.from_unit_vecs(v, Vec3.FORWARD)		// Rotation needed to point the foot forward.
-		.mul(ct.rot)							// Move WS Foot to point forward
-		.pmul_invert(pt.rot);					// To Local Space
-	pose.set_bone(b.idx, q);					// Save to Pose
+		.mul(ct.rotation)							// Move WS Foot to point forward
+		.pmul_invert(pt.rotation);					// To Local Space
+	pose.setBone(b.idx, q);					// Save to Pose
 }
 
 function align_bone_forward(pose, b_name) {
@@ -99,17 +99,17 @@ function align_bone_forward(pose, b_name) {
 		ct = new Transform(),
 		v = new Vec3(),
 		q = new Quat(),
-		b = pose.get_bone(b_name);
+		b = pose.getBone(b_name);
 
-	pose.get_parent_world(b.idx, pt, ct); // Get Bone's World Transform and its Parent.
+	pose.getParentWorld(b.idx, pt, ct); // Get Bone's World Transform and its Parent.
 
-	v.from_quat(ct.rot, Vec3.UP);			// Get Bone's WS UP Direction
+	v.from_quat(ct.rotation, Vec3.UP);			// Get Bone's WS UP Direction
 
 	q.from_unit_vecs(v, Vec3.FORWARD)	// Difference between Current UP and WS Forward
-		.mul(ct.rot)						// PreMul Difference to Current Rotation
-		.pmul_invert(pt.rot);				// Convert to Local Space
+		.mul(ct.rotation)						// PreMul Difference to Current Rotation
+		.pmul_invert(pt.rotation);				// Convert to Local Space
 
-	pose.set_bone(b.idx, q);				// Save to Pose
+	pose.setBone(b.idx, q);				// Save to Pose
 }
 
 export default TPose;

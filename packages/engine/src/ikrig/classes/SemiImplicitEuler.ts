@@ -3,13 +3,13 @@ import { Vec3 } from "../math/Maths";
 ########
 export class SemiImplicitEuler {
 	vel: Vec3;
-	pos: Vec3;
+	position: Vec3;
 	tar: Vec3;
 	osc_ps: number;
 	damping: number;
 	constructor(osc = 1, damp = 1, damp_time = 0) {
 		this.vel = new Vec3();
-		this.pos = new Vec3();
+		this.position = new Vec3();
 		this.tar = new Vec3();
 
 		// Damp_ratio = Log(damp) / ( -osc_ps * damp_time ) 
@@ -22,11 +22,11 @@ export class SemiImplicitEuler {
 			this.damping = damp;
 	}
 
-	reset(pos = null, tar = null, vel = null) {
-		if (pos)
-			this.pos.copy(pos);
+	reset(position = null, tar = null, vel = null) {
+		if (position)
+			this.position.copy(position);
 		else
-			this.pos.set(0, 0, 0);
+			this.position.set(0, 0, 0);
 
 		if (tar)
 			this.tar.copy(tar);
@@ -51,15 +51,15 @@ export class SemiImplicitEuler {
 			this.tar.copy(target_pos);
 
 		// Compute Acceleration, Add it to Velocity
-		this.vel[0] += (a * this.vel[0] + b * (this.tar[0] - this.pos[0])); // * this.mass_inv;
-		this.vel[1] += (a * this.vel[1] + b * (this.tar[1] - this.pos[1])); // * this.mass_inv;
-		this.vel[2] += (a * this.vel[2] + b * (this.tar[2] - this.pos[2])); // * this.mass_inv;
+		this.vel[0] += (a * this.vel[0] + b * (this.tar[0] - this.position[0])); // * this.mass_inv;
+		this.vel[1] += (a * this.vel[1] + b * (this.tar[1] - this.position[1])); // * this.mass_inv;
+		this.vel[2] += (a * this.vel[2] + b * (this.tar[2] - this.position[2])); // * this.mass_inv;
 
 
 		// Add Velocity to Position
-		this.pos[0] += this.vel[0] * dt;
-		this.pos[1] += this.vel[1] * dt;
-		this.pos[2] += this.vel[2] * dt;
-		return this.pos;
+		this.position[0] += this.vel[0] * dt;
+		this.position[1] += this.vel[1] * dt;
+		this.position[2] += this.vel[2] * dt;
+		return this.position;
 	}
 }

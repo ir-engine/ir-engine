@@ -2,29 +2,6 @@ import Mat4 from "../math/Mat4";
 import Vec3 from "../math/Vec3";
 import Quat from "../math/Quat";
 
-/** 
- * Handle parsing data from GLTF Json and Bin Files
- * @example <caption></caption>
- * let aryPrim = Gltf.getMesh( names[0], json, bin );
- * let p = aryPrim[ 0 ];
- *
- * let vao = Vao.buildStandard( "Drill", p.vertices.compLen, p.vertices.data, 
- *	(p.normal)?		p.normal.data	: null, 
- *	(p.uv)? 		p.uv.data		: null,
- *	(p.indices)?	p.indices.data	: null );
- *
- * let e = App.$Draw( "Drill", vao, "LowPolyPhong", p.mode );
- * if( p.rotation )	e.Node.setRot( p.rotation );
- * if( p.position )	e.Node.setPos( p.position );
- * if( p.scale ) 	e.Node.setScl( p.scale );
- *
- * ---- OR ----
- * let vao = Vao.buildFromBin( "ToBufferTest", p, bin );
- * let e = App.$Draw( "BinBufTestMesh", vao, "LowPolyPhong", gl.ctx.TRIANGLES );
- * if( p.rotation )	e.Node.setRot( p.rotation );
- * if( p.position )	e.Node.setPos( p.position );
- * if( p.scale ) 	e.Node.setScl( p.scale );
- */
 class Gltf{
 		static TYPE_FLOAT: any;
 		static TYPE_SHORT: any;
@@ -287,7 +264,7 @@ class Gltf{
 
 				bones[ ji ] = {
 					idx : ji, p_idx : null, lvl : 0, name : null,
-					pos : null, rot : null, scl : null };
+					position : null, rotation : null, scale : null };
 			}
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -328,9 +305,9 @@ class Gltf{
 			if( node_info ){
 				for( ji of json.nodes ){ 
 					if( ji.name == name ){ 
-						if( ji.rotation )	node_info["rot"] = ji.rotation;
-						if( ji.scale )		node_info["scl"] = ji.scale;
-						if( ji.position )	node_info["pos"] = ji.position;
+						if( ji.rotation )	node_info["rotation"] = ji.rotation;
+						if( ji.scale )		node_info["scale"] = ji.scale;
+						if( ji.position )	node_info["position"] = ji.position;
 						break;
 					}
 				}
@@ -364,9 +341,9 @@ class Gltf{
 					Mat4.mul( m0, m1, m1 );
 				}
 
-				itm.pos = m1.get_translation( new Vec3() ).near_zero();
-				itm.rot = m1.get_rotation( new Quat() ).norm();
-				itm.scl = near_one( m1.get_scale( new Vec3() ) );
+				itm.position = m1.get_translation( new Vec3() ).near_zero();
+				itm.rotation = m1.get_rotation( new Quat() ).norm();
+				itm.scale = near_one( m1.get_scale( new Vec3() ) );
 			}
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -375,7 +352,7 @@ class Gltf{
 
 		// Uses the nodes to get the local space bind pose transform. But the real bind pose
 		// isn't always available there, blender export has a habit of using the current pose/frame in nodes.
-		static get_skin_by_nodes( json, name=null, node_info=null ){
+		static get_skin_by_nodes( json, node_info, name=null ){
 			console.log("json is")
 			console.log(json);
 			if( !json.skins ){
@@ -415,7 +392,7 @@ class Gltf{
 
 				bones[ ji ] = {
 					idx : ji, p_idx : null, lvl : 0, name : null,
-					pos : null, rot : null, scl : null };
+					position : null, rotation : null, scale : null };
 			}
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -425,8 +402,8 @@ class Gltf{
 				itm 			= bones[ ji ];
 
 				// Get Transform Data if Available
-				if( n.translation ) 	itm.pos = n.translation.slice(0);
-				if( n.rotation ) 		itm.rot = n.rotation.slice(0);
+				if( n.translation ) 	itm.position = n.translation.slice(0);
+				if( n.rotation ) 		itm.rotation = n.rotation.slice(0);
 				
 				// Each Bone Needs a Name, create one if one does not exist.
 				if( n.name === undefined || n.name == "" )	itm.name = "bone_" + ji;
@@ -437,10 +414,10 @@ class Gltf{
 				// Scale isn't always available
 				if( n.scale ){
 					// Near Zero Testing, Clean up the data because of Floating point issues.
-					itm.scl		= n.scale.slice(0);
-					if( Math.abs( 1 - itm.scl[0] ) <= 0.000001 ) itm.scl[0] = 1;
-					if( Math.abs( 1 - itm.scl[1] ) <= 0.000001 ) itm.scl[1] = 1;
-					if( Math.abs( 1 - itm.scl[2] ) <= 0.000001 ) itm.scl[2] = 1;
+					itm.scale		= n.scale.slice(0);
+					if( Math.abs( 1 - itm.scale[0] ) <= 0.000001 ) itm.scale[0] = 1;
+					if( Math.abs( 1 - itm.scale[1] ) <= 0.000001 ) itm.scale[1] = 1;
+					if( Math.abs( 1 - itm.scale[2] ) <= 0.000001 ) itm.scale[2] = 1;
 				}
 
 				// Set Children who the parent is.
@@ -466,16 +443,14 @@ class Gltf{
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Set the Hierarchy Level for each bone
-			if( node_info ){
 				for( ji of json.nodes ){ 
 					if( ji.name == name ){ 
-						if( ji.rotation )	node_info["rot"] = ji.rotation;
-						if( ji.scale )		node_info["scl"] = ji.scale;
-						if( ji.position )	node_info["pos"] = ji.position;
+						if( ji.rotation )	node_info["rotation"] = ji.rotation;
+						if( ji.scale )		node_info["scale"] = ji.scale;
+						if( ji.position )	node_info["position"] = ji.position;
 						break;
 					}
 				}
-			}
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			return bones;
@@ -494,7 +469,7 @@ class Gltf{
 			times			: [ float32array, float32array, etc ],
 			tracks			: [
 				{ 
-					type		: "rot || pos || scl",
+					type		: "rotation || position || scale",
 					time_idx 	: 0,
 					joint_idx	: 0,
 					lerp 		: "LINEAR || STEP || CUBICSPLINE",
@@ -548,9 +523,9 @@ class Gltf{
 				//.......................
 				// User a smaller property name then what GLTF uses.
 				switch( ch.target.path ){
-					case "rotation"		: prop = "rot"; break;
-					case "translation"	: prop = "pos"; break;
-					case "scale"		: prop = "scl"; break;
+					case "rotation"		: prop = "rotation"; break;
+					case "translation"	: prop = "position"; break;
+					case "scale"		: prop = "scale"; break;
 					default: console.log( "unknown channel path", ch.path ); continue;
 				}
 
@@ -559,8 +534,8 @@ class Gltf{
 				n_name = json.nodes[ n ].name.toLowerCase();
 
 				if( limit && 
-					!( prop == "rot" ||  
-						( n_name.indexOf("hip") != -1 && prop == "pos" )
+					!( prop == "rotation" ||  
+						( n_name.indexOf("hip") != -1 && prop == "position" )
 					) 
 				) continue;
 
@@ -609,8 +584,8 @@ class Gltf{
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Create and Fill DataView with buffer data
-			const pos		= buf.uri.indexOf( "base64," ) + 7,
-				blob	= window.atob( buf.uri.substr( pos ) ),
+			const position		= buf.uri.indexOf( "base64," ) + 7,
+				blob	= window.atob( buf.uri.substr( position ) ),
 				ary_buf = new ArrayBuffer( blob.length ),
 				dv		= new DataView( ary_buf );
 

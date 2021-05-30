@@ -1,6 +1,6 @@
 import { BufferAttribute, BufferGeometry, DynamicDrawUsage, Points, RawShaderMaterial } from "three";
 import { Component } from "../../ecs/classes/Component";
-import { addComponent, createEntity, getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import { addComponent, createEntity, getComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import Obj from "./Obj";
 
 class PointsComponent extends Component<PointsComponent>{
@@ -13,6 +13,9 @@ class PointsComponent extends Component<PointsComponent>{
 	mesh: Points<any, any>;
 	static $( name="points", max_len=100 ){
 		const entity = createEntity();
+		if(!hasComponent(entity, Obj)){
+			addComponent(entity, Obj);
+		}
 		addComponent(entity, PointsComponent);
 		getMutableComponent(entity, PointsComponent).init(name, max_len);
 
@@ -53,7 +56,7 @@ class PointsComponent extends Component<PointsComponent>{
 			addComponent(this.entity, Obj);
 			obj = getMutableComponent(this.entity, Obj);
 		}
-		obj.set_ref( this.mesh );
+		obj.setReference( this.mesh );
 
 		return this;
 	}
@@ -198,8 +201,8 @@ void main(){
 
 /*
       // set point position
-      vec3 pos = position + translation;
-      vec4 projected = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+      vec3 position = position + translation;
+      vec4 projected = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       gl_Position = projected;
 
       // use the delta between the point position and camera position to size point
