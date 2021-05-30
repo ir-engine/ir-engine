@@ -51,6 +51,7 @@ import url from 'url';
 import WarningRefreshModal from "../AlertModals/WarningRetryModal";
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem';
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
+import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema';
 
 const store = Store.store;
 
@@ -350,7 +351,7 @@ export const EnginePage = (props: Props) => {
         resolve(testWorldState);
       } else {
         const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
-        resolve(worldState);
+        resolve(WorldStateModel.fromBuffer(worldState));
       }
     });
 

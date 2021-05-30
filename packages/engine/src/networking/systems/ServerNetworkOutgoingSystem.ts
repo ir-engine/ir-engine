@@ -98,9 +98,9 @@ export class ServerNetworkOutgoingSystem extends System {
       if(!bufferReliable){
         console.warn("Reliable buffer is null");
         console.warn(Network.instance.worldState);
+      } else {
+        Network.instance.transport.sendReliableData(bufferReliable);
       }
-            else
-      Network.instance.transport.sendReliableData(bufferReliable);
     }
 
     const bufferUnreliable = TransformStateModel.toBuffer(Network.instance.transformState);

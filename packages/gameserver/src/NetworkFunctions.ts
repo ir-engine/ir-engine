@@ -12,6 +12,7 @@ import logger from "@xrengine/server-core/src/logger";
 import config from '@xrengine/server-core/src/appconfig';
 import { closeTransport } from './WebRTCFunctions';
 import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem';
+import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema';
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 
@@ -206,7 +207,7 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
     };
 
     // Push to our worldstate to send out to other users
-    Network.instance.clientsConnected.push({ userId, name: userId, avatarDetail });
+    Network.instance.clientsConnected.push({ userId, avatarDetail });
     // Create a new worldtate object that we can fill
     const worldState: WorldStateInterface = {
         clientsConnected: [],
@@ -226,7 +227,7 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
 
     // Return initial world state to client to set things up
     callback({
-        worldState /* worldState: worldStateModel.toBuffer(worldState) */,
+        worldState: WorldStateModel.toBuffer(worldState),
         routerRtpCapabilities: transport.routers.instance.rtpCapabilities
     });
 }
@@ -310,7 +311,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
 
     // Return initial world state to client to set things up
     callback({
-        worldState /* worldState: worldStateModel.toBuffer(worldState) */,
+        worldState: WorldStateModel.toBuffer(worldState),
         routerRtpCapabilities: transport.routers.instance.rtpCapabilities
     });
 }

@@ -2,11 +2,6 @@ import { float32, int32, Model, Schema, string, uint32, uint8 } from "../../asse
 import { Network } from '../classes/Network';
 import { WorldStateInterface } from "../interfaces/WorldState";
 
-const userObjectSchema = new Schema({
-  id: string,
-  data: string
-})
-
 const storageSchema = new Schema({
   component: string,
   variables: string
@@ -36,7 +31,6 @@ const gameStateActionSchema = new Schema({
 /** Schema for input. */
 const clientConnectedSchema = new Schema({
   userId: string,
-  name: string,
   avatarDetail: {
     avatarId: string,
     avatarURL: string,
@@ -46,36 +40,6 @@ const clientConnectedSchema = new Schema({
 
 const clientDisconnectedSchema = new Schema({
   userId: string
-});
-
-const transformSchema = new Schema({
-  networkId: uint32,
-  snapShotTime: uint32,
-  x: float32,
-  y: float32,
-  z: float32,
-  qX: float32,
-  qY: float32,
-  qZ: float32,
-  qW: float32
-});
-
-const ikTransformOrientationSchema = new Schema({
-  x: float32,
-  y: float32,
-  z: float32,
-  qX: float32,
-  qY: float32,
-  qZ: float32,
-  qW: float32
-});
-
-const ikTransformSchema = new Schema({
-  networkId: uint32,
-  snapShotTime: uint32,
-  hmd: ikTransformOrientationSchema,
-  left: ikTransformOrientationSchema,
-  right: ikTransformOrientationSchema,
 });
 
 const createNetworkObjectSchema = new Schema({

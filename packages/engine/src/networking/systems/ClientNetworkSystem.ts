@@ -33,7 +33,6 @@ export class ClientNetworkSystem extends System {
 
     EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.SEND_DATA, ({ buffer }) => {
       Network.instance.transport.sendReliableData(buffer);
-      // Network.instance.transport.sendData(buffer);
     });
   }
 

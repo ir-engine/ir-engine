@@ -9,6 +9,7 @@ import {io as ioclient , Socket} from "socket.io-client";
 import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, subscribeToTrack } from "./SocketWebRTCClientFunctions";
 import { EngineEvents } from "@xrengine/engine/src/ecs/classes/EngineEvents";
 import { ClientNetworkSystem } from "@xrengine/engine/src/networking/systems/ClientNetworkSystem";
+import { WorldStateModel } from "@xrengine/engine/src/networking/schema/worldStateSchema";
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
 
@@ -168,7 +169,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // console.log(ConnectToWorldResponse);
       const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
 
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD, worldState });
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD, worldState: WorldStateModel.fromBuffer(worldState) });
 
       // Send heartbeat every second
       const heartbeat = setInterval(() => {
