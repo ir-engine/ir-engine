@@ -92,7 +92,7 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   if(!hasComponent(entityClub, UserControlledColliderComponent)) return;
   // only need to update club if it's our own
   // TODO: remove this when we have IK rig in and can get the right hand pos data
-  if(getComponent(entityClub, UserControlledColliderComponent).ownerNetworkId !== Network.instance.localAvatarNetworkId) return;
+  // if(getComponent(entityClub, UserControlledColliderComponent).ownerNetworkId !== Network.instance.localAvatarNetworkId) return;
 
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
 
@@ -191,7 +191,7 @@ export const initializeGolfClub = (entity: Entity) => {
 
   // only raycast if it's our own club
   // TODO: remove this when we have IK rig in and can get the right hand pos data
-  if(ownerNetworkObject.networkId === Network.instance.localAvatarNetworkId) {
+  // if(ownerNetworkObject.networkId === Network.instance.localAvatarNetworkId) {
     golfClubComponent.raycast = PhysicsSystem.instance.addRaycastQuery({
       type: SceneQueryType.Closest,
       origin: new Vector3(),
@@ -202,7 +202,7 @@ export const initializeGolfClub = (entity: Entity) => {
     // manually do this until three-physx is fixed
     golfClubComponent.raycast.origin = new Vector3();
     golfClubComponent.raycast.direction = new Vector3();
-  }
+  // }
 
   if(isClient) {
     const handleObject = new Mesh(new BoxBufferGeometry(clubHalfWidth, clubHalfWidth, 0.25), new MeshStandardMaterial({ color: 0xff2126, transparent: true }));
