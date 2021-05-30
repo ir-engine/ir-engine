@@ -1,6 +1,6 @@
 import { Group, SkeletonHelper, BufferGeometry, BufferAttribute, Uint16BufferAttribute, Float32BufferAttribute, Mesh, SkinnedMesh } from "three";
 import { Engine } from "../../ecs/classes/Engine";
-import { addComponent, createEntity, getComponent } from "../../ecs/functions/EntityFunctions";
+import { addComponent, createEntity, getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import Armature from "../components/Armature";
 import Obj from "../components/Obj";
 import Vec3 from "../math/Vec3";
@@ -22,7 +22,7 @@ class GltfUtil{
 			this.load_bones_into( entity, json, bin, arm_name );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			let b = getComponent(entity, Armature).get_root();
+			const b = getComponent(entity, Armature).get_root();
 			o.ref.add( b );
 			Engine.scene.add( new SkeletonHelper( b ) );
 
@@ -32,12 +32,18 @@ class GltfUtil{
 		}
 
 		static get_debug_view( m_name, json, bin, mat, m_names=null, arm_name=null ){
-			let m = this.load_mesh( json, bin, mat, m_names, true );
+			console.log("Loading debug view");
+			const m = this.load_mesh( json, bin, mat, m_names, true );
 			m.name			= m_name;
 			mat.skinning	= true;		// Make Sure Skinning is enabled on the material
 
 			const entity = createEntity();
 			const armature = addComponent(entity, Armature) as Armature;
+
+			const o = addComponent(entity, Obj) as Obj;
+
+			o.ref = new Group();					
+			o.ref.name = m_name;
 
 			this.load_bones_into( entity, json, bin, arm_name );
 			if( m.type === "Group" ) this.group_bind_skeleton( m, armature.skeleton );
@@ -46,19 +52,6 @@ class GltfUtil{
 
 			// TODO: Handle me, since I'm just adding this and might not be able to clean it up
 			Engine.scene.add( new SkeletonHelper( armature.skeleton.bones[0] ) );
-			return entity;
-		}
-
-		static get_skin_mesh( m_name, json, bin, mat, m_names=null, arm_name=null ){
-			let m = this.load_mesh( json, bin, mat, m_names, true );
-			m.name			= m_name;
-			mat.skinning	= true;		// Make Sure Skinning is enabled on the material
-
-			const entity = createEntity();
-			const armature = addComponent(entity, Armature) as Armature;
-
-			this.load_bones_into( entity, json, bin, arm_name );
-			if( m.type === "Group" ) this.group_bind_skeleton( m, armature.skeleton );
 			return entity;
 		}
 
@@ -71,7 +64,7 @@ class GltfUtil{
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Load all meshes in file
 			if( !mesh_names ){
-				mesh_names = new Array();
+				mesh_names = [];
 				for( let i=0; i < json.meshes.length; i++ ) mesh_names.push( json.meshes[i].name );
 			}
 
@@ -94,7 +87,7 @@ class GltfUtil{
 			// Return mesh Or if multiple, a Group of Meshes.
 			if( list.length == 1 ) return list[0];
 
-			let rtn = new Group();
+			const rtn = new Group();
 			for( g of list ) rtn.add( g );
 
 			return rtn;
@@ -104,7 +97,7 @@ class GltfUtil{
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Load all meshes in file
 			if( !mesh_names ){
-				mesh_names = new Array();
+				mesh_names = [];
 				for( let i=0; i < json.meshes.length; i++ ) mesh_names.push( json.meshes[i].name );
 			}
 
@@ -126,9 +119,9 @@ class GltfUtil{
 			return list;
 		}
 
-		static load_bones_into( e, json, bin, arm_name=null, def_len=0.1 ){
-			let n_info	= {} as any, // Node Info
-				arm 	= e.Armature,
+		static load_bones_into( entity, json, bin, arm_name=null, def_len=0.1 ){
+			const n_info	= {} as any, // Node Info
+				armature 	= getMutableComponent(entity, Armature),
 				//bones 	= Gltf.get_skin( json, bin, arm_name, n_info );
 				bones 	= Gltf.get_skin_by_nodes( json, arm_name, n_info );
 			
@@ -141,7 +134,7 @@ class GltfUtil{
 
 			for( i=0; i < len; i++ ){
 				b	= bones[ i ];
-				be	= arm.add_bone( b.name, 1, b.p_idx );
+				be	= armature.add_bone( b.name, 1, b.p_idx );
 
 				if( b.rot ) be.quaternion.fromArray( b.rot );
 				if( b.pos ) be.position.fromArray( b.pos );
@@ -151,28 +144,28 @@ class GltfUtil{
 				if( b.p_idx != null && !map[ b.p_idx ] ) map[ b.p_idx ] = i;
 			}
 
-			arm.finalize();
+			armature.finalize();
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Set the Entity Transfrom from Armature's Node Transform if available.
 			// Loading Meshes that where originally FBX need this to display correctly.
-			if( n_info.scl ) e.Obj.ref.scale.fromArray( n_info.scl );
-			if( n_info.rot ) e.Obj.ref.quaternion.fromArray( n_info.rot );
+			if( n_info.scl ) getMutableComponent(entity, Obj).ref.scale.fromArray( n_info.scl );
+			if( n_info.rot ) getMutableComponent(entity, Obj).ref.quaternion.fromArray( n_info.rot );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Calc the Length of Each Bone
 			let c;
 			for( i=0; i < len; i++ ){
-				b = arm.bones[ i ];
+				b = armature.bones[ i ];
 
 				if( !map[ i ] ) b.len = def_len;
 				else{
-					c = arm.bones[ map[ i ] ]; // First Child's World Space Transform
+					c = armature.bones[ map[ i ] ]; // First Child's World Space Transform
 					b.len = Vec3.len( b.world.pos, c.world.pos ); // Distance from Parent to Child
 				}
 			}
 
-			return e;
+			return entity;
 		}
 
 	//////////////////////////////////////////////////////////////
@@ -180,7 +173,7 @@ class GltfUtil{
 	//////////////////////////////////////////////////////////////
 		// Create a Geo Buffer and Mesh from data from bin file.
 		static mk_geo( g ){
-			let geo = new BufferGeometry();
+			const geo = new BufferGeometry();
 			geo.setAttribute( "position", new BufferAttribute( g.vertices.data, g.vertices.comp_len ) );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -200,7 +193,7 @@ class GltfUtil{
 
 		// Create a Geo Buffer and Mesh from data from bin file.
 		static mk_geo_mesh( g, mat, is_skinned=false ){
-			let geo = new BufferGeometry();
+			const geo = new BufferGeometry();
 			geo.setAttribute( "position", new BufferAttribute( g.vertices.data, g.vertices.comp_len ) );
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -220,7 +213,7 @@ class GltfUtil{
 			}
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			let m = ( !is_skinned )?
+			const m = ( !is_skinned )?
 				new Mesh( geo, mat ) :
 				new SkinnedMesh( geo, mat );
 
@@ -249,7 +242,7 @@ class GltfUtil{
 	// POSES
 	//////////////////////////////////////////////////////////////
 
-		static get_pose( e, json, pose_name=null, do_world_calc=false ){
+		static get_pose( entity, json, pose_name=null, do_world_calc=false ){
 			if( !json.poses || json.poses.length == 0 ){ console.error("No Poses in file"); return null; }
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -266,7 +259,7 @@ class GltfUtil{
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Save pose local space transform
 			let bones	= json.poses[ p_idx ].joints,
-				pose	= e.Armature.new_pose(),
+				pose	= getMutableComponent(entity, Armature).new_pose(),
 				i, b;
 
 			for( i=0; i < bones.length; i++ ){

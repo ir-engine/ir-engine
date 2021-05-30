@@ -1,12 +1,14 @@
 import Vec3 from "../math/Vec3";
 import Quat from "../math/Quat";
 import Transform from "../math/Transform";
+import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import Armature from "../components/Armature";
 
 class TPose {
 	pose: any;
-	static new(e) {
-		let p = new TPose();
-		p.pose = e.Armature.new_pose();
+	static new(entity) {
+		const p = new TPose();
+		p.pose = getMutableComponent(entity, Armature).new_pose();
 		return p;
 	}
 
@@ -25,7 +27,7 @@ class TPose {
 	spin_bone_forward(b_name) { spin_bone_forward(this.pose, b_name); return this; }
 	align_bone_forward(b_name) { align_bone_forward(this.pose, b_name); return this; }
 
-	build() { let p = this.pose; this.pose = null; return p; }
+	build() { const p = this.pose; this.pose = null; return p; }
 }
 
 
@@ -74,13 +76,13 @@ function align_chain(pose, dir, b_names) {
 }
 
 function spin_bone_forward(pose, foot) {
-	let pt = new Transform(),
+	const pt = new Transform(),
 		ct = new Transform(),
 		v = new Vec3(),
 		q = new Quat(),
 		b = pose.get_bone(foot);
 
-	pose.get_parent_world(b.idx, pt, ct);		// Get the Parent and Child Transforms. e.Armature,
+	pose.get_parent_world(b.idx, pt, ct);		// Get the Parent and Child Transforms. e->Armature,
 
 	ct.transform_vec([0, b.len, 0], v);			// Get the Tails of the Bone
 	v.sub(ct.pos);							// Get The direction to the tail
@@ -93,7 +95,7 @@ function spin_bone_forward(pose, foot) {
 }
 
 function align_bone_forward(pose, b_name) {
-	let pt = new Transform(),
+	const pt = new Transform(),
 		ct = new Transform(),
 		v = new Vec3(),
 		q = new Quat(),

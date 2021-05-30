@@ -1,16 +1,18 @@
 import Vec3 from "../math/Vec3";
 import Quat from "../math/Quat";
 import { Component } from "../../ecs/classes/Component";
+import { getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
+import Armature from "./Armature";
+import Obj from "./Obj";
 
-//#########################################################
 
 class IKRig extends Component<IKRig>{
-	arm: any = null;
+	armature: any = null;
 	tpose: any = null;
 	pose: any = null;
 	chains: any = {};
 	points: any = {};
-	leg_len_lmt: number = 0;
+	leg_len_lmt = 0;
 	static ARM_MIXAMO: any;
 
 	// #region METHODS
@@ -20,11 +22,11 @@ class IKRig extends Component<IKRig>{
 
 	// #region MANAGE RIG DATA
 	init( tpose=null, use_node_offset=false, arm_type=1 ){
-		let e = this.entity;
+		const entity = this.entity;
 
-		this.arm	= e.Armature;
-		this.pose	= this.arm.new_pose();
-		this.tpose	= tpose || this.arm.new_pose(); // If Passing a TPose, it must have its world space computed.
+		this.armature	= getMutableComponent(entity, Armature);
+		this.pose	= this.armature.new_pose();
+		this.tpose	= tpose || this.armature.new_pose(); // If Passing a TPose, it must have its world space computed.
 
 		//-----------------------------------------
 		// Apply Node's Starting Transform as an offset for poses.
@@ -32,7 +34,7 @@ class IKRig extends Component<IKRig>{
 		// dealing with specific skeletons, like Mixamo stuff.
 		// Need to do this to render things correctly
 		if( use_node_offset ){
-			let l = ( e.Obj )? e.Obj.get_transform() : e.Node.local; // Obj is a ThreeJS Component
+			const l = ( hasComponent(entity, Obj) )? getMutableComponent(entity, Obj).get_transform() : entity.Node.local; // Obj is a ThreeJS Component
 
 			this.pose.set_offset( l.rot, l.pos, l.scl );
 			if( !tpose ) this.tpose.set_offset( l.rot, l.pos, l.scl );
@@ -47,7 +49,7 @@ class IKRig extends Component<IKRig>{
 		// Auto Setup the Points and Chains based on
 		// Known Skeleton Structures.
 		switch( arm_type ){
-			case IKRig.ARM_MIXAMO : init_mixamo_rig( this.arm, this ); break;
+			case IKRig.ARM_MIXAMO : init_mixamo_rig( this.armature, this ); break;
 		}
 
 		return this;
@@ -58,7 +60,7 @@ class IKRig extends Component<IKRig>{
 
 	add_point( name, b_name ){
 		this.points[ name ] = { 
-			idx : this.arm.name_map[ b_name ]
+			idx : this.armature.name_map[ b_name ]
 		}; 
 		return this;
 	}
@@ -83,7 +85,7 @@ class IKRig extends Component<IKRig>{
 
 	set_leg_lmt( len=null, offset=0 ){
 		if( !len ){
-			let hip = this.tpose.bones[ this.points.hip.idx ];
+			const hip = this.tpose.bones[ this.points.hip.idx ];
 			this.leg_len_lmt = hip.world.pos.y + offset;
 		}else{
 			this.leg_len_lmt = len + offset;
@@ -94,15 +96,15 @@ class IKRig extends Component<IKRig>{
 
 	// #region METHODS
 	first_bone( ch_name ){
-		let idx = this.chains[ ch_name ].bones[ 0 ].idx;
+		const idx = this.chains[ ch_name ].bones[ 0 ].idx;
 		return this.pose.bones[ idx ];
 	}
 
 	get_chain_indices( ch_name ){
-		let ch = this.chains[ ch_name ];
+		const ch = this.chains[ ch_name ];
 		if( !ch ) return null;
 
-		let b, ary = new Array();
+		let b, ary = [];
 		for( b of ch.bones ) ary.push( b.idx );
 
 		return ary;
@@ -125,12 +127,10 @@ class IKRig extends Component<IKRig>{
 
 }
 
-//#########################################################
 
 // CONSTANTS
 IKRig.ARM_MIXAMO = 1;
 
-//#########################################################
 
 class Chain{
 	end_idx: any;
@@ -142,7 +142,7 @@ class Chain{
 	alt_fwd: any;
 	alt_up: any;
 	constructor( ){ // axis="z"
-		this.bones		= new Array();	// Index to a bone in an armature / pose
+		this.bones		= [];	// Index to a bone in an armature / pose
 		this.len		= 0;			// Chain Length
 		this.len_sqr	= 0;			// Chain Length Squared, Cached for Checks without SQRT
 		this.cnt		= 0;			// How many Bones in the chain
@@ -159,7 +159,7 @@ class Chain{
 
 	// #region Getters / Setters
 	add_bone( idx, len ){
-		let o = { idx, len };
+		const o = { idx, len };
 
 		this.bones.push( o );
 		this.cnt++;
@@ -185,7 +185,7 @@ class Chain{
 
 	set_alt( fwd, up, tpose=null ){
 		if( tpose ){
-			let b = tpose.bones[ this.bones[ 0 ].idx ],
+			const b = tpose.bones[ this.bones[ 0 ].idx ],
 				q = Quat.invert( b.world.rot );	// Invert World Space Rotation 
 
 			this.alt_fwd.from_quat( q, fwd );	// Use invert to get direction that will Recreate the real direction
@@ -240,7 +240,6 @@ class Chain{
 	// #endregion ////////////////////////////////////////////////
 }
 
-//#########################################################
 
 function init_mixamo_rig( arm, rig ){
 	rig
@@ -272,7 +271,6 @@ function init_mixamo_rig( arm, rig ){
 	rig.chains.arm_l.set_alt( Vec3.LEFT, Vec3.BACK, rig.tpose );
 }
 
-//#########################################################
 
 export default IKRig;
 export { Chain };

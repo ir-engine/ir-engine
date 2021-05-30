@@ -22,13 +22,13 @@ class Obj extends Component<Obj>{
 
 	set_rot( q ){ this.ref.quaternion.fromArray( q ); return this; }
 	look( dir, up ){
-		let q = new Quat().from_look( dir, up || Vec3.UP );
+		const q = new Quat().from_look( dir, up || Vec3.UP );
 		this.ref.quaternion.fromArray( q );
 		return this;
 	}
 
 	get_transform(){
-		let p = this.ref.position,
+		const p = this.ref.position,
 			q = this.ref.quaternion,
 			s = this.ref.scale;
 		return {

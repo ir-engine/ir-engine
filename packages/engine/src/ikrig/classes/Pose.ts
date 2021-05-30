@@ -5,20 +5,20 @@ class Pose{
 	static ROT: any;
 	static POS: any;
 	static SCL: any;
-	arm: any;
+	armature: any;
 	bones: any[];
 	root_offset: any;
-	constructor( arm ){
-		this.arm			= arm;								// Reference Back to Armature, Make Apply work Easily
-		this.bones			= new Array( arm.bones.length );	// Recreation of Bone Hierarchy
+	constructor( armature ){
+		this.armature			= armature;								// Reference Back to Armature, Make Apply work Easily
+		this.bones			= new Array( armature.bones.length );	// Recreation of Bone Hierarchy
 		this.root_offset	= new Transform();					// Parent Transform for Root Bone ( Skeletons from FBX imports need this to render right )
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Create Bone Transform Hierarchy to do transformations
 		// without changing the actual armature.
 		let b, pi;
-		for( let i=0; i < arm.bones.length; i++ ){
-			b = arm.bones[i];
+		for( let i=0; i < armature.bones.length; i++ ){
+			b = armature.bones[i];
 			this.bones[ i ] = {
 				chg_state	: 0,						// If Local Has Been Updated
 				idx 		: b.idx,					// Bone Index in Armature
@@ -38,7 +38,7 @@ class Pose{
 		set_offset( rot=null, pos=null, scl=null ){ this.root_offset.set( rot, pos, scl ); return this; }
 		
 		set_bone( idx, rot=null, pos=null, scl=null ){
-			let b = this.bones[ idx ];
+			const b = this.bones[ idx ];
 			b.local.set( rot, pos, scl );
 
 			// Set its Change State
@@ -49,17 +49,15 @@ class Pose{
 		}
 
 		set_state( idx, rot=false, pos=false, scl=false ){
-			let b = this.bones[ idx ];
+			const b = this.bones[ idx ];
 			if( rot ) b.chg_state |= Pose.ROT;
 			if( pos ) b.chg_state |= Pose.POS;
 			if( scl ) b.chg_state |= Pose.SCL;
 			return this;
 		}
 
-		get_bone( bname ){ return this.bones[ this.arm.name_map[ bname ] ]; }
+		get_bone( bname ){ return this.bones[ this.armature.name_map[ bname ] ]; }
 
-		//get_index( bname ){ return this.arm.names[ bname ]; }
-		//get_bone( bname ){ return this.bones[ this.arm.name_map[ bname ] ]; }
 		get_local_rot( idx ){ return this.bones[ idx ].local.rot; }
 
 		/*
@@ -80,7 +78,7 @@ class Pose{
 
 		rot_world_axis_angle( bname, axis, angle ){
 			//Move bone to WS, do rot, then back to LS
-			let b	= this.get_bone( bname ),
+			const b	= this.get_bone( bname ),
 				qp	= this.get_parent_rot( b.idx ),
 				qc	= Quat
 					.mul( qp, b.local.rot )
@@ -95,10 +93,10 @@ class Pose{
 	// Methods
 	/////////////////////////////////////////////////////////////////
 
-		apply(){ this.arm.load_pose( this ); return this; }
+		apply(){ this.armature.load_pose( this ); return this; }
 
 		update_world(){
-			for( let b of this.bones ){
+			for( const b of this.bones ){
 				if( b.p_idx != null )	b.world.from_add( this.bones[ b.p_idx ].world, b.local ); // Parent.World + Child.Local
 				else					b.world.from_add( this.root_offset, b.local );
 			}
@@ -106,7 +104,7 @@ class Pose{
 		}
 
 		get_parent_world( b_idx, pt=null, ct=null, t_offset=null ){
-			let cbone = this.bones[ b_idx ];
+			const cbone = this.bones[ b_idx ];
 			pt = pt || new Transform();
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -136,7 +134,7 @@ class Pose{
 		}
 
 		get_parent_rot( b_idx, q=null ){
-			let cbone = this.bones[ b_idx ];
+			const cbone = this.bones[ b_idx ];
 			q = q || new Quat();
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

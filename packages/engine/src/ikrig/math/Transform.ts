@@ -48,7 +48,7 @@ class Transform{
 		from_add( tp, tc ){
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// POSITION - parent.position + ( parent.rotation * ( parent.scale * child.position ) )
-			let v = new Vec3().from_mul( tp.scl, tc.pos ); // parent.scale * child.position;
+			const v = new Vec3().from_mul( tp.scl, tc.pos ); // parent.scale * child.position;
 			v.transform_quat( tp.rot ); //Vec3.transform_quat( v, tp.rot, v );
 			this.pos.from_add( tp.pos, v ); // Vec3.add( tp.pos, v, this.pos );
 
@@ -188,7 +188,7 @@ class Transform{
 		}
 
 		static from_pos( x, y, z ){
-			let t = new Transform();
+			const t = new Transform();
 			if( arguments.length == 3 )			t.pos.set( x, y, z );
 			else if( arguments.length == 1 )	t.pos.copy( x );
 			return t;

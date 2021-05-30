@@ -83,7 +83,7 @@ class Gltf{
 			}
 			
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			let out = { 
+			const out = { 
 				min 		: acc.min,
 				max 		: acc.max,
 				elm_cnt		: acc.count,
@@ -134,7 +134,7 @@ class Gltf{
 				ary	= new TAry( aryLen );						//Final Array
 
 				//Loop for each element of by stride
-				for(var i=0; i < elmCnt; i++){
+				for(let i=0; i < elmCnt; i++){
 					// Buffer Offset + (Total Stride * Element Index) + Sub Offset within Stride Component
 					p = bOffset + ( stride * i ) + sOffset;	//Calc Starting position for the stride of data
 
@@ -155,7 +155,7 @@ class Gltf{
 					out.byte_cnt	= acc.count * compLen * TAry.BYTES_PER_ELEMENT;
 					//console.log( bin );
 				}else{
-					let bOffset	= ( acc.byteOffset || 0 ) + ( bView.byteOffset || 0 );
+					const bOffset	= ( acc.byteOffset || 0 ) + ( bView.byteOffset || 0 );
 					out.data = new TAry( bin, bOffset, acc.count * compLen ); // ElementCount * ComponentLength
 				}
 			}
@@ -338,7 +338,7 @@ class Gltf{
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Bind Pose from Inverted Model Space Matrices
-			let bind		= Gltf.parse_accessor( skin.inverseBindMatrices, json, bin ),
+			const bind		= Gltf.parse_accessor( skin.inverseBindMatrices, json, bin ),
 				m0			= new Mat4(),
 				m1			= new Mat4(),
 				near_one	= ( v )=>{	// Need to cleanup scale, ex: 0.9999 is pretty much 1
@@ -376,8 +376,10 @@ class Gltf{
 		// Uses the nodes to get the local space bind pose transform. But the real bind pose
 		// isn't always available there, blender export has a habit of using the current pose/frame in nodes.
 		static get_skin_by_nodes( json, name=null, node_info=null ){
+			console.log("json is")
+			console.log(json);
 			if( !json.skins ){
-				console.error( "There is no skin in the GLTF file." );
+				console.error( "There is no skin in the GLTF file. (nodes)" );
 				return null;
 			}
 
@@ -514,7 +516,7 @@ class Gltf{
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Create Lookup Table For Node Index to Bone Index.
-			let joints	= {},
+			const joints	= {},
 				j_ary	= json.skins[ 0 ].joints;
 
 			for( i=0; i < j_ary.length; i++ ){ 
@@ -590,7 +592,7 @@ class Gltf{
 			}
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			let rtn = { time:time_max, frame_cnt: frame_max, times: time_ary, tracks:ch_ary };
+			const rtn = { time:time_max, frame_cnt: frame_max, times: time_ary, tracks:ch_ary };
 			return rtn;
 		}
 
@@ -602,12 +604,12 @@ class Gltf{
 		// Binary Buffer can exist in GLTF file encoded in base64. 
 		// This function converts the data into an ArrayBuffer.
 		static parse_b64_buffer( json ){
-			let buf = json.buffers[ 0 ];
+			const buf = json.buffers[ 0 ];
 			if( buf.uri.substr(0,5) != "data:" ) return null;
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Create and Fill DataView with buffer data
-			let pos		= buf.uri.indexOf( "base64," ) + 7,
+			const pos		= buf.uri.indexOf( "base64," ) + 7,
 				blob	= window.atob( buf.uri.substr( pos ) ),
 				ary_buf = new ArrayBuffer( blob.length ),
 				dv		= new DataView( ary_buf );
@@ -719,6 +721,4 @@ function parse_glb( arybuf ){
 }
 */
 
-
-//###############################################################################
 export default Gltf;

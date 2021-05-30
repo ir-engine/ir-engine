@@ -36,7 +36,7 @@ class Maths{
 		static near_zero(v){ return (Math.abs(v) <= Maths.EPSILON)? 0 : v; }
 		static smooth_tstep(t){ return t * t * (3 - 2 * t); }
 		static smooth_step(edge1, edge2, val){ //https://en.wikipedia.org/wiki/Smoothstep
-			var x = Math.max(0, Math.min(1, (val-edge1)/(edge2-edge1)));
+			const x = Math.max(0, Math.min(1, (val-edge1)/(edge2-edge1)));
 			return x*x*(3-2*x);
 		}
 		
@@ -50,12 +50,12 @@ class Maths{
 		}
 
 		static gradient010( t ){
-			var tt = t * 2;
+			const tt = t * 2;
 			return ( tt > 1 )? 1 - (tt - 1) : tt;
 		}
 
 		static mod( a, b ){	//Modulas that handles Negatives, so (-1, 5) = 4
-			let v = a % b;
+			const v = a % b;
 			return ( v < 0 )? b+v : v;
 		}
 
@@ -95,7 +95,7 @@ class Maths{
 		static polar_to_cartesian( lon, lat, radius, out ){
 			out = out || new Vec3();
 
-			let phi 	= ( 90 - lat ) * Maths.DEG2RAD,
+			const phi 	= ( 90 - lat ) * Maths.DEG2RAD,
 				theta 	= ( lon + 180 ) * Maths.DEG2RAD;
 
 			out[0] = -(radius * Math.sin( phi ) * Math.sin(theta));
@@ -108,7 +108,7 @@ class Maths{
 		static cartesian_to_polar( v, out ){
 			out = out || [0,0];
 
-			let len = Math.sqrt( v[0]**2 + v[2]**2 );
+			const len = Math.sqrt( v[0]**2 + v[2]**2 );
 			out[ 0 ] = Math.atan2( v[0], v[2] ) * Maths.RAD2DEG;
 			out[ 1 ] = Math.atan2( v[1], len ) * Maths.RAD2DEG;
 			return out;
@@ -116,7 +116,7 @@ class Maths{
 
 		// X and Y axis need to be normalized vectors, 90 degrees of eachother.
 		static plane_circle(vecCenter, xAxis, yAxis, angle, radius, out){
-			let sin = Math.sin(angle),
+			const sin = Math.sin(angle),
 				cos = Math.cos(angle);
 			out[0] = vecCenter[0] + radius * cos * xAxis[0] + radius * sin * yAxis[0];
 			out[1] = vecCenter[1] + radius * cos * xAxis[1] + radius * sin * yAxis[1];
@@ -126,7 +126,7 @@ class Maths{
 
 		//X and Y axis need to be normalized vectors, 90 degrees of eachother.
 		static plane_ellipse(vecCenter, xAxis, yAxis, angle, xRadius, yRadius, out){
-			let sin = Math.sin(angle),
+			const sin = Math.sin(angle),
 				cos = Math.cos(angle);
 			out[0] = vecCenter[0] + xRadius * cos * xAxis[0] + yRadius * sin * yAxis[0];
 			out[1] = vecCenter[1] + xRadius * cos * xAxis[1] + yRadius * sin * yAxis[1];
@@ -140,7 +140,7 @@ class Maths{
 	////////////////////////////////////////////////////////////////////
 		//https://github.com/nodebox/g.js/blob/master/src/libraries/math.js
 		static sawtoothWave(time, min=0, max=1, period=1){
-			var amplitude	= (max - min) * 0.5,
+			let amplitude	= (max - min) * 0.5,
 				frequency	= Maths.PI_2 / period,
 				phase		= 0;
 
@@ -152,7 +152,7 @@ class Maths{
 		}
 
 		static triangleWave(v, min=0, max=1, period = 1){
-			var amplitude	= (max - min) * 0.5,
+			let amplitude	= (max - min) * 0.5,
 				frequency	= Maths.PI_2 / period,
 				phase		= 0,
 				time		= v + period * 0.25; // div 4 changed to * 0.25
@@ -209,7 +209,7 @@ class Maths{
 		//https://blog.demofox.org/2014/08/28/one-dimensional-bezier-curves/
 		//1D Cubic (3rd) Bezier through A, B, C, D where a Start and d is end are assumed to be 0 and 1.
 		static normalizedBezier3(b, c, t){
-			let s	= 1.0 - t,
+			const s	= 1.0 - t,
 				t2	= t * t,
 				s2	= s * s,
 				t3	= t2 * t;
@@ -218,7 +218,7 @@ class Maths{
 
 
 		static normalizedBezier7(b, c, d, e, f, g, t){
-			let s	= 1.0 - t,
+			const s	= 1.0 - t,
 				t2	= t * t,
 				s2	= s * s,
 				t3	= t2 * t,
@@ -251,7 +251,7 @@ class Maths{
 
 		//From a point in space, closest spot to a 2D line
 		static closestPointToLine2D( x0,y0, x1,y1, px, py, out=null ){
-			var dx	= x1 - x0,
+			const dx	= x1 - x0,
 				dy	= y1 - y0,
 				t	= ( (px-x0)*dx + (py-y0)*dy ) / ( dx*dx + dy*dy );
 
@@ -265,13 +265,13 @@ class Maths{
 
 		//From a point in space, closest spot to a 3D line
 		static closest_point_to_line3D( ax, ay, az, bx, by, bz, px, py, pz, out=null ){
-			let dx	= bx - ax,
+			const dx	= bx - ax,
 				dy	= by - ay,
 				dz	= bz - az,
 				t	= ( (px-ax)*dx + (py-ay)*dy + (pz-az)*dz ) / ( dx*dx + dy*dy + dz*dz ) ;
 
 			if( out ){
-				let ti = 1-t;
+				const ti = 1-t;
 				//out[ 0 ] = ax + (dx * t);
 				//out[ 1 ] = ay + (dy * t);
 				//out[ 2 ] = az + (dz * t);
@@ -285,7 +285,7 @@ class Maths{
 
 		//Return back the two points that are closes on two infinite lines
 		static closest_points_from_lines( A0, A1, B0, B1 ){ //http://geomalgorithms.com/a07-_distance.html
-			var u = A1.clone().sub(A0),
+			let u = A1.clone().sub(A0),
 				v = B1.clone().sub(B0),
 				w = A0.clone().sub(B0),
 				a = Vec3.dot(u,u),         // always >= 0
@@ -367,16 +367,16 @@ class CiaccoRandom{
 
 //https://www.youtube.com/watch?v=U9q-jM3-Phc&
 function ValueNoise2D_Closure(){
-	let cache	= {};
-	let rand	= ( x, y )=>{
-		let key = x+"."+y;
+	const cache	= {};
+	const rand	= ( x, y )=>{
+		const key = x+"."+y;
 		if( !cache[ key ] ) cache[ key ] = Math.random();
 		return cache[ key ];
 	};
 
 	return ( x, y )=>{
 		// Bilinear Filter
-		let x1	= Math.floor( x ),   // Get Base Number
+		const x1	= Math.floor( x ),   // Get Base Number
 			y1	= Math.floor( y ),
 			x2	= x1 + 1,            // Get Next Coord
 			y2	= y1 + 1,
@@ -411,7 +411,7 @@ long = (atan2(x,z) + PI + PI / 2) % (PI * 2) - PI;
 
 //From a point in space, closest spot to a 2D line
 function closestPointToLine2D(x0,y0,x1,y1,px,py){
-	var dx	= x1 - x0,
+	const dx	= x1 - x0,
 		dy	= y1 - y0,
 		t	= ((px-x0)*dx + (py-y0)*dy) / (dx*dx+dy*dy),
 		x	= x0 + (dx * t), //Util.lerp(x0, x1, t),
@@ -423,7 +423,7 @@ function closestPointToLine2D(x0,y0,x1,y1,px,py){
 function closestPointToLine3D(a,b,p,out){
 	out = out || new Vec3();
 
-	let dx	= b.x - a.x,
+	const dx	= b.x - a.x,
 		dy	= b.y - a.y,
 		dz	= a.z - a.z,
 		t	= ((p.x-a.x)*dx + (p.y-a.y)*dy + (p.z-a.z)*dz) / (dx*dx+dy*dy+dz*dz),
@@ -436,7 +436,7 @@ function closestPointToLine3D(a,b,p,out){
 //Return back the two points that are closes on two infinite lines
 //http://geomalgorithms.com/a07-_distance.html
 function closestpoint_2Lines(A0,A1,B0,B1){
-	var u = A1.clone().sub(A0),
+	let u = A1.clone().sub(A0),
 		v = B1.clone().sub(B0),
 		w = A0.clone().sub(B0),
 		a = Vec3.dot(u,u),         // always >= 0
@@ -465,7 +465,7 @@ function closestpoint_2Lines(A0,A1,B0,B1){
 //Return back the two points that are the closests but bound by the limit of two segments
 //http://geomalgorithms.com/a07-_distance.html
 function closestPointS_2Segments(A0,A1,B0,B1){
-	var u = A1.clone().sub(A0),
+	let u = A1.clone().sub(A0),
 		v = B1.clone().sub(B0),
 		w = A0.clone().sub(B0),
 		a = Vec3.dot(u,u),         // always >= 0

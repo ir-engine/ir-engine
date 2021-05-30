@@ -1,6 +1,6 @@
 import { Vec3 } from "../math/Maths";
 
-//#################################################################
+########
 export class SemiImplicitEuler {
 	vel: Vec3;
 	pos: Vec3;
@@ -43,7 +43,7 @@ export class SemiImplicitEuler {
 
 	set_target(p) { this.tar.copy(p); return this; }
 	update(dt, target_pos = null) {
-		let a = -2.0 * dt * this.damping * this.osc_ps,
+		const a = -2.0 * dt * this.damping * this.osc_ps,
 			b = dt * this.osc_ps * this.osc_ps;
 
 		// Often need to change target, so make it optional on update to elimatate 1 function call.

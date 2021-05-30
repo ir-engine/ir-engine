@@ -2,12 +2,12 @@ import Transform from "../math/Transform";
 import Pose from "../classes/Pose";
 import { Bone, Skeleton } from "three";
 import { Component } from "../../ecs/classes/Component";
-
-//#################################################################
+import { getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
+import Obj from "./Obj";
 class Armature extends Component<Armature> {
-	updated: boolean = true;
+	updated = true;
 	skeleton: any = null;
-	bones: any[] = new Array();
+	bones: any[] = [];
 	name_map: {} = {};
 
 	/////////////////////////////////////////////////
@@ -17,7 +17,7 @@ class Armature extends Component<Armature> {
 	// Bones must be inserted in the order they will be used in a skinned shader.
 	// Must keep the bone index and parent index correctly.
 	add_bone(name, len = 1, p_idx = null) {
-		let b = {
+		const b = {
 			ref: new Bone(),
 			name: name,					// Bone Name
 			idx: this.bones.length,	// Bone Index
@@ -33,7 +33,7 @@ class Armature extends Component<Armature> {
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Set Bone as a child of another
 		if (p_idx != null && this.bones[p_idx]) {
-			let p = this.bones[p_idx];
+			const p = this.bones[p_idx];
 
 			p.ref.add(b.ref);						// Make Bone a child 
 			if (p.len) b.ref.position.y = p.len;	// Move bone to parent's tail location
@@ -81,10 +81,13 @@ class Armature extends Component<Armature> {
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Bind Skeleton & Root Bone to SkinnedMesh if available.
-		let e = this.entity;
-		if (e.Obj && e.Obj.ref && e.Obj.ref.isSkinnedMesh) {
-			e.Obj.ref.add(this.bones[0].ref);	// Add Root Bone
-			e.Obj.ref.bind(this.skeleton);		// Bind Skeleton
+		const entity = this.entity;
+
+
+		
+		if (hasComponent(entity, Obj) && getMutableComponent(entity, Obj).ref && getMutableComponent(entity, Obj).ref.isSkinnedMesh) {
+			getMutableComponent(entity, Obj).ref.add(this.bones[0].ref);	// Add Root Bone
+			getMutableComponent(entity, Obj).ref.bind(this.skeleton);		// Bind Skeleton
 		}
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -173,5 +176,4 @@ class Armature extends Component<Armature> {
 	}
 }
 
-//#################################################################
 export default Armature;

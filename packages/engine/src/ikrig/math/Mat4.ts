@@ -24,7 +24,7 @@ class Matrix4 extends Float32Array{
 		invert(){ Matrix4.invert( null, this ); return this; }
 
 		from_mul( a, b ){ 
-			let a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
+			const a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
 				a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7],
 				a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11],
 				a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
@@ -57,7 +57,7 @@ class Matrix4 extends Float32Array{
 		}
 
 		from_invert( mat ) {
-			var a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3],
+			let a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3],
 				a10 = mat[4], a11 = mat[5], a12 = mat[6], a13 = mat[7],
 				a20 = mat[8], a21 = mat[9], a22 = mat[10], a23 = mat[11],
 				a30 = mat[12], a31 = mat[13], a32 = mat[14], a33 = mat[15],
@@ -102,7 +102,7 @@ class Matrix4 extends Float32Array{
 		}
 
 		from_perspective( fovy, aspect, near, far ){
-			let f = 1.0 / Math.tan(fovy / 2),
+			const f = 1.0 / Math.tan(fovy / 2),
 				nf = 1 / (near - far);
 			this[0] = f / aspect;
 			this[1] = 0;
@@ -124,7 +124,7 @@ class Matrix4 extends Float32Array{
 		}
 
 		from_ortho( left, right, bottom, top, near, far ){
-			let lr = 1 / (left - right),
+			const lr = 1 / (left - right),
 				bt = 1 / (bottom - top),
 				nf = 1 / (near - far);
 			this[0] = -2 * lr;
@@ -148,7 +148,7 @@ class Matrix4 extends Float32Array{
 
 		from_quat_tran_scale( q, v, s ){
 			// Quaternion math
-			let x = q[0], y = q[1], z = q[2], w = q[3],
+			const x = q[0], y = q[1], z = q[2], w = q[3],
 			x2 = x + x,
 			y2 = y + y,
 			z2 = z + z,
@@ -196,7 +196,7 @@ class Matrix4 extends Float32Array{
 
 		get_scale( out=null ){
 			out = out || [0,0,0];
-			let m11 = this[0],
+			const m11 = this[0],
 				m12 = this[1],
 				m13 = this[2],
 				m21 = this[4],
@@ -252,7 +252,7 @@ class Matrix4 extends Float32Array{
 	////////////////////////////////////////////////////////////////////
 		
 		mul( b ){ 
-			let a00 = this[0],	a01 = this[1],	a02 = this[2],	a03 = this[3],
+			const a00 = this[0],	a01 = this[1],	a02 = this[2],	a03 = this[3],
 				a10 = this[4],	a11 = this[5],	a12 = this[6],	a13 = this[7],
 				a20 = this[8],	a21 = this[9],	a22 = this[10],	a23 = this[11],
 				a30 = this[12],	a31 = this[13],	a32 = this[14],	a33 = this[15];
@@ -289,7 +289,7 @@ class Matrix4 extends Float32Array{
 	////////////////////////////////////////////////////////////////////
 
 		transform_vec4( v, out = null ){
-			let x = v[0], y = v[1], z = v[2], w = v[3];
+			const x = v[0], y = v[1], z = v[2], w = v[3];
 			out = out || v;
 
 			out[0] = this[0] * x + this[4] * y + this[8]	* z + this[12] * w;
@@ -308,7 +308,7 @@ class Matrix4 extends Float32Array{
 		}
 
 		static perspective( out, fovy, aspect, near, far ){
-			let f = 1.0 / Math.tan(fovy / 2),
+			const f = 1.0 / Math.tan(fovy / 2),
 				nf = 1 / (near - far);
 			out[0] = f / aspect;
 			out[1] = 0;
@@ -329,7 +329,7 @@ class Matrix4 extends Float32Array{
 		}
 
 		static ortho( out, left, right, bottom, top, near, far ){
-			let lr = 1 / (left - right),
+			const lr = 1 / (left - right),
 				bt = 1 / (bottom - top),
 				nf = 1 / (near - far);
 			out[0] = -2 * lr;
@@ -353,15 +353,15 @@ class Matrix4 extends Float32Array{
 		//This creates a View Matrix, not a World Matrix. Use TargetTo for a World Matrix type LookAt.
 		static look_at(eye, center, up, out){
 			let x0, x1, x2, y0, y1, y2, z0, z1, z2, len;
-			let eyex = eye[0];
-			let eyey = eye[1];
-			let eyez = eye[2];
-			let upx = up[0];
-			let upy = up[1];
-			let upz = up[2];
-			let centerx = center[0];
-			let centery = center[1];
-			let centerz = center[2];
+			const eyex = eye[0];
+			const eyey = eye[1];
+			const eyez = eye[2];
+			const upx = up[0];
+			const upy = up[1];
+			const upz = up[2];
+			const centerx = center[0];
+			const centery = center[1];
+			const centerz = center[2];
 
 			if (Math.abs(eyex - centerx) < 0.000001 &&
 				Math.abs(eyey - centery) < 0.000001 &&
@@ -431,7 +431,7 @@ class Matrix4 extends Float32Array{
 		}
 
 		static target_to(eye, target, up, out){
-			let eyex = eye[0],
+			const eyex = eye[0],
 				eyey = eye[1],
 				eyez = eye[2],
 				upx = up[0],
@@ -487,7 +487,7 @@ class Matrix4 extends Float32Array{
 
 		// Calculates a 3x3 normal matrix (transpose inverse) from the 4x4 matrix
 		static normal_mat3( a, out ){
-			var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
+			let a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
 				a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7],
 				a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11],
 				a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15],
@@ -533,13 +533,13 @@ class Matrix4 extends Float32Array{
 		//From glMatrix
 		//Multiple two mat4 together
 		static mul( a, b, out ){ 
-			var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
+			const a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
 				a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7],
 				a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11],
 				a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
 
 			// Cache only the current line of the second matrix
-			var b0  = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
+			let b0  = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
 			out[0] = b0*a00 + b1*a10 + b2*a20 + b3*a30;
 			out[1] = b0*a01 + b1*a11 + b2*a21 + b3*a31;
 			out[2] = b0*a02 + b1*a12 + b2*a22 + b3*a32;
@@ -585,7 +585,7 @@ class Matrix4 extends Float32Array{
 		static transpose( a, out ){
 			//If we are transposing ourselves we can skip a few steps but have to cache some values
 			if (out === a) {
-				var a01 = a[1], a02 = a[2], a03 = a[3], a12 = a[6], a13 = a[7], a23 = a[11];
+				const a01 = a[1], a02 = a[2], a03 = a[3], a12 = a[6], a13 = a[7], a23 = a[11];
 				out[1] = a[4];
 				out[2] = a[8];
 				out[3] = a[12];
@@ -623,7 +623,7 @@ class Matrix4 extends Float32Array{
 		static invert( mat, out ) {
 			mat = mat || out; //If input isn't sent, then output is also input
 
-			var a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3],
+			let a00 = mat[0], a01 = mat[1], a02 = mat[2], a03 = mat[3],
 				a10 = mat[4], a11 = mat[5], a12 = mat[6], a13 = mat[7],
 				a20 = mat[8], a21 = mat[9], a22 = mat[10], a23 = mat[11],
 				a30 = mat[12], a31 = mat[13], a32 = mat[14], a33 = mat[15],
@@ -669,8 +669,8 @@ class Matrix4 extends Float32Array{
 
 		//https://github.com/gregtatum/mdn-model-view-projection/blob/master/shared/matrices.js
 		static multiply_vector( mat4, v) { //TODO: Dont need this, transformVec3 does a better job.
-			var x = v[0], y = v[1], z = v[2], w = v[3];
-			var c1r1 = mat4[ 0], c2r1 = mat4[ 1], c3r1 = mat4[ 2], c4r1 = mat4[ 3],
+			const x = v[0], y = v[1], z = v[2], w = v[3];
+			const c1r1 = mat4[ 0], c2r1 = mat4[ 1], c3r1 = mat4[ 2], c4r1 = mat4[ 3],
 				c1r2 = mat4[ 4], c2r2 = mat4[ 5], c3r2 = mat4[ 6], c4r2 = mat4[ 7],
 				c1r3 = mat4[ 8], c2r3 = mat4[ 9], c3r3 = mat4[10], c4r3 = mat4[11],
 				c1r4 = mat4[12], c2r4 = mat4[13], c3r4 = mat4[14], c4r4 = mat4[15];
@@ -685,7 +685,7 @@ class Matrix4 extends Float32Array{
 
 		//https://github.com/toji/gl-matrix/blob/master/src/gl-matrix/vec4.js, vec4.transformMat4
 		static transform_vec4( m, v, out = null){
-			var x = v[0], y = v[1], z = v[2], w = v[3];
+			const x = v[0], y = v[1], z = v[2], w = v[3];
 			out = out || v;
 
 			out[0] = m[0] * x + m[4] * y + m[8]		* z + m[12] * w;
@@ -702,7 +702,7 @@ class Matrix4 extends Float32Array{
 		//New function derived from fromRotationTranslation, just took out the translation stuff.
 		static from_quat( q, out ){
 			// Quaternion math
-			var x = q[0], y = q[1], z = q[2], w = q[3],
+			const x = q[0], y = q[1], z = q[2], w = q[3],
 				x2 = x + x,
 				y2 = y + y,
 				z2 = z + z,
@@ -735,7 +735,7 @@ class Matrix4 extends Float32Array{
 		//https://github.com/toji/gl-matrix/blob/master/src/gl-matrix/mat4.js
 		static from_quat_tran( q, out ){
 			// Quaternion math
-			var x = q[0], y = q[1], z = q[2], w = q[3],
+			const x = q[0], y = q[1], z = q[2], w = q[3],
 				x2 = x + x,
 				y2 = y + y,
 				z2 = z + z,
@@ -780,7 +780,7 @@ class Matrix4 extends Float32Array{
 
 		static from_quat_tran_scale( q, v, s, out ){
 			// Quaternion math
-			var x = q[0], y = q[1], z = q[2], w = q[3],
+			const x = q[0], y = q[1], z = q[2], w = q[3],
 			x2 = x + x,
 			y2 = y + y,
 			z2 = z + z,
@@ -826,7 +826,7 @@ class Matrix4 extends Float32Array{
 		}
 
 		static get_scaling(out, mat){
-			var m11 = mat[0],
+			const m11 = mat[0],
 				m12 = mat[1],
 				m13 = mat[2],
 				m21 = mat[4],
@@ -845,7 +845,7 @@ class Matrix4 extends Float32Array{
 		//fromRotationTranslation, the returned quaternion will be the same as the quaternion originally supplied
 		static get_rotation(out, mat){
 			// Algorithm taken from http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
-			var trace = mat[0] + mat[5] + mat[10],
+			let trace = mat[0] + mat[5] + mat[10],
 				S = 0;
 
 			if(trace > 0){
@@ -881,7 +881,7 @@ class Matrix4 extends Float32Array{
 	////////////////////////////////////////////////////////////////////
 
 		static rotate_y(out,rad) {
-			var s = Math.sin(rad),
+			const s = Math.sin(rad),
 				c = Math.cos(rad),
 				a00 = out[0],
 				a01 = out[1],
@@ -905,7 +905,7 @@ class Matrix4 extends Float32Array{
 		}
 
 		static rotate_x(out,rad) {
-			var s = Math.sin(rad),
+			const s = Math.sin(rad),
 				c = Math.cos(rad),
 				a10 = out[4],
 				a11 = out[5],
@@ -929,7 +929,7 @@ class Matrix4 extends Float32Array{
 		}
 
 		static rotate_z(out,rad){
-			var s = Math.sin(rad),
+			const s = Math.sin(rad),
 				c = Math.cos(rad),
 				a00 = out[0],
 				a01 = out[1],
@@ -953,7 +953,7 @@ class Matrix4 extends Float32Array{
 		}
 
 		static rotate(out, rad, axis){
-			var x = axis[0], y = axis[1], z = axis[2],
+			let x = axis[0], y = axis[1], z = axis[2],
 				len = Math.sqrt(x * x + y * y + z * z),
 				s, c, t,
 				a00, a01, a02, a03,

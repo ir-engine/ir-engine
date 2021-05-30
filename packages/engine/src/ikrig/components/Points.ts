@@ -4,9 +4,9 @@ import { addComponent, createEntity, getComponent, getMutableComponent } from ".
 import Obj from "./Obj";
 
 class PointsComponent extends Component<PointsComponent>{
-	cnt: number = 0;
-	use_size: number = 10;
-	use_shape: number = 1;
+	cnt = 0;
+	use_size = 10;
+	use_shape = 1;
 	buf_pos: BufferAttribute;
 	buf_clr: BufferAttribute;
 	geo: BufferGeometry;
@@ -14,7 +14,7 @@ class PointsComponent extends Component<PointsComponent>{
 	static $( name="points", max_len=100 ){
 		const entity = createEntity();
 		addComponent(entity, PointsComponent);
-		getComponent(entity, PointsComponent).init(name, max_len);
+		getMutableComponent(entity, PointsComponent).init(name, max_len);
 
 		return entity;
 	}
@@ -48,7 +48,11 @@ class PointsComponent extends Component<PointsComponent>{
 		this.mesh = new Points( this.geo, get_material() );
 		this.mesh.name = name;
 
-		const obj = getMutableComponent(this.entity, Obj);
+		let obj = getMutableComponent(this.entity, Obj);
+		if(!obj) {
+			addComponent(this.entity, Obj);
+			obj = getMutableComponent(this.entity, Obj);
+		}
 		obj.set_ref( this.mesh );
 
 		return this;
@@ -67,7 +71,7 @@ class PointsComponent extends Component<PointsComponent>{
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// VERTEX COLOR - SHAPE
-		let c = gl_color( hex );
+		const c = gl_color( hex );
 		this.buf_clr.setXYZW( this.cnt, c[0], c[1], c[2], ((shape != null)? shape:this.use_shape) );
 		this.buf_clr.needsUpdate = true;
 

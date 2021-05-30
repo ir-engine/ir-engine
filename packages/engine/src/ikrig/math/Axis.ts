@@ -43,7 +43,7 @@ class Axis{
 		to_quat( out ){ return (out || new Quat()).from_axis( this.x, this.y, this.z ); }
 		from_quat( q ){
 			// Same code for Quat to Matrix 3 conversion
-			let x = q[0], y = q[1], z = q[2], w = q[3],
+			const x = q[0], y = q[1], z = q[2], w = q[3],
 				x2 = x + x,
 				y2 = y + y,
 				z2 = z + z,
@@ -102,7 +102,7 @@ class Axis{
 
 		// Axis is pretty much a Rotation Matrix, so easy to apply rotation to a vector.
 		transform_vec3( v, out ){
-			let x = v[0], y = v[1], z = v[2];
+			const x = v[0], y = v[1], z = v[2];
 			
 			out = out || new Vec3();
 			out[0] = x * this.x[0] + y * this.y[0] + z * this.z[0];

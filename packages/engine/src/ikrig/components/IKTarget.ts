@@ -7,8 +7,8 @@ class IKTarget extends Component<IKTarget>{
 	start_pos: Vec3 = new Vec3();
 	end_pos: Vec3 = new Vec3();
 	axis: Axis = new Axis();
-	len_sqr: number = 0;
-	len: number = 0;
+	len_sqr = 0;
+	len = 0;
 	
 	/////////////////////////////////////////////////////////////////////
 	// GETTERS - SETTERS
@@ -46,7 +46,7 @@ class IKTarget extends Component<IKTarget>{
 		
 		/** Visually see the Target information */
 		debug( d, scl=1.0 ){ 
-			let v = new Vec3(),
+			const v = new Vec3(),
 				p = this.start_pos,
 				a = this.axis;
 			d	.ln( p, v.from_scale( a.z , scl ).add( p ), "green" )
@@ -80,7 +80,7 @@ class IKTarget extends Component<IKTarget>{
 			Quat.rotateTo( v1, v2 ). This function creates a rotation needed to get from One Vector dir to the other.
 			*/
 			
-			let rot		= Quat.mul( p_wt.rot, pose.get_local_rot( chain.bones[0].idx ) ),	// Get World Space Rotation for Bone
+			const rot		= Quat.mul( p_wt.rot, pose.get_local_rot( chain.bones[0].idx ) ),	// Get World Space Rotation for Bone
 				f_dir	= Vec3.transform_quat( Vec3.FORWARD, rot ),					// Get Bone's WS Forward Dir
 				l_dir	= Vec3.cross( this.axis.z, f_dir ).norm();					// WS Left Dir
 
@@ -101,8 +101,8 @@ class IKTarget extends Component<IKTarget>{
 			
 			//console.log("epp", Vec3.dot( align_dir, this.axis.y ) );
 			//####################################################
-			let b = pose.bones[ chain.first() ];
-			let t = new Transform();
+			const b = pose.bones[ chain.first() ];
+			const t = new Transform();
 			t.from_add( p_wt, b.local );
 			//console.log(  chain.align_axis  );
 			//App.Debug.ln( t.pos, Vec3.add( t.pos, align_dir ), "orange" );
@@ -110,7 +110,7 @@ class IKTarget extends Component<IKTarget>{
 			//####################################################
 
 			// Shortest Twisting Direction
-			let vdot = Vec3.dot( align_dir, this.axis.y );
+			const vdot = Vec3.dot( align_dir, this.axis.y );
 			if( vdot < 0 ) align_dir.invert();
 			
 
@@ -123,7 +123,7 @@ class IKTarget extends Component<IKTarget>{
 		}
 
 		aimxxx( chain, tpose, pose, p_wt ){
-			let rot = new Quat();
+			const rot = new Quat();
 			this._aim_bone( chain, tpose, p_wt, rot );
 			rot.pmul_invert( p_wt.rot ); // Convert to Bone's Local Space by mul invert of parent bone rotation
 			pose.set_bone( chain.bones[ 0 ].idx, rot );
@@ -133,7 +133,7 @@ class IKTarget extends Component<IKTarget>{
 	}
 
 		aim2( chain, tpose, pose, p_wt ){
-			let rot = new Quat();
+			const rot = new Quat();
 			this._aim_bone2( chain, tpose, p_wt, rot );
 
 			rot.pmul_invert( p_wt.rot ); // Convert to Bone's Local Space by mul invert of parent bone rotation
@@ -141,7 +141,7 @@ class IKTarget extends Component<IKTarget>{
 		}
 
 		_aim_bone2( chain, tpose, p_wt, out ){
-			let rot	= Quat.mul( p_wt.rot, tpose.get_local_rot( chain.first() ) ),	// Get World Space Rotation for Bone
+			const rot	= Quat.mul( p_wt.rot, tpose.get_local_rot( chain.first() ) ),	// Get World Space Rotation for Bone
 				dir	= Vec3.transform_quat( chain.alt_fwd, rot );					// Get Bone's WS Forward Dir
 
 			//let ct = new Transform();
@@ -151,7 +151,7 @@ class IKTarget extends Component<IKTarget>{
 			//App.Debug.ln( ct.pos, Vec3.add( ct.pos, f_dir), "orange" );
 
 			//Swing
-			let q = Quat.unit_vecs( dir, this.axis.z );
+			const q = Quat.unit_vecs( dir, this.axis.z );
 			out.from_mul( q, rot );
 
 			// Twist 

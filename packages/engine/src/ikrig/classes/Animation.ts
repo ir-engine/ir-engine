@@ -15,14 +15,14 @@ class Animation {
 
 	add_time_array(tary) {
 		// Create Main Array if not setup
-		if (!this.times) this.times = new Array();
+		if (!this.times) this.times = [];
 
 		// Get Item Index then save.
-		let i = this.times.length;
+		const i = this.times.length;
 		this.times.push(tary);
 
 		// Update max time.
-		let n = tary[tary.length - 1];
+		const n = tary[tary.length - 1];
 		if (n > this.time) this.time = n;
 
 		// Update frame count
@@ -32,17 +32,17 @@ class Animation {
 	}
 
 	add_track(type, time_idx, interp, data) {
-		if (!this.tracks) this.tracks = new Array();
+		if (!this.tracks) this.tracks = [];
 
-		let i = this.tracks.length;
+		const i = this.tracks.length;
 		this.tracks.push({ type, time_idx, interp, data });
 		return i;
 	}
 
 	add_joint_track(type, time_idx, joint_idx, interp, data) {
-		if (!this.tracks) this.tracks = new Array();
+		if (!this.tracks) this.tracks = [];
 
-		let i = this.tracks.length;
+		const i = this.tracks.length;
 		this.tracks.push({ type, time_idx, joint_idx, interp, data });
 		return i;
 	}
@@ -65,7 +65,7 @@ class Animation {
 		let a;
 		this.frame_cnt = anim.frame_cnt;
 		this.time = anim.time;
-		this.times = new Array();
+		this.times = [];
 
 		for (a of anim.times) this.times.push(a.slice(0));
 
@@ -132,7 +132,7 @@ class AnimUtil {
 
 	// basic vec3 lerp
 	static vec3_buf_lerp(buf, ai, bi, t, out) {
-		let ti = 1 - t;
+		const ti = 1 - t;
 		out[0] = ti * buf[ai] + t * buf[bi];
 		out[1] = ti * buf[ai + 1] + t * buf[bi + 1];
 		out[2] = ti * buf[ai + 2] + t * buf[bi + 2];

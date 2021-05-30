@@ -74,7 +74,7 @@ class Quat extends Float32Array{
 		get_axis_angle(){
 			if(this[3] > 1) this.norm();
 
-			let angle 	= 2 * Math.acos(this[3]),
+			const angle 	= 2 * Math.acos(this[3]),
 				s		= Math.sqrt(1 - this[3] * this[3]);
 
 			if(s < 0.001)  return [ 1 , 0 , 0, 0];
@@ -90,7 +90,7 @@ class Quat extends Float32Array{
 		get_axis( out=null ){
 			if( this[3] > 1 ) this.norm();
 			
-			let s = Math.sqrt( 1 - this[3] * this[3] );
+			const s = Math.sqrt( 1 - this[3] * this[3] );
 
 			out = out || new Vec3();
 			if(s < 0.001){
@@ -134,14 +134,14 @@ class Quat extends Float32Array{
 
 			//..............................
 			if(isNaN(pitch)){ //console.log("isNan");
-				let sqz	= z*z;
+				const sqz	= z*z;
 				roll	= Math.atan2(2*x*w - 2*y*z , 1 - 2*x*x - 2*sqz); // bank
 				pitch	= Math.atan2(2*y*w - 2*x*z , 1 - 2*y*y - 2*sqz); // Heading
 				yaw		= Math.asin(2*test); // attitude
 			}
 
 			//..............................
-			let deg = (in_deg)? 180 / Math.PI : 1;
+			const deg = (in_deg)? 180 / Math.PI : 1;
 			out		= out || new Vec3();
 			out[0]	= roll	* deg;
 			out[1]	= pitch	* deg;
@@ -154,7 +154,7 @@ class Quat extends Float32Array{
 	////////////////////////////////////////////////////////////////////
 		
 		from_mul( a, b ){
-			let ax = a[0], ay = a[1], az = a[2], aw = a[3],
+			const ax = a[0], ay = a[1], az = a[2], aw = a[3],
 				bx = b[0], by = b[1], bz = b[2], bw = b[3];
 
 			this[0] = ax * bw + aw * bx + ay * bz - az * by;
@@ -211,7 +211,7 @@ class Quat extends Float32Array{
 		from_polar( lon, lat, up=null ){
 			lat = Math.max( Math.min( lat, 89.999999 ), -89.999999 ); // Clamp lat, going to 90+ makes things spring around.
 
-			let phi 	= ( 90 - lat ) * 0.01745329251, // PI / 180
+			const phi 	= ( 90 - lat ) * 0.01745329251, // PI / 180
 				theta 	= lon * 0.01745329251,
 				phi_s	= Math.sin( phi ),
 				v		= [
@@ -227,7 +227,7 @@ class Quat extends Float32Array{
 		from_look( vDir, vUp ){
 			// Ported to JS from C# example at https://pastebin.com/ubATCxJY
 			// Note, if Dir and Up are equal, a roll happends. Need to find a way to fix this.
-			let zAxis	= new Vec3( vDir ),	//Forward
+			const zAxis	= new Vec3( vDir ),	//Forward
 				up		= new Vec3( vUp ),
 				xAxis	= new Vec3(),		//Right
 				yAxis	= new Vec3();
@@ -240,7 +240,7 @@ class Quat extends Float32Array{
 			zAxis.norm();
 
 			//fromAxis - Mat3 to Quat
-			var m00 = xAxis.x, m01 = xAxis.y, m02 = xAxis.z,
+			let m00 = xAxis.x, m01 = xAxis.y, m02 = xAxis.z,
 				m10 = yAxis.x, m11 = yAxis.y, m12 = yAxis.z,
 				m20 = zAxis.x, m21 = zAxis.y, m22 = zAxis.z,
 				t = m00 + m11 + m22,
@@ -284,7 +284,7 @@ class Quat extends Float32Array{
 		}
 
 		from_invert( q ){
-			let a0	= q[0],
+			const a0	= q[0],
 				a1	= q[1],
 				a2	= q[2],
 				a3	= q[3],
@@ -293,7 +293,7 @@ class Quat extends Float32Array{
 			// Would be faster to return [0,0,0,0] immediately if dot == 0
 			if(dot == 0){ this[0] = this[1] = this[2] = this[3] = 0; return this; }
 
-			let invDot = 1.0 / dot; // let invDot = dot ? 1.0/dot : 0;
+			const invDot = 1.0 / dot; // let invDot = dot ? 1.0/dot : 0;
 			this[0]	= -a0 * invDot;
 			this[1]	= -a1 * invDot;
 			this[2]	= -a2 * invDot;
@@ -303,7 +303,7 @@ class Quat extends Float32Array{
 
 		// Axis must be normlized
 		from_axis_angle( axis, angle ){ 
-			let half	= angle * .5,
+			const half	= angle * .5,
 				s		= Math.sin( half );
 			this[0] = axis[0] * s;
 			this[1] = axis[1] * s;
@@ -316,10 +316,10 @@ class Quat extends Float32Array{
 			// Using unit vectors, Shortest rotation from Direction A to Direction B
 			// http://glmatrix.net/docs/quat.js.html#line548
 			// http://physicsforgames.blogspot.com/2010/03/Quat-tricks.html
-			let dot = Vec3.dot( a, b );
+			const dot = Vec3.dot( a, b );
 
 		    if(dot < -0.999999){
-		      let tmp = Vec3.cross( Vec3.LEFT, a );
+		      const tmp = Vec3.cross( Vec3.LEFT, a );
 		      if( tmp.len() < 0.000001 ) Vec3.cross( Vec3.UP, a, tmp );
 		      this.from_axis_angle( tmp.norm(), Math.PI );
 		    }else if(dot > 0.999999){
@@ -328,7 +328,7 @@ class Quat extends Float32Array{
 		      this[2] = 0;
 		      this[3] = 1;
 		    }else{
-		      let v = Vec3.cross(a, b);
+		      const v = Vec3.cross(a, b);
 		      this[0] = v[0];
 		      this[1] = v[1];
 		      this[2] = v[2];
@@ -362,8 +362,8 @@ class Quat extends Float32Array{
 				if ( m[4] > m[0] )		i = 1;
 				if ( m[8] > m[i*3+i] )	i = 2;
 				
-				let j = (i+1) % 3;
-				let k = (i+2) % 3;
+				const j = (i+1) % 3;
+				const k = (i+2) % 3;
 
 				fRoot	= Math.sqrt( m[i*3+i] - m[j*3+j] - m[k*3+k] + 1.0);
 				this[i]	= 0.5 * fRoot;
@@ -379,7 +379,7 @@ class Quat extends Float32Array{
 		from_mat4( mat ){
 			// https://github.com/toji/gl-matrix/blob/master/src/mat4.js
 			// Algorithm taken from http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuat/index.htm
-			let trace = mat[0] + mat[5] + mat[10];
+			const trace = mat[0] + mat[5] + mat[10];
 			let S = 0;
 
 			if (trace > 0) {
@@ -425,7 +425,7 @@ class Quat extends Float32Array{
 				zz = x[2] * 0.01745329251 * 0.5;
 			}
 
-			let	c1 = Math.cos( xx ),
+			const	c1 = Math.cos( xx ),
 				c2 = Math.cos( yy ),
 				c3 = Math.cos( zz ),
 				s1 = Math.sin( xx ),
@@ -439,7 +439,7 @@ class Quat extends Float32Array{
 		}
 
 		from_euler_xy( x, y ){ //order="YXZ", Values in Degrees, will be converted to Radians by function
-			var xx = x * 0.01745329251 * 0.5,
+			const xx = x * 0.01745329251 * 0.5,
 				yy = y * 0.01745329251 * 0.5,
 				c1 = Math.cos( xx ),
 				c2 = Math.cos( yy ),
@@ -454,7 +454,7 @@ class Quat extends Float32Array{
 
 		from_euler_order( x, y, z, order="YXZ" ){
 			// https://github.com/mrdoob/three.js/blob/dev/src/math/Quat.js
-			let c1 = Math.cos(x*0.5), //Math.cos(x/2)
+			const c1 = Math.cos(x*0.5), //Math.cos(x/2)
 				c2 = Math.cos(y*0.5), //Math.cos(y/2),
 				c3 = Math.cos(z*0.5), //Math.cos(z/2),
 				s1 = Math.sin(x*0.5), //Math.sin(x/2),
@@ -522,7 +522,7 @@ class Quat extends Float32Array{
 		}
 
 		invert( out=null ) {
-			let a0	= this[0],
+			const a0	= this[0],
 				a1	= this[1],
 				a2	= this[2],
 				a3	= this[3],
@@ -531,7 +531,7 @@ class Quat extends Float32Array{
 			// Would be faster to return [0,0,0,0] immediately if dot == 0
 			if(dot == 0){ out[0] = out[1] = out[2] = out[3] = 0; }
 
-			let invDot = 1.0 / dot; // let invDot = dot ? 1.0/dot : 0;
+			const invDot = 1.0 / dot; // let invDot = dot ? 1.0/dot : 0;
 			out		=  out || this;
 			out[0]	= -a0 * invDot;
 			out[1]	= -a1 * invDot;
@@ -567,7 +567,7 @@ class Quat extends Float32Array{
 
 		random(){
 			// http://planning.cs.uiuc.edu/node198.html  uniform random quaternion
-			let u1 = Math.random(),
+			const u1 = Math.random(),
 				u2 = Math.random(),
 				u3 = Math.random(),
 				r1 = Math.sqrt( 1-u1 ),
@@ -583,7 +583,7 @@ class Quat extends Float32Array{
 		scale_angle( scl ){
 			if( this[3] > 1 ) this.norm();
 
-			let angle	= 2 * Math.acos( this[3] ),
+			const angle	= 2 * Math.acos( this[3] ),
 				len		= 1 / Math.sqrt( this[0]**2 + this[1]**2 + this[2]**2 ), // Get Length to normalize axis
 				half	= (angle * scl) * 0.5, // Calc Angle, Scale it then Half it.
 				s		= Math.sin( half ); // Do Normalize and SinHalf at the same time
@@ -602,7 +602,7 @@ class Quat extends Float32Array{
 			out = out || this;
 			rad *= 0.5; 
 
-			let ax = this[0], ay = this[1], az = this[2], aw = this[3],
+			const ax = this[0], ay = this[1], az = this[2], aw = this[3],
 				bx = Math.sin(rad), bw = Math.cos(rad);
 
 			out[0] = ax * bw + aw * bx;
@@ -616,7 +616,7 @@ class Quat extends Float32Array{
 			out = out || this;
 			rad *= 0.5; 
 
-			let ax = this[0], ay = this[1], az = this[2], aw = this[3],
+			const ax = this[0], ay = this[1], az = this[2], aw = this[3],
 				by = Math.sin(rad), bw = Math.cos(rad);
 
 			out[0] = ax * bw - az * by;
@@ -630,7 +630,7 @@ class Quat extends Float32Array{
 			out = out || this;
 			rad *= 0.5; 
 
-			let ax = this[0], ay = this[1], az = this[2], aw = this[3],
+			const ax = this[0], ay = this[1], az = this[2], aw = this[3],
 				bz = Math.sin(rad),
 				bw = Math.cos(rad);
 
@@ -642,7 +642,7 @@ class Quat extends Float32Array{
 		}
 
 		rot_deg( deg, axis="y" ){
-			let rad = deg * Math.PI / 180;
+			const rad = deg * Math.PI / 180;
 			switch( axis ){
 				case "x" : this.rot_x( rad ); break;
 				case "y" : this.rot_y( rad ); break;
@@ -656,7 +656,7 @@ class Quat extends Float32Array{
 	////////////////////////////////////////////////////////////////////
 		
 		mul( q ){ 
-			let ax	= this[0],	ay	= this[1],	az	= this[2],	aw	= this[3],
+			const ax	= this[0],	ay	= this[1],	az	= this[2],	aw	= this[3],
 				bx	= q[0],		by	= q[1], 	bz	= q[2], 	bw	= q[3];
 			this[0]	= ax * bw + aw * bx + ay * bz - az * by;
 			this[1]	= ay * bw + aw * by + az * bx - ax * bz;
@@ -666,7 +666,7 @@ class Quat extends Float32Array{
 		}
 
 		pmul( q ){
-			let ax	= q[0],		ay	= q[1],		az	= q[2],		aw	= q[3],
+			const ax	= q[0],		ay	= q[1],		az	= q[2],		aw	= q[3],
 				bx	= this[0],	by	= this[1],	bz	= this[2],	bw	= this[3];
 			this[0]	= ax * bw + aw * bx + ay * bz - az * by;
 			this[1]	= ay * bw + aw * by + az * bx - ax * bz;
@@ -679,7 +679,7 @@ class Quat extends Float32Array{
 		// Extra functions to perform operations that I do quite often to save from creating a new quat object
 
 		pmul_axis_angle( axis, angle ){
-			let half	= angle * .5,
+			const half	= angle * .5,
 				s		= Math.sin( half ),
 				ax		= axis[0] * s,	// A Quat based on Axis Angle
 				ay		= axis[1] * s, 
@@ -700,7 +700,7 @@ class Quat extends Float32Array{
 		}
 
 		mul_axis_angle( axis, angle ){
-			let half	= angle * .5,
+			const half	= angle * .5,
 				s		= Math.sin( half ),
 				bx		= axis[0] * s,	// B Quat based on Axis Angle
 				by		= axis[1] * s, 
@@ -732,7 +732,7 @@ class Quat extends Float32Array{
 			if( dot == 0 ){
 				ax = ay = az = aw = 0;
 			}else{
-				let dot_inv = 1.0 / dot;
+				const dot_inv = 1.0 / dot;
 				ax = -ax * dot_inv;
 				ay = -ay * dot_inv;
 				az = -az * dot_inv;
@@ -741,7 +741,7 @@ class Quat extends Float32Array{
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Quat.mul( a, b );
-			let bx		= this[0],	
+			const bx		= this[0],	
 				by		= this[1],
 				bz		= this[2],
 				bw		= this[3];
@@ -757,7 +757,7 @@ class Quat extends Float32Array{
 	////////////////////////////////////////////////////////////////////
 
 		static mul( a, b, out? ){
-			let ax = a[0], ay = a[1], az = a[2], aw = a[3],
+			const ax = a[0], ay = a[1], az = a[2], aw = a[3],
 				bx = b[0], by = b[1], bz = b[2], bw = b[3];
 
 			out = out || new Quat();
@@ -773,7 +773,7 @@ class Quat extends Float32Array{
 		static invert( a, out=null ){
 			//https://github.com/toji/gl-matrix/blob/master/src/gl-matrix/quat.js
 			out		= out || new Quat();
-			let a0	= a[0],
+			const a0	= a[0],
 				a1	= a[1],
 				a2	= a[2],
 				a3	= a[3],
@@ -782,7 +782,7 @@ class Quat extends Float32Array{
 			// Would be faster to return [0,0,0,0] immediately if dot == 0
 			if(dot == 0){ out[0] = out[1] = out[2] = out[3] = 0; }
 
-			let invDot = 1.0 / dot; // let invDot = dot ? 1.0/dot : 0;
+			const invDot = 1.0 / dot; // let invDot = dot ? 1.0/dot : 0;
 			out[0]	= -a0*invDot;
 			out[1]	= -a1*invDot;
 			out[2]	= -a2*invDot;
@@ -793,7 +793,7 @@ class Quat extends Float32Array{
 		//http://bediyap.com/programming/convert-Quat-to-euler-rotations/
 		//http://schteppe.github.io/cannon.js/docs/files/src_math_Quat.js.html
 		static to_euler( q, out ){ //order="YZX"
-			var x		= q[0],
+			let x		= q[0],
 				y		= q[1],
 				z		= q[2],
 				w		= q[3],
@@ -818,7 +818,7 @@ class Quat extends Float32Array{
 
 			//..............................
 			if(isNaN(pitch)){ //console.log("isNan");
-				var sqz	= z*z;
+				const sqz	= z*z;
 				roll	= Math.atan2(2*x*w - 2*y*z , 1 - 2*x*x - 2*sqz); // bank
 				pitch	= Math.atan2(2*y*w - 2*x*z , 1 - 2*y*y - 2*sqz); // Heading
 				yaw		= Math.asin(2*test); // attitude
@@ -836,11 +836,11 @@ class Quat extends Float32Array{
 			// Using unit vectors, Shortest rotation from Direction A to Direction B
 			// http://glmatrix.net/docs/quat.js.html#line548
 			// http://physicsforgames.blogspot.com/2010/03/Quat-tricks.html
-			let dot = Vec3.dot( a, b );
-			let out = new Quat();
+			const dot = Vec3.dot( a, b );
+			const out = new Quat();
 
 		    if(dot < -0.999999){
-		      let tmp = Vec3.cross( Vec3.LEFT, a );
+		      const tmp = Vec3.cross( Vec3.LEFT, a );
 		      if( tmp.len() < 0.000001 ) Vec3.cross( Vec3.UP, a, tmp );
 		      out.from_axis_angle( tmp.norm(), Math.PI );
 		    }else if(dot > 0.999999){
@@ -849,7 +849,7 @@ class Quat extends Float32Array{
 		      out[2] = 0;
 		      out[3] = 1;
 		    }else{
-		      let v = Vec3.cross(a, b);
+		      const v = Vec3.cross(a, b);
 		      out[0] = v[0];
 		      out[1] = v[1];
 		      out[2] = v[2];
@@ -861,7 +861,7 @@ class Quat extends Float32Array{
 
 		// Axis must be normlized
 		static axis_angle( axis, angle ){ 
-			let half	= angle * .5,
+			const half	= angle * .5,
 				s		= Math.sin( half ), 
 				q 		= new Quat();
 			q[0] = axis[0] * s;
@@ -886,7 +886,7 @@ class Quat extends Float32Array{
 		*/
 
 		static lerp( a, b, t, out=null ){
-			var tm1 = 1 - t;
+			const tm1 = 1 - t;
 			out		= out || new Quat();
 			out[0]	= a[0] * tm1 + b[0] * t;
 			out[1]	= a[1] * tm1 + b[1] * t;
@@ -896,7 +896,7 @@ class Quat extends Float32Array{
 		}
 
 		static nlerp( a, b, t, out=null ){
-			var tm1 = 1 - t;
+			const tm1 = 1 - t;
 			out		= out || new Quat();
 			out[0]	= a[0] * tm1 + b[0] * t;
 			out[1]	= a[1] * tm1 + b[1] * t;
@@ -976,7 +976,7 @@ class Quat extends Float32Array{
 
 		static cubic_spline( a, b, c, d, t, out ){
 			// B & C are the main points, A & D are the tangents
-			let t2 = t * t,
+			const t2 = t * t,
 				t3 = t * t2,
 				a0 = d[0] - c[0] - a[0] + b[0],
 				a1 = d[1] - c[1] - a[1] + b[1],
@@ -996,7 +996,7 @@ class Quat extends Float32Array{
 		static transform_vec3( q, v, out = null ){
 			out = out || new Vec3();
 
-			let qx = q[0], qy = q[1], qz = q[2], qw = q[3],
+			const qx = q[0], qy = q[1], qz = q[2], qw = q[3],
 				vx = v[0], vy = v[1], vz = v[2],
 				x1 = qy * vz - qz * vy,
 				y1 = qz * vx - qx * vz,
@@ -1016,7 +1016,7 @@ class Quat extends Float32Array{
 			//vprime = 2.0f * dot(u, v) * u
 			//			+ (s*s - dot(u, u)) * v
 			//			+ 2.0f * s * cross(u, v);
-			let q	= [ qa[0], qa[1], qa[2] ],		// Save the vector part of the Quat
+			const q	= [ qa[0], qa[1], qa[2] ],		// Save the vector part of the Quat
 				v	= [ va[0], va[1], va[2] ],		// Make a copy of the vector, going to chg its value
 				s	= qa[3],						// Save Quat Scalar (W)
 				d	= Vec3.dot( q, v ),				// U DOT V
@@ -1042,7 +1042,6 @@ class Quat extends Float32Array{
 Quat.ZERO = new Quat();
 
 
-//#############################################################################
 export default Quat;
 
 

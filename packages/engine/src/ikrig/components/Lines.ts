@@ -8,7 +8,7 @@ const	DASH_DIV 	= 0.4;
 
 
 class Lines extends Component<Lines>{
-	cnt: number = 0;
+	cnt = 0;
 	buf_pos: BufferAttribute;
 	buf_clr: BufferAttribute;
 	geo: BufferGeometry;
@@ -16,7 +16,7 @@ class Lines extends Component<Lines>{
 	static $( name="lines", max_len=100 ){
 		const entity = createEntity();
 		addComponent(entity, Lines);
-		getComponent(entity, Lines).init();
+		getMutableComponent(entity, Lines).init(name, max_len);
 		return entity;
 	}
 
@@ -41,7 +41,11 @@ class Lines extends Component<Lines>{
 		this.mesh = new LineSegments( this.geo, get_material() ); 
 		this.mesh.name = name;
 
-		const obj = getMutableComponent(this.entity, Obj);
+		let obj = getMutableComponent(this.entity, Obj);
+		if(!obj) {
+			addComponent(this.entity, Obj);
+			obj = getMutableComponent(this.entity, Obj);
+		}
 		obj.set_ref( this.mesh );
 
 
@@ -74,8 +78,8 @@ class Lines extends Component<Lines>{
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// VERTEX COLOR
-		let c0 = gl_color( hex_0 );
-		let c1 = ( hex_1 != null )? gl_color( hex_1 ) : c0;
+		const c0 = gl_color( hex_0 );
+		const c1 = ( hex_1 != null )? gl_color( hex_1 ) : c0;
 
 		this.buf_clr.setXYZ( idx, c0[0], c0[1], c0[2] );
 		this.buf_clr.setXYZ( idx+1, c1[0], c1[1], c1[2] );

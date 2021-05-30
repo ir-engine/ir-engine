@@ -5,7 +5,7 @@ class Vec3 extends Float32Array{
 	static LEFT: Vec3;
 	static RIGHT: Vec3;
 	static BACK: Vec3;
-	constructor(ini?: any){
+	constructor(...ini){
 		super(3);
 
 		if(ini instanceof Vec3 || (ini && ini.length == 3)){
@@ -13,7 +13,7 @@ class Vec3 extends Float32Array{
 		}else if(arguments.length == 3){
 			this[0] = arguments[0]; this[1] = arguments[1]; this[2] = arguments[2];
 		}else{
-			this[0] = this[1] = this[2] = ini || 0;
+			ini[0] = ini[1] = ini[2] = ini || 0;
 		}
 	}
 
@@ -55,7 +55,7 @@ class Vec3 extends Float32Array{
 			if( !v ) return Math.sqrt( this[0]**2 + this[1]**2 + this[2]**2 );
 
 			//Get magnitude based on another vector
-			let x = this[0] - v[0],
+			const x = this[0] - v[0],
 				y = this[1] - v[1],
 				z = this[2] - v[2];
 
@@ -67,7 +67,7 @@ class Vec3 extends Float32Array{
 			if(v === undefined) return this[0]**2 + this[1]**2 + this[2]**2;
 
 			//Get squared magnitude based on another vector
-			let x = this[0] - v[0],
+			const x = this[0] - v[0],
 				y = this[1] - v[1],
 				z = this[2] - v[2];
 
@@ -143,7 +143,7 @@ class Vec3 extends Float32Array{
 		}
 
 		from_cross( a, b ){
-			let ax = a[0], ay = a[1], az = a[2],
+			const ax = a[0], ay = a[1], az = a[2],
 				bx = b[0], by = b[1], bz = b[2];
 			this[0] = ay * bz - az * by;
 			this[1] = az * bx - ax * bz;
@@ -152,7 +152,7 @@ class Vec3 extends Float32Array{
 		}
 
 		from_lerp( a, b, t ){
-			let ti = 1 - t; // Linear Interpolation : (1 - t) * v0 + t * v1;
+			const ti = 1 - t; // Linear Interpolation : (1 - t) * v0 + t * v1;
 			this[0] = a[0] * ti + b[0] * t;
 			this[1] = a[1] * ti + b[1] * t;
 			this[2] = a[2] * ti + b[2] * t;
@@ -160,7 +160,7 @@ class Vec3 extends Float32Array{
 		}
 
 		from_polar( lon, lat ) {
-			let phi 	= ( 90 - lat ) * 0.01745329251, //deg 2 rad
+			const phi 	= ( 90 - lat ) * 0.01745329251, //deg 2 rad
 				theta 	= lon * 0.01745329251,  //( lon + 180 ) * 0.01745329251,
 				sp     	= Math.sin(phi);
 
@@ -172,7 +172,7 @@ class Vec3 extends Float32Array{
 
 		from_quat( q, v=Vec3.FORWARD ){
 			//Vec3.transform_quat( dir || Vec3.FORWARD, q, this );
-			let qx = q[0], qy = q[1], qz = q[2], qw = q[3],
+			const qx = q[0], qy = q[1], qz = q[2], qw = q[3],
 				vx = v[0], vy = v[1], vz = v[2],
 				x1 = qy * vz - qz * vy,
 				y1 = qz * vx - qx * vz,
@@ -302,7 +302,7 @@ class Vec3 extends Float32Array{
 	////////////////////////////////////////////////////////////////////
 		
 		transform_mat3( m, out=null ){
-			let x = this[0], y = this[1], z = this[2];
+			const x = this[0], y = this[1], z = this[2];
 			out = out || this;
 			out[0] = x * m[0] + y * m[3] + z * m[6];
 			out[1] = x * m[1] + y * m[4] + z * m[7];
@@ -326,7 +326,7 @@ class Vec3 extends Float32Array{
 			//https://www.siggraph.org/education/materials/HyperGraph/modeling/mod_tran/3drota.htm
 			out = out || this;
 
-			let sin = Math.sin(rad),
+			const sin = Math.sin(rad),
 				cos = Math.cos(rad),
 				x 	= this[0],
 				y 	= this[1],
@@ -352,7 +352,7 @@ class Vec3 extends Float32Array{
 
 		lerp( v, t, out ){
 			if(out == null) out = this;
-			let ti = 1 - t;
+			const ti = 1 - t;
 
 			//Linear Interpolation : (1 - t) * v0 + t * v1;
 			out[0] = this[0] * ti + v[0] * t;
@@ -362,7 +362,7 @@ class Vec3 extends Float32Array{
 		}
 
 		transform_quat( q ){ 
-			let qx = q[0], qy = q[1], qz = q[2], qw = q[3],
+			const qx = q[0], qy = q[1], qz = q[2], qw = q[3],
 				vx = this[0], vy = this[1], vz = this[2],
 				x1 = qy * vz - qz * vy,
 				y1 = qz * vx - qx * vz,
@@ -380,7 +380,7 @@ class Vec3 extends Float32Array{
 		rot_axis_angle( axis, rad, out ){
 			// Rodrigues Rotation formula:
 			// v_rot = v * cos(theta) + cross( axis, v ) * sin(theta) + axis * dot( axis, v) * (1-cos(theta))
-			let cp	= Vec3.cross( axis, this ),
+			const cp	= Vec3.cross( axis, this ),
 				dot	= Vec3.dot( axis, this ),
 				s	= Math.sin(rad),
 				c	= Math.cos(rad),
@@ -445,7 +445,7 @@ class Vec3 extends Float32Array{
 		static dot( a, b ){ return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
 		
 		static cross( a, b, out? ){
-			let ax = a[0], ay = a[1], az = a[2],
+			const ax = a[0], ay = a[1], az = a[2],
 				bx = b[0], by = b[1], bz = b[2];
 
 			out	= out || new Vec3();
@@ -461,7 +461,7 @@ class Vec3 extends Float32Array{
 			//return Math.acos( Math.max( -1, Math.min( 1, theta ) ) ); // clamp ( t, -1, 1 )
 
 			// atan2(len(cross(a,b)),dot(a,b))  
-			let d = this.dot( v0, v1 ),
+			const d = this.dot( v0, v1 ),
 				c = this.cross( v0, v1 );
 			return Math.atan2( c.len(), d ); 
 
@@ -476,10 +476,10 @@ class Vec3 extends Float32Array{
 			// dot( a, b ) / dot( b, b ) * b
 			out = out || new Vec3();
 
-			let denom = Vec3.dot( to, to );
+			const denom = Vec3.dot( to, to );
 			if( denom < 0.000001 ) return out.copy( Vec3.ZERO );
 		
-			let scl	= Vec3.dot( from, to ) / denom;
+			const scl	= Vec3.dot( from, to ) / denom;
 			return out.set( to[0] * scl, to[1] * scl, to[2] * scl );
 		}
 	static ZERO(ZERO: any) {
@@ -490,10 +490,10 @@ class Vec3 extends Float32Array{
 			// a - ( dot( a, b ) / dot( b, b ) * b )
 			out = out || new Vec3();
 
-			let denom = Vec3.dot( norm, norm );
+			const denom = Vec3.dot( norm, norm );
 			if( denom < 0.000001 ) return out.copy( Vec3.ZERO );
 		
-			let scl	= Vec3.dot( from, norm ) / denom;
+			const scl	= Vec3.dot( from, norm ) / denom;
 			out.set( norm[0] * scl, norm[1] * scl, norm[2] * scl );
 
 			return Vec3.sub( from, out, out );
@@ -508,7 +508,7 @@ class Vec3 extends Float32Array{
 
 		static transform_quat( v, q, out=null ){
 			out = out || new Vec3();
-			let qx = q[0], qy = q[1], qz = q[2], qw = q[3],
+			const qx = q[0], qy = q[1], qz = q[2], qw = q[3],
 				vx = v[0], vy = v[1], vz = v[2],
 				x1 = qy * vz - qz * vy,
 				y1 = qz * vx - qx * vz,
@@ -526,7 +526,7 @@ class Vec3 extends Float32Array{
 		static lerp( a, b, t, out=null ){
 			out = out || new Vec3();
 
-			let ti = 1 - t; // Linear Interpolation : (1 - t) * v0 + t * v1;
+			const ti = 1 - t; // Linear Interpolation : (1 - t) * v0 + t * v1;
 			out[0] = a[0] * ti + b[0] * t;
 			out[1] = a[1] * ti + b[1] * t;
 			out[2] = a[2] * ti + b[2] * t;
@@ -539,7 +539,7 @@ class Vec3 extends Float32Array{
 
 		// B & C are the main points, A & D are the tangents
 		static cubic_spline( a, b, c, d, t, out ){
-			let t2 = t * t,
+			const t2 = t * t,
 				t3 = t * t2,
 				a0 = d[0] - c[0] - a[0] + b[0],
 				a1 = d[1] - c[1] - a[1] + b[1],
@@ -558,13 +558,13 @@ class Vec3 extends Float32Array{
 
 		// From a point in space, closest spot to a 3D line
 		static point_to_line( a, b, p, out=null ){
-			let dx	= b[0] - a[0],
+			const dx	= b[0] - a[0],
 				dy	= b[1] - a[1],
 				dz	= b[2] - a[2],
 				t	= ( (p[0]-a[0])*dx + (p[1]-a[1])*dy + (p[2]-a[2])*dz ) / ( dx*dx + dy*dy + dz*dz ) ;
 
 			if( out ){
-				let ti = 1-t;
+				const ti = 1-t;
 				out[ 0 ] = a[0] * ti + b[0] * t;
 				out[ 1 ] = a[1] * ti + b[1] * t;
 				out[ 2 ] = a[2] * ti + b[2] * t;
@@ -580,8 +580,6 @@ class Vec3 extends Float32Array{
 		}
 }
 
-
-//########################################################################
 // CONSTANTS
 Vec3.UP			= new Vec3(  0,  1,  0 );
 Vec3.DOWN		= new Vec3(  0, -1,  0 );
@@ -591,8 +589,6 @@ Vec3.FORWARD	= new Vec3(  0,  0,  1 );
 Vec3.BACK		= new Vec3(  0,  0, -1 );
 Vec3.ZERO		= new Vec3(  0,  0,  0 );
 
-
-//########################################################################
 export default Vec3;
 
 
