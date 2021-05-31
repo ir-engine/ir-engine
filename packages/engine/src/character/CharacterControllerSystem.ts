@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from "three";
-import { ControllerEvents, ControllerHitEvent, SceneQueryType } from "three-physx";
+import { ControllerEvents, ControllerHitEvent, RaycastQuery, SceneQueryType } from "three-physx";
 import { applyVectorMatrixXZ } from "../common/functions/applyVectorMatrixXZ";
 import { isClient } from "../common/functions/isClient";
 import { EngineEvents } from "../ecs/classes/EngineEvents";
@@ -63,13 +63,13 @@ export class CharacterControllerSystem extends System {
 
     this.queryResults.character.added?.forEach((entity) => {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-      if (actor) actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery({
+      if (actor) actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({
         type: SceneQueryType.Closest,
         origin: new Vector3(),
         direction: new Vector3(0, -1, 0),
         maxDistance: 0.1,
         collisionMask: DefaultCollisionMask,
-      });
+      }));
     });
 
     this.queryResults.controller.added?.forEach(entity => {
