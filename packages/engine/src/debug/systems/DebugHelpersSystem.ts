@@ -11,8 +11,9 @@ import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { DebugRenderer } from "three-physx";
 import { ColliderComponent } from "../../physics/components/ColliderComponent";
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
+import { DebugArrowComponent } from "../DebugArrowComponent";
 
-type ComponentHelpers = 'viewVector' | 'velocityArrow';
+type ComponentHelpers = 'viewVector' | 'helperArrow' | 'velocityArrow';
 
 export class DebugHelpersSystem extends System {
   private helpersByEntity: Record<ComponentHelpers, Map<Entity,Object3D>>;
@@ -31,6 +32,7 @@ export class DebugHelpersSystem extends System {
 
     this.helpersByEntity = {
       viewVector: new Map(),
+      helperArrow: new Map(),
       velocityArrow: new Map()
     };
 
@@ -45,6 +47,9 @@ export class DebugHelpersSystem extends System {
 
     EngineEvents.instance.addEventListener(DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS, ({ enabled }) => {
       this.physicsDebugRenderer.setEnabled(enabled);
+      this.helpersByEntity.helperArrow.forEach((obj: Object3D) => {
+        obj.visible = enabled;
+      })
     })
   }
 
@@ -54,7 +59,7 @@ export class DebugHelpersSystem extends System {
   }
 
   execute(delta: number, time: number): void {
-
+    
     this.queryResults.characterDebug?.added?.forEach(entity => {
       const actor = getComponent(entity, CharacterComponent);
 
@@ -180,6 +185,30 @@ export class DebugHelpersSystem extends System {
         Engine.scene.add(helper);
       }
     });
+
+    this.queryResults.arrowHelper?.added?.forEach(entity => {
+      const arrow = getComponent(entity, DebugArrowComponent);
+      const arrowHelper = new ArrowHelper( new Vector3(), new Vector3( 0, 0, 0 ), 0.5, arrow.color );
+      arrowHelper.visible = false;
+      Engine.scene.add( arrowHelper );
+      this.helpersByEntity.helperArrow.set(entity, arrowHelper);
+    });
+
+    this.queryResults.arrowHelper?.removed?.forEach(entity => {
+      const arrowHelper = this.helpersByEntity.helperArrow.get(entity);
+      Engine.scene.remove( arrowHelper );
+    });
+
+    this.queryResults.arrowHelper?.all?.forEach((entity) => {
+      const arrow = getComponent(entity, DebugArrowComponent);
+      const arrowHelper = this.helpersByEntity.helperArrow.get(entity) as ArrowHelper;
+      if (arrowHelper != null) {
+        arrowHelper.setDirection(arrow.direction.clone().normalize());
+        arrowHelper.setLength(arrow.direction.length());
+        arrowHelper.position.copy(arrow.position);
+      }
+    })
+
     this.physicsDebugRenderer.update()
   }
 }
@@ -205,6 +234,12 @@ DebugHelpersSystem.queries = {
       added: true,
       removed: true
     }
+  },
+  arrowHelper: {
+    components: [ DebugArrowComponent ],
+    listen: {
+      added: true,
+      removed: true
+    }
   }
-
 };

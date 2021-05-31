@@ -25,12 +25,14 @@ import { GolfClubComponent } from '../components/GolfClubComponent';
 import { getHandTransform } from '../../../../xr/functions/WebXRFunctions';
 import { CharacterComponent } from '../../../../character/components/CharacterComponent';
 import { setupSceneObjects } from '../../../../scene/functions/setupSceneObjects';
+import { DebugArrowComponent } from '../../../../debug/DebugArrowComponent';
 
 const vector0 = new Vector3();
 const vector1 = new Vector3();
 const vec3 = new Vector3();
 const quat = new Quaternion();
 const quat2 = new Quaternion();
+const quat3 = new Quaternion();
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -95,11 +97,16 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   // if(getComponent(entityClub, UserControlledColliderComponent).ownerNetworkId !== Network.instance.localAvatarNetworkId) return;
 
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
+  const transformClub = getMutableComponent(entityClub, TransformComponent);
+  const collider = getMutableComponent(entityClub, ColliderComponent);
 
   const ownerEntity = Network.instance.networkObjects[getComponent(entityClub, UserControlledColliderComponent).ownerNetworkId].component.entity;
 
   const handTransform = getHandTransform(ownerEntity);
   const { position, rotation } = handTransform;
+
+  transformClub.position.copy(position);
+  transformClub.rotation.copy(rotation);
 
   // TODO: fix three-physx internally to clone given vector instead of reference, keep this for now
   (golfClubComponent.raycast.origin as Vector3).copy(position);
@@ -118,21 +125,24 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   }
   const headDistance = (hit ? hit.distance : clubLength);
 
-  const collider = getMutableComponent(entityClub, ColliderComponent);
-  const transform = getMutableComponent(entityClub, TransformComponent);
-
   // update position of club
   golfClubComponent.headGroup.position.setZ(-headDistance)
   golfClubComponent.neckObject.position.setZ(-headDistance * 0.5);
-  golfClubComponent.neckObject.scale.setZ((headDistance * 0.5));
+  golfClubComponent.neckObject.scale.setZ(headDistance * 0.5);
 
   golfClubComponent.meshGroup.getWorldQuaternion(quat);
   // get rotation of club relative to parent
   golfClubComponent.headGroup.quaternion.copy(quat).invert().multiply(quat2);
   golfClubComponent.headGroup.updateMatrixWorld(true);
 
-  transform.position.copy(position);
-  transform.rotation.copy(rotation);
+  // make rotation flush to ground
+  // TODO: use ground normal instead of world up vector
+  golfClubComponent.headGroup.getWorldDirection(vector1).setY(0);
+  // get local forward direction, then apply that in world space
+  quat2.setFromUnitVectors(vector0.set(0, 0, 1), vector1);
+  golfClubComponent.meshGroup.getWorldQuaternion(quat);
+  golfClubComponent.headGroup.quaternion.copy(quat).invert().multiply(quat2);
+  golfClubComponent.headGroup.updateMatrixWorld(true);
 
   // calculate velocity of the head of the golf club
   // average over multiple frames
@@ -170,12 +180,16 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
 * @author Josh Field <github.com/HexaField>
  */
 
-const clubPowerMultiplier = 10;
 const clubColliderSize = new Vector3(0.05, 0.2, 0.2);
 const clubHalfWidth = 0.05;
 const clubPutterLength = 0.1;
 const clubLength = 2.5;
+
+const clubPowerMultiplier = 10;
 const hitAdvanceFactor = 1.2;
+
+const upVector = new Vector3(0, 1, 0);
+const HALF_PI = Math.PI / 2;
 
 export const initializeGolfClub = (entity: Entity) => {
 
@@ -254,7 +268,7 @@ export const initializeGolfClub = (entity: Entity) => {
     golfClubComponent.lastPositions[i] = new Vector3();
   }
   golfClubComponent.velocity = new Vector3();
-
+  addComponent(entity, DebugArrowComponent)
   // https://github.com/PersoSirEduard/OculusQuest-Godot-MiniGolfGame/blob/master/Scripts/GolfClub/GolfClub.gd#L18
 
   let hasBeenHit = false
@@ -273,8 +287,20 @@ export const initializeGolfClub = (entity: Entity) => {
     }, 500);
     // force is in kg, we need it in grams, so x1000
     const velocityMultiplier = clubPowerMultiplier * 1000;
-    // vector0 is the direction of the hit
-    vector0.copy(golfClubComponent.velocity).multiplyScalar(hitAdvanceFactor);
+
+    // get velocity in local space
+    golfClubComponent.headGroup.getWorldQuaternion(quat).invert()
+    vector0.copy(golfClubComponent.velocity).setY(0).applyQuaternion(quat);
+    const clubMoveDirection = Math.sign(vector0.x);
+    // club normal following whichever direction it's moving
+    golfClubComponent.headGroup.getWorldDirection(vec3).setY(0).applyAxisAngle(upVector, clubMoveDirection * HALF_PI);
+    // get the angle of incidence which is the angle from the normal to the angle of the velocity
+    const angleOfIncidence = vector1.copy(vec3).applyQuaternion(quat).angleTo(vector0) * -Math.sign(vector0.z);
+    // take the angle of incidence, and get the same angle on the other side of the normal, the angle of reflection
+    vec3.applyAxisAngle(upVector, clubMoveDirection * angleOfIncidence).normalize().multiplyScalar(golfClubComponent.velocity.length());
+
+    // vector0.copy(golfClubComponent.velocity).multiplyScalar(hitAdvanceFactor);
+    vector0.copy(vec3).multiplyScalar(hitAdvanceFactor);
     // lock to XZ plane if we disable chip shots
     if(!golfClubComponent.canDoChipShots) {
       vector0.y = 0;
@@ -287,7 +313,8 @@ export const initializeGolfClub = (entity: Entity) => {
         z: ev.bodyOther.transform.translation.z + vector0.z,
       }
     });
-    vector1.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier);
+    // vector1.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier);
+    vector1.copy(vec3).multiplyScalar(velocityMultiplier);
     if(!golfClubComponent.canDoChipShots) {
       vector1.y = 0;
     }
