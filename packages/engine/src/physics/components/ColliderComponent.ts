@@ -13,6 +13,10 @@ export class ColliderComponent extends Component<ColliderComponent> {
   type: string
   mass: number
   position: Vector3
+  /**
+   * The velocity as calculated by either the physics engine or the physics system for manually inteprolated objects
+   */
+  velocity: Vector3
   quaternion: Quaternion
   scale: Vector3
   mesh: any
@@ -20,7 +24,6 @@ export class ColliderComponent extends Component<ColliderComponent> {
   indices: any
   collisionLayer: any
   collisionMask: any
-  collisions: ColliderHitEvent[] = [];
 }
 
 ColliderComponent._schema = {
@@ -29,6 +32,7 @@ ColliderComponent._schema = {
   type: { type: Types.String, default: 'box' },
   mass: { type: Types.Number, default: 0 },
   position: { type: Types.Ref, default: new Vector3() },
+  velocity: { type: Types.Ref, default: new Vector3() },
   quaternion: { type: Types.Ref, default: new Quaternion() },
   scale: { type: Types.Ref, default: new Vector3() },
   mesh: { type: Types.Ref, default: null},

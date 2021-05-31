@@ -245,7 +245,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           }
         },
 */
-        { //doBallNotHiting
+        { //doBallNotHiting //GameObjectCollisionTag
           behavior: switchState,
           args: { on: 'target', add: State.Deactive, remove: State.Active },
           watchers:[ [ State.YourTurn ] ],
@@ -253,8 +253,8 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             targetsRole: {
               'GolfBall': {
                 watchers:[ [ State.Active, Action.BallMoving ] ],
-           
-      
+
+
                 /*
                 checkers:[{
                   function: ifOwned,
@@ -266,7 +266,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           }
         },
         {
-          behavior: nextTurn,
+          behavior: nextTurn, // GameObjectCollisionTag
           watchers:[ [ State.YourTurn ] ],
           takeEffectOn: {
             targetsRole: {
@@ -281,6 +281,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   },
   gameObjectRoles: {
     'GolfBall': {
+      /*
       'teleport': [
         {
           behavior: teleportObject,
@@ -300,6 +301,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           }
         },
       ]
+      */
     },
     'GolfTee': {},
     'GolfHole': {
@@ -307,7 +309,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
         {
           behavior: switchState,
           args: { on: 'target'},
-          watchers:[ [ Action.HasHadCollision ] ],
+          watchers:[ [ Action.GameObjectCollisionTag ] ],
           takeEffectOn: {
             targetsRole: {
               'GoalPanel': {
@@ -354,7 +356,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           }
         },
         */
-      ]
+      // ]
     },
     'GolfClub': {
       'update': [

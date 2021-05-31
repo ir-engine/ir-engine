@@ -20,8 +20,7 @@ import { WebGLRendererSystem } from '../../../../renderer/WebGLRendererSystem';
 import { GameObject } from '../../../components/GameObject';
 import { NetworkObject } from '../../../../networking/components/NetworkObject';
 import { Network } from '../../../../networking/classes/Network';
-import { HasHadCollision } from '../../../../game/actions/HasHadCollision';
-import { addActionComponent } from '../../../../game/functions/functionsActions';
+
 /**
 * @author Josh Field <github.com/HexaField>
  */
@@ -41,15 +40,14 @@ function assetLoadCallback(group: Group, entity: Entity) {
   ballMesh.receiveShadow = true;
   ballMesh.material && WebGLRendererSystem.instance.csm.setupMaterial(ballMesh.material);
   addComponent(entity, Object3DComponent, { value: ballMesh });
-  console.warn(getComponent(entity, Object3DComponent));
   Engine.scene.add(ballMesh);
-  console.log('loaded golf ball model')
 }
 
 
 export const initializeGolfBall = (entity: Entity) => {
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
   const transform = getComponent(entity, TransformComponent);
+  console.log(transform.position)
   const networkObject = getComponent(entity, NetworkObject);
   const ownerNetworkObject = Object.values(Network.instance.networkObjects).find((obj) => {
       return obj.ownerId === networkObject.ownerId;
@@ -59,7 +57,7 @@ export const initializeGolfBall = (entity: Entity) => {
   if(isClient) {
     AssetLoader.load({
       url: Engine.publicPath + '/models/golf/golf_ball.glb',
-    }, (group: Group) => {assetLoadCallback(group, entity)} );
+    }, (group: Group) => { assetLoadCallback(group, entity) } );
   }
 
   const shape = createShapeFromConfig({
@@ -88,7 +86,6 @@ export const initializeGolfBall = (entity: Entity) => {
 
   const collider = getMutableComponent(entity, ColliderComponent);
   collider.body = body;
-
 
   // DEBUG - teleport ball to over hole
   if(typeof globalThis.document !== 'undefined')

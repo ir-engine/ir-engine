@@ -15,7 +15,7 @@ import { YourTurn } from '../templates/Golf/components/YourTurnTagComponent';
 import { Goal } from '../templates/Golf/components/GoalTagComponent';
 import { Active } from "../templates/gameDefault/components/ActiveTagComponent";
 import { Deactive } from "../templates/gameDefault/components/DeactiveTagComponent";
-
+import { GameObjectCollisionTag } from "../actions/GameObjectCollisionTag";
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -29,7 +29,7 @@ enum gameActions {
 
 export const Action = {
     [gameActions.HaveBeenInteracted]: HaveBeenInteracted,
-    [gameActions.HasHadCollision]: HasHadCollision,
+    [gameActions.GameObjectCollisionTag]: HasHadCollision,
     [gameActions.BallMoving]: BallMoving,
     [gameActions.BallStopped]: BallStopped
 }
@@ -47,7 +47,7 @@ enum gameStates {
     Goal = 'Goal',
     SpawnedObject = 'SpawnedObject'
 }
-  
+
 export const State = {
     [gameStates.Active]: Active,
     [gameStates.Deactive]: Deactive,
@@ -61,5 +61,3 @@ export const State = {
     [gameStates.Goal]: Goal,
     [gameStates.SpawnedObject]: SpawnedObject
 };
-
-  

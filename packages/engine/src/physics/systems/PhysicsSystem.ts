@@ -26,6 +26,8 @@ import { Action, State } from '../../game/types/GameComponents';
  * @author Josh Field <github.com/HexaField>
  */
 
+const vec3 = new Vector3();
+
 
 export class PhysicsSystem extends System {
   static EVENTS = {
@@ -81,50 +83,28 @@ export class PhysicsSystem extends System {
   }
 
   execute(delta: number): void {
-    this.queryResults.collider.added?.forEach(entity => {
-      const collider = getComponent(entity, ColliderComponent);
-      collider.body.addEventListener(CollisionEvents.COLLISION_START, (ev: ColliderHitEvent) => {
-        collider.collisions.push(ev);
-      })
-      collider.body.addEventListener(CollisionEvents.COLLISION_PERSIST, (ev: ColliderHitEvent) => {
-        collider.collisions.push(ev);
-      })
-      collider.body.addEventListener(CollisionEvents.COLLISION_END, (ev: ColliderHitEvent) => {
-        collider.collisions.push(ev);
-      })
-      collider.body.addEventListener(CollisionEvents.TRIGGER_START, (ev: ColliderHitEvent) => {
-        collider.collisions.push(ev);
-      })
-      collider.body.addEventListener(CollisionEvents.TRIGGER_PERSIST, (ev: ColliderHitEvent) => {
-        collider.collisions.push(ev);
-      })
-      collider.body.addEventListener(CollisionEvents.TRIGGER_END, (ev: ColliderHitEvent) => {
-        collider.collisions.push(ev);
-      })
-    });
 
     this.queryResults.collider.all?.forEach(entity => {
       const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
       // iterate on all collisions since the last update
-      collider.collisions.forEach((event) => {
+      // collider.body.collisionEvents.forEach((event) => {
 
-/*
-        if (hasComponent(entity, GameObject)) {
+        // if (hasComponent(entity, GameObject)) {
           //  const { type, bodySelf, bodyOther, shapeSelf, shapeOther } = event;
           //  isClient ? console.warn(type, bodySelf, bodyOther, shapeSelf, shapeOther):'';
-          addActionComponent(entity, HasHadCollision);
+          // addActionComponent(entity, HasHadCollision);
           //    console.warn(event, entity);
-        }
-*/
-        // TODO: figure out how we expose specific behaviors like this
-      })
-      collider.collisions = []; // clear for next loop
+    //    }
 
-      
+        // TODO: figure out how we expose specific behaviors like this
+    //  })
+  //    collider.collisions = []; // clear for next loop
+
+
       if (collider.body.type === BodyType.DYNAMIC) {
         if (hasComponent(entity, GameObject) && getComponent(entity, GameObject).role === 'GolfBall') {
 
-          
+
           if(collider.body.transform.linearVelocity.length() > 0.15) {
 
             if(hasComponent(entity, State.Active)) {
@@ -145,8 +125,10 @@ export class PhysicsSystem extends System {
 
       const transform = getComponent(entity, TransformComponent);
       if (collider.body.type === BodyType.KINEMATIC) {
+        collider.velocity.subVectors(collider.body.transform.translation, transform.position);
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation });
       } else {
+        collider.velocity.subVectors(transform.position, collider.body.transform.translation);
         transform.position.set(
           collider.body.transform.translation.x,
           collider.body.transform.translation.y,
@@ -220,6 +202,7 @@ export class PhysicsSystem extends System {
         const collider = getMutableComponent(entity, ColliderComponent)
         // dynamic objects should be interpolated, kinematic objects should not
         if (collider && collider.body.type !== BodyType.KINEMATIC) {
+          collider.velocity.subVectors(collider.body.transform.translation, vec3.set(snapshot.x, snapshot.y, snapshot.z));
           collider.body.updateTransform({
             translation: {
               x: snapshot.x,
