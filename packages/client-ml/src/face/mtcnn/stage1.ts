@@ -38,22 +38,22 @@ function extractBoundingBoxes(
     }
   }
 
-  const boundingBoxes = indices.map(idx => {
+  const boundingBoxes = indices.map(index => {
     const cell = new BoundingBox(
-      Math.round((idx.y * CELL_STRIDE + 1) / scale),
-      Math.round((idx.x * CELL_STRIDE + 1) / scale),
-      Math.round((idx.y * CELL_STRIDE + CELL_SIZE) / scale),
-      Math.round((idx.x * CELL_STRIDE + CELL_SIZE) / scale)
+      Math.round((index.y * CELL_STRIDE + 1) / scale),
+      Math.round((index.x * CELL_STRIDE + 1) / scale),
+      Math.round((index.y * CELL_STRIDE + CELL_SIZE) / scale),
+      Math.round((index.x * CELL_STRIDE + CELL_SIZE) / scale)
     )
 
-    const score = scoresData[idx.y][idx.x]
+    const score = scoresData[index.y][index.x]
 
     const regionsData = regionsTensor.arraySync()
     const region = new MtcnnBox(
-      regionsData[idx.y][idx.x][0],
-      regionsData[idx.y][idx.x][1],
-      regionsData[idx.y][idx.x][2],
-      regionsData[idx.y][idx.x][3]
+      regionsData[index.y][index.x][0],
+      regionsData[index.y][index.x][1],
+      regionsData[index.y][index.x][2],
+      regionsData[index.y][index.x][3]
     )
 
     return {
@@ -139,9 +139,9 @@ export function stage1(
     )
     stats.stage1_nms = Date.now() - ts
 
-    finalScores = indices.map(idx => allBoxes[idx].score)
+    finalScores = indices.map(index => allBoxes[index].score)
     finalBoxes = indices
-      .map(idx => allBoxes[idx])
+      .map(index => allBoxes[index])
       .map(({ cell, region }) =>
         new BoundingBox(
           cell.left + (region.left * cell.width),

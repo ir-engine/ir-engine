@@ -35,12 +35,12 @@ export async function stage2(
   scoresTensor.dispose()
 
   const indices = scores
-    .map((score, idx) => ({ score, idx }))
+    .map((score, index) => ({ score, index }))
     .filter(c => c.score > scoreThreshold)
-    .map(({ idx }) => idx)
+    .map(({ index }) => index)
 
-  const filteredBoxes = indices.map(idx => inputBoxes[idx])
-  const filteredScores = indices.map(idx => scores[idx])
+  const filteredBoxes = indices.map(index => inputBoxes[index])
+  const filteredScores = indices.map(index => scores[index])
 
   let finalBoxes: Box[] = []
   let finalScores: number[] = []
@@ -54,8 +54,8 @@ export async function stage2(
     )
     stats.stage2_nms = Date.now() - ts
 
-    const regions = indicesNms.map(idx =>{
-        const regionsData = rnetOuts[indices[idx]].regions.arraySync()
+    const regions = indicesNms.map(index =>{
+        const regionsData = rnetOuts[indices[index]].regions.arraySync()
         return new MtcnnBox(
           regionsData[0][0],
           regionsData[0][1],
@@ -65,8 +65,8 @@ export async function stage2(
       }
     )
 
-    finalScores = indicesNms.map(idx => filteredScores[idx])
-    finalBoxes = indicesNms.map((idx, i) => filteredBoxes[idx].calibrate(regions[i]))
+    finalScores = indicesNms.map(index => filteredScores[index])
+    finalBoxes = indicesNms.map((index, i) => filteredBoxes[index].calibrate(regions[i]))
   }
 
   rnetOuts.forEach(t => {

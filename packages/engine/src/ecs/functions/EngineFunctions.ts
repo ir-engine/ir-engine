@@ -116,12 +116,11 @@ export function execute (delta: number, time: number, updateType: SystemUpdateTy
     delta = time - Engine.lastTime;
   }
   Engine.lastTime = time;
-
-  if (Engine.enabled) {
+  // if (Engine.enabled) {
     Engine.systemsToExecute
       .forEach(system => executeSystem(system, delta, time, updateType));
     processDeferredEntityRemoval();
-  }
+  // }
 }
 
 function executeSystemBeforeReset() {

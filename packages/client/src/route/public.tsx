@@ -15,6 +15,7 @@ export const RouterComp = () => {
 
             <Route path="/offlineDev" component={React.lazy(() => import('../pages/offlineDev'))} />
             <Route path="/examples/helloworld" component={React.lazy(() => import('../pages/examples/ecs_helloworld'))} />
+            <Route path="/examples/ikrig" component={React.lazy(() => import('../pages/examples/ikrig'))} />
 
 
             {/* Auth Routes */}

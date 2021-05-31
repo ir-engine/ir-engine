@@ -14,8 +14,8 @@ export class FaceExpressions {
       throw new Error(`FaceExpressions.constructor - expected probabilities.length to be 7, have: ${probabilities.length}`)
     }
 
-    FACE_EXPRESSION_LABELS.forEach((expression, idx) => {
-      this[expression] = probabilities[idx]
+    FACE_EXPRESSION_LABELS.forEach((expression, index) => {
+      this[expression] = probabilities[index]
     })
   }
 
