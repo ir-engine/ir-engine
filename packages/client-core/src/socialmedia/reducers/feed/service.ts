@@ -26,7 +26,8 @@ import {
   fetchingAdminFeeds,
   fetchingFiredFeeds,
   feedsFiredRetrieved,
-  reduxClearCreatorFeatured
+  reduxClearCreatorFeatured,
+  deleteFeed
 } from './actions';
 
 export function getFeeds(type: string, id?: string, limit?: number) {
@@ -196,6 +197,31 @@ export function setFeedNotFeatured(feedId: string) {
     }
   };
 }
+
+
+export function removeFeed(feedId: string, previewImageUrl: string, videoUrl: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const findIdInUrl = (url) => {
+        const urlSplit = url.split('/')
+        return urlSplit.sort(
+            function (a, b) {
+                return b.length - a.length;
+            }
+        )[0];
+      }
+
+      await client.service('static-resource').remove(findIdInUrl(previewImageUrl));
+      await client.service('static-resource').remove(findIdInUrl(videoUrl));
+      await client.service('feed').remove(feedId);
+      dispatch(deleteFeed(feedId));
+    } catch (err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
 
 export function clearCreatorFeatured(){
   return async (dispatch: Dispatch): Promise<any> => {dispatch(reduxClearCreatorFeatured());};

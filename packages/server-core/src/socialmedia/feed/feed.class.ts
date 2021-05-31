@@ -42,7 +42,7 @@ export class Feed extends Service {
 
     //All Feeds as Admin
     if (action === 'admin') {
-      const dataQuery = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName, 
+      const dataQuery = `SELECT feed.*, creator.id as creatorId, creator.name as creatorName, creator.username as creatorUserName,
       sr2.url as previewUrl, sr1.url as videoUrl, sr3.url as avatar, COUNT(ff.id) as fires, COUNT(fb.id) as bookmarks 
         FROM \`feed\` as feed
         JOIN \`creator\` as creator ON creator.id=feed.creatorId

@@ -422,21 +422,25 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
     };
 
     const startRecord = () => {
-        setRecordingState(RecordingStates.ON);
-
         if (window.confirm("Double click to finish the record.")) {
-        //TODO: check why there are errors
-        // @ts-ignore
-        Plugins.XRPlugin.startRecording({
-            isAudio: true,
-            width: screenWidth,
-            height: screenHeigth,
-            bitRate: 6000000,
-            dpi: 100,
-            filePath: "/test.mp4"
+            setRecordingState(RecordingStates.ON);
+            //TODO: check why there are errors
+            // @ts-ignore
+            Plugins.XRPlugin.startRecording({
+                isAudio: true,
+                width: screenWidth,
+                height: screenHeigth,
+                bitRate: 6000000,
+                dpi: 100,
+                filePath: "/test.mp4"
             }).then(({ status }) => {
-                console.log("RECORDING, STATUS IS", status);
-            }).catch(error => alert(error.message));
+                    console.log("RECORDING, STATUS IS", status);
+            }).catch(error => {
+                alert(error.message)
+                setRecordingState(RecordingStates.OFF)
+            });
+        }else{
+            recordingState === RecordingStates.ON && setRecordingState(RecordingStates.OFF);
         }
     };
 

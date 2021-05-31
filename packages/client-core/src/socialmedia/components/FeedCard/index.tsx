@@ -16,17 +16,18 @@ import TelegramIcon from '@material-ui/icons/Telegram';
 // import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
 // import BookmarkIcon from '@material-ui/icons/Bookmark';
 import VisibilityIcon from '@material-ui/icons/Visibility';
-
+import Popover from '@material-ui/core/Popover';
+import Button from '@material-ui/core/Button';
 import CardHeader from '@material-ui/core/CardHeader';
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser';
 import Avatar from '@material-ui/core/Avatar';
-
+import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import { Feed } from '@xrengine/common/src/interfaces/Feed';
 import CreatorAsTitle from '../CreatorAsTitle';
 // @ts-ignore
 import styles from './FeedCard.module.scss';
 import SimpleModal from '../SimpleModal';
-import { addViewToFeed } from '../../reducers/feed/service';
+import { addViewToFeed, removeFeed } from '../../reducers/feed/service';
 // import { addBookmarkToFeed, removeBookmarkToFeed } from '../../reducers/feedBookmark/service';
 import { selectFeedFiresState } from '../../reducers/feedFires/selector';
 
@@ -40,7 +41,7 @@ import { getLoggedCreator } from '../../reducers/creator/service';
 import Featured from '../Featured';
 import { Plugins } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
-import { updateCreatorPageState } from '../../reducers/popupsState/service';
+import { updateCreatorPageState, updateFeedPageState } from '../../reducers/popupsState/service';
 
 const { Share } = Plugins;
 
@@ -59,9 +60,11 @@ const mapStateToProps = (state: any): any => {
     addFireToFeed: bindActionCreators(addFireToFeed, dispatch),
     removeFireToFeed: bindActionCreators(removeFireToFeed, dispatch),
     updateCreatorPageState: bindActionCreators(updateCreatorPageState, dispatch),
+    updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch),
     // addBookmarkToFeed: bindActionCreators(addBookmarkToFeed, dispatch),
     // removeBookmarkToFeed: bindActionCreators(removeBookmarkToFeed, dispatch),
     addViewToFeed: bindActionCreators(addViewToFeed, dispatch),
+    removeFeed: bindActionCreators(removeFeed, dispatch),
 });
 interface Props{
     feed : Feed;
@@ -73,10 +76,12 @@ interface Props{
     getFeedFires?: any,
     addFireToFeed?: any,
     removeFireToFeed?: any,
-    updateCreatorPageState?: any,
+    updateCreatorPageState?: anyupdateCreatorPageState,
+    updateFeedPageState?: updateFeedPageState,
     // addBookmarkToFeed?: typeof addBookmarkToFeed;
     // removeBookmarkToFeed?: typeof removeBookmarkToFeed;
     addViewToFeed?: typeof addViewToFeed;
+    removeFeed?: typeof removeFeed;
 }
 const FeedCard = (props: Props) : any => {
     const [buttonPopup , setButtonPopup] = useState(false);
@@ -87,7 +92,7 @@ const FeedCard = (props: Props) : any => {
     const {feed, authState, getFeedFires,
            feedFiresState, addFireToFeed,
            removeFireToFeed, addViewToFeed,
-           updateCreatorPageState} = props;
+           updateCreatorPageState, updateFeedPageState, removeFeed} = props;
     const [firedCount, setFiredCount] = useState(feed.fires);
     const [videoDisplay, setVideoDisplay] = useState(false);
     const [feedFiresCreators, setFeedFiresCreators] = useState(null);
@@ -157,6 +162,29 @@ const FeedCard = (props: Props) : any => {
     };
 
 
+
+    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
+
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const open = Boolean(anchorEl);
+    const id = open ? 'simple-popover' : undefined;
+
+    const deleteAction = (feedId, previewUrl, videoUrl) => {
+        removeFeed(feedId, previewUrl, videoUrl)
+        updateFeedPageState(false)
+    }
+
+    useEffect(()=>{
+        console.log('Feed Card Feed:', feed)
+    })
+
     return  feed ? <><Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
 {/*                 {isVideo ? <CardMedia    */}
 {/*                     className={styles.previewImage}                   */}
@@ -173,6 +201,31 @@ const FeedCard = (props: Props) : any => {
 {/*                     title={feed.title}                       */}
 {/*                     onClick={()=>setIsVideo(true)}                */}
 {/*                 />} */}
+
+                <div className={styles.popover}>
+                    <div aria-describedby={id} variant="contained" onClick={handleClick}>
+                        <MoreHorizIcon />
+                    </div>
+                    <Popover
+                        id={id}
+                        open={open}
+                        anchorEl={anchorEl}
+                        onClose={handleClose}
+                        anchorOrigin={{
+                          vertical: 'bottom',
+                          horizontal: 'center',
+                        }}
+                        transformOrigin={{
+                          vertical: 'top',
+                          horizontal: 'center',
+                        }}
+                    >
+                        <Button variant="outlined" onClick={()=>deleteAction(feed.id, feed.previewUrl, feed.videoUrl)}>
+                            Delete
+                        </Button>
+                    </Popover>
+                </div>
+
                 {!videoDisplay ? <img src={feed.previewUrl}
                                   className={styles.previewImage}
                                   alt={feed.title}
