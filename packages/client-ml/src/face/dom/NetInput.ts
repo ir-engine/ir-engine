@@ -28,11 +28,11 @@ export class NetInput {
     this._treatAsBatchInput = treatAsBatchInput
     this._batchSize = inputs.length
 
-    inputs.forEach((input, idx) => {
+    inputs.forEach((input, index) => {
 
       if (isTensor3D(input)) {
-        this._imageTensors[idx] = input
-        this._inputDimensions[idx] = input.shape
+        this._imageTensors[index] = input
+        this._inputDimensions[index] = input.shape
         return
       }
 
@@ -42,14 +42,14 @@ export class NetInput {
           throw new Error(`NetInput - tf.Tensor4D with batchSize ${batchSize} passed, but not supported in input array`)
         }
 
-        this._imageTensors[idx] = input
-        this._inputDimensions[idx] = input.shape.slice(1)
+        this._imageTensors[index] = input
+        this._inputDimensions[index] = input.shape.slice(1)
         return
       }
 
       const canvas = input instanceof env.getEnv().Canvas ? input : createCanvasFromMedia(input)
-      this._canvases[idx] = canvas
-      this._inputDimensions[idx] = [canvas.height, canvas.width, 3]
+      this._canvases[index] = canvas
+      this._inputDimensions[index] = [canvas.height, canvas.width, 3]
     })
   }
 

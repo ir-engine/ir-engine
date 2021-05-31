@@ -37,12 +37,12 @@ export async function stage3(
   scoresTensor.dispose()
 
   const indices = scores
-    .map((score, idx) => ({ score, idx }))
+    .map((score, index) => ({ score, index }))
     .filter(c => c.score > scoreThreshold)
-    .map(({ idx }) => idx)
+    .map(({ index }) => index)
 
-  const filteredRegions = indices.map(idx => {
-    const regionsData = onetOuts[idx].regions.arraySync();
+  const filteredRegions = indices.map(index => {
+    const regionsData = onetOuts[index].regions.arraySync();
     return new MtcnnBox(
       regionsData[0][0],
       regionsData[0][1],
@@ -50,8 +50,8 @@ export async function stage3(
       regionsData[0][3]
   )})
   const filteredBoxes = indices
-    .map((idx, i) => inputBoxes[idx].calibrate(filteredRegions[i]))
-  const filteredScores = indices.map(idx => scores[idx])
+    .map((index, i) => inputBoxes[index].calibrate(filteredRegions[i]))
+  const filteredScores = indices.map(index => scores[index])
 
   let finalBoxes: Box[] = []
   let finalScores: number[] = []
@@ -68,11 +68,11 @@ export async function stage3(
     )
     stats.stage3_nms = Date.now() - ts
 
-    finalBoxes = indicesNms.map(idx => filteredBoxes[idx])
-    finalScores = indicesNms.map(idx => filteredScores[idx])
-    points = indicesNms.map((idx, i) =>
+    finalBoxes = indicesNms.map(index => filteredBoxes[index])
+    finalScores = indicesNms.map(index => filteredScores[index])
+    points = indicesNms.map((index, i) =>
       Array(5).fill(0).map((_, ptIdx) =>{
-          const pointsData = onetOuts[idx].points.arraySync()
+          const pointsData = onetOuts[index].points.arraySync()
           return new Point(
             ((pointsData[0][ptIdx] * (finalBoxes[i].width + 1)) + finalBoxes[i].left) ,
             ((pointsData[0][ptIdx+5] * (finalBoxes[i].height + 1)) + finalBoxes[i].top)

@@ -95,6 +95,14 @@ export const NetworkDebug = ({ reinit  }) => {
           <JSONTree data={{ ...Engine.entities }} />
         </div>
       </div>}
+      {Network.instance === null &&<div>
+        <div>
+          <h1>Engine Entities</h1>
+          <JSONTree data={{ ...Engine.entities }} />
+        </div>
+      </div>
+      
+      }
     </div>
   );
   else return null;

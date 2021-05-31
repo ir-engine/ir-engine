@@ -190,17 +190,17 @@ export class MediaStreamSystem extends System {
       console.log('cannot cycle camera - only one camera');
       return false;
     }
-    let idx = vidDevices.findIndex(d => d.deviceId === deviceId);
-    if (idx === vidDevices.length - 1) idx = 0;
-    else idx += 1;
+    let index = vidDevices.findIndex(d => d.deviceId === deviceId);
+    if (index === vidDevices.length - 1) index = 0;
+    else index += 1;
 
     // get a new video stream. might as well get a new audio stream too,
     // just in case browsers want to group audio/video streams together
     // from the same device when possible (though they don't seem to,
     // currently)
-    console.log('getting a video stream from new device', vidDevices[idx].label);
+    console.log('getting a video stream from new device', vidDevices[index].label);
     this.mediaStream = await navigator.mediaDevices.getUserMedia({
-      video: { deviceId: { exact: vidDevices[idx].deviceId } },
+      video: { deviceId: { exact: vidDevices[index].deviceId } },
       audio: true
     });
 
