@@ -1,6 +1,6 @@
 // Action Components
 import { HaveBeenInteracted } from "../actions/HaveBeenInteracted";
-import { HasHadCollision } from "../actions/HasHadCollision";
+import { GameObjectCollisionTag } from "../actions/GameObjectCollisionTag";
 import { BallMoving } from "../actions/BallMoving";
 import { BallStopped } from "../actions/BallStopped";
 // State TagComponents
@@ -15,21 +15,20 @@ import { YourTurn } from '../templates/Golf/components/YourTurnTagComponent';
 import { Goal } from '../templates/Golf/components/GoalTagComponent';
 import { Active } from "../templates/gameDefault/components/ActiveTagComponent";
 import { Deactive } from "../templates/gameDefault/components/DeactiveTagComponent";
-import { GameObjectCollisionTag } from "../actions/GameObjectCollisionTag";
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 // its for adding new Action in State in One Plase, please don't splite this
 enum gameActions {
     HaveBeenInteracted = 'HaveBeenInteracted',
-    HasHadCollision = 'HasHadCollision',
+    GameObjectCollisionTag = 'GameObjectCollisionTag',
     BallMoving = 'BallMoving',
     BallStopped = 'BallStopped'
 }
 
 export const Action = {
     [gameActions.HaveBeenInteracted]: HaveBeenInteracted,
-    [gameActions.GameObjectCollisionTag]: HasHadCollision,
+    [gameActions.GameObjectCollisionTag]: GameObjectCollisionTag,
     [gameActions.BallMoving]: BallMoving,
     [gameActions.BallStopped]: BallStopped
 }

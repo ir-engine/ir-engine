@@ -101,7 +101,7 @@ function somePrepareFunction(gameRules: GameMode) {
   gameRules.initGameState = copleNameRolesInOneString(gameRules.initGameState);
   gameRules.registerActionTagComponents = registerAllActions(); //TO DO: registerActionsOnlyUsedInThisMode();
   gameRules.registerStateTagComponents = registerAllStates(); //TO DO: registerStatesOnlyUsedInThisMode();
-  //gameRules.gamePlayerRoles = cloneSameRoleRules( gameRules.gamePlayerRoles, { from:'1-Player', to: '2-Player'})
+  gameRules.gamePlayerRoles = cloneSameRoleRules( gameRules.gamePlayerRoles, { from:'1-Player', to: '2-Player'})
   return gameRules
 }
 
@@ -356,7 +356,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           }
         },
         */
-      // ]
+       ]
     },
     'GolfClub': {
       'update': [
