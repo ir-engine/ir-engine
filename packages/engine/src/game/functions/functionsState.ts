@@ -156,7 +156,7 @@ export const removeEntityFromState = (objectOrPlayerComponent, game): void => {
   if (index != -1) {
     game.state.splice(index, 1);
   } else {
-    console.warn('cant remove from state, dont have it already', uuid);
+    console.warn('cant remove from state, dont have it already', objectOrPlayerComponent.uuid);
   }
 };
 

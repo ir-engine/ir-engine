@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
+// @ts-ignore
 import styles from './FeedOnboarding.module.scss';
 
 interface Props{
-    setFeedOnborded?: setFeedOnborded
+    setFeedOnborded?: any;
 }
 
 

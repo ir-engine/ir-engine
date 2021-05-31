@@ -9,10 +9,9 @@ export interface CharacterAvatarData {
   animations?: { [key: number]: AnimationConfigInterface };
   /**
    * default - animations from Animations.glb
-   * vrm - animations from AnimationsVRM file
    * own - animations from avatar file
    */
-  animationsSource?: 'default' | 'vrm' | 'own'
+  animationsSource?: 'default' | 'own'
 }
 
 export interface AnimationConfigInterface {

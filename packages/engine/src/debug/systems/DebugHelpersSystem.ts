@@ -10,11 +10,13 @@ import { Object3DComponent } from "../../scene/components/Object3DComponent";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { DebugRenderer } from "three-physx";
 import { ColliderComponent } from "../../physics/components/ColliderComponent";
+import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 
 type ComponentHelpers = 'viewVector' | 'velocityArrow';
 
 export class DebugHelpersSystem extends System {
   private helpersByEntity: Record<ComponentHelpers, Map<Entity,Object3D>>;
+  updateType = SystemUpdateType.Fixed;
   physicsDebugRenderer: DebugRenderer;
   static instance: DebugHelpersSystem;
   static EVENTS = {

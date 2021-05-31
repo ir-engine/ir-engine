@@ -74,7 +74,7 @@ export class Engine {
    * Frame rate for physics system.
    *
    * @author Fernando Serrano, Robert Long
-   * @Default 60
+   * @default 60
    */
   public static physicsFrameRate = 60;
 
@@ -275,12 +275,6 @@ export class Engine {
   static vehicles: any;
   static lastTime: number;
 
-  /**
-   * The current frame delta for use if needed outside the execute loop (such as events and callbacks)
-   *
-   * @author Josh Field
-   */
-  static delta: number = 1/60;
   static tick = 0;
   /** HTML Element in which Engine renders. */
   static viewportElement: HTMLElement;

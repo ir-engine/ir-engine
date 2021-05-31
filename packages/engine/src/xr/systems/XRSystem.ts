@@ -8,6 +8,7 @@ import { gamepadMapping } from '../../input/behaviors/GamepadInputBehaviors';
 import { InputType } from '../../input/enums/InputType';
 import { endXR, startXR } from '../functions/WebXRFunctions';
 import { XRFrame, XRReferenceSpace, XRReferenceSpaceType, XRWebGLLayer } from '../../input/types/WebXR';
+import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 
 /**
  * System for XR session and input handling
@@ -25,7 +26,7 @@ export class XRSystem extends System {
 
   offscreen: boolean;
   xrFrame: XRFrame;
-
+  updateType = SystemUpdateType.Free;
   isRenderering = false;
   baseLayer: XRWebGLLayer;
   context: any;

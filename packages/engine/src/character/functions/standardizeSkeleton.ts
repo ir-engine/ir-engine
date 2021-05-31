@@ -13,38 +13,38 @@ export const standardizeSkeletion = (target: SkinnedMesh, source: SkinnedMesh) =
   // console.log('target', ...target.skeleton.bones)
   // console.log('source', ...source.skeleton.bones)
   
-  const targetBones = GetBones(target);
-  const sourceBones = GetBones(source);
+  // const targetBones = GetBones(target);
+  // const sourceBones = GetBones(source);
 
-  // console.log("Targetbones are ", targetBones)
-  Object.values(targetBones).forEach((element, id) => {
-    const boneType = Object.keys(targetBones)[id];
+  // // console.log("Targetbones are ", targetBones)
+  // Object.values(targetBones).forEach((element, id) => {
+  //   const boneType = Object.keys(targetBones)[id];
 
-    if(element.name === 'root') {
-      element.position.copy(sourceBones[boneType].position);
-    }
+  //   if(element.name === 'root') {
+  //     element.position.copy(sourceBones[boneType].position);
+  //   }
 
-    // console.log("Target bone is", element.name);
-    // console.log("Source bone is", sourceBones[boneType].name);
-    // console.log(element.position, sourceBones[boneType].position)
-    // console.log(element.rotation, sourceBones[boneType].rotation)
+  //   // console.log("Target bone is", element.name);
+  //   // console.log("Source bone is", sourceBones[boneType].name);
+  //   // console.log(element.position, sourceBones[boneType].position)
+  //   // console.log(element.rotation, sourceBones[boneType].rotation)
 
 
-    if(sourceBones[boneType] === undefined || sourceBones[boneType] === ""){
-      console.warn("Can't rename boneType", boneType, "to", element.name)
-    }
+  //   if(sourceBones[boneType] === undefined || sourceBones[boneType] === ""){
+  //     console.warn("Can't rename boneType", boneType, "to", element.name)
+  //   }
 
-    element.name = sourceBones[boneType].name;
-  })
+  //   element.name = sourceBones[boneType].name;
+  // })
 
-  const newClips: AnimationClip[] = [];
-  AnimationManager.instance._animations.forEach((clip) => {
-    const newClip = SkeletonUtils.retargetClip(target, source, clip, { hip: sourceBones.Hips.name });
-    newClips.push(newClip);
-    // console.log(newClip)
-  })
+  // const newClips: AnimationClip[] = [];
+  // AnimationManager.instance._animations.forEach((clip) => {
+  //   // const newClip = SkeletonUtils.retargetClip(target, source, clip, { hip: sourceBones.Hips.name });
+  //   newClips.push(clip);
+  //   // console.log(newClip)
+  // })
 
-  target.animations = newClips;
+  // target.animations = newClips;
 }
 
 
