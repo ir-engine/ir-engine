@@ -41,7 +41,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
     
     constructor(editor){
         super(editor);
-        this.centerBall=new Mesh(new SphereGeometry(0.1));
+        this.centerBall=new Mesh(new SphereGeometry(0.75));
         this.add(this.centerBall);
         this.reflectionProbeSettings={
             probePosition:this.position,
@@ -76,8 +76,6 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
     }
 
     onChange(){
-        this.reflectionProbeSettings.probePosition=this.position.clone();
-        this.reflectionProbeSettings.probePosition.add(this.reflectionProbeSettings.probePositionOffset);
         this.geometry.matrix.compose(this.reflectionProbeSettings.probePositionOffset,new Quaternion(0),this.reflectionProbeSettings.probeScale);
         this.editor.scene.traverse(child=>{
             if(child.material)
@@ -89,7 +87,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
             if(child.material){
                 child.material.onBeforeCompile = function ( shader ) {
                     shader.uniforms.cubeMapSize={value: this.reflectionProbeSettings.probeScale}
-                    shader.uniforms.cubeMapPos={value: this.reflectionProbeSettings.probePosition}
+                    shader.uniforms.cubeMapPos={value: this.reflectionProbeSettings.probePositionOffset}
                     shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader;
                     shader.vertexShader = shader.vertexShader.replace(
                         '#include <worldpos_vertex>',
@@ -107,6 +105,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
 
     serialize(){
         let data:any={}
+        this.reflectionProbeSettings.probePosition=this.position;
         data={
             options:this.reflectionProbeSettings
         };
