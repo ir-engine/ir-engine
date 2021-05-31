@@ -108,9 +108,8 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   transformClub.position.copy(position);
   transformClub.rotation.copy(rotation);
 
-  // TODO: fix three-physx internally to clone given vector instead of reference, keep this for now
-  (golfClubComponent.raycast.origin as Vector3).copy(position);
-  (golfClubComponent.raycast.direction as Vector3).set(0, 0, -1).applyQuaternion(rotation);
+  golfClubComponent.raycast.origin.copy(position);
+  golfClubComponent.raycast.direction.set(0, 0, -1).applyQuaternion(rotation);
 
   // find the rotation along the XZ plane the hand is pointing
   quat2.setFromUnitVectors(
@@ -213,9 +212,6 @@ export const initializeGolfClub = (entity: Entity) => {
       maxDistance: clubLength,
       collisionMask: CollisionGroups.Default | CollisionGroups.Ground,
     }));
-    // manually do this until three-physx is fixed
-    golfClubComponent.raycast.origin = new Vector3();
-    golfClubComponent.raycast.direction = new Vector3();
   // }
 
   if(isClient) {

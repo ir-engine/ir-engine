@@ -132,7 +132,7 @@ export class CharacterControllerSystem extends System {
       );
 
       vector3.set(collider.controller.transform.translation.x, collider.controller.transform.translation.y, collider.controller.transform.translation.z);
-      (actor.raycastQuery.origin as Vector3).set(vector3.x, vector3.y - (collider.height * 0.5) - collider.radius, vector3.z);
+      actor.raycastQuery.origin.set(vector3.x, vector3.y - (collider.height * 0.5) - collider.radius, vector3.z);
       actor.closestHit = actor.raycastQuery.hits[0];
       actor.isGrounded = actor.closestHit ? true : collider.controller.collisions.down;
     });

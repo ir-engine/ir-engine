@@ -139,11 +139,8 @@ export class CameraSystem extends System {
       // Raycast for camera
       const cameraTransform: TransformComponent = getMutableComponent(CameraSystem.instance.activeCamera, TransformComponent)
       const raycastDirection = new Vector3().subVectors(cameraTransform.position, targetPosition).normalize();
-      followCamera.raycastQuery.origin = new Vector3(targetPosition.x, targetPosition.y, targetPosition.z);
-      followCamera.raycastQuery.direction = new Vector3(raycastDirection.x, raycastDirection.y, raycastDirection.z);
-      // vec3.subVectors(cameraTransform.position, targetPosition).normalize();
-      // (followCamera.raycastQuery.origin as Vector3).copy(targetPosition);
-      // (followCamera.raycastQuery.direction as Vector3).copy(vec3);
+      followCamera.raycastQuery.origin.copy(targetPosition);
+      followCamera.raycastQuery.direction.copy(raycastDirection);
       
       const closestHit = followCamera.raycastQuery.hits[0];
       followCamera.rayHasHit = typeof closestHit !== 'undefined';
