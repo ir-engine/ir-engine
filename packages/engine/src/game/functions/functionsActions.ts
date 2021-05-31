@@ -5,7 +5,7 @@ import { addComponent, getComponent, hasComponent } from '../../ecs/functions/En
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { Network } from "../../networking/classes/Network";
 import { HaveBeenInteracted } from "../actions/HaveBeenInteracted";
-import { HasHadCollision } from "../actions/HasHadCollision";
+import { GameObjectCollisionTag } from "../actions/GameObjectCollisionTag";
 import { Game } from "../components/Game";
 import { GameObject } from "../components/GameObject";
 import { GamePlayer } from "../components/GamePlayer";
@@ -17,7 +17,7 @@ import { getEntityFromRoleUuid, getGame, getGameEntityFromName, getRole, getUuid
 // TODO: create enum actions
 const gameActionComponents = {
   'HaveBeenInteracted': HaveBeenInteracted,
-  'HasHadCollision': HasHadCollision
+  'HasHadCollision': GameObjectCollisionTag
 };
 
 export const addActionComponent = (entity: Entity, component: ComponentConstructor<Component<any>>, componentArgs: any = { }): void => {

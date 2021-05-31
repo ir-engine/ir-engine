@@ -16,7 +16,8 @@ import { GamesSchema } from "../../game/templates/GamesSchema";
 import { PrefabType } from '../../networking/templates/PrefabType';
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { GameMode } from '../types/GameMode';
-import { getGameFromName } from '../functions/functions';
+import { ColliderComponent } from '../../physics/components/ColliderComponent';
+import { ColliderHitEvent } from 'three-physx';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -77,6 +78,22 @@ export class GameManagerSystem extends System {
       gameSchema.onGameStart(entity);
       console.log('CREATE GAME');
     });
+
+    this.queryResults.gameObjectCollisions?.all?.forEach((entity) => {
+      const collider = getComponent(entity, ColliderComponent);
+      const gameObject = getComponent(entity, GameObject);
+      collider.body.collisionEvents?.forEach((collisionEvent: ColliderHitEvent) => {
+        const otherEntity = collisionEvent.bodyOther.userData as Entity;
+        if(typeof otherEntity === 'undefined') return;
+        const otherGameObject = getComponent<GameObject>(otherEntity, GameObject);
+        if(!otherGameObject) return;
+        Object.keys(gameObject.collisionBehaviors).forEach((role) => {
+          if(role === otherGameObject.role) {
+            gameObject.collisionBehaviors[role](entity, delta, { hitEvent: collisionEvent }, otherEntity);
+          }
+        })
+      })
+    })
 
     this.queryResults.game.all?.forEach(entityGame => {
       const game = getComponent(entityGame, Game);
@@ -305,6 +322,9 @@ GameManagerSystem.queries = {
       added: true,
       removed: true
     }
+  },
+  gameObjectCollisions: {
+    components: [GameObject, ColliderComponent],
   },
   gamePlayer: {
     components: [GamePlayer],

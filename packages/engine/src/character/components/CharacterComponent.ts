@@ -1,6 +1,6 @@
 // Default component, holds data about what behaviors our actor has.
 import { AnimationAction, AnimationMixer, Group, Material, Vector3 } from 'three';
-import { SceneQuery } from "three-physx";
+import { RaycastQuery } from "three-physx";
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 import { RelativeSpringSimulator } from '../../physics/classes/SpringSimulator';
@@ -87,7 +87,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public capsuleFriction = 0.1;
 	public capsulePosition: Vector3 = new Vector3(0, 0, 0);
 	// Ray casting
-	public raycastQuery: SceneQuery;
+	public raycastQuery: RaycastQuery;
 	public isGrounded = false;
 	public closestHit = null;
 	public rayCastLength = 0.85;

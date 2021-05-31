@@ -1,20 +1,24 @@
-import { Vector3, Quaternion } from 'three';
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { Entity } from '../../../../ecs/classes/Entity';
-import { Body, BodyType, ColliderHitEvent, CollisionEvents, createShapeFromConfig, Shape, SHAPES, Transform } from 'three-physx';
+import { Body, BodyType, ColliderHitEvent, createShapeFromConfig, SHAPES, Transform } from 'three-physx';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 
 import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunctions';
-import { onInteraction, onInteractionHover } from '../../../../scene/behaviors/createCommonInteractive';
-import { Interactable } from '../../../../interaction/components/Interactable';
-import { CollisionGroups, DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
 import { GameObject } from "../../../components/GameObject";
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
 import { GolfCollisionGroups } from '../GolfGameConstants';
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent';
-import { addActionComponent } from '../../../functions/functionsActions';
-import { HasHadCollision } from '../../../actions/HasHadCollision';
+import { teleportObject } from './teleportObject';
+import { GameObjectInteractionBehavior } from '../../../interfaces/GameObjectPrefab';
+
+export const onCollideWithBall = (entity: Entity, delta: number, args: { hitEvent: ColliderHitEvent }, entityOther: Entity): GameObjectInteractionBehavior => {
+  teleportObject(entityOther);
+  console.log('onCollideWithBall')
+  return;
+}
+
+
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -55,12 +59,7 @@ export const addHole: Behavior = (entity: Entity, args?: any, delta?: number, en
   // if we loaded this collider with a model, make it invisible
   getComponent(entity, Object3DComponent)?.value?.traverse(obj => obj.visible = false)
 
-  body.addEventListener(CollisionEvents.TRIGGER_START, (ev: ColliderHitEvent) => {
-    const otherEntity = ev.bodyOther.userData as Entity;
-    if(typeof otherEntity === 'undefined') return
-    const ballObject = getComponent<GameObject>(otherEntity, GameObject)
-    if(!ballObject || ballObject.role !== 'GolfBall') return;
-    addActionComponent(otherEntity, HasHadCollision);
-  })
+  const gameObject = getComponent(entity, GameObject)
+  gameObject.collisionBehaviors['GolfBall'] = onCollideWithBall;
 
 };
