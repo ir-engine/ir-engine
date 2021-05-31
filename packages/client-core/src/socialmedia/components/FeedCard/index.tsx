@@ -76,8 +76,8 @@ interface Props{
     getFeedFires?: any,
     addFireToFeed?: any,
     removeFireToFeed?: any,
-    updateCreatorPageState?: anyupdateCreatorPageState,
-    updateFeedPageState?: updateFeedPageState,
+    updateCreatorPageState?: any,
+    updateFeedPageState?: any,
     // addBookmarkToFeed?: typeof addBookmarkToFeed;
     // removeBookmarkToFeed?: typeof removeBookmarkToFeed;
     addViewToFeed?: typeof addViewToFeed;
@@ -177,13 +177,13 @@ const FeedCard = (props: Props) : any => {
     const id = open ? 'simple-popover' : undefined;
 
     const deleteAction = (feedId, previewUrl, videoUrl) => {
-        removeFeed(feedId, previewUrl, videoUrl)
-        updateFeedPageState(false)
-    }
+        removeFeed(feedId, previewUrl, videoUrl);
+        updateFeedPageState(false);
+    };
 
     useEffect(()=>{
-        console.log('Feed Card Feed:', feed)
-    })
+        console.log('Feed Card Feed:', feed);
+    });
 
     return  feed ? <><Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
 {/*                 {isVideo ? <CardMedia    */}

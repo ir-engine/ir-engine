@@ -436,8 +436,8 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
             }).then(({ status }) => {
                     console.log("RECORDING, STATUS IS", status);
             }).catch(error => {
-                alert(error.message)
-                setRecordingState(RecordingStates.OFF)
+                alert(error.message);
+                setRecordingState(RecordingStates.OFF);
             });
         }else{
             recordingState === RecordingStates.ON && setRecordingState(RecordingStates.OFF);
