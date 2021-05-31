@@ -12,6 +12,7 @@ import { CharacterComponent } from '../../character/components/CharacterComponen
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent';
 import { isClient } from '../../common/functions/isClient';
+import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== "undefined" && /chrome/i.test(navigator.userAgent);
 function createSilentAudioEl(streamsLive) {
@@ -36,6 +37,8 @@ export class PositionalAudioSystem extends System {
   /** Static instance for positional audio. */
   public static instance: PositionalAudioSystem = null
 
+  updateType = SystemUpdateType.Fixed;
+  
   characterAudioStream = new Map();
   audioInitialised = false;
 

@@ -2,36 +2,35 @@
 
 import EditorNodeMixin from "./EditorNodeMixin";
 import Spline from "../../scene/classes/Spline";
+import { Object3D } from "three";
 
-export default class SplineNode extends EditorNodeMixin(Spline) {
+export default class SplineNode extends EditorNodeMixin(Object3D) {
+  static legacyComponentName = "spline";
   static nodeName = "Spline";
-  // static async deserialize(editor, json) {
-  //   const node = await super.deserialize(editor, json);
-  //   const {
-  //     color,
-  //     intensity,
-  //     range,
-  //     castShadow,
-  //     shadowMapResolution,
-  //     shadowBias,
-  //     shadowRadius
-  //   } = json.components.find(c => c.name === "point-light").props;
-  //   node.color.set(color);
-  //   node.intensity = intensity;
-  //   node.range = range;
-  //   node.castShadow = castShadow;
-  //   node.shadowBias = shadowBias || 0;
-  //   node.shadowRadius = shadowRadius === undefined ? 1 : shadowRadius;
-  //   if (shadowMapResolution) {
-  //     node.shadowMapResolution.fromArray(shadowMapResolution);
-  //   }
-  //   return node;
-  // }
+  helper = null;
+  loadedSplinePositions = null;
+  static async deserialize(editor, json) {
+    console.log("DESERIALIZE", json);
+    const node = await super.deserialize(editor, json);
+    const {
+      splinePositions
+    } = json.components.find(c => c.name === "spline").props;
+    node.loadedSplinePositions = splinePositions;
+    return node;
+  }
   constructor(editor) {
     super(editor);
+    this.helper = new Spline();
+
+    super.add(this.helper);
   }
   onAdd() {
-    this.init();
+    this.helper.init(this.editor, this.loadedSplinePositions);
+    const initialSplineHelperObjects = this.helper.getCurrentSplineHelperObjects();
+    for (let index = 0; index < initialSplineHelperObjects.length; index++) {
+      const object = initialSplineHelperObjects[index];
+      this.addSplineHelperObjectToEditorNodes(object); 
+    }
   }
   onChange() {
   }
@@ -40,51 +39,36 @@ export default class SplineNode extends EditorNodeMixin(Spline) {
   onDeselect() {
   }
   onAddNodeToSpline() {
-    const newSplineObject = this.addPoint();
-    // Maybe this should not be done here?
-    this.editor.nodes.push(newSplineObject);
+    const newSplineObject = this.helper.addPoint();
+    
+    this.addSplineHelperObjectToEditorNodes(newSplineObject);
   }
-  // copy(source, recursive = true) {
-  //   super.copy(source, false);
-  //   if (recursive) {
-  //     this.remove(this.helper);
-  //     for (let i = 0; i < source.children.length; i++) {
-  //       const child = source.children[i];
-  //       if (child === source.helper) {
-  //         this.helper = new EditorPointLightHelper(this);
-  //         this.add(this.helper);
-  //       } else {
-  //         this.add(child.clone());
-  //       }
-  //     }
-  //   }
-  //   return this;
-  // }
-  // serialize() {
-  //   return super.serialize({
-  //     "point-light": {
-  //       color: this.color,
-  //       intensity: this.intensity,
-  //       range: this.range,
-  //       castShadow: this.castShadow,
-  //       shadowMapResolution: this.shadowMapResolution.toArray(),
-  //       shadowBias: this.shadowBias,
-  //       shadowRadius: this.shadowRadius
-  //     }
-  //   });
-  // }
-  // prepareForExport() {
-  //   super.prepareForExport();
-  //   this.remove(this.helper);
-  //   this.addGLTFComponent("point-light", {
-  //     color: this.color,
-  //     intensity: this.intensity,
-  //     range: this.range,
-  //     castShadow: this.castShadow,
-  //     shadowMapResolution: this.shadowMapResolution.toArray(),
-  //     shadowBias: this.shadowBias,
-  //     shadowRadius: this.shadowRadius
-  //   });
-  //   this.replaceObject();
-  // }
+  addSplineHelperObjectToEditorNodes(splineHelperObject) {
+    super.add(splineHelperObject);
+    // Maybe this should not be done here?
+    this.editor.nodes.push(splineHelperObject);
+  }
+  copy(source, recursive = true) {
+    super.copy(source, false);
+    console.log("COPY");
+  }
+  serialize() {
+    console.log("SERIALIZE");
+    const splineExportInfo = this.helper.exportSpline();
+    console.log(splineExportInfo);
+    return super.serialize({
+      "spline": {
+        splinePositions: splineExportInfo
+      } 
+    });
+  }
+  prepareForExport() {
+    super.prepareForExport();
+    console.log("prepareForExport");
+    // this.remove(this.helper);
+    // this.addGLTFComponent("point-light", {
+    //   color: this.color,
+    // });
+    // this.replaceObject();
+  }
 }

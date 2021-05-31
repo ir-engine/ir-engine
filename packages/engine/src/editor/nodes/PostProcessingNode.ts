@@ -8,7 +8,7 @@ export default class PostProcessingNode extends EditorNodeMixin(PostProcessing){
     static legacyComponentName="postprocessing";
     static disableTransform=true;
     static ignoreRaycast=true;
-
+    static haveStaticTags=false;
     static postProcessingCallback:(node,isRemoved?)=>void;
 
 

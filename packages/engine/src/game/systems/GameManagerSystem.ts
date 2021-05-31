@@ -78,32 +78,6 @@ export class GameManagerSystem extends System {
       console.log('CREATE GAME');
     });
 
-    // PLAYERS REMOVE
-    this.queryResults.gamePlayer.removed?.forEach(entity => {
-      this.queryResults.game.all?.forEach(entityGame => {
-        const game = getComponent(entityGame, Game);
-        const gamePlayer = getComponent(entity, GamePlayer, true);
-        if (gamePlayer.gameName != game.name) return;
-        const gameSchema = GamesSchema[game.gameMode];
-        gameSchema.onPlayerLeave(entity);
-        removeEntityFromState(gamePlayer, game);
-        clearRemovedEntitysFromGame(game);
-        console.warn('player remove');
-        game.gamePlayers[gamePlayer.role] = game.gamePlayers[gamePlayer.role].filter(entityFind => hasComponent(entityFind, GamePlayer))
-      })
-    });
-
-    // OBJECTS REMOVE
-    this.queryResults.gameObject.removed?.forEach(entity => {
-      this.queryResults.game.all?.forEach(entityGame => {
-        const game = getComponent(entityGame, Game);
-        const gameObject = getComponent(entity, GameObject, true);
-        if (gameObject.gameName != game.name) return;
-        removeEntityFromState(gameObject, game);
-        clearRemovedEntitysFromGame(game);
-      })
-    });
-
     this.queryResults.game.all?.forEach(entityGame => {
       const game = getComponent(entityGame, Game);
       const gameArea = game.gameArea;
@@ -111,37 +85,6 @@ export class GameManagerSystem extends System {
       const gameObjects = game.gameObjects;
       const gamePlayers = game.gamePlayers;
       const gameState = game.state;
-      // GAME AREA ADDIND PLAYERS or REMOVE
-      // adding or remove players from this Game, always give the first Role from GameSchema
-      if (this.updateLastTime > this.updateNewPlayersRate) {
-        Object.keys(Network.instance.networkObjects).map(Number)
-          .filter(key => Network.instance.networkObjects[key].prefabType === PrefabType.Player)
-          .map(key => Network.instance.networkObjects[key].component.entity)
-          .map(entity => isPlayerInGameArea(entity, gameArea))
-          .forEach(v => {
-            // is Player in Game Area
-            if (v.inGameArea && hasComponent(v.entity, GamePlayer)) {
-              if (getComponent(v.entity, GamePlayer).gameName != game.name) {
-                getGameFromName(getComponent(v.entity, GamePlayer).gameName).priority < game.priority;
-                removeComponent(v.entity, GamePlayer, true);
-              }
-            } else if (v.inGameArea && !hasComponent(v.entity, GamePlayer)) {
-
-              addComponent(v.entity, GamePlayer, {
-                gameName: game.name,
-                role: Object.keys(gameSchema.gamePlayerRoles)[0],
-                uuid: getComponent(v.entity, NetworkObject).ownerId
-              });
-            } else if (!v.inGameArea && hasComponent(v.entity, GamePlayer)) {
-              if (getComponent(v.entity, GamePlayer).gameName === game.name) {
-                removeComponent(v.entity, GamePlayer, true);
-              }
-            }
-          })
-          this.updateLastTime = 0;
-      } else {
-        this.updateLastTime += 1;
-      }
 
       // MAIN EXECUTE
       const executeComplexResult = [];
@@ -232,10 +175,66 @@ export class GameManagerSystem extends System {
           gameSchema.registerActionTagComponents.forEach(component => hasComponent(entity, component) ? removeComponent(entity, component):'');
         })
       });
+
+      // GAME AREA ADDIND PLAYERS or REMOVE
+      // adding or remove players from this Game, always give the first Role from GameSchema
+      if (this.updateLastTime > this.updateNewPlayersRate) {
+        Object.keys(Network.instance.networkObjects).map(Number)
+          .filter(key => Network.instance.networkObjects[key].prefabType === PrefabType.Player)
+          .map(key => Network.instance.networkObjects[key].component.entity)
+          .map(entity => isPlayerInGameArea(entity, gameArea))
+          .forEach(v => {
+            // is Player in Game Area
+            if (v.inGameArea && hasComponent(v.entity, GamePlayer)) {
+              /*
+              if (getComponent(v.entity, GamePlayer).gameName != game.name) {
+                getGameFromName(getComponent(v.entity, GamePlayer).gameName).priority < game.priority;
+                removeComponent(v.entity, GamePlayer);
+              }
+              */
+            } else if (v.inGameArea && !hasComponent(v.entity, GamePlayer)) {
+              addComponent(v.entity, GamePlayer, {
+                gameName: game.name,
+                role: Object.keys(gameSchema.gamePlayerRoles)[0],
+                uuid: getComponent(v.entity, NetworkObject).ownerId
+              });
+            } else if (!v.inGameArea && hasComponent(v.entity, GamePlayer)) {
+              if (getComponent(v.entity, GamePlayer).gameName === game.name) {
+                removeComponent(v.entity, GamePlayer);
+              }
+            }
+          })
+          this.updateLastTime = 0;
+      } else {
+        this.updateLastTime += 1;
+      }
       // end of frame circle one game
     });
 
+    // PLAYERS REMOVE
+    this.queryResults.gamePlayer.removed?.forEach(entity => {
+      this.queryResults.game.all?.forEach(entityGame => {
+        const game = getComponent(entityGame, Game);
+        const gamePlayer = getComponent(entity, GamePlayer, true);
+        if (gamePlayer.gameName != game.name) return;
+        removeEntityFromState(gamePlayer, game);
+        clearRemovedEntitysFromGame(game);
+        game.gamePlayers[gamePlayer.role] = game.gamePlayers[gamePlayer.role].filter(entityFind => hasComponent(entityFind, GamePlayer))
+        const gameSchema = GamesSchema[game.gameMode];
+        gameSchema.onPlayerLeave(entity, gamePlayer, game);
+      })
+    });
 
+    // OBJECTS REMOVE
+    this.queryResults.gameObject.removed?.forEach(entity => {
+      this.queryResults.game.all?.forEach(entityGame => {
+        const game = getComponent(entityGame, Game);
+        const gameObject = getComponent(entity, GameObject, true);
+        if (gameObject.gameName != game.name) return;
+        removeEntityFromState(gameObject, game);
+        clearRemovedEntitysFromGame(game);
+      })
+    });
     // PLAYERS ADDIND
     this.queryResults.gamePlayer.added?.forEach(entity => {
       this.queryResults.game.all?.forEach(entityGame => {

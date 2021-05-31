@@ -38,7 +38,6 @@ export const startXR = async (): Promise<boolean> => {
     cameraFollow.mode = CameraModes.XR;
     const actor = getMutableComponent(Network.instance.localClientEntity, CharacterComponent);
 
-    // until retargeting is fixed, we can simply just not init IK
     initiateIK(Network.instance.localClientEntity)
 
     head = Engine.xrRenderer.getCamera();
@@ -192,7 +191,7 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
   // if(ikComponent && ikComponent.avatarIKRig) {
   //   const rigHand: Object3D = hand === ParityValue.LEFT ? ikComponent.avatarIKRig.poseManager.vrTransforms.leftHand : ikComponent.avatarIKRig.poseManager.vrTransforms.rightHand;
   //   if(rigHand) {
-  //     return rigHand.getWorldPosition(vec3).add(actor.tiltContainer.position);
+  //     return rigHand.getWorldPosition(vec3);
   //   }
   // }
   // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
@@ -255,7 +254,7 @@ export const getHandTransform = (entity: Entity, hand: ParityValue = ParityValue
   //   const rigHand: Object3D = hand === ParityValue.LEFT ? ikComponent.avatarIKRig.poseManager.vrTransforms.leftHand : ikComponent.avatarIKRig.poseManager.vrTransforms.rightHand;
   //   if(rigHand) {
   //     return { 
-  //       position: rigHand.getWorldPosition(vec3).add(actor.tiltContainer.position),
+  //       position: rigHand.getWorldPosition(vec3),
   //       rotation: rigHand.getWorldQuaternion(quat)
   //     }
   //   }

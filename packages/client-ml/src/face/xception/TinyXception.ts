@@ -59,8 +59,8 @@ export class TinyXception extends NeuralNetwork<TinyXceptionParams> {
       out = reductionBlock(out, params.entry_flow.reduction_block_0, false)
       out = reductionBlock(out, params.entry_flow.reduction_block_1)
 
-      range(this._numMainBlocks, 0, 1).forEach((idx) => {
-        out = mainBlock(out, params.middle_flow[`main_block_${idx}`])
+      range(this._numMainBlocks, 0, 1).forEach((index) => {
+        out = mainBlock(out, params.middle_flow[`main_block_${index}`])
       })
 
       out = reductionBlock(out, params.exit_flow.reduction_block)

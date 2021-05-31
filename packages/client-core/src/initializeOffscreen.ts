@@ -34,6 +34,7 @@ import { UIPanelSystem } from '@xrengine/engine/src/ui/systems/UIPanelSystem';
 import { PhysXInstance } from "three-physx";
 import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem';
 import { now } from '@xrengine/engine/src/common/functions/now';
+import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -95,27 +96,32 @@ const initializeEngineOffscreen = async ({ canvas, userArgs }, proxy: MainProxy)
     AnimationManager.instance.getAnimations(),
   ]);
 
-  registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig });
-  registerSystem(ActionSystem);
-  registerSystem(StateSystem);
-  registerSystem(ClientNetworkStateSystem);
-  registerSystem(CharacterControllerSystem);
-  registerSystem(ServerSpawnSystem, { priority: 899 });
-  registerSystem(TransformSystem, { priority: 900 });
-  registerSystem(UIPanelSystem);
+  // NETWORK
+  registerSystem(ClientNetworkStateSystem, { priority: 1 });
+
+  // FREE systems
+  registerSystem(XRSystem, { priority: 1 }); // Free
+  registerSystem(CameraSystem, { priority: 2 }); // Free
+  registerSystem(WebGLRendererSystem, { priority: 3, canvas, postProcessing }); // Free
+  
+  // LOGIC - Input
+  registerSystem(UIPanelSystem, { priority: 2 });
+  registerSystem(ActionSystem, { priority: 3 });
+  registerSystem(CharacterControllerSystem, { priority: 4 });
+
+  // LOGIC - Scene
+  registerSystem(InteractiveSystem, { priority: 5 });
+  registerSystem(GameManagerSystem, { priority: 6 });
+  registerSystem(TransformSystem, { priority: 7 }); // Free
+  registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig, priority: 8 });
+        
+  // LOGIC - Miscellaneous
+  registerSystem(HighlightSystem, { priority: 9 });
+  registerSystem(ParticleSystem, { priority: 10 });
+  registerSystem(DebugHelpersSystem, { priority: 11 });
   
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
   Engine.scene.add(Engine.camera);
-
-  registerSystem(HighlightSystem);
-  // registerSystem(PositionalAudioSystem);
-
-  registerSystem(InteractiveSystem);
-  registerSystem(ParticleSystem);
-  registerSystem(DebugHelpersSystem);
-  registerSystem(CameraSystem);
-  registerSystem(WebGLRendererSystem, { priority: 1001, canvas, postProcessing });
-  registerSystem(XRSystem, { offscreen: true });
   Engine.viewportElement = Engine.renderer.domElement;
 
   setInterval(() => {

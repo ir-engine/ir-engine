@@ -20,5 +20,5 @@ NetworkObject._schema = {
   networkId: { type: Types.Number },
   uniqueId: { type: Types.String },
   componentMap: { type: Types.Ref },
-  snapShotTime: { type: Types.Number }
+  snapShotTime: { type: Types.Number, default: 0 }
 };

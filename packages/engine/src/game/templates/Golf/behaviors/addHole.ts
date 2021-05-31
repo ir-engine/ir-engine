@@ -1,7 +1,7 @@
 import { Vector3, Quaternion } from 'three';
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { Entity } from '../../../../ecs/classes/Entity';
-import { Body, BodyType, createShapeFromConfig, Shape, SHAPES, Transform } from 'three-physx';
+import { Body, BodyType, ColliderHitEvent, CollisionEvents, createShapeFromConfig, Shape, SHAPES, Transform } from 'three-physx';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 
 import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunctions';
@@ -13,6 +13,8 @@ import { TransformComponent } from '../../../../transform/components/TransformCo
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
 import { GolfCollisionGroups } from '../GolfGameConstants';
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent';
+import { addActionComponent } from '../../../functions/functionsActions';
+import { HasHadCollision } from '../../../actions/HasHadCollision';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -51,7 +53,14 @@ export const addHole: Behavior = (entity: Entity, args?: any, delta?: number, en
   })
 
   // if we loaded this collider with a model, make it invisible
-//  getComponent(entity, Object3DComponent)?.value?.traverse(obj => obj.visible = false)
+  getComponent(entity, Object3DComponent)?.value?.traverse(obj => obj.visible = false)
 
-  //addColliderWithEntity(entity);
+  body.addEventListener(CollisionEvents.TRIGGER_START, (ev: ColliderHitEvent) => {
+    const otherEntity = ev.bodyOther.userData as Entity;
+    if(typeof otherEntity === 'undefined') return
+    const ballObject = getComponent<GameObject>(otherEntity, GameObject)
+    if(!ballObject || ballObject.role !== 'GolfBall') return;
+    addActionComponent(otherEntity, HasHadCollision);
+  })
+
 };

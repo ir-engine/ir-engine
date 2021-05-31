@@ -80,13 +80,13 @@ export function getSystems (): System[] {
  * @param time Current time of the system.
  * @param updateType Only system of this Update type will be executed.
  */
-export function executeSystem (system: System, delta: number, time: number, updateType = SystemUpdateType.Free): void {
+export function executeSystem (system: System, delta: number, time: number, updateType: SystemUpdateType): void {
   if (system.initialized && system.enabled && updateType === system.updateType) {
-      const startTime = now();
-        system.execute(delta, time);
-        system.executeTime = now() - startTime;
-        system.clearEventQueues();
-    }
+    const startTime = now();
+    system.execute(delta, time);
+    system.executeTime = now() - startTime;
+    system.clearEventQueues();
+  }
 }
 
 /**

@@ -109,19 +109,18 @@ export async function reset(): Promise<void> {
  * 
  * @author Fernando Serrano, Robert Long
  */
-export function execute (delta?: number, time?: number, updateType = SystemUpdateType.Free): void {
+export function execute (delta: number, time: number, updateType: SystemUpdateType): void {
   Engine.tick++;
   time = now() / 1000;
   if (!delta) {
     delta = time - Engine.lastTime;
   }
   Engine.lastTime = time;
-
-  if (Engine.enabled) {
+  // if (Engine.enabled) {
     Engine.systemsToExecute
       .forEach(system => executeSystem(system, delta, time, updateType));
     processDeferredEntityRemoval();
-  }
+  // }
 }
 
 function executeSystemBeforeReset() {

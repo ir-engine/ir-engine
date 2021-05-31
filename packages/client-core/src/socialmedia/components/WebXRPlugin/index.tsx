@@ -65,6 +65,8 @@ const correctionQuaternionZ = new Quaternion().setFromAxisAngle(new Vector3(0,0,
 const _DEBUG = false;
 const DEBUG_MINI_VIEWPORT_SIZE = 100;
 let statusXR = false;
+const screenHeigth = Math.floor(document.body.clientHeight/2)*2;
+const screenWidth = Math.floor(document.body.clientWidth/2)*2;
 
 export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNewFeedPageState, updateWebXRState, setContentHidden}:Props) => {
     const canvasRef = React.useRef();
@@ -407,9 +409,10 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                   setSavedFilePath("file://" + filePath);
                   const videoPath = Capacitor.convertFileSrc(filePath);
                   updateNewFeedPageState(true, videoPath);
+                  setRecordingState(RecordingStates.OFF);
                   updateWebXRState(false, null);
 
-                  setRecordingState(RecordingStates.OFF);
+
                   // setContentHidden();
               }).catch(error => alert(error.message));
         }else{
@@ -426,8 +429,8 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
         // @ts-ignore
         Plugins.XRPlugin.startRecording({
             isAudio: true,
-            width: document.body.clientWidth,
-            height: document.body.clientHeight,
+            width: screenWidth,
+            height: screenHeigth,
             bitRate: 6000000,
             dpi: 100,
             filePath: "/test.mp4"

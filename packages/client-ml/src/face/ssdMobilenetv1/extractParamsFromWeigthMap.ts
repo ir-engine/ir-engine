@@ -9,18 +9,18 @@ function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
 
   const extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings)
 
-  function extractPointwiseConvParams(prefix: string, idx: number, mappedPrefix: string): PointwiseConvParams {
+  function extractPointwiseConvParams(prefix: string, index: number, mappedPrefix: string): PointwiseConvParams {
 
-    const filters = extractWeightEntry<tf.Tensor4D>(`${prefix}/Conv2d_${idx}_pointwise/weights`, 4, `${mappedPrefix}/filters`)
-    const batch_norm_offset = extractWeightEntry<tf.Tensor1D>(`${prefix}/Conv2d_${idx}_pointwise/convolution_bn_offset`, 1, `${mappedPrefix}/batch_norm_offset`)
+    const filters = extractWeightEntry<tf.Tensor4D>(`${prefix}/Conv2d_${index}_pointwise/weights`, 4, `${mappedPrefix}/filters`)
+    const batch_norm_offset = extractWeightEntry<tf.Tensor1D>(`${prefix}/Conv2d_${index}_pointwise/convolution_bn_offset`, 1, `${mappedPrefix}/batch_norm_offset`)
 
     return { filters, batch_norm_offset }
   }
 
-  function extractConvPairParams(idx: number): ConvPairParams {
+  function extractConvPairParams(index: number): ConvPairParams {
 
-    const mappedPrefix = `mobilenetv1/conv_${idx}`
-    const prefixDepthwiseConv = `MobilenetV1/Conv2d_${idx}_depthwise`
+    const mappedPrefix = `mobilenetv1/conv_${index}`
+    const prefixDepthwiseConv = `MobilenetV1/Conv2d_${index}_depthwise`
     const mappedPrefixDepthwiseConv = `${mappedPrefix}/depthwise_conv`
     const mappedPrefixPointwiseConv = `${mappedPrefix}/pointwise_conv`
 
@@ -38,7 +38,7 @@ function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
         batch_norm_mean,
         batch_norm_variance
       },
-      pointwise_conv: extractPointwiseConvParams('MobilenetV1', idx, mappedPrefixPointwiseConv)
+      pointwise_conv: extractPointwiseConvParams('MobilenetV1', index, mappedPrefixPointwiseConv)
     }
   }
 
@@ -68,15 +68,15 @@ function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
     return { filters, bias }
   }
 
-  function extractBoxPredictorParams(idx: number): BoxPredictionParams {
+  function extractBoxPredictorParams(index: number): BoxPredictionParams {
 
     const box_encoding_predictor = extractConvParams(
-      `Prediction/BoxPredictor_${idx}/BoxEncodingPredictor`,
-      `prediction_layer/box_predictor_${idx}/box_encoding_predictor`
+      `Prediction/BoxPredictor_${index}/BoxEncodingPredictor`,
+      `prediction_layer/box_predictor_${index}/box_encoding_predictor`
     )
     const class_predictor = extractConvParams(
-      `Prediction/BoxPredictor_${idx}/ClassPredictor`,
-      `prediction_layer/box_predictor_${idx}/class_predictor`
+      `Prediction/BoxPredictor_${index}/ClassPredictor`,
+      `prediction_layer/box_predictor_${index}/class_predictor`
     )
 
     return { box_encoding_predictor, class_predictor }

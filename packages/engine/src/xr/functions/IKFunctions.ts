@@ -36,7 +36,7 @@ export function initiateIK(entity: Entity) {
   }
 
   // TODO: Temporarily make rig invisible until rig is fixed
-  actor.modelContainer.children[0].traverse((child) => {
+  actor.modelContainer.children[0]?.traverse((child) => {
     if(child.visible) {
       child.visible = false;
     }

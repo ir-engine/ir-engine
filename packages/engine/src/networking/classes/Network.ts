@@ -4,7 +4,7 @@ import { Entity } from '../../ecs/classes/Entity';
 import { NetworkObjectList } from '../interfaces/NetworkObjectList';
 import { NetworkSchema } from '../interfaces/NetworkSchema';
 import { NetworkTransport } from '../interfaces/NetworkTransport';
-import { NetworkClientInputInterface, WorldStateInterface } from "../interfaces/WorldState";
+import { NetworkClientInputInterface, TransformStateInterface, WorldStateInterface } from "../interfaces/WorldState";
 import { Snapshot } from "../types/SnapshotDataTypes";
 import SocketIO from "socket.io";
 import { GameStateActionMessage, GameStateUpdateMessage, ClientGameActionMessage } from '../../game/types/GameMessage';
@@ -104,18 +104,16 @@ export class Network {
   static _schemas: Map<string, Schema> = new Map()
 
   /** Buffer holding all incoming Messages. */
-  incomingMessageQueue: RingBuffer<any> = new RingBuffer<any>(100)
+  incomingMessageQueueUnreliable: RingBuffer<any> = new RingBuffer<any>(100)
+
+  /** Buffer holding all incoming Messages. */
+  incomingMessageQueueReliable: RingBuffer<any> = new RingBuffer<any>(100)
 
   /** Buffer holding Mediasoup operations */
   mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
 
   /** State of the world. */
   worldState: WorldStateInterface = {
-    tick: 0,
-    transforms: [],
-    ikTransforms: [],
-    time: 0,
-    inputs: [],
     clientsConnected: [],
     clientsDisconnected: [],
     createObjects: [],
@@ -123,6 +121,14 @@ export class Network {
     destroyObjects: [],
     gameState: [],
     gameStateActions: []
+  };
+
+  /** State of the world. */
+  transformState: TransformStateInterface = {
+    tick: 0,
+    transforms: [],
+    ikTransforms: [],
+    time: 0,
   };
 
   clientInputState: NetworkClientInputInterface = {

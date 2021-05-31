@@ -12,6 +12,7 @@ import logger from "@xrengine/server-core/src/logger";
 import config from '@xrengine/server-core/src/appconfig';
 import { closeTransport } from './WebRTCFunctions';
 import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem';
+import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema';
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 
@@ -143,10 +144,8 @@ export function validateNetworkObjects(): void {
                 logger.info("Removed entity ", (obj.component.entity as Entity).id, " for user ", userId);
                 const removeMessage = { networkId: obj.component.networkId };
                 Network.instance.destroyObjects.push(removeMessage);
-                // if (Network.instance.worldState.inputs[obj.networkId])
                 removeEntity(obj.component.entity);
                 delete Network.instance.networkObjects[obj.id];
-                delete Network.instance.worldState.inputs[obj.networkId];
             });
 
             if (Network.instance.clients[userId])
@@ -208,28 +207,27 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
     };
 
     // Push to our worldstate to send out to other users
-    Network.instance.clientsConnected.push({ userId, name: userId, avatarDetail });
+    Network.instance.clientsConnected.push({ userId, avatarDetail });
     // Create a new worldtate object that we can fill
-    const worldState = {
-        tick: Network.instance.tick,
-        transforms: [],
-        ikTransforms: [],
-        inputs: [],
+    const worldState: WorldStateInterface = {
         clientsConnected: [],
         clientsDisconnected: [],
         createObjects: [],
-        destroyObjects: []
+        destroyObjects: [],
+        editObjects: [],
+        gameState: [],
+        gameStateActions: []
     };
 
     // Get all clients and add to clientsConnected and push to world state frame
     Object.keys(Network.instance.clients).forEach(userId => {
         const client = Network.instance.clients[userId];
-        worldState.clientsConnected.push({ userId: client.userId, name: client.userId, avatarDetail: client.avatarDetail });
+        worldState.clientsConnected.push({ userId: client.userId, avatarDetail: client.avatarDetail });
     });
 
     // Return initial world state to client to set things up
     callback({
-        worldState /* worldState: worldStateModel.toBuffer(worldState) */,
+        worldState: WorldStateModel.toBuffer(worldState),
         routerRtpCapabilities: transport.routers.instance.rtpCapabilities
     });
 }
@@ -282,15 +280,14 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     transform.rotation = spawnPos.rotation;
 
     // Create a new worldState object that we can fill
-    const worldState = {
-        tick: Network.instance.tick,
-        transforms: [],
-        ikTransforms: [],
-        inputs: [],
-        clientsConnected: [],
-        clientsDisconnected: [],
-        createObjects: [],
-        destroyObjects: []
+    const worldState: WorldStateInterface = {
+      clientsConnected: [],
+      clientsDisconnected: [],
+      createObjects: [],
+      destroyObjects: [],
+      editObjects: [],
+      gameState: [],
+      gameStateActions: []
     };
 
      //TODO spawn point transforms aren't applied to newly connected players as it is given in the execute loop
@@ -309,18 +306,18 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     // Get all clients and add to clientsConnected and push to world state frame
     Object.keys(Network.instance.clients).forEach(userId => {
       const client = Network.instance.clients[userId];
-      worldState.clientsConnected.push({ userId: client.userId, name: client.userId, avatarDetail: client.avatarDetail });
+      worldState.clientsConnected.push({ userId: client.userId, avatarDetail: client.avatarDetail });
     });
 
     // Return initial world state to client to set things up
     callback({
-        worldState /* worldState: worldStateModel.toBuffer(worldState) */,
+        worldState: WorldStateModel.toBuffer(worldState),
         routerRtpCapabilities: transport.routers.instance.rtpCapabilities
     });
 }
 
 export async function handleIncomingMessage(socket, message): Promise<any> {
-    Network.instance.incomingMessageQueue.add(message);
+    Network.instance.incomingMessageQueueReliable.add(message);
 }
 
 export async function handleHeartbeat(socket): Promise<any> {

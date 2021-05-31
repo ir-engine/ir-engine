@@ -1066,7 +1066,7 @@ class HalfEdge {
 
 	}
 
-	lengthSquared() {
+	magnitudeSquared() {
 
 		const head = this.head();
 		const tail = this.tail();
