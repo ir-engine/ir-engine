@@ -16,10 +16,10 @@ import { isClient } from '../../common/functions/isClient';
 import { BodyType, ColliderHitEvent, CollisionEvents, PhysXConfig, PhysXInstance } from "three-physx";
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
 import { UserControlledColliderComponent } from '../components/UserControllerObjectComponent';
-import { HasHadCollision } from "../../game/actions/HasHadCollision";
 import { GameObject } from "../../game/components/GameObject";
 import { addActionComponent } from '../../game/functions/functionsActions';
-import { Vector3 } from 'three';
+import { StaticReadUsage, Vector3 } from 'three';
+import { Action, State } from '../../game/types/GameComponents';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -108,17 +108,40 @@ export class PhysicsSystem extends System {
       // iterate on all collisions since the last update
       collider.collisions.forEach((event) => {
 
-
+/*
         if (hasComponent(entity, GameObject)) {
           //  const { type, bodySelf, bodyOther, shapeSelf, shapeOther } = event;
           //  isClient ? console.warn(type, bodySelf, bodyOther, shapeSelf, shapeOther):'';
           addActionComponent(entity, HasHadCollision);
           //    console.warn(event, entity);
         }
+*/
         // TODO: figure out how we expose specific behaviors like this
       })
       collider.collisions = []; // clear for next loop
 
+      
+      if (collider.body.type === BodyType.DYNAMIC) {
+        if (hasComponent(entity, GameObject) && getComponent(entity, GameObject).role === 'GolfBall') {
+
+          
+          if(collider.body.transform.linearVelocity.length() > 0.15) {
+
+            if(hasComponent(entity, State.Active)) {
+              console.warn('actionMoving')
+              addActionComponent(entity, Action.BallMoving);
+            }
+           }
+           /* else if(collider.body.transform.linearVelocity.length() > 0.3) {
+             if(hasComponent(entity, State.Deactive)) {
+              console.warn('stop')
+               addActionComponent(entity, Action.BallStopped);
+             }
+            }
+            */
+
+        }
+      }
 
       const transform = getComponent(entity, TransformComponent);
       if (collider.body.type === BodyType.KINEMATIC) {
