@@ -1,4 +1,4 @@
-import { Box3, Frustum, Matrix4, Mesh, Object3D, Quaternion, Scene, Vector3 } from "three";
+import { Box3, Frustum, Matrix4, Mesh, Vector3 } from "three";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { isClient } from "../../common/functions/isClient";
 import { vectorToScreenXYZ } from "../../common/functions/vectorToScreenXYZ";
@@ -28,7 +28,7 @@ import { InteractBehaviorArguments } from "../types/InteractionTypes";
 import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
 import { addActionComponent } from '../../game/functions/functionsActions';
 import { EquipperComponent } from "../components/EquipperComponent";
-import { EquippableAttachmentPoint, EquippedStateUpdateSchema } from "../enums/EquippedEnums";
+import { EquippedStateUpdateSchema } from "../enums/EquippedEnums";
 import { ColliderComponent } from "../../physics/components/ColliderComponent";
 import { NetworkObjectUpdateType } from "../../networking/templates/NetworkObjectUpdateSchema";
 import { sendClientObjectUpdate } from "../../networking/functions/sendClientObjectUpdate";
@@ -36,18 +36,10 @@ import { BodyType } from "three-physx";
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { ParityValue } from "../../common/enums/ParityValue";
 import { getInteractiveIsInReachDistance } from "../../character/functions/getInteractiveIsInReachDistance";
-import { getHandTransform, isInXR } from "../../xr/functions/WebXRFunctions";
-import { Input } from "../../input/components/Input";
-import { BaseInput } from "../../input/enums/BaseInput";
-import { SIXDOFType } from "../../common/types/NumericalTypes";
+import { getHandTransform } from "../../xr/functions/WebXRFunctions";
 import { unequipEntity } from "../functions/equippableFunctions";
-import { EquippedComponent } from "../components/EquippedComponent";
 
 const vector3 = new Vector3();
-const quat = new Quaternion();
-const matrix = new Matrix4();
-const PI_2Deg = Math.PI / 180;
-
 // but is works on client too, i will config out this
 export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityValue}, delta): void => {
   //console.warn('Behavior: interact , networkId ='+getComponent(entity, NetworkObject).networkId);
@@ -69,7 +61,7 @@ export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityV
 
         if (interactive.interactionPartsPosition.length > 0) {
           interactive.interactionPartsPosition.forEach((v,i) => {
-            const partPosition = new Vector3(...v).applyQuaternion(intRotation).add(intPosition);
+            const partPosition = vector3.set(v[0], v[1], v[2]).applyQuaternion(intRotation).add(intPosition);
             if (getInteractiveIsInReachDistance(entity, intPosition, args.side)) {
               focusedArrays.push([isEntityInteractable, position.distanceTo(partPosition), i])
             }

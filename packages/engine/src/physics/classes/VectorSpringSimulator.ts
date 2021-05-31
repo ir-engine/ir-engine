@@ -13,6 +13,8 @@ class SimulationFrameVector {
 	}
 }
 
+const vec3 = new Vector3();
+
 export class VectorSpringSimulator extends SimulatorBase
 {
 	public position: THREE.Vector3;
@@ -67,7 +69,7 @@ export class VectorSpringSimulator extends SimulatorBase
 		const newSpring = new SimulationFrameVector(this.lastFrame().position.clone(), this.lastFrame().velocity.clone());
 		
 		// Calculate new Spring
-		const acceleration = new Vector3().subVectors(this.target, newSpring.position);
+		const acceleration = vec3.subVectors(this.target, newSpring.position);
 		acceleration.divideScalar(this.mass);
 		newSpring.velocity.add(acceleration);
 		newSpring.velocity.multiplyScalar(this.damping);

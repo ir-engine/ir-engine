@@ -88,7 +88,8 @@ function createEmptyNetworkObjectBeforeSceneLoad(args: { networkId: number, pref
   };
 }
 
-const vector3 = new Vector3();
+const vector3_0 = new Vector3();
+const vector3_1 = new Vector3();
 const quat = new Quaternion();
 const forwardVector = new Vector3(0, 0, 1);
 
@@ -278,13 +279,13 @@ export class ClientNetworkStateSystem extends System {
             const networkObject = Network.instance.networkObjects[transform.networkId]
             // for character entities, we are sending the view vector, so we have to 
             if(networkObject && networkObject.component && hasComponent(networkObject.component.entity, CharacterComponent)) {
-              vector3.set(transform.qX, transform.qY, transform.qZ);
-              const flatViewVector = new Vector3(vector3.x, 0, vector3.z).normalize();
-              quat.setFromUnitVectors(forwardVector, applyVectorMatrixXZ(flatViewVector, forwardVector).setY(0));
+              vector3_0.set(transform.qX, transform.qY, transform.qZ);
+              vector3_1.copy(vector3_0).setY(0).normalize();
+              quat.setFromUnitVectors(forwardVector, applyVectorMatrixXZ(vector3_1, forwardVector).setY(0));
               // we don't want to override our own avatar
               if(networkObject.component.entity !== Network.instance.localClientEntity) {
                 const actor = getMutableComponent(networkObject.component.entity, CharacterComponent);
-                actor.viewVector.copy(vector3);
+                actor.viewVector.copy(vector3_0);
               }
               // put the transform rotation on the transform to deal with later
               transform.qX = quat.x;

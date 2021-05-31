@@ -348,8 +348,6 @@ const moveFromXRInputs: Behavior = (entity, args): void => {
   actor.localMovementDirection.normalize();
 };
 
-//const forwardVector = new Vector3(0, 0, 1);
-//const upDirection = new Vector3(0, 1, 0);
 const diffDamping = 0.2;
 let switchChangedToZero = true;
 const xrLookMultiplier = 0.1;

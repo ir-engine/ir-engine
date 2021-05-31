@@ -18,6 +18,10 @@ import { SIXDOFType } from '../../common/types/NumericalTypes';
 
 const upVector = new Vector3(0, 1, 0);
 const quat = new Quaternion();
+const mat4 = new Matrix4();
+const newVelocity = new Vector3();
+const onGroundVelocity = new Vector3();
+const vec3 = new Vector3();
 
 export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
@@ -25,8 +29,9 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
   if (!actor.initialized || !collider.controller || !actor.movementEnabled) return;
 
-  const newVelocity = new Vector3();
-  const onGroundVelocity = new Vector3();
+  newVelocity.setScalar(0);
+  onGroundVelocity.setScalar(0);
+
   if (actor.isGrounded) {
     collider.controller.velocity.y = 0;
 
@@ -53,10 +58,10 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
 
     if (actor.closestHit) {
       onGroundVelocity.copy(newVelocity).setY(0);
-      const normal = new Vector3(actor.closestHit.normal.x, actor.closestHit.normal.y, actor.closestHit.normal.z);
-      const q = new Quaternion().setFromUnitVectors(upVector, normal);
-      const m = new Matrix4().makeRotationFromQuaternion(q);
-      onGroundVelocity.applyMatrix4(m);
+      vec3.set(actor.closestHit.normal.x, actor.closestHit.normal.y, actor.closestHit.normal.z);
+      quat.setFromUnitVectors(upVector, vec3);
+      mat4.makeRotationFromQuaternion(quat);
+      onGroundVelocity.applyMatrix4(mat4);
     }
     collider.controller.velocity.x = newVelocity.x;
     collider.controller.velocity.y = onGroundVelocity.y;

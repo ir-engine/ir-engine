@@ -26,8 +26,6 @@ import { Vector3 } from 'three';
  * @author Josh Field <github.com/HexaField>
  */
 
- const vec0 = new Vector3();
- const vec1 = new Vector3();
 
 export class PhysicsSystem extends System {
   static EVENTS = {
