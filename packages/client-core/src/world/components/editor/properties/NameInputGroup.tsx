@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import InputGroup from "../inputs/InputGroup";
 import StringInput from "../inputs/StringInput";
 import styled from "styled-components";
-import i18n from "i18next";
 import { withTranslation } from "react-i18next";
 
 /**
@@ -21,7 +20,8 @@ const StyledNameInputGroup = (styled as any)(InputGroup)`
 
 type Types = {
   editor: any,
-  node: any
+  node: any,
+  t: Function,
 };
 
 /**
@@ -46,7 +46,12 @@ export class NameInputGroup extends Component<Types> {
       name: ((this.props as any).node as any).name,
       focusedNode: null
     };
+
+    this.t = this.props.t;
   }
+
+
+  t: Function;
 
  //function to handle change in name property
   onUpdateName = name => {
@@ -84,10 +89,8 @@ export class NameInputGroup extends Component<Types> {
  //rendering view NameInputGroup component
   render() {
     const name = (this.state as any).focusedNode ? (this.state as any).name : ((this.props as any).node as any).name;
-
     return (
-      //  label={this.props.t('editor:properties.name.lbl-name')}
-      <StyledNameInputGroup name="Name">
+      <StyledNameInputGroup name="Name" label={this.t('editor:properties.name.lbl-name')}>
         <StringInput
           /* @ts-ignore */
           value={name}

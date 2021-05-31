@@ -22,7 +22,7 @@ import Typography from '@material-ui/core/Typography';
 interface Props {
     open: boolean;
     handleClose: any;
-    fetchAdminLocations: any;
+    fetchAdminLocations?: any;
     adminState?: any;
     authState?: any;
     fetchAdminInstances?: any;

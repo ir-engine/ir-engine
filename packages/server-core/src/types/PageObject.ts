@@ -1,3 +1,4 @@
+/* eslint-disable semi */
 export default interface Page<D> {
     total: number;
     limit: number;

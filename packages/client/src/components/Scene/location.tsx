@@ -28,7 +28,7 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
 import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
-import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
+import { processLocationPort, resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { getComponent, getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
 import { initializeEngine } from '@xrengine/client-core/src/initialize';
 import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
@@ -51,6 +51,7 @@ import url from 'url';
 import WarningRefreshModal from "../AlertModals/WarningRetryModal";
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem';
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
+import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema';
 
 const store = Store.store;
 
@@ -216,7 +217,7 @@ export const EnginePage = (props: Props) => {
     const currentLocation = locationState.get('currentLocation').get('location');
     if (currentLocation.id != null &&
       userBanned != true &&
-      instanceConnectionState.get('instanceProvisioned') !== true &&
+      instanceConnectionState.get('instanceProvisioned') === false &&
       instanceConnectionState.get('instanceProvisioning') === false) {
       const search = window.location.search;
       let instanceId;
@@ -294,7 +295,7 @@ export const EnginePage = (props: Props) => {
       sceneData = testScenes[sceneId] || testScenes.test;
     } else {
       let service, serviceId;
-      const projectResult = !Config.publicRuntimeConfig.offlineMode ? await client.service('project').get(sceneId) : '';
+      const projectResult = await client.service('project').get(sceneId);
       setCurrentScene(projectResult);
       const projectUrl = projectResult.project_url;
       const regexResult = projectUrl.match(projectRegex);
@@ -350,7 +351,7 @@ export const EnginePage = (props: Props) => {
         resolve(testWorldState);
       } else {
         const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
-        resolve(worldState);
+        resolve(WorldStateModel.fromBuffer(worldState));
       }
     });
 
@@ -381,11 +382,20 @@ export const EnginePage = (props: Props) => {
     setonUserPosition(focused ? position : null);
   };
 
+  const portToLocation = async (portalDetail) => {
+    // "action": "portal", "link": "sky-high"
+
+    console.debug(portalDetail.location);
+    history.replace('/location/' + portalDetail.location);
+
+    await processLocationPort();
+  };
+
   const addUIEvents = () => {
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);
-    EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, ({ location }) => { window.location.replace(location); });
+    EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation);
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => { setIsInXR(true); });
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => { setIsInXR(false); });
   };

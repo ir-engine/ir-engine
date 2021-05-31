@@ -56,6 +56,7 @@ import { GolfPrefabs } from "./Golf/prefab/GolfGamePrefabs";
 import { ColliderComponent } from "../../physics/components/ColliderComponent";
 import { BodyType } from "three-physx";
 import { Euler, Quaternion, Vector3 } from "three";
+import { removeSpawnedObjects } from "../functions/functions";
 
 
 
@@ -136,7 +137,10 @@ const onGolfGameLoading = (entity: Entity) => {
   })
 }
 
-const onGolfPlayerLeave = (entity: Entity) => {
+const onGolfPlayerLeave = (entity: Entity, playerComponent, game) => {
+//  const entityArray = getEntityOwnedObjects(entity)
+//  entityArray.forEach(entityObjects => removeSpawnedObject(entityObjects));
+  removeSpawnedObjects(entity, playerComponent, game);
   //console.warn('need clean score');
 }
 

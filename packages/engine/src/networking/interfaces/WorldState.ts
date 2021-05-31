@@ -6,7 +6,7 @@ import { StateEntityGroup, StateEntityIKGroup } from "../types/SnapshotDataTypes
 
 /** Interface for handling network input. */
 export interface NetworkInputInterface {
-  /** ID of network. */
+  /** network ID of user. */
   networkId: number
   /** Button input received over the network. */
   buttons: Array<{
@@ -40,7 +40,6 @@ export interface NetworkInputInterface {
   /** Viewport vector of the client. */
   viewVector: {  x: number, y: number, z: number  },
   snapShotTime: number,
-  characterState: number,
   clientGameAction: ClientGameActionMessage[]
 }
 
@@ -48,8 +47,6 @@ export interface NetworkInputInterface {
 export interface NetworkClientInputInterface extends NetworkInputInterface {
   /** Time of the snapshot. */
   snapShotTime: number,
-  // switchInputs: number,
-  characterState: number
   /** transform of objects controller by user. */
   transforms: StateEntityGroup
 }
@@ -114,17 +111,6 @@ export interface WorldStateSnapshot {
 
 /** Interface for world state. */
 export interface WorldStateInterface {
-  /** Current world tick. */
-  tick: number
-  /** For interpolation. */
-  time: number
-  /** transform of world. */
-  transforms: StateEntityGroup
-  /** transform of ik avatars. */
-  ikTransforms: StateEntityIKGroup
-  //snapshot: Snapshot
-  /** Inputs received. */
-  inputs: NetworkInputInterface[]
   /** List of connected clients. */
   clientsConnected: NetworkClientDataInterface[]
   /** List of disconnected clients. */
@@ -137,6 +123,18 @@ export interface WorldStateInterface {
   destroyObjects: NetworkObjectRemoveInterface[],
   gameState: GameStateUpdateMessage[],
   gameStateActions: GameStateActionMessage[]
+}
+
+/** Interface for world state. */
+export interface TransformStateInterface {
+  /** Current world tick. */
+  tick: number
+  /** For interpolation. */
+  time: number
+  /** transform of world. */
+  transforms: StateEntityGroup
+  /** transform of ik avatars. */
+  ikTransforms: StateEntityIKGroup
 }
 /** Interface for handling packet network input. */
 export interface PacketNetworkInputInterface {

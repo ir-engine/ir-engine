@@ -6,10 +6,10 @@ export function insertSeparator(children, separatorFn) {
   if (length === 1) {
     return children[0];
   }
-  return children.reduce((acc, item, idx) => {
+  return children.reduce((acc, item, index) => {
     acc.push(item);
-    if (idx !== length - 1) {
-      acc.push(separatorFn(idx));
+    if (index !== length - 1) {
+      acc.push(separatorFn(index));
     }
     return acc;
   }, []);

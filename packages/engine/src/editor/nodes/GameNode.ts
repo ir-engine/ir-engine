@@ -6,6 +6,7 @@ export default class GameNode extends EditorNodeMixin(Object3D) {
   static _geometry = new BoxBufferGeometry();
   static _material = new Material();
   static async deserialize(editor, json) {
+    console.log("Deserializing The GameNode");
     const node = await super.deserialize(editor, json);
     const {
       isGlobal,

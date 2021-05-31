@@ -305,6 +305,7 @@ export const PostProcessingNodeEditor = (props: PostProcessingNodeEditorPropType
   const onChangeCheckBox = (e, key) => (props.editor as any).setObjectProperty("postProcessingOptions." + key + ".isActive", e.target.checked);
 
   const onChangeNodeSetting = (key, op) => {
+    const val=props.editor as any;
     (props.editor as any).setObjectProperty("postProcessingOptions." + key, op);
   };
 
