@@ -45,7 +45,7 @@ export const setReflectionProbe: Behavior = (entity, args: {}) => {
           mat.envMapIntensity=options.intensity;
           mat.onBeforeCompile = function ( shader ) {
               shader.uniforms.cubeMapSize = { value: options.probeScale};
-              shader.uniforms.cubeMapPos = { value: options.probePosition};
+              shader.uniforms.cubeMapPos = { value: options.probePositionOffset};
               shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader;
               shader.vertexShader = shader.vertexShader.replace(
                   '#include <worldpos_vertex>',
