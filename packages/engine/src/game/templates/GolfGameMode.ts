@@ -15,7 +15,7 @@ import { Deactive } from "./gameDefault/components/DeactiveTagComponent";
 import { Goal } from "./Golf/components/GoalTagComponent";
 // game Action Tag Component
 import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
-import { HasHadCollision } from "../../game/actions/HasHadCollision";
+import { GameObjectCollisionTag } from "../actions/GameObjectCollisionTag";
 // game behavior
 import { executeBehaviorArray } from "./gameDefault/behaviors/executeBehaviorArray";
 import { objectMove } from "./gameDefault/behaviors/objectMove";
@@ -153,7 +153,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   onPlayerLeave: onGolfPlayerLeave, // not disconnected, in future we will allow to Leave game witout disconnect from location
   registerActionTagComponents: [
     HaveBeenInteracted,
-    HasHadCollision
+    GameObjectCollisionTag
   ],
   registerStateTagComponents: [
     Open,
@@ -278,7 +278,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {
-                watchers:[ [ HasHadCollision ] ],
+                watchers:[ [ GameObjectCollisionTag ] ],
                 checkers:[{
                   function: ifNamed,
                   args: { on: 'target', name: '1' }
@@ -286,7 +286,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
                     function: customChecker,
                     args: {
                       on: 'GolfClub',
-                      watchers: [ [ HasHadCollision ] ],
+                      watchers: [ [ GameObjectCollisionTag ] ],
                       checkers:[{
                         function: ifNamed,
                         args: { on: 'me', name: '1' }
@@ -371,7 +371,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {
-                watchers:[ [ HasHadCollision ] ],
+                watchers:[ [ GameObjectCollisionTag ] ],
                 checkers:[{
                   function: ifNamed,
                   args: { on: 'target', name: '2' }
@@ -379,7 +379,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
                     function: customChecker,
                     args: {
                       on: 'GolfClub',
-                      watchers: [ [ HasHadCollision ] ],
+                      watchers: [ [ GameObjectCollisionTag ] ],
                       checkers:[{
                         function: ifNamed,
                         args: { on: 'me', name: '2' }
@@ -394,43 +394,23 @@ export const GolfGameMode: GameMode = somePrepareFunction({
     }
   },
   gameObjectRoles: {
-    'GolfBall': {
-      'teleport': [
-        {
-          behavior: teleportObject,
-          watchers:[ [ HasHadCollision ] ],
-          takeEffectOn: {
-            targetsRole: {
-              'GolfTee': {
-                checkers:[{
-                    function: customChecker,
-                    args: {
-                      on: 'GolfHole',
-                      watchers: [ [ HasHadCollision ] ]
-                     }
-                  }]
-              }
-            }
-          }
-        },
-      ]
-    },
+    'GolfBall': {},
     'GolfTee': {},
     'GolfHole': {
-      'goal': [
-        {
-          behavior: switchState,
-          args: { on: 'target'},
-          watchers:[ [ HasHadCollision ] ],
-          takeEffectOn: {
-            targetsRole: {
-              'GoalPanel': {
-                watchers:[ [ PanelDown ] ],
-                args: { remove: PanelDown, add: PanelUp }
-              }
-            }
-          }
-        },
+      // 'goal': [
+      //   {
+      //     behavior: switchState,
+      //     args: { on: 'target'},
+      //     watchers:[ [ GameObjectCollisionTag ] ],
+      //     takeEffectOn: {
+      //       targetsRole: {
+      //         'GoalPanel': {
+      //           watchers:[ [ PanelDown ] ],
+      //           args: { remove: PanelDown, add: PanelUp }
+      //         }
+      //       }
+      //     }
+      //   },
         /* NEED WORK
         {
           behavior: giveState,
@@ -468,7 +448,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           }
         },
         */
-      ]
+      // ]
     },
     'GolfClub': {
       'update': [
