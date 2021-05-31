@@ -51,7 +51,7 @@ class Vec3 extends Float32Array{
 
 		set_len( length ){ return this.normalize().scale(length); }
 
-		length( v ){
+		magnitude( v ){
 			//Only get the magnitude of this vector
 			if( !v ) return Math.sqrt( this[0]**2 + this[1]**2 + this[2]**2 );
 
@@ -464,7 +464,7 @@ class Vec3 extends Float32Array{
 			// atan2(length(cross(a,b)),dot(a,b))  
 			const d = this.dot( v0, v1 ),
 				c = this.cross( v0, v1 );
-			return Math.atan2( c.length(), d ); 
+			return Math.atan2( c.magnitude(), d ); 
 
 			//let cosine = this.dot( v0, v1 );
 			//if(cosine > 1.0) return 0;

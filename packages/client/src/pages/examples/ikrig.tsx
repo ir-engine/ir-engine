@@ -494,8 +494,8 @@ class IKCompute {
 
 		let boneA = pose.bones[chain.first()],	// First Bone
 			boneB = pose.bones[chain.end_idx],	// END Bone, which is not part of the chain (Hand,Foot)
-			ab_dir = Vec3.sub(boneB.world.position, boneA.world.position),	// Direction from First Bone to Final Bone ( IK Direction )
-			ab_len = ab_dir.length();									// Distance from First Bone to Final Bone 
+			aToBDirection = Vec3.sub(boneB.world.position, boneA.world.position),	// Direction from First Bone to Final Bone ( IK Direction )
+			aToBLength = aToBDirection.magnitude();									// Distance from First Bone to Final Bone 
 
 		/* VISUAL DEBUG CHAIN POINTS 
 		Debug.setPoint( boneA.world.position, "green", 0.06, 6 );
@@ -505,18 +505,18 @@ class IKCompute {
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Compute the final IK Information needed for the Limb
-		ik_limb.lengthScale = ab_len / chain.length;	// Normalize the distance base on the length of the Chain.
-		ik_limb.dir.copy(ab_dir.normalize());		// We also normalize the direction to the end effector.
+		ik_limb.lengthScale = aToBLength / chain.length;	// Normalize the distance base on the length of the Chain.
+		ik_limb.dir.copy(aToBDirection.normalize());		// We also normalize the direction to the end effector.
 
 		// We use the first bone of the chain plus the Pre computed ALT UP to easily get the direction of the joint
 		let j_dir = Vec3.transform_quat(chain.alt_up, boneA.world.rotation);
-		let lft_dir = Vec3.cross(j_dir, ab_dir);					// We need left to realign up
-		ik_limb.jointDirection.from_cross(ab_dir, lft_dir).normalize(); 	// Recalc Up, make it orthogonal to LEFT and FWD
+		let lft_dir = Vec3.cross(j_dir, aToBDirection);					// We need left to realign up
+		ik_limb.jointDirection.from_cross(aToBDirection, lft_dir).normalize(); 	// Recalc Up, make it orthogonal to LEFT and FWD
 
 		/* VISUAL DEBUG THE DIRECTIONS BEING COMPUTED 
 		Debug.setLine( boneA.world.position, Vec3.scale( j_dir, 0.5 ).add( boneA.world.position ), "white" ); 				// The actual Direction the first bone is pointing too (UP)
 		Debug.setLine( boneA.world.position, Vec3.scale( lft_dir, 0.5 ).add( boneA.world.position ), "orange" );			// the Cross of UP and FWD
-		Debug.setLine( boneA.world.position, Vec3.scale( ab_dir, 0.5 ).add( boneA.world.position ), "orange" );			// Dir to End Effector
+		Debug.setLine( boneA.world.position, Vec3.scale( aToBDirection, 0.5 ).add( boneA.world.position ), "orange" );			// Dir to End Effector
 		Debug.setLine( boneA.world.position, Vec3.scale( ik_limb.jointDirection, 0.5 ).add( boneA.world.position ), "orange" );	// Recalc UP to make it orthogonal
 		*/
 	}

@@ -3,7 +3,7 @@ class Matrix4 extends Float32Array{
 
 		//reset data back to identity.
 		reset(){ 
-			for(let i=0; i <= this.length; i++) this[i] = (i % 5 == 0)? 1 : 0; //only positions 0,5,10,15 need to be 1 else 0
+			for(let i=0; i <= this.magnitude; i++) this[i] = (i % 5 == 0)? 1 : 0; //only positions 0,5,10,15 need to be 1 else 0
 			return this;
 		}
 

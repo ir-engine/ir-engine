@@ -142,30 +142,30 @@ export function updateGeometry(geometry: ParticleGeometry, config: particleMeshO
     geometry.setAttribute("position", new Float32BufferAttribute(new Float32Array(particleCount * 3), 3));
   }
 
-  geometry.setAttribute("row1", new bufferFn(row1s, row1s.length / particleCount));
-  geometry.setAttribute("row2", new bufferFn(row2s, row2s.length / particleCount));
-  geometry.setAttribute("row3", new bufferFn(row3s, row3s.length / particleCount));
-  geometry.setAttribute("offset", new bufferFn(offsets, offsets.length / particleCount));
-  geometry.setAttribute("scales", new bufferFn(scales, scales.length / particleCount));
-  geometry.setAttribute("orientations", new bufferFn(orientations, orientations.length / particleCount));
-  geometry.setAttribute("colors", new bufferFn(colors, colors.length / particleCount));
-  geometry.setAttribute("opacities", new bufferFn(opacities, opacities.length / particleCount));
-  geometry.setAttribute("timings", new bufferFn(timings, timings.length / particleCount));
+  geometry.setAttribute("row1", new bufferFn(row1s, row1s.magnitude / particleCount));
+  geometry.setAttribute("row2", new bufferFn(row2s, row2s.magnitude / particleCount));
+  geometry.setAttribute("row3", new bufferFn(row3s, row3s.magnitude / particleCount));
+  geometry.setAttribute("offset", new bufferFn(offsets, offsets.magnitude / particleCount));
+  geometry.setAttribute("scales", new bufferFn(scales, scales.magnitude / particleCount));
+  geometry.setAttribute("orientations", new bufferFn(orientations, orientations.magnitude / particleCount));
+  geometry.setAttribute("colors", new bufferFn(colors, colors.magnitude / particleCount));
+  geometry.setAttribute("opacities", new bufferFn(opacities, opacities.magnitude / particleCount));
+  geometry.setAttribute("timings", new bufferFn(timings, timings.magnitude / particleCount));
 
   if (config.useLinearMotion || config.useRadialMotion) {
     const velocities = new Float32Array(particleCount * 4); // linearVelocity (xyz) + radialVelocity (w)
     const accelerations = new Float32Array(particleCount * 4); // linearAcceleration (xyz) + radialAcceleration (w)
-    geometry.setAttribute("velocity", new bufferFn(velocities, velocities.length / particleCount));
-    geometry.setAttribute("acceleration", new bufferFn(accelerations, accelerations.length / particleCount));
+    geometry.setAttribute("velocity", new bufferFn(velocities, velocities.magnitude / particleCount));
+    geometry.setAttribute("acceleration", new bufferFn(accelerations, accelerations.magnitude / particleCount));
   }
 
   if (config.useAngularMotion || config.useOrbitalMotion) {
     const angularVelocities = new Float32Array(particleCount * 4); // angularVelocity (xyz) + orbitalVelocity (w)
     const angularAccelerations = new Float32Array(particleCount * 4); // angularAcceleration (xyz) + orbitalAcceleration (w)
-    geometry.setAttribute("angularvelocity", new bufferFn(angularVelocities, angularVelocities.length / particleCount));
+    geometry.setAttribute("angularvelocity", new bufferFn(angularVelocities, angularVelocities.magnitude / particleCount));
     geometry.setAttribute(
       "angularacceleration",
-      new bufferFn(angularAccelerations, angularAccelerations.length / particleCount)
+      new bufferFn(angularAccelerations, angularAccelerations.magnitude / particleCount)
     );
   }
 
@@ -173,13 +173,13 @@ export function updateGeometry(geometry: ParticleGeometry, config: particleMeshO
     const worldAccelerations = new Float32Array(particleCount * 4); // worldAcceleration (xyz) + brownian (w)
     geometry.setAttribute(
       "worldacceleration",
-      new bufferFn(worldAccelerations, worldAccelerations.length / particleCount)
+      new bufferFn(worldAccelerations, worldAccelerations.magnitude / particleCount)
     );
   }
 
   if (config.useVelocityScale) {
     const velocityScales = new Float32Array(particleCount * 3); // velocityScale (x), velocityScaleMin (y), velocityScaleMax (z)
-    geometry.setAttribute("velocityscale", new bufferFn(velocityScales, velocityScales.length / particleCount));
+    geometry.setAttribute("velocityscale", new bufferFn(velocityScales, velocityScales.magnitude / particleCount));
   }
 
   if (geometry instanceof InstancedBufferGeometry) {
