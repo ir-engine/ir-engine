@@ -275,7 +275,7 @@ export const processLocationPort = async () => {
 
   sceneObjectsToRemove.forEach(o => Engine.scene.remove(o));
 
-  await delay(2000);
+  await delay(200);
   entitiesToRemove.forEach(entity => {
     removeEntity(entity, false);
   });

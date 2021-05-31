@@ -91,6 +91,8 @@ export class WebGLRendererSystem extends System {
 
   forcePostProcessing = false;
 
+  _supportWebGL2: any;
+
   /** Constructs WebGL Renderer System. */
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);

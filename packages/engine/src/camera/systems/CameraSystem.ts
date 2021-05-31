@@ -89,6 +89,9 @@ export class CameraSystem extends System {
     // follow camera component should only ever be on the character
     this.queryResults.followCameraComponent.all?.forEach(entity => {
       const cameraDesiredTransform: DesiredTransformComponent = getMutableComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) as DesiredTransformComponent; // Camera
+
+      if (!cameraDesiredTransform) return;
+
       const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
       const actorTransform = getMutableComponent(entity, TransformComponent);
 

@@ -45,8 +45,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
  * @param message message to send
  */
   sendReliableData(message, instance = true): void {
-    if (instance === true) this.instanceSocket.emit(MessageTypes.ReliableMessage.toString(), message);
-    else this.channelSocket.emit(MessageTypes.ReliableMessage.toString(), message);
+    try {
+      if (instance === true) this.instanceSocket.emit(MessageTypes.ReliableMessage.toString(), message);
+      else this.channelSocket.emit(MessageTypes.ReliableMessage.toString(), message);
+    } catch (e) {}
   }
 
   sendNetworkStatUpdateMessage(message, instance = true): void {

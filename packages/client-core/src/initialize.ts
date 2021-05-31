@@ -195,6 +195,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     Network.instance.userId = id;
   });
 
+  Engine.isInitialized = true;
 };
 
 

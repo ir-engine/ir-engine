@@ -20,7 +20,8 @@ import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/se
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector';
 import {
   connectToInstanceServer,
-  provisionInstanceServer
+  provisionInstanceServer,
+  resetInstanceServer,
 } from '../../reducers/instanceConnection/service';
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector';
 import MediaIconsBox from "../../components/MediaIconsBox";
@@ -52,6 +53,7 @@ import WarningRefreshModal from "../AlertModals/WarningRetryModal";
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem';
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema';
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 
 const store = Store.store;
 
@@ -117,6 +119,7 @@ interface Props {
   provisionInstanceServer?: typeof provisionInstanceServer;
   setCurrentScene?: typeof setCurrentScene;
   harmonyOpen?: boolean;
+  resetInstanceServer?: any;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -137,6 +140,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   connectToInstanceServer: bindActionCreators(connectToInstanceServer, dispatch),
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
   setCurrentScene: bindActionCreators(setCurrentScene, dispatch),
+  resetInstanceServer: bindActionCreators(resetInstanceServer, dispatch),
 });
 
 export const EnginePage = (props: Props) => {
@@ -155,6 +159,7 @@ export const EnginePage = (props: Props) => {
     setAppLoaded,
     locationName,
     harmonyOpen,
+    resetInstanceServer,
     history,
   } = props;
 
@@ -306,27 +311,28 @@ export const EnginePage = (props: Props) => {
       sceneData = await client.service(service).get(serviceId);
     }
 
-    const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
-    styleCanvas(canvas);
+    if (!Engine.isInitialized) {
+      const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
+      styleCanvas(canvas);
+  
+      const InitializationOptions = {
+        publicPath: location.origin,
+        networking: {
+          schema: {
+            transport: SocketWebRTCClientTransport,
+          } as NetworkSchema,
+        },
+        renderer: {
+          canvas,
+        },
+        useOfflineMode: Config.publicRuntimeConfig.offlineMode
+      };
 
-    const InitializationOptions = {
-      publicPath: location.origin,
-      networking: {
-        schema: {
-          transport: SocketWebRTCClientTransport,
-        } as NetworkSchema,
-      },
-      renderer: {
-        canvas,
-      },
-      useOfflineMode: Config.publicRuntimeConfig.offlineMode
-    };
+      await initializeEngine(InitializationOptions);
 
-    await initializeEngine(InitializationOptions);
-
-    document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
-
-    addUIEvents();
+      document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
+      addUIEvents();
+    }
 
     if(!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
 
@@ -383,12 +389,14 @@ export const EnginePage = (props: Props) => {
   };
 
   const portToLocation = async (portalDetail) => {
-    // "action": "portal", "link": "sky-high"
-
-    console.debug(portalDetail.location);
     history.replace('/location/' + portalDetail.location);
 
+    resetInstanceServer();
     await processLocationPort();
+
+    Network.instance.transport.close();
+
+    getLocationByName(portalDetail.location);
   };
 
   const addUIEvents = () => {
