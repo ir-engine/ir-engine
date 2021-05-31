@@ -59,8 +59,8 @@ class Axis{
 
 		fromDirection( fwd, up ){
 			this.z.copy( fwd ).normalize();
-			this.x.from_cross( up, this.z ).normalize();
-			this.y.from_cross( this.z, this.x ).normalize();			
+			this.x.setFromCross( up, this.z ).normalize();
+			this.y.setFromCross( this.z, this.x ).normalize();			
 			return this;
 		}
 

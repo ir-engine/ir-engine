@@ -54,11 +54,11 @@ class XhrQueue{
 			is_img 	= true;
 		}
 
-		let idx = this.queue.length;
+		let index = this.queue.length;
 		if( this.pre_url && !url.startsWith("/") && !url.startsWith(".") ) url = this.pre_url + url;
 
 		this.queue.push({
-			order 		: idx,
+			order 		: index,
 			url			: url,
 			type		: type,
 			is_img 		: is_img,

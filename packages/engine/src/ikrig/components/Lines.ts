@@ -57,7 +57,7 @@ class Lines extends Component<Lines>{
 
 	add( p0, p1, hex_0=0xff0000, hex_1=null, is_dash=false ){ return this.addRaw( p0.x, p0.y, p0.z, p1.x, p1.y, p1.z, hex_0, hex_1, is_dash ); }
 	addRaw( x0, y0, z0, x1, y1, z1, hex_0=0xff0000, hex_1=null, is_dash=false ){
-		const idx 	= this.cnt * 2;
+		const index 	= this.cnt * 2;
 		let	len_0	= -1,
 			len_1	= -1;
 
@@ -72,8 +72,8 @@ class Lines extends Component<Lines>{
 			);
 		}
 
-		this.buf_pos.setXYZW( idx, x0, y0, z0, len_0 );
-		this.buf_pos.setXYZW( idx+1, x1, y1, z1, len_1 );
+		this.buf_pos.setXYZW( index, x0, y0, z0, len_0 );
+		this.buf_pos.setXYZW( index+1, x1, y1, z1, len_1 );
 		this.buf_pos.needsUpdate = true;
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -81,8 +81,8 @@ class Lines extends Component<Lines>{
 		const c0 = gl_color( hex_0 );
 		const c1 = ( hex_1 != null )? gl_color( hex_1 ) : c0;
 
-		this.buf_clr.setXYZ( idx, c0[0], c0[1], c0[2] );
-		this.buf_clr.setXYZ( idx+1, c1[0], c1[1], c1[2] );
+		this.buf_clr.setXYZ( index, c0[0], c0[1], c0[2] );
+		this.buf_clr.setXYZ( index+1, c1[0], c1[1], c1[2] );
 		this.buf_clr.needsUpdate = true;
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

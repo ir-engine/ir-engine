@@ -2,14 +2,14 @@ import { AnimUtil } from "../classes/Animation";
 
 class PoseAnimator {
 	clock: number;
-	root_idx: any;
+	rootIndex: any;
 	root_x: number;
-	root_z: number;
+	rootZ: number;
 	constructor() {
 		this.clock = 0;
-		this.root_idx = null;
+		this.rootIndex = null;
 		this.root_x = 0;
-		this.root_z = 2;
+		this.rootZ = 2;
 	}
 	tick(dt) { this.clock += dt; return this; }
 	reset() { this.clock = 0; return this; }
@@ -41,9 +41,9 @@ class PoseAnimator {
 						default: AnimUtil.Vec3BufferLerp(track.data, ft.a_idx * 3, ft.b_idx * 3, ft.time, v); break;
 					}
 
-					if (this.root_idx == track.joint_idx) {
+					if (this.rootIndex == track.joint_idx) {
 						v[this.root_x] = 0;
-						v[this.root_z] = 0;
+						v[this.rootZ] = 0;
 					}
 
 					pose.setBone(track.joint_idx, null, v);

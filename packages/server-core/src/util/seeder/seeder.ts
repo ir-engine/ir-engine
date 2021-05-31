@@ -89,8 +89,8 @@ export default class Seeder {
           // Multiple random templates
           if (randomize) {
             for (let i = 0; i < count; i++) {
-              const idx = Math.floor(Math.random() * cfg.templates.length);
-              const template = cfg.templates[idx];
+              const index = Math.floor(Math.random() * cfg.templates.length);
+              const template = cfg.templates[index];
               promises.push(pushPromise(template));
             }
           }

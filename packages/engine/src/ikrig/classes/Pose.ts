@@ -21,7 +21,7 @@ class Pose {
 			b = armature.bones[i];
 			this.bones[i] = {
 				chg_state: 0,						// If Local Has Been Updated
-				idx: b.idx,					// Bone Index in Armature
+				index: b.index,					// Bone Index in Armature
 				p_idx: b.p_idx,					// Parent Bone Index in Armature
 				length: b.length,					// Length of Bone
 				name: b.name,
@@ -33,8 +33,8 @@ class Pose {
 
 	setOffset(rotation = null, position = null, scale = null) { this.root_offset.set(rotation, position, scale); return this; }
 
-	setBone(idx, rotation = null, position = null, scale = null) {
-		const b = this.bones[idx];
+	setBone(index, rotation = null, position = null, scale = null) {
+		const b = this.bones[index];
 		b.local.set(rotation, position, scale);
 
 		// Set its Change State
@@ -44,8 +44,8 @@ class Pose {
 		return this;
 	}
 
-	setState(idx, rotation = false, position = false, scale = false) {
-		const b = this.bones[idx];
+	setState(index, rotation = false, position = false, scale = false) {
+		const b = this.bones[index];
 		if (rotation) b.chg_state |= Pose.ROTATION;
 		if (position) b.chg_state |= Pose.POSITION;
 		if (scale) b.chg_state |= Pose.SCALE;
@@ -54,14 +54,14 @@ class Pose {
 
 	getBone(bname) { return this.bones[this.armature.name_map[bname]]; }
 
-	getLocalRotation(idx) { return this.bones[idx].local.rotation; }
+	getLocalRotation(index) { return this.bones[index].local.rotation; }
 
 	apply() { this.armature.loadPose(this); return this; }
 
 	updateWorld() {
 		for (const b of this.bones) {
-			if (b.p_idx != null) b.world.from_add(this.bones[b.p_idx].world, b.local); // Parent.World + Child.Local
-			else b.world.from_add(this.root_offset, b.local);
+			if (b.p_idx != null) b.world.setFromAdd(this.bones[b.p_idx].world, b.local); // Parent.World + Child.Local
+			else b.world.setFromAdd(this.root_offset, b.local);
 		}
 		return this;
 	}
@@ -91,7 +91,7 @@ class Pose {
 		pt.add_rev(this.root_offset);				// Add Starting Offset
 		if (t_offset) pt.add_rev(t_offset);		// Add Additional Starting Offset
 
-		if (ct) ct.from_add(pt, cbone.local);	// Requesting Child WS Info Too
+		if (ct) ct.setFromAdd(pt, cbone.local);	// Requesting Child WS Info Too
 
 		return pt;
 	}

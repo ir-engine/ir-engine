@@ -85,8 +85,8 @@ class IKPose {
 		twist: 0,
 	};
 
-	foot_l = { look_dir: new Vec3(), twist_dir: new Vec3() };
-	foot_r = { look_dir: new Vec3(), twist_dir: new Vec3() };
+	foot_l = { lookDirection: new Vec3(), twistDirection: new Vec3() };
+	foot_r = { lookDirection: new Vec3(), twistDirection: new Vec3() };
 
 	// IK Data for limbs is first the Direction toward the End Effector,
 	// The scaled length to the end effector, plus the direction that
@@ -98,11 +98,11 @@ class IKPose {
 	arm_r = { lengthScale: 0, dir: new Vec3(), jointDirection: new Vec3() };
 
 	spine = [
-		{ look_dir: new Vec3(), twist_dir: new Vec3() },
-		{ look_dir: new Vec3(), twist_dir: new Vec3() },
+		{ lookDirection: new Vec3(), twistDirection: new Vec3() },
+		{ lookDirection: new Vec3(), twistDirection: new Vec3() },
 	];
 
-	head = { look_dir: new Vec3(), twist_dir: new Vec3() };
+	head = { lookDirection: new Vec3(), twistDirection: new Vec3() };
 
 	apply_rig(rig) {
 		this.apply_hip(rig);
@@ -110,23 +110,23 @@ class IKPose {
 		this.apply_limb(rig, rig.chains.leg_l, this.leg_l);
 		this.apply_limb(rig, rig.chains.leg_r, this.leg_r);
 
-		this.apply_look_twist(rig, rig.points.foot_l, this.foot_l, Vec3.FORWARD, Vec3.UP);
-		this.apply_look_twist(rig, rig.points.foot_r, this.foot_r, Vec3.FORWARD, Vec3.UP);
+		this.applyLookTwist(rig, rig.points.foot_l, this.foot_l, Vec3.FORWARD, Vec3.UP);
+		this.applyLookTwist(rig, rig.points.foot_r, this.foot_r, Vec3.FORWARD, Vec3.UP);
 
 		this.apply_spline(rig, rig.chains.spine, this.spine, Vec3.UP, Vec3.FORWARD);
 
 		if (rig.chains.arm_l) this.apply_limb(rig, rig.chains.arm_l, this.arm_l);
 		if (rig.chains.arm_r) this.apply_limb(rig, rig.chains.arm_r, this.arm_r);
 
-		this.apply_look_twist(rig, rig.points.head, this.head, Vec3.FORWARD, Vec3.UP);
+		this.applyLookTwist(rig, rig.points.head, this.head, Vec3.FORWARD, Vec3.UP);
 	}
 
 	apply_hip(rig) {
 		// First step is we need to get access to the Rig's TPose and Pose Hip Bone.
 		// The idea is to transform our Bind Pose into a New Pose based on IK Data
-		let b_info = rig.points.hip,
-			bind = rig.tpose.bones[b_info.idx],	// TPose which is our Bind Pose
-			pose = rig.pose.bones[b_info.idx];		// Our Working Pose.
+		let boneInfo = rig.points.hip,
+			bind = rig.tpose.bones[boneInfo.index],	// TPose which is our Bind Pose
+			pose = rig.pose.bones[boneInfo.index];		// Our Working Pose.
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Apply IK Swing & Twist ( HANDLE ROTATION )
@@ -134,8 +134,8 @@ class IKPose {
 		// the hip always points in the FORWARD Axis, so We can use that to quicky get Swing Rotation
 		// Take note that vegeta and roborex's Hips are completely different but by using that inverse
 		// direction trick, we are easily able to apply the same movement to both.
-		let p_rot = rig.pose.getParentRotation(b_info.idx);	// Incase the Hip isn't the Root bone, but in our example they are.
-		let b_rot = Quat.multiply(p_rot, bind.local.rotation);		// Add LS rotation of the hip to the WS Parent to get its WS Rot.
+		let parentRotation = rig.pose.getParentRotation(boneInfo.index);	// Incase the Hip isn't the Root bone, but in our example they are.
+		let b_rot = Quat.multiply(parentRotation, bind.local.rotation);		// Add LS rotation of the hip to the WS Parent to get its WS Rot.
 		let q = Quat
 			.rotationFromUnitVectors(Vec3.FORWARD, this.hip.dir)	// Create Swing Rotation
 			.multiply(b_rot);								// Apply it to our WS Rotation
@@ -144,9 +144,9 @@ class IKPose {
 		if (this.hip.twist != 0) q.premultiplyAxisAngle(this.hip.dir, this.hip.twist);
 
 		// In the end, we need to convert to local space. Simply premul by the inverse of the parent
-		q.premultiplyInvert(p_rot);
+		q.premultiplyInvert(parentRotation);
 
-		rig.pose.setBone(b_info.idx, q); // Save LS rotation to pose
+		rig.pose.setBone(boneInfo.index, q); // Save LS rotation to pose
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// TRANSLATION
@@ -162,11 +162,11 @@ class IKPose {
 		//position.x = this.hip.movement.x;
 		//position.z = this.hip.movement.z;
 
-		rig.pose.setBone(b_info.idx, null, position);	// Save Position to Pose
+		rig.pose.setBone(boneInfo.index, null, position);	// Save Position to Pose
 	}
 
 	apply_limb(rig, chain, limb, grounding = 0) {
-		// The IK Solvers I put together takes transforms as input, not rotations.
+		// The IK Solver takes transforms as input, not rotations.
 		// The first thing we need is the WS Transform of the start of the chain
 		// plus the parent's WS Transform. When are are building a full body IK
 		// We need to do things in a certain order to build things correctly.
@@ -177,17 +177,17 @@ class IKPose {
 		// Because of that, the distance from the Hip to the floor is constantly changing
 		// which is important if we want to have the legs stretch correctly since each IK leg
 		// length scale is based on the hip being at a certain height at the time.
-		let p_tran = new Transform(),
-			c_tran = new Transform();
+		let parentTransform = new Transform(),
+			childTransform = new Transform();
 
-		rig.pose.getParentWorld(chain.first(), p_tran, c_tran);
+		rig.pose.getParentWorld(chain.first(), parentTransform, childTransform);
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// How much of the Chain length to use to calc End Effector
 		let len = (rig.leg_len_lmt || chain.length) * limb.lengthScale;
 
 		// Next we pass our into to the Target which does a some pre computations that solvers may need.
-		this.target.fromPositionAndDirection(c_tran.position, limb.dir, limb.jointDirection, len);	// Setup IK Target
+		this.target.fromPositionAndDirection(childTransform.position, limb.dir, limb.jointDirection, len);	// Setup IK Target
 
 		if (grounding) this.apply_grounding(grounding);
 
@@ -196,80 +196,68 @@ class IKPose {
 
 		// The IK Solver will update the pose with the results of the operation. We pass in the
 		// parent for it to use it to return things back into local space.
-		this.target[solver](chain, rig.tpose, rig.pose, p_tran);
+		this.target[solver](chain, rig.tpose, rig.pose, parentTransform);
 	}
 
-	apply_look_twist(rig, b_info, ik, look_dir, twist_dir) {
+	applyLookTwist(rig, boneInfo, ik, lookDirection, twistDirection) {
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// First we need to get the WS Rotation of the parent to the Foot
 		// Then Add the Foot's LS Bind rotation. The idea is to see where
 		// the foot will currently be if it has yet to have any rotation
 		// applied to it.
-		let bind = rig.tpose.bones[b_info.idx],
-			pose = rig.pose.bones[b_info.idx];
+		let bind = rig.tpose.bones[boneInfo.index],
+			pose = rig.pose.bones[boneInfo.index];
 
-		let p_rot = rig.pose.getParentRotation(b_info.idx);
-		let c_rot = Quat.multiply(p_rot, bind.local.rotation);
-
-		/* DEBUG 
-		let p_tran	= rig.pose.getParentWorld( b_info.idx );
-		let c_tran	= Transform.add( p_tran, bind.local );
-		let tpos	= Vec3.add( c_tran.position, [1,0,0] );		// Model was shifted, Add that Shift to keep things aligned.
-		Debug.setPoint( tpos, "yellow", 0.05, 1 );			// See Where the Foot is in 3D Space
-		*/
+		let parentRotation = rig.pose.getParentRotation(boneInfo.index);
+		let childRotation = Quat.multiply(parentRotation, bind.local.rotation);
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Next we need to get the Foot's Quaternion Inverse Direction
 		// Which matches up with the same Directions used to calculate the IK
 		// information.
-		let q_inv = Quat.invert(bind.world.rotation),
-			alt_look_dir = Vec3.transform_quat(look_dir, q_inv),
-			alt_twist_dir = Vec3.transform_quat(twist_dir, q_inv);
+		let quatInverse = Quat.invert(bind.world.rotation),
+			altLookDirection = Vec3.transformQuat(lookDirection, quatInverse),
+			altTwistDirection = Vec3.transformQuat(twistDirection, quatInverse);
 
 		// After the HIP was moved and The Limb IK is complete, This is where 
 		// the ALT Look Direction currently points to.
-		let now_look_dir = Vec3.transform_quat(alt_look_dir, c_rot);
-
-		/* DEBUG - Here we can see where the bone is currently pointing to and where we need it to point 
-		Debug.setLine( tpos, Vec3.scale( now_look_dir, 0.5 ).add( tpos ), "yellow" );	// Current Direction
-		Debug.setLine( tpos, Vec3.scale( ik.look_dir, 0.4 ).add( tpos ), "white" );		// Our Target IK Direction
-		*/
+		let currentLookDirection = Vec3.transformQuat(altLookDirection, childRotation);
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Now we start building out final rotation that we
 		// want to apply to the bone to get it pointing at the
 		// right direction and twisted to match the original animation.
 		let rotation = Quat
-			.rotationFromUnitVectors(now_look_dir, ik.look_dir)	// Create our Swing Rotation
-			.multiply(c_rot);							// Then Apply to our foot
+			.rotationFromUnitVectors(currentLookDirection, ik.lookDirection)	// Create our Swing Rotation
+			.multiply(childRotation);							// Then Apply to our foot
 
 		/* DEBUG SWING ROTATION 
-		let new_look_dir	= Vec3.transform_quat( alt_look_dir, rotation );
-		let new_twist_dir	= Vec3.transform_quat( alt_twist_dir, rotation );
+		let new_look_dir	= Vec3.transformQuat( altLookDirection, rotation );
+		let new_twist_dir	= Vec3.transformQuat( altTwistDirection, rotation );
 		Debug.setLine( tpos, Vec3.scale( new_look_dir, 0.8 ).add( tpos ), "yellow" );	// Current Directions
 		Debug.setLine( tpos, Vec3.scale( new_twist_dir, 0.8 ).add( tpos ), "yellow" );
-		Debug.setLine( tpos, Vec3.scale( ik.look_dir, 0.6 ).add( tpos ), "white" );		// Target Directions
-		Debug.setLine( tpos, Vec3.scale( ik.twist_dir, 0.6 ).add( tpos ), "white" );
+		Debug.setLine( tpos, Vec3.scale( ik.lookDirection, 0.6 ).add( tpos ), "white" );		// Target Directions
+		Debug.setLine( tpos, Vec3.scale( ik.twistDirection, 0.6 ).add( tpos ), "white" );
 		*/
 
 		// Now we need to know where the Twist Direction points to after 
 		// swing rotation has been applied. Then use it to compute our twist rotation.
-		let now_twist_dir = Vec3.transform_quat(alt_twist_dir, rotation);
-		let twist = Quat.rotationFromUnitVectors(now_twist_dir, ik.twist_dir);
+		let currentTwistDirection = Vec3.transformQuat(altTwistDirection, rotation);
+		let twist = Quat.rotationFromUnitVectors(currentTwistDirection, ik.twistDirection);
 		rotation.premultiply(twist);	// Apply Twist
 
 		/* DEBUG SWING ROTATION 
-		let new_look_dir	= Vec3.transform_quat( alt_look_dir, rotation );
-		let new_twist_dir	= Vec3.transform_quat( alt_twist_dir, rotation );
+		let new_look_dir	= Vec3.transformQuat( altLookDirection, rotation );
+		let new_twist_dir	= Vec3.transformQuat( altTwistDirection, rotation );
 		Debug.setLine( tpos, Vec3.scale( new_look_dir, 0.8 ).add( tpos ), "yellow" );	// Current Directions
 		Debug.setLine( tpos, Vec3.scale( new_twist_dir, 0.8 ).add( tpos ), "yellow" );
-		Debug.setLine( tpos, Vec3.scale( ik.look_dir, 0.6 ).add( tpos ), "white" );		// Target Directions
-		Debug.setLine( tpos, Vec3.scale( ik.twist_dir, 0.6 ).add( tpos ), "white" );
+		Debug.setLine( tpos, Vec3.scale( ik.lookDirection, 0.6 ).add( tpos ), "white" );		// Target Directions
+		Debug.setLine( tpos, Vec3.scale( ik.twistDirection, 0.6 ).add( tpos ), "white" );
 		*/
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		rotation.premultiplyInvert(p_rot);				// To Local Space
-		rig.pose.setBone(b_info.idx, rotation);	// Save to pose.		
+		rotation.premultiplyInvert(parentRotation);				// To Local Space
+		rig.pose.setBone(boneInfo.index, rotation);	// Save to pose.		
 	}
 
 	apply_grounding(y_lmt) {
@@ -310,11 +298,11 @@ class IKPose {
 		// This is normally computed by our IK Target when we set it, but since I didn't bother
 		// to create a method to update the end effector, we need to do these extra updates.
 		// IDEALLY i should make that function to prevent bugs :)
-		this.target.lengthSquared = Vec3.lengthSquared(this.target.startPosition, this.target.endPosition);
-		this.target.length = Math.sqrt(this.target.lengthSquared);
+		this.target.magnitudeSquared = Vec3.magnitudeSquared(this.target.startPosition, this.target.endPosition);
+		this.target.length = Math.sqrt(this.target.magnitudeSquared);
 	}
 
-	apply_spline(rig, chain, ik, look_dir, twist_dir) {
+	apply_spline(rig, chain, ik, lookDirection, twistDirection) {
 		// For the spline, we have the start and end IK directions. Since spines can have various
 		// amount of bones, the simplest solution is to lerp from start to finish. The first
 		// spine bone is important to control offsets from the hips, and the final one usually
@@ -325,64 +313,53 @@ class IKPose {
 		// currently exist in World Space.
 
 		let cnt = chain.cnt - 1,								// How Many Spine Bones to deal with
-			p_tran = rig.pose.getParentWorld(chain.first()),	// World Space Transform of the spine's parent, usually the hips
-			c_tran = new Transform(),
-			ik_look = new Vec3(),
-			ik_twist = new Vec3(),
-			alt_look = new Vec3(),
-			alt_twist = new Vec3(),
-			now_look = new Vec3(),
-			now_twist = new Vec3(),
-			q = new Quat(),
+			parentTransform = rig.pose.getParentWorld(chain.first()),	// World Space Transform of the spine's parent, usually the hips
+			childTransform = new Transform(),
+			ikLook = new Vec3(),
+			ikTwist = new Vec3(),
+			altLook = new Vec3(),
+			altTwist = new Vec3(),
+			currentLook = new Vec3(),
+			currentTwist = new Vec3(),
+			quat = new Quat(),
 			rotation = new Quat();
 
-		let t, idx, bind, pose;
+		let t, index, bind;
 
 		for (let i = 0; i <= cnt; i++) {
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Prepare for the Iteration
-			idx = chain.bones[i].idx;		// Bone Index
-			bind = rig.tpose.bones[idx];	// Bind Values of the Bone
+			index = chain.bones[i].index;		// Bone Index
+			bind = rig.tpose.bones[index];	// Bind Values of the Bone
 			t = (i / cnt);// ** 2;		// The Lerp Time, be 0 on first bone, 1 at final bone, Can use curves to distribute the lerp differently
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Lerp our Target IK Directions for this bone
-			ik_look.from_lerp(ik[0].look_dir, ik[1].look_dir, t);
-			ik_twist.from_lerp(ik[0].twist_dir, ik[1].twist_dir, t);
+			ikLook.setFromLerp(ik[0].lookDirection, ik[1].lookDirection, t);
+			ikTwist.setFromLerp(ik[0].twistDirection, ik[1].twistDirection, t);
 
 			// Compute our Quat Inverse Direction, using the Defined Look&Twist Direction
-			q.setFromInvert(bind.world.rotation);
-			alt_look.fromQuaternion(q, look_dir);
-			alt_twist.fromQuaternion(q, twist_dir);
+			quat.setFromInvert(bind.world.rotation);
+			altLook.fromQuaternion(quat, lookDirection);
+			altTwist.fromQuaternion(quat, twistDirection);
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			c_tran.from_add(p_tran, bind.local);		// Get bone in WS that has yet to have any rotation applied
-			now_look.fromQuaternion(c_tran.rotation, alt_look);	// What direction is the bone point looking now, without any extra rotation
-
-			/* DEBUG 
-			let position = Vec3.add( c_tran.position, [1,0,0] );
-			Debug.setPoint( position, "yellow", 0.02, 1 );
-			*/
+			childTransform.setFromAdd(parentTransform, bind.local);		// Get bone in WS that has yet to have any rotation applied
+			currentLook.fromQuaternion(childTransform.rotation, altLook);	// What direction is the bone point looking now, without any extra rotation
 
 			rotation
-				.setFromUnitVectors(now_look, ik_look)	// Create our Swing Rotation
-				.multiply(c_tran.rotation);						// Then Apply to our Bone, so its now swong to match the swing direction.
+				.setFromUnitVectors(currentLook, ikLook)	// Create our Swing Rotation
+				.multiply(childTransform.rotation);						// Then Apply to our Bone, so its now swong to match the swing direction.
 
-			now_twist.fromQuaternion(rotation, alt_twist);		// Get our Current Twist Direction from Our Swing Rotation
-			q.setFromUnitVectors(now_twist, ik_twist);	// Create our twist rotation
-			rotation.premultiply(q);								// Apply Twist so now it matches our IK Twist direction
+			currentTwist.fromQuaternion(rotation, altTwist);		// Get our Current Twist Direction from Our Swing Rotation
+			quat.setFromUnitVectors(currentTwist, ikTwist);	// Create our twist rotation
+			rotation.premultiply(quat);								// Apply Twist so now it matches our IK Twist direction
 
-			/*
-			now_twist.fromQuaternion( rotation, alt_twist );	
-			Debug.setLine( position, Vec3.scale( now_twist, 0.5 ).add(position), "yellow" );
-			Debug.setLine( position, Vec3.scale( ik_twist, 0.3 ).add(position), "white" );
-			//break;
-			*/
-			rotation.premultiplyInvert(p_tran.rotation);				// To Local Space
+			rotation.premultiplyInvert(parentTransform.rotation);				// To Local Space
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			rig.pose.setBone(idx, rotation);						// Save back to pose
-			if (t != 1) p_tran.add(rotation, bind.local.position, bind.local.scale);	// Compute the WS Transform for the next bone in the chain.
+			rig.pose.setBone(index, rotation);						// Save back to pose
+			if (t != 1) parentTransform.add(rotation, bind.local.position, bind.local.scale);	// Compute the WS Transform for the next bone in the chain.
 		}
 	}
 }
@@ -400,15 +377,15 @@ class IKCompute {
 		this.limb(rig.pose, rig.chains.leg_l, ik_pose.leg_l);
 		this.limb(rig.pose, rig.chains.leg_r, ik_pose.leg_r);
 
-		this.look_twist(rig, rig.points.foot_l, ik_pose.foot_l, Vec3.FORWARD, Vec3.UP); // Look = Fwd, Twist = Up
-		this.look_twist(rig, rig.points.foot_r, ik_pose.foot_r, Vec3.FORWARD, Vec3.UP);
+		this.lookTwist(rig, rig.points.foot_l, ik_pose.foot_l, Vec3.FORWARD, Vec3.UP); // Look = Fwd, Twist = Up
+		this.lookTwist(rig, rig.points.foot_r, ik_pose.foot_r, Vec3.FORWARD, Vec3.UP);
 
 		this.spine(rig, rig.chains.spine, ik_pose, Vec3.UP, Vec3.FORWARD);
 
 		this.limb(rig.pose, rig.chains.arm_l, ik_pose.arm_l);
 		this.limb(rig.pose, rig.chains.arm_r, ik_pose.arm_r);
 
-		this.look_twist(rig, rig.points.head, ik_pose.head, Vec3.FORWARD, Vec3.UP);
+		this.lookTwist(rig, rig.points.head, ik_pose.head, Vec3.FORWARD, Vec3.UP);
 	}
 
 	static hip(rig, ik_pose) {
@@ -416,9 +393,9 @@ class IKCompute {
 		// First thing we need is the Hip bone from the Animated Pose
 		// Plus what the hip's Bind Pose as well.
 		// We use these two states to determine what change the animation did to the tpose.
-		let b_info = rig.points.hip,					// Rig Hip Info
-			pose = rig.pose.bones[b_info.idx],		// Animated Pose Bone
-			bind = rig.tpose.bones[b_info.idx];	// TPose Bone
+		let boneInfo = rig.points.hip,					// Rig Hip Info
+			pose = rig.pose.bones[boneInfo.index],		// Animated Pose Bone
+			bind = rig.tpose.bones[boneInfo.index];	// TPose Bone
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Lets create the Quaternion Inverse Direction based on the
@@ -427,20 +404,12 @@ class IKCompute {
 		// orientation, so by doing this we can easily say no matter what the
 		// default direction of the hip, we want to say all hips bones point 
 		// at the FORWARD axis and the tail of the bone points UP.
-		let q_inv = Quat.invert(bind.world.rotation),				// This part can be optimized out and Saved into the Rig Hip's Data.
-			alt_fwd = Vec3.transform_quat(Vec3.FORWARD, q_inv),
-			alt_up = Vec3.transform_quat(Vec3.UP, q_inv);
+		let quatInverse = Quat.invert(bind.world.rotation),				// This part can be optimized out and Saved into the Rig Hip's Data.
+			alt_fwd = Vec3.transformQuat(Vec3.FORWARD, quatInverse),
+			alt_up = Vec3.transformQuat(Vec3.UP, quatInverse);
 
-		let pose_fwd = Vec3.transform_quat(alt_fwd, pose.world.rotation),
-			pose_up = Vec3.transform_quat(alt_up, pose.world.rotation);
-
-		/* VISUAL DEBUG TPOSE AND ANIMATED POSE DIRECTIONS 
-		let position = pose.world.position.clone().add( [0,0,0.1] );
-		Debug.setLine( position, Vec3.add(position, Vec3.FORWARD), "white" );
-		Debug.setLine( position, Vec3.add(position, Vec3.UP), "white" );
-		Debug.setLine( position, Vec3.scale( pose_fwd, 0.8 ).add( position ), "orange" );
-		Debug.setLine( position, Vec3.scale( pose_up, 0.8 ).add( position ), "orange" );
-		*/
+		let pose_fwd = Vec3.transformQuat(alt_fwd, pose.world.rotation),
+			pose_up = Vec3.transformQuat(alt_up, pose.world.rotation);
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// With our directions known between our TPose and Animated Pose, Next we
@@ -450,17 +419,8 @@ class IKCompute {
 		let swing = Quat.rotationFromUnitVectors(Vec3.FORWARD, pose_fwd)	// First we create a swing rotation from one dir to the other.
 			.multiply(bind.world.rotation);		// Then we apply it to the TBone Rotation, this will do a FWD Swing which will create
 		// a new Up direction based on only swing.
-		let swing_up = Vec3.transform_quat(Vec3.UP, swing),
+		let swing_up = Vec3.transformQuat(Vec3.UP, swing),
 			twist = Vec3.angle(swing_up, pose_up);		// Swing + Pose have same Fwd, Use Angle between both UPs for twist
-
-		/* VISUAL DEBUG SWING AND ANIMATED POSE DIRECTIONS 
-		let position 		= pose.world.position.clone().add( [0,0,0.1] );
-		let swing_fwd	= Vec3.transform_quat( Vec3.FORWARD, swing );
-		Debug.setLine( position, Vec3.scale( pose_fwd, 1.5 ).add( position ), "white" );	// Out Swing FWD Matches Animated Pose Forward
-		Debug.setLine( position, Vec3.scale( swing_fwd, 1.3 ).add( position ), "orange" );
-		Debug.setLine( position, Vec3.scale( pose_up, 1.5 ).add( position ), "white" );	// Now we see the TPose Up Direction in its Swing Rotation
-		Debug.setLine( position, Vec3.scale( swing_up, 1.5 ).add( position ), "orange" );	// Both UPs share the same forward, resulting in a "Twist" Difference.
-		*/
 
 		if (twist <= (0.01 * Math.PI / 180)) {
 			twist = 0; // If Less the .01 Degree, dont bother twisting.
@@ -477,7 +437,7 @@ class IKCompute {
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Save all the info we need to our IK Pose.
 		ik_pose.hip.bind_height = bind.world.position.y;	// The Bind Pose Height of the Hip, Helps with scaling.
-		ik_pose.hip.movement.from_sub(pose.world.position, bind.world.position);	// How much movement did the hip do between Bind and Animated.
+		ik_pose.hip.movement.setFromSubtract(pose.world.position, bind.world.position);	// How much movement did the hip do between Bind and Animated.
 		ik_pose.hip.dir.copy(pose_fwd);	// Pose Forward is the direction we want the Hip to Point to.
 		ik_pose.hip.twist = twist;	// How Much Twisting to Apply after pointing in the correct direction.
 	}
@@ -494,14 +454,9 @@ class IKCompute {
 
 		let boneA = pose.bones[chain.first()],	// First Bone
 			boneB = pose.bones[chain.end_idx],	// END Bone, which is not part of the chain (Hand,Foot)
-			aToBDirection = Vec3.sub(boneB.world.position, boneA.world.position),	// Direction from First Bone to Final Bone ( IK Direction )
+			aToBDirection = Vec3.subtract(boneB.world.position, boneA.world.position),	// Direction from First Bone to Final Bone ( IK Direction )
 			aToBLength = aToBDirection.magnitude();									// Distance from First Bone to Final Bone 
 
-		/* VISUAL DEBUG CHAIN POINTS 
-		Debug.setPoint( boneA.world.position, "green", 0.06, 6 );
-		Debug.setPoint( boneB.world.position, "red", 0.06, 6 );
-		Debug.setLine( boneA.world.position, boneB.world.position, "green", "red", true );
-		*/
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Compute the final IK Information needed for the Limb
@@ -509,22 +464,15 @@ class IKCompute {
 		ik_limb.dir.copy(aToBDirection.normalize());		// We also normalize the direction to the end effector.
 
 		// We use the first bone of the chain plus the Pre computed ALT UP to easily get the direction of the joint
-		let j_dir = Vec3.transform_quat(chain.alt_up, boneA.world.rotation);
+		let j_dir = Vec3.transformQuat(chain.alt_up, boneA.world.rotation);
 		let lft_dir = Vec3.cross(j_dir, aToBDirection);					// We need left to realign up
-		ik_limb.jointDirection.from_cross(aToBDirection, lft_dir).normalize(); 	// Recalc Up, make it orthogonal to LEFT and FWD
-
-		/* VISUAL DEBUG THE DIRECTIONS BEING COMPUTED 
-		Debug.setLine( boneA.world.position, Vec3.scale( j_dir, 0.5 ).add( boneA.world.position ), "white" ); 				// The actual Direction the first bone is pointing too (UP)
-		Debug.setLine( boneA.world.position, Vec3.scale( lft_dir, 0.5 ).add( boneA.world.position ), "orange" );			// the Cross of UP and FWD
-		Debug.setLine( boneA.world.position, Vec3.scale( aToBDirection, 0.5 ).add( boneA.world.position ), "orange" );			// Dir to End Effector
-		Debug.setLine( boneA.world.position, Vec3.scale( ik_limb.jointDirection, 0.5 ).add( boneA.world.position ), "orange" );	// Recalc UP to make it orthogonal
-		*/
+		ik_limb.jointDirection.setFromCross(aToBDirection, lft_dir).normalize(); 	// Recalc Up, make it orthogonal to LEFT and FWD
 	}
 
-	static look_twist(rig, b_info, ik, look_dir, twist_dir) {
+	static lookTwist(rig, boneInfo, ik, lookDirection, twistDirection) {
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		let pose = rig.pose.bones[b_info.idx],	// Animated Pose Bone
-			bind = rig.tpose.bones[b_info.idx];	// TPose Bone
+		let pose = rig.pose.bones[boneInfo.index],	// Animated Pose Bone
+			bind = rig.tpose.bones[boneInfo.index];	// TPose Bone
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// First compute the Quaternion Invert Directions based on the Defined
@@ -532,29 +480,21 @@ class IKCompute {
 		// direction is FORWARD and the Direction used to determine twist is UP.
 		// But there are times we need the directions to be different depending
 		// on how we view the bone in certain situations.
-		let q_inv = Quat.invert(bind.world.rotation),
-			alt_look_dir = Vec3.transform_quat(look_dir, q_inv),
-			alt_twist_dir = Vec3.transform_quat(twist_dir, q_inv);
+		let quatInverse = Quat.invert(bind.world.rotation),
+			altLookDirection = Vec3.transformQuat(lookDirection, quatInverse),
+			altTwistDirection = Vec3.transformQuat(twistDirection, quatInverse);
 
-		let pose_look_dir = Vec3.transform_quat(alt_look_dir, pose.world.rotation),
-			pose_twist_dir = Vec3.transform_quat(alt_twist_dir, pose.world.rotation);
-
-		/* VISUAL DEBUG TPOSE AND ANIMATED POSE DIRECTIONS 
-		let position = pose.world.position.clone().add( [0,0,0.0] );
-		Debug.setLine( position, Vec3.add(position, look_dir), "white" );
-		Debug.setLine( position, Vec3.add(position, twist_dir), "white" );
-		Debug.setLine( position, Vec3.scale( pose_look_dir, 0.8 ).add( position ), "orange" );
-		Debug.setLine( position, Vec3.scale( pose_twist_dir, 0.8 ).add( position ), "orange" );
-		*/
+		let pose_look_dir = Vec3.transformQuat(altLookDirection, pose.world.rotation),
+			pose_twist_dir = Vec3.transformQuat(altTwistDirection, pose.world.rotation);
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		ik.look_dir.copy(pose_look_dir);
-		ik.twist_dir.copy(pose_twist_dir);
+		ik.lookDirection.copy(pose_look_dir);
+		ik.twistDirection.copy(pose_twist_dir);
 	}
 
-	static spine(rig, chain, ik_pose, look_dir, twist_dir) {
+	static spine(rig, chain, ik_pose, lookDirection, twistDirection) {
 		let idx_ary = [chain.first(), chain.last()], // First and Last Bone of the Chain.
-			q_inv = new Quat(),
+			quatInverse = new Quat(),
 			v_look_dir = new Vec3(),
 			v_twist_dir = new Vec3(),
 			j = 0,
@@ -568,26 +508,19 @@ class IKCompute {
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Create Quat Inverse Direction
-			q_inv.setFromInvert(bind.world.rotation);
-			v_look_dir.fromQuaternion(q_inv, look_dir);
-			v_twist_dir.fromQuaternion(q_inv, twist_dir);
+			quatInverse.setFromInvert(bind.world.rotation);
+			v_look_dir.fromQuaternion(quatInverse, lookDirection);
+			v_twist_dir.fromQuaternion(quatInverse, twistDirection);
 
 			// Transform the Inv Dir by the Animated Pose to get their direction
 			// Reusing Variables to save on memory / initialization
 			v_look_dir.fromQuaternion(pose.world.rotation, v_look_dir);
 			v_twist_dir.fromQuaternion(pose.world.rotation, v_twist_dir);
 
-			/* DEBUG 
-			let position = pose.world.position;
-			Debug.setPoint( position, "orange", 0.03, 6 );
-			Debug.setLine( position, Vec3.scale( v_look_dir, 0.12 ).add(position), "yellow" );
-			Debug.setLine( position, Vec3.scale( v_twist_dir, 0.12 ).add(position), "yellow" );
-			*/
-
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Save IK
-			ik_pose.spine[j].look_dir.copy(v_look_dir);
-			ik_pose.spine[j].twist_dir.copy(v_twist_dir);
+			ik_pose.spine[j].lookDirection.copy(v_look_dir);
+			ik_pose.spine[j].twistDirection.copy(v_twist_dir);
 			j++;
 		}
 
@@ -606,21 +539,20 @@ class IKVisualize {
 		this.limb(rig.pose, rig.chains.arm_l, ik.arm_l);
 		this.limb(rig.pose, rig.chains.arm_r, ik.arm_r);
 
-		this.look_twist(rig, rig.points.foot_l, ik.foot_l, Vec3.FORWARD, Vec3.UP);
-		this.look_twist(rig, rig.points.foot_r, ik.foot_r, Vec3.FORWARD, Vec3.UP);
+		this.lookTwist(rig, rig.points.foot_l, ik.foot_l, Vec3.FORWARD, Vec3.UP);
+		this.lookTwist(rig, rig.points.foot_r, ik.foot_r, Vec3.FORWARD, Vec3.UP);
 
 		this.spine(rig, rig.chains.spine, ik.spine);
 
-		this.look_twist(rig, rig.points.head, ik.head, Vec3.FORWARD, Vec3.UP);
+		this.lookTwist(rig, rig.points.head, ik.head, Vec3.FORWARD, Vec3.UP);
 	}
 
 	static hip(rig, ik) {
-		let ws = rig.pose.bones[rig.points.hip.idx].world;
+		let ws = rig.pose.bones[rig.points.hip.index].world;
 		Debug
-			.setPoint(ws.position, CLR.orange, 6, 6)
-			.setLine(ws.position, Vec3.scale(ik.hip.dir, 0.20).add(ws.position), CLR.cyan, null, true);
+			.setPoint(ws.position, COLOR.orange, 6, 6)
+			.setLine(ws.position, Vec3.scale(ik.hip.dir, 0.20).add(ws.position), COLOR.cyan, null, true);
 	}
-	//static pnt( p, hex=0xff0000, shape=null, size=null ){ this.p.add( p, hex, shape, size ); return this; }
 
 	static limb(pose, chain, ik) {
 		let len = chain.length * ik.lengthScale,
@@ -629,37 +561,37 @@ class IKVisualize {
 			posC = Vec3.scale(ik.jointDirection, 0.2).add(posA);	// Direction of Joint
 
 		Debug
-			.setPoint(posA, CLR.yellow, 6, 4)
-			.setPoint(posB, CLR.orange, 6, 4)
-			.setLine(posA, posB, CLR.yellow, CLR.orange, true)
-			.setLine(posA, posC, CLR.yellow, null, true);
+			.setPoint(posA, COLOR.yellow, 6, 4)
+			.setPoint(posB, COLOR.orange, 6, 4)
+			.setLine(posA, posB, COLOR.yellow, COLOR.orange, true)
+			.setLine(posA, posC, COLOR.yellow, null, true);
 	}
 
 	// Was Originally called Foot.
-	static look_twist(rig, b_info, ik, look_dir, twist_dir) {
-		let position = rig.pose.bones[b_info.idx].world.position;
+	static lookTwist(rig, boneInfo, ik, lookDirection, twistDirection) {
+		let position = rig.pose.bones[boneInfo.index].world.position;
 		Debug
-			.setPoint(position, CLR.cyan, 1, 2.5)												   		// Foot Position
-			.setLine(position, Vec3.scale(ik.look_dir, 0.2).add(position), CLR.cyan, null, true)		// IK.DIR
-			.setLine(position, Vec3.scale(ik.twist_dir, 0.2).add(position), CLR.cyan, null, true);	// RESULT OF IK.TWIST
+			.setPoint(position, COLOR.cyan, 1, 2.5)												   		// Foot Position
+			.setLine(position, Vec3.scale(ik.lookDirection, 0.2).add(position), COLOR.cyan, null, true)		// IK.DIR
+			.setLine(position, Vec3.scale(ik.twistDirection, 0.2).add(position), COLOR.cyan, null, true);	// RESULT OF IK.TWIST
 	}
 
 	static spine(rig, chain, ik_ary) {
-		let ws, ik, idx = [chain.first(), chain.last()];
+		let ws, ik, index = [chain.first(), chain.last()];
 
 		for (let i = 0; i < 2; i++) {
-			ws = rig.pose.bones[idx[i]].world;
+			ws = rig.pose.bones[index[i]].world;
 			ik = ik_ary[i];
 
 			Debug
-				.setPoint(ws.position, CLR.orange, 1, 2)
-				.setLine(ws.position, Vec3.scale(ik.look_dir, 0.2).add(ws.position), CLR.yellow, null)
-				.setLine(ws.position, Vec3.scale(ik.twist_dir, 0.2).add(ws.position), CLR.orange, null);
+				.setPoint(ws.position, COLOR.orange, 1, 2)
+				.setLine(ws.position, Vec3.scale(ik.lookDirection, 0.2).add(ws.position), COLOR.yellow, null)
+				.setLine(ws.position, Vec3.scale(ik.twistDirection, 0.2).add(ws.position), COLOR.orange, null);
 		}
 	}
 }
 
-let CLR = {
+let COLOR = {
 	"black": 0x000000,
 	"white": 0xffffff,
 	"red": 0xff0000,
@@ -671,21 +603,21 @@ let CLR = {
 	"orange": 0xff8000,
 };
 
-function load_src(json, bin) {
+function loadSource(json, bin) {
 	let entity = GltfUtil.createSkeletalArmature("src", json, bin);
 	let anim = new Animation(Gltf.getAnimation(json, bin), true);
-	let pm = new PoseAnimator();
+	let poseManager = new PoseAnimator();
 	let rig = addComponent(entity, IKRig) as IKRig;
 	rig.init(null, true, IKRig.ARM_MIXAMO)
 		.RecomputeFromTPose(); // Mesh requires a few bits to be recomputed because of Mixamo Scaling
 
-	pm.root_idx = 0;	// Get Rid of Motion from The Hip
-	pm.root_z = 1;	// Mixamo stuff is 90 degress off, so forward is Y :(
+	poseManager.rootIndex = 0;	// Get Rid of Motion from The Hip
+	poseManager.rootZ = 1;	// Mixamo stuff is 90 degress off, so forward is Y :(
 
 	gSrc = entity;
 
 	return (deltaTime) => {
-		pm.tick(deltaTime).update(anim, rig.pose);
+		poseManager.tick(deltaTime).update(anim, rig.pose);
 		rig.apply_pose();
 		//-----------------------------
 		IKCompute.run(gSrc, gIKPose);
@@ -697,21 +629,16 @@ function load_src(json, bin) {
 	};
 }
 
-function load_mesh_a(json, bin) {
+function loadMeshA(json, bin) {
 	let entity = GltfUtil.createDebugArmature("target_a", json, bin, new MeshPhongMaterial({ color: 0xff7f7f, shininess: 1 }));
-	console.log("entity", entity);
 	let tpose = GltfUtil.getPose(entity, json, "tpose", true);
-	console.log("tpose");
-	console.log(tpose);
 	addComponent(entity, IKRig);
 	let rig = getMutableComponent(entity, IKRig);
 	rig.init(tpose, false);
-	console.log("rig");
-	console.log(rig);
 
 	tpose.apply();
 
-	rig.points.head.idx = rig.points.neck.idx; // Lil hack cause Head Isn't Skinned Well.
+	rig.points.head.index = rig.points.neck.index; // Lil hack cause Head Isn't Skinned Well.
 	getMutableComponent(entity, Obj).setPosition(1.0, 0, 0);
 
 	gModelA = entity;
@@ -719,17 +646,12 @@ function load_mesh_a(json, bin) {
 
 // This is a functional React component
 const Page = () => {
-
-
-
 	useEffect(() => {
-
 		(async function () {
 			registerSystem(TimerSystem);
 			registerSystem(ArmatureSystem);
 			init_3js();
 			Debug = await debug.init();
-
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Download Resources
@@ -743,9 +665,9 @@ const Page = () => {
 			console.log("Loading src");
 			console.log(dl.src);
 
-			gAnimate = load_src(dl.src.json, dl.src.bin);
+			gAnimate = loadSource(dl.src.json, dl.src.bin);
 			console.log("gAnimate is ", gAnimate);
-			load_mesh_a(dl.ma.json, dl.ma.bin);
+			loadMeshA(dl.ma.json, dl.ma.bin);
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Misc
@@ -761,7 +683,6 @@ const Page = () => {
 			console.log("Everything is started");
 		})();
 		// #endregion ///////////////////////////////////////////
-
 	}, []);
 
 	// Create a simple timer
@@ -770,7 +691,7 @@ const Page = () => {
 		execute(.1, 0, SystemUpdateType.Fixed);
 	}, 100);
 	// Some JSX to keep the compiler from complaining
-	return (      <NetworkDebug reinit={() => console.log("nope")} />);
+	return (<NetworkDebug reinit={() => console.log("nope")} />);
 };
 
 export default Page;

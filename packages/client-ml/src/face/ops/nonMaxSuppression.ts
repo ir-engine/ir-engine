@@ -23,10 +23,10 @@ export function nonMaxSuppression(
 
     const outputs: number[] = []
     for (let i = 0; i < indices.length; i++) {
-      const idx = indices[i]
+      const index = indices[i]
 
       const currBox = boxes[curr]
-      const idxBox = boxes[idx]
+      const idxBox = boxes[index]
 
       outputs.push(iou(currBox, idxBox, isIOU))
     }

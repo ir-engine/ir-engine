@@ -1,7 +1,3 @@
-import Mat4 from "../math/Mat4";
-import Vec3 from "../math/Vec3";
-import Quat from "../math/Quat";
-
 class Gltf{
 		static TYPE_FLOAT: any;
 		static TYPE_SHORT: any;
@@ -30,15 +26,15 @@ class Gltf{
 	////////////////////////////////////////////////////////
 		/**
 		* Parse out a single buffer of data from the bin file based on an accessor index. (Vertices, Normal, etc)
-		* @param {number} idx - Index of an Accessor
+		* @param {number} index - Index of an Accessor
 		* @param {object} json - GLTF Json Object
 		* @param {ArrayBuffer} bin - Array buffer of a bin file
 		* @param {bool} specOnly - Returns only Buffer Spec data related to the Bin File
 		* @public @return {data:TypeArray, min, max, elmCount, compLen, byteStart, byteLen, arrayType }
 		*/
 		//https://github.com/KhronosGroup/glTF-Tutorials/blob/master/gltfTutorial/gltfTutorial_005_BuffersBufferViewsAccessors.md
-		static parseAccessor( idx, json, bin, spec_only = false ){
-			const acc			= json.accessors[ idx ],				// Reference to Accessor JSON Element
+		static parseAccessor( index, json, bin, spec_only = false ){
+			const acc			= json.accessors[ index ],				// Reference to Accessor JSON Element
 				bView 		= json.bufferViews[ acc.bufferView ],	// Buffer Information
 				compLen		= Gltf[ "COMP_" + acc.type ]			// Component Length for Data Element
 			let TAry, 												// Reference to Type Array to create
@@ -252,7 +248,7 @@ class Gltf{
 				n2j[ "n"+ni ] 	= ji;
 
 				bones[ ji ] = {
-					idx : ji, p_idx : null, lvl : 0, name : null,
+					index : ji, p_idx : null, lvl : 0, name : null,
 					position : null, rotation : null, scale : null };
 			}
 

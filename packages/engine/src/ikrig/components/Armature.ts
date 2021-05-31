@@ -17,7 +17,7 @@ class Armature extends Component<Armature> {
 		const b = {
 			ref: new Bone(),
 			name: name,					// Bone Name
-			idx: this.bones.length,	// Bone Index
+			index: this.bones.length,	// Bone Index
 			p_idx: p_idx,				// Parent Bone Index
 			length: length,					// Length of the Bones
 			local: new Transform(),		// Local Space Bind Transform
@@ -25,7 +25,7 @@ class Armature extends Component<Armature> {
 		};
 
 		this.bones.push(b);					// Save Bone Data to Array
-		this.name_map[name] = b.idx;			// Save Name to Index Mapping
+		this.name_map[name] = b.index;			// Save Name to Index Mapping
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Set Bone as a child of another
@@ -58,7 +58,7 @@ class Armature extends Component<Armature> {
 			// Compute its world space transform based on parent's ws transform.
 			if (b.p_idx != null) {
 				p = this.bones[b.p_idx];
-				b.world.from_add(p.world, b.local);
+				b.world.setFromAdd(p.world, b.local);
 			} else b.world.copy(b.local);
 		}
 	}

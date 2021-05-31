@@ -25,7 +25,7 @@ export async function toNetInput(inputs: TNetInput): Promise<NetInput> {
     throw new Error('toNetInput - empty array passed as input')
   }
 
-  const getIdxHint = (idx: number) => Array.isArray(inputs) ? ` at input index ${idx}:` : ''
+  const getIdxHint = (index: number) => Array.isArray(inputs) ? ` at input index ${index}:` : ''
 
   const inputArray = inputArgArray.map(resolveInput)
 

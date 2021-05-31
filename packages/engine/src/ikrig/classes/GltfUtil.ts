@@ -167,7 +167,7 @@ class GltfUtil{
 				if( !map[ i ] ) b.length = def_len;
 				else{
 					c = armature.bones[ map[ i ] ]; // First Child's World Space Transform
-					b.length = Vec3.length( b.world.position, c.world.position ); // Distance from Parent to Child
+					b.length = Vec3.magnitude( b.world.position, c.world.position ); // Distance from Parent to Child
 				}
 			}
 

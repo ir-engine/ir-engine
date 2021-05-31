@@ -65,7 +65,7 @@ class IKRig extends Component<IKRig>{
 
 	add_point(name, b_name) {
 		this.points[name] = {
-			idx: this.armature.name_map[b_name]
+			index: this.armature.name_map[b_name]
 		};
 		return this;
 	}
@@ -75,12 +75,12 @@ class IKRig extends Component<IKRig>{
 		const ch = new Chain(); // axis
 		for (i of name_ary) {
 			b = this.pose.getBone(i);
-			ch.addBone(b.idx, b.length);
+			ch.addBone(b.index, b.length);
 		}
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		if (end_name) {
-			ch.end_idx = this.pose.getBone(end_name).idx;
+			ch.end_idx = this.pose.getBone(end_name).index;
 		}
 
 		ch.ik_solver = ik_solver;
@@ -91,7 +91,7 @@ class IKRig extends Component<IKRig>{
 
 	set_leg_lmt(length = null, offset = 0) {
 		if (!length) {
-			const hip = this.tpose.bones[this.points.hip.idx];
+			const hip = this.tpose.bones[this.points.hip.index];
 			this.leg_len_lmt = hip.world.position.y + offset;
 		} else {
 			this.leg_len_lmt = length + offset;
@@ -102,8 +102,8 @@ class IKRig extends Component<IKRig>{
 
 	// #region METHODS
 	first_bone(ch_name) {
-		const idx = this.chains[ch_name].bones[0].idx;
-		return this.pose.bones[idx];
+		const index = this.chains[ch_name].bones[0].index;
+		return this.pose.bones[index];
 	}
 
 	get_chain_indices(ch_name) {
@@ -112,7 +112,7 @@ class IKRig extends Component<IKRig>{
 
 		let b;
 		const array = [];
-		for (b of ch.bones) array.push(b.idx);
+		for (b of ch.bones) array.push(b.index);
 
 		return array;
 	}
@@ -144,14 +144,14 @@ class Chain {
 	ik_solver: any;
 	bones: any[];
 	length: number;
-	lengthSquared: number;
+	magnitudeSquared: number;
 	cnt: number;
 	alt_fwd: any;
 	alt_up: any;
 	constructor() { // axis="z"
 		this.bones = [];	// Index to a bone in an armature / pose
 		this.length = 0;			// Chain Length
-		this.lengthSquared = 0;			// Chain Length Squared, Cached for Checks without SQRT
+		this.magnitudeSquared = 0;			// Chain Length Squared, Cached for Checks without SQRT
 		this.cnt = 0;			// How many Bones in the chain
 		//this.align_axis	= axis;			// Chain is aligned to which axis
 		this.end_idx = null;			// Joint that Marks the true end of the chain
@@ -165,24 +165,24 @@ class Chain {
 	}
 
 	// #region Getters / Setters
-	addBone(idx, length) {
-		const o = { idx, length };
+	addBone(index, length) {
+		const o = { index, length };
 
 		this.bones.push(o);
 		this.cnt++;
 		this.length += length;
-		this.lengthSquared = this.length * this.length;
+		this.magnitudeSquared = this.length * this.length;
 		return this;
 	}
 
 	// Get Skeleton Index of Bones
-	first() { return this.bones[0].idx; }
-	last() { return this.bones[this.cnt - 1].idx; }
-	idx(i) { return this.bones[i].idx; }
+	first() { return this.bones[0].index; }
+	last() { return this.bones[this.cnt - 1].index; }
+	index(i) { return this.bones[i].index; }
 
-	//set_alt_dir( dir, tpose=null, idx=0 ){
+	//set_alt_dir( dir, tpose=null, index=0 ){
 	//if( tpose ){
-	//	let b = tpose.bones[ this.bones[ idx ].idx ],
+	//	let b = tpose.bones[ this.bones[ index ].index ],
 	//		q = Quat.invert( b.world.rotation );	// Invert World Space Rotation 
 	//	this.alt_dir.fromQuaternion( q, dir );	// Use invert to get direction that will Recreate the real direction
 	//}else this.alt_dir.copy( v );
@@ -192,7 +192,7 @@ class Chain {
 
 	set_alt(fwd, up, tpose = null) {
 		if (tpose) {
-			const b = tpose.bones[this.bones[0].idx],
+			const b = tpose.bones[this.bones[0].index],
 				q = Quat.invert(b.world.rotation);	// Invert World Space Rotation 
 
 			this.alt_fwd.fromQuaternion(q, fwd);	// Use invert to get direction that will Recreate the real direction
@@ -214,10 +214,10 @@ class Chain {
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Loop Every Bone Except Last one
 		for (i = 0; i < end; i++) {
-			b = bones[this.bones[i].idx];
-			b.length = Vec3.length(
-				bones[this.bones[i + 1].idx].world.position,
-				bones[this.bones[i].idx].world.position
+			b = bones[this.bones[i].index];
+			b.length = Vec3.magnitude(
+				bones[this.bones[i + 1].index].world.position,
+				bones[this.bones[i].index].world.position
 			);
 
 			sum += b.length;
@@ -226,22 +226,22 @@ class Chain {
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// If End Point exists, Can calculate the final bone's length
 		if (this.end_idx != null) {
-			b = bones[this.bones[i].idx];
-			b.length = Vec3.length(
+			b = bones[this.bones[i].index];
+			b.length = Vec3.magnitude(
 				bones[this.end_idx].world.position,
-				bones[this.bones[i].idx].world.position
+				bones[this.bones[i].index].world.position
 			);
 			sum += b.length;
 		} else console.warn("Recompute Chain Len, End Index is missing");
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		//sum = b.length = Vec3.length( 
+		//sum = b.length = Vec3.magnitude( 
 		//	bones[ this.end_idx ].world.position,
-		//	bones[ this.bones[0].idx ].world.position
+		//	bones[ this.bones[0].index ].world.position
 		//);
 
 		this.length = sum;
-		this.lengthSquared = sum * sum;
+		this.magnitudeSquared = sum * sum;
 		return this;
 	}
 	// #endregion ////////////////////////////////////////////////
