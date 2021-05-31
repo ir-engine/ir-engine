@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from "three";
-import { ControllerEvents, ControllerHitEvent, SceneQueryType } from "three-physx";
+import { ControllerEvents, ControllerHitEvent, RaycastQuery, SceneQueryType } from "three-physx";
 import { applyVectorMatrixXZ } from "../common/functions/applyVectorMatrixXZ";
 import { isClient } from "../common/functions/isClient";
 import { EngineEvents } from "../ecs/classes/EngineEvents";
@@ -63,13 +63,13 @@ export class CharacterControllerSystem extends System {
 
     this.queryResults.character.added?.forEach((entity) => {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-      if (actor) actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery({
+      if (actor) actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({
         type: SceneQueryType.Closest,
         origin: new Vector3(),
         direction: new Vector3(0, -1, 0),
         maxDistance: 0.1,
         collisionMask: DefaultCollisionMask,
-      });
+      }));
     });
 
     this.queryResults.controller.added?.forEach(entity => {
@@ -132,7 +132,7 @@ export class CharacterControllerSystem extends System {
       );
 
       vector3.set(collider.controller.transform.translation.x, collider.controller.transform.translation.y, collider.controller.transform.translation.z);
-      (actor.raycastQuery.origin as Vector3).set(vector3.x, vector3.y - (collider.height * 0.5) - collider.radius, vector3.z);
+      actor.raycastQuery.origin.set(vector3.x, vector3.y - (collider.height * 0.5) - collider.radius, vector3.z);
       actor.closestHit = actor.raycastQuery.hits[0];
       actor.isGrounded = actor.closestHit ? true : collider.controller.collisions.down;
     });

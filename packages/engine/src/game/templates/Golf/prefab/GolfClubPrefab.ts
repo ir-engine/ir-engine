@@ -9,7 +9,7 @@ import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants';
 import { UserControlledColliderComponent } from '../../../../physics/components/UserControllerObjectComponent';
 import { BoxBufferGeometry, DoubleSide, Group, Material, Mesh, MeshStandardMaterial, Quaternion, Vector3 } from 'three';
 import { Engine } from '../../../../ecs/classes/Engine';
-import { Body, BodyType, ColliderHitEvent, CollisionEvents, createShapeFromConfig, SceneQueryType, SHAPES, Transform } from 'three-physx';
+import { Body, BodyType, ColliderHitEvent, CollisionEvents, createShapeFromConfig, RaycastQuery, SceneQueryType, SHAPES, Transform } from 'three-physx';
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent';
@@ -108,9 +108,8 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   transformClub.position.copy(position);
   transformClub.rotation.copy(rotation);
 
-  // TODO: fix three-physx internally to clone given vector instead of reference, keep this for now
-  (golfClubComponent.raycast.origin as Vector3).copy(position);
-  (golfClubComponent.raycast.direction as Vector3).set(0, 0, -1).applyQuaternion(rotation);
+  golfClubComponent.raycast.origin.copy(position);
+  golfClubComponent.raycast.direction.set(0, 0, -1).applyQuaternion(rotation);
 
   // find the rotation along the XZ plane the hand is pointing
   quat2.setFromUnitVectors(
@@ -206,16 +205,13 @@ export const initializeGolfClub = (entity: Entity) => {
   // only raycast if it's our own club
   // TODO: remove this when we have IK rig in and can get the right hand pos data
   // if(ownerNetworkObject.networkId === Network.instance.localAvatarNetworkId) {
-    golfClubComponent.raycast = PhysicsSystem.instance.addRaycastQuery({
+    golfClubComponent.raycast = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({
       type: SceneQueryType.Closest,
       origin: new Vector3(),
       direction: new Vector3(0, -1, 0),
       maxDistance: clubLength,
       collisionMask: CollisionGroups.Default | CollisionGroups.Ground,
-    });
-    // manually do this until three-physx is fixed
-    golfClubComponent.raycast.origin = new Vector3();
-    golfClubComponent.raycast.direction = new Vector3();
+    }));
   // }
 
   if(isClient) {
