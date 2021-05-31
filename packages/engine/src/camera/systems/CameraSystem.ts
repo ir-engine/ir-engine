@@ -89,12 +89,6 @@ export class CameraSystem extends System {
     // follow camera component should only ever be on the character
     this.queryResults.followCameraComponent.all?.forEach(entity => {
       const cameraDesiredTransform: DesiredTransformComponent = getMutableComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) as DesiredTransformComponent; // Camera
-      if (!cameraDesiredTransform.position) {
-        cameraDesiredTransform.position = new Vector3();
-      }
-      if (!cameraDesiredTransform.rotation) {
-        cameraDesiredTransform.rotation = new Quaternion();
-      }
       const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
       const actorTransform = getMutableComponent(entity, TransformComponent);
 
@@ -144,9 +138,9 @@ export class CameraSystem extends System {
 
       // Raycast for camera
       const cameraTransform: TransformComponent = getMutableComponent(CameraSystem.instance.activeCamera, TransformComponent)
-      const raycastDirection = new Vector3().subVectors(cameraTransform.position, targetPosition).normalize();
-      followCamera.raycastQuery.origin = new Vector3(targetPosition.x, targetPosition.y, targetPosition.z);
-      followCamera.raycastQuery.direction = new Vector3(raycastDirection.x, raycastDirection.y, raycastDirection.z);
+      vec3.subVectors(cameraTransform.position, targetPosition).normalize();
+      (followCamera.raycastQuery.origin as Vector3).copy(targetPosition);
+      (followCamera.raycastQuery.direction as Vector3).copy(vec3);
       
       const closestHit = followCamera.raycastQuery.hits[0];
       followCamera.rayHasHit = typeof closestHit !== 'undefined';

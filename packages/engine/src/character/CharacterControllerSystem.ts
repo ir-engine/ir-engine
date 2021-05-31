@@ -24,6 +24,8 @@ import { roundVectorToPlaces } from "../common/functions/roundVector";
 
 const forwardVector = new Vector3(0, 0, 1);
 const prevControllerColliderPosition = new Vector3();
+const vector3 = new Vector3();
+const quat = new Quaternion();
 
 export class CharacterControllerSystem extends System {
 
@@ -129,9 +131,8 @@ export class CharacterControllerSystem extends System {
         collider.controller.transform.translation.z
       );
 
-      const actorRaycastStart = new Vector3(collider.controller.transform.translation.x, collider.controller.transform.translation.y, collider.controller.transform.translation.z);
-      actor.raycastQuery.origin = new Vector3(actorRaycastStart.x, actorRaycastStart.y - (collider.height * 0.5) - collider.radius, actorRaycastStart.z);
-      actor.raycastQuery.direction = new Vector3(0, -1, 0);
+      vector3.set(collider.controller.transform.translation.x, collider.controller.transform.translation.y, collider.controller.transform.translation.z);
+      (actor.raycastQuery.origin as Vector3).set(vector3.x, vector3.y - (collider.height * 0.5) - collider.radius, vector3.z);
       actor.closestHit = actor.raycastQuery.hits[0];
       actor.isGrounded = actor.closestHit ? true : collider.controller.collisions.down;
     });
@@ -160,10 +161,10 @@ export class CharacterControllerSystem extends System {
         controllerCollider.controller.transform.translation.z
       )
       if (isNaN(x)) {
-        actor.animationVelocity = new Vector3().set(0,0,0);
+        actor.animationVelocity.set(0,0,0);
       }
-      const q = new Quaternion().copy(transform.rotation).invert();
-      actor.animationVelocity = new Vector3(x, y, z).applyQuaternion(q);
+      quat.copy(transform.rotation).invert();
+      actor.animationVelocity.set(x, y, z).applyQuaternion(quat);
       // its beacose we need physicsMove on server and for localCharacter, not for all character
       characterMoveBehavior(entity, delta);
     });
@@ -174,8 +175,8 @@ export class CharacterControllerSystem extends System {
       const actor = getComponent<CharacterComponent>(entity, CharacterComponent);
       const transform = getMutableComponent(entity, TransformComponent);
       // update rotationg for physics moving
-      const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();
-      actor.orientation.copy(applyVectorMatrixXZ(flatViewVector, forwardVector))
+      vector3.copy(actor.viewVector).setY(0).normalize();
+      actor.orientation.copy(applyVectorMatrixXZ(vector3, forwardVector))
       transform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
       characterMoveBehavior(entity, delta);
     })
