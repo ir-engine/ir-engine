@@ -128,7 +128,7 @@ export class PhysicsSystem extends System {
     });
 
     if (isClient) {
-      if (!Network.instance.snapshot) return;
+      if (!Network.instance?.snapshot) return;
       // Interpolate between the current client's data with what the server has sent via snapshots
       const snapshots = {
         interpolation: calculateInterpolation('x y z quat velocity'),

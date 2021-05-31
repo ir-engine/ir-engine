@@ -41,6 +41,15 @@ function assetLoadCallback(group: Group, entity: Entity) {
   ballMesh.material && WebGLRendererSystem.instance.csm.setupMaterial(ballMesh.material);
   addComponent(entity, Object3DComponent, { value: ballMesh });
   Engine.scene.add(ballMesh);
+
+  // DEBUG - teleport ball to over hole
+  if(typeof globalThis.document !== 'undefined')
+    document.addEventListener('keypress', (ev) => {
+      const collider = getMutableComponent(entity, ColliderComponent);
+      if(ev.key === 'o' && collider.body) {
+        collider.body.updateTransform({ translation: { x: -2.2, y: 1, z: 0.23 }})
+      }
+    })
 }
 
 
@@ -86,14 +95,6 @@ export const initializeGolfBall = (entity: Entity) => {
 
   const collider = getMutableComponent(entity, ColliderComponent);
   collider.body = body;
-
-  // DEBUG - teleport ball to over hole
-  if(typeof globalThis.document !== 'undefined')
-    document.addEventListener('keypress', (ev) => {
-      if(ev.key === 'o') {
-        collider.body.updateTransform({ translation: { x: -2.2, y: 1, z: 0.23 }})
-      }
-    })
 }
 
 export const createGolfBallPrefab = ( args:{ parameters?: any, networkId?: number, uniqueId: string, ownerId?: string }) => {

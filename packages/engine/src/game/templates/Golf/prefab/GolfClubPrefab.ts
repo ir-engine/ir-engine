@@ -26,7 +26,6 @@ import { getHandTransform } from '../../../../xr/functions/WebXRFunctions';
 import { CharacterComponent } from '../../../../character/components/CharacterComponent';
 import { setupSceneObjects } from '../../../../scene/functions/setupSceneObjects';
 import { DebugArrowComponent } from '../../../../debug/DebugArrowComponent';
-import { GameObjectInteractionBehavior } from '../../../interfaces/GameObjectPrefab';
 
 const vector0 = new Vector3();
 const vector1 = new Vector3();
@@ -120,7 +119,7 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
 
   const hit = golfClubComponent.raycast.hits[0];
   const canHitBall = typeof hit !== 'undefined';
-  if(canHitBall !== golfClubComponent.canHitBall) {
+  if(!golfClubComponent.hasHitBall && canHitBall !== golfClubComponent.canHitBall) {
     enableClub(entityClub, canHitBall);
   }
   const headDistance = (hit ? hit.distance : clubLength);
@@ -178,9 +177,10 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
 
 // https://github.com/PersoSirEduard/OculusQuest-Godot-MiniGolfGame/blob/master/Scripts/GolfClub/GolfClub.gd#L18
 
-export const onCollideWithBall = (entity: Entity, delta: number, args: { hitEvent: ColliderHitEvent }, entityOther: Entity): GameObjectInteractionBehavior => {
+export const onClubColliderWithBall = (entity: Entity, delta: number, args: { hitEvent: ColliderHitEvent }, entityOther: Entity) => {
   if(!isClient) return;
-  const golfClubComponent = getComponent(entity, GolfClubComponent);
+  const golfClubComponent = getMutableComponent(entity, GolfClubComponent);
+  if(!golfClubComponent.canHitBall) return;
 
   // force is in kg, we need it in grams, so x1000
   const velocityMultiplier = clubPowerMultiplier * 1000;
@@ -216,6 +216,11 @@ export const onCollideWithBall = (entity: Entity, delta: number, args: { hitEven
     vector1.y = 0;
   }
   args.hitEvent.bodyOther.addForce(vector1);
+  golfClubComponent.hasHitBall = true;
+  enableClub(entity, false);
+  setInterval(() => {
+    golfClubComponent.hasHitBall = false;
+  }, 500)
   return;
 }
 
@@ -311,7 +316,7 @@ export const initializeGolfClub = (entity: Entity) => {
   addComponent(entity, DebugArrowComponent)
  
   const gameObject = getComponent(entity, GameObject);
-  gameObject.collisionBehaviors['GolfBall'] = onCollideWithBall;
+  gameObject.collisionBehaviors['GolfBall'] = onClubColliderWithBall;
 }
 
 export const createGolfClubPrefab = ( args:{ parameters?: any, networkId?: number, uniqueId: string, ownerId?: string }) => {
