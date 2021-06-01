@@ -1,9 +1,9 @@
-import { CollisionEvents } from 'three-physx';
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { Entity } from '../../../../ecs/classes/Entity';
 import { hasComponent } from "../../../../ecs/functions/EntityFunctions";
 import { addStateComponent, removeStateComponent } from '../../../../game/functions/functionsState';
 import { getTargetEntity } from '../../../functions/functions';
+
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -12,7 +12,7 @@ import { getTargetEntity } from '../../../functions/functions';
    const entityArg = getTargetEntity(entity, entityTarget, args);
    if (hasComponent(entityArg, args.remove)) {
      removeStateComponent(entityArg, args.remove);
-    //  console.warn('switchState: '+args.add.name)
+     console.warn('switchState: '+args.add.name)
      addStateComponent(entityArg, args.add);
    }
  };

@@ -61,30 +61,6 @@ export class ServerNetworkIncomingSystem extends System {
   execute = (delta: number): void => {
     // Create a new worldstate frame for next tick
     Network.instance.tick++;
-    Network.instance.worldState = {
-      clientsConnected: Network.instance.clientsConnected,
-      clientsDisconnected: Network.instance.clientsDisconnected,
-      createObjects: Network.instance.createObjects,
-      editObjects: Network.instance.editObjects,
-      destroyObjects: Network.instance.destroyObjects,
-      gameState: Network.instance.gameState,//.length > 0 ? JSON.stringify(Network.instance.gameState) : [],
-      gameStateActions: Network.instance.gameStateActions
-    };
-
-    Network.instance.transformState = {
-      tick: Network.instance.tick,
-      time: 0,
-      transforms: [],
-      ikTransforms: [],
-    };
-
-    Network.instance.clientsConnected = [];
-    Network.instance.clientsDisconnected = [];
-    Network.instance.createObjects = [];
-    Network.instance.editObjects = [];
-    Network.instance.destroyObjects = [];
-    Network.instance.gameState = [];
-    Network.instance.gameStateActions = [];
 
     // Set input values on server to values sent from clients
     // Parse incoming message queue
