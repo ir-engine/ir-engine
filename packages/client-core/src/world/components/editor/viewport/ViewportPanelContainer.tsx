@@ -4,8 +4,6 @@ import { EditorContext } from "../contexts/EditorContext";
 import styled from "styled-components";
 import Panel from "../layout/Panel";
 import { WindowMaximize } from "@styled-icons/fa-solid/WindowMaximize";
-import Resizeable from "../layout/Resizeable";
-import AssetsPanel from "../assets/AssetsPanel";
 import { useDrop } from "react-dnd";
 import { ItemTypes, AssetTypes, addAssetAtCursorPositionOnDrop } from "../dnd";
 import SelectInput from "../inputs/SelectInput";
@@ -122,9 +120,6 @@ const ToolbarIconContainer = (styled as any).div`
     background-color: ${props => (props.value ? props.theme.bluePressed : props.theme.hover2)};
   }
 `;
-
-// Defining initail panel sizes for Resizeable component
-const initialPanelSizes = [0.8, 0.2];
 
 /**
  * IconToggle used to show stats when we click on it, and shows the tooltip info if we hover over the icon.
@@ -262,10 +257,6 @@ export function ViewportPanelContainer() {
     setTransformMode(mode);
   }, []);
 
-  const onResize = useCallback(() => {
-    editor.onResize();
-  }, [editor]);
-
   const onEditorInitialized = useCallback(() => {
     editor.addListener("selectionChanged", onSelectionChanged);
     editor.editorControls.addListener("flyModeChanged", onFlyModeChanged);
@@ -354,15 +345,12 @@ export function ViewportPanelContainer() {
       icon={WindowMaximize}
       toolbarContent={<ViewportToolbar onToggleStats={setShowStats} showStats={showStats} />}
     >
-      <Resizeable axis="y" onChange={onResize} min={0.01} initialSizes={initialPanelSizes}>
-        <ViewportContainer error={isOver && !canDrop} canDrop={isOver && canDrop} ref={dropRef}>
-          <Viewport ref={canvasRef} tabIndex="-1" />
-          <ControlsText>{controlsText}</ControlsText>
-          {showStats && <Stats editor={editor} />}
-          <AssetDropZone afterUpload={onAfterUploadAssets} />
-        </ViewportContainer>
-        <AssetsPanel />
-      </Resizeable>
+      <ViewportContainer error={isOver && !canDrop} canDrop={isOver && canDrop} ref={dropRef}>
+        <Viewport ref={canvasRef} tabIndex="-1" />
+        <ControlsText>{controlsText}</ControlsText>
+        {showStats && <Stats editor={editor} />}
+        <AssetDropZone afterUpload={onAfterUploadAssets} />
+      </ViewportContainer>
     </Panel>
   );
 }

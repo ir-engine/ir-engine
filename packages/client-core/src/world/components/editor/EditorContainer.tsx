@@ -27,6 +27,7 @@ import { createEditor } from "./Nodes";
 import PropertiesPanelContainer from "./properties/PropertiesPanelContainer";
 import ToolBar from "./toolbar/ToolBar";
 import ViewportPanelContainer from "./viewport/ViewportPanelContainer";
+import AssetsPanel from "./assets/AssetsPanel";
 import { selectAdminState } from "../../../admin/reducers/admin/selector";
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -851,7 +852,10 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                   <WorkspaceContainer>
                     <ViewportPanelContainer />
                     <Resizeable axis="x" initialSizes={[0.7, 0.3]} onChange={this.onResize}>
-                      <div />
+                      <Resizeable axis="y" initialSizes={[0.8, 0.2]}>
+                        <div />
+                      <AssetsPanel />
+                      </Resizeable>
                       <Resizeable axis="y" initialSizes={[0.5, 0.5]}>
                         <HierarchyPanelContainer />
                         <PropertiesPanelContainer />
