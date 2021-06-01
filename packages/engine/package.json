@@ -38,7 +38,7 @@
     "three": "^0.128.0"
   },
   "dependencies": {
-    "@pixiv/three-vrm": "^0.6.0",
+    "@pixiv/three-vrm": "^0.6.4",
     "@xrengine/common": "^0.2.27",
     "browserfs": "^1.4.3",
     "cross-fetch": "^3.0.6",
@@ -52,7 +52,7 @@
     "socket.io": "4.0.1",
     "three": "^0.128.0",
     "three-mesh-bvh": "^0.3.7",
-    "three-physx": "^0.0.24",
+    "three-physx": "^0.0.28",
     "vite-xrengine": "2.2.4",
     "volumetric": "^0.2.19",
     "web-worker": "^1.0.0"

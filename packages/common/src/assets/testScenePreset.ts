@@ -1,3 +1,5 @@
+import { Vector3 } from "three";
+
 export const testScenePreset = {
   "metadata": "{\"name\":\"Crater\"}",
   "url": "https://127.0.0.1:3030/collection/d4457fc0-24e4-11eb-bc2e-e7e742fb069f",
@@ -537,7 +539,111 @@ export const testScenePreset = {
                   "type": "hemisphere-light"
               }
           ]
-      }
+      },
+      "09cc03c4-24e9-sd1b-bc2e-e7e742fb069f": {
+        "id": "09cc03c4-24e9-sd1b-bc2e-e7e742fb069f",
+        "entityId": "09cc03c4-24e9-sd1b-bc2e-e7e742fb069f",
+        "name": "Hemisphere Light",
+        "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+        "collectionId": "d4457fc0-24e4-11eb-bc2e-e7e742fb069f",
+        "index": 8,
+        "createdAt": "2020-11-12T02:14:45.000Z",
+        "updatedAt": "2021-04-02T00:35:15.000Z",
+        "components": [
+            {
+                "name": "transform",
+                "props": {
+                    "position": {
+                        "x": 0,
+                        "y": 10,
+                        "z": 0
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "scale": {
+                        "x": 1,
+                        "y": 1,
+                        "z": 1
+                    }
+                },
+                "data": {
+                    "position": {
+                        "x": 0,
+                        "y": 10,
+                        "z": 0
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "scale": {
+                        "x": 1,
+                        "y": 1,
+                        "z": 1
+                    }
+                },
+                "id": "09xx93c3-24e9-11eb-bc2e-e1e740fb069f",
+                "entityId": "1B698484-C15A-4CEC-9247-03873520DF70",
+                "createdAt": "2020-11-12T02:14:45.000Z",
+                "updatedAt": "2021-04-02T00:35:15.000Z",
+                "type": "transform"
+            },
+            {
+                "name": "reflectionprobe",
+                "props": {
+                    probePosition:{
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    probePositionOffset:{
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    probeScale:{
+                        "x": 1,
+                        "y": 1,
+                        "z": 1
+                    },
+                    reflectionType:1,
+                    intensity:1,
+                    resolution:512,
+                    refreshMode:0,
+                },
+                "data": {
+                    probePosition:{
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    probePositionOffset:{
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    probeScale:{
+                        "x": 1,
+                        "y": 1,
+                        "z": 1
+                    },
+                    reflectionType:1,
+                    intensity:1,
+                    resolution:512,
+                    refreshMode:0,
+                },
+                "id": "09cc03c4-24e9-11eb-bc2e-e7e742fb069f",
+                "entityId": "1B698484-C15A-4CEC-9247-03873520DF70",
+                "createdAt": "2020-11-12T02:14:45.000Z",
+                "updatedAt": "2021-04-02T00:35:15.000Z",
+                "type": "reflectionprobe"
+            }
+        ]
+      },
   },
   "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"
 }

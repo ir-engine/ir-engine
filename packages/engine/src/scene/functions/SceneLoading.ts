@@ -1,4 +1,4 @@
-import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, PointLight, Scene, SpotLight } from 'three';
+import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, MeshStandardMaterial, PointLight, Scene, SpotLight } from 'three';
 // import { LOADER_STATUS } from "../../assets/constants/LoaderConstants";
 import { isClient } from "../../common/functions/isClient";
 import { Engine } from '../../ecs/classes/Engine';
@@ -35,6 +35,8 @@ import Image from '../classes/Image';
 import { setPostProcessing } from "../behaviors/setPostProcessing";
 import { CameraSystem } from "../../camera/systems/CameraSystem";
 import { CopyTransformComponent } from "../../transform/components/CopyTransformComponent";
+import { setReflectionProbe } from '../behaviors/setReflectionProbe';
+import PersistTagComponent from '../components/PersistTagComponent';
 
 
 export class WorldScene {
@@ -139,8 +141,9 @@ export class WorldScene {
       case 'ground-plane':
         const mesh = new Mesh(
           new CircleBufferGeometry(1000, 32).rotateX(-Math.PI / 2),
-          new MeshPhongMaterial({
-            color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464)
+          new MeshStandardMaterial({
+            color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464),
+            roughness:0,
           })
         );
 
@@ -260,6 +263,14 @@ export class WorldScene {
 
       case 'postprocessing':
         setPostProcessing(entity, component.data);
+        break;
+
+      case 'reflectionprobe':
+        setReflectionProbe(entity,component.data);
+        break;
+
+      case 'persist':
+        addComponent(entity, PersistTagComponent);
         break;
 
       default: return console.warn("Couldn't load Component", name);

@@ -67,16 +67,13 @@ export abstract class System {
   static instance: System;
   static queries: SystemQueries = {};
   
-  /** Name of the property. */
-  [x: string]: any
-  
   static isSystem: true
   _mandatoryQueries: any
   priority: number
   executeTime: number
   initialized: boolean
 
-  updateType = SystemUpdateType.Free
+  updateType: SystemUpdateType
 
   /**
    * The results of the queries.

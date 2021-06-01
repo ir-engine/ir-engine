@@ -117,11 +117,11 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
     const out3 = await stage3(inputCanvas, out2.boxes, scoreThresholds[2], params.onet, stats)
     stats.total_stage3 = Date.now() - ts
 
-    const results = out3.boxes.map((box, idx) => extendWithFaceLandmarks(
+    const results = out3.boxes.map((box, index) => extendWithFaceLandmarks(
       extendWithFaceDetection<{}>(
         {},
         new FaceDetection(
-          out3.scores[idx],
+          out3.scores[index],
           new Rect(
             box.left / width,
             box.top / height,
@@ -135,7 +135,7 @@ export class Mtcnn extends NeuralNetwork<NetParams> {
         )
       ),
       new FaceLandmarks5(
-        out3.points[idx].map(pt => pt.sub(new Point(box.left, box.top)).div(new Point(box.width, box.height))),
+        out3.points[index].map(pt => pt.sub(new Point(box.left, box.top)).div(new Point(box.width, box.height))),
         { width: box.width, height: box.height }
       )
     ))

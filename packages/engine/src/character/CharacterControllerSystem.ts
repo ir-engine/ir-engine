@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from "three";
-import { ControllerEvents, ControllerHitEvent, SceneQueryType } from "three-physx";
+import { ControllerEvents, ControllerHitEvent, RaycastQuery, SceneQueryType } from "three-physx";
 import { applyVectorMatrixXZ } from "../common/functions/applyVectorMatrixXZ";
 import { isClient } from "../common/functions/isClient";
 import { EngineEvents } from "../ecs/classes/EngineEvents";
@@ -20,9 +20,12 @@ import { IKComponent } from "./components/IKComponent";
 import { updateVectorAnimation } from "./functions/updateVectorAnimation";
 import { loadActorAvatar } from "./prefabs/NetworkPlayerCharacter";
 import { Engine } from "../ecs/classes/Engine";
+import { roundVectorToPlaces } from "../common/functions/roundVector";
 
 const forwardVector = new Vector3(0, 0, 1);
 const prevControllerColliderPosition = new Vector3();
+const vector3 = new Vector3();
+const quat = new Quaternion();
 
 export class CharacterControllerSystem extends System {
 
@@ -60,32 +63,19 @@ export class CharacterControllerSystem extends System {
 
     this.queryResults.character.added?.forEach((entity) => {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-      if (actor) actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery({
+      if (actor) actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({
         type: SceneQueryType.Closest,
         origin: new Vector3(),
         direction: new Vector3(0, -1, 0),
         maxDistance: 0.1,
         collisionMask: DefaultCollisionMask,
-      });
-    });
-
-    this.queryResults.controller.added?.forEach(entity => {
-      const collider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
-      collider.controller.addEventListener(ControllerEvents.CONTROLLER_SHAPE_HIT, (ev: ControllerHitEvent) => {
-        collider.collisions.push(ev);
-      })
-      collider.controller.addEventListener(ControllerEvents.CONTROLLER_CONTROLLER_HIT, (ev: ControllerHitEvent) => {
-        collider.collisions.push(ev);
-      })
-      collider.controller.addEventListener(ControllerEvents.CONTROLLER_OBSTACLE_HIT, (ev: ControllerHitEvent) => {
-        collider.collisions.push(ev);
-      })
+      }));
     });
 
     this.queryResults.controller.all?.forEach((entity) => {
       const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
       // iterate on all collisions since the last update
-      collider.collisions.forEach((event: ControllerHitEvent) => {
+      collider.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => {
         const { length, normal, position, shape, body } = event;
         // TODO: figure out how we expose specific behaviors like this
         if (isClient) {
@@ -128,11 +118,8 @@ export class CharacterControllerSystem extends System {
         collider.controller.transform.translation.z
       );
 
-      // console.log(collider.controller.transform.translation)
-
-      const actorRaycastStart = new Vector3(collider.controller.transform.translation.x, collider.controller.transform.translation.y, collider.controller.transform.translation.z);
-      actor.raycastQuery.origin = new Vector3(actorRaycastStart.x, actorRaycastStart.y - (collider.height * 0.5) - collider.radius, actorRaycastStart.z);
-      actor.raycastQuery.direction = new Vector3(0, -1, 0);
+      vector3.set(collider.controller.transform.translation.x, collider.controller.transform.translation.y, collider.controller.transform.translation.z);
+      actor.raycastQuery.origin.set(vector3.x, vector3.y - (collider.height * 0.5) - collider.radius, vector3.z);
       actor.closestHit = actor.raycastQuery.hits[0];
       actor.isGrounded = actor.closestHit ? true : collider.controller.collisions.down;
     });
@@ -161,10 +148,10 @@ export class CharacterControllerSystem extends System {
         controllerCollider.controller.transform.translation.z
       )
       if (isNaN(x)) {
-        actor.animationVelocity = new Vector3().set(0,0,0);
+        actor.animationVelocity.set(0,0,0);
       }
-      const q = new Quaternion().copy(transform.rotation).invert();
-      actor.animationVelocity = new Vector3(x, y, z).applyQuaternion(q);
+      quat.copy(transform.rotation).invert();
+      actor.animationVelocity.set(x, y, z).applyQuaternion(quat);
       // its beacose we need physicsMove on server and for localCharacter, not for all character
       characterMoveBehavior(entity, delta);
     });
@@ -175,8 +162,8 @@ export class CharacterControllerSystem extends System {
       const actor = getComponent<CharacterComponent>(entity, CharacterComponent);
       const transform = getMutableComponent(entity, TransformComponent);
       // update rotationg for physics moving
-      const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();
-      actor.orientation.copy(applyVectorMatrixXZ(flatViewVector, forwardVector))
+      vector3.copy(actor.viewVector).setY(0).normalize();
+      actor.orientation.copy(applyVectorMatrixXZ(vector3, forwardVector))
       transform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
       characterMoveBehavior(entity, delta);
     })
@@ -186,12 +173,12 @@ export class CharacterControllerSystem extends System {
       this.queryResults.animation.all?.forEach((entity) => {
         updateVectorAnimation(entity, delta)
       })
-
-      this.queryResults.ikavatar.all?.forEach((entity) => {
-        const ikComponent = getMutableComponent(entity, IKComponent);
-        ikComponent.avatarIKRig?.update(delta);
-      })
     }
+
+    this.queryResults.ikavatar.all?.forEach((entity) => {
+      const ikComponent = getMutableComponent(entity, IKComponent);
+      ikComponent.avatarIKRig?.update(delta);
+    })
   }
 }
 

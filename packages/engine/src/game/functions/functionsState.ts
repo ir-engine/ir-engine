@@ -8,41 +8,14 @@ import { Network } from "../../networking/classes/Network";
 import { Game } from "../components/Game";
 import { GamePlayer } from "../components/GamePlayer";
 
-import { SpawnedObject } from '../templates/gameDefault/components/SpawnedObjectTagComponent';
-import { ButtonDown } from '../templates/gameDefault/components/ButtonDownTagComponent';
-import { ButtonUp } from '../templates/gameDefault/components/ButtonUpTagComponent';
-import { Closed } from '../templates/gameDefault/components/ClosedTagComponent';
-import { Open } from '../templates/gameDefault/components/OpenTagComponent';
-import { PanelDown } from '../templates/gameDefault/components/PanelDownTagComponent';
-import { PanelUp } from '../templates/gameDefault/components/PanelUpTagComponent';
-import { YourTurn } from '../templates/Golf/components/YourTurnTagComponent';
-import { Goal } from '../templates/Golf/components/GoalTagComponent';
-import { Active } from "../templates/gameDefault/components/ActiveTagComponent";
-import { Deactive } from "../templates/gameDefault/components/DeactiveTagComponent";
-import { FromPlayer1, FromPlayer2, FromPlayer3 } from "../templates/Golf/components/FromPlayer1TagComponent";
-
 import { GamesSchema } from '../templates/GamesSchema';
+import { State } from '../types/GameComponents';
 import { ClientGameActionMessage, GameStateUpdateMessage } from "../types/GameMessage";
 import { GameMode, StateObject } from "../types/GameMode";
 import { getGame, getGameEntityFromName, getRole, setRole, getUuid } from './functions';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
-
-// TODO: create schema states
-const gameStateComponents = {
-  'Open': Open,
-  'Closed': Closed,
-  'ButtonUp': ButtonUp,
-  'ButtonDown': ButtonDown,
-  'PanelDown': PanelDown,
-  'PanelUp': PanelUp,
-  'YourTurn': YourTurn,
-  'Active': Active,
-  'Deactive': Deactive,
-  'Goal': Goal,
-  'SpawnedObject': SpawnedObject
-};
 
 export const initState = (game: Game, gameSchema: GameMode): void => {
   Object.keys(gameSchema.gameObjectRoles).forEach(role => game.gameObjects[role] = []);
@@ -133,8 +106,8 @@ export const applyState = (game: Game): void => {
 
       if (stateObject != undefined) {
         stateObject.components.forEach((componentName: string) => {
-          if(gameStateComponents[componentName])
-            addComponent(entity, gameStateComponents[componentName] );
+          if(State[componentName])
+            addComponent(entity, State[componentName] );
           else
             console.warn("Couldn't find component", componentName);
         });
@@ -156,7 +129,7 @@ export const removeEntityFromState = (objectOrPlayerComponent, game): void => {
   if (index != -1) {
     game.state.splice(index, 1);
   } else {
-    console.warn('cant remove from state, dont have it already', uuid);
+    console.warn('cant remove from state, dont have it already', objectOrPlayerComponent.uuid);
   }
 };
 

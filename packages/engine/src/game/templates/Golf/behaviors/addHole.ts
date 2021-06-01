@@ -1,18 +1,35 @@
-import { Vector3, Quaternion } from 'three';
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { Entity } from '../../../../ecs/classes/Entity';
-import { Body, BodyType, createShapeFromConfig, Shape, SHAPES, Transform } from 'three-physx';
+import { Body, BodyType, ColliderHitEvent, createShapeFromConfig, SHAPES, Transform } from 'three-physx';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 
 import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunctions';
-import { onInteraction, onInteractionHover } from '../../../../scene/behaviors/createCommonInteractive';
-import { Interactable } from '../../../../interaction/components/Interactable';
-import { CollisionGroups, DefaultCollisionMask } from '../../../../physics/enums/CollisionGroups';
 import { GameObject } from "../../../components/GameObject";
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
 import { GolfCollisionGroups } from '../GolfGameConstants';
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent';
+import { getGame } from '../../../functions/functions';
+import { GameObjectInteractionBehavior } from '../../../interfaces/GameObjectPrefab';
+
+export const onHoleCollideWithBall: GameObjectInteractionBehavior = (entityHole: Entity, delta: number, args: { hitEvent: ColliderHitEvent }, entityBall: Entity) => {
+  
+  const game = getGame(entityHole);
+  const teeEntity = game.gameObjects['GolfTee'][0];
+  const teeTransform = getComponent(teeEntity, TransformComponent);
+  const collider = getComponent(entityBall, ColliderComponent)
+
+  collider.body.updateTransform({
+    translation: {
+      x: teeTransform.position.x,
+      y: teeTransform.position.y,
+      z: teeTransform.position.z
+    },
+    rotation: {}
+  })
+}
+
+
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -51,7 +68,9 @@ export const addHole: Behavior = (entity: Entity, args?: any, delta?: number, en
   })
 
   // if we loaded this collider with a model, make it invisible
-//  getComponent(entity, Object3DComponent)?.value?.traverse(obj => obj.visible = false)
+  getComponent(entity, Object3DComponent)?.value?.traverse(obj => obj.visible = false)
 
-  //addColliderWithEntity(entity);
+  const gameObject = getComponent(entity, GameObject)
+  gameObject.collisionBehaviors['GolfBall'] = onHoleCollideWithBall;
+
 };

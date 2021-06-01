@@ -34,7 +34,7 @@ const mapStateToProps = (state: any): any => {
     setFeedAsFeatured: bindActionCreators(setFeedAsFeatured, dispatch),
     setFeedNotFeatured: bindActionCreators(setFeedNotFeatured, dispatch),
     updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch),
-});
+  });
 interface Props{
     feedsState?: any,
     authState?:any;
@@ -54,12 +54,16 @@ const Featured = ({feedsState, getFeeds, type, creatorId, popupsState, creatorSt
 
     useEffect(()=> {
         if(type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired'){
-            getFeeds(type, creatorId);            
+            getFeeds(type, creatorId);
         }else{
           const userIdentityType = authState.get('authUser')?.identityProvider?.type ?? 'guest';
           userIdentityType !== 'guest' ? getFeeds('featured') : getFeeds('featuredGuest');
         }
-    }, [type, creatorId]);
+    }, [type, creatorId, feedsState.get('feeds')]);
+
+
+    useEffect(()=> (type === 'featured' || !type) && feedsState.get('feedsFetching') === false && setFeedList(feedsState.get('feedsFeatured'))
+    ,[feedsState.get('feedsFetching'), feedsState.get('feedsFeatured')]);
 
     useEffect(()=> (type === 'featured' || !type) && feedsState.get('feedsFeaturedFetching') === false && setFeedList(feedsState.get('feedsFeatured'))
     ,[feedsState.get('feedsFeaturedFetching'), feedsState.get('feedsFeatured')]);
@@ -104,6 +108,7 @@ const Featured = ({feedsState, getFeeds, type, creatorId, popupsState, creatorSt
     //         return <span className={styles.starLine} onClick={()=>featured ? unfeatureFeed(feedId) : featureFeed(feedId)} >{featured ? <StarIcon /> : <StarOutlineIcon />}</span>;
     //     }
     // };
+
 
     return <section className={styles.feedContainer}>
         {feedsList && feedsList.length > 0  ? feedsList.map((item, itemIndex)=>{

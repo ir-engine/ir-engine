@@ -144,12 +144,12 @@ export class TinyYolov2Base extends NeuralNetwork<TinyYolov2NetParams> {
       true
     )
 
-    const detections = indices.map(idx =>
+    const detections = indices.map(index =>
       new ObjectDetection(
-        scores[idx],
-        classScores[idx],
-        classNames[idx],
-        boxes[idx],
+        scores[index],
+        classScores[index],
+        classNames[index],
+        boxes[index],
         inputDimensions
       )
     )
