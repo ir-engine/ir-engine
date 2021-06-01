@@ -12,6 +12,7 @@ export class GolfClubComponent extends Component<GolfClubComponent> {
   meshGroup: Group;
   raycast: RaycastQuery;
   canHitBall: boolean;
+  hasHitBall: boolean;
   body: Body;
   velocityPositionsToCalculate = 4;
   lastPositions: Vector3[] = [];

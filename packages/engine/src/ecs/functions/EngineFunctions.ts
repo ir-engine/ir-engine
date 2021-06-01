@@ -164,8 +164,10 @@ function processDeferredEntityRemoval () {
 
       const component = entity.componentsToRemove[Component._typeId];
       delete entity.componentsToRemove[Component._typeId];
-      component.dispose();
-      Engine.numComponents[component._typeId]--;
+      if(component) {
+        component.dispose();
+        Engine.numComponents[component._typeId]--;
+      }
     }
   }
 

@@ -2,9 +2,7 @@
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
 
-import { AudioAnalyser, BoxBufferGeometry, BoxGeometry, BoxHelper, ClampToEdgeWrapping, Color, CubeCamera, Group, LinearMipmapLinearFilter, Loader, Material, Matrix4, Mesh, MeshPhysicalMaterial, MeshStandardMaterial, Object3D, PlaneGeometry, PMREMGenerator, Quaternion, RectAreaLight, RepeatWrapping, RGBFormat, Scene, Shader, SphereBufferGeometry, SphereGeometry, Texture, TextureEncoding, TextureLoader, Uniform, Vector, Vector3, WebGLCubeRenderTarget, WebGLRenderer, WebGLRenderTarget } from "three";
-import { PMREMCubeUVPacker } from "../../scene/classes/PMREMCubeUVPacker";
-import Renderer from "../renderer/Renderer";
+import {BoxBufferGeometry, BoxHelper, Mesh, MeshPhysicalMaterial, Object3D, Quaternion, Scene,  SphereGeometry, Vector3, WebGLCubeRenderTarget} from "three";
 import EditorNodeMixin from "./EditorNodeMixin";
 import { envmapPhysicalParsReplace, worldposReplace } from "./helper/BPCEMShader";
 import CubemapCapturer from "./helper/CubemapCapturer";
@@ -38,7 +36,8 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
     geometry:BoxHelper;
     reflectionProbeSettings:ReflectionProbeSettings;
     centerBall:any;
-    
+    currentEnvMap:WebGLCubeRenderTarget;
+
     constructor(editor){
         super(editor);
         this.centerBall=new Mesh(new SphereGeometry(0.75));
@@ -66,9 +65,8 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
     captureCubeMap(){
         const sceneToBake=this.getSceneForBaking(this.editor.scene);
         const cubemapCapturer=new CubemapCapturer(this.editor.renderer.renderer,sceneToBake,this.reflectionProbeSettings.resolution,this.reflectionProbeSettings.reflectionType==1);
-        const currentEnvMap=cubemapCapturer.update(this.position);
+        this.currentEnvMap=cubemapCapturer.update(this.position);
         this.injectShader();
-        this.editor.scene.environment=currentEnvMap.texture;
     }
 
     Bake=()=>{
@@ -76,11 +74,14 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
     }
 
     onChange(){
+
         this.geometry.matrix.compose(this.reflectionProbeSettings.probePositionOffset,new Quaternion(0),this.reflectionProbeSettings.probeScale);
         this.editor.scene.traverse(child=>{
             if(child.material)
                 child.material.envMapIntensity=this.reflectionProbeSettings.intensity;
         });
+        this.editor.scene.environment=this.visible?this.currentEnvMap?.texture:null;
+
     }
     injectShader(){
         this.editor.scene.traverse(child=>{
@@ -122,6 +123,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
 
     prepareForExport() {
         super.prepareForExport();
+        this.reflectionProbeSettings.probePosition=this.position;
         this.addGLTFComponent("reflectionprobe", {
                 options:this.reflectionProbeSettings
         });
@@ -143,6 +145,4 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
         });
         return sceneToBake;
     }
-
-
 }
