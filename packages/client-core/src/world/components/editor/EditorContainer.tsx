@@ -37,6 +37,8 @@ import {
   fetchLocationTypes
 } from "../../../admin/reducers/admin/service";
 import { withTranslation } from 'react-i18next';
+// @ts-ignore
+import styles from "./styles.module.scss";
 
 /**
  * StyledEditorContainer component is used as root element of new project page.
@@ -851,7 +853,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                   />}
                   <WorkspaceContainer>
                     <ViewportPanelContainer />
-                    <Resizeable axis="x" initialSizes={[0.7, 0.3]} onChange={this.onResize}>
+                    <Resizeable className={styles.panelContainer} axis="x" initialSizes={[0.7, 0.3]} onChange={this.onResize}>
                       <Resizeable axis="y" initialSizes={[0.8, 0.2]}>
                         <div />
                       <AssetsPanel />

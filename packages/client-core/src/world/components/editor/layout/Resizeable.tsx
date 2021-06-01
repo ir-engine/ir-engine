@@ -92,7 +92,8 @@ export class Resizeable extends Component {
     initialSizes: PropTypes.arrayOf(PropTypes.number),
     min: PropTypes.number.isRequired,
     axis: PropTypes.string.isRequired,
-    onChange: PropTypes.func
+    onChange: PropTypes.func,
+    className: PropTypes.any,
   };
 
   static defaultProps = {
@@ -196,7 +197,7 @@ export class Resizeable extends Component {
 
     return (
       <Fragment>
-        <Container ref={this.containerRef}>{newChildren}</Container>
+        <Container className={(this.props as any).className} ref={this.containerRef}>{newChildren}</Container>
         {/* <ResizeCursorState resizing={(this.state as any).resizing} axis={(this.props as any).axis} /> */}
         {
           React.cloneElement(<ResizeCursorState />, {

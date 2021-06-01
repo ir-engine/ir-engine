@@ -19,6 +19,8 @@ import useUpload from "../assets/useUpload";
 import { AllFileTypes } from "../assets/fileTypes";
 import NodeIssuesIcon from "./NodeIssuesIcon";
 import { useTranslation } from "react-i18next";
+// @ts-ignore
+import styles from "./styles.module.scss";
 
 /**
  * uploadOption initializing object containing Properties multiple, accepts.
@@ -1255,7 +1257,7 @@ export default function HierarchyPanel() {
   //returning hierarchy penal view
   return(
     /* @ts-ignore */
-    <Panel id="hierarchy-panel" title="Hierarchy" icon={ProjectDiagram}>
+    <Panel id="hierarchy-panel" className={styles.hierarchyPanel} title="Hierarchy" icon={ProjectDiagram}>
       <PanelContainer>
         {editor.scene && (
           <AutoSizer>

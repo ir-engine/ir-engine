@@ -10,6 +10,8 @@ import NameInputGroup from "./NameInputGroup";
 import InputGroup from "../inputs/InputGroup";
 import BooleanInput from "../inputs/BooleanInput";
 import { withTranslation } from "react-i18next";
+// @ts-ignore
+import styles from "./styles.module.scss";
 
 /**
  * StyledNodeEditor used as wrapper container element properties container.
@@ -236,7 +238,7 @@ class PropertiesPanelContainer extends Component<{t: Function}> {
 
     return (
       /* @ts-ignore */
-      <Panel id="properties-panel" title={this.props.t('editor:properties.title')} icon={SlidersH}>
+      <Panel id="properties-panel" className={styles.propertiesPanel} title={this.props.t('editor:properties.title')} icon={SlidersH}>
         <PropertiesPanelContent>{content}</PropertiesPanelContent>
       </Panel>
     );
