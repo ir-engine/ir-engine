@@ -185,6 +185,8 @@ export const onClubColliderWithBall = (entity: Entity, delta: number, args: { hi
   // force is in kg, we need it in grams, so x1000
   const velocityMultiplier = clubPowerMultiplier * 1000;
 
+  // TODO: fix this - use normal and velocity magnitude to determine hits
+  /*
   // get velocity in local space
   golfClubComponent.headGroup.getWorldQuaternion(quat).invert()
   vector0.copy(golfClubComponent.velocity).setY(0).applyQuaternion(quat);
@@ -195,9 +197,10 @@ export const onClubColliderWithBall = (entity: Entity, delta: number, args: { hi
   const angleOfIncidence = vector1.copy(vec3).applyQuaternion(quat).angleTo(vector0) * -Math.sign(vector0.z);
   // take the angle of incidence, and get the same angle on the other side of the normal, the angle of reflection
   vec3.applyAxisAngle(upVector, clubMoveDirection * angleOfIncidence).normalize().multiplyScalar(golfClubComponent.velocity.length());
+*/
 
-  // vector0.copy(golfClubComponent.velocity).multiplyScalar(hitAdvanceFactor);
-  vector0.copy(vec3).multiplyScalar(hitAdvanceFactor);
+  vector0.copy(golfClubComponent.velocity).multiplyScalar(hitAdvanceFactor).multiplyScalar(0.3);
+  // vector0.copy(vec3).multiplyScalar(hitAdvanceFactor);
   // lock to XZ plane if we disable chip shots
   if(!golfClubComponent.canDoChipShots) {
     vector0.y = 0;
@@ -210,8 +213,8 @@ export const onClubColliderWithBall = (entity: Entity, delta: number, args: { hi
       z: args.hitEvent.bodyOther.transform.translation.z + vector0.z,
     }
   });
-  // vector1.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier);
-  vector1.copy(vec3).multiplyScalar(velocityMultiplier);
+  vector1.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier).multiplyScalar(0.3);
+  // vector1.copy(vec3).multiplyScalar(velocityMultiplier);
   if(!golfClubComponent.canDoChipShots) {
     vector1.y = 0;
   }
