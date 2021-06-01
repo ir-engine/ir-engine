@@ -65,7 +65,7 @@ export default class CubemapCapturer{
 	sceneToRender:Scene;
 	downloadAfterCapture:boolean;
 	
-	constructor(renderer:WebGLRenderer,sceneToRender:Scene,resolution:number,downloadAfterCapture:boolean=false){
+	constructor(renderer:WebGLRenderer,sceneToRender:Scene,resolution:number,downloadAfterCapture=false){
 		this.width = resolution;
 		this.height = resolution;
 		this.sceneToRender=sceneToRender;
@@ -169,7 +169,7 @@ export default class CubemapCapturer{
 	};
 
 
-	update = function( position:Vector3,imageName:string="EnvMap") {
+	update = function( position:Vector3,imageName="EnvMap") {
 
 		const autoClear = this.renderer.autoClear;
 		this.renderer.autoClear = true;
