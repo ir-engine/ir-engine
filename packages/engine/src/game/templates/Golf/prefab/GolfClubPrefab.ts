@@ -26,6 +26,7 @@ import { getHandTransform } from '../../../../xr/functions/WebXRFunctions';
 import { CharacterComponent } from '../../../../character/components/CharacterComponent';
 import { setupSceneObjects } from '../../../../scene/functions/setupSceneObjects';
 import { DebugArrowComponent } from '../../../../debug/DebugArrowComponent';
+import { GameObjectInteractionBehavior } from '../../../interfaces/GameObjectPrefab';
 
 const vector0 = new Vector3();
 const vector1 = new Vector3();
@@ -177,10 +178,10 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
 
 // https://github.com/PersoSirEduard/OculusQuest-Godot-MiniGolfGame/blob/master/Scripts/GolfClub/GolfClub.gd#L18
 
-export const onClubColliderWithBall = (entity: Entity, delta: number, args: { hitEvent: ColliderHitEvent }, entityOther: Entity) => {
+export const onClubColliderWithBall: GameObjectInteractionBehavior = (entity: Entity, delta: number, args: { hitEvent: ColliderHitEvent }, entityOther: Entity) => {
   if(!isClient) return;
   const golfClubComponent = getMutableComponent(entity, GolfClubComponent);
-  if(!golfClubComponent.canHitBall) return;
+  if(!golfClubComponent.canHitBall || golfClubComponent.hasHitBall) return;
 
   // force is in kg, we need it in grams, so x1000
   const velocityMultiplier = clubPowerMultiplier * 1000;
@@ -221,9 +222,9 @@ export const onClubColliderWithBall = (entity: Entity, delta: number, args: { hi
   args.hitEvent.bodyOther.addForce(vector1);
   golfClubComponent.hasHitBall = true;
   enableClub(entity, false);
-  setInterval(() => {
+  setTimeout(() => {
     golfClubComponent.hasHitBall = false;
-  }, 500)
+  }, 3000)
   return;
 }
 
@@ -287,7 +288,6 @@ export const initializeGolfClub = (entity: Entity) => {
     setupSceneObjects(meshGroup);
 
     addComponent(entity, Object3DComponent, { value: meshGroup });
-    Engine.scene.add(meshGroup);
   }
 
   const shapeHead = createShapeFromConfig({

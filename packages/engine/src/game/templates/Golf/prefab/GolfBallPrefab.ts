@@ -40,7 +40,6 @@ function assetLoadCallback(group: Group, entity: Entity) {
   ballMesh.receiveShadow = true;
   ballMesh.material && WebGLRendererSystem.instance.csm.setupMaterial(ballMesh.material);
   addComponent(entity, Object3DComponent, { value: ballMesh });
-  Engine.scene.add(ballMesh);
 
   // DEBUG - teleport ball to over hole
   if(typeof globalThis.document !== 'undefined')

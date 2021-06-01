@@ -160,11 +160,6 @@ export class AssetLoader {
             } else {
                 addObject3DComponent(this.params.entity, { obj3d: asset });
             }
-
-            asset.children.forEach(obj => {
-                const e = createEntity();
-                addObject3DComponent(e, { obj3d: obj, parentEntity: this.params.entity });
-            });
         }
     }
 
