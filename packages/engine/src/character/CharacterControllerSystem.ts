@@ -72,23 +72,10 @@ export class CharacterControllerSystem extends System {
       }));
     });
 
-    this.queryResults.controller.added?.forEach(entity => {
-      const collider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
-      collider.controller.addEventListener(ControllerEvents.CONTROLLER_SHAPE_HIT, (ev: ControllerHitEvent) => {
-        collider.collisions.push(ev);
-      })
-      collider.controller.addEventListener(ControllerEvents.CONTROLLER_CONTROLLER_HIT, (ev: ControllerHitEvent) => {
-        collider.collisions.push(ev);
-      })
-      collider.controller.addEventListener(ControllerEvents.CONTROLLER_OBSTACLE_HIT, (ev: ControllerHitEvent) => {
-        collider.collisions.push(ev);
-      })
-    });
-
     this.queryResults.controller.all?.forEach((entity) => {
       const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
       // iterate on all collisions since the last update
-      collider.collisions.forEach((event: ControllerHitEvent) => {
+      collider.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => {
         const { length, normal, position, shape, body } = event;
         // TODO: figure out how we expose specific behaviors like this
         if (isClient) {

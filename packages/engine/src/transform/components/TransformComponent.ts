@@ -5,6 +5,9 @@ import { Types } from '../../ecs/types/Types';
 export class TransformComponent extends Component<TransformComponent> {
   position: Vector3
   rotation: Quaternion
+  /**
+   * A velocity that changes this transfrom's position each frame
+   */
   velocity: Vector3
   scale: Vector3
 
