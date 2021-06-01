@@ -3,14 +3,12 @@ class Animation {
 	time: number;
 	times: any;
 	tracks: any;
-	constructor(anim = null, is_struct = false) {
+	constructor(anim = null) {
 		this.frame_cnt = 0;
 		this.time = 0;
 		this.times = null;
 		this.tracks = null;
-
-		if (anim && !is_struct) this.cloneFrom(anim);
-		else if (anim && is_struct) this.useStruct(anim);
+		this.useStruct(anim);
 	}
 
 	// Gltf exports animation in the same format as the object, 
@@ -20,26 +18,6 @@ class Animation {
 		this.time = s.time;
 		this.times = s.times;
 		this.tracks = s.tracks;
-		return this;
-	}
-
-	cloneFrom(anim) {
-		let a;
-		this.frame_cnt = anim.frame_cnt;
-		this.time = anim.time;
-		this.times = [];
-
-		for (a of anim.times) this.times.push(a.slice(0));
-
-		for (a of anim.tracks) {
-			this.tracks.push({
-				type: a.type,
-				time_idx: a.time_idx,
-				interp: a.interp,
-				data: a.data.slice(0),
-			});
-		}
-
 		return this;
 	}
 }

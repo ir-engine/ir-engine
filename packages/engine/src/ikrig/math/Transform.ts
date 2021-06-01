@@ -1,59 +1,50 @@
-import Vec3 from "./Vec3";
-import Quat from "./Quat";
-
 // http://gabormakesgames.com/blog_transforms_transforms.html
 
-class Transform {
-	position: any;
-	rotation: any;
-	scale: any;
-	constructor(t?) {
-		this.rotation = new Quat();
-		this.position = new Vec3();
-		this.scale = new Vec3(1, 1, 1);
+import { Vector3, Quaternion } from "three";
+import { Component } from "../../ecs/classes/Component";
 
-		if (arguments.length == 1) {
-			this.rotation.copy(t.rotation);
-			this.position.copy(t.position);
-			this.scale.copy(t.scale);
-		} else if (arguments.length == 3) {
-			this.rotation.copy(arguments[0]);
-			this.position.copy(arguments[1]);
-			this.scale.copy(arguments[2]);
-		}
+class Transform extends Component<Transform>{
+	position: Vector3 = new Vector3();
+	quaternion: Quaternion  = new Quaternion();
+	scale: Vector3 = new Vector3(1, 1, 1);
+	constructor() {
+		super();
+		this.quaternion = new Quaternion();
+		this.position = new Vector3();
+		this.scale = new Vector3(1, 1, 1);
 	}
 
 	copy(t) {
-		this.rotation.copy(t.rotation);
+		this.quaternion.copy(t.quaternion);
 		this.position.copy(t.position);
 		this.scale.copy(t.scale);
 		return this;
 	}
 
 	set(r = null, p = null, s = null) {
-		if (r) this.rotation.copy(r);
+		if (r) this.quaternion.copy(r);
 		if (p) this.position.copy(p);
 		if (s) this.scale.copy(s);
 		return this;
 	}
 
-	clone() { return new Transform(this); }
-
 	setFromAdd(tp, tc) {
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		// POSITION - parent.position + ( parent.rotation * ( parent.scale * child.position ) )
-		const v = new Vec3().setFromMultiply(tp.scale, tc.position); // parent.scale * child.position;
-		v.transformQuat(tp.rotation); //Vec3.transformQuat( v, tp.rotation, v );
-		this.position.setFromAdd(tp.position, v); // Vec3.add( tp.position, v, this.position );
+		// POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
+		// TODO: Make sure this matrix isn't flipped
+		const v: Vector3 = tp.scale.multiply(tc.position); // parent.scale * child.position;
+		v.applyQuaternion(tp.quaternion); //Vec3.transformQuat( v, tp.quaternion, v );
+		this.position = tp.position.add(v); // Vec3.add( tp.position, v, this.position );
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// SCALE - parent.scale * child.scale
-		this.scale.setFromMultiply(tp.scale, tc.scale);
+		// TODO: not flipped, right?
+		this.scale = tp.scale.multiply(tc.scale);
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		// ROTATION - parent.rotation * child.rotation
-		this.rotation.setFromMultiply(tp.rotation, tc.rotation);
-		//this.rotation.setFromMultiply( tc.rotation, tp.rotation );
+		// ROTATION - parent.quaternion * child.quaternion
+		this.quaternion = tp.quaternion.multiply(tc.quaternion);
+		//this.quaternion.setFromMultiply( tc.quaternion, tp.quaternion );
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		return this;
@@ -64,97 +55,92 @@ class Transform {
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// If just passing in Tranform Object
 		if (arguments.length == 1) {
-			cr = arguments[0].rotation;
+			cr = arguments[0].quaternion;
 			cp = arguments[0].position;
 			cs = arguments[0].scale;
 		}
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		// POSITION - parent.position + ( parent.rotation * ( parent.scale * child.position ) )
-		this.position.add(Vec3.multiply(this.scale, cp).transformQuat(this.rotation));
+		// POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
+		// TODO: Multiplied in proper order?
+		this.position.add(this.scale.multiply(cp).applyQuaternion(this.quaternion));
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// SCALE - parent.scale * child.scale
 		if (cs) this.scale.multiply(cs);
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		// ROTATION - parent.rotation * child.rotation
-		this.rotation.multiply(cr);
+		// ROTATION - parent.quaternion * child.quaternion
+		this.quaternion.multiply(cr);
 
 		return this;
 	}
 
 	// Computing Transforms in reverse, Child - > Parent
-	add_rev(pr, pp, ps = null) {
+	add_rev(pr) {
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		// If just passing in Tranform Object
-		if (arguments.length == 1) {
-			pr = arguments[0].rotation;
-			pp = arguments[0].position;
-			ps = arguments[0].scale;
-		}
+
+			pr = pr[0].quaternion;
+			let pp = pr[0].position;
+			let ps = pr[0].scale;
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		// POSITION - parent.position + ( parent.rotation * ( parent.scale * child.position ) )
-		// The only difference for this func, We use the IN.scale & IN.rotation instead of THIS.scale * THIS.rotation
+		// POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
+		// The only difference for this func, We use the IN.scale & IN.quaternion instead of THIS.scale * THIS.quaternion
 		// Consider that this Object is the child and the input is the Parent.
-		this.position.multiply(ps).transformQuat(pr).add(pp);
+		this.position.multiply(ps).applyQuaternion(pr).add(pp);
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// SCALE - parent.scale * child.scale
 		if (ps) this.scale.multiply(ps);
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		// ROTATION - parent.rotation * child.rotation
-		this.rotation.premultiply(pr); // Must Rotate from Parent->Child, need PMUL
+		// ROTATION - parent.quaternion * child.quaternion
+		this.quaternion.premultiply(pr); // Must Rotate from Parent->Child, need PMUL
 
 		return this
 	}
 
 	add_pos(cp, ignore_scl = false) {
-		//POSITION - parent.position + ( parent.rotation * ( parent.scale * child.position ) )
-		if (ignore_scl) this.position.add(Vec3.transformQuat(cp, this.rotation));
-		else this.position.add(new Vec3(cp).transformQuat(this.rotation));
+		//POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
+		if (ignore_scl) this.position.add(cp.applyQuaternion(this.quaternion));
+		else this.position.add(new Vector3(cp).applyQuaternion(this.quaternion));
 		return this;
 	}
 
 	clear() {
 		this.position.set(0, 0, 0);
 		this.scale.set(1, 1, 1);
-		this.rotation.reset();
+		this.quaternion.set(1,0,0,0);
 		return this;
 	}
 
 	transform_vec(v, out = null) {
-		//GLSL - vecQuatRotation(model.rotation, a_position.xyz * model.scale) + model.position;
+		//GLSL - vecQuatRotation(model.quaternion, a_position.xyz * model.scale) + model.position;
 		return (out || v)
 			.setFromMultiply(v, this.scale)
-			.transformQuat(this.rotation)
+			.applyQuaternion(this.quaternion)
 			.add(this.position);
 	}
 
 	dispose() {
 		delete this.position;
-		delete this.rotation;
+		delete this.quaternion;
 		delete this.scale;
 	}
 
 	static add(tp, tc, tOut) {
 		tOut = tOut || new Transform();
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		//POSITION - parent.position + ( parent.rotation * ( parent.scale * child.position ) )
-
-		//tOut.position.setFromAdd( tp.position, Vec3.multiply( tp.scale, tc.position ).transformQuat( tp.rotation ) );
-		tOut.position.setFromAdd(tp.position, new Vec3(tc.position).transformQuat(tp.rotation));
+		tOut.position.setFromAdd(tp.position, new Vector3(tc.position).applyQuaternion(tp.quaternion));
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// SCALE - parent.scale * child.scale
 		tOut.scale.setFromMultiply(tp.scale, tc.scale); //Vec3.multiply( tp.scale, tc.scale, tOut.scale );
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		// ROTATION - parent.rotation * child.rotation
-		tOut.rotation.setFromMultiply(tp.rotation, tc.rotation); //Quat.multiply( tp.rotation, tc.rotation, tOut.rotation );
+		// ROTATION - parent.quaternion * child.quaternion
+		tOut.quaternion.setFromMultiply(tp.quaternion, tc.quaternion); //Quat.multiply( tp.quaternion, tc.quaternion, tOut.quaternion );
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		return tOut;
@@ -164,7 +150,7 @@ class Transform {
 		inv = inv || new Transform();
 
 		// Invert Rotation
-		t.rotation.invert(inv.rotation);
+		t.quaternion.invert(inv.quaternion);
 
 		// Invert Scale
 		inv.scale.x = (t.scale.x != 0) ? 1 / t.scale.x : 0;
@@ -173,16 +159,9 @@ class Transform {
 
 		// Invert Position : rotInv * ( invScl * invPos )
 		t.position.invert(inv.position).multiply(inv.scale);
-		Vec3.transformQuat(inv.position, inv.rotation, inv.position);
+		inv.position.applyQuaternion(inv.quaternion);
 
 		return inv;
-	}
-
-	static fromPosition(x, y, z) {
-		const t = new Transform();
-		if (arguments.length == 3) t.position.set(x, y, z);
-		else if (arguments.length == 1) t.position.copy(x);
-		return t;
 	}
 }
 

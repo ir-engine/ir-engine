@@ -1,8 +1,7 @@
 import { Component } from "../../ecs/classes/Component";
 import { addComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import Pose from "../classes/Pose";
-import Quat from "../math/Quat";
-import Vec3 from "../math/Vec3";
+import { BACK, DOWN, FORWARD, LEFT, RIGHT, UP } from "../math/Vector3Constants";
 import Armature from "./Armature";
 import Obj from "./Obj";
 
@@ -41,8 +40,8 @@ class IKRig extends Component<IKRig>{
 		// Need to do this to render things correctly
 		if (use_node_offset) {
 			const l = getMutableComponent(entity, Obj).getTransform(); // Obj is a ThreeJS Component
-			this.pose.setOffset(l.rotation, l.position, l.scale);
-			if (!tpose) this.tpose.setOffset(l.rotation, l.position, l.scale);
+			this.pose.setOffset(l.quaternion, l.position, l.scale);
+			if (!tpose) this.tpose.setOffset(l.quaternion, l.position, l.scale);
 		}
 
 		//-----------------------------------------
@@ -58,9 +57,6 @@ class IKRig extends Component<IKRig>{
 		}
 
 		return this;
-	}
-	entity_id(entity_id: any) {
-		throw new Error("Method not implemented.");
 	}
 
 	add_point(name, b_name) {
@@ -92,6 +88,8 @@ class IKRig extends Component<IKRig>{
 	set_leg_lmt(length = null, offset = 0) {
 		if (!length) {
 			const hip = this.tpose.bones[this.points.hip.index];
+			console.log("hip world is");
+			console.log(hip.world);
 			this.leg_len_lmt = hip.world.position.y + offset;
 		} else {
 			this.leg_len_lmt = length + offset;
@@ -156,10 +154,10 @@ class Chain {
 		//this.align_axis	= axis;			// Chain is aligned to which axis
 		this.end_idx = null;			// Joint that Marks the true end of the chain
 
-		//this.alt_dir 	= Vec3.FORWARD.clone();
+		//this.alt_dir 	= FORWARD.clone();
 
-		this.alt_fwd = Vec3.FORWARD.clone();
-		this.alt_up = Vec3.UP.clone();
+		this.alt_fwd = FORWARD.clone();
+		this.alt_up = UP.clone();
 
 		this.ik_solver = null;
 	}
@@ -183,7 +181,7 @@ class Chain {
 	//set_alt_dir( dir, tpose=null, index=0 ){
 	//if( tpose ){
 	//	let b = tpose.bones[ this.bones[ index ].index ],
-	//		q = Quat.invert( b.world.rotation );	// Invert World Space Rotation 
+	//		q = Quat.invert( b.world.quaternion );	// Invert World Space Rotation 
 	//	this.alt_dir.fromQuaternion( q, dir );	// Use invert to get direction that will Recreate the real direction
 	//}else this.alt_dir.copy( v );
 
@@ -193,10 +191,10 @@ class Chain {
 	set_alt(fwd, up, tpose = null) {
 		if (tpose) {
 			const b = tpose.bones[this.bones[0].index],
-				q = Quat.invert(b.world.rotation);	// Invert World Space Rotation 
+				q = b.world.quaternion.invert();	// Invert World Space Rotation 
 
-			this.alt_fwd.fromQuaternion(q, fwd);	// Use invert to get direction that will Recreate the real direction
-			this.alt_up.fromQuaternion(q, up);
+			this.alt_fwd = q.applyQuaternion(fwd);	// Use invert to get direction that will Recreate the real direction
+			this.alt_up = q.applyQuaternion(up);
 		} else {
 			this.alt_fwd.copy(fwd);
 			this.alt_up.copy(up);
@@ -215,8 +213,8 @@ class Chain {
 		// Loop Every Bone Except Last one
 		for (i = 0; i < end; i++) {
 			b = bones[this.bones[i].index];
-			b.length = Vec3.magnitude(
-				bones[this.bones[i + 1].index].world.position,
+			b.length =
+				bones[this.bones[i + 1].index].world.position.distance(
 				bones[this.bones[i].index].world.position
 			);
 
@@ -227,8 +225,8 @@ class Chain {
 		// If End Point exists, Can calculate the final bone's length
 		if (this.end_idx != null) {
 			b = bones[this.bones[i].index];
-			b.length = Vec3.magnitude(
-				bones[this.end_idx].world.position,
+			b.length = 
+				bones[this.end_idx].world.position.distance(
 				bones[this.bones[i].index].world.position
 			);
 			sum += b.length;
@@ -267,15 +265,15 @@ function init_mixamo_rig(arm, rig) {
 		;
 
 	// Set Direction of Joints on th Limbs
-	//rig.chains.leg_l.set_alt_dir( Vec3.FORWARD, rig.tpose );
-	//rig.chains.leg_r.set_alt_dir( Vec3.FORWARD, rig.tpose );
+	//rig.chains.leg_l.set_alt_dir( FORWARD, rig.tpose );
+	//rig.chains.leg_r.set_alt_dir( FORWARD, rig.tpose );
 	//rig.chains.arm_r.set_alt_dir( Vec3.BACK, rig.tpose );
 	//rig.chains.arm_l.set_alt_dir( Vec3.BACK, rig.tpose );
 
-	rig.chains.leg_l.set_alt(Vec3.DOWN, Vec3.FORWARD, rig.tpose);
-	rig.chains.leg_r.set_alt(Vec3.DOWN, Vec3.FORWARD, rig.tpose);
-	rig.chains.arm_r.set_alt(Vec3.RIGHT, Vec3.BACK, rig.tpose);
-	rig.chains.arm_l.set_alt(Vec3.LEFT, Vec3.BACK, rig.tpose);
+	rig.chains.leg_l.set_alt(DOWN, FORWARD, rig.tpose);
+	rig.chains.leg_r.set_alt(DOWN, FORWARD, rig.tpose);
+	rig.chains.arm_r.set_alt(RIGHT, BACK, rig.tpose);
+	rig.chains.arm_l.set_alt(LEFT, BACK, rig.tpose);
 }
 
 

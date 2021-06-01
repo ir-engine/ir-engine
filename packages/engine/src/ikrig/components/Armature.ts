@@ -1,10 +1,9 @@
-import Transform from "../math/Transform";
-import Pose from "../classes/Pose";
 import { Bone, Skeleton } from "three";
 import { Component } from "../../ecs/classes/Component";
 import { addComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
+import Pose from "../classes/Pose";
+import Transform from "../math/Transform";
 import Obj from "./Obj";
-import { Engine } from "../../ecs/classes/Engine";
 class Armature extends Component<Armature> {
 	updated = true;
 	skeleton: any = null;
@@ -13,12 +12,12 @@ class Armature extends Component<Armature> {
 
 	// Bones must be inserted in the order they will be used in a skinned shader.
 	// Must keep the bone index and parent index correctly.
-	addBone(name, length = 1, p_idx = null) {
+	addBone(name, length = 1, parentIndex = null) {
 		const b = {
 			ref: new Bone(),
 			name: name,					// Bone Name
 			index: this.bones.length,	// Bone Index
-			p_idx: p_idx,				// Parent Bone Index
+			parentIndex: parentIndex,				// Parent Bone Index
 			length: length,					// Length of the Bones
 			local: new Transform(),		// Local Space Bind Transform
 			world: new Transform(),		// World Space Bind Transform
@@ -29,13 +28,13 @@ class Armature extends Component<Armature> {
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Set Bone as a child of another
-		if (p_idx != null && this.bones[p_idx]) {
-			const p = this.bones[p_idx];
+		if (parentIndex != null && this.bones[parentIndex]) {
+			const p = this.bones[parentIndex];
 
 			p.ref.add(b.ref);						// Make Bone a child 
 			if (p.length) b.ref.position.y = p.length;	// Move bone to parent's tail location
 		} else {
-			b.p_idx = null;
+			b.parentIndex = null;
 		}
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -48,16 +47,18 @@ class Armature extends Component<Armature> {
 	computeBindPose() {
 		let b, p;
 		for (b of this.bones) {
+			console.log("b.local is");
+			console.log(b.local);
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Copy current local space transform of the bone
-			b.local.rotation.fromStruct(b.ref.quaternion);
-			b.local.position.fromStruct(b.ref.position);
-			b.local.scale.fromStruct(b.ref.scale);
+			b.local.quaternion.copy(b.ref.quaternion);
+			b.local.position.copy(b.ref.position);
+			b.local.scale.copy(b.ref.scale);
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Compute its world space transform based on parent's ws transform.
-			if (b.p_idx != null) {
-				p = this.bones[b.p_idx];
+			if (b.parentIndex != null) {
+				p = this.bones[b.parentIndex];
 				b.world.setFromAdd(p.world, b.local);
 			} else b.world.copy(b.local);
 		}
@@ -126,7 +127,7 @@ class Armature extends Component<Armature> {
 			// Copy changes to Bone Entity
 			o = this.bones[i].ref;
 
-			if (pb.chg_state & Pose.ROTATION) o.quaternion.fromArray(pb.local.rotation);
+			if (pb.chg_state & Pose.ROTATION) o.quaternion.fromArray(pb.local.quaternion);
 			if (pb.chg_state & Pose.POSITION) o.position.fromArray(pb.local.position);
 			if (pb.chg_state & Pose.SCALE) o.scale.fromArray(pb.local.scale);
 

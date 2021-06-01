@@ -13,8 +13,7 @@ export interface LoadGLTFResultInterface {
 }
 
 const loader = new GLTFLoader();
-let dracoLoader = null;
-dracoLoader = new DRACOLoader();
+const dracoLoader = new DRACOLoader();
 
 if(isClient) {
     dracoLoader.setDecoderPath('/loader_decoders/');

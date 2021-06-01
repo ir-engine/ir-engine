@@ -26,7 +26,7 @@ class PoseAnimator {
 
 			switch (track.type) {
 				// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-				case "rotation":
+				case "quaternion":
 					switch (track.interp) {
 						case "STEP": AnimUtil.QuatBufferCopy(track.data, q, ft.a_idx * 4); break;
 						default: AnimUtil.QuatBufferBlend(track.data, ft.a_idx * 4, ft.b_idx * 4, ft.time, q); break;

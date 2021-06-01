@@ -17,7 +17,6 @@ export const RouterComp = () => {
             <Route path="/examples/helloworld" component={React.lazy(() => import('../pages/examples/ecs_helloworld'))} />
             <Route path="/examples/ikrig" component={React.lazy(() => import('../pages/examples/ikrig'))} />
 
-
             {/* Auth Routes */}
             <Route path="/auth/oauth/facebook" component={React.lazy(() => import('../pages/auth/oauth/facebook'))} />
             <Route path="/auth/oauth/github" component={React.lazy(() => import('../pages/auth/oauth/github'))} />

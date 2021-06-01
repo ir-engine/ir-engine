@@ -1,5 +1,5 @@
-import Vec3 from "./Vec3";
-import Quat from "./Quat";
+import { Vector3 } from "three";
+import { LEFT, UP, FORWARD } from "./Vector3Constants";
 
 /*
 3x3 Rotation Matrix
@@ -13,13 +13,13 @@ up		(3,4,5)
 forward	(6,7,9)
 */
 class Axis{
-	x: Vec3;
-	y: Vec3;
-	z: Vec3;
+	x: Vector3;
+	y: Vector3;
+	z: Vector3;
 	constructor(){
-		this.x = new Vec3( Vec3.LEFT );
-		this.y = new Vec3( Vec3.UP );
-		this.z = new Vec3( Vec3.FORWARD );
+		this.x = new Vector3( LEFT.x, LEFT.y, LEFT.z );
+		this.y = new Vector3( UP.x, UP.y, UP.z );
+		this.z = new Vector3( FORWARD.x, FORWARD.y, FORWARD.z );
 	}
 		//Passing in Vectors.
 		set( x, y, z, do_norm = false ){
@@ -59,8 +59,8 @@ class Axis{
 
 		fromDirection( fwd, up ){
 			this.z.copy( fwd ).normalize();
-			this.x.setFromCross( up, this.z ).normalize();
-			this.y.setFromCross( this.z, this.x ).normalize();			
+			this.x = up.cross( this.z ).normalize();
+			this.y = this.z.cross( this.x ).normalize();			
 			return this;
 		}
 
