@@ -6,7 +6,7 @@ import { Closed } from "./gameDefault/components/ClosedTagComponent";
 import { ButtonUp } from "./gameDefault/components/ButtonUpTagComponent";
 import { ButtonDown } from "./gameDefault/components/ButtonDownTagComponent";
 // game Action Tag Component
-import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
+import { HasHadInteraction } from "../../game/actions/HasHadInteraction";
 // game behavior
 //import { upDownButton } from "./gameDefault/behaviors/upDownButton";
 //import { giveOpenOrCloseState, doorOpeningOrClosing } from "./gameDefault/behaviors/openOrCloseDoor";
@@ -22,7 +22,7 @@ export const DefaultGameMode: GameMode = {
   name: "Default",
   priority: 0,
   registerActionTagComponents: [
-    HaveBeenInteracted
+    HasHadInteraction
   ],
   registerStateTagComponents: [
     Open,
@@ -67,7 +67,7 @@ export const DefaultGameMode: GameMode = {
         {
           behavior: giveOpenOrCloseState,
           args: { on: 'target'},
-          watchers:[ [ HaveBeenInteracted ] ],
+          watchers:[ [ HasHadInteraction ] ],
           checkers:[{
             function: ifNamed,
             args: { on: 'me', name: 'button 1' }
@@ -88,7 +88,7 @@ export const DefaultGameMode: GameMode = {
         {
           behavior: giveOpenOrCloseState,
           args: { on: 'target'},
-          watchers:[ [ HaveBeenInteracted ] ],
+          watchers:[ [ HasHadInteraction ] ],
           checkers:[{
             function: ifNamed,
             args: { on: 'me', name: 'button 2' }
@@ -111,7 +111,7 @@ export const DefaultGameMode: GameMode = {
         {
           behavior: upDownButton,
           args:{ action: 'down', animationSpeed: 3 },
-          watchers:[ [ HaveBeenInteracted, ButtonUp ] ],
+          watchers:[ [ HasHadInteraction, ButtonUp ] ],
           checkers:[{
             function: ifNamed,
             args: { on: 'me', name: 'button 1' }
@@ -120,7 +120,7 @@ export const DefaultGameMode: GameMode = {
         {
           behavior: upDownButton,
           args:{ action: 'up', animationSpeed: 3 },
-          watchers:[ [ HaveBeenInteracted, ButtonDown ] ],
+          watchers:[ [ HasHadInteraction, ButtonDown ] ],
           checkers:[{
             function: ifNamed,
             args: { on: 'me', name: 'button 1' }
@@ -129,7 +129,7 @@ export const DefaultGameMode: GameMode = {
         {
           behavior: upDownButton,
           args:{ action: 'down', animationSpeed: 3 },
-          watchers:[ [ HaveBeenInteracted, ButtonUp ] ],
+          watchers:[ [ HasHadInteraction, ButtonUp ] ],
           checkers:[{
             function: ifNamed,
             args: { on: 'me', name: 'button 2' }
@@ -138,7 +138,7 @@ export const DefaultGameMode: GameMode = {
         {
           behavior: upDownButton,
           args:{ action: 'up', animationSpeed: 3 },
-          watchers:[ [ HaveBeenInteracted, ButtonDown ] ],
+          watchers:[ [ HasHadInteraction, ButtonDown ] ],
           checkers:[{
             function: ifNamed,
             args: { on: 'me', name: 'button 2' }
@@ -173,7 +173,7 @@ export const DefaultGameMode: GameMode = {
         {
           behavior: giveOpenOrCloseState,
           args: { on: 'me'},
-          watchers:[ [ HaveBeenInteracted ] ]
+          watchers:[ [ HasHadInteraction ] ]
         }
       ],
       'moveDoor': [

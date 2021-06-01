@@ -14,7 +14,7 @@ import { FollowCameraComponent } from '../components/FollowCameraComponent';
 import { CameraModes } from "../types/CameraModes";
 import { Entity } from "../../ecs/classes/Entity";
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
-import { SceneQueryType } from "three-physx";
+import { RaycastQuery, SceneQueryType } from "three-physx";
 import { Not } from "../../ecs/functions/ComponentFunctions";
 import { Input } from "../../input/components/Input";
 import { BaseInput } from "../../input/enums/BaseInput";
@@ -62,13 +62,13 @@ export class CameraSystem extends System {
 
     this.queryResults.followCameraComponent.added?.forEach(entity => {
       const cameraFollow = getMutableComponent(entity, FollowCameraComponent);
-      cameraFollow.raycastQuery = PhysicsSystem.instance.addRaycastQuery({ 
+      cameraFollow.raycastQuery = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({ 
         type: SceneQueryType.Closest,
         origin: new Vector3(),
         direction: new Vector3(0, -1, 0),
         maxDistance: 10,
         collisionMask: cameraFollow.collisionMask,
-      });
+      }));
       const activeCameraComponent = getMutableComponent(CameraSystem.instance.activeCamera, CameraComponent);
       activeCameraComponent.followTarget = entity;
 
@@ -138,9 +138,9 @@ export class CameraSystem extends System {
 
       // Raycast for camera
       const cameraTransform: TransformComponent = getMutableComponent(CameraSystem.instance.activeCamera, TransformComponent)
-      vec3.subVectors(cameraTransform.position, targetPosition).normalize();
-      (followCamera.raycastQuery.origin as Vector3).copy(targetPosition);
-      (followCamera.raycastQuery.direction as Vector3).copy(vec3);
+      const raycastDirection = new Vector3().subVectors(cameraTransform.position, targetPosition).normalize();
+      followCamera.raycastQuery.origin.copy(targetPosition);
+      followCamera.raycastQuery.direction.copy(raycastDirection);
       
       const closestHit = followCamera.raycastQuery.hits[0];
       followCamera.rayHasHit = typeof closestHit !== 'undefined';

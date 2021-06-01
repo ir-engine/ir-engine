@@ -251,7 +251,7 @@ export function createNetworkVehicle( args:{ parameters?: any, networkId?: strin
     }
   });
   if (!isClient) {
-    Network.instance.createObjects.push({
+    Network.instance.worldState.createObjects.push({
         networkId: networkComponent.networkId,
         ownerId: networkComponent.ownerId,
         prefabType: PrefabType.Vehicle,

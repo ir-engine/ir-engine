@@ -1,5 +1,5 @@
 import { Group, Mesh, Vector3 } from 'three';
-import { Body, SceneQuery } from 'three-physx';
+import { Body, RaycastQuery } from 'three-physx';
 import { Component } from '../../../../ecs/classes/Component';
 import { Types } from '../../../../ecs/types/Types';
 
@@ -10,8 +10,9 @@ export class GolfClubComponent extends Component<GolfClubComponent> {
   handleObject: Mesh;
   headGroup: Group;
   meshGroup: Group;
-  raycast: SceneQuery;
+  raycast: RaycastQuery;
   canHitBall: boolean;
+  hasHitBall: boolean;
   body: Body;
   velocityPositionsToCalculate = 4;
   lastPositions: Vector3[] = [];

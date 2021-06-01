@@ -2,7 +2,7 @@ import { Not } from '../../ecs/functions/ComponentFunctions';
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { System, SystemAttributes } from '../../ecs/classes/System';
-import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
 import { Network } from '../../networking/classes/Network';
@@ -13,18 +13,17 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { ColliderComponent } from '../components/ColliderComponent';
 import { InterpolationComponent } from "../components/InterpolationComponent";
 import { isClient } from '../../common/functions/isClient';
-import { BodyType, ColliderHitEvent, CollisionEvents, PhysXConfig, PhysXInstance } from "three-physx";
+import { BodyType, PhysXConfig, PhysXInstance } from "three-physx";
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
 import { UserControlledColliderComponent } from '../components/UserControllerObjectComponent';
-import { HasHadCollision } from "../../game/actions/HasHadCollision";
-import { GameObject } from "../../game/components/GameObject";
-import { addActionComponent } from '../../game/functions/functionsActions';
 import { Vector3 } from 'three';
 
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
  */
+
+const vec3 = new Vector3();
 
 
 export class PhysicsSystem extends System {
@@ -81,54 +80,22 @@ export class PhysicsSystem extends System {
   }
 
   execute(delta: number): void {
-    this.queryResults.collider.added?.forEach(entity => {
-      const collider = getComponent(entity, ColliderComponent);
-      collider.body.addEventListener(CollisionEvents.COLLISION_START, (ev: ColliderHitEvent) => {
-        collider.collisions.push(ev);
-      })
-      collider.body.addEventListener(CollisionEvents.COLLISION_PERSIST, (ev: ColliderHitEvent) => {
-        collider.collisions.push(ev);
-      })
-      collider.body.addEventListener(CollisionEvents.COLLISION_END, (ev: ColliderHitEvent) => {
-        collider.collisions.push(ev);
-      })
-      collider.body.addEventListener(CollisionEvents.TRIGGER_START, (ev: ColliderHitEvent) => {
-        collider.collisions.push(ev);
-      })
-      collider.body.addEventListener(CollisionEvents.TRIGGER_PERSIST, (ev: ColliderHitEvent) => {
-        collider.collisions.push(ev);
-      })
-      collider.body.addEventListener(CollisionEvents.TRIGGER_END, (ev: ColliderHitEvent) => {
-        collider.collisions.push(ev);
-      })
-    });
 
     this.queryResults.collider.all?.forEach(entity => {
       const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
-      // iterate on all collisions since the last update
-      collider.collisions.forEach((event) => {
-
-
-        if (hasComponent(entity, GameObject)) {
-          //  const { type, bodySelf, bodyOther, shapeSelf, shapeOther } = event;
-          //  isClient ? console.warn(type, bodySelf, bodyOther, shapeSelf, shapeOther):'';
-          addActionComponent(entity, HasHadCollision);
-          //    console.warn(event, entity);
-        }
-        // TODO: figure out how we expose specific behaviors like this
-      })
-      collider.collisions = []; // clear for next loop
-
-
       const transform = getComponent(entity, TransformComponent);
       if (collider.body.type === BodyType.KINEMATIC) {
+        collider.velocity.subVectors(collider.body.transform.translation, transform.position);
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation });
       } else {
+        collider.velocity.subVectors(transform.position, collider.body.transform.translation);
+        
         transform.position.set(
           collider.body.transform.translation.x,
           collider.body.transform.translation.y,
           collider.body.transform.translation.z
         );
+          
         collider.position.copy(transform.position)
         transform.rotation.set(
           collider.body.transform.rotation.x,
@@ -148,7 +115,7 @@ export class PhysicsSystem extends System {
     });
 
     if (isClient) {
-      if (!Network.instance.snapshot) return;
+      if (!Network.instance?.snapshot) return;
       // Interpolate between the current client's data with what the server has sent via snapshots
       const snapshots = {
         interpolation: calculateInterpolation('x y z quat velocity'),
@@ -197,6 +164,7 @@ export class PhysicsSystem extends System {
         const collider = getMutableComponent(entity, ColliderComponent)
         // dynamic objects should be interpolated, kinematic objects should not
         if (collider && collider.body.type !== BodyType.KINEMATIC) {
+         collider.velocity.subVectors(collider.body.transform.translation, vec3.set(snapshot.x, snapshot.y, snapshot.z));
           collider.body.updateTransform({
             translation: {
               x: snapshot.x,

@@ -51,31 +51,16 @@ export class Network {
   schema: NetworkSchema
   /** Clients connected over this network. */
   clients: NetworkClientList = {}
-  /** Newly connected clients over this network in this frame. */
-  clientsConnected = []
-  /** Disconnected client in this frame. */
-  clientsDisconnected = []
   /** List of data producer nodes. */
   dataProducers = new Map<string, any>()
   /** List of data consumer nodes. */
   dataConsumers = new Map<string, any>()
 
-  /** Current game state */
-  gameState: GameStateUpdateMessage[] = []
   clientGameAction: ClientGameActionMessage[] = []
 
   /** Game mode mapping schema */
   loadedGames: Entity[] = []; // its for network
 
-  /** Game actions that happened this frame */
-  gameStateActions: GameStateActionMessage[] = []
-
-  /** Newly created Network Objects in this frame. */
-  createObjects = []
-  /** Destroyed Network Objects in this frame. */
-  editObjects = []
-  /** Destroyed Network Objects in this frame. */
-  destroyObjects = []
   /** Map of Network Objects. */
   networkObjects: NetworkObjectList = {}
   localClientEntity: Entity = null

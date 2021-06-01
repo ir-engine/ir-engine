@@ -25,7 +25,7 @@ import { InteractiveFocused } from "../components/InteractiveFocused";
 import { Interactor } from "../components/Interactor";
 import { SubFocused } from "../components/SubFocused";
 import { InteractBehaviorArguments } from "../types/InteractionTypes";
-import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
+import { HasHadInteraction } from "../../game/actions/HasHadInteraction";
 import { addActionComponent } from '../../game/functions/functionsActions';
 import { EquipperComponent } from "../components/EquipperComponent";
 import { EquippedStateUpdateSchema } from "../enums/EquippedEnums";
@@ -89,7 +89,7 @@ export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityV
     const interactionCheck = interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2]);
 
     if (interactable.data.interactionType === "gameobject") {
-      addActionComponent(focusedArrays[0][0], HaveBeenInteracted, { args, entityNetworkId: getComponent(entity, NetworkObject).networkId });
+      addActionComponent(focusedArrays[0][0], HasHadInteraction, { args, entityNetworkId: getComponent(entity, NetworkObject).networkId });
       return;
     }
     // Not Game Object

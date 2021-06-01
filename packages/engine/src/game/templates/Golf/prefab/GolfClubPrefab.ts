@@ -9,7 +9,7 @@ import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants';
 import { UserControlledColliderComponent } from '../../../../physics/components/UserControllerObjectComponent';
 import { BoxBufferGeometry, DoubleSide, Group, Material, Mesh, MeshStandardMaterial, Quaternion, Vector3 } from 'three';
 import { Engine } from '../../../../ecs/classes/Engine';
-import { Body, BodyType, ColliderHitEvent, CollisionEvents, createShapeFromConfig, SceneQueryType, SHAPES, Transform } from 'three-physx';
+import { Body, BodyType, ColliderHitEvent, CollisionEvents, createShapeFromConfig, RaycastQuery, SceneQueryType, SHAPES, Transform } from 'three-physx';
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent';
@@ -26,6 +26,7 @@ import { getHandTransform } from '../../../../xr/functions/WebXRFunctions';
 import { CharacterComponent } from '../../../../character/components/CharacterComponent';
 import { setupSceneObjects } from '../../../../scene/functions/setupSceneObjects';
 import { DebugArrowComponent } from '../../../../debug/DebugArrowComponent';
+import { GameObjectInteractionBehavior } from '../../../interfaces/GameObjectPrefab';
 
 const vector0 = new Vector3();
 const vector1 = new Vector3();
@@ -95,6 +96,7 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   // only need to update club if it's our own
   // TODO: remove this when we have IK rig in and can get the right hand pos data
   // if(getComponent(entityClub, UserControlledColliderComponent).ownerNetworkId !== Network.instance.localAvatarNetworkId) return;
+  const isMyBall = getComponent(entityClub, UserControlledColliderComponent).ownerNetworkId === Network.instance.localAvatarNetworkId;
 
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
   const transformClub = getMutableComponent(entityClub, TransformComponent);
@@ -108,9 +110,8 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   transformClub.position.copy(position);
   transformClub.rotation.copy(rotation);
 
-  // TODO: fix three-physx internally to clone given vector instead of reference, keep this for now
-  (golfClubComponent.raycast.origin as Vector3).copy(position);
-  (golfClubComponent.raycast.direction as Vector3).set(0, 0, -1).applyQuaternion(rotation);
+  golfClubComponent.raycast.origin.copy(position);
+  golfClubComponent.raycast.direction.set(0, 0, -1).applyQuaternion(rotation);
 
   // find the rotation along the XZ plane the hand is pointing
   quat2.setFromUnitVectors(
@@ -119,8 +120,9 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   );
 
   const hit = golfClubComponent.raycast.hits[0];
-  const canHitBall = typeof hit !== 'undefined';
-  if(canHitBall !== golfClubComponent.canHitBall) {
+
+  const canHitBall = isMyBall && typeof hit !== 'undefined';
+  if(!golfClubComponent.hasHitBall && canHitBall !== golfClubComponent.canHitBall) {
     enableClub(entityClub, canHitBall);
   }
   const headDistance = (hit ? hit.distance : clubLength);
@@ -176,6 +178,59 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   }
 }
 
+// https://github.com/PersoSirEduard/OculusQuest-Godot-MiniGolfGame/blob/master/Scripts/GolfClub/GolfClub.gd#L18
+
+export const onClubColliderWithBall: GameObjectInteractionBehavior = (entityClub: Entity, delta: number, args: { hitEvent: ColliderHitEvent }, entityBall: Entity) => {
+  if(!isClient) return;
+  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
+  if(!golfClubComponent.canHitBall || golfClubComponent.hasHitBall) return;
+  console.log('onClubColliderWithBall')
+  // force is in kg, we need it in grams, so x1000
+  const velocityMultiplier = clubPowerMultiplier * 1000;
+
+  // TODO: fix this - use normal and velocity magnitude to determine hits
+  /*
+  // get velocity in local space
+  golfClubComponent.headGroup.getWorldQuaternion(quat).invert()
+  vector0.copy(golfClubComponent.velocity).setY(0).applyQuaternion(quat);
+  const clubMoveDirection = Math.sign(vector0.x);
+  // club normal following whichever direction it's moving
+  golfClubComponent.headGroup.getWorldDirection(vec3).setY(0).applyAxisAngle(upVector, clubMoveDirection * HALF_PI);
+  // get the angle of incidence which is the angle from the normal to the angle of the velocity
+  const angleOfIncidence = vector1.copy(vec3).applyQuaternion(quat).angleTo(vector0) * -Math.sign(vector0.z);
+  // take the angle of incidence, and get the same angle on the other side of the normal, the angle of reflection
+  vec3.applyAxisAngle(upVector, clubMoveDirection * angleOfIncidence).normalize().multiplyScalar(golfClubComponent.velocity.length());
+*/
+
+  vector0.copy(golfClubComponent.velocity).multiplyScalar(hitAdvanceFactor).multiplyScalar(0.3);
+  // vector0.copy(vec3).multiplyScalar(hitAdvanceFactor);
+  // lock to XZ plane if we disable chip shots
+  if(!golfClubComponent.canDoChipShots) {
+    vector0.y = 0;
+  }
+  // teleport ball in front of club a little bit
+  args.hitEvent.bodyOther.updateTransform({
+    translation: {
+      x: args.hitEvent.bodyOther.transform.translation.x + vector0.x,
+      y: args.hitEvent.bodyOther.transform.translation.y + vector0.y,
+      z: args.hitEvent.bodyOther.transform.translation.z + vector0.z,
+    }
+  });
+  vector1.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier).multiplyScalar(0.3);
+  // vector1.copy(vec3).multiplyScalar(velocityMultiplier);
+  if(!golfClubComponent.canDoChipShots) {
+    vector1.y = 0;
+  }
+  args.hitEvent.bodyOther.addForce(vector1);
+  golfClubComponent.hasHitBall = true;
+  enableClub(entityClub, false);
+  // TODO: replace this with game states
+  setTimeout(() => {
+    golfClubComponent.hasHitBall = false;
+  }, 3000)
+  return;
+}
+
 /**
 * @author Josh Field <github.com/HexaField>
  */
@@ -191,31 +246,28 @@ const hitAdvanceFactor = 1.2;
 const upVector = new Vector3(0, 1, 0);
 const HALF_PI = Math.PI / 2;
 
-export const initializeGolfClub = (entity: Entity) => {
+export const initializeGolfClub = (entityClub: Entity) => {
 
-  const transform = getComponent(entity, TransformComponent);
+  const transform = getComponent(entityClub, TransformComponent);
 
-  const networkObject = getComponent(entity, NetworkObject);
+  const networkObject = getComponent(entityClub, NetworkObject);
   const ownerNetworkObject = Object.values(Network.instance.networkObjects).find((obj) => {
       return obj.ownerId === networkObject.ownerId;
   }).component;
-  addComponent(entity, UserControlledColliderComponent, { ownerNetworkId: ownerNetworkObject.networkId });
+  addComponent(entityClub, UserControlledColliderComponent, { ownerNetworkId: ownerNetworkObject.networkId });
 
-  const golfClubComponent = getMutableComponent(entity, GolfClubComponent);
+  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
 
   // only raycast if it's our own club
   // TODO: remove this when we have IK rig in and can get the right hand pos data
   // if(ownerNetworkObject.networkId === Network.instance.localAvatarNetworkId) {
-    golfClubComponent.raycast = PhysicsSystem.instance.addRaycastQuery({
+    golfClubComponent.raycast = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({
       type: SceneQueryType.Closest,
       origin: new Vector3(),
       direction: new Vector3(0, -1, 0),
       maxDistance: clubLength,
       collisionMask: CollisionGroups.Default | CollisionGroups.Ground,
-    });
-    // manually do this until three-physx is fixed
-    golfClubComponent.raycast.origin = new Vector3();
-    golfClubComponent.raycast.direction = new Vector3();
+    }));
   // }
 
   if(isClient) {
@@ -238,8 +290,7 @@ export const initializeGolfClub = (entity: Entity) => {
 
     setupSceneObjects(meshGroup);
 
-    addComponent(entity, Object3DComponent, { value: meshGroup });
-    Engine.scene.add(meshGroup);
+    addComponent(entityClub, Object3DComponent, { value: meshGroup });
   }
 
   const shapeHead = createShapeFromConfig({
@@ -260,7 +311,7 @@ export const initializeGolfClub = (entity: Entity) => {
     }
   }));
 
-  const collider = getMutableComponent(entity, ColliderComponent);
+  const collider = getMutableComponent(entityClub, ColliderComponent);
   collider.body = body;
   golfClubComponent.body = body;
 
@@ -268,58 +319,10 @@ export const initializeGolfClub = (entity: Entity) => {
     golfClubComponent.lastPositions[i] = new Vector3();
   }
   golfClubComponent.velocity = new Vector3();
-  addComponent(entity, DebugArrowComponent)
-  // https://github.com/PersoSirEduard/OculusQuest-Godot-MiniGolfGame/blob/master/Scripts/GolfClub/GolfClub.gd#L18
-
-  let hasBeenHit = false
-  // temporary, once it's all working this will be a game mode behavior
-  body.addEventListener(CollisionEvents.TRIGGER_START, (ev: ColliderHitEvent) => {
-    if(!golfClubComponent.canHitBall) return;
-    const otherEntity = ev.bodyOther.userData as Entity;
-    if(typeof otherEntity === 'undefined') return
-    const ballObject = getComponent<GameObject>(otherEntity, GameObject)
-    if(!ballObject || ballObject.role !== 'GolfBall') return;
-    if(hasBeenHit) return;
-    // this is to ensure we dont have mutliple hits in a single swing, when we have 'turns' set up this can be removed
-    hasBeenHit = true;
-    setTimeout(() => {
-      hasBeenHit = false
-    }, 500);
-    // force is in kg, we need it in grams, so x1000
-    const velocityMultiplier = clubPowerMultiplier * 1000;
-
-    // get velocity in local space
-    golfClubComponent.headGroup.getWorldQuaternion(quat).invert()
-    vector0.copy(golfClubComponent.velocity).setY(0).applyQuaternion(quat);
-    const clubMoveDirection = Math.sign(vector0.x);
-    // club normal following whichever direction it's moving
-    golfClubComponent.headGroup.getWorldDirection(vec3).setY(0).applyAxisAngle(upVector, clubMoveDirection * HALF_PI);
-    // get the angle of incidence which is the angle from the normal to the angle of the velocity
-    const angleOfIncidence = vector1.copy(vec3).applyQuaternion(quat).angleTo(vector0) * -Math.sign(vector0.z);
-    // take the angle of incidence, and get the same angle on the other side of the normal, the angle of reflection
-    vec3.applyAxisAngle(upVector, clubMoveDirection * angleOfIncidence).normalize().multiplyScalar(golfClubComponent.velocity.length());
-
-    // vector0.copy(golfClubComponent.velocity).multiplyScalar(hitAdvanceFactor);
-    vector0.copy(vec3).multiplyScalar(hitAdvanceFactor);
-    // lock to XZ plane if we disable chip shots
-    if(!golfClubComponent.canDoChipShots) {
-      vector0.y = 0;
-    }
-    // teleport ball in front of club a little bit
-    (ev.bodyOther as any).updateTransform({
-      translation: {
-        x: ev.bodyOther.transform.translation.x + vector0.x,
-        y: ev.bodyOther.transform.translation.y + vector0.y,
-        z: ev.bodyOther.transform.translation.z + vector0.z,
-      }
-    });
-    // vector1.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier);
-    vector1.copy(vec3).multiplyScalar(velocityMultiplier);
-    if(!golfClubComponent.canDoChipShots) {
-      vector1.y = 0;
-    }
-    (ev.bodyOther as any).addForce(vector1);
-  })
+  addComponent(entityClub, DebugArrowComponent)
+ 
+  const gameObject = getComponent(entityClub, GameObject);
+  gameObject.collisionBehaviors['GolfBall'] = onClubColliderWithBall;
 }
 
 export const createGolfClubPrefab = ( args:{ parameters?: any, networkId?: number, uniqueId: string, ownerId?: string }) => {
