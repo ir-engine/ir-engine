@@ -9,12 +9,23 @@ import { TransformComponent } from '../../../../transform/components/TransformCo
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
 import { GolfCollisionGroups } from '../GolfGameConstants';
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent';
-import { teleportObject } from './teleportObject';
-import { GameObjectInteractionBehavior } from '../../../interfaces/GameObjectPrefab';
+import { getGame } from '../../../functions/functions';
 
-export const onCollideWithBall = (entity: Entity, delta: number, args: { hitEvent: ColliderHitEvent }, entityOther: Entity): GameObjectInteractionBehavior => {
-  teleportObject(entityOther);
-  console.log('onCollideWithBall')
+export const onHoleCollideWithBall = (entityHole: Entity, delta: number, args: { hitEvent: ColliderHitEvent }, entityBall: Entity) => {
+  
+  const game = getGame(entityHole);
+  const teeEntity = game.gameObjects['GolfTee'][0];
+  const teeTransform = getComponent(teeEntity, TransformComponent);
+  const collider = getComponent(entityBall, ColliderComponent)
+
+  collider.body.updateTransform({
+    translation: {
+      x: teeTransform.position.x,
+      y: teeTransform.position.y,
+      z: teeTransform.position.z
+    },
+    rotation: {}
+  })
   return;
 }
 
@@ -60,6 +71,6 @@ export const addHole: Behavior = (entity: Entity, args?: any, delta?: number, en
   getComponent(entity, Object3DComponent)?.value?.traverse(obj => obj.visible = false)
 
   const gameObject = getComponent(entity, GameObject)
-  gameObject.collisionBehaviors['GolfBall'] = onCollideWithBall;
+  gameObject.collisionBehaviors['GolfBall'] = onHoleCollideWithBall;
 
 };

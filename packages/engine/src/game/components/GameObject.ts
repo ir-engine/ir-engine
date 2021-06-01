@@ -8,12 +8,12 @@ export class GameObject extends Component<GameObject> {
   gameName: string
   role: string
   uuid: string
-  collisionBehaviors: GameObjectInteractionSchema
+  collisionBehaviors: GameObjectInteractionSchema = {}
   
   static _schema = {
     gameName: { type: Types.String, default: null },
     role: { type: Types.String, default: null },
     uuid: { type: Types.String, default: null },
-    collisionBehaviors: { type: Types.Ref, default: {} },
+    collisionBehaviors: { type: Types.Ref, default: null },
   }; 
 }
