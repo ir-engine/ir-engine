@@ -19,7 +19,8 @@ import {
   userCreated,
   userPatched,
   userRoleUpdated,
-  searchedUser
+  searchedUser,
+  fetchedSIngleUser
 } from './actions';
 
 import axios from 'axios';
@@ -363,6 +364,18 @@ export const searchUserAction = (data: any, offset: string) => {
     } catch (err){
       console.error(err);
       dispatchAlertError(dispatch, err.message);
+    }
+  };
+};
+
+export const fetchSingleUserAdmin = (id: string) => {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const result = await client.service("user").get(id);
+      dispatch(fetchedSIngleUser(result));
+    } catch(error) {
+      console.error(error);
+      dispatchAlertError(dispatch, error.message);      
     }
   };
 };
