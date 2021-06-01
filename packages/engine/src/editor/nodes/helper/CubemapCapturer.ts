@@ -188,7 +188,7 @@ export default class CubemapCapturer{
 
 		const convertScene = new Scene();
 	
-		var gl = renderer.getContext();
+		const gl = renderer.getContext();
 		const maxSize = gl.getParameter( gl.MAX_CUBE_MAP_TEXTURE_SIZE )
 	
 	
