@@ -112,9 +112,8 @@ export function fetchAdminLocations() {
 export function fetchUsersAsAdmin(offset: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const user = getState().get('auth').get('user');
-    const skip = getState().get('admin').get('users').get('skip');
+    const skip =  getState().get('admin').get('users').get('skip');
     const limit = getState().get('admin').get('users').get('limit');
-
     try {
       if (user.userRole === 'admin') {
         const users = await client.service('user').find({
