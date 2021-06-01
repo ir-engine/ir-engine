@@ -31,7 +31,9 @@ import { isPlayersInGame } from "./gameDefault/checkers/isPlayersInGame";
 import { ifNamed } from "./gameDefault/checkers/ifNamed";
 import { customChecker } from "./gameDefault/checkers/customChecker";
 import { isDifferent } from "./gameDefault/checkers/isDifferent";
+import { doesPlayerHaveGameObject } from "./gameDefault/checkers/doesPlayerHaveGameObject";
 
+// others
 import { grabEquippable } from "../../interaction/functions/grabEquippable";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { disableInteractiveToOthers, disableInteractive } from "./Golf/behaviors/disableInteractiveToOthers";
@@ -44,7 +46,7 @@ import { ColliderComponent } from "../../physics/components/ColliderComponent";
 import { BodyType } from "three-physx";
 import { Euler, Quaternion, Vector3 } from "three";
 import { removeSpawnedObjects } from "../functions/functions";
-import { updateBall } from "./Golf/prefab/GolfBallPrefab";
+import { ifMoved } from "./gameDefault/checkers/ifMoved";
 
 
 
@@ -148,9 +150,9 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   priority: 1,
   onGameLoading: onGolfGameLoading,
   onGameStart: onGolfGameStart,
-  onPlayerLeave: onGolfPlayerLeave, // not disconnected, in future we will allow to Leave game witout disconnect from location
+  onPlayerLeave: onGolfPlayerLeave, // player can leave game without disconnect
   registerActionTagComponents: [], // now auto adding
-  registerStateTagComponents: [], // now auto adding
+  registerStateTagComponents: [],
   initGameState: {
     'newPlayer': {
       behaviors: [addRole, spawnClub]
@@ -162,7 +164,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       behaviors: [initScore]
     },
     'GolfBall': {
-      components: [State.SpawnedObject, State.Active]
+      components: [State.SpawnedObject, State.NotReady, State.Inactive, State.BallMoving]
     },
     'GolfClub': {
       components: [State.SpawnedObject]
@@ -196,6 +198,17 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   gamePlayerRoles: {
     'newPlayer': {},
     '1-Player': {
+      'spawnBall':[
+        {
+          behavior: spawnBall, // GameObjectCollisionTag
+          args: { positionCopyFromRole: 'GolfTee', offsetY: 0.03 },
+          watchers:[ [ State.YourTurn ] ],
+          checkers:[{
+            function: doesPlayerHaveGameObject,
+            args: { on: 'self', objectRoleName: 'GolfBall', invert: true }
+          }]
+        }
+      ],
       'hitBall': [
         {
           behavior: switchState,
@@ -232,33 +245,14 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           }
         },
 */
-        { //doBallNotHiting //GameObjectCollisionTag
-          behavior: switchState,
-          args: { on: 'target', add: State.Inactive, remove: State.Active },
-          watchers:[ [ State.YourTurn ] ],
-          takeEffectOn: {
-            targetsRole: {
-              'GolfBall': {
-                watchers:[ [ State.Active, Action.BallMoving ] ],
-
-
-                /*
-                checkers:[{
-                  function: ifOwned,
-                  args: { on: 'target', name: '1' }
-                }]
-                */
-              }
-            }
-          }
-        },
+        
         {
           behavior: nextTurn, // GameObjectCollisionTag
           watchers:[ [ State.YourTurn ] ],
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {
-                watchers:[ [ State.Inactive, Action.BallStopped ] ],
+                watchers:[ [ State.Inactive, State.BallStopped, State.Ready ] ],
               }
             }
           }
@@ -270,8 +264,39 @@ export const GolfGameMode: GameMode = somePrepareFunction({
     'GolfBall': {
       'update': [
         {
-          behavior: updateBall,
-          args: {},
+          behavior: switchState,
+          args: { on: 'me', remove: State.Active, add: State.Inactive },
+          watchers:[ [ State.Ready ] ],
+          checkers:[{
+            function: ifMoved,
+            args: { on: 'self', max: 0.05 }
+          }]
+        },
+        {
+          behavior: switchState,
+          args: { on: 'me', remove: State.BallStopped, add: State.BallMoving },
+          watchers:[ [ State.Ready ] ],
+          checkers:[{
+            function: ifMoved,
+            args: { on: 'self', max: 0.05 }
+          }]
+        },
+        {
+          behavior: switchState,
+          args: { on: 'me', remove: State.BallMoving, add: State.BallStopped },
+          checkers:[{
+            function: ifMoved,
+            args: { on: 'self', min: 0.005 }
+          }]
+        },
+        {
+          behavior: switchState,
+          args: { on: 'me', remove: State.NotReady, add: State.Ready },
+          watchers:[ [ State.BallStopped ] ],
+          checkers:[{
+            function: ifMoved,
+            args: { on: 'self', min: 0.001 }
+          }]
         }
       ],
     },

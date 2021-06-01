@@ -22,6 +22,7 @@ import { NetworkObject } from '../../../../networking/components/NetworkObject';
 import { Network } from '../../../../networking/classes/Network';
 import { addActionComponent } from '../../../functions/functionsActions';
 import { Action, State } from '../../../types/GameComponents';
+import { addStateComponent } from '../../../functions/functionsState';
 
 /**
 * @author Josh Field <github.com/HexaField>
@@ -53,23 +54,6 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
       }
     })
 }
-
-export const updateBall = (ballEntity: Entity) => {
-  const gameObject = getComponent(ballEntity, GameObject);
-  const collider = getComponent(ballEntity, ColliderComponent);
-  if (collider.velocity.length() > 0.1) {
-    if(hasComponent(ballEntity, State.Active)) {
-      console.warn('actionMoving')
-      addActionComponent(ballEntity, Action.BallMoving);
-    }
-  } else {
-    if(hasComponent(ballEntity, State.Inactive)) { 
-      console.warn('stop')
-      addActionComponent(ballEntity, Action.BallStopped);
-    }
-  }
-}
-
 
 export const initializeGolfBall = (ballEntity: Entity) => {
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);

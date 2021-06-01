@@ -15,22 +15,20 @@ import { YourTurn } from '../templates/Golf/components/YourTurnTagComponent';
 import { Goal } from '../templates/Golf/components/GoalTagComponent';
 import { Active } from "../templates/gameDefault/components/ActiveTagComponent";
 import { Inactive } from "../templates/gameDefault/components/InactiveTagComponent";
+import { Ready } from "../templates/Golf/components/ReadyTagComponent";
+import { NotReady } from "../templates/Golf/components/NotReadyTagComponent";
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 // its for adding new Action in State in One Plase, please don't splite this
 enum gameActions {
     HasHadInteraction = 'HasHadInteraction',
-    GameObjectCollisionTag = 'GameObjectCollisionTag',
-    BallMoving = 'BallMoving',
-    BallStopped = 'BallStopped'
+    GameObjectCollisionTag = 'GameObjectCollisionTag'
 }
 
 export const Action = {
     [gameActions.HasHadInteraction]: HasHadInteraction,
-    [gameActions.GameObjectCollisionTag]: GameObjectCollisionTag,
-    [gameActions.BallMoving]: BallMoving,
-    [gameActions.BallStopped]: BallStopped
+    [gameActions.GameObjectCollisionTag]: GameObjectCollisionTag
 }
 // its for adding new Action in State in One Plase, please don't splite this
 enum gameStates {
@@ -44,7 +42,11 @@ enum gameStates {
     PanelDown = 'PanelDown',
     YourTurn = 'YourTurn',
     Goal = 'Goal',
-    SpawnedObject = 'SpawnedObject'
+    SpawnedObject = 'SpawnedObject',
+    BallMoving = 'BallMoving',
+    BallStopped = 'BallStopped',
+    Ready = 'Ready',
+    NotReady = 'NotReady'
 }
 
 export const State = {
@@ -58,5 +60,9 @@ export const State = {
     [gameStates.PanelDown]: PanelDown,
     [gameStates.YourTurn]: YourTurn,
     [gameStates.Goal]: Goal,
-    [gameStates.SpawnedObject]: SpawnedObject
+    [gameStates.SpawnedObject]: SpawnedObject,
+    [gameStates.BallMoving]: BallMoving,
+    [gameStates.BallStopped]: BallStopped,
+    [gameStates.Ready]: Ready,
+    [gameStates.NotReady]: NotReady
 };

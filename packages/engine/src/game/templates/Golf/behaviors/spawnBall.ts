@@ -8,45 +8,32 @@ import { getGame } from '../../../functions/functions';
 import { MathUtils } from 'three';
 import { GolfPrefabTypes } from '../GolfGameConstants';
 import { TransformComponent } from "../../../../transform/components/TransformComponent";
+import { Behavior } from '../../../../common/interfaces/Behavior';
 
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const spawnBall = (playerEntity: Entity): void => {
+export const spawnBall: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
 
   // server sends clients the entity data
   if (isClient) return;
 
-  const game = getGame(playerEntity);
-  const ownerId = getComponent(playerEntity, NetworkObject).ownerId;
-
-  // console.log(ownerId, 'ball exists', game.gameObjects['GolfBall'].length > 0)
-
-  // if a ball already exists in the world, it obviously isn't our turn
-  if (game.gameObjects['GolfBall'].length > 0) return;
-
-  const playerHasBall = game.gameObjects['GolfBall']
-    .filter((entity) => getComponent(entity, NetworkObject)?.ownerId === ownerId)
-    .length > 0;
-
-  if(playerHasBall) return;
-
-  console.log('making ball for player', ownerId, playerHasBall)
+  const game = getGame(entity);
+  const ownerId = getComponent(entity, NetworkObject).ownerId;
 
   const networkId = Network.getNetworkId();
   const uuid = MathUtils.generateUUID();
   // send position to spawn
   // now we have just one location
   // but soon
-  const teeEntity = game.gameObjects['GolfTee'][0]
-  console.warn(game.gameObjects);
+  const teeEntity = game.gameObjects[args.positionCopyFromRole][0]
   const teeTransform = getComponent(teeEntity, TransformComponent);
 
   const parameters = {
     gameName: game.name,
     role: 'GolfBall',
-    spawnPosition: { x: teeTransform.position.x, y: teeTransform.position.y, z: teeTransform.position.z},
+    spawnPosition: { x: teeTransform.position.x, y: teeTransform.position.y + args.offsetY, z: teeTransform.position.z},
     uuid
   };
 

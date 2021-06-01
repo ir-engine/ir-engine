@@ -16,9 +16,4 @@ export const addTurn: Behavior = (entityPlayer: Entity, args?: any, delta?: numb
   if (noOneTurn) {
     addStateComponent(entityPlayer, YourTurn);
   }
-
-  // Temporary
-  setTimeout(() => {
-    spawnBall(entityPlayer);
-  }, 2000)
 };

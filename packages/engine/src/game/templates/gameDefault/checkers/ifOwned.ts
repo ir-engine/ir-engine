@@ -5,7 +5,7 @@ import { GamePlayer } from "../../../../game/components/GamePlayer";
 import { GameObject } from "../../../../game/components/GameObject";
 import { NetworkObject } from '../../../../networking/components/NetworkObject';
 import { getTargetEntity } from '../../../../game/functions/functions';
-import { HasHadCollision } from "../../../../game/actions/HasHadCollision";
+
 /**
  * @author HydraFire <github.com/HydraFire>
  */
