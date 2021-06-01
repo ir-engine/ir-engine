@@ -16,10 +16,10 @@ import { isClient } from '../../common/functions/isClient';
 import { BodyType, ColliderHitEvent, CollisionEvents, PhysXConfig, PhysXInstance } from "three-physx";
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
 import { UserControlledColliderComponent } from '../components/UserControllerObjectComponent';
-import { GameObjectCollisionTag } from "../../game/actions/GameObjectCollisionTag";
 import { GameObject } from "../../game/components/GameObject";
 import { addActionComponent } from '../../game/functions/functionsActions';
-import { Vector3 } from 'three';
+import { StaticReadUsage, Vector3 } from 'three';
+import { Action, State } from '../../game/types/GameComponents';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -94,9 +94,33 @@ export class PhysicsSystem extends System {
           //  isClient ? console.warn(type, bodySelf, bodyOther, shapeSelf, shapeOther):'';
           // addActionComponent(entity, HasHadCollision);
           //    console.warn(event, entity);
-        // }
+    //    }
+
         // TODO: figure out how we expose specific behaviors like this
-      // })
+    //  })
+  //    collider.collisions = []; // clear for next loop
+
+
+      if (collider.body.type === BodyType.DYNAMIC) {
+        if (hasComponent(entity, GameObject) && getComponent(entity, GameObject).role === 'GolfBall') {
+
+
+          if(collider.body.transform.linearVelocity.length() > 1) {
+
+            if(hasComponent(entity, State.Active)) {
+              console.warn('actionMoving')
+              addActionComponent(entity, Action.BallMoving);
+            }
+           } else if(collider.body.transform.linearVelocity.length() > 0.3) {
+             if(hasComponent(entity, State.Deactive)) {
+              console.warn('stop')
+               addActionComponent(entity, Action.BallStopped);
+             }
+            }
+            
+
+        }
+      }
 
       const transform = getComponent(entity, TransformComponent);
       if (collider.body.type === BodyType.KINEMATIC) {
@@ -104,11 +128,13 @@ export class PhysicsSystem extends System {
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation });
       } else {
         collider.velocity.subVectors(transform.position, collider.body.transform.translation);
+        
         transform.position.set(
           collider.body.transform.translation.x,
           collider.body.transform.translation.y,
           collider.body.transform.translation.z
         );
+          
         collider.position.copy(transform.position)
         transform.rotation.set(
           collider.body.transform.rotation.x,
@@ -177,7 +203,7 @@ export class PhysicsSystem extends System {
         const collider = getMutableComponent(entity, ColliderComponent)
         // dynamic objects should be interpolated, kinematic objects should not
         if (collider && collider.body.type !== BodyType.KINEMATIC) {
-          collider.velocity.subVectors(collider.body.transform.translation, vec3.set(snapshot.x, snapshot.y, snapshot.z));
+         collider.velocity.subVectors(collider.body.transform.translation, vec3.set(snapshot.x, snapshot.y, snapshot.z));
           collider.body.updateTransform({
             translation: {
               x: snapshot.x,

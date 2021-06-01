@@ -4,21 +4,15 @@ import { Entity } from '../../ecs/classes/Entity';
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { Network } from "../../networking/classes/Network";
-import { HaveBeenInteracted } from "../actions/HaveBeenInteracted";
-import { GameObjectCollisionTag } from "../actions/GameObjectCollisionTag";
 import { Game } from "../components/Game";
 import { GameObject } from "../components/GameObject";
 import { GamePlayer } from "../components/GamePlayer";
+import { Action } from '../types/GameComponents';
 import { GameStateActionMessage } from "../types/GameMessage";
 import { getEntityFromRoleUuid, getGame, getGameEntityFromName, getRole, getUuid } from './functions';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
-// TODO: create enum actions
-const gameActionComponents = {
-  'HaveBeenInteracted': HaveBeenInteracted,
-  'HasHadCollision': GameObjectCollisionTag
-};
 
 export const addActionComponent = (entity: Entity, component: ComponentConstructor<Component<any>>, componentArgs: any = { }): void => {
   if (!(hasComponent(entity, GameObject) || hasComponent(entity, GamePlayer))) return;
@@ -53,9 +47,8 @@ export const applyActionComponent = (actionMessage: GameStateActionMessage): voi
 //  console.warn(game);
   const entity = getEntityFromRoleUuid(game, actionMessage.role, actionMessage.uuid);
   if(!entity) return;
-  //Component._typeId
-  // Engine.componentsMap[(Component as any)._typeId]
-  const component = gameActionComponents[actionMessage.component]
+
+  const component = Action[actionMessage.component];
   let componentArgs = {};
   try {
     componentArgs = JSON.parse(actionMessage.componentArgs.replace(/'/g, '"')); // replace single quotes with double quotes

@@ -87,7 +87,6 @@ export class GameManagerSystem extends System {
         if(typeof otherEntity === 'undefined') return;
         const otherGameObject = getComponent<GameObject>(otherEntity, GameObject);
         if(!otherGameObject) return;
-        console.log(gameObject.role, otherGameObject.role, collisionEvent)
         Object.keys(gameObject.collisionBehaviors).forEach((role) => {
           if(role === otherGameObject.role) {
             gameObject.collisionBehaviors[role](entity, delta, { hitEvent: collisionEvent }, otherEntity);
