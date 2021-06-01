@@ -191,7 +191,7 @@ export const componentSeed = {
               "z": 1
           },
           reflectionType:1,
-          intensity:1,
+          intensity:10,
           resolution:512,
           refreshMode:0,
       },

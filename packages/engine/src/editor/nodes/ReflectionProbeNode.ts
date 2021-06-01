@@ -33,7 +33,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
     static nodeName="Reflection Probe";
     static legacyComponentName = "reflectionprobe";
     static haveStaticTags=false
-    geometry:BoxHelper;
+    gizmo:BoxHelper;
     reflectionProbeSettings:ReflectionProbeSettings;
     centerBall:any;
     currentEnvMap:WebGLCubeRenderTarget;
@@ -52,12 +52,12 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
             hdr:false,
             refreshMode:ReflectionProbeRefreshTypes.OnAwake,
         }
-        this.geometry=new BoxHelper(new Mesh(new BoxBufferGeometry()),0xff0000);
+        this.gizmo=new BoxHelper(new Mesh(new BoxBufferGeometry()),0xff0000);
         this.centerBall.material=new MeshPhysicalMaterial({
             roughness:0,metalness:1,
         })
 
-        this.add(this.geometry);
+        this.add(this.gizmo);
 
     }
 
@@ -75,7 +75,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
 
     onChange(){
 
-        this.geometry.matrix.compose(this.reflectionProbeSettings.probePositionOffset,new Quaternion(0),this.reflectionProbeSettings.probeScale);
+        this.gizmo.matrix.compose(this.reflectionProbeSettings.probePositionOffset,new Quaternion(0),this.reflectionProbeSettings.probeScale);
         this.editor.scene.traverse(child=>{
             if(child.material)
                 child.material.envMapIntensity=this.reflectionProbeSettings.intensity;

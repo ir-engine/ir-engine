@@ -1,4 +1,5 @@
-import { WebGLCubeRenderTarget,ClampToEdgeWrapping, CubeCamera, DoubleSide, LinearFilter, Mesh, OrthographicCamera, PlaneBufferGeometry, RawShaderMaterial, RGBAFormat, Scene, UnsignedByteType, Vector3, WebGLRenderer, WebGLRenderTarget, Uniform, CubeTexture, PMREMGenerator } from 'three';
+import { WebGLCubeRenderTarget,ClampToEdgeWrapping, CubeCamera, DoubleSide, LinearFilter, Mesh, OrthographicCamera, PlaneBufferGeometry, RawShaderMaterial, RGBAFormat, Scene, UnsignedByteType, Vector3, WebGLRenderer, WebGLRenderTarget, Uniform, CubeTexture, PMREMGenerator, BackSide, MeshBasicMaterial, IcosahedronGeometry, Texture } from 'three';
+import Renderer from '../../renderer/Renderer';
 
 const vertexShader = `
 	attribute vec3 position;
@@ -178,6 +179,42 @@ export default class CubemapCapturer{
 		this.downloadAfterCapture&&this.convert();
 		return (this.cubeRenderTarget);
 	}
+
+
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
+	
+	 static convertToCubemap = ( renderer:WebGLRenderer,source:Texture, size:number )=> {
+
+		const convertScene = new Scene();
+	
+		var gl = renderer.getContext();
+		const maxSize = gl.getParameter( gl.MAX_CUBE_MAP_TEXTURE_SIZE )
+	
+	
+		const material = new MeshBasicMaterial( {
+			map: null,
+			side: BackSide
+		} );
+	
+		const mesh = new Mesh(
+			new IcosahedronGeometry( 100, 4 ),
+			material
+		);
+		convertScene.add( mesh );
+
+
+
+		let cubeRenderTarget:WebGLCubeRenderTarget;
+		const mapSize = Math.min( size, maxSize );
+		const cubecam = new CubeCamera( 1, 100000, cubeRenderTarget );
+		material.map = source;
+		cubecam.update(renderer,convertScene);
+		return cubeRenderTarget;
+	
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 }

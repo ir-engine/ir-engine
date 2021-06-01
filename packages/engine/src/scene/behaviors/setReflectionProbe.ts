@@ -20,14 +20,11 @@ export const setReflectionProbe: Behavior = (entity, args: {}) => {
     
     switch(options.reflectionType){
       case ReflectionProbeTypes.Baked:
-        // const envMapAddress="/ReflectionProbe/envMap.png";
-        // new TextureLoader().load(envMapAddress, (texture) => {
-        //   const pmremGenerator = new PMREMGenerator(Engine.renderer);
-        //   const EnvMap = pmremGenerator.fromEquirectangular(texture).texture;
-        //   Engine.scene.environment = EnvMap;
-        //   texture.dispose();
-        //   pmremGenerator.dispose();
-        // });
+        const envMapAddress="/ReflectionProbe/envMap.png";
+        new TextureLoader().load(envMapAddress, (texture) => {
+          Engine.scene.environment=CubemapCapturer.convertToCubemap(Engine.renderer,texture,options.resolution).texture;
+          texture.dispose();
+        });
 
         //TO DO
         break;
