@@ -280,29 +280,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
     }
   },
   gameObjectRoles: {
-    'GolfBall': {
-      /*
-      'teleport': [
-        {
-          behavior: teleportObject,
-          watchers:[ [ Action.HasHadCollision ] ],
-          takeEffectOn: {
-            targetsRole: {
-              'GolfTee': {
-                checkers:[{
-                    function: customChecker,
-                    args: {
-                      on: 'GolfHole',
-                      watchers: [ [ Action.HasHadCollision ] ]
-                     }
-                  }]
-              }
-            }
-          }
-        },
-      ]
-      */
-    },
+    'GolfBall': {},
     'GolfTee': {},
     'GolfHole': {
       'goal': [

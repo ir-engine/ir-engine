@@ -208,7 +208,7 @@ export const addObject3DComponent: Behavior = (
   });
   if (args.parentEntity && hasComponent(args.parentEntity, Object3DComponent as any)) {
     getComponent<Object3DComponent>(args.parentEntity, Object3DComponent).value.add(object3d);
-  } else Engine.scene.add(object3d);
+  }
   object3d.entity = entity;
   return entity;
 };

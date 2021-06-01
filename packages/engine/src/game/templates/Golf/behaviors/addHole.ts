@@ -10,8 +10,9 @@ import { ColliderComponent } from '../../../../physics/components/ColliderCompon
 import { GolfCollisionGroups } from '../GolfGameConstants';
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent';
 import { getGame } from '../../../functions/functions';
+import { GameObjectInteractionBehavior } from '../../../interfaces/GameObjectPrefab';
 
-export const onHoleCollideWithBall = (entityHole: Entity, delta: number, args: { hitEvent: ColliderHitEvent }, entityBall: Entity) => {
+export const onHoleCollideWithBall: GameObjectInteractionBehavior = (entityHole: Entity, delta: number, args: { hitEvent: ColliderHitEvent }, entityBall: Entity) => {
   
   const game = getGame(entityHole);
   const teeEntity = game.gameObjects['GolfTee'][0];
@@ -26,7 +27,6 @@ export const onHoleCollideWithBall = (entityHole: Entity, delta: number, args: {
     },
     rotation: {}
   })
-  return;
 }
 
 
