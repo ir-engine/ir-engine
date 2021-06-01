@@ -117,7 +117,7 @@ export * from './src/editor/functions/StaticMode';
 export * from './src/editor/functions/thumbnails';
 export * from './src/editor/functions/utils';
 export * from './src/editor/renderer/EnvironmentMap';
-export * from './src/game/actions/HaveBeenInteracted';
+export * from './src/game/actions/HasHadInteraction';
 export * from './src/game/components/Game';
 export * from './src/game/components/GameObject';
 export * from './src/game/components/GamePlayer';
