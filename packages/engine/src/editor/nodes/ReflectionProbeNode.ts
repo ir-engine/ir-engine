@@ -23,8 +23,8 @@ export type ReflectionProbeSettings={
     reflectionType:ReflectionProbeTypes,
     intensity:number,
     resolution:number,
-    hdr:boolean,
     refreshMode:ReflectionProbeRefreshTypes,
+    lookupName:string
 }
 
 
@@ -49,8 +49,8 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
             reflectionType:ReflectionProbeTypes.Baked,
             intensity:1,
             resolution:512,
-            hdr:false,
             refreshMode:ReflectionProbeRefreshTypes.OnAwake,
+            lookupName:"EnvMap",
         }
         this.gizmo=new BoxHelper(new Mesh(new BoxBufferGeometry()),0xff0000);
         this.centerBall.material=new MeshPhysicalMaterial({
@@ -65,7 +65,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
     captureCubeMap(){
         const sceneToBake=this.getSceneForBaking(this.editor.scene);
         const cubemapCapturer=new CubemapCapturer(this.editor.renderer.renderer,sceneToBake,this.reflectionProbeSettings.resolution,this.reflectionProbeSettings.reflectionType==1);
-        this.currentEnvMap=cubemapCapturer.update(this.position);
+        this.currentEnvMap=cubemapCapturer.update(this.position,this.reflectionProbeSettings.lookupName);
         this.injectShader();
     }
 

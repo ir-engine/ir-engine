@@ -64,8 +64,8 @@ export default class CubemapCapturer{
 	cubeRenderTarget:CubeTexture;
 	sceneToRender:Scene;
 	downloadAfterCapture:boolean;
-
-	constructor(renderer:WebGLRenderer,sceneToRender:Scene,resolution:number,downloadAfterCapture=false){
+	
+	constructor(renderer:WebGLRenderer,sceneToRender:Scene,resolution:number,downloadAfterCapture:boolean=false){
 		this.width = resolution;
 		this.height = resolution;
 		this.sceneToRender=sceneToRender;
@@ -132,26 +132,26 @@ export default class CubemapCapturer{
 		return this.cubeCamera;
 	}
 
-	convert = function( ) {
+	convert = function(imageName:string ) {
 
 		this.quad.material.uniforms.map.value = this.cubeCamera.renderTarget.texture;
 		this.renderer.render( this.scene, this.camera, this.renderTarget, true );
 		const pixels = new Uint8Array( 4 * this.width * this.height );
 		this.renderer.readRenderTargetPixels( this.renderTarget, 0, 0, this.width, this.height, pixels );
 		const imageData = new ImageData( new Uint8ClampedArray( pixels ), this.width, this.height );
-		this.download( imageData );
+		this.download( imageData,imageName );
 		return imageData
 	
 	};
 
 
-	download = function( imageData ) {
+	download = function( imageData:ImageData,imageName:string ) {
 		this.ctx.putImageData( imageData, 0, 0 );
 	
 		this.canvas.toBlob( ( blob ) => {
 	
 			const url = URL.createObjectURL(blob);
-			const fileName = 'envMap.png';
+			const fileName = `${imageName}.png`;
 			const anchor = document.createElement( 'a' );
 			anchor.href = url;
 			anchor.setAttribute("download", fileName);
@@ -169,14 +169,14 @@ export default class CubemapCapturer{
 	};
 
 
-	update = function( position:Vector3) {
+	update = function( position:Vector3,imageName:string="EnvMap") {
 
 		const autoClear = this.renderer.autoClear;
 		this.renderer.autoClear = true;
 		this.cubeCamera.position.copy(position );
 		this.cubeCamera.updateCubeMap( this.renderer, this.sceneToRender );
 		this.renderer.autoClear = autoClear;
-		this.downloadAfterCapture&&this.convert();
+		this.downloadAfterCapture&&this.convert(imageName);
 		return (this.cubeRenderTarget);
 	}
 
@@ -205,8 +205,8 @@ export default class CubemapCapturer{
 
 
 
-		let cubeRenderTarget:WebGLCubeRenderTarget;
 		const mapSize = Math.min( size, maxSize );
+		const cubeRenderTarget:WebGLCubeRenderTarget=new WebGLCubeRenderTarget(mapSize);
 		const cubecam = new CubeCamera( 1, 100000, cubeRenderTarget );
 		material.map = source;
 		cubecam.update(renderer,convertScene);
