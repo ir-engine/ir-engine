@@ -1,5 +1,5 @@
 // Action Components
-import { HaveBeenInteracted } from "../actions/HaveBeenInteracted";
+import { HasHadInteraction } from "../actions/HasHadInteraction";
 import { GameObjectCollisionTag } from "../actions/GameObjectCollisionTag";
 import { BallMoving } from "../actions/BallMoving";
 import { BallStopped } from "../actions/BallStopped";
@@ -14,20 +14,20 @@ import { PanelUp } from '../templates/gameDefault/components/PanelUpTagComponent
 import { YourTurn } from '../templates/Golf/components/YourTurnTagComponent';
 import { Goal } from '../templates/Golf/components/GoalTagComponent';
 import { Active } from "../templates/gameDefault/components/ActiveTagComponent";
-import { Deactive } from "../templates/gameDefault/components/DeactiveTagComponent";
+import { Inactive } from "../templates/gameDefault/components/InactiveTagComponent";
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 // its for adding new Action in State in One Plase, please don't splite this
 enum gameActions {
-    HaveBeenInteracted = 'HaveBeenInteracted',
+    HasHadInteraction = 'HasHadInteraction',
     GameObjectCollisionTag = 'GameObjectCollisionTag',
     BallMoving = 'BallMoving',
     BallStopped = 'BallStopped'
 }
 
 export const Action = {
-    [gameActions.HaveBeenInteracted]: HaveBeenInteracted,
+    [gameActions.HasHadInteraction]: HasHadInteraction,
     [gameActions.GameObjectCollisionTag]: GameObjectCollisionTag,
     [gameActions.BallMoving]: BallMoving,
     [gameActions.BallStopped]: BallStopped
@@ -35,7 +35,7 @@ export const Action = {
 // its for adding new Action in State in One Plase, please don't splite this
 enum gameStates {
     Active = 'Active',
-    Deactive = 'Deactive',
+    Inactive = 'Inactive',
     Open = 'Open',
     Closed = 'Closed',
     ButtonUp = 'ButtonUp',
@@ -49,7 +49,7 @@ enum gameStates {
 
 export const State = {
     [gameStates.Active]: Active,
-    [gameStates.Deactive]: Deactive,
+    [gameStates.Inactive]: Inactive,
     [gameStates.Open]: Open,
     [gameStates.Closed]: Closed,
     [gameStates.ButtonUp]: ButtonUp,

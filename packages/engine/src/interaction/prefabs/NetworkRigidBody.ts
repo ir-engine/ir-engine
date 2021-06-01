@@ -39,7 +39,7 @@ export function createNetworkRigidBody( args:{ parameters?: any, networkId?: num
     }
   });
   if (!isClient) {
-    Network.instance.createObjects.push({
+    Network.instance.worldState.createObjects.push({
         networkId: networkComponent.networkId,
         ownerId: networkComponent.ownerId,
         prefabType: PrefabType.RigidBody,

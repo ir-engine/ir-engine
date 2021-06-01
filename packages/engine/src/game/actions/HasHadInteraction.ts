@@ -4,7 +4,7 @@ import { Types } from "../../ecs/types/Types";
 /**
  * @author HydraFire <github.com/HydraFire>
  */
-export class HaveBeenInteracted extends Component<any> {
+export class HasHadInteraction extends Component<any> {
   entityNetworkId?: number;
   args?: any;
   static _schema = { 
