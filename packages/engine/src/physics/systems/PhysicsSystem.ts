@@ -124,10 +124,10 @@ export class PhysicsSystem extends System {
 
       const transform = getComponent(entity, TransformComponent);
       if (collider.body.type === BodyType.KINEMATIC) {
-        //collider.velocity.subVectors(collider.body.transform.translation, transform.position);
+        collider.velocity.subVectors(collider.body.transform.translation, transform.position);
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation });
       } else {
-        //collider.velocity.subVectors(transform.position, collider.body.transform.translation);
+        collider.velocity.subVectors(transform.position, collider.body.transform.translation);
         
         transform.position.set(
           collider.body.transform.translation.x,
@@ -203,7 +203,7 @@ export class PhysicsSystem extends System {
         const collider = getMutableComponent(entity, ColliderComponent)
         // dynamic objects should be interpolated, kinematic objects should not
         if (collider && collider.body.type !== BodyType.KINEMATIC) {
-         // collider.velocity.subVectors(collider.body.transform.translation, vec3.set(snapshot.x, snapshot.y, snapshot.z));
+         collider.velocity.subVectors(collider.body.transform.translation, vec3.set(snapshot.x, snapshot.y, snapshot.z));
           collider.body.updateTransform({
             translation: {
               x: snapshot.x,

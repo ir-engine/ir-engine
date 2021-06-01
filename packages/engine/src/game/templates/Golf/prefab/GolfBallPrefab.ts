@@ -56,7 +56,6 @@ function assetLoadCallback(group: Group, entity: Entity) {
 export const initializeGolfBall = (entity: Entity) => {
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
   const transform = getComponent(entity, TransformComponent);
-  console.log(transform.position)
   const networkObject = getComponent(entity, NetworkObject);
   const ownerNetworkObject = Object.values(Network.instance.networkObjects).find((obj) => {
       return obj.ownerId === networkObject.ownerId;
