@@ -12,10 +12,10 @@ export class TransformComponent extends Component<TransformComponent> {
   scale: Vector3
 
   static _schema = {
-    position: { default: new Vector3(), type: Types.Ref },
-    rotation: { default: new Quaternion(), type: Types.Ref },
-    velocity: { default: new Vector3(), type: Types.Ref },
-    scale: { default: new Vector3(1,1,1), type: Types.Ref }
+    position: { type: Types.Ref },
+    rotation: { type: Types.Ref },
+    velocity: { type: Types.Ref },
+    scale: { type: Types.Ref }
   }
 
   constructor () {

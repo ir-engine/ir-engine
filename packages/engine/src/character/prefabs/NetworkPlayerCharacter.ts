@@ -232,7 +232,7 @@ export function createNetworkPlayer(args: { ownerId: string | number, networkId?
 	}
 	);
   if (!isClient) {
-    Network.instance.createObjects.push({
+    Network.instance.worldState.createObjects.push({
         networkId: networkComponent.networkId,
         ownerId: networkComponent.ownerId,
         prefabType: PrefabType.Player,

@@ -1,5 +1,5 @@
 import { Entity } from '../../../../ecs/classes/Entity';
-import { getComponent } from '../../../../ecs/functions/EntityFunctions';
+import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunctions';
 import { NetworkObject } from '../../../../networking/components/NetworkObject';
 import { createGolfBallPrefab } from '../prefab/GolfBallPrefab';
 import { Network } from '../../../../networking/classes/Network';
@@ -8,6 +8,7 @@ import { getGame } from '../../../functions/functions';
 import { MathUtils } from 'three';
 import { GolfPrefabTypes } from '../GolfGameConstants';
 import { TransformComponent } from "../../../../transform/components/TransformComponent";
+
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -29,14 +30,9 @@ export const spawnBall = (playerEntity: Entity): void => {
     .filter((entity) => getComponent(entity, NetworkObject)?.ownerId === ownerId)
     .length > 0;
 
+  if(playerHasBall) return;
 
-  // console.log(ownerId, 'playerHasBall', playerHasBall)
-
-  // if we already have a ball in the world, we shouldn't spawn a new one
-  /// TODO: just give them one until we have unspawning etc working
-  // if(playerHasBall) return;
-
-  console.log('making ball for player', ownerId)
+  console.log('making ball for player', ownerId, playerHasBall)
 
   const networkId = Network.getNetworkId();
   const uuid = MathUtils.generateUUID();

@@ -96,6 +96,7 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   // only need to update club if it's our own
   // TODO: remove this when we have IK rig in and can get the right hand pos data
   // if(getComponent(entityClub, UserControlledColliderComponent).ownerNetworkId !== Network.instance.localAvatarNetworkId) return;
+  const isMyBall = getComponent(entityClub, UserControlledColliderComponent).ownerNetworkId === Network.instance.localAvatarNetworkId;
 
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
   const transformClub = getMutableComponent(entityClub, TransformComponent);
@@ -119,7 +120,8 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   );
 
   const hit = golfClubComponent.raycast.hits[0];
-  const canHitBall = typeof hit !== 'undefined';
+
+  const canHitBall = isMyBall && typeof hit !== 'undefined';
   if(!golfClubComponent.hasHitBall && canHitBall !== golfClubComponent.canHitBall) {
     enableClub(entityClub, canHitBall);
   }
@@ -178,11 +180,11 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
 
 // https://github.com/PersoSirEduard/OculusQuest-Godot-MiniGolfGame/blob/master/Scripts/GolfClub/GolfClub.gd#L18
 
-export const onClubColliderWithBall: GameObjectInteractionBehavior = (entity: Entity, delta: number, args: { hitEvent: ColliderHitEvent }, entityOther: Entity) => {
+export const onClubColliderWithBall: GameObjectInteractionBehavior = (entityClub: Entity, delta: number, args: { hitEvent: ColliderHitEvent }, entityBall: Entity) => {
   if(!isClient) return;
-  const golfClubComponent = getMutableComponent(entity, GolfClubComponent);
+  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
   if(!golfClubComponent.canHitBall || golfClubComponent.hasHitBall) return;
-
+  console.log('onClubColliderWithBall')
   // force is in kg, we need it in grams, so x1000
   const velocityMultiplier = clubPowerMultiplier * 1000;
 
@@ -221,7 +223,8 @@ export const onClubColliderWithBall: GameObjectInteractionBehavior = (entity: En
   }
   args.hitEvent.bodyOther.addForce(vector1);
   golfClubComponent.hasHitBall = true;
-  enableClub(entity, false);
+  enableClub(entityClub, false);
+  // TODO: replace this with game states
   setTimeout(() => {
     golfClubComponent.hasHitBall = false;
   }, 3000)
@@ -243,17 +246,17 @@ const hitAdvanceFactor = 1.2;
 const upVector = new Vector3(0, 1, 0);
 const HALF_PI = Math.PI / 2;
 
-export const initializeGolfClub = (entity: Entity) => {
+export const initializeGolfClub = (entityClub: Entity) => {
 
-  const transform = getComponent(entity, TransformComponent);
+  const transform = getComponent(entityClub, TransformComponent);
 
-  const networkObject = getComponent(entity, NetworkObject);
+  const networkObject = getComponent(entityClub, NetworkObject);
   const ownerNetworkObject = Object.values(Network.instance.networkObjects).find((obj) => {
       return obj.ownerId === networkObject.ownerId;
   }).component;
-  addComponent(entity, UserControlledColliderComponent, { ownerNetworkId: ownerNetworkObject.networkId });
+  addComponent(entityClub, UserControlledColliderComponent, { ownerNetworkId: ownerNetworkObject.networkId });
 
-  const golfClubComponent = getMutableComponent(entity, GolfClubComponent);
+  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
 
   // only raycast if it's our own club
   // TODO: remove this when we have IK rig in and can get the right hand pos data
@@ -287,7 +290,7 @@ export const initializeGolfClub = (entity: Entity) => {
 
     setupSceneObjects(meshGroup);
 
-    addComponent(entity, Object3DComponent, { value: meshGroup });
+    addComponent(entityClub, Object3DComponent, { value: meshGroup });
   }
 
   const shapeHead = createShapeFromConfig({
@@ -308,7 +311,7 @@ export const initializeGolfClub = (entity: Entity) => {
     }
   }));
 
-  const collider = getMutableComponent(entity, ColliderComponent);
+  const collider = getMutableComponent(entityClub, ColliderComponent);
   collider.body = body;
   golfClubComponent.body = body;
 
@@ -316,9 +319,9 @@ export const initializeGolfClub = (entity: Entity) => {
     golfClubComponent.lastPositions[i] = new Vector3();
   }
   golfClubComponent.velocity = new Vector3();
-  addComponent(entity, DebugArrowComponent)
+  addComponent(entityClub, DebugArrowComponent)
  
-  const gameObject = getComponent(entity, GameObject);
+  const gameObject = getComponent(entityClub, GameObject);
   gameObject.collisionBehaviors['GolfBall'] = onClubColliderWithBall;
 }
 

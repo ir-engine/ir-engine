@@ -75,7 +75,7 @@ export const removeSpawnedObjects = ( entity: Entity, playerComponent, game ) =>
         if (networkObject.ownerId !== userUuId) return;
         if (networkObject.uniqueId === userUuId) return;
         // If it does, tell clients to destroy it
-        Network.instance.destroyObjects.push({ networkId: networkObject.component.networkId });
+        Network.instance.worldState.destroyObjects.push({ networkId: networkObject.component.networkId });
         // get network object
         const entityObject = Network.instance.networkObjects[key].component.entity;
         // Remove the entity and all of it's components

@@ -118,7 +118,7 @@ export function validateNetworkObjects(): void {
 
             const disconnectedClient = Object.assign({}, Network.instance.clients[userId]);
 
-            Network.instance.clientsDisconnected.push({ userId });
+            Network.instance.worldState.clientsDisconnected.push({ userId });
             console.log('Disconnected Client:', disconnectedClient.userId);
             if (disconnectedClient?.instanceRecvTransport)
                 disconnectedClient.instanceRecvTransport.close();
@@ -143,7 +143,7 @@ export function validateNetworkObjects(): void {
                 // Get the entity attached to the NetworkObjectComponent and remove it
                 logger.info("Removed entity ", (obj.component.entity as Entity).id, " for user ", userId);
                 const removeMessage = { networkId: obj.component.networkId };
-                Network.instance.destroyObjects.push(removeMessage);
+                Network.instance.worldState.destroyObjects.push(removeMessage);
                 removeEntity(obj.component.entity);
                 delete Network.instance.networkObjects[obj.id];
             });
@@ -162,7 +162,7 @@ export function validateNetworkObjects(): void {
 
         // If it does, tell clients to destroy it
         const removeMessage = { networkId: networkObject.component.networkId };
-        Network.instance.destroyObjects.push(removeMessage);
+        Network.instance.worldState.destroyObjects.push(removeMessage);
 
         // get network object
         const entity = networkObject.component.entity;
@@ -207,7 +207,7 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
     };
 
     // Push to our worldstate to send out to other users
-    Network.instance.clientsConnected.push({ userId, avatarDetail });
+    Network.instance.worldState.clientsConnected.push({ userId, avatarDetail });
     // Create a new worldtate object that we can fill
     const worldState: WorldStateInterface = {
         clientsConnected: [],
@@ -250,7 +250,7 @@ function disconnectClientIfConnected(socket, userId: string): void {
         // If it does, tell clients to destroy it
         console.log('destroyObjects.push({ networkId: networkObject.component.networkId', networkObject.component.networkId);
         if (typeof networkObject.component.networkId === "number") {
-            Network.instance.destroyObjects.push({ networkId: networkObject.component.networkId });
+            Network.instance.worldState.destroyObjects.push({ networkId: networkObject.component.networkId });
         } else {
             console.error('networkObject.component.networkId is invalid', networkObject);
             logger.error('networkObject.component.networkId is invalid');
@@ -345,7 +345,7 @@ export async function handleDisconnect(socket): Promise<any> {
             logger.info("Culling object:", networkObject.component.networkId, "owned by disconnecting client", networkObject.ownerId);
 
             // If it does, tell clients to destroy it
-            Network.instance.destroyObjects.push({ networkId: networkObject.component.networkId });
+            Network.instance.worldState.destroyObjects.push({ networkId: networkObject.component.networkId });
 
             // get network object
             const entity = Network.instance.networkObjects[key].component.entity;
@@ -358,7 +358,7 @@ export async function handleDisconnect(socket): Promise<any> {
         });
 
 
-        Network.instance.clientsDisconnected.push({ userId });
+        Network.instance.worldState.clientsDisconnected.push({ userId });
         logger.info('Disconnecting clients for user ' + userId);
         if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close();
         if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close();
