@@ -35,7 +35,7 @@ import { CharacterComponent } from '../components/CharacterComponent';
 import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
 import { IKComponent } from '../components/IKComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
-import PersistTagComponent from "../../scene/components/PersistTagComponent";
+import { PersistTagComponent } from "../../scene/components/PersistTagComponent";
 import { initiateIK } from "../../xr/functions/IKFunctions";
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {

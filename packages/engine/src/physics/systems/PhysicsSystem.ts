@@ -15,7 +15,6 @@ import { InterpolationComponent } from "../components/InterpolationComponent";
 import { isClient } from '../../common/functions/isClient';
 import { BodyType, PhysXConfig, PhysXInstance } from "three-physx";
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
-import { UserControlledColliderComponent } from '../components/UserControllerObjectComponent';
 import { Vector3 } from 'three';
 
 /**
@@ -138,27 +137,6 @@ export class PhysicsSystem extends System {
 
       // If a networked entity does not have an interpolation component, just copy the data
       this.queryResults.correctionFromServer.all?.forEach(entity => {
-        // ignore interpolation on client for objects we are the primary simulator of
-        const userControlled = getComponent(entity, UserControlledColliderComponent)
-        if (userControlled && userControlled.ownerNetworkId === Network.instance.localAvatarNetworkId) {
-          const ownerNetworkId = userControlled.ownerNetworkId;
-          const networkObject = getMutableComponent(entity, NetworkObject);
-          if (Network.instance.localAvatarNetworkId === ownerNetworkId) {
-            const collider = getMutableComponent(entity, ColliderComponent);
-            Network.instance.clientInputState.transforms.push({
-              networkId: networkObject.networkId,
-              x: collider.body.transform.translation.x,
-              y: collider.body.transform.translation.y,
-              z: collider.body.transform.translation.z,
-              qX: collider.body.transform.rotation.x,
-              qY: collider.body.transform.rotation.y,
-              qZ: collider.body.transform.rotation.z,
-              qW: collider.body.transform.rotation.w,
-              snapShotTime: networkObject.snapShotTime,
-            });
-            return;
-          }
-        }
         const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot);
         if (snapshot == null) return;
         const collider = getMutableComponent(entity, ColliderComponent)
