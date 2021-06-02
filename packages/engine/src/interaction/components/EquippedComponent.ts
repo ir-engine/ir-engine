@@ -5,7 +5,7 @@ import { EquippableAttachmentPoint } from "../enums/EquippedEnums";
 
 export class EquippedComponent extends Component<EquippedComponent> {
   static _schema = {
-    attachmentPoint: { type: Types.Ref, default: EquippableAttachmentPoint.RIGHT_HAND },
+    attachmentPoint: { type: Types.Number, default: EquippableAttachmentPoint.RIGHT_HAND },
     equipperEntity: { type: Types.Ref, default: null },
   }
 
