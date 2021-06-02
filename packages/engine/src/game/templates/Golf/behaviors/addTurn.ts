@@ -5,7 +5,12 @@ import { addStateComponent, removeStateComponent } from '../../../../game/functi
 import { GamePlayer } from "../../../components/GamePlayer";
 import { getGame } from '../../../functions/functions';
 import { YourTurn } from "../components/YourTurnTagComponent";
+<<<<<<< HEAD
 import { spawnBall } from './spawnBall';
+=======
+import { spawnBall } from '../prefab/GolfBallPrefab';
+
+>>>>>>> dev
 /**
  * @author HydraFire <github.com/HydraFire>
  */

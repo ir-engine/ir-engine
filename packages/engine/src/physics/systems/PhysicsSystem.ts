@@ -15,7 +15,10 @@ import { InterpolationComponent } from "../components/InterpolationComponent";
 import { isClient } from '../../common/functions/isClient';
 import { BodyType, PhysXConfig, PhysXInstance } from "three-physx";
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
+<<<<<<< HEAD
 import { UserControlledColliderComponent } from '../components/UserControllerObjectComponent';
+=======
+>>>>>>> dev
 import { Vector3 } from 'three';
 
 /**
@@ -138,6 +141,7 @@ export class PhysicsSystem extends System {
 
       // If a networked entity does not have an interpolation component, just copy the data
       this.queryResults.correctionFromServer.all?.forEach(entity => {
+<<<<<<< HEAD
         // ignore interpolation on client for objects we are the primary simulator of
         const userControlled = getComponent(entity, UserControlledColliderComponent)
         if (userControlled && userControlled.ownerNetworkId === Network.instance.localAvatarNetworkId) {
@@ -159,6 +163,8 @@ export class PhysicsSystem extends System {
             return;
           }
         }
+=======
+>>>>>>> dev
         const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot);
         if (snapshot == null) return;
         const collider = getMutableComponent(entity, ColliderComponent)

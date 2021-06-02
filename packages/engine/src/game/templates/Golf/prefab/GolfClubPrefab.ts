@@ -6,7 +6,10 @@ import { ColliderComponent } from '../../../../physics/components/ColliderCompon
 import { RigidBodyComponent } from '../../../../physics/components/RigidBody';
 import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject';
 import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants';
+<<<<<<< HEAD
 import { UserControlledColliderComponent } from '../../../../physics/components/UserControllerObjectComponent';
+=======
+>>>>>>> dev
 import { BoxBufferGeometry, DoubleSide, Group, Material, Mesh, MeshStandardMaterial, Quaternion, Vector3 } from 'three';
 import { Engine } from '../../../../ecs/classes/Engine';
 import { Body, BodyType, ColliderHitEvent, CollisionEvents, createShapeFromConfig, RaycastQuery, SceneQueryType, SHAPES, Transform } from 'three-physx';
@@ -27,6 +30,10 @@ import { CharacterComponent } from '../../../../character/components/CharacterCo
 import { setupSceneObjects } from '../../../../scene/functions/setupSceneObjects';
 import { DebugArrowComponent } from '../../../../debug/DebugArrowComponent';
 import { GameObjectInteractionBehavior } from '../../../interfaces/GameObjectPrefab';
+<<<<<<< HEAD
+=======
+import { NetworkObjectOwner } from '../../../../networking/components/NetworkObjectOwner';
+>>>>>>> dev
 
 const vector0 = new Vector3();
 const vector1 = new Vector3();
@@ -45,31 +52,53 @@ export const spawnClub: Behavior = (entityPlayer: Entity, args?: any, delta?: nu
   if (isClient) return;
 
   const game = getGame(entityPlayer);
+<<<<<<< HEAD
   const ownerId = getComponent(entityPlayer, NetworkObject).ownerId;
 
   console.log('spawning club for player', ownerId)
+=======
+  const playerNetworkObject = getComponent(entityPlayer, NetworkObject);
+
+  console.log('spawning club for player', playerNetworkObject.ownerId)
+>>>>>>> dev
 
   const networkId = Network.getNetworkId();
   const uuid = MathUtils.generateUUID();
 
+<<<<<<< HEAD
   const parameters = {
     gameName: game.name,
     role: 'GolfClub',
     uuid
+=======
+  const parameters: GolfClubSpawnParameters = {
+    gameName: game.name,
+    role: 'GolfClub',
+    uuid,
+    ownerNetworkId: playerNetworkObject.networkId
+>>>>>>> dev
   };
 
   // this spawns the club on the server
   createGolfClubPrefab({
     networkId,
     uniqueId: uuid,
+<<<<<<< HEAD
     ownerId, // the uuid of the player whose balclubl this is
+=======
+    ownerId: playerNetworkObject.ownerId,
+>>>>>>> dev
     parameters
   })
 
   // this sends the club to the clients
   Network.instance.worldState.createObjects.push({
     networkId,
+<<<<<<< HEAD
     ownerId,
+=======
+    ownerId: playerNetworkObject.ownerId,
+>>>>>>> dev
     uniqueId: uuid,
     prefabType: GolfPrefabTypes.Club,
     parameters: JSON.stringify(parameters).replace(/"/g, '\''),
@@ -91,6 +120,7 @@ export const enableClub = (entityClub: Entity, enable: boolean): void => {
  */
 
 export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
+<<<<<<< HEAD
   if(!isClient) return;
   if(!hasComponent(entityClub, UserControlledColliderComponent)) return;
   // only need to update club if it's our own
@@ -103,6 +133,17 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   const collider = getMutableComponent(entityClub, ColliderComponent);
 
   const ownerEntity = Network.instance.networkObjects[getComponent(entityClub, UserControlledColliderComponent).ownerNetworkId].component.entity;
+=======
+  
+  const ownerNetworkObject = Network.instance.networkObjects[getComponent(entityClub, NetworkObjectOwner).networkId].component;
+
+  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
+
+  const transformClub = getMutableComponent(entityClub, TransformComponent);
+  const collider = getMutableComponent(entityClub, ColliderComponent);
+
+  const ownerEntity = Network.instance.networkObjects[ownerNetworkObject.networkId].component.entity;
+>>>>>>> dev
 
   const handTransform = getHandTransform(ownerEntity);
   const { position, rotation } = handTransform;
@@ -118,6 +159,11 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
     vector0.set(0, 0, -1),
     vector1.set(0, 0, -1).applyQuaternion(rotation).setY(0).normalize()
   );
+<<<<<<< HEAD
+=======
+// TEMPORARY
+  const isMyBall = true;
+>>>>>>> dev
 
   const hit = golfClubComponent.raycast.hits[0];
 
@@ -181,7 +227,11 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
 // https://github.com/PersoSirEduard/OculusQuest-Godot-MiniGolfGame/blob/master/Scripts/GolfClub/GolfClub.gd#L18
 
 export const onClubColliderWithBall: GameObjectInteractionBehavior = (entityClub: Entity, delta: number, args: { hitEvent: ColliderHitEvent }, entityBall: Entity) => {
+<<<<<<< HEAD
   if(!isClient) return;
+=======
+
+>>>>>>> dev
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
   if(!golfClubComponent.canHitBall || golfClubComponent.hasHitBall) return;
   console.log('onClubColliderWithBall')
@@ -250,6 +300,7 @@ export const initializeGolfClub = (entityClub: Entity) => {
 
   const transform = getComponent(entityClub, TransformComponent);
 
+<<<<<<< HEAD
   const networkObject = getComponent(entityClub, NetworkObject);
   const ownerNetworkObject = Object.values(Network.instance.networkObjects).find((obj) => {
       return obj.ownerId === networkObject.ownerId;
@@ -292,6 +343,38 @@ export const initializeGolfClub = (entityClub: Entity) => {
 
     addComponent(entityClub, Object3DComponent, { value: meshGroup });
   }
+=======
+  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
+
+  golfClubComponent.raycast = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({
+    type: SceneQueryType.Closest,
+    origin: new Vector3(),
+    direction: new Vector3(0, -1, 0),
+    maxDistance: clubLength,
+    collisionMask: CollisionGroups.Default | CollisionGroups.Ground,
+  }));
+
+  const handleObject = new Mesh(new BoxBufferGeometry(clubHalfWidth, clubHalfWidth, 0.25), new MeshStandardMaterial({ color: 0xff2126, transparent: true }));
+  golfClubComponent.handleObject = handleObject;
+
+  const headGroup = new Group();
+  const headObject = new Mesh(new BoxBufferGeometry(clubHalfWidth, clubHalfWidth, clubPutterLength * 2), new MeshStandardMaterial({ color: 0x2126ff , transparent: true }));
+  // raise the club by half it's height and move it out by half it's length so it's flush to ground and attached at end
+  headObject.position.set(0, clubHalfWidth, - (clubPutterLength * 0.5));
+  headGroup.add(headObject);
+  golfClubComponent.headGroup = headGroup;
+
+  const neckObject = new Mesh(new BoxBufferGeometry(clubHalfWidth * 0.5, clubHalfWidth * 0.5, -1.75), new MeshStandardMaterial({ color: 0x21ff26, transparent: true, side: DoubleSide }));
+  golfClubComponent.neckObject = neckObject;
+
+  const meshGroup = new Group();
+  meshGroup.add(handleObject, headGroup, neckObject);
+  golfClubComponent.meshGroup = meshGroup;
+
+  setupSceneObjects(meshGroup);
+
+  addComponent(entityClub, Object3DComponent, { value: meshGroup });
+>>>>>>> dev
 
   const shapeHead = createShapeFromConfig({
     shape: SHAPES.Box,
@@ -325,7 +408,18 @@ export const initializeGolfClub = (entityClub: Entity) => {
   gameObject.collisionBehaviors['GolfBall'] = onClubColliderWithBall;
 }
 
+<<<<<<< HEAD
 export const createGolfClubPrefab = ( args:{ parameters?: any, networkId?: number, uniqueId: string, ownerId?: string }) => {
+=======
+type GolfClubSpawnParameters = {
+  gameName: string;
+  role: string;
+  uuid: string;
+  ownerNetworkId: number;
+}
+
+export const createGolfClubPrefab = ( args:{ parameters?: GolfClubSpawnParameters, networkId?: number, uniqueId: string, ownerId?: string }) => {
+>>>>>>> dev
   console.log('createGolfClubPrefab')
   initializeNetworkObject({
     prefabType: GolfPrefabTypes.Club,
@@ -343,6 +437,15 @@ export const createGolfClubPrefab = ( args:{ parameters?: any, networkId?: numbe
             uuid: args.parameters.uuid
           }
         },
+<<<<<<< HEAD
+=======
+        {
+          type: NetworkObjectOwner,
+          data: {
+            networkId: args.parameters.ownerNetworkId
+          }
+        }
+>>>>>>> dev
       ]
     }
   });
@@ -358,7 +461,12 @@ export const GolfClubPrefab: NetworkPrefab = {
     { type: ColliderComponent },
     { type: RigidBodyComponent },
     { type: GameObject },
+<<<<<<< HEAD
     { type: GolfClubComponent }
+=======
+    { type: GolfClubComponent },
+    { type: NetworkObjectOwner }
+>>>>>>> dev
     // Local player input mapped to behaviors in the input map
   ],
   // These are only created for the local player who owns this prefab

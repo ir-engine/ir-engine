@@ -87,6 +87,7 @@ export function Timer (
     }
 
     delta = (time - lastTime) / 1000;
+<<<<<<< HEAD
     if (fixedRunner) {
       tpsSubMeasureStart('fixed');
       fixedRunner.run(delta);
@@ -102,6 +103,32 @@ export function Timer (
 
   function onFrame (time) {
 
+=======
+
+    if (fixedRunner) {
+      tpsSubMeasureStart('fixed');
+      callbacks.fixedUpdate(delta);
+
+      // accumulator doesn't like setInterval on client, disable for now
+      // fixedRunner.run(delta);
+
+      tpsSubMeasureEnd('fixed');
+    }
+
+    if (networkRunner) {
+      tpsSubMeasureStart('net');
+      callbacks.networkUpdate(delta);
+
+      // accumulator doesn't like setInterval on client, disable for now
+      // networkRunner.run(delta);
+
+      tpsSubMeasureEnd('net');
+    }
+  }
+
+  function onFrame (time) {
+
+>>>>>>> dev
     frameId = window.requestAnimationFrame(onFrame);
 
     if (lastAnimTime !== null) {
@@ -114,7 +141,13 @@ export function Timer (
       const updateFrame = !freeUpdatesLimit || freeUpdatesTimer > freeUpdatesLimitInterval;
       if (updateFrame) {
         if (callbacks.update) {
+<<<<<<< HEAD
           callbacks.update(frameDelta, accumulated);
+=======
+          tpsSubMeasureStart('update');
+          callbacks.update(frameDelta, accumulated);
+          tpsSubMeasureEnd('update');
+>>>>>>> dev
         }
 
         if (freeUpdatesLimit) {
@@ -276,6 +309,7 @@ export class FixedStepsRunner {
     let updatesLimitReached = updatesCount > this.updatesLimit;
     while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
       this.callback(this.accumulator);
+      console.log(this.accumulator)
 
       this.accumulator -= this.timestep;
       ++updatesCount;

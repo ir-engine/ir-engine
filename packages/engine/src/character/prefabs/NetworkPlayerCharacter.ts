@@ -35,10 +35,15 @@ import { CharacterComponent } from '../components/CharacterComponent';
 import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
 import { IKComponent } from '../components/IKComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
+<<<<<<< HEAD
 import PersistTagComponent from "../../scene/components/PersistTagComponent";
+=======
+import { PersistTagComponent } from "../../scene/components/PersistTagComponent";
+>>>>>>> dev
 import { initiateIK } from "../../xr/functions/IKFunctions";
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
+	if(!isClient) return;
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 	AnimationManager.instance._defaultModel?.children?.forEach(child => actor.modelContainer.add(child));
 	actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);

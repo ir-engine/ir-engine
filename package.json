@@ -5,12 +5,10 @@
   "homepage": "lagunalabs.io",
   "private": true,
   "workspaces": {
-    "nohoist": [
-      "packages/docs"
-    ],
-    "packages": [
-      "packages/!(docs)"
-    ]
+
+    "nohoist": ["packages/docs"],
+    "packages": ["packages/!(docs)"]
+
   },
   "keywords": [
     "three",
