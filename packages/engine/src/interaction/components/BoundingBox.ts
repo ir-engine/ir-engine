@@ -7,12 +7,12 @@ import { Types } from "../../ecs/types/Types";
  */
 
 export class BoundingBox extends Component<BoundingBox> {
-  public box: Box3;
+  public box: Box3 =  new Box3();
   public boxArray: any[];
   public dynamic: boolean;
 
   static _schema = {
-    box: { type:  Types.Ref, default: new Box3() },
+    box: { type: Types.Ref, default: null },
     boxArray: { type: Types.Array, default: [] },
     dynamic: { type: Types.Boolean, default: false },
   }

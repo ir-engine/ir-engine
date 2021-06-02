@@ -35,11 +35,11 @@ Game._schema = {
     name: { type: Types.String, default: null },
     isGlobal: { type: Types.Boolean, default: false },
     gameArea: { type: Types.Ref, default: null },
-    gamePlayers: { type: Types.Ref, default: {} },
-    gameObjects: { type: Types.Ref, default: {} },
+    gamePlayers: { type: Types.JSON, default: {} },
+    gameObjects: { type: Types.JSON, default: {} },
     minPlayers: { type: Types.Number, default: null },
     maxPlayers: { type: Types.Number, default: null },
     gameMode: { type: Types.String, default: null },
     initState: { type: Types.String, default: null },
-    state: { type: Types.Ref, default: [] }
+    state: { type: Types.Array, default: [] }
 }
