@@ -6,7 +6,6 @@ import { ColliderComponent } from '../../../../physics/components/ColliderCompon
 import { RigidBodyComponent } from '../../../../physics/components/RigidBody';
 import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject';
 import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants';
-import { UserControlledColliderComponent } from '../../../../physics/components/UserControllerObjectComponent';
 import { Group, Mesh, Vector3 } from 'three';
 import { AssetLoader } from '../../../../assets/classes/AssetLoader';
 import { Engine } from '../../../../ecs/classes/Engine';
@@ -22,6 +21,68 @@ import { NetworkObject } from '../../../../networking/components/NetworkObject';
 import { Network } from '../../../../networking/classes/Network';
 import { addActionComponent } from '../../../functions/functionsActions';
 import { Action, State } from '../../../types/GameComponents';
+import { getGame } from '../../../functions/functions';
+import { MathUtils } from 'three';
+
+/**
+ * @author Josh Field <github.com/HexaField>
+ */
+
+export const spawnBall = (entityPlayer: Entity): void => {
+
+  // server sends clients the entity data
+  if (isClient) return;
+
+  const game = getGame(entityPlayer);
+  const playerNetworkObject = getComponent(entityPlayer, NetworkObject);
+
+  // console.log(ownerId, 'ball exists', game.gameObjects['GolfBall'].length > 0)
+
+  // if a ball already exists in the world, it obviously isn't our turn
+  if (game.gameObjects['GolfBall'].length > 0) return;
+
+  const playerHasBall = game.gameObjects['GolfBall']
+    .filter((entity) => getComponent(entity, NetworkObject)?.ownerId === playerNetworkObject.ownerId)
+    .length > 0;
+
+  if(playerHasBall) return;
+
+  console.log('making ball for player', playerNetworkObject.ownerId, playerHasBall)
+
+  const networkId = Network.getNetworkId();
+  const uuid = MathUtils.generateUUID();
+  // send position to spawn
+  // now we have just one location
+  // but soon
+  const teeEntity = game.gameObjects['GolfTee'][0]
+  console.warn(game.gameObjects);
+  const teeTransform = getComponent(teeEntity, TransformComponent);
+
+  const parameters: GolfBallSpawnParameters = {
+    gameName: game.name,
+    role: 'GolfBall',
+    spawnPosition: teeTransform.position,
+    uuid,
+    ownerNetworkId: playerNetworkObject.networkId
+  };
+
+  // this spawns the ball on the server
+  createGolfBallPrefab({
+    networkId,
+    uniqueId: uuid,
+    ownerId: playerNetworkObject.ownerId, // the uuid of the player whose ball this is
+    parameters
+  })
+
+  // this sends the ball to the clients
+  Network.instance.worldState.createObjects.push({
+    networkId,
+    ownerId: playerNetworkObject.ownerId,
+    uniqueId: uuid,
+    prefabType: GolfPrefabTypes.Ball,
+    parameters: JSON.stringify(parameters).replace(/"/g, '\''),
+  })
+};
 
 /**
 * @author Josh Field <github.com/HexaField>
@@ -78,7 +139,6 @@ export const initializeGolfBall = (ballEntity: Entity) => {
   const ownerNetworkObject = Object.values(Network.instance.networkObjects).find((obj) => {
     return obj.ownerId === networkObject.ownerId;
   }).component;
-  addComponent(ballEntity, UserControlledColliderComponent, { ownerNetworkId: ownerNetworkObject.networkId });
 
   if (isClient) {
     AssetLoader.load({
@@ -114,7 +174,15 @@ export const initializeGolfBall = (ballEntity: Entity) => {
   collider.body = body;
 }
 
-export const createGolfBallPrefab = (args: { parameters?: any, networkId?: number, uniqueId: string, ownerId?: string }) => {
+type GolfBallSpawnParameters = {
+  gameName: string;
+  role: string;
+  uuid: string;
+  ownerNetworkId: number;
+  spawnPosition: Vector3;
+}
+
+export const createGolfBallPrefab = (args: { parameters?: GolfBallSpawnParameters, networkId?: number, uniqueId: string, ownerId?: string }) => {
   console.log('createGolfBallPrefab', args.parameters)
   initializeNetworkObject({
     prefabType: GolfPrefabTypes.Ball,
