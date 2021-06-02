@@ -34,7 +34,7 @@
         "save": "Save",
         "manifest-file": "Manifest .manifest file",
         "audio-file": "Mp4 file",
-        "dracosis-file": "Dracosis .drcs file",
+        "dracosis-file": "Dracosis .uvol file",
         "preview-file": "Preview image file"
     },
     "creator": {
@@ -132,7 +132,7 @@
         "meet": "Meet up with friends"
     },
     "shareForm": {
-        "seeCoolStuff": "See cool stuff",
+        "arcMedia": "Arc Media",
         "videoCreated": "I Created This Video",
         "shareWithBuddies": "Share with buddies",
         "shareVideo": "Share Video",

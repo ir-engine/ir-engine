@@ -9,6 +9,7 @@ import {io as ioclient , Socket} from "socket.io-client";
 import { createDataProducer, endVideoChat, initReceiveTransport, initSendTransport, leave, subscribeToTrack } from "./SocketWebRTCClientFunctions";
 import { EngineEvents } from "@xrengine/engine/src/ecs/classes/EngineEvents";
 import { ClientNetworkSystem } from "@xrengine/engine/src/networking/systems/ClientNetworkSystem";
+import { WorldStateModel } from "@xrengine/engine/src/networking/schema/worldStateSchema";
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
 
@@ -65,6 +66,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     }
     return buf;
 }
+
+  close() {
+    this.instanceRecvTransport?.close();
+    this.instanceSendTransport?.close();
+    this.channelRecvTransport?.close();
+    this.channelSendTransport?.close();
+  }
 
   // This sends message on a data channel (data channel creation is now handled explicitly/default)
   sendData(data: any, instance = true): void {
@@ -161,7 +169,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       // console.log(ConnectToWorldResponse);
       const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
 
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD, worldState });
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD, worldState: WorldStateModel.fromBuffer(worldState) });
 
       // Send heartbeat every second
       const heartbeat = setInterval(() => {
@@ -174,7 +182,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
       // If a reliable message is received, add it to the queue
       socket.on(MessageTypes.ReliableMessage.toString(), (message) => {
-        Network.instance?.incomingMessageQueue.add(message);
+        Network.instance.incomingMessageQueueReliable.add(message);
       });
 
       // use sendBeacon to tell the server we're disconnecting when
@@ -210,11 +218,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
         // Firefox uses blob as by default hence have to convert binary type of data consumer to 'arraybuffer' explicitly.
         dataConsumer.binaryType = 'arraybuffer';
-        Network.instance?.dataConsumers.set(options.dataProducerId, dataConsumer);
+        Network.instance.dataConsumers.set(options.dataProducerId, dataConsumer);
 
         dataConsumer.on('message', (message: any) => {
           try{
-            Network.instance?.incomingMessageQueue.add(message);
+            Network.instance.incomingMessageQueueUnreliable.add(message);
           } catch (error){
             console.warn("Error handling data from consumer:");
             console.warn(error);
@@ -222,7 +230,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         }); // Handle message received
         dataConsumer.on('close', () => {
           dataConsumer.close();
-          Network.instance?.dataConsumers.delete(options.dataProducerId);
+          Network.instance.dataConsumers.delete(options.dataProducerId);
         });
       });
 

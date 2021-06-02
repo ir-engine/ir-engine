@@ -31,7 +31,7 @@ export default (app: Application): void => {
 
   const service = app.service('party-user');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 
   /**
    * A function which is used to create new party user 
@@ -43,7 +43,7 @@ export default (app: Application): void => {
 
   service.publish('created', async (data): Promise<any> => {
     try {
-      const channel = await app.service('channel').Model.findOne({
+      const channel = await (app.service('channel') as any).Model.findOne({
         where: {
           partyId: data.partyId
         }
@@ -98,7 +98,7 @@ export default (app: Application): void => {
    */
   service.publish('patched', async (data): Promise<any> => {
     try {
-      const channel = await app.service('channel').Model.findOne({
+      const channel = await (app.service('channel') as any).Model.findOne({
         where: {
           partyId: data.partyId
         }
@@ -156,7 +156,7 @@ export default (app: Application): void => {
 
   service.publish('removed', async (data): Promise<any> => {
     try {
-      const channel = await app.service('channel').Model.findOne({
+      const channel = await (app.service('channel') as any).Model.findOne({
         where: {
           partyId: data.partyId
         }

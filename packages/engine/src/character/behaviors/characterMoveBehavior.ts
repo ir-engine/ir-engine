@@ -1,27 +1,27 @@
 import { Vector3, Matrix4, Quaternion } from 'three';
 
-import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ';
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 
 import { Input } from '../../input/components/Input';
-import { BinaryValue } from "../../common/enums/BinaryValue";
 import { BaseInput } from '../../input/enums/BaseInput';
 
 import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { isServer } from '../../common/functions/isServer';
-import { XRUserSettings, XR_FOLLOW_MODE } from '../../xr/types/XRUserSettings';
-import { getBit } from '../../common/functions/bitFunctions';
-import { CHARACTER_STATES } from '../state/CharacterStates';
+import { isInXR } from '../../xr/functions/WebXRFunctions';
+import { SIXDOFType } from '../../common/types/NumericalTypes';
 
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 
-const forwardVector = new Vector3(0, 0, 1);
 const upVector = new Vector3(0, 1, 0);
+const quat = new Quaternion();
+const mat4 = new Matrix4();
+const newVelocity = new Vector3();
+const onGroundVelocity = new Vector3();
+const vec3 = new Vector3();
 
 export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
@@ -29,31 +29,9 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
   if (!actor.initialized || !collider.controller || !actor.movementEnabled) return;
 
-  if (getBit(actor.state, CHARACTER_STATES.VR)) {
-    const inputs = getComponent(entity, Input);
-    let rotationVector = null;
-    switch (XRUserSettings.moving) {
-      case XR_FOLLOW_MODE.CONTROLLER:
-        rotationVector = XRUserSettings.invertRotationAndMoveSticks ? inputs.data.get(BaseInput.XR_RIGHT_HAND).value : inputs.data.get(BaseInput.XR_LEFT_HAND).value;
-        rotationVector = new Quaternion().set(rotationVector.qX, rotationVector.qY, rotationVector.qZ, rotationVector.qW)//.invert();
+  newVelocity.setScalar(0);
+  onGroundVelocity.setScalar(0);
 
-        const flatViewVector = new Vector3(actor.viewVector.x, 0, actor.viewVector.z).normalize();
-        const orientationVector = applyVectorMatrixXZ(flatViewVector, forwardVector);
-        const viewVectorFlatQuaternion = new Quaternion().setFromUnitVectors(forwardVector, orientationVector.setY(0));
-        rotationVector.multiply(viewVectorFlatQuaternion);
-
-        break;
-      case XR_FOLLOW_MODE.HEAD:
-        const headTransform = inputs.data.get(BaseInput.XR_HEAD);
-        if(headTransform) {
-          rotationVector = headTransform.value;
-          rotationVector = new Quaternion().set(rotationVector.qX, rotationVector.qY, rotationVector.qZ, rotationVector.qW);
-        }
-        break;
-    }
-  }
-  const newVelocity = new Vector3();
-  const onGroundVelocity = new Vector3();
   if (actor.isGrounded) {
     collider.controller.velocity.y = 0;
 
@@ -65,12 +43,25 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
     newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed * actor.speedMultiplier);
     newVelocity.applyQuaternion(transform.rotation)
 
+    if(isInXR(entity)) {
+      // Apply head direction
+      const input = getComponent<Input>(entity, Input as any);
+      const headTransform = input.data.get(BaseInput.XR_HEAD);
+      if(!headTransform?.value) return
+      const sixdof = headTransform.value as SIXDOFType;
+      quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW);
+      // actor.localMovementDirection.applyQuaternion(quat);
+      // TODO figure out how to apply quaternion only in XZ plane
+      newVelocity.applyQuaternion(quat);
+      newVelocity.y = actor.velocity.y;
+    }
+
     if (actor.closestHit) {
       onGroundVelocity.copy(newVelocity).setY(0);
-      const normal = new Vector3(actor.closestHit.normal.x, actor.closestHit.normal.y, actor.closestHit.normal.z);
-      const q = new Quaternion().setFromUnitVectors(upVector, normal);
-      const m = new Matrix4().makeRotationFromQuaternion(q);
-      onGroundVelocity.applyMatrix4(m);
+      vec3.set(actor.closestHit.normal.x, actor.closestHit.normal.y, actor.closestHit.normal.z);
+      quat.setFromUnitVectors(upVector, vec3);
+      mat4.makeRotationFromQuaternion(quat);
+      onGroundVelocity.applyMatrix4(mat4);
     }
     collider.controller.velocity.x = newVelocity.x;
     collider.controller.velocity.y = onGroundVelocity.y;
@@ -90,6 +81,7 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
       actor.isGrounded = false;
     }
     // TODO - Move on top of moving objects
+    // physx has a feature for this, we should integrate both
     // if (actor.rayResult.body.mass > 0) {
     // 	const pointVelocity = new Vec3();
     // 	actor.rayResult.body.getVelocityAtWorldPoint(actor.rayResult.hitPointWorld, pointVelocity);

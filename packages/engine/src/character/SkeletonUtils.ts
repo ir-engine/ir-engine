@@ -11,10 +11,40 @@ import {
 	VectorKeyframeTrack
 } from 'three';
 
+interface ShortOptions {
+	names?: any,
+	hip?: string
+}
+
+
+interface RetargetOptions {
+	useFirstFramePosition? : boolean,
+	fps?: number,
+	names?: any,
+	hip?: string
+}
+
+interface Options {
+	preserveMatrix? : boolean,
+	preservePosition? : boolean,
+	preserveHipPosition? : boolean,
+	useTargetMatrix? : boolean,
+	hip? : string,
+	names?: any,
+	offsets?: any
+}
+
 class SkeletonUtils {
 
-	static retarget( target, source, options: any = {} ) {
-
+	static retarget( target, source, options: Options ) {
+		if(!options) options = {
+			preserveMatrix : true,
+			preservePosition : true,
+			preserveHipPosition : false,
+			useTargetMatrix : false,
+			hip : 'hip',
+			names: {}
+		}
 		const pos = new Vector3(),
 			quat = new Quaternion(),
 			scale = new Vector3(),
@@ -200,19 +230,19 @@ class SkeletonUtils {
 
 	}
 
-	static retargetClip( target, source, clip, options: any = {} ) {
-		// console.log("Retargeting clip: ", clip);
+	static retargetClip( target, source, clip, options: RetargetOptions = {} ) {
+
 		options.useFirstFramePosition = options.useFirstFramePosition !== undefined ? options.useFirstFramePosition : false;
 		options.fps = options.fps !== undefined ? options.fps : 30;
 		options.names = options.names || [];
 
 		if ( ! source.isObject3D ) {
-			// console.error("source.isObject3D", source.isObject3D)
+
 			source = this.getHelperFromSkeleton( source );
 
 		}
 
-		const numFrames = Math.round( clip.duration * options.fps ),
+		const numFrames = Math.round( clip.duration * ( options.fps / 1000 ) * 1000 ),
 			delta = 1 / options.fps,
 			convertedTracks = [],
 			mixer = new AnimationMixer( source ),
@@ -305,7 +335,7 @@ class SkeletonUtils {
 				if ( boneData.pos ) {
 
 					convertedTracks.push( new VectorKeyframeTrack(
-						boneData.bone.name +'.position',
+						'.bones[' + boneData.bone.name + '].position',
 						boneData.pos.times,
 						boneData.pos.values
 					) );
@@ -313,7 +343,7 @@ class SkeletonUtils {
 				}
 
 				convertedTracks.push( new QuaternionKeyframeTrack(
-				 	boneData.bone.name + '.quaternion',
+					'.bones[' + boneData.bone.name + '].quaternion',
 					boneData.quat.times,
 					boneData.quat.values
 				) );
@@ -337,7 +367,7 @@ class SkeletonUtils {
 
 	}
 
-	static getSkeletonOffsets( target, source, options: any = {} ) {
+	static getSkeletonOffsets( target, source, options: ShortOptions = {} ) {
 
 		const targetParentPos = new Vector3(),
 			targetPos = new Vector3(),

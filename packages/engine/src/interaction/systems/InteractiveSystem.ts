@@ -1,4 +1,4 @@
-import { Box3, Frustum, Matrix4, Mesh, Object3D, Scene, Vector3 } from "three";
+import { Box3, Frustum, Matrix4, Mesh, Vector3 } from "three";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { isClient } from "../../common/functions/isClient";
 import { vectorToScreenXYZ } from "../../common/functions/vectorToScreenXYZ";
@@ -25,12 +25,31 @@ import { InteractiveFocused } from "../components/InteractiveFocused";
 import { Interactor } from "../components/Interactor";
 import { SubFocused } from "../components/SubFocused";
 import { InteractBehaviorArguments } from "../types/InteractionTypes";
-import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
+import { HasHadInteraction } from "../../game/actions/HasHadInteraction";
 import { addActionComponent } from '../../game/functions/functionsActions';
+import { EquipperComponent } from "../components/EquipperComponent";
+import { EquippedStateUpdateSchema } from "../enums/EquippedEnums";
+import { ColliderComponent } from "../../physics/components/ColliderComponent";
+import { NetworkObjectUpdateType } from "../../networking/templates/NetworkObjectUpdateSchema";
+import { sendClientObjectUpdate } from "../../networking/functions/sendClientObjectUpdate";
+import { BodyType } from "three-physx";
+import { BinaryValue } from "../../common/enums/BinaryValue";
+import { ParityValue } from "../../common/enums/ParityValue";
+import { getInteractiveIsInReachDistance } from "../../character/functions/getInteractiveIsInReachDistance";
+import { getHandTransform } from "../../xr/functions/WebXRFunctions";
+import { unequipEntity } from "../functions/equippableFunctions";
 
+const vector3 = new Vector3();
 // but is works on client too, i will config out this
-export const interactOnServer: Behavior = (entity: Entity, args: any, delta): void => {
+export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityValue}, delta): void => {
   //console.warn('Behavior: interact , networkId ='+getComponent(entity, NetworkObject).networkId);
+
+  const equipperComponent = getComponent(entity, EquipperComponent)
+  if(equipperComponent) {
+    unequipEntity(entity)
+    return;
+  }
+
     let focusedArrays = [];
     for (let i = 0; i < Engine.entities.length; i++) {
       const isEntityInteractable = Engine.entities[i];
@@ -42,20 +61,27 @@ export const interactOnServer: Behavior = (entity: Entity, args: any, delta): vo
 
         if (interactive.interactionPartsPosition.length > 0) {
           interactive.interactionPartsPosition.forEach((v,i) => {
-            const partPosition = new Vector3(...v).applyQuaternion(intRotation).add(intPosition);
-            if (position.distanceTo(partPosition) < 3) {
+            const partPosition = vector3.set(v[0], v[1], v[2]).applyQuaternion(intRotation).add(intPosition);
+            if (getInteractiveIsInReachDistance(entity, intPosition, args.side)) {
               focusedArrays.push([isEntityInteractable, position.distanceTo(partPosition), i])
             }
           })
         } else {
-          if (position.distanceTo(intPosition) < 3) {
-            focusedArrays.push([isEntityInteractable, position.distanceTo(intPosition), null])
+          if (getInteractiveIsInReachDistance(entity, intPosition, args.side)) {
+            if (typeof interactive.onInteractionCheck === 'function') {
+              if (interactive.onInteractionCheck(entity, isEntityInteractable, null)) {
+                focusedArrays.push([isEntityInteractable, position.distanceTo(intPosition), null])
+              }
+            } else {
+              focusedArrays.push([isEntityInteractable, position.distanceTo(intPosition), null])
+            }
           }
         }
       }
     }
 
     focusedArrays = focusedArrays.sort((a: any, b: any) => a[1] - b[1]);
+    console.warn(focusedArrays.length);
     if (focusedArrays.length < 1) return;
 
     const interactable = getComponent(focusedArrays[0][0], Interactable);
@@ -63,19 +89,13 @@ export const interactOnServer: Behavior = (entity: Entity, args: any, delta): vo
     const interactionCheck = interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2]);
 
     if (interactable.data.interactionType === "gameobject") {
-      if (interactionFunction) {
-        if (interactionCheck) {
-          addActionComponent(focusedArrays[0][0], HaveBeenInteracted);
-        }
-      } else {
-        addActionComponent(focusedArrays[0][0], HaveBeenInteracted);
-      }
+      addActionComponent(focusedArrays[0][0], HasHadInteraction, { args, entityNetworkId: getComponent(entity, NetworkObject).networkId });
       return;
     }
     // Not Game Object
     if (interactionFunction && interactionCheck) {
     //  console.warn('start with networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
-      interactable.onInteraction(entity, { currentFocusedPart: focusedArrays[0][2] }, delta, focusedArrays[0][0]);
+      interactable.onInteraction(entity, { ...args, currentFocusedPart: focusedArrays[0][2] }, delta, focusedArrays[0][0]);
     }
 }
 
@@ -238,6 +258,10 @@ export class InteractiveSystem extends System {
     this.previousEntity2DPosition = null;
     this.focused?.clear();
     this.newFocused?.clear();
+
+    EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.USER_HOVER);
+    EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.OBJECT_ACTIVATION);
+    EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.OBJECT_HOVER);
   }
 
   execute(delta: number, time: number): void {
@@ -395,6 +419,51 @@ export class InteractiveSystem extends System {
       this.focused.clear();
       this.newFocused.forEach(e => this.focused.add(e));
     }
+
+    this.queryResults.equippable.added?.forEach(entity => {
+      const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity;
+      // all equippables must have a collider to grab by in VR
+      const collider = getComponent(equippedEntity, ColliderComponent)
+      if(collider) collider.body.type = BodyType.KINEMATIC;
+      // send equip to clients
+      if(!isClient) {
+        const networkObject = getComponent(equippedEntity, NetworkObject)
+        sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, networkObject.networkId] as EquippedStateUpdateSchema)
+      }
+    })
+
+    this.queryResults.equippable.all?.forEach(entity => {
+      const equipperComponent = getComponent(entity, EquipperComponent);
+      const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent);
+      const handTransform = getHandTransform(entity);
+      const { position, rotation } = handTransform;    
+      equippableTransform.position.copy(position);
+      equippableTransform.rotation.copy(rotation);
+      if(!isClient) {
+        this.queryResults.network_user.added.forEach((userEntity) => {
+          const networkObject = getComponent(equipperComponent.equippedEntity, NetworkObject)
+          sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, networkObject.networkId] as EquippedStateUpdateSchema)
+        })
+      }
+    });
+
+    this.queryResults.equippable.removed?.forEach(entity => {
+      const equipperComponent = getComponent(entity, EquipperComponent, true)
+      const equippedEntity = equipperComponent.equippedEntity;
+      const equippedTransform = getComponent(equippedEntity, TransformComponent)
+      const collider = getComponent(equippedEntity, ColliderComponent)
+      if(collider) {
+        collider.body.type = BodyType.DYNAMIC;
+        collider.body.updateTransform({
+          translation: equippedTransform.position,
+          rotation: equippedTransform.rotation,
+        })
+      }
+      // send unequip to clients
+      if(!isClient) {
+        sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.FALSE] as EquippedStateUpdateSchema)
+      }
+    })
   }
 
   static queries: any = {
@@ -430,6 +499,13 @@ export class InteractiveSystem extends System {
     },
     network_user: {
       components: [Not(LocalInputReceiver), NamePlateComponent, CharacterComponent, TransformComponent],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    equippable: {
+      components: [EquipperComponent],
       listen: {
         added: true,
         removed: true

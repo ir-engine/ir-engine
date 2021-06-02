@@ -31,5 +31,5 @@ export default (app: Application): void => {
    */
   const service = app.service('scene');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

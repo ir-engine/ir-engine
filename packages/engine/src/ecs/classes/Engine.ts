@@ -7,7 +7,6 @@
 
 import {
   AudioListener as THREE_AudioListener,
-  Clock,
   PerspectiveCamera,
   Scene,
   WebGLRenderer,
@@ -30,6 +29,8 @@ import { PositionalAudioObjectProxy, AudioObjectProxy, AudioListenerProxy, Audio
 import { NumericalType } from '../../common/types/NumericalTypes';
 import { InputValue } from '../../input/interfaces/InputValue';
 import { GameMode } from "../../game/types/GameMode";
+import { EngineEvents } from './EngineEvents';
+import { WebXRManager } from '../../xr/WebXRManager';
 
 export const Audio = isWebWorker ? AudioObjectProxy : THREE_Audio;
 export const AudioListener = isWebWorker ? AudioListenerProxy : THREE_AudioListener;
@@ -52,8 +53,7 @@ export type VideoTexture = VideoTextureProxy | THREE_VideoTexture;
  */
 export class Engine {
 
-  public static engineTimer: { start: Function; stop: Function } = null
-  public static engineTimerTimeout = null;
+  public static engineTimer: { start: Function; stop: Function, clear: Function } = null
 
   public static supportedGameModes: { [key: string]: GameMode };
   public static gameMode: GameMode;
@@ -61,6 +61,7 @@ export class Engine {
   public static xrSupported = false;
 
   public static offlineMode = false;
+  public static isHMD = false;
 
   //public static stats: Stats
   // Move for sure
@@ -73,7 +74,7 @@ export class Engine {
    * Frame rate for physics system.
    *
    * @author Fernando Serrano, Robert Long
-   * @Default 60
+   * @default 60
    */
   public static physicsFrameRate = 60;
 
@@ -92,7 +93,6 @@ export class Engine {
    * @default 1
    */
   public static timeScaleTarget = 1;
-  public static clock = new Clock;
 
   /**
    * Reference to the three.js renderer object.
@@ -101,6 +101,7 @@ export class Engine {
    * @author Fernando Serrano, Robert Long
    */
   static renderer: WebGLRenderer = null
+  static xrRenderer: WebXRManager = null
   static xrSession: XRSession = null
   static context = null
 
@@ -273,6 +274,7 @@ export class Engine {
   static systemsToExecute: any[] = []
   static vehicles: any;
   static lastTime: number;
+
   static tick = 0;
   /** HTML Element in which Engine renders. */
   static viewportElement: HTMLElement;
@@ -290,4 +292,13 @@ export class Engine {
 
   static workers = [];
 }
+
+export const awaitEngineLoaded = (): Promise<void> => {
+  return new Promise<void>((resolve) => {
+    if(Engine.isInitialized) resolve();
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.INITIALIZED_ENGINE, resolve)
+  })
+}
+
+
 globalThis.Engine = Engine;

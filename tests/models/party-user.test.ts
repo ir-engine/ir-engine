@@ -1,9 +1,9 @@
 import app from '../../packages/server/src/app'
 
 describe('CRUD operation on \'PartyUser\' model', () => {
-  const model = app.service('party-user').Model
-  const partyModel = app.service('party').Model
-  const userModel = app.service('user').Model
+  const model = (app.service('party-user') as any).Model
+  const partyModel = (app.service('party') as any).Model
+  const userModel = (app.service('user') as any).Model
   let partyId, userId
 
   beforeAll(async () => {

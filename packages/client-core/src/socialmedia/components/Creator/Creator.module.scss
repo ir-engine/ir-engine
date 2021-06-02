@@ -5,16 +5,25 @@
     .videosSwitcher{
         transform: translate(0, -115px);
         background-color: #EEEEEF;
-        padding: 3px;
-        border-radius: 5px;
+        //padding: 3px;
+        //border-radius: 5px;
         display: flex;
-        margin: 10px 20px;
+        margin: 10px 19pt;
+        padding: 5px 3px;
+        border-radius: 15px;
 
         .switchButton{
             margin: 0;
             color: #000000;
-            padding: 0;
+            padding: 7pt;
+            font-size: 13pt;
+            text-transform: capitalize;
             width: 50%;
+            border-radius: 15px;
+            font-weight: 600;
+            span{
+                line-heigh: 18pt;
+            }
             &.active{
                 background-color: #FFF;
             }
@@ -22,5 +31,17 @@
     }
     .feedsWrapper{
         transform: translate(0, -115px);
+    }
+    @media screen and (max-width: 499px){
+        .switcher{
+            .switchButton{
+                border-radius: 13px;
+                font-size: 11pt;
+                padding: 5pt;
+                span{
+                    line-heigh: 14pt;
+                }
+            }
+        }
     }
 }

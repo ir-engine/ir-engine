@@ -1,4 +1,5 @@
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers';
+import Paginated from '../../types/PageObject';
 import { Application } from '../../../declarations';
 import moment from 'moment';
 import logger from '../../logger';
@@ -21,6 +22,8 @@ export class Login implements ServiceMethods<Data> {
     this.app = app;
   }
 
+  async setup() {}
+
   /**
    * A function which find login details and display it 
    * 
@@ -42,7 +45,7 @@ export class Login implements ServiceMethods<Data> {
    */
   async get (id: Id, params?: Params): Promise<any> {
     try {
-      const result = await this.app.service('login-token').Model.findOne({
+      const result = await (this.app.service('login-token') as any).Model.findOne({
         where: {
           token: id
         }
@@ -58,7 +61,7 @@ export class Login implements ServiceMethods<Data> {
         return { error: 'Login link has expired' };
       }
       const identityProvider = await this.app.service('identity-provider').get(result.identityProviderId);
-      const token = await this.app.service('authentication').createAccessToken(
+      const token = await (this.app.service('authentication') as any).createAccessToken(
         {},
         { subject: identityProvider.id.toString() }
       );

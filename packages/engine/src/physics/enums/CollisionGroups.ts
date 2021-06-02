@@ -8,7 +8,8 @@ export enum CollisionGroups {
 	Default = 1 << 0,
 	Characters = 1 << 1,
 	Car = 1 << 2,
-	TrimeshColliders = 1 << 3,
-	TriggerCollider = 1 << 4,
-  All = Default | Characters | Car | TrimeshColliders | TriggerCollider
+	TriggerCollider = 1 << 3,
+  Ground = 1 << 4,
 }
+
+export const DefaultCollisionMask = CollisionGroups.Default | CollisionGroups.Characters | CollisionGroups.Ground;

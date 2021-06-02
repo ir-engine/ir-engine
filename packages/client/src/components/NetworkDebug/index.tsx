@@ -5,6 +5,7 @@ import React, { useEffect, useRef, useState } from "react";
 import JSONTree from 'react-json-tree';
 import { EngineEvents } from "@xrengine/engine/src/ecs/classes/EngineEvents";
 import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
+import { SocketWebRTCClientTransport } from "../../transports/SocketWebRTCClientTransport";
 
 export const NetworkDebug = ({ reinit  }) => {
   const [isShowing, setShowing] = useState(false);
@@ -15,8 +16,14 @@ export const NetworkDebug = ({ reinit  }) => {
 
   function setupListener() {
     window.addEventListener('keydown', downHandler);
-
   }
+  document.addEventListener('keypress', (ev) => {
+    if(ev.key === 'p') {
+      EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS, enabled: !physicsDebug });
+      EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_AVATAR, enabled: !physicsDebug });
+      setPhysicsDebug(!physicsDebug);
+    }
+  });
 
   // If pressed key is our target key then set to true
   function downHandler({ keyCode }) {
@@ -29,9 +36,12 @@ export const NetworkDebug = ({ reinit  }) => {
   // Add event listeners
   useEffect(() => {
     setupListener();
-    setInterval(() => {
+    const interval = setInterval(() => {
       setRemountCount(Math.random());
     }, 1000);
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   const [remountCount, setRemountCount] = useState(0);
@@ -46,14 +56,28 @@ export const NetworkDebug = ({ reinit  }) => {
     setAvatarDebug(!avatarDebug);
   };
 
-  if (Network.instance !== null && isShowing) return (
+  const reset = async () => {
+    const transport = Network.instance.transport as SocketWebRTCClientTransport;
+    if (transport.instanceSocket && typeof transport.instanceSocket.disconnect === 'function') await transport.instanceSocket.disconnect();
+    if (transport.channelSocket && typeof transport.channelSocket.disconnect === 'function') await transport.channelSocket.disconnect();
+
+    EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_AVATAR, enabled: false });
+    setAvatarDebug(false);
+
+    EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS, enabled: false });
+    setPhysicsDebug(false);
+
+    resetEngine();
+  };
+
+  if (isShowing) return (
     <div style={{ position: "absolute", overflowY: "auto", top: 0, zIndex: 100000, height: "auto", maxHeight: "95%", width: "auto", maxWidth: "50%" }}>
       <button type="submit" value="Refresh" onClick={refresh}>Refresh</button>
       <button type="button" value="Physics Debug" onClick={togglePhysicsDebug}>Physics Debug</button>
       <button type="button" value="Avatar Debug" onClick={toggleAvatarDebug}>Avatar Debug</button>
       <button type="button" onClick={reinit}>Reinit</button>
-      <button type="button" onClick={resetEngine}>Reset</button>
-      <div>
+      <button type="button" onClick={reset}>Reset</button>
+      {Network.instance !== null && <div>
         <div>
           <h1>Network Object</h1>
           <JSONTree data={{ ...Network.instance }} />
@@ -70,7 +94,15 @@ export const NetworkDebug = ({ reinit  }) => {
           <h1>Engine Entities</h1>
           <JSONTree data={{ ...Engine.entities }} />
         </div>
+      </div>}
+      {Network.instance === null &&<div>
+        <div>
+          <h1>Engine Entities</h1>
+          <JSONTree data={{ ...Engine.entities }} />
+        </div>
       </div>
+      
+      }
     </div>
   );
   else return null;

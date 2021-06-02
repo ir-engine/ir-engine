@@ -117,14 +117,14 @@ export class Location extends Service {
     });
 
     if (joinableLocations) {
-      const locationResult = await this.app.service('location').Model.findAndCountAll({
+      const locationResult = await (this.app.service('location') as any).Model.findAndCountAll({
         offset: $skip,
         limit: $limit,
         where: strippedQuery,
         order: order,
         include: [
           {
-            model: this.app.service('instance').Model,
+            model: (this.app.service('instance') as any).Model,
             required: false,
             where: {
               currentUsers: {
@@ -133,11 +133,11 @@ export class Location extends Service {
             }
           },
           {
-            model: this.app.service('location-settings').Model,
+            model: (this.app.service('location-settings') as any).Model,
             required: false
           },
           {
-            model: this.app.service('location-ban').Model,
+            model: (this.app.service('location-ban') as any).Model,
             required: false
           }
         ]
@@ -153,11 +153,11 @@ export class Location extends Service {
       const selfUser = await this.app.service('user').get(loggedInUser.userId);
       const include = [
         {
-          model: this.app.service('location-settings').Model,
+          model: (this.app.service('location-settings') as any).Model,
           required: false
         },
         {
-          model: this.app.service('location-ban').Model,
+          model: (this.app.service('location-ban') as any).Model,
           required: false
         }
       ];
@@ -165,7 +165,7 @@ export class Location extends Service {
       if (selfUser.userRole !== 'admin')  {
         (include as any).push(
             {
-              model: this.app.service('location-admin').Model,
+              model: (this.app.service('location-admin') as any).Model,
               where: {
                 userId: loggedInUser.userId
               }
@@ -189,7 +189,7 @@ export class Location extends Service {
         };
       }
 
-      const locationResult = await this.app.service('location').Model.findAndCountAll({
+      const locationResult = await (this.app.service('location') as any).Model.findAndCountAll({
         offset: $skip,
         limit: $limit,
         where: { ...strippedQuery, ...q },
@@ -228,7 +228,7 @@ export class Location extends Service {
 
       const location = await this.Model.create(locationData, { transaction: t });
 
-      await this.app.service('location-settings').Model.create(
+      await (this.app.service('location-settings') as any).Model.create(
         {
           videoEnabled: !!location_setting.videoEnabled,
           instanceMediaChatEnabled: !!location_setting.instanceMediaChatEnabled,
@@ -240,7 +240,7 @@ export class Location extends Service {
       );
 
       if(loggedInUser) {
-        await this.app.service('location-admin').Model.create({
+        await (this.app.service('location-admin') as any).Model.create({
           locationId: location.id,
           userId: loggedInUser.userId
         }, { transaction: t });
@@ -274,14 +274,14 @@ export class Location extends Service {
       // eslint-disable-next-line prefer-const
       let {location_setting, ...locationData} = data;
 
-      const old = await this.Model.findOne({ where: { id }, include: [ this.app.service('location-settings').Model ] });
+      const old = await this.Model.findOne({ where: { id }, include: [ (this.app.service('location-settings') as any).Model ] });
 
       if (locationData.name) locationData.slugifiedName = slugify(locationData.name, { lower: true });
       if (!old.isLobby && locationData.isLobby) await this.makeLobby(params, t);
 
       await this.Model.update(locationData, { where: { id }, transaction: t }); // super.patch(id, locationData, params);
 
-      await this.app.service('location-settings').Model.update(
+      await (this.app.service('location-settings') as any).Model.update(
         {
           videoEnabled: !!location_setting.videoEnabled,
           instanceMediaChatEnabled: !!location_setting.instanceMediaChatEnabled,
@@ -292,7 +292,7 @@ export class Location extends Service {
       );
 
       await t.commit();
-      const location = await this.Model.findOne({ where: { id }, include: [ this.app.service('location-settings').Model ] });
+      const location = await this.Model.findOne({ where: { id }, include: [ (this.app.service('location-settings') as any).Model ] });
 
       return location;
     } catch (err) {

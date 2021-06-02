@@ -1,4 +1,5 @@
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers';
+import Paginated from '../../types/PageObject';
 import { Application } from '../../../declarations';
 import { indexes } from '@xrengine/common/src/scenes-templates';
 
@@ -25,6 +26,8 @@ export class MediaSearch implements ServiceMethods<Data> {
     this.options = options;
     this.app = app;
   }
+
+  async setup() {}
 
   /**
    * A function which find all media and display it 

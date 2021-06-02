@@ -6,10 +6,10 @@ export function insertSeparator(children, separatorFn) {
   if (length === 1) {
     return children[0];
   }
-  return children.reduce((acc, item, idx) => {
+  return children.reduce((acc, item, index) => {
     acc.push(item);
-    if (idx !== length - 1) {
-      acc.push(separatorFn(idx));
+    if (index !== length - 1) {
+      acc.push(separatorFn(index));
     }
     return acc;
   }, []);
@@ -69,4 +69,15 @@ export function bytesToSize(bytes) {
   if (bytes == 0) return "0 Byte";
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
   return Math.round(bytes / Math.pow(1024, i)) + " " + sizes[i];
+}
+
+export function removeElementFromArray( arr, element ) {
+  const index = arr.indexOf( element );
+  if ( index != -1 ) {
+      arr.splice( index, 1 );
+      return true;
+  }
+  else {
+      return false;
+  }
 }

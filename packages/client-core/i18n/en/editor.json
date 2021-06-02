@@ -116,6 +116,7 @@
     "properties": {
         "title": "Properties",
         "lbl-visible": "Visible",
+        "lbl-persist": "Persist",
         "multipleNodeSelected": "Multiple Nodes of different types selected",
         "noNodeSelected": "No node selected",
         "ambientLight": {
@@ -359,6 +360,10 @@
         "volumetric": {
             "description": "Dynamically loads a volumetric video.",
             "lbl-volumetric": "Volumetric"
+        },
+        "spline": {
+            "description": "Dynamically create and customize curves.",
+            "lbl-addNode": "Add node to curve."
         }
     },
     "projects": {

@@ -1,6 +1,8 @@
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { System, SystemAttributes } from '../../ecs/classes/System';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { localMediaConstraints } from '../constants/VideoConstants';
+import {Network} from "../classes/Network";
 
 /** System class for media streaming. */
 export class MediaStreamSystem extends System {
@@ -39,6 +41,8 @@ export class MediaStreamSystem extends System {
   public screenShareVideoPaused = false
   /** Indication of whether the audio while screen sharing is paused or not. */
   public screenShareAudioPaused = false
+
+  public executeInProgress = false
 
   /** Whether the component is initialized or not. */
   public initialized = false
@@ -140,7 +144,23 @@ export class MediaStreamSystem extends System {
   }
 
   /** Execute the media stream system. */
-  public execute = null;
+  public execute = async (): Promise<void> => {
+    if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && this.executeInProgress === false) {
+      this.executeInProgress = true;
+      const buffer = Network.instance.mediasoupOperationQueue.pop() as any;
+      if (buffer.object && buffer.object.closed !== true) {
+        try {
+          if (buffer.action === 'resume') await buffer.object.resume();
+          else if (buffer.action === 'pause') await buffer.object.pause();
+        } catch(err) {
+          console.log('Pause or resume error');
+          console.log(err);
+          console.log(buffer.object)
+        }
+      }
+      this.executeInProgress = false;
+    }
+  }
 
   /**
    * Start the camera.
@@ -170,17 +190,17 @@ export class MediaStreamSystem extends System {
       console.log('cannot cycle camera - only one camera');
       return false;
     }
-    let idx = vidDevices.findIndex(d => d.deviceId === deviceId);
-    if (idx === vidDevices.length - 1) idx = 0;
-    else idx += 1;
+    let index = vidDevices.findIndex(d => d.deviceId === deviceId);
+    if (index === vidDevices.length - 1) index = 0;
+    else index += 1;
 
     // get a new video stream. might as well get a new audio stream too,
     // just in case browsers want to group audio/video streams together
     // from the same device when possible (though they don't seem to,
     // currently)
-    console.log('getting a video stream from new device', vidDevices[idx].label);
+    console.log('getting a video stream from new device', vidDevices[index].label);
     this.mediaStream = await navigator.mediaDevices.getUserMedia({
-      video: { deviceId: { exact: vidDevices[idx].deviceId } },
+      video: { deviceId: { exact: vidDevices[index].deviceId } },
       audio: true
     });
 
@@ -323,5 +343,9 @@ export class MediaStreamSystem extends System {
       console.log('failed to get media stream');
       console.log(err);
     }
+  }
+
+  dispose() {
+    EngineEvents.instance.removeAllListenersForEvent(MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS);
   }
 }

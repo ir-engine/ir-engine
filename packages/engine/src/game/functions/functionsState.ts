@@ -1,37 +1,21 @@
 import { isClient } from '../../common/functions/isClient';
-import { isServer } from '../../common/functions/isServer';
 import { Component } from "../../ecs/classes/Component";
 import { Entity } from '../../ecs/classes/Entity';
 import { addComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { Network } from "../../networking/classes/Network";
+
 import { Game } from "../components/Game";
 import { GamePlayer } from "../components/GamePlayer";
-import { ButtonDown } from '../templates/gameDefault/components/ButtonDownTagComponent';
-import { ButtonUp } from '../templates/gameDefault/components/ButtonUpTagComponent';
-import { Closed } from '../templates/gameDefault/components/ClosedTagComponent';
-import { Open } from '../templates/gameDefault/components/OpenTagComponent';
-import { PanelDown } from '../templates/gameDefault/components/PanelDownTagComponent';
-import { PanelUp } from '../templates/gameDefault/components/PanelUpTagComponent';
-import { YourTurn } from '../templates/Golf/components/YourTurnTagComponent';
+
 import { GamesSchema } from '../templates/GamesSchema';
+import { State } from '../types/GameComponents';
 import { ClientGameActionMessage, GameStateUpdateMessage } from "../types/GameMessage";
 import { GameMode, StateObject } from "../types/GameMode";
 import { getGame, getGameEntityFromName, getRole, setRole, getUuid } from './functions';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
-
-// TODO: create schema states
-const gameStateComponents = {
-  'Open': Open,
-  'Closed': Closed,
-  'ButtonUp': ButtonUp,
-  'ButtonDown': ButtonDown,
-  'PanelDown': PanelDown,
-  'PanelUp': PanelUp,
-  'YourTurn': YourTurn
-};
 
 export const initState = (game: Game, gameSchema: GameMode): void => {
   Object.keys(gameSchema.gameObjectRoles).forEach(role => game.gameObjects[role] = []);
@@ -50,7 +34,7 @@ export const reInitState = (game: Game): void => {
 };
 
 export const sendState = (game: Game, playerComp: GamePlayer): void => {
-  if (isServer && game.isGlobal) {
+  if (!isClient && game.isGlobal) {
     const message: GameStateUpdateMessage = { game: game.name, ownerId: playerComp.uuid, state: game.state };
   //  console.warn('sendState', message);
     Network.instance.worldState.gameState.push(message);
@@ -93,21 +77,43 @@ export const applyState = (game: Game): void => {
 
     })
   })
+
+  // Search if server state have spawned objects but client just joined and don't;
+  game.state.forEach((v: StateObject) => {
+    const localUuids = Object.keys(game.gamePlayers).concat(Object.keys(game.gameObjects)).reduce((acc, role: string) => {
+
+      return acc.concat((game.gameObjects[role] || game.gamePlayers[role]).map((entity: Entity) => getUuid(entity)))
+    }, []);
+
+    if (localUuids.every(uuid => uuid != v.uuid)) {
+      // spawn
+      if (v.components.some(s => s === 'SpawnedObject')) {
+        console.warn('NEED TO SPAWN', v);
+      } else {
+        console.warn('////////////////////////////////////////////////////////////////');
+        console.warn('  WE HAVE A PROBLEM');
+        console.warn('////////////////////////////////////////////////////////////////');
+      }
+    }
+  });
+
+  // Adding StateComponent from state to entity
   Object.keys(game.gamePlayers).concat(Object.keys(game.gameObjects)).forEach((role: string) => {
     (game.gameObjects[role] || game.gamePlayers[role]).forEach((entity: Entity) => {
       const uuid = getUuid(entity);
 
       const stateObject = game.state.find((v: StateObject) => v.uuid === uuid);
-      //  console.warn(stateObject);
+
       if (stateObject != undefined) {
         stateObject.components.forEach((componentName: string) => {
-          if(gameStateComponents[componentName]) 
-            addComponent(entity, gameStateComponents[componentName] );
+          if(State[componentName])
+            addComponent(entity, State[componentName] );
           else
             console.warn("Couldn't find component", componentName);
         });
       } else {
-        console.warn('state players dont worl yet');
+        console.log('Local object dont have state, v.uuid != uuid');
+        console.log( role, uuid );
       }
     })
   });
@@ -116,6 +122,24 @@ export const applyState = (game: Game): void => {
 
 export const correctState = (): void => {
   //TODO:
+};
+
+export const removeEntityFromState = (objectOrPlayerComponent, game): void => {
+  const index = game.state.findIndex(v => v.uuid === objectOrPlayerComponent.uuid);
+  if (index != -1) {
+    game.state.splice(index, 1);
+  } else {
+    console.warn('cant remove from state, dont have it already', objectOrPlayerComponent.uuid);
+  }
+};
+
+export const clearRemovedEntitysFromGame = (game): void => {
+  Object.keys(game.gamePlayers).forEach(role => {
+    game.gamePlayers[role] = game.gamePlayers[role].filter(entity => entity.queries.length != 0);
+  })
+  Object.keys(game.gameObjects).forEach(role => {
+    game.gameObjects[role] = game.gameObjects[role].filter(entity => entity.queries.length != 0);
+  })
 };
 
 export const addStateComponent = (entity: Entity, component: ComponentConstructor<Component<any>>): void => {

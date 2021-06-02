@@ -1,16 +1,21 @@
 /** Functions to provide engine level functionalities. */
 
+import { AssetLoader } from "../../assets/classes/AssetLoader";
 import { disposeDracoLoaderWorkers } from "../../assets/functions/LoadGLTF";
 import { now } from "../../common/functions/now";
+import { Network } from "../../networking/classes/Network";
+import { Vault } from "../../networking/classes/Vault";
 import disposeScene from "../../renderer/functions/disposeScene";
+import PersistTagComponent from "../../scene/components/PersistTagComponent";
 import { Engine } from '../classes/Engine';
 import { System } from '../classes/System';
-import { removeAllComponents, removeAllEntities } from "./EntityFunctions";
+import { hasComponent, removeAllComponents, removeAllEntities, removeEntity } from "./EntityFunctions";
 import { executeSystem } from './SystemFunctions';
 import { SystemUpdateType } from "./SystemUpdateType";
+import { Color } from 'three';
 
 /** Reset the engine and remove everything from memory. */
-export function reset(): void {
+export async function reset(): Promise<void> {
   console.log("RESETTING ENGINE");
   // Stop all running workers
   Engine.workers.forEach(w => w.terminate());
@@ -19,16 +24,24 @@ export function reset(): void {
   disposeDracoLoaderWorkers();
 
   // clear all entities components
-  Engine.entities.forEach(entity => {
-    removeAllComponents(entity, false);
+  await new Promise<void>(resolve => {
+    Engine.entities.forEach(entity => {
+      removeAllComponents(entity, false);
+    });
+    setTimeout(() => {
+      executeSystemBeforeReset(); // for systems to handle components deletion
+      resolve();
+    }, 500);
   });
-  execute(0.001); // for systems to handle components deletion
 
-  // delete all entities
-  removeAllEntities();
-
-  // for systems to handle components deletion
-  execute(0.001);
+  await new Promise<void>(resolve => {
+    // delete all entities
+    removeAllEntities();
+    setTimeout(() => {
+      executeSystemBeforeReset(); // for systems to handle components deletion
+      resolve();
+    }, 500);
+  });
 
   if (Engine.entities.length) {
     console.log('Engine.entities.length', Engine.entities.length);
@@ -71,9 +84,21 @@ export function reset(): void {
   Engine.camera = null;
 
   if (Engine.renderer) {
+    Engine.renderer.clear(true, true, true);
     Engine.renderer.dispose();
     Engine.renderer = null;
   }
+
+  Network.instance.dispose();
+
+  Vault.instance.clear();
+  AssetLoader.Cache.clear();
+
+  // Engine.enabled = false;
+  Engine.gameMode = null;
+  Engine.inputState.clear();
+  Engine.prevInputState.clear();
+  Engine.viewportElement = null;
 }
 
 /**
@@ -84,17 +109,29 @@ export function reset(): void {
  * 
  * @author Fernando Serrano, Robert Long
  */
-export function execute (delta?: number, time?: number, updateType = SystemUpdateType.Free): void {
+export function execute (delta: number, time: number, updateType: SystemUpdateType): void {
   Engine.tick++;
   time = now() / 1000;
   if (!delta) {
     delta = time - Engine.lastTime;
   }
   Engine.lastTime = time;
+  // if (Engine.enabled) {
+    Engine.systemsToExecute
+      .forEach(system => executeSystem(system, delta, time, updateType));
+    processDeferredEntityRemoval();
+  // }
+}
+
+function executeSystemBeforeReset() {
+  Engine.tick++;
+  const time = now() / 1000;
+  const delta = 0.001;
+  Engine.lastTime = time;
 
   if (Engine.enabled) {
     Engine.systemsToExecute
-      .forEach(system => executeSystem(system, delta, time, updateType));
+      .forEach(system => executeSystem(system, delta, time, system.updateType));
     processDeferredEntityRemoval();
   }
 }
@@ -127,8 +164,10 @@ function processDeferredEntityRemoval () {
 
       const component = entity.componentsToRemove[Component._typeId];
       delete entity.componentsToRemove[Component._typeId];
-      component.dispose();
-      Engine.numComponents[component._typeId]--;
+      if(component) {
+        component.dispose();
+        Engine.numComponents[component._typeId]--;
+      }
     }
   }
 
@@ -196,11 +235,50 @@ export function stats (): { entities: any; system: any } {
 }
 
 /** Reset the engine and clear all the timers. */
-export function resetEngine():void {
-  if (Engine.engineTimerTimeout) {
-    clearTimeout(Engine.engineTimerTimeout);
-  }
-  Engine.engineTimer?.stop();
+export async function resetEngine():Promise<void> {
+  Engine.engineTimer?.clear();
+  Engine.engineTimer = null;
 
-  reset();
+  await reset();
+}
+
+const delay = (delay: number) => {
+  return new Promise<void>(resolve => {
+    setTimeout(() => {
+      resolve();
+    }, delay);
+  })
+}
+
+export const processLocationPort = async () => {
+  const entitiesToRemove = [];
+  const removedEntities = [];
+  const sceneObjectsToRemove = [];
+
+  Engine.entities.forEach(entity => {
+    if (!hasComponent(entity, PersistTagComponent)) {
+      removeAllComponents(entity, false);
+      entitiesToRemove.push(entity);
+      removedEntities.push(entity.id);
+    }
+  });
+
+  await delay(200);
+
+  Engine.scene.background = new Color('black');
+  Engine.scene.environment = null;
+
+  Engine.scene.traverse((o: any) => {
+    if (!o.entity) return;
+    if (!removedEntities.includes(o.entity.id)) return;
+
+    sceneObjectsToRemove.push(o);
+  });
+
+  sceneObjectsToRemove.forEach(o => Engine.scene.remove(o));
+
+  await delay(2000);
+  entitiesToRemove.forEach(entity => {
+    removeEntity(entity, false);
+  });
 }

@@ -1,12 +1,13 @@
 import { Vector3, Quaternion, Matrix4 } from 'three';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
-import { getComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions';
 import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
 import { createVehicleFromModel } from '../../vehicle/prefabs/NetworkVehicle';
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { addColliderWithoutEntity } from './colliderCreateFunctions';
 import { BodyType } from "three-physx";
+import { ColliderComponent } from '../components/ColliderComponent';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -55,10 +56,34 @@ export function createStaticCollider(mesh) {
 
   if (mesh.type == 'Group') {
     for (let i = 0; i < mesh.children.length; i++) {
-      addColliderWithoutEntity(mesh.userData, mesh.position, mesh.children[i].quaternion, mesh.children[i].scale, { mesh: mesh.children[i], vertices: null, indices: null});
+      addColliderWithoutEntity(
+        mesh.userData,
+        mesh.position,
+        mesh.children[i].quaternion,
+        mesh.children[i].scale,
+        {
+          mesh: mesh.children[i],
+          vertices: null,
+          indices: null,
+          collisionLayer: mesh.userData.collisionLayer,
+          collisionMask: mesh.userData.collisionMask
+        }
+      );
     }
   } else if (mesh.type == 'Mesh') {
-    addColliderWithoutEntity(mesh.userData, mesh.position, mesh.quaternion, mesh.scale, { mesh, vertices: null, indices: null });
+    addColliderWithoutEntity(
+      mesh.userData,
+      mesh.position,
+      mesh.quaternion,
+      mesh.scale,
+      {
+        mesh,
+        vertices: null,
+        indices: null,
+        collisionLayer: mesh.userData.collisionLayer,
+        collisionMask: mesh.userData.collisionMask
+      }
+    );
   }
 }
 // only clean colliders from model Function
@@ -95,6 +120,8 @@ export const parseModelColliders: Behavior = (entity: Entity, args: any) => {
           addComponent(entity, ColliderComponent, {
             bodytype:  BodyType.KINEMATIC,
             type: mesh.userData.type,
+            collisionLayer: mesh.userData.collisionLayer,
+            collisionMask: mesh.userData.collisionMask,
             position: mesh.position,
             quaternion: mesh.quaternion,
             scale: mesh.scale,
@@ -108,6 +135,8 @@ export const parseModelColliders: Behavior = (entity: Entity, args: any) => {
             parameters: {
               bodytype: BodyType.DYNAMIC,
               type: mesh.userData.type,
+              collisionLayer: mesh.userData.collisionLayer,
+              collisionMask: mesh.userData.collisionMask,
               scale: mesh.scale,
               position: mesh.position,
               quaternion: mesh.quaternion,

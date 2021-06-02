@@ -2,6 +2,7 @@ import { Component } from "../../ecs/classes/Component";
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Checker } from "../../game/types/Checker";
+import { Entity } from "../../ecs/classes/Entity";
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -26,12 +27,16 @@ export interface InitStorageInterface {
 export interface GameMode {
   name: string
   priority: number
+  onGameLoading?: (gameEntity: Entity) => void
+  onGameStart?: (gameEntity: Entity) => void
+  onPlayerLeave?: (gameEntity: Entity, playerComponent, game) => void
   registerActionTagComponents: ComponentConstructor<Component<any>>[]
   registerStateTagComponents: ComponentConstructor<Component<any>>[]
   initGameState: {
     [key: string]: {
-      components: ComponentConstructor<Component<any>>[]
-      storage: InitStorageInterface[]
+      components?: ComponentConstructor<Component<any>>[]
+      storage?: InitStorageInterface[]
+      behaviors?: any
     };
   };
   gamePlayerRoles: GameRolesInterface
@@ -39,7 +44,7 @@ export interface GameMode {
 }
 
 export interface RoleBehaviorWithTarget {
-  sortMetod?: any,
+  sortMethod?: any,
   targetsRole: {
     [key: string]: {
       watchers?: ComponentConstructor<Component<any>>[][],
@@ -52,17 +57,18 @@ export interface RoleBehaviorWithTarget {
   }
 }
 
+export type RoleBehaviorTarget = (entity: Entity) => Entity;
 
 export interface RoleBehaviors {
   [key: string]: Array<{
     behavior: Behavior,
-    args?: any,
+    args?: any | ((entity: Entity) => void),
     watchers?: ComponentConstructor<Component<any>>[][],
     checkers?: Array<{
       function: Checker,
       args?: any
     }>,
-    takeEffectOn?: RoleBehaviorWithTarget;
+    takeEffectOn?: RoleBehaviorWithTarget | RoleBehaviorTarget;
   }>;
 }
 

@@ -1,6 +1,7 @@
 import config from '../../appconfig';
 import { entitySeed } from "../entity/entity.seed";
 import { defaultPostProcessingSchema } from "@xrengine/engine/src/scene/classes/PostProcessing";
+import { Vector3 } from 'three';
 
 export const componentSeed = {
   disabled: !config.db.forceRefresh,
@@ -169,6 +170,36 @@ export const componentSeed = {
       updatedAt: "2020-11-12 13:14:45",
       type: "postprocessing",
       entityId: entitySeed.templates.find(template => template.id === '1B698484-C15A-4CEC-9247-03873520DF70').id
-    }
+    },
+    {
+      id: "09cc03c4-24e9-sd1b-bc2e-e7e742fb069f",
+      data: {
+        options: {
+          probePosition:{
+              "x": 0,
+              "y": 0,
+              "z": 0
+          },
+          probePositionOffset:{
+              "x": 0,
+              "y": 0,
+              "z": 0
+          },
+          probeScale:{
+              "x": 1,
+              "y": 1,
+              "z": 1
+          },
+          reflectionType:1,
+          intensity:1,
+          resolution:512,
+          refreshMode:0,
+      },
+      },
+      createdAt: "2020-11-12 13:14:45",
+      updatedAt: "2020-11-12 13:14:45",
+      type: "reflectionprobe",
+      entityId: entitySeed.templates.find(template => template.id === '1A698484-D15A-4DED-9247-03873520DX70').id
+    },
   ]
 };

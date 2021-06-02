@@ -1,7 +1,7 @@
 import app from '../../packages/server/src/app'
 
 describe('CRUD operation on \'Group\' model', () => {
-  const model = app.service('group').Model
+  const model = (app.service('group') as any).Model
 
   it('Create', () => {
     model.create({

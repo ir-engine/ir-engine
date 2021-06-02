@@ -1,19 +1,15 @@
 import { Behavior } from "../../common/interfaces/Behavior";
-import { isServer } from '../../common/functions/isServer';
 import { addComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import { GamesSchema } from "../../game/templates/GamesSchema";
 import { Game } from "../../game/components/Game";
 import { GameObject } from "../../game/components/GameObject";
 import { TransformComponent } from '../../transform/components/TransformComponent';
+import { GameMode } from "../../game/types/GameMode";
 
 export const createGame: Behavior = (entity, args: any) => {
-//  console.warn(args.objArgs.isGlobal);
-  //console.warn(isServer && !args.objArgs.isGlobal);
-//  if (isServer && !args.objArgs.isGlobal) return;
-  console.log("************ GAME CREATED!!!!!!!!!!!!!!");
-  console.log(args.objArgs);
+  console.log(args.gameMode+' GAME LOADING ...');
 
   const transform = getMutableComponent(entity, TransformComponent);
-
   transform.scale.set(
     Math.abs(transform.scale.x) / 2,
     Math.abs(transform.scale.y) / 2,
@@ -26,30 +22,33 @@ export const createGame: Behavior = (entity, args: any) => {
   const max = { x: s.x + p.x, y: s.y + p.y, z: s.z + p.z };
 
   const gameData = {
-    name: args.objArgs.name,
-    isGlobal: args.objArgs.isGlobal,
-    minPlayers: args.objArgs.minPlayers,
-    maxPlayers: args.objArgs.maxPlayers,
-    gameMode: args.objArgs.gameMode,
+    name: args.name,
+    isGlobal: args.isGlobal,
+    minPlayers: args.minPlayers,
+    maxPlayers: args.maxPlayers,
+    gameMode: args.gameMode,
     gameArea: { min, max }
   };
 
-  addComponent(entity, Game, gameData);
+  addComponent(entity, Game, gameData)
+  // register spawn objects prefabs
+  const gameSchema = GamesSchema[args.gameMode] as GameMode;
+  gameSchema.onGameLoading(entity);
 };
 
 export const createGameObject: Behavior = (entity, args: any) => {
-  console.log("************ Object CREATED!!!!!!!!!!!!!!");
-  if (args.objArgs.uuid === undefined) {
+  if (args.sceneEntityId === undefined) {
     console.warn("DONT SAVE COLLIDER FOR GAME OBJECT");
   }
-//  if (isServer && !args.objArgs.isGlobal) {
-    //removeEntity(entity);
-//    return;
-//  }
-  const data = {
-    game: args.objArgs.game,
-    role: args.objArgs.role,
-    uuid: args.objArgs.uuid
-  };
-  addComponent(entity, GameObject, data);
+
+  // if (!isClient && !args.isGlobal) {
+  //   removeEntity(entity);
+  //   return;
+  // }
+
+  addComponent(entity, GameObject, {
+    gameName: args.gameName,
+    role: args.role,
+    uuid: args.sceneEntityId
+  });
 };

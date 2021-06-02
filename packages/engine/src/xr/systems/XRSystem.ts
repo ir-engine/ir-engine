@@ -8,6 +8,7 @@ import { gamepadMapping } from '../../input/behaviors/GamepadInputBehaviors';
 import { InputType } from '../../input/enums/InputType';
 import { endXR, startXR } from '../functions/WebXRFunctions';
 import { XRFrame, XRReferenceSpace, XRReferenceSpaceType, XRWebGLLayer } from '../../input/types/WebXR';
+import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 
 /**
  * System for XR session and input handling
@@ -25,7 +26,7 @@ export class XRSystem extends System {
 
   offscreen: boolean;
   xrFrame: XRFrame;
-
+  updateType = SystemUpdateType.Free;
   isRenderering = false;
   baseLayer: XRWebGLLayer;
   context: any;
@@ -51,11 +52,11 @@ export class XRSystem extends System {
         const session = await (navigator as any).xr.requestSession("immersive-vr", sessionInit)
 
         Engine.xrSession = session;
-        Engine.renderer.xr.setReferenceSpaceType(this.referenceSpaceType);
-        Engine.renderer.xr.setSession(session);
+        Engine.xrRenderer.setReferenceSpaceType(this.referenceSpaceType);
+        Engine.xrRenderer.setSession(session);
         EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_SESSION });
 
-        Engine.renderer.xr.addEventListener('sessionend', async () => {
+        Engine.xrRenderer.addEventListener('sessionend', async () => {
           await endXR();
           EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_END });
         })
@@ -81,12 +82,12 @@ export class XRSystem extends System {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    if(Engine.renderer?.xr?.isPresenting) {
+    if(Engine.xrRenderer?.isPresenting) {
       const session = this.xrFrame.session;
       session.inputSources.forEach((source) => {
         if(source.gamepad) {
           const mapping = gamepadMapping[source.gamepad.mapping || 'xr-standard'][source.handedness];
-          source.gamepad.buttons.forEach((button, index) => {
+          source.gamepad?.buttons.forEach((button, index) => {
             // TODO : support button.touched and button.value
             Engine.inputState.set(mapping.buttons[index], {
               type: InputType.BUTTON,
@@ -94,15 +95,17 @@ export class XRSystem extends System {
               lifecycleState: button.pressed ? LifecycleValue.STARTED : LifecycleValue.ENDED
             })
           })
-          if(source.gamepad.axes.length > 2) {
+          if(source.gamepad?.axes.length > 2) {
             Engine.inputState.set(mapping.axes, {
               type: InputType.TWODIM,
-              value: [source.gamepad.axes[2], source.gamepad.axes[3]]
+              value: [source.gamepad.axes[2], source.gamepad.axes[3]],
+              lifecycleState: LifecycleValue.STARTED
             })
           } else {
             Engine.inputState.set(mapping.axes, {
               type: InputType.TWODIM,
-              value: [source.gamepad.axes[0], source.gamepad.axes[1]]
+              value: [source.gamepad.axes[0], source.gamepad.axes[1]],
+              lifecycleState: LifecycleValue.STARTED
             })
           }
         }

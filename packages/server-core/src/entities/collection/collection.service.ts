@@ -30,5 +30,5 @@ export default (app: Application): any => {
 
   const service = app.service('collection');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

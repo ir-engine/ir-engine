@@ -4,21 +4,23 @@
 import React, { useEffect } from 'react';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
-import FeedCard from '../FeedCard';
-import CommentList from '../CommentList';
-import NewComment from '../NewComment';
+import { Button, Typography } from '@material-ui/core';
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+
 import { selectFeedsState } from '../../reducers/feed/selector';
 import { getFeed } from '../../reducers/feed/service';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
 import { updateFeedPageState } from '../../reducers/popupsState/service';
-import { Button, Typography } from '@material-ui/core';
-import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-import { useTranslation } from 'react-i18next';
+
+import FeedCard from '../FeedCard';
+import CommentList from '../CommentList';
+import NewComment from '../NewComment';
+import Featured from '../Featured';
 
 // @ts-ignore
 import styles from './Feed.module.scss';
-import Featured from '../Featured';
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -42,7 +44,7 @@ interface Props{
 const Feed = ({feedsState, getFeed, popupsState, updateFeedPageState} : Props) => { 
     let feed  = null as any;
 	const { t } = useTranslation();
-    useEffect(()=> getFeed(popupsState.get('feedId')), []);
+    useEffect(()=> getFeed(popupsState.get('feedId')), [popupsState.get('feedId')]);
     feed = feedsState && feedsState.get('fetching') === false && feedsState.get('feed'); 
 
     return <section className={styles.feedContainer}>

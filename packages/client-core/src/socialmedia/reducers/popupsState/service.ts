@@ -9,13 +9,14 @@ import {
   changeFeedPage,
   changeArMedia,
   changeNewFeedPage,
-  changeShareForm
+  changeShareForm,
+  changeWebXR
 } from './actions';
 
 export function updateCreatorPageState(state: boolean, id?:string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      dispatch(changeCreatorPage(state, id || null));      
+      dispatch(changeCreatorPage(state, id || null));
     } catch (err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
@@ -26,7 +27,7 @@ export function updateCreatorPageState(state: boolean, id?:string) {
 export function updateCreatorFormState(state: boolean) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      dispatch(changeCreatorForm(state));      
+      dispatch(changeCreatorForm(state));
     } catch (err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
@@ -37,41 +38,52 @@ export function updateCreatorFormState(state: boolean) {
 export function updateFeedPageState(state: boolean, id?:string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      dispatch(changeFeedPage(state, id || null));      
+      dispatch(changeFeedPage(state, id || null));
     } catch (err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
     }
-  };  
+  };
 }
 
-export function updateNewFeedPageState(state: boolean) {
+export function updateNewFeedPageState(state: boolean,  id?:string, imgSrc?:string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      dispatch(changeNewFeedPage(state));      
+      dispatch(changeNewFeedPage(state, id || null, imgSrc || null));
     } catch (err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
     }
-  };  
+  };
 }
 
 export function updateShareFormState(state: boolean, id?:string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      dispatch(changeShareForm(state, id || null));      
+      dispatch(changeShareForm(state, id || null));
     } catch (err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
     }
-  };  
+  };
 }
 
 
 export function updateArMediaState(state: boolean) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      dispatch(changeArMedia(state));      
+      dispatch(changeArMedia(state));
+    } catch (err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
+export function updateWebXRState(state: boolean, itemId: number) {
+  return async (dispatch: Dispatch, getState: any): Promise<any> => {
+    try {
+      dispatch(changeWebXR(state, itemId));
     } catch (err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);

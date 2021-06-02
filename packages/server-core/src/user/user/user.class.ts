@@ -3,7 +3,7 @@ import { Application } from '../../../declarations';
 import {
   Params
 } from '@feathersjs/feathers';
-import { QueryTypes } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils';
 import { Forbidden } from '@feathersjs/errors';
 
@@ -32,7 +32,8 @@ export class User extends Service {
     const action = params.query?.action;
     const skip = params.query?.$skip ? params.query.$skip : 0;
     const limit = params.query?.$limit ? params.query.$limit : 10;
-    
+    const searchUser = params.query?.data;
+
     if (action === 'withRelation') {
       const userId = params.query?.userId;
       const search = params.query?.search as string;
@@ -128,7 +129,7 @@ export class User extends Service {
       return foundUsers;
     } else if (action === 'friends') {
       const loggedInUser = extractLoggedInUserFromParams(params);
-      const userResult = await this.app.service('user').Model.findAndCountAll({
+      const userResult = await (this.app.service('user') as any).Model.findAndCountAll({
         offset: skip,
         limit: limit,
         order: [
@@ -136,7 +137,7 @@ export class User extends Service {
         ],
         include: [
           {
-            model: this.app.service('user-relationship').Model,
+            model: (this.app.service('user-relationship') as any).Model,
             where: {
               relatedUserId: loggedInUser.userId,
               userRelationshipType: 'friend'
@@ -195,17 +196,69 @@ export class User extends Service {
       const loggedInUser = extractLoggedInUserFromParams(params);
       const user = await super.get(loggedInUser.userId);
       if (user.userRole !== 'admin') throw new Forbidden ('Must be system admin to execute this action');
-      const users = await super.find({
-        query: {
-          $sort: params.query.$sort,
-          $skip: params.query.$skip || 0,
-          $limit: params.query.$limit || 10
-        }
-      });
-
       
-      return users;
-    } else if (action === 'invite-code-lookup') {
+      const users = await (this.app.service('user') as any).Model.findAndCountAll({
+        offset: skip,
+        limit: limit,
+        include: [
+          {
+            model: (this.app.service("party") as any).Model,
+            required: false,
+            include: [
+              {
+                model: (this.app.service("location") as any).Model,
+                required: false
+              },
+              {
+                model: (this.app.service("instance") as any).Model,
+                required: false
+              }
+            ]
+          }
+        ],
+        raw: true,
+        nest: true,
+      });
+      
+      return {
+        skip: skip,
+        limit: limit,
+        total: users.count,
+        data: users.rows
+      };
+    } else if(action === "search"){
+        const searchedUser = await (this.app.service('user') as any).Model.findAll({
+            where: {
+              name: {
+                [Op.like]: `%${searchUser}%`
+            }
+            },
+            include: [
+              {
+                model: (this.app.service("party") as any).Model,
+                required: false,
+                include: [
+                  {
+                    model: (this.app.service("location") as any).Model,
+                    required: false
+                  },
+                  {
+                    model: (this.app.service("instance") as any).Model,
+                    required: false
+                  }
+                ]
+              }
+            ],
+            raw: true,
+            nest: true
+        });
+        return {
+          skip: skip,
+          limit: limit,
+          total: searchUser.length,
+          data: searchedUser
+        };
+    }  else if (action === 'invite-code-lookup') {
       return super.find({
         query: {
           $skip: params.query.$skip || 0,

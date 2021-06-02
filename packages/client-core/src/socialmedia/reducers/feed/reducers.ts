@@ -25,7 +25,8 @@ import {
   BOOKMARK_FEEDS_FETCH,
   ADMIN_FEEDS_FETCH,
   FIRED_FEEDS_FETCH,
-  FEEDS_FIRED_RETRIEVED
+  FEEDS_FIRED_RETRIEVED,
+  CLEAR_CREATOR_FEATURED
 } from '../actions';
 import Immutable from 'immutable';
 import {
@@ -78,6 +79,8 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
 
     case FEEDS_CREATOR_RETRIEVED:     
       return state.set('feedsCreator', (action as FeedsRetrievedAction).feeds).set('feedsCreatorFetching', false);
+    case CLEAR_CREATOR_FEATURED:
+      return state.set('feedsCreator', []).set('feedsCreatorFetching', false);
 
     case FEEDS_MY_FEATURED_RETRIEVED:     
       return state.set('myFeatured', (action as FeedsRetrievedAction).feeds).set('myFeaturedFetching', false);
@@ -131,7 +134,7 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
         return {...feed};
       })).set('feed', currentFeed ? {...currentFeed, viewsCount: ++currentFeed.viewsCount} : {});
     case ADD_FEED:
-      return state.set('feeds', [...state.get('feeds'), (action as FeedRetrievedAction).feed]);
+      return state.set('feeds', [...state.get('feeds'), (action as FeedRetrievedAction).feed]).set('feedsFetching', false);
 
     case ADD_FEED_FEATURED:
       return state.set('feedsCreator', state.get('feedsCreator').map(feed => {

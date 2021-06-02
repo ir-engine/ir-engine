@@ -21,22 +21,18 @@ import { ParticleSystem } from '@xrengine/engine/src/particles/systems/ParticleS
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
 import { HighlightSystem } from '@xrengine/engine/src/renderer/HighlightSystem';
 import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem';
-import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem';
 import { AnimationManager } from "@xrengine/engine/src/character/AnimationManager";
 import { TransformSystem } from '@xrengine/engine/src/transform/systems/TransformSystem';
-import { createWorker, WorkerProxy } from '@xrengine/engine/src/worker/MessageQueue';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
-import { PhysXInstance } from "three-physx";
 //@ts-ignore
 import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem';
 import { DefaultInitializationOptions, InitializeOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
 import _ from 'lodash';
 import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem';
 import { now } from '@xrengine/engine/src/common/functions/now';
-import { loadScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 import { UIPanelSystem } from '@xrengine/engine/src/ui/systems/UIPanelSystem';
 
-// import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
+import { PositionalAudioSystem } from '@xrengine/engine/src/audio/systems/PositionalAudioSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
@@ -48,6 +44,8 @@ if (typeof window !== 'undefined') {
   (window as any).iOS = os === 'iOS' || /iPad|iPhone|iPod/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   (window as any).safariWebBrowser = browser?.name === 'safari';
 }
+
+const isHMD = /Oculus/i.test(navigator.platform);// || TODO: more HMDs
 
 /**
  *
@@ -65,6 +63,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
   const { useCanvas, postProcessing, useOfflineMode, physicsWorldConfig } = options;
 
   Engine.offlineMode = useOfflineMode;
+  Engine.isHMD = isHMD;
 
   Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr');
 
@@ -87,9 +86,14 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     // Engine.viewportElement = options.renderer.canvas;
   } else {
     Engine.scene = new Scene();
-    EngineEvents.instance.once(EngineEvents.EVENTS.LOAD_SCENE, ({ sceneData }) => { loadScene(sceneData); });
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, enable: true });
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl');
+      const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+      const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+      const enableRenderer = !(/SwiftShader/.test(renderer));
+      canvas.remove();
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: enableRenderer, physics: true });
     });
   }
 
@@ -103,16 +107,18 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
 
     Network.instance.schema = networkSystemOptions.schema;
     if (!useOfflineMode) {
-      registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: -1 });
+      // Network systems
+      registerSystem(ClientNetworkSystem, { ...networkSystemOptions, priority: 0 });
+      registerSystem(ClientNetworkStateSystem, { priority: 1 });
     }
-    registerSystem(MediaStreamSystem);
+    registerSystem(MediaStreamSystem, { priority: 2 });
   }
 
   Engine.lastTime = now() / 1000;
 
   if(useCanvas) {
     if (options.input) {
-      registerSystem(ClientInputSystem, { useWebXR: Engine.xrSupported });
+      registerSystem(ClientInputSystem, { useWebXR: Engine.xrSupported, priority: 1 }); // Free
     }
 
     if (!useOffscreen) {
@@ -125,11 +131,11 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
         physicsWorker = new Worker('/scripts/loadPhysXClassic.js');
       // } else {
         //@ts-ignore
-        // const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
-      //   physicsWorker = new PhysXWorker();
+        // const { default: PhysXWorker } = await import('@xrengine/engine/src/physics/functions/loadPhysX.ts?worker&inline');
+        // physicsWorker = new PhysXWorker();
       // }
       new AnimationManager();
-      
+
       // promise in parallel to speed things up
       await Promise.all([
         AnimationManager.instance.getDefaultModel(),
@@ -137,45 +143,46 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
       ]);
       Engine.workers.push(physicsWorker);
 
-      registerSystem(ClientNetworkStateSystem);
-      registerSystem(CharacterControllerSystem);
-      registerSystem(HighlightSystem);
-      registerSystem(ActionSystem);
+      // FREE systems
+      registerSystem(XRSystem, { priority: 1 }); // Free
+      registerSystem(CameraSystem, { priority: 2 }); // Free
+      registerSystem(WebGLRendererSystem, { priority: 3, canvas, postProcessing }); // Free
+      
+      // LOGIC - Input
+      registerSystem(UIPanelSystem, { priority: 2 });
+      registerSystem(ActionSystem, { priority: 3 });
+      registerSystem(CharacterControllerSystem, { priority: 4 });
 
-      registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig });
-      registerSystem(TransformSystem, { priority: 900 });
-      // audio breaks webxr currently
-      // Engine.audioListener = new AudioListener();
-      // Engine.camera.add(Engine.audioListener);
-      // registerSystem(PositionalAudioSystem);
-      registerSystem(ParticleSystem);
-      registerSystem(DebugHelpersSystem);
-      registerSystem(InteractiveSystem);
-      registerSystem(CameraSystem);
-      registerSystem(WebGLRendererSystem, { priority: 1001, canvas, postProcessing });
-      registerSystem(XRSystem);
-      registerSystem(GameManagerSystem);
-      registerSystem(UIPanelSystem);
+      // LOGIC - Scene
+      registerSystem(InteractiveSystem, { priority: 5 });
+      registerSystem(GameManagerSystem, { priority: 6 });
+      registerSystem(TransformSystem, { priority: 7 }); // Free
+      registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig, priority: 8 });
+            
+      // LOGIC - Miscellaneous
+      registerSystem(HighlightSystem, { priority: 9 });
+      registerSystem(ParticleSystem, { priority: 10 });
+      registerSystem(DebugHelpersSystem, { priority: 11 });
+      registerSystem(PositionalAudioSystem, { priority: 12 });
 
       Engine.viewportElement = Engine.renderer.domElement;
-      Engine.renderer.xr.enabled = Engine.xrSupported;
     }
   }
 
   await Promise.all(Engine.systems.map((system) => { 
-    return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }); 
+    return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); });
   }));
 
-  // only start the engine once we have all our entities loaded
-  EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => { 
+  EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
     Engine.engineTimer = Timer({
       networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
       fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
       update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-    }, Engine.physicsFrameRate, Engine.networkFramerate).start();
-    Engine.isInitialized = true;
+    }, Engine.physicsFrameRate, Engine.networkFramerate);
+
+    Engine.engineTimer.start();
   });
-    
+
   const engageType = isMobileOrTablet() ? 'touchstart' : 'click';
   const onUserEngage = () => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE });
@@ -217,21 +224,25 @@ export const initializeEditor = async (initOptions: InitializeOptions): Promise<
   // }
   Engine.workers.push(physicsWorker);
 
-  registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig });
-  registerSystem(TransformSystem, { priority: 900 });
-  registerSystem(ParticleSystem);
-  registerSystem(DebugHelpersSystem);
-  registerSystem(GameManagerSystem);
+  registerSystem(GameManagerSystem, { priority: 6 });
+  registerSystem(TransformSystem, { priority: 7 });
+  registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig, priority: 8 });
+
+  registerSystem(ParticleSystem, { priority: 10 });
+  registerSystem(DebugHelpersSystem, { priority: 11 });
 
   await Promise.all(Engine.systems.map((system) => { 
-    return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); }); 
+    return new Promise<void>(async (resolve) => { await system.initialize(); system.initialized = true; resolve(); });
   }));
 
   Engine.engineTimer = Timer({
     networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
     fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
     update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
-  }, Engine.physicsFrameRate, Engine.networkFramerate).start();
+  }, Engine.physicsFrameRate, Engine.networkFramerate);
+
+  Engine.engineTimer.start();
 
   Engine.isInitialized = true;
+  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE });
 };

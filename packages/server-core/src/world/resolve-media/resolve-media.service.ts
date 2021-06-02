@@ -34,5 +34,5 @@ export default (app: Application): void => {
    */
   const service = app.service('resolve-media');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 };

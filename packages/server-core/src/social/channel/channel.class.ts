@@ -28,7 +28,7 @@ export class Channel extends Service {
     const limit = query?.limit || 10;
     const loggedInUser = extractLoggedInUserFromParams(params);
     const userId = loggedInUser.userId;
-    const Model = this.app.service('channel').Model;
+    const Model = (this.app.service('channel') as any).Model;
     try {
       const results = await Model.findAndCountAll({
         subQuery: false,
@@ -41,36 +41,36 @@ export class Channel extends Service {
           'user1',
           'user2',
           {
-            model: this.app.service('group').Model,
+            model: (this.app.service('group') as any).Model,
             include: [
               {
-                model: this.app.service('group-user').Model,
+                model: (this.app.service('group-user') as any).Model,
                 include: [
                   {
-                    model: this.app.service('user').Model
+                    model: (this.app.service('user') as any).Model
                   }
                 ]
               }
             ]
           },
           {
-            model: this.app.service('party').Model,
+            model: (this.app.service('party') as any).Model,
             include: [
               {
-                model: this.app.service('party-user').Model,
+                model: (this.app.service('party-user') as any).Model,
                 include: [
                   {
-                    model: this.app.service('user').Model
+                    model: (this.app.service('user') as any).Model
                   }
                 ]
               }
             ]
           },
           {
-            model: this.app.service('instance').Model,
+            model: (this.app.service('instance') as any).Model,
             include: [
               {
-                model: this.app.service('user').Model,
+                model: (this.app.service('user') as any).Model,
               }
             ]
           }
@@ -136,13 +136,13 @@ export class Channel extends Service {
 
               resolve(true);
             } else if (channel.channelType === 'group') {
-              const groupUsers = await this.app.service('group-user').Model.findAll({
+              const groupUsers = await (this.app.service('group-user') as any).Model.findAll({
                 where: {
                   groupId: channel.groupId
                 },
                 include: [
                   {
-                    model: this.app.service('user').Model
+                    model: (this.app.service('user') as any).Model
                   }
                 ]
               });
@@ -164,13 +164,13 @@ export class Channel extends Service {
               channel.group.dataValues.groupUsers = groupUsers;
               resolve(true);
             } else if (channel.channelType === 'party') {
-              const partyUsers = await this.app.service('party-user').Model.findAll({
+              const partyUsers = await (this.app.service('party-user') as any).Model.findAll({
                 where: {
                   partyId: channel.partyId
                 },
                 include: [
                   {
-                    model: this.app.service('user').Model
+                    model: (this.app.service('user') as any).Model
                   }
                 ]
               });
@@ -191,7 +191,7 @@ export class Channel extends Service {
               channel.party.dataValues.partyUsers = partyUsers;
               resolve(true);
             } else if (channel.channelType === 'instance') {
-              const instanceUsers = await this.app.service('user').Model.findAll({
+              const instanceUsers = await (this.app.service('user') as any).Model.findAll({
                 where: {
                   instanceId: channel.instanceId
                 }

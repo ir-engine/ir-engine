@@ -1,29 +1,31 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { Typography } from '@material-ui/core';
-import Card from '@material-ui/core/Card';
-import CardMedia from '@material-ui/core/CardMedia';
-import VisibilityIcon from '@material-ui/icons/Visibility';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
+
+import { Typography } from '@material-ui/core';
+import Card from '@material-ui/core/Card';
+import CardMedia from '@material-ui/core/CardMedia';
+import VisibilityIcon from '@material-ui/icons/Visibility';
+
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { selectFeedsState } from '../../reducers/feed/selector';
 import { getFeeds, setFeedAsFeatured, setFeedNotFeatured } from '../../reducers/feed/service';
+import { selectPopupsState } from '../../reducers/popupsState/selector';
 import { updateFeedPageState } from '../../reducers/popupsState/service';
 // @ts-ignore
 import styles from './Featured.module.scss';
-
-
 
 const mapStateToProps = (state: any): any => {
     return {
         feedsState: selectFeedsState(state),
         creatorState: selectCreatorsState(state),
         authState: selectAuthState(state),
+        popupsState: selectPopupsState(state),
     };
   };
 
@@ -32,10 +34,11 @@ const mapStateToProps = (state: any): any => {
     setFeedAsFeatured: bindActionCreators(setFeedAsFeatured, dispatch),
     setFeedNotFeatured: bindActionCreators(setFeedNotFeatured, dispatch),
     updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch),
-});
+  });
 interface Props{
     feedsState?: any,
     authState?:any;
+    popupsState?:any;
     getFeeds?: any,
     type?:string,
     creatorId?: string,
@@ -45,18 +48,22 @@ interface Props{
     updateFeedPageState?: typeof updateFeedPageState;
 }
 
-const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedAsFeatured, setFeedNotFeatured, authState, updateFeedPageState} : Props) => { 
+const Featured = ({feedsState, getFeeds, type, creatorId, popupsState, creatorState, setFeedAsFeatured, setFeedNotFeatured, authState, updateFeedPageState} : Props) => { 
     const [feedsList, setFeedList] = useState([]);
     const { t } = useTranslation();
 
     useEffect(()=> {
         if(type === 'creator' || type === 'bookmark' || type === 'myFeatured' || type === 'fired'){
-            getFeeds(type, creatorId);            
+            getFeeds(type, creatorId);
         }else{
           const userIdentityType = authState.get('authUser')?.identityProvider?.type ?? 'guest';
           userIdentityType !== 'guest' ? getFeeds('featured') : getFeeds('featuredGuest');
         }
-    }, [type, creatorId]);
+    }, [type, creatorId, feedsState.get('feeds')]);
+
+
+    useEffect(()=> (type === 'featured' || !type) && feedsState.get('feedsFetching') === false && setFeedList(feedsState.get('feedsFeatured'))
+    ,[feedsState.get('feedsFetching'), feedsState.get('feedsFeatured')]);
 
     useEffect(()=> (type === 'featured' || !type) && feedsState.get('feedsFeaturedFetching') === false && setFeedList(feedsState.get('feedsFeatured'))
     ,[feedsState.get('feedsFeaturedFetching'), feedsState.get('feedsFeatured')]);
@@ -102,6 +109,7 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
     //     }
     // };
 
+
     return <section className={styles.feedContainer}>
         {feedsList && feedsList.length > 0  ? feedsList.map((item, itemIndex)=>{
             const sizeIndex = (itemIndex === 0 || itemIndex%8 === 0 || itemIndex%8 === 2 || itemIndex%8 === 5) ? 'listItem_width2' 
@@ -116,7 +124,18 @@ const Featured = ({feedsState, getFeeds, type, creatorId, creatorState, setFeedA
                 <CardMedia
                     className={styles.previewImage}
                     image={item.previewUrl}
-                    onClick={()=>updateFeedPageState(true, item.id)}
+                    onClick={()=>{
+                        if(popupsState.get('creatorPage') === true && popupsState.get('feedPage') === true){
+                            updateFeedPageState(false);
+                            const intervalDelay = setTimeout(()=>{
+                                clearInterval(intervalDelay);
+                                updateFeedPageState(true, item.id);
+                                }, 100);
+                        }else{
+                            updateFeedPageState(true, item.id);
+                        }
+                    }
+                }
                 />
                 <span className={styles.eyeLine}>{item.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
             </Card>;}

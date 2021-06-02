@@ -181,23 +181,21 @@ export function addCollidersToNetworkVehicle( args:{ parameters?: any, entity?: 
 }
 
 export function createVehicleFromSceneData( entity: Entity, args: any) {
-  console.warn(args.objArgs.mass);
   createNetworkVehicle({
     parameters: {
-      vehicleCollider: addCollidersShapeInOneBody( entity, [], args.objArgs.mass ),
-      seatsArray: args.objArgs.seatsArray,
-      entrancesArray: args.objArgs.entrancesArray,
-      arrayWheelsPosition: args.objArgs.arrayWheelsPosition,
-      suspensionRestLength: args.objArgs.suspensionRestLength,
-      startPosition: [ ...args.objArgs.startPosition],
-      startQuaternion: [ ...args.objArgs.startQuaternion],
-      interactionPartsPosition: args.objArgs.interactionPartsPosition
+      vehicleCollider: addCollidersShapeInOneBody( entity, [], args.mass ),
+      seatsArray: args.seatsArray,
+      entrancesArray: args.entrancesArray,
+      arrayWheelsPosition: args.arrayWheelsPosition,
+      suspensionRestLength: args.suspensionRestLength,
+      startPosition: [ ...args.startPosition],
+      startQuaternion: [ ...args.startQuaternion],
+      interactionPartsPosition: args.interactionPartsPosition
     },
     //@ts-ignore
-    uniqueId: args.objArgs.sceneEntityId,
+    uniqueId: args.sceneEntityId,
     entity: entity
   });
-
 }
 
 export function createVehicleFromModel( entity: Entity, mesh: any, sceneEntityId: string) {
@@ -224,45 +222,42 @@ export function createVehicleFromModel( entity: Entity, mesh: any, sceneEntityId
 }
 
 export function createNetworkVehicle( args:{ parameters?: any, networkId?: string | number, uniqueId: string, entity?: Entity }) {
-  if (args.parameters === undefined) {
-
-    Network.instance.networkObjects[args.networkId] = {
-      ownerId: 'server',
-      prefabType: PrefabType.Vehicle,
-      component: null,
-      uniqueId: args.uniqueId
-    };
-
-  } else {
-    console.warn(Network.instance.networkObjects);
-    initializeNetworkObject({
-      entity: args.entity,
-      prefabType: PrefabType.Vehicle,
-      uniqueId: args.uniqueId,
-      override: {
-        networkComponents: [
-          {
-            type: VehicleComponent,
-            data: args.parameters
-          },
-          {
-            type: Interactable,
-            data: {
-                interactionParts: ['door_front_left', 'door_front_right'],
-                onInteraction: getInCar,
-                onInteractionCheck: getInCarPossible,
-                //onInteractionFocused: onInteractionHover,
-                //@ts-ignore
-                interactionPartsPosition: args.parameters.interactionPartsPosition,
-                data: {
-                  interactionText: 'get in car'
-                }
+  const networkComponent = initializeNetworkObject({
+    entity: args.entity,
+    prefabType: PrefabType.Vehicle,
+    uniqueId: args.uniqueId,
+    ownerId: null,
+    override: {
+      networkComponents: [
+        {
+          type: VehicleComponent,
+          data: args.parameters
+        },
+        {
+          type: Interactable,
+          data: {
+              interactionParts: ['door_front_left', 'door_front_right'],
+              onInteraction: getInCar,
+              onInteractionCheck: getInCarPossible,
+              //onInteractionFocused: onInteractionHover,
+              //@ts-ignore
+              interactionPartsPosition: args.parameters.interactionPartsPosition,
+              data: {
+                interactionText: 'get in car'
               }
-          }
-        ]
-      }
+            }
+        }
+      ]
+    }
+  });
+  if (!isClient) {
+    Network.instance.worldState.createObjects.push({
+        networkId: networkComponent.networkId,
+        ownerId: networkComponent.ownerId,
+        prefabType: PrefabType.Vehicle,
+        uniqueId: networkComponent.uniqueId,
+        parameters: ''
     });
-
   }
 }
 
@@ -273,6 +268,7 @@ export const VehicleInterpolationSchema: InterpolationInterface = {
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkVehicle: NetworkPrefab = {
+  initialize: createNetworkVehicle,
   // These will be created for all players on the network
   networkComponents: [
     { type: TransformComponent },

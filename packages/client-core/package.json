@@ -98,7 +98,8 @@
     "use-debounce": "6.0.1",
     "use-http": "1.0.20",
     "uuid": "8.3.2",
-    "yup": "^0.32.9"
+    "yup": "^0.32.9",
+    "volumetric": "https://github.com/XRFoundation/UniversalVolumetric"
   },
   "devDependencies": {
     "@rollup/plugin-json": "4.1.0",
@@ -111,7 +112,7 @@
     "cross-env": "7.0.3",
     "esbuild": "0.11.17",
     "eslint": "7.25.0",
-    "node-sass": "5.0.0",
+    "node-sass": "6.0.0",
     "rimraf": "3.0.2",
     "rollup": "2.46.0",
     "rollup-plugin-livereload": "2.0.0",

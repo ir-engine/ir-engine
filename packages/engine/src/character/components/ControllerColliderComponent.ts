@@ -25,7 +25,7 @@ ControllerColliderComponent._schema = {
 	options: { type: Types.Ref, default: {} },
 	mass: { type: Types.Number, default: 0 },
 	controller: { type: Types.Ref, default: null },
-	position: { type: Types.Ref, default: new Vector3() },
+	position: { type: Types.Vector3Type, default: new Vector3() },
 	height: { type: Types.Number, default: 0.5 },
 	contactOffset: { type: Types.Number, default: 0.01 },
 	radius: { type: Types.Number, default: 0.3 },

@@ -34,7 +34,7 @@ export default (app: Application): any => {
    */
   const service = app.service('message');
 
-  service.hooks(hooks);
+  service.hooks(hooks as any);
 
   /**
    * A function which is used to create message 

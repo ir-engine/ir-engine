@@ -1,12 +1,11 @@
 // Default component, holds data about what behaviors our actor has.
 import { AnimationAction, AnimationMixer, Group, Material, Vector3 } from 'three';
-import { SceneQuery } from "three-physx";
+import { RaycastQuery } from "three-physx";
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 import { RelativeSpringSimulator } from '../../physics/classes/SpringSimulator';
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator';
-import { ControllerColliderComponent } from './ControllerColliderComponent';
-import { CollisionGroups } from '../../physics/enums/CollisionGroups';
+import { DefaultCollisionMask } from '../../physics/enums/CollisionGroups';
 export class CharacterComponent extends Component<CharacterComponent> {
 
 	dispose(): void {
@@ -23,7 +22,6 @@ export class CharacterComponent extends Component<CharacterComponent> {
 
 	public movementEnabled = false;
 	public initialized = false;
-	public state = 0;
 
 	// TODO: Move these... but for now...
 	public currentAnimationAction: AnimationAction[] = [];
@@ -31,6 +29,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public timer = 0;
 	public animationsTimeScale = .5;
 	public avatarId: string;
+	public thumbnailURL: string;
 	public avatarURL: string;
 	public height = 0;
 	public tiltContainer: Group;
@@ -78,7 +77,6 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public viewVector: Vector3;
 	public changedViewAngle = 0;
 	public actions: any;
-	public actorCapsule: ControllerColliderComponent;
 
 	// Actor collision Capsule
 	public actorMass = 1;
@@ -89,7 +87,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public capsuleFriction = 0.1;
 	public capsulePosition: Vector3 = new Vector3(0, 0, 0);
 	// Ray casting
-	public raycastQuery: SceneQuery;
+	public raycastQuery: RaycastQuery;
 	public isGrounded = false;
 	public closestHit = null;
 	public rayCastLength = 0.85;
@@ -111,10 +109,13 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	isJumping: boolean;
 	rotationSpeed: any;
 
-	collisionMask: number = CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.TriggerCollider;
+	collisionMask: number;
 
 	static _schema = {
 		tiltContainer: { type: Types.Ref, default: null },
-		collisionMask: { type: Types.Number, default: CollisionGroups.Default | CollisionGroups.Car | CollisionGroups.TriggerCollider },
+		collisionMask: { type: Types.Number, default: DefaultCollisionMask },
+		avatarId: { type: Types.String, default: null },
+		thumbnailURL: { type: Types.String, default: null },
+		avatarURL: { type: Types.String, default: null },
 	};
 }

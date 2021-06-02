@@ -6,6 +6,18 @@ import { NetworkClientInputInterface } from "../interfaces/WorldState";
 * @author HydraFire <github.com/HydraFire>
  */
 
+export const transformSchema = new Schema({
+  networkId: uint32,
+  snapShotTime: uint32,
+  x: float32,
+  y: float32,
+  z: float32,
+  qX: float32,
+  qY: float32,
+  qZ: float32,
+  qW: float32
+});
+
 export const inputKeySchema = new Schema({
   input: uint8,
   value: uint8, // float32
@@ -56,8 +68,7 @@ export const inputKeyArraySchema = new Schema({
   buttons: [inputKeySchema],
   viewVector: viewVectorSchema,
   snapShotTime: uint32,
-  // switchInputs: uint32,
-  characterState: uint8,
+  transforms: [transformSchema],
   clientGameAction: [clientGameAction]
 });
 

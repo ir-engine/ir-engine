@@ -91,12 +91,16 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         if (this.socketIO != null) this.socketIO.of('/').emit(MessageTypes.Kick.toString(), socket.id);
     }
 
+    close() {
+        this.transport.close();
+    }
+
     public async initialize(): Promise<void> {
         // Set up our gameserver according to our current environment
         const localIp = await getLocalServerIp();
         let stringSubdomainNumber, gsResult;
         if (!config.kubernetes.enabled) try {
-            await this.app.service('instance').Model.destroy({where: {}});
+            await (this.app.service('instance') as any).Model.destroy({where: {}});
         } catch (error) {
             logger.warn(error);
         }
@@ -170,7 +174,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
                 }
 
                 // Check database to verify that user ID is valid
-                const user = await this.app.service('user').Model.findOne({
+                const user = await (this.app.service('user') as any).Model.findOne({
                     attributes: ['id', 'name', 'instanceId', 'avatarId'],
                     where: {
                         id: userId

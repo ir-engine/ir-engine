@@ -1,3 +1,4 @@
+import { Quaternion, Vector3 } from "three";
 import type { Body, ColliderHitEvent } from "three-physx";
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
@@ -11,13 +12,18 @@ export class ColliderComponent extends Component<ColliderComponent> {
   body: Body
   type: string
   mass: number
-  position: any
-  quaternion: any
-  scale: any
+  position: Vector3
+  /**
+   * The velocity as calculated by either the physics engine or the physics system for manually inteprolated objects
+   */
+  velocity: Vector3
+  quaternion: Quaternion
+  scale: Vector3
   mesh: any
   vertices: any
   indices: any
-  collisions: ColliderHitEvent[] = [];
+  collisionLayer: any
+  collisionMask: any
 }
 
 ColliderComponent._schema = {
@@ -25,10 +31,13 @@ ColliderComponent._schema = {
   body: { type: Types.Ref, default: null },
   type: { type: Types.String, default: 'box' },
   mass: { type: Types.Number, default: 0 },
-  position: { type: Types.Ref, default: null },
-  quaternion: { type: Types.Ref, default: {x: 0, y: 0, z: 0, w: 0}},
-  scale: { type: Types.Ref, default: {x: 1, y: 1, z: 1}},
+  position: { type: Types.Vector3Type, default: new Vector3() },
+  velocity: { type: Types.Vector3Type, default: new Vector3() },
+  quaternion: { type: Types.QuaternionType, default: new Quaternion() },
+  scale: { type: Types.Vector3Type, default: new Vector3() },
   mesh: { type: Types.Ref, default: null},
   vertices: { type: Types.Ref, default: null},
-  indices: { type: Types.Ref, default: null}
+  indices: { type: Types.Ref, default: null},
+  collisionLayer: { type: Types.Number, default: null },
+  collisionMask: { type: Types.Number, default: -1 }
 };

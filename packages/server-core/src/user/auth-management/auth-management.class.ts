@@ -1,4 +1,5 @@
-import { Id, NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers';
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers';
+import Paginated from '../../types/PageObject';
 import { Application } from '../../../declarations';
 
 interface Data {}
@@ -18,6 +19,8 @@ export class Authmanagement implements ServiceMethods<Data> {
     this.options = options;
     this.app = app;
   }
+
+  async setup() {}
 
   /**
    * A function which help to find all auth

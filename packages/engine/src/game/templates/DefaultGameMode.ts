@@ -6,13 +6,13 @@ import { Closed } from "./gameDefault/components/ClosedTagComponent";
 import { ButtonUp } from "./gameDefault/components/ButtonUpTagComponent";
 import { ButtonDown } from "./gameDefault/components/ButtonDownTagComponent";
 // game Action Tag Component
-import { HaveBeenInteracted } from "../../game/actions/HaveBeenInteracted";
+import { HasHadInteraction } from "../../game/actions/HasHadInteraction";
 // game behavior
-import { upDownButton } from "./gameDefault/behaviors/upDownButton";
-import { giveOpenOrCloseState, doorOpeningOrClosing } from "./gameDefault/behaviors/openOrCloseDoor";
+//import { upDownButton } from "./gameDefault/behaviors/upDownButton";
+//import { giveOpenOrCloseState, doorOpeningOrClosing } from "./gameDefault/behaviors/openOrCloseDoor";
 // checkers
 import { ifNamed } from "./gameDefault/checkers/ifNamed";
-import { isOpen, isClosed } from "./gameDefault/checkers/isOpenIsClosed";
+//import { isOpen, isClosed } from "./gameDefault/checkers/isOpenIsClosed";
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -22,7 +22,7 @@ export const DefaultGameMode: GameMode = {
   name: "Default",
   priority: 0,
   registerActionTagComponents: [
-    HaveBeenInteracted
+    HasHadInteraction
   ],
   registerStateTagComponents: [
     Open,
@@ -31,6 +31,7 @@ export const DefaultGameMode: GameMode = {
     ButtonDown
   ],
   initGameState: {
+    /*
     'Button': {
       components: [ButtonUp],
       storage:[
@@ -49,6 +50,7 @@ export const DefaultGameMode: GameMode = {
         { component: TransformComponent, variables: ['position'] }
       ]
     }
+    */
   },
   gamePlayerRoles: {
     'Playing': {
@@ -59,18 +61,19 @@ export const DefaultGameMode: GameMode = {
     }
   },
   gameObjectRoles: {
+    /*
     'Button': {
       'Action-OpenOrCloseDoor': [
         {
           behavior: giveOpenOrCloseState,
           args: { on: 'target'},
-          watchers:[ [ HaveBeenInteracted ] ],
+          watchers:[ [ HasHadInteraction ] ],
           checkers:[{
             function: ifNamed,
             args: { on: 'me', name: 'button 1' }
           }],
           takeEffectOn: {
-        //    sortMetod: (v) => { return [v[(Math.random() * v.length) | 0]]}, // if undefind will bee effect on all
+        //    sortMethod: (v) => { return [v[(Math.random() * v.length) | 0]]}, // if undefind will bee effect on all
             targetsRole: {
               'Door': {
                 watchers:[ [ Open ], [ Closed ] ],
@@ -85,13 +88,13 @@ export const DefaultGameMode: GameMode = {
         {
           behavior: giveOpenOrCloseState,
           args: { on: 'target'},
-          watchers:[ [ HaveBeenInteracted ] ],
+          watchers:[ [ HasHadInteraction ] ],
           checkers:[{
             function: ifNamed,
             args: { on: 'me', name: 'button 2' }
           }],
           takeEffectOn: {
-        //    sortMetod: (v) => { return [v[(Math.random() * v.length) | 0]]}, // if undefind will bee effect on all
+        //    sortMethod: (v) => { return [v[(Math.random() * v.length) | 0]]}, // if undefind will bee effect on all
             targetsRole: {
               'Door': {
                 watchers:[ [ Open ], [ Closed ] ],
@@ -108,7 +111,7 @@ export const DefaultGameMode: GameMode = {
         {
           behavior: upDownButton,
           args:{ action: 'down', animationSpeed: 3 },
-          watchers:[ [ HaveBeenInteracted, ButtonUp ] ],
+          watchers:[ [ HasHadInteraction, ButtonUp ] ],
           checkers:[{
             function: ifNamed,
             args: { on: 'me', name: 'button 1' }
@@ -117,7 +120,7 @@ export const DefaultGameMode: GameMode = {
         {
           behavior: upDownButton,
           args:{ action: 'up', animationSpeed: 3 },
-          watchers:[ [ HaveBeenInteracted, ButtonDown ] ],
+          watchers:[ [ HasHadInteraction, ButtonDown ] ],
           checkers:[{
             function: ifNamed,
             args: { on: 'me', name: 'button 1' }
@@ -126,7 +129,7 @@ export const DefaultGameMode: GameMode = {
         {
           behavior: upDownButton,
           args:{ action: 'down', animationSpeed: 3 },
-          watchers:[ [ HaveBeenInteracted, ButtonUp ] ],
+          watchers:[ [ HasHadInteraction, ButtonUp ] ],
           checkers:[{
             function: ifNamed,
             args: { on: 'me', name: 'button 2' }
@@ -135,7 +138,7 @@ export const DefaultGameMode: GameMode = {
         {
           behavior: upDownButton,
           args:{ action: 'up', animationSpeed: 3 },
-          watchers:[ [ HaveBeenInteracted, ButtonDown ] ],
+          watchers:[ [ HasHadInteraction, ButtonDown ] ],
           checkers:[{
             function: ifNamed,
             args: { on: 'me', name: 'button 2' }
@@ -170,7 +173,7 @@ export const DefaultGameMode: GameMode = {
         {
           behavior: giveOpenOrCloseState,
           args: { on: 'me'},
-          watchers:[ [ HaveBeenInteracted ] ]
+          watchers:[ [ HasHadInteraction ] ]
         }
       ],
       'moveDoor': [
@@ -194,7 +197,9 @@ export const DefaultGameMode: GameMode = {
         }
       ]
     }
+    */
   }
+
 };
 /*
 export const gameStartAction: GameStateAction = (data: any): void => {

@@ -1,14 +1,13 @@
 import '@feathersjs/transport-commons';
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
-import { loadScene } from "@xrengine/engine/src/scene/functions/SceneLoading";
+import { WorldScene } from "@xrengine/engine/src/scene/functions/SceneLoading";
 import config from '@xrengine/server-core/src/appconfig';
 import { Application } from '@xrengine/server-core/declarations';
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip';
 import logger from '@xrengine/server-core/src/logger';
 import { decode } from 'jsonwebtoken';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
-import { AuthenticationService } from '@feathersjs/authentication';
 
 export default (app: Application): void => {
     if (typeof app.channel !== 'function') {
@@ -18,11 +17,10 @@ export default (app: Application): void => {
 
     app.on('connection', async (connection) => {
         if ((config.kubernetes.enabled && config.gameserver.mode === 'realtime') || (process.env.NODE_ENV === 'development') || config.gameserver.mode === 'local') {
-            if (!Engine.isInitialized) return;
             try {
                 const token = (connection as any).socketQuery?.token;
                 if (token != null) {
-                    const authResult = await app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
+                    const authResult = await (app.service('authentication') as any).strategies.jwt.authenticate({accessToken: token}, {});
                     const identityProvider = authResult['identity-provider'];
                     if (identityProvider != null && identityProvider.id != null) {
                         logger.info(`user ${identityProvider.userId} joining ${(connection as any).socketQuery.locationId} with sceneId ${(connection as any).socketQuery.sceneId}`);
@@ -98,13 +96,13 @@ export default (app: Application): void => {
                                 const result = await app.service(service).get(serviceId);
 
                                 if (!Engine.sceneLoaded) {
-                                    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, () => {
+                                    WorldScene.load(result, () => {
                                         EngineEvents.instance.dispatchEvent({
                                             type: EngineEvents.EVENTS.ENABLE_SCENE,
-                                            enable: true
+                                            renderer: true,
+                                            physics: true
                                         });
                                     });
-                                    loadScene(result);
                                 }
                             }
                         } else {
@@ -180,7 +178,7 @@ export default (app: Application): void => {
                 if (token != null) {
                     let authResult;
                     try {
-                        authResult = await app.service('authentication').strategies.jwt.authenticate({accessToken: token}, {});
+                        authResult = await (app.service('authentication') as any).strategies.jwt.authenticate({accessToken: token}, {});
                     } catch (err) {
                         if (err.code === 401 && err.data.name === 'TokenExpiredError') {
                             const jwtDecoded = decode(token);
@@ -206,9 +204,10 @@ export default (app: Application): void => {
                         console.log('user instanceId: ' + user.instanceId);
 
                         if (instanceId != null && instance != null) {
+                            const activeUsers = Object.keys(Network.instance.clients);
                             try {
                                 await app.service('instance').patch(instanceId, {
-                                    currentUsers: --instance.currentUsers
+                                    currentUsers: activeUsers.length
                                 });
                             } catch (err) {
                                 console.log('Failed to patch instance user count, likely because it was destroyed');
@@ -231,7 +230,7 @@ export default (app: Application): void => {
 
                             app.channel(`instanceIds/${instanceId as string}`).leave(connection);
 
-                            if (instance.currentUsers < 1) {
+                            if (activeUsers.length < 1) {
                                 console.log('Deleting instance ' + instanceId);
                                 try {
                                     await app.service('instance').remove(instanceId);

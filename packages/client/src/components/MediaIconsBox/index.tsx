@@ -129,27 +129,27 @@ const MediaIconsBox = (props) => {
 
     const handleVRClick = () => EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_START });
 
-    const xrEnabled = Engine.renderer?.xr.enabled === true;
+    const xrEnabled = Engine.xrSupported === true;
     const VideocamIcon = isCamVideoEnabled ? Videocam : VideocamOff;
     const MicIcon = isCamAudioEnabled ? Mic : MicOff;
 
     return (
         <section className={styles.drawerBox}>
             {instanceMediaChatEnabled
-                ? <button type="button" className={styles.iconContainer + ' ' + (isCamAudioEnabled ? styles.on : '')} onClick={handleMicClick}>
+                ? <button type="button" id='UserAudio' className={styles.iconContainer + ' ' + (isCamAudioEnabled ? styles.on : '')} onClick={handleMicClick}>
                     <MicIcon />
                 </button> : null}
             {videoEnabled
                 ? <>
-                    <button type="button" className={styles.iconContainer + ' ' + (isCamVideoEnabled ? styles.on : '')} onClick={handleCamClick}>
+                    <button type="button" id='UserVideo' className={styles.iconContainer + ' ' + (isCamVideoEnabled ? styles.on : '')} onClick={handleCamClick}>
                         <VideocamIcon />
                     </button>
-                    <button type="button" className={styles.iconContainer + ' ' + (isFaceTrackingEnabled ? styles.on : '')} onClick={handleFaceClick}>
+                    <button type="button" id='UserFaceTracking' className={styles.iconContainer + ' ' + (isFaceTrackingEnabled ? styles.on : '')} onClick={handleFaceClick}>
                         <FaceIcon />
                     </button>
                 </> : null}
             {xrSupported
-                ? <button type="button" className={styles.iconContainer + ' ' + (!xrEnabled ? '' : styles.on)} onClick={handleVRClick}>
+                ? <button type="button" id='UserXR' className={styles.iconContainer + ' ' + (!xrEnabled ? '' : styles.on)} onClick={handleVRClick}>
                     <VrIcon />
                     
                 </button> : null}

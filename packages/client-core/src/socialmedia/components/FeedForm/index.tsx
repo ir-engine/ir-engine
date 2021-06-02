@@ -13,11 +13,24 @@ import Typography from '@material-ui/core/Typography';
 import BackupIcon from '@material-ui/icons/Backup';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import { useTranslation } from 'react-i18next';
-
+import { Capacitor, Plugins } from '@capacitor/core';
 // @ts-ignore
 import styles from './FeedForm.module.scss';
 import { createFeed, updateFeedAsAdmin } from '../../reducers/feed/service';
 import { updateNewFeedPageState, updateShareFormState, updateArMediaState } from '../../reducers/popupsState/service';
+import { selectPopupsState } from '../../reducers/popupsState/selector';
+import { selectWebXrNativeState } from "@xrengine/client-core/src/socialmedia/reducers/webxr_native/selector";
+import { changeWebXrNative } from "@xrengine/client-core/src/socialmedia/reducers/webxr_native/service";
+import Preloader from "@xrengine/client-core/src/socialmedia/components/Preloader";
+import {selectFeedsState} from "../../reducers/feed/selector";
+
+const mapStateToProps = (state: any): any => {
+    return {
+      popupsState: selectPopupsState(state),
+      feedsState: selectFeedsState(state),
+      webxrnativeState: selectWebXrNativeState(state),
+    };
+  };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createFeed: bindActionCreators(createFeed, dispatch),
@@ -25,17 +38,22 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
     updateShareFormState: bindActionCreators(updateShareFormState, dispatch),
     updateArMediaState: bindActionCreators(updateArMediaState, dispatch),
+    changeWebXrNative: bindActionCreators(changeWebXrNative, dispatch)
 });
 
 interface Props{
     feed?:any;
+    popupsState?: any;
+    feedsState?: any;
     createFeed?: typeof createFeed;
     updateFeedAsAdmin?: typeof updateFeedAsAdmin;
     updateNewFeedPageState?: typeof updateNewFeedPageState; 
     updateShareFormState?: typeof updateShareFormState;
     updateArMediaState?: typeof updateArMediaState;
+    changeWebXrNative?: any;
+    webxrnativeState?: any;
 }
-const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, updateShareFormState, updateArMediaState} : Props) => { 
+const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, updateShareFormState, updateArMediaState, popupsState, feedsState, webxrnativeState, changeWebXrNative } : Props) => {
     const [isSended, setIsSended] = useState(false);
     const [isRecordVideo, setRecordVideo] = useState(false);
     const [isVideo, setIsVideo] = useState(false);
@@ -44,14 +62,18 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const [video, setVideo] = useState(null);
     const [videoUrl, setVideoUrl] = useState(null);
     const [preview, setPreview] = useState(null);
+    const [preloader, setPreloader] = useState(false);
     const titleRef = React.useRef<HTMLInputElement>();
     const textRef = React.useRef<HTMLInputElement>();
     const videoRef = React.useRef<HTMLInputElement>();
-	const { t } = useTranslation();
+    const { t } = useTranslation();
+    const videoPath = popupsState?.get('videoPath');
+    const { XRPlugin } = Plugins;
 
     const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value);
     const handleComposingTextChange = (event: any): void => setComposingText(event.target.value);
     const handleCreateFeed = async () => {
+
         const newFeed = {
             title: composingTitle.trim(),
             description: composingText.trim(),
@@ -60,8 +82,9 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         if(feed){                    
             updateFeedAsAdmin(feed.id, newFeed);
         }else{
-           setVideoUrl(await createFeed(newFeed)); 
+           setVideoUrl(await createFeed(newFeed));
         }
+        console.log(newFeed);
 
         setComposingTitle('');
         setComposingText('');
@@ -72,24 +95,112 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
             setIsSended(false); 
             clearTimeout(thanksTimeOut);
         }, 2000);
-        
-           
 
+        const webxrRecorderActivity = webxrnativeState.get('webxrnative');
+        if(webxrRecorderActivity){
+            changeWebXrNative();
+        }
     };
 
-    useEffect(()=> {videoUrl && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
-    const handlePickVideo = async (file) => setVideo(file.target.files[0]);
-    const handlePickPreview = async (file) => setPreview(file.target.files[0]);
-    
+    const dataURItoBlob = (dataURI) => {
+        let byteString = atob(dataURI.split(',')[1]);
+        const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+        }
+        const blob = new Blob([ab], { type: mimeString });
+        return new File([blob], "previewImg.png");
+    };
+
+    useEffect(()=> {
+        fetch(videoPath)
+        .then((res) => res.blob())
+        .then((myBlob) => {
+         const myFile = new File([myBlob], "test.mp4");
+         setVideo(myFile);
+         console.log(myFile);
+         /*Preview Begin*/
+         const file = myFile;
+         const fileReader = new FileReader();
+
+         fileReader.onload = function() {
+            const blob = new Blob([fileReader.result], {type: file.type});
+            const url = URL.createObjectURL(blob);
+            const video = document.createElement('video');
+            const timeupdate = function() {
+                if (snapImage()) {
+                    video.removeEventListener('timeupdate', timeupdate);
+                    video.pause();
+                }
+             };
+             video.addEventListener('loadeddata', () => {
+                if (snapImage()) {
+                    video.removeEventListener('timeupdate', timeupdate);
+                }
+             });
+             const snapImage = function() {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                const image = canvas.toDataURL();
+                const success = image.length > 100000;
+                if (success) {
+                    setPreview(dataURItoBlob(image));
+                    URL.revokeObjectURL(url);
+                }
+                return success;
+             };
+             video.addEventListener('timeupdate', timeupdate);
+             video.preload = 'metadata';
+             video.src = url;
+             // Load video in Safari / IE11
+             video.muted = true;
+             video.playsInline = true;
+             video.play();
+          };
+          fileReader.readAsArrayBuffer(file);
+          /*Preview Finish*/
+
+
+        }).catch(error => console.log(error.message));
+
+
+    }, [] );
+
+    const closePopUp = () => {
+        updateNewFeedPageState(false);
+        const webxrRecorderActivity = webxrnativeState.get('webxrnative');
+        if(webxrRecorderActivity){
+            changeWebXrNative();
+        }
+    };
+
+    useEffect(()=> {videoUrl && updateNewFeedPageState(false, null) && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
+    // const handlePickVideo = async (file) => setVideo(popupsState?.get('videoPath'));
+    // const handlePickPreview = async (file) => setPreview('');
+
+    useEffect(()=>{
+        return ()=>{
+            // cleaning up memory to avoid leaks
+            setIsSended(null);
+        };
+    });
+
+    const feedsFetching = feedsState.get('feedsFetching');
+
 return <section className={styles.feedFormContainer}>
-    <nav>               
-        <Button variant="text" onClick={()=>{updateArMediaState(true); updateNewFeedPageState(false);}}><ArrowBackIosIcon />{t('social:feedForm.back')}</Button> 
-    </nav>  
+    {/* <nav>               
+        <Button variant="text" className={styles.backButton} onClick={()=>{updateArMediaState(true); updateNewFeedPageState(false);}}><ArrowBackIosIcon />{t('social:feedForm.back')}</Button>
+    </nav>   */}
+    {feedsFetching && <Preloader />}
     {isSended ? 
         <Typography>{t('social:feedForm.thanks')}</Typography>
         :
         <section>
-            <Typography>{t('social:feedForm.share')}</Typography>            
+            {/* <Typography>{t('social:feedForm.share')}</Typography>            
                 {feed && <CardMedia   
                     className={styles.previewImage}                  
                     src={feed.videoUrl}
@@ -110,14 +221,14 @@ return <section className={styles.feedFormContainer}>
                             <br/><BackupIcon onClick={()=>{(videoRef.current as HTMLInputElement).click();}} />
                             <input required ref={videoRef} type="file" className={styles.displayNone} name="video" onChange={handlePickVideo} placeholder={t('social:feedForm.ph-selectVideo')}/>
                         </Typography> 
-                    </Card>
+                    </Card> */}
                 {/* <Card className={styles.preCard}>
                    <Typography variant="h2" align="center">
                         <p>Record from camera</p>
                         <p><CameraIcon  onClick={()=>setRecordVideo(true)} /></p>
                     </Typography> 
                 </Card> */}
-                <Card className={styles.preCard}>
+                {/* <Card className={styles.preCard}>
                     <Typography>{t('social:feedForm.preview')}<input required type="file" name="preview" onChange={handlePickPreview} placeholder={t('social:feedForm.ph-selectPreview')}/></Typography>  
                 </Card>  
             </section>            
@@ -127,7 +238,7 @@ return <section className={styles.feedFormContainer}>
                 onChange={handleComposingTitleChange}
                 fullWidth 
                 placeholder={t('social:feedForm.ph-videoName')}
-                />    
+                />     */}
             {/* <TextField className={styles.textArea} ref={textRef} 
                 value={composingText}
                 onChange={handleComposingTextChange}
@@ -135,14 +246,25 @@ return <section className={styles.feedFormContainer}>
                 multiline
                 placeholder={t('social:feedForm.ph-type')}
                 />     */}
-            <Button
-                variant="contained"                
-                className={styles.submit}
-                onClick={()=>handleCreateFeed()}
-                >
-                {t('social:feedForm.lbl-share')}
-                </Button>   
+            <div className={styles.buttonWraper}>
+                <Button
+                    variant="contained"
+                    className={styles.submit}
+                    onClick={()=>handleCreateFeed()}
+                    >
+{/*                         {t('social:feedForm.lbl-share')} */}
+                        Add Feed
+                    </Button>
+                <Button
+                    variant="contained"
+                    className={styles.submit}
+                    onClick={()=>closePopUp()}
+                    >
+                        Cancel
+                    </Button>
+            </div>
 
+                
             {isRecordVideo === true && 
                 <section className={styles.videoWrapper}>
                     <VideoRecorder
@@ -168,4 +290,4 @@ return <section className={styles.feedFormContainer}>
 </section>;
 };
 
-export default connect(null, mapDispatchToProps)(FeedForm);
+export default connect(mapStateToProps, mapDispatchToProps)(FeedForm);

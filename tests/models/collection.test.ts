@@ -1,8 +1,8 @@
 import app from '../../packages/server/src/app'
 
 describe.skip('CRUD operation on \'Collection\' model', () => {
-  const model = app.service('collection').Model
-  const collectionTypeModel = app.service('collection-type').Model
+  const model = (app.service('collection') as any).Model
+  const collectionTypeModel = (app.service('collection-type') as any).Model
   let collectionType: any
 
   beforeAll(async () => {

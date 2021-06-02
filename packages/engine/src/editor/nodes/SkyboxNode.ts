@@ -11,6 +11,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
     return editor.scene.findNodeByType(SkyboxNode) === null;
   }
   static async deserialize(editor, json) {
+    console.log("Deserializng The SkyBox");
     const node = await super.deserialize(editor, json);
     const skybox = json.components.find(c => c.name === "skybox");
 

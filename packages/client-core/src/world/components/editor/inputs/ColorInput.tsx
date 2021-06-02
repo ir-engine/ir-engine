@@ -70,7 +70,7 @@ const ColorInputPopover = (styled as any).div`
  * ColorInput used to render the view of component.
  * 
  * @author Robert Long
- * @param       {object} value
+ * @param       {object | number} value
  * @param       {function} onChange
  * @param       {boolean} disabled
  * @param       {any} rest
@@ -116,11 +116,11 @@ export function ColorInput({ value, onChange, disabled,isValueAsInteger=false, .
  * @author Robert Long
  * @type {Object}
  */
-ColorInput.propTypes = {
-  disabled: PropTypes.bool,
-  value: PropTypes.object.isRequired,
-  onChange: PropTypes.func
-};
+// ColorInput.propTypes = {
+//   disabled: PropTypes.bool,
+//   value: PropTypes.object.isRequired,
+//   onChange: PropTypes.func
+// };
 
 /**
  * Initializing defaultProps for ColorInput.

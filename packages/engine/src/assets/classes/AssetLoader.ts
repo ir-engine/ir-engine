@@ -1,5 +1,4 @@
 import { FileLoader, MeshPhysicalMaterial, Object3D, LOD, TextureLoader } from 'three';
-import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { getLoader as getGLTFLoader, loadExtentions} from '../functions/LoadGLTF';
 import { FBXLoader } from '../loaders/fbx/FBXLoader';
 import { AssetType } from '../enum/AssetType';
@@ -13,7 +12,8 @@ import { Engine } from '../../ecs/classes/Engine';
 import { LOADER_STATUS, LODS_REGEXP, LOD_DISTANCES } from '../constants/LoaderConstants';
 
 type AssetLoaderParamType = {
-    entity: Entity;
+    entity?: Entity;
+    parent?: Object3D;
     url: string;
     [key: string]: any;
 }
@@ -30,7 +30,7 @@ export class AssetLoader {
 
     constructor(
         private params: AssetLoaderParamType,
-        private onLoad: ( response: any ) => void,
+        private onLoad?: ( response: any ) => void,
         private onProgress?: ( request: ProgressEvent ) => void,
         private onError?: ( event: ErrorEvent | Error ) => void,
     ) {
@@ -68,7 +68,9 @@ export class AssetLoader {
         this.fileLoader.load(url, this._onLoad, this._onProgress, this._onError);
 
         // Add or overwrites the loader for an entity.
-        AssetLoader.loaders.set(this.params.entity.id, this);
+        if(this.params.entity){
+          AssetLoader.loaders.set(this.params.entity.id, this);
+        }
     }
 
     /**
@@ -118,8 +120,8 @@ export class AssetLoader {
         asset.traverse((child) => {
             if (!child.isMesh) return;
 
-            child.receiveShadow = this.params.receiveShadow;
-            child.castShadow = this.params.castShadow;
+            if(typeof this.params.receiveShadow !== 'undefined') child.receiveShadow = this.params.receiveShadow;
+            if(typeof this.params.castShadow !== 'undefined') child.castShadow = this.params.castShadow;
 
             if (this.params.envMapOverride) {
                 child.material.envMap = this.params.envMapOverride;
@@ -150,7 +152,7 @@ export class AssetLoader {
 
         if (this.params.parent) {
             this.params.parent.add(asset);
-        } else {
+        } else if(this.params.entity) {
             if (hasComponent(this.params.entity, Object3DComponent)) {
                 if (getComponent<Object3DComponent>(this.params.entity, Object3DComponent).value !== undefined)
                     getMutableComponent<Object3DComponent>(this.params.entity, Object3DComponent).value.add(asset);
@@ -158,11 +160,6 @@ export class AssetLoader {
             } else {
                 addObject3DComponent(this.params.entity, { obj3d: asset });
             }
-
-            asset.children.forEach(obj => {
-                const e = createEntity();
-                addObject3DComponent(e, { obj3d: obj, parentEntity: this.params.entity });
-            });
         }
     }
 
@@ -201,16 +198,6 @@ export class AssetLoader {
         }
     }
 
-    dispatchEvent = () => {
-        EngineEvents.instance.dispatchEvent({
-            type: EngineEvents.EVENTS.ASSET_LOADER,
-            data: {
-                status: this.status,
-                entityId: this.params.entity.id,
-            }
-        });
-    }
-
     _onLoad = (response: any): void => {
         this.result = response;
         if (response && (this.assetType === AssetType.glTF || this.assetType === AssetType.VRM)) {
@@ -225,26 +212,22 @@ export class AssetLoader {
         if (!AssetLoader.Cache.has(this.params.url)) AssetLoader.Cache.set(this.params.url, response);
 
         this.status = LOADER_STATUS.LOADED;
-        (this as any).dispatchEvent();
         if (typeof this.onLoad === 'function') this.onLoad(this.result);
     }
 
     _onProgress = (request: ProgressEvent): void => {
         this.status = LOADER_STATUS.LOADING;
-        (this as any).dispatchEvent();
         if (typeof this.onProgress === 'function') this.onProgress(request);
     }
 
     _onError = (event: ErrorEvent | Error): void => {
         this.status = LOADER_STATUS.ERROR;
-        (this as any).dispatchEvent();
         if (typeof this.onError === 'function') this.onError(event);
     }
 
-
     static load(
         params: AssetLoaderParamType,
-        onLoad: ( response: any ) => void,
+        onLoad?: ( response: any ) => void,
         onProgress?: ( request: ProgressEvent ) => void,
         onError?: ( event: ErrorEvent | Error ) => void,
     ) {
