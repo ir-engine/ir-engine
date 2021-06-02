@@ -25,7 +25,7 @@ class Obj extends Component<Obj>{
 
 	setReference( o ){
 		this.ref = o; 
-		Engine.scene.add( o );
+		// Engine.scene.add( o );
 		return this;
 	}
 

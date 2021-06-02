@@ -17,12 +17,12 @@ import ArmatureSystem from "@xrengine/engine/src/ikrig/systems/ArmatureSystem";
 import Transform from "@xrengine/engine/src/ikrig/math/Transform";
 import { LoadGLTF } from "@xrengine/engine/src/assets/functions/LoadGLTF";
 import Armature from "@xrengine/engine/src/ikrig/components/Armature";
-import { FORWARD, UP } from "@xrengine/engine/src/ikrig/math/Vector3Constants";
-
-let gSrc, gModelA, gIKPose;
+import { BACK, DOWN, FORWARD, LEFT, RIGHT, UP } from "@xrengine/engine/src/ikrig/math/Vector3Constants";
+import { Component } from "@xrengine/engine/src/ecs/classes/Component";
 
 var Debug;
 
+class DebugRig extends Component<DebugRig> {}
 class RenderSystem extends System {
 	updateType = SystemUpdateType.Fixed;
 
@@ -106,16 +106,16 @@ class IKPose {
 	applyRig(rig) {
 		this.applyHip(rig);
 
-		this.apply_limb(rig, rig.chains.leg_l, this.leg_l);
-		this.apply_limb(rig, rig.chains.leg_r, this.leg_r);
+		this.applyLimb(rig, rig.chains.leg_l, this.leg_l);
+		this.applyLimb(rig, rig.chains.leg_r, this.leg_r);
 
 		this.applyLookTwist(rig, rig.points.foot_l, this.foot_l, FORWARD, UP);
 		this.applyLookTwist(rig, rig.points.foot_r, this.foot_r, FORWARD, UP);
 
-		this.apply_spline(rig, rig.chains.spine, this.spine, UP, FORWARD);
+		this.applySpline(rig, rig.chains.spine, this.spine, UP, FORWARD);
 
-		if (rig.chains.arm_l) this.apply_limb(rig, rig.chains.arm_l, this.arm_l);
-		if (rig.chains.arm_r) this.apply_limb(rig, rig.chains.arm_r, this.arm_r);
+		if (rig.chains.arm_l) this.applyLimb(rig, rig.chains.arm_l, this.arm_l);
+		if (rig.chains.arm_r) this.applyLimb(rig, rig.chains.arm_r, this.arm_r);
 
 		this.applyLookTwist(rig, rig.points.head, this.head, FORWARD, UP);
 	}
@@ -157,6 +157,8 @@ class IKPose {
 
 		rig.pose.setBone(boneInfo.index, q); // Save LS rotation to pose
 
+		console.log(bind);
+
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// TRANSLATION
 		let h_scl = bind.world.position.y / this.hip.bind_height;	// Create Scale value from Src's Hip Height and Target's Hip Height
@@ -174,7 +176,7 @@ class IKPose {
 	}
 	
 
-	apply_limb(rig, chain, limb, grounding = 0) {
+	applyLimb(rig, chain, limb, grounding = 0) {
 		const { parentTransform, childTransform } = rig.pose.getParentWorld(chain.first());
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -184,7 +186,7 @@ class IKPose {
 		// Next we pass our into to the Target which does a some pre computations that solvers may need.
 		this.target.fromPositionAndDirection(childTransform.position, limb.dir, limb.jointDirection, len);	// Setup IK Target
 
-		if (grounding) this.apply_grounding(grounding);
+		if (grounding) this.applyGrounding(grounding);
 
 		// Each Chain is assigned a IK Solver that will bend the bones to the right places
 		let solver = chain.ik_solver || "limb";
@@ -237,7 +239,7 @@ class IKPose {
 		rig.pose.setBone(boneInfo.index, rotation);	// Save to pose.		
 	}
 
-	apply_grounding(y_lmt) {
+	applyGrounding(y_lmt) {
 		// Once we have out IK Target setup, We can use its data to test various things
 		// First we can test if the end effector is below the height limit. Each foot
 		// may need a different off the ground offset since the bones rarely touch the floor
@@ -246,8 +248,8 @@ class IKPose {
 
 		/* DEBUG IK TARGET */
 		let tar = this.target,
-			posA = tar.startPosition.add([-1, 0, 0]),
-			posB = tar.endPosition.add([-1, 0, 0]);
+			posA = tar.startPosition.add(new Vector3(-1, 0, 0)),
+			posB = tar.endPosition.add(new Vector3(-1, 0, 0));
 		Debug
 			.setPoint(posA, "yellow", 0.05, 6)
 			.setPoint(posB, "white", 0.05, 6)
@@ -269,17 +271,17 @@ class IKPose {
 		);
 
 		/* DEBUG NEW END EFFECTOR */
-		Debug.setPoint(this.target.endPosition.add([-1, 0, 0]), "orange", 0.05, 6);
+		Debug.setPoint(this.target.endPosition.add(new Vector3(-1, 0, 0)), "orange", 0.05, 6);
 
 		// Since we changed the end effector, lets update the Sqr Length and Length of our target
 		// This is normally computed by our IK Target when we set it, but since I didn't bother
 		// to create a method to update the end effector, we need to do these extra updates.
-		const distance = this.target.startPosition.distance(this.target.endPosition);
+		const distance = this.target.startPosition.distanceTo(this.target.endPosition);
 		this.target.magnitudeSquared = distance * distance;
 		this.target.length = distance;
 	}
 
-	apply_spline(rig, chain, ik, lookDirection, twistDirection) {
+	applySpline(rig, chain, ik, lookDirection, twistDirection) {
 		// For the spline, we have the start and end IK directions. Since spines can have various
 		// amount of bones, the simplest solution is to lerp from start to finish. The first
 		// spine bone is important to control offsets from the hips, and the final one usually
@@ -418,7 +420,10 @@ class IKCompute {
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Save all the info we need to our IK Pose.
 		ik_pose.hip.bind_height = bind.world.position.y;	// The Bind Pose Height of the Hip, Helps with scaling.
-		ik_pose.hip.movement.setFromSubtract(pose.world.position, bind.world.position);	// How much movement did the hip do between Bind and Animated.
+		// TODO: Right subtract order?
+		console.log("pose.world.position");
+		console.log(pose.world.position);
+		ik_pose.hip.movement = pose.world.position.sub(bind.world.position);	// How much movement did the hip do between Bind and Animated.
 		ik_pose.hip.dir.copy(pose_fwd);	// Pose Forward is the direction we want the Hip to Point to.
 		ik_pose.hip.twist = twist;	// How Much Twisting to Apply after pointing in the correct direction.
 	}
@@ -435,8 +440,8 @@ class IKCompute {
 
 		let boneA = pose.bones[chain.first()],	// First Bone
 			boneB = pose.bones[chain.end_idx],	// END Bone, which is not part of the chain (Hand,Foot)
-			aToBDirection = boneB.world.position.subtract(boneA.world.position),	// Direction from First Bone to Final Bone ( IK Direction )
-			aToBLength = aToBDirection.magnitude();									// Distance from First Bone to Final Bone 
+			aToBDirection = boneB.world.position.sub(boneA.world.position),	// Direction from First Bone to Final Bone ( IK Direction )
+			aToBLength = aToBDirection.length();									// Distance from First Bone to Final Bone 
 
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -447,7 +452,7 @@ class IKCompute {
 		// We use the first bone of the chain plus the Pre computed ALT UP to easily get the direction of the joint
 		let j_dir = chain.alt_up.applyQuaternion(boneA.world.quaternion);
 		let lft_dir = j_dir.cross(aToBDirection);					// We need left to realign up
-		ik_limb.jointDirection.setFromCross(aToBDirection, lft_dir).normalize(); 	// Recalc Up, make it orthogonal to LEFT and FWD
+		ik_limb.jointDirection = aToBDirection.cross(lft_dir).normalize(); 	// Recalc Up, make it orthogonal to LEFT and FWD
 	}
 
 	static lookTwist(rig, boneInfo, ik, lookDirection, twistDirection) {
@@ -584,7 +589,6 @@ let COLOR = {
 };
 
 async function loadSource(source) {
-
 	const entity = createEntity();
 	if(!hasComponent(entity, Armature)){
 		addComponent(entity, Armature);
@@ -593,63 +597,127 @@ async function loadSource(source) {
 		addComponent(entity, Obj);
 	}
 
-	const o = getMutableComponent(entity, Obj);
 
-	const model = await LoadGLTF(source);
-
-	console.log("Loading source");
-	console.log(model.scene);
-
+	
+	const obj = getMutableComponent(entity, Obj);
+	const armature = getMutableComponent(entity, Armature);
+	const model = (await LoadGLTF(source));
+	Engine.scene.add(model.scene)
+	Engine.scene.add( new SkeletonHelper( model.scene ) );
+	console.log("Model is", model);
 	const skinnedMeshes = [];
 	model.scene.traverse(node => {
-		if(node.skeleton !== undefined){
-			skinnedMeshes.push(node);
+		if(node.children){
+			node.children.forEach(n =>{
+
+		if(n.type === "SkinnedMesh"){
+			skinnedMeshes.push(n);
 		}
 	})
+}
+	})
 
+
+	console.log("skinnedMeshes is", skinnedMeshes);	
 	const sortedSkins = skinnedMeshes.sort((a, b) => { return a.skeleton.bones.length - b.skeleton.bones.length });
-	console.log("Sorted skins are ", sortedSkins);
-	o.setReference(sortedSkins[0]);
+	console.log("sortedSkins: ", sortedSkins)
+	
+	obj.setReference(sortedSkins[0]);
 
-	loadBonesInto( entity );
+	obj.ref.traverse((bone) => {
+		console.log("Bone", bone)
+	})
 
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	const b = getMutableComponent(entity, Armature).getRoot();
-	o.ref.add( b );
-	Engine.scene.add( new SkeletonHelper( b ) );
 
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	Engine.scene.add( o.ref );
+	armature.skeleton =  obj.ref.skeleton;
+	armature.skeleton.bones =  obj.ref.skeleton.bones;
+	armature.skeleton.bones.forEach((bone) => {
+		(bone as any).local = new Transform();
+		(bone as any).world = new Transform();
+	})
+
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// Setup the Inverted Bind Pose
+		armature.computeBindPose();
+
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// Build THREE.JS Skeleton
 
 	// let anim = new Animation(Gltf.getAnimation(json, bin));
 	let poseManager = new PoseAnimator();
 	addComponent(entity, IKRig);
 	let rig = getMutableComponent(entity, IKRig);
 	
-	rig.init(null, true, IKRig.ARM_MIXAMO)
-		.RecomputeFromTPose(); // Mesh requires a few bits to be recomputed because of Mixamo Scaling
+		rig.armature = armature;
+		rig.pose = rig.armature.createNewPose();
+		rig.tpose = rig.armature.createNewPose(); // If Passing a TPose, it must have its world space computed.
+
+		//-----------------------------------------
+		// Apply Node's Starting Transform as an offset for poses.
+		// This is only important when computing World Space Transforms when
+		// dealing with specific skeletons, like Mixamo stuff.
+		// Need to do this to render things correctly
+			const l = getMutableComponent(entity, Obj).getTransform(); // Obj is a ThreeJS Component
+			rig.pose.setOffset(l.quaternion, l.position, l.scale);
+			rig.tpose.setOffset(l.quaternion, l.position, l.scale);
+
+		//-----------------------------------------
+		// If TPose Was Created by Rig, it does not have its world
+		// Space Computed. Must do this after setting offset to work right.
+		rig.tpose.updateWorld();
+
+		//-----------------------------------------
+		// Auto Setup the Points and Chains based on
+		// Known Skeleton Structures.
+		rig
+		.addPoint("hip", "Hips")
+		.addPoint("head", "Head")
+		.addPoint("neck", "Neck")
+		.addPoint("chest", "Spine2")
+		.addPoint("foot_l", "LeftFoot")
+		.addPoint("foot_r", "RightFoot")
+
+		.addChain("arm_r", ["RightArm", "RightForeArm"], "RightHand") //"x",
+		.addChain("arm_l", ["LeftArm", "LeftForeArm"], "LeftHand") //"x", 
+
+		.addChain("leg_r", ["RightUpLeg", "RightLeg"], "RightFoot") //"z", 
+		.addChain("leg_l", ["LeftUpLeg", "LeftLeg"], "LeftFoot")  //"z", 
+
+		.addChain("spine", ["Spine", "Spine1", "Spine2"]); //, "y"
+
+	rig.chains.leg_l.setAlt(DOWN, FORWARD, rig.tpose);
+	rig.chains.leg_r.setAlt(DOWN, FORWARD, rig.tpose);
+	rig.chains.arm_r.setAlt(RIGHT, BACK, rig.tpose);
+	rig.chains.arm_l.setAlt(LEFT, BACK, rig.tpose);
+
+		// .RecomputeFromTPose(); // Mesh requires a few bits to be recomputed because of Mixamo Scaling
 
 	poseManager.rootIndex = 0;	// Get Rid of Motion from The Hip
 	poseManager.rootZ = 1;	// Mixamo stuff is 90 degress off, so forward is Y :(
-
-	gSrc = entity;
+	addComponent(entity, DebugRig);
 }
 
 class IKRigSystem extends System {
 	execute () {
+		this.queryResults.debugRig.all?.forEach((entity) => {
+			let rig = getMutableComponent(entity, IKRig);
+	
+		// 	IKCompute.run(entity, gIKPose);
+		// IKVisualize.run(entity, gIKPose);
+
+		})
+
 		this.queryResults.ikrigs.all?.forEach((entity) => {
 			let rig = getMutableComponent(entity, IKRig);
 			// poseManager.tick(deltaTime).update(anim, rig.pose);
-			rig.apply_pose();
+			// rig.apply_pose();
 			//-----------------------------
-			IKCompute.run(gSrc, gIKPose);
-			IKVisualize.run(gSrc, gIKPose);
 
-			if(gModelA !== undefined){
-			const ikrig = getMutableComponent(gModelA, IKRig);
-			gIKPose.applyRig(ikrig);
-			ikrig.apply_pose();
-			}
+			// if(gModelA !== undefined){
+			// const ikrig = getMutableComponent(gModelA, IKRig);
+			// gIKPose.applyRig(ikrig);
+			// ikrig.apply_pose();
+			// }
 		})
 	}
 }
@@ -662,8 +730,17 @@ IKRigSystem.queries = {
 			removed: true,
 			changed: true
 		}
+	},
+	debugRig: {
+		components: [DebugRig],
+		listen: {
+			added: true,
+			removed: true,
+			changed: true
+		}
 	}
 }
+
 
 async function loadMeshA(source) {
 	const model = await LoadGLTF(source);
@@ -691,8 +768,9 @@ async function loadMeshA(source) {
 	o.setReference(sortedSkins[0]);
 
 	const armature = getMutableComponent(entity, Armature);
-
-	loadBonesInto( entity );
+	const bones = getMutableComponent(entity, Obj).ref.skeleton.bones;
+	armature.bones = bones;
+	loadBonesInto( armature, bones );
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// TODO: Handle me, since I'm just adding this and might not be able to clean it up
@@ -720,62 +798,9 @@ async function loadMeshA(source) {
 
 	rig.points.head.index = rig.points.neck.index; // Lil hack cause Head Isn't Skinned Well.
 	getMutableComponent(entity, Obj).setPosition(1.0, 0, 0);
-
-	gModelA = entity;
 }
 
-
-
-const loadBonesInto = ( entity, def_len=0.1 ) => {
-	const armature 	= getMutableComponent(entity, Armature);
-
-	console.log("Ref is")
-	console.log(getMutableComponent(entity, Obj).ref);
-
-	const bones 	= getMutableComponent(entity, Obj).ref.skeleton.bones;
-	
-	console.log("bones is ", bones);
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// Create Bones
-	const length	= bones.length,
-		map = {}			// Create a Map of the First Child of Every Parent
-	let i, b, be;
-
-	for( i=0; i < length; i++ ){
-		b	= bones[ i ];
-		be	= armature.addBone( b.name, 1, b.p_idx );
-
-		if( b.quaternion ) be.quaternion.fromArray( b.quaternion );
-		if( b.position ) be.position.fromArray( b.position );
-		if( b.scale ) be.scale.fromArray( b.scale );
-
-		// Save First Child to Parent Mapping
-		if( b.p_idx != null && !map[ b.p_idx ] ) map[ b.p_idx ] = i;
-	}
-
-	armature.finalize();
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// Set the Entity Transfrom from Armature's Node Transform if available.
-	// Loading Meshes that where originally FBX need this to display correctly.
-	// if( n_info.scale ) obj.ref.scale.fromArray( n_info.scale );
-	// if( n_info.quaternion ) obj.ref.quaternion.fromArray( n_info.quaternion );
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// Calc the Length of Each Bone
-	let c;
-	for( i=0; i < length; i++ ){
-		b = armature.bones[ i ];
-
-		if( !map[ i ] ) b.length = def_len;
-		else{
-			c = armature.bones[ map[ i ] ]; // First Child's World Space Transform
-			b.length = b.world.position.distance(c.world.position ); // Distance from Parent to Child
-		}
-	}
-
-	return entity;
-}
+var gIKPose;
 
 // This is a functional React component
 const Page = () => {
@@ -789,15 +814,15 @@ const Page = () => {
 			Debug = await debug.init();
 
 			await loadSource("ikrig/anim/Walking.glb");
-			loadMeshA("ikrig/models/vegeta.glb");
+			// await loadMeshA("ikrig/models/vegeta.glb");
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Misc
 			gIKPose = new IKPose();
 
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			// gAnimate(0.2);
-			// Create a simple timer
+			// //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			// // gAnimate(0.2);
+			// // Create a simple timer
 			setInterval(() => {
 				// We're only executing fixed update systems, but there are other update types
 				Engine.systems.forEach(system => system.execute(1 / 30));

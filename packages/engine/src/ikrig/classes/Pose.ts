@@ -10,7 +10,7 @@ class Pose {
 	root_offset: any;
 	constructor(armature) {
 		this.armature = armature;								// Reference Back to Armature, Make Apply work Easily
-		this.bones = new Array(armature.bones.length);	// Recreation of Bone Hierarchy
+		this.bones = armature.bones;	// Recreation of Bone Hierarchy
 		this.root_offset = new Transform();					// Parent Transform for Root Bone ( Skeletons from FBX imports need this to render right )
 		console.log("Armature is")
 		console.log(armature)
@@ -21,34 +21,34 @@ class Pose {
 		// Create Bone Transform Hierarchy to do transformations
 		// without changing the actual armature.
 		let b, pi;
-		for (let i = 0; i < armature.bones.length; i++) {
-			b = armature.bones[i];
-			const localTransform = new Transform();
-			console.log("b is", b);
+		// for (let i = 0; i < armature.bones.length; i++) {
+		// 	b = armature.bones[i];
+		// 	const localTransform = new Transform();
+		// 	console.log("b is", b);
+		// 	console.log("localTransform is", localTransform);
 
-			localTransform.position.copy(b.local.position);
-			localTransform.quaternion.copy(b.local.quaternion);
-			localTransform.scale.copy(b.local.scale);
+		// 	localTransform.position.copy(b.world.position);
+		// 	localTransform.quaternion.copy(b.ref.quaternion);
+		// 	localTransform.scale.copy(b.ref.scale);
 
-			const worldTransform = new Transform();
+		// 	const worldTransform = new Transform();
+		// 	worldTransform.position.copy(b.ref.localToWorld(b.ref.position));
+		// 	worldTransform.quaternion.copy(b.ref.quaternion);
+		// 	worldTransform.scale.copy(b.ref.scale);
 
-			worldTransform.position.copy(b.world.position);
-			worldTransform.quaternion.copy(b.world.quaternion);
-			worldTransform.scale.copy(b.world.scale);
+		// 	this.bones[i] = {
+		// 		chg_state: 0,						// If Local Has Been Updated
+		// 		index: b.index,					// Bone Index in Armature
+		// 		parentIndex: b.parentIndex,					// Parent Bone Index in Armature
+		// 		length: b.length,					// Length of Bone
+		// 		name: b.name,
+		// 		local: localTransform, // Local Transform, use Bind pose as default
+		// 		world: worldTransform,	// Model Space Transform
+		// 	};
 
-			this.bones[i] = {
-				chg_state: 0,						// If Local Has Been Updated
-				index: b.index,					// Bone Index in Armature
-				parentIndex: b.parentIndex,					// Parent Bone Index in Armature
-				length: b.length,					// Length of Bone
-				name: b.name,
-				local: localTransform, // Local Transform, use Bind pose as default
-				world: worldTransform,	// Model Space Transform
-			};
-
-			console.log("this.bones[i] is");
-			console.log(this.bones[i]);
-		}
+		// 	console.log("this.bones[i] is");
+		// 	console.log(this.bones[i]);
+		// }
 	}
 
 	setOffset(quaternion = null, position = null, scale = null) { this.root_offset.set(quaternion, position, scale); return this; }

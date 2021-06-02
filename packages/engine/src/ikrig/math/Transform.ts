@@ -28,22 +28,23 @@ class Transform extends Component<Transform>{
 		return this;
 	}
 
-	setFromAdd(tp, tc) {
+	setFromAdd(parent, child) {
+		console.log("setFromAdd", parent, child)
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
 		// TODO: Make sure this matrix isn't flipped
-		const v: Vector3 = tp.scale.multiply(tc.position); // parent.scale * child.position;
-		v.applyQuaternion(tp.quaternion); //Vec3.transformQuat( v, tp.quaternion, v );
-		this.position = tp.position.add(v); // Vec3.add( tp.position, v, this.position );
+		const v: Vector3 = parent.scale.multiply(child.position); // parent.scale * child.position;
+		v.applyQuaternion(parent.quaternion); //Vec3.transformQuat( v, tp.quaternion, v );
+		this.position = parent.position.add(v); // Vec3.add( tp.position, v, this.position );
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// SCALE - parent.scale * child.scale
 		// TODO: not flipped, right?
-		this.scale = tp.scale.multiply(tc.scale);
+		this.scale = parent.scale.multiply(child.scale);
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// ROTATION - parent.quaternion * child.quaternion
-		this.quaternion = tp.quaternion.multiply(tc.quaternion);
+		this.quaternion = parent.quaternion.multiply(child.quaternion);
 		//this.quaternion.setFromMultiply( tc.quaternion, tp.quaternion );
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
