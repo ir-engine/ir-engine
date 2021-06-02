@@ -37,7 +37,6 @@ import { doesPlayerHaveGameObject } from "./gameDefault/checkers/doesPlayerHaveG
 import { grabEquippable } from "../../interaction/functions/grabEquippable";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { disableInteractiveToOthers, disableInteractive } from "./Golf/behaviors/disableInteractiveToOthers";
-import { spawnBall } from "./Golf/behaviors/spawnBall";
 import { Network } from "../../networking/classes/Network";
 import { giveBall } from "./Golf/behaviors/giveBall";
 import { Entity } from "../../ecs/classes/Entity";
