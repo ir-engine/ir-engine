@@ -20,25 +20,35 @@ class IKRig extends Component<IKRig>{
 	// #endregion ////////////////////////////////////////////////
 
 
-	addPoint(name, b_name) {
+	addPoint(name, boneName) {
+		console.log("Adding point");
 		this.points[name] = {
-			index: this.armature.name_map[b_name]
+			index: this.armature.skeleton.bones.findIndex(bone => bone.name.includes(boneName))
 		};
+		console.log("this.points[name].index");
+		console.log(this.points[name].index);
 		return this;
 	}
 
 	addChain(name, name_ary, end_name = null, ik_solver = null) { //  axis="z",
 		let i, b;
+
+		if(this.pose.bones.length === 0) this.pose.bones = this.armature.skeleton.bones;
+
 		const ch = new Chain(); // axis
 		for (i of name_ary) {
+			console.log("this.pose is", this.pose);
 			b = this.pose.getBone(i);
+			const index = this.armature.skeleton.bones.indexOf(b);
 			console.log("bone is", b)
-			ch.addBone(b.index, b.length);
+			// ch.addBone(index, b.length);
+			// console.log("index is", index);
 		}
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		if (end_name) {
-			ch.end_idx = this.pose.getBone(end_name).index;
+			ch.end_idx = this.armature.skeleton.bones.indexOf(this.pose.getBone(end_name));
+			console.log("ch.end_idx", ch.end_idx);
 		}
 
 		ch.ik_solver = ik_solver;
@@ -142,9 +152,8 @@ class Chain {
 		// TODO: REVIEW ME, could be broken!
 		if (tpose) {
 			console.log("tpose is", tpose.bones);
-			console.log("this bones is", this.bones);
-			const b = tpose.bones[0],
-				q = b.world.quaternion.invert();	// Invert World Space Rotation 
+			const b = tpose.bones[0];
+			const q = b.quaternion.invert();	// Invert World Space Rotation 
 
 			this.alt_fwd = fwd.applyQuaternion(q);	// Use invert to get direction that will Recreate the real direction
 			this.alt_up = up.applyQuaternion(q);

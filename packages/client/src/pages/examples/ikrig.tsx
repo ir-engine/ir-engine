@@ -596,9 +596,6 @@ async function loadSource(source) {
 	if(!hasComponent(entity, Obj)){
 		addComponent(entity, Obj);
 	}
-
-
-	
 	const obj = getMutableComponent(entity, Obj);
 	const armature = getMutableComponent(entity, Armature);
 	const model = (await LoadGLTF(source));
@@ -607,14 +604,13 @@ async function loadSource(source) {
 	console.log("Model is", model);
 	const skinnedMeshes = [];
 	model.scene.traverse(node => {
-		if(node.children){
-			node.children.forEach(n =>{
-
-		if(n.type === "SkinnedMesh"){
-			skinnedMeshes.push(n);
+			if(node.children){
+				node.children.forEach(n =>{
+				if(n.type === "SkinnedMesh"){
+					skinnedMeshes.push(n);
+				}
+			})
 		}
-	})
-}
 	})
 
 
@@ -686,9 +682,9 @@ async function loadSource(source) {
 		.addChain("spine", ["Spine", "Spine1", "Spine2"]); //, "y"
 
 	rig.chains.leg_l.setAlt(DOWN, FORWARD, rig.tpose);
-	rig.chains.leg_r.setAlt(DOWN, FORWARD, rig.tpose);
-	rig.chains.arm_r.setAlt(RIGHT, BACK, rig.tpose);
-	rig.chains.arm_l.setAlt(LEFT, BACK, rig.tpose);
+	// rig.chains.leg_r.setAlt(DOWN, FORWARD, rig.tpose);
+	// rig.chains.arm_r.setAlt(RIGHT, BACK, rig.tpose);
+	// rig.chains.arm_l.setAlt(LEFT, BACK, rig.tpose);
 
 		// .RecomputeFromTPose(); // Mesh requires a few bits to be recomputed because of Mixamo Scaling
 
