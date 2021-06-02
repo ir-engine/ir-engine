@@ -39,6 +39,7 @@ import PersistTagComponent from "../../scene/components/PersistTagComponent";
 import { initiateIK } from "../../xr/functions/IKFunctions";
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
+	if(!isClient) return;
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 	AnimationManager.instance._defaultModel?.children?.forEach(child => actor.modelContainer.add(child));
 	actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);

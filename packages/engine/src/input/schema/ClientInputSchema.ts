@@ -463,6 +463,11 @@ const handleMouseButton = (args: { event: MouseEvent; value: BinaryType }): void
       value: mousePosition,
       lifecycleState: LifecycleValue.ENDED
     });
+    Engine.inputState.set(MouseInput.MouseClickDownMovement, {
+      type: InputType.TWODIM,
+      value: [0, 0],
+      lifecycleState: LifecycleValue.ENDED
+    });
     // Engine.inputState.delete(args.event.button);
     // Engine.inputState.delete(MouseInput.MouseClickDownPosition);
     // Engine.inputState.delete(MouseInput.MouseClickDownTransformRotation);
@@ -518,7 +523,20 @@ const handleKey = (args: { event: KeyboardEvent; value: BinaryType }): any => {
   }
 }
 
-const handleVisibilityChange = (args: any) => {
+const handleWindowFocus = (args: { event: FocusEvent; value: BinaryType }) => {
+  if(args.value === BinaryValue.OFF)
+  Engine.inputState.forEach((value, key) => {
+    if (value.type === InputType.BUTTON && value.value === BinaryValue.ON) {
+      Engine.inputState.set(key, {
+        type: InputType.BUTTON,
+        value: BinaryValue.OFF,
+        lifecycleState: LifecycleValue.ENDED
+      });
+    }
+  })
+}
+
+const handleVisibilityChange = (args: { event: Event; }) => {
   if (document.visibilityState === 'hidden') {
     Engine.inputState.forEach((value, key) => {
       if (value.type === InputType.BUTTON && value.value === BinaryValue.ON) {
@@ -740,6 +758,24 @@ export const ClientInputSchema = {
         element: 'document',
         args: {
           value: BinaryValue.ON
+        }
+      }
+    ],
+    focus: [
+      {
+        behavior: handleWindowFocus,
+        element: 'window',
+        args: {
+          value: BinaryValue.ON
+        }
+      }
+    ],
+    blur: [
+      {
+        behavior: handleWindowFocus,
+        element: 'window',
+        args: {
+          value: BinaryValue.OFF
         }
       }
     ],
