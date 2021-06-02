@@ -116,7 +116,6 @@ test.skip("Engine reset should work", () => {
   expect(Engine.numComponents).toMatchObject({})
   expect(Engine.entitiesWithComponentsToRemove.length).toBe(0)
   expect(Engine.entitiesToRemove.length).toBe(0)
-  expect(Engine.systemsToExecute.length).toBe(0)
 
   // Engine.entityPool
   // Engine.entityPool.freeList should be propagated with reset Entities
