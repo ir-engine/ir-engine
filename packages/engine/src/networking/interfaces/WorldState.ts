@@ -53,7 +53,11 @@ export interface PacketNetworkClientInputInterface extends PacketNetworkInputInt
 export interface NetworkClientDataInterface {
   /** Id of the user. */
   userId: string,
-  avatarDetail?: any,
+  avatarDetail?: {
+    avatarURL?: string;
+    thumbnailURL?: string;
+    avatarId?: string;
+  },
 }
 
 /** Interface to remove network object. */

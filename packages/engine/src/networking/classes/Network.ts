@@ -29,6 +29,7 @@ export interface NetworkClientList {
     dataConsumers?: Map<string, any>; // Key => id of data producer
     dataProducers?: Map<string, any>; // Key => label of data channel}
     avatarDetail?: any;
+    networkId?: any; // to easily retrieve the network object correspending to this client
   };
 }
 
