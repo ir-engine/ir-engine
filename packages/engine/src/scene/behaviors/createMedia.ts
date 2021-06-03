@@ -16,7 +16,7 @@ import { InteractiveSystem } from '../../interaction/systems/InteractiveSystem';
 
 const isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
 
-let DracosisPlayer = null;
+const DracosisPlayer = null;
 if (isBrowser()) {
   // import("volumetric/src/Player").then(imported => {
   //   DracosisPlayer = imported;
