@@ -127,7 +127,6 @@ export class Network {
     },
     snapShotTime: 0,
     clientGameAction: [],
-    transforms: []
   }
   
   /** Tick of the network. */

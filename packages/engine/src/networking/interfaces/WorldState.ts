@@ -1,5 +1,5 @@
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
-import { NumericalType } from "../../common/types/NumericalTypes";
+import { NumericalType, SIXDOFType } from "../../common/types/NumericalTypes";
 import { GameStateActionMessage, GameStateUpdateMessage, ClientGameActionMessage } from '../../game/types/GameMessage';
 import { InputAlias } from "../../input/types/InputAlias";
 import { StateEntityGroup, StateEntityIKGroup } from "../types/SnapshotDataTypes";
@@ -29,13 +29,7 @@ export interface NetworkInputInterface {
   /** Axes 2D input received over the network. */
   axes6DOF: Array<{
     input: InputAlias,
-    x: number,
-    y: number,
-    z: number,
-    qX: number,
-    qY: number,
-    qZ: number,
-    qW: number
+    value: SIXDOFType
   }>
   /** Viewport vector of the client. */
   viewVector: {  x: number, y: number, z: number  },
@@ -47,8 +41,6 @@ export interface NetworkInputInterface {
 export interface NetworkClientInputInterface extends NetworkInputInterface {
   /** Time of the snapshot. */
   snapShotTime: number,
-  /** transform of objects controller by user. */
-  transforms: StateEntityGroup
 }
 
 /** Interface for network client input packet. */
