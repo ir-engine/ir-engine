@@ -49,7 +49,7 @@ export const loadDefaultActorAvatar: Behavior = (entity) => {
 }
 
 export const loadActorAvatar: Behavior = (entity) => {
-  if(!isClient) return;
+	if (!isClient) return;
 	const avatarURL = getComponent(entity, CharacterComponent)?.avatarURL;
 	if (avatarURL) {
 		loadActorAvatarFromURL(entity, avatarURL);
@@ -91,6 +91,27 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		})
 
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
+		// const geom = getGeometry(actor.modelContainer);
+		// if (geom) {
+		// 	geom.computeBoundingBox()
+		// 	const modelX = (geom.boundingBox.max.x - geom.boundingBox.min.x) / 2;
+		// 	const modelY = (geom.boundingBox.max.y - geom.boundingBox.min.y) / 2;
+		// 	const modelZ = (geom.boundingBox.max.z - geom.boundingBox.min.z) / 2;
+		//controller.controller.resize(modelHeight - (modelWidth*2));
+		// const modelSize = modelX + modelY + modelZ;
+		// if (!modelSize) return;
+
+		// TODO: controller size should be calculated entirely from the model bounds, not relying to constants & tweaking
+
+		// instead, set model to IDLE state, then calculate total bounds and resize
+
+		// const modelWidth = ((modelX * actor.modelScaleWidth.x) + (modelY * actor.modelScaleWidth.y) + (modelZ * actor.modelScaleWidth.z));
+		// const modelHeight = ((modelX * actor.modelScaleHeight.x) + (modelY * actor.modelScaleHeight.y) + (modelZ * actor.modelScaleHeight.z)) / (modelSize * actor.modelScaleFactor.size);
+		// const height = modelHeight * actor.modelScaleFactor.height;
+		// const width = modelWidth * actor.modelScaleFactor.radius;
+		controller.controller.radius = 0.25;
+		controller.controller.height = 1;
+		// }
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 		if (hasComponent(entity, IKRigComponent)) {
 			removeComponent(entity, IKRigComponent)

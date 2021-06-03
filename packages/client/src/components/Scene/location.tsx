@@ -20,7 +20,8 @@ import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/se
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector';
 import {
   connectToInstanceServer,
-  provisionInstanceServer
+  provisionInstanceServer,
+  resetInstanceServer
 } from '../../reducers/instanceConnection/service';
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector';
 import MediaIconsBox from "../../components/MediaIconsBox";
@@ -69,7 +70,8 @@ const initialRefreshModalValues = {
   title: '',
   body: '',
   action: async() => {},
-  parameters: []
+  parameters: [],
+  timeout: 10000
 };
 
 // debug for contexts where devtools may be unavailable
@@ -117,6 +119,7 @@ interface Props {
   getLocationByName?: typeof getLocationByName;
   connectToInstanceServer?: typeof connectToInstanceServer;
   provisionInstanceServer?: typeof provisionInstanceServer;
+  resetInstanceServer?: typeof resetInstanceServer;
   setCurrentScene?: typeof setCurrentScene;
   harmonyOpen?: boolean;
 }
@@ -138,6 +141,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   getLocationByName: bindActionCreators(getLocationByName, dispatch),
   connectToInstanceServer: bindActionCreators(connectToInstanceServer, dispatch),
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
+  resetInstanceServer: bindActionCreators(resetInstanceServer, dispatch),
   setCurrentScene: bindActionCreators(setCurrentScene, dispatch),
 });
 
@@ -153,6 +157,7 @@ export const EnginePage = (props: Props) => {
     getLocationByName,
     connectToInstanceServer,
     provisionInstanceServer,
+    resetInstanceServer,
     setCurrentScene,
     setAppLoaded,
     locationName,
@@ -178,6 +183,7 @@ export const EnginePage = (props: Props) => {
   const [isInXR, setIsInXR] = useState(false);
   const [warningRefreshModalValues, setWarningRefreshModalValues] = useState(initialRefreshModalValues);
   const [noGameserverProvision, setNoGameserverProvision] = useState(false);
+  const [instanceDisconnected, setInstanceDisconnected] = useState(false);
   const [isInputEnabled, setInputEnabled] = useState(true);
 
   const appLoaded = appState.get('loaded');
@@ -193,6 +199,26 @@ export const EnginePage = (props: Props) => {
     } else {
       doLoginAuto(true);
       EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
+      EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED, () => setInstanceDisconnected(true));
+      EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED, () => setWarningRefreshModalValues(initialRefreshModalValues));
+      EngineEvents.instance.addEventListener(EngineEvents.EVENTS.RESET_ENGINE, async (ev: any) => {
+        if (ev.instance === true) {
+          await resetEngine();
+          resetInstanceServer();
+          const currentLocation = locationState.get('currentLocation').get('location');
+          locationId = currentLocation.id;
+          if (locationName === Config.publicRuntimeConfig.lobbyLocationName) {
+            getLobby().then(lobby => {
+              history.replace('/location/' + lobby.slugifiedName);
+            });
+          } else {
+            getLocationByName(locationName);
+            if (sceneId === null) {
+              sceneId = currentLocation.sceneId;
+            }
+          }
+        }
+      });
     }
   }, []);
 
@@ -275,13 +301,30 @@ export const EnginePage = (props: Props) => {
         title: 'No Available Servers',
         body: 'There aren\'t any servers available for you to connect to. Attempting to re-connect in',
         action: provisionInstanceServer,
-        parameters: [currentLocation.id, instanceId, currentLocation.sceneId]
+        parameters: [currentLocation.id, instanceId, currentLocation.sceneId],
+        timeout: 10000
       };
       //@ts-ignore
       setWarningRefreshModalValues(newValues);
       setNoGameserverProvision(false);
     }
   }, [noGameserverProvision]);
+
+  useEffect(() => {
+    if (instanceDisconnected === true) {
+      const newValues = {
+        open: true,
+        title: 'World disconnected',
+        body: 'You\'ve lost your connection with the world. We\'ll try to reconnect before the following time runs out, otherwise you\'ll be forwarded to a different instance',
+        action: window.location.reload,
+        parameters: [],
+        timeout: 30000
+      }
+      //@ts-ignore
+      setWarningRefreshModalValues(newValues);
+      setInstanceDisconnected(false);
+    }
+  }, [instanceDisconnected]);
 
   const reinit = () => {
     const currentLocation = locationState.get('currentLocation').get('location');
@@ -489,7 +532,7 @@ export const EnginePage = (props: Props) => {
           body={warningRefreshModalValues.body}
           action={warningRefreshModalValues.action}
           parameters={warningRefreshModalValues.parameters}
-          timeout={10000}
+          timeout={warningRefreshModalValues.timeout}
       />
     </>
   );
