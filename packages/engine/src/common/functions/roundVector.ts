@@ -5,6 +5,6 @@ export const roundNumberToPlaces = (number: number, places: number) => {
 }
 
 const vec3 = new Vector3();
-export const roundVectorToPlaces = (vector: Vector3, places: number) => {
+export const roundVectorToPlaces = (vector: { x: number, y: number, z: number }, places: number) => {
   return vec3.set(roundNumberToPlaces(vector.x, places), roundNumberToPlaces(vector.y, places), roundNumberToPlaces(vector.z, places));
 }

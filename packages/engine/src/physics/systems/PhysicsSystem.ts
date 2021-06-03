@@ -2,7 +2,7 @@ import { Not } from '../../ecs/functions/ComponentFunctions';
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { System, SystemAttributes } from '../../ecs/classes/System';
-import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
 import { Network } from '../../networking/classes/Network';
@@ -13,13 +13,9 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { ColliderComponent } from '../components/ColliderComponent';
 import { InterpolationComponent } from "../components/InterpolationComponent";
 import { isClient } from '../../common/functions/isClient';
-import { BodyType, ColliderHitEvent, CollisionEvents, PhysXConfig, PhysXInstance } from "three-physx";
+import { BodyType, PhysXConfig, PhysXInstance } from "three-physx";
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
-import { UserControlledColliderComponent } from '../components/UserControllerObjectComponent';
-import { GameObject } from "../../game/components/GameObject";
-import { addActionComponent } from '../../game/functions/functionsActions';
-import { StaticReadUsage, Vector3 } from 'three';
-import { Action, State } from '../../game/types/GameComponents';
+import { Vector3 } from 'three';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -86,42 +82,6 @@ export class PhysicsSystem extends System {
 
     this.queryResults.collider.all?.forEach(entity => {
       const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
-      // iterate on all collisions since the last update
-      // collider.body.collisionEvents.forEach((event) => {
-
-        // if (hasComponent(entity, GameObject)) {
-          //  const { type, bodySelf, bodyOther, shapeSelf, shapeOther } = event;
-          //  isClient ? console.warn(type, bodySelf, bodyOther, shapeSelf, shapeOther):'';
-          // addActionComponent(entity, HasHadCollision);
-          //    console.warn(event, entity);
-    //    }
-
-        // TODO: figure out how we expose specific behaviors like this
-    //  })
-  //    collider.collisions = []; // clear for next loop
-
-
-      if (collider.body.type === BodyType.DYNAMIC) {
-        if (hasComponent(entity, GameObject) && getComponent(entity, GameObject).role === 'GolfBall') {
-
-
-          if(collider.body.transform.linearVelocity.length() > 1) {
-
-            if(hasComponent(entity, State.Active)) {
-              console.warn('actionMoving')
-              addActionComponent(entity, Action.BallMoving);
-            }
-           } else if(collider.body.transform.linearVelocity.length() > 0.3) {
-             if(hasComponent(entity, State.Deactive)) {
-              console.warn('stop')
-               addActionComponent(entity, Action.BallStopped);
-             }
-            }
-            
-
-        }
-      }
-
       const transform = getComponent(entity, TransformComponent);
       if (collider.body.type === BodyType.KINEMATIC) {
         collider.velocity.subVectors(collider.body.transform.translation, transform.position);
@@ -177,27 +137,6 @@ export class PhysicsSystem extends System {
 
       // If a networked entity does not have an interpolation component, just copy the data
       this.queryResults.correctionFromServer.all?.forEach(entity => {
-        // ignore interpolation on client for objects we are the primary simulator of
-        const userControlled = getComponent(entity, UserControlledColliderComponent)
-        if (userControlled && userControlled.ownerNetworkId === Network.instance.localAvatarNetworkId) {
-          const ownerNetworkId = userControlled.ownerNetworkId;
-          const networkObject = getMutableComponent(entity, NetworkObject);
-          if (Network.instance.localAvatarNetworkId === ownerNetworkId) {
-            const collider = getMutableComponent(entity, ColliderComponent);
-            Network.instance.clientInputState.transforms.push({
-              networkId: networkObject.networkId,
-              x: collider.body.transform.translation.x,
-              y: collider.body.transform.translation.y,
-              z: collider.body.transform.translation.z,
-              qX: collider.body.transform.rotation.x,
-              qY: collider.body.transform.rotation.y,
-              qZ: collider.body.transform.rotation.z,
-              qW: collider.body.transform.rotation.w,
-              snapShotTime: networkObject.snapShotTime,
-            });
-            return;
-          }
-        }
         const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot);
         if (snapshot == null) return;
         const collider = getMutableComponent(entity, ColliderComponent)

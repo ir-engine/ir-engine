@@ -5,14 +5,21 @@ import { addStateComponent, removeStateComponent } from '../../../../game/functi
 import { GamePlayer } from "../../../components/GamePlayer";
 import { getGame } from '../../../functions/functions';
 import { YourTurn } from "../components/YourTurnTagComponent";
+import { spawnBall } from '../prefab/GolfBallPrefab';
+
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const addTurn: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
-  const game = getGame(entity);
+export const addTurn: Behavior = (entityPlayer: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
+  const game = getGame(entityPlayer);
   const noOneTurn = Object.keys(game.gamePlayers).every(role => game.gamePlayers[role].every(entity => !hasComponent(entity, YourTurn)));
   if (noOneTurn) {
-    addStateComponent(entity, YourTurn);
+    addStateComponent(entityPlayer, YourTurn);
   }
+
+  // Temporary
+  setTimeout(() => {
+    spawnBall(entityPlayer);
+  }, 2000)
 };

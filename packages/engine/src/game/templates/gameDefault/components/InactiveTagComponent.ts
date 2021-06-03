@@ -4,4 +4,4 @@ import { Component } from "../../../../ecs/classes/Component";
  * @author HydraFire <github.com/HydraFire>
  */
 
-export class Deactive extends Component<any> {}
+export class Inactive extends Component<any> {}

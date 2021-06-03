@@ -128,6 +128,14 @@ export class ServerNetworkOutgoingSystem extends System {
       } else {
         Network.instance.transport.sendReliableData(bufferReliable);
       }
+
+      Network.instance.worldState.clientsConnected = [];
+      Network.instance.worldState.clientsDisconnected = [];
+      Network.instance.worldState.createObjects = [];
+      Network.instance.worldState.editObjects = [];
+      Network.instance.worldState.destroyObjects = [];
+      Network.instance.worldState.gameState = [];
+      Network.instance.worldState.gameStateActions = [];
     }
 
     const bufferUnreliable = TransformStateModel.toBuffer(Network.instance.transformState);
@@ -136,6 +144,13 @@ export class ServerNetworkOutgoingSystem extends System {
     } catch (error) {
       console.warn("Couldn't send data: ", error)
     }
+
+    Network.instance.transformState = {
+      tick: Network.instance.tick,
+      time: Date.now(),
+      transforms: [],
+      ikTransforms: [],
+    };
   }
 
   /** System queries. */
