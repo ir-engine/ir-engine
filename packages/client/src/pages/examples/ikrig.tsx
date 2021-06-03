@@ -284,12 +284,15 @@ let COLOR = {
 
 async function loadSource(source) {
 	const entity = createEntity();
-	if(!hasComponent(entity, Armature)){
-		addComponent(entity, Armature);
-	}
-	if(!hasComponent(entity, Obj)){
-		addComponent(entity, Obj);
-	}
+	addComponent(entity, Armature);
+	addComponent(entity, Obj);
+	addComponent(entity, AnimationComponent);
+	addComponent(entity, IKPose);
+	addComponent(entity, IKRig);
+
+	let rig = getMutableComponent(entity, IKRig);
+	const ac = getMutableComponent(entity, AnimationComponent);
+
 	const obj = getMutableComponent(entity, Obj);
 	const armature = getMutableComponent(entity, Armature);
 	const model = (await LoadGLTF(source));
@@ -306,7 +309,6 @@ async function loadSource(source) {
 		}
 	})
 
-
 	const sortedSkins = skinnedMeshes.sort((a, b) => { return a.skeleton.bones.length - b.skeleton.bones.length });
 	
 	obj.setReference(sortedSkins[0]);
@@ -314,51 +316,45 @@ async function loadSource(source) {
 	armature.skeleton =  obj.ref.skeleton.clone();
 	armature.skeleton.bones = armature.skeleton.bones;
 
+	const mixer = new AnimationMixer( obj.ref );
+	const clips = model.animations;
 
-		const mixer = new AnimationMixer( obj.ref );
-		const clips = model.animations;
+	mixer.clipAction(clips[0]).play();
 
-		mixer.clipAction(clips[0]).play();
-	addComponent(entity, AnimationComponent);
-	const ac = getMutableComponent(entity, AnimationComponent);
 	ac.mixer = mixer;
 	ac.animations = clips;
 
-	addComponent(entity, IKPose);
+	rig.armature = armature;
+	rig.pose = rig.armature.createNewPose();
+	rig.tpose = rig.armature.createNewPose(); // If Passing a TPose, it must have its world space computed.
 
-	addComponent(entity, IKRig);
-	let rig = getMutableComponent(entity, IKRig);
-		rig.armature = armature;
-		rig.pose = rig.armature.createNewPose();
-		rig.tpose = rig.armature.createNewPose(); // If Passing a TPose, it must have its world space computed.
+	//-----------------------------------------
+	// Apply Node's Starting Transform as an offset for poses.
+	// This is only important when computing World Space Transforms when
+	// dealing with specific skeletons, like Mixamo stuff.
+	// Need to do this to render things correctly
+	const l = getMutableComponent(entity, Obj).getTransform(); // Obj is a ThreeJS Component
+	rig.pose.setOffset(l.quaternion, l.position, l.scale);
+	rig.tpose.setOffset(l.quaternion, l.position, l.scale);
 
-		//-----------------------------------------
-		// Apply Node's Starting Transform as an offset for poses.
-		// This is only important when computing World Space Transforms when
-		// dealing with specific skeletons, like Mixamo stuff.
-		// Need to do this to render things correctly
-			const l = getMutableComponent(entity, Obj).getTransform(); // Obj is a ThreeJS Component
-			rig.pose.setOffset(l.quaternion, l.position, l.scale);
-			rig.tpose.setOffset(l.quaternion, l.position, l.scale);
+	//-----------------------------------------
+	// Auto Setup the Points and Chains based on
+	// Known Skeleton Structures.
+	rig
+	.addPoint("hip", "Hips")
+	.addPoint("head", "Head")
+	.addPoint("neck", "Neck")
+	.addPoint("chest", "Spine2")
+	.addPoint("foot_l", "LeftFoot")
+	.addPoint("foot_r", "RightFoot")
 
-		//-----------------------------------------
-		// Auto Setup the Points and Chains based on
-		// Known Skeleton Structures.
-		rig
-		.addPoint("hip", "Hips")
-		.addPoint("head", "Head")
-		.addPoint("neck", "Neck")
-		.addPoint("chest", "Spine2")
-		.addPoint("foot_l", "LeftFoot")
-		.addPoint("foot_r", "RightFoot")
+	.addChain("arm_r", ["RightArm", "RightForeArm"], "RightHand") //"x",
+	.addChain("arm_l", ["LeftArm", "LeftForeArm"], "LeftHand") //"x", 
 
-		.addChain("arm_r", ["RightArm", "RightForeArm"], "RightHand") //"x",
-		.addChain("arm_l", ["LeftArm", "LeftForeArm"], "LeftHand") //"x", 
+	.addChain("leg_r", ["RightUpLeg", "RightLeg"], "RightFoot") //"z", 
+	.addChain("leg_l", ["LeftUpLeg", "LeftLeg"], "LeftFoot")  //"z", 
 
-		.addChain("leg_r", ["RightUpLeg", "RightLeg"], "RightFoot") //"z", 
-		.addChain("leg_l", ["LeftUpLeg", "LeftLeg"], "LeftFoot")  //"z", 
-
-		.addChain("spine", ["Spine", "Spine1", "Spine2"]); //, "y"
+	.addChain("spine", ["Spine", "Spine1", "Spine2"]); //, "y"
 
 	rig.chains.leg_l.setAlt(DOWN, FORWARD, rig.tpose);
 	rig.chains.leg_r.setAlt(DOWN, FORWARD, rig.tpose);
@@ -373,11 +369,11 @@ async function loadSource(source) {
 
 class IKRigSystem extends System {
 	execute (deltaTime) {
-return;
-		this.queryResults.animation.all?.forEach((entity) => {
-			let ac = getMutableComponent(entity, AnimationComponent);
-			ac.mixer.update(deltaTime);
-		})
+		// this.queryResults.animation.all?.forEach((entity) => {
+		// 	let ac = getMutableComponent(entity, AnimationComponent);
+		// 	ac.mixer.update(deltaTime);
+		// })
+
 
 
 		// RUN
@@ -387,6 +383,7 @@ return;
 			let rig = getMutableComponent(entity, IKRig);
 			Debug.reset();			// For this example, Lets reset visual debug for every compute.
 			pose.applyRig(rig);
+			return;
 			rig.applyPose();
 
 
@@ -476,7 +473,6 @@ async function loadMeshA(source) {
 		}
 	})
 
-
 	const sortedSkins = skinnedMeshes.sort((a, b) => { return a.skeleton.bones.length - b.skeleton.bones.length });
 	
 	obj.setReference(sortedSkins[0]);
@@ -490,16 +486,10 @@ async function loadMeshA(source) {
 	let rig = getMutableComponent(entity, IKRig);
 		rig.armature = armature;
 		rig.pose = rig.armature.createNewPose();
-		rig.tpose = rig.armature.createNewPose(); // If Passing a TPose, it must have its world space computed.
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	// // Save pose local space transform
-	// const tpose	= getMutableComponent(entity, Armature).createNewPose();
 	// let b;
-
-	// addComponent(entity, IKRig);
-	// let rig = getMutableComponent(entity, IKRig);
-	// rig.init(tpose, false);
 	
 	// for( let i=0; i < armature.skeleton.bones.length; i++ ){
 	// 	b = armature.skeleton.bones[ i ];
@@ -528,6 +518,9 @@ const Page = () => {
 
 			init_3js();
 			Debug = debug.init();
+
+			Debug.setPoint(new Vector3(), "orange", 0.05, 6);
+
 
 			await loadSource("ikrig/anim/Walking.glb");
 			await loadMeshA("ikrig/models/vegeta.glb");

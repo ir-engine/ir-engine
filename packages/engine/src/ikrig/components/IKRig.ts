@@ -22,33 +22,33 @@ class IKRig extends Component<IKRig>{
 		return this;
 	}
 
-	addChain(name, nameArray, end_name = null, ik_solver = null) { //  axis="z",		
+	addChain(name, nameArray, end_name=null) { //  axis="z",		
 		let i, b;
 
-		if(this.pose.bones.length === 0) this.pose.bones = this.armature.skeleton.bones;
-
-		const ch = new Chain(); // axis
+		const chain = new Chain(); // axis
 		for (i of nameArray) {
 			const index = this.armature.skeleton.bones.findIndex(bone => bone.name.includes(i));
+			console.log("Index is", index);
 			const bone = this.armature.skeleton.bones[index];
+			bone.index = index;
+
+
 			bone.length = bone.children.length > 0 ? bone.localToWorld(bone.position).distanceTo(bone.localToWorld(bone.children[0].position)) : .3; 
 
-			const o = { index: bone, length: bone.length };
+			
+			const o = { index, ref: bone, length: bone.length };
 
-			ch.bones.push(o);
-			ch.cnt++;
-			ch.length += length;
-			ch.magnitudeSquared = ch.length * ch.length;
+			chain.bones.push(o);
+			chain.cnt++;
+			chain.length += length;
 		}
 
 		// //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		if (end_name) {
-			ch.end_idx = this.armature.skeleton.bones.indexOf(this.pose.getBone(end_name));
+			chain.end_idx = this.armature.skeleton.bones.indexOf(this.pose.getBone(end_name));
 		}
 
-		ch.ik_solver = ik_solver;
-
-		this.chains[name] = ch;
+		this.chains[name] = chain;
 		return this;
 	}	
 }
@@ -60,25 +60,20 @@ IKRig.ARM_MIXAMO = 1;
 
 class Chain {
 	end_idx: any;
-	ik_solver: any;
 	bones: any[];
 	length: number;
-	magnitudeSquared: number;
 	cnt: number;
 	alt_fwd: any;
 	alt_up: any;
 	constructor() { // axis="z"
 		this.bones = [];	// Index to a bone in an armature / pose
 		this.length = 0;			// Chain Length
-		this.magnitudeSquared = 0;			// Chain Length Squared, Cached for Checks without SQRT
 		this.cnt = 0;			// How many Bones in the chain
 		//this.align_axis	= axis;			// Chain is aligned to which axis
 		this.end_idx = null;			// Joint that Marks the true end of the chain
 
 		this.alt_fwd = FORWARD.clone();
 		this.alt_up = UP.clone();
-
-		this.ik_solver = null;
 	}
 
 	// Get Skeleton Index of Bones
@@ -90,12 +85,17 @@ class Chain {
 		// TODO: REVIEW ME, could be broken!
 		if (tpose) {
 			const b = tpose.bones[0];
+			console.log("b is", b);
 			const q = b.quaternion.invert();	// Invert World Space Rotation 
+			console.log("q is", q);
+			console.log("fwd is", fwd)
+			this.alt_fwd = fwd.applyQuaternion(q).normalize();	// Use invert to get direction that will Recreate the real direction
+			console.log("***** applyQuaternion", this.alt_fwd);
 
-			this.alt_fwd = fwd.applyQuaternion(q);	// Use invert to get direction that will Recreate the real direction
-			this.alt_up = up.applyQuaternion(q);
+			this.alt_up = up.applyQuaternion(q).normalize();
 		} else {
 			this.alt_fwd.copy(fwd);
+			console.log("this.alt_fwd.copy", this.alt_fwd)
 			this.alt_up.copy(up);
 		}
 		return this;
@@ -110,10 +110,10 @@ class Chain {
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Loop Every Bone Except Last one
 		for (i = 0; i < end; i++) {
-			b = bones.find(bone => bone.name === this.bones[i].index.name);
+			b = bones.find(bone => bone.name === this.bones[i].ref.name);
 
-			this.bones[i].index.getWorldPosition(boneWorldPosition);
-			this.bones[i + 1].index.getWorldPosition(childWorldPosition);
+			this.bones[i].ref.getWorldPosition(boneWorldPosition);
+			this.bones[i + 1].ref.getWorldPosition(childWorldPosition);
 
 			b.length = boneWorldPosition.distanceTo( childWorldPosition );
 
@@ -124,14 +124,13 @@ class Chain {
 		// If End Point exists, Can calculate the final bone's length
 		if (this.end_idx != null) {
 			bones[this.end_idx].getWorldPosition(boneWorldPosition);
-			this.bones[i].index.getWorldPosition(childWorldPosition);
+			this.bones[i].ref.getWorldPosition(childWorldPosition);
 
 			b.length = boneWorldPosition.distanceTo( childWorldPosition );
 			sum += b.length;
 		} else console.warn("Recompute Chain Len, End Index is missing");
 
 		this.length = sum;
-		this.magnitudeSquared = sum * sum;
 		return this;
 	}
 }

@@ -37,22 +37,22 @@ export class IKPose extends Component<IKPose> {
 	head = { lookDirection: new Vector3(), twistDirection: new Vector3() };
 
 	applyRig(rig) {
-		this.applyHip(rig);
+		// this.applyHip(rig);
 
-		this.applyLimb(rig, rig.chains.leg_l, this.leg_l);
-		this.applyLimb(rig, rig.chains.leg_r, this.leg_r);
+		// this.applyLimb(rig, rig.chains.leg_l, this.leg_l);
+		// this.applyLimb(rig, rig.chains.leg_r, this.leg_r);
 
-		this.applyLookTwist(rig, rig.points.foot_l, this.foot_l, FORWARD, UP);
-		this.applyLookTwist(rig, rig.points.foot_r, this.foot_r, FORWARD, UP);
+		// this.applyLookTwist(rig, rig.points.foot_l, this.foot_l, FORWARD, UP);
+		// this.applyLookTwist(rig, rig.points.foot_r, this.foot_r, FORWARD, UP);
 
-		this.applySpline(rig, rig.chains.spine, this.spine, UP, FORWARD);
+		// this.applySpline(rig, rig.chains.spine, this.spine, UP, FORWARD);
 
 		if (rig.chains.arm_l)
 			this.applyLimb(rig, rig.chains.arm_l, this.arm_l);
 		if (rig.chains.arm_r)
 			this.applyLimb(rig, rig.chains.arm_r, this.arm_r);
 
-		this.applyLookTwist(rig, rig.points.head, this.head, FORWARD, UP);
+		// this.applyLookTwist(rig, rig.points.head, this.head, FORWARD, UP);
 	}
 
 	applyHip(rig) {
@@ -97,7 +97,7 @@ export class IKPose extends Component<IKPose> {
 
 		// If There is a Twist Value, Apply that as a PreMultiplication.
 		// TODO: Uncomment and fix me
-		// if (this.hip.twist != 0) q.premultiplyAxisAngle(this.hip.dir, this.hip.twist);
+		if (this.hip.twist != 0) q.setFromAxisAngle(this.hip.dir, this.hip.twist);
 		// In the end, we need to convert to local space. Simply premul by the inverse of the parent
 		q.premultiply(parentRotation.invert());
 
@@ -129,6 +129,10 @@ export class IKPose extends Component<IKPose> {
 
 
 	applyLimb(rig, chain, limb, grounding = 0) {
+
+		console.log("rig.pose is", rig.pose);
+		console.log("chain", chain);
+
 		const { parentTransform, childTransform } = rig.pose.getParentWorld(chain.first());
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -141,12 +145,9 @@ export class IKPose extends Component<IKPose> {
 		if (grounding)
 			this.applyGrounding(grounding);
 
-		// Each Chain is assigned a IK Solver that will bend the bones to the right places
-		let solver = chain.ik_solver || "limb";
-
 		// The IK Solver will update the pose with the results of the operation. We pass in the
 		// parent for it to use it to return things back into local space.
-		this.target[solver](chain, rig.tpose, rig.pose, parentTransform);
+		this.target["limb"](chain, rig.tpose, rig.pose, parentTransform);
 	}
 
 	applyLookTwist(rig, boneInfo, ik, lookDirection, twistDirection) {
@@ -198,17 +199,22 @@ export class IKPose extends Component<IKPose> {
 	}
 
 	applyGrounding(y_lmt) {
+		console.log("Appylying grounding");
 		// Once we have out IK Target setup, We can use its data to test various things
 		// First we can test if the end effector is below the height limit. Each foot
 		// may need a different off the ground offset since the bones rarely touch the floor
 		// perfectly.
-		if (this.target.endPosition.y >= y_lmt)
-			return;
+		// if (this.target.endPosition.y >= y_lmt)
+		// 	return;
 
 		/* DEBUG IK TARGET */
 		let tar = this.target,
 			posA = tar.startPosition.add(new Vector3(-1, 0, 0)),
 			posB = tar.endPosition.add(new Vector3(-1, 0, 0));
+
+			console.log("posA is", posA);
+			console.log("posB is", posB);
+
 		Debug
 			.setPoint(posA, "yellow", 0.05, 6)
 			.setPoint(posB, "white", 0.05, 6)
@@ -236,7 +242,6 @@ export class IKPose extends Component<IKPose> {
 		// This is normally computed by our IK Target when we set it, but since I didn't bother
 		// to create a method to update the end effector, we need to do these extra updates.
 		const distance = this.target.startPosition.distanceTo(this.target.endPosition);
-		this.target.magnitudeSquared = distance * distance;
 		this.target.length = distance;
 	}
 

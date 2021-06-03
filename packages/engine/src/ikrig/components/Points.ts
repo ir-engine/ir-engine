@@ -1,5 +1,6 @@
 import { BufferAttribute, BufferGeometry, DynamicDrawUsage, Points, RawShaderMaterial } from "three";
 import { Component } from "../../ecs/classes/Component";
+import { Engine } from "../../ecs/classes/Engine";
 import { addComponent, createEntity, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import Obj from "./Obj";
 
@@ -47,7 +48,7 @@ class PointsComponent extends Component<PointsComponent>{
 			obj = getMutableComponent(this.entity, Obj);
 		}
 		obj.setReference( this.mesh );
-
+		Engine.scene.add(obj.ref);
 		return this;
 	}
 	
@@ -68,7 +69,7 @@ class PointsComponent extends Component<PointsComponent>{
 		// INCREMENT AND UPDATE DRAW RANGE
 		this.cnt++;
 		this.geo.setDrawRange( 0, this.cnt );
-
+		console.log("Added point");
 		return this;
 	}
 

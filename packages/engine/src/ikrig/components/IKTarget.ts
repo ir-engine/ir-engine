@@ -13,7 +13,6 @@ class IKTarget{
 	startPosition: Vector3 = new Vector3();
 	endPosition: Vector3 = new Vector3();
 	axis: Axis = new Axis();
-	magnitudeSquared = 0;
 	length = 0;
 
 	fromPositionAndDirection(position: Vector3, dir: Vector3, up_dir: Vector3, lengthScale: number) {
@@ -22,9 +21,7 @@ class IKTarget{
 		console.log(position, dir, up_dir, lengthScale)
 		this.endPosition = dir.multiplyScalar( lengthScale)	// Compute End Effector
 			.add(position);
-		const magnitude = position.distanceTo(this.endPosition)
-		this.magnitudeSquared = magnitude * magnitude;
-		this.length = Math.sqrt(this.magnitudeSquared);
+		const length = position.distanceTo(this.endPosition)
 
 		this.axis.fromDirection(dir, up_dir); // Target Axis
 		return this;
@@ -44,51 +41,70 @@ class IKTarget{
 	}
 
 
-	aimBone(chain, tpose, p_wt, out) {
-		// TODO: Is this the right mult order?
-		const quaternion = p_wt.quaternion.multiply(tpose.getLocalRotation(chain.first()));	// Get World Space Rotation for Bone
-			
-		let dir = chain.alt_fwd.applyQuaternion(quaternion);					// Get Bone's WS Forward Dir
-		//Swing
-
-		// TODO: Check the original reference and make sure this is valid
-		const q = dir.multiply(this.axis.z);
-		out = q.multiply(quaternion);
-
-		dir = out.applyQuaternion( chain.alt_up);				// After Swing, Whats the UP Direction
-		let twist = dir.angleTo(this.axis.y);	// Get difference between Swing Up and Target Up
-
-		if (twist <= 0.00017453292) twist = 0;
-		else {
-			dir.setFromCross(dir, this.axis.z);	// Get Swing LEFT, used to test if twist is on the negative side.
-			if (dir.dot(this.axis.y) >= 0) twist = -twist;
-		}
-
-		out.premultiplyAxisAngle(this.axis.z, twist);	// Apply Twist
-	}
+	tempQ = new Quaternion();
 
 	limb(chain, tpose, pose, p_wt) {
+		console.log("tpose.bones", tpose.bones);
+		console.log("chain.bones[0]", chain.bones[0])
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Using law of cos SSS, so need the length of all sides of the triangle
 		const bind_a = tpose.bones[chain.bones[0].index],	// Bone Reference from Bind
 			bind_b = tpose.bones[chain.bones[1].index],
 			pose_a = pose.bones[chain.bones[0].index],		// Bone Reference from Pose
-			pose_b = pose.bones[chain.bones[1].index],
+			pose_b = pose.bones[chain.bones[1].index]
+		console.log("bind_a is", bind_a)
+		let
 			aLen = bind_a.length,
 			bLen = bind_b.length,
 			cLen = this.length;
 			let quaternion = new Quaternion();
 		let rad;
 
+
+
+
+
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		// FIRST BONE - Aim then rotate by the angle.
-		this.aimBone(chain, tpose, p_wt, quaternion);				// Aim the first bone toward the target oriented with the bend direction.
+		// Aim then rotate by the angle.
+		// Aim the first bone toward the target oriented with the bend direction.
+		
+		// TODO: Is this the right mult order?
+		let rot	= p_wt.quaternion.multiply(tpose.bones[chain.first()].quaternion )
+
+		console.log("rot is ", rot);
+
+		console.log("chain.alt_fwd is", chain.alt_fwd);
+
+		console.log('chain is', chain);
+		//Swing
+		let dir = chain.alt_fwd.applyQuaternion(rot);					// Get Bone's WS Forward Dir
+
+		// TODO: Check the original reference and make sure this is valid
+		const q = new Quaternion();
+		q.setFromUnitVectors(dir, this.axis.z);
+		console.log("dir is", dir)
+		console.log("q is ", q);
+		quaternion = q.multiply(rot);
+		console.log("quaternion is", quaternion)
+
+		quaternion = dir.applyQuaternion( chain.alt_up);				// After Swing, Whats the UP Direction
+		let twist = dir.angleTo(this.axis.y);	// Get difference between Swing Up and Target Up
+
+		if (twist <= 0.00017453292) twist = 0;
+		else {
+			dir.cross(this.axis.z);	// Get Swing LEFT, used to test if twist is on the negative side.
+			if (dir.dot(this.axis.y) >= 0) twist = -twist;
+		}
+
+		this.tempQ = this.tempQ.setFromAxisAngle(this.axis.z, twist);	// Apply Twist
+		quaternion = quaternion.premultiply(this.tempQ);
 
 		rad = LawCosinesSSS(aLen, cLen, bLen);				// Get the Angle between First Bone and Target.
 		
-		//TODO: Fix me!
-		quaternion //.premultiplyAxisAngle(this.axis.x, -rad)				// Use the Target's X axis for quaternion along with the angle from SSS
-			.premultiply(p_wt.quaternion.inverse());							// Convert to Bone's Local Space by multiply invert of parent bone quaternion
+		this.tempQ = this.tempQ.setFromAxisAngle(this.axis.x, -rad)	// Use the Target's X axis for quaternion along with the angle from SSS
+		
+		this.tempQ = this.tempQ.premultiply(quaternion) // Premultiply by original value
+		this.tempQ = this.tempQ.premultiply(p_wt.quaternion.inverse());							// Convert to Bone's Local Space by multiply invert of parent bone quaternion
 
 		pose.setBone(bind_a.index, quaternion);						// Save result to bone.
 		pose_a.world											// Update World Data for future use

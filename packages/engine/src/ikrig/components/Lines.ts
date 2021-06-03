@@ -1,5 +1,6 @@
 import { BufferAttribute, BufferGeometry, DynamicDrawUsage, LineSegments, RawShaderMaterial } from "three";
 import { Component } from "../../ecs/classes/Component";
+import { Engine } from "../../ecs/classes/Engine";
 import { addComponent, createEntity, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import Obj from "./Obj";
 
@@ -37,6 +38,8 @@ class Lines extends Component<Lines>{
 
 		let obj = getMutableComponent(this.entity, Obj);
 		obj.setReference( this.mesh );
+		Engine.scene.add(obj.ref);
+		console.log("Added line");
 		return this;
 	}
 

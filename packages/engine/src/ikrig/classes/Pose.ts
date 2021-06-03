@@ -18,6 +18,9 @@ class Pose {
 		this.skeleton = armature.skeleton.clone();	// Recreation of Bone Hierarchy
 		this.bones = this.skeleton.bones;
 		this.root_offset = new Transform();					// Parent Transform for Root Bone ( Skeletons from FBX imports need this to render right )
+		for(let i = 0; i < this.skeleton.bones.length; i++){
+			this.skeleton.bones['index'] = i;
+		}
 	}
 
 	setOffset(quaternion = null, position = null, scale = null) { this.root_offset.set(quaternion, position, scale); return this; }
@@ -62,12 +65,12 @@ class Pose {
 		return bone;
 	}
 
-	getLocalRotation(index) { return this.bones[index].local.quaternion; }
+	getLocalRotation(index) { return this.bones[index].quaternion; }
 
 	apply() { this.armature.loadPose(this); return this; }
 
 
-	getParentWorld(incomingBone, t_offset = null) {
+	getParentWorld(boneIndex, t_offset = null) {
 
 		// The IK Solver takes transforms as input, not rotations.
 		// The first thing we need is the WS Transform of the start of the chain
@@ -82,14 +85,9 @@ class Pose {
 		// length scale is based on the hip being at a certain height at the time.
 		let parentTransform = new Transform(),
 			childTransform = new Transform();
-
-
-		console.log("b_idx is", incomingBone);
-		let bone = this.bones.find(b => {
-			return b.name === incomingBone.name;
-		})
-
-		console.log("bone is", bone);
+			console.log("incomingBone is", boneIndex)
+console.log("this.bones is", this.bones);
+		let bone = this.bones[boneIndex];
 
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -112,7 +110,7 @@ class Pose {
 
 		parentTransform.add_rev(this.root_offset);				// Add Starting Offset
 		if (t_offset) parentTransform.add_rev(t_offset);		// Add Additional Starting Offset
-
+		console.log('bone is ', bone)
 		childTransform.setFromAdd(parentTransform, bone);	// Requesting Child WS Info Too
 
 		return {childTransform, parentTransform};
