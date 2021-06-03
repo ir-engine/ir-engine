@@ -1,9 +1,6 @@
-import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
 import { NetworkObject } from '../components/NetworkObject';
 import { createNetworkPlayer } from '../../character/prefabs/NetworkPlayerCharacter';
-import { createNetworkVehicle } from '../../vehicle/prefabs/NetworkVehicle';
-import { IKComponent } from '../../character/components/IKComponent';
-import { addComponent, getComponent, getMutableComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
 import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { NetworkObjectUpdateSchema } from '../../networking/templates/NetworkObjectUpdateSchema';
 import { initiateIK } from "../../xr/functions/IKFunctions";
@@ -27,6 +24,8 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { Engine } from '../../ecs/classes/Engine';
 import { Quaternion, Vector3 } from 'three';
 import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ';
+import { IKRigComponent } from '../../character/components/IKRigComponent';
+import { IKComponent } from '../../character/components/IKComponent';
 /**
  * Apply State received over the network to the client.
  * @param worldStateBuffer State of the world received over the network.
@@ -315,19 +314,20 @@ export class ClientNetworkStateSystem extends System {
           const entity = Network.instance.networkObjects[ikTransform.networkId].component.entity;
           const actor = getComponent(entity, CharacterComponent);
           const ikComponent = getMutableComponent(entity, IKComponent);
-          if (!ikComponent || !ikComponent.avatarIKRig) {
-            if( actor.modelContainer.children.length) {
-              initiateIK(entity)
-            }
+          if (!ikComponent) {
+            // initiate IK on this user and then wait until next frame for rig to be created
+            initiateIK(entity)
             return;
           }
+          const ikRigComponent = getMutableComponent(entity, IKRigComponent);
+          if(!ikRigComponent.avatarIKRig) return;
           const { hmd, left, right } = ikTransform;
-          ikComponent.avatarIKRig.inputs.hmd.position.set(hmd.x, hmd.y, hmd.z);
-          ikComponent.avatarIKRig.inputs.hmd.quaternion.set(hmd.qX, hmd.qY, hmd.qZ, hmd.qW);
-          ikComponent.avatarIKRig.inputs.leftGamepad.position.set(left.x, left.y, left.z);
-          ikComponent.avatarIKRig.inputs.leftGamepad.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
-          ikComponent.avatarIKRig.inputs.rightGamepad.position.set(right.x, right.y, right.z);
-          ikComponent.avatarIKRig.inputs.rightGamepad.quaternion.set(right.qX, right.qY, right.qZ, right.qW);
+          ikRigComponent.avatarIKRig.inputs.hmd.position.set(hmd.x, hmd.y, hmd.z);
+          ikRigComponent.avatarIKRig.inputs.hmd.quaternion.set(hmd.qX, hmd.qY, hmd.qZ, hmd.qW);
+          ikRigComponent.avatarIKRig.inputs.leftGamepad.position.set(left.x, left.y, left.z);
+          ikRigComponent.avatarIKRig.inputs.leftGamepad.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
+          ikRigComponent.avatarIKRig.inputs.rightGamepad.position.set(right.x, right.y, right.z);
+          ikRigComponent.avatarIKRig.inputs.rightGamepad.quaternion.set(right.qX, right.qY, right.qZ, right.qW);
         })
       });
     }
@@ -355,7 +355,6 @@ export class ClientNetworkStateSystem extends System {
           axes6DOF: [],
           viewVector: Network.instance.clientInputState.viewVector,
           clientGameAction: getClientGameActions(),// Network.instance.clientGameAction,
-          transforms: []
         }
       });
     }

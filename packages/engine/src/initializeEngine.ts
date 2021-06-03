@@ -131,16 +131,9 @@ const configureServer = async (options: InitializeOptions) => {
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: true, physics: true });
     });
 
-    new AnimationManager();
-
     const currentPath = (process.platform === "win32" ? 'file:///' : '') + path.dirname(__filename);
     const worker = new Worker(currentPath + "/physx/loadPhysXNode.ts");
     Engine.workers.push(worker);
-
-    // await Promise.all([
-    //   AnimationManager.instance.getDefaultModel(),
-    //   AnimationManager.instance.getAnimations(),
-    // ]);
 
     registerServerSystems(options, worker);
 }
