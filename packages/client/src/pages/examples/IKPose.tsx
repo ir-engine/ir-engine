@@ -6,7 +6,14 @@ import { Quaternion, Vector3 } from "three";
 import { Debug } from "./ikrig";
 
 // Hold the IK Information, then apply it to a Rig
-
+function LawCosinesSSS( aLen, bLen, cLen ){
+	// Law of Cosines - SSS : cos(C) = (a^2 + b^2 - c^2) / 2ab
+	// The Angle between A and B with C being the opposite length of the angle.
+	let v = ( aLen*aLen + bLen*bLen - cLen*cLen ) / ( 2 * aLen * bLen );
+	if( v < -1 )		v = -1;	// Clamp to prevent NaN Errors
+	else if( v > 1 )	v = 1;
+	return Math.acos( v );
+}
 export class IKPose extends Component<IKPose> {
 	target = new IKTarget(); // IK Solvers
 
@@ -145,9 +152,103 @@ export class IKPose extends Component<IKPose> {
 		if (grounding)
 			this.applyGrounding(grounding);
 
-		// The IK Solver will update the pose with the results of the operation. We pass in the
-		// parent for it to use it to return things back into local space.
-		this.target["limb"](chain, rig.tpose, rig.pose, parentTransform);
+		
+		const tpose = rig.tpose;
+		const pose = rig.pose;
+		const p_wt = parentTransform;
+		
+		// solve for ik
+			console.log("tpose.bones", tpose.bones);
+			console.log("chain.bones[0]", chain.bones[0])
+			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			// Using law of cos SSS, so need the length of all sides of the triangle
+			const bind_a = tpose.bones[chain.bones[0].index],	// Bone Reference from Bind
+				bind_b = tpose.bones[chain.bones[1].index],
+				pose_a = pose.bones[chain.bones[0].index],		// Bone Reference from Pose
+				pose_b = pose.bones[chain.bones[1].index]
+			console.log("bind_a is", bind_a)
+			let
+				aLen = bind_a.length,
+				bLen = bind_b.length,
+				cLen = this.target.length;
+				let quaternion = new Quaternion();
+			let rad;
+	
+	
+	
+	
+	
+			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			// Aim then rotate by the angle.
+			// Aim the first bone toward the target oriented with the bend direction.
+			
+			// TODO: Is this the right mult order?
+			const t= tpose.bones[chain.first()];
+			console.log("tpose.bones[chain.first()] is", tpose.bones[chain.first()])
+			const tq = tpose.bones[chain.first()].quaternion;
+			console.log("tq is", tq);
+	
+			let rot	= p_wt.quaternion.multiply(tq )
+	
+			console.log("rot is ", rot);
+	
+			console.log("chain.alt_fwd is", chain.alt_fwd);
+	
+			console.log('chain is', chain);
+			//Swing
+			let dir = new Vector3().copy(chain.alt_fwd);
+			console.log("dir is", dir)
+			console.log("this.axis is", this.target.axis)
+	
+			dir = dir.applyQuaternion(rot);					// Get Bone's WS Forward Dir
+	
+			// TODO: Check the original reference and make sure this is valid
+			const q = new Quaternion();
+			q.setFromUnitVectors(dir, this.target.axis.z);
+			console.log("q is ", q);
+			quaternion = q.multiply(rot);
+			console.log("quaternion is", quaternion)
+	
+			dir = new Vector3().copy(chain.alt_up).applyQuaternion( quaternion);				// After Swing, Whats the UP Direction
+			let twist = dir.angleTo(this.target.axis.y);	// Get difference between Swing Up and Target Up
+	
+			if (twist <= 0.00017453292) twist = 0;
+			else {
+				dir.cross(this.target.axis.z);	// Get Swing LEFT, used to test if twist is on the negative side.
+				if (dir.dot(this.target.axis.y) >= 0) twist = -twist;
+			}
+	
+			this.target.tempQ = this.target.tempQ.setFromAxisAngle(this.target.axis.z, twist);	// Apply Twist
+			quaternion = quaternion.premultiply(this.target.tempQ);
+	
+			rad = LawCosinesSSS(aLen, cLen, bLen);				// Get the Angle between First Bone and Target.
+			
+			this.target.tempQ = this.target.tempQ.setFromAxisAngle(this.target.axis.x, -rad)	// Use the Target's X axis for quaternion along with the angle from SSS
+			
+			this.target.tempQ = this.target.tempQ.premultiply(quaternion) // Premultiply by original value
+			this.target.tempQ = this.target.tempQ.premultiply(p_wt.quaternion.inverse());							// Convert to Bone's Local Space by multiply invert of parent bone quaternion
+	
+			pose.setBone(bind_a.index, quaternion);						// Save result to bone.
+			// pose_a.world											// Update World Data for future use
+			// 	.copy(p_wt)
+			// 	.add(quaternion, bind_a.position, bind_a.scale);
+	
+			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			// SECOND BONE
+			// Need to rotate from Right to Left, So take the angle and subtract it from 180 to rotate from 
+			// the other direction. Ex. L->R 70 degrees == R->L 110 degrees
+			rad = Math.PI - LawCosinesSSS(aLen, bLen, cLen);
+	
+			// quaternion = pose_a.quaternion.multiply(bind_b.quaternion)		// Add Bone 2's Local Bind Rotation to Bone 1's new World Rotation.
+			// 	.premultiplyAxisAngle(this.target.axis.x, rad)				// Rotate it by the target's x-axis
+			// 	.premultiplyInvert(pose_a.quaternion);					// Convert to Bone's Local Space
+	
+			// pose.setBone(bind_b.index, quaternion);						// Save result to bone.
+			// pose_b.world											// Update World Data for future use
+			// 	.copy(pose_a.world)
+			// 	.add(quaternion, bind_b.local.position, bind_b.local.scale);
+
+
 	}
 
 	applyLookTwist(rig, boneInfo, ik, lookDirection, twistDirection) {

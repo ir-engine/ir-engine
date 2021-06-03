@@ -85,17 +85,12 @@ class Chain {
 		// TODO: REVIEW ME, could be broken!
 		if (tpose) {
 			const b = tpose.bones[0];
-			console.log("b is", b);
 			const q = b.quaternion.invert();	// Invert World Space Rotation 
-			console.log("q is", q);
-			console.log("fwd is", fwd)
 			this.alt_fwd = fwd.applyQuaternion(q).normalize();	// Use invert to get direction that will Recreate the real direction
-			console.log("***** applyQuaternion", this.alt_fwd);
 
 			this.alt_up = up.applyQuaternion(q).normalize();
 		} else {
 			this.alt_fwd.copy(fwd);
-			console.log("this.alt_fwd.copy", this.alt_fwd)
 			this.alt_up.copy(up);
 		}
 		return this;
