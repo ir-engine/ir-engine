@@ -34,8 +34,7 @@
   "version": "0.2.27",
   "peerDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.6.0",
-    "@typescript-eslint/parser": "^4.4.1",
-    "three": "^0.128.0"
+    "@typescript-eslint/parser": "^4.4.1"
   },
   "dependencies": {
     "@pixiv/three-vrm": "^0.6.4",
@@ -50,7 +49,7 @@
     "mousetrap": "^1.6.5",
     "postprocessing": "^6.21.5",
     "socket.io": "4.0.1",
-    "three": "^0.128.0",
+    "three": "^0.129.0",
     "three-mesh-bvh": "^0.3.7",
     "three-physx": "^0.0.28",
     "vite-xrengine": "2.2.4",
