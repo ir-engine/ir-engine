@@ -1,13 +1,12 @@
 import React, { Component } from "react";
 import CompoundNumericInput from "../inputs/CompoundNumericInput";
 import InputGroup from "../inputs/InputGroup";
+import { ControlledStringInput } from "../inputs/StringInput";
 import SelectInput from "../inputs/SelectInput";
 import NumericInputGroup from "../inputs/NumericInputGroup";
 import RadianNumericInputGroup from "../inputs/RadianNumericInputGroup";
 import NodeEditor from "./NodeEditor";
 import { Cloud } from "@styled-icons/fa-solid/Cloud";
-import { EquirectangularOption } from "./EquirectangularList";
-import { CubemapOption } from "./CubemapList";
 import i18n from "i18next";
 import { withTranslation } from "react-i18next";
 
@@ -34,6 +33,9 @@ const SkyOption = [
     value: "equirectangular"
   }
 ];
+
+const DefaultEquirectangularpPath = '/hdr/equirectangular/texture444.jpg';
+const DefaultCubemapPath = '/cubemap/';
 
 /**
  * SkyboxNodeEditorProps declairing props for SkyboxNodeEditor.
@@ -125,10 +127,10 @@ export class SkyboxNodeEditor extends Component<
 
     switch (skyOptionValue) {
       case "cubemap" as any:
-        this.onChangeTextureOption(CubemapOption[0].value);
+        this.onChangeTextureOption(DefaultCubemapPath);
         break;
       case "equirectangular" as any:
-        this.onChangeTextureOption(EquirectangularOption[0].value);
+        this.onChangeTextureOption(DefaultEquirectangularpPath);
         break;
       default:
         this.onChangeTextureOption(null);
@@ -238,12 +240,13 @@ export class SkyboxNodeEditor extends Component<
         name="Texture"
         label={this.props.t('editor:properties.skybox.lbl-texture')}
       >
-        { /* @ts-ignore */}
-        <SelectInput
-          options={EquirectangularOption}
-          value={(node as any).textureOptionValue}
-          onChange={this.onChangeTextureOption}
-        />
+      { /* @ts-ignore */}
+      <ControlledStringInput
+       /* @ts-ignore */
+        value={(node as any).textureOptionValue ? (node as any).textureOptionValue : DefaultEquirectangularpPath}
+       /* @ts-ignore */
+        onChange={this.onChangeTextureOption}
+      />
       </InputGroup>
     </>
 
@@ -256,9 +259,10 @@ export class SkyboxNodeEditor extends Component<
         label={this.props.t('editor:properties.skybox.lbl-texture')}
       >
         { /* @ts-ignore */}
-        <SelectInput
-          options={CubemapOption}
-          value={(node as any).textureOptionValue}
+        <ControlledStringInput
+         /* @ts-ignore */
+          value={(node as any).textureOptionValue ? (node as any).textureOptionValue : DefaultCubemapPath}
+         /* @ts-ignore */
           onChange={this.onChangeTextureOption}
         />
       </InputGroup>
