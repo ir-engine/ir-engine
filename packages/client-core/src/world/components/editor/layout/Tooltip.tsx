@@ -60,7 +60,7 @@ Tooltip.propTypes = {
 export const TooltipContainer = (styled as any).div`
   display: inline-block;
   pointer-events: none;
-  background-color: rgba(21, 23, 27, 0.9);
+  background-color: rgba(21, 23, 27, 0.8);
   border-radius: 3px;
   font-size: 13px;
   padding: 8px;

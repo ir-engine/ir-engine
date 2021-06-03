@@ -37,6 +37,8 @@ import {
   fetchLocationTypes
 } from "../../../admin/reducers/admin/service";
 import { withTranslation } from 'react-i18next';
+import { DockLayout, DockMode } from 'rc-dock';
+import "rc-dock/dist/rc-dock.css";
 // @ts-ignore
 import styles from "./styles.module.scss";
 
@@ -67,6 +69,26 @@ const WorkspaceContainer = (styled as any).div`
   flex: 1;
   overflow: hidden;
   margin: 6px;
+`;
+
+/**
+ *Styled component used as dock container.
+ * 
+ * @author Hanzla Mateen
+ * @type {type}
+ */
+const DockContainer = (styled as any).div`
+  .dock-panel {
+    background: transparent;
+    pointer-events: auto;
+  }
+  .dock-panel[data-dockid="+3"] {
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .dock-divider {
+    pointer-events: auto;
+  }
 `;
 
 type EditorContainerProps = {
@@ -197,8 +219,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentWillUnmount() {
-    window.removeEventListener("resize", this.onResize);
-
     const editor = this.state.editor;
     editor.removeListener("sceneModified", this.onSceneModified);
     editor.removeListener("saveProject", this.onSaveProject);
@@ -426,16 +446,10 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       webglRenderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
     }
 
-    window.addEventListener("resize", this.onResize);
-    this.onResize();
     editor.addListener("projectLoaded", this.onProjectLoaded);
     editor.addListener("error", this.onEditorError);
     editor.addListener("sceneModified", this.onSceneModified);
     editor.addListener("saveProject", this.onSaveProject);
-  };
-
-  onResize = () => {
-    this.state.editor.onResize();
   };
 
   /**
@@ -835,7 +849,41 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         }
       });
     }
-    
+
+    let defaultLayout = {
+      dockbox: {
+        mode: 'horizontal' as DockMode,
+        children: [
+          {
+            mode: 'vertical' as DockMode,
+            size: 7,
+            children: [
+              {
+                tabs: [{id: 'viewPanel', title: 'Viewport', content: <div>Tab 2asdasd1</div>}],
+                size: 8,
+              },
+              {
+                tabs: [{id: 'assetsPanel', title: 'Elements', content: <AssetsPanel />}],
+                size: 2,
+              }
+            ]
+          },
+          {
+            mode: 'vertical' as DockMode,
+            size: 3,
+            children: [
+              {
+                tabs: [{id: 'hierarchyPanel', title: 'Hierarchy', content: <HierarchyPanelContainer />}],
+              },
+              {
+                tabs: [{id: 'propertiesPanel', title: 'Properties', content: <PropertiesPanelContainer />}],
+              }
+            ]
+          },
+        ]
+      }
+    };
+
     return (
       <StyledEditorContainer id="editor-container">
         <SettingsContextProvider value={settingsContext}>
@@ -853,16 +901,10 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                   />}
                   <WorkspaceContainer>
                     <ViewportPanelContainer />
-                    <Resizeable className={styles.panelContainer} axis="x" initialSizes={[0.7, 0.3]} onChange={this.onResize}>
-                      <Resizeable axis="y" initialSizes={[0.8, 0.2]}>
-                        <div />
-                      <AssetsPanel />
-                      </Resizeable>
-                      <Resizeable axis="y" initialSizes={[0.5, 0.5]}>
-                        <HierarchyPanelContainer />
-                        <PropertiesPanelContainer />
-                      </Resizeable>
-                    </Resizeable>
+                    <DockContainer>
+                      <DockLayout defaultLayout={defaultLayout}
+                        style={{ pointerEvents: 'none', position: 'absolute', left: 10, top: 60, right: 10, bottom: 10 }} />
+                    </DockContainer>
                   </WorkspaceContainer>
                   <Modal
                     ariaHideApp={false}
