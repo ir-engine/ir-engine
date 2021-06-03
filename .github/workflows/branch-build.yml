@@ -19,8 +19,8 @@ jobs:
           path: |
             node_modules
             */*/node_modules
-            yarn.lock
+            package-lock.json
           key: ${{ runner.os }}-branch-${{ hashFiles('**/package-lock.json') }}
-      - run: npm install
+      - run: npm install --production=false --loglevel notice --legacy-peer-deps
       - run: npm run lint
       - run: npm run build-docker
