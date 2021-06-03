@@ -38,7 +38,7 @@
     "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true vite",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
-    "localbuild": "cross-env LOCAL_BUILD=true npm start",
+    "localbuild": "cross-env LOCAL_BUILD=true npm run start",
     "lint": "eslint --fix --ext \"**/*.js\" \"**/*.ts\"",
     "validate": "npm run lint && npm run build && npm run test",
     "precommit": "no-master-commits -b master,dev",
