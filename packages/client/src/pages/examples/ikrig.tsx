@@ -452,60 +452,68 @@ IKRigSystem.queries = {
 
 
 async function loadMeshA(source) {
-	const model = await LoadGLTF(source);
-
-	const skinnedMeshes = [];
-	model.scene.traverse(node => {
-		if(node.skeleton !== undefined){
-			skinnedMeshes.push(node);
-		}
-	})
-
-	const sortedSkins = skinnedMeshes.sort((a, b) => { return a.skeleton.bones.length - b.skeleton.bones.length });
-
 	const entity = createEntity();
-	if(!hasComponent(entity, Obj)){
-		addComponent(entity, Obj);
-	}
-
 	if(!hasComponent(entity, Armature)){
 		addComponent(entity, Armature);
 	}
-
-	const o = getMutableComponent(entity, Obj);
-	o.setReference(sortedSkins[0]);
-
+	if(!hasComponent(entity, Obj)){
+		addComponent(entity, Obj);
+	}
+	const obj = getMutableComponent(entity, Obj);
 	const armature = getMutableComponent(entity, Armature);
-	const bones = getMutableComponent(entity, Obj).ref.skeleton.bones;
-	armature.bones = bones;
-	loadBonesInto( armature, bones );
+	const model = (await LoadGLTF(source));
+	model.scene.position.set(1,0,0);
+	Engine.scene.add(model.scene)
+	Engine.scene.add( new SkeletonHelper( model.scene ) );
+	const skinnedMeshes = [];
+	model.scene.traverse(node => {
+			if(node.children){
+				node.children.forEach(n =>{
+				if(n.type === "SkinnedMesh"){
+					skinnedMeshes.push(n);
+				}
+			})
+		}
+	})
 
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// TODO: Handle me, since I'm just adding this and might not be able to clean it up
-	Engine.scene.add( new SkeletonHelper( armature.skeleton.bones[0] ) );
+
+	const sortedSkins = skinnedMeshes.sort((a, b) => { return a.skeleton.bones.length - b.skeleton.bones.length });
 	
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// Save pose local space transform
-	const tpose	= getMutableComponent(entity, Armature).createNewPose();
-	let b;
+	obj.setReference(sortedSkins[0]);
+
+	armature.skeleton =  obj.ref.skeleton.clone();
+	armature.skeleton.bones = armature.skeleton.bones;
+
+	addComponent(entity, IKPose);
 
 	addComponent(entity, IKRig);
 	let rig = getMutableComponent(entity, IKRig);
-	rig.init(tpose, false);
+		rig.armature = armature;
+		rig.pose = rig.armature.createNewPose();
+		rig.tpose = rig.armature.createNewPose(); // If Passing a TPose, it must have its world space computed.
+
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// // Save pose local space transform
+	// const tpose	= getMutableComponent(entity, Armature).createNewPose();
+	// let b;
+
+	// addComponent(entity, IKRig);
+	// let rig = getMutableComponent(entity, IKRig);
+	// rig.init(tpose, false);
 	
-	for( let i=0; i < armature.skeleton.bones.length; i++ ){
-		b = armature.skeleton.bones[ i ];
-		tpose.setBone( i, b.quaternion, b.position, b.scale );
-	}
+	// for( let i=0; i < armature.skeleton.bones.length; i++ ){
+	// 	b = armature.skeleton.bones[ i ];
+	// 	tpose.setBone( i, b.quaternion, b.position, b.scale );
+	// }
 
-	tpose.updateWorld();
+	// tpose.updateWorld();
 
 
 
-	tpose.apply();
+	// tpose.apply();
 
-	rig.points.head.index = rig.points.neck.index; // Lil hack cause Head Isn't Skinned Well.
-	getMutableComponent(entity, Obj).setPosition(1.0, 0, 0);
+	// rig.points.head.index = rig.points.neck.index; // Lil hack cause Head Isn't Skinned Well.
+	// getMutableComponent(entity, Obj).setPosition(1.0, 0, 0);
 }
 
 var gIKPose;
@@ -522,7 +530,7 @@ const Page = () => {
 			Debug = debug.init();
 
 			await loadSource("ikrig/anim/Walking.glb");
-			// await loadMeshA("ikrig/models/vegeta.glb");
+			await loadMeshA("ikrig/models/vegeta.glb");
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
