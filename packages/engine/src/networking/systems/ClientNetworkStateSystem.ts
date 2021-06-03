@@ -320,7 +320,7 @@ export class ClientNetworkStateSystem extends System {
             return console.log('making IK rig for guy');
           }
           const ikRigComponent = getMutableComponent(entity, IKRigComponent);
-          if(!ikRigComponent.avatarIKRig) return console.log('no ik rig yet');;
+          if(!ikRigComponent.avatarIKRig) return console.log('no ik rig yet');
           const { hmd, left, right } = ikTransform;
           ikRigComponent.avatarIKRig.inputs.hmd.position.set(hmd.x, hmd.y, hmd.z);
           ikRigComponent.avatarIKRig.inputs.hmd.quaternion.set(hmd.qX, hmd.qY, hmd.qZ, hmd.qW);
