@@ -1,27 +1,19 @@
 import { Engine } from "../../ecs/classes/Engine";
-import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Group, Line, LineBasicMaterial, Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, Object3D, Quaternion, RingGeometry, Vector3 } from 'three';
+import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, Object3D, Quaternion, RingGeometry, Vector3 } from 'three';
 import { getLoader } from "../../assets/functions/LoadGLTF";
-// import { GLTF } from "../../assets/loaders/gltf/GLTFLoader";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { CameraModes } from "../../camera/types/CameraModes";
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { Network } from "../../networking/classes/Network";
-import { XRSystem } from "../systems/XRSystem";
 import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { XRInputReceiver } from '../../input/components/XRInputReceiver';
 import { initiateIK, stopIK } from "./IKFunctions";
 import { initializeMovingState } from "../../character/animations/MovingAnimations";
-import { CHARACTER_STATES } from "../../character/state/CharacterStates";
-import { clearBit, setBit } from "../../common/functions/bitFunctions";
-import { getBit } from "../../common/functions/bitFunctions";
 import { Entity } from "../../ecs/classes/Entity";
 import { ParityValue } from "../../common/enums/ParityValue";
-import { Input } from "../../input/components/Input";
-import { BaseInput } from "../../input/enums/BaseInput";
-import { SIXDOFType } from "../../common/types/NumericalTypes";
-import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { IKComponent } from "../../character/components/IKComponent";
+import { IKRigComponent } from "../../character/components/IKRigComponent";
 
 let head, controllerGripLeft, controllerLeft, controllerRight, controllerGripRight;
 
@@ -179,21 +171,13 @@ const forward = new Vector3(0, 0, -1);
 export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.NONE): Vector3 => {
   const actor = getComponent(entity, CharacterComponent);
   const transform = getComponent(entity, TransformComponent);
-  if(isInXR(entity)) {
-    const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
-    if(input) {
-      const sixdof = input.value as SIXDOFType;
-      return vec3.set(sixdof.x, sixdof.y, sixdof.z).applyMatrix4(actor.tiltContainer.matrixWorld);
+  const ikRigComponent = getComponent(entity, IKRigComponent);
+  if(ikRigComponent && ikRigComponent.avatarIKRig) {
+    const rigHand: Object3D = hand === ParityValue.LEFT ? ikRigComponent.avatarIKRig.poseManager.vrTransforms.leftHand : ikRigComponent.avatarIKRig.poseManager.vrTransforms.rightHand;
+    if(rigHand) {
+      return rigHand.getWorldPosition(vec3);
     }
   }
-  // TODO: once IK rig is fixed
-  // const ikComponent = getComponent(entity, IKComponent);
-  // if(ikComponent && ikComponent.avatarIKRig) {
-  //   const rigHand: Object3D = hand === ParityValue.LEFT ? ikComponent.avatarIKRig.poseManager.vrTransforms.leftHand : ikComponent.avatarIKRig.poseManager.vrTransforms.rightHand;
-  //   if(rigHand) {
-  //     return rigHand.getWorldPosition(vec3);
-  //   }
-  // }
   // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
   return vec3.set(-0.5, 0, 0).applyQuaternion(actor.tiltContainer.quaternion).add(transform.position);
 }
@@ -208,22 +192,13 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
 
 export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.NONE): Quaternion => {
   const actor = getComponent(entity, CharacterComponent);
-  if(isInXR(entity)) {
-    const transform = getComponent(entity, TransformComponent);
-    const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
-    if(input) {
-      const sixdof = input.value as SIXDOFType;
-      return quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW).premultiply(transform.rotation)
+  const ikRigComponent = getComponent(entity, IKRigComponent);
+  if(ikRigComponent && ikRigComponent.avatarIKRig) {
+    const rigHand: Object3D = hand === ParityValue.LEFT ? ikRigComponent.avatarIKRig.poseManager.vrTransforms.leftHand : ikRigComponent.avatarIKRig.poseManager.vrTransforms.rightHand;
+    if(rigHand) {
+      return rigHand.getWorldQuaternion(quat)
     }
   }
-  // TODO: once IK rig is fixed
-  // const ikComponent = getComponent(entity, IKComponent);
-  // if(ikComponent && ikComponent.avatarIKRig) {
-  //   const rigHand: Object3D = hand === ParityValue.LEFT ? ikComponent.avatarIKRig.poseManager.vrTransforms.leftHand : ikComponent.avatarIKRig.poseManager.vrTransforms.rightHand;
-  //   if(rigHand) {
-  //     return rigHand.getWorldQuaternion(quat)
-  //   }
-  // }
   return quat.setFromUnitVectors(forward, actor.viewVector)
 }
 
@@ -238,27 +213,16 @@ export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.
 export const getHandTransform = (entity: Entity, hand: ParityValue = ParityValue.NONE): { position: Vector3, rotation: Quaternion } => {
   const actor = getComponent(entity, CharacterComponent);
   const transform = getComponent(entity, TransformComponent);
-  if(isInXR(entity)) {
-    const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
-    if(input) {
-      const sixdof = input.value as SIXDOFType;
+  const ikRigComponent = getComponent(entity, IKRigComponent);
+  if(ikRigComponent && ikRigComponent.avatarIKRig) {
+    const rigHand: Object3D = hand === ParityValue.LEFT ? ikRigComponent.avatarIKRig.poseManager.vrTransforms.leftHand : ikRigComponent.avatarIKRig.poseManager.vrTransforms.rightHand;
+    if(rigHand) {
       return { 
-        position: vec3.set(sixdof.x, sixdof.y, sixdof.z).applyMatrix4(actor.tiltContainer.matrixWorld),
-        rotation: quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW).premultiply(transform.rotation)
+        position: rigHand.getWorldPosition(vec3),
+        rotation: rigHand.getWorldQuaternion(quat)
       }
     }
   }
-  // TODO: once IK rig is fixed
-  // const ikComponent = getComponent(entity, IKComponent);
-  // if(ikComponent && ikComponent.avatarIKRig) {
-  //   const rigHand: Object3D = hand === ParityValue.LEFT ? ikComponent.avatarIKRig.poseManager.vrTransforms.leftHand : ikComponent.avatarIKRig.poseManager.vrTransforms.rightHand;
-  //   if(rigHand) {
-  //     return { 
-  //       position: rigHand.getWorldPosition(vec3),
-  //       rotation: rigHand.getWorldQuaternion(quat)
-  //     }
-  //   }
-  // }
   return {
     // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
     position: vec3.set(-0.5, 0, 0).applyQuaternion(actor.tiltContainer.quaternion).add(transform.position),

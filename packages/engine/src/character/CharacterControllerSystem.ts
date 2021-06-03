@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from "three";
-import { ControllerEvents, ControllerHitEvent, RaycastQuery, SceneQueryType } from "three-physx";
+import { ControllerHitEvent, RaycastQuery, SceneQueryType } from "three-physx";
 import { applyVectorMatrixXZ } from "../common/functions/applyVectorMatrixXZ";
 import { isClient } from "../common/functions/isClient";
 import { EngineEvents } from "../ecs/classes/EngineEvents";
@@ -11,16 +11,17 @@ import { LocalInputReceiver } from "../input/components/LocalInputReceiver";
 import { characterMoveBehavior } from "./behaviors/characterMoveBehavior";
 import { ControllerColliderComponent } from "./components/ControllerColliderComponent";
 import { InterpolationComponent } from "../physics/components/InterpolationComponent";
-import { CollisionGroups, DefaultCollisionMask } from "../physics/enums/CollisionGroups";
+import { DefaultCollisionMask } from "../physics/enums/CollisionGroups";
 import { PhysicsSystem } from "../physics/systems/PhysicsSystem";
 import { TransformComponent } from "../transform/components/TransformComponent";
 import { AnimationComponent } from "./components/AnimationComponent";
 import { CharacterComponent } from "./components/CharacterComponent";
-import { IKComponent } from "./components/IKComponent";
 import { updateVectorAnimation } from "./functions/updateVectorAnimation";
 import { loadActorAvatar } from "./prefabs/NetworkPlayerCharacter";
 import { Engine } from "../ecs/classes/Engine";
-import { roundVectorToPlaces } from "../common/functions/roundVector";
+import { IKRigComponent } from "./components/IKRigComponent";
+import { Avatar } from "../xr/classes/IKAvatar";
+import { Network } from "../networking/classes/Network";
 
 const forwardVector = new Vector3(0, 0, 1);
 const prevControllerColliderPosition = new Vector3();
@@ -175,9 +176,35 @@ export class CharacterControllerSystem extends System {
       })
     }
 
-    this.queryResults.ikavatar.all?.forEach((entity) => {
-      const ikComponent = getMutableComponent(entity, IKComponent);
-      ikComponent.avatarIKRig?.update(delta);
+    this.queryResults.ikAvatar.added?.forEach((entity) => {
+      if(!isClient) return;
+      const ikRigComponent = getMutableComponent(entity, IKRigComponent);
+      const actor = getMutableComponent(entity, CharacterComponent);
+      const avatarIKRig = new Avatar(actor.modelContainer.children[0], {
+        debug: true,
+        top: true,
+        bottom: true,
+        visemes: true,
+        hair: true,
+      });
+      ikRigComponent.avatarIKRig = avatarIKRig;
+      if(Network.instance.localClientEntity === entity) {
+        // avatarIK.avatarIKRig.decapitate()
+      }
+
+      // TODO: Temporarily make rig invisible until rig is fixed
+      // actor.modelContainer.children[0]?.traverse((child) => {
+      //   if(child.visible) {
+      //     child.visible = false;
+      //   }
+      // })
+    })
+
+    this.queryResults.ikAvatar.all?.forEach((entity) => {
+      const ikRigComponent = getMutableComponent(entity, IKRigComponent);
+      if(ikRigComponent) {
+        ikRigComponent.avatarIKRig.update(delta);
+      }
     })
   }
 }
@@ -218,8 +245,8 @@ CharacterControllerSystem.queries = {
       removed: true
     }
   },
-  ikavatar: {
-    components: [IKComponent],
+  ikAvatar: {
+    components: [IKRigComponent],
     listen: {
       added: true,
       removed: true

@@ -1,10 +1,14 @@
 import { CharacterComponent } from '../../character/components/CharacterComponent';
 import { IKComponent } from '../../character/components/IKComponent';
+import { SIXDOFType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
 import { Not } from '../../ecs/functions/ComponentFunctions';
 import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
+import { Input } from '../../input/components/Input';
+import { BaseInput } from '../../input/enums/BaseInput';
+import { InputValue } from '../../input/interfaces/InputValue';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
@@ -76,39 +80,22 @@ export class ServerNetworkOutgoingSystem extends System {
       const networkObject = getComponent(entity, NetworkObject);
       const snapShotTime = networkObject.snapShotTime;
 
-      const ikComponent = getComponent(entity, IKComponent)
-      const transforms = ikComponent.avatarIKRig.inputs;
+      const input = getComponent(entity, Input);
+
+      // we should send some default values in case the hmd or a controller has no input
+
+      const hmd = input.data.get(BaseInput.XR_HEAD) as InputValue<SIXDOFType>;
+      const left = input.data.get(BaseInput.XR_LEFT_HAND) as InputValue<SIXDOFType>;
+      const right = input.data.get(BaseInput.XR_RIGHT_HAND) as InputValue<SIXDOFType>;
+
+      if(!hmd?.value || !left?.value || !right?.value) return;
 
       Network.instance.transformState.ikTransforms.push({
         networkId: networkObject.networkId,
         snapShotTime: snapShotTime,
-        hmd: {
-          x: transforms.hmd.position.x,
-          y: transforms.hmd.position.y,
-          z: transforms.hmd.position.z,
-          qW: transforms.hmd.quaternion.w,
-          qX: transforms.hmd.quaternion.x,
-          qY: transforms.hmd.quaternion.y,
-          qZ: transforms.hmd.quaternion.z,
-        },
-        left: {
-          x: transforms.leftGamepad.position.x,
-          y: transforms.leftGamepad.position.y,
-          z: transforms.leftGamepad.position.z,
-          qW: transforms.leftGamepad.quaternion.w,
-          qX: transforms.leftGamepad.quaternion.x,
-          qY: transforms.leftGamepad.quaternion.y,
-          qZ: transforms.leftGamepad.quaternion.z,
-        },
-        right: {
-          x: transforms.rightGamepad.position.x,
-          y: transforms.rightGamepad.position.y,
-          z: transforms.rightGamepad.position.z,
-          qW: transforms.rightGamepad.quaternion.w,
-          qX: transforms.rightGamepad.quaternion.x,
-          qY: transforms.rightGamepad.quaternion.y,
-          qZ: transforms.rightGamepad.quaternion.z,
-        },
+        hmd: hmd.value,
+        left: left.value,
+        right: right.value
       })
     });
 
@@ -156,13 +143,13 @@ export class ServerNetworkOutgoingSystem extends System {
   /** System queries. */
   static queries: any = {
     networkTransforms: {
-      components: [Not(CharacterComponent), NetworkObject, TransformComponent] // CharacterComponent ? we sent double to network objects to ?
+      components: [Not(CharacterComponent), NetworkObject, TransformComponent]
     },
     characterTransforms: {
-      components: [CharacterComponent, NetworkObject, TransformComponent] // CharacterComponent ? we sent double to network objects to ?
+      components: [CharacterComponent, NetworkObject, TransformComponent]
     },
     ikTransforms: {
-      components: [IKComponent, NetworkObject, TransformComponent] // CharacterComponent ? we sent double to network objects to ?
+      components: [IKComponent, NetworkObject, TransformComponent]
     },
   }
 }
