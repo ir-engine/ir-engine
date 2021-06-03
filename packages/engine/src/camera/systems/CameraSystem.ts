@@ -89,7 +89,7 @@ const followCameraBehavior = (entity: Entity) => {
   followCamera.rayHasHit = typeof closestHit !== 'undefined';
 
   if(followCamera.mode !== CameraModes.FirstPerson && followCamera.rayHasHit && closestHit.distance < camDist && closestHit.distance > 0.1) {
-    camDist = closestHit.distance - 0.5;
+    camDist = closestHit.distance;
   }
 
   cameraDesiredTransform.position.set(
