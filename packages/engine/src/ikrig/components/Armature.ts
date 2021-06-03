@@ -10,49 +10,6 @@ class Armature extends Component<Armature> {
 	bones: any[] = [];
 	name_map: {} = {};
 
-	// Compute the Fungi Local & World Transform Bind Pose
-	// THREE will compute the inverse matrix bind pose on its own when bones 
-	// are given to THREE.Skeleton
-	computeBindPose() {
-		let b: Bone, p: Bone;
-		for (b of this.bones) {
-
-			if(!b.local || !b.world){
-				b.local = new Transform();
-				b.world = new Transform();
-
-			}
-
-
-			console.log("b.local is");
-			console.log((b as any).local);
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			// Copy current local space transform of the bone
-			(b as any).local.quaternion.copy(b.quaternion);
-			(b as any).local.position.copy(b.position);
-			(b as any).local.scale.copy(b.scale);
-
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			// Compute its world space transform based on parent's ws transform.
-			if (b.parent != null && b.parent.type == "Bone") {
-				p = b.parent as Bone;
-				if(!p.local || !p.world){
-					p.local = new Transform();
-					p.world = new Transform();
-	
-				}
-				console.log("parent is")
-				console.log(p)
-				console.log("b is")
-				console.log(b);
-				console.log(p.world);
-				console.log(p.world);
-				(b as any).world.setFromAdd(p.world, (b as any).local);
-			} else (b as any).world.copy((b as any).local);
-		}
-	}
-
-
 	// Get the Root Bone
 	getRoot() { return this.bones[0]; }
 

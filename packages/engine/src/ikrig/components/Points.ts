@@ -1,6 +1,6 @@
 import { BufferAttribute, BufferGeometry, DynamicDrawUsage, Points, RawShaderMaterial } from "three";
 import { Component } from "../../ecs/classes/Component";
-import { addComponent, createEntity, getComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
+import { addComponent, createEntity, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import Obj from "./Obj";
 
 class PointsComponent extends Component<PointsComponent>{
@@ -11,16 +11,6 @@ class PointsComponent extends Component<PointsComponent>{
 	buf_clr: BufferAttribute;
 	geo: BufferGeometry;
 	mesh: Points<any, any>;
-	static $( name="points", max_len=100 ){
-		const entity = createEntity();
-		if(!hasComponent(entity, Obj)){
-			addComponent(entity, Obj);
-		}
-		addComponent(entity, PointsComponent);
-		getMutableComponent(entity, PointsComponent).init(name, max_len);
-
-		return entity;
-	}
 
     constructor(){
 		super();
@@ -90,7 +80,6 @@ class PointsComponent extends Component<PointsComponent>{
 }
 
 
-// #region SHADER
 let gMat = null;
 function getMaterial(){
 	if( gMat ) return gMat;
@@ -191,25 +180,6 @@ void main(){
 
 	out_color = vec4( frag_color, alpha );
 }`;
-
-//gl_Position = projection * view * model * vec4(position.xyz, 1.0);
-//gl_PointSize = pointsize - (distance(cameraeye, position.xyz) / pointsize);
-
-/*
-      // set point position
-      vec3 position = position + translation;
-      vec4 projected = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      gl_Position = projected;
-
-      // use the delta between the point position and camera position to size point
-      float xDelta = pow(projected[0] - cameraPosition[0], 2.0);
-      float yDelta = pow(projected[1] - cameraPosition[1], 2.0);
-      float zDelta = pow(projected[2] - cameraPosition[2], 2.0);
-      float delta  = pow(xDelta + yDelta + zDelta, 0.5);
-	  gl_PointSize = 10000.0 / delta;
-*/
-
-// #endregion
 
 
 function gl_color( hex, out = null ){

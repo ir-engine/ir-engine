@@ -1,5 +1,6 @@
-import { Quaternion } from "three";
+import { Quaternion, Skeleton, SkeletonHelper } from "three";
 import { SkeletonUtils } from "../../character/SkeletonUtils";
+import { Engine } from "../../ecs/classes/Engine";
 import Transform from "../math/Transform";
 
 class Pose {
@@ -10,33 +11,35 @@ class Pose {
 	skeleton: Skeleton;
 	bones: any[];
 	root_offset: any;
+	helper: any;
 	constructor(armature) {
 		this.armature = armature;
-		armature.bones.forEach(b => {
-
-		})	
 									// Reference Back to Armature, Make Apply work Easily
 		this.skeleton = armature.skeleton.clone();	// Recreation of Bone Hierarchy
 		this.bones = this.skeleton.bones;
 		this.root_offset = new Transform();					// Parent Transform for Root Bone ( Skeletons from FBX imports need this to render right )
-
-		console.log("Armature is")
-		console.log(armature)
-
-		console.log("Bones are")
-		console.log(this.bones);
 	}
 
 	setOffset(quaternion = null, position = null, scale = null) { this.root_offset.set(quaternion, position, scale); return this; }
 
 	setBone(index, quaternion = null, position = null, scale = null) {
 		const b = this.bones[index];
-		b.local.set(quaternion, position, scale);
 
 		// Set its Change State
-		if (quaternion) b.chg_state |= Pose.ROTATION;
-		if (position) b.chg_state |= Pose.POSITION;
-		if (scale) b.chg_state |= Pose.SCALE;
+		if (quaternion) {
+			b.chg_state |= Pose.ROTATION;
+			b.quaternion.copy(quaternion);
+		}
+	
+		if (position) {
+			b.chg_state |= Pose.POSITION;
+			b.position.copy(position);
+		}
+
+		if (scale){
+			b.chg_state |= Pose.SCALE;
+			b.scale.copy(scale);
+		} 
 		return this;
 	}
 
@@ -49,12 +52,8 @@ class Pose {
 	}
 
 	getBone(bname) { 
-		console.log("this.bones is", this.bones);
-		console.log("bname is", bname);
-		console.log("Bone index is", this.bones.findIndex((b) => { return b.name.includes(bname) }));
 		const index = this.bones.findIndex((b) => { return b.name.includes(bname) });
 		let bone = this.bones[index];
-		console.log('getBone is is', bone);
 		if (bone !== undefined) return bone;
 		bone = this.bones.find(b => {
 			if(b.name.includes(bname))
@@ -67,15 +66,8 @@ class Pose {
 
 	apply() { this.armature.loadPose(this); return this; }
 
-	updateWorld() {
-		for (const b of this.bones) {
-			if (b.parentIndex != null) b.world.setFromAdd(this.bones[b.parentIndex].world, b.local); // Parent.World + Child.Local
-			else b.world.setFromAdd(this.root_offset, b.local);
-		}
-		return this;
-	}
 
-	getParentWorld(b_idx, t_offset = null) {
+	getParentWorld(incomingBone, t_offset = null) {
 
 		// The IK Solver takes transforms as input, not rotations.
 		// The first thing we need is the WS Transform of the start of the chain
@@ -92,21 +84,27 @@ class Pose {
 			childTransform = new Transform();
 
 
-		const cbone = this.bones[b_idx];
+		console.log("b_idx is", incomingBone);
+		let bone = this.bones.find(b => {
+			return b.name === incomingBone.name;
+		})
+
+		console.log("bone is", bone);
+
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		// Child is a Root Bone, just reset since there is no parent.
-		if (cbone.parentIndex == null) {
+		if (!bone) {
 			parentTransform.clear();
 		} else {
 			// Parents Exist, loop till reaching the root
-			let b = this.bones[cbone.parentIndex];
-			parentTransform.copy(b.ref);
+			parentTransform.copy(bone);
 
-			while (b.parentIndex != null) {
-				b = this.bones[b.parentIndex];
-				parentTransform.add_rev(b.ref);
+			while (bone.parent != null) {
+				bone = bone.parent;
+				console.log("Bone is", bone);
+				parentTransform.add_rev(bone);
 			}
 		}
 
@@ -115,7 +113,7 @@ class Pose {
 		parentTransform.add_rev(this.root_offset);				// Add Starting Offset
 		if (t_offset) parentTransform.add_rev(t_offset);		// Add Additional Starting Offset
 
-		childTransform.setFromAdd(parentTransform, cbone.local);	// Requesting Child WS Info Too
+		childTransform.setFromAdd(parentTransform, bone);	// Requesting Child WS Info Too
 
 		return {childTransform, parentTransform};
 	}
@@ -130,11 +128,11 @@ class Pose {
 		else {
 			// Parents Exist, loop till reaching the root
 			let b = childBone.parent;
-			q.copy(b.local.quaternion);
+			q.copy(b.quaternion);
 
 			while (b.parentIndex != null) {
 				b = this.bones[b.parentIndex];
-				q.premultiply(b.local.quaternion);
+				q.premultiply(b.quaternion);
 			}
 		}
 

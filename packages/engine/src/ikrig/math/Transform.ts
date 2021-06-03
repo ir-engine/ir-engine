@@ -29,7 +29,7 @@ class Transform extends Component<Transform>{
 	}
 
 	setFromAdd(parent, child) {
-		console.log("setFromAdd", parent, child)
+		console.log("parent, child", parent, child)
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
 		// TODO: Make sure this matrix isn't flipped
@@ -45,7 +45,6 @@ class Transform extends Component<Transform>{
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// ROTATION - parent.quaternion * child.quaternion
 		this.quaternion = parent.quaternion.multiply(child.quaternion);
-		//this.quaternion.setFromMultiply( tc.quaternion, tp.quaternion );
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		return this;
@@ -80,24 +79,24 @@ class Transform extends Component<Transform>{
 	// Computing Transforms in reverse, Child - > Parent
 	add_rev(pr) {
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			console.log("pr", pr);
+			let pq = pr.quaternion;
+			let pp = pq.position;
+			let ps = pq.scale;
 
-			pr = pr[0].quaternion;
-			let pp = pr[0].position;
-			let ps = pr[0].scale;
+		// //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// // POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
+		// // The only difference for this func, We use the IN.scale & IN.quaternion instead of THIS.scale * THIS.quaternion
+		// // Consider that this Object is the child and the input is the Parent.
+		// this.position.multiply(ps).applyQuaternion(pq).add(pp);
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		// POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
-		// The only difference for this func, We use the IN.scale & IN.quaternion instead of THIS.scale * THIS.quaternion
-		// Consider that this Object is the child and the input is the Parent.
-		this.position.multiply(ps).applyQuaternion(pr).add(pp);
+		// //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// // SCALE - parent.scale * child.scale
+		// if (ps) this.scale.multiply(ps);
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		// SCALE - parent.scale * child.scale
-		if (ps) this.scale.multiply(ps);
-
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		// ROTATION - parent.quaternion * child.quaternion
-		this.quaternion.premultiply(pr); // Must Rotate from Parent->Child, need PMUL
+		// //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// // ROTATION - parent.quaternion * child.quaternion
+		// this.quaternion.premultiply(pq); // Must Rotate from Parent->Child, need PMUL
 
 		return this
 	}

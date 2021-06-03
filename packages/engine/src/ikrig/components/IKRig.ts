@@ -1,9 +1,8 @@
+import { Vector3 } from "three";
 import { Component } from "../../ecs/classes/Component";
-import { addComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import Pose from "../classes/Pose";
-import { BACK, DOWN, FORWARD, LEFT, RIGHT, UP } from "../math/Vector3Constants";
+import { FORWARD, UP } from "../math/Vector3Constants";
 import Armature from "./Armature";
-import Obj from "./Obj";
 
 class IKRig extends Component<IKRig>{
 	armature: Armature = null;
@@ -14,94 +13,44 @@ class IKRig extends Component<IKRig>{
 	leg_len_lmt = 0;
 	static ARM_MIXAMO: any;
 
-	// #region METHODS
-	apply_pose() { this.pose.apply(); }
-	updateWorld() { this.pose.updateWorld(); }
-	// #endregion ////////////////////////////////////////////////
-
+	applyPose() { this.pose.apply(); }
 
 	addPoint(name, boneName) {
-		console.log("Adding point");
 		this.points[name] = {
 			index: this.armature.skeleton.bones.findIndex(bone => bone.name.includes(boneName))
 		};
-		console.log("this.points[name].index");
-		console.log(this.points[name].index);
 		return this;
 	}
 
-	addChain(name, name_ary, end_name = null, ik_solver = null) { //  axis="z",
+	addChain(name, nameArray, end_name = null, ik_solver = null) { //  axis="z",		
 		let i, b;
 
 		if(this.pose.bones.length === 0) this.pose.bones = this.armature.skeleton.bones;
 
 		const ch = new Chain(); // axis
-		for (i of name_ary) {
-			console.log("this.pose is", this.pose);
-			b = this.pose.getBone(i);
-			const index = this.armature.skeleton.bones.indexOf(b);
-			console.log("bone is", b)
-			// ch.addBone(index, b.length);
-			// console.log("index is", index);
+		for (i of nameArray) {
+			const index = this.armature.skeleton.bones.findIndex(bone => bone.name.includes(i));
+			const bone = this.armature.skeleton.bones[index];
+			bone.length = bone.children.length > 0 ? bone.localToWorld(bone.position).distanceTo(bone.localToWorld(bone.children[0].position)) : .3; 
+
+			const o = { index: bone, length: bone.length };
+
+			ch.bones.push(o);
+			ch.cnt++;
+			ch.length += length;
+			ch.magnitudeSquared = ch.length * ch.length;
 		}
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		if (end_name) {
 			ch.end_idx = this.armature.skeleton.bones.indexOf(this.pose.getBone(end_name));
-			console.log("ch.end_idx", ch.end_idx);
 		}
 
 		ch.ik_solver = ik_solver;
 
 		this.chains[name] = ch;
 		return this;
-	}
-
-	set_leg_lmt(length = null, offset = 0) {
-		if (!length) {
-			const hip = this.tpose.bones[this.points.hip.index];
-			console.log("hip world is");
-			console.log(hip.world);
-			this.leg_len_lmt = hip.world.position.y + offset;
-		} else {
-			this.leg_len_lmt = length + offset;
-		}
-		return this;
-	}
-	// #endregion ////////////////////////////////////////////////
-
-	// #region METHODS
-	first_bone(ch_name) {
-		const index = this.chains[ch_name].bones[0].index;
-		return this.pose.bones[index];
-	}
-
-	get_chain_indices(ch_name) {
-		const ch = this.chains[ch_name];
-		if (!ch) return null;
-
-		let b;
-		const array = [];
-		for (b of ch.bones) array.push(b.index);
-
-		return array;
-	}
-	// #endregion ////////////////////////////////////////////////
-
-	// #region SPECIAL METHODS
-	RecomputeFromTPose() {
-		// Recompute the Length of the bones for each chain. Most often this
-		// is a result of scale being applied to the armature object that can
-		// only be computed after the rig is setup
-		this.chains.leg_l.computeLengthFromBones(this.tpose.bones);
-		this.chains.leg_r.computeLengthFromBones(this.tpose.bones);
-		this.chains.arm_l.computeLengthFromBones(this.tpose.bones);
-		this.chains.arm_r.computeLengthFromBones(this.tpose.bones);
-
-		return this;
-	}
-	// #endregion ////////////////////////////////////////////////
-
+	}	
 }
 
 
@@ -132,17 +81,6 @@ class Chain {
 		this.ik_solver = null;
 	}
 
-	// #region Getters / Setters
-	addBone(index, length) {
-		const o = { index, length };
-
-		this.bones.push(o);
-		this.cnt++;
-		this.length += length;
-		this.magnitudeSquared = this.length * this.length;
-		return this;
-	}
-
 	// Get Skeleton Index of Bones
 	first() { return this.bones[0].index; }
 	last() { return this.bones[this.cnt - 1].index; }
@@ -151,7 +89,6 @@ class Chain {
 	setAlt(fwd, up, tpose = null) {
 		// TODO: REVIEW ME, could be broken!
 		if (tpose) {
-			console.log("tpose is", tpose.bones);
 			const b = tpose.bones[0];
 			const q = b.quaternion.invert();	// Invert World Space Rotation 
 
@@ -163,24 +100,22 @@ class Chain {
 		}
 		return this;
 	}
-	// #endregion ////////////////////////////////////////////////
 
-	// #region Special Methods
 	computeLengthFromBones(bones) {
 		const end = this.cnt - 1;
 		let	sum = 0,
 			b, i;
-
+		const boneWorldPosition = new Vector3(),
+			childWorldPosition = new Vector3();
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Loop Every Bone Except Last one
 		for (i = 0; i < end; i++) {
-			b = bones[this.bones[i].index];
-			console.log("bones[this.bones[i + 1]", this.bones[i + 1]);
+			b = bones.find(bone => bone.name === this.bones[i].index.name);
 
-			b.length =
-				bones[this.bones[i + 1].index].world.position.distanceTo(
-				bones[this.bones[i].index].world.position
-			);
+			this.bones[i].index.getWorldPosition(boneWorldPosition);
+			this.bones[i + 1].index.getWorldPosition(childWorldPosition);
+
+			b.length = boneWorldPosition.distanceTo( childWorldPosition );
 
 			sum += b.length;
 		}
@@ -188,11 +123,10 @@ class Chain {
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// If End Point exists, Can calculate the final bone's length
 		if (this.end_idx != null) {
-			b = bones[this.bones[i].index];
-			b.length = 
-				bones[this.end_idx].world.position.distanceTo(
-				bones[this.bones[i].index].world.position
-			);
+			bones[this.end_idx].getWorldPosition(boneWorldPosition);
+			this.bones[i].index.getWorldPosition(childWorldPosition);
+
+			b.length = boneWorldPosition.distanceTo( childWorldPosition );
 			sum += b.length;
 		} else console.warn("Recompute Chain Len, End Index is missing");
 
@@ -200,8 +134,8 @@ class Chain {
 		this.magnitudeSquared = sum * sum;
 		return this;
 	}
-	// #endregion ////////////////////////////////////////////////
 }
 
 export default IKRig;
 export { Chain };
+

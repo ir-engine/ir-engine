@@ -1,4 +1,4 @@
-import { AmbientLight, DirectionalLight, PointLight } from 'three';
+import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight } from 'three';
 import { isClient } from "../../common/functions/isClient";
 import { DRACOLoader } from "../loaders/gltf/DRACOLoader";
 import { GLTFLoader } from "../loaders/gltf/GLTFLoader";
@@ -7,7 +7,8 @@ import { GLTFLoader } from "../loaders/gltf/GLTFLoader";
  * Interface for result of the GLTF Asset load.
  */
 export interface LoadGLTFResultInterface {
-    scene: any;
+    animations: AnimationClip[];
+    scene: Object3D;
     json: any;
     stats: any;
 }
@@ -42,7 +43,7 @@ export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
     return await new Promise<LoadGLTFResultInterface>((resolve, reject) => {
         getLoader().load(url, (gltf) => {
             loadExtentions(gltf);
-            resolve({ scene: gltf.scene, json: {}, stats: {} }); }, null, (e) => { reject(e); 
+            resolve({ animations: gltf.animations, scene: gltf.scene, json: {}, stats: {} }); }, null, (e) => { reject(e); 
         });
     });
 }

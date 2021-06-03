@@ -13,15 +13,6 @@ class Lines extends Component<Lines>{
 	buf_clr: BufferAttribute;
 	geo: BufferGeometry;
 	mesh: LineSegments<any, any>;
-	static $( name="lines", max_len=100 ){
-		const entity = createEntity();
-		if(!hasComponent(entity, Obj)){
-			addComponent(entity, Obj);
-		}
-		addComponent(entity, Lines);
-		getMutableComponent(entity, Lines).init(name, max_len);
-		return entity;
-	}
 
 	init( name = "lines", max_len = 100 ){
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -45,13 +36,7 @@ class Lines extends Component<Lines>{
 		this.mesh.name = name;
 
 		let obj = getMutableComponent(this.entity, Obj);
-		if(!obj) {
-			addComponent(this.entity, Obj);
-			obj = getMutableComponent(this.entity, Obj);
-		}
 		obj.setReference( this.mesh );
-
-
 		return this;
 	}
 
@@ -101,7 +86,6 @@ class Lines extends Component<Lines>{
 }
 
 
-// #region SHADER
 let gMat = null;
 function getMaterial(){
 	if( gMat ) return gMat;
@@ -152,9 +136,6 @@ void main(){
     if( frag_len >= 0.0 ) alpha = step( dash_div, fract( frag_len * dash_seg ) );
     out_color = vec4( frag_color, alpha );
 }`;
-
-// #endregion
-
 
 function gl_color( hex, out = null ){
 	const NORMALIZE_RGB = 1 / 255;

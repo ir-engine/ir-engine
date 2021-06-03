@@ -1,6 +1,5 @@
-import Axis from "../math/Axis";
-import { Component } from "../../ecs/classes/Component";
 import { Quaternion, Vector3 } from "three";
+import Axis from "../math/Axis";
 
 function LawCosinesSSS( aLen, bLen, cLen ){
 	// Law of Cosines - SSS : cos(C) = (a^2 + b^2 - c^2) / 2ab
@@ -10,7 +9,7 @@ function LawCosinesSSS( aLen, bLen, cLen ){
 	else if( v > 1 )	v = 1;
 	return Math.acos( v );
 }
-class IKTarget extends Component<IKTarget>{
+class IKTarget{
 	startPosition: Vector3 = new Vector3();
 	endPosition: Vector3 = new Vector3();
 	axis: Axis = new Axis();
@@ -94,7 +93,7 @@ class IKTarget extends Component<IKTarget>{
 		pose.setBone(bind_a.index, quaternion);						// Save result to bone.
 		pose_a.world											// Update World Data for future use
 			.copy(p_wt)
-			.add(quaternion, bind_a.local.position, bind_a.local.scale);
+			.add(quaternion, bind_a.position, bind_a.scale);
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// SECOND BONE
@@ -102,7 +101,7 @@ class IKTarget extends Component<IKTarget>{
 		// the other direction. Ex. L->R 70 degrees == R->L 110 degrees
 		rad = Math.PI - LawCosinesSSS(aLen, bLen, cLen);
 
-		quaternion = pose_a.world.quaternion.multiply(bind_b.local.quaternion)		// Add Bone 2's Local Bind Rotation to Bone 1's new World Rotation.
+		quaternion = pose_a.world.quaternion.multiply(bind_b.quaternion)		// Add Bone 2's Local Bind Rotation to Bone 1's new World Rotation.
 			.premultiplyAxisAngle(this.axis.x, rad)				// Rotate it by the target's x-axis
 			.premultiplyInvert(pose_a.world.quaternion);					// Convert to Bone's Local Space
 
