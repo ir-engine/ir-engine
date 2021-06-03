@@ -28,19 +28,19 @@
   "contributors": [],
   "bugs": {},
   "engines": {
-    "yarn": ">= 0.18.0"
+    "node": ">= 16.3.0"
   },
   "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "start": "yarn run build-publish && node dist/server.js",
+    "start": "npm run build-publish && node dist/server.js",
     "dev": "cross-env NODE_ENV=development vite",
     "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true vite",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
-    "localbuild": "cross-env LOCAL_BUILD=true yarn start",
+    "localbuild": "cross-env LOCAL_BUILD=true npm start",
     "lint": "eslint --fix --ext \"**/*.js\" \"**/*.ts\"",
-    "validate": "yarn run lint && yarn run build && yarn run test",
+    "validate": "npm run lint && npm run build && npm run test",
     "precommit": "no-master-commits -b master,dev",
     "upload-avatar": "node ./scripts/upload-avatar.js",
     "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642 --cors=*"

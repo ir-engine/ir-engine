@@ -27,13 +27,13 @@
     "config": "config/"
   },
   "engines": {
-    "yarn": ">= 0.18.0"
+    "node": ">= 16.3.0"
   },
   "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "dev": "concurrently \"cross-env NODE_ENV=development ts-eager src/index.ts\" \"cd ../gameserver && yarn dev\" \"yarn serve-local-files\"",
-    "dev-windows": "concurrently -i \"cross-env NODE_ENV=development nodemon --watch src/** -r ts-eager/register src/index.ts\" \"cd ../gameserver && cross-env NODE_ENV=development nodemon --watch src/** -r ts-eager/register src/index.ts\" \"yarn serve-local-files\"",
+    "dev": "concurrently \"cross-env NODE_ENV=development ts-eager src/index.ts\" \"cd ../gameserver && npm dev\" \"npm serve-local-files\"",
+    "dev-windows": "concurrently -i \"cross-env NODE_ENV=development nodemon --watch src/** -r ts-eager/register src/index.ts\" \"cd ../gameserver && cross-env NODE_ENV=development nodemon --watch src/** -r ts-eager/register src/index.ts\" \"npm serve-local-files\"",
     "start": "cross-env NODE_ENV=production ts-eager src/index.ts",
     "dev-api-server": "ts-eager src/index.ts",
     "dev-api-server-nossl": "cross-env NOSSL=true ts-eager src/index.ts",
@@ -42,7 +42,7 @@
     "dev-reinit-db-windows": "concurrently -i \"cross-env NODE_ENV=development FORCE_DB_REFRESH=true nodemon --watch src/** -r ts-eager/register src/index.ts\" \"cd ../gameserver && cross-env NODE_ENV=development nodemon --watch src/** -r ts-eager/register src/index.ts\"",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "lint": "eslint --fix --ext \"**/*.js\" \"**/*.ts\"",
-    "validate": "yarn run lint && yarn run build && yarn run test",
+    "validate": "npm run lint && npm run build && npm run test",
     "precommit": "no-master-commits -b master,dev",
     "upload-avatar": "node ./scripts/upload-avatar.js",
     "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642 --cors=*"
