@@ -310,17 +310,17 @@ export class ClientNetworkStateSystem extends System {
         }
 
         transformState.ikTransforms?.forEach((ikTransform: StateEntityIK) => {
-          if (!Network.instance.networkObjects[ikTransform.networkId]) return console.warn('entity not found...', Network.instance.networkObjects[ikTransform.networkId]);
+          if (!Network.instance.networkObjects[ikTransform.networkId]) return;
           const entity = Network.instance.networkObjects[ikTransform.networkId].component.entity;
           const actor = getComponent(entity, CharacterComponent);
           const ikComponent = getMutableComponent(entity, IKComponent);
           if (!ikComponent) {
             // initiate IK on this user and then wait until next frame for rig to be created
             initiateIK(entity)
-            return console.log('making IK rig for guy');
+            return;
           }
           const ikRigComponent = getMutableComponent(entity, IKRigComponent);
-          if(!ikRigComponent.avatarIKRig) return console.log('no ik rig yet');
+          if(!ikRigComponent.avatarIKRig) return;
           const { hmd, left, right } = ikTransform;
           ikRigComponent.avatarIKRig.inputs.hmd.position.set(hmd.x, hmd.y, hmd.z);
           ikRigComponent.avatarIKRig.inputs.hmd.quaternion.set(hmd.qX, hmd.qY, hmd.qZ, hmd.qW);
