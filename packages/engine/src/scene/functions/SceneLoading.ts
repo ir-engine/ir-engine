@@ -36,7 +36,7 @@ import { setPostProcessing } from "../behaviors/setPostProcessing";
 import { CameraSystem } from "../../camera/systems/CameraSystem";
 import { CopyTransformComponent } from "../../transform/components/CopyTransformComponent";
 import { setReflectionProbe } from '../behaviors/setReflectionProbe';
-import PersistTagComponent from '../components/PersistTagComponent';
+import { PersistTagComponent } from '../components/PersistTagComponent';
 
 
 export class WorldScene {

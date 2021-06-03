@@ -10,6 +10,7 @@ import { handleGamepadConnected, handleGamepadDisconnected } from "../behaviors/
 import { InputType } from '../enums/InputType';
 import { MouseInput, GamepadButtons, TouchInputs } from '../enums/InputEnums';
 import { ClientInputSystem } from "../systems/ClientInputSystem";
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
 
 const touchSensitive = 2;
 let prevTouchPosition: [number, number] = [0, 0];
@@ -548,6 +549,7 @@ const handleVisibilityChange = (args: { event: Event; }) => {
       }
     })
   }
+  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.WINDOW_FOCUS, focused: document.visibilityState === 'visible' });
 }
 
 /**

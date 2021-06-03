@@ -87,15 +87,24 @@ export function Timer (
     }
 
     delta = (time - lastTime) / 1000;
+
     if (fixedRunner) {
       tpsSubMeasureStart('fixed');
-      fixedRunner.run(delta);
+      callbacks.fixedUpdate(delta);
+
+      // accumulator doesn't like setInterval on client, disable for now
+      // fixedRunner.run(delta);
+
       tpsSubMeasureEnd('fixed');
     }
 
     if (networkRunner) {
       tpsSubMeasureStart('net');
-      networkRunner.run(delta);
+      callbacks.networkUpdate(delta);
+
+      // accumulator doesn't like setInterval on client, disable for now
+      // networkRunner.run(delta);
+
       tpsSubMeasureEnd('net');
     }
   }
@@ -114,7 +123,9 @@ export function Timer (
       const updateFrame = !freeUpdatesLimit || freeUpdatesTimer > freeUpdatesLimitInterval;
       if (updateFrame) {
         if (callbacks.update) {
+          tpsSubMeasureStart('update');
           callbacks.update(frameDelta, accumulated);
+          tpsSubMeasureEnd('update');
         }
 
         if (freeUpdatesLimit) {
@@ -276,6 +287,7 @@ export class FixedStepsRunner {
     let updatesLimitReached = updatesCount > this.updatesLimit;
     while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
       this.callback(this.accumulator);
+      console.log(this.accumulator)
 
       this.accumulator -= this.timestep;
       ++updatesCount;
