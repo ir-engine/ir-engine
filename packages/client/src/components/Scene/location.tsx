@@ -332,16 +332,16 @@ export const EnginePage = (props: Props) => {
 
     if(!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
 
-    await new Promise<void>((resolve) => {
+    const connectPromise = new Promise<void>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async ({ worldState }: { worldState: WorldStateInterface}) => {
         const localClient = worldState.clientsConnected.find((client) => { 
           return client.userId === Network.instance.userId;
-        })
+        });
         AssetLoader.load({ url: localClient.avatarDetail.avatarURL }, resolve);
       });
     });
 
-    await new Promise<void>((resolve) => {
+    const sceneLoadPromise= new Promise<void>((resolve) => {
       WorldScene.load(sceneData, () => {
         setProgressEntity(0);
         store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
@@ -349,6 +349,8 @@ export const EnginePage = (props: Props) => {
         resolve();
       }, onSceneLoadedEntity);
     });
+
+    await Promise.all([connectPromise, sceneLoadPromise]);
 
     const worldState = await new Promise<any>(async (resolve) => {
       if(Config.publicRuntimeConfig.offlineMode) {
