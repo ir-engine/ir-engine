@@ -6,17 +6,7 @@ import type { MessageQueue } from "../../worker/MessageQueue";
  */
 const EVENTS = {
 
-<<<<<<< HEAD
-  // INITALIZATION
-  INITIALIZED_ENGINE: 'CORE_INITIALIZED_ENGINE',
-  CONNECT_TO_WORLD: 'CORE_CONNECT_TO_WORLD',
-  CONNECT_TO_WORLD_TIMEOUT: 'CORE_CONNECT_TO_WORLD_TIMEOUT',
-  JOINED_WORLD: 'CORE_JOINED_WORLD',
-  LEAVE_WORLD: 'CORE_LEAVE_WORLD',
 
-  LOAD_SCENE: 'CORE_LOAD_SCENE',
-  SCENE_LOADED: 'CORE_SCENE_LOADED',
-=======
   // TODO: add doc formatting to these
 
   // INITALIZATION
@@ -26,7 +16,7 @@ const EVENTS = {
   JOINED_WORLD: 'CORE_JOINED_WORLD', // { worldState: WorldStateInterface }
   LEAVE_WORLD: 'CORE_LEAVE_WORLD', // { }
   SCENE_LOADED: 'CORE_SCENE_LOADED', // { }
->>>>>>> dev
+
 
   // Start or stop client side physics & rendering
   ENABLE_SCENE: 'CORE_ENABLE_SCENE', // { renderer: boolean, physics: boolean }

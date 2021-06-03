@@ -6,10 +6,6 @@ import { ColliderComponent } from '../../../../physics/components/ColliderCompon
 import { RigidBodyComponent } from '../../../../physics/components/RigidBody';
 import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject';
 import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants';
-<<<<<<< HEAD
-import { UserControlledColliderComponent } from '../../../../physics/components/UserControllerObjectComponent';
-=======
->>>>>>> dev
 import { Group, Mesh, Vector3 } from 'three';
 import { AssetLoader } from '../../../../assets/classes/AssetLoader';
 import { Engine } from '../../../../ecs/classes/Engine';
@@ -25,8 +21,6 @@ import { NetworkObject } from '../../../../networking/components/NetworkObject';
 import { Network } from '../../../../networking/classes/Network';
 import { addActionComponent } from '../../../functions/functionsActions';
 import { Action, State } from '../../../types/GameComponents';
-<<<<<<< HEAD
-=======
 import { getGame } from '../../../functions/functions';
 import { MathUtils } from 'three';
 
@@ -89,7 +83,6 @@ export const spawnBall = (entityPlayer: Entity): void => {
     parameters: JSON.stringify(parameters).replace(/"/g, '\''),
   })
 };
->>>>>>> dev
 
 /**
 * @author Josh Field <github.com/HexaField>
@@ -146,10 +139,6 @@ export const initializeGolfBall = (ballEntity: Entity) => {
   const ownerNetworkObject = Object.values(Network.instance.networkObjects).find((obj) => {
     return obj.ownerId === networkObject.ownerId;
   }).component;
-<<<<<<< HEAD
-  addComponent(ballEntity, UserControlledColliderComponent, { ownerNetworkId: ownerNetworkObject.networkId });
-=======
->>>>>>> dev
 
   if (isClient) {
     AssetLoader.load({
@@ -185,9 +174,7 @@ export const initializeGolfBall = (ballEntity: Entity) => {
   collider.body = body;
 }
 
-<<<<<<< HEAD
-export const createGolfBallPrefab = (args: { parameters?: any, networkId?: number, uniqueId: string, ownerId?: string }) => {
-=======
+
 type GolfBallSpawnParameters = {
   gameName: string;
   role: string;
@@ -197,7 +184,6 @@ type GolfBallSpawnParameters = {
 }
 
 export const createGolfBallPrefab = (args: { parameters?: GolfBallSpawnParameters, networkId?: number, uniqueId: string, ownerId?: string }) => {
->>>>>>> dev
   console.log('createGolfBallPrefab', args.parameters)
   initializeNetworkObject({
     prefabType: GolfPrefabTypes.Ball,

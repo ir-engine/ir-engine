@@ -87,23 +87,7 @@ export function Timer (
     }
 
     delta = (time - lastTime) / 1000;
-<<<<<<< HEAD
-    if (fixedRunner) {
-      tpsSubMeasureStart('fixed');
-      fixedRunner.run(delta);
-      tpsSubMeasureEnd('fixed');
-    }
 
-    if (networkRunner) {
-      tpsSubMeasureStart('net');
-      networkRunner.run(delta);
-      tpsSubMeasureEnd('net');
-    }
-  }
-
-  function onFrame (time) {
-
-=======
 
     if (fixedRunner) {
       tpsSubMeasureStart('fixed');
@@ -128,7 +112,6 @@ export function Timer (
 
   function onFrame (time) {
 
->>>>>>> dev
     frameId = window.requestAnimationFrame(onFrame);
 
     if (lastAnimTime !== null) {
@@ -141,13 +124,9 @@ export function Timer (
       const updateFrame = !freeUpdatesLimit || freeUpdatesTimer > freeUpdatesLimitInterval;
       if (updateFrame) {
         if (callbacks.update) {
-<<<<<<< HEAD
-          callbacks.update(frameDelta, accumulated);
-=======
           tpsSubMeasureStart('update');
           callbacks.update(frameDelta, accumulated);
           tpsSubMeasureEnd('update');
->>>>>>> dev
         }
 
         if (freeUpdatesLimit) {

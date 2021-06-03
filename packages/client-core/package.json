@@ -7,12 +7,12 @@
     "url": "git://github.com/XRFoundation/XREngine.git"
   },
   "engines": {
-    "yarn": ">= 0.18.0"
+    "node": ">= 16.0.0"
   },
   "publishConfig": {
     "access": "public"
   },
-  "npmClient": "yarn",
+  "npmClient": "npm",
   "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",

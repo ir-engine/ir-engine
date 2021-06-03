@@ -6,11 +6,7 @@ import { now } from "../../common/functions/now";
 import { Network } from "../../networking/classes/Network";
 import { Vault } from "../../networking/classes/Vault";
 import disposeScene from "../../renderer/functions/disposeScene";
-<<<<<<< HEAD
-import PersistTagComponent from "../../scene/components/PersistTagComponent";
-=======
-import { PersistTagComponent } from "../../scene/components/PersistTagComponent";
->>>>>>> dev
+import { PersistTagComponent }  from "../../scene/components/PersistTagComponent";
 import { Engine } from '../classes/Engine';
 import { System } from '../classes/System';
 import { hasComponent, removeAllComponents, removeAllEntities, removeEntity } from "./EntityFunctions";
