@@ -1,22 +1,21 @@
-import { initializeEngineServer } from "./initializeEngineServer";
-import { DefaultNetworkSchema } from "@xrengine/engine/src/networking/templates/DefaultNetworkSchema";
-import { SocketWebRTCServerTransport } from "./SocketWebRTCServerTransport";
-import config from '@xrengine/server-core/src/appconfig';
-
 // Patch XHR for FileLoader in threejs
 import { XMLHttpRequest } from 'xmlhttprequest';
+import { initializeEngine } from "@xrengine/engine/src/initializeEngine";
+import { NetworkSchema } from "@xrengine/engine/src/networking/interfaces/NetworkSchema";
+import config from '@xrengine/server-core/src/appconfig';
+import { SocketWebRTCServerTransport } from "./SocketWebRTCServerTransport";
+import { EngineSystemPresets } from '@xrengine/engine/src/DefaultInitializationOptions';
+
 (globalThis as any).XMLHttpRequest = XMLHttpRequest;
 
-const networkSchema = {
-  ...DefaultNetworkSchema,
-  transport: SocketWebRTCServerTransport
-};
-
 const options = {
+  type: EngineSystemPresets.SERVER,
   networking: {
-    schema: networkSchema,
+    schema: {
+      transport: SocketWebRTCServerTransport
+    } as NetworkSchema,
+    publicPath: config.client.url
   },
-  publicPath: config.client.url
 };
 
 export class WebRTCGameServer {
@@ -26,6 +25,6 @@ export class WebRTCGameServer {
     WebRTCGameServer.instance = this;
   }
   initialize() {
-    return initializeEngineServer(options);
+    return initializeEngine(options);
   }
 }

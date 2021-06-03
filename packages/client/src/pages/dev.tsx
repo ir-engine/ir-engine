@@ -1,4 +1,4 @@
-import { initializeEngine } from '@xrengine/client-core/src/initialize';
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine';
 import { CharacterInputSchema } from '@xrengine/engine/src/character/CharacterInputSchema';
 import React, { useEffect } from 'react';
 
@@ -10,10 +10,14 @@ const LocationPage = () => {
       input: {
         schema: CharacterInputSchema,
       },
-      publicPath: '',
-      useOfflineMode: true,
-      useCanvas: false,
-      postProcessing: false
+      networking: {
+        publicPath: '',
+        useOfflineMode: true,
+      },
+      renderer: {
+        disabled: true,
+        postProcessing: false,
+      }
     };
 
     initializeEngine(InitializationOptions);

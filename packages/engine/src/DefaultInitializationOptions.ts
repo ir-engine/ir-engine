@@ -7,26 +7,34 @@ import { NetworkSchema } from './networking/interfaces/NetworkSchema';
 import { GameMode } from './game/types/GameMode';
 import { PhysXConfig } from 'three-physx';
 
+export enum EngineSystemPresets {
+  CLIENT,
+  EDITOR,
+  SERVER,
+}
+
 export type InitializeOptions = {
+  type?: EngineSystemPresets,
   input?: {
+    disabled?: boolean,
     schema: InputSchema,
   },
   networking?: {
-    schema: NetworkSchema,
+    schema?: NetworkSchema,
     app?: any;
+    publicPath?: string,
+    useOfflineMode?: boolean,
   },
+  renderer?: {
+    canvasId?: string,
+    disabled?: boolean,
+    postProcessing?: boolean,
+  },
+  gameMode?: GameMode,
   supportedGameModes?: {
     [key: string]: GameMode
   },
-  renderer?: {
-    canvas?: HTMLCanvasElement
-  },
-  gameMode?: GameMode,
-  publicPath?: string,
-  useOfflineMode?: boolean,
-  useCanvas?: boolean,
-  postProcessing?: boolean,
-  physicsWorldConfig?: PhysXConfig
+  physicsWorldConfig?: PhysXConfig,
 };
 
 /**
@@ -35,19 +43,22 @@ export type InitializeOptions = {
  * If you just want to start up multiplayer worlds, use this.
  * Otherwise you should copy this into your own into your initializeEngine call.
  */
-
 export const DefaultInitializationOptions: InitializeOptions = {
+  type: EngineSystemPresets.CLIENT,
   input: {
+    disabled: false,
     schema: CharacterInputSchema,
   },
   networking: {
-    schema: DefaultNetworkSchema
+    schema: DefaultNetworkSchema,
+    publicPath: '',
+    useOfflineMode: false,
   },
-  supportedGameModes: GamesSchema,
+  renderer: {
+    disabled: false,
+    postProcessing: true,
+  },
   gameMode: DefaultGameMode,
-  publicPath: '',
-  useOfflineMode: false,
-  useCanvas: true,
-  postProcessing: true,
+  supportedGameModes: GamesSchema,
   physicsWorldConfig: undefined
 };

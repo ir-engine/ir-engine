@@ -189,7 +189,10 @@ export abstract class System {
   /** Execute Method definition. */
   execute? (delta: number, time: number): void
 
-  async initialize(): Promise<any> { return; }
+  async initialize(): Promise<any> {
+    this.initialized = true;
+    return;
+  }
 
   /**
    * Initializes system

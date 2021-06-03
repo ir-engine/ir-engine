@@ -31,14 +31,13 @@ import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { processLocationPort, resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { getComponent, getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
-import { initializeEngine } from '@xrengine/client-core/src/initialize';
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine';
 import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema';
 import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
-import { styleCanvas } from '@xrengine/engine/src/renderer/functions/styleCanvas';
 import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent';
 import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
@@ -71,6 +70,15 @@ const initialRefreshModalValues = {
   action: async() => {},
   parameters: []
 };
+
+const canvasStyle = {
+  zIndex: 0,
+  width: '100%',
+  height: '100%',
+  position: 'absolute',
+  webkitUserSelect: 'none',
+  userSelect: 'none',
+} as React.CSSProperties;
 
 // debug for contexts where devtools may be unavailable
 const consoleLog = [];
@@ -312,18 +320,15 @@ export const EnginePage = (props: Props) => {
     }
 
     if (!Engine.isInitialized) {
-      const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
-      styleCanvas(canvas);
-  
       const InitializationOptions = {
-        publicPath: location.origin,
         networking: {
+          publicPath: location.origin,
           schema: {
             transport: SocketWebRTCClientTransport,
           } as NetworkSchema,
         },
         renderer: {
-          canvas,
+          canvasId: engineRendererCanvasId
         },
         useOfflineMode: Config.publicRuntimeConfig.offlineMode
       };
@@ -481,7 +486,7 @@ export const EnginePage = (props: Props) => {
       {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
       <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); setInputEnabled(true); }} data={infoBoxData} />
       <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); setInputEnabled(true); }} data={openLinkData} />
-      <canvas id={engineRendererCanvasId} width='100%' height='100%' />
+      <canvas id={engineRendererCanvasId} style={canvasStyle} />
       {mobileGamepad}
       <WarningRefreshModal
           open={warningRefreshModalValues.open}

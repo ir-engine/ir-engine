@@ -178,6 +178,7 @@ export class WebGLRendererSystem extends System {
   }
 
   async initialize() {
+    super.initialize();
     await this.loadGraphicsSettingsFromStorage();
     this.dispatchSettingsChangeEvent();
   }
