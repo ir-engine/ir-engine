@@ -102,10 +102,6 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
     let data: any = {};
     switch (this.skyOptionValue) {
       case "cubemap":
-        data = {
-          texture: this.textureOptionValue
-        };
-        break;
       case "equirectangular":
         data = {
           texture: this.textureOptionValue
