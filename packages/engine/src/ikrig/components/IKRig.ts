@@ -1,5 +1,6 @@
 import { Vector3 } from "three";
 import { Component } from "../../ecs/classes/Component";
+import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import Pose from "../classes/Pose";
 import { FORWARD, UP } from "../math/Vector3Constants";
 import Armature from "./Armature";
@@ -16,26 +17,27 @@ class IKRig extends Component<IKRig>{
 	applyPose() { this.pose.apply(); }
 
 	addPoint(name, boneName) {
+		const armature = getMutableComponent(this.entity, Armature);
 		this.points[name] = {
-			index: this.armature.skeleton.bones.findIndex(bone => bone.name.includes(boneName))
+			index: armature.skeleton.bones.findIndex(bone => bone.name.includes(boneName))
 		};
 		return this;
 	}
 
-	addChain(name, nameArray, end_name=null) { //  axis="z",		
+	addChain(name, nameArray, end_name = null) { //  axis="z",		
 		let i, b;
+		const armature = getMutableComponent(this.entity, Armature);
 
 		const chain = new Chain(); // axis
 		for (i of nameArray) {
-			const index = this.armature.skeleton.bones.findIndex(bone => bone.name.includes(i));
-			console.log("Index is", index);
-			const bone = this.armature.skeleton.bones[index];
+			const index = armature.skeleton.bones.findIndex(bone => bone.name.includes(i));
+			const bone = armature.skeleton.bones[index];
 			bone.index = index;
 
 
-			bone.length = bone.children.length > 0 ? bone.localToWorld(bone.position).distanceTo(bone.localToWorld(bone.children[0].position)) : .3; 
+			bone.length = bone.children.length > 0 ? bone.localToWorld(bone.position).distanceTo(bone.localToWorld(bone.children[0].position)) : .3;
 
-			
+
 			const o = { index, ref: bone, length: bone.length };
 
 			chain.bones.push(o);
@@ -45,12 +47,12 @@ class IKRig extends Component<IKRig>{
 
 		// //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		if (end_name) {
-			chain.end_idx = this.armature.skeleton.bones.indexOf(this.pose.getBone(end_name));
+			chain.end_idx = armature.skeleton.bones.indexOf(this.pose.getBone(end_name));
 		}
 
 		this.chains[name] = chain;
 		return this;
-	}	
+	}
 }
 
 
@@ -98,7 +100,7 @@ class Chain {
 
 	computeLengthFromBones(bones) {
 		const end = this.cnt - 1;
-		let	sum = 0,
+		let sum = 0,
 			b, i;
 		const boneWorldPosition = new Vector3(),
 			childWorldPosition = new Vector3();
@@ -110,7 +112,7 @@ class Chain {
 			this.bones[i].ref.getWorldPosition(boneWorldPosition);
 			this.bones[i + 1].ref.getWorldPosition(childWorldPosition);
 
-			b.length = boneWorldPosition.distanceTo( childWorldPosition );
+			b.length = boneWorldPosition.distanceTo(childWorldPosition);
 
 			sum += b.length;
 		}
@@ -121,7 +123,7 @@ class Chain {
 			bones[this.end_idx].getWorldPosition(boneWorldPosition);
 			this.bones[i].ref.getWorldPosition(childWorldPosition);
 
-			b.length = boneWorldPosition.distanceTo( childWorldPosition );
+			b.length = boneWorldPosition.distanceTo(childWorldPosition);
 			sum += b.length;
 		} else console.warn("Recompute Chain Len, End Index is missing");
 

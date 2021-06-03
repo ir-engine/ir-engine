@@ -1,9 +1,8 @@
 import { Component } from "@xrengine/engine/src/ecs/classes/Component";
 import IKTarget from "@xrengine/engine/src/ikrig/components/IKTarget";
-import Transform from "@xrengine/engine/src/ikrig/math/Transform";
 import { FORWARD, UP } from "@xrengine/engine/src/ikrig/math/Vector3Constants";
-import { Quaternion, Vector3 } from "three";
-import { Debug } from "./ikrig";
+import { Bone, Quaternion, Vector3 } from "three";
+import { Debug } from ".";
 
 // Hold the IK Information, then apply it to a Rig
 function LawCosinesSSS( aLen, bLen, cLen ){
@@ -44,22 +43,22 @@ export class IKPose extends Component<IKPose> {
 	head = { lookDirection: new Vector3(), twistDirection: new Vector3() };
 
 	applyRig(rig) {
-		// this.applyHip(rig);
+		this.applyHip(rig);
 
-		// this.applyLimb(rig, rig.chains.leg_l, this.leg_l);
-		// this.applyLimb(rig, rig.chains.leg_r, this.leg_r);
+		this.applyLimb(rig, rig.chains.leg_l, this.leg_l);
+		this.applyLimb(rig, rig.chains.leg_r, this.leg_r);
 
-		// this.applyLookTwist(rig, rig.points.foot_l, this.foot_l, FORWARD, UP);
-		// this.applyLookTwist(rig, rig.points.foot_r, this.foot_r, FORWARD, UP);
+		this.applyLookTwist(rig, rig.points.foot_l, this.foot_l, FORWARD, UP);
+		this.applyLookTwist(rig, rig.points.foot_r, this.foot_r, FORWARD, UP);
 
-		// this.applySpline(rig, rig.chains.spine, this.spine, UP, FORWARD);
+		this.applySpine(rig, rig.chains.spine, this.spine, UP, FORWARD);
 
 		if (rig.chains.arm_l)
 			this.applyLimb(rig, rig.chains.arm_l, this.arm_l);
 		if (rig.chains.arm_r)
 			this.applyLimb(rig, rig.chains.arm_r, this.arm_r);
 
-		// this.applyLookTwist(rig, rig.points.head, this.head, FORWARD, UP);
+		this.applyLookTwist(rig, rig.points.head, this.head, FORWARD, UP);
 	}
 
 	applyHip(rig) {
@@ -67,10 +66,10 @@ export class IKPose extends Component<IKPose> {
 		console.log(rig);
 		console.log("Rig points are");
 		console.log(rig.points);
-
 		// First step is we need to get access to the Rig's TPose and Pose Hip Bone.
 		// The idea is to transform our Bind Pose into a New Pose based on IK Data
 		let boneInfo = rig.points.hip;
+		if(!boneInfo) return console.warn("boneInfo is null");
 		console.log("boneInfo is", boneInfo);
 		let
 			bind = rig.tpose.bones[boneInfo.index],
@@ -184,30 +183,19 @@ export class IKPose extends Component<IKPose> {
 			
 			// TODO: Is this the right mult order?
 			const t= tpose.bones[chain.first()];
-			console.log("tpose.bones[chain.first()] is", tpose.bones[chain.first()])
 			const tq = tpose.bones[chain.first()].quaternion;
-			console.log("tq is", tq);
 	
 			let rot	= p_wt.quaternion.multiply(tq )
 	
-			console.log("rot is ", rot);
-	
-			console.log("chain.alt_fwd is", chain.alt_fwd);
-	
-			console.log('chain is', chain);
 			//Swing
 			let dir = new Vector3().copy(chain.alt_fwd);
-			console.log("dir is", dir)
-			console.log("this.axis is", this.target.axis)
 	
 			dir = dir.applyQuaternion(rot);					// Get Bone's WS Forward Dir
 	
 			// TODO: Check the original reference and make sure this is valid
 			const q = new Quaternion();
 			q.setFromUnitVectors(dir, this.target.axis.z);
-			console.log("q is ", q);
 			quaternion = q.multiply(rot);
-			console.log("quaternion is", quaternion)
 	
 			dir = new Vector3().copy(chain.alt_up).applyQuaternion( quaternion);				// After Swing, Whats the UP Direction
 			let twist = dir.angleTo(this.target.axis.y);	// Get difference between Swing Up and Target Up
@@ -229,27 +217,50 @@ export class IKPose extends Component<IKPose> {
 			this.target.tempQ = this.target.tempQ.premultiply(p_wt.quaternion.inverse());							// Convert to Bone's Local Space by multiply invert of parent bone quaternion
 	
 			pose.setBone(bind_a.index, quaternion);						// Save result to bone.
-			// pose_a.world											// Update World Data for future use
-			// 	.copy(p_wt)
-			// 	.add(quaternion, bind_a.position, bind_a.scale);
-	
+
+			// TODO
+			// Transform.add handles this with some positional magic
+			this.add(pose_a, p_wt.position, p_wt.quaternion, p_wt.scale);
+
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// SECOND BONE
 			// Need to rotate from Right to Left, So take the angle and subtract it from 180 to rotate from 
 			// the other direction. Ex. L->R 70 degrees == R->L 110 degrees
 			rad = Math.PI - LawCosinesSSS(aLen, bLen, cLen);
 	
-			// quaternion = pose_a.quaternion.multiply(bind_b.quaternion)		// Add Bone 2's Local Bind Rotation to Bone 1's new World Rotation.
-			// 	.premultiplyAxisAngle(this.target.axis.x, rad)				// Rotate it by the target's x-axis
-			// 	.premultiplyInvert(pose_a.quaternion);					// Convert to Bone's Local Space
+			quaternion = pose_a.quaternion.multiply(bind_b.quaternion)		// Add Bone 2's Local Bind Rotation to Bone 1's new World Rotation.
+			// TODO: remove alloc
+			.premultiply(new  Quaternion().setFromAxisAngle(this.target.axis.x, rad))				// Rotate it by the target's x-axis
+			
+			.premultiply(pose_a.quaternion.invert());					// Convert to Bone's Local Space
 	
-			// pose.setBone(bind_b.index, quaternion);						// Save result to bone.
-			// pose_b.world											// Update World Data for future use
-			// 	.copy(pose_a.world)
-			// 	.add(quaternion, bind_b.local.position, bind_b.local.scale);
+			pose.setBone(bind_b.index, quaternion);	
+			
+			pose_b.position.copy(pose_a.position);
+			pose_b.quaternion.copy(pose_a.quaternion);
+			pose_b.scale.copy(pose_a.scale);
 
-
+			this.add(pose_b, quaternion, bind_b.position, bind_b.scale);
 	}
+
+	// Computing Transforms, Parent -> Child
+	add(t, cr, cp?, cs = null) {
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
+		// TODO: Multiplied in proper order?
+		t.position.set(t.position.add(t.scale.multiply(cp).applyQuaternion(t.quaternion)));
+		t.scale.multiply(cs);
+		t.quaternion.multiply(cr);
+
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// SCALE - parent.scale * child.scale
+
+		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		// ROTATION - parent.quaternion * child.quaternion
+
+		return t;
+	}
+
 
 	applyLookTwist(rig, boneInfo, ik, lookDirection, twistDirection) {
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -261,7 +272,7 @@ export class IKPose extends Component<IKPose> {
 			pose = rig.pose.bones[boneInfo.index];
 
 		let parentRotation = rig.pose.getParentRotation(boneInfo.index);
-		let childRotation = parentRotation.multiply(bind.local.quaternion);
+		let childRotation = parentRotation.multiply(bind.quaternion);
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Next we need to get the Foot's Quaternion Inverse Direction
@@ -346,17 +357,26 @@ export class IKPose extends Component<IKPose> {
 		this.target.length = distance;
 	}
 
-	applySpline(rig, chain, ik, lookDirection, twistDirection) {
-		// For the spline, we have the start and end IK directions. Since spines can have various
+	tempV = new Vector3();
+
+	applySpine(rig, chain, ik, lookDirection, twistDirection) {
+		// For the spine, we have the start and end IK directions. Since spines can have various
 		// amount of bones, the simplest solution is to lerp from start to finish. The first
 		// spine bone is important to control offsets from the hips, and the final one usually
 		// controls the chest which dictates where the arms and head are going to be located.
 		// Anything between is how the spine would kind of react.
 		// Since we are building up the Skeleton, We look at the pose object to know where the Hips
 		// currently exist in World Space.
+
+		console.log("chain.first()", chain.first());
+		console.log("rig.pose.bones", rig.pose.bones);
+		const bone = rig.pose.bones[chain.first()];
+		const boneParent = bone.parent;
+		(boneParent as Bone).getWorldPosition(this.tempV);
+
 		let cnt = chain.cnt - 1,
-			parentTransform = rig.pose.getParentWorld(chain.first()),
-			childTransform = new Transform(),
+			parentTransform = boneParent,
+			childTransform = bone,
 			ikLook = new Vector3(),
 			ikTwist = new Vector3(),
 			altLook = new Vector3(),
@@ -391,7 +411,30 @@ export class IKPose extends Component<IKPose> {
 			altTwist = twistDirection.applyQuaternion(quat);
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			childTransform.setFromAdd(parentTransform, bind); // Get bone in WS that has yet to have any rotation applied
+			// Get bone in WS that has yet to have any rotation applied
+			// childTransform.setFromAdd(parentTransform, bind);
+			
+			const parent = parentTransform;
+			const child = bind;
+
+			console.log("parent, child", parent, child)
+			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			// POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
+			// TODO: Make sure this matrix isn't flipped
+			const v: Vector3 = parent.scale.multiply(child.position); // parent.scale * child.position;
+			v.applyQuaternion(parent.quaternion); //Vec3.transformQuat( v, tp.quaternion, v );
+			childTransform.position.set(parent.position.add(v)); // Vec3.add( tp.position, v, this.position );
+	
+			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			// SCALE - parent.scale * child.scale
+			// TODO: not flipped, right?
+			childTransform.scale.set(parent.scale.multiply(child.scale));
+	
+			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			// ROTATION - parent.quaternion * child.quaternion
+			childTransform.quaternion.set(parent.quaternion.multiply(child.quaternion));
+
+			
 			currentLook = altLook.applyQuaternion(childTransform.quaternion); // What direction is the bone point looking now, without any extra rotation
 
 			rotation
@@ -408,7 +451,7 @@ export class IKPose extends Component<IKPose> {
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			rig.pose.setBone(index, rotation); // Save back to pose
 			if (t != 1)
-				parentTransform.add(rotation, bind.local.position, bind.local.scale); // Compute the WS Transform for the next bone in the chain.
+				this.add(parentTransform, rotation, bind.position, bind.scale); // Compute the WS Transform for the next bone in the chain.
 		}
 	}
 }
