@@ -6,6 +6,7 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { envmapPhysicalParsReplace, worldposReplace } from '../../editor/nodes/helper/BPCEMShader';
 import CubemapCapturer from '../../editor/nodes/helper/CubemapCapturer';
 import { ReflectionProbeSettings, ReflectionProbeTypes } from '../../editor/nodes/ReflectionProbeNode';
+import { MaterialSystem } from '../systems/MaterialSystem';
 
 export const setReflectionProbe: Behavior = (entity, args: {}) => {
 
@@ -35,33 +36,35 @@ export const setReflectionProbe: Behavior = (entity, args: {}) => {
         break;
     }
 
+    MaterialSystem.instance.bpcemOptions["probeScale"]={x:10,y:10,z:10};//options.probeScale;
+    MaterialSystem.instance.bpcemOptions["probePositionOffset"]=options.probePositionOffset;
 
-      Engine.entities.forEach(entity=>{
-        if(entity.components){
-            Object.values(entity.components).forEach((element)=>{
-              if((element as any).value){
-                const mat=(element as any).value.material;
-                if(mat){
-                  mat.envMapIntensity=options.intensity;
-                  mat.onBeforeCompile = function ( shader ) {
-                      shader.uniforms.cubeMapSize = { value: {x:10,y:10,z:10}};//options.probeScale};
-                      shader.uniforms.cubeMapPos = { value: options.probePositionOffset};
-                      shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader;
-                      shader.vertexShader = shader.vertexShader.replace(
-                          '#include <worldpos_vertex>',
-                          worldposReplace
-                      );
-                      shader.fragmentShader = shader.fragmentShader.replace(
-                          '#include <envmap_physical_pars_fragment>',
-                          envmapPhysicalParsReplace
-                      );
-                }
-                  console.log("Material is found");
-              }
-          }
-      });
-    }
-      });
+    //   Engine.entities.forEach(entity=>{
+    //     if(entity.components){
+    //         Object.values(entity.components).forEach((element)=>{
+    //           if((element as any).value){
+    //             const mat=(element as any).value.material;
+    //             if(mat){
+    //               mat.envMapIntensity=options.intensity;
+    //               mat.onBeforeCompile = function ( shader ) {
+    //                   shader.uniforms.cubeMapSize = { value: {x:10,y:10,z:10}};//options.probeScale};
+    //                   shader.uniforms.cubeMapPos = { value: options.probePositionOffset};
+    //                   shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader;
+    //                   shader.vertexShader = shader.vertexShader.replace(
+    //                       '#include <worldpos_vertex>',
+    //                       worldposReplace
+    //                   );
+    //                   shader.fragmentShader = shader.fragmentShader.replace(
+    //                       '#include <envmap_physical_pars_fragment>',
+    //                       envmapPhysicalParsReplace
+    //                   );
+    //             }
+    //               console.log("Material is found");
+    //           }
+    //       }
+    //   });
+    // }
+    //   });
   }
 }
   
