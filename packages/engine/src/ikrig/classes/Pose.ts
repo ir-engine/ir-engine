@@ -1,77 +1,85 @@
-import { Quaternion, Skeleton, SkeletonHelper } from "three";
-import { SkeletonUtils } from "../../character/SkeletonUtils";
-import { Engine } from "../../ecs/classes/Engine";
+import { Object3D, Quaternion, Skeleton, Vector3 } from "three";
+import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import Armature from "../components/Armature";
 import Transform from "../math/Transform";
 
 class Pose {
-	static ROTATION: any;
-	static POSITION: any;
-	static SCALE: any;
-	armature: any;
+	static ROTATION: any = 1;;
+	static POSITION: any = 2;;
+	static SCALE: any = 4;;
+
+	entity: any;
 	skeleton: Skeleton;
 	bones: any[];
-	root_offset: any;
+	rootOffset = {
+		quaternion: new Quaternion(),
+		position: new Vector3(0, 0, 0),
+		scale: new Vector3(1, 1, 1)
+	};
 	helper: any;
-	constructor(armature) {
-		this.armature = armature;
-									// Reference Back to Armature, Make Apply work Easily
+
+
+	constructor(entity) {
+		this.entity = entity;
+		const armature = getMutableComponent(entity, Armature);
 		this.skeleton = armature.skeleton.clone();	// Recreation of Bone Hierarchy
 		this.bones = this.skeleton.bones;
-		this.root_offset = new Transform();					// Parent Transform for Root Bone ( Skeletons from FBX imports need this to render right )
-		for(let i = 0; i < this.skeleton.bones.length; i++){
+		this.rootOffset = new Object3D();					// Parent Transform for Root Bone ( Skeletons from FBX imports need this to render right )
+		for (let i = 0; i < this.skeleton.bones.length; i++) {
 			this.skeleton.bones['index'] = i;
 		}
 	}
 
-	setOffset(quaternion = null, position = null, scale = null) { this.root_offset.set(quaternion, position, scale); return this; }
-
-	setBone(index, quaternion = null, position = null, scale = null) {
-		const b = this.bones[index];
-
-		// Set its Change State
-		if (quaternion) {
-			b.chg_state |= Pose.ROTATION;
-			b.quaternion.copy(quaternion);
-		}
-	
-		if (position) {
-			b.chg_state |= Pose.POSITION;
-			b.position.copy(position);
-		}
-
-		if (scale){
-			b.chg_state |= Pose.SCALE;
-			b.scale.copy(scale);
-		} 
+	setOffset(quaternion: Quaternion, position: Vector3, scale: Vector3) {
+		this.rootOffset.quaternion.copy(quaternion);
+		this.rootOffset.position.copy(position);
+		this.rootOffset.scale.copy(scale);
 		return this;
 	}
 
-	setState(index, quaternion = false, position = false, scale = false) {
-		const b = this.bones[index];
-		if (quaternion) b.chg_state |= Pose.ROTATION;
-		if (position) b.chg_state |= Pose.POSITION;
-		if (scale) b.chg_state |= Pose.SCALE;
+	setBone(index: number, quaternion?: Quaternion, position?: Vector3, scale?: Vector3) {
+		if(quaternion) this.bones[index].quaternion.copy(quaternion);
+		if(position) this.bones[index].position.copy(position);
+		if(scale) this.bones[index].scale.copy(scale);
 		return this;
 	}
 
-	getBone(bname) { 
+	getBone(bname) {
 		const index = this.bones.findIndex((b) => { return b.name.includes(bname) });
 		let bone = this.bones[index];
 		if (bone !== undefined) return bone;
 		bone = this.bones.find(b => {
-			if(b.name.includes(bname))
+			if (b.name.includes(bname))
 				return b;
 		});
 		return bone;
 	}
 
-	getLocalRotation(index) { return this.bones[index].quaternion; }
+	apply() {
+		// Copies modified Local Transforms of the Pose to the Bone Entities.
+		const armature = getMutableComponent(this.entity, Armature);
 
-	apply() { this.armature.loadPose(this); return this; }
+		let pb, // Pose Bone
+			o;	// Bone Object
 
+		for (let i = 0; i < armature.bones.length; i++) {
+			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			// Check if bone has been modified in the pose
+			pb = armature.bones[i];
+
+			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			// Copy changes to Bone Entity
+			o = this.bones[i];
+
+			o.quaternion.fromArray(pb.local.quaternion);
+			o.position.fromArray(pb.local.position);
+			o.scale.fromArray(pb.local.scale);
+		}
+
+		return this;
+	}
 
 	getParentWorld(boneIndex, t_offset = null) {
-
 		// The IK Solver takes transforms as input, not rotations.
 		// The first thing we need is the WS Transform of the start of the chain
 		// plus the parent's WS Transform. When are are building a full body IK
@@ -85,8 +93,8 @@ class Pose {
 		// length scale is based on the hip being at a certain height at the time.
 		let parentTransform = new Transform(),
 			childTransform = new Transform();
-			console.log("incomingBone is", boneIndex)
-console.log("this.bones is", this.bones);
+		console.log("incomingBone is", boneIndex)
+		console.log("this.bones is", this.bones);
 		let bone = this.bones[boneIndex];
 
 
@@ -102,18 +110,18 @@ console.log("this.bones is", this.bones);
 			while (bone.parent != null) {
 				bone = bone.parent;
 				console.log("Bone is", bone);
-				parentTransform.add_rev(bone);
+				parentTransform.addInReverseOrder(bone);
 			}
 		}
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-		parentTransform.add_rev(this.root_offset);				// Add Starting Offset
-		if (t_offset) parentTransform.add_rev(t_offset);		// Add Additional Starting Offset
+		parentTransform.addInReverseOrder(this.rootOffset);				// Add Starting Offset
+		if (t_offset) parentTransform.addInReverseOrder(t_offset);		// Add Additional Starting Offset
 		console.log('bone is ', bone)
 		childTransform.setFromAdd(parentTransform, bone);	// Requesting Child WS Info Too
 
-		return {childTransform, parentTransform};
+		return { childTransform, parentTransform };
 	}
 
 	getParentRotation(boneIndex, q = null) {
@@ -135,13 +143,11 @@ console.log("this.bones is", this.bones);
 		}
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		q.premultiply(this.root_offset.quaternion); // Add Starting Offset
+		q.premultiply(this.rootOffset.quaternion); // Add Starting Offset
 		return q;
 	}
 }
 
-Pose.ROTATION = 1;
-Pose.POSITION = 2;
-Pose.SCALE = 4;
+
 
 export default Pose;

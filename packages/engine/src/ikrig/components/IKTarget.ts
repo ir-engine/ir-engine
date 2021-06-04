@@ -3,9 +3,9 @@ import Axis from "../math/Axis";
 
 
 class IKTarget{
-	startPosition: Vector3 = new Vector3();
-	endPosition: Vector3 = new Vector3();
-	axis: Axis = new Axis();
+	startPosition: Vector3 = new Vector3(); // Start of chain (world space position of shoulder for an arm chain)
+	endPosition: Vector3 = new Vector3(); // Target position for chain to reach (end effector)
+	axis: Axis = new Axis(); // Axis of rotation toward the end position
 	length = 0;
 
 	fromPositionAndDirection(position: Vector3, dir: Vector3, up_dir: Vector3, lengthScale: number) {
@@ -14,15 +14,11 @@ class IKTarget{
 		console.log(position, dir, up_dir, lengthScale)
 		this.endPosition = dir.multiplyScalar( lengthScale)	// Compute End Effector
 			.add(position);
-		const length = position.distanceTo(this.endPosition)
+		this.length = position.distanceTo(this.endPosition)
 
 		this.axis.fromDirection(dir, up_dir); // Target Axis
 		return this;
 	}
-
-	tempQ = new Quaternion();
-
-	
 }
 
 export default IKTarget;

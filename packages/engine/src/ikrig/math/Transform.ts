@@ -77,7 +77,7 @@ class Transform extends Component<Transform>{
 	}
 
 	// Computing Transforms in reverse, Child - > Parent
-	add_rev(pr) {
+	addInReverseOrder(pr) {
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			console.log("pr", pr);
 			let pq = pr.quaternion;
@@ -88,15 +88,15 @@ class Transform extends Component<Transform>{
 		// // POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
 		// // The only difference for this func, We use the IN.scale & IN.quaternion instead of THIS.scale * THIS.quaternion
 		// // Consider that this Object is the child and the input is the Parent.
-		// this.position.multiply(ps).applyQuaternion(pq).add(pp);
+		this.position.multiply(ps).applyQuaternion(pq).add(pp);
 
 		// //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// // SCALE - parent.scale * child.scale
-		// if (ps) this.scale.multiply(ps);
+		this.scale.multiply(ps);
 
 		// //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// // ROTATION - parent.quaternion * child.quaternion
-		// this.quaternion.premultiply(pq); // Must Rotate from Parent->Child, need PMUL
+		this.quaternion.premultiply(pq); // Must Rotate from Parent->Child, need PMUL
 
 		return this
 	}
@@ -113,55 +113,6 @@ class Transform extends Component<Transform>{
 		this.scale.set(1, 1, 1);
 		this.quaternion.set(1,0,0,0);
 		return this;
-	}
-
-	transform_vec(v, out = null) {
-		//GLSL - vecQuatRotation(model.quaternion, a_position.xyz * model.scale) + model.position;
-		return (out || v)
-			.setFromMultiply(v, this.scale)
-			.applyQuaternion(this.quaternion)
-			.add(this.position);
-	}
-
-	dispose() {
-		delete this.position;
-		delete this.quaternion;
-		delete this.scale;
-	}
-
-	static add(tp, tc, tOut) {
-		tOut = tOut || new Transform();
-
-		tOut.position.setFromAdd(tp.position, new Vector3(tc.position).applyQuaternion(tp.quaternion));
-
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		// SCALE - parent.scale * child.scale
-		tOut.scale.setFromMultiply(tp.scale, tc.scale); //Vec3.multiply( tp.scale, tc.scale, tOut.scale );
-
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		// ROTATION - parent.quaternion * child.quaternion
-		tOut.quaternion.setFromMultiply(tp.quaternion, tc.quaternion); //Quat.multiply( tp.quaternion, tc.quaternion, tOut.quaternion );
-
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		return tOut;
-	}
-
-	static invert(t, inv) {
-		inv = inv || new Transform();
-
-		// Invert Rotation
-		t.quaternion.invert(inv.quaternion);
-
-		// Invert Scale
-		inv.scale.x = (t.scale.x != 0) ? 1 / t.scale.x : 0;
-		inv.scale.y = (t.scale.y != 0) ? 1 / t.scale.y : 0;
-		inv.scale.z = (t.scale.z != 0) ? 1 / t.scale.z : 0;
-
-		// Invert Position : rotInv * ( invScl * invPos )
-		t.position.invert(inv.position).multiply(inv.scale);
-		inv.position.applyQuaternion(inv.quaternion);
-
-		return inv;
 	}
 }
 

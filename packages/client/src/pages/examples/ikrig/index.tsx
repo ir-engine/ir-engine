@@ -1,8 +1,9 @@
 import { LoadGLTF } from "@xrengine/engine/src/assets/functions/LoadGLTF";
 import { Engine } from "@xrengine/engine/src/ecs/classes/Engine";
-import { addComponent, createEntity, getMutableComponent, hasComponent } from "@xrengine/engine/src/ecs/functions/EntityFunctions";
+import { addComponent, createEntity, getMutableComponent } from "@xrengine/engine/src/ecs/functions/EntityFunctions";
 import { registerSystem } from "@xrengine/engine/src/ecs/functions/SystemFunctions";
 import debug from "@xrengine/engine/src/ikrig/classes/Debug";
+import Pose from "@xrengine/engine/src/ikrig/classes/Pose";
 import Armature from "@xrengine/engine/src/ikrig/components/Armature";
 import IKRig from "@xrengine/engine/src/ikrig/components/IKRig";
 import Obj from "@xrengine/engine/src/ikrig/components/Obj";
@@ -17,6 +18,35 @@ import { initThree } from "./initThree";
 import { RenderSystem } from "./RenderSystem";
 
 export var Debug;
+
+function addStuffToRig(rig: IKRig){
+				//-----------------------------------------
+			// Auto Setup the Points and Chains based on
+			// Known Skeleton Structures.
+			rig
+				.addPoint("hip", "Hips")
+				.addPoint("head", "Head")
+				.addPoint("neck", "Neck")
+				.addPoint("chest", "Spine2")
+				.addPoint("foot_l", "LeftFoot")
+				.addPoint("foot_r", "RightFoot")
+
+				.addChain("arm_r", ["RightArm", "RightForeArm"], "RightHand") //"x",
+				.addChain("arm_l", ["LeftArm", "LeftForeArm"], "LeftHand") //"x", 
+				.addChain("leg_r", ["RightUpLeg", "RightLeg"], "RightFoot") //"z", 
+				.addChain("leg_l", ["LeftUpLeg", "LeftLeg"], "LeftFoot")  //"z", 
+				.addChain("spine", ["Spine", "Spine1", "Spine2"]); //, "y"
+
+			rig.chains.leg_l.setAlt(DOWN, FORWARD, rig.tpose);
+			rig.chains.leg_r.setAlt(DOWN, FORWARD, rig.tpose);
+			rig.chains.arm_r.setAlt(RIGHT, BACK, rig.tpose);
+			rig.chains.arm_l.setAlt(LEFT, BACK, rig.tpose);
+
+			rig.chains.leg_l.computeLengthFromBones(rig.tpose.bones);
+			rig.chains.leg_r.computeLengthFromBones(rig.tpose.bones);
+			rig.chains.arm_l.computeLengthFromBones(rig.tpose.bones);
+			rig.chains.arm_r.computeLengthFromBones(rig.tpose.bones);
+}
 
 // This is a functional React component
 const Page = () => {
@@ -37,13 +67,6 @@ const Page = () => {
 			// LOAD SOURCE
 			let model = (await LoadGLTF("ikrig/anim/Walking.glb"));
 
-			// Set up entity
-			let entity = createEntity();
-			addComponent(entity, Armature);
-			addComponent(entity, Obj);
-			addComponent(entity, AnimationComponent);
-			addComponent(entity, IKPose);
-			addComponent(entity, IKRig);
 			// Set up skinned meshes
 			let skinnedMeshes = [];
 			Engine.scene.add(model.scene)
@@ -56,76 +79,51 @@ const Page = () => {
 					})
 			})
 
+			// Set up entity
+			let entity = createEntity();
+			addComponent(entity, Armature);
+			addComponent(entity, AnimationComponent);
+			addComponent(entity, Obj);
+			addComponent(entity, IKPose);
+			addComponent(entity, IKRig);
+
 			// Set up the Object3D
 			let obj = getMutableComponent(entity, Obj);
 			let skinnedMesh = skinnedMeshes.sort((a, b) => { return a.skeleton.bones.length - b.skeleton.bones.length })[0];
 			obj.setReference(skinnedMesh);
 
 			// Set up animations
+			let ac = getMutableComponent(entity, AnimationComponent);
 			const mixer = new AnimationMixer(obj.ref);
 			const clips = model.animations;
-			mixer.clipAction(clips[0]).play();
-
-			// Add animation component for updating mixer later
-			let ac = getMutableComponent(entity, AnimationComponent);
 			ac.mixer = mixer;
 			ac.animations = clips;
+			ac.mixer.clipAction(clips[0]).play();
 
 			// Set up armature
 			let armature = getMutableComponent(entity, Armature);
 			armature.skeleton = obj.ref.skeleton;
 			armature.skeleton.bones = armature.skeleton.bones;
 
-
 			// TODO: Do both models ref same armature?
 			// Do both ref same tpose? Or do we make tpose for vegeta?
 
 			// Set up poses
 			let rig = getMutableComponent(entity, IKRig);
-			rig.pose = armature.createNewPose();
-			rig.tpose = armature.createNewPose(); // If Passing a TPose, it must have its world space computed.
+			rig.pose = new Pose(entity);
+			rig.tpose = new Pose(entity); // If Passing a TPose, it must have its world space computed.
 
 			//-----------------------------------------
 			// Apply Node's Starting Transform as an offset for poses.
 			// This is only important when computing World Space Transforms when
 			// dealing with specific skeletons, like Mixamo stuff.
 			// Need to do this to render things correctly
-			const l = getMutableComponent(entity, Obj).getTransform(); // Obj is a ThreeJS Component
-			console.log("l is", l);
+			// TODO: Verify the numbers of this vs the original
+			let objRoot = getMutableComponent(entity, Obj).ref; // Obj is a ThreeJS Component
+			rig.pose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale);
+			rig.tpose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale);
 
-			rig.pose.setOffset(l.quaternion, l.position, l.scale);
-			rig.tpose.setOffset(l.quaternion, l.position, l.scale);
-
-			//-----------------------------------------
-			// Auto Setup the Points and Chains based on
-			// Known Skeleton Structures.
-			rig
-				.addPoint("hip", "Hips")
-				.addPoint("head", "Head")
-				.addPoint("neck", "Neck")
-				.addPoint("chest", "Spine2")
-				.addPoint("foot_l", "LeftFoot")
-				.addPoint("foot_r", "RightFoot")
-
-				.addChain("arm_r", ["RightArm", "RightForeArm"], "RightHand") //"x",
-				.addChain("arm_l", ["LeftArm", "LeftForeArm"], "LeftHand") //"x", 
-
-				.addChain("leg_r", ["RightUpLeg", "RightLeg"], "RightFoot") //"z", 
-				.addChain("leg_l", ["LeftUpLeg", "LeftLeg"], "LeftFoot")  //"z", 
-
-				.addChain("spine", ["Spine", "Spine1", "Spine2"]); //, "y"
-
-			rig.chains.leg_l.setAlt(DOWN, FORWARD, rig.tpose);
-			rig.chains.leg_r.setAlt(DOWN, FORWARD, rig.tpose);
-			rig.chains.arm_r.setAlt(RIGHT, BACK, rig.tpose);
-			rig.chains.arm_l.setAlt(LEFT, BACK, rig.tpose);
-
-			rig.chains.leg_l.computeLengthFromBones(rig.tpose.bones);
-			rig.chains.leg_r.computeLengthFromBones(rig.tpose.bones);
-			rig.chains.arm_l.computeLengthFromBones(rig.tpose.bones);
-			rig.chains.arm_r.computeLengthFromBones(rig.tpose.bones);
-
-
+			addStuffToRig(rig);
 
 			// LOAD MESH A
 			model = (await LoadGLTF("ikrig/models/vegeta.glb"));
@@ -142,47 +140,46 @@ const Page = () => {
 					})
 				}
 			})
-
+			skinnedMesh = skinnedMeshes.sort((a, b) => { return a.skeleton.bones.length - b.skeleton.bones.length })[0];
 
 			// Create entity
 			entity = createEntity();
-			addComponent(entity, Armature);
 			addComponent(entity, Obj);
+			addComponent(entity, Armature);
 			addComponent(entity, IKPose);
 			addComponent(entity, IKRig);
 
 			// Set the skinned mesh reference
 			obj = getMutableComponent(entity, Obj);
-			skinnedMesh = skinnedMeshes.sort((a, b) => { return a.skeleton.bones.length - b.skeleton.bones.length })[0];
 			obj.setReference(skinnedMesh);
 
 			armature = getMutableComponent(entity, Armature);
-			armature.skeleton = obj.ref.skeleton.clone(); // need to clone?
+			armature.skeleton = obj.ref.skeleton; // need to clone?
 
-			addComponent(entity, IKPose);
-			addComponent(entity, IKRig);
 			rig = getMutableComponent(entity, IKRig);
-			rig.pose = armature.createNewPose();
-
-			//
+			rig.pose = new Pose(entity);
+			rig.tpose = new Pose(entity); // If Passing a TPose, it must have its world space computed.
+			
+			rig.pose.setOffset(obj.ref.quaternion, obj.ref.position, obj.ref.scale);
+			rig.tpose.setOffset(obj.ref.quaternion, obj.ref.position, obj.ref.scale);
+			addStuffToRig(rig);
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			// // Save pose local space transform
-			// let b;
+			// Save pose local space transform
+			let bone;
 
-			// for( let i=0; i < armature.skeleton.bones.length; i++ ){
-			// 	b = armature.skeleton.bones[ i ];
-			// 	tpose.setBone( i, b.quaternion, b.position, b.scale );
-			// }
+			for(let index = 0; index < armature.skeleton.bones.length; index++){
+				bone = armature.skeleton.bones[ index ];
+				rig.tpose.setBone( index, bone.quaternion, bone.position, bone.scale );
+			}
 
-			// tpose.updateWorld();
+			rig.tpose.apply();
+			console.log(rig.points);
+			console.log("rig.points.head", rig.points.head);
+			console.log("rig.points.neck", rig.points.neck);
 
-
-
-			// tpose.apply();
-
+			// TODO: Fix me
 			// rig.points.head.index = rig.points.neck.index; // Lil hack cause Head Isn't Skinned Well.
-
 
 			setInterval(() => {
 				// We're only executing fixed update systems, but there are other update types

@@ -2,27 +2,39 @@ import { System } from "@xrengine/engine/src/ecs/classes/System";
 import { getMutableComponent } from "@xrengine/engine/src/ecs/functions/EntityFunctions";
 import IKRig from "@xrengine/engine/src/ikrig/components/IKRig";
 import { FORWARD, UP } from "@xrengine/engine/src/ikrig/math/Vector3Constants";
-import { computeHip, computeLimb, computeLookTwist, computeSpine, visualizeHip, visualizeLimb, visualizeLookTwist, visualizeSpine } from "./IKFunctions";
+import { applyHip, applyLimb, applyLookTwist, applySpine, computeHip, computeLimb, computeLookTwist, computeSpine, visualizeHip, visualizeLimb, visualizeLookTwist, visualizeSpine } from "./IKFunctions";
 import { IKPose } from "./IKPose";
 import { AnimationComponent } from "./AnimationComponent";
 import { Debug } from ".";
 
 export class IKRigSystem extends System {
 	execute(deltaTime) {
-		// this.queryResults.animation.all?.forEach((entity) => {
-		// 	let ac = getMutableComponent(entity, AnimationComponent);
-		// 	ac.mixer.update(deltaTime);
-		// })
+		this.queryResults.animation.all?.forEach((entity) => {
+			let ac = getMutableComponent(entity, AnimationComponent);
+			ac.mixer.update(deltaTime);
+		})
 		// RUN
 		this.queryResults.ikpose.all?.forEach((entity) => {
 			let pose = getMutableComponent(entity, IKPose);
-
 			let rig = getMutableComponent(entity, IKRig);
-			Debug.reset(); // For this example, Lets reset visual debug for every compute.
-			return;
-			pose.applyRig(rig);
-			rig.applyPose();
 
+			Debug.reset(); // For this example, Lets reset visual debug for every compute.
+
+			applyHip(entity);
+
+			applyLimb(entity, rig.chains.leg_l, pose.leg_l);
+			applyLimb(entity, rig.chains.leg_r, pose.leg_r);
+
+			applyLookTwist(entity, rig.points.foot_l, pose.foot_l, FORWARD, UP);
+			applyLookTwist(entity, rig.points.foot_r, pose.foot_r, FORWARD, UP);
+			applySpine(entity, rig.chains.spine, pose.spine, UP, FORWARD);
+
+			applyLimb(entity, rig.chains.arm_l, pose.arm_l);
+			applyLimb(entity, rig.chains.arm_r, pose.arm_r);
+
+			applyLookTwist(entity, rig.points.head, pose.head, FORWARD, UP);
+
+			rig.pose.apply();
 
 			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			computeHip(rig, pose);
@@ -52,7 +64,6 @@ export class IKRigSystem extends System {
 			visualizeLookTwist(rig, rig.points.foot_r, pose.foot_r);
 			visualizeSpine(rig, rig.chains.spine, pose.spine);
 			visualizeLookTwist(rig, rig.points.head, pose.head);
-
 		});
 	}
 }
