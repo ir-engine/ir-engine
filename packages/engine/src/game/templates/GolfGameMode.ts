@@ -46,6 +46,7 @@ import { BodyType } from "three-physx";
 import { Euler, Quaternion, Vector3 } from "three";
 import { removeSpawnedObjects } from "../functions/functions";
 import { ifMoved } from "./gameDefault/checkers/ifMoved";
+import { spawnBall } from "./Golf/prefab/GolfBallPrefab";
 
 
 

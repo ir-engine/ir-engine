@@ -21,9 +21,6 @@ import { NetworkObject } from '../../../../networking/components/NetworkObject';
 import { Network } from '../../../../networking/classes/Network';
 import { addActionComponent } from '../../../functions/functionsActions';
 import { Action, State } from '../../../types/GameComponents';
-<<<<<<< HEAD
-import { addStateComponent } from '../../../functions/functionsState';
-=======
 import { getGame } from '../../../functions/functions';
 import { MathUtils } from 'three';
 
@@ -86,7 +83,7 @@ export const spawnBall = (entityPlayer: Entity): void => {
     parameters: JSON.stringify(parameters).replace(/"/g, '\''),
   })
 };
->>>>>>> dev
+
 
 /**
 * @author Josh Field <github.com/HexaField>
