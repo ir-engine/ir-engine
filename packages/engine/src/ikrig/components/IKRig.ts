@@ -1,18 +1,18 @@
+import { Vector3 } from "three";
 import { Component } from "../../ecs/classes/Component";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import Pose from "../classes/Pose";
-import Armature from "./Armature";
 import { Chain } from "./Chain";
+import Obj from "./Obj";
 
 class IKRig extends Component<IKRig>{
-	armature: Armature = null;
 	tpose: Pose = null; // Base pose to calculate math from
 	pose: Pose = null; // Working pose to apply math to and copy back to bones
 	chains: any = {}; // IK Chains
 	points: any = {}; // Individual IK points (hands, head, feet)
 
 	addPoint(name, boneName) {
-		const armature = getMutableComponent(this.entity, Armature);
+		const armature = getMutableComponent(this.entity, Obj).ref;
 		this.points[name] = {
 			index: armature.skeleton.bones.findIndex(bone => bone.name.includes(boneName))
 		};
@@ -21,7 +21,7 @@ class IKRig extends Component<IKRig>{
 
 	addChain(name, nameArray, end_name = null) { //  axis="z",		
 		let i, b;
-		const armature = getMutableComponent(this.entity, Armature);
+		const armature = getMutableComponent(this.entity, Obj).ref;
 
 		const chain = new Chain(); // axis
 		for (i of nameArray) {
@@ -29,20 +29,25 @@ class IKRig extends Component<IKRig>{
 			const bone = armature.skeleton.bones[index];
 			bone.index = index;
 
+			let boneWorldPosition = new Vector3();
+			bone.getWorldPosition(boneWorldPosition);
 
-			bone.length = bone.children.length > 0 ? bone.localToWorld(bone.position).distanceTo(bone.localToWorld(bone.children[0].position)) : .3;
+			let boneChildWorldPosition = new Vector3();
+			bone.children[0].getWorldPosition(boneChildWorldPosition);
+
+			bone.length = bone.children.length > 0 ? boneWorldPosition.distanceTo(boneChildWorldPosition) : 0;
 
 
 			const o = { index, ref: bone, length: bone.length };
 
-			chain.bones.push(o);
+			chain.chainBones.push(o);
 			chain.cnt++;
 			chain.length += length;
 		}
 
-		// //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		if (end_name) {
-			chain.end_idx = armature.skeleton.bones.indexOf(this.pose.getBone(end_name));
+			console.log("armature.skeleton.bones", armature.skeleton.bones);
+			chain.end_idx = armature.skeleton.bones.findIndex(bone => bone.name.toLowerCase().includes(end_name.toLowerCase()));
 		}
 
 		this.chains[name] = chain;

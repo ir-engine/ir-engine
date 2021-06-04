@@ -1,7 +1,7 @@
 import { BufferAttribute, BufferGeometry, DynamicDrawUsage, Points, RawShaderMaterial } from "three";
 import { Component } from "../../ecs/classes/Component";
 import { Engine } from "../../ecs/classes/Engine";
-import { addComponent, createEntity, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
+import { addComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import Obj from "./Obj";
 
 class PointsComponent extends Component<PointsComponent>{
@@ -21,8 +21,6 @@ class PointsComponent extends Component<PointsComponent>{
 	}
 
 	init( name = "points", max_len = 100 ){
-
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// BUFFERS
         this.buf_pos = new BufferAttribute( new Float32Array( max_len * 4 ), 4 );
 		this.buf_pos.setUsage( DynamicDrawUsage );
@@ -30,14 +28,12 @@ class PointsComponent extends Component<PointsComponent>{
 		this.buf_clr = new BufferAttribute( new Float32Array( max_len * 4 ), 4 );
 		this.buf_clr.setUsage( DynamicDrawUsage );
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// GEOMETRY
         this.geo = new BufferGeometry();
 		this.geo.setAttribute( "position",	this.buf_pos );
 		this.geo.setAttribute( "color",		this.buf_clr );
 		this.geo.setDrawRange( 0, 0 );
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// MESH
 		this.mesh = new Points( this.geo, getMaterial() );
 		this.mesh.name = name;
@@ -54,18 +50,15 @@ class PointsComponent extends Component<PointsComponent>{
 	
 	add( p, hex=0xff0000, shape=null, size=null ){ return this.addRaw( p.x, p.y, p.z, hex, shape, size ); }
 	addRaw( x, y, z, hex=0xff0000, shape=null, size=null ){
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// VERTEX POSITION - SIZE
 		this.buf_pos.setXYZW( this.cnt, x, y, z, (size || this.use_size) );
 		this.buf_pos.needsUpdate = true;
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// VERTEX COLOR - SHAPE
 		const c = gl_color( hex );
 		this.buf_clr.setXYZW( this.cnt, c[0], c[1], c[2], ((shape != null)? shape:this.use_shape) );
 		this.buf_clr.needsUpdate = true;
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// INCREMENT AND UPDATE DRAW RANGE
 		this.cnt++;
 		this.geo.setDrawRange( 0, this.cnt );

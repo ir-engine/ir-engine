@@ -2,15 +2,16 @@ import Lines	from "../components/Lines";
 import { addComponent, createEntity, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import PointsComponent from "../components/Points";
 import Obj from "../components/Obj";
+import { Component } from "../../ecs/classes/Component";
 
-class Debug{
+class DebugComponent extends Component<DebugComponent>{
 	static points = null;
 	static lines = null;
 
     static init(){
 		const entity = createEntity();
 		addComponent(entity, Obj);
-
+		addComponent(entity, DebugComponent);
 		addComponent(entity, PointsComponent);
 		this.points = getMutableComponent(entity, PointsComponent);
 		this.points.init();
@@ -31,4 +32,4 @@ class Debug{
 	static setLine( p0, p1, hex_0: any=0xff0000, hex_1=null, is_dash=false ){ this.lines.add( p0, p1, hex_0, hex_1, is_dash ); return this; }
 }
 
-export default Debug;
+export default DebugComponent;

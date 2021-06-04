@@ -1,8 +1,16 @@
 import { Component } from "@xrengine/engine/src/ecs/classes/Component";
 import IKTarget from "@xrengine/engine/src/ikrig/components/IKTarget";
-import { Vector3 } from "three";
+import { Vector3, Quaternion } from "three";
 export class IKPose extends Component<IKPose> {
 	target = new IKTarget(); // IK Solvers
+
+	spineParentQuaternion = new Quaternion();
+	spineParentPosition = new Vector3(0,0,0);
+	spineParentScale = new Vector3(1,1,1);
+
+	spineChildQuaternion = new Quaternion();
+	spineChildPosition = new Vector3(0,0,0);
+	spineChildScale = new Vector3(1,1,1);
 
 	hip = {
 		bind_height: 0,
@@ -29,6 +37,4 @@ export class IKPose extends Component<IKPose> {
 	];
 
 	head = { lookDirection: new Vector3(), twistDirection: new Vector3() };
-
-	tempV = new Vector3();
 }

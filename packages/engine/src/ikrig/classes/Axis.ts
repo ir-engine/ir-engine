@@ -1,5 +1,5 @@
 import { Vector3 } from "three";
-import { LEFT, UP, FORWARD } from "./Vector3Constants";
+import { LEFT, UP, FORWARD } from "../constants/Vector3Constants";
 
 /*
 3x3 Rotation Matrix
@@ -32,28 +32,6 @@ class Axis{
 				this.y.normalize();
 				this.z.normalize();
 			}
-			return this;
-		}
-
-		fromQuaternion( q ){
-			// Same code for Quat to Matrix 3 conversion
-			const x = q[0], y = q[1], z = q[2], w = q[3],
-				x2 = x + x,
-				y2 = y + y,
-				z2 = z + z,
-				xx = x * x2,
-				yx = y * x2,
-				yy = y * y2,
-				zx = z * x2,
-				zy = z * y2,
-				zz = z * z2,
-				wx = w * x2,
-				wy = w * y2,
-				wz = w * z2;
-
-			this.x.set( 1 - yy - zz,	yx + wz,		zx - wy );
-			this.y.set( yx - wz,		1 - xx - zz,	zy + wx );
-			this.z.set( zx + wy,		zy - wx,		1 - xx - yy );
 			return this;
 		}
 

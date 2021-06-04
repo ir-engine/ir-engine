@@ -1,7 +1,7 @@
 import { BufferAttribute, BufferGeometry, DynamicDrawUsage, LineSegments, RawShaderMaterial } from "three";
 import { Component } from "../../ecs/classes/Component";
 import { Engine } from "../../ecs/classes/Engine";
-import { addComponent, createEntity, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
+import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import Obj from "./Obj";
 
 const	DASH_SEG	= 1 / 0.07;
@@ -16,7 +16,6 @@ class Lines extends Component<Lines>{
 	mesh: LineSegments<any, any>;
 
 	init( name = "lines", max_len = 100 ){
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// BUFFERS
         this.buf_pos = new BufferAttribute( new Float32Array( max_len * 4 * 2 ), 4 );
 		this.buf_pos.setUsage( DynamicDrawUsage );
@@ -24,14 +23,12 @@ class Lines extends Component<Lines>{
 		this.buf_clr = new BufferAttribute( new Float32Array( max_len * 3 * 2 ), 3 );
 		this.buf_clr.setUsage( DynamicDrawUsage );
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// GEOMETRY
         this.geo = new BufferGeometry();
 		this.geo.setAttribute( "position",	this.buf_pos );
 		this.geo.setAttribute( "color",		this.buf_clr );
 		this.geo.setDrawRange( 0, 0 );
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// MESH
 		this.mesh = new LineSegments( this.geo, getMaterial() ); 
 		this.mesh.name = name;
@@ -49,7 +46,6 @@ class Lines extends Component<Lines>{
 		let	len_0	= -1,
 			len_1	= -1;
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// VERTEX POSITION - LEN
 		if( is_dash ){
 			len_0 = 0;
@@ -64,7 +60,6 @@ class Lines extends Component<Lines>{
 		this.buf_pos.setXYZW( index+1, x1, y1, z1, len_1 );
 		this.buf_pos.needsUpdate = true;
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// VERTEX COLOR
 		const c0 = gl_color( hex_0 );
 		const c1 = ( hex_1 != null )? gl_color( hex_1 ) : c0;
@@ -73,7 +68,6 @@ class Lines extends Component<Lines>{
 		this.buf_clr.setXYZ( index+1, c1[0], c1[1], c1[2] );
 		this.buf_clr.needsUpdate = true;
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// INCREMENT AND UPDATE DRAW RANGE
 		this.cnt++;
 		this.geo.setDrawRange( 0, this.cnt * 2 );

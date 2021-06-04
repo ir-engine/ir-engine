@@ -1,7 +1,7 @@
 import { Object3D, Quaternion, Skeleton, Vector3 } from "three";
+import { SkeletonUtils } from "../../character/SkeletonUtils";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
-import Armature from "../components/Armature";
-import Transform from "../math/Transform";
+import Obj from "../components/Obj";
 
 class Pose {
 	static ROTATION: any = 1;;
@@ -21,8 +21,10 @@ class Pose {
 
 	constructor(entity) {
 		this.entity = entity;
-		const armature = getMutableComponent(entity, Armature);
-		this.skeleton = armature.skeleton.clone();	// Recreation of Bone Hierarchy
+		const armature = getMutableComponent(entity, Obj).ref;
+		this.skeleton = SkeletonUtils.clone(armature.parent).children.find(skin => skin.skeleton != null).skeleton;	// Recreation of Bone Hierarchy
+		console.log("this.skeleton", this.skeleton)
+		
 		this.bones = this.skeleton.bones;
 		this.rootOffset = new Object3D();					// Parent Transform for Root Bone ( Skeletons from FBX imports need this to render right )
 		for (let i = 0; i < this.skeleton.bones.length; i++) {
@@ -56,24 +58,22 @@ class Pose {
 	}
 
 	apply() {
-		// Copies modified Local Transforms of the Pose to the Bone Entities.
-		const armature = getMutableComponent(this.entity, Armature);
+		// Copies modified LquatInverseocal Transforms of the Pose to the Bone Entities.
+		const skeleton = getMutableComponent(this.entity, Obj).ref.skeleton;
 
 		let pb, // Pose Bone
 			o;	// Bone Object
 
-		for (let i = 0; i < armature.bones.length; i++) {
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		for (let i = 0; i < skeleton.bones.length; i++) {
 			// Check if bone has been modified in the pose
-			pb = armature.bones[i];
+			pb = skeleton.bones[i];
 
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 			// Copy changes to Bone Entity
 			o = this.bones[i];
 
-			o.quaternion.fromArray(pb.local.quaternion);
-			o.position.fromArray(pb.local.position);
-			o.scale.fromArray(pb.local.scale);
+			o.quaternion.copy(pb.quaternion);
+			o.position.copy(pb.position);
+			o.scale.copy(pb.scale);
 		}
 
 		return this;
@@ -97,38 +97,74 @@ class Pose {
 		console.log("this.bones is", this.bones);
 		let bone = this.bones[boneIndex];
 
-
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 		// Child is a Root Bone, just reset since there is no parent.
 		if (!bone) {
+			// TODO: Clear pos/rot/scale of parent
 			parentTransform.clear();
 		} else {
-			// Parents Exist, loop till reaching the root
-			parentTransform.copy(bone);
-
 			while (bone.parent != null) {
 				bone = bone.parent;
 				console.log("Bone is", bone);
-				parentTransform.addInReverseOrder(bone);
+				this.addInReverseOrder(bone);
 			}
 		}
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-		parentTransform.addInReverseOrder(this.rootOffset);				// Add Starting Offset
-		if (t_offset) parentTransform.addInReverseOrder(t_offset);		// Add Additional Starting Offset
+		this.addInReverseOrder(this.rootOffset);				// Add Starting Offset
+		if (t_offset) this.addInReverseOrder(t_offset);		// Add Additional Starting Offset
 		console.log('bone is ', bone)
-		childTransform.setFromAdd(parentTransform, bone);	// Requesting Child WS Info Too
+		this.setChildFromParent(parentTransform, bone);	// Requesting Child WS Info Too
 
-		return { childTransform, parentTransform };
+		return this;
 	}
 
-	getParentRotation(boneIndex, q = null) {
+	// If these are temp vars okay, but these might need to move to the bones?? Do we need these if we have world poses on bones?
+	parentQuaternion = new Quaternion()
+	parentScale = new Vector3(1,1,1)
+	parentPosition = new Vector3(0,0,0)
+
+	childQuaternion = new Quaternion()
+	childScale = new Vector3(1,1,1)
+	childPosition = new Vector3(0,0,0)
+
+	// Make sure this is properly named
+	setChildFromParent(parent, child) {
+		console.log("parent, child", parent, child)
+
+		// POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
+		// TODO: Make sure this matrix isn't flipped
+		const v: Vector3 = parent.scale.multiply(child.position); // parent.scale * child.position;
+		v.applyQuaternion(parent.quaternion); //Vec3.transformQuat( v, tp.quaternion, v );
+		this.childPosition = parent.position.add(v); // Vec3.add( tp.position, v, this.position );
+
+		// SCALE - parent.scale * child.scale
+		// TODO: not flipped, right?
+		this.childScale = parent.scale.multiply(child.scale);
+
+		// ROTATION - parent.quaternion * child.quaternion
+		this.childQuaternion = parent.quaternion.multiply(child.quaternion);
+
+		return this;
+	}
+
+	// Computing Transforms in reverse, Child - > Parent
+	addInReverseOrder(parent) {
+		console.log("parent", parent);
+
+		// POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
+		// The only difference for this func, We use the IN.scale & IN.quaternion instead of THIS.scale * THIS.quaternion
+		// Consider that this Object is the child and the input is the Parent.
+		this.parentPosition.multiply(parent.scale).applyQuaternion(parent.quaternion).add(parent.position);
+		this.parentScale.multiply(parent.scale);
+		// ROTATION - parent.quaternion * child.quaternion
+		this.parentQuaternion.premultiply(parent.quaternion); // Must Rotate from Parent->Child, need PMUL
+
+		return this
+	}
+
+	getParentRoot(boneIndex, q = null) {
 		const childBone = this.bones[boneIndex];
 		q = q || new Quaternion();
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Child is a Root Bone, just reset since there is no parent.
 		if ((childBone.parent == null)) q.reset();
 		else {
@@ -142,7 +178,6 @@ class Pose {
 			}
 		}
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		q.premultiply(this.rootOffset.quaternion); // Add Starting Offset
 		return q;
 	}

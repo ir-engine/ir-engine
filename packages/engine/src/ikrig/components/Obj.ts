@@ -1,5 +1,4 @@
 import { Component } from "../../ecs/classes/Component";
-import { Engine } from "../../ecs/classes/Engine";
 import { Types } from "../../ecs/types/Types";
 
 class Obj extends Component<Obj>{
