@@ -15,11 +15,11 @@ title: Deployment
 
 ## Testing
 
-Simply run `yarn test` and all your tests in the `test/` directory will be run.
+Simply run `npm run test` and all your tests in the `test/` directory will be run.
 
 ## Linting
 
-`yarn run lint`
+`npm run lint`
 
 ## Docker
 

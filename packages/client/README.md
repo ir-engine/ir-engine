@@ -15,9 +15,9 @@ This is the client portion of XREngine. To deploy everything at once with Kubern
 To run
 
 ```
-yarn install
-yarn run build
-yarn run dev
+npm install
+npm run build
+npm run dev
 ```
 
 ## config file

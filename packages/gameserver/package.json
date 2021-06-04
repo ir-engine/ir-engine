@@ -28,7 +28,7 @@
     "config": "config/"
   },
   "engines": {
-    "yarn": ">= 0.18.0"
+    "node": ">= 16.3.0"
   },
   "jest": "ts-jest",
   "scripts": {
@@ -38,7 +38,7 @@
     "dev-nossl": "cross-env NOSSL=true ts-eager src/index.ts",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "lint": "eslint --fix --ext \"**/*.js\" \"**/*.ts\"",
-    "validate": "yarn run lint && yarn run build && yarn run test",
+    "validate": "npm run lint && npm run build && npm run test",
     "precommit": "no-master-commits -b master,dev"
   },
   "types": "lib/",

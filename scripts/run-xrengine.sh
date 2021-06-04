@@ -26,9 +26,9 @@ if [ "$db_docker_image_id" ]; then
 	sudo docker container stop $db_docker_image_id
 fi
 
-server_command='yarn dev'
+server_command='npm run dev'
 if [ "$1" = "-reinit-db" ] ; then
-	server_command='yarn dev-reinit-db'
+	server_command='npm run dev-reinit-db'
 fi
 
 # choose which terminal to run
@@ -86,7 +86,7 @@ ${terminal_command} \
 	--tab \
 	--title server --working-directory=$PWD/../packages/server -e "$server_command" \
 	--tab \
-	--title client --working-directory=$PWD/../packages/client -e 'yarn dev' &
+	--title client --working-directory=$PWD/../packages/client -e 'npm run dev' &
 
 echo -e "${FGRN}xrengine is running${RS}"
 exit 0

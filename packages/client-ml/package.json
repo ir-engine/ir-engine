@@ -6,12 +6,12 @@
     "url": "git://github.com/XRFoundation/XREngine.git"
   },
   "engines": {
-    "yarn": ">= 0.18.0"
+    "node": ">= 16.3.0"
   },
   "publishConfig": {
     "access": "public"
   },
-  "npmClient": "yarn",
+  "npmClient": "npm",
   "jest": "ts-jest",
   "scripts": {},
   "resolutions": {
@@ -29,7 +29,7 @@
     "@types/node": "13.13.51",
     "@types/react": "17.0.4",
     "cross-env": "7.0.3",
-    "node-sass": "5.0.0",
+    "node-sass": "6.0.0",
     "semantic-release": "17.4.2",
     "semantic-release-monorepo": "7.0.5",
     "typescript": "4.2.4"
