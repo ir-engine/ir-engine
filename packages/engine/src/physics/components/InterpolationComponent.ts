@@ -9,10 +9,8 @@ import type { InterpolationInterface } from '../../networking/types/SnapshotData
 export class InterpolationComponent extends Component<any> {
   lastUpdate = 0
   updateDaley = 1000
-  schema: InterpolationInterface;
 }
 
 InterpolationComponent._schema = {
   lastUpdate: { type: Types.Number, default: 0 },
-  schema: { type: Types.Ref, default: undefined }
 };

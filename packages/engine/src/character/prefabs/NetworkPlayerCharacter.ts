@@ -27,8 +27,6 @@ import { createShadow } from "../../scene/behaviors/createShadow";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { AnimationManager } from "../AnimationManager";
 import { getMovementValues, initializeMovingState, movingAnimationSchema } from "../animations/MovingAnimations";
-import { characterCorrectionBehavior } from '../behaviors/characterCorrectionBehavior';
-import { characterInterpolationBehavior } from '../behaviors/characterInterpolationBehavior';
 import { CharacterInputSchema } from '../CharacterInputSchema';
 import { AnimationComponent } from "../components/AnimationComponent";
 import { CharacterComponent } from '../components/CharacterComponent';
@@ -241,12 +239,6 @@ export function createNetworkPlayer(args: { ownerId: string | number, networkId?
 	return networkComponent;
 }
 
-export const characterInterpolationSchema: InterpolationInterface = {
-	interpolationBehavior: characterInterpolationBehavior,
-	serverCorrectionBehavior: characterCorrectionBehavior
-}
-
-
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkPlayerCharacter: NetworkPrefab = {
   initialize: createNetworkPlayer,
@@ -270,7 +262,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
 	],
 	clientComponents: [
 		// Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player
-		{ type: InterpolationComponent, data: { schema: characterInterpolationSchema } },
+		{ type: InterpolationComponent },
 		{ type: AnimationComponent, data: { animationsSchema: movingAnimationSchema, updateAnimationsValues: getMovementValues } }
 	],
 	serverComponents: [],

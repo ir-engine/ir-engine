@@ -87,8 +87,3 @@ export interface SnapshotData {
   correction: Snapshot;
   new: StateEntityClientGroup
 }
-
-export interface InterpolationInterface {
-  interpolationBehavior: any;
-  serverCorrectionBehavior?: any; // for smoothing local input receiver transforms - characters, vehicles etc
-}

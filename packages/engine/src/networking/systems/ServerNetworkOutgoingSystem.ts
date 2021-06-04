@@ -32,6 +32,14 @@ export class ServerNetworkOutgoingSystem extends System {
 
   /** Call execution on server */
   execute = (delta: number): void => {
+
+    const transformState = {
+      tick: Network.instance.tick,
+      time: Date.now(),
+      transforms: [],
+      ikTransforms: [],
+    };
+
     // Transforms that are updated are automatically collected
     // note: onChanged needs to currently be handled outside of fixedExecute
     this.queryResults.networkTransforms.all?.forEach((entity: Entity) => {
@@ -41,7 +49,7 @@ export class ServerNetworkOutgoingSystem extends System {
       const currentPosition = transformComponent.position;
       const snapShotTime = networkObject.snapShotTime;
 
-      Network.instance.transformState.transforms.push({
+      transformState.transforms.push({
         networkId: networkObject.networkId,
         snapShotTime: snapShotTime,
         x: currentPosition.x,
@@ -62,7 +70,8 @@ export class ServerNetworkOutgoingSystem extends System {
       const networkObject = getComponent(entity, NetworkObject);
       const currentPosition = transformComponent.position;
       const snapShotTime = networkObject.snapShotTime;
-      Network.instance.transformState.transforms.push({
+
+      transformState.transforms.push({
         networkId: networkObject.networkId,
         snapShotTime: snapShotTime,
         x: currentPosition.x,
@@ -90,7 +99,7 @@ export class ServerNetworkOutgoingSystem extends System {
 
       if(!hmd?.value || !left?.value || !right?.value) return;
 
-      Network.instance.transformState.ikTransforms.push({
+      transformState.ikTransforms.push({
         networkId: networkObject.networkId,
         snapShotTime: snapShotTime,
         hmd: hmd.value,
@@ -110,7 +119,7 @@ export class ServerNetworkOutgoingSystem extends System {
     ) {
       const bufferReliable = WorldStateModel.toBuffer(Network.instance.worldState);
       if (!bufferReliable) {
-        console.warn("Reliable buffer is null");
+        console.warn("World state buffer is null");
         console.warn(Network.instance.worldState);
       } else {
         Network.instance.transport.sendReliableData(bufferReliable);
@@ -125,19 +134,13 @@ export class ServerNetworkOutgoingSystem extends System {
       Network.instance.worldState.gameStateActions = [];
     }
 
-    const bufferUnreliable = TransformStateModel.toBuffer(Network.instance.transformState);
-    try {
+    const bufferUnreliable = TransformStateModel.toBuffer(transformState);
+    if (!bufferUnreliable) {
+      console.warn("Transform buffer is null");
+      console.warn(transformState);
+    } else {
       Network.instance.transport.sendData(bufferUnreliable);
-    } catch (error) {
-      console.warn("Couldn't send data: ", error)
     }
-
-    Network.instance.transformState = {
-      tick: Network.instance.tick,
-      time: Date.now(),
-      transforms: [],
-      ikTransforms: [],
-    };
   }
 
   /** System queries. */

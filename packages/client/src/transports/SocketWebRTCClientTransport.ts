@@ -10,7 +10,6 @@ import { createDataProducer, endVideoChat, initReceiveTransport, initSendTranspo
 import { EngineEvents } from "@xrengine/engine/src/ecs/classes/EngineEvents";
 import { ClientNetworkSystem } from "@xrengine/engine/src/networking/systems/ClientNetworkSystem";
 import { WorldStateModel } from "@xrengine/engine/src/networking/schema/worldStateSchema";
-import { ClientNetworkStateSystem } from "@xrengine/engine/dist/networking/systems/ClientNetworkStateSystem";
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
 
@@ -274,13 +273,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         await Promise.all([initSendTransport('instance'), initReceiveTransport('instance')]);
         await createDataProducer((socket as any).instance === true ? 'instance' : this.channelId );
       }
-    });
 
-    (socket.io as any).on('reconnect', async () => {
-      if ((socket as any).instance === true) EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED });
-      if ((socket as any).instance !== true) EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED });
-      this.reconnecting = true;
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.RESET_ENGINE, instance: (socket as any).instance });
+      (socket.io as any).on('reconnect', async () => {
+        if ((socket as any).instance === true) EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED });
+        if ((socket as any).instance !== true) EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED });
+        this.reconnecting = true;
+        EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.RESET_ENGINE, instance: (socket as any).instance });
+      });
     });
   }
 }

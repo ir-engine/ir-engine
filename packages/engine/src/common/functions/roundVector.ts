@@ -1,6 +1,6 @@
 import { Vector3 } from "three";
 
-export const roundNumberToPlaces = (number: number, places: number) => {
+export const roundNumberToPlaces = (number: number, places: number = 2) => {
   return (Math.pow(10, -places)) * Math.round(number * Math.pow(10, places))
 }
 
