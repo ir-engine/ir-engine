@@ -19,9 +19,9 @@ jobs:
         env:
           NODE_OPTIONS: --max_old_space_size=8192
         run: |
-          npm ci
+          npm install
           cd packages/docs
-          npm ci
+          npm install
           npm run build
   gh-release:
     if: github.event_name != 'pull_request'
@@ -43,7 +43,7 @@ jobs:
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "gh-actions"
-          npm install --frozen-lockfile
+          npm install
           cd packages/docs
-          npm install --frozen-lockfile
+          npm install
           npm run deploy
