@@ -10,9 +10,6 @@ interface Props {
 }
 
 const mapStateToProps = (state: any): any => {
-  console.log('====================================');
-  console.log(state);
-  console.log('====================================');
   return {
   };
 };

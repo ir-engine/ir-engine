@@ -8,7 +8,7 @@ import {
   LOCATION_TYPES_RETRIEVED,
   USER_ROLE_RETRIEVED,
   USER_ROLE_CREATED,
-  USER_ROLE_UPDATED
+  USER_ROLE_UPDATED,
 } from '../../../world/reducers/actions';
 import {
   VIDEO_CREATED,
@@ -19,7 +19,8 @@ import {
   USER_ADMIN_REMOVED,
   USER_ADMIN_CREATED,
   USER_ADMIN_PATCHED,
-  USER_SEARCH_ADMIN
+  USER_SEARCH_ADMIN,
+  SINGLE_USER_ADMIN_LOADED
 } from '../actions';
 import { User } from '@xrengine/common/src/interfaces/User';
 
@@ -245,5 +246,12 @@ export const searchedUser = (data: any): any => {
   return {
     type: USER_SEARCH_ADMIN,
     data: data
+  };
+};
+
+export const fetchedSIngleUser = (data: any): any => {
+  return {
+    type: SINGLE_USER_ADMIN_LOADED,
+    data: data,
   };
 };

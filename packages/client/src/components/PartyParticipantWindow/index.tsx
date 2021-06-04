@@ -190,10 +190,10 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
     useEffect(() => {
         const socket = (Network.instance?.transport as any)?.channelType === 'instance' ? (Network.instance?.transport as any)?.instanceSocket : (Network.instance?.transport as any)?.channelSocket;
-        socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener);
-        socket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener);
-        socket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener);
-        socket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener);
+        if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCPauseConsumer.toString(), pauseConsumerListener);
+        if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCResumeConsumer.toString(), resumeConsumerListener);
+        if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener);
+        if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener);
     }, []);
 
     useEffect(() => {

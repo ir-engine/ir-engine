@@ -35,7 +35,7 @@ import { sendClientObjectUpdate } from "../../networking/functions/sendClientObj
 import { BodyType } from "three-physx";
 import { BinaryValue } from "../../common/enums/BinaryValue";
 import { ParityValue } from "../../common/enums/ParityValue";
-import { getInteractiveIsInReachDistance } from "../../character/functions/getInteractiveIsInReachDistance";
+import { getInteractiveIsInReachDistance, interactiveReachDistance } from "../../character/functions/getInteractiveIsInReachDistance";
 import { getHandTransform } from "../../xr/functions/WebXRFunctions";
 import { unequipEntity } from "../functions/equippableFunctions";
 
@@ -137,8 +137,8 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
   if (!hasComponent(entity, FollowCameraComponent)) {
     const interacts = getMutableComponent(entity, Interactor);
     interacts.subFocusedArray = [];
-    (interacts.BoxHitResult as any) = null;
-    (interacts.focusedInteractive as any) = null;
+    interacts.BoxHitResult = null;
+    interacts.focusedInteractive = null;
     return;
   }
 
@@ -213,12 +213,12 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
   let resultIsCloseEnough = false;
   if(newBoxHit) {
     const interactableTransform = getComponent(newBoxHit[0] as Entity, TransformComponent);
-    if(interactableTransform.position.distanceTo(transform.position) < 1){
+    if(interactableTransform.position.distanceTo(transform.position) < interactiveReachDistance){
       resultIsCloseEnough = true;
     }
   }
-  (interacts.BoxHitResult as any) = resultIsCloseEnough ? newBoxHit : null;
-  (interacts.focusedInteractive as any) = resultIsCloseEnough && newBoxHit ? newBoxHit[0] : null;
+  interacts.BoxHitResult = resultIsCloseEnough ? newBoxHit : null;
+  interacts.focusedInteractive = resultIsCloseEnough && newBoxHit ? newBoxHit[0] : null;
 
 };
 
