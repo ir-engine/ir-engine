@@ -69,7 +69,6 @@ const Layout = (props: Props): any => {
         authState,
         setUserHasInteracted,
         doLoginAuto,
-        locationState,
     } = props;
     const userHasInteracted = appState.get('userHasInteracted');
     const authUser = authState.get('authUser');
@@ -77,8 +76,6 @@ const Layout = (props: Props): any => {
     const [rightDrawerOpen, setRightDrawerOpen] = useState(false);
     const [bottomDrawerOpen, setBottomDrawerOpen] = useState(false);
     const [harmonyOpen, setHarmonyOpen] = useState(false);
-    const [fullScreenActive, setFullScreenActive] = useState(false);
-    const [expanded, setExpanded] = useState(true);
     const [detailsType, setDetailsType] = useState('');
     const [groupFormOpen, setGroupFormOpen] = useState(false);
     const [groupFormMode, setGroupFormMode] = useState('');

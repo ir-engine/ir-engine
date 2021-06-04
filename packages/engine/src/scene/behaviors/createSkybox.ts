@@ -43,7 +43,7 @@ export default function createSkybox(entity, args: any): void {
         console.log(res);
       },
       (erro) => {
-        console.log(erro);
+        console.warn('Skybox texture could not be found!', erro);
       }
       );
   }

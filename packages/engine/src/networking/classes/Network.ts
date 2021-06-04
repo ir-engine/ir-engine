@@ -4,10 +4,10 @@ import { Entity } from '../../ecs/classes/Entity';
 import { NetworkObjectList } from '../interfaces/NetworkObjectList';
 import { NetworkSchema } from '../interfaces/NetworkSchema';
 import { NetworkTransport } from '../interfaces/NetworkTransport';
-import { NetworkClientInputInterface, TransformStateInterface, WorldStateInterface } from "../interfaces/WorldState";
+import { NetworkClientInputInterface, WorldStateInterface } from "../interfaces/WorldState";
 import { Snapshot } from "../types/SnapshotDataTypes";
 import SocketIO from "socket.io";
-import { GameStateActionMessage, GameStateUpdateMessage, ClientGameActionMessage } from '../../game/types/GameMessage';
+import { ClientGameActionMessage } from '../../game/types/GameMessage';
 
 
 export interface NetworkClientList {
@@ -29,6 +29,7 @@ export interface NetworkClientList {
     dataConsumers?: Map<string, any>; // Key => id of data producer
     dataProducers?: Map<string, any>; // Key => label of data channel}
     avatarDetail?: any;
+    networkId?: any; // to easily retrieve the network object correspending to this client
   };
 }
 
@@ -108,14 +109,6 @@ export class Network {
     gameStateActions: []
   };
 
-  /** State of the world. */
-  transformState: TransformStateInterface = {
-    tick: 0,
-    transforms: [],
-    ikTransforms: [],
-    time: 0,
-  };
-
   clientInputState: NetworkClientInputInterface = {
     networkId: -1,
     buttons: [],
@@ -127,7 +120,6 @@ export class Network {
     },
     snapShotTime: 0,
     clientGameAction: [],
-    transforms: []
   }
   
   /** Tick of the network. */

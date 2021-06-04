@@ -5,7 +5,7 @@ import { isMobileOrTablet } from "../../common/functions/isMobile";
 import { NumericalType, Vector2Type } from "../../common/types/NumericalTypes";
 import { Engine } from '../../ecs/classes/Engine';
 import { System, SystemAttributes } from '../../ecs/classes/System';
-import { addComponent, createEntity, getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, createEntity, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
@@ -88,8 +88,12 @@ const followCameraBehavior = (entity: Entity) => {
   const closestHit = followCamera.raycastQuery.hits[0];
   followCamera.rayHasHit = typeof closestHit !== 'undefined';
 
-  if(followCamera.mode !== CameraModes.FirstPerson && followCamera.rayHasHit && closestHit.distance < camDist && closestHit.distance > 0.1) {
-    camDist = closestHit.distance;
+  if(followCamera.mode !== CameraModes.FirstPerson && followCamera.rayHasHit && closestHit.distance < camDist) {
+    if(closestHit.distance < 0.5) {
+      camDist = closestHit.distance;
+    } else {
+      camDist = closestHit.distance - 0.5;
+    }
   }
 
   cameraDesiredTransform.position.set(
@@ -182,14 +186,14 @@ export class CameraSystem extends System {
       }));
       const activeCameraComponent = getMutableComponent(CameraSystem.instance.activeCamera, CameraComponent);
       activeCameraComponent.followTarget = entity;
-
+      if(hasComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent)) removeComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent)
       const desiredTransform = addComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) as DesiredTransformComponent;
       desiredTransform.lockRotationAxis = [false, true, false];
     });
 
     this.queryResults.followCameraComponent.removed?.forEach(entity => {
       const cameraFollow = getComponent(entity, FollowCameraComponent, true);
-      PhysicsSystem.instance.removeRaycastQuery(cameraFollow.raycastQuery)
+      if (cameraFollow) PhysicsSystem.instance.removeRaycastQuery(cameraFollow.raycastQuery);
       const activeCameraComponent = getMutableComponent(CameraSystem.instance.activeCamera, CameraComponent);
       if (activeCameraComponent) {
         activeCameraComponent.followTarget = null;
