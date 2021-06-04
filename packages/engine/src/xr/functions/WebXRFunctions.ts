@@ -1,5 +1,5 @@
 import { Engine } from "../../ecs/classes/Engine";
-import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, Object3D, Quaternion, RingGeometry, Vector3 } from 'three';
+import { AdditiveBlending, BufferGeometry, Float32BufferAttribute, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, MeshPhongMaterial, Object3D, Quaternion, RingGeometry, Vector3 } from 'three';
 import { getLoader } from "../../assets/functions/LoadGLTF";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { CameraModes } from "../../camera/types/CameraModes";
@@ -15,16 +15,16 @@ import { TransformComponent } from "../../transform/components/TransformComponen
 import { IKComponent } from "../../character/components/IKComponent";
 import { IKRigComponent } from "../../character/components/IKRigComponent";
 
-let head, controllerGripLeft, controllerLeft, controllerRight, controllerGripRight;
-
 /**
  * @author Josh Field <github.com/HexaField>
  * @returns {Promise<boolean>} returns true on success, otherwise throws error and returns false
  */
 
+const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI);
+
 export const startXR = async (): Promise<boolean> => {
 
-  try{
+  try {
 
     const cameraFollow = getMutableComponent<FollowCameraComponent>(Network.instance.localClientEntity, FollowCameraComponent) as FollowCameraComponent;
     cameraFollow.mode = CameraModes.XR;
@@ -32,17 +32,31 @@ export const startXR = async (): Promise<boolean> => {
 
     initiateIK(Network.instance.localClientEntity)
 
-    head = Engine.xrRenderer.getCamera();
-    controllerLeft = Engine.xrRenderer.getController(1);
-    controllerRight = Engine.xrRenderer.getController(0);
-    actor.tiltContainer.add(controllerLeft);
-    actor.tiltContainer.add(controllerRight);
+    const controllerLeft = Engine.xrRenderer.getController(1);
+    const controllerRight = Engine.xrRenderer.getController(0);
+    const controllerGripLeft = Engine.xrRenderer.getControllerGrip(1);
+    const controllerGripRight = Engine.xrRenderer.getControllerGrip(0);
+    const xrGroup = new Group();
+    xrGroup.add(controllerLeft, controllerRight, controllerGripRight, controllerGripLeft);
+    xrGroup.applyQuaternion(rotate180onY);
+    actor.tiltContainer.add(xrGroup);
 
+    const head = Engine.xrRenderer.getCamera();
     Engine.scene.remove(Engine.camera);
-    actor.tiltContainer.add(Engine.camera);
-    
+    const camGroup = new Group();
+    camGroup.add(Engine.camera);
+    camGroup.applyQuaternion(rotate180onY)
+    actor.tiltContainer.add(camGroup);
 
-    // obviously unfinished
+    addComponent(Network.instance.localClientEntity, XRInputReceiver, {
+      head,
+      controllerLeft,
+      controllerRight,
+      controllerGripLeft,
+      controllerGripRight
+    });
+
+    // Add our controller models & pointer lines
     [controllerLeft, controllerRight].forEach((controller) => {
 /*
       controller.addEventListener('select', (ev) => {})
@@ -68,37 +82,24 @@ export const startXR = async (): Promise<boolean> => {
 
     })
 
-    controllerGripLeft = Engine.xrRenderer.getControllerGrip(1);
-    controllerGripRight = Engine.xrRenderer.getControllerGrip(0);
-
-    addComponent(Network.instance.localClientEntity, XRInputReceiver, {
-      head: head,
-      controllerLeft: controllerLeft,
-      controllerRight: controllerRight,
-      controllerGripLeft: controllerGripLeft,
-      controllerGripRight: controllerGripRight
-    })
-
-    const obj: any = await new Promise((resolve) => { getLoader().load('/models/webxr/controllers/valve_controller_knu_1_0_right.glb', obj => { resolve(obj) }, console.warn, console.error)});
-    const controller3DModel = obj.scene.children[2] as any;
-
-    const controllerMeshRight = controller3DModel.clone();
-    const controllerMeshLeft = controller3DModel.clone();
-
-    controllerMeshLeft.scale.multiply(new Vector3(-1, 1, 1));
-
-    controllerMeshRight.material = new MeshPhongMaterial();
-    controllerMeshLeft.material = new MeshPhongMaterial();
-
-    controllerMeshRight.position.z = -0.12;
-    controllerMeshLeft.position.z = -0.12;
-
-    controllerGripRight.add(controllerMeshRight);
-    controllerGripLeft.add(controllerMeshLeft);
-
-    
-    actor.tiltContainer.add(controllerGripRight);
-    actor.tiltContainer.add(controllerGripLeft);
+    getLoader().load('/models/webxr/controllers/valve_controller_knu_1_0_right.glb', (obj) => { 
+      const controller3DModel = obj.scene.children[2] as any;
+      console.log(obj)
+      
+      const controllerMeshRight = controller3DModel.clone();
+      const controllerMeshLeft = controller3DModel.clone();
+      
+      controllerMeshLeft.scale.multiply(new Vector3(-1, 1, 1));
+      
+      controllerMeshRight.material = new MeshPhongMaterial();
+      controllerMeshLeft.material = new MeshPhongMaterial();
+      
+      controllerMeshRight.position.z = -0.12;
+      controllerMeshLeft.position.z = -0.12;
+      
+      controllerGripRight.add(controllerMeshRight);
+      controllerGripLeft.add(controllerMeshLeft);
+    }, console.warn, console.error);
 
     // console.log('Loaded Model Controllers Done');
 

@@ -24,9 +24,6 @@ import { Action, State } from '../../../types/GameComponents';
 import { getGame } from '../../../functions/functions';
 import { MathUtils } from 'three';
 import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent';
-import { rigidbodyInterpolationBehavior } from '../../../../physics/behaviors/rigidbodyInterpolationBehavior';
-import { InterpolationInterface } from '../../../../networking/types/SnapshotDataTypes';
-import { rigidbodyInterpolationBehavior } from '../../../../physics/behaviors/rigidbodyInterpolationBehavior';
 
 /**
  * @author Josh Field <github.com/HexaField>
