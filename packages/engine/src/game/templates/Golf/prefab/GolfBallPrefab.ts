@@ -23,6 +23,10 @@ import { addActionComponent } from '../../../functions/functionsActions';
 import { Action, State } from '../../../types/GameComponents';
 import { getGame } from '../../../functions/functions';
 import { MathUtils } from 'three';
+import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent';
+import { rigidbodyInterpolationBehavior } from '../../../../physics/behaviors/rigidbodyInterpolationBehavior';
+import { InterpolationInterface } from '../../../../networking/types/SnapshotDataTypes';
+import { rigidbodyInterpolationBehavior } from '../../../../physics/behaviors/rigidbodyInterpolationBehavior';
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -103,7 +107,7 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   ballMesh.receiveShadow = true;
   ballMesh.material && WebGLRendererSystem.instance.csm.setupMaterial(ballMesh.material);
   addComponent(ballEntity, Object3DComponent, { value: ballMesh });
-  console.log(transform.position)
+  // console.log(transform.position)
 
   // DEBUG - teleport ball to over hole
   if (typeof globalThis.document !== 'undefined')
@@ -120,12 +124,12 @@ export const updateBall = (ballEntity: Entity) => {
   const collider = getComponent(ballEntity, ColliderComponent);
   if (collider.velocity.length() > 0.1) {
     if(hasComponent(ballEntity, State.Active)) {
-      console.warn('actionMoving')
+      // console.warn('actionMoving')
       addActionComponent(ballEntity, Action.BallMoving);
     }
   } else {
     if(hasComponent(ballEntity, State.Inactive)) { 
-      console.warn('stop')
+      // console.warn('stop')
       addActionComponent(ballEntity, Action.BallStopped);
     }
   }
@@ -226,8 +230,9 @@ export const GolfBallPrefab: NetworkPrefab = {
   ],
   // These are only created for the local player who owns this prefab
   localClientComponents: [],
-  //clientComponents: [{ type: InterpolationComponent, data: { } }],
-  clientComponents: [],
+  clientComponents: [
+		{ type: InterpolationComponent },
+  ],
   serverComponents: [],
   onAfterCreate: [
     {

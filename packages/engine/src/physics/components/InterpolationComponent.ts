@@ -1,6 +1,6 @@
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
-import { InterpolationInterface } from '../interfaces/InterpolationInterface';
+import type { InterpolationInterface } from '../../networking/types/SnapshotDataTypes';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -9,10 +9,8 @@ import { InterpolationInterface } from '../interfaces/InterpolationInterface';
 export class InterpolationComponent extends Component<any> {
   lastUpdate = 0
   updateDaley = 1000
-  schema: InterpolationInterface;
 }
 
 InterpolationComponent._schema = {
   lastUpdate: { type: Types.Number, default: 0 },
-  schema: { type: Types.Ref, default: undefined }
 };

@@ -20,15 +20,13 @@ import { RelativeSpringSimulator } from "../../physics/classes/SpringSimulator";
 import { VectorSpringSimulator } from "../../physics/classes/VectorSpringSimulator";
 import { InterpolationComponent } from "../../physics/components/InterpolationComponent";
 import { CollisionGroups, DefaultCollisionMask } from "../../physics/enums/CollisionGroups";
-import { InterpolationInterface } from "../../physics/interfaces/InterpolationInterface";
+
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { addObject3DComponent } from "../../scene/behaviors/addObject3DComponent";
 import { createShadow } from "../../scene/behaviors/createShadow";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { AnimationManager } from "../AnimationManager";
 import { getMovementValues, initializeMovingState, movingAnimationSchema } from "../animations/MovingAnimations";
-import { characterCorrectionBehavior } from '../behaviors/characterCorrectionBehavior';
-import { characterInterpolationBehavior } from '../behaviors/characterInterpolationBehavior';
 import { CharacterInputSchema } from '../CharacterInputSchema';
 import { AnimationComponent } from "../components/AnimationComponent";
 import { CharacterComponent } from '../components/CharacterComponent';
@@ -36,6 +34,7 @@ import { ControllerColliderComponent } from "../components/ControllerColliderCom
 import { NamePlateComponent } from '../components/NamePlateComponent';
 import { PersistTagComponent } from "../../scene/components/PersistTagComponent";
 import { IKRigComponent } from "../components/IKRigComponent";
+
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
   if(!isClient) return;
@@ -240,12 +239,6 @@ export function createNetworkPlayer(args: { ownerId: string | number, networkId?
 	return networkComponent;
 }
 
-export const characterInterpolationSchema: InterpolationInterface = {
-	interpolationBehavior: characterInterpolationBehavior,
-	serverCorrectionBehavior: characterCorrectionBehavior
-}
-
-
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkPlayerCharacter: NetworkPrefab = {
   initialize: createNetworkPlayer,
@@ -269,7 +262,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
 	],
 	clientComponents: [
 		// Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player
-		{ type: InterpolationComponent, data: { schema: characterInterpolationSchema } },
+		{ type: InterpolationComponent },
 		{ type: AnimationComponent, data: { animationsSchema: movingAnimationSchema, updateAnimationsValues: getMovementValues } }
 	],
 	serverComponents: [],
