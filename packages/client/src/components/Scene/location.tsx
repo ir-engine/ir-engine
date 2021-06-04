@@ -20,7 +20,8 @@ import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/se
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector';
 import {
   connectToInstanceServer,
-  provisionInstanceServer
+  provisionInstanceServer,
+  resetInstanceServer
 } from '../../reducers/instanceConnection/service';
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector';
 import MediaIconsBox from "../../components/MediaIconsBox";
@@ -42,7 +43,6 @@ import { CharacterComponent } from '@xrengine/engine/src/character/components/Ch
 import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import { Config } from '@xrengine/client-core/src/helper';
-import { useHistory } from 'react-router-dom';
 import querystring from 'querystring';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -52,6 +52,8 @@ import WarningRefreshModal from "../AlertModals/WarningRetryModal";
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem';
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema';
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader';
+import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
 
 const store = Store.store;
 
@@ -67,7 +69,8 @@ const initialRefreshModalValues = {
   title: '',
   body: '',
   action: async() => {},
-  parameters: []
+  parameters: [],
+  timeout: 10000
 };
 
 // debug for contexts where devtools may be unavailable
@@ -115,6 +118,7 @@ interface Props {
   getLocationByName?: typeof getLocationByName;
   connectToInstanceServer?: typeof connectToInstanceServer;
   provisionInstanceServer?: typeof provisionInstanceServer;
+  resetInstanceServer?: typeof resetInstanceServer;
   setCurrentScene?: typeof setCurrentScene;
   harmonyOpen?: boolean;
 }
@@ -136,6 +140,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   getLocationByName: bindActionCreators(getLocationByName, dispatch),
   connectToInstanceServer: bindActionCreators(connectToInstanceServer, dispatch),
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
+  resetInstanceServer: bindActionCreators(resetInstanceServer, dispatch),
   setCurrentScene: bindActionCreators(setCurrentScene, dispatch),
 });
 
@@ -151,6 +156,7 @@ export const EnginePage = (props: Props) => {
     getLocationByName,
     connectToInstanceServer,
     provisionInstanceServer,
+    resetInstanceServer,
     setCurrentScene,
     setAppLoaded,
     locationName,
@@ -163,7 +169,6 @@ export const EnginePage = (props: Props) => {
   const [infoBoxData, setModalData] = useState(null);
   const [userBanned, setUserBannedState] = useState(false);
   const [openLinkData, setOpenLinkData] = useState(null);
-  const router = useHistory();
 
   const [progressEntity, setProgressEntity] = useState(99);
   const [userHovered, setonUserHover] = useState(false);
@@ -176,6 +181,7 @@ export const EnginePage = (props: Props) => {
   const [isInXR, setIsInXR] = useState(false);
   const [warningRefreshModalValues, setWarningRefreshModalValues] = useState(initialRefreshModalValues);
   const [noGameserverProvision, setNoGameserverProvision] = useState(false);
+  const [instanceDisconnected, setInstanceDisconnected] = useState(false);
   const [isInputEnabled, setInputEnabled] = useState(true);
 
   const appLoaded = appState.get('loaded');
@@ -191,6 +197,26 @@ export const EnginePage = (props: Props) => {
     } else {
       doLoginAuto(true);
       EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
+      EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED, () => setInstanceDisconnected(true));
+      EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED, () => setWarningRefreshModalValues(initialRefreshModalValues));
+      EngineEvents.instance.addEventListener(EngineEvents.EVENTS.RESET_ENGINE, async (ev: any) => {
+        if (ev.instance === true) {
+          await resetEngine();
+          resetInstanceServer();
+          const currentLocation = locationState.get('currentLocation').get('location');
+          locationId = currentLocation.id;
+          if (locationName === Config.publicRuntimeConfig.lobbyLocationName) {
+            getLobby().then(lobby => {
+              history.replace('/location/' + lobby.slugifiedName);
+            }).catch(err => console.log('getLobby error', err));
+          } else {
+            getLocationByName(locationName);
+            if (sceneId === null) {
+              sceneId = currentLocation.sceneId;
+            }
+          }
+        }
+      });
     }
   }, []);
 
@@ -203,7 +229,7 @@ export const EnginePage = (props: Props) => {
       if (locationName === Config.publicRuntimeConfig.lobbyLocationName) {
         getLobby().then(lobby => {
           history.replace('/location/' + lobby.slugifiedName);
-        });
+        }).catch(err => console.log('getLobby error', err));
       } else {
         getLocationByName(locationName);
         if (sceneId === null) {
@@ -260,7 +286,7 @@ export const EnginePage = (props: Props) => {
               console.log('Set scene ID to', sceneId);
               sceneId = currentLocation.sceneId;
             }
-          });
+          }).catch(err => console.log('instance get error', err));
       }
     }
   }, [appState]);
@@ -273,13 +299,30 @@ export const EnginePage = (props: Props) => {
         title: 'No Available Servers',
         body: 'There aren\'t any servers available for you to connect to. Attempting to re-connect in',
         action: provisionInstanceServer,
-        parameters: [currentLocation.id, instanceId, currentLocation.sceneId]
+        parameters: [currentLocation.id, instanceId, currentLocation.sceneId],
+        timeout: 10000
       };
       //@ts-ignore
       setWarningRefreshModalValues(newValues);
       setNoGameserverProvision(false);
     }
   }, [noGameserverProvision]);
+
+  useEffect(() => {
+    if (instanceDisconnected === true) {
+      const newValues = {
+        open: true,
+        title: 'World disconnected',
+        body: 'You\'ve lost your connection with the world. We\'ll try to reconnect before the following time runs out, otherwise you\'ll be forwarded to a different instance',
+        action: window.location.reload,
+        parameters: [],
+        timeout: 30000
+      };
+      //@ts-ignore
+      setWarningRefreshModalValues(newValues);
+      setInstanceDisconnected(false);
+    }
+  }, [instanceDisconnected]);
 
   const reinit = () => {
     const currentLocation = locationState.get('currentLocation').get('location');
@@ -330,13 +373,16 @@ export const EnginePage = (props: Props) => {
 
     if(!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
 
-    await new Promise<void>((resolve) => {
-      EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async () => {
-        resolve();
+    const connectPromise = new Promise<void>((resolve) => {
+      EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async ({ worldState }: { worldState: WorldStateInterface}) => {
+        const localClient = worldState.clientsConnected.find((client) => { 
+          return client.userId === Network.instance.userId;
+        });
+        AssetLoader.load({ url: localClient.avatarDetail.avatarURL }, resolve);
       });
     });
-    
-    await new Promise<void>((resolve) => {
+
+    const sceneLoadPromise= new Promise<void>((resolve) => {
       WorldScene.load(sceneData, () => {
         setProgressEntity(0);
         store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
@@ -344,6 +390,8 @@ export const EnginePage = (props: Props) => {
         resolve();
       }, onSceneLoadedEntity);
     });
+
+    await Promise.all([connectPromise, sceneLoadPromise]);
 
     const worldState = await new Promise<any>(async (resolve) => {
       if(Config.publicRuntimeConfig.offlineMode) {
@@ -396,8 +444,8 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);
     EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation);
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => { setIsInXR(true); });
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => { setIsInXR(false); });
+    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async () => { setIsInXR(true); });
+    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async () => { setIsInXR(false); });
   };
 
   const onObjectActivation = (interactionData): void => {
@@ -482,7 +530,7 @@ export const EnginePage = (props: Props) => {
           body={warningRefreshModalValues.body}
           action={warningRefreshModalValues.action}
           parameters={warningRefreshModalValues.parameters}
-          timeout={10000}
+          timeout={warningRefreshModalValues.timeout}
       />
     </>
   );

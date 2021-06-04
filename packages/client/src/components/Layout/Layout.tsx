@@ -188,7 +188,7 @@ const Layout = (props: Props): any => {
                 <ZoomOutMap />
               </button>}
 
-            {harmonyOpen === true && <Harmony
+            <Harmony
                 setHarmonyOpen={setHarmonyOpen}
                 setDetailsType={setDetailsType}
                 setGroupFormOpen={setGroupFormOpen}
@@ -198,7 +198,8 @@ const Layout = (props: Props): any => {
                 setSelectedGroup={setSelectedGroup}
                 setLeftDrawerOpen={setLeftDrawerOpen}
                 setRightDrawerOpen={setRightDrawerOpen}
-            />}
+                harmonyHidden={harmonyOpen === false}
+            />
             <Fragment>
               <UIDialog />
               <Alerts />

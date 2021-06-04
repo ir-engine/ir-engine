@@ -13,7 +13,7 @@ import { ColliderComponent } from "../../physics/components/ColliderComponent";
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { DebugArrowComponent } from "../DebugArrowComponent";
 
-type ComponentHelpers = 'viewVector' | 'helperArrow' | 'velocityArrow';
+type ComponentHelpers = 'viewVector' | 'helperArrow' | 'velocityArrow' | 'box';
 
 export class DebugHelpersSystem extends System {
   private helpersByEntity: Record<ComponentHelpers, Map<Entity,Object3D>>;
@@ -32,6 +32,7 @@ export class DebugHelpersSystem extends System {
 
     this.helpersByEntity = {
       viewVector: new Map(),
+      box: new Map(),
       helperArrow: new Map(),
       velocityArrow: new Map()
     };
@@ -48,6 +49,9 @@ export class DebugHelpersSystem extends System {
     EngineEvents.instance.addEventListener(DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS, ({ enabled }) => {
       this.physicsDebugRenderer.setEnabled(enabled);
       this.helpersByEntity.helperArrow.forEach((obj: Object3D) => {
+        obj.visible = enabled;
+      })
+      this.helpersByEntity.box.forEach((obj: Object3D) => {
         obj.visible = enabled;
       })
     })
@@ -171,6 +175,7 @@ export class DebugHelpersSystem extends System {
             const helper = new BoxHelper(object3D);
             helper.visible = false;
             Engine.scene.add(helper);
+            this.helpersByEntity.box.set(entity, helper);
           });
         }
       } else {
@@ -183,6 +188,7 @@ export class DebugHelpersSystem extends System {
         const helper = new Box3Helper(box3);
         helper.visible = false;
         Engine.scene.add(helper);
+        this.helpersByEntity.box.set(entity, helper);
       }
     });
 

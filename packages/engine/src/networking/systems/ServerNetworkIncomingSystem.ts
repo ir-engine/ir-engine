@@ -1,7 +1,7 @@
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { NumericalType } from '../../common/types/NumericalTypes';
 import { System } from '../../ecs/classes/System';
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { DelegatedInputReceiver } from '../../input/components/DelegatedInputReceiver';
 import { Input } from '../../input/components/Input';
@@ -21,6 +21,8 @@ import { sendState } from '../../game/functions/functionsState';
 import { StateEntity } from '../types/SnapshotDataTypes';
 import { ColliderComponent } from '../../physics/components/ColliderComponent';
 import { getGameFromName } from '../../game/functions/functions';
+import { initiateIK } from '../../xr/functions/IKFunctions';
+import { IKComponent } from '../../character/components/IKComponent';
 
 
 export function cancelAllInputs(entity) {
@@ -97,10 +99,11 @@ export class ServerNetworkIncomingSystem extends System {
         return;
       }
 
+      const entity = Network.instance.networkObjects[clientInput.networkId].component.entity;
+
       if (clientInput.clientGameAction.length > 0) {
         clientInput.clientGameAction.forEach(action => {
           if (action.type === 'require') {
-            const entity = Network.instance.networkObjects[clientInput.networkId].component.entity;
             const playerComp = getComponent<GamePlayer>(entity, GamePlayer);
             if (playerComp === undefined) return;
             sendState(getGameFromName(playerComp.gameName), playerComp);
@@ -166,45 +169,21 @@ export class ServerNetworkIncomingSystem extends System {
             lifecycleState: clientInput.axes2d[i].lifecycleState
           });
 
+      if(!hasComponent(entity, IKComponent) && clientInput.axes6DOF.length) {
+        initiateIK(entity)
+      }
+
       // Axis 6DOF input
       for (let i = 0; i < clientInput.axes6DOF.length; i++) {
         input.data.set(clientInput.axes6DOF[i].input,
           {
             type: InputType.SIXDOF,
-            value: {
-              x: clientInput.axes6DOF[i].x,
-              y: clientInput.axes6DOF[i].y,
-              z: clientInput.axes6DOF[i].z,
-              qX: clientInput.axes6DOF[i].qX,
-              qY: clientInput.axes6DOF[i].qY,
-              qZ: clientInput.axes6DOF[i].qZ,
-              qW: clientInput.axes6DOF[i].qW,
-            },
+            value: clientInput.axes6DOF[i].value,
             lifecycleState: LifecycleValue.CONTINUED
           });
       }
 
       handleInputFromNonLocalClients(Network.instance.networkObjects[clientInput.networkId].component.entity, { isLocal: false, isServer: true }, delta);
-
-      clientInput.transforms?.forEach((transform: StateEntity) => {
-        const networkObject = Network.instance.networkObjects[transform.networkId];
-        if(networkObject && networkObject.ownerId === userNetworkObject.ownerId) {
-          const collider = getComponent(networkObject.component.entity, ColliderComponent)
-          collider.body.updateTransform({
-            translation: {
-              x: transform.x,
-              y: transform.y,
-              z: transform.z,
-            },
-            rotation: {
-              x: transform.qX,
-              y: transform.qY,
-              z: transform.qZ,
-              w: transform.qW,
-            }
-          })
-        }
-      })
     }
 
     // Apply input for local user input onto client

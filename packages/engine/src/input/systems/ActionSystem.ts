@@ -248,22 +248,12 @@ export class ActionSystem extends System {
         input.data.forEach((value: any, key) => {
           if (value.type === InputType.BUTTON)
             Network.instance.clientInputState.buttons.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
-          else if (value.type === InputType.ONEDIM) // && value.lifecycleState !== LifecycleValue.UNCHANGED
+          else if (value.type === InputType.ONEDIM)
             Network.instance.clientInputState.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
-          else if (value.type === InputType.TWODIM) //  && value.lifecycleState !== LifecycleValue.UNCHANGED
+          else if (value.type === InputType.TWODIM)
             Network.instance.clientInputState.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
-          else if (value.type === InputType.SIXDOF) { //  && value.lifecycleState !== LifecycleValue.UNCHANGED
-            Network.instance.clientInputState.axes6DOF.push({
-              input: key,
-              x: value.value.x,
-              y: value.value.y,
-              z: value.value.z,
-              qX: value.value.qX,
-              qY: value.value.qY,
-              qZ: value.value.qZ,
-              qW: value.value.qW,
-            });
-          }
+          else if (value.type === InputType.SIXDOF)
+            Network.instance.clientInputState.axes6DOF.push({ input: key, value: value.value });
         });
 
         const actor = getComponent(entity, CharacterComponent);

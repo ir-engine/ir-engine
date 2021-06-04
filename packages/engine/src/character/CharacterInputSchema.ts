@@ -32,6 +32,7 @@ import { BinaryValue } from '../common/enums/BinaryValue';
 import { ParityValue } from '../common/enums/ParityValue';
 import { getInteractiveIsInReachDistance } from './functions/getInteractiveIsInReachDistance';
 import { initiateIK } from '../xr/functions/IKFunctions';
+import { IKRigComponent } from './components/IKRigComponent';
 
 /**
  *
@@ -441,21 +442,16 @@ const lookByInputAxis = (
 
 const updateIKRig: Behavior = (entity, args): void => {
 
-  const avatarIK = getMutableComponent(entity, IKComponent);
+  const avatarIK = getMutableComponent(entity, IKRigComponent);
+  if(!avatarIK || !avatarIK.avatarIKRig) return;
+  
   const inputs = getMutableComponent(entity, Input);
-  if(!avatarIK) { 
-    initiateIK(entity);
-    return;
-  }
-  if(!avatarIK.avatarIKRig) {
-    return;
-  }
   const obj3d = getComponent(entity, Object3DComponent).value as Object3D;
 
   if(args.type === BaseInput.XR_HEAD) {
 
     const cam = inputs.data.get(BaseInput.XR_HEAD).value as SIXDOFType;
-    avatarIK.avatarIKRig.inputs.hmd.position.set(cam.x, cam.y, cam.z).sub(obj3d.position);
+    avatarIK.avatarIKRig.inputs.hmd.position.set(cam.x, cam.y, cam.z).sub(obj3d.position); // in world space, sub entity pos to get local pos
     avatarIK.avatarIKRig.inputs.hmd.quaternion.set(cam.qX, cam.qY, cam.qZ, cam.qW)
     // avatarIK.avatarIKRig.inputs.hmd.rotateY(Math.PI / 2)
 
