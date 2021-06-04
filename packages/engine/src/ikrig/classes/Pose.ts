@@ -40,6 +40,7 @@ class Pose {
 	}
 
 	setBone(index: number, quaternion?: Quaternion, position?: Vector3, scale?: Vector3) {
+		console.log("index is", index)
 		if(quaternion) this.bones[index].quaternion.copy(quaternion);
 		if(position) this.bones[index].position.copy(position);
 		if(scale) this.bones[index].scale.copy(scale);
@@ -132,16 +133,20 @@ class Pose {
 
 		// POSITION - parent.position + ( parent.quaternion * ( parent.scale * child.position ) )
 		// TODO: Make sure this matrix isn't flipped
-		const v: Vector3 = parent.scale.multiply(child.position); // parent.scale * child.position;
-		v.applyQuaternion(parent.quaternion); //Vec3.transformQuat( v, tp.quaternion, v );
-		this.childPosition = parent.position.add(v); // Vec3.add( tp.position, v, this.position );
+		const v: Vector3 = new Vector3().copy(parent.scale)
+			.multiply(child.position) // parent.scale * child.position;
+			.applyQuaternion(parent.quaternion); //Vec3.transformQuat( v, tp.quaternion, v );
+		this.childPosition = new Vector3().copy(parent.position).add(v); // Vec3.add( tp.position, v, this.position );
+
+		console.log("v is", v);
+		console.log("this.childPosition", this.childPosition);
 
 		// SCALE - parent.scale * child.scale
 		// TODO: not flipped, right?
-		this.childScale = parent.scale.multiply(child.scale);
+		this.childScale = new Vector3().copy(parent.scale).multiply(child.scale);
 
 		// ROTATION - parent.quaternion * child.quaternion
-		this.childQuaternion = parent.quaternion.multiply(child.quaternion);
+		this.childQuaternion = new Quaternion().copy(parent.quaternion).multiply(child.quaternion);
 
 		return this;
 	}
@@ -161,23 +166,38 @@ class Pose {
 		return this
 	}
 
-	getParentRoot(boneIndex, q = null) {
-		const childBone = this.bones[boneIndex];
-		q = q || new Quaternion();
+	getParentRoot(boneIndex) {
+		// ORIGINAL CODE
+		// get_parent_rot( b_idx, q=null ){
+		// 	let cbone = this.bones[ b_idx ];
+		// 	q = q || new Quat();
 
+		const bone = this.bones[boneIndex];
+		const q = new Quaternion();
+
+		// ORIGINAL CODE
+		//if( cbone.p_idx == null ) q.reset();
 		// Child is a Root Bone, just reset since there is no parent.
-		if ((childBone.parent == null)) q.reset();
+		if ((bone.parent == null)) q.identity();
 		else {
-			// Parents Exist, loop till reaching the root
-			let b = childBone.parent;
-			q.copy(b.quaternion);
+			// ORIGINAL CODE
+			// let b = this.bones[ cbone.p_idx ];
+			// 	q.copy( b.local.rot );
 
-			while (b.parentIndex != null) {
-				b = this.bones[b.parentIndex];
+			// 	while( b.p_idx != null ){
+			// 		b = this.bones[ b.p_idx ];
+			// 		q.pmul( b.local.rot );
+			// 	}
+			// Parents Exist, loop till reaching the root
+			let b = bone.parent;
+			q.copy(b.quaternion);
+			while (b.parent != null && b.parent.type === "Bone") {
+				b = b.parent;
 				q.premultiply(b.quaternion);
 			}
 		}
-
+		// ORIGINAL CODE
+		// q.pmul( this.root_offset.rot ); // Add Starting Offset
 		q.premultiply(this.rootOffset.quaternion); // Add Starting Offset
 		return q;
 	}

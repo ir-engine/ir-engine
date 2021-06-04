@@ -24,37 +24,37 @@ export class IKRigSystem extends System {
 			computeLimb(rig.pose, rig.chains.leg_l, pose.leg_l);
 			computeLimb(rig.pose, rig.chains.leg_r, pose.leg_r);
 
-			// computeLookTwist(rig, rig.points.foot_l, pose.foot_l, FORWARD, UP); // Look = Fwd, Twist = Up
-			// computeLookTwist(rig, rig.points.foot_r, pose.foot_r, FORWARD, UP);
+			computeLookTwist(rig, rig.points.foot_l, pose.foot_l, FORWARD, UP); // Look = Fwd, Twist = Up
+			computeLookTwist(rig, rig.points.foot_r, pose.foot_r, FORWARD, UP);
 
-			// computeSpine(rig, rig.chains.spine, pose, UP, FORWARD);
+			computeSpine(rig, rig.chains.spine, pose, UP, FORWARD);
 
-			// computeLimb(rig.pose, rig.chains.arm_l, pose.arm_l);
-			// computeLimb(rig.pose, rig.chains.arm_r, pose.arm_r);
+			computeLimb(rig.pose, rig.chains.arm_l, pose.arm_l);
+			computeLimb(rig.pose, rig.chains.arm_r, pose.arm_r);
 
-			// computeLookTwist(rig, rig.points.head, pose.head, FORWARD, UP);
+			computeLookTwist(rig, rig.points.head, pose.head, FORWARD, UP);
 
 			// // VISUALIZE
 			visualizeHip(rig, pose);
 
 			visualizeLimb(rig.pose, rig.chains.leg_l, pose.leg_l);
 			visualizeLimb(rig.pose, rig.chains.leg_r, pose.leg_r);
-			// visualizeLimb(rig.pose, rig.chains.arm_l, pose.arm_l);
-		 	// visualizeLimb(rig.pose, rig.chains.arm_r, pose.arm_r);
+			visualizeLimb(rig.pose, rig.chains.arm_l, pose.arm_l);
+		 	visualizeLimb(rig.pose, rig.chains.arm_r, pose.arm_r);
 
-			// visualizeLookTwist(rig, rig.points.foot_l, pose.foot_l);
-			// visualizeLookTwist(rig, rig.points.foot_r, pose.foot_r);
-			// visualizeSpine(rig, rig.chains.spine, pose.spine);
-			// visualizeLookTwist(rig, rig.points.head, pose.head);
+			visualizeLookTwist(rig, rig.points.foot_l, pose.foot_l);
+			visualizeLookTwist(rig, rig.points.foot_r, pose.foot_r);
+			visualizeSpine(rig, rig.chains.spine, pose.spine);
+			visualizeLookTwist(rig, rig.points.head, pose.head);
 
 			// APPLY
-			// applyHip(entity);
+			applyHip(entity);
 
-			// applyLimb(entity, rig.chains.leg_l, pose.leg_l);
-			// applyLimb(entity, rig.chains.leg_r, pose.leg_r);
+			applyLimb(entity, rig.chains.leg_l, pose.leg_l);
+			applyLimb(entity, rig.chains.leg_r, pose.leg_r);
 
-			// applyLookTwist(entity, rig.points.foot_l, pose.foot_l, FORWARD, UP);
-			// applyLookTwist(entity, rig.points.foot_r, pose.foot_r, FORWARD, UP);
+			applyLookTwist(entity, rig.points.foot_l, pose.foot_l, FORWARD, UP);
+			applyLookTwist(entity, rig.points.foot_r, pose.foot_r, FORWARD, UP);
 			// applySpine(entity, rig.chains.spine, pose.spine, UP, FORWARD);
 
 			// applyLimb(entity, rig.chains.arm_l, pose.arm_l);
