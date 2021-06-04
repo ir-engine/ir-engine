@@ -26,7 +26,8 @@ import {
   ADMIN_FEEDS_FETCH,
   FIRED_FEEDS_FETCH,
   FEEDS_FIRED_RETRIEVED,
-  CLEAR_CREATOR_FEATURED
+  CLEAR_CREATOR_FEATURED,
+  DELETE_FEED
 } from '../actions';
 import { FeedShort, Feed } from '@xrengine/common/src/interfaces/Feed';
 
@@ -193,7 +194,14 @@ export function addFeedView (feedId:string) : oneFeedAction{
     type: ADD_FEED_VIEW,
     feedId: feedId
   };
-} 
+}
+
+export function deleteFeed (feedId:string) : oneFeedAction{
+  return {
+    type: DELETE_FEED,
+    feedId: feedId
+  };
+}
 
 export function addFeed(feed:Feed): FeedRetrievedAction{
   return {
