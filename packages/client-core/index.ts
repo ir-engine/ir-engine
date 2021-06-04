@@ -367,8 +367,6 @@ export { default as srcAdminComponentsScenesScenes } from './src/admin/component
 export { default as srcAdminComponentsSearch } from './src/admin/components/Search';
 export { default as srcAdminComponentsSharedModal } from './src/admin/components/SharedModal';
 export { default as srcAdminComponentsTipsAndTricks } from './src/admin/components/TipsAndTricks';
-export { default as srcAdminComponentsUserConsole } from './src/admin/components/UserConsole';
-export { default as srcAdminComponentsUserModel } from './src/admin/components/UserModel';
 export { default as srcAdminComponentsUsersCreateUser } from './src/admin/components/Users/CreateUser';
 export { default as srcAdminComponentsUsersCreateUserRole } from './src/admin/components/Users/CreateUserRole';
 export { default as srcAdminComponentsUsersIndex } from './src/admin/components/Users/index';

@@ -186,7 +186,7 @@ interface Props {
     mediastream?: any;
     setHarmonyOpen?: any;
     isHarmonyPage?: boolean;
-    harmonyHidden: boolean;
+    harmonyHidden?: boolean;
 }
 
 const initialRefreshModalValues = {
