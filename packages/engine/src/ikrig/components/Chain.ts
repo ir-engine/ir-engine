@@ -1,4 +1,4 @@
-import { Vector3 } from "three";
+import { Quaternion, Vector3 } from "three";
 import { FORWARD, UP } from "../constants/Vector3Constants";
 
 const boneWorldPosition = new Vector3(),
@@ -27,17 +27,16 @@ export class Chain {
 	last() { return this.chainBones[this.cnt - 1].index; }
 	index(i) { return this.chainBones[i].index; }
 
-	setOffsets(fwd, up, tpose = null) {
+	setOffsets(fwd, up, tpose) {
 		// TODO: REVIEW ME, could be broken!
-		if (tpose) {
-			const b = tpose.bones[0];
-			const qInverse = b.quaternion.invert(); // Invert World Space Rotation 
-			this.forwardOffset = FORWARD.clone().applyQuaternion(qInverse).normalize(); // Use invert to get direction that will Recreate the real direction
-			this.upOffset = UP.clone().applyQuaternion(qInverse).normalize();
-		} else {
-			this.forwardOffset.copy(fwd);
-			this.upOffset.copy(up);
-		}
+			const b = tpose.bones[this.chainBones[0].index];
+
+			const boneWorldQuaternion = new Quaternion();
+			b.getWorldQuaternion(boneWorldQuaternion);
+			const qInverse = boneWorldQuaternion.invert(); // Invert World Space Rotation 
+			this.forwardOffset = new Vector3().copy(fwd).applyQuaternion(qInverse).normalize(); // Use invert to get direction that will Recreate the real direction
+			this.upOffset = new Vector3().copy(up).applyQuaternion(qInverse).normalize();
+
 		return this;
 	}
 

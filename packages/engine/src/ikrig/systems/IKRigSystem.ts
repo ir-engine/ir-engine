@@ -22,7 +22,7 @@ export class IKRigSystem extends System {
 			computeHip(rig, pose);
 
 			computeLimb(rig.pose, rig.chains.leg_l, pose.leg_l);
-			// computeLimb(rig.pose, rig.chains.leg_r, pose.leg_r);
+			computeLimb(rig.pose, rig.chains.leg_r, pose.leg_r);
 
 			// computeLookTwist(rig, rig.points.foot_l, pose.foot_l, FORWARD, UP); // Look = Fwd, Twist = Up
 			// computeLookTwist(rig, rig.points.foot_r, pose.foot_r, FORWARD, UP);
@@ -38,7 +38,7 @@ export class IKRigSystem extends System {
 			visualizeHip(rig, pose);
 
 			visualizeLimb(rig.pose, rig.chains.leg_l, pose.leg_l);
-			// visualizeLimb(rig.pose, rig.chains.leg_r, pose.leg_r);
+			visualizeLimb(rig.pose, rig.chains.leg_r, pose.leg_r);
 			// visualizeLimb(rig.pose, rig.chains.arm_l, pose.arm_l);
 		 	// visualizeLimb(rig.pose, rig.chains.arm_r, pose.arm_r);
 

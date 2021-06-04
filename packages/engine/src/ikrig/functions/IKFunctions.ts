@@ -213,9 +213,16 @@ export function computeLimb(pose, chain, ik_limb) {
 	// let j_dir	= Vec3.transform_quat( chain.alt_up, boneA.world.rot );
 	// let lft_dir	= Vec3.cross( j_dir, ab_dir );					// We need left to realign up
 	// ik_limb.joint_dir.from_cross( ab_dir, lft_dir ).norm(); 	// Recalc Up, make it orthogonal to LEFT and FWD
-	let jointDir = new Vector3().copy(chain.upOffset.applyQuaternion(boneA.quaternion));
+	const boneAWorldQuat = new Quaternion();
+	boneA.getWorldQuaternion(boneAWorldQuat);
+	console.log("chain.upOffset is", chain.upOffset);
+	let jointDir = new Vector3().copy(chain.upOffset.applyQuaternion(boneAWorldQuat));
+	console.log("jointDir for", boneA.name, "is", jointDir);
+
 	let lft_dir = new Vector3().copy(jointDir.cross(aToBDirection)); // We need left to realign up
 	ik_limb.jointDirection = new Vector3().copy(aToBDirection.cross(lft_dir)).normalize(); // Recalc Up, make it orthogonal to LEFT and FWD
+	console.log("ik_limb.jointDir for", boneA.name, "is", ik_limb.jointDirection);
+
 }
 export function computeLookTwist(rig, boneInfo, ik, lookDirection, twistDirection) {
 	let pose = rig.pose.bones[boneInfo.index],

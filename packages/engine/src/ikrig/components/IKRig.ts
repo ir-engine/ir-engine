@@ -37,7 +37,6 @@ class IKRig extends Component<IKRig>{
 
 			bone.length = bone.children.length > 0 ? boneWorldPosition.distanceTo(boneChildWorldPosition) : 0;
 
-
 			const o = { index, ref: bone, length: bone.length };
 
 			chain.chainBones.push(o);
