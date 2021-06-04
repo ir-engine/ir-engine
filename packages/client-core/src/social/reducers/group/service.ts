@@ -15,6 +15,7 @@ import {
   removedGroup,
   removedGroupUser
 } from './actions';
+import {addedChannelLayerUser, removedChannelLayerUser} from "../../../user/reducers/user/actions";
 
 const store = Store.store;
 
@@ -119,15 +120,27 @@ export function getInvitableGroups(skip?: number, limit?: number) {
 }
 if(!Config.publicRuntimeConfig.offlineMode) {
   client.service('group-user').on('created', (params) => {
-    store.dispatch(createdGroupUser(params.groupUser));
+    const newGroupUser = params.groupUser;
+    const selfUser = (store.getState() as any).get('auth').get('user');
+    store.dispatch(createdGroupUser(newGroupUser));
+    if (newGroupUser.user.channelInstanceId != null && newGroupUser.user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(newGroupUser.user));
+    if (newGroupUser.user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(newGroupUser.user));
   });
 
   client.service('group-user').on('patched', (params) => {
-    store.dispatch(patchedGroupUser(params.groupUser));
+    const updatedGroupUser = params.groupUser;
+    const selfUser = (store.getState() as any).get('auth').get('user');
+    store.dispatch(patchedGroupUser(updatedGroupUser));
+    if (updatedGroupUser.user.channelInstanceId != null && updatedGroupUser.user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(updatedGroupUser.user));
+    if (updatedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(updatedGroupUser.user));
   });
 
   client.service('group-user').on('removed', (params) => {
-    store.dispatch(removedGroupUser(params.groupUser, params.self));
+    const deletedGroupUser = params.groupUser;
+    const selfUser = (store.getState() as any).get('auth').get('user');
+    store.dispatch(removedGroupUser(deletedGroupUser, params.self));
+    if (deletedGroupUser.user.channelInstanceId != null && deletedGroupUser.user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(deletedGroupUser.user));
+    if (deletedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(deletedGroupUser.user));
   });
 
   client.service('group').on('created', (params) => {
