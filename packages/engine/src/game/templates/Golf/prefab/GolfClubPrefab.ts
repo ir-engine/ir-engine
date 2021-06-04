@@ -277,7 +277,10 @@ export const initializeGolfClub = (entityClub: Entity) => {
   meshGroup.add(handleObject, headGroup, neckObject);
   golfClubComponent.meshGroup = meshGroup;
 
-  setupSceneObjects(meshGroup);
+  meshGroup.traverse((obj) => {
+    obj.castShadow = true;
+    obj.receiveShadow = true;
+  })
 
   addComponent(entityClub, Object3DComponent, { value: meshGroup });
 

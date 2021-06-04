@@ -102,7 +102,6 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   ballMesh.scale.copy(transform.scale);
   ballMesh.castShadow = true;
   ballMesh.receiveShadow = true;
-  ballMesh.material && WebGLRendererSystem.instance.csm.setupMaterial(ballMesh.material);
   addComponent(ballEntity, Object3DComponent, { value: ballMesh });
   // console.log(transform.position)
 
@@ -119,6 +118,7 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
 export const updateBall = (ballEntity: Entity) => {
   const gameObject = getComponent(ballEntity, GameObject);
   const collider = getComponent(ballEntity, ColliderComponent);
+  if(!collider) return;
   if (collider.velocity.length() > 0.1) {
     if(hasComponent(ballEntity, State.Active)) {
       // console.warn('actionMoving')
