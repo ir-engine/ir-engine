@@ -269,14 +269,14 @@ export class ClientNetworkStateSystem extends System {
           // Send a request for the ones that didn't
         }
 
-
+        Network.instance.tick = transformState.tick
 
         if (transformState.transforms.length) {
           // do our reverse manipulations back from network
           // TODO: minimise quaternions to 3 components
           transformState.transforms.forEach((transform: StateEntity) => {
             const networkObject = Network.instance.networkObjects[transform.networkId]
-            // for character entities, we are sending the view vector, so we have to 
+            // for character entities, we are sending the view vector, so we have to apply it and retrieve the rotation
             if(networkObject && networkObject.component && hasComponent(networkObject.component.entity, CharacterComponent)) {
               vector3_0.set(transform.qX, transform.qY, transform.qZ);
               vector3_1.copy(vector3_0).setY(0).normalize();
@@ -293,9 +293,6 @@ export class ClientNetworkStateSystem extends System {
               transform.qW = quat.w;
             }
           })
-
-          Network.instance.tick = transformState.tick
-          Network.instance.transformState = transformState
         }
 
         if (transformState.transforms.length) {
