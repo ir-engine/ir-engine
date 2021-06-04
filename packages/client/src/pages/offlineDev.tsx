@@ -13,7 +13,7 @@ const canvasStyle = {
   width: '100%',
   height: '100%',
   position: 'absolute',
-  webkitUserSelect: 'none',
+  WebkitUserSelect: 'none',
   userSelect: 'none',
 } as React.CSSProperties;
 
@@ -49,7 +49,8 @@ const DevPage = () => {
       },
       networking: {
         useOfflineMode: true,
-      }
+      },
+      physxWorkerPath: '/scripts/loadPhysXClassic.js',
     };
     console.log(InitializationOptions);
     await initializeEngine(InitializationOptions);

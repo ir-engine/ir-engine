@@ -78,7 +78,7 @@ const canvasStyle = {
   width: '100%',
   height: '100%',
   position: 'absolute',
-  webkitUserSelect: 'none',
+  WebkitUserSelect: 'none',
   userSelect: 'none',
 } as React.CSSProperties;
 
@@ -332,7 +332,8 @@ export const EnginePage = (props: Props) => {
         renderer: {
           canvasId: engineRendererCanvasId
         },
-        useOfflineMode: Config.publicRuntimeConfig.offlineMode
+        useOfflineMode: Config.publicRuntimeConfig.offlineMode,
+        physxWorkerPath: '/scripts/loadPhysXClassic.js',
       };
 
       await initializeEngine(InitializationOptions);

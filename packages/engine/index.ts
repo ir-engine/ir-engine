@@ -85,7 +85,7 @@ export * from './src/common/interfaces/DomEventBehaviorValue';
 export * from './src/common/interfaces/Prefab';
 export * from './src/common/types/NumericalTypes';
 export * from './src/debug/systems/DebugHelpersSystem';
-export * from './src/DefaultInitializationOptions';
+export * from './src/initializationOptions';
 export * from './src/ecs/classes/Component';
 export * from './src/ecs/classes/Engine';
 export * from './src/ecs/classes/EngineEvents';

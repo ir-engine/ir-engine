@@ -14,7 +14,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import TextField from '@material-ui/core/TextField';
 import Container from '@material-ui/core/Container';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import { validationSchema } from "./validation";
+import { userValidationSchema } from "./validation";
 import { useFormik } from "formik";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 import { fetchAdminInstances } from '../../reducers/admin/service';
@@ -155,7 +155,7 @@ const CreateUser = (props: Props) => {
             avatar: "",
             inviteCode: ""
         },
-        validationSchema: validationSchema,
+        validationSchema: userValidationSchema,
         onSubmit: async (values, { resetForm }) => {
             if (!status) {
                 setWarning("Please select user role from the list");

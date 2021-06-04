@@ -1,13 +1,15 @@
 // Patch XHR for FileLoader in threejs
 import { XMLHttpRequest } from 'xmlhttprequest';
+import path from 'path';
 import { initializeEngine } from "@xrengine/engine/src/initializeEngine";
 import { NetworkSchema } from "@xrengine/engine/src/networking/interfaces/NetworkSchema";
 import config from '@xrengine/server-core/src/appconfig';
 import { SocketWebRTCServerTransport } from "./SocketWebRTCServerTransport";
-import { EngineSystemPresets } from '@xrengine/engine/src/DefaultInitializationOptions';
+import { EngineSystemPresets } from '@xrengine/engine/src/initializationOptions';
 
 (globalThis as any).XMLHttpRequest = XMLHttpRequest;
 
+const currentPath = (process.platform === "win32" ? 'file:///' : '') + path.dirname(__filename);
 const options = {
   type: EngineSystemPresets.SERVER,
   networking: {
@@ -16,6 +18,7 @@ const options = {
     } as NetworkSchema,
     publicPath: config.client.url
   },
+  physxWorkerPath: currentPath + "/physx/loadPhysXNode.ts",
 };
 
 export class WebRTCGameServer {

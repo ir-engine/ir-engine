@@ -130,6 +130,7 @@ export class WebGLRendererSystem extends System {
     renderer.toneMapping = LinearToneMapping;
     renderer.toneMappingExposure = 0.8;
     Engine.renderer = renderer;
+    Engine.viewportElement = renderer.domElement;
     Engine.xrRenderer = new WebXRManager(renderer, context);
     Engine.xrRenderer.enabled = Engine.xrSupported;
 

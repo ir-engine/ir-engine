@@ -35,6 +35,7 @@ export type InitializeOptions = {
     [key: string]: GameMode
   },
   physicsWorldConfig?: PhysXConfig,
+  physxWorkerPath?: string,
 };
 
 /**

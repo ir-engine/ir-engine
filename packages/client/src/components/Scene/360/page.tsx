@@ -29,7 +29,7 @@ const canvasStyle = {
   width: '100%',
   height: '100%',
   position: 'absolute',
-  webkitUserSelect: 'none',
+  WebkitUserSelect: 'none',
   userSelect: 'none',
 } as React.CSSProperties;
 
@@ -53,7 +53,8 @@ export const XR360PlayerPage = (props: Props) => {
       },
       networking: {
         useOfflineMode: true,
-      }
+      },
+      physxWorkerPath: '/scripts/loadPhysXClassic.js',
     };
     console.log(InitializationOptions);
     await initializeEngine(InitializationOptions);

@@ -2,10 +2,11 @@
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
 
-import { AudioAnalyser, ClampToEdgeWrapping, Color, CubeCamera, Group, LinearMipmapLinearFilter, Loader, Mesh, MeshPhysicalMaterial, Object3D, PlaneGeometry, RectAreaLight, RepeatWrapping, RGBFormat, TextureLoader, Vector3, WebGLCubeRenderTarget } from "three";
-import ReflectionProbe from "../../scene/classes/ReflectionProbe";
+import { Color, Group, Mesh, MeshPhysicalMaterial, Object3D, PlaneGeometry, RectAreaLight, RepeatWrapping, TextureLoader } from "three";
 import EditorNodeMixin from "./EditorNodeMixin";
+// @ts-ignore
 import { RectAreaLightHelper } from './helper/RectAreaLightHelper.js';
+// @ts-ignore
 import { RectAreaLightUniformsLib } from './helper/RectAreaLightUniformsLib.js';
 
 

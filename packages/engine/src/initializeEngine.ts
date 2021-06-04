@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import path from 'path';
+import Worker from 'web-worker';
 import { detect, detectOS } from 'detect-browser';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
@@ -9,12 +9,11 @@ import { AnimationManager } from './character/AnimationManager';
 import { CharacterControllerSystem } from './character/CharacterControllerSystem';
 import { now } from './common/functions/now';
 import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem';
-import { DefaultInitializationOptions, InitializeOptions } from "./DefaultInitializationOptions";
+import { DefaultInitializationOptions, InitializeOptions, EngineSystemPresets } from "./initializationOptions";
 import { Engine } from './ecs/classes/Engine';
 import { EngineEvents } from './ecs/classes/EngineEvents';
 import { registerSystem } from './ecs/functions/SystemFunctions';
 import { GameManagerSystem } from './game/systems/GameManagerSystem';
-import { EngineSystemPresets } from './DefaultInitializationOptions';
 import { ActionSystem } from './input/systems/ActionSystem';
 import { ClientInputSystem } from './input/systems/ClientInputSystem';
 import { InteractiveSystem } from './interaction/systems/InteractiveSystem';
@@ -74,12 +73,14 @@ const configureClient = async (options: InitializeOptions) => {
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: enableRenderer, physics: true });
       });
 
+      if (options.renderer.disabled) return;
+
       Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
       Engine.scene.add(Engine.camera);
 
       /** @todo for when we fix bundling */
       // if((window as any).safariWebBrowser) {
-          physicsWorker = new Worker('/scripts/loadPhysXClassic.js');
+          physicsWorker = new Worker(options.physxWorkerPath);
       // } else {
       //     // @ts-ignore
       //     const { default: PhysXWorker } = await import('@xrengine/engine/src/physics/functions/loadPhysX.ts?worker&inline');
@@ -87,15 +88,12 @@ const configureClient = async (options: InitializeOptions) => {
       // }
 
       new AnimationManager();
-
-      // promise in parallel to speed things up
       await Promise.all([
           AnimationManager.instance.getDefaultModel(),
           AnimationManager.instance.getAnimations(),
       ]);
-      Engine.workers.push(physicsWorker);
 
-      Engine.viewportElement = Engine.renderer.domElement;
+      Engine.workers.push(physicsWorker);
     }
 
     registerClientSystems(options, useOffscreen, canvas, physicsWorker);
@@ -111,7 +109,8 @@ const configureEditor = async (options: InitializeOptions) => {
 
     /** @todo fix bundling */
     // if((window as any).safariWebBrowser) {
-        physicsWorker = new Worker('/scripts/loadPhysXClassic.js');
+        // eslint-disable-next-line prefer-const
+        physicsWorker = new Worker(options.physxWorkerPath);
     // } else {
     //     // @ts-ignore
     //     const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
@@ -131,14 +130,14 @@ const configureServer = async (options: InitializeOptions) => {
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: true, physics: true });
     });
 
-    const currentPath = (process.platform === "win32" ? 'file:///' : '') + path.dirname(__filename);
-    const worker = new Worker(currentPath + "/physx/loadPhysXNode.ts");
+    const worker = new Worker(options.physxWorkerPath);
     Engine.workers.push(worker);
 
     registerServerSystems(options, worker);
 }
 
 const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean, canvas: HTMLCanvasElement, physicsWorker: Worker) => {
+    // Network Systems
     if (options.networking) {
         Network.instance = new Network();
 
@@ -153,27 +152,29 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
 
     if (options.renderer.disabled) return;
 
+
+    // Input Systems
     if (options.input) registerSystem(ClientInputSystem, { useWebXR: Engine.xrSupported, priority: 1 });
 
     if (useOffscreen) return;
 
-    // FREE systems
+    // Render systems
     registerSystem(XRSystem, { priority: 1 }); // Free
     registerSystem(CameraSystem, { priority: 2 }); // Free
     registerSystem(WebGLRendererSystem, { priority: 3, canvas, postProcessing: options.renderer.postProcessing }); // Free
 
-    // LOGIC - Input
+    // Input Systems
     registerSystem(UIPanelSystem, { priority: 2 });
     registerSystem(ActionSystem, { priority: 3 });
     registerSystem(CharacterControllerSystem, { priority: 4 });
 
-    // LOGIC - Scene
+    // Scene Systems
     registerSystem(InteractiveSystem, { priority: 5 });
     registerSystem(GameManagerSystem, { priority: 6 });
     registerSystem(TransformSystem, { priority: 7 }); // Free
     registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig: options.physicsWorldConfig, priority: 8 });
 
-    // LOGIC - Miscellaneous
+    // Miscellaneous Systems
     registerSystem(HighlightSystem, { priority: 9 });
     registerSystem(ParticleSystem, { priority: 10 });
     registerSystem(DebugHelpersSystem, { priority: 11 });
@@ -181,36 +182,38 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
 }
 
 const registerEditorSystems = (options: InitializeOptions, physicsWorker: Worker) => {
+    // Scene Systems
     registerSystem(GameManagerSystem, { priority: 6 });
     registerSystem(TransformSystem, { priority: 7 });
     registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig: options.physicsWorldConfig, priority: 8 });
 
+    // Miscellaneous Systems
     registerSystem(ParticleSystem, { priority: 10 });
     registerSystem(DebugHelpersSystem, { priority: 11 });
 }
 
 const registerServerSystems = (options: InitializeOptions, physicsWorker: Worker) => {
-    // NETWORK
+    // Network Systems
     registerSystem(ServerNetworkIncomingSystem, { ...options.networking, priority: 1 }); // first
     registerSystem(ServerNetworkOutgoingSystem, { ...options.networking, priority: 100 }); // last
     registerSystem(MediaStreamSystem, { priority: 3 });
 
-    // LOGIC - Input
+    // Input Systems
     registerSystem(CharacterControllerSystem, { priority: 4 });
 
-    // LOGIC - Scene
+    // Scene Systems
     registerSystem(InteractiveSystem, { priority: 5 });
     registerSystem(GameManagerSystem, { priority: 6 });
     registerSystem(TransformSystem, { priority: 7 });
     registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig: options.physicsWorldConfig, priority: 8 });
 
-    // LOGIC - Miscellaneous
+    // Miscellaneous Systems
     registerSystem(ServerSpawnSystem, { priority: 9 });
 }
 
 export const initializeEngine = async (initOptions: InitializeOptions): Promise<void> => {
+    // Set options and state of engine.
     const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
-
 
     Engine.gameMode = options.gameMode;
     Engine.supportedGameModes = options.supportedGameModes;
@@ -218,7 +221,9 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     Engine.publicPath = options.networking.publicPath;
     Engine.lastTime = now() / 1000;
 
-    if (navigator && window) {
+
+    // Browser state set
+    if (options.type !== EngineSystemPresets.SERVER && navigator && window) {
         const browser = detect();
         const os = detectOS(navigator.userAgent);
 
@@ -230,6 +235,8 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
         Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr');
     }
 
+
+    // Config Engine based on passed type
     if (options.type === EngineSystemPresets.CLIENT) {
         await configureClient(options);
     } else if (options.type === EngineSystemPresets.EDITOR) {
@@ -238,14 +245,20 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
         await configureServer(options);
     }
 
+
+    // Initialize all registered systems
     await Promise.all(Engine.systems.map(system => system.initialize()));
 
+
+    // Set timer
     Engine.engineTimer = Timer({
         networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
         fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
         update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
     }, Engine.physicsFrameRate, Engine.networkFramerate);
 
+
+    // Engine type specific post configuration work
     if (options.type === EngineSystemPresets.CLIENT) {
         EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
             Engine.engineTimer.start();
@@ -266,6 +279,8 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
         Engine.engineTimer.start();
     }
 
+
+    // Mark engine initialized
     Engine.isInitialized = true;
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE });
 };

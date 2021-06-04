@@ -18,7 +18,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import { fetchAdminLocations } from "../../reducers/admin/service";
 import { useFormik } from "formik";
-import { validationSchema } from "./validation";
+import { instanceValidationSchema } from "./validation";
 import DialogContentText from '@material-ui/core/DialogContentText';
 import Typography from '@material-ui/core/Typography';
 
@@ -137,7 +137,7 @@ function CreateInstance(props: Props) {
             currentUsers: "",
             ipAddress: ""
         },
-        validationSchema: validationSchema,
+        validationSchema: instanceValidationSchema,
         onSubmit: async (values, { resetForm }) => {
             const data = {
                 ipAddress: values.ipAddress,

@@ -15,7 +15,7 @@ import { doLoginAuto } from "@xrengine/client-core/src/user/reducers/auth/servic
 import { initializeEngine } from "@xrengine/engine/src/initializeEngine";
 import { Engine } from "@xrengine/engine/src/ecs/classes/Engine";
 import { GamesSchema } from "@xrengine/engine/src/game/templates/GamesSchema";
-import { EngineSystemPresets } from "@xrengine/engine/src/DefaultInitializationOptions";
+import { EngineSystemPresets } from "@xrengine/engine/src/initializationOptions";
 /**
  * Declairing Props interface having two props.
  *@authState can be of any type.
@@ -68,7 +68,8 @@ const Project = (props: Props) => {
         type: EngineSystemPresets.EDITOR,
         networking: {
             publicPath: location.origin,
-        }
+        },
+        physxWorkerPath: '/scripts/loadPhysXClassic.js',
     };
 
     useEffect(() => {
