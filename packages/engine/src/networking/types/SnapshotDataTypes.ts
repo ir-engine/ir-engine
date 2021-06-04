@@ -81,3 +81,14 @@ export interface InterpolatedSnapshot {
 
 // TODO: Remove / move
 export interface Quat { x: number; y: number; z: number; w: number }
+
+export interface SnapshotData {
+  interpolation: InterpolatedSnapshot;
+  correction: Snapshot;
+  new: StateEntityClientGroup
+}
+
+export interface InterpolationInterface {
+  interpolationBehavior: any;
+  serverCorrectionBehavior?: any; // for smoothing local input receiver transforms - characters, vehicles etc
+}

@@ -14,7 +14,7 @@ import { initializeNetworkObject } from '../../networking/functions/initializeNe
 import { NetworkPrefab } from '../../networking/interfaces/NetworkPrefab';
 import { PrefabType } from '../../networking/templates/PrefabType';
 import { InterpolationComponent } from '../../physics/components/InterpolationComponent';
-import { InterpolationInterface } from '../../physics/interfaces/InterpolationInterface';
+import { InterpolationInterface } from '../../networking/types/SnapshotDataTypes';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 
 /**

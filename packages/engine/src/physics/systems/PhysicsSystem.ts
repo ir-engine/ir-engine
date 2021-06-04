@@ -16,6 +16,8 @@ import { isClient } from '../../common/functions/isClient';
 import { BodyType, PhysXConfig, PhysXInstance } from "three-physx";
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
 import { Vector3 } from 'three';
+import { SnapshotData } from '../../networking/types/SnapshotDataTypes';
+
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -116,7 +118,7 @@ export class PhysicsSystem extends System {
     if (isClient) {
       if (!Network.instance?.snapshot) return;
       // Interpolate between the current client's data with what the server has sent via snapshots
-      const snapshots = {
+      const snapshots: SnapshotData = {
         interpolation: calculateInterpolation('x y z quat velocity'),
         correction: Vault.instance?.get((Network.instance.snapshot as any).timeCorrection, true),
         new: []
@@ -179,7 +181,7 @@ export class PhysicsSystem extends System {
 }
 
 PhysicsSystem.queries = {
-  localClientInterpolation: {
+  localClientInterpolation: { 
     components: [LocalInputReceiver, InterpolationComponent, NetworkObject],
   },
   networkObjectInterpolation: {

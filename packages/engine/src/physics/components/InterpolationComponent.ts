@@ -1,6 +1,6 @@
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
-import { InterpolationInterface } from '../interfaces/InterpolationInterface';
+import type { InterpolationInterface } from '../../networking/types/SnapshotDataTypes';
 
 /**
  * @author HydraFire <github.com/HydraFire>

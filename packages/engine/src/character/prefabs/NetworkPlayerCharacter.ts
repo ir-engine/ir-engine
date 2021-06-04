@@ -20,7 +20,7 @@ import { RelativeSpringSimulator } from "../../physics/classes/SpringSimulator";
 import { VectorSpringSimulator } from "../../physics/classes/VectorSpringSimulator";
 import { InterpolationComponent } from "../../physics/components/InterpolationComponent";
 import { CollisionGroups, DefaultCollisionMask } from "../../physics/enums/CollisionGroups";
-import { InterpolationInterface } from "../../physics/interfaces/InterpolationInterface";
+
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { addObject3DComponent } from "../../scene/behaviors/addObject3DComponent";
 import { createShadow } from "../../scene/behaviors/createShadow";
@@ -36,6 +36,7 @@ import { ControllerColliderComponent } from "../components/ControllerColliderCom
 import { NamePlateComponent } from '../components/NamePlateComponent';
 import { PersistTagComponent } from "../../scene/components/PersistTagComponent";
 import { IKRigComponent } from "../components/IKRigComponent";
+
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
   if(!isClient) return;

@@ -8,9 +8,8 @@ import { PrefabType } from '../../networking/templates/PrefabType';
 import { isClient } from '../../common/functions/isClient';
 import { Network } from '../../networking/classes/Network';
 import { InterpolationComponent } from '../../physics/components/InterpolationComponent';
-import { InterpolationInterface } from '../../physics/interfaces/InterpolationInterface';
+import { InterpolationInterface } from '../../networking/types/SnapshotDataTypes';
 import { rigidbodyInterpolationBehavior } from '../../physics/behaviors/rigidbodyInterpolationBehavior';
-import { rigidbodyCorrectionBehavior } from '../../physics/behaviors/rigidbodyCorrectionBehavior';
 
 /**
 * @author HydraFire <github.com/HydraFire>
@@ -53,9 +52,8 @@ export function createNetworkRigidBody( args:{ parameters?: any, networkId?: num
   }
 }
 
-export const characterInterpolationSchema: InterpolationInterface = {
-	interpolationBehavior: rigidbodyInterpolationBehavior,
-	serverCorrectionBehavior: rigidbodyCorrectionBehavior
+export const rigidbodyInterpolationSchema: InterpolationInterface = {
+	interpolationBehavior: rigidbodyInterpolationBehavior
 }
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
@@ -72,7 +70,7 @@ export const NetworkRigidBody: NetworkPrefab = {
   // These are only created for the local player who owns this prefab
   localClientComponents: [],
   clientComponents: [
-		{ type: InterpolationComponent, data: { schema: characterInterpolationSchema } },
+		{ type: InterpolationComponent, data: { schema: rigidbodyInterpolationSchema } },
   ],
   serverComponents: [],
   onAfterCreate: [],

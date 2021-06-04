@@ -10,8 +10,17 @@ import { NetworkObject } from "../../networking/components/NetworkObject";
 import { findInterpolationSnapshot } from "../../physics/behaviors/findInterpolationSnapshot";
 import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
 import { CharacterComponent } from "../components/CharacterComponent";
+import { SnapshotData } from "../../networking/types/SnapshotDataTypes";
 
-export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots, delta): void => {
+/**
+ * @author HydraFire <github.com/HydraFire>
+ * Interpolates the local client's character transform with the server's state
+ * @param {Entity} entity the entity belonging to the character
+ * @param {SnapshotData} snapshots the snapshot data to use
+ * @param {number} delta the delta of this frame
+ */
+
+export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots: SnapshotData, delta: number): void => {
   const networkId = getComponent(entity, NetworkObject).networkId;
 
   const correction = findInterpolationSnapshot(entity, snapshots.correction);

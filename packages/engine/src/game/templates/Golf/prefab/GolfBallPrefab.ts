@@ -23,6 +23,9 @@ import { addActionComponent } from '../../../functions/functionsActions';
 import { Action, State } from '../../../types/GameComponents';
 import { getGame } from '../../../functions/functions';
 import { MathUtils } from 'three';
+import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent';
+import { rigidbodyInterpolationBehavior } from '../../../../physics/behaviors/rigidbodyInterpolationBehavior';
+import { InterpolationInterface } from '../../../../networking/types/SnapshotDataTypes';
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -212,6 +215,10 @@ export const createGolfBallPrefab = (args: { parameters?: GolfBallSpawnParameter
   });
 }
 
+export const rigidbodyInterpolationSchema: InterpolationInterface = {
+	interpolationBehavior: rigidbodyInterpolationBehavior
+}
+
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const GolfBallPrefab: NetworkPrefab = {
   initialize: createGolfBallPrefab,
@@ -226,8 +233,9 @@ export const GolfBallPrefab: NetworkPrefab = {
   ],
   // These are only created for the local player who owns this prefab
   localClientComponents: [],
-  //clientComponents: [{ type: InterpolationComponent, data: { } }],
-  clientComponents: [],
+  clientComponents: [
+		{ type: InterpolationComponent, data: { schema: rigidbodyInterpolationSchema } },
+  ],
   serverComponents: [],
   onAfterCreate: [
     {

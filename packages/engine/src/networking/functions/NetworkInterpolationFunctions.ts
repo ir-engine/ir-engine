@@ -1,5 +1,5 @@
 import { degreeLerp, lerp, quatSlerp, radianLerp } from '../../common/functions/MathLerpFunctions';
-import { Quat } from '../../networking/types/SnapshotDataTypes';
+import { Quat, StateEntityClientGroup } from '../../networking/types/SnapshotDataTypes';
 import { InterpolatedSnapshot, Snapshot, StateEntityGroup, StateInterEntity, StateEntityInterGroup, StateEntity, Time, Value } from '../types/SnapshotDataTypes';
 import { NetworkInterpolation } from '../classes/NetworkInterpolation';
 import { Network } from '../classes/Network';
@@ -23,10 +23,10 @@ export function snapshot(): any {
  * @param state State of the world or client to be stored in this snapshot.
  * @returns Newly created snapshot.
  */
-export function createSnapshot (state: StateEntityGroup): Snapshot {
+export function createSnapshot (state: StateEntityClientGroup): Snapshot {
 //  console.log("state is");
 //  console.log(state);
-  const check = (state: StateEntityGroup) => {
+  const check = (state: StateEntityClientGroup) => {
     // check if state is an array
     if (!Array.isArray(state)) throw new Error('You have to pass an Array to createSnapshot()');
 
@@ -271,7 +271,7 @@ export function interpolate (
  * @returns Interpolated snapshot.
  */
 let hasLostConnection = true;
-export function calculateInterpolation (parameters: string, arrayName = ''): InterpolatedSnapshot | undefined {
+export function calculateInterpolation (parameters: string, arrayName = ''): InterpolatedSnapshot {
   // get the snapshots [_interpolationBuffer] ago
   const serverTime = (Date.now() - NetworkInterpolation.instance.timeOffset) - NetworkInterpolation.instance._interpolationBuffer;
   // protection from going back in time during a ping jump

@@ -1,15 +1,20 @@
-import { Behavior } from '../../common/interfaces/Behavior';
-import { Entity } from '../../ecs/classes/Entity';
+import type { Behavior } from '../../common/interfaces/Behavior';
+import type { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { findInterpolationSnapshot } from '../../physics/behaviors/findInterpolationSnapshot';
 import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
+import type { SnapshotData } from '../../networking/types/SnapshotDataTypes';
+
 /**
  * @author HydraFire <github.com/HydraFire>
+ * Interpolates the transform for other user's character avatars
+ * @param {Entity} entity the entity belonging to the character
+ * @param {SnapshotData} snapshots the snapshot data to use
  */
 
-export const characterInterpolationBehavior: Behavior = (entity: Entity, snapshots): void => {
+export const characterInterpolationBehavior: Behavior = (entity: Entity, snapshots: SnapshotData): void => {
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
   const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
