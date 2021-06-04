@@ -76,106 +76,118 @@ const Page = () => {
 			////////////////////////////////////////////////////////////////////////////
 
 			// LOAD SOURCE
-			let model = (await LoadGLTF("ikrig/anim/TPose.glb"));
-			console.log("Model is", model);
-			// Set up skinned meshes
-			let skinnedMeshes = [];
-			Engine.scene.add(model.scene)
-			Engine.scene.add(new SkeletonHelper(model.scene));
-			model.scene.traverse(node => {
-				if (node.children)
-					node.children.forEach(n => {
-						if (n.type === "SkinnedMesh")
-							skinnedMeshes.push(n);
-							n.visible = false;
-					})
-			})
-			let skinnedMesh = skinnedMeshes.sort((a, b) => { return a.skeleton.bones.length - b.skeleton.bones.length })[0];
-
-			// Set up entity
-			let entity = createEntity();
-			addComponent(entity, AnimationComponent);
-			addComponent(entity, Obj);
-			addComponent(entity, IKPose);
-			addComponent(entity, IKRig);
-
-			// Set up the Object3D
-			let obj = getMutableComponent(entity, Obj);
-			obj.setReference(skinnedMesh);
-
-			// Set up animations
-			let ac = getMutableComponent(entity, AnimationComponent);
-			const mixer = new AnimationMixer(obj.ref);
-			const clips = model.animations;
-			ac.mixer = mixer;
-			ac.animations = clips;
-			ac.mixer.clipAction(clips[0]).play();
-
-			// Set up poses
-			let rig = getMutableComponent(entity, IKRig);
-			rig.pose = new Pose(entity);
-			rig.tpose = new Pose(entity); // If Passing a TPose, it must have its world space computed.
-
-			//-----------------------------------------
-			// Apply Node's Starting Transform as an offset for poses.
-			// This is only important when computing World Space Transforms when
-			// dealing with specific skeletons, like Mixamo stuff.
-			// Need to do this to render things correctly
-			// TODO: Verify the numbers of this vs the original
-			let objRoot = getMutableComponent(entity, Obj).ref; // Obj is a ThreeJS Component
-			rig.pose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale);
-			rig.tpose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale);
-
-			setupIKRig(rig);
-
-			////////////////////////////////////////////////////////////////////////////
-
-			// // LOAD MESH A
-			// model = (await LoadGLTF("ikrig/models/vegeta.glb"));
-			// model.scene.position.set(1, 0, 0);
+			// let model = (await LoadGLTF("ikrig/anim/TPose.glb"));
+			// console.log("Model is", model);
+			// // Set up skinned meshes
+			// let skinnedMeshes = [];
 			// Engine.scene.add(model.scene)
 			// Engine.scene.add(new SkeletonHelper(model.scene));
-			// skinnedMeshes = [];
 			// model.scene.traverse(node => {
-			// 	if (node.children) {
+			// 	if (node.children)
 			// 		node.children.forEach(n => {
-			// 			if (n.type === "SkinnedMesh") {
+			// 			if (n.type === "SkinnedMesh")
 			// 				skinnedMeshes.push(n);
-			// 			}
+			// 				n.visible = false;
 			// 		})
-			// 	}
 			// })
-			// skinnedMesh = skinnedMeshes.sort((a, b) => { return a.skeleton.bones.length - b.skeleton.bones.length })[0];
+			// let skinnedMesh = skinnedMeshes.sort((a, b) => { return a.skeleton.bones.length - b.skeleton.bones.length })[0];
 
-			// // Create entity
-			// entity = createEntity();
+			// // Set up entity
+			// let entity = createEntity();
+			// addComponent(entity, AnimationComponent);
 			// addComponent(entity, Obj);
 			// addComponent(entity, IKPose);
 			// addComponent(entity, IKRig);
 
-			// // Set the skinned mesh reference
-			// obj = getMutableComponent(entity, Obj);
+			// // Set up the Object3D
+			// let obj = getMutableComponent(entity, Obj);
 			// obj.setReference(skinnedMesh);
 
-			// rig = getMutableComponent(entity, IKRig);
+			// // Set up animations
+			// let ac = getMutableComponent(entity, AnimationComponent);
+			// const mixer = new AnimationMixer(obj.ref);
+			// const clips = model.animations;
+			// ac.mixer = mixer;
+			// ac.animations = clips;
+			// ac.mixer.clipAction(clips[0]).play();
+
+			// // Set up poses
+			// let rig = getMutableComponent(entity, IKRig);
 			// rig.pose = new Pose(entity);
 			// rig.tpose = new Pose(entity); // If Passing a TPose, it must have its world space computed.
 
-			// rig.pose.setOffset(obj.ref.quaternion, obj.ref.position, obj.ref.scale);
-			// rig.tpose.setOffset(obj.ref.quaternion, obj.ref.position, obj.ref.scale);
+			// //-----------------------------------------
+			// // Apply Node's Starting Transform as an offset for poses.
+			// // This is only important when computing World Space Transforms when
+			// // dealing with specific skeletons, like Mixamo stuff.
+			// // Need to do this to render things correctly
+			// // TODO: Verify the numbers of this vs the original
+			// let objRoot = getMutableComponent(entity, Obj).ref; // Obj is a ThreeJS Component
+			// rig.pose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale);
+			// rig.tpose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale);
+
 			// setupIKRig(rig);
-
-			// // // Save pose local space transform
-
-			// for (let index = 0; index < obj.ref.skeleton.bones.length; index++) {
-			// 	let bone = obj.ref.skeleton.bones[index];
-			// 	rig.tpose.setBone(index, bone.quaternion, bone.position, bone.scale);
-			// }
-
 			// rig.tpose.apply();
 
-			// // // TODO: Fix me
-			// rig.points.head.index = rig.points.neck.index; // Lil hack cause Head Isn't Skinned Well.
+			////////////////////////////////////////////////////////////////////////////
+
+			// LOAD MESH A
+		let targetModel = (await LoadGLTF("ikrig/models/vegeta.glb"));
+			targetModel.scene.position.set(0, 0, 0);
+			Engine.scene.add(targetModel.scene)
+			Engine.scene.add(new SkeletonHelper(targetModel.scene));
+		let	targetSkinnedMeshes = [];
+			targetModel.scene.traverse(node => {
+				if (node.children) {
+					node.children.forEach(n => {
+						if (n.type === "SkinnedMesh") {
+							targetSkinnedMeshes.push(n);
+						}
+					})
+				}
+			})
+		let	targetSkinnedMesh = targetSkinnedMeshes.sort((a, b) => { return a.skeleton.bones.length - b.skeleton.bones.length })[0];
+
+			// Create entity
+		let	targetEntity = createEntity();
+			addComponent(targetEntity, Obj);
+			addComponent(targetEntity, IKPose);
+			addComponent(targetEntity, IKRig);
+
+			// Set the skinned mesh reference
+		let	targetObj = getMutableComponent(targetEntity, Obj);
+			targetObj.setReference(targetSkinnedMesh);
+
+		let	targetRig = getMutableComponent(targetEntity, IKRig);
+			targetRig.pose = new Pose(targetEntity);
+			targetRig.tpose = new Pose(targetEntity); // If Passing a TPose, it must have its world space computed.
+
+			targetRig.pose.setOffset(targetObj.ref.quaternion, targetObj.ref.position, targetObj.ref.scale);
+			targetRig.tpose.setOffset(targetObj.ref.quaternion, targetObj.ref.position, targetObj.ref.scale);
+			setupIKRig(targetRig);
+
+			// // Save pose local space transform
+
+			for (let index = 0; index < targetObj.ref.skeleton.bones.length; index++) {
+				let bone = targetObj.ref.skeleton.bones[index];
+				targetRig.tpose.setBone(index, bone.quaternion, bone.position, bone.scale);
+			}
+			
+
+			targetRig.tpose.align_leg( ["LeftUpLeg", "LeftLeg"] )
+			targetRig.tpose.align_leg( ["RightUpLeg", "RightLeg"] )
+			targetRig.tpose.align_arm_left( ["LeftArm", "LeftForeArm"] )
+			targetRig.tpose.align_arm_right( ["RightArm", "RightForeArm"] )
+			// targetRig.tpose.spin_bone_forward( "LeftFoot" )
+			// targetRig.tpose.spin_bone_forward( "RightFoot" )
+			// targetRig.tpose.build();
+	
+
+			targetRig.tpose.apply();
+
+
+			// // TODO: Fix me
+			targetRig.points.head.index = targetRig.points.neck.index; // Lil hack cause Head Isn't Skinned Well.
 
 			////////////////////////////////////////////////////////////////////////////
 

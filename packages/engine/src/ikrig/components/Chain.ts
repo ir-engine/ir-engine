@@ -28,14 +28,19 @@ export class Chain {
 	index(i) { return this.chainBones[i].index; }
 
 	setOffsets(fwd, up, tpose) {
-		// TODO: REVIEW ME, could be broken!
-			const b = tpose.bones[this.chainBones[0].index];
+		// ORIGINAL CODE
+		// 	let b = tpose.bones[ this.bones[ 0 ].idx ],
+		// 	q = Quat.invert( b.world.rot );	// Invert World Space Rotation 
 
-			const boneWorldQuaternion = new Quaternion();
-			b.getWorldQuaternion(boneWorldQuaternion);
-			const qInverse = boneWorldQuaternion.invert(); // Invert World Space Rotation 
-			this.forwardOffset = new Vector3().copy(fwd).applyQuaternion(qInverse).normalize(); // Use invert to get direction that will Recreate the real direction
-			this.upOffset = new Vector3().copy(up).applyQuaternion(qInverse).normalize();
+		// this.alt_fwd.from_quat( q, fwd );	// Use invert to get direction that will Recreate the real direction
+		// this.alt_up.from_quat( q, up );	
+		const b = tpose.bones[this.chainBones[0].index];
+
+		const boneWorldQuaternion = new Quaternion();
+		b.getWorldQuaternion(boneWorldQuaternion);
+		boneWorldQuaternion.invert(); // Invert World Space Rotation 
+		this.forwardOffset = new Vector3().copy(fwd).applyQuaternion(boneWorldQuaternion).normalize(); // Use invert to get direction that will Recreate the real direction
+		this.upOffset = new Vector3().copy(up).applyQuaternion(boneWorldQuaternion).normalize();
 
 		return this;
 	}

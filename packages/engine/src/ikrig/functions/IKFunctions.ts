@@ -100,7 +100,7 @@ export function computeHip(rig, ik_pose) {
 
 	// let pose_fwd 	= Vec3.transform_quat( alt_fwd, pose.world.rot ),
 	// 	pose_up 	= Vec3.transform_quat( alt_up, pose.world.rot );
-	let quatInverse = bindBone.quaternion.invert(),
+	let quatInverse = new Quaternion().copy(bindBone.quaternion).invert(),
 		forwardOffset = new Vector3().copy(FORWARD).applyQuaternion(quatInverse),
 		upOffset = new Vector3().copy(UP).applyQuaternion(quatInverse);
 
@@ -124,7 +124,7 @@ export function computeHip(rig, ik_pose) {
 	// 									// a new Up direction based on only swing.
 	// 	let swing_up	= Vec3.transform_quat( Vec3.UP, swing ),
 	// 		twist		= Vec3.angle( swing_up, pose_up );		// Swing + Pose have same Fwd, Use Angle between both UPs for twist
-	let swing = (new Quaternion().setFromUnitVectors(FORWARD, directionHipShouldPoint)) // First we create a swing rotation from one dir to the other.
+	let swing = new Quaternion().setFromUnitVectors(FORWARD, directionHipShouldPoint) // First we create a swing rotation from one dir to the other.
 		.multiply(bindBone.quaternion); // Then we apply it to the TBone Rotation, this will do a FWD Swing which will create
 
 	// a new Up direction based on only swing.
@@ -452,7 +452,10 @@ export function applyLimb(entity, chain, limb, grounding = 0) {
 	bone.parent.getWorldScale(parentWorldScale);
 
 
-	let rot = new Quaternion().copy(parentWorldQuaternion.multiply(tposeQuaternion));
+	// ORIGINAL CODE:
+	// let rot	= Quat.mul( p_wt.rot, tpose.get_local_rot( chain.first() ) ),	// Get World Space Rotation for Bone
+	// dir	= Vec3.transform_quat( chain.alt_fwd, rot );					// Get Bone's WS Forward Dir
+	let rot = new Quaternion().copy(parentWorldQuaternion).multiply(tposeQuaternion);
 	console.log("chain is", chain);
 	//Swing
 	let dir = new Vector3()
@@ -475,6 +478,7 @@ export function applyLimb(entity, chain, limb, grounding = 0) {
 
 	tempQ.setFromAxisAngle(ikPose.target.axis.z, twist);	// Apply Twist
 	quaternion.premultiply(tempQ);
+
 	const boneParentQuaternionInverse = new Quaternion();
 	bone.parent.getWorldQuaternion(boneParentQuaternionInverse);
 	boneParentQuaternionInverse.invert();

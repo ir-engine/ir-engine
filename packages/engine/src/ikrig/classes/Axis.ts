@@ -17,9 +17,9 @@ class Axis{
 	y: Vector3;
 	z: Vector3;
 	constructor(){
-		this.x = new Vector3( LEFT.x, LEFT.y, LEFT.z );
-		this.y = new Vector3( UP.x, UP.y, UP.z );
-		this.z = new Vector3( FORWARD.x, FORWARD.y, FORWARD.z );
+		this.x = new Vector3().copy(LEFT);
+		this.y = new Vector3().copy(UP);
+		this.z = new Vector3().copy(FORWARD);
 	}
 		//Passing in Vectors.
 		set( x, y, z, do_norm = false ){
