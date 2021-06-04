@@ -43,7 +43,6 @@ import { CharacterComponent } from '@xrengine/engine/src/character/components/Ch
 import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import { Config } from '@xrengine/client-core/src/helper';
-import { useHistory } from 'react-router-dom';
 import querystring from 'querystring';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -170,7 +169,6 @@ export const EnginePage = (props: Props) => {
   const [infoBoxData, setModalData] = useState(null);
   const [userBanned, setUserBannedState] = useState(false);
   const [openLinkData, setOpenLinkData] = useState(null);
-  const router = useHistory();
 
   const [progressEntity, setProgressEntity] = useState(99);
   const [userHovered, setonUserHover] = useState(false);
@@ -210,7 +208,7 @@ export const EnginePage = (props: Props) => {
           if (locationName === Config.publicRuntimeConfig.lobbyLocationName) {
             getLobby().then(lobby => {
               history.replace('/location/' + lobby.slugifiedName);
-            });
+            }).catch(err => console.log('getLobby error', err));
           } else {
             getLocationByName(locationName);
             if (sceneId === null) {
@@ -231,7 +229,7 @@ export const EnginePage = (props: Props) => {
       if (locationName === Config.publicRuntimeConfig.lobbyLocationName) {
         getLobby().then(lobby => {
           history.replace('/location/' + lobby.slugifiedName);
-        });
+        }).catch(err => console.log('getLobby error', err));
       } else {
         getLocationByName(locationName);
         if (sceneId === null) {
@@ -288,7 +286,7 @@ export const EnginePage = (props: Props) => {
               console.log('Set scene ID to', sceneId);
               sceneId = currentLocation.sceneId;
             }
-          });
+          }).catch(err => console.log('instance get error', err));
       }
     }
   }, [appState]);
@@ -446,8 +444,8 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation);
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover);
     EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation);
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => { setIsInXR(true); });
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => { setIsInXR(false); });
+    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async () => { setIsInXR(true); });
+    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async () => { setIsInXR(false); });
   };
 
   const onObjectActivation = (interactionData): void => {
