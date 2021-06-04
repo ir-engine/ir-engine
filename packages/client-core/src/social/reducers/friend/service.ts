@@ -12,6 +12,7 @@ import Store from '../../../store';
 import { User } from '@xrengine/common/src/interfaces/User';
 
 import { Config } from '../../../helper';
+import {addedChannelLayerUser, removedChannelLayerUser} from "../../../user/reducers/user/actions";
 
 const store = Store.store;
 
@@ -130,16 +131,22 @@ if(!Config.publicRuntimeConfig.offlineMode) {
   });
 
   client.service('user-relationship').on('patched', (params) => {
+    const patchedUserRelationship = params.userRelationship;
     const selfUser = (store.getState() as any).get('auth').get('user') as User;
-    if (params.userRelationship.userRelationshipType === 'friend') {
-      store.dispatch(patchedFriend(params.userRelationship, selfUser));
+    if (patchedUserRelationship.userRelationshipType === 'friend') {
+      store.dispatch(patchedFriend(patchedUserRelationship, selfUser));
+      if (patchedUserRelationship.user.channelInstanceId != null && patchedUserRelationship.user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(patchedUserRelationship.user));
+      if (patchedUserRelationship.user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(patchedUserRelationship.user));
     }
   });
 
   client.service('user-relationship').on('removed', (params) => {
+    const deletedUserRelationship = params.userRelationship;
     const selfUser = (store.getState() as any).get('auth').get('user') as User;
-    if (params.userRelationship.userRelationshipType === 'friend') {
-      store.dispatch(removedFriend(params.userRelationship, selfUser));
+    if (deletedUserRelationship.userRelationshipType === 'friend') {
+      store.dispatch(removedFriend(deletedUserRelationship, selfUser));
+      if (deletedUserRelationship.user.channelInstanceId != null && deletedUserRelationship.user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(deletedUserRelationship.user));
+      if (deletedUserRelationship.user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(deletedUserRelationship.user));
     }
   });
 }

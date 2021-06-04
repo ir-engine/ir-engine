@@ -120,6 +120,10 @@ $mobileControllButtonsSize: 3em;
         flex-direction: column;
     }
 
+    &.display-none {
+        display: none;
+    }
+
     [class*='MuiAccordion-root'] {
         &[class*='Mui-expanded'] {
             margin: 0;

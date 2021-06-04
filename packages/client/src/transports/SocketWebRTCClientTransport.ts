@@ -281,6 +281,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       if ((socket as any).instance !== true) EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED });
       this.reconnecting = true;
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.RESET_ENGINE, instance: (socket as any).instance });
-    })
+    });
   }
 }

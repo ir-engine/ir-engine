@@ -319,7 +319,7 @@ export const EnginePage = (props: Props) => {
         action: window.location.reload,
         parameters: [],
         timeout: 30000
-      }
+      };
       //@ts-ignore
       setWarningRefreshModalValues(newValues);
       setInstanceDisconnected(false);

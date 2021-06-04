@@ -188,6 +188,7 @@ interface Props {
     mediastream?: any;
     setHarmonyOpen?: any;
     isHarmonyPage?: boolean;
+    harmonyHidden: boolean;
 }
 
 const initialRefreshModalValues = {
@@ -234,7 +235,8 @@ const Harmony = (props: Props): any => {
         changeChannelTypeState,
         mediastream,
         setHarmonyOpen,
-        isHarmonyPage
+        isHarmonyPage,
+        harmonyHidden
     } = props;
 
     const messageRef = React.useRef();
@@ -338,7 +340,7 @@ const Harmony = (props: Props): any => {
                 id: activeAVChannelIdRef.current,
                 audio: !audioPaused,
                 video: !videoPaused
-            })
+            });
             await resetEngine();
             setWarningRefreshModalValues(initialRefreshModalValues);
             await init();
@@ -468,7 +470,7 @@ const Harmony = (props: Props): any => {
                 parameters: [],
                 timeout: 30000,
                 closeAction: endCall
-            }
+            };
             //@ts-ignore
             setWarningRefreshModalValues(newValues);
             setChannelDisconnected(false);
@@ -1086,7 +1088,10 @@ const Harmony = (props: Props): any => {
     </div>;
 
     return (
-        <div className={styles['harmony-component']}>
+        <div className={classNames({
+            [styles['harmony-component']]: true,
+            [styles['display-none']]: harmonyHidden === true
+        })}>
             <style> {`
                 .Mui-selected {
                     background-color: rgba(0, 0, 0, 0.4) !important;

@@ -144,7 +144,6 @@ export class ServerNetworkIncomingSystem extends System {
 
       // Apply button input
       for (let i = 0; i < clientInput.buttons.length; i++) {
-        console.log('Button input', clientInput.buttons[i]);
         input.data.set(clientInput.buttons[i].input,
           {
             type: InputType.BUTTON,
