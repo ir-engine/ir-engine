@@ -10,12 +10,17 @@ import { createDataProducer, endVideoChat, initReceiveTransport, initSendTranspo
 import { EngineEvents } from "@xrengine/engine/src/ecs/classes/EngineEvents";
 import { ClientNetworkSystem } from "@xrengine/engine/src/networking/systems/ClientNetworkSystem";
 import { WorldStateModel } from "@xrengine/engine/src/networking/schema/worldStateSchema";
+import { ClientNetworkStateSystem } from "@xrengine/engine/dist/networking/systems/ClientNetworkStateSystem";
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
 
   static EVENTS = {
     PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE: 'CORE_PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE',
     PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE: 'CORE_PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE',
+    INSTANCE_DISCONNECTED: 'CORE_INSTANCE_DISCONNECTED',
+    INSTANCE_RECONNECTED: 'CORE_INSTANCE_RECONNECTED',
+    CHANNEL_DISCONNECTED: 'CORE_CHANNEL_DISCONNECTED',
+    CHANNEL_RECONNECTED: 'CORE_CHANNEL_RECONNECTED'
   }
 
   mediasoupDevice: mediasoupClient.Device
@@ -39,14 +44,15 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
   channelId: string;
   instanceDataProducer: any;
   channelDataProducer: any;
+  reconnecting = false
 
   /**
  * Send a message over TCP with websockets
  * @param message message to send
  */
   sendReliableData(message, instance = true): void {
-    if (instance === true) this.instanceSocket.emit(MessageTypes.ReliableMessage.toString(), message);
-    else this.channelSocket.emit(MessageTypes.ReliableMessage.toString(), message);
+    if (instance === true && typeof this.instanceSocket.emit === 'function') this.instanceSocket.emit(MessageTypes.ReliableMessage.toString(), message);
+    else if (typeof this.channelSocket.emit === 'function') this.channelSocket.emit(MessageTypes.ReliableMessage.toString(), message);
   }
 
   sendNetworkStatUpdateMessage(message, instance = true): void {
@@ -145,6 +151,10 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
 
     socket.on("connect", async () => {
+      if (this.reconnecting === true) {
+        this.reconnecting = false;
+        return;
+      }
       const request = (socket as any).instance === true ? this.instanceRequest : this.channelRequest;
       const payload = { userId: Network.instance.userId, accessToken: Network.instance.accessToken };
       const { success } = await request(MessageTypes.Authorization.toString(), payload);
@@ -165,8 +175,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD_TIMEOUT, instance: instance === true });
         return;
       }
-      // console.log('ConnectToWorldResponse:');
-      // console.log(ConnectToWorldResponse);
       const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
 
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD, worldState: WorldStateModel.fromBuffer(worldState) });
@@ -193,14 +201,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       });
 
       socket.on('disconnect', async () => {
+        if ((socket as any).instance === true) EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED });
+        if ((socket as any).instance !== true) EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_DISCONNECTED});
         if ((socket as any).instance !== true && isHarmonyPage !== true) {
           self.channelType = 'instance';
           self.channelId = '';
         }
-        await endVideoChat({ endConsumers: true });
-        await leave((socket as any).instance === true);
-        clearInterval(heartbeat);
-        // this.socket.close();
+        if ((socket as any).instance === true) await endVideoChat({ endConsumers: true });
       });
 
       socket.on(MessageTypes.Kick.toString(), async () => {
@@ -267,6 +274,13 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         await Promise.all([initSendTransport('instance'), initReceiveTransport('instance')]);
         await createDataProducer((socket as any).instance === true ? 'instance' : this.channelId );
       }
+    });
+
+    (socket.io as any).on('reconnect', async () => {
+      if ((socket as any).instance === true) EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED });
+      if ((socket as any).instance !== true) EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED });
+      this.reconnecting = true;
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.RESET_ENGINE, instance: (socket as any).instance });
     });
   }
 }

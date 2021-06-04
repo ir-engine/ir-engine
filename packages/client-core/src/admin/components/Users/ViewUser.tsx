@@ -1,7 +1,6 @@
 import React from 'react';
 import Drawer from "@material-ui/core/Drawer";
 import Container from '@material-ui/core/Container';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Avatar from '@material-ui/core/Avatar';
 import Grid from "@material-ui/core/Grid";
@@ -22,12 +21,15 @@ import { selectAuthState } from "../../../user/reducers/auth/selector";
 import { bindActionCreators, Dispatch } from 'redux';
 import { fetchUserRole } from "../../reducers/admin/service";
 import { connect } from 'react-redux';
-import { client } from "../../../feathers";
-import { fetchAdminParty, updateUserRole } from "../../reducers/admin/service";
+import {
+    fetchAdminParty,
+    updateUserRole,
+    patchUser,
+    fetchSingleUserAdmin
+} from "../../reducers/admin/service";
 import { useFormik } from 'formik';
 import { useStyles, useStyle } from "./styles";
 import { validationSchema } from "./validation";
-import { patchUser } from "../../reducers/admin/service";
 
 
 interface Props {
@@ -40,7 +42,8 @@ interface Props {
     fetchAdminParty?: any;
     patchUser?: any;
     closeViewModel?: any;
-    updateUserRole?: any
+    updateUserRole?: any;
+    fetchSingleUserAdmin?: any;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -54,18 +57,37 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchUserRole: bindActionCreators(fetchUserRole, dispatch),
     fetchAdminParty: bindActionCreators(fetchAdminParty, dispatch),
     patchUser: bindActionCreators(patchUser, dispatch),
-    updateUserRole: bindActionCreators(updateUserRole, dispatch)
+    updateUserRole: bindActionCreators(updateUserRole, dispatch),
+    fetchSingleUserAdmin: bindActionCreators(fetchSingleUserAdmin, dispatch)
 });
 
 const ViewUser = (props: Props) => {
     const classx = useStyle();
     const classes = useStyles();
-    const { open, handleClose, closeViewModel, fetchUserRole, adminState, authState, userAdmin, fetchAdminParty, patchUser, updateUserRole } = props;
+    const {
+        open,
+        handleClose,
+        closeViewModel,
+        fetchUserRole,
+        adminState,
+        authState,
+        userAdmin,
+        fetchAdminParty,
+        patchUser,
+        updateUserRole,
+        fetchSingleUserAdmin
+    } = props;
     const [openDialog, setOpenDialog] = React.useState(false);
     const [status, setStatus] = React.useState("");
     const [editMode, setEditMode] = React.useState(false);
     const [party, setParty] = React.useState(userAdmin?.party);
     const [instance, setInstance] = React.useState(userAdmin?.party?.instance);
+    const [initialValue, setInitialValue] = React.useState({
+        name: "",
+        avatar: "",
+        inviteCode: "",
+    });
+    const [refetch, setRefetch] = React.useState(false);
 
     const user = authState.get("user");
     const userRole = adminState.get("userRole");
@@ -74,6 +96,8 @@ const ViewUser = (props: Props) => {
     const adminPartyData = adminParty.get("parties").data ? adminParty.get("parties").data : [];
     const adminInstances = adminState.get('instances');
     const instanceData = adminInstances.get("instances");
+    const singleUser = adminState.get("singleUser");
+    const singleUserData = adminState.get("singleUser").get("singleUser");
 
     const handleClick = () => {
         setOpenDialog(true);
@@ -91,8 +115,28 @@ const ViewUser = (props: Props) => {
         if (user.id && adminParty.get('updateNeeded') == true) {
             fetchAdminParty();
         }
-    }, [adminState, user]);
+        if ((user.id && singleUser.get('updateNeeded') == true) || refetch) {
+            fetchSingleUserAdmin(userAdmin.id);
+            setRefetch(false);
+        }
+    }, [adminState, user, refetch]);
 
+    React.useEffect(()=>{
+        if(!refetch){
+            setRefetch(true);
+        }
+    }, [userAdmin.id]);
+
+
+    React.useEffect(() => {
+        if (singleUserData) {
+            setInitialValue({
+                name: singleUserData.name,
+                avatar: singleUserData.avatarId,
+                inviteCode: singleUserData.inviteCode
+            });
+        }
+    }, [singleUserData]);
 
     const defaultProps = {
         options: userRoleData,
@@ -121,16 +165,10 @@ const ViewUser = (props: Props) => {
         handleCloseDialog();
     };
 
-    const initialValue = {
-        name: userAdmin.name,
-        avatar: userAdmin.avatarId,
-        inviteCode: userAdmin.inviteCode || "",
-    };
-
     const formik = useFormik({
         initialValues: initialValue,
         validationSchema: validationSchema,
-        onSubmit: async (values) => {
+        onSubmit: async (values, { resetForm }) => {
             const data = {
                 name: values.name,
                 avatarId: values.avatar,
@@ -139,7 +177,14 @@ const ViewUser = (props: Props) => {
                 partyId: party.id
             };
             patchUser(userAdmin.id, data);
+            resetForm({ values: { name: "", avatar: "", inviteCode: "" } });
+            setEditMode(false);
             closeViewModel(false);
+            setInitialValue({
+                name: "",
+                avatar: "",
+                inviteCode: ""
+            });
         }
     });
 
@@ -231,7 +276,7 @@ const ViewUser = (props: Props) => {
                                         label="Name"
                                         type="text"
                                         fullWidth
-                                        value={formik.values.name}
+                                        value={formik.values.name || initialValue.name}
                                         className={classes.mb20px}
                                         onChange={formik.handleChange}
                                         error={formik.touched.name && Boolean(formik.errors.name)}
@@ -259,7 +304,7 @@ const ViewUser = (props: Props) => {
                                         label="Avatar"
                                         type="text"
                                         fullWidth
-                                        value={formik.values.avatar}
+                                        value={formik.values.avatar || initialValue.avatar}
                                         className={classes.mb20px}
                                         onChange={formik.handleChange}
                                         error={formik.touched.avatar && Boolean(formik.errors.avatar)}
@@ -272,7 +317,7 @@ const ViewUser = (props: Props) => {
                                         label="Invite code"
                                         type="text"
                                         fullWidth
-                                        value={formik.values.inviteCode}
+                                        value={formik.values.inviteCode || initialValue.inviteCode}
                                         className={classes.mb20px}
                                         onChange={formik.handleChange}
                                         error={formik.touched.inviteCode && Boolean(formik.errors.inviteCode)}
@@ -319,13 +364,22 @@ const ViewUser = (props: Props) => {
                                         <Button type="submit" color="primary" >
                                             <span style={{ marginRight: "15px" }}><Save /></span> Submit
                                         </Button>
-                                        <Button onClick={() => setEditMode(false)} color="primary">
+                                        <Button onClick={() => {
+                                            setInitialValue({
+                                                name: "",
+                                                avatar: "",
+                                                inviteCode: ""
+                                            });
+                                            setEditMode(false);
+                                        }} color="primary">
                                             Clear
                                         </Button>
                                     </div>
                                     :
                                     <div>
-                                        <a href="#h" className={classx.actionStyle} style={{ fontSize: "1.2rem", marginRight: "25px" }} onClick={() => setEditMode(true)}>
+                                        <a href="#h" className={classx.actionStyle} style={{ fontSize: "1.2rem", marginRight: "25px" }} onClick={() => {
+                                            setEditMode(true);
+                                        }}>
                                             EDIT
                                         </a>
                                         <a href="#h" onClick={handleClose(false)} className={classx.actionStyle} style={{ fontSize: "1.2rem" }}>

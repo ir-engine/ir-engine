@@ -17,6 +17,7 @@ import {
 import { Config } from '../../../helper';
 import { dispatchAlertError } from '../../../common/reducers/alert/service';
 import Store from '../../../store';
+import {addedChannelLayerUser, removedChannelLayerUser} from "../../../user/reducers/user/actions";
 
 const store = Store.store;
 
@@ -151,12 +152,19 @@ if(!Config.publicRuntimeConfig.offlineMode) {
   });
 
   client.service('party-user').on('patched', (params) => {
-    store.dispatch(patchedPartyUser(params.partyUser));
+    const updatedPartyUser = params.partyUser;
+    const selfUser = (store.getState() as any).get('auth').get('user');
+    store.dispatch(patchedPartyUser(updatedPartyUser));
+    if (updatedPartyUser.user.channelInstanceId != null && updatedPartyUser.user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(updatedPartyUser.user));
+    if (updatedPartyUser.user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(updatedPartyUser.user));
   });
 
   client.service('party-user').on('removed', (params) => {
+    const deletedPartyUser = params.partyUser;
     const selfUser = (store.getState() as any).get('auth').get('user');
-    store.dispatch(removedPartyUser(params.partyUser));
+    store.dispatch(removedPartyUser(deletedPartyUser));
+    if (deletedPartyUser.user.channelInstanceId != null && deletedPartyUser.user.channelInstanceId === selfUser.channelInstanceId) store.dispatch(addedChannelLayerUser(deletedPartyUser.user));
+    if (deletedPartyUser.user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(deletedPartyUser.user));
     if (params.partyUser.userId === selfUser.id) {
       console.log('Attempting to end video call');
       // TODO: Reenable me!
