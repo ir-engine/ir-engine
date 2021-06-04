@@ -22,7 +22,6 @@ import DragLayer from "./dnd/DragLayer";
 import Editor from "./Editor";
 import HierarchyPanelContainer from "./hierarchy/HierarchyPanelContainer";
 // import BrowserPrompt from "./router/BrowserPrompt";
-import Resizeable from "./layout/Resizeable";
 import { createEditor } from "./Nodes";
 import PropertiesPanelContainer from "./properties/PropertiesPanelContainer";
 import ToolBar from "./toolbar/ToolBar";
