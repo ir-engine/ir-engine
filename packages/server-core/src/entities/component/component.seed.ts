@@ -174,7 +174,7 @@ export const componentSeed = {
     {
       id: "09cc03c4-24e9-sd1b-bc2e-e7e742fb069f",
       data: {
-        options: {
+        options:{
           probePosition:{
               "x": 0,
               "y": 0,
@@ -191,9 +191,10 @@ export const componentSeed = {
               "z": 1
           },
           reflectionType:1,
-          intensity:1,
+          intensity:10,
           resolution:512,
           refreshMode:0,
+          lookupName:"EnvMap",
       },
       },
       createdAt: "2020-11-12 13:14:45",

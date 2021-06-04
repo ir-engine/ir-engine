@@ -17,6 +17,7 @@ import { InteractiveSystem } from "@xrengine/engine/src/interaction/systems/Inte
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
 import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
 import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem';
+import { MaterialSystem } from '@xrengine/engine/src/scene/systems/MaterialSystem';
 import { ParticleSystem } from '@xrengine/engine/src/particles/systems/ParticleSystem';
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
 import { HighlightSystem } from '@xrengine/engine/src/renderer/HighlightSystem';
@@ -164,6 +165,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
       registerSystem(ParticleSystem, { priority: 10 });
       registerSystem(DebugHelpersSystem, { priority: 11 });
       registerSystem(PositionalAudioSystem, { priority: 12 });
+      registerSystem(MaterialSystem,{ priority: 13 })
 
       Engine.viewportElement = Engine.renderer.domElement;
     }
