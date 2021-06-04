@@ -164,7 +164,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       behaviors: [initScore]
     },
     'GolfBall': {
-      components: [State.SpawnedObject, State.NotReady, State.Inactive, State.BallMoving]
+      components: [State.SpawnedObject, State.NotReady, State.Active, State.BallMoving]
     },
     'GolfClub': {
       components: [State.SpawnedObject]
@@ -245,40 +245,52 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           }
         },
 */
-        
+        // do ball Active on next Turn
+        {
+          behavior: switchState, // GameObjectCollisionTag
+          watchers:[ [ State.YourTurn ] ],
+          args: { on: 'target', remove: State.Inactive, add: State.Active  },
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                watchers:[ [ State.BallStopped, State.Inactive ] ],
+              }
+            }
+          }
+        },
         {
           behavior: nextTurn, // GameObjectCollisionTag
           watchers:[ [ State.YourTurn ] ],
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {
-                watchers:[ [ State.Inactive, State.BallStopped, State.Ready ] ],
+                watchers:[ [ State.BallStopped, State.Inactive ] ],
               }
             }
           }
         }
+
+
       ]
     }
   },
   gameObjectRoles: {
     'GolfBall': {
       'update': [
+        // give Ball Inactive State for player cant hit Ball again in one game turn
         {
-          behavior: switchState,
-          args: { on: 'me', remove: State.Active, add: State.Inactive },
-          watchers:[ [ State.Ready ] ],
-          checkers:[{
-            function: ifMoved,
-            args: { on: 'self', max: 0.05 }
-          }]
+          behavior: switchState, // GameObjectCollisionTag
+          watchers:[ [ Action.GameObjectCollisionTag ] ],
+          args: { on: 'me', remove: State.Active, add: State.Inactive }
         },
+        // switch Moving Stopped State from check Ball Velocity
         {
           behavior: switchState,
           args: { on: 'me', remove: State.BallStopped, add: State.BallMoving },
           watchers:[ [ State.Ready ] ],
           checkers:[{
             function: ifMoved,
-            args: { on: 'self', max: 0.05 }
+            args: { max: 0.05 }
           }]
         },
         {
@@ -286,9 +298,10 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           args: { on: 'me', remove: State.BallMoving, add: State.BallStopped },
           checkers:[{
             function: ifMoved,
-            args: { on: 'self', min: 0.005 }
+            args: { min: 0.005 }
           }]
         },
+        // whan ball spawn he droping and gets moving State, we give Raady state for him whan he stop
         {
           behavior: switchState,
           args: { on: 'me', remove: State.NotReady, add: State.Ready },

@@ -32,19 +32,24 @@ export const Action = {
 }
 // its for adding new Action in State in One Plase, please don't splite this
 enum gameStates {
-    Active = 'Active',
-    Inactive = 'Inactive',
     Open = 'Open',
     Closed = 'Closed',
     ButtonUp = 'ButtonUp',
     ButtonDown = 'ButtonDown',
     PanelUp = 'PanelUp',
     PanelDown = 'PanelDown',
+    
     YourTurn = 'YourTurn',
     Goal = 'Goal',
+
     SpawnedObject = 'SpawnedObject',
+
     BallMoving = 'BallMoving',
     BallStopped = 'BallStopped',
+
+    Active = 'Active',
+    Inactive = 'Inactive',
+
     Ready = 'Ready',
     NotReady = 'NotReady'
 }
