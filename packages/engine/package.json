@@ -28,7 +28,7 @@
     "build": "rimraf dist && mkdir dist && ctix entrypoint ./src && node build.js",
     "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
     "test": "jest",
-    "validate": "yarn run lint && yarn run test",
+    "validate": "npm run lint && npm run test",
     "generate-doc": "node_modules/.bin/typedoc"
   },
   "version": "0.2.27",

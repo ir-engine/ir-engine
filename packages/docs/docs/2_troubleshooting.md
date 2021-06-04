@@ -68,5 +68,5 @@ title: Troubleshooting
    #### Weird issues with your database?
    Try
    ```
-   yarn run dev-reinit-db // in server package
+   npm run dev-reinit-db // in server package
    ```
