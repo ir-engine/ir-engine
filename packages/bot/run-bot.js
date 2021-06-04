@@ -24,7 +24,7 @@ async function run() {
         }
         serverLoop()
     }
-    const domain = process.env.DOMAIN || 'dev.theoverlay.io';
+    const domain = process.env.DOMAIN || 'localhost:3001';
     const locationName = process.env.LOCATION_NAME || 'test';
     const fakeMediaPath = __dirname + "/resources";
     const moveDuration = 2000;

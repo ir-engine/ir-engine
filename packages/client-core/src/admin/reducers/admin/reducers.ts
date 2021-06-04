@@ -17,7 +17,8 @@ import {
   USER_ADMIN_PATCHED,
   PARTY_ADMIN_DISPLAYED,
   USER_ADMIN_REMOVED,
-  USER_SEARCH_ADMIN
+  USER_SEARCH_ADMIN,
+  SINGLE_USER_ADMIN_LOADED
 } from "../actions";
 import {
   LOCATIONS_RETRIEVED,
@@ -117,6 +118,12 @@ export const initialAdminState = {
     retrieving: false,
     fetched: false,
     updateNeeded: true,
+  },
+  singleUser:{
+    singleUser: {},
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true
   }
 };
 
@@ -312,6 +319,14 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('lastFetched', new Date());
       return state
         .set("users", updateMap);
+    case SINGLE_USER_ADMIN_LOADED: 
+      result = (action as any).data;
+      updateMap = new Map(state.get("singleUser"));
+      updateMap.set("singleUser", result);
+      updateMap.set('retrieving', false);
+      updateMap.set("fetched", true);
+      updateMap.set("updateNeeded", false);
+      return state.set("singleUser", updateMap);   
   }
 
   return state;
