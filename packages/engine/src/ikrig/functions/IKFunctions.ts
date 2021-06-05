@@ -130,9 +130,8 @@ export function computeHip(rig, ik_pose) {
 	// // App.Debug.ln( pos, Vec3.scale( swing_lft, 1.5 ).add( pos ), "orange" );
 	// if( Vec3.dot( swing_lft, pose_up ) >= 0 ) twist = -twist; 
 	let swing_lft = new Vector3().copy(swing_up).cross(directionHipShouldPoint);
-	let vec3Dot = new Vector3().copy(swing_lft).dot(hipUpDir);
 	// Debug.setLine( position, Vector3.scale( swing_lft, 1.5 ).add( position ), "orange" );
-	if (vec3Dot >= 0)
+	if (swing_lft.dot(hipUpDir) >= 0)
 		twist = -twist;
 
 	let posePosition = new Vector3(),
@@ -177,7 +176,7 @@ export function computeLimb(pose, chain, ik_limb) {
 	boneA.getWorldPosition(boneAWorldPos);
 
 	// vDir = v2 - v1
-	aToBDirection.subVectors(boneBWorldPos, boneAWorldPos);
+	aToBDirection.subVectors(boneBWorldPos, boneAWorldPos).add(new Vector3(0, 1, 0));
 
 	// Compute the final IK Information needed for the Limb
 	// ORIGINAL CODE
@@ -248,9 +247,6 @@ export function computeSpine(rig, chain, ik_pose, lookDirection, twistDirection)
 		v_twist_dir.copy(twistDirection)
 			.applyQuaternion(quatInverse)
 			.applyQuaternion(poseBoneWorldQuaternion);
-
-			Debug.setPoint( poseBoneWorldQuaternion, "green", 0.03, 6 );
-			Debug.setLine( poseBoneWorldQuaternion, new Vector3().copy(v_look_dir).multiplyScalar(1 ).add(poseBoneWorldPosition), "red" );
 
 		// Save IK
 		ik_pose.spine[j].lookDirection.copy(v_look_dir);
@@ -325,13 +321,12 @@ export function applyHip(entity) {
 	// Take note that vegeta and roborex's Hips are completely different but by using that inverse
 	// direction trick, we are easily able to apply the same movement to both.
 	let parentRotation = new Quaternion().copy(rig.pose.getParentRoot(boneInfo.index)); // Incase the Hip isn't the Root bone, but in our example they are.
-
+	console.log("parentRotation is", parentRotation)
 	// TODO: is this flipped?
 	let b_rot = new Quaternion().copy(parentRotation).multiply(bind.quaternion); // Add LS rotation of the hip to the WS Parent to get its WS Rot.
 	let q = new Quaternion()
 		.setFromUnitVectors(FORWARD, ikPose.hip.dir) // Create Swing Rotation
 		.multiply(b_rot); // Apply it to our WS Rotation
-
 
 
 	// If There is a Twist Value, Apply that as a PreMultiplication.
@@ -340,7 +335,6 @@ export function applyHip(entity) {
 	// In the end, we need to convert to local space. Simply premul by the inverse of the parent
 	pmul_invert(q, parentRotation);
 
-	rig.pose.setBone(boneInfo.index, q); // Save LS rotation to pose
 
 	let bindWorldPosition = new Vector3();
 	bind.getWorldPosition(bindWorldPosition);
@@ -357,7 +351,8 @@ export function applyHip(entity) {
 	// straighten out.
 	position.x = ikPose.hip.movement.x;
 	position.z = ikPose.hip.movement.z;
-	rig.pose.setBone(boneInfo.index, null, position); // Save Position to Pose
+	rig.pose.bones[boneInfo.index].setRotationFromQuaternion( q); // Save LS rotation to pose
+	rig.pose.bones[boneInfo.index].position.set( position); // Save Position to Pose
 	return;
 
 }
@@ -378,7 +373,7 @@ export function applyLimb(entity, chain, limb, grounding = 0) {
 
 	 // Setup IK Target
 	ikPose.target.startPosition.copy(bone.position);
-	ikPose.target.endPosition = new Vector3().copy(limb.dir).multiplyScalar( len)	// Compute End Effector
+	ikPose.target.endPosition.copy(limb.dir).multiplyScalar( len)	// Compute End Effector
 		.add(bone.position);
 		ikPose.target.length = bone.position.distanceTo(ikPose.target.endPosition)
 
@@ -395,9 +390,6 @@ export function applyLimb(entity, chain, limb, grounding = 0) {
 		bind_b = rig.tpose.bones[chain.chainBones[1].index],
 		pose_a = rig.pose.bones[chain.chainBones[0].index],		// Bone Reference from Pose
 		pose_b = rig.pose.bones[chain.chainBones[1].index]
-
-	const bindAIndex = chain.chainBones[0].index;
-	const bindBIndex = chain.chainBones[1].index;
 
 	let
 		aLen = bind_a.length,
@@ -445,7 +437,7 @@ export function applyLimb(entity, chain, limb, grounding = 0) {
 	if (twist <= 0.00017453292) twist = 0;
 	else {
 		dir.cross(ikPose.target.axis.z);	// Get Swing LEFT, used to test if twist is on the negative side.
-		if (new Vector3().copy(dir).dot(ikPose.target.axis.y) >= 0) twist = -twist;
+		if (dir.dot(ikPose.target.axis.y) >= 0) twist = -twist;
 	}
 	
 	pmul_axis_angle(q, ikPose.target.axis.z, twist)
@@ -459,24 +451,15 @@ export function applyLimb(entity, chain, limb, grounding = 0) {
 	boneParentQuaternionInverse.invert();
 
 	rad = LawCosinesSSS(aLen, cLen, bLen);
-	console.log("rot before is", rot)
 
 	from_mul(rot, pose_a.quaternion, bind_b.quaternion )	// Add Bone Local to get its WS rot
-	console.log("rot from_mul is", rot)
 
 	pmul_axis_angle(rot,  ikPose.target.axis.x, rad )			// Rotate it by the target's x-axis .pmul( tmp.from_axis_angle( this.axis.x, rad ) )
-	console.log("rot pmul_axis_angle is", rot)
-
+	
 	pmul_invert(rot,  poseAWorldQuaternion );				// Convert to Local Space in temp to save WS rot for next bone.
 
-	console.log("rot pmul_invert is", rot)
-	// Get the Angle between First Bone and Target.
-	// tempQ.setFromAxisAngle(ikPose.target.axis.x, rad)	// Use the Target's X axis for quaternion along with the angle from SSS
-	// .premultiply(quaternion) // Premultiply by original value
-	// 	.premultiply(boneParentQuaternionInverse);							// Convert to Bone's Local Space by multiply invert of parent bone quaternion
-
-	rig.pose.setBone(bindAIndex, rot);						// Save result to bone.
-	pose_b.updateMatrix();
+	// rig.pose.setBone(bindAIndex, rot);						// Save result to bone.
+	// pose_b.updateMatrix();
 	// TODO
 	// Transform.add handles this with some positional magic
 	// this.add(pose_a, parentWorldPosition, parentWorldQuaternion, parentWorldScale);
@@ -484,19 +467,18 @@ export function applyLimb(entity, chain, limb, grounding = 0) {
 	// SECOND BONE
 	// Need to rotate from Right to Left, So take the angle and subtract it from 180 to rotate from 
 	// the other direction. Ex. L->R 70 degrees == R->L 110 degrees
-	// rad = Math.PI - LawCosinesSSS(aLen, bLen, cLen);
+	rad = Math.PI - LawCosinesSSS(aLen, bLen, cLen);
 
-	// quaternion.copy(pose_a.quaternion).multiply(bind_b.quaternion)		// Add Bone 2's Local Bind Rotation to Bone 1's new World Rotation.
-	// 	// TODO: remove alloc
-	// 	.premultiply(new Quaternion().setFromAxisAngle(ikPose.target.axis.x, rad))				// Rotate it by the target's x-axis
-	// 	.premultiply(pose_a.quaternion.invert());					// Convert to Bone's Local Space
+	q.copy(pose_a.quaternion).multiply(bind_b.quaternion)		// Add Bone 2's Local Bind Rotation to Bone 1's new World Rotation.
+		// TODO: remove alloc
+		.premultiply(new Quaternion().setFromAxisAngle(ikPose.target.axis.x, rad))				// Rotate it by the target's x-axis
+		.premultiply(pose_a.quaternion.invert());					// Convert to Bone's Local Space
 
-	// rig.pose.setBone(bindBIndex, quaternion);
+	rig.pose.bones.find(bone => bone.name === bind_b.name).setRotationFromQuaternion(q);
 
-	// pose_b.position.copy(pose_a.position);
-	// pose_b.quaternion.copy(pose_a.quaternion);
-	// pose_b.scale.copy(pose_a.scale);
-
+	pose_b.position.copy(pose_a.position);
+	pose_b.quaternion.copy(pose_a.quaternion);
+	pose_b.scale.copy(pose_a.scale);
 }
 
 function from_mul(out, a, b ){
@@ -728,32 +710,43 @@ export function applySpine(entity, chain, ik, lookDirection, twistDirection) {
 		}
 	}
 }
+const parentWorldQ = new Quaternion();
+const parentWorldP = new Vector3();
+const parentWorldS = new Vector3();
 
+const childWorldQ = new Quaternion();
+const childWorldP = new Vector3();
+const childWorldS = new Vector3();
 
 export function align_chain( pose, dir, b_names ){
-	let aEnd	= b_names.length - 1,				// End Index
+	let aEnd	= b_names.length ,				// End Index
 		forwardDir		= new Vector3(),					// Forward
 		upDir		= new Vector3().copy(dir),				// Up
 		leftDir		= new Vector3(),					// Left
 		finalRotation		= new Quaternion()					// Final Rotation
+
+		console.log("pose.skeleton.bones", pose.skeleton.bones);
+	for( let i=0; i < aEnd; i++ ){
+		let bone: Object3D = pose.skeleton.bones.find( bone => bone.name.toLowerCase().includes(b_names[i].toLowerCase() ));	// Bone Reference
+		console.log("bone is", bone);
+		if(!bone.parent){
+			bone.getWorldQuaternion(parentWorldQ);
+			bone.getWorldPosition(parentWorldP);
+			bone.getWorldScale(parentWorldS);
+		} else {
+			console.log("bone has parent"); 
+			bone.parent.getWorldQuaternion(parentWorldQ);
+			bone.parent.getWorldPosition(parentWorldP);
+			bone.parent.getWorldScale(parentWorldS);
+		}
 		
-	const parentWorldQ = new Quaternion();
-	const parentWorldP = new Vector3();
-	const parentWorldS = new Vector3();
-
-	const childWorldQ = new Quaternion();
-	const childWorldP = new Vector3();
-	const childWorldS = new Vector3();
-	for( let i=0; i <= aEnd; i++ ){
-		let bone: Object3D = pose.skeleton.bones.find( bone => bone.name = b_names[i] );	// Bone Reference
-
-		bone.getWorldQuaternion(parentWorldQ);
-		bone.getWorldPosition(parentWorldP);
-		bone.getWorldScale(parentWorldS);
-	
 		bone.getWorldQuaternion(childWorldQ);
 		bone.getWorldPosition(childWorldP);
 		bone.getWorldScale(childWorldS);
+
+		console.log('b_names[i]', b_names[i]);
+		console.log("childWorldQ is", childWorldQ);
+		
 
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Up direction is where we need the bone to point to.
@@ -765,44 +758,25 @@ export function align_chain( pose, dir, b_names ){
 		// f.from_quat( ct.rot, Vec3.FORWARD ); 		// Find Bone's Forward World Direction
 		// leftDir.from_cross( upDir, forwardDir ).norm();				// Get World Left
 		// forwardDir.from_cross( leftDir, upDir ).norm();				// Realign Forward
-		forwardDir.copy(FORWARD).applyQuaternion(childWorldQ)
+		forwardDir.copy(FORWARD).applyQuaternion(childWorldQ);
 		leftDir.copy(upDir).cross(forwardDir).normalize();
 		forwardDir.copy(leftDir).cross(upDir).normalize();
 
-		from_axis(finalRotation, leftDir, upDir, forwardDir );						// Create Rotation from 3x3 rot Matrix
-		const tempQuat = new Quaternion().copy(finalRotation);
-
-		if( tempQuat.dot(childWorldQ) < 0 ) negate(finalRotation);	// Do a Inverted rotation check, negate it if under zero.
 		
+		console.log("new Vector3(0, 0, 1).applyQuaternion(finalRotation) is", new Vector3(0, 0, 1).applyQuaternion(finalRotation))
+
+		from_axis(finalRotation, leftDir, upDir, forwardDir );						// Create Rotation from 3x3 rot Matrix
+		Debug.setLine( childWorldP, new Vector3(0, 0, .2).applyQuaternion(finalRotation).add(childWorldP), COLOR.blue );
+		Debug.setLine( childWorldP, new Vector3(0, .2, 0).applyQuaternion(finalRotation).add(childWorldP), COLOR.green );
+		Debug.setLine( childWorldP, new Vector3(.2, 0, 0).applyQuaternion(finalRotation).add(childWorldP), COLOR.red );
+
+		if( finalRotation.dot(childWorldQ) < 0 ) negate(finalRotation);	// Do a Inverted rotation check, negate it if under zero.
+
 		//r.pmul( q.from_invert( pt.rot ) );		// Move rotation to local space
 		pmul_invert(finalRotation, parentWorldQ );					// Move rotation to local space
+
 		// pose.set_bone( bone.idx, finalRotation );					// Update Pose with new ls rotation
-		bone.setRotationFromQuaternion(finalRotation);
-		
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		// If not the last bone, take then the new rotation to calc the next parents
-		// world space transform for the next bone on the list.
-		if( i != aEnd){
-
-		// pt.add( finalRotation, bone.local.pos, bone.local.scl );
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			// POSITION - parent.position + ( parent.rotation * ( parent.scale * child.position ) )
-			const t = new Vector3().copy(childWorldP).add(new Vector3().copy(childWorldS).multiply(bone.position ))
-			transform_quat(t, childWorldQ );
-
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			// SCALE - parent.scale * child.scale
-			parentWorldS.multiply( bone.scale );
-
-			//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			// ROTATION - parent.rotation * child.rotation
-			parentWorldQ.multiply( finalRotation );
-
-			bone = pose.bones.find( bone => bone.name = b_names[i+1] ) as Object3D;	// Bone Reference
-			bone.position.copy(parentWorldP);
-			bone.quaternion.copy(parentWorldQ);
-			bone.scale.copy(parentWorldS);
-		}
+		bone.setRotationFromQuaternion(finalRotation.normalize());
 	}
 	pose.skeleton.update();
 }
@@ -918,49 +892,62 @@ export function mul(out, q ){
 export function spin_bone_forward( pose, foot ){
 	let v	= new Vector3(),
 		q	= new Quaternion(),
-		b	= pose.get_bone( foot );
+		b	= pose.bones.find(bone => bone.name.toLowerCase().includes( foot.toLowerCase() )) as Object3D;
 
 	const parentWorldQuaternion = new Quaternion();
+	const boneWorldQuaternion = new Quaternion();
+
 	b.parent.getWorldQuaternion(parentWorldQuaternion);
+	b.getWorldQuaternion(boneWorldQuaternion);
 
-	
-	b.position.copy(v).add(new Vector3(0,b.len,0));
+	v.copy(b.position).add(new Vector3(0,(b as any).length,0));
+	v.multiply(b.scale);
 
-	from_mul( v, v, this.scl )
-	transform_quat(v, this.rot )
+	transform_quat(v, b.quaternion )
 	// v.add( b.position );
 
 	// v.sub( b.position );							// Get The direction to the tail
-	v.x = 0;									// Flatten vector to 2D by removing Y Position
+	v.set(v.x, 0, v.z);									// Flatten vector to 2D by removing Y Position
 	v.normalize();									// Make it a unit vector
 	from_unit_vecs(q, v, FORWARD )		// Rotation needed to point the foot forward.
+
 	mul(q, b.quaternion )							// Move WS Foot to point forward
-	pmul_invert(q, b.quaternion );					// To Local Space
-	pose.set_bone( b.idx, q );					// Save to Pose
+	pmul_invert(q, parentWorldQuaternion );					// To Local Space
+
+	 q.normalize()
+	b.setRotationFromQuaternion(q );					// Save to Pose
+
 }
 
 export function from_unit_vecs( out, a, b ){
 	// Using unit vectors, Shortest rotation from Direction A to Direction B
 	// http://glmatrix.net/docs/quat.js.html#line548
 	// http://physicsforgames.blogspot.com/2010/03/Quat-tricks.html
-	let dot = new Vector3().copy(a).dot(b);
+	let dot = a.dot(b);
 
 	if(dot < -0.999999){
 	  let tmp = new Vector3().copy(LEFT).cross( a );
 	  if( tmp.length() < 0.000001 ) cross( UP, a, tmp );
+	  console.log("tmp is", tmp);
 	  out.from_axis_angle( tmp.normalize(), Math.PI );
 	}else if(dot > 0.999999){
-		out[0] = 0;
-	  out[1] = 0;
-	  out[2] = 0;
-	  out[3] = 1;
+	console.log("dot > 0.999999");
+
+		out.x = 0;
+	  out.y = 0;
+	  out.z = 0;
+	  out.w = 1;
 	}else{
+		console.log("a", a);
+		console.log("b", b);
 	  let v = new Vector3().copy(a).cross( b);
-	  out[0] = v[0];
-	  out[1] = v[1];
-	  out[2] = v[2];
-	  out[3] = 1 + dot;
-	  out.norm();
+	  console.log(" Vector3().copy(a).cross( b)",v);
+
+	  out.x = v.x;
+	  out.y = v.y;
+	  out.z = v.z;
+	  out.w = 1 + dot;
+	  out.normalize();
 	}
 }
 
@@ -998,7 +985,7 @@ export function pmul_axis_angle(out, axis, angle ){
 export function align_bone_forward( pose, b_name ){
 	let v 	= new Vector3(),
 		q 	= new Quaternion(),
-		b	= pose.get_bone( b_name );
+		b	= pose.bones.find(bone => bone.name.toLowerCase().includes(b_name.toLowerCase()) );
 
 		const parentWorldQuaternion = new Quaternion();
 		b.parent.getWorldQuaternion(parentWorldQuaternion);
@@ -1009,7 +996,7 @@ export function align_bone_forward( pose, b_name ){
 	mul(q, b.quaternion )						// PreMul Difference to Current Rotation
 	pmul_invert(q, parentWorldQuaternion );				// Convert to Local Space
 
-	pose.set_bone( b.idx, q );				// Save to Pose
+	b.setRotationFromQuaternion( q );				// Save to Pose
 }
 
 function from_quat( out, q, v ){

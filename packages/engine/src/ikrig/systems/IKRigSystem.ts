@@ -2,6 +2,8 @@ import { System } from "@xrengine/engine/src/ecs/classes/System";
 import { getMutableComponent } from "@xrengine/engine/src/ecs/functions/EntityFunctions";
 import IKRig from "@xrengine/engine/src/ikrig/components/IKRig";
 import { FORWARD, UP } from "@xrengine/engine/src/ikrig/constants/Vector3Constants";
+import { SkeletonHelper } from "three";
+import { Engine } from "../../ecs/classes/Engine";
 import DebugComponent from "../classes/Debug";
 import { IKPose } from "../components/IKPose";
 import { applyHip, applyLimb, applyLookTwist, applySpine, computeHip, computeLimb, computeLookTwist, computeSpine, visualizeHip, visualizeLimb, visualizeLookTwist, visualizeSpine } from "../functions/IKFunctions";
@@ -51,17 +53,23 @@ export class IKRigSystem extends System {
 			applyHip(entity);
 
 			applyLimb(entity, rig.chains.leg_l, pose.leg_l);
-			// applyLimb(entity, rig.chains.leg_r, pose.leg_r);
+			applyLimb(entity, rig.chains.leg_r, pose.leg_r);
 
-			// applyLookTwist(entity, rig.points.foot_l, pose.foot_l, FORWARD, UP);
-			// applyLookTwist(entity, rig.points.foot_r, pose.foot_r, FORWARD, UP);
-			// applySpine(entity, rig.chains.spine, pose.spine, UP, FORWARD);
+			applyLookTwist(entity, rig.points.foot_l, pose.foot_l, FORWARD, UP);
+			applyLookTwist(entity, rig.points.foot_r, pose.foot_r, FORWARD, UP);
+			applySpine(entity, rig.chains.spine, pose.spine, UP, FORWARD);
 
-			// applyLimb(entity, rig.chains.arm_l, pose.arm_l);
-			// applyLimb(entity, rig.chains.arm_r, pose.arm_r);
+			applyLimb(entity, rig.chains.arm_l, pose.arm_l);
+			applyLimb(entity, rig.chains.arm_r, pose.arm_r);
 
-			// applyLookTwist(entity, rig.points.head, pose.head, FORWARD, UP);
-			rig.pose.apply();
+			applyLookTwist(entity, rig.points.head, pose.head, FORWARD, UP);
+
+			console.log('rig.pose.skeleton.bones[0]', rig.pose.skeleton.bones[0]);
+
+			const helper = new SkeletonHelper(rig.pose.skeleton.bones[0]);
+			Engine.scene.add(helper);
+
+			//rig.pose.apply();
 
 		});
 	}

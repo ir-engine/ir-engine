@@ -37,8 +37,8 @@ class Axis{
 
 		fromDirection( fwd, up ){
 			this.z.copy( fwd ).normalize();
-			this.x = up.cross( this.z ).normalize();
-			this.y = this.z.cross( this.x ).normalize();			
+			this.x = new Vector3().copy(up).cross( this.z ).normalize();
+			this.y = new Vector3().copy(this.z).cross( this.x ).normalize();			
 			return this;
 		}
 

@@ -50,7 +50,6 @@ export class Chain {
 		let sum = 0,
 			b, i;
 
-
 		// Loop Every Bone Except Last one
 		for (i = 0; i < end; i++) {
 			b = bones[i];

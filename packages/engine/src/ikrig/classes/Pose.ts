@@ -41,8 +41,17 @@ class Pose {
 		this.bones = this.skeleton.bones;
 		this.rootOffset = new Object3D();					// Parent Transform for Root Bone ( Skeletons from FBX imports need this to render right )
 		for (let i = 0; i < this.skeleton.bones.length; i++) {
-			this.skeleton.bones['index'] = i;
+			let b = this.skeleton.bones[i] as any;
+			b['index'] = i;
+			if(b.children.length > 0){
+				const bWorldPosition = new Vector3();
+				const bChildWorldPosition = new Vector3();
+				b.getWorldPosition(bWorldPosition);
+				b.children[0].getWorldPosition(bChildWorldPosition);
+				b.length = bWorldPosition.distanceTo(bChildWorldPosition);
+			} 
 		}
+		this.skeleton.update();
 	}
 
 	setOffset(quaternion: Quaternion, position: Vector3, scale: Vector3) {
@@ -66,10 +75,11 @@ class Pose {
 		let pb, // Pose Bone
 			o;	// Bone Object
 		for (let i = 0; i < targetSkeleton.bones.length; i++) {
+			pb = this.skeleton.bones[i];
+			
 			// Check if bone has been modified in the pose
 			o = targetSkeleton.bones[i];
 			// Copy changes to Bone Entity
-			pb = this.skeleton.bones[i];
 			o.setRotationFromQuaternion(pb.quaternion);
 
 			o.position.copy(pb.position);
