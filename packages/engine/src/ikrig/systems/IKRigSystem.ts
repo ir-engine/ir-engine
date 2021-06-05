@@ -63,13 +63,8 @@ export class IKRigSystem extends System {
 			applyLimb(entity, rig.chains.arm_r, pose.arm_r);
 
 			applyLookTwist(entity, rig.points.head, pose.head, FORWARD, UP);
-
-			console.log('rig.pose.skeleton.bones[0]', rig.pose.skeleton.bones[0]);
-
-			const helper = new SkeletonHelper(rig.pose.skeleton.bones[0]);
-			Engine.scene.add(helper);
-
-			//rig.pose.apply();
+			
+			// rig.pose.apply();
 
 		});
 	}
