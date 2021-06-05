@@ -4,6 +4,17 @@ import PropTypes from "prop-types";
 
 /**
  * 
+ *  @author Hanzla  Mateen
+ */
+export const PanelDragContainer = (styled as any).div`
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  align-items: center;
+`;
+
+/**
+ * 
  *  @author Robert Long
  */
 export const PanelContainer = (styled as any).div`

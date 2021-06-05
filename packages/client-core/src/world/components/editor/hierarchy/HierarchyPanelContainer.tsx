@@ -1,10 +1,9 @@
-import React, { useContext, useState, useEffect, useCallback, memo } from "react";
+import React, { useContext, useState, useEffect, useCallback, memo, Fragment } from "react";
 import styled from "styled-components";
 import PropTypes from "prop-types";
 import DefaultNodeEditor from "../properties/DefaultNodeEditor";
 import { ContextMenu, MenuItem, ContextMenuTrigger } from "../layout/ContextMenu";
 import { cmdOrCtrlString } from "@xrengine/engine/src/editor/functions/utils";
-import Panel from "../layout/Panel";
 import { EditorContext } from "../contexts/EditorContext";
 import { useDrag, useDrop } from "react-dnd";
 import { getEmptyImage } from "react-dnd-html5-backend";
@@ -14,13 +13,10 @@ import { ItemTypes, addAssetOnDrop, isAsset, AssetTypes } from "../dnd";
 import traverseEarlyOut from "@xrengine/engine/src/editor/functions/traverseEarlyOut";
 import { CaretRight } from "@styled-icons/fa-solid/CaretRight";
 import { CaretDown } from "@styled-icons/fa-solid/CaretDown";
-import { ProjectDiagram } from "@styled-icons/fa-solid";
 import useUpload from "../assets/useUpload";
 import { AllFileTypes } from "../assets/fileTypes";
 import NodeIssuesIcon from "./NodeIssuesIcon";
 import { useTranslation } from "react-i18next";
-// @ts-ignore
-import styles from "./styles.module.scss";
 
 /**
  * uploadOption initializing object containing Properties multiple, accepts.
@@ -1257,7 +1253,7 @@ export default function HierarchyPanel() {
   //returning hierarchy penal view
   return(
     /* @ts-ignore */
-    <Panel id="hierarchy-panel" className={styles.hierarchyPanel} title="Hierarchy" icon={ProjectDiagram}>
+    <Fragment>
       <PanelContainer>
         {editor.scene && (
           <AutoSizer>
@@ -1303,6 +1299,6 @@ export default function HierarchyPanel() {
         <MenuItem onClick={onExpandAllNodes}>{t('editor:hierarchy.lbl-expandAll')}</MenuItem>
         <MenuItem onClick={onCollapseAllNodes}>{t('editor:hierarchy.lbl-collapseAll')}</MenuItem>
       </ContextMenu>
-    </Panel>
+    </Fragment>
   );
 }

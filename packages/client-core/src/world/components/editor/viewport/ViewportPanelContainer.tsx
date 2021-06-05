@@ -13,8 +13,6 @@ import { ChartArea } from "@styled-icons/fa-solid/ChartArea";
 import { InfoTooltip } from "../layout/Tooltip";
 import Stats from "./Stats";
 import { useTranslation } from 'react-i18next';
-// @ts-ignore
-import styles from "./styles.module.scss";
 
 /**
  * BorderColor used to get border color.
@@ -339,7 +337,6 @@ export function ViewportPanelContainer() {
   return (
     <Panel
     /* @ts-ignore */
-      className={styles.viewportPanel}
       id="viewport-panel"
       title={t('editor:viewport.title')}
       icon={WindowMaximize}

@@ -1,7 +1,7 @@
 import { cmdOrCtrlString, objectToMap } from "@xrengine/engine/src/editor/functions/utils";
 import {useLocation, withRouter} from "react-router-dom";
 import PropTypes from "prop-types";
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import Modal from "react-modal";
@@ -38,8 +38,9 @@ import {
 import { withTranslation } from 'react-i18next';
 import { DockLayout, DockMode } from 'rc-dock';
 import "rc-dock/dist/rc-dock.css";
-// @ts-ignore
-import styles from "./styles.module.scss";
+import { SlidersH } from "@styled-icons/fa-solid/SlidersH";
+import { PanelDragContainer, PanelIcon, PanelTitle } from "./layout/Panel";
+import { ProjectDiagram } from "@styled-icons/fa-solid";
 
 /**
  * StyledEditorContainer component is used as root element of new project page.
@@ -81,6 +82,7 @@ const DockContainer = (styled as any).div`
     background: transparent;
     pointer-events: auto;
     opacity: 0.8;
+    border: none;
   }
   .dock-panel[data-dockid="+3"] {
     visibility: hidden;
@@ -88,6 +90,26 @@ const DockContainer = (styled as any).div`
   }
   .dock-divider {
     pointer-events: auto;
+    background: rgba(0,0,0,0.2);
+  }
+  .dock {
+    border-radius: 4px;
+    background: #282C31;
+  }
+  .dock-top .dock-bar {
+    font-size: 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.2);
+    background: #282C31;
+  }
+  .dock-tab {
+    background: #282C31; 
+    border-bottom: none;
+  }
+  .dock-tab:hover, .dock-tab-active, .dock-tab-active:hover {
+    color: #ffffff; 
+  }
+  .dock-ink-bar {
+    background-color: #ffffff; 
   }
 `;
 
@@ -873,10 +895,27 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
             size: 3,
             children: [
               {
-                tabs: [{id: 'hierarchyPanel', title: 'Hierarchy', content: <HierarchyPanelContainer />}],
+                tabs: [{
+                  id: 'hierarchyPanel', 
+                  title: (
+                    <PanelDragContainer>
+                      <PanelIcon as={ProjectDiagram} size={12} />
+                      <PanelTitle>Hierarchy</PanelTitle>
+                    </PanelDragContainer>
+                  ), 
+                  content: <HierarchyPanelContainer />}],
               },
               {
-                tabs: [{id: 'propertiesPanel', title: 'Properties', content: <PropertiesPanelContainer />}],
+                tabs: [{
+                  id: 'propertiesPanel', 
+                  title: (
+                    <PanelDragContainer>
+                      <PanelIcon as={SlidersH} size={12} />
+                      <PanelTitle>Properties</PanelTitle>
+                    </PanelDragContainer>
+                  ), 
+                  content: <PropertiesPanelContainer />
+                }],
               }
             ]
           },
@@ -903,7 +942,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                     <ViewportPanelContainer />
                     <DockContainer>
                       <DockLayout defaultLayout={defaultLayout}
-                        style={{ pointerEvents: 'none', position: 'absolute', left: 10, top: 60, right: 10, bottom: 10 }} />
+                        style={{ pointerEvents: 'none', position: 'absolute', left: 6, top: 74, right: 6, bottom: 6 }} />
                     </DockContainer>
                   </WorkspaceContainer>
                   <Modal
