@@ -14,7 +14,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
 1. Install your dependencies
     ```
     cd path/to/xrengine
-    yarn install
+    npm install
     ```
     Error with mediasoup? Optional: https://mediasoup.org/documentation/v3/mediasoup/installation/
 
@@ -22,9 +22,9 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
 	```
 	sudo apt-get update
 	sudo apt-get install build-essential
-	npm install -g node-gypPYTHON=python3 yarn install
+	npm install -g node-gypPYTHON=python3 npm install
 	npm config set python /usr/bin/python
-	PYTHON=python3 yarn install
+	PYTHON=python3 npm install
 	```
 2. Make sure you have a mysql database installed and running -- our recommendation is Mariadb. We've provided a docker container for easy setup:
     ```
@@ -66,7 +66,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
 5. Start the server in database seed mode
 
    Several tables in the database need to be seeded with default values.
-   Run ```cd packages/server```, then run ```yarn dev-reinit-db```.
+   Run ```cd packages/server```, then run ```npm run dev-reinit-db```.
    After several seconds, there should be no more logging.
    Some of the final lines should read like this:
    ```Executing (default): SELECT 'id', 'name', 'sceneId', 'locationSettingsId', 'slugifiedName', 'maxUsersPerInstance', 'createdAt', 'updatedAt' FROM 'location' AS 'location' WHERE ('location'.'id' = '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61') AND 'location'.'id' IN ('98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61'); Seeded```
@@ -74,8 +74,8 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
     At this point, the database has been seeded. You can shut down the server with CTRL+C.
 
 6. Open two separate tabs and start the server (non-seeding) and the client
-   In /packages/server, run ```sudo yarn dev```.
-   In the other tab, go to /packages/client and run ```sudo yarn dev```.
+   In /packages/server, run ```sudo npm run dev```.
+   In the other tab, go to /packages/client and run ```sudo npm run dev```.
 
 7. In a browser, navigate to https://127.0.0.1:3000/location/home
    The database seeding process creates a test empty location called 'test'.
@@ -108,11 +108,11 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
 
    8. rename 'postinstall' to 'postinstall-1' so that it will not run after installing dependencies.
 
-   9. install all dependences using yarn.
+   9. install all dependences using npm.
 
    10. add back all removed mediasoup and mediasoup-client dependencies.
 
-   11. Rerun yarn command to install dependencies to install newly added mediasoup and mediasoup-client dependencies.
+   11. Rerun npm command to install dependencies to install newly added mediasoup and mediasoup-client dependencies.
 
    12. If error persists then check for typos in evironment variables.
 

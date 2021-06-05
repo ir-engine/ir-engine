@@ -10,7 +10,7 @@ import { ReflectionProbeProperties } from "./ReflectionProbeProperties";
 
 
 export const enum ReflectionPropertyTypes{
-    "Numeric","Boolean","ReflectionProbeType","RefreshMode","Resolution","Vector"
+    "Numeric","Boolean","ReflectionProbeType","RefreshMode","Resolution","Vector","String"
 }
 
 const DefaultReflectionProbeSettings=[
@@ -67,6 +67,11 @@ const DefaultReflectionProbeSettings=[
                 label:"Resolution",
                 propertyName:"resolution",
                 type:ReflectionPropertyTypes.Resolution,
+            },
+            {
+                label:"Lookup Name",
+                propertyName:"lookupName",
+                type:ReflectionPropertyTypes.String,
             },
         ]
     },

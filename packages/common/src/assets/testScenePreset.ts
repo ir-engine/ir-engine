@@ -614,6 +614,7 @@ export const testScenePreset = {
                     intensity:1,
                     resolution:512,
                     refreshMode:0,
+                    lookupName:"EnvMap",
                 },
                 "data": {
                     probePosition:{
@@ -635,6 +636,7 @@ export const testScenePreset = {
                     intensity:1,
                     resolution:512,
                     refreshMode:0,
+                    lookupName:"EnvMap",
                 },
                 "id": "09cc03c4-24e9-11eb-bc2e-e7e742fb069f",
                 "entityId": "1B698484-C15A-4CEC-9247-03873520DF70",

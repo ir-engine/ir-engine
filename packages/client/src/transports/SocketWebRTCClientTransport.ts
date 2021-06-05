@@ -176,7 +176,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       }
       const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any;
 
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD, worldState: WorldStateModel.fromBuffer(worldState) });
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT_TO_WORLD, worldState: WorldStateModel.fromBuffer(worldState), instance: instance === true });
 
       // Send heartbeat every second
       const heartbeat = setInterval(() => {

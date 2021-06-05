@@ -11,12 +11,12 @@ WORKDIR /app
 # to make use of caching, copy only package files and install dependencies
 COPY package*.json /app/
 #RUN  yarn ci --verbose  # we should make lockfile or shrinkwrap then use yarn ci for predicatble builds
-RUN yarn install --no-progress --verbose
+RUN npm install --no-progress --verbose
 
 # copy then compile the code
 COPY . .
 
-RUN /bin/bash -c 'source yarn run build'
+RUN /bin/bash -c 'source npm run build'
 
 EXPOSE 80
-CMD ["/bin/bash", "-c", "yarn start" ]
+CMD ["/bin/bash", "-c", "npm run start" ]

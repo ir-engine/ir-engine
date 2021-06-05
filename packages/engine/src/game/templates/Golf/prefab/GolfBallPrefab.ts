@@ -24,9 +24,6 @@ import { Action, State } from '../../../types/GameComponents';
 import { getGame } from '../../../functions/functions';
 import { MathUtils } from 'three';
 import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent';
-import { rigidbodyInterpolationBehavior } from '../../../../physics/behaviors/rigidbodyInterpolationBehavior';
-import { InterpolationInterface } from '../../../../networking/types/SnapshotDataTypes';
-import { rigidbodyInterpolationBehavior } from '../../../../physics/behaviors/rigidbodyInterpolationBehavior';
 import { Behavior } from '../../../../common/interfaces/Behavior';
 
 /**
@@ -93,7 +90,6 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   ballMesh.scale.copy(transform.scale);
   ballMesh.castShadow = true;
   ballMesh.receiveShadow = true;
-  ballMesh.material && WebGLRendererSystem.instance.csm.setupMaterial(ballMesh.material);
   addComponent(ballEntity, Object3DComponent, { value: ballMesh });
   // console.log(transform.position)
 

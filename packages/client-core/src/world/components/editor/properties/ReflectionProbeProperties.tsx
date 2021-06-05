@@ -8,6 +8,7 @@ import BooleanInput from "../inputs/BooleanInput";
 import CompoundNumericInput from "../inputs/CompoundNumericInput";
 import InputGroup from "../inputs/InputGroup";
 import SelectInput from "../inputs/SelectInput";
+import { ControlledStringInput } from "../inputs/StringInput";
 import Vector3Input from "../inputs/Vector3Input";
 import { ReflectionPropertyTypes } from "./ReflectionProbeNodeEditor";
 
@@ -110,6 +111,15 @@ export const  ReflectionProbeProperties =(props:ReflectionProbePropertyEditorPro
         case ReflectionPropertyTypes.Vector:
             renderVal=<Vector3Input onChange={(id)=>{onChangeProperty(id,propertyName);}} value={getPropertyValue(propertyName)} />;
             break;
+
+        case ReflectionPropertyTypes.String:
+            renderVal=<ControlledStringInput 
+                /* @ts-ignore */
+                onChange={(id)=>{onChangeProperty(id,propertyName);}}
+                value={getPropertyValue(propertyName)}
+                />;
+            break;
+
         default:
             renderVal=<div>Undefined value Type</div>;
             break;
