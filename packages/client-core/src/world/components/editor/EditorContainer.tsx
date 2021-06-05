@@ -90,7 +90,6 @@ const DockContainer = (styled as any).div`
   }
   .dock-divider {
     pointer-events: auto;
-    background: rgba(0,0,0,0.2);
   }
   .dock {
     border-radius: 4px;
