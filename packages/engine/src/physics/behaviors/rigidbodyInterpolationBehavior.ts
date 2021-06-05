@@ -85,6 +85,7 @@ export const rigidbodyInterpolationBehavior: Behavior = (entity: Entity, snapsho
     const offsetvX = correction.vX - currentSnapshot.vX;
     const offsetvY = correction.vY - currentSnapshot.vY;
     const offsetvZ = correction.vZ - currentSnapshot.vZ;
+    // console.log(correction, currentSnapshot)
 
     collider.body.updateTransform({
       translation: {
@@ -98,17 +99,18 @@ export const rigidbodyInterpolationBehavior: Behavior = (entity: Entity, snapsho
         z: collider.body.transform.rotation.z - offsetqZ * delta,
         w: collider.body.transform.rotation.w - offsetqW * delta,
       },
-      linearVelocity: {
-        x: collider.body.transform.linearVelocity.x - offsetvX * delta,
-        y: collider.body.transform.linearVelocity.y - offsetvY * delta,
-        z: collider.body.transform.linearVelocity.z - offsetvZ * delta,
-      }
+      // linearVelocity: {
+      //   x: collider.body.transform.linearVelocity.x - offsetvX * delta,
+      //   y: collider.body.transform.linearVelocity.y - offsetvY * delta,
+      //   z: collider.body.transform.linearVelocity.z - offsetvZ * delta,
+      // }
     })
-    collider.body.setLinearVelocity({ 
-      x: collider.body.transform.linearVelocity.x - offsetvX * delta,
-      y: collider.body.transform.linearVelocity.y - offsetvY * delta,
-      z: collider.body.transform.linearVelocity.z - offsetvZ * delta,
-    }, true)
+    // console.log(collider.body.transform.linearVelocity, offsetvX, offsetvY, offsetvZ)
+    // collider.body.setLinearVelocity({ 
+    //   x: collider.body.transform.linearVelocity.x - offsetvX * delta,
+    //   y: collider.body.transform.linearVelocity.y - offsetvY * delta,
+    //   z: collider.body.transform.linearVelocity.z - offsetvZ * delta,
+    // }, true)
   // }
 
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
