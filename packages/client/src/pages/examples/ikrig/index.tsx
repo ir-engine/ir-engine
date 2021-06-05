@@ -174,10 +174,10 @@ const Page = () => {
 			}
 			
 
-			targetRig.tpose.align_leg( ["LeftUpLeg", "LeftLeg"] )
-			targetRig.tpose.align_leg( ["RightUpLeg", "RightLeg"] )
-			targetRig.tpose.align_arm_left( ["LeftArm", "LeftForeArm"] )
-			targetRig.tpose.align_arm_right( ["RightArm", "RightForeArm"] )
+			// targetRig.tpose.align_leg( ["LeftUpLeg", "LeftLeg"] )
+			// targetRig.tpose.align_leg( ["RightUpLeg", "RightLeg"] )
+			// targetRig.tpose.align_arm_left( ["LeftArm", "LeftForeArm"] )
+			// targetRig.tpose.align_arm_right( ["RightArm", "RightForeArm"] )
 			// targetRig.tpose.spin_bone_forward( "LeftFoot" )
 			// targetRig.tpose.spin_bone_forward( "RightFoot" )
 			// targetRig.tpose.build();
