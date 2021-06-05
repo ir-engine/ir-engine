@@ -14,6 +14,11 @@ import { ParityValue } from "../../common/enums/ParityValue";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { IKComponent } from "../../character/components/IKComponent";
 import { IKRigComponent } from "../../character/components/IKRigComponent";
+import { Input } from "../../input/components/Input";
+import { BaseInput } from "../../input/enums/BaseInput";
+import { SIXDOFType } from "../../common/types/NumericalTypes";
+import { isClient } from "../../common/functions/isClient";
+import { isEntityLocalClient } from "../../networking/functions/isEntityLocalClient";
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -50,6 +55,7 @@ export const startXR = async (): Promise<boolean> => {
 
     addComponent(Network.instance.localClientEntity, XRInputReceiver, {
       head,
+      headGroup: camGroup,
       controllerLeft,
       controllerRight,
       controllerGripLeft,
@@ -214,6 +220,30 @@ export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.
 export const getHandTransform = (entity: Entity, hand: ParityValue = ParityValue.NONE): { position: Vector3, rotation: Quaternion } => {
   const actor = getComponent(entity, CharacterComponent);
   const transform = getComponent(entity, TransformComponent);
+  // quick fix until ik is fixed
+  if(isClient || isEntityLocalClient(entity)) {
+    const inputSources = getComponent(Network.instance.localClientEntity, XRInputReceiver);
+    if(inputSources) {
+      const rigHand: Object3D = hand === ParityValue.LEFT ? inputSources.controllerLeft : inputSources.controllerRight;
+      if(rigHand) {
+        return { 
+          position: rigHand.getWorldPosition(vec3),
+          rotation: rigHand.getWorldQuaternion(quat)
+        }
+      }
+    }
+  } else if(!isClient) {
+    if(isInXR(entity)) {
+      const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
+      if(input) {
+        const sixdof = input.value as SIXDOFType;
+        return { 
+          position: vec3.set(sixdof.x, sixdof.y, sixdof.z).applyMatrix4(actor.tiltContainer.matrixWorld),
+          rotation: quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW).premultiply(transform.rotation)
+        }
+      }
+    }
+  }
   const ikRigComponent = getComponent(entity, IKRigComponent);
   if(ikRigComponent && ikRigComponent.avatarIKRig) {
     const rigHand: Object3D = hand === ParityValue.LEFT ? ikRigComponent.avatarIKRig.poseManager.vrTransforms.leftHand : ikRigComponent.avatarIKRig.poseManager.vrTransforms.rightHand;

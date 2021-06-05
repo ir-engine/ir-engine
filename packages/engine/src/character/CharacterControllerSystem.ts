@@ -203,7 +203,7 @@ export class CharacterControllerSystem extends System {
     this.queryResults.ikAvatar.all?.forEach((entity) => {
       const ikRigComponent = getMutableComponent(entity, IKRigComponent);
       if(ikRigComponent) {
-        ikRigComponent.avatarIKRig.update(delta);
+        // ikRigComponent.avatarIKRig.update(delta);
       }
     })
   }
