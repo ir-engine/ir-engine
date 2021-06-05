@@ -145,7 +145,7 @@
             "rotate": "Rotate",
             "pan": "Pan",
             "noBone": "Obejct does not contain any bones or skin",
-            "outOfBOund": "Object is out of bound.",
+            "outOfBound": "Object is out of bound.",
             "emptyObj": "Object is empty.",
             "maxTriangleError": "Object contains greater than {{allowedTriangles}} faces.",
             "selectValidFile": "Select valid 3d avatar file.",
