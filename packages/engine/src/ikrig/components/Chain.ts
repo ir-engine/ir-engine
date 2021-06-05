@@ -46,7 +46,6 @@ export class Chain {
 	}
 
 	computeLengthFromBones(bones) {
-		console.log("computeLengthFromBones on", bones);
 		const end = this.cnt - 1;
 		let sum = 0,
 			b, i;
@@ -66,14 +65,11 @@ export class Chain {
 
 		// If End Point exists, Can calculate the final bone's length
 		if (this.end_idx != null) {
-			console.log("bones", bones);
-			console.log("bones[this.end_idx]", bones[this.end_idx]);
 			bones[this.end_idx].getWorldPosition(boneWorldPosition);
 			this.chainBones[i].ref.getWorldPosition(childWorldPosition);
 			b.length = boneWorldPosition.distanceTo(childWorldPosition);
 			sum += b.length;
-		} else
-			console.warn("Recompute Chain Len, End Index is missing");
+		} else console.warn("Recompute Chain Len, End Index is missing");
 
 		this.length = sum;
 		return this;

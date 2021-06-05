@@ -36,7 +36,6 @@ class Lines extends Component<Lines>{
 		let obj = getMutableComponent(this.entity, Obj);
 		obj.setReference( this.mesh );
 		Engine.scene.add(obj.ref);
-		console.log("Added line");
 		return this;
 	}
 

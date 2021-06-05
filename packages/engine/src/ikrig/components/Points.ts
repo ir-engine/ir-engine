@@ -62,7 +62,6 @@ class PointsComponent extends Component<PointsComponent>{
 		// INCREMENT AND UPDATE DRAW RANGE
 		this.cnt++;
 		this.geo.setDrawRange( 0, this.cnt );
-		console.log("Added point");
 		return this;
 	}
 

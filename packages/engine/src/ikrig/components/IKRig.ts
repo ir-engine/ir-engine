@@ -45,7 +45,6 @@ class IKRig extends Component<IKRig>{
 		}
 
 		if (end_name) {
-			console.log("armature.skeleton.bones", armature.skeleton.bones);
 			chain.end_idx = armature.skeleton.bones.findIndex(bone => bone.name.toLowerCase().includes(end_name.toLowerCase()));
 		}
 
