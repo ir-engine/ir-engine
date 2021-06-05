@@ -80,6 +80,7 @@ const DockContainer = (styled as any).div`
   .dock-panel {
     background: transparent;
     pointer-events: auto;
+    opacity: 0.8;
   }
   .dock-panel[data-dockid="+3"] {
     visibility: hidden;
@@ -858,7 +859,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
             size: 7,
             children: [
               {
-                tabs: [{id: 'viewPanel', title: 'Viewport', content: <div>Tab 2asdasd1</div>}],
+                tabs: [{id: 'viewPanel', title: 'Viewport', content: <div></div>}],
                 size: 8,
               },
               {
