@@ -11,6 +11,10 @@ import { getTargetEntity } from '../../../../game/functions/functions';
  */
 
 export const ifOwned: Checker = (entity: Entity, args?: any, entityTarget?: Entity ): any | undefined => {
-
-   return getComponent(entity, GamePlayer).uuid == getComponent(entityTarget, NetworkObject).ownerId
+   if (hasComponent(entity, GamePlayer)) {
+      return getComponent(entity, GamePlayer).uuid == getComponent(entityTarget, NetworkObject).ownerId
+   } else {
+      return getComponent(entity, NetworkObject).ownerId == getComponent(entityTarget, NetworkObject).ownerId
+   }
 };
+   

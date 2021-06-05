@@ -25,5 +25,9 @@ export const doesPlayerHaveGameObject: Checker = (entity: Entity, args?: any, en
    if (game.gameObjects[args.objectRoleName].filter((entity) => getComponent(entity, NetworkObject)?.ownerId === ownerId).length > 0) {
       answer = true;
    }
+   if(args.invert ? !answer : answer) {
+      console.warn('doesPlayerHaveGameObject === true')
+   }
+   
    return args.invert ? !answer : answer;
 };

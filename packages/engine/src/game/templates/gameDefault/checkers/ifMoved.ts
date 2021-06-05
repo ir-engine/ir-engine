@@ -14,13 +14,13 @@ import { ColliderComponent } from '../../../../physics/components/ColliderCompon
 export const ifMoved: Checker = (entity: Entity, args?: any, entityTarget?: Entity ): any | undefined => {
    if (hasComponent(entity, ColliderComponent)) {
       const collider = getComponent(entity, ColliderComponent);
-
-      if (args.max && collider.velocity.length() >= args.max) {
-       //  console.log(collider.velocity.length());
+      
+      if (args.max && collider.velocity.length() >= args.max) {        
+      //   console.log(collider.velocity.length()); 
          return true;
       }
       if (args.min && collider.velocity.length() <= args.min) {
-         // console.log(collider.velocity.length());
+          
          return true;
       }
    }

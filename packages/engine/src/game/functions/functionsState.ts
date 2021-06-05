@@ -148,6 +148,11 @@ export const addStateComponent = (entity: Entity, component: ComponentConstructo
   const role = getRole(entity);
   const game = getGame(entity);
 
+  if (uuid === undefined || uuid === undefined || uuid === undefined) {
+    console.warn('addStateComponent cant add State, looks like Object or Player leave game');
+    return;
+  } 
+
   addComponent(entity, component);
 
   let objectState = game.state.find(v => v.uuid === uuid);

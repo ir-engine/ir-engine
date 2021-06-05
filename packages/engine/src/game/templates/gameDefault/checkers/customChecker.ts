@@ -17,13 +17,13 @@ export const customChecker: Checker = (entity: Entity, args?: any, entityTarget?
       }
 
       if (args.checkers != undefined) {
-         if(args.checkers.every(checker => checker.function(entityFinded, checker.args, undefined)) ) {} else { return false }
+         if(args.checkers.every(checker => checker.function(entityFinded, checker.args, entityTarget)) ) {} else { return false }
       }
 
       return true;
     })
   } else if (entityArg != undefined) {
-    // TO DO: for arg.on = 'me' or 'target'
+    // TO DO: for arg.on = 'self' or 'target'
     return false
   }
 };

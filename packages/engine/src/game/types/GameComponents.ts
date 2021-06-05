@@ -1,3 +1,4 @@
+import { Component } from "../../ecs/classes/Component";
 // Action Components
 import { HasHadInteraction } from "../actions/HasHadInteraction";
 import { GameObjectCollisionTag } from "../actions/GameObjectCollisionTag";
@@ -39,7 +40,9 @@ enum gameStates {
     PanelUp = 'PanelUp',
     PanelDown = 'PanelDown',
     
+    Waiting = 'Waiting',
     YourTurn = 'YourTurn',
+    WaitTurn = 'WaitTurn',
     Goal = 'Goal',
 
     SpawnedObject = 'SpawnedObject',
@@ -54,6 +57,9 @@ enum gameStates {
     NotReady = 'NotReady'
 }
 
+class Waiting extends Component<any> {};
+class WaitTurn extends Component<any> {};
+
 export const State = {
     [gameStates.Active]: Active,
     [gameStates.Inactive]: Inactive,
@@ -63,7 +69,9 @@ export const State = {
     [gameStates.ButtonDown]: ButtonDown,
     [gameStates.PanelUp]: PanelUp,
     [gameStates.PanelDown]: PanelDown,
+    [gameStates.Waiting]: Waiting,
     [gameStates.YourTurn]: YourTurn,
+    [gameStates.WaitTurn]: WaitTurn,
     [gameStates.Goal]: Goal,
     [gameStates.SpawnedObject]: SpawnedObject,
     [gameStates.BallMoving]: BallMoving,
@@ -71,3 +79,7 @@ export const State = {
     [gameStates.Ready]: Ready,
     [gameStates.NotReady]: NotReady
 };
+
+
+
+

@@ -37,8 +37,9 @@ export const rigidbodyInterpolationBehavior: Behavior = (entity: Entity, snapsho
 
   const correction = findInterpolationSnapshot(entity, snapshots.correction);
   const currentSnapshot = findInterpolationSnapshot(entity, Network.instance.snapshot);
+  const interpolationSnapshot = findInterpolationSnapshot(entity, snapshots.interpolation);
 
-  if (correction == null || currentSnapshot == null || Network.instance.snapshot.timeCorrection === 0) return;
+  if (correction == null || currentSnapshot == null || interpolationSnapshot == null || Network.instance.snapshot.timeCorrection === 0) return;
 
   const offsetX = correction.x - currentSnapshot.x;
   const offsetY = correction.y - currentSnapshot.y;
@@ -65,16 +66,24 @@ export const rigidbodyInterpolationBehavior: Behavior = (entity: Entity, snapsho
       z: collider.body.transform.rotation.z - offsetqZ * delta,
       w: collider.body.transform.rotation.w - offsetqW * delta,
     },
+    /*
     linearVelocity: {
       x: collider.body.transform.linearVelocity.x - offsetvX * delta,
       y: collider.body.transform.linearVelocity.y - offsetvY * delta,
       z: collider.body.transform.linearVelocity.z - offsetvZ * delta,
     }
+    */
   })
 
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
 
   transform.position.copy(collider.body.transform.translation);
   transform.rotation.copy(collider.body.transform.rotation);
-  collider.velocity.copy(collider.body.transform.linearVelocity);
+  //collider.velocity.copy(collider.body.transform.linearVelocity);
+  
+  collider.velocity.set(
+    interpolationSnapshot.vX,
+    interpolationSnapshot.vY,
+    interpolationSnapshot.vZ
+  );
 };

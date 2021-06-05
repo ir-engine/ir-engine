@@ -233,7 +233,7 @@ export class GameManagerSystem extends System {
       this.queryResults.game.all?.forEach(entityGame => {
         const game = getComponent(entityGame, Game);
         const gamePlayer = getComponent(entity, GamePlayer, true);
-        if (gamePlayer.gameName != game.name) return;
+        if (gamePlayer === undefined || gamePlayer.gameName != game.name) return;
         removeEntityFromState(gamePlayer, game);
         clearRemovedEntitysFromGame(game);
         game.gamePlayers[gamePlayer.role] = game.gamePlayers[gamePlayer.role].filter(entityFind => hasComponent(entityFind, GamePlayer))
@@ -247,7 +247,7 @@ export class GameManagerSystem extends System {
       this.queryResults.game.all?.forEach(entityGame => {
         const game = getComponent(entityGame, Game);
         const gameObject = getComponent(entity, GameObject, true);
-        if (gameObject.gameName != game.name) return;
+        if (gameObject === undefined || gameObject.gameName != game.name) return;
         removeEntityFromState(gameObject, game);
         clearRemovedEntitysFromGame(game);
       })
