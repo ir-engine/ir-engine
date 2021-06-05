@@ -51,6 +51,7 @@ export function Timer (
 
   function xrAnimationLoop(time, xrFrame) {
     Engine.xrRenderer.onAnimationFrame(time, xrFrame);
+    Engine.xrSession.requestAnimationFrame( xrAnimationLoop )
     XRSystem.instance.xrFrame = xrFrame;
     if (lastAnimTime !== null) {
       frameDelta = (time - lastAnimTime) / 1000;
@@ -66,21 +67,15 @@ export function Timer (
       }
     }
     lastAnimTime = time;
-    Engine.xrSession.requestAnimationFrame( xrAnimationLoop )
 	}
 
-  // TODO move xr anim loop to use main timer loops
-
   EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => {
-    // cancelAnimationFrame(frameId);
     stop()
   });
   EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_SESSION, async (ev: any) => {
     Engine.xrSession.requestAnimationFrame( xrAnimationLoop )
   });
   EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => {
-    // lastAnimTime = null;
-    // frameId = window.requestAnimationFrame(onFrame);
     start()
   });
 
