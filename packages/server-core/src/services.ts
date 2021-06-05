@@ -7,6 +7,7 @@ import SocialServices from './social/services';
 import SocialMediaServices from './socialmedia/services';
 import UserServices from './user/services';
 import WorldServices from './world/services';
+import BotService from "./bot/services";
 
 export default (app: Application): void => {
   [
@@ -18,6 +19,7 @@ export default (app: Application): void => {
     // ...PaymentServices,
     ...SocialServices,
     ...SocialMediaServices,
+    ...BotService,
   ].forEach(service => {
     app.configure(service);
   });
