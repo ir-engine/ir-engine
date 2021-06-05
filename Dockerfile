@@ -1,5 +1,5 @@
 # not slim because we need github depedencies
-FROM node:lts-buster
+FROM node:16-buster
 
 RUN echo "deb [arch=amd64] http://nginx.org/packages/mainline/ubuntu/ eoan nginx\ndeb-src http://nginx.org/packages/mainline/ubuntu/ eoan nginx" >> /etc/apt/sources.list.d/nginx.list
 RUN wget http://nginx.org/keys/nginx_signing.key
@@ -9,7 +9,7 @@ RUN apt update && apt install -y ffmpeg=*:4.** nginx
 # Create app directory
 WORKDIR /app
 
-RUN yarn global add lerna --loglevel notice
+RUN npm install -g lerna cross-env ctix rimraf --loglevel notice
 
 # to make use of caching, copy only package files and install dependencies
 COPY package.json .
@@ -25,13 +25,13 @@ COPY packages/social/package.json ./packages/social/
 COPY packages/bot/package.json ./packages/bot/
 
 #RUN  npm ci --verbose  # we should make lockfile or shrinkwrap then use npm ci for predicatble builds
-RUN yarn install --production=false
+RUN npm install --production=false --loglevel notice --legacy-peer-deps
 
 COPY . .
 
 # copy then compile the code
 
-RUN yarn run build-docker
+RUN npm run build-docker
 
 ENV NODE_ENV=production
 ENV PORT=3030

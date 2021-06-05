@@ -23,24 +23,6 @@ export class TransformSystem extends System {
 
   execute (delta) {
 
-    this.queryResults.object3d?.added?.forEach((entity) => {
-      const object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent);
-      if(!Engine.scene.children.includes(object3DComponent.value)) {
-        Engine.scene.add(object3DComponent.value);
-      } else {
-        console.warn('[Object3DComponent]: Scene object has been added manually.')
-      }
-    })
-
-    this.queryResults.object3d?.removed?.forEach((entity) => {
-      const object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent, true);
-      if(Engine.scene.children.includes(object3DComponent.value)) {
-        Engine.scene.remove(object3DComponent.value);
-      } else {
-        console.warn('[Object3DComponent]: Scene object has been removed manually.')
-      }
-    })
-
     this.queryResults.parent.all?.forEach(entity => {
       const parentTransform = getMutableComponent(entity, TransformComponent);
       const parentingComponent = getComponent<TransformParentComponent>(entity, TransformParentComponent);
@@ -175,13 +157,6 @@ export class TransformSystem extends System {
 }
 
 TransformSystem.queries = {
-  object3d: {
-    components: [Object3DComponent],
-    listen: {
-      added: true,
-      changed: true
-    }
-  },
   parent: {
     components: [TransformParentComponent, TransformComponent]
   },

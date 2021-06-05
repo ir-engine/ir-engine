@@ -16,6 +16,12 @@ import { isClient } from '../../common/functions/isClient';
 import { BodyType, PhysXConfig, PhysXInstance } from "three-physx";
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
 import { Vector3 } from 'three';
+import { SnapshotData } from '../../networking/types/SnapshotDataTypes';
+import { characterCorrectionBehavior } from '../../character/behaviors/characterCorrectionBehavior';
+import { CharacterComponent } from '../../character/components/CharacterComponent';
+import { characterInterpolationBehavior } from '../../character/behaviors/characterInterpolationBehavior';
+import { rigidbodyInterpolationBehavior } from '../behaviors/rigidbodyInterpolationBehavior';
+
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -115,25 +121,26 @@ export class PhysicsSystem extends System {
 
     if (isClient) {
       if (!Network.instance?.snapshot) return;
-      // Interpolate between the current client's data with what the server has sent via snapshots
-      const snapshots = {
+      
+      const snapshots: SnapshotData = {
         interpolation: calculateInterpolation('x y z quat velocity'),
         correction: Vault.instance?.get((Network.instance.snapshot as any).timeCorrection, true),
         new: []
       }
-      // console.warn(snapshots.correction);
-      this.queryResults.localClientInterpolation.all?.forEach(entity => {
-        // Creatr new snapshot position for next frame server correction
-        const interpolationComponent = getComponent<InterpolationComponent>(entity, InterpolationComponent);
-        interpolationComponent.schema.serverCorrectionBehavior(entity, snapshots, delta);
-      });
       // Create new snapshot position for next frame server correction
       Vault.instance.add(createSnapshot(snapshots.new));
-      // apply networkObjectInterpolation values
+
+      this.queryResults.localCharacterInterpolation.all?.forEach(entity => {
+        characterCorrectionBehavior(entity, snapshots, delta);
+      });
+
+      this.queryResults.networkClientInterpolation.all?.forEach(entity => {
+        characterInterpolationBehavior(entity, snapshots, delta);
+      });
+
       this.queryResults.networkObjectInterpolation.all?.forEach(entity => {
-        const interpolation = getComponent(entity, InterpolationComponent);
-        interpolation.schema.interpolationBehavior(entity, snapshots);
-      })
+        rigidbodyInterpolationBehavior(entity, snapshots, delta);
+      });
 
       // If a networked entity does not have an interpolation component, just copy the data
       this.queryResults.correctionFromServer.all?.forEach(entity => {
@@ -179,11 +186,14 @@ export class PhysicsSystem extends System {
 }
 
 PhysicsSystem.queries = {
-  localClientInterpolation: {
-    components: [LocalInputReceiver, InterpolationComponent, NetworkObject],
+  localCharacterInterpolation: { 
+    components: [LocalInputReceiver, CharacterComponent, InterpolationComponent, NetworkObject],
+  },
+  networkClientInterpolation: {
+    components: [Not(LocalInputReceiver), CharacterComponent, InterpolationComponent, NetworkObject],
   },
   networkObjectInterpolation: {
-    components: [Not(LocalInputReceiver), InterpolationComponent, NetworkObject],
+    components: [Not(CharacterComponent), InterpolationComponent, NetworkObject],
   },
   correctionFromServer: {
     components: [Not(InterpolationComponent), NetworkObject],

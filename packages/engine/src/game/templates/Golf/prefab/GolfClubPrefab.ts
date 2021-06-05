@@ -202,7 +202,7 @@ export const onClubColliderWithBall: GameObjectInteractionBehavior = (entityClub
   vec3.applyAxisAngle(upVector, clubMoveDirection * angleOfIncidence).normalize().multiplyScalar(golfClubComponent.velocity.length());
 */
 
-  vector0.copy(golfClubComponent.velocity).multiplyScalar(hitAdvanceFactor).multiplyScalar(0.3);
+  vector0.copy(golfClubComponent.velocity).multiplyScalar(hitAdvanceFactor).multiplyScalar(0.5);
   // vector0.copy(vec3).multiplyScalar(hitAdvanceFactor);
   // lock to XZ plane if we disable chip shots
   if(!golfClubComponent.canDoChipShots) {
@@ -216,7 +216,7 @@ export const onClubColliderWithBall: GameObjectInteractionBehavior = (entityClub
       z: args.hitEvent.bodyOther.transform.translation.z + vector0.z,
     }
   });
-  vector1.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier).multiplyScalar(0.3);
+  vector1.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier).multiplyScalar(0.5);
   // vector1.copy(vec3).multiplyScalar(velocityMultiplier);
   if(!golfClubComponent.canDoChipShots) {
     vector1.y = 0;
@@ -277,7 +277,10 @@ export const initializeGolfClub = (entityClub: Entity) => {
   meshGroup.add(handleObject, headGroup, neckObject);
   golfClubComponent.meshGroup = meshGroup;
 
-  setupSceneObjects(meshGroup);
+  meshGroup.traverse((obj) => {
+    obj.castShadow = true;
+    obj.receiveShadow = true;
+  })
 
   addComponent(entityClub, Object3DComponent, { value: meshGroup });
 

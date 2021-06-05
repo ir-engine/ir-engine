@@ -41,19 +41,18 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
 
     actor.velocity.copy(actor.velocitySimulator.position);
     newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed * actor.speedMultiplier);
-    newVelocity.applyQuaternion(transform.rotation)
 
     if(isInXR(entity)) {
-      // Apply head direction
+      // Apply direction from head look
       const input = getComponent<Input>(entity, Input as any);
       const headTransform = input.data.get(BaseInput.XR_HEAD);
       if(!headTransform?.value) return
       const sixdof = headTransform.value as SIXDOFType;
       quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW);
-      // actor.localMovementDirection.applyQuaternion(quat);
-      // TODO figure out how to apply quaternion only in XZ plane
       newVelocity.applyQuaternion(quat);
-      newVelocity.y = actor.velocity.y;
+    } else {
+      // Apply direction from character orientation
+      newVelocity.applyQuaternion(transform.rotation)
     }
 
     if (actor.closestHit) {

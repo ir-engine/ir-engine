@@ -155,3 +155,24 @@ export const envmapPhysicalParsReplace = /* glsl */`
     }
 #endif
 `;
+
+
+
+
+
+
+export const beforeMaterialCompile=(probeScale,probePositionOffset)=>{
+    return function ( shader ) {
+        shader.uniforms.cubeMapSize = { probeScale};
+        shader.uniforms.cubeMapPos = { value: probePositionOffset};
+        shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader;
+        shader.vertexShader = shader.vertexShader.replace(
+            '#include <worldpos_vertex>',
+            worldposReplace
+        );
+        shader.fragmentShader = shader.fragmentShader.replace(
+            '#include <envmap_physical_pars_fragment>',
+            envmapPhysicalParsReplace
+        );
+    }
+}

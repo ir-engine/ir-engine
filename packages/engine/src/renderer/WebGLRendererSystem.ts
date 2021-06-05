@@ -90,6 +90,7 @@ export class WebGLRendererSystem extends System {
   renderContext: WebGLRenderingContext;
 
   forcePostProcessing = false;
+  readonly _supportWebGL2: boolean;
 
   /** Constructs WebGL Renderer System. */
   constructor(attributes: SystemAttributes = {}) {
@@ -135,7 +136,7 @@ export class WebGLRendererSystem extends System {
     const csm = new CSM({
       cascades: Engine.xrSupported ? 2 : 4,
       lightIntensity: 1,
-      shadowMapSize: Engine.xrSupported ? 2048 : 4096,
+      shadowMapSize: Engine.xrSupported ? 256 : 4096,
       maxFar: 100,
       camera: Engine.camera,
       parent: Engine.scene
@@ -261,7 +262,7 @@ export class WebGLRendererSystem extends System {
 
     if (Engine.xrRenderer.isPresenting) {
 
-      this.csm.update();
+      // this.csm.update();
 
       // override default threejs behavior, use our own WebXRManager
       // we still need to apply the WebXR camera array
