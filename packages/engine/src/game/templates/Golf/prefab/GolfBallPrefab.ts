@@ -24,9 +24,6 @@ import { Action, State } from '../../../types/GameComponents';
 import { getGame } from '../../../functions/functions';
 import { MathUtils } from 'three';
 import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent';
-import { rigidbodyInterpolationBehavior } from '../../../../physics/behaviors/rigidbodyInterpolationBehavior';
-import { InterpolationInterface } from '../../../../networking/types/SnapshotDataTypes';
-import { rigidbodyInterpolationBehavior } from '../../../../physics/behaviors/rigidbodyInterpolationBehavior';
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -105,7 +102,6 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   ballMesh.scale.copy(transform.scale);
   ballMesh.castShadow = true;
   ballMesh.receiveShadow = true;
-  ballMesh.material && WebGLRendererSystem.instance.csm.setupMaterial(ballMesh.material);
   addComponent(ballEntity, Object3DComponent, { value: ballMesh });
   // console.log(transform.position)
 
@@ -122,6 +118,7 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
 export const updateBall = (ballEntity: Entity) => {
   const gameObject = getComponent(ballEntity, GameObject);
   const collider = getComponent(ballEntity, ColliderComponent);
+  if(!collider) return;
   if (collider.velocity.length() > 0.1) {
     if(hasComponent(ballEntity, State.Active)) {
       // console.warn('actionMoving')

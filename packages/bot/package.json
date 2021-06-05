@@ -7,14 +7,14 @@
     "url": "git://github.com/XRFoundation/XREngine.git"
   },
   "engines": {
-    "yarn": ">= 0.18.0"
+    "node": ">= 16.3.0"
   },
-  "npmClient": "yarn",
+  "npmClient": "npm",
   "jest": "ts-jest",
   "main": "src/xrengine-bot.js",
   "scripts": {
     "start": "node run-bot.js",
-    "validate": "yarn run lint && yarn run test",
+    "validate": "npm run lint && npm run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
     "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
   },

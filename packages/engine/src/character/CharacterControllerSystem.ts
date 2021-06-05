@@ -193,11 +193,11 @@ export class CharacterControllerSystem extends System {
       }
 
       // TODO: Temporarily make rig invisible until rig is fixed
-      // actor.modelContainer.children[0]?.traverse((child) => {
-      //   if(child.visible) {
-      //     child.visible = false;
-      //   }
-      // })
+      actor.modelContainer.children[0]?.traverse((child) => {
+        if(child.visible) {
+          child.visible = false;
+        }
+      })
     })
 
     this.queryResults.ikAvatar.all?.forEach((entity) => {

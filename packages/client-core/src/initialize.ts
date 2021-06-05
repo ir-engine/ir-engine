@@ -17,6 +17,7 @@
 // import { Network } from '@xrengine/engine/src/networking/classes/Network';
 // import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
 // import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem';
+// import { SceneObjectSystem } from '@xrengine/engine/src/scene/systems/SceneObjectSystem';
 // import { ParticleSystem } from '@xrengine/engine/src/particles/systems/ParticleSystem';
 // import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
 // import { HighlightSystem } from '@xrengine/engine/src/renderer/HighlightSystem';
@@ -26,7 +27,7 @@
 // import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 // //@ts-ignore
 // import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem';
-// import { DefaultInitializationOptions, InitializeOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
+// import { DefaultInitializationOptions, InitializeOptions } from '@xrengine/engine/src/initializationOptions';
 // import _ from 'lodash';
 // import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem';
 // import { now } from '@xrengine/engine/src/common/functions/now';
@@ -148,22 +149,23 @@
 //       registerSystem(CameraSystem, { priority: 2 }); // Free
 //       registerSystem(WebGLRendererSystem, { priority: 3, canvas, postProcessing }); // Free
       
-//       // LOGIC - Input
-//       registerSystem(UIPanelSystem, { priority: 2 });
-//       registerSystem(ActionSystem, { priority: 3 });
-//       registerSystem(CharacterControllerSystem, { priority: 4 });
+// //       // LOGIC - Input
+// //       registerSystem(UIPanelSystem, { priority: 2 });
+// //       registerSystem(ActionSystem, { priority: 3 });
+// //       registerSystem(CharacterControllerSystem, { priority: 4 });
 
-//       // LOGIC - Scene
-//       registerSystem(InteractiveSystem, { priority: 5 });
-//       registerSystem(GameManagerSystem, { priority: 6 });
-//       registerSystem(TransformSystem, { priority: 7 }); // Free
-//       registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig, priority: 8 });
+// //       // LOGIC - Scene
+// //       registerSystem(InteractiveSystem, { priority: 5 });
+// //       registerSystem(GameManagerSystem, { priority: 6 });
+// //       registerSystem(TransformSystem, { priority: 7 }); // Free
+// //       registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig, priority: 8 });
             
 //       // LOGIC - Miscellaneous
 //       registerSystem(HighlightSystem, { priority: 9 });
 //       registerSystem(ParticleSystem, { priority: 10 });
 //       registerSystem(DebugHelpersSystem, { priority: 11 });
 //       registerSystem(PositionalAudioSystem, { priority: 12 });
+//       registerSystem(SceneObjectSystem, { priority: 13 });
 
 //       Engine.viewportElement = Engine.renderer.domElement;
 //     }
@@ -195,7 +197,6 @@
 //     Network.instance.userId = id;
 //   });
 
-//   Engine.isInitialized = true;
 // };
 
 

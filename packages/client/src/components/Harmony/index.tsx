@@ -505,8 +505,8 @@ const Harmony = (props: Props): any => {
         setComposingMessage('');
     };
 
-    const connectToWorldHandler = async (): Promise<void> => {
-        // if (lastConnectToWorldIdRef.current !== activeAVChannelIdRef.current) {
+    const connectToWorldHandler = async ({ instance }: { instance: boolean }): Promise<void> => {
+        if (instance !== true) {
             setLastConnectToWorldId(activeAVChannelIdRef.current);
             await toggleAudio(activeAVChannelIdRef.current);
             await toggleVideo(activeAVChannelIdRef.current);
@@ -514,7 +514,7 @@ const Harmony = (props: Props): any => {
             updateCamVideoState();
             updateCamAudioState();
             EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED });
-        // }
+        }
     };
 
     const createEngineListeners = (): void => {
@@ -694,6 +694,7 @@ const Harmony = (props: Props): any => {
     };
 
     const toggleAudio = async (channelId) => {
+        console.log('toggleAudio');
         await checkMediaStream('channel', channelId);
 
         if (MediaStreamSystem.instance?.camAudioProducer == null) await createCamAudioProducer('channel', channelId);
@@ -706,6 +707,7 @@ const Harmony = (props: Props): any => {
     };
 
     const toggleVideo = async (channelId) => {
+        console.log('toggleVideo');
         await checkMediaStream('channel', channelId);
         if (MediaStreamSystem.instance?.camVideoProducer == null) await createCamVideoProducer('channel', channelId);
         else {

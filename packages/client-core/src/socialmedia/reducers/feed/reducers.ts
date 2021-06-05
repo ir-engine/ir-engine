@@ -26,7 +26,8 @@ import {
   ADMIN_FEEDS_FETCH,
   FIRED_FEEDS_FETCH,
   FEEDS_FIRED_RETRIEVED,
-  CLEAR_CREATOR_FEATURED
+  CLEAR_CREATOR_FEATURED,
+  DELETE_FEED
 } from '../actions';
 import Immutable from 'immutable';
 import {
@@ -163,6 +164,10 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
         }
         return {...feed};
       })).set('feedsAdminFetching', false);
+
+    case DELETE_FEED:
+        return state.set('feedsFeatured', [...state.get('feedsFeatured').filter(feed =>
+          feed.id !== (action as FeedRetrievedAction).feed)]);
 
 }
 

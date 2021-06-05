@@ -53,7 +53,6 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
       // actor.localMovementDirection.applyQuaternion(quat);
       // TODO figure out how to apply quaternion only in XZ plane
       newVelocity.applyQuaternion(quat);
-      newVelocity.y = actor.velocity.y;
     }
 
     if (actor.closestHit) {
