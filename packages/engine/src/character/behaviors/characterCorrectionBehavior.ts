@@ -32,7 +32,7 @@ export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots:
     qX: 0, // physx controllers dont have rotation
     qY: 0,
     qZ: 0,
-    qW: 1
+    qW: 1,
   })
 
   const correction = findInterpolationSnapshot(entity, snapshots.correction);

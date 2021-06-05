@@ -1,4 +1,5 @@
 import type { Material, Mesh } from "three";
+import { Engine } from "../../ecs/classes/Engine";
 import { System, SystemAttributes } from "../../ecs/classes/System";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
@@ -23,9 +24,19 @@ export class SceneObjectSystem extends System {
 
   /** Executes the system. */
   execute(deltaTime, time): void {
+
     for (const entity of this.queryResults.sceneObject.added) {
-      const materialObject = getComponent(entity, Object3DComponent).value;
-      materialObject.traverse((obj: Mesh) => {
+      const object3DComponent = getComponent(entity, Object3DComponent);
+
+      // Add to scene
+      if(!Engine.scene.children.includes(object3DComponent.value)) {
+        Engine.scene.add(object3DComponent.value);
+      } else {
+        console.warn('[Object3DComponent]: Scene object has been added manually.')
+      }
+
+      // Apply material stuff
+      object3DComponent.value.traverse((obj: Mesh) => {
         const material = obj.material as Material;
         if (typeof material !== 'undefined') {
 
@@ -38,6 +49,17 @@ export class SceneObjectSystem extends System {
           }
         }
       });
+    }
+
+    for (const entity of this.queryResults.sceneObject.removed) {
+      const object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent, true);
+
+      // Remove from scene
+      if(Engine.scene.children.includes(object3DComponent.value)) {
+        Engine.scene.remove(object3DComponent.value);
+      } else {
+        console.warn('[Object3DComponent]: Scene object has been removed manually.')
+      }
     }
   }
 }
