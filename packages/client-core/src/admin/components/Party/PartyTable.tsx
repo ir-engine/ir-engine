@@ -7,7 +7,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
-import { fetchAdminParty } from "../../reducers/admin/service";
+import { fetchAdminParty } from "../../reducers/admin/party/service";
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { selectAuthState } from '../../../user/reducers/auth/selector';

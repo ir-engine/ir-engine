@@ -21,37 +21,8 @@ import { fetchAdminInstances } from '../../reducers/admin/service';
 import { fetchAdminParty } from "../../reducers/admin/service";
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
+import { useStyles, useStyle } from "./styles";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        marginBottm: {
-            marginBottom: "15px"
-        },
-        textLink: {
-            marginLeft: "5px",
-            textDecoration: "none",
-            color: "#ff9966"
-        },
-        marginTp: {
-            marginTop: "20%"
-        },
-        texAlign: {
-            textAlign: "center"
-        }
-    })
-);
-
-const useStyle = makeStyles({
-    list: {
-        width: 250,
-    },
-    fullList: {
-        width: 'auto',
-    },
-    paper: {
-        width: "40%"
-    }
-});
 
 const Alert = (props) => {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
