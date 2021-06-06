@@ -9,7 +9,7 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectAdminState } from '../../reducers/admin/selector';
-import { fetchAdminInstances, removeInstance } from '../../reducers/admin/service';
+import { fetchAdminInstances, removeInstance } from '../../reducers/admin/instance/service';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 

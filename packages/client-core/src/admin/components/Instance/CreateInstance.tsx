@@ -13,14 +13,19 @@ import classNames from 'classnames';
 import { selectAppState } from '../../../common/reducers/app/selector';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectAdminState } from '../../reducers/admin/selector';
-import { createInstance, fetchAdminInstances, patchInstance } from '../../reducers/admin/service';
+import { 
+    createInstance, 
+    fetchAdminInstances,
+    patchInstance 
+    } from '../../reducers/admin/instance/service';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import { fetchAdminLocations } from "../../reducers/admin/service";
 import { useFormik } from "formik";
 import { instanceValidationSchema } from "./validation";
 import DialogContentText from '@material-ui/core/DialogContentText';
 import Typography from '@material-ui/core/Typography';
+import { useStyles } from "./styles";
+import { Props } from "./variables";
 
 
 const mapStateToProps = (state: any): any => {
@@ -38,34 +43,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
 });
 
-interface Props {
-    open: boolean;
-    handleClose: any;
-    adminState?: any;
-    createInstance?: any;
-    fetchAdminInstances?: any;
-    editing?: any;
-    instanceEdit?: any;
-    patchInstance?: any;
-    fetchAdminLocations?: any;
-    authState?: any;
-}
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        marginBottm: {
-            marginBottom: "15px"
-        },
-        textLink: {
-            marginLeft: "5px",
-            textDecoration: "none",
-            color: "#ff9966"
-        },
-        marginTop: {
-            marginTop: "30px"
-        }
-    })
-);
 
 /**
  * Function for create instance on admin dashboard 
@@ -75,7 +53,7 @@ const useStyles = makeStyles((theme: Theme) =>
  * @author Kevin KIMENYI <kimenyikevin@gmail.com>
  */
 
-function CreateInstance(props: Props) {
+const CreateInstance = (props: Props) => {
     const classes = useStyles();
 
     const {
