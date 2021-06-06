@@ -28,6 +28,8 @@ export default (app: Application): any => {
     }
     );
     (BotCommand as any).associate = (models: any): void => {
-        
+        (BotCommand as any).belongsTo(models.bot, { foreignKey: "botId"});
     }
+
+    return BotCommand;
 }
