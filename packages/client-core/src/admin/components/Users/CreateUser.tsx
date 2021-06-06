@@ -3,7 +3,7 @@ import Drawer from '@material-ui/core/Drawer';
 import Button from '@material-ui/core/Button';
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { createUser as createUserAction } from "../../reducers/admin/service";
+import { createUser as createUserAction } from "../../reducers/admin/user/service";
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { fetchUserRole } from "../../reducers/admin/service";

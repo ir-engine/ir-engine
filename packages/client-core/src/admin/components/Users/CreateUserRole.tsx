@@ -8,7 +8,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import { fetchUserRole, createUserRoleAction  } from "../../reducers/admin/service";
+import { fetchUserRole, createUserRoleAction  } from "../../reducers/admin/user/service";
 import { selectAdminState } from "../../reducers/admin/selector";
 
 

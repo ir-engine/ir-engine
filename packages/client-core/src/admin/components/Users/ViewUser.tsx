@@ -19,7 +19,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import { selectAdminState } from "../../reducers/admin/selector";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 import { bindActionCreators, Dispatch } from 'redux';
-import { fetchUserRole } from "../../reducers/admin/service";
+import { fetchUserRole } from "../../reducers/admin/user/service";
 import { connect } from 'react-redux';
 import {
     fetchAdminParty,

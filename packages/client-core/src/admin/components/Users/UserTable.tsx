@@ -6,7 +6,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
-import { removeUserAdmin, fetchUsersAsAdmin } from '../../reducers/admin/service';
+import { removeUserAdmin, fetchUsersAsAdmin } from '../../reducers/admin/user/service';
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from 'react-redux';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
@@ -17,66 +17,11 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import ViewUser from "./ViewUser";
 import { useStyle } from "./styles";
-
-interface Column {
-    id: 'name' | 'avatar' | 'status' | 'location' | 'inviteCode' | 'instanceId' | 'action';
-    label: string;
-    minWidth?: number;
-    align?: 'right';
-}
-
-const columns: Column[] = [
-    { id: 'name', label: 'Name', minWidth: 170 },
-    { id: 'avatar', label: 'Avatar', minWidth: 100 },
-    {
-        id: 'status',
-        label: 'Status',
-        minWidth: 170,
-        align: 'right',
-    },
-    {
-        id: 'location',
-        label: 'Location',
-        minWidth: 170,
-        align: 'right',
-    },
-    {
-        id: 'inviteCode',
-        label: "Invite code",
-        minWidth: 170,
-        align: 'right'
-    },
-    {
-        id: 'instanceId',
-        label: 'Instance',
-        minWidth: 170,
-        align: 'right'
-    },
-    {
-        id: 'action',
-        label: 'Action',
-        minWidth: 170,
-        align: 'right',
-    },
-];
-
-interface Data {
-    id: string;
-    user: any;
-    name: string;
-    avatar: string;
-    status: string;
-    location: string;
-    inviteCode: string,
-    instanceId: string,
-    action: any
-}
-interface Props {
-    removeUserAdmin?: any;
-    authState?: any;
-    adminState?: any;
-    fetchUsersAsAdmin?: any
-}
+import {
+   columns,
+   Data,
+   Props
+} from "./Variables";
 
 const mapStateToProps = (state: any): any => {
     return {
