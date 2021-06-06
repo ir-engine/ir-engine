@@ -20,7 +20,7 @@ import {
     createLocation,
     patchLocation,
     removeLocation
-} from "../reducers/admin/service";
+} from "../reducers/admin/location/service";
 import { selectAppState } from "../../common/reducers/app/selector";
 import { selectAuthState } from "../../user/reducers/auth/selector";
 // @ts-ignore

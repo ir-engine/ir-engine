@@ -27,11 +27,14 @@ import { selectAuthState } from '../../user/reducers/auth/selector';
 import { PAGE_LIMIT } from '../reducers/admin/reducers';
 import { selectAdminState } from '../reducers/admin/selector';
 import {
-    fetchAdminInstances, fetchAdminLocations,
+    fetchAdminInstances,
     fetchAdminScenes,
-    fetchLocationTypes,
     fetchUsersAsAdmin
 } from '../reducers/admin/service';
+import {
+    fetchAdminLocations,
+    fetchLocationTypes
+} from "../reducers/admin/location/service";
 import Grid from '@material-ui/core/Grid';
 // @ts-ignore
 import styles from './Admin.module.scss';
