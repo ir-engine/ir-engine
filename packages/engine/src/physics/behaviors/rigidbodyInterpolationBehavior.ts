@@ -1,7 +1,3 @@
-/**
- * @author HydraFire <github.com/HydraFire>
- */
-
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Entity } from "../../ecs/classes/Entity";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
@@ -40,8 +36,9 @@ export const rigidbodyInterpolationBehavior: Behavior = (entity: Entity, snapsho
 
   const correction = findInterpolationSnapshot(entity, snapshots.correction);
   const currentSnapshot = findInterpolationSnapshot(entity, Network.instance.snapshot);
+  const interpolationSnapshot = findInterpolationSnapshot(entity, snapshots.interpolation);
 
-  if (correction == null || currentSnapshot == null || Network.instance.snapshot.timeCorrection === 0) return;
+  if (correction == null || currentSnapshot == null || interpolationSnapshot == null || Network.instance.snapshot.timeCorrection === 0) return;
 
   const distX = collider.body.transform.translation.x - currentSnapshot.x;
   const distY = collider.body.transform.translation.y - currentSnapshot.y;
@@ -51,7 +48,17 @@ export const rigidbodyInterpolationBehavior: Behavior = (entity: Entity, snapsho
   const offsetY = correction.y - currentSnapshot.y;
   const offsetZ = correction.z - currentSnapshot.z;
 
-  // if the object is too far away, just snap it back (might be stuck, we should find a better solution for this)
+  const offsetqX = correction.qX - currentSnapshot.qX;
+  const offsetqY = correction.qY - currentSnapshot.qY;
+  const offsetqZ = correction.qZ - currentSnapshot.qZ;
+  const offsetqW = correction.qW - currentSnapshot.qW;
+/*
+  const offsetvX = correction.vX - currentSnapshot.vX;
+  const offsetvY = correction.vY - currentSnapshot.vY;
+  const offsetvZ = correction.vZ - currentSnapshot.vZ;
+*/
+
+// if the object is too far away, just snap it back (might be stuck, we should find a better solution for this)
   // if(distX * distX + distY * distY + distZ * distZ > offsetMaxDistanceSq) {
   //   if(offsetX * offsetX + offsetY * offsetY + offsetZ * offsetZ > offsetMaxDistanceSq) {
   //   collider.body.updateTransform({
@@ -79,24 +86,35 @@ export const rigidbodyInterpolationBehavior: Behavior = (entity: Entity, snapsho
   //   }, true)
   // } else {
 
-    const offsetqX = correction.qX - currentSnapshot.qX;
-    const offsetqY = correction.qY - currentSnapshot.qY;
-    const offsetqZ = correction.qZ - currentSnapshot.qZ;
-    const offsetqW = correction.qW - currentSnapshot.qW;
+  collider.body.updateTransform({
+    translation: {
+      x: collider.body.transform.translation.x - offsetX * delta,
+      y: collider.body.transform.translation.y - offsetY * delta,
+      z: collider.body.transform.translation.z - offsetZ * delta,
+    },
+    rotation: {
+      x: collider.body.transform.rotation.x - offsetqX * delta,
+      y: collider.body.transform.rotation.y - offsetqY * delta,
+      z: collider.body.transform.rotation.z - offsetqZ * delta,
+      w: collider.body.transform.rotation.w - offsetqW * delta,
+    },
+    /*
+    linearVelocity: {
+      x: collider.body.transform.linearVelocity.x - offsetvX * delta,
+      y: collider.body.transform.linearVelocity.y - offsetvY * delta,
+      z: collider.body.transform.linearVelocity.z - offsetvZ * delta,
+    }
+    */
+  })
 
-    collider.body.updateTransform({
-      translation: {
-        x: collider.body.transform.translation.x - offsetX * delta,
-        y: collider.body.transform.translation.y - offsetY * delta,
-        z: collider.body.transform.translation.z - offsetZ * delta,
-      },
-      rotation: {
-        x: collider.body.transform.rotation.x - offsetqX * delta,
-        y: collider.body.transform.rotation.y - offsetqY * delta,
-        z: collider.body.transform.rotation.z - offsetqZ * delta,
-        w: collider.body.transform.rotation.w - offsetqW * delta,
-      }
-    })
-    // console.log(collider.body.transform.linearVelocity, offsetvX, offsetvY, offsetvZ)
-  // }
+
+  //transform.position.copy(collider.body.transform.translation);
+  //transform.rotation.copy(collider.body.transform.rotation);
+  //collider.velocity.copy(collider.body.transform.linearVelocity);
+
+  collider.velocity.set(
+    interpolationSnapshot.vX,
+    interpolationSnapshot.vY,
+    interpolationSnapshot.vZ
+  );
 };

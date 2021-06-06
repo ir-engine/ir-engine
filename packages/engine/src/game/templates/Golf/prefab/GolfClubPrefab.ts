@@ -27,6 +27,9 @@ import { setupSceneObjects } from '../../../../scene/functions/setupSceneObjects
 import { DebugArrowComponent } from '../../../../debug/DebugArrowComponent';
 import { GameObjectInteractionBehavior } from '../../../interfaces/GameObjectPrefab';
 import { NetworkObjectOwner } from '../../../../networking/components/NetworkObjectOwner';
+import { addStateComponent } from '../../../functions/functionsState';
+import { Action, State } from '../../../types/GameComponents';
+import { addActionComponent } from '../../../functions/functionsActions';
 
 const vector0 = new Vector3();
 const vector1 = new Vector3();
@@ -92,7 +95,8 @@ export const enableClub = (entityClub: Entity, enable: boolean): void => {
  */
 
 export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
-  
+  if (!hasComponent(entityClub, NetworkObjectOwner)) return;
+
   const ownerNetworkObject = Network.instance.networkObjects[getComponent(entityClub, NetworkObjectOwner).networkId].component;
 
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
@@ -121,10 +125,12 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
 
   const hit = golfClubComponent.raycast.hits[0];
 
-  const canHitBall = isMyBall && typeof hit !== 'undefined';
+  const canHitBall = true;
+  /*
   if(!golfClubComponent.hasHitBall && canHitBall !== golfClubComponent.canHitBall) {
     enableClub(entityClub, canHitBall);
   }
+*/
   const headDistance = (hit ? hit.distance : clubLength);
 
   // update position of club
@@ -181,54 +187,10 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
 // https://github.com/PersoSirEduard/OculusQuest-Godot-MiniGolfGame/blob/master/Scripts/GolfClub/GolfClub.gd#L18
 
 export const onClubColliderWithBall: GameObjectInteractionBehavior = (entityClub: Entity, delta: number, args: { hitEvent: ColliderHitEvent }, entityBall: Entity) => {
-
-  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
-  if(!golfClubComponent.canHitBall || golfClubComponent.hasHitBall) return;
-  console.log('onClubColliderWithBall')
-  // force is in kg, we need it in grams, so x1000
-  const velocityMultiplier = clubPowerMultiplier * 1000;
-
-  // TODO: fix this - use normal and velocity magnitude to determine hits
-  /*
-  // get velocity in local space
-  golfClubComponent.headGroup.getWorldQuaternion(quat).invert()
-  vector0.copy(golfClubComponent.velocity).setY(0).applyQuaternion(quat);
-  const clubMoveDirection = Math.sign(vector0.x);
-  // club normal following whichever direction it's moving
-  golfClubComponent.headGroup.getWorldDirection(vec3).setY(0).applyAxisAngle(upVector, clubMoveDirection * HALF_PI);
-  // get the angle of incidence which is the angle from the normal to the angle of the velocity
-  const angleOfIncidence = vector1.copy(vec3).applyQuaternion(quat).angleTo(vector0) * -Math.sign(vector0.z);
-  // take the angle of incidence, and get the same angle on the other side of the normal, the angle of reflection
-  vec3.applyAxisAngle(upVector, clubMoveDirection * angleOfIncidence).normalize().multiplyScalar(golfClubComponent.velocity.length());
-*/
-
-  vector0.copy(golfClubComponent.velocity).multiplyScalar(hitAdvanceFactor).multiplyScalar(0.5);
-  // vector0.copy(vec3).multiplyScalar(hitAdvanceFactor);
-  // lock to XZ plane if we disable chip shots
-  if(!golfClubComponent.canDoChipShots) {
-    vector0.y = 0;
+  if(hasComponent(entityBall, State.Active) && hasComponent(entityClub, State.Active)) {
+    addActionComponent(entityBall, Action.GameObjectCollisionTag);
+    addActionComponent(entityClub, Action.GameObjectCollisionTag);
   }
-  // teleport ball in front of club a little bit
-  args.hitEvent.bodyOther.updateTransform({
-    translation: {
-      x: args.hitEvent.bodyOther.transform.translation.x + vector0.x,
-      y: args.hitEvent.bodyOther.transform.translation.y + vector0.y,
-      z: args.hitEvent.bodyOther.transform.translation.z + vector0.z,
-    }
-  });
-  vector1.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier).multiplyScalar(0.5);
-  // vector1.copy(vec3).multiplyScalar(velocityMultiplier);
-  if(!golfClubComponent.canDoChipShots) {
-    vector1.y = 0;
-  }
-  args.hitEvent.bodyOther.addForce(vector1);
-  golfClubComponent.hasHitBall = true;
-  enableClub(entityClub, false);
-  // TODO: replace this with game states
-  setTimeout(() => {
-    golfClubComponent.hasHitBall = false;
-  }, 3000)
-  return;
 }
 
 /**
@@ -239,9 +201,6 @@ const clubColliderSize = new Vector3(0.05, 0.2, 0.2);
 const clubHalfWidth = 0.05;
 const clubPutterLength = 0.1;
 const clubLength = 2.5;
-
-const clubPowerMultiplier = 10;
-const hitAdvanceFactor = 1.2;
 
 const upVector = new Vector3(0, 1, 0);
 const HALF_PI = Math.PI / 2;
