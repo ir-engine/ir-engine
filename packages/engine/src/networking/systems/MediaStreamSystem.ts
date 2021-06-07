@@ -146,8 +146,11 @@ export class MediaStreamSystem extends System {
   /** Execute the media stream system. */
   public execute = async (): Promise<void> => {
     if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && this.executeInProgress === false) {
+      console.log('Executing mediasoup operation');
       this.executeInProgress = true;
       const buffer = Network.instance.mediasoupOperationQueue.pop() as any;
+      console.log('Buffer', buffer);
+      console.log('Buffer.object', buffer.object);
       if (buffer.object && buffer.object.closed !== true) {
         try {
           if (buffer.action === 'resume') await buffer.object.resume();
