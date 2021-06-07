@@ -15,7 +15,7 @@ import { CollisionEvents } from 'three-physx';
  */
 
  const updateNewPlayersRate: number = 60 * 2;
- let updateLastTime: number = 60;
+ let updateLastTime = 60;
 
 export const ifGetOut: Checker = (entity: Entity, args?: any, entityTarget?: Entity ): any | undefined => {
   

@@ -57,8 +57,8 @@ enum gameStates {
     NotReady = 'NotReady'
 }
 
-class Waiting extends Component<any> {};
-class WaitTurn extends Component<any> {};
+class Waiting extends Component<any> {}
+class WaitTurn extends Component<any> {}
 
 export const State = {
     [gameStates.Active]: Active,

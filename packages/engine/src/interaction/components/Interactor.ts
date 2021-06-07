@@ -6,7 +6,6 @@ import { Intersection } from "three";
 export class Interactor extends Component<Interactor> {
   public focusedInteractive: any
   public focusedRayHit: Intersection | null
-  public BoxHitResult: any
   public subFocusedArray: any[] | null
 
   static _schema = {

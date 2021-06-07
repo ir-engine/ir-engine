@@ -75,6 +75,7 @@ const interact: Behavior = (entity: Entity, args: any = { side: ParityValue }, d
 
 
   if (!focusedEntity) {
+    console.log('no focused entity')
     // no available interactive object is focused right now
     return;
   }
@@ -90,7 +91,8 @@ const interact: Behavior = (entity: Entity, args: any = { side: ParityValue }, d
   const interactive = getComponent(focusedEntity, Interactable);
   const intPosition = getComponent(focusedEntity, TransformComponent).position;
 
-  if (getInteractiveIsInReachDistance(entity, intPosition, args.side)) {
+  // TODO: use the aabb of the object instead of the transform to get the accurate position
+  // if (getInteractiveIsInReachDistance(entity, intPosition, args.side)) {
     if (interactive && typeof interactive.onInteraction === 'function') {
       if (!hasComponent(focusedEntity, VehicleComponent)) {
         interactive.onInteraction(entity, args, delta, focusedEntity);
@@ -100,7 +102,7 @@ const interact: Behavior = (entity: Entity, args: any = { side: ParityValue }, d
     } else {
       console.warn('onInteraction is not a function');
     }
-  }
+  // }
 
 };
 
