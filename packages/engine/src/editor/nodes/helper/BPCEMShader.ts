@@ -163,7 +163,7 @@ export const envmapPhysicalParsReplace = /* glsl */`
 
 export const beforeMaterialCompile=(probeScale,probePositionOffset)=>{
     return function ( shader ) {
-        shader.uniforms.cubeMapSize = { probeScale};
+        shader.uniforms.cubeMapSize = { value:probeScale};
         shader.uniforms.cubeMapPos = { value: probePositionOffset};
         shader.vertexShader = 'varying vec3 vBPCEMWorldPosition;\n' + shader.vertexShader;
         shader.vertexShader = shader.vertexShader.replace(

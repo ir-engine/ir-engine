@@ -48,13 +48,15 @@ export default function EditorNodeMixin(Object3DClass) {
 
         const persistComponent = json.components.find(c => c.name === "persist");
         node.persist = !!persistComponent;
+        
+        const reflectionProbeStaticComponent = json.components.find(c => c.name === "reflectionprobestatic");
+        node.reflectionProbeStatic = !!reflectionProbeStaticComponent;
       }
       return node;
     }
     constructor(editor, ...args) {
       super(...args);
       this.editor = editor;
-      this.reflectionProbeStatic=false;
       this.nodeName = (this.constructor as any).nodeName;
       this.name = (this.constructor as any).nodeName;
       this.isNode = true;
@@ -134,6 +136,13 @@ export default function EditorNodeMixin(Object3DClass) {
       if (this.persist) {
         entityJson.components.push({
           name: "persist",
+          props: {} as any,
+        })
+      }
+
+      if (this.reflectionProbeStatic) {
+        entityJson.components.push({
+          name: "reflectionprobestatic",
           props: {} as any,
         })
       }
