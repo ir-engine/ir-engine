@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import Worker from 'web-worker';
 import { detect, detectOS } from 'detect-browser';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
 import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";

@@ -54,8 +54,7 @@
     "three-mesh-bvh": "^0.3.7",
     "three-physx": "^0.0.28",
     "vite-xrengine": "2.2.4",
-    "volumetric": "^0.2.19",
-    "web-worker": "^1.0.0"
+    "volumetric": "^0.2.19"
   },
   "devDependencies": {
     "@rollup/plugin-json": "4.1.0",
