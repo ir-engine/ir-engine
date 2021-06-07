@@ -360,8 +360,8 @@ export const EnginePage = (props: Props) => {
 
     if (!Engine.isInitialized) {
       const InitializationOptions = {
+        publicPath: location.origin,
         networking: {
-          publicPath: location.origin,
           schema: {
             transport: SocketWebRTCClientTransport,
           } as NetworkSchema,
@@ -370,7 +370,7 @@ export const EnginePage = (props: Props) => {
           canvasId: engineRendererCanvasId
         },
         useOfflineMode: Config.publicRuntimeConfig.offlineMode,
-        physxWorkerPath: '/scripts/loadPhysXClassic.js',
+        physxWorker: new Worker('/scripts/loadPhysXClassic.js'),
       };
 
       await initializeEngine(InitializationOptions);

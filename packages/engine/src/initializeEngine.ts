@@ -48,7 +48,6 @@ const configureClient = async (options: InitializeOptions) => {
     // TODO: pipe network & entity data to main thread
     // const useOffscreen = !options.renderer.disabled && !Engine.xrSupported && 'transferControlToOffscreen' in canvas;
     const useOffscreen = false;
-    let physicsWorker;
 
     if (useOffscreen) {
       // const { default: OffscreenWorker } = await import('./initializeOffscreen.ts?worker&inline');
@@ -81,7 +80,7 @@ const configureClient = async (options: InitializeOptions) => {
 
       /** @todo for when we fix bundling */
       // if((window as any).safariWebBrowser) {
-          physicsWorker = new Worker(options.physxWorkerPath);
+        //   physicsWorker = new Worker(options.physxWorkerPath);
       // } else {
       //     // @ts-ignore
       //     const { default: PhysXWorker } = await import('@xrengine/engine/src/physics/functions/loadPhysX.ts?worker&inline');
@@ -94,10 +93,10 @@ const configureClient = async (options: InitializeOptions) => {
           AnimationManager.instance.getAnimations(),
       ]);
 
-      Engine.workers.push(physicsWorker);
+      Engine.workers.push(options.physxWorker);
     }
 
-    registerClientSystems(options, useOffscreen, canvas, physicsWorker);
+    registerClientSystems(options, useOffscreen, canvas);
 }
 
 const configureEditor = async (options: InitializeOptions) => {
@@ -106,21 +105,21 @@ const configureEditor = async (options: InitializeOptions) => {
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
     Engine.scene.add(Engine.camera);
 
-    let physicsWorker;
+    // let physicsWorker;
 
     /** @todo fix bundling */
     // if((window as any).safariWebBrowser) {
         // eslint-disable-next-line prefer-const
-        physicsWorker = new Worker(options.physxWorkerPath);
+        // physicsWorker = new Worker(options.physxWorkerPath);
     // } else {
     //     // @ts-ignore
     //     const { default: PhysXWorker } = await import('./physics/functions/loadPhysX.ts?worker');
     //     physicsWorker = new PhysXWorker();
     // }
 
-    Engine.workers.push(physicsWorker);
+    Engine.workers.push(options.physxWorker);
 
-    registerEditorSystems(options, physicsWorker);
+    registerEditorSystems(options);
 }
 
 const configureServer = async (options: InitializeOptions) => {
@@ -131,13 +130,12 @@ const configureServer = async (options: InitializeOptions) => {
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: true, physics: true });
     });
 
-    const worker = new Worker(options.physxWorkerPath);
-    Engine.workers.push(worker);
+    Engine.workers.push(options.physxWorker);
 
-    registerServerSystems(options, worker);
+    registerServerSystems(options);
 }
 
-const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean, canvas: HTMLCanvasElement, physicsWorker: Worker) => {
+const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean, canvas: HTMLCanvasElement) => {
     // Network Systems
     if (options.networking) {
         Network.instance = new Network();
@@ -173,7 +171,7 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
     registerSystem(InteractiveSystem, { priority: 5 });
     registerSystem(GameManagerSystem, { priority: 6 });
     registerSystem(TransformSystem, { priority: 7 }); // Free
-    registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig: options.physicsWorldConfig, priority: 8 });
+    registerSystem(PhysicsSystem, { worker: options.physxWorker, physicsWorldConfig: options.physicsWorldConfig, priority: 8 });
 
     // Miscellaneous Systems
     registerSystem(HighlightSystem, { priority: 9 });
@@ -183,18 +181,18 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
     registerSystem(SceneObjectSystem, { priority: 13 });
 }
 
-const registerEditorSystems = (options: InitializeOptions, physicsWorker: Worker) => {
+const registerEditorSystems = (options: InitializeOptions) => {
     // Scene Systems
     registerSystem(GameManagerSystem, { priority: 6 });
     registerSystem(TransformSystem, { priority: 7 });
-    registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig: options.physicsWorldConfig, priority: 8 });
+    registerSystem(PhysicsSystem, { worker: options.physxWorker, physicsWorldConfig: options.physicsWorldConfig, priority: 8 });
 
     // Miscellaneous Systems
     registerSystem(ParticleSystem, { priority: 10 });
     registerSystem(DebugHelpersSystem, { priority: 11 });
 }
 
-const registerServerSystems = (options: InitializeOptions, physicsWorker: Worker) => {
+const registerServerSystems = (options: InitializeOptions) => {
     // Network Systems
     registerSystem(ServerNetworkIncomingSystem, { ...options.networking, priority: 1 }); // first
     registerSystem(ServerNetworkOutgoingSystem, { ...options.networking, priority: 100 }); // last
@@ -207,7 +205,7 @@ const registerServerSystems = (options: InitializeOptions, physicsWorker: Worker
     registerSystem(InteractiveSystem, { priority: 5 });
     registerSystem(GameManagerSystem, { priority: 6 });
     registerSystem(TransformSystem, { priority: 7 });
-    registerSystem(PhysicsSystem, { worker: physicsWorker, physicsWorldConfig: options.physicsWorldConfig, priority: 8 });
+    registerSystem(PhysicsSystem, { worker: options.physxWorker, physicsWorldConfig: options.physicsWorldConfig, priority: 8 });
 
     // Miscellaneous Systems
     registerSystem(ServerSpawnSystem, { priority: 9 });
@@ -220,7 +218,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     Engine.gameMode = options.gameMode;
     Engine.supportedGameModes = options.supportedGameModes;
     Engine.offlineMode = options.networking.useOfflineMode;
-    Engine.publicPath = options.networking.publicPath;
+    Engine.publicPath = options.publicPath;
     Engine.lastTime = now() / 1000;
 
 

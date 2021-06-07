@@ -50,7 +50,7 @@ const DevPage = () => {
       networking: {
         useOfflineMode: true,
       },
-      physxWorkerPath: '/scripts/loadPhysXClassic.js',
+      physxWorker: new Worker('/scripts/loadPhysXClassic.js'),
     };
     console.log(InitializationOptions);
     await initializeEngine(InitializationOptions);

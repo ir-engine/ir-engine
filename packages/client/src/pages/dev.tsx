@@ -7,11 +7,11 @@ const LocationPage = () => {
 
 
     const InitializationOptions = {
+      publicPath: '',
       input: {
         schema: CharacterInputSchema,
       },
       networking: {
-        publicPath: '',
         useOfflineMode: true,
       },
       renderer: {

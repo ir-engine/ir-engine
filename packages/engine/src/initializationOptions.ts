@@ -22,7 +22,6 @@ export type InitializeOptions = {
   networking?: {
     schema?: NetworkSchema,
     app?: any;
-    publicPath?: string,
     useOfflineMode?: boolean,
   },
   renderer?: {
@@ -34,8 +33,9 @@ export type InitializeOptions = {
   supportedGameModes?: {
     [key: string]: GameMode
   },
+  publicPath?: string,
   physicsWorldConfig?: PhysXConfig,
-  physxWorkerPath?: string,
+  physxWorker?: any,
 };
 
 /**
@@ -46,13 +46,13 @@ export type InitializeOptions = {
  */
 export const DefaultInitializationOptions: InitializeOptions = {
   type: EngineSystemPresets.CLIENT,
+  publicPath: '',
   input: {
     disabled: false,
     schema: CharacterInputSchema,
   },
   networking: {
     schema: DefaultNetworkSchema,
-    publicPath: '',
     useOfflineMode: false,
   },
   renderer: {

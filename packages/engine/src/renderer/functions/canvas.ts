@@ -1,18 +1,21 @@
 import { isNode, isWebWorker } from "../../common/functions/getEnvironment";
 
-export const configCanvasElement = (canvasId) => {
-  if (!canvasId) return null;
+export const configCanvasElement = (canvas: string | HTMLCanvasElement): HTMLCanvasElement => {
+  if (!canvas) return null;
 
-  const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
-  canvas.ondragstart = (e) => {
+  let canvasElement = typeof canvas === 'string'
+    ? document.getElementById(canvas) as HTMLCanvasElement
+    : canvas;
+
+  canvasElement.ondragstart = (e) => {
     e.preventDefault();
     return false;
   }
 
-  return canvas;
+  return canvasElement;
 }
 
-export const createCanvas = () => {
+export const createCanvas = (): HTMLCanvasElement => {
   if(isWebWorker || isNode) {
     return;
   }
