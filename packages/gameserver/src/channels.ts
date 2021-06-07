@@ -99,7 +99,7 @@ export default (app: Application): void => {
                                   let entitiesLeft = -1;
                                   const loadingInterval = setInterval(() => {
                                     if(entitiesLeft >= 0) console.log(entitiesLeft + ' entites left...');
-                                  }, 1000)
+                                  }, 1000);
                                     console.log('Loading scene...');
                                     WorldScene.load(result, () => {
                                         console.log('Scene loaded!');
