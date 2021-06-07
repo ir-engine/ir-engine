@@ -6,6 +6,8 @@ import { addColliderWithoutEntity } from '../../physics/behaviors/colliderCreate
  */
 
 export const createBoxCollider: Behavior = (entity, args: any) => {
+  // TO DO; create cilliders with game object
+  if (args.type === 'game-object') return;
   addColliderWithoutEntity(
     { type:args.type, action: args.action, link: args.link },
     args.position,

@@ -29,14 +29,14 @@ export const onHoleCollideWithBall: GameObjectInteractionBehavior = (entityHole:
 
 export const addHole: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
 
-  const storageTransform = getComponent(entity, TransformComponent);
-  const pos = storageTransform.position ?? { x:0, y:0, z:0 };
-  const rot = storageTransform.rotation ?? { x:0, y:0, z:0, w:1 };
-  const scale = storageTransform.scale  ?? { x:1, y:1, z:1 };
+  const transform = getComponent(entity, TransformComponent);
+  const pos = transform.position ?? { x:0, y:0, z:0 };
+  const rot = transform.rotation ?? { x:0, y:0, z:0, w:1 };
+  const scale = transform.scale  ?? { x:1, y:1, z:1 };
 
   const shapeBox = createShapeFromConfig({
     shape: SHAPES.Box,
-    options: { boxExtents: { x: scale.x, y: scale.y, z: scale.z } },
+    options: { boxExtents: { x: scale.x/2, y: scale.y/2, z: scale.z/2 } },
     config: {
       isTrigger: true,
       collisionLayer: GolfCollisionGroups.Hole,
