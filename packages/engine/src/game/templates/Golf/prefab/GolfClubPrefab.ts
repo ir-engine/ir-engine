@@ -7,8 +7,7 @@ import { RigidBodyComponent } from '../../../../physics/components/RigidBody';
 import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject';
 import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants';
 import { BoxBufferGeometry, DoubleSide, Group, Material, Mesh, MeshStandardMaterial, Quaternion, Vector3 } from 'three';
-import { Engine } from '../../../../ecs/classes/Engine';
-import { Body, BodyType, ColliderHitEvent, CollisionEvents, createShapeFromConfig, RaycastQuery, SceneQueryType, SHAPES, Transform } from 'three-physx';
+import { Body, BodyType, ColliderHitEvent, createShapeFromConfig, RaycastQuery, SceneQueryType, SHAPES } from 'three-physx';
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent';
@@ -22,12 +21,9 @@ import { getGame } from '../../../functions/functions';
 import { NetworkObject } from '../../../../networking/components/NetworkObject';
 import { GolfClubComponent } from '../components/GolfClubComponent';
 import { getHandTransform } from '../../../../xr/functions/WebXRFunctions';
-import { CharacterComponent } from '../../../../character/components/CharacterComponent';
-import { setupSceneObjects } from '../../../../scene/functions/setupSceneObjects';
 import { DebugArrowComponent } from '../../../../debug/DebugArrowComponent';
 import { GameObjectInteractionBehavior } from '../../../interfaces/GameObjectPrefab';
 import { NetworkObjectOwner } from '../../../../networking/components/NetworkObjectOwner';
-import { addStateComponent } from '../../../functions/functionsState';
 import { Action, State } from '../../../types/GameComponents';
 import { addActionComponent } from '../../../functions/functionsActions';
 
@@ -120,17 +116,8 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
     vector0.set(0, 0, -1),
     vector1.set(0, 0, -1).applyQuaternion(rotation).setY(0).normalize()
   );
-// TEMPORARY
-  const isMyBall = true;
 
   const hit = golfClubComponent.raycast.hits[0];
-
-  const canHitBall = true;
-  /*
-  if(!golfClubComponent.hasHitBall && canHitBall !== golfClubComponent.canHitBall) {
-    enableClub(entityClub, canHitBall);
-  }
-*/
   const headDistance = (hit ? hit.distance : clubLength);
 
   // update position of club
