@@ -65,13 +65,14 @@ const staticResource = sequelizeClient.define('static_resource', {
 // match case of the name of the avatar and the name of corresponding file.
 // also update seed file of static resource model to match changes.
 const AVATAR_LIST = [
-    'Allison',
-    'Rose',
-    'Andy',
-    'Erik',
-    'Geoff',
-    'Jace',
-    'Karthik'
+    // 'Allison',
+    // 'Rose',
+    // 'Andy',
+    // 'Erik',
+    // 'Geoff',
+    // 'Jace',
+    // 'Karthik'
+    'Sonny'
 ];
 const MODEL_PATH = process.cwd() + '/../client/public/models/avatars/';
 const THUMBNAIL_PATH = process.cwd() + '/../client/public/static/';

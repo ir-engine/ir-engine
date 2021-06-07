@@ -19,8 +19,12 @@ import { BaseInput } from "../enums/BaseInput";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { ClientInputSystem } from "./ClientInputSystem";
 import { WEBCAM_INPUT_EVENTS } from "../constants/InputConstants";
+import { Quaternion, Vector3 } from "three";
 
 const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
+
+const quat = new Quaternion();
+const vec3 = new Vector3();
 
 let faceToInput, lipToInput;
 
@@ -88,12 +92,15 @@ export class ActionSystem extends System {
     this.queryResults.controllersComponent.all?.forEach(entity => {
       const xrControllers = getComponent(entity, XRInputReceiver);
       const input = getMutableComponent(entity, Input);
+      // webxr is inverted along z axis, so undo our parent rotation to get the actual data
+      quat.copy(xrControllers.headGroup.quaternion).invert()
+      vec3.copy(xrControllers.head.position).applyQuaternion(quat)
       input.data.set(BaseInput.XR_HEAD, {
         type: InputType.SIXDOF,
         value: {
-          x: xrControllers.head.position.x,
-          y: xrControllers.head.position.y,
-          z: xrControllers.head.position.z,
+          x: vec3.x,
+          y: vec3.y,
+          z: vec3.z,
           qW: xrControllers.head.quaternion.w,
           qX: xrControllers.head.quaternion.x,
           qY: xrControllers.head.quaternion.y,
@@ -101,12 +108,14 @@ export class ActionSystem extends System {
         },
         lifecycleState: LifecycleValue.CHANGED
       })
+      quat.copy(xrControllers.controllerLeft.parent.quaternion).invert()
+      vec3.copy(xrControllers.controllerLeft.position).applyQuaternion(quat)
       input.data.set(BaseInput.XR_LEFT_HAND, {
         type: InputType.SIXDOF,
         value: {
-          x: xrControllers.controllerLeft.position.x,
-          y: xrControllers.controllerLeft.position.y,
-          z: xrControllers.controllerLeft.position.z,
+          x: vec3.x,
+          y: vec3.y,
+          z: vec3.z,
           qW: xrControllers.controllerLeft.quaternion.w,
           qX: xrControllers.controllerLeft.quaternion.x,
           qY: xrControllers.controllerLeft.quaternion.y,
@@ -114,16 +123,19 @@ export class ActionSystem extends System {
         },
         lifecycleState: LifecycleValue.CHANGED
       })
+      quat.copy(xrControllers.controllerRight.parent.quaternion).invert()
+      vec3.copy(xrControllers.controllerRight.position).applyQuaternion(quat)
+      quat.copy(xrControllers.controllerRight.parent.quaternion).invert().multiply(xrControllers.controllerRight.quaternion)
       input.data.set(BaseInput.XR_RIGHT_HAND, {
         type: InputType.SIXDOF,
         value: {
-          x: xrControllers.controllerRight.position.x,
-          y: xrControllers.controllerRight.position.y,
-          z: xrControllers.controllerRight.position.z,
-          qW: xrControllers.controllerRight.quaternion.w,
-          qX: xrControllers.controllerRight.quaternion.x,
-          qY: xrControllers.controllerRight.quaternion.y,
-          qZ: xrControllers.controllerRight.quaternion.z,
+          x: vec3.x,
+          y: vec3.y,
+          z: vec3.z,
+          qW: quat.w,
+          qX: quat.x,
+          qY: quat.y,
+          qZ: quat.z,
         },
         lifecycleState: LifecycleValue.CHANGED
       })
@@ -248,22 +260,12 @@ export class ActionSystem extends System {
         input.data.forEach((value: any, key) => {
           if (value.type === InputType.BUTTON)
             Network.instance.clientInputState.buttons.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
-          else if (value.type === InputType.ONEDIM) // && value.lifecycleState !== LifecycleValue.UNCHANGED
+          else if (value.type === InputType.ONEDIM)
             Network.instance.clientInputState.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
-          else if (value.type === InputType.TWODIM) //  && value.lifecycleState !== LifecycleValue.UNCHANGED
+          else if (value.type === InputType.TWODIM)
             Network.instance.clientInputState.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
-          else if (value.type === InputType.SIXDOF) { //  && value.lifecycleState !== LifecycleValue.UNCHANGED
-            Network.instance.clientInputState.axes6DOF.push({
-              input: key,
-              x: value.value.x,
-              y: value.value.y,
-              z: value.value.z,
-              qX: value.value.qX,
-              qY: value.value.qY,
-              qZ: value.value.qZ,
-              qW: value.value.qW,
-            });
-          }
+          else if (value.type === InputType.SIXDOF)
+            Network.instance.clientInputState.axes6DOF.push({ input: key, value: value.value });
         });
 
         const actor = getComponent(entity, CharacterComponent);

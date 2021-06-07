@@ -5,6 +5,7 @@ import { Interactable } from "../../interaction/components/Interactable";
 import { InteractiveSystem } from "../../interaction/systems/InteractiveSystem";
 import { Object3DComponent } from "../components/Object3DComponent";
 import { grabEquippable } from "../../interaction/functions/grabEquippable";
+import { InteractionData } from "../../interaction/types/InteractionTypes";
 
 export const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);
@@ -31,7 +32,7 @@ export const onInteractionHover: Behavior = (entityInitiator, { focused }: { foc
   // const object3d = getMutableComponent(entityInteractive, Object3DComponent).value as Mesh;
 };
 
-export const createCommonInteractive: Behavior = (entity, args: any) => {
+export const createCommonInteractive: Behavior = (entity, args: InteractionData) => {
   if (!args.interactable) {
     return;
   }

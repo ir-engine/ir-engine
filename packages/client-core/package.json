@@ -7,12 +7,12 @@
     "url": "git://github.com/XRFoundation/XREngine.git"
   },
   "engines": {
-    "yarn": ">= 0.18.0"
+    "node": ">= 16.3.0"
   },
   "publishConfig": {
     "access": "public"
   },
-  "npmClient": "yarn",
+  "npmClient": "npm",
   "jest": "ts-jest",
   "scripts": {
     "check-errors": "tsc --noemit",
@@ -93,7 +93,6 @@
     "semantic-ui-react": "2.0.3",
     "socket.io-client": "4.0.1",
     "styled-components": "5.2.3",
-    "three": "0.128.0",
     "url-toolkit": "2.2.2",
     "use-debounce": "6.0.1",
     "use-http": "1.0.20",
@@ -112,7 +111,7 @@
     "cross-env": "7.0.3",
     "esbuild": "0.11.17",
     "eslint": "7.25.0",
-    "node-sass": "5.0.0",
+    "node-sass": "6.0.0",
     "rimraf": "3.0.2",
     "rollup": "2.46.0",
     "rollup-plugin-livereload": "2.0.0",

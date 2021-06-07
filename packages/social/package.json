@@ -7,14 +7,14 @@
     "url": "git://github.com/XRFoundation/XREngine.git"
   },
   "engines": {
-    "yarn": ">= 0.18.0"
+    "node": ">= 16.3.0"
   },
-  "npmClient": "yarn",
+  "npmClient": "npm",
   "jest": "ts-jest",
   "scripts": {
     "dev": "vite",
     "build": "cross-env NODE_ENV=production NODE_OPTIONS=--max_old_space_size=4096 vite build && cp src/server.js www/server.js",
-    "validate": "yarn run lint && yarn run test",
+    "validate": "npm run lint && npm run test",
     "start": "cp src/server.js www/server.js && node www/server.js",
     "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
   },
@@ -46,7 +46,6 @@
     "redux": "4.1.0",
     "sass": "1.32.12",
     "styled-components": "5.2.3",
-    "three": "0.128.0",
     "webxr-native": "^0.2.19"
   },
   "devDependencies": {

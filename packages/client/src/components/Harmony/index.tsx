@@ -102,6 +102,7 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import styles from './style.module.scss';
 import WarningRefreshModal from "../AlertModals/WarningRetryModal";
 import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
+import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
 const mapStateToProps = (state: any): any => {
@@ -187,6 +188,7 @@ interface Props {
     mediastream?: any;
     setHarmonyOpen?: any;
     isHarmonyPage?: boolean;
+    harmonyHidden: boolean;
 }
 
 const initialRefreshModalValues = {
@@ -195,7 +197,8 @@ const initialRefreshModalValues = {
     body: '',
     action: async() => {},
     parameters: [],
-    timeout: 10000
+    timeout: 10000,
+    closeAction: async() => {}
 };
 
 const Harmony = (props: Props): any => {
@@ -232,7 +235,8 @@ const Harmony = (props: Props): any => {
         changeChannelTypeState,
         mediastream,
         setHarmonyOpen,
-        isHarmonyPage
+        isHarmonyPage,
+        harmonyHidden
     } = props;
 
     const messageRef = React.useRef();
@@ -273,7 +277,7 @@ const Harmony = (props: Props): any => {
     const [profileMenuOpen, setProfileMenuOpen] = useState(false);
     const [warningRefreshModalValues, setWarningRefreshModalValues] = useState(initialRefreshModalValues);
     const [noGameserverProvision, setNoGameserverProvision] = useState(false);
-    const [hasLostConnection, setLostConnection] = useState(false);
+    const [channelDisconnected, setChannelDisconnected] = useState(false);
 
     const instanceLayerUsers = userState.get('layerUsers') ?? [];
     const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
@@ -309,6 +313,7 @@ const Harmony = (props: Props): any => {
     const activeAVChannelIdRef = useRef(activeAVChannelId);
     const channelAwaitingProvisionRef = useRef(channelAwaitingProvision);
     const lastConnectToWorldIdRef = useRef(lastConnectToWorldId);
+    const chatStateRef = useRef(chatState);
     const videoEnabled = isHarmonyPage === true ? true : currentLocation.locationSettings ? currentLocation.locationSettings.videoEnabled : false;
     const isCamVideoEnabled = mediastream.get('isCamVideoEnabled');
     const isCamAudioEnabled = mediastream.get('isCamAudioEnabled');
@@ -327,7 +332,20 @@ const Harmony = (props: Props): any => {
 
         EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
 
-        EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.CONNECTION_LOST, ({ hasLostConnection }) => setLostConnection(hasLostConnection));
+        EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.CHANNEL_DISCONNECTED, () => {
+            if (activeAVChannelIdRef.current.length > 0) setChannelDisconnected(true);
+        });
+        EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.CHANNEL_RECONNECTED, async () => {
+            setChannelAwaitingProvision({
+                id: activeAVChannelIdRef.current,
+                audio: !audioPaused,
+                video: !videoPaused
+            });
+            await resetEngine();
+            setWarningRefreshModalValues(initialRefreshModalValues);
+            await init();
+            resetChannelServer();
+        });
 
         return () => {
             if (EngineEvents.instance != null) {
@@ -383,6 +401,7 @@ const Harmony = (props: Props): any => {
 
 
     useEffect(() => {
+        chatStateRef.current = chatState;
         if (messageScrollInit === true && messageEl != null && (messageEl as any).scrollTop != null) {
             (messageEl as any).scrollTop = (messageEl as any).scrollHeight;
             updateMessageScrollInit(false);
@@ -432,7 +451,8 @@ const Harmony = (props: Props): any => {
                 body: 'There aren\'t any servers available to handle this request. Attempting to re-connect in',
                 action: provisionChannelServer,
                 parameters: [null, targetChannelId],
-                timeout: 10000
+                timeout: 10000,
+                closeAction: endCall
             };
             //@ts-ignore
             setWarningRefreshModalValues(newValues);
@@ -441,20 +461,21 @@ const Harmony = (props: Props): any => {
     }, [noGameserverProvision]);
 
     useEffect(() => {
-      if (hasLostConnection === true) {
-          const newValues = {
-              open: true,
-              title: 'Lost Connection To Server',
-              body: 'Currently experiencing a loss of connection to the server, this may be temporary.',
-              action: () => {},
-              parameters: [null, null],
-              timeout: 1000
-          };
-          //@ts-ignore
-          setWarningRefreshModalValues(newValues);
-          setLostConnection(false);
-      }
-    }, [hasLostConnection]);
+        if (channelDisconnected === true) {
+            const newValues = {
+                open: true,
+                title: 'Call disconnected',
+                body: 'You\'ve lost your connection to this call. We\'ll try to reconnect before the following time runs out, otherwise you\'ll hang up',
+                action: endCall,
+                parameters: [],
+                timeout: 30000,
+                closeAction: endCall
+            };
+            //@ts-ignore
+            setWarningRefreshModalValues(newValues);
+            setChannelDisconnected(false);
+        }
+    }, [channelDisconnected]);
 
     const handleComposingMessageChange = (event: any): void => {
         const message = event.target.value;
@@ -486,8 +507,8 @@ const Harmony = (props: Props): any => {
         setComposingMessage('');
     };
 
-    const connectToWorldHandler = async (): Promise<void> => {
-        if (lastConnectToWorldIdRef.current !== activeAVChannelIdRef.current) {
+    const connectToWorldHandler = async ({ instance }: { instance: boolean }): Promise<void> => {
+        if (instance !== true) {
             setLastConnectToWorldId(activeAVChannelIdRef.current);
             await toggleAudio(activeAVChannelIdRef.current);
             await toggleVideo(activeAVChannelIdRef.current);
@@ -643,8 +664,8 @@ const Harmony = (props: Props): any => {
         updateCamVideoState();
     };
 
-    const handleStartCall = async (e: any) => {
-        e.stopPropagation();
+    const handleStartCall = async (e?: any) => {
+        if (e?.stopPropagation) e.stopPropagation();
         const channel = channels.get(targetChannelId);
         const channelType = channel.instanceId != null ? 'instance' : 'channel';
         changeChannelTypeState(channelType, targetChannelId);
@@ -675,6 +696,7 @@ const Harmony = (props: Props): any => {
     };
 
     const toggleAudio = async (channelId) => {
+        console.log('toggleAudio');
         await checkMediaStream('channel', channelId);
 
         if (MediaStreamSystem.instance?.camAudioProducer == null) await createCamAudioProducer('channel', channelId);
@@ -687,6 +709,7 @@ const Harmony = (props: Props): any => {
     };
 
     const toggleVideo = async (channelId) => {
+        console.log('toggleVideo');
         await checkMediaStream('channel', channelId);
         if (MediaStreamSystem.instance?.camVideoProducer == null) await createCamVideoProducer('channel', channelId);
         else {
@@ -1067,7 +1090,10 @@ const Harmony = (props: Props): any => {
     </div>;
 
     return (
-        <div className={styles['harmony-component']}>
+        <div className={classNames({
+            [styles['harmony-component']]: true,
+            [styles['display-none']]: harmonyHidden === true
+        })}>
             <style> {`
                 .Mui-selected {
                     background-color: rgba(0, 0, 0, 0.4) !important;
@@ -1347,7 +1373,7 @@ const Harmony = (props: Props): any => {
                 action={warningRefreshModalValues.action}
                 parameters={warningRefreshModalValues.parameters}
                 timeout={warningRefreshModalValues.timeout}
-                closeEffect={() => endCall()}
+                closeEffect={warningRefreshModalValues.closeAction}
             />
         </div>
     );

@@ -6,6 +6,7 @@ import { isClient } from "../../common/functions/isClient";
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Entity } from "../../ecs/classes/Entity";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import { AnimationManager } from "../AnimationManager";
 
 interface AnimationWeightScaleInterface {
   weight: number
@@ -18,7 +19,7 @@ function safeFloat(float) {
 }
 */
 const EPSILON = 0.001;
-const animationSpeedMultiplier = 0.8;
+const animationSpeedMultiplier = 1.3;
 //
 function animationMapLinear( absSpeed, axisValue, axisWeight, i ) {
   return MathUtils.mapLinear(absSpeed, axisValue[0+i], axisValue[1+i], axisWeight[0+i], axisWeight[1+i]);
@@ -108,7 +109,7 @@ export const updateVectorAnimation = (entity, delta: number): void => {
       //@ts-ignore
 			const avatarAnimation: AnimationConfigInterface = avatarAnimations[value.type];
 
-			const clip = AnimationClip.findByName(actor.animations, avatarAnimation.name);
+			const clip = AnimationClip.findByName(AnimationManager.instance._animations, avatarAnimation.name);
 			let action = actor.mixer.existingAction(clip, animationRoot);
 
 			if (!action) {
@@ -173,7 +174,7 @@ export const changeAnimation: Behavior = (entity, args: {}, deltaTime: number): 
 
 	const animationRoot = actor.modelContainer.children[0];
 
-	const clip = AnimationClip.findByName(actor.animations, avatarAnimation.name);
+	const clip = AnimationClip.findByName(AnimationManager.instance._animations, avatarAnimation.name);
 
 	let newAction = actor.mixer.existingAction(clip, animationRoot);
 	if (!newAction) {

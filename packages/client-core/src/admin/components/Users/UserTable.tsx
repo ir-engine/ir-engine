@@ -166,10 +166,8 @@ const UserTable = (props: Props) => {
         return createData(el.id, el, el.name, el.avatarId || <span className={classes.spanNone}>None</span>, el.userRole || <span className={classes.spanNone}>None</span>, loca, el.inviteCode || <span className={classes.spanNone}>None</span>, inst);
     });
 
-    console.log('====================================');
-    console.log(rows);
-    console.log('====================================');
-
+    const count = rows.size ? rows.size : rows.length;
+    
     return (
         <div className={classes.root}>
             <TableContainer className={classes.container}>
@@ -208,7 +206,7 @@ const UserTable = (props: Props) => {
             <TablePagination
                 rowsPerPageOptions={[10, 25, 100]}
                 component="div"
-                count={rows.size || rows.length}
+                count={count || 10}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onChangePage={handleChangePage}

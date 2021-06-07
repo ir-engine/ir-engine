@@ -1,6 +1,7 @@
 // created from ctix
 
 export * from './src/admin/components/AdminHelpers';
+export * from './src/admin/components/Bots/styles';
 export * from './src/admin/components/Instance/validation';
 export * from './src/admin/components/Users/styles';
 export * from './src/admin/components/Users/validation';
@@ -183,6 +184,7 @@ export * from './src/user/components/Auth/PasswordLogin';
 export * from './src/user/components/Auth/PasswordLoginApp';
 export * from './src/user/components/Auth/ResetPasswordApp';
 export * from './src/user/components/Auth/VerifyEmail';
+export * from './src/user/components/Dashboard/styles';
 export * from './src/user/components/Oauth/FacebookCallback';
 export * from './src/user/components/Oauth/GithubCallback';
 export * from './src/user/components/Oauth/GoogleCallback';
@@ -292,10 +294,8 @@ export * from './src/world/components/editor/properties/AmbientLightNodeEditor';
 export * from './src/world/components/editor/properties/AudioNodeEditor';
 export * from './src/world/components/editor/properties/AudioSourceProperties';
 export * from './src/world/components/editor/properties/BoxColliderNodeEditor';
-export * from './src/world/components/editor/properties/CubemapList';
 export * from './src/world/components/editor/properties/DefaultNodeEditor';
 export * from './src/world/components/editor/properties/DirectionalLightNodeEditor';
-export * from './src/world/components/editor/properties/EquirectangularList';
 export * from './src/world/components/editor/properties/GameNodeEditor';
 export * from './src/world/components/editor/properties/GroundPlaneNodeEditor';
 export * from './src/world/components/editor/properties/GroupNodeEditor';
@@ -344,6 +344,9 @@ export { default as srcAdminComponentsAnalyticsCardNumber } from './src/admin/co
 export { default as srcAdminComponentsAnalyticsGraph } from './src/admin/components/Analytics/Graph';
 export { default as srcAdminComponentsAnalyticsIndex } from './src/admin/components/Analytics/index';
 export { default as srcAdminComponentsArMediaConsole } from './src/admin/components/ArMediaConsole';
+export { default as srcAdminComponentsBotsCreateBot } from './src/admin/components/Bots/CreateBot';
+export { default as srcAdminComponentsBotsDisplayBots } from './src/admin/components/Bots/displayBots';
+export { default as srcAdminComponentsBotsIndex } from './src/admin/components/Bots/index';
 export { default as srcAdminComponentsContentPackContentPackConsole } from './src/admin/components/ContentPack/ContentPackConsole';
 export { default as srcAdminComponentsContentPackContentPackDetailsModal } from './src/admin/components/ContentPack/ContentPackDetailsModal';
 export { default as srcAdminComponentsContentPackDownloadModal } from './src/admin/components/ContentPack/DownloadModal';
@@ -370,8 +373,6 @@ export { default as srcAdminComponentsScenesScenes } from './src/admin/component
 export { default as srcAdminComponentsSearch } from './src/admin/components/Search';
 export { default as srcAdminComponentsSharedModal } from './src/admin/components/SharedModal';
 export { default as srcAdminComponentsTipsAndTricks } from './src/admin/components/TipsAndTricks';
-export { default as srcAdminComponentsUserConsole } from './src/admin/components/UserConsole';
-export { default as srcAdminComponentsUserModel } from './src/admin/components/UserModel';
 export { default as srcAdminComponentsUsersCreateUser } from './src/admin/components/Users/CreateUser';
 export { default as srcAdminComponentsUsersCreateUserRole } from './src/admin/components/Users/CreateUserRole';
 export { default as srcAdminComponentsUsersIndex } from './src/admin/components/Users/index';

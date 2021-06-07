@@ -8,7 +8,7 @@ import { CameraModes } from "../../camera/types/CameraModes";
 import { isClient } from "../../common/functions/isClient";
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Entity } from "../../ecs/classes/Entity";
-import { addComponent, getComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
+import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../../input/components/Input";
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
 import { Interactor } from "../../interaction/components/Interactor";
@@ -20,34 +20,35 @@ import { RelativeSpringSimulator } from "../../physics/classes/SpringSimulator";
 import { VectorSpringSimulator } from "../../physics/classes/VectorSpringSimulator";
 import { InterpolationComponent } from "../../physics/components/InterpolationComponent";
 import { CollisionGroups, DefaultCollisionMask } from "../../physics/enums/CollisionGroups";
-import { InterpolationInterface } from "../../physics/interfaces/InterpolationInterface";
+
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { addObject3DComponent } from "../../scene/behaviors/addObject3DComponent";
 import { createShadow } from "../../scene/behaviors/createShadow";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { AnimationManager } from "../AnimationManager";
 import { getMovementValues, initializeMovingState, movingAnimationSchema } from "../animations/MovingAnimations";
-import { characterCorrectionBehavior } from '../behaviors/characterCorrectionBehavior';
-import { characterInterpolationBehavior } from '../behaviors/characterInterpolationBehavior';
 import { CharacterInputSchema } from '../CharacterInputSchema';
 import { AnimationComponent } from "../components/AnimationComponent";
 import { CharacterComponent } from '../components/CharacterComponent';
 import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
-import { IKComponent } from '../components/IKComponent';
 import { NamePlateComponent } from '../components/NamePlateComponent';
-import PersistTagComponent from "../../scene/components/PersistTagComponent";
-import { initiateIK } from "../../xr/functions/IKFunctions";
+import { PersistTagComponent } from "../../scene/components/PersistTagComponent";
+import { IKRigComponent } from "../components/IKRigComponent";
+
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
-	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-	AnimationManager.instance._defaultModel?.children?.forEach(child => actor.modelContainer.add(child));
-	actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-	if (hasComponent(entity, IKComponent)) {
-		initiateIK(entity)
+  if(!isClient) return;
+  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+  AnimationManager.instance._defaultModel?.children?.forEach(child => actor.modelContainer.add(child));
+  actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
+	if (hasComponent(entity, IKRigComponent)) {
+    removeComponent(entity, IKRigComponent)
+    addComponent(entity, IKRigComponent)
 	}
 }
 
 export const loadActorAvatar: Behavior = (entity) => {
+	if (!isClient) return;
 	const avatarURL = getComponent(entity, CharacterComponent)?.avatarURL;
 	if (avatarURL) {
 		loadActorAvatarFromURL(entity, avatarURL);
@@ -55,6 +56,7 @@ export const loadActorAvatar: Behavior = (entity) => {
 };
 
 export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
+  if(!isClient) return;
 	const tmpGroup = new Group();
 	console.log("Loading Actor Avatar =>", avatarURL)
 
@@ -86,7 +88,6 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 					targetSkeleton = child;
 			}
 		})
-		// standardizeSkeletion(targetSkeleton, AnimationManager.instance._defaultSkeleton);
 
 		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
 		// const geom = getGeometry(actor.modelContainer);
@@ -95,24 +96,25 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		// 	const modelX = (geom.boundingBox.max.x - geom.boundingBox.min.x) / 2;
 		// 	const modelY = (geom.boundingBox.max.y - geom.boundingBox.min.y) / 2;
 		// 	const modelZ = (geom.boundingBox.max.z - geom.boundingBox.min.z) / 2;
-			//controller.controller.resize(modelHeight - (modelWidth*2));
-			// const modelSize = modelX + modelY + modelZ;
-			// if (!modelSize) return;
+		//controller.controller.resize(modelHeight - (modelWidth*2));
+		// const modelSize = modelX + modelY + modelZ;
+		// if (!modelSize) return;
 
-			// TODO: controller size should be calculated entirely from the model bounds, not relying to constants & tweaking
+		// TODO: controller size should be calculated entirely from the model bounds, not relying to constants & tweaking
 
-			// instead, set model to IDLE state, then calculate total bounds and resize
+		// instead, set model to IDLE state, then calculate total bounds and resize
 
-			// const modelWidth = ((modelX * actor.modelScaleWidth.x) + (modelY * actor.modelScaleWidth.y) + (modelZ * actor.modelScaleWidth.z));
-			// const modelHeight = ((modelX * actor.modelScaleHeight.x) + (modelY * actor.modelScaleHeight.y) + (modelZ * actor.modelScaleHeight.z)) / (modelSize * actor.modelScaleFactor.size);
-			// const height = modelHeight * actor.modelScaleFactor.height;
-			// const width = modelWidth * actor.modelScaleFactor.radius;
-			controller.controller.radius = 0.25;
-			controller.controller.height = 1;
+		// const modelWidth = ((modelX * actor.modelScaleWidth.x) + (modelY * actor.modelScaleWidth.y) + (modelZ * actor.modelScaleWidth.z));
+		// const modelHeight = ((modelX * actor.modelScaleHeight.x) + (modelY * actor.modelScaleHeight.y) + (modelZ * actor.modelScaleHeight.z)) / (modelSize * actor.modelScaleFactor.size);
+		// const height = modelHeight * actor.modelScaleFactor.height;
+		// const width = modelWidth * actor.modelScaleFactor.radius;
+		controller.controller.radius = 0.25;
+		controller.controller.height = 1;
 		// }
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-		if (hasComponent(entity, IKComponent)) {
-			initiateIK(entity)
+		if (hasComponent(entity, IKRigComponent)) {
+			removeComponent(entity, IKRigComponent)
+			addComponent(entity, IKRigComponent)
 		}
 	});
 };
@@ -156,12 +158,6 @@ const initializeCharacter: Behavior = (entity): void => {
 	// by default all asset childs are moved into entity object3dComponent, which is tiltContainer
 	// we should keep it clean till asset loaded and all it's content moved into modelContainer
 	addObject3DComponent(entity, { obj3d: actor.tiltContainer });
-
-	if (isClient) {
-		AnimationManager.instance.getAnimations().then(() => {
-			actor.animations = AnimationManager.instance._animations;
-		})
-	}
 
 	actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.moveVectorSmooth = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
@@ -243,12 +239,6 @@ export function createNetworkPlayer(args: { ownerId: string | number, networkId?
 	return networkComponent;
 }
 
-export const characterInterpolationSchema: InterpolationInterface = {
-	interpolationBehavior: characterInterpolationBehavior,
-	serverCorrectionBehavior: characterCorrectionBehavior
-}
-
-
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkPlayerCharacter: NetworkPrefab = {
   initialize: createNetworkPlayer,
@@ -272,7 +262,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
 	],
 	clientComponents: [
 		// Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player
-		{ type: InterpolationComponent, data: { schema: characterInterpolationSchema } },
+		{ type: InterpolationComponent },
 		{ type: AnimationComponent, data: { animationsSchema: movingAnimationSchema, updateAnimationsValues: getMovementValues } }
 	],
 	serverComponents: [],

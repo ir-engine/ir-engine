@@ -59,7 +59,7 @@ const Featured = ({feedsState, getFeeds, type, creatorId, popupsState, creatorSt
           const userIdentityType = authState.get('authUser')?.identityProvider?.type ?? 'guest';
           userIdentityType !== 'guest' ? getFeeds('featured') : getFeeds('featuredGuest');
         }
-    }, [type, creatorId, feedsState.get('feeds')]);
+    }, [type, creatorId, feedsState.get('feedsFeatured')]);
 
 
     useEffect(()=> (type === 'featured' || !type) && feedsState.get('feedsFetching') === false && setFeedList(feedsState.get('feedsFeatured'))
@@ -108,6 +108,7 @@ const Featured = ({feedsState, getFeeds, type, creatorId, popupsState, creatorSt
     //         return <span className={styles.starLine} onClick={()=>featured ? unfeatureFeed(feedId) : featureFeed(feedId)} >{featured ? <StarIcon /> : <StarOutlineIcon />}</span>;
     //     }
     // };
+
 
 
     return <section className={styles.feedContainer}>

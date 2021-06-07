@@ -19,18 +19,16 @@ export default function createSkybox(entity, args: any): void {
 
   const pmremGenerator = new PMREMGenerator(renderer);
 
-  args.skytype = "cubemap";
-  args.texture = "cubemap/"
-  const negx = "/cubemap/negx.jpg";
-  const negy = "/cubemap/negy.jpg";
-  const negz = "/cubemap/negz.jpg";
-  const posx = "/cubemap/posx.jpg";
-  const posy = "/cubemap/posy.jpg";
-  const posz = "/cubemap/posz.jpg";
+  const negx = "negx.jpg";
+  const negy = "negy.jpg";
+  const negz = "negz.jpg";
+  const posx = "posx.jpg";
+  const posy = "posy.jpg";
+  const posz = "posz.jpg";
 
   if (args.skytype === "cubemap") {
-    Engine.scene.background = new CubeTextureLoader()
-      // .setPath(args.texture)
+    new CubeTextureLoader()
+      .setPath(args.texture)
       .load([posx, negx, posy, negy, posz, negz],
       (texture) => {
         const EnvMap = pmremGenerator.fromCubemap(texture).texture;
@@ -45,7 +43,7 @@ export default function createSkybox(entity, args: any): void {
         console.log(res);
       },
       (erro) => {
-        console.log(erro);
+        console.warn('Skybox texture could not be found!', erro);
       }
       );
   }

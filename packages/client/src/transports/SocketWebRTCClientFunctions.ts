@@ -262,28 +262,29 @@ export async function endVideoChat(options: { leftParty?: boolean, endConsumers?
             const isInstanceMedia = networkTransport.instanceSocket?.connected === true && (networkTransport.channelId == null || networkTransport.channelId.length === 0);
             const isChannelMedia = networkTransport.channelSocket?.connected === true && networkTransport.channelId != null && networkTransport.channelId.length > 0;
             const request = isInstanceMedia ? networkTransport.instanceRequest : networkTransport.channelRequest;
+            const socket = isInstanceMedia === true ? networkTransport.instanceSocket : networkTransport.channelSocket;
             if (MediaStreamSystem.instance?.camVideoProducer) {
-                await request(MessageTypes.WebRTCCloseProducer.toString(), {
+                if (socket.connected === true && typeof request === 'function') await request(MessageTypes.WebRTCCloseProducer.toString(), {
                     producerId: MediaStreamSystem.instance?.camVideoProducer.id
                 });
                 await MediaStreamSystem.instance?.camVideoProducer?.close();
             }
 
             if (MediaStreamSystem.instance?.camAudioProducer) {
-                await request(MessageTypes.WebRTCCloseProducer.toString(), {
+                if (socket.connected === true && typeof request === 'function') await request(MessageTypes.WebRTCCloseProducer.toString(), {
                     producerId: MediaStreamSystem.instance?.camAudioProducer.id
                 });
                 await MediaStreamSystem.instance?.camAudioProducer?.close();
             }
 
             if (MediaStreamSystem.instance?.screenVideoProducer) {
-                await request(MessageTypes.WebRTCCloseProducer.toString(), {
+                if (socket.connected === true && typeof request === 'function') await request(MessageTypes.WebRTCCloseProducer.toString(), {
                     producerId: MediaStreamSystem.instance.screenVideoProducer.id
                 });
                 await MediaStreamSystem.instance.screenVideoProducer?.close();
             }
             if (MediaStreamSystem.instance?.screenAudioProducer) {
-                await request(MessageTypes.WebRTCCloseProducer.toString(), {
+                if (socket.connected === true && typeof request === 'function') await request(MessageTypes.WebRTCCloseProducer.toString(), {
                     producerId: MediaStreamSystem.instance.screenAudioProducer.id
                 });
                 await MediaStreamSystem.instance.screenAudioProducer?.close();
@@ -445,7 +446,7 @@ export async function leave(instance: boolean): Promise<boolean> {
             const socket = instance === true ? networkTransport.instanceSocket : networkTransport.channelSocket;
 
             const request = instance === true ? networkTransport.instanceRequest : networkTransport.channelRequest;
-            if (request) {
+            if (request && socket.connected === true) {
                 // close everything on the server-side (transports, producers, consumers)
                 const result = await request(MessageTypes.LeaveWorld.toString());
                 if (result.error) console.error(result.error);

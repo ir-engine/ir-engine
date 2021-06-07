@@ -14,7 +14,6 @@ import { initializeNetworkObject } from '../../networking/functions/initializeNe
 import { NetworkPrefab } from '../../networking/interfaces/NetworkPrefab';
 import { PrefabType } from '../../networking/templates/PrefabType';
 import { InterpolationComponent } from '../../physics/components/InterpolationComponent';
-import { InterpolationInterface } from '../../physics/interfaces/InterpolationInterface';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 
 /**
@@ -261,11 +260,6 @@ export function createNetworkVehicle( args:{ parameters?: any, networkId?: strin
   }
 }
 
-export const VehicleInterpolationSchema: InterpolationInterface = {
-  interpolationBehavior: vehicleInterpolationBehavior,
-  serverCorrectionBehavior: vehicleCorrectionBehavior
-}
-
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkVehicle: NetworkPrefab = {
   initialize: createNetworkVehicle,
@@ -279,7 +273,7 @@ export const NetworkVehicle: NetworkPrefab = {
   // These are only created for the local player who owns this prefab
   localClientComponents: [],
   clientComponents: [
-    { type: InterpolationComponent, data: { schema: VehicleInterpolationSchema } }
+    { type: InterpolationComponent }
   ],
   serverComponents: [],
   onAfterCreate: [],

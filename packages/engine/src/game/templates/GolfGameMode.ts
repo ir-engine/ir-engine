@@ -7,7 +7,7 @@ import { Action, State } from '../types/GameComponents'
 import { executeBehaviorArray } from "./gameDefault/behaviors/executeBehaviorArray";
 import { objectMove } from "./gameDefault/behaviors/objectMove";
 import { switchState } from "./gameDefault/behaviors/switchState";
-import { giveState } from "./gameDefault/behaviors/giveState";
+import { setHideModel } from "./gameDefault/behaviors/setHideModel";
 //
 import { addForce } from "./Golf/behaviors/addForce";
 import { teleportObject } from "./Golf/behaviors/teleportObject";
@@ -28,23 +28,26 @@ import { addBall } from "./Golf/behaviors/addBall";
 import { addHole } from "./Golf/behaviors/addHole";
 // checkers
 import { isPlayersInGame } from "./gameDefault/checkers/isPlayersInGame";
-import { ifNamed } from "./gameDefault/checkers/ifNamed";
+import { ifGetOut } from "./gameDefault/checkers/ifGetOut";
+import { ifOwned } from "./gameDefault/checkers/ifOwned";
 import { customChecker } from "./gameDefault/checkers/customChecker";
 import { isDifferent } from "./gameDefault/checkers/isDifferent";
+import { doesPlayerHaveGameObject } from "./gameDefault/checkers/doesPlayerHaveGameObject";
 
+// others
 import { grabEquippable } from "../../interaction/functions/grabEquippable";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { disableInteractiveToOthers, disableInteractive } from "./Golf/behaviors/disableInteractiveToOthers";
-import { spawnBall } from "./Golf/behaviors/spawnBall";
 import { Network } from "../../networking/classes/Network";
-import { giveBall } from "./Golf/behaviors/giveBall";
 import { Entity } from "../../ecs/classes/Entity";
 import { GolfPrefabs } from "./Golf/prefab/GolfGamePrefabs";
 import { ColliderComponent } from "../../physics/components/ColliderComponent";
 import { BodyType } from "three-physx";
 import { Euler, Quaternion, Vector3 } from "three";
 import { removeSpawnedObjects } from "../functions/functions";
-import { updateBall } from "./Golf/prefab/GolfBallPrefab";
+import { ifMoved } from "./gameDefault/checkers/ifMoved";
+import { spawnBall } from "./Golf/prefab/GolfBallPrefab";
+import { hitBall } from "./Golf/behaviors/hitBall";
 
 
 
@@ -76,11 +79,11 @@ const templates = {
   isPlayerInGameAndSwitchState: ({ remove, add }) => {
     return [{
       behavior: switchState,
-      args: { on: 'me', add: remove, remove: add  },
+      args: { on: 'self', add: remove, remove: add  },
       checkers:[{ function: isPlayersInGame }]
     },{
       behavior: switchState,
-      args: { on: 'me', add: add, remove: remove },
+      args: { on: 'self', add: add, remove: remove },
       checkers:[{ function: isPlayersInGame, args:{ invert: true} }]
     }]
   },
@@ -89,11 +92,11 @@ const templates = {
     return [{
       behavior: switchState,
       watchers:[ [ Action.HasHadInteraction, remove ] ], // components in one array means HasHadInteraction && Close, in different means HasHadInteraction || Close
-      args: { on: 'me', remove: remove, add: add },
+      args: { on: 'self', remove: remove, add: add },
     },{
       behavior: switchState,
       watchers:[ [ Action.HasHadInteraction, add ] ],
-      args: { on: 'me', remove: add, add: remove },
+      args: { on: 'self', remove: add, add: remove },
     }]
   },
 }
@@ -102,12 +105,13 @@ function somePrepareFunction(gameRules: GameMode) {
   gameRules.initGameState = copleNameRolesInOneString(gameRules.initGameState);
   gameRules.registerActionTagComponents = registerAllActions(); //TO DO: registerActionsOnlyUsedInThisMode();
   gameRules.registerStateTagComponents = registerAllStates(); //TO DO: registerStatesOnlyUsedInThisMode();
-  gameRules.gamePlayerRoles = cloneSameRoleRules( gameRules.gamePlayerRoles, { from:'1-Player', to: '2-Player'})
+  cloneSameRoleRules( gameRules.gamePlayerRoles, { from:'1-Player', to: '2-Player'});
+ // gameRules.gamePlayerRoles = cloneSameRoleRules( gameRules.gamePlayerRoles, { from:'1-Player', to: '2-Player'})
   return gameRules
 }
 
 function cloneSameRoleRules(object, args) {
-  object[args.to] = JSON.parse(JSON.stringify(object[args.from]))
+  object[args.to] = object[args.from]; //JSON.parse(JSON.stringify(object[args.from]))
   return object;
 }
 
@@ -148,30 +152,32 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   priority: 1,
   onGameLoading: onGolfGameLoading,
   onGameStart: onGolfGameStart,
-  onPlayerLeave: onGolfPlayerLeave, // not disconnected, in future we will allow to Leave game witout disconnect from location
+  onPlayerLeave: onGolfPlayerLeave, // player can leave game without disconnect
   registerActionTagComponents: [], // now auto adding
-  registerStateTagComponents: [], // now auto adding
+  registerStateTagComponents: [],
   initGameState: {
     'newPlayer': {
       behaviors: [addRole, spawnClub]
     },
     '1-Player': {
+      components:[State.WaitTurn],
       behaviors: [addTurn, initScore]
     },
     '2-Player': {
+      components:[State.WaitTurn],
       behaviors: [initScore]
     },
     'GolfBall': {
-      components: [State.SpawnedObject, State.Active]
+      components: [State.SpawnedObject, State.NotReady, State.Active, State.BallMoving]
     },
     'GolfClub': {
-      components: [State.SpawnedObject]
+      components: [State.SpawnedObject, State.Active]
     },
     'GolfHole': {
-      behaviors: [addHole, disableInteractive]
+      behaviors: [addHole, disableInteractive, setHideModel]
     },
     'GolfTee': {
-      behaviors: [disableInteractive]
+      behaviors: [disableInteractive, setHideModel]
     },
     'StartGamePanel GoalPanel 1stTurnPanel 2stTurnPanel': {
       components: [State.PanelDown],
@@ -196,28 +202,23 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   gamePlayerRoles: {
     'newPlayer': {},
     '1-Player': {
-      'hitBall': [
+      'spawnBall':[
         {
-          behavior: switchState,
-          args: { on: 'target' },
+          behavior: spawnBall, 
+          args: { positionCopyFromRole: 'GolfTee', offsetY: 0.03 },
           watchers:[ [ State.YourTurn ] ],
-          takeEffectOn: {
-            targetsRole: {
-              '1stTurnPanel': {
-                watchers:[ [ State.PanelDown ] ],
-                args: { remove: State.PanelDown, add: State.PanelUp }
-              },
-              '2stTurnPanel': {
-                watchers:[ [ State.PanelUp ] ],
-                args: { remove: State.PanelUp, add: State.PanelDown }
-              }
-            }
-          }
-        },
+          checkers:[{
+            function: doesPlayerHaveGameObject,
+            args: { on: 'self', objectRoleName: 'GolfBall', invert: true }
+          }]
+        }
+      ],
+      'updateTurn': [
+        
 /*
         {
           behavior: saveScore,
-          args: { on: 'me' },
+          args: { on: 'self' },
           watchers:[ [ YourTurn ] ],
           takeEffectOn: {
             targetsRole: {
@@ -232,46 +233,110 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           }
         },
 */
-        { //doBallNotHiting //GameObjectCollisionTag
+        // give Ball Inactive State for player cant hit Ball again in one game turn
+        {
           behavior: switchState,
-          args: { on: 'target', add: State.Inactive, remove: State.Active },
+          args: { on: 'target', remove: State.Active, add: State.Inactive },
           watchers:[ [ State.YourTurn ] ],
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {
-                watchers:[ [ State.Active, Action.BallMoving ] ],
-
-
-                /*
+                watchers:[ [ State.Active, State.BallMoving ] ],
                 checkers:[{
-                  function: ifOwned,
-                  args: { on: 'target', name: '1' }
+                  function: ifOwned
                 }]
-                */
+              }
+            }
+          }
+        },
+        // do ball Active on next Turn
+        {
+          behavior: switchState,
+          args: { on: 'self', remove: State.YourTurn, add: State.Waiting },
+          watchers:[ [ State.YourTurn ] ],
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                watchers:[ [ State.Inactive, State.BallMoving ] ],
+                checkers:[{
+                  function: ifOwned
+                }]
+              }
+            }
+          }
+        },
+        {
+          behavior: switchState, // GameObjectCollisionTag
+          watchers:[ [ State.YourTurn ] ],
+          args: { on: 'target', remove: State.Inactive, add: State.Active  },
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                watchers:[ [ State.BallStopped, State.Inactive ] ],
+                checkers:[{
+                  function: ifOwned
+                }]
               }
             }
           }
         },
         {
           behavior: nextTurn, // GameObjectCollisionTag
-          watchers:[ [ State.YourTurn ] ],
+          watchers:[ [ State.Waiting ] ],
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {
-                watchers:[ [ State.Inactive, Action.BallStopped ] ],
+                watchers:[ [ State.BallStopped, State.Inactive ] ],
+                checkers:[{
+                  function: ifOwned
+                }]
               }
             }
           }
         }
       ]
-    }
+    },
   },
   gameObjectRoles: {
     'GolfBall': {
-      'update': [
+      'checkIfFlyingOut': [
         {
-          behavior: updateBall,
-          args: {},
+          behavior: teleportObject,
+          args: { on: 'self', positionCopyFromRole: 'GolfTee'},
+          checkers:[{
+            function: ifGetOut,
+            args: { area: 'GameArea' }
+          }]
+        }
+      ],
+      'update': [
+        // switch Moving Stopped State from check Ball Velocity
+        {
+          behavior: switchState,
+          args: { on: 'self', remove: State.BallStopped, add: State.BallMoving },
+          watchers:[ [ State.Ready ] ],
+          checkers:[{
+            function: ifMoved,
+            args: { max: 0.01 }
+          }]
+        },
+        {
+          behavior: switchState,
+          args: { on: 'self', remove: State.BallMoving, add: State.BallStopped },
+          checkers:[{
+            function: ifMoved,
+            args: { min: 0.001 }
+          }]
+        },
+        // whan ball spawn he droping and gets moving State, we give Raady state for him whan he stop
+        {
+          behavior: switchState,
+          args: { on: 'self', remove: State.NotReady, add: State.Ready },
+          watchers:[ [ State.BallStopped ] ],
+          checkers:[{
+            function: ifMoved,
+            args: { on: 'self', min: 0.001 }
+          }]
         }
       ],
     },
@@ -291,6 +356,18 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             }
           }
         },
+        {
+          behavior: teleportObject,
+          args: { on: 'target', positionCopyFromRole: 'GolfTee'},
+          watchers:[ [ Action.GameObjectCollisionTag ] ],
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                watchers:[ [ Action.GameObjectCollisionTag ] ]
+              }
+            }
+          }
+        }
        ]
     },
     'GolfClub': {
@@ -300,15 +377,111 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           args: {},
         }
       ],
+      'hitBall': [
+        {
+          behavior: hitBall,
+          watchers:[ [ Action.GameObjectCollisionTag ] ],
+          args: { clubPowerMultiplier: 10, hitAdvanceFactor: 1.2  },
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                watchers:[ [ Action.GameObjectCollisionTag, State.BallStopped ] ],
+                checkers:[{
+                  function: ifOwned
+                },{
+                  function: customChecker,
+                  args: {
+                    on:'1-Player',
+                    watchers:[ [ State.YourTurn ] ],
+                    checkers:[{
+                      function: ifOwned
+                    }]
+                  }
+                }]
+              }
+            }
+          }
+        },
+        {
+          behavior: hitBall,
+          watchers:[ [ Action.GameObjectCollisionTag ] ],
+          args: { clubPowerMultiplier: 10, hitAdvanceFactor: 1.2  },
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                watchers:[ [ Action.GameObjectCollisionTag, State.BallStopped ] ],
+                checkers:[{
+                  function: ifOwned
+                },{
+                  function: customChecker,
+                  args: {
+                    on:'2-Player',
+                    watchers:[ [ State.YourTurn ] ],
+                    checkers:[{
+                      function: ifOwned
+                    }]
+                  }
+                }]
+              }
+            }
+          }
+        }
+      ]
     },
     'GoalPanel': {
       'objectMove': templates.switchStateAndObjectMove( { y:1, stateToMoveBack: State.PanelDown, stateToMove: State.PanelUp,  min: 0.2, max: 3 })
     },
     '1stTurnPanel': {
-      'objectMove' : templates.switchStateAndObjectMove({ y:1, min: 0.2, max: 4, stateToMoveBack: State.PanelDown, stateToMove: State.PanelUp })
+      'objectMove' : templates.switchStateAndObjectMove({ y:1, min: 0.2, max: 4, stateToMoveBack: State.PanelDown, stateToMove: State.PanelUp }),
+      'updateState': [{
+        behavior: switchState,
+        args: { on: 'self', remove: State.PanelDown, add: State.PanelUp },
+        watchers:[ [ State.PanelDown ] ],
+        takeEffectOn: {
+          targetsRole: {
+            '1-Player': {
+              watchers:[[ State.YourTurn ]]
+            }
+          }
+        }
+      },{
+        behavior: switchState,
+        args: { on: 'self', remove: State.PanelUp, add: State.PanelDown },
+        watchers:[ [ State.PanelUp ] ],
+        takeEffectOn: {
+          targetsRole: {
+            '1-Player': {
+              watchers:[[ State.WaitTurn ]]
+            }
+          }
+        }
+      }]
     },
     '2stTurnPanel': {
-      'objectMove' : templates.switchStateAndObjectMove({ y:1, min: 0.2, max: 4, stateToMoveBack: State.PanelDown, stateToMove: State.PanelUp })
+      'objectMove' : templates.switchStateAndObjectMove({ y:1, min: 0.2, max: 4, stateToMoveBack: State.PanelDown, stateToMove: State.PanelUp }),
+      'updateState': [{
+        behavior: switchState,
+        args: { on: 'self', remove: State.PanelDown, add: State.PanelUp },
+        watchers:[ [ State.PanelDown ] ],
+        takeEffectOn: {
+          targetsRole: {
+            '2-Player': {
+              watchers:[[ State.YourTurn ]]
+            }
+          }
+        }
+      },{
+        behavior: switchState,
+        args: { on: 'self', remove: State.PanelUp, add: State.PanelDown },
+        watchers:[ [ State.PanelUp ] ],
+        takeEffectOn: {
+          targetsRole: {
+            '2-Player': {
+              watchers:[[ State.WaitTurn ]]
+            }
+          }
+        }
+      }]
     },
     'StartGamePanel': {
       'switchState': templates.isPlayerInGameAndSwitchState({ remove: State.PanelUp, add: State.PanelDown }),

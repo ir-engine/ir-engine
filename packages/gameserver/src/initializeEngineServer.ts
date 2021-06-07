@@ -53,16 +53,9 @@ export const initializeEngineServer = async (initOptions: InitializeOptions = De
   registerSystem(ServerNetworkOutgoingSystem, { ...networkSystemOptions, priority: 100 }); // last
   registerSystem(MediaStreamSystem, { priority: 3 });
 
-  new AnimationManager();
-
   const currentPath = (isWindows ? 'file:///' : '') + path.dirname(__filename);
   const worker = new Worker(currentPath + "/physx/loadPhysXNode.ts");
   Engine.workers.push(worker);
-  
-  await Promise.all([
-    // AnimationManager.instance.getDefaultModel(),
-    // AnimationManager.instance.getAnimations(),
-  ]);
 
   // LOGIC - Input
   registerSystem(CharacterControllerSystem, { priority: 4 });

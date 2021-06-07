@@ -27,6 +27,14 @@
             margin: 0 0 0 5px;
         }
     }
+    .popover{
+        position: fixed;
+        right: 25pt;
+        top: 13pt;
+        svg{
+            font-size: 29pt;
+        }
+    }
     .iconSubContainer{
         svg{
             height: 23pt;

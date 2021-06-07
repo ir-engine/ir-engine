@@ -6,7 +6,6 @@ import { ColliderComponent } from '../../../../physics/components/ColliderCompon
 import { RigidBodyComponent } from '../../../../physics/components/RigidBody';
 import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject';
 import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants';
-import { UserControlledColliderComponent } from '../../../../physics/components/UserControllerObjectComponent';
 import { Group, Mesh, Vector3 } from 'three';
 import { AssetLoader } from '../../../../assets/classes/AssetLoader';
 import { Engine } from '../../../../ecs/classes/Engine';
@@ -22,6 +21,57 @@ import { NetworkObject } from '../../../../networking/components/NetworkObject';
 import { Network } from '../../../../networking/classes/Network';
 import { addActionComponent } from '../../../functions/functionsActions';
 import { Action, State } from '../../../types/GameComponents';
+import { getGame } from '../../../functions/functions';
+import { MathUtils } from 'three';
+import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent';
+import { Behavior } from '../../../../common/interfaces/Behavior';
+
+/**
+ * @author Josh Field <github.com/HexaField>
+ */
+
+export const spawnBall: Behavior = (entityPlayer: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
+  // server sends clients the entity data
+  if (isClient) return;
+  console.warn('SpawnBall')
+
+  const game = getGame(entityPlayer);
+  const playerNetworkObject = getComponent(entityPlayer, NetworkObject);
+
+  const networkId = Network.getNetworkId();
+  const uuid = MathUtils.generateUUID();
+  // send position to spawn
+  // now we have just one location
+  // but soon
+  const teeEntity = game.gameObjects[args.positionCopyFromRole][0]
+  const teeTransform = getComponent(teeEntity, TransformComponent);
+
+  const parameters: GolfBallSpawnParameters = {
+    gameName: game.name,
+    role: 'GolfBall',
+    spawnPosition: teeTransform.position,
+    uuid,
+    ownerNetworkId: playerNetworkObject.networkId
+  };
+
+  // this spawns the ball on the server
+  createGolfBallPrefab({
+    networkId,
+    uniqueId: uuid,
+    ownerId: playerNetworkObject.ownerId, // the uuid of the player whose ball this is
+    parameters
+  })
+
+  // this sends the ball to the clients
+  Network.instance.worldState.createObjects.push({
+    networkId,
+    ownerId: playerNetworkObject.ownerId,
+    uniqueId: uuid,
+    prefabType: GolfPrefabTypes.Ball,
+    parameters: JSON.stringify(parameters).replace(/"/g, '\''),
+  })
+};
+
 
 /**
 * @author Josh Field <github.com/HexaField>
@@ -40,9 +90,8 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   ballMesh.scale.copy(transform.scale);
   ballMesh.castShadow = true;
   ballMesh.receiveShadow = true;
-  ballMesh.material && WebGLRendererSystem.instance.csm.setupMaterial(ballMesh.material);
   addComponent(ballEntity, Object3DComponent, { value: ballMesh });
-  console.log(transform.position)
+  // console.log(transform.position)
 
   // DEBUG - teleport ball to over hole
   if (typeof globalThis.document !== 'undefined')
@@ -54,23 +103,6 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
     })
 }
 
-export const updateBall = (ballEntity: Entity) => {
-  const gameObject = getComponent(ballEntity, GameObject);
-  const collider = getComponent(ballEntity, ColliderComponent);
-  if (collider.velocity.length() > 0.1) {
-    if(hasComponent(ballEntity, State.Active)) {
-      console.warn('actionMoving')
-      addActionComponent(ballEntity, Action.BallMoving);
-    }
-  } else {
-    if(hasComponent(ballEntity, State.Inactive)) { 
-      console.warn('stop')
-      addActionComponent(ballEntity, Action.BallStopped);
-    }
-  }
-}
-
-
 export const initializeGolfBall = (ballEntity: Entity) => {
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
   const transform = getComponent(ballEntity, TransformComponent);
@@ -78,7 +110,6 @@ export const initializeGolfBall = (ballEntity: Entity) => {
   const ownerNetworkObject = Object.values(Network.instance.networkObjects).find((obj) => {
     return obj.ownerId === networkObject.ownerId;
   }).component;
-  addComponent(ballEntity, UserControlledColliderComponent, { ownerNetworkId: ownerNetworkObject.networkId });
 
   if (isClient) {
     AssetLoader.load({
@@ -114,7 +145,15 @@ export const initializeGolfBall = (ballEntity: Entity) => {
   collider.body = body;
 }
 
-export const createGolfBallPrefab = (args: { parameters?: any, networkId?: number, uniqueId: string, ownerId?: string }) => {
+type GolfBallSpawnParameters = {
+  gameName: string;
+  role: string;
+  uuid: string;
+  ownerNetworkId: number;
+  spawnPosition: Vector3;
+}
+
+export const createGolfBallPrefab = (args: { parameters?: GolfBallSpawnParameters, networkId?: number, uniqueId: string, ownerId?: string }) => {
   console.log('createGolfBallPrefab', args.parameters)
   initializeNetworkObject({
     prefabType: GolfPrefabTypes.Ball,
@@ -158,8 +197,9 @@ export const GolfBallPrefab: NetworkPrefab = {
   ],
   // These are only created for the local player who owns this prefab
   localClientComponents: [],
-  //clientComponents: [{ type: InterpolationComponent, data: { } }],
-  clientComponents: [],
+  clientComponents: [
+		{ type: InterpolationComponent },
+  ],
   serverComponents: [],
   onAfterCreate: [
     {

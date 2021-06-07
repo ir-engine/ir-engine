@@ -19,7 +19,8 @@ import {
   userCreated,
   userPatched,
   userRoleUpdated,
-  searchedUser
+  searchedUser,
+  fetchedSIngleUser
 } from './actions';
 
 import axios from 'axios';
@@ -111,9 +112,8 @@ export function fetchAdminLocations() {
 export function fetchUsersAsAdmin(offset: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const user = getState().get('auth').get('user');
-    const skip = getState().get('admin').get('users').get('skip');
+    const skip =  getState().get('admin').get('users').get('skip');
     const limit = getState().get('admin').get('users').get('limit');
-
     try {
       if (user.userRole === 'admin') {
         const users = await client.service('user').find({
@@ -363,6 +363,18 @@ export const searchUserAction = (data: any, offset: string) => {
     } catch (err){
       console.error(err);
       dispatchAlertError(dispatch, err.message);
+    }
+  };
+};
+
+export const fetchSingleUserAdmin = (id: string) => {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const result = await client.service("user").get(id);
+      dispatch(fetchedSIngleUser(result));
+    } catch(error) {
+      console.error(error);
+      dispatchAlertError(dispatch, error.message);      
     }
   };
 };

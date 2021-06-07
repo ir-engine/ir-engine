@@ -229,7 +229,7 @@ export * from './src/physics/classes/VectorSpringSimulator';
 export * from './src/physics/components/ColliderComponent';
 export * from './src/physics/components/InterpolationComponent';
 export * from './src/physics/components/RigidBody';
-export * from './src/physics/interfaces/InterpolationInterface';
+export * from './src/networking/types/SnapshotDataTypes';
 export * from './src/physics/systems/PhysicsSystem';
 export * from './src/renderer/components/HighlightComponent';
 export * from './src/renderer/functions/createCanvas';

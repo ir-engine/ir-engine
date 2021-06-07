@@ -26,15 +26,16 @@ import {
   fetchingAdminFeeds,
   fetchingFiredFeeds,
   feedsFiredRetrieved,
-  reduxClearCreatorFeatured
+  reduxClearCreatorFeatured,
+  deleteFeed
 } from './actions';
 
 export function getFeeds(type: string, id?: string, limit?: number) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      
+
       const feedsResults = [];
-      if (type && (type === 'featured' || type === 'featuredGuest')) {        
+      if (type && (type === 'featured' || type === 'featuredGuest')) {
         dispatch(fetchingFeaturedFeeds());
         const feedsResults = await client.service('feed').find({
           query: {
@@ -129,7 +130,7 @@ export function createFeed({ title, description, video, preview }: any) {
       const api = new Api();
       const storedVideo = await api.upload(video, null);
       const storedPreview = await api.upload(preview, null);
-       
+
       //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
       if (storedVideo && storedPreview) {
         //@ts-ignore error that this vars are void bacause upload is defines as voin funtion
@@ -196,6 +197,31 @@ export function setFeedNotFeatured(feedId: string) {
     }
   };
 }
+
+
+export function removeFeed(feedId: string, previewImageUrl: string, videoUrl: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      const findIdInUrl = (url) => {
+        const urlSplit = url.split('/');
+        return urlSplit.sort(
+            (a, b) => {
+                return b.length - a.length;
+            }
+        )[0];
+      };
+
+      await client.service('static-resource').remove(findIdInUrl(previewImageUrl));
+      await client.service('static-resource').remove(findIdInUrl(videoUrl));
+      await client.service('feed').remove(feedId);
+      dispatch(deleteFeed(feedId));
+    } catch (err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
+}
+
 
 export function clearCreatorFeatured(){
   return async (dispatch: Dispatch): Promise<any> => {dispatch(reduxClearCreatorFeatured());};

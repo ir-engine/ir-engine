@@ -15,8 +15,13 @@ import { InterpolationComponent } from "../components/InterpolationComponent";
 import { isClient } from '../../common/functions/isClient';
 import { BodyType, PhysXConfig, PhysXInstance } from "three-physx";
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot';
-import { UserControlledColliderComponent } from '../components/UserControllerObjectComponent';
 import { Vector3 } from 'three';
+import { SnapshotData } from '../../networking/types/SnapshotDataTypes';
+import { characterCorrectionBehavior } from '../../character/behaviors/characterCorrectionBehavior';
+import { CharacterComponent } from '../../character/components/CharacterComponent';
+import { characterInterpolationBehavior } from '../../character/behaviors/characterInterpolationBehavior';
+import { rigidbodyInterpolationBehavior } from '../behaviors/rigidbodyInterpolationBehavior';
+
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -58,7 +63,7 @@ export class PhysicsSystem extends System {
     }
     this.worker = attributes.worker;
     this.frame = 0;
-
+    
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
       PhysXInstance.instance.startPhysX(ev.physics);
     });
@@ -85,10 +90,12 @@ export class PhysicsSystem extends System {
       const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
       const transform = getComponent(entity, TransformComponent);
       if (collider.body.type === BodyType.KINEMATIC) {
-        collider.velocity.subVectors(collider.body.transform.translation, transform.position);
+        collider.velocity.subVectors(collider.body.transform.translation, transform.position)
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation });
       } else {
-        collider.velocity.subVectors(transform.position, collider.body.transform.translation);
+        if(!isClient) { // this for the copy what intepolation calc velocity
+          collider.velocity.subVectors(transform.position, collider.body.transform.translation).multiplyScalar(delta*60); 
+        }
         
         transform.position.set(
           collider.body.transform.translation.x,
@@ -116,49 +123,29 @@ export class PhysicsSystem extends System {
 
     if (isClient) {
       if (!Network.instance?.snapshot) return;
-      // Interpolate between the current client's data with what the server has sent via snapshots
-      const snapshots = {
+      
+      const snapshots: SnapshotData = {
         interpolation: calculateInterpolation('x y z quat velocity'),
         correction: Vault.instance?.get((Network.instance.snapshot as any).timeCorrection, true),
         new: []
       }
-      // console.warn(snapshots.correction);
-      this.queryResults.localClientInterpolation.all?.forEach(entity => {
-        // Creatr new snapshot position for next frame server correction
-        const interpolationComponent = getComponent<InterpolationComponent>(entity, InterpolationComponent);
-        interpolationComponent.schema.serverCorrectionBehavior(entity, snapshots, delta);
-      });
       // Create new snapshot position for next frame server correction
       Vault.instance.add(createSnapshot(snapshots.new));
-      // apply networkObjectInterpolation values
+
+      this.queryResults.localCharacterInterpolation.all?.forEach(entity => {
+        characterCorrectionBehavior(entity, snapshots, delta);
+      });
+
+      this.queryResults.networkClientInterpolation.all?.forEach(entity => {
+        characterInterpolationBehavior(entity, snapshots, delta);
+      });
+
       this.queryResults.networkObjectInterpolation.all?.forEach(entity => {
-        const interpolation = getComponent(entity, InterpolationComponent);
-        interpolation.schema.interpolationBehavior(entity, snapshots);
-      })
+        rigidbodyInterpolationBehavior(entity, snapshots, delta);
+      });
 
       // If a networked entity does not have an interpolation component, just copy the data
       this.queryResults.correctionFromServer.all?.forEach(entity => {
-        // ignore interpolation on client for objects we are the primary simulator of
-        const userControlled = getComponent(entity, UserControlledColliderComponent)
-        if (userControlled && userControlled.ownerNetworkId === Network.instance.localAvatarNetworkId) {
-          const ownerNetworkId = userControlled.ownerNetworkId;
-          const networkObject = getMutableComponent(entity, NetworkObject);
-          if (Network.instance.localAvatarNetworkId === ownerNetworkId) {
-            const collider = getMutableComponent(entity, ColliderComponent);
-            Network.instance.clientInputState.transforms.push({
-              networkId: networkObject.networkId,
-              x: collider.body.transform.translation.x,
-              y: collider.body.transform.translation.y,
-              z: collider.body.transform.translation.z,
-              qX: collider.body.transform.rotation.x,
-              qY: collider.body.transform.rotation.y,
-              qZ: collider.body.transform.rotation.z,
-              qW: collider.body.transform.rotation.w,
-              snapShotTime: networkObject.snapShotTime,
-            });
-            return;
-          }
-        }
         const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot);
         if (snapshot == null) return;
         const collider = getMutableComponent(entity, ColliderComponent)
@@ -201,11 +188,14 @@ export class PhysicsSystem extends System {
 }
 
 PhysicsSystem.queries = {
-  localClientInterpolation: {
-    components: [LocalInputReceiver, InterpolationComponent, NetworkObject],
+  localCharacterInterpolation: { 
+    components: [LocalInputReceiver, CharacterComponent, InterpolationComponent, NetworkObject],
+  },
+  networkClientInterpolation: {
+    components: [Not(LocalInputReceiver), CharacterComponent, InterpolationComponent, NetworkObject],
   },
   networkObjectInterpolation: {
-    components: [Not(LocalInputReceiver), InterpolationComponent, NetworkObject],
+    components: [Not(CharacterComponent), InterpolationComponent, NetworkObject],
   },
   correctionFromServer: {
     components: [Not(InterpolationComponent), NetworkObject],
