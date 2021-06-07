@@ -1,9 +1,9 @@
-import { CAM_VIDEO_SIMULCAST_ENCODINGS } from "@xrengine/engine/src/networking/constants/VideoConstants";
-import { MessageTypes } from "@xrengine/engine/src/networking/enums/MessageTypes";
-import { MediaStreamSystem } from "@xrengine/engine/src/networking/systems/MediaStreamSystem";
-import { DataProducer, Transport as MediaSoupTransport } from "mediasoup-client/lib/types";
-import { EngineEvents } from "@xrengine/engine/src/ecs/classes/EngineEvents";
-import { Network } from "@xrengine/engine/src/networking/classes/Network";
+import {CAM_VIDEO_SIMULCAST_ENCODINGS} from "@xrengine/engine/src/networking/constants/VideoConstants";
+import {MessageTypes} from "@xrengine/engine/src/networking/enums/MessageTypes";
+import {MediaStreamSystem} from "@xrengine/engine/src/networking/systems/MediaStreamSystem";
+import {DataProducer, Transport as MediaSoupTransport} from "mediasoup-client/lib/types";
+import {EngineEvents} from "@xrengine/engine/src/ecs/classes/EngineEvents";
+import {Network} from "@xrengine/engine/src/networking/classes/Network";
 
 let networkTransport: any;
 
@@ -140,9 +140,15 @@ export async function createTransport(direction: string, channelType?: string, c
         // failed, or disconnected, leave the  and reset
         transport.on("connectionstatechange", async (state: string) => {
             if (networkTransport.leaving !== true && (state === "closed" || state === "failed" || state === "disconnected")) {
-                console.error('Transport transitioned to state', state);
+                console.error('Transport', transport, ' transitioned to state', state);
                 console.error('If this occurred unexpectedly shortly after joining a world, check that the gameserver nodegroup has public IP addresses.');
-                await request(MessageTypes.WebRTCTransportClose.toString(), {transportId: transport.id});
+                console.log('Waiting 5 seconds to make a new transport');
+                setTimeout(async () => {
+                    console.log('Re-creating transport', direction, channelType, channelId, ' after unexpected closing/fail/disconnect');
+                    await createTransport(direction, channelType, channelId);
+                    console.log('Re-created transport', direction, channelType, channelId);
+                }, 5000)
+                // await request(MessageTypes.WebRTCTransportClose.toString(), {transportId: transport.id});
             }
             if (networkTransport.leaving !== true && state === 'connected' && transport.direction === 'recv') {
                 await request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
@@ -299,7 +305,7 @@ export async function endVideoChat(options: { leftParty?: boolean, endConsumers?
                 });
             }
 
-            if (options?.leftParty === true) {
+            if (isChannelMedia === true) {
                 if (networkTransport.channelRecvTransport != null && networkTransport.channelRecvTransport.closed !== true)
                     await networkTransport.channelRecvTransport.close();
                 if (networkTransport.channelSendTransport != null && networkTransport.channelSendTransport.closed !== true)
@@ -432,10 +438,9 @@ export async function closeConsumer(consumer: any) {
     if (networkTransport.channelId != null && networkTransport.channelId.length > 0 && networkTransport.channelRequest != null) await networkTransport.channelRequest(MessageTypes.WebRTCCloseConsumer.toString(), { consumerId: consumer.id });
     await consumer.close();
 
-    const filteredConsumers = MediaStreamSystem.instance?.consumers.filter(
+    MediaStreamSystem.instance.consumers = MediaStreamSystem.instance?.consumers.filter(
         (c: any) => !(c.id === consumer.id)
     ) as any[];
-    MediaStreamSystem.instance.consumers = filteredConsumers;
 }
 
 export async function leave(instance: boolean): Promise<boolean> {
