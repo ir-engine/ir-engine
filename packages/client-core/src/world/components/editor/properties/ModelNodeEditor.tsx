@@ -228,6 +228,7 @@ export class ModelNodeEditor extends Component<
     console.log("SelectValues are", selectValues);
     }
   }
+  
     switch (node.interactionType) {
       case 'gameobject': return <>
         { /* @ts-ignore */}
