@@ -142,6 +142,11 @@ export class ModelNodeEditor extends Component<
     (this.props.editor as any).setPropertySelected("interactionText", interactionText);
   };
 
+  // function to handle changes in interactionText property
+  onChangeInteractionDistance = interactionDistance => {
+    (this.props.editor as any).setPropertySelected("interactionDistance", interactionDistance);
+  };
+
   // function to handle changes in payloadName property
   onChangePayloadName = payloadName => {
     (this.props.editor as any).setPropertySelected("payloadName", payloadName);
@@ -324,6 +329,15 @@ export class ModelNodeEditor extends Component<
             options={InteractableOption}
             value={node.interactionType}
             onChange={this.onChangeInteractionType}
+          />
+        </InputGroup>
+        { /* @ts-ignore */}
+        <InputGroup name="Interaction Distance" label={this.props.t('editor:properties.model.lbl-interactionDistance')}>
+          { /* @ts-ignore */}
+          <SelectInput
+            options={InteractableOption}
+            value={node.interactionDistance}
+            onChange={this.onChangeInteractionDistance}
           />
         </InputGroup>
         {this.renderInteractableTypeOptions(node)}

@@ -96,13 +96,20 @@ export default (app: Application): void => {
                                 const result = await app.service(service).get(serviceId);
 
                                 if (!Engine.sceneLoaded) {
+                                  let entitiesLeft = -1;
+                                  const loadingInterval = setInterval(() => {
+                                    if(entitiesLeft >= 0) console.log(entitiesLeft + ' entites left...');
+                                  }, 1000)
+                                    console.log('Loading scene...');
                                     WorldScene.load(result, () => {
+                                        console.log('Scene loaded!');
+                                        clearInterval(loadingInterval);
                                         EngineEvents.instance.dispatchEvent({
                                             type: EngineEvents.EVENTS.ENABLE_SCENE,
                                             renderer: true,
                                             physics: true
                                         });
-                                    });
+                                    }, (left) => { entitiesLeft = left; });
                                 }
                             }
                         } else {

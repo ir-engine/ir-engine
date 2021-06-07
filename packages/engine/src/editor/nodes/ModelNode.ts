@@ -76,6 +76,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           node.interactable = ineractableComponent.props.interactable;
           node.interactionType = ineractableComponent.props.interactionType;
           node.interactionText = ineractableComponent.props.interactionText;
+          node.interactionDistance = ineractableComponent.props.interactionDistance;
           node.payloadName = ineractableComponent.props.payloadName;
           node.payloadUrl = ineractableComponent.props.payloadUrl;
           node.payloadBuyUrl = ineractableComponent.props.payloadBuyUrl;
@@ -369,6 +370,7 @@ parseColliders( data, type, mass, position, quaternion, scale, mesh, collisionLa
         interactable: this.interactable,
         interactionType : this.interactionType,
         interactionText : this.interactionText,
+        interactionDistance : this.interactionDistance,
         payloadName : this.payloadName,
         payloadUrl : this.payloadUrl,
         payloadBuyUrl : this.payloadBuyUrl,
