@@ -50,8 +50,8 @@ export function Timer (
   let updateInterval;
 
   function xrAnimationLoop(time, xrFrame) {
-    Engine.xrRenderer.onAnimationFrame(time, xrFrame);
     Engine.xrSession.requestAnimationFrame( xrAnimationLoop )
+    Engine.xrRenderer.onAnimationFrame(time, xrFrame);
     XRSystem.instance.xrFrame = xrFrame;
     if (lastAnimTime !== null) {
       frameDelta = (time - lastAnimTime) / 1000;
