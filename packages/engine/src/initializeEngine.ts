@@ -36,6 +36,7 @@ import { isMobileOrTablet } from './common/functions/isMobile';
 import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem';
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem';
 import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem';
+import { SceneObjectSystem } from '@xrengine/engine/src/scene/systems/SceneObjectSystem';
 
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -179,6 +180,7 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
     registerSystem(ParticleSystem, { priority: 10 });
     registerSystem(DebugHelpersSystem, { priority: 11 });
     registerSystem(PositionalAudioSystem, { priority: 12 });
+    registerSystem(SceneObjectSystem, { priority: 13 });
 }
 
 const registerEditorSystems = (options: InitializeOptions, physicsWorker: Worker) => {
