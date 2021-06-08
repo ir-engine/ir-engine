@@ -1,7 +1,6 @@
 import React from 'react';
 import Drawer from '@material-ui/core/Drawer';
 import Button from '@material-ui/core/Button';
-import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import { createUser as createUserAction } from "../../reducers/admin/user/service";
 import { bindActionCreators, Dispatch } from 'redux';
@@ -22,6 +21,7 @@ import { fetchAdminParty } from "../../reducers/admin/service";
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import { useStyles, useStyle } from "./styles";
+import { selectAdminUserState } from '../../reducers/admin/user/selector';
 
 
 const Alert = (props) => {
@@ -38,12 +38,14 @@ interface Props {
     fetchUserRole?: any;
     fetchAdminInstances?: any;
     fetchAdminParty?: any;
-    closeViewModel: any
+    closeViewModel: any;
+    adminUserState?: any;
 }
 const mapStateToProps = (state: any): any => {
     return {
         adminState: selectAdminState(state),
         authState: selectAuthState(state),
+        adminUserState: selectAdminUserState(state)
     };
 };
 
@@ -57,7 +59,17 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 
 const CreateUser = (props: Props) => {
-    const { open, handleClose, createUserAction, closeViewModel, authState, fetchAdminInstances, fetchUserRole, fetchAdminParty, adminState } = props;
+    const { open,
+        handleClose,
+        createUserAction,
+        closeViewModel,
+        authState,
+        fetchAdminInstances,
+        fetchUserRole,
+        fetchAdminParty,
+        adminState,
+        adminUserState
+    } = props;
     const classes = useStyles();
     const classesx = useStyle();
     const [status, setStatus] = React.useState('');
@@ -68,7 +80,7 @@ const CreateUser = (props: Props) => {
     const [warning, setWarning] = React.useState("");
 
     const user = authState.get("user");
-    const userRole = adminState.get("userRole");
+    const userRole = adminUserState.get("userRole");
     const userRoleData = userRole ? userRole.get("userRole") : [];
     const adminInstances = adminState.get('instances');
     const instanceData = adminInstances.get("instances");

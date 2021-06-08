@@ -15,10 +15,6 @@ import {
 } from "./Variables";
 
 
-
-
-
-
 const TabPanel = (props: TabPanelProps) => {
     const { children, value, index, ...other } = props;
 

@@ -1,5 +1,4 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -12,58 +11,8 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectAdminState } from "../../reducers/admin/selector";
-
-interface Column {
-    id: 'instance' | 'location' | 'action';
-    label: string;
-    minWidth?: number;
-    align?: 'right';
-}
-
-const columns: Column[] = [
-    { id: 'instance', label: 'Instance', minWidth: 170 },
-    { id: 'location', label: 'Location', minWidth: 100 },
-    {
-        id: 'action',
-        label: 'Action',
-        minWidth: 170,
-        align: 'right',
-    }
-];
-
-interface Data {
-    id: string;
-    instance: string;
-    location: string;
-    action: any
-}
-
-const useStyles = makeStyles({
-    root: {
-        width: '100%',
-        background: "#fff"
-    },
-    container: {
-        maxHeight: "80vh",
-    },
-    actionStyle: {
-        textDecoration: "none",
-        color: "#000",
-        marginRight: "10px"
-    },
-    spanDange: {
-        color: "#8C001A"
-    },
-    spanNone: {
-        color: "#808080"
-    }
-});
-
-interface Props {
-   fetchAdminParty?: any;
-   authState?: any;
-   adminState?: any;
-}
+import { PropsTable, columns, Data } from "./variables";
+import { useStyles } from "./style";
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchAdminParty: bindActionCreators(fetchAdminParty, dispatch)
@@ -76,7 +25,7 @@ const mapStateToProps = (state: any): any => {
     };
 };
 
-const PartyTable = (props: Props) => {
+const PartyTable = (props: PropsTable) => {
     const classes = useStyles();
     const { fetchAdminParty, adminState, authState } = props;
 

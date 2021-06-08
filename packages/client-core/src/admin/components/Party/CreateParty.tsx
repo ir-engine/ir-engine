@@ -19,16 +19,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-
-interface Props {
-    open: boolean;
-    handleClose: any;
-    fetchAdminLocations?: any;
-    adminState?: any;
-    authState?: any;
-    fetchAdminInstances?: any;
-    createAdminParty?: any
-}
+import { Props } from "./variables";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({

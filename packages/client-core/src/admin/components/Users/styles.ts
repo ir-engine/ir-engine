@@ -60,6 +60,9 @@ export const useStyle = makeStyles({
     paper: {
         width: "40%"
     },
+    paperDialog: {
+      background: "#fff !important"
+    },
     root: {
         width: '100%',
     },

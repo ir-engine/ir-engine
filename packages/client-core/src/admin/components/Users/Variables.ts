@@ -54,7 +54,7 @@ export interface Data {
 export interface Props {
     removeUserAdmin?: any;
     authState?: any;
-    adminState?: any;
+    adminUserState?: any;
     fetchUsersAsAdmin?: any
 }
 
