@@ -37,6 +37,7 @@ import { CameraSystem } from "../../camera/systems/CameraSystem";
 import { CopyTransformComponent } from "../../transform/components/CopyTransformComponent";
 import { setReflectionProbe } from '../behaviors/setReflectionProbe';
 import { PersistTagComponent } from '../components/PersistTagComponent';
+import { createPortal } from '../behaviors/createPortal';
 
 
 export class WorldScene {
@@ -271,6 +272,10 @@ export class WorldScene {
 
       case 'persist':
         addComponent(entity, PersistTagComponent);
+        break;
+      
+      case 'portal': 
+        createPortal(entity, component.data)
         break;
 
       default: return console.warn("Couldn't load Component", name);

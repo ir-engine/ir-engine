@@ -17,7 +17,7 @@ export const createMeshCollider: Behavior = ( entity: Entity, args: any ) => {
       addColliderWithoutEntity(
         {
           bodytype: BodyType.STATIC,
-          type: args.type
+          ...args
         },
         args.position,
         args.quaternion,
