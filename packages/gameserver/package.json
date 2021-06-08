@@ -119,7 +119,7 @@
     "cross-env": "7.0.3",
     "eslint": "7.25.0",
     "no-master-commits": "1.1.1",
-    "semantic-release": "17.4.2",
+    "semantic-release": "17.4.3",
     "semantic-release-monorepo": "7.0.5",
     "typedoc": "0.20.36",
     "typescript": "4.2.4"
