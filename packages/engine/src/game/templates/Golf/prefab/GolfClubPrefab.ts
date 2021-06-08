@@ -26,6 +26,8 @@ import { GameObjectInteractionBehavior } from '../../../interfaces/GameObjectPre
 import { NetworkObjectOwner } from '../../../../networking/components/NetworkObjectOwner';
 import { Action, State } from '../../../types/GameComponents';
 import { addActionComponent } from '../../../functions/functionsActions';
+import { GamePlayer } from '../../../components/GamePlayer';
+import { YourTurn } from '../components/YourTurnTagComponent';
 
 const vector0 = new Vector3();
 const vector1 = new Vector3();
@@ -119,6 +121,16 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
 
   const hit = golfClubComponent.raycast.hits[0];
   const headDistance = (hit ? hit.distance : clubLength);
+  const isPlayersTurn = getComponent(ownerEntity, YourTurn);
+  if(hit && isPlayersTurn) {
+    if(!golfClubComponent.canHitBall) {
+      enableClub(entityClub, true);
+    }
+  } else {
+    if(golfClubComponent.canHitBall) {
+      enableClub(entityClub, false);
+    }
+  }
 
   // update position of club
   golfClubComponent.headGroup.position.setZ(-headDistance)

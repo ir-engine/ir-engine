@@ -174,10 +174,10 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       components: [State.SpawnedObject, State.Active]
     },
     'GolfHole': {
-      behaviors: [addHole, disableInteractive, setHideModel]
+      behaviors: [addHole] //disableInteractive, setHideModel
     },
     'GolfTee': {
-      behaviors: [disableInteractive, setHideModel]
+      behaviors: [] //disableInteractive, setHideModel
     },
     'StartGamePanel GoalPanel 1stTurnPanel 2stTurnPanel': {
       components: [State.PanelDown],

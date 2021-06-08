@@ -152,7 +152,8 @@
         },
         "boxCollider": {
             "description": "An invisible box that objects will bounce off of or rest on top of.\nWithout colliders, objects will fall through floors and go through walls.",
-            "lbl-walkable": "Walkable"
+            "lbl-walkable": "Walkable",
+            "lbl-isTrigger": "Trigger"
         },
         "directionalLight": {
             "description": "A light which illuminates the entire scene, but emits along a single direction.",

@@ -5,11 +5,31 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
   static nodeName = "Box Collider";
   static _geometry = new BoxBufferGeometry();
   static _material = new Material();
+
   static async deserialize(editor, json) {
+    
     const node = await super.deserialize(editor, json);
-    node.walkable = !!json.components.find(c => c.name === "walkable");
+
+    const gameObject = json.components.find(
+      c => c.name === "game-object"
+    );
+
+    if(gameObject){
+      node.target = gameObject.props.target;
+      node.role = gameObject.props.role;
+    }
+
+    const boxCollider = json.components.find(
+      c => c.name === "box-collider"
+    );
+
+    if(boxCollider) {
+      node.isTrigger = boxCollider.props.isTrigger;
+    }
+
     return node;
   }
+  
   constructor(editor) {
     super(editor);
     const boxMesh = new Mesh(
@@ -20,7 +40,7 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
     box.layers.set(1);
     this.helper = box;
     this.add(box);
-    this.walkable = false;
+    this.isTrigger = false;
   }
   copy(source, recursive = true) {
     if (recursive) {
@@ -41,13 +61,14 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
         this.children.splice(helperIndex, 1, box);
       }
     }
-    this.walkable = source.walkable;
+    this.isTrigger = source.isTrigger;
     return this;
   }
   serialize() {
     const components = {
       "box-collider": {
-        type: 'box',
+        type: this.target === undefined ? 'box' : 'game-object',
+        isTrigger: this.isTrigger,
         mass: 0,
         position: this.position,
         quaternion: {
@@ -63,8 +84,13 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
         }
       }
     } as any;
-    if (this.walkable) {
-      components.walkable = {};
+
+    if(this.target != undefined) {
+      components['game-object'] = {
+        gameName: this.editor.nodes.find(node => node.uuid === this.target).name,
+        role: this.role,
+        target: this.target
+      }
     }
     return super.serialize(components);
   }
@@ -73,6 +99,8 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
     this.remove(this.helper);
     this.addGLTFComponent("box-collider", {
       // TODO: Remove exporting these properties. They are already included in the transform props.
+      type: this.target === undefined ? 'box' : 'game-object',
+      isTrigger: this.isTrigger,
       position: this.position,
       rotation: {
         x: this.rotation.x,
@@ -81,5 +109,12 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
       },
       scale: this.scale
     });
+    if(this.target != undefined) {
+      this.addGLTFComponent("game-object", {
+        gameName: this.editor.nodes.find(node => node.uuid === this.target).name,
+        role: this.role,
+        target: this.target
+      });
+    }
   }
 }

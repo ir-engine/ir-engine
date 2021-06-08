@@ -4,9 +4,10 @@ import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arra
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { Vector3, Quaternion, CylinderBufferGeometry } from 'three';
+import { Vector3, Quaternion, CylinderBufferGeometry, Mesh } from 'three';
 import { ConvexGeometry } from '../../assets/threejs-various/ConvexGeometry';
 import { TransformComponent } from '../../transform/components/TransformComponent';
+import { ColliderTypes } from '../types/PhysicsTypes';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -35,8 +36,25 @@ const quat2 = new Quaternion();
 const xVec = new Vector3(1, 0, 0);
 const halfPI = Math.PI / 2;
 
-export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = new Quaternion(), scale = new Vector3(),
- model = { mesh: null, vertices: null, indices: null, collisionLayer: null, collisionMask: null }): Body {
+type ColliderData = {
+  type: ColliderTypes;
+  bodytype?: BodyType;
+  isTrigger?: boolean;
+  restitution?: number;
+  action?: 'portal';
+  link?: 'link'
+}
+
+type ModelData = {
+  mesh?: Mesh;
+  vertices?: number[];
+  indices?: number[];
+  collisionLayer?: number | string;
+  collisionMask?: number | string;
+}
+
+export function addColliderWithoutEntity(userData: ColliderData, pos = new Vector3(), rot = new Quaternion(), scale = new Vector3(),
+ model: ModelData = { }): Body {
   //console.log(userData, pos, rot, scale, model)
   if(model.mesh && !model.vertices) {
     const mergedGeom = getGeometry(model.mesh);
@@ -95,10 +113,10 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
   const shape = createShapeFromConfig(shapeArgs);
   shape.config.material = { restitution: userData.restitution ?? 0 };
  
- shape.config.collisionLayer = model.collisionLayer ?? CollisionGroups.Default;
+ shape.config.collisionLayer = Number(model.collisionLayer ?? CollisionGroups.Default);
  switch(model.collisionMask) {
    case undefined: case -1: case '-1': case '': shape.config.collisionMask = DefaultCollisionMask; break;
-   default: if(/all/i.test(model.collisionMask))
+   default: if(/all/i.test(model.collisionMask as string))
        shape.config.collisionMask = DefaultCollisionMask;
      else
        shape.config.collisionMask = Number(model.collisionMask);
@@ -114,6 +132,10 @@ export function addColliderWithoutEntity(userData, pos = new Vector3(), rot = ne
     // TODO: This was commented out in dev, do we want this?
     shape.userData = { action: 'portal', link: userData.link };
 
+  }
+
+  if(userData.isTrigger) {
+    shape.config.isTrigger = Boolean(userData.isTrigger);
   }
 
   const body = new Body({
