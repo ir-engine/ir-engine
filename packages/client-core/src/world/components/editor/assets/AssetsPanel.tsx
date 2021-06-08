@@ -2,9 +2,10 @@ import React, { useContext, useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import { Column, Row } from "../layout/Flex";
-import { List, ListItem } from "../layout/List";
 import { EditorContext } from "../contexts/EditorContext";
 import AssetDropZone from "./AssetDropZone";
+// @ts-ignore
+import styles from "./styles.module.scss";
 
 /**
  * AssetsPanelContainer used as container element for asset penal.
@@ -185,7 +186,8 @@ export default function AssetsPanel() {
 
   //creating view for asset penal
   return (
-    <AssetsPanelContainer id="assets-panel">
+    <AssetsPanelContainer id="assets-panel"
+        className={styles.assetsPanel}>
       { /* @ts-ignore */ }
       {/* <AssetsPanelColumn flex>
         <AssetsPanelToolbar title="Assets" />

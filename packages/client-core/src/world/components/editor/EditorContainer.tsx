@@ -1,7 +1,7 @@
 import { cmdOrCtrlString, objectToMap } from "@xrengine/engine/src/editor/functions/utils";
 import {useLocation, withRouter} from "react-router-dom";
 import PropTypes from "prop-types";
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import Modal from "react-modal";
@@ -22,11 +22,11 @@ import DragLayer from "./dnd/DragLayer";
 import Editor from "./Editor";
 import HierarchyPanelContainer from "./hierarchy/HierarchyPanelContainer";
 // import BrowserPrompt from "./router/BrowserPrompt";
-import Resizeable from "./layout/Resizeable";
 import { createEditor } from "./Nodes";
 import PropertiesPanelContainer from "./properties/PropertiesPanelContainer";
 import ToolBar from "./toolbar/ToolBar";
 import ViewportPanelContainer from "./viewport/ViewportPanelContainer";
+import AssetsPanel from "./assets/AssetsPanel";
 import { selectAdminState } from "../../../admin/reducers/admin/selector";
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
@@ -36,6 +36,11 @@ import {
   fetchLocationTypes
 } from "../../../admin/reducers/admin/service";
 import { withTranslation } from 'react-i18next';
+import { DockLayout, DockMode } from 'rc-dock';
+import "rc-dock/dist/rc-dock.css";
+import { SlidersH } from "@styled-icons/fa-solid/SlidersH";
+import { PanelDragContainer, PanelIcon, PanelTitle } from "./layout/Panel";
+import { ProjectDiagram } from "@styled-icons/fa-solid";
 
 /**
  * StyledEditorContainer component is used as root element of new project page.
@@ -64,6 +69,47 @@ const WorkspaceContainer = (styled as any).div`
   flex: 1;
   overflow: hidden;
   margin: 6px;
+`;
+
+/**
+ *Styled component used as dock container.
+ * 
+ * @author Hanzla Mateen
+ * @type {type}
+ */
+const DockContainer = (styled as any).div`
+  .dock-panel {
+    background: transparent;
+    pointer-events: auto;
+    opacity: 0.8;
+    border: none;
+  }
+  .dock-panel[data-dockid="+3"] {
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .dock-divider {
+    pointer-events: auto;
+  }
+  .dock {
+    border-radius: 4px;
+    background: #282C31;
+  }
+  .dock-top .dock-bar {
+    font-size: 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.2);
+    background: #282C31;
+  }
+  .dock-tab {
+    background: #282C31; 
+    border-bottom: none;
+  }
+  .dock-tab:hover, .dock-tab-active, .dock-tab-active:hover {
+    color: #ffffff; 
+  }
+  .dock-ink-bar {
+    background-color: #ffffff; 
+  }
 `;
 
 type EditorContainerProps = {
@@ -194,8 +240,6 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   componentWillUnmount() {
-    window.removeEventListener("resize", this.onResize);
-
     const editor = this.state.editor;
     editor.removeListener("sceneModified", this.onSceneModified);
     editor.removeListener("saveProject", this.onSaveProject);
@@ -423,16 +467,10 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       webglRenderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
     }
 
-    window.addEventListener("resize", this.onResize);
-    this.onResize();
     editor.addListener("projectLoaded", this.onProjectLoaded);
     editor.addListener("error", this.onEditorError);
     editor.addListener("sceneModified", this.onSceneModified);
     editor.addListener("saveProject", this.onSaveProject);
-  };
-
-  onResize = () => {
-    this.state.editor.onResize();
   };
 
   /**
@@ -832,7 +870,58 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         }
       });
     }
-    
+
+    let defaultLayout = {
+      dockbox: {
+        mode: 'horizontal' as DockMode,
+        children: [
+          {
+            mode: 'vertical' as DockMode,
+            size: 7,
+            children: [
+              {
+                tabs: [{id: 'viewPanel', title: 'Viewport', content: <div></div>}],
+                size: 8,
+              },
+              {
+                tabs: [{id: 'assetsPanel', title: 'Elements', content: <AssetsPanel />}],
+                size: 2,
+              }
+            ]
+          },
+          {
+            mode: 'vertical' as DockMode,
+            size: 3,
+            children: [
+              {
+                tabs: [{
+                  id: 'hierarchyPanel', 
+                  title: (
+                    <PanelDragContainer>
+                      <PanelIcon as={ProjectDiagram} size={12} />
+                      <PanelTitle>Hierarchy</PanelTitle>
+                    </PanelDragContainer>
+                  ), 
+                  content: <HierarchyPanelContainer />}],
+              },
+              {
+                tabs: [{
+                  id: 'propertiesPanel', 
+                  title: (
+                    <PanelDragContainer>
+                      <PanelIcon as={SlidersH} size={12} />
+                      <PanelTitle>Properties</PanelTitle>
+                    </PanelDragContainer>
+                  ), 
+                  content: <PropertiesPanelContainer />
+                }],
+              }
+            ]
+          },
+        ]
+      }
+    };
+
     return (
       <StyledEditorContainer id="editor-container">
         <SettingsContextProvider value={settingsContext}>
@@ -849,13 +938,11 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                     queryParams={assigneeScene}
                   />}
                   <WorkspaceContainer>
-                    <Resizeable axis="x" initialSizes={[0.7, 0.3]} onChange={this.onResize}>
-                      <ViewportPanelContainer />
-                      <Resizeable axis="y" initialSizes={[0.5, 0.5]}>
-                        <HierarchyPanelContainer />
-                        <PropertiesPanelContainer />
-                      </Resizeable>
-                    </Resizeable>
+                    <ViewportPanelContainer />
+                    <DockContainer>
+                      <DockLayout defaultLayout={defaultLayout}
+                        style={{ pointerEvents: 'none', position: 'absolute', left: 6, top: 74, right: 6, bottom: 6 }} />
+                    </DockContainer>
                   </WorkspaceContainer>
                   <Modal
                     ariaHideApp={false}

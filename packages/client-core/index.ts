@@ -282,7 +282,6 @@ export * from './src/world/components/editor/layout/Panel';
 export * from './src/world/components/editor/layout/Popover';
 export * from './src/world/components/editor/layout/Portal';
 export * from './src/world/components/editor/layout/Positioner';
-export * from './src/world/components/editor/layout/Resizeable';
 export * from './src/world/components/editor/layout/Tooltip';
 export * from './src/world/components/editor/Loading';
 export * from './src/world/components/editor/Nodes';
@@ -582,7 +581,6 @@ export { default as srcWorldComponentsEditorLayoutPanel } from './src/world/comp
 export { default as srcWorldComponentsEditorLayoutPopover } from './src/world/components/editor/layout/Popover';
 export { default as srcWorldComponentsEditorLayoutPortal } from './src/world/components/editor/layout/Portal';
 export { default as srcWorldComponentsEditorLayoutPositioner } from './src/world/components/editor/layout/Positioner';
-export { default as srcWorldComponentsEditorLayoutResizeable } from './src/world/components/editor/layout/Resizeable';
 export { default as srcWorldComponentsEditorLayoutTooltip } from './src/world/components/editor/layout/Tooltip';
 export { default as srcWorldComponentsEditorLayoutWell } from './src/world/components/editor/layout/Well';
 export { default as srcWorldComponentsEditorLoading } from './src/world/components/editor/Loading';
