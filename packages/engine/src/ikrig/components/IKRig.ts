@@ -23,13 +23,6 @@ class IKRig extends Component<IKRig>{
 		return this;
 	}
 
-	updatePoint(name, boneName) {
-		const armature = getMutableComponent(this.entity, Obj).ref;
-		this.points[name].position = armature.skeleton.bones[this.points[name].index]
-
-		return this;
-	}
-
 	addChain(name, nameArray, end_name = null) { //  axis="z",		
 		let i, b;
 		const armature = getMutableComponent(this.entity, Obj).ref;

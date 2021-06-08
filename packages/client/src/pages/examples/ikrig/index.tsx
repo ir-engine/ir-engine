@@ -190,7 +190,7 @@ const Page = () => {
 				targetRig.tpose.setBone(index, bone.quaternion, bone.position, bone.scale);
 			}
 
-			const helper = new SkeletonHelper(targetRig.tpose.bones[0]);
+			const helper = new SkeletonHelper(targetRig.pose.bones[0]);
 			Engine.scene.add(helper);
 
 			// targetRig.tpose.align_leg( ["LeftUpLeg", "LeftLeg"] )
