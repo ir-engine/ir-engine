@@ -55,7 +55,7 @@ export class SceneObjectSystem extends System {
       const object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent, true);
 
       // Remove from scene
-      if(Engine.scene.children.includes(object3DComponent.value)) {
+      if(object3DComponent && Engine.scene.children.includes(object3DComponent.value)) {
         Engine.scene.remove(object3DComponent.value);
       } else {
         console.warn('[Object3DComponent]: Scene object has been removed manually.')

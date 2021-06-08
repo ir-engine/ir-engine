@@ -198,6 +198,7 @@ export class ClientNetworkStateSystem extends System {
             console.log('*createObjects* same object' + objectToCreate.networkId);
             continue;
           } else if (searchSameInAnotherId(objectToCreate)) {
+            Network.instance.localAvatarNetworkId = objectToCreate.networkId;
             console.log('*createObjects* same object but in anotherId ' + objectToCreate.networkId);
             continue;
           } else if (isIdFull) {
@@ -206,9 +207,11 @@ export class ClientNetworkStateSystem extends System {
           }
 
           if (Network.instance.networkObjects[objectToCreate.networkId] === undefined && isPlayerPref) {
-            if (objectToCreate.ownerId === Network.instance.userId && Network.instance.localAvatarNetworkId === undefined) {
-              createNetworkPlayer(objectToCreate);
-            } else if (objectToCreate.ownerId != Network.instance.userId) {
+            if (objectToCreate.ownerId === Network.instance.userId) {
+              if (Network.instance.localAvatarNetworkId === undefined) {
+                createNetworkPlayer(objectToCreate);
+              }
+            } else {
               createNetworkPlayer(objectToCreate);
             }
           } else {
