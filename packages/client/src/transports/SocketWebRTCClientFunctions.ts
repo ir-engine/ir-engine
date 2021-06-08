@@ -147,7 +147,7 @@ export async function createTransport(direction: string, channelType?: string, c
                     console.log('Re-creating transport', direction, channelType, channelId, ' after unexpected closing/fail/disconnect');
                     await createTransport(direction, channelType, channelId);
                     console.log('Re-created transport', direction, channelType, channelId);
-                }, 5000)
+                }, 5000);
                 // await request(MessageTypes.WebRTCTransportClose.toString(), {transportId: transport.id});
             }
             if (networkTransport.leaving !== true && state === 'connected' && transport.direction === 'recv') {
@@ -298,7 +298,7 @@ export async function endVideoChat(options: { leftParty?: boolean, endConsumers?
 
             if (options?.endConsumers === true) {
                 MediaStreamSystem.instance?.consumers.map(async (c) => {
-                    await request(MessageTypes.WebRTCCloseConsumer.toString(), {
+                    if (request && typeof request === 'function') await request(MessageTypes.WebRTCCloseConsumer.toString(), {
                         consumerId: c.id
                     });
                     await c.close();

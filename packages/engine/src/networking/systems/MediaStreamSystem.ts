@@ -146,12 +146,15 @@ export class MediaStreamSystem extends System {
   /** Execute the media stream system. */
   public execute = async (): Promise<void> => {
     if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && this.executeInProgress === false) {
+      console.log('Executing mediasoup operation');
       this.executeInProgress = true;
       const buffer = Network.instance.mediasoupOperationQueue.pop() as any;
+      console.log('Trying to', buffer.action, buffer.object._internal);
       if (buffer.object && buffer.object.closed !== true) {
         try {
           if (buffer.action === 'resume') await buffer.object.resume();
           else if (buffer.action === 'pause') await buffer.object.pause();
+          console.log('Finished with', buffer.action);
         } catch(err) {
           console.log('Pause or resume error');
           console.log(err);
@@ -307,7 +310,7 @@ export class MediaStreamSystem extends System {
   }
 
   /** Get device ID of device which is currently streaming media. */
-  async getCurrentDeviceId (): Promise<string> | null {
+  async getCurrentDeviceId (): Promise<string | null> {
     if (!this.camVideoProducer) return null;
 
     const { deviceId } = this.camVideoProducer.track.getSettings();
