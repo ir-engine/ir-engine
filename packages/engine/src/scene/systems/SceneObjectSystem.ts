@@ -41,7 +41,7 @@ export class SceneObjectSystem extends System {
         const material = obj.material as Material;
         if (typeof material !== 'undefined') {
 
-          material.envMapIntensity=(this.bpcemOptions as any).intensity;
+          (material as any).envMapIntensity=(this.bpcemOptions as any).intensity;
           // BPCEM
           material.onBeforeCompile = beforeMaterialCompile((this.bpcemOptions as any).probeScale, (this.bpcemOptions as any).probePositionOffset);
 
@@ -57,7 +57,7 @@ export class SceneObjectSystem extends System {
       const object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent, true);
 
       // Remove from scene
-      if(Engine.scene.children.includes(object3DComponent.value)) {
+      if(object3DComponent && Engine.scene.children.includes(object3DComponent.value)) {
         Engine.scene.remove(object3DComponent.value);
       } else {
         console.warn('[Object3DComponent]: Scene object has been removed manually.')

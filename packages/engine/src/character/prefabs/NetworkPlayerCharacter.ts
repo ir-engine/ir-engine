@@ -119,8 +119,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 
 const initializeCharacter: Behavior = (entity): void => {
 	console.warn("Initializing character");
-
-
+	entity.name = 'Player';
 
 	if (!hasComponent(entity, CharacterComponent as any)) {
 		console.warn("Character does not have a character component, adding");

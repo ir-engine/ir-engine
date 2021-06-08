@@ -70,6 +70,30 @@ export const NetworkDebug = ({ reinit  }) => {
     resetEngine();
   };
 
+  const renderComps = () => {
+    const entity = Engine.entities;
+    const comps = {};
+    entity.forEach(e => {
+      e.componentTypes.forEach(ct => {
+        const name = ct.prototype.constructor.name;
+
+        if (!comps[name]) comps[name] = {};
+
+        comps[name][e.name || e.id] = e;
+      });
+    });
+
+    return comps;
+  };
+
+  const renderEntities = () => {
+    const map = {};
+    Engine.entities.forEach(e => {
+      map[e.name || e.id] = e;
+    });
+    return map;
+  };
+
   if (isShowing) return (
     <div style={{ position: "absolute", overflowY: "auto", top: 0, zIndex: 100000, height: "auto", maxHeight: "95%", width: "auto", maxWidth: "50%" }}>
       <button type="submit" value="Refresh" onClick={refresh}>Refresh</button>
@@ -92,17 +116,13 @@ export const NetworkDebug = ({ reinit  }) => {
         </div>
         <div>
           <h1>Engine Entities</h1>
-          <JSONTree data={{ ...Engine.entities }} />
+          <JSONTree data={renderEntities()} />
+        </div>
+        <div>
+          <h1>Engine Components</h1>
+          <JSONTree data={renderComps()} />
         </div>
       </div>}
-      {Network.instance === null &&<div>
-        <div>
-          <h1>Engine Entities</h1>
-          <JSONTree data={{ ...Engine.entities }} />
-        </div>
-      </div>
-      
-      }
     </div>
   );
   else return null;

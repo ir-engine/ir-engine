@@ -21,5 +21,5 @@ export const createLink: Behavior = (entity, args: { href: string }) => {
       },
       data: { action: 'link' }
     };
-    addComponent(entity, Interactable, interactiveData);
+    addComponent(entity, Interactable, interactiveData as any);
 };

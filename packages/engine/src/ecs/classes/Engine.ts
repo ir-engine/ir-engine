@@ -272,7 +272,7 @@ export class Engine {
    *
    * @author Fernando Serrano, Robert Long
    */
-  static activeSystems: ActiveSystems = new ActiveSystems();
+  static activeSystems: ActiveSystems;
   static vehicles: any;
   static lastTime: number;
 

@@ -36,6 +36,7 @@ import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkI
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem';
 import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem';
 import { SceneObjectSystem } from '@xrengine/engine/src/scene/systems/SceneObjectSystem';
+import { ActiveSystems } from './ecs/classes/System';
 
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -219,6 +220,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     Engine.offlineMode = options.networking.useOfflineMode;
     Engine.publicPath = options.publicPath;
     Engine.lastTime = now() / 1000;
+    Engine.activeSystems = new ActiveSystems();
 
 
     // Browser state set

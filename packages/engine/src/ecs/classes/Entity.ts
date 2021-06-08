@@ -18,6 +18,13 @@ export class Entity {
   id: number
 
   /**
+   * Name of the entity which will be displayed in debugger panel.
+   * 
+   * @author Fernando Serrano, Robert Long
+   */
+   name: string
+
+  /**
    * List of component types currently attached to the entity.
    * 
    * @author Fernando Serrano, Robert Long
@@ -113,6 +120,7 @@ export class Entity {
     this.id = Engine.nextEntityId++;
     this.componentTypes.length = 0;
     this.queries.length = 0;
+    this.name = '';
 
     for (const componentId in this.components) {
       delete this.components[componentId];
