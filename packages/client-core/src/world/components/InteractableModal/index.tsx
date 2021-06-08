@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, Suspense } from "react";
 import { CommonInteractiveData } from "@xrengine/engine/src/interaction/interfaces/CommonInteractiveData";
 // @ts-ignore
 import styles from './style.module.scss';
@@ -29,7 +29,7 @@ export const InteractableModal: FunctionComponent<InteractableModalProps> = ({ o
 
   let modelView = null;
   if (data.payloadModelUrl) {
-    modelView = (<ModelView modelUrl={data.payloadModelUrl} />);
+    modelView = (<Suspense fallback={<></>}><ModelView modelUrl={data.payloadModelUrl} /></Suspense>);
   }
   return (<Dialog open={true} aria-labelledby="xr-dialog"
     classes={{

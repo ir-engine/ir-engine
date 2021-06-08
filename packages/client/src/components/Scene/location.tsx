@@ -43,7 +43,7 @@ import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import { Config } from '@xrengine/client-core/src/helper';
 import querystring from 'querystring';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
@@ -507,7 +507,7 @@ export const EnginePage = (props: Props) => {
 
   //mobile gamepad
   const mobileGamepadProps = { hovered: objectHovered, layout: 'default' };
-  const mobileGamepad = isMobileOrTablet() ? <MobileGamepad {...mobileGamepadProps} /> : null;
+  const mobileGamepad = isMobileOrTablet() ? <Suspense fallback={<></>}><MobileGamepad {...mobileGamepadProps} /></Suspense> : null;
 
   if(userBanned) return (<div className="banned">You have been banned from this location</div>);
   return isInXR ? <></> : (
