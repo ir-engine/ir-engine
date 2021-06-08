@@ -17,7 +17,7 @@ import {
   partyRetrievedAction,
   userAdminRemoved, 
   userCreated,
-  userPatched,
+  adminUserPatched,
   userRoleUpdated,
   searchedUser,
   fetchedSIngleUser
@@ -185,7 +185,7 @@ export function patchUser(id: string, user: any) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const result = await client.service('user').patch(id, user);
-      dispatch(userPatched(result));
+      dispatch(adminUserPatched(result));
     } catch (error) {
       dispatchAlertError(dispatch, error.message);
     }

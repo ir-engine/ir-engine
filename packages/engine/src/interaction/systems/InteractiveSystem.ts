@@ -81,11 +81,9 @@ export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityV
     }
 
     focusedArrays = focusedArrays.sort((a: any, b: any) => a[1] - b[1]);
-    console.warn(focusedArrays.length);
     if (focusedArrays.length < 1) return;
 
     const interactable = getComponent(focusedArrays[0][0], Interactable);
-    const interactionFunction = typeof interactable.onInteractionCheck === 'function';
     const interactionCheck = interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2]);
 
     if (interactable.data.interactionType === "gameobject") {
@@ -93,7 +91,7 @@ export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityV
       return;
     }
     // Not Game Object
-    if (interactionFunction && interactionCheck) {
+    if (interactionCheck) {
     //  console.warn('start with networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
       interactable.onInteraction(entity, { ...args, currentFocusedPart: focusedArrays[0][2] }, delta, focusedArrays[0][0]);
     }
@@ -134,10 +132,9 @@ const interactFocused: Behavior = (entity: Entity, args, delta: number): void =>
 
 const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractBehaviorArguments, delta: number): void => {
 
+  const interacts = getMutableComponent(entity, Interactor);
   if (!hasComponent(entity, FollowCameraComponent)) {
-    const interacts = getMutableComponent(entity, Interactor);
     interacts.subFocusedArray = [];
-    interacts.BoxHitResult = null;
     interacts.focusedInteractive = null;
     return;
   }
@@ -166,8 +163,8 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
   const viewProjectionMatrix = new Matrix4().multiplyMatrices(projectionMatrix, Engine.camera.matrixWorldInverse);
   const frustum = new Frustum().setFromProjectionMatrix(viewProjectionMatrix);
 
-  type raycastResult = [ Entity, boolean, number?, number? ];
-  const subFocusedArray = raycastList.map((entityIn):raycastResult => {
+  type RaycastResult = [ Entity, boolean, number?, number? ];
+  const subFocusedArray = raycastList.map((entityIn): RaycastResult => {
 
     const boundingBox = getComponent(entityIn, BoundingBox);
     const interactive = getComponent(entityIn, Interactable);
@@ -175,7 +172,7 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
       // TO DO: static group object
 
       if (boundingBox.dynamic) {
-        const arr = boundingBox.boxArray.map((object3D, index): raycastResult => {
+        const arr = boundingBox.boxArray.map((object3D, index): RaycastResult => {
           if (interactive.onInteractionCheck(entity, entityIn, index)) {
             const aabb = new Box3();
             aabb.setFromObject(object3D);
@@ -204,22 +201,23 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
     }
   }).filter(value => value[1]);
 
-  const selectNearest = subFocusedArray.sort((a: any, b: any) => a[2] - b[2]);
+  if(!subFocusedArray.length) {
+    interacts.subFocusedArray = [];
+    interacts.focusedInteractive = null;
+    return
+  }
 
-  const interacts = getMutableComponent(entity, Interactor);
   interacts.subFocusedArray = subFocusedArray.map((v: any) => [ getComponent(v[0], Object3DComponent).value, v[3] ]);
 
-  const newBoxHit = selectNearest.length ? selectNearest[0] : null;
-  let resultIsCloseEnough = false;
-  if(newBoxHit) {
-    const interactableTransform = getComponent(newBoxHit[0] as Entity, TransformComponent);
-    if(interactableTransform.position.distanceTo(transform.position) < interactiveReachDistance){
-      resultIsCloseEnough = true;
-    }
-  }
-  interacts.BoxHitResult = resultIsCloseEnough ? newBoxHit : null;
-  interacts.focusedInteractive = resultIsCloseEnough && newBoxHit ? newBoxHit[0] : null;
+  const [entityInteractable, doesIntersectFrustrum, distanceToPlayer] = subFocusedArray.sort((a: any, b: any) => a[2] - b[2])[0];
 
+  const interactable = getComponent(entityInteractable, Interactable);
+  const distance = typeof interactable.data.interactionDistance !== 'undefined' ? interactable.data.interactionDistance : interactiveReachDistance;
+
+  const resultIsCloseEnough = distanceToPlayer < distance;
+  if(resultIsCloseEnough) { 
+    interacts.focusedInteractive = entityInteractable;
+  }
 };
 
 

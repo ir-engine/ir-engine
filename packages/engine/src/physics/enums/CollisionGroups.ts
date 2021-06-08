@@ -8,7 +8,7 @@ export enum CollisionGroups {
 	Default = 1 << 0,
 	Characters = 1 << 1,
 	Car = 1 << 2,
-	TriggerCollider = 1 << 3,
+	Portal = 1 << 3,
   Ground = 1 << 4,
 }
 

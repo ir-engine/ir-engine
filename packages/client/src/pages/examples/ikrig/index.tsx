@@ -1,7 +1,9 @@
 import { LoadGLTF } from "@xrengine/engine/src/assets/functions/LoadGLTF";
+import { Timer } from "@xrengine/engine/src/common/functions/Timer";
 import { Component } from "@xrengine/engine/src/ecs/classes/Component";
 import { Engine } from "@xrengine/engine/src/ecs/classes/Engine";
 import { System } from "@xrengine/engine/src/ecs/classes/System";
+import { execute } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { addComponent, createEntity, getMutableComponent } from "@xrengine/engine/src/ecs/functions/EntityFunctions";
 import { registerSystem } from "@xrengine/engine/src/ecs/functions/SystemFunctions";
 import { SystemUpdateType } from "@xrengine/engine/src/ecs/functions/SystemUpdateType";
@@ -11,6 +13,7 @@ import IKRig from "@xrengine/engine/src/ikrig/components/IKRig";
 import Obj from "@xrengine/engine/src/ikrig/components/Obj";
 import { initDebug, setupIKRig } from "@xrengine/engine/src/ikrig/functions/IKFunctions";
 import { IKRigSystem } from "@xrengine/engine/src/ikrig/systems/IKRigSystem";
+import { OrbitControls } from "@xrengine/engine/src/input/functions/OrbitControls";
 import React, { useEffect } from "react";
 import { AmbientLight, AnimationClip, AnimationMixer, DirectionalLight, GridHelper, PerspectiveCamera, Scene, SkeletonHelper, WebGLRenderer } from "three";
 import Debug from "../../../components/Debug";
@@ -66,8 +69,16 @@ const Page = () => {
 	useEffect(() => {
 		(async function () {
 			// Register our systems to do stuff
+			registerSystem(AnimationSystem);
 			registerSystem(IKRigSystem);
 			registerSystem(RenderSystem);
+			await Promise.all(Engine.systems.map(system => system.initialize()));
+
+			Engine.engineTimer = Timer({
+				networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
+				fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
+				update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
+			}, Engine.physicsFrameRate, Engine.networkFramerate);
 
 			await initThree(); // Set up the three.js scene with grid, light, etc
 
@@ -76,7 +87,7 @@ const Page = () => {
 			////////////////////////////////////////////////////////////////////////////
 
 			// LOAD SOURCE
-			let model = (await LoadGLTF("ikrig/anim/TPose.glb"));
+			let model = (await LoadGLTF("ikrig/anim/Walking.glb"));
 			console.log("Model is", model);
 			// Set up skinned meshes
 			let skinnedMeshes = [];
@@ -93,18 +104,24 @@ const Page = () => {
 			let skinnedMesh = skinnedMeshes.sort((a, b) => { return a.skeleton.bones.length - b.skeleton.bones.length })[0];
 
 			// Set up entity
-			let entity = createEntity();
-			addComponent(entity, AnimationComponent);
-			addComponent(entity, Obj);
-			addComponent(entity, IKPose);
-			addComponent(entity, IKRig);
+			let sourceEntity = createEntity();
+			addComponent(sourceEntity, AnimationComponent);
+			addComponent(sourceEntity, Obj);
+			addComponent(sourceEntity, IKPose);
+			addComponent(sourceEntity, IKRig);
+
+			const rig = getMutableComponent(sourceEntity, IKRig);
+			const sourcePose = getMutableComponent(sourceEntity, IKPose);
+
+			rig.sourceRig = rig;
+			rig.sourcePose = getMutableComponent(sourceEntity, IKPose);
 
 			// Set up the Object3D
-			let obj = getMutableComponent(entity, Obj);
+			let obj = getMutableComponent(sourceEntity, Obj);
 			obj.setReference(skinnedMesh);
 
 			// Set up animations
-			let ac = getMutableComponent(entity, AnimationComponent);
+			let ac = getMutableComponent(sourceEntity, AnimationComponent);
 			const mixer = new AnimationMixer(obj.ref);
 			const clips = model.animations;
 			ac.mixer = mixer;
@@ -112,9 +129,8 @@ const Page = () => {
 			ac.mixer.clipAction(clips[0]).play();
 
 			// Set up poses
-			let rig = getMutableComponent(entity, IKRig);
-			rig.pose = new Pose(entity);
-			rig.tpose = new Pose(entity); // If Passing a TPose, it must have its world space computed.
+			rig.pose = new Pose(sourceEntity, false);
+			rig.tpose = new Pose(sourceEntity, true); // If Passing a TPose, it must have its world space computed.
 
 			//-----------------------------------------
 			// Apply Node's Starting Transform as an offset for poses.
@@ -122,7 +138,7 @@ const Page = () => {
 			// dealing with specific skeletons, like Mixamo stuff.
 			// Need to do this to render things correctly
 			// TODO: Verify the numbers of this vs the original
-			let objRoot = getMutableComponent(entity, Obj).ref; // Obj is a ThreeJS Component
+			let objRoot = getMutableComponent(sourceEntity, Obj).ref; // Obj is a ThreeJS Component
 			rig.pose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale);
 			rig.tpose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale);
 
@@ -132,72 +148,71 @@ const Page = () => {
 			////////////////////////////////////////////////////////////////////////////
 
 			// LOAD MESH A
-		// let targetModel = (await LoadGLTF("ikrig/models/vegeta.glb"));
-		// 	targetModel.scene.position.set(0, 0, 0);
-		// 	Engine.scene.add(targetModel.scene)
-		// 	// Engine.scene.add(new SkeletonHelper(targetModel.scene));
-		// let	targetSkinnedMeshes = [];
-		// 	targetModel.scene.traverse(node => {
-		// 		if (node.children) {
-		// 			node.children.forEach(n => {
-		// 				if (n.type === "SkinnedMesh") {
-		// 					targetSkinnedMeshes.push(n);
-		// 				}
-		// 			})
-		// 		}
-		// 	})
-		// let	targetSkinnedMesh = targetSkinnedMeshes.sort((a, b) => { return a.skeleton.bones.length - b.skeleton.bones.length })[0];
+		let targetModel = (await LoadGLTF("ikrig/models/vegeta.glb"));
+			targetModel.scene.position.set(0, 0, 0);
+			Engine.scene.add(targetModel.scene)
+			// Engine.scene.add(new SkeletonHelper(targetModel.scene));
+		let	targetSkinnedMeshes = [];
+			targetModel.scene.traverse(node => {
+				if (node.children) {
+					node.children.forEach(n => {
+						if (n.type === "SkinnedMesh") {
+							targetSkinnedMeshes.push(n);
+						}
+					})
+				}
+			})
+		let	targetSkinnedMesh = targetSkinnedMeshes.sort((a, b) => { return a.skeleton.bones.length - b.skeleton.bones.length })[0];
 
-		// 	// Create entity
-		// let	targetEntity = createEntity();
-		// 	addComponent(targetEntity, Obj);
-		// 	addComponent(targetEntity, IKPose);
-		// 	addComponent(targetEntity, IKRig);
+			// Create entity
+		let	targetEntity = createEntity();
+			addComponent(targetEntity, Obj);
+			addComponent(targetEntity, IKRig);
 
-		// 	// Set the skinned mesh reference
-		// let	targetObj = getMutableComponent(targetEntity, Obj);
-		// 	targetObj.setReference(targetSkinnedMesh);
+			let	targetRig = getMutableComponent(targetEntity, IKRig);
 
-		// let	targetRig = getMutableComponent(targetEntity, IKRig);
-		// 	targetRig.pose = new Pose(targetEntity);
-		// 	targetRig.tpose = new Pose(targetEntity); // If Passing a TPose, it must have its world space computed.
-		// 	targetRig.pose.setOffset(targetObj.ref.quaternion, targetObj.ref.position, targetObj.ref.scale);
-		// 	targetRig.tpose.setOffset(targetObj.ref.quaternion, targetObj.ref.position, targetObj.ref.scale);
-		// 	setupIKRig(targetRig);
+			targetRig.sourceRig  = targetRig;
+			targetRig.sourcePose = getMutableComponent(sourceEntity, IKPose);
+
+			// Set the skinned mesh reference
+		let	targetObj = getMutableComponent(targetEntity, Obj);
+			targetObj.setReference(targetSkinnedMesh);
+
+			targetRig.pose = new Pose(targetEntity, false);
+			targetRig.tpose = new Pose(targetEntity, true); // If Passing a TPose, it must have its world space computed.
+			targetRig.pose.setOffset(targetObj.ref.quaternion, targetObj.ref.position, targetObj.ref.scale);
+			targetRig.tpose.setOffset(targetObj.ref.quaternion, targetObj.ref.position, targetObj.ref.scale);
+			setupIKRig(targetRig);
 			
 
-		// 	for (let index = 0; index < targetObj.ref.skeleton.bones.length; index++) {
-		// 		let bone = targetObj.ref.skeleton.bones[index];
-		// 		targetRig.tpose.setBone(index, bone.quaternion, bone.position, bone.scale);
-		// 	}
+			for (let index = 0; index < targetObj.ref.skeleton.bones.length; index++) {
+				let bone = targetObj.ref.skeleton.bones[index];
+				targetRig.tpose.setBone(index, bone.quaternion, bone.position, bone.scale);
+			}
 
-		// 	const helper = new SkeletonHelper(targetRig.tpose.bones[0]);
-		// 	Engine.scene.add(helper);
+			const helper = new SkeletonHelper(targetRig.tpose.bones[0]);
+			Engine.scene.add(helper);
 
-		// 	targetRig.tpose.align_leg( ["LeftUpLeg", "LeftLeg"] )
-		// 	targetRig.tpose.align_leg( ["RightUpLeg", "RightLeg"] )
-		// 	targetRig.tpose.align_arm_left( ["LeftArm", "LeftForeArm"] )
-		// 	targetRig.tpose.align_arm_right( ["RightArm", "RightForeArm"] )
-		// 	targetRig.tpose.align_foot( "LeftFoot" )
-		// 	targetRig.tpose.align_foot( "RightFoot" )
-		// 	// targetRig.tpose.build();
-	
-		// 	// targetRig.tpose.skeleton.update();
-		// 	targetRig.tpose.apply();
+			// targetRig.tpose.align_leg( ["LeftUpLeg", "LeftLeg"] )
+			// targetRig.tpose.align_leg( ["RightUpLeg", "RightLeg"] )
+			// targetRig.tpose.align_arm_left( ["LeftArm", "LeftForeArm"] )
+			// targetRig.tpose.align_arm_right( ["RightArm", "RightForeArm"] )
+			// targetRig.tpose.align_foot( "LeftFoot" )
+			// targetRig.tpose.align_foot( "RightFoot" )
+			// targetRig.tpose.build();
+
+			sourcePose.targetRigs.push(targetRig);
+
+			targetRig.tpose.apply();
 
 
-		// 	// // TODO: Fix me
-		// 	targetRig.points.head.index = targetRig.points.neck.index; // Lil hack cause Head Isn't Skinned Well.
+			// // TODO: Fix me
+			targetRig.points.head.index = targetRig.points.neck.index; // Lil hack cause Head Isn't Skinned Well.
 
 			////////////////////////////////////////////////////////////////////////////
 
+			Engine.engineTimer.start();
 
-			Engine.systems.forEach(system => system.execute(1 / 30));
-
-			// setInterval(() => {
-			// 	// We're only executing fixed update systems, but there are other update types
-			// 	Engine.systems.forEach(system => system.execute(1 / 30));
-			// }, 1 / 30 * 1000);
 		})();
 	}, []);
 	// Some JSX to keep the compiler from complaining
@@ -226,6 +241,12 @@ async function initThree() {
 	Engine.camera = new PerspectiveCamera(45, w / h, 0.01, 1000);
 	Engine.camera.position.set(2, 1, 5);
 	Engine.camera.rotation.set(0, .3, 0);
+
+	const controls = new OrbitControls(Engine.camera, canvas);
+	controls.minDistance = 0.1;
+	controls.maxDistance = 10;
+	controls.target.set(0, 1.25, 0);
+	controls.update();
 
 	Engine.scene.add(Engine.camera);
 

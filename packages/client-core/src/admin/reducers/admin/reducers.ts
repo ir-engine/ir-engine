@@ -5,7 +5,7 @@ import {
   LocationTypesRetrievedResponse,
   partyAdminCreatedResponse,
   userAdminRemovedResponse,
-  UserCreatedAction,
+  AdminUserCreatedAction,
   userRoleRetrievedResponse,
   VideoCreatedAction
 } from './actions';
@@ -292,12 +292,12 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('users', userRemove);
       return state.set("users", updateMap);
     case USER_ADMIN_CREATED:
-      result = (action as UserCreatedAction).user;
+      result = (action as AdminUserCreatedAction).user;
       updateMap = new Map(state.get("users"));
       updateMap.set("updateNeeded", true);
       return state.set("users", updateMap);
     case USER_ADMIN_PATCHED:
-      result = (action as UserCreatedAction).user;
+      result = (action as AdminUserCreatedAction).user;
       updateMap = new Map(state.get("users"));
       updateMap.set("updateNeeded", true);
       return state.set("users", updateMap);

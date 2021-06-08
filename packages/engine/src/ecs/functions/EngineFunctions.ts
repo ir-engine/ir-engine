@@ -10,7 +10,6 @@ import { PersistTagComponent } from "../../scene/components/PersistTagComponent"
 import { Engine } from '../classes/Engine';
 import { System } from '../classes/System';
 import { hasComponent, removeAllComponents, removeAllEntities, removeEntity } from "./EntityFunctions";
-import { executeSystem } from './SystemFunctions';
 import { SystemUpdateType } from "./SystemUpdateType";
 import { Color } from 'three';
 
@@ -67,7 +66,7 @@ export async function reset(): Promise<void> {
     system.dispose();
   });
   Engine.systems.length = 0;
-  Engine.systemsToExecute.length = 0;
+  Engine.activeSystems.clear();
 
   // cleanup queries
   Engine.queries.length = 0;
@@ -117,8 +116,7 @@ export function execute (delta: number, time: number, updateType: SystemUpdateTy
   }
   Engine.lastTime = time;
   // if (Engine.enabled) {
-    Engine.systemsToExecute
-      .forEach(system => executeSystem(system, delta, time, updateType));
+    Engine.activeSystems.execute(delta, time, updateType);
     processDeferredEntityRemoval();
   // }
 }
@@ -130,8 +128,7 @@ function executeSystemBeforeReset() {
   Engine.lastTime = time;
 
   if (Engine.enabled) {
-    Engine.systemsToExecute
-      .forEach(system => executeSystem(system, delta, time, system.updateType));
+    Engine.activeSystems.executeAll(delta, time);
     processDeferredEntityRemoval();
   }
 }
@@ -181,7 +178,7 @@ function processDeferredEntityRemoval () {
  */
 export function pause (): void {
   Engine.enabled = false;
-  Engine.systemsToExecute.forEach(system => system.stop());
+  Engine.systems.forEach(system => system.stop());
 }
 
 /**
@@ -277,7 +274,7 @@ export const processLocationPort = async () => {
 
   sceneObjectsToRemove.forEach(o => Engine.scene.remove(o));
 
-  await delay(2000);
+  await delay(200);
   entitiesToRemove.forEach(entity => {
     removeEntity(entity, false);
   });

@@ -8,7 +8,7 @@ export const worldposReplace = /* glsl */`
 
     #ifdef BOX_PROJECTED_ENV_MAP
 
-        vWorldPosition = worldPosition.xyz;
+    vBPCEMWorldPosition = worldPosition.xyz;
 
     #endif
 
@@ -24,13 +24,13 @@ export const envmapPhysicalParsReplace = /* glsl */`
 
         uniform vec3 cubeMapSize;
         uniform vec3 cubeMapPos;
-        varying vec3 vWorldPosition;
+        varying vec3 vBPCEMWorldPosition;
 
         vec3 parallaxCorrectNormal( vec3 v, vec3 cubeSize, vec3 cubePos ) {
 
             vec3 nDir = normalize( v );
-            vec3 rbmax = ( .5 * cubeSize + cubePos - vWorldPosition ) / nDir;
-            vec3 rbmin = ( -.5 * cubeSize + cubePos - vWorldPosition ) / nDir;
+            vec3 rbmax = ( .5 * cubeSize + cubePos - vBPCEMWorldPosition ) / nDir;
+            vec3 rbmin = ( -.5 * cubeSize + cubePos - vBPCEMWorldPosition ) / nDir;
 
             vec3 rbminmax;
             rbminmax.x = ( nDir.x > 0. ) ? rbmax.x : rbmin.x;
@@ -38,7 +38,7 @@ export const envmapPhysicalParsReplace = /* glsl */`
             rbminmax.z = ( nDir.z > 0. ) ? rbmax.z : rbmin.z;
 
             float correction = min( min( rbminmax.x, rbminmax.y ), rbminmax.z );
-            vec3 boxIntersection = vWorldPosition + nDir * correction;
+            vec3 boxIntersection = vBPCEMWorldPosition + nDir * correction;
 
             return boxIntersection - cubePos;
         }
@@ -163,9 +163,9 @@ export const envmapPhysicalParsReplace = /* glsl */`
 
 export const beforeMaterialCompile=(probeScale,probePositionOffset)=>{
     return function ( shader ) {
-        shader.uniforms.cubeMapSize = { probeScale};
+        shader.uniforms.cubeMapSize = { value:probeScale};
         shader.uniforms.cubeMapPos = { value: probePositionOffset};
-        shader.vertexShader = 'varying vec3 vWorldPosition;\n' + shader.vertexShader;
+        shader.vertexShader = 'varying vec3 vBPCEMWorldPosition;\n' + shader.vertexShader;
         shader.vertexShader = shader.vertexShader.replace(
             '#include <worldpos_vertex>',
             worldposReplace

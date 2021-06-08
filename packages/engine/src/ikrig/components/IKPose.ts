@@ -1,9 +1,11 @@
 import { Component } from "@xrengine/engine/src/ecs/classes/Component";
 import IKTarget from "@xrengine/engine/src/ikrig/components/IKTarget";
-import { Vector3, Quaternion } from "three";
+import { Quaternion, Vector3 } from "three";
+import IKRig from "./IKRig";
 export class IKPose extends Component<IKPose> {
 	target = new IKTarget(); // IK Solvers
-
+	targetRigs: IKRig[] = [];
+	
 	spineParentQuaternion = new Quaternion();
 	spineParentPosition = new Vector3(0,0,0);
 	spineParentScale = new Vector3(1,1,1);

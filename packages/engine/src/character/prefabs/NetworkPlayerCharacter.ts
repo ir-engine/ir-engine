@@ -108,8 +108,6 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		// const modelHeight = ((modelX * actor.modelScaleHeight.x) + (modelY * actor.modelScaleHeight.y) + (modelZ * actor.modelScaleHeight.z)) / (modelSize * actor.modelScaleFactor.size);
 		// const height = modelHeight * actor.modelScaleFactor.height;
 		// const width = modelWidth * actor.modelScaleFactor.radius;
-		controller.controller.radius = 0.25;
-		controller.controller.height = 1;
 		// }
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 		if (hasComponent(entity, IKRigComponent)) {

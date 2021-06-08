@@ -25,11 +25,11 @@ import {
     fetchAdminParty,
     updateUserRole,
     patchUser,
-    fetchSingleUserAdmin
+    fetchSingleUserAdmin,
 } from "../../reducers/admin/service";
 import { useFormik } from 'formik';
 import { useStyles, useStyle } from "./styles";
-import { validationSchema } from "./validation";
+import { userValidationSchema } from "./validation";
 
 
 interface Props {
@@ -167,7 +167,7 @@ const ViewUser = (props: Props) => {
 
     const formik = useFormik({
         initialValues: initialValue,
-        validationSchema: validationSchema,
+        validationSchema: userValidationSchema,
         onSubmit: async (values, { resetForm }) => {
             const data = {
                 name: values.name,

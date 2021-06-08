@@ -6,7 +6,7 @@ import { Book } from "@styled-icons/fa-solid";
 import React from "react";
 
 
-export const  ReflectionProbeNodeEditor =(props)=>{
+export const  TestModelNodeEditor =(props)=>{
     return(<div>
         Test Model
     </div>);
@@ -14,6 +14,6 @@ export const  ReflectionProbeNodeEditor =(props)=>{
 };
 
 
-ReflectionProbeNodeEditor.iconComponent=Book;
-ReflectionProbeNodeEditor.description="Test Model For the Reflection";
-export default ReflectionProbeNodeEditor;
+TestModelNodeEditor.iconComponent=Book;
+TestModelNodeEditor.description="Test Model For the Reflection";
+export default TestModelNodeEditor;

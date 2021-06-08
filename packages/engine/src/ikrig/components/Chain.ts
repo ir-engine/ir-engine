@@ -8,8 +8,8 @@ export class Chain {
 	chainBones: any[];
 	length: number;
 	cnt: number;
-	forwardOffset: any;
-	upOffset: any;
+	altForward: any;
+	altUp: any;
 	constructor() {
 		this.chainBones = []; // Index to a bone in an armature / pose
 		this.length = 0; // Chain Length
@@ -18,8 +18,8 @@ export class Chain {
 		//this.align_axis	= axis;			// Chain is aligned to which axis
 		this.end_idx = null; // Joint that Marks the true end of the chain
 
-		this.forwardOffset = FORWARD.clone();
-		this.upOffset = UP.clone();
+		this.altForward = FORWARD.clone();
+		this.altUp = UP.clone();
 	}
 
 	// Get Skeleton Index of Bones
@@ -39,8 +39,8 @@ export class Chain {
 		const boneWorldQuaternion = new Quaternion();
 		b.getWorldQuaternion(boneWorldQuaternion);
 		boneWorldQuaternion.invert(); // Invert World Space Rotation 
-		this.forwardOffset = new Vector3().copy(fwd).applyQuaternion(boneWorldQuaternion).normalize(); // Use invert to get direction that will Recreate the real direction
-		this.upOffset = new Vector3().copy(up).applyQuaternion(boneWorldQuaternion).normalize();
+		this.altForward = new Vector3().copy(fwd).applyQuaternion(boneWorldQuaternion).normalize(); // Use invert to get direction that will Recreate the real direction
+		this.altUp = new Vector3().copy(up).applyQuaternion(boneWorldQuaternion).normalize();
 
 		return this;
 	}

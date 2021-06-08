@@ -33,10 +33,12 @@ class Pose {
 	spin_bone_forward( b_name ){ spin_bone_forward( this, b_name ); return this; }
 	align_bone_forward( b_name ){ align_bone_forward( this, b_name ); return this; }
 
-	constructor(entity) {
+	constructor(entity, clone) {
 		this.entity = entity;
 		const armature = getMutableComponent(entity, Obj).ref;
-		this.skeleton = SkeletonUtils.clone(armature.parent).children.find(skin => skin.skeleton != null).skeleton;	// Recreation of Bone Hierarchy
+		this.skeleton = clone ?
+		 SkeletonUtils.clone(armature.parent).children.find(skin => skin.skeleton != null).skeleton : 
+		 armature.parent.children.find(skin => skin.skeleton != null).skeleton;	// Recreation of Bone Hierarchy
 		
 		this.bones = this.skeleton.bones;
 		this.rootOffset = new Object3D();					// Parent Transform for Root Bone ( Skeletons from FBX imports need this to render right )

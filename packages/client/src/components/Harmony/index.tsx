@@ -73,12 +73,10 @@ import { Message } from '@xrengine/common/src/interfaces/Message';
 import { User } from '@xrengine/common/src/interfaces/User';
 import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
-import { initializeEngine } from '@xrengine/client-core/src/initialize';
-import { DefaultInitializationOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine';
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema';
 import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem';
-import { DefaultNetworkSchema } from '@xrengine/engine/src/networking/templates/DefaultNetworkSchema';
 import classNames from 'classnames';
 import moment from 'moment';
 import React, { useEffect, useRef, useState } from 'react';
@@ -188,7 +186,7 @@ interface Props {
     mediastream?: any;
     setHarmonyOpen?: any;
     isHarmonyPage?: boolean;
-    harmonyHidden: boolean;
+    harmonyHidden?: boolean;
 }
 
 const initialRefreshModalValues = {
@@ -768,18 +766,15 @@ const Harmony = (props: Props): any => {
 
     async function init(): Promise<any> {
         if (Network.instance?.isInitialized !== true) {
-            const networkSchema: NetworkSchema = {
-                ...DefaultNetworkSchema,
-                transport: SocketWebRTCClientTransport,
-            };
-
             const InitializationOptions = {
-                ...DefaultInitializationOptions,
                 networking: {
-                    schema: networkSchema,
+                    schema: {
+                        transport: SocketWebRTCClientTransport
+                    } as NetworkSchema,
                 },
-                renderer: {},
-                useCanvas: false,
+                renderer: {
+                    disabled: true
+                },
             };
 
             await initializeEngine(InitializationOptions);

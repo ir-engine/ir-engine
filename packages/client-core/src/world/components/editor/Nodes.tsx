@@ -2,6 +2,7 @@
 import AmbientLightNode from "@xrengine/engine/src/editor/nodes/AmbientLightNode";
 import AudioNode from "@xrengine/engine/src/editor/nodes/AudioNode";
 import BoxColliderNode from "@xrengine/engine/src/editor/nodes/BoxColliderNode";
+import PortalNode from "@xrengine/engine/src/editor/nodes/PortalNode";
 import DirectionalLightNode from "@xrengine/engine/src/editor/nodes/DirectionalLightNode";
 import FloorPlanNode from "@xrengine/engine/src/editor/nodes/FloorPlanNode";
 import GameNode from "@xrengine/engine/src/editor/nodes/GameNode";
@@ -30,6 +31,7 @@ import Editor from "./Editor";
 import AmbientLightNodeEditor from "./properties/AmbientLightNodeEditor";
 import AudioNodeEditor from "./properties/AudioNodeEditor";
 import BoxColliderNodeEditor from "./properties/BoxColliderNodeEditor";
+import PortalNodeEditor from "./properties/PortalNodeEditor";
 import DirectionalLightNodeEditor from "./properties/DirectionalLightNodeEditor";
 import FloorPlanNodeEditor from "./properties/FloorPlanNodeEditor";
 import GameNodeEditor from "./properties/GameNodeEditor";
@@ -69,6 +71,7 @@ export function createEditor(api, settings, Engine) {
   editor.registerNode(ModelNode, ModelNodeEditor);
   editor.registerNode(GroundPlaneNode, GroundPlaneNodeEditor);
   editor.registerNode(BoxColliderNode, BoxColliderNodeEditor);
+  editor.registerNode(PortalNode, PortalNodeEditor);
   editor.registerNode(AmbientLightNode, AmbientLightNodeEditor);
   editor.registerNode(DirectionalLightNode, DirectionalLightNodeEditor);
   editor.registerNode(HemisphereLightNode, HemisphereLightNodeEditor);

@@ -13,10 +13,12 @@ import { GamePlayer } from "../components/GamePlayer";
  */
 
 export const getGameEntityFromName = (name: string): Entity => {
+  if (name === undefined) return;
   return GameManagerSystem.instance.gameEntities.find(entity => getComponent(entity, Game).name === name);
 };
 
 export const getGameFromName = (name: string): Game => {
+  if (name === undefined) return;
   return GameManagerSystem.instance.currentGames.get(name);
 };
 
@@ -26,23 +28,23 @@ export const getEntityArrFromRole = (game: Game, role: string, ): Array<Entity> 
 
 
 export const getRole = (entity: Entity) => {
-  return hasComponent(entity, GameObject) ? getComponent(entity, GameObject).role : getComponent(entity, GamePlayer).role;
+  return hasComponent(entity, GameObject) ? getComponent(entity, GameObject).role : hasComponent(entity, GamePlayer) ? getComponent(entity, GamePlayer).role : undefined;
 };
 export const setRole = (entity: Entity, newGameRole: string) => {
-  return hasComponent(entity, GameObject) ? getMutableComponent(entity, GameObject).role = newGameRole : getMutableComponent(entity, GamePlayer).role = newGameRole;
+  return hasComponent(entity, GameObject) ? getMutableComponent(entity, GameObject).role = newGameRole : hasComponent(entity, GamePlayer) ? getMutableComponent(entity, GamePlayer).role = newGameRole : undefined;
 };
 
 export const getGame = (entity: Entity): Game => {
-  const name = hasComponent(entity, GameObject) ? getComponent(entity, GameObject).gameName : getComponent(entity, GamePlayer).gameName;
+  const name = hasComponent(entity, GameObject) ? getComponent(entity, GameObject).gameName : hasComponent(entity, GamePlayer) ? getComponent(entity, GamePlayer).gameName: undefined;
   return getGameFromName(name);
 };
 export const getUuid = (entity: Entity) => {
-  return hasComponent(entity, GameObject) ? getComponent(entity, GameObject).uuid : getComponent(entity, GamePlayer).uuid;
+  return hasComponent(entity, GameObject) ? getComponent(entity, GameObject).uuid : hasComponent(entity, GamePlayer) ? getComponent(entity, GamePlayer).uuid : undefined;
 };
 
 
 export const getTargetEntitys = (entity: Entity, entityTarget: Entity, args: any): Entity | Entity[] => {
-  if (args === undefined || args.on === undefined || args.on === 'me') {
+  if (args === undefined || args.on === undefined || args.on === 'self') {
     return entity;
   } else if (args.on === 'target') {
     return entityTarget;

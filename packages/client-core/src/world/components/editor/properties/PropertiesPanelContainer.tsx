@@ -2,9 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { withEditor } from "../contexts/EditorContext";
 import DefaultNodeEditor from "./DefaultNodeEditor";
-import Panel from "../layout/Panel";
 import styled from "styled-components";
-import { SlidersH } from "@styled-icons/fa-solid/SlidersH";
 import TransformPropertyGroup from "./TransformPropertyGroup";
 import NameInputGroup from "./NameInputGroup";
 import InputGroup from "../inputs/InputGroup";
@@ -88,6 +86,7 @@ const PropertiesPanelContent = (styled as any).div`
   flex-direction: column;
   flex: 1;
   overflow-y: auto;
+  height: 100%;
 `;
 
 /**
@@ -235,10 +234,7 @@ class PropertiesPanelContainer extends Component<{t: Function}> {
     }
 
     return (
-      /* @ts-ignore */
-      <Panel id="properties-panel" title={this.props.t('editor:properties.title')} icon={SlidersH}>
         <PropertiesPanelContent>{content}</PropertiesPanelContent>
-      </Panel>
     );
   }
 }

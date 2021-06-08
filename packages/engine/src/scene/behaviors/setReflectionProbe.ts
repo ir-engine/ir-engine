@@ -24,7 +24,7 @@ export const setReflectionProbe: Behavior = (entity, args: {}) => {
       case ReflectionProbeTypes.Baked:
         const envMapAddress = `/ReflectionProbe/${options.lookupName}.png`;
         new TextureLoader().load(envMapAddress, (texture) => {
-          Engine.scene.environment = CubemapCapturer.convertToCubemap(Engine.renderer, texture, options.resolution).texture;
+          Engine.scene.environment = CubemapCapturer.convertEquiToCubemap(Engine.renderer, texture, options.resolution).texture;
           texture.dispose();
         });
 
@@ -36,7 +36,8 @@ export const setReflectionProbe: Behavior = (entity, args: {}) => {
         break;
     }
 
-    SceneObjectSystem.instance.bpcemOptions["probeScale"] = { x: 10, y: 10, z: 10 };//options.probeScale;
+    SceneObjectSystem.instance.bpcemOptions["probeScale"] = options.probeScale;
     SceneObjectSystem.instance.bpcemOptions["probePositionOffset"] = options.probePositionOffset;
+    SceneObjectSystem.instance.bpcemOptions["intensity"] = options.intensity;
   }
 }

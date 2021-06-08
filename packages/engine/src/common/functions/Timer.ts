@@ -50,8 +50,8 @@ export function Timer (
   let updateInterval;
 
   function xrAnimationLoop(time, xrFrame) {
-    Engine.xrRenderer.onAnimationFrame(time, xrFrame);
     Engine.xrSession.requestAnimationFrame( xrAnimationLoop )
+    Engine.xrRenderer.onAnimationFrame(time, xrFrame);
     XRSystem.instance.xrFrame = xrFrame;
     if (lastAnimTime !== null) {
       frameDelta = (time - lastAnimTime) / 1000;
@@ -325,6 +325,8 @@ export class FixedStepsRunner {
   }
 }
 
+
+// TODO: unused
 export function createFixedTimestep(updatesPerSecond: number, callback: (time: number) => void): (delta: number) => void {
   const timestep = 1 / updatesPerSecond;
   const limit = timestep * 1000;

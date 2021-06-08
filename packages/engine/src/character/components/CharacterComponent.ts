@@ -13,11 +13,6 @@ export class CharacterComponent extends Component<CharacterComponent> {
 		this.modelContainer.parent.remove(this.modelContainer);
 		this.tiltContainer = null;
 	}
-
-	// TODO: remove this, model bounds should be calculated entirely from model bounds, not parameters
-	public modelScaleHeight = { x: 0.4, y: 0, z: 4 };     // its x - hands, y- height, z - body
-	public modelScaleWidth = { x: 0, y: 0, z: 1.2 };     // its x - hands, y- height, z - body
-	public modelScaleFactor = { size: 0.3, height: 0.66, radius: 1 };    // calulated then loaded model avatar
 	public modelScale = 1; // its for resize
 
 	public movementEnabled = false;
@@ -31,7 +26,6 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	public avatarId: string;
 	public thumbnailURL: string;
 	public avatarURL: string;
-	public height = 0;
 	public tiltContainer: Group;
 	public modelContainer: Group;
 	public materials: Material[] = [];

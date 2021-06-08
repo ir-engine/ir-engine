@@ -3,6 +3,7 @@ import { Component } from "../../ecs/classes/Component";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import Pose from "../classes/Pose";
 import { Chain } from "./Chain";
+import { IKPose } from "./IKPose";
 import Obj from "./Obj";
 
 class IKRig extends Component<IKRig>{
@@ -11,11 +12,21 @@ class IKRig extends Component<IKRig>{
 	chains: any = {}; // IK Chains
 	points: any = {}; // Individual IK points (hands, head, feet)
 
+	sourcePose: IKPose;
+	sourceRig: IKRig;
+
 	addPoint(name, boneName) {
 		const armature = getMutableComponent(this.entity, Obj).ref;
 		this.points[name] = {
 			index: armature.skeleton.bones.findIndex(bone => bone.name.includes(boneName))
 		};
+		return this;
+	}
+
+	updatePoint(name, boneName) {
+		const armature = getMutableComponent(this.entity, Obj).ref;
+		this.points[name].position = armature.skeleton.bones[this.points[name].index]
+
 		return this;
 	}
 

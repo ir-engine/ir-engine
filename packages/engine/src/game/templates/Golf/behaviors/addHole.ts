@@ -11,22 +11,15 @@ import { GolfCollisionGroups } from '../GolfGameConstants';
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent';
 import { getGame } from '../../../functions/functions';
 import { GameObjectInteractionBehavior } from '../../../interfaces/GameObjectPrefab';
+import { Action } from '../../../types/GameComponents';
+import { addActionComponent } from '../../../functions/functionsActions';
 
 export const onHoleCollideWithBall: GameObjectInteractionBehavior = (entityHole: Entity, delta: number, args: { hitEvent: ColliderHitEvent }, entityBall: Entity) => {
   
-  const game = getGame(entityHole);
-  const teeEntity = game.gameObjects['GolfTee'][0];
-  const teeTransform = getComponent(teeEntity, TransformComponent);
-  const collider = getComponent(entityBall, ColliderComponent)
-
-  collider.body.updateTransform({
-    translation: {
-      x: teeTransform.position.x,
-      y: teeTransform.position.y,
-      z: teeTransform.position.z
-    },
-    rotation: {}
-  })
+  //if(hasComponent(entityHole, State.Active) && hasComponent(entityHole, State.Active)) {
+    addActionComponent(entityHole, Action.GameObjectCollisionTag);
+    addActionComponent(entityBall, Action.GameObjectCollisionTag);
+ // }
 }
 
 
@@ -36,14 +29,14 @@ export const onHoleCollideWithBall: GameObjectInteractionBehavior = (entityHole:
 
 export const addHole: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
 
-  const storageTransform = getComponent(entity, TransformComponent);
-  const pos = storageTransform.position ?? { x:0, y:0, z:0 };
-  const rot = storageTransform.rotation ?? { x:0, y:0, z:0, w:1 };
-  const scale = storageTransform.scale  ?? { x:1, y:1, z:1 };
+  const transform = getComponent(entity, TransformComponent);
+  const pos = transform.position ?? { x:0, y:0, z:0 };
+  const rot = transform.rotation ?? { x:0, y:0, z:0, w:1 };
+  const scale = transform.scale  ?? { x:1, y:1, z:1 };
 
   const shapeBox = createShapeFromConfig({
     shape: SHAPES.Box,
-    options: { boxExtents: { x: scale.x, y: scale.y, z: scale.z } },
+    options: { boxExtents: { x: scale.x/2, y: scale.y/2, z: scale.z/2 } },
     config: {
       isTrigger: true,
       collisionLayer: GolfCollisionGroups.Hole,
@@ -66,9 +59,6 @@ export const addHole: Behavior = (entity: Entity, args?: any, delta?: number, en
     type: 'box',
     body: body
   })
-
-  // if we loaded this collider with a model, make it invisible
-  getComponent(entity, Object3DComponent)?.value?.traverse(obj => obj.visible = false)
 
   const gameObject = getComponent(entity, GameObject)
   gameObject.collisionBehaviors['GolfBall'] = onHoleCollideWithBall;

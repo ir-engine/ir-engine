@@ -3,21 +3,35 @@ import { Entity } from '../../../../ecs/classes/Entity';
 import { hasComponent } from "../../../../ecs/functions/EntityFunctions";
 import { addStateComponent, removeStateComponent } from '../../../../game/functions/functionsState';
 import { getGame } from '../../../../game/functions/functions';
-import { YourTurn } from "../components/YourTurnTagComponent";
+import { State } from '../../../types/GameComponents';
+
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 
 export const nextTurn: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
-  console.warn('NEXT TURN');
+
   const game = getGame(entity);
   const arrPlayersInGame = Object.keys(game.gamePlayers).filter(role => game.gamePlayers[role].length);
-  if (arrPlayersInGame.length < 2) return;
 
-  const whoseRoleTurnNow = arrPlayersInGame.filter(role => hasComponent(game.gamePlayers[role][0], YourTurn))[0];
+  if (arrPlayersInGame.length < 2) {
+    if (hasComponent(entity, State.WaitTurn)) {
+      removeStateComponent(entity, State.WaitTurn);
+      addStateComponent(entity, State.YourTurn);
+      return;
+    }
+    if (hasComponent(entity, State.Waiting)) {
+      removeStateComponent(entity, State.Waiting);
+      addStateComponent(entity, State.YourTurn);
+      return;
+    }
+  }
+  
+  const whoseRoleTurnNow = arrPlayersInGame.filter(role => hasComponent(game.gamePlayers[role][0], State.Waiting))[0];
   const roleNumber = parseFloat(whoseRoleTurnNow[0]);
-  console.warn('remove TURN');
-  removeStateComponent(game.gamePlayers[whoseRoleTurnNow][0], YourTurn);
+  
+  removeStateComponent(entity, State.Waiting);
+  addStateComponent(entity, State.WaitTurn);
 
   const sortedRoleNumbers = arrPlayersInGame.map(v => parseFloat(v[0])).sort((a,b) => b - a);
   const lastNumber = sortedRoleNumbers[0];
@@ -31,7 +45,13 @@ export const nextTurn: Behavior = (entity: Entity, args?: any, delta?: number, e
 
   const roleFullName = arrPlayersInGame.filter(role => parseFloat(role[0]) === chooseNumber)[0];
   const entityP = game.gamePlayers[roleFullName][0];
-  // do not create ctions from game behaviors
-  addStateComponent(entityP, YourTurn);
 
+  if(!hasComponent(entityP, State.WaitTurn)) {
+    console.warn('try to give turn to '+roleFullName+', but he dont have WaitTurn State');
+    return;
+  }
+  // do not create ctions from game behaviors
+  removeStateComponent(entityP, State.WaitTurn);
+  addStateComponent(entityP, State.YourTurn);
+  console.warn('NEXT TURN '+ roleFullName);
 };

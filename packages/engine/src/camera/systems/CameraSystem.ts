@@ -32,6 +32,9 @@ const vec3 = new Vector3();
 
 const followCameraBehavior = (entity: Entity) => {
   const cameraDesiredTransform: DesiredTransformComponent = getMutableComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) as DesiredTransformComponent; // Camera
+
+  if (!cameraDesiredTransform) return;
+
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const actorTransform = getMutableComponent(entity, TransformComponent);
 

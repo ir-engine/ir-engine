@@ -24,39 +24,26 @@ import { Action, State } from '../../../types/GameComponents';
 import { getGame } from '../../../functions/functions';
 import { MathUtils } from 'three';
 import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent';
+import { Behavior } from '../../../../common/interfaces/Behavior';
 
 /**
  * @author Josh Field <github.com/HexaField>
  */
 
-export const spawnBall = (entityPlayer: Entity): void => {
-
+export const spawnBall: Behavior = (entityPlayer: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
   // server sends clients the entity data
   if (isClient) return;
+  console.warn('SpawnBall')
 
   const game = getGame(entityPlayer);
   const playerNetworkObject = getComponent(entityPlayer, NetworkObject);
-
-  // console.log(ownerId, 'ball exists', game.gameObjects['GolfBall'].length > 0)
-
-  // if a ball already exists in the world, it obviously isn't our turn
-  if (game.gameObjects['GolfBall'].length > 0) return;
-
-  const playerHasBall = game.gameObjects['GolfBall']
-    .filter((entity) => getComponent(entity, NetworkObject)?.ownerId === playerNetworkObject.ownerId)
-    .length > 0;
-
-  if(playerHasBall) return;
-
-  console.log('making ball for player', playerNetworkObject.ownerId, playerHasBall)
 
   const networkId = Network.getNetworkId();
   const uuid = MathUtils.generateUUID();
   // send position to spawn
   // now we have just one location
   // but soon
-  const teeEntity = game.gameObjects['GolfTee'][0]
-  console.warn(game.gameObjects);
+  const teeEntity = game.gameObjects[args.positionCopyFromRole][0]
   const teeTransform = getComponent(teeEntity, TransformComponent);
 
   const parameters: GolfBallSpawnParameters = {
@@ -84,6 +71,7 @@ export const spawnBall = (entityPlayer: Entity): void => {
     parameters: JSON.stringify(parameters).replace(/"/g, '\''),
   })
 };
+
 
 /**
 * @author Josh Field <github.com/HexaField>
@@ -114,24 +102,6 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
       }
     })
 }
-
-export const updateBall = (ballEntity: Entity) => {
-  const gameObject = getComponent(ballEntity, GameObject);
-  const collider = getComponent(ballEntity, ColliderComponent);
-  if(!collider) return;
-  if (collider.velocity.length() > 0.1) {
-    if(hasComponent(ballEntity, State.Active)) {
-      // console.warn('actionMoving')
-      addActionComponent(ballEntity, Action.BallMoving);
-    }
-  } else {
-    if(hasComponent(ballEntity, State.Inactive)) { 
-      // console.warn('stop')
-      addActionComponent(ballEntity, Action.BallStopped);
-    }
-  }
-}
-
 
 export const initializeGolfBall = (ballEntity: Entity) => {
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);

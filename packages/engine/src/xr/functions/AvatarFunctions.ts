@@ -96,7 +96,7 @@ export const makeDebugMeshes = () => {
     }
     const geometry = srcGeometry.clone();
     const colors = new Float32Array(cubeGeometry.attributes.position.array.length);
-    for (let i = 0; i < colors.magnitude; i += 3) {
+    for (let i = 0; i < colors.length; i += 3) {
       color.toArray(colors, i);
     }
     geometry.setAttribute('color', new BufferAttribute(colors, 3));

@@ -116,19 +116,19 @@ export interface userAdminRemovedResponse {
   data: any;
 }
 
-export interface UserCreatedAction {
+export interface AdminUserCreatedAction {
   type: string,
   user: User
 }
 
-export function userCreated (user: User): UserCreatedAction {
+export function userCreated (user: User): AdminUserCreatedAction {
   return {
     type: USER_ADMIN_CREATED,
     user: user
   };
 }
 
-export function userPatched ( user: User ): UserCreatedAction {
+export function adminUserPatched ( user: User ): AdminUserCreatedAction {
   return {
     type: USER_ADMIN_PATCHED,
     user: user

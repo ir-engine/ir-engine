@@ -31,6 +31,7 @@ import { InputValue } from '../../input/interfaces/InputValue';
 import { GameMode } from "../../game/types/GameMode";
 import { EngineEvents } from './EngineEvents';
 import { WebXRManager } from '../../xr/WebXRManager';
+import { ActiveSystems } from './System';
 
 export const Audio = isWebWorker ? AudioObjectProxy : THREE_Audio;
 export const AudioListener = isWebWorker ? AudioListenerProxy : THREE_AudioListener;
@@ -224,7 +225,7 @@ export class Engine {
    *
    * @author Fernando Serrano, Robert Long
    */
-  static systemsToExecute: any[] = []
+  static activeSystems: ActiveSystems = new ActiveSystems();
   static vehicles: any;
   static lastTime: number;
 

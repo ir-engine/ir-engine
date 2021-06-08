@@ -5,8 +5,8 @@ import { ComponentConstructor } from '../interfaces/ComponentInterfaces';
 import { Component } from './Component';
 import { Engine } from './Engine';
 import { Entity } from './Entity';
-import { EventDispatcher } from 'three';
 import { Query } from './Query';
+import { now } from '../../common/functions/now';
 
 /** Interface for System attributes. */
 export interface SystemAttributes {
@@ -50,6 +50,89 @@ export interface NotComponent<C extends Component<any>> {
 
   /** Component object. */
   Component: ComponentConstructor<C>;
+}
+
+/**
+ * A Class which holds all the active systems.\
+ * It will store systems based on its update type.
+ */
+export class ActiveSystems {
+  /** Free update systems. */
+  [SystemUpdateType.Free]: System[] = [];
+  /** Fixed update systems. */
+  [SystemUpdateType.Fixed]: System[] = [];
+  /** Network update systems. */
+  [SystemUpdateType.Network]: System[] = [];
+
+  /**
+   * Adds system to active system array based on its update type.
+   * @param system System being added.
+   */
+  add(system: System) {
+    this[system.updateType].push(system);
+  }
+
+  /**
+   * Clears active system arrays.
+   */
+  clear() {
+    this[SystemUpdateType.Free] = [];
+    this[SystemUpdateType.Fixed] = [];
+    this[SystemUpdateType.Network] = [];
+  }
+
+  /**
+   * Removes system from active array.
+   * @param system System being removed.
+   */
+  remove(system: System) {
+    this[system.updateType].splice(this[system.updateType].indexOf(system), 1);
+  }
+
+  /**
+   * Executes systems of provided update type.
+   * @param delta Time since last frame.
+   * @param time Current time.
+   * @param updateType Update type of the system which will be executed.
+   */
+  execute(delta: number, time: number, updateType: SystemUpdateType) {
+    this[updateType].forEach(system => {
+      if (system.initialized && system.enabled) {
+        const startTime = now();
+        system.execute(delta, time);
+        system.executeTime = now() - startTime;
+        system.clearEventQueues();
+      }
+    });
+  }
+
+  /**
+   * Executes all the systems of all update type.
+   * @param delta Time since last frame.
+   * @param time Curremt time.
+   */
+  executeAll(delta: number, time: number) {
+    this.execute(delta, time, SystemUpdateType.Free);
+    this.execute(delta, time, SystemUpdateType.Fixed);
+    this.execute(delta, time, SystemUpdateType.Network);
+  }
+
+  /**
+   * Sorts the sytems of provided update type.
+   * @param updateType systems of this update type will be sorted.
+   */
+  sort(updateType: SystemUpdateType) {
+    this[updateType].sort((a, b) => a.priority - b.priority);
+  }
+
+  /**
+   * Sorts all systems of all update type.
+   */
+  sortAll() {
+    this.sort(SystemUpdateType.Free);
+    this.sort(SystemUpdateType.Fixed);
+    this.sort(SystemUpdateType.Network);
+  }
 }
 
 /**
@@ -106,7 +189,10 @@ export abstract class System {
   /** Execute Method definition. */
   execute? (delta: number, time: number): void
 
-  async initialize(): Promise<any> { return; }
+  async initialize(): Promise<any> {
+    this.initialized = true;
+    return;
+  }
 
   /**
    * Initializes system

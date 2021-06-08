@@ -63,7 +63,7 @@ export class PhysicsSystem extends System {
     }
     this.worker = attributes.worker;
     this.frame = 0;
-
+    
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
       PhysXInstance.instance.startPhysX(ev.physics);
     });
@@ -74,6 +74,7 @@ export class PhysicsSystem extends System {
   }
 
   async initialize() {
+    super.initialize();
     await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig);
   }
 
@@ -90,10 +91,12 @@ export class PhysicsSystem extends System {
       const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
       const transform = getComponent(entity, TransformComponent);
       if (collider.body.type === BodyType.KINEMATIC) {
-        collider.velocity.subVectors(collider.body.transform.translation, transform.position);
+        collider.velocity.subVectors(collider.body.transform.translation, transform.position)
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation });
       } else {
-        collider.velocity.subVectors(transform.position, collider.body.transform.translation);
+        if(!isClient) { // this for the copy what intepolation calc velocity
+          collider.velocity.subVectors(transform.position, collider.body.transform.translation).multiplyScalar(delta*60); 
+        }
         
         transform.position.set(
           collider.body.transform.translation.x,

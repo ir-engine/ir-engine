@@ -13,6 +13,8 @@ class DebugComponent extends Component<DebugComponent>{
 		addComponent(entity, Obj);
 		addComponent(entity, DebugComponent);
 		addComponent(entity, PointsComponent);
+		addComponent(entity, DebugComponent);
+
 		this.points = getMutableComponent(entity, PointsComponent);
 		this.points.init();
 

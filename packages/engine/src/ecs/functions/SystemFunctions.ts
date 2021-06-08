@@ -2,8 +2,6 @@
 
 import { System, SystemConstructor } from '../classes/System';
 import { Engine } from '../classes/Engine';
-import { now } from '../../common/functions/now';
-import { SystemUpdateType } from './SystemUpdateType';
 
 /**
  * Register a system with the simulation.\
@@ -26,8 +24,8 @@ export function registerSystem (SystemClass: SystemConstructor<any>, attributes?
   const system = new SystemClass(attributes);
   Engine.systems.push(system);
   if (system.execute) {
-    Engine.systemsToExecute.push(system);
-    sortSystems();
+    Engine.activeSystems.add(system);
+    Engine.activeSystems.sort(system.updateType);
   }
   return system as System;
 }
@@ -47,7 +45,7 @@ export function unregisterSystem (SystemClass: SystemConstructor<any>): void {
 
   Engine.systems.splice(Engine.systems.indexOf(system), 1);
 
-  if (system.execute) Engine.systemsToExecute.splice(Engine.systemsToExecute.indexOf(system), 1);
+  if (system.execute) Engine.activeSystems.remove(system);
 }
 
 /**
@@ -71,31 +69,3 @@ export function getSystems (): System[] {
   return Engine.systems;
 }
 
-/**
- * Calls execute() function on a system instance.
- * 
- * @author Fernando Serrano, Robert Long
- * @param system System to be executed.
- * @param delta Delta of the system.
- * @param time Current time of the system.
- * @param updateType Only system of this Update type will be executed.
- */
-export function executeSystem (system: System, delta: number, time: number, updateType: SystemUpdateType): void {
-  if (system.initialized && system.enabled && updateType === system.updateType) {
-    const startTime = now();
-    system.execute(delta, time);
-    system.executeTime = now() - startTime;
-    system.clearEventQueues();
-  }
-}
-
-/**
- * Sort systems by order if order has been set explicitly.
- * 
- * @author Fernando Serrano, Robert Long
- */
-export function sortSystems (): void {
-  Engine.systemsToExecute.sort((a, b) => {
-    return a.priority - b.priority || a.order - b.order;
-  });
-}

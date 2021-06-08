@@ -45,6 +45,7 @@
     "detect-browser": "^5.2.0",
     "draco3dgltf": "^1.4.1",
     "hls.js": "^1.0.0",
+    "lodash": "4.17.21",
     "idb-keyval": "^5.0.5",
     "mousetrap": "^1.6.5",
     "postprocessing": "^6.21.5",
@@ -53,8 +54,7 @@
     "three-mesh-bvh": "^0.3.7",
     "three-physx": "^0.0.28",
     "vite-xrengine": "2.2.4",
-    "volumetric": "^0.2.19",
-    "web-worker": "^1.0.0"
+    "volumetric": "^0.2.19"
   },
   "devDependencies": {
     "@rollup/plugin-json": "4.1.0",
