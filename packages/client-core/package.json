@@ -52,7 +52,7 @@
     "antd": "4.15.4",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
-    "autoprefixer": "10.2.5",
+    "autoprefixer": "10.2.6",
     "axios": "0.21.1",
     "classnames": "2.3.1",
     "credential-handler-polyfill": "2.1.3",
