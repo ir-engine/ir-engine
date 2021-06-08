@@ -1,9 +1,9 @@
 import { GLTFLoader } from '@xrengine/engine/src/assets/loaders/gltf/GLTFLoader';
 import  { RingGeometry, HemisphereLight, CylinderGeometry, MeshPhongMaterial, WebGLRenderer, PerspectiveCamera, PCFSoftShadowMap, MeshBasicMaterial, BoxBufferGeometry, Object3D, Scene, AmbientLight, Mesh, DirectionalLight, PlaneGeometry, ShadowMaterial } from "three";
 import React, { useEffect } from 'react';
-import VideoRecorder from 'react-video-recorder';
 import Player from 'volumetric/src/decoder/Player';
 import PlayerWorker from 'volumetric/src/decoder/workerFunction.ts?worker';
+
 
 class ARButton {
 
@@ -200,7 +200,7 @@ class ARButton {
 
 	}
 
-}
+} 
 
 export { ARButton };
 
@@ -228,19 +228,47 @@ export const VideoRecording = () => {
  * limitations under the License.
  */
 
+
+let container;
+let camera, scene, renderer;
+let controller;
+
+let reticle;
+
+let hitTestSource = null;
+let hitTestSourceRequested = false;
+
+var isRecording = false;
+
+
 useEffect(() => {
-
-  let container;
-  let camera, scene, renderer;
-  let controller;
-
-  let reticle;
-
-  let hitTestSource = null;
-  let hitTestSourceRequested = false;
 
   init();
   animate();
+
+
+const player = new Player({
+  scene,
+  renderer,
+  worker: new PlayerWorker(),
+  meshFilePath: '/test.uvol',
+  videoFilePath: '/test.mp4',
+  manifestFilePath: '/test.manifest',
+  scale: 1,
+  onMeshBuffering: (progress) => {
+      console.warn('BUFFERING!!', progress);
+      // setBufferingProgress(Math.round(progress * 100));
+      // setIsBuffering(true);
+  },
+  onFrameShow: () => {
+    console.warn('SHOWING!!');
+  }
+});
+player.mesh.position.set(0,0,0);
+player.mesh.matrixAutoUpdate = true;
+player.mesh.matrixWorldNeedsUpdate = true;
+player.mesh.visible = true;
+
 
   function init() {
 
@@ -265,30 +293,7 @@ useEffect(() => {
     container.appendChild( renderer.domElement );
 
 
-  const player = new Player({
-    scene,
-    renderer,
-    worker: new PlayerWorker(),
-    meshFilePath: '/test.uvol',
-    videoFilePath: '/test.mp4',
-    manifestFilePath: '/test.manifest',
-    scale: 1,
-    onMeshBuffering: (progress) => {
-        console.warn('BUFFERING!!', progress);
-        // setBufferingProgress(Math.round(progress * 100));
-        // setIsBuffering(true);
-    },
-    onFrameShow: () => {
-      console.warn('SHOWING!!');
-    }
     // video: document.getElementById("video")
-});
-
-player.mesh.position.set(0,0,0);
-player.mesh.matrixAutoUpdate = true;
-player.mesh.matrixWorldNeedsUpdate = true;
-player.mesh.visible = true;
-scene.add(player.mesh);
 
 
 const material = new MeshPhongMaterial( { color: 0xffffff * Math.random() } );
@@ -301,9 +306,9 @@ scene.add( mesh );
     document.body.appendChild( ARButton.createButton( renderer, { requiredFeatures: [ 'hit-test' ] } ) );
 
     function onSelect() {
-      player.play();
-
-      if ( reticle.visible ) {
+          if ( reticle.visible ) {
+           // record();
+            player.play();
 
         player.mesh.position.setFromMatrixPosition( reticle.matrix );
         mesh.position.setFromMatrixPosition( reticle.matrix );
@@ -402,17 +407,18 @@ scene.add( mesh );
       }
 
     }
-
-    renderer.render( scene, camera );
-    
-
-
+    if(player){
+      player.handleRender(() => {
+        renderer.render( scene, camera );
+      });
+    }
   }
 
 
 }, [])
 
 
+var isRecording = false;
 
 
 
@@ -425,10 +431,7 @@ scene.add( mesh );
 
 
 
-
-
-
-  return <div></div>;
+  return <button onClick={() => {}}>Hi</button>;
 };
 
 export default VideoRecording;

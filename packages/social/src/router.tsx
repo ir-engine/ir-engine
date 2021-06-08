@@ -47,6 +47,7 @@ export const RouterComp = () => {
             <Route path="/notifications" component={React.lazy(() => import('./pages/notifications'))} />
             <Route path="/onboarding" component={React.lazy(() => import('./pages/onboarding'))} />
             <Route path="/videorecord" component={React.lazy(() => import('./pages/videorecord'))} />
+            <Route path="/webxr" component={React.lazy(() => import('./pages/webxr'))} />
 
             <Route path="/:pid" component={React.lazy(() => import('./pages/[pid]'))} />
 
