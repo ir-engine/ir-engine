@@ -51,7 +51,6 @@ export * from './src/feathers-instance';
 export * from './src/feathers';
 export * from './src/helper';
 export * from './src/i18n';
-export * from './src/initialize';
 export * from './src/initializeOffscreen';
 export * from './src/media/components/video/actions';
 export * from './src/media/components/video/reducers';

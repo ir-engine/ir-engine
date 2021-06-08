@@ -1,16 +1,21 @@
 import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
-import { initializeEngine } from '@xrengine/client-core/src/initialize';
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine';
 import Store from '@xrengine/client-core/src/store';
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
-import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
-import { DefaultInitializationOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
-import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
-import { styleCanvas } from '@xrengine/engine/src/renderer/functions/styleCanvas';
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import React, { useEffect, useState } from 'react';
+
+const canvasStyle = {
+  zIndex: 0,
+  width: '100%',
+  height: '100%',
+  position: 'absolute',
+  WebkitUserSelect: 'none',
+  userSelect: 'none',
+} as React.CSSProperties;
 
 const LocationPage = () => {
   return (
@@ -37,15 +42,15 @@ const DevPage = () => {
   async function init(): Promise<any> {
     const sceneData = testScenes.test;
 
-    const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
-    styleCanvas(canvas);
     const InitializationOptions = {
-      ...DefaultInitializationOptions,
       renderer: {
-        canvas,
+        canvasId: engineRendererCanvasId,
+        postProcessing: false,
       },
-      useOfflineMode: true,
-      postProcessing: false,
+      networking: {
+        useOfflineMode: true,
+      },
+      physxWorker: new Worker('/scripts/loadPhysXClassic.js'),
     };
     console.log(InitializationOptions);
     await initializeEngine(InitializationOptions);
@@ -80,7 +85,7 @@ const DevPage = () => {
   return (
     <>
       {!isInXR && <div>
-        <canvas id={engineRendererCanvasId} width='100%' height='100%' />
+        <canvas id={engineRendererCanvasId} style={canvasStyle} />
       </div>}
     </>);
 };

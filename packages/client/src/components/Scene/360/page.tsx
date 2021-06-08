@@ -6,10 +6,8 @@ import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
-import { initializeEngine } from '@xrengine/client-core/src/initialize';
-import { DefaultInitializationOptions } from '@xrengine/engine/src/DefaultInitializationOptions';
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine';
 import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
-import { styleCanvas } from '@xrengine/engine/src/renderer/functions/styleCanvas';
 import { createPanelComponent } from '@xrengine/engine/src/ui/functions/createPanelComponent';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import React, { useEffect, useState } from 'react';
@@ -26,6 +24,14 @@ interface Props {
   locationName: string;
 }
 
+const canvasStyle = {
+  zIndex: 0,
+  width: '100%',
+  height: '100%',
+  position: 'absolute',
+  WebkitUserSelect: 'none',
+  userSelect: 'none',
+} as React.CSSProperties;
 
 export const XR360PlayerPage = (props: Props) => {
   const {
@@ -40,15 +46,15 @@ export const XR360PlayerPage = (props: Props) => {
   async function init(sceneId: string): Promise<any> {
     const sceneData = testScenes[sceneId] || testScenes.test;
 
-    const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
-    styleCanvas(canvas);
     const InitializationOptions = {
-      ...DefaultInitializationOptions,
       renderer: {
-        canvas,
+        canvasId: engineRendererCanvasId,
+        postProcessing: false,
       },
-      useOfflineMode: true,
-      postProcessing: false,
+      networking: {
+        useOfflineMode: true,
+      },
+      physxWorker: new Worker('/scripts/loadPhysXClassic.js'),
     };
     console.log(InitializationOptions);
     await initializeEngine(InitializationOptions);
@@ -94,7 +100,7 @@ export const XR360PlayerPage = (props: Props) => {
   return (
     <>
       {!isInXR && <div>
-        <canvas id={engineRendererCanvasId} width='100%' height='100%' />
+        <canvas id={engineRendererCanvasId} style={canvasStyle} />
         {mobileGamepad}
       </div>}
     </>);

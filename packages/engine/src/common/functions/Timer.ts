@@ -325,6 +325,8 @@ export class FixedStepsRunner {
   }
 }
 
+
+// TODO: unused
 export function createFixedTimestep(updatesPerSecond: number, callback: (time: number) => void): (delta: number) => void {
   const timestep = 1 / updatesPerSecond;
   const limit = timestep * 1000;

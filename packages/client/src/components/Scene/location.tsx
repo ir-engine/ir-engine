@@ -21,7 +21,7 @@ import { selectInstanceConnectionState } from '../../reducers/instanceConnection
 import {
   connectToInstanceServer,
   provisionInstanceServer,
-  resetInstanceServer
+  resetInstanceServer,
 } from '../../reducers/instanceConnection/service';
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector';
 import MediaIconsBox from "../../components/MediaIconsBox";
@@ -31,14 +31,13 @@ import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { processLocationPort, resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { getComponent, getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
-import { initializeEngine } from '@xrengine/client-core/src/initialize';
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine';
 import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema';
 import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
-import { styleCanvas } from '@xrengine/engine/src/renderer/functions/styleCanvas';
 import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent';
 import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
@@ -52,6 +51,7 @@ import WarningRefreshModal from "../AlertModals/WarningRetryModal";
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem';
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema';
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader';
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
 
@@ -72,6 +72,15 @@ const initialRefreshModalValues = {
   parameters: [],
   timeout: 10000
 };
+
+const canvasStyle = {
+  zIndex: 0,
+  width: '100%',
+  height: '100%',
+  position: 'absolute',
+  WebkitUserSelect: 'none',
+  userSelect: 'none',
+} as React.CSSProperties;
 
 // debug for contexts where devtools may be unavailable
 const consoleLog = [];
@@ -349,27 +358,26 @@ export const EnginePage = (props: Props) => {
       sceneData = await client.service(service).get(serviceId);
     }
 
-    const canvas = document.getElementById(engineRendererCanvasId) as HTMLCanvasElement;
-    styleCanvas(canvas);
+    if (!Engine.isInitialized) {
+      const InitializationOptions = {
+        publicPath: location.origin,
+        networking: {
+          schema: {
+            transport: SocketWebRTCClientTransport,
+          } as NetworkSchema,
+        },
+        renderer: {
+          canvasId: engineRendererCanvasId
+        },
+        useOfflineMode: Config.publicRuntimeConfig.offlineMode,
+        physxWorker: new Worker('/scripts/loadPhysXClassic.js'),
+      };
 
-    const InitializationOptions = {
-      publicPath: location.origin,
-      networking: {
-        schema: {
-          transport: SocketWebRTCClientTransport,
-        } as NetworkSchema,
-      },
-      renderer: {
-        canvas,
-      },
-      useOfflineMode: Config.publicRuntimeConfig.offlineMode
-    };
+      await initializeEngine(InitializationOptions);
 
-    await initializeEngine(InitializationOptions);
-
-    document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
-
-    addUIEvents();
+      document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
+      addUIEvents();
+    }
 
     if(!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance');
 
@@ -431,12 +439,14 @@ export const EnginePage = (props: Props) => {
   };
 
   const portToLocation = async (portalDetail) => {
-    // "action": "portal", "link": "sky-high"
-
-    console.debug(portalDetail.location);
     history.replace('/location/' + portalDetail.location);
 
+    resetInstanceServer();
     await processLocationPort();
+
+    Network.instance.transport.close();
+
+    getLocationByName(portalDetail.location);
   };
 
   const addUIEvents = () => {
@@ -521,7 +531,7 @@ export const EnginePage = (props: Props) => {
       {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
       <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); setInputEnabled(true); }} data={infoBoxData} />
       <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); setInputEnabled(true); }} data={openLinkData} />
-      <canvas id={engineRendererCanvasId} width='100%' height='100%' />
+      <canvas id={engineRendererCanvasId} style={canvasStyle} />
       {mobileGamepad}
       <WarningRefreshModal
           open={warningRefreshModalValues.open}

@@ -23,5 +23,5 @@ test("unregisterSystem", () => {
   registerSystem(TestSystem)
   unregisterSystem(TestSystem)
   expect(Engine.systems.length).toBe(0)
-  expect(Engine.systemsToExecute.length).toBe(0)
+  expect(Engine.activeSystems[TestSystem.instance.updateType].length).toBe(0)
 })

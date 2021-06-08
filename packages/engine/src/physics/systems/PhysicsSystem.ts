@@ -74,6 +74,7 @@ export class PhysicsSystem extends System {
   }
 
   async initialize() {
+    super.initialize();
     await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig);
   }
 

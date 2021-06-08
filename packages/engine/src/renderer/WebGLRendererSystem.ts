@@ -92,6 +92,8 @@ export class WebGLRendererSystem extends System {
   forcePostProcessing = false;
   readonly _supportWebGL2: boolean;
 
+  _supportWebGL2: any;
+
   /** Constructs WebGL Renderer System. */
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);
@@ -129,6 +131,7 @@ export class WebGLRendererSystem extends System {
     renderer.toneMapping = LinearToneMapping;
     renderer.toneMappingExposure = 0.8;
     Engine.renderer = renderer;
+    Engine.viewportElement = renderer.domElement;
     Engine.xrRenderer = new WebXRManager(renderer, context);
     Engine.xrRenderer.enabled = Engine.xrSupported;
 
@@ -177,6 +180,7 @@ export class WebGLRendererSystem extends System {
   }
 
   async initialize() {
+    super.initialize();
     await this.loadGraphicsSettingsFromStorage();
     this.dispatchSettingsChangeEvent();
   }
