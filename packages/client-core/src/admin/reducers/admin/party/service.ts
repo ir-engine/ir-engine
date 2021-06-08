@@ -29,8 +29,8 @@ export const fetchAdminParty = () => {
                         $sort: {
                             createdAt: -1
                         },
-                        $skip: getState().get('admin').get('users').get('skip'),
-                        $limit: getState().get('admin').get('users').get('limit'),
+                        $skip: getState().get('adminUser').get('users').get('skip'),
+                        $limit: getState().get('adminUser').get('users').get('limit'),
                     }
                 });
                 dispatch(partyRetrievedAction(parties));

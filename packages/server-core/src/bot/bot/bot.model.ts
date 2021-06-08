@@ -32,4 +32,4 @@ export default (app: Application): any => {
         (Bot as any).hasMany(models.botCommand, { foreignKey: "botId"});
     };
     return Bot;
-}
+};

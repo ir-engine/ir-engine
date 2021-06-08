@@ -27,4 +27,4 @@ export default (app: Application): void => {
 
     service.hooks(hooks as any);
 
-}
+};

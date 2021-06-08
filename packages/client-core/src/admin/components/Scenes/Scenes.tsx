@@ -11,19 +11,15 @@ import Paper from '@material-ui/core/Paper';
 import TablePagination from '@material-ui/core/TablePagination';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { selectAdminState } from '../../reducers/admin/selector';
 import { selectAppState } from "../../../common/reducers/app/selector";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 import { PAGE_LIMIT } from '../../reducers/admin/reducers';
-import {
-    fetchAdminScenes,
-} from '../../reducers/admin/scene/service';
-import {
-    fetchLocationTypes,
-} from '../../reducers/admin/location/service';
+import { fetchAdminScenes } from '../../reducers/admin/scene/service';
+import { fetchLocationTypes } from '../../reducers/admin/location/service';
 // @ts-ignore
 import styles from './Scenes.module.scss';
 import AddToContentPackModel from './AddToContentPackModal';
+import { selectAdminSceneState } from "../../reducers/admin/scene/selector";
 
 
 if (!global.setImmediate) {
@@ -31,18 +27,18 @@ if (!global.setImmediate) {
 }
 
 interface Props {
-    adminState?: any;
     authState?: any;
     locationState?: any;
     fetchAdminScenes?: any;
     fetchLocationTypes?: any;
+    adminSceneState?: any;
 }
 
 const mapStateToProps = (state: any): any => {
     return {
         appState: selectAppState(state),
         authState: selectAuthState(state),
-        adminState: selectAdminState(state)
+        adminSceneState: selectAdminSceneState(state)
     };
 };
 
@@ -53,14 +49,14 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 const Scenes = (props: Props) => {
     const {
-        adminState,
         authState,
         fetchAdminScenes,
+        adminSceneState,
     } = props;
 
     const user = authState.get('user');
-    const adminScenes = adminState.get('scenes').get('scenes');
-    const adminScenesCount = adminState.get('scenes').get('total');
+    const adminScenes = adminSceneState.get('scenes').get('scenes');
+    const adminScenesCount = adminSceneState.get('scenes').get('total');
     
     const headCell = [
         { id: 'sid', numeric: false, disablePadding: true, label: 'ID' },
@@ -198,11 +194,11 @@ const Scenes = (props: Props) => {
     }, []);
 
     useEffect(() => {
-        if (user?.id != null && (adminState.get('scenes').get('updateNeeded') === true || refetch === true)) {
+        if (user?.id != null && (adminSceneState.get('scenes').get('updateNeeded') === true || refetch === true)) {
             fetchAdminScenes();
         }
         setRefetch(false);
-    }, [authState, adminState, refetch]);
+    }, [authState, adminSceneState, refetch]);
 
     return (
         <div>

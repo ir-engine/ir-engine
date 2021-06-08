@@ -18,5 +18,16 @@ export  const useStyles = makeStyles({
     },
     spanNone: {
         color: "#808080"
+    },
+    marginBottm: {
+        marginBottom: "15px"
+    },
+    textLink: {
+        marginLeft: "5px",
+        textDecoration: "none",
+        color: "#ff9966"
+    },
+    marginTop: {
+        marginTop: "30px"
     }
 });

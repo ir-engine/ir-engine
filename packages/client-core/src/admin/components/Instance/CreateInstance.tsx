@@ -12,27 +12,27 @@ import styles from '../Admin.module.scss';
 import classNames from 'classnames';
 import { selectAppState } from '../../../common/reducers/app/selector';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
-import { selectAdminState } from '../../reducers/admin/selector';
 import { 
     createInstance, 
     fetchAdminInstances,
     patchInstance 
     } from '../../reducers/admin/instance/service';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { fetchAdminLocations } from "../../reducers/admin/service";
+import { fetchAdminLocations } from "../../reducers/admin/location/service";
 import { useFormik } from "formik";
 import { instanceValidationSchema } from "./validation";
 import DialogContentText from '@material-ui/core/DialogContentText';
 import Typography from '@material-ui/core/Typography';
 import { useStyles } from "./styles";
 import { Props } from "./variables";
+import { selectAdminLocationState } from "../../reducers/admin/location/selector";
 
 
 const mapStateToProps = (state: any): any => {
     return {
         appState: selectAppState(state),
         authState: selectAuthState(state),
-        adminState: selectAdminState(state),
+        adminLocationState: selectAdminLocationState(state),
     };
 };
 
@@ -66,7 +66,7 @@ const CreateInstance = (props: Props) => {
         patchInstance,
         authState,
         fetchAdminLocations,
-        adminState
+        adminLocationState
     } = props;
     const [ipAddress, setIpAddress] = useState('');
     const [curremtUser, setCurrentUser] = useState("");
@@ -74,7 +74,7 @@ const CreateInstance = (props: Props) => {
 
 
     const user = authState.get('user');
-    const adminLocation = adminState.get('locations');
+    const adminLocation = adminLocationState.get('locations');
     const locationData = adminLocation.get("locations");
     useEffect(() => {
         if (editing) {
@@ -90,7 +90,7 @@ const CreateInstance = (props: Props) => {
         if (user?.id != null && adminLocation.get('updateNeeded') === true) {
             fetchAdminLocations();
         }
-    }, [authState, adminState]);
+    }, [authState, adminLocationState]);
 
     const submitInstance = () => {
         const data = {
@@ -248,7 +248,7 @@ const CreateInstance = (props: Props) => {
             </Modal>
         </div>
     );
-}
+};
 
 
 export default connect(mapStateToProps, mapDispatchToProps)(CreateInstance);

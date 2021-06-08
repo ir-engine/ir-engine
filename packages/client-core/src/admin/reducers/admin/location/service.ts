@@ -52,8 +52,8 @@ export function fetchLocationTypes() {
           $sort: {
             name: 1
           },
-          $skip: getState().get('admin').get('locations').get('skip'),
-          $limit: getState().get('admin').get('locations').get('limit'),
+          $skip: getState().get('adminLocation').get('locations').get('skip'),
+          $limit: getState().get('adminLocation').get('locations').get('limit'),
           adminnedLocations: true
         }
       });

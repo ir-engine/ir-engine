@@ -13,6 +13,7 @@ import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectAdminState } from "../../reducers/admin/selector";
 import { PropsTable, columns, Data } from "./variables";
 import { useStyles } from "./style";
+import { selectAdminPartyState } from "../../reducers/admin/party/selector";
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchAdminParty: bindActionCreators(fetchAdminParty, dispatch)
@@ -21,19 +22,24 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const mapStateToProps = (state: any): any => {
     return {
         adminState: selectAdminState(state),
-        authState: selectAuthState(state)
+        authState: selectAuthState(state),
+        adminPartyState: selectAdminPartyState(state)
     };
 };
 
 const PartyTable = (props: PropsTable) => {
     const classes = useStyles();
-    const { fetchAdminParty, adminState, authState } = props;
+    const { 
+        fetchAdminParty,  
+        authState, 
+        adminPartyState 
+    } = props;
 
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
     const user = authState.get("user");
-    const adminParty = adminState.get("parties");
+    const adminParty = adminPartyState.get("parties");
     const adminPartyData = adminParty.get("parties").data ? adminParty.get("parties").data : [];
 
     const handleChangePage = (event: unknown, newPage: number) => {
@@ -49,7 +55,7 @@ const PartyTable = (props: PropsTable) => {
         if(user.id && adminParty.get('updateNeeded') === true){
             fetchAdminParty();
         }
-    }, [authState, adminState]);
+    }, [authState, adminPartyState]);
 
    const createData = (id: string, instance: string, location: string ): Data => {
         return {

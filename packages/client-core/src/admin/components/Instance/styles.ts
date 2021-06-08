@@ -14,3 +14,18 @@ createStyles({
     }
 })
 );
+
+export const useStyle = makeStyles({
+    root: {
+        width: '100%',
+        background: "#fff"
+    },
+    container: {
+        maxHeight: "80vh"
+    },
+    actionStyle: {
+        textDecoration: "none",
+        color: "#000",
+        marginRight: "10px"
+    }
+});

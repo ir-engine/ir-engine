@@ -8,12 +8,15 @@ export interface Props {
     authState?: any;
     fetchAdminInstances?: any;
     createAdminParty?: any;
+    adminInstanceState?: any;
+    adminLocationState?: any
 }
 
 export interface PropsTable {
     fetchAdminParty?: any;
     adminState?: any;
     authState?: any;
+    adminPartyState?: any
 }
 
 export interface Column {
