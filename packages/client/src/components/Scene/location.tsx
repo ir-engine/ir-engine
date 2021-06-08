@@ -192,6 +192,7 @@ export const EnginePage = (props: Props) => {
   const [noGameserverProvision, setNoGameserverProvision] = useState(false);
   const [instanceDisconnected, setInstanceDisconnected] = useState(false);
   const [isInputEnabled, setInputEnabled] = useState(true);
+  const [porting, setPorting] = useState(false);
 
   const appLoaded = appState.get('loaded');
   const selfUser = authState.get('user');
@@ -318,7 +319,7 @@ export const EnginePage = (props: Props) => {
   }, [noGameserverProvision]);
 
   useEffect(() => {
-    if (instanceDisconnected === true) {
+    if (instanceDisconnected === true && !porting) {
       const newValues = {
         open: true,
         title: 'World disconnected',
@@ -412,6 +413,7 @@ export const EnginePage = (props: Props) => {
     });
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
+    setPorting(false);
   }
 
   useEffect(() => {
@@ -441,6 +443,7 @@ export const EnginePage = (props: Props) => {
   const portToLocation = async (portalDetail) => {
     history.replace('/location/' + portalDetail.location);
 
+    setPorting(true);
     resetInstanceServer();
     await processLocationPort();
 
@@ -534,7 +537,7 @@ export const EnginePage = (props: Props) => {
       <canvas id={engineRendererCanvasId} style={canvasStyle} />
       {mobileGamepad}
       <WarningRefreshModal
-          open={warningRefreshModalValues.open}
+          open={warningRefreshModalValues.open && !porting}
           handleClose={() => { setWarningRefreshModalValues(initialRefreshModalValues); }}
           title={warningRefreshModalValues.title}
           body={warningRefreshModalValues.body}

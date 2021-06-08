@@ -246,6 +246,11 @@ export class ClientNetworkStateSystem extends System {
             return console.warn("Can't destroy object as it doesn't appear to exist");
           // console.log("Destroying network object ", Network.instance.networkObjects[networkId].component.networkId);
           // get network object
+
+          if (Network.instance.localAvatarNetworkId === networkId) {
+            console.warn('Can not remove owner...')
+            return;
+          }
           const entity = Network.instance.networkObjects[networkId].component.entity;
           if (hasComponent(entity, Object3DComponent)) {
             Engine.scene.remove( Engine.scene.getObjectByName(getComponent(entity, Object3DComponent).value.name) );
