@@ -184,7 +184,7 @@ export default class CubemapCapturer{
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	
-	 static convertToCubemap = ( renderer:WebGLRenderer,source:Texture, size:number )=> {
+	 static convertEquiToCubemap = ( renderer:WebGLRenderer,source:Texture, size:number )=> {
 
 		const convertScene = new Scene();
 	
