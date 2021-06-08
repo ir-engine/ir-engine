@@ -2,15 +2,17 @@ import { Quaternion, Vector3 } from "three";
 import type { Body, ColliderHitEvent } from "three-physx";
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
+import { ColliderTypes } from "../types/PhysicsTypes";
 
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 
+
 export class ColliderComponent extends Component<ColliderComponent> {
   bodytype: any
   body: Body
-  type: string
+  type: ColliderTypes
   mass: number
   position: Vector3
   /**

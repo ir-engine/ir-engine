@@ -59,10 +59,9 @@ export class BoxColliderNodeEditor extends Component<
       "target", target
     );
   };
-
-  // function to handle the changes on walkable property
-  onChangeWalkable = walkable => {
-    (this.props.editor as any).setPropertySelected("walkable", walkable);
+  // function to handle the changes on trigger property
+  onChangeTrigger = isTrigger => {
+    (this.props.editor as any).setPropertySelected("isTrigger", isTrigger);
   };
 
   renderInteractableTypeOptions = (node) => {
@@ -143,10 +142,10 @@ export class BoxColliderNodeEditor extends Component<
         description={BoxColliderNodeEditor.description}
       >
         { /* @ts-ignore */ }
-        <InputGroup name="Walkable" label={this.props.t('editor:properties.boxCollider.lbl-walkable')}>
+        <InputGroup name="Trigger" label={this.props.t('editor:properties.boxCollider.lbl-isTrigger')}>
           <BooleanInput
-            value={(this.props.node as any).walkable}
-            onChange={this.onChangeWalkable}
+            value={(this.props.node as any).isTrigger}
+            onChange={this.onChangeTrigger}
           />
         </InputGroup>
         {this.renderInteractableTypeOptions(node)}

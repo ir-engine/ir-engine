@@ -9,7 +9,6 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
   static async deserialize(editor, json) {
     
     const node = await super.deserialize(editor, json);
-    node.walkable = !!json.components.find(c => c.name === "walkable");
 
     const gameObject = json.components.find(
       c => c.name === "game-object"
@@ -18,6 +17,14 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
     if(gameObject){
       node.target = gameObject.props.target;
       node.role = gameObject.props.role;
+    }
+
+    const boxCollider = json.components.find(
+      c => c.name === "box-collider"
+    );
+
+    if(boxCollider) {
+      node.isTrigger = boxCollider.props.isTrigger;
     }
 
     return node;
@@ -33,7 +40,7 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
     box.layers.set(1);
     this.helper = box;
     this.add(box);
-    this.walkable = false;
+    this.isTrigger = false;
   }
   copy(source, recursive = true) {
     if (recursive) {
@@ -54,13 +61,14 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
         this.children.splice(helperIndex, 1, box);
       }
     }
-    this.walkable = source.walkable;
+    this.isTrigger = source.isTrigger;
     return this;
   }
   serialize() {
     const components = {
       "box-collider": {
         type: this.target === undefined ? 'box' : 'game-object',
+        isTrigger: this.isTrigger,
         mass: 0,
         position: this.position,
         quaternion: {
@@ -84,9 +92,6 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
         target: this.target
       }
     }
-    if (this.walkable) {
-      components.walkable = {};
-    }
     return super.serialize(components);
   }
   prepareForExport() {
@@ -95,6 +100,7 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
     this.addGLTFComponent("box-collider", {
       // TODO: Remove exporting these properties. They are already included in the transform props.
       type: this.target === undefined ? 'box' : 'game-object',
+      isTrigger: this.isTrigger,
       position: this.position,
       rotation: {
         x: this.rotation.x,
