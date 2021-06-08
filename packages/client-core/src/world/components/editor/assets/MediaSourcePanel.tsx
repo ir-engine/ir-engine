@@ -55,16 +55,16 @@ export function MediaSourcePanel({
   // returning view for MediaSourcePanel
   return (
     <>
-      <AssetsPanelToolbar title={source.name}>
+      {/* <AssetsPanelToolbar title={source.name}>
         {source.upload && (
         <FileInput
-        /* @ts-ignore */
+        // @ts-ignore
           accept={source.acceptFileTypes || "all"}
           multiple={source.uploadMultiple || false}
           onChange={onUpload}
         />
         )}
-      </AssetsPanelToolbar>
+      </AssetsPanelToolbar> */}
       <AssetPanelContentContainer>
         <AssetGrid
           source={source}
