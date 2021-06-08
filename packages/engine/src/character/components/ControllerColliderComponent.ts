@@ -18,7 +18,6 @@ export class ControllerColliderComponent extends Component<ControllerColliderCom
 	public segments: number;
 	public friction: number;
 	public playerStuck: number;
-  public collisions: ControllerHitEvent[] = [];
 }
 
 ControllerColliderComponent._schema = {

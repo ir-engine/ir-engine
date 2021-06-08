@@ -4,10 +4,11 @@ import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arra
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { Vector3, Quaternion, CylinderBufferGeometry, Mesh } from 'three';
+import { Vector3, Quaternion, CylinderBufferGeometry, Mesh, MeshNormalMaterial } from 'three';
 import { ConvexGeometry } from '../../assets/threejs-various/ConvexGeometry';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { ColliderTypes } from '../types/PhysicsTypes';
+import { Engine } from '../../ecs/classes/Engine';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -41,8 +42,6 @@ type ColliderData = {
   bodytype?: BodyType;
   isTrigger?: boolean;
   restitution?: number;
-  action?: 'portal';
-  link?: 'link'
 }
 
 type ModelData = {
@@ -55,7 +54,7 @@ type ModelData = {
 
 export function addColliderWithoutEntity(userData: ColliderData, pos = new Vector3(), rot = new Quaternion(), scale = new Vector3(),
  model: ModelData = { }): Body {
-  //console.log(userData, pos, rot, scale, model)
+  // console.log(userData, pos, rot, scale, model)
   if(model.mesh && !model.vertices) {
     const mergedGeom = getGeometry(model.mesh);
     model.vertices = Array.from(mergedGeom.attributes.position.array);
@@ -96,6 +95,13 @@ export function addColliderWithoutEntity(userData: ColliderData, pos = new Vecto
         const convexGeom = new ConvexGeometry(arrayOfPointsToArrayOfVector3(geom.attributes.position.array))
         model.vertices = Array.from(convexGeom.attributes.position.array);
         model.indices = geom.index ? Array.from(geom.index.array) : Object.keys(model.vertices).map(Number);
+        // TODO - DEBUG CYLINDERS
+        // const debugMesh = new Mesh(convexGeom, new MeshNormalMaterial())
+        // debugMesh.position.copy(pos)
+        // debugMesh.quaternion.copy(rot)
+        // debugMesh.scale.copy(scale)
+        // console.log(debugMesh)
+        // Engine.scene.add(debugMesh)
       }
     // yes, don't break here - use convex for cylinder
     case 'convex':
@@ -125,13 +131,6 @@ export function addColliderWithoutEntity(userData: ColliderData, pos = new Vecto
 
   if(userData.type === 'ground') {
     shape.config.collisionLayer = CollisionGroups.Ground;
-  }
-
-  if(userData.action === 'portal') {
-    shape.config.collisionLayer |= CollisionGroups.TriggerCollider;
-    // TODO: This was commented out in dev, do we want this?
-    shape.userData = { action: 'portal', link: userData.link };
-
   }
 
   if(userData.isTrigger) {
