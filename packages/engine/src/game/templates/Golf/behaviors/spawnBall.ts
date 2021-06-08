@@ -5,7 +5,7 @@ import { createGolfBallPrefab } from '../prefab/GolfBallPrefab';
 import { Network } from '../../../../networking/classes/Network';
 import { isClient } from '../../../../common/functions/isClient';
 import { getGame } from '../../../functions/functions';
-import { MathUtils } from 'three';
+import { MathUtils, Vector3 } from 'three';
 import { GolfPrefabTypes } from '../GolfGameConstants';
 import { TransformComponent } from "../../../../transform/components/TransformComponent";
 import { Behavior } from '../../../../common/interfaces/Behavior';
@@ -33,7 +33,7 @@ export const spawnBall: Behavior = (entity: Entity, args?: any, delta?: number, 
   const parameters = {
     gameName: game.name,
     role: 'GolfBall',
-    spawnPosition: { x: teeTransform.position.x, y: teeTransform.position.y + args.offsetY, z: teeTransform.position.z},
+    spawnPosition: new Vector3(teeTransform.position.x, teeTransform.position.y + args.offsetY, teeTransform.position.z),
     uuid
   };
 

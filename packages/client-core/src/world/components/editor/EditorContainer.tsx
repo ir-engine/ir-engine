@@ -880,7 +880,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
             size: 7,
             children: [
               {
-                tabs: [{id: 'viewPanel', title: 'Viewport', content: <div></div>}],
+                tabs: [{id: 'viewPanel', title: 'Viewport', content: <div />}],
                 size: 8,
               },
               {

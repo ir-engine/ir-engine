@@ -41,7 +41,7 @@ export class SceneObjectSystem extends System {
         const material = obj.material as Material;
         if (typeof material !== 'undefined') {
 
-          material.envMapIntensity=(this.bpcemOptions as any).intensity;
+          (material as any).envMapIntensity=(this.bpcemOptions as any).intensity;
           // BPCEM
           material.onBeforeCompile = beforeMaterialCompile((this.bpcemOptions as any).probeScale, (this.bpcemOptions as any).probePositionOffset);
 

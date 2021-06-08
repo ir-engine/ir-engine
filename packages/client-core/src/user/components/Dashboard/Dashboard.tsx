@@ -34,7 +34,7 @@ import { Link } from "react-router-dom";
 import Avatar from "@material-ui/core/Avatar";
 import { selectAuthState } from "../../reducers/auth/selector";
 import { connect } from 'react-redux';
-import { useStyles } from "./styles";
+import { useStylesForDashboard as useStyles } from "./styles";
 
 interface Props {
     children?: any,

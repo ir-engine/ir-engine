@@ -3,7 +3,7 @@ import { isNode, isWebWorker } from "../../common/functions/getEnvironment";
 export const configCanvasElement = (canvas: string | HTMLCanvasElement): HTMLCanvasElement => {
   if (!canvas) return null;
 
-  let canvasElement = typeof canvas === 'string'
+  const canvasElement = typeof canvas === 'string'
     ? document.getElementById(canvas) as HTMLCanvasElement
     : canvas;
 

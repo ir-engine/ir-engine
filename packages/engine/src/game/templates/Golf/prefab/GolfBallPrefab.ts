@@ -149,7 +149,7 @@ type GolfBallSpawnParameters = {
   gameName: string;
   role: string;
   uuid: string;
-  ownerNetworkId: number;
+  ownerNetworkId?: number;
   spawnPosition: Vector3;
 }
 

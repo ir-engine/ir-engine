@@ -5,14 +5,14 @@ import ProtectedRoute from "./protected";
 import homePage from '../pages/index';
 
 class RouterComp extends React.Component<{}, { hasError: boolean }> {
+    static getDerivedStateFromError() {
+        return { hasError: true };
+    }
+
     constructor(props) {
         super(props);
 
         this.state = { hasError: false };
-    }
-
-    static getDerivedStateFromError() {
-        return { hasError: true };
     }
 
     componentDidCatch() {
