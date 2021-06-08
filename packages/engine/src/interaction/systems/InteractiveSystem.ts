@@ -81,7 +81,6 @@ export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityV
     }
 
     focusedArrays = focusedArrays.sort((a: any, b: any) => a[1] - b[1]);
-    console.warn(focusedArrays.length);
     if (focusedArrays.length < 1) return;
 
     const interactable = getComponent(focusedArrays[0][0], Interactable);

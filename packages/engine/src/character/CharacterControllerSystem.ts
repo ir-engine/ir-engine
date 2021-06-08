@@ -11,7 +11,7 @@ import { LocalInputReceiver } from "../input/components/LocalInputReceiver";
 import { characterMoveBehavior } from "./behaviors/characterMoveBehavior";
 import { ControllerColliderComponent } from "./components/ControllerColliderComponent";
 import { InterpolationComponent } from "../physics/components/InterpolationComponent";
-import { DefaultCollisionMask } from "../physics/enums/CollisionGroups";
+import { CollisionGroups, DefaultCollisionMask } from "../physics/enums/CollisionGroups";
 import { PhysicsSystem } from "../physics/systems/PhysicsSystem";
 import { TransformComponent } from "../transform/components/TransformComponent";
 import { AnimationComponent } from "./components/AnimationComponent";
@@ -22,6 +22,7 @@ import { Engine } from "../ecs/classes/Engine";
 import { IKRigComponent } from "./components/IKRigComponent";
 import { Avatar } from "../xr/classes/IKAvatar";
 import { Network } from "../networking/classes/Network";
+import { PortalComponent } from "../scene/components/PortalComponent";
 
 const forwardVector = new Vector3(0, 0, 1);
 const prevControllerColliderPosition = new Vector3();
@@ -66,31 +67,30 @@ export class CharacterControllerSystem extends System {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
       if (actor) actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({
         type: SceneQueryType.Closest,
-        origin: new Vector3(),
+        origin: new Vector3(0, actor.capsuleRadius, 0),
         direction: new Vector3(0, -1, 0),
-        maxDistance: 0.1,
-        collisionMask: DefaultCollisionMask,
+        maxDistance: 0.1 + actor.capsuleRadius,
+        collisionMask: DefaultCollisionMask | CollisionGroups.Portal,
       }));
     });
 
     this.queryResults.controller.all?.forEach((entity) => {
       const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
+
       // iterate on all collisions since the last update
-      collider.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => {
-        const { length, normal, position, shape, body } = event;
-        // TODO: figure out how we expose specific behaviors like this
-        if (isClient) {
-          const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-          if(shape?.userData?.action === 'portal') {
-            actor.playerInPortal += 1
-            if (actor.playerInPortal > 120) {
-              EngineEvents.instance.dispatchEvent({ type: PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, location: shape.userData?.link });
-              actor.playerInPortal = 0;
-            }
+      collider.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => { })
+
+      const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+      if(actor.raycastQuery.hits[0]) {
+        const body = actor.raycastQuery.hits[0].body
+        if (isClient && body?.userData) {
+          const portal = getComponent(body.userData, PortalComponent);
+          if(portal) {
+            console.log('in portal', portal, portal.location)
+            EngineEvents.instance.dispatchEvent({ type: PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, location: portal.location });
           }
         }
-      })
-      collider.collisions = []; // clear for next loop
+      }
     })
 
     this.queryResults.character.all?.forEach(entity => {
@@ -119,8 +119,7 @@ export class CharacterControllerSystem extends System {
         collider.controller.transform.translation.z
       );
 
-      vector3.set(collider.controller.transform.translation.x, collider.controller.transform.translation.y, collider.controller.transform.translation.z);
-      actor.raycastQuery.origin.set(vector3.x, vector3.y - (collider.height * 0.5) - collider.radius, vector3.z);
+      actor.raycastQuery.origin.copy(transform.position);
       actor.closestHit = actor.raycastQuery.hits[0];
       actor.isGrounded = actor.closestHit ? true : collider.controller.collisions.down;
     });
