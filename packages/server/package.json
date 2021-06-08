@@ -99,7 +99,7 @@
     "moment": "2.29.1",
     "multer": "1.4.2",
     "mysql2": "2.2.5",
-    "nanoid": "3.1.22",
+    "nanoid": "3.1.23",
     "node-fetch": "2.6.1",
     "nodemailer-smtp-transport": "2.7.4",
     "ps-list": "7.2.0",
