@@ -461,7 +461,7 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
         // stick this consumer in our list of consumers to keep track of
         MediaStreamSystem.instance?.consumers.push(consumer);
 
-        Network.instance.clients[userId].consumerLayers[consumer.id] = {
+        if (Network.instance.clients[userId] != null) Network.instance.clients[userId].consumerLayers[consumer.id] = {
             currentLayer: null,
             clientSelectedLayer: null
         };
