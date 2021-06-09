@@ -9,9 +9,14 @@ import disposeScene from "../../renderer/functions/disposeScene";
 import { PersistTagComponent } from "../../scene/components/PersistTagComponent";
 import { Engine } from '../classes/Engine';
 import { System } from '../classes/System';
-import { hasComponent, removeAllComponents, removeAllEntities, removeEntity } from "./EntityFunctions";
+import { getComponent, hasComponent, removeAllComponents, removeAllEntities, removeEntity } from "./EntityFunctions";
 import { SystemUpdateType } from "./SystemUpdateType";
 import { Color } from 'three';
+import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
+import { PhysXInstance } from "three-physx";
+import { PortalComponent } from "../../scene/components/PortalComponent";
+import { CharacterComponent } from "../../character/components/CharacterComponent";
+import { ControllerColliderComponent } from "../../character/components/ControllerColliderComponent";
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {
@@ -247,7 +252,7 @@ const delay = (delay: number) => {
   })
 }
 
-export const processLocationPort = async () => {
+export const processLocationPort = async (newPhysicsWorker: Worker, portalComponent: any) => {
   const entitiesToRemove = [];
   const removedEntities = [];
   const sceneObjectsToRemove = [];
@@ -278,4 +283,12 @@ export const processLocationPort = async () => {
   entitiesToRemove.forEach(entity => {
     removeEntity(entity, false);
   });
+
+  PhysicsSystem.instance.enabled = false;
+  PhysicsSystem.instance.worker.terminate();
+  Engine.workers.splice(Engine.workers.indexOf(PhysicsSystem.instance.worker), 1);
+  PhysXInstance.instance.dispose();
+  PhysXInstance.instance = new PhysXInstance();
+  await PhysXInstance.instance.initPhysX(newPhysicsWorker, PhysicsSystem.instance.physicsWorldConfig);
+  PhysicsSystem.instance.enabled = true;
 }
