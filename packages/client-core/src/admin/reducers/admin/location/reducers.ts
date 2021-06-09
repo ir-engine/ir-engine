@@ -84,10 +84,9 @@ const adminReducer = (state = immutableState, action: any): any => {
         .set('locations', updateMap);
 
     case LOCATION_REMOVED:
-      updateMap = new Map(state.get('locations'));
-      updateMap.set('updateNeeded', true);
-      return state
-        .set('locations', updateMap);
+      let removedMap = new Map(state.get('locations'));
+      removedMap.set('updateNeeded', true);
+      return state.set('locations', removedMap);
 
     case LOCATION_TYPES_RETRIEVED:
       result = (action as LocationTypesRetrievedResponse).types;
