@@ -76,6 +76,7 @@ export async function cleanupOldGameservers(): Promise<void> {
         console.log('gameservers', gameservers.items);
         const match = gameservers.items.find(gs => {
             console.log('gs status', gs.status);
+            if (gs.status.ports == null || gs.status.address === '') return false;
             const inputPort = gs.status.ports.find(port => port.name === 'default');
             return gs.status.address === ip && inputPort.port.toString() === port;
         });
