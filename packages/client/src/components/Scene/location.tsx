@@ -455,7 +455,6 @@ export const EnginePage = (props: Props) => {
     getLocationByName(portalComponent.location);
 
     EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, () => {
-      console.log('CONNECT_TO_WORLD')
       onPlayerSpawnInNewLocation(portalComponent);
     })
   };
