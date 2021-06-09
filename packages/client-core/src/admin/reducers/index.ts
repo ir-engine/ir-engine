@@ -6,6 +6,12 @@ import adminLocationReducer from "./admin/location/reducers";
 import adminPartyReducer from "./admin/party/reducers";
 import adminSceneReducer from "./admin/scene/reducers";
 
+/**
+ * TODO: I am moving admin reducer to different packages
+ * 
+ * @author KIMENYI KEVIN <kimenyikevin@gmail.com>
+ */
+
 export default {
   adminUser: adminUserReducer,
   admin: adminReducer,
