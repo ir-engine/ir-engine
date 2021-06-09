@@ -45,6 +45,7 @@ cd path/to/xrengine
 npm install --legacy-peer-deps
 ```
 
+You should not need to use sudo in any case.
 
 Error with mediasoup? Optional: https://mediasoup.org/documentation/v3/mediasoup/installation/
     
