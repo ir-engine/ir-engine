@@ -16,7 +16,7 @@ import { DebugArrowComponent } from "../DebugArrowComponent";
 type ComponentHelpers = 'viewVector' | 'helperArrow' | 'velocityArrow' | 'box';
 
 export class DebugHelpersSystem extends System {
-  private helpersByEntity: Record<ComponentHelpers, Map<Entity,Object3D>>;
+  private helpersByEntity: Record<ComponentHelpers, Map<Entity, Object3D|Object3D[]>>;
   updateType = SystemUpdateType.Fixed;
   physicsDebugRenderer: DebugRenderer;
   static instance: DebugHelpersSystem;
@@ -87,12 +87,14 @@ export class DebugHelpersSystem extends System {
 
     this.queryResults.characterDebug?.removed?.forEach(entity => {
       // view vector
-      const arrowHelper = this.helpersByEntity.viewVector.get(entity);
+      const arrowHelper = this.helpersByEntity.viewVector.get(entity) as Object3D;
       Engine.scene.remove( arrowHelper );
+      this.helpersByEntity.viewVector.delete(entity);
 
       // velocity
-      const velocityArrowHelper = this.helpersByEntity.velocityArrow.get(entity);
+      const velocityArrowHelper = this.helpersByEntity.velocityArrow.get(entity) as Object3D;
       Engine.scene.remove( velocityArrowHelper );
+      this.helpersByEntity.velocityArrow.delete(entity);
     });
 
     this.queryResults.characterDebug?.all?.forEach(entity => {
@@ -138,12 +140,14 @@ export class DebugHelpersSystem extends System {
 
     this.queryResults.colliderComponent.removed?.forEach(entity => {
       // view vector
-      const arrowHelper = this.helpersByEntity.viewVector.get(entity);
+      const arrowHelper = this.helpersByEntity.viewVector.get(entity) as Object3D;
       Engine.scene.remove( arrowHelper );
+      this.helpersByEntity.viewVector.delete(entity);
 
       // velocity
-      const velocityArrowHelper = this.helpersByEntity.velocityArrow.get(entity);
+      const velocityArrowHelper = this.helpersByEntity.velocityArrow.get(entity) as Object3D;
       Engine.scene.remove( velocityArrowHelper );
+      this.helpersByEntity.velocityArrow.delete(entity);
     });
 
     this.queryResults.colliderComponent.all?.forEach(entity => {
@@ -168,6 +172,7 @@ export class DebugHelpersSystem extends System {
 
     // bounding box
     this.queryResults.boundingBoxComponent?.added.forEach(entity => {
+      this.helpersByEntity.box.set(entity, []);
       const boundingBox = getComponent(entity, BoundingBox);
       if (boundingBox.boxArray.length) {
         if (boundingBox.dynamic) {
@@ -175,7 +180,7 @@ export class DebugHelpersSystem extends System {
             const helper = new BoxHelper(object3D);
             helper.visible = false;
             Engine.scene.add(helper);
-            this.helpersByEntity.box.set(entity, helper);
+            (this.helpersByEntity.box.get(entity) as Object3D[]).push(helper);
           });
         }
       } else {
@@ -188,8 +193,16 @@ export class DebugHelpersSystem extends System {
         const helper = new Box3Helper(box3);
         helper.visible = false;
         Engine.scene.add(helper);
-        this.helpersByEntity.box.set(entity, helper);
+        (this.helpersByEntity.box.get(entity) as Object3D[]).push(helper);
       }
+    });
+
+    this.queryResults.boundingBoxComponent?.removed?.forEach(entity => {
+      const boxes = this.helpersByEntity.box.get(entity) as Object3D[];
+      boxes.forEach((box) => {
+        Engine.scene.remove(box)
+      })
+      this.helpersByEntity.box.delete(entity);
     });
 
     this.queryResults.arrowHelper?.added?.forEach(entity => {
@@ -201,8 +214,9 @@ export class DebugHelpersSystem extends System {
     });
 
     this.queryResults.arrowHelper?.removed?.forEach(entity => {
-      const arrowHelper = this.helpersByEntity.helperArrow.get(entity);
+      const arrowHelper = this.helpersByEntity.helperArrow.get(entity) as Object3D;
       Engine.scene.remove( arrowHelper );
+      this.helpersByEntity.helperArrow.delete(entity);
     });
 
     this.queryResults.arrowHelper?.all?.forEach((entity) => {
