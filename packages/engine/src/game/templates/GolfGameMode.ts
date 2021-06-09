@@ -214,25 +214,43 @@ export const GolfGameMode: GameMode = somePrepareFunction({
         }
       ],
       'updateTurn': [
-        
-/*
         {
           behavior: saveScore,
           args: { on: 'self' },
-          watchers:[ [ YourTurn ] ],
+          watchers:[ [ State.YourTurn ] ],
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {
-                watchers:[ [ HasHadInteraction ] ],
+                watchers:[ [ State.Inactive, State.BallMoving ] ],
                 checkers:[{
-                  function: ifNamed,
-                  args: { on: 'target', name: '1' }
+                  function: ifOwned
                 }]
               }
             }
           }
         },
-*/
+        {
+          behavior: displayScore,
+          args: { on: 'self' },
+          watchers:[ [ State.YourTurn ] ],
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                watchers:[ [ Action.GameObjectCollisionTag ] ],
+                checkers:[{
+                  function: ifOwned
+                  },{
+                    function: customChecker,
+                    args: {
+                      on:'GolfHole',
+                      watchers:[ [ Action.GameObjectCollisionTag ] ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
         // give Ball Inactive State for player cant hit Ball again in one game turn
         {
           behavior: switchState,
@@ -293,6 +311,28 @@ export const GolfGameMode: GameMode = somePrepareFunction({
               }
             }
           }
+        },
+        {
+          behavior: teleportObject,
+          args: { on: 'target', positionCopyFromRole: 'GolfTee-'},
+          watchers:[ [ State.YourTurn ] ],
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                watchers:[ [ Action.GameObjectCollisionTag ] ],
+                checkers:[{
+                  function: ifOwned
+                  },{
+                    function: customChecker,
+                    args: {
+                      on:'GolfHole',
+                      watchers:[ [ Action.GameObjectCollisionTag ] ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
         }
       ]
     },
@@ -341,6 +381,10 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       ],
     },
     'GolfTee': {},
+    'GolfTee-0': {},
+    'GolfTee-1': {},
+    'GolfTee-2': {},
+    'GolfTee-3': {},
     'GolfHole': {
       'goal': [
         {
@@ -352,18 +396,6 @@ export const GolfGameMode: GameMode = somePrepareFunction({
               'GoalPanel': {
                 watchers:[ [ State.PanelDown ] ],
                 args: { remove: State.PanelDown, add: State.PanelUp }
-              }
-            }
-          }
-        },
-        {
-          behavior: teleportObject,
-          args: { on: 'target', positionCopyFromRole: 'GolfTee'},
-          watchers:[ [ Action.GameObjectCollisionTag ] ],
-          takeEffectOn: {
-            targetsRole: {
-              'GolfBall': {
-                watchers:[ [ Action.GameObjectCollisionTag ] ]
               }
             }
           }

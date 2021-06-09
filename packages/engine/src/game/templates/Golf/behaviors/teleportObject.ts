@@ -5,6 +5,7 @@ import { getComponent, getMutableComponent } from "../../../../ecs/functions/Ent
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
 import { getGame, getTargetEntity } from '../../../functions/functions';
+import { getStorage } from '../../../functions/functionsStorage';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -13,9 +14,10 @@ export const teleportObject: Behavior = (entity: Entity, args?: any, delta?: num
   console.warn('Teleport Object');
 
   const entityArg = getTargetEntity(entity, entityTarget, args);
-
+  const gameScore = getStorage(entity, { name: 'GameScore' });
   const game = getGame(entityArg);
-  const teeEntity = game.gameObjects[args.positionCopyFromRole][0];
+  console.warn(args.positionCopyFromRole+gameScore.score.goal);
+  const teeEntity = game.gameObjects[args.positionCopyFromRole+gameScore.score.goal][0];
   const teeTransform = getComponent(teeEntity, TransformComponent);
 
   const collider = getMutableComponent(entityArg, ColliderComponent)
