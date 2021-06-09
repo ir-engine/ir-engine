@@ -456,7 +456,7 @@ export const EnginePage = (props: Props) => {
 
     EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, () => {
       onPlayerSpawnInNewLocation(portalComponent);
-    })
+    });
   };
 
   const addUIEvents = () => {
