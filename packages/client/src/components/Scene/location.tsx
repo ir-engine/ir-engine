@@ -54,6 +54,9 @@ import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldSta
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader';
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
+import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent';
+import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal';
+import { onPlayerSpawnInNewLocation } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
 
 const store = Store.store;
 
@@ -440,16 +443,20 @@ export const EnginePage = (props: Props) => {
     setonUserPosition(focused ? position : null);
   };
 
-  const portToLocation = async (portalDetail) => {
-    history.replace('/location/' + portalDetail.location);
+  const portToLocation = async ({ portalComponent }: { portalComponent: PortalProps }) => {
+    history.replace('/location/' + portalComponent.location);
 
     setPorting(true);
     resetInstanceServer();
-    await processLocationPort();
+    await processLocationPort(new Worker('/scripts/loadPhysXClassic.js'), portalComponent);
 
     Network.instance.transport.close();
 
-    getLocationByName(portalDetail.location);
+    getLocationByName(portalComponent.location);
+
+    EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, () => {
+      onPlayerSpawnInNewLocation(portalComponent);
+    })
   };
 
   const addUIEvents = () => {

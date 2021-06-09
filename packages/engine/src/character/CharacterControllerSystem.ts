@@ -67,9 +67,9 @@ export class CharacterControllerSystem extends System {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
       if (actor) actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({
         type: SceneQueryType.Closest,
-        origin: new Vector3(0, actor.capsuleRadius, 0),
+        origin: new Vector3(0, actor.actorHeight, 0),
         direction: new Vector3(0, -1, 0),
-        maxDistance: 0.1 + actor.capsuleRadius,
+        maxDistance: 0.1 + (actor.actorHeight * 0.5) + actor.capsuleRadius,
         collisionMask: DefaultCollisionMask | CollisionGroups.Portal,
       }));
     });
@@ -84,10 +84,28 @@ export class CharacterControllerSystem extends System {
       if(actor.raycastQuery.hits[0]) {
         const body = actor.raycastQuery.hits[0].body
         if (isClient && body?.userData) {
-          const portal = getComponent(body.userData, PortalComponent);
-          if(portal) {
-            console.log('in portal', portal, portal.location)
-            EngineEvents.instance.dispatchEvent({ type: PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, location: portal.location });
+          const portalComponent = getComponent(body.userData, PortalComponent);
+          if(portalComponent) {
+            EngineEvents.instance.dispatchEvent({ 
+              type: PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT,
+              portalComponent: {
+                location: portalComponent.location,
+                displayText: portalComponent.displayText,
+                spawnPosition: { 
+                  x: portalComponent.spawnPosition.x,
+                  y: portalComponent.spawnPosition.y,
+                  z: portalComponent.spawnPosition.z,
+                },
+                spawnRotation: { 
+                  x: portalComponent.spawnRotation.x,
+                  y: portalComponent.spawnRotation.y,
+                  z: portalComponent.spawnRotation.z,
+                  w: portalComponent.spawnRotation.w,
+                }
+              }
+              // quaternions don't json properly. threejs nonsense...
+              // portalComponent: portalComponent.json()
+            });
           }
         }
       }
