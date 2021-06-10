@@ -46,7 +46,7 @@
     "redux": "4.1.0",
     "sass": "1.34.1",
     "styled-components": "5.2.3",
-    "webxr-native": "^0.2.19"
+    "webxr-native": "0.2.19"
   },
   "devDependencies": {
     "@types/node": "13.13.51",
