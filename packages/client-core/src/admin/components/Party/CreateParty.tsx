@@ -5,50 +5,28 @@ import Modal from "@material-ui/core/Modal";
 import styles from '../Admin.module.scss';
 import Backdrop from "@material-ui/core/Backdrop";
 import classNames from 'classnames';
-import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import TextField from '@material-ui/core/TextField';
 import { bindActionCreators, Dispatch } from 'redux';
-import { fetchAdminLocations } from "../../reducers/admin/service";
+import { fetchAdminLocations } from "../../reducers/admin/location/service";
 import { connect } from 'react-redux';
-import { selectAdminState } from '../../reducers/admin/selector';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
-import { fetchAdminInstances, createAdminParty } from '../../reducers/admin/service';
+import { createAdminParty } from '../../reducers/admin/party/service';
+import { fetchAdminInstances } from '../../reducers/admin/instance/service';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogActions from '@material-ui/core/DialogActions';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-
-interface Props {
-    open: boolean;
-    handleClose: any;
-    fetchAdminLocations?: any;
-    adminState?: any;
-    authState?: any;
-    fetchAdminInstances?: any;
-    createAdminParty?: any
-}
-
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        marginBottm: {
-            marginBottom: "15px"
-        },
-        textLink: {
-            marginLeft: "5px",
-            textDecoration: "none",
-            color: "#ff9966"
-        },
-        marginTop: {
-            marginTop: "30px"
-        }
-    })
-);
+import { Props } from "./variables";
+import { useStyles } from "./style";
+import { selectAdminLocationState } from "../../reducers/admin/location/selector";
+import { selectAdminInstanceState } from "../../reducers/admin/instance/selector";
 
 const mapStateToProps = (state: any): any => {
     return {
         authState: selectAuthState(state),
-        adminState: selectAdminState(state)
+        adminInstanceState: selectAdminInstanceState(state),
+        adminLocationState: selectAdminLocationState(state)
     };
 };
 
@@ -62,16 +40,25 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const CreateParty = (props: Props) => {
     const classes = useStyles();
 
-    const { open, handleClose, createAdminParty, fetchAdminLocations, authState, adminState, fetchAdminInstances } = props;
+    const { 
+        open, 
+        handleClose, 
+        createAdminParty, 
+        fetchAdminLocations, 
+        authState, 
+        fetchAdminInstances,
+        adminInstanceState,
+        adminLocationState
+    } = props;
 
     const [location, setLocation] = useState("");
     const [instance, setInstance] = React.useState("");
 
 
     const user = authState.get('user');
-    const adminLocation = adminState.get('locations');
+    const adminLocation = adminLocationState.get('locations');
     const locationData = adminLocation.get("locations");
-    const adminInstances = adminState.get('instances');
+    const adminInstances = adminInstanceState.get('instances');
     const instanceData = adminInstances.get("instances");
 
     useEffect(() => {
@@ -83,7 +70,7 @@ const CreateParty = (props: Props) => {
             fetchAdminInstances();
         }
 
-    }, [authState, adminState]);
+    }, [authState, adminLocationState, adminInstanceState ]);
 
     const defaultProps = {
         options: locationData,

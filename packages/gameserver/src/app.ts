@@ -1,3 +1,4 @@
+import config from '@xrengine/server-core/src/appconfig';
 import fs from 'fs';
 import path from 'path';
 import favicon from 'serve-favicon';
@@ -13,7 +14,6 @@ import { Application } from '@xrengine/server-core/declarations';
 import logger from '@xrengine/server-core/src/logger';
 import channels from './channels';
 import authentication from '@xrengine/server-core/src/user/authentication';
-import config from '@xrengine/server-core/src/appconfig';
 import sync from 'feathers-sync';
 import { api } from '@xrengine/server-core/src/k8s';
 import { WebRTCGameServer } from "./WebRTCGameServer";

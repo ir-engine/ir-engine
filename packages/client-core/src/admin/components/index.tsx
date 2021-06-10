@@ -25,13 +25,17 @@ import { selectAppState } from '../../common/reducers/app/selector';
 import { client } from "../../feathers";
 import { selectAuthState } from '../../user/reducers/auth/selector';
 import { PAGE_LIMIT } from '../reducers/admin/reducers';
-import { selectAdminState } from '../reducers/admin/selector';
+import {  selectAdminLocationState } from "../reducers/admin/location/selector";
+import { fetchAdminScenes } from '../reducers/admin/scene/service';
+import { fetchUsersAsAdmin } from '../reducers/admin/user/service';
+import { fetchAdminInstances } from '../reducers/admin/instance/service';
+import { selectAdminUserState } from './../reducers/admin/user/selector';
+import { selectAdminInstanceState } from "./../reducers/admin/instance/selector";
 import {
-    fetchAdminInstances, fetchAdminLocations,
-    fetchAdminScenes,
-    fetchLocationTypes,
-    fetchUsersAsAdmin
-} from '../reducers/admin/service';
+    fetchAdminLocations,
+    fetchLocationTypes
+} from "../reducers/admin/location/service";
+import { selectAdminSceneState } from "./../reducers/admin/scene/selector";
 import Grid from '@material-ui/core/Grid';
 // @ts-ignore
 import styles from './Admin.module.scss';
@@ -53,6 +57,10 @@ interface Props {
     fetchLocationTypes?: any;
     fetchUsersAsAdmin?: any;
     fetchAdminInstances?: any;
+    adminLocationState?: any;
+    adminUserState?: any;
+    adminInstanceState?: any;
+    adminSceneState?: any
 }
 
 type Order = 'asc' | 'desc';
@@ -130,7 +138,10 @@ const mapStateToProps = (state: any): any => {
     return {
         appState: selectAppState(state),
         authState: selectAuthState(state),
-        adminState: selectAdminState(state)
+        adminLocationState: selectAdminLocationState(state),
+        adminUserState: selectAdminUserState(state),
+        adminInstanceState: selectAdminInstanceState(state),
+        adminSceneState: selectAdminSceneState(state)
     };
 };
 
@@ -161,13 +172,16 @@ const useStyles = makeStyles((theme: Theme) =>
 const AdminConsole = (props: Props) => {
     const classes = useStyles();
     const {
-        adminState,
         authState,
         fetchAdminLocations,
         fetchAdminScenes,
         fetchLocationTypes,
         fetchUsersAsAdmin,
-        fetchAdminInstances
+        fetchAdminInstances,
+        adminLocationState,
+        adminUserState,
+        adminInstanceState,
+        adminSceneState
     } = props;
 
     const router = useHistory();
@@ -198,7 +212,7 @@ const AdminConsole = (props: Props) => {
     const [locationEditing, setLocationEditing] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState(initialLocation);
     const [selectedInstance, setSelectedInstance] = useState(initialInstance);
-    const adminScenes = adminState.get('scenes').get('scenes');
+    const adminScenes = adminSceneState.get('scenes').get('scenes');
 
     function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
         if (b[orderBy] < a[orderBy]) {
@@ -244,12 +258,12 @@ const AdminConsole = (props: Props) => {
     const [userRole, setUserRole] = React.useState("");
     const [selectedUser, setSelectedUser] = React.useState({});
 
-    const adminLocations = adminState.get('locations').get('locations');
-    const adminLocationCount = adminState.get('locations').get('total');
-    const adminUsers = adminState.get('users').get('users');
-    const adminUserCount = adminState.get('users').get('total');
-    const adminInstances = adminState.get('instances').get('instances');
-    const adminInstanceCount = adminState.get('instances').get('total');
+    const adminLocations = adminLocationState.get('locations').get('locations');
+    const adminLocationCount = adminLocationState.get('locations').get('total');
+    const adminUsers = adminUserState.get('users').get('users');
+    const adminUserCount = adminUserState.get('users').get('total');
+    const adminInstances = adminInstanceState.get('instances').get('instances');
+    const adminInstanceCount = adminInstanceState.get('instances').get('total');
     const { t } = useTranslation();
 
     const selectCount = selectedTab === 'locations' ? adminLocationCount : selectedTab === 'users' ? adminUserCount : selectedTab === 'instances' ? adminInstanceCount : 0;
@@ -390,22 +404,22 @@ const AdminConsole = (props: Props) => {
     }, [adminUsers]);
 
     useEffect(() => {
-        if (user?.id != null && adminState.get('locations').get('updateNeeded') === true) {
+        if (user?.id != null && adminLocationState.get('locations').get('updateNeeded') === true) {
             fetchAdminLocations();
         }
-        if (user?.id != null && adminState.get('scenes').get('updateNeeded') === true) {
+        if (user?.id != null && adminSceneState.get('scenes').get('updateNeeded') === true) {
             fetchAdminScenes();
         }
-        if (user?.id != null && adminState.get('locationTypes').get('updateNeeded') === true) {
+        if (user?.id != null && adminLocationState.get('locationTypes').get('updateNeeded') === true) {
             fetchLocationTypes();
         }
-        if (user?.id != null && adminState.get('users').get('updateNeeded') === true) {
+        if (user?.id != null && adminUserState.get('users').get('updateNeeded') === true) {
             fetchUsersAsAdmin();
         }
-        if (user?.id != null && adminState.get('instances').get('updateNeeded') === true) {
+        if (user?.id != null && adminInstanceState.get('instances').get('updateNeeded') === true) {
             fetchAdminInstances();
         }
-    }, [authState, adminState]);
+    }, [authState, adminSceneState, adminInstanceState, adminLocationState]);
 
     const handleClick = () => {
         console.info('You clicked the Chip.');

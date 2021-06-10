@@ -161,7 +161,7 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
 		if (this.renderer.info.render.triangles <= 0) return this.t('user:usermenu.avatar.emptyObj');
 
 		const size = new THREE.Vector3().subVectors(this.maxBB, objBoundingBox.getSize(new THREE.Vector3()));
-		if (size.x <= 0 || size.y <= 0 || size.z <= 0) return this.t('user:usermenu.avatar.outOfBOund');
+		if (size.x <= 0 || size.y <= 0 || size.z <= 0) return this.t('user:usermenu.avatar.outOfBound');
 
 		let bone = false;
 		let skinnedMesh = false;

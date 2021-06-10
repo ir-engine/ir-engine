@@ -316,7 +316,6 @@ export * from './src/world/components/editor/properties/SkyboxNodeEditor';
 export * from './src/world/components/editor/properties/SpawnPointNodeEditor';
 export * from './src/world/components/editor/properties/SplineNodeEditor';
 export * from './src/world/components/editor/properties/SpotLightNodeEditor';
-export * from './src/world/components/editor/properties/TestModelNodeEditor';
 export * from './src/world/components/editor/properties/TransformPropertyGroup';
 export * from './src/world/components/editor/properties/TriggerVolumeNodeEditor';
 export * from './src/world/components/editor/properties/VideoNodeEditor';
@@ -618,7 +617,6 @@ export { default as srcWorldComponentsEditorPropertiesSkyboxNodeEditor } from '.
 export { default as srcWorldComponentsEditorPropertiesSpawnPointNodeEditor } from './src/world/components/editor/properties/SpawnPointNodeEditor';
 export { default as srcWorldComponentsEditorPropertiesSplineNodeEditor } from './src/world/components/editor/properties/SplineNodeEditor';
 export { default as srcWorldComponentsEditorPropertiesSpotLightNodeEditor } from './src/world/components/editor/properties/SpotLightNodeEditor';
-export { default as srcWorldComponentsEditorPropertiesTestModelNodeEditor } from './src/world/components/editor/properties/TestModelNodeEditor';
 export { default as srcWorldComponentsEditorPropertiesTransformPropertyGroup } from './src/world/components/editor/properties/TransformPropertyGroup';
 export { default as srcWorldComponentsEditorPropertiesTriggerVolumeNodeEditor } from './src/world/components/editor/properties/TriggerVolumeNodeEditor';
 export { default as srcWorldComponentsEditorPropertiesUseSetPropertySelected } from './src/world/components/editor/properties/useSetPropertySelected';

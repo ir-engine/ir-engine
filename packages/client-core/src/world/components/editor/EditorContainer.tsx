@@ -30,11 +30,8 @@ import AssetsPanel from "./assets/AssetsPanel";
 import { selectAdminState } from "../../../admin/reducers/admin/selector";
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import {
-  fetchAdminLocations,
-  fetchAdminScenes,
-  fetchLocationTypes
-} from "../../../admin/reducers/admin/service";
+import { fetchAdminScenes, fetchLocationTypes } from "../../../admin/reducers/admin/service";
+import { fetchAdminLocations } from "../../../admin/reducers/admin/location/service";
 import { withTranslation } from 'react-i18next';
 import { DockLayout, DockMode } from 'rc-dock';
 import "rc-dock/dist/rc-dock.css";

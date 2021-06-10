@@ -5,20 +5,13 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import { fetchUserRole, createUserRoleAction  } from "../../reducers/admin/service";
-import { selectAdminState } from "../../reducers/admin/selector";
-
-
+import { fetchUserRole, createUserRoleAction  } from "../../reducers/admin/user/service";
+import { useStyles, useStyle } from "./styles";
 interface Props {
     open: boolean;
     handleClose: any;
-    adminState?: any;
-    createUserAction?: any;
-    patchUser?: any;
-    fetchUserRole?: any;
     createUserRoleAction?: any;
 }
 
@@ -27,27 +20,11 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createUserRoleAction: bindActionCreators(createUserRoleAction, dispatch)
 });
 
-const mapStateToProps = (state: any): any => {
-    return {
-        adminState: selectAdminState(state),
-    };
-};
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        marginBottm: {
-            marginBottom: "15px"
-        },
-        textLink: {
-            marginLeft: "5px",
-            textDecoration: "none",
-            color: "#ff9966"
-        }
-    })
-);
 const createUser = (props: Props) => {
     const { open,  handleClose, createUserRoleAction } = props;
     const classes = useStyles();
+    const classx = useStyle();
     const [role, setRole] = React.useState('');
 
 
@@ -60,7 +37,12 @@ const createUser = (props: Props) => {
 
     return (
         <div>
-            <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+            <Dialog 
+            open={open}
+             onClose={handleClose}
+              aria-labelledby="form-dialog-title"
+              classes={{ paper: classx.paperDialog}} 
+              >
                 <DialogTitle id="form-dialog-title">Create new user role </DialogTitle>
                 <DialogContent>
 
@@ -89,4 +71,4 @@ const createUser = (props: Props) => {
     );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)( createUser);
+export default connect(null, mapDispatchToProps)( createUser);
