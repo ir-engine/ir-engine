@@ -60,10 +60,10 @@
   ],
   "pre-commit": [],
   "resolutions": {
-    "socket.io": "4.0.1",
+    "socket.io": "4.1.2",
     "terser": "^5.6.1",
-    "@typescript-eslint/eslint-plugin": "4.22.0",
-    "@typescript-eslint/parser": "4.22.0"
+    "@typescript-eslint/eslint-plugin": "4.26.1",
+    "@typescript-eslint/parser": "4.26.1"
   },
   "peerDependencies": {
     "@feathersjs/authentication": "^5.0.0-pre.3",
@@ -83,12 +83,12 @@
     "@typescript-eslint/eslint-plugin": "^4.6.0",
     "@typescript-eslint/parser": "^4.16.1",
     "chokidar": "^3.4.2",
-    "socket.io": "4.0.1",
+    "socket.io": "4.1.2",
     "terser": "^5.6.1"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "4.22.0",
-    "@typescript-eslint/parser": "4.22.0",
+    "@typescript-eslint/eslint-plugin": "4.26.1",
+    "@typescript-eslint/parser": "4.26.1",
     "bcrypt": "5.0.1",
     "esbuild": "0.12.8",
     "esbuild-plugin-sass": "0.5.0",
