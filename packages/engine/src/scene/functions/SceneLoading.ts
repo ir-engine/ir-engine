@@ -52,6 +52,7 @@ export class WorldScene {
       const entity = createEntity();
 
       addComponent(entity, SceneTagComponent);
+      entity.name = sceneEntity.name;
 
       sceneEntity.components.forEach(component => {
         component.data.sceneEntityId = sceneEntity.entityId;

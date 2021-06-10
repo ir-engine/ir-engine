@@ -7,9 +7,10 @@ import { HandPaper } from "@styled-icons/fa-solid/HandPaper";
 import i18n from "i18next";
 import { withTranslation } from "react-i18next";
 type BoxColliderNodeEditorProps = {
-  editor?: object;
-  node?: object;
+  editor?: any;
+  node?: any;
   t: Function;
+  multiEdit: boolean;
 };
 
 /**
@@ -20,7 +21,7 @@ type BoxColliderNodeEditorProps = {
  */
 export class BoxColliderNodeEditor extends Component<
   BoxColliderNodeEditorProps,
-  {}
+  { options: any }
 > {
 
   //initializing props and state
@@ -75,9 +76,9 @@ export class BoxColliderNodeEditor extends Component<
       // Get current game mode -- check target game mode
       console.log("Target is", node.target);
     
-      console.log("Editor nodes are", this.props.editor.nodes);
+      console.log("Editor nodes are", (this.props.editor as any).nodes);
     
-      const nodeTarget = this.props.editor.nodes.find(node => node.uuid === target);
+      const nodeTarget = (this.props.editor as any).nodes.find(node => node.uuid === target);
     
       if(nodeTarget){
         console.log("nodeTarget", nodeTarget);

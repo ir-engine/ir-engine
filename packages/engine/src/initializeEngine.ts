@@ -36,6 +36,7 @@ import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkI
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem';
 import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem';
 import { SceneObjectSystem } from '@xrengine/engine/src/scene/systems/SceneObjectSystem';
+import { ActiveSystems } from './ecs/classes/System';
 
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -72,27 +73,28 @@ const configureClient = async (options: InitializeOptions) => {
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: enableRenderer, physics: true });
       });
 
-      if (options.renderer.disabled) return;
+      if (options.renderer.disabled !== true) {
 
-      Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
-      Engine.scene.add(Engine.camera);
+          Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
+          Engine.scene.add(Engine.camera);
 
-      /** @todo for when we fix bundling */
-      // if((window as any).safariWebBrowser) {
-        //   physicsWorker = new Worker(options.physxWorkerPath);
-      // } else {
-      //     // @ts-ignore
-      //     const { default: PhysXWorker } = await import('@xrengine/engine/src/physics/functions/loadPhysX.ts?worker&inline');
-      //     physicsWorker = new PhysXWorker();
-      // }
+          /** @todo for when we fix bundling */
+          // if((window as any).safariWebBrowser) {
+          //   physicsWorker = new Worker(options.physxWorkerPath);
+          // } else {
+          //     // @ts-ignore
+          //     const { default: PhysXWorker } = await import('@xrengine/engine/src/physics/functions/loadPhysX.ts?worker&inline');
+          //     physicsWorker = new PhysXWorker();
+          // }
 
-      new AnimationManager();
-      await Promise.all([
-          AnimationManager.instance.getDefaultModel(),
-          AnimationManager.instance.getAnimations(),
-      ]);
+          new AnimationManager();
+          await Promise.all([
+              AnimationManager.instance.getDefaultModel(),
+              AnimationManager.instance.getAnimations(),
+          ]);
 
-      Engine.workers.push(options.physxWorker);
+          Engine.workers.push(options.physxWorker);
+      }
     }
 
     registerClientSystems(options, useOffscreen, canvas);
@@ -219,6 +221,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     Engine.offlineMode = options.networking.useOfflineMode;
     Engine.publicPath = options.publicPath;
     Engine.lastTime = now() / 1000;
+    Engine.activeSystems = new ActiveSystems();
 
 
     // Browser state set

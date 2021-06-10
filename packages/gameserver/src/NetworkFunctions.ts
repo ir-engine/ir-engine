@@ -1,7 +1,7 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity';
-import { getComponent, getMutableComponent, removeEntity } from "@xrengine/engine/src/ecs/functions/EntityFunctions";
+import { getMutableComponent, removeEntity } from "@xrengine/engine/src/ecs/functions/EntityFunctions";
 import { Network } from "@xrengine/engine/src/networking//classes/Network";
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
@@ -73,7 +73,10 @@ export async function cleanupOldGameservers(): Promise<void> {
 
     await Promise.all(instances.rows.map(instance => {
         const [ip, port] = instance.ipAddress.split(':');
+        console.log('gameservers', gameservers.items);
         const match = gameservers.items.find(gs => {
+            console.log('gs status', gs.status);
+            if (gs.status.ports == null || gs.status.address === '') return false;
             const inputPort = gs.status.ports.find(port => port.name === 'default');
             return gs.status.address === ip && inputPort.port.toString() === port;
         });
@@ -228,7 +231,7 @@ export async function handleConnectToWorld(socket, data, callback, userId, user,
     // Return initial world state to client to set things up
     callback({
         worldState: WorldStateModel.toBuffer(worldState),
-        routerRtpCapabilities: transport.routers.instance.rtpCapabilities
+        routerRtpCapabilities: transport.routers.instance[0].rtpCapabilities
     });
 }
 
@@ -312,7 +315,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     // Return initial world state to client to set things up
     callback({
         worldState: WorldStateModel.toBuffer(worldState),
-        routerRtpCapabilities: transport.routers.instance.rtpCapabilities
+        routerRtpCapabilities: transport.routers.instance[0].rtpCapabilities
     });
 }
 

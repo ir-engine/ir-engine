@@ -1,14 +1,17 @@
-import { Object3D, BoxBufferGeometry, Material, Mesh, BoxHelper, MeshNormalMaterial, Vector3 } from "three";
+import { BoxBufferGeometry, BufferGeometry, Euler, Mesh, MeshNormalMaterial, Quaternion, Vector3 } from "three";
 import EditorNodeMixin from "./EditorNodeMixin";
-export default class PortalNode extends EditorNodeMixin(Object3D) {
+import Model from "../../scene/classes/Model";
+import { Engine } from "../../ecs/classes/Engine";
+
+export default class PortalNode extends EditorNodeMixin(Model) {
   static legacyComponentName = "portal";
   static nodeName = "Portal";
-  static _geometry = new BoxBufferGeometry();
-  static _material = new MeshNormalMaterial();
 
   mesh: Mesh;
   location: string;
   displayText: string;
+  spawnPosition: Vector3;
+  spawnRotation: Euler;
 
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json);
@@ -18,17 +21,17 @@ export default class PortalNode extends EditorNodeMixin(Object3D) {
     if(portalComponent) {
       node.location = portalComponent.props.location;
       node.displayText = portalComponent.props.displayText;
+      node.spawnPosition = portalComponent.props.spawnPosition;
+      node.spawnRotation = portalComponent.props.spawnRotation;
     }
     return node;
   }
   constructor(editor) {
     super(editor);
-    this.mesh = new Mesh(
-      PortalNode._geometry,
-      PortalNode._material
-    );
-    this.add(this.mesh);
-    this.scale.set(1.2, 2, 0.2);
+    this.loadGLTF(Engine.publicPath + '/models/common/portal_frame.glb').then((model) => {
+      this.mesh = model
+      this.add(this.mesh);
+    })
   }
   copy(source, recursive = true) {
     if (recursive) {
@@ -44,6 +47,8 @@ export default class PortalNode extends EditorNodeMixin(Object3D) {
       "portal": {
         location: this.location,
         displayText: this.displayText,
+        spawnPosition: this.spawnPosition,
+        spawnRotation: this.spawnRotation,
       }
     } as any;
     return super.serialize(components);
@@ -54,6 +59,8 @@ export default class PortalNode extends EditorNodeMixin(Object3D) {
     this.addGLTFComponent("portal", {
       location: this.location,
       displayText: this.displayText,
+      spawnPosition: this.spawnPosition,
+      spawnRotation: this.spawnRotation,
     });
   }
 }

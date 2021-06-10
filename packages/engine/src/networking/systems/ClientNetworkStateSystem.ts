@@ -198,6 +198,7 @@ export class ClientNetworkStateSystem extends System {
             console.log('*createObjects* same object' + objectToCreate.networkId);
             continue;
           } else if (searchSameInAnotherId(objectToCreate)) {
+            Network.instance.localAvatarNetworkId = objectToCreate.networkId;
             console.log('*createObjects* same object but in anotherId ' + objectToCreate.networkId);
             continue;
           } else if (isIdFull) {
@@ -206,9 +207,11 @@ export class ClientNetworkStateSystem extends System {
           }
 
           if (Network.instance.networkObjects[objectToCreate.networkId] === undefined && isPlayerPref) {
-            if (objectToCreate.ownerId === Network.instance.userId && Network.instance.localAvatarNetworkId === undefined) {
-              createNetworkPlayer(objectToCreate);
-            } else if (objectToCreate.ownerId != Network.instance.userId) {
+            if (objectToCreate.ownerId === Network.instance.userId) {
+              if (Network.instance.localAvatarNetworkId === undefined) {
+                createNetworkPlayer(objectToCreate);
+              }
+            } else {
               createNetworkPlayer(objectToCreate);
             }
           } else {
@@ -243,6 +246,11 @@ export class ClientNetworkStateSystem extends System {
             return console.warn("Can't destroy object as it doesn't appear to exist");
           // console.log("Destroying network object ", Network.instance.networkObjects[networkId].component.networkId);
           // get network object
+
+          if (Network.instance.localAvatarNetworkId === networkId) {
+            console.warn('Can not remove owner...')
+            return;
+          }
           const entity = Network.instance.networkObjects[networkId].component.entity;
           if (hasComponent(entity, Object3DComponent)) {
             Engine.scene.remove( Engine.scene.getObjectByName(getComponent(entity, Object3DComponent).value.name) );

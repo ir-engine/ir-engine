@@ -43,7 +43,7 @@ import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import { Config } from '@xrengine/client-core/src/helper';
 import querystring from 'querystring';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
@@ -54,6 +54,9 @@ import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldSta
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader';
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
+import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent';
+import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal';
+import { onPlayerSpawnInNewLocation } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
 
 const store = Store.store;
 
@@ -192,6 +195,7 @@ export const EnginePage = (props: Props) => {
   const [noGameserverProvision, setNoGameserverProvision] = useState(false);
   const [instanceDisconnected, setInstanceDisconnected] = useState(false);
   const [isInputEnabled, setInputEnabled] = useState(true);
+  const [porting, setPorting] = useState(false);
 
   const appLoaded = appState.get('loaded');
   const selfUser = authState.get('user');
@@ -318,7 +322,7 @@ export const EnginePage = (props: Props) => {
   }, [noGameserverProvision]);
 
   useEffect(() => {
-    if (instanceDisconnected === true) {
+    if (instanceDisconnected === true && !porting) {
       const newValues = {
         open: true,
         title: 'World disconnected',
@@ -412,6 +416,7 @@ export const EnginePage = (props: Props) => {
     });
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
+    setPorting(false);
   }
 
   useEffect(() => {
@@ -438,15 +443,20 @@ export const EnginePage = (props: Props) => {
     setonUserPosition(focused ? position : null);
   };
 
-  const portToLocation = async (portalDetail) => {
-    history.replace('/location/' + portalDetail.location);
+  const portToLocation = async ({ portalComponent }: { portalComponent: PortalProps }) => {
+    history.replace('/location/' + portalComponent.location);
 
+    setPorting(true);
     resetInstanceServer();
-    await processLocationPort();
+    await processLocationPort(new Worker('/scripts/loadPhysXClassic.js'), portalComponent);
 
     Network.instance.transport.close();
 
-    getLocationByName(portalDetail.location);
+    getLocationByName(portalComponent.location);
+
+    EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, () => {
+      onPlayerSpawnInNewLocation(portalComponent);
+    });
   };
 
   const addUIEvents = () => {
@@ -509,7 +519,7 @@ export const EnginePage = (props: Props) => {
 
   //mobile gamepad
   const mobileGamepadProps = { hovered: objectHovered, layout: 'default' };
-  const mobileGamepad = isMobileOrTablet() ? <MobileGamepad {...mobileGamepadProps} /> : null;
+  const mobileGamepad = isMobileOrTablet() ? <Suspense fallback={<></>}><MobileGamepad {...mobileGamepadProps} /></Suspense> : null;
 
   if(userBanned) return (<div className="banned">You have been banned from this location</div>);
   return isInXR ? <></> : (
@@ -536,7 +546,7 @@ export const EnginePage = (props: Props) => {
       <canvas id={engineRendererCanvasId} style={canvasStyle} />
       {mobileGamepad}
       <WarningRefreshModal
-          open={warningRefreshModalValues.open}
+          open={warningRefreshModalValues.open && !porting}
           handleClose={() => { setWarningRefreshModalValues(initialRefreshModalValues); }}
           title={warningRefreshModalValues.title}
           body={warningRefreshModalValues.body}

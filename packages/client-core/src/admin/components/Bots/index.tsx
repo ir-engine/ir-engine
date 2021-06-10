@@ -5,7 +5,7 @@ import Grid from '@material-ui/core/Grid';
 import Paper from "@material-ui/core/Paper";
 import DisplayBots from './displayBots';
 import { Face, List } from '@material-ui/icons';
-import { useStyles } from "./styles";
+import { useStylesForBots as useStyles } from "./styles";
 import CreateBot from './CreateBot';
 
 
