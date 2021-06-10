@@ -106,7 +106,7 @@
     "slugify": "1.5.3",
     "universal-analytics": "0.4.23",
     "uuid": "8.3.2",
-    "web-worker": "^1.0.0",
+    "web-worker": "1.0.0",
     "winston": "3.3.3"
   },
   "devDependencies": {

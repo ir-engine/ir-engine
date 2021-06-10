@@ -57,11 +57,11 @@
     "classnames": "2.3.1",
     "credential-handler-polyfill": "2.2.1",
     "ctix": "0.3.1",
-    "dompurify": "^2.2.8",
+    "dompurify": "2.2.9",
     "emailjs-com": "2.6.4",
     "esbuild-plugin-sass": "0.5.0",
     "eventemitter3": "4.0.7",
-    "formik": "^2.2.6",
+    "formik": "2.2.9",
     "i18next": "20.2.2",
     "immutable": "4.0.0-rc.12",
     "jwt-decode": "3.1.2",
@@ -97,7 +97,7 @@
     "use-debounce": "6.0.1",
     "use-http": "1.0.21",
     "uuid": "8.3.2",
-    "yup": "^0.32.9",
+    "yup": "0.32.9",
     "volumetric": "https://github.com/XRFoundation/UniversalVolumetric"
   },
   "devDependencies": {

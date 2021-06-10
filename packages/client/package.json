@@ -40,7 +40,7 @@
     "@material-ui/core": "4.11.4",
     "@material-ui/icons": "4.11.2",
     "@material-ui/styles": "4.11.4",
-    "@mui-treasury/components": "^1.10.1",
+    "@mui-treasury/components": "1.10.1",
     "@styled-icons/boxicons-regular": "10.34.0",
     "@styled-icons/fa-regular": "10.34.0",
     "@styled-icons/fa-solid": "10.34.0",
@@ -67,7 +67,7 @@
     "mediasoup-client": "3.6.31",
     "moment": "2.29.1",
     "prop-types": "15.7.2",
-    "rc-dock": "^3.0.14",
+    "rc-dock": "3.0.14",
     "rc-slider": "9.7.2",
     "react": "17.0.2",
     "react-color": "2.19.3",
@@ -93,7 +93,7 @@
     "reselect": "4.0.0",
     "sass": "1.32.12",
     "semantic-ui-react": "2.0.3",
-    "shaka-player": "^3.1.0",
+    "shaka-player": "3.1.0",
     "socket.io-client": "4.0.1",
     "styled-components": "5.2.3",
     "three-mesh-bvh": "0.3.7",
@@ -101,7 +101,7 @@
     "use-debounce": "6.0.1",
     "uuid": "8.3.2",
     "vite-xrengine": "2.2.4",
-    "webxr-native": "^0.2.19"
+    "webxr-native": "0.2.19"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "8.2.1",
