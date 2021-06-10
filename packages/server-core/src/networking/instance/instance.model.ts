@@ -33,6 +33,7 @@ export default (app: Application): any => {
     (instance as any).belongsTo(models.location, { foreignKey: {allowNull: true }});
     (instance as any).hasMany(models.user, { foreignKey: {allowNull: true }});
     (instance as any).hasOne(models.gameserver_subdomain_provision, { foreignKey: {allowNull: true}});
+    (instance as any).hasMany(models.bot, { foreignKey: {allowNull: true }});
   };
   return instance;
 };

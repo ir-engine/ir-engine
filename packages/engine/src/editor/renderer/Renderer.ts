@@ -9,14 +9,12 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectionShader";
-import ScenePreviewCameraNode from "../nodes/ScenePreviewCameraNode";
 import { getCanvasBlob } from "../functions/thumbnails";
+import PostProcessingNode from "../nodes/PostProcessingNode";
+import ScenePreviewCameraNode from "../nodes/ScenePreviewCameraNode";
 import makeRenderer from "./makeRenderer";
 import OutlinePass from "./OutlinePass";
 import configurePostProcessing from "./RendererPostProcessing";
-import PostProcessingNode from "../nodes/PostProcessingNode";
-import { CSM } from '../../assets/csm/CSM'
-import { WebGLRendererSystem } from "../../renderer/WebGLRendererSystem";
 /**
  * @author mrdoob / http://mrdoob.com/
  */

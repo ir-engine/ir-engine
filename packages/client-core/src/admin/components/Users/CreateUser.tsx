@@ -1,12 +1,11 @@
 import React from 'react';
 import Drawer from '@material-ui/core/Drawer';
 import Button from '@material-ui/core/Button';
-import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { createUser as createUserAction } from "../../reducers/admin/service";
+import { createUser as createUserAction } from "../../reducers/admin/user/service";
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-import { fetchUserRole } from "../../reducers/admin/service";
+import { fetchUserRole } from "../../reducers/admin/user/service";
 import { selectAdminState } from "../../reducers/admin/selector";
 import DialogContentText from '@material-ui/core/DialogContentText';
 import CreateUserRole from "./CreateUserRole";
@@ -17,41 +16,15 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { userValidationSchema } from "./validation";
 import { useFormik } from "formik";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
-import { fetchAdminInstances } from '../../reducers/admin/service';
-import { fetchAdminParty } from "../../reducers/admin/service";
+import { fetchAdminInstances } from '../../reducers/admin/instance/service';
+import { fetchAdminParty } from "../../reducers/admin/party/service";
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
+import { useStyles, useStyle } from "./styles";
+import { selectAdminUserState } from '../../reducers/admin/user/selector';
+import { selectAdminInstanceState } from "../../reducers/admin/instance/selector";
+import { selectAdminPartyState } from "../../reducers/admin/party/selector";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        marginBottm: {
-            marginBottom: "15px"
-        },
-        textLink: {
-            marginLeft: "5px",
-            textDecoration: "none",
-            color: "#ff9966"
-        },
-        marginTp: {
-            marginTop: "20%"
-        },
-        texAlign: {
-            textAlign: "center"
-        }
-    })
-);
-
-const useStyle = makeStyles({
-    list: {
-        width: 250,
-    },
-    fullList: {
-        width: 'auto',
-    },
-    paper: {
-        width: "40%"
-    }
-});
 
 const Alert = (props) => {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -67,12 +40,18 @@ interface Props {
     fetchUserRole?: any;
     fetchAdminInstances?: any;
     fetchAdminParty?: any;
-    closeViewModel: any
+    closeViewModel: any;
+    adminUserState?: any;
+    adminInstanceState?: any;
+    adminPartyState?: any
 }
 const mapStateToProps = (state: any): any => {
     return {
         adminState: selectAdminState(state),
         authState: selectAuthState(state),
+        adminUserState: selectAdminUserState(state),
+        adminInstanceState: selectAdminInstanceState(state),
+        adminPartyState: selectAdminPartyState(state)
     };
 };
 
@@ -86,7 +65,22 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 
 const CreateUser = (props: Props) => {
-    const { open, handleClose, createUserAction, closeViewModel, authState, fetchAdminInstances, fetchUserRole, fetchAdminParty, adminState } = props;
+    const { 
+        open,
+        handleClose,
+        createUserAction,
+        closeViewModel,
+        authState,
+        fetchAdminInstances,
+        fetchUserRole,
+        fetchAdminParty,
+        adminState,
+        adminUserState,
+        adminInstanceState,
+        adminPartyState
+    } = props;
+    console.log(adminUserState.get("users").get("users"));
+    
     const classes = useStyles();
     const classesx = useStyle();
     const [status, setStatus] = React.useState('');
@@ -97,11 +91,11 @@ const CreateUser = (props: Props) => {
     const [warning, setWarning] = React.useState("");
 
     const user = authState.get("user");
-    const userRole = adminState.get("userRole");
+    const userRole = adminUserState.get("userRole");
     const userRoleData = userRole ? userRole.get("userRole") : [];
-    const adminInstances = adminState.get('instances');
+    const adminInstances = adminInstanceState.get('instances');
     const instanceData = adminInstances.get("instances");
-    const adminParty = adminState.get("parties");
+    const adminParty = adminPartyState.get("parties");
     const adminPartyData = adminParty.get("parties").data ? adminParty.get("parties").data : [];
 
     React.useEffect(() => {
@@ -118,7 +112,7 @@ const CreateUser = (props: Props) => {
         if (user.id && adminParty.get('updateNeeded') == true) {
             fetchAdminParty();
         }
-    }, [adminState, user]);
+    }, [adminUserState, adminInstanceState, adminPartyState,  user]);
 
     const userRoleProps = {
         options: userRoleData,

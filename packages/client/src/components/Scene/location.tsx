@@ -54,6 +54,9 @@ import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldSta
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader';
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
+import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent';
+import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal';
+import { onPlayerSpawnInNewLocation } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
 
 const store = Store.store;
 
@@ -440,16 +443,20 @@ export const EnginePage = (props: Props) => {
     setonUserPosition(focused ? position : null);
   };
 
-  const portToLocation = async (portalDetail) => {
-    history.replace('/location/' + portalDetail.location);
+  const portToLocation = async ({ portalComponent }: { portalComponent: PortalProps }) => {
+    history.replace('/location/' + portalComponent.location);
 
     setPorting(true);
     resetInstanceServer();
-    await processLocationPort();
+    await processLocationPort(new Worker('/scripts/loadPhysXClassic.js'), portalComponent);
 
     Network.instance.transport.close();
 
-    getLocationByName(portalDetail.location);
+    getLocationByName(portalComponent.location);
+
+    EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, () => {
+      onPlayerSpawnInNewLocation(portalComponent);
+    });
   };
 
   const addUIEvents = () => {
@@ -461,6 +468,8 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async () => { setIsInXR(false); });
   };
 
+  let characterAvatar: CharacterComponent = null;
+  let networkUser; 
   const onObjectActivation = (interactionData): void => {
     switch (interactionData.interactionType) {
       case 'link':
@@ -489,16 +498,16 @@ export const EnginePage = (props: Props) => {
   }, []);
 
 
+
   if (Network.instance) {
     userState.get('layerUsers').forEach(user => {
       if (user.id !== currentUser?.id) {
-        const networkUser = Object.values(Network.instance.networkObjects).find(networkUser => networkUser.ownerId === user.id
+        networkUser = Object.values(Network.instance.networkObjects).find(networkUser => networkUser.ownerId === user.id
           && networkUser.prefabType === PrefabType.Player);
         if (networkUser) {
           const changedAvatar = getComponent(networkUser.component.entity, CharacterComponent);
-
           if (user?.avatarId !== changedAvatar?.avatarId) {
-            const characterAvatar = getMutableComponent(networkUser.component.entity, CharacterComponent);
+            characterAvatar = getMutableComponent(networkUser.component.entity, CharacterComponent);
             if (characterAvatar != null) characterAvatar.avatarId = user.avatarId;
             // We can pull this from NetworkPlayerCharacter, but we probably don't want our state update here
             // loadActorAvatar(networkUser.component.entity);

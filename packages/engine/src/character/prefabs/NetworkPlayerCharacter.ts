@@ -34,6 +34,7 @@ import { ControllerColliderComponent } from "../components/ControllerColliderCom
 import { NamePlateComponent } from '../components/NamePlateComponent';
 import { PersistTagComponent } from "../../scene/components/PersistTagComponent";
 import { IKRigComponent } from "../components/IKRigComponent";
+import { PortalProps } from "../../scene/behaviors/createPortal";
 
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
@@ -164,9 +165,8 @@ const initializeCharacter: Behavior = (entity): void => {
 	if (actor.viewVector == null) actor.viewVector = new Vector3();
 
 	const transform = getComponent(entity, TransformComponent);
-	// Physics
-	// TODO: This "any" is unnecessary and the type error should be fixed
-	addComponent(entity, ControllerColliderComponent, {
+
+  addComponent(entity, ControllerColliderComponent, {
 		mass: actor.actorMass,
 		position: transform.position,
 		height: actor.actorHeight,
@@ -174,30 +174,53 @@ const initializeCharacter: Behavior = (entity): void => {
 		// contactOffset: actor.contactOffset,
 		segments: actor.capsuleSegments,
 		friction: actor.capsuleFriction,
-		controller: PhysicsSystem.instance.createController(new Controller({
-			isCapsule: true,
-			collisionLayer: CollisionGroups.Characters,
-			collisionMask: DefaultCollisionMask,
-			height: actor.actorHeight,
-			contactOffset: actor.contactOffset,
-      stepOffset: 0.25,
-			radius: actor.capsuleRadius,
-			position: {
-				x: transform.position.x,
-				y: transform.position.y + 2,
-				z: transform.position.z
-			},
-			material: {
-				dynamicFriction: actor.capsuleFriction,
-			}
-		}))
-	});
+  })
+  addColliderToCharacter(entity)
 
 	// collider.controller.updateTransform({ translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }})
 	actor.initialized = true;
 	initializeMovingState(entity);
 	// };
 };
+
+export const addColliderToCharacter = (playerEntity: Entity) => {
+  
+  const playerCollider = getMutableComponent(playerEntity, ControllerColliderComponent)
+	const actor = getComponent(playerEntity, CharacterComponent);
+
+	const transform = getComponent(playerEntity, TransformComponent);
+  
+	playerCollider.controller = PhysicsSystem.instance.createController(new Controller({
+    isCapsule: true,
+    collisionLayer: CollisionGroups.Characters,
+    collisionMask: DefaultCollisionMask,
+    height: actor.actorHeight,
+    contactOffset: actor.contactOffset,
+    stepOffset: 0.25,
+    radius: actor.capsuleRadius,
+    position: {
+      x: transform.position.x,
+      y: transform.position.y + 2,
+      z: transform.position.z
+    },
+    material: {
+      dynamicFriction: actor.capsuleFriction,
+    }
+  }))
+}
+
+export const onPlayerSpawnInNewLocation = (portalProps: PortalProps) => {
+  addColliderToCharacter(Network.instance.localClientEntity)
+  teleportPlayer(Network.instance.localClientEntity, portalProps.spawnPosition, portalProps.spawnRotation)
+}
+
+export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation: Quaternion) => {
+  const playerCollider = getMutableComponent(playerEntity, ControllerColliderComponent)
+  playerCollider.controller.updateTransform({
+    translation: position,
+    rotation
+  })
+}
 
 export function createNetworkPlayer(args: { ownerId: string | number, networkId?: number, entity?: Entity }) {
 	const networkComponent = initializeNetworkObject({

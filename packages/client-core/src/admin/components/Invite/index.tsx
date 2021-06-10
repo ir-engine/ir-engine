@@ -17,12 +17,12 @@ import styles from '../Admin.module.scss';
 import InviteModel from "./InviteModel";
 import {
     fetchUsersAsAdmin,
-} from '../../reducers/admin/service';
+} from '../../reducers/admin/user/service';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectAdminState } from "../../reducers/admin/selector";
 import { ConfirmProvider } from "material-ui-confirm";
 import Grid from "@material-ui/core/Grid";
-
+import { selectAdminUserState } from "../../reducers/admin/user/selector";
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -30,7 +30,7 @@ interface TabPanelProps {
     value: any;
 }
 
-function TabPanel(props: TabPanelProps) {
+const TabPanel = (props: TabPanelProps) => {
     const { children, value, index, ...other } = props;
 
     return (
@@ -48,13 +48,13 @@ function TabPanel(props: TabPanelProps) {
             )}
         </div>
     );
-}
-function a11yProps(index: any) {
+};
+const a11yProps = (index: any) => {
     return {
         id: `simple-tab-${index}`,
         'aria-controls': `simple-tabpanel-${index}`,
     };
-}
+};
 
 const useStyles = makeStyles((theme: Theme) => ({
     root: {
@@ -66,9 +66,6 @@ const useStyles = makeStyles((theme: Theme) => ({
     }
 }));
 
-
-
-
 interface Props {
     receivedInvites?: any,
     retrieveReceivedInvites?: any,
@@ -77,7 +74,8 @@ interface Props {
     sentInvites?: any,
     adminState?: any,
     fetchUsersAsAdmin?: any;
-    authState?: any
+    authState?: any;
+    adminUserState?: any
 }
 
 const mapStateToProps = (state: any): any => {
@@ -86,6 +84,7 @@ const mapStateToProps = (state: any): any => {
         sentInvites: selectInviteState(state),
         adminState: selectAdminState(state),
         authState: selectAuthState(state),
+        adminUserState: selectAdminUserState(state)
     };
 };
 
@@ -97,13 +96,21 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const InvitesConsole = (props: Props) => {
-    const { adminState,authState, fetchUsersAsAdmin, sentInvites, retrieveSentInvites, retrieveReceivedInvites } = props;
+    const { 
+        adminState,
+        authState,
+         fetchUsersAsAdmin,
+          sentInvites,
+           retrieveSentInvites,
+            retrieveReceivedInvites,
+            adminUserState
+        } = props;
     const classes = useStyles();
     const [refetch, setRefetch] = React.useState(false);
     const [value, setValue] = React.useState(0);
     const [inviteModelOpen, setInviteModelOpen] = React.useState(false);
     const invites = sentInvites.get("sentInvites").get("invites");
-    const adminUsers = adminState.get('users').get('users');
+    const adminUsers = adminUserState.get('users').get('users');
     const user = authState.get('user');
 
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
@@ -128,11 +135,11 @@ const InvitesConsole = (props: Props) => {
     }, []);
 
     useEffect(() => {
-        if (user?.id != null && (adminState.get('users').get('updateNeeded') === true || refetch === true)) {
+        if (user?.id != null && (adminUserState.get('users').get('updateNeeded') === true || refetch === true)) {
             fetchUsersAsAdmin();
         }
         setRefetch(false);
-    }, [authState, adminState, refetch]);
+    }, [authState, adminUserState, refetch]);
 
     useEffect(()=>{
         const fetchData = async () => {

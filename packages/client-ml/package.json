@@ -15,7 +15,7 @@
   "jest": "ts-jest",
   "scripts": {},
   "resolutions": {
-    "@types/react": "17.0.9",
+    "@types/react": "17.0.11",
     "react": "17.0.2"
   },
   "peerDependencies": {
@@ -27,12 +27,12 @@
   },
   "devDependencies": {
     "@types/node": "13.13.51",
-    "@types/react": "17.0.9",
+    "@types/react": "17.0.11",
     "cross-env": "7.0.3",
     "node-sass": "6.0.0",
     "semantic-release": "17.4.3",
     "semantic-release-monorepo": "7.0.5",
-    "typescript": "4.2.4"
+    "typescript": "4.3.2"
   },
   "license": "ISC",
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"

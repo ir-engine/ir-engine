@@ -1,3 +1,4 @@
+import os from 'os';
 import { MediaStreamSystem } from "@xrengine/engine/src/networking/systems/MediaStreamSystem";
 import { Network } from "@xrengine/engine/src/networking//classes/Network";
 import { MessageTypes } from "@xrengine/engine/src/networking/enums/MessageTypes";
@@ -25,25 +26,31 @@ export async function startWebRTC(): Promise<void> {
     networkTransport = Network.instance.transport as any;
     logger.info("Starting WebRTC Server");
     // Initialize roomstate
-    networkTransport.worker = await createWorker({
-        logLevel: 'debug',
-        rtcMinPort: localConfig.mediasoup.worker.rtcMinPort,
-        rtcMaxPort: localConfig.mediasoup.worker.rtcMaxPort,
-        // dtlsCertificateFile: serverConfig.server.certPath,
-        // dtlsPrivateKeyFile: serverConfig.server.keyPath,
-        logTags: ['sctp']
-    });
+    const cores = os.cpus();
+    networkTransport.routers = { instance: [] };
+    for (let i = 0; i < cores.length; i++) {
+        const newWorker = await createWorker({
+            logLevel: 'debug',
+            rtcMinPort: localConfig.mediasoup.worker.rtcMinPort,
+            rtcMaxPort: localConfig.mediasoup.worker.rtcMaxPort,
+            // dtlsCertificateFile: serverConfig.server.certPath,
+            // dtlsPrivateKeyFile: serverConfig.server.keyPath,
+            logTags: ['sctp']
+        });
 
-    networkTransport.worker.on("died", () => {
-        console.error("mediasoup worker died (this should never happen)");
-        process.exit(1);
-    });
+        newWorker.on("died", () => {
+            console.error("mediasoup worker died (this should never happen)");
+            process.exit(1);
+        });
 
-    logger.info("Created Mediasoup worker");
+        logger.info("Created Mediasoup worker");
 
-    const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[];
-    networkTransport.routers = { instance: await networkTransport.worker.createRouter({ mediaCodecs }) };
-    logger.info("Worker created router");
+        const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[];
+        const newRouter = await newWorker.createRouter({ mediaCodecs });
+        networkTransport.routers.instance.push(newRouter);
+        logger.info("Worker created router");
+        networkTransport.workers.push(newWorker);
+    }
 }
 
 export const sendCurrentProducers = (socket: SocketIO.Socket, channelType: string, channelId?: string) => async (
@@ -140,7 +147,7 @@ export async function closeProducer(producer): Promise<void> {
     if (Network.instance.clients[producer.appData.peerId]) delete Network.instance.clients[producer.appData.peerId].media[producer.appData.mediaTag];
 }
 
-export async function closeProducerAndAllPipeProducers(producer, peerId): Promise<void> {
+export async function closeProducerAndAllPipeProducers(producer): Promise<void> {
     if (producer != null) {
         console.log("closing producer and all pipe producer " + producer.id, producer.appData);
 
@@ -176,13 +183,20 @@ export async function createWebRtcTransport({ peerId, direction, sctpCapabilitie
     const { listenIps, initialAvailableOutgoingBitrate } = localConfig.mediasoup.webRtcTransport;
     const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[];
     if (channelType !== 'instance') {
-        if (networkTransport.routers[`${channelType}:${channelId}`] == null)
-            networkTransport.routers[`${channelType}:${channelId}`] = await networkTransport.worker.createRouter({ mediaCodecs });
+        if (networkTransport.routers[`${channelType}:${channelId}`] == null) {
+            networkTransport.routers[`${channelType}:${channelId}`] = [];
+            await Promise.all(networkTransport.workers.map(async worker => {
+                const newRouter = await worker.createRouter({mediaCodecs});
+                networkTransport.routers[`${channelType}:${channelId}`].push(newRouter);
+                return Promise.resolve();
+            }));
+        }
         logger.info("Worker created router for channel " + `${channelType}:${channelId}`);
     }
 
-    const router = channelType === 'instance' ? networkTransport.routers.instance : networkTransport.routers[`${channelType}:${channelId}`];
-    const newTransport = await router.createWebRtcTransport({
+    const routerList = channelType === 'instance' ? networkTransport.routers.instance : networkTransport.routers[`${channelType}:${channelId}`];
+    const sortedRouterList = routerList.sort((a, b) => a._transports.size - b._transports.size);
+    const newTransport = await sortedRouterList[0].createWebRtcTransport({
         listenIps: listenIps,
         enableUdp: true,
         enableTcp: false,
@@ -294,6 +308,14 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
     networkTransport.dataProducers.push(dataProducer);
     logger.info(`user ${userId} producing data`);
     Network.instance.clients[userId].dataProducers.set(label, dataProducer);
+
+    const currentRouter = networkTransport.routers.instance.find(router => router._internal.routerId === transport._internal.routerId);
+
+    await Promise.all(networkTransport.routers.instance.map(async router => {
+        if (router._internal.routerId !== transport._internal.routerId) return currentRouter.pipeToRouter({ dataProducerId: dataProducer.id, router: router });
+        else return Promise.resolve();
+    }));
+
     // if our associated transport closes, close ourself, too
     dataProducer.on("transportclose", () => {
         networkTransport.dataProducers.splice(networkTransport.dataProducers.indexOf(dataProducer), 1);
@@ -312,7 +334,6 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
 
 export async function handleWebRtcTransportClose(socket, data, callback): Promise<any> {
     networkTransport = Network.instance.transport as any;
-    const userId = getUserIdFromSocketId(socket.id);
     const { transportId } = data;
     const transport = Network.instance.transports[transportId];
     if (transport != null) await closeTransport(transport).catch(err => logger.error(err));
@@ -320,7 +341,6 @@ export async function handleWebRtcTransportClose(socket, data, callback): Promis
 }
 
 export async function handleWebRtcTransportConnect(socket, data, callback): Promise<any> {
-    const userId = getUserIdFromSocketId(socket.id);
     const { transportId, dtlsParameters } = data,
         transport = Network.instance.transports[transportId];
     await transport.connect({ dtlsParameters }).catch(err => {
@@ -332,9 +352,8 @@ export async function handleWebRtcTransportConnect(socket, data, callback): Prom
 }
 
 export async function handleWebRtcCloseProducer(socket, data, callback): Promise<any> {
-    const userId = getUserIdFromSocketId(socket.id);
     const { producerId } = data, producer = MediaStreamSystem.instance?.producers.find(p => p.id === producerId);
-    await closeProducerAndAllPipeProducers(producer, userId).catch(err => logger.error(err));
+    await closeProducerAndAllPipeProducers(producer).catch(err => logger.error(err));
     callback({ closed: true });
 }
 
@@ -352,7 +371,15 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
         appData: { ...appData, peerId: userId, transportId }
     });
 
-    producer.on("transportclose", () => closeProducerAndAllPipeProducers(producer, userId));
+    const routers = appData.channelType === 'instance' ? networkTransport.routers.instance : networkTransport.routers[`${appData.channelType}:${appData.channelId}`];
+    const currentRouter = routers.find(router => router._internal.routerId === transport._internal.routerId);
+
+    await Promise.all(routers.map(async router => {
+        if (router._internal.routerId !== transport._internal.routerId) return currentRouter.pipeToRouter({ producerId: producer.id, router: router });
+        else return Promise.resolve();
+    }));
+
+    producer.on("transportclose", () => closeProducerAndAllPipeProducers(producer));
 
     if(!MediaStreamSystem.instance?.producers) console.warn("Media stream producers is undefined");
     MediaStreamSystem.instance?.producers?.push(producer);
@@ -383,7 +410,7 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
     const producer = MediaStreamSystem.instance.producers.find(
         p => p._appData.mediaTag === mediaTag && p._appData.peerId === mediaPeerId && (channelType === 'instance' ? p._appData.channelType === channelType : p._appData.channelType === channelType && p._appData.channelId === channelId)
     );
-    const router = channelType === 'instance' ? networkTransport.routers.instance : networkTransport.routers[`${channelType}:${channelId}`];
+    const router = channelType === 'instance' ? networkTransport.routers.instance[0] : networkTransport.routers[`${channelType}:${channelId}`][0];
     if (producer == null || !router.canConsume({ producerId: producer.id, rtpCapabilities })) {
         const msg = `client cannot consume ${mediaPeerId}:${mediaTag}`;
         console.error(`recv-track: ${userId} ${msg}`);
@@ -434,7 +461,7 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
         // stick this consumer in our list of consumers to keep track of
         MediaStreamSystem.instance?.consumers.push(consumer);
 
-        Network.instance.clients[userId].consumerLayers[consumer.id] = {
+        if (Network.instance.clients[userId] != null) Network.instance.clients[userId].consumerLayers[consumer.id] = {
             currentLayer: null,
             clientSelectedLayer: null
         };
@@ -504,7 +531,7 @@ export async function handleWebRtcResumeProducer(socket, data, callback): Promis
     const userId = getUserIdFromSocketId(socket.id);
     const { producerId } = data,
         producer = MediaStreamSystem.instance?.producers.find(p => p.id === producerId);
-    logger.info("resume-producer", producer.appData);
+    logger.info("resume-producer", producer?.appData);
     if (producer != null) {
         Network.instance.mediasoupOperationQueue.add({
             object: producer,
@@ -514,7 +541,7 @@ export async function handleWebRtcResumeProducer(socket, data, callback): Promis
         if (userId != null && Network.instance.clients[userId] != null) {
             Network.instance.clients[userId].media[producer.appData.mediaTag].paused = false;
             Network.instance.clients[userId].media[producer.appData.mediaTag].globalMute = false;
-            const hostClient = Object.entries(Network.instance.clients).find(([name, client]) => {
+            const hostClient = Object.entries(Network.instance.clients).find(([, client]) => {
                 return client.media[producer.appData.mediaTag]?.producerId === producerId;
             });
             hostClient[1].socket.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id);
@@ -536,7 +563,7 @@ export async function handleWebRtcPauseProducer(socket, data, callback): Promise
             Network.instance.clients[userId].media[producer.appData.mediaTag].paused = true;
             Network.instance.clients[userId].media[producer.appData.mediaTag].globalMute = globalMute || false;
             if (globalMute === true) {
-                const hostClient = Object.entries(Network.instance.clients).find(([name, client]) => {
+                const hostClient = Object.entries(Network.instance.clients).find(([, client]) => {
                     return client.media[producer.appData.mediaTag]?.producerId === producerId;
                 });
                 hostClient[1].socket.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true);
@@ -559,8 +586,13 @@ export async function handleWebRtcInitializeRouter(socket, data, callback): Prom
         const mediaCodecs = localConfig.mediasoup.router.mediaCodecs as RtpCodecCapability[];
         const networkTransport = Network.instance.transport as any;
         if (networkTransport.routers[`${channelType}:${channelId}`] == null) {
-            console.log('Making new router');
-            networkTransport.routers[`${channelType}:${channelId}`] = await networkTransport.worker.createRouter({mediaCodecs});
+            console.log('Making new routers for channel');
+            networkTransport.routers[`${channelType}:${channelId}`] = [];
+            await Promise.all(networkTransport.workers.map(async worker => {
+                const newRouter = await worker.createRouter({mediaCodecs});
+                networkTransport.routers[`${channelType}:${channelId}`].push(newRouter);
+                return Promise.resolve();
+            }));
         }
     }
     callback({initialized: true});

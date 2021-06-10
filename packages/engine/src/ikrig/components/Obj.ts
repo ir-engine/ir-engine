@@ -1,8 +1,5 @@
 import { Component } from "../../ecs/classes/Component";
-import { Engine } from "../../ecs/classes/Engine";
 import { Types } from "../../ecs/types/Types";
-import Quat from "../math/Quat";
-import Vec3 from "../math/Vec3";
 
 class Obj extends Component<Obj>{
 	ref: any  = null;
@@ -14,26 +11,20 @@ class Obj extends Component<Obj>{
 		return this;
 	}
 
-	look( dir, up ){
-		const q = new Quat().setFromLookRotation( dir, up || Vec3.UP );
-		this.ref.quaternion.fromArray( q );
-		return this;
-	}
-
 	getTransform(){
 		const p = this.ref.position,
 			q = this.ref.quaternion,
 			s = this.ref.scale;
 		return {
 			position: [ p.x, p.y, p.z ],
-			rotation: [ q.x, q.y, q.z, q.w ],
+			quaternion: [ q.x, q.y, q.z, q.w ],
 			scale: [ s.x, s.y, s.z ],
 		};
 	}
 
 	setReference( o ){
 		this.ref = o; 
-		Engine.scene.add( o );
+		// Engine.scene.add( o );
 		return this;
 	}
 

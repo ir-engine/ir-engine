@@ -1,7 +1,9 @@
-import { BoxBufferGeometry, Color, ExtrudeGeometry, Font, FontLoader, Mesh, MeshBasicMaterial, MeshNormalMaterial, Quaternion, ShapeGeometry, TextBufferGeometry, Vector3 } from 'three';
+import { BoxBufferGeometry, Color, Euler, ExtrudeGeometry, Font, FontLoader, Mesh, MeshBasicMaterial, MeshNormalMaterial, Object3D, Quaternion, ShapeGeometry, TextBufferGeometry, Vector3 } from 'three';
 import { Body, BodyType, createShapeFromConfig, SHAPES } from 'three-physx';
+import { LoadGLTF } from '../../assets/functions/LoadGLTF';
 import { isClient } from '../../common/functions/isClient';
 import { Behavior } from '../../common/interfaces/Behavior';
+import { Engine } from '../../ecs/classes/Engine';
 import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions';
 import { addColliderWithoutEntity } from '../../physics/behaviors/colliderCreateFunctions';
 import { ColliderComponent } from '../../physics/components/ColliderComponent';
@@ -11,12 +13,23 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { Object3DComponent } from '../components/Object3DComponent';
 import { PortalComponent } from '../components/PortalComponent';
 
-type PortalProps = {
+export type PortalProps = {
   location: string;
   displayText: string;
+  spawnPosition: Vector3;
+  spawnRotation: Quaternion;
 }
 
-export const createPortal: Behavior = (entity, args: PortalProps) => {
+const vec3 = new Vector3();
+
+export const createPortal: Behavior = (entity, args) => {
+  const {
+    location,
+    displayText,
+    spawnPosition,
+  } = args;
+
+  const spawnRotation = new Quaternion().setFromEuler(new Euler().setFromVector3(new Vector3(args.spawnRotation), 'XYZ'));
 
   if (!isClient) {
     return;
@@ -24,67 +37,80 @@ export const createPortal: Behavior = (entity, args: PortalProps) => {
 
   const transform = getComponent(entity, TransformComponent);
 
-  const portalShape = createShapeFromConfig({
-    shape: SHAPES.Box,
-    options: { boxExtents: new Vector3().copy(transform.scale).multiplyScalar(0.5) },
-    config: {
-      isTrigger: true,
-      collisionLayer: CollisionGroups.Portal,
-      collisionMask: CollisionGroups.Characters
-    }
-  });
+  // this is also not a great idea, we should load this either as a static asset or from the portal node arguments
+  LoadGLTF(Engine.publicPath + '/models/common/portal_frame.glb').then(({ scene }: { scene: Mesh }) => {
 
-  const portalBody = PhysicsSystem.instance.addBody(new Body({
-    shapes: [portalShape],
-    type: BodyType.STATIC,
-    transform: {
-      translation: transform.position,
-      rotation: transform.rotation
-    }
-  }));
+    const model = scene.clone();
+    const previewMesh = model.children[2] as Mesh;
 
-  PhysicsSystem.instance.addBody(portalBody);
+    model.position.copy(transform.position)
+    model.quaternion.copy(transform.rotation)
+    model.scale.copy(transform.scale)
 
-  portalBody.userData = entity;
+    previewMesh.geometry.computeBoundingBox();
+    previewMesh.geometry.boundingBox.getSize(vec3).multiplyScalar(0.5).setZ(0.1)
 
-  addComponent(entity, ColliderComponent, { body: portalBody });
+    const portalShape = createShapeFromConfig({
+      shape: SHAPES.Box,
+      options: { boxExtents: vec3 },
+      transform: { translation: previewMesh.position },
+      config: {
+        isTrigger: true,
+        collisionLayer: CollisionGroups.Portal,
+        collisionMask: CollisionGroups.Characters
+      }
+    });
 
+    const portalBody = PhysicsSystem.instance.addBody(new Body({
+      shapes: [portalShape],
+      type: BodyType.STATIC,
+      transform: {
+        translation: transform.position,
+        rotation: transform.rotation
+      }
+    }));
 
-  const model = new Mesh(new BoxBufferGeometry(), new MeshNormalMaterial())
-  model.position.copy(transform.position)
-  model.quaternion.copy(transform.rotation)
-  model.scale.copy(transform.scale)
+    PhysicsSystem.instance.addBody(portalBody);
 
-  // TEMPORARY - we should cache this in the asset loader as a pre-cached asset
-  const loader = new FontLoader();
-  loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/helvetiker_bold.typeface.json',
-    (font: Font) => {
+    portalBody.userData = entity;
 
-      const fontResolution = 120;
-      const displayText = args.displayText === '' || !args.displayText ? 'EXIT' : args.displayText;
+    addComponent(entity, ColliderComponent, { body: portalBody });
 
-      const shapes = font.generateShapes(displayText, fontResolution);
+    // TEMPORARY - we should cache this in the asset loader as a pre-cached asset
+    const loader = new FontLoader();
+    loader.load('https://raw.githubusercontent.com/mrdoob/three.js/master/examples/fonts/helvetiker_bold.typeface.json',
+      (font: Font) => {
 
-      const geometry = new ExtrudeGeometry(shapes, { bevelEnabled: false });
-      const invResolution = 1 / fontResolution;
-      geometry.scale(invResolution, invResolution * 0.8, invResolution);
-      geometry.computeBoundingBox();
-      const xMid = - 0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
-      geometry.translate(xMid, 0, 0);
-      
-      const textSize = 0.15;
-      const text = new Mesh(geometry, new MeshBasicMaterial({ color: new Color('aqua') }))
-      text.scale.setScalar(textSize)
-      text.translateY(((transform.scale.y * 0.5) + textSize) * 0.5)
+        const fontResolution = 120;
+        const displayText = args.displayText === '' || !args.displayText ? 'EXIT' : args.displayText;
 
-      model.add(text)
-    },
-    undefined,
-    console.error
-  );
+        const shapes = font.generateShapes(displayText, fontResolution);
 
-  // TODO: add a font loader
+        const geometry = new ExtrudeGeometry(shapes, { bevelEnabled: false });
+        const invResolution = 1 / fontResolution;
+        geometry.scale(invResolution, invResolution * 0.8, invResolution);
+        geometry.computeBoundingBox();
+        const xMid = - 0.5 * (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+        geometry.translate(xMid, 0, 0);
+        
+        const textSize = 0.15;
+        const text = new Mesh(geometry, new MeshBasicMaterial({ color: new Color('aqua') }))
+        text.scale.setScalar(textSize)
+        text.translateY(((transform.scale.y * 0.5) + textSize) * 0.5)
 
-  addComponent(entity, Object3DComponent, { value: model })
-  addComponent(entity, PortalComponent, { location: args.location })
+        model.add(text)
+      },
+      undefined,
+      console.error
+    );
+
+    addComponent(entity, Object3DComponent, { value: model })
+  })
+
+  addComponent(entity, PortalComponent, {
+    location,
+    displayText,
+    spawnPosition,
+    spawnRotation
+  })
 }

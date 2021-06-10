@@ -15,7 +15,6 @@ import VideoModal from './VideoModal';
 import { useHistory } from 'react-router-dom';
 import { selectVideoState } from '../../media/components/video/selector';
 import { selectAuthState } from '../../user/reducers/auth/selector';
-import { selectAdminState } from '../reducers/admin/selector';
 import { fetchAdminVideos } from '../reducers/admin/service';
 
 interface Props {
@@ -27,7 +26,6 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     auth: selectAuthState(state),
-    admin: selectAdminState(state),
     videos: selectVideoState(state)
   };
 };

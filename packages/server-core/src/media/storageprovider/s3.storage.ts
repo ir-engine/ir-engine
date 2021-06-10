@@ -4,7 +4,6 @@ import config from '../../appconfig';
 import { StorageProviderInterface } from './storageprovider.interface';
 
 export class S3Provider implements StorageProviderInterface {
-  bucket = config.aws.s3.staticResourceBucket;
   provider: AWS.S3 = new AWS.S3({
     accessKeyId: config.aws.keys.accessKeyId,
     secretAccessKey: config.aws.keys.secretAccessKey,
@@ -13,7 +12,7 @@ export class S3Provider implements StorageProviderInterface {
 
   blob: S3BlobStore = new S3BlobStore({
     client: this.provider,
-    bucket: this.bucket,
+    bucket: config.aws.s3.staticResourceBucket,
     ACL: 'public-read'
   })
 
@@ -27,7 +26,7 @@ export class S3Provider implements StorageProviderInterface {
   getSignedUrl = async (key: string, expiresAfter: number, conditions): Promise<any> => { 
     const result = await new Promise((resolve) => {
       this.provider.createPresignedPost({
-        Bucket: this.bucket,
+        Bucket: config.aws.s3.staticResourceBucket,
         Fields: {
           Key: key,
         },

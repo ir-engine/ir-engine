@@ -3,7 +3,6 @@ import Button from '@material-ui/core/Button';
 import Fade from '@material-ui/core/Fade';
 import Modal from '@material-ui/core/Modal';
 import classNames from 'classnames';
-import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from "redux";

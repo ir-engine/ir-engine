@@ -145,7 +145,6 @@ export class MediaStreamSystem extends System {
 
   /** Execute the media stream system. */
   public execute = async (): Promise<void> => {
-    console.log('tick at', new Date());
     if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && this.executeInProgress === false) {
       console.log('Executing mediasoup operation');
       this.executeInProgress = true;

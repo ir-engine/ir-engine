@@ -56,8 +56,8 @@ const server = {
     max: 100
   },
   url: '',
-  certPath: path.join(appRootPath.path, process.env.CERT),
-  keyPath: path.join(appRootPath.path, process.env.KEY),
+  certPath: appRootPath.path.toString() + "/" + process.env.CERT,
+  keyPath: appRootPath.path.toString() + "/" + process.env.KEY,
   local: process.env.LOCAL === 'true',
   releaseName: process.env.RELEASE_NAME
 };
