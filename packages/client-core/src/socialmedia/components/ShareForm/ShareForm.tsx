@@ -83,13 +83,14 @@ const ShareForm = ({updateShareFormState, popupsState}:Props) => {
  <Button size="large" color="primary" onClick={shareVia} className={classes.btn_share}>
    {t('social:shareForm.shareVideo')}
  </Button>
- <Button size="large" color="primary" onClick={() => {updateShareFormState(false);}}
-   className={styles.btnAction}>
-   {t('social:shareForm.save')}
- </Button>
+ {/*<Button size="large" color="primary" onClick={() => {updateShareFormState(false);}}*/}
+ {/*  className={styles.btnAction}>*/}
+ {/*  {t('social:shareForm.save')}*/}
+ {/*</Button>*/}
  <Button size="large" color="primary" onClick={() => {updateShareFormState(false);}}
   className={styles.btnDisableAction} >
-   {t('social:shareForm.cancel')}
+   {/*{t('social:shareForm.cancel')}*/}
+     Close
  </Button>
  </div>
 
