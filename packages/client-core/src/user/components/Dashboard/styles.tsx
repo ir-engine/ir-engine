@@ -3,7 +3,7 @@ import { deepOrange } from "@material-ui/core/colors";
 
 const drawerWidth = 200;
 
-export const useStyles = makeStyles((theme: Theme) =>
+export const useStylesForDashboard = makeStyles((theme: Theme) =>
 createStyles({
     root: {
         display: 'flex',

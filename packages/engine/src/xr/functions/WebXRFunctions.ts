@@ -54,7 +54,7 @@ export const startXR = async (): Promise<boolean> => {
     actor.tiltContainer.add(camGroup);
 
     addComponent(Network.instance.localClientEntity, XRInputReceiver, {
-      head,
+      head: head as any,
       headGroup: camGroup,
       controllerLeft,
       controllerRight,

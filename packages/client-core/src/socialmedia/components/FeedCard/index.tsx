@@ -203,6 +203,7 @@ const FeedCard = (props: Props) : any => {
 {/*                 />} */}
 
                 <div className={styles.popover}>
+                    {/* @ts-ignore */}
                     <div aria-describedby={id} variant="contained" onClick={handleClick}>
                         <MoreHorizIcon />
                     </div>

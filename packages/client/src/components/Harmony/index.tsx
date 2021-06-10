@@ -99,7 +99,6 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 // @ts-ignore
 import styles from './style.module.scss';
 import WarningRefreshModal from "../AlertModals/WarningRetryModal";
-import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
 import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
@@ -534,12 +533,6 @@ const Harmony = (props: Props): any => {
         });
     };
 
-    const onChannelScroll = (e): void => {
-        if ((e.target.scrollHeight - e.target.scrollTop) === e.target.clientHeight) {
-            nextChannelPage();
-        }
-    };
-
     const onMessageScroll = (e): void => {
         if (e.target.scrollTop === 0 && (e.target.scrollHeight > e.target.clientHeight) && messageScrollInit !== true && (activeChannel.skip + activeChannel.limit) < activeChannel.total) {
             setMessageScrollUpdate(true);
@@ -718,14 +711,7 @@ const Harmony = (props: Props): any => {
         }
     };
 
-    const openChat = (targetObjectType: string, targetObject: any): void => {
-        setTimeout(() => {
-            updateChatTarget(targetObjectType, targetObject);
-            updateMessageScrollInit(true);
-        }, 100);
-    };
-
-    const handleAccordionSelect = (accordionType: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
+    const handleAccordionSelect = (accordionType: string) => () => {
         if (accordionType === selectedAccordion) {
             setSelectedAccordion('');
         } else {
@@ -798,10 +784,6 @@ const Harmony = (props: Props): any => {
             if (channel.channelType === 'party') return 'Current party';
             if (channel.channelType === 'user') return channel.user1.id === selfUser.id ? channel.user2.name : channel.user1.name;
         } else return 'Current Layer';
-    }
-
-    function calcWidth(): 12 | 6 | 4 | 3 {
-        return layerUsers.length === 1 ? 12 : layerUsers.length <= 4 ? 6 : layerUsers.length <= 9 ? 4 : 3;
     }
 
 
@@ -893,7 +875,7 @@ const Harmony = (props: Props): any => {
                 })} />
                 {party != null && party.id != null && party.id !== '' && <ListItemIcon className={styles.groupEdit} onClick={(e) => openDetails(e, 'party', party)}><Settings /></ListItemIcon>}
             </div>
-            {selfUser.instanceId != null && <div className={classNames({
+            {selfUser?.instanceId != null && <div className={classNames({
                 [styles.instanceButton]: true,
                 [styles.activeChat]: isActiveChat('instance', selfUser.instanceId)
             })}
@@ -911,7 +893,7 @@ const Harmony = (props: Props): any => {
                 })} />
             </div>}
         </div>
-        {selfUser.userRole !== 'guest' &&
+        {selfUser?.userRole !== 'guest' &&
             <Accordion expanded={selectedAccordion === 'user'} onChange={handleAccordionSelect('user')} className={styles['MuiAccordion-root']}>
                 <AccordionSummary
                     id="friends-header"
@@ -962,7 +944,7 @@ const Harmony = (props: Props): any => {
                 </AccordionDetails>
             </Accordion>
         }
-        {selfUser.userRole !== 'guest' &&
+        {selfUser?.userRole !== 'guest' &&
             <Accordion expanded={selectedAccordion === 'group'} onChange={handleAccordionSelect('group')} className={styles['MuiAccordion-root']}>
                 <AccordionSummary
                     id="groups-header"
@@ -1300,7 +1282,7 @@ const Harmony = (props: Props): any => {
                             </ListItem>;
                         })
                         }
-                        {targetChannelId.length === 0 && targetObject.id != null &&
+                        {targetChannelId != null && targetChannelId.length === 0 && targetObject.id != null &&
                             <div className={styles['first-message-placeholder']}>
                                 <div>{targetChannelId}</div>
                             Start a chat with {(targetObjectType === 'user' || targetObjectType === 'group') ? targetObject.name : targetObjectType === 'instance' ? 'your current layer' : 'your current party'}

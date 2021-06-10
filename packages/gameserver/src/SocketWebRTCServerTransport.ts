@@ -50,7 +50,7 @@ function isNullOrUndefined<T>(obj: T | null | undefined): obj is null | undefine
 export class SocketWebRTCServerTransport implements NetworkTransport {
     server: https.Server
     socketIO: SocketIO.Server
-    worker: Worker
+    workers: Worker[] = []
     routers: Record<string, Router>
     transport: Transport
     app: any
@@ -144,7 +144,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         logger.info("Initializing WebRTC Connection");
         await startWebRTC();
 
-        this.outgoingDataTransport = await this.routers.instance.createDirectTransport();
+        this.outgoingDataTransport = await this.routers.instance[0].createDirectTransport();
         const options = {
             ordered: false,
             label: 'outgoingProducer',
@@ -153,12 +153,19 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
         };
         this.outgoingDataProducer = await this.outgoingDataTransport.produceData(options);
 
+        const currentRouter = this.routers.instance[0];
+
+        await Promise.all(this.routers.instance.map(async router => {
+            if (router._internal.routerId !== currentRouter._internal.routerId) return currentRouter.pipeToRouter({ dataProducerId: this.outgoingDataProducer.id, router: router });
+            else return Promise.resolve();
+        }));
+
         setInterval(() => validateNetworkObjects(), 5000);
 
         // Set up realtime channel on socket.io
         this.socketIO = (this.app as any)?.io;
 
-        if (this.socketIO != null) this.socketIO.of('/').on("connect", (socket: Socket) => {
+        if (this.socketIO != null) (this.socketIO as any).of('/').on("connect", (socket: Socket) => {
             // Authorize user and make sure everything is valid before allowing them to join the world
             socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
                 // console.log('AUTHORIZATION CALL HANDLER', data.userId);

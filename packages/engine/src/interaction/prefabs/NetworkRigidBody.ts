@@ -8,9 +8,6 @@ import { PrefabType } from '../../networking/templates/PrefabType';
 import { isClient } from '../../common/functions/isClient';
 import { Network } from '../../networking/classes/Network';
 import { InterpolationComponent } from '../../physics/components/InterpolationComponent';
-import { InterpolationInterface } from '../../networking/types/SnapshotDataTypes';
-import { rigidbodyInterpolationBehavior } from '../../physics/behaviors/rigidbodyInterpolationBehavior';
-import { rigidbodyInterpolationBehavior } from '../../physics/behaviors/rigidbodyInterpolationBehavior';
 
 /**
 * @author HydraFire <github.com/HydraFire>

@@ -90,7 +90,7 @@ export class WebGLRendererSystem extends System {
   renderContext: WebGLRenderingContext;
 
   forcePostProcessing = false;
-  supportWebGL2: boolean;
+  supportWebGL2: boolean = false;
 
   /** Constructs WebGL Renderer System. */
   constructor(attributes: SystemAttributes = {}) {
