@@ -46,11 +46,11 @@
     "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642 --cors=*"
   },
   "resolutions": {
-    "socket.io": "4.0.1"
+    "socket.io": "4.1.2"
   },
   "peerDependencies": {
     "chokidar": "^3.4.2",
-    "socket.io": "4.0.1"
+    "socket.io": "4.1.2"
   },
   "dependencies": {
     "@feathersjs/authentication": "^5.0.0-pre.3",
