@@ -42,15 +42,21 @@ process.on('unhandledRejection', (error, promise) => {
     const certPath = config.server.certPath;
     const certKeyPath = config.server.keyPath;
 
+    console.log('!config.noSSL', !config.noSSL);
+    console.log('config.localBuild', config.localBuild);
+    console.log('NODE_ENV', process.env.NODE_ENV);
+    console.log('certKeyPath', certKeyPath);
+    console.log('certKeyPath exists', fs.existsSync(certKeyPath));
     const useSSL = !config.noSSL && (config.localBuild || process.env.NODE_ENV !== 'production') && fs.existsSync(certKeyPath);
+    console.log('useSSL');
 
     const certOptions = {
         key: useSSL ? fs.readFileSync(certKeyPath) : null,
         cert: useSSL ? fs.readFileSync(certPath) : null
     };
 
-    if (useSSL) logger.info('Starting server with HTTPS');
-    else logger.warn('Starting server with NO HTTPS, if you meant to use HTTPS try \'sudo bash generate-certs\'');
+    if (useSSL) console.log('Starting server with HTTPS');
+    else console.log('Starting server with NO HTTPS, if you meant to use HTTPS try \'sudo bash generate-certs\'');
     const port = config.server.port;
 
 // http redirects for development
