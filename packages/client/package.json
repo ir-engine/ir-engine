@@ -43,7 +43,7 @@
     "@mui-treasury/components": "^1.10.1",
     "@styled-icons/boxicons-regular": "10.34.0",
     "@styled-icons/fa-regular": "10.34.0",
-    "@styled-icons/fa-solid": "10.32.0",
+    "@styled-icons/fa-solid": "10.34.0",
     "@types/react-redux": "7.1.16",
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.9",
