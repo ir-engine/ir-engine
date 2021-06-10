@@ -90,7 +90,7 @@ export class WebGLRendererSystem extends System {
   renderContext: WebGLRenderingContext;
 
   forcePostProcessing = false;
-  readonly _supportWebGL2: boolean;
+  supportWebGL2: boolean = false;
 
   /** Constructs WebGL Renderer System. */
   constructor(attributes: SystemAttributes = {}) {
@@ -100,17 +100,17 @@ export class WebGLRendererSystem extends System {
 
     this.onResize = this.onResize.bind(this);
 
-    this._supportWebGL2 = !((window as any).iOS || (window as any).safariWebBrowser);
+    this.supportWebGL2 = !((window as any).iOS || (window as any).safariWebBrowser);
 
     let context;
     const canvas = attributes.canvas;
 
     try {
       context = canvas.getContext("webgl2", { antialias: true });
-      this._supportWebGL2 = true;
+      this.supportWebGL2 = true;
     } catch (error) {
       context = canvas.getContext("webgl", { antialias: true });
-      this._supportWebGL2 = false;
+      this.supportWebGL2 = false;
     }
 
     this.renderContext = context;
@@ -121,7 +121,7 @@ export class WebGLRendererSystem extends System {
       preserveDrawingBuffer: true
     };
 
-    const renderer = this._supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options);
+    const renderer = this.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options);
     renderer.physicallyCorrectLights = true;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = PCFSoftShadowMap;
@@ -153,7 +153,7 @@ export class WebGLRendererSystem extends System {
     Engine.renderer.autoClear = true;
 
     // if we turn PostPro off, don't turn it back on, if we turn it on, let engine manage it
-    if (!this._supportWebGL2) {
+    if (!this.supportWebGL2) {
       this.setUsePostProcessing(false);
     }
 
@@ -298,13 +298,6 @@ export class WebGLRendererSystem extends System {
 
       this.csm.update();
       if (this.usePostProcessing && this.postProcessingSchema) {
-        // TODO: support webxr, requires changes to postprocessing package
-        // if(Engine.xrRenderer.isPresenting) {
-        //   const xrCam = Engine.xrRenderer.getCamera(Engine.camera);
-        //   this.composer.passes.forEach((pass) => {
-        //     pass.camera = xrCam;
-        //   })
-        // }
         this.composer.render(delta);
       } else {
         Engine.renderer.autoClear = true;
@@ -401,12 +394,11 @@ export class WebGLRendererSystem extends System {
   }
 
   setUsePostProcessing(usePostProcessing) {
-    if (!this._supportWebGL2) return;
-    if (Engine.xrRenderer?.isPresenting) return;
-    this.usePostProcessing = usePostProcessing;
-    Engine.renderer.outputEncoding = this.usePostProcessing ? sRGBEncoding : sRGBEncoding;
-    Engine.renderer.toneMapping = this.usePostProcessing ? LinearToneMapping : LinearToneMapping;
-    Engine.renderer.toneMappingExposure = this.usePostProcessing ? 1 : 1;
+    // Always set to false if WebGL 2 not in use
+    this.usePostProcessing = (!this.supportWebGL2 || Engine.xrRenderer?.isPresenting) ? false : usePostProcessing;
+    Engine.renderer.outputEncoding = sRGBEncoding;
+    Engine.renderer.toneMapping = LinearToneMapping;
+    Engine.renderer.toneMappingExposure = 1;
     ClientStorage.set(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING, this.usePostProcessing);
   }
   async loadGraphicsSettingsFromStorage() {

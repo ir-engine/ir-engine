@@ -6,9 +6,9 @@ import { DOWN, LEFT, RIGHT } from "../constants/Vector3Constants";
 import { spin_bone_forward, align_chain, align_bone_forward } from "../functions/IKFunctions";
 
 class Pose {
-	static ROTATION: any = 1;;
-	static POSITION: any = 2;;
-	static SCALE: any = 4;;
+	static ROTATION: any = 1;
+	static POSITION: any = 2;
+	static SCALE: any = 4;
 
 	entity: any;
 	skeleton: Skeleton;
@@ -43,7 +43,7 @@ class Pose {
 		this.bones = this.skeleton.bones;
 		this.rootOffset = new Object3D();					// Parent Transform for Root Bone ( Skeletons from FBX imports need this to render right )
 		for (let i = 0; i < this.skeleton.bones.length; i++) {
-			let b = this.skeleton.bones[i] as any;
+			const b = this.skeleton.bones[i] as any;
 			b['index'] = i;
 			if(b.children.length > 0){
 				const bWorldPosition = new Vector3();
