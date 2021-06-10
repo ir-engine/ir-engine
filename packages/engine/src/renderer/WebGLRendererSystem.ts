@@ -401,6 +401,7 @@ export class WebGLRendererSystem extends System {
     Engine.renderer.toneMappingExposure = 1;
     ClientStorage.set(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING, this.usePostProcessing);
   }
+  
   async loadGraphicsSettingsFromStorage() {
     this.automatic = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.AUTOMATIC) as boolean ?? true;
     this.scaleFactor = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.SCALE_FACTOR) as number ?? 1;
