@@ -5,7 +5,7 @@ import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import DebugComponent from "../classes/Debug";
 import { IKPose } from "../components/IKPose";
 import { FORWARD, UP } from "../constants/Vector3Constants";
-import { applyHip, applyLimb, applySpine, computeHip, computeLimb, computeLookTwist, computeSpine, visualizeHip, visualizeLimb, visualizeLookTwist, visualizeSpine } from "../functions/IKFunctions";
+import { applyHip, applyLimb, applyLookTwist, applySpine, computeHip, computeLimb, computeLookTwist, computeSpine, visualizeHip, visualizeLimb, visualizeLookTwist, visualizeSpine } from "../functions/IKFunctions";
 
 export class IKRigSystem extends System {
 	updateType = SystemUpdateType.Fixed;
@@ -18,8 +18,8 @@ export class IKRigSystem extends System {
 		})
 		// RUN
 		this.queryResults.ikpose.all?.forEach((entity) => {
-			let ikPose = getMutableComponent(entity, IKPose);
-			let rig = getMutableComponent(entity, IKRig);
+			const ikPose = getMutableComponent(entity, IKPose);
+			const rig = getMutableComponent(entity, IKRig);
 
 			// // COMPUTE
 			computeHip(rig, ikPose);
@@ -27,43 +27,43 @@ export class IKRigSystem extends System {
 			computeLimb(rig.pose, rig.chains.leg_l, ikPose.leg_l);
 			computeLimb(rig.pose, rig.chains.leg_r, ikPose.leg_r);
 
-			// computeLookTwist(rig, rig.points.foot_l, pose.foot_l, FORWARD, UP); // Look = Fwd, Twist = Up
-			// computeLookTwist(rig, rig.points.foot_r, pose.foot_r, FORWARD, UP);
+			computeLookTwist(rig, rig.points.foot_l, ikPose.foot_l, FORWARD, UP); // Look = Fwd, Twist = Up
+			computeLookTwist(rig, rig.points.foot_r, ikPose.foot_r, FORWARD, UP);
 
 			computeSpine(rig, rig.chains.spine, ikPose, UP, FORWARD);
 
 			computeLimb(rig.pose, rig.chains.arm_l, ikPose.arm_l);
 			computeLimb(rig.pose, rig.chains.arm_r, ikPose.arm_r);
 
-			// computeLookTwist(rig, rig.points.head, pose.head, FORWARD, UP);
+			computeLookTwist(rig, rig.points.head, ikPose.head, FORWARD, UP);
 
 			// // // VISUALIZE
-			visualizeHip(rig, ikPose);
+			// visualizeHip(rig, ikPose);
 
-			visualizeLimb(rig.pose, rig.chains.leg_l, ikPose.leg_l);
-			visualizeLimb(rig.pose, rig.chains.leg_r, ikPose.leg_r);
-			visualizeLimb(rig.pose, rig.chains.arm_l, ikPose.arm_l);
-		 	visualizeLimb(rig.pose, rig.chains.arm_r, ikPose.arm_r);
+			// visualizeLimb(rig.pose, rig.chains.leg_l, ikPose.leg_l);
+			// visualizeLimb(rig.pose, rig.chains.leg_r, ikPose.leg_r);
+			// visualizeLimb(rig.pose, rig.chains.arm_l, ikPose.arm_l);
+		 	// visualizeLimb(rig.pose, rig.chains.arm_r, ikPose.arm_r);
 
 			// visualizeLookTwist(rig, rig.points.foot_l, pose.foot_l);
 			// visualizeLookTwist(rig, rig.points.foot_r, pose.foot_r);
-			visualizeSpine(rig, rig.chains.spine, ikPose.spine);
+			// visualizeSpine(rig, rig.chains.spine, ikPose.spine);
 			// visualizeLookTwist(rig, rig.points.head, pose.head);
 
 			// APPLY
 			applyHip(ikPose);
 
-			// applyLimb(ikPose, rig.chains.leg_l, ikPose.leg_l);
-			// applyLimb(entity, rig.chains.leg_r, pose.leg_r);
+			applyLimb(ikPose, rig.chains.leg_l, ikPose.leg_l);
+			applyLimb(ikPose, rig.chains.leg_r, ikPose.leg_r);
 
-			// applyLookTwist(entity, rig.points.foot_l, pose.foot_l, FORWARD, UP);
-			// applyLookTwist(entity, rig.points.foot_r, pose.foot_r, FORWARD, UP);
+			applyLookTwist(entity, rig.points.foot_l, ikPose.foot_l, FORWARD, UP);
+			applyLookTwist(entity, rig.points.foot_r, ikPose.foot_r, FORWARD, UP);
 			applySpine(entity, rig.chains.spine, ikPose.spine, UP, FORWARD);
 
-			// applyLimb(entity, rig.chains.arm_l, pose.arm_l);
-			// applyLimb(entity, rig.chains.arm_r, pose.arm_r);
+			applyLimb(ikPose, rig.chains.arm_l, ikPose.arm_l);
+			applyLimb(ikPose, rig.chains.arm_r, ikPose.arm_r);
 
-			// applyLookTwist(entity, rig.points.head, pose.head, FORWARD, UP);
+			// applyLookTwist(entity, rig.points.head, ikPose.head, FORWARD, UP);
 
 			// rig.pose.apply();
 

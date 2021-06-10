@@ -33,7 +33,7 @@ class Lines extends Component<Lines>{
 		this.mesh = new LineSegments( this.geo, getMaterial() ); 
 		this.mesh.name = name;
 
-		let obj = getMutableComponent(this.entity, Obj);
+		const obj = getMutableComponent(this.entity, Obj);
 		obj.setReference( this.mesh );
 		Engine.scene.add(obj.ref);
 		return this;

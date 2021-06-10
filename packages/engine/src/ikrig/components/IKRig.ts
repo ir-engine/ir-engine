@@ -33,10 +33,10 @@ class IKRig extends Component<IKRig>{
 			const bone = armature.skeleton.bones[index];
 			bone.index = index;
 
-			let boneWorldPosition = new Vector3();
+			const boneWorldPosition = new Vector3();
 			bone.getWorldPosition(boneWorldPosition);
 
-			let boneChildWorldPosition = new Vector3();
+			const boneChildWorldPosition = new Vector3();
 			bone.children[0].getWorldPosition(boneChildWorldPosition);
 
 			bone.length = bone.children.length > 0 ? boneWorldPosition.distanceTo(boneChildWorldPosition) : 0;
