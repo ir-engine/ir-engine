@@ -44,7 +44,7 @@
     "react-redux": "7.2.4",
     "react-video-recorder": "3.18.1",
     "redux": "4.1.0",
-    "sass": "1.32.12",
+    "sass": "1.34.1",
     "styled-components": "5.2.3",
     "webxr-native": "^0.2.19"
   },
