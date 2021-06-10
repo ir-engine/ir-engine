@@ -42,9 +42,10 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
 #### 1.  Install your dependencies 
 ```
 cd path/to/xrengine
-yarn install
+npm install --legacy-peer-deps
 ```
 
+You should not need to use sudo in any case.
 
 Error with mediasoup? Optional: https://mediasoup.org/documentation/v3/mediasoup/installation/
     
@@ -56,7 +57,7 @@ sudo apt-get upgrade
 sudo apt-get install build-essential
 npm install -g node-gyp
 npm config set python /usr/bin/python
-PYTHON=python3 yarn install
+PYTHON=python3 npm install
 ```
 #### 2. Make sure you have a mysql database installed and running -- our recommendation is Mariadb. 
     
@@ -108,30 +109,30 @@ The default username is 'server', the default password is 'password', the defaul
 #### 6. Start the server in database seed mode
 
    Several tables in the database need to be seeded with default values.
-   Run ```cd packages/server```, then run ```yarn dev-reinit-db```.
+   Run ```cd packages/server```, then run ```npm run dev-reinit-db```.
    After several seconds, there should be no more logging.
    Some of the final lines should read like this:
    ```Executing (default): SELECT 'id', 'name', 'sceneId', 'locationSettingsId', 'slugifiedName', 'maxUsersPerInstance', 'createdAt', 'updatedAt' FROM 'location' AS 'location' WHERE ('location'.'id' = '98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61') AND 'location'.'id' IN ('98cbcc30-fd2d-11ea-bc7c-cd4cac9a8d61'); Seeded```
    
     At this point, the database has been seeded. You can shut down the server with CTRL+C.
 
-#### 7. Open two/three separate tabs and start the API server (non-seeding), gameserver (if using gameservers), and the client
-   In /packages/server, run ```sudo yarn dev```.
-   If you are using gameservers, in another tab go to /packages/gameserver and run ```sudo yarn dev```.
-   In the final tab, go to /packages/client and run ```sudo yarn dev```.
-   
-#### 8. Open a new tab and start local file server (optional)
-   If the .env.local file you have has the line 
+#### 7. Local file server configuration
+   If the .env.local file y ou have has the line 
    ```STORAGE_PROVIDER=local```
    then the scene editor will save components, models, scenes, etc. locally 
    (as opposed to storing them on S3). You will need to start a local server
    to serve these files, and make sure that .env.local has the line
    ```LOCAL_STORAGE_PROVIDER="localhost:8642"```.
-   In a new tab, go to ```packages/server``` and run ```yarn serve-local-files```.
+   In a new tab, go to ```packages/server``` and run ```npm run serve-local-files```.
    This will start up ```http-server``` to serve files from ```packages/server/upload```
    on ```localhost:8642```.
    You may have to accept the invalid self-signed certificate for it in the browser;
    see 'Allow local file http-server connection with invalid certificate' below.
+   
+#### 8. Open two/three separate tabs and start the API server, gameserverand client
+   In /packages/server, run ```npm run dev``` which will launch the api server, game server and file server.
+   If you are not using gameservers, you can instead run ```npm run dev-api-server``` the api server.
+   In the final tab, go to /packages/client and run ```npm run dev```.
    
 #### 9. In a browser, navigate to https://127.0.0.1:3000/location/test
    The database seeding process creates a test empty location called 'test'.
@@ -164,11 +165,11 @@ for example:``` C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MS
 
 8. rename 'postinstall' to 'postinstall-1' so that it will not run after installing dependencies.
 
-9. install all dependences using yarn.
+9. install all dependences using npm.
 
 10. add back all removed mediasoup and mediasoup-client dependencies.
 
-11. Rerun yarn command to install dependencies to install newly added mediasoup and mediasoup-client dependencies.
+11. Rerun npm command to install dependencies to install newly added mediasoup and mediasoup-client dependencies.
 
 12. If error persists then check for typos in evironment variables.
 
@@ -276,7 +277,7 @@ Or
 #### Weird issues with your database?
 Try
 ```
-yarn run dev-reinit-db // in server package
+npm run dev-reinit-db // in server package
 ```
 
 ## Admin System
@@ -287,7 +288,7 @@ Create a user at `/login`
 
 Method 1: 
 
-1. Run `yarn run scripts/make-user-admin.js [USER ID]` 
+1. Run `npm run scripts/make-user-admin.js [USER ID]` 
 2. TODO: Improve with email/phone ID support
 
 Method 2: 
@@ -318,11 +319,11 @@ Test user Admin privliges by going to `/admin`
 
 ## Testing
 
-Simply run `yarn test` and all your tests in the `test/` directory will be run.
+Simply run `npm run test` and all your tests in the `test/` directory will be run.
 
 ## Linting
 
-`yarn run lint`
+`npm run lint`
 
 ## Docker
 
@@ -400,7 +401,7 @@ SMTP_PASS=<mailtrap-password>
 Feathers.js has a powerful command line interface. Here are a few things it can do:
 
 ```
-$ yarn install -g @feathersjs/cli          # Install Feathers CLI
+$ npm install -g @feathersjs/cli          # Install Feathers CLI
 
 $ feathers generate service               # Generate a new Service
 $ feathers generate hook                  # Generate a new Hook
@@ -423,7 +424,7 @@ For more information on all the things you can do with Feathers visit [docs.feat
 
 Before run the server, you should migrate the db.
 To do this, please run as following.
-```yarn run compile```
+```npm run compile```
 ```node_modules/.bin/sequelize db:migrate```
 
 ### For more information
