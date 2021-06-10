@@ -77,7 +77,7 @@
     "chargebee": "2.6.5",
     "comlink": "4.3.1",
     "compression": "1.7.4",
-    "concurrently": "6.0.2",
+    "concurrently": "6.2.0",
     "cors": "2.8.5",
     "dauria": "2.0.0",
     "dotenv-flow": "3.2.0",
