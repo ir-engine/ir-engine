@@ -25,7 +25,10 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
             <Switch>
                 <Route path="/" component={React.lazy(() => import('./pages/index'))} exact />
                 <Route path="/login" component={React.lazy(() => import('./pages/login'))} />
-
+            
+                {/* Debug Routes */}
+                <Route path="/webxr" component={React.lazy(() => import('./pages/webxr'))} />
+            
                 {/* Admin Routes */}
                 <Route path="/admin/armedia" component={React.lazy(() => import('./pages/admin/armedia'))} />
                 <Route path="/admin/tips-and-tricks" component={React.lazy(() => import('./pages/admin/tips-and-tricks'))} />

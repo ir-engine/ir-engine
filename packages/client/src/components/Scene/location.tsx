@@ -468,6 +468,8 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async () => { setIsInXR(false); });
   };
 
+  let characterAvatar: CharacterComponent = null;
+  let networkUser 
   const onObjectActivation = (interactionData): void => {
     switch (interactionData.interactionType) {
       case 'link':
@@ -496,16 +498,16 @@ export const EnginePage = (props: Props) => {
   }, []);
 
 
+
   if (Network.instance) {
     userState.get('layerUsers').forEach(user => {
       if (user.id !== currentUser?.id) {
-        const networkUser = Object.values(Network.instance.networkObjects).find(networkUser => networkUser.ownerId === user.id
+        networkUser = Object.values(Network.instance.networkObjects).find(networkUser => networkUser.ownerId === user.id
           && networkUser.prefabType === PrefabType.Player);
         if (networkUser) {
           const changedAvatar = getComponent(networkUser.component.entity, CharacterComponent);
-
           if (user?.avatarId !== changedAvatar?.avatarId) {
-            const characterAvatar = getMutableComponent(networkUser.component.entity, CharacterComponent);
+            characterAvatar = getMutableComponent(networkUser.component.entity, CharacterComponent);
             if (characterAvatar != null) characterAvatar.avatarId = user.avatarId;
             // We can pull this from NetworkPlayerCharacter, but we probably don't want our state update here
             // loadActorAvatar(networkUser.component.entity);
