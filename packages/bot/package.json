@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@google-cloud/agones-sdk": "1.14.0",
-    "puppeteer": "9.0.0"
+    "puppeteer": "9.1.1"
   },
   "devDependencies": {
     "@types/node": "13.13.51",
@@ -29,7 +29,7 @@
     "@types/three": "0.129.1",
     "config": "3.3.6",
     "cross-env": "7.0.3",
-    "eslint": "7.25.0",
+    "eslint": "7.28.0",
     "eslint-plugin-react": "7.23.2",
     "semantic-release": "17.4.3",
     "semantic-release-monorepo": "7.0.5",
