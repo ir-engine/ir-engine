@@ -126,7 +126,7 @@ const Page = () => {
 			const clips = model.animations;
 			ac.mixer = mixer;
 			ac.animations = clips;
-			ac.mixer.clipAction(clips[0]).play();
+			ac.mixer.clipAction(clips[3]).play();
 
 			// Set up poses
 			rig.pose = new Pose(sourceEntity, false);
