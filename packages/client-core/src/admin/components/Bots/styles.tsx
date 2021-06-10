@@ -55,14 +55,14 @@ export const useStylesForBots = makeStyles((theme: Theme) =>
             background: "#343b41",
             border: "1px solid #23282c",
             borderRadius: "5px",
-            width: "45vw",
+            width: "100%",
             marginTop: "10px",
           },
-          Inputroot: {
+          InputRoot: {
             padding: '2px 2px',
             display: 'flex',
             alignItems: 'center',
-            width: "45vw",
+            width: "100%",
             marginTop: "10px",
             marginBottom: "30px",
             background: "#343b41",
@@ -78,7 +78,7 @@ export const useStylesForBots = makeStyles((theme: Theme) =>
             marginBottom: "15px",
             background: "#343b41",
             border: "1px solid #23282c",
-            color: "#f1f1f1"
+            color: "#f1f1f1 !important"
           },
           input: {
             marginLeft: theme.spacing(1),
@@ -102,3 +102,10 @@ export const useStylesForBots = makeStyles((theme: Theme) =>
           }
     }),
 );
+
+
+export const useStyle = makeStyles({
+       autPaper: {
+         background: "#43484F",
+       },
+});
