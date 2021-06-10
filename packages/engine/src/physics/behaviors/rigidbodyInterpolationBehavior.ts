@@ -106,6 +106,7 @@ export const rigidbodyInterpolationBehavior: Behavior = (entity: Entity, snapsho
     }
     */
   })
+  
 
 
   //transform.position.copy(collider.body.transform.translation);

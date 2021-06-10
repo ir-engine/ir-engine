@@ -17,6 +17,8 @@ import { addActionComponent } from '../../../functions/functionsActions';
 export const onHoleCollideWithBall: GameObjectInteractionBehavior = (entityHole: Entity, delta: number, args: { hitEvent: ColliderHitEvent }, entityBall: Entity) => {
   
   //if(hasComponent(entityHole, State.Active) && hasComponent(entityHole, State.Active)) {
+    console.log('HOLE');
+    
     addActionComponent(entityHole, Action.GameObjectCollisionTag);
     addActionComponent(entityBall, Action.GameObjectCollisionTag);
  // }

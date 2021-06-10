@@ -205,7 +205,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       'spawnBall':[
         {
           behavior: spawnBall, 
-          args: { positionCopyFromRole: 'GolfTee', offsetY: 0.03 },
+          args: { positionCopyFromRole: 'GolfTee-0', offsetY: 1 },
           watchers:[ [ State.YourTurn ] ],
           checkers:[{
             function: doesPlayerHaveGameObject,
@@ -232,11 +232,11 @@ export const GolfGameMode: GameMode = somePrepareFunction({
         {
           behavior: saveGoalScore,
           args: { on: 'self' },
-          watchers:[ [ State.YourTurn ] ],
+          watchers:[ [ State.Waiting ] ],
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {
-                watchers:[ [ Action.GameObjectCollisionTag ] ],
+                watchers:[ [ Action.GameObjectCollisionTag, State.Ready ] ],
                 checkers:[{
                   function: ifOwned
                   },{
@@ -314,7 +314,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
         },
         {
           behavior: teleportObject,
-          args: { on: 'target', positionCopyFromRole: 'GolfTee'},
+          args: { on: 'target', positionCopyFromRole: 'GolfTee-'},
           watchers:[ [ State.Goal ] ],
           takeEffectOn: {
             targetsRole: {
@@ -355,7 +355,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       'checkIfFlyingOut': [
         {
           behavior: teleportObject,
-          args: { on: 'self', positionCopyFromRole: 'GolfTee'},
+          args: { on: 'self', positionCopyFromRole: 'GolfTee-'},
           checkers:[{
             function: ifGetOut,
             args: { area: 'GameArea' }

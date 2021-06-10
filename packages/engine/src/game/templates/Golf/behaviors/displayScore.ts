@@ -24,8 +24,8 @@ export const saveGoalScore: Behavior = (entity: Entity, args?: any, delta?: numb
 
   const gameScore = getStorage(entityArg, { name: 'GameScore' });
   gameScore.score.goal += 1;
-  setStorage(entityArg, { name: 'GameScore' }, Object.keys(gameScore));
-  console.warn('add state Goal')
+  setStorage(entityArg, { name: 'GameScore' }, gameScore);
+
   addStateComponent(entityArg, State.Goal);
   
   console.warn('/////////////////////////////////////')

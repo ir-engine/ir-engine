@@ -6,7 +6,9 @@ import { ColliderComponent } from '../../../../physics/components/ColliderCompon
 import { TransformComponent } from '../../../../transform/components/TransformComponent';
 import { GamePlayer } from '../../../components/GamePlayer';
 import { getGame, getTargetEntity } from '../../../functions/functions';
+import { removeStateComponent } from '../../../functions/functionsState';
 import { getStorage } from '../../../functions/functionsStorage';
+import { State } from '../../../types/GameComponents';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -25,7 +27,7 @@ export const teleportObject: Behavior = (entity: Entity, args?: any, delta?: num
 
   const game = getGame(entityArg);
   console.warn(args.positionCopyFromRole+gameScore.score.goal);
-  const teeEntity = game.gameObjects[args.positionCopyFromRole][0];
+  const teeEntity = game.gameObjects[args.positionCopyFromRole+gameScore.score.goal][0];
   const teeTransform = getComponent(teeEntity, TransformComponent);
 
   const collider = getMutableComponent(entityArg, ColliderComponent)
@@ -51,5 +53,4 @@ export const teleportObject: Behavior = (entity: Entity, args?: any, delta?: num
 
   collider.body.setLinearVelocity(new Vector3(), true);
   collider.body.setAngularVelocity(new Vector3(), true);
-
 };
