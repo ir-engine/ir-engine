@@ -15,18 +15,19 @@ import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from "redux";
-import { selectAdminState } from "../reducers/admin/selector";
 import {
     createLocation,
     patchLocation,
     removeLocation
-} from "../reducers/admin/service";
+} from "../reducers/admin/location/service";
 import { selectAppState } from "../../common/reducers/app/selector";
 import { selectAuthState } from "../../user/reducers/auth/selector";
 // @ts-ignore
 import styles from './Admin.module.scss';
 import Tooltip from '@material-ui/core/Tooltip';
 import { useTranslation } from 'react-i18next';
+import { selectAdminSceneState } from "../reducers/admin/scene/selector";
+import { selectAdminLocationState } from "../reducers/admin/location/selector";
 
 interface Props {
     open: boolean;
@@ -37,13 +38,16 @@ interface Props {
     createLocation?: any;
     patchLocation?: any;
     removeLocation?: any;
+    adminSceneState?: any;
+    adminLocationState?: any;
 }
 
 const mapStateToProps = (state: any): any => {
     return {
         appState: selectAppState(state),
         authState: selectAuthState(state),
-        adminState: selectAdminState(state)
+        adminSceneState: selectAdminSceneState(state),
+        adminLocationState: selectAdminLocationState(state),
     };
 };
 
@@ -59,10 +63,11 @@ const LocationModal = (props: Props): any => {
         handleClose,
         location,
         editing,
-        adminState,
         createLocation,
         patchLocation,
-        removeLocation
+        removeLocation,
+        adminSceneState,
+        adminLocationState
     } = props;
 
     const [name, setName] = useState('');
@@ -71,9 +76,8 @@ const LocationModal = (props: Props): any => {
     const [videoEnabled, setVideoEnabled] = useState(false);
     const [instanceMediaChatEnabled, setInstanceMediaChatEnabled] = useState(false);
     const [locationType, setLocationType] = useState('private');
-    const adminLocations = adminState.get('locations').get('locations');
-    const adminScenes = adminState.get('scenes').get('scenes');
-    const locationTypes = adminState.get('locationTypes').get('locationTypes');
+    const adminScenes = adminSceneState.get('scenes').get('scenes');
+    const locationTypes = adminLocationState.get('locationTypes').get('locationTypes');
     const [state, setState] = React.useState({
         feature: false,
         lobby: false,

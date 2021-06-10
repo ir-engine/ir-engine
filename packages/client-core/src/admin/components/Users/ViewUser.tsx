@@ -19,7 +19,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import { selectAdminState } from "../../reducers/admin/selector";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 import { bindActionCreators, Dispatch } from 'redux';
-import { fetchUserRole } from "../../reducers/admin/service";
+import { fetchUserRole } from "../../reducers/admin/user/service";
 import { connect } from 'react-redux';
 import {
     fetchAdminParty,
@@ -30,6 +30,7 @@ import {
 import { useFormik } from 'formik';
 import { useStyles, useStyle } from "./styles";
 import { userValidationSchema } from "./validation";
+import { selectAdminUserState } from '../../reducers/admin/user/selector';
 
 
 interface Props {
@@ -44,12 +45,14 @@ interface Props {
     closeViewModel?: any;
     updateUserRole?: any;
     fetchSingleUserAdmin?: any;
+    adminUserState?: any
 }
 
 const mapStateToProps = (state: any): any => {
     return {
         adminState: selectAdminState(state),
         authState: selectAuthState(state),
+        adminUserState: selectAdminUserState(state)
     };
 };
 
@@ -75,7 +78,8 @@ const ViewUser = (props: Props) => {
         fetchAdminParty,
         patchUser,
         updateUserRole,
-        fetchSingleUserAdmin
+        fetchSingleUserAdmin,
+        adminUserState
     } = props;
     const [openDialog, setOpenDialog] = React.useState(false);
     const [status, setStatus] = React.useState("");
@@ -90,14 +94,14 @@ const ViewUser = (props: Props) => {
     const [refetch, setRefetch] = React.useState(false);
 
     const user = authState.get("user");
-    const userRole = adminState.get("userRole");
+    const userRole = adminUserState.get("userRole");
     const userRoleData = userRole ? userRole.get("userRole") : [];
     const adminParty = adminState.get("parties");
     const adminPartyData = adminParty.get("parties").data ? adminParty.get("parties").data : [];
     const adminInstances = adminState.get('instances');
     const instanceData = adminInstances.get("instances");
-    const singleUser = adminState.get("singleUser");
-    const singleUserData = adminState.get("singleUser").get("singleUser");
+    const singleUser = adminUserState.get("singleUser");
+    const singleUserData = adminUserState.get("singleUser").get("singleUser");
 
     const handleClick = () => {
         setOpenDialog(true);
@@ -110,7 +114,7 @@ const ViewUser = (props: Props) => {
         const fetchData = async () => {
             await fetchUserRole();
         };
-        if ((adminState.get('users').get('updateNeeded') === true) && user.id) fetchData();
+        if ((adminUserState.get('users').get('updateNeeded') === true) && user.id) fetchData();
 
         if (user.id && adminParty.get('updateNeeded') == true) {
             fetchAdminParty();
@@ -119,7 +123,7 @@ const ViewUser = (props: Props) => {
             fetchSingleUserAdmin(userAdmin.id);
             setRefetch(false);
         }
-    }, [adminState, user, refetch]);
+    }, [adminUserState, user, refetch]);
 
     React.useEffect(()=>{
         if(!refetch){
@@ -231,7 +235,13 @@ const ViewUser = (props: Props) => {
                                     </Grid>
                                 </Grid>
                             </Container>
-                            <Dialog open={openDialog} onClose={handleCloseDialog} aria-labelledby="form-dialog-title">
+
+                            <Dialog
+                             open={openDialog} 
+                             onClose={handleCloseDialog} 
+                             aria-labelledby="form-dialog-title" 
+                             classes={{ paper: classx.paperDialog}} 
+                              >
                                 <DialogTitle id="form-dialog-title">Do you really want to change role for {userAdmin.name}? </DialogTitle>
                                 <DialogContent>
                                     <DialogContentText>
@@ -262,6 +272,7 @@ const ViewUser = (props: Props) => {
                                 </Button>
                                 </DialogActions>
                             </Dialog>
+                       
                         </Paper>
                     }
                     <Container maxWidth="sm">

@@ -3,7 +3,6 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import Box from "@material-ui/core/Box";
 import { makeStyles, Theme } from "@material-ui/core/styles";
-import Search from "../Search";
 import Grid from "@material-ui/core/Grid";
 // @ts-ignore
 import styles from '../Admin.module.scss';
@@ -11,13 +10,9 @@ import Button from '@material-ui/core/Button';
 import UserModel from "./CreateUser";
 import UserTable from "./UserTable";
 import SearchUser from "./SearchUser";
-
-
-interface TabPanelProps {
-    children?: React.ReactNode;
-    index: any;
-    value: any;
-}
+import {
+   TabPanelProps
+} from "./Variables";
 
 
 const TabPanel = (props: TabPanelProps) => {
