@@ -31,7 +31,7 @@ import { defaultPostProcessingSchema, effectType } from '../scene/classes/PostPr
 import { PostProcessingSchema } from './interfaces/PostProcessingSchema';
 import { WebXRManager } from '../xr/WebXRManager.js'
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType';
-
+import WebGL from "./THREE.WebGL";
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',
   PBR = 'usePBR',
@@ -90,7 +90,7 @@ export class WebGLRendererSystem extends System {
   renderContext: WebGLRenderingContext;
 
   forcePostProcessing = false;
-  supportWebGL2: boolean = false;
+  supportWebGL2: boolean = WebGL.isWebGL2Available();
 
   /** Constructs WebGL Renderer System. */
   constructor(attributes: SystemAttributes = {}) {
@@ -100,18 +100,8 @@ export class WebGLRendererSystem extends System {
 
     this.onResize = this.onResize.bind(this);
 
-    this.supportWebGL2 = !((window as any).iOS || (window as any).safariWebBrowser);
-
     let context;
     const canvas = attributes.canvas;
-
-    try {
-      context = canvas.getContext("webgl2", { antialias: true });
-      this.supportWebGL2 = true;
-    } catch (error) {
-      context = canvas.getContext("webgl", { antialias: true });
-      this.supportWebGL2 = false;
-    }
 
     this.renderContext = context;
     const options = {
