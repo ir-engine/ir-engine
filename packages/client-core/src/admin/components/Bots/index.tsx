@@ -13,8 +13,12 @@ const Bots = () => {
     const classes = useStyles();
     return (
         <div>
-            <Grid container spacing={4}>
-                <Grid item xs={6}>
+            <Grid container={true} spacing={4}>
+                <Grid item xs={12} md={6} sm={12}>
+                <CreateBot/>
+                </Grid>
+
+                <Grid item xs={12} md={6} sm={12}>
                     <Card className={classes.root}>
                         <Paper className={classes.header}>
                             <Typography className={classes.title} >
@@ -23,10 +27,6 @@ const Bots = () => {
                         </Paper>
                         <DisplayBots />
                     </Card>
-                </Grid>
-
-                <Grid item xs={6}>
-                    <CreateBot/>
                 </Grid>
             </Grid>
 
