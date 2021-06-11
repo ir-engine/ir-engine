@@ -389,7 +389,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                 statusXR = true;
             }
 
-            await window.screen.orientation.lock('portrait');
+            // await window.screen.orientation.lock('portrait');
             XRPlugin.start({}).then(() => {
                 setCameraStartedState(isNative ? "Camera started on native" : "Camera started on web");
             }).catch(error => console.log(error.message));
@@ -401,7 +401,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
             console.log('finishRecord');
 
             // @ts-ignore
-            Plugins.XRPlugin.stopRecording().
+            Plugins.XRPlugin.stopRecording({audioId: mediaItem.audioId}).
               // @ts-ignore
               then(({ result, filePath }) => {
                   console.log("END RECORDING, result IS", result);

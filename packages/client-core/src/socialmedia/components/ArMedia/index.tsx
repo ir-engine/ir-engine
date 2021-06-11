@@ -11,9 +11,12 @@ import { selectCreatorsState } from '../../reducers/creator/selector';
 import { createArMedia, getArMedia } from '../../reducers/arMedia/service';
 import { selectArMediaState } from '../../reducers/arMedia/selector';
 import { updateArMediaState,  updateWebXRState } from '../../reducers/popupsState/service';
+import {  Plugins } from '@capacitor/core';
 
 // @ts-ignore
 import styles from './ArMedia.module.scss';
+
+const { XRPlugin } = Plugins;
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -73,7 +76,11 @@ const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateWebXRState
         )}
       </section>
       {!selectedItem ? null :
-        <Button className={styles.startRecirding} onClick={() => {
+        <Button className={styles.startRecirding} onClick={async () => {
+         await XRPlugin.uploadFiles({
+            audioPath: selectedItem.audioUrl,
+            audioId: selectedItem.audioId
+          });
           updateArMediaState(false);
           updateWebXRState(true, selectedItem.id);
         }} variant="contained">
