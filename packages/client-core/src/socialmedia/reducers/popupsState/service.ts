@@ -57,10 +57,10 @@ export function updateNewFeedPageState(state: boolean,  id?:string, imgSrc?:stri
   };
 }
 
-export function updateShareFormState(state: boolean, id?:string) {
+export function updateShareFormState(state: boolean, id?:string, imgSrc?:string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     try {
-      dispatch(changeShareForm(state, id || null));
+      dispatch(changeShareForm(state, id || null,imgSrc || null));
     } catch (err) {
       console.log(err);
       dispatchAlertError(dispatch, err.message);
