@@ -108,7 +108,7 @@ export function getUserIdFromSocketId(socketId): string | null {
     return userId;
 }
 
-export function validateNetworkObjects(): void {
+export async function validateNetworkObjects(): Promise<void> {
     const transport = Network.instance.transport as any;
     for (const userId in Network.instance.clients) {
         // Validate that user has phoned home in last 5 seconds
@@ -121,14 +121,28 @@ export function validateNetworkObjects(): void {
 
             Network.instance.worldState.clientsDisconnected.push({ userId });
             console.log('Disconnected Client:', disconnectedClient.userId);
-            if (disconnectedClient?.instanceRecvTransport)
-                disconnectedClient.instanceRecvTransport.close();
-            if (disconnectedClient?.instanceSendTransport)
-                disconnectedClient.instanceSendTransport.close();
-            if (disconnectedClient?.channelRecvTransport)
-                disconnectedClient.channelRecvTransport.close();
-            if (disconnectedClient?.channelSendTransport)
-                disconnectedClient.channelSendTransport.close();
+            if (disconnectedClient?.instanceRecvTransport) {
+                console.log('Closing instanceRecvTransport');
+                await disconnectedClient.instanceRecvTransport.close();
+                console.log('Closed instanceRecvTransport');
+            }
+            if (disconnectedClient?.instanceSendTransport) {
+                console.log('Closing instanceSendTransport');
+                await disconnectedClient.instanceSendTransport.close();
+                console.log('Closed instanceSendTransport');
+            }
+            if (disconnectedClient?.channelRecvTransport) {
+                console.log('Closing channelRecvTransport');
+                await disconnectedClient.channelRecvTransport.close();
+                console.log('Closed channelRecvTransport');
+            }
+            if (disconnectedClient?.channelSendTransport) {
+                console.log('Closing channelSendTransport');
+                await disconnectedClient.channelSendTransport.close();
+                console.log('Closed channelSendTransport');
+            }
+
+            console.log('Removed transports for', userId);
 
             // Find all network objects that the disconnecting client owns and remove them
             const networkObjectsClientOwns = [];
@@ -142,15 +156,17 @@ export function validateNetworkObjects(): void {
             // Remove all objects for disconnecting user
             networkObjectsClientOwns.forEach(obj => {
                 // Get the entity attached to the NetworkObjectComponent and remove it
-                logger.info("Removed entity ", (obj.component.entity as Entity).id, " for user ", userId);
+                console.log("Removing entity ", (obj.component.entity as Entity).id, " for user ", userId);
                 const removeMessage = { networkId: obj.component.networkId };
                 Network.instance.worldState.destroyObjects.push(removeMessage);
                 removeEntity(obj.component.entity);
                 delete Network.instance.networkObjects[obj.id];
+                console.log("Removed entity ", (obj.component.entity as Entity).id, " for user ", userId);
             });
 
             if (Network.instance.clients[userId])
                 delete Network.instance.clients[userId];
+            console.log('Finished removing inactive client', userId);
         }
     }
     Object.keys(Network.instance.networkObjects).forEach((key: string) => {
