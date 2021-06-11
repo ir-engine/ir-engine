@@ -42,13 +42,7 @@ process.on('unhandledRejection', (error, promise) => {
     const certPath = config.server.certPath;
     const certKeyPath = config.server.keyPath;
 
-    console.log('!config.noSSL', !config.noSSL);
-    console.log('config.localBuild', config.localBuild);
-    console.log('NODE_ENV', process.env.NODE_ENV);
-    console.log('certKeyPath', certKeyPath);
-    console.log('certKeyPath exists', fs.existsSync(certKeyPath));
-    const useSSL = !config.noSSL && (config.localBuild || process.env.NODE_ENV !== 'production') && fs.existsSync(certKeyPath);
-    console.log('useSSL');
+    const useSSL = !config.noSSL && (config.localBuild || !config.kubernetes.enabled) && fs.existsSync(certKeyPath);
 
     const certOptions = {
         key: useSSL ? fs.readFileSync(certKeyPath) : null,
