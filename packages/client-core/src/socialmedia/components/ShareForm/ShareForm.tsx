@@ -89,8 +89,7 @@ const ShareForm = ({updateShareFormState, popupsState}:Props) => {
  {/*</Button>*/}
  <Button size="large" color="primary" onClick={() => {updateShareFormState(false);}}
   className={styles.btnDisableAction} >
-   {/*{t('social:shareForm.cancel')}*/}
-     Close
+   {t('social:shareForm.close')}
  </Button>
  </div>
 

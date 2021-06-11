@@ -82,7 +82,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         } as any;
 
 
-        if(!!!newFeed.video && !!!newFeed.preview){
+        if(!newFeed.video && !newFeed.preview){
             // setTimeout(checkTheFeedData, 250)
             alert("Error! Please try again.");
             closePopUp();
