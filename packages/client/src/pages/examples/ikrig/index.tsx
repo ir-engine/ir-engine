@@ -35,7 +35,7 @@ class AnimationSystem extends System {
 		this.queryResults.animation.all?.forEach((entity) => {
 			let ac = getMutableComponent(entity, AnimationComponent);
 			ac.mixer.update(delta);
-		})
+		});
 	}
 }
 
@@ -48,7 +48,7 @@ AnimationSystem.queries = {
 			changed: true
 		}
 	}
-}
+};
 
 class RenderSystem extends System {
 	updateType = SystemUpdateType.Fixed;
@@ -91,7 +91,7 @@ const Page = () => {
 			console.log("Model is", model);
 			// Set up skinned meshes
 			let skinnedMeshes = [];
-			Engine.scene.add(model.scene)
+			Engine.scene.add(model.scene);
 			Engine.scene.add(new SkeletonHelper(model.scene));
 			model.scene.traverse(node => {
 				if (node.children)
@@ -99,9 +99,9 @@ const Page = () => {
 						if (n.type === "SkinnedMesh")
 							skinnedMeshes.push(n);
 							n.visible = false;
-					})
-			})
-			let skinnedMesh = skinnedMeshes.sort((a, b) => { return a.skeleton.bones.length - b.skeleton.bones.length })[0];
+					});
+			});
+			let skinnedMesh = skinnedMeshes.sort((a, b) => { return a.skeleton.bones.length - b.skeleton.bones.length; })[0];
 
 			// Set up entity
 			let sourceEntity = createEntity();
@@ -150,7 +150,7 @@ const Page = () => {
 			// LOAD MESH A
 		let targetModel = (await LoadGLTF("ikrig/models/vegeta.glb"));
 			targetModel.scene.position.set(0, 0, 0);
-			Engine.scene.add(targetModel.scene)
+			Engine.scene.add(targetModel.scene);
 			// Engine.scene.add(new SkeletonHelper(targetModel.scene));
 		let	targetSkinnedMeshes = [];
 			targetModel.scene.traverse(node => {
@@ -159,10 +159,10 @@ const Page = () => {
 						if (n.type === "SkinnedMesh") {
 							targetSkinnedMeshes.push(n);
 						}
-					})
+					});
 				}
-			})
-		let	targetSkinnedMesh = targetSkinnedMeshes.sort((a, b) => { return a.skeleton.bones.length - b.skeleton.bones.length })[0];
+			});
+		let	targetSkinnedMesh = targetSkinnedMeshes.sort((a, b) => { return a.skeleton.bones.length - b.skeleton.bones.length; })[0];
 
 			// Create entity
 		let	targetEntity = createEntity();
@@ -216,7 +216,7 @@ const Page = () => {
 		})();
 	}, []);
 	// Some JSX to keep the compiler from complaining
-	return <Debug></Debug>;
+	return <Debug />;
 };
 
 export default Page;

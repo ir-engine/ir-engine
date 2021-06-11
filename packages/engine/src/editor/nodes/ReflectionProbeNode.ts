@@ -117,7 +117,13 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
         const node=await super.deserialize(editor,json);
         const reflectionOptions = json.components.find(c => c.name === "reflectionprobe");
         const {options}=reflectionOptions.props;
-        node.reflectionProbeSettings=options??node.reflectionProbeSettings;
+        if(options){
+            node.reflectionProbeSettings=options as ReflectionProbeSettings;
+            let v=(node.reflectionProbeSettings as ReflectionProbeSettings).probeScale;
+            (node.reflectionProbeSettings as ReflectionProbeSettings).probeScale=new Vector3(v.x,v.y,v.z);
+            v=(node.reflectionProbeSettings as ReflectionProbeSettings).probePositionOffset;
+            (node.reflectionProbeSettings as ReflectionProbeSettings).probePositionOffset=new Vector3(v.x,v.y,v.z);
+        }
         return node;
     }
 

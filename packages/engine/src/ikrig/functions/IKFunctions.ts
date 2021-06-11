@@ -133,9 +133,9 @@ export function computeHip(rig, ik_pose) {
 		.multiply(bindBone.quaternion); // Then we apply it to the TBone Rotation, this will do a FWD Swing which will create
 
 	// a new Up direction based on only swing.
-	let swing_up = new Vector3().copy(UP).applyQuaternion(swing),
+	const swing_up = new Vector3().copy(UP).applyQuaternion(swing);
 		// TODO: Make sure this isn't flipped
-		twist = swing_up.angleTo(poseUp); // Swing + Pose have same Fwd, Use Angle between both UPs for twist
+	let twist = swing_up.angleTo(poseUp); // Swing + Pose have same Fwd, Use Angle between both UPs for twist
 
 	// The difference between Pose UP and Swing UP is what makes up our twist since they both
 	// share the same forward access. The issue is that we do not know if that twist is in the Negative direction
@@ -238,11 +238,11 @@ export function computeLookTwist(rig, boneInfo, ik, lookDirection, twistDirectio
 }
 
 export function computeSpine(rig, chain, ik_pose, lookDirection, twistDirection) {
-	let idx_ary = [chain.first(), chain.last()],
+	const idx_ary = [chain.first(), chain.last()],
 		quatInverse = new Quaternion(),
 		v_look_dir = new Vector3(),
-		v_twist_dir = new Vector3(),
-		j = 0,
+		v_twist_dir = new Vector3();
+	let j = 0,
 		poseBone, bineBone;
 
 	const poseBoneWorldQuaternion = new Quaternion();
@@ -308,7 +308,8 @@ export function visualizeLookTwist(rig, boneInfo, ik) {
 }
 
 export function visualizeSpine(rig, chain, ik_ary) {
-	let ws = new Vector3(0, 0, 0), ik, index = [chain.first(), chain.last()];
+	const ws = new Vector3(0, 0, 0), index = [chain.first(), chain.last()];
+	let ik;
 
 	for (let i = 0; i < 2; i++) {
 		const poseBone = rig.pose.bones[index[i]];
@@ -443,7 +444,8 @@ export function applyLimb(ikPose: IKPose, chain, limb, grounding = 0) {
 			bLen = bind_b.length,
 			cLen = ikPose.length;
 
-		let rad, outRot = new Quaternion();
+		let rad;
+		const outRot = new Quaternion();
 
 		// FIRST BONE - Aim then rotate by the angle.
 		// Aim the first bone toward the target oriented with the bend direction.
@@ -688,17 +690,16 @@ export function applySpine(entity, chain, ik, lookDirection, twistDirection) {
 		ikPose.spineParentScale.copy(boneParent.scale);
 		ikPose.spineChildScale.copy(bone.scale);
 
-		let cnt = chain.cnt - 1,
+		const cnt = chain.cnt - 1,
 			ikLook = new Vector3(),
 			ikTwist = new Vector3(),
 			altLook = new Vector3(),
 			altTwist = new Vector3(),
-			currentLook = new Vector3(),
-			currentTwist = new Vector3(),
-			quat = new Quaternion(),
 			rotation = new Quaternion();
 
-		let t, boneIndex, boneBindValue;
+		let t, boneIndex, boneBindValue, currentLook = new Vector3(),
+			currentTwist = new Vector3(),
+			quat = new Quaternion();
 
 		for (let i = 0; i <= cnt; i++) {
 			// Prepare for the Iteration
@@ -866,8 +867,8 @@ export function pmul_invert(qO, q) {
 	let ax = q.x,
 		ay = q.y,
 		az = q.z,
-		aw = q.w,
-		dot = ax * ax + ay * ay + az * az + aw * aw;
+		aw = q.w;
+	const dot = ax * ax + ay * ay + az * az + aw * aw;
 
 	if (dot == 0) {
 		ax = ay = az = aw = 0;
@@ -901,11 +902,11 @@ export function negate(q) {
 
 
 export function from_axis(out, xAxis, yAxis, zAxis) {
-	let m00 = xAxis.x, m01 = xAxis.y, m02 = xAxis.z,
+	const m00 = xAxis.x, m01 = xAxis.y, m02 = xAxis.z,
 		m10 = yAxis.x, m11 = yAxis.y, m12 = yAxis.z,
 		m20 = zAxis.x, m21 = zAxis.y, m22 = zAxis.z,
-		t = m00 + m11 + m22,
-		x, y, z, w, s;
+		t = m00 + m11 + m22;
+	let x, y, z, w, s;
 
 	if (t > 0.0) {
 		s = Math.sqrt(t + 1.0);

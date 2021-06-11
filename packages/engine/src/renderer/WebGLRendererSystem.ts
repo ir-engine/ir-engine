@@ -95,7 +95,6 @@ export class WebGLRendererSystem extends System {
   /** Constructs WebGL Renderer System. */
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);
-
     WebGLRendererSystem.instance = this;
 
     this.onResize = this.onResize.bind(this);
@@ -150,7 +149,7 @@ export class WebGLRendererSystem extends System {
     this.composer = new EffectComposer(Engine.renderer);
 
     EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_POST_PROCESSING, (ev: any) => {
-      this.setUsePostProcessing(ev.payload);
+      this.setUsePostProcessing(this.supportWebGL2 && ev.payload);
     });
     EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_RESOLUTION, (ev: any) => {
       this.setResolution(ev.payload);
@@ -164,7 +163,7 @@ export class WebGLRendererSystem extends System {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
       this.enabled = ev.renderer;
     });
-    this.enabled = false;
+   //  this.enabled = false;
   }
 
   async initialize() {
@@ -264,6 +263,8 @@ export class WebGLRendererSystem extends System {
       Engine.renderer.render(Engine.scene, camera);
 
     } else {
+
+      console.log("Rendering")
 
       if (this.needsResize) {
         const curPixelRatio = Engine.renderer.getPixelRatio();

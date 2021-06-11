@@ -18,7 +18,7 @@ export default class WEBGL {
 	static isWebGL2Available() {
 
 		try {
-            return true;
+			return true;
 			const canvas = document.createElement( 'canvas' );
 			return !! ( window.WebGL2RenderingContext && canvas.getContext( 'webgl2' ) );
 

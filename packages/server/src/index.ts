@@ -42,15 +42,15 @@ process.on('unhandledRejection', (error, promise) => {
     const certPath = config.server.certPath;
     const certKeyPath = config.server.keyPath;
 
-    const useSSL = !config.noSSL && (config.localBuild || process.env.NODE_ENV !== 'production') && fs.existsSync(certKeyPath);
+    const useSSL = !config.noSSL && (config.localBuild || !config.kubernetes.enabled) && fs.existsSync(certKeyPath);
 
     const certOptions = {
         key: useSSL ? fs.readFileSync(certKeyPath) : null,
         cert: useSSL ? fs.readFileSync(certPath) : null
     };
 
-    if (useSSL) logger.info('Starting server with HTTPS');
-    else logger.warn('Starting server with NO HTTPS, if you meant to use HTTPS try \'sudo bash generate-certs\'');
+    if (useSSL) console.log('Starting server with HTTPS');
+    else console.log('Starting server with NO HTTPS, if you meant to use HTTPS try \'sudo bash generate-certs\'');
     const port = config.server.port;
 
 // http redirects for development

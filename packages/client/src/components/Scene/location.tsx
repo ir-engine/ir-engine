@@ -476,7 +476,7 @@ export const EnginePage = (props: Props) => {
   };
 
   let characterAvatar: CharacterComponent = null;
-  let networkUser 
+  let networkUser; 
   const onObjectActivation = (interactionData): void => {
     switch (interactionData.interactionType) {
       case 'link':
