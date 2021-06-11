@@ -40,7 +40,7 @@ export default (app: Application): void => {
                         console.log('Creating new GS or updating current one');
                         console.log(status.state);
                         console.log((app as any).instance);
-                        if (status.state === 'Ready' || ((process.env.NODE_ENV === 'development' && status.state === 'Shutdown') || (process.env.NODE_ENV === 'development' && ((app as any).instance == null || (app as any).instance.locationId !== locationId || (app as any).instance.channelId !== channelId)))) {
+                        if (status.state === 'Ready' || ((config.kubernetes.enabled === false && status.state === 'Shutdown') || (config.kubernetes.enabled === false && ((app as any).instance == null || (app as any).instance.locationId !== locationId || (app as any).instance.channelId !== channelId)))) {
                             logger.info('Starting new instance');
                             const localIp = await getLocalServerIp();
                             const selfIpAddress = `${(status.address as string)}:${(status.portsList[0].port as string)}`;

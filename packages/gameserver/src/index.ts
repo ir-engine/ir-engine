@@ -46,7 +46,7 @@ process.on('unhandledRejection', (error, promise) => {
 // SSL setup
   const certPath = config.server.certPath;
   const certKeyPath = config.server.keyPath;
-  const useSSL = !config.noSSL && (config.localBuild || process.env.NODE_ENV !== 'production') && fs.existsSync(certKeyPath);
+  const useSSL = !config.noSSL && (config.localBuild || !config.kubernetes.enabled) && fs.existsSync(certKeyPath);
 
   const certOptions = {
     key: useSSL ? fs.readFileSync(certKeyPath) : null,

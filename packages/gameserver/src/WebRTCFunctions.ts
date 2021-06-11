@@ -4,8 +4,7 @@ import { Network } from "@xrengine/engine/src/networking//classes/Network";
 import { MessageTypes } from "@xrengine/engine/src/networking/enums/MessageTypes";
 import { WebRtcTransportParams } from "@xrengine/server-core/src/types/WebRtcTransportParams";
 import { createWorker } from 'mediasoup';
-import { DataConsumerOptions } from "mediasoup/lib/types";
-import { DataProducer, DataConsumer, DataProducerOptions, Producer, RtpCodecCapability, Transport, WebRtcTransport } from "mediasoup/lib/types";
+import { DataProducer, DataConsumer, DataConsumerOptions, DataProducerOptions, Producer, Router, RtpCodecCapability, Transport, WebRtcTransport } from "mediasoup/lib/types";
 import SocketIO from "socket.io";
 import logger from "@xrengine/server-core/src/logger";
 import { localConfig, sctpParameters } from '@xrengine/server-core/src/config';
@@ -100,34 +99,36 @@ export const handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
     const newTransport: Transport = Network.instance.clients[userId].instanceRecvTransport;
     const outgoingDataProducer = networkTransport.outgoingDataProducer;
 
-    const dataConsumer = await newTransport.consumeData({
-        dataProducerId: outgoingDataProducer.id,
-        appData: { peerId: userId, transportId: newTransport.id },
-    });
+    if (newTransport != null) {
+        const dataConsumer = await newTransport.consumeData({
+            dataProducerId: outgoingDataProducer.id,
+            appData: {peerId: userId, transportId: newTransport.id},
+        });
 
-    dataConsumer.on('producerclose', () => {
-        dataConsumer.close();
-        Network.instance.clients[userId].dataConsumers.delete(
-            dataProducer.id
+        dataConsumer.on('producerclose', () => {
+            dataConsumer.close();
+            Network.instance.clients[userId].dataConsumers.delete(
+                dataProducer.id
+            );
+        });
+
+        logger.info('Setting data consumer to room state');
+        Network.instance.clients[userId].dataConsumers.set(
+            dataProducer.id,
+            dataConsumer
         );
-    });
-    
-    logger.info('Setting data consumer to room state');
-    Network.instance.clients[userId].dataConsumers.set(
-        dataProducer.id,
-        dataConsumer
-    );
 
-    const dataProducerOut = Network.instance.clients[userId].dataProducers.get('instance');
-    // Data consumers are all consuming the single producer that outputs from the server's message queue
-    socket.emit(MessageTypes.WebRTCConsumeData.toString(), {
-        dataProducerId: dataProducerOut.id,
-        sctpStreamParameters: dataConsumer.sctpStreamParameters,
-        label: dataConsumer.label,
-        id: dataConsumer.id,
-        appData: dataConsumer.appData,
-        protocol: 'raw',
-    } as DataConsumerOptions);
+        const dataProducerOut = Network.instance.clients[userId].dataProducers.get('instance');
+        // Data consumers are all consuming the single producer that outputs from the server's message queue
+        socket.emit(MessageTypes.WebRTCConsumeData.toString(), {
+            dataProducerId: dataProducerOut.id,
+            sctpStreamParameters: dataConsumer.sctpStreamParameters,
+            label: dataConsumer.label,
+            id: dataConsumer.id,
+            appData: dataConsumer.appData,
+            protocol: 'raw',
+        } as DataConsumerOptions);
+    } else socket.emit(MessageType.WebRTCConsumeData.toString(), { error: 'transport did not exist' });
 };
 
 export async function closeTransport(transport): Promise<void> {
@@ -135,8 +136,10 @@ export async function closeTransport(transport): Promise<void> {
     // our producer and consumer event handlers will take care of
     // calling closeProducer() and closeConsumer() on all the producers
     // and consumers associated with this transport
-    await transport.close();
-    delete Network.instance.transports[transport.id];
+    if (transport && typeof transport.close === 'function') {
+        await transport.close();
+        delete Network.instance.transports[transport.id];
+    }
 }
 export async function closeProducer(producer): Promise<void> {
     logger.info("closing producer " + producer.id, producer.appData);
@@ -304,32 +307,37 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
         sctpStreamParameters,
         appData: { ...(appData || {}), peerID: userId, transportId }
     };
-    const dataProducer = await transport.produceData(options);
-    networkTransport.dataProducers.push(dataProducer);
-    logger.info(`user ${userId} producing data`);
-    Network.instance.clients[userId].dataProducers.set(label, dataProducer);
+    if (transport != null) {
+        const dataProducer = await transport.produceData(options);
+        networkTransport.dataProducers.push(dataProducer);
+        logger.info(`user ${userId} producing data`);
+        Network.instance.clients[userId].dataProducers.set(label, dataProducer);
 
-    const currentRouter = networkTransport.routers.instance.find(router => router._internal.routerId === transport._internal.routerId);
+        const currentRouter = networkTransport.routers.instance.find(router => router._internal.routerId === transport._internal.routerId);
 
-    await Promise.all(networkTransport.routers.instance.map(async router => {
-        if (router._internal.routerId !== transport._internal.routerId) return currentRouter.pipeToRouter({ dataProducerId: dataProducer.id, router: router });
-        else return Promise.resolve();
-    }));
+        await Promise.all(networkTransport.routers.instance.map(async router => {
+            if (router._internal.routerId !== transport._internal.routerId) return currentRouter.pipeToRouter({
+                dataProducerId: dataProducer.id,
+                router: router
+            });
+            else return Promise.resolve();
+        }));
 
-    // if our associated transport closes, close ourself, too
-    dataProducer.on("transportclose", () => {
-        networkTransport.dataProducers.splice(networkTransport.dataProducers.indexOf(dataProducer), 1);
-        logger.info("data producer's transport closed: " + dataProducer.id);
-        dataProducer.close();
-        Network.instance.clients[userId].dataProducers.delete(label);
-    });
-    const internalConsumer = await createInternalDataConsumer(dataProducer, userId);
-    Network.instance.clients[userId].dataConsumers.set(label, internalConsumer);
+        // if our associated transport closes, close ourself, too
+        dataProducer.on("transportclose", () => {
+            networkTransport.dataProducers.splice(networkTransport.dataProducers.indexOf(dataProducer), 1);
+            logger.info("data producer's transport closed: " + dataProducer.id);
+            dataProducer.close();
+            Network.instance.clients[userId].dataProducers.delete(label);
+        });
+        const internalConsumer = await createInternalDataConsumer(dataProducer, userId);
+        Network.instance.clients[userId].dataConsumers.set(label, internalConsumer);
         // transport.handleConsumeDataEvent(socket);
-    logger.info("transport.handleConsumeDataEvent(socket);");
-    // Possibly do stuff with appData here
-    logger.info("Sending dataproducer id to client:" + dataProducer.id);
-    return callback({ id: dataProducer.id });
+        logger.info("transport.handleConsumeDataEvent(socket);");
+        // Possibly do stuff with appData here
+        logger.info("Sending dataproducer id to client:" + dataProducer.id);
+        return callback({id: dataProducer.id});
+    } else return callback({ error: 'invalid transport' });
 }
 
 export async function handleWebRtcTransportClose(socket, data, callback): Promise<any> {
@@ -343,12 +351,14 @@ export async function handleWebRtcTransportClose(socket, data, callback): Promis
 export async function handleWebRtcTransportConnect(socket, data, callback): Promise<any> {
     const { transportId, dtlsParameters } = data,
         transport = Network.instance.transports[transportId];
-    await transport.connect({ dtlsParameters }).catch(err => {
-        logger.error(err);
-        callback({ connected: false });
-        return;
-    });
-    callback({ connected: true });
+    if (transport != null) {
+        await transport.connect({dtlsParameters}).catch(err => {
+            logger.error(err);
+            callback({connected: false});
+            return;
+        });
+        callback({connected: true});
+    } else callback({ error: 'invalid transport' });
 }
 
 export async function handleWebRtcCloseProducer(socket, data, callback): Promise<any> {
@@ -360,7 +370,7 @@ export async function handleWebRtcCloseProducer(socket, data, callback): Promise
 export async function handleWebRtcSendTrack(socket, data, callback): Promise<any> {
     const userId = getUserIdFromSocketId(socket.id);
     const { transportId, kind, rtpParameters, paused = false, appData } =
-        data, transport = Network.instance.transports[transportId];
+        data, transport = Network.instance.transports[transportId] as Transport;
 
     if (transport == null) return callback({ error: 'Invalid transport ID' });
 
@@ -374,7 +384,7 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
     const routers = appData.channelType === 'instance' ? networkTransport.routers.instance : networkTransport.routers[`${appData.channelType}:${appData.channelId}`];
     const currentRouter = routers.find(router => router._internal.routerId === transport._internal.routerId);
 
-    await Promise.all(routers.map(async router => {
+    await Promise.all(routers.map(async (router: Router) => {
         if (router._internal.routerId !== transport._internal.routerId) return currentRouter.pipeToRouter({ producerId: producer.id, router: router });
         else return Promise.resolve();
     }));
