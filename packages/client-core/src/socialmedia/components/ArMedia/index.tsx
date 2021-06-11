@@ -12,6 +12,7 @@ import { createArMedia, getArMedia } from '../../reducers/arMedia/service';
 import { selectArMediaState } from '../../reducers/arMedia/selector';
 import { updateArMediaState,  updateWebXRState } from '../../reducers/popupsState/service';
 import {  Plugins } from '@capacitor/core';
+import Preloader from "@xrengine/client-core/src/socialmedia/components/Preloader";
 
 // @ts-ignore
 import styles from './ArMedia.module.scss';
@@ -45,6 +46,7 @@ const mapStateToProps = (state: any): any => {
 const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateWebXRState}:Props) => {
   const [type, setType] = useState('clip');
   const [list, setList] = useState(null);
+  const [preloading, setPreloading] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   useEffect(()=> {getArMedia();}, []);
 	const { t } = useTranslation();
@@ -56,6 +58,7 @@ const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateWebXRState
   }, [arMediaState.get('fetching'), type]);
 
     return <section className={styles.arMediaContainer}>
+      {preloading && <Preloader text={'Loading...'} />}
       <Button variant="text" className={styles.backButton} onClick={()=>updateArMediaState(false)}><ArrowBackIosIcon />{t('social:arMedia.back')}</Button>
       <section className={styles.switcher}>
         <Button variant={type === 'clip' ? 'contained' : 'text'} className={styles.switchButton+(type === 'clip' ? ' '+styles.active : '')}
@@ -77,10 +80,12 @@ const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateWebXRState
       </section>
       {!selectedItem ? null :
         <Button className={styles.startRecirding} onClick={async () => {
-         await XRPlugin.uploadFiles({
+          setPreloading(true);
+          await XRPlugin.uploadFiles({
             audioPath: selectedItem.audioUrl,
             audioId: selectedItem.audioId
           });
+          setPreloading(false);
           updateArMediaState(false);
           updateWebXRState(true, selectedItem.id);
         }} variant="contained">
