@@ -72,13 +72,23 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
 
     const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value);
     const handleComposingTextChange = (event: any): void => setComposingText(event.target.value);
+    const webxrRecorderActivity = webxrnativeState.get('webxrnative');
     const handleCreateFeed = async () => {
 
         const newFeed = {
             title: composingTitle.trim(),
             description: composingText.trim(),
             video, preview
-        } as any;   
+        } as any;
+
+
+        if(!newFeed.video && !newFeed.preview){
+            // setTimeout(checkTheFeedData, 250)
+            alert("Error! Please try again.");
+            closePopUp();
+            return;
+        }
+
         if(feed){                    
             updateFeedAsAdmin(feed.id, newFeed);
         }else{
@@ -96,7 +106,6 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
             clearTimeout(thanksTimeOut);
         }, 2000);
 
-        const webxrRecorderActivity = webxrnativeState.get('webxrnative');
         if(webxrRecorderActivity){
             changeWebXrNative();
         }
@@ -172,7 +181,6 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
 
     const closePopUp = () => {
         updateNewFeedPageState(false);
-        const webxrRecorderActivity = webxrnativeState.get('webxrnative');
         if(webxrRecorderActivity){
             changeWebXrNative();
         }
