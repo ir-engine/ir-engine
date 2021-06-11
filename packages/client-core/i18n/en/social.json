@@ -137,7 +137,8 @@
         "shareWithBuddies": "Share with buddies",
         "shareVideo": "Share Video",
         "save": "Save To Camera Roll",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "close": "Close"
     },
     "simpleModal": {
         "emptyList": "Empty list",

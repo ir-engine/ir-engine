@@ -48,7 +48,11 @@
     }
     .buttonWraper{
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
+        padding-bottom: 15px;
+        button{
+            width: 100%;
+        }
     }
     .submit{
         display: block;
