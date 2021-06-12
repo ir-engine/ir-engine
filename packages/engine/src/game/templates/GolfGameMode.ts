@@ -298,7 +298,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
         {
           behavior: switchState,
           args: { on: 'target', remove: State.Active, add: State.Inactive },
-          watchers:[ [ State.YourTurn ] ],
+          watchers:[ [ State.Waiting ] ],
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {
@@ -317,8 +317,8 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           watchers:[ [ State.YourTurn ] ],
           takeEffectOn: {
             targetsRole: {
-              'GolfBall': {
-                watchers:[ [ State.Inactive, State.BallMoving ] ],
+              'GolfClub': {
+                watchers:[ [ State.Hit ] ],
                 checkers:[{
                   function: ifOwned
                 }]
@@ -412,7 +412,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           watchers:[ [ State.BallStopped ] ],
           checkers:[{
             function: ifMoved,
-            args: { on: 'self', min: 0.001 }
+            args: { on: 'self', min: 0.0001 }
           }]
         }
       ],
@@ -536,6 +536,11 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           takeEffectOn: {
             targetsRole: {
               '1-Player': {
+                checkers:[{
+                  function: ifOwned
+                }]
+              },
+              '2-Player': {
                 checkers:[{
                   function: ifOwned
                 }]
