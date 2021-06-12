@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/bot",
   "version": "0.2.27",
-  "private": true,
+  "private": false,
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -11,7 +11,7 @@
   },
   "npmClient": "npm",
   "jest": "ts-jest",
-  "main": "src/xrengine-bot.js",
+  "main": "src/bot.js",
   "scripts": {
     "start": "node run-bot.js",
     "validate": "npm run lint && npm run test",
@@ -20,7 +20,8 @@
   },
   "dependencies": {
     "@google-cloud/agones-sdk": "1.14.0",
-    "puppeteer": "9.1.1"
+    "puppeteer": "9.1.1",
+    "zerorpc": "git+https://github.com/0rpc/zerorpc-node.git"
   },
   "devDependencies": {
     "@types/node": "13.13.51",
