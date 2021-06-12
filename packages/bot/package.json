@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@google-cloud/agones-sdk": "1.14.0",
-    "puppeteer": "9.1.1"
+    "puppeteer": "10.0.0"
   },
   "devDependencies": {
     "@types/node": "13.13.51",
