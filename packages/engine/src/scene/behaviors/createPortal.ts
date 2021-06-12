@@ -1,5 +1,5 @@
 import { BoxBufferGeometry, Color, Euler, ExtrudeGeometry, Font, FontLoader, Mesh, MeshBasicMaterial, MeshNormalMaterial, Object3D, Quaternion, ShapeGeometry, TextBufferGeometry, Vector3 } from 'three';
-import { Body, BodyType, createShapeFromConfig, SHAPES } from 'three-physx';
+import { Body, BodyType, ShapeType, SHAPES } from 'three-physx';
 import { LoadGLTF } from '../../assets/functions/LoadGLTF';
 import { isClient } from '../../common/functions/isClient';
 import { Behavior } from '../../common/interfaces/Behavior';
@@ -50,7 +50,7 @@ export const createPortal: Behavior = (entity, args) => {
     previewMesh.geometry.computeBoundingBox();
     previewMesh.geometry.boundingBox.getSize(vec3).multiplyScalar(0.5).setZ(0.1)
 
-    const portalShape = createShapeFromConfig({
+    const portalShape: ShapeType = {
       shape: SHAPES.Box,
       options: { boxExtents: vec3 },
       transform: { translation: previewMesh.position },
@@ -59,7 +59,7 @@ export const createPortal: Behavior = (entity, args) => {
         collisionLayer: CollisionGroups.Portal,
         collisionMask: CollisionGroups.Characters
       }
-    });
+    };
 
     const portalBody = PhysicsSystem.instance.addBody(new Body({
       shapes: [portalShape],

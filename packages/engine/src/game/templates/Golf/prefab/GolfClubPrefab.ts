@@ -6,15 +6,14 @@ import { ColliderComponent } from '../../../../physics/components/ColliderCompon
 import { RigidBodyComponent } from '../../../../physics/components/RigidBody';
 import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject';
 import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants';
-import { BoxBufferGeometry, DoubleSide, Group, Material, Mesh, MeshStandardMaterial, Quaternion, Vector3 } from 'three';
-import { Body, BodyType, ColliderHitEvent, createShapeFromConfig, RaycastQuery, SceneQueryType, SHAPES } from 'three-physx';
+import { BoxBufferGeometry, DoubleSide, Group, Material, Mesh, MeshStandardMaterial, Quaternion, Vector3, MathUtils } from 'three';
+import { Body, BodyType, ColliderHitEvent, ShapeType, RaycastQuery, SceneQueryType, SHAPES } from 'three-physx';
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent';
 import { GameObject } from '../../../components/GameObject';
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { hasComponent, addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions';
-import { MathUtils } from 'three';
 import { Network } from '../../../../networking/classes/Network';
 import { isClient } from '../../../../common/functions/isClient';
 import { getGame } from '../../../functions/functions';
@@ -242,7 +241,7 @@ export const initializeGolfClub = (entityClub: Entity) => {
 
   addComponent(entityClub, Object3DComponent, { value: meshGroup });
 
-  const shapeHead = createShapeFromConfig({
+  const shapeHead: ShapeType = {
     shape: SHAPES.Box,
     options: { boxExtents: clubColliderSize },
     config: {
@@ -250,7 +249,7 @@ export const initializeGolfClub = (entityClub: Entity) => {
       collisionLayer: GolfCollisionGroups.Club,
       collisionMask: GolfCollisionGroups.Ball
     }
-  });
+  };
 
   const body = PhysicsSystem.instance.addBody(new Body({
     shapes: [shapeHead],

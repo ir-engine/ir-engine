@@ -6,7 +6,7 @@ import cloneObject3D from "../functions/cloneObject3D";
 import { RethrownError } from "../functions/errors";
 import { clearFromColliders, plusParameter } from "../../physics/behaviors/parseModelColliders";
 import { parseCarModel } from "../../vehicle/prefabs/NetworkVehicle";
-import { getGeometry } from "three-physx";
+import { getGeometry } from "../../scene/functions/getGeometry";
 
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = "Model";
