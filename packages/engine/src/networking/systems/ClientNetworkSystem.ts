@@ -32,7 +32,7 @@ export class ClientNetworkSystem extends System {
     Network.instance.transport = new schema.transport();
 
     EngineEvents.instance.addEventListener(ClientNetworkSystem.EVENTS.SEND_DATA, ({ buffer }) => {
-      Network.instance.transport.sendReliableData(buffer);
+      if (Network.instance.transport && typeof Network.instance.transport.sendReliableData === 'function') Network.instance.transport.sendReliableData(buffer);
     });
   }
 
