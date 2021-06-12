@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/bot",
   "version": "0.2.27",
-  "private": false,
+  "private": true,
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
