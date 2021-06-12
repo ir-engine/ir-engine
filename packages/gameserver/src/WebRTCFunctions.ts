@@ -100,35 +100,41 @@ export const handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
     const outgoingDataProducer = networkTransport.outgoingDataProducer;
 
     if (newTransport != null) {
-        const dataConsumer = await newTransport.consumeData({
-            dataProducerId: outgoingDataProducer.id,
-            appData: {peerId: userId, transportId: newTransport.id},
-        });
+        try {
+            const dataConsumer = await newTransport.consumeData({
+                dataProducerId: outgoingDataProducer.id,
+                appData: {peerId: userId, transportId: newTransport.id},
+            });
 
-        dataConsumer.on('producerclose', () => {
-            dataConsumer.close();
-            Network.instance.clients[userId].dataConsumers.delete(
-                dataProducer.id
+            dataConsumer.on('producerclose', () => {
+                dataConsumer.close();
+                Network.instance.clients[userId].dataConsumers.delete(
+                    dataProducer.id
+                );
+            });
+
+            logger.info('Setting data consumer to room state');
+            Network.instance.clients[userId].dataConsumers.set(
+                dataProducer.id,
+                dataConsumer
             );
-        });
 
-        logger.info('Setting data consumer to room state');
-        Network.instance.clients[userId].dataConsumers.set(
-            dataProducer.id,
-            dataConsumer
-        );
-
-        const dataProducerOut = Network.instance.clients[userId].dataProducers.get('instance');
-        // Data consumers are all consuming the single producer that outputs from the server's message queue
-        socket.emit(MessageTypes.WebRTCConsumeData.toString(), {
-            dataProducerId: dataProducerOut.id,
-            sctpStreamParameters: dataConsumer.sctpStreamParameters,
-            label: dataConsumer.label,
-            id: dataConsumer.id,
-            appData: dataConsumer.appData,
-            protocol: 'raw',
-        } as DataConsumerOptions);
-    } else socket.emit(MessageType.WebRTCConsumeData.toString(), { error: 'transport did not exist' });
+            const dataProducerOut = Network.instance.clients[userId].dataProducers.get('instance');
+            // Data consumers are all consuming the single producer that outputs from the server's message queue
+            socket.emit(MessageTypes.WebRTCConsumeData.toString(), {
+                dataProducerId: dataProducerOut.id,
+                sctpStreamParameters: dataConsumer.sctpStreamParameters,
+                label: dataConsumer.label,
+                id: dataConsumer.id,
+                appData: dataConsumer.appData,
+                protocol: 'raw',
+            } as DataConsumerOptions);
+        } catch(err) {
+            console.log('Consume data error', err);
+            console.log('Transport that could not be consumed', newTransport);
+            socket.emit(MessageTypes.WebRTCConsumeData.toString(), { error: 'transport did not exist' })
+        }
+    } else socket.emit(MessageTypes.WebRTCConsumeData.toString(), { error: 'transport did not exist' });
 };
 
 export async function closeTransport(transport): Promise<void> {
@@ -217,17 +223,23 @@ export async function createWebRtcTransport({ peerId, direction, sctpCapabilitie
 
 export async function createInternalDataConsumer(dataProducer: DataProducer, userId: string): Promise<DataConsumer> {
     networkTransport = Network.instance.transport as any;
-    const consumer = await networkTransport.outgoingDataTransport.consumeData({
-        dataProducerId: dataProducer.id,
-        appData: { peerId: userId, transportId: networkTransport.outgoingDataTransport.id },
-        maxPacketLifeTime: dataProducer.sctpStreamParameters.maxPacketLifeTime,
-        maxRetransmits: dataProducer.sctpStreamParameters.maxRetransmits,
-        ordered: false,
-    });
-    consumer.on('message', (message) => {
-        Network.instance.incomingMessageQueueUnreliable.add(toArrayBuffer(message));
-    });
-    return consumer;
+    try {
+        const consumer = await networkTransport.outgoingDataTransport.consumeData({
+            dataProducerId: dataProducer.id,
+            appData: {peerId: userId, transportId: networkTransport.outgoingDataTransport.id},
+            maxPacketLifeTime: dataProducer.sctpStreamParameters.maxPacketLifeTime,
+            maxRetransmits: dataProducer.sctpStreamParameters.maxRetransmits,
+            ordered: false,
+        });
+        consumer.on('message', (message) => {
+            Network.instance.incomingMessageQueueUnreliable.add(toArrayBuffer(message));
+        });
+        return consumer;
+    } catch(err) {
+        console.log('Error creating internal data consumer', err);
+        console.log('dataProducer that caused error', dataProducer);
+        return null;
+    }
 }
 
 export async function handleWebRtcTransportCreate(socket, data: WebRtcTransportParams, callback): Promise<any> {
@@ -331,12 +343,14 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
             Network.instance.clients[userId].dataProducers.delete(label);
         });
         const internalConsumer = await createInternalDataConsumer(dataProducer, userId);
-        Network.instance.clients[userId].dataConsumers.set(label, internalConsumer);
-        // transport.handleConsumeDataEvent(socket);
-        logger.info("transport.handleConsumeDataEvent(socket);");
-        // Possibly do stuff with appData here
-        logger.info("Sending dataproducer id to client:" + dataProducer.id);
-        return callback({id: dataProducer.id});
+        if (internalConsumer) {
+            Network.instance.clients[userId].dataConsumers.set(label, internalConsumer);
+            // transport.handleConsumeDataEvent(socket);
+            logger.info("transport.handleConsumeDataEvent(socket);");
+            // Possibly do stuff with appData here
+            logger.info("Sending dataproducer id to client:" + dataProducer.id);
+            return callback({id: dataProducer.id});
+        } else return callback({ error: 'invalid data producer' });
     } else return callback({ error: 'invalid transport' });
 }
 
@@ -432,64 +446,70 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
     );
 
     if (transport != null) {
-        const consumer = await (transport as any).consume({
-            producerId: producer.id,
-            rtpCapabilities,
-            paused: true, // see note above about always starting paused
-            appData: {peerId: userId, mediaPeerId, mediaTag, channelType: channelType, channelId: channelId}
-        });
-
-        // we need both 'transportclose' and 'producerclose' event handlers,
-        // to make sure we close and clean up consumers in all circumstances
-        consumer.on("transportclose", () => {
-            logger.info(`consumer's transport closed`);
-            logger.info(consumer.id);
-            closeConsumer(consumer);
-        });
-        consumer.on("producerclose", () => {
-            logger.info(`consumer's producer closed`);
-            logger.info(consumer.id);
-            closeConsumer(consumer);
-        });
-        consumer.on('producerpause', () => {
-            if (consumer && typeof consumer.pause === 'function')
-            Network.instance.mediasoupOperationQueue.add({
-                object: consumer,
-                action: 'pause'
+        try {
+            const consumer = await (transport as any).consume({
+                producerId: producer.id,
+                rtpCapabilities,
+                paused: true, // see note above about always starting paused
+                appData: {peerId: userId, mediaPeerId, mediaTag, channelType: channelType, channelId: channelId}
             });
-            socket.emit(MessageTypes.WebRTCPauseConsumer.toString(), consumer.id);
-        });
-        consumer.on('producerresume', () => {
-            if (consumer && typeof consumer.resume === 'function')
-            Network.instance.mediasoupOperationQueue.add({
-                object: consumer,
-                action: 'resume'
+
+            // we need both 'transportclose' and 'producerclose' event handlers,
+            // to make sure we close and clean up consumers in all circumstances
+            consumer.on("transportclose", () => {
+                logger.info(`consumer's transport closed`);
+                logger.info(consumer.id);
+                closeConsumer(consumer);
             });
-            socket.emit(MessageTypes.WebRTCResumeConsumer.toString(), consumer.id);
-        });
+            consumer.on("producerclose", () => {
+                logger.info(`consumer's producer closed`);
+                logger.info(consumer.id);
+                closeConsumer(consumer);
+            });
+            consumer.on('producerpause', () => {
+                if (consumer && typeof consumer.pause === 'function')
+                Network.instance.mediasoupOperationQueue.add({
+                    object: consumer,
+                    action: 'pause'
+                });
+                socket.emit(MessageTypes.WebRTCPauseConsumer.toString(), consumer.id);
+            });
+            consumer.on('producerresume', () => {
+                if (consumer && typeof consumer.resume === 'function')
+                Network.instance.mediasoupOperationQueue.add({
+                    object: consumer,
+                    action: 'resume'
+                });
+                socket.emit(MessageTypes.WebRTCResumeConsumer.toString(), consumer.id);
+            });
 
-        // stick this consumer in our list of consumers to keep track of
-        MediaStreamSystem.instance?.consumers.push(consumer);
+            // stick this consumer in our list of consumers to keep track of
+            MediaStreamSystem.instance?.consumers.push(consumer);
 
-        if (Network.instance.clients[userId] != null) Network.instance.clients[userId].consumerLayers[consumer.id] = {
-            currentLayer: null,
-            clientSelectedLayer: null
-        };
+            if (Network.instance.clients[userId] != null) Network.instance.clients[userId].consumerLayers[consumer.id] = {
+                currentLayer: null,
+                clientSelectedLayer: null
+            };
 
-        // update above data structure when layer changes.
-        consumer.on("layerschange", layers => {
-            if (Network.instance.clients[userId] && Network.instance.clients[userId].consumerLayers[consumer.id])
-                Network.instance.clients[userId].consumerLayers[consumer.id].currentLayer = layers && layers.spatialLayer;
-        });
+            // update above data structure when layer changes.
+            consumer.on("layerschange", layers => {
+                if (Network.instance.clients[userId] && Network.instance.clients[userId].consumerLayers[consumer.id])
+                    Network.instance.clients[userId].consumerLayers[consumer.id].currentLayer = layers && layers.spatialLayer;
+            });
 
-        callback({
-            producerId: producer.id,
-            id: consumer.id,
-            kind: consumer.kind,
-            rtpParameters: consumer.rtpParameters,
-            type: consumer.type,
-            producerPaused: consumer.producerPaused
-        });
+            callback({
+                producerId: producer.id,
+                id: consumer.id,
+                kind: consumer.kind,
+                rtpParameters: consumer.rtpParameters,
+                type: consumer.type,
+                producerPaused: consumer.producerPaused
+            });
+        } catch(err) {
+            console.log('Consume error', err);
+            console.log('Transport that could not be consumed', transport);
+            callback({ error: 'Transport to consume no longer exists' });
+        }
     } else {
         callback({
             id: null
