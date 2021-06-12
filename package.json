@@ -50,7 +50,7 @@
     "publish": "lerna publish from-package --yes",
     "validate": "lerna run validate",
     "build": "lerna run build --parallel",
-    "build-publish": "lerna run --ignore @xrengine/bot --ignore @xrengine/client-ml --ignore @xrengine/docs --ignore @xrengine/social --ignore @xrengine/client --ignore @xrengine/server build-publish --parallel",
+    "build-publish": "lerna run --ignore @xrengine/client-ml --ignore @xrengine/docs --ignore @xrengine/social --ignore @xrengine/client --ignore @xrengine/server build-publish --parallel",
     "build-docker": "lerna run --ignore @xrengine/bot --ignore @xrengine/client-ml --ignore @xrengine/docs --ignore @xrengine/engine build --parallel",
     "diff": "lerna diff"
   },
