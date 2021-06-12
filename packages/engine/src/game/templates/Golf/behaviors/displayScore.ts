@@ -20,16 +20,11 @@ export const displayScore: Behavior = (entity: Entity, args?: any, delta?: numbe
 };
 
 export const saveGoalScore: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
-  const entityArg = getTargetEntity(entity, entityTarget, args);
-
-  const gameScore = getStorage(entityArg, { name: 'GameScore' });
+  const gameScore = getStorage(entity, { name: 'GameScore' });
   gameScore.score.goal += 1;
-  setStorage(entityArg, { name: 'GameScore' }, gameScore);
+  setStorage(entity, { name: 'GameScore' }, gameScore);
 
-  addStateComponent(entityArg, State.Goal);
-  
   console.warn('/////////////////////////////////////')
   console.warn('/// SCORE // Hits: '+gameScore.score.hits+' // Goal: '+gameScore.score.goal+' ////////');
   console.warn('/////////////////////////////////////')
-
 };

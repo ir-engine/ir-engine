@@ -101,7 +101,7 @@ export class GameManagerSystem extends System {
       const gameSchema = GamesSchema[game.gameMode];
       const gameObjects = game.gameObjects;
       const gamePlayers = game.gamePlayers;
-      const gameState = game.state;
+      //const gameState = game.state;
 
       // MAIN EXECUTE
       const executeComplexResult = [];

@@ -1,4 +1,5 @@
 import { Vector3 } from 'three';
+import { ControllerColliderComponent } from '../../../../character/components/ControllerColliderComponent';
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { Entity } from '../../../../ecs/classes/Entity';
 import { getComponent, getMutableComponent, hasComponent } from "../../../../ecs/functions/EntityFunctions";
@@ -13,8 +14,8 @@ import { State } from '../../../types/GameComponents';
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const teleportObject: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
-  console.warn('Teleport Object');
+export const teleportPlayer: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
+  console.warn('Teleport Player');
 
   const entityArg = getTargetEntity(entity, entityTarget, args);
   let gameScore
@@ -32,11 +33,12 @@ export const teleportObject: Behavior = (entity: Entity, args?: any, delta?: num
   const teeEntity = game.gameObjects[args.positionCopyFromRole+gameScore.score.goal][0];
   const teeTransform = getComponent(teeEntity, TransformComponent);
 
-  const collider = getMutableComponent(entityArg, ColliderComponent)
+  //const collider = getMutableComponent(entityArg, ColliderComponent)
+  const collider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
 
-  collider.velocity.set(0,0,0);
+  //collider.velocity.set(0,0,0);
 
-  collider.body.updateTransform({
+  collider.controller.updateTransform({
     translation: {
       x: teeTransform.position.x,
       y: teeTransform.position.y,
@@ -53,6 +55,6 @@ export const teleportObject: Behavior = (entity: Entity, args?: any, delta?: num
     }
   })
 
-  collider.body.setLinearVelocity(new Vector3(), true);
-  collider.body.setAngularVelocity(new Vector3(), true);
+ // collider.body.setLinearVelocity(new Vector3(), true);
+  //collider.body.setAngularVelocity(new Vector3(), true);
 };

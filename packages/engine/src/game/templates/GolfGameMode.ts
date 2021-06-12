@@ -6,7 +6,7 @@ import { Action, State } from '../types/GameComponents'
 // game behavior
 import { executeBehaviorArray } from "./gameDefault/behaviors/executeBehaviorArray";
 import { objectMove } from "./gameDefault/behaviors/objectMove";
-import { switchState } from "./gameDefault/behaviors/switchState";
+import { addState, removeState, switchState } from "./gameDefault/behaviors/switchState";
 import { setHideModel } from "./gameDefault/behaviors/setHideModel";
 //
 import { addForce } from "./Golf/behaviors/addForce";
@@ -30,6 +30,7 @@ import { addHole } from "./Golf/behaviors/addHole";
 import { isPlayersInGame } from "./gameDefault/checkers/isPlayersInGame";
 import { ifGetOut } from "./gameDefault/checkers/ifGetOut";
 import { ifOwned } from "./gameDefault/checkers/ifOwned";
+import { dontHasState } from "./gameDefault/checkers/dontHasState";
 import { customChecker } from "./gameDefault/checkers/customChecker";
 import { isDifferent } from "./gameDefault/checkers/isDifferent";
 import { doesPlayerHaveGameObject } from "./gameDefault/checkers/doesPlayerHaveGameObject";
@@ -48,6 +49,7 @@ import { removeSpawnedObjects } from "../functions/functions";
 import { ifMoved } from "./gameDefault/checkers/ifMoved";
 import { spawnBall } from "./Golf/prefab/GolfBallPrefab";
 import { hitBall } from "./Golf/behaviors/hitBall";
+import { teleportPlayer } from "./Golf/behaviors/teleportPlayer";
 
 
 
@@ -213,26 +215,15 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           }]
         }
       ],
-      'updateTurn': [
+      'Goal': [
         {
-          behavior: saveScore,
-          args: { on: 'self' },
-          watchers:[ [ State.YourTurn ] ],
-          takeEffectOn: {
-            targetsRole: {
-              'GolfBall': {
-                watchers:[ [ State.Inactive, State.BallMoving ] ],
-                checkers:[{
-                  function: ifOwned
-                }]
-              }
-            }
-          }
-        },
-        {
-          behavior: saveGoalScore,
-          args: { on: 'self' },
+          behavior: addState,
+          args: { on: 'self', add: State.addedGoal },
           watchers:[ [ State.Waiting ] ],
+          checkers:[{
+            function: dontHasState,
+            args: { stateComponent: State.Goal }
+          }],
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {
@@ -251,6 +242,58 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             }
           }
         },
+        {
+          behavior: saveGoalScore,
+          watchers:[ [ State.addedGoal ] ]
+        },
+        {
+          behavior: switchState,
+          args: { on: 'self', remove: State.addedGoal, add: State.Goal},
+          watchers:[ [ State.addedGoal ] ]
+        },
+        // takeEffectOn Player, Gall
+        {
+          behavior: teleportPlayer,
+          args: { on: 'self', positionCopyFromRole: 'GolfTee-'},
+          watchers:[ [ State.addedGoal ] ]
+        },
+        {
+          behavior: teleportObject,
+          args: { on: 'target', positionCopyFromRole: 'GolfTee-'},
+          watchers:[ [ State.addedGoal ] ],
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                checkers:[{
+                  function: ifOwned
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          behavior: switchState,
+          args: { on: 'target', remove: State.Ready, add: State.NotReady},
+          watchers:[ [ State.addedGoal ] ],
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                checkers:[{
+                  function: ifOwned
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          behavior: removeState,
+          args: { on: 'self', remove: State.Goal },
+          watchers:[ [ State.Goal ] ]
+        }
+      ],
+      'updateTurn': [
         // give Ball Inactive State for player cant hit Ball again in one game turn
         {
           behavior: switchState,
@@ -312,41 +355,6 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             }
           }
         },
-        {
-          behavior: teleportObject,
-          args: { on: 'target', positionCopyFromRole: 'GolfTee-'},
-          watchers:[ [ State.Goal ] ],
-          takeEffectOn: {
-            targetsRole: {
-              'GolfBall': {
-                checkers:[{
-                  function: ifOwned
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          behavior: switchState,
-          args: { on: 'target', remove: State.Ready, add: State.NotReady},
-          watchers:[ [ State.Goal ] ],
-          takeEffectOn: {
-            targetsRole: {
-              'GolfBall': {
-                checkers:[{
-                  function: ifOwned
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          behavior: switchState,
-          args: { on: 'self', remove: State.Goal },
-          watchers:[ [ State.Goal ] ]
-        }
       ]
     },
   },
@@ -409,11 +417,17 @@ export const GolfGameMode: GameMode = somePrepareFunction({
         }
       ],
     },
-    'GolfTee': {},
+    'GolfTee': {}, // will remove what we re-create locations with new GolfTee-+n
     'GolfTee-0': {},
     'GolfTee-1': {},
     'GolfTee-2': {},
     'GolfTee-3': {},
+    'GolfTee-4': {},
+    'GolfTee-5': {},
+    'GolfTee-6': {},
+    'GolfTee-7': {},
+    'GolfTee-8': {},
+    'GolfTee-9': {},
     'GolfHole': {
       'goal': [
         {
@@ -440,13 +454,17 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       ],
       'hitBall': [
         {
-          behavior: hitBall,
+          behavior: addState,
+          args: { on:'self', add: State.addedHit },
           watchers:[ [ Action.GameObjectCollisionTag ] ],
-          args: { clubPowerMultiplier: 10, hitAdvanceFactor: 1.2  },
+          checkers:[{
+            function: dontHasState,
+            args: { stateComponent: State.Hit }
+          }],
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {
-                watchers:[ [ Action.GameObjectCollisionTag, State.BallStopped ] ],
+                watchers:[ [ Action.GameObjectCollisionTag, State.BallStopped, State.Ready, State.Active ] ],
                 checkers:[{
                   function: ifOwned
                 },{
@@ -464,13 +482,17 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           }
         },
         {
-          behavior: hitBall,
+          behavior: addState,
+          args: { on:'self', add: State.addedHit },
           watchers:[ [ Action.GameObjectCollisionTag ] ],
-          args: { clubPowerMultiplier: 10, hitAdvanceFactor: 1.2  },
+          checkers:[{
+            function: dontHasState,
+            args: { stateComponent: State.Hit }
+          }],
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {
-                watchers:[ [ Action.GameObjectCollisionTag, State.BallStopped ] ],
+                watchers:[ [ Action.GameObjectCollisionTag, State.BallStopped, State.Ready, State.Active ] ],
                 checkers:[{
                   function: ifOwned
                 },{
@@ -486,6 +508,45 @@ export const GolfGameMode: GameMode = somePrepareFunction({
               }
             }
           }
+        },
+        {
+          behavior: hitBall,
+          watchers:[ [ State.addedHit ] ],
+          args: { clubPowerMultiplier: 10, hitAdvanceFactor: 1.2  },
+          takeEffectOn: {
+            targetsRole: {
+              'GolfBall': {
+                checkers:[{
+                  function: ifOwned
+                }]
+              }
+            }
+          }
+        },
+        {
+          behavior: switchState,
+          args: { on: 'self', remove: State.addedHit, add: State.Hit},
+          watchers:[ [ State.addedHit ] ]
+        },
+
+        {
+          behavior: saveScore,
+          args: { on: 'target' },
+          watchers:[ [ State.addedHit ] ],
+          takeEffectOn: {
+            targetsRole: {
+              '1-Player': {
+                checkers:[{
+                  function: ifOwned
+                }]
+              }
+            }
+          }
+        },
+        {
+          behavior: removeState,
+          args: { on: 'self', remove: State.Hit },
+          watchers:[ [ State.Hit ] ]
         }
       ]
     },

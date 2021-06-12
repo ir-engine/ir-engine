@@ -43,7 +43,12 @@ enum gameStates {
     Waiting = 'Waiting',
     YourTurn = 'YourTurn',
     WaitTurn = 'WaitTurn',
+
+    addedGoal = 'addedGoal',
     Goal = 'Goal',
+
+    addedHit = 'addedHit',
+    Hit = 'Hit',
 
     SpawnedObject = 'SpawnedObject',
 
@@ -59,6 +64,9 @@ enum gameStates {
 
 class Waiting extends Component<any> {}
 class WaitTurn extends Component<any> {}
+class addedGoal extends Component<any> {}
+class addedHit extends Component<any> {}
+class Hit extends Component<any> {}
 
 export const State = {
     [gameStates.Active]: Active,
@@ -72,7 +80,10 @@ export const State = {
     [gameStates.Waiting]: Waiting,
     [gameStates.YourTurn]: YourTurn,
     [gameStates.WaitTurn]: WaitTurn,
+    [gameStates.addedGoal]: addedGoal,
     [gameStates.Goal]: Goal,
+    [gameStates.addedHit]: addedHit,
+    [gameStates.Hit]: Hit,
     [gameStates.SpawnedObject]: SpawnedObject,
     [gameStates.BallMoving]: BallMoving,
     [gameStates.BallStopped]: BallStopped,
