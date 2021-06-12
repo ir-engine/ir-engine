@@ -146,6 +146,7 @@ const Layout = (props: Props): any => {
       html {
         overflow: hidden;
         -webkit-user-select: none;
+        user-select: none;
       }
       * { 
         touch-action: none;
