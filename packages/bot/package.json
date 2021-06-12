@@ -20,8 +20,7 @@
   },
   "dependencies": {
     "@google-cloud/agones-sdk": "1.14.0",
-    "puppeteer": "9.1.1",
-    "zerorpc": "git+https://github.com/0rpc/zerorpc-node.git"
+    "puppeteer": "9.1.1"
   },
   "devDependencies": {
     "@types/node": "13.13.51",
