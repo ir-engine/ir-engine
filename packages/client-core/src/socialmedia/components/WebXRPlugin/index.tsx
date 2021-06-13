@@ -123,7 +123,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
             Plugins.XRPlugin.stop({});
             window.screen.orientation.unlock();
 
-            setContentHidden();
+            // setContentHidden();
             // console.log('WebXRComponent - UNMOUNT END');
         };
     }, []);

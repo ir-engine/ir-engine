@@ -45,12 +45,11 @@ export type AudioLoader = AudioLoaderProxy | THREE_AudioLoader;
 export type PositionalAudio = PositionalAudioObjectProxy | THREE_PositionalAudio;
 export type VideoTexture = VideoTextureProxy | THREE_VideoTexture;
 
-
 /**
- * This is the base class which holds all the data related to the scene, camera,system etc.\
+ * This is the base class which holds all the data related to the scene, camera,system etc.
  * Data is holded statically hence will be available everywhere.
  *
- * @author Fernando Serrano, Robert Long
+ * @author Shaw, Josh, Vyacheslav and the XREngine Team
  */
 export class Engine {
 
@@ -74,7 +73,6 @@ export class Engine {
   /**
    * Frame rate for physics system.
    *
-   * @author Fernando Serrano, Robert Long
    * @default 60
    */
   public static physicsFrameRate = 60;
@@ -82,7 +80,6 @@ export class Engine {
   /**
    * Frame rate for network system.
    *
-   * @author Fernando Serrano, Robert Long
    * @default 20
    */
   public static networkFramerate = 20;
@@ -98,8 +95,6 @@ export class Engine {
   /**
    * Reference to the three.js renderer object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
-   *
-   * @author Fernando Serrano, Robert Long
    */
   static renderer: WebGLRenderer = null
   static xrRenderer: WebXRManager = null
@@ -109,8 +104,6 @@ export class Engine {
   /**
    * Reference to the three.js scene object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
-   *
-   * @author Fernando Serrano, Robert Long
    */
   static scene: Scene = null
   static sceneLoaded = false;
@@ -118,8 +111,6 @@ export class Engine {
   /**
    * Reference to the three.js perspective camera object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
-   *
-   * @author Fernando Serrano, Robert Long
    */
    static camera: PerspectiveCamera = null
 
@@ -127,30 +118,22 @@ export class Engine {
    * Reference to the Transform component of the three.js camera object.
    * This holds data related to camera position, angle etc.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
-   *
-   * @author Fernando Serrano, Robert Long
    */
   static cameraTransform: TransformComponent = null
 
   /**
    * Reference to the audioListener.
    * This is a virtual listner for all positional and non-positional audio.
-   *
-   * @author Fernando Serrano, Robert Long
    */
   static audioListener: any = null
 
   /**
    * Event dispatcher manages sending events which can be interpreted by devtools.
-   *
-   * @author Fernando Serrano, Robert Long
    */
   static eventDispatcher = new EntityEventDispatcher()
 
   /**
   * Initialization options.
-  *
-  * @author Fernando Serrano, Robert Long
   */
   static options: { /** @default 0 */ entityPoolSize: number } & EngineOptions = {
     entityPoolSize: 0
@@ -159,110 +142,80 @@ export class Engine {
   /**
    * Controls whether engine should execute this frame.
    * Engine can be paused by setting enabled to false.
-   *
-   * @author Fernando Serrano, Robert Long
    * @default true
    */
   static enabled = true
 
   /**
    * Controls whether components should be removed immediately or after all systems execute.
-   *
-   * @author Fernando Serrano, Robert Long
    * @default true
    */
   static deferredRemovalEnabled = true
 
   /**
    * List of registered systems.
-   *
-   * @author Fernando Serrano, Robert Long
    */
   static systems: any[] = []
 
   /**
    * List of registered entities.
-   *
-   * @author Fernando Serrano, Robert Long
    */
   static entities: Entity[] = []
 
   /**
    * Map of registered entities by ID
-   *
-   * @author Fernando Serrano, Robert Long
    */
   static entityMap: Map<string, Entity> = new Map<string, Entity>();
 
   /**
    * List of registered queries.
-   *
-   * @author Fernando Serrano, Robert Long
    */
   static queries: Query[] = []
 
   /**
    * List of registered components.
-   *
-   * @author Fernando Serrano, Robert Long
    */
   static components: any[] = []
 
   /**
    * Next entity created will have this ID.
-   *
-   * @author Fernando Serrano, Robert Long
    */
   static nextEntityId = 0
 
   /**
    * Next component created will have this ID.
-   *
-   * @author Fernando Serrano, Robert Long
    */
   static nextComponentId = 0
 
   /**
    * Pool of available entities.
-   *
-   * @author Fernando Serrano, Robert Long
    */
   static entityPool: EntityPool = new EntityPool(Entity)
 
   /**
    * Map of component classes to their type ID.
-   *
-   * @author Fernando Serrano, Robert Long
    */
   static componentsMap: {} = {}
 
   /**
    * List of component pools, one for each component class.
-   *
-   * @author Fernando Serrano, Robert Long
    */
   static componentPool: {} = {}
 
   /**
    * Stores a count for each component type.
-   *
-   * @author Fernando Serrano, Robert Long
    */
   static numComponents: {} = {}
 
   /**
    * List of entities with components that will be removed at the end of this frame.
    * @todo replace with a ring buffer and set buffer size in default options
-   *
-   * @author Fernando Serrano, Robert Long
    */
   static entitiesWithComponentsToRemove: any[] = []
 
   /**
    * List of entities that will be removed at the end of this frame.
    * @todo replace with a ring buffer and set buffer size in default options
-   *
-   * @author Fernando Serrano, Robert Long
    */
   static entitiesToRemove: any[] = []
 

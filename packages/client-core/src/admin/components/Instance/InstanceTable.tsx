@@ -1,5 +1,4 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -9,60 +8,26 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectAdminState } from '../../reducers/admin/selector';
-import { fetchAdminInstances, removeInstance } from '../../reducers/admin/service';
+import { fetchAdminInstances, removeInstance } from '../../reducers/admin/instance/service';
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
-
-interface Column {
-    id: 'ipAddress' | 'currentUsers' | 'locationId' | 'channelId' | 'action';
-    label: string;
-    minWidth?: number;
-    align?: 'right';
-}
-
-const columns: Column[] = [
-    { id: 'ipAddress', label: 'Ip Address', minWidth: 170 },
-    { id: 'currentUsers', label: 'Current Users', minWidth: 100 },
-    {
-        id: 'locationId',
-        label: 'Location',
-        minWidth: 170,
-        align: 'right',
-    },
-    {
-        id: 'channelId',
-        label: "Channel",
-        minWidth: 170,
-        align: 'right'
-    },
-    {
-        id: 'action',
-        label: 'Action',
-        minWidth: 170,
-        align: 'right',
-    },
-];
-
-interface Data {
-    id: string,
-    ipAddress: string;
-    currentUsers: Number;
-    locationId: any;
-    channelId: string,
-    action: any
-}
+import { columns, Data } from "./variables";
+import { selectAdminInstanceState } from "../../reducers/admin/instance/selector";
+import { useStyle } from "./styles";
 
 interface Props {
     adminState?: any;
     authState?: any;
     fetchAdminState?: any;
-    fetchAdminInstances?: any
+    fetchAdminInstances?: any;
+    adminInstanceState?: any;
 }
 
 const mapStateToProps = (state: any): any => {
     return {
         authState: selectAuthState(state),
-        adminState: selectAdminState(state)
+        adminState: selectAdminState(state),
+        adminInstanceState: selectAdminInstanceState(state)
     };
 };
 
@@ -70,20 +35,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch)
 });
 
-const useStyles = makeStyles({
-    root: {
-        width: '100%',
-        background: "#fff"
-    },
-    container: {
-        maxHeight: "80vh"
-    },
-    actionStyle: {
-        textDecoration: "none",
-        color: "#000",
-        marginRight: "10px"
-    }
-});
+
 
 /**
  * JSX used to display table of instance 
@@ -93,13 +45,13 @@ const useStyles = makeStyles({
  * @author KIMENYI Kevin
  */
 const InstanceTable = (props: Props) => {
-    const { fetchAdminInstances, adminState, authState } = props;
-    const classes = useStyles();
+    const { fetchAdminInstances, authState, adminInstanceState } = props;
+    const classes = useStyle();
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
     const user = authState.get("user");
-    const adminInstances = adminState.get('instances');
+    const adminInstances = adminInstanceState.get('instances');
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
     };
@@ -112,7 +64,7 @@ const InstanceTable = (props: Props) => {
         if (user.id && adminInstances.get("updateNeeded")) {
             fetchAdminInstances();
         }
-    }, [user, adminState]);
+    }, [user, adminInstanceState]);
 
 
     const createData = (id: string, ipAddress: string, currentUsers: Number, locationId: any, channelId: string): Data => {

@@ -1,22 +1,19 @@
 /** Functions to provide engine level functionalities. */
 
+import { Color } from 'three';
+import { PhysXInstance } from "three-physx";
 import { AssetLoader } from "../../assets/classes/AssetLoader";
 import { disposeDracoLoaderWorkers } from "../../assets/functions/LoadGLTF";
 import { now } from "../../common/functions/now";
 import { Network } from "../../networking/classes/Network";
 import { Vault } from "../../networking/classes/Vault";
+import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import disposeScene from "../../renderer/functions/disposeScene";
 import { PersistTagComponent } from "../../scene/components/PersistTagComponent";
 import { Engine } from '../classes/Engine';
 import { System } from '../classes/System';
-import { getComponent, hasComponent, removeAllComponents, removeAllEntities, removeEntity } from "./EntityFunctions";
+import { hasComponent, removeAllComponents, removeAllEntities, removeEntity } from "./EntityFunctions";
 import { SystemUpdateType } from "./SystemUpdateType";
-import { Color } from 'three';
-import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
-import { PhysXInstance } from "three-physx";
-import { PortalComponent } from "../../scene/components/PortalComponent";
-import { CharacterComponent } from "../../character/components/CharacterComponent";
-import { ControllerColliderComponent } from "../../character/components/ControllerColliderComponent";
 
 /** Reset the engine and remove everything from memory. */
 export async function reset(): Promise<void> {

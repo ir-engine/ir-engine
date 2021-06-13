@@ -2,11 +2,10 @@ import { Behavior } from '../../common/interfaces/Behavior';
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 
 export const setPostProcessing: Behavior = (entity, args: { options: any }) => {
-  const options = args.options;
   if (WebGLRendererSystem.instance !== undefined) {
-    const usePostProcessing = (options !== undefined && Object.keys(options).length > 0);
+    const { usePostProcessing } = args.options;
     if (usePostProcessing) {
-      WebGLRendererSystem.instance.configurePostProcessing(options);
+      WebGLRendererSystem.instance.configurePostProcessing(args.options);
     }
   }
 };

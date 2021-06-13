@@ -39,12 +39,29 @@ export const useStyles = makeStyles((theme: Theme) =>
             height: 28,
             margin: 4,
         },
+        marginBottm: {
+            marginBottom: "15px"
+        },
+        textLink: {
+            marginLeft: "5px",
+            textDecoration: "none",
+            color: "#ff9966"
+        },
+        marginTp: {
+            marginTop: "20%"
+        },
+        texAlign: {
+            textAlign: "center"
+        }
     })
 );
 
 export const useStyle = makeStyles({
     paper: {
         width: "40%"
+    },
+    paperDialog: {
+      background: "#fff !important"
     },
     root: {
         width: '100%',
@@ -62,5 +79,11 @@ export const useStyle = makeStyles({
     },
     spanNone: {
         color: "#808080"
+    },
+    list: {
+        width: 250,
+    },
+    fullList: {
+        width: 'auto',
     }
 });

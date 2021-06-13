@@ -31,7 +31,7 @@ import { defaultPostProcessingSchema, effectType } from '../scene/classes/PostPr
 import { PostProcessingSchema } from './interfaces/PostProcessingSchema';
 import { WebXRManager } from '../xr/WebXRManager.js'
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType';
-
+import WebGL from "./THREE.WebGL";
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',
   PBR = 'usePBR',
@@ -90,28 +90,17 @@ export class WebGLRendererSystem extends System {
   renderContext: WebGLRenderingContext;
 
   forcePostProcessing = false;
-  readonly _supportWebGL2: boolean;
+  supportWebGL2: boolean = WebGL.isWebGL2Available();
 
   /** Constructs WebGL Renderer System. */
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);
-
     WebGLRendererSystem.instance = this;
 
     this.onResize = this.onResize.bind(this);
 
-    this._supportWebGL2 = !((window as any).iOS || (window as any).safariWebBrowser);
-
     let context;
     const canvas = attributes.canvas;
-
-    try {
-      context = canvas.getContext("webgl2", { antialias: true });
-      this._supportWebGL2 = true;
-    } catch (error) {
-      context = canvas.getContext("webgl", { antialias: true });
-      this._supportWebGL2 = false;
-    }
 
     this.renderContext = context;
     const options = {
@@ -121,7 +110,7 @@ export class WebGLRendererSystem extends System {
       preserveDrawingBuffer: true
     };
 
-    const renderer = this._supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options);
+    const renderer = this.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options);
     renderer.physicallyCorrectLights = true;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = PCFSoftShadowMap;
@@ -153,14 +142,14 @@ export class WebGLRendererSystem extends System {
     Engine.renderer.autoClear = true;
 
     // if we turn PostPro off, don't turn it back on, if we turn it on, let engine manage it
-    if (!this._supportWebGL2) {
+    if (!this.supportWebGL2) {
       this.setUsePostProcessing(false);
     }
 
     this.composer = new EffectComposer(Engine.renderer);
 
     EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_POST_PROCESSING, (ev: any) => {
-      this.setUsePostProcessing(ev.payload);
+      this.setUsePostProcessing(this.supportWebGL2 && ev.payload);
     });
     EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_RESOLUTION, (ev: any) => {
       this.setResolution(ev.payload);
@@ -174,7 +163,7 @@ export class WebGLRendererSystem extends System {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
       this.enabled = ev.renderer;
     });
-    this.enabled = false;
+   //  this.enabled = false;
   }
 
   async initialize() {
@@ -275,6 +264,8 @@ export class WebGLRendererSystem extends System {
 
     } else {
 
+      console.log("Rendering")
+
       if (this.needsResize) {
         const curPixelRatio = Engine.renderer.getPixelRatio();
         const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor;
@@ -298,13 +289,6 @@ export class WebGLRendererSystem extends System {
 
       this.csm.update();
       if (this.usePostProcessing && this.postProcessingSchema) {
-        // TODO: support webxr, requires changes to postprocessing package
-        // if(Engine.xrRenderer.isPresenting) {
-        //   const xrCam = Engine.xrRenderer.getCamera(Engine.camera);
-        //   this.composer.passes.forEach((pass) => {
-        //     pass.camera = xrCam;
-        //   })
-        // }
         this.composer.render(delta);
       } else {
         Engine.renderer.autoClear = true;
@@ -401,14 +385,14 @@ export class WebGLRendererSystem extends System {
   }
 
   setUsePostProcessing(usePostProcessing) {
-    if (!this._supportWebGL2) return;
-    if (Engine.xrRenderer?.isPresenting) return;
-    this.usePostProcessing = usePostProcessing;
-    Engine.renderer.outputEncoding = this.usePostProcessing ? sRGBEncoding : sRGBEncoding;
-    Engine.renderer.toneMapping = this.usePostProcessing ? LinearToneMapping : LinearToneMapping;
-    Engine.renderer.toneMappingExposure = this.usePostProcessing ? 1 : 1;
+    // Always set to false if WebGL 2 not in use
+    this.usePostProcessing = (!this.supportWebGL2 || Engine.xrRenderer?.isPresenting) ? false : usePostProcessing;
+    Engine.renderer.outputEncoding = sRGBEncoding;
+    Engine.renderer.toneMapping = LinearToneMapping;
+    Engine.renderer.toneMappingExposure = 1;
     ClientStorage.set(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING, this.usePostProcessing);
   }
+  
   async loadGraphicsSettingsFromStorage() {
     this.automatic = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.AUTOMATIC) as boolean ?? true;
     this.scaleFactor = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.SCALE_FACTOR) as number ?? 1;
