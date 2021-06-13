@@ -139,8 +139,24 @@ const Layout = (props: Props): any => {
 
     window.addEventListener('resize', handleResize);
 
+    // disable all browser-handling of touch gestures (document panning/zooming)
+    // touch-action is non-inhered, so apply to all elements on the page
+    const sheet = document.createElement('style');
+    sheet.innerHTML = `
+      html {
+        overflow: hidden;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      * { 
+        touch-action: none;
+      }
+    `;
+    document.head.appendChild(sheet);
+
     return _ => {
       window.removeEventListener('resize', handleResize);
+      document.head.removeChild(sheet);
     };
   }) as any);
 
