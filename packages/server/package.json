@@ -122,7 +122,7 @@
   "devDependencies": {
     "@types/compression": "1.7.0",
     "@types/cors": "2.8.10",
-    "@types/node": "13.13.51",
+    "@types/node": "14.17.3",
     "@types/serve-favicon": "2.5.2",
     "@typescript-eslint/eslint-plugin": "4.26.1",
     "@typescript-eslint/parser": "4.26.1",
