@@ -1,6 +1,6 @@
 import { PhysicsSystem } from '../systems/PhysicsSystem';
 import { CollisionGroups, DefaultCollisionMask } from "../enums/CollisionGroups";
-import { createShapeFromConfig, Shape, SHAPES, Body, BodyType, getGeometry, arrayOfPointsToArrayOfVector3 } from "three-physx";
+import { ShapeType, SHAPES, Body, BodyType } from "three-physx";
 import { Entity } from '../../ecs/classes/Entity';
 import { ColliderComponent } from '../components/ColliderComponent';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
@@ -9,12 +9,14 @@ import { ConvexGeometry } from '../../assets/threejs-various/ConvexGeometry';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { ColliderTypes } from '../types/PhysicsTypes';
 import { Engine } from '../../ecs/classes/Engine';
+import { getGeometry } from '../../scene/functions/getGeometry';
+import { arrayOfPointsToArrayOfVector3 } from '../../scene/functions/arrayOfPointsToArrayOfVector3';
 
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/hexafield>
  */
- // it's for static (or dynamic with second component 'RigidBody') but changeable objects like (doors, flying up down planform);
+// it's for static (or dynamic with second component 'RigidBody') but changeable objects like (doors, flying up down planform);
 export function addColliderWithEntity(entity: Entity) {
 
   const colliderComponent = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
@@ -53,14 +55,14 @@ type ModelData = {
 }
 
 export function addColliderWithoutEntity(userData: ColliderData, pos = new Vector3(), rot = new Quaternion(), scale = new Vector3(),
- model: ModelData = { }): Body {
+  model: ModelData = {}): Body {
   // console.log(userData, pos, rot, scale, model)
-  if(model.mesh && !model.vertices) {
+  if (model.mesh && !model.vertices) {
     const mergedGeom = getGeometry(model.mesh);
     model.vertices = Array.from(mergedGeom.attributes.position.array);
     model.indices = mergedGeom.index ? Array.from(mergedGeom.index.array) : Object.keys(model.vertices).map(Number);
   }
-  const shapeArgs: any = {};
+  const shapeArgs: ShapeType = { config: {} };
   switch (userData.type) {
     case 'box':
       shapeArgs.shape = SHAPES.Box;
@@ -90,7 +92,7 @@ export function addColliderWithoutEntity(userData: ColliderData, pos = new Vecto
 
     // physx doesnt have cylinder shapes, default to convex
     case 'cylinder':
-      if(!model.mesh && !model.vertices) {
+      if (!model.mesh && !model.vertices) {
         const geom = new CylinderBufferGeometry(scale.x, scale.x, scale.y); // width & height\
         const convexGeom = new ConvexGeometry(arrayOfPointsToArrayOfVector3(geom.attributes.position.array))
         model.vertices = Array.from(convexGeom.attributes.position.array);
@@ -116,29 +118,28 @@ export function addColliderWithoutEntity(userData: ColliderData, pos = new Vecto
       break;
   }
 
-  const shape = createShapeFromConfig(shapeArgs);
-  shape.config.material = { restitution: userData.restitution ?? 0 };
- 
- shape.config.collisionLayer = Number(model.collisionLayer ?? CollisionGroups.Default);
- switch(model.collisionMask) {
-   case undefined: case -1: case '-1': case '': shape.config.collisionMask = DefaultCollisionMask; break;
-   default: if(/all/i.test(model.collisionMask as string))
-       shape.config.collisionMask = DefaultCollisionMask;
-     else
-       shape.config.collisionMask = Number(model.collisionMask);
-     break;
- }
+  shapeArgs.config.material = { restitution: userData.restitution ?? 0 };
 
-  if(userData.type === 'ground') {
-    shape.config.collisionLayer = CollisionGroups.Ground;
+  shapeArgs.config.collisionLayer = Number(model.collisionLayer ?? CollisionGroups.Default);
+  switch (model.collisionMask) {
+    case undefined: case -1: case '-1': case '': shapeArgs.config.collisionMask = DefaultCollisionMask; break;
+    default: if (/all/i.test(model.collisionMask as string))
+      shapeArgs.config.collisionMask = DefaultCollisionMask;
+    else
+      shapeArgs.config.collisionMask = Number(model.collisionMask);
+      break;
   }
 
-  if(userData.isTrigger) {
-    shape.config.isTrigger = Boolean(userData.isTrigger);
+  if (userData.type === 'ground') {
+    shapeArgs.config.collisionLayer = CollisionGroups.Ground;
+  }
+
+  if (userData.isTrigger) {
+    shapeArgs.config.isTrigger = Boolean(userData.isTrigger);
   }
 
   const body = new Body({
-    shapes: [shape],
+    shapes: [shapeArgs],
     type: userData.bodytype ?? BodyType.STATIC,
     transform: {
       translation: { x: pos.x, y: pos.y, z: pos.z },

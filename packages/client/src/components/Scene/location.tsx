@@ -7,7 +7,7 @@ import NetworkDebug from '../../components/NetworkDebug';
 import { OpenLink } from '@xrengine/client-core/src/world/components/OpenLink';
 import TooltipContainer from '@xrengine/client-core/src/common/components/TooltipContainer';
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu';
-import { generalStateList, setAppLoaded, setAppOnBoardingStep, setAppSpecificOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
+import { GeneralStateList, setAppLoaded, setAppOnBoardingStep, setAppSpecificOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
 import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector';
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector';
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service';
@@ -273,7 +273,7 @@ export const EnginePage = (props: Props) => {
 
     if (!currentLocation.id && !locationState.get('currentLocationUpdateNeeded') && !locationState.get('fetchingCurrentLocation')) {
       setIsValidLocation(false);
-      store.dispatch(setAppSpecificOnBoardingStep(generalStateList.FAILED, false));
+      store.dispatch(setAppSpecificOnBoardingStep(GeneralStateList.FAILED, false));
     }
   }, [locationState]);
 
@@ -393,11 +393,12 @@ export const EnginePage = (props: Props) => {
         AssetLoader.load({ url: localClient.avatarDetail.avatarURL }, resolve);
       });
     });
+    store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADING));
 
     const sceneLoadPromise= new Promise<void>((resolve) => {
       WorldScene.load(sceneData, () => {
         setProgressEntity(0);
-        store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
+        store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED));
         setAppLoaded(true);
         resolve();
       }, onSceneLoadedEntity);
@@ -416,6 +417,7 @@ export const EnginePage = (props: Props) => {
     });
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
+    store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS));
     setPorting(false);
   }
 
