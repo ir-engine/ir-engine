@@ -62,7 +62,7 @@ export function addColliderWithoutEntity(userData: ColliderData, pos = new Vecto
     model.vertices = Array.from(mergedGeom.attributes.position.array);
     model.indices = mergedGeom.index ? Array.from(mergedGeom.index.array) : Object.keys(model.vertices).map(Number);
   }
-  const shapeArgs: ShapeType = {};
+  const shapeArgs: ShapeType = { config: {} };
   switch (userData.type) {
     case 'box':
       shapeArgs.shape = SHAPES.Box;

@@ -37,6 +37,7 @@ import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkO
 import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem';
 import { SceneObjectSystem } from '@xrengine/engine/src/scene/systems/SceneObjectSystem';
 import { ActiveSystems } from './ecs/classes/System';
+import { FontManager } from './ui/classes/FontManager';
 
 
 Mesh.prototype.raycast = acceleratedRaycast;
@@ -87,6 +88,7 @@ const configureClient = async (options: InitializeOptions) => {
           //     physicsWorker = new PhysXWorker();
           // }
 
+          new FontManager();
           new AnimationManager();
           await Promise.all([
               AnimationManager.instance.getDefaultModel(),

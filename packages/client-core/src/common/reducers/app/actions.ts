@@ -8,7 +8,7 @@ import {
   SET_USER_HAS_INTERACTED
 } from '../actions';
 
-export enum generalStateList { START_STATE, SCENE_LOADING, SCENE_LOADED, FAILED, DEVICE_SETUP, AVATAR_SELECTION, AVATAR_SELECTED, ALL_DONE }
+export enum GeneralStateList { START_STATE, SCENE_LOADING, SCENE_LOADED, SUCCESS, FAILED }
 
 type Action = {
   type: string;
