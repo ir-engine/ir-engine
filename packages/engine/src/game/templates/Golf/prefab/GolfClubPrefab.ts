@@ -159,7 +159,9 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   }
   vector0.multiplyScalar(1 / (golfClubComponent.velocityPositionsToCalculate + 1));
   golfClubComponent.velocity.copy(vector0);
-  golfClubComponent.body.transform.linearVelocity.copy(vector0);
+  golfClubComponent.body.transform.linearVelocity.x = vector0.x;
+  golfClubComponent.body.transform.linearVelocity.y = vector0.y;
+  golfClubComponent.body.transform.linearVelocity.z = vector0.z;
   // now shift all previous positions down the list
   for(let i = golfClubComponent.velocityPositionsToCalculate - 1; i > 0; i--) {
     golfClubComponent.lastPositions[i].copy(golfClubComponent.lastPositions[i - 1]);
