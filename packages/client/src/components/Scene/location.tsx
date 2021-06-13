@@ -56,7 +56,7 @@ import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader';
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent';
 import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal';
-import { onPlayerSpawnInNewLocation } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
+import { onPlayerSpawnInNewLocation, teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
 
 const store = Store.store;
 
@@ -444,6 +444,13 @@ export const EnginePage = (props: Props) => {
   };
 
   const portToLocation = async ({ portalComponent }: { portalComponent: PortalProps }) => {
+    const currentLocation = locationState.get('currentLocation').get('location');
+
+    if (currentLocation.slugifiedName === portalComponent.location) {
+      teleportPlayer(Network.instance.localClientEntity, portalComponent.spawnPosition, portalComponent.spawnRotation);
+      return;
+    }
+
     history.replace('/location/' + portalComponent.location);
 
     setPorting(true);
