@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { detect, detectOS } from 'detect-browser';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
-import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
+import { acceleratedRaycast, disposeBoundsTree, computeBoundsTree } from "three-mesh-bvh";
 import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 import { CameraSystem } from './camera/systems/CameraSystem';
 import { AnimationManager } from './character/AnimationManager';
@@ -41,6 +41,7 @@ import { FontManager } from './ui/classes/FontManager';
 
 
 Mesh.prototype.raycast = acceleratedRaycast;
+BufferGeometry.prototype["disposeBoundsTree"] = disposeBoundsTree;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 
 const configureClient = async (options: InitializeOptions) => {
