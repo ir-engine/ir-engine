@@ -16,33 +16,14 @@ import { State } from '../../../types/GameComponents';
 
 export const teleportPlayer: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
   console.warn('Teleport Player');
-
-  const entityArg = getTargetEntity(entity, entityTarget, args);
-  let gameScore
-  if (hasComponent(entity, GamePlayer)) {
-    gameScore = getStorage(entity, { name: 'GameScore' });
-  } else if (hasComponent(entityTarget, GamePlayer)) {
-    gameScore = getStorage(entityTarget, { name: 'GameScore' });
-  }
-  
-  if (gameScore.score.goal === '3' || gameScore.score.goal === 3) {
-    return;
-  }
-  const game = getGame(entityArg);
-  console.warn(args.positionCopyFromRole+gameScore.score.goal);
-  const teeEntity = game.gameObjects[args.positionCopyFromRole+gameScore.score.goal][0];
-  const teeTransform = getComponent(teeEntity, TransformComponent);
-
   //const collider = getMutableComponent(entityArg, ColliderComponent)
   const collider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
 
-  //collider.velocity.set(0,0,0);
-
   collider.controller.updateTransform({
     translation: {
-      x: teeTransform.position.x,
-      y: teeTransform.position.y,
-      z: teeTransform.position.z
+      x: args.position.x,
+      y: args.position.y,
+      z: args.position.z
     },
     rotation: {
       x:0,
@@ -55,6 +36,4 @@ export const teleportPlayer: Behavior = (entity: Entity, args?: any, delta?: num
     }
   })
 
- // collider.body.setLinearVelocity(new Vector3(), true);
-  //collider.body.setAngularVelocity(new Vector3(), true);
 };

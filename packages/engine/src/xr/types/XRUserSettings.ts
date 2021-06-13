@@ -18,5 +18,6 @@ export const XRUserSettings = {
   rotation: XR_ROTATION_MODE.ANGLED,
   rotationSmoothSpeed: 0.1, // 0.1, 0.3, 0.5, 0.8, 1 - only for Smooth
   rotationAngle: 15, // 15, 30, 45, 60 - only for Angler
-  rotationInvertAxes: false
+  rotationInvertAxes: false,
+  staticLengthGolfClub: true
 }

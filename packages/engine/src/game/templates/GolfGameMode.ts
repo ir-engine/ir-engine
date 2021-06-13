@@ -50,6 +50,7 @@ import { ifMoved } from "./gameDefault/checkers/ifMoved";
 import { spawnBall } from "./Golf/prefab/GolfBallPrefab";
 import { hitBall } from "./Golf/behaviors/hitBall";
 import { teleportPlayer } from "./Golf/behaviors/teleportPlayer";
+import { getPositionNextPoint } from "./Golf/behaviors/getPositionNextPoint";
 
 
 
@@ -254,13 +255,15 @@ export const GolfGameMode: GameMode = somePrepareFunction({
         // takeEffectOn Player, Gall
         {
           behavior: teleportPlayer,
-          args: { on: 'self', positionCopyFromRole: 'GolfTee-'},
-          watchers:[ [ State.addedGoal ] ]
+          prepareArgs: getPositionNextPoint,
+          args: { on: 'self', positionCopyFromRole: 'GolfTee-', position: null },
+          watchers:[ [ State.Goal ] ]
         },
         {
           behavior: teleportObject,
-          args: { on: 'target', positionCopyFromRole: 'GolfTee-'},
-          watchers:[ [ State.addedGoal ] ],
+          prepareArgs: getPositionNextPoint,
+          args: { on: 'target', positionCopyFromRole: 'GolfTee-', position: null },
+          watchers:[ [ State.Goal ] ],
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {
@@ -318,7 +321,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           takeEffectOn: {
             targetsRole: {
               'GolfClub': {
-                watchers:[ [ State.Hit ] ],
+                watchers:[ [ State.addedHit ] ],
                 checkers:[{
                   function: ifOwned
                 }]
@@ -328,8 +331,8 @@ export const GolfGameMode: GameMode = somePrepareFunction({
         },
         {
           behavior: switchState, // GameObjectCollisionTag
-          watchers:[ [ State.YourTurn ] ],
           args: { on: 'target', remove: State.Inactive, add: State.Active  },
+          watchers:[ [ State.YourTurn ] ],
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {
@@ -363,7 +366,8 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       'checkIfFlyingOut': [
         {
           behavior: teleportObject,
-          args: { on: 'self', positionCopyFromRole: 'GolfTee-'},
+          prepareArgs: getPositionNextPoint,
+          args: { on: 'self', positionCopyFromRole: 'GolfTee-', position: null},
           checkers:[{
             function: ifGetOut,
             args: { area: 'GameArea' }
@@ -394,7 +398,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           watchers:[ [ State.Ready ] ],
           checkers:[{
             function: ifMoved,
-            args: { max: 0.01 }
+            args: { max: 0.005 }
           }]
         },
         {
@@ -402,7 +406,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           args: { on: 'self', remove: State.BallMoving, add: State.BallStopped },
           checkers:[{
             function: ifMoved,
-            args: { min: 0.001 }
+            args: { min: 0.0005 }
           }]
         },
         // whan ball spawn he droping and gets moving State, we give Raady state for him whan he stop
