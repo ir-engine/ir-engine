@@ -1,6 +1,7 @@
 import { BufferAttribute, BufferGeometry, DynamicDrawUsage, Points, RawShaderMaterial } from "three";
 import { Component } from "../../ecs/classes/Component";
-import { addComponent, createEntity, getComponent, getMutableComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
+import { Engine } from "../../ecs/classes/Engine";
+import { addComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import Obj from "./Obj";
 
 class PointsComponent extends Component<PointsComponent>{
@@ -11,16 +12,6 @@ class PointsComponent extends Component<PointsComponent>{
 	buf_clr: BufferAttribute;
 	geo: BufferGeometry;
 	mesh: Points<any, any>;
-	static $( name="points", max_len=100 ){
-		const entity = createEntity();
-		if(!hasComponent(entity, Obj)){
-			addComponent(entity, Obj);
-		}
-		addComponent(entity, PointsComponent);
-		getMutableComponent(entity, PointsComponent).init(name, max_len);
-
-		return entity;
-	}
 
     constructor(){
 		super();
@@ -30,8 +21,6 @@ class PointsComponent extends Component<PointsComponent>{
 	}
 
 	init( name = "points", max_len = 100 ){
-
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// BUFFERS
         this.buf_pos = new BufferAttribute( new Float32Array( max_len * 4 ), 4 );
 		this.buf_pos.setUsage( DynamicDrawUsage );
@@ -39,14 +28,12 @@ class PointsComponent extends Component<PointsComponent>{
 		this.buf_clr = new BufferAttribute( new Float32Array( max_len * 4 ), 4 );
 		this.buf_clr.setUsage( DynamicDrawUsage );
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// GEOMETRY
         this.geo = new BufferGeometry();
 		this.geo.setAttribute( "position",	this.buf_pos );
 		this.geo.setAttribute( "color",		this.buf_clr );
 		this.geo.setDrawRange( 0, 0 );
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// MESH
 		this.mesh = new Points( this.geo, getMaterial() );
 		this.mesh.name = name;
@@ -57,28 +44,24 @@ class PointsComponent extends Component<PointsComponent>{
 			obj = getMutableComponent(this.entity, Obj);
 		}
 		obj.setReference( this.mesh );
-
+		Engine.scene.add(obj.ref);
 		return this;
 	}
 	
 	add( p, hex=0xff0000, shape=null, size=null ){ return this.addRaw( p.x, p.y, p.z, hex, shape, size ); }
 	addRaw( x, y, z, hex=0xff0000, shape=null, size=null ){
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// VERTEX POSITION - SIZE
 		this.buf_pos.setXYZW( this.cnt, x, y, z, (size || this.use_size) );
 		this.buf_pos.needsUpdate = true;
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// VERTEX COLOR - SHAPE
 		const c = gl_color( hex );
 		this.buf_clr.setXYZW( this.cnt, c[0], c[1], c[2], ((shape != null)? shape:this.use_shape) );
 		this.buf_clr.needsUpdate = true;
 
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// INCREMENT AND UPDATE DRAW RANGE
 		this.cnt++;
 		this.geo.setDrawRange( 0, this.cnt );
-
 		return this;
 	}
 
@@ -90,7 +73,6 @@ class PointsComponent extends Component<PointsComponent>{
 }
 
 
-// #region SHADER
 let gMat = null;
 function getMaterial(){
 	if( gMat ) return gMat;
@@ -191,25 +173,6 @@ void main(){
 
 	out_color = vec4( frag_color, alpha );
 }`;
-
-//gl_Position = projection * view * model * vec4(position.xyz, 1.0);
-//gl_PointSize = pointsize - (distance(cameraeye, position.xyz) / pointsize);
-
-/*
-      // set point position
-      vec3 position = position + translation;
-      vec4 projected = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      gl_Position = projected;
-
-      // use the delta between the point position and camera position to size point
-      float xDelta = pow(projected[0] - cameraPosition[0], 2.0);
-      float yDelta = pow(projected[1] - cameraPosition[1], 2.0);
-      float zDelta = pow(projected[2] - cameraPosition[2], 2.0);
-      float delta  = pow(xDelta + yDelta + zDelta, 0.5);
-	  gl_PointSize = 10000.0 / delta;
-*/
-
-// #endregion
 
 
 function gl_color( hex, out = null ){

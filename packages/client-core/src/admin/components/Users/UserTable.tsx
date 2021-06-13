@@ -6,82 +6,27 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
-import { removeUserAdmin, fetchUsersAsAdmin } from '../../reducers/admin/service';
+import { removeUserAdmin, fetchUsersAsAdmin } from '../../reducers/admin/user/service';
 import { bindActionCreators, Dispatch } from "redux";
 import { connect } from 'react-redux';
 import { selectAuthState } from '../../../user/reducers/auth/selector';
-import { selectAdminState } from '../../reducers/admin/selector';
+import { selectAdminUserState } from '../../reducers/admin/user/selector';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import ViewUser from "./ViewUser";
 import { useStyle } from "./styles";
-
-interface Column {
-    id: 'name' | 'avatar' | 'status' | 'location' | 'inviteCode' | 'instanceId' | 'action';
-    label: string;
-    minWidth?: number;
-    align?: 'right';
-}
-
-const columns: Column[] = [
-    { id: 'name', label: 'Name', minWidth: 170 },
-    { id: 'avatar', label: 'Avatar', minWidth: 100 },
-    {
-        id: 'status',
-        label: 'Status',
-        minWidth: 170,
-        align: 'right',
-    },
-    {
-        id: 'location',
-        label: 'Location',
-        minWidth: 170,
-        align: 'right',
-    },
-    {
-        id: 'inviteCode',
-        label: "Invite code",
-        minWidth: 170,
-        align: 'right'
-    },
-    {
-        id: 'instanceId',
-        label: 'Instance',
-        minWidth: 170,
-        align: 'right'
-    },
-    {
-        id: 'action',
-        label: 'Action',
-        minWidth: 170,
-        align: 'right',
-    },
-];
-
-interface Data {
-    id: string;
-    user: any;
-    name: string;
-    avatar: string;
-    status: string;
-    location: string;
-    inviteCode: string,
-    instanceId: string,
-    action: any
-}
-interface Props {
-    removeUserAdmin?: any;
-    authState?: any;
-    adminState?: any;
-    fetchUsersAsAdmin?: any
-}
+import {
+   columns,
+   Data,
+   Props
+} from "./Variables";
 
 const mapStateToProps = (state: any): any => {
     return {
         authState: selectAuthState(state),
-        adminState: selectAdminState(state)
+        adminUserState: selectAdminUserState(state)
     };
 };
 
@@ -91,7 +36,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 });
 
 const UserTable = (props: Props) => {
-    const { removeUserAdmin, fetchUsersAsAdmin, authState, adminState } = props;
+    const { removeUserAdmin, fetchUsersAsAdmin, authState, adminUserState } = props;
     const classes = useStyle();
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -99,9 +44,8 @@ const UserTable = (props: Props) => {
     const [userId, setUserId] = React.useState("");
     const [viewModel, setViewModel] = React.useState(false);
     const [userAdmin, setUserAdmin] = React.useState("");
-
     const user = authState.get("user");
-    const adminUsers = adminState.get("users").get("users");
+    const adminUsers = adminUserState.get("users").get("users");
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
     };
@@ -115,9 +59,9 @@ const UserTable = (props: Props) => {
         const fetchData = async () => {
             await fetchUsersAsAdmin();
         };
-        if ((adminState.get('users').get('updateNeeded') === true) && user.id) fetchData();
+        if ((adminUserState.get('users').get('updateNeeded') === true) && user.id) fetchData();
 
-    }, [adminState, user, fetchUsersAsAdmin]);
+    }, [adminUserState, user, fetchUsersAsAdmin]);
 
     const openViewModel = (open: boolean, user: any) =>
         (

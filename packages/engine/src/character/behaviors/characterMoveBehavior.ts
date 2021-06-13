@@ -82,7 +82,7 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
     // TODO - Move on top of moving objects
     // physx has a feature for this, we should integrate both
     // if (actor.rayResult.body.mass > 0) {
-    // 	const pointVelocity = new Vec3();
+    // 	const pointVelocity = new Vector3();
     // 	actor.rayResult.body.getVelocityAtWorldPoint(actor.rayResult.hitPointWorld, pointVelocity);
     // 	newVelocity.add(threeFromCannonVector(pointVelocity));
     // }

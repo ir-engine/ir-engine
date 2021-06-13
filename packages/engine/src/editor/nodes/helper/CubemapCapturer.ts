@@ -121,6 +121,7 @@ export default class CubemapCapturer{
 		this.canvas.width = this.width;
 		this.canvas.height = this.height;
 		this.getCubeCamera(this.width);
+		(this.renderer as WebGLRenderer).setRenderTarget(this.renderTarget);
 	}
 
 
@@ -135,7 +136,7 @@ export default class CubemapCapturer{
 	convert = function(imageName:string ) {
 
 		this.quad.material.uniforms.map.value = this.cubeCamera.renderTarget.texture;
-		this.renderer.render( this.scene, this.camera, this.renderTarget, true );
+		(this.renderer as WebGLRenderer).render( this.scene, this.camera);
 		const pixels = new Uint8Array( 4 * this.width * this.height );
 		this.renderer.readRenderTargetPixels( this.renderTarget, 0, 0, this.width, this.height, pixels );
 		const imageData = new ImageData( new Uint8ClampedArray( pixels ), this.width, this.height );

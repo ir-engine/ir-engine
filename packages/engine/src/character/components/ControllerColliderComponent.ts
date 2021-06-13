@@ -1,7 +1,7 @@
 import { Component } from "../../ecs/classes/Component";
 import { Types } from "../../ecs/types/Types";
 import { Vector3 } from "three";
-import type { Controller, ControllerHitEvent } from "three-physx";
+import type { Controller } from "three-physx";
 
 /**
  * @author Shaw

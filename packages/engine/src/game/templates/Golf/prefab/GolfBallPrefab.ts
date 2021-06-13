@@ -1,30 +1,26 @@
 
-import { Entity } from '../../../../ecs/classes/Entity';
-import { NetworkPrefab } from '../../../../networking/interfaces/NetworkPrefab';
-import { TransformComponent } from '../../../../transform/components/TransformComponent';
-import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
-import { RigidBodyComponent } from '../../../../physics/components/RigidBody';
-import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject';
-import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants';
-import { Group, Mesh, Vector3 } from 'three';
-import { AssetLoader } from '../../../../assets/classes/AssetLoader';
-import { Engine } from '../../../../ecs/classes/Engine';
+import { Group, MathUtils, Mesh, Vector3 } from 'three';
 import { Body, BodyType, createShapeFromConfig, SHAPES } from 'three-physx';
+import { AssetLoader } from '../../../../assets/classes/AssetLoader';
+import { isClient } from '../../../../common/functions/isClient';
+import { Behavior } from '../../../../common/interfaces/Behavior';
+import { Engine } from '../../../../ecs/classes/Engine';
+import { Entity } from '../../../../ecs/classes/Entity';
+import { addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions';
+import { Network } from '../../../../networking/classes/Network';
+import { NetworkObject } from '../../../../networking/components/NetworkObject';
+import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject';
+import { NetworkPrefab } from '../../../../networking/interfaces/NetworkPrefab';
+import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
+import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent';
+import { RigidBodyComponent } from '../../../../physics/components/RigidBody';
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
-import { addComponent, getComponent, getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions';
-import { isClient } from '../../../../common/functions/isClient';
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent';
-import { WebGLRendererSystem } from '../../../../renderer/WebGLRendererSystem';
+import { TransformComponent } from '../../../../transform/components/TransformComponent';
 import { GameObject } from '../../../components/GameObject';
-import { NetworkObject } from '../../../../networking/components/NetworkObject';
-import { Network } from '../../../../networking/classes/Network';
-import { addActionComponent } from '../../../functions/functionsActions';
-import { Action, State } from '../../../types/GameComponents';
 import { getGame } from '../../../functions/functions';
-import { MathUtils } from 'three';
-import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent';
-import { Behavior } from '../../../../common/interfaces/Behavior';
+import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants';
 
 /**
  * @author Josh Field <github.com/HexaField>
