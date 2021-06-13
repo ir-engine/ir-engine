@@ -28,6 +28,7 @@ import { Action, State } from '../../../types/GameComponents';
 import { addActionComponent } from '../../../functions/functionsActions';
 import { GamePlayer } from '../../../components/GamePlayer';
 import { YourTurn } from '../components/YourTurnTagComponent';
+import { XRUserSettings } from '../../../../xr/types/XRUserSettings';
 
 const vector0 = new Vector3();
 const vector1 = new Vector3();
@@ -120,16 +121,14 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   );
 
   const hit = golfClubComponent.raycast.hits[0];
-  const headDistance = (hit ? hit.distance : clubLength);
-  const isPlayersTurn = getComponent(ownerEntity, YourTurn);
-  if(hit && isPlayersTurn) {
-    if(!golfClubComponent.canHitBall) {
+  const headDistance = XRUserSettings.staticLengthGolfClub ? clubLength : (hit ? hit.distance : clubLength);
+
+  if(hasComponent(ownerEntity, YourTurn)) {
+    
       enableClub(entityClub, true);
-    }
+    
   } else {
-    if(golfClubComponent.canHitBall) {
       enableClub(entityClub, false);
-    }
   }
 
   // update position of club
@@ -196,10 +195,10 @@ export const onClubColliderWithBall: GameObjectInteractionBehavior = (entityClub
 * @author Josh Field <github.com/HexaField>
  */
 
-const clubColliderSize = new Vector3(0.05, 0.2, 0.2);
+const clubColliderSize = new Vector3(0.05, 0.1, 0.12);
 const clubHalfWidth = 0.05;
 const clubPutterLength = 0.1;
-const clubLength = 2.5;
+const clubLength = 1.8;
 
 const upVector = new Vector3(0, 1, 0);
 const HALF_PI = Math.PI / 2;

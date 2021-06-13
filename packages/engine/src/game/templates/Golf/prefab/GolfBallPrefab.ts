@@ -45,7 +45,7 @@ export const spawnBall: Behavior = (entityPlayer: Entity, args?: any, delta?: nu
   const parameters: GolfBallSpawnParameters = {
     gameName: game.name,
     role: 'GolfBall',
-    spawnPosition: teeTransform.position,
+    spawnPosition: new Vector3(teeTransform.position.x, teeTransform.position.y + args.offsetY, teeTransform.position.z),
     uuid,
     ownerNetworkId: playerNetworkObject.networkId
   };

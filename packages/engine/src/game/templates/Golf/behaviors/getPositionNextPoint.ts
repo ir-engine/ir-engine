@@ -13,32 +13,23 @@ import { State } from '../../../types/GameComponents';
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const teleportObject: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
-  console.warn('Teleport Object');
+export const getPositionNextPoint = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any) => {
 
-  const entityArg = getTargetEntity(entity, entityTarget, args);
-
-  const collider = getMutableComponent(entityArg, ColliderComponent)
-
-  collider.velocity.set(0,0,0);
-
-  collider.body.updateTransform({
-    translation: {
-      x: args.position.x,
-      y: args.position.y,
-      z: args.position.z
-    },
-    rotation: {
-      x:0,
-      y:0,
-      z:0,
-      w:1
-    },
-    linearVelocity: {
-      x:0, y:0, z:0
-    }
-  })
-
-  collider.body.setLinearVelocity(new Vector3(), true);
-  collider.body.setAngularVelocity(new Vector3(), true);
+  let gameScore = null;
+  if (hasComponent(entity, GamePlayer)) {
+    gameScore = getStorage(entity, { name: 'GameScore' });
+  } else if (hasComponent(entityTarget, GamePlayer)) {
+    gameScore = getStorage(entityTarget, { name: 'GameScore' });
+  }
+  
+  const game = getGame(entity);
+  console.warn(args.positionCopyFromRole+gameScore.score.goal);
+  const teeEntity = game.gameObjects[args.positionCopyFromRole+gameScore.score.goal][0];
+  if (teeEntity) {
+    const teeTransform = getComponent(teeEntity, TransformComponent);
+    args.position = teeTransform.position;
+    return args;
+  }
+  args.position = {x: 0, y:0, z: 0};
+  return args;
 };
