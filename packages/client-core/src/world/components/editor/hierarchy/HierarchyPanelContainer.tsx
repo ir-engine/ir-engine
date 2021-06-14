@@ -1250,6 +1250,8 @@ export default function HierarchyPanel() {
     updateNodeHierarchy();
   }, [collapsedNodes, updateNodeHierarchy]);
 
+  console.log(editor.scene);
+
   //returning hierarchy penal view
   return(
     /* @ts-ignore */

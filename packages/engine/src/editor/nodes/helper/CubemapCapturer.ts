@@ -1,5 +1,5 @@
 import { WebGLCubeRenderTarget,ClampToEdgeWrapping, CubeCamera, DoubleSide, LinearFilter, Mesh, OrthographicCamera, PlaneBufferGeometry, RawShaderMaterial, RGBAFormat, Scene, UnsignedByteType, Vector3, WebGLRenderer, WebGLRenderTarget, Uniform, CubeTexture, PMREMGenerator, BackSide, MeshBasicMaterial, IcosahedronGeometry, Texture } from 'three';
-import Renderer from '../../renderer/Renderer';
+import Api from '../../../../../client-core/src/world/components/editor/Api';
 
 const vertexShader = `
 	attribute vec3 position;
@@ -63,15 +63,16 @@ export default class CubemapCapturer{
 	renderTarget:WebGLCubeRenderTarget;
 	cubeRenderTarget:CubeTexture;
 	sceneToRender:Scene;
-	downloadAfterCapture:boolean;
+	api:Api;
+	envMapID:string;
 	
-	constructor(renderer:WebGLRenderer,sceneToRender:Scene,resolution:number,downloadAfterCapture=false){
+	constructor(editor:any,sceneToRender:Scene,resolution:number,envMapID:string){
 		this.width = resolution;
 		this.height = resolution;
 		this.sceneToRender=sceneToRender;
-		this.renderer = renderer;
-		this.downloadAfterCapture=downloadAfterCapture;
-		
+		this.renderer = editor.renderer.renderer;
+		this.api=editor.api;
+		this.envMapID=envMapID;
 		this.material = new RawShaderMaterial( {
 			uniforms:{
 				map:new Uniform(new CubeTexture())
@@ -81,7 +82,7 @@ export default class CubemapCapturer{
 			side: DoubleSide,
 			transparent: true
 		} );
-	
+		
 		this.scene = new Scene();
 		this.quad = new Mesh(
 			new PlaneBufferGeometry( 1, 1 ),
@@ -133,52 +134,49 @@ export default class CubemapCapturer{
 		return this.cubeCamera;
 	}
 
-	convert = function(imageName:string ) {
+	convertCubemapToEqui = function() {
 
 		this.quad.material.uniforms.map.value = this.cubeCamera.renderTarget.texture;
 		(this.renderer as WebGLRenderer).render( this.scene, this.camera);
 		const pixels = new Uint8Array( 4 * this.width * this.height );
 		this.renderer.readRenderTargetPixels( this.renderTarget, 0, 0, this.width, this.height, pixels );
 		const imageData = new ImageData( new Uint8ClampedArray( pixels ), this.width, this.height );
-		this.download( imageData,imageName );
 		return imageData
 	
 	};
 
 
-	download = function( imageData:ImageData,imageName:string ) {
-		this.ctx.putImageData( imageData, 0, 0 );
-	
-		this.canvas.toBlob( ( blob ) => {
-	
-			const url = URL.createObjectURL(blob);
-			const fileName = `${imageName}.png`;
-			const anchor = document.createElement( 'a' );
-			anchor.href = url;
-			anchor.setAttribute("download", fileName);
-			anchor.className = "download-js-link";
-			anchor.innerHTML = "downloading...";
-			anchor.style.display = "none";
-			document.body.appendChild(anchor);
-			setTimeout(() => {
-				anchor.click();
-				document.body.removeChild(anchor);
-			}, 1 );
-	
-		}, 'image/png' );
-	
-	};
+	async uploadToServer (){
+
+		if(this.envMapID!=""){
+			//delete previously saved EnvMap
+			const isSucces=await this.api.deleteAsset(this.envMapID);
+			console.log("Deletion of Previous EnvMap:"+isSucces);
+		}
+		this.ctx.putImageData( this.convertCubemapToEqui(), 0, 0 );
+		const blob = await new Promise(resolve => this.canvas.toBlob(resolve));
+		const {
+			file_id: envMapID,
+			meta: { access_token: projectFileToken }
+		} = await this.api.upload(blob, undefined) as any;
+		return envMapID;
+	}
 
 
-	update = function( position:Vector3,imageName="EnvMap") {
+
+
+
+
+	update = async function( position:Vector3) {
 
 		const autoClear = this.renderer.autoClear;
 		this.renderer.autoClear = true;
 		this.cubeCamera.position.copy(position );
 		this.cubeCamera.updateCubeMap( this.renderer, this.sceneToRender );
 		this.renderer.autoClear = autoClear;
-		this.downloadAfterCapture&&this.convert(imageName);
-		return (this.cubeRenderTarget);
+		const envMapID= await this.uploadToServer();
+		const cubeRenderTarget=this.cubeRenderTarget;
+		return ({cubeRenderTarget,envMapID});
 	}
 
 
