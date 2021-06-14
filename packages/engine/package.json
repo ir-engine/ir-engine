@@ -51,7 +51,7 @@
     "postprocessing": "^6.21.5",
     "socket.io": "4.1.2",
     "three": "^0.129.0",
-    "three-mesh-bvh": "^0.3.7",
+    "three-mesh-bvh": "^0.4.0",
     "three-physx": "^0.0.32",
     "vite-xrengine": "2.2.4",
     "volumetric": "^0.2.19"
