@@ -160,7 +160,7 @@ export default class CubemapCapturer{
 			meta: { access_token: projectFileToken }
 		} = await this.api.upload(blob, undefined) as any;
 		return envMapID;
-	};
+	}
 
 
 
