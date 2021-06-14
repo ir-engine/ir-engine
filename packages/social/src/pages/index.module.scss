@@ -34,7 +34,7 @@ body{
   section{
     display: none;
     &:nth-child(1){
-      display: block !important;
+      display: flex !important;
       section{
         display: block;
       }
