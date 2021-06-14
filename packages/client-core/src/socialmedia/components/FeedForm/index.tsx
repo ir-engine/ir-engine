@@ -61,8 +61,10 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const [composingText, setComposingText] = useState(feed ? feed.description : '');
     const [video, setVideo] = useState(null);
     const [videoUrl, setVideoUrl] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(null);
     const [preview, setPreview] = useState(null);
     const [preloader, setPreloader] = useState(false);
+    const [readyToPublish, setReadyToPublish] = useState(false);
     const titleRef = React.useRef<HTMLInputElement>();
     const textRef = React.useRef<HTMLInputElement>();
     const videoRef = React.useRef<HTMLInputElement>();
@@ -73,8 +75,9 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value);
     const handleComposingTextChange = (event: any): void => setComposingText(event.target.value);
     const webxrRecorderActivity = webxrnativeState.get('webxrnative');
-    const handleCreateFeed = async () => {
 
+
+    const handleCreateFeed = async () => {
         const newFeed = {
             title: composingTitle.trim(),
             description: composingText.trim(),
@@ -83,7 +86,6 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
 
 
         if(!newFeed.video && !newFeed.preview){
-            // setTimeout(checkTheFeedData, 250)
             alert("Error! Please try again.");
             closePopUp();
             return;
@@ -92,19 +94,20 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         if(feed){                    
             updateFeedAsAdmin(feed.id, newFeed);
         }else{
-           setVideoUrl(await createFeed(newFeed));
+           const feedMediaLinks = await createFeed(newFeed);
+           // @ts-ignore
+           updateShareFormState(true, feedMediaLinks.video, feedMediaLinks.preview);
         }
-        console.log(newFeed);
 
         setComposingTitle('');
         setComposingText('');
         setVideo(null);
         setPreview(null);
         setIsSended(true);
-        const thanksTimeOut = setTimeout(()=>{
-            setIsSended(false); 
-            clearTimeout(thanksTimeOut);
-        }, 2000);
+        // const thanksTimeOut = setTimeout(()=>{
+        //     setIsSended(false);
+        //     clearTimeout(thanksTimeOut);
+        // }, 2000);
 
         if(webxrRecorderActivity){
             changeWebXrNative();
@@ -129,7 +132,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         .then((myBlob) => {
          const myFile = new File([myBlob], "test.mp4");
          setVideo(myFile);
-         console.log(myFile);
+         console.log("test.mp4",myFile);
          /*Preview Begin*/
          const file = myFile;
          const fileReader = new FileReader();
@@ -172,8 +175,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
           };
           fileReader.readAsArrayBuffer(file);
           /*Preview Finish*/
-
-
+          setReadyToPublish(true);
         }).catch(error => console.log(error.message));
 
 
@@ -186,7 +188,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         }
     };
 
-    useEffect(()=> {videoUrl && updateNewFeedPageState(false, null) && updateShareFormState(true, videoUrl);}, [videoUrl] ); 
+    // useEffect(()=> {videoUrl && updateNewFeedPageState(false, null) && updateShareFormState(true, videoUrl);}, [videoUrl] );
     // const handlePickVideo = async (file) => setVideo(popupsState?.get('videoPath'));
     // const handlePickPreview = async (file) => setPreview('');
 
@@ -203,11 +205,12 @@ return <section className={styles.feedFormContainer}>
     {/* <nav>               
         <Button variant="text" className={styles.backButton} onClick={()=>{updateArMediaState(true); updateNewFeedPageState(false);}}><ArrowBackIosIcon />{t('social:feedForm.back')}</Button>
     </nav>   */}
-    {feedsFetching && <Preloader />}
+    {feedsFetching && <Preloader text={'Publishing...'} />}
+    {!readyToPublish && <Preloader text={'Loading...'} />}
     {isSended ? 
         <Typography>{t('social:feedForm.thanks')}</Typography>
         :
-        <section>
+        <section className={styles.alignSection}>
             {/* <Typography>{t('social:feedForm.share')}</Typography>            
                 {feed && <CardMedia   
                     className={styles.previewImage}                  
@@ -254,7 +257,11 @@ return <section className={styles.feedFormContainer}>
                 multiline
                 placeholder={t('social:feedForm.ph-type')}
                 />     */}
+            <video className={styles.feedVideoPreview} autoPlay={true} loop muted={false}>
+                <source src={ videoPath } type="video/mp4" />
+            </video>
             <div className={styles.buttonWraper}>
+                {readyToPublish &&
                 <Button
                     variant="contained"
                     className={styles.submit}
@@ -262,7 +269,7 @@ return <section className={styles.feedFormContainer}>
                     >
 {/*                         {t('social:feedForm.lbl-share')} */}
                         Add Feed
-                    </Button>
+                    </Button>}
                 <Button
                     variant="contained"
                     className={styles.submit}

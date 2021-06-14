@@ -1,10 +1,10 @@
 import { Box, CardActionArea, CardActions, CardContent, CardMedia, makeStyles, Typography } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
-import React from 'react';
+import React, {useEffect} from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
-import { updateShareFormState } from '../../reducers/popupsState/service';
+import { updateShareFormState, updateNewFeedPageState } from '../../reducers/popupsState/service';
 // @ts-ignore
 import styles from './ShareForm.module.scss';
 import { Plugins } from '@capacitor/core';
@@ -21,11 +21,13 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-   updateShareFormState: bindActionCreators(updateShareFormState, dispatch)
+   updateShareFormState: bindActionCreators(updateShareFormState, dispatch),
+   updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
 });
 
 interface Props{
    updateShareFormState?: typeof updateShareFormState;
+   updateNewFeedPageState?: typeof updateNewFeedPageState;
    popupsState?: any; 
 }
 
@@ -50,11 +52,17 @@ const useStyles = makeStyles({
   },
 });
 
-const ShareForm = ({updateShareFormState, popupsState}:Props) => {
+const ShareForm = ({updateShareFormState, updateNewFeedPageState, popupsState}:Props) => {
    
    const videoUrl = popupsState?.get('videoUrl');
+   const previewUrl = popupsState?.get('imgSrc');
    const classes = useStyles();
    const { t } = useTranslation();
+
+   const closePopUps = () => {
+       updateShareFormState(false);
+       updateNewFeedPageState(false);
+   };
 
    const shareVia = () => {
     Share.share({
@@ -64,6 +72,9 @@ const ShareForm = ({updateShareFormState, popupsState}:Props) => {
         dialogTitle: t('social:shareForm.shareWithBuddies')
       });
    };
+   useEffect(()=>{
+       console.log('previewUrlpreviewUrl', previewUrl);
+   });
 
    return  (
     <div className={styles.shareFormContainer}>
@@ -75,7 +86,10 @@ const ShareForm = ({updateShareFormState, popupsState}:Props) => {
    >
  <CardMedia
    className={classes.media+' '+styles.media}
-   image='https://cdn.zeplin.io/601d63dc422d9dad3473e3ab/assets/14A023CD-2A56-4EDF-9D40-7B86746BF447.png'
+   component="img"
+   alt="Contemplative Reptile"
+   src={previewUrl}
+   // image={previewUrl}
    title="Arc"
    style={{maxWidth: 'calc(100% - 36pt)', maxHeight: '40vh'}}
  />
@@ -87,7 +101,7 @@ const ShareForm = ({updateShareFormState, popupsState}:Props) => {
  {/*  className={styles.btnAction}>*/}
  {/*  {t('social:shareForm.save')}*/}
  {/*</Button>*/}
- <Button size="large" color="primary" onClick={() => {updateShareFormState(false);}}
+ <Button size="large" color="primary" onClick={() => {closePopUps();}}
   className={styles.btnDisableAction} >
    {t('social:shareForm.close')}
  </Button>
