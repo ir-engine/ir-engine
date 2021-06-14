@@ -46,7 +46,7 @@ const LoadingScreen = (props: Props) => {
     if(onBoardingStep === GeneralStateList.SCENE_LOADING) {
       setLoadingText(t('common:loader.' + (objectsToLoad > 1 ? 'objectRemainingPlural' : 'objectRemaining'), { count: objectsToLoad }));
     }
-  }, [objectsToLoad])
+  }, [objectsToLoad]);
 
   if (!showProgressBar) return null;
 

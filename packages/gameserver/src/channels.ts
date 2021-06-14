@@ -62,7 +62,7 @@ export default (app: Application): void => {
                             } as any;
                             console.log('channelId: ' + channelId);
                             console.log('locationId: ' + locationId);
-                            console.log(Engine.sceneLoaded, WorldScene.isLoading)
+                            console.log(Engine.sceneLoaded, WorldScene.isLoading);
                             if (channelId != null) {
                                 newInstance.channelId = channelId;
                                 (app as any).isChannelInstance = true;
