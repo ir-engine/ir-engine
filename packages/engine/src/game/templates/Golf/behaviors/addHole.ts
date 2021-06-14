@@ -1,6 +1,6 @@
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { Entity } from '../../../../ecs/classes/Entity';
-import { Body, BodyType, ColliderHitEvent, createShapeFromConfig, SHAPES, Transform } from 'three-physx';
+import { Body, BodyType, ColliderHitEvent, ShapeType, SHAPES, Transform } from 'three-physx';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 
 import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunctions';
@@ -17,6 +17,8 @@ import { addActionComponent } from '../../../functions/functionsActions';
 export const onHoleCollideWithBall: GameObjectInteractionBehavior = (entityHole: Entity, delta: number, args: { hitEvent: ColliderHitEvent }, entityBall: Entity) => {
   
   //if(hasComponent(entityHole, State.Active) && hasComponent(entityHole, State.Active)) {
+    console.log('HOLE');
+    
     addActionComponent(entityHole, Action.GameObjectCollisionTag);
     addActionComponent(entityBall, Action.GameObjectCollisionTag);
  // }
@@ -34,7 +36,7 @@ export const addHole: Behavior = (entity: Entity, args?: any, delta?: number, en
   const rot = transform.rotation ?? { x:0, y:0, z:0, w:1 };
   const scale = transform.scale  ?? { x:1, y:1, z:1 };
 
-  const shapeBox = createShapeFromConfig({
+  const shapeBox: ShapeType = {
     shape: SHAPES.Box,
     options: { boxExtents: { x: scale.x/2, y: scale.y/2, z: scale.z/2 } },
     config: {
@@ -42,7 +44,7 @@ export const addHole: Behavior = (entity: Entity, args?: any, delta?: number, en
       collisionLayer: GolfCollisionGroups.Hole,
       collisionMask: GolfCollisionGroups.Ball
     }
-  });
+  };
 
   const body = new Body({
     shapes: [shapeBox],

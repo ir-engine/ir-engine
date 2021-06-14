@@ -8,10 +8,10 @@ import { TransformComponent } from "../../transform/components/TransformComponen
 import { BoundingBox } from "../../interaction/components/BoundingBox";
 import { Object3DComponent } from "../../scene/components/Object3DComponent";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
-import { DebugRenderer } from "three-physx";
 import { ColliderComponent } from "../../physics/components/ColliderComponent";
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { DebugArrowComponent } from "../DebugArrowComponent";
+import { DebugRenderer } from "./DebugRenderer";
 
 type ComponentHelpers = 'viewVector' | 'helperArrow' | 'velocityArrow' | 'box';
 

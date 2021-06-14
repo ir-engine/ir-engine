@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { detect, detectOS } from 'detect-browser';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
-import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
+import { acceleratedRaycast, disposeBoundsTree, computeBoundsTree } from "three-mesh-bvh";
 import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 import { CameraSystem } from './camera/systems/CameraSystem';
 import { AnimationManager } from './character/AnimationManager';
@@ -37,9 +37,11 @@ import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkO
 import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem';
 import { SceneObjectSystem } from '@xrengine/engine/src/scene/systems/SceneObjectSystem';
 import { ActiveSystems } from './ecs/classes/System';
+import { FontManager } from './ui/classes/FontManager';
 
 
 Mesh.prototype.raycast = acceleratedRaycast;
+BufferGeometry.prototype["disposeBoundsTree"] = disposeBoundsTree;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 
 const configureClient = async (options: InitializeOptions) => {
@@ -87,6 +89,7 @@ const configureClient = async (options: InitializeOptions) => {
           //     physicsWorker = new PhysXWorker();
           // }
 
+          new FontManager();
           new AnimationManager();
           await Promise.all([
               AnimationManager.instance.getDefaultModel(),

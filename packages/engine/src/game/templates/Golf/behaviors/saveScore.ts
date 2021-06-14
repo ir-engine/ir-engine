@@ -11,10 +11,11 @@ import { getTargetEntity } from '../../../../game/functions/functions';
 
 export const saveScore: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
   const entityArg = getTargetEntity(entity, entityTarget, args);
-
+  console.warn('SAVE Score')
   const gameScore = getStorage(entityArg, { name: 'GameScore' });
   gameScore.score.hits += 1;
   setStorage(entityArg, { name: 'GameScore' }, gameScore);
+  console.warn(gameScore);
 };
 
 

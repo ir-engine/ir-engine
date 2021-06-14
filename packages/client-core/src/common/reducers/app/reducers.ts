@@ -1,7 +1,7 @@
 import Immutable from 'immutable';
 import {
   AppLoadedAction,
-  generalStateList,
+  GeneralStateList,
   SetViewportAction
 } from './actions';
 
@@ -34,7 +34,7 @@ export const initialAppState: AppState = {
     width: 1400,
     height: 900
   },
-  onBoardingStep: generalStateList.START_STATE,
+  onBoardingStep: GeneralStateList.START_STATE,
   isTutorial: false,
   userHasInteracted: false
 };
@@ -59,10 +59,10 @@ const appReducer = (state = immutableState, action: AppLoadedAction | SetViewpor
       return state
         .set('userHasInteracted', true);
     case SET_APP_ONBOARDING_STEP:
-      return (action.onBoardingStep === generalStateList.ALL_DONE) ?
+      return (action.onBoardingStep === GeneralStateList.ALL_DONE) ?
         state.set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ?
         action.onBoardingStep : state.get('onBoardingStep')) :
-        (action.onBoardingStep === generalStateList.SCENE_LOADED) ?
+        (action.onBoardingStep === GeneralStateList.SCENE_LOADED) ?
           state.set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ?
           action.onBoardingStep : state.get('onBoardingStep'))
             .set('isTutorial', true)

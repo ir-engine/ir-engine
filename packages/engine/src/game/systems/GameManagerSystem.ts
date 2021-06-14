@@ -101,7 +101,7 @@ export class GameManagerSystem extends System {
       const gameSchema = GamesSchema[game.gameMode];
       const gameObjects = game.gameObjects;
       const gamePlayers = game.gamePlayers;
-      const gameState = game.state;
+      //const gameState = game.state;
 
       // MAIN EXECUTE
       const executeComplexResult = [];
@@ -124,22 +124,20 @@ export class GameManagerSystem extends System {
                 checkersResult = checkCheckers(entity, undefined, b.checkers);
                 if (checkersResult.some(result => result === undefined || result === null || result === false)) return;
               }
-
-              if(b.args != undefined) {
-                if(typeof b.args === 'function')  {
-                  args = b.args(entity)
-                } else {
-                  args = b.args;
-                }
-              }
-
+              /*
               if(typeof b.takeEffectOn === 'function') {
                 const entityOther = b.takeEffectOn(entity);
                 if(entityOther) {
                   executeComplexResult.push({ behavior: b.behavior, entity: entity, entityOther, args, checkersResult });
                 }
-              } else if (typeof b.takeEffectOn === 'undefined' || typeof b.takeEffectOn.targetsRole === 'undefined') {
+              } else
+              */
+              b.args != undefined ? args = b.args : '';
+              if (typeof b.takeEffectOn === 'undefined' || typeof b.takeEffectOn.targetsRole === 'undefined') {
                 //b.behavior(entity, undefined, args, checkersResult);
+                // used to prepair position of golf tee
+                b.prepareArgs != undefined ? args = b.prepareArgs(entity, b.args): '';
+                
                 executeComplexResult.push({ behavior: b.behavior, entity: entity, entityOther: undefined, args, checkersResult });
               } else {
                 const complexResultObjects = Object.keys(b.takeEffectOn.targetsRole).reduce((acc, searchedRoleName) => {
@@ -171,6 +169,7 @@ export class GameManagerSystem extends System {
                 }
                 */
                 complexResultObjects.forEach(complexResult => {
+                  b.prepareArgs != undefined ? args = b.prepareArgs(entity, b.args, complexResult.entity): '';
                   executeComplexResult.push({
                     behavior: b.behavior,
                     entity: entity,

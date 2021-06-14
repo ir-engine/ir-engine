@@ -37,10 +37,21 @@ export default (app: Application): void => {
                         const agonesSDK = (app as any).agonesSDK;
                         const gsResult = await agonesSDK.getGameServer();
                         const {status} = gsResult;
+                        
                         console.log('Creating new GS or updating current one');
-                        console.log(status.state);
-                        console.log((app as any).instance);
-                        if (status.state === 'Ready' || ((config.kubernetes.enabled === false && status.state === 'Shutdown') || (config.kubernetes.enabled === false && ((app as any).instance == null || (app as any).instance.locationId !== locationId || (app as any).instance.channelId !== channelId)))) {
+                        console.log('agones state is', status.state);
+                        console.log('app instance is', (app as any).instance);
+
+                        
+                        const isReady = status.state === 'Ready';
+                        const isNeedingNewServer = config.kubernetes.enabled === false && (
+                          status.state === 'Shutdown' 
+                          || (app as any).instance == null
+                          || (app as any).instance.locationId !== locationId
+                          || (app as any).instance.channelId !== channelId
+                        );
+
+                        if (isReady || isNeedingNewServer) {
                             logger.info('Starting new instance');
                             const localIp = await getLocalServerIp();
                             const selfIpAddress = `${(status.address as string)}:${(status.portsList[0].port as string)}`;
@@ -51,6 +62,7 @@ export default (app: Application): void => {
                             } as any;
                             console.log('channelId: ' + channelId);
                             console.log('locationId: ' + locationId);
+                            console.log(Engine.sceneLoaded, WorldScene.isLoading)
                             if (channelId != null) {
                                 newInstance.channelId = channelId;
                                 (app as any).isChannelInstance = true;
@@ -61,8 +73,7 @@ export default (app: Application): void => {
                                 newInstance.locationId = locationId;
                                 (app as any).isChannelInstance = false;
                             }
-                            console.log('Creating new instance:');
-                            console.log(newInstance);
+                            console.log('Creating new instance:', newInstance);
                             const instanceResult = await app.service('instance').create(newInstance);
                             await agonesSDK.allocate();
                             (app as any).instance = instanceResult;
@@ -81,8 +92,8 @@ export default (app: Application): void => {
                                     });
                                 }
                             }
-
-                            if (sceneId != null) {
+                            // Only load the scene if this gameserver hasn't already
+                            if (sceneId != null && !Engine.sceneLoaded && !WorldScene.isLoading) {
                                 let service, serviceId;
                                 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
                                 const projectResult = await app.service('project').get(sceneId);
@@ -95,22 +106,25 @@ export default (app: Application): void => {
                                 }
                                 const result = await app.service(service).get(serviceId);
 
-                                if (!Engine.sceneLoaded) {
-                                  let entitiesLeft = -1;
-                                  const loadingInterval = setInterval(() => {
-                                    if(entitiesLeft >= 0) console.log(entitiesLeft + ' entites left...');
-                                  }, 1000);
-                                    console.log('Loading scene...');
-                                    WorldScene.load(result, () => {
-                                        console.log('Scene loaded!');
-                                        clearInterval(loadingInterval);
-                                        EngineEvents.instance.dispatchEvent({
-                                            type: EngineEvents.EVENTS.ENABLE_SCENE,
-                                            renderer: true,
-                                            physics: true
-                                        });
-                                    }, (left) => { entitiesLeft = left; });
-                                }
+                                let entitiesLeft = -1;
+                                let lastEntitiesLeft = -1;
+                                const loadingInterval = setInterval(() => {
+                                  if(entitiesLeft >= 0 && lastEntitiesLeft !== entitiesLeft) {
+                                    lastEntitiesLeft = entitiesLeft;
+                                    console.log(entitiesLeft + ' entites left...');
+                                  }
+                                }, 1000);
+
+                                WorldScene.load(result, () => {
+                                    console.log('Scene loaded!');
+                                    clearInterval(loadingInterval);
+                                    EngineEvents.instance.dispatchEvent({
+                                        type: EngineEvents.EVENTS.ENABLE_SCENE,
+                                        renderer: true,
+                                        physics: true
+                                    });
+                                }, (left) => { entitiesLeft = left; });
+                                console.log('Loading scene...');
                             }
                         } else {
                             try {

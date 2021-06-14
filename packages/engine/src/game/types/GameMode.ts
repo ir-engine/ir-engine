@@ -62,6 +62,7 @@ export type RoleBehaviorTarget = (entity: Entity) => Entity;
 export interface RoleBehaviors {
   [key: string]: Array<{
     behavior: Behavior,
+    prepareArgs?: any,
     args?: any | ((entity: Entity) => void),
     watchers?: ComponentConstructor<Component<any>>[][],
     checkers?: Array<{
