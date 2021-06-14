@@ -62,7 +62,7 @@ const App = (): any => {
         <title>{Config.publicRuntimeConfig.title}</title>
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0', shrink-to-fit=no"
+          content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
         />
       </Helmet>
       <ThemeProvider theme={theme}>

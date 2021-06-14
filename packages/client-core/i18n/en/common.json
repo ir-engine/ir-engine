@@ -13,6 +13,7 @@
         "login": "Log In"
     },
     "loader": {
+        "connecting": "Connecting to world...",
         "entering": "Entering world...",
         "loading": "Loading...",
         "objectRemaining": "{{count}} object remaining",

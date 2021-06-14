@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { BufferGeometry, Mesh, PerspectiveCamera, Scene } from 'three';
-import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
+import { acceleratedRaycast, disposeBoundsTree, computeBoundsTree } from "three-mesh-bvh";
 import { CameraSystem } from '@xrengine/engine/src/camera/systems/CameraSystem';
 import { Timer } from '@xrengine/engine/src/common/functions/Timer';
 import { DebugHelpersSystem } from '@xrengine/engine/src/debug/systems/DebugHelpersSystem';
@@ -37,6 +37,7 @@ import { now } from '@xrengine/engine/src/common/functions/now';
 import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem';
 
 Mesh.prototype.raycast = acceleratedRaycast;
+BufferGeometry.prototype["disposeBoundsTree"] = disposeBoundsTree;
 BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 
 export const DefaultOffscreenInitializationOptions = {

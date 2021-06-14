@@ -32,6 +32,8 @@ import { PostProcessingSchema } from './interfaces/PostProcessingSchema';
 import { WebXRManager } from '../xr/WebXRManager.js'
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType';
 import WebGL from "./THREE.WebGL";
+import { FXAAEffect } from './effects/FXAAEffect';
+
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',
   PBR = 'usePBR',
@@ -53,7 +55,7 @@ export class WebGLRendererSystem extends System {
   }
 
   updateType = SystemUpdateType.Free;
-  
+
   /** Is system Initialized. */
   static instance: WebGLRendererSystem;
   csm: CSM;
@@ -141,11 +143,6 @@ export class WebGLRendererSystem extends System {
     this.needsResize = true;
     Engine.renderer.autoClear = true;
 
-    // if we turn PostPro off, don't turn it back on, if we turn it on, let engine manage it
-    if (!this.supportWebGL2) {
-      this.setUsePostProcessing(false);
-    }
-
     this.composer = new EffectComposer(Engine.renderer);
 
     EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_POST_PROCESSING, (ev: any) => {
@@ -163,7 +160,7 @@ export class WebGLRendererSystem extends System {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
       this.enabled = ev.renderer;
     });
-   //  this.enabled = false;
+    //  this.enabled = false;
   }
 
   async initialize() {
@@ -222,15 +219,17 @@ export class WebGLRendererSystem extends System {
       if (pass.isActive)
         if (effect === SSAOEffect) {
           passes.push(new effect(Engine.camera, this.normalPass.texture, { ...pass, normalDepthBuffer }));
-        }
-        else if (effect === DepthOfFieldEffect)
+        } else if (effect === DepthOfFieldEffect) {
           passes.push(new effect(Engine.camera, pass))
-        else if (effect === OutlineEffect) {
+        } else if (effect === OutlineEffect) {
           const eff = new effect(Engine.scene, Engine.camera, pass)
           passes.push(eff);
-          this.composer.outlineEffect = eff;
+          this.composer[key] = eff;
+        } else {
+          const eff = new effect(pass)
+          this.composer[key] = eff;
+          passes.push(eff)
         }
-        else passes.push(new effect(pass))
     })
     const textureEffect = new TextureEffect({
       blendFunction: BlendFunction.SKIP,
@@ -264,8 +263,6 @@ export class WebGLRendererSystem extends System {
 
     } else {
 
-      console.log("Rendering")
-
       if (this.needsResize) {
         const curPixelRatio = Engine.renderer.getPixelRatio();
         const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor;
@@ -288,7 +285,7 @@ export class WebGLRendererSystem extends System {
       }
 
       this.csm.update();
-      if (this.usePostProcessing && this.postProcessingSchema) {
+      if (this.usePostProcessing) {
         this.composer.render(delta);
       } else {
         Engine.renderer.autoClear = true;
@@ -385,20 +382,16 @@ export class WebGLRendererSystem extends System {
   }
 
   setUsePostProcessing(usePostProcessing) {
-    // Always set to false if WebGL 2 not in use
-    this.usePostProcessing = (!this.supportWebGL2 || Engine.xrRenderer?.isPresenting) ? false : usePostProcessing;
-    Engine.renderer.outputEncoding = sRGBEncoding;
-    Engine.renderer.toneMapping = LinearToneMapping;
-    Engine.renderer.toneMappingExposure = 1;
+    this.usePostProcessing = this.supportWebGL2 && usePostProcessing;
     ClientStorage.set(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING, this.usePostProcessing);
   }
-  
+
   async loadGraphicsSettingsFromStorage() {
     this.automatic = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.AUTOMATIC) as boolean ?? true;
     this.scaleFactor = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.SCALE_FACTOR) as number ?? 1;
     this.shadowQuality = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.SHADOW_QUALITY) as number ?? 5;
     // this.usePBR = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.PBR) as boolean ?? true; // TODO: implement PBR setting
-    this.usePostProcessing = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING) as boolean ?? false;
+    this.usePostProcessing = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING) as boolean ?? true;
   }
 }
 

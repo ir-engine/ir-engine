@@ -43,10 +43,12 @@ import { createPortal } from '../behaviors/createPortal';
 export class WorldScene {
   loadedModels = 0;
   loaders: Promise<void>[] = [];
+  static isLoading = false;
 
   constructor(private onCompleted?: Function, private onProgress?: Function) { }
 
   loadScene = (scene: SceneData) => {
+    WorldScene.isLoading = true;
     Object.keys(scene.entities).forEach(key => {
       const sceneEntity = scene.entities[key];
       const entity = createEntity();
@@ -61,6 +63,7 @@ export class WorldScene {
     });
 
     Promise.all(this.loaders).then(() => {
+      WorldScene.isLoading = false;
       Engine.sceneLoaded = true;
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED });
 
@@ -118,6 +121,7 @@ export class WorldScene {
         break;
 
       case 'gltf-model':
+        // TODO: get rid of or rename dontParseModel
         if (!isClient && component.data.dontParseModel) return;
 
         this.loaders.push(new Promise<void>(resolve => {
@@ -125,8 +129,11 @@ export class WorldScene {
             url: component.data.src,
             entity,
           }, (res) => {
-            if (component.data.dontParseModel) clearFromColliders(entity, { asset: res });
-            else parseModelColliders(entity, { asset: res, uniqueId: component.data.sceneEntityId });
+            if (component.data.dontParseModel) {
+              clearFromColliders(res);
+            } else {
+              parseModelColliders(entity, { asset: res, uniqueId: component.data.sceneEntityId });
+            } 
             this._onModelLoaded();
             resolve();
           }, null, (err) => {
@@ -264,7 +271,7 @@ export class WorldScene {
         break;
 
       case 'postprocessing':
-        // setPostProcessing(entity, component.data);
+        setPostProcessing(entity, component.data);
         break;
 
       case 'reflectionprobe':

@@ -216,10 +216,11 @@ export const onPlayerSpawnInNewLocation = (portalProps: PortalProps) => {
 
 export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation: Quaternion) => {
   const playerCollider = getMutableComponent(playerEntity, ControllerColliderComponent)
+  position.y = playerCollider.controller.transform.translation.y;
   playerCollider.controller.updateTransform({
     translation: position,
-    rotation
-  })
+    rotation,
+  });
 }
 
 export function createNetworkPlayer(args: { ownerId: string | number, networkId?: number, entity?: Entity }) {

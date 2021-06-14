@@ -6,15 +6,14 @@ import { ColliderComponent } from '../../../../physics/components/ColliderCompon
 import { RigidBodyComponent } from '../../../../physics/components/RigidBody';
 import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject';
 import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants';
-import { BoxBufferGeometry, DoubleSide, Group, Material, Mesh, MeshStandardMaterial, Quaternion, Vector3 } from 'three';
-import { Body, BodyType, ColliderHitEvent, createShapeFromConfig, RaycastQuery, SceneQueryType, SHAPES } from 'three-physx';
+import { BoxBufferGeometry, DoubleSide, Group, Material, Mesh, MeshStandardMaterial, Quaternion, Vector3, MathUtils } from 'three';
+import { Body, BodyType, ColliderHitEvent, ShapeType, RaycastQuery, SceneQueryType, SHAPES } from 'three-physx';
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent';
 import { GameObject } from '../../../components/GameObject';
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { hasComponent, addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions';
-import { MathUtils } from 'three';
 import { Network } from '../../../../networking/classes/Network';
 import { isClient } from '../../../../common/functions/isClient';
 import { getGame } from '../../../functions/functions';
@@ -28,6 +27,7 @@ import { Action, State } from '../../../types/GameComponents';
 import { addActionComponent } from '../../../functions/functionsActions';
 import { GamePlayer } from '../../../components/GamePlayer';
 import { YourTurn } from '../components/YourTurnTagComponent';
+import { XRUserSettings } from '../../../../xr/types/XRUserSettings';
 
 const vector0 = new Vector3();
 const vector1 = new Vector3();
@@ -120,16 +120,14 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   );
 
   const hit = golfClubComponent.raycast.hits[0];
-  const headDistance = (hit ? hit.distance : clubLength);
-  const isPlayersTurn = getComponent(ownerEntity, YourTurn);
-  if(hit && isPlayersTurn) {
-    if(!golfClubComponent.canHitBall) {
+  const headDistance = XRUserSettings.staticLengthGolfClub ? clubLength : (hit ? hit.distance : clubLength);
+
+  if(hasComponent(ownerEntity, YourTurn)) {
+    
       enableClub(entityClub, true);
-    }
+    
   } else {
-    if(golfClubComponent.canHitBall) {
       enableClub(entityClub, false);
-    }
   }
 
   // update position of club
@@ -160,7 +158,9 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   }
   vector0.multiplyScalar(1 / (golfClubComponent.velocityPositionsToCalculate + 1));
   golfClubComponent.velocity.copy(vector0);
-  golfClubComponent.body.transform.linearVelocity.copy(vector0);
+  golfClubComponent.body.transform.linearVelocity.x = vector0.x;
+  golfClubComponent.body.transform.linearVelocity.y = vector0.y;
+  golfClubComponent.body.transform.linearVelocity.z = vector0.z;
   // now shift all previous positions down the list
   for(let i = golfClubComponent.velocityPositionsToCalculate - 1; i > 0; i--) {
     golfClubComponent.lastPositions[i].copy(golfClubComponent.lastPositions[i - 1]);
@@ -196,10 +196,10 @@ export const onClubColliderWithBall: GameObjectInteractionBehavior = (entityClub
 * @author Josh Field <github.com/HexaField>
  */
 
-const clubColliderSize = new Vector3(0.05, 0.2, 0.2);
+const clubColliderSize = new Vector3(0.05, 0.1, 0.12);
 const clubHalfWidth = 0.05;
 const clubPutterLength = 0.1;
-const clubLength = 2.5;
+const clubLength = 1.8;
 
 const upVector = new Vector3(0, 1, 0);
 const HALF_PI = Math.PI / 2;
@@ -242,7 +242,7 @@ export const initializeGolfClub = (entityClub: Entity) => {
 
   addComponent(entityClub, Object3DComponent, { value: meshGroup });
 
-  const shapeHead = createShapeFromConfig({
+  const shapeHead: ShapeType = {
     shape: SHAPES.Box,
     options: { boxExtents: clubColliderSize },
     config: {
@@ -250,7 +250,7 @@ export const initializeGolfClub = (entityClub: Entity) => {
       collisionLayer: GolfCollisionGroups.Club,
       collisionMask: GolfCollisionGroups.Ball
     }
-  });
+  };
 
   const body = PhysicsSystem.instance.addBody(new Body({
     shapes: [shapeHead],

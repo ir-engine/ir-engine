@@ -1,5 +1,5 @@
 import { MobileGamepadProps } from '@xrengine/client-core/src/common/components/MobileGamepad/MobileGamepadProps';
-import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
+import { GeneralStateList, setAppLoaded, setAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
 import Store from '@xrengine/client-core/src/store';
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
 import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
@@ -65,7 +65,7 @@ export const XR360PlayerPage = (props: Props) => {
 
     const loadScene = new Promise<void>((resolve) => {
       WorldScene.load(sceneData, () => {
-        store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
+        store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED));
         setAppLoaded(true);
         resolve();
       });

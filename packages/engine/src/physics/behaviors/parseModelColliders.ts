@@ -1,4 +1,4 @@
-import { Vector3, Quaternion, Matrix4 } from 'three';
+import { Vector3, Quaternion, Matrix4, Object3D, Group, Mesh } from 'three';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
 import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions';
@@ -8,6 +8,7 @@ import { TransformComponent } from "../../transform/components/TransformComponen
 import { addColliderWithoutEntity } from './colliderCreateFunctions';
 import { BodyType } from "three-physx";
 import { ColliderComponent } from '../components/ColliderComponent';
+import { LoadGLTFResultInterface } from '../../assets/functions/LoadGLTF';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -86,21 +87,35 @@ export function createStaticCollider(mesh) {
     );
   }
 }
-// only clean colliders from model Function
-export const clearFromColliders: Behavior = (entity: Entity, args: any) => {
+
+/**
+ * Removes or disables rendering for models that have a physics type attached to userData
+ * @param asset
+ * @param makeInvisible
+ */
+
+export const clearFromColliders = (asset: any, makeInvisible?: boolean) => {
   const arr = [];
-  const parseColliders = (mesh) => mesh.userData.data === 'physics' || mesh.userData.data === 'kinematic' || mesh.userData.data === 'dynamic' || mesh.userData.type === 'trimesh' || mesh.userData.type === 'sphere' ? arr.push(mesh): '';
-  // its for diferent files with models
-  args.asset.scene ? args.asset.scene.traverse(parseColliders) : args.asset.traverse(parseColliders);
-  // its for delete mesh from view scene
-//
-  if (args.onlyHide)
+  const parseColliders = (mesh) => {
+    if(mesh.userData.data === 'physics' || mesh.userData.data === 'kinematic' || mesh.userData.data === 'dynamic' || mesh.userData.type === 'trimesh' || mesh.userData.type === 'sphere') {
+      arr.push(mesh);
+    }
+  }
+  
+  asset.scene ? asset.scene.traverse(parseColliders) : asset.traverse(parseColliders);
+  
+  if (makeInvisible)
     arr.forEach(v => v.visible = false);
   else
     arr.forEach(v => v.parent.remove(v));
 }
 
-// parse Function
+/**
+ * Handles loading physics from a model's userData
+ * @param entity
+ * @param args
+ */
+
 export const parseModelColliders: Behavior = (entity: Entity, args: any) => {
   const arr = [];
   const parseColliders = (mesh) => {
