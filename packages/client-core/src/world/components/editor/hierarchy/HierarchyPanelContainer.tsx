@@ -53,11 +53,11 @@ const PanelContainer = (styled as any).div`
   outline: none;
   user-select: none;
   width: 100%;
+  height: 100%;
   position: relative;
   display: flex;
   flex-direction: column;
   color: ${props => props.theme.text2};
-  flex: 1;
 `;
 
 /**
