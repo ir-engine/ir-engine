@@ -1,6 +1,6 @@
 
 import { Group, MathUtils, Mesh, Vector3 } from 'three';
-import { Body, BodyType, createShapeFromConfig, SHAPES } from 'three-physx';
+import { Body, BodyType, ShapeType, SHAPES } from 'three-physx';
 import { AssetLoader } from '../../../../assets/classes/AssetLoader';
 import { isClient } from '../../../../common/functions/isClient';
 import { Behavior } from '../../../../common/interfaces/Behavior';
@@ -45,7 +45,7 @@ export const spawnBall: Behavior = (entityPlayer: Entity, args?: any, delta?: nu
   const parameters: GolfBallSpawnParameters = {
     gameName: game.name,
     role: 'GolfBall',
-    spawnPosition: teeTransform.position,
+    spawnPosition: new Vector3(teeTransform.position.x, teeTransform.position.y + args.offsetY, teeTransform.position.z),
     uuid,
     ownerNetworkId: playerNetworkObject.networkId
   };
@@ -113,7 +113,7 @@ export const initializeGolfBall = (ballEntity: Entity) => {
     }, (group: Group) => { assetLoadCallback(group, ballEntity) });
   }
 
-  const shape = createShapeFromConfig({
+  const shape: ShapeType = {
     shape: SHAPES.Sphere,
     options: { radius: golfBallRadius + golfBallColliderExpansion },
     config: {
@@ -126,7 +126,7 @@ export const initializeGolfBall = (ballEntity: Entity) => {
       collisionLayer: GolfCollisionGroups.Ball,
       collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Hole,
     },
-  });
+  };
 
   const body = PhysicsSystem.instance.addBody(new Body({
     shapes: [shape],

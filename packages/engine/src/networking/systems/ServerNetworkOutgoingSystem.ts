@@ -122,7 +122,7 @@ export class ServerNetworkOutgoingSystem extends System {
         console.warn("World state buffer is null");
         console.warn(Network.instance.worldState);
       } else {
-        Network.instance.transport.sendReliableData(bufferReliable);
+        if (Network.instance.transport && typeof Network.instance.transport.sendReliableData === 'function') Network.instance.transport.sendReliableData(bufferReliable);
       }
 
       Network.instance.worldState.clientsConnected = [];
@@ -139,7 +139,7 @@ export class ServerNetworkOutgoingSystem extends System {
       console.warn("Transform buffer is null");
       console.warn(transformState);
     } else {
-      Network.instance.transport.sendData(bufferUnreliable);
+      if (Network.instance.transport && typeof Network.instance.transport.sendData === 'function') Network.instance.transport.sendData(bufferUnreliable);
     }
   }
 

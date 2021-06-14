@@ -7,7 +7,7 @@ import NetworkDebug from '../../components/NetworkDebug';
 import { OpenLink } from '@xrengine/client-core/src/world/components/OpenLink';
 import TooltipContainer from '@xrengine/client-core/src/common/components/TooltipContainer';
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu';
-import { generalStateList, setAppLoaded, setAppOnBoardingStep, setAppSpecificOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
+import { GeneralStateList, setAppLoaded, setAppOnBoardingStep, setAppSpecificOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
 import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector';
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector';
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service';
@@ -56,7 +56,7 @@ import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader';
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent';
 import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal';
-import { onPlayerSpawnInNewLocation } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
+import { onPlayerSpawnInNewLocation, teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
 
 const store = Store.store;
 
@@ -273,7 +273,7 @@ export const EnginePage = (props: Props) => {
 
     if (!currentLocation.id && !locationState.get('currentLocationUpdateNeeded') && !locationState.get('fetchingCurrentLocation')) {
       setIsValidLocation(false);
-      store.dispatch(setAppSpecificOnBoardingStep(generalStateList.FAILED, false));
+      store.dispatch(setAppSpecificOnBoardingStep(GeneralStateList.FAILED, false));
     }
   }, [locationState]);
 
@@ -393,11 +393,12 @@ export const EnginePage = (props: Props) => {
         AssetLoader.load({ url: localClient.avatarDetail.avatarURL }, resolve);
       });
     });
+    store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADING));
 
     const sceneLoadPromise= new Promise<void>((resolve) => {
       WorldScene.load(sceneData, () => {
         setProgressEntity(0);
-        store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
+        store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED));
         setAppLoaded(true);
         resolve();
       }, onSceneLoadedEntity);
@@ -416,6 +417,7 @@ export const EnginePage = (props: Props) => {
     });
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
+    store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS));
     setPorting(false);
   }
 
@@ -444,6 +446,13 @@ export const EnginePage = (props: Props) => {
   };
 
   const portToLocation = async ({ portalComponent }: { portalComponent: PortalProps }) => {
+    const currentLocation = locationState.get('currentLocation').get('location');
+
+    if (currentLocation.slugifiedName === portalComponent.location) {
+      teleportPlayer(Network.instance.localClientEntity, portalComponent.spawnPosition, portalComponent.spawnRotation);
+      return;
+    }
+
     history.replace('/location/' + portalComponent.location);
 
     setPorting(true);

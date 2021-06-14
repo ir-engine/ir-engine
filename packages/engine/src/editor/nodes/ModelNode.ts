@@ -6,7 +6,7 @@ import cloneObject3D from "../functions/cloneObject3D";
 import { RethrownError } from "../functions/errors";
 import { clearFromColliders, plusParameter } from "../../physics/behaviors/parseModelColliders";
 import { parseCarModel } from "../../vehicle/prefabs/NetworkVehicle";
-import { getGeometry } from "three-physx";
+import { getGeometry } from "../../scene/functions/getGeometry";
 
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = "Model";
@@ -172,7 +172,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           }
         });
       }
-      this.saveColliders ? clearFromColliders( null , { asset: this.model, onlyHide: true }):'';
+      if(this.saveColliders) clearFromColliders(this.model, true);
       this.updateStaticModes();
     } catch (error) {
       this.showErrorIcon();
@@ -391,7 +391,7 @@ parseColliders( userData, data, type, mass, position, quaternion, scale, mesh, c
 
     if (this.saveColliders) {
       this.parseAndSaveColliders(components);
-      clearFromColliders( null , { asset: this.model, onlyHide: true });
+      clearFromColliders(this.model, true);
     }
     if (this.activeClipIndex !== -1) {
       components["loop-animation"] = {

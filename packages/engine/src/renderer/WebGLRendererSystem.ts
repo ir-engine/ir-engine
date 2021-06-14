@@ -264,8 +264,6 @@ export class WebGLRendererSystem extends System {
 
     } else {
 
-      console.log("Rendering")
-
       if (this.needsResize) {
         const curPixelRatio = Engine.renderer.getPixelRatio();
         const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor;

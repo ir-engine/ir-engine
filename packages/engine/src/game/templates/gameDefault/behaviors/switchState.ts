@@ -16,3 +16,17 @@ import { getTargetEntity } from '../../../functions/functions';
      addStateComponent(entityArg, args.add);
    }
  };
+
+ export const addState: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
+  const entityArg = getTargetEntity(entity, entityTarget, args);
+  if (!hasComponent(entityArg, args.add)) {
+    addStateComponent(entityArg, args.add);
+  }
+};
+
+export const removeState: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
+  const entityArg = getTargetEntity(entity, entityTarget, args);
+  if (hasComponent(entityArg, args.remove)) {
+    removeStateComponent(entityArg, args.remove);
+  }
+};

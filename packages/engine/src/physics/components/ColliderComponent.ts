@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from "three";
-import type { Body, ColliderHitEvent } from "three-physx";
+import type { Body } from "three-physx";
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 import { ColliderTypes } from "../types/PhysicsTypes";

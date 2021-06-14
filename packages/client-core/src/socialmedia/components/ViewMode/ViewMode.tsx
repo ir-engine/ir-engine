@@ -16,6 +16,10 @@ import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
 import { Box, CardMedia, makeStyles, Typography } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
+import { Plugins } from '@capacitor/core';
+
+const { XRPlugin } = Plugins;
+
 
 // @ts-ignore
 import classes from './ViewMode.module.scss';
@@ -50,6 +54,7 @@ export const ViewMode = ({updateArMediaState}:Props) => {
   const { t } = useTranslation();
  
   const handleClickOpen = () => {
+    XRPlugin.accessPermission({});
     setOpen(true);
   };
 

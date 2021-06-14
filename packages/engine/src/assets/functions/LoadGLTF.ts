@@ -1,4 +1,4 @@
-import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight } from 'three';
+import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight, Group, Mesh } from 'three';
 import { isClient } from "../../common/functions/isClient";
 import { DRACOLoader } from "../loaders/gltf/DRACOLoader";
 import { GLTFLoader } from "../loaders/gltf/GLTFLoader";
@@ -8,7 +8,7 @@ import { GLTFLoader } from "../loaders/gltf/GLTFLoader";
  */
 export interface LoadGLTFResultInterface {
     animations: AnimationClip[];
-    scene: Object3D;
+    scene: Object3D | Group | Mesh;
     json: any;
     stats: any;
 }

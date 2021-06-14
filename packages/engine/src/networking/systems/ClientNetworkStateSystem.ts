@@ -198,6 +198,8 @@ export class ClientNetworkStateSystem extends System {
             console.log('*createObjects* same object' + objectToCreate.networkId);
             continue;
           } else if (searchSameInAnotherId(objectToCreate)) {
+            Network.instance.networkObjects[objectToCreate.networkId] = Network.instance.networkObjects[Network.instance.localAvatarNetworkId];
+            Network.instance.networkObjects[Network.instance.localAvatarNetworkId] = undefined;
             Network.instance.localAvatarNetworkId = objectToCreate.networkId;
             console.log('*createObjects* same object but in anotherId ' + objectToCreate.networkId);
             continue;

@@ -92,7 +92,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
     }
 
     close() {
-        this.transport.close();
+        if (this.transport && typeof this.transport.close === 'function') this.transport.close();
     }
 
     public async initialize(): Promise<void> {

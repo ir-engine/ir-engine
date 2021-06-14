@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import { generalStateList } from '../../reducers/app/actions';
+import { GeneralStateList } from '../../reducers/app/actions';
 import { selectAppOnBoardingStep } from '../../reducers/app/selector';
 import { selectCurrentScene } from '../../../world/reducers/scenes/selector';
 import Loader from './SquareLoader';
@@ -23,29 +23,32 @@ const mapStateToProps = (state: any): any => {
 const LoadingScreen = (props: Props) => {
   const { onBoardingStep, objectsToLoad, currentScene } = props;
   const [showProgressBar, setShowProgressBar] = useState(true);
-  const [showEntering, setShowEntering] = useState(false);
+  const [loadingText, setLoadingText] = useState('');
 	const { t } = useTranslation();
 
   useEffect(() => {
-    if (onBoardingStep === generalStateList.START_STATE) {
-      setShowProgressBar(true);
-      setShowEntering(false);
-    } else if (showProgressBar && !showEntering) {
-      setShowEntering(true);
-          // setTimeout(() => { 
-            setShowProgressBar(false); 
-          // }, 1500);
+    switch(onBoardingStep) {
+      case GeneralStateList.START_STATE:
+        setLoadingText(t('common:loader.connecting'));
+        setShowProgressBar(true);
+      break;
+      case GeneralStateList.SCENE_LOADED:
+        setLoadingText(t('common:loader.entering'));
+      break;
+      case GeneralStateList.SUCCESS:
+        setShowProgressBar(false); 
+      break;
+      default: setLoadingText(t('common:loader.loading')); break;
     }
-  }, [onBoardingStep, objectsToLoad]);
+  }, [onBoardingStep]);
+
+  useEffect(() => {
+    if(onBoardingStep === GeneralStateList.SCENE_LOADING) {
+      setLoadingText(t('common:loader.' + (objectsToLoad > 1 ? 'objectRemainingPlural' : 'objectRemaining'), { count: objectsToLoad }));
+    }
+  }, [objectsToLoad])
 
   if (!showProgressBar) return null;
-
-  let loadingText = t('common:loader.entering');
-  if (!showEntering) {
-    if (objectsToLoad >= 99) loadingText = t('common:loader.loading');
-    else if (objectsToLoad > 0) loadingText = t(
-      'common:loader.' + (objectsToLoad > 1 ? 'objectRemainingPlural' : 'objectRemaining'), { count: objectsToLoad});
-  }
 
   return <>
     <Loader />

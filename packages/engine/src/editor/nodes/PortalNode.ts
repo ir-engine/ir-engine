@@ -21,8 +21,8 @@ export default class PortalNode extends EditorNodeMixin(Model) {
     if(portalComponent) {
       node.location = portalComponent.props.location;
       node.displayText = portalComponent.props.displayText;
-      node.spawnPosition = portalComponent.props.spawnPosition;
-      node.spawnRotation = portalComponent.props.spawnRotation;
+      node.spawnPosition = new Vector3(portalComponent.props.spawnPosition.x, portalComponent.props.spawnPosition.y, portalComponent.props.spawnPosition.z);
+      node.spawnRotation = new Vector3(portalComponent.props.spawnRotation.x, portalComponent.props.spawnRotation.y, portalComponent.props.spawnRotation.z);
     }
     return node;
   }

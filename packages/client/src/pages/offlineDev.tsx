@@ -1,4 +1,4 @@
-import { generalStateList, setAppLoaded, setAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
+import { GeneralStateList, setAppLoaded, setAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine';
 import Store from '@xrengine/client-core/src/store';
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
@@ -61,7 +61,7 @@ const DevPage = () => {
 
     const loadScene = new Promise<void>((resolve) => {
       WorldScene.load(sceneData as any, () => {
-        store.dispatch(setAppOnBoardingStep(generalStateList.SCENE_LOADED));
+        store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED));
         setAppLoaded(true);
         resolve();
       });
