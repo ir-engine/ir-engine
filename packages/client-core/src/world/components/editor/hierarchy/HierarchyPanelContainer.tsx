@@ -53,6 +53,7 @@ const PanelContainer = (styled as any).div`
   outline: none;
   user-select: none;
   width: 100%;
+  height: 100%;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -1249,6 +1250,8 @@ export default function HierarchyPanel() {
   useEffect(() => {
     updateNodeHierarchy();
   }, [collapsedNodes, updateNodeHierarchy]);
+
+  console.log(editor.scene)
 
   //returning hierarchy penal view
   return(

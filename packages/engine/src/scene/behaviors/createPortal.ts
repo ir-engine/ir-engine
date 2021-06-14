@@ -25,12 +25,7 @@ export type PortalProps = {
 const vec3 = new Vector3()
 
 export const createPortal: Behavior = (entity, args) => {
-  const {
-    location,
-    displayText,
-    spawnPosition,
-  } = args;
-
+ 
   const spawnRotation = new Quaternion().setFromEuler(
     new Euler().setFromVector3(
       new Vector3(args.spawnRotation.x, args.spawnRotation.y, args.spawnRotation.z),
@@ -121,9 +116,9 @@ export const createPortal: Behavior = (entity, args) => {
   })
 
   addComponent(entity, PortalComponent, {
-    location,
-    displayText,
-    spawnPosition,
-    spawnRotation
+    location: args.location,
+    displayText: args.displayText,
+    spawnPosition: args.spawnPosition,
+    spawnRotation: args.spawnRotation
   })
 }
