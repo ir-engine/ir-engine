@@ -10,5 +10,5 @@ export class HighlightComponent extends Component<HighlightComponent> {
 HighlightComponent._schema = {
   color: { type: Types.Ref, default: 0x0000ff },
   hiddenColor: { type: Types.Ref, default: 0xff0000 },
-  edgeStrength: { type: Types.Ref, default: 0.5 }
+  edgeStrength: { type: Types.Ref, default: 1 }
 };
