@@ -58,7 +58,6 @@ const PanelContainer = (styled as any).div`
   display: flex;
   flex-direction: column;
   color: ${props => props.theme.text2};
-  flex: 1;
 `;
 
 /**
