@@ -68,14 +68,12 @@ export default (app: Application): void => {
                             // on local dev, if a scene is already loaded and it's no the scene we want, reset the engine
                             if(config.kubernetes.enabled === false && (app as any).instance && (app as any).instance.locationId !== locationId) {
                               Engine.engineTimer.stop();
-                              EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, () => {
-                                Engine.engineTimer.start();
-                              });
                               Engine.sceneLoaded = false;
                               WorldScene.isLoading = false;
                               const currentPath = (process.platform === "win32" ? 'file:///' : '') + path.dirname(__filename);
                               await processLocationChange(new Worker(currentPath + "/physx/loadPhysXNode.ts"));
                               console.log('Processed location change!')
+                              Engine.engineTimer.start();
                             }
                             if (channelId != null) {
                                 newInstance.channelId = channelId;

@@ -284,6 +284,8 @@ export const processLocationChange = async (newPhysicsWorker: Worker) => {
     removeEntity(entity, false);
   });
 
+  executeSystemBeforeReset();
+
   await resetPhysics(newPhysicsWorker)
 }
 
