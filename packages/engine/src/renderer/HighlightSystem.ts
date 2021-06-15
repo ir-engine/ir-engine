@@ -12,7 +12,7 @@ export class HighlightSystem extends System {
   /** Update type of the system. **Default** value is
    * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type.
    */
-  updateType = SystemUpdateType.Fixed;
+  updateType = SystemUpdateType.Free;
 
   /** Constructs Highlight system. */
   constructor(attributes: SystemAttributes = {}) {
@@ -21,15 +21,15 @@ export class HighlightSystem extends System {
 
   /** Executes the system. */
   execute(deltaTime, time): void {
-    if (!WebGLRendererSystem.instance.composer.outlineEffect) return;
+    if (!WebGLRendererSystem.instance.composer.OutlineEffect) return;
     for (const entity of this.queryResults.highlights.added) {
       const highlightedObject = getComponent(entity, Object3DComponent).value;
       const compHL = getComponent(entity, HighlightComponent);
       highlightedObject.traverse(obj => {
         if (obj !== undefined) {
-          WebGLRendererSystem.instance.composer.outlineEffect.selection.add(obj);
-          WebGLRendererSystem.instance.composer.outlineEffect.visibleEdgeColor = compHL.color;
-          WebGLRendererSystem.instance.composer.outlineEffect.hiddenEdgeColor = compHL.hiddenColor;
+          WebGLRendererSystem.instance.composer.OutlineEffect.selection.add(obj);
+          WebGLRendererSystem.instance.composer.OutlineEffect.visibleEdgeColor = compHL.color;
+          WebGLRendererSystem.instance.composer.OutlineEffect.hiddenEdgeColor = compHL.hiddenColor;
         }
       });
     }
@@ -37,7 +37,7 @@ export class HighlightSystem extends System {
       const highlightedObject = getComponent(entity, Object3DComponent).value;
       highlightedObject.traverse(obj => {
         if (obj !== undefined) {
-          WebGLRendererSystem.instance.composer.outlineEffect.selection.delete(obj);
+          WebGLRendererSystem.instance.composer.OutlineEffect.selection.delete(obj);
         }
       });
     }

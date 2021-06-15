@@ -51,7 +51,7 @@ export default function configurePostProcessing(node: PostProcessing, scene, cam
             else if (effect === OutlineEffect) {
                 const eff = new effect(scene, camera, pass)
                 passes.push(eff);
-                composer.outlineEffect = eff;
+                composer.OutlineEffect = eff;
             }
             else passes.push(new effect(pass))
     })

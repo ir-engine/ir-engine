@@ -137,7 +137,8 @@ export function createFeed({ title, description, video, preview }: any) {
         const feed = await client.service('feed').create({ title, description, videoId: storedVideo.file_id, previewId: storedPreview.file_id });
         dispatch(addFeed(feed));
         //@ts-ignore
-        return storedVideo.origin;
+        const mediaLinks = { video: storedVideo.origin, preview: storedPreview.origin };
+        return mediaLinks;
       }
 
     } catch (err) {
