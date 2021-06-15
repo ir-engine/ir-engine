@@ -23,6 +23,7 @@ import { IKRigComponent } from "./components/IKRigComponent";
 import { Avatar } from "../xr/classes/IKAvatar";
 import { Network } from "../networking/classes/Network";
 import { PortalComponent } from "../scene/components/PortalComponent";
+import { detectUserInPortal } from "./functions/detectUserInPortal";
 
 const forwardVector = new Vector3(0, 0, 1);
 const prevControllerColliderPosition = new Vector3();
@@ -62,6 +63,9 @@ export class CharacterControllerSystem extends System {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
+
+    detectUserInPortal()
+
     this.queryResults.character.added?.forEach((entity) => {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
       if (actor) actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({
@@ -78,44 +82,6 @@ export class CharacterControllerSystem extends System {
 
       // iterate on all collisions since the last update
       collider.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => { })
-
-      const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-
-      if(!actor.raycastQuery.hits[0] || !actor.raycastQuery.hits[0].body) return;
-
-      const body = actor.raycastQuery.hits[0].body
-
-      if (!body.userData) return;
-
-      const portalComponent = getComponent(body.userData, PortalComponent);
-
-      if (!portalComponent) return;
-
-      if (isClient) {
-        EngineEvents.instance.dispatchEvent({ 
-          type: PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT,
-          portalComponent: {
-            location: portalComponent.location,
-            displayText: portalComponent.displayText,
-            spawnPosition: { 
-              x: portalComponent.spawnPosition.x,
-              y: portalComponent.spawnPosition.y,
-              z: portalComponent.spawnPosition.z,
-            },
-            spawnRotation: { 
-              x: portalComponent.spawnRotation.x,
-              y: portalComponent.spawnRotation.y,
-              z: portalComponent.spawnRotation.z,
-              w: portalComponent.spawnRotation.w,
-            }
-          }
-          // quaternions don't json properly. threejs nonsense...
-          // portalComponent: portalComponent.json()
-        });
-      } else {
-        teleportPlayer(entity, portalComponent.spawnPosition, portalComponent.spawnRotation);
-      }
-
     })
 
     this.queryResults.character.all?.forEach(entity => {

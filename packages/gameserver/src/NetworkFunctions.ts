@@ -289,16 +289,17 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     console.info("JoinWorld received", userId, data);
     const transport = Network.instance.transport as any;
 
-    // Create a new default prefab for client
-    const networkObject = createNetworkPlayer({ ownerId: userId });
     // TEMPORARY data?.spawnTransform  - just so portals work for now - will be removed in favor of gameserver-gameserver communication
     const spawnPos = data?.spawnTransform ?? ServerSpawnSystem.instance.getRandomSpawnPoint();
+    // Create a new default prefab for client
+    const networkObject = createNetworkPlayer({ ownerId: userId, parameters: spawnPos });
     
     const collider = getMutableComponent(networkObject.entity, ControllerColliderComponent);
     collider.controller.updateTransform({
       translation: spawnPos.position,
       rotation: spawnPos.rotation,
     });
+    console.log(spawnPos)
 
     // Create a new worldState object that we can fill
     const worldState: WorldStateInterface = {
