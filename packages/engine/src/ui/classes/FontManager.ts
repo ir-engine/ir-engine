@@ -18,7 +18,6 @@ export class FontManager {
         resolve(this._defaultFont);
 			}
 			this._loader.load(Engine.publicPath + '/fonts/IBMPlexSans-Regular.json', font => {
-        console.log(font)
 				this._defaultFont = font;
 				resolve(this._defaultFont);
 			});

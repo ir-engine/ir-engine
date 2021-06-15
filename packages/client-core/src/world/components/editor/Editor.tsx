@@ -354,6 +354,7 @@ export class Editor extends EventEmitter {
     // adding listeners
     window.addEventListener("copy", this.onCopy);
     window.addEventListener("paste", this.onPaste);
+    window.addEventListener("resize", this.onResize);
 
     this.rafId = requestAnimationFrame(this.update);
 

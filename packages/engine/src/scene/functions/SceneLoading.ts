@@ -271,7 +271,7 @@ export class WorldScene {
         break;
 
       case 'postprocessing':
-        // setPostProcessing(entity, component.data);
+        setPostProcessing(entity, component.data);
         break;
 
       case 'reflectionprobe':
