@@ -6,15 +6,12 @@ import { Network } from "@xrengine/engine/src/networking//classes/Network";
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
 import { createNetworkPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent';
 import { DataConsumer, DataProducer } from 'mediasoup/lib/types';
 import logger from "@xrengine/server-core/src/logger";
 import config from '@xrengine/server-core/src/appconfig';
 import { closeTransport } from './WebRTCFunctions';
 import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem';
 import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema';
-import { WorldScene } from '../../engine/src/scene/functions/SceneLoading';
-import { CharacterComponent } from '../../engine/src/character/components/CharacterComponent';
 import { ControllerColliderComponent } from '../../engine/src/character/components/ControllerColliderComponent';
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
@@ -313,8 +310,6 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
       gameState: [],
       gameStateActions: []
     };
-
-     //TODO spawn point transforms aren't applied to newly connected players as it is given in the execute loop
 
     // Get all network objects and add to createObjects
     Object.keys(Network.instance.networkObjects).forEach(networkId => {

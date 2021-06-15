@@ -1,5 +1,5 @@
 import { WebGLCubeRenderTarget,ClampToEdgeWrapping, CubeCamera, DoubleSide, LinearFilter, Mesh, OrthographicCamera, PlaneBufferGeometry, RawShaderMaterial, RGBAFormat, Scene, UnsignedByteType, Vector3, WebGLRenderer, WebGLRenderTarget, Uniform, CubeTexture, PMREMGenerator, BackSide, MeshBasicMaterial, IcosahedronGeometry, Texture } from 'three';
-import Api from '../../../../../client-core/src/world/components/editor/Api';
+import Api from '@xrengine/client-core/src/world/components/editor/Api';
 
 const vertexShader = `
 	attribute vec3 position;
