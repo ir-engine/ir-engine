@@ -21,6 +21,7 @@ export class ServerSpawnSystem extends System {
   }
 
   getRandomSpawnPoint(): { position: Vector3, rotation: Quaternion } {
+    console.log(this, this.spawnPoints)
       if (this.spawnPoints.length < 1) {
           console.warn("Couldn't spawn entity at spawn point, no spawn points available");
           return {
@@ -44,9 +45,11 @@ export class ServerSpawnSystem extends System {
     this.queryResults.spawnPoint.added?.forEach(entity => {
       if (!hasComponent(entity, TransformComponent))
         return console.warn("Can't add spawn point, no transform component on entity")
+      console.log('adding spawn point', entity.id)
       this.spawnPoints.push(entity);
     });
     this.queryResults.spawnPoint.removed?.forEach(entity => {
+      console.log('removing spawn point', entity.id)
       this.spawnPoints.splice(this.spawnPoints.indexOf(entity))
     });
   }

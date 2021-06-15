@@ -13,6 +13,9 @@ import config from '@xrengine/server-core/src/appconfig';
 import { closeTransport } from './WebRTCFunctions';
 import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem';
 import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema';
+import { WorldScene } from '../../engine/src/scene/functions/SceneLoading';
+import { CharacterComponent } from '../../engine/src/character/components/CharacterComponent';
+import { ControllerColliderComponent } from '../../engine/src/character/components/ControllerColliderComponent';
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 
@@ -196,6 +199,7 @@ export async function validateNetworkObjects(): Promise<void> {
 
 export async function handleConnectToWorld(socket, data, callback, userId, user, avatarDetail): Promise<any> {
     const transport = Network.instance.transport as any;
+    console.log('Connect to world', Engine.sceneLoaded, WorldScene.isLoading);
     if(!Engine.sceneLoaded && (transport.app as any).isChannelInstance !== true) {
         await new Promise<void>((resolve) => {
             EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve);
@@ -286,15 +290,18 @@ function disconnectClientIfConnected(socket, userId: string): void {
 }
 
 export async function handleJoinWorld(socket, data, callback, userId, user): Promise<any> {
-    logger.info("JoinWorld received");
+    console.info("JoinWorld received");
     const transport = Network.instance.transport as any;
 
     // Create a new default prefab for client
     const networkObject = createNetworkPlayer({ ownerId: userId });
     const spawnPos = ServerSpawnSystem.instance.getRandomSpawnPoint();
-    const transform = getMutableComponent(networkObject.entity, TransformComponent);
-    transform.position = spawnPos.position;
-    transform.rotation = spawnPos.rotation;
+    
+    const collider = getMutableComponent(networkObject.entity, ControllerColliderComponent);
+    collider.controller.updateTransform({
+      translation: spawnPos.position,
+      rotation: spawnPos.rotation,
+    });
 
     // Create a new worldState object that we can fill
     const worldState: WorldStateInterface = {
