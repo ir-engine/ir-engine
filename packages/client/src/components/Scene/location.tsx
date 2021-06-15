@@ -39,7 +39,6 @@ import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/Networ
 import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
 import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent';
-import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import { Config } from '@xrengine/client-core/src/helper';
 import querystring from 'querystring';
@@ -54,9 +53,9 @@ import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldSta
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader';
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
-import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent';
 import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal';
 import { onPlayerSpawnInNewLocation, teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent';
 
 const store = Store.store;
 
@@ -411,7 +410,15 @@ export const EnginePage = (props: Props) => {
         EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId });
         resolve(testWorldState);
       } else {
-        const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
+
+        // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
+        let spawnTransform;
+        if(porting) {
+          const currentLocalEntityTransform = porting && getComponent(Network.instance.localClientEntity, TransformComponent);
+          spawnTransform = { position: currentLocalEntityTransform.position, rotation: currentLocalEntityTransform.rotation }
+        }
+  
+        const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString(), { spawnTransform });
         resolve(WorldStateModel.fromBuffer(worldState));
       }
     });
