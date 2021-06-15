@@ -61,9 +61,9 @@ const adminBotReducer = (state = immutableState, action: any): any => {
             updateMap.set("updateNeeded", true);
             return state.set("bots", updateMap);
         case BOT_COMMAND_ADMIN_CREATE: 
-            updateMap = new Map(state.get("bots"));
-            updateMap.set("updateNeeded", true);
-            return state.set("bots", updateMap);
+            const resultCommand = new Map(state.get("bots"));
+            resultCommand.set("updateNeeded", true);
+            return state.set("bots", resultCommand);
     }
     return state;
 };
