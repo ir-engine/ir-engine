@@ -30,12 +30,12 @@ export const botCreated = (bot: any): BotsCreatedResponse => {
    return {
       type: BOT_ADMIN_CREATE,
       bot: bot
-   }
-}
+   };
+};
 
 export const botCammandCreated = (botCommand: any): BotCammondCreatedResponse => {
    return {
       type: BOT_COMMAND_ADMIN_CREATE,
       botCammond: botCommand
-   }
-}
+   };
+};

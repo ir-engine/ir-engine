@@ -46,4 +46,4 @@ export const createBotCammand = (data: any) => async (dispatch: Dispatch): Promi
     } catch (error) {
         console.error(error);
     }
-}
+};
