@@ -3,9 +3,8 @@ import { StorageProviderInterface } from './storageprovider.interface';
 
 export class LocalStorage implements StorageProviderInterface {
   path = './upload';
-  provider = new LocalStorage();
 
-  getProvider = (): StorageProviderInterface => this.provider;
+  getProvider = (): StorageProviderInterface => this;
   getStorage = (): any => fs(this.path);
 
   deleteResources(keys: string[]): Promise<any> {
