@@ -19,7 +19,11 @@ export const useStylesForBots = makeStyles((theme: Theme) =>
         },
         secondaryHeading: {
             fontSize: theme.typography.pxToRem(15),
-            color: "#C0C0C0"
+            color: "#C0C0C0",
+        },
+        thirdHeadding:{
+              color: "#COCOCO",
+              marginTop: "15px"
         },
         summary: {
             background: "#3a4149",

@@ -1,14 +1,15 @@
 import { Dispatch } from "redux";
 import { client } from "../../../../feathers";
 import {
-    fetchedBot
+    botCreated,
+    fetchedBot,
+    botCammandCreated
 } from "./actions";
 
 export const createBotAsAdmin = (data: any) => async (dispatch: Dispatch, getState: any): Promise<any> =>{
    try {
        const bot = await client.service("bot").create(data);
-       console.log(bot);
-       
+       dispatch(botCreated(bot));
    } catch (error) {
        console.error(error);
        
@@ -35,6 +36,14 @@ export const fetchBotAsAdmin = (offset: string) => async (dispatch: Dispatch, ge
         }
     } catch (error) {
        console.error(error);
-        
     }
 };
+
+export const createBotCammand = (data: any) => async (dispatch: Dispatch): Promise<any> => {
+    try {
+        const botCammand = await client.service("bot-command").create(data);
+        dispatch(botCammandCreated(botCammand));
+    } catch (error) {
+        console.error(error);
+    }
+}
