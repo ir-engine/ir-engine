@@ -12,14 +12,18 @@ export class Bot extends Service {
 
     async find (params: Params): Promise<any> {
         const bots = await (this.app.service("bot") as any).Model.findAll({
-            include: (this.app.service("bot-command") as any).Model,
-               // required: false
-               
-            // raw: true,
-            // nest: true
-        });
-
-       // console.log(JSON.stringify(bots, null, 2));  
+            include:[
+                {
+                 model: (this.app.service("bot-command") as any).Model,
+                },
+                {
+                    model: (this.app.service("location") as any).Model
+                },
+                {
+                    model: (this.app.service("instance") as any).Model
+                }
+            ] 
+        }); 
         return {
             data: bots
         };

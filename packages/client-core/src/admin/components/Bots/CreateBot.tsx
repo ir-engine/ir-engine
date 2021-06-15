@@ -26,21 +26,20 @@ import MuiAlert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
 import { createBotAsAdmin } from "../../reducers/admin/bots/service";
 import { selectAdminLocationState } from "../../reducers/admin/location/selector";
-
 interface Props {
     fetchAdminInstances?: any;
     adminInstanceState?: any;
     authState?: any;
     createBotAsAdmin?: any;
     adminLocationState?: any;
-    fetchAdminLocations?: any
+    fetchAdminLocations?: any;
 }
 
 const mapStateToProps = (state: any): any => {
     return {
         adminInstanceState: selectAdminInstanceState(state),
         authState: selectAuthState(state),
-        adminLocationState: selectAdminLocationState(state)
+        adminLocationState: selectAdminLocationState(state),
     };
 };
 
@@ -61,7 +60,7 @@ const CreateBot = (props: Props) => {
         fetchAdminInstances,
         createBotAsAdmin,
         fetchAdminLocations,
-        adminLocationState
+        adminLocationState,
     } = props;
     const [command, setCommand] = React.useState({
         name: "",
@@ -69,6 +68,7 @@ const CreateBot = (props: Props) => {
     });
     const [commandData, setCommandData] = React.useState([]);
     const [name, setName] = React.useState("");
+    const [explanation, setExplanation] = React.useState("");
     const [open, setOpen] = React.useState(false);
     const [instance, setInstance] = React.useState("");
     const [location, setLocation] = React.useState("");
@@ -88,7 +88,6 @@ const CreateBot = (props: Props) => {
             fetchAdminLocations();
         }
     }, [user, adminInstanceState]);
-
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
             return;
@@ -115,9 +114,16 @@ const CreateBot = (props: Props) => {
             name: name,
             instanceId: instance,
             userId: user.id,
-            command: commandData
+            command: commandData,
+            explanation: explanation,
+            locationId: location
         };
         createBotAsAdmin(data);
+        setName("");
+        setInstance("");
+        setCommandData([]);
+        setExplanation('');
+        setLocation("");
     };
 
     return (
@@ -157,8 +163,8 @@ const CreateBot = (props: Props) => {
                             className={classes.input}
                             placeholder="Enter explanation"
                             style={{ color: "#fff" }}
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            value={explanation}
+                            onChange={(e) => setExplanation(e.target.value)}
                         />
                     </Paper>
                     <label>Instance</label>
