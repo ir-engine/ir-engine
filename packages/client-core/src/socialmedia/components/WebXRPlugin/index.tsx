@@ -79,7 +79,8 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
 //     const [horizontalOrientation, setHorizontalOrientation] = useState(false);
     const [mediaItem, setMediaItem] = useState(null);
     const [recordingState, setRecordingState] = useState(RecordingStates.OFF);
-    const playerRef = useRef<Player>(null);
+    const playerRef = useRef<Player|null>(null);
+    const anchorRef = useRef<Group|null>(null);
 
     let renderer: WebGLRenderer, scene: Scene, camera: PerspectiveCamera;
     const debugCamera: {
@@ -131,36 +132,38 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
     const raf = () => {
         requestAnimationFrame(raf);
         playerRef.current?.handleRender(() => {
-            renderer.render(scene, camera);
 
-            if (_DEBUG) {
-                const clearColor = new Color();
-                renderer.getClearColor(clearColor);
-                const clearAlpha = renderer.getClearAlpha();
-
-                debugCamera.userCameraHelper.visible = true;
-
-                renderer.setScissorTest(true);
-                renderer.setClearColor(0xa0a0a0, 1);
-
-                renderer.setViewport(10, 10 * 2 + DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
-                renderer.setScissor(10, 10 * 2 + DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
-                renderer.render(scene, debugCamera.overview);
-
-                [debugCamera.xz, debugCamera.xy, debugCamera.zy].forEach((cam, index) => {
-                    const left = 10 + (DEBUG_MINI_VIEWPORT_SIZE + 10) * index;
-                    renderer.setViewport(left, 10, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
-                    renderer.setScissor(left, 10, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
-                    renderer.render(scene, cam);
-                });
-
-                // reset changes
-                debugCamera.userCameraHelper.visible = false;
-                renderer.setClearColor(clearColor, clearAlpha);
-                renderer.setScissorTest(false);
-                renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
-            }
         });
+
+        renderer.render(scene, camera);
+
+        if (_DEBUG) {
+            const clearColor = new Color();
+            renderer.getClearColor(clearColor);
+            const clearAlpha = renderer.getClearAlpha();
+
+            debugCamera.userCameraHelper.visible = true;
+
+            renderer.setScissorTest(true);
+            renderer.setClearColor(0xa0a0a0, 1);
+
+            renderer.setViewport(10, 10 * 2 + DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
+            renderer.setScissor(10, 10 * 2 + DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
+            renderer.render(scene, debugCamera.overview);
+
+            [debugCamera.xz, debugCamera.xy, debugCamera.zy].forEach((cam, index) => {
+                const left = 10 + (DEBUG_MINI_VIEWPORT_SIZE + 10) * index;
+                renderer.setViewport(left, 10, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
+                renderer.setScissor(left, 10, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
+                renderer.render(scene, cam);
+            });
+
+            // reset changes
+            debugCamera.userCameraHelper.visible = false;
+            renderer.setClearColor(clearColor, clearAlpha);
+            renderer.setScissorTest(false);
+            renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+        }
     };
 
     const arMediaFetching = arMediaState.get('fetchingItem');
@@ -205,7 +208,9 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
 //             const materialY = new MeshBasicMaterial({ color: 0x00ff00 });
 //             const materialZ = new MeshBasicMaterial({ color: 0x0000ff });
 //             const materialC = new MeshBasicMaterial({ color: 0xffffff });
-            const anchor = new Group();
+            anchorRef.current = new Group();
+            const anchor = anchorRef.current;
+            anchor.visible = false;
 //             anchor.add(new AxesHelper(0.3));
 //             const anchorC = new Mesh(geometry, materialC);
 //             anchor.add(anchorC);
@@ -274,6 +279,8 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                     }
                     // video: document.getElementById("video")
                 });
+                //const video = playerRef.current.video as HTMLMediaElement;
+                //video.muted = true;
             }
 
             requestAnimationFrame(raf);
@@ -358,10 +365,22 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                         }));
 
                         anchor.quaternion
-                          .set(anchorRotationX, anchorRotationY, anchorRotationZ, anchorRotationW)
-                          .multiply(correctionQuaternionZ);
-                        // TODO: remove -1.5 when anchor will be placed on ground
-                        anchor.position.set(anchorPositionX, anchorPositionY - 1.5, anchorPositionZ);
+                          .set(anchorRotationX, anchorRotationY, anchorRotationZ, anchorRotationW);
+                        anchor.position.set(anchorPositionX, anchorPositionY, anchorPositionZ);
+
+                        if (!anchor.visible) {
+                            console.log('SET ANCHOR VISIBLE!');
+                            console.log('player = ', playerRef.current);
+                            anchor.visible = true;
+                        }
+                        // TODO: add volumetric isPlaying property
+                        // if (playerRef.current) {
+                            // console.log('player play!', data);
+                            // playerRef.current.mesh.visible = true;
+                            // if ((playerRef.current.video as HTMLMediaElement).paused) {
+                            //     playerRef.current.play();
+                            // }
+                        // }
                     }
 
                 });
@@ -389,7 +408,11 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                 statusXR = true;
             }
 
-            // await window.screen.orientation.lock('portrait');
+            try {
+                await window.screen.orientation.lock('portrait');
+            } catch (e) {
+                console.error('failed to lock orientation');
+            }
             XRPlugin.start({}).then(() => {
                 setCameraStartedState(isNative ? "Camera started on native" : "Camera started on web");
             }).catch(error => console.log(error.message));
@@ -412,7 +435,10 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                   setRecordingState(RecordingStates.OFF);
                   updateWebXRState(false, null);
 
-
+                  // if (playerRef.current) {
+                  //     const video = playerRef.current.video as HTMLMediaElement;
+                  //     video.muted = true;
+                  // }
                   // setContentHidden();
               }).catch(error => alert(error.message));
         }else{
@@ -422,26 +448,32 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
     };
 
     const startRecord = () => {
-        if (window.confirm("Double click to finish the record.")) {
-            setRecordingState(RecordingStates.ON);
-            //TODO: check why there are errors
-            // @ts-ignore
-            Plugins.XRPlugin.startRecording({
-                isAudio: true,
-                width: screenWidth,
-                height: screenHeigth,
-                bitRate: 6000000,
-                dpi: 100,
-                filePath: "/test.mp4"
-            }).then(({ status }) => {
-                    console.log("RECORDING, STATUS IS", status);
-            }).catch(error => {
-                alert(error.message);
-                setRecordingState(RecordingStates.OFF);
-            });
-        }else{
-            recordingState === RecordingStates.ON && setRecordingState(RecordingStates.OFF);
+        if (!window.confirm("Double click to finish the record.")) {
+            return;
         }
+        setRecordingState(RecordingStates.STARTING);
+        //TODO: check why there are errors
+        // @ts-ignore
+        Plugins.XRPlugin.startRecording({
+            isAudio: true,
+            width: screenWidth,
+            height: screenHeigth,
+            bitRate: 6000000,
+            dpi: 100,
+            filePath: "/test.mp4"
+        }).then(({ status }) => {
+            console.log("RECORDING, STATUS IS", status);
+            if (playerRef.current) {
+                // const video = playerRef.current.video as HTMLMediaElement;
+                // video.muted = false;
+                console.log('Player.play()!');
+                playerRef.current.play();
+            }
+            setRecordingState(RecordingStates.ON);
+        }).catch(error => {
+            alert(error.message);
+            setRecordingState(RecordingStates.OFF);
+        });
     };
 
     const toggleRecording = () => {
@@ -453,11 +485,59 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
         }
     };
 
-    const handleTap = () => {
+    const handleTap = (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (recordingState === RecordingStates.OFF)
         {
-        Plugins.XRPlugin.handleTap();
-        playerRef.current?.play();
+            const params = {
+                x: e.clientX * window.devicePixelRatio,
+                y: e.clientY * window.devicePixelRatio
+            };
+
+            // @ts-ignore
+            Plugins.XRPlugin.handleTap(params).then(result => {
+                console.log('Handle Tap result', result);
+            });
+        }
+    };
+
+    let previousGestureDistance = 0;
+    let initialGestureScale = 1;
+    let handleGestureScaling = false;
+    const onTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+        if (!anchorRef.current) {
+            return;
+        }
+
+        if (e.touches.length === 2) {
+            console.log('gestureScale start');
+            handleGestureScaling = true;
+            previousGestureDistance = Math.hypot(
+                e.touches[0].pageX - e.touches[1].pageX,
+                e.touches[0].pageY - e.touches[1].pageY);
+
+            initialGestureScale = anchorRef.current.scale.x;
+        }
+    };
+
+    const onTouchEnd = () => {
+        console.log('gestureScale end');
+        handleGestureScaling = false;
+    };
+
+    const onTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+        if (!anchorRef.current) {
+            return;
+        }
+
+        if (handleGestureScaling) {
+            const currentGestureDistance = Math.hypot(
+                e.touches[0].pageX - e.touches[1].pageX,
+                e.touches[0].pageY - e.touches[1].pageY);
+
+            const gestureScale = currentGestureDistance / previousGestureDistance;
+            console.log('gestureScale', gestureScale);
+            console.log('anchorScale', initialGestureScale * gestureScale);
+            anchorRef.current.scale.setScalar(initialGestureScale * gestureScale);
         }
     };
 
@@ -524,7 +604,16 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
               */}
             </div>
           </div>
-          <canvas ref={canvasRef} className={styles.arcCanvas} id={'arcCanvas'} onClick={() => handleTap()} onDoubleClick={finishRecord} />
+          <canvas
+              ref={canvasRef}
+              className={styles.arcCanvas}
+              id={'arcCanvas'}
+              onClick={(e) => handleTap(e)}
+              onDoubleClick={finishRecord}
+              onTouchStart={onTouchStart}
+              onTouchEnd={onTouchEnd}
+              onTouchMove={onTouchMove}
+          />
         {/* <VolumetricPlayer
                         meshFilePath={meshFilePath}
                         videoFilePath={videoFilePath}
