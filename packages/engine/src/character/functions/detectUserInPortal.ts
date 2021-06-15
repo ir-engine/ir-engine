@@ -44,7 +44,7 @@ export const detectUserInPortal = (entity: Entity) => {
       // portalComponent: portalComponent.json()
     });
   } else {
-    teleportPlayer(Network.instance.localClientEntity, portalComponent.spawnPosition, portalComponent.spawnRotation);
+    teleportPlayer(entity, portalComponent.spawnPosition, portalComponent.spawnRotation);
   }
 
 }
