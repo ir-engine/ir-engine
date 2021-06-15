@@ -64,7 +64,7 @@ export class CharacterControllerSystem extends System {
    */
   execute(delta: number): void {
 
-    detectUserInPortal()
+    if(isClient) detectUserInPortal(Network.instance.localClientEntity)
 
     this.queryResults.character.added?.forEach((entity) => {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
@@ -82,6 +82,8 @@ export class CharacterControllerSystem extends System {
 
       // iterate on all collisions since the last update
       collider.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => { })
+
+      if(!isClient) detectUserInPortal(entity);
     })
 
     this.queryResults.character.all?.forEach(entity => {

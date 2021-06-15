@@ -1,5 +1,6 @@
 import { isClient } from "../../common/functions/isClient";
 import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { Entity } from "../../ecs/classes/Entity";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { Network } from "../../networking/classes/Network";
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
@@ -7,11 +8,9 @@ import { PortalComponent } from "../../scene/components/PortalComponent";
 import { CharacterComponent } from "../components/CharacterComponent";
 import { teleportPlayer } from "../prefabs/NetworkPlayerCharacter";
 
-export const detectUserInPortal = () => {
+export const detectUserInPortal = (entity: Entity) => {
 
-  if(!Network.instance.localClientEntity) return;
-
-  const actor = getComponent(Network.instance.localClientEntity, CharacterComponent);
+  const actor = getComponent(entity, CharacterComponent);
 
   if (!actor.raycastQuery.hits[0] || !actor.raycastQuery.hits[0].body) return;
 
