@@ -10,6 +10,7 @@ import { Vault } from "../../networking/classes/Vault";
 import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import disposeScene from "../../renderer/functions/disposeScene";
 import { PersistTagComponent } from "../../scene/components/PersistTagComponent";
+import { WorldScene } from '../../scene/functions/SceneLoading';
 import { Engine } from '../classes/Engine';
 import { System } from '../classes/System';
 import { hasComponent, removeAllComponents, removeAllEntities, removeEntity } from "./EntityFunctions";
@@ -81,6 +82,8 @@ export async function reset(): Promise<void> {
     disposeScene(Engine.scene);
     Engine.scene = null;
   }
+  Engine.sceneLoaded = false;
+  WorldScene.isLoading = false;
 
   Engine.camera = null;
 
@@ -249,7 +252,7 @@ const delay = (delay: number) => {
   })
 }
 
-export const processLocationPort = async (newPhysicsWorker: Worker, portalComponent: any) => {
+export const processLocationChange = async (newPhysicsWorker: Worker) => {
   const entitiesToRemove = [];
   const removedEntities = [];
   const sceneObjectsToRemove = [];
@@ -281,6 +284,12 @@ export const processLocationPort = async (newPhysicsWorker: Worker, portalCompon
     removeEntity(entity, false);
   });
 
+  executeSystemBeforeReset();
+
+  await resetPhysics(newPhysicsWorker)
+}
+
+export const resetPhysics = async (newPhysicsWorker: Worker) => {
   PhysicsSystem.instance.enabled = false;
   PhysicsSystem.instance.worker.terminate();
   Engine.workers.splice(Engine.workers.indexOf(PhysicsSystem.instance.worker), 1);

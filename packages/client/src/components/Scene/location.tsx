@@ -29,7 +29,7 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
 import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
-import { processLocationPort, resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
+import { processLocationChange, resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { getComponent, getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine';
 import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
@@ -457,7 +457,7 @@ export const EnginePage = (props: Props) => {
 
     setPorting(true);
     resetInstanceServer();
-    await processLocationPort(new Worker('/scripts/loadPhysXClassic.js'), portalComponent);
+    await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'));
 
     Network.instance.transport.close();
 
@@ -505,26 +505,6 @@ export const EnginePage = (props: Props) => {
       resetEngine();
     };
   }, []);
-
-
-
-  if (Network.instance) {
-    userState.get('layerUsers').forEach(user => {
-      if (user.id !== currentUser?.id) {
-        networkUser = Object.values(Network.instance.networkObjects).find(networkUser => networkUser.ownerId === user.id
-          && networkUser.prefabType === PrefabType.Player);
-        if (networkUser) {
-          const changedAvatar = getComponent(networkUser.component.entity, CharacterComponent);
-          if (user?.avatarId !== changedAvatar?.avatarId) {
-            characterAvatar = getMutableComponent(networkUser.component.entity, CharacterComponent);
-            if (characterAvatar != null) characterAvatar.avatarId = user.avatarId;
-            // We can pull this from NetworkPlayerCharacter, but we probably don't want our state update here
-            // loadActorAvatar(networkUser.component.entity);
-          }
-        }
-      }
-    });
-  }
 
   //mobile gamepad
   const mobileGamepadProps = { hovered: objectHovered, layout: 'default' };

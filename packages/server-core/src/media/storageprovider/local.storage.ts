@@ -3,12 +3,7 @@ import { StorageProviderInterface } from './storageprovider.interface';
 
 export class LocalStorage implements StorageProviderInterface {
   path = './upload';
-  // provider = new LocalStorage();
-
-  // constructor() {
-  //   this.provider = new LocalStorage();
-  // }
-
+ 
   getProvider = (): StorageProviderInterface => this;
   getStorage = (): any => fs(this.path);
 
