@@ -415,7 +415,7 @@ export const EnginePage = (props: Props) => {
         let spawnTransform;
         if(porting) {
           const currentLocalEntityTransform = porting && getComponent(Network.instance.localClientEntity, TransformComponent);
-          spawnTransform = { position: currentLocalEntityTransform.position, rotation: currentLocalEntityTransform.rotation }
+          spawnTransform = { position: currentLocalEntityTransform.position, rotation: currentLocalEntityTransform.rotation };
         }
   
         const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString(), { spawnTransform });

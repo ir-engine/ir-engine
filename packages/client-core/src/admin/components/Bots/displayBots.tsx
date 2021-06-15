@@ -70,11 +70,11 @@ const DisplayBots = (props: Props) => {
                  name: name,
                  description: description,
                  botId: id,
-             }
+             };
              createBotCammand(data);
              setName("");
              setDescription("");
-    }
+    };
 
     return (
         <div className={classes.root}>
