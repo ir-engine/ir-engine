@@ -28,7 +28,6 @@ const getAllChildren = async (service: StaticResource, id: string | number | und
 export default (): Hook => {
   return async (context: HookContext): Promise<HookContext> => {
     const provider = new StorageProvider();
-    const storage = provider.getStorage();
 
     const { app, params } = context;
     if (params.query && params.query.resourceId) {
@@ -42,31 +41,26 @@ export default (): Hook => {
       });
 
       const staticResource = staticResourceResult.data[0];
+      const storageRemovePromise = provider.deleteResources([ staticResource.key ]);
+      // // new Promise((resolve, reject) => {
+      //   // if (staticResource.url && staticResource.url.length > 0) {
+      //     // const key = staticResource.url.replace('https://' +
+      //     //   config.aws.cloudfront.domain + '/', '');
 
-      const storageRemovePromise = new Promise((resolve, reject) => {
-        // if (staticResource.url && staticResource.url.length > 0) {
-          // const key = staticResource.url.replace('https://' +
-          //   config.aws.cloudfront.domain + '/', '');
+      //     // if (storage === undefined) {
+      //     //   reject(new Error('Storage is undefined'));
+      //     // }
 
-          if (storage === undefined) {
-            reject(new Error('Storage is undefined'));
-          }
+      //     const result = await provider.deleteResources([ staticResource.key ]).catch(err => err);
 
-          storage.remove({
-            key: staticResource.key
-          }, (err: any, result: any) => {
-            if (err) {
-              logger.error('Storage removal error');
-              logger.error(err);
-              reject(err);
-            }
+      //     if (result instanceof Error) {
+      //       logger.error('Storage removal error');
+      //       logger.error(result);
+      //       reject(result);
+      //     }
 
-            resolve(result);
-          });
-        // } else {
-        //   resolve();
-        // }
-      });
+      //     resolve(result);
+      // });
 
       const children = await getAllChildren(staticResourceService as any, resourceId, 0);
 

@@ -6,13 +6,13 @@ import { Network } from "@xrengine/engine/src/networking//classes/Network";
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
 import { createNetworkPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent';
 import { DataConsumer, DataProducer } from 'mediasoup/lib/types';
 import logger from "@xrengine/server-core/src/logger";
 import config from '@xrengine/server-core/src/appconfig';
 import { closeTransport } from './WebRTCFunctions';
 import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem';
 import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema';
+import { ControllerColliderComponent } from '../../engine/src/character/components/ControllerColliderComponent';
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 
@@ -286,15 +286,20 @@ function disconnectClientIfConnected(socket, userId: string): void {
 }
 
 export async function handleJoinWorld(socket, data, callback, userId, user): Promise<any> {
-    logger.info("JoinWorld received");
+    console.info("JoinWorld received", userId, data);
     const transport = Network.instance.transport as any;
 
+    // TEMPORARY data?.spawnTransform  - just so portals work for now - will be removed in favor of gameserver-gameserver communication
+    const spawnPos = data?.spawnTransform ?? ServerSpawnSystem.instance.getRandomSpawnPoint();
     // Create a new default prefab for client
-    const networkObject = createNetworkPlayer({ ownerId: userId });
-    const spawnPos = ServerSpawnSystem.instance.getRandomSpawnPoint();
-    const transform = getMutableComponent(networkObject.entity, TransformComponent);
-    transform.position = spawnPos.position;
-    transform.rotation = spawnPos.rotation;
+    const networkObject = createNetworkPlayer({ ownerId: userId, parameters: spawnPos });
+    
+    const collider = getMutableComponent(networkObject.entity, ControllerColliderComponent);
+    collider.controller.updateTransform({
+      translation: spawnPos.position,
+      rotation: spawnPos.rotation,
+    });
+    console.log(spawnPos)
 
     // Create a new worldState object that we can fill
     const worldState: WorldStateInterface = {
@@ -306,8 +311,6 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
       gameState: [],
       gameStateActions: []
     };
-
-     //TODO spawn point transforms aren't applied to newly connected players as it is given in the execute loop
 
     // Get all network objects and add to createObjects
     Object.keys(Network.instance.networkObjects).forEach(networkId => {

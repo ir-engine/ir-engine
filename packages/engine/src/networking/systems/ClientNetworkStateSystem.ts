@@ -217,13 +217,9 @@ export class ClientNetworkStateSystem extends System {
               createNetworkPlayer(objectToCreate);
             }
           } else {
-            let parameters;
-            try {
-              parameters = JSON.parse(objectToCreate.parameters.replace(/'/g, '"'));
-            } catch (e) { }
-            if(parameters) {
+            if(objectToCreate.parameters) {
               // we have parameters, so we should spawn the object in the world via the prefab type
-              Network.instance.schema.prefabs[objectToCreate.prefabType].initialize({ ...objectToCreate, parameters });
+              Network.instance.schema.prefabs[objectToCreate.prefabType].initialize(objectToCreate);
             } else {
               // otherwise this is for an object loaded via the scene,
               // so we just create a skeleton network object while we wait for the scene to load

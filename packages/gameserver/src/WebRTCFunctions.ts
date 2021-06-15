@@ -132,7 +132,7 @@ export const handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
         } catch(err) {
             console.log('Consume data error', err);
             console.log('Transport that could not be consumed', newTransport);
-            socket.emit(MessageTypes.WebRTCConsumeData.toString(), { error: 'transport did not exist' })
+            socket.emit(MessageTypes.WebRTCConsumeData.toString(), { error: 'transport did not exist' });
         }
     } else socket.emit(MessageTypes.WebRTCConsumeData.toString(), { error: 'transport did not exist' });
 };

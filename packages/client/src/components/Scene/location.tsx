@@ -29,7 +29,7 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
 import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
-import { processLocationPort, resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
+import { processLocationChange, resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { getComponent, getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine';
 import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
@@ -39,7 +39,6 @@ import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/Networ
 import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
 import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent';
-import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import { Config } from '@xrengine/client-core/src/helper';
 import querystring from 'querystring';
@@ -54,9 +53,9 @@ import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldSta
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader';
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
-import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent';
 import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal';
 import { onPlayerSpawnInNewLocation, teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent';
 
 const store = Store.store;
 
@@ -411,7 +410,15 @@ export const EnginePage = (props: Props) => {
         EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId });
         resolve(testWorldState);
       } else {
-        const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString());
+
+        // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
+        let spawnTransform;
+        if(porting) {
+          const currentLocalEntityTransform = porting && getComponent(Network.instance.localClientEntity, TransformComponent);
+          spawnTransform = { position: currentLocalEntityTransform.position, rotation: currentLocalEntityTransform.rotation }
+        }
+  
+        const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString(), { spawnTransform });
         resolve(WorldStateModel.fromBuffer(worldState));
       }
     });
@@ -457,7 +464,7 @@ export const EnginePage = (props: Props) => {
 
     setPorting(true);
     resetInstanceServer();
-    await processLocationPort(new Worker('/scripts/loadPhysXClassic.js'), portalComponent);
+    await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'));
 
     Network.instance.transport.close();
 
@@ -505,26 +512,6 @@ export const EnginePage = (props: Props) => {
       resetEngine();
     };
   }, []);
-
-
-
-  if (Network.instance) {
-    userState.get('layerUsers').forEach(user => {
-      if (user.id !== currentUser?.id) {
-        networkUser = Object.values(Network.instance.networkObjects).find(networkUser => networkUser.ownerId === user.id
-          && networkUser.prefabType === PrefabType.Player);
-        if (networkUser) {
-          const changedAvatar = getComponent(networkUser.component.entity, CharacterComponent);
-          if (user?.avatarId !== changedAvatar?.avatarId) {
-            characterAvatar = getMutableComponent(networkUser.component.entity, CharacterComponent);
-            if (characterAvatar != null) characterAvatar.avatarId = user.avatarId;
-            // We can pull this from NetworkPlayerCharacter, but we probably don't want our state update here
-            // loadActorAvatar(networkUser.component.entity);
-          }
-        }
-      }
-    });
-  }
 
   //mobile gamepad
   const mobileGamepadProps = { hovered: objectHovered, layout: 'default' };

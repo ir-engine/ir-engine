@@ -74,7 +74,7 @@ export const spawnClub: Behavior = (entityPlayer: Entity, args?: any, delta?: nu
     ownerId: playerNetworkObject.ownerId,
     uniqueId: uuid,
     prefabType: GolfPrefabTypes.Club,
-    parameters: JSON.stringify(parameters).replace(/"/g, '\''),
+    parameters,
   })
 };
 
@@ -288,7 +288,7 @@ export const createGolfClubPrefab = ( args:{ parameters?: GolfClubSpawnParameter
     uniqueId: args.uniqueId,
     ownerId: args.ownerId,
     networkId: args.networkId,
-    prefabParameters: args.parameters,
+    parameters: args.parameters,
     override: {
       networkComponents: [
         {

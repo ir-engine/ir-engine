@@ -79,6 +79,9 @@ export class WorldStateModel {
 
   /** Convert to buffer. */
   static toBuffer(worldState: WorldStateInterface): ArrayBuffer {
+    worldState.createObjects.forEach((createObject) => {
+      createObject.parameters = createObject.parameters ? JSON.stringify(createObject.parameters).replace(/"/g, '\'') : ''
+    });
     const state: any = {
       clientsConnected: worldState.clientsConnected,
       clientsDisconnected: worldState.clientsDisconnected,
@@ -94,7 +97,11 @@ export class WorldStateModel {
   /** Read from buffer. */
   static fromBuffer(buffer: any): WorldStateInterface {
     try {
-      return Network.instance.packetCompression ? WorldStateModel.model.fromBuffer(buffer) : buffer;
+      const state: WorldStateInterface = Network.instance.packetCompression ? WorldStateModel.model.fromBuffer(buffer) : buffer;
+      state.createObjects.forEach((createObject) => {
+        if(createObject.parameters !== '') createObject.parameters = JSON.parse(createObject.parameters.replace(/'/g, '"'))
+      })
+      return state;
     } catch (error) {
       console.warn("Couldn't deserialize buffer", buffer, error)
     }

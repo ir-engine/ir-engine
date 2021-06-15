@@ -64,7 +64,7 @@ export const spawnBall: Behavior = (entityPlayer: Entity, args?: any, delta?: nu
     ownerId: playerNetworkObject.ownerId,
     uniqueId: uuid,
     prefabType: GolfPrefabTypes.Ball,
-    parameters: JSON.stringify(parameters).replace(/"/g, '\''),
+    parameters,
   })
 };
 
@@ -156,7 +156,7 @@ export const createGolfBallPrefab = (args: { parameters?: GolfBallSpawnParameter
     uniqueId: args.uniqueId,
     ownerId: args.ownerId,
     networkId: args.networkId,
-    prefabParameters: args.parameters,
+    parameters: args.parameters,
     override: {
       networkComponents: [
         {
