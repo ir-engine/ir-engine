@@ -289,12 +289,13 @@ function disconnectClientIfConnected(socket, userId: string): void {
 }
 
 export async function handleJoinWorld(socket, data, callback, userId, user): Promise<any> {
-    console.info("JoinWorld received" + userId);
+    console.info("JoinWorld received", userId, data);
     const transport = Network.instance.transport as any;
 
     // Create a new default prefab for client
     const networkObject = createNetworkPlayer({ ownerId: userId });
-    const spawnPos = ServerSpawnSystem.instance.getRandomSpawnPoint();
+    // TEMPORARY data?.spawnTransform  - just so portals work for now - will be removed in favor of gameserver-gameserver communication
+    const spawnPos = data?.spawnTransform ?? ServerSpawnSystem.instance.getRandomSpawnPoint();
     
     const collider = getMutableComponent(networkObject.entity, ControllerColliderComponent);
     collider.controller.updateTransform({
