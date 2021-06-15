@@ -72,7 +72,6 @@ export default (app: Application): void => {
                               WorldScene.isLoading = false;
                               const currentPath = (process.platform === "win32" ? 'file:///' : '') + path.dirname(__filename);
                               await processLocationChange(new Worker(currentPath + "/physx/loadPhysXNode.ts"));
-                              console.log('Processed location change!')
                               Engine.engineTimer.start();
                             }
                             if (channelId != null) {

@@ -199,7 +199,6 @@ export async function validateNetworkObjects(): Promise<void> {
 
 export async function handleConnectToWorld(socket, data, callback, userId, user, avatarDetail): Promise<any> {
     const transport = Network.instance.transport as any;
-    console.log('Connect to world', Engine.sceneLoaded, WorldScene.isLoading);
     if(!Engine.sceneLoaded && (transport.app as any).isChannelInstance !== true) {
         await new Promise<void>((resolve) => {
             EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, resolve);
@@ -290,7 +289,7 @@ function disconnectClientIfConnected(socket, userId: string): void {
 }
 
 export async function handleJoinWorld(socket, data, callback, userId, user): Promise<any> {
-    console.info("JoinWorld received");
+    console.info("JoinWorld received" + userId);
     const transport = Network.instance.transport as any;
 
     // Create a new default prefab for client
