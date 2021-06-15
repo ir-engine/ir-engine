@@ -102,7 +102,7 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState, webxrnativeSt
         <FeedPopup />
         <CreatorFormPopup />
         <ArMediaPopup />
-        <WebXRStart setContentHidden={changeWebXrNative} />
+        <WebXRStart webxrRecorderActivity={webxrRecorderActivity} setContentHidden={changeWebXrNative} />
         <FeedFormPopup />
         <SharedFormPopup />
     </div>

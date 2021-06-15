@@ -48,6 +48,7 @@ interface Props{
     updateNewFeedPageState?: typeof updateNewFeedPageState;
     updateWebXRState?: typeof updateWebXRState;
     setContentHidden?: any;
+    webxrRecorderActivity?: any;
     getArMediaItem?:typeof getArMediaItem;
   }
 
@@ -68,7 +69,7 @@ let statusXR = false;
 const screenHeigth = Math.floor(document.body.clientHeight/2)*2;
 const screenWidth = Math.floor(document.body.clientWidth/2)*2;
 
-export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNewFeedPageState, updateWebXRState, setContentHidden}:Props) => {
+export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNewFeedPageState, updateWebXRState, setContentHidden, webxrRecorderActivity}:Props) => {
     const canvasRef = React.useRef();
     const [initializationResponse, setInitializationResponse] = useState("");
     const [cameraStartedState, setCameraStartedState] = useState("");
@@ -76,6 +77,8 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
     const [anchorPoseState, setAnchorPoseState] = useState("");
     const [intrinsicsState, setCameraIntrinsicsState] = useState("");
     const [savedFilePath, setSavedFilePath] = useState("");
+    const [hintOne, hintOneShow] = useState(true);
+    const [hintTwo, hintTwoShow] = useState(false);
 //     const [horizontalOrientation, setHorizontalOrientation] = useState(false);
     const [mediaItem, setMediaItem] = useState(null);
     const [recordingState, setRecordingState] = useState(RecordingStates.OFF);
@@ -96,6 +99,12 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
         zy: null
     };
 
+    const showContent = () => {
+        if(!webxrRecorderActivity){
+            setContentHidden();
+        }
+    };
+
     const onBackButton = () => {
         if (recordingState === RecordingStates.ON) {
             finishRecord();
@@ -103,7 +112,12 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
             // exit this popup
             updateWebXRState(false, null);
         }
+        showContent();
     };
+
+    useEffect(()=>{
+        console.log('recordingState USE EFFECT:', recordingState);
+    }, [recordingState]);
 
     useEffect(() => {
         // console.log('WebXRComponent MOUNTED');
@@ -397,6 +411,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
     }, [mediaItemId]);
 
     let finishRecord = () => {
+        console.log('finishRecord recordingState:', recordingState);
         if (recordingState === RecordingStates.ON) {
             console.log('finishRecord');
 
@@ -458,6 +473,11 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
         {
         Plugins.XRPlugin.handleTap();
         playerRef.current?.play();
+
+        setTimeout(function(){
+            hintTwoShow(true);
+            console.log('hintTwoShow setted');
+        },1000);
         }
     };
 
@@ -486,7 +506,6 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
     //     setSecondState("Initialized and effected");
     // }, [initializationResponse]);
 
-
     return (<>
         {/* <div className="plugintest">
             <div className="plugintestReadout">
@@ -497,7 +516,52 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                 <p>APS:{anchorPoseState}</p>
             </div>
         </div> */}
+        {hintOne ? <div className={styles.hintOne}>
+            <div className={styles.thirdScreen+" "+styles.onboarding}>
+                <div className={styles.relativeImage}>
+                    <img src="/assets/feedOnboarding/camera.png" className={styles.mobImage} />
+                    <div className={styles.relativePointer}>
+                        <ul className={styles.loadingFrame}>
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                            <div className={styles.circle} />
+                        </ul>
+                        <p className={styles.offsetImg}>Tap the screen to lock me in place.</p>
+                    </div>
+                </div>
+                <button type="button" onClick={()=>{ hintOneShow(false) } }> Got it! </button>
+            </div>
+        </div> : ''}
 
+         {hintTwo ? <div className={`${styles.hintOne}`+" "+`${styles.hintTwo}`} >
+             <div className={styles.thirdScreen+" "+styles.onboarding}>
+                 <div className={styles.relativeImage}>
+                     <div className={styles.relativePointer}>
+                         <ul className={styles.loadingFrame + ' ' + styles.hintButtonTwo}>
+                             <div className={styles.circle} />
+                             <div className={styles.circle} />
+                             <div className={styles.circle} />
+                             <div className={styles.circle} />
+                             <div className={styles.circle} />
+                             <div className={styles.circle} />
+                             <div className={styles.circle} />
+                             <div className={styles.circle} />
+                             <div className={styles.circle} />
+                             <div className={styles.circle} />
+                         </ul>
+                         <p className={styles.offsetImg}>Hit record to start the performance.</p>
+                     </div>
+                 </div>
+                 <button type="button" onClick={()=>{ hintTwoShow(false) } }> Got it! </button>
+             </div>
+         </div>  : ''}
          <div className="plugintestControls">
             <div className={recordingState === RecordingStates.OFF ? '' : styles.hideButtons}>
               <section className={styles.waterMarkWrapper}>
