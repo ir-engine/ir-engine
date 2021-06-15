@@ -42,7 +42,7 @@ export class S3Provider implements StorageProviderInterface {
   deleteResources = (keys: string[]): Promise<any> => {
     return new Promise((resolve, reject) => {
       this.provider.deleteObjects({
-        Bucket: this.bucket,
+        Bucket: config.aws.s3.staticResourceBucket,
         Delete: {
           Objects: keys.map(key => { return { Key: key }; })
         }
