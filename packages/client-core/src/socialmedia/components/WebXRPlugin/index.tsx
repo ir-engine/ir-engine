@@ -28,6 +28,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
 import { selectArMediaState } from "../../reducers/arMedia/selector";
 import { getArMediaItem } from "../../reducers/arMedia/service";
+import ZoomGestureHandler from "../../../zoom-gesture-handler";
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -81,6 +82,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
     const [recordingState, setRecordingState] = useState(RecordingStates.OFF);
     const playerRef = useRef<Player|null>(null);
     const anchorRef = useRef<Group|null>(null);
+    const zoomHandlerRef = useRef<ZoomGestureHandler|null>(null);
 
     let renderer: WebGLRenderer, scene: Scene, camera: PerspectiveCamera;
     const debugCamera: {
@@ -110,6 +112,14 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
         // console.log('WebXRComponent MOUNTED');
         document.addEventListener("backbutton", onBackButton);
 
+        if (!zoomHandlerRef.current) {
+            zoomHandlerRef.current = new ZoomGestureHandler(canvasRef.current, (scale) => {
+                if (anchorRef.current) {
+                    anchorRef.current.scale.multiplyScalar(scale);
+                }
+            });
+        }
+
         return () => {
             // console.log('WebXRComponent UNMOUNT');
             document.removeEventListener("backbutton", onBackButton);
@@ -119,6 +129,12 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                 playerRef.current.dispose();
                 playerRef.current = null;
             }
+            if (zoomHandlerRef.current) {
+                console.log('WebXRComponent - dispose zoom handler');
+                zoomHandlerRef.current.dispose();
+                zoomHandlerRef.current = null;
+            }
+
             console.log('WebXRComponent - stop plugin');
             // @ts-ignore
             Plugins.XRPlugin.stop({});
@@ -500,47 +516,6 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
         }
     };
 
-    let previousGestureDistance = 0;
-    let initialGestureScale = 1;
-    let handleGestureScaling = false;
-    const onTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
-        if (!anchorRef.current) {
-            return;
-        }
-
-        if (e.touches.length === 2) {
-            console.log('gestureScale start');
-            handleGestureScaling = true;
-            previousGestureDistance = Math.hypot(
-                e.touches[0].pageX - e.touches[1].pageX,
-                e.touches[0].pageY - e.touches[1].pageY);
-
-            initialGestureScale = anchorRef.current.scale.x;
-        }
-    };
-
-    const onTouchEnd = () => {
-        console.log('gestureScale end');
-        handleGestureScaling = false;
-    };
-
-    const onTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
-        if (!anchorRef.current) {
-            return;
-        }
-
-        if (handleGestureScaling) {
-            const currentGestureDistance = Math.hypot(
-                e.touches[0].pageX - e.touches[1].pageX,
-                e.touches[0].pageY - e.touches[1].pageY);
-
-            const gestureScale = currentGestureDistance / previousGestureDistance;
-            console.log('gestureScale', gestureScale);
-            console.log('anchorScale', initialGestureScale * gestureScale);
-            anchorRef.current.scale.setScalar(initialGestureScale * gestureScale);
-        }
-    };
-
     const playVideo = () => {
         // @ts-ignore
         Plugins.XRPlugin.playVideo();
@@ -610,15 +585,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
               id={'arcCanvas'}
               onClick={(e) => handleTap(e)}
               onDoubleClick={finishRecord}
-              onTouchStart={onTouchStart}
-              onTouchEnd={onTouchEnd}
-              onTouchMove={onTouchMove}
           />
-        {/* <VolumetricPlayer
-                        meshFilePath={meshFilePath}
-                        videoFilePath={videoFilePath}
-                        cameraVerticalOffset={0.5}
-                    /> */}
     </>
     );
 };
