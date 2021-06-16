@@ -389,17 +389,20 @@ export const EnginePage = (props: Props) => {
 
     const connectPromise = new Promise<void>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async ({ worldState }: { worldState: WorldStateInterface}) => {
+        console.log('Connected to world!');
         const localClient = worldState.clientsConnected.find((client) => {
           return client.userId === Network.instance.userId;
         });
+        console.log('localClient', localClient);
         AssetLoader.load({ url: localClient.avatarDetail.avatarURL }, resolve);
+        console.log('Loaded avatar');
       });
     });
-    console.log('Connected to world!');
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADING));
 
     const sceneLoadPromise= new Promise<void>((resolve) => {
       WorldScene.load(sceneData, () => {
+        console.log('Loaded scene', sceneData);
         setProgressEntity(0);
         store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED));
         setAppLoaded(true);
@@ -422,7 +425,7 @@ export const EnginePage = (props: Props) => {
         let spawnTransform;
         if(porting) {
           const currentLocalEntityTransform = porting && getComponent(Network.instance.localClientEntity, TransformComponent);
-          spawnTransform = { position: currentLocalEntityTransform.position, rotation: currentLocalEntityTransform.rotation }
+          spawnTransform = { position: currentLocalEntityTransform.position, rotation: currentLocalEntityTransform.rotation };
         }
 
         const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString(), { spawnTransform });
