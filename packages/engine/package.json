@@ -64,7 +64,7 @@
     "@types/three": "0.129.1",
     "esbuild": "0.12.8",
     "eslint": "7.28.0",
-    "rollup": "2.51.2",
+    "rollup": "2.52.0",
     "rollup-plugin-node-polyfills": "0.2.1",
     "rollup-plugin-scss": "2.6.1",
     "typedoc": "0.20.36",
