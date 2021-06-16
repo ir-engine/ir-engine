@@ -129,16 +129,16 @@ const CreateBot = (props: Props) => {
         };
         let temp = formErrors;
         if (!state.name) {
-            temp.name = "Name can't be empty"
+            temp.name = "Name can't be empty";
         }
         if (!state.description) {
-            temp.description = "Description can't be empty"
+            temp.description = "Description can't be empty";
         }
 
         setFormErrors(temp);
         if (instance && location && formValid(state, formErrors)) {
             createBotAsAdmin(data);
-            setState({ name: "", description: "" })
+            setState({ name: "", description: "" });
             setCommandData([]);
             setInstance("");
             setLocation("");
@@ -150,7 +150,7 @@ const CreateBot = (props: Props) => {
 
     const handleInputChange = (e) => {
         const names = e.target.name;
-        const value = e.target.value
+        const value = e.target.value;
         let temp = formErrors;
         switch (names) {
             case "name":
@@ -164,7 +164,7 @@ const CreateBot = (props: Props) => {
         }
         setFormErrors(temp);
         setState({ ...state, [names]: value });
-    }
+    };
 
     return (
         <Card className={classes.rootLeft}>
@@ -322,7 +322,7 @@ const CreateBot = (props: Props) => {
                                 setCommandData([...commandData, command]);
                                 setCommand({ name: "", description: "" });
                             } else {
-                                setError("Fill in command is required!")
+                                setError("Fill in command is required!");
                                 setOpen(true);
                             }
                         }}

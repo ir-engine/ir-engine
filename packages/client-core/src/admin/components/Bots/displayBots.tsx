@@ -178,7 +178,7 @@ const DisplayBots = (props: Props) => {
                                     style={{ color: "#fff", background: "#3a4149", marginBottom: "20px" }}
                                     onClick={() =>{
                                         if(name){
-                                             sudmitCommandBot(bot.id)
+                                             sudmitCommandBot(bot.id);
                                         } else {
                                             setOpen(true);
                                         }
