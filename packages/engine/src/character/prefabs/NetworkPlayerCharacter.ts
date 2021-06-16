@@ -223,21 +223,26 @@ export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation
   });
 }
 
-export function createNetworkPlayer(args: { ownerId: string | number, networkId?: number, entity?: Entity }) {
+export function createNetworkPlayer(args: { parameters: { position, rotation }, ownerId: string | number, networkId?: number, entity?: Entity }) {
+  const position = new Vector3()
+  const rotation = new Quaternion()
+  console.log(args)
+  if(args.parameters) {
+    position.set(args.parameters.position.x, args.parameters.position.y, args.parameters.position.z)
+    rotation.set(args.parameters.rotation.x, args.parameters.rotation.y, args.parameters.rotation.z, args.parameters.rotation.w)
+  }
 	const networkComponent = initializeNetworkObject({
 		ownerId: String(args.ownerId),
 		uniqueId: String(args.ownerId),
 		networkId: args.networkId,
 		prefabType: PrefabType.Player,
+    parameters: args.parameters,
 		override: {
 			localClientComponents: [],
 			networkComponents: [
 				{
 					type: TransformComponent,
-					data: {
-						position: new Vector3(),
-						rotation: new Quaternion()
-					}
+					data: { position, rotation }
 				},
 				{
 					type: CharacterComponent,
@@ -254,7 +259,7 @@ export function createNetworkPlayer(args: { ownerId: string | number, networkId?
         ownerId: networkComponent.ownerId,
         prefabType: PrefabType.Player,
         uniqueId: networkComponent.uniqueId,
-        parameters: ''
+        parameters: args.parameters
     });
   }
 	return networkComponent;

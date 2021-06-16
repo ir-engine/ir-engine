@@ -5,5 +5,6 @@ import { InterpolatedSnapshot, Snapshot } from "../../networking/types/SnapshotD
 
 
 export const findInterpolationSnapshot = (entity: Entity, snapshot: Snapshot | InterpolatedSnapshot) => {
-  return snapshot?.state.find(v => v.networkId == getComponent(entity, NetworkObject).networkId);
+  const networkId = getComponent(entity, NetworkObject).networkId;
+  return snapshot?.state.find(v => v.networkId == networkId);
 }

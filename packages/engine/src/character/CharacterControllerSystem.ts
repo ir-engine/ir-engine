@@ -17,12 +17,13 @@ import { TransformComponent } from "../transform/components/TransformComponent";
 import { AnimationComponent } from "./components/AnimationComponent";
 import { CharacterComponent } from "./components/CharacterComponent";
 import { updateVectorAnimation } from "./functions/updateVectorAnimation";
-import { loadActorAvatar } from "./prefabs/NetworkPlayerCharacter";
+import { loadActorAvatar, teleportPlayer } from "./prefabs/NetworkPlayerCharacter";
 import { Engine } from "../ecs/classes/Engine";
 import { IKRigComponent } from "./components/IKRigComponent";
 import { Avatar } from "../xr/classes/IKAvatar";
 import { Network } from "../networking/classes/Network";
 import { PortalComponent } from "../scene/components/PortalComponent";
+import { detectUserInPortal } from "./functions/detectUserInPortal";
 
 const forwardVector = new Vector3(0, 0, 1);
 const prevControllerColliderPosition = new Vector3();
@@ -73,6 +74,8 @@ export class CharacterControllerSystem extends System {
         collisionMask: DefaultCollisionMask | CollisionGroups.Portal,
       }));
     });
+    
+    if(Network.instance.localClientEntity) detectUserInPortal(Network.instance.localClientEntity)
 
     this.queryResults.controller.all?.forEach((entity) => {
       const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
@@ -80,35 +83,7 @@ export class CharacterControllerSystem extends System {
       // iterate on all collisions since the last update
       collider.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => { })
 
-      const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-      if(actor.raycastQuery.hits[0]) {
-        const body = actor.raycastQuery.hits[0].body
-        if (isClient && body?.userData) {
-          const portalComponent = getComponent(body.userData, PortalComponent);
-          if(portalComponent) {
-            EngineEvents.instance.dispatchEvent({ 
-              type: PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT,
-              portalComponent: {
-                location: portalComponent.location,
-                displayText: portalComponent.displayText,
-                spawnPosition: { 
-                  x: portalComponent.spawnPosition.x,
-                  y: portalComponent.spawnPosition.y,
-                  z: portalComponent.spawnPosition.z,
-                },
-                spawnRotation: { 
-                  x: portalComponent.spawnRotation.x,
-                  y: portalComponent.spawnRotation.y,
-                  z: portalComponent.spawnRotation.z,
-                  w: portalComponent.spawnRotation.w,
-                }
-              }
-              // quaternions don't json properly. threejs nonsense...
-              // portalComponent: portalComponent.json()
-            });
-          }
-        }
-      }
+      if(!isClient) detectUserInPortal(entity);
     })
 
     this.queryResults.character.all?.forEach(entity => {

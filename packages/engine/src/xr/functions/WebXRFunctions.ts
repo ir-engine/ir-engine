@@ -221,7 +221,7 @@ export const getHandTransform = (entity: Entity, hand: ParityValue = ParityValue
   const actor = getComponent(entity, CharacterComponent);
   const transform = getComponent(entity, TransformComponent);
   // quick fix until ik is fixed
-  if(isClient || isEntityLocalClient(entity)) {
+  if(isEntityLocalClient(entity)) {
     const inputSources = getComponent(Network.instance.localClientEntity, XRInputReceiver);
     if(inputSources) {
       const rigHand: Object3D = hand === ParityValue.LEFT ? inputSources.controllerLeft : inputSources.controllerRight;
@@ -232,7 +232,7 @@ export const getHandTransform = (entity: Entity, hand: ParityValue = ParityValue
         }
       }
     }
-  } else if(!isClient) {
+  } else {
     if(isInXR(entity)) {
       const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
       if(input) {

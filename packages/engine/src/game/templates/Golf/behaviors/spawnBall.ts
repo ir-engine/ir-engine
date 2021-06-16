@@ -51,6 +51,6 @@ export const spawnBall: Behavior = (entity: Entity, args?: any, delta?: number, 
     ownerId,
     uniqueId: uuid,
     prefabType: GolfPrefabTypes.Ball,
-    parameters: JSON.stringify(parameters).replace(/"/g, '\''),
+    parameters,
   })
 };
