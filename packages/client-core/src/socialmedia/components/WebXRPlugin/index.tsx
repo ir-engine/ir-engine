@@ -557,9 +557,7 @@ export const WebXRPlugin = ({
         };
 
         // @ts-ignore
-        Plugins.XRPlugin.handleTap(params).then(result => {
-            console.log('Handle Tap result', result);
-        });
+        Plugins.XRPlugin.handleTap(params);
 
         if (!feedHintsOnborded)
         {
