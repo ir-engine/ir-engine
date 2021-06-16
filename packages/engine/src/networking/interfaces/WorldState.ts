@@ -92,7 +92,7 @@ export interface NetworkObjectCreateInterface {
   /** Type of prefab used to create this object. */
   prefabType: number,
   /** Parameters to initialze the prefab with. */
-  parameters: string,
+  parameters: any,
 }
 
 /** Interface for world state snapshot. */

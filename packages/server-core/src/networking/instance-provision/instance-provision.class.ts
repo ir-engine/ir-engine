@@ -100,9 +100,9 @@ export class InstanceProvision implements ServiceMethods<Data> {
     const gameservers = await (this.app as any).k8AgonesClient.get('gameservers');
     const gsIds = gameservers.items.map(gs => gsNameRegex.exec(gs.metadata.name) != null ? gsNameRegex.exec(gs.metadata.name)[1] : null);
     const [ip, port] = instance.ipAddress.split(':');
-    const match = gameservers?.items.find(gs => {
-      const inputPort = gs.status.ports.find(port => port.name === 'default');
-      return gs.status.address === ip && inputPort.port.toString() === port;
+    const match = gameservers?.items?.find(gs => {
+      const inputPort = gs.status.ports?.find(port => port.name === 'default');
+      return gs.status.address === ip && inputPort?.port?.toString() === port;
     });
     if (match == null) {
       await this.app.service('instance').remove(instance.id);

@@ -10,7 +10,7 @@ import { GamePlayer } from "../components/GamePlayer";
 
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { initState, removeEntityFromState, clearRemovedEntitysFromGame, saveInitStateCopy, requireState, addStateComponent  } from '../functions/functionsState';
-import { initStorage } from '../functions/functionsStorage';
+import { getStorage, initStorage } from '../functions/functionsStorage';
 
 import { GamesSchema } from "../../game/templates/GamesSchema";
 import { PrefabType } from '../../networking/templates/PrefabType';

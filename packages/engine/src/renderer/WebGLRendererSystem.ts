@@ -1,14 +1,19 @@
 import {
   BlendFunction,
+  BloomEffect,
+  BrightnessContrastEffect,
+  ColorDepthEffect,
   DepthDownsamplingPass,
   DepthOfFieldEffect,
   EffectComposer,
   EffectPass,
+  HueSaturationEffect,
   NormalPass,
   OutlineEffect,
   RenderPass,
   SSAOEffect,
-  TextureEffect
+  TextureEffect,
+  ToneMappingEffect
 } from 'postprocessing';
 import {
   LinearToneMapping,
@@ -33,6 +38,7 @@ import { WebXRManager } from '../xr/WebXRManager.js'
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType';
 import WebGL from "./THREE.WebGL";
 import { FXAAEffect } from './effects/FXAAEffect';
+import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect';
 
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',
@@ -43,6 +49,42 @@ export enum RENDERER_SETTINGS {
 }
 
 const databasePrefix = 'graphics-settings-';
+
+interface EffectComposerWithSchema extends EffectComposer {
+  // TODO: 'postprocessing' needs typing, we could create a '@types/postprocessing' package?
+  renderer: WebGLRenderer;
+  inputBuffer: WebGLRenderTarget;
+  outputBuffer: WebGLRenderTarget;
+  copyPass: any;
+  depthTexture: any;
+  passes: [];
+  autoRenderToScreen: boolean;
+	multisampling: number;
+	getRenderer();
+	replaceRenderer(renderer, updateDOM);
+	createDepthTexture();
+	deleteDepthTexture();
+	createBuffer(depthBuffer, stencilBuffer, type, multisampling);
+  addPass(renderPass: any);
+  removePass();
+  removeAllPasses();
+  render(delta: number);
+  setSize(width: number, height: number, arg2: boolean);
+  reset();
+  dispose();
+
+  // this is what this is for, i just added the EffectComposer typings above
+  OutlineEffect: OutlineEffect,
+  FXAAEffect: FXAAEffect,
+  SSAOEffect: SSAOEffect,
+  DepthOfFieldEffect: DepthOfFieldEffect,
+  BloomEffect: BloomEffect,
+  ToneMappingEffect: ToneMappingEffect,
+  BrightnessContrastEffect: BrightnessContrastEffect,
+  HueSaturationEffect: HueSaturationEffect,
+  ColorDepthEffect: ColorDepthEffect,
+  LinearTosRGBEffect: LinearTosRGBEffect,
+}
 
 export class WebGLRendererSystem extends System {
 
@@ -60,7 +102,7 @@ export class WebGLRendererSystem extends System {
   static instance: WebGLRendererSystem;
   csm: CSM;
 
-  composer: EffectComposer
+  composer: EffectComposerWithSchema
   /** Is resize needed? */
   needsResize: boolean
 
@@ -218,13 +260,17 @@ export class WebGLRendererSystem extends System {
       const effect = effectType[key].effect;
       if (pass.isActive)
         if (effect === SSAOEffect) {
-          passes.push(new effect(Engine.camera, this.normalPass.texture, { ...pass, normalDepthBuffer }));
+          const eff = new effect(Engine.camera, this.normalPass.texture, { ...pass, normalDepthBuffer })
+          this.composer[key] = eff;
+          passes.push(eff);
         } else if (effect === DepthOfFieldEffect) {
-          passes.push(new effect(Engine.camera, pass))
+          const eff = new effect(Engine.camera, pass)
+          this.composer[key] = eff;
+          passes.push(eff)
         } else if (effect === OutlineEffect) {
           const eff = new effect(Engine.scene, Engine.camera, pass)
-          passes.push(eff);
           this.composer[key] = eff;
+          passes.push(eff);
         } else {
           const eff = new effect(pass)
           this.composer[key] = eff;
@@ -285,7 +331,7 @@ export class WebGLRendererSystem extends System {
       }
 
       this.csm.update();
-      if (this.usePostProcessing) {
+      if (this.usePostProcessing && this.postProcessingSchema) {
         this.composer.render(delta);
       } else {
         Engine.renderer.autoClear = true;

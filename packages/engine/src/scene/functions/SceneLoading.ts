@@ -279,7 +279,7 @@ export class WorldScene {
         break;
 
       case 'persist':
-        addComponent(entity, PersistTagComponent);
+        if(isClient) addComponent(entity, PersistTagComponent);
         break;
       
       case 'portal': 

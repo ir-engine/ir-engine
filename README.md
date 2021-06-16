@@ -42,7 +42,7 @@ First, make sure you have [NodeJS](https://nodejs.org/) and [npm](https://www.np
 #### 1.  Install your dependencies 
 ```
 cd path/to/xrengine
-npm install --legacy-peer-deps
+npm install
 ```
 
 You should not need to use sudo in any case.
