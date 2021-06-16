@@ -59,7 +59,7 @@
     "ctix": "0.3.1",
     "dompurify": "2.2.9",
     "emailjs-com": "3.1.0",
-    "esbuild-plugin-sass": "0.5.1",
+    "esbuild-plugin-sass": "0.5.0",
     "eventemitter3": "4.0.7",
     "formik": "2.2.9",
     "i18next": "20.3.1",
