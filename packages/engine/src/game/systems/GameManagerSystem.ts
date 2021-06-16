@@ -289,12 +289,10 @@ export class GameManagerSystem extends System {
         gameObjects[getComponent(entity, GameObject).role].push(entity);
         // add init Tag components for start state of Games
         const schema = gameSchema.initGameState[getComponent(entity, GameObject).role];
-        console.log('ROLE SCHEMA', getComponent(entity, GameObject).role, schema)
         if (schema != undefined) {
           schema.components?.forEach(component => addStateComponent(entity, component));
           initStorage(entity, schema.storage);
           schema.behaviors?.forEach(behavior => behavior(entity));
-          schema.storage && console.log('INITSTORAGE', getStorage(entity, schema.storage))
         }
       })
     });
