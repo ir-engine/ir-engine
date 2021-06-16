@@ -15,8 +15,9 @@ import Card from "@material-ui/core/Card";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 import { Face, Save } from '@material-ui/icons';
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import TextField from '@material-ui/core/TextField';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
 import { selectAdminInstanceState } from "../../reducers/admin/instance/selector";
 import { fetchAdminInstances } from "../../reducers/admin/instance/service";
 import { fetchAdminLocations } from "../../reducers/admin/location/service";
@@ -26,6 +27,8 @@ import MuiAlert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
 import { createBotAsAdmin } from "../../reducers/admin/bots/service";
 import { selectAdminLocationState } from "../../reducers/admin/location/selector";
+import { formValid } from "./validation";
+
 interface Props {
     fetchAdminInstances?: any;
     adminInstanceState?: any;
@@ -68,10 +71,19 @@ const CreateBot = (props: Props) => {
     });
     const [commandData, setCommandData] = React.useState([]);
     const [name, setName] = React.useState("");
-    const [explanation, setExplanation] = React.useState("");
+    const [description, setDescription] = React.useState("");
     const [open, setOpen] = React.useState(false);
     const [instance, setInstance] = React.useState("");
     const [location, setLocation] = React.useState("");
+    const [error, setError] = React.useState("");
+    const [formErrors, setFormErrors] = React.useState({
+        name: "",
+        description: "",
+    });
+    const [state, setState] = React.useState({
+        name: "",
+        description: "",
+    });
     const classes = useStyles();
     const classx = useStyle();
     const user = authState.get("user");
@@ -100,31 +112,59 @@ const CreateBot = (props: Props) => {
         data.push(element);
     });
 
-    const InstanceProps = {
-        options: data,
-        getOptionLabel: (option: any) => option.ipAddress
-    };
 
-    const defaultProps = {
-        options: locationData,
-        getOptionLabel: (option: any) => option.name,
-    };
+    const temp = [];
+    locationData.forEach(el => {
+        temp.push(el);
+    });
+
     const handleSubmit = () => {
         const data = {
-            name: name,
+            name: state.name,
             instanceId: instance,
             userId: user.id,
             command: commandData,
-            explanation: explanation,
+            description: state.description,
             locationId: location
         };
-        createBotAsAdmin(data);
-        setName("");
-        setInstance("");
-        setCommandData([]);
-        setExplanation('');
-        setLocation("");
+        let temp = formErrors;
+        if (!state.name) {
+            temp.name = "Name can't be empty"
+        }
+        if (!state.description) {
+            temp.description = "Description can't be empty"
+        }
+
+        setFormErrors(temp);
+        if (instance && location && formValid(state, formErrors)) {
+            createBotAsAdmin(data);
+            setState({ name: "", description: "" })
+            setCommandData([]);
+            setInstance("");
+            setLocation("");
+        } else {
+            setError("Please fill all required field");
+            setOpen(true);
+        }
     };
+
+    const handleInputChange = (e) => {
+        const names = e.target.name;
+        const value = e.target.value
+        let temp = formErrors;
+        switch (names) {
+            case "name":
+                temp.name = value.length < 2 ? "Name is required!" : "";
+                break;
+            case "description":
+                temp.description = value.length < 2 ? "Description is required!" : "";
+                break;
+            default:
+                break;
+        }
+        setFormErrors(temp);
+        setState({ ...state, [names]: value });
+    }
 
     return (
         <Card className={classes.rootLeft}>
@@ -136,6 +176,7 @@ const CreateBot = (props: Props) => {
                 <Button
                     variant="contained"
                     disableElevation
+                    type="submit"
                     style={{ marginLeft: "auto", background: "#43484F", color: "#fff", width: "150px" }}
                     onClick={handleSubmit}
                 >
@@ -148,45 +189,102 @@ const CreateBot = (props: Props) => {
                 </Typography>
                 <form style={{ marginTop: "40px" }}>
                     <label>Name</label>
-                    <Paper component="div" className={classes.createInput}>
+                    <Paper component="div" className={formErrors.name.length > 0 ? classes.redBorder : classes.createInput}>
                         <InputBase
+                            name="name"
                             className={classes.input}
                             placeholder="Enter name"
                             style={{ color: "#fff" }}
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            value={state.name}
+                            onChange={handleInputChange}
                         />
                     </Paper>
-                    <label>Explanation</label>
-                    <Paper component="div" className={classes.createInput}>
+
+
+                    <label>Description</label>
+                    <Paper component="div" className={formErrors.description.length > 0 ? classes.redBorder : classes.createInput}>
                         <InputBase
                             className={classes.input}
-                            placeholder="Enter explanation"
+                            name="description"
+                            placeholder="Enter description"
                             style={{ color: "#fff" }}
-                            value={explanation}
-                            onChange={(e) => setExplanation(e.target.value)}
+                            value={state.description}
+                            onChange={handleInputChange}
                         />
                     </Paper>
+
+
                     <label>Instance</label>
+                    <Paper component="div" className={classes.createInput}>
+                        <FormControl className={classes.createInput} >
+                            <Select
+                                labelId="demo-controlled-open-select-label"
+                                id="demo-controlled-open-select"
+                                // open={open}
+                                //  onClose={handleClose}
+                                //onOpen={handleOpen}
+                                value={instance}
+                                className={classes.inputSelect}
+                                onChange={(e) => setInstance(e.target.value as string)}
+                            >
+                                <MenuItem value="">
+                                    <em>None</em>
+                                </MenuItem>
+                                {
+                                    data.map(el => <MenuItem value={el.id} key={el.id}>{el.ipAddress}</MenuItem>)
+                                }
+                            </Select>
+                        </FormControl>
+                    </Paper>
+
+
+                    <label>Location</label>
+                    <Paper component="div" className={classes.createInput}>
+                        <FormControl className={classes.createInput} >
+                            <Select
+                                labelId="demo-controlled-open-select-label"
+                                id="demo-controlled-open-select"
+                                // open={open}
+                                //  onClose={handleClose}
+                                //onOpen={handleOpen}
+                                className={classes.inputSelect}
+                                value={location}
+                                onChange={(e) => setLocation(e.target.value as string)}
+                            >
+                                <MenuItem value="">
+                                    <em>None</em>
+                                </MenuItem>
+                                {
+                                    temp.map(el => <MenuItem value={el.id} key={el.id}>{el.name}</MenuItem>)
+                                }
+                            </Select>
+                        </FormControl>
+                    </Paper>
+
+
+
+
+
+                    {/* <label>Instance</label>
                     <Autocomplete
                         id="combo-box-demo"
                         {...InstanceProps}
-                        onChange={(e, newValue) => setInstance(newValue.id as string)}
+                        onChange={(e, newValue) => setInstance(newValue?.id as string)}
                         className={classes.createInput}
                         debug
                         classes={{ paper: classx.autPaper }}
-                        renderInput={(params) => <TextField {...params} className={classes.input} style={{ color: "#fff" }} placeholder="Select instance" />}
+                        renderInput={(params) => <TextField {...params} className={classes.input} style={{ color: "#fff" }} value={instance} placeholder="Select instance" />}
                     />
                     <label>Location</label>
                     <Autocomplete
                         id="combo-box-demo"
                         {...defaultProps}
                         classes={{ paper: classx.autPaper }}
-                        onChange={(e, newValue) => setLocation(newValue.id as string)}
+                        onChange={(e, newValue) => setLocation(newValue?.id as string)}
                         className={classes.createInput}
                         debug
-                        renderInput={(params) => <TextField {...params} className={classes.input} style={{ color: "#fff" }} placeholder="Select location" />}
-                    />
+                        renderInput={(params) => <TextField {...params} className={classes.input} style={{ color: "#fff" }} placeholder="Select location" value={location} />}
+                    /> */}
                     <Grid container spacing={2}>
                         <Grid item xs={4}>
                             <label>Command</label>
@@ -210,7 +308,6 @@ const CreateBot = (props: Props) => {
                                     style={{ color: "#fff" }}
                                     value={command.description}
                                     onChange={(e) => setCommand({ ...command, description: e.target.value })}
-
                                 />
                             </Paper>
                         </Grid>
@@ -221,10 +318,11 @@ const CreateBot = (props: Props) => {
                         fullWidth={true}
                         style={{ color: "#fff", background: "#3a4149", marginBottom: "20px" }}
                         onClick={() => {
-                            if (command.name && command.description) {
+                            if (command.name) {
                                 setCommandData([...commandData, command]);
                                 setCommand({ name: "", description: "" });
                             } else {
+                                setError("Fill in command is required!")
                                 setOpen(true);
                             }
                         }}
@@ -233,7 +331,9 @@ const CreateBot = (props: Props) => {
                     </Button>
 
 
-                    <div className={classes.alterContainer} >
+                    <div
+                        className={commandData.length > 0 ? classes.alterContainer : classes.createAlterContainer}
+                    >
                         {
                             commandData.map((el, i) => {
                                 return (
@@ -261,7 +361,7 @@ const CreateBot = (props: Props) => {
                 onClose={handleClose}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-                <Alert onClose={handleClose} severity="warning"> Fill in command and description </Alert>
+                <Alert onClose={handleClose} severity="warning"> {error} </Alert>
             </Snackbar>
         </Card>
 

@@ -22,7 +22,8 @@ import { selectAdminBotsState } from "../../reducers/admin/bots/selector";
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import Button from '@material-ui/core/Button';
 import { createBotCammand } from "../../reducers/admin/bots/service";
-
+import MuiAlert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
 
 interface Props {
     fetchBotAsAdmin?: any;
@@ -43,12 +44,17 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createBotCammand: bindActionCreators(createBotCammand, dispatch)
 });
 
+const Alert = (props) => {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+};
+
 const DisplayBots = (props: Props) => {
     const { fetchBotAsAdmin, botsAdminState, authState, createBotCammand } = props;
     const classes = useStyles();
     const [expanded, setExpanded] = React.useState<string | false>("panel0");
     const [name, setName] = React.useState("");
     const [description, setDescription] = React.useState("");
+    const [open, setOpen] = React.useState(false);
 
     const handleChange = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
         setExpanded(isExpanded ? panel : false);
@@ -64,20 +70,26 @@ const DisplayBots = (props: Props) => {
         }
     }, [botAdmin, user]);
 
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpen(false);
+    };
 
     const sudmitCommandBot = (id: string) => {
-             const data = {
-                 name: name,
-                 description: description,
-                 botId: id,
-             };
-             createBotCammand(data);
-             setName("");
-             setDescription("");
+        const data = {
+            name: name,
+            description: description,
+            botId: id,
+        };
+        createBotCammand(data);
+        setName("");
+        setDescription("");
     };
 
     return (
-        <div className={classes.root}>
+        <div className={classes.rootRigt}>
             {botAdminData.map((bot, index) => {
                 return (
                     <Accordion expanded={expanded === `panel${index}`} onChange={handleChange(`panel${index}`)} key={bot.id}>
@@ -88,7 +100,7 @@ const DisplayBots = (props: Props) => {
                             className={classes.summary}
                         >
                             <Typography className={classes.heading}>{bot.name}</Typography>
-                            <Typography className={classes.secondaryHeading}>{bot?.explanation}</Typography>
+                            <Typography className={classes.secondaryHeading}>{bot?.description}</Typography>
                         </AccordionSummary>
                         <AccordionDetails
                             className={classes.details}
@@ -164,7 +176,13 @@ const DisplayBots = (props: Props) => {
                                     variant="contained"
                                     fullWidth={true}
                                     style={{ color: "#fff", background: "#3a4149", marginBottom: "20px" }}
-                                    onClick={()=> sudmitCommandBot(bot.id)}
+                                    onClick={() =>{
+                                        if(name){
+                                             sudmitCommandBot(bot.id)
+                                        } else {
+                                            setOpen(true);
+                                        }
+                                    }}
                                 >
                                     Add command
                                 </Button>
@@ -194,6 +212,14 @@ const DisplayBots = (props: Props) => {
                 );
             })
             }
+            <Snackbar
+                open={open}
+                autoHideDuration={6000}
+                onClose={handleClose}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={handleClose} severity="warning"> Fill in command is requiired!</Alert>
+            </Snackbar>
         </div>
     );
 };
