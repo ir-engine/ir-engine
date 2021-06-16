@@ -1,13 +1,7 @@
 import { DirectionalLight, Object3D } from "three";
 import createShadowMapResolutionProxy from "../../editor/functions/createShadowMapResolutionProxy";
 export default class PhysicalDirectionalLight extends DirectionalLight {
-  position: any;
-  target: any;
   add: any;
-  castShadow: boolean;
-  shadow: any;
-  color: any;
-  intensity: any;
   remove: any;
   shadowMapResolution: number
   constructor() {

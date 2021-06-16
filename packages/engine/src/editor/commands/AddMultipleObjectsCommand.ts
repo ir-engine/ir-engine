@@ -5,8 +5,6 @@ export default class AddMultipleObjectsCommand extends Command {
   parent: any;
   before: any;
   oldSelection: any;
-  editor: any;
-  id: any;
   constructor(editor, objects, parent, before) {
     super(editor);
     this.objects = objects.slice(0);

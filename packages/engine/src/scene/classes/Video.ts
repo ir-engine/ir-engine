@@ -22,14 +22,10 @@ import { EngineEvents } from "../../ecs/classes/EngineEvents";
 export default class Video extends AudioSource {
   // @ts-ignore
   _videoTexture: any;
-  el: any;
   _texture: any;
   _mesh: Mesh;
   _projection: string;
   hls: any;
-  audioSource: any;
-  audioListener: any;
-  audio: any;
   constructor(audioListener) {
     super(audioListener, "video");
     // @ts-ignore

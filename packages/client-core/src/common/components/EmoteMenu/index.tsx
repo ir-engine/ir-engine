@@ -22,25 +22,25 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
         {
             body: 1,
             containerProps: {
-                onClick: () => { console.debug('Make pose 1')}
+                onClick: () => { console.debug('Make pose 1');}
             },
         },
         {
             body: 2,
             containerProps: {
-                onClick: () => { console.debug('Make pose 2')}
+                onClick: () => { console.debug('Make pose 2');}
             },
         },
         {
             body: 3,
             containerProps: {
-                onClick: () => { console.debug('Make pose 3')}
+                onClick: () => { console.debug('Make pose 3');}
             },
         },
         {
             body: 4,
             containerProps: {
-                onClick: () => { console.debug('Make pose 4')}
+                onClick: () => { console.debug('Make pose 4');}
             },
         },
     ];
@@ -54,18 +54,18 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
                 key: ' ',
             } as KeyboardEvent,
         });
-    }
+    };
 
     const jumpStop = () => {
-        const keyUpEvent = ClientInputSchema.eventBindings.keyup[0]
+        const keyUpEvent = ClientInputSchema.eventBindings.keyup[0];
 
         keyUpEvent.behavior({
             value: keyUpEvent.args.value,
             event: {
                 key: ' ',
             } as KeyboardEvent,
-        })
-    }
+        });
+    };
 
     return (
         <section className={styles.emoteMenu}>
@@ -92,7 +92,7 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
                 </Button>
             </div>
         </section>
-    )
-}
+    );
+};
 
 export default EmoteMenuCore;

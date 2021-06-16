@@ -16,7 +16,7 @@ const ScrollableElement = (props: ScrollableElementPropsType) => {
     const [shadows, setShadows] = useState({
         top: false,
         bottom: false,
-    })
+    });
 
     useEffect(() => {
         adjustShadows();
@@ -43,7 +43,7 @@ const ScrollableElement = (props: ScrollableElementPropsType) => {
         }
 
         setShadows({ top: true, bottom: true });
-    }
+    };
 
     return (
         <div className={styles.scrollBlock}>
@@ -55,10 +55,10 @@ const ScrollableElement = (props: ScrollableElementPropsType) => {
             >
                 {props.children}
             </div>
-            {shadows.top && <span className={styles.topShadow + (props.topShadowClass ? (' ' + props.topShadowClass) : '')}></span>}
-            {shadows.bottom && <span className={styles.bottomShadow + (props.bottomShadowClass ? (' ' + props.bottomShadowClass) : '')}></span>}
+            {shadows.top && <span className={styles.topShadow + (props.topShadowClass ? (' ' + props.topShadowClass) : '')} />}
+            {shadows.bottom && <span className={styles.bottomShadow + (props.bottomShadowClass ? (' ' + props.bottomShadowClass) : '')} />}
         </div>
     );
-}
+};
 
 export default ScrollableElement;

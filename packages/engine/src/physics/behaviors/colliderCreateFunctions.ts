@@ -44,6 +44,8 @@ type ColliderData = {
   bodytype?: BodyType;
   isTrigger?: boolean;
   restitution?: number;
+  action?: any;
+  link?: any;
 }
 
 type ModelData = {
