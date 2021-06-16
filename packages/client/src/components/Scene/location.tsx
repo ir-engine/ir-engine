@@ -277,14 +277,12 @@ export const EnginePage = (props: Props) => {
   }, [locationState]);
 
   useEffect(() => {
-    console.log('instanceConnectionState changed', 'instanceProvisioned', instanceConnectionState.get('instanceProvisioned'), 'updateNeeded', instanceConnectionState.get('updateNeeded'), 'instanceServerConnecting', instanceConnectionState.get('instanceServerConnecting'), 'connected', instanceConnectionState.get('connected'));
     if (
         instanceConnectionState.get('instanceProvisioned') === true &&
         instanceConnectionState.get('updateNeeded') === true &&
         instanceConnectionState.get('instanceServerConnecting') === false &&
         instanceConnectionState.get('connected') === false
     ) {
-      console.log('Calling reinit');
       reinit();
     }
   }, [instanceConnectionState]);
@@ -347,7 +345,6 @@ export const EnginePage = (props: Props) => {
   };
 
   async function init(sceneId: string): Promise<any> { // auth: any,
-    console.log('Calling init');
     let sceneData;
     if(Config.publicRuntimeConfig.offlineMode) {
       sceneData = testScenes[sceneId] || testScenes.test;
@@ -389,20 +386,16 @@ export const EnginePage = (props: Props) => {
 
     const connectPromise = new Promise<void>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async ({ worldState }: { worldState: WorldStateInterface}) => {
-        console.log('Connected to world!');
         const localClient = worldState.clientsConnected.find((client) => {
           return client.userId === Network.instance.userId;
         });
-        console.log('localClient', localClient);
         AssetLoader.load({ url: localClient.avatarDetail.avatarURL }, resolve);
-        console.log('Loaded avatar');
       });
     });
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADING));
 
     const sceneLoadPromise= new Promise<void>((resolve) => {
       WorldScene.load(sceneData, () => {
-        console.log('Loaded scene', sceneData);
         setProgressEntity(0);
         store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED));
         setAppLoaded(true);
@@ -412,15 +405,12 @@ export const EnginePage = (props: Props) => {
 
     await Promise.all([connectPromise, sceneLoadPromise]);
 
-    console.log('Connected to world and scene loaded');
-
     const worldState = await new Promise<any>(async (resolve) => {
       if(Config.publicRuntimeConfig.offlineMode) {
         EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId });
         resolve(testWorldState);
       } else {
 
-        console.log('Online, joining world');
         // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
         let spawnTransform;
         if(porting) {
@@ -429,7 +419,6 @@ export const EnginePage = (props: Props) => {
         }
 
         const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString(), { spawnTransform });
-        console.log('Joined world');
         resolve(WorldStateModel.fromBuffer(worldState));
       }
     });
