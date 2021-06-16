@@ -10,7 +10,7 @@ import { GamePlayer } from "../components/GamePlayer";
 
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { initState, removeEntityFromState, clearRemovedEntitysFromGame, saveInitStateCopy, requireState, addStateComponent  } from '../functions/functionsState';
-import { initStorage } from '../functions/functionsStorage';
+import { getStorage, initStorage } from '../functions/functionsStorage';
 
 import { GamesSchema } from "../../game/templates/GamesSchema";
 import { PrefabType } from '../../networking/templates/PrefabType';
@@ -289,10 +289,12 @@ export class GameManagerSystem extends System {
         gameObjects[getComponent(entity, GameObject).role].push(entity);
         // add init Tag components for start state of Games
         const schema = gameSchema.initGameState[getComponent(entity, GameObject).role];
+        console.log('ROLE SCHEMA', getComponent(entity, GameObject).role, schema)
         if (schema != undefined) {
           schema.components?.forEach(component => addStateComponent(entity, component));
           initStorage(entity, schema.storage);
           schema.behaviors?.forEach(behavior => behavior(entity));
+          schema.storage && console.log('INITSTORAGE', getStorage(entity, schema.storage))
         }
       })
     });
