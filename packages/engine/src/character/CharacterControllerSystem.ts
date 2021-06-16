@@ -64,8 +64,6 @@ export class CharacterControllerSystem extends System {
    */
   execute(delta: number): void {
 
-    if(isClient) detectUserInPortal(Network.instance.localClientEntity)
-
     this.queryResults.character.added?.forEach((entity) => {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
       if (actor) actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({
@@ -76,6 +74,8 @@ export class CharacterControllerSystem extends System {
         collisionMask: DefaultCollisionMask | CollisionGroups.Portal,
       }));
     });
+    
+    if(Network.instance.localClientEntity) detectUserInPortal(Network.instance.localClientEntity)
 
     this.queryResults.controller.all?.forEach((entity) => {
       const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);

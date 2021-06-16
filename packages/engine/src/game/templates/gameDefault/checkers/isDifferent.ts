@@ -10,6 +10,10 @@ import { TransformComponent } from '../../../../transform/components/TransformCo
 export const isDifferent: Checker = (entity: Entity, args?: any, entityTarget?: Entity): boolean => {
   const position = getComponent(entity, TransformComponent).position;
   const positionStart = getStorage(entity, TransformComponent).position;
+  if(!position || !positionStart) {
+    console.error('storage position came back undefined, something is not right', entity, getStorage(entity, TransformComponent));
+    return;
+  }
 
   if (args.min != undefined && args.max != undefined) {
     console.error('need arg.max: 3, or rg.max: 0.1, but not both in one args');

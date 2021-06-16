@@ -226,6 +226,7 @@ export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation
 export function createNetworkPlayer(args: { parameters: { position, rotation }, ownerId: string | number, networkId?: number, entity?: Entity }) {
   const position = new Vector3()
   const rotation = new Quaternion()
+  console.log(args)
   if(args.parameters) {
     position.set(args.parameters.position.x, args.parameters.position.y, args.parameters.position.z)
     rotation.set(args.parameters.rotation.x, args.parameters.rotation.y, args.parameters.rotation.z, args.parameters.rotation.w)
@@ -235,6 +236,7 @@ export function createNetworkPlayer(args: { parameters: { position, rotation }, 
 		uniqueId: String(args.ownerId),
 		networkId: args.networkId,
 		prefabType: PrefabType.Player,
+    parameters: args.parameters,
 		override: {
 			localClientComponents: [],
 			networkComponents: [

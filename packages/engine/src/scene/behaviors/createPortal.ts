@@ -106,7 +106,7 @@ export const createPortal: Behavior = (entity, args) => {
           labelMesh.add(text)
           labelMesh.add(textOtherSide)
         });
-      };
+      }
 
       addComponent(entity, Object3DComponent, { value: model })
     })

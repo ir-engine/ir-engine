@@ -254,9 +254,9 @@ export const EnginePage = (props: Props) => {
   useEffect(() => {
     const currentLocation = locationState.get('currentLocation').get('location');
     if (currentLocation.id != null &&
-      userBanned != true &&
-      instanceConnectionState.get('instanceProvisioned') === false &&
-      instanceConnectionState.get('instanceProvisioning') === false) {
+        userBanned != true &&
+        instanceConnectionState.get('instanceProvisioned') === false &&
+        instanceConnectionState.get('instanceProvisioning') === false) {
       const search = window.location.search;
       let instanceId;
       if (search != null) {
@@ -278,10 +278,10 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     if (
-      instanceConnectionState.get('instanceProvisioned') === true &&
-      instanceConnectionState.get('updateNeeded') === true &&
-      instanceConnectionState.get('instanceServerConnecting') === false &&
-      instanceConnectionState.get('connected') === false
+        instanceConnectionState.get('instanceProvisioned') === true &&
+        instanceConnectionState.get('updateNeeded') === true &&
+        instanceConnectionState.get('instanceServerConnecting') === false &&
+        instanceConnectionState.get('connected') === false
     ) {
       reinit();
     }
@@ -291,14 +291,14 @@ export const EnginePage = (props: Props) => {
     if (appLoaded === true && instanceConnectionState.get('instanceProvisioned') === false && instanceConnectionState.get('instanceProvisioning') === false) {
       if (instanceId != null) {
         client.service('instance').get(instanceId)
-          .then((instance) => {
-            const currentLocation = locationState.get('currentLocation').get('location');
-            provisionInstanceServer(instance.locationId, instanceId, currentLocation.sceneId);
-            if (sceneId === null) {
-              console.log('Set scene ID to', sceneId);
-              sceneId = currentLocation.sceneId;
-            }
-          }).catch(err => console.log('instance get error', err));
+            .then((instance) => {
+              const currentLocation = locationState.get('currentLocation').get('location');
+              provisionInstanceServer(instance.locationId, instanceId, currentLocation.sceneId);
+              if (sceneId === null) {
+                console.log('Set scene ID to', sceneId);
+                sceneId = currentLocation.sceneId;
+              }
+            }).catch(err => console.log('instance get error', err));
       }
     }
   }, [appState]);
@@ -386,7 +386,7 @@ export const EnginePage = (props: Props) => {
 
     const connectPromise = new Promise<void>((resolve) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, async ({ worldState }: { worldState: WorldStateInterface}) => {
-        const localClient = worldState.clientsConnected.find((client) => { 
+        const localClient = worldState.clientsConnected.find((client) => {
           return client.userId === Network.instance.userId;
         });
         AssetLoader.load({ url: localClient.avatarDetail.avatarURL }, resolve);
@@ -415,9 +415,9 @@ export const EnginePage = (props: Props) => {
         let spawnTransform;
         if(porting) {
           const currentLocalEntityTransform = porting && getComponent(Network.instance.localClientEntity, TransformComponent);
-          spawnTransform = { position: currentLocalEntityTransform.position, rotation: currentLocalEntityTransform.rotation }
+          spawnTransform = { position: currentLocalEntityTransform.position, rotation: currentLocalEntityTransform.rotation };
         }
-  
+
         const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString(), { spawnTransform });
         resolve(WorldStateModel.fromBuffer(worldState));
       }
@@ -485,7 +485,7 @@ export const EnginePage = (props: Props) => {
   };
 
   let characterAvatar: CharacterComponent = null;
-  let networkUser; 
+  let networkUser;
   const onObjectActivation = (interactionData): void => {
     switch (interactionData.interactionType) {
       case 'link':
@@ -519,38 +519,38 @@ export const EnginePage = (props: Props) => {
 
   if(userBanned) return (<div className="banned">You have been banned from this location</div>);
   return isInXR ? <></> : (
-    <>
-      {isValidLocation && <UserMenu />}
-      <Snackbar open={!isValidLocation}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}>
-        <>
-          <section>Location is invalid</section>
-          <Button onClick={goHome}>Return Home</Button>
-        </>
-      </Snackbar>
+      <>
+        {isValidLocation && <UserMenu />}
+        <Snackbar open={!isValidLocation}
+                  anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                  }}>
+          <>
+            <section>Location is invalid</section>
+            <Button onClick={goHome}>Return Home</Button>
+          </>
+        </Snackbar>
 
-      <NetworkDebug reinit={reinit} />
-      <LoadingScreen objectsToLoad={progressEntity} />
-      { harmonyOpen !== true && <MediaIconsBox />}
-      { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
-      {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
-      <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); setInputEnabled(true); }} data={infoBoxData} />
-      <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); setInputEnabled(true); }} data={openLinkData} />
-      <canvas id={engineRendererCanvasId} style={canvasStyle} />
-      {mobileGamepad}
-      <WarningRefreshModal
-          open={warningRefreshModalValues.open && !porting}
-          handleClose={() => { setWarningRefreshModalValues(initialRefreshModalValues); }}
-          title={warningRefreshModalValues.title}
-          body={warningRefreshModalValues.body}
-          action={warningRefreshModalValues.action}
-          parameters={warningRefreshModalValues.parameters}
-          timeout={warningRefreshModalValues.timeout}
-      />
-    </>
+        <NetworkDebug reinit={reinit} />
+        <LoadingScreen objectsToLoad={progressEntity} />
+        { harmonyOpen !== true && <MediaIconsBox />}
+        { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
+        {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
+        <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); setInputEnabled(true); }} data={infoBoxData} />
+        <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); setInputEnabled(true); }} data={openLinkData} />
+        <canvas id={engineRendererCanvasId} style={canvasStyle} />
+        {mobileGamepad}
+        <WarningRefreshModal
+            open={warningRefreshModalValues.open && !porting}
+            handleClose={() => { setWarningRefreshModalValues(initialRefreshModalValues); }}
+            title={warningRefreshModalValues.title}
+            body={warningRefreshModalValues.body}
+            action={warningRefreshModalValues.action}
+            parameters={warningRefreshModalValues.parameters}
+            timeout={warningRefreshModalValues.timeout}
+        />
+      </>
   );
 };
 

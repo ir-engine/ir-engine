@@ -299,7 +299,6 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
       translation: spawnPos.position,
       rotation: spawnPos.rotation,
     });
-    console.log(spawnPos)
 
     // Create a new worldState object that we can fill
     const worldState: WorldStateInterface = {
