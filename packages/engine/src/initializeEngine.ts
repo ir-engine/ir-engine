@@ -41,7 +41,7 @@ import { FontManager } from './ui/classes/FontManager';
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
-  return { x: this.x, y: this.y, z: this.z, w: this.w }
+  return { x: this._x, y: this._y, z: this._z, w: this._w }
 }
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["disposeBoundsTree"] = disposeBoundsTree;
