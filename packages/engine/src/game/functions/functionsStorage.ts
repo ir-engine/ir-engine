@@ -21,12 +21,12 @@ export const initStorage = (entity: Entity, initSchemaStorege: InitStorageInterf
   const uuid = getUuid(entity);
   const game = getGame(entity);
   const objectState = game.state.find(v => v.uuid === uuid)
-  console.log('initStorage 1', objectState, initSchemaStorege)
+  // console.log('initStorage 1', objectState, initSchemaStorege)
   if (objectState != undefined) {
     objectState.storage = initSchemaStorege.map(v => {
       const data = getComponent(entity, v.component);
       const readyValues = v.variables.reduce((acc, variable) => Object.assign(acc, { [variable]: data[variable] }), {});
-      console.log('initStorage 2', data, readyValues)
+      // console.log('initStorage 2', data, readyValues)
       return { component: v.component.name, variables: JSON.stringify(readyValues).replace(/"/g, '\'')};
     })
   } else {
