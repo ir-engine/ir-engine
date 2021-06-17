@@ -23,6 +23,9 @@ import { IKComponent } from "./components/IKComponent";
 import { Avatar } from "../xr/classes/IKAvatar";
 import { Network } from "../networking/classes/Network";
 import { detectUserInPortal } from "./functions/detectUserInPortal";
+import { ServerSpawnSystem } from "../scene/systems/ServerSpawnSystem";
+import { sendClientObjectUpdate } from "../networking/functions/sendClientObjectUpdate";
+import { NetworkObjectUpdateType } from "../networking/templates/NetworkObjectUpdateSchema";
 
 const forwardVector = new Vector3(0, 0, 1);
 const prevControllerColliderPosition = new Vector3();
@@ -95,14 +98,24 @@ export class CharacterControllerSystem extends System {
       const transform = getComponent<TransformComponent>(entity, TransformComponent as any);
 
       // reset if vals are invalid
-      if (isNaN(collider.controller.transform.translation.x) || collider.controller.transform.translation.y < -10) {
-        // console.warn("WARNING: Character physics data reporting NaN")
+      if (isNaN(collider.controller.transform.translation.x)) {
+        console.warn("WARNING: Character physics data reporting NaN", collider.controller.transform.translation)
         collider.controller.updateTransform({
-          translation: { x: 0, y: 10, z: 10 },
-          rotation: {}
+          translation: { x: 0, y: 10, z: 0 },
+          rotation: { x: 0, y: 0, z: 0, w: 1 }
         });
-        // collider.playerStuck = 1000;
-        // return;
+      }
+
+      // TODO: implement scene lower bounds parameter
+      if(!isClient && collider.controller.transform.translation.y < -10) {
+        const { position, rotation } = ServerSpawnSystem.instance.getRandomSpawnPoint();
+        position.y += actor.actorHeight + actor.capsuleRadius;
+        console.log('player has fallen through the floor, teleporting them to', position)
+        collider.controller.updateTransform({
+          translation: position,
+          rotation
+        });
+        sendClientObjectUpdate(entity, NetworkObjectUpdateType.ForceTransformUpdate, [position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, rotation.w])
       }
 
       transform.position.set(
@@ -188,25 +201,27 @@ export class CharacterControllerSystem extends System {
       ikComponent.controllerLeft.add(debugLeft)
       ikComponent.controllerRight.add(debugRight)
       
+      const actor = getMutableComponent(entity, CharacterComponent);
 
       // TODO: Temporarily make rig invisible until rig is fixed
-      // actor.modelContainer.children[0]?.traverse((child) => {
-      //   if(child.visible) {
-      //     child.visible = false;
-      //   }
-      // })
+      actor.modelContainer.children[0]?.traverse((child) => {
+        if(child.visible) {
+          child.visible = false;
+        }
+      })
     })
 
     this.queryResults.ikAvatar.removed?.forEach((entity) => {
+
       addComponent(entity, AnimationComponent);
       const actor = getMutableComponent(entity, CharacterComponent);
 
       // TODO: Temporarily make rig invisible until rig is fixed
-      // actor.modelContainer.children[0]?.traverse((child) => {
-      //   if(child.visible) {
-      //     child.visible = false;
-      //   }
-      // })
+      actor.modelContainer.children[0]?.traverse((child) => {
+        if(child.visible) {
+          child.visible = true;
+        }
+      })
     })
 
     this.queryResults.ikAvatar.all?.forEach((entity) => {
