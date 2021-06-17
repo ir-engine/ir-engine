@@ -10,7 +10,7 @@ import { GamePlayer } from "../components/GamePlayer";
 
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { initState, removeEntityFromState, clearRemovedEntitysFromGame, saveInitStateCopy, requireState, addStateComponent  } from '../functions/functionsState';
-import { initStorage } from '../functions/functionsStorage';
+import { getStorage, initStorage } from '../functions/functionsStorage';
 
 import { GamesSchema } from "../../game/templates/GamesSchema";
 import { PrefabType } from '../../networking/templates/PrefabType';
@@ -69,6 +69,7 @@ export class GameManagerSystem extends System {
     this.queryResults.game.added?.forEach(entity => {
       const game = getMutableComponent(entity, Game);
       const gameSchema = GamesSchema[game.gameMode] as GameMode;
+      game.maxPlayers ? gameSchema.preparePlayersRole(gameSchema, game.maxPlayers): '';
       game.priority = gameSchema.priority;// DOTO: set its from editor
       initState(game, gameSchema);
       this.gameEntities.push(entity);

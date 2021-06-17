@@ -322,6 +322,9 @@ const handleMouseWheel = (args: { event: WheelEvent }): void => {
   if (!ClientInputSystem.instance.mouseInputEnabled) {
     return;
   }
+
+  if ((args.event?.target as any).id !== Engine.options.canvasId) return;
+
   const value = args.event?.deltaY;
 
   if (!Engine.inputState.has(MouseInput.MouseScroll)) {

@@ -8,6 +8,9 @@ import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip
 import logger from '@xrengine/server-core/src/logger';
 import { decode } from 'jsonwebtoken';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
+import path from 'path';
+import Worker from 'web-worker';
+import { processLocationChange } from '../../engine/src/ecs/functions/EngineFunctions';
 
 export default (app: Application): void => {
     if (typeof app.channel !== 'function') {
@@ -62,7 +65,15 @@ export default (app: Application): void => {
                             } as any;
                             console.log('channelId: ' + channelId);
                             console.log('locationId: ' + locationId);
-                            console.log(Engine.sceneLoaded, WorldScene.isLoading)
+                            // on local dev, if a scene is already loaded and it's no the scene we want, reset the engine
+                            if(config.kubernetes.enabled === false && (app as any).instance && (app as any).instance.locationId !== locationId) {
+                              Engine.engineTimer.stop();
+                              Engine.sceneLoaded = false;
+                              WorldScene.isLoading = false;
+                              const currentPath = (process.platform === "win32" ? 'file:///' : '') + path.dirname(__filename);
+                              await processLocationChange(new Worker(currentPath + "/physx/loadPhysXNode.ts"));
+                              Engine.engineTimer.start();
+                            }
                             if (channelId != null) {
                                 newInstance.channelId = channelId;
                                 (app as any).isChannelInstance = true;
@@ -92,6 +103,7 @@ export default (app: Application): void => {
                                     });
                                 }
                             }
+                            console.log('Engine.sceneLoaded, WorldScene.isLoading', Engine.sceneLoaded, WorldScene.isLoading);
                             // Only load the scene if this gameserver hasn't already
                             if (sceneId != null && !Engine.sceneLoaded && !WorldScene.isLoading) {
                                 let service, serviceId;

@@ -11,10 +11,9 @@ import {
   OutlineEffect,
   SSAOEffect,
   ToneMappingEffect
- } from "postprocessing";
- import { LinearTosRGBEffect } from '@xrengine/engine/src/renderer/effects/LinearTosRGBEffect';
-
- import { FXAAEffect } from '@xrengine/engine/src/renderer/effects/FXAAEffect';
+} from "postprocessing";
+import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect';
+import { FXAAEffect } from '../../renderer/effects/FXAAEffect';
 
 /**
  * @author Shaw & Abhishek Pathak <abhi.pathak401@gmail.com>

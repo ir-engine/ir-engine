@@ -11,7 +11,7 @@ import { NetworkObject } from "../../networking/components/NetworkObject";
 import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
-import { XRInputReceiver } from '../components/XRInputReceiver';
+import { IKComponent } from '../../character/components/IKComponent';
 import { InputType } from "../enums/InputType";
 import { InputValue } from "../interfaces/InputValue";
 import { InputAlias } from "../types/InputAlias";
@@ -20,6 +20,9 @@ import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { ClientInputSystem } from "./ClientInputSystem";
 import { WEBCAM_INPUT_EVENTS } from "../constants/InputConstants";
 import { Quaternion, Vector3 } from "three";
+import { Entity } from "../../ecs/classes/Entity";
+import { TransformComponent } from "../../transform/components/TransformComponent";
+import { Engine } from "../../ecs/classes/Engine";
 
 const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
 
@@ -87,35 +90,30 @@ export class ActionSystem extends System {
    */
 
   public execute(delta: number): void {
-    
-    // TODO: use Vector & Quaternion .toArray & .fromArray to make this faster
-    this.queryResults.controllersComponent.all?.forEach(entity => {
-      const xrControllers = getComponent(entity, XRInputReceiver);
+
+    // Handle client input from threejs manager
+    this.queryResults.localClientInputXR.all?.forEach(entity => {
+      const xrControllers = getComponent(entity, IKComponent);
       const input = getMutableComponent(entity, Input);
-      // webxr is inverted along z axis, so undo our parent rotation to get the actual data
-      quat.copy(xrControllers.headGroup.quaternion).invert()
-      vec3.copy(xrControllers.head.position).applyQuaternion(quat)
       input.data.set(BaseInput.XR_HEAD, {
         type: InputType.SIXDOF,
         value: {
-          x: vec3.x,
-          y: vec3.y,
-          z: vec3.z,
-          qW: xrControllers.head.quaternion.w,
-          qX: xrControllers.head.quaternion.x,
-          qY: xrControllers.head.quaternion.y,
-          qZ: xrControllers.head.quaternion.z,
+          x: Engine.camera.position.x,
+          y: Engine.camera.position.y,
+          z: Engine.camera.position.z,
+          qW: Engine.camera.quaternion.w,
+          qX: Engine.camera.quaternion.x,
+          qY: Engine.camera.quaternion.y,
+          qZ: Engine.camera.quaternion.z,
         },
         lifecycleState: LifecycleValue.CHANGED
       })
-      quat.copy(xrControllers.controllerLeft.parent.quaternion).invert()
-      vec3.copy(xrControllers.controllerLeft.position).applyQuaternion(quat)
       input.data.set(BaseInput.XR_LEFT_HAND, {
         type: InputType.SIXDOF,
         value: {
-          x: vec3.x,
-          y: vec3.y,
-          z: vec3.z,
+          x: xrControllers.controllerLeft.position.x,
+          y: xrControllers.controllerLeft.position.y,
+          z: xrControllers.controllerLeft.position.z,
           qW: xrControllers.controllerLeft.quaternion.w,
           qX: xrControllers.controllerLeft.quaternion.x,
           qY: xrControllers.controllerLeft.quaternion.y,
@@ -123,19 +121,16 @@ export class ActionSystem extends System {
         },
         lifecycleState: LifecycleValue.CHANGED
       })
-      quat.copy(xrControllers.controllerRight.parent.quaternion).invert()
-      vec3.copy(xrControllers.controllerRight.position).applyQuaternion(quat)
-      quat.copy(xrControllers.controllerRight.parent.quaternion).invert().multiply(xrControllers.controllerRight.quaternion)
       input.data.set(BaseInput.XR_RIGHT_HAND, {
         type: InputType.SIXDOF,
         value: {
-          x: vec3.x,
-          y: vec3.y,
-          z: vec3.z,
-          qW: quat.w,
-          qX: quat.x,
-          qY: quat.y,
-          qZ: quat.z,
+          x: xrControllers.controllerRight.position.x,
+          y: xrControllers.controllerRight.position.y,
+          z: xrControllers.controllerRight.position.z,
+          qW: xrControllers.controllerRight.quaternion.w,
+          qX: xrControllers.controllerRight.quaternion.x,
+          qY: xrControllers.controllerRight.quaternion.y,
+          qZ: xrControllers.controllerRight.quaternion.z,
         },
         lifecycleState: LifecycleValue.CHANGED
       })
@@ -166,7 +161,7 @@ export class ActionSystem extends System {
             const prevValue = input.prevData.get(key);
             if (
               (prevValue.lifecycleState === LifecycleValue.STARTED &&
-              value.lifecycleState === LifecycleValue.STARTED)
+                value.lifecycleState === LifecycleValue.STARTED)
               || (prevValue.lifecycleState === LifecycleValue.CONTINUED &&
                 value.lifecycleState === LifecycleValue.STARTED)
             ) {
@@ -182,8 +177,8 @@ export class ActionSystem extends System {
           }
 
           value.lifecycleState = JSON.stringify(value.value) === JSON.stringify(input.prevData.get(key).value)
-           ? LifecycleValue.UNCHANGED
-           : LifecycleValue.CHANGED;
+            ? LifecycleValue.UNCHANGED
+            : LifecycleValue.CHANGED;
         });
 
         // For each input currently on the input object:
@@ -191,7 +186,7 @@ export class ActionSystem extends System {
           // If the input exists on the input map (otherwise ignore it)
           if (input.schema.inputButtonBehaviors[key]) {
             // If the button is pressed
-          //  console.warn(key,['start','continue','end'][value.lifecycleState]);
+            //  console.warn(key,['start','continue','end'][value.lifecycleState]);
             if (value.value === BinaryValue.ON) {
               // If the lifecycle hasn't been set or just started (so we don't keep spamming repeatedly)
               if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
@@ -253,8 +248,8 @@ export class ActionSystem extends System {
         });
 
         // Repopulate lastData
-       input.lastData.clear();
-       input.data.forEach((value, key) => input.lastData.set(key, value));
+        input.lastData.clear();
+        input.data.forEach((value, key) => input.lastData.set(key, value));
 
         // Add all values in input component to schema
         input.data.forEach((value: any, key) => {
@@ -373,5 +368,11 @@ ActionSystem.queries = {
       removed: true
     }
   },
-  controllersComponent: { components: [Input, LocalInputReceiver, XRInputReceiver], listen: { added: true, removed: true } }
+  localClientInputXR: {
+    components: [Input, LocalInputReceiver, IKComponent], 
+    listen: {
+      added: true,
+      removed: true
+    }
+  }
 };

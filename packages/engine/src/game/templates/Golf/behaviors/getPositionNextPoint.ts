@@ -13,7 +13,7 @@ import { State } from '../../../types/GameComponents';
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const getPositionNextPoint = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any) => {
+export const getPositionNextPoint = ( entity: Entity, args?: any, entityTarget?: Entity ) => {
 
   let gameScore = null;
   if (hasComponent(entity, GamePlayer)) {

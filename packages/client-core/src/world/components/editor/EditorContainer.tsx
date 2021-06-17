@@ -81,6 +81,10 @@ const DockContainer = (styled as any).div`
     opacity: 0.8;
     border: none;
   }
+  .dock-panel:first-child {
+    position: relative;
+    z-index: 99;
+  }
   .dock-panel[data-dockid="+3"] {
     visibility: hidden;
     pointer-events: none;

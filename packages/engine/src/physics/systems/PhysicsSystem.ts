@@ -93,7 +93,7 @@ export class PhysicsSystem extends System {
       if (collider.body.type === BodyType.KINEMATIC) {
         collider.velocity.subVectors(collider.body.transform.translation, transform.position)
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation });
-      } else {
+      } else if(collider.body.type === BodyType.DYNAMIC){
         if(!isClient) { // this for the copy what intepolation calc velocity
           collider.velocity.subVectors(transform.position, collider.body.transform.translation).multiplyScalar(delta*60); 
         }

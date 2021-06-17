@@ -30,9 +30,9 @@
     "@types/react": "17.0.11",
     "cross-env": "7.0.3",
     "node-sass": "6.0.0",
-    "semantic-release": "17.4.3",
+    "semantic-release": "17.4.4",
     "semantic-release-monorepo": "7.0.5",
-    "typescript": "4.3.2"
+    "typescript": "4.3.3"
   },
   "license": "ISC",
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"

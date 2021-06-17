@@ -10,8 +10,8 @@ export default class PortalNode extends EditorNodeMixin(Model) {
   mesh: Mesh;
   location: string;
   displayText: string;
-  spawnPosition: Vector3;
-  spawnRotation: Euler;
+  spawnPosition: Vector3 = new Vector3();
+  spawnRotation: Euler = new Euler();
 
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json);
@@ -21,8 +21,20 @@ export default class PortalNode extends EditorNodeMixin(Model) {
     if(portalComponent) {
       node.location = portalComponent.props.location;
       node.displayText = portalComponent.props.displayText;
-      node.spawnPosition = new Vector3(portalComponent.props.spawnPosition.x, portalComponent.props.spawnPosition.y, portalComponent.props.spawnPosition.z);
-      node.spawnRotation = new Vector3(portalComponent.props.spawnRotation.x, portalComponent.props.spawnRotation.y, portalComponent.props.spawnRotation.z);
+      node.spawnPosition = new Vector3();
+      if(portalComponent.props.spawnPosition) 
+        node.spawnPosition.set(
+          portalComponent.props.spawnPosition.x, 
+          portalComponent.props.spawnPosition.y,
+          portalComponent.props.spawnPosition.z
+        );
+      node.spawnRotation = new Euler();
+      if(portalComponent.props.spawnRotation) 
+        node.spawnRotation.set(
+          portalComponent.props.spawnRotation.x, 
+          portalComponent.props.spawnRotation.y,
+          portalComponent.props.spawnRotation.z
+        );
     }
     return node;
   }

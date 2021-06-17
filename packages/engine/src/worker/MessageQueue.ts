@@ -196,7 +196,6 @@ export class MessageQueue extends EventDispatcherProxy {
   queue: Message[];
   interval: NodeJS.Timeout;
   remoteDocumentObjects: Map<string, DocumentElementProxy>;
-  eventTarget: EventTarget;
   object3dProxies: Object3DProxy[] = [];
 
 
@@ -322,7 +321,6 @@ export class DocumentElementProxy extends EventDispatcherProxy {
   messageQueue: MessageQueue;
   uuid: string;
   type: string;
-  eventTarget: EventTarget;
 
   constructor({
     messageQueue,
@@ -1153,7 +1151,6 @@ class XRSystemPolyfill {
 }
 
 export class XRSessionProxy extends DocumentElementProxy implements XRSession {
-  messageQueue: MessageQueue;
   requestAnimationFrame: any;
   renderState: XRRenderState;
   inputSources: XRInputSource[] = [];

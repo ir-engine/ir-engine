@@ -1,4 +1,4 @@
-import { Box3, Frustum, Matrix4, Mesh, Vector3 } from "three";
+import { Box3, Frustum, Matrix4, Mesh, Object3D, Vector3 } from "three";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { isClient } from "../../common/functions/isClient";
 import { vectorToScreenXYZ } from "../../common/functions/vectorToScreenXYZ";

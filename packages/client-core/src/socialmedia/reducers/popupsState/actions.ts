@@ -57,11 +57,12 @@ export function changeNewFeedPage (state, id, imgSrc): PopupsActions {
   };
 }
 
-export function changeShareForm (state, id): PopupsActions {
+export function changeShareForm (state, id, imgSrc): PopupsActions {
   return {
     type: CHANGE_SHARE_FORM_STATE,
     state,
-    id
+    id,
+    imgSrc
   };
 }
 

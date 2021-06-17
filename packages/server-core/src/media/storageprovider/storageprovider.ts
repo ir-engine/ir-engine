@@ -13,6 +13,7 @@ export class StorageProvider implements StorageProviderInterface {
   }
 
   getProvider = (): StorageProviderInterface => this.provider
-  getStorage = (): any => this.provider.getStorage()
+  getStorage = (): any => this.provider.getStorage();
+  deleteResources = (keys: string[]): Promise<any> => this.provider.deleteResources(keys);
 }
 export default StorageProvider;

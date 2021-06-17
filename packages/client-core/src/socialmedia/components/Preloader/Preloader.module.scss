@@ -14,8 +14,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(255, 255, 255, 0.6);
-  &:after{
+  background: rgba(255, 255, 255, 0.7);
+  z-index: 999;
+  span{
     display: block;
     height: 10pt;
     content: "Publishing...";

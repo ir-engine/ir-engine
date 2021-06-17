@@ -26,10 +26,8 @@ import { Pass } from 'three/examples/jsm/postprocessing/Pass';
  * Original author spidersharma / http://eduperiment.com/
  */
 class DepthMaskMaterial extends ShaderMaterial {
-  side: any;
   depthPacking: any;
   material: any;
-  uniforms: any;
   constructor(camera) {
     const cameraType = camera.isPerspectiveCamera
       ? 'perspective'
@@ -77,7 +75,6 @@ class DepthMaskMaterial extends ShaderMaterial {
   }
 }
 class EdgeDetectionMaterial extends ShaderMaterial {
-  uniforms: any;
   constructor() {
     super({
       uniforms: {
@@ -115,7 +112,6 @@ class EdgeDetectionMaterial extends ShaderMaterial {
   }
 }
 class OverlayMaterial extends ShaderMaterial {
-  uniforms: any;
   constructor() {
     super({
       uniforms: {
@@ -173,8 +169,6 @@ export default class OutlinePass extends Pass {
   overlayMaterial: OverlayMaterial
   copyUniforms: any
   copyMaterial: ShaderMaterial
-  enabled: boolean
-  needsSwap: boolean
   oldClearColor: Color
   oldClearAlpha: number
   outlineCamera: OrthographicCamera
@@ -182,7 +176,6 @@ export default class OutlinePass extends Pass {
   quad: Mesh
   textureMatrix: Matrix4
   renderableLayers: Layers
-  renderToScreen: any
   constructor(resolution, scene, camera, selectedObjects, editorRenderer) {
     super();
     this.renderScene = scene;

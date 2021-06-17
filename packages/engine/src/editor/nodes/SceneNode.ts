@@ -172,39 +172,44 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
           `No node constructor found for entity "${entity.name}"`
         );
       } else {
-      const node = await EntityNodeConstructor.deserialize(
-        editor,
-        entity,
-        loadAsync,
-        onError
-      );
-      node.uuid = entityId;
-      if (entity.parent) {
-        const parent = getNodeWithUUID(scene, entity.parent);
-        if (!parent) {
-          throw new Error(
-            `Node "${entity.name}" with uuid "${
-              entity.uuid
-            }" specifies parent "${entity.parent}", but was not found.`
+        try {
+          const node = await EntityNodeConstructor.deserialize(
+            editor,
+            entity,
+            loadAsync,
+            onError
           );
+          node.uuid = entityId;
+          if (entity.parent) {
+            const parent = getNodeWithUUID(scene, entity.parent);
+            if (!parent) {
+              throw new Error(
+                `Node "${entity.name}" with uuid "${
+                  entity.uuid
+                }" specifies parent "${entity.parent}", but was not found.`
+              );
+            }
+            parent.children.splice(entity.index, 0, node);
+            node.parent = parent;
+          } else if (entityId === root) {
+            scene = node;
+            scene.metadata = metadata;
+            // Needed so that editor.scene is set correctly when used in nodes deserialize methods.
+            editor.scene = scene;
+          } else {
+            throw new Error(
+              `Node "${entity.name}" with uuid "${
+                entity.uuid
+              }" does not specify a parent.`
+            );
+          }
+          node.onChange();
+        } catch(e) {
+          console.error('Node failed to load - it will be removed', e)
+          errors.push(e)
         }
-        parent.children.splice(entity.index, 0, node);
-        node.parent = parent;
-      } else if (entityId === root) {
-        scene = node;
-        scene.metadata = metadata;
-        // Needed so that editor.scene is set correctly when used in nodes deserialize methods.
-        editor.scene = scene;
-      } else {
-        throw new Error(
-          `Node "${entity.name}" with uuid "${
-            entity.uuid
-          }" does not specify a parent.`
-        );
       }
-      node.onChange();
     }
-  }
     await Promise.all(dependencies);
     return [scene, errors];
   }

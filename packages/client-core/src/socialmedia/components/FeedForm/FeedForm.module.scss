@@ -4,12 +4,24 @@
     padding: 20px 20px 2px 20px;
     margin: auto 0;
     overflow: scroll;
-    height: max-content;
     width: 100%;
     position: fixed;
     bottom: 0;
     background: #fff;
     z-index: 999;
+    height: 100%;
+    .alignSection{
+        height: 100%;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .feedVideoPreview{
+        width: 100%;
+        max-height: calc(100% - 200px);
+        height: 100%;
+        object-fit: contain;
+    }
+
 
     .flexContainer{
         display: flex;

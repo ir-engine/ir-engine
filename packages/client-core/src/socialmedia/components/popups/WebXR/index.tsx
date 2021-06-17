@@ -24,16 +24,23 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props{
     popupsState?: any;
     updateWebXRState?: typeof  updateWebXRState;
-    setContentHidden?: any
+    setContentHidden?: any;
+    feedHintsOnborded?: any;
+    setFeedHintsOnborded?: any;
+    webxrRecorderActivity?: any;
 }
-export const WebXRStart = ({popupsState, updateWebXRState, setContentHidden}: Props) =>{
+export const WebXRStart = ({popupsState, updateWebXRState, webxrRecorderActivity, feedHintsOnborded, setFeedHintsOnborded, setContentHidden}: Props) =>{
   //common for web xr
 
 const renderWebXRModal = () =>
   popupsState?.get('webxr') === true &&  
     
         <div>
-        <WebXRPlugin setContentHidden={setContentHidden} />
+        <WebXRPlugin feedHintsOnborded={feedHintsOnborded}
+                     setFeedHintsOnborded={setFeedHintsOnborded}
+                     setContentHidden={setContentHidden}
+                     webxrRecorderActivity={webxrRecorderActivity}
+        />
         </div>;
          
       

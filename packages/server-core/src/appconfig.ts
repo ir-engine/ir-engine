@@ -90,7 +90,8 @@ const gameserver = {
   domain: process.env.GAMESERVER_DOMAIN || 'gameserver.theoverlay.io',
   releaseName: process.env.RELEASE_NAME,
   port: process.env.GAMESERVER_PORT,
-  mode: process.env.SERVER_MODE
+  mode: process.env.SERVER_MODE,
+  locationName: process.env.PRELOAD_LOCATION_NAME
 };
 
 /**
@@ -259,5 +260,7 @@ chargebeeInst.configure({
   site: process.env.CHARGEBEE_SITE,
   api_key: config.chargebee.apiKey
 });
+
+if (process.env.LOCAL === 'true') process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 export default config;
