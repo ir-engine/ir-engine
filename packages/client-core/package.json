@@ -49,6 +49,7 @@
     "@typescript-eslint/parser": "4.27.0",
     "@xrengine/common": "^0.2.27",
     "@xrengine/engine": "^0.2.27",
+    "device-detector-js": "2.2.9",
     "antd": "4.16.3",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",

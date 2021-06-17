@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Provider, useDispatch } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { Helmet } from "react-helmet";
-import DeviceDetector from 'device-detector-js';
 import { ThemeProvider } from "styled-components";
 import { configureStore } from '@xrengine/client-core/src/store';
 import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics';
@@ -11,7 +10,7 @@ import { ApiContext } from '@xrengine/client-core/src/world/components/editor/co
 import GlobalStyle from '@xrengine/client-core/src/world/components/editor/GlobalStyle';
 import theme from "@xrengine/social/theme";
 import { Config } from '@xrengine/client-core/src/helper';
-import { getDeviceType } from '@xrengine/client-core/src/common/reducers/devicedetect/actions';
+import { detectDeviceType } from '@xrengine/client-core/src/common/reducers/devicedetect/service';
 import { restoreState } from '@xrengine/client-core/src/persisted.store';
 import RouterComp from '../router';
 import reducers from '../reducers';
@@ -20,21 +19,6 @@ import './styles.scss';
 const App = (): any => {
   const dispatch = useDispatch();
   const [api, setApi] = useState<Api>();
-
-  const getDeviceInfo = async (): Promise<any> => {
-    const deviceInfo = { device: {}, WebXRSupported: false };
-
-    const deviceDetector = new DeviceDetector();
-
-    deviceInfo.device = deviceDetector.parse(navigator.userAgent);
-
-    if ((navigator as any).xr) {
-      await (navigator as any).xr.isSessionSupported('immersive-vr').then(isSupported => {
-        deviceInfo.WebXRSupported = isSupported;
-        dispatch(getDeviceType(deviceInfo));
-      });
-    }
-  };
 
   const initApp = useCallback(() => {
     if(process.env && process.env.NODE_CONFIG){
@@ -49,7 +33,7 @@ const App = (): any => {
 
     logPageView();
 
-    getDeviceInfo();
+    detectDeviceType()(dispatch);
 
     setApi(new Api());
   }, []);
