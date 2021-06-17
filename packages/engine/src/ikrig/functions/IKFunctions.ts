@@ -628,7 +628,7 @@ export function applyGrounding(entity, y_lmt) {
 	// 	return;
 
 	/* DEBUG IK TARGET */
-	const tar = ik.target,
+	const tar = (ik as any).target,
 		posA = tar.startPosition.add(new Vector3(-1, 0, 0)),
 		posB = tar.endPosition.add(new Vector3(-1, 0, 0));
 
@@ -640,26 +640,26 @@ export function applyGrounding(entity, y_lmt) {
 	// Where on the line between the Start and end Points would work for our
 	// Y Limit. An easy solution is to find the SCALE based on doing a 1D Scale
 	//operation on the Y Values only. Whatever scale value we get with Y we can use on X and Z
-	const a = ik.target.startPosition,
-		b = ik.target.endPosition,
+	const a = (ik as any).target.startPosition,
+		b = (ik as any).target.endPosition,
 		s = (y_lmt - a.y) / (b.y - a.y); // Normalize Limit Value in the Max/Min Range of Y.
 
 
 	// Change the end effector of our target
-	ik.target.endPosition.set(
+	(ik as any).target.endPosition.set(
 		(b.x - a.x) * s + a.x,
 		y_lmt,
 		(b.z - a.z) * s + a.z
 	);
 
 	/* DEBUG NEW END EFFECTOR */
-	Debug.setPoint(ik.target.endPosition.add(new Vector3(-1, 0, 0)), "orange", 0.05, 6);
+	Debug.setPoint((ik as any).target.endPosition.add(new Vector3(-1, 0, 0)), "orange", 0.05, 6);
 
 	// Since we changed the end effector, lets update the Sqr Length and Length of our target
 	// This is normally computed by our IK Target when we set it, but since I didn't bother
 	// to create a method to update the end effector, we need to do these extra updates.
-	const distance = ik.target.startPosition.distanceTo(ik.target.endPosition);
-	ik.target.length = distance;
+	const distance = (ik as any).target.startPosition.distanceTo((ik as any).target.endPosition);
+	(ik as any).target.length = distance;
 }
 
 export function applySpine(entity, chain, ik, lookDirection, twistDirection) {

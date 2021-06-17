@@ -150,7 +150,7 @@ export const Types = {
 
   QuaternionType: createType({
     name: 'Quaternion',
-    default: [0, 0, 0],
+    default: [0, 0, 0, 1],
     copy: copyCopyable,
     clone: cloneClonable
   })

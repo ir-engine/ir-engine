@@ -3,17 +3,7 @@ import createShadowMapResolutionProxy from "../../editor/functions/createShadowM
 export default class PhysicalSpotLight extends SpotLight {
   maxOuterConeAngle: number;
   shadowMapResolution: any;
-  position: any;
-  decay: number;
-  target: any;
   add: any;
-  castShadow: boolean;
-  distance: any;
-  penumbra: any;
-  angle: any;
-  shadow: any;
-  color: any;
-  intensity: any;
   remove: any;
   constructor() {
     super();

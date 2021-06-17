@@ -20,7 +20,6 @@ import { arrayOfPointsToArrayOfVector3 } from '../../scene/functions/arrayOfPoin
 export function addColliderWithEntity(entity: Entity) {
 
   const colliderComponent = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
-  const transformComponent = getComponent<TransformComponent>(entity, TransformComponent);
 
   const { mesh, vertices, indices, collisionLayer, collisionMask } = colliderComponent;
 
@@ -44,6 +43,8 @@ type ColliderData = {
   bodytype?: BodyType;
   isTrigger?: boolean;
   restitution?: number;
+  action?: any;
+  link?: any;
 }
 
 type ModelData = {
@@ -73,11 +74,7 @@ export function addColliderWithoutEntity(userData: ColliderData, pos = new Vecto
       shapeArgs.shape = SHAPES.Plane;
       quat1.setFromAxisAngle(xVec, -halfPI);
       quat2.set(rot.x, rot.y, rot.z, rot.w);
-      quat2.multiply(quat1);
-      rot.x = quat2.x;
-      rot.y = quat2.y;
-      rot.z = quat2.z;
-      rot.w = quat2.w;
+      rot = quat2.multiply(quat1);
       break;
 
     case 'sphere':

@@ -1,5 +1,4 @@
-import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, MeshStandardMaterial, PointLight, Scene, SpotLight } from 'three';
-// import { LOADER_STATUS } from "../../assets/constants/LoaderConstants";
+import { AmbientLight, HemisphereLight, PointLight, SpotLight } from 'three';
 import { isClient } from "../../common/functions/isClient";
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
@@ -38,7 +37,7 @@ import { CopyTransformComponent } from "../../transform/components/CopyTransform
 import { setReflectionProbe } from '../behaviors/setReflectionProbe';
 import { PersistTagComponent } from '../components/PersistTagComponent';
 import { createPortal } from '../behaviors/createPortal';
-
+import { createGround } from '../behaviors/createGround';
 
 export class WorldScene {
   loadedModels = 0;
@@ -148,21 +147,7 @@ export class WorldScene {
         break;
 
       case 'ground-plane':
-        const mesh = new Mesh(
-          new CircleBufferGeometry(1000, 32).rotateX(-Math.PI / 2),
-          new MeshStandardMaterial({
-            color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464),
-            roughness:0,
-          })
-        );
-
-        addObject3DComponent(
-          entity,
-          {
-            obj3d: mesh,
-            objArgs: { receiveShadow: true, 'material.color': component.data.color },
-          },
-        );
+        createGround(entity, component.data)
         break;
 
       case 'hemisphere-light':

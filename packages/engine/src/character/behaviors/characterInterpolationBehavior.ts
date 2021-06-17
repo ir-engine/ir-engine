@@ -6,6 +6,7 @@ import { ControllerColliderComponent } from '../components/ControllerColliderCom
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
 import type { SnapshotData } from '../../networking/types/SnapshotDataTypes';
+import { Vector3 } from 'three';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -38,7 +39,7 @@ export const characterInterpolationBehavior: Behavior = (entity: Entity, snapsho
     }
   })
 
-  collider.controller.velocity = { x: 0, y: 0, z: 0 };
+  collider.controller.velocity = new Vector3(0, 0, 0);
 
   transform.rotation.set(
     interpolation.qX,
