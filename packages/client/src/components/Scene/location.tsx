@@ -579,4 +579,4 @@ export const EnginePage = (props: Props) => {
 
 const connector = connect(mapStateToProps, mapDispatchToProps)(EnginePage);
 
-export default connector
+export default connector;
