@@ -1,11 +1,11 @@
-import { Quaternion, Vector3 } from "three";
+import { Color, ConeBufferGeometry, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from "three";
 import { ControllerHitEvent, RaycastQuery, SceneQueryType } from "three-physx";
 import { applyVectorMatrixXZ } from "../common/functions/applyVectorMatrixXZ";
 import { isClient } from "../common/functions/isClient";
 import { EngineEvents } from "../ecs/classes/EngineEvents";
 import { System, SystemAttributes } from "../ecs/classes/System";
 import { Not } from "../ecs/functions/ComponentFunctions";
-import { getMutableComponent, getComponent, getRemovedComponent, getEntityByID } from "../ecs/functions/EntityFunctions";
+import { getMutableComponent, getComponent, getRemovedComponent, getEntityByID, removeComponent, addComponent } from "../ecs/functions/EntityFunctions";
 import { SystemUpdateType } from "../ecs/functions/SystemUpdateType";
 import { LocalInputReceiver } from "../input/components/LocalInputReceiver";
 import { characterMoveBehavior } from "./behaviors/characterMoveBehavior";
@@ -19,11 +19,13 @@ import { CharacterComponent } from "./components/CharacterComponent";
 import { updateVectorAnimation } from "./functions/updateVectorAnimation";
 import { loadActorAvatar, teleportPlayer } from "./prefabs/NetworkPlayerCharacter";
 import { Engine } from "../ecs/classes/Engine";
-import { IKRigComponent } from "./components/IKRigComponent";
+import { IKComponent } from "./components/IKComponent";
 import { Avatar } from "../xr/classes/IKAvatar";
 import { Network } from "../networking/classes/Network";
-import { PortalComponent } from "../scene/components/PortalComponent";
 import { detectUserInPortal } from "./functions/detectUserInPortal";
+import { ServerSpawnSystem } from "../scene/systems/ServerSpawnSystem";
+import { sendClientObjectUpdate } from "../networking/functions/sendClientObjectUpdate";
+import { NetworkObjectUpdateType } from "../networking/templates/NetworkObjectUpdateSchema";
 
 const forwardVector = new Vector3(0, 0, 1);
 const prevControllerColliderPosition = new Vector3();
@@ -64,9 +66,9 @@ export class CharacterControllerSystem extends System {
    */
   execute(delta: number): void {
 
-    this.queryResults.character.added?.forEach((entity) => {
+    this.queryResults.controller.added?.forEach((entity) => {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-      if (actor) actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({
+      actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({
         type: SceneQueryType.Closest,
         origin: new Vector3(0, actor.actorHeight, 0),
         direction: new Vector3(0, -1, 0),
@@ -84,26 +86,32 @@ export class CharacterControllerSystem extends System {
       collider.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => { })
 
       if(!isClient) detectUserInPortal(entity);
-    })
-
-    this.queryResults.character.all?.forEach(entity => {
 
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 
-      if (!actor.movementEnabled || !actor.initialized) return;
+      if (!actor.movementEnabled) return;
       
-      const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
       const transform = getComponent<TransformComponent>(entity, TransformComponent as any);
 
       // reset if vals are invalid
-      if (isNaN(collider.controller.transform.translation.x) || collider.controller.transform.translation.y < -10) {
-        // console.warn("WARNING: Character physics data reporting NaN")
+      if (isNaN(collider.controller.transform.translation.x)) {
+        console.warn("WARNING: Character physics data reporting NaN", collider.controller.transform.translation)
         collider.controller.updateTransform({
-          translation: { x: 0, y: 10, z: 10 },
-          rotation: {}
+          translation: { x: 0, y: 10, z: 0 },
+          rotation: { x: 0, y: 0, z: 0, w: 1 }
         });
-        // collider.playerStuck = 1000;
-        // return;
+      }
+
+      // TODO: implement scene lower bounds parameter
+      if(!isClient && collider.controller.transform.translation.y < -10) {
+        const { position, rotation } = ServerSpawnSystem.instance.getRandomSpawnPoint();
+        position.y += actor.actorHeight + actor.capsuleRadius;
+        console.log('player has fallen through the floor, teleporting them to', position)
+        collider.controller.updateTransform({
+          translation: position,
+          rotation
+        });
+        sendClientObjectUpdate(entity, NetworkObjectUpdateType.ForceTransformUpdate, [position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, rotation.w])
       }
 
       transform.position.set(
@@ -129,7 +137,7 @@ export class CharacterControllerSystem extends System {
       const controllerCollider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
       const transform = getComponent<TransformComponent>(entity, TransformComponent);
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-      if (!actor.initialized || !controllerCollider.controller || !actor.movementEnabled) return;
+      if (!controllerCollider.controller || !actor.movementEnabled) return;
 
       const x = controllerCollider.controller.transform.translation.x - prevControllerColliderPosition.x;
       const y = controllerCollider.controller.transform.translation.y - prevControllerColliderPosition.y;
@@ -169,34 +177,41 @@ export class CharacterControllerSystem extends System {
     }
 
     this.queryResults.ikAvatar.added?.forEach((entity) => {
-      if(!isClient) return;
-      const ikRigComponent = getMutableComponent(entity, IKRigComponent);
-      const actor = getMutableComponent(entity, CharacterComponent);
-      const avatarIKRig = new Avatar(actor.modelContainer.children[0], {
-        debug: true,
-        top: true,
-        bottom: true,
-        visemes: true,
-        hair: true,
-      });
-      ikRigComponent.avatarIKRig = avatarIKRig;
-      if(Network.instance.localClientEntity === entity) {
-        // avatarIK.avatarIKRig.decapitate()
+      removeComponent(entity, AnimationComponent);
+
+      const ikComponent = getMutableComponent(entity, IKComponent);
+      if(entity !== Network.instance.localClientEntity) {
+        const actor = getMutableComponent(entity, CharacterComponent);
+        ikComponent.headGroup.add(ikComponent.head);
+        ikComponent.controllersGroup.add(ikComponent.controllerLeft, ikComponent.controllerGripLeft, ikComponent.controllerRight, ikComponent.controllerGripRight);
+        actor.tiltContainer.add(ikComponent.headGroup, ikComponent.controllersGroup);
       }
+      
+      const actor = getMutableComponent(entity, CharacterComponent);
 
       // TODO: Temporarily make rig invisible until rig is fixed
-      actor.modelContainer.children[0]?.traverse((child) => {
+      actor?.modelContainer.children[0]?.traverse((child) => {
         if(child.visible) {
           child.visible = false;
         }
       })
     })
 
+    this.queryResults.ikAvatar.removed?.forEach((entity) => {
+
+      addComponent(entity, AnimationComponent);
+      const actor = getMutableComponent(entity, CharacterComponent);
+
+      // TODO: Temporarily make rig invisible until rig is fixed
+      actor?.modelContainer.children[0]?.traverse((child) => {
+        if(child.visible) {
+          child.visible = true;
+        }
+      })
+    })
+
     this.queryResults.ikAvatar.all?.forEach((entity) => {
-      const ikRigComponent = getMutableComponent(entity, IKRigComponent);
-      if(ikRigComponent) {
-        // ikRigComponent.avatarIKRig.update(delta);
-      }
+
     })
   }
 }
@@ -231,14 +246,14 @@ CharacterControllerSystem.queries = {
     }
   },
   animation: {
-    components: [AnimationComponent],
+    components: [CharacterComponent, AnimationComponent],
     listen: {
       added: true,
       removed: true
     }
   },
   ikAvatar: {
-    components: [IKRigComponent],
+    components: [CharacterComponent, IKComponent],
     listen: {
       added: true,
       removed: true

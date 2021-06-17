@@ -24,6 +24,10 @@ spec:
       serviceAccountName: {{ include "xrengine.client.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.client.podSecurityContext | nindent 8 }}
+      {{- $releaseName := .Release.Name }}
+      {{ if not (empty .Values.release) }}
+      {{- $releaseName = .Values.release.name | default .Release.Name }}
+      {{ end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -40,7 +44,7 @@ spec:
             - name: KUBERNETES
               value: "true"
             - name: RELEASE_NAME
-              value: {{ .Release.Name }}
+              value: {{ $releaseName }}
           ports:
             - name: http
               containerPort: 3000

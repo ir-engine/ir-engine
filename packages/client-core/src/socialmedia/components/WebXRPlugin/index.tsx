@@ -29,6 +29,8 @@ import { selectPopupsState } from '../../reducers/popupsState/selector';
 import { selectArMediaState } from "../../reducers/arMedia/selector";
 import { getArMediaItem } from "../../reducers/arMedia/service";
 import ZoomGestureHandler from "../../../zoom-gesture-handler";
+import HintOne from "../WebXrHints/HintOne";
+import HintTwo from "../WebXrHints/HintTwo";
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -454,8 +456,6 @@ export const WebXRPlugin = ({
                     ]);
                     setAnchorPoseState(newAnchorTransformString);
 
-                    //console.log('anchor placed at position', newAnchorTransformString);
-
                     anchor.quaternion
                       .set(anchorRotationX, anchorRotationY, anchorRotationZ, anchorRotationW);
                     anchor.position.set(anchorPositionX, anchorPositionY, anchorPositionZ);
@@ -464,6 +464,14 @@ export const WebXRPlugin = ({
                         console.log('SET ANCHOR VISIBLE!');
                         // console.log('player = ', playerRef.current);
                         anchor.visible = true;
+
+                        if (!feedHintsOnborded)
+                        {
+                            setTimeout(()=> {
+                                hintTwoShow(true);
+                                setFeedHintsOnborded(true);
+                            },1000);
+                        }
                     }
                     // TODO: add volumetric isPlaying property
                     // if (playerRef.current) {
@@ -588,14 +596,6 @@ export const WebXRPlugin = ({
 
         // @ts-ignore
         Plugins.XRPlugin.handleTap(params);
-
-        if (!feedHintsOnborded)
-        {
-            setTimeout(()=> {
-                hintTwoShow(true);
-                setFeedHintsOnborded(true);
-            },1000);
-        }
     };
 
     const playVideo = () => {
@@ -633,52 +633,8 @@ export const WebXRPlugin = ({
                 <p>APS:{anchorPoseState}</p>
             </div>
         </div> */}
-        {hintOne ? <div className={styles.hintOne}>
-            <div className={styles.thirdScreen+" "+styles.onboarding}>
-                <div className={styles.relativeImage}>
-                    <img src="/assets/feedOnboarding/camera.png" className={styles.mobImage} />
-                    <div className={styles.relativePointer}>
-                        <ul className={styles.loadingFrame}>
-                            <div className={styles.circle} />
-                            <div className={styles.circle} />
-                            <div className={styles.circle} />
-                            <div className={styles.circle} />
-                            <div className={styles.circle} />
-                            <div className={styles.circle} />
-                            <div className={styles.circle} />
-                            <div className={styles.circle} />
-                            <div className={styles.circle} />
-                            <div className={styles.circle} />
-                        </ul>
-                        <p className={styles.offsetImg}>Tap the screen to lock me in place.</p>
-                    </div>
-                </div>
-                <button type="button" onClick={()=>{ hintOneShow(false); } }> Got it! </button>
-            </div>
-        </div> : ''}
-
-         {hintTwo ? <div className={`${styles.hintOne}`+" "+`${styles.hintTwo}`} >
-             <div className={styles.thirdScreen+" "+styles.onboarding}>
-                 <div className={styles.relativeImage}>
-                     <div className={styles.relativePointer}>
-                         <ul className={styles.loadingFrame + ' ' + styles.hintButtonTwo}>
-                             <div className={styles.circle} />
-                             <div className={styles.circle} />
-                             <div className={styles.circle} />
-                             <div className={styles.circle} />
-                             <div className={styles.circle} />
-                             <div className={styles.circle} />
-                             <div className={styles.circle} />
-                             <div className={styles.circle} />
-                             <div className={styles.circle} />
-                             <div className={styles.circle} />
-                         </ul>
-                         <p className={styles.offsetImg}>Hit record to start the performance.</p>
-                     </div>
-                 </div>
-                 <button type="button" onClick={()=>{ hintTwoShow(false); } }> Got it! </button>
-             </div>
-         </div>  : ''}
+         {hintOne ? <HintOne hintOneShow={hintOneShow} /> : ''}
+         {hintTwo ? <HintTwo hintTwoShow={hintTwoShow} /> : ''}
          <div className="plugintestControls">
             <div className={recordingState === RecordingStates.OFF ? '' : styles.hideButtons}>
               <section className={styles.waterMarkWrapper}>

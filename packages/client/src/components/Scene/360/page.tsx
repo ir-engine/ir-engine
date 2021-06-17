@@ -1,10 +1,8 @@
-import { MobileGamepadProps } from '@xrengine/client-core/src/common/components/MobileGamepad/MobileGamepadProps';
 import { GeneralStateList, setAppLoaded, setAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
 import Store from '@xrengine/client-core/src/store';
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
 import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine';
 import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
@@ -15,7 +13,7 @@ import {XR360Player} from './app';
 import {testScene} from './test';
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 
-const MobileGamepad = React.lazy(() => import("@xrengine/client-core/src/common/components/MobileGamepad"));
+const TouchGamepad = React.lazy(() => import("@xrengine/client-core/src/common/components/TouchGamepad"));
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
 const store = Store.store;
@@ -94,14 +92,14 @@ export const XR360PlayerPage = (props: Props) => {
     };
   }, []);
 
-  //mobile gamepad
-  const mobileGamepadProps = { layout: 'default' };
-  const mobileGamepad = isMobileOrTablet() ? <MobileGamepad {...mobileGamepadProps} /> : null;
+  //touch gamepad
+  const touchGamepadProps = { layout: 'default' };
+  const touchGamepad = isMobileOrTablet() ? <TouchGamepad {...touchGamepadProps} /> : null;
   return (
     <>
       {!isInXR && <div>
         <canvas id={engineRendererCanvasId} style={canvasStyle} />
-        {mobileGamepad}
+        {touchGamepad}
       </div>}
     </>);
 };

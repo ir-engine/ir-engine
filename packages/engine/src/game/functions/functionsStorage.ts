@@ -16,7 +16,7 @@ const customArchives = (variable: string, objData) => variable+'='+Object.keys(o
 */
 
 export const initStorage = (entity: Entity, initSchemaStorege: InitStorageInterface[]): void => {
-  console.log('initStorage', entity, initSchemaStorege)
+  //console.log('initStorage', entity, initSchemaStorege)
   if (initSchemaStorege === undefined) return;
   const role = getRole(entity);
   const uuid = getUuid(entity);

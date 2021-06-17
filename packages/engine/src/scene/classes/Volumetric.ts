@@ -17,16 +17,11 @@ import { VideoTexture } from "../../ecs/classes/Engine";
 
 export default class Volumetric extends AudioSource {
   _videoTexture: any;
-  el: HTMLVideoElement;
   _texture: any;
   _mesh: Mesh;
   _projection: string;
   hls: any;
-  audioSource: any;
-  audioListener: any;
-  audio: any;
   add: any;
-  children: any;
   constructor(audioListener) {
     super(audioListener, "volumetric");
     // @ts-ignore

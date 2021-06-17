@@ -6,7 +6,6 @@ import { StateObject } from "../types/GameMode";
  * @author HydraFire <github.com/HydraFire>
  */
 export class Game extends Component<Game> {
-    name: string // Game Node Name from editor, allow create two games with one GameMode|GameType;
     gameMode: string // GameMode|GameType, its string key to DefaultGamesSchema to get GameSchema of your game
     isGlobal: boolean // switch Server and Client work or Only in Your Client (All games have this two work modes by architect solution)
     priority: number // when player stand in two game areas in one time, he add to one of them, most prioritized
