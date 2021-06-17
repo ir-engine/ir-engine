@@ -143,8 +143,8 @@ export class WebGLRendererSystem extends System {
 
     this.onResize = this.onResize.bind(this);
 
-    let context;
-    const canvas = attributes.canvas;
+    const canvas: HTMLCanvasElement = attributes.canvas;
+    const context = this.supportWebGL2 ? canvas.getContext('webgl2') : canvas.getContext('webgl');
 
     this.renderContext = context;
     const options = {

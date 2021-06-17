@@ -1,11 +1,11 @@
-import { Quaternion, Vector3 } from "three";
+import { Color, ConeBufferGeometry, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from "three";
 import { ControllerHitEvent, RaycastQuery, SceneQueryType } from "three-physx";
 import { applyVectorMatrixXZ } from "../common/functions/applyVectorMatrixXZ";
 import { isClient } from "../common/functions/isClient";
 import { EngineEvents } from "../ecs/classes/EngineEvents";
 import { System, SystemAttributes } from "../ecs/classes/System";
 import { Not } from "../ecs/functions/ComponentFunctions";
-import { getMutableComponent, getComponent, getRemovedComponent, getEntityByID } from "../ecs/functions/EntityFunctions";
+import { getMutableComponent, getComponent, getRemovedComponent, getEntityByID, removeComponent, addComponent } from "../ecs/functions/EntityFunctions";
 import { SystemUpdateType } from "../ecs/functions/SystemUpdateType";
 import { LocalInputReceiver } from "../input/components/LocalInputReceiver";
 import { characterMoveBehavior } from "./behaviors/characterMoveBehavior";
@@ -19,10 +19,9 @@ import { CharacterComponent } from "./components/CharacterComponent";
 import { updateVectorAnimation } from "./functions/updateVectorAnimation";
 import { loadActorAvatar, teleportPlayer } from "./prefabs/NetworkPlayerCharacter";
 import { Engine } from "../ecs/classes/Engine";
-import { IKRigComponent } from "./components/IKRigComponent";
+import { IKComponent } from "./components/IKComponent";
 import { Avatar } from "../xr/classes/IKAvatar";
 import { Network } from "../networking/classes/Network";
-import { PortalComponent } from "../scene/components/PortalComponent";
 import { detectUserInPortal } from "./functions/detectUserInPortal";
 
 const forwardVector = new Vector3(0, 0, 1);
@@ -169,34 +168,49 @@ export class CharacterControllerSystem extends System {
     }
 
     this.queryResults.ikAvatar.added?.forEach((entity) => {
-      if(!isClient) return;
-      const ikRigComponent = getMutableComponent(entity, IKRigComponent);
-      const actor = getMutableComponent(entity, CharacterComponent);
-      const avatarIKRig = new Avatar(actor.modelContainer.children[0], {
-        debug: true,
-        top: true,
-        bottom: true,
-        visemes: true,
-        hair: true,
-      });
-      ikRigComponent.avatarIKRig = avatarIKRig;
-      if(Network.instance.localClientEntity === entity) {
-        // avatarIK.avatarIKRig.decapitate()
+      removeComponent(entity, AnimationComponent);
+
+      const ikComponent = getMutableComponent(entity, IKComponent);
+      if(entity !== Network.instance.localClientEntity) {
+        const actor = getMutableComponent(entity, CharacterComponent);
+        ikComponent.headGroup.add(ikComponent.head);
+        ikComponent.controllersGroup.add(ikComponent.controllerLeft, ikComponent.controllerGripLeft, ikComponent.controllerRight, ikComponent.controllerGripRight);
+        actor.tiltContainer.add(ikComponent.headGroup, ikComponent.controllersGroup);
       }
 
+      // TODO move to debug system
+      const cubeGeometry = new ConeBufferGeometry(0.05, 0.2, 3)
+      cubeGeometry.rotateX(-Math.PI * 0.5)
+      const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red') }))
+      const debugLeft = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('green') }))
+      const debugRight = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('blue') }))
+      ikComponent.head.add(debugHead)
+      ikComponent.controllerLeft.add(debugLeft)
+      ikComponent.controllerRight.add(debugRight)
+      
+
       // TODO: Temporarily make rig invisible until rig is fixed
-      actor.modelContainer.children[0]?.traverse((child) => {
-        if(child.visible) {
-          child.visible = false;
-        }
-      })
+      // actor.modelContainer.children[0]?.traverse((child) => {
+      //   if(child.visible) {
+      //     child.visible = false;
+      //   }
+      // })
+    })
+
+    this.queryResults.ikAvatar.removed?.forEach((entity) => {
+      addComponent(entity, AnimationComponent);
+      const actor = getMutableComponent(entity, CharacterComponent);
+
+      // TODO: Temporarily make rig invisible until rig is fixed
+      // actor.modelContainer.children[0]?.traverse((child) => {
+      //   if(child.visible) {
+      //     child.visible = false;
+      //   }
+      // })
     })
 
     this.queryResults.ikAvatar.all?.forEach((entity) => {
-      const ikRigComponent = getMutableComponent(entity, IKRigComponent);
-      if(ikRigComponent) {
-        // ikRigComponent.avatarIKRig.update(delta);
-      }
+
     })
   }
 }
@@ -238,7 +252,7 @@ CharacterControllerSystem.queries = {
     }
   },
   ikAvatar: {
-    components: [IKRigComponent],
+    components: [CharacterComponent, IKComponent],
     listen: {
       added: true,
       removed: true
