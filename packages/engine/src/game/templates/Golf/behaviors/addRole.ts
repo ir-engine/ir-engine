@@ -10,7 +10,10 @@ import { getGame } from '../../../functions/functions';
  * @author HydraFire <github.com/HydraFire>
  */
 function recurseSearchEmptyRole(game, gameSchema, number, allowInOneRole) {
-  if (game.gamePlayers[Object.keys(gameSchema.gamePlayerRoles)[number]].length > allowInOneRole - 1) {
+  if (number < 1) {
+    return null;
+  } else
+  if (game.gamePlayers[Object.keys(gameSchema.gamePlayerRoles)[number]] === undefined || game.gamePlayers[Object.keys(gameSchema.gamePlayerRoles)[number]].length > allowInOneRole - 1) {
     number -= 1;
     return recurseSearchEmptyRole(game, gameSchema, number, 1);
   } else {
@@ -23,6 +26,9 @@ export const addRole: Behavior = (entity: Entity, args?: any, delta?: number, en
   let newPlayerNumber = Object.keys(game.gamePlayers).reduce((acc,v) => acc + game.gamePlayers[v].length, 0);
   // check if role buzy
   newPlayerNumber = recurseSearchEmptyRole(game, gameSchema, newPlayerNumber, 1); //last parameter - allowInOneRole, for futured RedTeam vs BlueTeam
-  console.warn('Player Number '+ newPlayerNumber);
+  if (newPlayerNumber === null || newPlayerNumber > game.maxPlayers) {
+    //console.warn('Player '+newPlayerNumber+' cant join game, because game set with maxPlayer count:'+ game.maxPlayers);
+    return;
+  }
   changeRole(entity, Object.keys(gameSchema.gamePlayerRoles)[newPlayerNumber]);
 };

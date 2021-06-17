@@ -24,6 +24,10 @@ spec:
       serviceAccountName: {{ include "xrengine.media.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.media.podSecurityContext | nindent 8 }}
+      {{- $releaseName := .Release.Name }}
+      {{ if not (empty .Values.release) }}
+      {{- $releaseName = .Values.release.name | default .Release.Name }}
+      {{ end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -64,16 +68,16 @@ spec:
             - name: REDIS_ENABLED
               value: "true"
             - name: REDIS_ADDRESS
-              value: "$({{ .Release.Name | upper }}_REDIS_MASTER_SERVICE_HOST)"
+              value: "$({{ $releaseName | upper }}_REDIS_MASTER_SERVICE_HOST)"
             - name: REDIS_PORT
-              value: "$({{ .Release.Name | upper }}_REDIS_MASTER_SERVICE_PORT)"
+              value: "$({{ $releaseName | upper }}_REDIS_MASTER_SERVICE_PORT)"
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-redis
+                  name: {{ $releaseName }}-redis
                   key: redis-password
             - name: RELEASE_NAME
-              value: {{ .Release.Name }}
+              value: {{ $releaseName }}
           ports:
             - name: http
               containerPort: 3030
@@ -96,13 +100,13 @@ spec:
           command: [ 'sh', '-c', 'until (printf "AUTH $REDIS_PASSWORD\r\nPING\r\n";) | nc $REDIS_ADDRESS $REDIS_PORT ; do echo waiting for redis-master; sleep 2; done' ]
           env:
             - name: REDIS_ADDRESS
-              value: "$({{ .Release.Name | upper }}_REDIS_MASTER_SERVICE_HOST)"
+              value: "$({{ $releaseName | upper }}_REDIS_MASTER_SERVICE_HOST)"
             - name: REDIS_PORT
-              value: "$({{ .Release.Name | upper }}_REDIS_MASTER_SERVICE_PORT)"
+              value: "$({{ $releaseName | upper }}_REDIS_MASTER_SERVICE_PORT)"
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-redis
+                  name: {{ $releaseName }}-redis
                   key: redis-password
       {{- with .Values.media.nodeSelector }}
       nodeSelector:

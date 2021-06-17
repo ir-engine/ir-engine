@@ -498,6 +498,7 @@ export const WebXRPlugin = ({
               then(({ result, filePath }) => {
                   console.log("END RECORDING, result IS", result);
                   console.log("filePath IS", filePath);
+                  getArMediaItem(null);
                   setSavedFilePath("file://" + filePath);
                   if(!closeBtnAction.current){
                       const videoPath = Capacitor.convertFileSrc(filePath);

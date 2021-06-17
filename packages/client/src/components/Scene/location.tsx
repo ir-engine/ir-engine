@@ -54,8 +54,11 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader';
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
 import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal';
-import { onPlayerSpawnInNewLocation, teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
+import { addColliderToCharacter, teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent';
+import RecordingApp from './../Recorder/RecordingApp';
+import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu';
+import { ControllerColliderComponent } from '@xrengine/engine/src/character/components/ControllerColliderComponent';
 
 const store = Store.store;
 
@@ -195,6 +198,7 @@ export const EnginePage = (props: Props) => {
   const [instanceDisconnected, setInstanceDisconnected] = useState(false);
   const [isInputEnabled, setInputEnabled] = useState(true);
   const [porting, setPorting] = useState(false);
+  const [newSpawnPos, setNewSpawnPos] = useState(null);
 
   const appLoaded = appState.get('loaded');
   const selfUser = authState.get('user');
@@ -414,8 +418,7 @@ export const EnginePage = (props: Props) => {
         // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
         let spawnTransform;
         if(porting) {
-          const currentLocalEntityTransform = porting && getComponent(Network.instance.localClientEntity, TransformComponent);
-          spawnTransform = { position: currentLocalEntityTransform.position, rotation: currentLocalEntityTransform.rotation };
+          spawnTransform = { position: newSpawnPos.spawnPosition, rotation: newSpawnPos.spawnRotation };
         }
 
         const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString(), { spawnTransform });
@@ -460,18 +463,33 @@ export const EnginePage = (props: Props) => {
       return;
     }
 
-    history.replace('/location/' + portalComponent.location);
-
+    // shut down connection with existing GS
     setPorting(true);
     resetInstanceServer();
-    await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'));
-
     Network.instance.transport.close();
+    
+    // disable physics temporarily
+    PhysicsSystem.instance.enabled = false;
+    // remove controller since physics world will be destroyed and we don't want it moving
+    PhysicsSystem.instance.removeController(getComponent(Network.instance.localClientEntity, ControllerColliderComponent).controller);
 
+    // change our browser URL
+    history.replace('/location/' + portalComponent.location);
+    
+    // teleport player to where the portal is
+    const transform = getComponent(Network.instance.localClientEntity, TransformComponent);
+    transform.position.copy(portalComponent.spawnPosition);
+    transform.rotation.copy(portalComponent.spawnRotation);
+    setNewSpawnPos(portalComponent);
+    
+    await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'));
+    PhysicsSystem.instance.enabled = false;
     getLocationByName(portalComponent.location);
 
-    EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, () => {
-      onPlayerSpawnInNewLocation(portalComponent);
+    // add back the collider using previous parameters
+    EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
+      addColliderToCharacter(Network.instance.localClientEntity);
+      PhysicsSystem.instance.enabled = false;
     });
   };
 
@@ -538,6 +556,7 @@ export const EnginePage = (props: Props) => {
         { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
         {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
         <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); setInputEnabled(true); }} data={infoBoxData} />
+        <RecordingApp/>
         <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); setInputEnabled(true); }} data={openLinkData} />
         <canvas id={engineRendererCanvasId} style={canvasStyle} />
         {mobileGamepad}
@@ -550,6 +569,7 @@ export const EnginePage = (props: Props) => {
             parameters={warningRefreshModalValues.parameters}
             timeout={warningRefreshModalValues.timeout}
         />
+        <EmoteMenu />
       </>
   );
 };

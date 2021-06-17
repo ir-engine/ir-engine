@@ -23,16 +23,12 @@ import { isClient } from "../common/functions/isClient";
 import { VehicleComponent } from '../vehicle/components/VehicleComponent';
 import { isMobileOrTablet } from '../common/functions/isMobile';
 import { SIXDOFType } from '../common/types/NumericalTypes';
-import { IKComponent } from './components/IKComponent';
 import { EquipperComponent } from '../interaction/components/EquipperComponent';
-import { unequipEntity } from '../interaction/functions/equippableFunctions';
 import { TransformComponent } from '../transform/components/TransformComponent';
 import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings';
 import { BinaryValue } from '../common/enums/BinaryValue';
 import { ParityValue } from '../common/enums/ParityValue';
-import { getInteractiveIsInReachDistance } from './functions/getInteractiveIsInReachDistance';
-import { initiateIK } from '../xr/functions/IKFunctions';
-import { IKRigComponent } from './components/IKRigComponent';
+import { IKComponent } from './components/IKComponent';
 
 /**
  *
@@ -439,38 +435,6 @@ const lookByInputAxis = (
         lifecycleState: LifecycleValue.CHANGED
       });
     }
-  }
-}
-
-const updateIKRig: Behavior = (entity, args): void => {
-
-  const avatarIK = getMutableComponent(entity, IKRigComponent);
-  if(!avatarIK || !avatarIK.avatarIKRig) return;
-  
-  const inputs = getMutableComponent(entity, Input);
-  const obj3d = getComponent(entity, Object3DComponent).value as Object3D;
-
-  if(args.type === BaseInput.XR_HEAD) {
-
-    const cam = inputs.data.get(BaseInput.XR_HEAD).value as SIXDOFType;
-    avatarIK.avatarIKRig.inputs.hmd.position.set(cam.x, cam.y, cam.z).sub(obj3d.position); // in world space, sub entity pos to get local pos
-    avatarIK.avatarIKRig.inputs.hmd.quaternion.set(cam.qX, cam.qY, cam.qZ, cam.qW)
-    // avatarIK.avatarIKRig.inputs.hmd.rotateY(Math.PI / 2)
-
-  } else if(args.type === BaseInput.XR_LEFT_HAND) {
-
-    const left = inputs.data.get(BaseInput.XR_LEFT_HAND).value as SIXDOFType;
-    avatarIK.avatarIKRig.inputs.leftGamepad.position.set(left.x, left.y, left.z);
-    avatarIK.avatarIKRig.inputs.leftGamepad.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
-    // avatar.inputs.leftGamepad.pointer = ; // for finger animation
-    // avatar.inputs.leftGamepad.grip = ;
-
-  } else if(args.type === BaseInput.XR_RIGHT_HAND) {
-
-    const right = inputs.data.get(BaseInput.XR_RIGHT_HAND).value as SIXDOFType;
-    avatarIK.avatarIKRig.inputs.rightGamepad.position.set(right.x, right.y, right.z);
-    avatarIK.avatarIKRig.inputs.rightGamepad.quaternion.set( right.qX, right.qY, right.qZ, right.qW);
-
   }
 }
 
@@ -926,29 +890,5 @@ export const CharacterInputSchema: InputSchema = {
         },
       ],
     },
-    [BaseInput.XR_HEAD]: {
-      changed: [
-        {
-          behavior: updateIKRig,
-          args: { type: BaseInput.XR_HEAD }
-        },
-      ],
-    },
-    [BaseInput.XR_LEFT_HAND]: {
-      changed: [
-        {
-          behavior: updateIKRig,
-          args: { type: BaseInput.XR_LEFT_HAND }
-        },
-      ],
-    },
-    [BaseInput.XR_RIGHT_HAND]: {
-      changed: [
-        {
-          behavior: updateIKRig,
-          args: { type: BaseInput.XR_RIGHT_HAND }
-        },
-      ],
-    }
   }
 }
