@@ -2,11 +2,17 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
 export const useStylesForBots = makeStyles((theme: Theme) =>
     createStyles({
-        root: {
+      root: {
             width: '100%',
             background: "#15171B",
-            color: "#fff"
+            color: "#fff",
         },
+        rootRigt: {
+          width: '100%',
+          background: "#15171B",
+          color: "#fff",
+          marginTop: "15px"
+      },
         rootLeft:{
             width: '100%',
             background: "#43484F",
@@ -19,7 +25,11 @@ export const useStylesForBots = makeStyles((theme: Theme) =>
         },
         secondaryHeading: {
             fontSize: theme.typography.pxToRem(15),
-            color: "#C0C0C0"
+            color: "#C0C0C0",
+        },
+        thirdHeadding:{
+              color: "#COCOCO",
+              marginTop: "15px"
         },
         summary: {
             background: "#3a4149",
@@ -55,14 +65,21 @@ export const useStylesForBots = makeStyles((theme: Theme) =>
             background: "#343b41",
             border: "1px solid #23282c",
             borderRadius: "5px",
-            width: "45vw",
+            width: "100%",
             marginTop: "10px",
           },
-          Inputroot: {
+          createAlterContainer: {
+            background: "#343b41",
+            //border: "1px solid #23282c",
+            borderRadius: "5px",
+            width: "100%",
+            marginTop: "10px",
+          },
+          InputRoot: {
             padding: '2px 2px',
             display: 'flex',
             alignItems: 'center',
-            width: "45vw",
+            width: "100%",
             marginTop: "10px",
             marginBottom: "30px",
             background: "#343b41",
@@ -78,7 +95,18 @@ export const useStylesForBots = makeStyles((theme: Theme) =>
             marginBottom: "15px",
             background: "#343b41",
             border: "1px solid #23282c",
-            color: "#f1f1f1"
+            color: "#f1f1f1 !important"
+          },
+          redBorder: {
+            border: "1px solid red",
+            padding: '2px 4px',
+            display: 'flex',
+            alignItems: 'center',
+            //width: "45vw",
+            marginTop: "10px",
+            marginBottom: "15px",
+            background: "#343b41",
+            color: "#f1f1f1 !important"
           },
           input: {
             marginLeft: theme.spacing(1),
@@ -88,6 +116,9 @@ export const useStylesForBots = makeStyles((theme: Theme) =>
           iconButton: {
             padding: 10,
             color: "#fff"
+          },
+          inputSelect:{
+            width: "43vw",
           },
           divider: {
             height: 28,
@@ -99,6 +130,17 @@ export const useStylesForBots = makeStyles((theme: Theme) =>
             background: "#3a4149",
             paddingLeft: "10px",
             paddingRight: "10px"
-          }
+          },
+          formControl: {
+            margin: theme.spacing(1),
+            minWidth: 120,
+          },
     }),
 );
+
+
+export const useStyle = makeStyles({
+       autPaper: {
+         background: "#43484F",
+       }
+});

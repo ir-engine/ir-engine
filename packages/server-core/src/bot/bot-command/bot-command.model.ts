@@ -16,7 +16,7 @@ export default (app: Application): any => {
         },
         description: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: true
         }
     },
     {
