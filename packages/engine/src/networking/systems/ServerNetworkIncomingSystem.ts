@@ -1,7 +1,7 @@
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
 import { NumericalType } from '../../common/types/NumericalTypes';
 import { System } from '../../ecs/classes/System';
-import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { DelegatedInputReceiver } from '../../input/components/DelegatedInputReceiver';
 import { Input } from '../../input/components/Input';
@@ -183,7 +183,11 @@ export class ServerNetworkIncomingSystem extends System {
           });
       }
 
-      handleInputFromNonLocalClients(Network.instance.networkObjects[clientInput.networkId].component.entity, { isLocal: false, isServer: true }, delta);
+      if(clientInput.axes6DOF.length && !hasComponent(entity, IKComponent)) {
+        addComponent(entity, IKComponent);
+      }      
+
+      handleInputFromNonLocalClients(entity, undefined, delta);
     }
 
     // Apply input for local user input onto client
