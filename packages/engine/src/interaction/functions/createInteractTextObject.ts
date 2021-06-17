@@ -19,7 +19,7 @@ export const createInteractTextObject = (): Object3D => {
     return geometry;
   }
 
-  let geometry = createText('Interact', 2.5);
+  const geometry = createText('Interact', 2.5);
 
   const textSize = 0.15;
   const text = new Mesh(geometry, new MeshBasicMaterial({ color: 0x000000 }))

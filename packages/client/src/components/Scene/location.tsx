@@ -475,10 +475,10 @@ export const EnginePage = (props: Props) => {
     history.replace('/location/' + portalComponent.location);
     
     // teleport player to where the portal is
-    const transform = getComponent(Network.instance.localClientEntity, TransformComponent)
-    transform.position.copy(portalComponent.spawnPosition)
-    transform.rotation.copy(portalComponent.spawnRotation)
-    setNewSpawnPos(portalComponent)
+    const transform = getComponent(Network.instance.localClientEntity, TransformComponent);
+    transform.position.copy(portalComponent.spawnPosition);
+    transform.rotation.copy(portalComponent.spawnRotation);
+    setNewSpawnPos(portalComponent);
     
     await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'));
     PhysicsSystem.instance.enabled = false;
@@ -486,7 +486,7 @@ export const EnginePage = (props: Props) => {
 
     // add back the collider using previous parameters
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
-      addColliderToCharacter(Network.instance.localClientEntity)
+      addColliderToCharacter(Network.instance.localClientEntity);
       PhysicsSystem.instance.enabled = false;
     });
   };
