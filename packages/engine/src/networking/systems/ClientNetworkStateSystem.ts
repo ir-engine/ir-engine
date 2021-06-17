@@ -229,8 +229,6 @@ export class ClientNetworkStateSystem extends System {
         syncNetworkObjectsTest(worldState.createObjects)
 
         worldState.editObjects?.forEach((editObject) => {
-          console.warn('try delete');
-          console.warn(editObject);
           NetworkObjectUpdateSchema[editObject.type]?.forEach((element) => {
             element.behavior(editObject);
           })

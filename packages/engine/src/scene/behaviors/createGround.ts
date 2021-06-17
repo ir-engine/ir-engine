@@ -10,7 +10,7 @@ import { addObject3DComponent } from "./addObject3DComponent";
 
 
 export const createGround: Behavior = (entity, args) => {
-  console.log(getComponent(entity, TransformComponent))
+
   const mesh = new Mesh(
     new CircleBufferGeometry(1000, 32),
     new MeshStandardMaterial({
