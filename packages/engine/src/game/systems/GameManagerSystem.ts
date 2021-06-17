@@ -234,10 +234,11 @@ export class GameManagerSystem extends System {
         const game = getComponent(entityGame, Game);
         const gamePlayer = getComponent(entity, GamePlayer, true);
         if (gamePlayer === undefined || gamePlayer.gameName != game.name) return;
+        const gameSchema = GamesSchema[game.gameMode];
+        gameSchema.beforePlayerLeave(entity);
         removeEntityFromState(gamePlayer, game);
         clearRemovedEntitysFromGame(game);
         game.gamePlayers[gamePlayer.role] = game.gamePlayers[gamePlayer.role].filter(entityFind => hasComponent(entityFind, GamePlayer))
-        const gameSchema = GamesSchema[game.gameMode];
         gameSchema.onPlayerLeave(entity, gamePlayer, game);
       })
     });

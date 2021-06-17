@@ -37,7 +37,7 @@ import { doesPlayerHaveGameObject } from "./gameDefault/checkers/doesPlayerHaveG
 
 // others
 import { grabEquippable } from "../../interaction/functions/grabEquippable";
-import { getComponent } from "../../ecs/functions/EntityFunctions";
+import { getComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import { disableInteractiveToOthers, disableInteractive } from "./Golf/behaviors/disableInteractiveToOthers";
 import { Network } from "../../networking/classes/Network";
 import { Entity } from "../../ecs/classes/Entity";
@@ -161,6 +161,12 @@ const onGolfGameLoading = (entity: Entity) => {
   })
 }
 
+const beforeGolfPlayerLeave = (entity: Entity) => {
+  if (getComponent(entity, State.YourTurn, true) || getComponent(entity, State.Waiting, true)) {
+    nextTurn(entity)
+  }
+}
+
 const onGolfPlayerLeave = (entity: Entity, playerComponent, game) => {
 //  const entityArray = getEntityOwnedObjects(entity)
 //  entityArray.forEach(entityObjects => removeSpawnedObject(entityObjects));
@@ -175,6 +181,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   preparePlayersRole: somePrepareGameInitPlayersRole,
   onGameLoading: onGolfGameLoading,
   onGameStart: onGolfGameStart,
+  beforePlayerLeave: beforeGolfPlayerLeave,
   onPlayerLeave: onGolfPlayerLeave, // player can leave game without disconnect
   registerActionTagComponents: [], // now auto adding
   registerStateTagComponents: [],
