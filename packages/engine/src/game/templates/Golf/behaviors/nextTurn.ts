@@ -12,8 +12,8 @@ import { State } from '../../../types/GameComponents';
 export const nextTurn: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
 
   const game = getGame(entity);
-  const arrPlayersInGame = Object.keys(game.gamePlayers).filter(role => game.gamePlayers[role].length);
-
+  const arrPlayersInGame = Object.keys(game.gamePlayers).filter(role => game.gamePlayers[role].length && role != 'newPlayer');
+  
   if (arrPlayersInGame.length < 2) {
     if (hasComponent(entity, State.WaitTurn)) {
       removeStateComponent(entity, State.WaitTurn);
@@ -34,15 +34,16 @@ export const nextTurn: Behavior = (entity: Entity, args?: any, delta?: number, e
   addStateComponent(entity, State.WaitTurn);
 
   const sortedRoleNumbers = arrPlayersInGame.map(v => parseFloat(v[0])).sort((a,b) => b - a);
+  
   const lastNumber = sortedRoleNumbers[0];
-
+  
   let chooseNumber = null;
   if (roleNumber === lastNumber) {
    chooseNumber = sortedRoleNumbers[sortedRoleNumbers.length-1];
   } else {
-   chooseNumber = sortedRoleNumbers.findIndex(f => f === roleNumber)+1;
+   chooseNumber = sortedRoleNumbers[sortedRoleNumbers.findIndex(f => f === roleNumber)-1];
   }
-
+  
   const roleFullName = arrPlayersInGame.filter(role => parseFloat(role[0]) === chooseNumber)[0];
   const entityP = game.gamePlayers[roleFullName][0];
 
