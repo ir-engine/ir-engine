@@ -3,12 +3,8 @@ import { Color } from "three";
 import { UI_ELEMENT_SELECT_STATE, UIBaseElement } from "./UIBaseElement";
 
 export class UIButton extends UIBaseElement {
-
   textBlock: Block;
-  add: any;
   pick: any;
-  position: any;
-  visible: boolean;
 
   constructor(title, index) {
     super();

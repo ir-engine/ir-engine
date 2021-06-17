@@ -56,6 +56,7 @@ import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/
 import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal';
 import { addColliderToCharacter, teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent';
+import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu';
 import { ControllerColliderComponent } from '../../../../engine/src/character/components/ControllerColliderComponent';
 
 const store = Store.store;
@@ -566,6 +567,7 @@ export const EnginePage = (props: Props) => {
             parameters={warningRefreshModalValues.parameters}
             timeout={warningRefreshModalValues.timeout}
         />
+        <EmoteMenu />
       </>
   );
 };
