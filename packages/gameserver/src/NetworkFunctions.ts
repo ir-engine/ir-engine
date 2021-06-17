@@ -292,6 +292,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
 
     // TEMPORARY data?.spawnTransform  - just so portals work for now - will be removed in favor of gameserver-gameserver communication
     const spawnPos = data?.spawnTransform ?? ServerSpawnSystem.instance.getRandomSpawnPoint();
+    console.log(data?.spawnTransform, spawnPos)
     // Create a new default prefab for client
     const networkObject = createNetworkPlayer({ ownerId: userId, parameters: spawnPos });
     
