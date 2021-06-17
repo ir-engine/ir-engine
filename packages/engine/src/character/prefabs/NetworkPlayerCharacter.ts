@@ -194,14 +194,8 @@ export const addColliderToCharacter = (playerEntity: Entity) => {
   }))
 }
 
-export const onPlayerSpawnInNewLocation = (portalProps: PortalProps) => {
-  addColliderToCharacter(Network.instance.localClientEntity)
-  teleportPlayer(Network.instance.localClientEntity, portalProps.spawnPosition, portalProps.spawnRotation)
-}
-
 export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation: Quaternion) => {
   const playerCollider = getMutableComponent(playerEntity, ControllerColliderComponent)
-  position.y = playerCollider.controller.transform.translation.y;
   playerCollider.controller.updateTransform({
     translation: position,
     rotation,
@@ -211,7 +205,6 @@ export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation
 export function createNetworkPlayer(args: { parameters: { position, rotation }, ownerId: string | number, networkId?: number, entity?: Entity }) {
   const position = new Vector3()
   const rotation = new Quaternion()
-  console.log(args)
   if(args.parameters) {
     position.set(args.parameters.position.x, args.parameters.position.y, args.parameters.position.z)
     rotation.set(args.parameters.rotation.x, args.parameters.rotation.y, args.parameters.rotation.z, args.parameters.rotation.w)
