@@ -34,7 +34,7 @@ export class ServerSpawnSystem extends System {
 
     const spawnTransform = getComponent(this.spawnPoints[this.lastSpawnIndex], TransformComponent);
     return {
-      position: spawnTransform.position.clone(),
+      position: spawnTransform.position.clone().add(new Vector3(Math.random() * 10 - 5, 0, Math.random() * 10 - 5)),
       rotation: spawnTransform.rotation.clone(),
     };
   }

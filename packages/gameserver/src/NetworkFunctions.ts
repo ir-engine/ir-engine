@@ -13,6 +13,7 @@ import { closeTransport } from './WebRTCFunctions';
 import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem';
 import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema';
 import { ControllerColliderComponent } from '../../engine/src/character/components/ControllerColliderComponent';
+import { CharacterComponent } from '../../engine/src/character/components/CharacterComponent';
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 
@@ -293,6 +294,9 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     const spawnPos = data?.spawnTransform ?? ServerSpawnSystem.instance.getRandomSpawnPoint();
     // Create a new default prefab for client
     const networkObject = createNetworkPlayer({ ownerId: userId, parameters: spawnPos });
+    
+    const actor = getMutableComponent(networkObject.entity, CharacterComponent);
+    spawnPos.position.y +=  actor.actorHeight + actor.capsuleRadius;
     
     const collider = getMutableComponent(networkObject.entity, ControllerColliderComponent);
     collider.controller.updateTransform({
