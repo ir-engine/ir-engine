@@ -20,7 +20,6 @@ import { arrayOfPointsToArrayOfVector3 } from '../../scene/functions/arrayOfPoin
 export function addColliderWithEntity(entity: Entity) {
 
   const colliderComponent = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
-  const transformComponent = getComponent<TransformComponent>(entity, TransformComponent);
 
   const { mesh, vertices, indices, collisionLayer, collisionMask } = colliderComponent;
 

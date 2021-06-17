@@ -33,7 +33,6 @@ import { CharacterComponent } from '../components/CharacterComponent';
 import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
 import { NamePlateComponent } from '../components/NamePlateComponent';
 import { PersistTagComponent } from "../../scene/components/PersistTagComponent";
-import { IKRigComponent } from "../components/IKRigComponent";
 import { PortalProps } from "../../scene/behaviors/createPortal";
 
 
@@ -42,10 +41,6 @@ export const loadDefaultActorAvatar: Behavior = (entity) => {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
   AnimationManager.instance._defaultModel?.children?.forEach(child => actor.modelContainer.add(child));
   actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-	if (hasComponent(entity, IKRigComponent)) {
-    removeComponent(entity, IKRigComponent)
-    addComponent(entity, IKRigComponent)
-	}
 }
 
 export const loadActorAvatar: Behavior = (entity) => {
@@ -111,10 +106,6 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		// const width = modelWidth * actor.modelScaleFactor.radius;
 		// }
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-		if (hasComponent(entity, IKRigComponent)) {
-			removeComponent(entity, IKRigComponent)
-			addComponent(entity, IKRigComponent)
-		}
 	});
 };
 
