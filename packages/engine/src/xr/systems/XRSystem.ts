@@ -24,20 +24,11 @@ export class XRSystem extends System {
     XR_END: 'WEBXR_RENDERER_SYSTEM_XR_END',
   }
 
-  offscreen: boolean;
   xrFrame: XRFrame;
   updateType = SystemUpdateType.Free;
-  isRenderering = false;
-  baseLayer: XRWebGLLayer;
-  context: any;
-  renderbuffer: WebGLRenderbuffer;
-
-  controllerUpdateHook: any;
 
   referenceSpaceType: XRReferenceSpaceType = 'local-floor';
   referenceSpace: XRReferenceSpace;
-  playerPosition: Vector3 = new Vector3();
-  cameraDolly: Group;
   static instance: XRSystem;
 
   constructor(attributes: SystemAttributes = {}) {

@@ -23,6 +23,12 @@ export const onInteractionHover: Behavior = (entityInitiator, { focused }: { foc
   const engineEvent: any = { type: InteractiveSystem.EVENTS.OBJECT_HOVER, focused, ...interactiveComponent.data };
   EngineEvents.instance.dispatchEvent(engineEvent);
 
+  if(focused) {
+
+  } else {
+    
+  }
+
   if (!hasComponent(entityInteractive, Object3DComponent)) {
     return;
   }

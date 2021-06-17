@@ -4,10 +4,8 @@ export default class FloorPlan extends Object3D {
   trimesh: any;
   heightfield: any;
   heightfieldMesh: any;
-  position: any;
   add: any;
   remove: any;
-  children: any;
   constructor() {
     super();
     this.position.y = 0.005;

@@ -26,7 +26,13 @@ spec:
   policy:
     type: Buffer
     buffer:
+      {{- if not (empty .Values.gameserver.buffer) }}
+      bufferSize: {{ .Values.gameserver.buffer.bufferSize | default 2 }}
+      minReplicas: {{ .Values.gameserver.buffer.minReplicas | default 2 }}
+      maxReplicas: {{ .Values.gameserver.buffer.maxReplicas | default 10 }}
+      {{- else }}
       bufferSize: 2
       minReplicas: 2
       maxReplicas: 10
+      {{- end }}
 {{- end }}

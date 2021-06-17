@@ -61,7 +61,7 @@ export default class CubemapCapturer{
 	cubeCamera: CubeCamera;
 	cubeMapSize: any;
 	renderTarget:WebGLCubeRenderTarget;
-	cubeRenderTarget:CubeTexture;
+	cubeRenderTarget:WebGLCubeRenderTarget;
 	sceneToRender:Scene;
 	api:Api;
 	envMapID:string;
@@ -167,16 +167,18 @@ export default class CubemapCapturer{
 
 
 
-	update = async function( position:Vector3) {
-
+	update = async ( position:Vector3): Promise<{
+		cubeRenderTarget: WebGLCubeRenderTarget;
+		envMapID: any;
+	}> => {
 		const autoClear = this.renderer.autoClear;
 		this.renderer.autoClear = true;
 		this.cubeCamera.position.copy(position );
-		this.cubeCamera.updateCubeMap( this.renderer, this.sceneToRender );
+		this.cubeCamera.update( this.renderer, this.sceneToRender );
 		this.renderer.autoClear = autoClear;
-		const envMapID= await this.uploadToServer();
-		const cubeRenderTarget=this.cubeRenderTarget;
-		return ({cubeRenderTarget,envMapID});
+		const envMapID = await this.uploadToServer();
+		const cubeRenderTarget = this.cubeRenderTarget;
+		return ({ cubeRenderTarget: this.cubeRenderTarget, envMapID });
 	}
 
 

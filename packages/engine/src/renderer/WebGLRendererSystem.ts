@@ -143,8 +143,8 @@ export class WebGLRendererSystem extends System {
 
     this.onResize = this.onResize.bind(this);
 
-    let context;
-    const canvas = attributes.canvas;
+    const canvas: HTMLCanvasElement = attributes.canvas;
+    const context = this.supportWebGL2 ? canvas.getContext('webgl2') : canvas.getContext('webgl');
 
     this.renderContext = context;
     const options = {
@@ -260,13 +260,17 @@ export class WebGLRendererSystem extends System {
       const effect = effectType[key].effect;
       if (pass.isActive)
         if (effect === SSAOEffect) {
-          passes.push(new effect(Engine.camera, this.normalPass.texture, { ...pass, normalDepthBuffer }));
+          const eff = new effect(Engine.camera, this.normalPass.texture, { ...pass, normalDepthBuffer })
+          this.composer[key] = eff;
+          passes.push(eff);
         } else if (effect === DepthOfFieldEffect) {
-          passes.push(new effect(Engine.camera, pass))
+          const eff = new effect(Engine.camera, pass)
+          this.composer[key] = eff;
+          passes.push(eff)
         } else if (effect === OutlineEffect) {
           const eff = new effect(Engine.scene, Engine.camera, pass)
-          passes.push(eff);
           this.composer[key] = eff;
+          passes.push(eff);
         } else {
           const eff = new effect(pass)
           this.composer[key] = eff;
@@ -327,7 +331,7 @@ export class WebGLRendererSystem extends System {
       }
 
       this.csm.update();
-      if (this.usePostProcessing) {
+      if (this.usePostProcessing && this.postProcessingSchema) {
         this.composer.render(delta);
       } else {
         Engine.renderer.autoClear = true;

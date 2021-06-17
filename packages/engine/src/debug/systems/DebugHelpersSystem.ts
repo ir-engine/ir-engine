@@ -13,7 +13,7 @@ import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { DebugArrowComponent } from "../DebugArrowComponent";
 import { DebugRenderer } from "./DebugRenderer";
 
-type ComponentHelpers = 'viewVector' | 'helperArrow' | 'velocityArrow' | 'box';
+type ComponentHelpers = 'viewVector' |'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box';
 
 export class DebugHelpersSystem extends System {
   private helpersByEntity: Record<ComponentHelpers, Map<Entity, Object3D|Object3D[]>>;
@@ -32,6 +32,7 @@ export class DebugHelpersSystem extends System {
 
     this.helpersByEntity = {
       viewVector: new Map(),
+      ikExtents: new Map(),
       box: new Map(),
       helperArrow: new Map(),
       velocityArrow: new Map()
