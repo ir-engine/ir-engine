@@ -119,7 +119,7 @@
     "rollup-plugin-scss": "2.6.1",
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-typescript2": "0.30.0",
-    "typescript": "4.3.2"
+    "typescript": "4.3.3"
   },
   "license": "ISC",
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
