@@ -1,5 +1,5 @@
 import { DETECT_DEVICE_TYPE } from "../../../user/reducers/actions";
-import {Dispatch} from 'redux'
+import {Dispatch} from 'redux';
 
 
 export interface DeviceDetectState {
@@ -17,5 +17,5 @@ export interface DeviceDetectAction {
 }
 
 export function getDeviceType(content:DeviceDetectState['content']) : DeviceDetectAction {
-  return {type:DETECT_DEVICE_TYPE, content}
+  return {type:DETECT_DEVICE_TYPE, content};
 }

@@ -21,8 +21,8 @@ export function detectDeviceType() {
           deviceInfo.touchDetected = true;
           dispatch(getDeviceType(deviceInfo));
           document.removeEventListener('touchstart', onFirstTouch);
-      }
+      };
       document.addEventListener('touchstart', onFirstTouch);
     }
-  }
+  };
 }
