@@ -21,7 +21,7 @@ import { connect } from 'react-redux';
 import { selectAdminBotsState } from "../../reducers/admin/bots/selector";
 import { selectAuthState } from '../../../user/reducers/auth/selector';
 import Button from '@material-ui/core/Button';
-import { createBotCammand } from "../../reducers/admin/bots/service";
+import { createBotCammand, removeBots, removeBotsCommand } from "../../reducers/admin/bots/service";
 import MuiAlert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
 
@@ -29,7 +29,9 @@ interface Props {
     fetchBotAsAdmin?: any;
     botsAdminState?: any;
     authState?: any;
-    createBotCammand?: any
+    createBotCammand?: any;
+    removeBots?: any;
+    removeBotsCommand?: any
 }
 
 const mapStateToProps = (state: any): any => {
@@ -41,7 +43,9 @@ const mapStateToProps = (state: any): any => {
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchBotAsAdmin: bindActionCreators(fetchBotAsAdmin, dispatch),
-    createBotCammand: bindActionCreators(createBotCammand, dispatch)
+    createBotCammand: bindActionCreators(createBotCammand, dispatch),
+    removeBots: bindActionCreators(removeBots, dispatch),
+    removeBotsCommand: bindActionCreators(removeBotsCommand, dispatch)
 });
 
 const Alert = (props) => {
@@ -49,7 +53,7 @@ const Alert = (props) => {
 };
 
 const DisplayBots = (props: Props) => {
-    const { fetchBotAsAdmin, botsAdminState, authState, createBotCammand } = props;
+    const { fetchBotAsAdmin, botsAdminState, authState, createBotCammand, removeBots, removeBotsCommand } = props;
     const classes = useStyles();
     const [expanded, setExpanded] = React.useState<string | false>("panel0");
     const [name, setName] = React.useState("");
@@ -132,7 +136,7 @@ const DisplayBots = (props: Props) => {
                                             <IconButton>
                                                 <Edit style={{ color: "#fff" }} />
                                             </IconButton>
-                                            <IconButton >
+                                            <IconButton  onClick={()=> removeBots(bot.id)}>
                                                 <DeleteIcon style={{ color: "#fff" }} />
                                             </IconButton>
                                         </div>
@@ -196,7 +200,7 @@ const DisplayBots = (props: Props) => {
                                                             primary={`/${el.name} --> ${el.description} `}
                                                         />
                                                         <ListItemSecondaryAction>
-                                                            <IconButton edge="end" aria-label="delete">
+                                                            <IconButton edge="end" aria-label="delete" onClick={()=> removeBotsCommand(el.id)}>
                                                                 <DeleteIcon style={{ color: "#fff" }} />
                                                             </IconButton>
                                                         </ListItemSecondaryAction>

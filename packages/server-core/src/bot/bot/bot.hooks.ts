@@ -10,7 +10,7 @@ export default {
     create: [],
     update: [disallow()],
     patch: [disallow()],
-    remove: [disallow('external')]
+    remove: []
   },
 
   after: {

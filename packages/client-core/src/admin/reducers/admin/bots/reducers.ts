@@ -6,6 +6,8 @@ import {
     BOT_ADMIN_DISPLAY,
     BOT_ADMIN_CREATE,
     BOT_COMMAND_ADMIN_CREATE,
+    BOT_ADMIN_REMOVE,
+    BOT_COMMAND_ADMIN_REMOVE
 } from "../../actions";
 import { UserSeed } from '@xrengine/common/src/interfaces/User';
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider';
@@ -39,7 +41,7 @@ export const initialAdminState = {
         retrieving: false,
         fetched: false,
         updateNeeded: true,
-        lastFetched: new Date() 
+        lastFetched: new Date()
     }
 };
 const immutableState = Immutable.fromJS(initialAdminState);
@@ -56,14 +58,22 @@ const adminBotReducer = (state = immutableState, action: any): any => {
             updateMap.set('updateNeeded', false);
             updateMap.set('lastFetched', new Date());
             return state.set('bots', updateMap);
-        case BOT_ADMIN_CREATE: 
+        case BOT_ADMIN_CREATE:
             updateMap = new Map(state.get("bots"));
             updateMap.set("updateNeeded", true);
             return state.set("bots", updateMap);
-        case BOT_COMMAND_ADMIN_CREATE: 
+        case BOT_COMMAND_ADMIN_CREATE:
             const resultCommand = new Map(state.get("bots"));
             resultCommand.set("updateNeeded", true);
             return state.set("bots", resultCommand);
+        case BOT_ADMIN_REMOVE:
+            const res = new Map(state.get("bots"));
+            res.set("updateNeeded", true);
+            return state.set("bots", res);
+        case BOT_COMMAND_ADMIN_REMOVE:
+            const resBotCommmand = new Map(state.get("bots"));
+            resBotCommmand.set("updateNeeded", true);
+            return state.set("bots", resBotCommmand);
     }
     return state;
 };

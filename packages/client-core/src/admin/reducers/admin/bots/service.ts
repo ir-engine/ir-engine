@@ -3,7 +3,9 @@ import { client } from "../../../../feathers";
 import {
     botCreated,
     fetchedBot,
-    botCammandCreated
+    botCammandCreated,
+    botRemoved,
+    botCommandRemoved
 } from "./actions";
 
 export const createBotAsAdmin = (data: any) => async (dispatch: Dispatch, getState: any): Promise<any> =>{
@@ -43,6 +45,24 @@ export const createBotCammand = (data: any) => async (dispatch: Dispatch): Promi
     try {
         const botCammand = await client.service("bot-command").create(data);
         dispatch(botCammandCreated(botCammand));
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+export const removeBots = (id: string) => async (dispatch: Dispatch): Promise<any> => {
+    try {
+        const bot = await client.service("bot").remove(id);
+        dispatch(botRemoved(bot));
+    } catch (error) {
+      console.error(error);
+    }
+};
+
+export const removeBotsCommand = (id: string) => async (dispatch: Dispatch): Promise<any> => {
+    try {
+        const result =  await client.service("bot-command").remove(id);
+        dispatch(botCommandRemoved(result));
     } catch (error) {
         console.error(error);
     }

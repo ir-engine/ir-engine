@@ -1,7 +1,9 @@
 import {
    BOT_ADMIN_CREATE,
    BOT_ADMIN_DISPLAY,
-   BOT_COMMAND_ADMIN_CREATE
+   BOT_COMMAND_ADMIN_CREATE,
+   BOT_ADMIN_REMOVE,
+   BOT_COMMAND_ADMIN_REMOVE
 } from "../../actions";
 
 export interface BotsRetrievedResponse {
@@ -37,5 +39,19 @@ export const botCammandCreated = (botCommand: any): BotCammondCreatedResponse =>
    return {
       type: BOT_COMMAND_ADMIN_CREATE,
       botCammond: botCommand
+   };
+};
+
+export const botRemoved = (bot: any): any =>{
+   return {
+      type: BOT_ADMIN_REMOVE,
+      bot: bot,
+   };
+};
+
+export const botCommandRemoved = (botCommand: any ):any => {
+   return {
+      type: BOT_COMMAND_ADMIN_REMOVE,
+      botCommand: botCommand
    };
 };
