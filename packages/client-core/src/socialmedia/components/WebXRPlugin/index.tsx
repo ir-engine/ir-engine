@@ -525,7 +525,6 @@ export const WebXRPlugin = ({
     else if (parseFloat(hours) < 24) return hours;
     else return days;
 }
-}
 
     const startRecord = () => {
         if (!window.confirm("Double click to finish the record.")) {
