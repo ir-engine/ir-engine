@@ -27,7 +27,7 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const transform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent as any);
   const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
-  if (!actor.initialized || !collider.controller || !actor.movementEnabled) return;
+  if (!collider.controller || !actor.movementEnabled) return;
 
   newVelocity.setScalar(0);
   onGroundVelocity.setScalar(0);

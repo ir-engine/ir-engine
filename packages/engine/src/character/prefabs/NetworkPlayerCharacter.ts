@@ -164,7 +164,6 @@ const initializeCharacter: Behavior = (entity): void => {
   })
   addColliderToCharacter(entity)
 
-	actor.initialized = true;
 	initializeMovingState(entity);
 };
 

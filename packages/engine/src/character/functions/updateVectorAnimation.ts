@@ -86,7 +86,7 @@ export const updateVectorAnimation = (entity, delta: number): void => {
   // Actor isn't initialized yet, so skip the animation
 	const actor = getMutableComponent(entity, CharacterComponent);
 	const animationComponent = getMutableComponent(entity, AnimationComponent);
-	if (!actor || !actor.initialized || !actor.mixer || !animationComponent || !actor.modelContainer.children.length) return;
+	if (!actor.mixer || !actor.modelContainer.children.length) return;
   const acceleration = actor.speedMultiplier;
   if (actor.mixer) actor.mixer.update(delta * animationSpeedMultiplier);
 //  if(animationComponent.animationsSchema.length == 3) return;
@@ -145,7 +145,7 @@ export const clearAnimOnChange: Behavior = (entity: Entity, args: { animationsSc
 // Walking animation names
 // If animation is not in this array, remove
   // Actor isn't initialized yet, so skip the animation
-  // if (!actor || !actor.initialized || !actor.mixer) return;
+  // if (!actor || !actor.mixer) return;
   // const movementAnimationNames = args.animationsSchema.map(val => val.name);
     // Clear existing animations
     // actor.currentAnimationAction.forEach(currentAnimationAction => {
@@ -162,7 +162,7 @@ export const changeAnimation: Behavior = (entity, args: {}, deltaTime: number): 
 
   if(!isClient) return;
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-	if (!actor.initialized || !actor.mixer) return;
+	if (!actor.mixer) return;
 	//@ts-ignore
 	const animationId = args.animationId;
 	//@ts-ignore

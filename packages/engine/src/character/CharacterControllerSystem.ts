@@ -66,9 +66,9 @@ export class CharacterControllerSystem extends System {
    */
   execute(delta: number): void {
 
-    this.queryResults.character.added?.forEach((entity) => {
+    this.queryResults.controller.added?.forEach((entity) => {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-      if (actor) actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({
+      actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({
         type: SceneQueryType.Closest,
         origin: new Vector3(0, actor.actorHeight, 0),
         direction: new Vector3(0, -1, 0),
@@ -86,15 +86,11 @@ export class CharacterControllerSystem extends System {
       collider.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => { })
 
       if(!isClient) detectUserInPortal(entity);
-    })
-
-    this.queryResults.character.all?.forEach(entity => {
 
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 
-      if (!actor.movementEnabled || !actor.initialized) return;
+      if (!actor.movementEnabled) return;
       
-      const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
       const transform = getComponent<TransformComponent>(entity, TransformComponent as any);
 
       // reset if vals are invalid
@@ -141,7 +137,7 @@ export class CharacterControllerSystem extends System {
       const controllerCollider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
       const transform = getComponent<TransformComponent>(entity, TransformComponent);
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-      if (!actor.initialized || !controllerCollider.controller || !actor.movementEnabled) return;
+      if (!controllerCollider.controller || !actor.movementEnabled) return;
 
       const x = controllerCollider.controller.transform.translation.x - prevControllerColliderPosition.x;
       const y = controllerCollider.controller.transform.translation.y - prevControllerColliderPosition.y;
@@ -190,21 +186,11 @@ export class CharacterControllerSystem extends System {
         ikComponent.controllersGroup.add(ikComponent.controllerLeft, ikComponent.controllerGripLeft, ikComponent.controllerRight, ikComponent.controllerGripRight);
         actor.tiltContainer.add(ikComponent.headGroup, ikComponent.controllersGroup);
       }
-
-      // TODO move to debug system
-      const cubeGeometry = new ConeBufferGeometry(0.05, 0.2, 3)
-      cubeGeometry.rotateX(-Math.PI * 0.5)
-      const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red') }))
-      const debugLeft = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('green') }))
-      const debugRight = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('blue') }))
-      ikComponent.head.add(debugHead)
-      ikComponent.controllerLeft.add(debugLeft)
-      ikComponent.controllerRight.add(debugRight)
       
       const actor = getMutableComponent(entity, CharacterComponent);
 
       // TODO: Temporarily make rig invisible until rig is fixed
-      actor.modelContainer.children[0]?.traverse((child) => {
+      actor?.modelContainer.children[0]?.traverse((child) => {
         if(child.visible) {
           child.visible = false;
         }
@@ -217,7 +203,7 @@ export class CharacterControllerSystem extends System {
       const actor = getMutableComponent(entity, CharacterComponent);
 
       // TODO: Temporarily make rig invisible until rig is fixed
-      actor.modelContainer.children[0]?.traverse((child) => {
+      actor?.modelContainer.children[0]?.traverse((child) => {
         if(child.visible) {
           child.visible = true;
         }
@@ -260,7 +246,7 @@ CharacterControllerSystem.queries = {
     }
   },
   animation: {
-    components: [AnimationComponent],
+    components: [CharacterComponent, AnimationComponent],
     listen: {
       added: true,
       removed: true
