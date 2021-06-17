@@ -56,8 +56,9 @@ import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/
 import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal';
 import { addColliderToCharacter, teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent';
+import RecordingApp from './../Recorder/RecordingApp';
 import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu';
-import { ControllerColliderComponent } from '../../../../engine/src/character/components/ControllerColliderComponent';
+import { ControllerColliderComponent } from '@xrengine/engine/src/character/components/ControllerColliderComponent';
 
 const store = Store.store;
 
@@ -555,6 +556,7 @@ export const EnginePage = (props: Props) => {
         { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
         {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
         <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); setInputEnabled(true); }} data={infoBoxData} />
+        <RecordingApp/>
         <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); setInputEnabled(true); }} data={openLinkData} />
         <canvas id={engineRendererCanvasId} style={canvasStyle} />
         {mobileGamepad}
