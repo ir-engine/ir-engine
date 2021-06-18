@@ -106,7 +106,6 @@ export const initializeMovingState: Behavior = (entity, args: { x?: number, y?: 
     animComponent.updateAnimationsValues = getMovementValues;
   }
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-	if (!actor.initialized) return;
 
 	actor.velocitySimulator.damping = actor.defaultVelocitySimulatorDamping;
 	actor.velocitySimulator.mass = actor.defaultVelocitySimulatorMass;

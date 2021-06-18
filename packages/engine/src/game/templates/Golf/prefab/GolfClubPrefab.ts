@@ -123,11 +123,9 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   const headDistance = XRUserSettings.staticLengthGolfClub ? clubLength : (hit ? hit.distance : clubLength);
 
   if(hasComponent(ownerEntity, YourTurn)) {
-    
-      enableClub(entityClub, true);
-    
+    enableClub(entityClub, true);
   } else {
-      enableClub(entityClub, false);
+    enableClub(entityClub, false);
   }
 
   // update position of club

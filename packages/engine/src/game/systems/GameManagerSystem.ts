@@ -69,6 +69,7 @@ export class GameManagerSystem extends System {
     this.queryResults.game.added?.forEach(entity => {
       const game = getMutableComponent(entity, Game);
       const gameSchema = GamesSchema[game.gameMode] as GameMode;
+      game.maxPlayers ? gameSchema.preparePlayersRole(gameSchema, game.maxPlayers): '';
       game.priority = gameSchema.priority;// DOTO: set its from editor
       initState(game, gameSchema);
       this.gameEntities.push(entity);

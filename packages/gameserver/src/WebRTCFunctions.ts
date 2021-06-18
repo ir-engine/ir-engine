@@ -325,10 +325,10 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
         logger.info(`user ${userId} producing data`);
         Network.instance.clients[userId].dataProducers.set(label, dataProducer);
 
-        const currentRouter = networkTransport.routers.instance.find(router => router._internal.routerId === transport._internal.routerId);
+        const currentRouter = networkTransport.routers.instance.find(router => router._internal.routerId === (transport as any)._internal.routerId);
 
         await Promise.all(networkTransport.routers.instance.map(async router => {
-            if (router._internal.routerId !== transport._internal.routerId) return currentRouter.pipeToRouter({
+            if (router._internal.routerId !== (transport as any)._internal.routerId) return currentRouter.pipeToRouter({
                 dataProducerId: dataProducer.id,
                 router: router
             });
@@ -396,10 +396,10 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
     });
 
     const routers = appData.channelType === 'instance' ? networkTransport.routers.instance : networkTransport.routers[`${appData.channelType}:${appData.channelId}`];
-    const currentRouter = routers.find(router => router._internal.routerId === transport._internal.routerId);
+    const currentRouter = routers.find(router => router._internal.routerId === (transport as any)._internal.routerId);
 
     await Promise.all(routers.map(async (router: Router) => {
-        if (router._internal.routerId !== transport._internal.routerId) return currentRouter.pipeToRouter({ producerId: producer.id, router: router });
+        if ((router as any)._internal.routerId !== (transport as any)._internal.routerId) return currentRouter.pipeToRouter({ producerId: producer.id, router: router });
         else return Promise.resolve();
     }));
 

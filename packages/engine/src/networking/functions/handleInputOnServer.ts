@@ -21,7 +21,7 @@ import { InputAlias } from '../../input/types/InputAlias';
  * @param args
  * @param delta Time since last frame
  */
-export const handleInputFromNonLocalClients: Behavior = (entity: Entity, args: { isLocal: boolean, isServer: boolean }, delta: number): void => {
+export const handleInputFromNonLocalClients: Behavior = (entity: Entity, args: any, delta: number): void => {
 
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
   const input = getComponent(entity, Input);

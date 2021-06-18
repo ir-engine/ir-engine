@@ -4,7 +4,7 @@ import { Entity } from '../ecs/classes/Entity';
 import { getComponent } from '../ecs/functions/EntityFunctions';
 import { Input } from '../input/components/Input';
 import { BaseInput } from '../input/enums/BaseInput';
-import { Material, Mesh, Object3D } from "three";
+import { Material, Mesh, Object3D, Vector3 } from "three";
 import { SkinnedMesh } from 'three/src/objects/SkinnedMesh';
 import { CameraModes } from "../camera/types/CameraModes";
 import { LifecycleValue } from "../common/enums/LifecycleValue";
@@ -23,16 +23,12 @@ import { isClient } from "../common/functions/isClient";
 import { VehicleComponent } from '../vehicle/components/VehicleComponent';
 import { isMobileOrTablet } from '../common/functions/isMobile';
 import { SIXDOFType } from '../common/types/NumericalTypes';
-import { IKComponent } from './components/IKComponent';
 import { EquipperComponent } from '../interaction/components/EquipperComponent';
-import { unequipEntity } from '../interaction/functions/equippableFunctions';
 import { TransformComponent } from '../transform/components/TransformComponent';
 import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings';
 import { BinaryValue } from '../common/enums/BinaryValue';
 import { ParityValue } from '../common/enums/ParityValue';
-import { getInteractiveIsInReachDistance } from './functions/getInteractiveIsInReachDistance';
-import { initiateIK } from '../xr/functions/IKFunctions';
-import { IKRigComponent } from './components/IKRigComponent';
+import { IKComponent } from './components/IKComponent';
 
 /**
  *
@@ -351,18 +347,17 @@ const moveFromXRInputs: Behavior = (entity, args): void => {
   actor.localMovementDirection.normalize();
 };
 
-const diffDamping = 0.2;
 let switchChangedToZero = true;
-const xrLookMultiplier = 0.1;
+const xrLookMultiplier = 0.25;
+const vec3 = new Vector3()
 
 const lookFromXRInputs: Behavior = (entity, args): void => {
-  if (!isClient) return; // we only set viewVector here, which is sent to the server
+  if (!isClient) return;
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const input = getComponent<Input>(entity, Input as any);
   const values = input.data.get(BaseInput.XR_LOOK)?.value;
-  const rotationAngle = XRUserSettings.rotationAngle * diffDamping;
+  const rotationAngle = XRUserSettings.rotationAngle;
   let newAngleDiff = 0;
-  //console.warn(values[0]);
   switch (XRUserSettings.rotation) {
 
     case XR_ROTATION_MODE.ANGLED:
@@ -385,14 +380,10 @@ const lookFromXRInputs: Behavior = (entity, args): void => {
       newAngleDiff = (values[0] * XRUserSettings.rotationSmoothSpeed) * (XRUserSettings.rotationInvertAxes ? -1 : 1);
       break;
   }
-  input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
-    type: InputType.TWODIM,
-    value: [
-      newAngleDiff * xrLookMultiplier,
-      0 // data.value[1] * multiplier
-    ],
-    lifecycleState: LifecycleValue.STARTED
-  });
+  const ikComponent = getComponent(entity, IKComponent)
+  ikComponent.headGroup.rotateY(newAngleDiff * xrLookMultiplier)
+  ikComponent.headGroup.updateWorldMatrix(true, true)
+  actor.viewVector = vec3.set(0, 0, -1).applyQuaternion(ikComponent.headGroup.quaternion)
 };
 
 
@@ -439,38 +430,6 @@ const lookByInputAxis = (
         lifecycleState: LifecycleValue.CHANGED
       });
     }
-  }
-}
-
-const updateIKRig: Behavior = (entity, args): void => {
-
-  const avatarIK = getMutableComponent(entity, IKRigComponent);
-  if(!avatarIK || !avatarIK.avatarIKRig) return;
-  
-  const inputs = getMutableComponent(entity, Input);
-  const obj3d = getComponent(entity, Object3DComponent).value as Object3D;
-
-  if(args.type === BaseInput.XR_HEAD) {
-
-    const cam = inputs.data.get(BaseInput.XR_HEAD).value as SIXDOFType;
-    avatarIK.avatarIKRig.inputs.hmd.position.set(cam.x, cam.y, cam.z).sub(obj3d.position); // in world space, sub entity pos to get local pos
-    avatarIK.avatarIKRig.inputs.hmd.quaternion.set(cam.qX, cam.qY, cam.qZ, cam.qW)
-    // avatarIK.avatarIKRig.inputs.hmd.rotateY(Math.PI / 2)
-
-  } else if(args.type === BaseInput.XR_LEFT_HAND) {
-
-    const left = inputs.data.get(BaseInput.XR_LEFT_HAND).value as SIXDOFType;
-    avatarIK.avatarIKRig.inputs.leftGamepad.position.set(left.x, left.y, left.z);
-    avatarIK.avatarIKRig.inputs.leftGamepad.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
-    // avatar.inputs.leftGamepad.pointer = ; // for finger animation
-    // avatar.inputs.leftGamepad.grip = ;
-
-  } else if(args.type === BaseInput.XR_RIGHT_HAND) {
-
-    const right = inputs.data.get(BaseInput.XR_RIGHT_HAND).value as SIXDOFType;
-    avatarIK.avatarIKRig.inputs.rightGamepad.position.set(right.x, right.y, right.z);
-    avatarIK.avatarIKRig.inputs.rightGamepad.quaternion.set( right.qX, right.qY, right.qZ, right.qW);
-
   }
 }
 
@@ -926,29 +885,5 @@ export const CharacterInputSchema: InputSchema = {
         },
       ],
     },
-    [BaseInput.XR_HEAD]: {
-      changed: [
-        {
-          behavior: updateIKRig,
-          args: { type: BaseInput.XR_HEAD }
-        },
-      ],
-    },
-    [BaseInput.XR_LEFT_HAND]: {
-      changed: [
-        {
-          behavior: updateIKRig,
-          args: { type: BaseInput.XR_LEFT_HAND }
-        },
-      ],
-    },
-    [BaseInput.XR_RIGHT_HAND]: {
-      changed: [
-        {
-          behavior: updateIKRig,
-          args: { type: BaseInput.XR_RIGHT_HAND }
-        },
-      ],
-    }
   }
 }

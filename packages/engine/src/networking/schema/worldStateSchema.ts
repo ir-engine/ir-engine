@@ -54,7 +54,7 @@ const editNetworkObjectSchema = new Schema({
   networkId: uint32,
   ownerId: string,
   type: uint8,
-  values: [uint32]
+  values: [float32]
 });
 
 const destroyNetworkObjectSchema = new Schema({

@@ -5,6 +5,7 @@ import logger from '@xrengine/server-core/src/logger';
 import config from '@xrengine/server-core/src/appconfig';
 import psList from 'ps-list';
 import { exec } from 'child_process';
+import preloadLocation from './preload-location';
 
 /**
  * @param status
@@ -76,6 +77,10 @@ process.on('unhandledRejection', (error, promise) => {
   const server = useSSL ? https.createServer(certOptions, app as any).listen(port) : await app.listen(port);
 
   if (useSSL === true) app.setup(server);
+
+  if (config.gameserver.locationName != null) {
+    preloadLocation(config.gameserver.locationName);
+  }
 
   process.on('unhandledRejection', (reason, p) =>
       logger.error('Unhandled Rejection at: Promise ', p, reason)

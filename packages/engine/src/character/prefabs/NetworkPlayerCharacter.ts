@@ -1,5 +1,5 @@
 import { DEFAULT_AVATAR_ID } from "@xrengine/common/src/constants/AvatarConstants";
-import { AnimationMixer, Group, Quaternion, Vector3 } from "three";
+import { AnimationMixer, Group, Quaternion, SkinnedMesh, Vector3 } from "three";
 import { Controller } from 'three-physx';
 import { AssetLoader } from "../../assets/classes/AssetLoader";
 import { PositionalAudioComponent } from "../../audio/components/PositionalAudioComponent";
@@ -33,19 +33,20 @@ import { CharacterComponent } from '../components/CharacterComponent';
 import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
 import { NamePlateComponent } from '../components/NamePlateComponent';
 import { PersistTagComponent } from "../../scene/components/PersistTagComponent";
-import { IKRigComponent } from "../components/IKRigComponent";
-import { PortalProps } from "../../scene/behaviors/createPortal";
+import { SkeletonUtils } from "../SkeletonUtils";
 
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
   if(!isClient) return;
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-  AnimationManager.instance._defaultModel?.children?.forEach(child => actor.modelContainer.add(child));
+  const model = SkeletonUtils.clone(AnimationManager.instance._defaultModel)
+  model.traverse((object) => {
+    if (object.isMesh || object.isSkinnedMesh) {
+      object.material = object.material.clone();
+    }
+  });
+  model.children?.forEach(child => actor.modelContainer.add(child));
   actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-	if (hasComponent(entity, IKRigComponent)) {
-    removeComponent(entity, IKRigComponent)
-    addComponent(entity, IKRigComponent)
-	}
 }
 
 export const loadActorAvatar: Behavior = (entity) => {
@@ -58,39 +59,32 @@ export const loadActorAvatar: Behavior = (entity) => {
 
 export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
   if(!isClient) return;
-	const tmpGroup = new Group();
-	console.log("Loading Actor Avatar =>", avatarURL)
 
 	createShadow(entity, { castShadow: true, receiveShadow: true });
 
 	AssetLoader.load({
 		url: avatarURL,
-		entity,
 		castShadow: true,
 		receiveShadow: true,
-		parent: tmpGroup,
-	}, () => {
+	}, (asset: Group) => {
+    const model = SkeletonUtils.clone(asset)
+    
 		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-		const controller = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
-		if (!actor) return
 
 		actor.mixer && actor.mixer.stopAllAction();
-		// forget that we have any animation playing
 		actor.currentAnimationAction = [];
 
 		// clear current avatar mesh
 		([...actor.modelContainer.children])
 			.forEach(child => actor.modelContainer.remove(child));
 
-		let targetSkeleton;
-		tmpGroup.traverse((child) => {
-			if (child.type === "SkinnedMesh") {
-				if (!targetSkeleton)
-					targetSkeleton = child;
-			}
+		model.traverse((object) => {
+      if (object.isMesh || object.isSkinnedMesh) {
+        object.material = object.material.clone();
+      }
 		})
 
-		tmpGroup.children.forEach(child => actor.modelContainer.add(child));
+		model.children.forEach(child => actor.modelContainer.add(child));
 		// const geom = getGeometry(actor.modelContainer);
 		// if (geom) {
 		// 	geom.computeBoundingBox()
@@ -111,10 +105,6 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		// const width = modelWidth * actor.modelScaleFactor.radius;
 		// }
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-		if (hasComponent(entity, IKRigComponent)) {
-			removeComponent(entity, IKRigComponent)
-			addComponent(entity, IKRigComponent)
-		}
 	});
 };
 
@@ -177,10 +167,7 @@ const initializeCharacter: Behavior = (entity): void => {
   })
   addColliderToCharacter(entity)
 
-	// collider.controller.updateTransform({ translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }})
-	actor.initialized = true;
 	initializeMovingState(entity);
-	// };
 };
 
 export const addColliderToCharacter = (playerEntity: Entity) => {
@@ -200,7 +187,7 @@ export const addColliderToCharacter = (playerEntity: Entity) => {
     radius: actor.capsuleRadius,
     position: {
       x: transform.position.x,
-      y: transform.position.y + 2,
+      y: transform.position.y + actor.actorHeight + actor.capsuleRadius,
       z: transform.position.z
     },
     material: {
@@ -209,14 +196,8 @@ export const addColliderToCharacter = (playerEntity: Entity) => {
   }))
 }
 
-export const onPlayerSpawnInNewLocation = (portalProps: PortalProps) => {
-  addColliderToCharacter(Network.instance.localClientEntity)
-  teleportPlayer(Network.instance.localClientEntity, portalProps.spawnPosition, portalProps.spawnRotation)
-}
-
 export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation: Quaternion) => {
   const playerCollider = getMutableComponent(playerEntity, ControllerColliderComponent)
-  position.y = playerCollider.controller.transform.translation.y;
   playerCollider.controller.updateTransform({
     translation: position,
     rotation,
@@ -226,7 +207,6 @@ export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation
 export function createNetworkPlayer(args: { parameters: { position, rotation }, ownerId: string | number, networkId?: number, entity?: Entity }) {
   const position = new Vector3()
   const rotation = new Quaternion()
-  console.log(args)
   if(args.parameters) {
     position.set(args.parameters.position.x, args.parameters.position.y, args.parameters.position.z)
     rotation.set(args.parameters.rotation.x, args.parameters.rotation.y, args.parameters.rotation.z, args.parameters.rotation.w)

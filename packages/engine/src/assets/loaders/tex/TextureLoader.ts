@@ -2,13 +2,9 @@ import { RGBAFormat, RGBFormat, ImageLoader, ImageBitmapLoader, Texture, Loader,
 import { isWebWorker } from '../../../common/functions/getEnvironment';
 
 export class TextureLoader extends Loader {
-	crossOrigin: any;
-	path: any;
-	manager: any;
-
 	constructor(manager?: LoadingManager) {
-    super(manager)
-  }
+		super(manager)
+	}
 
 	load ( url, onLoad, onProgress, onError ) {
 		const texture = new Texture();

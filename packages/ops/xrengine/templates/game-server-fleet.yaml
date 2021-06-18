@@ -474,6 +474,10 @@ spec:
       template:
         spec:
           serviceAccountName: {{ include "xrengine.gameserver.serviceAccountName" . }}
+          {{- $releaseName := .Release.Name }}
+          {{ if not (empty .Values.release) }}
+            {{- $releaseName = .Values.release.name | default .Release.Name }}
+          {{ end }}
           containers:
             - name: {{ include "xrengine.gameserver.fullname" . }}
               image: "{{ .Values.gameserver.image.repository }}:{{ .Values.gameserver.image.tag }}"
@@ -515,29 +519,29 @@ spec:
                 - name: REDIS_ENABLED
                   value: "true"
                 - name: REDIS_ADDRESS
-                  value: "$({{ .Release.Name | upper }}_REDIS_MASTER_SERVICE_HOST)"
+                  value: "$({{ $releaseName | upper }}_REDIS_MASTER_SERVICE_HOST)"
                 - name: REDIS_PORT
-                  value: "$({{ .Release.Name | upper }}_REDIS_MASTER_SERVICE_PORT)"
+                  value: "$({{ $releaseName | upper }}_REDIS_MASTER_SERVICE_PORT)"
                 - name: REDIS_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: {{ .Release.Name }}-redis
+                      name: {{ $releaseName }}-redis
                       key: redis-password
                 - name: RELEASE_NAME
-                  value: {{ .Release.Name }}
+                  value: {{ $releaseName }}
           initContainers:
             - name: init-redis
               image: busybox:1.28
               command: ['sh', '-c', 'until (printf "AUTH $REDIS_PASSWORD\r\nPING\r\n";) | nc $REDIS_ADDRESS $REDIS_PORT ; do echo waiting for redis-master; sleep 2; done']
               env:
                 - name: REDIS_ADDRESS
-                  value: "$({{ .Release.Name | upper }}_REDIS_MASTER_SERVICE_HOST)"
+                  value: "$({{ $releaseName | upper }}_REDIS_MASTER_SERVICE_HOST)"
                 - name: REDIS_PORT
-                  value: "$({{ .Release.Name | upper }}_REDIS_MASTER_SERVICE_PORT)"
+                  value: "$({{ $releaseName | upper }}_REDIS_MASTER_SERVICE_PORT)"
                 - name: REDIS_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: {{ .Release.Name }}-redis
+                      name: {{ $releaseName }}-redis
                       key: redis-password
         {{- with .Values.gameserver.nodeSelector }}
           nodeSelector:
