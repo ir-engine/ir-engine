@@ -27,35 +27,30 @@ export const startXR = async (): Promise<void> => {
 
   try {
 
-    const cameraFollow = getMutableComponent<FollowCameraComponent>(Network.instance.localClientEntity, FollowCameraComponent) as FollowCameraComponent;
-    cameraFollow.mode = CameraModes.XR;
-    const actor = getMutableComponent(Network.instance.localClientEntity, CharacterComponent);
-
     const controllerLeft = Engine.xrRenderer.getController(1);
     const controllerRight = Engine.xrRenderer.getController(0);
     const controllerGripLeft = Engine.xrRenderer.getControllerGrip(1);
     const controllerGripRight = Engine.xrRenderer.getControllerGrip(0);
-    const containerGroup = new Group();
-    containerGroup.add(controllerLeft, controllerRight, controllerGripRight, controllerGripLeft);
+    const controllerGroup = new Group();
 
     const head = Engine.xrRenderer.getCamera();
     Engine.scene.remove(Engine.camera);
-    containerGroup.add(Engine.camera);
+    const headGroup = new Group();
+    headGroup.add(Engine.camera);
+
     removeComponent(Network.instance.localClientEntity, FollowCameraComponent)
-
-    // add to the character
-    actor.modelContainer.add(containerGroup);
-
-    removeComponent(Network.instance.localClientEntity, AnimationComponent);
 
     addComponent(Network.instance.localClientEntity, XRInputSourceComponent, {
       head,
-      containerGroup,
+      headGroup,
+      controllerGroup,
       controllerLeft,
       controllerRight,
       controllerGripLeft,
       controllerGripRight
     });
+
+    removeComponent(Network.instance.localClientEntity, FollowCameraComponent);
 
     // Add our controller models & pointer lines
     [controllerLeft, controllerRight].forEach((controller) => {

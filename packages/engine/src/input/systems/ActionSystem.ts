@@ -135,7 +135,7 @@ export class ActionSystem extends System {
         lifecycleState: LifecycleValue.CHANGED
       })
       const actor = getComponent(entity, CharacterComponent);
-      actor.viewVector.copy(vec3.set(0, 0, -1)).applyQuaternion(xrInputSourceComponent.containerGroup.quaternion)
+      actor.viewVector.copy(vec3.set(0, 0, -1)).applyQuaternion(xrInputSourceComponent.headGroup.quaternion)
     });
 
     this.queryResults.localClientInput.all?.forEach(entity => {

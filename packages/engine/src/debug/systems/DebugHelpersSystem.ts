@@ -159,9 +159,9 @@ export class DebugHelpersSystem extends System {
       debugHead.visible = this.avatarDebugEnabled;
       debugLeft.visible = this.avatarDebugEnabled;
       debugRight.visible = this.avatarDebugEnabled;
-      xrInputSourceComponent.head.add(debugHead)
-      xrInputSourceComponent.controllerLeft.add(debugLeft)
-      xrInputSourceComponent.controllerRight.add(debugRight)
+      Engine.scene.add(debugHead)
+      Engine.scene.add(debugLeft)
+      Engine.scene.add(debugRight)
       this.helpersByEntity.helperArrow.set(entity, [debugHead, debugLeft, debugRight]);
     })
 

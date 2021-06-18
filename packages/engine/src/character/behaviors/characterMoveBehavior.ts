@@ -40,6 +40,8 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
     if(xrInputSourceComponent) {
       // Apply direction from head look
       xrInputSourceComponent.head.getWorldQuaternion(quat);
+      console.log(xrInputSourceComponent.head.getWorldPosition(new Vector3()));
+      // console.log(quat)
       newVelocity.applyQuaternion(quat);
     } else {
       // Apply direction from character orientation

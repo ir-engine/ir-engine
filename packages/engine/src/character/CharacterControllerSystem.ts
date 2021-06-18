@@ -1,4 +1,4 @@
-import { Color, ConeBufferGeometry, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from "three";
+import { Color, ConeBufferGeometry, Group, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from "three";
 import { ControllerHitEvent, RaycastQuery, SceneQueryType } from "three-physx";
 import { applyVectorMatrixXZ } from "../common/functions/applyVectorMatrixXZ";
 import { isClient } from "../common/functions/isClient";
@@ -181,20 +181,29 @@ export class CharacterControllerSystem extends System {
       removeComponent(entity, AnimationComponent);
 
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent);
+      const actor = getMutableComponent(entity, CharacterComponent);
+
       if(entity !== Network.instance.localClientEntity) {
-        const actor = getMutableComponent(entity, CharacterComponent);
-        xrInputSourceComponent.containerGroup.add(
-          xrInputSourceComponent.head, 
-          xrInputSourceComponent.controllerLeft, 
-          xrInputSourceComponent.controllerGripLeft, 
-          xrInputSourceComponent.controllerRight, 
-          xrInputSourceComponent.controllerGripRight
-        );
-        xrInputSourceComponent.containerGroup.applyQuaternion(rotate180onY);
-        actor.modelContainer.add(xrInputSourceComponent.containerGroup);
+        // we handle the head different for local clients because it holds the camera
+        xrInputSourceComponent.headGroup = new Group()
+        xrInputSourceComponent.controllerGroup = new Group()
+        xrInputSourceComponent.headGroup.add(xrInputSourceComponent.head)
       }
       
-      const actor = getMutableComponent(entity, CharacterComponent);
+      xrInputSourceComponent.controllerGroup.applyQuaternion(rotate180onY);
+      xrInputSourceComponent.headGroup.applyQuaternion(rotate180onY);
+
+      xrInputSourceComponent.controllerGroup.position.setY(-actor.actorHalfHeight);
+      xrInputSourceComponent.headGroup.position.setY(-actor.actorHalfHeight);
+
+      xrInputSourceComponent.controllerGroup.add(
+        xrInputSourceComponent.controllerLeft, 
+        xrInputSourceComponent.controllerGripLeft, 
+        xrInputSourceComponent.controllerRight, 
+        xrInputSourceComponent.controllerGripRight
+      );
+
+      actor.tiltContainer.add(xrInputSourceComponent.controllerGroup, xrInputSourceComponent.headGroup);
 
       if(entity === Network.instance.localClientEntity)
       // TODO: Temporarily make rig invisible until rig is fixed

@@ -374,7 +374,7 @@ const lookFromXRInputs: Behavior = (entity, args): void => {
       break;
   }
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-  xrInputSourceComponent.containerGroup.rotateY(newAngleDiff * deg2rad)
+  xrInputSourceComponent.headGroup.rotateY(newAngleDiff * deg2rad)
 };
 
 

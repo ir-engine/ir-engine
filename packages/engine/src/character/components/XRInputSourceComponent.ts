@@ -26,20 +26,26 @@ export class XRInputSourceComponent extends Component<XRInputSourceComponent> {
   controllerGripRight: Group;
 
   /**
+   * @property {Group} controllerGroup is the group that holds all the controller groups,
+   * so they can be transformed together
+   */
+  controllerGroup: Group;
+
+  /**
    * @property {Group} head is the camera on the client,
    * and a group to represent the camera on the server and remote clients
    */
   head: Group;
 
   /**
-   * @property {Group} containerGroup is the group that holds all the other properties,
-   * so they can be transformed together
+   * @property {Group} headGroup is the group to contain and transform the head and camera
    */
-  containerGroup: Group;
+  headGroup: Group;
 
   static _schema = {
     head: { type: Types.Ref, default: new Group() },
-    containerGroup: { type: Types.Ref, default: new Group() },
+    headGroup: { type: Types.Ref, default: new Group() },
+    controllerGroup: { type: Types.Ref, default: new Group() },
     controllerLeft: { type: Types.Ref, default: new Group() },
     controllerRight: { type: Types.Ref, default: new Group() },
     controllerGripLeft: { type: Types.Ref, default: new Group() },
