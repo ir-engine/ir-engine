@@ -618,7 +618,7 @@ export function applyLookTwist(entity, boneInfo, ik, lookDirection, twistDirecti
 }
 
 export function applyGrounding(entity, y_lmt) {
-	const ik = getMutableComponent(entity, IKPose);
+	const ik:any = getMutableComponent(entity, IKPose);
 
 	// Once we have out IK Target setup, We can use its data to test various things
 	// First we can test if the end effector is below the height limit. Each foot

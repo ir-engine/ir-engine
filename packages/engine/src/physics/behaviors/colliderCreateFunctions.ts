@@ -54,7 +54,7 @@ type ModelData = {
   collisionMask?: number | string;
 }
 
-export function addColliderWithoutEntity(userData: ColliderData, pos = new Vector3(), rot = new Quaternion(), scale = new Vector3(),
+export function addColliderWithoutEntity(userData: any, pos = new Vector3(), rot = new Quaternion(), scale = new Vector3(),
   model: ModelData = {}): Body {
   // console.log(userData, pos, rot, scale, model)
   if (model.mesh && !model.vertices) {

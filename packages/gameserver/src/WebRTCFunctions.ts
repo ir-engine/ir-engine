@@ -312,7 +312,7 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
     const { transportId, sctpStreamParameters, label, protocol, appData } = data;
     logger.info(`Data channel label: ${label} -- user id: ` + userId);
     logger.info("Data producer params", data);
-    const transport: Transport = Network.instance.transports[transportId];
+    const transport: any = Network.instance.transports[transportId];
     const options: DataProducerOptions = {
         label,
         protocol,
@@ -384,7 +384,7 @@ export async function handleWebRtcCloseProducer(socket, data, callback): Promise
 export async function handleWebRtcSendTrack(socket, data, callback): Promise<any> {
     const userId = getUserIdFromSocketId(socket.id);
     const { transportId, kind, rtpParameters, paused = false, appData } =
-        data, transport = Network.instance.transports[transportId] as Transport;
+        data, transport:any = Network.instance.transports[transportId] as Transport;
 
     if (transport == null) return callback({ error: 'Invalid transport ID' });
 
@@ -398,7 +398,7 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
     const routers = appData.channelType === 'instance' ? networkTransport.routers.instance : networkTransport.routers[`${appData.channelType}:${appData.channelId}`];
     const currentRouter = routers.find(router => router._internal.routerId === transport._internal.routerId);
 
-    await Promise.all(routers.map(async (router: Router) => {
+    await Promise.all(routers.map(async (router: any) => {
         if (router._internal.routerId !== transport._internal.routerId) return currentRouter.pipeToRouter({ producerId: producer.id, router: router });
         else return Promise.resolve();
     }));

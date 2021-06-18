@@ -18,7 +18,7 @@ import type { SnapshotData } from '../../networking/types/SnapshotDataTypes';
 export const characterInterpolationBehavior: Behavior = (entity: Entity, snapshots: SnapshotData, delta: number): void => {
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-  const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
+  const collider:any = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
 
   const interpolation = findInterpolationSnapshot(entity, snapshots.interpolation);
 

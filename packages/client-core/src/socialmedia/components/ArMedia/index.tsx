@@ -17,7 +17,7 @@ import Preloader from "@xrengine/client-core/src/socialmedia/components/Preloade
 // @ts-ignore
 import styles from './ArMedia.module.scss';
 
-const { XRPlugin } = Plugins;
+const  XRPlugin:any = Plugins;
 
 const mapStateToProps = (state: any): any => {
     return {

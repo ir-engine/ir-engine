@@ -30,8 +30,9 @@ export const setReflectionProbe: Behavior = (entity, args: {}) => {
 
         break;
       case ReflectionProbeTypes.Realtime:
-        const map = new CubemapCapturer(Engine.renderer, Engine.scene, options.resolution, false);
-        const EnvMap = map.update(options.probePosition).texture;
+        const map = new CubemapCapturer(Engine.renderer, Engine.scene, options.resolution, "false");
+        const mapUpadte:any = map.update(options.probePosition);
+        const EnvMap = mapUpadte.texture;
         Engine.scene.environment = EnvMap;
         break;
     }

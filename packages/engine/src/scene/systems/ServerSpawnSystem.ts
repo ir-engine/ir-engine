@@ -5,7 +5,6 @@ import { TransformComponent } from "../../transform/components/TransformComponen
 import SpawnPointComponent from "../components/SpawnPointComponent";
 import { Quaternion, Vector3 } from "three";
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
-import { jsonifyQuaternion } from "../../common/functions/jsonifyQuaternion";
 
 
 export class ServerSpawnSystem extends System {
