@@ -71,9 +71,6 @@ const correctionQuaternionZ = new Quaternion().setFromAxisAngle(new Vector3(0,0,
 
 const _DEBUG = false;
 const DEBUG_MINI_VIEWPORT_SIZE = 100;
-let statusXR = false;
-const screenHeigth = Math.floor(document.body.clientHeight/2)*2;
-const screenWidth = Math.floor(document.body.clientWidth/2)*2;
 
 export const WebXRPlugin = ({
                                 popupsState, arMediaState,
@@ -563,12 +560,15 @@ export const WebXRPlugin = ({
         }
         setRecordingState(RecordingStates.STARTING);
         const start = new Date();
+        const screenHeight = Math.floor(screen.height/2)*2;
+        const screenWidth = Math.floor(screen.width/2)*2;
+
         //TODO: check why there are errors
         // @ts-ignore
         Plugins.XRPlugin.startRecording({
             isAudio: true,
             width: screenWidth,
-            height: screenHeigth,
+            height: screenHeight,
             bitRate: 6000000,
             dpi: 100,
             filePath: "/test.mp4"
