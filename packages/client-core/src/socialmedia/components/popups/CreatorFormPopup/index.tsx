@@ -23,12 +23,13 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props{
     popupsState?: any;
     updateCreatorFormState?: typeof  updateCreatorFormState;
+    webxrRecorderActivity: any;
 }
-export const CreatorFormPopup = ({popupsState, updateCreatorFormState}: Props) =>{
+export const CreatorFormPopup = ({popupsState, updateCreatorFormState, webxrRecorderActivity}: Props) =>{
   //common for creator form
   const handleCreatorFormClose = () =>updateCreatorFormState(false);
   const renderCreatoFormModal = () =>
-    popupsState?.get('creatorForm') === true &&  
+    popupsState?.get('creatorForm') === true && !webxrRecorderActivity &&
         <SharedModal 
             open={popupsState?.get('creatorForm')}
             onClose={handleCreatorFormClose} 
