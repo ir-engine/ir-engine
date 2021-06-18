@@ -3,6 +3,7 @@ import { Route, Switch, Redirect } from 'react-router-dom';
 import { Config } from '@xrengine/client-core/src/helper';
 import ProtectedRoute from "./protected";
 import homePage from '../pages/index';
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 class RouterComp extends React.Component<{}, { hasError: boolean }> {
     static getDerivedStateFromError() {
@@ -22,10 +23,21 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
     }
 
     render() {
-        if(this.state.hasError) return <div>Working...</div>;
+        if (this.state.hasError) return <div>Working...</div>;
 
         return (
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={
+                <div
+                    style={{
+                        height: '100vh',
+                        width: '100%',
+                        textAlign: 'center',
+                        paddingTop: 'calc(50vh - 7px)'
+                    }}
+                >
+                    <CircularProgress />
+                </div>
+            }    >
                 <Switch>
                     <Route path="/" component={homePage} exact />
                     <Route path="/login" component={React.lazy(() => import('../pages/login'))} />

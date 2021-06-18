@@ -5,14 +5,14 @@ import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInpu
 import nipplejs from 'nipplejs';
 import React, { FunctionComponent, useEffect, useRef } from 'react';
 // @ts-ignore
-import styles from './MobileGamepad.module.scss';
-import { MobileGamepadProps } from './MobileGamepadProps';
+import styles from './TouchGamepad.module.scss';
+import { TouchGamepadProps } from './TouchGamepadProps';
 
-export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered }: MobileGamepadProps) => {
+export const TouchGamepad: FunctionComponent<TouchGamepadProps> = ({ hovered }: TouchGamepadProps) => {
   const leftContainer = useRef<HTMLDivElement>();
 
   const triggerButton = (button: GamepadButtons, pressed: boolean): void => {
-    const eventType = pressed? "mobilegamepadbuttondown" : "mobilegamepadbuttonup";
+    const eventType = pressed? "touchgamepadbuttondown" : "touchgamepadbuttonup";
     const event = new CustomEvent(eventType, { "detail": { button } });
     document.dispatchEvent(event);
   };
@@ -56,7 +56,7 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered }
 
     stickLeft.on("move", ( e, data) => {
       const event = new CustomEvent(
-        "stickmove",
+        "touchstickmove",
         {
           "detail": {
             stick: GamepadAxis.Left, 
@@ -68,7 +68,7 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered }
     });
 
     stickLeft.on("end", ( e, data) => {
-      const event = new CustomEvent("stickmove", { "detail": { stick: GamepadAxis.Left, value: { x: 0, y: 0, angleRad: 0 } } });
+      const event = new CustomEvent("touchstickmove", { "detail": { stick: GamepadAxis.Left, value: { x: 0, y: 0, angleRad: 0 } } });
       document.dispatchEvent(event);
     });
 
@@ -90,4 +90,4 @@ export const MobileGamepad: FunctionComponent<MobileGamepadProps> = ({ hovered }
     </> ;
 };
 
-export default MobileGamepad;
+export default TouchGamepad;

@@ -10,6 +10,8 @@ import { teleportPlayer } from "../prefabs/NetworkPlayerCharacter";
 
 export const detectUserInPortal = (entity: Entity) => {
 
+  if(!entity) return;
+
   const actor = getComponent(entity, CharacterComponent);
 
   if (!actor.raycastQuery.hits[0] || !actor.raycastQuery.hits[0].body) return;

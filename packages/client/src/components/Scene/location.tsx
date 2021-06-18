@@ -10,6 +10,7 @@ import UserMenu from '@xrengine/client-core/src/user/components/UserMenu';
 import { GeneralStateList, setAppLoaded, setAppOnBoardingStep, setAppSpecificOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
 import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector';
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector';
+import { selectDeviceDetectState } from '@xrengine/client-core/src/common/reducers/devicedetect/selector';
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service';
 import { client } from '@xrengine/client-core/src/feathers';
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector';
@@ -27,7 +28,6 @@ import { selectPartyState } from '@xrengine/client-core/src/social/reducers/part
 import MediaIconsBox from "../../components/MediaIconsBox";
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
-import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { processLocationChange, resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { getComponent, getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
@@ -56,14 +56,15 @@ import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/
 import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal';
 import { addColliderToCharacter, teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent';
+import RecordingApp from './../Recorder/RecordingApp';
 import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu';
-import { ControllerColliderComponent } from '../../../../engine/src/character/components/ControllerColliderComponent';
+import { ControllerColliderComponent } from '@xrengine/engine/src/character/components/ControllerColliderComponent';
 
 const store = Store.store;
 
 const goHome = () => window.location.href = window.location.origin;
 
-const MobileGamepad = React.lazy(() => import("@xrengine/client-core/src/common/components/MobileGamepad"));
+const TouchGamepad = React.lazy(() => import("@xrengine/client-core/src/common/components/TouchGamepad"));
 
 const engineRendererCanvasId = 'engine-renderer-canvas';
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
@@ -120,6 +121,7 @@ interface Props {
   setAppLoaded?: any,
   sceneId?: string,
   userState?: any;
+  deviceState?: any;
   locationName: string;
   appState?: any;
   authState?: any;
@@ -136,10 +138,11 @@ interface Props {
   harmonyOpen?: boolean;
 }
 
-const mapStateToProps = (state: any): any => {
+const mapStateToProps = (state: any) => {
   return {
     userState: selectUserState(state),
     appState: selectAppState(state),
+    deviceState: selectDeviceDetectState(state),
     authState: selectAuthState(state),
     instanceConnectionState: selectInstanceConnectionState(state),
     locationState: selectLocationState(state),
@@ -147,7 +150,7 @@ const mapStateToProps = (state: any): any => {
   };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
+const mapDispatchToProps = (dispatch: Dispatch) => ({
   setAppLoaded: bindActionCreators(setAppLoaded, dispatch),
   doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
   getLocationByName: bindActionCreators(getLocationByName, dispatch),
@@ -164,6 +167,7 @@ export const EnginePage = (props: Props) => {
     locationState,
     partyState,
     userState,
+    deviceState,
     instanceConnectionState,
     doLoginAuto,
     getLocationByName,
@@ -530,9 +534,9 @@ export const EnginePage = (props: Props) => {
     };
   }, []);
 
-  //mobile gamepad
-  const mobileGamepadProps = { hovered: objectHovered, layout: 'default' };
-  const mobileGamepad = isMobileOrTablet() ? <Suspense fallback={<></>}><MobileGamepad {...mobileGamepadProps} /></Suspense> : null;
+  //touch gamepad
+  const touchGamepadProps = { hovered: objectHovered, layout: 'default' };
+  const touchGamepad = deviceState.get('content').touchDetected ? <Suspense fallback={<></>}><TouchGamepad {...touchGamepadProps} /></Suspense> : null;
 
   if(userBanned) return (<div className="banned">You have been banned from this location</div>);
   return isInXR ? <></> : (
@@ -555,9 +559,10 @@ export const EnginePage = (props: Props) => {
         { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
         {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
         <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); setInputEnabled(true); }} data={infoBoxData} />
+        <RecordingApp/>
         <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); setInputEnabled(true); }} data={openLinkData} />
         <canvas id={engineRendererCanvasId} style={canvasStyle} />
-        {mobileGamepad}
+        {touchGamepad}
         <WarningRefreshModal
             open={warningRefreshModalValues.open && !porting}
             handleClose={() => { setWarningRefreshModalValues(initialRefreshModalValues); }}
@@ -572,4 +577,6 @@ export const EnginePage = (props: Props) => {
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(EnginePage);
+const connector = connect(mapStateToProps, mapDispatchToProps)(EnginePage);
+
+export default connector;

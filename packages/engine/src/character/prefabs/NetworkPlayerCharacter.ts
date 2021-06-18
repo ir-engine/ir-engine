@@ -1,5 +1,5 @@
 import { DEFAULT_AVATAR_ID } from "@xrengine/common/src/constants/AvatarConstants";
-import { AnimationMixer, Group, Quaternion, Vector3 } from "three";
+import { AnimationMixer, Group, Quaternion, SkinnedMesh, Vector3 } from "three";
 import { Controller } from 'three-physx';
 import { AssetLoader } from "../../assets/classes/AssetLoader";
 import { PositionalAudioComponent } from "../../audio/components/PositionalAudioComponent";
@@ -33,14 +33,19 @@ import { CharacterComponent } from '../components/CharacterComponent';
 import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
 import { NamePlateComponent } from '../components/NamePlateComponent';
 import { PersistTagComponent } from "../../scene/components/PersistTagComponent";
-import { PortalProps } from "../../scene/behaviors/createPortal";
 import { SkeletonUtils } from "../SkeletonUtils";
 
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
   if(!isClient) return;
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-  AnimationManager.instance._defaultModel?.children?.forEach(child => actor.modelContainer.add(child));
+  const model = SkeletonUtils.clone(AnimationManager.instance._defaultModel)
+  model.traverse((object) => {
+    if (object.isMesh || object.isSkinnedMesh) {
+      object.material = object.material.clone();
+    }
+  });
+  model.children?.forEach(child => actor.modelContainer.add(child));
   actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 }
 
@@ -73,12 +78,10 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		([...actor.modelContainer.children])
 			.forEach(child => actor.modelContainer.remove(child));
 
-		let targetSkeleton;
-		model.traverse((child) => {
-			if (child.type === "SkinnedMesh") {
-				if (!targetSkeleton)
-					targetSkeleton = child;
-			}
+		model.traverse((object) => {
+      if (object.isMesh || object.isSkinnedMesh) {
+        object.material = object.material.clone();
+      }
 		})
 
 		model.children.forEach(child => actor.modelContainer.add(child));
@@ -164,7 +167,6 @@ const initializeCharacter: Behavior = (entity): void => {
   })
   addColliderToCharacter(entity)
 
-	actor.initialized = true;
 	initializeMovingState(entity);
 };
 

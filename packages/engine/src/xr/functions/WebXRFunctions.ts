@@ -23,8 +23,6 @@ import { AnimationComponent } from "../../character/components/AnimationComponen
  * @returns {Promise<boolean>} returns true on success, otherwise throws error and returns false
  */
 
-const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI);
-
 export const startXR = async (): Promise<void> => {
 
   try {
@@ -39,13 +37,12 @@ export const startXR = async (): Promise<void> => {
     const controllerGripRight = Engine.xrRenderer.getControllerGrip(0);
     const controllersGroup = new Group();
     controllersGroup.add(controllerLeft, controllerRight, controllerGripRight, controllerGripLeft);
-    controllersGroup.applyQuaternion(rotate180onY);
 
     const head = Engine.xrRenderer.getCamera();
     Engine.scene.remove(Engine.camera);
     const headGroup = new Group();
     headGroup.add(Engine.camera);
-    headGroup.applyQuaternion(rotate180onY)
+    removeComponent(Network.instance.localClientEntity, FollowCameraComponent)
 
     // add to the character
     actor.modelContainer.add(headGroup, controllersGroup);
@@ -123,6 +120,7 @@ export const endXR = (): void => {
   Engine.xrSession = null;
   Engine.scene.add(Engine.camera);
   addComponent(Network.instance.localClientEntity, AnimationComponent);
+  addComponent(Network.instance.localClientEntity, FollowCameraComponent)
   removeComponent(Network.instance.localClientEntity, IKComponent);
   initializeMovingState(Network.instance.localClientEntity)
 
@@ -213,30 +211,6 @@ export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.
 export const getHandTransform = (entity: Entity, hand: ParityValue = ParityValue.NONE): { position: Vector3, rotation: Quaternion } => {
   const actor = getComponent(entity, CharacterComponent);
   const transform = getComponent(entity, TransformComponent);
-  // quick fix until ik is fixed
-  if(isEntityLocalClient(entity)) {
-    const inputSources = getComponent(Network.instance.localClientEntity, IKComponent);
-    if(inputSources) {
-      const rigHand: Object3D = hand === ParityValue.LEFT ? inputSources.controllerLeft : inputSources.controllerRight;
-      if(rigHand) {
-        return { 
-          position: rigHand.getWorldPosition(vec3),
-          rotation: rigHand.getWorldQuaternion(quat)
-        }
-      }
-    }
-  } else {
-    if(isInXR(entity)) {
-      const input = getComponent(entity, Input).data.get(hand === ParityValue.LEFT ? BaseInput.XR_LEFT_HAND : BaseInput.XR_RIGHT_HAND)
-      if(input) {
-        const sixdof = input.value as SIXDOFType;
-        return { 
-          position: vec3.set(sixdof.x, sixdof.y, sixdof.z).applyMatrix4(actor.tiltContainer.matrixWorld),
-          rotation: quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW).premultiply(transform.rotation)
-        }
-      }
-    }
-  }
   const ikComponent = getComponent(entity, IKComponent);
   if(ikComponent) {
     const rigHand: Object3D = hand === ParityValue.LEFT ? ikComponent.controllerLeft : ikComponent.controllerRight;
