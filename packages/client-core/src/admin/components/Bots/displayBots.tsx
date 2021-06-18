@@ -24,6 +24,7 @@ import Button from '@material-ui/core/Button';
 import { createBotCammand, removeBots, removeBotsCommand } from "../../reducers/admin/bots/service";
 import MuiAlert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
+import UpdateBot from './updateBot';
 
 interface Props {
     fetchBotAsAdmin?: any;
@@ -59,6 +60,7 @@ const DisplayBots = (props: Props) => {
     const [name, setName] = React.useState("");
     const [description, setDescription] = React.useState("");
     const [open, setOpen] = React.useState(false);
+    const [openModel, setOpenModel] = React.useState(false);
 
     const handleChange = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
         setExpanded(isExpanded ? panel : false);
@@ -67,12 +69,15 @@ const DisplayBots = (props: Props) => {
     const botAdmin = botsAdminState.get("bots");
     const user = authState.get("user");
     const botAdminData = botAdmin.get("bots");
-    const botCammondAdmin = botsAdminState.get("botCammond");
     React.useEffect(() => {
         if (user.id && botAdmin.get("updateNeeded")) {
             fetchBotAsAdmin();
         }
     }, [botAdmin, user]);
+
+    const handleOpenModel = () => {
+        setOpenModel(true);
+    }
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -133,7 +138,7 @@ const DisplayBots = (props: Props) => {
                                     </Grid>
                                     <Grid item xs={4} style={{ display: "flex" }} >
                                         <div style={{ marginLeft: "auto" }}>
-                                            <IconButton>
+                                            <IconButton onClick={handleOpenModel}>
                                                 <Edit style={{ color: "#fff" }} />
                                             </IconButton>
                                             <IconButton  onClick={()=> removeBots(bot.id)}>
@@ -224,9 +229,11 @@ const DisplayBots = (props: Props) => {
             >
                 <Alert onClose={handleClose} severity="warning"> Fill in command is requiired!</Alert>
             </Snackbar>
+            <UpdateBot open={openModel} />
         </div>
     );
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(DisplayBots);
 
+    
