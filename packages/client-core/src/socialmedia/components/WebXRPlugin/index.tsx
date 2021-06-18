@@ -59,6 +59,7 @@ interface Props{
 
 const { isNative } = Capacitor;
 
+
 enum RecordingStates {
     OFF = "off",
     ON = "on",
@@ -92,6 +93,7 @@ export const WebXRPlugin = ({
     const [hintTwo, hintTwoShow] = useState(false);
 //     const [horizontalOrientation, setHorizontalOrientation] = useState(false);
     const [mediaItem, _setMediaItem] = useState(null);
+    const [videoDelay, setVideoDelay] = useState(null);
     const [recordingState, _setRecordingState] = useState(RecordingStates.OFF);
     const playerRef = useRef<Player|null>(null);
     const anchorRef = useRef<Group|null>(null);
@@ -518,9 +520,12 @@ export const WebXRPlugin = ({
             console.log('finishRecord');
             console.log('mediaItemRef.current.audioId', mediaItemRef.current);
             console.log('closeBtnAction', closeBtnAction);
-
+            console.log('VIDEO DELAY',videoDelay);
             // @ts-ignore
-            Plugins.XRPlugin.stopRecording({audioId: mediaItemRef.current.audioId}).
+            Plugins.XRPlugin.stopRecording({
+                audioId: mediaItemRef.current.audioId,
+                videoDelay: videoDelay
+            }).
               // @ts-ignore
               then(({ result, filePath }) => {
                   console.log("END RECORDING, result IS", result);
@@ -546,11 +551,18 @@ export const WebXRPlugin = ({
 
     };
 
+    function msToTime(ms)
+ {
+    let seconds = (ms / 1000).toFixed(1);
+     return seconds;
+}
+
     const startRecord = () => {
         if (!window.confirm("Double click to finish the record.")) {
             return;
         }
         setRecordingState(RecordingStates.STARTING);
+        const start = new Date();
         //TODO: check why there are errors
         // @ts-ignore
         Plugins.XRPlugin.startRecording({
@@ -567,6 +579,8 @@ export const WebXRPlugin = ({
                 // video.muted = false;
                 console.log('Player.play()!');
                 playerRef.current.play();
+                const end = new Date();
+                setVideoDelay(parseFloat(msToTime(end.getTime() - start.getTime())));
             }
             setRecordingState(RecordingStates.ON);
         }).catch(error => {
