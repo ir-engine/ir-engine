@@ -79,7 +79,6 @@ const CreateUser = (props: Props) => {
         adminInstanceState,
         adminPartyState
     } = props;
-    console.log(adminUserState.get("users").get("users"));
     
     const classes = useStyles();
     const classesx = useStyle();
@@ -233,13 +232,7 @@ const CreateUser = (props: Props) => {
                         />
 
                         <Autocomplete
-                            onChange={(e, newValue) => {
-                                if (newValue) {
-                                    setStatus(newValue.role as string);
-                                } else {
-                                    setStatus("");
-                                }
-                            }}
+                            onChange={(e, newValue) => setStatus(newValue?.role as string)}
                             {...userRoleProps}
                             id="debug"
                             debug
@@ -249,13 +242,7 @@ const CreateUser = (props: Props) => {
                         <DialogContentText className={classes.marginBottm}>  Don't see user role? <a href="#h" className={classes.textLink} onClick={createUserRole}>Create One</a>  </DialogContentText>
 
                         <Autocomplete
-                            onChange={(e, newValue) => {
-                                if (newValue) {
-                                    setInstance(newValue.id as string);
-                                } else {
-                                    setInstance("");
-                                }
-                            }}
+                            onChange={(e, newValue) => setInstance(newValue?.id as string)}
                             {...InstanceProps}
                             id="debug"
                             debug
@@ -265,13 +252,7 @@ const CreateUser = (props: Props) => {
                         <DialogContentText className={classes.marginBottm}>  Don't see Instance? <a href="/admin/instance" className={classes.textLink}>Create One</a>  </DialogContentText>
 
                         <Autocomplete
-                            onChange={(e, newValue) => {
-                                if (newValue) {
-                                    setParty(newValue.id as string);
-                                } else {
-                                    setParty("");
-                                }
-                            }}
+                            onChange={(e, newValue) =>  setParty(newValue?.id as string)}
                             {...PartyProps}
                             id="debug"
                             debug

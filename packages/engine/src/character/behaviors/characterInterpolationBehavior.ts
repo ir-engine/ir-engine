@@ -23,7 +23,7 @@ export const characterInterpolationBehavior: Behavior = (entity: Entity, snapsho
 
   const interpolation = findInterpolationSnapshot(entity, snapshots.interpolation);
 
-  if (!actor.initialized || !collider.controller || !interpolation || isNaN(interpolation.vX)) return;
+  if (!collider.controller || !interpolation || isNaN(interpolation.vX)) return;
 
   actor.animationVelocity.set(
     interpolation.vX,

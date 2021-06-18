@@ -228,12 +228,12 @@ const handleTouch = ({ event, value }: { event: TouchEvent; value: BinaryType })
 
 
 /**
- * Called whenever the mobile dpad is moved
+ * Called whenever the touch dpad is moved
  *
  * @param args is argument object. Events that occur due to the user interacting with a pointing device (such as a mouse).
  */
 
-const handleMobileDirectionalPad = (args: { event: CustomEvent }): void => {
+const handleTouchDirectionalPad = (args: { event: CustomEvent }): void => {
   // TODO: move this types to types and interfaces
   const { stick, value }: { stick: GamepadAxis; value: { x: number; y: number; angleRad: number } } = args.event.detail;
   if (!stick) {
@@ -279,7 +279,7 @@ const handleMobileDirectionalPad = (args: { event: CustomEvent }): void => {
  * @param args is argument object
  */
 
-function handleOnScreenGamepadButton(args: { event: CustomEvent; value: BinaryType }): any {
+function handleTouchGamepadButton(args: { event: CustomEvent; value: BinaryType }): any {
 
   const key = args.event.detail.button as GamepadButtons; // this is a custom event, hence why it is our own enum type
 
@@ -803,25 +803,25 @@ export const ClientInputSchema = {
         element: 'window'
       }
     ],
-    // mobile onscreen gamepad
-    stickmove: [
+    // Touch gamepad
+    touchstickmove: [
       {
-        behavior: handleMobileDirectionalPad,
+        behavior: handleTouchDirectionalPad,
         element: 'document'
       }
     ],
-    mobilegamepadbuttondown: [
+    touchgamepadbuttondown: [
       {
-        behavior: handleOnScreenGamepadButton,
+        behavior: handleTouchGamepadButton,
         element: 'document',
         args: {
           value: BinaryValue.ON
         }
       }
     ],
-    mobilegamepadbuttonup: [
+    touchgamepadbuttonup: [
       {
-        behavior: handleOnScreenGamepadButton,
+        behavior: handleTouchGamepadButton,
         element: 'document',
         args: {
           value: BinaryValue.OFF
