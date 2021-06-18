@@ -105,7 +105,7 @@
     "@rollup/plugin-typescript": "8.2.1",
     "@types/node": "14.17.3",
     "@types/react": "17.0.11",
-    "@types/react-dom": "17.0.7",
+    "@types/react-dom": "17.0.8",
     "comlink": "4.3.1",
     "config": "3.3.6",
     "cross-env": "7.0.3",
