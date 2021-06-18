@@ -100,15 +100,16 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState, webxrnativeSt
         {/* <Stories stories={stories} /> */}
         <FeedMenu />
         <AppFooter />
-        <CreatorPopup />
-        <FeedPopup />
-        <CreatorFormPopup />
+
         <ArMediaPopup />
         <WebXRStart feedHintsOnborded={feedHintsOnborded}
                     webxrRecorderActivity={webxrRecorderActivity}
                     setContentHidden={changeWebXrNative}
                     setFeedHintsOnborded={setFeedHintsOnborded}
         />
+        <CreatorPopup  webxrRecorderActivity={webxrRecorderActivity} />
+        <FeedPopup webxrRecorderActivity={webxrRecorderActivity} />
+        <CreatorFormPopup webxrRecorderActivity={webxrRecorderActivity} />
         <FeedFormPopup />
         <SharedFormPopup />
     </div>
