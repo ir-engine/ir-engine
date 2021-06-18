@@ -521,10 +521,17 @@ export const WebXRPlugin = ({
             console.log('mediaItemRef.current.audioId', mediaItemRef.current);
             console.log('closeBtnAction', closeBtnAction);
             console.log('VIDEO DELAY',videoDelay);
+            const clipTitle = mediaItemRef.current.title.replace(/ /gi, '_');
+            const clipTime = new Date().toLocaleTimeString().replace(/[\:\ ]/gi,'_')
+            console.log(clipTime);
+            console.log(clipTitle);
+            
             // @ts-ignore
             Plugins.XRPlugin.stopRecording({
                 audioId: mediaItemRef.current.audioId,
-                videoDelay: videoDelay
+                videoDelay: videoDelay,
+                clipTitle: clipTitle,
+                clipTime: clipTime
             }).
               // @ts-ignore
               then(({ result, filePath }) => {
