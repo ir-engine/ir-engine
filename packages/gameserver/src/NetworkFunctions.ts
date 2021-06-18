@@ -297,7 +297,7 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     const networkObject = createNetworkPlayer({ ownerId: userId, parameters: spawnPos });
     
     const actor = getMutableComponent(networkObject.entity, CharacterComponent);
-    spawnPos.position.y +=  actor.actorHeight + actor.capsuleRadius;
+    spawnPos.position.y += actor.actorHalfHeight;
     
     const collider = getMutableComponent(networkObject.entity, ControllerColliderComponent);
     collider.controller.updateTransform({

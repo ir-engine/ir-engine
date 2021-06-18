@@ -57,7 +57,7 @@ export class PhysicsSystem extends System {
     this.physicsFrameRate = Engine.physicsFrameRate;
     this.physicsFrameTime = 1 / this.physicsFrameRate;
     this.physicsWorldConfig = attributes.physicsWorldConfig ?? {
-      tps: 120,
+      tps: 60,
       // lengthScale: 1,
       start: false
     }
@@ -86,6 +86,12 @@ export class PhysicsSystem extends System {
   }
 
   execute(delta: number): void {
+    this.queryResults.collider.removed?.forEach(entity => {
+      const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true);
+      if (colliderComponent) {
+        this.removeBody(colliderComponent.body);
+      }
+    });
 
     this.queryResults.collider.all?.forEach(entity => {
       const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
@@ -112,13 +118,6 @@ export class PhysicsSystem extends System {
           collider.body.transform.rotation.w
         );
         collider.quaternion.copy(transform.rotation)
-      }
-    });
-
-    this.queryResults.collider.removed?.forEach(entity => {
-      const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true);
-      if (colliderComponent) {
-        this.removeBody(colliderComponent.body);
       }
     });
 
@@ -169,6 +168,7 @@ export class PhysicsSystem extends System {
         }
       });
     }
+
     PhysXInstance.instance.update();
   }
 

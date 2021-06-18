@@ -88,12 +88,12 @@ export const rigidbodyInterpolationBehavior: Behavior = (entity: Entity, snapsho
 
   collider.body.updateTransform({
     translation: {
-      x: collider.body.transform.translation.x - offsetX * delta,
-      y: collider.body.transform.translation.y - offsetY * delta,
-      z: collider.body.transform.translation.z - offsetZ * delta,
-      // x: currentSnapshot.x,
-      // y: currentSnapshot.y,
-      // z: currentSnapshot.z
+      // x: collider.body.transform.translation.x - offsetX * delta,
+      // y: collider.body.transform.translation.y - offsetY * delta,
+      // z: collider.body.transform.translation.z - offsetZ * delta,
+      x: currentSnapshot.x,
+      y: currentSnapshot.y,
+      z: currentSnapshot.z
     },
     rotation: {
       x: collider.body.transform.rotation.x - offsetqX * delta,

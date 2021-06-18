@@ -34,12 +34,13 @@ import { ControllerColliderComponent } from "../components/ControllerColliderCom
 import { NamePlateComponent } from '../components/NamePlateComponent';
 import { PersistTagComponent } from "../../scene/components/PersistTagComponent";
 import { SkeletonUtils } from "../SkeletonUtils";
+import type { NetworkObject } from "../../networking/components/NetworkObject";
 
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
   if(!isClient) return;
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-  const model = SkeletonUtils.clone(AnimationManager.instance._defaultModel)
+  const model = SkeletonUtils.clone(AnimationManager.instance._defaultModel);
   model.traverse((object) => {
     if (object.isMesh || object.isSkinnedMesh) {
       object.material = object.material.clone();
@@ -47,7 +48,7 @@ export const loadDefaultActorAvatar: Behavior = (entity) => {
   });
   model.children?.forEach(child => actor.modelContainer.add(child));
   actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
-}
+};
 
 export const loadActorAvatar: Behavior = (entity) => {
 	if (!isClient) return;
@@ -67,43 +68,22 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		castShadow: true,
 		receiveShadow: true,
 	}, (asset: Group) => {
-    const model = SkeletonUtils.clone(asset)
+    const model = SkeletonUtils.clone(asset);
     
 		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 
 		actor.mixer && actor.mixer.stopAllAction();
 		actor.currentAnimationAction = [];
 
-		// clear current avatar mesh
-		([...actor.modelContainer.children])
-			.forEach(child => actor.modelContainer.remove(child));
+		([...actor.modelContainer.children]).forEach(child => actor.modelContainer.remove(child));
 
 		model.traverse((object) => {
       if (object.isMesh || object.isSkinnedMesh) {
         object.material = object.material.clone();
       }
-		})
+		});
 
 		model.children.forEach(child => actor.modelContainer.add(child));
-		// const geom = getGeometry(actor.modelContainer);
-		// if (geom) {
-		// 	geom.computeBoundingBox()
-		// 	const modelX = (geom.boundingBox.max.x - geom.boundingBox.min.x) / 2;
-		// 	const modelY = (geom.boundingBox.max.y - geom.boundingBox.min.y) / 2;
-		// 	const modelZ = (geom.boundingBox.max.z - geom.boundingBox.min.z) / 2;
-		//controller.controller.resize(modelHeight - (modelWidth*2));
-		// const modelSize = modelX + modelY + modelZ;
-		// if (!modelSize) return;
-
-		// TODO: controller size should be calculated entirely from the model bounds, not relying to constants & tweaking
-
-		// instead, set model to IDLE state, then calculate total bounds and resize
-
-		// const modelWidth = ((modelX * actor.modelScaleWidth.x) + (modelY * actor.modelScaleWidth.y) + (modelZ * actor.modelScaleWidth.z));
-		// const modelHeight = ((modelX * actor.modelScaleHeight.x) + (modelY * actor.modelScaleHeight.y) + (modelZ * actor.modelScaleHeight.z)) / (modelSize * actor.modelScaleFactor.size);
-		// const height = modelHeight * actor.modelScaleFactor.height;
-		// const width = modelWidth * actor.modelScaleFactor.radius;
-		// }
 		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 	});
 };
@@ -140,7 +120,7 @@ const initializeCharacter: Behavior = (entity): void => {
 	// // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
 	actor.modelContainer = new Group();
 	actor.modelContainer.name = 'Actor (modelContainer)' + entity.id;
-	actor.modelContainer.position.y = -actor.rayCastLength;
+	actor.modelContainer.position.setY(-actor.actorHalfHeight);
 	actor.tiltContainer.add(actor.modelContainer);
 
 	// by default all asset childs are moved into entity object3dComponent, which is tiltContainer
@@ -152,27 +132,27 @@ const initializeCharacter: Behavior = (entity): void => {
 	actor.animationVectorSimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.rotationSimulator = new RelativeSpringSimulator(60, actor.defaultRotationSimulatorMass, actor.defaultRotationSimulatorDamping);
 
-	if (actor.viewVector == null) actor.viewVector = new Vector3();
+	actor.viewVector = new Vector3();
 
 	const transform = getComponent(entity, TransformComponent);
 
   addComponent(entity, ControllerColliderComponent, {
 		mass: actor.actorMass,
 		position: transform.position,
-		height: actor.actorHeight,
+		height: actor.capsuleHeight,
 		radius: actor.capsuleRadius,
 		// contactOffset: actor.contactOffset,
 		segments: actor.capsuleSegments,
 		friction: actor.capsuleFriction,
-  })
-  addColliderToCharacter(entity)
+  });
+  addColliderToCharacter(entity);
 
 	initializeMovingState(entity);
 };
 
-export const addColliderToCharacter = (playerEntity: Entity) => {
+export const addColliderToCharacter = (playerEntity: Entity): void => {
   
-  const playerCollider = getMutableComponent(playerEntity, ControllerColliderComponent)
+  const playerCollider = getMutableComponent(playerEntity, ControllerColliderComponent);
 	const actor = getComponent(playerEntity, CharacterComponent);
 
 	const transform = getComponent(playerEntity, TransformComponent);
@@ -181,35 +161,35 @@ export const addColliderToCharacter = (playerEntity: Entity) => {
     isCapsule: true,
     collisionLayer: CollisionGroups.Characters,
     collisionMask: DefaultCollisionMask,
-    height: actor.actorHeight,
+    height: actor.capsuleHeight,
     contactOffset: actor.contactOffset,
     stepOffset: 0.25,
     radius: actor.capsuleRadius,
     position: {
       x: transform.position.x,
-      y: transform.position.y + actor.actorHeight + actor.capsuleRadius,
+      y: transform.position.y + actor.actorHalfHeight,
       z: transform.position.z
     },
     material: {
       dynamicFriction: actor.capsuleFriction,
     }
-  }))
-}
+  }));
+};
 
-export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation: Quaternion) => {
-  const playerCollider = getMutableComponent(playerEntity, ControllerColliderComponent)
+export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation: Quaternion): void => {
+  const playerCollider = getMutableComponent(playerEntity, ControllerColliderComponent);
   playerCollider.controller.updateTransform({
     translation: position,
     rotation,
   });
-}
+};
 
-export function createNetworkPlayer(args: { parameters: { position, rotation }, ownerId: string | number, networkId?: number, entity?: Entity }) {
-  const position = new Vector3()
-  const rotation = new Quaternion()
+export function createNetworkPlayer(args: { parameters: { position, rotation }, ownerId: string | number, networkId?: number, entity?: Entity }): NetworkObject {
+  const position = new Vector3();
+  const rotation = new Quaternion();
   if(args.parameters) {
-    position.set(args.parameters.position.x, args.parameters.position.y, args.parameters.position.z)
-    rotation.set(args.parameters.rotation.x, args.parameters.rotation.y, args.parameters.rotation.z, args.parameters.rotation.w)
+    position.set(args.parameters.position.x, args.parameters.position.y, args.parameters.position.z);
+    rotation.set(args.parameters.rotation.x, args.parameters.rotation.y, args.parameters.rotation.z, args.parameters.rotation.w);
   }
 	const networkComponent = initializeNetworkObject({
 		ownerId: String(args.ownerId),

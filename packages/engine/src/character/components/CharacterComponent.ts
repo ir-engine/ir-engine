@@ -13,97 +13,82 @@ export class CharacterComponent extends Component<CharacterComponent> {
 		this.modelContainer.parent.remove(this.modelContainer);
 		this.tiltContainer = null;
 	}
-	public modelScale = 1; // its for resize
 
-	public movementEnabled = false;
-	public initialized = false;
+  // === CORE == //
 
-	// TODO: Move these... but for now...
-	public currentAnimationAction: AnimationAction[] = [];
-	public currentAnimationLength = 0;
-	public timer = 0;
-	public animationsTimeScale = .5;
-	public avatarId: string;
-	public thumbnailURL: string;
-	public avatarURL: string;
-	public tiltContainer: Group;
-	public modelContainer: Group;
-	public materials: Material[] = [];
-	public visible = true;
-	public mixer: AnimationMixer;
-	public animations: any[] = [];
+  /**
+   * @property {Group} tiltContainer is a group that ensures the transform is always oriented with Y perpendicular to ground
+   * It's center is at the center of the collider
+   */
+	tiltContainer: Group;
 
-	// === Movement === //
+  /**
+   * @property {Group} modelContainer is a group that holds the model such that the animations & IK can move seperate from the transform & collider
+   * It's center is at the center of the collider, except with y sitting at the bottom of the collider, flush with the ground
+   */
+	modelContainer: Group;
 
-	public walkSpeed = 0.5;
-	public runSpeed = 1;
-	public jumpHeight = 4;
-	public speedMultiplier = 3;
+	movementEnabled = false;
+  visible = true; // used for turning model invisble when first person
 
-	/**
-	 * desired moving direction from user inputs
-	 */
-	public localMovementDirection = new Vector3();
-	public acceleration: Vector3 = new Vector3();
-	/**
-	 * this needs to be multiplied by moveSpeed to get real speed;
-	 * probably does not represent real physics speed
-	 */
-	public velocity: Vector3 = new Vector3();
-	public arcadeVelocityInfluence: Vector3 = new Vector3(1, 0, 1);
-	public velocityTarget: Vector3 = new Vector3();
+  // === ANIMATION === // // TODO: Move these to AnimationComponent
 
-	public currentInputHash: any = ""
+	mixer: AnimationMixer;
+	animations: any[] = [];
+	currentAnimationAction: AnimationAction[] = [];
+	currentAnimationLength = 0; // we may not need this
 
-	public defaultVelocitySimulatorDamping = 0.8;
-	public defaultVelocitySimulatorMass = 50;
-	public velocitySimulator: VectorSpringSimulator
-	public animationVectorSimulator: VectorSpringSimulator
-	public moveVectorSmooth: VectorSpringSimulator
-	public moveSpeed = 2;
-	public otherPlayerMaxSpeedCount = 0;
-	public angularVelocity = 0;
-	public orientation: Vector3 = new Vector3(0, 0, 1);
-	public orientationTarget: Vector3 = new Vector3(0, 0, 1);
-	public defaultRotationSimulatorDamping = 0.5;
-	public defaultRotationSimulatorMass = 10;
-	public rotationSimulator: RelativeSpringSimulator;
-	public viewVector: Vector3;
-	public changedViewAngle = 0;
-	public actions: any;
+  // === AVATAR === //
 
-	// Actor collision Capsule
-	public actorMass = 1;
-	public actorHeight = 1.2;
-	public capsuleRadius = 0.25;
-	public contactOffset = 0.01;
-	public capsuleSegments = 16;
-	public capsuleFriction = 0.1;
-	public capsulePosition: Vector3 = new Vector3(0, 0, 0);
-	// Ray casting
-	public raycastQuery: RaycastQuery;
-	public isGrounded = false;
-	public closestHit = null;
-	public rayCastLength = 0.85;
-	//public raySafeOffset = 0.03;
-	//public initJumpSpeed = -1;
-	public playerInPortal = 0;
-	public animationVelocity: Vector3 = new Vector3();
-	public groundImpactVelocity: Vector3 = new Vector3();
+	avatarId: string;
+	thumbnailURL: string;
+	avatarURL: string;
 
-	public controlledObject: any;
-	public gamepadDamping = 0.05;
+	// === MOVEMENT === //
 
-	public vehicleEntryInstance: any;
-	public occupyingSeat: any;
-	quaternion: any;
-	canFindVehiclesToEnter: boolean;
-	canEnterVehicles: boolean;
-	canLeaveVehicles: boolean;
 	isJumping: boolean;
-	rotationSpeed: any;
+	walkSpeed = 0.5;
+	runSpeed = 1;
+	jumpHeight = 4;
+	speedMultiplier = 3;
+	localMovementDirection = new Vector3();
+	velocity: Vector3 = new Vector3();
+	arcadeVelocityInfluence: Vector3 = new Vector3(1, 0, 1);
+	velocityTarget: Vector3 = new Vector3();
 
-	collisionMask: number;
+	defaultVelocitySimulatorDamping = 0.8;
+	defaultVelocitySimulatorMass = 50;
+	velocitySimulator: VectorSpringSimulator
+	animationVectorSimulator: VectorSpringSimulator
+	moveVectorSmooth: VectorSpringSimulator
+	moveSpeed = 2;
+	otherPlayerMaxSpeedCount = 0;
+	angularVelocity = 0;
+	animationVelocity: Vector3 = new Vector3();
+	orientation: Vector3 = new Vector3(0, 0, 1);
+	orientationTarget: Vector3 = new Vector3(0, 0, 1);
+	defaultRotationSimulatorDamping = 0.5;
+	defaultRotationSimulatorMass = 10;
+	rotationSimulator: RelativeSpringSimulator;
+	viewVector: Vector3;
+
+	// === PHYSICS === // // TODO: move to CharacterColliderComponent
+	actorMass = 1;
+  // the full height of the character
+	actorHeight = 1.8;
+	actorHalfHeight = 1.8 / 2;
+  // the radius of the main capsule
+	capsuleRadius = 0.25; 
+  // the height of the capsule (from center of each dome of the capsule, ie. not inclusive of thedomes)
+	capsuleHeight = 1.3; 
+	contactOffset = 0.01;
+	capsuleSegments = 16;
+	capsuleFriction = 0.1;
+	capsulePosition: Vector3 = new Vector3(0, 0, 0);
+	// Ray casting
+	raycastQuery: RaycastQuery;
+	isGrounded = false;
+	closestHit = null;
 
 	static _schema = {
 		tiltContainer: { type: Types.Ref, default: null },

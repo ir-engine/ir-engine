@@ -106,7 +106,7 @@ export class CharacterControllerSystem extends System {
       // TODO: implement scene lower bounds parameter
       if(!isClient && collider.controller.transform.translation.y < -10) {
         const { position, rotation } = ServerSpawnSystem.instance.getRandomSpawnPoint();
-        position.y += actor.actorHeight + actor.capsuleRadius;
+        position.y += actor.actorHalfHeight / 2;
         console.log('player has fallen through the floor, teleporting them to', position)
         collider.controller.updateTransform({
           translation: position,
