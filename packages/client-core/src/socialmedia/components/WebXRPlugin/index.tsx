@@ -554,13 +554,7 @@ export const WebXRPlugin = ({
     function msToTime(ms)
  {
     let seconds = (ms / 1000).toFixed(1);
-    let minutes = (ms / (1000 * 60)).toFixed(1);
-    let hours = (ms / (1000 * 60 * 60)).toFixed(1);
-    let days = (ms / (1000 * 60 * 60 * 24)).toFixed(1);
-    if (parseFloat(seconds) < 60) return seconds;
-    else if (parseFloat(minutes) < 60) return minutes;
-    else if (parseFloat(hours) < 24) return hours;
-    else return days;
+     return seconds;
 }
 
     const startRecord = () => {
