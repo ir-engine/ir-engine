@@ -4,7 +4,7 @@ import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFun
 import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { IKComponent } from '../components/IKComponent';
+import { XRInputSourceComponent } from '../components/XRInputSourceComponent';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -36,10 +36,10 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
     actor.velocity.copy(actor.velocitySimulator.position);
     newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed * actor.speedMultiplier);
 
-    const ikComponent = getComponent(entity, IKComponent);
-    if(ikComponent) {
+    const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
+    if(xrInputSourceComponent) {
       // Apply direction from head look
-      ikComponent.head.getWorldQuaternion(quat);
+      xrInputSourceComponent.head.getWorldQuaternion(quat);
       newVelocity.applyQuaternion(quat);
     } else {
       // Apply direction from character orientation

@@ -27,7 +27,7 @@ import { TransformComponent } from '../transform/components/TransformComponent';
 import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings';
 import { BinaryValue } from '../common/enums/BinaryValue';
 import { ParityValue } from '../common/enums/ParityValue';
-import { IKComponent } from './components/IKComponent';
+import { XRInputSourceComponent } from './components/XRInputSourceComponent';
 
 /**
  *
@@ -347,11 +347,8 @@ const moveFromXRInputs: Behavior = (entity, args): void => {
 
 let switchChangedToZero = true;
 const deg2rad = Math.PI / 180;
-const vec3 = new Vector3();
 
 const lookFromXRInputs: Behavior = (entity, args): void => {
-  if (!isClient) return;
-  const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const input = getComponent<Input>(entity, Input as any);
   const values = input.data.get(BaseInput.XR_LOOK)?.value;
   const rotationAngle = XRUserSettings.rotationAngle;
@@ -376,10 +373,8 @@ const lookFromXRInputs: Behavior = (entity, args): void => {
       newAngleDiff = (values[0] * XRUserSettings.rotationSmoothSpeed) * (XRUserSettings.rotationInvertAxes ? -1 : 1);
       break;
   }
-  const ikComponent = getComponent(entity, IKComponent)
-  ikComponent.headGroup.rotateY(newAngleDiff * deg2rad)
-  ikComponent.headGroup.updateWorldMatrix(true, true)
-  actor.viewVector.copy(vec3.set(0, 0, -1)).applyQuaternion(ikComponent.headGroup.quaternion)
+  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+  xrInputSourceComponent.containerGroup.rotateY(newAngleDiff * deg2rad)
 };
 
 

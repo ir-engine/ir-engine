@@ -19,7 +19,7 @@ import { CharacterComponent } from "./components/CharacterComponent";
 import { updateVectorAnimation } from "./functions/updateVectorAnimation";
 import { loadActorAvatar, teleportPlayer } from "./prefabs/NetworkPlayerCharacter";
 import { Engine } from "../ecs/classes/Engine";
-import { IKComponent } from "./components/IKComponent";
+import { XRInputSourceComponent } from "./components/XRInputSourceComponent";
 import { Avatar } from "../xr/classes/IKAvatar";
 import { Network } from "../networking/classes/Network";
 import { detectUserInPortal } from "./functions/detectUserInPortal";
@@ -180,14 +180,18 @@ export class CharacterControllerSystem extends System {
     this.queryResults.ikAvatar.added?.forEach((entity) => {
       removeComponent(entity, AnimationComponent);
 
-      const ikComponent = getMutableComponent(entity, IKComponent);
+      const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent);
       if(entity !== Network.instance.localClientEntity) {
         const actor = getMutableComponent(entity, CharacterComponent);
-        ikComponent.headGroup.add(ikComponent.head);
-        ikComponent.controllersGroup.add(ikComponent.controllerLeft, ikComponent.controllerGripLeft, ikComponent.controllerRight, ikComponent.controllerGripRight);
-        ikComponent.headGroup.applyQuaternion(rotate180onY);
-        ikComponent.controllersGroup.applyQuaternion(rotate180onY);
-        actor.modelContainer.add(ikComponent.headGroup, ikComponent.controllersGroup);
+        xrInputSourceComponent.containerGroup.add(
+          xrInputSourceComponent.head, 
+          xrInputSourceComponent.controllerLeft, 
+          xrInputSourceComponent.controllerGripLeft, 
+          xrInputSourceComponent.controllerRight, 
+          xrInputSourceComponent.controllerGripRight
+        );
+        xrInputSourceComponent.containerGroup.applyQuaternion(rotate180onY);
+        actor.modelContainer.add(xrInputSourceComponent.containerGroup);
       }
       
       const actor = getMutableComponent(entity, CharacterComponent);
@@ -256,7 +260,7 @@ CharacterControllerSystem.queries = {
     }
   },
   ikAvatar: {
-    components: [CharacterComponent, IKComponent],
+    components: [CharacterComponent, XRInputSourceComponent],
     listen: {
       added: true,
       removed: true

@@ -23,7 +23,7 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { Engine } from '../../ecs/classes/Engine';
 import { Quaternion, Vector3 } from 'three';
 import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ';
-import { IKComponent } from '../../character/components/IKComponent';
+import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent';
 
 /**
  * Apply State received over the network to the client.
@@ -314,17 +314,17 @@ export class ClientNetworkStateSystem extends System {
           const entity = Network.instance.networkObjects[ikTransform.networkId].component.entity;
           // ignore our own transform
           if(entity === Network.instance.localClientEntity) return;
-          if(!hasComponent(entity, IKComponent)) {
-            addComponent(entity, IKComponent);
+          if(!hasComponent(entity, XRInputSourceComponent)) {
+            addComponent(entity, XRInputSourceComponent);
           }
-          const ikComponent = getComponent(entity, IKComponent);
+          const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
           const { hmd, left, right } = ikTransform;
-          ikComponent.head.position.set(hmd.x, hmd.y, hmd.z);
-          ikComponent.head.quaternion.set(hmd.qX, hmd.qY, hmd.qZ, hmd.qW);
-          ikComponent.controllerLeft.position.set(left.x, left.y, left.z);
-          ikComponent.controllerLeft.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
-          ikComponent.controllerRight.position.set(right.x, right.y, right.z);
-          ikComponent.controllerRight.quaternion.set(right.qX, right.qY, right.qZ, right.qW);
+          xrInputSourceComponent.head.position.set(hmd.x, hmd.y, hmd.z);
+          xrInputSourceComponent.head.quaternion.set(hmd.qX, hmd.qY, hmd.qZ, hmd.qW);
+          xrInputSourceComponent.controllerLeft.position.set(left.x, left.y, left.z);
+          xrInputSourceComponent.controllerLeft.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
+          xrInputSourceComponent.controllerRight.position.set(right.x, right.y, right.z);
+          xrInputSourceComponent.controllerRight.quaternion.set(right.qX, right.qY, right.qZ, right.qW);
         })
       });
     }
