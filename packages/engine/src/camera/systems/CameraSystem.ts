@@ -31,6 +31,7 @@ const mx = new Matrix4();
 const vec3 = new Vector3();
 
 const followCameraBehavior = (entity: Entity) => {
+  if(!entity) return;
   const cameraDesiredTransform: DesiredTransformComponent = getMutableComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) as DesiredTransformComponent; // Camera
 
   if (!cameraDesiredTransform) return;

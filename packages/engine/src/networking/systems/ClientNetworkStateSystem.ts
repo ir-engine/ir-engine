@@ -312,6 +312,8 @@ export class ClientNetworkStateSystem extends System {
         transformState.ikTransforms?.forEach((ikTransform: StateEntityIK) => {
           if (!Network.instance.networkObjects[ikTransform.networkId]) return;
           const entity = Network.instance.networkObjects[ikTransform.networkId].component.entity;
+          // ignore our own transform
+          if(entity === Network.instance.localClientEntity) return;
           if(!hasComponent(entity, IKComponent)) {
             addComponent(entity, IKComponent);
           }

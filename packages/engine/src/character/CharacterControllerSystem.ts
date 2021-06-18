@@ -31,6 +31,7 @@ const forwardVector = new Vector3(0, 0, 1);
 const prevControllerColliderPosition = new Vector3();
 const vector3 = new Vector3();
 const quat = new Quaternion();
+const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI);
 
 export class CharacterControllerSystem extends System {
 
@@ -77,7 +78,7 @@ export class CharacterControllerSystem extends System {
       }));
     });
     
-    if(Network.instance.localClientEntity) detectUserInPortal(Network.instance.localClientEntity)
+    detectUserInPortal(Network.instance.localClientEntity)
 
     this.queryResults.controller.all?.forEach((entity) => {
       const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
@@ -184,11 +185,14 @@ export class CharacterControllerSystem extends System {
         const actor = getMutableComponent(entity, CharacterComponent);
         ikComponent.headGroup.add(ikComponent.head);
         ikComponent.controllersGroup.add(ikComponent.controllerLeft, ikComponent.controllerGripLeft, ikComponent.controllerRight, ikComponent.controllerGripRight);
-        actor.tiltContainer.add(ikComponent.headGroup, ikComponent.controllersGroup);
+        ikComponent.headGroup.applyQuaternion(rotate180onY);
+        ikComponent.controllersGroup.applyQuaternion(rotate180onY);
+        actor.modelContainer.add(ikComponent.headGroup, ikComponent.controllersGroup);
       }
       
       const actor = getMutableComponent(entity, CharacterComponent);
 
+      if(entity === Network.instance.localClientEntity)
       // TODO: Temporarily make rig invisible until rig is fixed
       actor?.modelContainer.children[0]?.traverse((child) => {
         if(child.visible) {
@@ -202,6 +206,7 @@ export class CharacterControllerSystem extends System {
       addComponent(entity, AnimationComponent);
       const actor = getMutableComponent(entity, CharacterComponent);
 
+      if(entity === Network.instance.localClientEntity)
       // TODO: Temporarily make rig invisible until rig is fixed
       actor?.modelContainer.children[0]?.traverse((child) => {
         if(child.visible) {
@@ -210,9 +215,7 @@ export class CharacterControllerSystem extends System {
       })
     })
 
-    this.queryResults.ikAvatar.all?.forEach((entity) => {
-
-    })
+    // this.queryResults.ikAvatar.all?.forEach((entity) => {})
   }
 }
 

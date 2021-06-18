@@ -4,7 +4,7 @@ import { Entity } from '../ecs/classes/Entity';
 import { getComponent } from '../ecs/functions/EntityFunctions';
 import { Input } from '../input/components/Input';
 import { BaseInput } from '../input/enums/BaseInput';
-import { Material, Mesh, Object3D } from "three";
+import { Material, Mesh, Object3D, Vector3 } from "three";
 import { SkinnedMesh } from 'three/src/objects/SkinnedMesh';
 import { CameraModes } from "../camera/types/CameraModes";
 import { LifecycleValue } from "../common/enums/LifecycleValue";
@@ -347,18 +347,17 @@ const moveFromXRInputs: Behavior = (entity, args): void => {
   actor.localMovementDirection.normalize();
 };
 
-const diffDamping = 0.2;
 let switchChangedToZero = true;
-const xrLookMultiplier = 0.1;
+const xrLookMultiplier = 0.25;
+const vec3 = new Vector3()
 
 const lookFromXRInputs: Behavior = (entity, args): void => {
-  if (!isClient) return; // we only set viewVector here, which is sent to the server
+  if (!isClient) return;
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const input = getComponent<Input>(entity, Input as any);
   const values = input.data.get(BaseInput.XR_LOOK)?.value;
-  const rotationAngle = XRUserSettings.rotationAngle * diffDamping;
+  const rotationAngle = XRUserSettings.rotationAngle;
   let newAngleDiff = 0;
-  //console.warn(values[0]);
   switch (XRUserSettings.rotation) {
 
     case XR_ROTATION_MODE.ANGLED:
@@ -381,14 +380,10 @@ const lookFromXRInputs: Behavior = (entity, args): void => {
       newAngleDiff = (values[0] * XRUserSettings.rotationSmoothSpeed) * (XRUserSettings.rotationInvertAxes ? -1 : 1);
       break;
   }
-  input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
-    type: InputType.TWODIM,
-    value: [
-      newAngleDiff * xrLookMultiplier,
-      0 // data.value[1] * multiplier
-    ],
-    lifecycleState: LifecycleValue.STARTED
-  });
+  const ikComponent = getComponent(entity, IKComponent)
+  ikComponent.headGroup.rotateY(newAngleDiff * xrLookMultiplier)
+  ikComponent.headGroup.updateWorldMatrix(true, true)
+  actor.viewVector = vec3.set(0, 0, -1).applyQuaternion(ikComponent.headGroup.quaternion)
 };
 
 
