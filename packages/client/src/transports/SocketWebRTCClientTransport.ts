@@ -10,6 +10,9 @@ import { createDataProducer, endVideoChat, initReceiveTransport, initSendTranspo
 import { EngineEvents } from "@xrengine/engine/src/ecs/classes/EngineEvents";
 import { ClientNetworkSystem } from "@xrengine/engine/src/networking/systems/ClientNetworkSystem";
 import { WorldStateModel } from "@xrengine/engine/src/networking/schema/worldStateSchema";
+import { closeConsumer } from "./SocketWebRTCClientFunctions";
+import {setNearbyLayerUsers} from "../reducers/mediastream/actions";
+import {triggerUpdateNearbyLayerUsers} from "../reducers/mediastream/service";
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
 
@@ -280,6 +283,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         this.reconnecting = true;
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.RESET_ENGINE, instance: (socket as any).instance });
       });
+
+      EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.UPDATE_NEARBY_LAYER_USERS, users => { console.log('party in my pants', users); triggerUpdateNearbyLayerUsers()});
+      EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.CLOSE_CONSUMER, consumer => { console.log('closeConsumer', consumer); closeConsumer(consumer.consumer)});
     });
   }
 }

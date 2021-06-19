@@ -4,6 +4,7 @@ import styles from './PartyVideoWindows.module.scss';
 import { ChevronRight } from '@material-ui/icons';
 import PartyParticipantWindow from '../PartyParticipantWindow';
 import { selectAuthState } from "@xrengine/client-core/src/user/reducers/auth/selector";
+import { selectMediastreamState } from "../../reducers/mediastream/selector";
 import { selectUserState } from "@xrengine/client-core/src/user/reducers/user/selector";
 import {connect} from "react-redux";
 import {Network} from "@xrengine/engine/src/networking/classes/Network";
@@ -14,6 +15,7 @@ import {
 
 interface Props {
   authState?: any;
+  mediaStreamState?: any;
   userState?: any;
   getLayerUsers?: any;
 }
@@ -21,6 +23,7 @@ interface Props {
 const mapStateToProps = (state: any): any => {
   return {
     authState: selectAuthState(state),
+    mediaStreamState: selectMediastreamState(state),
     userState: selectUserState(state)
   };
 };
@@ -33,19 +36,22 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const PartyVideoWindows = (props: Props): JSX.Element => {
   const {
     authState,
+    mediaStreamState,
     userState,
     getLayerUsers
   } = props;
 
   const [displayedUsers, setDisplayedUsers] = useState([]);
   const selfUser = authState.get('user');
+  const nearbyLayerUsers = mediaStreamState.get('nearbyLayerUsers') ?? [];
   const layerUsers = userState.get('layerUsers') ?? [];
   const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
 
   useEffect(() => {
+    console.log('nearbyLayerUsers updated', nearbyLayerUsers);
     if ((Network.instance?.transport as any)?.channelType === 'channel') setDisplayedUsers(channelLayerUsers.filter((user) => user.id !== selfUser.id));
-    else setDisplayedUsers(layerUsers.filter((user) => user.id !== selfUser.id));
-  }, [layerUsers, channelLayerUsers]);
+    else setDisplayedUsers(layerUsers.filter((user) => nearbyLayerUsers.includes(user.id)));
+  }, [channelLayerUsers, nearbyLayerUsers]);
 
   const [ expanded, setExpanded ] = useState(true);
 
