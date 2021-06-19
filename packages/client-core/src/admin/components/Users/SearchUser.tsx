@@ -31,9 +31,6 @@ const SearchUser = (props: Props) =>  {
         component="form" 
         className={classes.searchRoot}
         >
-        <IconButton className={classes.iconButton} aria-label="menu">
-          <MenuIcon />
-        </IconButton>
         <InputBase
           className={classes.input}
           placeholder={`Search for users`}

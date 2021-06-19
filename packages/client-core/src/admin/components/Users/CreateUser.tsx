@@ -65,7 +65,7 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 
 
 const CreateUser = (props: Props) => {
-    const { 
+    const {
         open,
         handleClose,
         createUserAction,
@@ -79,7 +79,7 @@ const CreateUser = (props: Props) => {
         adminInstanceState,
         adminPartyState
     } = props;
-    
+
     const classes = useStyles();
     const classesx = useStyle();
     const [status, setStatus] = React.useState('');
@@ -111,7 +111,7 @@ const CreateUser = (props: Props) => {
         if (user.id && adminParty.get('updateNeeded') == true) {
             fetchAdminParty();
         }
-    }, [adminUserState, adminInstanceState, adminPartyState,  user]);
+    }, [adminUserState, adminInstanceState, adminPartyState, user]);
 
     const userRoleProps = {
         options: userRoleData,
@@ -252,7 +252,7 @@ const CreateUser = (props: Props) => {
                         <DialogContentText className={classes.marginBottm}>  Don't see Instance? <a href="/admin/instance" className={classes.textLink}>Create One</a>  </DialogContentText>
 
                         <Autocomplete
-                            onChange={(e, newValue) =>  setParty(newValue?.id as string)}
+                            onChange={(e, newValue) => setParty(newValue?.id as string)}
                             {...PartyProps}
                             id="debug"
                             debug
@@ -262,10 +262,16 @@ const CreateUser = (props: Props) => {
                         <DialogContentText className={classes.marginBottm}>  Don't see Party? <a href="/admin/parties" className={classes.textLink}>Create One</a>  </DialogContentText>
 
                         <DialogActions>
-                            <Button type="submit" color="primary">
+                            <Button
+                                className={classesx.saveBtn}
+                                type="submit"
+                            >
                                 Submit
                             </Button>
-                            <Button onClick={handleClose(false)} color="primary">
+                            <Button 
+                            onClick={handleClose(false)} 
+                            className={classesx.saveBtn}
+                            >
                                 Cancel
                             </Button>
                         </DialogActions>
