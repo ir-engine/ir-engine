@@ -117,9 +117,6 @@ export const addObject3DComponent: Behavior = (
   object3d.traverse((obj) => {
     obj.castShadow = castShadow;
     obj.receiveShadow = receiveshadow;
-    if(isClient) {
-      obj.material && WebGLRendererSystem.instance?.csm?.setupMaterial(obj.material);
-    }
   });
 
   addComponent(entity, Object3DComponent, { value: object3d });

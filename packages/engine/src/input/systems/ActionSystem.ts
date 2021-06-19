@@ -11,7 +11,7 @@ import { NetworkObject } from "../../networking/components/NetworkObject";
 import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
-import { IKComponent } from '../../character/components/IKComponent';
+import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent';
 import { InputType } from "../enums/InputType";
 import { InputValue } from "../interfaces/InputValue";
 import { InputAlias } from "../types/InputAlias";
@@ -93,7 +93,7 @@ export class ActionSystem extends System {
 
     // Handle client input from threejs manager
     this.queryResults.localClientInputXR.all?.forEach(entity => {
-      const xrControllers = getComponent(entity, IKComponent);
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
       const input = getMutableComponent(entity, Input);
       input.data.set(BaseInput.XR_HEAD, {
         type: InputType.SIXDOF,
@@ -111,29 +111,31 @@ export class ActionSystem extends System {
       input.data.set(BaseInput.XR_LEFT_HAND, {
         type: InputType.SIXDOF,
         value: {
-          x: xrControllers.controllerLeft.position.x,
-          y: xrControllers.controllerLeft.position.y,
-          z: xrControllers.controllerLeft.position.z,
-          qW: xrControllers.controllerLeft.quaternion.w,
-          qX: xrControllers.controllerLeft.quaternion.x,
-          qY: xrControllers.controllerLeft.quaternion.y,
-          qZ: xrControllers.controllerLeft.quaternion.z,
+          x: xrInputSourceComponent.controllerLeft.position.x,
+          y: xrInputSourceComponent.controllerLeft.position.y,
+          z: xrInputSourceComponent.controllerLeft.position.z,
+          qW: xrInputSourceComponent.controllerLeft.quaternion.w,
+          qX: xrInputSourceComponent.controllerLeft.quaternion.x,
+          qY: xrInputSourceComponent.controllerLeft.quaternion.y,
+          qZ: xrInputSourceComponent.controllerLeft.quaternion.z,
         },
         lifecycleState: LifecycleValue.CHANGED
       })
       input.data.set(BaseInput.XR_RIGHT_HAND, {
         type: InputType.SIXDOF,
         value: {
-          x: xrControllers.controllerRight.position.x,
-          y: xrControllers.controllerRight.position.y,
-          z: xrControllers.controllerRight.position.z,
-          qW: xrControllers.controllerRight.quaternion.w,
-          qX: xrControllers.controllerRight.quaternion.x,
-          qY: xrControllers.controllerRight.quaternion.y,
-          qZ: xrControllers.controllerRight.quaternion.z,
+          x: xrInputSourceComponent.controllerRight.position.x,
+          y: xrInputSourceComponent.controllerRight.position.y,
+          z: xrInputSourceComponent.controllerRight.position.z,
+          qW: xrInputSourceComponent.controllerRight.quaternion.w,
+          qX: xrInputSourceComponent.controllerRight.quaternion.x,
+          qY: xrInputSourceComponent.controllerRight.quaternion.y,
+          qZ: xrInputSourceComponent.controllerRight.quaternion.z,
         },
         lifecycleState: LifecycleValue.CHANGED
       })
+      const actor = getComponent(entity, CharacterComponent);
+      actor.viewVector.copy(vec3.set(0, 0, -1)).applyQuaternion(xrInputSourceComponent.headGroup.quaternion)
     });
 
     this.queryResults.localClientInput.all?.forEach(entity => {
@@ -369,7 +371,7 @@ ActionSystem.queries = {
     }
   },
   localClientInputXR: {
-    components: [Input, LocalInputReceiver, IKComponent], 
+    components: [Input, LocalInputReceiver, XRInputSourceComponent], 
     listen: {
       added: true,
       removed: true

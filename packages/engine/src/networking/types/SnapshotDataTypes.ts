@@ -68,7 +68,7 @@ export type StateEntityClientGroup = StateClientEntity[]
 export interface Snapshot {
   id: ID;
   time: Time;
-  state: StateEntityInterGroup; //| { [key: string]: StateEntityGroup };
+  state: StateEntityGroup;
   timeCorrection: number;
 }
 

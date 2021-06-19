@@ -6,7 +6,7 @@ import { CameraModes } from "../../camera/types/CameraModes";
 import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { Network } from "../../networking/classes/Network";
 import { CharacterComponent } from "../../character/components/CharacterComponent";
-import { IKComponent } from "../../character/components/IKComponent";
+import { XRInputSourceComponent } from "../../character/components/XRInputSourceComponent";
 import { initializeMovingState } from "../../character/animations/MovingAnimations";
 import { Entity } from "../../ecs/classes/Entity";
 import { ParityValue } from "../../common/enums/ParityValue";
@@ -27,37 +27,30 @@ export const startXR = async (): Promise<void> => {
 
   try {
 
-    const cameraFollow = getMutableComponent<FollowCameraComponent>(Network.instance.localClientEntity, FollowCameraComponent) as FollowCameraComponent;
-    cameraFollow.mode = CameraModes.XR;
-    const actor = getMutableComponent(Network.instance.localClientEntity, CharacterComponent);
-
-    const controllerLeft = Engine.xrRenderer.getController(1);
-    const controllerRight = Engine.xrRenderer.getController(0);
+    const controllerLeft = Engine.xrRenderer.getController(1) as any;
+    const controllerRight = Engine.xrRenderer.getController(0) as any;
     const controllerGripLeft = Engine.xrRenderer.getControllerGrip(1);
     const controllerGripRight = Engine.xrRenderer.getControllerGrip(0);
-    const controllersGroup = new Group();
-    controllersGroup.add(controllerLeft, controllerRight, controllerGripRight, controllerGripLeft);
+    const controllerGroup = new Group();
 
-    const head = Engine.xrRenderer.getCamera();
+    const head = Engine.xrRenderer.getCamera(Engine.camera) as any;
     Engine.scene.remove(Engine.camera);
     const headGroup = new Group();
     headGroup.add(Engine.camera);
+
     removeComponent(Network.instance.localClientEntity, FollowCameraComponent)
 
-    // add to the character
-    actor.modelContainer.add(headGroup, controllersGroup);
-
-    removeComponent(Network.instance.localClientEntity, AnimationComponent);
-
-    addComponent(Network.instance.localClientEntity, IKComponent, {
+    addComponent(Network.instance.localClientEntity, XRInputSourceComponent, {
       head,
       headGroup,
-      controllersGroup,
+      controllerGroup,
       controllerLeft,
       controllerRight,
       controllerGripLeft,
       controllerGripRight
     });
+
+    removeComponent(Network.instance.localClientEntity, FollowCameraComponent);
 
     // Add our controller models & pointer lines
     [controllerLeft, controllerRight].forEach((controller) => {
@@ -121,7 +114,7 @@ export const endXR = (): void => {
   Engine.scene.add(Engine.camera);
   addComponent(Network.instance.localClientEntity, AnimationComponent);
   addComponent(Network.instance.localClientEntity, FollowCameraComponent)
-  removeComponent(Network.instance.localClientEntity, IKComponent);
+  removeComponent(Network.instance.localClientEntity, XRInputSourceComponent);
   initializeMovingState(Network.instance.localClientEntity)
 
 }
@@ -151,7 +144,7 @@ const createController = (data) => {
  */
 
 export const isInXR = (entity: Entity) => {
-  return hasComponent(entity, IKComponent);
+  return hasComponent(entity, XRInputSourceComponent);
 }
 
 const vec3 = new Vector3();
@@ -169,9 +162,9 @@ const forward = new Vector3(0, 0, -1);
 export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.NONE): Vector3 => {
   const actor = getComponent(entity, CharacterComponent);
   const transform = getComponent(entity, TransformComponent);
-  const ikComponent = getComponent(entity, IKComponent);
-  if(ikComponent) {
-    const rigHand: Object3D = hand === ParityValue.LEFT ? ikComponent.controllerLeft : ikComponent.controllerRight;
+  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
+  if(xrInputSourceComponent) {
+    const rigHand: Object3D = hand === ParityValue.LEFT ? xrInputSourceComponent.controllerLeft : xrInputSourceComponent.controllerRight;
     if(rigHand) {
       return rigHand.getWorldPosition(vec3);
     }
@@ -190,9 +183,9 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
 
 export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.NONE): Quaternion => {
   const actor = getComponent(entity, CharacterComponent);
-  const ikComponent = getComponent(entity, IKComponent);
-  if(ikComponent) {
-    const rigHand: Object3D = hand === ParityValue.LEFT ? ikComponent.controllerLeft : ikComponent.controllerRight;
+  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
+  if(xrInputSourceComponent) {
+    const rigHand: Object3D = hand === ParityValue.LEFT ? xrInputSourceComponent.controllerLeft : xrInputSourceComponent.controllerRight;
     if(rigHand) {
       return rigHand.getWorldQuaternion(quat)
     }
@@ -211,9 +204,9 @@ export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.
 export const getHandTransform = (entity: Entity, hand: ParityValue = ParityValue.NONE): { position: Vector3, rotation: Quaternion } => {
   const actor = getComponent(entity, CharacterComponent);
   const transform = getComponent(entity, TransformComponent);
-  const ikComponent = getComponent(entity, IKComponent);
-  if(ikComponent) {
-    const rigHand: Object3D = hand === ParityValue.LEFT ? ikComponent.controllerLeft : ikComponent.controllerRight;
+  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
+  if(xrInputSourceComponent) {
+    const rigHand: Object3D = hand === ParityValue.LEFT ? xrInputSourceComponent.controllerLeft : xrInputSourceComponent.controllerRight;
     if(rigHand) {
       return { 
         position: rigHand.getWorldPosition(vec3),

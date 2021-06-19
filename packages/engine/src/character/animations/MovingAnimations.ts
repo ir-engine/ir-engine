@@ -119,11 +119,6 @@ export const initializeMovingState: Behavior = (entity, args: { x?: number, y?: 
 	actor.rotationSimulator.damping = actor.defaultRotationSimulatorDamping;
 	actor.rotationSimulator.mass = actor.defaultRotationSimulatorMass;
 
-	actor.canEnterVehicles = true;
-	actor.canLeaveVehicles = true;
-
-  actor.canFindVehiclesToEnter = true;
-
 	actor.velocityTarget.z = args?.z ?? 0;
 	actor.velocityTarget.x = args?.x ?? 0;
 	actor.velocityTarget.y = args?.y ?? 0;

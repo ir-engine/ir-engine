@@ -1,4 +1,4 @@
-import { Color, ConeBufferGeometry, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from "three";
+import { Color, ConeBufferGeometry, Group, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from "three";
 import { ControllerHitEvent, RaycastQuery, SceneQueryType } from "three-physx";
 import { applyVectorMatrixXZ } from "../common/functions/applyVectorMatrixXZ";
 import { isClient } from "../common/functions/isClient";
@@ -19,7 +19,7 @@ import { CharacterComponent } from "./components/CharacterComponent";
 import { updateVectorAnimation } from "./functions/updateVectorAnimation";
 import { loadActorAvatar, teleportPlayer } from "./prefabs/NetworkPlayerCharacter";
 import { Engine } from "../ecs/classes/Engine";
-import { IKComponent } from "./components/IKComponent";
+import { XRInputSourceComponent } from "./components/XRInputSourceComponent";
 import { Avatar } from "../xr/classes/IKAvatar";
 import { Network } from "../networking/classes/Network";
 import { detectUserInPortal } from "./functions/detectUserInPortal";
@@ -106,7 +106,7 @@ export class CharacterControllerSystem extends System {
       // TODO: implement scene lower bounds parameter
       if(!isClient && collider.controller.transform.translation.y < -10) {
         const { position, rotation } = ServerSpawnSystem.instance.getRandomSpawnPoint();
-        position.y += actor.actorHeight + actor.capsuleRadius;
+        position.y += actor.actorHalfHeight / 2;
         console.log('player has fallen through the floor, teleporting them to', position)
         collider.controller.updateTransform({
           translation: position,
@@ -180,17 +180,30 @@ export class CharacterControllerSystem extends System {
     this.queryResults.ikAvatar.added?.forEach((entity) => {
       removeComponent(entity, AnimationComponent);
 
-      const ikComponent = getMutableComponent(entity, IKComponent);
+      const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent);
+      const actor = getMutableComponent(entity, CharacterComponent);
+
       if(entity !== Network.instance.localClientEntity) {
-        const actor = getMutableComponent(entity, CharacterComponent);
-        ikComponent.headGroup.add(ikComponent.head);
-        ikComponent.controllersGroup.add(ikComponent.controllerLeft, ikComponent.controllerGripLeft, ikComponent.controllerRight, ikComponent.controllerGripRight);
-        ikComponent.headGroup.applyQuaternion(rotate180onY);
-        ikComponent.controllersGroup.applyQuaternion(rotate180onY);
-        actor.modelContainer.add(ikComponent.headGroup, ikComponent.controllersGroup);
+        // we handle the head different for local clients because it holds the camera
+        xrInputSourceComponent.headGroup = new Group()
+        xrInputSourceComponent.controllerGroup = new Group()
+        xrInputSourceComponent.headGroup.add(xrInputSourceComponent.head)
       }
       
-      const actor = getMutableComponent(entity, CharacterComponent);
+      xrInputSourceComponent.controllerGroup.applyQuaternion(rotate180onY);
+      xrInputSourceComponent.headGroup.applyQuaternion(rotate180onY);
+
+      xrInputSourceComponent.controllerGroup.position.setY(-actor.actorHalfHeight);
+      xrInputSourceComponent.headGroup.position.setY(-actor.actorHalfHeight);
+
+      xrInputSourceComponent.controllerGroup.add(
+        xrInputSourceComponent.controllerLeft, 
+        xrInputSourceComponent.controllerGripLeft, 
+        xrInputSourceComponent.controllerRight, 
+        xrInputSourceComponent.controllerGripRight
+      );
+
+      actor.tiltContainer.add(xrInputSourceComponent.controllerGroup, xrInputSourceComponent.headGroup);
 
       if(entity === Network.instance.localClientEntity)
       // TODO: Temporarily make rig invisible until rig is fixed
@@ -256,7 +269,7 @@ CharacterControllerSystem.queries = {
     }
   },
   ikAvatar: {
-    components: [CharacterComponent, IKComponent],
+    components: [CharacterComponent, XRInputSourceComponent],
     listen: {
       added: true,
       removed: true

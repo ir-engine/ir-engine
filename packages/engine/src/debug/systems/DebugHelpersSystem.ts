@@ -12,7 +12,7 @@ import { ColliderComponent } from "../../physics/components/ColliderComponent";
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { DebugArrowComponent } from "../DebugArrowComponent";
 import { DebugRenderer } from "./DebugRenderer";
-import { IKComponent } from "../../character/components/IKComponent";
+import { XRInputSourceComponent } from "../../character/components/XRInputSourceComponent";
 
 type ComponentHelpers = 'viewVector' |'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box';
 
@@ -150,7 +150,7 @@ export class DebugHelpersSystem extends System {
     });
 
     this.queryResults.ikAvatar.added?.forEach((entity) => {
-      const ikComponent = getComponent(entity, IKComponent);
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
       const cubeGeometry = new ConeBufferGeometry(0.05, 0.2, 3)
       cubeGeometry.rotateX(-Math.PI * 0.5)
       const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red') }))
@@ -159,9 +159,9 @@ export class DebugHelpersSystem extends System {
       debugHead.visible = this.avatarDebugEnabled;
       debugLeft.visible = this.avatarDebugEnabled;
       debugRight.visible = this.avatarDebugEnabled;
-      ikComponent.head.add(debugHead)
-      ikComponent.controllerLeft.add(debugLeft)
-      ikComponent.controllerRight.add(debugRight)
+      Engine.scene.add(debugHead)
+      Engine.scene.add(debugLeft)
+      Engine.scene.add(debugRight)
       this.helpersByEntity.helperArrow.set(entity, [debugHead, debugLeft, debugRight]);
     })
 
@@ -302,7 +302,7 @@ DebugHelpersSystem.queries = {
     }
   },
   ikAvatar: {
-    components: [ IKComponent ],
+    components: [ XRInputSourceComponent ],
     listen: {
       added: true,
       removed: true

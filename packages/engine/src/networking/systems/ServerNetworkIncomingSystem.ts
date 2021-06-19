@@ -19,7 +19,7 @@ import { WorldStateModel } from '../schema/worldStateSchema';
 import { GamePlayer } from '../../game/components/GamePlayer';
 import { sendState } from '../../game/functions/functionsState';
 import { getGameFromName } from '../../game/functions/functions';
-import { IKComponent } from '../../character/components/IKComponent';
+import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent';
 import { BaseInput } from '../../input/enums/BaseInput';
 
 
@@ -178,8 +178,8 @@ export class ServerNetworkIncomingSystem extends System {
           });
       }
 
-      if(clientInput.axes6DOF.length && !hasComponent(entity, IKComponent)) {
-        addComponent(entity, IKComponent);
+      if(clientInput.axes6DOF.length && !hasComponent(entity, XRInputSourceComponent)) {
+        addComponent(entity, XRInputSourceComponent);
       }      
 
       handleInputFromNonLocalClients(entity, undefined, delta);
@@ -245,7 +245,7 @@ export class ServerNetworkIncomingSystem extends System {
 
     // Handle server input from client
     this.queryResults.networkClientInputXR.all?.forEach((entity) => {
-      const ikComponent = getMutableComponent(entity, IKComponent);
+      const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent);
       
       const inputs = getMutableComponent(entity, Input);
 
@@ -253,14 +253,14 @@ export class ServerNetworkIncomingSystem extends System {
       const left = inputs.data.get(BaseInput.XR_LEFT_HAND).value as SIXDOFType;
       const right = inputs.data.get(BaseInput.XR_RIGHT_HAND).value as SIXDOFType;
 
-      ikComponent.head.position.set(head.x, head.y, head.z);
-      ikComponent.head.quaternion.set(head.qX, head.qY, head.qZ, head.qW);
+      xrInputSourceComponent.head.position.set(head.x, head.y, head.z);
+      xrInputSourceComponent.head.quaternion.set(head.qX, head.qY, head.qZ, head.qW);
 
-      ikComponent.controllerLeft.position.set(left.x, left.y, left.z);
-      ikComponent.controllerLeft.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
+      xrInputSourceComponent.controllerLeft.position.set(left.x, left.y, left.z);
+      xrInputSourceComponent.controllerLeft.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
 
-      ikComponent.controllerRight.position.set(right.x, right.y, right.z);
-      ikComponent.controllerRight.quaternion.set(right.qX, right.qY, right.qZ, right.qW);
+      xrInputSourceComponent.controllerRight.position.set(right.x, right.y, right.z);
+      xrInputSourceComponent.controllerRight.quaternion.set(right.qX, right.qY, right.qZ, right.qW);
 
     })
   }
@@ -282,7 +282,7 @@ export class ServerNetworkIncomingSystem extends System {
       }
     },
     networkClientInputXR: {
-      components: [Input, IKComponent], 
+      components: [Input, XRInputSourceComponent], 
       listen: {
         added: true,
         removed: true

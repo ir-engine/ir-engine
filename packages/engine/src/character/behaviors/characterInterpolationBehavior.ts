@@ -5,7 +5,7 @@ import { findInterpolationSnapshot } from '../../physics/behaviors/findInterpola
 import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
-import type { SnapshotData } from '../../networking/types/SnapshotDataTypes';
+import type { SnapshotData, StateInterEntity } from '../../networking/types/SnapshotDataTypes';
 import { Vector3 } from 'three';
 
 /**
@@ -21,7 +21,7 @@ export const characterInterpolationBehavior: Behavior = (entity: Entity, snapsho
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
   const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
 
-  const interpolation = findInterpolationSnapshot(entity, snapshots.interpolation);
+  const interpolation = findInterpolationSnapshot(entity, snapshots.interpolation) as StateInterEntity;
 
   if (!collider.controller || !interpolation || isNaN(interpolation.vX)) return;
 
@@ -37,7 +37,7 @@ export const characterInterpolationBehavior: Behavior = (entity: Entity, snapsho
       y: interpolation.y,
       z: interpolation.z,
     }
-  })
+  });
 
   collider.controller.velocity = new Vector3(0, 0, 0);
 

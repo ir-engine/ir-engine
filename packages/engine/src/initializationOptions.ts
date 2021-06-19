@@ -61,5 +61,13 @@ export const DefaultInitializationOptions: InitializeOptions = {
   },
   gameMode: DefaultGameMode,
   supportedGameModes: GamesSchema,
-  physicsWorldConfig: undefined
+  physicsWorldConfig: {
+    bounceThresholdVelocity: 0.5,
+    tps: 60,
+    start: false,
+    lengthScale: 1,
+    verbose: false,
+    substeps: 1,
+    gravity: { x: 0, y: -9.81, z: 0 },
+  }
 };

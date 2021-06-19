@@ -3,8 +3,7 @@ import { Entity } from "../../ecs/classes/Entity";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { Network } from "../../networking/classes/Network";
 import { NetworkObject } from "../../networking/components/NetworkObject";
-import { SnapshotData } from "../../networking/types/SnapshotDataTypes";
-import { TransformComponent } from "../../transform/components/TransformComponent";
+import { SnapshotData, StateEntity, StateInterEntity } from "../../networking/types/SnapshotDataTypes";
 import { ColliderComponent } from "../components/ColliderComponent";
 import { findInterpolationSnapshot } from "./findInterpolationSnapshot";
 
@@ -15,8 +14,6 @@ import { findInterpolationSnapshot } from "./findInterpolationSnapshot";
  * @param {SnapshotData} snapshots the snapshot data to use
  * @param {number} delta the delta of this frame
  */
-
-const offsetMaxDistanceSq = 1;
 
 export const rigidbodyInterpolationBehavior: Behavior = (entity: Entity, snapshots: SnapshotData, delta): void => {
 
@@ -32,7 +29,7 @@ export const rigidbodyInterpolationBehavior: Behavior = (entity: Entity, snapsho
     qY: collider.body.transform.rotation.y,
     qZ: collider.body.transform.rotation.z,
     qW: collider.body.transform.rotation.w
-  })
+  });
 
   const correction = findInterpolationSnapshot(entity, snapshots.correction);
   const currentSnapshot = findInterpolationSnapshot(entity, Network.instance.snapshot);
@@ -109,13 +106,12 @@ export const rigidbodyInterpolationBehavior: Behavior = (entity: Entity, snapsho
     }
     */
   })
-  
+
 
 
   //transform.position.copy(collider.body.transform.translation);
   //transform.rotation.copy(collider.body.transform.rotation);
   //collider.velocity.copy(collider.body.transform.linearVelocity);
-
   collider.velocity.set(
     interpolationSnapshot.vX,
     interpolationSnapshot.vY,
