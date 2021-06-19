@@ -56,11 +56,7 @@ export class PhysicsSystem extends System {
     PhysicsSystem.instance = this;
     this.physicsFrameRate = Engine.physicsFrameRate;
     this.physicsFrameTime = 1 / this.physicsFrameRate;
-    this.physicsWorldConfig = attributes.physicsWorldConfig ?? {
-      tps: 60,
-      // lengthScale: 1,
-      start: false
-    }
+    this.physicsWorldConfig = Object.assign({}, attributes.physicsWorldConfig);
     this.worker = attributes.worker;
     this.frame = 0;
     

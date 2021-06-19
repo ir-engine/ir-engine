@@ -297,7 +297,7 @@ export class WebGLRendererSystem extends System {
 
     if (Engine.xrRenderer.isPresenting) {
 
-      // this.csm.update();
+      this.csm.update();
       Engine.renderer.render(Engine.scene, Engine.camera);
 
     } else {
@@ -317,13 +317,13 @@ export class WebGLRendererSystem extends System {
           cam.updateProjectionMatrix();
         }
 
-        // this.csm.updateFrustums();
+        this.csm.updateFrustums();
         Engine.renderer.setSize(width, height, false);
         this.composer.setSize(width, height, false);
         this.needsResize = false;
       }
 
-      // this.csm.update();
+      this.csm.update();
       if (this.usePostProcessing && this.postProcessingSchema) {
         this.composer.render(delta);
       } else {
