@@ -114,10 +114,10 @@ const CreateBot = (props: Props) => {
         data.push(element);
     });
 
-    React.useEffect(()=>{
-        const instanceFilter = data.filter(el=> el.location.id === state.location);
-        if(instanceFilter.length > 0){
-            setState({...state, instance: ""});
+    React.useEffect(() => {
+        const instanceFilter = data.filter(el => el.location.id === state.location);
+        if (instanceFilter.length > 0) {
+            setState({ ...state, instance: "" });
             setCurrentIntance(instanceFilter);
         }
     }, [state.location]);
@@ -143,17 +143,17 @@ const CreateBot = (props: Props) => {
         if (!state.description) {
             temp.description = "Description can't be empty";
         }
-        if(!state.instance){
+        if (!state.instance) {
             temp.instance = "Instance can't be empty";
         }
-        if(!state.location){
+        if (!state.location) {
             temp.location = "Location can't be empty";
         }
 
         setFormErrors(temp);
         if (formValid(state, formErrors)) {
             createBotAsAdmin(data);
-            setState({ name: "", description: "", instance: "", location: ""});
+            setState({ name: "", description: "", instance: "", location: "" });
             setCommandData([]);
             setCurrentIntance([]);
         } else {
@@ -174,10 +174,10 @@ const CreateBot = (props: Props) => {
                 temp.description = value.length < 2 ? "Description is required!" : "";
                 break;
             case "instance":
-                temp.instance = value.length < 2 ? "Instance is required!": "";
+                temp.instance = value.length < 2 ? "Instance is required!" : "";
                 break;
-            case "location": 
-                temp.location = value.length < 2 ? "Location is required!": "";
+            case "location":
+                temp.location = value.length < 2 ? "Location is required!" : "";
                 break;
             default:
                 break;
@@ -191,7 +191,7 @@ const CreateBot = (props: Props) => {
         <Card className={classes.rootLeft}>
             <Paper className={classes.header} style={{ display: "flex" }}>
                 <Typography className={classes.title} >
-                    <Face  style={{ paddingTop: "5px"}}/> <span style={{ marginLeft: "10px" }}>  Create new bot </span>
+                    <Face style={{ paddingTop: "5px" }} /> <span style={{ marginLeft: "10px" }}>  Create new bot </span>
                 </Typography>
 
                 <Button
@@ -243,10 +243,10 @@ const CreateBot = (props: Props) => {
                                 value={state.location}
                                 fullWidth
                                 onChange={handleInputChange}
-                                name="location" 
+                                name="location"
                                 displayEmpty
                                 className={classes.select}
-                                MenuProps={{ classes: { paper: classx.selectPaper}}} 
+                                MenuProps={{ classes: { paper: classx.selectPaper } }}
                             >
                                 <MenuItem value="" disabled>
                                     <em>Select location</em>
@@ -260,7 +260,7 @@ const CreateBot = (props: Props) => {
 
                     <label>Instance</label>
                     <Paper component="div" className={formErrors.instance.length > 0 ? classes.redBorder : classes.createInput}>
-                        <FormControl className={classes.createInput} fullWidth disabled={currentInstance.length > 0 ? false : true } >
+                        <FormControl className={classes.createInput} fullWidth disabled={currentInstance.length > 0 ? false : true} >
                             <Select
                                 labelId="demo-controlled-open-select-label"
                                 id="demo-controlled-open-select"
@@ -270,9 +270,9 @@ const CreateBot = (props: Props) => {
                                 onChange={handleInputChange}
                                 className={classes.select}
                                 name="instance"
-                                MenuProps={{ classes: { paper: classx.selectPaper}}}
+                                MenuProps={{ classes: { paper: classx.selectPaper } }}
                             >
-                                <MenuItem value=""  disabled>
+                                <MenuItem value="" disabled>
                                     <em>Select instance</em>
                                 </MenuItem>
                                 {
