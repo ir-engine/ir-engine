@@ -5,7 +5,8 @@ import {
     fetchedBot,
     botCammandCreated,
     botRemoved,
-    botCommandRemoved
+    botCommandRemoved,
+    botPatched
 } from "./actions";
 
 export const createBotAsAdmin = (data: any) => async (dispatch: Dispatch, getState: any): Promise<any> =>{
@@ -63,6 +64,15 @@ export const removeBotsCommand = (id: string) => async (dispatch: Dispatch): Pro
     try {
         const result =  await client.service("bot-command").remove(id);
         dispatch(botCommandRemoved(result));
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+export const updateBotAsAdmin = (id: string, bot: any) => async (dispatch: Dispatch): Promise<any> => {
+    try {
+        const result = await client.service("bot").patch(id, bot);
+        dispatch(botPatched(result));
     } catch (error) {
         console.error(error);
     }

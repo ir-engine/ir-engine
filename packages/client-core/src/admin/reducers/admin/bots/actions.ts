@@ -3,7 +3,8 @@ import {
    BOT_ADMIN_DISPLAY,
    BOT_COMMAND_ADMIN_CREATE,
    BOT_ADMIN_REMOVE,
-   BOT_COMMAND_ADMIN_REMOVE
+   BOT_COMMAND_ADMIN_REMOVE,
+   BOT_ADMIN_UPDATE
 } from "../../actions";
 
 export interface BotsRetrievedResponse {
@@ -53,5 +54,12 @@ export const botCommandRemoved = (botCommand: any ):any => {
    return {
       type: BOT_COMMAND_ADMIN_REMOVE,
       botCommand: botCommand
+   };
+};
+
+export const botPatched = (result: any): any => {
+   return {
+      type: BOT_ADMIN_UPDATE,
+      bot: result,
    };
 };

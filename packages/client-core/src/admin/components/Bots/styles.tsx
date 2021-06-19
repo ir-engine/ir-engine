@@ -139,7 +139,8 @@ export const useStylesForBots = makeStyles((theme: Theme) =>
       marginLeft: "auto",
       background: "#43484F !important",
       color: "#fff !important",
-      width: "150px"
+      width: "150px",
+      boxShadow: "0px 3px 1px -2px rgb(0 0 0 / 20%), 0px 2px 2px 0px rgb(0 0 0 / 14%), 0px 1px 5px 0px rgb(0 0 0 / 12%) !important",
     }
   }),
 );
@@ -150,11 +151,13 @@ export const useStyle = makeStyles({
     background: "#43484F",
   },
   dialoPaper: {
-    background: "#fff !important",
-    width: "100%"
+    background: "rgb(58, 65, 73) !important",
+    width: "100%",
+    color: "#f1f1f1",
+    padding: "40px 10px 40px 10px"
   },
   selectPaper: {
     background: "#343b41",
-    color: "#f1f1f1"
+    color: "#f1f1f1",
   }
 });

@@ -61,6 +61,7 @@ const DisplayBots = (props: Props) => {
     const [description, setDescription] = React.useState("");
     const [open, setOpen] = React.useState(false);
     const [openModel, setOpenModel] = React.useState(false);
+    const [bot, setBot] = React.useState("");
 
     const handleChange = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
         setExpanded(isExpanded ? panel : false);
@@ -75,9 +76,14 @@ const DisplayBots = (props: Props) => {
         }
     }, [botAdmin, user]);
 
-    const handleOpenModel = () => {
+    const handleOpenModel = (bot) => {
+        setBot(bot);
         setOpenModel(true);
-    }
+    };
+
+    const handleCloseModel = () => {
+        setOpenModel(false);
+    };
 
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
@@ -138,7 +144,7 @@ const DisplayBots = (props: Props) => {
                                     </Grid>
                                     <Grid item xs={4} style={{ display: "flex" }} >
                                         <div style={{ marginLeft: "auto" }}>
-                                            <IconButton onClick={handleOpenModel}>
+                                            <IconButton onClick={() => handleOpenModel(bot)}>
                                                 <Edit style={{ color: "#fff" }} />
                                             </IconButton>
                                             <IconButton  onClick={()=> removeBots(bot.id)}>
@@ -229,7 +235,11 @@ const DisplayBots = (props: Props) => {
             >
                 <Alert onClose={handleClose} severity="warning"> Fill in command is requiired!</Alert>
             </Snackbar>
-            <UpdateBot open={openModel} />
+            <UpdateBot 
+            open={openModel} 
+            handleClose={handleCloseModel} 
+            bot={bot}
+            />
         </div>
     );
 };
