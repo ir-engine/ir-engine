@@ -125,8 +125,8 @@ const ViewUser = (props: Props) => {
         }
     }, [adminUserState, user, refetch]);
 
-    React.useEffect(()=>{
-        if(!refetch){
+    React.useEffect(() => {
+        if (!refetch) {
             setRefetch(true);
         }
     }, [userAdmin.id]);
@@ -237,16 +237,16 @@ const ViewUser = (props: Props) => {
                             </Container>
 
                             <Dialog
-                             open={openDialog} 
-                             onClose={handleCloseDialog} 
-                             aria-labelledby="form-dialog-title" 
-                             classes={{ paper: classx.paperDialog}} 
-                              >
+                                open={openDialog}
+                                onClose={handleCloseDialog}
+                                aria-labelledby="form-dialog-title"
+                                classes={{ paper: classx.paperDialog }}
+                            >
                                 <DialogTitle id="form-dialog-title">Do you really want to change role for {userAdmin.name}? </DialogTitle>
                                 <DialogContent>
                                     <DialogContentText>
                                         In order to change role for {userAdmin.name} search from the list or select user role and submit.
-                                </DialogContentText>
+                                    </DialogContentText>
                                     <Autocomplete
                                         onChange={(e, newValue) => {
                                             if (newValue) {
@@ -264,15 +264,15 @@ const ViewUser = (props: Props) => {
                                 <DialogActions>
                                     <Button onClick={handleCloseDialog} color="primary">
                                         Cancel
-                                </Button>
+                                    </Button>
                                     <Button onClick={() => {
                                         patchUserRole(userAdmin.id, status);
                                     }} color="primary">
                                         Submit
-                                </Button>
+                                    </Button>
                                 </DialogActions>
                             </Dialog>
-                       
+
                         </Paper>
                     }
                     <Container maxWidth="sm">
@@ -372,30 +372,41 @@ const ViewUser = (props: Props) => {
                             {
                                 editMode ?
                                     <div>
-                                        <Button type="submit" color="primary" >
+                                        <Button
+                                            type="submit"
+                                            className={classx.saveBtn}
+                                        >
                                             <span style={{ marginRight: "15px" }}><Save /></span> Submit
                                         </Button>
-                                        <Button onClick={() => {
-                                            setInitialValue({
-                                                name: "",
-                                                avatar: "",
-                                                inviteCode: ""
-                                            });
-                                            setEditMode(false);
-                                        }} color="primary">
+                                        <Button
+                                            className={classx.saveBtn}
+                                            onClick={() => {
+                                                setInitialValue({
+                                                    name: "",
+                                                    avatar: "",
+                                                    inviteCode: ""
+                                                });
+                                                setEditMode(false);
+                                            }}
+                                        >
                                             Clear
                                         </Button>
                                     </div>
                                     :
                                     <div>
-                                        <a href="#h" className={classx.actionStyle} style={{ fontSize: "1.2rem", marginRight: "25px" }} onClick={() => {
-                                            setEditMode(true);
-                                        }}>
+                                        <Button
+                                            className={classx.saveBtn}
+                                            onClick={() => {
+                                                setEditMode(true);
+                                            }}>
                                             EDIT
-                                        </a>
-                                        <a href="#h" onClick={handleClose(false)} className={classx.actionStyle} style={{ fontSize: "1.2rem" }}>
+                                        </Button>
+                                        <Button
+                                            onClick={handleClose(false)}
+                                            className={classx.saveBtn}
+                                        >
                                             CANCEL
-                                        </a>
+                                        </Button>
                                     </div>
                             }
                         </DialogActions>
