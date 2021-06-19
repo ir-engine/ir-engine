@@ -30,7 +30,6 @@ import { NumericalType } from '../../common/types/NumericalTypes';
 import { InputValue } from '../../input/interfaces/InputValue';
 import { GameMode } from "../../game/types/GameMode";
 import { EngineEvents } from './EngineEvents';
-import { WebXRManager } from '../../xr/WebXRManager';
 import { ActiveSystems } from './System';
 
 export const Audio = isWebWorker ? AudioObjectProxy : THREE_Audio;
@@ -97,7 +96,7 @@ export class Engine {
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static renderer: WebGLRenderer = null
-  static xrRenderer: WebXRManager = null
+  static xrRenderer = null
   static xrSession: XRSession = null
   static context = null
 

@@ -27,13 +27,13 @@ export const startXR = async (): Promise<void> => {
 
   try {
 
-    const controllerLeft = Engine.xrRenderer.getController(1);
-    const controllerRight = Engine.xrRenderer.getController(0);
+    const controllerLeft = Engine.xrRenderer.getController(1) as any;
+    const controllerRight = Engine.xrRenderer.getController(0) as any;
     const controllerGripLeft = Engine.xrRenderer.getControllerGrip(1);
     const controllerGripRight = Engine.xrRenderer.getControllerGrip(0);
     const controllerGroup = new Group();
 
-    const head = Engine.xrRenderer.getCamera();
+    const head = Engine.xrRenderer.getCamera(Engine.camera) as any;
     Engine.scene.remove(Engine.camera);
     const headGroup = new Group();
     headGroup.add(Engine.camera);
