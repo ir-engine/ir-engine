@@ -41,7 +41,7 @@ import { FontManager } from './ui/classes/FontManager';
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
-  return { x: this.x, y: this.y, z: this.z, w: this.w }
+  return { x: this._x, y: this._y, z: this._z, w: this._w }
 }
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["disposeBoundsTree"] = disposeBoundsTree;
@@ -220,7 +220,7 @@ const registerServerSystems = (options: InitializeOptions) => {
 
 export const initializeEngine = async (initOptions: InitializeOptions): Promise<void> => {
     // Set options and state of engine.
-    const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
+    const options: InitializeOptions = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
     Engine.gameMode = options.gameMode;
     Engine.supportedGameModes = options.supportedGameModes;
@@ -229,6 +229,9 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     Engine.lastTime = now() / 1000;
     Engine.activeSystems = new ActiveSystems();
 
+    if (options.renderer && options.renderer.canvasId) {
+        Engine.options.canvasId = options.renderer.canvasId;
+    }
 
     // Browser state set
     if (options.type !== EngineSystemPresets.SERVER && navigator && window) {

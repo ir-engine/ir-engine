@@ -1,5 +1,5 @@
 import { CharacterComponent } from '../../character/components/CharacterComponent';
-import { IKComponent } from '../../character/components/IKComponent';
+import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent';
 import { SIXDOFType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
@@ -12,7 +12,6 @@ import { InputValue } from '../../input/interfaces/InputValue';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
-import { getNetworkTransformFromObjectLocalSpace } from '../functions/convertNetworkTransform';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { TransformStateInterface } from '../interfaces/WorldState';
 import { TransformStateModel } from '../schema/transformStateSchema';
@@ -152,7 +151,7 @@ export class ServerNetworkOutgoingSystem extends System {
       components: [CharacterComponent, NetworkObject, TransformComponent]
     },
     ikTransforms: {
-      components: [IKComponent, NetworkObject, TransformComponent]
+      components: [XRInputSourceComponent, NetworkObject, TransformComponent]
     },
   }
 }

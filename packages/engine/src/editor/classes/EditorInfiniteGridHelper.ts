@@ -62,14 +62,6 @@ export default class EditorInfiniteGridHelper extends Mesh {
   plane: Plane;
   intersectionPointWorld: Vector3;
   intersection: any;
-  position: any;
-  visible: boolean;
-  name: string;
-  material: any;
-  layers: any;
-  frustumCulled: boolean;
-  up: any;
-  matrixWorld: any;
   constructor(size1?, size2?, color?, distance?) {
     color = color || new Color("white");
     size1 = size1 || 1;

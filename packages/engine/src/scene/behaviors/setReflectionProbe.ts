@@ -18,7 +18,7 @@ export const setReflectionProbe: Behavior = (entity, args: {}) => {
 
   EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => SceneIsLoaded());
 
-  const SceneIsLoaded = () => {
+  const SceneIsLoaded = async () => {
 
     switch (options.reflectionType) {
       case ReflectionProbeTypes.Baked:
@@ -30,8 +30,8 @@ export const setReflectionProbe: Behavior = (entity, args: {}) => {
 
         break;
       case ReflectionProbeTypes.Realtime:
-        const map = new CubemapCapturer(Engine.renderer, Engine.scene, options.resolution, false);
-        const EnvMap = map.update(options.probePosition).texture;
+        const map = new CubemapCapturer(Engine.renderer, Engine.scene, options.resolution, '');
+        const EnvMap = (await map.update(options.probePosition)).cubeRenderTarget.texture;
         Engine.scene.environment = EnvMap;
         break;
     }

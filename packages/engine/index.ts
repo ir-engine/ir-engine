@@ -46,7 +46,7 @@ export * from './src/character/CharacterInputSchema';
 export * from './src/character/components/AnimationComponent';
 export * from './src/character/components/CharacterComponent';
 export * from './src/character/components/ControllerColliderComponent';
-export * from './src/character/components/IKComponent';
+export * from './src/character/components/XRInputSourceComponent';
 export * from './src/character/components/NamePlateComponent';
 export * from './src/character/functions/standardizeSkeleton';
 export * from './src/character/functions/updateVectorAnimation';

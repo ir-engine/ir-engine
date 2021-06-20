@@ -1,6 +1,5 @@
-import { Color, ConeBufferGeometry, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from "three";
+import { Quaternion, Vector3 } from "three";
 import { ControllerHitEvent, RaycastQuery, SceneQueryType } from "three-physx";
-import { applyVectorMatrixXZ } from "../common/functions/applyVectorMatrixXZ";
 import { isClient } from "../common/functions/isClient";
 import { EngineEvents } from "../ecs/classes/EngineEvents";
 import { System, SystemAttributes } from "../ecs/classes/System";
@@ -17,17 +16,21 @@ import { TransformComponent } from "../transform/components/TransformComponent";
 import { AnimationComponent } from "./components/AnimationComponent";
 import { CharacterComponent } from "./components/CharacterComponent";
 import { updateVectorAnimation } from "./functions/updateVectorAnimation";
-import { loadActorAvatar, teleportPlayer } from "./prefabs/NetworkPlayerCharacter";
+import { loadActorAvatar } from "./prefabs/NetworkPlayerCharacter";
 import { Engine } from "../ecs/classes/Engine";
-import { IKComponent } from "./components/IKComponent";
-import { Avatar } from "../xr/classes/IKAvatar";
+import { XRInputSourceComponent } from "./components/XRInputSourceComponent";
 import { Network } from "../networking/classes/Network";
 import { detectUserInPortal } from "./functions/detectUserInPortal";
+import { ServerSpawnSystem } from "../scene/systems/ServerSpawnSystem";
+import { sendClientObjectUpdate } from "../networking/functions/sendClientObjectUpdate";
+import { NetworkObjectUpdateType } from "../networking/templates/NetworkObjectUpdateSchema";
+import { updatePlayerRotationFromViewVector } from "./functions/updatePlayerRotationFromViewVector";
 
 const forwardVector = new Vector3(0, 0, 1);
 const prevControllerColliderPosition = new Vector3();
 const vector3 = new Vector3();
 const quat = new Quaternion();
+const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI);
 
 export class CharacterControllerSystem extends System {
 
@@ -63,9 +66,9 @@ export class CharacterControllerSystem extends System {
    */
   execute(delta: number): void {
 
-    this.queryResults.character.added?.forEach((entity) => {
+    this.queryResults.controller.added?.forEach((entity) => {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-      if (actor) actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({
+      actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({
         type: SceneQueryType.Closest,
         origin: new Vector3(0, actor.actorHeight, 0),
         direction: new Vector3(0, -1, 0),
@@ -74,7 +77,7 @@ export class CharacterControllerSystem extends System {
       }));
     });
     
-    if(Network.instance.localClientEntity) detectUserInPortal(Network.instance.localClientEntity)
+    detectUserInPortal(Network.instance.localClientEntity)
 
     this.queryResults.controller.all?.forEach((entity) => {
       const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
@@ -83,26 +86,32 @@ export class CharacterControllerSystem extends System {
       collider.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => { })
 
       if(!isClient) detectUserInPortal(entity);
-    })
-
-    this.queryResults.character.all?.forEach(entity => {
 
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 
-      if (!actor.movementEnabled || !actor.initialized) return;
+      if (!actor.movementEnabled) return;
       
-      const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
       const transform = getComponent<TransformComponent>(entity, TransformComponent as any);
 
       // reset if vals are invalid
-      if (isNaN(collider.controller.transform.translation.x) || collider.controller.transform.translation.y < -10) {
-        // console.warn("WARNING: Character physics data reporting NaN")
+      if (isNaN(collider.controller.transform.translation.x)) {
+        console.warn("WARNING: Character physics data reporting NaN", collider.controller.transform.translation)
         collider.controller.updateTransform({
-          translation: { x: 0, y: 10, z: 10 },
-          rotation: {}
+          translation: { x: 0, y: 10, z: 0 },
+          rotation: { x: 0, y: 0, z: 0, w: 1 }
         });
-        // collider.playerStuck = 1000;
-        // return;
+      }
+
+      // TODO: implement scene lower bounds parameter
+      if(!isClient && collider.controller.transform.translation.y < -10) {
+        const { position, rotation } = ServerSpawnSystem.instance.getRandomSpawnPoint();
+        position.y += actor.actorHalfHeight / 2;
+        console.log('player has fallen through the floor, teleporting them to', position)
+        collider.controller.updateTransform({
+          translation: position,
+          rotation
+        });
+        sendClientObjectUpdate(entity, NetworkObjectUpdateType.ForceTransformUpdate, [position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, rotation.w])
       }
 
       transform.position.set(
@@ -128,7 +137,7 @@ export class CharacterControllerSystem extends System {
       const controllerCollider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
       const transform = getComponent<TransformComponent>(entity, TransformComponent);
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-      if (!actor.initialized || !controllerCollider.controller || !actor.movementEnabled) return;
+      if (!controllerCollider.controller || !actor.movementEnabled) return;
 
       const x = controllerCollider.controller.transform.translation.x - prevControllerColliderPosition.x;
       const y = controllerCollider.controller.transform.translation.y - prevControllerColliderPosition.y;
@@ -151,12 +160,7 @@ export class CharacterControllerSystem extends System {
     // PhysicsMove Characters On Server
     // its beacose we need physicsMove on server and for localCharacter, not for all character
     this.queryResults.characterOnServer.all?.forEach((entity) => {
-      const actor = getComponent<CharacterComponent>(entity, CharacterComponent);
-      const transform = getMutableComponent(entity, TransformComponent);
-      // update rotationg for physics moving
-      vector3.copy(actor.viewVector).setY(0).normalize();
-      actor.orientation.copy(applyVectorMatrixXZ(vector3, forwardVector))
-      transform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
+      updatePlayerRotationFromViewVector(entity);
       characterMoveBehavior(entity, delta);
     })
 
@@ -170,47 +174,65 @@ export class CharacterControllerSystem extends System {
     this.queryResults.ikAvatar.added?.forEach((entity) => {
       removeComponent(entity, AnimationComponent);
 
-      const ikComponent = getMutableComponent(entity, IKComponent);
+      const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent);
+      const actor = getMutableComponent(entity, CharacterComponent);
+
+      // reset view vector since we have different rotation mechanisms now
+      // TODO: figure out how keep the current rotation
+      actor.viewVector.set(0, 0, 1);
+      updatePlayerRotationFromViewVector(entity);
+
+      // we handle the head different for local clients because it holds the camera
       if(entity !== Network.instance.localClientEntity) {
-        const actor = getMutableComponent(entity, CharacterComponent);
-        ikComponent.headGroup.add(ikComponent.head);
-        ikComponent.controllersGroup.add(ikComponent.controllerLeft, ikComponent.controllerGripLeft, ikComponent.controllerRight, ikComponent.controllerGripRight);
-        actor.tiltContainer.add(ikComponent.headGroup, ikComponent.controllersGroup);
+        actor.tiltContainer.add(xrInputSourceComponent.head)
       }
 
-      // TODO move to debug system
-      const cubeGeometry = new ConeBufferGeometry(0.05, 0.2, 3)
-      cubeGeometry.rotateX(-Math.PI * 0.5)
-      const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red') }))
-      const debugLeft = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('green') }))
-      const debugRight = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('blue') }))
-      ikComponent.head.add(debugHead)
-      ikComponent.controllerLeft.add(debugLeft)
-      ikComponent.controllerRight.add(debugRight)
-      
+      xrInputSourceComponent.headGroup.position.setY(-actor.actorHalfHeight);
+      xrInputSourceComponent.headGroup.applyQuaternion(rotate180onY);
 
-      // TODO: Temporarily make rig invisible until rig is fixed
-      // actor.modelContainer.children[0]?.traverse((child) => {
-      //   if(child.visible) {
-      //     child.visible = false;
-      //   }
-      // })
+
+      xrInputSourceComponent.controllerGroup.add(
+        xrInputSourceComponent.controllerLeft, 
+        xrInputSourceComponent.controllerGripLeft, 
+        xrInputSourceComponent.controllerRight, 
+        xrInputSourceComponent.controllerGripRight
+      );
+
+      xrInputSourceComponent.headGroup.add(xrInputSourceComponent.controllerGroup);
+
+      actor.tiltContainer.add(xrInputSourceComponent.headGroup);
+
+      if(entity === Network.instance.localClientEntity) {
+
+        // TODO: Temporarily make rig invisible until rig is fixed
+        actor?.modelContainer.children[0]?.traverse((child) => {
+          if(child.visible) {
+            child.visible = false;
+          }
+        })
+      }
     })
 
     this.queryResults.ikAvatar.removed?.forEach((entity) => {
+
       addComponent(entity, AnimationComponent);
       const actor = getMutableComponent(entity, CharacterComponent);
 
+      if(entity === Network.instance.localClientEntity)
       // TODO: Temporarily make rig invisible until rig is fixed
-      // actor.modelContainer.children[0]?.traverse((child) => {
-      //   if(child.visible) {
-      //     child.visible = false;
-      //   }
-      // })
+      actor?.modelContainer.children[0]?.traverse((child) => {
+        if(child.visible) {
+          child.visible = true;
+        }
+      })
     })
 
     this.queryResults.ikAvatar.all?.forEach((entity) => {
-
+      const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent);
+      const actor = getMutableComponent(entity, CharacterComponent);
+      console.log('actor', actor.tiltContainer.quaternion, actor.tiltContainer.getWorldQuaternion(quat))
+      console.log('headGroup', xrInputSourceComponent.headGroup.quaternion, xrInputSourceComponent.headGroup.getWorldQuaternion(quat))
+      console.log('head', xrInputSourceComponent.head.quaternion, xrInputSourceComponent.head.getWorldQuaternion(quat), )
     })
   }
 }
@@ -245,14 +267,14 @@ CharacterControllerSystem.queries = {
     }
   },
   animation: {
-    components: [AnimationComponent],
+    components: [CharacterComponent, AnimationComponent],
     listen: {
       added: true,
       removed: true
     }
   },
   ikAvatar: {
-    components: [CharacterComponent, IKComponent],
+    components: [CharacterComponent, XRInputSourceComponent],
     listen: {
       added: true,
       removed: true

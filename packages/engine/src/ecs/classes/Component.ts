@@ -152,18 +152,22 @@ export class Component<C> {
 
   /**
    * Turns the component into JSON using any toJSON calls and defaults unintiailised properties (if a default is given)
-   * @returns {object} the jsonified component
+   * Called when JSON.stringify is called on the component
+   * @returns {object} the JSONified component
    */
-  json() {
+  toJSON() {
     const schema = (this.constructor as ComponentConstructor<Component<C>>)._schema;
-    const props = Object.keys(schema).map((key) => {
-      if(this[key]) return this[key]
-      const schemaProp = schema[key];
-      if (schemaProp.default !== undefined) {
-        return schemaProp.type.clone(schemaProp.default);
+    const props = {}
+    for(const key in schema) {
+      if(typeof this[key] === 'undefined') {
+        const schemaProp = schema[key];
+        if (schemaProp.default !== undefined) {
+          props[key] = schemaProp.type.clone(schemaProp.default);
+        }
+      } else {
+        props[key] = this[key];
       }
-      return null;
-    });
+    }
     return JSON.parse(JSON.stringify(props));
   }
 }

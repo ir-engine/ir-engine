@@ -4,7 +4,7 @@ import { Entity } from '../ecs/classes/Entity';
 import { getComponent } from '../ecs/functions/EntityFunctions';
 import { Input } from '../input/components/Input';
 import { BaseInput } from '../input/enums/BaseInput';
-import { Material, Mesh, Object3D } from "three";
+import { Material, Mesh, Vector3 } from "three";
 import { SkinnedMesh } from 'three/src/objects/SkinnedMesh';
 import { CameraModes } from "../camera/types/CameraModes";
 import { LifecycleValue } from "../common/enums/LifecycleValue";
@@ -22,13 +22,12 @@ import { CharacterComponent } from "./components/CharacterComponent";
 import { isClient } from "../common/functions/isClient";
 import { VehicleComponent } from '../vehicle/components/VehicleComponent';
 import { isMobileOrTablet } from '../common/functions/isMobile';
-import { SIXDOFType } from '../common/types/NumericalTypes';
 import { EquipperComponent } from '../interaction/components/EquipperComponent';
 import { TransformComponent } from '../transform/components/TransformComponent';
 import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings';
 import { BinaryValue } from '../common/enums/BinaryValue';
 import { ParityValue } from '../common/enums/ParityValue';
-import { IKComponent } from './components/IKComponent';
+import { XRInputSourceComponent } from './components/XRInputSourceComponent';
 
 /**
  *
@@ -314,7 +313,6 @@ const moveByInputAxis: Behavior = (
   if (data.type === InputType.TWODIM) {
     actor.localMovementDirection.z = data.value[0];
     actor.localMovementDirection.x = data.value[1];
-    actor.changedViewAngle = changedDirection(data.value[2]);
   } else if (data.type === InputType.THREEDIM) {
     // TODO: check if this mapping correct
     actor.localMovementDirection.z = data.value[2];
@@ -347,20 +345,15 @@ const moveFromXRInputs: Behavior = (entity, args): void => {
   actor.localMovementDirection.normalize();
 };
 
-const diffDamping = 0.2;
 let switchChangedToZero = true;
-const xrLookMultiplier = 0.1;
+const deg2rad = Math.PI / 180;
 
 const lookFromXRInputs: Behavior = (entity, args): void => {
-  if (!isClient) return; // we only set viewVector here, which is sent to the server
-  const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const input = getComponent<Input>(entity, Input as any);
   const values = input.data.get(BaseInput.XR_LOOK)?.value;
-  const rotationAngle = XRUserSettings.rotationAngle * diffDamping;
+  const rotationAngle = XRUserSettings.rotationAngle;
   let newAngleDiff = 0;
-  //console.warn(values[0]);
   switch (XRUserSettings.rotation) {
-
     case XR_ROTATION_MODE.ANGLED:
       if(switchChangedToZero && values[0] != 0) {
         const plus = XRUserSettings.rotationInvertAxes ? -1 : 1;
@@ -376,19 +369,12 @@ const lookFromXRInputs: Behavior = (entity, args): void => {
         newAngleDiff = 0;
       }
       break;
-
     case XR_ROTATION_MODE.SMOOTH:
       newAngleDiff = (values[0] * XRUserSettings.rotationSmoothSpeed) * (XRUserSettings.rotationInvertAxes ? -1 : 1);
       break;
   }
-  input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
-    type: InputType.TWODIM,
-    value: [
-      newAngleDiff * xrLookMultiplier,
-      0 // data.value[1] * multiplier
-    ],
-    lifecycleState: LifecycleValue.STARTED
-  });
+  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+  xrInputSourceComponent.headGroup.rotateY(newAngleDiff * deg2rad)
 };
 
 

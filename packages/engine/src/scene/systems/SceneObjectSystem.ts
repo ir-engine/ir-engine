@@ -7,6 +7,13 @@ import { beforeMaterialCompile } from "../../editor/nodes/helper/BPCEMShader";
 import { WebGLRendererSystem } from "../../renderer/WebGLRendererSystem";
 import { Object3DComponent } from "../components/Object3DComponent";
 
+/**
+ * @author Josh Field <github.com/HexaField>
+ */
+
+// TODO: refactor this to be named something more generic like ObjectSystem, add object-object interactions (physics & non physics)
+// GameManagerSystem already has physics interaction behaviors, these could be made generic and not game dependent
+
 export class SceneObjectSystem extends System {
 
   updateType = SystemUpdateType.Fixed;

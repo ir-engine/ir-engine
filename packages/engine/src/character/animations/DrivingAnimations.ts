@@ -122,7 +122,6 @@ export const initializeDriverState: Behavior = (entity, args: { x?: number, y?: 
   }
 
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-	if (!actor.initialized) return;
 
 	actor.velocityTarget.z = args?.z ?? 0;
 	actor.velocityTarget.x = args?.x ?? 0;

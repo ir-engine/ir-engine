@@ -34,7 +34,7 @@ import { Link } from "react-router-dom";
 import Avatar from "@material-ui/core/Avatar";
 import { selectAuthState } from "../../reducers/auth/selector";
 import { connect } from 'react-redux';
-import { useStylesForDashboard as useStyles } from "./styles";
+import { useStylesForDashboard  } from "./styles";
 
 interface Props {
     children?: any,
@@ -56,7 +56,7 @@ const mapStateToProps = (state: any): any => {
  */
 
 const Dashboard = ({ children, authState }: Props) => {
-    const classes = useStyles();
+    const classes = useStylesForDashboard();
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
 	const { t } = useTranslation();
@@ -101,7 +101,7 @@ const Dashboard = ({ children, authState }: Props) => {
                     {
                         admin["name"] &&
                         <div className={classes.avatarPosition}>
-                        <Avatar className={classes.orange}>{admin["name"].charAt(0).toUpperCase()}</Avatar>
+                        <Avatar className={classes.orange}>{admin["name"]?.charAt(0)?.toUpperCase()}</Avatar>
                             <Typography variant="h6" className={classes.marginLft} >{admin["name"]}</Typography>
                         </div>
                     }

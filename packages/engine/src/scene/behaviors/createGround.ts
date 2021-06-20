@@ -10,9 +10,9 @@ import { addObject3DComponent } from "./addObject3DComponent";
 
 
 export const createGround: Behavior = (entity, args) => {
-  console.log(getComponent(entity, TransformComponent))
+
   const mesh = new Mesh(
-    new CircleBufferGeometry(1000, 32),
+    new CircleBufferGeometry(1000, 32).rotateX(-Math.PI / 2),
     new MeshStandardMaterial({
       color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464),
       roughness:0,

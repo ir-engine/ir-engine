@@ -50,8 +50,6 @@ export function Timer (
   let updateInterval;
 
   function xrAnimationLoop(time, xrFrame) {
-    Engine.xrSession.requestAnimationFrame( xrAnimationLoop )
-    Engine.xrRenderer.onAnimationFrame(time, xrFrame);
     XRSystem.instance.xrFrame = xrFrame;
     if (lastAnimTime !== null) {
       frameDelta = (time - lastAnimTime) / 1000;
@@ -73,7 +71,7 @@ export function Timer (
     stop()
   });
   EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_SESSION, async (ev: any) => {
-    Engine.xrSession.requestAnimationFrame( xrAnimationLoop )
+    Engine.xrRenderer.setAnimationLoop( xrAnimationLoop )
   });
   EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => {
     start()

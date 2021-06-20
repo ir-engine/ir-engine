@@ -58,6 +58,8 @@ export class PhysicsSystem extends System {
     PhysicsSystem.instance = this;
     this.physicsFrameRate = Engine.physicsFrameRate;
     this.physicsFrameTime = 1 / this.physicsFrameRate;
+    this.physicsWorldConfig = Object.assign({}, attributes.physicsWorldConfig);
+    /*
     this.physicsWorldConfig =  {
       bounceThresholdVelocity: 0.5,
       tps: 60,
@@ -67,9 +69,10 @@ export class PhysicsSystem extends System {
       substeps: 1,
       gravity: { x: 0, y: -9.81, z: 0 },
     }
+    */
     this.worker = attributes.worker;
     this.frame = 0;
-    
+
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
       PhysXInstance.instance.startPhysX(ev.physics);
     });
@@ -92,6 +95,12 @@ export class PhysicsSystem extends System {
   }
 
   execute(delta: number): void {
+    this.queryResults.collider.removed?.forEach(entity => {
+      const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true);
+      if (colliderComponent) {
+        this.removeBody(colliderComponent.body);
+      }
+    });
 
     this.queryResults.collider.all?.forEach(entity => {
       const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
@@ -99,17 +108,17 @@ export class PhysicsSystem extends System {
       if (collider.body.type === BodyType.KINEMATIC) {
         collider.velocity.subVectors(collider.body.transform.translation, transform.position)
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation });
-      } else {
+      } else if(collider.body.type === BodyType.DYNAMIC){
         if(!isClient) { // this for the copy what intepolation calc velocity
-          collider.velocity.subVectors(transform.position, collider.body.transform.translation); 
+          collider.velocity.subVectors(transform.position, collider.body.transform.translation);
         }
-        
+
         transform.position.set(
           collider.body.transform.translation.x,
           collider.body.transform.translation.y,
           collider.body.transform.translation.z
         );
-          
+
         collider.position.copy(transform.position)
         transform.rotation.set(
           collider.body.transform.rotation.x,
@@ -121,16 +130,9 @@ export class PhysicsSystem extends System {
       }
     });
 
-    this.queryResults.collider.removed?.forEach(entity => {
-      const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true);
-      if (colliderComponent) {
-        this.removeBody(colliderComponent.body);
-      }
-    });
-
     if (isClient) {
       if (!Network.instance?.snapshot) return;
-      
+
       const snapshots: SnapshotData = {
         interpolation: calculateInterpolation('x y z quat velocity'),
         correction: Vault.instance?.get((Network.instance.snapshot as any).timeCorrection, true),
@@ -150,7 +152,7 @@ export class PhysicsSystem extends System {
       this.queryResults.networkObjectInterpolation.all?.forEach(entity => {
         rigidbodyInterpolationBehavior(entity, snapshots, delta);
       });
- 
+
       this.queryResults.localObjectInterpolation.all?.forEach(entity => {
         //rigidbodyCorrectionBehavior(entity, snapshots, delta);
         experementalRigidbodyCorrectionBehavior(entity, snapshots, delta);
@@ -180,6 +182,7 @@ export class PhysicsSystem extends System {
         }
       });
     }
+
     PhysXInstance.instance.update();
   }
 
@@ -200,13 +203,13 @@ export class PhysicsSystem extends System {
 }
 
 PhysicsSystem.queries = {
-  localCharacterInterpolation: { 
+  localCharacterInterpolation: {
     components: [LocalInputReceiver, CharacterComponent, InterpolationComponent, NetworkObject],
   },
   networkClientInterpolation: {
     components: [Not(LocalInputReceiver), CharacterComponent, InterpolationComponent, NetworkObject],
   },
-  localObjectInterpolation: { 
+  localObjectInterpolation: {
     components: [Not(CharacterComponent), LocalInterpolationComponent, InterpolationComponent, NetworkObject],
   },
   networkObjectInterpolation: {

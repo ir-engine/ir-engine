@@ -155,7 +155,7 @@ export class SocketWebRTCServerTransport implements NetworkTransport {
 
         const currentRouter = this.routers.instance[0];
 
-        await Promise.all(this.routers.instance.map(async router => {
+        await Promise.all((this.routers.instance as any).map(async router => {
             if (router._internal.routerId !== currentRouter._internal.routerId) return currentRouter.pipeToRouter({ dataProducerId: this.outgoingDataProducer.id, router: router });
             else return Promise.resolve();
         }));

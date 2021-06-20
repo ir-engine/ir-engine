@@ -23,14 +23,15 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props{
     popupsState?: any;
     updateFeedPageState?: typeof  updateFeedPageState;
+    webxrRecorderActivity: any;
 }
-export const FeedPopup = ({popupsState, updateFeedPageState}: Props) =>{
+export const FeedPopup = ({popupsState, updateFeedPageState, webxrRecorderActivity}: Props) =>{
     //common for feed page
   const feedPageState = popupsState?.get('feedPage');
   const feedId = popupsState?.get('feedId');
   const handleFeedClose = () =>updateFeedPageState(false);
   const renderFeedModal = () =>
-    popupsState?.get('feedPage') === true &&  
+    popupsState?.get('feedPage') === true && !webxrRecorderActivity &&
         <SharedModal 
             open={popupsState?.get('feedPage')}
             onClose={handleFeedClose} 

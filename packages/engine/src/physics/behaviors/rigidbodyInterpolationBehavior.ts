@@ -45,5 +45,5 @@ export const rigidbodyInterpolationBehavior: Behavior = (entity: Entity, snapsho
     interpolationSnapshot.vY,
     interpolationSnapshot.vZ
   );
-  
+
 };

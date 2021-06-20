@@ -31,6 +31,7 @@ const mx = new Matrix4();
 const vec3 = new Vector3();
 
 const followCameraBehavior = (entity: Entity) => {
+  if(!entity) return;
   const cameraDesiredTransform: DesiredTransformComponent = getMutableComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) as DesiredTransformComponent; // Camera
 
   if (!cameraDesiredTransform) return;
@@ -63,7 +64,7 @@ const followCameraBehavior = (entity: Entity) => {
 
   followCamera.phi -= inputValue[1] * (isMobileOrTablet() ? 60 : 100);
   followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi));
-  actor.viewVector.y = followCamera.phi;
+  actor.viewVector.setY(followCamera.phi);
 
   let camDist = followCamera.distance;
   if (followCamera.mode === CameraModes.FirstPerson) camDist = 0.01;
@@ -111,7 +112,7 @@ const followCameraBehavior = (entity: Entity) => {
   mx.lookAt(direction, empty, upVector);
   cameraDesiredTransform.rotation.setFromRotationMatrix(mx);
   if (actor) {
-    actor.viewVector = vec3.set(0, 0, -1).applyQuaternion(cameraDesiredTransform.rotation)
+    actor.viewVector.copy(vec3.set(0, 0, -1)).applyQuaternion(cameraDesiredTransform.rotation)
   } else {
     cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
   }

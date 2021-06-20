@@ -10,7 +10,6 @@ export default class GroundPlane extends Object3D {
   mesh: Mesh;
   add: any;
   remove: any;
-  children: any;
   constructor() {
     super();
     this._receiveShadow = true;

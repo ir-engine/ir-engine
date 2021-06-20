@@ -33,7 +33,7 @@ export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots:
     qY: 0,
     qZ: 0,
     qW: 1,
-  })
+  });
 
   const correction = findInterpolationSnapshot(entity, snapshots.correction);
   const currentSnapshot = findInterpolationSnapshot(entity, Network.instance.snapshot);
