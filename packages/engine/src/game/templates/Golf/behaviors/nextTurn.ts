@@ -48,6 +48,7 @@ export const nextTurn: Behavior = (entity: Entity, args?: any, delta?: number, e
   }
   
   const roleFullName = arrPlayersInGame.filter(role => parseFloat(role[0]) === chooseNumber)[0];
+  if (game.gamePlayers[roleFullName] === undefined) return;
   const entityP = game.gamePlayers[roleFullName][0];
 
   if(!hasComponent(entityP, State.WaitTurn)) {

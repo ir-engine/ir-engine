@@ -26,7 +26,9 @@ export const ifGetOut: Checker = (entity: Entity, args?: any, entityTarget?: Ent
     
     const gameArea = game.gameArea;
 
-    const p = getComponent(entity, ColliderComponent).body.transform.translation;
+    const collider = getComponent(entity, ColliderComponent);
+    if (collider === undefined) return false;
+    const p = collider.body.transform.translation;
     
     const inGameArea = (p.x < gameArea.max.x && p.x > gameArea.min.x &&
                         p.y < gameArea.max.y && p.y > gameArea.min.y &&

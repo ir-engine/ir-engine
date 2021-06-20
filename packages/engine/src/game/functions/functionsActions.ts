@@ -9,10 +9,14 @@ import { GameObject } from "../components/GameObject";
 import { GamePlayer } from "../components/GamePlayer";
 import { Action } from '../types/GameComponents';
 import { GameStateActionMessage } from "../types/GameMessage";
-import { getEntityFromRoleUuid, getGame, getGameEntityFromName, getRole, getUuid } from './functions';
+import { getEntityFromRoleUuid, getGame, getGameEntityFromName, getRole, getUuid, isOwnedLocalPlayer } from './functions';
 /**
  * @author HydraFire <github.com/HydraFire>
  */
+
+let gamePredictionCheckList = [];
+const timeAfterClientDesideHeWasgetWrongAction = 3000;
+
 
 export const addActionComponent = (entity: Entity, component: ComponentConstructor<Component<any>>, componentArgs: any = { }): void => {
   if (!(hasComponent(entity, GameObject) || hasComponent(entity, GamePlayer))) return;
@@ -21,10 +25,15 @@ export const addActionComponent = (entity: Entity, component: ComponentConstruct
   if (isClient && !game.isGlobal) {
     addComponent(entity, component, componentArgs);
   //// Server apply actions to himself send Actions and clients apply its
-  } else if (!isClient && game.isGlobal) {
+  } else if (isClient && game.isGlobal && isOwnedLocalPlayer(entity)) {
+    addComponent(entity, component, componentArgs);
+    addToCheckList(entity, component, componentArgs);
+  }
+   else if (!isClient && game.isGlobal) {
     addComponent(entity, component, componentArgs);
     sendActionComponent(entity, component, componentArgs);
   }
+
 };
 
 export const sendActionComponent = (entity: Entity, component: ComponentConstructor<Component<any>>, componentArgs: any = { }): void => {
@@ -48,6 +57,11 @@ export const applyActionComponent = (actionMessage: GameStateActionMessage): voi
   const entity = getEntityFromRoleUuid(game, actionMessage.role, actionMessage.uuid);
   if(!entity) return;
 
+  if (isOwnedLocalPlayer(entity) && ifWasSameBeforeByPrediction(actionMessage)) {
+    removeSameInGamePredictionCheckList(actionMessage);
+    return;
+  }
+
   const component = Action[actionMessage.component];
   let componentArgs = {};
   try {
@@ -55,3 +69,35 @@ export const applyActionComponent = (actionMessage: GameStateActionMessage): voi
   } catch (e) {}
   addComponent( entity, component, componentArgs);
 };
+
+
+const addToCheckList = (entity: Entity, component: ComponentConstructor<Component<any>>, componentArgs: any = { }): void => {
+  const actionOnWhyRole = getRole(entity);
+
+  gamePredictionCheckList.push({ 
+    componentName: component.name,
+    time: Date.now(),
+    dataForCheck: { 
+      role: actionOnWhyRole 
+    }  
+  })
+};
+
+export const checkIsGamePredictionStillRight = (): boolean => {
+  //gamePredictionCheckList.length > 0 ? console.log(gamePredictionCheckList):'';
+  return gamePredictionCheckList.some(v => Date.now() - v.time >  timeAfterClientDesideHeWasgetWrongAction );
+};
+
+const ifWasSameBeforeByPrediction = (actionMessage: GameStateActionMessage): boolean => {
+  return gamePredictionCheckList.some(v => v.componentName === actionMessage.component && v.dataForCheck.role === actionMessage.role);
+};
+
+const removeSameInGamePredictionCheckList = (actionMessage: GameStateActionMessage): void => {
+  gamePredictionCheckList = gamePredictionCheckList.filter(v => !(v.componentName === actionMessage.component && v.dataForCheck.role === actionMessage.role))
+};
+
+export const clearPredictionCheckList = (): void => {
+  gamePredictionCheckList = [];
+};
+
+

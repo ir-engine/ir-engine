@@ -10,7 +10,7 @@ import { addState, removeState, switchState } from "./gameDefault/behaviors/swit
 import { setHideModel } from "./gameDefault/behaviors/setHideModel";
 //
 import { addForce } from "./Golf/behaviors/addForce";
-import { teleportObject } from "./Golf/behaviors/teleportObject";
+import { removeVelocity, teleportObject } from "./Golf/behaviors/teleportObject";
 //
 import { addRole } from "./Golf/behaviors/addRole";
 import { addTurn } from "./Golf/behaviors/addTurn";
@@ -417,6 +417,30 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       ]
     },
   },
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
   gameObjectRoles: {
     'GolfBall': {
       'checkIfFlyingOut': [
@@ -459,6 +483,14 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             args: { min: 0.0005 }
           }]
         },
+        {
+          behavior: removeVelocity,
+          watchers:[ [ State.BallStopped , State.Inactive ] ],
+          checkers:[{
+            function: ifMoved,
+            args: { on: 'self', max: 0.0001 }
+          }]
+        },
         // whan ball spawn he droping and gets moving State, we give Raady state for him whan he stop
         {
           behavior: switchState,
@@ -481,6 +513,10 @@ export const GolfGameMode: GameMode = somePrepareFunction({
     'GolfTee-7': {},
     'GolfTee-8': {},
     'GolfTee-9': {},
+    'GolfTee-10': {},
+    'GolfTee-11': {},
+    'GolfTee-12': {},
+    'GolfTee-13': {},
     'GolfHole': {
       'goal': [
         {

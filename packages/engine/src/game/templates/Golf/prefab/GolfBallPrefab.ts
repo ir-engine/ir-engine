@@ -13,6 +13,7 @@ import { initializeNetworkObject } from '../../../../networking/functions/initia
 import { NetworkPrefab } from '../../../../networking/interfaces/NetworkPrefab';
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
 import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent';
+import { LocalInterpolationComponent } from '../../../../physics/components/LocalInterpolationComponent';
 import { RigidBodyComponent } from '../../../../physics/components/RigidBody';
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
@@ -122,7 +123,7 @@ export const initializeGolfBall = (ballEntity: Entity) => {
       // we mostly reverse the expansion for contact detection (so the ball rests on the ground)
       // this will not reverse the expansion for trigger colliders
       contactOffset: golfBallColliderExpansion,
-      material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.95 },
+      material: { staticFriction: 0.3, dynamicFriction: 0.3, restitution: 0.7 },
       collisionLayer: GolfCollisionGroups.Ball,
       collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Hole,
     },
@@ -192,7 +193,9 @@ export const GolfBallPrefab: NetworkPrefab = {
     // Local player input mapped to behaviors in the input map
   ],
   // These are only created for the local player who owns this prefab
-  localClientComponents: [],
+  localClientComponents: [
+    { type: LocalInterpolationComponent }
+  ],
   clientComponents: [
 		{ type: InterpolationComponent },
   ],

@@ -21,6 +21,8 @@ import { characterCorrectionBehavior } from '../../character/behaviors/character
 import { CharacterComponent } from '../../character/components/CharacterComponent';
 import { characterInterpolationBehavior } from '../../character/behaviors/characterInterpolationBehavior';
 import { rigidbodyInterpolationBehavior } from '../behaviors/rigidbodyInterpolationBehavior';
+import { LocalInterpolationComponent } from '../components/LocalInterpolationComponent';
+import { experementalRigidbodyCorrectionBehavior } from '../behaviors/experementalRigidbodyCorrectionBehavior';
 
 
 /**
@@ -56,10 +58,14 @@ export class PhysicsSystem extends System {
     PhysicsSystem.instance = this;
     this.physicsFrameRate = Engine.physicsFrameRate;
     this.physicsFrameTime = 1 / this.physicsFrameRate;
-    this.physicsWorldConfig = attributes.physicsWorldConfig ?? {
-      tps: 120,
-      // lengthScale: 1,
-      start: false
+    this.physicsWorldConfig =  {
+      bounceThresholdVelocity: 0.5,
+      tps: 60,
+      start: false,
+      lengthScale: 1,
+      verbose: false,
+      substeps: 1,
+      gravity: { x: 0, y: -9.81, z: 0 },
     }
     this.worker = attributes.worker;
     this.frame = 0;
@@ -95,7 +101,7 @@ export class PhysicsSystem extends System {
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation });
       } else {
         if(!isClient) { // this for the copy what intepolation calc velocity
-          collider.velocity.subVectors(transform.position, collider.body.transform.translation).multiplyScalar(delta*60); 
+          collider.velocity.subVectors(transform.position, collider.body.transform.translation); 
         }
         
         transform.position.set(
@@ -143,6 +149,11 @@ export class PhysicsSystem extends System {
 
       this.queryResults.networkObjectInterpolation.all?.forEach(entity => {
         rigidbodyInterpolationBehavior(entity, snapshots, delta);
+      });
+ 
+      this.queryResults.localObjectInterpolation.all?.forEach(entity => {
+        //rigidbodyCorrectionBehavior(entity, snapshots, delta);
+        experementalRigidbodyCorrectionBehavior(entity, snapshots, delta);
       });
 
       // If a networked entity does not have an interpolation component, just copy the data
@@ -195,8 +206,11 @@ PhysicsSystem.queries = {
   networkClientInterpolation: {
     components: [Not(LocalInputReceiver), CharacterComponent, InterpolationComponent, NetworkObject],
   },
+  localObjectInterpolation: { 
+    components: [Not(CharacterComponent), LocalInterpolationComponent, InterpolationComponent, NetworkObject],
+  },
   networkObjectInterpolation: {
-    components: [Not(CharacterComponent), InterpolationComponent, NetworkObject],
+    components: [Not(CharacterComponent), Not(LocalInterpolationComponent), InterpolationComponent, NetworkObject],
   },
   correctionFromServer: {
     components: [Not(InterpolationComponent), NetworkObject],

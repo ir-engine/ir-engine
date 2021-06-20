@@ -117,7 +117,7 @@ export function addColliderWithoutEntity(userData: ColliderData, pos = new Vecto
       break;
   }
 
-  shapeArgs.config.material = { restitution: userData.restitution ?? 0 };
+  shapeArgs.config.material = { restitution: 0  }; // restitution: userData.restitution ?? 0
 
   shapeArgs.config.collisionLayer = Number(model.collisionLayer ?? CollisionGroups.Default);
   switch (model.collisionMask) {
