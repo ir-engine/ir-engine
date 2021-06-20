@@ -35,6 +35,7 @@ import { customChecker } from "./gameDefault/checkers/customChecker";
 import { isDifferent } from "./gameDefault/checkers/isDifferent";
 import { doesPlayerHaveGameObject } from "./gameDefault/checkers/doesPlayerHaveGameObject";
 
+
 // others
 import { grabEquippable } from "../../interaction/functions/grabEquippable";
 import { getComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
@@ -52,8 +53,8 @@ import { hitBall } from "./Golf/behaviors/hitBall";
 import { teleportPlayer } from "./Golf/behaviors/teleportPlayer";
 import { getPositionNextPoint } from "./Golf/behaviors/getPositionNextPoint";
 
-
-
+// ui
+import { createYourTurnPanel } from './Golf/ui/YourTurnPanel'
 
 /**
  * @author HydraFire
@@ -155,6 +156,7 @@ function copleNameRolesInOneString( object ) {
 const onGolfGameStart = (entity: Entity) => {}
 
 const onGolfGameLoading = (entity: Entity) => {
+  createYourTurnPanel()
   // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
   Object.entries(GolfPrefabs).forEach(([prefabType, prefab]) => {
     Network.instance.schema.prefabs[prefabType] = prefab;

@@ -25,7 +25,7 @@ import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { configCanvasElement } from './renderer/functions/canvas';
 import { HighlightSystem } from './renderer/HighlightSystem';
 import { TransformSystem } from './transform/systems/TransformSystem';
-import { UIPanelSystem } from './ui/systems/UIPanelSystem';
+import { UIPanelSystem } from './ui-old/systems/UIPanelSystem';
 import { XRSystem } from './xr/systems/XRSystem';
 import { WebGLRendererSystem } from "./renderer/WebGLRendererSystem";
 import { Timer } from './common/functions/Timer';
@@ -37,7 +37,7 @@ import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkO
 import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem';
 import { SceneObjectSystem } from '@xrengine/engine/src/scene/systems/SceneObjectSystem';
 import { ActiveSystems } from './ecs/classes/System';
-import { FontManager } from './ui/classes/FontManager';
+import { FontManager } from './ui/FontManager';
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {

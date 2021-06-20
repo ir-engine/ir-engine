@@ -1,6 +1,6 @@
 import { ExtrudeGeometry, Group, Mesh, MeshBasicMaterial, Object3D } from "three";
 import { isClient } from "../../common/functions/isClient";
-import { FontManager } from "../../ui/classes/FontManager";
+import { FontManager } from "../../ui/FontManager";
 
 export const createInteractTextObject = (): Object3D => {
 

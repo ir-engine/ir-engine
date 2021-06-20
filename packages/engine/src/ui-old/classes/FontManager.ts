@@ -4,12 +4,13 @@ import { Engine } from "../../ecs/classes/Engine";
 export class FontManager {
 	static instance: FontManager;
   private _loader: FontLoader;
-  _defaultFont: Font;
+  private _defaultFont: Font;
 
   constructor() {
     FontManager.instance = this;
     this._loader = new FontLoader();
   }
+
 
 	getDefaultFont(): Promise<Font> {
 		return new Promise(resolve => {
