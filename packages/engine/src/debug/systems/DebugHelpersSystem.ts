@@ -159,7 +159,7 @@ export class DebugHelpersSystem extends System {
 
     this.queryResults.ikAvatar.removed?.forEach((entity) => {
       (this.helpersByEntity.ikExtents.get(entity) as Object3D[]).forEach((obj: Object3D) => {
-        obj.parent.removeFromParent();
+        obj.removeFromParent();
       })
       this.helpersByEntity.ikExtents.delete(entity);
     })
