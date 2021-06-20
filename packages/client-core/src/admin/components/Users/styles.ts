@@ -87,7 +87,32 @@ export const useStyles = makeStyles((theme: Theme) =>
         },
         marginBottom: {
             marginBottom: "10px"
-        }
+        },
+        createInput: {
+            padding: '2px 4px',
+            display: 'flex',
+            alignItems: 'center',
+            //width: "45vw",
+            marginTop: "10px",
+            marginBottom: "15px",
+            background: "#343b41",
+            border: "1px solid #23282c",
+            color: "#f1f1f1 !important"
+          },
+          redBorder: {
+            border: "1px solid red",
+            padding: '2px 4px',
+            display: 'flex',
+            alignItems: 'center',
+            //width: "45vw",
+            marginTop: "10px",
+            marginBottom: "15px",
+            background: "#343b41",
+            color: "#f1f1f1 !important"
+          },
+          select: {
+            color: "#f1f1f1 !important",
+          },
     })
 );
 
@@ -135,4 +160,8 @@ export const useStyle = makeStyles({
     fullList: {
         width: 'auto',
     },
+    selectPaper: {
+        background: "#343b41",
+        color: "#f1f1f1",
+      }
 });

@@ -236,7 +236,7 @@ const CreateBot = (props: Props) => {
 
                     <label>Location</label>
                     <Paper component="div" className={formErrors.location.length > 0 ? classes.redBorder : classes.createInput}>
-                        <FormControl className={classes.createInput} fullWidth >
+                        <FormControl  fullWidth >
                             <Select
                                 labelId="demo-controlled-open-select-label"
                                 id="demo-controlled-open-select"
@@ -260,7 +260,7 @@ const CreateBot = (props: Props) => {
 
                     <label>Instance</label>
                     <Paper component="div" className={formErrors.instance.length > 0 ? classes.redBorder : classes.createInput}>
-                        <FormControl className={classes.createInput} fullWidth disabled={currentInstance.length > 0 ? false : true} >
+                        <FormControl  fullWidth disabled={currentInstance.length > 0 ? false : true} >
                             <Select
                                 labelId="demo-controlled-open-select-label"
                                 id="demo-controlled-open-select"
