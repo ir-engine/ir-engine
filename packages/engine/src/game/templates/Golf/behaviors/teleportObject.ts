@@ -42,3 +42,13 @@ export const teleportObject: Behavior = (entity: Entity, args?: any, delta?: num
   collider.body.setLinearVelocity(new Vector3(), true);
   collider.body.setAngularVelocity(new Vector3(), true);
 };
+
+export const removeVelocity: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
+  console.warn(' --- removeVelocity');
+  const collider = getMutableComponent(entity, ColliderComponent)
+  //collider.velocity.set(0,0,0);
+  collider.body.setLinearDamping(10);
+  collider.body.setAngularDamping(10);
+  //collider.body.setLinearVelocity(new Vector3(), true);
+  //collider.body.setAngularVelocity(new Vector3(), true);
+};

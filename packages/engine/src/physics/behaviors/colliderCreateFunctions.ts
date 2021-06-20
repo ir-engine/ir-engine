@@ -117,7 +117,7 @@ export function addColliderWithoutEntity(userData: ColliderData, pos = new Vecto
       break;
   }
 
-  shapeArgs.config.material = { 
+  shapeArgs.config.material = {
     staticFriction: userData.staticFriction ?? 0.1,
     dynamicFriction: userData.dynamicFriction ?? 0.1,
     restitution: userData.restitution ?? 0.1,

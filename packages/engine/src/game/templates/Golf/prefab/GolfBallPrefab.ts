@@ -13,6 +13,7 @@ import { initializeNetworkObject } from '../../../../networking/functions/initia
 import { NetworkPrefab } from '../../../../networking/interfaces/NetworkPrefab';
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
 import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent';
+import { LocalInterpolationComponent } from '../../../../physics/components/LocalInterpolationComponent';
 import { RigidBodyComponent } from '../../../../physics/components/RigidBody';
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
@@ -182,7 +183,9 @@ export const GolfBallPrefab: NetworkPrefab = {
     // Local player input mapped to behaviors in the input map
   ],
   // These are only created for the local player who owns this prefab
-  localClientComponents: [],
+  localClientComponents: [
+    { type: LocalInterpolationComponent }
+  ],
   clientComponents: [
 		{ type: InterpolationComponent },
   ],

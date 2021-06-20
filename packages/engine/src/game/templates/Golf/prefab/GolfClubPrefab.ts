@@ -194,7 +194,7 @@ export const onClubColliderWithBall: GameObjectInteractionBehavior = (entityClub
 * @author Josh Field <github.com/HexaField>
  */
 
-const clubColliderSize = new Vector3(0.05, 0.1, 0.12);
+const clubColliderSize = new Vector3(0.03, 0.05, 0.1);
 const clubHalfWidth = 0.05;
 const clubPutterLength = 0.1;
 const clubLength = 1.8;

@@ -1,9 +1,10 @@
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { Entity } from '../../../../ecs/classes/Entity';
-import { hasComponent } from "../../../../ecs/functions/EntityFunctions";
+import { getComponent, hasComponent } from "../../../../ecs/functions/EntityFunctions";
 import { addStateComponent, removeStateComponent } from '../../../../game/functions/functionsState';
-import { getGame } from '../../../../game/functions/functions';
+import { getGame, getGameFromName } from '../../../../game/functions/functions';
 import { State } from '../../../types/GameComponents';
+import { GamePlayer } from '../../../components/GamePlayer';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -11,7 +12,7 @@ import { State } from '../../../types/GameComponents';
 
 export const nextTurn: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
 
-  const game = getGame(entity);
+  const game = getGame(entity) ?? getGameFromName(getComponent(entity, GamePlayer, true).gameName);
   const arrPlayersInGame = Object.keys(game.gamePlayers).filter(role => game.gamePlayers[role].length && role != 'newPlayer');
   
   if (arrPlayersInGame.length < 2) {
@@ -27,11 +28,13 @@ export const nextTurn: Behavior = (entity: Entity, args?: any, delta?: number, e
     }
   }
   
-  const whoseRoleTurnNow = arrPlayersInGame.filter(role => hasComponent(game.gamePlayers[role][0], State.Waiting))[0];
+  const whoseRoleTurnNow = getComponent(entity, GamePlayer, true).role//arrPlayersInGame.filter(role => hasComponent(game.gamePlayers[role][0], State.Waiting))[0];
   const roleNumber = parseFloat(whoseRoleTurnNow[0]);
-  
-  removeStateComponent(entity, State.Waiting);
-  addStateComponent(entity, State.WaitTurn);
+
+  if (hasComponent(entity, GamePlayer)) {
+    removeStateComponent(entity, State.Waiting);
+    addStateComponent(entity, State.WaitTurn);
+  }
 
   const sortedRoleNumbers = arrPlayersInGame.map(v => parseFloat(v[0])).sort((a,b) => b - a);
   
@@ -45,6 +48,7 @@ export const nextTurn: Behavior = (entity: Entity, args?: any, delta?: number, e
   }
   
   const roleFullName = arrPlayersInGame.filter(role => parseFloat(role[0]) === chooseNumber)[0];
+  if (game.gamePlayers[roleFullName] === undefined) return;
   const entityP = game.gamePlayers[roleFullName][0];
 
   if(!hasComponent(entityP, State.WaitTurn)) {
