@@ -174,7 +174,7 @@ const CreateUser = (props: Props) => {
                 break;
         }
         setState({ ...state, [name]: value, formErrors: temp });
-    }
+    };
 
 
     const handleSubmit = (e) => {
@@ -218,12 +218,12 @@ const CreateUser = (props: Props) => {
                 userRole: "",
                 instance: "",
                 party: "",
-            })
+            });
         } else {
             setError("Please fill all required field");
             setOpenWarning(true);
         }
-    }
+    };
 
     return (
         <React.Fragment >
