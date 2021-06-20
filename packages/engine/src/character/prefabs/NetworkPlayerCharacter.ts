@@ -132,7 +132,7 @@ const initializeCharacter: Behavior = (entity): void => {
 	actor.animationVectorSimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.rotationSimulator = new RelativeSpringSimulator(60, actor.defaultRotationSimulatorMass, actor.defaultRotationSimulatorDamping);
 
-	actor.viewVector = new Vector3();
+	actor.viewVector = new Vector3(0, 0, -1);
 
 	const transform = getComponent(entity, TransformComponent);
 

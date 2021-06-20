@@ -17,6 +17,7 @@ import { SIXDOFType } from "../../common/types/NumericalTypes";
 import { isClient } from "../../common/functions/isClient";
 import { isEntityLocalClient } from "../../networking/functions/isEntityLocalClient";
 import { AnimationComponent } from "../../character/components/AnimationComponent";
+import { updatePlayerRotationFromViewVector } from "../../character/functions/updatePlayerRotationFromViewVector";
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -38,7 +39,7 @@ export const startXR = async (): Promise<void> => {
     const headGroup = new Group();
     headGroup.add(Engine.camera);
 
-    removeComponent(Network.instance.localClientEntity, FollowCameraComponent)
+    removeComponent(Network.instance.localClientEntity, FollowCameraComponent);
 
     addComponent(Network.instance.localClientEntity, XRInputSourceComponent, {
       head,

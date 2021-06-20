@@ -21,6 +21,8 @@ import { sendState } from '../../game/functions/functionsState';
 import { getGameFromName } from '../../game/functions/functions';
 import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent';
 import { BaseInput } from '../../input/enums/BaseInput';
+import { Quaternion } from 'three';
+import { identity } from 'lodash';
 
 
 export function cancelAllInputs(entity) {
@@ -28,6 +30,8 @@ export function cancelAllInputs(entity) {
     value.lifecycleState = LifecycleValue.ENDED;
   })
 }
+
+const q = new Quaternion()
 
 /** System class to handle incoming messages. */
 export class ServerNetworkIncomingSystem extends System {

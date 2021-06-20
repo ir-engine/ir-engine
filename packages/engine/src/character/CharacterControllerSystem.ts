@@ -1,6 +1,5 @@
-import { Color, ConeBufferGeometry, Group, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from "three";
+import { Quaternion, Vector3 } from "three";
 import { ControllerHitEvent, RaycastQuery, SceneQueryType } from "three-physx";
-import { applyVectorMatrixXZ } from "../common/functions/applyVectorMatrixXZ";
 import { isClient } from "../common/functions/isClient";
 import { EngineEvents } from "../ecs/classes/EngineEvents";
 import { System, SystemAttributes } from "../ecs/classes/System";
@@ -17,15 +16,15 @@ import { TransformComponent } from "../transform/components/TransformComponent";
 import { AnimationComponent } from "./components/AnimationComponent";
 import { CharacterComponent } from "./components/CharacterComponent";
 import { updateVectorAnimation } from "./functions/updateVectorAnimation";
-import { loadActorAvatar, teleportPlayer } from "./prefabs/NetworkPlayerCharacter";
+import { loadActorAvatar } from "./prefabs/NetworkPlayerCharacter";
 import { Engine } from "../ecs/classes/Engine";
 import { XRInputSourceComponent } from "./components/XRInputSourceComponent";
-import { Avatar } from "../xr/classes/IKAvatar";
 import { Network } from "../networking/classes/Network";
 import { detectUserInPortal } from "./functions/detectUserInPortal";
 import { ServerSpawnSystem } from "../scene/systems/ServerSpawnSystem";
 import { sendClientObjectUpdate } from "../networking/functions/sendClientObjectUpdate";
 import { NetworkObjectUpdateType } from "../networking/templates/NetworkObjectUpdateSchema";
+import { updatePlayerRotationFromViewVector } from "./functions/updatePlayerRotationFromViewVector";
 
 const forwardVector = new Vector3(0, 0, 1);
 const prevControllerColliderPosition = new Vector3();
@@ -161,12 +160,7 @@ export class CharacterControllerSystem extends System {
     // PhysicsMove Characters On Server
     // its beacose we need physicsMove on server and for localCharacter, not for all character
     this.queryResults.characterOnServer.all?.forEach((entity) => {
-      const actor = getComponent<CharacterComponent>(entity, CharacterComponent);
-      const transform = getMutableComponent(entity, TransformComponent);
-      // update rotationg for physics moving
-      vector3.copy(actor.viewVector).setY(0).normalize();
-      actor.orientation.copy(applyVectorMatrixXZ(vector3, forwardVector))
-      transform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
+      updatePlayerRotationFromViewVector(entity);
       characterMoveBehavior(entity, delta);
     })
 
@@ -182,6 +176,11 @@ export class CharacterControllerSystem extends System {
 
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent);
       const actor = getMutableComponent(entity, CharacterComponent);
+
+      // reset view vector since we have different rotation mechanisms now
+      // TODO: figure out how keep the current rotation
+      actor.viewVector.set(0, 0, 1);
+      updatePlayerRotationFromViewVector(entity);
 
       // we handle the head different for local clients because it holds the camera
       if(entity !== Network.instance.localClientEntity) {
@@ -230,8 +229,10 @@ export class CharacterControllerSystem extends System {
 
     this.queryResults.ikAvatar.all?.forEach((entity) => {
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent);
-      if(Engine.camera) console.log('head', Engine.camera.quaternion)
-      console.log('world', xrInputSourceComponent.head.getWorldQuaternion(new Quaternion()))
+      const actor = getMutableComponent(entity, CharacterComponent);
+      console.log('actor', actor.tiltContainer.quaternion, actor.tiltContainer.getWorldQuaternion(quat))
+      console.log('headGroup', xrInputSourceComponent.headGroup.quaternion, xrInputSourceComponent.headGroup.getWorldQuaternion(quat))
+      console.log('head', xrInputSourceComponent.head.quaternion, xrInputSourceComponent.head.getWorldQuaternion(quat), )
     })
   }
 }

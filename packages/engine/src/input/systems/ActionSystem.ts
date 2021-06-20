@@ -103,8 +103,8 @@ export class ActionSystem extends System {
       actor.tiltContainer.getWorldPosition(vec);
       vec1.sub(vec);
       // we need to get the true local rotation of the head relative to the avatar
-      actor.tiltContainer.getWorldQuaternion(quat);
-      Engine.camera.getWorldQuaternion(quat1).invert().multiply(quat);
+      // actor.tiltContainer.getWorldQuaternion(quat).invert();
+      Engine.camera.getWorldQuaternion(quat1)//.multiply(quat);
       // quat1.copy(xrInputSourceComponent.head.quaternion).premultiply(quat);
       input.data.set(BaseInput.XR_HEAD, {
         type: InputType.SIXDOF,
