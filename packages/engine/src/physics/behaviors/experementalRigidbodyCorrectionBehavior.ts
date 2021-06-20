@@ -95,7 +95,7 @@ export const experementalRigidbodyCorrectionBehavior: Behavior = (entity: Entity
 
   if (Math.abs(offsetY) >= level0) {
     if (Math.abs(offsetY) < level5) {
-      offsetY = offsetY ;
+      //offsetY = offsetY ;
         localInterpolation.correctionStart ? localInterpolation.positionDiff.setY(0) : localInterpolation.positionDiff.setY(localInterpolation.positionDiff.y - offsetY);
       
     } else {
