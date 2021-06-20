@@ -33,8 +33,8 @@ export const startXR = async (): Promise<void> => {
     const controllerGripRight = Engine.xrRenderer.getControllerGrip(0);
     const controllerGroup = new Group();
 
-    const head = Engine.xrRenderer.getCamera(Engine.camera) as any;
     Engine.scene.remove(Engine.camera);
+    const head = Engine.xrRenderer.getCamera(Engine.camera) as any;
     const headGroup = new Group();
     headGroup.add(Engine.camera);
 
@@ -49,8 +49,6 @@ export const startXR = async (): Promise<void> => {
       controllerGripLeft,
       controllerGripRight
     });
-
-    removeComponent(Network.instance.localClientEntity, FollowCameraComponent);
 
     // Add our controller models & pointer lines
     [controllerLeft, controllerRight].forEach((controller) => {

@@ -183,18 +183,14 @@ export class CharacterControllerSystem extends System {
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent);
       const actor = getMutableComponent(entity, CharacterComponent);
 
+      // we handle the head different for local clients because it holds the camera
       if(entity !== Network.instance.localClientEntity) {
-        // we handle the head different for local clients because it holds the camera
-        xrInputSourceComponent.headGroup = new Group()
-        xrInputSourceComponent.controllerGroup = new Group()
-        xrInputSourceComponent.headGroup.add(xrInputSourceComponent.head)
+        actor.tiltContainer.add(xrInputSourceComponent.head)
       }
-      
-      xrInputSourceComponent.controllerGroup.applyQuaternion(rotate180onY);
+
+      xrInputSourceComponent.headGroup.position.setY(-actor.actorHalfHeight);
       xrInputSourceComponent.headGroup.applyQuaternion(rotate180onY);
 
-      xrInputSourceComponent.controllerGroup.position.setY(-actor.actorHalfHeight);
-      xrInputSourceComponent.headGroup.position.setY(-actor.actorHalfHeight);
 
       xrInputSourceComponent.controllerGroup.add(
         xrInputSourceComponent.controllerLeft, 
@@ -203,15 +199,19 @@ export class CharacterControllerSystem extends System {
         xrInputSourceComponent.controllerGripRight
       );
 
-      actor.tiltContainer.add(xrInputSourceComponent.controllerGroup, xrInputSourceComponent.headGroup);
+      xrInputSourceComponent.headGroup.add(xrInputSourceComponent.controllerGroup);
 
-      if(entity === Network.instance.localClientEntity)
-      // TODO: Temporarily make rig invisible until rig is fixed
-      actor?.modelContainer.children[0]?.traverse((child) => {
-        if(child.visible) {
-          child.visible = false;
-        }
-      })
+      actor.tiltContainer.add(xrInputSourceComponent.headGroup);
+
+      if(entity === Network.instance.localClientEntity) {
+
+        // TODO: Temporarily make rig invisible until rig is fixed
+        actor?.modelContainer.children[0]?.traverse((child) => {
+          if(child.visible) {
+            child.visible = false;
+          }
+        })
+      }
     })
 
     this.queryResults.ikAvatar.removed?.forEach((entity) => {
@@ -228,7 +228,11 @@ export class CharacterControllerSystem extends System {
       })
     })
 
-    // this.queryResults.ikAvatar.all?.forEach((entity) => {})
+    this.queryResults.ikAvatar.all?.forEach((entity) => {
+      const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent);
+      if(Engine.camera) console.log('head', Engine.camera.quaternion)
+      console.log('world', xrInputSourceComponent.head.getWorldQuaternion(new Quaternion()))
+    })
   }
 }
 

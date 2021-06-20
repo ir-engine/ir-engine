@@ -27,7 +27,9 @@ import { Engine } from "../../ecs/classes/Engine";
 const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
 
 const quat = new Quaternion();
-const vec3 = new Vector3();
+const quat1 = new Quaternion();
+const vec = new Vector3();
+const vec1 = new Vector3();
 
 let faceToInput, lipToInput;
 
@@ -95,12 +97,29 @@ export class ActionSystem extends System {
     this.queryResults.localClientInputXR.all?.forEach(entity => {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
       const input = getMutableComponent(entity, Input);
+      const actor = getComponent(entity, CharacterComponent);
+      // threejs messes up the local position of the camera to render the VR scene, so we have to take the world position and subtract the parent world position
+      xrInputSourceComponent.head.getWorldPosition(vec1);
+      actor.tiltContainer.getWorldPosition(vec);
+      vec1.sub(vec);
+      // we need to get the true local rotation of the head relative to the avatar
+      actor.tiltContainer.getWorldQuaternion(quat);
+      Engine.camera.getWorldQuaternion(quat1).invert().multiply(quat);
+      // quat1.copy(xrInputSourceComponent.head.quaternion).premultiply(quat);
       input.data.set(BaseInput.XR_HEAD, {
         type: InputType.SIXDOF,
         value: {
-          x: Engine.camera.position.x,
-          y: Engine.camera.position.y,
-          z: Engine.camera.position.z,
+          x: vec1.x,
+          y: vec1.y,
+          z: vec1.z,
+          // qW: xrInputSourceComponent.head.quaternion.w,
+          // qX: xrInputSourceComponent.head.quaternion.x,
+          // qY: xrInputSourceComponent.head.quaternion.y,
+          // qZ: xrInputSourceComponent.head.quaternion.z,
+          // qW: quat1.w,
+          // qX: quat1.x,
+          // qY: quat1.y,
+          // qZ: quat1.z,
           qW: Engine.camera.quaternion.w,
           qX: Engine.camera.quaternion.x,
           qY: Engine.camera.quaternion.y,
@@ -134,8 +153,7 @@ export class ActionSystem extends System {
         },
         lifecycleState: LifecycleValue.CHANGED
       })
-      const actor = getComponent(entity, CharacterComponent);
-      actor.viewVector.copy(vec3.set(0, 0, -1)).applyQuaternion(xrInputSourceComponent.headGroup.quaternion)
+      actor.viewVector.copy(vec.set(0, 0, -1)).applyQuaternion(xrInputSourceComponent.headGroup.quaternion)
     });
 
     this.queryResults.localClientInput.all?.forEach(entity => {

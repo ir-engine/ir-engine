@@ -1,6 +1,6 @@
 import { System, SystemAttributes } from "../../ecs/classes/System";
 import { CharacterComponent } from "../../character/components/CharacterComponent";
-import { ArrowHelper, Box3, Box3Helper, BoxHelper, Color, ConeBufferGeometry, Mesh, MeshBasicMaterial, Object3D, Vector3 } from "three";
+import { ArrowHelper, Box3, Box3Helper, BoxHelper, Color, ConeBufferGeometry, Mesh, MeshBasicMaterial, Object3D, Quaternion, Vector3 } from "three";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
 import { Engine } from "../../ecs/classes/Engine";
 import { Entity } from "../../ecs/classes/Entity";
@@ -15,6 +15,9 @@ import { DebugRenderer } from "./DebugRenderer";
 import { XRInputSourceComponent } from "../../character/components/XRInputSourceComponent";
 
 type ComponentHelpers = 'viewVector' |'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box';
+
+const vector3 = new Vector3()
+const quat = new Quaternion()
 
 export class DebugHelpersSystem extends System {
   private helpersByEntity: Record<ComponentHelpers, Map<Entity, any>>;
@@ -115,42 +118,20 @@ export class DebugHelpersSystem extends System {
       const arrowHelper = this.helpersByEntity.viewVector.get(entity) as ArrowHelper;
 
       if (arrowHelper != null) {
-        arrowHelper.setDirection(actor.viewVector.clone().setY(0).normalize());
+        arrowHelper.setDirection(vector3.copy(actor.viewVector).setY(0).normalize());
         arrowHelper.position.copy(transform.position);
       }
 
       // velocity
       const velocityArrowHelper = this.helpersByEntity.velocityArrow.get(entity) as ArrowHelper;
       if (velocityArrowHelper != null) {
-        velocityArrowHelper.setDirection(actor.velocity.clone().normalize());
+        velocityArrowHelper.setDirection(vector3.copy(actor.velocity).normalize());
         velocityArrowHelper.setLength(actor.velocity.length() * 60);
         velocityArrowHelper.position.copy(transform.position);
       }
     });
 
-    this.queryResults.colliderComponent.added?.forEach(entity => {
-      const collider = getComponent(entity, ColliderComponent);
-
-      // view vector
-      const origin = new Vector3( 0, 2, 0 );
-      const length = 0.5;
-      const hex = 0xffff00;
-      if(!collider || !collider.body) return console.warn ("collider.body is null")
-      const arrowHelper = new ArrowHelper( collider.body.transform.translation.clone().normalize(), origin, length, hex );
-      arrowHelper.visible = this.avatarDebugEnabled;
-      Engine.scene.add( arrowHelper );
-      this.helpersByEntity.viewVector.set(entity, arrowHelper);
-
-      // velocity
-      const velocityColor = 0x0000ff;
-      const velocityArrowHelper = new ArrowHelper( new Vector3(), new Vector3( 0, 0, 0 ), 0.5, velocityColor );
-      velocityArrowHelper.visible = this.avatarDebugEnabled;
-      Engine.scene.add( velocityArrowHelper );
-      this.helpersByEntity.velocityArrow.set(entity, velocityArrowHelper);
-    });
-
     this.queryResults.ikAvatar.added?.forEach((entity) => {
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
       const cubeGeometry = new ConeBufferGeometry(0.05, 0.2, 3)
       cubeGeometry.rotateX(-Math.PI * 0.5)
       const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red') }))
@@ -162,13 +143,25 @@ export class DebugHelpersSystem extends System {
       Engine.scene.add(debugHead)
       Engine.scene.add(debugLeft)
       Engine.scene.add(debugRight)
-      this.helpersByEntity.helperArrow.set(entity, [debugHead, debugLeft, debugRight]);
+      this.helpersByEntity.ikExtents.set(entity, [debugHead, debugLeft, debugRight]);
+    })
+
+    this.queryResults.ikAvatar.all?.forEach((entity) => {
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
+      const [debugHead, debugLeft, debugRight] = this.helpersByEntity.ikExtents.get(entity) as Object3D[];
+      debugHead.position.copy(xrInputSourceComponent.head.getWorldPosition(vector3))
+      debugHead.quaternion.copy(xrInputSourceComponent.head.getWorldQuaternion(quat))
+      debugLeft.position.copy(xrInputSourceComponent.controllerLeft.getWorldPosition(vector3))
+      debugLeft.quaternion.copy(xrInputSourceComponent.controllerLeft.getWorldQuaternion(quat))
+      debugRight.position.copy(xrInputSourceComponent.controllerRight.getWorldPosition(vector3))
+      debugRight.quaternion.copy(xrInputSourceComponent.controllerRight.getWorldQuaternion(quat))
     })
 
     this.queryResults.ikAvatar.removed?.forEach((entity) => {
-      (this.helpersByEntity.helperArrow.get(entity) as Object3D[]).forEach((obj: Object3D) => {
+      (this.helpersByEntity.ikExtents.get(entity) as Object3D[]).forEach((obj: Object3D) => {
         obj.parent.removeFromParent();
       })
+      this.helpersByEntity.ikExtents.delete(entity);
     })
 
     // ===== COLLIDERS ===== //
@@ -183,6 +176,27 @@ export class DebugHelpersSystem extends System {
       const velocityArrowHelper = this.helpersByEntity.velocityArrow.get(entity) as Object3D;
       Engine.scene.remove( velocityArrowHelper );
       this.helpersByEntity.velocityArrow.delete(entity);
+    });
+
+    this.queryResults.colliderComponent.added?.forEach(entity => {
+      const collider = getComponent(entity, ColliderComponent);
+
+      // view vector
+      const origin = new Vector3( 0, 2, 0 );
+      const length = 0.5;
+      const hex = 0xffff00;
+      if(!collider || !collider.body) return console.warn ("collider.body is null")
+      const arrowHelper = new ArrowHelper(vector3.copy(collider.body.transform.translation).normalize(), origin, length, hex );
+      arrowHelper.visible = this.avatarDebugEnabled;
+      Engine.scene.add( arrowHelper );
+      this.helpersByEntity.viewVector.set(entity, arrowHelper);
+
+      // velocity
+      const velocityColor = 0x0000ff;
+      const velocityArrowHelper = new ArrowHelper( new Vector3(), new Vector3( 0, 0, 0 ), 0.5, velocityColor );
+      velocityArrowHelper.visible = this.avatarDebugEnabled;
+      Engine.scene.add( velocityArrowHelper );
+      this.helpersByEntity.velocityArrow.set(entity, velocityArrowHelper);
     });
 
     this.queryResults.colliderComponent.all?.forEach(entity => {
