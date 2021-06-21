@@ -11,7 +11,7 @@ import { NetworkObject } from "../../networking/components/NetworkObject";
 import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
-import { IKComponent } from '../../character/components/IKComponent';
+import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent';
 import { InputType } from "../enums/InputType";
 import { InputValue } from "../interfaces/InputValue";
 import { InputAlias } from "../types/InputAlias";
@@ -27,7 +27,9 @@ import { Engine } from "../../ecs/classes/Engine";
 const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
 
 const quat = new Quaternion();
-const vec3 = new Vector3();
+const quat1 = new Quaternion();
+const vec = new Vector3();
+const vec1 = new Vector3();
 
 let faceToInput, lipToInput;
 
@@ -93,14 +95,31 @@ export class ActionSystem extends System {
 
     // Handle client input from threejs manager
     this.queryResults.localClientInputXR.all?.forEach(entity => {
-      const xrControllers = getComponent(entity, IKComponent);
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
       const input = getMutableComponent(entity, Input);
+      const actor = getComponent(entity, CharacterComponent);
+      // threejs messes up the local position of the camera to render the VR scene, so we have to take the world position and subtract the parent world position
+      xrInputSourceComponent.head.getWorldPosition(vec1);
+      actor.tiltContainer.getWorldPosition(vec);
+      vec1.sub(vec);
+      // we need to get the true local rotation of the head relative to the avatar
+      // actor.tiltContainer.getWorldQuaternion(quat).invert();
+      Engine.camera.getWorldQuaternion(quat1)//.multiply(quat);
+      // quat1.copy(xrInputSourceComponent.head.quaternion).premultiply(quat);
       input.data.set(BaseInput.XR_HEAD, {
         type: InputType.SIXDOF,
         value: {
-          x: Engine.camera.position.x,
-          y: Engine.camera.position.y,
-          z: Engine.camera.position.z,
+          x: vec1.x,
+          y: vec1.y,
+          z: vec1.z,
+          // qW: xrInputSourceComponent.head.quaternion.w,
+          // qX: xrInputSourceComponent.head.quaternion.x,
+          // qY: xrInputSourceComponent.head.quaternion.y,
+          // qZ: xrInputSourceComponent.head.quaternion.z,
+          // qW: quat1.w,
+          // qX: quat1.x,
+          // qY: quat1.y,
+          // qZ: quat1.z,
           qW: Engine.camera.quaternion.w,
           qX: Engine.camera.quaternion.x,
           qY: Engine.camera.quaternion.y,
@@ -111,29 +130,30 @@ export class ActionSystem extends System {
       input.data.set(BaseInput.XR_LEFT_HAND, {
         type: InputType.SIXDOF,
         value: {
-          x: xrControllers.controllerLeft.position.x,
-          y: xrControllers.controllerLeft.position.y,
-          z: xrControllers.controllerLeft.position.z,
-          qW: xrControllers.controllerLeft.quaternion.w,
-          qX: xrControllers.controllerLeft.quaternion.x,
-          qY: xrControllers.controllerLeft.quaternion.y,
-          qZ: xrControllers.controllerLeft.quaternion.z,
+          x: xrInputSourceComponent.controllerLeft.position.x,
+          y: xrInputSourceComponent.controllerLeft.position.y,
+          z: xrInputSourceComponent.controllerLeft.position.z,
+          qW: xrInputSourceComponent.controllerLeft.quaternion.w,
+          qX: xrInputSourceComponent.controllerLeft.quaternion.x,
+          qY: xrInputSourceComponent.controllerLeft.quaternion.y,
+          qZ: xrInputSourceComponent.controllerLeft.quaternion.z,
         },
         lifecycleState: LifecycleValue.CHANGED
       })
       input.data.set(BaseInput.XR_RIGHT_HAND, {
         type: InputType.SIXDOF,
         value: {
-          x: xrControllers.controllerRight.position.x,
-          y: xrControllers.controllerRight.position.y,
-          z: xrControllers.controllerRight.position.z,
-          qW: xrControllers.controllerRight.quaternion.w,
-          qX: xrControllers.controllerRight.quaternion.x,
-          qY: xrControllers.controllerRight.quaternion.y,
-          qZ: xrControllers.controllerRight.quaternion.z,
+          x: xrInputSourceComponent.controllerRight.position.x,
+          y: xrInputSourceComponent.controllerRight.position.y,
+          z: xrInputSourceComponent.controllerRight.position.z,
+          qW: xrInputSourceComponent.controllerRight.quaternion.w,
+          qX: xrInputSourceComponent.controllerRight.quaternion.x,
+          qY: xrInputSourceComponent.controllerRight.quaternion.y,
+          qZ: xrInputSourceComponent.controllerRight.quaternion.z,
         },
         lifecycleState: LifecycleValue.CHANGED
       })
+      actor.viewVector.copy(vec.set(0, 0, -1)).applyQuaternion(xrInputSourceComponent.headGroup.quaternion)
     });
 
     this.queryResults.localClientInput.all?.forEach(entity => {
@@ -369,7 +389,7 @@ ActionSystem.queries = {
     }
   },
   localClientInputXR: {
-    components: [Input, LocalInputReceiver, IKComponent], 
+    components: [Input, LocalInputReceiver, XRInputSourceComponent], 
     listen: {
       added: true,
       removed: true

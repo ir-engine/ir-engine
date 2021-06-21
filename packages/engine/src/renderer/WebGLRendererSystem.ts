@@ -34,7 +34,6 @@ import { EngineEvents } from '../ecs/classes/EngineEvents';
 import { System, SystemAttributes } from '../ecs/classes/System';
 import { defaultPostProcessingSchema, effectType } from '../scene/classes/PostProcessing';
 import { PostProcessingSchema } from './interfaces/PostProcessingSchema';
-import { WebXRManager } from '../xr/WebXRManager.js'
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType';
 import WebGL from "./THREE.WebGL";
 import { FXAAEffect } from './effects/FXAAEffect';
@@ -150,8 +149,8 @@ export class WebGLRendererSystem extends System {
     const options = {
       canvas,
       context,
-      antialias: true,
-      preserveDrawingBuffer: true
+      antialias: false,
+      preserveDrawingBuffer: false
     };
 
     const renderer = this.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options);
@@ -163,7 +162,7 @@ export class WebGLRendererSystem extends System {
     renderer.toneMappingExposure = 0.8;
     Engine.renderer = renderer;
     Engine.viewportElement = renderer.domElement;
-    Engine.xrRenderer = new WebXRManager(renderer, context);
+    Engine.xrRenderer = renderer.xr;//new WebXRManager(renderer, context);
     Engine.xrRenderer.enabled = Engine.xrSupported;
 
     // Cascaded shadow maps
@@ -298,14 +297,8 @@ export class WebGLRendererSystem extends System {
 
     if (Engine.xrRenderer.isPresenting) {
 
-      // this.csm.update();
-
-      // override default threejs behavior, use our own WebXRManager
-      // we still need to apply the WebXR camera array
-
-      Engine.xrRenderer.updateCamera(Engine.camera);
-      const camera = Engine.xrRenderer.getCamera();
-      Engine.renderer.render(Engine.scene, camera);
+      this.csm.update();
+      Engine.renderer.render(Engine.scene, Engine.camera);
 
     } else {
 

@@ -42,6 +42,8 @@ type ColliderData = {
   type: ColliderTypes;
   bodytype?: BodyType;
   isTrigger?: boolean;
+  staticFriction?: number;
+  dynamicFriction?: number;
   restitution?: number;
   action?: any;
   link?: any;
@@ -115,7 +117,11 @@ export function addColliderWithoutEntity(userData: ColliderData, pos = new Vecto
       break;
   }
 
-  shapeArgs.config.material = { restitution: userData.restitution ?? 0 };
+  shapeArgs.config.material = {
+    staticFriction: userData.staticFriction ?? 0.1,
+    dynamicFriction: userData.dynamicFriction ?? 0.1,
+    restitution: userData.restitution ?? 0.1,
+   };
 
   shapeArgs.config.collisionLayer = Number(model.collisionLayer ?? CollisionGroups.Default);
   switch (model.collisionMask) {

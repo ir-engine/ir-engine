@@ -53,6 +53,7 @@ export const applyStateToClient = (stateMessage: GameStateUpdateMessage): void =
   const game = getMutableComponent(entity, Game)
   game.state = stateMessage.state;
   console.warn('applyStateToClient', game.state);
+  console.warn('Game Objects Entity', game.gameObjects);
   applyState(game);
 };
 

@@ -1,16 +1,10 @@
 import { Vector3, Matrix4, Quaternion } from 'three';
-
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-
-import { Input } from '../../input/components/Input';
-import { BaseInput } from '../../input/enums/BaseInput';
-
 import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { isInXR } from '../../xr/functions/WebXRFunctions';
-import { SIXDOFType } from '../../common/types/NumericalTypes';
+import { XRInputSourceComponent } from '../components/XRInputSourceComponent';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -42,17 +36,15 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
     actor.velocity.copy(actor.velocitySimulator.position);
     newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed * actor.speedMultiplier);
 
-    if(isInXR(entity)) {
+    const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
+    if(xrInputSourceComponent) {
       // Apply direction from head look
-      const input = getComponent<Input>(entity, Input as any);
-      const headTransform = input.data.get(BaseInput.XR_HEAD);
-      if(!headTransform?.value) return
-      const sixdof = headTransform.value as SIXDOFType;
-      quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW);
+      xrInputSourceComponent.head.getWorldQuaternion(quat);
+      // console.log(xrInputSourceComponent.head.getWorldPosition(new Vector3()), quat);
       newVelocity.applyQuaternion(quat);
     } else {
       // Apply direction from character orientation
-      newVelocity.applyQuaternion(transform.rotation)
+      newVelocity.applyQuaternion(transform.rotation);
     }
 
     if (actor.closestHit) {

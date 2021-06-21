@@ -4,9 +4,6 @@ export interface StateSchemaValue {
     component?: any;
     blockedBy?: StateAlias;
     overrides?: StateAlias;
-    canFindVehiclesToEnter?: boolean;
-    canEnterVehicles?: boolean;
-    canLeaveVehicles?: boolean;
     componentProperties?: {
       component: any;
       properties: {
