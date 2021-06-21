@@ -37,7 +37,7 @@ import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkO
 import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem';
 import { SceneObjectSystem } from '@xrengine/engine/src/scene/systems/SceneObjectSystem';
 import { ActiveSystems } from './ecs/classes/System';
-import { FontManager } from './ui/FontManager';
+import { FontManager } from './ui/classes/FontManager';
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {

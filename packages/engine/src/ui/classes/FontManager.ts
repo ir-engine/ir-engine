@@ -1,5 +1,5 @@
 import { Font, FontLoader } from "three";
-import { Engine } from "../ecs/classes/Engine";
+import { Engine } from "../../ecs/classes/Engine";
 
 export class FontManager {
 	static instance: FontManager;

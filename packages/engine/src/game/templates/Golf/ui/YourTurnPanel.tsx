@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 import { Network } from '../../../../networking/classes/Network'
 import { getHand } from '../../../../xr/functions/WebXRFunctions'
-import { createUI } from '../../../../ui/UIComponent'
+import { createUI } from '../../../../ui/functions/createUI'
 import { addComponent } from '../../../../ecs/functions/EntityFunctions'
 import { TransformChildComponent } from '../../../../transform/components/TransformChildComponent'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
@@ -22,10 +22,10 @@ export const YourTurnPanel = () => {
     return <Panel>Your turn!</Panel>
 }
 
-export function createYourTurnPanel() {
+export async function createYourTurnPanel() {
     const localClient = Network.instance.localClientEntity
     const hand = getHand(localClient)
-    const uiEntity = createUI(YourTurnPanel)
+    const uiEntity = await createUI(YourTurnPanel)
     addComponent(uiEntity, TransformComponent)
     addComponent(uiEntity, TransformChildComponent, {parent:hand})
 }
