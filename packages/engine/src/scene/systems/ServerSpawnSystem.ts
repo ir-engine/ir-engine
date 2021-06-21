@@ -6,6 +6,12 @@ import SpawnPointComponent from "../components/SpawnPointComponent";
 import { Quaternion, Vector3 } from "three";
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 
+const randomPosition = () => {
+  return {
+    position: new Vector3(Math.random() * 10 - 5, 0, Math.random() * 10 - 5),
+    rotation: new Quaternion()
+  };
+}
 
 export class ServerSpawnSystem extends System {
   spawnPoints: Entity[] = []
@@ -23,16 +29,17 @@ export class ServerSpawnSystem extends System {
   getRandomSpawnPoint(): { position: Vector3, rotation: Quaternion } {
     if (this.spawnPoints.length < 1) {
       console.warn("Couldn't spawn entity at spawn point, no spawn points available");
-      return {
-        position: new Vector3(Math.random() * 10 - 5, 0, Math.random() * 10 - 5),
-        rotation: new Quaternion()
-      };
+      return randomPosition();
     }
 
     // Get new spawn point (round robin)
     this.lastSpawnIndex = (this.lastSpawnIndex + 1) % this.spawnPoints.length;
 
     const spawnTransform = getComponent(this.spawnPoints[this.lastSpawnIndex], TransformComponent);
+    if(!spawnTransform) {
+      return randomPosition();
+    }
+    
     return {
       position: spawnTransform.position.clone().add(new Vector3(Math.random() * 10 - 5, 0, Math.random() * 10 - 5)),
       rotation: spawnTransform.rotation.clone(),

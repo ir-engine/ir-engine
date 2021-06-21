@@ -230,9 +230,9 @@ export class CharacterControllerSystem extends System {
     this.queryResults.ikAvatar.all?.forEach((entity) => {
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent);
       const actor = getMutableComponent(entity, CharacterComponent);
-      console.log('actor', actor.tiltContainer.quaternion, actor.tiltContainer.getWorldQuaternion(quat))
-      console.log('headGroup', xrInputSourceComponent.headGroup.quaternion, xrInputSourceComponent.headGroup.getWorldQuaternion(quat))
-      console.log('head', xrInputSourceComponent.head.quaternion, xrInputSourceComponent.head.getWorldQuaternion(quat), )
+      // console.log('actor', actor.tiltContainer.quaternion, actor.tiltContainer.getWorldQuaternion(quat))
+      // console.log('headGroup', xrInputSourceComponent.headGroup.quaternion, xrInputSourceComponent.headGroup.getWorldQuaternion(quat))
+      // console.log('head', xrInputSourceComponent.head.quaternion, xrInputSourceComponent.head.getWorldQuaternion(quat), )
     })
   }
 }
