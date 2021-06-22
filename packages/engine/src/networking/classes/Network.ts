@@ -4,7 +4,7 @@ import { Entity } from '../../ecs/classes/Entity';
 import { NetworkObjectList } from '../interfaces/NetworkObjectList';
 import { NetworkSchema } from '../interfaces/NetworkSchema';
 import { NetworkTransport } from '../interfaces/NetworkTransport';
-import { NetworkClientInputInterface, WorldStateInterface } from "../interfaces/WorldState";
+import { AvatarProps, NetworkClientInputInterface, WorldStateInterface } from "../interfaces/WorldState";
 import { Snapshot } from "../types/SnapshotDataTypes";
 import SocketIO from "socket.io";
 import { ClientGameActionMessage } from '../../game/types/GameMessage';
@@ -28,7 +28,7 @@ export interface NetworkClientList {
     channelRecvTransport?: any;
     dataConsumers?: Map<string, any>; // Key => id of data producer
     dataProducers?: Map<string, any>; // Key => label of data channel}
-    avatarDetail?: any;
+    avatarDetail?: AvatarProps;
     networkId?: any; // to easily retrieve the network object correspending to this client
   };
 }

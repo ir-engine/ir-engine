@@ -1,12 +1,13 @@
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine';
 import { CharacterInputSchema } from '@xrengine/engine/src/character/CharacterInputSchema';
 import React, { useEffect } from 'react';
+import { InitializeOptions } from '../../../engine/src/initializationOptions';
 
 const LocationPage = () => {
   useEffect(() => {
 
 
-    const InitializationOptions = {
+    const initializationOptions: InitializeOptions = {
       publicPath: '',
       input: {
         schema: CharacterInputSchema,
@@ -20,7 +21,7 @@ const LocationPage = () => {
       }
     };
 
-    initializeEngine(InitializationOptions);
+    initializeEngine(initializationOptions);
   }, []);
 
   return (

@@ -32,7 +32,7 @@ const vec3 = new Vector3();
 
 const followCameraBehavior = (entity: Entity) => {
   if(!entity) return;
-  const cameraDesiredTransform: DesiredTransformComponent = getMutableComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) as DesiredTransformComponent; // Camera
+  const cameraDesiredTransform = getMutableComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent); // Camera
 
   if (!cameraDesiredTransform) return;
 
@@ -41,8 +41,8 @@ const followCameraBehavior = (entity: Entity) => {
 
   const followCamera = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent) as FollowCameraComponent;
 
-  cameraDesiredTransform.rotationRate = isMobileOrTablet() || followCamera.mode === CameraModes.FirstPerson ? 5 : 3.5
-  cameraDesiredTransform.positionRate = isMobileOrTablet() || followCamera.mode === CameraModes.FirstPerson ? 3.5 : 2
+  cameraDesiredTransform.rotationRate = isMobileOrTablet() || followCamera.mode === CameraModes.FirstPerson ? 5 : 3.5;
+  cameraDesiredTransform.positionRate = isMobileOrTablet() || followCamera.mode === CameraModes.FirstPerson ? 3.5 : 2;
 
   const inputComponent = getComponent(entity, Input) as Input;
 
@@ -56,7 +56,7 @@ const followCameraBehavior = (entity: Entity) => {
   const inputValue = inputComponent.data.get(inputAxes)?.value ?? [0, 0] as Vector2Type;
 
   if(followCamera.locked && actor) {
-    followCamera.theta = Math.atan2(actor.orientation.x, actor.orientation.z) * 180 / Math.PI + 180
+    followCamera.theta = Math.atan2(actor.orientation.x, actor.orientation.z) * 180 / Math.PI + 180;
   }
 
   followCamera.theta -= inputValue[0] * (isMobileOrTablet() ? 60 : 100);
@@ -84,7 +84,7 @@ const followCameraBehavior = (entity: Entity) => {
   }
 
   // Raycast for camera
-  const cameraTransform: TransformComponent = getMutableComponent(CameraSystem.instance.activeCamera, TransformComponent)
+  const cameraTransform: TransformComponent = getMutableComponent(CameraSystem.instance.activeCamera, TransformComponent);
   const raycastDirection = new Vector3().subVectors(cameraTransform.position, targetPosition).normalize();
   followCamera.raycastQuery.origin.copy(targetPosition);
   followCamera.raycastQuery.direction.copy(raycastDirection);
@@ -112,7 +112,7 @@ const followCameraBehavior = (entity: Entity) => {
   mx.lookAt(direction, empty, upVector);
   cameraDesiredTransform.rotation.setFromRotationMatrix(mx);
   if (actor) {
-    actor.viewVector.copy(vec3.set(0, 0, -1)).applyQuaternion(cameraDesiredTransform.rotation)
+    actor.viewVector.copy(vec3.set(0, 0, -1)).applyQuaternion(cameraDesiredTransform.rotation);
   } else {
     cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
   }
@@ -133,7 +133,17 @@ const followCameraBehavior = (entity: Entity) => {
     actor.orientation.copy(forwardVector).applyQuaternion(actorTransform.rotation);
     actorTransform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
   }
-}
+};
+
+const resetFollowCamera = () => {
+  const transform = getComponent(CameraSystem.instance.activeCamera, TransformComponent);
+  const desiredTransform = getComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent);
+  if(transform && desiredTransform) {
+    followCameraBehavior(getMutableComponent(CameraSystem.instance.activeCamera, CameraComponent).followTarget);
+    transform.position.copy(desiredTransform.position);
+    transform.rotation.copy(desiredTransform.rotation);
+  }
+};
 
 /** System class which provides methods for Camera system. */
 export class CameraSystem extends System {
@@ -160,15 +170,9 @@ export class CameraSystem extends System {
     // If we lose focus on the window, and regain it, copy our desired transform to avoid strange transform behavior and clipping
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.WINDOW_FOCUS, ({ focused }) => {
       if(focused) {
-        const transform = getComponent(cameraEntity, TransformComponent);
-        const desiredTransform = getComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) as DesiredTransformComponent;
-        if(transform && desiredTransform) {
-          followCameraBehavior(getMutableComponent(CameraSystem.instance.activeCamera, CameraComponent).followTarget)
-          transform.position.copy(desiredTransform.position);
-          transform.rotation.copy(desiredTransform.rotation);
-        }
+        resetFollowCamera();
       }
-    })
+    });
   }
 
   /**
@@ -190,9 +194,11 @@ export class CameraSystem extends System {
       }));
       const activeCameraComponent = getMutableComponent(CameraSystem.instance.activeCamera, CameraComponent);
       activeCameraComponent.followTarget = entity;
-      if(hasComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent)) removeComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent)
-      const desiredTransform = addComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) as DesiredTransformComponent;
-      desiredTransform.lockRotationAxis = [false, true, false];
+      if(hasComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent)) {
+        removeComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent);
+      }
+      addComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent, { lockRotationAxis: [false, true, false] });
+      resetFollowCamera();
     });
 
     this.queryResults.followCameraComponent.removed?.forEach(entity => {
@@ -207,7 +213,7 @@ export class CameraSystem extends System {
 
     // follow camera component should only ever be on the character
     this.queryResults.followCameraComponent.all?.forEach(entity => {
-      followCameraBehavior(entity)
+      followCameraBehavior(entity);
     });
   }
 }

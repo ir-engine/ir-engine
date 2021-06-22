@@ -10,6 +10,7 @@ import { NetworkObject } from "../../networking/components/NetworkObject";
 import { findInterpolationSnapshot } from "../../physics/behaviors/findInterpolationSnapshot";
 import { ControllerColliderComponent } from "../components/ControllerColliderComponent";
 import { SnapshotData } from "../../networking/types/SnapshotDataTypes";
+import { Vector3 } from "three";
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -39,7 +40,6 @@ export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots:
   const currentSnapshot = findInterpolationSnapshot(entity, Network.instance.snapshot);
 
   if (correction == null || currentSnapshot == null || Network.instance.snapshot.timeCorrection === 0) return;
-
 
   const offsetX = correction.x - currentSnapshot.x;
   const offsetY = correction.y - currentSnapshot.y;

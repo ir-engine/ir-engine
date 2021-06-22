@@ -34,8 +34,11 @@ export type InitializeOptions = {
     [key: string]: GameMode
   },
   publicPath?: string,
-  physicsWorldConfig?: PhysXConfig,
-  physxWorker?: any,
+  physics?: {
+    simulationEnabled?: boolean,
+    physicsWorldConfig?: PhysXConfig,
+    physxWorker?: any,
+  }
 };
 
 /**
@@ -61,13 +64,16 @@ export const DefaultInitializationOptions: InitializeOptions = {
   },
   gameMode: DefaultGameMode,
   supportedGameModes: GamesSchema,
-  physicsWorldConfig: {
-    bounceThresholdVelocity: 0.5,
-    tps: 60,
-    start: false,
-    lengthScale: 1,
-    verbose: false,
-    substeps: 1,
-    gravity: { x: 0, y: -9.81, z: 0 },
+  physics: {
+    simulationEnabled: true, // start the engine with the physics simulation running
+    physicsWorldConfig: {
+      bounceThresholdVelocity: 0.5,
+      maximumDelta: 1000 / 20, // limits physics maximum delta so no huge jumps can be made
+      start: false,
+      lengthScale: 1,
+      verbose: false,
+      substeps: 1,
+      gravity: { x: 0, y: -9.81, z: 0 },
+    }
   }
 };

@@ -244,18 +244,20 @@ export class InteractiveSystem extends System {
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);
 
+    this.reset();
+  }
+
+  reset(): void {
+    super.reset();
     this.previousEntity = null;
     this.previousEntity2DPosition = null;
-    this.focused = new Set();
-    this.newFocused = new Set();
+    this.focused = new Set<Entity>();
+    this.newFocused = new Set<Entity>();
   }
 
   dispose(): void {
     super.dispose();
-    this.previousEntity = null;
-    this.previousEntity2DPosition = null;
-    this.focused?.clear();
-    this.newFocused?.clear();
+    this.reset();
 
     EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.USER_HOVER);
     EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.OBJECT_ACTIVATION);

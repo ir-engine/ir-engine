@@ -100,6 +100,7 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import styles from './style.module.scss';
 import WarningRefreshModal from "../AlertModals/WarningRetryModal";
 import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
+import { InitializeOptions } from '../../../../engine/src/initializationOptions';
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
 const mapStateToProps = (state: any): any => {
@@ -752,7 +753,7 @@ const Harmony = (props: Props): any => {
 
     async function init(): Promise<any> {
         if (Network.instance?.isInitialized !== true) {
-            const InitializationOptions = {
+            const initializationOptions: InitializeOptions = {
                 networking: {
                     schema: {
                         transport: SocketWebRTCClientTransport
@@ -763,7 +764,7 @@ const Harmony = (props: Props): any => {
                 },
             };
 
-            await initializeEngine(InitializationOptions);
+            await initializeEngine(initializationOptions);
             if (engineInitialized === false) createEngineListeners();
         }
     }
