@@ -200,6 +200,8 @@ export class ClientNetworkStateSystem extends System {
             Network.instance.networkObjects[objectToCreate.networkId] = Network.instance.networkObjects[Network.instance.localAvatarNetworkId];
             Network.instance.networkObjects[Network.instance.localAvatarNetworkId] = undefined;
             Network.instance.localAvatarNetworkId = objectToCreate.networkId;
+            const newNetworkObjectComponent = Network.instance.networkObjects[objectToCreate.networkId].component;
+            newNetworkObjectComponent.networkId = objectToCreate.networkId;
             console.log('*createObjects* same object but in anotherId ' + objectToCreate.networkId);
             continue;
           } else if (isIdFull) {
@@ -272,7 +274,7 @@ export class ClientNetworkStateSystem extends System {
           // Send a request for the ones that didn't
         }
 
-        Network.instance.tick = transformState.tick
+        Network.instance.tick = transformState.tick;
 
         if (transformState.transforms.length) {
           // do our reverse manipulations back from network
@@ -295,12 +297,10 @@ export class ClientNetworkStateSystem extends System {
               transform.qZ = quat.z;
               transform.qW = quat.w;
             }
-          })
-        }
+          });
 
-        if (transformState.transforms.length) {
           const myPlayerTime = transformState.transforms.find(v => v.networkId == Network.instance.localAvatarNetworkId);
-          const newServerSnapshot = createSnapshot(transformState.transforms)
+          const newServerSnapshot = createSnapshot(transformState.transforms);
           // server correction, time when client send inputs
           newServerSnapshot.timeCorrection = myPlayerTime ? (myPlayerTime.snapShotTime + Network.instance.timeSnaphotCorrection) : 0;
           // interpolation, time when server send transforms

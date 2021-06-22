@@ -43,9 +43,12 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	avatarId: string;
 	thumbnailURL: string;
 	avatarURL: string;
+	actorHeight = 1.8;
+	actorHalfHeight = 1.8 / 2;
 
 	// === MOVEMENT === //
 
+	isGrounded: boolean;
 	isJumping: boolean;
 	walkSpeed = 0.5;
 	runSpeed = 1;
@@ -73,27 +76,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	rotationSimulator: RelativeSpringSimulator;
 	viewVector: Vector3;
 
-	// === PHYSICS === // // TODO: move to CharacterColliderComponent
-	actorMass = 1;
-  // the full height of the character
-	actorHeight = 1.8;
-	actorHalfHeight = 1.8 / 2;
-  // the radius of the main capsule
-	capsuleRadius = 0.25; 
-  // the height of the capsule (from center of each dome of the capsule, ie. not inclusive of thedomes)
-	capsuleHeight = 1.3; 
-	contactOffset = 0.01;
-	capsuleSegments = 16;
-	capsuleFriction = 0.1;
-	capsulePosition: Vector3 = new Vector3(0, 0, 0);
-	// Ray casting
-	raycastQuery: RaycastQuery;
-	isGrounded = false;
-	closestHit = null;
-
 	static _schema = {
-		tiltContainer: { type: Types.Ref, default: null },
-		collisionMask: { type: Types.Number, default: DefaultCollisionMask },
 		avatarId: { type: Types.String, default: null },
 		thumbnailURL: { type: Types.String, default: null },
 		avatarURL: { type: Types.String, default: null },

@@ -91,14 +91,7 @@ const initializeCharacter: Behavior = (entity): void => {
 	console.warn("Initializing character");
 	entity.name = 'Player';
 
-	if (!hasComponent(entity, CharacterComponent as any)) {
-		console.warn("Character does not have a character component, adding");
-		addComponent(entity, CharacterComponent as any);
-	} else {
-		// console.warn("Character already had a character component, not adding, but we should handle")
-	}
-
-	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
+	const actor = getMutableComponent(entity, CharacterComponent);
 	actor.mixer?.stopAllAction();
 
 	// forget that we have any animation playing
@@ -133,46 +126,9 @@ const initializeCharacter: Behavior = (entity): void => {
 
 	actor.viewVector = new Vector3(0, 0, -1);
 
-	const transform = getComponent(entity, TransformComponent);
-
-  addComponent(entity, ControllerColliderComponent, {
-		mass: actor.actorMass,
-		position: transform.position,
-		height: actor.capsuleHeight,
-		radius: actor.capsuleRadius,
-		// contactOffset: actor.contactOffset,
-		segments: actor.capsuleSegments,
-		friction: actor.capsuleFriction,
-  });
-  addColliderToCharacter(entity);
+  addComponent(entity, ControllerColliderComponent);
 
 	initializeMovingState(entity);
-};
-
-export const addColliderToCharacter = (playerEntity: Entity): void => {
-  
-  const playerCollider = getMutableComponent(playerEntity, ControllerColliderComponent);
-	const actor = getComponent(playerEntity, CharacterComponent);
-
-	const transform = getComponent(playerEntity, TransformComponent);
-  
-	playerCollider.controller = PhysicsSystem.instance.createController(new Controller({
-    isCapsule: true,
-    collisionLayer: CollisionGroups.Characters,
-    collisionMask: DefaultCollisionMask,
-    height: actor.capsuleHeight,
-    contactOffset: actor.contactOffset,
-    stepOffset: 0.25,
-    radius: actor.capsuleRadius,
-    position: {
-      x: transform.position.x,
-      y: transform.position.y + actor.actorHalfHeight,
-      z: transform.position.z
-    },
-    material: {
-      dynamicFriction: actor.capsuleFriction,
-    }
-  }));
 };
 
 export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation: Quaternion): void => {
@@ -205,7 +161,7 @@ export function createNetworkPlayer(args: { parameters: { position, rotation }, 
 				},
 				{
 					type: CharacterComponent,
-					data: Network.instance.clients[args.ownerId]?.avatarDetail ?? {},
+					data: { ...(Network.instance.clients[args.ownerId]?.avatarDetail ?? {}) },
 				}
 			],
 			serverComponents: []
@@ -241,7 +197,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
 	// These are only created for the local player who owns this prefab
 	localClientComponents: [
 		{ type: LocalInputReceiver },
-		{ type: FollowCameraComponent, data: { distance: 3, mode: CameraModes.ThirdPerson } },
+		{ type: FollowCameraComponent },
 		{ type: Interactor },
 		{ type: PersistTagComponent }
 	],

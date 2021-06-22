@@ -154,7 +154,7 @@ function processDeferredEntityRemoval () {
     const entity = entitiesToRemove[i];
     const index = Engine.entities.indexOf(entity);
     Engine.entities.splice(index, 1);
-    Engine.entityMap.delete(String(entity.id))
+    Engine.entityMap.delete(String(entity.id));
     entity._pool.release(entity);
   }
   entitiesToRemove.length = 0;
@@ -225,9 +225,6 @@ export function stats (): { entities: any; system: any } {
       queries: {},
       executeTime: system.executeTime
     });
-    for (const name in system.ctx) {
-      systemStats.queries[name] = system.ctx[name].stats();
-    }
   }
 
   return {
@@ -249,10 +246,10 @@ const delay = (delay: number) => {
     setTimeout(() => {
       resolve();
     }, delay);
-  })
-}
+  });
+};
 
-export const processLocationChange = async (newPhysicsWorker: Worker) => {
+export const processLocationChange = async (newPhysicsWorker: Worker): Promise<void> => {
   const entitiesToRemove = [];
   const removedEntities = [];
   const sceneObjectsToRemove = [];
@@ -286,10 +283,14 @@ export const processLocationChange = async (newPhysicsWorker: Worker) => {
 
   executeSystemBeforeReset();
 
-  await resetPhysics(newPhysicsWorker)
-}
+  Engine.systems.forEach((system: System) => {
+    system.reset();
+  });
 
-export const resetPhysics = async (newPhysicsWorker: Worker) => {
+  await resetPhysics(newPhysicsWorker);
+};
+
+export const resetPhysics = async (newPhysicsWorker: Worker): Promise<void> => {
   PhysicsSystem.instance.enabled = false;
   PhysicsSystem.instance.worker.terminate();
   Engine.workers.splice(Engine.workers.indexOf(PhysicsSystem.instance.worker), 1);
@@ -297,4 +298,4 @@ export const resetPhysics = async (newPhysicsWorker: Worker) => {
   PhysXInstance.instance = new PhysXInstance();
   await PhysXInstance.instance.initPhysX(newPhysicsWorker, PhysicsSystem.instance.physicsWorldConfig);
   PhysicsSystem.instance.enabled = true;
-}
+};

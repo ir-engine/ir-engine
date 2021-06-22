@@ -134,6 +134,7 @@ export class WebGLRendererSystem extends System {
 
   forcePostProcessing = false;
   supportWebGL2: boolean = WebGL.isWebGL2Available();
+  rendereringEnabled: boolean;
 
   /** Constructs WebGL Renderer System. */
   constructor(attributes: SystemAttributes = {}) {
@@ -199,9 +200,11 @@ export class WebGLRendererSystem extends System {
       this.setUseAutomatic(ev.payload);
     });
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
-      this.enabled = ev.renderer;
+      if(typeof ev.renderer !== 'undefined') {
+        this.rendereringEnabled = ev.renderer;
+      }
     });
-    //  this.enabled = false;
+    this.rendereringEnabled = attributes.rendereringEnabled ?? true;
   }
 
   async initialize() {
@@ -297,8 +300,10 @@ export class WebGLRendererSystem extends System {
 
     if (Engine.xrRenderer.isPresenting) {
 
-      this.csm.update();
-      Engine.renderer.render(Engine.scene, Engine.camera);
+      if(this.rendereringEnabled) {
+        this.csm.update();
+        Engine.renderer.render(Engine.scene, Engine.camera);
+      }
 
     } else {
 
@@ -323,12 +328,14 @@ export class WebGLRendererSystem extends System {
         this.needsResize = false;
       }
 
-      this.csm.update();
-      if (this.usePostProcessing && this.postProcessingSchema) {
-        this.composer.render(delta);
-      } else {
-        Engine.renderer.autoClear = true;
-        Engine.renderer.render(Engine.scene, Engine.camera);
+      if(this.rendereringEnabled) {
+        this.csm.update();
+        if (this.usePostProcessing && this.postProcessingSchema) {
+          this.composer.render(delta);
+        } else {
+          Engine.renderer.autoClear = true;
+          Engine.renderer.render(Engine.scene, Engine.camera);
+        }
       }
     }
 

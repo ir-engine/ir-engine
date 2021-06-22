@@ -30,7 +30,7 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { processLocationChange, resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
-import { getComponent, getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
+import { addComponent, getComponent, getMutableComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine';
 import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
@@ -54,11 +54,13 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader';
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
 import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal';
-import { addColliderToCharacter, teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
+import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent';
 import RecordingApp from './../Recorder/RecordingApp';
 import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu';
 import { ControllerColliderComponent } from '@xrengine/engine/src/character/components/ControllerColliderComponent';
+import { InitializeOptions } from '@xrengine/engine/src/initializationOptions';
+import { FollowCameraComponent } from '@xrengine/engine/src/camera/components/FollowCameraComponent';
 
 const store = Store.store;
 
@@ -160,6 +162,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   setCurrentScene: bindActionCreators(setCurrentScene, dispatch),
 });
 
+let slugifiedName = null;
+
 export const EnginePage = (props: Props) => {
   const {
     appState,
@@ -260,6 +264,7 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     const currentLocation = locationState.get('currentLocation').get('location');
+    slugifiedName = currentLocation.slugifiedName;
     if (currentLocation.id != null &&
         userBanned != true &&
         instanceConnectionState.get('instanceProvisioned') === false &&
@@ -369,7 +374,7 @@ export const EnginePage = (props: Props) => {
     }
 
     if (!Engine.isInitialized) {
-      const InitializationOptions = {
+      const initializationOptions: InitializeOptions = {
         publicPath: location.origin,
         networking: {
           schema: {
@@ -379,11 +384,13 @@ export const EnginePage = (props: Props) => {
         renderer: {
           canvasId: engineRendererCanvasId
         },
-        useOfflineMode: Config.publicRuntimeConfig.offlineMode,
-        physxWorker: new Worker('/scripts/loadPhysXClassic.js'),
+        physics: {
+          simulationEnabled: false,
+          physxWorker: new Worker('/scripts/loadPhysXClassic.js'),
+        }
       };
 
-      await initializeEngine(InitializationOptions);
+      await initializeEngine(initializationOptions);
 
       document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
       addUIEvents();
@@ -459,12 +466,14 @@ export const EnginePage = (props: Props) => {
   };
 
   const portToLocation = async ({ portalComponent }: { portalComponent: PortalProps }) => {
-    const currentLocation = locationState.get('currentLocation').get('location');
+    // console.log('portToLocation', slugifiedName, portalComponent);
 
-    if (currentLocation.slugifiedName === portalComponent.location) {
+    if (slugifiedName === portalComponent.location) {
       teleportPlayer(Network.instance.localClientEntity, portalComponent.spawnPosition, portalComponent.spawnRotation);
       return;
     }
+
+    Engine.camera.layers.disable(0);
 
     // shut down connection with existing GS
     setPorting(true);
@@ -475,24 +484,33 @@ export const EnginePage = (props: Props) => {
     PhysicsSystem.instance.enabled = false;
     // remove controller since physics world will be destroyed and we don't want it moving
     PhysicsSystem.instance.removeController(getComponent(Network.instance.localClientEntity, ControllerColliderComponent).controller);
+    removeComponent(Network.instance.localClientEntity, ControllerColliderComponent);
+    removeComponent(Network.instance.localClientEntity, FollowCameraComponent);
 
     // change our browser URL
     history.replace('/location/' + portalComponent.location);
-    
-    // teleport player to where the portal is
-    const transform = getComponent(Network.instance.localClientEntity, TransformComponent);
-    transform.position.copy(portalComponent.spawnPosition);
-    transform.rotation.copy(portalComponent.spawnRotation);
     setNewSpawnPos(portalComponent);
     
     await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'));
-    PhysicsSystem.instance.enabled = false;
+    
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false });
+
     getLocationByName(portalComponent.location);
 
     // add back the collider using previous parameters
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
-      addColliderToCharacter(Network.instance.localClientEntity);
-      PhysicsSystem.instance.enabled = false;
+    
+      Engine.camera.layers.enable(0);
+
+      // teleport player to where the portal is
+      const transform = getComponent(Network.instance.localClientEntity, TransformComponent);
+      const actor = getComponent(Network.instance.localClientEntity, CharacterComponent);
+      transform.position.set(portalComponent.spawnPosition.x, portalComponent.spawnPosition.y + actor.actorHalfHeight, portalComponent.spawnPosition.z);
+      transform.rotation.copy(portalComponent.spawnRotation);
+
+      addComponent(Network.instance.localClientEntity, ControllerColliderComponent);
+      addComponent(Network.instance.localClientEntity, FollowCameraComponent);
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: true });
     });
   };
 
