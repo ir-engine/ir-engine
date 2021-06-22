@@ -337,7 +337,7 @@ export const EnginePage = (props: Props) => {
       const newValues = {
         open: true,
         title: 'World disconnected',
-        body: 'You\'ve lost your connection with the world. We\'ll try to reconnect before the following time runs out, otherwise you\'ll be forwarded to a different instance',
+        body: 'You\'ve lost your connection with the world. We\'ll try to reconnect before the following time runs out, otherwise you\'ll be forwarded to a different instance.',
         action: window.location.reload,
         parameters: [],
         timeout: 30000

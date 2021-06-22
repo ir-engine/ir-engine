@@ -15,6 +15,7 @@ interface Data {}
 interface ServiceOptions {}
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
+const pressureThresholdPercent = 0.8;
 
 
 /**
@@ -70,19 +71,23 @@ export class InstanceProvision implements ServiceMethods<Data> {
 
   async getGSInService(availableLocationInstances): Promise<any> {
     const instanceModel = (this.app.service('instance') as any).Model;
-    const instanceUserSort = _.sortBy(availableLocationInstances, (instance: typeof instanceModel) => instance.currentUsers);
+    const instanceUserSort = _.orderBy(availableLocationInstances, ['currentUsers'], ['desc']);
+    const nonPressuredInstances = instanceUserSort.filter((instance: typeof instanceModel) =>  {
+      return instance.currentUsers < pressureThresholdPercent * instance.location.maxUsersPerInstance;
+    });
+    const instances = nonPressuredInstances.length > 0 ? nonPressuredInstances : instanceUserSort;
     if (!config.kubernetes.enabled) {
-      logger.info('Resetting local instance to ' + instanceUserSort[0].id);
+      logger.info('Resetting local instance to ' + instances[0].id);
       return getLocalServerIp();
     }
-    const gsCleanup = await this.gsCleanup(instanceUserSort[0]);
+    const gsCleanup = await this.gsCleanup(instances[0]);
     if (gsCleanup === true)  {
       logger.info('GS did not exist and was cleaned up');
       if (availableLocationInstances.length > 1) return this.getGSInService(availableLocationInstances.slice(1));
       else return this.getFreeGameserver();
     }
     logger.info('GS existed, using it');
-    const ipAddressSplit = instanceUserSort[0].ipAddress.split(':');
+    const ipAddressSplit = instances[0].ipAddress.split(':');
     return {
       ipAddress: ipAddressSplit[0],
       port: ipAddressSplit[1]
@@ -175,11 +180,13 @@ export class InstanceProvision implements ServiceMethods<Data> {
           if (instance == null) {
             throw new BadRequest('Invalid instance ID');
           }
-          const ipAddressSplit = instance.ipAddress.split(':');
-          return {
-            ipAddress: ipAddressSplit[0],
-            port: ipAddressSplit[1]
-          };
+          if (instance.currentUsers < location.maxUsersPerInstance) {
+            const ipAddressSplit = instance.ipAddress.split(':');
+            return {
+              ipAddress: ipAddressSplit[0],
+              port: ipAddressSplit[1]
+            };
+          }
         }
         // Check if JWT resolves to a user
         if (token != null) {
