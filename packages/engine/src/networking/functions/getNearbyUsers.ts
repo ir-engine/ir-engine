@@ -8,7 +8,8 @@ export default function(userId: string, maxMediaUsers= 8): Object3DComponent[] {
     const otherAvatars = [];
     let userAvatar;
     const clientIds = Object.keys(Network.instance.clients);
-    for (const [, object]: [id: string, object: NetworkObject] of Object.entries(Network.instance.networkObjects)) {
+    for (const [id, object] of Object.entries(Network.instance.networkObjects)) {
+        if(!object) continue;
         if (object.uniqueId === userId) userAvatar = object;
         else if (clientIds.includes(object.uniqueId)) otherAvatars.push(object);
     }

@@ -81,6 +81,7 @@ const configureClient = async (options: InitializeOptions) => {
       if (options.renderer.disabled !== true) {
 
           Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
+          Engine.camera.layers.enableAll();
           Engine.scene.add(Engine.camera);
 
           /** @todo for when we fix bundling */
@@ -110,6 +111,7 @@ const configureEditor = async (options: InitializeOptions) => {
     Engine.scene = new Scene();
 
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
+    Engine.camera.layers.enableAll();
     Engine.scene.add(Engine.camera);
 
     // let physicsWorker;

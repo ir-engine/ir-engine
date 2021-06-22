@@ -60,7 +60,7 @@ import RecordingApp from './../Recorder/RecordingApp';
 import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu';
 import { ControllerColliderComponent } from '@xrengine/engine/src/character/components/ControllerColliderComponent';
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions';
-import { FollowCameraComponent } from '../../../../engine/src/camera/components/FollowCameraComponent';
+import { FollowCameraComponent } from '@xrengine/engine/src/camera/components/FollowCameraComponent';
 
 const store = Store.store;
 
@@ -162,6 +162,8 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   setCurrentScene: bindActionCreators(setCurrentScene, dispatch),
 });
 
+let slugifiedName = null;
+
 export const EnginePage = (props: Props) => {
   const {
     appState,
@@ -262,7 +264,7 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     const currentLocation = locationState.get('currentLocation').get('location');
-    console.log('locationState changed!', currentLocation);
+    slugifiedName = currentLocation.slugifiedName;
     if (currentLocation.id != null &&
         userBanned != true &&
         instanceConnectionState.get('instanceProvisioned') === false &&
@@ -464,13 +466,14 @@ export const EnginePage = (props: Props) => {
   };
 
   const portToLocation = async ({ portalComponent }: { portalComponent: PortalProps }) => {
-    const currentLocation = locationState.get('currentLocation').get('location');
-    console.log(currentLocation, portalComponent);
+    // console.log('portToLocation', slugifiedName, portalComponent);
 
-    if (currentLocation.slugifiedName === portalComponent.location) {
+    if (slugifiedName === portalComponent.location) {
       teleportPlayer(Network.instance.localClientEntity, portalComponent.spawnPosition, portalComponent.spawnRotation);
       return;
     }
+
+    Engine.camera.layers.disable(0);
 
     // shut down connection with existing GS
     setPorting(true);
@@ -497,6 +500,8 @@ export const EnginePage = (props: Props) => {
     // add back the collider using previous parameters
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     
+      Engine.camera.layers.enable(0);
+
       // teleport player to where the portal is
       const transform = getComponent(Network.instance.localClientEntity, TransformComponent);
       const actor = getComponent(Network.instance.localClientEntity, CharacterComponent);

@@ -54,7 +54,7 @@ export class PositionalAudioSystem extends System {
   }
 
   reset(): void {
-    super.reset();
+    
     this.characterAudioStream = new Map<Entity, any>();
   }
 

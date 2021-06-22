@@ -248,7 +248,7 @@ export class InteractiveSystem extends System {
   }
 
   reset(): void {
-    super.reset();
+    
     this.previousEntity = null;
     this.previousEntity2DPosition = null;
     this.focused = new Set<Entity>();

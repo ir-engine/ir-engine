@@ -1,4 +1,5 @@
 import { Material, Mesh, Vector3 } from "three";
+import { CameraLayers } from "../../camera/constants/CameraLayers";
 import { Engine } from "../../ecs/classes/Engine";
 import { System, SystemAttributes } from "../../ecs/classes/System";
 import { getComponent } from "../../ecs/functions/EntityFunctions";
@@ -6,6 +7,7 @@ import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { beforeMaterialCompile } from "../../editor/nodes/helper/BPCEMShader";
 import { WebGLRendererSystem } from "../../renderer/WebGLRendererSystem";
 import { Object3DComponent } from "../components/Object3DComponent";
+import { PersistTagComponent } from "../components/PersistTagComponent";
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -76,12 +78,27 @@ export class SceneObjectSystem extends System {
         console.warn('[Object3DComponent]: Scene object has been removed manually.')
       }
     }
+
+    // Enable second camera layer for persistant entities for fun portal effects
+    for (const entity of this.queryResults.persist.added) {
+      const object3DComponent = getComponent(entity, Object3DComponent);
+      object3DComponent.value.traverse((obj) => {
+        obj.layers.enable(CameraLayers.Portal);
+      });
+    }
   }
 }
 
 SceneObjectSystem.queries = {
   sceneObject: {
     components: [Object3DComponent],
+    listen: {
+      removed: true,
+      added: true
+    }
+  },
+  persist: {
+    components: [Object3DComponent, PersistTagComponent],
     listen: {
       removed: true,
       added: true

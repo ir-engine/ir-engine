@@ -44,20 +44,20 @@ export class CharacterControllerSystem extends System {
     super(attributes);
 
     EngineEvents.instance.addEventListener(CharacterControllerSystem.EVENTS.LOAD_AVATAR, ({ entityID, avatarId, avatarURL }) => {
-      const entity = getEntityByID(entityID)
+      const entity = getEntityByID(entityID);
       const characterAvatar = getMutableComponent(entity, CharacterComponent);
       if (characterAvatar != null) {
         characterAvatar.avatarId = avatarId;
         characterAvatar.avatarURL = avatarURL;
       }
-      loadActorAvatar(entity)
-    })
+      loadActorAvatar(entity);
+    });
   }
 
   /** Removes resize listener. */
   dispose(): void {
     super.dispose();
-    EngineEvents.instance.removeAllListenersForEvent(CharacterControllerSystem.EVENTS.LOAD_AVATAR)
+    EngineEvents.instance.removeAllListenersForEvent(CharacterControllerSystem.EVENTS.LOAD_AVATAR);
   }
 
   /**
