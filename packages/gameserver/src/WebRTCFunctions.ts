@@ -2,6 +2,7 @@ import os from 'os';
 import { MediaStreamSystem } from "@xrengine/engine/src/networking/systems/MediaStreamSystem";
 import { Network } from "@xrengine/engine/src/networking//classes/Network";
 import { MessageTypes } from "@xrengine/engine/src/networking/enums/MessageTypes";
+import getNearbyUsers from "@xrengine/engine/src/networking/functions/getNearbyUsers";
 import { WebRtcTransportParams } from "@xrengine/server-core/src/types/WebRtcTransportParams";
 import { createWorker } from 'mediasoup';
 import { DataProducer, DataConsumer, DataConsumerOptions, DataProducerOptions, Producer, Router, RtpCodecCapability, Transport, WebRtcTransport } from "mediasoup/lib/types";
@@ -52,15 +53,17 @@ export async function startWebRTC(): Promise<void> {
     }
 }
 
-export const sendCurrentProducers = (socket: SocketIO.Socket, channelType: string, channelId?: string) => async (
+export const sendNewProducer = (socket: SocketIO.Socket, channelType: string, channelId?: string) => async (
     producer: Producer
 ): Promise<void> => {
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     const selfClient = Network.instance.clients[userId];
     if (selfClient?.socketId != null) {
+        const nearbyUsers = getNearbyUsers(userId);
+        const nearbyUserIds = nearbyUsers.map(user => user.id);
         Object.entries(Network.instance.clients).forEach(([name, value]) => {
-            if (name === userId || value.media == null || value.socketId == null)
+            if (name === userId || (channelType === 'instance' && nearbyUserIds.includes(name) === false) || value.media == null || value.socketId == null)
                 return;
             logger.info(`Sending media for ${name}`);
             Object.entries(value.media).map(([subName, subValue]) => {
@@ -71,16 +74,18 @@ export const sendCurrentProducers = (socket: SocketIO.Socket, channelType: strin
     }
 };
 // Create consumer for each client!
-export const sendInitialProducers = async (socket: SocketIO.Socket, channelType: string, channelId?: string): Promise<void> => {
+export const sendCurrentProducers = async (socket: SocketIO.Socket, channelType: string, channelId?: string): Promise<void> => {
     networkTransport = Network.instance.transport as any;
     const userId = getUserIdFromSocketId(socket.id);
     const selfClient = Network.instance.clients[userId];
     if (selfClient?.socketId != null) {
+        const nearbyUsers = getNearbyUsers(userId);
+        const nearbyUserIds = nearbyUsers.map(user => user.id);
         Object.entries(Network.instance.clients).forEach(([name, value]) => {
-            if (name === userId || value.media == null || value.socketId == null)
+            if (name === userId || (channelType === 'instance' && nearbyUserIds.includes(name) === false) || value.media == null || value.socketId == null)
                 return;
             Object.entries(value.media).map(([subName, subValue]) => {
-                if (channelType === 'instance' ? 'instance' === (subValue as any).channelType : (subValue as any).channelType === channelType && (subValue as any).channelId === channelId)
+                if ((subValue as any).channelType === channelType && (subValue as any).channelId === channelId)
                     selfClient.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), value.userId, subName, (subValue as any).producerId, channelType, channelId);
             });
         });
@@ -294,7 +299,7 @@ export async function handleWebRtcTransportCreate(socket, data: WebRtcTransportP
     });
     // Create data consumers for other clients if the current client transport receives data producer on it
     newTransport.observer.on('newdataproducer', handleConsumeDataEvent(socket));
-    newTransport.observer.on('newproducer', sendCurrentProducers(socket, channelType, channelId));
+    newTransport.observer.on('newproducer', sendNewProducer(socket, channelType, channelId));
     // console.log('Callback from transportCreate with options:');
     // console.log(clientTransportOptions);
     callback({ transportOptions: clientTransportOptions });
@@ -606,7 +611,7 @@ export async function handleWebRtcPauseProducer(socket, data, callback): Promise
 export async function handleWebRtcRequestCurrentProducers(socket, data, callback): Promise<any> {
     const { channelType, channelId } = data;
 
-    await sendInitialProducers(socket, channelType, channelId);
+    await sendCurrentProducers(socket, channelType, channelId);
     callback({requested: true});
 }
 

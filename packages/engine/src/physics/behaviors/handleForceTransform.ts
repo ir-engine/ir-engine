@@ -16,7 +16,7 @@ export const handleForceTransform = (editObject: NetworkObjectEditInterface): vo
 
   const colliderComponent = getComponent(entity, ColliderComponent)
   if(colliderComponent) {
-    colliderComponent.body.updateTransform({
+    colliderComponent.body?.updateTransform({
       translation: { x, y, z },
       rotation: { x: qX, y: qY, z: qZ, w: qW }
     })
@@ -25,7 +25,7 @@ export const handleForceTransform = (editObject: NetworkObjectEditInterface): vo
 
   const controllerComponent = getComponent(entity, ControllerColliderComponent)
   if(controllerComponent) {
-    controllerComponent.controller.updateTransform({
+    controllerComponent.controller?.updateTransform({
       translation: { x, y, z },
       rotation: { x: qX, y: qY, z: qZ, w: qW }
     })
