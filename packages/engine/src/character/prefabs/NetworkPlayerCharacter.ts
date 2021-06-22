@@ -47,7 +47,7 @@ export const loadDefaultActorAvatar: Behavior = (entity) => {
     }
   });
   model.children?.forEach(child => actor.modelContainer.add(child));
-  actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
+  actor.mixer = new AnimationMixer(actor.modelContainer);
 };
 
 export const loadActorAvatar: Behavior = (entity) => {
@@ -68,8 +68,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		castShadow: true,
 		receiveShadow: true,
 	}, (asset: Group) => {
-    const model = SkeletonUtils.clone(asset);
-    
+    	const model = SkeletonUtils.clone(asset);
 		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 
 		actor.mixer && actor.mixer.stopAllAction();
@@ -78,13 +77,13 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		([...actor.modelContainer.children]).forEach(child => actor.modelContainer.remove(child));
 
 		model.traverse((object) => {
-      if (object.isMesh || object.isSkinnedMesh) {
-        object.material = object.material.clone();
-      }
+			if (object.isMesh || object.isSkinnedMesh) {
+				object.material = object.material.clone();
+			}
 		});
 
 		model.children.forEach(child => actor.modelContainer.add(child));
-		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
+		actor.mixer = new AnimationMixer(actor.modelContainer);
 	});
 };
 

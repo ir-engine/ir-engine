@@ -1,3 +1,4 @@
+import { Vector3 } from 'three';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { hasComponent, getMutableComponent, getComponent } from '../../ecs/functions/EntityFunctions';
 import { CharacterAnimations } from '../CharacterAnimations';
@@ -37,7 +38,7 @@ export const movingAnimationSchema = [
     weight:     [   1,   0  ],
     dontHasHit: [   1,   0  ]
   },
-  
+
   // {
   //   type: [JUMP], name: defaultAvatarAnimations[JUMP].name, axis:'y', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
   //   value:      [  1, 0.1  ],
@@ -125,6 +126,34 @@ export const initializeMovingState: Behavior = (entity, args: { x?: number, y?: 
 
   actor.movementEnabled = true;
 };
+
+export type MovementType = {
+  velocity: Vector3;
+  distanceFromGround: number;
+}
+
+export const getMovementValuesNew = (actor: CharacterComponent, delta: number, EPSILON: number): MovementType => {
+  if (actor.moveVectorSmooth.position.length() < EPSILON) {
+    actor.moveVectorSmooth.velocity.set(0,0,0);
+    actor.moveVectorSmooth.position.set(0,0,0);
+  }
+
+  actor.moveVectorSmooth.target.copy(actor.animationVelocity)
+  actor.moveVectorSmooth.simulate(delta);
+  const velocity = actor.moveVectorSmooth.position;
+
+  velocity.set(
+    Math.abs(velocity.x) < EPSILON ? 0 : velocity.x,
+    Math.abs(velocity.y) < EPSILON ? 0 : velocity.y,
+    Math.abs(velocity.z) < EPSILON ? 0 : velocity.z,
+  );
+
+  actor.animationVectorSimulator.target.setY(actor.isGrounded ? 0 : 1);
+  actor.animationVectorSimulator.simulate(delta);
+  const distanceFromGround = actor.animationVectorSimulator.position.y < EPSILON ? 0 : actor.animationVectorSimulator.position.y;
+
+  return { velocity, distanceFromGround };
+}
 
 export const getMovementValues: Behavior = (entity, args: {}, deltaTime: number) => {
   const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);

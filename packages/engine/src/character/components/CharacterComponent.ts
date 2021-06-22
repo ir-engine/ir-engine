@@ -62,6 +62,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	animationVectorSimulator: VectorSpringSimulator
 	moveVectorSmooth: VectorSpringSimulator
 	moveSpeed = 2;
+	isWalking = false;
 	otherPlayerMaxSpeedCount = 0;
 	angularVelocity = 0;
 	animationVelocity: Vector3 = new Vector3();
