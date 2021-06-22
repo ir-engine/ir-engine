@@ -46,8 +46,10 @@ function isPlayerInGameArea(entity, gameArea) {
  */
 
 export class GameManagerSystem extends System {
+
   static instance: GameManagerSystem;
   updateType = SystemUpdateType.Fixed;
+
   updateNewPlayersRate: number;
   updateLastTime: number;
   currentGames: Map<string, Game>;
@@ -56,6 +58,10 @@ export class GameManagerSystem extends System {
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     GameManagerSystem.instance = this;
+    this.reset();
+  }
+
+  reset(): void {
     this.updateNewPlayersRate = 60*5;
     this.updateLastTime = 0;
     this.currentGames = new Map<string, Game>();
@@ -64,6 +70,7 @@ export class GameManagerSystem extends System {
 
   dispose(): void {
     super.dispose();
+    this.reset();
   }
 
   execute (delta: number, time: number): void {

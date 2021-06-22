@@ -23,6 +23,7 @@ import { characterInterpolationBehavior } from '../../character/behaviors/charac
 import { rigidbodyInterpolationBehavior } from '../behaviors/rigidbodyInterpolationBehavior';
 import { LocalInterpolationComponent } from '../components/LocalInterpolationComponent';
 import { experementalRigidbodyCorrectionBehavior } from '../behaviors/experementalRigidbodyCorrectionBehavior';
+import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent';
 
 
 /**
@@ -39,47 +40,29 @@ export class PhysicsSystem extends System {
   };
   static instance: PhysicsSystem;
   updateType = SystemUpdateType.Fixed;
-  frame: number
-  diffSpeed: number = Engine.physicsFrameRate / Engine.networkFramerate;
 
-  serverCorrectionForRigidBodyTick = 1000
-
-  freezeTimes = 0
-  clientSnapshotFreezeTime = 0
-  serverSnapshotFreezeTime = 0
-
-  physicsFrameRate: number;
-  physicsFrameTime: number;
   physicsWorldConfig: PhysXConfig;
   worker: Worker;
+
+  simulationEnabled: boolean;
 
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     PhysicsSystem.instance = this;
-    this.physicsFrameRate = Engine.physicsFrameRate;
-    this.physicsFrameTime = 1 / this.physicsFrameRate;
     this.physicsWorldConfig = Object.assign({}, attributes.physicsWorldConfig);
-    /*
-    this.physicsWorldConfig =  {
-      bounceThresholdVelocity: 0.5,
-      tps: 60,
-      start: false,
-      lengthScale: 1,
-      verbose: false,
-      substeps: 1,
-      gravity: { x: 0, y: -9.81, z: 0 },
-    }
-    */
     this.worker = attributes.worker;
-    this.frame = 0;
 
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
-      PhysXInstance.instance.startPhysX(ev.physics);
+      if(typeof ev.physics !== 'undefined') {
+        this.simulationEnabled = ev.physics;
+      }
     });
 
     if (!PhysXInstance.instance) {
       PhysXInstance.instance = new PhysXInstance();
     }
+
+    this.simulationEnabled = attributes.simulationEnabled ?? true;
   }
 
   async initialize() {
@@ -87,11 +70,15 @@ export class PhysicsSystem extends System {
     await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig);
   }
 
+  reset(): void {
+    // TODO: PhysXInstance.instance.reset();
+  }
+
   dispose(): void {
     super.dispose();
-    this.frame = 0;
-    EngineEvents.instance.removeAllListenersForEvent(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT);
+    this.reset();
     PhysXInstance.instance.dispose();
+    EngineEvents.instance.removeAllListenersForEvent(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT);
   }
 
   execute(delta: number): void {
@@ -135,9 +122,9 @@ export class PhysicsSystem extends System {
 
       const snapshots: SnapshotData = {
         interpolation: calculateInterpolation('x y z quat velocity'),
-        correction: Vault.instance?.get((Network.instance.snapshot as any).timeCorrection, true),
+        correction: Vault.instance?.get(Network.instance.snapshot.timeCorrection, true),
         new: []
-      }
+      };
       // Create new snapshot position for next frame server correction
       Vault.instance.add(createSnapshot(snapshots.new));
 
@@ -183,6 +170,7 @@ export class PhysicsSystem extends System {
       });
     }
 
+    if(this.enabled)
     PhysXInstance.instance.update();
   }
 
@@ -204,10 +192,10 @@ export class PhysicsSystem extends System {
 
 PhysicsSystem.queries = {
   localCharacterInterpolation: {
-    components: [LocalInputReceiver, CharacterComponent, InterpolationComponent, NetworkObject],
+    components: [LocalInputReceiver, ControllerColliderComponent, InterpolationComponent, NetworkObject],
   },
   networkClientInterpolation: {
-    components: [Not(LocalInputReceiver), CharacterComponent, InterpolationComponent, NetworkObject],
+    components: [Not(LocalInputReceiver), ControllerColliderComponent, InterpolationComponent, NetworkObject],
   },
   localObjectInterpolation: {
     components: [Not(CharacterComponent), LocalInterpolationComponent, InterpolationComponent, NetworkObject],

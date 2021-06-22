@@ -15,7 +15,7 @@ import { doLoginAuto } from "@xrengine/client-core/src/user/reducers/auth/servic
 import { initializeEngine } from "@xrengine/engine/src/initializeEngine";
 import { Engine } from "@xrengine/engine/src/ecs/classes/Engine";
 import { GamesSchema } from "@xrengine/engine/src/game/templates/GamesSchema";
-import { EngineSystemPresets } from "@xrengine/engine/src/initializationOptions";
+import { EngineSystemPresets, InitializeOptions } from "@xrengine/engine/src/initializationOptions";
 /**
  * Declairing Props interface having two props.
  *@authState can be of any type.
@@ -64,14 +64,16 @@ const Project = (props: Props) => {
 
     const [engineIsInitialized, setEngineInitialized] = useState(false);
 
-    const InitializationOptions = {
+    const initializationOptions: InitializeOptions = {
         type: EngineSystemPresets.EDITOR,
         publicPath: location.origin,
-        physxWorker: new Worker('/scripts/loadPhysXClassic.js'),
+        physics: {
+          physxWorker: new Worker('/scripts/loadPhysXClassic.js'),
+        }
     };
 
     useEffect(() => {
-        initializeEngine(InitializationOptions).then(() => {
+        initializeEngine(initializationOptions).then(() => {
             console.log("Setting engine inited");
             setEngineInitialized(true);
         });

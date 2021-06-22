@@ -363,6 +363,14 @@ export abstract class System {
     }
   }
 
+  /**
+   * @function reset Reset the system. Used for resetting the system without disposing of events and other hooks. 
+   */
+  reset(): void {}
+
+  /**
+   * @function reset Dispose the system. Used for completely removing everything in this system from memory.
+   */
   dispose(): void {}
 
   /** Serialize the System */

@@ -47,9 +47,9 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
       newVelocity.applyQuaternion(transform.rotation);
     }
 
-    if (actor.closestHit) {
+    if (collider.closestHit) {
       onGroundVelocity.copy(newVelocity).setY(0);
-      vec3.set(actor.closestHit.normal.x, actor.closestHit.normal.y, actor.closestHit.normal.z);
+      vec3.set(collider.closestHit.normal.x, collider.closestHit.normal.y, collider.closestHit.normal.z);
       quat.setFromUnitVectors(upVector, vec3);
       mat4.makeRotationFromQuaternion(quat);
       onGroundVelocity.applyMatrix4(mat4);

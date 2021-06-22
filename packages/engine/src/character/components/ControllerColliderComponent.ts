@@ -1,34 +1,30 @@
 import { Component } from "../../ecs/classes/Component";
 import { Types } from "../../ecs/types/Types";
-import { Vector3 } from "three";
-import type { Controller } from "three-physx";
+import type { Controller, RaycastQuery } from "three-physx";
 
 /**
  * @author Shaw
  */
 export class ControllerColliderComponent extends Component<ControllerColliderComponent>
 {
-	public options: any;
-	public controller: Controller;
-	public mass: number;
-	public position: Vector3;
-	public height: number;
-	public contactOffset: number;
-	public radius: number;
-	public segments: number;
-	public friction: number;
-	public playerStuck: number;
+	controller: Controller;
+	// Ray casting
+	raycastQuery: RaycastQuery;
+	closestHit = null;
+
+	mass: number;
+  // the radius of the main capsule
+	capsuleRadius: number; 
+  // the height of the capsule (from center of each dome of the capsule, ie. not inclusive of thedomes)
+	capsuleHeight: number; 
+	contactOffset: number;
+	friction: number;
 }
 
 ControllerColliderComponent._schema = {
-	options: { type: Types.Ref, default: {} },
 	mass: { type: Types.Number, default: 0 },
-	controller: { type: Types.Ref, default: null },
-	position: { type: Types.Vector3Type, default: new Vector3() },
-	height: { type: Types.Number, default: 0.5 },
+	capsuleRadius: { type: Types.Number, default: 0.25 },
+	capsuleHeight: { type: Types.Number, default: 1.3 },
 	contactOffset: { type: Types.Number, default: 0.01 },
-	radius: { type: Types.Number, default: 0.3 },
-	segments: { type: Types.Number, default: 8 },
-	friction: { type: Types.Number, default: 0.3 },
-	playerStuck: { type: Types.Number, default: 0 }
+	friction: { type: Types.Number, default: 0.1 },
 };
