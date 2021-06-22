@@ -4,7 +4,8 @@ import {
   setCamAudioState,
   setCamVideoState,
   setFaceTrackingState,
-  setConsumers
+  setConsumers,
+  setNearbyLayerUsers
 } from './actions';
 import Store from '@xrengine/client-core/src/store';
 
@@ -30,6 +31,17 @@ export const triggerUpdateConsumers = () => {
 
 export const updateConsumers = (consumers: any[]) => {
   return (dispatch: Dispatch): void => { dispatch(setConsumers(consumers));};
+};
+
+export const triggerUpdateNearbyLayerUsers = () => {
+  const ms = MediaStreamSystem.instance;
+  if (!ms) updateNearbyLayerUsers([]);
+
+  store.dispatch(setNearbyLayerUsers(ms != null ? ms.nearbyLayerUsers : []));
+};
+
+export const updateNearbyLayerUsers = (users: any[]) => {
+  return (dispatch: Dispatch): void => { dispatch(setNearbyLayerUsers(users));};
 };
 
 export const updateCamAudioState = () => {
