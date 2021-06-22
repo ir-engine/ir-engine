@@ -3,10 +3,8 @@ import { System, SystemAttributes } from '../../ecs/classes/System';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { localMediaConstraints } from '../constants/VideoConstants';
 import {Network} from "../classes/Network";
-import {NetworkObject} from "../components/NetworkObject";
-import { Object3DComponent } from "../../scene/components/Object3DComponent";
-import { getComponent } from '../../ecs/functions/EntityFunctions';
 import { isClient } from "../../common/functions/isClient";
+import getNearbyUsers from "../functions/getNearbyUsers";
 
 /** System class for media streaming. */
 export class MediaStreamSystem extends System {
@@ -16,7 +14,6 @@ export class MediaStreamSystem extends System {
     CLOSE_CONSUMER: 'NETWORK_TRANSPORT_EVENT_CLOSE_CONSUMER',
     UPDATE_NEARBY_LAYER_USERS: 'NETWORK_TRANSPORT_EVENT_UPDATE_NEARBY_LAYER_USERS'
   }
-  static MAX_MEDIA_USERS = 1
   public static instance = null;
 
   /** Whether the video is paused or not. */
@@ -181,40 +178,14 @@ export class MediaStreamSystem extends System {
     if (this.nearbyAvatarTick > 100) {
       this.nearbyAvatarTick = 0;
       if (isClient) {
-        const otherAvatars = [];
-        let userAvatar;
-        const clientIds = Object.keys(Network.instance.clients);
-        for (const [, object]: [id: string, object: NetworkObject] of Object.entries(Network.instance.networkObjects)) {
-          if (object.uniqueId === Network.instance.userId) userAvatar = object;
-          else if (clientIds.includes(object.uniqueId)) otherAvatars.push(object);
-        }
-        if (userAvatar != null) {
-          const userComponent = getComponent(userAvatar.component.entity, Object3DComponent);
-          const userPosition = userComponent.value.position;
-          if (userPosition != null) {
-            const userDistances = [];
-            otherAvatars.forEach(avatar => {
-              const component = getComponent(avatar.component.entity, Object3DComponent);
-              const position = component?.value?.position;
-              if (position != null) userDistances.push({
-                id: avatar.uniqueId,
-                distance: Math.sqrt((position.x - userPosition.x) ** 2 + (position.y - userPosition.y) ** 2 + (position.z - userPosition.z) ** 2)
-              });
-            });
-            console.log('userDistances', userDistances);
-            this.nearbyLayerUsers = userDistances.sort((a, b) => a.distance - b.distance).slice(0, MediaStreamSystem.MAX_MEDIA_USERS);
-            const nearbyUserIds = this.nearbyLayerUsers.map(user => user.id);
-            EngineEvents.instance.dispatchEvent({ type: MediaStreamSystem.EVENTS.UPDATE_NEARBY_LAYER_USERS, nearbyUserIds });
-            this.consumers.forEach(consumer => {
-              console.log('consumer', consumer);
-              console.log('nearbyUserIds', nearbyUserIds);
-              if (!nearbyUserIds.includes(consumer._appData.peerId)) {
-                console.log('Closing consumer due to distance', consumer);
-                EngineEvents.instance.dispatchEvent({ type: MediaStreamSystem.EVENTS.CLOSE_CONSUMER, consumer });
-              }
-            });
+        this.nearbyLayerUsers = getNearbyUsers(Network.instance.userId);
+        const nearbyUserIds = this.nearbyLayerUsers.map(user => user.id);
+        EngineEvents.instance.dispatchEvent({ type: MediaStreamSystem.EVENTS.UPDATE_NEARBY_LAYER_USERS });
+        this.consumers.forEach(consumer => {
+          if (!nearbyUserIds.includes(consumer._appData.peerId)) {
+            EngineEvents.instance.dispatchEvent({ type: MediaStreamSystem.EVENTS.CLOSE_CONSUMER, consumer });
           }
-        }
+        });
       }
     }
   }

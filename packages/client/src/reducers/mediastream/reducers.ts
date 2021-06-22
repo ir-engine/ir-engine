@@ -32,7 +32,6 @@ export default function mediastreamReducer (state = immutableState, action: any)
       return state
           .set('consumers', updateMap);
     case NEARBY_LAYER_USERS_CHANGED:
-      console.log('NEARBY_LAYER_USERS_CHANGED', action);
       return state
           .set('nearbyLayerUsers', action.users.map(user => user.id));
   }

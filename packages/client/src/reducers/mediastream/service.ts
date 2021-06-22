@@ -34,7 +34,6 @@ export const updateConsumers = (consumers: any[]) => {
 };
 
 export const triggerUpdateNearbyLayerUsers = () => {
-  console.log('IN triggerUpdateNearbyLayerUsers');
   const ms = MediaStreamSystem.instance;
   if (!ms) updateNearbyLayerUsers([]);
 
@@ -42,9 +41,8 @@ export const triggerUpdateNearbyLayerUsers = () => {
 };
 
 export const updateNearbyLayerUsers = (users: any[]) => {
-  console.log('IN updateNearbyLayerUsers', users);
-  return (dispatch: Dispatch): void => { dispatch(setNearbyLayerUsers(users))};
-}
+  return (dispatch: Dispatch): void => { dispatch(setNearbyLayerUsers(users));};
+};
 
 export const updateCamAudioState = () => {
   const ms = MediaStreamSystem.instance;

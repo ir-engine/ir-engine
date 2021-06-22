@@ -48,7 +48,6 @@ const PartyVideoWindows = (props: Props): JSX.Element => {
   const channelLayerUsers = userState.get('channelLayerUsers') ?? [];
 
   useEffect(() => {
-    console.log('nearbyLayerUsers updated', nearbyLayerUsers);
     if ((Network.instance?.transport as any)?.channelType === 'channel') setDisplayedUsers(channelLayerUsers.filter((user) => user.id !== selfUser.id));
     else setDisplayedUsers(layerUsers.filter((user) => nearbyLayerUsers.includes(user.id)));
   }, [channelLayerUsers, nearbyLayerUsers]);
