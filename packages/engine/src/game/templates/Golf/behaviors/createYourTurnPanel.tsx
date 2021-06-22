@@ -1,13 +1,12 @@
-
 import React from 'react'
 import styled from 'styled-components'
 
 import { Network } from '../../../../networking/classes/Network'
-import { getHand } from '../../../../xr/functions/WebXRFunctions'
 import { createUI } from '../../../../ui/functions/createUI'
-import { addComponent } from '../../../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunctions'
 import { TransformChildComponent } from '../../../../transform/components/TransformChildComponent'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
+import { Entity } from '../../../../ecs/classes/Entity'
 
 export const Panel = styled.div`
 background: #FFFFFF55;
@@ -22,10 +21,10 @@ export const YourTurnPanel = () => {
     return <Panel>Your turn!</Panel>
 }
 
-export async function createYourTurnPanel() {
-    const localClient = Network.instance.localClientEntity
-    const hand = getHand(localClient)
-    const uiEntity = await createUI(YourTurnPanel)
-    addComponent(uiEntity, TransformComponent)
-    addComponent(uiEntity, TransformChildComponent, {parent:hand})
+export async function createYourTurnPanel(player:Entity) {
+    if (player === Network.instance.localClientEntity) {
+        const uiEntity = await createUI(YourTurnPanel)
+        addComponent(uiEntity, TransformComponent)
+        addComponent(uiEntity, TransformChildComponent, {parent:player})
+    }
 }

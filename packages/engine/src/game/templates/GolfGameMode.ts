@@ -54,7 +54,7 @@ import { teleportPlayer } from "./Golf/behaviors/teleportPlayer";
 import { getPositionNextPoint } from "./Golf/behaviors/getPositionNextPoint";
 
 // ui
-import { createYourTurnPanel } from './Golf/ui/YourTurnPanel'
+import { createYourTurnPanel } from './Golf/behaviors/createYourTurnPanel'
 
 /**
  * @author HydraFire
@@ -156,7 +156,6 @@ function copleNameRolesInOneString( object ) {
 const onGolfGameStart = (entity: Entity) => {}
 
 const onGolfGameLoading = (entity: Entity) => {
-  createYourTurnPanel()
   // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
   Object.entries(GolfPrefabs).forEach(([prefabType, prefab]) => {
     Network.instance.schema.prefabs[prefabType] = prefab;
@@ -189,7 +188,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   registerStateTagComponents: [],
   initGameState: {
     'newPlayer': {
-      behaviors: [addRole]
+      behaviors: [addRole, createYourTurnPanel]
     },
     '1-Player': {
       components:[State.WaitTurn],

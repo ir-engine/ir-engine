@@ -228,5 +228,5 @@ export const getHandTransform = (entity: Entity, hand: ParityValue = ParityValue
  */
 export function getHand(entity:Entity, hand = ParityValue.NONE) {
   const ikComponent = getComponent(entity, IKComponent);
-  return hand === ParityValue.LEFT ? ikComponent.controllerLeft : ikComponent.controllerRight;
+  return hand === ParityValue.LEFT ? ikComponent?.controllerLeft : ikComponent?.controllerRight;
 }
