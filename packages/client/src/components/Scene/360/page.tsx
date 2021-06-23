@@ -1,7 +1,7 @@
 import { GeneralStateList, setAppLoaded, setAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
 import Store from '@xrengine/client-core/src/store';
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
-import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
+import { isMobile } from '@xrengine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine';
@@ -97,7 +97,7 @@ export const XR360PlayerPage = (props: Props) => {
 
   //touch gamepad
   const touchGamepadProps = { layout: 'default' };
-  const touchGamepad = isMobileOrTablet() ? <TouchGamepad {...touchGamepadProps} /> : null;
+  const touchGamepad = isMobile ? <TouchGamepad {...touchGamepadProps} /> : null;
   return (
     <>
       {!isInXR && <div>

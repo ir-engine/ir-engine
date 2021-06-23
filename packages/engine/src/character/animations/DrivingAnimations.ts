@@ -113,7 +113,7 @@ const getDrivingValues: Behavior = (entity, args: {}, deltaTime: number): any =>
    return { actorVelocity, test };
 }
 
-export const initializeDriverState: Behavior = (entity, args: { x?: number, y?: number, z?: number }) => {
+export const initializeDriverState: Behavior = (entity) => {
 
   if(hasComponent(entity, AnimationComponent)) {
     const animComponent = getMutableComponent(entity, AnimationComponent);
@@ -123,8 +123,5 @@ export const initializeDriverState: Behavior = (entity, args: { x?: number, y?: 
 
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 
-	actor.velocityTarget.z = args?.z ?? 0;
-	actor.velocityTarget.x = args?.x ?? 0;
-	actor.velocityTarget.y = args?.y ?? 0;
   actor.movementEnabled = false;
 };

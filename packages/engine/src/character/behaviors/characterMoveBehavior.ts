@@ -29,12 +29,12 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   if (actor.isGrounded) {
     collider.controller.velocity.y = 0;
 
-    actor.velocityTarget.copy(actor.localMovementDirection).multiplyScalar(deltaTime);
-    actor.velocitySimulator.target.copy(actor.velocityTarget);
+    vec3.copy(actor.localMovementDirection).multiplyScalar(deltaTime);
+    actor.velocitySimulator.target.copy(vec3);
     actor.velocitySimulator.simulate(deltaTime);
 
     actor.velocity.copy(actor.velocitySimulator.position);
-    newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed * actor.speedMultiplier);
+    newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed);
 
     const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
     if(xrInputSourceComponent) {
