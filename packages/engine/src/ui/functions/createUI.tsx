@@ -19,14 +19,13 @@ export async function createUI(UI:React.FC) {
     const GenerateStyles = (props) => {
         const [styles, setStyles] = useState('')
         useEffect(() => {
-            if (!styles) {
-                const container = document.createElement('div')
+            if (!styles) { 
                 const target = document.createElement('div')
                 ReactDOM.render(
                     <StyleSheetManager target={target}>
                         {ui}
                     </StyleSheetManager>,
-                    container,
+                    document.createElement('div'),
                     () => {
                         setStyles(target.innerHTML)
                     }
@@ -36,7 +35,9 @@ export async function createUI(UI:React.FC) {
         return props.children({ styles })
     }
 
-    const element = document.createElement('div')
+    const containerElement = document.createElement('div')
+    containerElement.style.position = 'fixed'
+
     ReactDOM.render(
         <GenerateStyles>
             {({ styles }) => (
@@ -46,10 +47,11 @@ export async function createUI(UI:React.FC) {
                 </>
             )}
         </GenerateStyles>
-    ,element)
+    ,containerElement)
 
-    const uiRoot = new Ethereal.WebLayer3D(element, {
+    const uiRoot = new Ethereal.WebLayer3D(containerElement, {
         onLayerCreate: (layer) => {
+            layer.element['layer'] = layer
             const layerEntity = createEntity()
             addComponent(layerEntity, UIComponent, {layer})
         }

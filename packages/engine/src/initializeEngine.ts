@@ -26,6 +26,7 @@ import { configCanvasElement } from './renderer/functions/canvas';
 import { HighlightSystem } from './renderer/HighlightSystem';
 import { TransformSystem } from './transform/systems/TransformSystem';
 import { UIPanelSystem } from './ui-old/systems/UIPanelSystem';
+import { UISystem } from './ui/systems/UISystem'
 import { XRSystem } from './xr/systems/XRSystem';
 import { WebGLRendererSystem } from "./renderer/WebGLRendererSystem";
 import { Timer } from './common/functions/Timer';
@@ -170,6 +171,7 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
     registerSystem(WebGLRendererSystem, { priority: 3, canvas, postProcessing: options.renderer.postProcessing }); // Free
 
     // Input Systems
+    registerSystem(UISystem, {priority: 2}); // Free
     registerSystem(UIPanelSystem, { priority: 2 });
     registerSystem(ActionSystem, { priority: 3 });
     registerSystem(CharacterControllerSystem, { priority: 4 });
