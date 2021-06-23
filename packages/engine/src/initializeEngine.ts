@@ -31,7 +31,7 @@ import { WebGLRendererSystem } from "./renderer/WebGLRendererSystem";
 import { Timer } from './common/functions/Timer';
 import { execute } from './ecs/functions/EngineFunctions';
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType';
-import { isMobileOrTablet } from './common/functions/isMobile';
+import { isMobile } from './common/functions/isMobile';
 import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem';
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem';
 import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem';
@@ -277,7 +277,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
             Engine.engineTimer.start();
         });
 
-        const engageType = isMobileOrTablet() ? 'touchstart' : 'click';
+        const engageType = isMobile ? 'touchstart' : 'click';
         const onUserEngage = () => {
             EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE });
             document.removeEventListener(engageType, onUserEngage);

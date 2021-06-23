@@ -106,25 +106,25 @@ const initializeCharacter: Behavior = (entity): void => {
 	// stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
 
 	// The visuals group is centered for easy actor tilting
-	actor.tiltContainer = new Group();
-	actor.tiltContainer.name = 'Actor (tiltContainer)' + entity.id;
+	const obj3d = new Group();
+	obj3d.name = 'Actor (tiltContainer)' + entity.id;
 
 	// // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
 	actor.modelContainer = new Group();
 	actor.modelContainer.name = 'Actor (modelContainer)' + entity.id;
 	actor.modelContainer.position.setY(-actor.actorHalfHeight);
-	actor.tiltContainer.add(actor.modelContainer);
+	obj3d.add(actor.modelContainer);
 
 	// by default all asset childs are moved into entity object3dComponent, which is tiltContainer
 	// we should keep it clean till asset loaded and all it's content moved into modelContainer
-	addObject3DComponent(entity, { obj3d: actor.tiltContainer });
+	addObject3DComponent(entity, { obj3d });
 
 	actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.moveVectorSmooth = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.animationVectorSimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.rotationSimulator = new RelativeSpringSimulator(60, actor.defaultRotationSimulatorMass, actor.defaultRotationSimulatorDamping);
 
-	actor.viewVector = new Vector3(0, 0, -1);
+	actor.viewVector = new Vector3(0, 0, 1);
 
   addComponent(entity, ControllerColliderComponent);
 

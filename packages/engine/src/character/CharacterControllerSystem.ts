@@ -1,10 +1,10 @@
-import { Quaternion, Vector3 } from "three";
+import { Group, Quaternion, Vector3 } from "three";
 import { Controller, ControllerHitEvent, RaycastQuery, SceneQueryType } from "three-physx";
 import { isClient } from "../common/functions/isClient";
 import { EngineEvents } from "../ecs/classes/EngineEvents";
 import { System, SystemAttributes } from "../ecs/classes/System";
 import { Not } from "../ecs/functions/ComponentFunctions";
-import { getMutableComponent, getComponent, getRemovedComponent, getEntityByID, removeComponent, addComponent } from "../ecs/functions/EntityFunctions";
+import { getMutableComponent, getComponent, getRemovedComponent, getEntityByID, removeComponent, addComponent, hasComponent } from "../ecs/functions/EntityFunctions";
 import { SystemUpdateType } from "../ecs/functions/SystemUpdateType";
 import { LocalInputReceiver } from "../input/components/LocalInputReceiver";
 import { characterMoveBehavior } from "./behaviors/characterMoveBehavior";
@@ -25,6 +25,11 @@ import { sendClientObjectUpdate } from "../networking/functions/sendClientObject
 import { NetworkObjectUpdateType } from "../networking/templates/NetworkObjectUpdateSchema";
 import { updatePlayerRotationFromViewVector } from "./functions/updatePlayerRotationFromViewVector";
 import { AnimationManager } from "./AnimationManager";
+import { Object3DComponent } from "../scene/components/Object3DComponent";
+import { applyVectorMatrixXZ } from "../common/functions/applyVectorMatrixXZ";
+import { FollowCameraComponent } from "../camera/components/FollowCameraComponent";
+import { CameraSystem } from "../camera/systems/CameraSystem";
+import { DesiredTransformComponent } from "../transform/components/DesiredTransformComponent";
 
 const forwardVector = new Vector3(0, 0, 1);
 const prevControllerColliderPosition = new Vector3();
@@ -178,8 +183,19 @@ export class CharacterControllerSystem extends System {
       }
       quat.copy(transform.rotation).invert();
       actor.animationVelocity.set(x, y, z).applyQuaternion(quat);
-      // its beacose we need physicsMove on server and for localCharacter, not for all character
+
       characterMoveBehavior(entity, delta);
+
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
+      if(hasComponent(entity, FollowCameraComponent)) {
+        const camTransform = getComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent);
+        if(camTransform) {
+          actor.viewVector.set(0, 0, -1).applyQuaternion(camTransform.rotation);
+        }
+      } else if(xrInputSourceComponent) {
+        actor.viewVector.set(0, 0, 1).applyQuaternion(transform.rotation);
+      }
+
     });
 
     // PhysicsMove Characters On Server
@@ -201,20 +217,12 @@ export class CharacterControllerSystem extends System {
 
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent);
       const actor = getMutableComponent(entity, CharacterComponent);
+      const object3DComponent = getComponent(entity, Object3DComponent);
 
-      // reset view vector since we have different rotation mechanisms now
-      // TODO: figure out how keep the current rotation
-      actor.viewVector.set(0, 0, 1);
-      updatePlayerRotationFromViewVector(entity);
+      const transform = getMutableComponent(entity, TransformComponent);
+      // transform.rotation.identity();
 
-      // we handle the head different for local clients because it holds the camera
-      if(entity !== Network.instance.localClientEntity) {
-        actor.tiltContainer.add(xrInputSourceComponent.head)
-      }
-
-      xrInputSourceComponent.headGroup.position.setY(-actor.actorHalfHeight);
-      xrInputSourceComponent.headGroup.applyQuaternion(rotate180onY);
-
+      xrInputSourceComponent.controllerGroup.position.setY(-actor.actorHalfHeight);
 
       xrInputSourceComponent.controllerGroup.add(
         xrInputSourceComponent.controllerLeft, 
@@ -222,10 +230,10 @@ export class CharacterControllerSystem extends System {
         xrInputSourceComponent.controllerRight, 
         xrInputSourceComponent.controllerGripRight
       );
-
-      xrInputSourceComponent.headGroup.add(xrInputSourceComponent.controllerGroup);
-
-      actor.tiltContainer.add(xrInputSourceComponent.headGroup);
+      
+      xrInputSourceComponent.headGroup.applyQuaternion(rotate180onY);
+      xrInputSourceComponent.headGroup.add(xrInputSourceComponent.controllerGroup, xrInputSourceComponent.head);
+      object3DComponent.value.add(xrInputSourceComponent.headGroup);
 
       if(entity === Network.instance.localClientEntity) {
 
@@ -234,9 +242,9 @@ export class CharacterControllerSystem extends System {
           if(child.visible) {
             child.visible = false;
           }
-        })
+        });
       }
-    })
+    });
 
     this.queryResults.ikAvatar.removed?.forEach((entity) => {
 
@@ -249,16 +257,8 @@ export class CharacterControllerSystem extends System {
         if(child.visible) {
           child.visible = true;
         }
-      })
-    })
-
-    this.queryResults.ikAvatar.all?.forEach((entity) => {
-      const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent);
-      const actor = getMutableComponent(entity, CharacterComponent);
-      // console.log('actor', actor.tiltContainer.quaternion, actor.tiltContainer.getWorldQuaternion(quat))
-      // console.log('headGroup', xrInputSourceComponent.headGroup.quaternion, xrInputSourceComponent.headGroup.getWorldQuaternion(quat))
-      // console.log('head', xrInputSourceComponent.head.quaternion, xrInputSourceComponent.head.getWorldQuaternion(quat), )
-    })
+      });
+    });
   }
 }
 

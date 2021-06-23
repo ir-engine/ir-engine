@@ -27,7 +27,6 @@ module.exports = {
     "no-unused-vars": "off",
     "no-var": "off",
     "prefer-arrow-callback": "error",
-    "semi": ['warn', 'always'],
     "space-before-function-paren": "off",
     "@typescript-eslint/no-unused-vars": [
       "off"

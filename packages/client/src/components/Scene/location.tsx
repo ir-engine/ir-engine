@@ -61,6 +61,7 @@ import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu';
 import { ControllerColliderComponent } from '@xrengine/engine/src/character/components/ControllerColliderComponent';
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions';
 import { FollowCameraComponent } from '@xrengine/engine/src/camera/components/FollowCameraComponent';
+import { CameraLayers } from '../../../../engine/src/camera/constants/CameraLayers';
 
 const store = Store.store;
 
@@ -496,8 +497,6 @@ export const EnginePage = (props: Props) => {
       return;
     }
 
-    Engine.camera.layers.disable(0);
-
     // shut down connection with existing GS
     setPorting(true);
     resetInstanceServer();
@@ -508,7 +507,13 @@ export const EnginePage = (props: Props) => {
     // remove controller since physics world will be destroyed and we don't want it moving
     PhysicsSystem.instance.removeController(getComponent(Network.instance.localClientEntity, ControllerColliderComponent).controller);
     removeComponent(Network.instance.localClientEntity, ControllerColliderComponent);
+
+    // Handle Camera transition while player is moving
+    // Remove the follow component, and attach the camera to the player, so it moves with them without causing discomfort while in VR
     removeComponent(Network.instance.localClientEntity, FollowCameraComponent);
+    const camParent = Engine.camera.parent;
+    if(camParent) Engine.camera.removeFromParent();
+    Engine.camera.layers.disable(CameraLayers.Scene);
 
     // change our browser URL
     history.replace('/location/' + portalComponent.location);
@@ -523,8 +528,6 @@ export const EnginePage = (props: Props) => {
     // add back the collider using previous parameters
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     
-      Engine.camera.layers.enable(0);
-
       // teleport player to where the portal is
       const transform = getComponent(Network.instance.localClientEntity, TransformComponent);
       const actor = getComponent(Network.instance.localClientEntity, CharacterComponent);
@@ -532,7 +535,11 @@ export const EnginePage = (props: Props) => {
       transform.rotation.copy(portalComponent.spawnRotation);
 
       addComponent(Network.instance.localClientEntity, ControllerColliderComponent);
+
       addComponent(Network.instance.localClientEntity, FollowCameraComponent);
+      if(camParent) camParent.add(Engine.camera);
+      Engine.camera.layers.enable(CameraLayers.Scene);
+
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: true });
     });
   };

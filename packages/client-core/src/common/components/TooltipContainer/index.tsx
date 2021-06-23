@@ -1,7 +1,7 @@
 import React from "react";
 // @ts-ignore
 import styles from './ToolTipContainer.module.scss';
-import { isMobileOrTablet } from "@xrengine/engine/src/common/functions/isMobile";
+import { isMobile } from "@xrengine/engine/src/common/functions/isMobile";
 import Snackbar from '@material-ui/core/Snackbar';
 import { connect } from "react-redux";
 import TouchApp from "@material-ui/icons/TouchApp";
@@ -20,7 +20,7 @@ const mapStateToProps = (state: any): any => {
 
 
 const TooltipContainer = (props: Props) =>{
-  const interactTip = isMobileOrTablet() ? <TouchApp /> : 'E';
+  const interactTip = isMobile ? <TouchApp /> : 'E';
 	const { t } = useTranslation();
   return props.message ? 
             <Snackbar anchorOrigin={{vertical: 'bottom',horizontal: 'center'}} 
