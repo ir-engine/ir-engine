@@ -93,37 +93,19 @@ export class ActionSystem extends System {
 
   public execute(delta: number): void {
 
-    // Handle client input from threejs manager
     this.queryResults.localClientInputXR.all?.forEach(entity => {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
       const input = getMutableComponent(entity, Input);
-      const actor = getComponent(entity, CharacterComponent);
-      const transform = getMutableComponent(entity, TransformComponent);
-      // threejs messes up the local position of the camera to render the VR scene, so we have to take the world position and subtract the parent world position
-      vec.copy(transform.position);
-      xrInputSourceComponent.head.getWorldPosition(vec1);
-      vec1.sub(vec);
-      // we need to get the true local rotation of the head relative to the avatar
-      quat.copy(transform.rotation).invert();
-      quat1.copy(xrInputSourceComponent.head.quaternion).premultiply(quat);
       input.data.set(BaseInput.XR_HEAD, {
         type: InputType.SIXDOF,
         value: {
-          x: vec1.x,
-          y: vec1.y,
-          z: vec1.z,
+          x: xrInputSourceComponent.head.position.x,
+          y: xrInputSourceComponent.head.position.y,
+          z: xrInputSourceComponent.head.position.z,
           qW: xrInputSourceComponent.head.quaternion.w,
           qX: xrInputSourceComponent.head.quaternion.x,
           qY: xrInputSourceComponent.head.quaternion.y,
           qZ: xrInputSourceComponent.head.quaternion.z,
-          // qW: quat1.w,
-          // qX: quat1.x,
-          // qY: quat1.y,
-          // qZ: quat1.z,
-          // qW: Engine.camera.quaternion.w,
-          // qX: Engine.camera.quaternion.x,
-          // qY: Engine.camera.quaternion.y,
-          // qZ: Engine.camera.quaternion.z,
         },
         lifecycleState: LifecycleValue.CHANGED
       });

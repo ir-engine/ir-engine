@@ -19,8 +19,6 @@ export class CharacterComponent extends Component<CharacterComponent> {
    * It's center is at the center of the collider, except with y sitting at the bottom of the collider, flush with the ground
    */
 	modelContainer: Group;
-
-	movementEnabled = false;
   visible = true; // used for turning model invisble when first person
 
   // === ANIMATION === // // TODO: Move these to AnimationComponent
@@ -29,6 +27,9 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	animations: any[] = [];
 	currentAnimationAction: AnimationAction[] = [];
 	currentAnimationLength = 0; // we may not need this
+	speedMultiplier = 3;// TODO -- rename this to animation speed
+	animationVectorSimulator: VectorSpringSimulator
+	animationVelocity: Vector3 = new Vector3();
 
   // === AVATAR === //
 
@@ -40,30 +41,24 @@ export class CharacterComponent extends Component<CharacterComponent> {
 
 	// === MOVEMENT === //
 
+	movementEnabled = false;
 	isGrounded: boolean;
 	isJumping: boolean;
-	walkSpeed = 0.5;
-	runSpeed = 1;
+	walkSpeed = 1.5;
+	runSpeed = 5;
+	moveSpeed = 5;
 	jumpHeight = 4;
-	speedMultiplier = 3;
 	localMovementDirection = new Vector3();
 	velocity: Vector3 = new Vector3();
-	arcadeVelocityInfluence: Vector3 = new Vector3(1, 0, 1);
-	velocityTarget: Vector3 = new Vector3();
 
 	defaultVelocitySimulatorDamping = 0.8;
 	defaultVelocitySimulatorMass = 50;
 	velocitySimulator: VectorSpringSimulator
-	animationVectorSimulator: VectorSpringSimulator
 	moveVectorSmooth: VectorSpringSimulator
-	moveSpeed = 2;
-	otherPlayerMaxSpeedCount = 0;
-	angularVelocity = 0;
-	animationVelocity: Vector3 = new Vector3();
-	orientationTarget: Vector3 = new Vector3(0, 0, 1);
 	defaultRotationSimulatorDamping = 0.5;
 	defaultRotationSimulatorMass = 10;
 	rotationSimulator: RelativeSpringSimulator;
+
   /**
    * The direction this client is looking. 
    * As TransformComponent.rotation is locked to XZ plane,
