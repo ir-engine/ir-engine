@@ -502,8 +502,8 @@ export const EnginePage = (props: Props) => {
     resetInstanceServer();
     Network.instance.transport.close();
     
-    // disable physics temporarily
-    PhysicsSystem.instance.enabled = false;
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false });
+
     // remove controller since physics world will be destroyed and we don't want it moving
     PhysicsSystem.instance.removeController(getComponent(Network.instance.localClientEntity, ControllerColliderComponent).controller);
     removeComponent(Network.instance.localClientEntity, ControllerColliderComponent);
@@ -520,8 +520,6 @@ export const EnginePage = (props: Props) => {
     setNewSpawnPos(portalComponent);
     
     await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'));
-    
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false });
 
     getLocationByName(portalComponent.location);
 
