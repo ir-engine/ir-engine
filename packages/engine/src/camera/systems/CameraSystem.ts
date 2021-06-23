@@ -1,7 +1,7 @@
 import { Matrix4, Quaternion, Vector3 } from "three";
 import { addObject3DComponent } from '../../scene/behaviors/addObject3DComponent';
 import { CameraTagComponent } from '../../scene/components/Object3DTagComponents';
-import { isMobileOrTablet } from "../../common/functions/isMobile";
+import { isMobile } from "../../common/functions/isMobile";
 import { NumericalType, Vector2Type } from "../../common/types/NumericalTypes";
 import { Engine } from '../../ecs/classes/Engine';
 import { System, SystemAttributes } from '../../ecs/classes/System';
@@ -41,8 +41,8 @@ const followCameraBehavior = (entity: Entity) => {
 
   const followCamera = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent) as FollowCameraComponent;
 
-  cameraDesiredTransform.rotationRate = isMobileOrTablet() || followCamera.mode === CameraModes.FirstPerson ? 5 : 3.5;
-  cameraDesiredTransform.positionRate = isMobileOrTablet() || followCamera.mode === CameraModes.FirstPerson ? 3.5 : 2;
+  cameraDesiredTransform.rotationRate = isMobile || followCamera.mode === CameraModes.FirstPerson ? 5 : 3.5;
+  cameraDesiredTransform.positionRate = isMobile || followCamera.mode === CameraModes.FirstPerson ? 3.5 : 2;
 
   const inputComponent = getComponent(entity, Input) as Input;
 
@@ -55,16 +55,15 @@ const followCameraBehavior = (entity: Entity) => {
   // }
   const inputValue = inputComponent.data.get(inputAxes)?.value ?? [0, 0] as Vector2Type;
 
-  if(followCamera.locked && actor) {
-    followCamera.theta = Math.atan2(actor.orientation.x, actor.orientation.z) * 180 / Math.PI + 180;
+  if(followCamera.locked) {
+    followCamera.theta = Math.atan2(actor.viewVector.x, actor.viewVector.z) * 180 / Math.PI + 180;
   }
 
-  followCamera.theta -= inputValue[0] * (isMobileOrTablet() ? 60 : 100);
+  followCamera.theta -= inputValue[0] * (isMobile ? 60 : 100);
   followCamera.theta %= 360;
 
-  followCamera.phi -= inputValue[1] * (isMobileOrTablet() ? 60 : 100);
+  followCamera.phi -= inputValue[1] * (isMobile ? 60 : 100);
   followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi));
-  actor.viewVector.setY(followCamera.phi);
 
   let camDist = followCamera.distance;
   if (followCamera.mode === CameraModes.FirstPerson) camDist = 0.01;
@@ -73,15 +72,8 @@ const followCameraBehavior = (entity: Entity) => {
 
   const phi = followCamera.mode === CameraModes.TopDown ? 85 : followCamera.phi;
 
-  let targetPosition;
-  if (actor) { // this is for cars
-    const shoulderOffsetWorld = followCamera.offset.clone().applyQuaternion(actor.tiltContainer.quaternion);
-    targetPosition = actor.tiltContainer.getWorldPosition(vec3).add(shoulderOffsetWorld);
-  } else {
-    cameraDesiredTransform.rotationRate = 7;
-    cameraDesiredTransform.positionRate = 15;
-    targetPosition = actorTransform.position;
-  }
+  const shoulderOffsetWorld = followCamera.offset.clone().applyQuaternion(actorTransform.rotation);
+  const targetPosition = vec3.copy(actorTransform.position).add(shoulderOffsetWorld);
 
   // Raycast for camera
   const cameraTransform: TransformComponent = getMutableComponent(CameraSystem.instance.activeCamera, TransformComponent);
@@ -111,27 +103,22 @@ const followCameraBehavior = (entity: Entity) => {
 
   mx.lookAt(direction, empty, upVector);
   cameraDesiredTransform.rotation.setFromRotationMatrix(mx);
-  if (actor) {
-    actor.viewVector.copy(vec3.set(0, 0, -1)).applyQuaternion(cameraDesiredTransform.rotation);
-  } else {
-    cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
-  }
 
   // for pointer lock controls
   // if(cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam) {
   //     cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
   // }
-  // if (followCamera.mode === CameraModes.FirstPerson) {
-  //   cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
-  //   cameraTransform.position.copy(cameraDesiredTransform.position);
-  // }
+  if (followCamera.mode === CameraModes.FirstPerson) {
+    // cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
+    cameraTransform.position.copy(cameraDesiredTransform.position);
+  }
   // apply user input
   
   // rotate character
-  if(followCamera.locked || followCamera.mode === CameraModes.FirstPerson || followCamera.mode === CameraModes.XR) {
+  if(followCamera.locked || followCamera.mode === CameraModes.FirstPerson) {
     actorTransform.rotation.setFromAxisAngle(upVector, (followCamera.theta - 180) * (Math.PI / 180));
-    actor.orientation.copy(forwardVector).applyQuaternion(actorTransform.rotation);
-    actorTransform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
+    vec3.copy(forwardVector).applyQuaternion(actorTransform.rotation);
+    actorTransform.rotation.setFromUnitVectors(forwardVector, vec3.setY(0));
   }
 };
 

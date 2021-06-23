@@ -99,7 +99,7 @@ export const movingAnimationSchema = [
 ];
 
 
-export const initializeMovingState: Behavior = (entity, args: { x?: number, y?: number, z?: number }) => {
+export const initializeMovingState: Behavior = (entity) => {
 
   if(hasComponent(entity, AnimationComponent)) {
     const animComponent = getMutableComponent(entity, AnimationComponent);
@@ -119,10 +119,6 @@ export const initializeMovingState: Behavior = (entity, args: { x?: number, y?: 
 
 	actor.rotationSimulator.damping = actor.defaultRotationSimulatorDamping;
 	actor.rotationSimulator.mass = actor.defaultRotationSimulatorMass;
-
-	actor.velocityTarget.z = args?.z ?? 0;
-	actor.velocityTarget.x = args?.x ?? 0;
-	actor.velocityTarget.y = args?.y ?? 0;
 
   actor.movementEnabled = true;
 };

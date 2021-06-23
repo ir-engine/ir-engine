@@ -443,7 +443,7 @@ export async function closeConsumer(consumer: any) {
     ) as any[];
 }
 
-export async function leave(instance: boolean): Promise<boolean> {
+export async function leave(instance: boolean, kicked?: boolean): Promise<boolean> {
     if (Network.instance?.transport != null) {
         try {
             networkTransport = Network.instance.transport as any;
@@ -451,14 +451,20 @@ export async function leave(instance: boolean): Promise<boolean> {
             const socket = instance === true ? networkTransport.instanceSocket : networkTransport.channelSocket;
 
             const request = instance === true ? networkTransport.instanceRequest : networkTransport.channelRequest;
-            if (request && socket.connected === true) {
+            if (kicked !== true && request && socket.connected === true) {
                 // close everything on the server-side (transports, producers, consumers)
-                const result = await request(MessageTypes.LeaveWorld.toString());
-                if (result.error) console.error(result.error);
+                const result = await Promise.race([
+                    await request(MessageTypes.LeaveWorld.toString()),
+                    new Promise((resolve, reject) => {
+                        setTimeout(() => reject(new Error('Connect timed out')), 10000);
+                    })
+                ]);
+                if (result?.error) console.error(result.error);
                 EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LEAVE_WORLD });
             }
 
             networkTransport.leaving = false;
+            networkTransport.left = true;
 
             //Leaving the world should close all transports from the server side.
             //This will also destroy all the associated producers and consumers.
