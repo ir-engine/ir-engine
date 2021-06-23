@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client-core",
-  "version": "0.2.27",
+  "version": "0.2.28",
   "module": "dist/client-core.es.js",
   "repository": {
     "type": "git",
@@ -47,9 +47,8 @@
     "@types/styled-components": "5.1.10",
     "@typescript-eslint/eslint-plugin": "4.28.0",
     "@typescript-eslint/parser": "4.28.0",
-    "@xrengine/common": "^0.2.27",
-    "@xrengine/engine": "^0.2.27",
-    "device-detector-js": "2.2.9",
+    "@xrengine/common": "^0.2.28",
+    "@xrengine/engine": "^0.2.28",
     "antd": "4.16.3",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
@@ -58,6 +57,7 @@
     "classnames": "2.3.1",
     "credential-handler-polyfill": "2.2.1",
     "ctix": "0.3.1",
+    "device-detector-js": "2.2.9",
     "dompurify": "2.2.9",
     "emailjs-com": "3.1.0",
     "esbuild-plugin-sass": "0.5.0",
@@ -98,8 +98,8 @@
     "use-debounce": "7.0.0",
     "use-http": "1.0.21",
     "uuid": "8.3.2",
-    "yup": "0.32.9",
-    "volumetric": "https://github.com/XRFoundation/UniversalVolumetric"
+    "volumetric": "https://github.com/XRFoundation/UniversalVolumetric",
+    "yup": "0.32.9"
   },
   "devDependencies": {
     "@rollup/plugin-json": "4.1.0",

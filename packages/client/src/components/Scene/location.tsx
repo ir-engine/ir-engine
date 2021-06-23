@@ -77,7 +77,8 @@ const initialRefreshModalValues = {
   body: '',
   action: async() => {},
   parameters: [],
-  timeout: 10000
+  timeout: 10000,
+  noCountdown: false
 };
 
 const canvasStyle = {
@@ -203,6 +204,8 @@ export const EnginePage = (props: Props) => {
   const [warningRefreshModalValues, setWarningRefreshModalValues] = useState(initialRefreshModalValues);
   const [noGameserverProvision, setNoGameserverProvision] = useState(false);
   const [instanceDisconnected, setInstanceDisconnected] = useState(false);
+  const [instanceKicked, setInstanceKicked] = useState(false);
+  const [instanceKickedMessage, setInstanceKickedMessage] = useState('');
   const [isInputEnabled, setInputEnabled] = useState(true);
   const [porting, setPorting] = useState(false);
   const [newSpawnPos, setNewSpawnPos] = useState(null);
@@ -220,7 +223,13 @@ export const EnginePage = (props: Props) => {
     } else {
       doLoginAuto(true);
       EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
-      EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED, () => setInstanceDisconnected(true));
+      EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED, () => {
+        if (Network.instance.transport.left === false) setInstanceDisconnected(true);
+      });
+      EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_KICKED, ({ message }) => {
+        setInstanceKickedMessage(message);
+        setInstanceKicked(true);
+      });
       EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED, () => setWarningRefreshModalValues(initialRefreshModalValues));
       EngineEvents.instance.addEventListener(EngineEvents.EVENTS.RESET_ENGINE, async (ev: any) => {
         if (ev.instance === true) {
@@ -337,7 +346,7 @@ export const EnginePage = (props: Props) => {
       const newValues = {
         open: true,
         title: 'World disconnected',
-        body: 'You\'ve lost your connection with the world. We\'ll try to reconnect before the following time runs out, otherwise you\'ll be forwarded to a different instance',
+        body: 'You\'ve lost your connection with the world. We\'ll try to reconnect before the following time runs out, otherwise you\'ll be forwarded to a different instance.',
         action: window.location.reload,
         parameters: [],
         timeout: 30000
@@ -347,6 +356,20 @@ export const EnginePage = (props: Props) => {
       setInstanceDisconnected(false);
     }
   }, [instanceDisconnected]);
+
+  useEffect(() => {
+    if (instanceKicked === true) {
+      const newValues = {
+        open: true,
+        title: 'You\'ve been kicked from the world',
+        body: 'You were kicked from this world for the following reason: ' + instanceKickedMessage,
+        noCountdown: true
+      };
+      //@ts-ignore
+      setWarningRefreshModalValues(newValues);
+      setInstanceDisconnected(false);
+    }
+  }, [instanceKicked]);
 
   const reinit = () => {
     const currentLocation = locationState.get('currentLocation').get('location');
@@ -589,6 +612,7 @@ export const EnginePage = (props: Props) => {
             action={warningRefreshModalValues.action}
             parameters={warningRefreshModalValues.parameters}
             timeout={warningRefreshModalValues.timeout}
+            noCountdown={warningRefreshModalValues.noCountdown}
         />
         <EmoteMenu />
       </>
