@@ -68,7 +68,6 @@ const UpdateBot = (props: Props) => {
     const [formErrors, setFormErrors] = React.useState({
         name: "",
         description: "",
-        instance: "",
         location: "",
     });
     const [currentInstance, setCurrentIntance] = React.useState([]);
@@ -102,9 +101,6 @@ const UpdateBot = (props: Props) => {
             case "description":
                 temp.description = value.length < 2 ? "Description is required!" : "";
                 break;
-            case "instance":
-                temp.instance = value.length < 2 ? "Instance is required!" : "";
-                break;
             case "location":
                 temp.location = value.length < 2 ? "Location is required!" : "";
                 break;
@@ -133,7 +129,7 @@ const UpdateBot = (props: Props) => {
     const handleUpdate = () => {
         const data = {
             name: state.name,
-            instanceId: state.instance,
+            instanceId: state.instance || null,
             userId: user.id,
             description: state.description,
             locationId: state.location
@@ -144,9 +140,6 @@ const UpdateBot = (props: Props) => {
         }
         if (!state.description) {
             temp.description = "Description can't be empty";
-        }
-        if (!state.instance) {
-            temp.instance = "Instance can't be empty";
         }
         if (!state.location) {
             temp.location = "Location can't be empty";
@@ -232,7 +225,7 @@ const UpdateBot = (props: Props) => {
 
 
                     <label>Instance</label>
-                    <Paper component="div" className={formErrors.instance.length > 0 ? classes.redBorder : classes.createInput}>
+                    <Paper component="div" className={classes.createInput}>
                         <FormControl className={classes.createInput} fullWidth disabled={currentInstance.length > 0 ? false : true}>
                             <Select
                                 labelId="demo-controlled-open-select-label"
