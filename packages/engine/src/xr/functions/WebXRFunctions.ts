@@ -210,5 +210,16 @@ export const getHandTransform = (entity: Entity, hand: ParityValue = ParityValue
     // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
     position: vec3.set(-0.5, 0, 0).applyQuaternion(transform.rotation).add(transform.position),
     rotation: quat.setFromUnitVectors(forward, actor.viewVector)
-  };
-};
+  }
+}
+
+
+/**
+ * Gets the hand entity
+ * @author Gheric Speiginer
+ * @returns {Entity}
+ */
+export function getHand(entity:Entity, hand = ParityValue.NONE) {
+  const ikComponent = getComponent(entity, IKComponent);
+  return hand === ParityValue.LEFT ? ikComponent?.controllerLeft : ikComponent?.controllerRight;
+}

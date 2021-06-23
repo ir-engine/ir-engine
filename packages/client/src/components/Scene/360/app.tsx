@@ -1,7 +1,7 @@
-import { UIBlock, UIText, UIBaseElement, UI_ELEMENT_SELECT_STATE } from '@xrengine/engine/src/ui/classes/UIBaseElement';
+import { UIBlock, UIText, UIBaseElement, UI_ELEMENT_SELECT_STATE } from '@xrengine/engine/src/ui-old/classes/UIBaseElement';
 import { VideoPlayer } from './VideoPlayer';
-import { Control } from '@xrengine/engine/src/ui/classes/Control';
-import { createItem, createCol, createRow, createButton, makeLeftItem } from '@xrengine/engine/src/ui/functions/createItem';
+import { Control } from '@xrengine/engine/src/ui-old/classes/Control';
+import { createItem, createCol, createRow, createButton, makeLeftItem } from '@xrengine/engine/src/ui-old/functions/createItem';
 
 export class XR360Player extends UIBaseElement {
   marketPlace: UIBlock;
