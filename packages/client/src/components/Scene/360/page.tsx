@@ -1,7 +1,7 @@
 import { GeneralStateList, setAppLoaded, setAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
 import Store from '@xrengine/client-core/src/store';
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
-import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
+import { isMobile } from '@xrengine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine';
@@ -12,6 +12,7 @@ import React, { useEffect, useState } from 'react';
 import {XR360Player} from './app';
 import {testScene} from './test';
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
+import { InitializeOptions } from '../../../../../engine/src/initializationOptions';
 
 const TouchGamepad = React.lazy(() => import("@xrengine/client-core/src/common/components/TouchGamepad"));
 const engineRendererCanvasId = 'engine-renderer-canvas';
@@ -44,7 +45,7 @@ export const XR360PlayerPage = (props: Props) => {
   async function init(sceneId: string): Promise<any> {
     const sceneData = testScenes[sceneId] || testScenes.test;
 
-    const InitializationOptions = {
+    const InitializationOptions: InitializeOptions = {
       renderer: {
         canvasId: engineRendererCanvasId,
         postProcessing: false,
@@ -52,7 +53,9 @@ export const XR360PlayerPage = (props: Props) => {
       networking: {
         useOfflineMode: true,
       },
-      physxWorker: new Worker('/scripts/loadPhysXClassic.js'),
+      physics: {
+        physxWorker: new Worker('/scripts/loadPhysXClassic.js'),
+      }
     };
     console.log(InitializationOptions);
     await initializeEngine(InitializationOptions);
@@ -94,7 +97,7 @@ export const XR360PlayerPage = (props: Props) => {
 
   //touch gamepad
   const touchGamepadProps = { layout: 'default' };
-  const touchGamepad = isMobileOrTablet() ? <TouchGamepad {...touchGamepadProps} /> : null;
+  const touchGamepad = isMobile ? <TouchGamepad {...touchGamepadProps} /> : null;
   return (
     <>
       {!isInXR && <div>

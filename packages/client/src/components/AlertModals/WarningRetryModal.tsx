@@ -18,6 +18,7 @@ interface Props {
     parameters: any[];
     timeout: number;
     closeEffect?: any;
+    noCountdown?: boolean;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -34,6 +35,7 @@ const WarningRetryModal = (props: Props): any => {
         open,
         title,
         body,
+        noCountdown,
         action,
         parameters,
         timeout,
@@ -50,7 +52,7 @@ const WarningRetryModal = (props: Props): any => {
     };
 
     useEffect(() => {
-        if (open === true) {
+        if (open === true && noCountdown !== true) {
             setTimeRemaining(timeout / 1000);
         } else {
             clearInterval(countdown as any);
@@ -107,10 +109,10 @@ const WarningRetryModal = (props: Props): any => {
                         </div>
                         <div className={styles['modal-body']}>
                             {body}
-                            <div>
+                            { noCountdown !== true && <div>
                                 { timeRemaining } seconds
-                            </div>
-                            <div className={styles.footer}>Closing this modal will cancel the countdown</div>
+                            </div>}
+                            { noCountdown !== true && <div className={styles.footer}>Closing this modal will cancel the countdown</div> }
                         </div>
                     </div>
                 </Fade>

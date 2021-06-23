@@ -50,7 +50,7 @@ import { removeSpawnedObjects } from "../functions/functions";
 import { ifMoved } from "./gameDefault/checkers/ifMoved";
 import { spawnBall } from "./Golf/prefab/GolfBallPrefab";
 import { hitBall } from "./Golf/behaviors/hitBall";
-import { teleportPlayer } from "./Golf/behaviors/teleportPlayer";
+import { teleportPlayerBehavior } from "./Golf/behaviors/teleportPlayer";
 import { getPositionNextPoint } from "./Golf/behaviors/getPositionNextPoint";
 
 // ui
@@ -311,7 +311,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
         },
         // takeEffectOn Player, Gall
         {
-          behavior: teleportPlayer,
+          behavior: teleportPlayerBehavior,
           prepareArgs: getPositionNextPoint,
           args: { on: 'self', positionCopyFromRole: 'GolfTee-', position: null },
           watchers:[ [ State.Goal ] ]

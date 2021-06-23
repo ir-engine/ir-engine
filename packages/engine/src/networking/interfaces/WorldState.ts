@@ -4,6 +4,12 @@ import { GameStateActionMessage, GameStateUpdateMessage, ClientGameActionMessage
 import { InputAlias } from "../../input/types/InputAlias";
 import { StateEntityGroup, StateEntityIKGroup } from "../types/SnapshotDataTypes";
 
+export interface AvatarProps {
+  avatarURL?: string;
+  thumbnailURL?: string;
+  avatarId?: string;
+}
+
 /** Interface for handling network input. */
 export interface NetworkInputInterface {
   /** network ID of user. */
@@ -53,11 +59,7 @@ export interface PacketNetworkClientInputInterface extends PacketNetworkInputInt
 export interface NetworkClientDataInterface {
   /** Id of the user. */
   userId: string,
-  avatarDetail?: {
-    avatarURL?: string;
-    thumbnailURL?: string;
-    avatarId?: string;
-  },
+  avatarDetail?: AvatarProps,
 }
 
 /** Interface to remove network object. */

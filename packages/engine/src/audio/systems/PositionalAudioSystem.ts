@@ -13,6 +13,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent';
 import { isClient } from '../../common/functions/isClient';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
+import { Entity } from '../../ecs/classes/Entity';
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== "undefined" && /chrome/i.test(navigator.userAgent);
 function createSilentAudioEl(streamsLive) {
@@ -39,14 +40,27 @@ export class PositionalAudioSystem extends System {
 
   updateType = SystemUpdateType.Fixed;
   
-  characterAudioStream = new Map();
-  audioInitialised = false;
+  characterAudioStream: Map<Entity, any>;
+  audioInitialised: boolean;
 
   /** Constructs Positional Audio System. */
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     PositionalAudioSystem.instance = this;
     Engine.useAudioSystem = true;
+    // not needed to reset, only for initial load of page
+    this.audioInitialised = false;
+    this.reset();
+  }
+
+  reset(): void {
+    
+    this.characterAudioStream = new Map<Entity, any>();
+  }
+
+  dispose(): void {
+    super.dispose();
+    this.reset();
   }
 
   /** Execute the positional audio system for different events of queries. */

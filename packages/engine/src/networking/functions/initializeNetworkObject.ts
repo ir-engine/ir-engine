@@ -159,7 +159,7 @@ export function initializeNetworkObject( args: { parameters?: any, entity?: Enti
     uniqueId
   );
 
-  const networkObject = getComponent(networkEntity, NetworkObject);
+  const networkObject = getMutableComponent(networkEntity, NetworkObject);
 
   Network.instance.networkObjects[networkId] = {
     ownerId,

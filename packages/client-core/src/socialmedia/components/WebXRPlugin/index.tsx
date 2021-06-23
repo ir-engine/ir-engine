@@ -16,9 +16,9 @@ import {
 import VideocamIcon from '@material-ui/icons/Videocam';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import FlipCameraIosIcon from '@material-ui/icons/FlipCameraIos';
-import Player from 'volumetric/src/decoder/Player';
+import Player from 'volumetric/web/decoder/Player';
 // @ts-ignore
-import PlayerWorker from 'volumetric/src/decoder/workerFunction.ts?worker';
+import PlayerWorker from 'volumetric/web/decoder/workerFunction.ts?worker';
 
 //@ts-ignore
 import styles from './WebXRPlugin.module.scss';

@@ -6,12 +6,12 @@ import { initializeEngine } from "@xrengine/engine/src/initializeEngine";
 import { NetworkSchema } from "@xrengine/engine/src/networking/interfaces/NetworkSchema";
 import config from '@xrengine/server-core/src/appconfig';
 import { SocketWebRTCServerTransport } from "./SocketWebRTCServerTransport";
-import { EngineSystemPresets } from '@xrengine/engine/src/initializationOptions';
+import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions';
 
 (globalThis as any).XMLHttpRequest = XMLHttpRequest;
 
 const currentPath = (process.platform === "win32" ? 'file:///' : '') + path.dirname(__filename);
-const options = {
+const options: InitializeOptions = {
   type: EngineSystemPresets.SERVER,
   networking: {
     schema: {
@@ -19,7 +19,9 @@ const options = {
     } as NetworkSchema,
   },
   publicPath: config.client.url,
-  physxWorker: new Worker(currentPath + "/physx/loadPhysXNode.ts"),
+  physics: {
+    physxWorker: new Worker(currentPath + "/physx/loadPhysXNode.ts"),
+  }
 };
 
 export class WebRTCGameServer {

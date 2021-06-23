@@ -18,8 +18,8 @@ import {
     ShadowMaterial
 } from "three";
 import React, {useEffect} from 'react';
-import Player from 'volumetric/src/decoder/Player';
-import PlayerWorker from 'volumetric/src/decoder/workerFunction.ts?worker';
+import Player from 'volumetric/web/decoder/Player';
+import PlayerWorker from 'volumetric/web/decoder/workerFunction.ts?worker';
 
 
 class ARButton {

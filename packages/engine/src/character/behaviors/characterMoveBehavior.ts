@@ -29,12 +29,12 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   if (actor.isGrounded) {
     collider.controller.velocity.y = 0;
 
-    actor.velocityTarget.copy(actor.localMovementDirection).multiplyScalar(deltaTime);
-    actor.velocitySimulator.target.copy(actor.velocityTarget);
+    vec3.copy(actor.localMovementDirection).multiplyScalar(deltaTime);
+    actor.velocitySimulator.target.copy(vec3);
     actor.velocitySimulator.simulate(deltaTime);
 
     actor.velocity.copy(actor.velocitySimulator.position);
-    newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed * actor.speedMultiplier);
+    newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed);
 
     const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
     if(xrInputSourceComponent) {
@@ -47,9 +47,9 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
       newVelocity.applyQuaternion(transform.rotation);
     }
 
-    if (actor.closestHit) {
+    if (collider.closestHit) {
       onGroundVelocity.copy(newVelocity).setY(0);
-      vec3.set(actor.closestHit.normal.x, actor.closestHit.normal.y, actor.closestHit.normal.z);
+      vec3.set(collider.closestHit.normal.x, collider.closestHit.normal.y, collider.closestHit.normal.z);
       quat.setFromUnitVectors(upVector, vec3);
       mat4.makeRotationFromQuaternion(quat);
       onGroundVelocity.applyMatrix4(mat4);

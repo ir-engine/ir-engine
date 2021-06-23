@@ -4,6 +4,7 @@ import { CharacterAnimations } from '../CharacterAnimations';
 import { defaultAvatarAnimations } from '../CharacterAvatars';
 import { AnimationComponent } from '../components/AnimationComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
+import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -98,7 +99,7 @@ export const movingAnimationSchema = [
 ];
 
 
-export const initializeMovingState: Behavior = (entity, args: { x?: number, y?: number, z?: number }) => {
+export const initializeMovingState: Behavior = (entity) => {
 
   if(hasComponent(entity, AnimationComponent)) {
     const animComponent = getMutableComponent(entity, AnimationComponent);
@@ -119,15 +120,11 @@ export const initializeMovingState: Behavior = (entity, args: { x?: number, y?: 
 	actor.rotationSimulator.damping = actor.defaultRotationSimulatorDamping;
 	actor.rotationSimulator.mass = actor.defaultRotationSimulatorMass;
 
-	actor.velocityTarget.z = args?.z ?? 0;
-	actor.velocityTarget.x = args?.x ?? 0;
-	actor.velocityTarget.y = args?.y ?? 0;
-
   actor.movementEnabled = true;
 };
 
 export const getMovementValues: Behavior = (entity, args: {}, deltaTime: number) => {
-  const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
+  const actor = getComponent(entity, CharacterComponent);
   // simulate rayCastHit as vectorY from 1 to 0, for smooth changes
   //  absSpeed = MathUtils.smoothstep(absSpeed, 0, 1);
 
@@ -135,7 +132,7 @@ export const getMovementValues: Behavior = (entity, args: {}, deltaTime: number)
 
   if(actor.moveVectorSmooth.position.length() < 0.001) { actor.moveVectorSmooth.velocity.set(0,0,0); actor.moveVectorSmooth.position.set(0,0,0); }
 
-  actor.moveVectorSmooth.target.copy(actor.animationVelocity)
+  actor.moveVectorSmooth.target.copy(actor.animationVelocity);
   actor.moveVectorSmooth.simulate(deltaTime);
   const actorVelocity = actor.moveVectorSmooth.position;
 
@@ -149,4 +146,4 @@ export const getMovementValues: Behavior = (entity, args: {}, deltaTime: number)
   dontHasHit = Math.min(dontHasHit, 1);
 
   return { actorVelocity, dontHasHit };
-}
+};

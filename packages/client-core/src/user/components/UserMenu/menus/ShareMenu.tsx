@@ -4,7 +4,7 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { Send, FileCopy } from '@material-ui/icons';
-import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
+import { isMobile } from '@xrengine/engine/src/common/functions/isMobile';
 //@ts-ignore
 // @ts-ignore
 import styles from '../UserMenu.module.scss';
@@ -103,7 +103,7 @@ const ShareMenu = (props: Props): any => {
 						),
 					}}
 				/>
-				{(isMobileOrTablet() && navigator.share)
+				{(isMobile && navigator.share)
 					? <div className={styles.shareBtnContainer}><Button className={styles.shareBtn} onClick={shareOnApps}>{t('user:usermenu.share.lbl-share')}</Button></div>
 					: null}
 			</div>

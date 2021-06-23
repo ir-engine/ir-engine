@@ -7,6 +7,7 @@ import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/Cli
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import React, { useEffect, useState } from 'react';
+import { InitializeOptions } from '../../../engine/src/initializationOptions';
 
 const canvasStyle = {
   zIndex: 0,
@@ -42,7 +43,7 @@ const DevPage = () => {
   async function init(): Promise<any> {
     const sceneData = testScenes.test;
 
-    const InitializationOptions = {
+    const initializationOptions: InitializeOptions = {
       renderer: {
         canvasId: engineRendererCanvasId,
         postProcessing: false,
@@ -50,10 +51,12 @@ const DevPage = () => {
       networking: {
         useOfflineMode: true,
       },
-      physxWorker: new Worker('/scripts/loadPhysXClassic.js'),
+      physics: {
+        physxWorker: new Worker('/scripts/loadPhysXClassic.js'),
+      }
     };
-    console.log(InitializationOptions);
-    await initializeEngine(InitializationOptions);
+    console.log(initializationOptions);
+    await initializeEngine(initializationOptions);
 
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
 

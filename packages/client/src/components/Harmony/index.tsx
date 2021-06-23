@@ -71,7 +71,7 @@ import {
 import { Group as GroupType } from "@xrengine/common/src/interfaces/Group";
 import { Message } from '@xrengine/common/src/interfaces/Message';
 import { User } from '@xrengine/common/src/interfaces/User';
-import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
+import { isMobile } from '@xrengine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine';
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
@@ -100,6 +100,7 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import styles from './style.module.scss';
 import WarningRefreshModal from "../AlertModals/WarningRetryModal";
 import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
+import { InitializeOptions } from '../../../../engine/src/initializationOptions';
 const engineRendererCanvasId = 'engine-renderer-canvas';
 
 const mapStateToProps = (state: any): any => {
@@ -752,7 +753,7 @@ const Harmony = (props: Props): any => {
 
     async function init(): Promise<any> {
         if (Network.instance?.isInitialized !== true) {
-            const InitializationOptions = {
+            const initializationOptions: InitializeOptions = {
                 networking: {
                     schema: {
                         transport: SocketWebRTCClientTransport
@@ -763,7 +764,7 @@ const Harmony = (props: Props): any => {
                 },
             };
 
-            await initializeEngine(InitializationOptions);
+            await initializeEngine(initializationOptions);
             if (engineInitialized === false) createEngineListeners();
         }
     }
@@ -864,7 +865,7 @@ const Harmony = (props: Props): any => {
                 onClick={(e) => {
                     if (party != null) {
                         setActiveChat('party', party);
-                        if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
+                        if (isMobile === true || dimensions.width <= 768) setSelectorsOpen(false);
                     } else openDetails(e, 'party', party);
                 }}
             >
@@ -883,7 +884,7 @@ const Harmony = (props: Props): any => {
                     setActiveChat('instance', {
                         id: selfUser.instanceId
                     });
-                    if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
+                    if (isMobile === true || dimensions.width <= 768) setSelectorsOpen(false);
                 }}
             >
                 <Grain className={styles['icon-margin-right']} />
@@ -924,7 +925,7 @@ const Harmony = (props: Props): any => {
                                 })}
                                     onClick={() => {
                                         setActiveChat('user', friend);
-                                        if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
+                                        if (isMobile === true || dimensions.width <= 768) setSelectorsOpen(false);
                                     }}
                                 >
                                     <ListItemAvatar>
@@ -976,7 +977,7 @@ const Harmony = (props: Props): any => {
                                     })}
                                     onClick={() => {
                                         setActiveChat('group', group);
-                                        if (isMobileOrTablet() === true || dimensions.width <= 768) setSelectorsOpen(false);
+                                        if (isMobile === true || dimensions.width <= 768) setSelectorsOpen(false);
                                     }}
                                 >
                                     <ListItemText primary={group.name} />
@@ -1079,7 +1080,7 @@ const Harmony = (props: Props): any => {
                     border-color: rgba(127, 127, 127, 0.7);
                 }
             `}</style>
-            { (isMobileOrTablet() === true || dimensions.width <= 768) && <SwipeableDrawer
+            { (isMobile === true || dimensions.width <= 768) && <SwipeableDrawer
                 className={classNames({
                     [styles['flex-column']]: true,
                     [styles['list-container']]: true
@@ -1097,10 +1098,10 @@ const Harmony = (props: Props): any => {
                 <div className={styles['close-button']} onClick={() => setSelectorsOpen(false)}><Close /></div>
                 {chatSelectors}
             </SwipeableDrawer>}
-            { (isMobileOrTablet() !== true && dimensions.width > 768) && chatSelectors}
+            { (isMobile !== true && dimensions.width > 768) && chatSelectors}
             <div className={styles['chat-window']}>
                 <div className={styles['harmony-header']}>
-                    {(isMobileOrTablet() === true || dimensions.width <= 768) && <div className={classNames({
+                    {(isMobile === true || dimensions.width <= 768) && <div className={classNames({
                         [styles['chat-toggle']]: true,
                         [styles.iconContainer]: true
                     })} onClick={() => setSelectorsOpen(true)}><Group /></div>}
@@ -1140,10 +1141,10 @@ const Harmony = (props: Props): any => {
                             [styles['profile-toggle']]: true,
                             [styles.iconContainer]: true
                         })} onClick={() => openProfileMenu()}><Person /></div>
-                        <div className={classNames({
+                        { selfUser.userRole !== 'guest' && <div className={classNames({
                             [styles['invite-toggle']]: true,
                             [styles.iconContainer]: true
-                        })} onClick={() => openInvite()}><GroupAdd /></div>
+                        })} onClick={() => openInvite()}><GroupAdd /></div>}
                         {isHarmonyPage !== true && <div className={classNames({
                             [styles['harmony-toggle']]: true,
                             [styles.iconContainer]: true
