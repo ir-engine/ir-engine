@@ -256,7 +256,7 @@ function disconnectClientIfConnected(socket, userId: string): void {
     if (Network.instance.clients[userId] !== undefined &&
       Network.instance.clients[userId].socketId !== socket.id) {
         console.log("Client already exists, kicking the old client and disconnecting");
-        Network.instance.clients[userId].socket?.emit(MessageTypes.Kick.toString());
+        Network.instance.clients[userId].socket?.emit(MessageTypes.Kick.toString(), 'You joined this world on another device');
         Network.instance.clients[userId].socket?.disconnect();
     }
 
