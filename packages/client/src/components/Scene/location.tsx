@@ -584,7 +584,7 @@ export const EnginePage = (props: Props) => {
 
   //touch gamepad
   const touchGamepadProps = { hovered: objectHovered, layout: 'default' };
-  const touchGamepad = deviceState.get('content').touchDetected ? <Suspense fallback={<></>}><TouchGamepad {...touchGamepadProps} /></Suspense> : null;
+  const touchGamepad = deviceState.get('content')?.touchDetected ? <Suspense fallback={<></>}><TouchGamepad {...touchGamepadProps} /></Suspense> : null;
 
   if(userBanned) return (<div className="banned">You have been banned from this location</div>);
   return isInXR ? <></> : (
