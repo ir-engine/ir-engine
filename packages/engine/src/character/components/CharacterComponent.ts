@@ -1,26 +1,18 @@
 // Default component, holds data about what behaviors our actor has.
 import { AnimationAction, AnimationMixer, Group, Material, Vector3 } from 'three';
-import { RaycastQuery } from "three-physx";
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 import { RelativeSpringSimulator } from '../../physics/classes/SpringSimulator';
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator';
-import { DefaultCollisionMask } from '../../physics/enums/CollisionGroups';
+
 export class CharacterComponent extends Component<CharacterComponent> {
 
 	dispose(): void {
 		super.dispose();
-		this.modelContainer.parent.remove(this.modelContainer);
-		this.tiltContainer = null;
+		this.modelContainer.removeFromParent();
 	}
 
   // === CORE == //
-
-  /**
-   * @property {Group} tiltContainer is a group that ensures the transform is always oriented with Y perpendicular to ground
-   * It's center is at the center of the collider
-   */
-	tiltContainer: Group;
 
   /**
    * @property {Group} modelContainer is a group that holds the model such that the animations & IK can move seperate from the transform & collider
@@ -68,11 +60,18 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	otherPlayerMaxSpeedCount = 0;
 	angularVelocity = 0;
 	animationVelocity: Vector3 = new Vector3();
-	orientation: Vector3 = new Vector3(0, 0, 1);
 	orientationTarget: Vector3 = new Vector3(0, 0, 1);
 	defaultRotationSimulatorDamping = 0.5;
 	defaultRotationSimulatorMass = 10;
 	rotationSimulator: RelativeSpringSimulator;
+  /**
+   * The direction this client is looking. 
+   * As TransformComponent.rotation is locked to XZ plane,
+   * this allows the actor to have pitch independent of the collider & model.
+   * 
+   * On the local client viewVector is controlled by TransformComponent.rotation
+   * On the server and other clients this controls TransformComponent.rotation
+   */
 	viewVector: Vector3;
 
 	static _schema = {

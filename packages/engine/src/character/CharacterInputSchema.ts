@@ -4,7 +4,7 @@ import { Entity } from '../ecs/classes/Entity';
 import { getComponent } from '../ecs/functions/EntityFunctions';
 import { Input } from '../input/components/Input';
 import { BaseInput } from '../input/enums/BaseInput';
-import { Material, Mesh, Vector3 } from "three";
+import { Material, Mesh, Quaternion, Vector3 } from "three";
 import { SkinnedMesh } from 'three/src/objects/SkinnedMesh';
 import { CameraModes } from "../camera/types/CameraModes";
 import { LifecycleValue } from "../common/enums/LifecycleValue";
@@ -21,7 +21,7 @@ import { interactOnServer } from '../interaction/systems/InteractiveSystem';
 import { CharacterComponent } from "./components/CharacterComponent";
 import { isClient } from "../common/functions/isClient";
 import { VehicleComponent } from '../vehicle/components/VehicleComponent';
-import { isMobileOrTablet } from '../common/functions/isMobile';
+import { isMobile } from '../common/functions/isMobile';
 import { EquipperComponent } from '../interaction/components/EquipperComponent';
 import { TransformComponent } from '../transform/components/TransformComponent';
 import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings';
@@ -135,10 +135,12 @@ const switchShoulderSide: Behavior = (entity: Entity, args: any, detla: number )
   }
 };
 
-const setVisible = (character: CharacterComponent, visible: boolean): void => {
-  if(character.visible !== visible) {
-    character.visible = visible;
-    character.tiltContainer.traverse((obj) => {
+const setVisible = (entity: Entity, visible: boolean): void => {
+  const actor = getMutableComponent(entity, CharacterComponent);
+  const object3DComponent = getComponent(entity, Object3DComponent);
+  if(actor.visible !== visible) {
+    actor.visible = visible;
+    object3DComponent.value.traverse((obj) => {
       const mat = (obj as SkinnedMesh).material;
       if(mat) {
         (mat as Material).visible = visible;
@@ -159,29 +161,29 @@ const switchCameraMode = (entity: Entity, args: any = { pointerLock: false, mode
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 
   const cameraFollow = getMutableComponent(entity, FollowCameraComponent);
-  cameraFollow.mode = args.mode
+  cameraFollow.mode = args.mode;
 
   switch(args.mode) {
     case CameraModes.FirstPerson: {
       cameraFollow.offset.set(0, 1, 0);
       cameraFollow.phi = 0;
       cameraFollow.locked = true;
-      setVisible(actor, false);
+      setVisible(entity, false);
     } break;
 
     case CameraModes.ShoulderCam: {
       cameraFollow.offset.set(cameraFollow.shoulderSide ? -0.25 : 0.25, 1, 0);
-      setVisible(actor, true);
+      setVisible(entity, true);
     } break;
 
     default: case CameraModes.ThirdPerson: {
       cameraFollow.offset.set(cameraFollow.shoulderSide ? -0.25 : 0.25, 1, 0);
-      setVisible(actor, true);
+      setVisible(entity, true);
     } break;
 
     case CameraModes.TopDown: {
       cameraFollow.offset.set(0, 1, 0);
-      setVisible(actor, true);
+      setVisible(entity, true);
     } break;
   }
 };
@@ -204,7 +206,7 @@ const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes
   const inputPrevValue = inputComponent.prevData.get(inputAxes)?.value as number ?? 0;
   const inputValue = inputComponent.data.get(inputAxes).value as number;
 
-  const delta = Math.min(1, Math.max(-1, inputValue - inputPrevValue)) * (isMobileOrTablet() ? 0.25 : 1);
+  const delta = Math.min(1, Math.max(-1, inputValue - inputPrevValue)) * (isMobile ? 0.25 : 1);
   if(cameraFollow.mode !== CameraModes.ThirdPerson && delta === lastScrollDelta) {
     return
   }
@@ -347,6 +349,8 @@ const moveFromXRInputs: Behavior = (entity, args): void => {
 
 let switchChangedToZero = true;
 const deg2rad = Math.PI / 180;
+const quat = new Quaternion();
+const upVec = new Vector3(0, 1, 0);
 
 const lookFromXRInputs: Behavior = (entity, args): void => {
   const input = getComponent<Input>(entity, Input as any);
@@ -373,8 +377,9 @@ const lookFromXRInputs: Behavior = (entity, args): void => {
       newAngleDiff = (values[0] * XRUserSettings.rotationSmoothSpeed) * (XRUserSettings.rotationInvertAxes ? -1 : 1);
       break;
   }
-  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-  xrInputSourceComponent.headGroup.rotateY(newAngleDiff * deg2rad)
+  const transform = getComponent(entity, TransformComponent);
+  quat.setFromAxisAngle(upVec, newAngleDiff * deg2rad);
+  transform.rotation.multiply(quat);
 };
 
 

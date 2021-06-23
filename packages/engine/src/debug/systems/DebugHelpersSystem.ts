@@ -19,6 +19,8 @@ type ComponentHelpers = 'viewVector' |'ikExtents' | 'helperArrow' | 'velocityArr
 const vector3 = new Vector3()
 const quat = new Quaternion()
 
+const cubeGeometry = new ConeBufferGeometry(0.1, 0.5, 8)
+cubeGeometry.rotateX(-Math.PI * 0.5)
 export class DebugHelpersSystem extends System {
   private helpersByEntity: Record<ComponentHelpers, Map<Entity, any>>;
   updateType = SystemUpdateType.Fixed;
@@ -132,8 +134,6 @@ export class DebugHelpersSystem extends System {
     });
 
     this.queryResults.ikAvatar.added?.forEach((entity) => {
-      const cubeGeometry = new ConeBufferGeometry(0.05, 0.2, 3)
-      cubeGeometry.rotateX(-Math.PI * 0.5)
       const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red') }))
       const debugLeft = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('yellow') }))
       const debugRight = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('blue') }))
