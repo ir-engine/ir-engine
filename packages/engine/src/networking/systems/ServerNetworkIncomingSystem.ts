@@ -97,7 +97,7 @@ export class ServerNetworkIncomingSystem extends System {
       // Add handlers to game state schema, valid requests should get added to the GameStateActions queue on the server
 
       if (Network.instance.networkObjects[clientInput.networkId] === undefined) {
-        console.error('Network object not found for networkId', clientInput.networkId);
+        // console.error('Network object not found for networkId', clientInput.networkId);
         return;
       }
 

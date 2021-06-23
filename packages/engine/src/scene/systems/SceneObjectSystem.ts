@@ -82,7 +82,7 @@ export class SceneObjectSystem extends System {
     // Enable second camera layer for persistant entities for fun portal effects
     for (const entity of this.queryResults.persist.added) {
       const object3DComponent = getComponent(entity, Object3DComponent);
-      object3DComponent.value.traverse((obj) => {
+      object3DComponent?.value?.traverse((obj) => {
         obj.layers.enable(CameraLayers.Portal);
       });
     }

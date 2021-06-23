@@ -163,7 +163,7 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
   }
   // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
   return vec3.set(-0.5, 0, 0).applyQuaternion(transform.rotation).add(transform.position);
-}
+};
 
 /**
  * Gets the hand rotation in world space
@@ -179,11 +179,11 @@ export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.
   if(xrInputSourceComponent) {
     const rigHand: Object3D = hand === ParityValue.LEFT ? xrInputSourceComponent.controllerLeft : xrInputSourceComponent.controllerRight;
     if(rigHand) {
-      return rigHand.getWorldQuaternion(quat)
+      return rigHand.getWorldQuaternion(quat);
     }
   }
-  return quat.setFromUnitVectors(forward, actor.viewVector)
-}
+  return quat.setFromUnitVectors(forward, actor.viewVector);
+};
 
 /**
  * Gets the hand transform in world space
@@ -203,12 +203,12 @@ export const getHandTransform = (entity: Entity, hand: ParityValue = ParityValue
       return { 
         position: rigHand.getWorldPosition(vec3),
         rotation: rigHand.getWorldQuaternion(quat)
-      }
+      };
     }
   }
   return {
     // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
     position: vec3.set(-0.5, 0, 0).applyQuaternion(transform.rotation).add(transform.position),
     rotation: quat.setFromUnitVectors(forward, actor.viewVector)
-  }
-}
+  };
+};

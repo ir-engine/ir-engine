@@ -32,7 +32,6 @@ module.exports = {
     "no-var": "off",
     "prefer-const": "off",
     "prefer-arrow-callback": "error",
-    "semi": [2, 'always'],
     "space-before-function-paren": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unused-vars": "off",

@@ -186,7 +186,16 @@ export class CharacterControllerSystem extends System {
 
       characterMoveBehavior(entity, delta);
 
-      actor.viewVector.set(0, 0, 1).applyQuaternion(transform.rotation);
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
+      if(hasComponent(entity, FollowCameraComponent)) {
+        const camTransform = getComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent);
+        if(camTransform) {
+          actor.viewVector.set(0, 0, -1).applyQuaternion(camTransform.rotation);
+        }
+      } else if(xrInputSourceComponent) {
+        actor.viewVector.set(0, 0, 1).applyQuaternion(transform.rotation);
+      }
+
     });
 
     // PhysicsMove Characters On Server
