@@ -57,7 +57,6 @@ export class WorldScene {
 
       addComponent(entity, SceneTagComponent);
       entity.name = sceneEntity.name;
-      console.log('=========================================')
 
       sceneEntity.components.forEach(component => {
         component.data.sceneEntityId = sceneEntity.entityId;
@@ -83,7 +82,6 @@ export class WorldScene {
   loadComponent = (entity: Entity, component: SceneDataComponent): void => {
     // remove '-1', '-2' etc suffixes
     const name = component.name.replace(/(-\d+)|(\s)/g, "");
-    console.log(name, component)
 
     switch(name) {
       case 'game':
