@@ -81,7 +81,7 @@ export default function createSkybox(entity, args: any): void {
     uniforms.rayleigh.value = args.rayleigh;
     uniforms.turbidity.value = args.turbidity;
     uniforms.sunPosition.value = sun;
-    WebGLRendererSystem.instance.csm && WebGLRendererSystem.instance.csm.lightDirection.set(-sun.x, -sun.y, -sun.z);
+    WebGLRendererSystem.instance.csm?.lightDirection.set(-sun.x, -sun.y, -sun.z);
 
     const skyboxTexture = (skyboxObject3D as any).generateEnvironmentMap(renderer);
 

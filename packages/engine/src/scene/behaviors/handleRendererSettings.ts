@@ -1,6 +1,6 @@
 import { LinearToneMapping, sRGBEncoding, TextureEncoding, ToneMapping } from 'three';
 import { isClient } from '../../common/functions/isClient';
-import { Behavior } from '../../common/interfaces/Behavior';
+import { CSM } from '../../assets/csm/CSM';
 import { Engine } from '../../ecs/classes/Engine';
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 
@@ -20,12 +20,26 @@ export const handleRendererSettings = (args?: RenderSettingsProps): void => {
     Engine.renderer.outputEncoding = args.outputEncoding;
     Engine.renderer.toneMapping = args.toneMapping;
     Engine.renderer.toneMappingExposure = args.toneMappingExposure;
-    WebGLRendererSystem.instance.csmEnabled = args.csm;
+    if(!args.csm && WebGLRendererSystem.instance.csm) {
+      WebGLRendererSystem.instance.csm.remove()
+      WebGLRendererSystem.instance.csm.dispose()
+    }
+    if(!Engine.isHMD && args.csm && !WebGLRendererSystem.instance.csm) {
+      const csm = new CSM({
+        cascades: 4,
+        lightIntensity: 1,
+        shadowMapSize: 1024,
+        maxFar: 100,
+        camera: Engine.camera,
+        parent: Engine.scene
+      });
+      csm.fade = true;
+      WebGLRendererSystem.instance.csm = csm;
+    }
   } else {
     Engine.renderer.physicallyCorrectLights = true;
     Engine.renderer.outputEncoding = sRGBEncoding;
     Engine.renderer.toneMapping = LinearToneMapping;
     Engine.renderer.toneMappingExposure = 0.8;
-    WebGLRendererSystem.instance.csmEnabled = true;
   }
 };

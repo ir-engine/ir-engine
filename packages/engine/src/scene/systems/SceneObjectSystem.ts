@@ -68,8 +68,8 @@ export class SceneObjectSystem extends System {
             (material as any).envMapIntensity = this.bpcemOptions.intensity;
 
             // CSM
-            if (obj.receiveShadow && WebGLRendererSystem.instance.csmEnabled) {
-              WebGLRendererSystem.instance.csm.setupMaterial(material);
+            if (obj.receiveShadow) {
+              WebGLRendererSystem.instance.csm?.setupMaterial(material);
             }
           }
         }
