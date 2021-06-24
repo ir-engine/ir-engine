@@ -1,4 +1,4 @@
-import { TextureEncoding, ToneMapping } from 'three';
+import { LinearToneMapping, sRGBEncoding, TextureEncoding, ToneMapping } from 'three';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Engine } from '../../ecs/classes/Engine';
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
@@ -12,12 +12,18 @@ export type RenderSettingsProps = {
   outputEncoding: TextureEncoding;
 }
 
-export const handleRendererSettings: Behavior = (entity, args: RenderSettingsProps) => {
-  if(args.overrideRendererSettings) {
+export const handleRendererSettings = (args?: RenderSettingsProps): void => {
+  if(args) {
     Engine.renderer.physicallyCorrectLights = args.physicallyCorrectLights;
     Engine.renderer.outputEncoding = args.outputEncoding;
     Engine.renderer.toneMapping = args.toneMapping;
     Engine.renderer.toneMappingExposure = args.toneMappingExposure;
     WebGLRendererSystem.instance.csmEnabled = args.csm;
+  } else {
+    Engine.renderer.physicallyCorrectLights = true;
+    Engine.renderer.outputEncoding = sRGBEncoding;
+    Engine.renderer.toneMapping = LinearToneMapping;
+    Engine.renderer.toneMappingExposure = 0.8;
+    WebGLRendererSystem.instance.csmEnabled = true;
   }
 };

@@ -156,15 +156,11 @@ export class WebGLRendererSystem extends System {
     };
 
     const renderer = this.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options);
-    renderer.physicallyCorrectLights = true;
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = PCFSoftShadowMap;
-    renderer.outputEncoding = sRGBEncoding;
-    renderer.toneMapping = LinearToneMapping;
-    renderer.toneMappingExposure = 0.8;
     Engine.renderer = renderer;
+    Engine.renderer.shadowMap.enabled = true;
+    Engine.renderer.shadowMap.type = PCFSoftShadowMap;
     Engine.viewportElement = renderer.domElement;
-    Engine.xrRenderer = renderer.xr;//new WebXRManager(renderer, context);
+    Engine.xrRenderer = renderer.xr;
     Engine.xrRenderer.enabled = Engine.xrSupported;
 
     // Cascaded shadow maps

@@ -48,7 +48,9 @@ export class WorldScene {
   constructor(private onCompleted?: Function, private onProgress?: Function) { }
 
   loadScene = (scene: SceneData) => {
-    WorldScene.isLoading = true;
+    WorldScene.isLoading = true
+    // reset renderer settings for if we are teleporting and the new scene does not have an override
+    handleRendererSettings();
     Object.keys(scene.entities).forEach(key => {
       const sceneEntity = scene.entities[key];
       const entity = createEntity();
@@ -217,7 +219,7 @@ export class WorldScene {
         break;
 
       case 'renderer-settings':
-        if(isClient) handleRendererSettings(entity, component.data);
+        if(isClient) handleRendererSettings(component.data as any);
         break;
       
       case 'spawn-point':
