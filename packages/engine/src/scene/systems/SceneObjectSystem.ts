@@ -53,7 +53,7 @@ export class SceneObjectSystem extends System {
 
       // Apply material stuff
       object3DComponent.value.traverse((obj: Mesh) => {
-        if(Engine.simpleMaterials) {
+        if(Engine.simpleMaterials || Engine.isHMD) {
           if(obj.material instanceof MeshStandardMaterial) {
             const prevMaterial = obj.material;
             obj.material = new MeshPhongMaterial();

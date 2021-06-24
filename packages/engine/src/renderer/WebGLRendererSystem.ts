@@ -158,6 +158,9 @@ export class WebGLRendererSystem extends System {
     Engine.renderer = renderer;
     Engine.renderer.shadowMap.enabled = true;
     Engine.renderer.shadowMap.type = PCFSoftShadowMap;
+    Engine.renderer.physicallyCorrectLights = true
+    Engine.renderer.outputEncoding = sRGBEncoding
+
     Engine.viewportElement = renderer.domElement;
     Engine.xrRenderer = renderer.xr;
     Engine.xrRenderer.enabled = Engine.xrSupported;
