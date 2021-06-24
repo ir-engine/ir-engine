@@ -6,7 +6,7 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine';
 import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
-import { createPanelComponent } from '@xrengine/engine/src/ui/functions/createPanelComponent';
+import { createPanelComponent } from '@xrengine/engine/src/ui-old/functions/createPanelComponent';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import React, { useEffect, useState } from 'react';
 import {XR360Player} from './app';
