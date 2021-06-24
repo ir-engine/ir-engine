@@ -1,4 +1,4 @@
-name: workflow
+name: branch-build
 on:
   push:
     branches-ignore:

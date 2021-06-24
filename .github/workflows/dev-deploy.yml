@@ -1,8 +1,8 @@
-name: workflow
+name: dev-deploy
 on:
   push:
     branches:
-      dev
+      [dev]
 jobs:
   dev-deploy:
     runs-on: ubuntu-latest
