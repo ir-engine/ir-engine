@@ -37,7 +37,7 @@ export class AnimationState {
     /** Returns the total sum of weights all the animation at current time */
     getTotalWeightsOfAnimations = () => {
         let weight = 0;
-        this.animations.forEach(a => weight += isNaN(a.weight) ? 0 : a.weight);
+        this.animations.forEach(a => weight += Number.isNaN(a.weight) ? 0 : a.weight);
 
         return weight;
     }
@@ -154,8 +154,8 @@ export class EnteringVehicleState extends AnimationState {
             this.animations[0].weight = 1;
             this.animations[1].weight = 0;
         } else {
-            this.animations[0].weight = 1;
-            this.animations[1].weight = 0;
+            this.animations[0].weight = 0;
+            this.animations[1].weight = 1;
         }
     }
 }
