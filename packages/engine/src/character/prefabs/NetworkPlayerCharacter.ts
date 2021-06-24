@@ -1,14 +1,12 @@
 import { DEFAULT_AVATAR_ID } from "@xrengine/common/src/constants/AvatarConstants";
-import { AnimationMixer, Group, Quaternion, SkinnedMesh, Vector3 } from "three";
-import { Controller } from 'three-physx';
+import { AnimationMixer, Group, Quaternion, Vector3 } from "three";
 import { AssetLoader } from "../../assets/classes/AssetLoader";
 import { PositionalAudioComponent } from "../../audio/components/PositionalAudioComponent";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
-import { CameraModes } from "../../camera/types/CameraModes";
 import { isClient } from "../../common/functions/isClient";
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Entity } from "../../ecs/classes/Entity";
-import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from "../../ecs/functions/EntityFunctions";
+import { addComponent, getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../../input/components/Input";
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
 import { Interactor } from "../../interaction/components/Interactor";
@@ -19,9 +17,6 @@ import { PrefabType } from "../../networking/templates/PrefabType";
 import { RelativeSpringSimulator } from "../../physics/classes/SpringSimulator";
 import { VectorSpringSimulator } from "../../physics/classes/VectorSpringSimulator";
 import { InterpolationComponent } from "../../physics/components/InterpolationComponent";
-import { CollisionGroups, DefaultCollisionMask } from "../../physics/enums/CollisionGroups";
-
-import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { addObject3DComponent } from "../../scene/behaviors/addObject3DComponent";
 import { createShadow } from "../../scene/behaviors/createShadow";
 import { TransformComponent } from "../../transform/components/TransformComponent";
@@ -35,6 +30,7 @@ import { NamePlateComponent } from '../components/NamePlateComponent';
 import { PersistTagComponent } from "../../scene/components/PersistTagComponent";
 import { SkeletonUtils } from "../SkeletonUtils";
 import type { NetworkObject } from "../../networking/components/NetworkObject";
+import { CharacterAnimationGraph } from "../animations/CharacterAnimationGraph";
 
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
@@ -204,7 +200,11 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
 	clientComponents: [
 		// Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player
 		{ type: InterpolationComponent },
-		{ type: AnimationComponent, data: { animationsSchema: movingAnimationSchema, updateAnimationsValues: getMovementValues } }
+		{ type: AnimationComponent, data: {
+			animationsSchema: movingAnimationSchema,
+			updateAnimationsValues: getMovementValues,
+			animationGraph: CharacterAnimationGraph.constructGraph(),
+		}}
 	],
 	serverComponents: [],
 	onAfterCreate: [

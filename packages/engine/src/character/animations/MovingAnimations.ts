@@ -1,11 +1,10 @@
-import { Vector3 } from 'three';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { hasComponent, getMutableComponent, getComponent } from '../../ecs/functions/EntityFunctions';
 import { CharacterAnimations } from '../CharacterAnimations';
 import { defaultAvatarAnimations } from '../CharacterAvatars';
 import { AnimationComponent } from '../components/AnimationComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
-import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
+import { MovementType } from './Util';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -124,12 +123,9 @@ export const initializeMovingState: Behavior = (entity) => {
   actor.movementEnabled = true;
 };
 
-export type MovementType = {
-  velocity: Vector3;
-  distanceFromGround: number;
-}
 
-export const getMovementValuesNew = (actor: CharacterComponent, delta: number, EPSILON: number): MovementType => {
+
+export const calculateMovement = (actor: CharacterComponent, delta: number, EPSILON: number): MovementType => {
   if (actor.moveVectorSmooth.position.length() < EPSILON) {
     actor.moveVectorSmooth.velocity.set(0,0,0);
     actor.moveVectorSmooth.position.set(0,0,0);

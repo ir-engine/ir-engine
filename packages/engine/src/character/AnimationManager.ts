@@ -1,11 +1,10 @@
-import { AnimationClip, AnimationMixer, Group, Material, Mesh, SkinnedMesh, Vector3 } from "three";
+import { AnimationClip, Group, Material, Mesh, SkinnedMesh } from "three";
 import { getLoader } from "../assets/functions/LoadGLTF";
 import { isClient } from "../common/functions/isClient";
 import { Engine } from "../ecs/classes/Engine";
 import { Entity } from "../ecs/classes/Entity";
 import { getMutableComponent } from "../ecs/functions/EntityFunctions";
-import { AnimationState, AnimationStateGraph, CharacterStates, Animation, AnimationType } from "./animations/AnimationState";
-import { getMovementValues, getMovementValuesNew, MovementType } from "./animations/MovingAnimations";
+import { CharacterStates } from "./animations/Util";
 import { AnimationComponent } from "./components/AnimationComponent";
 import { CharacterComponent } from "./components/CharacterComponent";
 
@@ -19,63 +18,8 @@ export class AnimationManager {
 	_animations: AnimationClip[];
 	_defaultModel: Group;
 	_defaultSkeleton: SkinnedMesh;
-	speedMultiplier: number = 1;
-	EPSILON = 0.001;
-	prevVelocity = new Vector3();
 
-	updateAnimationAction = (animation: Animation, mixer: AnimationMixer, stopAction?: boolean) => {
-		if (!animation.clip) {
-			animation.clip = AnimationClip.findByName(this._animations, animation.name);
-
-			if (!animation.clip) return;
-		}
-
-		let action = mixer.clipAction(animation.clip);
-
-		action.setEffectiveWeight(stopAction ? 0 : animation.weight);
-		action.setEffectiveTimeScale(animation.timeScale || 1);
-
-		if (animation.decorateAction) animation.decorateAction(action);
-
-		if (!action.isRunning() && animation.weight > 0) {
-			action.play();
-		} else if (stopAction) {
-			action.reset().fadeOut(1);
-
-			if (action.isRunning()) action.stop();
-		}
-	}
-
-	transitionState = (actor: CharacterComponent, animationComponent: AnimationComponent, newState: string, movement?: MovementType) => {
-		let oldState = null;
-
-		if (newState !== animationComponent.currentState.name) {
-			oldState = animationComponent.currentState;
-			animationComponent.currentState = AnimationStateGraph[newState];
-		}
-
-		if (oldState && oldState.name !== AnimationStateGraph[CharacterStates.DEFAULT].name) {
-			oldState.animations.forEach(a => {
-				this.updateAnimationAction(a, actor.mixer, true);
-			});
-		}
-
-		if (animationComponent.currentState.calculateWeights) animationComponent.currentState.calculateWeights(movement);
-
-		let idleWeight = 1;
-		animationComponent.currentState.animations.forEach(a => {
-			idleWeight -= a.weight;
-			this.updateAnimationAction(a, actor.mixer);
-		});
-
-
-		if (newState !== AnimationStateGraph[CharacterStates.DEFAULT].name) {
-			AnimationStateGraph[CharacterStates.DEFAULT].animations[0].weight = idleWeight;
-			this.updateAnimationAction(AnimationStateGraph[CharacterStates.DEFAULT].animations[0], actor.mixer);
-		}
-	}
-
-	updateVelocityBasedAnimations = (characterEntity: Entity, delta: number) => {
+	renderAnimations = (characterEntity: Entity, delta: number) => {
 		if (!isClient) return;
 
 		const actor = getMutableComponent(characterEntity, CharacterComponent);
@@ -87,25 +31,9 @@ export class AnimationManager {
 		const modifiedDelta = delta * actor.speedMultiplier;
 		actor.mixer.update(modifiedDelta);
 
-		// If Some animation has prevented other animations to be played then return
-		if (animationComponent.areOtherAnimationsPaused) return;
+		if (!animationComponent.currentState) animationComponent.currentState = animationComponent.animationGraph.states[CharacterStates.IDLE];
 
-		// TODO: move below line to add component
-		if (!animationComponent.currentState) animationComponent.currentState = AnimationStateGraph[CharacterStates.IDLE];
-
-		const movement = getMovementValuesNew(actor, modifiedDelta, this.EPSILON);
-
-		if (movement.velocity.equals(this.prevVelocity)) return;
-
-		if (movement.velocity.length() > this.EPSILON * 3) {
-			this.transitionState(actor, animationComponent, actor.isWalking ? CharacterStates.WALK : CharacterStates.RUN, movement)
-		} else {
-			if (animationComponent.currentState.name !== CharacterStates.IDLE) {
-				this.transitionState(actor, animationComponent, CharacterStates.IDLE, movement)
-			}
-		}
-
-		this.prevVelocity.copy(movement.velocity);
+		animationComponent.animationGraph.render(actor, animationComponent, modifiedDelta);
 	}
 
 	getAnimationDuration(name: string): number {

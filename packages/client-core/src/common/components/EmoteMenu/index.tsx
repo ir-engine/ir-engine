@@ -4,15 +4,12 @@ import ScrollableElement from '../ScrollableElement';
 // @ts-ignore
 import styles from './EmoteMenu.module.scss';
 import { ClientInputSchema } from '@xrengine/engine/src/input/schema/ClientInputSchema';
-import { AnimationManager } from '@xrengine/engine/src/character/AnimationManager';
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { getMutableComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
 import { LocalInputReceiver } from '@xrengine/engine/src/input/components/LocalInputReceiver';
 import { AnimationComponent } from '@xrengine/engine/src/character/components/AnimationComponent';
-import { defaultAvatarAnimations } from '@xrengine/engine/src/character/CharacterAvatars';
-import { CharacterAnimations } from '@xrengine/engine/src/character/CharacterAnimations';
 import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent';
-import { AnimationStateGraph, CharacterStates } from '@xrengine/engine/src/character/animations/AnimationState';
+import { CalculateWeightsParams, CharacterStates } from '@xrengine/engine/src/character/animations/Util';
 
 type MenuItemType = {
     body: any;
@@ -31,41 +28,38 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
         {
             body: 1,
             containerProps: {
-                onClick: () => runAnimation(defaultAvatarAnimations[CharacterAnimations.ENTERING_VEHICLE_DRIVER].name)
+                onClick: () => runAnimation(CharacterStates.ENTERING_VEHICLE, { isDriver: true })
             },
         },
         {
             body: 2,
             containerProps: {
-                onClick: () => runAnimation(defaultAvatarAnimations[CharacterAnimations.ENTERING_VEHICLE_PASSENGER].name)
+                onClick: () => runAnimation(CharacterStates.ENTERING_VEHICLE, { isDriver: false })
             },
         },
         {
             body: 3,
             containerProps: {
-                onClick: () => runAnimation(defaultAvatarAnimations[CharacterAnimations.EXITING_VEHICLE_DRIVER].name)
+                onClick: () => runAnimation(CharacterStates.EXITING_VEHICLE, { isDriver: true })
             },
         },
         {
             body: 4,
             containerProps: {
-                onClick: () => runAnimation(defaultAvatarAnimations[CharacterAnimations.EXITING_VEHICLE_PASSENGER].name)
+                onClick: () => runAnimation(CharacterStates.EXITING_VEHICLE, { isDriver: false })
             },
         },
     ];
 
-    const runAnimation = (animationName: string) => {
+    const runAnimation = (animationName: string, params: CalculateWeightsParams) => {
         const entity = Engine.entities.find(e => e.name === 'Player' && hasComponent(e, LocalInputReceiver));
         const actor = getMutableComponent(entity, CharacterComponent);
         const animationComponent = getMutableComponent(entity, AnimationComponent);
 
-        AnimationStateGraph[CharacterStates.ENTERING_VEHICLE].animations[0].weight = 1;
-        AnimationStateGraph[CharacterStates.ENTERING_VEHICLE].animations[1].weight = 0;
+        const animationState = animationComponent.animationGraph.states[animationName];
+        if (animationState.calculateWeights) animationState.calculateWeights(params);
 
-
-        animationComponent.pauseOtherAnimations(AnimationManager.instance.getAnimationDuration(AnimationStateGraph[CharacterStates.ENTERING_VEHICLE].animations[0].name) * 1000)
-
-        AnimationManager.instance.transitionState(actor, animationComponent, CharacterStates.ENTERING_VEHICLE);
+        animationComponent.animationGraph.transitionState(actor, animationComponent, animationState.name);
     }
 
     const jumpStart = () => {
