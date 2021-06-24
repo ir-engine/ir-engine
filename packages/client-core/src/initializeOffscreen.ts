@@ -29,7 +29,7 @@ import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
 import { receiveWorker } from '@xrengine/engine/src/worker/MessageQueue';
 import { AnimationManager } from "@xrengine/engine/src/character/AnimationManager";
 import { CharacterControllerSystem } from '@xrengine/engine/src/character/CharacterControllerSystem';
-import { UIPanelSystem } from '@xrengine/engine/src/ui/systems/UIPanelSystem';
+import { UIPanelSystem } from '@xrengine/engine/src/ui-old/systems/UIPanelSystem';
 //@ts-ignore
 import { PhysXInstance } from "three-physx";
 import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem';

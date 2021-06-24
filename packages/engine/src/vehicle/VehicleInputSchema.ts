@@ -8,7 +8,7 @@ import { FollowCameraComponent } from "../camera/components/FollowCameraComponen
 import { CameraModes } from "../camera/types/CameraModes";
 import { LifecycleValue } from "../common/enums/LifecycleValue";
 import { isClient } from "../common/functions/isClient";
-import { isMobileOrTablet } from "../common/functions/isMobile";
+import { isMobile } from "../common/functions/isMobile";
 import { Behavior } from "../common/interfaces/Behavior";
 import { Entity } from "../ecs/classes/Entity";
 import { getComponent, getMutableComponent, removeComponent } from "../ecs/functions/EntityFunctions";
@@ -172,7 +172,7 @@ const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes
   const inputPrevValue = inputComponent.prevData.get(inputAxes)?.value as number ?? 0;
   const inputValue = inputComponent.data.get(inputAxes).value as number;
 
-  const delta = Math.min(1, Math.max(-1, inputValue - inputPrevValue)) * (isMobileOrTablet() ? 0.25 : 1);
+  const delta = Math.min(1, Math.max(-1, inputValue - inputPrevValue)) * (isMobile ? 0.25 : 1);
   if(cameraFollow.mode !== CameraModes.ThirdPerson && delta === lastScrollDelta) {
     return
   }

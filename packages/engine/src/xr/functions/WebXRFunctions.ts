@@ -11,13 +11,7 @@ import { initializeMovingState } from "../../character/animations/MovingAnimatio
 import { Entity } from "../../ecs/classes/Entity";
 import { ParityValue } from "../../common/enums/ParityValue";
 import { TransformComponent } from "../../transform/components/TransformComponent";
-import { Input } from "../../input/components/Input";
-import { BaseInput } from "../../input/enums/BaseInput";
-import { SIXDOFType } from "../../common/types/NumericalTypes";
-import { isClient } from "../../common/functions/isClient";
-import { isEntityLocalClient } from "../../networking/functions/isEntityLocalClient";
 import { AnimationComponent } from "../../character/components/AnimationComponent";
-import { updatePlayerRotationFromViewVector } from "../../character/functions/updatePlayerRotationFromViewVector";
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -35,9 +29,8 @@ export const startXR = async (): Promise<void> => {
     const controllerGroup = new Group();
 
     Engine.scene.remove(Engine.camera);
-    const head = Engine.xrRenderer.getCamera(Engine.camera) as any;
     const headGroup = new Group();
-    headGroup.add(Engine.camera);
+    const head = Engine.camera as any;
 
     removeComponent(Network.instance.localClientEntity, FollowCameraComponent);
 
@@ -169,8 +162,8 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
     }
   }
   // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
-  return vec3.set(-0.5, 0, 0).applyQuaternion(actor.tiltContainer.quaternion).add(transform.position);
-}
+  return vec3.set(-0.5, 0, 0).applyQuaternion(transform.rotation).add(transform.position);
+};
 
 /**
  * Gets the hand rotation in world space
@@ -186,11 +179,11 @@ export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.
   if(xrInputSourceComponent) {
     const rigHand: Object3D = hand === ParityValue.LEFT ? xrInputSourceComponent.controllerLeft : xrInputSourceComponent.controllerRight;
     if(rigHand) {
-      return rigHand.getWorldQuaternion(quat)
+      return rigHand.getWorldQuaternion(quat);
     }
   }
-  return quat.setFromUnitVectors(forward, actor.viewVector)
-}
+  return quat.setFromUnitVectors(forward, actor.viewVector);
+};
 
 /**
  * Gets the hand transform in world space
@@ -210,12 +203,12 @@ export const getHandTransform = (entity: Entity, hand: ParityValue = ParityValue
       return { 
         position: rigHand.getWorldPosition(vec3),
         rotation: rigHand.getWorldQuaternion(quat)
-      }
+      };
     }
   }
   return {
     // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
-    position: vec3.set(-0.5, 0, 0).applyQuaternion(actor.tiltContainer.quaternion).add(transform.position),
+    position: vec3.set(-0.5, 0, 0).applyQuaternion(transform.rotation).add(transform.position),
     rotation: quat.setFromUnitVectors(forward, actor.viewVector)
   }
 }

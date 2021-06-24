@@ -25,13 +25,14 @@ import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { configCanvasElement } from './renderer/functions/canvas';
 import { HighlightSystem } from './renderer/HighlightSystem';
 import { TransformSystem } from './transform/systems/TransformSystem';
-import { UIPanelSystem } from './ui/systems/UIPanelSystem';
+import { UIPanelSystem } from './ui-old/systems/UIPanelSystem';
+import { UISystem } from './ui/systems/UISystem'
 import { XRSystem } from './xr/systems/XRSystem';
 import { WebGLRendererSystem } from "./renderer/WebGLRendererSystem";
 import { Timer } from './common/functions/Timer';
 import { execute } from './ecs/functions/EngineFunctions';
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType';
-import { isMobileOrTablet } from './common/functions/isMobile';
+import { isMobile } from './common/functions/isMobile';
 import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem';
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem';
 import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem';
@@ -172,6 +173,7 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
     registerSystem(WebGLRendererSystem, { priority: 3, canvas, postProcessing: options.renderer.postProcessing }); // Free
 
     // Input Systems
+    registerSystem(UISystem, {priority: 2}); // Free
     registerSystem(UIPanelSystem, { priority: 2 });
     registerSystem(ActionSystem, { priority: 3 });
     registerSystem(CharacterControllerSystem, { priority: 4 });
@@ -277,7 +279,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
             Engine.engineTimer.start();
         });
 
-        const engageType = isMobileOrTablet() ? 'touchstart' : 'click';
+        const engageType = isMobile ? 'touchstart' : 'click';
         const onUserEngage = () => {
             EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE });
             document.removeEventListener(engageType, onUserEngage);

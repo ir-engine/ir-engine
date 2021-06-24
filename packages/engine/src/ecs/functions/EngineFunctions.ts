@@ -261,13 +261,14 @@ export const processLocationChange = async (newPhysicsWorker: Worker): Promise<v
       removedEntities.push(entity.id);
     }
   });
-
-  await delay(200);
+  
+  executeSystemBeforeReset();
 
   Engine.scene.background = new Color('black');
   Engine.scene.environment = null;
 
   Engine.scene.traverse((o: any) => {
+    console.log(o, o.entity)
     if (!o.entity) return;
     if (!removedEntities.includes(o.entity.id)) return;
 
@@ -276,7 +277,6 @@ export const processLocationChange = async (newPhysicsWorker: Worker): Promise<v
 
   sceneObjectsToRemove.forEach(o => Engine.scene.remove(o));
 
-  await delay(200);
   entitiesToRemove.forEach(entity => {
     removeEntity(entity, false);
   });
@@ -291,11 +291,9 @@ export const processLocationChange = async (newPhysicsWorker: Worker): Promise<v
 };
 
 export const resetPhysics = async (newPhysicsWorker: Worker): Promise<void> => {
-  PhysicsSystem.instance.enabled = false;
   PhysicsSystem.instance.worker.terminate();
   Engine.workers.splice(Engine.workers.indexOf(PhysicsSystem.instance.worker), 1);
   PhysXInstance.instance.dispose();
   PhysXInstance.instance = new PhysXInstance();
   await PhysXInstance.instance.initPhysX(newPhysicsWorker, PhysicsSystem.instance.physicsWorldConfig);
-  PhysicsSystem.instance.enabled = true;
 };

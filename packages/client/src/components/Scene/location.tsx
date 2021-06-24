@@ -61,6 +61,7 @@ import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu';
 import { ControllerColliderComponent } from '@xrengine/engine/src/character/components/ControllerColliderComponent';
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions';
 import { FollowCameraComponent } from '@xrengine/engine/src/camera/components/FollowCameraComponent';
+import { CameraLayers } from '../../../../engine/src/camera/constants/CameraLayers';
 
 const store = Store.store;
 
@@ -77,7 +78,8 @@ const initialRefreshModalValues = {
   body: '',
   action: async() => {},
   parameters: [],
-  timeout: 10000
+  timeout: 10000,
+  noCountdown: false
 };
 
 const canvasStyle = {
@@ -203,6 +205,8 @@ export const EnginePage = (props: Props) => {
   const [warningRefreshModalValues, setWarningRefreshModalValues] = useState(initialRefreshModalValues);
   const [noGameserverProvision, setNoGameserverProvision] = useState(false);
   const [instanceDisconnected, setInstanceDisconnected] = useState(false);
+  const [instanceKicked, setInstanceKicked] = useState(false);
+  const [instanceKickedMessage, setInstanceKickedMessage] = useState('');
   const [isInputEnabled, setInputEnabled] = useState(true);
   const [porting, setPorting] = useState(false);
   const [newSpawnPos, setNewSpawnPos] = useState(null);
@@ -220,7 +224,13 @@ export const EnginePage = (props: Props) => {
     } else {
       doLoginAuto(true);
       EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
-      EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED, () => setInstanceDisconnected(true));
+      EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED, () => {
+        if (Network.instance.transport.left === false) setInstanceDisconnected(true);
+      });
+      EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_KICKED, ({ message }) => {
+        setInstanceKickedMessage(message);
+        setInstanceKicked(true);
+      });
       EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED, () => setWarningRefreshModalValues(initialRefreshModalValues));
       EngineEvents.instance.addEventListener(EngineEvents.EVENTS.RESET_ENGINE, async (ev: any) => {
         if (ev.instance === true) {
@@ -337,7 +347,7 @@ export const EnginePage = (props: Props) => {
       const newValues = {
         open: true,
         title: 'World disconnected',
-        body: 'You\'ve lost your connection with the world. We\'ll try to reconnect before the following time runs out, otherwise you\'ll be forwarded to a different instance',
+        body: 'You\'ve lost your connection with the world. We\'ll try to reconnect before the following time runs out, otherwise you\'ll be forwarded to a different instance.',
         action: window.location.reload,
         parameters: [],
         timeout: 30000
@@ -347,6 +357,20 @@ export const EnginePage = (props: Props) => {
       setInstanceDisconnected(false);
     }
   }, [instanceDisconnected]);
+
+  useEffect(() => {
+    if (instanceKicked === true) {
+      const newValues = {
+        open: true,
+        title: 'You\'ve been kicked from the world',
+        body: 'You were kicked from this world for the following reason: ' + instanceKickedMessage,
+        noCountdown: true
+      };
+      //@ts-ignore
+      setWarningRefreshModalValues(newValues);
+      setInstanceDisconnected(false);
+    }
+  }, [instanceKicked]);
 
   const reinit = () => {
     const currentLocation = locationState.get('currentLocation').get('location');
@@ -473,35 +497,35 @@ export const EnginePage = (props: Props) => {
       return;
     }
 
-    Engine.camera.layers.disable(0);
-
     // shut down connection with existing GS
     setPorting(true);
     resetInstanceServer();
     Network.instance.transport.close();
     
-    // disable physics temporarily
-    PhysicsSystem.instance.enabled = false;
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false });
+
     // remove controller since physics world will be destroyed and we don't want it moving
     PhysicsSystem.instance.removeController(getComponent(Network.instance.localClientEntity, ControllerColliderComponent).controller);
     removeComponent(Network.instance.localClientEntity, ControllerColliderComponent);
+
+    // Handle Camera transition while player is moving
+    // Remove the follow component, and attach the camera to the player, so it moves with them without causing discomfort while in VR
     removeComponent(Network.instance.localClientEntity, FollowCameraComponent);
+    const camParent = Engine.camera.parent;
+    if(camParent) Engine.camera.removeFromParent();
+    Engine.camera.layers.disable(CameraLayers.Scene);
 
     // change our browser URL
     history.replace('/location/' + portalComponent.location);
     setNewSpawnPos(portalComponent);
     
     await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'));
-    
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false });
 
     getLocationByName(portalComponent.location);
 
     // add back the collider using previous parameters
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     
-      Engine.camera.layers.enable(0);
-
       // teleport player to where the portal is
       const transform = getComponent(Network.instance.localClientEntity, TransformComponent);
       const actor = getComponent(Network.instance.localClientEntity, CharacterComponent);
@@ -509,7 +533,11 @@ export const EnginePage = (props: Props) => {
       transform.rotation.copy(portalComponent.spawnRotation);
 
       addComponent(Network.instance.localClientEntity, ControllerColliderComponent);
+
       addComponent(Network.instance.localClientEntity, FollowCameraComponent);
+      if(camParent) camParent.add(Engine.camera);
+      Engine.camera.layers.enable(CameraLayers.Scene);
+
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: true });
     });
   };
@@ -554,7 +582,7 @@ export const EnginePage = (props: Props) => {
 
   //touch gamepad
   const touchGamepadProps = { hovered: objectHovered, layout: 'default' };
-  const touchGamepad = deviceState.get('content').touchDetected ? <Suspense fallback={<></>}><TouchGamepad {...touchGamepadProps} /></Suspense> : null;
+  const touchGamepad = deviceState.get('content')?.touchDetected ? <Suspense fallback={<></>}><TouchGamepad {...touchGamepadProps} /></Suspense> : null;
 
   if(userBanned) return (<div className="banned">You have been banned from this location</div>);
   return isInXR ? <></> : (
@@ -589,6 +617,7 @@ export const EnginePage = (props: Props) => {
             action={warningRefreshModalValues.action}
             parameters={warningRefreshModalValues.parameters}
             timeout={warningRefreshModalValues.timeout}
+            noCountdown={warningRefreshModalValues.noCountdown}
         />
         <EmoteMenu />
       </>

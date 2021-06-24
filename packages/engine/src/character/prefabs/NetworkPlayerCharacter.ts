@@ -1,14 +1,12 @@
 import { DEFAULT_AVATAR_ID } from "@xrengine/common/src/constants/AvatarConstants";
-import { AnimationMixer, Group, Quaternion, SkinnedMesh, Vector3 } from "three";
-import { Controller } from 'three-physx';
+import { AnimationMixer, Group, Quaternion, Vector3 } from "three";
 import { AssetLoader } from "../../assets/classes/AssetLoader";
 import { PositionalAudioComponent } from "../../audio/components/PositionalAudioComponent";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
-import { CameraModes } from "../../camera/types/CameraModes";
 import { isClient } from "../../common/functions/isClient";
 import { Behavior } from "../../common/interfaces/Behavior";
 import { Entity } from "../../ecs/classes/Entity";
-import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from "../../ecs/functions/EntityFunctions";
+import { addComponent, getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { Input } from "../../input/components/Input";
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
 import { Interactor } from "../../interaction/components/Interactor";
@@ -19,9 +17,6 @@ import { PrefabType } from "../../networking/templates/PrefabType";
 import { RelativeSpringSimulator } from "../../physics/classes/SpringSimulator";
 import { VectorSpringSimulator } from "../../physics/classes/VectorSpringSimulator";
 import { InterpolationComponent } from "../../physics/components/InterpolationComponent";
-import { CollisionGroups, DefaultCollisionMask } from "../../physics/enums/CollisionGroups";
-
-import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
 import { addObject3DComponent } from "../../scene/behaviors/addObject3DComponent";
 import { createShadow } from "../../scene/behaviors/createShadow";
 import { TransformComponent } from "../../transform/components/TransformComponent";
@@ -35,6 +30,7 @@ import { NamePlateComponent } from '../components/NamePlateComponent';
 import { PersistTagComponent } from "../../scene/components/PersistTagComponent";
 import { SkeletonUtils } from "../SkeletonUtils";
 import type { NetworkObject } from "../../networking/components/NetworkObject";
+import { CharacterAnimationGraph } from "../animations/CharacterAnimationGraph";
 
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
@@ -47,7 +43,7 @@ export const loadDefaultActorAvatar: Behavior = (entity) => {
     }
   });
   model.children?.forEach(child => actor.modelContainer.add(child));
-  actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
+  actor.mixer = new AnimationMixer(actor.modelContainer);
 };
 
 export const loadActorAvatar: Behavior = (entity) => {
@@ -68,8 +64,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		castShadow: true,
 		receiveShadow: true,
 	}, (asset: Group) => {
-    const model = SkeletonUtils.clone(asset);
-    
+    	const model = SkeletonUtils.clone(asset);
 		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 
 		actor.mixer && actor.mixer.stopAllAction();
@@ -78,13 +73,13 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		([...actor.modelContainer.children]).forEach(child => actor.modelContainer.remove(child));
 
 		model.traverse((object) => {
-      if (object.isMesh || object.isSkinnedMesh) {
-        object.material = object.material.clone();
-      }
+			if (object.isMesh || object.isSkinnedMesh) {
+				object.material = object.material.clone();
+			}
 		});
 
 		model.children.forEach(child => actor.modelContainer.add(child));
-		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
+		actor.mixer = new AnimationMixer(actor.modelContainer);
 	});
 };
 
@@ -107,25 +102,25 @@ const initializeCharacter: Behavior = (entity): void => {
 	// stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
 
 	// The visuals group is centered for easy actor tilting
-	actor.tiltContainer = new Group();
-	actor.tiltContainer.name = 'Actor (tiltContainer)' + entity.id;
+	const obj3d = new Group();
+	obj3d.name = 'Actor (tiltContainer)' + entity.id;
 
 	// // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
 	actor.modelContainer = new Group();
 	actor.modelContainer.name = 'Actor (modelContainer)' + entity.id;
 	actor.modelContainer.position.setY(-actor.actorHalfHeight);
-	actor.tiltContainer.add(actor.modelContainer);
+	obj3d.add(actor.modelContainer);
 
 	// by default all asset childs are moved into entity object3dComponent, which is tiltContainer
 	// we should keep it clean till asset loaded and all it's content moved into modelContainer
-	addObject3DComponent(entity, { obj3d: actor.tiltContainer });
+	addObject3DComponent(entity, { obj3d });
 
 	actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.moveVectorSmooth = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.animationVectorSimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.rotationSimulator = new RelativeSpringSimulator(60, actor.defaultRotationSimulatorMass, actor.defaultRotationSimulatorDamping);
 
-	actor.viewVector = new Vector3(0, 0, -1);
+	actor.viewVector = new Vector3(0, 0, 1);
 
   addComponent(entity, ControllerColliderComponent);
 
@@ -205,7 +200,11 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
 	clientComponents: [
 		// Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player
 		{ type: InterpolationComponent },
-		{ type: AnimationComponent, data: { animationsSchema: movingAnimationSchema, updateAnimationsValues: getMovementValues } }
+		{ type: AnimationComponent, data: {
+			animationsSchema: movingAnimationSchema,
+			updateAnimationsValues: getMovementValues,
+			animationGraph: CharacterAnimationGraph.constructGraph(),
+		}}
 	],
 	serverComponents: [],
 	onAfterCreate: [

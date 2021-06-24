@@ -5,6 +5,7 @@ import i18n from "i18next";
 import PropTypes from "prop-types";
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { ACESFilmicToneMapping, BasicDepthPacking, CineonToneMapping, GammaEncoding, LinearEncoding, LinearToneMapping, LogLuvEncoding, NoToneMapping, ReinhardToneMapping, RGBADepthPacking, RGBDEncoding, RGBEEncoding, RGBM16Encoding, RGBM7Encoding, sRGBEncoding } from "three";
 import BooleanInput from "../inputs/BooleanInput";
 import ColorInput from "../inputs/ColorInput";
 import CompoundNumericInput from "../inputs/CompoundNumericInput";
@@ -32,6 +33,84 @@ const FogTypeOptions = [
   {
     label: "Exponential",
     value: FogType.Exponential
+  }
+];
+
+/**
+ * FogTypeOptions array containing fogType options.
+ * 
+ * @author Josh Field
+ * @type {Array}
+ */
+ const ToneMappingOptions = [
+  {
+    label: "No Tone Mapping",
+    value: NoToneMapping
+  },
+  {
+    label: "Linear Tone Mapping",
+    value: LinearToneMapping
+  },
+  {
+    label: "Reinhard Tone Mapping",
+    value: ReinhardToneMapping
+  },
+  {
+    label: "Cineon Tone Mapping",
+    value: CineonToneMapping
+  },
+  {
+    label: "ACES Filmic Tone Mapping",
+    value: ACESFilmicToneMapping
+  }
+];
+
+/**
+ * FogTypeOptions array containing fogType options.
+ * 
+ * @author Josh Field
+ * @type {Array}
+ */
+ const OutputEncodingOptions = [
+  {
+    label: "Linear Encoding",
+    value: LinearEncoding
+  },
+  {
+    label: "sRGB Encoding",
+    value: sRGBEncoding
+  },
+  {
+    label: "Gamma Encoding",
+    value: GammaEncoding
+  },
+  {
+    label: "RGBE Encoding",
+    value: RGBEEncoding
+  },
+  {
+    label: "Log Luv Encoding",
+    value: LogLuvEncoding
+  },
+  {
+    label: "RGBM7 Encoding",
+    value: RGBM7Encoding
+  },
+  {
+    label: "RGBM16 Encoding",
+    value: RGBM16Encoding
+  },
+  {
+    label: "RGBD Encoding",
+    value: RGBDEncoding
+  },
+  {
+    label: "Basic Depth Packing",
+    value: BasicDepthPacking
+  },
+  {
+    label: "RGBA Depth Packing",
+    value: RGBADepthPacking
   }
 ];
 
@@ -68,6 +147,14 @@ export function SceneNodeEditor(props) {
   const onChangeAvatarRolloffFactor = useSetPropertySelected(editor, "avatarRolloffFactor");
   const onChangeAvatarRefDistance = useSetPropertySelected(editor, "avatarRefDistance");
   const onChangeAvatarMaxDistance = useSetPropertySelected(editor, "avatarMaxDistance");
+
+  const onChangeUseSimpleMaterials = useSetPropertySelected(editor, "simpleMaterials");
+  const onChangeOverrideRendererettings = useSetPropertySelected(editor, "overrideRendererSettings");
+  const onChangeUseCSM = useSetPropertySelected(editor, "csm");
+  const onChangeUseToneMapping = useSetPropertySelected(editor, "toneMapping");
+  const onChangeUseToneMappingExposure = useSetPropertySelected(editor, "toneMappingExposure");
+  const onChangeUsePhysicallyCorrectLights = useSetPropertySelected(editor, "physicallyCorrectLights");
+  const onChangeUseOutputEncoding = useSetPropertySelected(editor, "outputEncoding");
 
   // returning editor view for property editor for sceneNode
   return (
@@ -337,6 +424,74 @@ export function SceneNodeEditor(props) {
               onChange={onChangeMediaConeOuterGain}
             />
           </InputGroup>
+        </>
+      )}
+      { /* @ts-ignore */ }
+      <InputGroup
+        name="Use Simple Materials"
+        label={t('editor:properties.scene.lbl-simpleMaterials')}
+        info={t('editor:properties.scene.info-simpleMaterials')}
+      >
+        <BooleanInput value={node.simpleMaterials} onChange={onChangeUseSimpleMaterials} />
+      </InputGroup>
+
+      { /* @ts-ignore */ }
+      <InputGroup
+        name="Override Renderer Settings"
+        label={t('editor:properties.scene.lbl-rendererSettings')}
+      >
+        <BooleanInput value={node.overrideRendererSettings} onChange={onChangeOverrideRendererettings} />
+      </InputGroup>
+      {node.overrideRendererSettings && (
+        <>
+        { /* @ts-ignore */ }
+        <InputGroup
+          name="Use Cascading Shadow Maps"
+          label={t('editor:properties.scene.lbl-csm')}
+          info={t('editor:properties.scene.info-csm')}
+        >
+          <BooleanInput value={node.csm} onChange={onChangeUseCSM} />
+        </InputGroup>
+        { /* @ts-ignore */ }
+        <InputGroup
+          name="Tone Mapping"
+          label={t('editor:properties.scene.lbl-toneMapping')}
+          info={t('editor:properties.scene.info-toneMapping')}
+        >
+          { /* @ts-ignore */ }
+          <SelectInput options={ToneMappingOptions} value={node.toneMapping} onChange={onChangeUseToneMapping} />
+        </InputGroup>
+        { /* @ts-ignore */ }
+        <InputGroup
+          name="Tone Mapping Exposure"
+          label={t('editor:properties.scene.lbl-toneMappingExposure')}
+          info={t('editor:properties.scene.info-toneMappingExposure')}
+        >
+          <CompoundNumericInput
+            min={0}
+            max={10}
+            step={0.1}
+            value={node.toneMappingExposure}
+            onChange={onChangeUseToneMappingExposure}
+          />
+        </InputGroup>
+        { /* @ts-ignore */ }
+        <InputGroup
+          name="Physically Correct Lights"
+          label={t('editor:properties.scene.lbl-physicallyCorrectLights')}
+          info={t('editor:properties.scene.info-physicallyCorrectLights')}
+        >
+          <BooleanInput value={node.physicallyCorrectLights} onChange={onChangeUsePhysicallyCorrectLights} />
+        </InputGroup>
+        { /* @ts-ignore */ }
+        <InputGroup
+          name="Output Encoding"
+          label={t('editor:properties.scene.lbl-outputEncoding')}
+          info={t('editor:properties.scene.info-csm')}
+        >
+          { /* @ts-ignore */ }
+          <SelectInput options={OutputEncodingOptions} value={node.outputEncoding} onChange={onChangeUseOutputEncoding} />
+        </InputGroup>
         </>
       )}
     </NodeEditor>

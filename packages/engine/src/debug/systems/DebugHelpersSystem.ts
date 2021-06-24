@@ -16,8 +16,11 @@ import { XRInputSourceComponent } from "../../character/components/XRInputSource
 
 type ComponentHelpers = 'viewVector' |'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box';
 
-const vector3 = new Vector3()
-const quat = new Quaternion()
+const vector3 = new Vector3();
+const quat = new Quaternion();
+
+const cubeGeometry = new ConeBufferGeometry(0.05, 0.25, 4);
+cubeGeometry.rotateX(-Math.PI * 0.5);
 
 export class DebugHelpersSystem extends System {
   private helpersByEntity: Record<ComponentHelpers, Map<Entity, any>>;
@@ -132,8 +135,6 @@ export class DebugHelpersSystem extends System {
     });
 
     this.queryResults.ikAvatar.added?.forEach((entity) => {
-      const cubeGeometry = new ConeBufferGeometry(0.05, 0.2, 3)
-      cubeGeometry.rotateX(-Math.PI * 0.5)
       const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red') }))
       const debugLeft = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('yellow') }))
       const debugRight = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('blue') }))

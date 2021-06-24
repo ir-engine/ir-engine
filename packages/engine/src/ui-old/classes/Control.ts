@@ -1,7 +1,7 @@
 import { Color, Object3D, CircleGeometry, MeshPhongMaterial, Mesh, Texture, TextureLoader } from "three";
 import { Block } from "../../assets/three-mesh-ui";
-import { createButton, createItem, createRow, createCol } from '../../ui/functions/createItem'
-import { UI_ELEMENT_SELECT_STATE } from '../../ui/classes/UIBaseElement'
+import { createButton, createItem, createRow, createCol } from '../../ui-old/functions/createItem'
+import { UI_ELEMENT_SELECT_STATE } from '../../ui-old/classes/UIBaseElement'
 
 const playIconUrl = 'https://raw.githubusercontent.com/Realitian/assets/master/360/playbtn.png';
 const pauseIconUrl = 'https://raw.githubusercontent.com/Realitian/assets/master/360/pausebtn.png';

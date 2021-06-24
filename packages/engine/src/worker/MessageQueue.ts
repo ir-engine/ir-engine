@@ -17,7 +17,7 @@ import {
   XRRenderState
 } from 'three';
 import { EventDispatcher } from '../common/classes/EventDispatcher';
-import { isMobileOrTablet } from '../common/functions/isMobile';
+import { isMobile } from '../common/functions/isMobile';
 import {
   XRHitResult,
   XRHitTestOptionsInit,
@@ -700,7 +700,7 @@ export async function createWorker(
   const audioLoader = new THREE_AudioLoader();
   const audioBuffers: Map<string, AudioBuffer> = new Map<string, AudioBuffer>();
   let audioListener: any = undefined;
-  messageQueue.isMobile = isMobileOrTablet();
+  messageQueue.isMobile = isMobile;
 
   messageQueue.messageTypeFunctions.set(
     MessageType.DOCUMENT_ELEMENT_FUNCTION_CALL,

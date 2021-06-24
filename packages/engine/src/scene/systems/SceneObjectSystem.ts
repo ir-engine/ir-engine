@@ -1,4 +1,4 @@
-import { Material, Mesh, Vector3 } from "three";
+import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Vector3 } from "three";
 import { CameraLayers } from "../../camera/constants/CameraLayers";
 import { Engine } from "../../ecs/classes/Engine";
 import { System, SystemAttributes } from "../../ecs/classes/System";
@@ -53,16 +53,24 @@ export class SceneObjectSystem extends System {
 
       // Apply material stuff
       object3DComponent.value.traverse((obj: Mesh) => {
-        const material = obj.material as Material;
-        if (typeof material !== 'undefined') {
-          
-          // BPCEM
-          material.onBeforeCompile = beforeMaterialCompile(this.bpcemOptions.probeScale, this.bpcemOptions.probePositionOffset);
-          (material as any).envMapIntensity = this.bpcemOptions.intensity;
+        if(Engine.simpleMaterials) {
+          if(obj.material instanceof MeshStandardMaterial) {
+            const prevMaterial = obj.material;
+            obj.material = new MeshPhongMaterial();
+            MeshBasicMaterial.prototype.copy.call(obj.material, prevMaterial);
+          }
+        } else {
+          const material = obj.material as Material;
+          if (typeof material !== 'undefined') {
+            
+            // BPCEM
+            material.onBeforeCompile = beforeMaterialCompile(this.bpcemOptions.probeScale, this.bpcemOptions.probePositionOffset);
+            (material as any).envMapIntensity = this.bpcemOptions.intensity;
 
-          // CSM
-          if (obj.receiveShadow) {
-            WebGLRendererSystem.instance.csm.setupMaterial(material);
+            // CSM
+            if (obj.receiveShadow && WebGLRendererSystem.instance.csmEnabled) {
+              WebGLRendererSystem.instance.csm.setupMaterial(material);
+            }
           }
         }
       });
@@ -82,7 +90,7 @@ export class SceneObjectSystem extends System {
     // Enable second camera layer for persistant entities for fun portal effects
     for (const entity of this.queryResults.persist.added) {
       const object3DComponent = getComponent(entity, Object3DComponent);
-      object3DComponent.value.traverse((obj) => {
+      object3DComponent?.value?.traverse((obj) => {
         obj.layers.enable(CameraLayers.Portal);
       });
     }
