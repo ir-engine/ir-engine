@@ -53,7 +53,7 @@ export class SceneObjectSystem extends System {
 
       // Apply material stuff
       object3DComponent.value.traverse((obj: Mesh) => {
-        if(Engine.simpleMaterials) {
+        if(Engine.simpleMaterials || Engine.isHMD) {
           if(obj.material instanceof MeshStandardMaterial) {
             const prevMaterial = obj.material;
             obj.material = new MeshPhongMaterial();
@@ -68,8 +68,8 @@ export class SceneObjectSystem extends System {
             (material as any).envMapIntensity = this.bpcemOptions.intensity;
 
             // CSM
-            if (obj.receiveShadow && WebGLRendererSystem.instance.csmEnabled) {
-              WebGLRendererSystem.instance.csm.setupMaterial(material);
+            if (obj.receiveShadow) {
+              WebGLRendererSystem.instance.csm?.setupMaterial(material);
             }
           }
         }

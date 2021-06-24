@@ -100,7 +100,6 @@ export class WebGLRendererSystem extends System {
   /** Is system Initialized. */
   static instance: WebGLRendererSystem;
   csm: CSM;
-  csmEnabled = true;
 
   composer: EffectComposerWithSchema
   /** Is resize needed? */
@@ -159,22 +158,12 @@ export class WebGLRendererSystem extends System {
     Engine.renderer = renderer;
     Engine.renderer.shadowMap.enabled = true;
     Engine.renderer.shadowMap.type = PCFSoftShadowMap;
+    Engine.renderer.physicallyCorrectLights = true
+    Engine.renderer.outputEncoding = sRGBEncoding
+
     Engine.viewportElement = renderer.domElement;
     Engine.xrRenderer = renderer.xr;
     Engine.xrRenderer.enabled = Engine.xrSupported;
-
-    // Cascaded shadow maps
-    const csm = new CSM({
-      cascades: Engine.isHMD ? 2 : 4,
-      lightIntensity: 1,
-      shadowMapSize: Engine.isHMD ? 256 : 4096,
-      maxFar: 100,
-      camera: Engine.camera,
-      parent: Engine.scene
-    });
-    csm.fade = true;
-
-    this.csm = csm;
 
     window.addEventListener('resize', this.onResize, false);
     this.onResize();
@@ -298,7 +287,7 @@ export class WebGLRendererSystem extends System {
     if (Engine.xrRenderer.isPresenting) {
 
       if(this.rendereringEnabled) {
-        this.csmEnabled && this.csm.update();
+        this.csm?.update();
         Engine.renderer.render(Engine.scene, Engine.camera);
       }
 
@@ -319,14 +308,14 @@ export class WebGLRendererSystem extends System {
           cam.updateProjectionMatrix();
         }
 
-        this.csmEnabled && this.csm.updateFrustums();
+        this.csm?.updateFrustums();
         Engine.renderer.setSize(width, height, false);
         this.composer.setSize(width, height, false);
         this.needsResize = false;
       }
 
       if(this.rendereringEnabled) {
-        this.csmEnabled && this.csm.update();
+        this.csm?.update();
         if (this.usePostProcessing && this.postProcessingSchema) {
           this.composer.render(delta);
         } else {
@@ -418,9 +407,9 @@ export class WebGLRendererSystem extends System {
       default: break;
       case this.maxQualityLevel - 2: mapSize = 1024; break;
       case this.maxQualityLevel - 1: mapSize = 2048; break;
-      case this.maxQualityLevel: mapSize = Engine.xrRenderer.isPresenting ? 2048 : 4096; break;
+      case this.maxQualityLevel: mapSize = 2048; break;
     }
-    this.csm.setShadowMapSize(mapSize);
+    this.csm?.setShadowMapSize(mapSize);
     ClientStorage.set(databasePrefix + RENDERER_SETTINGS.SHADOW_QUALITY, this.shadowQuality);
   }
 
