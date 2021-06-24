@@ -5,7 +5,9 @@ import {
   Object3D,
   Fog,
   FogExp2,
-  Color
+  Color,
+  sRGBEncoding,
+  LinearToneMapping
 } from "three";
 import EditorNodeMixin from "./EditorNodeMixin";
 import { setStaticMode, StaticModes, isStatic } from "../functions/StaticMode";
@@ -252,6 +254,25 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         node.mediaConeOuterAngle = props.mediaConeOuterAngle;
         node.mediaConeOuterGain = props.mediaConeOuterGain;
       }
+      const simpleMaterials = json.components.find(
+        c => c.name === "simple-materials"
+      );
+      if (simpleMaterials) {
+        const props = simpleMaterials.props;
+        node.simpleMaterials = props.simpleMaterials;
+      }
+      const rendererSettings = json.components.find(
+        c => c.name === "renderer-settings"
+      );
+      if (rendererSettings) {
+        const props = rendererSettings.props;
+        node.overrideRendererSettings = props.overrideRendererSettings;
+        node.csm = props.csm;
+        node.toneMapping = props.toneMapping;
+        node.toneMappingExposure = props.toneMappingExposure;
+        node.physicallyCorrectLights = props.physicallyCorrectLights;
+        node.outputEncoding = props.outputEncoding;
+      }
     }
     return node;
   }
@@ -261,10 +282,12 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     this.metadata = {};
     // this.background = new Color(0xaaaaaa);
     this._environmentMap = null;
+
     this._fogType = FogType.Disabled;
     this._fog = new Fog(0xffffff, 0.0025);
     this._fogExp2 = new FogExp2(0xffffff, 0.0025);
     this.fog = null;
+
     this.overrideAudioSettings = false;
     this.avatarDistanceModel = DistanceModelType.Inverse;
     this.avatarRolloffFactor = 2;
@@ -278,6 +301,16 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     this.mediaConeInnerAngle = 360;
     this.mediaConeOuterAngle = 0;
     this.mediaConeOuterGain = 0;
+
+    this.simpleMaterials = false;
+
+    this.overrideRendererSettings = false;
+    this.csm = true;
+    this.toneMapping = LinearToneMapping;
+    this.toneMappingExposure = 0.8;
+    this.physicallyCorrectLights = true;
+    this.outputEncoding = sRGBEncoding;
+
     setStaticMode(this, StaticModes.Static);
   }
   get fogType() {
@@ -340,10 +373,12 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     this.metadata = source.metadata;
     this._environmentMap = source._environmentMap;
     this.fogType = source.fogType;
+
     this.fogColor.copy(source.fogColor);
     this.fogDensity = source.fogDensity;
     this.fogNearDistance = source.fogNearDistance;
     this.fogFarDistance = source.fogFarDistance;
+
     this.overrideAudioSettings = source.overrideAudioSettings;
     this.avatarDistanceModel = source.avatarDistanceModel;
     this.avatarRolloffFactor = source.avatarRolloffFactor;
@@ -357,6 +392,16 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     this.mediaConeInnerAngle = source.mediaConeInnerAngle;
     this.mediaConeOuterAngle = source.mediaConeOuterAngle;
     this.mediaConeOuterGain = source.mediaConeOuterGain;
+
+    this.simpleMaterials = source.simpleMaterials;
+
+    this.overrideRendererSettings = source.overrideRendererSettings;
+    this.csm = source.csm;
+    this.toneMapping = source.toneMapping;
+    this.toneMappingExposure = source.toneMappingExposure;
+    this.physicallyCorrectLights = source.physicallyCorrectLights;
+    this.outputEncoding = source.outputEncoding;
+
     return this;
   }
   // @ts-ignore
@@ -402,7 +447,24 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
                 mediaConeOuterAngle: this.mediaConeOuterAngle,
                 mediaConeOuterGain: this.mediaConeOuterGain
               }
-            }
+            },
+            {
+              name: "simple-materials",
+              props: {
+                simpleMaterials: this.simpleMaterials
+              }
+            },
+            {
+              name: "renderer-settings",
+              props: {
+                overrideRendererSettings: this.overrideRendererSettings,
+                csm: this.csm,
+                toneMapping: this.toneMapping,
+                toneMappingExposure: this.toneMappingExposure,
+                physicallyCorrectLights: this.physicallyCorrectLights,
+                outputEncoding: this.outputEncoding
+              }
+            },
           ]
         }
       }
@@ -469,6 +531,20 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         mediaConeInnerAngle: this.mediaConeInnerAngle,
         mediaConeOuterAngle: this.mediaConeOuterAngle,
         mediaConeOuterGain: this.mediaConeOuterGain
+      });
+    }
+    if (this.overrideRendererSettings) {
+      this.addGLTFComponent("renderer-settings", {
+        csm: this.csm,
+        toneMapping: this.toneMapping,
+        toneMappingExposure: this.toneMappingExposure,
+        physicallyCorrectLights: this.physicallyCorrectLights,
+        outputEncoding: this.outputEncoding
+      });
+    }
+    if(this.simpleMaterials) {
+      this.addGLTFComponent("simple-materials", {
+        simpleMaterials: this.simpleMaterials
       });
     }
   }
