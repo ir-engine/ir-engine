@@ -217,7 +217,7 @@ export class WorldScene {
         break;
 
       case 'renderer-settings':
-        if(isClient) handleRendererSettings(component.data as any);
+        handleRendererSettings(component.data as any);
         break;
       
       case 'spawn-point':

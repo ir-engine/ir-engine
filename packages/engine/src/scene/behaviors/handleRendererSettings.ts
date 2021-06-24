@@ -1,4 +1,5 @@
 import { LinearToneMapping, sRGBEncoding, TextureEncoding, ToneMapping } from 'three';
+import { isClient } from '../../common/functions/isClient';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Engine } from '../../ecs/classes/Engine';
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
@@ -13,6 +14,7 @@ export type RenderSettingsProps = {
 }
 
 export const handleRendererSettings = (args?: RenderSettingsProps): void => {
+  if(!isClient) return;
   if(args) {
     Engine.renderer.physicallyCorrectLights = args.physicallyCorrectLights;
     Engine.renderer.outputEncoding = args.outputEncoding;

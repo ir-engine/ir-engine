@@ -6,11 +6,12 @@ import SpawnPointComponent from "../components/SpawnPointComponent";
 import { Quaternion, Vector3 } from "three";
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 
-const randomPosition = () => {
-  return {
-    position: new Vector3(Math.random() * 10 - 5, 0, Math.random() * 10 - 5),
-    rotation: new Quaternion()
-  };
+const randomPositionCentered = (area: Vector3) => {
+  return new Vector3(
+    (Math.random() - 0.5) * area.x,
+    (Math.random() - 0.5) * area.y,
+    (Math.random() - 0.5) * area.z
+  );
 }
 
 export class ServerSpawnSystem extends System {
@@ -27,23 +28,22 @@ export class ServerSpawnSystem extends System {
   }
 
   getRandomSpawnPoint(): { position: Vector3, rotation: Quaternion } {
-    if (this.spawnPoints.length < 1) {
-      console.warn("Couldn't spawn entity at spawn point, no spawn points available");
-      return randomPosition();
-    }
-
-    // Get new spawn point (round robin)
-    this.lastSpawnIndex = (this.lastSpawnIndex + 1) % this.spawnPoints.length;
-
     const spawnTransform = getComponent(this.spawnPoints[this.lastSpawnIndex], TransformComponent);
-    if(!spawnTransform) {
-      return randomPosition();
+    if(spawnTransform && this.spawnPoints.length > 0) {
+      // Get new spawn point (round robin)
+      this.lastSpawnIndex = (this.lastSpawnIndex + 1) % this.spawnPoints.length;
+      return {
+        position: spawnTransform.position.clone().add(randomPositionCentered(spawnTransform.scale)),
+        rotation: spawnTransform.rotation.clone(),
+      }
     }
-    
-    return {
-      position: spawnTransform.position.clone().add(new Vector3(Math.random() * 10 - 5, 0, Math.random() * 10 - 5)),
-      rotation: spawnTransform.rotation.clone(),
-    };
+
+    console.warn("Couldn't spawn entity at spawn point, no spawn points available");
+
+    return { 
+      position: randomPositionCentered(new Vector3(2, 0, 2)),
+      rotation: new Quaternion()
+    }
   }
 
   execute(): void {
