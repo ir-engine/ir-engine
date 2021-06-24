@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client-core",
-  "version": "0.2.29",
+  "version": "0.2.36",
   "module": "dist/client-core.es.js",
   "repository": {
     "type": "git",
@@ -19,7 +19,8 @@
     "build": "rimraf dist && mkdir dist && ctix entrypoint ./src && node build.js",
     "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
     "buildx": "esbuild",
-    "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
+    "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\"",
+    "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {
     "@types/react": "17.0.11",
@@ -47,8 +48,8 @@
     "@types/styled-components": "5.1.10",
     "@typescript-eslint/eslint-plugin": "4.28.0",
     "@typescript-eslint/parser": "4.28.0",
-    "@xrengine/common": "^0.2.29",
-    "@xrengine/engine": "^0.2.29",
+    "@xrengine/common": "^0.2.36",
+    "@xrengine/engine": "^0.2.36",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
     "autoprefixer": "10.2.6",

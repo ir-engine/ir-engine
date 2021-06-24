@@ -29,16 +29,17 @@
     "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
     "test": "jest",
     "validate": "npm run lint && npm run test",
-    "generate-doc": "node_modules/.bin/typedoc"
+    "generate-doc": "node_modules/.bin/typedoc",
+    "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
-  "version": "0.2.29",
+  "version": "0.2.36",
   "peerDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.6.0",
     "@typescript-eslint/parser": "^4.4.1"
   },
   "dependencies": {
     "@pixiv/three-vrm": "^0.6.4",
-    "@xrengine/common": "^0.2.29",
+    "@xrengine/common": "^0.2.36",
     "browserfs": "^1.4.3",
     "cross-fetch": "^3.0.6",
     "ctix": "^0.3.1",
