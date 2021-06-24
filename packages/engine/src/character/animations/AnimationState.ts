@@ -192,8 +192,8 @@ export class ExitingVehicleState extends AnimationState {
             this.animations[0].weight = 1;
             this.animations[1].weight = 0;
         } else {
-            this.animations[0].weight = 1;
-            this.animations[1].weight = 0;
+            this.animations[0].weight = 0;
+            this.animations[1].weight = 1;
         }
     }
 }
