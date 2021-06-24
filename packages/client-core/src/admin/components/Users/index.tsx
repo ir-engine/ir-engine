@@ -10,7 +10,7 @@ import { useStyles } from "./styles";
 const Users = () => {
     const classes = useStyles();
     const [userModalOpen, setUserModalOpen] = React.useState(false);
-
+    
     const openModalCreate = (open: boolean) => 
         (
             event: React.KeyboardEvent | React.MouseEvent,

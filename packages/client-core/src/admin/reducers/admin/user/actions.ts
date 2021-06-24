@@ -8,7 +8,8 @@ import {
     USER_ROLE_RETRIEVED,
     USER_ROLE_CREATED,
     USER_ROLE_UPDATED,
-    LOADED_USERS
+    LOADED_USERS,
+    STATIC_RESOURCE_RETRIEVED
 } from '../../actions';
 
 export interface userRoleRetrievedResponse {
@@ -27,6 +28,12 @@ export interface LoadedUsersAction {
     type: string;
     users: User[];
 }
+
+export interface fetchedStaticResourceAction {
+    type: string,
+    staticResource: any[]
+}
+
 export function loadedUsers(users: User[]): LoadedUsersAction {
     return {
         type: LOADED_USERS,
@@ -85,5 +92,12 @@ export const fetchedSIngleUser = (data: any): any => {
     return {
         type: SINGLE_USER_ADMIN_LOADED,
         data: data,
+    };
+};
+
+export const fetchedStaticResource = (data: any): fetchedStaticResourceAction => {
+    return {
+        type: STATIC_RESOURCE_RETRIEVED,
+        staticResource: data
     };
 };

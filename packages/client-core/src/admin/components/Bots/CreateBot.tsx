@@ -318,8 +318,6 @@ const CreateBot = (props: Props) => {
                     >
                         Add command
                     </Button>
-
-
                     <div
                         className={commandData.length > 0 ? classes.alterContainer : classes.createAlterContainer}
                     >

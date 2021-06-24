@@ -186,8 +186,7 @@ const UserTable = (props: Props) => {
             {
                 userAdmin &&
                 <ViewUser
-                    open={viewModel}
-                    handleClose={openViewModel}
+                openView={viewModel}
                     userAdmin={userAdmin}
                     closeViewModel={closeViewModel}
                 />

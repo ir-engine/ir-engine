@@ -274,4 +274,10 @@ export class User extends Service {
       return await super.find(params);
     }
   }
+
+  async create (params: Params): Promise<any> {
+    const data = params;
+    data.inviteCode =  Math.random().toString(36).slice(2);
+    return await super.create(data);
+  }
 }

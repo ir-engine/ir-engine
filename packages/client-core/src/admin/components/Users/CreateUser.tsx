@@ -1,7 +1,7 @@
 import React from 'react';
 import Drawer from '@material-ui/core/Drawer';
 import Button from '@material-ui/core/Button';
-import { createUser as createUserAction } from "../../reducers/admin/user/service";
+import { createUser as createUserAction, fetchStaticResource } from "../../reducers/admin/user/service";
 import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { fetchUserRole } from "../../reducers/admin/user/service";
@@ -27,6 +27,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
+
 const Alert = (props) => {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
 };
@@ -44,7 +45,8 @@ interface Props {
     closeViewModel: any;
     adminUserState?: any;
     adminInstanceState?: any;
-    adminPartyState?: any
+    adminPartyState?: any;
+    fetchStaticResource?: any;
 }
 const mapStateToProps = (state: any): any => {
     return {
@@ -60,7 +62,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createUserAction: bindActionCreators(createUserAction, dispatch),
     fetchUserRole: bindActionCreators(fetchUserRole, dispatch),
     fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch),
-    fetchAdminParty: bindActionCreators(fetchAdminParty, dispatch)
+    fetchAdminParty: bindActionCreators(fetchAdminParty, dispatch),
+    fetchStaticResource: bindActionCreators(fetchStaticResource, dispatch)
 });
 
 
@@ -77,7 +80,8 @@ const CreateUser = (props: Props) => {
         fetchAdminParty,
         adminUserState,
         adminInstanceState,
-        adminPartyState
+        adminPartyState,
+        fetchStaticResource
     } = props;
 
     const classes = useStyles();
@@ -109,14 +113,10 @@ const CreateUser = (props: Props) => {
     const instanceData = adminInstances.get("instances");
     const adminParty = adminPartyState.get("parties");
     const adminPartyData = adminParty.get("parties").data ? adminParty.get("parties").data : [];
+    const staticResource = adminUserState.get("staticResource");
+    const staticResourceData = staticResource.get("staticResource");
 
     React.useEffect(() => {
-        const fetchData = async () => {
-            await fetchUserRole();
-        };
-        const role = userRole ? userRole.get('updateNeeded') : false;
-        if ((role === true) && user.id) fetchData();
-
         if (user.id && adminInstances.get("updateNeeded")) {
             fetchAdminInstances();
         }
@@ -124,12 +124,24 @@ const CreateUser = (props: Props) => {
         if (user.id && adminParty.get('updateNeeded') == true) {
             fetchAdminParty();
         }
-    }, [adminUserState, adminInstanceState, adminPartyState, user]);
+    }, [adminInstanceState, adminPartyState, user]);
+
+    React.useEffect(() => {
+        const fetchData = async () => {
+            await fetchUserRole();
+        };
+        const role = userRole ? userRole.get('updateNeeded') : false;
+        if ((role === true) && user.id) fetchData();
+        if (user.id && staticResource.get('updateNeeded')) {
+            fetchStaticResource();
+        }
+    }, [adminUserState, user]);
 
     const data = [];
     instanceData.forEach(element => {
         data.push(element);
     });
+
 
     const partyData = adminPartyData.map(el => ({ ...el, label: `Location: ${el.location.name || ""}  ____  Instance: ${el.instance.ipAddress || ""}` }));
 
@@ -175,14 +187,12 @@ const CreateUser = (props: Props) => {
         }
         setState({ ...state, [name]: value, formErrors: temp });
     };
-
-
     const handleSubmit = (e) => {
         e.preventDefault();
         const data = {
             name: state.name,
             avatarId: state.avatar,
-            inviteCode: state.inviteCode,
+            inviteCode: "",
             instanceId: state.instance,
             userRole: state.userRole,
             partyId: state.party
@@ -262,16 +272,27 @@ const CreateUser = (props: Props) => {
                             />
                         </Paper>
                         <label>Avatar</label>
-                        <Paper component="div" className={state.formErrors.avatar.length > 0 ? classes.redBorder : classes.createInput}>
-                            <InputBase
-                                className={classes.input}
-                                name="avatar"
-                                placeholder="Enter avatar"
-                                style={{ color: "#fff" }}
-                                autoComplete="off"
-                                value={state.avatar}
-                                onChange={handleChange}
-                            />
+                        <Paper component="div" className={state.formErrors.userRole.length > 0 ? classes.redBorder : classes.createInput}>
+                            <FormControl fullWidth>
+                                <Select
+                                    labelId="demo-controlled-open-select-label"
+                                    id="demo-controlled-open-select"
+                                    value={state.avatar}
+                                    fullWidth
+                                    displayEmpty
+                                    onChange={handleChange}
+                                    className={classes.select}
+                                    name="avatar"
+                                    MenuProps={{ classes: { paper: classesx.selectPaper } }}
+                                >
+                                    <MenuItem value="" disabled>
+                                        <em>Select avatar</em>
+                                    </MenuItem>
+                                    {
+                                        staticResourceData.map(el => <MenuItem value={el.name} key={el.id}>{el.name}</MenuItem>)
+                                    }
+                                </Select>
+                            </FormControl>
                         </Paper>
                         <label>User role</label>
                         <Paper component="div" className={state.formErrors.userRole.length > 0 ? classes.redBorder : classes.createInput}>
@@ -358,7 +379,7 @@ const CreateUser = (props: Props) => {
                                 Submit
                             </Button>
                             <Button
-                                onClick={ handleClose(false)}
+                                onClick={handleClose(false)}
                                 className={classesx.saveBtn}
                             >
                                 Cancel
