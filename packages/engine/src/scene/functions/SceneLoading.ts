@@ -38,6 +38,7 @@ import { setReflectionProbe } from '../behaviors/setReflectionProbe';
 import { PersistTagComponent } from '../components/PersistTagComponent';
 import { createPortal } from '../behaviors/createPortal';
 import { createGround } from '../behaviors/createGround';
+import { handleRendererSettings } from '../behaviors/handleRendererSettings';
 
 export class WorldScene {
   loadedModels = 0;
@@ -54,6 +55,7 @@ export class WorldScene {
 
       addComponent(entity, SceneTagComponent);
       entity.name = sceneEntity.name;
+      console.log('=========================================')
 
       sceneEntity.components.forEach(component => {
         component.data.sceneEntityId = sceneEntity.entityId;
@@ -79,6 +81,7 @@ export class WorldScene {
   loadComponent = (entity: Entity, component: SceneDataComponent): void => {
     // remove '-1', '-2' etc suffixes
     const name = component.name.replace(/(-\d+)|(\s)/g, "");
+    console.log(name, component)
 
     switch(name) {
       case 'game':
@@ -119,6 +122,10 @@ export class WorldScene {
       case 'floor-plan':
         break;
 
+      case 'simple-materials':
+        Engine.simpleMaterials = component.data.simpleMaterials;
+        break;
+    
       case 'gltf-model':
         // TODO: get rid of or rename dontParseModel
         if (!isClient && component.data.dontParseModel) return;
@@ -209,6 +216,10 @@ export class WorldScene {
         handleAudioSettings(entity, component.data);
         break;
 
+      case 'renderer-settings':
+        if(isClient) handleRendererSettings(entity, component.data);
+        break;
+      
       case 'spawn-point':
         addComponent(entity, SpawnPointComponent);
         break;

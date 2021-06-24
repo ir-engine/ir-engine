@@ -100,6 +100,7 @@ export class WebGLRendererSystem extends System {
   /** Is system Initialized. */
   static instance: WebGLRendererSystem;
   csm: CSM;
+  csmEnabled = true;
 
   composer: EffectComposerWithSchema
   /** Is resize needed? */
@@ -150,8 +151,8 @@ export class WebGLRendererSystem extends System {
     const options = {
       canvas,
       context,
-      antialias: false,
-      preserveDrawingBuffer: false
+      antialias: !Engine.isHMD,
+      preserveDrawingBuffer: !Engine.isHMD
     };
 
     const renderer = this.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options);
@@ -168,9 +169,9 @@ export class WebGLRendererSystem extends System {
 
     // Cascaded shadow maps
     const csm = new CSM({
-      cascades: Engine.xrSupported ? 2 : 4,
+      cascades: Engine.isHMD ? 2 : 4,
       lightIntensity: 1,
-      shadowMapSize: Engine.xrSupported ? 256 : 4096,
+      shadowMapSize: Engine.isHMD ? 256 : 4096,
       maxFar: 100,
       camera: Engine.camera,
       parent: Engine.scene
@@ -301,7 +302,7 @@ export class WebGLRendererSystem extends System {
     if (Engine.xrRenderer.isPresenting) {
 
       if(this.rendereringEnabled) {
-        this.csm.update();
+        this.csmEnabled && this.csm.update();
         Engine.renderer.render(Engine.scene, Engine.camera);
       }
 
@@ -322,14 +323,14 @@ export class WebGLRendererSystem extends System {
           cam.updateProjectionMatrix();
         }
 
-        this.csm.updateFrustums();
+        this.csmEnabled && this.csm.updateFrustums();
         Engine.renderer.setSize(width, height, false);
         this.composer.setSize(width, height, false);
         this.needsResize = false;
       }
 
       if(this.rendereringEnabled) {
-        this.csm.update();
+        this.csmEnabled && this.csm.update();
         if (this.usePostProcessing && this.postProcessingSchema) {
           this.composer.render(delta);
         } else {
