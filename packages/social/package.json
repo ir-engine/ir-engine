@@ -29,8 +29,8 @@
     "socket.io": "4.1.2"
   },
   "dependencies": {
-    "@capacitor/android": "3.0.1",
-    "@capacitor/cli": "3.0.1",
+    "@capacitor/android": "3.0.2",
+    "@capacitor/cli": "3.0.2",
     "@capacitor/ios": "^3.0.2",
     "@material-ui/core": "4.11.4",
     "@types/react-redux": "7.1.16",
