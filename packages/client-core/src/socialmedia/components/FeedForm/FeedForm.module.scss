@@ -17,9 +17,11 @@
     }
     .feedVideoPreview{
         width: 100%;
-        max-height: calc(100% - 200px);
+        max-height: 55%;
         height: 100%;
+        margin-top: auto;
         object-fit: contain;
+        margin-bottom: auto;
     }
 
 
