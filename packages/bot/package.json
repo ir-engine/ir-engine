@@ -11,7 +11,7 @@
   },
   "npmClient": "npm",
   "jest": "ts-jest",
-  "main": "src/xrengine-bot.js",
+  "main": "src/bot.js",
   "scripts": {
     "start": "node run-bot.js",
     "validate": "npm run lint && npm run test",

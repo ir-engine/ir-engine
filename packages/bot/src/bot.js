@@ -54,19 +54,12 @@ class PageUtils {
 }
 
 /**
- * Main class for creating a HubsBot. Dynamically adds all methods from
- * InBrowserBot, which can be called directly from a HubsBot instance.
- * @example
- var bot = new HubsBot();
- bot.goTo(0, 1, 0) // goTo is a InBrowserBot method, but can be called directly on the HubsBot
- * @param {Object} opt See below
- * @param {boolean} opt.headless Set this to false to have puppeteer spawn Chromium window.
- * @param {string} opt.name Name for the bot to appear as ({@link setName})
- * @see InBrowserBot
+ * Main class for creating a bot.
  */
-class XREngineBot {
+class Bot {
+    activeChannel;
     constructor({
-        name = "XREngineBot",
+        name = "Bot",
         fakeMediaPath,
         headless = true,
         autoLog = true} = {}
@@ -82,6 +75,83 @@ class XREngineBot {
 
             this[method] = (...args) => this.evaluate(InBrowserBot.prototype[method], ...args)
         }
+        
+        const channelState = chatState.get('channels');
+        const channels = channelState.get('channels');
+        const activeChannelMatch = [...channels].find(([, channel]) => channel.channelType === 'instance');
+        if (activeChannelMatch && activeChannelMatch.length > 0) {
+            this.activeChannel = activeChannelMatch[1];
+        }
+    }
+
+    async keyPress(key, numMilliSeconds) {
+        console.log('Running with key ' + key);
+        await this.setFocus('canvas');
+        await this.clickElementById('canvas', 'engine-renderer-canvas');
+        const interval = setInterval(() => {
+            console.log('Pressing', key);
+            this.pressKey(key);
+        }, 100);
+        return new Promise((resolve) => setTimeout(() => {
+            console.log('Clearing button press for ' + key, numMilliSeconds);
+            this.releaseKey(key);
+            clearInterval(interval);
+            resolve()
+        }, numMilliSeconds));
+    }
+
+    async sendMessage(message) {
+        await this.clickElementByClass('button', 'openChat');
+        await this.clickElementById('input', 'newMessage');
+        await this.typeMessage(message);
+        await this.clickElementByClass('button', 'sendMessage');
+    }
+
+    async getInstanceMessages() {
+        console.log("Getting messages from instance channel: ", this.activeChannel);
+        return this.activeChannel && this.activeChannel.chatState;
+    }
+
+
+    async sendAudio(duration) {
+        console.log("Sending audio...");
+        await this.clickElementById('button', 'UserAudio');
+        await this.waitForTimeout(duration);
+    }
+
+    async stopAudio(bot) {
+        console.log("Stop audio...");
+        await this.clickElementById('button', 'UserAudio');
+    }
+
+    async recvAudio(duration) {
+        console.log("Receiving audio...");
+        await this.waitForSelector('[class*=PartyParticipantWindow]', duration);
+    }
+
+    async sendVideo(duration) {
+        console.log("Sending video...");
+        await this.clickElementById('button', 'UserVideo');
+        await this.waitForTimeout(duration);
+    }
+
+    async stopVideo(bot) {
+        console.log("Stop video...");
+        await this.clickElementById('button', 'UserVideo');
+    }
+
+    async recvVideo(duration) {
+        console.log("Receiving video...");
+        await this.waitForSelector('[class*=PartyParticipantWindow]', duration);
+    }
+
+    async delay(timeout) {
+        console.log(`Waiting for ${timeout} ms... `);
+        await this.waitForTimeout(timeout);
+    }
+
+    async interactObject() {
+
     }
 
     /** Runs a function and takes a screenshot if it fails
@@ -240,7 +310,6 @@ class XREngineBot {
 
         if (this.headless) {
             // Disable rendering for headless, otherwise chromium uses a LOT of CPU
-            // await this.page.evaluate(() => { AFRAME.scenes[0].renderer.render = function() {} })
         }
 
         //@ts-ignore
@@ -254,10 +323,6 @@ class XREngineBot {
         //         resolve();
         //     }, 30000)
         // }, 2000) });
-    }
-
-    onMessage(callback) {
-        // window.APP.hubChannel.channel.on('message', callback)
     }
 
     async waitForTimeout(timeout) {
@@ -290,8 +355,8 @@ class XREngineBot {
      * create client-side code to execute `fn`. This code can then be copied and
      * pasted into the developer console
      * @param {Function} fn The function to execute in the browser context. The
-     `this` passed to fn will be an InBrowserBot version of this bot. If
-     this bot is a subclass of HubsBot, the subclassed definitions will
+     `this` passed to fn will be an InBrowserBot version of this this. If
+     this bot is a subclass of Bot, the subclassed definitions will
      be injected into the built [InBrowserBot](#inbrowserbot) code.
      * @param args Arguments to be serialized and passed to fn
      */
@@ -312,4 +377,4 @@ class XREngineBot {
     }
 }
 
-module.exports = XREngineBot
+module.exports = Bot
