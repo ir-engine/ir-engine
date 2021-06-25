@@ -197,7 +197,7 @@ export const onClubColliderWithBall: GameObjectInteractionBehavior = (entityClub
 const clubColliderSize = new Vector3(0.03, 0.05, 0.1);
 const clubHalfWidth = 0.05;
 const clubPutterLength = 0.1;
-const clubLength = 1.8;
+const clubLength = 1;
 
 const upVector = new Vector3(0, 1, 0);
 const HALF_PI = Math.PI / 2;

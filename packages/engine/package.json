@@ -31,33 +31,33 @@
     "validate": "npm run lint && npm run test",
     "generate-doc": "node_modules/.bin/typedoc"
   },
-  "version": "0.2.28",
+  "version": "0.2.29",
   "peerDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.6.0",
     "@typescript-eslint/parser": "^4.4.1"
   },
   "dependencies": {
     "@pixiv/three-vrm": "^0.6.4",
-    "@xrengine/common": "^0.2.28",
+    "@xrengine/common": "^0.2.29",
     "browserfs": "^1.4.3",
     "cross-fetch": "^3.0.6",
     "ctix": "^0.3.1",
     "detect-browser": "^5.2.0",
     "draco3dgltf": "^1.4.1",
+    "ethereal": "^2.0.3",
     "hls.js": "^1.0.0",
     "idb-keyval": "^5.0.5",
     "lodash": "4.17.21",
     "mousetrap": "^1.6.5",
     "postprocessing": "^6.21.5",
+    "react": "17.0.2",
     "socket.io": "4.1.2",
+    "styled-components": "5.3.0",
     "three": "^0.129.0",
     "three-mesh-bvh": "^0.3.7",
     "three-physx": "^0.0.33",
     "vite-xrengine": "2.2.4",
-    "volumetric": "^0.2.19",
-    "ethereal": "^2.0.3",
-    "react": "17.0.2",
-    "styled-components": "5.3.0"
+    "volumetric": "^0.2.19"
   },
   "devDependencies": {
     "@rollup/plugin-json": "4.1.0",

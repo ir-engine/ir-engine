@@ -182,7 +182,12 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
     registerSystem(InteractiveSystem, { priority: 5 });
     registerSystem(GameManagerSystem, { priority: 6 });
     registerSystem(TransformSystem, { priority: 7 }); // Free
-    registerSystem(PhysicsSystem, { worker: options.physics.physxWorker, physicsWorldConfig: options.physics.physicsWorldConfig, priority: 8 });
+    registerSystem(PhysicsSystem, { 
+      simulationEnabled: options.physics.simulationEnabled, 
+      worker: options.physics.physxWorker, 
+      physicsWorldConfig: options.physics.physicsWorldConfig, 
+      priority: 8 
+    });
 
     // Miscellaneous Systems
     registerSystem(HighlightSystem, { priority: 9 });
@@ -196,7 +201,12 @@ const registerEditorSystems = (options: InitializeOptions) => {
     // Scene Systems
     registerSystem(GameManagerSystem, { priority: 6 });
     registerSystem(TransformSystem, { priority: 7 });
-    registerSystem(PhysicsSystem, { simulationEnabled: options.physics.simulationEnabled, worker: options.physics.physxWorker, physicsWorldConfig: options.physics.physicsWorldConfig, priority: 8 });
+    registerSystem(PhysicsSystem, { 
+      simulationEnabled: options.physics.simulationEnabled,
+      worker: options.physics.physxWorker,
+      physicsWorldConfig: options.physics.physicsWorldConfig,
+      priority: 8
+    });
 
     // Miscellaneous Systems
     registerSystem(ParticleSystem, { priority: 10 });
@@ -216,7 +226,12 @@ const registerServerSystems = (options: InitializeOptions) => {
     registerSystem(InteractiveSystem, { priority: 5 });
     registerSystem(GameManagerSystem, { priority: 6 });
     registerSystem(TransformSystem, { priority: 7 });
-    registerSystem(PhysicsSystem, { worker: options.physics.physxWorker, physicsWorldConfig: options.physics.physicsWorldConfig, priority: 8 });
+    registerSystem(PhysicsSystem, { 
+      simulationEnabled: options.physics.simulationEnabled,
+      worker: options.physics.physxWorker,
+      physicsWorldConfig: options.physics.physicsWorldConfig,
+      priority: 8
+    });
 
     // Miscellaneous Systems
     registerSystem(ServerSpawnSystem, { priority: 9 });

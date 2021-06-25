@@ -105,6 +105,8 @@ The default username is 'server', the default password is 'password', the defaul
    and have all of your ENV_VAR definitions here in the form ```<VAR_NAME>=<VALUE>```.
    If you are actively working on this project, contact one of the developers for a copy of the file
    that has all of the development settings and keys in it.
+   
+   Copy and Rename ```.env.local.default``` > to > ```env.local```
 
 #### 6. Start the server in database seed mode
 

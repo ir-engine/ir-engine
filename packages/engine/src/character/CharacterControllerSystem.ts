@@ -219,10 +219,7 @@ export class CharacterControllerSystem extends System {
       const actor = getMutableComponent(entity, CharacterComponent);
       const object3DComponent = getComponent(entity, Object3DComponent);
 
-      const transform = getMutableComponent(entity, TransformComponent);
-      // transform.rotation.identity();
-
-      xrInputSourceComponent.controllerGroup.position.setY(-actor.actorHalfHeight);
+      xrInputSourceComponent.headGroup.position.setY(-actor.actorHalfHeight);
 
       xrInputSourceComponent.controllerGroup.add(
         xrInputSourceComponent.controllerLeft, 
@@ -238,7 +235,7 @@ export class CharacterControllerSystem extends System {
       if(entity === Network.instance.localClientEntity) {
 
         // TODO: Temporarily make rig invisible until rig is fixed
-        actor?.modelContainer.children[0]?.traverse((child) => {
+        actor?.modelContainer?.traverse((child) => {
           if(child.visible) {
             child.visible = false;
           }
@@ -253,7 +250,7 @@ export class CharacterControllerSystem extends System {
 
       if(entity === Network.instance.localClientEntity)
       // TODO: Temporarily make rig invisible until rig is fixed
-      actor?.modelContainer.children[0]?.traverse((child) => {
+      actor?.modelContainer?.traverse((child) => {
         if(child.visible) {
           child.visible = true;
         }

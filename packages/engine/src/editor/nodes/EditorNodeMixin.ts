@@ -91,11 +91,10 @@ export default function EditorNodeMixin(Object3DClass) {
       return this;
     }
     onPlay() {}
-    onUpdate(dt) {
-    }
+    onUpdate(delta: number, time: number) {}
     onPause() {}
     onAdd() {}
-    onChange() {}
+    onChange(prop: string) {}
     onRemove() {}
     onSelect() {}
     onDeselect() {}

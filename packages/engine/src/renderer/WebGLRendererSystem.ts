@@ -150,34 +150,20 @@ export class WebGLRendererSystem extends System {
     const options = {
       canvas,
       context,
-      antialias: false,
-      preserveDrawingBuffer: false
+      antialias: !Engine.isHMD,
+      preserveDrawingBuffer: !Engine.isHMD
     };
 
     const renderer = this.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options);
-    renderer.physicallyCorrectLights = true;
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = PCFSoftShadowMap;
-    renderer.outputEncoding = sRGBEncoding;
-    renderer.toneMapping = LinearToneMapping;
-    renderer.toneMappingExposure = 0.8;
     Engine.renderer = renderer;
+    Engine.renderer.shadowMap.enabled = true;
+    Engine.renderer.shadowMap.type = PCFSoftShadowMap;
+    Engine.renderer.physicallyCorrectLights = true
+    Engine.renderer.outputEncoding = sRGBEncoding
+
     Engine.viewportElement = renderer.domElement;
-    Engine.xrRenderer = renderer.xr;//new WebXRManager(renderer, context);
+    Engine.xrRenderer = renderer.xr;
     Engine.xrRenderer.enabled = Engine.xrSupported;
-
-    // Cascaded shadow maps
-    const csm = new CSM({
-      cascades: Engine.xrSupported ? 2 : 4,
-      lightIntensity: 1,
-      shadowMapSize: Engine.xrSupported ? 256 : 4096,
-      maxFar: 100,
-      camera: Engine.camera,
-      parent: Engine.scene
-    });
-    csm.fade = true;
-
-    this.csm = csm;
 
     window.addEventListener('resize', this.onResize, false);
     this.onResize();
@@ -301,7 +287,7 @@ export class WebGLRendererSystem extends System {
     if (Engine.xrRenderer.isPresenting) {
 
       if(this.rendereringEnabled) {
-        this.csm.update();
+        this.csm?.update();
         Engine.renderer.render(Engine.scene, Engine.camera);
       }
 
@@ -322,14 +308,14 @@ export class WebGLRendererSystem extends System {
           cam.updateProjectionMatrix();
         }
 
-        this.csm.updateFrustums();
+        this.csm?.updateFrustums();
         Engine.renderer.setSize(width, height, false);
         this.composer.setSize(width, height, false);
         this.needsResize = false;
       }
 
       if(this.rendereringEnabled) {
-        this.csm.update();
+        this.csm?.update();
         if (this.usePostProcessing && this.postProcessingSchema) {
           this.composer.render(delta);
         } else {
@@ -421,9 +407,9 @@ export class WebGLRendererSystem extends System {
       default: break;
       case this.maxQualityLevel - 2: mapSize = 1024; break;
       case this.maxQualityLevel - 1: mapSize = 2048; break;
-      case this.maxQualityLevel: mapSize = Engine.xrRenderer.isPresenting ? 2048 : 4096; break;
+      case this.maxQualityLevel: mapSize = 2048; break;
     }
-    this.csm.setShadowMapSize(mapSize);
+    this.csm?.setShadowMapSize(mapSize);
     ClientStorage.set(databasePrefix + RENDERER_SETTINGS.SHADOW_QUALITY, this.shadowQuality);
   }
 

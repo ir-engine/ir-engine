@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/server-core",
   "description": "Shared components for XREngine server",
-  "version": "0.2.28",
+  "version": "0.2.29",
   "homepage": "",
   "publishConfig": {
     "access": "public"
@@ -67,8 +67,8 @@
     "@feathersjs/socketio-client": "^5.0.0-pre.3",
     "@feathersjs/transport-commons": "^5.0.0-pre.3",
     "@google-cloud/agones-sdk": "1.14.0",
-    "@xrengine/common": "^0.2.28",
-    "@xrengine/engine": "^0.2.28",
+    "@xrengine/common": "^0.2.29",
+    "@xrengine/engine": "^0.2.29",
     "aws-sdk": "^2.811.0",
     "bent": "^7.3.0",
     "chargebee": "^2.5.7",
