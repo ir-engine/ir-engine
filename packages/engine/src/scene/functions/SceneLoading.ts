@@ -3,8 +3,7 @@ import { isClient } from "../../common/functions/isClient";
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from "../../ecs/classes/Entity";
-import { addComponent, createEntity, getComponent } from '../../ecs/functions/EntityFunctions';
-import { SceneTagComponent } from '../components/Object3DTagComponents';
+import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
 import { SceneData } from "../interfaces/SceneData";
 import { SceneDataComponent } from "../interfaces/SceneDataComponent";
 import { addObject3DComponent } from '../behaviors/addObject3DComponent';
@@ -40,7 +39,6 @@ import { createPortal } from '../behaviors/createPortal';
 import { createGround } from '../behaviors/createGround';
 import { handleRendererSettings } from '../behaviors/handleRendererSettings';
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
-import { Object3DComponent } from '../components/Object3DComponent';
 
 export class WorldScene {
   loadedModels = 0;
@@ -56,8 +54,6 @@ export class WorldScene {
     Object.keys(scene.entities).forEach(key => {
       const sceneEntity = scene.entities[key];
       const entity = createEntity();
-
-      addComponent(entity, SceneTagComponent);
       entity.name = sceneEntity.name;
 
       sceneEntity.components.forEach(component => {
@@ -139,7 +135,6 @@ export class WorldScene {
       case 'gltf-model':
         // TODO: get rid of or rename dontParseModel
         if (!isClient && component.data.dontParseModel) return;
-
         this.loaders.push(new Promise<void>(resolve => {
           AssetLoader.load({
             url: component.data.src,
