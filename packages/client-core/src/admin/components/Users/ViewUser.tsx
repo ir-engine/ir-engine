@@ -25,12 +25,17 @@ import {
     updateUserRole,
     patchUser,
     fetchSingleUserAdmin,
+    fetchStaticResource
 } from "../../reducers/admin/user/service";
 import { useStyles, useStyle } from "./styles";
 import { selectAdminUserState } from '../../reducers/admin/user/selector';
 import { formValid } from "./validation";
 import MuiAlert from '@material-ui/lab/Alert';
 import Snackbar from '@material-ui/core/Snackbar';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+
 
 
 interface Props {
@@ -44,6 +49,7 @@ interface Props {
     updateUserRole?: any;
     fetchSingleUserAdmin?: any;
     adminUserState?: any;
+    fetchStaticResource?: any;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -57,7 +63,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchUserRole: bindActionCreators(fetchUserRole, dispatch),
     patchUser: bindActionCreators(patchUser, dispatch),
     updateUserRole: bindActionCreators(updateUserRole, dispatch),
-    fetchSingleUserAdmin: bindActionCreators(fetchSingleUserAdmin, dispatch)
+    fetchSingleUserAdmin: bindActionCreators(fetchSingleUserAdmin, dispatch),
+    fetchStaticResource: bindActionCreators(fetchStaticResource, dispatch)
 });
 
 const Alert = (props) => {
@@ -77,6 +84,7 @@ const ViewUser = (props: Props) => {
         updateUserRole,
         fetchSingleUserAdmin,
         adminUserState,
+        fetchStaticResource
     } = props;
     const [openDialog, setOpenDialog] = React.useState(false);
     const [status, setStatus] = React.useState("");
@@ -88,7 +96,6 @@ const ViewUser = (props: Props) => {
         avatar: "",
         formErrors: {
             name: "",
-            inviteCode: "",
             avatar: "",
         }
     });
@@ -99,6 +106,9 @@ const ViewUser = (props: Props) => {
     const userRoleData = userRole ? userRole.get("userRole") : [];
     const singleUser = adminUserState.get("singleUser");
     const singleUserData = adminUserState.get("singleUser").get("singleUser");
+    const staticResource = adminUserState.get("staticResource");
+    const staticResourceData = staticResource.get("staticResource");
+
 
     const handleClick = () => {
         setOpenDialog(true);
@@ -115,6 +125,9 @@ const ViewUser = (props: Props) => {
         if ((user.id && singleUser.get('updateNeeded') == true) || refetch) {
             fetchSingleUserAdmin(userAdmin.id);
             setRefetch(false);
+        }
+        if (user.id && staticResource.get('updateNeeded')) {
+            fetchStaticResource();
         }
     }, [adminUserState, user, refetch]);
 
@@ -134,7 +147,6 @@ const ViewUser = (props: Props) => {
             });
         }
     }, [singleUserData]);
-
     const defaultProps = {
         options: userRoleData,
         getOptionLabel: (option: any) => option.role,
@@ -143,6 +155,7 @@ const ViewUser = (props: Props) => {
     const patchUserRole = async (user: any, role: string) => {
         await updateUserRole(user, role);
         handleCloseDialog();
+        setRefetch(true);
     };
 
     const handleInputChange = (e) => {
@@ -151,9 +164,6 @@ const ViewUser = (props: Props) => {
         switch (name) {
             case "name":
                 temp.name = value.length < 2 ? "Name is required!" : "";
-                break;
-            case "inviteCode":
-                temp.inviteCode = value.length < 2 ? "Invite code is required!" : "";
                 break;
             case "avatar":
                 temp.avatar = value.length < 2 ? "Avatar is required!" : "";
@@ -168,7 +178,7 @@ const ViewUser = (props: Props) => {
         const data = {
             name: state.name,
             avatarId: state.avatar,
-            inviteCode: state.inviteCode,
+            inviteCode: state.inviteCode || null,
         };
 
         let temp = state.formErrors;
@@ -177,9 +187,6 @@ const ViewUser = (props: Props) => {
         }
         if (!state.avatar) {
             temp.avatar = "Avatar can't be empty";
-        }
-        if (!state.inviteCode) {
-            temp.inviteCode = "Invite code can't be empty";
         }
         setState({ ...state, formErrors: temp });
         if (formValid(state, state.formErrors)) {
@@ -229,7 +236,7 @@ const ViewUser = (props: Props) => {
                                         {
                                             userAdmin.userRole ?
                                                 <Chip
-                                                    label={userAdmin.userRole}
+                                                    label={singleUserData?.userRole}
                                                     onDelete={handleClick}
                                                     deleteIcon={<Edit />}
                                                 />
@@ -289,7 +296,6 @@ const ViewUser = (props: Props) => {
                         editMode ?
                             <div className={classes.mt10}>
                                 <Typography variant="h4" component="h4" className={classes.mb10}> Update personal Information  </Typography>
-
                                 <label>Name</label>
                                 <Paper component="div" className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}>
                                     <InputBase
@@ -304,18 +310,29 @@ const ViewUser = (props: Props) => {
                                 </Paper>
                                 <label>Avatar</label>
                                 <Paper component="div" className={state.formErrors.avatar.length > 0 ? classes.redBorder : classes.createInput}>
-                                    <InputBase
-                                        className={classes.input}
-                                        name="avatar"
-                                        placeholder="Enter avatar"
-                                        style={{ color: "#fff" }}
-                                        autoComplete="off"
-                                        value={state.avatar}
-                                        onChange={handleInputChange}
-                                    />
+                                    <FormControl fullWidth>
+                                        <Select
+                                            labelId="demo-controlled-open-select-label"
+                                            id="demo-controlled-open-select"
+                                            value={state.avatar}
+                                            fullWidth
+                                            displayEmpty
+                                            onChange={handleInputChange}
+                                            className={classes.select}
+                                            name="avatar"
+                                            MenuProps={{ classes: { paper: classx.selectPaper } }}
+                                        >
+                                            <MenuItem value="" disabled>
+                                                <em>Select avatar</em>
+                                            </MenuItem>
+                                            {
+                                                staticResourceData.map(el => <MenuItem value={el.name} key={el.id}>{el.name}</MenuItem>)
+                                            }
+                                        </Select>
+                                    </FormControl>
                                 </Paper>
                                 <label>Invite code</label>
-                                <Paper component="div" className={state.formErrors.inviteCode.length > 0 ? classes.redBorder : classes.createInput}>
+                                <Paper component="div" className={classes.createInput}>
                                     <InputBase
                                         className={classes.input}
                                         name="inviteCode"
@@ -360,7 +377,7 @@ const ViewUser = (props: Props) => {
                                             setEditMode(false);
                                         }}
                                     >
-                                        Clear
+                                        CANCEL
                                     </Button>
                                 </div>
                                 :

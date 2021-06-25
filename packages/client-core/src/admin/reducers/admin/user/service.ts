@@ -47,6 +47,7 @@ export function createUser(user: any) {
             const result = await client.service('user').create(user);
             dispatch(userCreated(result));
         } catch (error) {
+            console.error(error);
             dispatchAlertError(dispatch, error.message);
         }
     };

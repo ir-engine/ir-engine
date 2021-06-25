@@ -13,14 +13,10 @@ import Container from '@material-ui/core/Container';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { formValid } from "./validation";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
-import { fetchAdminInstances } from '../../reducers/admin/instance/service';
-import { fetchAdminParty } from "../../reducers/admin/party/service";
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 import { useStyles, useStyle } from "./styles";
 import { selectAdminUserState } from '../../reducers/admin/user/selector';
-import { selectAdminInstanceState } from "../../reducers/admin/instance/selector";
-import { selectAdminPartyState } from "../../reducers/admin/party/selector";
 import Paper from "@material-ui/core/Paper";
 import InputBase from "@material-ui/core/InputBase";
 import MenuItem from '@material-ui/core/MenuItem';
@@ -40,12 +36,8 @@ interface Props {
     authState?: any;
     patchUser?: any;
     fetchUserRole?: any;
-    fetchAdminInstances?: any;
-    fetchAdminParty?: any;
     closeViewModel: any;
     adminUserState?: any;
-    adminInstanceState?: any;
-    adminPartyState?: any;
     fetchStaticResource?: any;
 }
 const mapStateToProps = (state: any): any => {
@@ -53,35 +45,25 @@ const mapStateToProps = (state: any): any => {
         adminState: selectAdminState(state),
         authState: selectAuthState(state),
         adminUserState: selectAdminUserState(state),
-        adminInstanceState: selectAdminInstanceState(state),
-        adminPartyState: selectAdminPartyState(state)
     };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     createUserAction: bindActionCreators(createUserAction, dispatch),
     fetchUserRole: bindActionCreators(fetchUserRole, dispatch),
-    fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch),
-    fetchAdminParty: bindActionCreators(fetchAdminParty, dispatch),
     fetchStaticResource: bindActionCreators(fetchStaticResource, dispatch)
 });
-
-
 
 const CreateUser = (props: Props) => {
     const {
         open,
         handleClose,
-        createUserAction,
         closeViewModel,
         authState,
-        fetchAdminInstances,
         fetchUserRole,
-        fetchAdminParty,
         adminUserState,
-        adminInstanceState,
-        adminPartyState,
-        fetchStaticResource
+        fetchStaticResource,
+        createUserAction
     } = props;
 
     const classes = useStyles();
@@ -92,15 +74,10 @@ const CreateUser = (props: Props) => {
         inviteCode: "",
         avatar: "",
         userRole: "",
-        instance: "",
-        party: "",
         formErrors: {
             name: "",
-            inviteCode: "",
             avatar: "",
             userRole: "",
-            instance: "",
-            party: "",
         }
     });
     const [openWarning, setOpenWarning] = React.useState(false);
@@ -109,22 +86,8 @@ const CreateUser = (props: Props) => {
     const user = authState.get("user");
     const userRole = adminUserState.get("userRole");
     const userRoleData = userRole ? userRole.get("userRole") : [];
-    const adminInstances = adminInstanceState.get('instances');
-    const instanceData = adminInstances.get("instances");
-    const adminParty = adminPartyState.get("parties");
-    const adminPartyData = adminParty.get("parties").data ? adminParty.get("parties").data : [];
     const staticResource = adminUserState.get("staticResource");
     const staticResourceData = staticResource.get("staticResource");
-
-    React.useEffect(() => {
-        if (user.id && adminInstances.get("updateNeeded")) {
-            fetchAdminInstances();
-        }
-
-        if (user.id && adminParty.get('updateNeeded') == true) {
-            fetchAdminParty();
-        }
-    }, [adminInstanceState, adminPartyState, user]);
 
     React.useEffect(() => {
         const fetchData = async () => {
@@ -136,14 +99,6 @@ const CreateUser = (props: Props) => {
             fetchStaticResource();
         }
     }, [adminUserState, user]);
-
-    const data = [];
-    instanceData.forEach(element => {
-        data.push(element);
-    });
-
-
-    const partyData = adminPartyData.map(el => ({ ...el, label: `Location: ${el.location.name || ""}  ____  Instance: ${el.instance.ipAddress || ""}` }));
 
     const createUserRole = () => {
         setOpenCreateUserRole(true);
@@ -167,35 +122,24 @@ const CreateUser = (props: Props) => {
             case "name":
                 temp.name = value.length < 2 ? "Name is required!" : "";
                 break;
-            case "inviteCode":
-                temp.inviteCode = value.length < 2 ? "Invite code is required!" : "";
-                break;
             case "avatar":
                 temp.avatar = value.length < 2 ? "Avatar is required!" : "";
                 break;
             case "userRole":
                 temp.userRole = value.length < 2 ? "User role is required!" : "";
                 break;
-            case "instance":
-                temp.instance = value.length < 2 ? "Instance is required!" : "";
-                break;
-            case "party":
-                temp.party = value.length < 2 ? "Party is required!" : "";
-                break;
             default:
                 break;
         }
         setState({ ...state, [name]: value, formErrors: temp });
     };
-    const handleSubmit = (e) => {
-        e.preventDefault();
+
+    const handleSubmit = () => {
         const data = {
             name: state.name,
             avatarId: state.avatar,
-            inviteCode: "",
-            instanceId: state.instance,
+            inviteCode: state.inviteCode || null,
             userRole: state.userRole,
-            partyId: state.party
         };
         let temp = state.formErrors;
         if (!state.name) {
@@ -203,15 +147,6 @@ const CreateUser = (props: Props) => {
         }
         if (!state.avatar) {
             temp.avatar = "Avatar can't be empty";
-        }
-        if (!state.instance) {
-            temp.instance = "Instance can't be empty";
-        }
-        if (!state.party) {
-            temp.party = "Party can't be empty";
-        }
-        if (!state.inviteCode) {
-            temp.inviteCode = "Invite code can't be empty";
         }
         if (!state.userRole) {
             temp.userRole = "User role can't be empty";
@@ -226,8 +161,6 @@ const CreateUser = (props: Props) => {
                 inviteCode: "",
                 avatar: "",
                 userRole: "",
-                instance: "",
-                party: "",
             });
         } else {
             setError("Please fill all required field");
@@ -245,147 +178,92 @@ const CreateUser = (props: Props) => {
             >
                 <Container maxWidth="sm" className={classes.marginTp}>
                     <DialogTitle id="form-dialog-title" className={classes.texAlign} >Create New User</DialogTitle>
-                    <form onSubmit={handleSubmit}>
-
-                        <label>Name</label>
-                        <Paper component="div" className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}>
-                            <InputBase
-                                className={classes.input}
-                                name="name"
-                                placeholder="Enter name"
-                                style={{ color: "#fff" }}
-                                autoComplete="off"
-                                value={state.name}
+                    <label>Name</label>
+                    <Paper component="div" className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}>
+                        <InputBase
+                            className={classes.input}
+                            name="name"
+                            placeholder="Enter name"
+                            style={{ color: "#fff" }}
+                            autoComplete="off"
+                            value={state.name}
+                            onChange={handleChange}
+                        />
+                    </Paper>
+                    <label>Invite code</label>
+                    <Paper component="div" className={classes.createInput}>
+                        <InputBase
+                            className={classes.input}
+                            name="inviteCode"
+                            placeholder="Enter invite code"
+                            style={{ color: "#fff" }}
+                            autoComplete="off"
+                            value={state.inviteCode}
+                            onChange={handleChange}
+                        />
+                    </Paper>
+                    <label>Avatar</label>
+                    <Paper component="div" className={state.formErrors.avatar.length > 0 ? classes.redBorder : classes.createInput}>
+                        <FormControl fullWidth>
+                            <Select
+                                labelId="demo-controlled-open-select-label"
+                                id="demo-controlled-open-select"
+                                value={state.avatar}
+                                fullWidth
+                                displayEmpty
                                 onChange={handleChange}
-                            />
-                        </Paper>
-                        <label>Invite code</label>
-                        <Paper component="div" className={state.formErrors.inviteCode.length > 0 ? classes.redBorder : classes.createInput}>
-                            <InputBase
-                                className={classes.input}
-                                name="inviteCode"
-                                placeholder="Enter invite code"
-                                style={{ color: "#fff" }}
-                                autoComplete="off"
-                                value={state.inviteCode}
+                                className={classes.select}
+                                name="avatar"
+                                MenuProps={{ classes: { paper: classesx.selectPaper } }}
+                            >
+                                <MenuItem value="" disabled>
+                                    <em>Select avatar</em>
+                                </MenuItem>
+                                {
+                                    staticResourceData.map(el => <MenuItem value={el.name} key={el.id}>{el.name}</MenuItem>)
+                                }
+                            </Select>
+                        </FormControl>
+                    </Paper>
+                    <label>User role</label>
+                    <Paper component="div" className={state.formErrors.userRole.length > 0 ? classes.redBorder : classes.createInput}>
+                        <FormControl fullWidth>
+                            <Select
+                                labelId="demo-controlled-open-select-label"
+                                id="demo-controlled-open-select"
+                                value={state.userRole}
+                                fullWidth
+                                displayEmpty
                                 onChange={handleChange}
-                            />
-                        </Paper>
-                        <label>Avatar</label>
-                        <Paper component="div" className={state.formErrors.userRole.length > 0 ? classes.redBorder : classes.createInput}>
-                            <FormControl fullWidth>
-                                <Select
-                                    labelId="demo-controlled-open-select-label"
-                                    id="demo-controlled-open-select"
-                                    value={state.avatar}
-                                    fullWidth
-                                    displayEmpty
-                                    onChange={handleChange}
-                                    className={classes.select}
-                                    name="avatar"
-                                    MenuProps={{ classes: { paper: classesx.selectPaper } }}
-                                >
-                                    <MenuItem value="" disabled>
-                                        <em>Select avatar</em>
-                                    </MenuItem>
-                                    {
-                                        staticResourceData.map(el => <MenuItem value={el.name} key={el.id}>{el.name}</MenuItem>)
-                                    }
-                                </Select>
-                            </FormControl>
-                        </Paper>
-                        <label>User role</label>
-                        <Paper component="div" className={state.formErrors.userRole.length > 0 ? classes.redBorder : classes.createInput}>
-                            <FormControl fullWidth>
-                                <Select
-                                    labelId="demo-controlled-open-select-label"
-                                    id="demo-controlled-open-select"
-                                    value={state.userRole}
-                                    fullWidth
-                                    displayEmpty
-                                    onChange={handleChange}
-                                    className={classes.select}
-                                    name="userRole"
-                                    MenuProps={{ classes: { paper: classesx.selectPaper } }}
-                                >
-                                    <MenuItem value="" disabled>
-                                        <em>Select user role</em>
-                                    </MenuItem>
-                                    {
-                                        userRoleData.map(el => <MenuItem value={el.role} key={el.role}>{el.role}</MenuItem>)
-                                    }
-                                </Select>
-                            </FormControl>
-                        </Paper>
-
-                        <DialogContentText className={classes.marginBottm}>  <span className={classes.select}>Don't see user role? </span> <a href="#h" className={classes.textLink} onClick={createUserRole}>Create One</a>  </DialogContentText>
-
-                        <label>Instance</label>
-                        <Paper component="div" className={state.formErrors.instance.length > 0 ? classes.redBorder : classes.createInput}>
-                            <FormControl fullWidth>
-                                <Select
-                                    labelId="demo-controlled-open-select-label"
-                                    id="demo-controlled-open-select"
-                                    value={state.instance}
-                                    fullWidth
-                                    displayEmpty
-                                    onChange={handleChange}
-                                    className={classes.select}
-                                    name="instance"
-                                    MenuProps={{ classes: { paper: classesx.selectPaper } }}
-                                >
-                                    <MenuItem value="" disabled>
-                                        <em>Select instance</em>
-                                    </MenuItem>
-                                    {
-                                        data.map(el => <MenuItem value={el.id} key={el.id}>{el.ipAddress}</MenuItem>)
-                                    }
-                                </Select>
-                            </FormControl>
-                        </Paper>
-                        <DialogContentText className={classes.marginBottm}> <span className={classes.select}> Don't see Instance? </span> <a href="/admin/instance" className={classes.textLink}>Create One</a>  </DialogContentText>
-
-                        <label>Party</label>
-                        <Paper component="div" className={state.formErrors.party.length > 0 ? classes.redBorder : classes.createInput}>
-                            <FormControl fullWidth>
-                                <Select
-                                    labelId="demo-controlled-open-select-label"
-                                    id="demo-controlled-open-select"
-                                    value={state.party}
-                                    fullWidth
-                                    displayEmpty
-                                    onChange={handleChange}
-                                    className={classes.select}
-                                    name="party"
-                                    MenuProps={{ classes: { paper: classesx.selectPaper } }}
-                                >
-                                    <MenuItem value="" disabled>
-                                        <em>Select party</em>
-                                    </MenuItem>
-                                    {
-                                        partyData.map(el => <MenuItem value={el.id} key={el.id}>{el.label}</MenuItem>)
-                                    }
-                                </Select>
-                            </FormControl>
-                        </Paper>
-
-                        <DialogContentText className={classes.marginBottm}><span className={classes.select}>  Don't see Party?</span> <a href="/admin/parties" className={classes.textLink}>Create One</a>  </DialogContentText>
-
-                        <DialogActions>
-                            <Button
-                                className={classesx.saveBtn}
-                                type="submit"
+                                className={classes.select}
+                                name="userRole"
+                                MenuProps={{ classes: { paper: classesx.selectPaper } }}
                             >
-                                Submit
-                            </Button>
-                            <Button
-                                onClick={handleClose(false)}
-                                className={classesx.saveBtn}
-                            >
-                                Cancel
-                            </Button>
-                        </DialogActions>
-                    </form>
+                                <MenuItem value="" disabled>
+                                    <em>Select user role</em>
+                                </MenuItem>
+                                {
+                                    userRoleData.map(el => <MenuItem value={el.role} key={el.role}>{el.role}</MenuItem>)
+                                }
+                            </Select>
+                        </FormControl>
+                    </Paper>
+
+                    <DialogContentText className={classes.marginBottm}>  <span className={classes.select}>Don't see user role? </span> <a href="#h" className={classes.textLink} onClick={createUserRole}>Create One</a>  </DialogContentText>
+                    <DialogActions>
+                        <Button
+                            className={classesx.saveBtn}
+                            onClick={handleSubmit}
+                        >
+                            Submit
+                        </Button>
+                        <Button
+                            onClick={handleClose(false)}
+                            className={classesx.saveBtn}
+                        >
+                            Cancel
+                        </Button>
+                    </DialogActions>
                     <Snackbar
                         open={openWarning}
                         autoHideDuration={6000}

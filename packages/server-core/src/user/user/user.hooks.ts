@@ -147,17 +147,26 @@ export default {
     ],
     create: [
       async (context: HookContext): Promise<HookContext> => {
-
         try {
           await context.app.service('user-settings').create({
             userId: context.result.id
           });
-
+          const app = context.app;
+          let result = context.result;
+          if (Array.isArray(result)) result = result[0];
+          if (result?.userRole !== 'guest' && result?.inviteCode == null) {
+            const code = await getFreeInviteCode(app);
+            
+            await app.service('user').patch(result.id, {
+              inviteCode: code
+            });
+          }
           return context;
         } catch (err) {
           logger.error('USER AFTER CREATE ERROR');
           logger.error(err);
         }
+
       }
     ],
     update: [],

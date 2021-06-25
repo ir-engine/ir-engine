@@ -8,10 +8,10 @@ export default (app: Application): void => {
     }
 
     app.on('login', (authResult: any, {connection}: any) => {
-        if (connection) app.channel(`userIds/${connection['identity-provider'].userId as string}`).join(connection);
+        if (connection) app.channel(`userIds/${connection['identity-provider']?.userId as string}`).join(connection);
     });
 
     app.on('logout', (authResult: any, {connection}: any) => {
-        if (connection) app.channel(`userIds/${connection['identity-provider'].userId as string}`).leave(connection);
+        if (connection) app.channel(`userIds/${connection['identity-provider']?.userId as string}`).leave(connection);
     });
 };
