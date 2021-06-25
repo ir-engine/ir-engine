@@ -95,10 +95,11 @@ export class ModelNodeEditor extends Component<
     (this.props.editor as any).setPropertiesSelected({ ...initialProps, src });
   };
 
+  // TODO
   //function to handle change in property src
-  onChangeEnvMap = (src, initialProps) => {
-    (this.props.editor as any).setPropertiesSelected({ ...initialProps, src });
-  };
+  // onChangeEnvMap = (src, initialProps) => {
+  //   (this.props.editor as any).setPropertiesSelected({ ...initialProps, src });
+  // };
 
   //fucntion to handle changes in activeChipIndex property
   onChangeAnimation = activeClipIndex => {
@@ -364,6 +365,13 @@ export class ModelNodeEditor extends Component<
           <ModelInput value={node.src} onChange={this.onChangeSrc} />
           {!(this.props.node as ModelNode).isValidURL && <div>{this.props.t('editor:properties.model.error-url')}</div>}
         </InputGroup>
+        { /* @ts-ignore */}
+        
+        {/* TODO: implement environment map overrides. - source from scene env map, a custom BPCEM bake, URL string
+         <InputGroup name="Environment Map" label={this.props.t('editor:properties.model.lbl-modelurl')}>
+          <ModelInput value={node.src} onChange={this.onChangeSrc} />
+          {!(this.props.node as ModelNode).isValidURL && <div>{this.props.t('editor:properties.model.error-url')}</div>}
+        </InputGroup> */}
         { /* @ts-ignore */}
         <InputGroup name="Loop Animation" label={this.props.t('editor:properties.model.lbl-loopAnimation')}>
           { /* @ts-ignore */}

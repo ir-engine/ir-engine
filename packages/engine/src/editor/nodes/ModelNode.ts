@@ -39,7 +39,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         node.saveColliders = !!json.components.find(c => c.name === "mesh-collider-0");
 
         await node.load(src, onError);
-        node.envMapOverride = envMapOverride || '';
+        if(node.envMapOverride) node.envMapOverride = envMapOverride;
 
         node.collidable = !!json.components.find(c => c.name === "collidable");
         node.walkable = !!json.components.find(c => c.name === "walkable");
@@ -157,7 +157,9 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           } else if (diameter > 20) {
             // If the bounding sphere of a model is over 20m in diameter, assume that the model was
             // exported with units as centimeters and convert to meters.
-            this.scale.set(0.01, 0.01, 0.01);
+
+            // disabled this because we import scenes that are often bigger than this threshold
+            // this.scale.set(0.01, 0.01, 0.01);
           }
         }
         // Clear scale to fit property so that the swapped model maintains the same scale.

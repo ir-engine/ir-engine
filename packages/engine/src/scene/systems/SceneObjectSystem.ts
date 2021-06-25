@@ -6,7 +6,6 @@ import { getComponent, hasComponent } from "../../ecs/functions/EntityFunctions"
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { beforeMaterialCompile } from "../../editor/nodes/helper/BPCEMShader";
 import { WebGLRendererSystem } from "../../renderer/WebGLRendererSystem";
-import EnvironmentMapComponent from "../components/EnvironmentMapComponent";
 import { Object3DComponent } from "../components/Object3DComponent";
 import { PersistTagComponent } from "../components/PersistTagComponent";
 
@@ -27,6 +26,7 @@ export class SceneObjectSystem extends System {
 
   updateType = SystemUpdateType.Fixed;
   static instance: SceneObjectSystem;
+  
   bpcemOptions: BPCEMProps;
 
   constructor(attributes: SystemAttributes = {}) {
@@ -63,18 +63,11 @@ export class SceneObjectSystem extends System {
         } else {
           const material = obj.material as Material;
           if (typeof material !== 'undefined') {
-            
-            if(hasComponent(entity, EnvironmentMapComponent)) {
-              // TODO get and apply env map
 
-              // other envs
+            // BPCEM
+            material.onBeforeCompile = beforeMaterialCompile(this.bpcemOptions.probeScale, this.bpcemOptions.probePositionOffset);
+            (material as any).envMapIntensity = this.bpcemOptions.intensity;
 
-              // BPCEM
-              material.onBeforeCompile = beforeMaterialCompile(this.bpcemOptions.probeScale, this.bpcemOptions.probePositionOffset);
-              (material as any).envMapIntensity = this.bpcemOptions.intensity;
-            }
-
-            // CSM
             if (obj.receiveShadow) {
               WebGLRendererSystem.instance.csm?.setupMaterial(material);
             }
@@ -118,5 +111,5 @@ SceneObjectSystem.queries = {
       removed: true,
       added: true
     }
-  }
+  },
 };
