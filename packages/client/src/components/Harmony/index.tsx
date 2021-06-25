@@ -1141,7 +1141,7 @@ const Harmony = (props: Props): any => {
                             [styles['profile-toggle']]: true,
                             [styles.iconContainer]: true
                         })} onClick={() => openProfileMenu()}><Person /></div>
-                        { selfUser.userRole !== 'guest' && <div className={classNames({
+                        { selfUser?.userRole !== 'guest' && <div className={classNames({
                             [styles['invite-toggle']]: true,
                             [styles.iconContainer]: true
                         })} onClick={() => openInvite()}><GroupAdd /></div>}

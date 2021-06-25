@@ -35,6 +35,7 @@ import { customChecker } from "./gameDefault/checkers/customChecker";
 import { isDifferent } from "./gameDefault/checkers/isDifferent";
 import { doesPlayerHaveGameObject } from "./gameDefault/checkers/doesPlayerHaveGameObject";
 
+
 // others
 import { grabEquippable } from "../../interaction/functions/grabEquippable";
 import { getComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
@@ -52,8 +53,8 @@ import { hitBall } from "./Golf/behaviors/hitBall";
 import { teleportPlayerBehavior } from "./Golf/behaviors/teleportPlayer";
 import { getPositionNextPoint } from "./Golf/behaviors/getPositionNextPoint";
 
-
-
+// ui
+import { createYourTurnPanel } from './Golf/behaviors/createYourTurnPanel'
 
 /**
  * @author HydraFire
@@ -187,7 +188,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   registerStateTagComponents: [],
   initGameState: {
     'newPlayer': {
-      behaviors: [addRole]
+      behaviors: [addRole, createYourTurnPanel]
     },
     '1-Player': {
       components:[State.WaitTurn],
@@ -545,7 +546,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
         {
           behavior: hitBall,
           watchers:[ [ State.addedHit ] ],
-          args: { clubPowerMultiplier: 10, hitAdvanceFactor: 1.2  },
+          args: { clubPowerMultiplier: 5, hitAdvanceFactor: 1.2  },
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {

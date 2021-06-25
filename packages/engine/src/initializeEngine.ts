@@ -25,7 +25,8 @@ import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { configCanvasElement } from './renderer/functions/canvas';
 import { HighlightSystem } from './renderer/HighlightSystem';
 import { TransformSystem } from './transform/systems/TransformSystem';
-import { UIPanelSystem } from './ui/systems/UIPanelSystem';
+import { UIPanelSystem } from './ui-old/systems/UIPanelSystem';
+import { UISystem } from './ui/systems/UISystem'
 import { XRSystem } from './xr/systems/XRSystem';
 import { WebGLRendererSystem } from "./renderer/WebGLRendererSystem";
 import { Timer } from './common/functions/Timer';
@@ -172,6 +173,7 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
     registerSystem(WebGLRendererSystem, { priority: 3, canvas, postProcessing: options.renderer.postProcessing }); // Free
 
     // Input Systems
+    registerSystem(UISystem, {priority: 2}); // Free
     registerSystem(UIPanelSystem, { priority: 2 });
     registerSystem(ActionSystem, { priority: 3 });
     registerSystem(CharacterControllerSystem, { priority: 4 });
@@ -180,7 +182,12 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
     registerSystem(InteractiveSystem, { priority: 5 });
     registerSystem(GameManagerSystem, { priority: 6 });
     registerSystem(TransformSystem, { priority: 7 }); // Free
-    registerSystem(PhysicsSystem, { worker: options.physics.physxWorker, physicsWorldConfig: options.physics.physicsWorldConfig, priority: 8 });
+    registerSystem(PhysicsSystem, { 
+      simulationEnabled: options.physics.simulationEnabled, 
+      worker: options.physics.physxWorker, 
+      physicsWorldConfig: options.physics.physicsWorldConfig, 
+      priority: 8 
+    });
 
     // Miscellaneous Systems
     registerSystem(HighlightSystem, { priority: 9 });
@@ -194,7 +201,12 @@ const registerEditorSystems = (options: InitializeOptions) => {
     // Scene Systems
     registerSystem(GameManagerSystem, { priority: 6 });
     registerSystem(TransformSystem, { priority: 7 });
-    registerSystem(PhysicsSystem, { simulationEnabled: options.physics.simulationEnabled, worker: options.physics.physxWorker, physicsWorldConfig: options.physics.physicsWorldConfig, priority: 8 });
+    registerSystem(PhysicsSystem, { 
+      simulationEnabled: options.physics.simulationEnabled,
+      worker: options.physics.physxWorker,
+      physicsWorldConfig: options.physics.physicsWorldConfig,
+      priority: 8
+    });
 
     // Miscellaneous Systems
     registerSystem(ParticleSystem, { priority: 10 });
@@ -214,7 +226,12 @@ const registerServerSystems = (options: InitializeOptions) => {
     registerSystem(InteractiveSystem, { priority: 5 });
     registerSystem(GameManagerSystem, { priority: 6 });
     registerSystem(TransformSystem, { priority: 7 });
-    registerSystem(PhysicsSystem, { worker: options.physics.physxWorker, physicsWorldConfig: options.physics.physicsWorldConfig, priority: 8 });
+    registerSystem(PhysicsSystem, { 
+      simulationEnabled: options.physics.simulationEnabled,
+      worker: options.physics.physxWorker,
+      physicsWorldConfig: options.physics.physicsWorldConfig,
+      priority: 8
+    });
 
     // Miscellaneous Systems
     registerSystem(ServerSpawnSystem, { priority: 9 });

@@ -4,7 +4,7 @@ import { CharacterAnimations } from '../CharacterAnimations';
 import { defaultAvatarAnimations } from '../CharacterAvatars';
 import { AnimationComponent } from '../components/AnimationComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
-import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
+import { MovementType } from './Util';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -38,7 +38,7 @@ export const movingAnimationSchema = [
     weight:     [   1,   0  ],
     dontHasHit: [   1,   0  ]
   },
-  
+
   // {
   //   type: [JUMP], name: defaultAvatarAnimations[JUMP].name, axis:'y', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
   //   value:      [  1, 0.1  ],
@@ -122,6 +122,31 @@ export const initializeMovingState: Behavior = (entity) => {
 
   actor.movementEnabled = true;
 };
+
+
+
+export const calculateMovement = (actor: CharacterComponent, delta: number, EPSILON: number): MovementType => {
+  if (actor.moveVectorSmooth.position.length() < EPSILON) {
+    actor.moveVectorSmooth.velocity.set(0,0,0);
+    actor.moveVectorSmooth.position.set(0,0,0);
+  }
+
+  actor.moveVectorSmooth.target.copy(actor.animationVelocity)
+  actor.moveVectorSmooth.simulate(delta);
+  const velocity = actor.moveVectorSmooth.position;
+
+  velocity.set(
+    Math.abs(velocity.x) < EPSILON ? 0 : velocity.x,
+    Math.abs(velocity.y) < EPSILON ? 0 : velocity.y,
+    Math.abs(velocity.z) < EPSILON ? 0 : velocity.z,
+  );
+
+  actor.animationVectorSimulator.target.setY(actor.isGrounded ? 0 : 1);
+  actor.animationVectorSimulator.simulate(delta);
+  const distanceFromGround = actor.animationVectorSimulator.position.y < EPSILON ? 0 : actor.animationVectorSimulator.position.y;
+
+  return { velocity, distanceFromGround };
+}
 
 export const getMovementValues: Behavior = (entity, args: {}, deltaTime: number) => {
   const actor = getComponent(entity, CharacterComponent);

@@ -244,6 +244,7 @@ export class Engine {
   static publicPath: string;
 
   static workers = [];
+  static simpleMaterials = false;
 }
 
 export const awaitEngineLoaded = (): Promise<void> => {

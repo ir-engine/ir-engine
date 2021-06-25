@@ -15,7 +15,6 @@ import { PhysicsSystem } from "../physics/systems/PhysicsSystem";
 import { TransformComponent } from "../transform/components/TransformComponent";
 import { AnimationComponent } from "./components/AnimationComponent";
 import { CharacterComponent } from "./components/CharacterComponent";
-import { updateVectorAnimation } from "./functions/updateVectorAnimation";
 import { loadActorAvatar } from "./prefabs/NetworkPlayerCharacter";
 import { Engine } from "../ecs/classes/Engine";
 import { XRInputSourceComponent } from "./components/XRInputSourceComponent";
@@ -25,6 +24,7 @@ import { ServerSpawnSystem } from "../scene/systems/ServerSpawnSystem";
 import { sendClientObjectUpdate } from "../networking/functions/sendClientObjectUpdate";
 import { NetworkObjectUpdateType } from "../networking/templates/NetworkObjectUpdateSchema";
 import { updatePlayerRotationFromViewVector } from "./functions/updatePlayerRotationFromViewVector";
+import { AnimationManager } from "./AnimationManager";
 import { Object3DComponent } from "../scene/components/Object3DComponent";
 import { applyVectorMatrixXZ } from "../common/functions/applyVectorMatrixXZ";
 import { FollowCameraComponent } from "../camera/components/FollowCameraComponent";
@@ -208,7 +208,7 @@ export class CharacterControllerSystem extends System {
     // temporarily disable animations on Oculus until we have buffer animation system / GPU animations
     if(!Engine.isHMD) {
       this.queryResults.animation.all?.forEach((entity) => {
-        updateVectorAnimation(entity, delta);
+        AnimationManager.instance.renderAnimations(entity, delta);
       });
     }
 
@@ -219,10 +219,7 @@ export class CharacterControllerSystem extends System {
       const actor = getMutableComponent(entity, CharacterComponent);
       const object3DComponent = getComponent(entity, Object3DComponent);
 
-      const transform = getMutableComponent(entity, TransformComponent);
-      // transform.rotation.identity();
-
-      xrInputSourceComponent.controllerGroup.position.setY(-actor.actorHalfHeight);
+      xrInputSourceComponent.headGroup.position.setY(-actor.actorHalfHeight);
 
       xrInputSourceComponent.controllerGroup.add(
         xrInputSourceComponent.controllerLeft, 
@@ -238,7 +235,7 @@ export class CharacterControllerSystem extends System {
       if(entity === Network.instance.localClientEntity) {
 
         // TODO: Temporarily make rig invisible until rig is fixed
-        actor?.modelContainer.children[0]?.traverse((child) => {
+        actor?.modelContainer?.traverse((child) => {
           if(child.visible) {
             child.visible = false;
           }
@@ -253,7 +250,7 @@ export class CharacterControllerSystem extends System {
 
       if(entity === Network.instance.localClientEntity)
       // TODO: Temporarily make rig invisible until rig is fixed
-      actor?.modelContainer.children[0]?.traverse((child) => {
+      actor?.modelContainer?.traverse((child) => {
         if(child.visible) {
           child.visible = true;
         }
