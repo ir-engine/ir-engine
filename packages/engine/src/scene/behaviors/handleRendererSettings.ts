@@ -9,8 +9,6 @@ export type RenderSettingsProps = {
   csm: boolean
   toneMapping: ToneMapping
   toneMappingExposure: number
-  physicallyCorrectLights: boolean
-  outputEncoding: TextureEncoding
 }
 
 const enableCSM = (enable: boolean) => {
