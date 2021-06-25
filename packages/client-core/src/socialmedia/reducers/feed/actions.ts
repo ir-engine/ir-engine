@@ -27,7 +27,8 @@ import {
   FIRED_FEEDS_FETCH,
   FEEDS_FIRED_RETRIEVED,
   CLEAR_CREATOR_FEATURED,
-  DELETE_FEED
+  DELETE_FEED,
+  LAST_FEED_VIDEO_URL
 } from '../actions';
 import { FeedShort, Feed } from '@xrengine/common/src/interfaces/Feed';
 
@@ -227,5 +228,12 @@ export function updateFeedInList(feed: Feed): FeedRetrievedAction{
 export function reduxClearCreatorFeatured (): FetchingFeedsAction {
   return {
     type: CLEAR_CREATOR_FEATURED
+  };
+}
+
+export function lastFeedVideoUrl (filePath): oneFeedAction {
+  return {
+    type: LAST_FEED_VIDEO_URL,
+    feedId: filePath
   };
 }
