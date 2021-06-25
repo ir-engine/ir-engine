@@ -38,7 +38,7 @@ const enableCSM = (enable: boolean) => {
 export const handleRendererSettings = (args?: RenderSettingsProps): void => {
   if(!isClient) return
   if(args) {
-    console.log(args)
+
     Engine.renderer.toneMapping = args.toneMapping
     Engine.renderer.toneMappingExposure = args.toneMappingExposure
 
