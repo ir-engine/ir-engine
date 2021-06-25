@@ -203,7 +203,6 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
 		{ type: AnimationComponent, data: {
 			animationsSchema: movingAnimationSchema,
 			updateAnimationsValues: getMovementValues,
-			animationGraph: CharacterAnimationGraph.constructGraph(),
 		}}
 	],
 	serverComponents: [],
