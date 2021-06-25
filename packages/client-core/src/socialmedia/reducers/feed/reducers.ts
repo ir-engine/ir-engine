@@ -27,7 +27,8 @@ import {
   FIRED_FEEDS_FETCH,
   FEEDS_FIRED_RETRIEVED,
   CLEAR_CREATOR_FEATURED,
-  DELETE_FEED
+  DELETE_FEED,
+  LAST_FEED_VIDEO_URL
 } from '../actions';
 import Immutable from 'immutable';
 import {
@@ -55,6 +56,7 @@ export const initialFeedState = {
     fetching: false,
     feedsAdmin:[],
     feedsAdminFetching: false,
+    lastvideoUrl: null,
   },
 };
 
@@ -168,6 +170,9 @@ const feedReducer = (state = immutableState, action: FeedsAction): any => {
     case DELETE_FEED:
         return state.set('feedsFeatured', [...state.get('feedsFeatured').filter(feed =>
           feed.id !== (action as FeedRetrievedAction).feed)]);
+
+    case LAST_FEED_VIDEO_URL:
+        return state.set('lastFeedVideoUrl', (action as oneFeedAction).feedId);
 
 }
 

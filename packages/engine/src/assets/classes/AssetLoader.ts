@@ -123,10 +123,6 @@ export class AssetLoader {
             if(typeof this.params.receiveShadow !== 'undefined') child.receiveShadow = this.params.receiveShadow;
             if(typeof this.params.castShadow !== 'undefined') child.castShadow = this.params.castShadow;
 
-            if (this.params.envMapOverride) {
-                child.material.envMap = this.params.envMapOverride;
-            }
-
             if (replacedMaterials.has(child.material)) {
                 child.material = replacedMaterials.get(child.material);
             } else {

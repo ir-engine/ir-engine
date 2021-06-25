@@ -27,7 +27,8 @@ import {
   fetchingFiredFeeds,
   feedsFiredRetrieved,
   reduxClearCreatorFeatured,
-  deleteFeed
+  deleteFeed,
+  lastFeedVideoUrl
 } from './actions';
 
 export function getFeeds(type: string, id?: string, limit?: number) {
@@ -199,7 +200,6 @@ export function setFeedNotFeatured(feedId: string) {
   };
 }
 
-
 export function removeFeed(feedId: string, previewImageUrl: string, videoUrl: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
@@ -223,7 +223,17 @@ export function removeFeed(feedId: string, previewImageUrl: string, videoUrl: st
   };
 }
 
-
 export function clearCreatorFeatured(){
   return async (dispatch: Dispatch): Promise<any> => {dispatch(reduxClearCreatorFeatured());};
+}
+
+export function setLastFeedVideoUrl(filepath: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      dispatch(lastFeedVideoUrl(filepath));
+    } catch (err) {
+      console.log(err);
+      dispatchAlertError(dispatch, err.message);
+    }
+  };
 }

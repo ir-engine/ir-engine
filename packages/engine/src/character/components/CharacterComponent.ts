@@ -44,6 +44,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 	movementEnabled = false;
 	isGrounded: boolean;
 	isJumping: boolean;
+	isWalking = false;
 	walkSpeed = 1.5;
 	runSpeed = 5;
 	moveSpeed = 5;

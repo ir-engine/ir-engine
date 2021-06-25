@@ -323,7 +323,8 @@ const moveByInputAxis: Behavior = (
 };
 const setWalking: Behavior = (entity, args: { value: number }): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  actor.moveSpeed = args.value === BinaryValue.ON ? actor.walkSpeed : actor.runSpeed;
+  actor.isWalking = args.value === BinaryValue.ON;
+  actor.moveSpeed = actor.isWalking ? actor.walkSpeed : actor.runSpeed;
 };
 
 const setLocalMovementDirection: Behavior = (entity, args: { z?: number; x?: number; y?: number }): void => {

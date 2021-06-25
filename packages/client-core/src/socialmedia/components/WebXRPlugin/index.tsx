@@ -31,6 +31,7 @@ import { getArMediaItem } from "../../reducers/arMedia/service";
 import ZoomGestureHandler from "../../../zoom-gesture-handler";
 import HintOne from "../WebXrHints/HintOne";
 import HintTwo from "../WebXrHints/HintTwo";
+import {setLastFeedVideoUrl} from "../../reducers/feed/service";
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -43,6 +44,7 @@ const mapStateToProps = (state: any): any => {
     updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
     updateWebXRState: bindActionCreators(updateWebXRState, dispatch),
     getArMediaItem: bindActionCreators(getArMediaItem, dispatch),
+    setLastFeedVideoUrl: bindActionCreators(setLastFeedVideoUrl, dispatch),
 });
 
 interface Props{
@@ -55,6 +57,7 @@ interface Props{
     getArMediaItem?:typeof getArMediaItem;
     feedHintsOnborded?: any;
     setFeedHintsOnborded?: any;
+    setLastFeedVideoUrl?: any;
   }
 
 const { isNative } = Capacitor;
@@ -77,7 +80,7 @@ export const WebXRPlugin = ({
                                 getArMediaItem, updateNewFeedPageState,
                                 updateWebXRState, setContentHidden,
                                 webxrRecorderActivity, feedHintsOnborded,
-                                setFeedHintsOnborded
+                                setFeedHintsOnborded, setLastFeedVideoUrl
                             }:Props) => {
     const canvasRef = React.useRef();
     const [initializationResponse, setInitializationResponse] = useState("");
@@ -534,6 +537,7 @@ export const WebXRPlugin = ({
               then(({ result, filePath }) => {
                   console.log("END RECORDING, result IS", result);
                   console.log("filePath IS", filePath);
+                  setLastFeedVideoUrl(filePath);
                   getArMediaItem(null);
                   setSavedFilePath("file://" + filePath);
                   if(!closeBtnAction.current){

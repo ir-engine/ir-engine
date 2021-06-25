@@ -304,7 +304,16 @@
             "info-mediaMaxDistance": "A double value representing the maximum distance between the audio source and the listener, after which the volume is not reduced any further.",
             "info-mediaConeInnerAngle": "A double value describing the angle, in degrees, of a cone inside of which there will be no volume reduction.",
             "info-mediaConeOuterAngle": "A double value describing the angle, in degrees, of a cone outside of which the volume will be reduced by a constant value, defined by the coneOuterGain attribute.",
-            "info-mediaConeOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard."
+            "info-mediaConeOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard.",
+            "lbl-simpleMaterials": "Use Simple Materials",
+            "info-simpleMaterials": "Converts all expensive materials to simpler ones to take the load off scene rendering.",
+            "lbl-rendererSettings": "Override Renderer Settings",
+            "lbl-csm": "Cascading Shadow Maps",
+            "info-csm": "Enables cascading shadow maps.",
+            "lbl-toneMapping": "Tone Mapping",
+            "info-toneMapping": "Enables tone mapping on the scene renderer. Has no effect when a post processing is enabled.",
+            "lbl-toneMappingExposure": "Tone Mapping Exposure",
+            "info-toneMappingExposure": "Specifies the tone mapping exposure on the scene renderer. Has no effect when a post processing is enabled."
         },
         "sceneCamera": {
             "description": "The camera used to generate the thumbnail for your scene and the starting position for the preview camera in Hubs.",

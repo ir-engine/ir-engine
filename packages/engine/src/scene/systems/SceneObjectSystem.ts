@@ -1,8 +1,8 @@
-import { Material, Mesh, Vector3 } from "three";
+import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Vector3 } from "three";
 import { CameraLayers } from "../../camera/constants/CameraLayers";
 import { Engine } from "../../ecs/classes/Engine";
 import { System, SystemAttributes } from "../../ecs/classes/System";
-import { getComponent } from "../../ecs/functions/EntityFunctions";
+import { getComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { beforeMaterialCompile } from "../../editor/nodes/helper/BPCEMShader";
 import { WebGLRendererSystem } from "../../renderer/WebGLRendererSystem";
@@ -26,6 +26,7 @@ export class SceneObjectSystem extends System {
 
   updateType = SystemUpdateType.Fixed;
   static instance: SceneObjectSystem;
+  
   bpcemOptions: BPCEMProps;
 
   constructor(attributes: SystemAttributes = {}) {
@@ -53,16 +54,23 @@ export class SceneObjectSystem extends System {
 
       // Apply material stuff
       object3DComponent.value.traverse((obj: Mesh) => {
-        const material = obj.material as Material;
-        if (typeof material !== 'undefined') {
-          
-          // BPCEM
-          material.onBeforeCompile = beforeMaterialCompile(this.bpcemOptions.probeScale, this.bpcemOptions.probePositionOffset);
-          (material as any).envMapIntensity = this.bpcemOptions.intensity;
+        if(Engine.simpleMaterials || Engine.isHMD) {
+          if(obj.material instanceof MeshStandardMaterial) {
+            const prevMaterial = obj.material;
+            obj.material = new MeshPhongMaterial();
+            MeshBasicMaterial.prototype.copy.call(obj.material, prevMaterial);
+          }
+        } else {
+          const material = obj.material as Material;
+          if (typeof material !== 'undefined') {
 
-          // CSM
-          if (obj.receiveShadow) {
-            WebGLRendererSystem.instance.csm.setupMaterial(material);
+            // BPCEM
+            material.onBeforeCompile = beforeMaterialCompile(this.bpcemOptions.probeScale, this.bpcemOptions.probePositionOffset);
+            (material as any).envMapIntensity = this.bpcemOptions.intensity;
+
+            if (obj.receiveShadow) {
+              WebGLRendererSystem.instance.csm?.setupMaterial(material);
+            }
           }
         }
       });
@@ -103,5 +111,5 @@ SceneObjectSystem.queries = {
       removed: true,
       added: true
     }
-  }
+  },
 };

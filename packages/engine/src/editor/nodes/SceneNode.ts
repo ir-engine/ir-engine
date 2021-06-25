@@ -5,7 +5,9 @@ import {
   Object3D,
   Fog,
   FogExp2,
-  Color
+  LinearToneMapping,
+  ShadowMapType,
+  PCFSoftShadowMap
 } from "three";
 import EditorNodeMixin from "./EditorNodeMixin";
 import { setStaticMode, StaticModes, isStatic } from "../functions/StaticMode";
@@ -17,120 +19,6 @@ import serializeColor from "../functions/serializeColor";
 import { FogType } from '../../scene/constants/FogType';
 import {DistanceModelType} from "../../scene/classes/AudioSource";
 
-// Migrate v1 editor scene to v2
-function migrateV1ToV2(json) {
-  const { root, metadata, entities } = json;
-  // Generate UUIDs for all existing entity names.
-  const rootUUID = _Math.generateUUID();
-  const nameToUUID = { [root]: rootUUID };
-  for (const name in entities) {
-    if (Object.prototype.hasOwnProperty.call(entities, name)) {
-      nameToUUID[name] = _Math.generateUUID();
-    }
-  }
-  // Replace names with uuids in entities and add the name property.
-  const newEntities = { [rootUUID]: { name: root } };
-  for (const [name, entity] of Object.entries(entities)) {
-    const uuid = nameToUUID[name];
-    newEntities[uuid] = Object.assign({}, entity, {
-      name,
-      parent: nameToUUID[(entity as any).parent]
-    });
-  }
-  return {
-    version: 2,
-    root: nameToUUID[root],
-    entities: newEntities,
-    metadata
-  };
-}
-function migrateV2ToV3(json) {
-  json.version = 3;
-  for (const entityId in json.entities) {
-    if (!Object.prototype.hasOwnProperty.call(json.entities, entityId))
-      continue;
-    const entity = json.entities[entityId];
-    if (!entity.components) {
-      continue;
-    }
-    entity.components.push({
-      name: "visible",
-      props: {
-        value: true
-      }
-    });
-    const modelComponent = entity.components.find(c => c.name === "gltf-model");
-    const navMeshComponent = entity.components.find(c => c.name === "nav-mesh");
-    if (
-      !navMeshComponent &&
-      modelComponent &&
-      modelComponent.props.includeInFloorPlan
-    ) {
-      entity.components.push({
-        name: "collidable",
-        props: {}
-      });
-      entity.components.push({
-        name: "walkable",
-        props: {}
-      });
-    }
-    const groundPlaneComponent = entity.components.find(
-      c => c.name === "ground-plane"
-    );
-    if (groundPlaneComponent) {
-      entity.components.push({
-        name: "walkable",
-        props: {}
-      });
-    }
-    if (modelComponent && navMeshComponent) {
-      entity.components = [
-        {
-          name: "floor-plan",
-          props: {
-            autoCellSize: true,
-            cellSize: 1,
-            cellHeight: 0.1,
-            agentHeight: 1.0,
-            agentRadius: 0.0001,
-            agentMaxClimb: 0.5,
-            agentMaxSlope: 45,
-            regionMinSize: 4
-          }
-        }
-      ];
-    }
-  }
-  return json;
-}
-function migrateV3ToV4(json) {
-  json.version = 4;
-  for (const entityId in json.entities) {
-    if (!Object.prototype.hasOwnProperty.call(json.entities, entityId))
-      continue;
-    const entity = json.entities[entityId];
-    if (!entity.components) {
-      continue;
-    }
-    const visibleComponent = entity.components.find(c => c.name === "visible");
-    if (visibleComponent) {
-      if (visibleComponent.props.visible !== undefined) {
-        continue;
-      }
-      if (visibleComponent.props.value !== undefined) {
-        visibleComponent.props = {
-          visible: visibleComponent.props.value
-        };
-      } else {
-        visibleComponent.props = {
-          visible: true
-        };
-      }
-    }
-  }
-  return json;
-}
 export default class SceneNode extends EditorNodeMixin(Scene) {
   static nodeName = "Scene";
   static disableTransform = true;
@@ -138,15 +26,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     return false;
   }
   static async loadProject(editor, json) {
-    if (!json.version) {
-      json = migrateV1ToV2(json);
-    }
-    if (json.version === 2) {
-      json = migrateV2ToV3(json);
-    }
-    if (json.version === 3) {
-      json = migrateV3ToV4(json);
-    }
     const { root, metadata, entities } = json;
     let scene = null;
     const dependencies = [];
@@ -252,32 +131,64 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         node.mediaConeOuterAngle = props.mediaConeOuterAngle;
         node.mediaConeOuterGain = props.mediaConeOuterGain;
       }
+      const simpleMaterials = json.components.find(
+        c => c.name === "simple-materials"
+      );
+      if (simpleMaterials) {
+        const props = simpleMaterials.props;
+        node.simpleMaterials = props.simpleMaterials;
+      }
+      const rendererSettings = json.components.find(
+        c => c.name === "renderer-settings"
+      );
+      if (rendererSettings) {
+        const props = rendererSettings.props;
+        node.overrideRendererSettings = props.overrideRendererSettings;
+        node.csm = props.csm;
+        node.toneMapping = props.toneMapping;
+        node.toneMappingExposure = props.toneMappingExposure;
+        node.shadowMapType = props.shadowMapType;
+      }
     }
     return node;
   }
+
+  url = null;
+  metadata = {};
+  _environmentMap = null;
+
+  _fogType = FogType.Disabled;
+  _fog = new Fog(0xffffff, 0.0025);
+  _fogExp2 = new FogExp2(0xffffff, 0.0025);
+  fog = null;
+
+  overrideAudioSettings = false;
+  avatarDistanceModel = DistanceModelType.Inverse;
+  avatarRolloffFactor = 2;
+  avatarRefDistance = 1;
+  avatarMaxDistance = 10000;
+  mediaVolume = 0.5;
+  mediaDistanceModel = DistanceModelType.Inverse;
+  mediaRolloffFactor = 1;
+  mediaRefDistance = 1;
+  mediaMaxDistance = 10000;
+  mediaConeInnerAngle = 360;
+  mediaConeOuterAngle = 0;
+  mediaConeOuterGain = 0;
+
+  simpleMaterials = false;
+
+  overrideRendererSettings = false;
+  csm = true;
+  shadows = true;
+  shadowType = true;
+  toneMapping = LinearToneMapping;
+  toneMappingExposure = 0.8;
+  shadowMapType: ShadowMapType = PCFSoftShadowMap
+
   constructor(editor) {
     super(editor);
-    this.url = null;
-    this.metadata = {};
-    // this.background = new Color(0xaaaaaa);
-    this._environmentMap = null;
-    this._fogType = FogType.Disabled;
-    this._fog = new Fog(0xffffff, 0.0025);
-    this._fogExp2 = new FogExp2(0xffffff, 0.0025);
-    this.fog = null;
-    this.overrideAudioSettings = false;
-    this.avatarDistanceModel = DistanceModelType.Inverse;
-    this.avatarRolloffFactor = 2;
-    this.avatarRefDistance = 1;
-    this.avatarMaxDistance = 10000;
-    this.mediaVolume = 0.5;
-    this.mediaDistanceModel = DistanceModelType.Inverse;
-    this.mediaRolloffFactor = 1;
-    this.mediaRefDistance = 1;
-    this.mediaMaxDistance = 10000;
-    this.mediaConeInnerAngle = 360;
-    this.mediaConeOuterAngle = 0;
-    this.mediaConeOuterGain = 0;
+
     setStaticMode(this, StaticModes.Static);
   }
   get fogType() {
@@ -340,10 +251,12 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     this.metadata = source.metadata;
     this._environmentMap = source._environmentMap;
     this.fogType = source.fogType;
+
     this.fogColor.copy(source.fogColor);
     this.fogDensity = source.fogDensity;
     this.fogNearDistance = source.fogNearDistance;
     this.fogFarDistance = source.fogFarDistance;
+
     this.overrideAudioSettings = source.overrideAudioSettings;
     this.avatarDistanceModel = source.avatarDistanceModel;
     this.avatarRolloffFactor = source.avatarRolloffFactor;
@@ -357,6 +270,15 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     this.mediaConeInnerAngle = source.mediaConeInnerAngle;
     this.mediaConeOuterAngle = source.mediaConeOuterAngle;
     this.mediaConeOuterGain = source.mediaConeOuterGain;
+
+    this.simpleMaterials = source.simpleMaterials;
+
+    this.overrideRendererSettings = source.overrideRendererSettings;
+    this.csm = source.csm;
+    this.toneMapping = source.toneMapping;
+    this.toneMappingExposure = source.toneMappingExposure;
+    this.shadowMapType = source.toneMappingType;
+
     return this;
   }
   // @ts-ignore
@@ -402,7 +324,23 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
                 mediaConeOuterAngle: this.mediaConeOuterAngle,
                 mediaConeOuterGain: this.mediaConeOuterGain
               }
-            }
+            },
+            {
+              name: "simple-materials",
+              props: {
+                simpleMaterials: this.simpleMaterials
+              }
+            },
+            {
+              name: "renderer-settings",
+              props: {
+                overrideRendererSettings: this.overrideRendererSettings,
+                csm: this.csm,
+                toneMapping: this.toneMapping,
+                toneMappingExposure: this.toneMappingExposure,
+                shadowMapType: this.shadowMapType,
+              }
+            },
           ]
         }
       }
@@ -469,6 +407,19 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         mediaConeInnerAngle: this.mediaConeInnerAngle,
         mediaConeOuterAngle: this.mediaConeOuterAngle,
         mediaConeOuterGain: this.mediaConeOuterGain
+      });
+    }
+    if (this.overrideRendererSettings) {
+      this.addGLTFComponent("renderer-settings", {
+        csm: this.csm,
+        toneMapping: this.toneMapping,
+        toneMappingExposure: this.toneMappingExposure,
+        shadowMapType: this.shadowMapType,
+      });
+    }
+    if(this.simpleMaterials) {
+      this.addGLTFComponent("simple-materials", {
+        simpleMaterials: this.simpleMaterials
       });
     }
   }
