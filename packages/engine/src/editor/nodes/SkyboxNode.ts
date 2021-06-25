@@ -13,6 +13,15 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   backgroundColor: string
   backgroundType: 'color' | 'texture' | 'envmap' = 'envmap'
 
+  turbidity = 10
+  rayleigh = 2
+  luminance = 1
+  mieCoefficient = 0.005
+  mieDirectionalG = 8.5
+  inclination = 60
+  azimuth = 0
+  distance = 1
+
   static canAddNode(editor) {
     return editor.scene.findNodeByType(SkyboxNode) === null;
   }

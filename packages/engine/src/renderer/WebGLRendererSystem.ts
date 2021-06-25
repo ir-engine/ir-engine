@@ -156,8 +156,6 @@ export class WebGLRendererSystem extends System {
 
     const renderer = this.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options);
     Engine.renderer = renderer;
-    Engine.renderer.shadowMap.enabled = true;
-    Engine.renderer.shadowMap.type = PCFSoftShadowMap;
     Engine.renderer.physicallyCorrectLights = true
     Engine.renderer.outputEncoding = sRGBEncoding
 

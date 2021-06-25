@@ -5,7 +5,7 @@ import i18n from "i18next";
 import PropTypes from "prop-types";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { ACESFilmicToneMapping, BasicDepthPacking, CineonToneMapping, GammaEncoding, LinearEncoding, LinearToneMapping, LogLuvEncoding, NoToneMapping, ReinhardToneMapping, RGBADepthPacking, RGBDEncoding, RGBEEncoding, RGBM16Encoding, RGBM7Encoding, sRGBEncoding } from "three";
+import { ACESFilmicToneMapping, BasicDepthPacking, BasicShadowMap, CineonToneMapping, GammaEncoding, LinearEncoding, LinearToneMapping, LogLuvEncoding, NoToneMapping, PCFShadowMap, PCFSoftShadowMap, ReinhardToneMapping, RGBADepthPacking, RGBDEncoding, RGBEEncoding, RGBM16Encoding, RGBM7Encoding, sRGBEncoding, VSMShadowMap } from "three";
 import BooleanInput from "../inputs/BooleanInput";
 import ColorInput from "../inputs/ColorInput";
 import CompoundNumericInput from "../inputs/CompoundNumericInput";
@@ -37,7 +37,7 @@ const FogTypeOptions = [
 ];
 
 /**
- * FogTypeOptions array containing fogType options.
+ * ToneMappingOptions array containing tone mapping type options.
  * 
  * @author Josh Field
  * @type {Array}
@@ -62,6 +62,35 @@ const FogTypeOptions = [
   {
     label: "ACES Filmic Tone Mapping",
     value: ACESFilmicToneMapping
+  }
+];
+
+/**
+ * ShadowTypeOptions array containing shadow type options.
+ * 
+ * @author Josh Field
+ * @type {Array}
+ */
+ const ShadowTypeOptions = [
+  {
+    label: "No Shadow Map",
+    value: undefined
+  },
+  {
+    label: "Basic Shadow Map",
+    value: BasicShadowMap
+  },
+  {
+    label: "PCF Shadow Map",
+    value: PCFShadowMap
+  },
+  {
+    label: "PCF Soft Shadow Map",
+    value: PCFSoftShadowMap
+  },
+  {
+    label: "VSM Shadow Map",
+    value: VSMShadowMap
   }
 ];
 
@@ -104,6 +133,7 @@ export function SceneNodeEditor(props) {
   const onChangeUseCSM = useSetPropertySelected(editor, "csm");
   const onChangeUseToneMapping = useSetPropertySelected(editor, "toneMapping");
   const onChangeUseToneMappingExposure = useSetPropertySelected(editor, "toneMappingExposure");
+  const onChangeUseShadowMapType = useSetPropertySelected(editor, "shadowMapType");
 
   // returning editor view for property editor for sceneNode
   return (
@@ -423,6 +453,15 @@ export function SceneNodeEditor(props) {
             value={node.toneMappingExposure}
             onChange={onChangeUseToneMappingExposure}
           />
+        </InputGroup>
+        { /* @ts-ignore */ }
+        <InputGroup
+          name="Tone Mapping Exposure"
+          label={t('editor:properties.scene.lbl-shadowMapType')}
+          info={t('editor:properties.scene.info-shadowMapType')}
+        >
+          { /* @ts-ignore */ }
+          <SelectInput options={ShadowTypeOptions} value={node.shadowMapType} onChange={onChangeUseShadowMapType}/>
         </InputGroup>
         </>
       )}

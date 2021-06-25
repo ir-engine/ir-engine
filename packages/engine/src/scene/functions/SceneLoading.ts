@@ -117,6 +117,14 @@ export class WorldScene {
         addComponent(entity, LightTagComponent);
         break;
 
+      case 'hemisphere-light':
+        addObject3DComponent(entity, { obj3d: HemisphereLight, objArgs: component.data });
+        break;
+
+      case 'point-light':
+        addObject3DComponent(entity, { obj3d: PointLight, objArgs: component.data });
+        break;
+  
       case 'collidable':
         // console.warn("'Collidable' is not implemented");
         break;
@@ -157,14 +165,6 @@ export class WorldScene {
 
       case 'ground-plane':
         createGround(entity, component.data)
-        break;
-
-      case 'hemisphere-light':
-        addObject3DComponent(entity, { obj3d: HemisphereLight, objArgs: component.data });
-        break;
-
-      case 'point-light':
-        addObject3DComponent(entity, { obj3d: PointLight, objArgs: component.data });
         break;
 
       case 'skybox':

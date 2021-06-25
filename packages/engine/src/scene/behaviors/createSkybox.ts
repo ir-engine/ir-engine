@@ -33,6 +33,7 @@ export default function createSkybox(entity, args: any): void {
       (texture) => {
         const EnvMap = pmremGenerator.fromCubemap(texture).texture;
 
+        EnvMap.encoding = sRGBEncoding;
         Engine.scene.environment = EnvMap;
 
         texture.dispose();
@@ -76,6 +77,7 @@ export default function createSkybox(entity, args: any): void {
     uniforms.mieDirectionalG.value = args.mieDirectionalG;
     uniforms.rayleigh.value = args.rayleigh;
     uniforms.turbidity.value = args.turbidity;
+    uniforms.luminance.value = args.luminance;
     uniforms.sunPosition.value = sun;
     WebGLRendererSystem.instance.csm?.lightDirection.set(-sun.x, -sun.y, -sun.z);
 
