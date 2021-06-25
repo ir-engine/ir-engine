@@ -10,7 +10,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Paper from "@material-ui/core/Paper";
 import FormControl from "@material-ui/core/FormControl";
 import InputBase from "@material-ui/core/InputBase";
-import { Save } from "@material-ui/icons";
+import { Save, Autorenew } from "@material-ui/icons";
 import { selectAdminLocationState } from "../../reducers/admin/location/selector";
 import { selectAdminInstanceState } from "../../reducers/admin/instance/selector";
 import { connect } from 'react-redux';
@@ -20,7 +20,10 @@ import Snackbar from '@material-ui/core/Snackbar';
 import { updateBotAsAdmin } from "../../reducers/admin/bots/service";
 import { Dispatch, bindActionCreators } from "redux";
 import { selectAuthState } from '../../../user/reducers/auth/selector';
-
+import Grid from "@material-ui/core/Grid";
+import IconButton from "@material-ui/core/IconButton";
+import { fetchAdminInstances } from "../../reducers/admin/instance/service";
+import { fetchAdminLocations } from "../../reducers/admin/location/service";
 
 interface Props {
     open: boolean;
@@ -30,6 +33,8 @@ interface Props {
     adminInstanceState?: any;
     updateBotAsAdmin?: any;
     authState?: any;
+    fetchAdminInstances?: any;
+    fetchAdminLocations?: any;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -41,7 +46,9 @@ const mapStateToProps = (state: any): any => {
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-    updateBotAsAdmin: bindActionCreators(updateBotAsAdmin, dispatch)
+    updateBotAsAdmin: bindActionCreators(updateBotAsAdmin, dispatch),
+    fetchAdminLocations: bindActionCreators(fetchAdminLocations, dispatch),
+    fetchAdminInstances: bindActionCreators(fetchAdminInstances, dispatch),
 });
 
 const Alert = (props) => {
@@ -49,13 +56,15 @@ const Alert = (props) => {
 };
 
 const UpdateBot = (props: Props) => {
-    const { open, 
-        handleClose, 
-        bot, 
-        adminLocationState, 
-        adminInstanceState, 
-        updateBotAsAdmin, 
-        authState
+    const { open,
+        handleClose,
+        bot,
+        adminLocationState,
+        adminInstanceState,
+        updateBotAsAdmin,
+        authState,
+        fetchAdminLocations,
+        fetchAdminInstances
     } = props;
     const classx = useStyle();
     const classes = useStyles();
@@ -124,7 +133,7 @@ const UpdateBot = (props: Props) => {
                 setCurrentIntance(instanceFilter);
             }
         }
-    }, [state.location, bot]);
+    }, [state.location, bot, adminInstanceState]);
 
     const handleUpdate = () => {
         const data = {
@@ -200,54 +209,79 @@ const UpdateBot = (props: Props) => {
 
 
                     <label>Location</label>
-                    <Paper component="div" className={formErrors.location.length > 0 ? classes.redBorder : classes.createInput}>
-                        <FormControl className={classes.createInput} fullWidth >
-                            <Select
-                                labelId="demo-controlled-open-select-label"
-                                id="demo-controlled-open-select"
-                                value={state.location}
-                                fullWidth
-                                onChange={handleInputChange}
-                                name="location"
-                                displayEmpty
-                                className={classes.select}
-                                MenuProps={{ classes: { paper: classx.selectPaper } }}
-                            >
-                                <MenuItem value="" disabled>
-                                    <em>Select location</em>
-                                </MenuItem>
-                                {
-                                    locationData.map(el => <MenuItem value={el.id} key={el.id}>{el.name}</MenuItem>)
-                                }
-                            </Select>
-                        </FormControl>
-                    </Paper>
+                    <Grid container spacing={1}>
+                        <Grid item xs={10}>
+                            <Paper component="div" className={formErrors.location.length > 0 ? classes.redBorder : classes.createInput}>
+                                <FormControl className={classes.createInput} fullWidth >
+                                    <Select
+                                        labelId="demo-controlled-open-select-label"
+                                        id="demo-controlled-open-select"
+                                        value={state.location}
+                                        fullWidth
+                                        onChange={handleInputChange}
+                                        name="location"
+                                        displayEmpty
+                                        className={classes.select}
+                                        MenuProps={{ classes: { paper: classx.selectPaper } }}
+                                    >
+                                        <MenuItem value="" disabled>
+                                            <em>Select location</em>
+                                        </MenuItem>
+                                        {
+                                            locationData.map(el => <MenuItem value={el.id} key={el.id}>{el.name}</MenuItem>)
+                                        }
+                                    </Select>
+                                </FormControl>
+                            </Paper>
+                        </Grid>
+                        <Grid item xs={2} style={{ display: "flex" }}>
+                            <div style={{ marginLeft: "auto" }}>
+                                <IconButton
+                                onClick={()=> fetchAdminLocations()}
+                                >
+                                    <Autorenew style={{ color: "#fff" }} />
+                                </IconButton>
+                            </div>
+                        </Grid>
+                    </Grid>
 
 
                     <label>Instance</label>
-                    <Paper component="div" className={classes.createInput}>
-                        <FormControl className={classes.createInput} fullWidth disabled={currentInstance.length > 0 ? false : true}>
-                            <Select
-                                labelId="demo-controlled-open-select-label"
-                                id="demo-controlled-open-select"
-                                value={state.instance}
-                                fullWidth
-                                displayEmpty
-                                onChange={handleInputChange}
-                                className={classes.select}
-                                name="instance"
-                                MenuProps={{ classes: { paper: classx.selectPaper } }}
-                            >
-                                <MenuItem value="" disabled>
-                                    <em>Select instance</em>
-                                </MenuItem>
-                                {
-                                    currentInstance.map(el => <MenuItem value={el.id} key={el.id}>{el.ipAddress}</MenuItem>)
-                                }
-                            </Select>
-                        </FormControl>
-                    </Paper>
-
+                    <Grid container spacing={1}>
+                        <Grid item xs={10}>
+                            <Paper component="div" className={classes.createInput}>
+                                <FormControl className={classes.createInput} fullWidth disabled={currentInstance.length > 0 ? false : true}>
+                                    <Select
+                                        labelId="demo-controlled-open-select-label"
+                                        id="demo-controlled-open-select"
+                                        value={state.instance}
+                                        fullWidth
+                                        displayEmpty
+                                        onChange={handleInputChange}
+                                        className={classes.select}
+                                        name="instance"
+                                        MenuProps={{ classes: { paper: classx.selectPaper } }}
+                                    >
+                                        <MenuItem value="" disabled>
+                                            <em>Select instance</em>
+                                        </MenuItem>
+                                        {
+                                            currentInstance.map(el => <MenuItem value={el.id} key={el.id}>{el.ipAddress}</MenuItem>)
+                                        }
+                                    </Select>
+                                </FormControl>
+                            </Paper>
+                        </Grid>
+                        <Grid item xs={2} style={{ display: "flex" }}>
+                            <div style={{ marginLeft: "auto" }}>
+                                <IconButton
+                                onClick={()=> fetchAdminInstances()}
+                                >
+                                    <Autorenew style={{ color: "#fff" }} />
+                                </IconButton>
+                            </div>
+                        </Grid>
+                    </Grid>
 
                 </DialogContent>
                 <DialogActions style={{ marginRight: "15px" }}>

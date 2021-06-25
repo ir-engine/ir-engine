@@ -147,7 +147,7 @@ const DisplayBots = (props: Props) => {
                                             <IconButton onClick={() => handleOpenModel(bot)}>
                                                 <Edit style={{ color: "#fff" }} />
                                             </IconButton>
-                                            <IconButton  onClick={()=> removeBots(bot.id)}>
+                                            <IconButton onClick={() => removeBots(bot.id)}>
                                                 <DeleteIcon style={{ color: "#fff" }} />
                                             </IconButton>
                                         </div>
@@ -191,9 +191,9 @@ const DisplayBots = (props: Props) => {
                                     variant="contained"
                                     fullWidth={true}
                                     style={{ color: "#fff", background: "#3a4149", marginBottom: "20px" }}
-                                    onClick={() =>{
-                                        if(name){
-                                             sudmitCommandBot(bot.id);
+                                    onClick={() => {
+                                        if (name) {
+                                            sudmitCommandBot(bot.id);
                                         } else {
                                             setOpen(true);
                                         }
@@ -211,7 +211,7 @@ const DisplayBots = (props: Props) => {
                                                             primary={`/${el.name} --> ${el.description} `}
                                                         />
                                                         <ListItemSecondaryAction>
-                                                            <IconButton edge="end" aria-label="delete" onClick={()=> removeBotsCommand(el.id)}>
+                                                            <IconButton edge="end" aria-label="delete" onClick={() => removeBotsCommand(el.id)}>
                                                                 <DeleteIcon style={{ color: "#fff" }} />
                                                             </IconButton>
                                                         </ListItemSecondaryAction>
@@ -235,10 +235,10 @@ const DisplayBots = (props: Props) => {
             >
                 <Alert onClose={handleClose} severity="warning"> Fill in command is requiired!</Alert>
             </Snackbar>
-            <UpdateBot 
-            open={openModel} 
-            handleClose={handleCloseModel} 
-            bot={bot}
+            <UpdateBot
+                open={openModel}
+                handleClose={handleCloseModel}
+                bot={bot}
             />
         </div>
     );
@@ -246,4 +246,3 @@ const DisplayBots = (props: Props) => {
 
 export default connect(mapStateToProps, mapDispatchToProps)(DisplayBots);
 
-    

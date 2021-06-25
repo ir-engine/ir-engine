@@ -36,8 +36,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
-
-
 interface Props {
     openView: boolean;
     userAdmin: any;
@@ -92,7 +90,6 @@ const ViewUser = (props: Props) => {
     const [refetch, setRefetch] = React.useState(false);
     const [state, setState] = React.useState({
         name: "",
-        inviteCode: "",
         avatar: "",
         formErrors: {
             name: "",
@@ -143,7 +140,6 @@ const ViewUser = (props: Props) => {
                 ...state,
                 name: userAdmin.name || "",
                 avatar: userAdmin.avatarId || "",
-                inviteCode: userAdmin.inviteCode || "",
             });
         }
     }, [singleUserData]);
@@ -178,7 +174,6 @@ const ViewUser = (props: Props) => {
         const data = {
             name: state.name,
             avatarId: state.avatar,
-            inviteCode: state.inviteCode || null,
         };
 
         let temp = state.formErrors;
@@ -194,7 +189,6 @@ const ViewUser = (props: Props) => {
             setState({
                 ...state,
                 name: "",
-                inviteCode: "",
                 avatar: "",
             });
             setEditMode(false);
@@ -330,18 +324,6 @@ const ViewUser = (props: Props) => {
                                             }
                                         </Select>
                                     </FormControl>
-                                </Paper>
-                                <label>Invite code</label>
-                                <Paper component="div" className={classes.createInput}>
-                                    <InputBase
-                                        className={classes.input}
-                                        name="inviteCode"
-                                        placeholder="Enter invite code"
-                                        style={{ color: "#fff" }}
-                                        autoComplete="off"
-                                        value={state.inviteCode}
-                                        onChange={handleInputChange}
-                                    />
                                 </Paper>
                             </div>
                             :

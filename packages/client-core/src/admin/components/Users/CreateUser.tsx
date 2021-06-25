@@ -71,7 +71,6 @@ const CreateUser = (props: Props) => {
     const [openCreateaUserRole, setOpenCreateUserRole] = React.useState(false);
     const [state, setState] = React.useState({
         name: "",
-        inviteCode: "",
         avatar: "",
         userRole: "",
         formErrors: {
@@ -138,7 +137,6 @@ const CreateUser = (props: Props) => {
         const data = {
             name: state.name,
             avatarId: state.avatar,
-            inviteCode: state.inviteCode || null,
             userRole: state.userRole,
         };
         let temp = state.formErrors;
@@ -158,7 +156,6 @@ const CreateUser = (props: Props) => {
             setState({
                 ...state,
                 name: "",
-                inviteCode: "",
                 avatar: "",
                 userRole: "",
             });
@@ -187,18 +184,6 @@ const CreateUser = (props: Props) => {
                             style={{ color: "#fff" }}
                             autoComplete="off"
                             value={state.name}
-                            onChange={handleChange}
-                        />
-                    </Paper>
-                    <label>Invite code</label>
-                    <Paper component="div" className={classes.createInput}>
-                        <InputBase
-                            className={classes.input}
-                            name="inviteCode"
-                            placeholder="Enter invite code"
-                            style={{ color: "#fff" }}
-                            autoComplete="off"
-                            value={state.inviteCode}
                             onChange={handleChange}
                         />
                     </Paper>

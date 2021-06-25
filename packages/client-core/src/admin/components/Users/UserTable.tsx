@@ -40,7 +40,7 @@ const UserTable = (props: Props) => {
     const classes = useStyle();
     const classx = useStyles();
     const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const [rowsPerPage, setRowsPerPage] = React.useState(12);
     const [popConfirmOpen, setPopConfirmOpen] = React.useState(false);
     const [userId, setUserId] = React.useState("");
     const [viewModel, setViewModel] = React.useState(false);
@@ -150,9 +150,9 @@ const UserTable = (props: Props) => {
                 </Table>
             </TableContainer>
             <TablePagination
-                rowsPerPageOptions={[10]}
+                rowsPerPageOptions={[12]}
                 component="div"
-                count={count || 10}
+                count={count || 12}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onChangePage={handleChangePage}
@@ -164,7 +164,7 @@ const UserTable = (props: Props) => {
                 onClose={() => setPopConfirmOpen(false)}
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
-                classes={{ paper: classes.paperDialog}}
+                classes={{ paper: classes.paperDialog }}
             >
                 <DialogTitle id="alert-dialog-title">Confirm to delete this user!</DialogTitle>
                 <DialogActions>
@@ -186,7 +186,7 @@ const UserTable = (props: Props) => {
             {
                 userAdmin &&
                 <ViewUser
-                openView={viewModel}
+                    openView={viewModel}
                     userAdmin={userAdmin}
                     closeViewModel={closeViewModel}
                 />
