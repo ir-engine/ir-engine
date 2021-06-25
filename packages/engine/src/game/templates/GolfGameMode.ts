@@ -546,7 +546,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
         {
           behavior: hitBall,
           watchers:[ [ State.addedHit ] ],
-          args: { clubPowerMultiplier: 10, hitAdvanceFactor: 1.2  },
+          args: { clubPowerMultiplier: 5, hitAdvanceFactor: 1.2  },
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {
