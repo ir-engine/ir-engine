@@ -41,6 +41,7 @@ import { createGround } from '../behaviors/createGround';
 import { handleRendererSettings } from '../behaviors/handleRendererSettings';
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 import { Object3DComponent } from '../components/Object3DComponent';
+import EnvironmentMapComponent from '../components/EnvironmentMapComponent';
 
 export class WorldScene {
   loadedModels = 0;
@@ -139,7 +140,9 @@ export class WorldScene {
       case 'gltf-model':
         // TODO: get rid of or rename dontParseModel
         if (!isClient && component.data.dontParseModel) return;
-
+        if(component.data.envMapOverride) {
+          addComponent(entity, EnvironmentMapComponent)
+        }
         this.loaders.push(new Promise<void>(resolve => {
           AssetLoader.load({
             url: component.data.src,

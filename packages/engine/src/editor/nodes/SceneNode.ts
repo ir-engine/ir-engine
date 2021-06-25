@@ -19,120 +19,6 @@ import serializeColor from "../functions/serializeColor";
 import { FogType } from '../../scene/constants/FogType';
 import {DistanceModelType} from "../../scene/classes/AudioSource";
 
-// Migrate v1 editor scene to v2
-function migrateV1ToV2(json) {
-  const { root, metadata, entities } = json;
-  // Generate UUIDs for all existing entity names.
-  const rootUUID = _Math.generateUUID();
-  const nameToUUID = { [root]: rootUUID };
-  for (const name in entities) {
-    if (Object.prototype.hasOwnProperty.call(entities, name)) {
-      nameToUUID[name] = _Math.generateUUID();
-    }
-  }
-  // Replace names with uuids in entities and add the name property.
-  const newEntities = { [rootUUID]: { name: root } };
-  for (const [name, entity] of Object.entries(entities)) {
-    const uuid = nameToUUID[name];
-    newEntities[uuid] = Object.assign({}, entity, {
-      name,
-      parent: nameToUUID[(entity as any).parent]
-    });
-  }
-  return {
-    version: 2,
-    root: nameToUUID[root],
-    entities: newEntities,
-    metadata
-  };
-}
-function migrateV2ToV3(json) {
-  json.version = 3;
-  for (const entityId in json.entities) {
-    if (!Object.prototype.hasOwnProperty.call(json.entities, entityId))
-      continue;
-    const entity = json.entities[entityId];
-    if (!entity.components) {
-      continue;
-    }
-    entity.components.push({
-      name: "visible",
-      props: {
-        value: true
-      }
-    });
-    const modelComponent = entity.components.find(c => c.name === "gltf-model");
-    const navMeshComponent = entity.components.find(c => c.name === "nav-mesh");
-    if (
-      !navMeshComponent &&
-      modelComponent &&
-      modelComponent.props.includeInFloorPlan
-    ) {
-      entity.components.push({
-        name: "collidable",
-        props: {}
-      });
-      entity.components.push({
-        name: "walkable",
-        props: {}
-      });
-    }
-    const groundPlaneComponent = entity.components.find(
-      c => c.name === "ground-plane"
-    );
-    if (groundPlaneComponent) {
-      entity.components.push({
-        name: "walkable",
-        props: {}
-      });
-    }
-    if (modelComponent && navMeshComponent) {
-      entity.components = [
-        {
-          name: "floor-plan",
-          props: {
-            autoCellSize: true,
-            cellSize: 1,
-            cellHeight: 0.1,
-            agentHeight: 1.0,
-            agentRadius: 0.0001,
-            agentMaxClimb: 0.5,
-            agentMaxSlope: 45,
-            regionMinSize: 4
-          }
-        }
-      ];
-    }
-  }
-  return json;
-}
-function migrateV3ToV4(json) {
-  json.version = 4;
-  for (const entityId in json.entities) {
-    if (!Object.prototype.hasOwnProperty.call(json.entities, entityId))
-      continue;
-    const entity = json.entities[entityId];
-    if (!entity.components) {
-      continue;
-    }
-    const visibleComponent = entity.components.find(c => c.name === "visible");
-    if (visibleComponent) {
-      if (visibleComponent.props.visible !== undefined) {
-        continue;
-      }
-      if (visibleComponent.props.value !== undefined) {
-        visibleComponent.props = {
-          visible: visibleComponent.props.value
-        };
-      } else {
-        visibleComponent.props = {
-          visible: true
-        };
-      }
-    }
-  }
-  return json;
-}
 export default class SceneNode extends EditorNodeMixin(Scene) {
   static nodeName = "Scene";
   static disableTransform = true;
@@ -140,15 +26,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     return false;
   }
   static async loadProject(editor, json) {
-    if (!json.version) {
-      json = migrateV1ToV2(json);
-    }
-    if (json.version === 2) {
-      json = migrateV2ToV3(json);
-    }
-    if (json.version === 3) {
-      json = migrateV3ToV4(json);
-    }
     const { root, metadata, entities } = json;
     let scene = null;
     const dependencies = [];

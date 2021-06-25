@@ -2,10 +2,11 @@ import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMater
 import { CameraLayers } from "../../camera/constants/CameraLayers";
 import { Engine } from "../../ecs/classes/Engine";
 import { System, SystemAttributes } from "../../ecs/classes/System";
-import { getComponent } from "../../ecs/functions/EntityFunctions";
+import { getComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { beforeMaterialCompile } from "../../editor/nodes/helper/BPCEMShader";
 import { WebGLRendererSystem } from "../../renderer/WebGLRendererSystem";
+import EnvironmentMapComponent from "../components/EnvironmentMapComponent";
 import { Object3DComponent } from "../components/Object3DComponent";
 import { PersistTagComponent } from "../components/PersistTagComponent";
 
@@ -63,9 +64,15 @@ export class SceneObjectSystem extends System {
           const material = obj.material as Material;
           if (typeof material !== 'undefined') {
             
-            // BPCEM
-            material.onBeforeCompile = beforeMaterialCompile(this.bpcemOptions.probeScale, this.bpcemOptions.probePositionOffset);
-            (material as any).envMapIntensity = this.bpcemOptions.intensity;
+            if(hasComponent(entity, EnvironmentMapComponent)) {
+              // TODO get and apply env map
+
+              // other envs
+
+              // BPCEM
+              material.onBeforeCompile = beforeMaterialCompile(this.bpcemOptions.probeScale, this.bpcemOptions.probePositionOffset);
+              (material as any).envMapIntensity = this.bpcemOptions.intensity;
+            }
 
             // CSM
             if (obj.receiveShadow) {
