@@ -66,55 +66,6 @@ const FogTypeOptions = [
 ];
 
 /**
- * FogTypeOptions array containing fogType options.
- * 
- * @author Josh Field
- * @type {Array}
- */
- const OutputEncodingOptions = [
-  {
-    label: "Linear Encoding",
-    value: LinearEncoding
-  },
-  {
-    label: "sRGB Encoding",
-    value: sRGBEncoding
-  },
-  {
-    label: "Gamma Encoding",
-    value: GammaEncoding
-  },
-  {
-    label: "RGBE Encoding",
-    value: RGBEEncoding
-  },
-  {
-    label: "Log Luv Encoding",
-    value: LogLuvEncoding
-  },
-  {
-    label: "RGBM7 Encoding",
-    value: RGBM7Encoding
-  },
-  {
-    label: "RGBM16 Encoding",
-    value: RGBM16Encoding
-  },
-  {
-    label: "RGBD Encoding",
-    value: RGBDEncoding
-  },
-  {
-    label: "Basic Depth Packing",
-    value: BasicDepthPacking
-  },
-  {
-    label: "RGBA Depth Packing",
-    value: RGBADepthPacking
-  }
-];
-
-/**
  * SceneNodeEditor provides the editor view for property customization.
  * 
  * @author Robert Long
@@ -153,8 +104,6 @@ export function SceneNodeEditor(props) {
   const onChangeUseCSM = useSetPropertySelected(editor, "csm");
   const onChangeUseToneMapping = useSetPropertySelected(editor, "toneMapping");
   const onChangeUseToneMappingExposure = useSetPropertySelected(editor, "toneMappingExposure");
-  const onChangeUsePhysicallyCorrectLights = useSetPropertySelected(editor, "physicallyCorrectLights");
-  const onChangeUseOutputEncoding = useSetPropertySelected(editor, "outputEncoding");
 
   // returning editor view for property editor for sceneNode
   return (
@@ -474,23 +423,6 @@ export function SceneNodeEditor(props) {
             value={node.toneMappingExposure}
             onChange={onChangeUseToneMappingExposure}
           />
-        </InputGroup>
-        { /* @ts-ignore */ }
-        <InputGroup
-          name="Physically Correct Lights"
-          label={t('editor:properties.scene.lbl-physicallyCorrectLights')}
-          info={t('editor:properties.scene.info-physicallyCorrectLights')}
-        >
-          <BooleanInput value={node.physicallyCorrectLights} onChange={onChangeUsePhysicallyCorrectLights} />
-        </InputGroup>
-        { /* @ts-ignore */ }
-        <InputGroup
-          name="Output Encoding"
-          label={t('editor:properties.scene.lbl-outputEncoding')}
-          info={t('editor:properties.scene.info-csm')}
-        >
-          { /* @ts-ignore */ }
-          <SelectInput options={OutputEncodingOptions} value={node.outputEncoding} onChange={onChangeUseOutputEncoding} />
         </InputGroup>
         </>
       )}

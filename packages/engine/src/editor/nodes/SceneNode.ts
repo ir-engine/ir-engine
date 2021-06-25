@@ -270,8 +270,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         node.csm = props.csm;
         node.toneMapping = props.toneMapping;
         node.toneMappingExposure = props.toneMappingExposure;
-        node.physicallyCorrectLights = props.physicallyCorrectLights;
-        node.outputEncoding = props.outputEncoding;
       }
     }
     return node;
@@ -308,8 +306,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     this.csm = true;
     this.toneMapping = LinearToneMapping;
     this.toneMappingExposure = 0.8;
-    this.physicallyCorrectLights = true;
-    this.outputEncoding = sRGBEncoding;
 
     setStaticMode(this, StaticModes.Static);
   }
@@ -399,8 +395,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     this.csm = source.csm;
     this.toneMapping = source.toneMapping;
     this.toneMappingExposure = source.toneMappingExposure;
-    this.physicallyCorrectLights = source.physicallyCorrectLights;
-    this.outputEncoding = source.outputEncoding;
 
     return this;
   }
@@ -461,8 +455,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
                 csm: this.csm,
                 toneMapping: this.toneMapping,
                 toneMappingExposure: this.toneMappingExposure,
-                physicallyCorrectLights: this.physicallyCorrectLights,
-                outputEncoding: this.outputEncoding
               }
             },
           ]
@@ -538,8 +530,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         csm: this.csm,
         toneMapping: this.toneMapping,
         toneMappingExposure: this.toneMappingExposure,
-        physicallyCorrectLights: this.physicallyCorrectLights,
-        outputEncoding: this.outputEncoding
       });
     }
     if(this.simpleMaterials) {
