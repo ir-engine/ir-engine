@@ -1,4 +1,4 @@
-import { LinearToneMapping, sRGBEncoding, TextureEncoding, ToneMapping } from 'three'
+import { LinearToneMapping, PCFSoftShadowMap, ShadowMapType, sRGBEncoding, TextureEncoding, ToneMapping } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { CSM } from '../../assets/csm/CSM'
 import { Engine } from '../../ecs/classes/Engine'
@@ -9,8 +9,7 @@ export type RenderSettingsProps = {
   csm: boolean
   toneMapping: ToneMapping
   toneMappingExposure: number
-  physicallyCorrectLights: boolean
-  outputEncoding: TextureEncoding
+  shadowMapType: ShadowMapType
 }
 
 const enableCSM = (enable: boolean) => {
@@ -38,14 +37,28 @@ const enableCSM = (enable: boolean) => {
 
 export const handleRendererSettings = (args?: RenderSettingsProps): void => {
   if(!isClient) return
-
   if(args) {
+
     Engine.renderer.toneMapping = args.toneMapping
     Engine.renderer.toneMappingExposure = args.toneMappingExposure
+
+    if(typeof args.shadowMapType === 'undefined') {
+      Engine.renderer.shadowMap.enabled = false;
+    } else {
+      Engine.renderer.shadowMap.enabled = true;
+      Engine.renderer.shadowMap.type = args.shadowMapType;
+      Engine.renderer.shadowMap.needsUpdate = true;
+    }
+    
     enableCSM(!Engine.isHMD && args.csm)
   } else {
+    Engine.renderer.shadowMap.enabled = true;
+    Engine.renderer.shadowMap.type = PCFSoftShadowMap;
+    Engine.renderer.shadowMap.needsUpdate = true;
+    
     Engine.renderer.toneMapping = LinearToneMapping
     Engine.renderer.toneMappingExposure = 0.8
+    
     enableCSM(!Engine.isHMD && true)
   }
 }

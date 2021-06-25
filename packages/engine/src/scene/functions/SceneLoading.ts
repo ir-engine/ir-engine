@@ -80,7 +80,6 @@ export class WorldScene {
     if (typeof this.onProgress === 'function') this.onProgress(this.loaders.length - this.loadedModels);
   }
 
-
   loadComponent = (entity: Entity, component: SceneDataComponent): void => {
     // remove '-1', '-2' etc suffixes
     const name = component.name.replace(/(-\d+)|(\s)/g, "");
@@ -101,7 +100,6 @@ export class WorldScene {
 
       case 'directional-light':
         if(isClient && WebGLRendererSystem.instance.csm) return console.warn('SCENE LOADING - Custom directional lights are not supported when CSM is enabled.');
-        console.log(component.data)
         addObject3DComponent(
           entity,
           {
@@ -116,10 +114,17 @@ export class WorldScene {
             }
           },
         );
-        console.log(getComponent(entity, Object3DComponent))
         addComponent(entity, LightTagComponent);
         break;
 
+      case 'hemisphere-light':
+        addObject3DComponent(entity, { obj3d: HemisphereLight, objArgs: component.data });
+        break;
+
+      case 'point-light':
+        addObject3DComponent(entity, { obj3d: PointLight, objArgs: component.data });
+        break;
+  
       case 'collidable':
         // console.warn("'Collidable' is not implemented");
         break;
@@ -160,14 +165,6 @@ export class WorldScene {
 
       case 'ground-plane':
         createGround(entity, component.data)
-        break;
-
-      case 'hemisphere-light':
-        addObject3DComponent(entity, { obj3d: HemisphereLight, objArgs: component.data });
-        break;
-
-      case 'point-light':
-        addObject3DComponent(entity, { obj3d: PointLight, objArgs: component.data });
         break;
 
       case 'skybox':
