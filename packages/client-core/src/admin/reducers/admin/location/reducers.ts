@@ -3,16 +3,14 @@ import {
   LocationTypesRetrievedResponse,
 } from './actions';
 import {
-  LOCATIONS_RETRIEVED,
-  LOCATION_CREATED,
-  LOCATION_PATCHED,
-  LOCATION_REMOVED,
-}    from "@xrengine/client-core/src/social/reducers/actions";
-// } from '../../actions';
+  ADMIN_LOCATIONS_RETRIEVED,
+  ADMIN_LOCATION_CREATED,
+  ADMIN_LOCATION_PATCHED,
+  ADMIN_LOCATION_REMOVED,
+} from '../../actions';
 import {
-  LOCATION_TYPES_RETRIEVED,
-}  from "@xrengine/client-core/src/world/reducers/actions";
-// } from "../../actions";
+  ADMIN_LOCATION_TYPES_RETRIEVED,
+} from "../../actions";
 import { UserSeed } from '@xrengine/common/src/interfaces/User';
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider';
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser';
@@ -48,7 +46,7 @@ const immutableState = Immutable.fromJS(initialAdminState);
 const adminReducer = (state = immutableState, action: any): any => {
   let result: any, updateMap: any;
   switch (action.type) {
-    case LOCATIONS_RETRIEVED:
+    case ADMIN_LOCATIONS_RETRIEVED:
       result = (action as LocationsRetrievedAction).locations;
       updateMap = new Map(state.get('locations'));
       updateMap.set('locations', result.data);
@@ -62,13 +60,13 @@ const adminReducer = (state = immutableState, action: any): any => {
       return state
         .set('locations', updateMap);
 
-    case LOCATION_CREATED:
+    case ADMIN_LOCATION_CREATED:
       updateMap = new Map(state.get('locations'));
       updateMap.set('updateNeeded', true);
       return state
         .set('locations', updateMap);
 
-    case LOCATION_PATCHED:
+    case ADMIN_LOCATION_PATCHED:
       updateMap = new Map(state.get('locations'));
       const locations = updateMap.get('locations');
 
@@ -85,12 +83,12 @@ const adminReducer = (state = immutableState, action: any): any => {
       return state
         .set('locations', updateMap);
 
-    case LOCATION_REMOVED:
+    case ADMIN_LOCATION_REMOVED:
       let removedMap = new Map(state.get('locations'));
       removedMap.set('updateNeeded', true);
       return state.set('locations', removedMap);
 
-    case LOCATION_TYPES_RETRIEVED:
+    case ADMIN_LOCATION_TYPES_RETRIEVED:
       result = (action as LocationTypesRetrievedResponse).types;
       updateMap = new Map(state.get('locationTypes'));
       updateMap.set('locationTypes', result.data);

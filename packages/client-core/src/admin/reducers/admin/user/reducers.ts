@@ -21,7 +21,7 @@ import {
 } from "@xrengine/client-core/src/world/reducers/actions";  
 // } from "../../actions";
 import {
-  LOADED_USERS,
+  ADMIN_LOADED_USERS,
 } from '../../actions';
 import { UserSeed } from '@xrengine/common/src/interfaces/User';
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider';
@@ -77,7 +77,7 @@ const immutableState = Immutable.fromJS(initialAdminState);
 const adminReducer = (state = immutableState, action: any): any => {
   let result, updateMap;
   switch (action.type) {
-    case LOADED_USERS:
+    case ADMIN_LOADED_USERS:
       result = (action as LoadedUsersAction).users;
       updateMap = new Map(state.get('users'));
       let combinedUsers = state.get('users').get('users');

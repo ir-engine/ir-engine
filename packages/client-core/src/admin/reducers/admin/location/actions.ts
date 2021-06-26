@@ -1,21 +1,14 @@
 import {
-    FETCH_CURRENT_LOCATION,
-    LOCATIONS_RETRIEVED,
-    LOCATION_RETRIEVED,
-    LOCATION_CREATED,
-    LOCATION_PATCHED,
-    LOCATION_REMOVED,
-    LOCATION_BAN_CREATED,
-    LOCATION_NOT_FOUND,
-}    from "@xrengine/client-core/src/social/reducers/actions";
-
-import {
-    LOCATION_TYPES_RETRIEVED,
-} from "@xrengine/client-core/src/world/reducers/actions";
-// } from '../../actions';
-
-// /var/www/html/workspace/tsdoc/xr3ngine/packages/client-core/src/social/reducers/actions.ts
-
+    ADMIN_LOCATION_TYPES_RETRIEVED,
+    ADMIN_FETCH_CURRENT_LOCATION,
+    ADMIN_LOCATIONS_RETRIEVED,
+    ADMIN_LOCATION_RETRIEVED,
+    ADMIN_LOCATION_CREATED,
+    ADMIN_LOCATION_PATCHED,
+    ADMIN_LOCATION_REMOVED,
+    ADMIN_LOCATION_BAN_CREATED,
+    ADMIN_LOCATION_NOT_FOUND,
+} from '../../actions';
 import { Location } from '@xrengine/common/src/interfaces/Location';
 
 export interface LocationsRetrievedAction {
@@ -63,21 +56,21 @@ export type LocationsAction =
 
 export function locationsRetrieved(locations: any): LocationsRetrievedAction {
     return {
-        type: LOCATIONS_RETRIEVED,
+        type: ADMIN_LOCATIONS_RETRIEVED,
         locations: locations
     };
 }
 
 export function locationRetrieved(location: any): LocationRetrievedAction {
     return {
-        type: LOCATION_RETRIEVED,
+        type: ADMIN_LOCATION_RETRIEVED,
         location: location
     };
 }
 
 export function locationCreated(location: Location): LocationCreatedAction {
     return {
-        type: LOCATION_CREATED,
+        type: ADMIN_LOCATION_CREATED,
         location: location
     };
 }
@@ -85,33 +78,33 @@ export function locationCreated(location: Location): LocationCreatedAction {
 
 export function locationPatched(location: Location): LocationCreatedAction {
     return {
-        type: LOCATION_PATCHED,
+        type: ADMIN_LOCATION_PATCHED,
         location: location
     };
 }
 
 export function locationRemoved(location: Location): LocationCreatedAction {
     return {
-        type: LOCATION_REMOVED,
+        type: ADMIN_LOCATION_REMOVED,
         location: location
     };
 }
 
 export function locationBanCreated(): LocationBanCreatedAction {
     return {
-        type: LOCATION_BAN_CREATED
+        type: ADMIN_LOCATION_BAN_CREATED
     };
 }
 
 export function fetchingCurrentLocation(): FetchingCurrentLocationAction {
     return {
-        type: FETCH_CURRENT_LOCATION
+        type: ADMIN_FETCH_CURRENT_LOCATION
     };
 }
 
 export function locationNotFound(): LocationNotFoundAction {
     return {
-        type: LOCATION_NOT_FOUND
+        type: ADMIN_LOCATION_NOT_FOUND
     };
 }
 export interface LocationsRetrievedAction {
@@ -126,7 +119,7 @@ export interface LocationTypesRetrievedResponse {
 
 export function locationTypesRetrieved(data: any): LocationTypesRetrievedResponse {
     return {
-        type: LOCATION_TYPES_RETRIEVED,
+        type: ADMIN_LOCATION_TYPES_RETRIEVED,
         types: data
     };
 }

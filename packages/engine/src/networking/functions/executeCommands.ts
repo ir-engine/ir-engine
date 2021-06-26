@@ -1,5 +1,5 @@
 import { Entity } from "../../ecs/classes/Entity";
-import { Commands } from "../enums/commands";
+import { Commands } from "../enums/Commands";
 import { CommandType } from "../interfaces/WorldState";
 import { NetworkObjectUpdateType } from "../templates/NetworkObjectUpdateSchema";
 import { sendClientObjectUpdate } from "./sendClientObjectUpdate";
