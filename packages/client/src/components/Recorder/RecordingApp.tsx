@@ -377,16 +377,8 @@ export default function RecordingApp() {
   //eslint-disable-next-line
   React.useEffect(() => clearMediaStream, []);
 
-  const [recorderToggle, setRecorderToggle] = React.useState(false);
-  const [recorderShown, setRecorderShown] = React.useState(false);
-
-  document.addEventListener('keypress', (ev) => {
-    if(ev.key === 'r') {
-      setRecorderShown(!recorderShown);
-    }
-  });
-  
-  return recorderShown && (
+  const [recorderToggle, setRecorderToggle] = React.useState(false);  
+  return (
     <article className={styles.recordContainer}>     
       <div onClick={() => setRecorderToggle((prevState) => !prevState)}>
         <h1>Video recorder</h1>

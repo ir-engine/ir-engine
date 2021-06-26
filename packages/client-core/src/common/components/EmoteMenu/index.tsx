@@ -57,9 +57,7 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
         const animationComponent = getMutableComponent(entity, AnimationComponent);
 
         const animationState = animationComponent.animationGraph.states[animationName];
-        if (animationState.calculateWeights) animationState.calculateWeights(params);
-
-        animationComponent.animationGraph.transitionState(actor, animationComponent, animationState.name);
+        animationComponent.animationGraph.transitionState(actor, animationComponent, animationState.name, params);
     }
 
     const jumpStart = () => {

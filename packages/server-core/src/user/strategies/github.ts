@@ -3,7 +3,6 @@ import { Params } from '@feathersjs/feathers';
 import config from '../../appconfig';
 
 export class GithubStrategy extends CustomOAuthStrategy {
-  app: any
   constructor(app){
     super();
     this.app = app;
@@ -22,7 +21,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
 
   async updateEntity(entity: any, profile: any, params?: Params): Promise<any> {
     console.log('Github JWT authenticate');
-    const authResult = await this.app.service('authentication').strategies.jwt.authenticate({ accessToken: params?.authentication?.accessToken }, {});
+    const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate({ accessToken: params?.authentication?.accessToken }, {});
     const identityProvider = authResult['identity-provider'];
     const user = await this.app.service('user').get(entity.userId);
     await this.app.service('user').patch(entity.userId, {

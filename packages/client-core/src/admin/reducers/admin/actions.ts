@@ -2,8 +2,6 @@ import { StaticResource } from '@xrengine/common/src/interfaces/StaticResource';
 import { INSTANCE_REMOVED } from '../../../social/reducers/actions';
 import {
   INSTANCES_RETRIEVED,
-  INSTANCE_CREATE,
-  INSTANCE_PATCHED,
   INSTANCE_REMOVED_ROW,
   LOCATION_TYPES_RETRIEVED,
   USER_ROLE_RETRIEVED,
@@ -177,12 +175,6 @@ export function instanceRemovedAction(instance: any): InstanceRemovedResponse {
   };
 }
 
-export function instanceCreated(instance: any): InstanceRemovedResponse {
-  return{
-    type: INSTANCE_CREATE,
-    instance: instance
-  };
-}
 
 export function instanceRemoved(instance: any): InstanceRemovedResponse {
   return {
@@ -191,12 +183,6 @@ export function instanceRemoved(instance: any): InstanceRemovedResponse {
   };
 }
 
-export function instancePatched(instance: any): InstanceRemovedResponse {
-  return {
-    type: INSTANCE_PATCHED,
-    instance: instance
-  };
-}
 
 
 export const userRoleRetrieved = (data: any): userRoleRetrievedResponse  => {

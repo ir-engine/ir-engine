@@ -36,8 +36,8 @@ import {
   USER_ROLE_UPDATED
 } from "../../../world/reducers/actions";
 import {
-  LOADED_USERS,
-} from '../../../common/reducers/actions';
+  ADMIN_LOADED_USERS,
+} from '@xrengine/client-core/src/admin/reducers/actions';
 import { UserSeed } from '@xrengine/common/src/interfaces/User';
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider';
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser';
@@ -179,7 +179,7 @@ const adminReducer = (state = immutableState, action: any): any => {
       return state
         .set('locations', updateMap);
 
-    case LOADED_USERS:
+    case ADMIN_LOADED_USERS:
       result = (action as LoadedUsersAction).users;
       updateMap = new Map(state.get('users'));
       let combinedUsers = state.get('users').get('users');

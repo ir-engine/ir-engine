@@ -16,11 +16,11 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import ViewUser from "./ViewUser";
-import { useStyle } from "./styles";
+import { useStyle, useStyles } from "./styles";
 import {
-   columns,
-   Data,
-   Props
+    columns,
+    Data,
+    Props
 } from "./Variables";
 
 const mapStateToProps = (state: any): any => {
@@ -38,8 +38,9 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const UserTable = (props: Props) => {
     const { removeUserAdmin, fetchUsersAsAdmin, authState, adminUserState } = props;
     const classes = useStyle();
+    const classx = useStyles();
     const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const [rowsPerPage, setRowsPerPage] = React.useState(12);
     const [popConfirmOpen, setPopConfirmOpen] = React.useState(false);
     const [userId, setUserId] = React.useState("");
     const [viewModel, setViewModel] = React.useState(false);
@@ -94,7 +95,7 @@ const UserTable = (props: Props) => {
             instanceId,
             action: (
                 <>
-                    <a href="#h" className={classes.actionStyle} onClick={openViewModel(true, user)}> View </a>
+                    <a href="#h" className={classes.actionStyle} onClick={openViewModel(true, user)}><span className={classes.spanWhite}>View</span></a>
                     <a href="#h" className={classes.actionStyle} onClick={() => { setPopConfirmOpen(true); setUserId(id); }}> <span className={classes.spanDange}>Delete</span> </a>
                 </>
             )
@@ -111,18 +112,19 @@ const UserTable = (props: Props) => {
     });
 
     const count = rows.size ? rows.size : rows.length;
-    
+
     return (
         <div className={classes.root}>
             <TableContainer className={classes.container}>
                 <Table stickyHeader aria-label="sticky table">
                     <TableHead>
-                        <TableRow>
+                        <TableRow >
                             {columns.map((column) => (
                                 <TableCell
                                     key={column.id}
                                     align={column.align}
                                     style={{ minWidth: column.minWidth }}
+                                    className={classx.tableCellHeader}
                                 >
                                     {column.label}
                                 </TableCell>
@@ -136,7 +138,7 @@ const UserTable = (props: Props) => {
                                     {columns.map((column) => {
                                         const value = row[column.id];
                                         return (
-                                            <TableCell key={column.id} align={column.align}>
+                                            <TableCell key={column.id} align={column.align} className={classx.tableCellBody}>
                                                 {value}
                                             </TableCell>
                                         );
@@ -148,26 +150,35 @@ const UserTable = (props: Props) => {
                 </Table>
             </TableContainer>
             <TablePagination
-                rowsPerPageOptions={[10, 25, 100]}
+                rowsPerPageOptions={[12]}
                 component="div"
-                count={count || 10}
+                count={count || 12}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onChangePage={handleChangePage}
                 onChangeRowsPerPage={handleChangeRowsPerPage}
+                className={classx.tableFooter}
             />
             <Dialog
                 open={popConfirmOpen}
                 onClose={() => setPopConfirmOpen(false)}
                 aria-labelledby="alert-dialog-title"
                 aria-describedby="alert-dialog-description"
+                classes={{ paper: classes.paperDialog }}
             >
                 <DialogTitle id="alert-dialog-title">Confirm to delete this user!</DialogTitle>
                 <DialogActions>
                     <Button onClick={() => setPopConfirmOpen(false)} className={classes.spanNone}>
                         Cancel
                     </Button>
-                    <Button className={classes.spanDange} onClick={async () => { await removeUserAdmin(userId); setPopConfirmOpen(false); }} autoFocus>
+                    <Button
+                        className={classes.spanDange}
+                        onClick={async () => {
+                            await removeUserAdmin(userId);
+                            setPopConfirmOpen(false);
+                        }}
+                        autoFocus
+                    >
                         Confirm
                     </Button>
                 </DialogActions>
@@ -175,8 +186,7 @@ const UserTable = (props: Props) => {
             {
                 userAdmin &&
                 <ViewUser
-                    open={viewModel}
-                    handleClose={openViewModel}
+                    openView={viewModel}
                     userAdmin={userAdmin}
                     closeViewModel={closeViewModel}
                 />

@@ -1,67 +1,67 @@
 import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
-import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal';
+import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu';
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader';
-import NamePlate from '@xrengine/client-core/src/world/components/NamePlate';
-import NetworkDebug from '../../components/NetworkDebug';
-import { OpenLink } from '@xrengine/client-core/src/world/components/OpenLink';
 import TooltipContainer from '@xrengine/client-core/src/common/components/TooltipContainer';
-import UserMenu from '@xrengine/client-core/src/user/components/UserMenu';
 import { GeneralStateList, setAppLoaded, setAppOnBoardingStep, setAppSpecificOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
 import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector';
-import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector';
 import { selectDeviceDetectState } from '@xrengine/client-core/src/common/reducers/devicedetect/selector';
-import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service';
 import { client } from '@xrengine/client-core/src/feathers';
+import { Config } from '@xrengine/client-core/src/helper';
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector';
-import { getLocationByName, getLobby } from '@xrengine/client-core/src/social/reducers/location/service';
-import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions';
-import Store from '@xrengine/client-core/src/store';
-import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector';
-import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector';
-import {
-  connectToInstanceServer,
-  provisionInstanceServer,
-  resetInstanceServer,
-} from '../../reducers/instanceConnection/service';
+import { getLobby, getLocationByName } from '@xrengine/client-core/src/social/reducers/location/service';
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector';
-import MediaIconsBox from "../../components/MediaIconsBox";
-import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
+import Store from '@xrengine/client-core/src/store';
+import UserMenu from '@xrengine/client-core/src/user/components/UserMenu';
+import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector';
+import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service';
+import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector';
+import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal';
+import NamePlate from '@xrengine/client-core/src/world/components/NamePlate';
+import { OpenLink } from '@xrengine/client-core/src/world/components/OpenLink';
+import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions';
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader';
+import { FollowCameraComponent } from '@xrengine/engine/src/camera/components/FollowCameraComponent';
+import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent';
+import { ControllerColliderComponent } from '@xrengine/engine/src/character/components/ControllerColliderComponent';
+import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { processLocationChange, resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
-import { addComponent, getComponent, getMutableComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
+import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
+import { InitializeOptions } from '@xrengine/engine/src/initializationOptions';
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine';
+import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem';
 import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema';
+import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
+import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema';
 import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem';
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem';
-import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent';
+import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal';
+import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent';
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem';
-import { Config } from '@xrengine/client-core/src/helper';
 import querystring from 'querystring';
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators, Dispatch } from 'redux';
 import url from 'url';
-import WarningRefreshModal from "../AlertModals/WarningRetryModal";
-import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem';
-import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading';
-import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema';
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader';
-import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
-import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal';
-import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent';
-import RecordingApp from './../Recorder/RecordingApp';
-import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu';
-import { ControllerColliderComponent } from '@xrengine/engine/src/character/components/ControllerColliderComponent';
-import { InitializeOptions } from '@xrengine/engine/src/initializationOptions';
-import { FollowCameraComponent } from '@xrengine/engine/src/camera/components/FollowCameraComponent';
 import { CameraLayers } from '../../../../engine/src/camera/constants/CameraLayers';
+import MediaIconsBox from "../../components/MediaIconsBox";
+import NetworkDebug from '../../components/NetworkDebug';
+import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector';
+import {
+  connectToInstanceServer,
+  provisionInstanceServer,
+  resetInstanceServer
+} from '../../reducers/instanceConnection/service';
+import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
+import WarningRefreshModal from "../AlertModals/WarningRetryModal";
+import RecordingApp from './../Recorder/RecordingApp';
 
 const store = Store.store;
 

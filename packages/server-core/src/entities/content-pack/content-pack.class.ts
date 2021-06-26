@@ -9,7 +9,7 @@ import axios from 'axios';
 interface Data {}
 
 interface ServiceOptions {}
-const s3 = new S3Provider();
+const s3:any = new S3Provider();
 const packRegex = /content-pack\/([a-zA-Z0-9_-]+)\/manifest.json/;
 const thumbnailRegex = /([a-zA-Z0-9_-]+).jpeg/;
 

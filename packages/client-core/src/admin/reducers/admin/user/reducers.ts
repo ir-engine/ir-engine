@@ -3,6 +3,7 @@ import {
   userAdminRemovedResponse,
   UserCreatedAction,
   userRoleRetrievedResponse,
+  fetchedStaticResourceAction
 } from './actions';
 
 import {
@@ -10,15 +11,17 @@ import {
   USER_ADMIN_PATCHED,
   USER_ADMIN_REMOVED,
   USER_SEARCH_ADMIN,
-  SINGLE_USER_ADMIN_LOADED
+  SINGLE_USER_ADMIN_LOADED,
+  STATIC_RESOURCE_RETRIEVED
 } from "../../actions";
 import {
   USER_ROLE_RETRIEVED,
   USER_ROLE_CREATED,
   USER_ROLE_UPDATED
-} from "../../actions";
+} from "@xrengine/client-core/src/world/reducers/actions";  
+// } from "../../actions";
 import {
-  LOADED_USERS,
+  ADMIN_LOADED_USERS,
 } from '../../actions';
 import { UserSeed } from '@xrengine/common/src/interfaces/User';
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider';
@@ -60,6 +63,12 @@ export const initialAdminState = {
     retrieving: false,
     fetched: false,
     updateNeeded: true
+  },
+  staticResource: {
+    staticResource: [],
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true
   }
 };
 
@@ -68,7 +77,7 @@ const immutableState = Immutable.fromJS(initialAdminState);
 const adminReducer = (state = immutableState, action: any): any => {
   let result, updateMap;
   switch (action.type) {
-    case LOADED_USERS:
+    case ADMIN_LOADED_USERS:
       result = (action as LoadedUsersAction).users;
       updateMap = new Map(state.get('users'));
       let combinedUsers = state.get('users').get('users');
@@ -149,6 +158,14 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set("fetched", true);
       updateMap.set("updateNeeded", false);
       return state.set("singleUser", updateMap);   
+    case STATIC_RESOURCE_RETRIEVED: 
+      result = (action as fetchedStaticResourceAction).staticResource;
+      updateMap = new Map(state.get("staticResource"));
+      updateMap.set("staticResource", (result as any).data);
+      updateMap.set("retrieving", false);
+      updateMap.set("updateNeeded", false);
+      updateMap.set("fetched", true);
+      return state.set("staticResource", updateMap);
   }
 
   return state;
