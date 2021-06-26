@@ -13,26 +13,25 @@ interface MediaRecord{
     logo: string;
 }
 interface Props {
-    media: MediaRecord;    
+    media: MediaRecord;
 }
 
-const Splash = ({media}: Props) => { 
+const Splash = ({media}: Props) => {
 	const { t } = useTranslation();
 
-return  <>
-        <CardMedia
-            className={styles.fullPage}
-//                 image={media.screen}
-                image="/assets/splash/background.jpg"
-                title={t('social:splash.screen')}
-            />
-        <CardMedia
-            className={styles.logo}
-//                 image={media.logo}
-                image="/assets/splash/arcLogoVanishinglinesWhite.png"
-                title={t('social:splash.logo')}
-            />
-        </>;
+return  <div className={styles.splash}>
+        {/*<CardMedia*/}
+        {/*    className={styles.fullPage}*/}
+        {/*        image="/assets/splash/background.jpg"*/}
+        {/*        title={t('social:splash.screen')}*/}
+        {/*    />*/}
+		<img className={styles.logo} src="/assets/splash/ARC_Splash.png" />
+        {/*<CardMedia*/}
+        {/*    className={styles.logo}*/}
+        {/*        image="/assets/splash/ARC_Splash.png"*/}
+        {/*        title={t('social:splash.logo')}*/}
+        {/*    />*/}
+        </div>;
 };
 
 export default Splash;
