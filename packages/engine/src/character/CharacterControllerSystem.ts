@@ -84,6 +84,7 @@ export class CharacterControllerSystem extends System {
         height: playerCollider.capsuleHeight,
         contactOffset: playerCollider.contactOffset,
         stepOffset: 0.25,
+        slopeLimit: 0,
         radius: playerCollider.capsuleRadius,
         position: {
           x: transform.position.x,
@@ -159,7 +160,7 @@ export class CharacterControllerSystem extends System {
 
       collider.raycastQuery.origin.copy(transform.position);
       collider.closestHit = collider.raycastQuery.hits[0];
-      actor.isGrounded = collider.closestHit ? true : collider.controller.collisions.down;
+      actor.isGrounded = collider.raycastQuery.hits.length > 0 || collider.controller.collisions.down;
     });
 
     // PhysicsMove LocalCharacter and Update velocity vector for Animations
