@@ -1,5 +1,5 @@
 import { Network } from "../../networking/classes/Network";
-import { Commands } from "../../networking/enums/commands";
+import { Commands } from "../../networking/enums/Commands";
 import { convertObjToBufferSupportedString } from "../../networking/functions/jsonSerialize";
 import { AnimationComponent } from "../components/AnimationComponent";
 import { CharacterComponent } from "../components/CharacterComponent";
