@@ -7,7 +7,8 @@ import {
     BOT_ADMIN_CREATE,
     BOT_COMMAND_ADMIN_CREATE,
     BOT_ADMIN_REMOVE,
-    BOT_COMMAND_ADMIN_REMOVE
+    BOT_COMMAND_ADMIN_REMOVE,
+    BOT_ADMIN_UPDATE
 } from "../../actions";
 import { UserSeed } from '@xrengine/common/src/interfaces/User';
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider';
@@ -74,6 +75,10 @@ const adminBotReducer = (state = immutableState, action: any): any => {
             const resBotCommmand = new Map(state.get("bots"));
             resBotCommmand.set("updateNeeded", true);
             return state.set("bots", resBotCommmand);
+        case BOT_ADMIN_UPDATE:
+            const botUpdate = new Map(state.get("bots"));
+            botUpdate.set("updateNeeded", true);
+            return state.set("bots", botUpdate);
     }
     return state;
 };

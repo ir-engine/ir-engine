@@ -16,28 +16,29 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import { selectAdminState } from "../../reducers/admin/selector";
 import { selectAuthState } from "../../../user/reducers/auth/selector";
 import { bindActionCreators, Dispatch } from 'redux';
 import { fetchUserRole } from "../../reducers/admin/user/service";
 import { connect } from 'react-redux';
+import InputBase from "@material-ui/core/InputBase";
 import {
-    fetchAdminParty,
     updateUserRole,
     patchUser,
     fetchSingleUserAdmin,
-} from "../../reducers/admin/service";
-import { useFormik } from 'formik';
+    fetchStaticResource
+} from "../../reducers/admin/user/service";
 import { useStyles, useStyle } from "./styles";
-import { userValidationSchema } from "./validation";
 import { selectAdminUserState } from '../../reducers/admin/user/selector';
-
+import { formValid } from "./validation";
+import MuiAlert from '@material-ui/lab/Alert';
+import Snackbar from '@material-ui/core/Snackbar';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
 
 interface Props {
-    open: boolean;
-    handleClose: any;
+    openView: boolean;
     userAdmin: any;
-    adminState?: any;
     authState?: any;
     fetchUserRole?: any;
     fetchAdminParty?: any;
@@ -45,63 +46,66 @@ interface Props {
     closeViewModel?: any;
     updateUserRole?: any;
     fetchSingleUserAdmin?: any;
-    adminUserState?: any
+    adminUserState?: any;
+    fetchStaticResource?: any;
 }
 
 const mapStateToProps = (state: any): any => {
     return {
-        adminState: selectAdminState(state),
         authState: selectAuthState(state),
-        adminUserState: selectAdminUserState(state)
+        adminUserState: selectAdminUserState(state),
     };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     fetchUserRole: bindActionCreators(fetchUserRole, dispatch),
-    fetchAdminParty: bindActionCreators(fetchAdminParty, dispatch),
     patchUser: bindActionCreators(patchUser, dispatch),
     updateUserRole: bindActionCreators(updateUserRole, dispatch),
-    fetchSingleUserAdmin: bindActionCreators(fetchSingleUserAdmin, dispatch)
+    fetchSingleUserAdmin: bindActionCreators(fetchSingleUserAdmin, dispatch),
+    fetchStaticResource: bindActionCreators(fetchStaticResource, dispatch)
 });
+
+const Alert = (props) => {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+};
 
 const ViewUser = (props: Props) => {
     const classx = useStyle();
     const classes = useStyles();
     const {
-        open,
-        handleClose,
+        openView,
         closeViewModel,
         fetchUserRole,
-        adminState,
         authState,
         userAdmin,
-        fetchAdminParty,
         patchUser,
         updateUserRole,
         fetchSingleUserAdmin,
-        adminUserState
+        adminUserState,
+        fetchStaticResource
     } = props;
     const [openDialog, setOpenDialog] = React.useState(false);
     const [status, setStatus] = React.useState("");
     const [editMode, setEditMode] = React.useState(false);
-    const [party, setParty] = React.useState(userAdmin?.party);
-    const [instance, setInstance] = React.useState(userAdmin?.party?.instance);
-    const [initialValue, setInitialValue] = React.useState({
+    const [refetch, setRefetch] = React.useState(false);
+    const [state, setState] = React.useState({
         name: "",
         avatar: "",
-        inviteCode: "",
+        formErrors: {
+            name: "",
+            avatar: "",
+        }
     });
-    const [refetch, setRefetch] = React.useState(false);
-
+    const [error, setError] = React.useState("");
+    const [openWarning, setOpenWarning] = React.useState(false);
     const user = authState.get("user");
     const userRole = adminUserState.get("userRole");
     const userRoleData = userRole ? userRole.get("userRole") : [];
-    const adminParty = adminState.get("parties");
-    const adminPartyData = adminParty.get("parties").data ? adminParty.get("parties").data : [];
-    const adminInstances = adminState.get('instances');
-    const instanceData = adminInstances.get("instances");
     const singleUser = adminUserState.get("singleUser");
     const singleUserData = adminUserState.get("singleUser").get("singleUser");
+    const staticResource = adminUserState.get("staticResource");
+    const staticResourceData = staticResource.get("staticResource");
+
 
     const handleClick = () => {
         setOpenDialog(true);
@@ -115,292 +119,276 @@ const ViewUser = (props: Props) => {
             await fetchUserRole();
         };
         if ((adminUserState.get('users').get('updateNeeded') === true) && user.id) fetchData();
-
-        if (user.id && adminParty.get('updateNeeded') == true) {
-            fetchAdminParty();
-        }
         if ((user.id && singleUser.get('updateNeeded') == true) || refetch) {
             fetchSingleUserAdmin(userAdmin.id);
             setRefetch(false);
         }
+        if (user.id && staticResource.get('updateNeeded')) {
+            fetchStaticResource();
+        }
     }, [adminUserState, user, refetch]);
 
-    React.useEffect(()=>{
-        if(!refetch){
+    React.useEffect(() => {
+        if (!refetch) {
             setRefetch(true);
         }
     }, [userAdmin.id]);
 
-
     React.useEffect(() => {
         if (singleUserData) {
-            setInitialValue({
-                name: singleUserData.name,
-                avatar: singleUserData.avatarId,
-                inviteCode: singleUserData.inviteCode
+            setState({
+                ...state,
+                name: userAdmin.name || "",
+                avatar: userAdmin.avatarId || "",
             });
         }
     }, [singleUserData]);
-
     const defaultProps = {
         options: userRoleData,
         getOptionLabel: (option: any) => option.role,
     };
 
-    const partyData = adminPartyData.map(el => ({ ...el, label: el.location.name }));
-    const PartyProps = {
-        options: partyData,
-        getOptionLabel: (option: any) => option.label
-    };
-
-    const data = [];
-    instanceData.forEach(element => {
-        data.push(element);
-    });
-
-    const InstanceProps = {
-        options: data,
-        getOptionLabel: (option: any) => option.ipAddress
-    };
-
-
     const patchUserRole = async (user: any, role: string) => {
         await updateUserRole(user, role);
         handleCloseDialog();
+        setRefetch(true);
     };
 
-    const formik = useFormik({
-        initialValues: initialValue,
-        validationSchema: userValidationSchema,
-        onSubmit: async (values, { resetForm }) => {
-            const data = {
-                name: values.name,
-                avatarId: values.avatar,
-                inviteCode: values.inviteCode,
-                instanceId: instance.id,
-                partyId: party.id
-            };
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        let temp = state.formErrors;
+        switch (name) {
+            case "name":
+                temp.name = value.length < 2 ? "Name is required!" : "";
+                break;
+            case "avatar":
+                temp.avatar = value.length < 2 ? "Avatar is required!" : "";
+                break;
+            default:
+                break;
+        }
+        setState({ ...state, [name]: value, formErrors: temp });
+    };
+
+    const handleSubmit = () => {
+        const data = {
+            name: state.name,
+            avatarId: state.avatar,
+        };
+
+        let temp = state.formErrors;
+        if (!state.name) {
+            temp.name = "Name can't be empty";
+        }
+        if (!state.avatar) {
+            temp.avatar = "Avatar can't be empty";
+        }
+        setState({ ...state, formErrors: temp });
+        if (formValid(state, state.formErrors)) {
             patchUser(userAdmin.id, data);
-            resetForm({ values: { name: "", avatar: "", inviteCode: "" } });
-            setEditMode(false);
-            closeViewModel(false);
-            setInitialValue({
+            setState({
+                ...state,
                 name: "",
                 avatar: "",
-                inviteCode: ""
             });
+            setEditMode(false);
+            closeViewModel(false);
+        } else {
+            setError("Please fill all required field");
+            setOpenWarning(true);
         }
-    });
+    };
+
+    const handleCloseWarning = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpenWarning(false);
+    };
 
     return (
         <React.Fragment>
             <Drawer
                 anchor="right"
-                open={open}
-                onClose={handleClose(false)}
+                open={openView}
+                onClose={() => closeViewModel(false)}
                 classes={{ paper: classx.paper }}
             >
-                <form onSubmit={(e) => {
-                    e.preventDefault();
-                    formik.handleSubmit(e);
-                }}>
-                    {userAdmin &&
-                        <Paper elevation={3} className={classes.paperHeight} >
-                            <Container maxWidth="sm">
-                                <Grid container spacing={2}>
-                                    <Grid item xs={4}>
-                                        <Avatar className={classes.large}>{
-                                            !userAdmin.avatarId ? <Skeleton animation="wave" variant="circle" width={40} height={40} /> : userAdmin.avatarId.charAt(0).toUpperCase()
-                                        }
-                                        </Avatar>
-                                    </Grid>
-                                    <Grid item xs={8}>
-                                        <div className={classes.mt20}>
-                                            <Typography variant="h4" component="span">{userAdmin.name}</Typography><br />
-                                            {
-                                                userAdmin.userRole ?
-                                                    <Chip
-                                                        label={userAdmin.userRole}
-                                                        onDelete={handleClick}
-                                                        deleteIcon={<Edit />}
-                                                    />
-                                                    :
-                                                    <Chip
-                                                        label="None"
-                                                        onDelete={handleClick}
-                                                        deleteIcon={<Edit />}
-                                                    />
-                                            }
-                                        </div>
-                                    </Grid>
+                {userAdmin &&
+                    <Paper elevation={3} className={classes.paperHeight} >
+                        <Container maxWidth="sm">
+                            <Grid container spacing={2}>
+                                <Grid item xs={4}>
+                                    <Avatar className={classes.large}>{
+                                        !userAdmin.avatarId ? <Skeleton animation="wave" variant="circle" width={40} height={40} /> : userAdmin.avatarId.charAt(0).toUpperCase()
+                                    }
+                                    </Avatar>
                                 </Grid>
-                            </Container>
+                                <Grid item xs={8}>
+                                    <div className={classes.mt20}>
+                                        <Typography variant="h4" component="span">{userAdmin.name}</Typography><br />
+                                        {
+                                            userAdmin.userRole ?
+                                                <Chip
+                                                    label={singleUserData?.userRole}
+                                                    onDelete={handleClick}
+                                                    deleteIcon={<Edit />}
+                                                />
+                                                :
+                                                <Chip
+                                                    label="None"
+                                                    onDelete={handleClick}
+                                                    deleteIcon={<Edit />}
+                                                />
+                                        }
+                                    </div>
+                                </Grid>
+                            </Grid>
+                        </Container>
 
-                            <Dialog
-                             open={openDialog} 
-                             onClose={handleCloseDialog} 
-                             aria-labelledby="form-dialog-title" 
-                             classes={{ paper: classx.paperDialog}} 
-                              >
-                                <DialogTitle id="form-dialog-title">Do you really want to change role for {userAdmin.name}? </DialogTitle>
-                                <DialogContent>
-                                    <DialogContentText>
-                                        In order to change role for {userAdmin.name} search from the list or select user role and submit.
+                        <Dialog
+                            open={openDialog}
+                            onClose={handleCloseDialog}
+                            aria-labelledby="form-dialog-title"
+                            classes={{ paper: classx.paperDialog }}
+                        >
+                            <DialogTitle id="form-dialog-title">Do you really want to change role for {userAdmin.name}? </DialogTitle>
+                            <DialogContent>
+                                <DialogContentText>
+                                    In order to change role for {userAdmin.name} search from the list or select user role and submit.
                                 </DialogContentText>
-                                    <Autocomplete
-                                        onChange={(e, newValue) => {
-                                            if (newValue) {
-                                                setStatus(newValue.role as string);
-                                            } else {
-                                                setStatus("");
-                                            }
-                                        }}
-                                        {...defaultProps}
-                                        id="debug"
-                                        debug
-                                        renderInput={(params) => <TextField {...params} label="User Role" />}
+                                <Autocomplete
+                                    onChange={(e, newValue) => {
+                                        if (newValue) {
+                                            setStatus(newValue.role as string);
+                                        } else {
+                                            setStatus("");
+                                        }
+                                    }}
+                                    {...defaultProps}
+                                    id="debug"
+                                    debug
+                                    renderInput={(params) => <TextField {...params} label="User Role" />}
+                                />
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={handleCloseDialog} color="primary">
+                                    Cancel
+                                </Button>
+                                <Button onClick={() => {
+                                    patchUserRole(userAdmin.id, status);
+                                }} color="primary">
+                                    Submit
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
+
+                    </Paper>
+                }
+                <Container maxWidth="sm">
+                    {
+                        editMode ?
+                            <div className={classes.mt10}>
+                                <Typography variant="h4" component="h4" className={classes.mb10}> Update personal Information  </Typography>
+                                <label>Name</label>
+                                <Paper component="div" className={state.formErrors.name.length > 0 ? classes.redBorder : classes.createInput}>
+                                    <InputBase
+                                        className={classes.input}
+                                        name="name"
+                                        placeholder="Enter name"
+                                        style={{ color: "#fff" }}
+                                        autoComplete="off"
+                                        value={state.name}
+                                        onChange={handleInputChange}
                                     />
-                                </DialogContent>
-                                <DialogActions>
-                                    <Button onClick={handleCloseDialog} color="primary">
-                                        Cancel
-                                </Button>
-                                    <Button onClick={() => {
-                                        patchUserRole(userAdmin.id, status);
-                                    }} color="primary">
-                                        Submit
-                                </Button>
-                                </DialogActions>
-                            </Dialog>
-                       
-                        </Paper>
+                                </Paper>
+                                <label>Avatar</label>
+                                <Paper component="div" className={state.formErrors.avatar.length > 0 ? classes.redBorder : classes.createInput}>
+                                    <FormControl fullWidth>
+                                        <Select
+                                            labelId="demo-controlled-open-select-label"
+                                            id="demo-controlled-open-select"
+                                            value={state.avatar}
+                                            fullWidth
+                                            displayEmpty
+                                            onChange={handleInputChange}
+                                            className={classes.select}
+                                            name="avatar"
+                                            MenuProps={{ classes: { paper: classx.selectPaper } }}
+                                        >
+                                            <MenuItem value="" disabled>
+                                                <em>Select avatar</em>
+                                            </MenuItem>
+                                            {
+                                                staticResourceData.map(el => <MenuItem value={el.name} key={el.id}>{el.name}</MenuItem>)
+                                            }
+                                        </Select>
+                                    </FormControl>
+                                </Paper>
+                            </div>
+                            :
+                            <Grid container spacing={3} className={classes.mt10}>
+                                <Typography variant="h4" component="h4" className={classes.mb20px}>Personal Information  </Typography>
+                                <Grid item xs={6}>
+                                    <Typography variant="h5" component="h5" className={classes.mb10}>Location:</Typography>
+                                    <Typography variant="h5" component="h5" className={classes.mb10}>Avatar:</Typography>
+                                    <Typography variant="h5" component="h5" className={classes.mb10}>Invite Code:</Typography>
+                                    <Typography variant="h5" component="h5" className={classes.mb10}>Instance:</Typography>
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <Typography variant="h6" component="h6" className={classes.mb10} >{userAdmin?.party?.location?.name || <span className={classx.spanNone}>None</span>}</Typography>
+                                    <Typography variant="h6" component="h6" className={classes.mb10}>{userAdmin?.avatarId || <span className={classx.spanNone}>None</span>}</Typography>
+                                    <Typography variant="h6" component="h6" className={classes.mb10}>{userAdmin?.inviteCode || <span className={classx.spanNone}>None</span>}</Typography>
+                                    <Typography variant="h6" component="h6" className={classes.mb10}>{userAdmin?.party?.instance?.ipAddress || <span className={classx.spanNone}>None</span>}</Typography>
+                                </Grid>
+                            </Grid>
                     }
-                    <Container maxWidth="sm">
+                    <DialogActions className={classes.mb10}>
                         {
                             editMode ?
-                                <div className={classes.mt10}>
-                                    <Typography variant="h4" component="h4" className={classes.mb10}> Update personal Information  </Typography>
-                                    <TextField
-                                        autoFocus
-                                        margin="dense"
-                                        id="name"
-                                        label="Name"
-                                        type="text"
-                                        fullWidth
-                                        value={formik.values.name || initialValue.name}
-                                        className={classes.mb20px}
-                                        onChange={formik.handleChange}
-                                        error={formik.touched.name && Boolean(formik.errors.name)}
-                                        helperText={formik.touched.name && formik.errors.name}
-                                    />
-                                    <Autocomplete
-                                        className={classes.mb20px}
-                                        onChange={(e, newValue) => {
-                                            if (newValue) {
-                                                setParty(newValue as string);
-                                            } else {
-                                                setParty("");
-                                            }
+                                <div>
+                                    <Button
+                                        onClick={handleSubmit}
+                                        className={classx.saveBtn}
+                                    >
+                                        <span style={{ marginRight: "15px" }}><Save /></span> Submit
+                                    </Button>
+                                    <Button
+                                        className={classx.saveBtn}
+                                        onClick={() => {
+                                            setEditMode(false);
                                         }}
-                                        defaultValue={{ label: party?.location.name || "" }}
-                                        {...PartyProps}
-                                        id="debug"
-                                        debug
-                                        renderInput={(params) => <TextField {...params} label="Location" defaultValue={party?.location?.name || ""} />}
-                                    />
-                                    <TextField
-                                        autoFocus
-                                        margin="dense"
-                                        id="avatar"
-                                        label="Avatar"
-                                        type="text"
-                                        fullWidth
-                                        value={formik.values.avatar || initialValue.avatar}
-                                        className={classes.mb20px}
-                                        onChange={formik.handleChange}
-                                        error={formik.touched.avatar && Boolean(formik.errors.avatar)}
-                                        helperText={formik.touched.avatar && formik.errors.avatar}
-                                    />
-                                    <TextField
-                                        autoFocus
-                                        margin="dense"
-                                        id="inviteCode"
-                                        label="Invite code"
-                                        type="text"
-                                        fullWidth
-                                        value={formik.values.inviteCode || initialValue.inviteCode}
-                                        className={classes.mb20px}
-                                        onChange={formik.handleChange}
-                                        error={formik.touched.inviteCode && Boolean(formik.errors.inviteCode)}
-                                        helperText={formik.touched.inviteCode && formik.errors.inviteCode}
-                                    />
-                                    <Autocomplete
-                                        className={classes.mb10}
-                                        onChange={(e, newValue) => {
-                                            if (newValue) {
-                                                setInstance(newValue as string);
-                                            } else {
-                                                setInstance("");
-                                            }
-                                        }}
-                                        {...InstanceProps}
-                                        defaultValue={{ label: instance.ipAddress || "" }}
-                                        id="debug"
-                                        debug
-                                        renderInput={(params) => <TextField {...params} label="Instance" defaultValue={instance.ipAddress || ""} />}
-                                    />
+                                    >
+                                        CANCEL
+                                    </Button>
                                 </div>
                                 :
-                                <Grid container spacing={3} className={classes.mt10}>
-                                    <Typography variant="h4" component="h4" className={classes.mb20px}>Personal Information  </Typography>
-                                    <Grid item xs={6}>
-                                        <Typography variant="h5" component="h5" className={classes.mb10}>Location:</Typography>
-                                        <Typography variant="h5" component="h5" className={classes.mb10}>Avatar:</Typography>
-                                        <Typography variant="h5" component="h5" className={classes.mb10}>Invite Code:</Typography>
-                                        <Typography variant="h5" component="h5" className={classes.mb10}>Instance:</Typography>
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                        <Typography variant="h6" component="h6" className={classes.mb10} >{userAdmin?.party?.location?.name || <span className={classx.spanNone}>None</span>}</Typography>
-                                        <Typography variant="h6" component="h6" className={classes.mb10}>{userAdmin?.avatarId || <span className={classx.spanNone}>None</span>}</Typography>
-                                        <Typography variant="h6" component="h6" className={classes.mb10}>{userAdmin?.inviteCode || <span className={classx.spanNone}>None</span>}</Typography>
-                                        <Typography variant="h6" component="h6" className={classes.mb10}>{userAdmin?.party?.instance?.ipAddress || <span className={classx.spanNone}>None</span>}</Typography>
-                                    </Grid>
-                                </Grid>
-                        }
-
-                        <DialogActions className={classes.mb10}>
-                            {
-                                editMode ?
-                                    <div>
-                                        <Button type="submit" color="primary" >
-                                            <span style={{ marginRight: "15px" }}><Save /></span> Submit
-                                        </Button>
-                                        <Button onClick={() => {
-                                            setInitialValue({
-                                                name: "",
-                                                avatar: "",
-                                                inviteCode: ""
-                                            });
-                                            setEditMode(false);
-                                        }} color="primary">
-                                            Clear
-                                        </Button>
-                                    </div>
-                                    :
-                                    <div>
-                                        <a href="#h" className={classx.actionStyle} style={{ fontSize: "1.2rem", marginRight: "25px" }} onClick={() => {
+                                <div>
+                                    <Button
+                                        className={classx.saveBtn}
+                                        onClick={() => {
                                             setEditMode(true);
                                         }}>
-                                            EDIT
-                                        </a>
-                                        <a href="#h" onClick={handleClose(false)} className={classx.actionStyle} style={{ fontSize: "1.2rem" }}>
-                                            CANCEL
-                                        </a>
-                                    </div>
-                            }
-                        </DialogActions>
-                    </Container>
-                </form>
+                                        EDIT
+                                    </Button>
+                                    <Button
+                                        onClick={() => closeViewModel(false)}
+                                        className={classx.saveBtn}
+                                    >
+                                        CANCEL
+                                    </Button>
+                                </div>
+                        }
+                    </DialogActions>
+                </Container>
+                <Snackbar
+                    open={openWarning}
+                    autoHideDuration={6000}
+                    onClose={handleCloseWarning}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                >
+                    <Alert onClose={handleCloseWarning} severity="warning"> {error} </Alert>
+                </Snackbar>
             </Drawer>
         </React.Fragment>
     );

@@ -13,6 +13,8 @@ import {
     USER_ROLE_RETRIEVED,
     USER_ROLE_CREATED,
     USER_ROLE_UPDATED,
+    LOADED_USERS,
+    STATIC_RESOURCE_RETRIEVED
 } from "@xrengine/client-core/src/world/reducers/actions";
 
 export interface userRoleRetrievedResponse {
@@ -31,6 +33,12 @@ export interface LoadedUsersAction {
     type: string;
     users: User[];
 }
+
+export interface fetchedStaticResourceAction {
+    type: string,
+    staticResource: any[]
+}
+
 export function loadedUsers(users: User[]): LoadedUsersAction {
     return {
         type: ADMIN_LOADED_USERS,
@@ -89,5 +97,12 @@ export const fetchedSIngleUser = (data: any): any => {
     return {
         type: SINGLE_USER_ADMIN_LOADED,
         data: data,
+    };
+};
+
+export const fetchedStaticResource = (data: any): fetchedStaticResourceAction => {
+    return {
+        type: STATIC_RESOURCE_RETRIEVED,
+        staticResource: data
     };
 };

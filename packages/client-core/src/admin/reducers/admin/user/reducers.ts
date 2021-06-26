@@ -3,6 +3,7 @@ import {
   userAdminRemovedResponse,
   UserCreatedAction,
   userRoleRetrievedResponse,
+  fetchedStaticResourceAction
 } from './actions';
 
 import {
@@ -10,7 +11,8 @@ import {
   USER_ADMIN_PATCHED,
   USER_ADMIN_REMOVED,
   USER_SEARCH_ADMIN,
-  SINGLE_USER_ADMIN_LOADED
+  SINGLE_USER_ADMIN_LOADED,
+  STATIC_RESOURCE_RETRIEVED
 } from "../../actions";
 import {
   USER_ROLE_RETRIEVED,
@@ -58,6 +60,12 @@ export const initialAdminState = {
   },
   singleUser:{
     singleUser: {},
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true
+  },
+  staticResource: {
+    staticResource: [],
     retrieving: false,
     fetched: false,
     updateNeeded: true
@@ -150,6 +158,14 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set("fetched", true);
       updateMap.set("updateNeeded", false);
       return state.set("singleUser", updateMap);   
+    case STATIC_RESOURCE_RETRIEVED: 
+      result = (action as fetchedStaticResourceAction).staticResource;
+      updateMap = new Map(state.get("staticResource"));
+      updateMap.set("staticResource", (result as any).data);
+      updateMap.set("retrieving", false);
+      updateMap.set("updateNeeded", false);
+      updateMap.set("fetched", true);
+      return state.set("staticResource", updateMap);
   }
 
   return state;

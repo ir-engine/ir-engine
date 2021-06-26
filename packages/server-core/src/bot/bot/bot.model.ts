@@ -31,7 +31,7 @@ export default (app: Application): any => {
 
     (Bot as any).associate = (models: any): void => {
         (Bot as any).belongsTo(models.location, { foreignKey: "locationId"});
-        (Bot as any).belongsTo(models.instance, { foreignKey: { allowNull: true}});
+        (Bot as any).belongsTo(models.instance, { foreignKey: { allowNull: true }});
         (Bot as any).belongsTo(models.user, { foreignKey: "userId"});
         (Bot as any).hasMany(models.botCommand, { foreignKey: "botId"});
     };
