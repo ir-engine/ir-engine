@@ -1,18 +1,16 @@
+
 {
-"appId": "com.xrengine.client",
-"appName": "@xrengine/client",
-"bundledWebRuntime": false,
-"npmClient": "npm",
-"webDir": "www",
-"plugins": {
-	"SplashScreen": {
-		"launchShowDuration": 0
+	"appId": "com.xrengine.social",
+	"appName": "com.xrengine.social",
+	"webDir": "www",
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 0
+		}
+	},
+	"server": {
+		"hostname": "dev.arcmedia.us",
+		"androidScheme": "https",
+		"iosScheme": "https"
 	}
-},
-"server": {
-	"hostname": "dev.arcmedia.us",
-	"androidScheme": "https",
-	"iosScheme": "https"
-},
-"cordova": {}
 }
