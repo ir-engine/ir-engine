@@ -25,7 +25,7 @@ export type ReflectionProbeSettings={
     resolution:number,
     refreshMode:ReflectionProbeRefreshTypes,
     envMapID:string,
-    lookupName: string,
+    lookupName:any
 }
 
 
@@ -52,7 +52,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
             resolution:512,
             refreshMode:ReflectionProbeRefreshTypes.OnAwake,
             envMapID:"",
-            lookupName: '',
+            lookupName:""
         }
         this.gizmo=new BoxHelper(new Mesh(new BoxBufferGeometry()),0xff0000);
         this.centerBall.material=new MeshPhysicalMaterial({
