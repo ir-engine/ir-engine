@@ -66,6 +66,7 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState, webxrnativeSt
 
   const [onborded, setOnborded] = useState(true);
   const [feedOnborded, setFeedOnborded] = useState(true);
+  const [feedHintsOnborded, setFeedHintsOnborded] = useState(true);
 
   const currentCreator = creatorsState.get('currentCreator');
   const currentTime = new Date(Date.now()).toISOString();
@@ -81,6 +82,7 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState, webxrnativeSt
   const changeOnboarding = () => {
     setOnborded(true);
     setFeedOnborded(false);
+    setFeedHintsOnborded(false);
   };
 
   if(!currentCreator || currentCreator === null) return <Splash />;
@@ -98,11 +100,16 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState, webxrnativeSt
         {/* <Stories stories={stories} /> */}
         <FeedMenu />
         <AppFooter />
-        <CreatorPopup />
-        <FeedPopup />
-        <CreatorFormPopup />
+
         <ArMediaPopup />
-        <WebXRStart setContentHidden={changeWebXrNative} />
+        <WebXRStart feedHintsOnborded={feedHintsOnborded}
+                    webxrRecorderActivity={webxrRecorderActivity}
+                    setContentHidden={changeWebXrNative}
+                    setFeedHintsOnborded={setFeedHintsOnborded}
+        />
+        <CreatorPopup  webxrRecorderActivity={webxrRecorderActivity} />
+        <FeedPopup webxrRecorderActivity={webxrRecorderActivity} />
+        <CreatorFormPopup webxrRecorderActivity={webxrRecorderActivity} />
         <FeedFormPopup />
         <SharedFormPopup />
     </div>

@@ -8,21 +8,6 @@ export class DesiredTransformComponent extends Component<DesiredTransformCompone
   positionRate: number
   rotationRate: number
   lockRotationAxis: [boolean, boolean, boolean];
-
-  constructor () {
-    super();
-  }
-
-  copy(src: { position?: Vector3, rotation?: Quaternion }): this {
-    this.position.copy(src.position);
-    this.rotation.copy(src.rotation);
-    return this;
-  }
-
-  reset (): void {
-    this.position = new Vector3();
-    this.rotation = new Quaternion();
-  }
 }
 
 DesiredTransformComponent._schema = {

@@ -81,7 +81,7 @@ const ArMedia = ({getArMedia, arMediaState, updateArMediaState, updateWebXRState
       {!selectedItem ? null :
         <Button className={styles.startRecirding} onClick={async () => {
           setPreloading(true);
-          await XRPlugin.uploadFiles({
+          await (XRPlugin as any).uploadFiles({
             audioPath: selectedItem.audioUrl,
             audioId: selectedItem.audioId
           });

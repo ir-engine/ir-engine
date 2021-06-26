@@ -16,9 +16,9 @@ import {
 import VideocamIcon from '@material-ui/icons/Videocam';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import FlipCameraIosIcon from '@material-ui/icons/FlipCameraIos';
-import Player from 'volumetric/src/decoder/Player';
+import Player from 'volumetric/web/decoder/Player';
 // @ts-ignore
-import PlayerWorker from 'volumetric/src/decoder/workerFunction.ts?worker';
+import PlayerWorker from 'volumetric/web/decoder/workerFunction.ts?worker';
 
 //@ts-ignore
 import styles from './WebXRPlugin.module.scss';
@@ -28,6 +28,10 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
 import { selectArMediaState } from "../../reducers/arMedia/selector";
 import { getArMediaItem } from "../../reducers/arMedia/service";
+import ZoomGestureHandler from "../../../zoom-gesture-handler";
+import HintOne from "../WebXrHints/HintOne";
+import HintTwo from "../WebXrHints/HintTwo";
+import {setLastFeedVideoUrl} from "../../reducers/feed/service";
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -40,6 +44,7 @@ const mapStateToProps = (state: any): any => {
     updateNewFeedPageState: bindActionCreators(updateNewFeedPageState, dispatch),
     updateWebXRState: bindActionCreators(updateWebXRState, dispatch),
     getArMediaItem: bindActionCreators(getArMediaItem, dispatch),
+    setLastFeedVideoUrl: bindActionCreators(setLastFeedVideoUrl, dispatch),
 });
 
 interface Props{
@@ -48,10 +53,15 @@ interface Props{
     updateNewFeedPageState?: typeof updateNewFeedPageState;
     updateWebXRState?: typeof updateWebXRState;
     setContentHidden?: any;
+    webxrRecorderActivity?: any;
     getArMediaItem?:typeof getArMediaItem;
+    feedHintsOnborded?: any;
+    setFeedHintsOnborded?: any;
+    setLastFeedVideoUrl?: any;
   }
 
 const { isNative } = Capacitor;
+
 
 enum RecordingStates {
     OFF = "off",
@@ -64,11 +74,14 @@ const correctionQuaternionZ = new Quaternion().setFromAxisAngle(new Vector3(0,0,
 
 const _DEBUG = false;
 const DEBUG_MINI_VIEWPORT_SIZE = 100;
-let statusXR = false;
-const screenHeigth = Math.floor(document.body.clientHeight/2)*2;
-const screenWidth = Math.floor(document.body.clientWidth/2)*2;
 
-export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNewFeedPageState, updateWebXRState, setContentHidden}:Props) => {
+export const WebXRPlugin = ({
+                                popupsState, arMediaState,
+                                getArMediaItem, updateNewFeedPageState,
+                                updateWebXRState, setContentHidden,
+                                webxrRecorderActivity, feedHintsOnborded,
+                                setFeedHintsOnborded, setLastFeedVideoUrl
+                            }:Props) => {
     const canvasRef = React.useRef();
     const [initializationResponse, setInitializationResponse] = useState("");
     const [cameraStartedState, setCameraStartedState] = useState("");
@@ -76,12 +89,33 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
     const [anchorPoseState, setAnchorPoseState] = useState("");
     const [intrinsicsState, setCameraIntrinsicsState] = useState("");
     const [savedFilePath, setSavedFilePath] = useState("");
+    const [hintOne, hintOneShow] = useState(false);
+    const [hintTwo, hintTwoShow] = useState(false);
 //     const [horizontalOrientation, setHorizontalOrientation] = useState(false);
-    const [mediaItem, setMediaItem] = useState(null);
-    const [recordingState, setRecordingState] = useState(RecordingStates.OFF);
-    const playerRef = useRef<Player>(null);
+    const [mediaItem, _setMediaItem] = useState(null);
+    const [videoDelay, setVideoDelay] = useState(null);
+    const [recordingState, _setRecordingState] = useState(RecordingStates.OFF);
+    const playerRef = useRef<Player|null>(null);
+    const anchorRef = useRef<Group|null>(null);
+    const sceneRef = useRef<Scene|null>(null);
+    const cameraRef = useRef<PerspectiveCamera|null>(null);
+    const rendererRef = useRef<WebGLRenderer|null>(null);
+    const animationFrameIdRef = useRef<number>(0);
+    const zoomHandlerRef = useRef<ZoomGestureHandler|null>(null);
 
-    let renderer: WebGLRenderer, scene: Scene, camera: PerspectiveCamera;
+    const recordingStateRef = React.useRef(recordingState);
+    const setRecordingState = data => {
+        recordingStateRef.current = data;
+        _setRecordingState(data);
+    };
+
+    const mediaItemRef = React.useRef(mediaItem);
+    const setMediaItem = data => {
+        mediaItemRef.current = data;
+        _setMediaItem(data);
+    };
+    const closeBtnAction = React.useRef(false);
+
     const debugCamera: {
         userCameraHelper: CameraHelper,
         overview: PerspectiveCamera,
@@ -96,29 +130,64 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
         zy: null
     };
 
-    const onBackButton = () => {
-        if (recordingState === RecordingStates.ON) {
-            finishRecord();
-        } else {
-            // exit this popup
-            updateWebXRState(false, null);
+    const showContent = () => {
+        if(!webxrRecorderActivity){
+            setContentHidden();
         }
     };
+
+    function onBackButton(){
+        console.log('onBackButton recordingState:', recordingStateRef.current);
+        closeBtnAction.current = true;
+        finishRecord();
+        // exit this popup
+        updateWebXRState(false, null);
+
+        showContent();
+    }
+
+    useEffect(()=>{
+        console.log('recordingState USE EFFECT:', recordingState);
+    }, [recordingState]);
 
     useEffect(() => {
         // console.log('WebXRComponent MOUNTED');
         document.addEventListener("backbutton", onBackButton);
 
+        if (!zoomHandlerRef.current) {
+            zoomHandlerRef.current = new ZoomGestureHandler(canvasRef.current, (scale) => {
+                if (anchorRef.current) {
+                    anchorRef.current.scale.multiplyScalar(scale);
+                }
+            });
+        }
+
+        if (!feedHintsOnborded){
+            hintOneShow(true);
+        }
+
         return () => {
             // console.log('WebXRComponent UNMOUNT');
             document.removeEventListener("backbutton", onBackButton);
+
+            if (animationFrameIdRef.current) {
+                cancelAnimationFrame(animationFrameIdRef.current);
+            }
 
             if (playerRef.current) {
                 console.log('WebXRComponent - dispose player');
                 playerRef.current.dispose();
                 playerRef.current = null;
             }
+            if (zoomHandlerRef.current) {
+                console.log('WebXRComponent - dispose zoom handler');
+                zoomHandlerRef.current.dispose();
+                zoomHandlerRef.current = null;
+            }
+
             console.log('WebXRComponent - stop plugin');
+            // @ts-ignore
+            Plugins.XRPlugin.removeAllListeners();
             // @ts-ignore
             Plugins.XRPlugin.stop({});
             window.screen.orientation.unlock();
@@ -129,38 +198,48 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
     }, []);
 
     const raf = () => {
-        requestAnimationFrame(raf);
+        animationFrameIdRef.current = requestAnimationFrame(raf); // always request new frame
+        const scene = sceneRef.current;
+        const camera = cameraRef.current;
+        const renderer = rendererRef.current;
+        if (!renderer) {
+            // if renderer is not created yet, we have nothing to render
+            return;
+        }
+
         playerRef.current?.handleRender(() => {
-            renderer.render(scene, camera);
 
-            if (_DEBUG) {
-                const clearColor = new Color();
-                renderer.getClearColor(clearColor);
-                const clearAlpha = renderer.getClearAlpha();
-
-                debugCamera.userCameraHelper.visible = true;
-
-                renderer.setScissorTest(true);
-                renderer.setClearColor(0xa0a0a0, 1);
-
-                renderer.setViewport(10, 10 * 2 + DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
-                renderer.setScissor(10, 10 * 2 + DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
-                renderer.render(scene, debugCamera.overview);
-
-                [debugCamera.xz, debugCamera.xy, debugCamera.zy].forEach((cam, index) => {
-                    const left = 10 + (DEBUG_MINI_VIEWPORT_SIZE + 10) * index;
-                    renderer.setViewport(left, 10, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
-                    renderer.setScissor(left, 10, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
-                    renderer.render(scene, cam);
-                });
-
-                // reset changes
-                debugCamera.userCameraHelper.visible = false;
-                renderer.setClearColor(clearColor, clearAlpha);
-                renderer.setScissorTest(false);
-                renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
-            }
         });
+
+        renderer.render(scene, camera);
+
+        if (_DEBUG) {
+            const clearColor = new Color();
+            renderer.getClearColor(clearColor);
+            const clearAlpha = renderer.getClearAlpha();
+
+            debugCamera.userCameraHelper.visible = true;
+
+            renderer.setScissorTest(true);
+            renderer.setClearColor(0xa0a0a0, 1);
+
+            renderer.setViewport(10, 10 * 2 + DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
+            renderer.setScissor(10, 10 * 2 + DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
+            renderer.render(scene, debugCamera.overview);
+
+            [debugCamera.xz, debugCamera.xy, debugCamera.zy].forEach((cam, index) => {
+                const left = 10 + (DEBUG_MINI_VIEWPORT_SIZE + 10) * index;
+                renderer.setViewport(left, 10, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
+                renderer.setScissor(left, 10, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE);
+                renderer.render(scene, cam);
+            });
+
+            // reset changes
+            debugCamera.userCameraHelper.visible = false;
+            renderer.setClearColor(clearColor, clearAlpha);
+            renderer.setScissorTest(false);
+            renderer.setViewport(0, 0, window.innerWidth, window.innerHeight);
+        }
     };
 
     const arMediaFetching = arMediaState.get('fetchingItem');
@@ -185,7 +264,10 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
         }
 
         (async function () {
-            scene = new Scene();
+            if (!sceneRef.current) {
+                sceneRef.current = new Scene();
+            }
+            const scene = sceneRef.current;
 
             if (_DEBUG) {
                 debugCamera.xz = new OrthographicCamera(2, -2, 2, -2, 0.001, 100);
@@ -205,7 +287,11 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
 //             const materialY = new MeshBasicMaterial({ color: 0x00ff00 });
 //             const materialZ = new MeshBasicMaterial({ color: 0x0000ff });
 //             const materialC = new MeshBasicMaterial({ color: 0xffffff });
-            const anchor = new Group();
+            if (!anchorRef.current) {
+                anchorRef.current = new Group();
+            }
+            const anchor = anchorRef.current;
+            anchor.visible = false;
 //             anchor.add(new AxesHelper(0.3));
 //             const anchorC = new Mesh(geometry, materialC);
 //             anchor.add(anchorC);
@@ -221,7 +307,10 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
 //
 //             scene.add(new AxesHelper(0.2));
 
-            camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 100);
+            if (!cameraRef.current) {
+                cameraRef.current = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 100);
+            }
+            const camera = cameraRef.current;
 
             if (_DEBUG) {
                 debugCamera.overview = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.001, 100);
@@ -229,9 +318,18 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                 debugCamera.overview.lookAt(new Vector3());
             }
             scene.background = null;
-            renderer = new WebGLRenderer({ alpha: true, canvas:canvasRef.current });
+
+            if (!rendererRef.current) {
+                console.log('CREATE new Renderer');
+                rendererRef.current = new WebGLRenderer({ alpha: true, canvas: canvasRef.current });
+                //document.body.appendChild(renderer.domElement);
+            } else {
+                console.log('USE ref Renderer', rendererRef.current);
+                console.log('CANVAS is same??', rendererRef.current.domElement === canvasRef.current);
+            }
+            const renderer = rendererRef.current;
+
             renderer.setSize(window.innerWidth, window.innerHeight);
-            //document.body.appendChild(renderer.domElement);
             renderer.domElement.style.position = "fixed";
             renderer.domElement.style.width = "100vw";
             renderer.domElement.style.height = "100vh";
@@ -241,6 +339,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
             renderer.domElement.style.left = "0";
             renderer.domElement.style.margin = "0";
             renderer.domElement.style.padding = "0";
+
             scene.add(camera);
 
             if (_DEBUG) {
@@ -250,6 +349,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
 
             scene.add(anchor);
             anchor.position.set(0, 0, 0);
+            anchor.scale.setScalar(1);
 
             // scene.add(new AxesHelper(2));
             // const gh = new GridHelper(2);
@@ -265,7 +365,7 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                     videoFilePath: mediaItem.audioUrl,
                     manifestFilePath: mediaItem.manifestUrl,
                     onMeshBuffering: (progress) => {
-                        console.warn('BUFFERING!!', progress);
+                        // console.warn('BUFFERING!!', progress);
                         // setBufferingProgress(Math.round(progress * 100));
                         // setIsBuffering(true);
                     },
@@ -274,6 +374,8 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                     }
                     // video: document.getElementById("video")
                 });
+                //const video = playerRef.current.video as HTMLMediaElement;
+                //video.muted = true;
             }
 
             requestAnimationFrame(raf);
@@ -285,111 +387,127 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                 setContentHidden();
             }).catch(error => console.log(error.message));
 
-            if(statusXR === false) {
-                // @ts-ignore
-                XRPlugin.addListener('poseDataReceived', (data: any) => {
+            // @ts-ignore
+            XRPlugin.addListener('poseDataReceived', (data: any) => {
+                const camera = cameraRef.current;
+                const anchor = anchorRef.current;
 
+                const {
+                    cameraPositionX,
+                    cameraPositionY,
+                    cameraPositionZ,
+                    cameraRotationX,
+                    cameraRotationY,
+                    cameraRotationZ,
+                    cameraRotationW,
+                } = data;
+
+                // setCameraPoseState(JSON.stringify({
+                //     cameraPositionX,
+                //     cameraPositionY,
+                //     cameraPositionZ,
+                //     cameraRotationX,
+                //     cameraRotationY,
+                //     cameraRotationZ,
+                //     cameraRotationW
+                // }));
+
+                camera.quaternion
+                  .set(cameraRotationX, cameraRotationY, cameraRotationZ, cameraRotationW)
+                  .multiply(correctionQuaternionZ);
+                camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
+
+                camera.updateProjectionMatrix();
+
+                if (_DEBUG) {// sync cams
+                    debugCamera.overview?.lookAt(camera.position);
+                    if (debugCamera.xz) {
+                        debugCamera.xz.position.x = camera.position.x;
+                        debugCamera.xz.position.z = camera.position.z;
+                    }
+                    if (debugCamera.xy) {
+                        debugCamera.xy.position.x = camera.position.x;
+                        debugCamera.xy.position.y = camera.position.y;
+                    }
+                    if (debugCamera.zy) {
+                        debugCamera.zy.position.z = camera.position.z;
+                        debugCamera.zy.position.y = camera.position.y;
+                    }
+                }// sync cams
+
+
+                if (data.placed) {
                     const {
-                        cameraPositionX,
-                        cameraPositionY,
-                        cameraPositionZ,
-                        cameraRotationX,
-                        cameraRotationY,
-                        cameraRotationZ,
-                        cameraRotationW,
+                        anchorPositionX,
+                        anchorPositionY,
+                        anchorPositionZ,
+                        anchorRotationX,
+                        anchorRotationY,
+                        anchorRotationZ,
+                        anchorRotationW
                     } = data;
 
-                    // TODO:
-                    // Set camera position and rotation
-                    // Enable cube and move to position/rotation if placed is true
-                    setCameraPoseState(JSON.stringify({
-                        cameraPositionX,
-                        cameraPositionY,
-                        cameraPositionZ,
-                        cameraRotationX,
-                        cameraRotationY,
-                        cameraRotationZ,
-                        cameraRotationW
-                    }));
+                    const newAnchorTransformString = JSON.stringify([
+                        anchorPositionX,
+                        anchorPositionY,
+                        anchorPositionZ,
+                        anchorRotationX,
+                        anchorRotationY,
+                        anchorRotationZ,
+                        anchorRotationW
+                    ]);
+                    setAnchorPoseState(newAnchorTransformString);
 
-                    camera.quaternion
-                      .set(cameraRotationX, cameraRotationY, cameraRotationZ, cameraRotationW)
-                      .multiply(correctionQuaternionZ);
-                    camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
+                    anchor.quaternion
+                      .set(anchorRotationX, anchorRotationY, anchorRotationZ, anchorRotationW);
+                    anchor.position.set(anchorPositionX, anchorPositionY, anchorPositionZ);
 
-                    camera.updateProjectionMatrix();
+                    if (!anchor.visible) {
+                        console.log('SET ANCHOR VISIBLE!');
+                        // console.log('player = ', playerRef.current);
+                        anchor.visible = true;
 
-                    if (_DEBUG) {// sync cams
-                        debugCamera.overview?.lookAt(camera.position);
-                        if (debugCamera.xz) {
-                            debugCamera.xz.position.x = camera.position.x;
-                            debugCamera.xz.position.z = camera.position.z;
+                        if (!feedHintsOnborded)
+                        {
+                            setTimeout(()=> {
+                                hintTwoShow(true);
+                                setFeedHintsOnborded(true);
+                            },1000);
                         }
-                        if (debugCamera.xy) {
-                            debugCamera.xy.position.x = camera.position.x;
-                            debugCamera.xy.position.y = camera.position.y;
-                        }
-                        if (debugCamera.zy) {
-                            debugCamera.zy.position.z = camera.position.z;
-                            debugCamera.zy.position.y = camera.position.y;
-                        }
-                    }// sync cams
-
-
-                    if (data.placed) {
-                        const {
-                            anchorPositionX,
-                            anchorPositionY,
-                            anchorPositionZ,
-                            anchorRotationX,
-                            anchorRotationY,
-                            anchorRotationZ,
-                            anchorRotationW
-                        } = data;
-
-                        setAnchorPoseState(JSON.stringify({
-                            anchorPositionX,
-                            anchorPositionY,
-                            anchorPositionZ,
-                            anchorRotationX,
-                            anchorRotationY,
-                            anchorRotationZ,
-                            anchorRotationW
-                        }));
-
-                        anchor.quaternion
-                          .set(anchorRotationX, anchorRotationY, anchorRotationZ, anchorRotationW)
-                          .multiply(correctionQuaternionZ);
-                        // TODO: remove -1.5 when anchor will be placed on ground
-                        anchor.position.set(anchorPositionX, anchorPositionY - 1.5, anchorPositionZ);
                     }
+                    // TODO: add volumetric isPlaying property
+                    // if (playerRef.current) {
+                        // console.log('player play!', data);
+                        // playerRef.current.mesh.visible = true;
+                        // if ((playerRef.current.video as HTMLMediaElement).paused) {
+                        //     playerRef.current.play();
+                        // }
+                    // }
+                }
 
-                });
+            });
 
-                // @ts-ignore
-                XRPlugin.addListener('cameraIntrinsicsReceived', (data: any) => {
+            // @ts-ignore
+            XRPlugin.addListener('cameraIntrinsicsReceived', (data: any) => {
 
-                    setCameraIntrinsicsState(JSON.stringify({
-                        fX: data.fX,
-                        fY: data.fY,
-                        cX: data.cX,
-                        cY: data.cy,
-                        x: data.x,
-                        y: data.y
-                    }));
+                setCameraIntrinsicsState(JSON.stringify({
+                    fX: data.fX,
+                    fY: data.fY,
+                    cX: data.cX,
+                    cY: data.cy,
+                    x: data.x,
+                    y: data.y
+                }));
 
-                    // TODO: checkout focal length
-                    // camera.setFocalLength(data.fY/10);
-                    // camera.setFocalLength(50);
+                // TODO: checkout focal length
+                // camera.setFocalLength(data.fY/10);
+                // camera.setFocalLength(50);
 
-                    // TODO:
-                    // Set camera position and rotation
-                    // Enable cube and move to position/rotation if placed is true
-                });
-                statusXR = true;
-            }
+                // TODO:
+                // Set camera position and rotation
+                // Enable cube and move to position/rotation if placed is true
+            });
 
-            // await window.screen.orientation.lock('portrait');
             XRPlugin.start({}).then(() => {
                 setCameraStartedState(isNative ? "Camera started on native" : "Camera started on web");
             }).catch(error => console.log(error.message));
@@ -397,22 +515,42 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
     }, [mediaItemId]);
 
     let finishRecord = () => {
-        if (recordingState === RecordingStates.ON) {
+        console.log('finishRecord recordingState:', recordingState);
+        if (recordingStateRef.current === RecordingStates.ON) {
             console.log('finishRecord');
+            console.log('mediaItemRef.current.audioId', mediaItemRef.current);
+            console.log('closeBtnAction', closeBtnAction);
+            console.log('VIDEO DELAY',videoDelay);
+            const clipTitle = mediaItemRef.current.title.replace(/ /gi, '_');
+            const clipTime = new Date().toLocaleTimeString().replace(/[\:\ ]/gi,'_');
+            console.log(clipTime);
+            console.log(clipTitle);
 
             // @ts-ignore
-            Plugins.XRPlugin.stopRecording({audioId: mediaItem.audioId}).
+            Plugins.XRPlugin.stopRecording({
+                audioId: mediaItemRef.current.audioId,
+                videoDelay: videoDelay,
+                clipTitle: clipTitle,
+                clipTime: clipTime
+            }).
               // @ts-ignore
               then(({ result, filePath }) => {
                   console.log("END RECORDING, result IS", result);
                   console.log("filePath IS", filePath);
+                  setLastFeedVideoUrl(filePath);
+                  getArMediaItem(null);
                   setSavedFilePath("file://" + filePath);
-                  const videoPath = Capacitor.convertFileSrc(filePath);
-                  updateNewFeedPageState(true, videoPath);
+                  if(!closeBtnAction.current){
+                      const videoPath = Capacitor.convertFileSrc(filePath);
+                      updateNewFeedPageState(true, videoPath);
+                  }
                   setRecordingState(RecordingStates.OFF);
                   updateWebXRState(false, null);
 
-
+                  // if (playerRef.current) {
+                  //     const video = playerRef.current.video as HTMLMediaElement;
+                  //     video.muted = true;
+                  // }
                   // setContentHidden();
               }).catch(error => alert(error.message));
         }else{
@@ -421,27 +559,45 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
 
     };
 
+    function msToTime(ms)
+ {
+    let seconds = (ms / 1000).toFixed(1);
+     return seconds;
+}
+
     const startRecord = () => {
-        if (window.confirm("Double click to finish the record.")) {
-            setRecordingState(RecordingStates.ON);
-            //TODO: check why there are errors
-            // @ts-ignore
-            Plugins.XRPlugin.startRecording({
-                isAudio: true,
-                width: screenWidth,
-                height: screenHeigth,
-                bitRate: 6000000,
-                dpi: 100,
-                filePath: "/test.mp4"
-            }).then(({ status }) => {
-                    console.log("RECORDING, STATUS IS", status);
-            }).catch(error => {
-                alert(error.message);
-                setRecordingState(RecordingStates.OFF);
-            });
-        }else{
-            recordingState === RecordingStates.ON && setRecordingState(RecordingStates.OFF);
+        if (!window.confirm("Double click to finish the record.")) {
+            return;
         }
+        setRecordingState(RecordingStates.STARTING);
+        const start = new Date();
+        const screenHeight = Math.floor(screen.height/2)*2;
+        const screenWidth = Math.floor(screen.width/2)*2;
+
+        //TODO: check why there are errors
+        // @ts-ignore
+        Plugins.XRPlugin.startRecording({
+            isAudio: true,
+            width: screenWidth,
+            height: screenHeight,
+            bitRate: 6000000,
+            dpi: 100,
+            filePath: "/test.mp4"
+        }).then(({ status }) => {
+            console.log("RECORDING, STATUS IS", status);
+            if (playerRef.current) {
+                // const video = playerRef.current.video as HTMLMediaElement;
+                // video.muted = false;
+                console.log('Player.play()!');
+                playerRef.current.play();
+                const end = new Date();
+                setVideoDelay(parseFloat(msToTime(end.getTime() - start.getTime())));
+            }
+            setRecordingState(RecordingStates.ON);
+        }).catch(error => {
+            alert(error.message);
+            setRecordingState(RecordingStates.OFF);
+        });
     };
 
     const toggleRecording = () => {
@@ -453,12 +609,18 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
         }
     };
 
-    const handleTap = () => {
-        if (recordingState === RecordingStates.OFF)
+    const handleTap = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        if (recordingState !== RecordingStates.OFF)
         {
-        Plugins.XRPlugin.handleTap();
-        playerRef.current?.play();
+            return;
         }
+        const params = {
+            x: e.clientX * window.devicePixelRatio,
+            y: e.clientY * window.devicePixelRatio
+        };
+
+        // @ts-ignore
+        Plugins.XRPlugin.handleTap(params);
     };
 
     const playVideo = () => {
@@ -486,7 +648,6 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
     //     setSecondState("Initialized and effected");
     // }, [initializationResponse]);
 
-
     return (<>
         {/* <div className="plugintest">
             <div className="plugintestReadout">
@@ -497,7 +658,8 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
                 <p>APS:{anchorPoseState}</p>
             </div>
         </div> */}
-
+         {hintOne ? <HintOne hintOneShow={hintOneShow} /> : ''}
+         {hintTwo ? <HintTwo hintTwoShow={hintTwoShow} /> : ''}
          <div className="plugintestControls">
             <div className={recordingState === RecordingStates.OFF ? '' : styles.hideButtons}>
               <section className={styles.waterMarkWrapper}>
@@ -524,12 +686,13 @@ export const WebXRPlugin = ({popupsState, arMediaState, getArMediaItem, updateNe
               */}
             </div>
           </div>
-          <canvas ref={canvasRef} className={styles.arcCanvas} id={'arcCanvas'} onClick={() => handleTap()} onDoubleClick={finishRecord} />
-        {/* <VolumetricPlayer
-                        meshFilePath={meshFilePath}
-                        videoFilePath={videoFilePath}
-                        cameraVerticalOffset={0.5}
-                    /> */}
+          <canvas
+              ref={canvasRef}
+              className={styles.arcCanvas}
+              id={'arcCanvas'}
+              onClick={(e) => handleTap(e)}
+              onDoubleClick={finishRecord}
+          />
     </>
     );
 };

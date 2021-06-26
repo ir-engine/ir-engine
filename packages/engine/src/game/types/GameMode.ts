@@ -27,8 +27,10 @@ export interface InitStorageInterface {
 export interface GameMode {
   name: string
   priority: number
+  preparePlayersRole?: (gameRules: GameMode, maxPlayerCount: any) => void
   onGameLoading?: (gameEntity: Entity) => void
   onGameStart?: (gameEntity: Entity) => void
+  beforePlayerLeave?: (gameEntity: Entity) => void
   onPlayerLeave?: (gameEntity: Entity, playerComponent, game) => void
   registerActionTagComponents: ComponentConstructor<Component<any>>[]
   registerStateTagComponents: ComponentConstructor<Component<any>>[]

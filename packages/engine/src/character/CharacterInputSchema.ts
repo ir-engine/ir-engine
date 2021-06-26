@@ -4,7 +4,7 @@ import { Entity } from '../ecs/classes/Entity';
 import { getComponent } from '../ecs/functions/EntityFunctions';
 import { Input } from '../input/components/Input';
 import { BaseInput } from '../input/enums/BaseInput';
-import { Material, Mesh, Object3D } from "three";
+import { Material, Mesh, Quaternion, Vector3 } from "three";
 import { SkinnedMesh } from 'three/src/objects/SkinnedMesh';
 import { CameraModes } from "../camera/types/CameraModes";
 import { LifecycleValue } from "../common/enums/LifecycleValue";
@@ -21,18 +21,13 @@ import { interactOnServer } from '../interaction/systems/InteractiveSystem';
 import { CharacterComponent } from "./components/CharacterComponent";
 import { isClient } from "../common/functions/isClient";
 import { VehicleComponent } from '../vehicle/components/VehicleComponent';
-import { isMobileOrTablet } from '../common/functions/isMobile';
-import { SIXDOFType } from '../common/types/NumericalTypes';
-import { IKComponent } from './components/IKComponent';
+import { isMobile } from '../common/functions/isMobile';
 import { EquipperComponent } from '../interaction/components/EquipperComponent';
-import { unequipEntity } from '../interaction/functions/equippableFunctions';
 import { TransformComponent } from '../transform/components/TransformComponent';
 import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings';
 import { BinaryValue } from '../common/enums/BinaryValue';
 import { ParityValue } from '../common/enums/ParityValue';
-import { getInteractiveIsInReachDistance } from './functions/getInteractiveIsInReachDistance';
-import { initiateIK } from '../xr/functions/IKFunctions';
-import { IKRigComponent } from './components/IKRigComponent';
+import { XRInputSourceComponent } from './components/XRInputSourceComponent';
 
 /**
  *
@@ -140,10 +135,12 @@ const switchShoulderSide: Behavior = (entity: Entity, args: any, detla: number )
   }
 };
 
-const setVisible = (character: CharacterComponent, visible: boolean): void => {
-  if(character.visible !== visible) {
-    character.visible = visible;
-    character.tiltContainer.traverse((obj) => {
+const setVisible = (entity: Entity, visible: boolean): void => {
+  const actor = getMutableComponent(entity, CharacterComponent);
+  const object3DComponent = getComponent(entity, Object3DComponent);
+  if(actor.visible !== visible) {
+    actor.visible = visible;
+    object3DComponent.value.traverse((obj) => {
       const mat = (obj as SkinnedMesh).material;
       if(mat) {
         (mat as Material).visible = visible;
@@ -164,29 +161,29 @@ const switchCameraMode = (entity: Entity, args: any = { pointerLock: false, mode
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 
   const cameraFollow = getMutableComponent(entity, FollowCameraComponent);
-  cameraFollow.mode = args.mode
+  cameraFollow.mode = args.mode;
 
   switch(args.mode) {
     case CameraModes.FirstPerson: {
       cameraFollow.offset.set(0, 1, 0);
       cameraFollow.phi = 0;
       cameraFollow.locked = true;
-      setVisible(actor, false);
+      setVisible(entity, false);
     } break;
 
     case CameraModes.ShoulderCam: {
       cameraFollow.offset.set(cameraFollow.shoulderSide ? -0.25 : 0.25, 1, 0);
-      setVisible(actor, true);
+      setVisible(entity, true);
     } break;
 
     default: case CameraModes.ThirdPerson: {
       cameraFollow.offset.set(cameraFollow.shoulderSide ? -0.25 : 0.25, 1, 0);
-      setVisible(actor, true);
+      setVisible(entity, true);
     } break;
 
     case CameraModes.TopDown: {
       cameraFollow.offset.set(0, 1, 0);
-      setVisible(actor, true);
+      setVisible(entity, true);
     } break;
   }
 };
@@ -209,7 +206,7 @@ const changeCameraDistanceByDelta: Behavior = (entity: Entity, { input:inputAxes
   const inputPrevValue = inputComponent.prevData.get(inputAxes)?.value as number ?? 0;
   const inputValue = inputComponent.data.get(inputAxes).value as number;
 
-  const delta = Math.min(1, Math.max(-1, inputValue - inputPrevValue)) * (isMobileOrTablet() ? 0.25 : 1);
+  const delta = Math.min(1, Math.max(-1, inputValue - inputPrevValue)) * (isMobile ? 0.25 : 1);
   if(cameraFollow.mode !== CameraModes.ThirdPerson && delta === lastScrollDelta) {
     return
   }
@@ -318,7 +315,6 @@ const moveByInputAxis: Behavior = (
   if (data.type === InputType.TWODIM) {
     actor.localMovementDirection.z = data.value[0];
     actor.localMovementDirection.x = data.value[1];
-    actor.changedViewAngle = changedDirection(data.value[2]);
   } else if (data.type === InputType.THREEDIM) {
     // TODO: check if this mapping correct
     actor.localMovementDirection.z = data.value[2];
@@ -327,7 +323,8 @@ const moveByInputAxis: Behavior = (
 };
 const setWalking: Behavior = (entity, args: { value: number }): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-  actor.moveSpeed = args.value === BinaryValue.ON ? actor.walkSpeed : actor.runSpeed;
+  actor.isWalking = args.value === BinaryValue.ON;
+  actor.moveSpeed = actor.isWalking ? actor.walkSpeed : actor.runSpeed;
 };
 
 const setLocalMovementDirection: Behavior = (entity, args: { z?: number; x?: number; y?: number }): void => {
@@ -351,20 +348,17 @@ const moveFromXRInputs: Behavior = (entity, args): void => {
   actor.localMovementDirection.normalize();
 };
 
-const diffDamping = 0.2;
 let switchChangedToZero = true;
-const xrLookMultiplier = 0.1;
+const deg2rad = Math.PI / 180;
+const quat = new Quaternion();
+const upVec = new Vector3(0, 1, 0);
 
 const lookFromXRInputs: Behavior = (entity, args): void => {
-  if (!isClient) return; // we only set viewVector here, which is sent to the server
-  const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const input = getComponent<Input>(entity, Input as any);
   const values = input.data.get(BaseInput.XR_LOOK)?.value;
-  const rotationAngle = XRUserSettings.rotationAngle * diffDamping;
+  const rotationAngle = XRUserSettings.rotationAngle;
   let newAngleDiff = 0;
-  //console.warn(values[0]);
   switch (XRUserSettings.rotation) {
-
     case XR_ROTATION_MODE.ANGLED:
       if(switchChangedToZero && values[0] != 0) {
         const plus = XRUserSettings.rotationInvertAxes ? -1 : 1;
@@ -380,19 +374,13 @@ const lookFromXRInputs: Behavior = (entity, args): void => {
         newAngleDiff = 0;
       }
       break;
-
     case XR_ROTATION_MODE.SMOOTH:
       newAngleDiff = (values[0] * XRUserSettings.rotationSmoothSpeed) * (XRUserSettings.rotationInvertAxes ? -1 : 1);
       break;
   }
-  input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
-    type: InputType.TWODIM,
-    value: [
-      newAngleDiff * xrLookMultiplier,
-      0 // data.value[1] * multiplier
-    ],
-    lifecycleState: LifecycleValue.STARTED
-  });
+  const transform = getComponent(entity, TransformComponent);
+  quat.setFromAxisAngle(upVec, newAngleDiff * deg2rad);
+  transform.rotation.multiply(quat);
 };
 
 
@@ -439,38 +427,6 @@ const lookByInputAxis = (
         lifecycleState: LifecycleValue.CHANGED
       });
     }
-  }
-}
-
-const updateIKRig: Behavior = (entity, args): void => {
-
-  const avatarIK = getMutableComponent(entity, IKRigComponent);
-  if(!avatarIK || !avatarIK.avatarIKRig) return;
-  
-  const inputs = getMutableComponent(entity, Input);
-  const obj3d = getComponent(entity, Object3DComponent).value as Object3D;
-
-  if(args.type === BaseInput.XR_HEAD) {
-
-    const cam = inputs.data.get(BaseInput.XR_HEAD).value as SIXDOFType;
-    avatarIK.avatarIKRig.inputs.hmd.position.set(cam.x, cam.y, cam.z).sub(obj3d.position); // in world space, sub entity pos to get local pos
-    avatarIK.avatarIKRig.inputs.hmd.quaternion.set(cam.qX, cam.qY, cam.qZ, cam.qW)
-    // avatarIK.avatarIKRig.inputs.hmd.rotateY(Math.PI / 2)
-
-  } else if(args.type === BaseInput.XR_LEFT_HAND) {
-
-    const left = inputs.data.get(BaseInput.XR_LEFT_HAND).value as SIXDOFType;
-    avatarIK.avatarIKRig.inputs.leftGamepad.position.set(left.x, left.y, left.z);
-    avatarIK.avatarIKRig.inputs.leftGamepad.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
-    // avatar.inputs.leftGamepad.pointer = ; // for finger animation
-    // avatar.inputs.leftGamepad.grip = ;
-
-  } else if(args.type === BaseInput.XR_RIGHT_HAND) {
-
-    const right = inputs.data.get(BaseInput.XR_RIGHT_HAND).value as SIXDOFType;
-    avatarIK.avatarIKRig.inputs.rightGamepad.position.set(right.x, right.y, right.z);
-    avatarIK.avatarIKRig.inputs.rightGamepad.quaternion.set( right.qX, right.qY, right.qZ, right.qW);
-
   }
 }
 
@@ -926,29 +882,5 @@ export const CharacterInputSchema: InputSchema = {
         },
       ],
     },
-    [BaseInput.XR_HEAD]: {
-      changed: [
-        {
-          behavior: updateIKRig,
-          args: { type: BaseInput.XR_HEAD }
-        },
-      ],
-    },
-    [BaseInput.XR_LEFT_HAND]: {
-      changed: [
-        {
-          behavior: updateIKRig,
-          args: { type: BaseInput.XR_LEFT_HAND }
-        },
-      ],
-    },
-    [BaseInput.XR_RIGHT_HAND]: {
-      changed: [
-        {
-          behavior: updateIKRig,
-          args: { type: BaseInput.XR_RIGHT_HAND }
-        },
-      ],
-    }
   }
 }

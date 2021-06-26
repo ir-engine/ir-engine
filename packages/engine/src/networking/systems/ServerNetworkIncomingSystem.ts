@@ -1,7 +1,7 @@
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
-import { NumericalType } from '../../common/types/NumericalTypes';
+import { NumericalType, SIXDOFType } from '../../common/types/NumericalTypes';
 import { System } from '../../ecs/classes/System';
-import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { DelegatedInputReceiver } from '../../input/components/DelegatedInputReceiver';
 import { Input } from '../../input/components/Input';
@@ -18,11 +18,11 @@ import { ClientInputModel } from '../schema/clientInputSchema';
 import { WorldStateModel } from '../schema/worldStateSchema';
 import { GamePlayer } from '../../game/components/GamePlayer';
 import { sendState } from '../../game/functions/functionsState';
-import { StateEntity } from '../types/SnapshotDataTypes';
-import { ColliderComponent } from '../../physics/components/ColliderComponent';
 import { getGameFromName } from '../../game/functions/functions';
-import { initiateIK } from '../../xr/functions/IKFunctions';
-import { IKComponent } from '../../character/components/IKComponent';
+import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent';
+import { BaseInput } from '../../input/enums/BaseInput';
+import { Quaternion } from 'three';
+import { executeCommnads } from '../functions/executeCommands';
 
 
 export function cancelAllInputs(entity) {
@@ -30,6 +30,8 @@ export function cancelAllInputs(entity) {
     value.lifecycleState = LifecycleValue.ENDED;
   })
 }
+
+const q = new Quaternion()
 
 /** System class to handle incoming messages. */
 export class ServerNetworkIncomingSystem extends System {
@@ -95,11 +97,14 @@ export class ServerNetworkIncomingSystem extends System {
       // Add handlers to game state schema, valid requests should get added to the GameStateActions queue on the server
 
       if (Network.instance.networkObjects[clientInput.networkId] === undefined) {
-        console.error('Network object not found for networkId', clientInput.networkId);
+        // console.error('Network object not found for networkId', clientInput.networkId);
         return;
       }
 
+      const delegatedInputReceiver = getComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, DelegatedInputReceiver);
+      const inputClientNetworkId = delegatedInputReceiver ? delegatedInputReceiver.networkId : clientInput.networkId;
       const entity = Network.instance.networkObjects[clientInput.networkId].component.entity;
+      const entityInputReceiver = Network.instance.networkObjects[inputClientNetworkId].component.entity;
 
       if (clientInput.clientGameAction.length > 0) {
         clientInput.clientGameAction.forEach(action => {
@@ -111,7 +116,11 @@ export class ServerNetworkIncomingSystem extends System {
         })
       }
 
-      const actor = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, CharacterComponent);
+      if (clientInput.commands.length > 0) {
+        executeCommnads(entity, clientInput.commands);
+      }
+
+      const actor = getMutableComponent(entity, CharacterComponent);
 
       if (actor) {
         actor.viewVector.set(
@@ -124,18 +133,16 @@ export class ServerNetworkIncomingSystem extends System {
         console.log('input but no actor...', clientInput.networkId)
       }
 
-      const userNetworkObject = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, NetworkObject);
+      const userNetworkObject = getMutableComponent(entity, NetworkObject);
       if (userNetworkObject != null) {
         userNetworkObject.snapShotTime = clientInput.snapShotTime;
         if (userNetworkObject.snapShotTime > clientInput.snapShotTime) return;
       }
-      const delegatedInputReceiver = getComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, DelegatedInputReceiver);
 
-      const inputClientNetworkId = delegatedInputReceiver ? delegatedInputReceiver.networkId : clientInput.networkId;
       // this snapShotTime which will be sent bac k to the client, so that he knows exactly what inputs led to the change and when it was.
 
       // Get input component
-      const input = getMutableComponent(Network.instance.networkObjects[inputClientNetworkId].component.entity, Input);
+      const input = getMutableComponent(entityInputReceiver, Input);
       if (!input) {
         return;
       }
@@ -169,10 +176,6 @@ export class ServerNetworkIncomingSystem extends System {
             lifecycleState: clientInput.axes2d[i].lifecycleState
           });
 
-      if(!hasComponent(entity, IKComponent) && clientInput.axes6DOF.length) {
-        initiateIK(entity)
-      }
-
       // Axis 6DOF input
       for (let i = 0; i < clientInput.axes6DOF.length; i++) {
         input.data.set(clientInput.axes6DOF[i].input,
@@ -183,7 +186,11 @@ export class ServerNetworkIncomingSystem extends System {
           });
       }
 
-      handleInputFromNonLocalClients(Network.instance.networkObjects[clientInput.networkId].component.entity, { isLocal: false, isServer: true }, delta);
+      if(clientInput.axes6DOF.length && !hasComponent(entity, XRInputSourceComponent)) {
+        addComponent(entity, XRInputSourceComponent);
+      }      
+
+      handleInputFromNonLocalClients(entity, undefined, delta);
     }
 
     // Apply input for local user input onto client
@@ -242,6 +249,28 @@ export class ServerNetworkIncomingSystem extends System {
     this.queryResults.delegatedInputRouting.removed?.forEach((entity) => {
       cancelAllInputs(entity)
     })
+
+
+    // Handle server input from client
+    this.queryResults.networkClientInputXR.all?.forEach((entity) => {
+      const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent);
+      
+      const inputs = getMutableComponent(entity, Input);
+
+      const head = inputs.data.get(BaseInput.XR_HEAD).value as SIXDOFType;
+      const left = inputs.data.get(BaseInput.XR_LEFT_HAND).value as SIXDOFType;
+      const right = inputs.data.get(BaseInput.XR_RIGHT_HAND).value as SIXDOFType;
+
+      xrInputSourceComponent.head.position.set(head.x, head.y, head.z);
+      xrInputSourceComponent.head.quaternion.set(head.qX, head.qY, head.qZ, head.qW);
+
+      xrInputSourceComponent.controllerLeft.position.set(left.x, left.y, left.z);
+      xrInputSourceComponent.controllerLeft.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
+
+      xrInputSourceComponent.controllerRight.position.set(right.x, right.y, right.z);
+      xrInputSourceComponent.controllerRight.quaternion.set(right.qX, right.qY, right.qZ, right.qW);
+
+    })
   }
 
   /** Queries of the system. */
@@ -255,6 +284,13 @@ export class ServerNetworkIncomingSystem extends System {
     },
     networkObjectsWithInput: {
       components: [NetworkObject, Input],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    networkClientInputXR: {
+      components: [Input, XRInputSourceComponent], 
       listen: {
         added: true,
         removed: true

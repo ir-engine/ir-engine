@@ -10,6 +10,8 @@ import { createDataProducer, endVideoChat, initReceiveTransport, initSendTranspo
 import { EngineEvents } from "@xrengine/engine/src/ecs/classes/EngineEvents";
 import { ClientNetworkSystem } from "@xrengine/engine/src/networking/systems/ClientNetworkSystem";
 import { WorldStateModel } from "@xrengine/engine/src/networking/schema/worldStateSchema";
+import { closeConsumer } from "./SocketWebRTCClientFunctions";
+import {triggerUpdateNearbyLayerUsers} from "../reducers/mediastream/service";
 
 export class SocketWebRTCClientTransport implements NetworkTransport {
 
@@ -17,6 +19,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE: 'CORE_PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE',
     PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE: 'CORE_PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE',
     INSTANCE_DISCONNECTED: 'CORE_INSTANCE_DISCONNECTED',
+    INSTANCE_KICKED: 'CORE_INSTANCE_KICKED',
     INSTANCE_RECONNECTED: 'CORE_INSTANCE_RECONNECTED',
     CHANNEL_DISCONNECTED: 'CORE_CHANNEL_DISCONNECTED',
     CHANNEL_RECONNECTED: 'CORE_CHANNEL_RECONNECTED'
@@ -24,6 +27,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
 
   mediasoupDevice: mediasoupClient.Device
   leaving = false
+  left = false
   instanceRecvTransport: MediaSoupTransport
   instanceSendTransport: MediaSoupTransport
   channelRecvTransport: MediaSoupTransport
@@ -209,12 +213,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         if ((socket as any).instance === true) await endVideoChat({ endConsumers: true });
       });
 
-      socket.on(MessageTypes.Kick.toString(), async () => {
+      socket.on(MessageTypes.Kick.toString(), async (message) => {
         // console.log("TODO: SNACKBAR HERE");
         clearInterval(heartbeat);
         await endVideoChat({ endConsumers: true });
-        await leave((socket as any).instance === true);
-        socket.close();
+        await leave((socket as any).instance === true, true);
+        EngineEvents.instance.dispatchEvent({ type: SocketWebRTCClientTransport.EVENTS.INSTANCE_KICKED, message: message });
         console.log("Client has been kicked from the world");
       });
 
@@ -280,6 +284,12 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         this.reconnecting = true;
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.RESET_ENGINE, instance: (socket as any).instance });
       });
+
+      EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.UPDATE_NEARBY_LAYER_USERS, async () => {
+        await request(MessageTypes.WebRTCRequestCurrentProducers.toString(), { channelType: 'instance'});
+        triggerUpdateNearbyLayerUsers();
+      });
+      EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.CLOSE_CONSUMER, consumer => { console.log('closeConsumer', consumer); closeConsumer(consumer.consumer);});
     });
   }
 }

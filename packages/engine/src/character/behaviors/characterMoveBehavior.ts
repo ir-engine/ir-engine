@@ -1,16 +1,10 @@
 import { Vector3, Matrix4, Quaternion } from 'three';
-
 import { Entity } from '../../ecs/classes/Entity';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-
-import { Input } from '../../input/components/Input';
-import { BaseInput } from '../../input/enums/BaseInput';
-
 import { ControllerColliderComponent } from '../components/ControllerColliderComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
-import { isInXR } from '../../xr/functions/WebXRFunctions';
-import { SIXDOFType } from '../../common/types/NumericalTypes';
+import { XRInputSourceComponent } from '../components/XRInputSourceComponent';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -27,7 +21,7 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const transform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent as any);
   const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
-  if (!actor.initialized || !collider.controller || !actor.movementEnabled) return;
+  if (!collider.controller || !actor.movementEnabled) return;
 
   newVelocity.setScalar(0);
   onGroundVelocity.setScalar(0);
@@ -35,29 +29,27 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   if (actor.isGrounded) {
     collider.controller.velocity.y = 0;
 
-    actor.velocityTarget.copy(actor.localMovementDirection).multiplyScalar(deltaTime);
-    actor.velocitySimulator.target.copy(actor.velocityTarget);
+    vec3.copy(actor.localMovementDirection).multiplyScalar(deltaTime);
+    actor.velocitySimulator.target.copy(vec3);
     actor.velocitySimulator.simulate(deltaTime);
 
     actor.velocity.copy(actor.velocitySimulator.position);
-    newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed * actor.speedMultiplier);
+    newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed);
 
-    if(isInXR(entity)) {
+    const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
+    if(xrInputSourceComponent) {
       // Apply direction from head look
-      const input = getComponent<Input>(entity, Input as any);
-      const headTransform = input.data.get(BaseInput.XR_HEAD);
-      if(!headTransform?.value) return
-      const sixdof = headTransform.value as SIXDOFType;
-      quat.set(sixdof.qX, sixdof.qY, sixdof.qZ, sixdof.qW);
+      xrInputSourceComponent.head.getWorldQuaternion(quat);
+      // console.log(xrInputSourceComponent.head.getWorldPosition(new Vector3()), quat);
       newVelocity.applyQuaternion(quat);
     } else {
       // Apply direction from character orientation
-      newVelocity.applyQuaternion(transform.rotation)
+      newVelocity.applyQuaternion(transform.rotation);
     }
 
-    if (actor.closestHit) {
+    if (collider.closestHit) {
       onGroundVelocity.copy(newVelocity).setY(0);
-      vec3.set(actor.closestHit.normal.x, actor.closestHit.normal.y, actor.closestHit.normal.z);
+      vec3.set(collider.closestHit.normal.x, collider.closestHit.normal.y, collider.closestHit.normal.z);
       quat.setFromUnitVectors(upVector, vec3);
       mat4.makeRotationFromQuaternion(quat);
       onGroundVelocity.applyMatrix4(mat4);

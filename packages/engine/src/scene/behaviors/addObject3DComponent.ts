@@ -59,9 +59,9 @@ import { isClient } from "../../common/functions/isClient";
 /**
  * Add Object3D Component with args into Entity from the Behavior.
  */
-export const addObject3DComponent: Behavior = (
+export const addObject3DComponent: Behavior<{ obj3d: any; objArgs?: any; parentEntity?: Entity }> = (
   entity: Entity,
-  args: { obj3d: any; objArgs?: any; parentEntity?: Entity }
+  args
 ) => {
 
   const isObject3d = typeof args.obj3d === 'object';
@@ -117,9 +117,6 @@ export const addObject3DComponent: Behavior = (
   object3d.traverse((obj) => {
     obj.castShadow = castShadow;
     obj.receiveShadow = receiveshadow;
-    if(isClient) {
-      obj.material && WebGLRendererSystem.instance?.csm?.setupMaterial(obj.material);
-    }
   });
 
   addComponent(entity, Object3DComponent, { value: object3d });

@@ -54,7 +54,7 @@ export const ViewMode = ({updateArMediaState}:Props) => {
   const { t } = useTranslation();
  
   const handleClickOpen = () => {
-    XRPlugin.accessPermission({});
+    (XRPlugin as any).accessPermission({});
     setOpen(true);
   };
 

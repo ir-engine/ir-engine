@@ -1,11 +1,9 @@
-import { AmbientLight, CircleBufferGeometry, Color, HemisphereLight, Mesh, MeshPhongMaterial, MeshStandardMaterial, PointLight, Scene, SpotLight } from 'three';
-// import { LOADER_STATUS } from "../../assets/constants/LoaderConstants";
+import { AmbientLight, DirectionalLight, HemisphereLight, PointLight, SpotLight } from 'three';
 import { isClient } from "../../common/functions/isClient";
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from "../../ecs/classes/Entity";
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
-import { SceneTagComponent } from '../components/Object3DTagComponents';
 import { SceneData } from "../interfaces/SceneData";
 import { SceneDataComponent } from "../interfaces/SceneDataComponent";
 import { addObject3DComponent } from '../behaviors/addObject3DComponent';
@@ -38,7 +36,9 @@ import { CopyTransformComponent } from "../../transform/components/CopyTransform
 import { setReflectionProbe } from '../behaviors/setReflectionProbe';
 import { PersistTagComponent } from '../components/PersistTagComponent';
 import { createPortal } from '../behaviors/createPortal';
-
+import { createGround } from '../behaviors/createGround';
+import { handleRendererSettings } from '../behaviors/handleRendererSettings';
+import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 
 export class WorldScene {
   loadedModels = 0;
@@ -48,12 +48,12 @@ export class WorldScene {
   constructor(private onCompleted?: Function, private onProgress?: Function) { }
 
   loadScene = (scene: SceneData) => {
-    WorldScene.isLoading = true;
+    WorldScene.isLoading = true
+    // reset renderer settings for if we are teleporting and the new scene does not have an override
+    handleRendererSettings();
     Object.keys(scene.entities).forEach(key => {
       const sceneEntity = scene.entities[key];
       const entity = createEntity();
-
-      addComponent(entity, SceneTagComponent);
       entity.name = sceneEntity.name;
 
       sceneEntity.components.forEach(component => {
@@ -76,7 +76,6 @@ export class WorldScene {
     if (typeof this.onProgress === 'function') this.onProgress(this.loaders.length - this.loadedModels);
   }
 
-
   loadComponent = (entity: Entity, component: SceneDataComponent): void => {
     // remove '-1', '-2' etc suffixes
     const name = component.name.replace(/(-\d+)|(\s)/g, "");
@@ -95,24 +94,33 @@ export class WorldScene {
         addComponent(entity, LightTagComponent);
         break;
 
-      // case 'directional-light':
-      //   addObject3DComponent(
-      //     entity,
-      //     {
-      //       obj3d: DirectionalLight,
-      //       objArgs: {
-      //         'shadow.mapSize': component.data.shadowMapResolution,
-      //         'shadow.bias': component.data.shadowBias,
-      //         'shadow.radius': component.data.shadowRadius,
-      //         intensity: component.data.intensity,
-      //         color: component.data.color,
-      //         castShadow: true,
-      //       }
-      //     },
-      //   );
-      //   addComponent(entity, LightTagComponent);
-      //   break;
+      case 'directional-light':
+        if(isClient && WebGLRendererSystem.instance.csm) return console.warn('SCENE LOADING - Custom directional lights are not supported when CSM is enabled.');
+        addObject3DComponent(
+          entity,
+          {
+            obj3d: DirectionalLight,
+            objArgs: {
+              'shadow.mapSize': component.data.shadowMapResolution,
+              'shadow.bias': component.data.shadowBias,
+              'shadow.radius': component.data.shadowRadius,
+              intensity: component.data.intensity,
+              color: component.data.color,
+              castShadow: true,
+            }
+          },
+        );
+        addComponent(entity, LightTagComponent);
+        break;
 
+      case 'hemisphere-light':
+        addObject3DComponent(entity, { obj3d: HemisphereLight, objArgs: component.data });
+        break;
+
+      case 'point-light':
+        addObject3DComponent(entity, { obj3d: PointLight, objArgs: component.data });
+        break;
+  
       case 'collidable':
         // console.warn("'Collidable' is not implemented");
         break;
@@ -120,10 +128,13 @@ export class WorldScene {
       case 'floor-plan':
         break;
 
+      case 'simple-materials':
+        Engine.simpleMaterials = component.data.simpleMaterials;
+        break;
+    
       case 'gltf-model':
         // TODO: get rid of or rename dontParseModel
         if (!isClient && component.data.dontParseModel) return;
-
         this.loaders.push(new Promise<void>(resolve => {
           AssetLoader.load({
             url: component.data.src,
@@ -148,29 +159,7 @@ export class WorldScene {
         break;
 
       case 'ground-plane':
-        const mesh = new Mesh(
-          new CircleBufferGeometry(1000, 32).rotateX(-Math.PI / 2),
-          new MeshStandardMaterial({
-            color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464),
-            roughness:0,
-          })
-        );
-
-        addObject3DComponent(
-          entity,
-          {
-            obj3d: mesh,
-            objArgs: { receiveShadow: true, 'material.color': component.data.color },
-          },
-        );
-        break;
-
-      case 'hemisphere-light':
-        addObject3DComponent(entity, { obj3d: HemisphereLight, objArgs: component.data });
-        break;
-
-      case 'point-light':
-        addObject3DComponent(entity, { obj3d: PointLight, objArgs: component.data });
+        createGround(entity, component.data)
         break;
 
       case 'skybox':
@@ -224,6 +213,10 @@ export class WorldScene {
         handleAudioSettings(entity, component.data);
         break;
 
+      case 'renderer-settings':
+        handleRendererSettings(component.data as any);
+        break;
+      
       case 'spawn-point':
         addComponent(entity, SpawnPointComponent);
         break;

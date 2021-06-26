@@ -75,8 +75,11 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value);
     const handleComposingTextChange = (event: any): void => setComposingText(event.target.value);
     const webxrRecorderActivity = webxrnativeState.get('webxrnative');
+    const lastFeedVideoUrl = feedsState.get('lastFeedVideoUrl');
 
-
+    useEffect(()=>{
+        console.log('videoUrl', lastFeedVideoUrl);
+    }, [lastFeedVideoUrl]);
     const handleCreateFeed = async () => {
         const newFeed = {
             title: composingTitle.trim(),
@@ -124,6 +127,10 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         }
         const blob = new Blob([ab], { type: mimeString });
         return new File([blob], "previewImg.png");
+    };
+
+    const shareVideo = (title: string, path: string) => {
+        XRPlugin.shareMedia({title, path});
     };
 
     useEffect(()=> {
@@ -262,14 +269,25 @@ return <section className={styles.feedFormContainer}>
             </video>
             <div className={styles.buttonWraper}>
                 {readyToPublish &&
-                <Button
+                    <div>
+                        <Button
+                        variant="contained"
+                        className={styles.submit}
+                        onClick={()=>handleCreateFeed()}
+                        >
+    {/*                         {t('social:feedForm.lbl-share')} */}
+                            Add Feed
+                        </Button>
+                    </div>
+                }
+                {!!lastFeedVideoUrl && <Button
                     variant="contained"
                     className={styles.submit}
-                    onClick={()=>handleCreateFeed()}
-                    >
-{/*                         {t('social:feedForm.lbl-share')} */}
-                        Add Feed
-                    </Button>}
+                    onClick={ () => shareVideo('ARC_Perfomance', lastFeedVideoUrl) }
+                >
+                    Share
+                </Button>}
+
                 <Button
                     variant="contained"
                     className={styles.submit}

@@ -4,6 +4,7 @@ import config from '../../appconfig';
 import { StorageProviderInterface } from './storageprovider.interface';
 
 export class S3Provider implements StorageProviderInterface {
+  bucket = config.aws.s3.staticResourceBucket;
   provider: AWS.S3 = new AWS.S3({
     accessKeyId: config.aws.keys.accessKeyId,
     secretAccessKey: config.aws.keys.secretAccessKey,

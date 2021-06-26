@@ -1,9 +1,8 @@
 import { NetworkObject } from '../components/NetworkObject';
 import { createNetworkPlayer } from '../../character/prefabs/NetworkPlayerCharacter';
-import { getComponent, getMutableComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
+import { addComponent, getComponent, getMutableComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions';
 import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { NetworkObjectUpdateSchema } from '../templates/NetworkObjectUpdateSchema';
-import { initiateIK } from "../../xr/functions/IKFunctions";
 import { Network } from '../classes/Network';
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions';
 import { TransformStateInterface, WorldStateInterface } from "../interfaces/WorldState";
@@ -24,8 +23,8 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent';
 import { Engine } from '../../ecs/classes/Engine';
 import { Quaternion, Vector3 } from 'three';
 import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ';
-import { IKRigComponent } from '../../character/components/IKRigComponent';
-import { IKComponent } from '../../character/components/IKComponent';
+import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent';
+
 /**
  * Apply State received over the network to the client.
  * @param worldStateBuffer State of the world received over the network.
@@ -201,6 +200,8 @@ export class ClientNetworkStateSystem extends System {
             Network.instance.networkObjects[objectToCreate.networkId] = Network.instance.networkObjects[Network.instance.localAvatarNetworkId];
             Network.instance.networkObjects[Network.instance.localAvatarNetworkId] = undefined;
             Network.instance.localAvatarNetworkId = objectToCreate.networkId;
+            const newNetworkObjectComponent = Network.instance.networkObjects[objectToCreate.networkId].component;
+            newNetworkObjectComponent.networkId = objectToCreate.networkId;
             console.log('*createObjects* same object but in anotherId ' + objectToCreate.networkId);
             continue;
           } else if (isIdFull) {
@@ -230,8 +231,6 @@ export class ClientNetworkStateSystem extends System {
         syncNetworkObjectsTest(worldState.createObjects)
 
         worldState.editObjects?.forEach((editObject) => {
-          console.warn('try delete');
-          console.warn(editObject);
           NetworkObjectUpdateSchema[editObject.type]?.forEach((element) => {
             element.behavior(editObject);
           })
@@ -275,7 +274,7 @@ export class ClientNetworkStateSystem extends System {
           // Send a request for the ones that didn't
         }
 
-        Network.instance.tick = transformState.tick
+        Network.instance.tick = transformState.tick;
 
         if (transformState.transforms.length) {
           // do our reverse manipulations back from network
@@ -298,12 +297,10 @@ export class ClientNetworkStateSystem extends System {
               transform.qZ = quat.z;
               transform.qW = quat.w;
             }
-          })
-        }
+          });
 
-        if (transformState.transforms.length) {
           const myPlayerTime = transformState.transforms.find(v => v.networkId == Network.instance.localAvatarNetworkId);
-          const newServerSnapshot = createSnapshot(transformState.transforms)
+          const newServerSnapshot = createSnapshot(transformState.transforms);
           // server correction, time when client send inputs
           newServerSnapshot.timeCorrection = myPlayerTime ? (myPlayerTime.snapShotTime + Network.instance.timeSnaphotCorrection) : 0;
           // interpolation, time when server send transforms
@@ -315,22 +312,19 @@ export class ClientNetworkStateSystem extends System {
         transformState.ikTransforms?.forEach((ikTransform: StateEntityIK) => {
           if (!Network.instance.networkObjects[ikTransform.networkId]) return;
           const entity = Network.instance.networkObjects[ikTransform.networkId].component.entity;
-          const actor = getComponent(entity, CharacterComponent);
-          const ikComponent = getMutableComponent(entity, IKComponent);
-          if (!ikComponent) {
-            // initiate IK on this user and then wait until next frame for rig to be created
-            initiateIK(entity)
-            return;
+          // ignore our own transform
+          if(entity === Network.instance.localClientEntity) return;
+          if(!hasComponent(entity, XRInputSourceComponent)) {
+            addComponent(entity, XRInputSourceComponent);
           }
-          const ikRigComponent = getMutableComponent(entity, IKRigComponent);
-          if(!ikRigComponent.avatarIKRig) return;
+          const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
           const { hmd, left, right } = ikTransform;
-          ikRigComponent.avatarIKRig.inputs.hmd.position.set(hmd.x, hmd.y, hmd.z);
-          ikRigComponent.avatarIKRig.inputs.hmd.quaternion.set(hmd.qX, hmd.qY, hmd.qZ, hmd.qW);
-          ikRigComponent.avatarIKRig.inputs.leftGamepad.position.set(left.x, left.y, left.z);
-          ikRigComponent.avatarIKRig.inputs.leftGamepad.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
-          ikRigComponent.avatarIKRig.inputs.rightGamepad.position.set(right.x, right.y, right.z);
-          ikRigComponent.avatarIKRig.inputs.rightGamepad.quaternion.set(right.qX, right.qY, right.qZ, right.qW);
+          xrInputSourceComponent.head.position.set(hmd.x, hmd.y, hmd.z);
+          xrInputSourceComponent.head.quaternion.set(hmd.qX, hmd.qY, hmd.qZ, hmd.qW);
+          xrInputSourceComponent.controllerLeft.position.set(left.x, left.y, left.z);
+          xrInputSourceComponent.controllerLeft.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
+          xrInputSourceComponent.controllerRight.position.set(right.x, right.y, right.z);
+          xrInputSourceComponent.controllerRight.quaternion.set(right.qX, right.qY, right.qZ, right.qW);
         })
       });
     }
@@ -358,6 +352,7 @@ export class ClientNetworkStateSystem extends System {
           axes6DOF: [],
           viewVector: Network.instance.clientInputState.viewVector,
           clientGameAction: getClientGameActions(),// Network.instance.clientGameAction,
+          commands: [],
         }
       });
     }

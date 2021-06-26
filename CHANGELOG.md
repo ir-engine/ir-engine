@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.2.29](https://github.com/barankyle/xr3ngine/compare/v0.2.28...v0.2.29) (2021-06-24)
+
+**Note:** Version bump only for package xrengine
+
+
+
+
+
+## [0.2.28](https://github.com/barankyle/xr3ngine/compare/v0.2.27...v0.2.28) (2021-06-22)
+
+**Note:** Version bump only for package xrengine
+
+
+
+
+
 ## [0.2.27](https://github.com/barankyle/xrengine/compare/v0.2.26...v0.2.27) (2021-05-13)
 
 **Note:** Version bump only for package xrengine

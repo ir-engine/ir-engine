@@ -61,7 +61,6 @@ if (config.gameserver.enabled) {
           }
         })
     );
-    
 
     app.set('paginate', config.server.paginate);
     app.set('authentication', config.authentication);
@@ -95,7 +94,7 @@ if (config.gameserver.enabled) {
     }, (io) => {
       io.use((socket, next) => {
         console.log('GOT SOCKET IO HANDSHAKE', socket.handshake.query);
-        awaitEngineLoaded().then(() =>{ 
+        awaitEngineLoaded().then(() =>{
           (socket as any).feathers.socketQuery = socket.handshake.query;
           (socket as any).socketQuery = socket.handshake.query;
           next();
@@ -143,7 +142,7 @@ if (config.gameserver.enabled) {
       agonesSDK.connect();
       agonesSDK.ready().catch((err) => {
         throw new Error('\x1b[33mError: Agones is not running!. If you are in local development, please run xrengine/scripts/sh start-agones.sh and restart server\x1b[0m');
-      });    
+      });
 
       (app as any).agonesSDK = agonesSDK;
       setInterval(() => agonesSDK.health(), 1000);

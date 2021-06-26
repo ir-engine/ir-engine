@@ -18,6 +18,8 @@ import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { GameMode } from '../types/GameMode';
 import { ColliderComponent } from '../../physics/components/ColliderComponent';
 import { ColliderHitEvent } from 'three-physx';
+import { isClient } from '../../common/functions/isClient';
+import { checkIsGamePredictionStillRight, clearPredictionCheckList } from '../functions/functionsActions';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -44,8 +46,10 @@ function isPlayerInGameArea(entity, gameArea) {
  */
 
 export class GameManagerSystem extends System {
+
   static instance: GameManagerSystem;
   updateType = SystemUpdateType.Fixed;
+
   updateNewPlayersRate: number;
   updateLastTime: number;
   currentGames: Map<string, Game>;
@@ -54,6 +58,10 @@ export class GameManagerSystem extends System {
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     GameManagerSystem.instance = this;
+    this.reset();
+  }
+
+  reset(): void {
     this.updateNewPlayersRate = 60*5;
     this.updateLastTime = 0;
     this.currentGames = new Map<string, Game>();
@@ -62,6 +70,7 @@ export class GameManagerSystem extends System {
 
   dispose(): void {
     super.dispose();
+    this.reset();
   }
 
   execute (delta: number, time: number): void {
@@ -69,6 +78,7 @@ export class GameManagerSystem extends System {
     this.queryResults.game.added?.forEach(entity => {
       const game = getMutableComponent(entity, Game);
       const gameSchema = GamesSchema[game.gameMode] as GameMode;
+      game.maxPlayers ? gameSchema.preparePlayersRole(gameSchema, game.maxPlayers): '';
       game.priority = gameSchema.priority;// DOTO: set its from editor
       initState(game, gameSchema);
       this.gameEntities.push(entity);
@@ -102,7 +112,10 @@ export class GameManagerSystem extends System {
       const gameObjects = game.gameObjects;
       const gamePlayers = game.gamePlayers;
       //const gameState = game.state;
-
+      if (isClient && game.isGlobal && checkIsGamePredictionStillRight()) {
+        clearPredictionCheckList();
+        requireState(game, getComponent(Network.instance.networkObjects[Network.instance.localAvatarNetworkId].component.entity, GamePlayer));
+      }
       // MAIN EXECUTE
       const executeComplexResult = [];
       // its case beter then this.queryResults.gameObject.all, becose its sync execute all role groubs entity, and you not think about behavior do work on haotic case
@@ -233,10 +246,11 @@ export class GameManagerSystem extends System {
         const game = getComponent(entityGame, Game);
         const gamePlayer = getComponent(entity, GamePlayer, true);
         if (gamePlayer === undefined || gamePlayer.gameName != game.name) return;
+        const gameSchema = GamesSchema[game.gameMode];
+        gameSchema.beforePlayerLeave(entity);
         removeEntityFromState(gamePlayer, game);
         clearRemovedEntitysFromGame(game);
         game.gamePlayers[gamePlayer.role] = game.gamePlayers[gamePlayer.role].filter(entityFind => hasComponent(entityFind, GamePlayer))
-        const gameSchema = GamesSchema[game.gameMode];
         gameSchema.onPlayerLeave(entity, gamePlayer, game);
       })
     });

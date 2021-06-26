@@ -3,12 +3,16 @@ import { System, SystemAttributes } from '../../ecs/classes/System';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { localMediaConstraints } from '../constants/VideoConstants';
 import {Network} from "../classes/Network";
+import { isClient } from "../../common/functions/isClient";
+import getNearbyUsers from "../functions/getNearbyUsers";
 
 /** System class for media streaming. */
 export class MediaStreamSystem extends System {
 
   static EVENTS = {
     TRIGGER_UPDATE_CONSUMERS: 'NETWORK_TRANSPORT_EVENT_UPDATE_CONSUMERS',
+    CLOSE_CONSUMER: 'NETWORK_TRANSPORT_EVENT_CLOSE_CONSUMER',
+    UPDATE_NEARBY_LAYER_USERS: 'NETWORK_TRANSPORT_EVENT_UPDATE_NEARBY_LAYER_USERS'
   }
   public static instance = null;
 
@@ -46,6 +50,10 @@ export class MediaStreamSystem extends System {
 
   /** Whether the component is initialized or not. */
   public initialized = false
+
+  private nearbyAvatarTick = 0
+
+  public nearbyLayerUsers = []
 
   updateType = SystemUpdateType.Fixed;
 
@@ -145,6 +153,8 @@ export class MediaStreamSystem extends System {
 
   /** Execute the media stream system. */
   public execute = async (): Promise<void> => {
+    this.nearbyAvatarTick++;
+
     if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && this.executeInProgress === false) {
       this.executeInProgress = true;
       const buffer = Network.instance.mediasoupOperationQueue.pop() as any;
@@ -162,6 +172,20 @@ export class MediaStreamSystem extends System {
       }
       else {
         this.executeInProgress = false;
+      }
+    }
+
+    if (this.nearbyAvatarTick > 100) {
+      this.nearbyAvatarTick = 0;
+      if (isClient) {
+        this.nearbyLayerUsers = getNearbyUsers(Network.instance.userId);
+        const nearbyUserIds = this.nearbyLayerUsers.map(user => user.id);
+        EngineEvents.instance.dispatchEvent({ type: MediaStreamSystem.EVENTS.UPDATE_NEARBY_LAYER_USERS });
+        this.consumers.forEach(consumer => {
+          if (!nearbyUserIds.includes(consumer._appData.peerId)) {
+            EngineEvents.instance.dispatchEvent({ type: MediaStreamSystem.EVENTS.CLOSE_CONSUMER, consumer });
+          }
+        });
       }
     }
   }

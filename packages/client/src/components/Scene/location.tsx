@@ -10,6 +10,7 @@ import UserMenu from '@xrengine/client-core/src/user/components/UserMenu';
 import { GeneralStateList, setAppLoaded, setAppOnBoardingStep, setAppSpecificOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/actions';
 import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector';
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector';
+import { selectDeviceDetectState } from '@xrengine/client-core/src/common/reducers/devicedetect/selector';
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service';
 import { client } from '@xrengine/client-core/src/feathers';
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector';
@@ -27,10 +28,9 @@ import { selectPartyState } from '@xrengine/client-core/src/social/reducers/part
 import MediaIconsBox from "../../components/MediaIconsBox";
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport';
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes';
-import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { processLocationChange, resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
-import { getComponent, getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
+import { addComponent, getComponent, getMutableComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine';
 import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem';
 import { Network } from '@xrengine/engine/src/networking/classes/Network';
@@ -54,14 +54,20 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader';
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
 import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal';
-import { onPlayerSpawnInNewLocation, teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
+import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent';
 import RecordingApp from './../Recorder/RecordingApp';
+import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu';
+import { ControllerColliderComponent } from '@xrengine/engine/src/character/components/ControllerColliderComponent';
+import { InitializeOptions } from '@xrengine/engine/src/initializationOptions';
+import { FollowCameraComponent } from '@xrengine/engine/src/camera/components/FollowCameraComponent';
+import { CameraLayers } from '../../../../engine/src/camera/constants/CameraLayers';
+
 const store = Store.store;
 
 const goHome = () => window.location.href = window.location.origin;
 
-const MobileGamepad = React.lazy(() => import("@xrengine/client-core/src/common/components/MobileGamepad"));
+const TouchGamepad = React.lazy(() => import("@xrengine/client-core/src/common/components/TouchGamepad"));
 
 const engineRendererCanvasId = 'engine-renderer-canvas';
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/;
@@ -72,7 +78,8 @@ const initialRefreshModalValues = {
   body: '',
   action: async() => {},
   parameters: [],
-  timeout: 10000
+  timeout: 10000,
+  noCountdown: false
 };
 
 const canvasStyle = {
@@ -118,6 +125,7 @@ interface Props {
   setAppLoaded?: any,
   sceneId?: string,
   userState?: any;
+  deviceState?: any;
   locationName: string;
   appState?: any;
   authState?: any;
@@ -134,10 +142,11 @@ interface Props {
   harmonyOpen?: boolean;
 }
 
-const mapStateToProps = (state: any): any => {
+const mapStateToProps = (state: any) => {
   return {
     userState: selectUserState(state),
     appState: selectAppState(state),
+    deviceState: selectDeviceDetectState(state),
     authState: selectAuthState(state),
     instanceConnectionState: selectInstanceConnectionState(state),
     locationState: selectLocationState(state),
@@ -145,7 +154,7 @@ const mapStateToProps = (state: any): any => {
   };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch): any => ({
+const mapDispatchToProps = (dispatch: Dispatch) => ({
   setAppLoaded: bindActionCreators(setAppLoaded, dispatch),
   doLoginAuto: bindActionCreators(doLoginAuto, dispatch),
   getLocationByName: bindActionCreators(getLocationByName, dispatch),
@@ -155,6 +164,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   setCurrentScene: bindActionCreators(setCurrentScene, dispatch),
 });
 
+let slugifiedName = null;
+
 export const EnginePage = (props: Props) => {
   const {
     appState,
@@ -162,6 +173,7 @@ export const EnginePage = (props: Props) => {
     locationState,
     partyState,
     userState,
+    deviceState,
     instanceConnectionState,
     doLoginAuto,
     getLocationByName,
@@ -193,8 +205,11 @@ export const EnginePage = (props: Props) => {
   const [warningRefreshModalValues, setWarningRefreshModalValues] = useState(initialRefreshModalValues);
   const [noGameserverProvision, setNoGameserverProvision] = useState(false);
   const [instanceDisconnected, setInstanceDisconnected] = useState(false);
+  const [instanceKicked, setInstanceKicked] = useState(false);
+  const [instanceKickedMessage, setInstanceKickedMessage] = useState('');
   const [isInputEnabled, setInputEnabled] = useState(true);
   const [porting, setPorting] = useState(false);
+  const [newSpawnPos, setNewSpawnPos] = useState(null);
 
   const appLoaded = appState.get('loaded');
   const selfUser = authState.get('user');
@@ -209,7 +224,13 @@ export const EnginePage = (props: Props) => {
     } else {
       doLoginAuto(true);
       EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
-      EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED, () => setInstanceDisconnected(true));
+      EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED, () => {
+        if (Network.instance.transport.left === false) setInstanceDisconnected(true);
+      });
+      EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_KICKED, ({ message }) => {
+        setInstanceKickedMessage(message);
+        setInstanceKicked(true);
+      });
       EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED, () => setWarningRefreshModalValues(initialRefreshModalValues));
       EngineEvents.instance.addEventListener(EngineEvents.EVENTS.RESET_ENGINE, async (ev: any) => {
         if (ev.instance === true) {
@@ -253,6 +274,7 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     const currentLocation = locationState.get('currentLocation').get('location');
+    slugifiedName = currentLocation.slugifiedName;
     if (currentLocation.id != null &&
         userBanned != true &&
         instanceConnectionState.get('instanceProvisioned') === false &&
@@ -325,7 +347,7 @@ export const EnginePage = (props: Props) => {
       const newValues = {
         open: true,
         title: 'World disconnected',
-        body: 'You\'ve lost your connection with the world. We\'ll try to reconnect before the following time runs out, otherwise you\'ll be forwarded to a different instance',
+        body: 'You\'ve lost your connection with the world. We\'ll try to reconnect before the following time runs out, otherwise you\'ll be forwarded to a different instance.',
         action: window.location.reload,
         parameters: [],
         timeout: 30000
@@ -335,6 +357,20 @@ export const EnginePage = (props: Props) => {
       setInstanceDisconnected(false);
     }
   }, [instanceDisconnected]);
+
+  useEffect(() => {
+    if (instanceKicked === true) {
+      const newValues = {
+        open: true,
+        title: 'You\'ve been kicked from the world',
+        body: 'You were kicked from this world for the following reason: ' + instanceKickedMessage,
+        noCountdown: true
+      };
+      //@ts-ignore
+      setWarningRefreshModalValues(newValues);
+      setInstanceDisconnected(false);
+    }
+  }, [instanceKicked]);
 
   const reinit = () => {
     const currentLocation = locationState.get('currentLocation').get('location');
@@ -362,7 +398,7 @@ export const EnginePage = (props: Props) => {
     }
 
     if (!Engine.isInitialized) {
-      const InitializationOptions = {
+      const initializationOptions: InitializeOptions = {
         publicPath: location.origin,
         networking: {
           schema: {
@@ -372,11 +408,13 @@ export const EnginePage = (props: Props) => {
         renderer: {
           canvasId: engineRendererCanvasId
         },
-        useOfflineMode: Config.publicRuntimeConfig.offlineMode,
-        physxWorker: new Worker('/scripts/loadPhysXClassic.js'),
+        physics: {
+          simulationEnabled: false,
+          physxWorker: new Worker('/scripts/loadPhysXClassic.js'),
+        }
       };
 
-      await initializeEngine(InitializationOptions);
+      await initializeEngine(initializationOptions);
 
       document.dispatchEvent(new CustomEvent('ENGINE_LOADED')); // this is the only time we should use document events. would be good to replace this with react state
       addUIEvents();
@@ -414,8 +452,7 @@ export const EnginePage = (props: Props) => {
         // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
         let spawnTransform;
         if(porting) {
-          const currentLocalEntityTransform = porting && getComponent(Network.instance.localClientEntity, TransformComponent);
-          spawnTransform = { position: currentLocalEntityTransform.position, rotation: currentLocalEntityTransform.rotation };
+          spawnTransform = { position: newSpawnPos.spawnPosition, rotation: newSpawnPos.spawnRotation };
         }
 
         const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(MessageTypes.JoinWorld.toString(), { spawnTransform });
@@ -453,25 +490,55 @@ export const EnginePage = (props: Props) => {
   };
 
   const portToLocation = async ({ portalComponent }: { portalComponent: PortalProps }) => {
-    const currentLocation = locationState.get('currentLocation').get('location');
+    // console.log('portToLocation', slugifiedName, portalComponent);
 
-    if (currentLocation.slugifiedName === portalComponent.location) {
+    if (slugifiedName === portalComponent.location) {
       teleportPlayer(Network.instance.localClientEntity, portalComponent.spawnPosition, portalComponent.spawnRotation);
       return;
     }
 
-    history.replace('/location/' + portalComponent.location);
-
+    // shut down connection with existing GS
     setPorting(true);
     resetInstanceServer();
-    await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'));
-
     Network.instance.transport.close();
+    
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false });
+
+    // remove controller since physics world will be destroyed and we don't want it moving
+    PhysicsSystem.instance.removeController(getComponent(Network.instance.localClientEntity, ControllerColliderComponent).controller);
+    removeComponent(Network.instance.localClientEntity, ControllerColliderComponent);
+
+    // Handle Camera transition while player is moving
+    // Remove the follow component, and attach the camera to the player, so it moves with them without causing discomfort while in VR
+    removeComponent(Network.instance.localClientEntity, FollowCameraComponent);
+    const camParent = Engine.camera.parent;
+    if(camParent) Engine.camera.removeFromParent();
+    Engine.camera.layers.disable(CameraLayers.Scene);
+
+    // change our browser URL
+    history.replace('/location/' + portalComponent.location);
+    setNewSpawnPos(portalComponent);
+    
+    await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'));
 
     getLocationByName(portalComponent.location);
 
-    EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, () => {
-      onPlayerSpawnInNewLocation(portalComponent);
+    // add back the collider using previous parameters
+    EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
+    
+      // teleport player to where the portal is
+      const transform = getComponent(Network.instance.localClientEntity, TransformComponent);
+      const actor = getComponent(Network.instance.localClientEntity, CharacterComponent);
+      transform.position.set(portalComponent.spawnPosition.x, portalComponent.spawnPosition.y + actor.actorHalfHeight, portalComponent.spawnPosition.z);
+      transform.rotation.copy(portalComponent.spawnRotation);
+
+      addComponent(Network.instance.localClientEntity, ControllerColliderComponent);
+
+      addComponent(Network.instance.localClientEntity, FollowCameraComponent);
+      if(camParent) camParent.add(Engine.camera);
+      Engine.camera.layers.enable(CameraLayers.Scene);
+
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: true });
     });
   };
 
@@ -513,9 +580,9 @@ export const EnginePage = (props: Props) => {
     };
   }, []);
 
-  //mobile gamepad
-  const mobileGamepadProps = { hovered: objectHovered, layout: 'default' };
-  const mobileGamepad = isMobileOrTablet() ? <Suspense fallback={<></>}><MobileGamepad {...mobileGamepadProps} /></Suspense> : null;
+  //touch gamepad
+  const touchGamepadProps = { hovered: objectHovered, layout: 'default' };
+  const touchGamepad = deviceState.get('content')?.touchDetected ? <Suspense fallback={<></>}><TouchGamepad {...touchGamepadProps} /></Suspense> : null;
 
   if(userBanned) return (<div className="banned">You have been banned from this location</div>);
   return isInXR ? <></> : (
@@ -541,7 +608,7 @@ export const EnginePage = (props: Props) => {
         <RecordingApp/>
         <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); setInputEnabled(true); }} data={openLinkData} />
         <canvas id={engineRendererCanvasId} style={canvasStyle} />
-        {mobileGamepad}
+        {touchGamepad}
         <WarningRefreshModal
             open={warningRefreshModalValues.open && !porting}
             handleClose={() => { setWarningRefreshModalValues(initialRefreshModalValues); }}
@@ -550,9 +617,13 @@ export const EnginePage = (props: Props) => {
             action={warningRefreshModalValues.action}
             parameters={warningRefreshModalValues.parameters}
             timeout={warningRefreshModalValues.timeout}
+            noCountdown={warningRefreshModalValues.noCountdown}
         />
+        <EmoteMenu />
       </>
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(EnginePage);
+const connector = connect(mapStateToProps, mapDispatchToProps)(EnginePage);
+
+export default connector;

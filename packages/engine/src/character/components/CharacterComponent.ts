@@ -1,113 +1,76 @@
 // Default component, holds data about what behaviors our actor has.
 import { AnimationAction, AnimationMixer, Group, Material, Vector3 } from 'three';
-import { RaycastQuery } from "three-physx";
 import { Component } from '../../ecs/classes/Component';
 import { Types } from '../../ecs/types/Types';
 import { RelativeSpringSimulator } from '../../physics/classes/SpringSimulator';
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator';
-import { DefaultCollisionMask } from '../../physics/enums/CollisionGroups';
+
 export class CharacterComponent extends Component<CharacterComponent> {
 
 	dispose(): void {
 		super.dispose();
-		this.modelContainer.parent.remove(this.modelContainer);
-		this.tiltContainer = null;
+		this.modelContainer.removeFromParent();
 	}
-	public modelScale = 1; // its for resize
 
-	public movementEnabled = false;
-	public initialized = false;
+  // === CORE == //
 
-	// TODO: Move these... but for now...
-	public currentAnimationAction: AnimationAction[] = [];
-	public currentAnimationLength = 0;
-	public timer = 0;
-	public animationsTimeScale = .5;
-	public avatarId: string;
-	public thumbnailURL: string;
-	public avatarURL: string;
-	public tiltContainer: Group;
-	public modelContainer: Group;
-	public materials: Material[] = [];
-	public visible = true;
-	public mixer: AnimationMixer;
-	public animations: any[] = [];
+  /**
+   * @property {Group} modelContainer is a group that holds the model such that the animations & IK can move seperate from the transform & collider
+   * It's center is at the center of the collider, except with y sitting at the bottom of the collider, flush with the ground
+   */
+	modelContainer: Group;
+  visible = true; // used for turning model invisble when first person
 
-	// === Movement === //
+  // === ANIMATION === // // TODO: Move these to AnimationComponent
 
-	public walkSpeed = 0.5;
-	public runSpeed = 1;
-	public jumpHeight = 4;
-	public speedMultiplier = 3;
+	mixer: AnimationMixer;
+	animations: any[] = [];
+	currentAnimationAction: AnimationAction[] = [];
+	currentAnimationLength = 0; // we may not need this
+	speedMultiplier = 3;// TODO -- rename this to animation speed
+	animationVectorSimulator: VectorSpringSimulator
+	animationVelocity: Vector3 = new Vector3();
 
-	/**
-	 * desired moving direction from user inputs
-	 */
-	public localMovementDirection = new Vector3();
-	public acceleration: Vector3 = new Vector3();
-	/**
-	 * this needs to be multiplied by moveSpeed to get real speed;
-	 * probably does not represent real physics speed
-	 */
-	public velocity: Vector3 = new Vector3();
-	public arcadeVelocityInfluence: Vector3 = new Vector3(1, 0, 1);
-	public velocityTarget: Vector3 = new Vector3();
+  // === AVATAR === //
 
-	public currentInputHash: any = ""
+	avatarId: string;
+	thumbnailURL: string;
+	avatarURL: string;
+	actorHeight = 1.8;
+	actorHalfHeight = 1.8 / 2;
 
-	public defaultVelocitySimulatorDamping = 0.8;
-	public defaultVelocitySimulatorMass = 50;
-	public velocitySimulator: VectorSpringSimulator
-	public animationVectorSimulator: VectorSpringSimulator
-	public moveVectorSmooth: VectorSpringSimulator
-	public moveSpeed = 2;
-	public otherPlayerMaxSpeedCount = 0;
-	public angularVelocity = 0;
-	public orientation: Vector3 = new Vector3(0, 0, 1);
-	public orientationTarget: Vector3 = new Vector3(0, 0, 1);
-	public defaultRotationSimulatorDamping = 0.5;
-	public defaultRotationSimulatorMass = 10;
-	public rotationSimulator: RelativeSpringSimulator;
-	public viewVector: Vector3;
-	public changedViewAngle = 0;
-	public actions: any;
+	// === MOVEMENT === //
 
-	// Actor collision Capsule
-	public actorMass = 1;
-	public actorHeight = 1.2;
-	public capsuleRadius = 0.25;
-	public contactOffset = 0.01;
-	public capsuleSegments = 16;
-	public capsuleFriction = 0.1;
-	public capsulePosition: Vector3 = new Vector3(0, 0, 0);
-	// Ray casting
-	public raycastQuery: RaycastQuery;
-	public isGrounded = false;
-	public closestHit = null;
-	public rayCastLength = 0.85;
-	//public raySafeOffset = 0.03;
-	//public initJumpSpeed = -1;
-	public playerInPortal = 0;
-	public animationVelocity: Vector3 = new Vector3();
-	public groundImpactVelocity: Vector3 = new Vector3();
-
-	public controlledObject: any;
-	public gamepadDamping = 0.05;
-
-	public vehicleEntryInstance: any;
-	public occupyingSeat: any;
-	quaternion: any;
-	canFindVehiclesToEnter: boolean;
-	canEnterVehicles: boolean;
-	canLeaveVehicles: boolean;
+	movementEnabled = false;
+	isGrounded: boolean;
 	isJumping: boolean;
-	rotationSpeed: any;
+	isWalking = false;
+	walkSpeed = 1.5;
+	runSpeed = 5;
+	moveSpeed = 5;
+	jumpHeight = 4;
+	localMovementDirection = new Vector3();
+	velocity: Vector3 = new Vector3();
 
-	collisionMask: number;
+	defaultVelocitySimulatorDamping = 0.8;
+	defaultVelocitySimulatorMass = 50;
+	velocitySimulator: VectorSpringSimulator
+	moveVectorSmooth: VectorSpringSimulator
+	defaultRotationSimulatorDamping = 0.5;
+	defaultRotationSimulatorMass = 10;
+	rotationSimulator: RelativeSpringSimulator;
+
+  /**
+   * The direction this client is looking. 
+   * As TransformComponent.rotation is locked to XZ plane,
+   * this allows the actor to have pitch independent of the collider & model.
+   * 
+   * On the local client viewVector is controlled by TransformComponent.rotation
+   * On the server and other clients this controls TransformComponent.rotation
+   */
+	viewVector: Vector3;
 
 	static _schema = {
-		tiltContainer: { type: Types.Ref, default: null },
-		collisionMask: { type: Types.Number, default: DefaultCollisionMask },
 		avatarId: { type: Types.String, default: null },
 		thumbnailURL: { type: Types.String, default: null },
 		avatarURL: { type: Types.String, default: null },

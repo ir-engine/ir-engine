@@ -26,6 +26,8 @@ export const hitBall: Behavior = (entityClub: Entity, args?: any, delta?: number
 
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
   const collider = getMutableComponent(entityBall, ColliderComponent);
+  collider.body.setLinearDamping(0.1);
+  collider.body.setAngularDamping(0.1);
     // force is in kg, we need it in grams, so x1000
   const velocityMultiplier = args.clubPowerMultiplier * 1000;
   
@@ -62,6 +64,8 @@ export const hitBall: Behavior = (entityClub: Entity, args?: any, delta?: number
   if(!golfClubComponent.canDoChipShots) {
     vector1.y = 0;
   }
+  console.log(vector1);
+  
   collider.body.addForce(vector1);
 
 }

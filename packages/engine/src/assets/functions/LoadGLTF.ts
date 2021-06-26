@@ -1,5 +1,6 @@
 import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight, Group, Mesh } from 'three';
 import { isClient } from "../../common/functions/isClient";
+import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 import { DRACOLoader } from "../loaders/gltf/DRACOLoader";
 import { GLTFLoader } from "../loaders/gltf/GLTFLoader";
 
@@ -86,7 +87,7 @@ const loadLights = gltf => {
             if (obj.userData.gltfExtensions && obj.userData.gltfExtensions.MOZ_hubs_components) {
                 let replacement;
                 switch(Object.keys(obj.userData.gltfExtensions.MOZ_hubs_components)[0]) {
-                    // case 'directional-light': replacement = _directional(obj); break; // currently this breaks CSM
+                    case 'directional-light': replacement = _directional(obj); break;
                     case 'point-light': replacement = _point(obj); break;
                     case 'ambient-light': replacement = _ambient(obj); break;
                     default:break;
@@ -114,6 +115,7 @@ const _shadow = (light, lightData) => {
 };
 
 const _directional = (obj) => {
+    if(!WebGLRendererSystem.instance.csm) return; // currently this breaks CSM
     const lightData = obj.userData.gltfExtensions.MOZ_hubs_components['directional-light'];
     const light = new DirectionalLight(lightData.color, lightData.intensity);
     _shadow(light, lightData);

@@ -30,8 +30,7 @@ import { NumericalType } from '../../common/types/NumericalTypes';
 import { InputValue } from '../../input/interfaces/InputValue';
 import { GameMode } from "../../game/types/GameMode";
 import { EngineEvents } from './EngineEvents';
-import { WebXRManager } from '../../xr/WebXRManager';
-import { ActiveSystems } from './System';
+import { ActiveSystems, System } from './System';
 
 export const Audio = isWebWorker ? AudioObjectProxy : THREE_Audio;
 export const AudioListener = isWebWorker ? AudioListenerProxy : THREE_AudioListener;
@@ -97,7 +96,7 @@ export class Engine {
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static renderer: WebGLRenderer = null
-  static xrRenderer: WebXRManager = null
+  static xrRenderer = null
   static xrSession: XRSession = null
   static context = null
 
@@ -155,7 +154,7 @@ export class Engine {
   /**
    * List of registered systems.
    */
-  static systems: any[] = []
+  static systems: System[] = []
 
   /**
    * List of registered entities.
@@ -245,6 +244,7 @@ export class Engine {
   static publicPath: string;
 
   static workers = [];
+  static simpleMaterials = false;
 }
 
 export const awaitEngineLoaded = (): Promise<void> => {

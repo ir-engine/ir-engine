@@ -1,11 +1,10 @@
-import { Quaternion, Vector3 } from "three";
-import { ControllerHitEvent, RaycastQuery, SceneQueryType } from "three-physx";
-import { applyVectorMatrixXZ } from "../common/functions/applyVectorMatrixXZ";
+import { Group, Quaternion, Vector3 } from "three";
+import { Controller, ControllerHitEvent, RaycastQuery, SceneQueryType } from "three-physx";
 import { isClient } from "../common/functions/isClient";
 import { EngineEvents } from "../ecs/classes/EngineEvents";
 import { System, SystemAttributes } from "../ecs/classes/System";
 import { Not } from "../ecs/functions/ComponentFunctions";
-import { getMutableComponent, getComponent, getRemovedComponent, getEntityByID } from "../ecs/functions/EntityFunctions";
+import { getMutableComponent, getComponent, getRemovedComponent, getEntityByID, removeComponent, addComponent, hasComponent } from "../ecs/functions/EntityFunctions";
 import { SystemUpdateType } from "../ecs/functions/SystemUpdateType";
 import { LocalInputReceiver } from "../input/components/LocalInputReceiver";
 import { characterMoveBehavior } from "./behaviors/characterMoveBehavior";
@@ -16,19 +15,29 @@ import { PhysicsSystem } from "../physics/systems/PhysicsSystem";
 import { TransformComponent } from "../transform/components/TransformComponent";
 import { AnimationComponent } from "./components/AnimationComponent";
 import { CharacterComponent } from "./components/CharacterComponent";
-import { updateVectorAnimation } from "./functions/updateVectorAnimation";
-import { loadActorAvatar, teleportPlayer } from "./prefabs/NetworkPlayerCharacter";
+import { loadActorAvatar } from "./prefabs/NetworkPlayerCharacter";
 import { Engine } from "../ecs/classes/Engine";
-import { IKRigComponent } from "./components/IKRigComponent";
-import { Avatar } from "../xr/classes/IKAvatar";
+import { XRInputSourceComponent } from "./components/XRInputSourceComponent";
 import { Network } from "../networking/classes/Network";
-import { PortalComponent } from "../scene/components/PortalComponent";
 import { detectUserInPortal } from "./functions/detectUserInPortal";
+import { ServerSpawnSystem } from "../scene/systems/ServerSpawnSystem";
+import { sendClientObjectUpdate } from "../networking/functions/sendClientObjectUpdate";
+import { NetworkObjectUpdateType } from "../networking/templates/NetworkObjectUpdateSchema";
+import { updatePlayerRotationFromViewVector } from "./functions/updatePlayerRotationFromViewVector";
+import { AnimationManager } from "./AnimationManager";
+import { Object3DComponent } from "../scene/components/Object3DComponent";
+import { applyVectorMatrixXZ } from "../common/functions/applyVectorMatrixXZ";
+import { FollowCameraComponent } from "../camera/components/FollowCameraComponent";
+import { CameraSystem } from "../camera/systems/CameraSystem";
+import { DesiredTransformComponent } from "../transform/components/DesiredTransformComponent";
+import { CharacterAnimationGraph } from "./animations/CharacterAnimationGraph";
+import { CharacterStates } from "./animations/Util";
 
 const forwardVector = new Vector3(0, 0, 1);
 const prevControllerColliderPosition = new Vector3();
 const vector3 = new Vector3();
 const quat = new Quaternion();
+const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI);
 
 export class CharacterControllerSystem extends System {
 
@@ -42,20 +51,20 @@ export class CharacterControllerSystem extends System {
     super(attributes);
 
     EngineEvents.instance.addEventListener(CharacterControllerSystem.EVENTS.LOAD_AVATAR, ({ entityID, avatarId, avatarURL }) => {
-      const entity = getEntityByID(entityID)
+      const entity = getEntityByID(entityID);
       const characterAvatar = getMutableComponent(entity, CharacterComponent);
       if (characterAvatar != null) {
         characterAvatar.avatarId = avatarId;
         characterAvatar.avatarURL = avatarURL;
       }
-      loadActorAvatar(entity)
-    })
+      loadActorAvatar(entity);
+    });
   }
 
   /** Removes resize listener. */
   dispose(): void {
     super.dispose();
-    EngineEvents.instance.removeAllListenersForEvent(CharacterControllerSystem.EVENTS.LOAD_AVATAR)
+    EngineEvents.instance.removeAllListenersForEvent(CharacterControllerSystem.EVENTS.LOAD_AVATAR);
   }
 
   /**
@@ -64,18 +73,50 @@ export class CharacterControllerSystem extends System {
    */
   execute(delta: number): void {
 
-    this.queryResults.character.added?.forEach((entity) => {
-      const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-      if (actor) actor.raycastQuery = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({
+    this.queryResults.controller.added?.forEach((entity) => {
+      
+      const playerCollider = getMutableComponent(entity, ControllerColliderComponent);
+      const actor = getMutableComponent(entity, CharacterComponent);
+      const transform = getComponent(entity, TransformComponent);
+      
+      playerCollider.controller = PhysicsSystem.instance.createController(new Controller({
+        isCapsule: true,
+        collisionLayer: CollisionGroups.Characters,
+        collisionMask: DefaultCollisionMask,
+        height: playerCollider.capsuleHeight,
+        contactOffset: playerCollider.contactOffset,
+        stepOffset: 0.25,
+        radius: playerCollider.capsuleRadius,
+        position: {
+          x: transform.position.x,
+          y: transform.position.y + actor.actorHalfHeight,
+          z: transform.position.z
+        },
+        material: {
+          dynamicFriction: playerCollider.friction,
+        }
+      }));
+
+      playerCollider.raycastQuery = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({
         type: SceneQueryType.Closest,
         origin: new Vector3(0, actor.actorHeight, 0),
         direction: new Vector3(0, -1, 0),
-        maxDistance: 0.1 + (actor.actorHeight * 0.5) + actor.capsuleRadius,
+        maxDistance: 0.1 + (actor.actorHeight * 0.5) + playerCollider.capsuleRadius,
         collisionMask: DefaultCollisionMask | CollisionGroups.Portal,
       }));
     });
-    
-    if(Network.instance.localClientEntity) detectUserInPortal(Network.instance.localClientEntity)
+
+    this.queryResults.controller.removed?.forEach(entity => {
+      const collider = getRemovedComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
+      if (collider) {
+        PhysicsSystem.instance.removeController(collider.controller);
+      }
+
+      const actor = getMutableComponent(entity, CharacterComponent);
+      if(actor) {
+        actor.isGrounded = false;
+      }
+    });
 
     this.queryResults.controller.all?.forEach((entity) => {
       const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
@@ -83,27 +124,33 @@ export class CharacterControllerSystem extends System {
       // iterate on all collisions since the last update
       collider.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => { })
 
-      if(!isClient) detectUserInPortal(entity);
-    })
-
-    this.queryResults.character.all?.forEach(entity => {
+      if(!isClient || (entity && entity === Network.instance.localClientEntity)) detectUserInPortal(entity);
 
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 
-      if (!actor.movementEnabled || !actor.initialized) return;
+      if (!actor.movementEnabled) return;
       
-      const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
       const transform = getComponent<TransformComponent>(entity, TransformComponent as any);
 
       // reset if vals are invalid
-      if (isNaN(collider.controller.transform.translation.x) || collider.controller.transform.translation.y < -10) {
-        // console.warn("WARNING: Character physics data reporting NaN")
+      if (isNaN(collider.controller.transform.translation.x)) {
+        console.warn("WARNING: Character physics data reporting NaN", collider.controller.transform.translation)
         collider.controller.updateTransform({
-          translation: { x: 0, y: 10, z: 10 },
-          rotation: {}
+          translation: { x: 0, y: 10, z: 0 },
+          rotation: { x: 0, y: 0, z: 0, w: 1 }
         });
-        // collider.playerStuck = 1000;
-        // return;
+      }
+
+      // TODO: implement scene lower bounds parameter
+      if(!isClient && collider.controller.transform.translation.y < -10) {
+        const { position, rotation } = ServerSpawnSystem.instance.getRandomSpawnPoint();
+        position.y += actor.actorHalfHeight;
+        console.log('player has fallen through the floor, teleporting them to', position)
+        collider.controller.updateTransform({
+          translation: position,
+          rotation
+        });
+        sendClientObjectUpdate(entity, NetworkObjectUpdateType.ForceTransformUpdate, [position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, rotation.w])
       }
 
       transform.position.set(
@@ -112,16 +159,9 @@ export class CharacterControllerSystem extends System {
         collider.controller.transform.translation.z
       );
 
-      actor.raycastQuery.origin.copy(transform.position);
-      actor.closestHit = actor.raycastQuery.hits[0];
-      actor.isGrounded = actor.closestHit ? true : collider.controller.collisions.down;
-    });
-
-    this.queryResults.controller.removed?.forEach(entity => {
-      const collider = getRemovedComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
-      if (collider) {
-        PhysicsSystem.instance.removeController(collider.controller);
-      }
+      collider.raycastQuery.origin.copy(transform.position);
+      collider.closestHit = collider.raycastQuery.hits[0];
+      actor.isGrounded = collider.closestHit ? true : collider.controller.collisions.down;
     });
 
     // PhysicsMove LocalCharacter and Update velocity vector for Animations
@@ -129,7 +169,7 @@ export class CharacterControllerSystem extends System {
       const controllerCollider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
       const transform = getComponent<TransformComponent>(entity, TransformComponent);
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
-      if (!actor.initialized || !controllerCollider.controller || !actor.movementEnabled) return;
+      if (!controllerCollider.controller || !actor.movementEnabled) return;
 
       const x = controllerCollider.controller.transform.translation.x - prevControllerColliderPosition.x;
       const y = controllerCollider.controller.transform.translation.y - prevControllerColliderPosition.y;
@@ -145,59 +185,85 @@ export class CharacterControllerSystem extends System {
       }
       quat.copy(transform.rotation).invert();
       actor.animationVelocity.set(x, y, z).applyQuaternion(quat);
-      // its beacose we need physicsMove on server and for localCharacter, not for all character
+
       characterMoveBehavior(entity, delta);
+
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
+      if(hasComponent(entity, FollowCameraComponent)) {
+        const camTransform = getComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent);
+        if(camTransform) {
+          actor.viewVector.set(0, 0, -1).applyQuaternion(camTransform.rotation);
+        }
+      } else if(xrInputSourceComponent) {
+        actor.viewVector.set(0, 0, 1).applyQuaternion(transform.rotation);
+      }
+
     });
 
     // PhysicsMove Characters On Server
     // its beacose we need physicsMove on server and for localCharacter, not for all character
     this.queryResults.characterOnServer.all?.forEach((entity) => {
-      const actor = getComponent<CharacterComponent>(entity, CharacterComponent);
-      const transform = getMutableComponent(entity, TransformComponent);
-      // update rotationg for physics moving
-      vector3.copy(actor.viewVector).setY(0).normalize();
-      actor.orientation.copy(applyVectorMatrixXZ(vector3, forwardVector))
-      transform.rotation.setFromUnitVectors(forwardVector, actor.orientation.clone().setY(0));
+      updatePlayerRotationFromViewVector(entity);
       characterMoveBehavior(entity, delta);
     })
 
     // temporarily disable animations on Oculus until we have buffer animation system / GPU animations
     if(!Engine.isHMD) {
+      this.queryResults.animation.added?.forEach((entity) => {
+        const animationComponent = getMutableComponent(entity, AnimationComponent);
+        animationComponent.animationGraph = CharacterAnimationGraph.constructGraph();
+        animationComponent.currentState = animationComponent.animationGraph[CharacterStates.IDLE];
+      });
+
       this.queryResults.animation.all?.forEach((entity) => {
-        updateVectorAnimation(entity, delta)
-      })
+        AnimationManager.instance.renderAnimations(entity, delta);
+      });
     }
 
     this.queryResults.ikAvatar.added?.forEach((entity) => {
-      if(!isClient) return;
-      const ikRigComponent = getMutableComponent(entity, IKRigComponent);
+      removeComponent(entity, AnimationComponent);
+
+      const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent);
       const actor = getMutableComponent(entity, CharacterComponent);
-      const avatarIKRig = new Avatar(actor.modelContainer.children[0], {
-        debug: true,
-        top: true,
-        bottom: true,
-        visemes: true,
-        hair: true,
-      });
-      ikRigComponent.avatarIKRig = avatarIKRig;
-      if(Network.instance.localClientEntity === entity) {
-        // avatarIK.avatarIKRig.decapitate()
-      }
+      const object3DComponent = getComponent(entity, Object3DComponent);
 
+      xrInputSourceComponent.headGroup.position.setY(-actor.actorHalfHeight);
+
+      xrInputSourceComponent.controllerGroup.add(
+        xrInputSourceComponent.controllerLeft, 
+        xrInputSourceComponent.controllerGripLeft, 
+        xrInputSourceComponent.controllerRight, 
+        xrInputSourceComponent.controllerGripRight
+      );
+      
+      xrInputSourceComponent.headGroup.applyQuaternion(rotate180onY);
+      xrInputSourceComponent.headGroup.add(xrInputSourceComponent.controllerGroup, xrInputSourceComponent.head);
+      object3DComponent.value.add(xrInputSourceComponent.headGroup);
+
+      if(entity === Network.instance.localClientEntity) {
+
+        // TODO: Temporarily make rig invisible until rig is fixed
+        actor?.modelContainer?.traverse((child) => {
+          if(child.visible) {
+            child.visible = false;
+          }
+        });
+      }
+    });
+
+    this.queryResults.ikAvatar.removed?.forEach((entity) => {
+
+      addComponent(entity, AnimationComponent);
+      const actor = getMutableComponent(entity, CharacterComponent);
+
+      if(entity === Network.instance.localClientEntity)
       // TODO: Temporarily make rig invisible until rig is fixed
-      actor.modelContainer.children[0]?.traverse((child) => {
+      actor?.modelContainer?.traverse((child) => {
         if(child.visible) {
-          child.visible = false;
+          child.visible = true;
         }
-      })
-    })
-
-    this.queryResults.ikAvatar.all?.forEach((entity) => {
-      const ikRigComponent = getMutableComponent(entity, IKRigComponent);
-      if(ikRigComponent) {
-        // ikRigComponent.avatarIKRig.update(delta);
-      }
-    })
+      });
+    });
   }
 }
 
@@ -231,14 +297,14 @@ CharacterControllerSystem.queries = {
     }
   },
   animation: {
-    components: [AnimationComponent],
+    components: [CharacterComponent, AnimationComponent],
     listen: {
       added: true,
       removed: true
     }
   },
   ikAvatar: {
-    components: [IKRigComponent],
+    components: [CharacterComponent, XRInputSourceComponent],
     listen: {
       added: true,
       removed: true

@@ -34,7 +34,6 @@ import { EngineEvents } from '../ecs/classes/EngineEvents';
 import { System, SystemAttributes } from '../ecs/classes/System';
 import { defaultPostProcessingSchema, effectType } from '../scene/classes/PostProcessing';
 import { PostProcessingSchema } from './interfaces/PostProcessingSchema';
-import { WebXRManager } from '../xr/WebXRManager.js'
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType';
 import WebGL from "./THREE.WebGL";
 import { FXAAEffect } from './effects/FXAAEffect';
@@ -135,6 +134,7 @@ export class WebGLRendererSystem extends System {
 
   forcePostProcessing = false;
   supportWebGL2: boolean = WebGL.isWebGL2Available();
+  rendereringEnabled: boolean;
 
   /** Constructs WebGL Renderer System. */
   constructor(attributes: SystemAttributes = {}) {
@@ -143,41 +143,25 @@ export class WebGLRendererSystem extends System {
 
     this.onResize = this.onResize.bind(this);
 
-    let context;
-    const canvas = attributes.canvas;
+    const canvas: HTMLCanvasElement = attributes.canvas;
+    const context = this.supportWebGL2 ? canvas.getContext('webgl2') : canvas.getContext('webgl');
 
     this.renderContext = context;
     const options = {
       canvas,
       context,
-      antialias: true,
-      preserveDrawingBuffer: true
+      antialias: !Engine.isHMD,
+      preserveDrawingBuffer: !Engine.isHMD
     };
 
     const renderer = this.supportWebGL2 ? new WebGLRenderer(options) : new WebGL1Renderer(options);
-    renderer.physicallyCorrectLights = true;
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = PCFSoftShadowMap;
-    renderer.outputEncoding = sRGBEncoding;
-    renderer.toneMapping = LinearToneMapping;
-    renderer.toneMappingExposure = 0.8;
     Engine.renderer = renderer;
+    Engine.renderer.physicallyCorrectLights = true
+    Engine.renderer.outputEncoding = sRGBEncoding
+
     Engine.viewportElement = renderer.domElement;
-    Engine.xrRenderer = new WebXRManager(renderer, context);
+    Engine.xrRenderer = renderer.xr;
     Engine.xrRenderer.enabled = Engine.xrSupported;
-
-    // Cascaded shadow maps
-    const csm = new CSM({
-      cascades: Engine.xrSupported ? 2 : 4,
-      lightIntensity: 1,
-      shadowMapSize: Engine.xrSupported ? 256 : 4096,
-      maxFar: 100,
-      camera: Engine.camera,
-      parent: Engine.scene
-    });
-    csm.fade = true;
-
-    this.csm = csm;
 
     window.addEventListener('resize', this.onResize, false);
     this.onResize();
@@ -200,9 +184,11 @@ export class WebGLRendererSystem extends System {
       this.setUseAutomatic(ev.payload);
     });
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
-      this.enabled = ev.renderer;
+      if(typeof ev.renderer !== 'undefined') {
+        this.rendereringEnabled = ev.renderer;
+      }
     });
-    //  this.enabled = false;
+    this.rendereringEnabled = attributes.rendereringEnabled ?? true;
   }
 
   async initialize() {
@@ -260,13 +246,17 @@ export class WebGLRendererSystem extends System {
       const effect = effectType[key].effect;
       if (pass.isActive)
         if (effect === SSAOEffect) {
-          passes.push(new effect(Engine.camera, this.normalPass.texture, { ...pass, normalDepthBuffer }));
+          const eff = new effect(Engine.camera, this.normalPass.texture, { ...pass, normalDepthBuffer })
+          this.composer[key] = eff;
+          passes.push(eff);
         } else if (effect === DepthOfFieldEffect) {
-          passes.push(new effect(Engine.camera, pass))
+          const eff = new effect(Engine.camera, pass)
+          this.composer[key] = eff;
+          passes.push(eff)
         } else if (effect === OutlineEffect) {
           const eff = new effect(Engine.scene, Engine.camera, pass)
-          passes.push(eff);
           this.composer[key] = eff;
+          passes.push(eff);
         } else {
           const eff = new effect(pass)
           this.composer[key] = eff;
@@ -294,14 +284,10 @@ export class WebGLRendererSystem extends System {
 
     if (Engine.xrRenderer.isPresenting) {
 
-      // this.csm.update();
-
-      // override default threejs behavior, use our own WebXRManager
-      // we still need to apply the WebXR camera array
-
-      Engine.xrRenderer.updateCamera(Engine.camera);
-      const camera = Engine.xrRenderer.getCamera();
-      Engine.renderer.render(Engine.scene, camera);
+      if(this.rendereringEnabled) {
+        this.csm?.update();
+        Engine.renderer.render(Engine.scene, Engine.camera);
+      }
 
     } else {
 
@@ -320,18 +306,20 @@ export class WebGLRendererSystem extends System {
           cam.updateProjectionMatrix();
         }
 
-        this.csm.updateFrustums();
+        this.csm?.updateFrustums();
         Engine.renderer.setSize(width, height, false);
         this.composer.setSize(width, height, false);
         this.needsResize = false;
       }
 
-      this.csm.update();
-      if (this.usePostProcessing) {
-        this.composer.render(delta);
-      } else {
-        Engine.renderer.autoClear = true;
-        Engine.renderer.render(Engine.scene, Engine.camera);
+      if(this.rendereringEnabled) {
+        this.csm?.update();
+        if (this.usePostProcessing && this.postProcessingSchema) {
+          this.composer.render(delta);
+        } else {
+          Engine.renderer.autoClear = true;
+          Engine.renderer.render(Engine.scene, Engine.camera);
+        }
       }
     }
 
@@ -417,9 +405,9 @@ export class WebGLRendererSystem extends System {
       default: break;
       case this.maxQualityLevel - 2: mapSize = 1024; break;
       case this.maxQualityLevel - 1: mapSize = 2048; break;
-      case this.maxQualityLevel: mapSize = Engine.xrRenderer.isPresenting ? 2048 : 4096; break;
+      case this.maxQualityLevel: mapSize = 2048; break;
     }
-    this.csm.setShadowMapSize(mapSize);
+    this.csm?.setShadowMapSize(mapSize);
     ClientStorage.set(databasePrefix + RENDERER_SETTINGS.SHADOW_QUALITY, this.shadowQuality);
   }
 

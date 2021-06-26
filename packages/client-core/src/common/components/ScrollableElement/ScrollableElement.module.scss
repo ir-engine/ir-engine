@@ -1,0 +1,34 @@
+.scrollBlock {
+    position: relative;
+}
+
+.scrollContainer {
+    overflow: auto;
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+}
+.scrollContainer::-webkit-scrollbar { 
+    display: none;  /* Safari and Chrome */
+}
+
+.topShadow {
+    position: absolute;
+    display: block;
+    height: 5px;
+    width: 100%;
+    top: 0;
+    left: 0;
+    background: rgb(0,0,0, 0.2);
+    background: linear-gradient(0deg, #0000 0%, #00000054 100%);
+}
+
+.bottomShadow {
+    position: absolute;
+    display: block;
+    height: 5px;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    background: rgb(0,0,0, 0.2);
+    background: linear-gradient(180deg, #0000 0%, #00000054 100%)
+}

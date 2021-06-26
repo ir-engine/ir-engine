@@ -123,11 +123,9 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
   const headDistance = XRUserSettings.staticLengthGolfClub ? clubLength : (hit ? hit.distance : clubLength);
 
   if(hasComponent(ownerEntity, YourTurn)) {
-    
-      enableClub(entityClub, true);
-    
+    enableClub(entityClub, true);
   } else {
-      enableClub(entityClub, false);
+    enableClub(entityClub, false);
   }
 
   // update position of club
@@ -196,10 +194,10 @@ export const onClubColliderWithBall: GameObjectInteractionBehavior = (entityClub
 * @author Josh Field <github.com/HexaField>
  */
 
-const clubColliderSize = new Vector3(0.05, 0.1, 0.12);
+const clubColliderSize = new Vector3(0.03, 0.05, 0.1);
 const clubHalfWidth = 0.05;
 const clubPutterLength = 0.1;
-const clubLength = 1.8;
+const clubLength = 1;
 
 const upVector = new Vector3(0, 1, 0);
 const HALF_PI = Math.PI / 2;

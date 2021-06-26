@@ -154,7 +154,7 @@ function processDeferredEntityRemoval () {
     const entity = entitiesToRemove[i];
     const index = Engine.entities.indexOf(entity);
     Engine.entities.splice(index, 1);
-    Engine.entityMap.delete(String(entity.id))
+    Engine.entityMap.delete(String(entity.id));
     entity._pool.release(entity);
   }
   entitiesToRemove.length = 0;
@@ -225,9 +225,6 @@ export function stats (): { entities: any; system: any } {
       queries: {},
       executeTime: system.executeTime
     });
-    for (const name in system.ctx) {
-      systemStats.queries[name] = system.ctx[name].stats();
-    }
   }
 
   return {
@@ -249,10 +246,10 @@ const delay = (delay: number) => {
     setTimeout(() => {
       resolve();
     }, delay);
-  })
-}
+  });
+};
 
-export const processLocationChange = async (newPhysicsWorker: Worker) => {
+export const processLocationChange = async (newPhysicsWorker: Worker): Promise<void> => {
   const entitiesToRemove = [];
   const removedEntities = [];
   const sceneObjectsToRemove = [];
@@ -264,13 +261,14 @@ export const processLocationChange = async (newPhysicsWorker: Worker) => {
       removedEntities.push(entity.id);
     }
   });
-
-  await delay(200);
+  
+  executeSystemBeforeReset();
 
   Engine.scene.background = new Color('black');
   Engine.scene.environment = null;
 
   Engine.scene.traverse((o: any) => {
+    console.log(o, o.entity)
     if (!o.entity) return;
     if (!removedEntities.includes(o.entity.id)) return;
 
@@ -279,22 +277,23 @@ export const processLocationChange = async (newPhysicsWorker: Worker) => {
 
   sceneObjectsToRemove.forEach(o => Engine.scene.remove(o));
 
-  await delay(200);
   entitiesToRemove.forEach(entity => {
     removeEntity(entity, false);
   });
 
   executeSystemBeforeReset();
 
-  await resetPhysics(newPhysicsWorker)
-}
+  Engine.systems.forEach((system: System) => {
+    system.reset();
+  });
 
-export const resetPhysics = async (newPhysicsWorker: Worker) => {
-  PhysicsSystem.instance.enabled = false;
+  await resetPhysics(newPhysicsWorker);
+};
+
+export const resetPhysics = async (newPhysicsWorker: Worker): Promise<void> => {
   PhysicsSystem.instance.worker.terminate();
   Engine.workers.splice(Engine.workers.indexOf(PhysicsSystem.instance.worker), 1);
   PhysXInstance.instance.dispose();
   PhysXInstance.instance = new PhysXInstance();
   await PhysXInstance.instance.initPhysX(newPhysicsWorker, PhysicsSystem.instance.physicsWorldConfig);
-  PhysicsSystem.instance.enabled = true;
-}
+};

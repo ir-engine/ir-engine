@@ -1,5 +1,5 @@
 import { CharacterComponent } from '../../character/components/CharacterComponent';
-import { IKComponent } from '../../character/components/IKComponent';
+import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent';
 import { SIXDOFType } from '../../common/types/NumericalTypes';
 import { Entity } from '../../ecs/classes/Entity';
 import { System } from '../../ecs/classes/System';
@@ -13,6 +13,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
+import { TransformStateInterface } from '../interfaces/WorldState';
 import { TransformStateModel } from '../schema/transformStateSchema';
 import { WorldStateModel } from '../schema/worldStateSchema';
 
@@ -33,7 +34,7 @@ export class ServerNetworkOutgoingSystem extends System {
   /** Call execution on server */
   execute = (delta: number): void => {
 
-    const transformState = {
+    const transformState: TransformStateInterface = {
       tick: Network.instance.tick,
       time: Date.now(),
       transforms: [],
@@ -90,8 +91,6 @@ export class ServerNetworkOutgoingSystem extends System {
       const snapShotTime = networkObject.snapShotTime;
 
       const input = getComponent(entity, Input);
-
-      // we should send some default values in case the hmd or a controller has no input
 
       const hmd = input.data.get(BaseInput.XR_HEAD) as InputValue<SIXDOFType>;
       const left = input.data.get(BaseInput.XR_LEFT_HAND) as InputValue<SIXDOFType>;
@@ -152,7 +151,7 @@ export class ServerNetworkOutgoingSystem extends System {
       components: [CharacterComponent, NetworkObject, TransformComponent]
     },
     ikTransforms: {
-      components: [IKComponent, NetworkObject, TransformComponent]
+      components: [XRInputSourceComponent, NetworkObject, TransformComponent]
     },
   }
 }

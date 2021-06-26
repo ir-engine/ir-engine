@@ -21,7 +21,7 @@ import {
 } from '@xrengine/client-core/src/social/reducers/chat/service';
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector';
 import { User } from "@xrengine/common/src/interfaces/User";
-import { isMobileOrTablet } from '@xrengine/engine/src/common/functions/isMobile';
+import { isMobile } from '@xrengine/engine/src/common/functions/isMobile';
 import classNames from 'classnames';
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -157,7 +157,7 @@ const InstanceChat = (props: Props): any => {
                                         key={message.id}
                                     >
                                         <div>
-                                            {!isMobileOrTablet() && <ListItemAvatar>
+                                            {!isMobile && <ListItemAvatar>
                                                 <Avatar src={message.sender?.avatarUrl} />
                                             </ListItemAvatar>}
                                             <ListItemText

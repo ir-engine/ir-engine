@@ -4,6 +4,7 @@ import { CharacterAnimations } from '../CharacterAnimations';
 import { defaultAvatarAnimations } from '../CharacterAvatars';
 import { AnimationComponent } from '../components/AnimationComponent';
 import { CharacterComponent } from '../components/CharacterComponent';
+import { MovementType } from './Util';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -37,7 +38,7 @@ export const movingAnimationSchema = [
     weight:     [   1,   0  ],
     dontHasHit: [   1,   0  ]
   },
-  
+
   // {
   //   type: [JUMP], name: defaultAvatarAnimations[JUMP].name, axis:'y', speed: 0.5, customProperties: ['weight', 'dontHasHit'],
   //   value:      [  1, 0.1  ],
@@ -98,7 +99,7 @@ export const movingAnimationSchema = [
 ];
 
 
-export const initializeMovingState: Behavior = (entity, args: { x?: number, y?: number, z?: number }) => {
+export const initializeMovingState: Behavior = (entity) => {
 
   if(hasComponent(entity, AnimationComponent)) {
     const animComponent = getMutableComponent(entity, AnimationComponent);
@@ -106,7 +107,6 @@ export const initializeMovingState: Behavior = (entity, args: { x?: number, y?: 
     animComponent.updateAnimationsValues = getMovementValues;
   }
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-	if (!actor.initialized) return;
 
 	actor.velocitySimulator.damping = actor.defaultVelocitySimulatorDamping;
 	actor.velocitySimulator.mass = actor.defaultVelocitySimulatorMass;
@@ -120,20 +120,36 @@ export const initializeMovingState: Behavior = (entity, args: { x?: number, y?: 
 	actor.rotationSimulator.damping = actor.defaultRotationSimulatorDamping;
 	actor.rotationSimulator.mass = actor.defaultRotationSimulatorMass;
 
-	actor.canEnterVehicles = true;
-	actor.canLeaveVehicles = true;
-
-  actor.canFindVehiclesToEnter = true;
-
-	actor.velocityTarget.z = args?.z ?? 0;
-	actor.velocityTarget.x = args?.x ?? 0;
-	actor.velocityTarget.y = args?.y ?? 0;
-
   actor.movementEnabled = true;
 };
 
+
+
+export const calculateMovement = (actor: CharacterComponent, delta: number, EPSILON: number): MovementType => {
+  if (actor.moveVectorSmooth.position.length() < EPSILON) {
+    actor.moveVectorSmooth.velocity.set(0,0,0);
+    actor.moveVectorSmooth.position.set(0,0,0);
+  }
+
+  actor.moveVectorSmooth.target.copy(actor.animationVelocity)
+  actor.moveVectorSmooth.simulate(delta);
+  const velocity = actor.moveVectorSmooth.position;
+
+  velocity.set(
+    Math.abs(velocity.x) < EPSILON ? 0 : velocity.x,
+    Math.abs(velocity.y) < EPSILON ? 0 : velocity.y,
+    Math.abs(velocity.z) < EPSILON ? 0 : velocity.z,
+  );
+
+  actor.animationVectorSimulator.target.setY(actor.isGrounded ? 0 : 1);
+  actor.animationVectorSimulator.simulate(delta);
+  const distanceFromGround = actor.animationVectorSimulator.position.y < EPSILON ? 0 : actor.animationVectorSimulator.position.y;
+
+  return { velocity, distanceFromGround };
+}
+
 export const getMovementValues: Behavior = (entity, args: {}, deltaTime: number) => {
-  const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
+  const actor = getComponent(entity, CharacterComponent);
   // simulate rayCastHit as vectorY from 1 to 0, for smooth changes
   //  absSpeed = MathUtils.smoothstep(absSpeed, 0, 1);
 
@@ -141,7 +157,7 @@ export const getMovementValues: Behavior = (entity, args: {}, deltaTime: number)
 
   if(actor.moveVectorSmooth.position.length() < 0.001) { actor.moveVectorSmooth.velocity.set(0,0,0); actor.moveVectorSmooth.position.set(0,0,0); }
 
-  actor.moveVectorSmooth.target.copy(actor.animationVelocity)
+  actor.moveVectorSmooth.target.copy(actor.animationVelocity);
   actor.moveVectorSmooth.simulate(deltaTime);
   const actorVelocity = actor.moveVectorSmooth.position;
 
@@ -155,4 +171,4 @@ export const getMovementValues: Behavior = (entity, args: {}, deltaTime: number)
   dontHasHit = Math.min(dontHasHit, 1);
 
   return { actorVelocity, dontHasHit };
-}
+};

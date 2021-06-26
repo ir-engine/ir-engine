@@ -17,7 +17,7 @@ import {
   XRRenderState
 } from 'three';
 import { EventDispatcher } from '../common/classes/EventDispatcher';
-import { isMobileOrTablet } from '../common/functions/isMobile';
+import { isMobile } from '../common/functions/isMobile';
 import {
   XRHitResult,
   XRHitTestOptionsInit,
@@ -196,7 +196,6 @@ export class MessageQueue extends EventDispatcherProxy {
   queue: Message[];
   interval: NodeJS.Timeout;
   remoteDocumentObjects: Map<string, DocumentElementProxy>;
-  eventTarget: EventTarget;
   object3dProxies: Object3DProxy[] = [];
 
 
@@ -322,7 +321,6 @@ export class DocumentElementProxy extends EventDispatcherProxy {
   messageQueue: MessageQueue;
   uuid: string;
   type: string;
-  eventTarget: EventTarget;
 
   constructor({
     messageQueue,
@@ -702,7 +700,7 @@ export async function createWorker(
   const audioLoader = new THREE_AudioLoader();
   const audioBuffers: Map<string, AudioBuffer> = new Map<string, AudioBuffer>();
   let audioListener: any = undefined;
-  messageQueue.isMobile = isMobileOrTablet();
+  messageQueue.isMobile = isMobile;
 
   messageQueue.messageTypeFunctions.set(
     MessageType.DOCUMENT_ELEMENT_FUNCTION_CALL,
@@ -1153,7 +1151,6 @@ class XRSystemPolyfill {
 }
 
 export class XRSessionProxy extends DocumentElementProxy implements XRSession {
-  messageQueue: MessageQueue;
   requestAnimationFrame: any;
   renderState: XRRenderState;
   inputSources: XRInputSource[] = [];

@@ -1,4 +1,4 @@
-import { Box3, Frustum, Matrix4, Mesh, Vector3 } from "three";
+import { Box3, Frustum, Matrix4, Mesh, Object3D, Vector3 } from "three";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { isClient } from "../../common/functions/isClient";
 import { vectorToScreenXYZ } from "../../common/functions/vectorToScreenXYZ";
@@ -244,18 +244,20 @@ export class InteractiveSystem extends System {
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);
 
+    this.reset();
+  }
+
+  reset(): void {
+    
     this.previousEntity = null;
     this.previousEntity2DPosition = null;
-    this.focused = new Set();
-    this.newFocused = new Set();
+    this.focused = new Set<Entity>();
+    this.newFocused = new Set<Entity>();
   }
 
   dispose(): void {
     super.dispose();
-    this.previousEntity = null;
-    this.previousEntity2DPosition = null;
-    this.focused?.clear();
-    this.newFocused?.clear();
+    this.reset();
 
     EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.USER_HOVER);
     EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.OBJECT_ACTIVATION);

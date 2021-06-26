@@ -11,7 +11,7 @@ import { NetworkObject } from "../../networking/components/NetworkObject";
 import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { Input } from '../components/Input';
 import { LocalInputReceiver } from "../components/LocalInputReceiver";
-import { XRInputReceiver } from '../components/XRInputReceiver';
+import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent';
 import { InputType } from "../enums/InputType";
 import { InputValue } from "../interfaces/InputValue";
 import { InputAlias } from "../types/InputAlias";
@@ -20,11 +20,16 @@ import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { ClientInputSystem } from "./ClientInputSystem";
 import { WEBCAM_INPUT_EVENTS } from "../constants/InputConstants";
 import { Quaternion, Vector3 } from "three";
+import { Entity } from "../../ecs/classes/Entity";
+import { TransformComponent } from "../../transform/components/TransformComponent";
+import { Engine } from "../../ecs/classes/Engine";
 
 const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
 
 const quat = new Quaternion();
-const vec3 = new Vector3();
+const quat1 = new Quaternion();
+const vec = new Vector3();
+const vec1 = new Vector3();
 
 let faceToInput, lipToInput;
 
@@ -70,7 +75,7 @@ export class ActionSystem extends System {
     });
 
     EngineEvents.instance.addEventListener(ClientInputSystem.EVENTS.PROCESS_INPUT, ({ data }) => {
-      this.receivedClientInputs.push(data)
+      this.receivedClientInputs.push(data);
     });
   }
 
@@ -87,58 +92,49 @@ export class ActionSystem extends System {
    */
 
   public execute(delta: number): void {
-    
-    // TODO: use Vector & Quaternion .toArray & .fromArray to make this faster
-    this.queryResults.controllersComponent.all?.forEach(entity => {
-      const xrControllers = getComponent(entity, XRInputReceiver);
+
+    this.queryResults.localClientInputXR.all?.forEach(entity => {
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
       const input = getMutableComponent(entity, Input);
-      // webxr is inverted along z axis, so undo our parent rotation to get the actual data
-      quat.copy(xrControllers.headGroup.quaternion).invert()
-      vec3.copy(xrControllers.head.position).applyQuaternion(quat)
       input.data.set(BaseInput.XR_HEAD, {
         type: InputType.SIXDOF,
         value: {
-          x: vec3.x,
-          y: vec3.y,
-          z: vec3.z,
-          qW: xrControllers.head.quaternion.w,
-          qX: xrControllers.head.quaternion.x,
-          qY: xrControllers.head.quaternion.y,
-          qZ: xrControllers.head.quaternion.z,
+          x: xrInputSourceComponent.head.position.x,
+          y: xrInputSourceComponent.head.position.y,
+          z: xrInputSourceComponent.head.position.z,
+          qW: xrInputSourceComponent.head.quaternion.w,
+          qX: xrInputSourceComponent.head.quaternion.x,
+          qY: xrInputSourceComponent.head.quaternion.y,
+          qZ: xrInputSourceComponent.head.quaternion.z,
         },
         lifecycleState: LifecycleValue.CHANGED
-      })
-      quat.copy(xrControllers.controllerLeft.parent.quaternion).invert()
-      vec3.copy(xrControllers.controllerLeft.position).applyQuaternion(quat)
+      });
       input.data.set(BaseInput.XR_LEFT_HAND, {
         type: InputType.SIXDOF,
         value: {
-          x: vec3.x,
-          y: vec3.y,
-          z: vec3.z,
-          qW: xrControllers.controllerLeft.quaternion.w,
-          qX: xrControllers.controllerLeft.quaternion.x,
-          qY: xrControllers.controllerLeft.quaternion.y,
-          qZ: xrControllers.controllerLeft.quaternion.z,
+          x: xrInputSourceComponent.controllerLeft.position.x,
+          y: xrInputSourceComponent.controllerLeft.position.y,
+          z: xrInputSourceComponent.controllerLeft.position.z,
+          qW: xrInputSourceComponent.controllerLeft.quaternion.w,
+          qX: xrInputSourceComponent.controllerLeft.quaternion.x,
+          qY: xrInputSourceComponent.controllerLeft.quaternion.y,
+          qZ: xrInputSourceComponent.controllerLeft.quaternion.z,
         },
         lifecycleState: LifecycleValue.CHANGED
-      })
-      quat.copy(xrControllers.controllerRight.parent.quaternion).invert()
-      vec3.copy(xrControllers.controllerRight.position).applyQuaternion(quat)
-      quat.copy(xrControllers.controllerRight.parent.quaternion).invert().multiply(xrControllers.controllerRight.quaternion)
+      });
       input.data.set(BaseInput.XR_RIGHT_HAND, {
         type: InputType.SIXDOF,
         value: {
-          x: vec3.x,
-          y: vec3.y,
-          z: vec3.z,
-          qW: quat.w,
-          qX: quat.x,
-          qY: quat.y,
-          qZ: quat.z,
+          x: xrInputSourceComponent.controllerRight.position.x,
+          y: xrInputSourceComponent.controllerRight.position.y,
+          z: xrInputSourceComponent.controllerRight.position.z,
+          qW: xrInputSourceComponent.controllerRight.quaternion.w,
+          qX: xrInputSourceComponent.controllerRight.quaternion.x,
+          qY: xrInputSourceComponent.controllerRight.quaternion.y,
+          qZ: xrInputSourceComponent.controllerRight.quaternion.z,
         },
         lifecycleState: LifecycleValue.CHANGED
-      })
+      });
     });
 
     this.queryResults.localClientInput.all?.forEach(entity => {
@@ -166,7 +162,7 @@ export class ActionSystem extends System {
             const prevValue = input.prevData.get(key);
             if (
               (prevValue.lifecycleState === LifecycleValue.STARTED &&
-              value.lifecycleState === LifecycleValue.STARTED)
+                value.lifecycleState === LifecycleValue.STARTED)
               || (prevValue.lifecycleState === LifecycleValue.CONTINUED &&
                 value.lifecycleState === LifecycleValue.STARTED)
             ) {
@@ -182,8 +178,8 @@ export class ActionSystem extends System {
           }
 
           value.lifecycleState = JSON.stringify(value.value) === JSON.stringify(input.prevData.get(key).value)
-           ? LifecycleValue.UNCHANGED
-           : LifecycleValue.CHANGED;
+            ? LifecycleValue.UNCHANGED
+            : LifecycleValue.CHANGED;
         });
 
         // For each input currently on the input object:
@@ -191,7 +187,7 @@ export class ActionSystem extends System {
           // If the input exists on the input map (otherwise ignore it)
           if (input.schema.inputButtonBehaviors[key]) {
             // If the button is pressed
-          //  console.warn(key,['start','continue','end'][value.lifecycleState]);
+            //  console.warn(key,['start','continue','end'][value.lifecycleState]);
             if (value.value === BinaryValue.ON) {
               // If the lifecycle hasn't been set or just started (so we don't keep spamming repeatedly)
               if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
@@ -199,7 +195,7 @@ export class ActionSystem extends System {
               if (value.lifecycleState === LifecycleValue.STARTED) {
                 // Set the value of the input to continued to debounce
                 input.schema.inputButtonBehaviors[key].started?.forEach(element => {
-                  element.behavior(entity, element.args, delta)
+                  element.behavior(entity, element.args, delta);
                 });
               } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
                 // If the lifecycle equal continued
@@ -253,8 +249,8 @@ export class ActionSystem extends System {
         });
 
         // Repopulate lastData
-       input.lastData.clear();
-       input.data.forEach((value, key) => input.lastData.set(key, value));
+        input.lastData.clear();
+        input.data.forEach((value, key) => input.lastData.set(key, value));
 
         // Add all values in input component to schema
         input.data.forEach((value: any, key) => {
@@ -373,5 +369,11 @@ ActionSystem.queries = {
       removed: true
     }
   },
-  controllersComponent: { components: [Input, LocalInputReceiver, XRInputReceiver], listen: { added: true, removed: true } }
+  localClientInputXR: {
+    components: [Input, LocalInputReceiver, XRInputSourceComponent], 
+    listen: {
+      added: true,
+      removed: true
+    }
+  }
 };

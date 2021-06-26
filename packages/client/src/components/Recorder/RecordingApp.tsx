@@ -377,8 +377,7 @@ export default function RecordingApp() {
   //eslint-disable-next-line
   React.useEffect(() => clearMediaStream, []);
 
-  const [recorderToggle, setRecorderToggle] = React.useState(false);
-  
+  const [recorderToggle, setRecorderToggle] = React.useState(false);  
   return (
     <article className={styles.recordContainer}>     
       <div onClick={() => setRecorderToggle((prevState) => !prevState)}>

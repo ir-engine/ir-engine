@@ -5,8 +5,6 @@ export default class AddObjectCommand extends Command {
   parent: any;
   before: any;
   oldSelection: any;
-  editor: any;
-  id: any;
   constructor(editor, object, parent, before) {
     super(editor);
     this.editor = editor;

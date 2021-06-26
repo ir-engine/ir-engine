@@ -25,13 +25,14 @@ import { PhysicsSystem } from './physics/systems/PhysicsSystem';
 import { configCanvasElement } from './renderer/functions/canvas';
 import { HighlightSystem } from './renderer/HighlightSystem';
 import { TransformSystem } from './transform/systems/TransformSystem';
-import { UIPanelSystem } from './ui/systems/UIPanelSystem';
+import { UIPanelSystem } from './ui-old/systems/UIPanelSystem';
+import { UISystem } from './ui/systems/UISystem'
 import { XRSystem } from './xr/systems/XRSystem';
 import { WebGLRendererSystem } from "./renderer/WebGLRendererSystem";
 import { Timer } from './common/functions/Timer';
 import { execute } from './ecs/functions/EngineFunctions';
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType';
-import { isMobileOrTablet } from './common/functions/isMobile';
+import { isMobile } from './common/functions/isMobile';
 import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem';
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem';
 import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem';
@@ -41,7 +42,7 @@ import { FontManager } from './ui/classes/FontManager';
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
-  return { x: this.x, y: this.y, z: this.z, w: this.w }
+  return { x: this._x, y: this._y, z: this._z, w: this._w }
 }
 Mesh.prototype.raycast = acceleratedRaycast;
 BufferGeometry.prototype["disposeBoundsTree"] = disposeBoundsTree;
@@ -81,6 +82,7 @@ const configureClient = async (options: InitializeOptions) => {
       if (options.renderer.disabled !== true) {
 
           Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
+          Engine.camera.layers.enableAll();
           Engine.scene.add(Engine.camera);
 
           /** @todo for when we fix bundling */
@@ -99,7 +101,7 @@ const configureClient = async (options: InitializeOptions) => {
               AnimationManager.instance.getAnimations(),
           ]);
 
-          Engine.workers.push(options.physxWorker);
+          Engine.workers.push(options.physics.physxWorker);
       }
     }
 
@@ -110,6 +112,7 @@ const configureEditor = async (options: InitializeOptions) => {
     Engine.scene = new Scene();
 
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000);
+    Engine.camera.layers.enableAll();
     Engine.scene.add(Engine.camera);
 
     // let physicsWorker;
@@ -124,7 +127,7 @@ const configureEditor = async (options: InitializeOptions) => {
     //     physicsWorker = new PhysXWorker();
     // }
 
-    Engine.workers.push(options.physxWorker);
+    Engine.workers.push(options.physics.physxWorker);
 
     registerEditorSystems(options);
 }
@@ -137,7 +140,7 @@ const configureServer = async (options: InitializeOptions) => {
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: true, physics: true });
     });
 
-    Engine.workers.push(options.physxWorker);
+    Engine.workers.push(options.physics.physxWorker);
 
     registerServerSystems(options);
 }
@@ -170,6 +173,7 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
     registerSystem(WebGLRendererSystem, { priority: 3, canvas, postProcessing: options.renderer.postProcessing }); // Free
 
     // Input Systems
+    registerSystem(UISystem, {priority: 2}); // Free
     registerSystem(UIPanelSystem, { priority: 2 });
     registerSystem(ActionSystem, { priority: 3 });
     registerSystem(CharacterControllerSystem, { priority: 4 });
@@ -178,7 +182,12 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
     registerSystem(InteractiveSystem, { priority: 5 });
     registerSystem(GameManagerSystem, { priority: 6 });
     registerSystem(TransformSystem, { priority: 7 }); // Free
-    registerSystem(PhysicsSystem, { worker: options.physxWorker, physicsWorldConfig: options.physicsWorldConfig, priority: 8 });
+    registerSystem(PhysicsSystem, { 
+      simulationEnabled: options.physics.simulationEnabled, 
+      worker: options.physics.physxWorker, 
+      physicsWorldConfig: options.physics.physicsWorldConfig, 
+      priority: 8 
+    });
 
     // Miscellaneous Systems
     registerSystem(HighlightSystem, { priority: 9 });
@@ -192,7 +201,12 @@ const registerEditorSystems = (options: InitializeOptions) => {
     // Scene Systems
     registerSystem(GameManagerSystem, { priority: 6 });
     registerSystem(TransformSystem, { priority: 7 });
-    registerSystem(PhysicsSystem, { worker: options.physxWorker, physicsWorldConfig: options.physicsWorldConfig, priority: 8 });
+    registerSystem(PhysicsSystem, { 
+      simulationEnabled: options.physics.simulationEnabled,
+      worker: options.physics.physxWorker,
+      physicsWorldConfig: options.physics.physicsWorldConfig,
+      priority: 8
+    });
 
     // Miscellaneous Systems
     registerSystem(ParticleSystem, { priority: 10 });
@@ -212,7 +226,12 @@ const registerServerSystems = (options: InitializeOptions) => {
     registerSystem(InteractiveSystem, { priority: 5 });
     registerSystem(GameManagerSystem, { priority: 6 });
     registerSystem(TransformSystem, { priority: 7 });
-    registerSystem(PhysicsSystem, { worker: options.physxWorker, physicsWorldConfig: options.physicsWorldConfig, priority: 8 });
+    registerSystem(PhysicsSystem, { 
+      simulationEnabled: options.physics.simulationEnabled,
+      worker: options.physics.physxWorker,
+      physicsWorldConfig: options.physics.physicsWorldConfig,
+      priority: 8
+    });
 
     // Miscellaneous Systems
     registerSystem(ServerSpawnSystem, { priority: 9 });
@@ -220,7 +239,7 @@ const registerServerSystems = (options: InitializeOptions) => {
 
 export const initializeEngine = async (initOptions: InitializeOptions): Promise<void> => {
     // Set options and state of engine.
-    const options = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
+    const options: InitializeOptions = _.defaultsDeep({}, initOptions, DefaultInitializationOptions);
 
     Engine.gameMode = options.gameMode;
     Engine.supportedGameModes = options.supportedGameModes;
@@ -229,6 +248,9 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     Engine.lastTime = now() / 1000;
     Engine.activeSystems = new ActiveSystems();
 
+    if (options.renderer && options.renderer.canvasId) {
+        Engine.options.canvasId = options.renderer.canvasId;
+    }
 
     // Browser state set
     if (options.type !== EngineSystemPresets.SERVER && navigator && window) {
@@ -272,7 +294,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
             Engine.engineTimer.start();
         });
 
-        const engageType = isMobileOrTablet() ? 'touchstart' : 'click';
+        const engageType = isMobile ? 'touchstart' : 'click';
         const onUserEngage = () => {
             EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE });
             document.removeEventListener(engageType, onUserEngage);

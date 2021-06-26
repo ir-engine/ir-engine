@@ -10,7 +10,7 @@ import { addState, removeState, switchState } from "./gameDefault/behaviors/swit
 import { setHideModel } from "./gameDefault/behaviors/setHideModel";
 //
 import { addForce } from "./Golf/behaviors/addForce";
-import { teleportObject } from "./Golf/behaviors/teleportObject";
+import { removeVelocity, teleportObject } from "./Golf/behaviors/teleportObject";
 //
 import { addRole } from "./Golf/behaviors/addRole";
 import { addTurn } from "./Golf/behaviors/addTurn";
@@ -35,9 +35,10 @@ import { customChecker } from "./gameDefault/checkers/customChecker";
 import { isDifferent } from "./gameDefault/checkers/isDifferent";
 import { doesPlayerHaveGameObject } from "./gameDefault/checkers/doesPlayerHaveGameObject";
 
+
 // others
 import { grabEquippable } from "../../interaction/functions/grabEquippable";
-import { getComponent } from "../../ecs/functions/EntityFunctions";
+import { getComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import { disableInteractiveToOthers, disableInteractive } from "./Golf/behaviors/disableInteractiveToOthers";
 import { Network } from "../../networking/classes/Network";
 import { Entity } from "../../ecs/classes/Entity";
@@ -49,11 +50,11 @@ import { removeSpawnedObjects } from "../functions/functions";
 import { ifMoved } from "./gameDefault/checkers/ifMoved";
 import { spawnBall } from "./Golf/prefab/GolfBallPrefab";
 import { hitBall } from "./Golf/behaviors/hitBall";
-import { teleportPlayer } from "./Golf/behaviors/teleportPlayer";
+import { teleportPlayerBehavior } from "./Golf/behaviors/teleportPlayer";
 import { getPositionNextPoint } from "./Golf/behaviors/getPositionNextPoint";
 
-
-
+// ui
+import { createYourTurnPanel } from './Golf/behaviors/createYourTurnPanel'
 
 /**
  * @author HydraFire
@@ -108,14 +109,33 @@ function somePrepareFunction(gameRules: GameMode) {
   gameRules.initGameState = copleNameRolesInOneString(gameRules.initGameState);
   gameRules.registerActionTagComponents = registerAllActions(); //TO DO: registerActionsOnlyUsedInThisMode();
   gameRules.registerStateTagComponents = registerAllStates(); //TO DO: registerStatesOnlyUsedInThisMode();
-  cloneSameRoleRules( gameRules.gamePlayerRoles, { from:'1-Player', to: '2-Player'});
- // gameRules.gamePlayerRoles = cloneSameRoleRules( gameRules.gamePlayerRoles, { from:'1-Player', to: '2-Player'})
   return gameRules
+}
+
+function somePrepareGameInitPlayersRole( gameRules: GameMode, maxPlayerCount) {
+  for (let playerNumper = 2; playerNumper <= maxPlayerCount; playerNumper++) {
+    cloneSameRoleRules( gameRules.gamePlayerRoles, { from:'1-Player', to: playerNumper+'-Player'});
+    searchPlaceAndAddRole( gameRules.gameObjectRoles, playerNumper+'-Player');
+    if (playerNumper > 2) {
+      cloneSameRoleRules (gameRules.initGameState, { from:'2-Player', to: playerNumper+'-Player'});
+    }
+  }
+}
+
+function searchPlaceAndAddRole(gameObjectRoles, newRole) {
+  Object.keys(gameObjectRoles).forEach(key => {
+    Object.keys(gameObjectRoles[key]).forEach(action => {
+      gameObjectRoles[key][action].forEach(behavior => {
+        if (behavior?.takeEffectOn?.targetsRole['1-Player']) {
+          behavior.takeEffectOn.targetsRole[newRole] = behavior.takeEffectOn.targetsRole['1-Player'];
+        }
+      })
+    })
+  })
 }
 
 function cloneSameRoleRules(object, args) {
   object[args.to] = object[args.from]; //JSON.parse(JSON.stringify(object[args.from]))
-  return object;
 }
 
 function registerAllActions() {
@@ -142,6 +162,12 @@ const onGolfGameLoading = (entity: Entity) => {
   })
 }
 
+const beforeGolfPlayerLeave = (entity: Entity) => {
+  if (getComponent(entity, State.YourTurn, true) || getComponent(entity, State.Waiting, true)) {
+    nextTurn(entity)
+  }
+}
+
 const onGolfPlayerLeave = (entity: Entity, playerComponent, game) => {
 //  const entityArray = getEntityOwnedObjects(entity)
 //  entityArray.forEach(entityObjects => removeSpawnedObject(entityObjects));
@@ -153,22 +179,24 @@ const onGolfPlayerLeave = (entity: Entity, playerComponent, game) => {
 export const GolfGameMode: GameMode = somePrepareFunction({
   name: "Golf",
   priority: 1,
+  preparePlayersRole: somePrepareGameInitPlayersRole,
   onGameLoading: onGolfGameLoading,
   onGameStart: onGolfGameStart,
+  beforePlayerLeave: beforeGolfPlayerLeave,
   onPlayerLeave: onGolfPlayerLeave, // player can leave game without disconnect
   registerActionTagComponents: [], // now auto adding
   registerStateTagComponents: [],
   initGameState: {
     'newPlayer': {
-      behaviors: [addRole, spawnClub]
+      behaviors: [addRole, createYourTurnPanel]
     },
     '1-Player': {
       components:[State.WaitTurn],
-      behaviors: [addTurn, initScore]
+      behaviors: [spawnClub, initScore, addTurn]
     },
     '2-Player': {
       components:[State.WaitTurn],
-      behaviors: [initScore]
+      behaviors: [spawnClub, initScore]
     },
     'GolfBall': {
       components: [State.SpawnedObject, State.NotReady, State.Active, State.BallMoving]
@@ -216,6 +244,35 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           }]
         }
       ],
+      'HitBall': [
+        {
+          behavior: addState,
+          args: { on:'target', add: State.addedHit },
+          watchers:[ [ State.YourTurn ] ],
+          takeEffectOn: {
+            targetsRole: {
+              'GolfClub': {
+                watchers:[ [ Action.GameObjectCollisionTag ] ],
+                checkers:[{
+                  function: ifOwned
+                },{
+                  function: dontHasState,
+                  args: { stateComponent: State.Hit }
+                },{
+                  function: customChecker,
+                  args: {
+                    on:'GolfBall',
+                    watchers:[ [ Action.GameObjectCollisionTag, State.BallStopped, State.Ready, State.Active ] ],
+                    checkers:[{
+                      function: ifOwned
+                    }]
+                  }
+                }]
+              }
+            }
+          }
+        },
+      ],
       'Goal': [
         {
           behavior: addState,
@@ -254,7 +311,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
         },
         // takeEffectOn Player, Gall
         {
-          behavior: teleportPlayer,
+          behavior: teleportPlayerBehavior,
           prepareArgs: getPositionNextPoint,
           args: { on: 'self', positionCopyFromRole: 'GolfTee-', position: null },
           watchers:[ [ State.Goal ] ]
@@ -361,6 +418,30 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       ]
     },
   },
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
   gameObjectRoles: {
     'GolfBall': {
       'checkIfFlyingOut': [
@@ -375,12 +456,6 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           takeEffectOn: {
             targetsRole: {
               '1-Player': {
-                checkers:[{
-                  function: ifOwned
-                  }
-                ]
-              },
-              '2-Player': {
                 checkers:[{
                   function: ifOwned
                   }
@@ -409,6 +484,14 @@ export const GolfGameMode: GameMode = somePrepareFunction({
             args: { min: 0.0005 }
           }]
         },
+        {
+          behavior: removeVelocity,
+          watchers:[ [ State.BallStopped , State.Inactive ] ],
+          checkers:[{
+            function: ifMoved,
+            args: { on: 'self', max: 0.0001 }
+          }]
+        },
         // whan ball spawn he droping and gets moving State, we give Raady state for him whan he stop
         {
           behavior: switchState,
@@ -421,7 +504,6 @@ export const GolfGameMode: GameMode = somePrepareFunction({
         }
       ],
     },
-    'GolfTee': {}, // will remove what we re-create locations with new GolfTee-+n
     'GolfTee-0': {},
     'GolfTee-1': {},
     'GolfTee-2': {},
@@ -432,6 +514,10 @@ export const GolfGameMode: GameMode = somePrepareFunction({
     'GolfTee-7': {},
     'GolfTee-8': {},
     'GolfTee-9': {},
+    'GolfTee-10': {},
+    'GolfTee-11': {},
+    'GolfTee-12': {},
+    'GolfTee-13': {},
     'GolfHole': {
       'goal': [
         {
@@ -458,65 +544,9 @@ export const GolfGameMode: GameMode = somePrepareFunction({
       ],
       'hitBall': [
         {
-          behavior: addState,
-          args: { on:'self', add: State.addedHit },
-          watchers:[ [ Action.GameObjectCollisionTag ] ],
-          checkers:[{
-            function: dontHasState,
-            args: { stateComponent: State.Hit }
-          }],
-          takeEffectOn: {
-            targetsRole: {
-              'GolfBall': {
-                watchers:[ [ Action.GameObjectCollisionTag, State.BallStopped, State.Ready, State.Active ] ],
-                checkers:[{
-                  function: ifOwned
-                },{
-                  function: customChecker,
-                  args: {
-                    on:'1-Player',
-                    watchers:[ [ State.YourTurn ] ],
-                    checkers:[{
-                      function: ifOwned
-                    }]
-                  }
-                }]
-              }
-            }
-          }
-        },
-        {
-          behavior: addState,
-          args: { on:'self', add: State.addedHit },
-          watchers:[ [ Action.GameObjectCollisionTag ] ],
-          checkers:[{
-            function: dontHasState,
-            args: { stateComponent: State.Hit }
-          }],
-          takeEffectOn: {
-            targetsRole: {
-              'GolfBall': {
-                watchers:[ [ Action.GameObjectCollisionTag, State.BallStopped, State.Ready, State.Active ] ],
-                checkers:[{
-                  function: ifOwned
-                },{
-                  function: customChecker,
-                  args: {
-                    on:'2-Player',
-                    watchers:[ [ State.YourTurn ] ],
-                    checkers:[{
-                      function: ifOwned
-                    }]
-                  }
-                }]
-              }
-            }
-          }
-        },
-        {
           behavior: hitBall,
           watchers:[ [ State.addedHit ] ],
-          args: { clubPowerMultiplier: 10, hitAdvanceFactor: 1.2  },
+          args: { clubPowerMultiplier: 5, hitAdvanceFactor: 1.2  },
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {
@@ -540,11 +570,6 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           takeEffectOn: {
             targetsRole: {
               '1-Player': {
-                checkers:[{
-                  function: ifOwned
-                }]
-              },
-              '2-Player': {
                 checkers:[{
                   function: ifOwned
                 }]

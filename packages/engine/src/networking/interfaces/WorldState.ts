@@ -4,6 +4,17 @@ import { GameStateActionMessage, GameStateUpdateMessage, ClientGameActionMessage
 import { InputAlias } from "../../input/types/InputAlias";
 import { StateEntityGroup, StateEntityIKGroup } from "../types/SnapshotDataTypes";
 
+export interface AvatarProps {
+  avatarURL?: string;
+  thumbnailURL?: string;
+  avatarId?: string;
+}
+
+export type CommandType = {
+  type: number,
+  args: string,
+}
+
 /** Interface for handling network input. */
 export interface NetworkInputInterface {
   /** network ID of user. */
@@ -34,7 +45,8 @@ export interface NetworkInputInterface {
   /** Viewport vector of the client. */
   viewVector: {  x: number, y: number, z: number  },
   snapShotTime: number,
-  clientGameAction: ClientGameActionMessage[]
+  clientGameAction: ClientGameActionMessage[],
+  commands: CommandType[],
 }
 
 /** Interface for handling client network input. */
@@ -53,11 +65,7 @@ export interface PacketNetworkClientInputInterface extends PacketNetworkInputInt
 export interface NetworkClientDataInterface {
   /** Id of the user. */
   userId: string,
-  avatarDetail?: {
-    avatarURL?: string;
-    thumbnailURL?: string;
-    avatarId?: string;
-  },
+  avatarDetail?: AvatarProps,
 }
 
 /** Interface to remove network object. */
@@ -74,7 +82,8 @@ export interface NetworkObjectEditInterface {
   ownerId: string,
   /* NetworkObjectUpdateType */
   type: number,
-  values: number[]
+  values: number[],
+  data: string[],
   // state: number,
   // currentId: number,
   // value: number,
