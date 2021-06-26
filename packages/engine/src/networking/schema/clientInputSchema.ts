@@ -50,6 +50,11 @@ export const clientGameAction = new Schema({
   ownerId: string
 });
 
+export const commandSchema = new Schema({
+  type: uint8,
+  args: string,
+})
+
 /** Schema for input. */
 export const inputKeyArraySchema = new Schema({
   networkId: uint32,
@@ -59,7 +64,8 @@ export const inputKeyArraySchema = new Schema({
   buttons: [inputKeySchema],
   viewVector: viewVectorSchema,
   snapShotTime: uint32,
-  clientGameAction: [clientGameAction]
+  clientGameAction: [clientGameAction],
+  commands: [commandSchema],
 });
 
 /** Class for client input. */

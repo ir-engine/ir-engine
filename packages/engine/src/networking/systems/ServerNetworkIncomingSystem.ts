@@ -22,7 +22,7 @@ import { getGameFromName } from '../../game/functions/functions';
 import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent';
 import { BaseInput } from '../../input/enums/BaseInput';
 import { Quaternion } from 'three';
-import { identity } from 'lodash';
+import { executeCommnads } from '../functions/executeCommands';
 
 
 export function cancelAllInputs(entity) {
@@ -114,6 +114,10 @@ export class ServerNetworkIncomingSystem extends System {
             sendState(getGameFromName(playerComp.gameName), playerComp);
           }
         })
+      }
+
+      if (clientInput.commands.length > 0) {
+        executeCommnads(entity, clientInput.commands);
       }
 
       const actor = getMutableComponent(entity, CharacterComponent);
