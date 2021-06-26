@@ -352,6 +352,7 @@ export class ClientNetworkStateSystem extends System {
           axes6DOF: [],
           viewVector: Network.instance.clientInputState.viewVector,
           clientGameAction: getClientGameActions(),// Network.instance.clientGameAction,
+          commands: [],
         }
       });
     }

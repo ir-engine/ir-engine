@@ -1,7 +1,7 @@
 import { AnimationAction, AnimationClip, LoopOnce, LoopRepeat, MathUtils } from "three"
 import { AnimationManager } from "../AnimationManager";
 import { CharacterComponent } from "../components/CharacterComponent";
-import { Animation, AnimationType, CalculateWeightsParams, CharacterAnimations, CharacterStates, MovementType } from "./Util";
+import { Animation, AnimationType, CalculateWeightsParams, CharacterAnimations, CharacterStates } from "./Util";
 
 /** Class to hold state of an animation for entity */
 export class AnimationState {
@@ -44,11 +44,12 @@ export class AnimationState {
 
     /** Mounts the state
      * @param actor Actor component for which animation state will be mounted
-     * @param movement Movement of the actor in this frame
+     * @param params Parameters to calculate weigths
      */
-    mount = (actor: CharacterComponent, movement: MovementType) => {
+    mount = (actor: CharacterComponent, params: CalculateWeightsParams) => {
         // Calculate the weights of the animations
-        if (this.calculateWeights) this.calculateWeights({ movement, isMounting: true });
+        params.isMounting = true;
+        if (this.calculateWeights) this.calculateWeights(params);
 
 		this.animations.forEach(animation => {
 
@@ -78,10 +79,10 @@ export class AnimationState {
     }
 
     /** Updates the animations and adjusts the weight
-     * @param movement Movement of the actor in this frame
+     * @param params Parameters to calculate weigths
      */
-    update = (movement: MovementType) => {
-        if (this.calculateWeights) this.calculateWeights({ movement });
+    update = (params: CalculateWeightsParams) => {
+        if (this.calculateWeights) this.calculateWeights(params);
 
         this.animations.forEach(animation => {
             if (!animation.clip) return;

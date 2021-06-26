@@ -30,6 +30,8 @@ import { applyVectorMatrixXZ } from "../common/functions/applyVectorMatrixXZ";
 import { FollowCameraComponent } from "../camera/components/FollowCameraComponent";
 import { CameraSystem } from "../camera/systems/CameraSystem";
 import { DesiredTransformComponent } from "../transform/components/DesiredTransformComponent";
+import { CharacterAnimationGraph } from "./animations/CharacterAnimationGraph";
+import { CharacterStates } from "./animations/Util";
 
 const forwardVector = new Vector3(0, 0, 1);
 const prevControllerColliderPosition = new Vector3();
@@ -207,6 +209,12 @@ export class CharacterControllerSystem extends System {
 
     // temporarily disable animations on Oculus until we have buffer animation system / GPU animations
     if(!Engine.isHMD) {
+      this.queryResults.animation.added?.forEach((entity) => {
+        const animationComponent = getMutableComponent(entity, AnimationComponent);
+        animationComponent.animationGraph = CharacterAnimationGraph.constructGraph();
+        animationComponent.currentState = animationComponent.animationGraph[CharacterStates.IDLE];
+      });
+
       this.queryResults.animation.all?.forEach((entity) => {
         AnimationManager.instance.renderAnimations(entity, delta);
       });
