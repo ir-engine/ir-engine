@@ -3,6 +3,7 @@ import {
   LocationTypesRetrievedResponse,
 } from './actions';
 import {
+<<<<<<< HEAD
   ADMIN_LOCATIONS_RETRIEVED,
   ADMIN_LOCATION_CREATED,
   ADMIN_LOCATION_PATCHED,
@@ -11,6 +12,18 @@ import {
 import {
   ADMIN_LOCATION_TYPES_RETRIEVED,
 } from "../../actions";
+=======
+  LOCATIONS_RETRIEVED,
+  LOCATION_CREATED,
+  LOCATION_PATCHED,
+  LOCATION_REMOVED,
+}    from "@xrengine/client-core/src/social/reducers/actions";
+// } from '../../actions';
+import {
+  LOCATION_TYPES_RETRIEVED,
+}  from "@xrengine/client-core/src/world/reducers/actions";
+// } from "../../actions";
+>>>>>>> c60d73e8d961e33dcc88371d107461156e77d6c2
 import { UserSeed } from '@xrengine/common/src/interfaces/User';
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider';
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser';

@@ -1,4 +1,5 @@
 import {
+<<<<<<< HEAD
     ADMIN_LOCATION_TYPES_RETRIEVED,
     ADMIN_FETCH_CURRENT_LOCATION,
     ADMIN_LOCATIONS_RETRIEVED,
@@ -9,6 +10,25 @@ import {
     ADMIN_LOCATION_BAN_CREATED,
     ADMIN_LOCATION_NOT_FOUND,
 } from '../../actions';
+=======
+    FETCH_CURRENT_LOCATION,
+    LOCATIONS_RETRIEVED,
+    LOCATION_RETRIEVED,
+    LOCATION_CREATED,
+    LOCATION_PATCHED,
+    LOCATION_REMOVED,
+    LOCATION_BAN_CREATED,
+    LOCATION_NOT_FOUND,
+}    from "@xrengine/client-core/src/social/reducers/actions";
+
+import {
+    LOCATION_TYPES_RETRIEVED,
+} from "@xrengine/client-core/src/world/reducers/actions";
+// } from '../../actions';
+
+// /var/www/html/workspace/tsdoc/xr3ngine/packages/client-core/src/social/reducers/actions.ts
+
+>>>>>>> c60d73e8d961e33dcc88371d107461156e77d6c2
 import { Location } from '@xrengine/common/src/interfaces/Location';
 
 export interface LocationsRetrievedAction {

@@ -1,5 +1,7 @@
-import { ADDED_LAYER_USER, CHANGED_RELATION, CLEAR_LAYER_USERS, LOADED_LAYER_USERS, LOADED_RELATIONSHIP, LOADED_USERS, REMOVED_LAYER_USER, USER_TOAST } from '../../../common/reducers/actions';
-import {  USER_PATCHED } from '../../reducers/actions';
+import { ADDED_LAYER_USER, CHANGED_RELATION, CLEAR_LAYER_USERS, LOADED_LAYER_USERS, LOADED_RELATIONSHIP, REMOVED_LAYER_USER, USER_TOAST } from '../../../common/reducers/actions';
+
+import { LOADED_USERS } from '@xrengine/client-core/src/admin/reducers/actions';
+import { USER_PATCHED } from '../../reducers/actions';
 import { ADDED_CHANNEL_LAYER_USER, CLEAR_CHANNEL_LAYER_USERS, LOADED_CHANNEL_LAYER_USERS, REMOVED_CHANNEL_LAYER_USER } from '../../../world/reducers/actions';
 import { Relationship } from '@xrengine/common/src/interfaces/Relationship';
 import { User } from '@xrengine/common/src/interfaces/User';
