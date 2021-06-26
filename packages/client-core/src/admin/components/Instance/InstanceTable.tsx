@@ -13,7 +13,7 @@ import { bindActionCreators, Dispatch } from 'redux';
 import { connect } from 'react-redux';
 import { columns, Data } from "./variables";
 import { selectAdminInstanceState } from "../../reducers/admin/instance/selector";
-import { useStyle } from "./styles";
+import { useStyle, useStyles } from "./styles";
 
 interface Props {
     adminState?: any;
@@ -47,8 +47,9 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 const InstanceTable = (props: Props) => {
     const { fetchAdminInstances, authState, adminInstanceState } = props;
     const classes = useStyle();
+    const classex = useStyles();
     const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const [rowsPerPage, setRowsPerPage] = React.useState(12);
 
     const user = authState.get("user");
     const adminInstances = adminInstanceState.get('instances');
@@ -76,9 +77,7 @@ const InstanceTable = (props: Props) => {
             channelId,
             action: (
                 <>
-                    <a href="#h" className={classes.actionStyle}> View </a>
-                    <a href="#h" className={classes.actionStyle}> Edit </a>
-                    <a href="#h" className={classes.actionStyle}> Delete </a>
+                    <a href="#h" className={classes.actionStyle}> <span className={classes.spanDange}>Delete</span>  </a>
                 </>
             )
         };
@@ -97,6 +96,7 @@ const InstanceTable = (props: Props) => {
                                     key={column.id}
                                     align={column.align}
                                     style={{ minWidth: column.minWidth }}
+                                    className={classex.tableCellHeader}
                                 >
                                     {column.label}
                                 </TableCell>
@@ -110,7 +110,11 @@ const InstanceTable = (props: Props) => {
                                     {columns.map((column) => {
                                         const value = row[column.id];
                                         return (
-                                            <TableCell key={column.id} align={column.align}>
+                                            <TableCell
+                                                key={column.id}
+                                                align={column.align}
+                                                className={classex.tableCellBody}
+                                            >
                                                 {value}
                                             </TableCell>
                                         );
@@ -122,13 +126,14 @@ const InstanceTable = (props: Props) => {
                 </Table>
             </TableContainer>
             <TablePagination
-                rowsPerPageOptions={[10, 25, 100]}
+                rowsPerPageOptions={[12]}
                 component="div"
-                count={10}
+                count={12}
                 rowsPerPage={rowsPerPage}
                 page={page}
                 onChangePage={handleChangePage}
                 onChangeRowsPerPage={handleChangeRowsPerPage}
+                className={classex.tableFooter}
             />
         </div>
     );

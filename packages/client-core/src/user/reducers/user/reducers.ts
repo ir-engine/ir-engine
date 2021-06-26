@@ -1,4 +1,5 @@
-import { ADDED_LAYER_USER, CHANGED_RELATION, CLEAR_LAYER_USERS, LOADED_LAYER_USERS, LOADED_RELATIONSHIP, LOADED_USERS, REMOVED_LAYER_USER, USER_TOAST } from '../../../common/reducers/actions';
+import { ADDED_LAYER_USER, CHANGED_RELATION, CLEAR_LAYER_USERS, LOADED_LAYER_USERS, LOADED_RELATIONSHIP, REMOVED_LAYER_USER, USER_TOAST } from '../../../common/reducers/actions';
+import { ADMIN_LOADED_USERS } from '@xrengine/client-core/src/admin/reducers/actions';
 import { USER_REMOVED_ROW } from  '../../reducers/actions';
 import { ADDED_CHANNEL_LAYER_USER, CLEAR_CHANNEL_LAYER_USERS, LOADED_CHANNEL_LAYER_USERS, REMOVED_CHANNEL_LAYER_USER } from '../../../world/reducers/actions';
 import { RelationshipSeed } from '@xrengine/common/src/interfaces/Relationship';
@@ -35,7 +36,7 @@ const userReducer = (state = immutableState, action: UserAction): any => {
       return state
         .set('relationship', (action as LoadedUserRelationshipAction).relationship)
         .set('updateNeeded', false);
-    case LOADED_USERS:
+    case ADMIN_LOADED_USERS:
       return state
         .set('users', (action as LoadedUsersAction).users)
         .set('updateNeeded', false);

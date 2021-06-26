@@ -3,7 +3,7 @@ import { Application } from '../../../declarations';
 import config from '../../appconfig';
 import axios from "axios";
 
-const s3 = new S3Provider();
+const s3:any = new S3Provider();
 const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_.~#?&//=]*)$/;
 const thumbnailRegex = /([a-zA-Z0-9_-]+).jpeg/;
 

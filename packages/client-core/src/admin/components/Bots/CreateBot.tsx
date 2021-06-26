@@ -14,7 +14,7 @@ import Grid from '@material-ui/core/Grid';
 import Card from "@material-ui/core/Card";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
-import { Face, Save } from '@material-ui/icons';
+import { Autorenew, Face, Save } from '@material-ui/icons';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
@@ -28,6 +28,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import { createBotAsAdmin } from "../../reducers/admin/bots/service";
 import { selectAdminLocationState } from "../../reducers/admin/location/selector";
 import { formValid } from "./validation";
+
 
 interface Props {
     fetchAdminInstances?: any;
@@ -70,19 +71,19 @@ const CreateBot = (props: Props) => {
         description: ""
     });
     const [commandData, setCommandData] = React.useState([]);
-    const [name, setName] = React.useState("");
-    const [description, setDescription] = React.useState("");
     const [open, setOpen] = React.useState(false);
-    const [instance, setInstance] = React.useState("");
-    const [location, setLocation] = React.useState("");
     const [error, setError] = React.useState("");
     const [formErrors, setFormErrors] = React.useState({
         name: "",
         description: "",
+        location: "",
     });
+    const [currentInstance, setCurrentIntance] = React.useState([]);
     const [state, setState] = React.useState({
         name: "",
         description: "",
+        instance: "",
+        location: "",
     });
     const classes = useStyles();
     const classx = useStyle();
@@ -91,7 +92,6 @@ const CreateBot = (props: Props) => {
     const instanceData = adminInstances.get("instances");
     const adminLocation = adminLocationState.get('locations');
     const locationData = adminLocation.get("locations");
-
     React.useEffect(() => {
         if (user.id && adminInstances.get("updateNeeded")) {
             fetchAdminInstances();
@@ -100,6 +100,7 @@ const CreateBot = (props: Props) => {
             fetchAdminLocations();
         }
     }, [user, adminInstanceState]);
+
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
             return;
@@ -112,6 +113,13 @@ const CreateBot = (props: Props) => {
         data.push(element);
     });
 
+    React.useEffect(() => {
+        const instanceFilter = data.filter(el => el.location.id === state.location);
+        if (instanceFilter.length > 0) {
+            setState({ ...state, instance: "" });
+            setCurrentIntance(instanceFilter);
+        }
+    }, [state.location, adminInstanceState]);
 
     const temp = [];
     locationData.forEach(el => {
@@ -121,11 +129,11 @@ const CreateBot = (props: Props) => {
     const handleSubmit = () => {
         const data = {
             name: state.name,
-            instanceId: instance,
+            instanceId: state.instance || null,
             userId: user.id,
             command: commandData,
             description: state.description,
-            locationId: location
+            locationId: state.location
         };
         let temp = formErrors;
         if (!state.name) {
@@ -134,14 +142,16 @@ const CreateBot = (props: Props) => {
         if (!state.description) {
             temp.description = "Description can't be empty";
         }
+        if (!state.location) {
+            temp.location = "Location can't be empty";
+        }
 
         setFormErrors(temp);
-        if (instance && location && formValid(state, formErrors)) {
+        if (formValid(state, formErrors)) {
             createBotAsAdmin(data);
-            setState({ name: "", description: "" });
+            setState({ name: "", description: "", instance: "", location: "" });
             setCommandData([]);
-            setInstance("");
-            setLocation("");
+            setCurrentIntance([]);
         } else {
             setError("Please fill all required field");
             setOpen(true);
@@ -159,6 +169,9 @@ const CreateBot = (props: Props) => {
             case "description":
                 temp.description = value.length < 2 ? "Description is required!" : "";
                 break;
+            case "location":
+                temp.location = value.length < 2 ? "Location is required!" : "";
+                break;
             default:
                 break;
         }
@@ -166,18 +179,19 @@ const CreateBot = (props: Props) => {
         setState({ ...state, [names]: value });
     };
 
+
     return (
         <Card className={classes.rootLeft}>
             <Paper className={classes.header} style={{ display: "flex" }}>
                 <Typography className={classes.title} >
-                    <Face /> <span style={{ marginLeft: "10px" }}>  Create new bot </span>
+                    <Face style={{ paddingTop: "5px" }} /> <span style={{ marginLeft: "10px" }}>  Create new bot </span>
                 </Typography>
 
                 <Button
                     variant="contained"
                     disableElevation
                     type="submit"
-                    style={{ marginLeft: "auto", background: "#43484F", color: "#fff", width: "150px" }}
+                    className={classes.saveBtn}
                     onClick={handleSubmit}
                 >
                     <Save style={{ marginRight: "10px" }} />  save
@@ -213,78 +227,77 @@ const CreateBot = (props: Props) => {
                         />
                     </Paper>
 
+                    <label>Location</label>
+                    <Grid container spacing={1}>
+                        <Grid item xs={10}>
+                            <Paper component="div" className={formErrors.location.length > 0 ? classes.redBorder : classes.createInput}>
+                                <FormControl fullWidth >
+                                    <Select
+                                        labelId="demo-controlled-open-select-label"
+                                        id="demo-controlled-open-select"
+                                        value={state.location}
+                                        fullWidth
+                                        onChange={handleInputChange}
+                                        name="location"
+                                        displayEmpty
+                                        className={classes.select}
+                                        MenuProps={{ classes: { paper: classx.selectPaper } }}
+                                    >
+                                        <MenuItem value="" disabled>
+                                            <em>Select location</em>
+                                        </MenuItem>
+                                        {
+                                            temp.map(el => <MenuItem value={el.id} key={el.id}>{el.name}</MenuItem>)
+                                        }
+                                    </Select>
+                                </FormControl>
+                            </Paper>
+                        </Grid>
+                        <Grid item xs={2} style={{ display: "flex" }}>
+                            <div style={{ marginLeft: "auto" }}>
+                                <IconButton onClick={()=> fetchAdminLocations()}>
+                                    <Autorenew style={{ color: "#fff" }} />
+                                </IconButton>
+                            </div>
+                        </Grid>
+                    </Grid>
 
                     <label>Instance</label>
-                    <Paper component="div" className={classes.createInput}>
-                        <FormControl className={classes.createInput} >
-                            <Select
-                                labelId="demo-controlled-open-select-label"
-                                id="demo-controlled-open-select"
-                                // open={open}
-                                //  onClose={handleClose}
-                                //onOpen={handleOpen}
-                                value={instance}
-                                className={classes.inputSelect}
-                                onChange={(e) => setInstance(e.target.value as string)}
-                            >
-                                <MenuItem value="">
-                                    <em>None</em>
-                                </MenuItem>
-                                {
-                                    data.map(el => <MenuItem value={el.id} key={el.id}>{el.ipAddress}</MenuItem>)
-                                }
-                            </Select>
-                        </FormControl>
-                    </Paper>
+                    <Grid container spacing={1}>
+                        <Grid item xs={10}>
+                            <Paper component="div" className={classes.createInput}>
+                                <FormControl fullWidth disabled={currentInstance.length > 0 ? false : true} >
+                                    <Select
+                                        labelId="demo-controlled-open-select-label"
+                                        id="demo-controlled-open-select"
+                                        value={state.instance}
+                                        fullWidth
+                                        displayEmpty
+                                        onChange={handleInputChange}
+                                        className={classes.select}
+                                        name="instance"
+                                        MenuProps={{ classes: { paper: classx.selectPaper } }}
+                                    >
+                                        <MenuItem value="" disabled>
+                                            <em>Select instance</em>
+                                        </MenuItem>
+                                        {
+                                            currentInstance.map(el => <MenuItem value={el.id} key={el.id}>{el.ipAddress}</MenuItem>)
+                                        }
+                                    </Select>
+                                </FormControl>
+                            </Paper>
+                        </Grid>
+                        <Grid item xs={2} style={{ display: "flex" }}>
+                            <div style={{ marginLeft: "auto" }}>
+                                <IconButton onClick={()=> fetchAdminInstances()}>
+                                    <Autorenew style={{ color: "#fff" }} />
+                                </IconButton>
+                            </div>
+                        </Grid>
+                    </Grid>
 
 
-                    <label>Location</label>
-                    <Paper component="div" className={classes.createInput}>
-                        <FormControl className={classes.createInput} >
-                            <Select
-                                labelId="demo-controlled-open-select-label"
-                                id="demo-controlled-open-select"
-                                // open={open}
-                                //  onClose={handleClose}
-                                //onOpen={handleOpen}
-                                className={classes.inputSelect}
-                                value={location}
-                                onChange={(e) => setLocation(e.target.value as string)}
-                            >
-                                <MenuItem value="">
-                                    <em>None</em>
-                                </MenuItem>
-                                {
-                                    temp.map(el => <MenuItem value={el.id} key={el.id}>{el.name}</MenuItem>)
-                                }
-                            </Select>
-                        </FormControl>
-                    </Paper>
-
-
-
-
-
-                    {/* <label>Instance</label>
-                    <Autocomplete
-                        id="combo-box-demo"
-                        {...InstanceProps}
-                        onChange={(e, newValue) => setInstance(newValue?.id as string)}
-                        className={classes.createInput}
-                        debug
-                        classes={{ paper: classx.autPaper }}
-                        renderInput={(params) => <TextField {...params} className={classes.input} style={{ color: "#fff" }} value={instance} placeholder="Select instance" />}
-                    />
-                    <label>Location</label>
-                    <Autocomplete
-                        id="combo-box-demo"
-                        {...defaultProps}
-                        classes={{ paper: classx.autPaper }}
-                        onChange={(e, newValue) => setLocation(newValue?.id as string)}
-                        className={classes.createInput}
-                        debug
-                        renderInput={(params) => <TextField {...params} className={classes.input} style={{ color: "#fff" }} placeholder="Select location" value={location} />}
-                    /> */}
                     <Grid container spacing={2}>
                         <Grid item xs={4}>
                             <label>Command</label>
@@ -329,8 +342,6 @@ const CreateBot = (props: Props) => {
                     >
                         Add command
                     </Button>
-
-
                     <div
                         className={commandData.length > 0 ? classes.alterContainer : classes.createAlterContainer}
                     >

@@ -1,4 +1,3 @@
-const xrengineBot = require('./src/xrengine-bot');
 const AgonesSDK = require('@google-cloud/agones-sdk');
 const { BotAction } = require('./src/bot-action');
 const BotManager = require('./src/bot-manager');

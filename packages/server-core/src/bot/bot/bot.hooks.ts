@@ -9,7 +9,7 @@ export default {
     get: [],
     create: [],
     update: [disallow()],
-    patch: [disallow()],
+    patch: [],
     remove: []
   },
 

@@ -7,7 +7,8 @@ import {
     userPatched,
     userRoleUpdated,
     searchedUser,
-    fetchedSIngleUser
+    fetchedSIngleUser,
+    fetchedStaticResource
 } from './actions';
 import { client } from '../../../../feathers';
 import { loadedUsers } from './actions';
@@ -46,6 +47,7 @@ export function createUser(user: any) {
             const result = await client.service('user').create(user);
             dispatch(userCreated(result));
         } catch (error) {
+            console.error(error);
             dispatchAlertError(dispatch, error.message);
         }
     };
@@ -130,6 +132,21 @@ export const fetchSingleUserAdmin = (id: string) => {
         } catch (error) {
             console.error(error);
             dispatchAlertError(dispatch, error.message);
+        }
+    };
+};
+
+export const fetchStaticResource = () => {
+    return async (dispatch: Dispatch): Promise<any> => {
+        try {
+            const result = await client.service("static-resource").find({
+                query: {
+                    staticResourceType: "avatar",
+                }
+            });
+            dispatch(fetchedStaticResource(result));
+        } catch (error) {
+            console.error(error);
         }
     };
 };
