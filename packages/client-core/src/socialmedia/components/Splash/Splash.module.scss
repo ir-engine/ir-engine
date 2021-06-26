@@ -8,10 +8,10 @@
 }
 
 .logo{
-    height: 70pt;
+    height: auto;
     width: 196pt;
     position: fixed;
-    top: calc(50% - 35pt);
+    top: calc(50% - 111px);
     left: calc(50% - 98pt);
     /* bring your own prefixes */
     transform: translate(-50%, -50%);
