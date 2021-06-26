@@ -39,11 +39,9 @@ import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectCreatorsState } from '../../reducers/creator/selector';
 import { getLoggedCreator } from '../../reducers/creator/service';
 import Featured from '../Featured';
-import { Plugins } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
 import { updateCreatorPageState, updateFeedPageState } from '../../reducers/popupsState/service';
-
-const { Share } = Plugins;
+import { Share } from '@capacitor/share'
 
 const mapStateToProps = (state: any): any => {
     return {
