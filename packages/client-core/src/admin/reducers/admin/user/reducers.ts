@@ -18,7 +18,8 @@ import {
   USER_ROLE_RETRIEVED,
   USER_ROLE_CREATED,
   USER_ROLE_UPDATED
-} from "../../actions";
+} from "@xrengine/client-core/src/world/reducers/actions";  
+// } from "../../actions";
 import {
   LOADED_USERS,
 } from '../../actions';

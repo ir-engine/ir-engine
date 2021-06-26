@@ -5,7 +5,7 @@ import i18n from "i18next";
 import PropTypes from "prop-types";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { ACESFilmicToneMapping, BasicDepthPacking, CineonToneMapping, GammaEncoding, LinearEncoding, LinearToneMapping, LogLuvEncoding, NoToneMapping, ReinhardToneMapping, RGBADepthPacking, RGBDEncoding, RGBEEncoding, RGBM16Encoding, RGBM7Encoding, sRGBEncoding } from "three";
+import { ACESFilmicToneMapping, BasicDepthPacking, BasicShadowMap, CineonToneMapping, GammaEncoding, LinearEncoding, LinearToneMapping, LogLuvEncoding, NoToneMapping, PCFShadowMap, PCFSoftShadowMap, ReinhardToneMapping, RGBADepthPacking, RGBDEncoding, RGBEEncoding, RGBM16Encoding, RGBM7Encoding, sRGBEncoding, VSMShadowMap } from "three";
 import BooleanInput from "../inputs/BooleanInput";
 import ColorInput from "../inputs/ColorInput";
 import CompoundNumericInput from "../inputs/CompoundNumericInput";
@@ -37,7 +37,7 @@ const FogTypeOptions = [
 ];
 
 /**
- * FogTypeOptions array containing fogType options.
+ * ToneMappingOptions array containing tone mapping type options.
  * 
  * @author Josh Field
  * @type {Array}
@@ -66,51 +66,31 @@ const FogTypeOptions = [
 ];
 
 /**
- * FogTypeOptions array containing fogType options.
+ * ShadowTypeOptions array containing shadow type options.
  * 
  * @author Josh Field
  * @type {Array}
  */
- const OutputEncodingOptions = [
+ const ShadowTypeOptions = [
   {
-    label: "Linear Encoding",
-    value: LinearEncoding
+    label: "No Shadow Map",
+    value: undefined
   },
   {
-    label: "sRGB Encoding",
-    value: sRGBEncoding
+    label: "Basic Shadow Map",
+    value: BasicShadowMap
   },
   {
-    label: "Gamma Encoding",
-    value: GammaEncoding
+    label: "PCF Shadow Map",
+    value: PCFShadowMap
   },
   {
-    label: "RGBE Encoding",
-    value: RGBEEncoding
+    label: "PCF Soft Shadow Map",
+    value: PCFSoftShadowMap
   },
   {
-    label: "Log Luv Encoding",
-    value: LogLuvEncoding
-  },
-  {
-    label: "RGBM7 Encoding",
-    value: RGBM7Encoding
-  },
-  {
-    label: "RGBM16 Encoding",
-    value: RGBM16Encoding
-  },
-  {
-    label: "RGBD Encoding",
-    value: RGBDEncoding
-  },
-  {
-    label: "Basic Depth Packing",
-    value: BasicDepthPacking
-  },
-  {
-    label: "RGBA Depth Packing",
-    value: RGBADepthPacking
+    label: "VSM Shadow Map",
+    value: VSMShadowMap
   }
 ];
 
@@ -153,8 +133,7 @@ export function SceneNodeEditor(props) {
   const onChangeUseCSM = useSetPropertySelected(editor, "csm");
   const onChangeUseToneMapping = useSetPropertySelected(editor, "toneMapping");
   const onChangeUseToneMappingExposure = useSetPropertySelected(editor, "toneMappingExposure");
-  const onChangeUsePhysicallyCorrectLights = useSetPropertySelected(editor, "physicallyCorrectLights");
-  const onChangeUseOutputEncoding = useSetPropertySelected(editor, "outputEncoding");
+  const onChangeUseShadowMapType = useSetPropertySelected(editor, "shadowMapType");
 
   // returning editor view for property editor for sceneNode
   return (
@@ -477,20 +456,12 @@ export function SceneNodeEditor(props) {
         </InputGroup>
         { /* @ts-ignore */ }
         <InputGroup
-          name="Physically Correct Lights"
-          label={t('editor:properties.scene.lbl-physicallyCorrectLights')}
-          info={t('editor:properties.scene.info-physicallyCorrectLights')}
-        >
-          <BooleanInput value={node.physicallyCorrectLights} onChange={onChangeUsePhysicallyCorrectLights} />
-        </InputGroup>
-        { /* @ts-ignore */ }
-        <InputGroup
-          name="Output Encoding"
-          label={t('editor:properties.scene.lbl-outputEncoding')}
-          info={t('editor:properties.scene.info-csm')}
+          name="Tone Mapping Exposure"
+          label={t('editor:properties.scene.lbl-shadowMapType')}
+          info={t('editor:properties.scene.info-shadowMapType')}
         >
           { /* @ts-ignore */ }
-          <SelectInput options={OutputEncodingOptions} value={node.outputEncoding} onChange={onChangeUseOutputEncoding} />
+          <SelectInput options={ShadowTypeOptions} value={node.shadowMapType} onChange={onChangeUseShadowMapType}/>
         </InputGroup>
         </>
       )}

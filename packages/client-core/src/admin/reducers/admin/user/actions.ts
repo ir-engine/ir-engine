@@ -5,12 +5,17 @@ import {
     USER_ADMIN_PATCHED,
     USER_SEARCH_ADMIN,
     SINGLE_USER_ADMIN_LOADED,
+    LOADED_USERS
+} from '../../actions';
+
+
+import { 
     USER_ROLE_RETRIEVED,
     USER_ROLE_CREATED,
     USER_ROLE_UPDATED,
     LOADED_USERS,
     STATIC_RESOURCE_RETRIEVED
-} from '../../actions';
+} from "@xrengine/client-core/src/world/reducers/actions";
 
 export interface userRoleRetrievedResponse {
     type: string;

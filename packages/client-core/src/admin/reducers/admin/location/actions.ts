@@ -1,5 +1,4 @@
 import {
-    LOCATION_TYPES_RETRIEVED,
     FETCH_CURRENT_LOCATION,
     LOCATIONS_RETRIEVED,
     LOCATION_RETRIEVED,
@@ -8,7 +7,15 @@ import {
     LOCATION_REMOVED,
     LOCATION_BAN_CREATED,
     LOCATION_NOT_FOUND,
-} from '../../actions';
+}    from "@xrengine/client-core/src/social/reducers/actions";
+
+import {
+    LOCATION_TYPES_RETRIEVED,
+} from "@xrengine/client-core/src/world/reducers/actions";
+// } from '../../actions';
+
+// /var/www/html/workspace/tsdoc/xr3ngine/packages/client-core/src/social/reducers/actions.ts
+
 import { Location } from '@xrengine/common/src/interfaces/Location';
 
 export interface LocationsRetrievedAction {

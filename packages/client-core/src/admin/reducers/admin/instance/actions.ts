@@ -1,8 +1,10 @@
 import {
     INSTANCES_RETRIEVED,
     INSTANCE_REMOVED_ROW,
-} from "../../actions";
+} from "@xrengine/client-core/src/world/reducers/actions";
+    // } from "../../actions";
 
+// /var/www/html/workspace/tsdoc/xr3ngine/packages/client-core/src/world/reducers/actions.ts
 export interface InstancesRetrievedResponse {
     type: string,
     instances: any[]

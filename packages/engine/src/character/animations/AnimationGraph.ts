@@ -1,8 +1,11 @@
+import { Network } from "../../networking/classes/Network";
+import { Commands } from "../../networking/enums/Commands";
+import { convertObjToBufferSupportedString } from "../../networking/functions/jsonSerialize";
 import { AnimationComponent } from "../components/AnimationComponent";
 import { CharacterComponent } from "../components/CharacterComponent";
 import { AnimationState } from "./AnimationState";
 import { calculateMovement } from "./MovingAnimations";
-import { CharacterStates, MovementType } from "./Util";
+import { CalculateWeightsParams, CharacterStates } from "./Util";
 
 /** Base Class which hold the animation graph for entity. Animation graph will resides in Animation Component. */
 export class AnimationGraph {
@@ -51,9 +54,9 @@ export class AnimationGraph {
      * @param actor Character compoenent which holds character details
      * @param animationComponent Animation component which holds animation details
      * @param newState New state to which transition will happen
-     * @param movement Movenent of the actor happed in this frame
+     * @param params Parameters to calculate weigths
      */
-    transitionState = (actor: CharacterComponent, animationComponent: AnimationComponent, newState: string, movement?: MovementType): void => {
+    transitionState = (actor: CharacterComponent, animationComponent: AnimationComponent, newState: string, params: CalculateWeightsParams): void => {
         // If transition is paused the return
         if (this.isTransitionPaused) return;
 
@@ -82,13 +85,13 @@ export class AnimationGraph {
 		}
 
 		// Mount new state
-        animationComponent.currentState.mount(actor, movement);
+        animationComponent.currentState.mount(actor, params);
 
         // Add event to auto transit to new state when the animatin of current state finishes
         if (animationComponent.currentState.autoTransitionTo) {
             const transitionEvent = () => {
                 this.isTransitionPaused = false;
-                this.transitionState(actor, animationComponent, animationComponent.currentState.autoTransitionTo, movement);
+                this.transitionState(actor, animationComponent, animationComponent.currentState.autoTransitionTo, params);
                 actor.mixer.removeEventListener('finished', transitionEvent);
             }
             actor.mixer.addEventListener('finished', transitionEvent);
@@ -98,6 +101,15 @@ export class AnimationGraph {
         if (animationComponent.currentState.pauseTransitionDuration) {
             this.pauseTransitionFor(animationComponent.currentState.pauseTransitionDuration);
         }
+
+        // Send change animation commnad over network
+        Network.instance.clientInputState.commands.push({
+            type: Commands.CHANGE_ANIMATION_STATE,
+            args: convertObjToBufferSupportedString({
+                state: newState,
+                params,
+            }),
+        });
     }
 
     /**
@@ -126,9 +138,9 @@ export class AnimationGraph {
 
             // If new state is different than current state then transit other wise update the current state
             if (animationComponent.currentState.name !== newState) {
-                animationComponent.animationGraph.transitionState(actor, animationComponent, newState, movement)
+                animationComponent.animationGraph.transitionState(actor, animationComponent, newState, { movement });
             } else {
-                animationComponent.currentState.update(movement);
+                animationComponent.currentState.update({ movement });
             }
 
             // Set velocity as prev velocity
@@ -156,7 +168,7 @@ export class AnimationGraph {
         if (animationComponent.currentState.name !== this.defaultState.name) {
             const idleWeight = 1 - (prevStateWeight + animationComponent.currentState.getTotalWeightsOfAnimations());
             this.defaultState.animations[0].weight = idleWeight;
-            this.defaultState.update(movement);
+            this.defaultState.update({ movement });
         }
     }
 }

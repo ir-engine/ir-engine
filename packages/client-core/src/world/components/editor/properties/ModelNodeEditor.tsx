@@ -95,7 +95,11 @@ export class ModelNodeEditor extends Component<
     (this.props.editor as any).setPropertiesSelected({ ...initialProps, src });
   };
 
-
+  // TODO
+  //function to handle change in property src
+  // onChangeEnvMap = (src, initialProps) => {
+  //   (this.props.editor as any).setPropertiesSelected({ ...initialProps, src });
+  // };
 
   //fucntion to handle changes in activeChipIndex property
   onChangeAnimation = activeClipIndex => {
@@ -103,9 +107,10 @@ export class ModelNodeEditor extends Component<
   };
 
   //function to handle change in collidable property
-  onChangeCollidable = collidable => {
-    (this.props.editor as any).setPropertySelected("collidable", collidable);
-  };
+  // not currently in use, used by floor plan
+  // onChangeCollidable = collidable => {
+  //   (this.props.editor as any).setPropertySelected("collidable", collidable);
+  // };
 
   //function to handle change in saveColliders property
   onChangeSaveColliders = saveColliders => {
@@ -113,9 +118,10 @@ export class ModelNodeEditor extends Component<
   };
 
   // function to handle changes in walkable property
-  onChangeWalkable = walkable => {
-    (this.props.editor as any).setPropertySelected("walkable", walkable);
-  };
+  // not currently in use, used by floor plan
+  // onChangeWalkable = walkable => {
+  //   (this.props.editor as any).setPropertySelected("walkable", walkable);
+  // };
 
   // function to handle changes in castShadow property
   onChangeCastShadow = castShadow => {
@@ -182,7 +188,7 @@ export class ModelNodeEditor extends Component<
   // function to handle changes in payloadHtmlContent
   onChangePayloadHtmlContent = payloadHtmlContent => {
     const sanitizedHTML = dompurify.sanitize(payloadHtmlContent);
-    if(sanitizedHTML !== payloadHtmlContent) console.warn("Code has been sanitized, don't try anything sneaky please...");
+    if (sanitizedHTML !== payloadHtmlContent) console.warn("Code has been sanitized, don't try anything sneaky please...");
     (this.props.editor as any).setPropertySelected("payloadHtmlContent", sanitizedHTML);
   };
 
@@ -206,29 +212,29 @@ export class ModelNodeEditor extends Component<
     const targetNotFound = node.target && target === null;
 
     let selectValues = [];
-    if(node.target){
-    // Get current game mode -- check target game mode
-    console.log("Target is", node.target);
+    if (node.target) {
+      // Get current game mode -- check target game mode
+      console.log("Target is", node.target);
 
-    console.log("Editor nodes are", this.props.editor.nodes);
+      console.log("Editor nodes are", this.props.editor.nodes);
 
-    const nodeTarget = this.props.editor.nodes.find(node => node.uuid === target);
+      const nodeTarget = this.props.editor.nodes.find(node => node.uuid === target);
 
-    if(nodeTarget){
-    console.log("nodeTarget", nodeTarget);
+      if (nodeTarget) {
+        console.log("nodeTarget", nodeTarget);
 
-    const gameMode = this.props.editor.Engine.supportedGameModes[nodeTarget.gameMode];
+        const gameMode = this.props.editor.Engine.supportedGameModes[nodeTarget.gameMode];
 
-    const gameObjectRoles = Object.keys(gameMode.gameObjectRoles);
+        const gameObjectRoles = Object.keys(gameMode.gameObjectRoles);
 
-    console.log("gameObjectRoles are", gameObjectRoles);
+        console.log("gameObjectRoles are", gameObjectRoles);
 
-    selectValues = gameObjectRoles.map((role, index) => { return { label: role, value: index }; });
+        selectValues = gameObjectRoles.map((role, index) => { return { label: role, value: index }; });
 
-    console.log("SelectValues are", selectValues);
+        console.log("SelectValues are", selectValues);
+      }
     }
-  }
-  
+
     switch (node.interactionType) {
       case 'gameobject': return <>
         { /* @ts-ignore */}
@@ -248,7 +254,7 @@ export class ModelNodeEditor extends Component<
             disabled={this.props.multiEdit}
           />
         </InputGroup>
-        { node.target &&
+        {node.target &&
           /* @ts-ignore */
           <InputGroup
             name="Role"
@@ -360,6 +366,13 @@ export class ModelNodeEditor extends Component<
           {!(this.props.node as ModelNode).isValidURL && <div>{this.props.t('editor:properties.model.error-url')}</div>}
         </InputGroup>
         { /* @ts-ignore */}
+        
+        {/* TODO: implement environment map overrides. - source from scene env map, a custom BPCEM bake, URL string
+         <InputGroup name="Environment Map" label={this.props.t('editor:properties.model.lbl-modelurl')}>
+          <ModelInput value={node.src} onChange={this.onChangeSrc} />
+          {!(this.props.node as ModelNode).isValidURL && <div>{this.props.t('editor:properties.model.error-url')}</div>}
+        </InputGroup> */}
+        { /* @ts-ignore */}
         <InputGroup name="Loop Animation" label={this.props.t('editor:properties.model.lbl-loopAnimation')}>
           { /* @ts-ignore */}
           <SelectInput
@@ -370,12 +383,13 @@ export class ModelNodeEditor extends Component<
           />
         </InputGroup>
         { /* @ts-ignore */}
-        <InputGroup name="Collidable" label={this.props.t('editor:properties.model.lbl-collidable')}>
+        {/* <InputGroup name="Collidable" label={this.props.t('editor:properties.model.lbl-collidable')}>
+          // === not currently in use, used by floor plan === //
           <BooleanInput
             value={node.collidable}
             onChange={this.onChangeCollidable}
           />
-        </InputGroup>
+        </InputGroup> */}
         { /* @ts-ignore */}
         <InputGroup name="Save Colliders" label={this.props.t('editor:properties.model.lbl-saveColliders')}>
           <BooleanInput
@@ -384,12 +398,13 @@ export class ModelNodeEditor extends Component<
           />
         </InputGroup>
         { /* @ts-ignore */}
-        <InputGroup name="Walkable" label={this.props.t('editor:properties.model.lbl-walkable')}>
-          <BooleanInput
+        {/* <InputGroup name="Walkable" label={this.props.t('editor:properties.model.lbl-walkable')}>
+            // === not currently in use, used by floor plan === //
+            <BooleanInput
             value={node.walkable}
             onChange={this.onChangeWalkable}
           />
-        </InputGroup>
+        </InputGroup> */}
         { /* @ts-ignore */}
         <InputGroup name="Cast Shadow" label={this.props.t('editor:properties.model.lbl-castShadow')}>
           <BooleanInput

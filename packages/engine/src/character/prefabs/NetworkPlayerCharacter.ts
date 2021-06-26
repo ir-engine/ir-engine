@@ -43,7 +43,7 @@ export const loadDefaultActorAvatar: Behavior = (entity) => {
     }
   });
   model.children?.forEach(child => actor.modelContainer.add(child));
-  actor.mixer = new AnimationMixer(actor.modelContainer);
+  actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 };
 
 export const loadActorAvatar: Behavior = (entity) => {
@@ -64,7 +64,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		castShadow: true,
 		receiveShadow: true,
 	}, (asset: Group) => {
-    	const model = SkeletonUtils.clone(asset);
+    const model = SkeletonUtils.clone(asset);
 		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 
 		actor.mixer && actor.mixer.stopAllAction();
@@ -79,7 +79,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		});
 
 		model.children.forEach(child => actor.modelContainer.add(child));
-		actor.mixer = new AnimationMixer(actor.modelContainer);
+		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 	});
 };
 
@@ -203,7 +203,6 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
 		{ type: AnimationComponent, data: {
 			animationsSchema: movingAnimationSchema,
 			updateAnimationsValues: getMovementValues,
-			animationGraph: CharacterAnimationGraph.constructGraph(),
 		}}
 	],
 	serverComponents: [],

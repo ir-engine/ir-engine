@@ -37,7 +37,7 @@ import {
 } from "../../../world/reducers/actions";
 import {
   LOADED_USERS,
-} from '../../../common/reducers/actions';
+} from '@xrengine/client-core/src/admin/reducers/actions';
 import { UserSeed } from '@xrengine/common/src/interfaces/User';
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider';
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser';
