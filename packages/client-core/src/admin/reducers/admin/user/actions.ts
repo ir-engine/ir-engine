@@ -5,7 +5,7 @@ import {
     USER_ADMIN_PATCHED,
     USER_SEARCH_ADMIN,
     SINGLE_USER_ADMIN_LOADED,
-    LOADED_USERS
+    ADMIN_LOADED_USERS
 } from '../../actions';
 
 
@@ -33,7 +33,7 @@ export interface LoadedUsersAction {
 }
 export function loadedUsers(users: User[]): LoadedUsersAction {
     return {
-        type: LOADED_USERS,
+        type: ADMIN_LOADED_USERS,
         users
     };
 }
