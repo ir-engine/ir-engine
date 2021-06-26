@@ -6,7 +6,15 @@
     left: 0;
     top: 0;
 }
-
+.splash{
+	background: #000;
+	position: fixed;
+	height: 100vh;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
 .logo{
     height: auto;
     width: 196pt;

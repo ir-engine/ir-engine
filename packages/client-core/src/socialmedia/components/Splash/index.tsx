@@ -19,7 +19,7 @@ interface Props {
 const Splash = ({media}: Props) => {
 	const { t } = useTranslation();
 
-return  <>
+return  <div className={styles.splash}>
         {/*<CardMedia*/}
         {/*    className={styles.fullPage}*/}
         {/*        image="/assets/splash/background.jpg"*/}
@@ -31,7 +31,7 @@ return  <>
         {/*        image="/assets/splash/ARC_Splash.png"*/}
         {/*        title={t('social:splash.logo')}*/}
         {/*    />*/}
-        </>;
+        </div>;
 };
 
 export default Splash;
