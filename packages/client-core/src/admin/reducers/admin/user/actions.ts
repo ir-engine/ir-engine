@@ -12,9 +12,7 @@ import {
 import { 
     USER_ROLE_RETRIEVED,
     USER_ROLE_CREATED,
-    USER_ROLE_UPDATED,
-    LOADED_USERS,
-    STATIC_RESOURCE_RETRIEVED
+    USER_ROLE_UPDATED
 } from "@xrengine/client-core/src/world/reducers/actions";
 
 export interface userRoleRetrievedResponse {

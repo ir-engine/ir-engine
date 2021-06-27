@@ -10,7 +10,6 @@ import {
   instanceRemovedAction,
   instanceCreated,
   instanceRemoved,
-  instancePatched,
   userRoleRetrieved,
   userRoleCreated,
   partyAdminCreated,
@@ -197,29 +196,6 @@ export function removeUserAdmin(id: string) {
   return async (dispatch: Dispatch): Promise<any> => {
     const result = await client.service('user').remove(id);
     dispatch(userAdminRemoved(result));
-  };
-}
-
-export function createInstance(instance: any) {
-  return async (dispatch: Dispatch): Promise<any> => {
-    try {
-      const result = await client.service('instance').create(instance);
-      dispatch(instanceCreated(result));
-    } catch (error) {
-      console.error(error);
-      dispatchAlertError(dispatch, error.message);
-    }
-  };
-}
-
-export function patchInstance(id: string, instance) {
-  return async (dispatch: Dispatch): Promise<any> => {
-    try {
-      const result = await client.service('instance').patch(id, instance);
-      dispatch(instancePatched(result));
-    } catch (error) {
-      console.error(error);
-    }
   };
 }
 
