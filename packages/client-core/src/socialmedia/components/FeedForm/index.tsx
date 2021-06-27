@@ -71,7 +71,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const { t } = useTranslation();
     const videoPath = popupsState?.get('videoPath')
 	const videoDir = popupsState?.get('fPath');
-	const nameId = popupsState?.get('nameId');;
+	const nameId = popupsState?.get('nameId');
     const { XRPlugin } = Plugins;
 
     const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value);
@@ -118,7 +118,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
             changeWebXrNative();
         }
 		XRPlugin.deleteVideo({videoDir: videoDir});
-		updateNewFeedPageState(false);
+		updateNewFeedPageState(false, null, null, null);
     };
 
     const dataURItoBlob = (dataURI) => {
@@ -193,7 +193,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     }, [] );
 
     const closePopUp = () => {
-        updateNewFeedPageState(false);
+        updateNewFeedPageState(false, null, null, null);
         if(webxrRecorderActivity){
             changeWebXrNative();
         }
