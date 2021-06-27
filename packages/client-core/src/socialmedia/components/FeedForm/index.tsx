@@ -118,6 +118,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
             changeWebXrNative();
         }
 		XRPlugin.deleteVideo({videoDir: videoDir});
+		updateNewFeedPageState(false);
     };
 
     const dataURItoBlob = (dataURI) => {
