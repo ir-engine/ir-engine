@@ -69,7 +69,9 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const textRef = React.useRef<HTMLInputElement>();
     const videoRef = React.useRef<HTMLInputElement>();
     const { t } = useTranslation();
-    const videoPath = popupsState?.get('videoPath');
+    const videoPath = popupsState?.get('videoPath')
+	const videoDir = popupsState?.get('fPath');
+	const nameId = popupsState?.get('nameId');;
     const { XRPlugin } = Plugins;
 
     const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value);
@@ -115,7 +117,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         if(webxrRecorderActivity){
             changeWebXrNative();
         }
-		updateNewFeedPageState(false);
+		XRPlugin.deleteVideo({videoDir: videoDir});
     };
 
     const dataURItoBlob = (dataURI) => {
@@ -194,6 +196,7 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         if(webxrRecorderActivity){
             changeWebXrNative();
         }
+		XRPlugin.deleteVideo({videoDir: videoDir});
     };
 
     // useEffect(()=> {videoUrl && updateNewFeedPageState(false, null) && updateShareFormState(true, videoUrl);}, [videoUrl] );
@@ -289,6 +292,13 @@ return <section className={styles.feedFormContainer}>
                     Share
                 </Button>}
 
+				<Button
+					variant="contained"
+					className={styles.submit}
+					onClick={()=> XRPlugin.saveVideoTo({videoDir: videoDir, nameId: nameId})}
+				>
+					Save
+				</Button>
                 <Button
                     variant="contained"
                     className={styles.submit}

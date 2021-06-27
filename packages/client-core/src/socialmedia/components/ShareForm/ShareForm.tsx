@@ -10,8 +10,9 @@ import styles from './ShareForm.module.scss';
 import { Plugins } from '@capacitor/core';
 import { useTranslation } from 'react-i18next';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
+import { Share } from '@capacitor/share';
 
-const { Share } = Plugins;
+
 
 
 const mapStateToProps = (state: any): any => {

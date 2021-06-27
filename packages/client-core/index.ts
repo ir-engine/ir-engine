@@ -2,6 +2,7 @@
 
 export * from './src/admin/components/AdminHelpers';
 export * from './src/admin/components/Bots/styles';
+export * from './src/admin/components/Bots/validation';
 export * from './src/admin/components/Instance/styles';
 export * from './src/admin/components/Instance/validation';
 export * from './src/admin/components/Instance/variables';
@@ -374,6 +375,7 @@ export { default as srcAdminComponentsArMediaConsole } from './src/admin/compone
 export { default as srcAdminComponentsBotsCreateBot } from './src/admin/components/Bots/CreateBot';
 export { default as srcAdminComponentsBotsDisplayBots } from './src/admin/components/Bots/displayBots';
 export { default as srcAdminComponentsBotsIndex } from './src/admin/components/Bots/index';
+export { default as srcAdminComponentsBotsUpdateBot } from './src/admin/components/Bots/updateBot';
 export { default as srcAdminComponentsContentPackContentPackConsole } from './src/admin/components/ContentPack/ContentPackConsole';
 export { default as srcAdminComponentsContentPackContentPackDetailsModal } from './src/admin/components/ContentPack/ContentPackDetailsModal';
 export { default as srcAdminComponentsContentPackDownloadModal } from './src/admin/components/ContentPack/DownloadModal';
@@ -382,10 +384,10 @@ export { default as srcAdminComponentsFeedConsole } from './src/admin/components
 export { default as srcAdminComponentsFeeds } from './src/admin/components/Feeds';
 export { default as srcAdminComponentsGroupsConsole } from './src/admin/components/GroupsConsole';
 export { default as srcAdminComponentsIndex } from './src/admin/components/index';
-export { default as srcAdminComponentsInstanceCreateInstance } from './src/admin/components/Instance/CreateInstance';
 export { default as srcAdminComponentsInstanceIndex } from './src/admin/components/Instance/index';
 export { default as srcAdminComponentsInstanceInstanceModal } from './src/admin/components/Instance/InstanceModal';
 export { default as srcAdminComponentsInstanceInstanceTable } from './src/admin/components/Instance/InstanceTable';
+export { default as srcAdminComponentsInstanceSearchInstance } from './src/admin/components/Instance/SearchInstance';
 export { default as srcAdminComponentsInstanceConsole } from './src/admin/components/InstanceConsole';
 export { default as srcAdminComponentsInviteIndex } from './src/admin/components/Invite/index';
 export { default as srcAdminComponentsInviteInviteModel } from './src/admin/components/Invite/InviteModel';

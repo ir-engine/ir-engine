@@ -18,7 +18,7 @@ import { Box, CardMedia, makeStyles, Typography } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import { Plugins } from '@capacitor/core';
 
-const XRPlugin:any = Plugins;
+const {XRPlugin} = Plugins;
 
 
 // @ts-ignore
