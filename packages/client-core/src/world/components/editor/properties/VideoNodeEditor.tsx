@@ -3,6 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import NodeEditor from "./NodeEditor";
 import InputGroup from "../inputs/InputGroup";
+import BooleanInput from "../inputs/BooleanInput";
 import SelectInput from "../inputs/SelectInput";
 import { VideoProjection } from "@xrengine/engine/src/scene/classes/Video";
 import VideoInput from "../inputs/VideoInput";
@@ -39,6 +40,9 @@ export function VideoNodeEditor(props) {
   //function to handle change in projection property
   const onChangeProjection = useSetPropertySelected(editor, "projection");
 
+  //function to handle change in projection property
+  const onChangeInteractable = useSetPropertySelected(editor, "interactable");
+
    //editor view for VideoNode
   return (
     <NodeEditor description={VideoNodeEditor.description} {...props}>
@@ -50,6 +54,11 @@ export function VideoNodeEditor(props) {
       <InputGroup name="Projection" label={t('editor:properties.video.lbl-projection')}>
       { /* @ts-ignore */ }
         <SelectInput options={videoProjectionOptions} value={node.projection} onChange={onChangeProjection} />
+      </InputGroup>
+      { /* @ts-ignore */ }
+      <InputGroup name="Interactable" label={t('editor:properties.video.lbl-interactable')}>
+      { /* @ts-ignore */ }
+        <BooleanInput value={node.interactable} onChange={onChangeInteractable} />
       </InputGroup>
       <AudioSourceProperties {...props} />
     </NodeEditor>
