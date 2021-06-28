@@ -10,9 +10,10 @@ const config: CapacitorConfig = {
     },
   },
   server: {
-    hostname: "dev.arcmedia.us",
-    androidScheme: "https",
-    iosScheme: "https"
+    "url": "https://dev.arcmedia.us",
+		"androidScheme": "https",
+		"iosScheme": "https",
+        "allowNavigation": ["*.arcmedia.us"]
   }
 };
 
