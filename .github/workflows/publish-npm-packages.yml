@@ -29,12 +29,12 @@ jobs:
         if: ${{ github.event.release.tag_name != '' }}
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NODE_AUTH_TOKEN: ${{secrets.PACKAGE_ADMIN_TOKEN}}
       - run: npm run version-increment-no-tag
         if: ${{ github.event.release.tag_name == '' }}
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NODE_AUTH_TOKEN: ${{secrets.PACKAGE_ADMIN_TOKEN}}
       - run: git add .
         if: ${{ github.event.release.tag_name != env.lerna_version }}
       - run: git commit -m ${{ github.event.release.tag_name }}
@@ -52,4 +52,4 @@ jobs:
       - run: git commit -m 'GH Packages'
       - run: npm run publish-github
         env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NODE_AUTH_TOKEN: ${{secrets.PACKAGE_ADMIN_TOKEN}}
