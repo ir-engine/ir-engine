@@ -22,31 +22,31 @@ export class IKRigSystem extends System {
       computeHip(rig, ikPose);
 
       computeLimb(rig.pose, rig.chains.leg_l, ikPose.leg_l);
-      computeLimb(rig.pose, rig.chains.leg_r, ikPose.leg_r);
+      // computeLimb(rig.pose, rig.chains.leg_r, ikPose.leg_r);
 
-      computeLookTwist(rig, rig.points.foot_l, ikPose.foot_l, FORWARD, UP); // Look = Fwd, Twist = Up
-      computeLookTwist(rig, rig.points.foot_r, ikPose.foot_r, FORWARD, UP);
+      // computeLookTwist(rig, rig.points.foot_l, ikPose.foot_l, FORWARD, UP); // Look = Fwd, Twist = Up
+      // computeLookTwist(rig, rig.points.foot_r, ikPose.foot_r, FORWARD, UP);
 
-      computeSpine(rig, rig.chains.spine, ikPose, UP, FORWARD);
+      // computeSpine(rig, rig.chains.spine, ikPose, UP, FORWARD);
 
-      computeLimb(rig.pose, rig.chains.arm_l, ikPose.arm_l);
-      computeLimb(rig.pose, rig.chains.arm_r, ikPose.arm_r);
+      // computeLimb(rig.pose, rig.chains.arm_l, ikPose.arm_l);
+      // computeLimb(rig.pose, rig.chains.arm_r, ikPose.arm_r);
 
-      computeLookTwist(rig, rig.points.head, ikPose.head, FORWARD, UP);
+      // computeLookTwist(rig, rig.points.head, ikPose.head, FORWARD, UP);
 
       applyHip(ikPose);
 
       applyLimb(ikPose, rig.chains.leg_l, ikPose.leg_l);
-      applyLimb(ikPose, rig.chains.leg_r, ikPose.leg_r);
+      // applyLimb(ikPose, rig.chains.leg_r, ikPose.leg_r);
 
-      applyLookTwist(entity, rig.points.foot_l, ikPose.foot_l, FORWARD, UP);
-      applyLookTwist(entity, rig.points.foot_r, ikPose.foot_r, FORWARD, UP);
-      applySpine(entity, rig.chains.spine, ikPose.spine, UP, FORWARD);
+      // applyLookTwist(entity, rig.points.foot_l, ikPose.foot_l, FORWARD, UP);
+      // applyLookTwist(entity, rig.points.foot_r, ikPose.foot_r, FORWARD, UP);
+      // applySpine(entity, rig.chains.spine, ikPose.spine, UP, FORWARD);
 
-      applyLimb(ikPose, rig.chains.arm_l, ikPose.arm_l);
-      applyLimb(ikPose, rig.chains.arm_r, ikPose.arm_r);
+      // applyLimb(ikPose, rig.chains.arm_l, ikPose.arm_l);
+      // applyLimb(ikPose, rig.chains.arm_r, ikPose.arm_r);
 
-      applyLookTwist(entity, rig.points.head, ikPose.head, FORWARD, UP);
+      // applyLookTwist(entity, rig.points.head, ikPose.head, FORWARD, UP);
 
       rig.pose.apply();
     }
@@ -69,21 +69,20 @@ export class IKRigSystem extends System {
       const ikPose = rig.sourcePose
       const debug = getMutableComponent(entity, IKRigDebugHelper);
       debug.reset();
-      // console.log(debug, rig, ikPose)
 
-      visualizeHip(debug, rig, ikPose);
+      // visualizeHip(debug, rig, ikPose);
 
       visualizeLimb(debug, rig, rig.chains.leg_l, ikPose.leg_l);
-      visualizeLimb(debug, rig, rig.chains.leg_r, ikPose.leg_r);
+      // visualizeLimb(debug, rig, rig.chains.leg_r, ikPose.leg_r);
 
-      visualizeLookTwist(debug, rig, rig.points.foot_l, ikPose.foot_l);
-      visualizeLookTwist(debug, rig, rig.points.foot_r, ikPose.foot_r);
+      // visualizeLookTwist(debug, rig, rig.points.foot_l, ikPose.foot_l);
+      // visualizeLookTwist(debug, rig, rig.points.foot_r, ikPose.foot_r);
 
-      visualizeSpine(debug, rig, rig.chains.spine, ikPose.spine);
+      // visualizeSpine(debug, rig, rig.chains.spine, ikPose.spine);
 
-      visualizeLimb(debug, rig, rig.chains.arm_l, ikPose.arm_l);
-      visualizeLimb(debug, rig, rig.chains.arm_r, ikPose.arm_r);
-      visualizeLookTwist(debug, rig, rig.points.head, ikPose.head);
+      // visualizeLimb(debug, rig, rig.chains.arm_l, ikPose.arm_l);
+      // visualizeLimb(debug, rig, rig.chains.arm_r, ikPose.arm_r);
+      // visualizeLookTwist(debug, rig, rig.points.head, ikPose.head);
 
     }
   }

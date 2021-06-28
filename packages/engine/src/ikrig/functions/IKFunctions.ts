@@ -119,6 +119,7 @@ export function computeHip(rig, ik_pose) {
 	// With our directions known between our TPose and Animated Pose, Next we
 	// start to calculate the Swing and Twist Values to swing our TPose into
 	// The animation direction
+  
 	// ORIGINAL
 	// let swing = Quat.unit_vecs( Vec3.FORWARD, pose_fwd )	// First we create a swing rotation from one dir to the other.
 	// 		.mul( bind.world.rot );		// Then we apply it to the TBone Rotation, this will do a FWD Swing which will create
@@ -134,14 +135,16 @@ export function computeHip(rig, ik_pose) {
 	let twist = swing_up.angleTo(poseUp); // Swing + Pose have same Fwd, Use Angle between both UPs for twist
 
 	// The difference between Pose UP and Swing UP is what makes up our twist since they both
-	// share the same forward access. The issue is that we do not know if that twist is in the Negative direction
+	// share the same forward sxis. The issue is that we do not know if that twist is in the Negative direction
 	// or positive. So by computing the Swing Left Direction, we can use the Dot Product to determine
 	// if swing UP is Over 90 Degrees, if so then its a positive twist else its negative.
+
 	// TODO: did we cross in right order?
 	// ORIGINAL
 	// let swing_lft = Vec3.cross( swing_up, pose_fwd );
 	// // App.rig.debug.ln( pos, Vec3.scale( swing_lft, 1.5 ).add( pos ), "orange" );
 	// if( Vec3.dot( swing_lft, pose_up ) >= 0 ) twist = -twist; 
+
 	const swing_lft = new Vector3().copy(swing_up).cross(poseForward);
 	const vec3Dot = new Vector3().copy(swing_lft).dot(poseUp);
 	// rig.debug.setLine( position, Vector3.scale( swing_lft, 1.5 ).add( position ), "orange" );
@@ -169,6 +172,7 @@ export function computeHip(rig, ik_pose) {
 }
 
 export function computeLimb(pose, chain, ik_limb) {
+
 	// Limb IK tends to be fairly easy to determine. What you need is the direction the end effector is in
 	// relation to the beginning of the limb chain, like the Shoulder for an arm chain. After you have the
 	// direction, you can use it to get the distance. Distance is important to create a scale value based on
@@ -177,6 +181,7 @@ export function computeLimb(pose, chain, ik_limb) {
 	// that the joint needs to point. In this example, we precompute the Quaternion Inverse Dir for each chain
 	// based on the bind pose. We can transform that direction with the Animated rotation to give us where the
 	// joint direction has moved to.
+
 	// ORIGINAL CODE:
 	// let boneA	= pose.bones[ chain.first() ],	// First Bone
 	// boneB	= pose.bones[ chain.end_idx ],	// END Bone, which is not part of the chain (Hand,Foot)
@@ -359,7 +364,10 @@ export function applyHip(pose: IKPoseComponent) {
 		if (ikPose.hip.twist != 0) q.premultiply(new Quaternion().setFromAxisAngle(ikPose.hip.dir, ikPose.hip.twist));
 		// In the end, we need to convert to local space. Simply premul by the inverse of the parent
 
-		pmul_invert(q, parentRotation);
+    const parentInverse = new Quaternion().copy(parentRotation).invert()
+
+		// pmul_invert(q, parentRotation);
+		q.premultiply(parentInverse);
 
 		const bindWorldPosition = new Vector3();
 		bind.getWorldPosition(bindWorldPosition);
@@ -376,6 +384,7 @@ export function applyHip(pose: IKPoseComponent) {
 		// straighten out.
 		// position.x = ikPose.hip.movement.x;
 		// position.z = ikPose.hip.movement.z;
+
 		rig.pose.bones[boneInfo.index].setRotationFromQuaternion(q); // Save LS rotation to pose
 		rig.pose.bones[boneInfo.index].position.copy(position); // Save LS rotation to pose
 	})
@@ -410,18 +419,25 @@ export function applyLimb(ikPose: IKPoseComponent, chain, limb, grounding = 0) {
 		const bindAIndex = rig.tpose.bones.findIndex(bone => bone.name.toLowerCase().includes(chain.chainBones[0].ref.name.toLowerCase()))
 		const bindBIndex = rig.tpose.bones.findIndex(bone => bone.name.toLowerCase().includes(chain.chainBones[1].ref.name.toLowerCase()))
 
-
-		const bindBone = rig.tpose.bones.find(bone => bone.name.toLowerCase().includes(chain.chainBones[0].ref.name.toLowerCase()));
-
 		// How much of the Chain length to use to calc End Effector
 		const len = (chain.length) * limb.lengthScale;
 
+    // ORIGINAL
+
+    // this.start_pos.copy( pos );
+    // this.end_pos
+    // 	.from_scale( dir, len_scl )	// Compute End Effector
+    // 	.add( pos );
+    // this.len_sqr	= Vec3.len_sqr( pos, this.end_pos );
+    // this.len		= Math.sqrt( this.len_sqr );
+    // this.axis.from_dir( dir, up_dir ); // Target Axis
+
 		// Setup IK Target
 		// First, set the IK start point, which is the bind bone's defaultposition
-		ikPose.startPosition.copy(bindBone.position);
+		ikPose.startPosition.copy(bind_a.position);
 		// Set the end position by copying the limb direction, multiplying by length factor and adding bone position
 		ikPose.endPosition.copy(limb.dir).multiplyScalar(len)	// Compute End Effector
-			.add(bindBone.position);
+			.add(bind_a.position);
 
 		// Set the length for our IK solve to be the distance between start and end positions
 		ikPose.length = ikPose.startPosition.distanceTo(ikPose.endPosition)
@@ -446,29 +462,30 @@ export function applyLimb(ikPose: IKPoseComponent, chain, limb, grounding = 0) {
 		// Aim the first bone toward the target oriented with the bend direction.
 		// this._aim_bone2( chain, tpose, p_wt, rot );		// Aim the first bone toward the target oriented with the bend direction.
 		const parentWorldPosition = new Vector3(),
-			parentWorldQuaternion = new Quaternion(),
-			parentWorldScale = new Vector3();
+			parentWorldQuaternion = new Quaternion()
+			// parentWorldScale = new Vector3();
 
 		if (bind_a.parent.type === "Bone") {
 			pose_a.parent.getWorldPosition(parentWorldPosition);
 			pose_a.parent.getWorldQuaternion(parentWorldQuaternion);
-			pose_a.parent.getWorldScale(parentWorldScale);
+			// pose_a.parent.getWorldScale(parentWorldScale);
 		} else {
 			pose_a.getWorldPosition(parentWorldPosition);
 			pose_a.getWorldQuaternion(parentWorldQuaternion);
-			pose_a.getWorldScale(parentWorldScale);
+			// pose_a.getWorldScale(parentWorldScale);
 		}
+
+
 		// IK SOLVER
 		// ORIGINAL CODE:
 		// let rot	= Quat.mul( p_wt.rot, tpose.get_local_rot( chain.first() ) ),	// Get World Space Rotation for Bone
 		// dir	= Vec3.transform_quat( chain.alt_fwd, rot );					// Get Bone's WS Forward Dir
-		const rot = new Quaternion().copy(parentWorldQuaternion).multiply(bind_a.quaternion);
+		const rot = new Quaternion().copy(parentWorldQuaternion).multiply(pose_a.quaternion);
 		//Swing
-		const dir = new Vector3()
-			.copy(chain.altForward)
-			.applyQuaternion(rot);					// Get Bone's WS Forward Dir
+		const dir = new Vector3().copy(chain.altForward).applyQuaternion(rot);					// Get Bone's WS Forward Dir
 
 		// TODO: Check the original reference and make sure this is valid
+
 		// Swing
 		// ORIGINAL CODE
 		// let q = Quat.unit_vecs( dir, this.axis.z );
@@ -485,10 +502,11 @@ export function applyLimb(ikPose: IKPoseComponent, chain, limb, grounding = 0) {
 			if (dir.dot(ikPose.axis.y) >= 0) twist = -twist;
 		}
 
-		// ???? Why does this fix it??? This should be enabled
-		pmul_axis_angle(outRot, ikPose.axis.z, twist)
+		// pmul_axis_angle(outRot, ikPose.axis.z, twist)
+    outRot.premultiply(new Quaternion().setFromAxisAngle(ikPose.axis.z, twist))
 		// END SOLVER
 
+		// FIRST BONE
 		const bindAWorldQuaternion = new Quaternion();
 		bind_a.getWorldQuaternion(bindAWorldQuaternion);
 		// const poseBWorldQuaternion = new Quaternion();
@@ -498,8 +516,11 @@ export function applyLimb(ikPose: IKPoseComponent, chain, limb, grounding = 0) {
 		// boneParentQuaternionInverse.invert();
 
 		rad = LawCosinesSSS(aLen, cLen, bLen); // Get the Angle between First Bone and Target.
-		pmul_axis_angle(outRot, ikPose.axis.x, -rad)			// Rotate it by the target's x-axis .pmul( tmp.from_axis_angle( this.axis.x, rad ) )
-		pmul_invert(outRot, parentWorldQuaternion);				// Convert to Local Space in temp to save WS rot for next bone.
+		// pmul_axis_angle(outRot, ikPose.axis.x, -rad)
+		// pmul_invert(outRot, parentWorldQuaternion);
+    outRot.premultiply(new Quaternion().setFromAxisAngle(ikPose.axis.x, -rad))	// Rotate it by the target's x-axis .pmul( tmp.from_axis_angle( this.axis.x, rad ) )
+    outRot.premultiply(parentWorldQuaternion.clone().invert())				// Convert to Local Space in temp to save WS rot for next bone.
+
 		// Get the Angle between First Bone and Target.
 		// tempQ.setFromAxisAngle(ikPose.target.axis.x, rad)	// Use the Target's X axis for quaternion along with the angle from SSS
 		// .premultiply(quaternion) // Premultiply by original value
@@ -507,23 +528,25 @@ export function applyLimb(ikPose: IKPoseComponent, chain, limb, grounding = 0) {
 		// Save result to bone.
 		rig.pose.bones[bindAIndex].setRotationFromQuaternion(outRot);
 
-		const poseAWorldQuaternion = new Quaternion();
-
-		pose_a.getWorldQuaternion(poseAWorldQuaternion);
-
 		// TODO
 		// Transform.add handles this with some positional magic
 		// this.add(pose_a, parentWorldPosition, parentWorldQuaternion, parentWorldScale);
 
-		// /SECOND BONE
+		// SECOND BONE
+
+		const poseAWorldQuaternion = new Quaternion();
+		pose_a.getWorldQuaternion(poseAWorldQuaternion);
+
 		// Need to rotate from Right to Left, So take the angle and subtract it from 180 to rotate from 
 		// the other direction. Ex. L->R 70 degNotrees == R->L 110 degrees
 		rad = Math.PI - LawCosinesSSS(aLen, bLen, cLen);
 		poseAWorldQuaternion.multiply(outRot);
 
 		outRot.copy(poseAWorldQuaternion).multiply(bind_b.quaternion)		// Add Bone 2's Local Bind Rotation to Bone 1's new World Rotation.
-		pmul_axis_angle(outRot, ikPose.axis.x, rad)				// Rotate it by the target's x-axis
-		pmul_invert(outRot, poseAWorldQuaternion);					// Convert to Bone's Local Space
+		// pmul_axis_angle(outRot, ikPose.axis.x, rad)				// Rotate it by the target's x-axis
+		// pmul_invert(outRot, poseAWorldQuaternion);					// Convert to Bone's Local Space
+    outRot.premultiply(new Quaternion().setFromAxisAngle(ikPose.axis.x, rad))	// Rotate it by the target's x-axis .pmul( tmp.from_axis_angle( this.axis.x, rad ) )
+    outRot.premultiply(poseAWorldQuaternion.clone().invert())				// Convert to Local Space in temp to save WS rot for next bone.
 
 		rig.pose.bones[bindBIndex].setRotationFromQuaternion(outRot);
 		

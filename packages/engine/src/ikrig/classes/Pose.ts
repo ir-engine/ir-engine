@@ -1,4 +1,4 @@
-import { Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from "three";
+import { Bone, Object3D, Quaternion, Skeleton, SkinnedMesh, Vector3 } from "three";
 import { SkeletonUtils } from "../../character/SkeletonUtils";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import IKRigComponent from "../components/IKRigComponent";
@@ -12,7 +12,7 @@ class Pose {
 
   entity: any;
   skeleton: Skeleton;
-  bones: any[];
+  bones: Bone[];
   rootOffset = {
     quaternion: new Quaternion(),
     position: new Vector3(0, 0, 0),

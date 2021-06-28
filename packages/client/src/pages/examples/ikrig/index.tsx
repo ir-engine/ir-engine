@@ -14,8 +14,8 @@ import { setupIKRig } from "@xrengine/engine/src/ikrig/functions/IKFunctions";
 import { IKRigSystem } from "@xrengine/engine/src/ikrig/systems/IKRigSystem";
 import { OrbitControls } from "@xrengine/engine/src/input/functions/OrbitControls";
 import React, { useEffect } from "react";
-import { AmbientLight, AnimationClip, AnimationMixer, DirectionalLight, GridHelper, PerspectiveCamera, Scene, SkeletonHelper, WebGLRenderer } from "three";
-import IKRigDebugHelper from "../../../../../engine/src/ikrig/classes/IKRigDebugHelper";
+import { AmbientLight, AnimationClip, AnimationMixer, DirectionalLight, GridHelper, PerspectiveCamera, Scene, SkeletonHelper, WebGLRenderer, Mesh, MeshNormalMaterial } from "three";
+import IKRigDebugHelper from "@xrengine/engine/src/ikrig/classes/IKRigDebugHelper";
 import Debug from "../../../components/Debug";
 
 class AnimationComponent extends Component<AnimationComponent> {
@@ -156,9 +156,10 @@ const Page = () => {
       let targetSkinnedMeshes = [];
       targetModel.scene.traverse(node => {
         if (node.children) {
-          node.children.forEach(n => {
+          node.children.forEach((n: Mesh) => {
             if (n.type === "SkinnedMesh") {
               targetSkinnedMeshes.push(n);
+              n.material = new MeshNormalMaterial({ opacity: 0.3, transparent: true })
             }
           });
         }
@@ -243,7 +244,7 @@ async function initThree() {
   const controls = new OrbitControls(Engine.camera, canvas);
   controls.minDistance = 0.1;
   controls.maxDistance = 10;
-  controls.target.set(0, 1.25, 0);
+  controls.target.set(0, 0.75, 0);
   controls.update();
 
   Engine.scene.add(Engine.camera);
