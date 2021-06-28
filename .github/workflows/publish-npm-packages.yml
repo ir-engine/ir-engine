@@ -31,7 +31,7 @@ jobs:
       - run: git add .
       - run: git commit -m ${{ github.event.release.tag_name }}
       - run: git log
-#      - run: git push --no-verify origin ${{ env.pr_branch_name }}
+      - run: git push --no-verify origin ${{ env.pr_branch_name }}
       - run: echo "PR Branch name:" ${{ env.pr_branch_name }}
       - run: echo "Target Commitish:" ${{ github.event.release.target_commitish }}
       - uses: peter-evans/create-pull-request@v3
