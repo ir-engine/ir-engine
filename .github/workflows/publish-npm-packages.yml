@@ -18,7 +18,7 @@ jobs:
       - run: git config user.name xrengine-ci
       - run: git config user.email ci-bot@xrengine.io
       - run: echo lerna_version=$(node -p 'require("./lerna.json").version') >> $GITHUB_ENV
-      - run: git switch -c ${{ github.event.release.tag_name }}
+      - run: git switch -c version-increment-${{ github.event.release.tag_name }}
       - run: npm run version-increment-no-tag ${{ github.event.release.tag_name }}
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
