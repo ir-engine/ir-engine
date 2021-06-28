@@ -34,13 +34,13 @@ jobs:
       - run: git push --no-verify origin ${{ env.pr_branch_name }}
       - run: echo "PR Branch name:" ${{ env.pr_branch_name }}
       - run: echo "Target Commitish:" ${{ github.event.release.target_commitish }}
-      - uses: peter-evans/create-pull-request@v3
+      - uses: repo-sync/pull-request@v2
         with:
-          committer: CI Bot <ci-bot@xrengine.io>
-#          title: v${{ github.event.release.tag_name }}
-#          body: Bump version to v${{ github.event.release.tag_name }}
-#          branch: ${{ env.pr_branch_name }}
-#          base: ${{ github.event.release.target_commitish }}
+          destination_branch: ${{ github.event.release.target_commitish }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          source_branch: ${{ env.pr_branch_name }}
+          pr_title: v${{ github.event.release.tag_name }}
+          pr_body: Bump version to v${{ github.event.release.tag_name }}
       - run: npm run publish-no-verify
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
