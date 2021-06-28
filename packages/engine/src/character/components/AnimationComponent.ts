@@ -28,5 +28,5 @@ AnimationComponent._schema = {
   currentState: { type: Types.Ref, default: null },
   prevState: { type: Types.Ref, default: null },
   animationGraph: { type: Types.Ref, default: null },
-  prevVelocity: { type: Types.Ref, default: new Vector3() },
+  prevVelocity: { type: Types.Ref, default: null },
 };
