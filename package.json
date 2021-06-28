@@ -96,7 +96,7 @@
     "bcrypt": "5.0.1",
     "esbuild": "0.12.10",
     "esbuild-plugin-sass": "0.5.0",
-    "jest": "27.0.5",
+    "jest": "27.0.6",
     "lerna": "4.0.0",
     "pre-commit": "1.2.2",
     "pre-push": "0.1.1",
