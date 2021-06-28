@@ -15,7 +15,7 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           scope: '@XRFoundation'
 #      - run: npm i
-      - run: git config user.name xrengine-ci
+      - run: git config user.name CI Bot
       - run: git config user.email ci-bot@xrengine.io
       - run: echo lerna_version=$(node -p 'require("./lerna.json").version') >> $GITHUB_ENV
       - run: git switch -c version-increment-${{ github.event.release.tag_name }}
@@ -33,7 +33,7 @@ jobs:
       - run: git push origin ${{ github.event.release.tag_name }}
       - uses: peter-evans/create-pull-request@v3
         with:
-          committer: ci-bot@xrengine.io
+          committer: CI Bot <ci-bot@xrengine.io>
           title: v${{ github.event.release.tag_name }}
           body: Bump version to v${{ github.event.release.tag_name }}
           delete-branch: true
