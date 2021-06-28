@@ -20,7 +20,8 @@ jobs:
 #      - run: npm i
       - run: git config user.name xrengine-ci
       - run: git config user.email ci-bot@xrengine.io
-      - run: echo ${{ github.event.release }}
+      - run: echo ${{ github.event.release.tag_name }}
+      - run: echo "target_commitish:" ${{ github.event.release.target_commitish }}
       - run: echo "GH ref $GITHUB_REF"
       - run: echo lerna_version=$(node -p 'require("./lerna.json").version') >> $GITHUB_ENV
       - run: git branch
@@ -32,7 +33,7 @@ jobs:
       - run: echo "tag_name:" ${{ github.event.release.tag_name }}
       - run: git add .
         if: ${{ github.event.release.tag_name != env.lerna_version }}
-      - run: git commit -m v${{ github.event.release.tag_name }}
+      - run: git commit -m ${{ github.event.release.tag_name }}
         if: ${{ github.event.release.tag_name != env.lerna_version && github.event.release.tag_name != '' }}
       - run: git commit -m v${{ env.lerna_version }}
         if: ${{ github.event.release.tag_name != env.lerna_version && github.event.release.tag_name == '' }}
