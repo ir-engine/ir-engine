@@ -14,7 +14,7 @@ jobs:
           node-version: 16.x
           registry-url: https://npm.pkg.github.com/
           scope: '@XRFoundation'
-#      - run: npm i
+      -- run: npm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
       - run: git config user.name "CI Bot"
       - run: git config user.email ci-bot@xrengine.io
       - run: echo pr_branch_name=version-increment-${{ github.event.release.tag_name }} >> $GITHUB_ENV
@@ -30,10 +30,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - run: git add .
       - run: git commit -m ${{ github.event.release.tag_name }}
-      - run: git log
       - run: git push --no-verify origin ${{ env.pr_branch_name }}
-      - run: echo "PR Branch name:" ${{ env.pr_branch_name }}
-      - run: echo "Target Commitish:" ${{ github.event.release.target_commitish }}
       - uses: repo-sync/pull-request@v2
         with:
           destination_branch: ${{ github.event.release.target_commitish }}
