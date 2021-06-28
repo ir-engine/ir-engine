@@ -33,7 +33,7 @@ jobs:
       - run: git push origin ${{ github.event.release.tag_name }}
       - uses: peter-evans/create-pull-request@v3
         with:
-          committer: ci-bot
+          committer: ci-bot@xrengine.io
           title: v${{ github.event.release.tag_name }}
           body: Bump version to v${{ github.event.release.tag_name }}
           delete-branch: true
