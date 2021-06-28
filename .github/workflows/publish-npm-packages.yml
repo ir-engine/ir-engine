@@ -17,8 +17,8 @@ jobs:
 #      - run: npm i
       - run: git config user.name CI Bot
       - run: git config user.email ci-bot@xrengine.io
-      - run: echo lerna_version=$(node -p 'require("./lerna.json").version') >> $GITHUB_ENV
-      - run: git switch -c version-increment-${{ github.event.release.tag_name }}
+      - run: echo pr_branch_name=version-increment-${{ github.event.release.tag_name }} >> $GITHUB_ENV
+      - run: git switch -c ${{ env.pr_branch_name }}
       - run: npm run version-increment-no-tag ${{ github.event.release.tag_name }}
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -30,14 +30,15 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - run: git add .
       - run: git commit -m ${{ github.event.release.tag_name }}
-      - run: git push origin version-increment-${{ github.event.release.tag_name }}
+      - run: git push origin ${{ env.pr_branch_name }}
       - uses: peter-evans/create-pull-request@v3
         with:
           committer: CI Bot <ci-bot@xrengine.io>
           title: v${{ github.event.release.tag_name }}
           body: Bump version to v${{ github.event.release.tag_name }}
           delete-branch: true
-          branch: version-increment-${{ github.event.release.tag_name }}
+          branch: ${{ env.pr_branch_name }}
+          base: ${{ github.event.release.target_commitish }}
       - run: npm run publish-no-verify
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
