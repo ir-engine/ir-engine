@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+
+
+**Note:** Version bump only for package @xrengine/client-ml
+
+
+
+
+
 ## 0.2.36 (2021-06-25)
 
 **Note:** Version bump only for package @xrengine/client-ml
