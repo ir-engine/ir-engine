@@ -25,6 +25,8 @@ jobs:
       - run: echo "GH ref $GITHUB_REF"
       - run: echo lerna_version=$(node -p 'require("./lerna.json").version') >> $GITHUB_ENV
       - run: git branch
+      - run: git switch ${{ github.event.release.target_commitish }}
+        if: ${{ github.event.release.target_commitish != '' }}
       - run: npm run version-increment-no-tag
         if: ${{ github.event.release.tag_name != env.lerna_version }}
         env:
