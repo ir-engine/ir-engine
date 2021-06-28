@@ -29,8 +29,13 @@ jobs:
       - run: git branch
       - run: git switch -c ${{ github.event.release.target_commitish }}
         if: ${{ github.event.release.target_commitish != '' }}
+      - run: npm run version-increment-no-tag ${{ github.event.release.tag_name }}
+        if: ${{ github.event.release.tag_name != '' }}
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - run: npm run version-increment-no-tag
-        if: ${{ github.event.release.tag_name != env.lerna_version }}
+        if: ${{ github.event.release.tag_name == '' }}
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
