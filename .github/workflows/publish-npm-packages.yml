@@ -30,7 +30,6 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - run: git add .
       - run: git commit -m ${{ github.event.release.tag_name }}
-      - run: git push origin ${{ env.pr_branch_name }}
       - uses: peter-evans/create-pull-request@v3
         with:
           committer: CI Bot <ci-bot@xrengine.io>
