@@ -41,7 +41,7 @@ jobs:
         if: ${{ github.event.release.tag_name != env.lerna_version && github.event.release.tag_name != '' }}
       - run: git commit -m v${{ env.lerna_version }}
         if: ${{ github.event.release.tag_name != env.lerna_version && github.event.release.tag_name == '' }}
-      - run: git push origin npm-github-package
+      - run: git push origin ${{ github.event.release.target_commitish }}
         if: ${{ github.event.release.tag_name != env.lerna_version }}
       - run: npm run publish-no-verify
         env:
