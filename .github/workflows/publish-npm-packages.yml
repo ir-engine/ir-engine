@@ -37,10 +37,10 @@ jobs:
       - uses: peter-evans/create-pull-request@v3
         with:
           committer: CI Bot <ci-bot@xrengine.io>
-          title: v${{ github.event.release.tag_name }}
-          body: Bump version to v${{ github.event.release.tag_name }}
-          branch: ${{ env.pr_branch_name }}
-          base: ${{ github.event.release.target_commitish }}
+#          title: v${{ github.event.release.tag_name }}
+#          body: Bump version to v${{ github.event.release.tag_name }}
+#          branch: ${{ env.pr_branch_name }}
+#          base: ${{ github.event.release.target_commitish }}
       - run: npm run publish-no-verify
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
