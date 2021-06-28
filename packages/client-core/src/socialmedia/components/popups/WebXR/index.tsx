@@ -3,12 +3,6 @@ import { connect } from "react-redux";
 import { bindActionCreators, Dispatch } from "redux";
 import { selectPopupsState } from "../../../reducers/popupsState/selector";
 import {  updateWebXRState } from "../../../reducers/popupsState/service";
-import SharedModal from "../../SharedModal";
-import AppFooter from "../../Footer";
-
-//@ts-ignore
-import styles from './FeedFormPopup.module.scss';
-import FeedForm from "../../FeedForm";
 import WebXRPlugin from "../../WebXRPlugin";
 
 const mapStateToProps = (state: any): any => {
@@ -29,7 +23,7 @@ interface Props{
     setFeedHintsOnborded?: any;
     webxrRecorderActivity?: any;
 }
-export const WebXRStart = ({popupsState, updateWebXRState, webxrRecorderActivity, feedHintsOnborded, setFeedHintsOnborded, setContentHidden}: Props) =>{
+export const WebXRStart = ({popupsState, webxrRecorderActivity, feedHintsOnborded, setFeedHintsOnborded, setContentHidden}: Props) =>{
   //common for web xr
 
 const renderWebXRModal = () =>
