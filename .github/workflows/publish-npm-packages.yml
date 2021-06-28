@@ -39,8 +39,8 @@ jobs:
           destination_branch: ${{ github.event.release.target_commitish }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           source_branch: ${{ env.pr_branch_name }}
-          pr_title: v${{ github.event.release.tag_name }}
-          pr_body: Bump version to v${{ github.event.release.tag_name }}
+          pr_title: ${{ github.event.release.tag_name }}
+          pr_body: Bump version to ${{ github.event.release.tag_name }}
       - run: npm run publish-no-verify
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
