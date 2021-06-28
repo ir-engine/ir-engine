@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import {
+ import {
   CHANGE_CREATOR_PAGE_STATE,
   CHANGE_CREATOR_FORM_STATE,
   CHANGE_FEED_PAGE_STATE,
@@ -15,7 +15,9 @@ export interface PopupsActions {
   type: string;
   state: boolean;
   id?: string;
-  imgSrc?: string
+  imgSrc?: string;
+  fPath?: string;
+  nameId?: string;
 }
 
 export function changeCreatorPage (state, id): PopupsActions {
@@ -48,12 +50,13 @@ export function changeArMedia (state): PopupsActions {
   };
 }
 
-export function changeNewFeedPage (state, id, imgSrc): PopupsActions {
+export function changeNewFeedPage (state, id, fPath, nameId): PopupsActions {
   return {
     type: CHANGE_NEW_FEED_PAGE_STATE,
     state,
     id,
-    imgSrc
+    fPath,
+    nameId
   };
 }
 

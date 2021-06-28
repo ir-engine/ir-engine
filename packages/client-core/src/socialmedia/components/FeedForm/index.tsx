@@ -47,7 +47,7 @@ interface Props{
     feedsState?: any;
     createFeed?: typeof createFeed;
     updateFeedAsAdmin?: typeof updateFeedAsAdmin;
-    updateNewFeedPageState?: typeof updateNewFeedPageState; 
+    updateNewFeedPageState?: typeof updateNewFeedPageState;
     updateShareFormState?: typeof updateShareFormState;
     updateArMediaState?: typeof updateArMediaState;
     changeWebXrNative?: any;
@@ -69,7 +69,9 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const textRef = React.useRef<HTMLInputElement>();
     const videoRef = React.useRef<HTMLInputElement>();
     const { t } = useTranslation();
-    const videoPath = popupsState?.get('videoPath');
+    const videoPath = popupsState?.get('videoPath')
+	const videoDir = popupsState?.get('fPath');
+	const nameId = popupsState?.get('nameId');
     const { XRPlugin } = Plugins;
 
     const handleComposingTitleChange = (event: any): void => setComposingTitle(event.target.value);
@@ -94,12 +96,12 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
             return;
         }
 
-        if(feed){                    
+        if(feed){
             updateFeedAsAdmin(feed.id, newFeed);
         }else{
            const feedMediaLinks = await createFeed(newFeed);
            // @ts-ignore
-           updateShareFormState(true, feedMediaLinks.video, feedMediaLinks.preview);
+           // updateShareFormState(true, feedMediaLinks.video, feedMediaLinks.preview);
         }
 
         setComposingTitle('');
@@ -115,6 +117,8 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
         if(webxrRecorderActivity){
             changeWebXrNative();
         }
+		XRPlugin.deleteVideo({videoDir: videoDir});
+		updateNewFeedPageState(false, null, null, null);
     };
 
     const dataURItoBlob = (dataURI) => {
@@ -189,10 +193,11 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     }, [] );
 
     const closePopUp = () => {
-        updateNewFeedPageState(false);
+        updateNewFeedPageState(false, null, null, null);
         if(webxrRecorderActivity){
             changeWebXrNative();
         }
+		XRPlugin.deleteVideo({videoDir: videoDir});
     };
 
     // useEffect(()=> {videoUrl && updateNewFeedPageState(false, null) && updateShareFormState(true, videoUrl);}, [videoUrl] );
@@ -209,58 +214,58 @@ const FeedForm = ({feed, createFeed, updateFeedAsAdmin, updateNewFeedPageState, 
     const feedsFetching = feedsState.get('feedsFetching');
 
 return <section className={styles.feedFormContainer}>
-    {/* <nav>               
+    {/* <nav>
         <Button variant="text" className={styles.backButton} onClick={()=>{updateArMediaState(true); updateNewFeedPageState(false);}}><ArrowBackIosIcon />{t('social:feedForm.back')}</Button>
     </nav>   */}
     {feedsFetching && <Preloader text={'Publishing...'} />}
     {!readyToPublish && <Preloader text={'Loading...'} />}
-    {isSended ? 
+    {isSended ?
         <Typography>{t('social:feedForm.thanks')}</Typography>
         :
         <section className={styles.alignSection}>
-            {/* <Typography>{t('social:feedForm.share')}</Typography>            
-                {feed && <CardMedia   
-                    className={styles.previewImage}                  
+            {/* <Typography>{t('social:feedForm.share')}</Typography>
+                {feed && <CardMedia
+                    className={styles.previewImage}
                     src={feed.videoUrl}
-                    title={feed.title}  
-                    component='video'      
-                    controls  
-                    autoPlay={true} 
-                />}  
-                {feed && <CardMedia   
-                    className={styles.previewImage}                  
+                    title={feed.title}
+                    component='video'
+                    controls
+                    autoPlay={true}
+                />}
+                {feed && <CardMedia
+                    className={styles.previewImage}
                     image={feed.previewUrl}
-                    title={feed.title}                      
-                />}  
+                    title={feed.title}
+                />}
                 <section className={styles.flexContainer}>
                     <Card className={styles.preCard}>
                         <Typography>
                             {t('social:feedForm.upload')}
                             <br/><BackupIcon onClick={()=>{(videoRef.current as HTMLInputElement).click();}} />
                             <input required ref={videoRef} type="file" className={styles.displayNone} name="video" onChange={handlePickVideo} placeholder={t('social:feedForm.ph-selectVideo')}/>
-                        </Typography> 
+                        </Typography>
                     </Card> */}
                 {/* <Card className={styles.preCard}>
                    <Typography variant="h2" align="center">
                         <p>Record from camera</p>
                         <p><CameraIcon  onClick={()=>setRecordVideo(true)} /></p>
-                    </Typography> 
+                    </Typography>
                 </Card> */}
                 {/* <Card className={styles.preCard}>
-                    <Typography>{t('social:feedForm.preview')}<input required type="file" name="preview" onChange={handlePickPreview} placeholder={t('social:feedForm.ph-selectPreview')}/></Typography>  
-                </Card>  
-            </section>            
-            <Typography>{t('social:feedForm.createFeed')}</Typography>              
-            <TextField ref={titleRef} 
+                    <Typography>{t('social:feedForm.preview')}<input required type="file" name="preview" onChange={handlePickPreview} placeholder={t('social:feedForm.ph-selectPreview')}/></Typography>
+                </Card>
+            </section>
+            <Typography>{t('social:feedForm.createFeed')}</Typography>
+            <TextField ref={titleRef}
                 value={composingTitle}
                 onChange={handleComposingTitleChange}
-                fullWidth 
+                fullWidth
                 placeholder={t('social:feedForm.ph-videoName')}
                 />     */}
-            {/* <TextField className={styles.textArea} ref={textRef} 
+            {/* <TextField className={styles.textArea} ref={textRef}
                 value={composingText}
                 onChange={handleComposingTextChange}
-                fullWidth 
+                fullWidth
                 multiline
                 placeholder={t('social:feedForm.ph-type')}
                 />     */}
@@ -288,6 +293,13 @@ return <section className={styles.feedFormContainer}>
                     Share
                 </Button>}
 
+				<Button
+					variant="contained"
+					className={styles.submit}
+					onClick={()=> XRPlugin.saveVideoTo({videoDir: videoDir, nameId: nameId})}
+				>
+					Save
+				</Button>
                 <Button
                     variant="contained"
                     className={styles.submit}
@@ -297,8 +309,8 @@ return <section className={styles.feedFormContainer}>
                     </Button>
             </div>
 
-                
-            {isRecordVideo === true && 
+
+            {isRecordVideo === true &&
                 <section className={styles.videoWrapper}>
                     <VideoRecorder
                         onRecordingComplete={videoBlob => {
@@ -319,7 +331,7 @@ return <section className={styles.feedFormContainer}>
                         </Button>  }
                 </section>}
         </section>
-    }    
+    }
 </section>;
 };
 
