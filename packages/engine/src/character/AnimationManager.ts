@@ -31,8 +31,6 @@ export class AnimationManager {
 		const modifiedDelta = delta * actor.speedMultiplier;
 		actor.mixer.update(modifiedDelta);
 
-		if (!animationComponent.currentState) animationComponent.currentState = animationComponent.animationGraph.states[CharacterStates.IDLE];
-
 		animationComponent.animationGraph.render(actor, animationComponent, modifiedDelta);
 	}
 

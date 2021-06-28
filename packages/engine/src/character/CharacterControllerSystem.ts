@@ -213,7 +213,9 @@ export class CharacterControllerSystem extends System {
       this.queryResults.animation.added?.forEach((entity) => {
         const animationComponent = getMutableComponent(entity, AnimationComponent);
         animationComponent.animationGraph = CharacterAnimationGraph.constructGraph();
-        animationComponent.currentState = animationComponent.animationGraph[CharacterStates.IDLE];
+        animationComponent.currentState = animationComponent.animationGraph.states[CharacterStates.IDLE];
+        animationComponent.currentState.mount(getMutableComponent(entity, CharacterComponent), {});
+        animationComponent.prevVelocity = new Vector3();
       });
 
       this.queryResults.animation.all?.forEach((entity) => {
