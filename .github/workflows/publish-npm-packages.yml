@@ -30,15 +30,16 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - run: git add .
       - run: git commit -m ${{ github.event.release.tag_name }}
+      - run: git log
       - run: git push --no-verify origin ${{ env.pr_branch_name }}
-      - uses: peter-evans/create-pull-request@v3
-        with:
-          committer: CI Bot <ci-bot@xrengine.io>
-          title: v${{ github.event.release.tag_name }}
-          body: Bump version to v${{ github.event.release.tag_name }}
-          delete-branch: true
-          branch: ${{ env.pr_branch_name }}
-          base: ${{ github.event.release.target_commitish }}
+#      - uses: peter-evans/create-pull-request@v3
+#        with:
+#          committer: CI Bot <ci-bot@xrengine.io>
+#          title: v${{ github.event.release.tag_name }}
+#          body: Bump version to v${{ github.event.release.tag_name }}
+#          delete-branch: true
+#          branch: ${{ env.pr_branch_name }}
+#          base: ${{ github.event.release.target_commitish }}
       - run: npm run publish-no-verify
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
