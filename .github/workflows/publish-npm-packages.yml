@@ -15,7 +15,7 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           scope: '@XRFoundation'
 #      - run: npm i
-      - run: git config user.name CI Bot
+      - run: git config user.name "CI Bot"
       - run: git config user.email ci-bot@xrengine.io
       - run: echo pr_branch_name=version-increment-${{ github.event.release.tag_name }} >> $GITHUB_ENV
       - run: git switch -c ${{ env.pr_branch_name }}
@@ -30,15 +30,17 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - run: git add .
       - run: git commit -m ${{ github.event.release.tag_name }}
+      - run: git log
       - run: git push --no-verify origin ${{ env.pr_branch_name }}
-      - uses: peter-evans/create-pull-request@v3
+      - run: echo "PR Branch name:" ${{ env.pr_branch_name }}
+      - run: echo "Target Commitish:" ${{ github.event.release.target_commitish }}
+      - uses: repo-sync/pull-request@v2
         with:
-          committer: CI Bot <ci-bot@xrengine.io>
-          title: v${{ github.event.release.tag_name }}
-          body: Bump version to v${{ github.event.release.tag_name }}
-          delete-branch: true
-          branch: ${{ env.pr_branch_name }}
-          base: ${{ github.event.release.target_commitish }}
+          destination_branch: ${{ github.event.release.target_commitish }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          source_branch: ${{ env.pr_branch_name }}
+          pr_title: ${{ github.event.release.tag_name }}
+          pr_body: Bump version to ${{ github.event.release.tag_name }}
       - run: npm run publish-no-verify
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
