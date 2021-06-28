@@ -8,6 +8,7 @@ import {
   USER_ROLE_CREATED,
   USER_ROLE_UPDATED,
 } from '../../../world/reducers/actions';
+
 import {
   VIDEO_CREATED,
   VIDEO_DELETED,
@@ -20,6 +21,7 @@ import {
   USER_SEARCH_ADMIN,
   SINGLE_USER_ADMIN_LOADED
 } from '../actions';
+
 import { User } from '@xrengine/common/src/interfaces/User';
 
 export interface VideoCreationForm {
@@ -182,8 +184,6 @@ export function instanceRemoved(instance: any): InstanceRemovedResponse {
     instance: instance
   };
 }
-
-
 
 export const userRoleRetrieved = (data: any): userRoleRetrievedResponse  => {
   return {

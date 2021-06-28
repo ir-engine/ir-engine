@@ -532,7 +532,7 @@ export const WebXRPlugin = ({
                 clipTime: clipTime
             }).
               // @ts-ignore
-              then(({ result, filePath }) => {
+              then(({ result, filePath , nameId }) => {
                   console.log("END RECORDING, result IS", result);
                   console.log("filePath IS", filePath);
                   setLastFeedVideoUrl(filePath);
@@ -540,7 +540,7 @@ export const WebXRPlugin = ({
                   setSavedFilePath("file://" + filePath);
                   if(!closeBtnAction.current){
                       const videoPath = Capacitor.convertFileSrc(filePath);
-                      updateNewFeedPageState(true, videoPath);
+                      updateNewFeedPageState(true, videoPath, filePath, nameId);
                   }
                   setRecordingState(RecordingStates.OFF);
                   updateWebXRState(false, null);

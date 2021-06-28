@@ -101,7 +101,7 @@
     "require-main-filename": "2.0.0",
     "rx": "4.1.0",
     "s3-blob-store": "4.1.1",
-    "sequelize": " 6.6.2",
+    "sequelize": "6.6.4",
     "serve-favicon": "2.5.0",
     "slugify": "1.5.3",
     "universal-analytics": "0.4.23",
@@ -122,7 +122,7 @@
     "no-master-commits": "1.1.1",
     "semantic-release": "17.4.4",
     "semantic-release-monorepo": "7.0.5",
-    "typedoc": "0.21.1",
+    "typedoc": "0.21.2",
     "typescript": "4.3.4"
   },
   "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"
