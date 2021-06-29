@@ -8,6 +8,14 @@ import { Object3DComponent } from '../components/Object3DComponent';
 import { addObject3DComponent } from './addObject3DComponent';
 import { CubeTextureLoader } from '../../assets/loaders/tex/CubeTextureLoader';
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
+import { SCENE_ASSET_TYPES, WorldScene } from '../functions/SceneLoading';
+
+const negx = "negx.jpg";
+const negy = "negy.jpg";
+const negz = "negz.jpg";
+const posx = "posx.jpg";
+const posy = "posy.jpg";
+const posz = "posz.jpg";
 
 export default function createSkybox(entity, args: any): void {
   
@@ -19,13 +27,6 @@ export default function createSkybox(entity, args: any): void {
 
   const pmremGenerator = new PMREMGenerator(renderer);
 
-  const negx = "negx.jpg";
-  const negy = "negy.jpg";
-  const negz = "negz.jpg";
-  const posx = "posx.jpg";
-  const posy = "posy.jpg";
-  const posz = "posz.jpg";
-
   if (args.skytype === "cubemap") {
     new CubeTextureLoader()
       .setPath(args.texture)
@@ -35,9 +36,12 @@ export default function createSkybox(entity, args: any): void {
 
         EnvMap.encoding = sRGBEncoding;
         Engine.scene.environment = EnvMap;
-
+        
         texture.dispose();
         pmremGenerator.dispose();
+
+        // update anything that depends on the env changing
+        WorldScene.executeAssetTypeLoadCallback(SCENE_ASSET_TYPES.ENVMAP)
       },
       (res)=> {
         console.log(res);
@@ -55,6 +59,9 @@ export default function createSkybox(entity, args: any): void {
 
       texture.dispose();
       pmremGenerator.dispose();
+
+      // update anything that depends on the env changing
+      WorldScene.executeAssetTypeLoadCallback(SCENE_ASSET_TYPES.ENVMAP)
     });
   }
   else {
@@ -84,5 +91,8 @@ export default function createSkybox(entity, args: any): void {
     const skyboxTexture = (skyboxObject3D as any).generateEnvironmentMap(renderer);
 
     Engine.scene.environment = skyboxTexture;
+
+    // update anything that depends on the env changing
+    WorldScene.executeAssetTypeLoadCallback(SCENE_ASSET_TYPES.ENVMAP)
   }
 }

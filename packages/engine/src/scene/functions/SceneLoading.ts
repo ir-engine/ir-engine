@@ -40,14 +40,19 @@ import { createGround } from '../behaviors/createGround';
 import { handleRendererSettings } from '../behaviors/handleRendererSettings';
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 
+export enum SCENE_ASSET_TYPES {
+  ENVMAP,
+}
 export class WorldScene {
   loadedModels = 0;
   loaders: Promise<void>[] = [];
+  static callbacks: any
   static isLoading = false;
 
   constructor(private onCompleted?: Function, private onProgress?: Function) { }
 
   loadScene = (scene: SceneData) => {
+    WorldScene.callbacks = {}
     WorldScene.isLoading = true
     // reset renderer settings for if we are teleporting and the new scene does not have an override
     handleRendererSettings();
@@ -74,6 +79,15 @@ export class WorldScene {
   _onModelLoaded = () => {
     this.loadedModels++;
     if (typeof this.onProgress === 'function') this.onProgress(this.loaders.length - this.loadedModels);
+  }
+
+  static pushAssetTypeLoadCallback = (assetType: SCENE_ASSET_TYPES, callback: () => void): void => {
+    if(!WorldScene.callbacks[assetType]) WorldScene.callbacks[assetType] = [];
+    WorldScene.callbacks[assetType].push(callback)
+  }
+
+  static executeAssetTypeLoadCallback = (assetType: SCENE_ASSET_TYPES, ...args: any[]): void => {
+    WorldScene.callbacks[assetType]?.forEach((cb) => { cb(...args); })
   }
 
   loadComponent = (entity: Entity, component: SceneDataComponent): void => {
@@ -206,7 +220,7 @@ export class WorldScene {
         break;
 
       case 'background':
-        createBackground(entity, component.data);
+        createBackground(entity, component.data as any);
         break;
 
       case 'audio-settings':

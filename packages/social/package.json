@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/social",
-  "version": "0.2.29",
+  "version": "0.3.24",
   "private": true,
   "repository": {
     "type": "git",
@@ -30,15 +30,15 @@
   },
   "dependencies": {
     "@capacitor/android": "3.0.2",
-    "@capacitor/share":"1.0.2",
-    "@capacitor/app":"1.0.2",
+    "@capacitor/app": "1.0.2",
     "@capacitor/cli": "3.0.2",
     "@capacitor/ios": "3.0.2",
+    "@capacitor/share": "1.0.2",
     "@material-ui/core": "4.11.4",
     "@types/react-redux": "7.1.16",
-    "@xrengine/client-core": "^0.2.29",
-    "@xrengine/common": "^0.2.29",
-    "@xrengine/engine": "^0.2.29",
+    "@xrengine/client-core": "^0.3.24",
+    "@xrengine/common": "^0.3.24",
+    "@xrengine/engine": "^0.3.24",
     "app-root-path": "3.0.0",
     "prop-types": "15.7.2",
     "react": "17.0.2",

@@ -1,8 +1,7 @@
-import { Color, sRGBEncoding, TextureLoader } from 'three';
+import { Color, TextureLoader } from 'three';
 import { isClient } from '../../common/functions/isClient';
-import { Behavior } from '../../common/interfaces/Behavior';
 import { Engine } from '../../ecs/classes/Engine';
-import { EngineEvents } from '../../ecs/classes/EngineEvents';
+import { SCENE_ASSET_TYPES, WorldScene } from '../functions/SceneLoading';
 
 export type SceneBackgroundProps = {
   backgroundColor: number
@@ -10,13 +9,12 @@ export type SceneBackgroundProps = {
   backgroundType: 'color' | 'texture' | 'envmap'
 }
 
-export const createBackground: Behavior = (entity, args: SceneBackgroundProps) => {
+export const createBackground = (entity, args: SceneBackgroundProps): any => {
   if(isClient) {
     switch(args.backgroundType) {
       case 'envmap':
-        EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
+        WorldScene.pushAssetTypeLoadCallback(SCENE_ASSET_TYPES.ENVMAP, () => {
           Engine.scene.background = Engine.scene.environment;
-          Engine.scene.background.encoding = sRGBEncoding;
         })
       break;
       case 'texture': 
