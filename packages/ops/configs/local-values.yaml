@@ -2,7 +2,7 @@
 #############
 # WAAAARNING .. must be strings , if yo add an integer or boolean, please quote it "False" "3000"
 ############
-domain: xr3ngine.local
+domain: xrengine.local
 rts:
   extraEnv:
     NAF_LISTEN_PORT: "8081"
@@ -10,7 +10,7 @@ client:
   image:
     tag: rc-0.0.1
   extraEnv:
-    API_SERVER: http://xr3ngine.local
+    API_SERVER: http://xrengine.local
     SITE_TITLE: MyXR
     SITE_DESC: Connected Worlds for Everyone
     NODE_ENV: development
@@ -24,7 +24,7 @@ server:
 
     # automatically filled by chart.. ignore
     MYSQL_PORT: 3306
-    MYSQL_DATABASE: xr3ngine
+    MYSQL_DATABASE: xrengine
     MYSQL_USER: server
     MYSQL_PASSWORD: password
 
@@ -32,7 +32,6 @@ server:
     SMTP_PORT: "<SMTP Port>"
     SMTP_USER: "<SMTP USER>"
     SMTP_PASS: "<SMTP Password>"
-    MAIL_FROM: "noreply@myxr.email"
 
     GITHUB_CLIENT_ID: 
     GITHUB_CLIENT_SECRET: 
@@ -46,12 +45,10 @@ server:
     GOOGLE_CLIENT_SECRET: 
     GOOGLE_CALLBACK_URL: http://127.0.0.1:3000/oauth/google
 
-    APP_HOST: http://api.xr3ngine.local/
-
     STORAGE_PROVIDER: "local" or aws
-    STORAGE_S3_BUCKET_NAME: "xr3ngine-storage"
+    STORAGE_S3_BUCKET_NAME: "xrengine-storage"
     STORAGE_S3_PUBLIC_VIDEO_PATH: "/"
-    STORAGE_S3_PUBLIC_VIDEO_BUCKET: "xr3ngine-video"
+    STORAGE_S3_PUBLIC_VIDEO_BUCKET: "xrengine-video"
     STORAGE_S3_REGION: "<S3 Region>"
     STORAGE_S3_CLOUDFRONT_DOMAIN: "https://<MyCdnDistribution>.s3.amazonaws.com"
     STORAGE_AWS_ACCESS_KEY_ID: "<AWS ACCESS KEYS>"

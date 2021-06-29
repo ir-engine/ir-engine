@@ -1,7 +1,4 @@
-import { RigidBody } from "@xr3ngine/engine/src/physics/components/RigidBody";
-import { VehicleBody } from '@xr3ngine/engine/src/physics/components/VehicleBody';
-import { TransformComponent } from '@xr3ngine/engine/src/transform/components/TransformComponent';
-import { Box3, Frustum, Matrix4, Mesh, Object3D, Scene, Vector3 } from "three";
+import { Box3, Frustum, Matrix4, Mesh, Object3D, Vector3 } from "three";
 import { FollowCameraComponent } from "../../camera/components/FollowCameraComponent";
 import { isClient } from "../../common/functions/isClient";
 import { vectorToScreenXYZ } from "../../common/functions/vectorToScreenXYZ";
@@ -15,19 +12,44 @@ import { addComponent, getComponent, getMutableComponent, hasComponent, removeCo
 import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
 import { LocalInputReceiver } from "../../input/components/LocalInputReceiver";
 import { NetworkObject } from "../../networking/components/NetworkObject";
+import { RigidBodyComponent } from "../../physics/components/RigidBody";
 import { HighlightComponent } from "../../renderer/components/HighlightComponent";
 import { Object3DComponent } from "../../scene/components/Object3DComponent";
-import { CharacterComponent } from "../../templates/character/components/CharacterComponent";
-import { NamePlateComponent } from "../../templates/character/components/NamePlateComponent";
+import { CharacterComponent } from "../../character/components/CharacterComponent";
+import { NamePlateComponent } from "../../character/components/NamePlateComponent";
+import { VehicleComponent } from "../../vehicle/components/VehicleComponent";
+import { TransformComponent } from "../../transform/components/TransformComponent";
 import { BoundingBox } from "../components/BoundingBox";
 import { Interactable } from "../components/Interactable";
 import { InteractiveFocused } from "../components/InteractiveFocused";
 import { Interactor } from "../components/Interactor";
 import { SubFocused } from "../components/SubFocused";
 import { InteractBehaviorArguments } from "../types/InteractionTypes";
+import { HasHadInteraction } from "../../game/actions/HasHadInteraction";
+import { addActionComponent } from '../../game/functions/functionsActions';
+import { EquipperComponent } from "../components/EquipperComponent";
+import { EquippedStateUpdateSchema } from "../enums/EquippedEnums";
+import { ColliderComponent } from "../../physics/components/ColliderComponent";
+import { NetworkObjectUpdateType } from "../../networking/templates/NetworkObjectUpdateSchema";
+import { sendClientObjectUpdate } from "../../networking/functions/sendClientObjectUpdate";
+import { BodyType } from "three-physx";
+import { BinaryValue } from "../../common/enums/BinaryValue";
+import { ParityValue } from "../../common/enums/ParityValue";
+import { getInteractiveIsInReachDistance, interactiveReachDistance } from "../../character/functions/getInteractiveIsInReachDistance";
+import { getHandTransform } from "../../xr/functions/WebXRFunctions";
+import { unequipEntity } from "../functions/equippableFunctions";
 
-export const interactOnServer: Behavior = (entity: Entity, args: any, delta): void => {
+const vector3 = new Vector3();
+// but is works on client too, i will config out this
+export const interactOnServer: Behavior = (entity: Entity, args: { side: ParityValue}, delta): void => {
   //console.warn('Behavior: interact , networkId ='+getComponent(entity, NetworkObject).networkId);
+
+  const equipperComponent = getComponent(entity, EquipperComponent)
+  if(equipperComponent) {
+    unequipEntity(entity)
+    return;
+  }
+
     let focusedArrays = [];
     for (let i = 0; i < Engine.entities.length; i++) {
       const isEntityInteractable = Engine.entities[i];
@@ -39,14 +61,20 @@ export const interactOnServer: Behavior = (entity: Entity, args: any, delta): vo
 
         if (interactive.interactionPartsPosition.length > 0) {
           interactive.interactionPartsPosition.forEach((v,i) => {
-            const partPosition = new Vector3(...v).applyQuaternion(intRotation).add(intPosition);
-            if (position.distanceTo(partPosition) < 3) {
+            const partPosition = vector3.set(v[0], v[1], v[2]).applyQuaternion(intRotation).add(intPosition);
+            if (getInteractiveIsInReachDistance(entity, intPosition, args.side)) {
               focusedArrays.push([isEntityInteractable, position.distanceTo(partPosition), i])
             }
           })
         } else {
-          if (position.distanceTo(intPosition) < 3) {
-            focusedArrays.push([isEntityInteractable, position.distanceTo(intPosition), null])
+          if (getInteractiveIsInReachDistance(entity, intPosition, args.side)) {
+            if (typeof interactive.onInteractionCheck === 'function') {
+              if (interactive.onInteractionCheck(entity, isEntityInteractable, null)) {
+                focusedArrays.push([isEntityInteractable, position.distanceTo(intPosition), null])
+              }
+            } else {
+              focusedArrays.push([isEntityInteractable, position.distanceTo(intPosition), null])
+            }
           }
         }
       }
@@ -56,12 +84,16 @@ export const interactOnServer: Behavior = (entity: Entity, args: any, delta): vo
     if (focusedArrays.length < 1) return;
 
     const interactable = getComponent(focusedArrays[0][0], Interactable);
+    const interactionCheck = interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2]);
 
-  //console.warn('found networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
-
-    if (typeof interactable.onInteractionCheck === 'function' && interactable.onInteractionCheck(entity, focusedArrays[0][0], focusedArrays[0][2])) {
+    if (interactable.data.interactionType === "gameobject") {
+      addActionComponent(focusedArrays[0][0], HasHadInteraction, { args, entityNetworkId: getComponent(entity, NetworkObject).networkId });
+      return;
+    }
+    // Not Game Object
+    if (interactionCheck) {
     //  console.warn('start with networkId: '+getComponent(focusedArrays[0][0], NetworkObject).networkId+' seat: '+focusedArrays[0][2]);
-      interactable.onInteraction(entity, { currentFocusedPart: focusedArrays[0][2] }, delta, focusedArrays[0][0]);
+      interactable.onInteraction(entity, { ...args, currentFocusedPart: focusedArrays[0][2] }, delta, focusedArrays[0][0]);
     }
 }
 
@@ -70,27 +102,21 @@ export const subFocused:Behavior = (entity: Entity, args, delta: number): void =
     console.error('Attempted to call interact behavior, but target does not have Interactive component');
     return;
   }
-  const subFocused = hasComponent(entity, SubFocused);
-
-    if (subFocused){
-      addComponent(entity, HighlightComponent);
-    }
-    else {
-      removeComponent(entity, HighlightComponent);
-    }
-
+  hasComponent(entity, SubFocused) ? addComponent(entity, HighlightComponent, { color: 0xff0000, hiddenColor: 0x0000ff }) : removeComponent(entity, HighlightComponent);
 };
 
 const interactFocused: Behavior = (entity: Entity, args, delta: number): void => {
+
   if (!hasComponent(entity, Interactable)) {
     console.error('Attempted to call interact behavior, but target does not have Interactive component');
     return;
   }
 
   const focused = hasComponent(entity, InteractiveFocused);
-  //const subFocused = hasComponent(entity, SubFocused);
+  const subFocused = hasComponent(entity, SubFocused);
 
   const interactive = getComponent(entity, Interactable);
+
   if (interactive && typeof interactive.onInteractionFocused === 'function') {
     const entityFocuser = focused? getComponent(entity, InteractiveFocused).interacts : null;
     interactive.onInteractionFocused(entityFocuser, { focused }, delta, entity);
@@ -106,11 +132,10 @@ const interactFocused: Behavior = (entity: Entity, args, delta: number): void =>
 
 const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractBehaviorArguments, delta: number): void => {
 
+  const interacts = getMutableComponent(entity, Interactor);
   if (!hasComponent(entity, FollowCameraComponent)) {
-    const interacts = getMutableComponent(entity, Interactor);
     interacts.subFocusedArray = [];
-    (interacts.BoxHitResult as any) = null;
-    (interacts.focusedInteractive as any) = null;
+    interacts.focusedInteractive = null;
     return;
   }
 
@@ -118,18 +143,6 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
   if (!followCamera.raycastBoxOn) return;
 
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
-/*
-  const raycastList: Array<Entity> = interactive
-    .filter(interactiveEntity => {
-      // - have object 3d to raycast
-      if (!hasComponent(interactiveEntity, Object3DComponent)) {
-        return false;
-      }
-      const interactive = getComponent(interactiveEntity, Interactable);
-      // - onInteractionCheck is not set or passed
-      return (typeof interactive.onInteractionCheck !== 'function' || interactive.onInteractionCheck(entity, interactiveEntity));
-    });
-*/
 
   if (!raycastList.length) {
     return;
@@ -150,8 +163,8 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
   const viewProjectionMatrix = new Matrix4().multiplyMatrices(projectionMatrix, Engine.camera.matrixWorldInverse);
   const frustum = new Frustum().setFromProjectionMatrix(viewProjectionMatrix);
 
-
-  const subFocusedArray = raycastList.map(entityIn => {
+  type RaycastResult = [ Entity, boolean, number?, number? ];
+  const subFocusedArray = raycastList.map((entityIn): RaycastResult => {
 
     const boundingBox = getComponent(entityIn, BoundingBox);
     const interactive = getComponent(entityIn, Interactable);
@@ -159,7 +172,7 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
       // TO DO: static group object
 
       if (boundingBox.dynamic) {
-        const arr = boundingBox.boxArray.map((object3D, index) => {
+        const arr = boundingBox.boxArray.map((object3D, index): RaycastResult => {
           if (interactive.onInteractionCheck(entity, entityIn, index)) {
             const aabb = new Box3();
             aabb.setFromObject(object3D);
@@ -176,7 +189,6 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
       }
 
     } else {
-
       if (boundingBox.dynamic) {
         const object3D = getComponent(entityIn, Object3DComponent);
         const aabb = new Box3();
@@ -186,18 +198,26 @@ const interactBoxRaycast: Behavior = (entity: Entity, { raycastList }: InteractB
       } else {
         return [entityIn, frustum.intersectsBox(boundingBox.box), boundingBox.box.distanceToPoint(transform.position)];
       }
-
     }
   }).filter(value => value[1]);
 
-  const selectNearest = subFocusedArray.sort((a: any, b: any) => a[2] - b[2]);
+  if(!subFocusedArray.length) {
+    interacts.subFocusedArray = [];
+    interacts.focusedInteractive = null;
+    return
+  }
 
-  const interacts = getMutableComponent(entity, Interactor);
   interacts.subFocusedArray = subFocusedArray.map((v: any) => [ getComponent(v[0], Object3DComponent).value, v[3] ]);
 
-  const newBoxHit = selectNearest.length ? selectNearest[0] : null;
-  (interacts.BoxHitResult as any) = newBoxHit;
-  (interacts.focusedInteractive as any) = newBoxHit ? newBoxHit[0] : null;
+  const [entityInteractable, doesIntersectFrustrum, distanceToPlayer] = subFocusedArray.sort((a: any, b: any) => a[2] - b[2])[0];
+
+  const interactable = getComponent(entityInteractable, Interactable);
+  const distance = typeof interactable.data.interactionDistance !== 'undefined' ? interactable.data.interactionDistance : interactiveReachDistance;
+
+  const resultIsCloseEnough = distanceToPlayer < distance;
+  if(resultIsCloseEnough) { 
+    interacts.focusedInteractive = entityInteractable;
+  }
 };
 
 
@@ -205,6 +225,8 @@ export class InteractiveSystem extends System {
 
   static EVENTS = {
     USER_HOVER: 'INTERACTIVE_SYSTEM_USER_HOVER',
+    OBJECT_HOVER: 'INTERACTIVE_SYSTEM_OBJECT_HOVER',
+    OBJECT_ACTIVATION: 'INTERACTIVE_SYSTEM_OBJECT_ACTIVATION',
   };
   updateType = SystemUpdateType.Fixed;
 
@@ -219,21 +241,27 @@ export class InteractiveSystem extends System {
   previousEntity: Entity;
   previousEntity2DPosition: Vector3;
 
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
 
+    this.reset();
+  }
+
+  reset(): void {
+    
     this.previousEntity = null;
     this.previousEntity2DPosition = null;
-    this.focused = new Set();
-    this.newFocused = new Set();
+    this.focused = new Set<Entity>();
+    this.newFocused = new Set<Entity>();
   }
 
   dispose(): void {
     super.dispose();
-    this.previousEntity = null;
-    this.previousEntity2DPosition = null;
-    this.focused?.clear();
-    this.newFocused?.clear();
+    this.reset();
+
+    EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.USER_HOVER);
+    EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.OBJECT_ACTIVATION);
+    EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.OBJECT_HOVER);
   }
 
   execute(delta: number, time: number): void {
@@ -305,105 +333,137 @@ export class InteractiveSystem extends System {
       });
 
 
-    this.queryResults.interactors?.all.forEach(entity => {
-      if (this.queryResults.interactive?.all.length) {
-        //interactRaycast(entity, { interactive: this.queryResults.interactive.all });
-        interactBoxRaycast(entity, { raycastList: this.queryResults.boundingBox.all });
-        const interacts = getComponent(entity, Interactor);
-        if (interacts.focusedInteractive) {
-          this.newFocused.add(interacts.focusedInteractive);
-          // TODO: can someone else focus object? should we update 'interacts' entity
-          if (!hasComponent(interacts.focusedInteractive, InteractiveFocused)) {
-            addComponent(interacts.focusedInteractive, InteractiveFocused, { interacts: entity });
-          }
-        }
-
-        // unmark all unfocused
-        this.queryResults.interactive?.all.forEach(entityInter => {
-          if (!hasComponent(entityInter, BoundingBox) &&
-            hasComponent(entityInter, Object3DComponent) &&
-            hasComponent(entityInter, TransformComponent)
-          ) {
-            addComponent(entityInter, BoundingBox, {
-              dynamic: (hasComponent(entityInter, RigidBody) || hasComponent(entityInter, VehicleBody))
-            });
-          }
-          if (entityInter !== interacts.focusedInteractive && hasComponent(entityInter, InteractiveFocused)) {
-            removeComponent(entityInter, InteractiveFocused);
-          }
-          if (interacts.subFocusedArray.some(v => v[0].entity === entityInter)) {
-            if (!hasComponent(entityInter, SubFocused)) {
-              addComponent(entityInter, SubFocused);
+      this.queryResults.interactors?.all.forEach(entity => {
+        if (this.queryResults.interactive?.all.length) {
+          //interactRaycast(entity, { interactive: this.queryResults.interactive.all });
+          interactBoxRaycast(entity, { raycastList: this.queryResults.boundingBox.all });
+          const interacts = getComponent(entity, Interactor);
+          if (interacts.focusedInteractive) {
+            this.newFocused.add(interacts.focusedInteractive);
+            // TODO: can someone else focus object? should we update 'interacts' entity
+            if (!hasComponent(interacts.focusedInteractive, InteractiveFocused)) {
+              addComponent(interacts.focusedInteractive, InteractiveFocused, { interacts: entity });
             }
-          } else {
-            removeComponent(entityInter, SubFocused);
           }
-        });
+
+          // unmark all unfocused
+          this.queryResults.interactive?.all.forEach(entityInter => {
+            if (!hasComponent(entityInter, BoundingBox) &&
+              hasComponent(entityInter, Object3DComponent) &&
+              hasComponent(entityInter, TransformComponent)
+            ) {
+              addComponent(entityInter, BoundingBox, {
+                dynamic: (hasComponent(entityInter, RigidBodyComponent) || hasComponent(entityInter, VehicleComponent))
+              });
+            }
+            if (entityInter !== interacts.focusedInteractive && hasComponent(entityInter, InteractiveFocused)) {
+              removeComponent(entityInter, InteractiveFocused);
+            }
+            if (interacts.subFocusedArray.some(v => v[0].entity === entityInter)) {
+              if (!hasComponent(entityInter, SubFocused)) {
+                addComponent(entityInter, SubFocused);
+              }
+            } else {
+              removeComponent(entityInter, SubFocused);
+            }
+          });
+        }
+      });
+
+      this.queryResults.boundingBox.added?.forEach(entity => {
+        const interactive = getMutableComponent(entity, Interactable);
+        const calcBoundingBox = getMutableComponent(entity, BoundingBox);
+
+        const object3D = getMutableComponent(entity, Object3DComponent).value;
+        const transform = getComponent(entity, TransformComponent);
+
+        object3D.position.copy(transform.position);
+        object3D.rotation.setFromQuaternion(transform.rotation);
+        calcBoundingBox.dynamic ? '' : object3D.updateMatrixWorld();
+
+        if (interactive.interactionParts.length) {
+          const arr = interactive.interactionParts.map(name => object3D.children[0].getObjectByName(name));
+          calcBoundingBox.boxArray = arr;
+
+        } else {
+          const aabb = new Box3();
+          object3D.traverse(v => {
+            //object3D instanceof Object3D aabb.setFromCenterAndSize(new Vector3(0, 0, 0), new Vector3(0.5, 0.5, 0.5))
+            if (v instanceof Mesh) {
+              v.geometry.boundingBox == null ? v.geometry.computeBoundingBox():'';
+              aabb.copy(v.geometry.boundingBox);
+              calcBoundingBox.dynamic ? '' : aabb.applyMatrix4( v.matrixWorld );
+              calcBoundingBox.box = aabb;
+              return;
+            }
+          });
+        }
+      });
+
+      // removal is the first because the hint must first be deleted, and then a new one appears
+      this.queryResults.focus.removed?.forEach(entity => {
+        interactFocused(entity, null, delta);
+      });
+
+      this.queryResults.focus.added?.forEach(entity => {
+        interactFocused(entity, null, delta);
+      });
+
+      this.queryResults.subfocus.added?.forEach(entity => {
+        subFocused(entity, null, delta);
+      });
+      this.queryResults.subfocus.removed?.forEach(entity => {
+        subFocused(entity, null, delta);
+      });
+
+      this.focused.clear();
+      this.newFocused.forEach(e => this.focused.add(e));
+    }
+
+    this.queryResults.equippable.added?.forEach(entity => {
+      const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity;
+      // all equippables must have a collider to grab by in VR
+      const collider = getComponent(equippedEntity, ColliderComponent)
+      if(collider) collider.body.type = BodyType.KINEMATIC;
+      // send equip to clients
+      if(!isClient) {
+        const networkObject = getComponent(equippedEntity, NetworkObject)
+        sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, networkObject.networkId] as EquippedStateUpdateSchema)
+      }
+    })
+
+    this.queryResults.equippable.all?.forEach(entity => {
+      const equipperComponent = getComponent(entity, EquipperComponent);
+      const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent);
+      const handTransform = getHandTransform(entity);
+      const { position, rotation } = handTransform;    
+      equippableTransform.position.copy(position);
+      equippableTransform.rotation.copy(rotation);
+      if(!isClient) {
+        this.queryResults.network_user.added.forEach((userEntity) => {
+          const networkObject = getComponent(equipperComponent.equippedEntity, NetworkObject)
+          sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.TRUE, networkObject.networkId] as EquippedStateUpdateSchema)
+        })
       }
     });
 
-    this.queryResults.boundingBox.added?.forEach(entity => {
-   const interactive = getMutableComponent(entity, Interactable);
-   const calcBoundingBox = getMutableComponent(entity, BoundingBox);
-
-   const object3D = getMutableComponent(entity, Object3DComponent);
-   const transform = getComponent(entity, TransformComponent);
-
-   object3D.value.position.copy(transform.position);
-   object3D.value.rotation.setFromQuaternion(transform.rotation);
-
-   if (!calcBoundingBox.dynamic) {
-     object3D.value.updateMatrixWorld();
-   }
-
-     if (interactive.interactionParts.length) {
-
-       const arr = interactive.interactionParts.map(name => getComponent(entity, Object3DComponent).value.children[0].getObjectByName(name));
-       getMutableComponent(entity, BoundingBox).boxArray = arr;
-
-     } else {
-
-       const aabb = new Box3();
-       let object3D = getComponent(entity, Object3DComponent).value;
-
-       if (object3D instanceof Scene) object3D = object3D.children[0];
-       if (object3D instanceof Mesh) {
-
-         if( object3D.geometry.boundingBox == null) object3D.geometry.computeBoundingBox();
-           aabb.copy(object3D.geometry.boundingBox);
-
-           if(!calcBoundingBox.dynamic) {
-             aabb.applyMatrix4( object3D.matrixWorld );
-           }
-
-        } else
-        if (object3D instanceof Object3D) {
-          aabb.setFromObject( object3D );
-        }
-
-       calcBoundingBox.box = aabb;
-     }
-    });
-
-    // removal is the first because the hint must first be deleted, and then a new one appears
-    this.queryResults.focus.removed?.forEach(entity => {
-      interactFocused(entity, null, delta);
-    });
-
-    this.queryResults.focus.added?.forEach(entity => {
-      interactFocused(entity, null, delta);
-    });
-
-    this.queryResults.subfocus.added?.forEach(entity => {
-      subFocused(entity, null, delta);
-    });
-    this.queryResults.subfocus.removed?.forEach(entity => {
-      subFocused(entity, null, delta);
-    });
-
-    this.focused.clear();
-    this.newFocused.forEach(e => this.focused.add(e));
-    }
+    this.queryResults.equippable.removed?.forEach(entity => {
+      const equipperComponent = getComponent(entity, EquipperComponent, true)
+      const equippedEntity = equipperComponent.equippedEntity;
+      const equippedTransform = getComponent(equippedEntity, TransformComponent)
+      const collider = getComponent(equippedEntity, ColliderComponent)
+      if(collider) {
+        collider.body.type = BodyType.DYNAMIC;
+        collider.body.updateTransform({
+          translation: equippedTransform.position,
+          rotation: equippedTransform.rotation,
+        })
+      }
+      // send unequip to clients
+      if(!isClient) {
+        sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [BinaryValue.FALSE] as EquippedStateUpdateSchema)
+      }
+    })
   }
 
   static queries: any = {
@@ -439,6 +499,13 @@ export class InteractiveSystem extends System {
     },
     network_user: {
       components: [Not(LocalInputReceiver), NamePlateComponent, CharacterComponent, TransformComponent],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    equippable: {
+      components: [EquipperComponent],
       listen: {
         added: true,
         removed: true

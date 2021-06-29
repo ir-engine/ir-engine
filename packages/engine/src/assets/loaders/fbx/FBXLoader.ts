@@ -1,9 +1,8 @@
-import autobind from 'autobind-decorator';
 import { Quaternion, AmbientLight, AnimationClip, Bone, BufferAttribute, BufferGeometry, ClampToEdgeWrapping, Color, DefaultLoadingManager, MathUtils, DirectionalLight, EquirectangularReflectionMapping, Euler, FileLoader, Float32BufferAttribute, Group, Line, LineBasicMaterial, Loader, LoaderUtils, Matrix3, Matrix4, Mesh, MeshLambertMaterial, MeshPhongMaterial, NumberKeyframeTrack, Object3D, OrthographicCamera, PerspectiveCamera, PointLight, PropertyBinding, QuaternionKeyframeTrack, RepeatWrapping, Skeleton, SkinnedMesh, SpotLight, Texture, TextureLoader, Uint16BufferAttribute, Vector3, Vector4, VectorKeyframeTrack, LoadingManager } from 'three';
 import { TGALoader } from '../tga/TGALoader';
 import { NURBSCurve } from './NURBSCurve';
+import * as Zlib from './inflate.module.min.js';
 
-@autobind
 export class FBXLoader {
   static fbxTree: any
   static sceneGraph: any
@@ -44,7 +43,7 @@ export class FBXLoader {
           setTimeout(() => {
             if (onError) onError(error);
             this.manager.itemError(url);
-            console.log('load error');
+            console.log('load error', error);
           }, 0);
         }
       },
@@ -100,7 +99,6 @@ interface FBXTreeParserInterface {
   textureLoader: any;
 }
 
-@autobind
 class FBXTreeParser<FBXTreeParserInterface> {
   textureLoader: any
   constructor(textureLoader) {
@@ -3394,34 +3392,34 @@ class BinaryParser {
 
         }
 
-        // if ( typeof Zlib === 'undefined' ) {
+        if ( typeof Zlib === 'undefined' ) {
 
-        //   console.error( 'FBXLoader: External library Inflate.min.js required, obtain or import from https://github.com/imaya/zlib.js' );
+          console.error( 'FBXLoader: External library Inflate.min.js required, obtain or import from https://github.com/imaya/zlib.js' );
 
-        // }
+        }
 
-        // const inflate = new Zlib.Inflate( new Uint8Array( reader.getArrayBuffer( compressedLength ) ) ); // eslint-disable-line no-undef
-        // const reader2 = new BinaryReader( inflate.decompress().buffer );
+        const inflate = new Zlib.Inflate( new Uint8Array( reader.getArrayBuffer( compressedLength ) ) ); // eslint-disable-line no-undef
+        const reader2 = new BinaryReader( inflate.decompress().buffer );
 
-        // switch ( type ) {
+        switch ( type ) {
 
-        //   case 'b':
-        //   case 'c':
-        //     return reader2.getBooleanArray( arrayLength );
+          case 'b':
+          case 'c':
+            return reader2.getBooleanArray( arrayLength );
 
-        //   case 'd':
-        //     return reader2.getFloat64Array( arrayLength );
+          case 'd':
+            return reader2.getFloat64Array( arrayLength );
 
-        //   case 'f':
-        //     return reader2.getFloat32Array( arrayLength );
+          case 'f':
+            return reader2.getFloat32Array( arrayLength );
 
-        //   case 'i':
-        //     return reader2.getInt32Array( arrayLength );
+          case 'i':
+            return reader2.getInt32Array( arrayLength );
 
-        //   case 'l':
-        //     return reader2.getInt64Array( arrayLength );
+          case 'l':
+            return reader2.getInt64Array( arrayLength );
 
-        // }
+        }
 
       default:
         throw new Error( 'FBXLoader: Unknown property type ' + type );

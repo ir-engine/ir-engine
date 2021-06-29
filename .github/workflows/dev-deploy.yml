@@ -1,17 +1,17 @@
-name: workflow
+name: dev-deploy
 on:
   push:
     branches:
-      dev
+      [dev]
 jobs:
   dev-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
-          node-version: 14.x
+          node-version: 16.x
       - name: Setup Helm
         run: scripts/setup_helm.sh
       - name: Setup AWS
@@ -21,16 +21,18 @@ jobs:
           AWS_SECRET: ${{ secrets.AWS_SECRET }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           CLUSTER_NAME: theoverlay-production
+      - name: Space debug
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
       - name: Build Docker Image
-        run: bash scripts/build_docker.sh $DOCKER_LABEL
+        run: bash scripts/build_docker.sh dev $DOCKER_LABEL
         env:
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
-      - name: Publish to DockerHub
-        run: bash scripts/publish_dockerhub.sh $GITHUB_SHA $DOCKER_LABEL
-        env:
-          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
+          REPO_NAME: ${{ secrets.REPO_NAME }}
+          ECR_URL: ${{ secrets.ECR_URL }}
       - name: npm-install 'cli' and 'aws-sdk'
         run: npm install cli aws-sdk
       - name: Publish to Elastic Container Registry
@@ -41,9 +43,18 @@ jobs:
           ECR_URL: ${{ secrets.ECR_URL }}
       - name: Deploy to EKS
         run: bash scripts/deploy.sh dev $GITHUB_SHA
+      - name: Publish to DockerHub
+        run: bash scripts/publish_dockerhub.sh $GITHUB_SHA $DOCKER_LABEL
+        env:
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
       - name: Job succeeded
         if: always()
-        uses: actions/setup-ruby@v1
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6 # Not needed with a .ruby-version file
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
         env:
           JOB_STATUS: ${{ job.status }}
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}

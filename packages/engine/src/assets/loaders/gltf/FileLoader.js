@@ -1,21 +1,15 @@
 import { Cache, Loader } from 'three';
 import fetch from "cross-fetch"
 
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0
-
 const loading = {};
 
-function FileLoader(manager) {
+class FileLoader extends Loader {
 
-	Loader.call(this, manager);
+	constructor(manager) {
+    super(manager)
+  }
 
-}
-
-FileLoader.prototype = Object.assign(Object.create(Loader.prototype), {
-
-	constructor: FileLoader,
-
-	load: function (url, onLoad, onProgress, onError) {
+	load(url, onLoad, onProgress, onError) {
 
 		if (url === undefined) url = '';
 
@@ -209,23 +203,23 @@ FileLoader.prototype = Object.assign(Object.create(Loader.prototype), {
 				scope.manager.itemEnd(url);
 			});
 		}
-	},
+	}
 
-	setResponseType: function (value) {
+	setResponseType (value) {
 
 		this.responseType = value;
 		return this;
 
-	},
+	}
 
-	setMimeType: function (value) {
+	setMimeType (value) {
 
 		this.mimeType = value;
 		return this;
 
 	}
 
-});
+}
 
 
 export { FileLoader };

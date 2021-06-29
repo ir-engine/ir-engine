@@ -17,6 +17,10 @@ export interface PropTypeDefinition<T, D> {
   clone: TypeCloneFunction<T>;
 }
 
+/**
+ * 
+ * @author Fernando Serrano, Robert Long
+ */
 export interface PropType<T, D> extends PropTypeDefinition<T, D> {
   /** Mark the prop as type. */
   isType: true;
@@ -59,6 +63,7 @@ export const cloneClonable = <T>(value: T): T => value && (value as any).clone()
 
 /** Create a Type
  * 
+ * @author Fernando Serrano, Robert Long
  * @param typeDefinition Definition of the type which will be used to create the type
  * @returns Props Type created with given type definition.
  */
@@ -83,6 +88,8 @@ export function createType<T, D> (typeDefinition: PropTypeDefinition<T, D>): Pro
 /**
  * Standard types.
  * **NOTE:** Use ref for attaching objects to this entity unless you want to make the object clonable.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export const Types = {
   Number: createType({
@@ -143,12 +150,16 @@ export const Types = {
 
   QuaternionType: createType({
     name: 'Quaternion',
-    default: [0, 0, 0],
+    default: [0, 0, 0, 1],
     copy: copyCopyable,
     clone: cloneClonable
   })
 };
 
+/**
+ * 
+ * @author Fernando Serrano, Robert Long
+ */
 export const fromEntries = (Object as any).fromEntries || ( iterable =>
   [...iterable].reduce((obj, [key, val]) => {
     obj[key] = val;

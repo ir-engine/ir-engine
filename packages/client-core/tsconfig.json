@@ -8,7 +8,7 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
+    "forceConsistentCasingInFileNames": false,
     "noEmit": false,
     "module": "esnext",
     "strict": false,
@@ -18,16 +18,20 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "jsx": "react",
-    "isolatedModules": true,
+    "isolatedModules": false,
+    "preserveConstEnums": true,
+    "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
-    "outDir": "./lib"
+    "emitDecoratorMetadata": true,
+    "declaration": true
   },
   "exclude": [
     "node_modules",
-    "tests/**"
+    "tests/**",
+    "./**/*.d.ts"
   ],
   "include": [
-    "next-env.d.ts",
     "./**/*.ts",
-    "./**/*.tsx"]
+    "./**/*.tsx"
+  ]
 }

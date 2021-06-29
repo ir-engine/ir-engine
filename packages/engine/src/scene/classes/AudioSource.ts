@@ -1,6 +1,5 @@
-import { Object3D } from "three";
-import { Engine, Audio, PositionalAudio } from "../../ecs/classes/Engine";
-import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { Object3D, Audio, PositionalAudio } from "three";
+import { Engine } from "../../ecs/classes/Engine";
 import { RethrownError } from "../../editor/functions/errors";
 
 export const AudioType = {
@@ -83,13 +82,13 @@ export default class AudioSource extends Object3D {
       if (this.audioSource) {
         oldAudio.disconnect();
       }
-      this.remove(oldAudio);
+      (this as any).remove(oldAudio);
     }
     if (this.audioSource) {
       audio.setNodeSource(this.audioSource);
     }
     this.audio = audio;
-    this.add(audio);
+    (this as any).add(audio);
     this._audioType = type;
   }
   get volume() {
@@ -227,7 +226,7 @@ export default class AudioSource extends Object3D {
       for (let i = 0; i < source.children.length; i++) {
         const child = source.children[i];
         if (child !== source.audio) {
-          this.add(child.clone());
+          (this as any).add(child.clone());
         }
       }
     }
@@ -245,5 +244,11 @@ export default class AudioSource extends Object3D {
     this.coneOuterGain = source.coneOuterGain;
     this.src = source.src;
     return this;
+  }
+  play() {
+    this.el.play()
+  }
+  pause() {
+    this.el.pause()
   }
 }

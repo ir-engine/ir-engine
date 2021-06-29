@@ -4,7 +4,6 @@ import Hls from "hls.js/dist/hls.light";
 import isHLS from "../functions/isHLS";
 // import editorLandingVideo from ;
 import { RethrownError } from "../functions/errors";
-import { getObjectPerfIssues } from "../functions/performance";
 
 // @ts-ignore
 export default class VideoNode extends EditorNodeMixin(Video) {
@@ -18,6 +17,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     const node = await super.deserialize(editor, json);
     const {
       src,
+      interactable,
       controls,
       autoPlay,
       loop,
@@ -35,6 +35,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     loadAsync(
       (async () => {
         await node.load(src, onError);
+        node.interactable = interactable;
         node.controls = controls || false;
         node.autoPlay = autoPlay;
         node.loop = loop;
@@ -52,12 +53,13 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     );
     return node;
   }
+  _canonicalUrl = "";
+  _autoPlay = true;
+  volume = 0.5;
+  controls = true;
+  interactable = false;
   constructor(editor) {
     super(editor, editor.audioListener);
-    this._canonicalUrl = "";
-    this._autoPlay = true;
-    this.volume = 0.5;
-    this.controls = true;
   }
   get src(): string {
     return this._canonicalUrl;
@@ -83,8 +85,11 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     if (this.editor.playing) {
       (this.el as any).pause();
     }
+    if(!this._canonicalUrl || this._canonicalUrl === "") {
+      return
+    }
     try {
-      const { accessibleUrl, contentType } = await this.editor.api.resolveMedia(
+      const { url, contentType } = await this.editor.api.resolveMedia(
         src
       );
       const isHls = isHLS(src, contentType);
@@ -95,7 +100,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
           }
         });
       }
-      await super.load(accessibleUrl, contentType);
+      await super.load(url, contentType);
       if (isHls && this.hls) {
         this.hls.stopLoad();
       } else if ((this.el as any).duration) {
@@ -104,7 +109,6 @@ export default class VideoNode extends EditorNodeMixin(Video) {
       if (this.editor.playing && this.autoPlay) {
         (this.el as any).play();
       }
-      this.issues = getObjectPerfIssues(this._mesh, false);
     } catch (error) {
       this.showErrorIcon();
       const videoError = new RethrownError(
@@ -150,6 +154,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     return super.serialize({
       video: {
         src: this._canonicalUrl,
+        interactable: this.interactable,
         controls: this.controls,
         autoPlay: this.autoPlay,
         loop: this.loop,
@@ -170,6 +175,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     super.prepareForExport();
     this.addGLTFComponent("video", {
       src: this._canonicalUrl,
+      interactable: this.interactable,
       controls: this.controls,
       autoPlay: this.autoPlay,
       loop: this.loop,
@@ -188,14 +194,5 @@ export default class VideoNode extends EditorNodeMixin(Video) {
       id: this.uuid
     });
     this.replaceObject();
-  }
-  getRuntimeResourcesForStats(): any {
-    if (this._texture) {
-      return {
-        textures: [this._texture],
-        meshes: [this._mesh],
-        materials: [this._mesh.material]
-      };
-    }
   }
 }

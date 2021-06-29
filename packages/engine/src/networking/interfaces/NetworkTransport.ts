@@ -1,9 +1,5 @@
 /** Interface for the Transport. */
 export interface NetworkTransport {
- 
-  /** Indication of whether the system is on the server or on the client. */
-  isServer: boolean;
-
   /**
    * Handle kick event.
    * @param socket Socket on which this event occurred.
@@ -30,4 +26,9 @@ export interface NetworkTransport {
    * @param data Data to be sent.
    */
   sendReliableData(data: any): void;
+
+  /**
+   * Closes all the media soup transports
+   */
+  close(): void;
 }

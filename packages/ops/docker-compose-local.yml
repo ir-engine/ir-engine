@@ -1,9 +1,9 @@
 version: '2.3'
 services:
-  rts:    #xr3ngine-realtime-server
+  rts:    #xrengine-realtime-server
     build: 
       context: ../xrsocial-realtime-server
-    image: xr3ngine/realtime-server
+    image: xrengine/realtime-server
     restart: always
     environment:
       NAF_LISTEN_PORT: 8081
@@ -13,12 +13,12 @@ services:
   server:
     build: 
       context: ../xrsocial
-    image: xr3ngine/server
+    image: xrengine/server
     restart: always
     environment:
       PORT: 3030
       # take care, db not 127.0.0.1, because compose uses an intenal DNS
-      MYSQL_URL: mysql://server:password@db:3306/xr3ngine 
+      MYSQL_URL: mysql://server:password@db:3306/xrengine 
     ports:
       - '3030:3030'
     depends_on: 
@@ -27,11 +27,10 @@ services:
   client:
     build: 
       context: ../xrsocial-client
-    image: xr3ngine/client
+    image: xrengine/client
     environment:
-        NEXT_PUBLIC_API_SERVER: https://127.0.0.1:3030
         API_SERVER: https://127.0.0.1:3030
-        SITE_TITLE: XR3ngine
+        SITE_TITLE: XREngine
         SITE_DESC: Connected Worlds for Everyone
         NODE_ENV: dev
     restart: always
@@ -40,11 +39,11 @@ services:
  
   # DB Server
   db:
-    image: mariadb:10.4
+    image: mariadb:10.6
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: xr3ngine-root-pa$$w0rd
-      MYSQL_DATABASE: xr3ngine
+      MYSQL_ROOT_PASSWORD: xrengine-root-pa$$w0rd
+      MYSQL_DATABASE: xrengine
       MYSQL_USER: server
       MYSQL_PASSWORD: password
     ports:

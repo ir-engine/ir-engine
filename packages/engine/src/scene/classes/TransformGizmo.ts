@@ -32,11 +32,11 @@ export default class TransformGizmo extends Object3D {
   activeControls: any;
   selectedAxis: any;
   hoveredAxis: any;
+  rotateOnAxis: any;
   static async load() {
     if (gizmoGltf) {
       return Promise.resolve(gizmoGltf);
     }
-    // const gltf = await new GLTFLoader(GLTF_PATH).loadGLTF();
     const gltf = await LoadGLTF(GLTF_PATH);
 
     gizmoGltf = gltf;
@@ -45,14 +45,14 @@ export default class TransformGizmo extends Object3D {
   }
   constructor() {
     super();
-    this.name = "TransformGizmo";
+    (this as any).name = "TransformGizmo";
     if (!gizmoGltf) {
       throw new Error(
         "TransformGizmo must be loaded before it can be used. Await TransformGizmo.load()"
       );
     }
     this.model = cloneObject3D(gizmoGltf.scene);
-    this.add(this.model);
+    (this as any).add(this.model);
     this.selectionColor = new Color().setRGB(1, 1, 1);
     this.previousColor = new Color();
     this.raycasterResults = [];

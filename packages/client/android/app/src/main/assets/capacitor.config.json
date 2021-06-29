@@ -1,8 +1,8 @@
 {
-  "appId": "com.xr3ngine.client",
-  "appName": "@xr3ngine/client",
+  "appId": "com.xrengine.client",
+  "appName": "@xrengine/client",
   "bundledWebRuntime": false,
-  "npmClient": "yarn",
+  "npmClient": "npm",
   "webDir": "www",
   "plugins": {
     "SplashScreen": {

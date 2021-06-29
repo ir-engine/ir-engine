@@ -1,4 +1,3 @@
-// import { ParticleEmitter } from "@mozillareality/three-particle-emitter";
 import { ParticleEmitterMesh as ParticleEmitter } from "../../particles/functions/ParticleEmitterMesh";
 import EditorNodeMixin from "./EditorNodeMixin";
 import DirectionalPlaneHelper from "../../scene/classes/DirectionalPlaneHelper";
@@ -102,8 +101,8 @@ export default class ParticleEmitterNode extends EditorNodeMixin(ParticleEmitter
     this._canonicalUrl = nextSrc;
 
     try {
-      const { accessibleUrl } = await this.editor.api.resolveMedia(src);
-      this.material.uniforms.map.value = await loadTexture(accessibleUrl);
+      const { url } = await this.editor.api.resolveMedia(src);
+      (this.material.uniforms as any).map.value = await loadTexture(url);
     } catch (error) {
       if (onError) {
         onError(this, error);
@@ -201,15 +200,5 @@ export default class ParticleEmitterNode extends EditorNodeMixin(ParticleEmitter
       angularVelocity: this.angularVelocity
     });
     this.replaceObject();
-  }
-
-  getRuntimeResourcesForStats() {
-    const textures = [];
-
-    if (this.material.uniforms.map.value) {
-      textures.push(this.material.uniforms.map.value);
-    }
-
-    return { meshes: [this], materials: [this.material], textures };
   }
 }

@@ -55,10 +55,6 @@ export default class GroundPlaneNode extends EditorNodeMixin(GroundPlane) {
       "ground-plane": {
         color: this.color
       },
-      "box-collider": {
-        type: 'ground',
-        position: this.position
-      },
       shadow: {
         receive: this.receiveShadow
       }
@@ -77,25 +73,11 @@ export default class GroundPlaneNode extends EditorNodeMixin(GroundPlane) {
       0.1,
       this.walkableMesh.scale.z
     );
-/*
-    groundPlaneCollider.userData.gltfExtensions = {
-      componentData: {
-        "box-collider": {
-          type: 'box',
-          mass: 0,
-          scale: groundPlaneCollider.scale
-        }
-      }
-    };
-    */
     this.add(groundPlaneCollider);
     this.remove(this.walkableMesh);
     this.addGLTFComponent("shadow", {
       receive: this.receiveShadow,
       cast: false
     });
-  }
-  getRuntimeResourcesForStats() {
-    return { meshes: [this.mesh], materials: [this.mesh.material] };
   }
 }

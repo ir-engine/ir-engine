@@ -1,23 +1,23 @@
-
-.git
+aws/
+.git/
 *Dockerfile*
 *docker-compose*
 node_modules
 lib/
+packages/client/dist
+packages/native-plugin-example
 packages/docs
 packages/ops
 readme/
 tests/
 vendor/
+packages/**/node_modules
 
 
 kubernetes/**
 .vscode
 config/prod.json
 
-.next/
-client/.next/
-packages/client/.next/
 .env
 .env.local
 .idea/

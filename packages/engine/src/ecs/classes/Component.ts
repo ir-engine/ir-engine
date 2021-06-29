@@ -13,7 +13,7 @@ export class Component<C> {
   static _schema: ComponentSchema
 
   /**
-   * The unique ID for this type of component (<C>).
+   * The unique ID for this type of component (&lt;C&gt;).
    */
   static _typeId: number
 
@@ -148,6 +148,27 @@ export class Component<C> {
         );
       }
     });
+  }
+
+  /**
+   * Turns the component into JSON using any toJSON calls and defaults unintiailised properties (if a default is given)
+   * Called when JSON.stringify is called on the component
+   * @returns {object} the JSONified component
+   */
+  toJSON() {
+    const schema = (this.constructor as ComponentConstructor<Component<C>>)._schema;
+    const props = {}
+    for(const key in schema) {
+      if(typeof this[key] === 'undefined') {
+        const schemaProp = schema[key];
+        if (schemaProp.default !== undefined) {
+          props[key] = schemaProp.type.clone(schemaProp.default);
+        }
+      } else {
+        props[key] = this[key];
+      }
+    }
+    return JSON.parse(JSON.stringify(props));
   }
 }
 

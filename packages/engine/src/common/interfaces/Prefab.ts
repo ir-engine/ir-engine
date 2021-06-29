@@ -6,6 +6,9 @@ import { BehaviorValue } from './BehaviorValue';
  */
 export interface Prefab {
 
+  /** Called to create a new instance of the prefab */
+  initialize?: (args: { }) => void;
+
   /** List of Components to be implemented on Entity. */
   localClientComponents?: Array<{
     /** Type of Component. */

@@ -1,8 +1,8 @@
 import app from '../../packages/server/src/app'
 
 describe('CRUD operation on \'UserSetting\' model', () => {
-  const model = app.service('user-settings').Model
-  const userModel = app.service('user').Model
+  const model = (app.service('user-settings') as any).Model
+  const userModel = (app.service('user') as any).Model
   let userId: any
 
   beforeAll(async () => {

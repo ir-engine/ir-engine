@@ -1,12 +1,17 @@
 {
-  "name": "xr3ngine",
-  "description": "Game Engine, Server & Devops powering The XR3ngine",
-  "version": "0.2.0",
+  "name": "xrengine",
+  "description": "Game Engine, Server & Devops powering The XREngine",
+  "version": "0.2.5",
   "homepage": "lagunalabs.io",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": {
+    "nohoist": [
+      "packages/docs"
+    ],
+    "packages": [
+      "packages/!(docs)"
+    ]
+  },
   "keywords": [
     "three",
     "three.js",
@@ -23,77 +28,81 @@
     "name": "Laguna Labs",
     "email": "info@lagunalabs.io"
   },
-  "entrypoint":{
-
-  },
+  "entrypoint": {},
   "contributors": [],
   "bugs": {},
   "directories": {
-    "lib": "packages/server/src",
+    "lib": "packages/server-core/src/user",
     "config": "config/"
   },
   "engines": {
-    "yarn": ">= 0.18.0"
+    "node": ">= 16.3.0"
   },
-  "npmClient": "yarn",
+  "npmClient": "npm",
   "jest": "ts-jest",
   "scripts": {
-    "start": "yarn run dev",
+    "check-errors": "lerna run check-errors --ignore @xrengine/server --ignore @xrengine/server-core --parallel",
+    "start": "npm run dev",
     "dev": "lerna run dev --parallel",
     "test": "jest",
-    "lint": "lerna run --ignore @xr3ngine/bot lint",
+    "lint": "lerna run --ignore @xrengine/bot lint",
     "version-increment": "lerna version --conventional-commits --yes",
+    "version-increment-no-tag": "lerna version --conventional-commits --yes --no-git-tag-version",
+    "publish": "lerna publish from-package --yes",
+    "publish-no-verify": "lerna publish from-package --yes --no-verify-access --ignore-scripts",
+    "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
     "validate": "lerna run validate",
     "build": "lerna run build --parallel",
-    "build-docker": "lerna run --ignore @xr3ngine/docs --ignore @xr3ngine/bot --ignore @xr3ngine/native-plugin-example --ignore @xr3ngine/native-plugin-xr build --parallel",
+    "build-publish": "lerna run --ignore @xrengine/client-ml --ignore @xrengine/docs --ignore @xrengine/social --ignore @xrengine/client --ignore @xrengine/server build-publish --parallel",
+    "build-docker": "lerna run --ignore @xrengine/bot --ignore @xrengine/client-ml --ignore @xrengine/docs --ignore @xrengine/engine build --parallel",
+    "update-name-gh-package": "lerna run update-name-gh-package",
     "diff": "lerna diff"
   },
   "types": "lib/",
   "pre-push": [
-    "test"
+    "lint"
   ],
+  "pre-commit": [],
   "resolutions": {
-    "socket.io": "2.4.1"
+    "socket.io": "4.1.2",
+    "terser": "^5.6.1",
+    "@typescript-eslint/eslint-plugin": "4.28.0",
+    "@typescript-eslint/parser": "4.28.0"
   },
   "peerDependencies": {
-    "@feathersjs/authentication": "^4.5.8",
-    "@feathersjs/authentication-local": "^4.5.8",
-    "@feathersjs/authentication-oauth": "^4.5.8",
-    "@feathersjs/cli": "^4.4.0",
-    "@feathersjs/commons": "4.5.8",
-    "@feathersjs/configuration": "^4.5.8",
-    "@feathersjs/errors": "4.5.8",
-    "@feathersjs/express": "^4.5.8",
-    "@feathersjs/feathers": "4.5.8",
-    "@feathersjs/hooks": "^0.5.0",
-    "@feathersjs/rest-client": "4.5.8",
-    "@feathersjs/socketio": "4.5.8",
-    "@feathersjs/socketio-client": "^4.5.8",
-    "@feathersjs/transport-commons": "^4.5.8",
-    "chokidar": "3.4.2",
-    "mediasoup-client": "^3.6.12",
-    "sequelize": "~5.21.8",
-    "socket.io": "2.4.1",
-    "three": "^0.125.0"
+    "@feathersjs/authentication": "^5.0.0-pre.3",
+    "@feathersjs/authentication-local": "^5.0.0-pre.3",
+    "@feathersjs/authentication-oauth": "^5.0.0-pre.3",
+    "@feathersjs/cli": "^4.5.0",
+    "@feathersjs/commons": "5.0.0-pre.4",
+    "@feathersjs/configuration": "^5.0.0-pre.3",
+    "@feathersjs/errors": "5.0.0-pre.4",
+    "@feathersjs/express": "^5.0.0-pre.3",
+    "@feathersjs/feathers": "5.0.0-pre.4",
+    "@feathersjs/hooks": "0.6.5",
+    "@feathersjs/rest-client": "5.0.0-pre.4",
+    "@feathersjs/socketio": "5.0.0-pre.4",
+    "@feathersjs/socketio-client": "^5.0.0-pre.3",
+    "@feathersjs/transport-commons": "^5.0.0-pre.3",
+    "@typescript-eslint/eslint-plugin": "^4.6.0",
+    "@typescript-eslint/parser": "^4.16.1",
+    "chokidar": "^3.4.2",
+    "socket.io": "4.1.2",
+    "terser": "^5.6.1"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.11.5",
-    "babel-jest": "^26.6.0",
-    "bcrypt": "^5.0.0",
-    "cache-loader": "^4.1.0",
-    "concurrently": "^5.3.0",
-    "eslint-plugin-react-hooks": "^4.2.0",
-    "jest": "^26.4.2",
-    "lerna": "^3.22.1",
-    "parallel-webpack": "^2.6.0",
-    "supertest": "^5.0.0",
-    "ts-jest": "^26.4.1"
+    "@typescript-eslint/eslint-plugin": "4.28.0",
+    "@typescript-eslint/parser": "4.28.0",
+    "bcrypt": "5.0.1",
+    "esbuild": "0.12.12",
+    "esbuild-plugin-sass": "0.5.0",
+    "jest": "27.0.6",
+    "lerna": "4.0.0",
+    "pre-commit": "1.2.2",
+    "pre-push": "0.1.1",
+    "supertest": "6.1.3"
   },
   "dependencies": {
-    "ps-list": "^7.2.0",
-    "ps-node": "^0.1.6",
-    "text-encoding": "^0.7.0",
-    "ts-jest": "^26.4.1",
-    "tsdoc": "0.0.4"
+    "cli": "1.0.1"
   }
 }

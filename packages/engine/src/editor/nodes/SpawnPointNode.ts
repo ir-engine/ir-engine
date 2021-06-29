@@ -1,35 +1,43 @@
-import * as THREE from "three";
+import { BoxBufferGeometry, BoxHelper, Group, Mesh, Object3D, Quaternion, Vector3 } from "three";
 import { LoadGLTF } from "../../assets/functions/LoadGLTF";
 import EditorNodeMixin from "./EditorNodeMixin";
+
+// TODO: add circle option
+
 let spawnPointHelperModel = null;
 const GLTF_PATH = "/editor/spawn-point.glb"; // Static
-export default class SpawnPointNode extends EditorNodeMixin(THREE.Object3D) {
+
+export default class SpawnPointNode extends EditorNodeMixin(Object3D) {
+
   static legacyComponentName = "spawn-point";
   static nodeName = "Spawn Point";
   static async load() {
     const { scene } = await LoadGLTF(GLTF_PATH);
-    // scene.traverse(child => {
-    //   if (child.isMesh) {
-    //     child.layers.set(2);
-    //   }
-    // });
     spawnPointHelperModel = scene;
   }
+
+  helperBox: BoxHelper;
+  helperModel: Group;
+
   constructor(editor) {
     super(editor);
     if (spawnPointHelperModel) {
-      this.helper = spawnPointHelperModel.clone();
-      this.add(this.helper);
+      this.helperModel = spawnPointHelperModel.clone();
+      this.add(this.helperModel);
     } else {
       console.warn(
         "SpawnPointNode: helper model was not loaded before creating a new SpawnPointNode"
       );
-      this.helper = null;
+      this.helperModel = null;
     }
+    this.helperBox = new BoxHelper(new Mesh(new BoxBufferGeometry(1, 0, 1).translate(0, 0, 0)), 0xffffff);
+    this.add(this.helperBox);
   }
+
   copy(source, recursive = true) {
     if (recursive) {
-      this.remove(this.helper);
+      this.remove(this.helperModel);
+      this.remove(this.helperBox);
     }
     super.copy(source, recursive);
     if (recursive) {
@@ -37,19 +45,26 @@ export default class SpawnPointNode extends EditorNodeMixin(THREE.Object3D) {
         child => child === source.helper
       );
       if (helperIndex !== -1) {
-        this.helper = this.children[helperIndex];
+        this.helperModel = this.children[helperIndex];
       }
     }
     return this;
   }
+
+  onChange(prop: string) {
+    this.helperModel.scale.set(1 / this.scale.x, 1 / this.scale.y, 1 / this.scale.z);
+  }
+
   serialize() {
     return super.serialize({
       "spawn-point": {}
     });
   }
+
   prepareForExport() {
     super.prepareForExport();
-    this.remove(this.helper);
+    this.remove(this.helperModel);
+    this.remove(this.helperBox);
     this.addGLTFComponent("spawn-point", {});
   }
 }

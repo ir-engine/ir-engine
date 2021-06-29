@@ -1,25 +1,29 @@
 {
   "compilerOptions": {
-    "target": "es2019",
-    "lib": ["es2019", "DOM", "dom.iterable", "esnext"],
     "allowJs": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": false,
-    "module": "esnext",
-    "strict": false,
-    "noImplicitAny": false,
-    "resolveJsonModule": true,
+    "alwaysStrict": true,
+    "baseUrl": "./",
     "esModuleInterop": true,
-    "moduleResolution":"node",
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "noEmit": true,
+    "paths": { "@/*": ["src/*"] },
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "target": "ESNext",
+    "noImplicitAny": false,
     "typeRoots": ["../packages/common/types", "packages/common/types", "./node_modules/@types"],
     "sourceMap": true,
-    "jsx": "react",
-    "outDir": "./lib",
     "experimentalDecorators": true
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "../../node_modules/k8s/*"
   ],
   "include": [
     "src/**/*.ts",

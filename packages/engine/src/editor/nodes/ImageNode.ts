@@ -1,16 +1,12 @@
 import EditorNodeMixin from "./EditorNodeMixin";
 import Image, { ImageAlphaMode } from "../../scene/classes/Image";
 import { RethrownError } from "../functions/errors";
-import {
-  getObjectPerfIssues,
-  maybeAddLargeFileIssue
-} from "../functions/performance";
 // @ts-ignore
 export default class ImageNode extends EditorNodeMixin(Image) {
   static legacyComponentName = "image";
   static nodeName = "Image";
   static initialElementProps = {
-    src: new URL('/editor/favicon-editor.ico', location as any).href
+    src: new URL('/editor/dot.png', location as any).href
   };
   static async deserialize(editor, json, loadAsync, onError) {
     const node = await super.deserialize(editor, json);
@@ -60,14 +56,8 @@ export default class ImageNode extends EditorNodeMixin(Image) {
     this._mesh.visible = false;
     this.hideErrorIcon();
     try {
-      const { accessibleUrl } = await this.editor.api.resolveMedia(src);
-      await super.load(accessibleUrl);
-      this.issues = getObjectPerfIssues(this._mesh, false);
-      const perfEntries = performance.getEntriesByName(accessibleUrl) as any;
-      if (perfEntries.length > 0) {
-        const imageSize = perfEntries[0].encodedBodySize;
-        maybeAddLargeFileIssue("image", imageSize, this.issues);
-      }
+      const { url } = await this.editor.api.resolveMedia(src);
+      await super.load(url);
     } catch (error) {
       this.showErrorIcon();
       const imageError = new RethrownError(
@@ -120,14 +110,5 @@ export default class ImageNode extends EditorNodeMixin(Image) {
       id: this.uuid
     });
     this.replaceObject();
-  }
-  getRuntimeResourcesForStats() {
-    if (this._texture) {
-      return {
-        textures: [this._texture],
-        meshes: [this._mesh],
-        materials: [this._mesh.material]
-      };
-    }
   }
 }

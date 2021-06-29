@@ -16,7 +16,7 @@ import {
   DynamicDrawUsage,
   DoubleSide
 } from "three";
-import * as EasingFunctions from "@mozillareality/easing-functions";
+import * as EasingFunctions from "../../common/functions/EasingFunctions";
 import loadTexture from "../../editor/functions/loadTexture";
 import { lerp, clamp } from "../../common/functions/MathLerpFunctions";
 import { DEG2RAD, vertexShader, fragmentShader } from "./particleHelpers";
@@ -86,7 +86,7 @@ export class ParticleEmitterMesh extends Mesh {
 
     super(geometry, material);
 
-    this.frustumCulled = false;
+    (this as any).frustumCulled = false;
     this.initialPositions = [];
     this.lifetimes = [];
     this.particleSizeRandomness = [];
@@ -126,7 +126,7 @@ export class ParticleEmitterMesh extends Mesh {
   }
 
   updateParticles() {
-    const texture = (this.material as ShaderMaterial).uniforms.map.value;
+    const texture = ((this as any).material as ShaderMaterial).uniforms.map.value;
     const planeGeometry = new PlaneBufferGeometry(1, 1, 1, 1);
     const tempGeo = new InstancedBufferGeometry();
     tempGeo.index = planeGeometry.index;
@@ -141,7 +141,7 @@ export class ParticleEmitterMesh extends Mesh {
     const particleSizeRandomness = [];
     const angles = [];
 
-    this.getWorldScale(this.worldScale);
+    (this as any).getWorldScale(this.worldScale);
 
     for (let i = 0; i < this.particleCount; i++) {
       initialAges[i] = Math.random() * this.ageRandomness - this.ageRandomness;
@@ -167,7 +167,7 @@ export class ParticleEmitterMesh extends Mesh {
     tempGeo.setAttribute("particleColor", new InstancedBufferAttribute(new Float32Array(colors), 4).setUsage(DynamicDrawUsage));
     tempGeo.setAttribute("particleAngle", new InstancedBufferAttribute(new Float32Array(angles), 1).setUsage(DynamicDrawUsage));
 
-    this.geometry = tempGeo as ParticleEmitterGeometry;
+    (this as any).geometry = tempGeo as ParticleEmitterGeometry;
     this.initialPositions = initialPositions;
     this.particleSizeRandomness = particleSizeRandomness;
     this.ages = ages;
@@ -178,21 +178,21 @@ export class ParticleEmitterMesh extends Mesh {
 
   update(dt: number) {
     
-    const geometry = this.geometry as ParticleEmitterGeometry;
+    const geometry = (this as any).geometry as ParticleEmitterGeometry;
     const particlePosition = geometry.attributes.particlePosition.array as Float32Array;
     const particleColor = geometry.attributes.particleColor.array as Float32Array;
     const particleAngle = geometry.attributes.particleAngle.array as Float32Array;
 
-    this.getWorldScale(this.worldScale);
+    (this as any).getWorldScale(this.worldScale);
     this.inverseWorldScale.set(
       1 / this.worldScale.x,
       1 / this.worldScale.y,
       1 / this.worldScale.z
     );
 
-    const material = this.material as ShaderMaterial;
+    const material = (this as any).material as ShaderMaterial;
     const emitterMatrix: Matrix4 = material.uniforms.emitterMatrix.value;
-    emitterMatrix.copy(this.matrixWorld);
+    emitterMatrix.copy((this as any).matrixWorld);
     emitterMatrix.scale(this.inverseWorldScale);
 
     for (let i = 0; i < this.particleCount; i++) {
@@ -277,8 +277,8 @@ export class ParticleEmitterMesh extends Mesh {
   copy(source: this, recursive = true) {
     super.copy(source, recursive);
 
-    const material = this.material as RawShaderMaterial;
-    const sourceMaterial = source.material as RawShaderMaterial;
+    const material = (this as any).material as RawShaderMaterial;
+    const sourceMaterial = (source as any).material as RawShaderMaterial;
 
     material.uniforms.map.value = sourceMaterial.uniforms.map.value;
     this.startColor.copy(source.startColor);

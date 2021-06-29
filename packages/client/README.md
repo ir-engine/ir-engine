@@ -1,23 +1,23 @@
-[![Build Status](https://travis-ci.org/xr3ngine/xr3ngine.svg?branch=master)](https://travis-ci.org/xr3ngine/xr3ngine)
-# XR3 Client
+[![Build Status](https://travis-ci.org/xrengine/xrengine.svg?branch=master)](https://travis-ci.org/xrengine/xrengine)
+# XREngine Client
 ## About
 
-XR3ngine is an end-to-end solution for hosting humans and non-humans in a virtual space. This project would literally not be possible without the community contributions of Mozilla Hubs, Janus VR, Avaer + Exokit, Mr Doob, Hayden James Lee and many others.
+XREngine is an end-to-end solution for hosting humans and non-humans in a virtual space. This project would literally not be possible without the community contributions of Mozilla Hubs, Janus VR, Avaer + Exokit, Mr Doob, Hayden James Lee and many others.
 
 Our goal is an easy-to-use, well documented, end-to-end Javascript (or Typescript) exprience that anyone with a little bit of Javascript and HTML knowledge can dig into, deploy and make meaningful modifications and contributions to. If you fit this category and you are struggling with any aspect of getting started, we want to hear fromm you so that this can be a better exprience.
 
-XR3ngine is a free, open source, MIT-licensed project. You are welcome to do anything you want with it. We hope that you use it to make something beautiful.
+XREngine is a free, open source, MIT-licensed project. You are welcome to do anything you want with it. We hope that you use it to make something beautiful.
 
-This is the client portion of XR3ngine. To deploy everything at once with Kubernetes or Docker Compose, check out the branches in xr3ngine-ops. Or you can start the server with NPM (check out scripts/start-db.sh to get the database runnning), run the xr3ngine client and everything should connect out of the box.
+This is the client portion of XREngine. To deploy everything at once with Kubernetes or Docker Compose, check out the branches in xrengine-ops. Or you can start the server with NPM (check out scripts/start-db.sh to get the database runnning), run the xrengine client and everything should connect out of the box.
 
 ## Getting Started
 
 To run
 
 ```
-yarn install
-yarn run build
-yarn run dev
+npm install
+npm run build
+npm run dev
 ```
 
 ## config file
@@ -61,10 +61,10 @@ properties for the [NAF](https://github.com/networked-aframe/networked-aframe) n
 You can run it using docker, if you don't have node installed or need to test.
 ``` bash
 # Build the image
-docker build --tag xr3ngine .
+docker build --tag xrengine .
 
 # Run the image (deletes itself when you close it)
-docker run -d --rm --name client -e "NEXT_PUBLIC_API_SERVER=https://127.0.0.1:3030" -p "3030:3030"  xr3ngine
+docker run -d --rm --name client -e "NEXT_PUBLIC_API_SERVER=https://127.0.0.1:3030" -p "3030:3030"  xrengine
 
 # Stop the server
 docker stop client
@@ -75,7 +75,7 @@ docker stop client
 This image uses build-time arguments, they are not used during runtime yet
 
 - `NODE_ENV` controls the config/*.js file to load and build against [default: production]
-- `NEXT_PUBLIC_API_SERVER` points to an instance of the xr3ngine [default: https://127.0.0.1:3030]
+- `NEXT_PUBLIC_API_SERVER` points to an instance of the xrengine [default: https://127.0.0.1:3030]
 
 
 ## Redux store management
@@ -117,8 +117,8 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { 
   loginUserByPassword,
-} from '@xr3ngine/client-core/redux/auth/service'
-import { selectAuthState } from '@xr3ngine/client-core/redux/auth/selector'
+} from '@xrengine/client-core/redux/auth/service'
+import { selectAuthState } from '@xrengine/client-core/redux/auth/selector'
 
 ...
 
@@ -205,7 +205,7 @@ Let's explain step by step about the login process.
         LOGIN_USER_ERROR
     } from "../actions"
 
-    export const initialState: AuthState = {
+    export const initialAuthState: AuthState = {
         isLoggedIn: false,
         user: undefined,
         error: '',
@@ -214,7 +214,8 @@ Let's explain step by step about the login process.
     }
 
     // Note: In next.js, we should use Immutable variable for state type.
-    const immutableState = Immutable.fromJS(initialState)
+    const immutableState = Immutable.fromJS(    export const initialAuthState: AuthState = {
+)
 
     const authReducer = (state = immutableState, action: any): any => {
         switch(action.type) {
@@ -287,9 +288,9 @@ Let's explain step by step about the login process.
 
 ```
 import { connect } from 'react-redux'
-import { detectDeviceType } from '@xr3ngine/client-core/redux/devicedetect/service'
+import { detectDeviceType } from '@xrengine/client-core/redux/devicedetect/service'
 import { bindActionCreators, Dispatch } from 'redux'
-import { selectDeviceDetectState } from '@xr3ngine/client-core/redux/devicedetect/selector'
+import { selectDeviceDetectState } from '@xrengine/client-core/redux/devicedetect/selector'
 
 ...
 

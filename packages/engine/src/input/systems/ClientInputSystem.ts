@@ -44,22 +44,34 @@ interface ListenerBindingData {
 export class ClientInputSystem extends System {
 
   static EVENTS = {
-    PROCESS_INPUT: 'CLIENT_INPUT_SYSTEM_PROCESS_EVENT'
+    ENABLE_INPUT: 'CLIENT_INPUT_SYSTEM_ENABLE_INPUT',
+    PROCESS_INPUT: 'CLIENT_INPUT_SYSTEM_PROCESS_EVENT',
   }
 
-  updateType = SystemUpdateType.Fixed;
+  static instance: ClientInputSystem;
+
+  updateType = SystemUpdateType.Free;
   needSend = false;
   switchId = 1;
   boundListeners: ListenerBindingData[] = [];
-  onProcessInput: any;
+  mouseInputEnabled = true;
+  keyboardInputEnabled = true;
 
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
-    this.onProcessInput = attributes.onProcessInput;
+
+    ClientInputSystem.instance = this;
+
     ClientInputSchema.onAdded.forEach(behavior => {
       behavior.behavior();
     });
-  
+
+    EngineEvents.instance.addEventListener(ClientInputSystem.EVENTS.ENABLE_INPUT, ({ keyboard, mouse }) => {
+      if(typeof keyboard !== 'undefined') ClientInputSystem.instance.keyboardInputEnabled = keyboard;
+      if(typeof mouse !== 'undefined') ClientInputSystem.instance.mouseInputEnabled = mouse;
+    })
+
+
     Object.keys(ClientInputSchema.eventBindings)?.forEach((eventName: string) => {
       ClientInputSchema.eventBindings[eventName].forEach((behaviorEntry: DomEventBehaviorValue) => {
         // const domParentElement:EventTarget = document;
@@ -106,7 +118,8 @@ export class ClientInputSystem extends System {
     });
     this.boundListeners.forEach(({ domElement, eventName, listener }) => {
       domElement.removeEventListener(eventName, listener);
-    })
+    });
+    EngineEvents.instance.removeAllListenersForEvent(ClientInputSystem.EVENTS.ENABLE_INPUT);
   }
 
   /**
@@ -114,9 +127,12 @@ export class ClientInputSystem extends System {
    * @param {Number} delta Time since last frame
    */
 
-  public execute(delta: number): void { 
-    handleGamepads();
-
+  public execute(delta: number): void {
+    // we get XR gamepad input from XRSystem, grabbing from gamepad api again breaks stuff
+    if(!Engine.xrSession) {
+      handleGamepads();
+    }
+    const newState = new Map();
     Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
       if (!Engine.prevInputState.has(key)) {
         return;
@@ -124,13 +140,15 @@ export class ClientInputSystem extends System {
 
       if (value.type === InputType.BUTTON) {
         const prevValue = Engine.prevInputState.get(key);
+        // auto ENDED when event not continue
         if (
-          prevValue.lifecycleState === LifecycleValue.STARTED &&
-          value.lifecycleState === LifecycleValue.STARTED
+          (prevValue.lifecycleState === LifecycleValue.STARTED &&
+          value.lifecycleState === LifecycleValue.STARTED)
+          || (prevValue.lifecycleState === LifecycleValue.CONTINUED &&
+            value.lifecycleState === LifecycleValue.STARTED)
         ) {
           // auto-switch to CONTINUED
           value.lifecycleState = LifecycleValue.CONTINUED;
-          Engine.inputState.set(key, value);
         }
         return;
       }
@@ -143,15 +161,21 @@ export class ClientInputSystem extends System {
       value.lifecycleState = JSON.stringify(value.value) === JSON.stringify(Engine.prevInputState.get(key).value)
         ? LifecycleValue.UNCHANGED
         : LifecycleValue.CHANGED;
-      Engine.inputState.set(key, value);
     });
 
-    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.PROCESS_INPUT, data: new Map(Engine.inputState) });
+    // deep copy
+    Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+      if(!(value.lifecycleState === LifecycleValue.UNCHANGED && Engine.prevInputState.get(key)?.lifecycleState === LifecycleValue.UNCHANGED)) {
+        newState.set(key, { type: value.type, value: value.value, lifecycleState: value.lifecycleState });
+      }
+    });
+
+    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.PROCESS_INPUT, data: newState });
 
     Engine.prevInputState.clear();
     Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
       Engine.prevInputState.set(key, value);
-      if (value.type === InputType.BUTTON && value.lifecycleState === LifecycleValue.ENDED) {
+      if (value.lifecycleState === LifecycleValue.ENDED) {
         Engine.inputState.delete(key);
       }
     });

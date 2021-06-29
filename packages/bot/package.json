@@ -1,56 +1,40 @@
 {
-  "name": "@xr3ngine/bot",
-  "version": "0.2.0",
+  "name": "@xrengine/bot",
+  "version": "0.3.24",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git://github.com/xr3ngine/xr3ngine.git"
+    "url": "git://github.com/XRFoundation/XREngine.git"
   },
   "engines": {
-    "yarn": ">= 0.18.0"
+    "node": ">= 16.3.0"
   },
-  "npmClient": "yarn",
+  "npmClient": "npm",
   "jest": "ts-jest",
-  "main": "src/xr3ngine-bot.js",
+  "main": "src/bot.js",
   "scripts": {
-    "find:unused": "next-unused",
     "start": "node run-bot.js",
-    "validate": "yarn run lint && yarn run test",
+    "validate": "npm run lint && npm run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
-    "lint": "node node_modules/.bin/eslint --fix --quiet '*.ts' '**/*.ts' '**/*.tsx'"
-  },
-  "resolutions": {
-    "webpack": "^5.1.0"
+    "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
   },
   "dependencies": {
-    "@google-cloud/agones-sdk": "^1.11.0",
-    "puppeteer": "^5.5.0",
-    "three": "^0.125.0"
+    "@google-cloud/agones-sdk": "1.14.0",
+    "puppeteer": "10.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.10",
-    "@types/node": "^13.13.0",
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
-    "babel-loader": "^8.2.2",
-    "cache-loader": "^4.1.0",
-    "config": "^3.3.1",
-    
-    "cross-env": "^7.0.2",
-    "dotenv-webpack": "^3.0.0",
-    "eslint": "^6.8.0",
-    "eslint-plugin-react": "^7.21.4",
-    "next-images": "^1.4.0",
-    "next-optimized-images": "^2.6.2",
-    "next-plugin-node-config": "^1.0.2",
-    "next-redux-wrapper": "^5.0.0",
-    "thread-loader": "^3.0.0",
-    "ts-loader": "^8.0.5",
-    "ts-shader-loader": "^1.0.6",
-    "typescript": "^4.0.3",
-    "webpack": "^5.1.0",
-    "webpack-cli": "^4.0.0",
-    "uuid": "^3.4.0"
+    "@types/node": "14.17.4",
+    "@types/react": "17.0.11",
+    "@types/react-dom": "17.0.8",
+    "@types/three": "0.129.1",
+    "config": "3.3.6",
+    "cross-env": "7.0.3",
+    "eslint": "7.29.0",
+    "eslint-plugin-react": "7.24.0",
+    "semantic-release": "17.4.4",
+    "semantic-release-monorepo": "7.0.5",
+    "typescript": "4.3.4",
+    "uuid": "8.3.2"
   },
   "license": "ISC"
 }

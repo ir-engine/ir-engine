@@ -21,11 +21,11 @@ import { ClientNetworkSystem } from "../../../src/networking/systems/ClientNetwo
 import { PhysicsSystem } from "../../../src/physics/systems/PhysicsSystem";
 import { State } from "../../../src/state/components/State";
 import { StateSystem } from "../../../src/state/systems/StateSystem";
-import { CharacterStateTypes } from "../../../src/templates/character/CharacterStateTypes";
-import { CharacterComponent } from "../../../src/templates/character/components/CharacterComponent";
-import { DefaultNetworkSchema } from "../../../src/templates/networking/DefaultNetworkSchema";
+import { CharacterAnimations } from "../../../src/character/CharacterAnimations";
+import { CharacterComponent } from "../../../src/character/components/CharacterComponent";
+import { DefaultNetworkSchema } from "../../../src/networking/templates/DefaultNetworkSchema";
 import { createRemoteUserOnClient } from "../../_helpers/createRemoteUserOnClient";
-// import * as setActorAnimationModule from "../../../src/templates/character/behaviors/setActorAnimation";
+// import * as setActorAnimationModule from "../../../src/character/behaviors/setActorAnimation";
 
 const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
 // setActorAnimationModule.setActorAnimation = jest.fn((entity, args: { name: string; transitionDuration: number }) => {
@@ -34,7 +34,7 @@ const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initi
 const dummyObject = new Object3D();
 const dummyMixer = new AnimationMixer(dummyObject);
 const mockedAnimActions = new Map<string, AnimationAction>();
-jest.mock("../../../src/templates/character/behaviors/setActorAnimation", () => {
+jest.mock("../../../src/character/behaviors/setActorAnimation", () => {
   return {
     __esModule: true,
     // default: jest.fn(() => 42),
@@ -104,7 +104,7 @@ beforeAll(() => {
   registerSystem(PhysicsSystem); // 2 - handle hit
   registerSystem(StateSystem); // 3 - process floor hit
 
-  PhysicsSystem.physicsWorld.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult:RaycastResult) => {
+  PhysicsSystem.instance.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult:RaycastResult) => {
     if (!actorHasFloor) {
       return false;
     }
@@ -117,7 +117,7 @@ beforeAll(() => {
   });
 
 //PhysicsSystem.simulate = false;
-//PhysicsSystem.physicsWorld.gravity.set(0,0,0);
+//PhysicsSystem.instance.gravity.set(0,0,0);
 });
 
 let player: Entity, actor:CharacterComponent, state:State;
@@ -134,28 +134,28 @@ describe("idle", () => {
   test("default idle", () => {
     execute(1, 1, SystemUpdateType.Fixed);
     const state = getComponent(player, State);
-    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
+    expect(state.data.has(CharacterAnimations.DEFAULT)).toBe(true);
   });
 
   test("stays idle", () => {
     // if actor stays on ground it should keep idle state all the time
     const state = getComponent(player, State);
-    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
+    expect(state.data.has(CharacterAnimations.DEFAULT)).toBe(true);
 
     for (let i=0;i<40;i++) {
       executeFrame();
-      expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
+      expect(state.data.has(CharacterAnimations.DEFAULT)).toBe(true);
     }
   });
 
   test("switch to fall", () => {
     // check switch from idle to fall if there is no ground
     const state = getComponent(player, State);
-    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
+    expect(state.data.has(CharacterAnimations.DEFAULT)).toBe(true);
 
     actorHasFloor = false;
     executeFrame();
-    expect(state.data.has(CharacterStateTypes.FALLING)).toBe(true);
+    expect(state.data.has(CharacterAnimations.FALLING)).toBe(true);
   });
 
   test("switch to jump", () => {
@@ -166,13 +166,13 @@ describe("idle", () => {
       value: BinaryValue.ON
     });
     executeFrame();
-    expect(state.data.has(CharacterStateTypes.JUMP)).toBe(true);
+    expect(state.data.has(CharacterAnimations.JUMP)).toBe(true);
   });
 
   test("switch to moving", () => {
     actor.localMovementDirection.set(1,0,1);
     executeFrame();
-    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
+    expect(state.data.has(CharacterAnimations.DEFAULT)).toBe(true);
   });
 });
 
@@ -184,17 +184,17 @@ describe("moving", () => {
 
   test("stays moving", () => {
     // if actor stays on ground it should keep idle state all the time
-    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
+    expect(state.data.has(CharacterAnimations.DEFAULT)).toBe(true);
 
     for (let i=0;i<40;i++) {
       actor.localMovementDirection.set(1,0,0); // to keep speed constant
       executeFrame();
-      expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
+      expect(state.data.has(CharacterAnimations.DEFAULT)).toBe(true);
     }
   });
 
   test("switch to idle", () => {
-    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
+    expect(state.data.has(CharacterAnimations.DEFAULT)).toBe(true);
 
     actor.localMovementDirection.set(0,0,0);
     actor.actorCapsule.body.velocity.set(0,0,0);
@@ -203,16 +203,16 @@ describe("moving", () => {
     for (let i=0;i<40;i++) {
       executeFrame();
     }
-    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
+    expect(state.data.has(CharacterAnimations.DEFAULT)).toBe(true);
   });
 
   test("switch to fall", () => {
     // check switch from idle to fall if there is no ground
-    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
+    expect(state.data.has(CharacterAnimations.DEFAULT)).toBe(true);
 
     actorHasFloor = false;
     executeFrame();
-    expect(state.data.has(CharacterStateTypes.FALLING)).toBe(true);
+    expect(state.data.has(CharacterAnimations.FALLING)).toBe(true);
   });
 
   test("switch to jump", () => {
@@ -223,7 +223,7 @@ describe("moving", () => {
       value: BinaryValue.ON
     });
     executeFrame();
-    expect(state.data.has(CharacterStateTypes.JUMP)).toBe(true);
+    expect(state.data.has(CharacterAnimations.JUMP)).toBe(true);
   });
 });
 
@@ -235,20 +235,20 @@ describe("fall", () => {
 
   test("stays falling", () => {
     // if actor stays on ground it should keep idle state all the time
-    expect(state.data.has(CharacterStateTypes.FALLING)).toBe(true);
+    expect(state.data.has(CharacterAnimations.FALLING)).toBe(true);
 
     for (let i=0;i<10;i++) {
       executeFrame();
-      expect(state.data.has(CharacterStateTypes.FALLING)).toBe(true);
+      expect(state.data.has(CharacterAnimations.FALLING)).toBe(true);
     }
   });
 
   test("hit the ground", () => {
     // check switch from idle to fall if there is no ground
-    expect(state.data.has(CharacterStateTypes.FALLING)).toBe(true);
+    expect(state.data.has(CharacterAnimations.FALLING)).toBe(true);
     actorHasFloor = true;
     executeFrame();
-    expect(state.data.has(CharacterStateTypes.FALLING)).toBe(false);
+    expect(state.data.has(CharacterAnimations.FALLING)).toBe(false);
   });
 
   test("no switch to jump", () => {
@@ -259,15 +259,15 @@ describe("fall", () => {
       value: BinaryValue.ON
     });
     executeFrame();
-    expect(state.data.has(CharacterStateTypes.FALLING)).toBe(true);
+    expect(state.data.has(CharacterAnimations.FALLING)).toBe(true);
   });
 
   test("no switch to moving", () => {
-    expect(state.data.has(CharacterStateTypes.FALLING)).toBe(true);
+    expect(state.data.has(CharacterAnimations.FALLING)).toBe(true);
 
     actor.localMovementDirection.set(1,0,1);
     executeFrame();
-    expect(state.data.has(CharacterStateTypes.FALLING)).toBe(true);
+    expect(state.data.has(CharacterAnimations.FALLING)).toBe(true);
   });
 });
 
@@ -281,42 +281,42 @@ describe('fall hit the ground', () => {
 
   test("landing: low velocity - moving = drop idle", () => {
     // check switch from idle to fall if there is no ground
-    expect(state.data.has(CharacterStateTypes.FALLING)).toBe(true);
+    expect(state.data.has(CharacterAnimations.FALLING)).toBe(true);
     body.velocity.set(0,-3,0);
     actorHasFloor = true;
     executeFrame();
-    expect(state.data.has(CharacterStateTypes.DROP)).toBe(true);
+    expect(state.data.has(CharacterAnimations.DROP)).toBe(true);
   });
   test("landing: low velocity + moving = moving", () => {
     // check switch from idle to fall if there is no ground
-    expect(state.data.has(CharacterStateTypes.FALLING)).toBe(true);
+    expect(state.data.has(CharacterAnimations.FALLING)).toBe(true);
     actor.localMovementDirection.set(1,0,1);
     body.velocity.set(0,-3,0);
     actorHasFloor = true;
     executeFrame();
     // TODO: add check of MOVING state, for now just absence of drop or idle
-    expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(false);
-    expect(state.data.has(CharacterStateTypes.DROP)).toBe(false);
+    expect(state.data.has(CharacterAnimations.DEFAULT)).toBe(false);
+    expect(state.data.has(CharacterAnimations.DROP)).toBe(false);
   });
   test("landing: high velocity - moving = drop rolling", () => {
     // check switch from idle to fall if there is no ground
-    expect(state.data.has(CharacterStateTypes.FALLING)).toBe(true);
+    expect(state.data.has(CharacterAnimations.FALLING)).toBe(true);
     body.velocity.set(0,-10,0);
     executeFrame(); // apply velocity
     actorHasFloor = true;
     executeFrame(); // hit
-    expect(state.data.has(CharacterStateTypes.DROP)).toBe(true);
+    expect(state.data.has(CharacterAnimations.DROP)).toBe(true);
   });
 
   test("landing: high velocity + moving = drop rolling", () => {
     // check switch from idle to fall if there is no ground
-    expect(state.data.has(CharacterStateTypes.FALLING)).toBe(true);
+    expect(state.data.has(CharacterAnimations.FALLING)).toBe(true);
     body.velocity.set(0,-10,0);
     executeFrame(); // apply velocity
     actor.localMovementDirection.set(1,0,1);
     actorHasFloor = true;
     executeFrame(); // hit
     // TODO: add check of MOVING state, for now just absence of drop or idle
-    expect(state.data.has(CharacterStateTypes.DROP)).toBe(true);
+    expect(state.data.has(CharacterAnimations.DROP)).toBe(true);
   });
 });

@@ -1,4 +1,4 @@
-const XR3ngineBot = require('./xr3ngine-bot');
+const XREngineBot = require('./bot');
 const { BotActionType } = require('./bot-action');
 class BotManager {
     /**
@@ -12,6 +12,7 @@ class BotManager {
         this.bots = {};
         this.actions = [];
         this.options = options;
+        
     }
 
     findBotByName(name) {
@@ -24,7 +25,7 @@ class BotManager {
             return foundBot;
         }
 
-        const bot = new XR3ngineBot({
+        const bot = new XREngineBot({
             name, 
             ...this.options
         });
@@ -38,67 +39,7 @@ class BotManager {
         this.actions.push({botName, action});
     }
 
-    async keyPress(bot, key, numMiliSeconds) {
-        console.log('Running with key ' + key);
-        await bot.setFocus('canvas');
-        const interval = setInterval(() => {
-            bot.pressKey(key);
-        }, 100);
-        return new Promise((resolve) => setTimeout(() => {
-            console.log('Clearing button press for ' + key, numMiliSeconds);
-            bot.releaseKey(key);
-            clearInterval(interval);
-            resolve()
-        }, numMiliSeconds));
-    }
-
-    async sendMessage(bot, message) {
-        await bot.clickElementByClass('button', 'openChat');
-        await bot.clickElementById('input', 'newMessage');
-        await bot.typeMessage(message);
-        await bot.clickElementByClass('button', 'sendMessage');
-    }
-
-    async sendAudio(bot, duration) {
-        console.log("Sending audio...");
-        await bot.clickElementById('svg', 'micOff');
-        await bot.waitForTimeout(duration);
-    }
-
-    async stopAudio(bot) {
-        console.log("Stop audio...");
-        await bot.clickElementById('svg', 'micOn');
-    }
-
-    async recvAudio(bot, duration) {
-        console.log("Receiving audio...");
-        await bot.waitForSelector('[class*=PartyParticipantWindow]', duration);
-    }
-
-    async sendVideo(bot, duration) {
-        console.log("Sending video...");
-        await bot.clickElementById('svg', 'videoOff');
-        await bot.waitForTimeout(duration);
-    }
-
-    async stopVideo(bot) {
-        console.log("Stop video...");
-        await bot.clickElementById('svg', 'videoOn');
-    }
-
-    async recvVideo(bot, duration) {
-        console.log("Receiving video...");
-        await bot.waitForSelector('[class*=PartyParticipantWindow]', duration);
-    }
-
-    async delay(bot, timeout) {
-        console.log(`Waiting for ${timeout} ms... `);
-        await bot.waitForTimeout(timeout);
-    }
-
-    async interactObject() {
-
-    }
+    
 
     async run() {
         for (const botAction of this.actions) {
@@ -131,44 +72,44 @@ class BotManager {
 
                 case BotActionType.KeyPress:
                     // action.data is type of KeyEventData
-                    await this.keyPress(bot, action.data.key, action.data.pressedTime);
+                    await bot.keyPress(action.data.key, action.data.pressedTime);
                     break;
 
                 case BotActionType.SendAudio:
-                    await this.sendAudio(bot, action.data.duration);
+                    await bot.sendAudio(action.data.duration);
                     break;
 
                 case BotActionType.StopAudio:
-                    await this.stopAudio(bot);
+                    await bot.stopAudio(bot);
                     break;
 
                 case BotActionType.ReceiveAudio:
-                    await this.recvAudio(bot, action.data.duration);
+                    await bot.recvAudio(action.data.duration);
                     break;
 
                 case BotActionType.SendVideo:
-                    await this.sendVideo(bot, action.data.duration);
+                    await bot.sendVideo(action.data.duration);
                     break;
 
                 case BotActionType.StopVideo:
-                    await this.stopVideo(bot);
+                    await bot.stopVideo(bot);
                     break;
 
                 case BotActionType.ReceiveVideo:
-                    await this.recvVideo(bot, action.data.duration);
+                    await bot.recvVideo(action.data.duration);
                     break;
 
                 case BotActionType.InteractObject:
-                    await this.interactObject();
+                    await bot.interactObject();
                     break;
 
                 case BotActionType.SendMessage:
                     // action.data is type of MessageData
-                    await this.sendMessage(bot, action.data.message);
+                    await bot.sendMessage(action.data.message);
                     break;
 
                 case BotActionType.Delay:
-                    await this.delay(bot, action.data.timeout);
+                    await bot.delay(action.data.timeout);
                     break;
                 default:
                     console.error("Unknown bot action");

@@ -20,6 +20,8 @@ const proxyHandler = {
 
 /**
  * Use the Not function to negate a component.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export function Not<C extends Component<any>>(Component: ComponentConstructor<C>): NotComponent<C> {
   return {
@@ -30,6 +32,8 @@ export function Not<C extends Component<any>>(Component: ComponentConstructor<C>
 
 /**
  * Make a component read-only.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export function wrapImmutableComponent<T> (component: Component<T>): T {
   if (component === undefined) {
@@ -49,6 +53,8 @@ export function wrapImmutableComponent<T> (component: Component<T>): T {
 /**
  * Register a component with the engine.\
  * **Note:** This happens automatically if a component is a member of a system query.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export function registerComponent<C extends Component<any>> (
   Component: ComponentConstructor<C>,
@@ -91,6 +97,8 @@ export function registerComponent<C extends Component<any>> (
 /**
  * Check if the component has been registered.\
  * Components will autoregister when added to an entity or included as a member of a query, so don't have to check manually.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export function hasRegisteredComponent<C extends Component<any>> (Component: ComponentConstructor<C>): boolean {
   return Engine.components.includes(Component);
@@ -99,6 +107,7 @@ export function hasRegisteredComponent<C extends Component<any>> (Component: Com
 /**
  * Return the pool containing all of the objects for this component type.
  * 
+ * @author Fernando Serrano, Robert Long
  * @param component Component to get pool. This component's type is used to get the pool.
  */
 export function getPoolForComponent (component: Component<any>): void {
@@ -108,6 +117,7 @@ export function getPoolForComponent (component: Component<any>): void {
 /**
  * Get a key from a list of components.
  * 
+ * @author Fernando Serrano, Robert Long
  * @param Components Array of components to generate the key.
  */
 export function queryKeyFromComponents (Components: any[]): string {
@@ -131,6 +141,8 @@ export function queryKeyFromComponents (Components: any[]): string {
 
 /**
  * Check if component is registered.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export function componentRegistered (T): boolean {
   return (typeof T === 'object' && T.Component._typeId !== undefined) || (T._typeId !== undefined);
@@ -138,6 +150,8 @@ export function componentRegistered (T): boolean {
 
 /**
  * Return the name of a component
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export function getName (Component): string {
   return Component.getName();
@@ -145,6 +159,8 @@ export function getName (Component): string {
 
 /**
  * Return a valid property name for the Component
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export function componentPropertyName (Component): string {
   return getName(Component);

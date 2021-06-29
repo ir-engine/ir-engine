@@ -1,14 +1,13 @@
-import { Box3, Sphere, PropertyBinding } from "three";
+import { Box3, Sphere, PropertyBinding, BufferGeometry, MathUtils, Matrix4, Quaternion, Vector3 } from "three";
 import Model from "../../scene/classes/Model";
 import EditorNodeMixin from "./EditorNodeMixin";
 import { setStaticMode, StaticModes } from "../functions/StaticMode";
 import cloneObject3D from "../functions/cloneObject3D";
 import { RethrownError } from "../functions/errors";
-import {
-  getObjectPerfIssues,
-  maybeAddLargeFileIssue
-} from "../functions/performance";
-import { LoadGLTF } from "../../assets/functions/LoadGLTF";
+import { clearFromColliders, plusParameter } from "../../physics/behaviors/parseModelColliders";
+import { parseCarModel } from "../../vehicle/prefabs/NetworkVehicle";
+import { getGeometry } from "../../scene/functions/getGeometry";
+
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = "Model";
   static legacyComponentName = "gltf-model";
@@ -18,23 +17,30 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   };
 
   meshColliders = []
+  vehicleObject = []
 
   static async deserialize(editor, json, loadAsync, onError) {
     const node = await super.deserialize(editor, json);
     loadAsync(
       (async () => {
-        const { src, attribution } = json.components.find(
+        const { src, envMapOverride } = json.components.find(
           c => c.name === "gltf-model"
         ).props;
 
-        await node.load(src, onError);
-        // Legacy, might be a raw string left over before switch to JSON.
-        if (attribution && typeof attribution === "string") {
-          const [name, author] = attribution.split(" by ");
-          node.attribution = { name, author };
-        } else {
-          node.attribution = attribution;
+        const gameObject = json.components.find(
+          c => c.name === "game-object"
+        );
+
+        if (gameObject) {
+          node.target = gameObject.props.target;
+          node.role = gameObject.props.role;
         }
+        // its need be first then load
+        node.saveColliders = !!json.components.find(c => c.name === "mesh-collider-0");
+
+        await node.load(src, onError);
+        if(node.envMapOverride) node.envMapOverride = envMapOverride;
+
         node.collidable = !!json.components.find(c => c.name === "collidable");
         node.walkable = !!json.components.find(c => c.name === "walkable");
         const loopAnimationComponent = json.components.find(
@@ -67,10 +73,11 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         }
         const ineractableComponent = json.components.find(c => c.name === "interact");
 
-        if(ineractableComponent){
+        if (ineractableComponent) {
           node.interactable = ineractableComponent.props.interactable;
           node.interactionType = ineractableComponent.props.interactionType;
           node.interactionText = ineractableComponent.props.interactionText;
+          node.interactionDistance = ineractableComponent.props.interactionDistance;
           node.payloadName = ineractableComponent.props.payloadName;
           node.payloadUrl = ineractableComponent.props.payloadUrl;
           node.payloadBuyUrl = ineractableComponent.props.payloadBuyUrl;
@@ -82,16 +89,19 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     );
     return node;
   }
+  _canonicalUrl = "";
+  envMapOverride = "";
+  collidable = true;
+  saveColliders = true;
+  target = null;
+  walkable = true;
+  initialScale: string | number = 1;
+  boundingBox = new Box3();
+  boundingSphere = new Sphere();
+  gltfJson = null;
+  isValidURL = false;
   constructor(editor) {
     super(editor);
-    this.attribution = null;
-    this._canonicalUrl = "";
-    this.collidable = true;
-    this.walkable = true;
-    this.initialScale = 1;
-    this.boundingBox = new Box3();
-    this.boundingSphere = new Sphere();
-    this.gltfJson = null;
   }
   // Overrides Model's src property and stores the original (non-resolved) url.
   get src(): string {
@@ -104,7 +114,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   // Overrides Model's loadGLTF method and uses the Editor's gltf cache.
   async loadGLTF(src) {
     const loadPromise = this.editor.gltfCache.get(src);
-    const{ scene, json} = await loadPromise;
+    const { scene, json } = await loadPromise;
     this.gltfJson = json;
     const clonedScene = cloneObject3D(scene);
     return clonedScene;
@@ -116,7 +126,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       return;
     }
     this._canonicalUrl = nextSrc;
-    this.attribution = null;
     this.issues = [];
     this.gltfJson = null;
     if (this.model) {
@@ -127,48 +136,12 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.hideErrorIcon();
     try {
       console.log("Try");
-
-      const { accessibleUrl, files } = await this.editor.api.resolveMedia(src);
+      this.isValidURL = true;
+      const { url, files } = await this.editor.api.resolveMedia(src);
       if (this.model) {
         this.editor.renderer.removeBatchedObject(this.model);
       }
-      await super.load(accessibleUrl);
-      if (this.model) {
-        // Set up colliders
-
-
-        const colliders = []
-
-          const parseColliders = ( mesh ) => {
-            // console.warn(mesh.userData.data);
-        
-            if (mesh.userData.data == "physics") {
-              if (mesh.userData.type == "box" || mesh.userData.type == "trimesh") {
-                const meshCollider = {
-                    type: 'trimesh',
-                    mass: 0,
-                    position: mesh.position,
-                    quaternion: {
-                      x: mesh.quaternion.x,
-                      y: mesh.quaternion.y,
-                      z: mesh.quaternion.z,
-                      w: mesh.quaternion.w
-                    },
-                    scale: {
-                      x: mesh.scale.x / 2,
-                      y: mesh.scale.y / 2,
-                      z: mesh.scale.z / 2
-                    },
-                    vertices: mesh.vertices
-                  }
-                  colliders.push(meshCollider);
-                }
-            }
-          }
-             this.model.traverse( parseColliders );
-             this.meshColliders = colliders;
-             this.editor.renderer.addBatchedObject(this.model);
-        }
+      await super.load(url);
 
       if (this.initialScale === "fit") {
         this.scale.set(1, 1, 1);
@@ -184,7 +157,9 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           } else if (diameter > 20) {
             // If the bounding sphere of a model is over 20m in diameter, assume that the model was
             // exported with units as centimeters and convert to meters.
-            this.scale.set(0.01, 0.01, 0.01);
+
+            // disabled this because we import scenes that are often bigger than this threshold
+            // this.scale.set(0.01, 0.01, 0.01);
           }
         }
         // Clear scale to fit property so that the swapped model maintains the same scale.
@@ -200,8 +175,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
             object.material.needsUpdate = true;
           }
         });
-        this.issues = getObjectPerfIssues(this.model);
       }
+      if (this.saveColliders) clearFromColliders(this.model, true);
       this.updateStaticModes();
     } catch (error) {
       this.showErrorIcon();
@@ -214,7 +189,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       }
       console.error(modelError);
       this.issues.push({ severity: "error", message: "Error loading model." });
-      this._canonicalUrl = "";
+      this.isValidURL = false;
+      //this._canonicalUrl = "";
     }
     this.editor.emit("objectsChanged", [this]);
     this.editor.emit("selectionChanged");
@@ -237,11 +213,133 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   onPause() {
     this.stopAnimation();
   }
-  onUpdate(dt) {
-    super.onUpdate(dt);
+  onUpdate(delta: number, time: number) {
+    super.onUpdate(delta, time);
     if (this.editor.playing) {
-      this.update(dt);
+      this.update(delta);
     }
+  }
+  simplyfyFloat(arr) {
+    return arr.map((v: number) => parseFloat((Math.round(v * 10000) / 10000).toFixed(4)));
+  }
+  parseVehicle(group) {
+    const vehicleCompData = parseCarModel(group, 'editor');
+    const deepColliders = [];
+
+    const vehicleSaved = {
+      arrayWheelsPosition: vehicleCompData.arrayWheelsPosition.map((array: any) => this.simplyfyFloat(array)),
+      entrancesArray: vehicleCompData.entrancesArray.map((array: any) => this.simplyfyFloat(array)),
+      seatsArray: vehicleCompData.seatsArray.map((array: any) => this.simplyfyFloat(array)),
+      startPosition: this.simplyfyFloat([this.position.x, this.position.y, this.position.z]),
+      startQuaternion: this.simplyfyFloat([this.quaternion.x, this.quaternion.y, this.quaternion.z, this.quaternion.w]),
+      suspensionRestLength: parseFloat((Math.round(vehicleCompData.suspensionRestLength * 10000) / 10000).toFixed(4)),
+      interactionPartsPosition: vehicleCompData.interactionPartsPosition.map((array: any) => this.simplyfyFloat(array)),
+      mass: vehicleCompData.mass
+    };
+    console.warn(vehicleSaved);
+    vehicleCompData.vehicleSphereColliders.forEach(v => {
+      deepColliders.push(this.parseColliders(v.userData, 'vehicle', v.userData.type, null, v.position, v.quaternion, v.scale, v));
+    });
+    return [vehicleSaved, deepColliders];
+  }
+
+  parseColliders(userData, data, type, mass, position, quaternion, scale, mesh, collisionLayer = undefined, collisionMask = undefined) {
+
+    let geometry = null;
+    if (type == "trimesh") {
+      geometry = getGeometry(mesh);
+    }
+
+    const meshCollider = {
+      ...userData,
+      data: data,
+      type: type,
+      mass: mass ? mass : 1,
+      position: {
+        x: position.x,
+        y: position.y,
+        z: position.z
+      },
+      quaternion: {
+        x: quaternion.x,
+        y: quaternion.y,
+        z: quaternion.z,
+        w: quaternion.w
+      },
+      scale: {
+        x: scale.x,
+        y: scale.y,
+        z: scale.z
+      },
+      vertices: (geometry != null ? Array.from(geometry.attributes.position.array).map((v: number) => parseFloat((Math.round(v * 10000) / 10000).toFixed(4))) : null),
+      indices: (geometry != null && geometry.index ? Array.from(geometry.index.array) : null),
+      collisionLayer,
+      collisionMask
+    }
+
+    return meshCollider;
+  }
+
+  parseAndSaveColliders(components) {
+    if (this.model) {
+      // Set up colliders
+      const colliders = [];
+      const vehicleColliders = [];
+      const vehicleMain = [];
+
+      const parseGroupColliders = (group) => {
+        if (group.userData.data === 'physics' || group.userData.data === 'kinematic' || group.userData.data === 'dynamic') {
+          if (group.type == 'Group') {
+            for (let i = 0; i < group.children.length; i++) {
+              colliders.push(this.parseColliders(group.userData, group.userData.data, group.userData.type, group.userData.mass, group.position, group.quaternion, group.scale, group.children[i], group.userData.collisionLayer, group.userData.collisionMask));
+            }
+          } else if (group.type == 'Mesh') {
+            colliders.push(this.parseColliders(group.userData, group.userData.data, group.userData.type, group.userData.mass, group.position, group.quaternion, group.scale, group, group.userData.collisionLayer, group.userData.collisionMask));
+          }
+        } else if (group.userData.data === 'vehicle') {
+          const [vehicleSaved, deepArrayColliders] = this.parseVehicle(group);
+          vehicleMain.push(vehicleSaved);
+          vehicleColliders.push(deepArrayColliders);
+        }
+      }
+
+      this.model.traverse(parseGroupColliders);
+      this.meshColliders = colliders.concat(...vehicleColliders);
+      this.vehicleObject = vehicleMain;
+      this.editor.renderer.addBatchedObject(this.model);
+    }
+
+    for (let i = 0; i < this.meshColliders.length; i++) {
+      components[`mesh-collider-${i}`] = this.addEditorParametersToCollider(this.meshColliders[i]);
+    }
+
+    for (let i = 0; i < this.vehicleObject.length; i++) {
+      components[`vehicle-saved-in-scene-${i}`] = this.vehicleObject[i];
+    }
+  }
+  addEditorParametersToCollider(collider) {
+    // its for vehicle
+    if (collider.data == 'vehicle') return collider;
+
+    const [position, quaternion, scale] = plusParameter(
+      collider.position,
+      collider.quaternion,
+      collider.scale,
+      this.position,
+      this.quaternion,
+      this.scale
+    );
+    collider.position.x = position.x;
+    collider.position.y = position.y;
+    collider.position.z = position.z;
+    collider.quaternion.x = quaternion.x;
+    collider.quaternion.y = quaternion.y;
+    collider.quaternion.z = quaternion.z;
+    collider.quaternion.w = quaternion.w;
+    collider.scale.x = scale.x;
+    collider.scale.y = scale.y;
+    collider.scale.z = scale.z;
+    return collider;
   }
   updateStaticModes() {
     if (!this.model) return;
@@ -253,8 +351,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           const animatedNode = this.model.getObjectByProperty("uuid", uuid);
           if (!animatedNode) {
             throw new Error(
-              `Model.updateStaticModes: model with url "${
-                this._canonicalUrl
+              `Model.updateStaticModes: model with url "${this._canonicalUrl
               }" has an invalid animation "${animation.name}"`
             );
           }
@@ -267,7 +364,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     const components = {
       "gltf-model": {
         src: this._canonicalUrl,
-        attribution: this.attribution
+        envMapOverride: this.envMapOverride !== "" ? this.envMapOverride : undefined,
+        dontParseModel: this.saveColliders
       },
       shadow: {
         cast: this.castShadow,
@@ -275,20 +373,30 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       },
       interact: {
         interactable: this.interactable,
-        interactionType : this.interactionType,
-        interactionText : this.interactionText,
-        payloadName : this.payloadName,
-        payloadUrl : this.payloadUrl,
-        payloadBuyUrl : this.payloadBuyUrl,
-        payloadLearnMoreUrl : this.payloadLearnMoreUrl,
-        payloadHtmlContent : this.payloadHtmlContent,
-        payloadModelUrl : this._canonicalUrl,
+        interactionType: this.interactionType,
+        interactionText: this.interactionText,
+        interactionDistance: this.interactionDistance,
+        payloadName: this.payloadName,
+        payloadUrl: this.payloadUrl,
+        payloadBuyUrl: this.payloadBuyUrl,
+        payloadLearnMoreUrl: this.payloadLearnMoreUrl,
+        payloadHtmlContent: this.payloadHtmlContent,
+        payloadModelUrl: this._canonicalUrl,
       }
     };
-    for(let i = 0; i < this.meshColliders.length; i++){
-      components[`mesh-collider-${i}`] = this.meshColliders[i];
+
+    if (this.interactionType === "gameobject") {
+      components['game-object'] = {
+        gameName: this.editor.nodes.find(node => node.uuid === this.target).name,
+        role: this.role,
+        target: this.target
+      }
     }
 
+    if (this.saveColliders) {
+      this.parseAndSaveColliders(components);
+      clearFromColliders(this.model, true);
+    }
     if (this.activeClipIndex !== -1) {
       components["loop-animation"] = {
         activeClipIndex: this.activeClipIndex
@@ -311,9 +419,11 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       this.updateStaticModes();
       this.gltfJson = source.gltfJson;
       this._canonicalUrl = source._canonicalUrl;
+      this.envMapOverride = source.envMapOverride;
     }
-    this.attribution = source.attribution;
+    this.target = source.target;
     this.collidable = source.collidable;
+    this.saveColliders = source.saveColliders;
     this.walkable = source.walkable;
     return this;
   }
@@ -329,8 +439,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       const activeClipIndex = ctx.animations.indexOf(this.activeClip);
       if (activeClipIndex === -1) {
         throw new Error(
-          `Error exporting model "${this.name}" with url "${
-            this._canonicalUrl
+          `Error exporting model "${this.name}" with url "${this._canonicalUrl
           }". Animation could not be found.`
         );
       } else {

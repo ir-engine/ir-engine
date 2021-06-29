@@ -1,0 +1,22 @@
+{
+    "pageLoader": {
+        "loading": "Loading page..."
+    },
+    "tooltip": {
+        "pressKey": "Press {{tip}} to {{message}}"
+    },
+    "toast": {
+        "joined": "joined",
+        "left": "left"
+    },
+    "navUserWidget": {
+        "login": "Log In"
+    },
+    "loader": {
+        "connecting": "Connecting to world...",
+        "entering": "Entering world...",
+        "loading": "Loading...",
+        "objectRemaining": "{{count}} object remaining",
+        "objectRemainingPlural": "{{count}} objects remaining"
+    }
+}

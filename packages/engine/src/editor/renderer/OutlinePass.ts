@@ -26,6 +26,8 @@ import { Pass } from 'three/examples/jsm/postprocessing/Pass';
  * Original author spidersharma / http://eduperiment.com/
  */
 class DepthMaskMaterial extends ShaderMaterial {
+  depthPacking: any;
+  material: any;
   constructor(camera) {
     const cameraType = camera.isPerspectiveCamera
       ? 'perspective'
@@ -167,8 +169,6 @@ export default class OutlinePass extends Pass {
   overlayMaterial: OverlayMaterial
   copyUniforms: any
   copyMaterial: ShaderMaterial
-  enabled: boolean
-  needsSwap: boolean
   oldClearColor: Color
   oldClearAlpha: number
   outlineCamera: OrthographicCamera
@@ -176,7 +176,6 @@ export default class OutlinePass extends Pass {
   quad: Mesh
   textureMatrix: Matrix4
   renderableLayers: Layers
-  renderToScreen: any
   constructor(resolution, scene, camera, selectedObjects, editorRenderer) {
     super();
     this.renderScene = scene;
@@ -248,7 +247,7 @@ export default class OutlinePass extends Pass {
   }
   render(renderer, writeBuffer, readBuffer, delta, maskActive) {
     if (this.selectedObjects.length > 0) {
-      this.oldClearColor.copy(renderer.getClearColor());
+      this.oldClearColor.copy(renderer.getClearColor(new Color('black')));
       this.oldClearAlpha = renderer.getClearAlpha();
       const oldAutoClear = renderer.autoClear;
       renderer.autoClear = false;
@@ -328,14 +327,14 @@ export default class OutlinePass extends Pass {
         }
       });
       this.renderScene.overrideMaterial = this.depthMaskMaterial;
-      this.depthMaskMaterial.uniforms['cameraNearFar'].value = new Vector2(
+      (this.depthMaskMaterial as any).uniforms['cameraNearFar'].value = new Vector2(
         this.renderCamera.near,
         this.renderCamera.far
       );
-      this.depthMaskMaterial.uniforms[
+      (this.depthMaskMaterial as any).uniforms[
         'depthTexture'
       ].value = this.renderTargetDepthBuffer.texture;
-      this.depthMaskMaterial.uniforms[
+      (this.depthMaskMaterial as any).uniforms[
         'textureMatrix'
       ].value = this.textureMatrix;
       renderer.setRenderTarget(this.renderTargetMaskBuffer);

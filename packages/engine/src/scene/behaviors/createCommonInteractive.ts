@@ -1,42 +1,33 @@
 import { Behavior } from "../../common/interfaces/Behavior";
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { addComponent, getComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
 import { Interactable } from "../../interaction/components/Interactable";
-import { CommonInteractiveData } from "../../templates/interactive/interfaces/CommonInteractiveData";
+import { InteractiveSystem } from "../../interaction/systems/InteractiveSystem";
 import { Object3DComponent } from "../components/Object3DComponent";
-import { InteractiveSchema } from '../constants/InteractiveSchema';
+import { grabEquippable } from "../../interaction/functions/grabEquippable";
+import { InteractionData } from "../../interaction/types/InteractionTypes";
 
-const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
+export const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);
 
-  // TODO: make interface for universal interactive data, and event data
-  const detail: any = {};
-  if (interactiveComponent.data) {
-    if (typeof interactiveComponent.data.action !== 'undefined') {
-      detail.action = interactiveComponent.data.action;
-      detail.payload = interactiveComponent.data.payload;
-      detail.interactionText = interactiveComponent.data.interactionText;
-    }
+  if(interactiveComponent.data.interactionType === 'equippable') {
+    grabEquippable(entityInitiator, args, delta, entityInteractive);
+  } else {
+    EngineEvents.instance.dispatchEvent({type: InteractiveSystem.EVENTS.OBJECT_ACTIVATION, ...interactiveComponent.data });
   }
-
-  const event = new CustomEvent('object-activation', { detail });
-  document.dispatchEvent(event);
 };
 
-const onInteractionHover: Behavior = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
+export const onInteractionHover: Behavior = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);
 
-  // TODO: make interface for universal interactive data, and event data
-  const detail: any = { focused };
+  const engineEvent: any = { type: InteractiveSystem.EVENTS.OBJECT_HOVER, focused, ...interactiveComponent.data };
+  EngineEvents.instance.dispatchEvent(engineEvent);
 
-  if (interactiveComponent.data) {
-    if (typeof interactiveComponent.data.action !== 'undefined') {
-      detail.action = interactiveComponent.data.action;
-      detail.payload = interactiveComponent.data.payload;
-    }
-    detail.interactionText = interactiveComponent.data.interactionText;
+  if(focused) {
+
+  } else {
+    
   }
-  const event = new CustomEvent('object-hover', { detail });
-  document.dispatchEvent(event);
 
   if (!hasComponent(entityInteractive, Object3DComponent)) {
     return;
@@ -47,22 +38,16 @@ const onInteractionHover: Behavior = (entityInitiator, { focused }: { focused: b
   // const object3d = getMutableComponent(entityInteractive, Object3DComponent).value as Mesh;
 };
 
-export const createCommonInteractive: Behavior = (entity, args: any) => {
-  if (!args.objArgs.interactable) {
-    return;
-  }
-
-  const data: CommonInteractiveData = InteractiveSchema[args.objArgs.interactionType](args.objArgs, entity);
-
-  if(!data) {
-    console.error('unsupported interactionType', args.objArgs.interactionType);
+export const createCommonInteractive: Behavior = (entity, args: InteractionData) => {
+  if (!args.interactable) {
     return;
   }
 
   const interactiveData = {
     onInteraction: onInteraction,
     onInteractionFocused: onInteractionHover,
-    data
+    onInteractionCheck: () => { return true },
+    data: args
   };
 
   addComponent(entity, Interactable, interactiveData);

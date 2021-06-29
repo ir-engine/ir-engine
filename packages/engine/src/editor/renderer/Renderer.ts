@@ -3,17 +3,18 @@ import {
   Layers,
   MeshBasicMaterial,
   MeshNormalMaterial,
-  sRGBEncoding,
   Vector2
 } from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectionShader";
-import ScenePreviewCameraNode from "../nodes/ScenePreviewCameraNode";
 import { getCanvasBlob } from "../functions/thumbnails";
+import PostProcessingNode from "../nodes/PostProcessingNode";
+import ScenePreviewCameraNode from "../nodes/ScenePreviewCameraNode";
 import makeRenderer from "./makeRenderer";
 import OutlinePass from "./OutlinePass";
+import configurePostProcessing from "./RendererPostProcessing";
 /**
  * @author mrdoob / http://mrdoob.com/
  */
@@ -162,6 +163,10 @@ export default class Renderer {
   screenshotRenderer: any;
   camera: any;
   onUpdateStats: any;
+  willusePostProcessing:boolean;
+  composer:any;
+  node:any;
+
   constructor(editor, canvas) {
     this.editor = editor;
     this.canvas = canvas;
@@ -172,8 +177,6 @@ export default class Renderer {
         canvas
       }
     );
-    renderer.physicallyCorrectLights = true;
-    renderer.outputEncoding = sRGBEncoding; // need this if postprocessing is not used
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.info.autoReset = false;
     this.renderer = renderer;
@@ -192,10 +195,32 @@ export default class Renderer {
     this.screenshotRenderer = makeRenderer(1920, 1080);
     const camera = editor.camera;
     this.camera = camera;
+    /** @todo */
+    // Cascaded shadow maps
+    // const csm = new CSM({
+    //   cascades: 4,
+    //   lightIntensity: 1,
+    //   shadowMapSize: 2048,
+    //   maxFar: 100,
+    //   camera: camera,
+    //   parent: editor.scene
+    // });
+    // csm.fade = true;
+    // WebGLRendererSystem.instance.csm = csm;
+    this.willusePostProcessing=false;
+    PostProcessingNode.postProcessingCallback=(node,isRemoved=false)=>{
+      this.node=node;
+      this.composer=configurePostProcessing(node,this.renderMode.renderPass.scene,camera,renderer,isRemoved);
+      this.willusePostProcessing=(this.composer!==null);
+    };
   }
   update(dt, _time) {
     this.renderer.info.reset();
-    this.renderMode.render(dt);
+    // WebGLRendererSystem.instance.csm.update();
+    if(this.willusePostProcessing)
+      this.composer.render(dt);
+    else
+      this.renderMode.render(dt);
     if (this.onUpdateStats) {
       this.renderer.info.render.fps = 1 / dt;
       this.renderer.info.render.frameTime = dt * 1000;
@@ -227,7 +252,12 @@ export default class Renderer {
       containerEl.offsetHeight,
       false
     );
+    // WebGLRendererSystem.instance.csm.updateFrustums();
     this.renderMode.onResize();
+
+    if(this.willusePostProcessing){
+      PostProcessingNode.postProcessingCallback(this.node);
+    }
   };
   takeScreenshot = async (width = 1920, height = 1080) => {
     console.log("Taking screenshot");
@@ -280,5 +310,6 @@ export default class Renderer {
   dispose() {
     this.renderer.dispose();
     this.screenshotRenderer.dispose();
+    this.composer?.dispose();
   }
 }

@@ -1,23 +1,31 @@
-import { MediaStreamSystem } from "@xr3ngine/engine/src/networking/systems/MediaStreamSystem";
-import { Behavior } from "../../common/interfaces/Behavior";
+import * as Comlink from 'comlink';
+import { EngineEvents } from "../../ecs/classes/EngineEvents";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import { MediaStreamSystem } from "../../networking/systems/MediaStreamSystem";
 import { Input } from "../components/Input";
+import { WEBCAM_INPUT_EVENTS } from '../constants/InputConstants';
 import { CameraInput } from "../enums/InputEnums";
 import { InputType } from "../enums/InputType";
-import * as Comlink from 'comlink'
-import { EngineEvents } from "../../ecs/classes/EngineEvents";
-import { Engine } from "../../ecs/classes/Engine";
 
-export const WEBCAM_INPUT_EVENTS = {
-  FACE_INPUT: 'WEBCAM_INPUT_EVENTS_FACE_INPUT',
-  LIP_INPUT: 'WEBCAM_INPUT_EVENTS_LIP_INPUT',
-}
+const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
+
+let Worker;
+
+if (isBrowser())
+  //@ts-ignore
+  import("./WebcamInputWorker?worker").then(worker => {
+    Worker = worker.default
+  });
 
 const EXPRESSION_THRESHOLD = 0.1;
 
 const faceTrackingTimers = [];
 let lipsyncTracking = false;
 let audioContext = null;
+
+let faceWorker: Comlink.Remote<any> = null;
+let faceVideo: HTMLVideoElement = null;
+let faceCanvas: OffscreenCanvas = null
 
 export const stopFaceTracking = () => {
     faceTrackingTimers.forEach(timer => {
@@ -31,47 +39,34 @@ export const stopLipsyncTracking = () => {
     audioContext = null;
 }
 
-export const startFaceTracking = () => {
-    console.log("**************** STARTING FACE TRACKING")
+export const startFaceTracking = async () => {
 
-    const video = document.createElement('video');
-    video.srcObject = MediaStreamSystem.instance.mediaStream;
-    
-    
-    initialiseWorker().then((worker) => {
-        video.addEventListener('play', () => {
-            const canvas = document.createElement('canvas')
-            canvas.width = video.videoWidth
-            canvas.height = video.videoHeight
-            const context = canvas.getContext('2d')
-            const interval = setInterval(async () => {
-                context.drawImage(video, 0, 0, canvas.width, canvas.height)
-                // we should replace this with imageBitmap.transferToImageBitmap
-                const imageData = context.getImageData(0, 0, canvas.width, canvas.height)
-                const pixels = imageData.data.buffer
+  if(!faceWorker) {
+      faceWorker = Comlink.wrap(new Worker());
+      await faceWorker.initialise();
+  }
 
-                //@ts-ignore
-                const detection = await worker.detect(Comlink.transfer(pixels, [pixels]), canvas.width, canvas.height)
-                if(detection) {
-                  EngineEvents.instance.dispatchEvent({ type: WEBCAM_INPUT_EVENTS.FACE_INPUT, detection });
-                }
-            }, 100);
-            faceTrackingTimers.push(interval);
-        });
+  faceVideo = document.createElement('video');
 
-        video.muted = true;
-        video.play();
-    });
-};
+  faceVideo.addEventListener('loadeddata', async () => {
+      await faceWorker.create(faceVideo.videoWidth, faceVideo.videoHeight)
+      faceCanvas = new OffscreenCanvas(faceVideo.videoWidth, faceVideo.videoHeight);
+      const context = faceCanvas.getContext('2d')
+      const interval = setInterval(async () => {
+          context.drawImage(faceVideo, 0, 0, faceVideo.videoWidth, faceVideo.videoHeight)
+          const imageData = context.getImageData(0, 0, faceVideo.videoWidth, faceVideo.videoHeight)
+          const pixels = imageData.data.buffer
+          const detection = await faceWorker.detect(Comlink.transfer(pixels, [pixels]))
+          if(detection) {
+              EngineEvents.instance.dispatchEvent({ type: WEBCAM_INPUT_EVENTS.FACE_INPUT, detection });
+          }
+      }, 100);
+      faceTrackingTimers.push(interval);
+  })
 
-async function initialiseWorker () {
-    console.log("Start load detectors")
-    //@ts-ignore
-    const worker = Comlink.wrap(new Worker(new URL('./webcamInputWorker.ts', import.meta.url)));//, { type: 'module' }))
-    //@ts-ignore
-    await worker.initialise()
-    console.log("Finish load detectors")
-    return worker;
+  faceVideo.srcObject = MediaStreamSystem.instance.mediaStream;
+  faceVideo.muted = true;
+  faceVideo.play();
 }
 
 const nameToInputValue = {
@@ -85,7 +80,6 @@ const nameToInputValue = {
 };
 
 export async function faceToInput(entity, detection) {
-
     if (detection !== undefined && detection.expressions !== undefined) {
         // console.log(detection.expressions);
         const input = getMutableComponent(entity, Input);
@@ -148,9 +142,9 @@ export const startLipsyncTracking = () => {
         // Populate frequency data for computing frequency intensities
         userSpeechAnalyzer.getFloatFrequencyData(spectrum);// getByteTimeDomainData gets volumes over the sample time
         // Populate time domain for calculating RMS
-        userSpeechAnalyzer.getFloatTimeDomainData(spectrum);
+        // userSpeechAnalyzer.getFloatTimeDomainData(spectrum);
         // RMS (root mean square) is a better approximation of current input level than peak (just sampling this frame)
-        spectrumRMS = getRMS(spectrum);
+        // spectrumRMS = getRMS(spectrum);
 
         sensitivityPerPole = getSensitivityMap(spectrum);
 
@@ -172,7 +166,6 @@ export const startLipsyncTracking = () => {
             EnergyBinMasc[m] /= (IndicesFrequencyMale[m + 1] - IndicesFrequencyMale[m]);
             EnergyBinFem[m] = EnergyBinFem[m] / (IndicesFrequencyFemale[m + 1] - IndicesFrequencyFemale[m]);
         }
-
         const pucker = Math.max(EnergyBinFem[1], EnergyBinMasc[1]) > 0.2 ?
             1 - 2 * Math.max(EnergyBinMasc[2], EnergyBinFem[2])
             : (1 - 2 * Math.max(EnergyBinMasc[2], EnergyBinFem[2])) * 5 * Math.max(EnergyBinMasc[1], EnergyBinFem[1]);
@@ -185,7 +178,6 @@ export const startLipsyncTracking = () => {
 };
 
 export const lipToInput = (entity, pucker, widen, open) => {
-
   const input = getMutableComponent(entity, Input);
 
   if (pucker > .2)

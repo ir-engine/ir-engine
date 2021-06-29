@@ -1,34 +1,37 @@
-import { AmbientLight, DirectionalLight, PointLight } from 'three';
+import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight, Group, Mesh } from 'three';
 import { isClient } from "../../common/functions/isClient";
+import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 import { DRACOLoader } from "../loaders/gltf/DRACOLoader";
 import { GLTFLoader } from "../loaders/gltf/GLTFLoader";
-import NodeDRACOLoader from "../loaders/gltf/NodeDRACOLoader";
-import { AssetUrl } from "../types/AssetTypes";
 
 /**
  * Interface for result of the GLTF Asset load.
  */
 export interface LoadGLTFResultInterface {
-    scene: any;
+    animations: AnimationClip[];
+    scene: Object3D | Group | Mesh;
     json: any;
     stats: any;
 }
 
 const loader = new GLTFLoader();
-let dracoLoader = null;
+const dracoLoader = new DRACOLoader();
+
 if(isClient) {
-    dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('/loader_decoders/');
 }
 else {
-    dracoLoader = new NodeDRACOLoader();
     (dracoLoader as any).getDecoderModule = () => {};
     (dracoLoader as any).preload = () => {};
 }
-loader.setDRACOLoader(dracoLoader);
+(loader as any).setDRACOLoader(dracoLoader);
 
-export function getLoader(): GLTFLoader {
+export function getLoader(): any {
     return loader;
+}
+
+export function disposeDracoLoaderWorkers(): void {
+    loader.dracoLoader.dispose();
 }
 
 /**
@@ -37,11 +40,11 @@ export function getLoader(): GLTFLoader {
  * @param url URL of the asset.
  * @returns a promise of {@link LoadGLTFResultInterface}.
  */
-export async function LoadGLTF(url: AssetUrl): Promise<LoadGLTFResultInterface> {
+export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
     return await new Promise<LoadGLTFResultInterface>((resolve, reject) => {
         getLoader().load(url, (gltf) => {
             loadExtentions(gltf);
-            resolve({ scene: gltf.scene, json: {}, stats: {} }); }, null, (e) => { reject(e); 
+            resolve({ animations: gltf.animations, scene: gltf.scene, json: {}, stats: {} }); }, null, (e) => { reject(e); 
         });
     });
 }
@@ -63,7 +66,7 @@ const loadLightmaps = parser => {
         material.needsUpdate = true;
         return lightMap;
     };
-    for (let i = 0; i < parser.json.materials.length; i++) {
+    for (let i = 0; i < parser.json.materials?.length; i++) {
         const materialNode = parser.json.materials[i];
 
         if (!materialNode.extensions) continue;
@@ -84,7 +87,7 @@ const loadLights = gltf => {
             if (obj.userData.gltfExtensions && obj.userData.gltfExtensions.MOZ_hubs_components) {
                 let replacement;
                 switch(Object.keys(obj.userData.gltfExtensions.MOZ_hubs_components)[0]) {
-                    // case 'directional-light': replacement = _directional(obj); break; // currently this breaks CSM
+                    case 'directional-light': replacement = _directional(obj); break;
                     case 'point-light': replacement = _point(obj); break;
                     case 'ambient-light': replacement = _ambient(obj); break;
                     default:break;
@@ -112,6 +115,7 @@ const _shadow = (light, lightData) => {
 };
 
 const _directional = (obj) => {
+    if(!WebGLRendererSystem.instance.csm) return; // currently this breaks CSM
     const lightData = obj.userData.gltfExtensions.MOZ_hubs_components['directional-light'];
     const light = new DirectionalLight(lightData.color, lightData.intensity);
     _shadow(light, lightData);

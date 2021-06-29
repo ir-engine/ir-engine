@@ -1,7 +1,3 @@
-#next
-.next
-.next/*
-
 #node
 node_modules/
 
@@ -16,13 +12,14 @@ node_modules/
 package-lock.json
 yarn.lock
 yarn-error.log
+.yarn/
+
+#IDEA project
+*.iml
 
 #local files
 .env*
 !.env.local.default
-
-#macos
-.DS_Store
 
 #config
 config/*
@@ -39,10 +36,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
-
-# Yarn and package lock
-yarn.lock
-package-lock.json
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
@@ -76,7 +69,6 @@ bower_components
 build/Release
 
 # Dependency directories
-node_modules/
 jspm_packages/
 
 # TypeScript v1 declaration files
@@ -121,9 +113,6 @@ dist
 
 # Gatsby files
 .cache/
-# Comment in the public line in if your project uses Gatsby and *not* Next.js
-# https://nextjs.org/blog/next-9-1#public-directory-support
-# public
 
 # vuepress build output
 .vuepress/dist
@@ -140,12 +129,10 @@ dist
 # TernJS port file
 .tern-port
 
-**/xr3ngine-secrets.env
-**/xr3ngine-dev-secrets.env
+**/xrengine-secrets.env
+**/xrengine-dev-secrets.env
 lib/
 bin/
-
-.vscode/
 
 # JetBrains WebStorm/PhpStorm
 .idea
@@ -163,3 +150,6 @@ packages/server/upload/
 .DS_Store
 */.DS_Store
 
+certs/
+*.blend1
+*.ts.bak

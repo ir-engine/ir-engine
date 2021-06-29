@@ -1,10 +1,10 @@
 import { Mesh } from "three";
-import { mergeBufferGeometries } from "@xr3ngine/engine/src/common/classes/BufferGeometryUtils";
 import { isStatic } from "../functions/StaticMode";
 import asyncTraverse from "../../editor/functions/asyncTraverse";
 import keysEqual from "../functions/keysEqual";
 import hashImage from "../../editor/functions/hashImage";
 import { collectUniqueMaterials } from "../../editor/functions/materials";
+import { mergeBufferGeometries } from "../../common/classes/BufferGeometryUtils";
 
 export async function getImageHash(hashCache, img) {
   let hash = hashCache.get(img.src);

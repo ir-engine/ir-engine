@@ -1,14 +1,15 @@
 {
   "publicRuntimeConfig": {
-    "title": "The Overlay",
+    "title": "ARC",
     "dev": false,
     "loginDisabled": false,
     "logo": "./logo.svg",
-    "apiServer": "https://127.0.0.1:3030",
-    "siteTitle": "The Overlay",
+    "apiServer": "https://${VITE_SERVER_HOST}:${VITE_SERVER_PORT}",
+    "appServer": "https://${VITE_APP_HOST}:${VITE_APP_PORT}",
+    "siteTitle": "ARC",
     "siteDescription": "Connected Worlds for Everyone",
-    "featherStoreKey": "TheOverlay-Auth-Store",
-    "localStorageKey": "theoverlay-client-store-key-v1",
+    "feathersStoreKey": "TheOverlay-Auth-Store",
+    "localStorageKey": "arc-client-store-key-v1",
     "auth": {
       "enableSmsMagicLink": true,
       "enableEmailMagicLink": true,

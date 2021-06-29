@@ -7,4 +7,4 @@ import { Entity } from '../../ecs/classes/Entity';
  * @param entityOut
  * @param time
  */
-export type Behavior = (entity: Entity, args?: any, delta?: number, entityOut?: Entity, time?: number) => void
+export type Behavior<Args=any> = (entity: Entity, args?: Args, delta?: number, entityOut?: Entity, time?: number, checks?: any) => void

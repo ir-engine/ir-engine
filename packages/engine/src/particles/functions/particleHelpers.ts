@@ -1,4 +1,4 @@
-import { ParticleEmitter } from "../components/ParticleEmitter";
+import { ParticleEmitterComponent } from "../components/ParticleEmitter";
 import { addComponent, getComponent } from "../../ecs/functions/EntityFunctions";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { isClient } from "../../common/functions/isClient";
@@ -43,10 +43,10 @@ export const fragmentShader = `
   }
 `;
 
-export const createParticleEmitter = (entity, configs): void => {
+export const createParticleEmitterObject = (entity, configs): void => {
   if (!isClient) return;
-  ParticleEmitterMesh.fromArgs(configs.objArgs).then(mesh => {
-    addComponent(entity, ParticleEmitter, { particleEmitterMesh: mesh });
+  ParticleEmitterMesh.fromArgs(configs).then(mesh => {
+    addComponent(entity, ParticleEmitterComponent, { particleEmitterMesh: mesh });
     Engine.scene.add(mesh);
   });
 }

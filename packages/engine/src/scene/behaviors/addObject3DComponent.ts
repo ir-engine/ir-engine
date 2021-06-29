@@ -53,13 +53,15 @@ import { SkyboxComponent } from '../components/SkyboxComponent';
 import { Engine } from '../../ecs/classes/Engine';
 import ShadowComponent from "../components/ShadowComponent";
 import { createShadow } from "./createShadow";
+import { WebGLRendererSystem } from "../../renderer/WebGLRendererSystem";
+import { isClient } from "../../common/functions/isClient";
 
 /**
  * Add Object3D Component with args into Entity from the Behavior.
  */
-export const addObject3DComponent: Behavior = (
+export const addObject3DComponent: Behavior<{ obj3d: any; objArgs?: any; parentEntity?: Entity }> = (
   entity: Entity,
-  args: { obj3d: any; objArgs?: any; parentEntity?: Entity }
+  args
 ) => {
 
   const isObject3d = typeof args.obj3d === 'object';
@@ -105,15 +107,16 @@ export const addObject3DComponent: Behavior = (
   });
 
   if (args.parentEntity && hasComponent(args.parentEntity, ShadowComponent)) {
-    createShadow(entity, { objArgs: getMutableComponent(args.parentEntity, ShadowComponent) })
+    createShadow(entity, getMutableComponent(args.parentEntity, ShadowComponent));
   }
-    
+
   const hasShadow = getMutableComponent(entity, ShadowComponent)
+  const castShadow = Boolean(hasShadow?.castShadow || args.objArgs?.castShadow);
+  const receiveshadow = Boolean(hasShadow?.receiveShadow || args.objArgs?.receiveShadow);
 
   object3d.traverse((obj) => {
-    obj.castShadow = Boolean(hasShadow?.castShadow || args.objArgs?.castShadow);
-    obj.receiveShadow = Boolean(hasShadow?.receiveShadow || args.objArgs?.receiveShadow);
-    obj.material && Engine.csm?.setupMaterial(obj.material);
+    obj.castShadow = castShadow;
+    obj.receiveShadow = receiveshadow;
   });
 
   addComponent(entity, Object3DComponent, { value: object3d });
@@ -202,7 +205,7 @@ export const addObject3DComponent: Behavior = (
   });
   if (args.parentEntity && hasComponent(args.parentEntity, Object3DComponent as any)) {
     getComponent<Object3DComponent>(args.parentEntity, Object3DComponent).value.add(object3d);
-  } else Engine.scene.add(object3d);
+  }
   object3d.entity = entity;
   return entity;
 };

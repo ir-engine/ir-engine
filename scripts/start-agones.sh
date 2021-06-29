@@ -1,5 +1,4 @@
-#!/usr/bin/env bash
-
+#!/bin/bash
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         echo -e "\e[32mStarting Agones sidecar for local development on Linux...";

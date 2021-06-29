@@ -1,5 +1,9 @@
 import { BufferAttribute, InterleavedBufferAttribute } from "three";
 export default class ClonableInterleavedBufferAttribute extends InterleavedBufferAttribute {
+  getX: any;
+  getY: any;
+  getZ: any;
+  getW: any;
   clone() {
     console.warn(
       "Cloning an InterleavedBufferAttribute is unsupported. Converting to a BufferAttribute instead."

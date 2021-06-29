@@ -44,7 +44,7 @@ export const callBehaviors: Behavior = (entity: Entity, args: { phase: string },
             }
         });
       }
-        
+
       if(_state.schema.states[stateValue.state]['onEntry'] !== undefined) {
         _state.schema.states[stateValue.state]['onEntry'].forEach(stateBehavior => {
           stateBehavior.behavior(

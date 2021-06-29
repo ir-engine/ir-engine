@@ -15,9 +15,11 @@ export default function EditorNodeMixin(Object3DClass) {
     static disableTransform = false;
     static useMultiplePlacementMode = false;
     static ignoreRaycast = false;
+    static haveStaticTags=true;
     // Used for props like src that have side effects that we don't want to happen in the constructor
     static initialElementProps = {};
     static hideInElementsPanel = false;
+    reflectionProbeStatic:boolean;
     static canAddNode(_editor) {
       return true;
     }
@@ -33,21 +35,22 @@ export default function EditorNodeMixin(Object3DClass) {
       const node = new this(editor);
       node.name = json.name;
       if (json.components) {
-        const transformComponent = json.components.find(
-          c => c.name === "transform"
-        );
+        const transformComponent = json.components.find(c => c.name === "transform");
         if (transformComponent) {
           const { position, rotation, scale } = transformComponent.props;
           node.position.set(position.x, position.y, position.z);
           node.rotation.set(rotation.x, rotation.y, rotation.z);
           node.scale.set(scale.x, scale.y, scale.z);
         }
-        const visibleComponent = json.components.find(
-          c => c.name === "visible"
-        );
-        if (visibleComponent) {
-          node.visible = visibleComponent.props.visible;
-        }
+
+        const visibleComponent = json.components.find(c => c.name === "visible");
+        if (visibleComponent) node.visible = visibleComponent.props.visible;
+
+        const persistComponent = json.components.find(c => c.name === "persist");
+        node.persist = !!persistComponent;
+        
+        const reflectionProbeStaticComponent = json.components.find(c => c.name === "reflectionprobestatic");
+        node.reflectionProbeStatic = !!reflectionProbeStaticComponent;
       }
       return node;
     }
@@ -59,6 +62,7 @@ export default function EditorNodeMixin(Object3DClass) {
       this.isNode = true;
       this.isCollapsed = false;
       this.disableTransform = (this.constructor as any).disableTransform;
+      this.haveStaticTags=(this.constructor as any).haveStaticTags;
       this.useMultiplePlacementMode = (this.constructor as any).useMultiplePlacementMode;
       this.ignoreRaycast = (this.constructor as any).ignoreRaycast;
       this.staticMode = StaticModes.Inherits;
@@ -87,11 +91,10 @@ export default function EditorNodeMixin(Object3DClass) {
       return this;
     }
     onPlay() {}
-    onUpdate(dt) {
-    }
+    onUpdate(delta: number, time: number) {}
     onPause() {}
     onAdd() {}
-    onChange() {}
+    onChange(prop: string) {}
     onRemove() {}
     onSelect() {}
     onDeselect() {}
@@ -125,9 +128,24 @@ export default function EditorNodeMixin(Object3DClass) {
             props: {
               visible: this.visible
             }
-          }
+          },
         ]
       };
+
+      if (this.persist) {
+        entityJson.components.push({
+          name: "persist",
+          props: {} as any,
+        })
+      }
+
+      if (this.reflectionProbeStatic) {
+        entityJson.components.push({
+          name: "reflectionprobestatic",
+          props: {} as any,
+        })
+      }
+
       if (components) {
         for (const componentName in components) {
           if (!Object.prototype.hasOwnProperty.call(components, componentName))
@@ -153,7 +171,7 @@ export default function EditorNodeMixin(Object3DClass) {
       return entityJson;
     }
     prepareForExport() {
-      this.userData.XR3_editor_uuid = this.uuid;
+      this.userData.editor_uuid = this.uuid;
       if (!this.visible) {
         this.addGLTFComponent("visible", {
           visible: this.visible
@@ -278,10 +296,6 @@ export default function EditorNodeMixin(Object3DClass) {
         }
       }
       return nodes;
-    }
-    // Used for calculating stats for the Performance Check Dialog
-    getRuntimeResourcesForStats() {
-      // return { textures: [], materials: [], meshes: [], lights: [] };
     }
   };
 }

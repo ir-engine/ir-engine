@@ -12,7 +12,7 @@ function shouldSetMaterialParams(_material, materialDef) {
 }
 
 export class LightmapLoaderExtension extends LoaderExtension {
-  static extensionName = 'XR3_lightmap'
+  static extensionName = 'MOZ_lightmap'
 
   extensionNames = [LightmapLoaderExtension.extensionName]
 

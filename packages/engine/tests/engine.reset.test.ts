@@ -1,20 +1,18 @@
 import { AmbientLight } from "three";
-import { addObject3DComponent } from "../src/scene/behaviors/addObject3DComponent";
 import { Prefab } from "../src/common/interfaces/Prefab";
 import { Component } from "../src/ecs/classes/Component";
 import { Engine } from "../src/ecs/classes/Engine";
 import { Entity } from "../src/ecs/classes/Entity";
 import { execute, resetEngine } from "../src/ecs/functions/EngineFunctions";
 import { addComponent, createEntity } from "../src/ecs/functions/EntityFunctions";
-import { initializeEngine } from "../src/initialize";
+// import { initializeEngine } from "../src/initialize"; // TODO: this file has been moved to client-core
 import { Input } from "../src/input/components/Input";
-import { State } from "../src/state/components/State";
-import { CharacterInputSchema } from "../src/templates/character/CharacterInputSchema";
-import { CharacterStateSchema } from "../src/templates/character/CharacterStateSchema";
-import { CharacterComponent } from "../src/templates/character/components/CharacterComponent";
-import { DefaultNetworkSchema } from "../src/templates/networking/DefaultNetworkSchema";
+import { addObject3DComponent } from "../src/scene/behaviors/addObject3DComponent";
+import { CharacterInputSchema } from "../src/character/CharacterInputSchema";
+import { CharacterComponent } from "../src/character/components/CharacterComponent";
+import { DefaultNetworkSchema } from "../src/networking/templates/DefaultNetworkSchema";
 import { TransformComponent } from "../src/transform/components/TransformComponent";
-
+/*
 const options = {
   input: {
     useWebXR: false,
@@ -22,9 +20,6 @@ const options = {
   },
   networking: {
     schema: DefaultNetworkSchema
-  },
-  state: {
-    schema: CharacterStateSchema
   }
 }
 
@@ -37,9 +32,7 @@ export const PlayerCharacter: Prefab = {
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
     // Local player input mapped to behaviors in the input map
-    { type: Input, data: { schema: CharacterInputSchema } },
-    // Current state (isJumping, isidle, etc)
-    { type: State, data: { schema: CharacterStateSchema } }
+    { type: Input, data: { schema: CharacterInputSchema } }
   ],
   onBeforeCreate: [
   ],
@@ -123,7 +116,6 @@ test.skip("Engine reset should work", () => {
   expect(Engine.numComponents).toMatchObject({})
   expect(Engine.entitiesWithComponentsToRemove.length).toBe(0)
   expect(Engine.entitiesToRemove.length).toBe(0)
-  expect(Engine.systemsToExecute.length).toBe(0)
 
   // Engine.entityPool
   // Engine.entityPool.freeList should be propagated with reset Entities
@@ -141,3 +133,4 @@ function entityPoolIsClean():boolean {
       || Object.keys(entity.componentsToRemove).length)
   })
 }
+*/

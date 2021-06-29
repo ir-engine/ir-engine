@@ -1,43 +1,49 @@
 /** Functions to provide engine level functionalities. */
 
-import { XRFrame } from "three";
+import { Color } from 'three';
+import { PhysXInstance } from "three-physx";
+import { AssetLoader } from "../../assets/classes/AssetLoader";
+import { disposeDracoLoaderWorkers } from "../../assets/functions/LoadGLTF";
 import { now } from "../../common/functions/now";
+import { Network } from "../../networking/classes/Network";
+import { Vault } from "../../networking/classes/Vault";
+import { PhysicsSystem } from "../../physics/systems/PhysicsSystem";
+import disposeScene from "../../renderer/functions/disposeScene";
+import { PersistTagComponent } from "../../scene/components/PersistTagComponent";
+import { WorldScene } from '../../scene/functions/SceneLoading';
 import { Engine } from '../classes/Engine';
-import { Entity } from "../classes/Entity";
 import { System } from '../classes/System';
-import { EngineOptions } from '../interfaces/EngineOptions';
-import { removeAllComponents, removeAllEntities } from "./EntityFunctions";
-import { executeSystem } from './SystemFunctions';
+import { hasComponent, removeAllComponents, removeAllEntities, removeEntity } from "./EntityFunctions";
 import { SystemUpdateType } from "./SystemUpdateType";
 
-/**
- * Initialize options on the engine object and fire a command for devtools.\
- * **WARNING:** This is called by {@link initialize.initializeEngine | initializeEngine()}.\
- * You probably don't want to use this.
- */
-export function initialize (options?: EngineOptions): void {
-  Engine.options = { ...Engine.options, ...options };
-  // if ( typeof window !== 'undefined' && typeof CustomEvent !== 'undefined') {
-  //   const event = new CustomEvent('world-created');
-  //   window.dispatchEvent(event);
-  // }
-
-  Engine.lastTime = now() / 1000;
-}
-
 /** Reset the engine and remove everything from memory. */
-export function reset(): void {
+export async function reset(): Promise<void> {
+  console.log("RESETTING ENGINE");
+  // Stop all running workers
+  Engine.workers.forEach(w => w.terminate());
+  Engine.workers.length = 0;
+
+  disposeDracoLoaderWorkers();
+
   // clear all entities components
-  Engine.entities.forEach(entity => {
-    removeAllComponents(entity, false);
+  await new Promise<void>(resolve => {
+    Engine.entities.forEach(entity => {
+      removeAllComponents(entity, false);
+    });
+    setTimeout(() => {
+      executeSystemBeforeReset(); // for systems to handle components deletion
+      resolve();
+    }, 500);
   });
-  execute(0.001); // for systems to handle components deletion
 
-  // delete all entities
-  removeAllEntities();
-
-  // for systems to handle components deletion
-  execute(0.001);
+  await new Promise<void>(resolve => {
+    // delete all entities
+    removeAllEntities();
+    setTimeout(() => {
+      executeSystemBeforeReset(); // for systems to handle components deletion
+      resolve();
+    }, 500);
+  });
 
   if (Engine.entities.length) {
     console.log('Engine.entities.length', Engine.entities.length);
@@ -63,7 +69,7 @@ export function reset(): void {
     system.dispose();
   });
   Engine.systems.length = 0;
-  Engine.systemsToExecute.length = 0;
+  Engine.activeSystems.clear();
 
   // cleanup queries
   Engine.queries.length = 0;
@@ -73,16 +79,30 @@ export function reset(): void {
 
   // delete all what is left on scene
   if (Engine.scene) {
-    // TODO: check if we need to add materials, textures, geometries detections and dispose() call?
+    disposeScene(Engine.scene);
     Engine.scene = null;
   }
+  Engine.sceneLoaded = false;
+  WorldScene.isLoading = false;
 
   Engine.camera = null;
 
   if (Engine.renderer) {
+    Engine.renderer.clear(true, true, true);
     Engine.renderer.dispose();
     Engine.renderer = null;
   }
+
+  Network.instance.dispose();
+
+  Vault.instance.clear();
+  AssetLoader.Cache.clear();
+
+  // Engine.enabled = false;
+  Engine.gameMode = null;
+  Engine.inputState.clear();
+  Engine.prevInputState.clear();
+  Engine.viewportElement = null;
 }
 
 /**
@@ -90,18 +110,30 @@ export function reset(): void {
  * This is typically called on a loop.
  * **WARNING:** This is called by {@link initialize.initializeEngine | initializeEngine()}.\
  * You probably don't want to use this. 
+ * 
+ * @author Fernando Serrano, Robert Long
  */
-export function execute (delta?: number, time?: number, updateType = SystemUpdateType.Free): void {
+export function execute (delta: number, time: number, updateType: SystemUpdateType): void {
   Engine.tick++;
+  time = now() / 1000;
   if (!delta) {
-    time = now() / 1000;
     delta = time - Engine.lastTime;
-    Engine.lastTime = time;
   }
+  Engine.lastTime = time;
+  // if (Engine.enabled) {
+    Engine.activeSystems.execute(delta, time, updateType);
+    processDeferredEntityRemoval();
+  // }
+}
+
+function executeSystemBeforeReset() {
+  Engine.tick++;
+  const time = now() / 1000;
+  const delta = 0.001;
+  Engine.lastTime = time;
 
   if (Engine.enabled) {
-    Engine.systemsToExecute
-      .forEach(system => executeSystem(system, delta, time, updateType));
+    Engine.activeSystems.executeAll(delta, time);
     processDeferredEntityRemoval();
   }
 }
@@ -109,6 +141,8 @@ export function execute (delta?: number, time?: number, updateType = SystemUpdat
 /**
  * Remove entities at the end of a simulation frame.
  * **NOTE:** By default, the engine is set to process deferred removal, so this will be called.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 function processDeferredEntityRemoval () {
   if (!Engine.deferredRemovalEnabled) {
@@ -120,7 +154,7 @@ function processDeferredEntityRemoval () {
     const entity = entitiesToRemove[i];
     const index = Engine.entities.indexOf(entity);
     Engine.entities.splice(index, 1);
-    Engine.entityMap.delete(String(entity.id))
+    Engine.entityMap.delete(String(entity.id));
     entity._pool.release(entity);
   }
   entitiesToRemove.length = 0;
@@ -132,8 +166,10 @@ function processDeferredEntityRemoval () {
 
       const component = entity.componentsToRemove[Component._typeId];
       delete entity.componentsToRemove[Component._typeId];
-      component.dispose();
-      Engine.numComponents[component._typeId]--;
+      if(component) {
+        component.dispose();
+        Engine.numComponents[component._typeId]--;
+      }
     }
   }
 
@@ -142,14 +178,18 @@ function processDeferredEntityRemoval () {
 
 /**
  * Disable execution of systems without stopping timer.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export function pause (): void {
   Engine.enabled = false;
-  Engine.systemsToExecute.forEach(system => system.stop());
+  Engine.systems.forEach(system => system.stop());
 }
 
 /**
  * Get stats for all entities, components and systems in the simulation.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export function stats (): { entities: any; system: any } {
   const queryStats = {};
@@ -185,9 +225,6 @@ export function stats (): { entities: any; system: any } {
       queries: {},
       executeTime: system.executeTime
     });
-    for (const name in system.ctx) {
-      systemStats.queries[name] = system.ctx[name].stats();
-    }
   }
 
   return {
@@ -197,11 +234,66 @@ export function stats (): { entities: any; system: any } {
 }
 
 /** Reset the engine and clear all the timers. */
-export function resetEngine():void {
-  if (Engine.engineTimerTimeout) {
-    clearTimeout(Engine.engineTimerTimeout);
-  }
-  Engine.engineTimer?.stop();
+export async function resetEngine():Promise<void> {
+  Engine.engineTimer?.clear();
+  Engine.engineTimer = null;
 
-  reset();
+  await reset();
 }
+
+const delay = (delay: number) => {
+  return new Promise<void>(resolve => {
+    setTimeout(() => {
+      resolve();
+    }, delay);
+  });
+};
+
+export const processLocationChange = async (newPhysicsWorker: Worker): Promise<void> => {
+  const entitiesToRemove = [];
+  const removedEntities = [];
+  const sceneObjectsToRemove = [];
+
+  Engine.entities.forEach(entity => {
+    if (!hasComponent(entity, PersistTagComponent)) {
+      removeAllComponents(entity, false);
+      entitiesToRemove.push(entity);
+      removedEntities.push(entity.id);
+    }
+  });
+  
+  executeSystemBeforeReset();
+
+  Engine.scene.background = new Color('black');
+  Engine.scene.environment = null;
+
+  Engine.scene.traverse((o: any) => {
+    console.log(o, o.entity)
+    if (!o.entity) return;
+    if (!removedEntities.includes(o.entity.id)) return;
+
+    sceneObjectsToRemove.push(o);
+  });
+
+  sceneObjectsToRemove.forEach(o => Engine.scene.remove(o));
+
+  entitiesToRemove.forEach(entity => {
+    removeEntity(entity, false);
+  });
+
+  executeSystemBeforeReset();
+
+  Engine.systems.forEach((system: System) => {
+    system.reset();
+  });
+
+  await resetPhysics(newPhysicsWorker);
+};
+
+export const resetPhysics = async (newPhysicsWorker: Worker): Promise<void> => {
+  PhysicsSystem.instance.worker.terminate();
+  Engine.workers.splice(Engine.workers.indexOf(PhysicsSystem.instance.worker), 1);
+  PhysXInstance.instance.dispose();
+  PhysXInstance.instance = new PhysXInstance();
+  await PhysXInstance.instance.initPhysX(newPhysicsWorker, PhysicsSystem.instance.physicsWorldConfig);
+};

@@ -1,9 +1,10 @@
-import { float32, Model, Schema, uint32, uint8 } from "superbuffer"
-import { NetworkClientInputInterface, PacketNetworkClientInputInterface } from "../interfaces/WorldState";
+import { string, float32, Model, Schema, uint32, uint8 } from "../../assets/superbuffer";
 import { Network } from '../classes/Network';
-//import { uint8, float32, uint16, uint32 } from "../../common/types/DataTypes";
-//import { createSchema } from "../functions/createSchema";
-//import { Model } from "../classes/Model";
+import { NetworkClientInputInterface } from "../interfaces/WorldState";
+
+/**
+* @author HydraFire <github.com/HydraFire>
+ */
 
 export const inputKeySchema = new Schema({
   input: uint8,
@@ -25,20 +26,34 @@ export const inputAxis2DSchema = new Schema({
 
 export const inputAxis6DOFSchema = new Schema({
   input: uint8,
-  x: float32,
-  y: float32,
-  z: float32,
-  qX: float32,
-  qY: float32,
-  qZ: float32,
-  qW: float32
+  value: new Schema({
+    x: float32,
+    y: float32,
+    z: float32,
+    qX: float32,
+    qY: float32,
+    qZ: float32,
+    qW: float32
+  }),
 });
+
 
 export const viewVectorSchema = new Schema({
   x: float32,
   y: float32,
   z: float32
 });
+
+export const clientGameAction = new Schema({
+  type: string,
+  game: string,
+  ownerId: string
+});
+
+export const commandSchema = new Schema({
+  type: uint8,
+  args: string,
+})
 
 /** Schema for input. */
 export const inputKeyArraySchema = new Schema({
@@ -49,17 +64,9 @@ export const inputKeyArraySchema = new Schema({
   buttons: [inputKeySchema],
   viewVector: viewVectorSchema,
   snapShotTime: uint32,
-  switchInputs: uint32
+  clientGameAction: [clientGameAction],
+  commands: [commandSchema],
 });
-
-function toArrayBuffer(buf) {
-  const ab = new ArrayBuffer(buf.length);
-  const view = new Uint8Array(ab);
-  for (let i = 0; i < buf.length; ++i) {
-      view[i] = buf[i];
-  }
-  return ab;
-}
 
 /** Class for client input. */
 export class ClientInputModel {

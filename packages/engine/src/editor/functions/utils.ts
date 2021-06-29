@@ -6,10 +6,10 @@ export function insertSeparator(children, separatorFn) {
   if (length === 1) {
     return children[0];
   }
-  return children.reduce((acc, item, idx) => {
+  return children.reduce((acc, item, index) => {
     acc.push(item);
-    if (idx !== length - 1) {
-      acc.push(separatorFn(idx));
+    if (index !== length - 1) {
+      acc.push(separatorFn(index));
     }
     return acc;
   }, []);
@@ -34,7 +34,10 @@ export function unique(arr, maybeComp) {
   }
   return newArr;
 }
-export const isApple = /(Mac|iPhone|iPod|iPad)/i.test((process as any)?.browser && navigator ? navigator.platform : "");
+export const isApple = /(Mac|iPhone|iPod|iPad)/i.test(
+  //@ts-ignore
+  process.browser && navigator ? navigator.platform : ""
+);
 export const cmdOrCtrlString = isApple ? "⌘" : "ctrl";
 export function getStepSize(event, smallStep, mediumStep, largeStep) {
   if (event.altKey) {
@@ -44,14 +47,7 @@ export function getStepSize(event, smallStep, mediumStep, largeStep) {
   }
   return mediumStep;
 }
-export function clamp(value, min, max) {
-  if (value < min) {
-    return min;
-  } else if (value > max) {
-    return max;
-  }
-  return value;
-}
+
 export function toPrecision(value, precision) {
   const p = 1 / precision;
   return Math.round(value * p) / p;
@@ -73,4 +69,15 @@ export function bytesToSize(bytes) {
   if (bytes == 0) return "0 Byte";
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
   return Math.round(bytes / Math.pow(1024, i)) + " " + sizes[i];
+}
+
+export function removeElementFromArray( arr, element ) {
+  const index = arr.indexOf( element );
+  if ( index != -1 ) {
+      arr.splice( index, 1 );
+      return true;
+  }
+  else {
+      return false;
+  }
 }

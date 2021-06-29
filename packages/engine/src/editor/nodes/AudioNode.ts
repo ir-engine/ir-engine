@@ -5,9 +5,10 @@ import {
   Mesh,
   DoubleSide
 } from "three";
-import AudioSource from "@xr3ngine/engine/src/scene/classes/AudioSource";
+
 import loadTexture from "../functions/loadTexture";
 import { RethrownError } from "../functions/errors";
+import AudioSource from "../../scene/classes/AudioSource";
 let audioHelperTexture = null;
 // @ts-ignore
 export default class AudioNode extends EditorNodeMixin(AudioSource) {
@@ -91,10 +92,10 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
       (this.el as any).pause();
     }
     try {
-      const { accessibleUrl, contentType } = await this.editor.api.resolveMedia(
+      const { url, contentType } = await this.editor.api.resolveMedia(
         src
       );
-      await super.load(accessibleUrl, contentType);
+      await super.load(url, contentType);
       if (this.editor.playing && this.autoPlay) {
         (this.el as any).play();
       }

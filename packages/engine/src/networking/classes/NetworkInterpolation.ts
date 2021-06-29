@@ -3,8 +3,9 @@ import { ID, Snapshot } from '../types/SnapshotDataTypes';
 /**
  * Component class for Snapshot interpolation.\
  * Snap shot is based on this {@link https://github.com/geckosio/snapshot-interpolation | library by yandeu}.
+ * @author HydraFire <github.com/HydraFire>
  */
-
+ 
 export class NetworkInterpolation {
 
   /** An instance of this class, like a singleton. */

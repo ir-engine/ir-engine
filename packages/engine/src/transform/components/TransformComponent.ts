@@ -5,14 +5,17 @@ import { Types } from '../../ecs/types/Types';
 export class TransformComponent extends Component<TransformComponent> {
   position: Vector3
   rotation: Quaternion
+  /**
+   * A velocity that changes this transfrom's position each frame
+   */
   velocity: Vector3
   scale: Vector3
 
   static _schema = {
-    position: { default: new Vector3(), type: Types.Ref },
-    rotation: { default: new Quaternion(), type: Types.Ref },
-    velocity: { default: new Vector3(), type: Types.Ref },
-    scale: { default: new Vector3(1,1,1), type: Types.Ref }
+    position: { type: Types.Vector3Type, default: new Vector3() },
+    rotation: { type: Types.QuaternionType, default: new Quaternion() },
+    velocity: { type: Types.Vector3Type, default: new Vector3() },
+    scale: { type: Types.Vector3Type, default: new Vector3() }
   }
 
   constructor () {

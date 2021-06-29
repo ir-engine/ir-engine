@@ -1,4 +1,4 @@
-import { Engine, PositionalAudio } from '../../ecs/classes/Engine';
+import { Engine } from '../../ecs/classes/Engine';
 import { System, SystemAttributes } from '../../ecs/classes/System';
 import {
   getComponent,
@@ -8,9 +8,14 @@ import {
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver';
 import { NetworkObject } from '../../networking/components/NetworkObject';
 import { MediaStreamSystem } from '../../networking/systems/MediaStreamSystem';
-import { CharacterComponent } from '../../templates/character/components/CharacterComponent';
+import { CharacterComponent } from '../../character/components/CharacterComponent';
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent';
+import { isClient } from '../../common/functions/isClient';
+import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
+import { Entity } from '../../ecs/classes/Entity';
+import { AudioListener, PositionalAudio } from 'three';
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== "undefined" && /chrome/i.test(navigator.userAgent);
 function createSilentAudioEl(streamsLive) {
@@ -27,17 +32,34 @@ export class PositionalAudioSystem extends System {
   /** Static instance for positional audio. */
   public static instance: PositionalAudioSystem = null
 
-  characterAudioStream = new Map();
+  updateType = SystemUpdateType.Fixed;
+  
+  characterAudioStream: Map<Entity, any>;
+  audioInitialised: boolean;
 
   /** Constructs Positional Audio System. */
-  constructor(attributes?: SystemAttributes) {
+  constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     PositionalAudioSystem.instance = this;
     Engine.useAudioSystem = true;
+    // not needed to reset, only for initial load of page
+    this.audioInitialised = false;
+    this.reset();
+  }
+
+  reset(): void {
+    
+    this.characterAudioStream = new Map<Entity, any>();
+  }
+
+  dispose(): void {
+    super.dispose();
+    this.reset();
   }
 
   /** Execute the positional audio system for different events of queries. */
   execute(): void {
+
     for (const entity of this.queryResults.audio.added) {
       const positionalAudio = getMutableComponent(entity, PositionalAudioComponent);
       if (positionalAudio != null) positionalAudio.value = new PositionalAudio(Engine.audioListener);
@@ -45,7 +67,7 @@ export class PositionalAudioSystem extends System {
 
     for (const entity of this.queryResults.audio.removed) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent, true);
-      if (positionalAudio?.value != null) positionalAudio.value.disconnect();
+      if (positionalAudio?.value != null && positionalAudio.value.source) positionalAudio.value.disconnect();
     }
 
     for (const entity of this.queryResults.character_audio.changed) {

@@ -1,10 +1,6 @@
 import EditorNodeMixin from "./EditorNodeMixin";
 import Volumetric from "../../scene/classes/Volumetric";
-import Hls from "hls.js/dist/hls.light";
-import isHLS from "../functions/isHLS";
-// import editorLandingVolumetric from "../../assets/volumetric/EditorPromo.mp4";
 import { RethrownError } from "../functions/errors";
-import { getObjectPerfIssues } from "../functions/performance";
 
 // @ts-ignore
 export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
@@ -15,7 +11,7 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
   // };
   static initialElementProps = {}
   static async deserialize(editor, json, loadAsync, onError) {
-    const node = await super.deserialize(editor, json);
+    const node = await super.deserialize(editor, json) as any;
     const {
       src,
       controls,
@@ -52,6 +48,27 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
     );
     return node;
   }
+  _canonicalUrl: string;
+  _autoPlay: boolean;
+  volume: number;
+  controls: boolean;
+  issues: any[];
+  _mesh: any;
+  editor: any;
+  el: any;
+  onResize: any;
+  audioListener: any;
+  loop: any;
+  audioType: any;
+  distanceModel: any;
+  rolloffFactor: any;
+  refDistance: any;
+  maxDistance: any;
+  coneInnerAngle: any;
+  coneOuterAngle: any;
+  coneOuterGain: any;
+  projection: any;
+  uuid: any;
   constructor(editor) {
     super(editor, editor.audioListener);
     this._canonicalUrl = "";
@@ -167,14 +184,5 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
       id: this.uuid
     });
     this.replaceObject();
-  }
-  getRuntimeResourcesForStats(): any {
-    if (this._texture) {
-      return {
-        textures: [this._texture],
-        meshes: [this._mesh],
-        materials: [this._mesh.material]
-      };
-    }
   }
 }

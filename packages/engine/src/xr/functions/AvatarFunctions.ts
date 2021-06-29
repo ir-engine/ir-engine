@@ -1,4 +1,4 @@
-import { mergeBufferGeometries } from "@xr3ngine/engine/src/common/classes/BufferGeometryUtils";
+import { mergeBufferGeometries } from "../../common/classes/BufferGeometryUtils";
 import { Quaternion, Vector3, Euler, Matrix4, ConeBufferGeometry, Color, BufferAttribute, MeshPhongMaterial, Mesh, Object3D, Bone, Skeleton } from 'three';
 
 export const localVector = new Vector3();
@@ -14,6 +14,11 @@ export const defaultSitAnimation = 'chair';
 export const defaultUseAnimation = 'combo';
 export const useAnimationRate = 750;
 
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param bone 
+ */
 export const localizeMatrixWorld = bone => {
   bone.matrix.copy(bone.matrixWorld);
   if (bone.parent) {
@@ -25,6 +30,14 @@ export const localizeMatrixWorld = bone => {
     localizeMatrixWorld(bone.children[i]);
   }
 };
+
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param bones 
+ * @param boneName 
+ * @returns 
+ */
 export const findBoneDeep = (bones, boneName) => {
   for (let i = 0; i < bones.length; i++) {
     const bone = bones[i];
@@ -39,6 +52,13 @@ export const findBoneDeep = (bones, boneName) => {
   }
   return null;
 };
+
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param src 
+ * @param dst 
+ */
 export const copySkeleton = (src, dst) => {
   for (let i = 0; i < src.bones.length; i++) {
     const srcBone = src.bones[i];
@@ -52,6 +72,10 @@ export const copySkeleton = (src, dst) => {
   dst.calculateInverses();
 };
 
+/**
+ * 
+ * @author Avaer Kazmer
+ */
 export const cubeGeometry = new ConeBufferGeometry(0.05, 0.2, 3)
   .applyMatrix4(new Matrix4().makeRotationFromQuaternion(
     new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(0, 0, 1)))
@@ -159,6 +183,12 @@ export const makeDebugMeshes = () => {
   return mesh;
 };
 
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param skeleton 
+ * @returns 
+ */
 export const getTailBones = skeleton => {
   const result = [];
   const recurse = bones => {
@@ -176,6 +206,14 @@ export const getTailBones = skeleton => {
   recurse(skeleton.bones);
   return result;
 };
+
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param bone 
+ * @param pred 
+ * @returns 
+ */
 export const findClosestParentBone = (bone, pred) => {
   for (; bone; bone = bone.parent) {
     if (pred(bone)) {
@@ -184,6 +222,14 @@ export const findClosestParentBone = (bone, pred) => {
   }
   return null;
 };
+
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param bone 
+ * @param pred 
+ * @returns 
+ */
 export const findFurthestParentBone = (bone, pred) => {
   let result = null;
   for (; bone; bone = bone.parent) {
@@ -193,6 +239,14 @@ export const findFurthestParentBone = (bone, pred) => {
   }
   return result;
 };
+
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param bone 
+ * @param parentBone 
+ * @returns 
+ */
 export const distanceToParentBone = (bone, parentBone) => {
   for (let i = 0; bone; bone = bone.parent, i++) {
     if (bone === parentBone) {
@@ -201,6 +255,14 @@ export const distanceToParentBone = (bone, parentBone) => {
   }
   return Infinity;
 };
+
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param bone 
+ * @param pred 
+ * @returns 
+ */
 export const findClosestChildBone = (bone, pred) => {
   const recurse = bone => {
     if (pred(bone)) {
@@ -217,6 +279,14 @@ export const findClosestChildBone = (bone, pred) => {
   };
   return recurse(bone);
 };
+
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param bone 
+ * @param distance 
+ * @returns 
+ */
 export const traverseChild = (bone, distance) => {
   if (distance <= 0) {
     return bone;
@@ -231,6 +301,14 @@ export const traverseChild = (bone, distance) => {
     return null;
   }
 };
+
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param name 
+ * @param regex 
+ * @returns 
+ */
 export const countCharacters = (name, regex) => {
   let result = 0;
   for (let i = 0; i < name.length; i++) {
@@ -240,7 +318,14 @@ export const countCharacters = (name, regex) => {
   }
   return result;
 };
-export const findHips = skeleton => skeleton.bones.find(bone => /hip|rootx/i.test(bone.name));
+
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param skeleton 
+ * @returns 
+ */
+export const findHips = skeleton => skeleton.bones.find(bone => /hip|root|rootx|pelvis/i.test(bone.name));
 export const findHead = tailBones => {
   const headBones = tailBones.map(tailBone => {
     const headBone = findFurthestParentBone(tailBone, bone => /head/i.test(bone.name));
@@ -257,6 +342,14 @@ export const findHead = tailBones => {
     return null;
   }
 };
+
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param tailBones 
+ * @param left 
+ * @returns 
+ */
 export const findEye = (tailBones, left) => {
   const regexp = left ? /l/i : /r/i;
   const eyeBones = tailBones.map(tailBone => {
@@ -284,6 +377,14 @@ export const findEye = (tailBones, left) => {
     return null;
   }
 };
+
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param chest 
+ * @param hips 
+ * @returns 
+ */
 export const findSpine = (chest, hips) => {
   for (let bone = chest; bone; bone = bone.parent) {
     if (bone.parent === hips) {
@@ -292,10 +393,19 @@ export const findSpine = (chest, hips) => {
   }
   return null;
 };
+
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param tailBones 
+ * @param left 
+ * @returns 
+ */
 export const findShoulder = (tailBones, left) => {
+  // console.log("Finding shoulder")
   const regexp = left ? /l/i : /r/i;
   const shoulderBones = tailBones.map(tailBone => {
-    const shoulderBone = findClosestParentBone(tailBone, bone => /shoulder/i.test(bone.name) && regexp.test(bone.name.replace(/shoulder/gi, '')));
+    const shoulderBone = findClosestParentBone(tailBone, bone => /shoulder|clavicle/i.test(bone.name) && regexp.test(bone.name.replace(/shoulder|clavicle/gi, '')));
     if (shoulderBone) {
       const distance = distanceToParentBone(tailBone, shoulderBone);
       if (distance >= 3) {
@@ -314,9 +424,9 @@ export const findShoulder = (tailBones, left) => {
     if (diff !== 0) {
       return diff;
     } else {
-      const aName = a.bone.name.replace(/shoulder/gi, '');
+      const aName = a.bone.name.replace(/shoulder|clavicle/gi, '');
       const aLeftBalance = countCharacters(aName, /l/i) - countCharacters(aName, /r/i);
-      const bName = b.bone.name.replace(/shoulder/gi, '');
+      const bName = b.bone.name.replace(/shoulder|clavicle/gi, '');
       const bLeftBalance = countCharacters(bName, /l/i) - countCharacters(bName, /r/i);
       if (!left) {
         return aLeftBalance - bLeftBalance;
@@ -332,6 +442,13 @@ export const findShoulder = (tailBones, left) => {
     return null;
   }
 };
+
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param shoulderBone 
+ * @returns 
+ */
 export const findHand = shoulderBone => findClosestChildBone(shoulderBone, bone => /hand|wrist/i.test(bone.name));
 export const findFinger = (handBone, r) => findClosestChildBone(handBone, bone => r.test(bone.name));
 export const findFoot = (tailBones, left) => {
@@ -339,7 +456,7 @@ export const findFoot = (tailBones, left) => {
   const legBones = tailBones.map(tailBone => {
     const footBone = findFurthestParentBone(tailBone, bone => /foot|ankle/i.test(bone.name) && regexp.test(bone.name.replace(/foot|ankle/gi, '')));
     if (footBone) {
-      const legBone = findFurthestParentBone(footBone, bone => /leg|thigh/i.test(bone.name) && regexp.test(bone.name.replace(/leg|thigh/gi, '')));
+      const legBone = findFurthestParentBone(footBone, bone => /(thigh|leg)(?!.*twist)/i.test(bone.name) && regexp.test(bone.name.replace(/(thigh|leg)(?!.*twist)/gi, '')));
       if (legBone) {
         const distance = distanceToParentBone(footBone, legBone);
         if (distance >= 2) {
@@ -379,6 +496,13 @@ export const findFoot = (tailBones, left) => {
     return null;
   }
 };
+
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param bone 
+ * @returns 
+ */
 export const findArmature = bone => {
   for (; ; bone = bone.parent) {
     if (!bone.isBone) {
@@ -388,14 +512,37 @@ export const findArmature = bone => {
   return null; // can't happen
 };
 
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param bone 
+ * @returns 
+ */
 export const exportBone = bone => {
   return [bone.name, bone.position.toArray().concat(bone.quaternion.toArray()).concat(bone.scale.toArray()), bone.children.map(b => exportBone(b))];
 };
+
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param skeleton 
+ * @returns 
+ */
 export const exportSkeleton = skeleton => {
   const hips = findHips(skeleton);
   const armature = findArmature(hips);
   return JSON.stringify(exportBone(armature));
 };
+
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param b 
+ * @param Cons 
+ * @param ChildCons 
+ * @returns 
+ */
+
 export const importObject = (b, Cons, ChildCons) => {
   const [name, array, children] = b;
   const bone = new Cons();
@@ -408,12 +555,23 @@ export const importObject = (b, Cons, ChildCons) => {
   }
   return bone;
 };
+
+/**
+ * 
+ * @author Avaer Kazmer
+ * @param b 
+ * @returns 
+ */
 export const importArmature = b => importObject(b, Object3D, Bone);
 export const importSkeleton = s => {
   const armature = importArmature(JSON.parse(s));
   return new Skeleton(armature.children);
 };
 
+/**
+ * 
+ * @author Avaer Kazmer
+ */
 export class AnimationMapping {
   quaternionKey: any;
   quaternion: any;

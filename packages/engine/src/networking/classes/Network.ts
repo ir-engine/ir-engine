@@ -1,11 +1,14 @@
-import { Schema } from "superbuffer";
+import { Schema } from "../../assets/superbuffer";
 import { RingBuffer } from '../../common/classes/RingBuffer';
 import { Entity } from '../../ecs/classes/Entity';
 import { NetworkObjectList } from '../interfaces/NetworkObjectList';
 import { NetworkSchema } from '../interfaces/NetworkSchema';
 import { NetworkTransport } from '../interfaces/NetworkTransport';
-import { WorldStateInterface } from "../interfaces/WorldState";
+import { AvatarProps, NetworkClientInputInterface, WorldStateInterface } from "../interfaces/WorldState";
 import { Snapshot } from "../types/SnapshotDataTypes";
+import SocketIO from "socket.io";
+import { ClientGameActionMessage } from '../../game/types/GameMessage';
+
 
 export interface NetworkClientList {
   // Key is socket ID
@@ -25,13 +28,16 @@ export interface NetworkClientList {
     channelRecvTransport?: any;
     dataConsumers?: Map<string, any>; // Key => id of data producer
     dataProducers?: Map<string, any>; // Key => label of data channel}
+    avatarDetail?: AvatarProps;
+    networkId?: any; // to easily retrieve the network object correspending to this client
   };
 }
 
 /** Component Class for Network. */
 export class Network {
   /** Static instance to access everywhere. */
-  static instance: Network = new Network();
+  static instance: Network = null
+
   /** Indication of whether the network is initialized or not. */
   isInitialized: boolean
   /** Whether to apply compression on packet or not. */
@@ -46,21 +52,16 @@ export class Network {
   schema: NetworkSchema
   /** Clients connected over this network. */
   clients: NetworkClientList = {}
-  /** Newly connected clients over this network in this frame. */
-  clientsConnected = []
-  /** Disconnected client in this frame. */
-  clientsDisconnected = []
   /** List of data producer nodes. */
   dataProducers = new Map<string, any>()
   /** List of data consumer nodes. */
   dataConsumers = new Map<string, any>()
 
-  /** Newly created Network Objects in this frame. */
-  createObjects = []
-  /** Destroyed Network Objects in this frame. */
-  editObjects = []
-  /** Destroyed Network Objects in this frame. */
-  destroyObjects = []
+  clientGameAction: ClientGameActionMessage[] = []
+
+  /** Game mode mapping schema */
+  loadedGames: Entity[] = []; // its for network
+
   /** Map of Network Objects. */
   networkObjects: NetworkObjectList = {}
   localClientEntity: Entity = null
@@ -89,47 +90,49 @@ export class Network {
   static _schemas: Map<string, Schema> = new Map()
 
   /** Buffer holding all incoming Messages. */
-  incomingMessageQueue: RingBuffer<any> = new RingBuffer<any>(100)
+  incomingMessageQueueUnreliable: RingBuffer<any> = new RingBuffer<any>(100)
+
+  /** Buffer holding all incoming Messages. */
+  incomingMessageQueueReliable: RingBuffer<any> = new RingBuffer<any>(100)
+
+  /** Buffer holding Mediasoup operations */
+  mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
 
   /** State of the world. */
   worldState: WorldStateInterface = {
-    tick: Network.tick,
-    transforms: [],
-    time: 0,
-    inputs: [],
-    states: [],
     clientsConnected: [],
     clientsDisconnected: [],
     createObjects: [],
     editObjects: [],
-    destroyObjects: []
+    destroyObjects: [],
+    gameState: [],
+    gameStateActions: []
   };
 
-  /**
-   * Attached ID of scene attached with this network.
-   * @default 547Y45f7
-   */
-  static sceneId = '547Y45f7'
-  /** Network. */
-  static Network: any
+  clientInputState: NetworkClientInputInterface = {
+    networkId: -1,
+    buttons: [],
+    axes1d: [],
+    axes2d: [],
+    axes6DOF: [],
+    viewVector: {
+      x: 0, y: 0, z: 0
+    },
+    snapShotTime: 0,
+    clientGameAction: [],
+    commands: [],
+  }
+  
   /** Tick of the network. */
-  static tick: any = 0
-
-  /** Constructs the network. */
-  // constructor() {
-  //   Network.instance = this;
-  //   Network.tick = 0;
-  //   this.incomingMessageQueue ;
-  // }
+  tick: any = 0
 
   /** Disposes the network. */
   dispose(): void {
     // TODO: needs tests
     this.clients = {};
+    if (this.transport && typeof this.transport.close === 'function') this.transport.close();
     this.transport = null;
     Network.availableNetworkId = 0;
     Network.instance = null;
-    Network.tick = 0;
-    Network.sceneId = "default"; // TODO: Clear scene ID, no need for default
   }
 }

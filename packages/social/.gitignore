@@ -8,8 +8,7 @@
 # testing
 /coverage
 
-# next.js
-/.next/
+# capacitor builds
 /out/
 /www/
 
@@ -29,3 +28,7 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+
+*.mp4
+*.uvol
+public/*.manifest

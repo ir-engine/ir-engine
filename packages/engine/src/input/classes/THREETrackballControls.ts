@@ -189,7 +189,7 @@ export class THREETrackballControls extends EventDispatcher {
       }
       document.addEventListener('mousemove', this.mousemove, false);
       document.addEventListener('mouseup', this.mouseup, false);
-      this.dispatchEvent(START_EVENT);
+      (this as any).dispatchEvent(START_EVENT);
     };
 
     this.mousemove = (event: MouseEvent) => {
@@ -218,7 +218,7 @@ export class THREETrackballControls extends EventDispatcher {
       this._state = STATE.NONE;
       document.removeEventListener('mousemove', this.mousemove);
       document.removeEventListener('mouseup', this.mouseup);
-      this.dispatchEvent(END_EVENT);
+      (this as any).dispatchEvent(END_EVENT);
     };
 
     this.mousewheel = (event: WheelEvent) => {
@@ -244,8 +244,8 @@ export class THREETrackballControls extends EventDispatcher {
           this._zoomStart.y -= event.deltaY * 0.00025;
           break;
       }
-      this.dispatchEvent(START_EVENT);
-      this.dispatchEvent(END_EVENT);
+      (this as any).dispatchEvent(START_EVENT);
+      (this as any).dispatchEvent(END_EVENT);
     };
 
     this.touchstart = (event: TouchEvent) => {
@@ -271,7 +271,7 @@ export class THREETrackballControls extends EventDispatcher {
           this._panEnd.copy(this._panStart);
           break;
       }
-      this.dispatchEvent(START_EVENT);
+      (this as any).dispatchEvent(START_EVENT);
     };
 
     this.touchmove = (event: TouchEvent) => {
@@ -314,7 +314,7 @@ export class THREETrackballControls extends EventDispatcher {
           this._movePrev.copy(this._moveCurr);
           break;
       }
-      this.dispatchEvent(END_EVENT);
+      (this as any).dispatchEvent(END_EVENT);
     };
 
     this.contextmenu = (event: MouseEvent) => {
@@ -529,13 +529,13 @@ export class THREETrackballControls extends EventDispatcher {
       this.checkDistances();
       this.camera.lookAt(this.target);
       if (LAST_POSITION.distanceToSquared(this.camera.position) > EPS) {
-        this.dispatchEvent(CHANGE_EVENT);
+        (this as any).dispatchEvent(CHANGE_EVENT);
         LAST_POSITION.copy(this.camera.position);
       }
     } else if (this.camera['isOrthographicCamera']) {
       this.camera.lookAt(this.target);
       if (LAST_POSITION.distanceToSquared(this.camera.position) > EPS || LAST_ZOOM.value !== this.camera.zoom) {
-        this.dispatchEvent(CHANGE_EVENT);
+        (this as any).dispatchEvent(CHANGE_EVENT);
         LAST_POSITION.copy(this.camera.position);
         LAST_ZOOM.value = this.camera.zoom;
       } else {
@@ -553,7 +553,7 @@ export class THREETrackballControls extends EventDispatcher {
     this.camera.zoom = this.zoom0;
     this._eye.subVectors(this.camera.position, this.target);
     this.camera.lookAt(this.target);
-    this.dispatchEvent(CHANGE_EVENT);
+    (this as any).dispatchEvent(CHANGE_EVENT);
     LAST_POSITION.copy(this.camera.position);
     LAST_ZOOM.value = this.camera.zoom;
   }

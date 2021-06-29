@@ -1,69 +1,44 @@
-import json from "@rollup/plugin-json"
-import resolve from "@rollup/plugin-node-resolve"
-import babel from "@rollup/plugin-babel"
-import typescript from "rollup-plugin-typescript2"
-import commonjs from "@rollup/plugin-commonjs"
-import nodePolyfills from "rollup-plugin-node-polyfills"
-import nodeGlobals from "rollup-plugin-node-globals"
-import injectProcessEnv from "rollup-plugin-inject-process-env"
-import builtins from 'builtin-modules/static'
-import glsl from "rollup-plugin-glsl";
-import { string } from "rollup-plugin-string";
+import json from '@rollup/plugin-json';
+import resolve from '@rollup/plugin-node-resolve';
+import replace from '@rollup/plugin-replace';
+import camelCase from 'lodash.camelcase';
+import livereload from 'rollup-plugin-livereload';
+import nodePolyfills from 'rollup-plugin-node-polyfills';
+import scss from 'rollup-plugin-scss';
+import { terser } from 'rollup-plugin-terser';
+import typescript from 'rollup-plugin-typescript2';
 
-const pkg = require('./package.json')
+const isProd = process.env.NODE_ENV === 'production';
+const extensions = ['.js', '.ts', '.tsx'];
 
+const libraryName = 'engine'
 
-export default [
-  {
-    input: "src/initialize.ts",
-    external: ["mediasoup", "express", "utf-8-validate", "buffer-es6", "debug", "socket.io", "safer", "depd"],
-    plugins: [
-      typescript(),
-      json(),
-      resolve({ browser: true, preferBuiltins: true, extensions: ['.js', '.jsx', '.ts', '.tsx'] }),
-      commonjs({
-        include: [/node_modules/] // Default: undefined
-      }),
-      injectProcessEnv({
-        NODE_ENV: "production"
-      }),
-      nodePolyfills(),
-      // terser(),
-      babel({ babelHelpers: "bundled" })
-    ],
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-    output: [
-      {
-        file: "dist/engine.js",
-        format: "cjs",
-        sourcemap: true
-      }
-    ]
-  }
-  // Server
-  // {
-  //   input: "src/server.ts",
-  //   output: { file: "dist/armada.server.js", format: "cjs", sourcemap: true },
-  //   plugins: [
-  //     glsl(glslSettings),
-  //     string(stringSettings),
-  //     typescript(),
-  //     json(),
-  //     resolve({ browser: false, preferBuiltins: true }),
-  //     commonjs({
-  //       include: ["node_modules/**/*"], // Default: undefined
-  //       transformMixedEsModules: true
-  //     }),
-  //     injectProcessEnv({
-  //       NODE_ENV: "production"
-  //     }),
-  //     nodeGlobals({
-  //       buffer: false,
-  //       debug: false,
-  //       path: false,
-  //       process: false
-  //     })
-    // ]
-    // external: ["mediasoup", "utf-8-validate", "mediasoup-client", "buffer-es6", "debug", "socket.io", "express", "socket.io-client", "safer", "depd"]
-  // }
-]
+export default {
+  input: './index.ts',
+  output: [{ file: "dist/engine.umd.js", name: camelCase(libraryName), format: 'umd', sourcemap: true },
+  { file: "dist/engine.es.js", format: 'es', sourcemap: true },
+  ],
+  inlineDynamicImports: true,
+  plugins: [
+    nodePolyfills(),
+    scss({
+      exclude: /node_modules/,
+      output: 'dist/index.css',
+    }),
+    json(),
+    typescript({
+      jsx: true,
+      rollupCommonJSResolveHack: false
+    }),
+    replace({
+      'process.env.NODE_ENV': JSON.stringify(isProd ? 'production' : 'development'),
+    }),
+    resolve({
+      extensions,
+    }),
+    (isProd && terser()),
+    (!isProd && livereload({
+      watch: 'dist',
+    })),
+  ],
+};

@@ -1,0 +1,38 @@
+# Copyright 2018 Google LLC All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#
+# A FleetAutoscaler is used to scale the fleet automatically
+# up and down depending on usage
+#
+{{- if .Values.gameserver.enabled }}
+apiVersion: "autoscaling.agones.dev/v1"
+kind: FleetAutoscaler
+metadata:
+  name: {{ include "xrengine.gameserver.fullname" . }}
+spec:
+  fleetName: {{ include "xrengine.gameserver.fullname" . }}
+  policy:
+    type: Buffer
+    buffer:
+      {{- if not (empty .Values.gameserver.buffer) }}
+      bufferSize: {{ .Values.gameserver.buffer.bufferSize | default 2 }}
+      minReplicas: {{ .Values.gameserver.buffer.minReplicas | default 2 }}
+      maxReplicas: {{ .Values.gameserver.buffer.maxReplicas | default 10 }}
+      {{- else }}
+      bufferSize: 2
+      minReplicas: 2
+      maxReplicas: 10
+      {{- end }}
+{{- end }}

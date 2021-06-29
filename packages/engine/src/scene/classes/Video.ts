@@ -6,7 +6,8 @@ import {
   DoubleSide,
   Mesh,
   SphereBufferGeometry,
-  RGBAFormat
+  RGBAFormat,
+  VideoTexture
 } from "three";
 import { RethrownError } from "../../editor/functions/errors";
 import Hls from "hls.js/dist/hls.light";
@@ -16,20 +17,15 @@ export const VideoProjection = {
   Flat: "flat",
   Equirectangular360: "360-equirectangular"
 };
-import { Engine, VideoTexture } from "../../ecs/classes/Engine";
-import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { Engine } from "../../ecs/classes/Engine";
 
 export default class Video extends AudioSource {
   // @ts-ignore
   _videoTexture: any;
-  el: any;
   _texture: any;
   _mesh: Mesh;
   _projection: string;
   hls: any;
-  audioSource: any;
-  audioListener: any;
-  audio: any;
   constructor(audioListener) {
     super(audioListener, "video");
     // @ts-ignore
@@ -43,7 +39,7 @@ export default class Video extends AudioSource {
     material.side = DoubleSide;
     this._mesh = new Mesh(geometry, material);
     this._mesh.name = "VideoMesh";
-    this.add(this._mesh);
+    (this as any).add(this._mesh);
     this._projection = "flat";
     this.hls = null;
   }
@@ -106,11 +102,11 @@ export default class Video extends AudioSource {
     this._projection = projection;
     const nextMesh = new Mesh(geometry, material);
     nextMesh.name = "VideoMesh";
-    const meshIndex = this.children.indexOf(this._mesh);
+    const meshIndex = (this as any).children.indexOf(this._mesh);
     if (meshIndex === -1) {
-      this.add(nextMesh);
+      (this as any).add(nextMesh);
     } else {
-      this.children.splice(meshIndex, 1, nextMesh);
+      (this as any).children.splice(meshIndex, 1, nextMesh);
       nextMesh.parent = this;
     }
     this._mesh = nextMesh;
@@ -155,7 +151,7 @@ export default class Video extends AudioSource {
       for (let i = 0; i < source.children.length; i++) {
         const child = source.children[i];
         if (child !== source.audio && child !== source._mesh) {
-          this.add(child.clone());
+          (this as any).add(child.clone());
         }
       }
     }

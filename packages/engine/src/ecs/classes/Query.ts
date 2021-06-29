@@ -36,9 +36,13 @@ export interface QuerySerializeType {
 /**
  * Class to handle a system query.\
  * Queries are how systems identify entities with specified components.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export class Query {
   /**
+   * 
+   * @author Fernando Serrano, Robert Long
    * List of components to look for in this query.
    */
   components: any[]
@@ -51,28 +55,37 @@ export class Query {
   /**
    * List of entities currently attached to this query.
    * @todo: This could be optimized with a ringbuffer or sparse array
+   * 
+   * @author Fernando Serrano, Robert Long
    */
   entities: any[]
 
   /**
    * Event dispatcher associated with this query.
+   * 
+   * @author Fernando Serrano, Robert Long
    */
   eventDispatcher: EntityEventDispatcher
 
   /**
    * Is the query reactive?\
    * Reactive queries respond to listener events - onChanged, onAdded and onRemoved.
+   * 
+   * @author Fernando Serrano, Robert Long
    */
   reactive: boolean
 
   /**
    * Key for looking up the query.
+   * 
+   * @author Fernando Serrano, Robert Long
    */
   key: any
 
   /**
    * Constructor called when system creates query.
    * 
+   * @author Fernando Serrano, Robert Long
    * @param Components List of Components. At least one component object is required to create query.
    */
   constructor (Components: Array<ComponentConstructor<any> | NotComponent<any>>) {
@@ -112,6 +125,8 @@ export class Query {
 
   /**
    * Add entity to this query.
+   * 
+   * @author Fernando Serrano, Robert Long
    * @param entity Entity to be added.
    */
   addEntity (entity: Entity): void {
@@ -123,6 +138,8 @@ export class Query {
 
   /**
    * Remove entity from this query.
+   * 
+   * @author Fernando Serrano, Robert Long
    * @param entity Entity to be removed.
    */
   removeEntity(entity: Entity): void {
@@ -140,6 +157,7 @@ export class Query {
   /**
    * Check if an entity matches this query.
    * 
+   * @author Fernando Serrano, Robert Long
    * @param entity Entity to be matched for this query.
    */
   match (entity: Entity): boolean {
@@ -148,6 +166,8 @@ export class Query {
 
   /**
    * Serialize query to JSON.
+   * 
+   * @author Fernando Serrano, Robert Long
    */
   toJSON (): QuerySerializeType {
     return {
@@ -163,6 +183,8 @@ export class Query {
 
   /**
    * Return stats for this query.
+   * 
+   * @author Fernando Serrano, Robert Long
    */
   stats (): QueryStatType {
     return {

@@ -29,8 +29,11 @@ export enum MessageTypes {
   Ban = 27,
   ConnectToWorld = 28,
   WebRTCRequestCurrentProducers = 29,
+  UpdateNetworkState = 30,
+  InitializeRouter = 31,
   Synchronization = 100,
   ClientInput = 101,
   StateUpdate = 102,
-  Test = 250
+  Test = 250,
+  AvatarUpdated = 254
 }

@@ -1,187 +1,37 @@
-import _ from 'lodash';
-import { BinaryValue } from '../../common/enums/BinaryValue';
 import { LifecycleValue } from '../../common/enums/LifecycleValue';
-import { Behavior } from '../../common/interfaces/Behavior';
-import { NumericalType } from '../../common/types/NumericalTypes';
-import { Entity } from '../../ecs/classes/Entity';
+import { NumericalType, SIXDOFType } from '../../common/types/NumericalTypes';
 import { System } from '../../ecs/classes/System';
-import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
+import { DelegatedInputReceiver } from '../../input/components/DelegatedInputReceiver';
 import { Input } from '../../input/components/Input';
-import { BaseInput } from '../../input/enums/BaseInput';
 import { InputType } from '../../input/enums/InputType';
 import { InputValue } from '../../input/interfaces/InputValue';
 import { InputAlias } from '../../input/types/InputAlias';
-import { PlayerInCar } from '../../physics/components/PlayerInCar';
-import { VehicleBody } from '../../physics/components/VehicleBody';
-import { CharacterComponent, RUN_SPEED, WALK_SPEED } from "../../templates/character/components/CharacterComponent";
+import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
 import { handleInputFromNonLocalClients } from '../functions/handleInputOnServer';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
-import { NetworkClientInputInterface, NetworkInputInterface } from "../interfaces/WorldState";
+import { NetworkClientInputInterface } from "../interfaces/WorldState";
 import { ClientInputModel } from '../schema/clientInputSchema';
+import { WorldStateModel } from '../schema/worldStateSchema';
+import { GamePlayer } from '../../game/components/GamePlayer';
+import { sendState } from '../../game/functions/functionsState';
+import { getGameFromName } from '../../game/functions/functions';
+import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent';
+import { BaseInput } from '../../input/enums/BaseInput';
+import { Quaternion } from 'three';
+import { executeCommands } from '../functions/executeCommands';
 
-function switchInputs(clientInput) {
-  if (hasComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, PlayerInCar)) {
-    return getComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, PlayerInCar).networkCarId;
-  } else {
-    return clientInput.networkId;
-  }
+
+export function cancelAllInputs(entity) {
+  getMutableComponent(entity, Input)?.data.forEach((value) => {
+    value.lifecycleState = LifecycleValue.ENDED;
+  })
 }
 
-/**
- * Apply State received over the network to the client.
- * @param worldStateBuffer State of the world received over the network.
- * @param delta Time since last frame.
- */
-
-export function clearFreezeInputs(clientInput) {
-
-  let clearId = null;
-  if (hasComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, PlayerInCar)) {
-    clearId = clientInput.networkId;
-  } else {
-    clearId = clientInput.switchInputs;
-  }
-
-  const input = getMutableComponent(Network.instance.networkObjects[clearId].component.entity, Input);
-  // Clear current data
-  input.data.clear();
-  // Apply LifecycleValue.ENDED
-  for (let i = 0; i < clientInput.buttons.length; i++)
-    input.data.set(clientInput.buttons[i].input,
-      {
-        type: InputType.BUTTON,
-        value: clientInput.buttons[i].value,
-        lifecycleState: LifecycleValue.ENDED
-      });
-
-  // Axis 1D input
-  for (let i = 0; i < clientInput.axes1d.length; i++)
-    input.data.set(clientInput.axes1d[i].input,
-      {
-        type: InputType.ONEDIM,
-        value: clientInput.axes1d[i].value,
-        lifecycleState: LifecycleValue.ENDED
-      });
-
-  // Axis 2D input
-  for (let i = 0; i < clientInput.axes2d.length; i++)
-    input.data.set(clientInput.axes2d[i].input,
-      {
-        type: InputType.TWODIM,
-        value: clientInput.axes2d[i].value,
-        lifecycleState: LifecycleValue.ENDED
-      });
-
-  // 6DOF Input
-  for (let i = 0; i < clientInput.axes6DOF.length; i++) {
-    input.data.set(clientInput.axes6DOF[i].input,
-      {
-        type: InputType.SIXDOF,
-        value: {
-          x: clientInput.axes6DOF[i].x,
-          y: clientInput.axes6DOF[i].y,
-          z: clientInput.axes6DOF[i].z,
-          qX: clientInput.axes6DOF[i].qX,
-          qY: clientInput.axes6DOF[i].qY,
-          qZ: clientInput.axes6DOF[i].qZ,
-          qW: clientInput.axes6DOF[i].qW
-        },
-        lifecycleState: LifecycleValue.CONTINUED
-      });
-    console.log("*************** SETTING 6DOF FOR ", clientInput.axes6DOF[i].input);
-  }
-}
-
-const vehicleInputCheck = (clientInput): void => {
-  const entity = Network.instance.networkObjects[clientInput.networkId].component.entity;
-  if (!hasComponent(entity, PlayerInCar)) return;
-  const playerInCar = getComponent(entity, PlayerInCar);
-  const entityCar = Network.instance.networkObjects[playerInCar.networkCarId].component.entity;
-  if (!hasComponent(entityCar, VehicleBody)) return;
-  // its warns the car that a passenger or driver wants to get out
-  for (let i = 0; i < clientInput.buttons.length; i++) {
-    if (clientInput.buttons[i].input == 8) { // TO DO get interact button for every device
-      const vehicle = getMutableComponent(entityCar, VehicleBody);
-      for (let li = 0; li < vehicle.seatPlane.length; li++) {
-        const driverId = vehicle[vehicle.seatPlane[li]];
-        if (driverId == clientInput.networkId) {
-          vehicle.wantsExit = [null, null];
-          vehicle.wantsExit[li] = clientInput.networkId;
-        }
-      }
-    }
-  }
-  const vehicle = getComponent(entityCar, VehicleBody);
-  // its does not allow the passenger to drive the car
-  if (vehicle.passenger == clientInput.networkId) {
-    clientInput.buttons = clientInput.buttons.filter(buttons => buttons.input == 8); // TO DO get interact button for every device
-  }
-
-};
-
-/**
- * Add input of an entity to world.
- * @param entity Entity from which inputs will be taken.
- */
-const addInputToWorldStateOnServer: Behavior = (entity: Entity) => {
-  const input = getComponent(entity, Input);
-  const networkId = getComponent(entity, NetworkObject).networkId;
-  // If there's no input, don't send the frame, unless the last frame had input
-  if (input.data.size < 1 && _.isEqual(input.data, input.lastData))
-    return;
-
-  const viewVector = { x: 0, y: 0, z: 0 };
-  const actor = getComponent(entity, CharacterComponent);
-  if (actor) {
-    viewVector.x = actor.viewVector.x
-    viewVector.y = actor.viewVector.y
-    viewVector.z = actor.viewVector.z
-  }
-  // Create a schema for input to send
-  const inputs: NetworkInputInterface = {
-    networkId: networkId,
-    buttons: [],
-    axes1d: [],
-    axes2d: [],
-    axes6DOF: [],
-    viewVector: {
-      x: viewVector.x,
-      y: viewVector.y,
-      z: viewVector.z
-    }
-  };
-
-  // Add all values in input component to schema
-  input.data.forEach((value, key) => {
-    switch (value.type) {
-      case InputType.BUTTON:
-        inputs.buttons.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
-        break;
-      case InputType.ONEDIM:
-        if (value.lifecycleState !== LifecycleValue.UNCHANGED) {
-          inputs.axes1d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
-        }
-        break;
-      case InputType.TWODIM:
-        if (value.lifecycleState !== LifecycleValue.UNCHANGED) {
-          inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
-        }
-        break;
-      case InputType.SIXDOF:
-        inputs.axes2d.push({ input: key, value: value.value, lifecycleState: value.lifecycleState });
-        console.log("******* PUSHING 6DOF")
-        break;
-      default:
-        console.error("Input type has no network handler (maybe we should add one?)");
-    }
-  });
-
-  // Add inputs to world state
-  Network.instance.worldState.inputs.push(inputs);
-};
+const q = new Quaternion()
 
 /** System class to handle incoming messages. */
 export class ServerNetworkIncomingSystem extends System {
@@ -189,11 +39,8 @@ export class ServerNetworkIncomingSystem extends System {
   private _inputComponent: Input
 
   /** Update type of this system. **Default** to
-     * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
+   * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
   updateType = SystemUpdateType.Fixed;
-
-  /** Indication of whether the system is on server or on client. */
-  isServer;
 
   /**
    * Constructs the system.
@@ -206,10 +53,6 @@ export class ServerNetworkIncomingSystem extends System {
     Network.instance.schema = schema;
     // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
     Network.instance.transport = new schema.transport(app);
-    // Buffer model for worldState
-    //  Network.instance.snapshotModel = new Model(snapshotSchema)
-
-    this.isServer = Network.instance.transport.isServer;
 
     // Initialize the server automatically - client is initialized in connectToServer
     if (process.env.SERVER_MODE !== undefined && (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')) {
@@ -221,59 +64,85 @@ export class ServerNetworkIncomingSystem extends System {
   /** Call execution on server */
   execute = (delta: number): void => {
     // Create a new worldstate frame for next tick
-    Network.tick++;
-    Network.instance.worldState = {
-      tick: Network.tick,
-      time: 0,
-      transforms: [],
-      inputs: [],
-      states: [],
-      clientsConnected: Network.instance.clientsConnected,
-      clientsDisconnected: Network.instance.clientsDisconnected,
-      createObjects: Network.instance.createObjects,
-      editObjects: Network.instance.editObjects,
-      destroyObjects: Network.instance.destroyObjects
-    };
+    Network.instance.tick++;
 
-    Network.instance.clientsConnected = [];
-    Network.instance.clientsDisconnected = [];
-    Network.instance.createObjects = [];
-    Network.instance.editObjects = [];
-    Network.instance.destroyObjects = [];
     // Set input values on server to values sent from clients
     // Parse incoming message queue
-    while (Network.instance.incomingMessageQueue.getBufferLength() > 0) {
-      const buffer = Network.instance.incomingMessageQueue.pop() as any;
-      const clientInput: NetworkClientInputInterface = ClientInputModel.fromBuffer(buffer);
+    while (Network.instance.incomingMessageQueueReliable.getBufferLength() > 0) {
+      const buffer = Network.instance.incomingMessageQueueReliable.pop() as any;
+
+      let clientInput: NetworkClientInputInterface;
+      try {
+        clientInput = ClientInputModel.fromBuffer(buffer);
+      } catch (error) {
+        try {
+          WorldStateModel.fromBuffer(buffer)
+          console.warn('Server is sending receiving its own outgoing messages...', error, buffer)
+          return;
+        } catch (error) {
+          console.warn('Unknown or corrupt data is entering the incoming server message stream', error, buffer)
+          return;
+        }
+      }
+      if (!clientInput) return;
+
+      // TODO: Handle client incoming state actions
+      // Are they host or not?
+      // Validate against host or non/host actions
+      // If action is valid, apply behavior for server
+      // Game state updated = true
+
+      // Outside of for loop, if game state updated is true, flag update world state
+
+      // Add handlers to game state schema, valid requests should get added to the GameStateActions queue on the server
 
       if (Network.instance.networkObjects[clientInput.networkId] === undefined) {
-        console.error('Network object not found for networkId', clientInput.networkId);
+        // console.error('Network object not found for networkId', clientInput.networkId);
         return;
       }
 
-      const actor = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, CharacterComponent);
+      const delegatedInputReceiver = getComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, DelegatedInputReceiver);
+      const inputClientNetworkId = delegatedInputReceiver ? delegatedInputReceiver.networkId : clientInput.networkId;
+      const entity = Network.instance.networkObjects[clientInput.networkId].component.entity;
+      const entityInputReceiver = Network.instance.networkObjects[inputClientNetworkId].component.entity;
+
+      if (clientInput.clientGameAction.length > 0) {
+        clientInput.clientGameAction.forEach(action => {
+          if (action.type === 'require') {
+            const playerComp = getComponent<GamePlayer>(entity, GamePlayer);
+            if (playerComp === undefined) return;
+            sendState(getGameFromName(playerComp.gameName), playerComp);
+          }
+        })
+      }
+
+      if (clientInput.commands.length > 0) {
+        executeCommands(entity, clientInput.commands);
+      }
+
+      const actor = getMutableComponent(entity, CharacterComponent);
+
       if (actor) {
         actor.viewVector.set(
           clientInput.viewVector.x,
           clientInput.viewVector.y,
           clientInput.viewVector.z
         );
+
+      } else {
+        console.log('input but no actor...', clientInput.networkId)
       }
-      // its warns the car that a passenger or driver wants to get out
-      // and does not allow the passenger to drive the car
-      vehicleInputCheck(clientInput);
-      // this function change network id to which the inputs will be applied
-      clientInput.switchInputs ? console.warn('switchInputs: ' + clientInput.switchInputs) : '';
-      clientInput.switchInputs ? clearFreezeInputs(clientInput) : '';
 
-      const networkObject = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, NetworkObject);
-      networkObject.snapShotTime = clientInput.snapShotTime;
+      const userNetworkObject = getMutableComponent(entity, NetworkObject);
+      if (userNetworkObject != null) {
+        userNetworkObject.snapShotTime = clientInput.snapShotTime;
+        if (userNetworkObject.snapShotTime > clientInput.snapShotTime) return;
+      }
 
-      clientInput.networkId = switchInputs(clientInput);
       // this snapShotTime which will be sent bac k to the client, so that he knows exactly what inputs led to the change and when it was.
 
       // Get input component
-      const input = getMutableComponent(Network.instance.networkObjects[clientInput.networkId].component.entity, Input);
+      const input = getMutableComponent(entityInputReceiver, Input);
       if (!input) {
         return;
       }
@@ -281,14 +150,14 @@ export class ServerNetworkIncomingSystem extends System {
       input.data.clear();
 
       // Apply button input
-      for (let i = 0; i < clientInput.buttons.length; i++)
+      for (let i = 0; i < clientInput.buttons.length; i++) {
         input.data.set(clientInput.buttons[i].input,
           {
             type: InputType.BUTTON,
             value: clientInput.buttons[i].value,
             lifecycleState: clientInput.buttons[i].lifecycleState
           });
-
+      }
       // Axis 1D input
       for (let i = 0; i < clientInput.axes1d.length; i++)
         input.data.set(clientInput.axes1d[i].input,
@@ -308,44 +177,43 @@ export class ServerNetworkIncomingSystem extends System {
           });
 
       // Axis 6DOF input
-      for (let i = 0; i < clientInput.axes6DOF.length; i++){
+      for (let i = 0; i < clientInput.axes6DOF.length; i++) {
         input.data.set(clientInput.axes6DOF[i].input,
           {
             type: InputType.SIXDOF,
-            value: {
-              x: clientInput.axes6DOF[i].x,
-              y: clientInput.axes6DOF[i].y,
-              z: clientInput.axes6DOF[i].z,
-              qX: clientInput.axes6DOF[i].qX,
-              qY: clientInput.axes6DOF[i].qY,
-              qZ: clientInput.axes6DOF[i].qZ,
-              qW: clientInput.axes6DOF[i].qW,
-            },
+            value: clientInput.axes6DOF[i].value,
             lifecycleState: LifecycleValue.CONTINUED
           });
-          console.log("********* SETTING 6DOF INPUT IN SERVER INCOMING SYSTEM")
-        }
+      }
 
-      // Apply input for local user input onto client
-      this.queryResults.networkObjectsWithInput.all?.forEach(entity => {
-        // Call behaviors associated with input
-        handleInputFromNonLocalClients(entity, { isLocal: false, isServer: true }, delta);
-        addInputToWorldStateOnServer(entity);
-        const input = getMutableComponent(entity, Input);
-        // Get input object attached
-        const isWalking = (input.data.get(BaseInput.WALK)?.value) === BinaryValue.ON;
-        actor.moveSpeed = isWalking ? WALK_SPEED : RUN_SPEED;
+      if(clientInput.axes6DOF.length && !hasComponent(entity, XRInputSourceComponent)) {
+        addComponent(entity, XRInputSourceComponent);
+      }      
 
-        // clean processed LifecycleValue.ENDED inputs
-        input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-          if (value.type === InputType.BUTTON) {
-            if (value.lifecycleState === LifecycleValue.ENDED) {
-              input.data.delete(key);
-            }
-          }
-        });
-      });
+      handleInputFromNonLocalClients(entity, undefined, delta);
     }
+
+    // Apply input for local user input onto client
+    this.queryResults.networkObjectsWithInput.all?.forEach(entity => {
+      //  const actor = getMutableComponent(entity, CharacterComponent);
+      const input = getMutableComponent(entity, Input);
+
+      input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
+        // If the input is a button
+        if (value.type === InputType.BUTTON) {
+          // If the input exists on the input map (otherwise ignore it)
+          if (value.lifecycleState === LifecycleValue.ENDED) {
+            input.data.delete(key);
+          }
+        }
+      });
+
+      // Call behaviors associated with input
+      //handleInputFromNonLocalClients(entity, { isLocal: false, isServer: true }, delta);
+      // addInputToWorldStateOnServer(entity);
+      //const input = getMutableComponent(entity, Input);
+      // Get input object attached
+    });
 
     // Called when input component is added to entity
     this.queryResults.networkObjectsWithInput.added?.forEach(entity => {
@@ -370,12 +238,59 @@ export class ServerNetworkIncomingSystem extends System {
         behavior.behavior(entity, behavior.args);
       });
     });
+
+    this.queryResults.delegatedInputRouting.added?.forEach((entity) => {
+      const networkId = getComponent(entity, DelegatedInputReceiver).networkId
+      if (Network.instance.networkObjects[networkId]) {
+        cancelAllInputs(Network.instance.networkObjects[networkId].component.entity)
+      }
+      cancelAllInputs(entity)
+    })
+    this.queryResults.delegatedInputRouting.removed?.forEach((entity) => {
+      cancelAllInputs(entity)
+    })
+
+
+    // Handle server input from client
+    this.queryResults.networkClientInputXR.all?.forEach((entity) => {
+      const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent);
+      
+      const inputs = getMutableComponent(entity, Input);
+
+      const head = inputs.data.get(BaseInput.XR_HEAD).value as SIXDOFType;
+      const left = inputs.data.get(BaseInput.XR_LEFT_HAND).value as SIXDOFType;
+      const right = inputs.data.get(BaseInput.XR_RIGHT_HAND).value as SIXDOFType;
+
+      xrInputSourceComponent.head.position.set(head.x, head.y, head.z);
+      xrInputSourceComponent.head.quaternion.set(head.qX, head.qY, head.qZ, head.qW);
+
+      xrInputSourceComponent.controllerLeft.position.set(left.x, left.y, left.z);
+      xrInputSourceComponent.controllerLeft.quaternion.set(left.qX, left.qY, left.qZ, left.qW);
+
+      xrInputSourceComponent.controllerRight.position.set(right.x, right.y, right.z);
+      xrInputSourceComponent.controllerRight.quaternion.set(right.qX, right.qY, right.qZ, right.qW);
+
+    })
   }
 
   /** Queries of the system. */
   static queries: any = {
+    delegatedInputRouting: {
+      components: [DelegatedInputReceiver],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
     networkObjectsWithInput: {
       components: [NetworkObject, Input],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    networkClientInputXR: {
+      components: [Input, XRInputSourceComponent], 
       listen: {
         added: true,
         removed: true

@@ -1,4 +1,3 @@
-import autobind from 'autobind-decorator';
 import { DefaultLoadingManager, Texture, FileLoader } from 'three';
 
 declare const OffscreenCanvas: {
@@ -7,7 +6,6 @@ declare const OffscreenCanvas: {
 };
 
 /** Loader class for TGA asset. */
-@autobind
 export class TGALoader {
   /** Path of the asset. */
   path: any

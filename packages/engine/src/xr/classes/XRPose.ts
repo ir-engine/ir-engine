@@ -1,5 +1,9 @@
-import XRTrackingReferences from '../XRTrackingReferences';
+import XRTrackingReferences from './XRTrackingReferences';
 
+/**
+ * 
+ * @author Avaer Kazmer
+ */
 class XRPose {
 	vrTransforms: XRTrackingReferences;
 	referencePlayerHeightHmd: number;

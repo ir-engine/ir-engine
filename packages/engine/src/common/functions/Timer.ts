@@ -1,10 +1,8 @@
 import { isClient } from './isClient';
 import { now } from "./now";
-import { Engine } from "@xr3ngine/engine/src/ecs/classes/Engine";
-import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
-import { isWebWorker } from './getEnvironment';
-import { WebXRRendererSystem } from '../../renderer/WebXRRendererSystem';
+import { XRSystem } from '../../xr/systems/XRSystem';
+import { Engine } from '../../ecs/classes/Engine';
 
 type TimerUpdateCallback = (delta: number, elapsedTime?: number) => any;
 
@@ -12,16 +10,18 @@ const TPS_REPORTS_ENABLED = false;
 const TPS_REPORT_INTERVAL_MS = 10000;
 
 export function Timer (
-  callbacks: { update?: TimerUpdateCallback; fixedUpdate?: TimerUpdateCallback; networkUpdate?: TimerUpdateCallback; render?: Function },
+  callbacks: { update?: TimerUpdateCallback; fixedUpdate?: TimerUpdateCallback; networkUpdate?: TimerUpdateCallback; },
   fixedFrameRate?: number, networkTickRate?: number
-): { start: Function; stop: Function } {
+): { start: Function; stop: Function, clear: Function } {
   const fixedRate = fixedFrameRate || 60;
   const networkRate = networkTickRate || 20;
 
-  let last = 0;
+  let lastTime = null;
   let accumulated = 0;
   let delta = 0;
+  let frameDelta = 0;
   let frameId;
+  let running = false;
 
   const freeUpdatesLimit = 120;
   const freeUpdatesLimitInterval = 1 / freeUpdatesLimit;
@@ -45,76 +45,87 @@ export function Timer (
   let tpsPrevTicks = 0;
   let nextTpsReportTime = 0;
   let timerRuns = 0;
+  let lastAnimTime = 0;
   let prevTimerRuns = 0;
+  let updateInterval;
 
-  function xrAnimationLoop(time) {
-    if (last !== null) {
-      delta = (time - last) / 1000;
-      accumulated = accumulated + delta;
-      if (fixedRunner) {
-        fixedRunner.run(delta);
+  function xrAnimationLoop(time, xrFrame) {
+    XRSystem.instance.xrFrame = xrFrame;
+    if (lastAnimTime !== null) {
+      frameDelta = (time - lastAnimTime) / 1000;
+      accumulated = accumulated + frameDelta;
+      if (callbacks.networkUpdate) {
+        callbacks.networkUpdate(frameDelta);
       }
-      if (networkRunner) {
-        networkRunner.run(delta);
+      if (callbacks.fixedUpdate) {
+        callbacks.fixedUpdate(frameDelta);
       }
       if (callbacks.update) {
-        callbacks.update(delta, accumulated);
+        callbacks.update(frameDelta, accumulated);
       }
     }
-    last = time;
+    lastAnimTime = time;
 	}
 
-  EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_START, async (ev: any) => {
-    stop();
+  EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => {
+    stop()
   });
-  EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_SESSION, async (ev: any) => {
-    console.log('STARTING XR', Engine.renderer?.xr)
-    Engine.renderer?.xr?.setAnimationLoop(xrAnimationLoop);
+  EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_SESSION, async (ev: any) => {
+    Engine.xrRenderer.setAnimationLoop( xrAnimationLoop )
   });
-  EngineEvents.instance.addEventListener(WebXRRendererSystem.EVENTS.XR_END, async (ev: any) => {
-    Engine.renderer.setAnimationLoop(null);
-    start();
+  EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => {
+    start()
   });
 
   const fixedRunner = callbacks.fixedUpdate? new FixedStepsRunner(fixedRate, callbacks.fixedUpdate) : null;
   const networkRunner = callbacks.fixedUpdate? new FixedStepsRunner(networkRate, callbacks.networkUpdate) : null;
 
-  const updateFunction = (isClient ? requestAnimationFrame : requestAnimationFrameOnServer);
-
-  function onFrame (time) {
-
+  function onUpdate (time) {
     timerRuns+=1;
     const itsTpsReportTime = TPS_REPORT_INTERVAL_MS && nextTpsReportTime <= time;
     if (TPS_REPORTS_ENABLED && itsTpsReportTime) {
       tpsPrintReport(time);
     }
 
-    frameId = updateFunction(onFrame);
+    delta = (time - lastTime) / 1000;
 
-    if (last !== null) {
-      delta = (time - last) / 1000;
-      accumulated = accumulated + delta;
+    if (fixedRunner) {
+      tpsSubMeasureStart('fixed');
+      callbacks.fixedUpdate(delta);
 
-      if (fixedRunner) {
-        tpsSubMeasureStart('fixed');
-        fixedRunner.run(delta);
-        tpsSubMeasureEnd('fixed');
-      }
+      // accumulator doesn't like setInterval on client, disable for now
+      // fixedRunner.run(delta);
 
-      if (networkRunner) {
-        tpsSubMeasureStart('net');
-        networkRunner.run(delta);
-        tpsSubMeasureEnd('net');
-      }
+      tpsSubMeasureEnd('fixed');
+    }
+
+    if (networkRunner) {
+      tpsSubMeasureStart('net');
+      callbacks.networkUpdate(delta);
+
+      // accumulator doesn't like setInterval on client, disable for now
+      // networkRunner.run(delta);
+
+      tpsSubMeasureEnd('net');
+    }
+  }
+
+  function onFrame (time) {
+
+    frameId = window.requestAnimationFrame(onFrame);
+
+    if (lastAnimTime !== null) {
+      frameDelta = (time - lastAnimTime) / 1000;
+      accumulated = accumulated + frameDelta;
 
       if (freeUpdatesLimit) {
-        freeUpdatesTimer += delta;
+        freeUpdatesTimer += frameDelta;
       }
       const updateFrame = !freeUpdatesLimit || freeUpdatesTimer > freeUpdatesLimitInterval;
       if (updateFrame) {
         if (callbacks.update) {
           tpsSubMeasureStart('update');
-          callbacks.update(delta, accumulated);
+          callbacks.update(frameDelta, accumulated);
           tpsSubMeasureEnd('update');
         }
 
@@ -123,12 +134,7 @@ export function Timer (
         }
       }
     }
-    last = time;
-    if (callbacks.render) {
-      tpsSubMeasureStart('render');
-      callbacks.render();
-      tpsSubMeasureEnd('render');
-    }
+    lastAnimTime = time;
   }
 
   const tpsMeasureStartData = new Map<string, { time: number, ticks: number }>();
@@ -186,23 +192,65 @@ export function Timer (
     prevTimerRuns = timerRuns;
   }
 
+  const expectedUpdateDelta = 1000 / fixedRate;
+
   function start () {
-    last = null;
-    frameId = updateFunction(onFrame);
+    running = true;
+    lastTime = null;
+    lastAnimTime = null;
+    if(isClient) {
+      // render loop
+      frameId = window.requestAnimationFrame(onFrame);
+      // logic loop
+      updateInterval = setInterval(() => {
+        const time = now();
+        onUpdate(time);
+        lastTime = time;
+      }, expectedUpdateDelta);
+    } else {
+      const serverLoop = () => {
+        const time = Date.now();
+        if(time - lastTime >= expectedUpdateDelta && running) {
+          onUpdate(time);
+          lastTime = time;
+        }
+        setImmediate(serverLoop);
+      }
+      serverLoop()
+    }
     tpsReset();
   }
 
   function stop () {
+    running = false;
+    if(typeof updateInterval !== 'undefined') {
+      clearInterval(updateInterval);
+      updateInterval = undefined;
+    }
+    if(isClient) {
+      cancelAnimationFrame(frameId);
+    }
+  }
+
+  function clear () {
     cancelAnimationFrame(frameId);
+    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_START);
+    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_SESSION);
+    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_END);
+    delete this.fixedRunner;
+    delete this.networkRunner;
   }
 
   return {
     start: start,
-    stop: stop
+    stop: stop,
+    clear: clear,
   };
 }
+
+// Unused, may use again in future
+  
 function requestAnimationFrameOnServer(f) {
-  setImmediate(() => f(Date.now()));
 }
 
 export class FixedStepsRunner {
@@ -240,6 +288,7 @@ export class FixedStepsRunner {
     let updatesLimitReached = updatesCount > this.updatesLimit;
     while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
       this.callback(this.accumulator);
+      console.log(this.accumulator)
 
       this.accumulator -= this.timestep;
       ++updatesCount;
@@ -274,6 +323,8 @@ export class FixedStepsRunner {
   }
 }
 
+
+// TODO: unused
 export function createFixedTimestep(updatesPerSecond: number, callback: (time: number) => void): (delta: number) => void {
   const timestep = 1 / updatesPerSecond;
   const limit = timestep * 1000;

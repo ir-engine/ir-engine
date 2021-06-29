@@ -15,22 +15,22 @@ export enum TouchInputs {
   DoubleTouch = 11,
   LongTouch = 12,
   Touch1Position = 13,
-  Touch1Movement = 14,
-  Touch2Move = 15,
-  SwipeLeft = 16,
-  SwipeRight = 17,
-  SwipeUp = 18,
-  SwipeDown = 19,
-  Scale = 20,
+  Touch2Position = 14,
+  Touch1Movement = 15,
+  Touch2Movement = 16,
+  SwipeLeft = 17,
+  SwipeRight = 18,
+  SwipeUp = 19,
+  SwipeDown = 20,
+  Scale = 21,
 }
 
-export enum XRInput {
-  HEAD = 21,
-  CONTROLLER_LEFT = 22,
-  CONTROLLER_RIGHT = 23
+export enum XRAxes {
+  Left = 22,
+  Right = 23
 }
 
-export enum Thumbsticks {
+export enum GamepadAxis {
   Left = 28,
   Right = 29
 }
@@ -46,12 +46,14 @@ export enum GamepadButtons {
   RTrigger = 37,
   Back = 38,
   Start = 39,
-  LStick = 40,
-  RString = 41,
-  DPad1 = 42,
-  DPad2 = 43,
-  DPad3 = 44,
-  DPad4 = 45
+  LPad = 40,
+  RPad = 41,
+  LStick = 42,
+  RStick = 43,
+  DPad1 = 44,
+  DPad2 = 45,
+  DPad3 = 46,
+  DPad4 = 47
 }
 
 export const CameraInput = {

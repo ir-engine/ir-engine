@@ -92,6 +92,7 @@ export default class EditorInfiniteGridHelper extends Mesh {
       }
     });
     super(geometry, material);
+    this.visible = true;
     this.name = "EditorInfiniteGridHelper";
     this.layers.set(1);
     addIsHelperFlag(this);

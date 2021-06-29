@@ -1,22 +1,16 @@
 /**
  * This file constains declaration of Engine Class.
+ *
+ * @author Fernando Serrano, Robert Long
  * @packageDocumentation
  */
 
-import { 
-  AudioListener as THREE_AudioListener,
-  Clock,
+import {
   PerspectiveCamera,
-  Scene, 
-  WebGLRenderer, 
-  AudioLoader as THREE_AudioLoader,
-  VideoTexture as THREE_VideoTexture, 
-  Audio as THREE_Audio, 
-  PositionalAudio as THREE_PositionalAudio, 
+  Scene,
+  WebGLRenderer,
   XRSession
 } from 'three';
-import { CSM } from '../../assets/csm/CSM';
-import { ServerSpawnSystem } from "../../scene/systems/SpawnSystem";
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { EngineOptions } from '../interfaces/EngineOptions';
 import { Entity } from './Entity';
@@ -24,35 +18,30 @@ import { EntityPool } from './EntityPool';
 import { EntityEventDispatcher } from './EntityEventDispatcher';
 import { Query } from './Query';
 import { createElement } from '../functions/createElement';
-import { isWebWorker } from '../../common/functions/getEnvironment';
-import { VideoTextureProxy } from '../../worker/VideoTexture';
-import { PositionalAudioObjectProxy, AudioObjectProxy, AudioListenerProxy, AudioLoaderProxy } from '../../worker/Audio';
-import { BinaryType } from '../../common/types/NumericalTypes';
-
-
-export const Audio = isWebWorker ? AudioObjectProxy : THREE_Audio;
-export const AudioListener = isWebWorker ? AudioListenerProxy : THREE_AudioListener;
-export const AudioLoader = isWebWorker ? AudioLoaderProxy : THREE_AudioLoader;
-export const PositionalAudio = isWebWorker ? PositionalAudioObjectProxy : THREE_PositionalAudio;
-export const VideoTexture = isWebWorker ? VideoTextureProxy : THREE_VideoTexture;
-
-export type Audio = AudioObjectProxy | THREE_Audio;
-export type AudioListener = AudioListenerProxy | THREE_AudioListener;
-export type AudioLoader = AudioLoaderProxy | THREE_AudioLoader;
-export type PositionalAudio = PositionalAudioObjectProxy | THREE_PositionalAudio;
-export type VideoTexture = VideoTextureProxy | THREE_VideoTexture;
-
+import { NumericalType } from '../../common/types/NumericalTypes';
+import { InputValue } from '../../input/interfaces/InputValue';
+import { GameMode } from "../../game/types/GameMode";
+import { EngineEvents } from './EngineEvents';
+import { ActiveSystems, System } from './System';
 
 /**
- * This is the base class which holds all the data related to the scene, camera,system etc.\
+ * This is the base class which holds all the data related to the scene, camera,system etc.
  * Data is holded statically hence will be available everywhere.
+ *
+ * @author Shaw, Josh, Vyacheslav and the XREngine Team
  */
 export class Engine {
 
-  public static engineTimer: { start: Function; stop: Function } = null
-  public static engineTimerTimeout;
+  public static engineTimer: { start: Function; stop: Function, clear: Function } = null
 
-  public static engineIKTimer: { start: Function; stop: Function } = null
+  public static supportedGameModes: { [key: string]: GameMode };
+  public static gameMode: GameMode;
+
+  public static xrSupported = false;
+
+  public static offlineMode = false;
+  public static isHMD = false;
+
   //public static stats: Stats
   // Move for sure
   // public static sky: Sky;
@@ -62,12 +51,14 @@ export class Engine {
 
   /**
    * Frame rate for physics system.
-   * @Default 60
+   *
+   * @default 60
    */
   public static physicsFrameRate = 60;
 
   /**
    * Frame rate for network system.
+   *
    * @default 20
    */
   public static networkFramerate = 20;
@@ -79,16 +70,14 @@ export class Engine {
    * @default 1
    */
   public static timeScaleTarget = 1;
-  public static clock = new Clock;
 
   /**
    * Reference to the three.js renderer object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static renderer: WebGLRenderer = null
-  static csm: CSM = null
+  static xrRenderer = null
   static xrSession: XRSession = null
-  static xrReferenceSpace = null
   static context = null
 
   /**
@@ -96,6 +85,7 @@ export class Engine {
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static scene: Scene = null
+  static sceneLoaded = false;
 
   /**
    * Reference to the three.js perspective camera object.
@@ -144,7 +134,7 @@ export class Engine {
   /**
    * List of registered systems.
    */
-  static systems: any[] = []
+  static systems: System[] = []
 
   /**
    * List of registered entities.
@@ -211,37 +201,47 @@ export class Engine {
   /**
    * List of systems to execute this frame.
    * @todo replace with a ring buffer and set buffer size in default options
+   *
+   * @author Fernando Serrano, Robert Long
    */
-  static systemsToExecute: any[] = []
+  static activeSystems: ActiveSystems;
   static vehicles: any;
   static lastTime: number;
+
   static tick = 0;
   /** HTML Element in which Engine renders. */
   static viewportElement: HTMLElement;
 
-  static spawnSystem: ServerSpawnSystem;
-
   static createElement: any = createElement;
-
-  static hasUserEngaged = false;
 
   static useAudioSystem = false;
 
-  static inputState = new Map();
-  static prevInputState = new Map();
+  static inputState = new Map<any, InputValue<NumericalType>>();
+  static prevInputState = new Map<any, InputValue<NumericalType>>();
 
-  /**
-   * Input inherits from BehaviorComponent, which adds .map and .data
-   * 
-   * @property {Boolean} gamepadConnected Connection a new gamepad
-   * @property {Number} gamepadThreshold Threshold value from 0 to 1
-   * @property {Binary[]} gamepadButtons Map gamepad buttons
-   * @property {Number[]} gamepadInput Map gamepad buttons to abstract input
-   */
-  static gamepadConnected = false;
-  static gamepadThreshold = 0.1;
-  static gamepadButtons: BinaryType[] = [];
-  static gamepadInput: number[] = [];
+  static isInitialized = false;
 
-  static xrSupported: boolean = false;
+  static publicPath: string;
+
+  static workers = [];
+  static simpleMaterials = false;
+
+  static hasEngaged = false;
 }
+
+export const awaitEngineLoaded = (): Promise<void> => {
+  return new Promise<void>((resolve) => {
+    if(Engine.isInitialized) resolve();
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.INITIALIZED_ENGINE, resolve)
+  })
+}
+
+export const awaitEngaged = (): Promise<void> => {
+  return new Promise<void>((resolve) => {
+    if(Engine.hasEngaged) resolve();
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, resolve)
+  })
+}
+
+
+globalThis.Engine = Engine;

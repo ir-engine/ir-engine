@@ -2,9 +2,9 @@ import app from '../../packages/server/src/app'
 import { v1 } from 'uuid'
 
 describe('CRUD operation on \'Component\' model', () => {
-  const model = app.service('component').Model
-  const componentTypeModel = app.service('component-type').Model
-  const entityModel = app.service('entity').Model
+  const model = (app.service('component') as any).Model
+  const componentTypeModel = (app.service('component-type') as any).Model
+  const entityModel = (app.service('entity') as any).Model
   const newComponentType = 'testcomponenttype'
   const newEntityName = 'testentitytype'
 

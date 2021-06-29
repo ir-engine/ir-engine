@@ -21,9 +21,9 @@ import { ClientNetworkSystem } from "../../../src/networking/systems/ClientNetwo
 import { PhysicsSystem } from "../../../src/physics/systems/PhysicsSystem";
 import { State } from "../../../src/state/components/State";
 import { StateSystem } from "../../../src/state/systems/StateSystem";
-import { CharacterStateTypes } from "../../../src/templates/character/CharacterStateTypes";
-import { CharacterComponent } from "../../../src/templates/character/components/CharacterComponent";
-import { DefaultNetworkSchema } from "../../../src/templates/networking/DefaultNetworkSchema";
+import { CharacterAnimations } from "../../../src/character/CharacterAnimations";
+import { CharacterComponent } from "../../../src/character/components/CharacterComponent";
+import { DefaultNetworkSchema } from "../../../src/networking/templates/DefaultNetworkSchema";
 import { createRemoteUserOnClient } from "../../_helpers/createRemoteUserOnClient";
 
 const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
@@ -78,7 +78,7 @@ beforeAll(() => {
     registerSystem(PhysicsSystem); // 2 - handle hit
     registerSystem(StateSystem); // 3 - process floor hit
 
-    PhysicsSystem.physicsWorld.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult: RaycastResult) => {
+    PhysicsSystem.instance.raycastClosest = jest.fn((start, end, rayCastOptions, rayResult: RaycastResult) => {
         if (!actorHasFloor) {
             return false;
         }
@@ -91,7 +91,7 @@ beforeAll(() => {
     });
 
 //PhysicsSystem.simulate = false;
-//PhysicsSystem.physicsWorld.gravity.set(0,0,0);
+//PhysicsSystem.instance.gravity.set(0,0,0);
 });
 
 let player: Entity, actor: CharacterComponent, state: State;
@@ -115,30 +115,30 @@ describe("moving animations", () => {
 
     test("stays moving", () => {
         // if actor stays on ground it should keep idle state all the time
-        expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
+        expect(state.data.has(CharacterAnimations.DEFAULT)).toBe(true);
 
         for (let i=0;i<40;i++) {
             actor.localMovementDirection.set(1,0,0); // to keep speed constant
             executeFrame();
-            expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
+            expect(state.data.has(CharacterAnimations.DEFAULT)).toBe(true);
         }
     });
 
     test("switch to idle", () => {
-        expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
+        expect(state.data.has(CharacterAnimations.DEFAULT)).toBe(true);
 
         actor.localMovementDirection.set(0,0,0);
         executeFrame();
-        expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
+        expect(state.data.has(CharacterAnimations.DEFAULT)).toBe(true);
     });
 
     test("switch to fall", () => {
         // check switch from idle to fall if there is no ground
-        expect(state.data.has(CharacterStateTypes.DEFAULT)).toBe(true);
+        expect(state.data.has(CharacterAnimations.DEFAULT)).toBe(true);
 
         actorHasFloor = false;
         executeFrame();
-        expect(state.data.has(CharacterStateTypes.FALLING)).toBe(true);
+        expect(state.data.has(CharacterAnimations.FALLING)).toBe(true);
     });
 
     test("switch to jump", () => {
@@ -149,6 +149,6 @@ describe("moving animations", () => {
             value: BinaryValue.ON
         });
         executeFrame();
-        expect(state.data.has(CharacterStateTypes.JUMP)).toBe(true);
+        expect(state.data.has(CharacterAnimations.JUMP)).toBe(true);
     });
 });

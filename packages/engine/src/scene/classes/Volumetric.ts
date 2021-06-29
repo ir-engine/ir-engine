@@ -7,30 +7,21 @@ import {
   Mesh,
   SphereBufferGeometry,
   RGBAFormat,
-  MeshStandardMaterial
+  MeshStandardMaterial,
+  VideoTexture
 } from "three";
 import { RethrownError } from "../../editor/functions/errors";
 import Hls from "hls.js/dist/hls.light";
 import isHLS from "../../editor/functions/isHLS";
 import AudioSource from "./AudioSource";
-import { Engine, VideoTexture } from "../../ecs/classes/Engine";
-import { EngineEvents } from "../../ecs/classes/EngineEvents";
-
-export const VideoProjection = {
-  Flat: "flat",
-  Equirectangular360: "360-equirectangular"
-};
 
 export default class Volumetric extends AudioSource {
   _videoTexture: any;
-  el: HTMLVideoElement;
   _texture: any;
   _mesh: Mesh;
   _projection: string;
   hls: any;
-  audioSource: any;
-  audioListener: any;
-  audio: any;
+  add: any;
   constructor(audioListener) {
     super(audioListener, "volumetric");
     // @ts-ignore
@@ -65,17 +56,13 @@ export default class Volumetric extends AudioSource {
       }
       let cleanup = null;
       const onLoadedMetadata = () => {
-        if (this.el.autoplay) {
-          if(Engine.hasUserEngaged) {
-            this.el.play();
-          } else {
-            const onUserEngage = () => {
-              this.el.play();
-              EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
-            }
-            EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, onUserEngage);
-          }
-        }
+        // if (this.el.autoplay) {
+          // if(Engine.hasUserEngaged) {
+            // this.el.play();
+          // } else {
+          //   EngineEvents.instance.once(EngineEvents.EVENTS.USER_ENGAGE, () => this.el.play());
+          // }
+        // }
         cleanup();
         cleanup();
         resolve(this._videoTexture);
@@ -145,12 +132,6 @@ export default class Volumetric extends AudioSource {
     return this;
   }
   onResize() {
-    if (this.projection === VideoProjection.Flat) {
-      const ratio = ((this.el as any).videoHeight || 1.0) / ((this.el as any).videoWidth || 1.0);
-      const width = Math.min(1.0, 1.0 / ratio);
-      const height = Math.min(1.0, ratio);
-      this._mesh.scale.set(width, height, 1);
-    }
   }
   clone(recursive) {
     return new (this.constructor as any)(this.audioListener).copy(this, recursive);

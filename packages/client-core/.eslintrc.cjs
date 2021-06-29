@@ -32,7 +32,6 @@ module.exports = {
     "no-var": "off",
     "prefer-const": "off",
     "prefer-arrow-callback": "error",
-    "semi": [2, 'always'],
     "space-before-function-paren": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unused-vars": "off",
@@ -80,6 +79,7 @@ module.exports = {
     "react/no-adjacent-inline-elements": "error",
     "react-hooks/exhaustive-deps": "warn"
   },
+  ignorePatterns: ['src/store.d.ts', 'dist/', 'typings.d.ts', 'declarations.d.ts'],
   overrides: [
     {
       "files": ["enums/*.tsx", "enums/*.ts"],

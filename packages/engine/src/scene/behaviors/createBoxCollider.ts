@@ -1,11 +1,20 @@
 import { Behavior } from '../../common/interfaces/Behavior';
-import { Entity } from '../../ecs/classes/Entity';
-import { getComponent, createEntity, addComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
-import { TransformComponent } from "@xr3ngine/engine/src/transform/components/TransformComponent";
-import { ColliderComponent } from '../../physics/components/ColliderComponent';
-import { RigidBody } from '../../physics/components/RigidBody';
-import { addColliderWithoutEntity } from '../../physics/behaviors/addColliderWithoutEntity';
+import { addColliderWithoutEntity } from '../../physics/behaviors/colliderCreateFunctions';
+
+/**
+ * @author HydraFire <github.com/HydraFire>
+ */
 
 export const createBoxCollider: Behavior = (entity, args: any) => {
-  addColliderWithoutEntity(args.objArgs.type, args.objArgs.position, args.objArgs.quaternion, args.objArgs.scale, args.objArgs.mesh);
+  // console.log('createBoxCollider', args)
+  addColliderWithoutEntity(
+    { type: 'box', action: args.action, link: args.link, isTrigger: args.isTrigger },
+    args.position,
+    args.quaternion,
+    args.scale,
+    {
+      collisionLayer: args.collisionLayer,
+      collisionMask: args.collisionMask
+    },
+  );
 };

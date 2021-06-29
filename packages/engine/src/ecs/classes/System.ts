@@ -5,8 +5,8 @@ import { ComponentConstructor } from '../interfaces/ComponentInterfaces';
 import { Component } from './Component';
 import { Engine } from './Engine';
 import { Entity } from './Entity';
-import { EventDispatcher } from 'three';
 import { Query } from './Query';
+import { now } from '../../common/functions/now';
 
 /** Interface for System attributes. */
 export interface SystemAttributes {
@@ -41,6 +41,7 @@ export interface SystemConstructor<T extends System> {
 /** 
  * Interface for not components.
  * 
+ * @author Fernando Serrano, Robert Long
  * @typeparam C Subclass of {@link ecs/classes/Component.Component | Component}.
  **/
 export interface NotComponent<C extends Component<any>> {
@@ -52,15 +53,102 @@ export interface NotComponent<C extends Component<any>> {
 }
 
 /**
+ * A Class which holds all the active systems.\
+ * It will store systems based on its update type.
+ */
+export class ActiveSystems {
+  /** Free update systems. */
+  [SystemUpdateType.Free]: System[] = [];
+  /** Fixed update systems. */
+  [SystemUpdateType.Fixed]: System[] = [];
+  /** Network update systems. */
+  [SystemUpdateType.Network]: System[] = [];
+
+  /**
+   * Adds system to active system array based on its update type.
+   * @param system System being added.
+   */
+  add(system: System) {
+    this[system.updateType].push(system);
+  }
+
+  /**
+   * Clears active system arrays.
+   */
+  clear() {
+    this[SystemUpdateType.Free] = [];
+    this[SystemUpdateType.Fixed] = [];
+    this[SystemUpdateType.Network] = [];
+  }
+
+  /**
+   * Removes system from active array.
+   * @param system System being removed.
+   */
+  remove(system: System) {
+    this[system.updateType].splice(this[system.updateType].indexOf(system), 1);
+  }
+
+  /**
+   * Executes systems of provided update type.
+   * @param delta Time since last frame.
+   * @param time Current time.
+   * @param updateType Update type of the system which will be executed.
+   */
+  execute(delta: number, time: number, updateType: SystemUpdateType) {
+    this[updateType].forEach(system => {
+      if (system.initialized && system.enabled) {
+        const startTime = now();
+        system.execute(delta, time);
+        system.executeTime = now() - startTime;
+        system.clearEventQueues();
+      }
+    });
+  }
+
+  /**
+   * Executes all the systems of all update type.
+   * @param delta Time since last frame.
+   * @param time Curremt time.
+   */
+  executeAll(delta: number, time: number) {
+    this.execute(delta, time, SystemUpdateType.Free);
+    this.execute(delta, time, SystemUpdateType.Fixed);
+    this.execute(delta, time, SystemUpdateType.Network);
+  }
+
+  /**
+   * Sorts the sytems of provided update type.
+   * @param updateType systems of this update type will be sorted.
+   */
+  sort(updateType: SystemUpdateType) {
+    this[updateType].sort((a, b) => a.priority - b.priority);
+  }
+
+  /**
+   * Sorts all systems of all update type.
+   */
+  sortAll() {
+    this.sort(SystemUpdateType.Free);
+    this.sort(SystemUpdateType.Fixed);
+    this.sort(SystemUpdateType.Network);
+  }
+}
+
+/**
  * Abstract class to define System properties.
+ * 
+ * @author Fernando Serrano, Robert Long
  */
 export abstract class System {
   /**
    * Defines what Components the System will query for.
    * This needs to be user defined.
+   * 
+   * @author Fernando Serrano, Robert Long
    */
   static instance: System;
-  static queries: SystemQueries = {}
+  static queries: SystemQueries = {};
   
   static isSystem: true
   _mandatoryQueries: any
@@ -68,11 +156,13 @@ export abstract class System {
   executeTime: number
   initialized: boolean
 
-  updateType = SystemUpdateType.Free
+  updateType: SystemUpdateType
 
   /**
    * The results of the queries.
    * Should be used inside of execute.
+   * 
+   * @author Fernando Serrano, Robert Long
    */
   queryResults: {
     [queryName: string]: {
@@ -85,6 +175,8 @@ export abstract class System {
 
   /**
    * Whether the system will execute during the world tick.
+   * 
+   * @author Fernando Serrano, Robert Long
    */
   enabled: boolean
 
@@ -97,11 +189,23 @@ export abstract class System {
   /** Execute Method definition. */
   execute? (delta: number, time: number): void
 
+  async initialize(): Promise<any> {
+    this.initialized = true;
+    return;
+  }
+
   /**
    * Initializes system
+   * 
+   * @author Fernando Serrano, Robert Long
    * @param attributes User defined system attributes.
    */
-  constructor (attributes?: SystemAttributes) {
+  constructor (attributes: SystemAttributes = {}) {
+
+    const _name = (this.constructor as any).getName();
+    const name = _name.substr(0, 1) === '_' ? _name.slice(1) : _name;
+    globalThis[name] = this;
+
     this.enabled = true;
 
     // @todo Better naming :)
@@ -118,8 +222,6 @@ export abstract class System {
     }
 
     this._mandatoryQueries = [];
-
-    this.initialized = true;
 
     if ((this.constructor as any).queries) {
       for (const queryName in (this.constructor as any).queries) {
@@ -209,12 +311,14 @@ export abstract class System {
 
   /** Get name of the System */
   static getName (): string {
-    return (this.constructor as any).getName();
+    const name: string = (this.constructor as any).getName();
+    return name.substr(0, 1) === '_' ? name.slice(1) : name;
   }
 
   /** 
    * Get query from the component.
    * 
+   * @author Fernando Serrano, Robert Long
    * @param components List of components either component or not component.
    */
   getQuery (components: Array<ComponentConstructor<any> | NotComponent<any>>): Query {
@@ -259,6 +363,14 @@ export abstract class System {
     }
   }
 
+  /**
+   * @function reset Reset the system. Used for resetting the system without disposing of events and other hooks. 
+   */
+  reset(): void {}
+
+  /**
+   * @function reset Dispose the system. Used for completely removing everything in this system from memory.
+   */
   dispose(): void {}
 
   /** Serialize the System */
