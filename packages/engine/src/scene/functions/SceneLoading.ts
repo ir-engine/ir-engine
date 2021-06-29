@@ -233,7 +233,7 @@ export class WorldScene {
         break;
 
       case 'background':
-        createBackground(entity, component.data);
+        createBackground(entity, component.data as any);
         break;
 
       case 'audio-settings':

@@ -83,16 +83,15 @@ export function createMediaServer(entity, args: any): void {
   if (args.interactable) addInteraction(entity);
 }
 
-
 export function createAudio(entity, args: AudioProps): void {
   addObject3DComponent(entity, { obj3d: new Audio(Engine.audioListener), objArgs: args });
-  if (args.interactable) addInteraction(entity);
+  if(args.interactable) addInteraction(entity);
 }
 
 
 export function createVideo(entity, args: VideoProps): void {
   addObject3DComponent(entity, { obj3d: new Video(Engine.audioListener), objArgs: args });
-  if (args.interactable) addInteraction(entity);
+  if(args.interactable) addInteraction(entity);
 }
 
 export const createVolumetric: Behavior = (entity, args: any) => {
@@ -114,7 +113,7 @@ export const createVolumetric: Behavior = (entity, args: any) => {
   });
   volumetricComponent.player = DracosisSequence;
   addObject3DComponent(entity, { obj3d: container });
-  if (args.interactable) addInteraction(entity);
+  if(args.interactable) addInteraction(entity);
 };
 
 function addInteraction(entity): void {

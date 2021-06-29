@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client-ml",
-  "version": "0.2.29",
+  "version": "0.3.24",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
@@ -13,7 +13,9 @@
   },
   "npmClient": "npm",
   "jest": "ts-jest",
-  "scripts": {},
+  "scripts": {
+    "update-name-gh-package": "node scripts/update-name-gh-package.js"
+  },
   "resolutions": {
     "@types/react": "17.0.11",
     "react": "17.0.2"
