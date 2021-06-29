@@ -1,4 +1,4 @@
-name: dev-deploy
+name: publish-gh-container
 on:
   release:
     types: [created]
@@ -11,6 +11,13 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16.x
+      - name: Setup AWS
+      run: scripts/setup_aws.sh $AWS_ACCESS_KEY $AWS_SECRET $AWS_REGION $CLUSTER_NAME
+      env:
+        AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+        AWS_SECRET: ${{ secrets.AWS_SECRET }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        CLUSTER_NAME: theoverlay-production
       - name: Build Docker Image
         run: bash scripts/build_docker.sh dev $DOCKER_LABEL
         env:
