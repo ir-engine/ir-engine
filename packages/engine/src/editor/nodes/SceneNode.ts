@@ -387,6 +387,8 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
     // @ts-ignore
   prepareForExport(ctx) {
+
+    console.log("Preparing For Export");
     this.children = this.children.filter(c => c.isNode);
     const nodeList = [];
     this.traverse(child => {
@@ -540,8 +542,8 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         type:"Texture",
         options:{
           url:this.envMapSourceURL,
-          }
-        });
+        }
+      });
     }
     else if(this.envMapSourceType==EnvMapSourceType.Default){
       let options={};
@@ -552,7 +554,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
             return;
         }
       });
-      this.addGLTFComponent("envMap",{options});
+      this.addGLTFComponent("envMap",{type:"ReflectionProbe",options});
     }
   }
 }

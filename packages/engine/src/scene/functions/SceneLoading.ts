@@ -33,7 +33,7 @@ import Image from '../classes/Image';
 import { setPostProcessing } from "../behaviors/setPostProcessing";
 import { CameraSystem } from "../../camera/systems/CameraSystem";
 import { CopyTransformComponent } from "../../transform/components/CopyTransformComponent";
-import { setReflectionProbe } from '../behaviors/setReflectionProbe';
+import { setEnvMap } from '../behaviors/setEnvMap';
 import { PersistTagComponent } from '../components/PersistTagComponent';
 import { createPortal } from '../behaviors/createPortal';
 import { createGround } from '../behaviors/createGround';
@@ -295,7 +295,7 @@ export class WorldScene {
         break;
 
       case 'envMap':
-        setReflectionProbe(entity,component.data);
+        setEnvMap(entity,component.data);
         break;
 
       case 'persist':

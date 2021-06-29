@@ -328,7 +328,7 @@ export * from './src/scene/behaviors/handleAudioSettings';
 export * from './src/scene/behaviors/handleRendererSettings';
 export * from './src/scene/behaviors/setFog';
 export * from './src/scene/behaviors/setPostProcessing';
-export * from './src/scene/behaviors/setReflectionProbe';
+export * from './src/scene/behaviors/setEnvMap';
 export * from './src/scene/classes/AudioSource';
 export * from './src/scene/classes/Image';
 export * from './src/scene/classes/PostProcessing';
