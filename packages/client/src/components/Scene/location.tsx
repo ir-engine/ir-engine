@@ -225,7 +225,7 @@ export const EnginePage = (props: Props) => {
       doLoginAuto(true);
       EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE, () => setNoGameserverProvision(true));
       EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED, () => {
-        if (Network.instance.transport.left === false) setInstanceDisconnected(true);
+        if ((Network.instance.transport as SocketWebRTCClientTransport).left === false) setInstanceDisconnected(true);
       });
       EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_KICKED, ({ message }) => {
         setInstanceKickedMessage(message);

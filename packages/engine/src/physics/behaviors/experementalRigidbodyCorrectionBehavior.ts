@@ -3,7 +3,7 @@ import { Entity } from "../../ecs/classes/Entity";
 import { getComponent, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { Network } from "../../networking/classes/Network";
 import { NetworkObject } from "../../networking/components/NetworkObject";
-import { SnapshotData } from "../../networking/types/SnapshotDataTypes";
+import { SnapshotData, StateInterEntity } from "../../networking/types/SnapshotDataTypes";
 import { ColliderComponent } from "../components/ColliderComponent";
 import { LocalInterpolationComponent } from "../components/LocalInterpolationComponent";
 import { findInterpolationSnapshot } from "./findInterpolationSnapshot";
@@ -168,9 +168,9 @@ export const experementalRigidbodyCorrectionBehavior: Behavior = (entity: Entity
 
 
   collider.velocity.set(
-    interpolationSnapshot.vX,
-    interpolationSnapshot.vY,
-    interpolationSnapshot.vZ
+    (interpolationSnapshot as StateInterEntity).vX,
+    (interpolationSnapshot as StateInterEntity).vY,
+    (interpolationSnapshot as StateInterEntity).vZ
   );
 
 };

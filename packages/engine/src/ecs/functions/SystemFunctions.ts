@@ -56,7 +56,7 @@ export function unregisterSystem (SystemClass: SystemConstructor<any>): void {
  * @returns System instance.
  */
 export function getSystem<S extends System> (SystemClass: SystemConstructor<S>): S {
-  return Engine.systems.find(s => s instanceof SystemClass);
+  return Engine.systems.find(s => s instanceof SystemClass) as S;
 }
 
 /**

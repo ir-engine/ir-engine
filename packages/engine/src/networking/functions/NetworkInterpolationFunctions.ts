@@ -243,9 +243,9 @@ export function interpolate (
           tmpSnapshot.state[i].qZ = qn.z;
           tmpSnapshot.state[i].qW = qn.w;
 
-          tmpSnapshot.state[i].vX = x;
-          tmpSnapshot.state[i].vY = y;
-          tmpSnapshot.state[i].vZ = z;
+          (tmpSnapshot.state[i] as StateInterEntity).vX = x;
+          (tmpSnapshot.state[i] as StateInterEntity).vY = y;
+          (tmpSnapshot.state[i] as StateInterEntity).vZ = z;
 
         //  tmpSnapshot.state[i].speed = speed
         }

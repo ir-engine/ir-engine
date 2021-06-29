@@ -1,7 +1,7 @@
 // @ts-ignore
 import { Player } from 'shaka-player';    // TODO: resolve this
 import { TextureLoader, VideoTexture, Mesh, SphereGeometry, MeshBasicMaterial, BackSide, Texture } from "three";
-import { Control } from '@xrengine/engine/src/ui/classes/Control';
+import { Control } from '@xrengine/engine/src/ui-old/classes/Control';
 
 enum PLAYER_STATE {
   INIT,
