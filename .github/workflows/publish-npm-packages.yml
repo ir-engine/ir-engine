@@ -46,6 +46,9 @@ jobs:
       - run: npm run update-name-gh-package
       - run: git add .
       - run: git commit -m 'GH Packages'
+      - run: npm config set '//npm.pkg.github.com/:_authToken' "${NPM_TOKEN}"
+        env:
+          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run publish-github
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
