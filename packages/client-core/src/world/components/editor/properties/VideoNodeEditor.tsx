@@ -35,6 +35,8 @@ export function VideoNodeEditor(props) {
 
   VideoNodeEditor.description = t('editor:properties.video.description');
   //function to handle changes in src property
+  const onChangeIsLivestream = useSetPropertySelected(editor, "isLivestream");
+  //function to handle changes in src property
   const onChangeSrc = useSetPropertySelected(editor, "src");
 
   //function to handle change in projection property
@@ -46,6 +48,10 @@ export function VideoNodeEditor(props) {
    //editor view for VideoNode
   return (
     <NodeEditor description={VideoNodeEditor.description} {...props}>
+      { /* @ts-ignore */ }
+      <InputGroup name="Livestream" label={t('editor:properties.video.lbl-islivestream')}>
+        <BooleanInput value={node.isLivestream} onChange={onChangeIsLivestream} />
+      </InputGroup>
       { /* @ts-ignore */ }
       <InputGroup name="Video" label={t('editor:properties.video.lbl-video')}>
         <VideoInput value={node.src} onChange={onChangeSrc} />

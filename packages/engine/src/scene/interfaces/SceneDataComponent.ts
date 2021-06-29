@@ -4,7 +4,7 @@ export interface SceneDataComponent {
     sceneEntityId: string
     name: string
     type: string
-    data: Record<string, any>
+    data: any//Record<string, any>
     props: Record<string, any>
     createdAt: string
     updatedAt: string
