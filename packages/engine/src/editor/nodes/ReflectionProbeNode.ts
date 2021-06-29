@@ -113,7 +113,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
         data={
             options:this.reflectionProbeSettings
         };
-        return super.serialize({reflectionprobe:data});
+        return super.serialize({envMap:data});
     }
 
     static async deserialize(editor, json){
@@ -130,13 +130,18 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
         return node;
     }
 
-    prepareForExport() {
-        super.prepareForExport();
+    // prepareForExport() {
+    //     super.prepareForExport();
+    //     this.reflectionProbeSettings.probePosition=this.position;
+    //     this.addGLTFComponent("envMap", {
+    //             options:this.reflectionProbeSettings
+    //     });
+    //     this.replaceObject();
+    // }
+
+    getReflectionProbeProperties(){
         this.reflectionProbeSettings.probePosition=this.position;
-        this.addGLTFComponent("reflectionprobe", {
-                options:this.reflectionProbeSettings
-        });
-        this.replaceObject();
+        return ( this.reflectionProbeSettings);
     }
 
     getSceneForBaking(scene:Scene){

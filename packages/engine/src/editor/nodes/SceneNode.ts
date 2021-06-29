@@ -7,7 +7,8 @@ import {
   FogExp2,
   LinearToneMapping,
   ShadowMapType,
-  PCFSoftShadowMap
+  PCFSoftShadowMap,
+  Color
 } from "three";
 import EditorNodeMixin from "./EditorNodeMixin";
 import { setStaticMode, StaticModes, isStatic } from "../functions/StaticMode";
@@ -17,7 +18,9 @@ import GroupNode from "./GroupNode";
 import getNodeWithUUID from "../functions/getNodeWithUUID";
 import serializeColor from "../functions/serializeColor";
 import { FogType } from '../../scene/constants/FogType';
+import { EnvMapSourceType } from '../../scene/constants/EnvMapSourceType';
 import {DistanceModelType} from "../../scene/classes/AudioSource";
+import { RethrownError } from "../functions/errors";
 
 export default class SceneNode extends EditorNodeMixin(Scene) {
   static nodeName = "Scene";
@@ -176,21 +179,35 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   mediaConeOuterAngle = 0;
   mediaConeOuterGain = 0;
 
-  simpleMaterials = false;
+  envMapSourceType=EnvMapSourceType.Default;
+  envMapSourceColor=new Color();
+  _envMapSourceURL="";
 
+  simpleMaterials = false;
   overrideRendererSettings = false;
   csm = true;
   shadows = true;
   shadowType = true;
   toneMapping = LinearToneMapping;
   toneMappingExposure = 0.8;
-  shadowMapType: ShadowMapType = PCFSoftShadowMap
+  shadowMapType: ShadowMapType = PCFSoftShadowMap;
+
 
   constructor(editor) {
     super(editor);
-
     setStaticMode(this, StaticModes.Static);
   }
+
+  get envMapSourceURL(){
+    return this._envMapSourceURL;
+  }
+
+  set envMapSourceURL(src){
+    //this.load(src).catch(()=>console.log("Error Loading the EnvMap Texture"));
+    this.setEnvMap();
+  }
+
+
   get fogType() {
     return this._fogType;
   }
@@ -208,6 +225,9 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         break;
     }
   }
+
+
+
   get fogColor() {
     if (this.fogType === FogType.Linear) {
       return this._fog.color;
@@ -215,6 +235,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       return this._fogExp2.color;
     }
   }
+
   get fogDensity() {
     return this._fogExp2.density;
   }
@@ -376,9 +397,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     for (const node of nodeList) {
       node.prepareForExport(ctx);
     }
-    // this.addGLTFComponent("background", {
-    //   color: this.background
-    // });
     if (this.fogType === FogType.Linear) {
       this.addGLTFComponent("fog", {
         type: this.fogType,
@@ -422,6 +440,8 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         simpleMaterials: this.simpleMaterials
       });
     }
+
+    this.exportEnvMap();
   }
   async combineMeshes() {
     await MeshCombinationGroup.combineMeshes(this);
@@ -479,5 +499,60 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   setMetadata(newMetadata) {
     const existingMetadata = this.metadata || {};
     this.metadata = Object.assign(existingMetadata, newMetadata);
+  }
+
+
+  async load(src, onError?) {
+    const nextSrc = src || "";
+    if (nextSrc === this.envMapSourceURL && nextSrc !== "") {
+      return;
+    }
+    this.envMapSourceURL = nextSrc;
+    this.issues = [];
+    try {
+      const { url } = await this.editor.api.resolveMedia(src);
+      await super.load(url);
+    } catch (error) {
+      const imageError = new RethrownError(
+        `Error loading image ${this.envMapSourceURL}`,
+        error
+      );
+      if (onError) {
+        onError(this, imageError);
+      }
+      console.error(imageError);
+      this.issues.push({ severity: "error", message: "Error loading image." });
+    }
+    return this;
+  }
+
+  exportEnvMap(){
+    if(this.envMapSourceType===EnvMapSourceType.Color){
+      this.addGLTFComponent("envMap",{
+        type:"Color",
+        options:{
+          color:this.envMapSourceColor,
+          }
+        });
+    }
+    else if(this.envMapSourceType===EnvMapSourceType.Texture){
+      this.addGLTFComponent("envMap",{
+        type:"Texture",
+        options:{
+          url:this.envMapSourceURL,
+          }
+        });
+    }
+    else if(this.envMapSourceType==EnvMapSourceType.Default){
+      let options={};
+      this.traverse(child => {
+        if (child.isNode && child !== this) {
+          if(child.nodeName==="Reflection Probe")
+            options=child.getReflectionProbeProperties();
+            return;
+        }
+      });
+      this.addGLTFComponent("envMap",{options});
+    }
   }
 }

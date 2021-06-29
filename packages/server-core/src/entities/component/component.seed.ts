@@ -199,7 +199,7 @@ export const componentSeed = {
       },
       createdAt: "2020-11-12 13:14:45",
       updatedAt: "2020-11-12 13:14:45",
-      type: "reflectionprobe",
+      type: "envMap",
       entityId: entitySeed.templates.find(template => template.id === '1A698484-D15A-4DED-9247-03873520DX70').id
     },
   ]

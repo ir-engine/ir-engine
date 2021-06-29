@@ -267,7 +267,7 @@ export class WorldScene {
         setPostProcessing(entity, component.data);
         break;
 
-      case 'reflectionprobe':
+      case 'envMap':
         setReflectionProbe(entity,component.data);
         break;
 
