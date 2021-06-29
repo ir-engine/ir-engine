@@ -18,6 +18,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     const {
       src,
       interactable,
+      isLivestream,
       controls,
       autoPlay,
       loop,
@@ -36,6 +37,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
       (async () => {
         await node.load(src, onError);
         node.interactable = interactable;
+        node.isLivestream = isLivestream;
         node.controls = controls || false;
         node.autoPlay = autoPlay;
         node.loop = loop;
@@ -58,6 +60,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
   volume = 0.5;
   controls = true;
   interactable = false;
+  isLivestream = false;
   constructor(editor) {
     super(editor, editor.audioListener);
   }
@@ -155,6 +158,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
       video: {
         src: this._canonicalUrl,
         interactable: this.interactable,
+        isLivestream: this.isLivestream,
         controls: this.controls,
         autoPlay: this.autoPlay,
         loop: this.loop,
@@ -176,6 +180,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     this.addGLTFComponent("video", {
       src: this._canonicalUrl,
       interactable: this.interactable,
+      isLivestream: this.isLivestream,
       controls: this.controls,
       autoPlay: this.autoPlay,
       loop: this.loop,
