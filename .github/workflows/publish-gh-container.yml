@@ -28,5 +28,5 @@ jobs:
         run: bash scripts/publish_gh_container.sh ${{ github.event.release.tag_name }} $DOCKER_LABEL
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_USERNAME: ${{ github.actor }}
+          GITHUB_USERNAME: ${{ github.repository_owner }}
           DOCKER_LABEL: ${{ secrets.DOCKER_LABEL }}
