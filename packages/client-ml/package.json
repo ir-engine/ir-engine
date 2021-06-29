@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client-ml",
-  "version": "0.3.24",
+  "version": "0.2.35",
   "repository": {
     "type": "git",
     "url": "git://github.com/XRFoundation/XREngine.git"
