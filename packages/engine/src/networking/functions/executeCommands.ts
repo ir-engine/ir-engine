@@ -4,7 +4,7 @@ import { CommandType } from "../interfaces/WorldState";
 import { NetworkObjectUpdateType } from "../templates/NetworkObjectUpdateSchema";
 import { sendClientObjectUpdate } from "./sendClientObjectUpdate";
 
-export const executeCommnads = (entity: Entity, commands: CommandType[]): void => {
+export const executeCommands = (entity: Entity, commands: CommandType[]): void => {
     commands.forEach(command => {
         switch(command.type) {
             case Commands.CHANGE_ANIMATION_STATE:

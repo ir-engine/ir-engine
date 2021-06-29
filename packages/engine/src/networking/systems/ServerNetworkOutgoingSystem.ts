@@ -106,40 +106,41 @@ export class ServerNetworkOutgoingSystem extends System {
         right: right.value
       })
     });
+    try {
+      if (
+        Network.instance.worldState.clientsConnected.length ||
+        Network.instance.worldState.clientsDisconnected.length ||
+        Network.instance.worldState.createObjects.length ||
+        Network.instance.worldState.editObjects.length ||
+        Network.instance.worldState.destroyObjects.length ||
+        Network.instance.worldState.gameState.length ||
+        Network.instance.worldState.gameStateActions.length
+      ) {
+        const bufferReliable = WorldStateModel.toBuffer(Network.instance.worldState);
+        if (!bufferReliable) {
+          console.warn("World state buffer is null");
+          console.warn(Network.instance.worldState);
+        } else {
+          if (Network.instance.transport && typeof Network.instance.transport.sendReliableData === 'function') Network.instance.transport.sendReliableData(bufferReliable);
+        }
 
-    if (
-      Network.instance.worldState.clientsConnected.length ||
-      Network.instance.worldState.clientsDisconnected.length ||
-      Network.instance.worldState.createObjects.length ||
-      Network.instance.worldState.editObjects.length ||
-      Network.instance.worldState.destroyObjects.length ||
-      Network.instance.worldState.gameState.length ||
-      Network.instance.worldState.gameStateActions.length
-    ) {
-      const bufferReliable = WorldStateModel.toBuffer(Network.instance.worldState);
-      if (!bufferReliable) {
-        console.warn("World state buffer is null");
-        console.warn(Network.instance.worldState);
-      } else {
-        if (Network.instance.transport && typeof Network.instance.transport.sendReliableData === 'function') Network.instance.transport.sendReliableData(bufferReliable);
+        Network.instance.worldState.clientsConnected = [];
+        Network.instance.worldState.clientsDisconnected = [];
+        Network.instance.worldState.createObjects = [];
+        Network.instance.worldState.editObjects = [];
+        Network.instance.worldState.destroyObjects = [];
+        Network.instance.worldState.gameState = [];
+        Network.instance.worldState.gameStateActions = [];
       }
 
-      Network.instance.worldState.clientsConnected = [];
-      Network.instance.worldState.clientsDisconnected = [];
-      Network.instance.worldState.createObjects = [];
-      Network.instance.worldState.editObjects = [];
-      Network.instance.worldState.destroyObjects = [];
-      Network.instance.worldState.gameState = [];
-      Network.instance.worldState.gameStateActions = [];
-    }
-
-    const bufferUnreliable = TransformStateModel.toBuffer(transformState);
-    if (!bufferUnreliable) {
-      console.warn("Transform buffer is null");
-      console.warn(transformState);
-    } else {
-      if (Network.instance.transport && typeof Network.instance.transport.sendData === 'function') Network.instance.transport.sendData(bufferUnreliable);
-    }
+      const bufferUnreliable = TransformStateModel.toBuffer(transformState);
+      if (!bufferUnreliable) {
+        console.warn("Transform buffer is null");
+        console.warn(transformState);
+      } else {
+        if (Network.instance.transport && typeof Network.instance.transport.sendData === 'function') Network.instance.transport.sendData(bufferUnreliable);
+      }
+    } catch (e) { console.error(Network.instance.worldState) }
   }
 
   /** System queries. */

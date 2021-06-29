@@ -1,5 +1,3 @@
-import Video from '../../scene/classes/Video';
-import Audio from '../../scene/classes/AudioSource';
 import { Object3D } from 'three';
 import { addObject3DComponent } from './addObject3DComponent';
 import { Engine } from '../../ecs/classes/Engine';
@@ -13,6 +11,7 @@ import VolumetricComponent from "../components/VolumetricComponent";
 import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { InteractiveSystem } from '../../interaction/systems/InteractiveSystem';
+import Video from '../classes/Video';
 
 const isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
 
@@ -59,15 +58,21 @@ const onMediaInteractionHover: Behavior = (entityInitiator, { focused }: { focus
   });
 };
 
+export function createMediaServer(entity, args: any): void {
+  addObject3DComponent(entity, { obj3d: new Object3D(), objArgs: args });
+  if(args.interactable) addInteraction(entity);
+}
+
+
 export function createAudio(entity, args: any): void {
   addObject3DComponent(entity, { obj3d: new Audio(Engine.audioListener), objArgs: args });
-  addInteraction(entity);
+  if(args.interactable) addInteraction(entity);
 }
 
 
 export function createVideo(entity, args: any): void {
   addObject3DComponent(entity, { obj3d: new Video(Engine.audioListener), objArgs: args });
-  addInteraction(entity);
+  if(args.interactable) addInteraction(entity);
 }
 
 export const createVolumetric: Behavior = (entity, args: any) => {
@@ -89,13 +94,8 @@ export const createVolumetric: Behavior = (entity, args: any) => {
   });
   volumetricComponent.player = DracosisSequence;
   addObject3DComponent(entity, { obj3d: container });
-  addInteraction(entity);
+  if(args.interactable) addInteraction(entity);
 };
-
-export function createMediaServer(entity, args: any): void {
-  addObject3DComponent(entity, { obj3d: new Object3D(), objArgs: args });
-  addInteraction(entity)
-}
 
 function addInteraction(entity): void {
 

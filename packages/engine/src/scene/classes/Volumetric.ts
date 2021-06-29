@@ -7,13 +7,13 @@ import {
   Mesh,
   SphereBufferGeometry,
   RGBAFormat,
-  MeshStandardMaterial
+  MeshStandardMaterial,
+  VideoTexture
 } from "three";
 import { RethrownError } from "../../editor/functions/errors";
 import Hls from "hls.js/dist/hls.light";
 import isHLS from "../../editor/functions/isHLS";
 import AudioSource from "./AudioSource";
-import { VideoTexture } from "../../ecs/classes/Engine";
 
 export default class Volumetric extends AudioSource {
   _videoTexture: any;

@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { detect, detectOS } from 'detect-browser';
-import { BufferGeometry, Mesh, PerspectiveCamera, Quaternion, Scene } from 'three';
+import { AudioListener, BufferGeometry, Mesh, PerspectiveCamera, Quaternion, Scene } from 'three';
 import { acceleratedRaycast, disposeBoundsTree, computeBoundsTree } from "three-mesh-bvh";
 import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem';
 import { CameraSystem } from './camera/systems/CameraSystem';
@@ -39,6 +39,7 @@ import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem';
 import { SceneObjectSystem } from '@xrengine/engine/src/scene/systems/SceneObjectSystem';
 import { ActiveSystems } from './ecs/classes/System';
 import { FontManager } from './ui/classes/FontManager';
+import { AudioSystem } from './audio/systems/AudioSystem';
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -51,6 +52,8 @@ BufferGeometry.prototype["computeBoundsTree"] = computeBoundsTree;
 const configureClient = async (options: InitializeOptions) => {
     const canvas = configCanvasElement(options.renderer.canvasId);
 
+    Engine.audioListener = new AudioListener();
+    
     // TODO: pipe network & entity data to main thread
     // const useOffscreen = !options.renderer.disabled && !Engine.xrSupported && 'transferControlToOffscreen' in canvas;
     const useOffscreen = false;
@@ -193,8 +196,9 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
     registerSystem(HighlightSystem, { priority: 9 });
     registerSystem(ParticleSystem, { priority: 10 });
     registerSystem(DebugHelpersSystem, { priority: 11 });
-    registerSystem(PositionalAudioSystem, { priority: 12 });
-    registerSystem(SceneObjectSystem, { priority: 13 });
+    registerSystem(AudioSystem, { priority: 12 });
+    registerSystem(PositionalAudioSystem, { priority: 13 });
+    registerSystem(SceneObjectSystem, { priority: 14 });
 }
 
 const registerEditorSystems = (options: InitializeOptions) => {
