@@ -3,6 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import NodeEditor from "./NodeEditor";
 import InputGroup from "../inputs/InputGroup";
+import BooleanInput from "../inputs/BooleanInput";
 import SelectInput from "../inputs/SelectInput";
 import { VideoProjection } from "@xrengine/engine/src/scene/classes/Video";
 import VideoInput from "../inputs/VideoInput";
@@ -34,14 +35,23 @@ export function VideoNodeEditor(props) {
 
   VideoNodeEditor.description = t('editor:properties.video.description');
   //function to handle changes in src property
+  const onChangeIsLivestream = useSetPropertySelected(editor, "isLivestream");
+  //function to handle changes in src property
   const onChangeSrc = useSetPropertySelected(editor, "src");
 
   //function to handle change in projection property
   const onChangeProjection = useSetPropertySelected(editor, "projection");
 
+  //function to handle change in projection property
+  const onChangeInteractable = useSetPropertySelected(editor, "interactable");
+
    //editor view for VideoNode
   return (
     <NodeEditor description={VideoNodeEditor.description} {...props}>
+      { /* @ts-ignore */ }
+      <InputGroup name="Livestream" label={t('editor:properties.video.lbl-islivestream')}>
+        <BooleanInput value={node.isLivestream} onChange={onChangeIsLivestream} />
+      </InputGroup>
       { /* @ts-ignore */ }
       <InputGroup name="Video" label={t('editor:properties.video.lbl-video')}>
         <VideoInput value={node.src} onChange={onChangeSrc} />
@@ -50,6 +60,11 @@ export function VideoNodeEditor(props) {
       <InputGroup name="Projection" label={t('editor:properties.video.lbl-projection')}>
       { /* @ts-ignore */ }
         <SelectInput options={videoProjectionOptions} value={node.projection} onChange={onChangeProjection} />
+      </InputGroup>
+      { /* @ts-ignore */ }
+      <InputGroup name="Interactable" label={t('editor:properties.video.lbl-interactable')}>
+      { /* @ts-ignore */ }
+        <BooleanInput value={node.interactable} onChange={onChangeInteractable} />
       </InputGroup>
       <AudioSourceProperties {...props} />
     </NodeEditor>
