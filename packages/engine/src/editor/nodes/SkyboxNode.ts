@@ -34,14 +34,16 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
         node.texturePath = skybox.props.texture;
         break;
       default:
-        node.turbidity = skybox.props.turbidity;
-        node.rayleigh = skybox.props.rayleigh;
-        node.luminance = skybox.props.luminance;
-        node.mieCoefficient = skybox.props.mieCoefficient;
-        node.mieDirectionalG = skybox.props.mieDirectionalG;
-        node.inclination = skybox.props.inclination;
-        node.azimuth = skybox.props.azimuth;
-        node.distance = skybox.props.distance;
+        if(typeof skybox.props.skybox?.turbidity !=='undefined') {
+          node.turbidity = skybox.props.skybox.turbidity;
+          node.rayleigh = skybox.props.skybox.rayleigh;
+          node.luminance = skybox.props.skybox.luminance;
+          node.mieCoefficient = skybox.props.skybox.mieCoefficient;
+          node.mieDirectionalG = skybox.props.skybox.mieDirectionalG;
+          node.inclination = skybox.props.skybox.inclination;
+          node.azimuth = skybox.props.skybox.azimuth;
+          node.distance = skybox.props.skybox.distance;
+        }
     }
     node.skyType = skybox.props.skytype;
 
@@ -164,11 +166,16 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
       backgroundType: this.backgroundType
     }
 
-    return super.serialize({ skybox, background });
+    return super.serialize({ background, skybox });
   }
 
   prepareForExport() {
     super.prepareForExport();
+    this.addGLTFComponent("background", {
+      backgroundColor: this.backgroundColor,
+      backgroundPath: this.backgroundPath,
+      backgroundType: this.backgroundType
+    });
     this.addGLTFComponent("skybox", {
       turbidity: this.turbidity,
       rayleigh: this.rayleigh,
@@ -178,11 +185,6 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
       inclination: this.inclination,
       azimuth: this.azimuth,
       distance: this.distance
-    });
-    this.addGLTFComponent("background", {
-      backgroundColor: this.backgroundColor,
-      backgroundPath: this.backgroundPath,
-      backgroundType: this.backgroundType
     });
     this.replaceObject();
   }
