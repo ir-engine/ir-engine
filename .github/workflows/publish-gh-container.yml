@@ -1,8 +1,7 @@
 name: dev-deploy
 on:
-  push:
-    branches:
-      [dev]
+  release:
+    types: [created]
 jobs:
   dev-deploy:
     runs-on: ubuntu-latest
