@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { defineConfig, loadEnv } from 'vite-xrengine';
+import { defineConfig, loadEnv } from 'vite';
 import config from "config";
 
 const replaceEnvs = (obj, env) => {

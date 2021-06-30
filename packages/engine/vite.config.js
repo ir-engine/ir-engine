@@ -5,7 +5,7 @@ import typescript from '@rollup/plugin-typescript';
 import path from 'path';
 import nodePolyfills from 'rollup-plugin-node-polyfills';
 import scss from 'rollup-plugin-scss';
-import { defineConfig } from 'vite-xrengine';
+import { defineConfig } from 'vite';
 
 const isProd = process.env.NODE_ENV === 'production';
 const extensions = ['.js', '.ts', '.tsx'];

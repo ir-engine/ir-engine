@@ -58,7 +58,7 @@
     "three-mesh-bvh": "^0.3.7",
     "three-physx": "^0.0.33",
     "twitch-m3u8": "^1.1.4",
-    "vite-xrengine": "2.2.4",
+    "vite": "2.3.8",
     "volumetric": "https://github.com/XRFoundation/UniversalVolumetric"
   },
   "devDependencies": {

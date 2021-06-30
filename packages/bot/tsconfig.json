@@ -23,11 +23,10 @@
     "outDir": "./lib"
   },
   "exclude": [
-    "node_modules",
-    "tests/**"
+    "node_modules"
   ],
   "include": [
     "./**/*.ts",
     "./**/*.tsx"
-, "../engine/src/ikrig/IKFunctions.ts"  ]
+  ]
 }
