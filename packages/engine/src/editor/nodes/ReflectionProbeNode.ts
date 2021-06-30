@@ -130,14 +130,9 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
         return node;
     }
 
-    // prepareForExport() {
-    //     super.prepareForExport();
-    //     this.reflectionProbeSettings.probePosition=this.position;
-    //     this.addGLTFComponent("envMap", {
-    //             options:this.reflectionProbeSettings
-    //     });
-    //     this.replaceObject();
-    // }
+    prepareForExport() {
+        this.replaceObject();
+    }
 
     getReflectionProbeProperties(){
         this.reflectionProbeSettings.probePosition=this.position;

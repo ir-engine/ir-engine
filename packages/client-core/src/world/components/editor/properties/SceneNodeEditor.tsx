@@ -16,6 +16,7 @@ import SelectInput from "../inputs/SelectInput";
 import NodeEditor from "./NodeEditor";
 import useSetPropertySelected from "./useSetPropertySelected";
 import ImageInput from "../inputs/ImageInput";
+import serializeColor from "@xrengine/engine/src/editor/functions/serializeColor";
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
@@ -135,7 +136,14 @@ export function SceneNodeEditor(props) {
   const onChangeFogDensity = useSetPropertySelected(editor, "fogDensity");
 
   const onChangeEnvmapSourceType = useSetPropertySelected(editor, "envMapSourceType");
-  const onChangeEnvmapColorSource = useSetPropertySelected(editor, "envMapSourceColor");
+  const onChangeEnvmapColorSource = (value)=>{
+    const colorString=serializeColor(value);
+    (props.editor as any).setPropertySelected(
+      "envMapSourceColor",
+      colorString
+    );
+
+  }
   const onChangeEnvmapURLSource = useSetPropertySelected(editor, "envMapSourceURL");
 
   const onChangeOverrideAudioSettings = useSetPropertySelected(editor, "overrideAudioSettings");
@@ -182,7 +190,7 @@ export function SceneNodeEditor(props) {
                /* @ts-ignore */ 
               <InputGroup name='EnvMapColor' label="EnvMap Color">
                 {/* @ts-ignore */} 
-                <ColorInput value={node.envMapSourceColor} onChange={onChangeEnvmapColorSource}/>
+                <ColorInput value={new Color(node.envMapSourceColor)} onChange={onChangeEnvmapColorSource}/>
               </InputGroup>
             )
         }

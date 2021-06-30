@@ -8,7 +8,12 @@ import {
   LinearToneMapping,
   ShadowMapType,
   PCFSoftShadowMap,
-  Color
+  Color,
+  sRGBEncoding,
+  LinearFilter,
+  DataTexture,
+  Texture,
+  RGBFormat
 } from "three";
 import EditorNodeMixin from "./EditorNodeMixin";
 import { setStaticMode, StaticModes, isStatic } from "../functions/StaticMode";
@@ -21,6 +26,8 @@ import { FogType } from '../../scene/constants/FogType';
 import { EnvMapSourceType } from '../../scene/constants/EnvMapSourceType';
 import {DistanceModelType} from "../../scene/classes/AudioSource";
 import { RethrownError } from "../functions/errors";
+import loadTexture from "../functions/loadTexture";
+import Image from "../../scene/classes/Image";
 
 export default class SceneNode extends EditorNodeMixin(Scene) {
   static nodeName = "Scene";
@@ -158,7 +165,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
 
   url = null;
   metadata = {};
-  _environmentMap = null;
 
   _fogType = FogType.Disabled;
   _fog = new Fog(0xffffff, 0.0025);
@@ -180,7 +186,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   mediaConeOuterGain = 0;
 
   envMapSourceType=EnvMapSourceType.Default;
-  envMapSourceColor=new Color();
+  _envMapSourceColor="";
   _envMapSourceURL="";
 
   simpleMaterials = false;
@@ -203,14 +209,37 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
 
   set envMapSourceURL(src){
-    //this.load(src).catch(()=>console.log("Error Loading the EnvMap Texture"));
-    this.setEnvMap();
+    this.load(src).catch(()=>console.log("Error Loading the EnvMap Texture"));
   }
 
+  get envMapSourceColor(){
+    console.log("Getting up the Color For Background "+this._envMapSourceColor);
+    return this._envMapSourceColor;
+  }
+
+  set envMapSourceColor(src){
+    this._envMapSourceColor=src;
+    console.log("Setting up Color FOr Background");
+    // this._envMapSourceColor=src;
+    if(this.environment)
+    this.environment.dispose();
+    
+    const col=new Color(src);
+    const resolution =1;
+    const data=new Uint8Array(3*resolution*resolution);
+    for(let i=0; i<resolution*resolution;i++){
+        data[i]=Math.floor(col.r*255);
+        data[i+1]=Math.floor(col.g*255);
+        data[i+2]=Math.floor(col.b*255);
+    }
+    const texture=new DataTexture(data,resolution,resolution,RGBFormat);
+    this.environment=texture;
+  }
 
   get fogType() {
     return this._fogType;
   }
+
   set fogType(type) {
     this._fogType = type;
     switch (type) {
@@ -254,23 +283,12 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   set fogFarDistance(value) {
     this._fog.far = value;
   }
-  get environmentMap() {
-    return this._environmentMap;
-  }
-  updateEnvironmentMap(environmentMap) {
-    this._environmentMap = environmentMap;
-    this.traverse(object => {
-      if (object.material && object.material.isMeshStandardMaterial) {
-        object.material.envMap = environmentMap;
-        object.material.needsUpdate = true;
-      }
-    });
-  }
+
+
   copy(source, recursive = true) {
     super.copy(source, recursive);
     this.url = source.url;
     this.metadata = source.metadata;
-    this._environmentMap = source._environmentMap;
     this.fogType = source.fogType;
 
     this.fogColor.copy(source.fogColor);
@@ -506,17 +524,24 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
 
   async load(src, onError?) {
     const nextSrc = src || "";
-    if (nextSrc === this.envMapSourceURL && nextSrc !== "") {
+    if (nextSrc === this._envMapSourceURL && nextSrc !== "") {
       return;
     }
-    this.envMapSourceURL = nextSrc;
+    this._envMapSourceURL = nextSrc;
     this.issues = [];
     try {
       const { url } = await this.editor.api.resolveMedia(src);
-      await super.load(url);
+      if (this.environment) {
+        this.environment.dispose();
+      }
+      const texture = await loadTexture(src) as any;
+      texture.encoding = sRGBEncoding;
+      texture.minFilter = LinearFilter;
+      this.background=texture;
+      this.environment=texture;
     } catch (error) {
       const imageError = new RethrownError(
-        `Error loading image ${this.envMapSourceURL}`,
+        `Error loading image ${this._envMapSourceURL}`,
         error
       );
       if (onError) {
@@ -533,7 +558,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       this.addGLTFComponent("envMap",{
         type:"Color",
         options:{
-          color:this.envMapSourceColor,
+          color:this._envMapSourceColor,
           }
         });
     }
@@ -541,20 +566,30 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       this.addGLTFComponent("envMap",{
         type:"Texture",
         options:{
-          url:this.envMapSourceURL,
+          url:this._envMapSourceURL,
         }
       });
     }
     else if(this.envMapSourceType==EnvMapSourceType.Default){
       let options={};
+      let skyNode=null;
       this.traverse(child => {
         if (child.isNode && child !== this) {
-          if(child.nodeName==="Reflection Probe")
+          if(child.nodeName==="Reflection Probe"){
             options=child.getReflectionProbeProperties();
+            this.addGLTFComponent("envMap",{type:"ReflectionProbe",options});
             return;
+          }
+          else if(child.nodeName==="Skybox"){
+            skyNode=child;
+          }
         }
       });
-      this.addGLTFComponent("envMap",{type:"ReflectionProbe",options});
+
+      if(skyNode!==null){
+        this.addGLTFComponent("skythin",skyNode);
+      }
     }
   }
+
 }

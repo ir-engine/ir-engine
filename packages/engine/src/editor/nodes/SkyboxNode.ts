@@ -120,7 +120,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   }
 
   updateEnvironmentMap() {
-    this.editor.scene.updateEnvironmentMap(this.getEnvMap());
+    this.editor.scene.environment=this.getEnvMap();
   }
 
   updateBackground() {
