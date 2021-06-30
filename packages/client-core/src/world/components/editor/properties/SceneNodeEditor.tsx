@@ -17,6 +17,7 @@ import NodeEditor from "./NodeEditor";
 import useSetPropertySelected from "./useSetPropertySelected";
 import ImageInput from "../inputs/ImageInput";
 import serializeColor from "@xrengine/engine/src/editor/functions/serializeColor";
+import SceneNode from "@xrengine/engine/src/editor/nodes/SceneNode";
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
@@ -200,6 +201,10 @@ export function SceneNodeEditor(props) {
                /* @ts-ignore */ 
               <InputGroup name='Texture URL' label="Texture URL">
                 <ImageInput value={node.envMapSourceURL} onChange={onChangeEnvmapURLSource}/>
+                {
+                (props.node as SceneNode).errorInEnvmapURL &&
+                  <div>Error Loading From URL </div>
+                }
               </InputGroup>
             )
         }

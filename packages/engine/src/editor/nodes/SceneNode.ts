@@ -197,6 +197,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   toneMapping = LinearToneMapping;
   toneMappingExposure = 0.8;
   shadowMapType: ShadowMapType = PCFSoftShadowMap;
+  errorInEnvmapURL=false;
 
 
   constructor(editor) {
@@ -209,7 +210,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
 
   set envMapSourceURL(src){
-    this.load(src).catch(()=>console.log("Error Loading the EnvMap Texture"));
+    this.load(src);
   }
 
   get envMapSourceColor(){
@@ -528,7 +529,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       return;
     }
     this._envMapSourceURL = nextSrc;
-    this.issues = [];
     try {
       const { url } = await this.editor.api.resolveMedia(src);
       if (this.environment) {
@@ -537,18 +537,19 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       const texture = await loadTexture(src) as any;
       texture.encoding = sRGBEncoding;
       texture.minFilter = LinearFilter;
-      this.background=texture;
       this.environment=texture;
+      this.errorInEnvmapURL=false;
     } catch (error) {
-      const imageError = new RethrownError(
-        `Error loading image ${this._envMapSourceURL}`,
-        error
-      );
-      if (onError) {
-        onError(this, imageError);
-      }
-      console.error(imageError);
-      this.issues.push({ severity: "error", message: "Error loading image." });
+      this.errorInEnvmapURL=true;
+      // const imageError = new RethrownError(
+      //   `Error loading image ${this._envMapSourceURL}`,
+      //   error
+      // );
+      // if (onError) {
+      //   onError(this, imageError);
+      // }
+
+      console.error(`Error loading image ${this._envMapSourceURL}`);
     }
     return this;
   }
