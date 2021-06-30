@@ -33,17 +33,17 @@ export const rigidbodyInterpolationBehavior: Behavior = (entity: Entity, snapsho
       z: interpolationSnapshot.qZ,
       w: interpolationSnapshot.qW
     },
-    linearVelocity: {
-      x: interpolationSnapshot.vX,
-      y: interpolationSnapshot.vY,
-      z: interpolationSnapshot.vZ,
-    }
+    // linearVelocity: {
+    //   x: interpolationSnapshot.vX,
+    //   y: interpolationSnapshot.vY,
+    //   z: interpolationSnapshot.vZ,
+    // }
   })
 
-  collider.velocity.set(
-    interpolationSnapshot.vX,
-    interpolationSnapshot.vY,
-    interpolationSnapshot.vZ
-  );
+  // collider.velocity.set(
+  //   interpolationSnapshot.vX,
+  //   interpolationSnapshot.vY,
+  //   interpolationSnapshot.vZ
+  // );
 
 };
