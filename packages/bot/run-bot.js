@@ -23,21 +23,23 @@ async function run() {
         }
         serverLoop()
     }
-    const domain = process.env.DOMAIN || 'localhost:3001';
+    const domain = process.env.DOMAIN || 'localhost:3000';
     const locationName = process.env.LOCATION_NAME || 'test';
     const fakeMediaPath = __dirname + "/resources";
     const moveDuration = 2000;
     const botManager = new BotManager({headless: true, fakeMediaPath});
+
+    console.log(domain, locationName, fakeMediaPath, botManager)
 
     console.log(fakeMediaPath);
 
     botManager.addBot("bot1");
     botManager.addBot("bot2");
 
-    botManager.addAction("bot1", BotAction.delay(Math.random() * 100000));
+    botManager.addAction("bot1", BotAction.delay(1000));
     botManager.addAction("bot1", BotAction.connect());
     botManager.addAction("bot1", BotAction.enterRoom(domain, locationName));
-    botManager.addAction("bot1", BotAction.delay(10000));
+    botManager.addAction("bot1", BotAction.delay(1000));
     botManager.addAction("bot1", BotAction.sendAudio(0));
     botManager.addAction("bot1", BotAction.sendVideo(0));
     // botManager.addAction("bot1", BotAction.receiveAudio(60000));
@@ -57,7 +59,7 @@ async function run() {
 
     // botManager.addAction("monitor", BotAction.opIf((stats) => console.log(stats)));
 
-    botManager.addAction("bot1", BotAction.delay(6000000));
+    botManager.addAction("bot1", BotAction.delay(1000));
     botManager.addAction("bot1", BotAction.disconnect());
     // botManager.addAction("bot2", BotAction.disconnect());
 
