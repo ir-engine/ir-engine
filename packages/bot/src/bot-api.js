@@ -21,7 +21,7 @@ const _configureNodeContext = () => {
 }
 
 const setupBots = () => {
-  const BotManager = require('./src/bot-manager');
+  const BotManager = require('./bot-manager');
   _configureNodeContext();
   const fakeMediaPath = __dirname + "/resources";
   return new BotManager({ headless: true, fakeMediaPath });
@@ -57,7 +57,7 @@ const runBots = async (botManager) => {
   }
 }
 
-const { BotAction } = require('./src/bot-action');
+const { BotAction } = require('./bot-action');
 
 module.exports = {
   BotAction,

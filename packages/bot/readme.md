@@ -16,6 +16,6 @@ BotManager.addBot("bot1");
 BotManager.addAction("bot1", BotAction.delay(1000));
 BotManager.addAction("bot1", BotAction.disconnect());
 
-runBots();
+runBots(BotManager);
 
 ```

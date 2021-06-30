@@ -1,7 +1,14 @@
-const { BotAction, setupBots, runBots } = require('./src/bot-api');
 
-const BotManager = setupBots()
+const {
+  BotAction,
+  setupBots,
+  runBots
+} = require('./src/bot-api');
 
-// run tests
+const BotManager = setupBots();
 
-runBots()
+BotManager.addBot("bot1");
+BotManager.addAction("bot1", BotAction.delay(1000));
+BotManager.addAction("bot1", BotAction.disconnect());
+
+runBots(BotManager);
