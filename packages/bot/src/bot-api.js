@@ -1,4 +1,4 @@
-const _configureNodeContext = () => {
+const configureNodeContext = () => {
   // polyfill animation frame for node
   globalThis.requestAnimationFrame = requestAnimationFrameOnServer;
   const expectedServerDelta = 1000 / 60;
@@ -22,7 +22,6 @@ const _configureNodeContext = () => {
 
 const setupBots = () => {
   const BotManager = require('./bot-manager');
-  _configureNodeContext();
   const fakeMediaPath = __dirname + "/resources";
   return new BotManager({ headless: true, fakeMediaPath });
 }
@@ -60,6 +59,7 @@ const runBots = async (botManager) => {
 const { BotAction } = require('./bot-action');
 
 module.exports = {
+  configureNodeContext,
   BotAction,
   setupBots,
   runBots

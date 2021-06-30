@@ -16,14 +16,20 @@
     "start": "node run-bot.js",
     "validate": "npm run lint && npm run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
+    "golf": "jest",
     "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
   },
   "dependencies": {
     "@google-cloud/agones-sdk": "1.14.0",
-    "puppeteer": "10.1.0"
+    "chai": "^4.3.4",
+    "ts-jest": "^27.0.3"
   },
   "devDependencies": {
+    "@types/expect-puppeteer": "^4.4.5",
+    "@types/jest": "^26.0.23",
+    "@types/jest-environment-puppeteer": "^4.4.1",
     "@types/node": "14.17.4",
+    "@types/puppeteer": "^5.4.3",
     "@types/react": "17.0.11",
     "@types/react-dom": "17.0.8",
     "@types/three": "0.129.1",
@@ -31,6 +37,9 @@
     "cross-env": "7.0.3",
     "eslint": "7.29.0",
     "eslint-plugin-react": "7.24.0",
+    "jest": "^27.0.6",
+    "jest-puppeteer": "^5.0.4",
+    "puppeteer": "^9.1.1",
     "semantic-release": "17.4.4",
     "semantic-release-monorepo": "7.0.5",
     "typescript": "4.3.4",

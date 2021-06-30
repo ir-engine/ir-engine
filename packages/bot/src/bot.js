@@ -177,9 +177,6 @@ class Bot {
      * @param args The arguments to be passed to fn. These will be serailized when passed through puppeteer
      */
     async evaluate(fn, ...args) {
-        if (!this.browser) {
-            await this.launchBrowser();
-        }
         return await this.page.evaluate(fn, ...args)
     }
 
