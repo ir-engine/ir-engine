@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/bot",
-  "version": "0.3.24",
+  "version": "0.3.25",
   "private": true,
   "repository": {
     "type": "git",
@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@google-cloud/agones-sdk": "1.14.0",
-    "puppeteer": "10.0.0"
+    "puppeteer": "10.1.0"
   },
   "devDependencies": {
     "@types/node": "14.17.4",

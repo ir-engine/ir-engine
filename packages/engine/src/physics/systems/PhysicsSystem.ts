@@ -24,6 +24,7 @@ import { rigidbodyInterpolationBehavior } from '../behaviors/rigidbodyInterpolat
 import { LocalInterpolationComponent } from '../components/LocalInterpolationComponent';
 import { experementalRigidbodyCorrectionBehavior } from '../behaviors/experementalRigidbodyCorrectionBehavior';
 import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent';
+import { rigidbodyCorrectionBehavior } from '../behaviors/rigidbodyCorrectionBehavior';
 
 
 /**
@@ -141,8 +142,8 @@ export class PhysicsSystem extends System {
       });
 
       this.queryResults.localObjectInterpolation.all?.forEach(entity => {
-        //rigidbodyCorrectionBehavior(entity, snapshots, delta);
-        experementalRigidbodyCorrectionBehavior(entity, snapshots, delta);
+        rigidbodyCorrectionBehavior(entity, snapshots, delta);
+        // experementalRigidbodyCorrectionBehavior(entity, snapshots, delta);
       });
 
       // If a networked entity does not have an interpolation component, just copy the data
