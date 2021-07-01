@@ -30,6 +30,8 @@ export interface GameMode {
   preparePlayersRole?: (gameRules: GameMode, maxPlayerCount: any) => void
   onGameLoading?: (gameEntity: Entity) => void
   onGameStart?: (gameEntity: Entity) => void
+  onBeforeExecute?: (gameEntity: Entity) => void,
+  onAfterExecute?: (gameEntity: Entity) => void,
   beforePlayerLeave?: (gameEntity: Entity) => void
   onPlayerLeave?: (gameEntity: Entity, playerComponent, game) => void
   registerActionTagComponents: ComponentConstructor<Component<any>>[]

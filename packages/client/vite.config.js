@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { defineConfig, loadEnv } from 'vite-xrengine';
+import { defineConfig, loadEnv } from 'vite';
 import config from "config";
 
 const replaceEnvs = (obj, env) => {
@@ -20,7 +20,7 @@ const replaceEnvs = (obj, env) => {
     const matches = Array.from(obj[key].matchAll(/\$\{[^}]*\}+/g), m => m[0]);
 
     for (let match of matches) {
-      result[key] = result[key].replace(match, env[match.substring(2, match.length-1)])
+      result[key] = result[key].replace(match, env[match.substring(2, match.length - 1)])
     }
   }
 
@@ -41,6 +41,7 @@ export default defineConfig(() => {
     plugins: [
     ],
     server: {
+      host: true,
       https: {
         key: fs.readFileSync('../../certs/key.pem'),
         cert: fs.readFileSync('../../certs/cert.pem')
@@ -50,7 +51,6 @@ export default defineConfig(() => {
       alias: {
         'react-json-tree': 'react-json-tree/umd/react-json-tree',
         'three-physx/lib/physx.release.esm.js': 'three-physx/lib/physx.release.esm.js',
-        '@material-ui/icons': '@material-ui/icons/esm',
         "socket.io-client": "socket.io-client/dist/socket.io.js",
         "react-infinite-scroller": "react-infinite-scroller/dist/InfiniteScroll",
         'three-physx': 'three-physx/src/index.ts'

@@ -28,6 +28,7 @@ import { addActionComponent } from '../../../functions/functionsActions';
 import { GamePlayer } from '../../../components/GamePlayer';
 import { YourTurn } from '../components/YourTurnTagComponent';
 import { XRUserSettings } from '../../../../xr/types/XRUserSettings';
+import { Interactable } from '../../../../interaction/components/Interactable';
 
 const vector0 = new Vector3();
 const vector1 = new Vector3();
