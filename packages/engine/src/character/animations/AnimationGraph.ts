@@ -61,11 +61,11 @@ export class AnimationGraph {
         if (this.isTransitionPaused) return;
 
         // If new state is the same as old one skip transition
-        if (newState === animationComponent.currentState.name) {
+        if (!params.forceTransition && newState === animationComponent.currentState.name) {
             return;
         }
 
-        // Validat the transition
+        // Validate the transition
         const nextState = this.states[newState];
         if (!this.validateTransition(animationComponent.currentState, nextState)) {
             return;

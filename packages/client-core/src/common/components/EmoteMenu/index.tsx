@@ -9,7 +9,7 @@ import { getMutableComponent, hasComponent } from '@xrengine/engine/src/ecs/func
 import { LocalInputReceiver } from '@xrengine/engine/src/input/components/LocalInputReceiver';
 import { AnimationComponent } from '@xrengine/engine/src/character/components/AnimationComponent';
 import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent';
-import { CalculateWeightsParams, CharacterStates } from '@xrengine/engine/src/character/animations/Util';
+import { CalculateWeightsParams, CharacterAnimations, CharacterStates } from '@xrengine/engine/src/character/animations/Util';
 
 type MenuItemType = {
     body: any;
@@ -26,27 +26,51 @@ type EmoteMenuPropsType = {
 const EmoteMenuCore = (props: EmoteMenuPropsType) => {
     const items: MenuItemType[] = [
         {
-            body: 1,
+            body: 'Dance 1',
             containerProps: {
-                onClick: () => runAnimation(CharacterStates.ENTERING_VEHICLE, { isDriver: true })
+                onClick: () => runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_1  })
             },
         },
         {
-            body: 2,
+            body: 'Dance 2',
             containerProps: {
-                onClick: () => runAnimation(CharacterStates.ENTERING_VEHICLE, { isDriver: false })
+                onClick: () => runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_2 })
             },
         },
         {
-            body: 3,
+            body: 'Cheering 1',
             containerProps: {
-                onClick: () => runAnimation(CharacterStates.EXITING_VEHICLE, { isDriver: true })
+                onClick: () => runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.CHEERING_1 })
             },
         },
         {
-            body: 4,
+            body: 'Cheering 2',
             containerProps: {
-                onClick: () => runAnimation(CharacterStates.EXITING_VEHICLE, { isDriver: false })
+                onClick: () => runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.CHEERING_2 })
+            },
+        },
+        {
+            body: 'Clapping',
+            containerProps: {
+                onClick: () => runAnimation(CharacterStates.EMOTE, { animationName: CharacterAnimations.CLAPPING })
+            },
+        },
+        {
+            body: 'Laughing',
+            containerProps: {
+                onClick: () => runAnimation(CharacterStates.EMOTE, { animationName: CharacterAnimations.LAUGHING })
+            },
+        },
+        {
+            body: 'Wave Left',
+            containerProps: {
+                onClick: () => runAnimation(CharacterStates.EMOTE, { animationName: CharacterAnimations.WAVE_LEFT })
+            },
+        },
+        {
+            body: 'Wave Right',
+            containerProps: {
+                onClick: () => runAnimation(CharacterStates.EMOTE, { animationName: CharacterAnimations.WAVE_RIGHT })
             },
         },
     ];
@@ -57,7 +81,13 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
         const animationComponent = getMutableComponent(entity, AnimationComponent);
 
         const animationState = animationComponent.animationGraph.states[animationName];
-        animationComponent.animationGraph.transitionState(actor, animationComponent, animationState.name, params);
+
+        if (animationComponent.currentState.name === animationState.name) {
+            params.resetAnimation = true;
+            animationComponent.currentState.update(params);
+        } else {
+            animationComponent.animationGraph.transitionState(actor, animationComponent, animationState.name, params);
+        }
     }
 
     const jumpStart = () => {
@@ -103,7 +133,7 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
                     onMouseDown={jumpStart}
                     onMouseUp={jumpStop}
                 >
-                    J
+                    Jump
                 </Button>
             </div>
         </section>

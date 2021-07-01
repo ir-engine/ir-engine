@@ -365,7 +365,9 @@
         "video": {
             "description": "Dynamically loads a video.",
             "lbl-video": "Video",
-            "lbl-projection": "Projection"
+            "lbl-projection": "Projection",
+            "lbl-islivestream": "Live Stream",
+            "lbl-interactable": "Interactable"
         },
         "volumetric": {
             "description": "Dynamically loads a volumetric video.",
