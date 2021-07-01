@@ -98,8 +98,8 @@
     "url-toolkit": "2.2.2",
     "use-debounce": "7.0.0",
     "uuid": "8.3.2",
-    "vite-xrengine": "2.2.4",
-    "webxr-native": "0.2.23"
+    "vite": "2.3.8",
+    "webxr-native": "0.2.24"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "8.2.1",

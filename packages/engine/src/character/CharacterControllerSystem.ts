@@ -102,7 +102,7 @@ export class CharacterControllerSystem extends System {
         type: SceneQueryType.Closest,
         origin: new Vector3(0, actor.actorHeight, 0),
         direction: new Vector3(0, -1, 0),
-        maxDistance: 0.1 + (actor.actorHeight * 0.5) + playerCollider.capsuleRadius,
+        maxDistance: actor.actorHalfHeight + 0.05,
         collisionMask: DefaultCollisionMask | CollisionGroups.Portal,
       }));
     });

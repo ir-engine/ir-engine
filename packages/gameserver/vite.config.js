@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { defineConfig, loadEnv } from 'vite-xrengine';
+import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(() => {
     const env = loadEnv('', process.cwd() + '../../');
