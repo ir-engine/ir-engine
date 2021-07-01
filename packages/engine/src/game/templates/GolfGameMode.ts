@@ -55,6 +55,9 @@ import { getPositionNextPoint } from "./Golf/behaviors/getPositionNextPoint";
 
 // ui
 import { createYourTurnPanel } from './Golf/behaviors/createYourTurnPanel'
+import { setupPlayerInput } from "./Golf/behaviors/setupPlayerInput";
+import { makeKinematic } from "./Golf/behaviors/makeKinematic";
+import { hasState } from "./gameDefault/checkers/hasState";
 
 /**
  * @author HydraFire
@@ -118,7 +121,7 @@ function somePrepareGameInitPlayersRole( gameRules: GameMode, maxPlayerCount) {
     searchPlaceAndAddRole( gameRules.gameObjectRoles, playerNumper+'-Player');
     if (playerNumper > 2) {
       cloneSameRoleRules (gameRules.initGameState, { from:'2-Player', to: playerNumper+'-Player'});
-    }
+    } 
   }
 }
 
@@ -188,7 +191,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   registerStateTagComponents: [],
   initGameState: {
     'newPlayer': {
-      behaviors: [addRole, createYourTurnPanel]
+      behaviors: [addRole, setupPlayerInput, createYourTurnPanel]
     },
     '1-Player': {
       components:[State.WaitTurn],
@@ -473,7 +476,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           watchers:[ [ State.Ready ] ],
           checkers:[{
             function: ifMoved,
-            args: { max: 0.005 }
+            args: { max: 0.01 }
           }]
         },
         {
@@ -481,7 +484,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           args: { on: 'self', remove: State.BallMoving, add: State.BallStopped },
           checkers:[{
             function: ifMoved,
-            args: { min: 0.0005 }
+            args: { min: 0.001 }
           }]
         },
         {
@@ -489,9 +492,19 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           watchers:[ [ State.BallStopped , State.Inactive ] ],
           checkers:[{
             function: ifMoved,
-            args: { on: 'self', max: 0.0001 }
+            args: { on: 'self', max: 0.001 }
           }]
         },
+        // {
+        //   behavior: makeKinematic,
+        //   args: { kineamtic: true },
+        //   watchers:[ [ State.Inactive ] ]
+        // },
+        // {
+        //   behavior: makeKinematic,
+        //   args: { kineamtic: false },
+        //   watchers:[ [ State.Active ] ]
+        // },
         // whan ball spawn he droping and gets moving State, we give Raady state for him whan he stop
         {
           behavior: switchState,
@@ -546,12 +559,15 @@ export const GolfGameMode: GameMode = somePrepareFunction({
         {
           behavior: hitBall,
           watchers:[ [ State.addedHit ] ],
-          args: { clubPowerMultiplier: 5, hitAdvanceFactor: 1.2  },
+          args: { clubPowerMultiplier: 5, hitAdvanceFactor: 4  },
           takeEffectOn: {
             targetsRole: {
               'GolfBall': {
                 checkers:[{
                   function: ifOwned
+                },{
+                  function: hasState,
+                  args: { stateComponent: State.Active }
                 }]
               }
             }

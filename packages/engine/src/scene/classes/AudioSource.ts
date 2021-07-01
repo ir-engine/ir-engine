@@ -1,6 +1,5 @@
-import { Object3D } from "three";
-import { Engine, Audio, PositionalAudio } from "../../ecs/classes/Engine";
-import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { Object3D, Audio, PositionalAudio } from "three";
+import { Engine } from "../../ecs/classes/Engine";
 import { RethrownError } from "../../editor/functions/errors";
 
 export const AudioType = {

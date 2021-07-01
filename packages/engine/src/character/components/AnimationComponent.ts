@@ -19,7 +19,6 @@ export class AnimationComponent extends Component<AnimationComponent> {
 
   /** Previous velocity of the character */
   prevVelocity: Vector3;
-
 }
 
 AnimationComponent._schema = {
@@ -28,5 +27,5 @@ AnimationComponent._schema = {
   currentState: { type: Types.Ref, default: null },
   prevState: { type: Types.Ref, default: null },
   animationGraph: { type: Types.Ref, default: null },
-  prevVelocity: { type: Types.Ref, default: new Vector3() },
+  prevVelocity: { type: Types.Ref, default: null },
 };

@@ -76,12 +76,12 @@ class Bot {
             this[method] = (...args) => this.evaluate(InBrowserBot.prototype[method], ...args)
         }
         
-        const channelState = chatState.get('channels');
-        const channels = channelState.get('channels');
-        const activeChannelMatch = [...channels].find(([, channel]) => channel.channelType === 'instance');
-        if (activeChannelMatch && activeChannelMatch.length > 0) {
-            this.activeChannel = activeChannelMatch[1];
-        }
+        // const channelState = chatState.get('channels');
+        // const channels = channelState.get('channels');
+        // const activeChannelMatch = [...channels].find(([, channel]) => channel.channelType === 'instance');
+        // if (activeChannelMatch && activeChannelMatch.length > 0) {
+        //     this.activeChannel = activeChannelMatch[1];
+        // }
     }
 
     async keyPress(key, numMilliSeconds) {
@@ -107,10 +107,10 @@ class Bot {
         await this.clickElementByClass('button', 'sendMessage');
     }
 
-    async getInstanceMessages() {
-        console.log("Getting messages from instance channel: ", this.activeChannel);
-        return this.activeChannel && this.activeChannel.chatState;
-    }
+    // async getInstanceMessages() {
+    //     console.log("Getting messages from instance channel: ", this.activeChannel);
+    //     return this.activeChannel && this.activeChannel.chatState;
+    // }
 
 
     async sendAudio(duration) {
@@ -177,9 +177,6 @@ class Bot {
      * @param args The arguments to be passed to fn. These will be serailized when passed through puppeteer
      */
     async evaluate(fn, ...args) {
-        if (!this.browser) {
-            await this.launchBrowser();
-        }
         return await this.page.evaluate(fn, ...args)
     }
 

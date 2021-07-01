@@ -82,10 +82,15 @@ if (config.gameserver.enabled) {
 
     // Set up Plugins and providers
     app.configure(rest());
+    console.log('gameserver clientHost:', config.gameserver.clientHost);
     app.configure(socketio({
       serveClient: false,
       cors:{
-        origin: config.gameserver.clientHost,
+        origin: [
+            'https://' + config.gameserver.clientHost + ':' + process.env.APP_PORT,
+            'capacitor://' + config.gameserver.clientHost + ':' + process.env.APP_PORT,
+            'ionic://' + config.gameserver.clientHost + ':' + process.env.APP_PORT
+        ],
         methods: ['OPTIONS', 'GET', 'POST'],
         allowedHeaders: '*',
         preflightContinue: true,

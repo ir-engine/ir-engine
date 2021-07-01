@@ -1,5 +1,4 @@
 import { Not } from '../../ecs/functions/ComponentFunctions';
-import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { System, SystemAttributes } from '../../ecs/classes/System';
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
@@ -22,8 +21,8 @@ import { CharacterComponent } from '../../character/components/CharacterComponen
 import { characterInterpolationBehavior } from '../../character/behaviors/characterInterpolationBehavior';
 import { rigidbodyInterpolationBehavior } from '../behaviors/rigidbodyInterpolationBehavior';
 import { LocalInterpolationComponent } from '../components/LocalInterpolationComponent';
-import { experementalRigidbodyCorrectionBehavior } from '../behaviors/experementalRigidbodyCorrectionBehavior';
 import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent';
+import { rigidbodyCorrectionBehavior } from '../behaviors/rigidbodyCorrectionBehavior';
 
 
 /**
@@ -92,21 +91,23 @@ export class PhysicsSystem extends System {
     this.queryResults.collider.all?.forEach(entity => {
       const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent);
       const transform = getComponent(entity, TransformComponent);
+
       if (collider.body.type === BodyType.KINEMATIC) {
+
         collider.velocity.subVectors(collider.body.transform.translation, transform.position)
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation });
-      } else if(collider.body.type === BodyType.DYNAMIC){
-        if(!isClient) { // this for the copy what intepolation calc velocity
-          collider.velocity.subVectors(transform.position, collider.body.transform.translation);
-        }
+
+      } else if(collider.body.type === BodyType.DYNAMIC) {
+
+        collider.velocity.subVectors(transform.position, collider.body.transform.translation);
 
         transform.position.set(
           collider.body.transform.translation.x,
           collider.body.transform.translation.y,
           collider.body.transform.translation.z
         );
-
         collider.position.copy(transform.position)
+
         transform.rotation.set(
           collider.body.transform.rotation.x,
           collider.body.transform.rotation.y,
@@ -141,8 +142,8 @@ export class PhysicsSystem extends System {
       });
 
       this.queryResults.localObjectInterpolation.all?.forEach(entity => {
-        //rigidbodyCorrectionBehavior(entity, snapshots, delta);
-        experementalRigidbodyCorrectionBehavior(entity, snapshots, delta);
+        rigidbodyCorrectionBehavior(entity, snapshots, delta);
+        // experementalRigidbodyCorrectionBehavior(entity, snapshots, delta);
       });
 
       // If a networked entity does not have an interpolation component, just copy the data

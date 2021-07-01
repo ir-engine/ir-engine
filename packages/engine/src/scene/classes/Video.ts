@@ -6,7 +6,8 @@ import {
   DoubleSide,
   Mesh,
   SphereBufferGeometry,
-  RGBAFormat
+  RGBAFormat,
+  VideoTexture
 } from "three";
 import { RethrownError } from "../../editor/functions/errors";
 import Hls from "hls.js/dist/hls.light";
@@ -16,8 +17,7 @@ export const VideoProjection = {
   Flat: "flat",
   Equirectangular360: "360-equirectangular"
 };
-import { Engine, VideoTexture } from "../../ecs/classes/Engine";
-import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { Engine } from "../../ecs/classes/Engine";
 
 export default class Video extends AudioSource {
   // @ts-ignore

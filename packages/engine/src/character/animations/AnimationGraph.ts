@@ -5,7 +5,7 @@ import { AnimationComponent } from "../components/AnimationComponent";
 import { CharacterComponent } from "../components/CharacterComponent";
 import { AnimationState } from "./AnimationState";
 import { calculateMovement } from "./MovingAnimations";
-import { CalculateWeightsParams, CharacterStates } from "./Util";
+import { AnimationType, CalculateWeightsParams, CharacterStates } from "./Util";
 
 /** Base Class which hold the animation graph for entity. Animation graph will resides in Animation Component. */
 export class AnimationGraph {
@@ -60,29 +60,32 @@ export class AnimationGraph {
         // If transition is paused the return
         if (this.isTransitionPaused) return;
 
-        // Validat the transition
+        // If new state is the same as old one skip transition
+        if (!params.forceTransition && newState === animationComponent.currentState.name) {
+            return;
+        }
+
+        // Validate the transition
         const nextState = this.states[newState];
         if (!this.validateTransition(animationComponent.currentState, nextState)) {
             return;
         }
 
 		// Immediately unmount previous state if any
-        if (newState !== animationComponent.currentState.name) {
-			if (animationComponent.prevState) {
-				animationComponent.prevState.unmount(true);
-			}
+        if (animationComponent.prevState) {
+            animationComponent.prevState.unmount(true);
+        }
 
-            // Never unmount default state
-            if (animationComponent.currentState.name !== this.defaultState.name) {
+        // Never unmount default state
+        if (animationComponent.currentState.name !== this.defaultState.name) {
 
-                // Set current state as previous state
-                animationComponent.prevState = animationComponent.currentState;
-                animationComponent.prevState.timeElapsedAfterUnmount = 0;
-            }
+            // Set current state as previous state
+            animationComponent.prevState = animationComponent.currentState;
+            animationComponent.prevState.timeElapsedAfterUnmount = 0;
+        }
 
-            // Set new state
-			animationComponent.currentState = this.states[newState];
-		}
+        // Set new state
+        animationComponent.currentState = this.states[newState];
 
 		// Mount new state
         animationComponent.currentState.mount(actor, params);
@@ -102,14 +105,16 @@ export class AnimationGraph {
             this.pauseTransitionFor(animationComponent.currentState.pauseTransitionDuration);
         }
 
-        // Send change animation commnad over network
-        Network.instance.clientInputState.commands.push({
-            type: Commands.CHANGE_ANIMATION_STATE,
-            args: convertObjToBufferSupportedString({
-                state: newState,
-                params,
-            }),
-        });
+        // Send change animation commnad over network for the local client entity
+        if (Network.instance.localClientEntity.id === animationComponent.entity.id && animationComponent.currentState.type === AnimationType.STATIC) {
+            Network.instance.clientInputState.commands.push({
+                type: Commands.CHANGE_ANIMATION_STATE,
+                args: convertObjToBufferSupportedString({
+                    state: newState,
+                    params,
+                }),
+            });
+        }
     }
 
     /**

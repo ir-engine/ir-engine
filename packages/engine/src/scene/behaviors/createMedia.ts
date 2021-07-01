@@ -1,5 +1,3 @@
-import Video from '../../scene/classes/Video';
-import Audio from '../../scene/classes/AudioSource';
 import { Object3D } from 'three';
 import { addObject3DComponent } from './addObject3DComponent';
 import { Engine } from '../../ecs/classes/Engine';
@@ -13,8 +11,9 @@ import VolumetricComponent from "../components/VolumetricComponent";
 import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { InteractiveSystem } from '../../interaction/systems/InteractiveSystem';
+import Video from '../classes/Video';
 
-const isBrowser=new Function("try {return this===window;}catch(e){ return false;}");
+const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
 
 const DracosisPlayer = null;
 if (isBrowser()) {
@@ -25,16 +24,36 @@ if (isBrowser()) {
   // import PlayerWorker from 'volumetric/src/decoder/workerFunction.ts?worker';
 }
 
+export interface AudioProps {
+  src: string;
+  controls: boolean;
+  autoPlay: boolean;
+  loop: boolean;
+  audioType: 'stereo' | 'pannernode';
+  volume: number; 
+  distanceModel: 'linear' | 'inverse' | 'exponential';
+  rolloffFactor: number;
+  refDistance: number;
+  maxDistance: number;
+  coneInnerAngle: number;
+  coneOuterAngle: number;
+  coneOuterGain: number;
+  interactable: boolean;
+}
 
+export interface VideoProps extends AudioProps {
+  isLivestream: boolean;
+  projection: 'flat' | '360-equirectangular';
+}
 
 const elementPlaying = (element: any): boolean => {
-  if(isWebWorker) return element?._isPlaying;
+  if (isWebWorker) return element?._isPlaying;
   return element && (!!(element.currentTime > 0 && !element.paused && !element.ended && element.readyState > 2));
 };
 
 const onMediaInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
   const volumetric = getComponent(entityInteractive, VolumetricComponent);
-  if(volumetric) {
+  if (volumetric) {
     // TODO handle volumetric interaction here
     return
   }
@@ -59,15 +78,20 @@ const onMediaInteractionHover: Behavior = (entityInitiator, { focused }: { focus
   });
 };
 
-export function createAudio(entity, args: any): void {
+export function createMediaServer(entity, args: any): void {
+  addObject3DComponent(entity, { obj3d: new Object3D(), objArgs: args });
+  if (args.interactable) addInteraction(entity);
+}
+
+export function createAudio(entity, args: AudioProps): void {
   addObject3DComponent(entity, { obj3d: new Audio(Engine.audioListener), objArgs: args });
-  addInteraction(entity);
+  if(args.interactable) addInteraction(entity);
 }
 
 
-export function createVideo(entity, args: any): void {
+export function createVideo(entity, args: VideoProps): void {
   addObject3DComponent(entity, { obj3d: new Video(Engine.audioListener), objArgs: args });
-  addInteraction(entity);
+  if(args.interactable) addInteraction(entity);
 }
 
 export const createVolumetric: Behavior = (entity, args: any) => {
@@ -89,13 +113,8 @@ export const createVolumetric: Behavior = (entity, args: any) => {
   });
   volumetricComponent.player = DracosisSequence;
   addObject3DComponent(entity, { obj3d: container });
-  addInteraction(entity);
+  if(args.interactable) addInteraction(entity);
 };
-
-export function createMediaServer(entity, args: any): void {
-  addObject3DComponent(entity, { obj3d: new Object3D(), objArgs: args });
-  addInteraction(entity)
-}
 
 function addInteraction(entity): void {
 
@@ -122,7 +141,7 @@ function addInteraction(entity): void {
 
   const { el: mediaElement } = getComponent(entity, Object3DComponent).value as AudioSource;
 
-  if(mediaElement) {
+  if (mediaElement) {
     mediaElement.addEventListener('play', () => {
       onVideoStateChange(true);
     });

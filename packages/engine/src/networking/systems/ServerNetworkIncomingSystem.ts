@@ -22,7 +22,7 @@ import { getGameFromName } from '../../game/functions/functions';
 import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent';
 import { BaseInput } from '../../input/enums/BaseInput';
 import { Quaternion } from 'three';
-import { executeCommnads } from '../functions/executeCommands';
+import { executeCommands } from '../functions/executeCommands';
 
 
 export function cancelAllInputs(entity) {
@@ -117,7 +117,7 @@ export class ServerNetworkIncomingSystem extends System {
       }
 
       if (clientInput.commands.length > 0) {
-        executeCommnads(entity, clientInput.commands);
+        executeCommands(entity, clientInput.commands);
       }
 
       const actor = getMutableComponent(entity, CharacterComponent);

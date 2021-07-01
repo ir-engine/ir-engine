@@ -1,4 +1,4 @@
-import { Engine, PositionalAudio, AudioListener } from '../../ecs/classes/Engine';
+import { Engine } from '../../ecs/classes/Engine';
 import { System, SystemAttributes } from '../../ecs/classes/System';
 import {
   getComponent,
@@ -14,6 +14,8 @@ import { PositionalAudioComponent } from '../components/PositionalAudioComponent
 import { isClient } from '../../common/functions/isClient';
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
 import { Entity } from '../../ecs/classes/Entity';
+import { AudioListener, PositionalAudio } from 'three';
+import { EngineEvents } from '../../ecs/classes/EngineEvents';
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== "undefined" && /chrome/i.test(navigator.userAgent);
 function createSilentAudioEl(streamsLive) {
@@ -23,14 +25,6 @@ function createSilentAudioEl(streamsLive) {
   audioEl.srcObject = streamsLive;
   audioEl.volume = 0; // we don't actually want to hear audio from this element
   return audioEl;
-}
-
-const createAudioContext = () => {
-  if(isClient) {
-    Engine.audioListener = new AudioListener();
-    Engine.camera.add(Engine.audioListener);
-  }
-  PositionalAudioSystem.instance.audioInitialised = true;
 }
 
 /** System class which provides methods for Positional Audio system. */
@@ -65,8 +59,8 @@ export class PositionalAudioSystem extends System {
 
   /** Execute the positional audio system for different events of queries. */
   execute(): void {
+
     for (const entity of this.queryResults.audio.added) {
-      if(!this.audioInitialised) createAudioContext();
       const positionalAudio = getMutableComponent(entity, PositionalAudioComponent);
       if (positionalAudio != null) positionalAudio.value = new PositionalAudio(Engine.audioListener);
     }

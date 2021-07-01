@@ -102,7 +102,7 @@ export class CharacterControllerSystem extends System {
         type: SceneQueryType.Closest,
         origin: new Vector3(0, actor.actorHeight, 0),
         direction: new Vector3(0, -1, 0),
-        maxDistance: 0.1 + (actor.actorHeight * 0.5) + playerCollider.capsuleRadius,
+        maxDistance: actor.actorHalfHeight + 0.05,
         collisionMask: DefaultCollisionMask | CollisionGroups.Portal,
       }));
     });
@@ -213,7 +213,9 @@ export class CharacterControllerSystem extends System {
       this.queryResults.animation.added?.forEach((entity) => {
         const animationComponent = getMutableComponent(entity, AnimationComponent);
         animationComponent.animationGraph = CharacterAnimationGraph.constructGraph();
-        animationComponent.currentState = animationComponent.animationGraph[CharacterStates.IDLE];
+        animationComponent.currentState = animationComponent.animationGraph.states[CharacterStates.IDLE];
+        animationComponent.currentState.mount(getMutableComponent(entity, CharacterComponent), {});
+        animationComponent.prevVelocity = new Vector3();
       });
 
       this.queryResults.animation.all?.forEach((entity) => {
