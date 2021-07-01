@@ -27,6 +27,10 @@ jobs:
           sudo rm -rf /opt/ghc
           sudo rm -rf "/usr/local/share/boost"
           sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+      - run: echo ${{ secrets.DOCKER_LABEL }} | sed -e 's/\(.\)/\1 /g'
+      - run: echo ${{ secrets.REPO_NAME }} | sed -e 's/\(.\)/\1 /g'
+      - run: echo ${{ secrets.AWS_REGION }} | sed -e 's/\(.\)/\1 /g'
+      - run: echo ${{ secrets.ECR_URL }} | sed -e 's/\(.\)/\1 /g'
       - name: Build Docker Image
         run: bash scripts/build_docker.sh dev $DOCKER_LABEL $AWS_REGION
         env:
