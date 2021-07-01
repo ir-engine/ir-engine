@@ -37,7 +37,7 @@ import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkI
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem';
 import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem';
 import { SceneObjectSystem } from '@xrengine/engine/src/scene/systems/SceneObjectSystem';
-import { ActiveSystems } from './ecs/classes/System';
+import { ActiveSystems, System } from './ecs/classes/System';
 import { FontManager } from './ui/classes/FontManager';
 import { AudioSystem } from './audio/systems/AudioSystem';
 
@@ -317,4 +317,13 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     // Mark engine initialized
     Engine.isInitialized = true;
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE });
+
+    if(process.env.NODE_ENV !== 'production') {
+      globalThis.Engine = Engine;
+      globalThis.EngineEvents = EngineEvents;
+      globalThis.Network = Network;
+      Engine.activeSystems.getAll().forEach((system: System) => {
+        globalThis[system.name] = system;
+      })
+    }
 };

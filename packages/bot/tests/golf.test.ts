@@ -1,4 +1,6 @@
-import XREngineBot from '@xrengine/bot/src/bot';
+import XREngineBot from '../src/bot';
+import { engineInitialised, getPlayerPosition } from './engineTestUtils';
+// import { evaluate2 as evaluate} from 'puppeteer-evaluate2'
 
 const maxTimeout = 60 * 1000
 
@@ -14,25 +16,24 @@ describe('Golf tests', () => {
   beforeAll(async () => {
     await bot.launchBrowser()
     await bot.enterRoom(`https://${domain}/location/${locationName}`, { name: botName })
-  })
+    // await bot.setFocus('canvas');
+    // await bot.clickElementById('canvas', 'engine-renderer-canvas');
+  }, maxTimeout)
 
   afterAll(async () => {
     await bot.delay(3000)
     await bot.quit()
-  })
+  }, maxTimeout)
 
   test('Engine initialised', async () => {
-    const result = await bot.evaluate(async () => {
-      return globalThis.Engine.isInitialized;
-    })
+    const result = await bot.evaluate(engineInitialised)
     expect(result).toBe(true)
   }, maxTimeout)
-  
-  // test('Engine initialised', async () => {
-  //   const result = await bot.evaluate(async () => {
-  //     return globalThis.Engine.isInitialized;
-  //   })
-  //   expect(result).toBe(true)
+
+  // test('Can hit ball', async () => {
+  //   await bot.page.keyboard.press('KeyK');
+  //   const result = await evaluate(bot.page, getPlayerPosition)
+  //   expect(result).toBe('')
   // }, maxTimeout)
-  
+
 })

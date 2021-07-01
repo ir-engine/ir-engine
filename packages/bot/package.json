@@ -22,6 +22,7 @@
   "dependencies": {
     "@google-cloud/agones-sdk": "1.14.0",
     "chai": "^4.3.4",
+    "puppeteer-evaluate2": "^1.0.0-beta.0",
     "ts-jest": "^27.0.3"
   },
   "devDependencies": {
