@@ -87,9 +87,9 @@ if (config.server.enabled) {
       serveClient: false,
       cors: {
         origin: [
-          'https://' + config.server.clientHost + ':' + process.env.APP_PORT,
-          'capacitor://' + config.server.clientHost + ':' + process.env.APP_PORT,
-          'ionic://' + config.server.clientHost + ':' + process.env.APP_PORT
+          'https://' + config.server.clientHost,
+          'capacitor://' + config.server.clientHost,
+          'ionic://' + config.server.clientHost
         ],
         methods: ['OPTIONS', 'GET', 'POST'],
         allowedHeaders: '*',

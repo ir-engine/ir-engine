@@ -87,9 +87,9 @@ if (config.gameserver.enabled) {
       serveClient: false,
       cors:{
         origin: [
-            'https://' + config.gameserver.clientHost + ':' + process.env.APP_PORT,
-            'capacitor://' + config.gameserver.clientHost + ':' + process.env.APP_PORT,
-            'ionic://' + config.gameserver.clientHost + ':' + process.env.APP_PORT
+            'https://' + config.gameserver.clientHost,
+            'capacitor://' + config.gameserver.clientHost,
+            'ionic://' + config.gameserver.clientHost
         ],
         methods: ['OPTIONS', 'GET', 'POST'],
         allowedHeaders: '*',
