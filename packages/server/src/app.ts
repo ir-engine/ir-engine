@@ -82,10 +82,15 @@ if (config.server.enabled) {
 
     // Set up Plugins and providers
     app.configure(rest());
+    console.log('server clientHost:', config.server.clientHost);
     app.configure(socketio({
       serveClient: false,
       cors: {
-        origin: config.server.clientHost,
+        origin: [
+          'https://' + config.server.clientHost,
+          'capacitor://' + config.server.clientHost,
+          'ionic://' + config.server.clientHost
+        ],
         methods: ['OPTIONS', 'GET', 'POST'],
         allowedHeaders: '*',
         credentials: true

@@ -38,7 +38,7 @@ const server = {
   mode: process.env.SERVER_MODE,
   hostname: process.env.SERVER_HOST,
   port: process.env.SERVER_PORT,
-  clientHost: process.env.APP_URL,
+  clientHost: process.env.APP_HOST,
   // Public directory (used for favicon.ico, logo, etc)
   rootDir: process.env.BUILD_MODE === 'individual' ? path.resolve(appRootPath.path) : path.resolve(appRootPath.path, 'packages', 'server'),
   publicDir: process.env.SERVER_PUBLIC_DIR || (process.env.BUILD_MODE === 'individual' ? path.resolve(appRootPath.path, 'public') : path.resolve(appRootPath.path, 'packages', 'server', 'public')),
@@ -80,7 +80,7 @@ const client = {
 };
 
 const gameserver = {
-  clientHost: process.env.APP_URL,
+  clientHost: process.env.APP_HOST,
   enabled: process.env.GAMESERVER_ENABLED === 'true',
   rtc_start_port: parseInt(process.env.RTC_START_PORT),
   rtc_end_port: parseInt(process.env.RTC_END_PORT),
