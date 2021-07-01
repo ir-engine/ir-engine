@@ -13,5 +13,7 @@ export function getComponent (entity, name) {
 }
 
 export function getPlayerPosition () {
-  return getComponent(globalThis.Network.instance.localClientEntity, 'TransformComponent')?.position;
+  return (Object.values(globalThis.Network.instance.localClientEntity.components).find((component: any) => { 
+    return component.name === 'TransformComponent';
+  }) as any)?.position;
 }
