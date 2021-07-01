@@ -4,7 +4,6 @@ import { isClient } from "../common/functions/isClient";
 import { Engine } from "../ecs/classes/Engine";
 import { Entity } from "../ecs/classes/Entity";
 import { getMutableComponent } from "../ecs/functions/EntityFunctions";
-import { CharacterStates } from "./animations/Util";
 import { AnimationComponent } from "./components/AnimationComponent";
 import { CharacterComponent } from "./components/CharacterComponent";
 
@@ -71,7 +70,7 @@ export class AnimationManager {
 			if (!isClient) {
 				resolve(new Group());
 			}
-			getLoader().load(Engine.publicPath + '/models/avatars/Animations.glb', gltf => {
+			getLoader().load(Engine.publicPath + '/models/avatars/Sonny.glb', gltf => {
 				console.log('default model loaded');
 				this._defaultModel = gltf.scene;
 				this._defaultModel.traverse((obj: Mesh) => {

@@ -93,6 +93,10 @@ export class AnimationState {
             if (!animation.action.isRunning() && animation.weight > 0) {
                 animation.action.play();
             }
+
+            if (params.resetAnimation && animation.weight === 0) {
+                animation.action.reset();
+            }
         });
     }
 
@@ -120,6 +124,96 @@ export class AnimationState {
                 }
             }
         });
+    }
+}
+
+export class LoopableEmoteState extends AnimationState {
+    name = CharacterStates.LOOPABLE_EMOTE;
+    type = AnimationType.STATIC;
+    nextStates = [];
+    animations: Animation[] = [
+        {
+            name: CharacterAnimations.DANCING_1,
+            weight: 0,
+            timeScale: 0.37,
+            loopType: LoopRepeat,
+        },
+        {
+            name: CharacterAnimations.DANCING_2,
+            weight: 0,
+            timeScale: 0.37,
+            loopType: LoopRepeat,
+        },
+        {
+            name: CharacterAnimations.CHEERING_1,
+            weight: 0,
+            timeScale: 0.37,
+            loopType: LoopRepeat,
+        },
+        {
+            name: CharacterAnimations.CHEERING_2,
+            weight: 0,
+            timeScale: 0.37,
+            loopType: LoopRepeat,
+        },
+    ];
+    calculateWeights = (params: CalculateWeightsParams) => {
+        if (!params.animationName) return;
+
+        this.animations.forEach(a => a.weight = params.animationName === a.name ? 1 : 0);
+    }
+}
+
+export class EmoteState extends AnimationState {
+    name = CharacterStates.EMOTE;
+    type = AnimationType.STATIC;
+    nextStates = [];
+    animations: Animation[] = [
+        {
+            name: CharacterAnimations.CLAPPING,
+            weight: 0,
+            timeScale: 0.37,
+            loopType: LoopOnce,
+            decorateAction: function(action: AnimationAction) {
+                action.setLoop(this.loopType, this.loopCount);
+                action.clampWhenFinished = true;
+            },
+        },
+        {
+            name: CharacterAnimations.WAVE_LEFT,
+            weight: 0,
+            timeScale: 0.37,
+            loopType: LoopOnce,
+            decorateAction: function(action: AnimationAction) {
+                action.setLoop(this.loopType, this.loopCount);
+                action.clampWhenFinished = true;
+            },
+        },
+        {
+            name: CharacterAnimations.WAVE_RIGHT,
+            weight: 0,
+            timeScale: 0.37,
+            loopType: LoopOnce,
+            decorateAction: function(action: AnimationAction) {
+                action.setLoop(this.loopType, this.loopCount);
+                action.clampWhenFinished = true;
+            },
+        },
+        {
+            name: CharacterAnimations.LAUGHING,
+            weight: 0,
+            timeScale: 0.37,
+            loopType: LoopOnce,
+            decorateAction: function(action: AnimationAction) {
+                action.setLoop(this.loopType, this.loopCount);
+                action.clampWhenFinished = true;
+            },
+        },
+    ];
+    calculateWeights = (params: CalculateWeightsParams) => {
+        if (!params.animationName) return;
+
+        this.animations.forEach(a => a.weight = params.animationName === a.name ? 1 : 0);
     }
 }
 
