@@ -179,8 +179,9 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
     this.replaceObject();
   }
 
-  exportEnvMap(){
-    this.addGLTFComponent("skybox", {
+  getSkyBoxProperties(){
+
+    return {
       turbidity: this.turbidity,
       rayleigh: this.rayleigh,
       luminance: this.luminance,
@@ -189,6 +190,6 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
       inclination: this.inclination,
       azimuth: this.azimuth,
       distance: this.distance
-    });
+    };
   }
 }

@@ -553,7 +553,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       this.addGLTFComponent("envMap",{
         type:"Color",
         options:{
-          color:this._envMapSourceColor,
+          colorString:this._envMapSourceColor,
           }
         });
     }
@@ -583,7 +583,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       });
 
       if(skyNode!==null){
-        (skyNode as SkyboxNode).exportEnvMap();
+        this.addGLTFComponent("SkyBox",(skyNode as SkyboxNode).getSkyBoxProperties());
       }
     }
   }
