@@ -44,7 +44,7 @@ import {
 	PointLight,
 	Points,
 	PointsMaterial,
-	PropertyBinding,
+	// PropertyBinding,
 	QuaternionKeyframeTrack,
 	RGBFormat,
 	RepeatWrapping,
@@ -2970,7 +2970,9 @@ class GLTFParser {
 	/** When Object3D instances are targeted by animation, they need unique names. */
 	createUniqueName( originalName ) {
 
-		const sanitizedName = PropertyBinding.sanitizeNodeName( originalName || '' );
+		// TODO: Check for the impact. Removed sanitization. This was preventing animations from funning.
+		// const sanitizedName = PropertyBinding.sanitizeNodeName( originalName || '' );
+		const sanitizedName = originalName;
 
 		let name = sanitizedName;
 

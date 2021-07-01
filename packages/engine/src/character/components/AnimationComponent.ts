@@ -19,7 +19,6 @@ export class AnimationComponent extends Component<AnimationComponent> {
 
   /** Previous velocity of the character */
   prevVelocity: Vector3;
-
 }
 
 AnimationComponent._schema = {
