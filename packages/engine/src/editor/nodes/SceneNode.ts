@@ -13,7 +13,9 @@ import {
   LinearFilter,
   DataTexture,
   Texture,
-  RGBFormat
+  RGBFormat,
+  CubeTextureLoader,
+  PMREMGenerator
 } from "three";
 import EditorNodeMixin from "./EditorNodeMixin";
 import { setStaticMode, StaticModes, isStatic } from "../functions/StaticMode";
@@ -526,25 +528,60 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
 
 
   async load(src, onError?) {
-    const nextSrc = src || "";
-    if (nextSrc === this._envMapSourceURL && nextSrc !== "") {
-      return;
+
+    switch(this.envMapTextureType){
+      case EnvMapTextureType.Equirectangular:
+        const nextSrc = src || "";
+        if (nextSrc === this._envMapSourceURL && nextSrc !== "") {
+          return;
+        }
+        this._envMapSourceURL = nextSrc;
+        try {
+          const { url } = await this.editor.api.resolveMedia(src);
+          if (this.environment) {
+            this.environment.dispose();
+          }
+          const texture = await loadTexture(src).catch(()=>this.errorInEnvmapURL=true) as any;
+          texture.encoding = sRGBEncoding;
+          texture.minFilter = LinearFilter;
+          this.environment=texture;
+          this.errorInEnvmapURL=false;
+        } catch (error) {
+          this.errorInEnvmapURL=true;
+          console.error(`Error loading image ${this._envMapSourceURL}`);
+        }
+      break;
+      
+      case EnvMapTextureType.Cubemap:
+        const negx = "negx.jpg";
+        const negy = "negy.jpg";
+        const negz = "negz.jpg";
+        const posx = "posx.jpg";
+        const posy = "posy.jpg";
+        const posz = "posz.jpg";
+
+        new CubeTextureLoader()
+        .setPath(src)
+        .load([posx, negx, posy, negy, posz, negz],
+        (texture) => {
+          const renderer = this.scene.renderer
+          const pmremGenerator = new PMREMGenerator(renderer);
+          const EnvMap = pmremGenerator.fromCubemap(texture).texture;
+          EnvMap.encoding = sRGBEncoding;
+          this.environment = EnvMap;
+          texture.dispose();
+          pmremGenerator.dispose();
+        },
+        (res)=> {
+          console.log(res);
+        },
+        (erro) => {
+          console.warn('Skybox texture could not be found!', erro);
+        }
+        );
+      break;
     }
-    this._envMapSourceURL = nextSrc;
-    try {
-      const { url } = await this.editor.api.resolveMedia(src);
-      if (this.environment) {
-        this.environment.dispose();
-      }
-      const texture = await loadTexture(src).catch(()=>this.errorInEnvmapURL=true) as any;
-      texture.encoding = sRGBEncoding;
-      texture.minFilter = LinearFilter;
-      this.environment=texture;
-      this.errorInEnvmapURL=false;
-    } catch (error) {
-      this.errorInEnvmapURL=true;
-      console.error(`Error loading image ${this._envMapSourceURL}`);
-    }
+
     return this;
   }
 

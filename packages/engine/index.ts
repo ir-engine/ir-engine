@@ -545,7 +545,6 @@ export { default as srcRendererEffectsGlslAntialiasingFxaaFrag } from './src/ren
 export { default as srcRendererEffectsGlslLinearToSrgbShaderFrag } from './src/renderer/effects/glsl/linear-to-srgb/shader.frag';
 export { default as srcRendererFunctionsDisposeScene } from './src/renderer/functions/disposeScene';
 export { default as srcRendererThreeWebGl } from './src/renderer/THREE.WebGL';
-export { default as srcSceneBehaviorsCreateSkybox } from './src/scene/behaviors/createSkybox';
 export { default as srcSceneClassesAudioSource } from './src/scene/classes/AudioSource';
 export { default as srcSceneClassesDirectionalPlaneHelper } from './src/scene/classes/DirectionalPlaneHelper';
 export { default as srcSceneClassesFloorPlan } from './src/scene/classes/FloorPlan';

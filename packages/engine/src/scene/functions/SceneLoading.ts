@@ -21,7 +21,6 @@ import { createGroup } from '../behaviors/createGroup';
 import { createLink } from '../behaviors/createLink';
 import { createAudio, createMediaServer, createVideo, createVolumetric } from "../behaviors/createMedia";
 import { createShadow } from '../behaviors/createShadow';
-import createSkybox from '../behaviors/createSkybox';
 import { createTransformComponent } from "../behaviors/createTransformComponent";
 import { createTriggerVolume } from '../behaviors/createTriggerVolume';
 import { handleAudioSettings } from '../behaviors/handleAudioSettings';
@@ -177,10 +176,6 @@ export class WorldScene {
 
       case 'ground-plane':
         createGround(entity, component.data)
-        break;
-
-      case 'skybox':
-        createSkybox(entity, component.data);
         break;
 
       case 'image':
