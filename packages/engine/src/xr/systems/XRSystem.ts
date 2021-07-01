@@ -80,6 +80,7 @@ export class XRSystem extends System {
           const mapping = gamepadMapping[source.gamepad.mapping || 'xr-standard'][source.handedness];
           source.gamepad?.buttons.forEach((button, index) => {
             // TODO : support button.touched and button.value
+            button.pressed && console.log(index, mapping.buttons[index])
             Engine.inputState.set(mapping.buttons[index], {
               type: InputType.BUTTON,
               value: button.pressed ? BinaryValue.ON : BinaryValue.OFF,

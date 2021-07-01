@@ -46,7 +46,6 @@ export default defineConfig(() => {
         },
         resolve: {
             alias: {
-                '@material-ui/icons': '@material-ui/icons/esm',
                 "socket.io-client": "socket.io-client/dist/socket.io.js",
                 "react-infinite-scroller": "react-infinite-scroller/dist/InfiniteScroll",
             }

@@ -50,7 +50,6 @@ export const getUuid = (entity: Entity) => {
   return hasComponent(entity, GameObject) ? getComponent(entity, GameObject).uuid : hasComponent(entity, GamePlayer) ? getComponent(entity, GamePlayer).uuid : undefined;
 };
 
-
 export const getTargetEntitys = (entity: Entity, entityTarget: Entity, args: any): Entity | Entity[] => {
   if (args === undefined || args.on === undefined || args.on === 'self') {
     return entity;

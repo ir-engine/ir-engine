@@ -20,7 +20,7 @@ const replaceEnvs = (obj, env) => {
     const matches = Array.from(obj[key].matchAll(/\$\{[^}]*\}+/g), m => m[0]);
 
     for (let match of matches) {
-      result[key] = result[key].replace(match, env[match.substring(2, match.length-1)])
+      result[key] = result[key].replace(match, env[match.substring(2, match.length - 1)])
     }
   }
 
