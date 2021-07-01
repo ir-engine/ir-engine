@@ -69,7 +69,7 @@ export const setEnvMap: Behavior = (entity, args: { type:string,options: any }) 
           );
           
           break;
-        case EnvMapTextureType.Equilateral:
+        case EnvMapTextureType.Equirectangular:
           new TextureLoader().load(args.options.url,(texture)=>{
             Engine.scene.environment=texture;
             texture.dispose();
@@ -112,7 +112,7 @@ export const setEnvMap: Behavior = (entity, args: { type:string,options: any }) 
       break;
 
 
-      
+
     case "ReflectionProbe":
       const options =args.options as ReflectionProbeSettings;
       SceneObjectSystem.instance.bpcemOptions.probeScale = options.probeScale;

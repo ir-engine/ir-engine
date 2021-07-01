@@ -187,7 +187,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   mediaConeOuterGain = 0;
 
   envMapSourceType=EnvMapSourceType.Default;
-  envMapTextureType=EnvMapTextureType.Equilateral;
+  envMapTextureType=EnvMapTextureType.Equirectangular;
   _envMapSourceColor="";
   _envMapSourceURL="";
 
@@ -568,7 +568,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     }
     else if(this.envMapSourceType==EnvMapSourceType.Default){
       let options={};
-      let skyNode=null;
+      let s_node=null;
       this.traverse(child => {
         if (child.isNode && child !== this) {
           if(child.nodeName==="Reflection Probe"){
@@ -577,13 +577,39 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
             return;
           }
           else if(child.nodeName==="Skybox"){
-            skyNode=child;
+            s_node=child;
           }
         }
       });
 
-      if(skyNode!==null){
-        this.addGLTFComponent("SkyBox",(skyNode as SkyboxNode).getSkyBoxProperties());
+      if(s_node!==null){
+        const skyNode=(s_node as SkyboxNode);
+        const type=skyNode.skyType;
+        switch(type){
+          case "equirectangular":
+            this.addGLTFComponent("envMap",{
+              type:"Texture",
+              options:{
+                url:skyNode.texturePath,
+                type:EnvMapTextureType.Equirectangular,
+              }
+            })
+            break;
+          case "cubemap":
+            this.addGLTFComponent("envMap",{
+              type:"Texture",
+              options:{
+                url:skyNode.texturePath,
+                type:EnvMapTextureType.Cubemap,
+              }
+            })
+            break;
+          case "skybox":
+          default:
+            const options=skyNode.getSkyBoxProperties();
+            this.addGLTFComponent("envMap",{type:"SkyBox",options});
+            break;
+        }
       }
     }
   }

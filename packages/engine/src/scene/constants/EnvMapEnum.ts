@@ -3,5 +3,5 @@ export const enum EnvMapSourceType{
 }
 
 export const enum EnvMapTextureType{
-    "Cubemap","Equilateral",
+    "Cubemap","Equirectangular",
 }
