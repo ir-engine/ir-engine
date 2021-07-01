@@ -41,7 +41,7 @@ export default function createSkybox(entity, args: any): void {
         pmremGenerator.dispose();
 
         // update anything that depends on the env changing
-        WorldScene.executeAssetTypeLoadCallback(SCENE_ASSET_TYPES.ENVMAP)
+        //WorldScene.executeAssetTypeLoadCallback(SCENE_ASSET_TYPES.ENVMAP)
       },
       (res)=> {
         console.log(res);
@@ -61,7 +61,7 @@ export default function createSkybox(entity, args: any): void {
       pmremGenerator.dispose();
 
       // update anything that depends on the env changing
-      WorldScene.executeAssetTypeLoadCallback(SCENE_ASSET_TYPES.ENVMAP)
+      //WorldScene.executeAssetTypeLoadCallback(SCENE_ASSET_TYPES.ENVMAP)
     });
   }
   else {
@@ -93,6 +93,6 @@ export default function createSkybox(entity, args: any): void {
     Engine.scene.environment = skyboxTexture;
 
     // update anything that depends on the env changing
-    WorldScene.executeAssetTypeLoadCallback(SCENE_ASSET_TYPES.ENVMAP)
+    //WorldScene.executeAssetTypeLoadCallback(SCENE_ASSET_TYPES.ENVMAP)
   }
 }

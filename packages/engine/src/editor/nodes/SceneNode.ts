@@ -23,11 +23,12 @@ import GroupNode from "./GroupNode";
 import getNodeWithUUID from "../functions/getNodeWithUUID";
 import serializeColor from "../functions/serializeColor";
 import { FogType } from '../../scene/constants/FogType';
-import { EnvMapSourceType } from '../../scene/constants/EnvMapSourceType';
+import { EnvMapSourceType, EnvMapTextureType } from '../../scene/constants/EnvMapEnum';
 import {DistanceModelType} from "../../scene/classes/AudioSource";
 import { RethrownError } from "../functions/errors";
 import loadTexture from "../functions/loadTexture";
 import Image from "../../scene/classes/Image";
+import SkyboxNode from "./SkyboxNode";
 
 export default class SceneNode extends EditorNodeMixin(Scene) {
   static nodeName = "Scene";
@@ -186,6 +187,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   mediaConeOuterGain = 0;
 
   envMapSourceType=EnvMapSourceType.Default;
+  envMapTextureType=EnvMapTextureType.Equilateral;
   _envMapSourceColor="";
   _envMapSourceURL="";
 
@@ -534,21 +536,13 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       if (this.environment) {
         this.environment.dispose();
       }
-      const texture = await loadTexture(src) as any;
+      const texture = await loadTexture(src).catch(()=>this.errorInEnvmapURL=true) as any;
       texture.encoding = sRGBEncoding;
       texture.minFilter = LinearFilter;
       this.environment=texture;
       this.errorInEnvmapURL=false;
     } catch (error) {
       this.errorInEnvmapURL=true;
-      // const imageError = new RethrownError(
-      //   `Error loading image ${this._envMapSourceURL}`,
-      //   error
-      // );
-      // if (onError) {
-      //   onError(this, imageError);
-      // }
-
       console.error(`Error loading image ${this._envMapSourceURL}`);
     }
     return this;
@@ -568,6 +562,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         type:"Texture",
         options:{
           url:this._envMapSourceURL,
+          type:this.envMapTextureType,
         }
       });
     }
@@ -588,7 +583,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       });
 
       if(skyNode!==null){
-        this.addGLTFComponent("skythin",skyNode);
+        (skyNode as SkyboxNode).exportEnvMap();
       }
     }
   }

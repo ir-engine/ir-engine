@@ -1,7 +1,7 @@
 import { Globe } from "@styled-icons/fa-solid/Globe";
 import { DistanceModelOptions, DistanceModelType } from "@xrengine/engine/src/scene/classes/AudioSource";
 import { FogType } from "@xrengine/engine/src/scene/constants/FogType";
-import { EnvMapSourceType } from "@xrengine/engine/src/scene/constants/EnvMapSourceType";
+import { EnvMapSourceType,EnvMapTextureType } from "@xrengine/engine/src/scene/constants/EnvMapEnum";
 import i18n from "i18next";
 import PropTypes from "prop-types";
 import React from "react";
@@ -35,6 +35,21 @@ const EnvMapSourceOptions=[
     label:"Color",
     value:EnvMapSourceType.Color,
   },
+]
+
+/**
+ * EnvMapSourceOptions array containing SourceOptions for Envmap
+ */
+ const EnvMapTextureOptions=[
+  {
+    label:"Cubemap",
+    value:EnvMapTextureType.Cubemap,
+  },
+  {
+    label:"Equilateral",
+    value:EnvMapTextureType.Equilateral,
+  },
+
 ]
 
 /**
@@ -137,6 +152,7 @@ export function SceneNodeEditor(props) {
   const onChangeFogDensity = useSetPropertySelected(editor, "fogDensity");
 
   const onChangeEnvmapSourceType = useSetPropertySelected(editor, "envMapSourceType");
+  const onChangeEnvmapTextureType = useSetPropertySelected(editor, "envMapTextureType");
   const onChangeEnvmapColorSource = (value)=>{
     const colorString=serializeColor(value);
     (props.editor as any).setPropertySelected(
@@ -198,14 +214,23 @@ export function SceneNodeEditor(props) {
         {
             (node.envMapSourceType===EnvMapSourceType.Texture) &&
             (
-               /* @ts-ignore */ 
-              <InputGroup name='Texture URL' label="Texture URL">
-                <ImageInput value={node.envMapSourceURL} onChange={onChangeEnvmapURLSource}/>
-                {
-                (props.node as SceneNode).errorInEnvmapURL &&
-                  <div>Error Loading From URL </div>
-                }
-              </InputGroup>
+              <div>
+                {/* @ts-ignore */} 
+                <InputGroup name='Texture Type' label="Texture URL">
+                  {/* @ts-ignore */} 
+                  <SelectInput  options={EnvMapTextureOptions} value={node.envMapTextureType} onChange={onChangeEnvmapTextureType} />
+                </InputGroup>
+                {/* @ts-ignore */} 
+                <InputGroup name='Texture URL' label="Texture URL">
+                  <ImageInput value={node.envMapSourceURL} onChange={onChangeEnvmapURLSource}/>
+                  {
+                    (props.node as SceneNode).errorInEnvmapURL &&
+                    <div>Error Loading From URL </div>
+                  }
+
+                </InputGroup>
+
+              </div>
             )
         }
 
