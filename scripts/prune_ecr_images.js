@@ -5,7 +5,8 @@ const AWS = require('aws-sdk');
 cli.enable('status');
 
 const options = cli.parse({
-    repoName: [false, 'Name of repository', 'string']
+    repoName: [false, 'Name of repository', 'string'],
+    region: [false, 'Name of AWS region', 'string']
 });
 
 cli.main(async () => {
