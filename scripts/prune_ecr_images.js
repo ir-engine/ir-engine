@@ -11,6 +11,7 @@ const options = cli.parse({
 
 cli.main(async () => {
     try {
+        console.log('Pruning with options', options);
         const ecr = new AWS.ECR({region: options.region || 'us-east-1'});
         const result = await ecr.describeImages({repositoryName: options.repoName || 'xrengine'}).promise();
         const images = result.imageDetails;
