@@ -1,11 +1,8 @@
 import { Vector3 } from 'three';
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { Entity } from '../../../../ecs/classes/Entity';
-import { getComponent, getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions';
-import { getStorage, setStorage } from '../../../../game/functions/functionsStorage';
+import { getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions';
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
-import { GamePlayer } from '../../../components/GamePlayer';
-import { GamesSchema } from '../../GamesSchema';
 import { GolfClubComponent } from '../components/GolfClubComponent';
 
 /**
