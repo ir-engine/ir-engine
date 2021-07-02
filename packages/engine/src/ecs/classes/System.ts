@@ -73,6 +73,17 @@ export class ActiveSystems {
   }
 
   /**
+   * Returns all active system arrays concatenated.
+   */
+  getAll() {
+    return [
+      ...this[SystemUpdateType.Free],
+      ...this[SystemUpdateType.Fixed],
+      ...this[SystemUpdateType.Network]
+    ]
+  }
+
+  /**
    * Clears active system arrays.
    */
   clear() {
@@ -204,7 +215,7 @@ export abstract class System {
 
     const _name = (this.constructor as any).getName();
     const name = _name.substr(0, 1) === '_' ? _name.slice(1) : _name;
-    globalThis[name] = this;
+    this.name = name;
 
     this.enabled = true;
 

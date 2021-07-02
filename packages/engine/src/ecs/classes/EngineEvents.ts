@@ -34,9 +34,6 @@ export class EngineEvents {
   static readonly instance: EngineEvents = new EngineEvents();
   static EVENTS = EVENTS;
   _listeners = {};
-  constructor() {
-    globalThis.EngineEvents = EngineEvents.instance;
-  }
   public reset(): void {
     Object.keys(EngineEvents.instance._listeners).forEach(key => {
       delete EngineEvents.instance._listeners[key];
