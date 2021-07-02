@@ -6,7 +6,7 @@ import { GameObject } from "../../game/components/GameObject";
 import { TransformComponent } from '../../transform/components/TransformComponent';
 import { GameMode } from "../../game/types/GameMode";
 
-interface gameData {
+interface GameDataProps {
   minPlayers: number,
   maxPlayers:number,
   isGlobal: boolean,
@@ -18,7 +18,7 @@ interface gameData {
 }
 
 
-export const createGame: Behavior = (entity, args: gameData) => {
+export const createGame: Behavior = (entity, args: GameDataProps) => {
   console.log(args.gameMode+' GAME LOADING ...');
 
   const transform = getMutableComponent(entity, TransformComponent);
@@ -48,7 +48,7 @@ export const createGame: Behavior = (entity, args: gameData) => {
   gameSchema.onGameLoading(entity);
 };
 
-export const createGameObject: Behavior = (entity, args: gameData) => {
+export const createGameObject: Behavior = (entity, args: GameDataProps) => {
   if (args.sceneEntityId === undefined) {
     console.warn("DONT SAVE COLLIDER FOR GAME OBJECT");
   }

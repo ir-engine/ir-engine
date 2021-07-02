@@ -1,3 +1,11 @@
+/** This Module contains function to perform different operations on 
+ *    {@link https://threejs.org/docs/#api/en/core/Object3D | Object3D } from three.js library. 
+ *     @packageDocumentation
+ * */
+
+
+
+
 import { BodyType } from "three-physx";
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
@@ -6,7 +14,7 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent';
 import { addColliderWithoutEntity } from '../../physics/behaviors/colliderCreateFunctions';
 import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
 import { addCollidersToNetworkVehicle } from '../../vehicle/prefabs/NetworkVehicle';
-import { Quaternion, Vector3 } from "@etherealjs/core";
+import { Quaternion, Vector3 } from "three";
 import { ColliderTypes } from "../../physics/types/PhysicsTypes";
 
 /**
