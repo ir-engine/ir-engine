@@ -94,7 +94,7 @@ export function createVideo(entity, args: VideoProps): void {
   if(args.interactable) addInteraction(entity);
 }
 
-export const createVolumetric: Behavior = (entity, args: any) => {
+export const createVolumetric: Behavior = (entity, args: volumetricProps) => {
   addComponent(entity, VolumetricComponent);
   const volumetricComponent = getMutableComponent(entity, VolumetricComponent);
   const container = new Object3D();
@@ -149,4 +149,12 @@ function addInteraction(entity): void {
       onVideoStateChange(false);
     });
   }
+}
+
+
+interface volumetricProps{
+  src :string,
+  loop :number,
+  autoPlay  : boolean,
+  interactable: boolean
 }
