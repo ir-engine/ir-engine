@@ -11,9 +11,9 @@ export default {
     find: [
       addAssociations({
         models: [
-          {
-            model: 'location-ban'
-          },
+          // {
+          //   model: 'location-ban'
+          // },
           {
             model: 'location-settings'
           }
@@ -23,9 +23,9 @@ export default {
     get: [
       addAssociations({
         models: [
-          {
-            model: 'location-ban'
-          },
+          // {
+          //   model: 'location-ban'
+          // },
           {
             model: 'location-settings'
           }
