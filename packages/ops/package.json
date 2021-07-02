@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/ops",
-  "version": "0.3.24",
+  "version": "0.3.26",
   "private": true,
   "description": "Dev Ops tooling for XREngine",
   "repository": "http://github.com/XRFoundation/XREngine",

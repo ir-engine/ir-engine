@@ -433,3 +433,7 @@ To do this, please run as following.
 
 For more information, please visit here
 https://github.com/douglas-treadwell/sequelize-cli-typescript
+
+## Browser Debug
+
+```p key``` debug colliders view

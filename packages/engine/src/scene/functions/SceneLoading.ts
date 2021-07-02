@@ -39,6 +39,9 @@ import { createPortal } from '../behaviors/createPortal';
 import { createGround } from '../behaviors/createGround';
 import { handleRendererSettings } from '../behaviors/handleRendererSettings';
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
+import { startLivestreamOnServer } from '../../networking/functions/startLivestreamOnServer';
+import LivestreamProxyComponent from '../components/LivestreamProxyComponent';
+import LivestreamComponent from '../components/LivestreamComponent';
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP,
@@ -185,8 +188,17 @@ export class WorldScene {
         break;
 
       case 'video':
-        if (isClient) createVideo(entity, component.data);
-        else createMediaServer(entity, component.data);
+        // if livestream, server will send the video info to the client
+        if (isClient) {
+          if(!component.data.isLivestream) {
+            createVideo(entity, component.data);
+          }
+          addComponent(entity, LivestreamComponent)
+        } else if(component.data.isLivestream) {
+          addComponent(entity, LivestreamProxyComponent, { src: component.data.src })
+        } else {
+          createMediaServer(entity, component.data);
+        }
         break;
 
       case 'audio':
@@ -228,9 +240,9 @@ export class WorldScene {
         break;
 
       case 'renderer-settings':
-        handleRendererSettings(component.data as any);
+        handleRendererSettings(component.data);
         break;
-      
+
       case 'spawn-point':
         addComponent(entity, SpawnPointComponent);
         break;
@@ -288,7 +300,7 @@ export class WorldScene {
       case 'persist':
         if(isClient) addComponent(entity, PersistTagComponent);
         break;
-      
+
       case 'portal': 
         createPortal(entity, component.data)
         break;

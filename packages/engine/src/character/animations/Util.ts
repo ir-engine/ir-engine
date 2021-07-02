@@ -10,6 +10,8 @@ export const CharacterStates = {
     INTERACTING: 'INTERACTING',
     ENTERING_VEHICLE: 'ENTERING_VEHICLE',
     EXITING_VEHICLE: 'EXITING_VEHICLE',
+    EMOTE: 'EMOTE',
+    LOOPABLE_EMOTE: 'LOOPABLE_EMOTE',
 }
 
 export const CharacterAnimations = {
@@ -37,6 +39,16 @@ export const CharacterAnimations = {
     RUN_BACKWARD: 'run_backward',
     RUN_STRAFE_RIGHT: 'run_right',
     RUN_STRAFE_LEFT: 'run_left',
+
+    // Emotes
+    CHEERING_1: 'cheering_1',
+    CHEERING_2: 'cheering_2',
+    CLAPPING: 'clapping',
+    DANCING_1: 'dancing_1',
+    DANCING_2: 'dancing_2',
+    LAUGHING: 'laughing',
+    WAVE_LEFT: 'wave_left',
+    WAVE_RIGHT: 'wave_right',
 }
 
 /** Type of movement of the character in any given frame */
@@ -64,6 +76,9 @@ export type CalculateWeightsParams = {
 
     /** Whether the weight are calculated at the time of mounting */
     isMounting?: boolean;
+
+    /** Whether reset currrent playing animation */
+    resetAnimation?: boolean;
 
     /** Other data to be passed with */
     [key: string]: any;

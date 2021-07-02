@@ -58,16 +58,11 @@ class PageUtils {
  */
 class Bot {
     activeChannel;
-    constructor({
-        name = "Bot",
-        fakeMediaPath,
-        headless = true,
-        autoLog = true} = {}
-    ) {
-        this.headless = headless;
-        this.name = name;
-        this.autoLog = autoLog;
-        this.fakeMediaPath = fakeMediaPath;
+    constructor(args = {}) {
+        this.headless = args.headless ?? true;
+        this.name = args.name ?? 'Bot';
+        this.autoLog = args.autoLog ?? true;
+        this.fakeMediaPath = args.fakeMediaPath ?? '';
 
         for (let method of Object.getOwnPropertyNames(InBrowserBot.prototype))
         {
@@ -76,18 +71,16 @@ class Bot {
             this[method] = (...args) => this.evaluate(InBrowserBot.prototype[method], ...args)
         }
         
-        const channelState = chatState.get('channels');
-        const channels = channelState.get('channels');
-        const activeChannelMatch = [...channels].find(([, channel]) => channel.channelType === 'instance');
-        if (activeChannelMatch && activeChannelMatch.length > 0) {
-            this.activeChannel = activeChannelMatch[1];
-        }
+        // const channelState = chatState.get('channels');
+        // const channels = channelState.get('channels');
+        // const activeChannelMatch = [...channels].find(([, channel]) => channel.channelType === 'instance');
+        // if (activeChannelMatch && activeChannelMatch.length > 0) {
+        //     this.activeChannel = activeChannelMatch[1];
+        // }
     }
 
     async keyPress(key, numMilliSeconds) {
         console.log('Running with key ' + key);
-        await this.setFocus('canvas');
-        await this.clickElementById('canvas', 'engine-renderer-canvas');
         const interval = setInterval(() => {
             console.log('Pressing', key);
             this.pressKey(key);
@@ -107,10 +100,10 @@ class Bot {
         await this.clickElementByClass('button', 'sendMessage');
     }
 
-    async getInstanceMessages() {
-        console.log("Getting messages from instance channel: ", this.activeChannel);
-        return this.activeChannel && this.activeChannel.chatState;
-    }
+    // async getInstanceMessages() {
+    //     console.log("Getting messages from instance channel: ", this.activeChannel);
+    //     return this.activeChannel && this.activeChannel.chatState;
+    // }
 
 
     async sendAudio(duration) {
@@ -171,16 +164,34 @@ class Bot {
         }
     }
 
+    async addScript(path) {
+      this.page.on('framenavigated', async frame => {
+        if (frame !== this.page.mainFrame()) { return; } 
+        else {
+          const el = await this.page.addScriptTag({ path });            
+          console.log(el)
+        }
+      });
+    }
+
     /**
      * Runs a funciton in the browser context
      * @param {Function} fn Function to evaluate in the browser context
      * @param args The arguments to be passed to fn. These will be serailized when passed through puppeteer
      */
     async evaluate(fn, ...args) {
-        if (!this.browser) {
-            await this.launchBrowser();
-        }
         return await this.page.evaluate(fn, ...args)
+    }
+
+    async awaitPromise(fn, period = (1000/60), ...args) {
+      return await new Promise((resolve) => {
+        const interval = setInterval(async () => {
+          if(await this.page.evaluate(fn, ...args)) {
+            resolve()
+            clearInterval(interval)
+          }
+        }, period)
+      })
     }
 
     /**
@@ -297,25 +308,18 @@ class Bot {
      * @param {Object} opts
      * @param {string} opts.name Name to set as the bot name when joining the room
      */
-    async enterRoom(roomUrl, {name = 'bot'} = {}) {
+    async enterRoom(roomUrl) {
         await this.navigate(roomUrl);
         await this.page.waitForSelector("div[class*=\"instance-chat-container\"]", { timeout: 100000});
-
-        if (name) {
-            this.name = name
-        }
-        else {
-            name = this.name
-        }
 
         if (this.headless) {
             // Disable rendering for headless, otherwise chromium uses a LOT of CPU
         }
 
-        //@ts-ignore
-        if (this.setName != null) this.setName(name)
-
         await this.page.mouse.click(0, 0);
+
+        await this.setFocus('canvas');
+        await this.clickElementById('canvas', 'engine-renderer-canvas');
         // await new Promise(resolve => {setTimeout(async() => {
         //     // await this.pu.clickSelectorClassRegex("button", /join_world/);
         //     setTimeout(async() => {
