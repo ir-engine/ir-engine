@@ -324,7 +324,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
       globalThis.EngineEvents = EngineEvents;
       globalThis.Network = Network;
       Engine.activeSystems.getAll().forEach((system: System) => {
-        globalThis[system.name] = system;
+        globalThis[system.name] = system.constructor;
       })
     }
 };

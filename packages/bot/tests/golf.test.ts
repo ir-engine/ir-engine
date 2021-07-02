@@ -1,13 +1,14 @@
 import { Vector3 } from 'three';
 import XREngineBot from '../src/bot';
-import { getIsYourTurn, getPlayerPosition, overrideXR, xrInitialized, xrSupported } from './engineTestUtils';
+import { getIsYourTurn, getPlayerPosition, overrideXR, startXR, xrInitialized, xrSupported } from './engineTestUtils';
 
 const maxTimeout = 60 * 1000
+const headless = true
+const bot = new XREngineBot({ name: 'bot-1', headless })
 
-const bot = new XREngineBot()
-
-const botName = 'bot-1'
+// TODO: get APP_HOST from dotenv
 const domain = '192.168.0.16:3000'
+// TODO: load GS & client from static world file instead of having to run independently
 const locationName = 'golf'
 
 const sqrt2 = Math.sqrt(2)
@@ -20,10 +21,8 @@ describe('Golf tests', () => {
   beforeAll(async () => {
     await bot.launchBrowser()
     await bot.enterRoom(`https://${domain}/location/${locationName}`)
-    console.log(await bot.page.addScriptTag({ url: '/scripts/webxr-polyfill.js' }))
-    // await bot.delay(2000)
+    await bot.page.addScriptTag({ url: '/scripts/webxr-polyfill.js' })
     await bot.evaluate(overrideXR)
-    // await bot.delay(2000)
   }, maxTimeout)
 
   afterAll(async () => {
@@ -33,12 +32,11 @@ describe('Golf tests', () => {
 
   test('Web XR works', async () => {
     expect(await bot.evaluate(xrSupported)).toBe(true)
-    await bot.clickElementById('button', 'UserXR')
-    // await bot.delay(1000)
+    await bot.evaluate(startXR)
     expect(await bot.evaluate(xrInitialized)).toBe(true)
   }, maxTimeout)
 
-  test.skip('Can teleport to ball', async () => {
+  test('Can teleport to ball', async () => {
     // should be at spawn position
     expect(
       vec3.copy(await bot.evaluate(getPlayerPosition)).sub(spawnPos).length()
@@ -52,7 +50,7 @@ describe('Golf tests', () => {
     // should be at ball position
     expect(
       vec3.copy(await bot.evaluate(getPlayerPosition)).sub(tee0Pos).length()
-    ).toBeLessThan(sqrt2 * 2)
+    ).toBeLessThan(sqrt2)
 
     // await bot.awaitPromise(getIsYourTurn)
   }, maxTimeout)
