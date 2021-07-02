@@ -21,6 +21,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
       isLivestream,
       controls,
       autoPlay,
+      synchronize,
       loop,
       audioType,
       volume,
@@ -40,6 +41,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
         node.isLivestream = isLivestream;
         node.controls = controls || false;
         node.autoPlay = autoPlay;
+        node.synchronize = synchronize;
         node.loop = loop;
         node.audioType = audioType;
         node.volume = volume;
@@ -161,6 +163,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
         isLivestream: this.isLivestream,
         controls: this.controls,
         autoPlay: this.autoPlay,
+        synchronize: this.synchronize,
         loop: this.loop,
         audioType: this.audioType,
         volume: this.volume,
@@ -183,6 +186,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
       isLivestream: this.isLivestream,
       controls: this.controls,
       autoPlay: this.autoPlay,
+      synchronize: this.synchronize,
       loop: this.loop,
       audioType: this.audioType,
       volume: this.volume,
