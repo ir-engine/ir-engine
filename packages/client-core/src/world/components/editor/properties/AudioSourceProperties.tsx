@@ -24,6 +24,7 @@ import { useTranslation } from "react-i18next";
 export function AudioSourceProperties({ node, editor, multiEdit }) {
   const onChangeControls = useSetPropertySelected(editor, "controls");
   const onChangeAutoPlay = useSetPropertySelected(editor, "autoPlay");
+  const onChangeSynchronize = useSetPropertySelected(editor, "synchronize");
   const onChangeLoop = useSetPropertySelected(editor, "loop");
   const onChangeAudioType = useSetPropertySelected(editor, "audioType");
   const onChangeVolume = useSetPropertySelected(editor, "volume");
@@ -57,7 +58,15 @@ export function AudioSourceProperties({ node, editor, multiEdit }) {
         <BooleanInput value={node.autoPlay} onChange={onChangeAutoPlay} />
       </InputGroup>
       { /* @ts-ignore */ }
-      <InputGroup 
+      <InputGroup
+        name="Synchronize"
+        label={t('editor:properties.audio.lbl-synchronize')}
+        info={t('editor:properties.audio.info-synchronize')}
+      >
+        <BooleanInput value={node.synchronize} onChange={onChangeSynchronize} />
+      </InputGroup>
+      { /* @ts-ignore */ }
+      <InputGroup
         name="Loop"
         label={t('editor:properties.audio.lbl-loop')}
         info={t('editor:properties.audio.info-loop')}

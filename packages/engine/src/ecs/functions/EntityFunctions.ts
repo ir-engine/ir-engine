@@ -389,3 +389,18 @@ export function getComponent<C extends Component<C>>(
 export function getEntityByID(id: number): Entity {
   return Engine.entityMap.get(String(id));
 }
+
+/**
+ * Get an entity by it's name assigned while creating entity in the editor
+ * It returns the first entity with the matching name.
+ * @author Nayankumar Patel
+ * @param name
+ * @returns Entity or undefined if not found.
+ */
+export function getEntityByName(name: string): Entity | undefined {
+  for (let i = 0; i < Engine.entities.length; i++) {
+    if (Engine.entities[i].name === name) return Engine.entities[i];
+  }
+
+  return undefined;
+}
