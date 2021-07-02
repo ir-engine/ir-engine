@@ -30,6 +30,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
           const ballEntity = game.gameObjects['GolfBall'].find((e) => getComponent(e, NetworkObject)?.ownerId === uuid)
           const ballTransform = getComponent(ballEntity, TransformComponent);
           const position = ballTransform.position; 
+          console.log('teleporting to', position)
           teleportPlayer(entity, position, new Quaternion())
         }
       }

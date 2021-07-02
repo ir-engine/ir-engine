@@ -242,6 +242,3 @@ export const awaitEngaged = (): Promise<void> => {
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, resolve)
   })
 }
-
-
-globalThis.Engine = Engine;
