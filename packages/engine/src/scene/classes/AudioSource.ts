@@ -27,6 +27,7 @@ export default class AudioSource extends Object3D {
   _audioType: any;
   audio: any;
   audioSource: any;
+  isSynced: boolean;
   constructor(audioListener, elTag = "audio") {
     super();
     const el = Engine.createElement(elTag, {
@@ -194,6 +195,12 @@ export default class AudioSource extends Object3D {
   loadMedia(src): Promise<void> {
     return new Promise((resolve, reject) => {
       this.el.src = src;
+
+      // If media source requires to be synchronized then pause it for now.
+      if (this.isSynced) {
+        this.el.pause();
+      }
+
       let cleanup = null;
       const onLoadedData = () => {
         cleanup();
@@ -243,6 +250,7 @@ export default class AudioSource extends Object3D {
     this.coneOuterAngle = source.coneOuterAngle;
     this.coneOuterGain = source.coneOuterGain;
     this.src = source.src;
+    this.isSynced = source.synchronize;
     return this;
   }
   play() {

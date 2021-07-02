@@ -23,6 +23,7 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
       src,
       controls,
       autoPlay,
+      synchronize,
       loop,
       audioType,
       volume,
@@ -39,6 +40,7 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
         await node.load(src, onError);
         node.controls = controls || false;
         node.autoPlay = autoPlay;
+        node.synchronize = synchronize;
         node.loop = loop;
         node.audioType = audioType;
         node.volume = volume;
@@ -154,6 +156,7 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
         src: this._canonicalUrl,
         controls: this.controls,
         autoPlay: this.autoPlay,
+        synchronize: this.synchronize,
         loop: this.loop,
         audioType: this.audioType,
         volume: this.volume,
@@ -174,6 +177,7 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
       src: this._canonicalUrl,
       controls: this.controls,
       autoPlay: this.autoPlay,
+      synchronize: this.synchronize,
       loop: this.loop,
       audioType: this.audioType,
       volume: this.volume,

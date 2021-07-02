@@ -1,4 +1,4 @@
-import { Object3D } from 'three';
+import { MathUtils, Object3D } from 'three';
 import { addObject3DComponent } from './addObject3DComponent';
 import { Engine } from '../../ecs/classes/Engine';
 import { Interactable } from "../../interaction/components/Interactable";
@@ -12,6 +12,8 @@ import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFun
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { InteractiveSystem } from '../../interaction/systems/InteractiveSystem';
 import Video from '../classes/Video';
+import { Network } from '../../networking/classes/Network';
+import { PrefabType } from '../../networking/templates/PrefabType';
 
 const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
 
@@ -29,6 +31,7 @@ export interface AudioProps {
   controls: boolean;
   autoPlay: boolean;
   loop: boolean;
+  synchronize: boolean;
   audioType: 'stereo' | 'pannernode';
   volume: number; 
   distanceModel: 'linear' | 'inverse' | 'exponential';
@@ -81,6 +84,30 @@ const onMediaInteractionHover: Behavior = (entityInitiator, { focused }: { focus
 export function createMediaServer(entity, args: any): void {
   addObject3DComponent(entity, { obj3d: new Object3D(), objArgs: args });
   if (args.interactable) addInteraction(entity);
+
+  // If media component is not requires to be sync then return
+  if (!args.synchronize) return;
+
+  const data = {
+    networkId: Network.getNetworkId(),
+    prefabType: PrefabType.MediaStream,
+    uniqueId: MathUtils.generateUUID(),
+    ownerId: 'server',
+    parameters: {
+      sceneEntityId: args.sceneEntityId,
+      sceneEntityName: entity.name,
+      startTime: Date.now(),
+    },
+  };
+
+  // Currently we are only creating media objects while scene loading time,
+  // Hence no need to send create object message to clients since they are not yet connected.
+  // It will be used when the objects will be created while running.
+  // Spread the object so that the changes to the object will not affect original data.
+  // Network.instance.worldState.createObjects.push({ ...data });
+
+  // Added into the network Object list of the server
+  Network.instance.networkObjects[data.networkId] = data as any;
 }
 
 export function createAudio(entity, args: AudioProps): void {
@@ -90,7 +117,7 @@ export function createAudio(entity, args: AudioProps): void {
 
 
 export function createVideo(entity, args: VideoProps): void {
-  addObject3DComponent(entity, { obj3d: new Video(Engine.audioListener), objArgs: args });
+  addObject3DComponent(entity, { obj3d: new Video(Engine.audioListener, args.synchronize), objArgs: args });
   if(args.interactable) addInteraction(entity);
 }
 
