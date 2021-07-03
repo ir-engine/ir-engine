@@ -45,6 +45,7 @@ type ColliderData = {
   staticFriction?: number;
   dynamicFriction?: number;
   restitution?: number;
+  action?:any;
 }
 
 type ModelData = {
