@@ -1,8 +1,3 @@
-/** This Module contains function to perform different operations on 
- *    {@link https://threejs.org/docs/#api/en/core/Object3D | Object3D } from three.js library. 
- *     @packageDocumentation
- * */
-
 import { Quaternion, Vector3 } from 'three';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { addColliderWithoutEntity } from '../../physics/behaviors/colliderCreateFunctions';
