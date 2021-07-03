@@ -38,8 +38,9 @@ export async function startWebRTC(): Promise<void> {
             logTags: ['sctp']
         });
 
-        newWorker.on("died", () => {
+        newWorker.on("died", (err) => {
             console.error("mediasoup worker died (this should never happen)");
+            console.error('Reported error', err);
             process.exit(1);
         });
 
