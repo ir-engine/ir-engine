@@ -1,5 +1,5 @@
 import { Sky } from '../../scene/classes/Sky';
-import { PMREMGenerator, sRGBEncoding, TextureLoader, Vector3 } from 'three';
+import { PMREMGenerator, sRGBEncoding, Texture, TextureLoader, Vector3 } from 'three';
 import { isClient } from '../../common/functions/isClient';
 import { Engine } from '../../ecs/classes/Engine';
 import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
@@ -17,7 +17,7 @@ const posx = "posx.jpg";
 const posy = "posy.jpg";
 const posz = "posz.jpg";
 
-export default function createSkybox(entity, args: any): void {
+export default function createSkybox(entity, args: SkyboxProps): void {
   
   if (!isClient) {
     return;
@@ -29,7 +29,7 @@ export default function createSkybox(entity, args: any): void {
 
   if (args.skytype === "cubemap") {
     new CubeTextureLoader()
-      .setPath(args.texture)
+      .setPath(args.texture as any)
       .load([posx, negx, posy, negy, posz, negz],
       (texture) => {
         const EnvMap = pmremGenerator.fromCubemap(texture).texture;
@@ -52,7 +52,7 @@ export default function createSkybox(entity, args: any): void {
       );
   }
   else if (args.skytype === "equirectangular") {
-    new TextureLoader().load(args.texture, (texture) => {
+    new TextureLoader().load(args.texture as any, (texture) => {
       const EnvMap = pmremGenerator.fromEquirectangular(texture).texture;
 
       Engine.scene.environment = EnvMap;
@@ -95,4 +95,18 @@ export default function createSkybox(entity, args: any): void {
     // update anything that depends on the env changing
     WorldScene.executeAssetTypeLoadCallback(SCENE_ASSET_TYPES.ENVMAP)
   }
+}
+
+
+interface SkyboxProps {
+  skytype: string,
+  texture : Texture,
+  distance : number,
+  inclination: number,
+  azimuth : number,
+  mieCoefficient : number,
+  mieDirectionalG: number,
+  rayleigh : number,
+  turbidity : number,
+  luminance : number
 }

@@ -1,3 +1,11 @@
+/** This Module contains function to perform different operations on 
+ *    {@link https://threejs.org/docs/#api/en/core/Object3D | Object3D } from three.js library. 
+ *     @packageDocumentation
+ * */
+
+
+
+
 import { BodyType } from "three-physx";
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Entity } from '../../ecs/classes/Entity';
@@ -6,18 +14,20 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent';
 import { addColliderWithoutEntity } from '../../physics/behaviors/colliderCreateFunctions';
 import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody';
 import { addCollidersToNetworkVehicle } from '../../vehicle/prefabs/NetworkVehicle';
+import { Quaternion, Vector3 } from "three";
+import { ColliderTypes } from "../../physics/types/PhysicsTypes";
 
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const createMeshCollider: Behavior = ( entity: Entity, args: any ) => {
+export const createMeshCollider: Behavior = ( entity: Entity, args: MeshColliderProps ) => {
   switch (args.data) {
     case 'physics':
       addColliderWithoutEntity(
         {
           bodytype: BodyType.STATIC,
-          ...args
+          ...args as any
         },
         args.position,
         args.quaternion,
@@ -89,3 +99,21 @@ export const createMeshCollider: Behavior = ( entity: Entity, args: any ) => {
       break;
   }
 };
+
+
+export interface MeshColliderProps {
+  position: Vector3,
+  quaternion: Quaternion,
+  data : string,
+  scale: Vector3,
+  vertices : number[],
+  indices : number[],
+  type : ColliderTypes,
+  mass :number,
+  isTrigger: boolean,
+  action : string,
+  sceneEntityId : string,
+  link : string,
+  collisionLayer:string | number,
+  collisionMask : string | number
+}
