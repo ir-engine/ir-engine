@@ -36,7 +36,7 @@
     "@types/three": "0.129.2",
     "config": "3.3.6",
     "cross-env": "7.0.3",
-    "eslint": "7.29.0",
+    "eslint": "7.30.0",
     "eslint-plugin-react": "7.24.0",
     "jest": "^27.0.6",
     "jest-puppeteer": "^5.0.4",

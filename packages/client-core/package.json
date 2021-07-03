@@ -111,7 +111,7 @@
     "@types/three": "0.129.2",
     "cross-env": "7.0.3",
     "esbuild": "0.12.14",
-    "eslint": "7.29.0",
+    "eslint": "7.30.0",
     "rimraf": "3.0.2",
     "rollup": "2.52.7",
     "rollup-plugin-livereload": "2.0.5",
