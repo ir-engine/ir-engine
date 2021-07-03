@@ -110,13 +110,18 @@ export const clearFromColliders = (asset: any, makeInvisible?: boolean) => {
     arr.forEach(v => v.parent.remove(v));
 }
 
+type ModelColliderProps = {
+  uniqueId : string,
+  asset : any,
+}
+
 /**
  * Handles loading physics from a model's userData
  * @param entity
  * @param args
  */
 
-export const parseModelColliders: Behavior = (entity: Entity, args: any) => {
+export const parseModelColliders: Behavior = (entity: Entity, args: ModelColliderProps) => {
   const arr = [];
   const parseColliders = (mesh) => {
     // have user data physics its our case
