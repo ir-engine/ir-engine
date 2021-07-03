@@ -54,6 +54,9 @@ export class SceneObjectSystem extends System {
 
       // Apply material stuff
       object3DComponent.value.traverse((obj: Mesh) => {
+        const material = obj.material as Material;
+        if (typeof material !== 'undefined') material.dithering = true
+
         if(Engine.simpleMaterials || Engine.isHMD) {
           if(obj.material instanceof MeshStandardMaterial) {
             const prevMaterial = obj.material;
