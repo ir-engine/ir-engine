@@ -179,7 +179,7 @@ export class MediaStreamSystem extends System {
       }
     }
 
-    if (this.nearbyAvatarTick > 100) {
+    if (this.nearbyAvatarTick > 500) {
       this.nearbyAvatarTick = 0;
       if (isClient) {
         this.nearbyLayerUsers = getNearbyUsers(Network.instance.userId);
