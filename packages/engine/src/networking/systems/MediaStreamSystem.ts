@@ -162,7 +162,7 @@ export class MediaStreamSystem extends System {
     if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && this.executeInProgress === false) {
       this.executeInProgress = true;
       const buffer = Network.instance.mediasoupOperationQueue.pop() as any;
-      if (buffer.object && buffer.object.closed !== true) {
+      if (buffer.object && buffer.object.closed !== true && buffer.object._closed !== true) {
         try {
           if (buffer.action === 'resume') await buffer.object.resume();
           else if (buffer.action === 'pause') await buffer.object.pause();
@@ -179,7 +179,7 @@ export class MediaStreamSystem extends System {
       }
     }
 
-    if (this.nearbyAvatarTick > 100) {
+    if (this.nearbyAvatarTick > 500) {
       this.nearbyAvatarTick = 0;
       if (isClient) {
         this.nearbyLayerUsers = getNearbyUsers(Network.instance.userId);

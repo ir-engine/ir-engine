@@ -318,12 +318,13 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     Engine.isInitialized = true;
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE });
 
+    // expose all our interfaces for local dev for the bot tests
     if(process.env.NODE_ENV !== 'production') {
       globalThis.Engine = Engine;
       globalThis.EngineEvents = EngineEvents;
       globalThis.Network = Network;
       Engine.activeSystems.getAll().forEach((system: System) => {
-        globalThis[system.name] = system;
+        globalThis[system.name] = system.constructor;
       })
     }
 };
