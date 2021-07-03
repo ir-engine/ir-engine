@@ -329,34 +329,38 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
         const dataProducer = await transport.produceData(options);
         networkTransport.dataProducers.push(dataProducer);
         logger.info(`user ${userId} producing data`);
-        Network.instance.clients[userId].dataProducers.set(label, dataProducer);
+        if (Network.instance.clients[userId] != null) {
+            Network.instance.clients[userId].dataProducers.set(label, dataProducer);
 
-        const currentRouter = networkTransport.routers.instance.find(router => router._internal.routerId === (transport as any)._internal.routerId);
+            const currentRouter = networkTransport.routers.instance.find(router => router._internal.routerId === (transport as any)._internal.routerId);
 
-        await Promise.all(networkTransport.routers.instance.map(async router => {
-            if (router._internal.routerId !== (transport as any)._internal.routerId) return currentRouter.pipeToRouter({
-                dataProducerId: dataProducer.id,
-                router: router
+            await Promise.all(networkTransport.routers.instance.map(async router => {
+                if (router._internal.routerId !== (transport as any)._internal.routerId) return currentRouter.pipeToRouter({
+                    dataProducerId: dataProducer.id,
+                    router: router
+                });
+                else return Promise.resolve();
+            }));
+
+            // if our associated transport closes, close ourself, too
+            dataProducer.on("transportclose", () => {
+                networkTransport.dataProducers.splice(networkTransport.dataProducers.indexOf(dataProducer), 1);
+                logger.info("data producer's transport closed: " + dataProducer.id);
+                dataProducer.close();
+                Network.instance.clients[userId].dataProducers.delete(label);
             });
-            else return Promise.resolve();
-        }));
-
-        // if our associated transport closes, close ourself, too
-        dataProducer.on("transportclose", () => {
-            networkTransport.dataProducers.splice(networkTransport.dataProducers.indexOf(dataProducer), 1);
-            logger.info("data producer's transport closed: " + dataProducer.id);
-            dataProducer.close();
-            Network.instance.clients[userId].dataProducers.delete(label);
-        });
-        const internalConsumer = await createInternalDataConsumer(dataProducer, userId);
-        if (internalConsumer) {
-            Network.instance.clients[userId].dataConsumers.set(label, internalConsumer);
-            // transport.handleConsumeDataEvent(socket);
-            logger.info("transport.handleConsumeDataEvent(socket);");
-            // Possibly do stuff with appData here
-            logger.info("Sending dataproducer id to client:" + dataProducer.id);
-            return callback({id: dataProducer.id});
-        } else return callback({ error: 'invalid data producer' });
+            const internalConsumer = await createInternalDataConsumer(dataProducer, userId);
+            if (internalConsumer) {
+                Network.instance.clients[userId].dataConsumers.set(label, internalConsumer);
+                // transport.handleConsumeDataEvent(socket);
+                logger.info("transport.handleConsumeDataEvent(socket);");
+                // Possibly do stuff with appData here
+                logger.info("Sending dataproducer id to client:" + dataProducer.id);
+                return callback({id: dataProducer.id});
+            } else return callback({error: 'invalid data producer'});
+        } else {
+            return callback({ error: 'client no longer exists'});
+        }
     } else return callback({ error: 'invalid transport' });
 }
 
@@ -394,43 +398,51 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
 
     if (transport == null) return callback({ error: 'Invalid transport ID' });
 
-    const producer = await transport.produce({
-        kind,
-        rtpParameters,
-        paused,
-        appData: { ...appData, peerId: userId, transportId }
-    });
-
-    const routers = appData.channelType === 'instance' ? networkTransport.routers.instance : networkTransport.routers[`${appData.channelType}:${appData.channelId}`];
-    const currentRouter = routers.find(router => router._internal.routerId === (transport as any)._internal.routerId);
-
-    await Promise.all(routers.map(async (router: Router) => {
-        if ((router as any)._internal.routerId !== (transport as any)._internal.routerId) return currentRouter.pipeToRouter({ producerId: producer.id, router: router });
-        else return Promise.resolve();
-    }));
-
-    producer.on("transportclose", () => closeProducerAndAllPipeProducers(producer));
-
-    if(!MediaStreamSystem.instance?.producers) console.warn("Media stream producers is undefined");
-    MediaStreamSystem.instance?.producers?.push(producer);
-
-    if (userId != null && Network.instance.clients[userId] != null) {
-        Network.instance.clients[userId].media[appData.mediaTag] = {
+    try {
+        const producer = await transport.produce({
+            kind,
+            rtpParameters,
             paused,
-            producerId: producer.id,
-            globalMute: false,
-            encodings: rtpParameters.encodings,
-            channelType: appData.channelType,
-            channelId: appData.channelId
-        };
-    }
+            appData: {...appData, peerId: userId, transportId}
+        });
 
-    Object.keys(Network.instance.clients).forEach((key) => {
-        const client = Network.instance.clients[key];
-        if (client.userId !== userId)
-            client.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), userId, appData.mediaTag, producer.id, appData.channelType, appData.channelId);
-    });
-    callback({ id: producer.id });
+        const routers = appData.channelType === 'instance' ? networkTransport.routers.instance : networkTransport.routers[`${appData.channelType}:${appData.channelId}`];
+        const currentRouter = routers.find(router => router._internal.routerId === (transport as any)._internal.routerId);
+
+        await Promise.all(routers.map(async (router: Router) => {
+            if ((router as any)._internal.routerId !== (transport as any)._internal.routerId) return currentRouter.pipeToRouter({
+                producerId: producer.id,
+                router: router
+            });
+            else return Promise.resolve();
+        }));
+
+        producer.on("transportclose", () => closeProducerAndAllPipeProducers(producer));
+
+        if (!MediaStreamSystem.instance?.producers) console.warn("Media stream producers is undefined");
+        MediaStreamSystem.instance?.producers?.push(producer);
+
+        if (userId != null && Network.instance.clients[userId] != null) {
+            Network.instance.clients[userId].media[appData.mediaTag] = {
+                paused,
+                producerId: producer.id,
+                globalMute: false,
+                encodings: rtpParameters.encodings,
+                channelType: appData.channelType,
+                channelId: appData.channelId
+            };
+        }
+
+        Object.keys(Network.instance.clients).forEach((key) => {
+            const client = Network.instance.clients[key];
+            if (client.userId !== userId)
+                client.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), userId, appData.mediaTag, producer.id, appData.channelType, appData.channelId);
+        });
+        callback({id: producer.id});
+    } catch(err) {
+        console.log('Error with sendTrack:', err);
+        callback({error: 'error with sendTrack: ' + err});
+    }
 }
 
 export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<any> {
