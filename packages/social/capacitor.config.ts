@@ -9,11 +9,12 @@ const config: CapacitorConfig = {
       launchShowDuration: 0,
     },
   },
+  ios: {
+    "limitsNavigationsToAppBoundDomains": true
+  },
   server: {
     "url": "https://dev.arcmedia.us",
-		"androidScheme": "https",
-		"iosScheme": "https",
-        "allowNavigation": ["*.arcmedia.us"]
+    "allowNavigation": ["*.arcmedia.us"]
   }
 };
 

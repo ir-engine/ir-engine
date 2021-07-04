@@ -52,5 +52,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>WKAppBoundDomains</key>
+	<array>
+		<string>localhost</string>
+		<string>dev.arcmedia.us</string>
+		<string>api-dev.arcmedia.us</string>
+	</array>
 </dict>
 </plist>
