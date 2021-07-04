@@ -1,9 +1,6 @@
 const  {URL} = require('url')
-const  {BrowserLauncher} = require('./browser-launcher')
-const  InBrowserBot = require('./in-browser-bot')
-const  InBrowserBotBuilder = require('./in-browser-bot-builder')
+const puppeteer = require('puppeteer');
 const  fs = require('fs');
-const  getOS = require('./platform');
 
 class PageUtils {
     constructor({page, autoLog = true}) {
@@ -64,12 +61,12 @@ class Bot {
         this.autoLog = args.autoLog ?? true;
         this.fakeMediaPath = args.fakeMediaPath ?? '';
 
-        for (let method of Object.getOwnPropertyNames(InBrowserBot.prototype))
-        {
-            if (method in this) continue;
+        // for (let method of Object.getOwnPropertyNames(InBrowserBot.prototype))
+        // {
+        //     if (method in this) continue;
 
-            this[method] = (...args) => this.evaluate(InBrowserBot.prototype[method], ...args)
-        }
+        //     this[method] = (...args) => this.evaluate(InBrowserBot.prototype[method], ...args)
+        // }
         
         // const channelState = chatState.get('channels');
         // const channels = channelState.get('channels');
@@ -245,9 +242,9 @@ class Bot {
         console.log('Launching browser');
         const options = {
             headless: this.headless,
+            devtools: !this.headless,
             ignoreHTTPSErrors: true,
             args: [
-                "--disable-gpu",
                 "--use-fake-ui-for-media-stream=1",
                 "--use-fake-device-for-media-stream=1",
                 `--use-file-for-fake-video-capture=${this.fakeMediaPath}/video.y4m`,
@@ -261,6 +258,7 @@ class Bot {
             ignoreDefaultArgs: ['--mute-audio'],
             ...this.detectOsOption()
         };
+        if(this.headless) options.args.push("--disable-gpu")
         
         this.browser = await BrowserLauncher.browser(options);
         this.page = await this.browser.newPage();
@@ -270,7 +268,7 @@ class Bot {
             this.page.on('console', consoleObj => console.log(">> ", consoleObj.text()));
         }
 
-        this.page.setViewport({ width: 1600, height: 900});
+        // this.page
         await this.page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36')
 
         this.pu = new PageUtils(this);
@@ -352,21 +350,6 @@ class Bot {
     async setFocus(selector) {
         await this.page.focus(selector);
     }
-    /**
-     * Creates an {@link InBrowserBotBuilder} to allow building a bot for use in the
-     * developer console.
-     * @return {InBrowserBotBuilder} An InBrowserBotBuilder which can be used to
-     * create client-side code to execute `fn`. This code can then be copied and
-     * pasted into the developer console
-     * @param {Function} fn The function to execute in the browser context. The
-     `this` passed to fn will be an InBrowserBot version of this this. If
-     this bot is a subclass of Bot, the subclassed definitions will
-     be injected into the built [InBrowserBot](#inbrowserbot) code.
-     * @param args Arguments to be serialized and passed to fn
-     */
-    asBrowserBot(fn, ...args) {
-        return new InBrowserBotBuilder(this, fn, ...args)
-    }
 
     /**
      * Leaves the room and closes the browser instance without exiting node
@@ -380,5 +363,42 @@ class Bot {
         }
     }
 }
+
+function getOS() {
+  const platform = process.platform;
+  console.log(platform);
+
+  if (platform.includes('darwin')) {
+    os = 'Mac OS';
+  } else if (platform.includes('win32')) {
+    os = 'Windows';
+  } else if (platform.includes('linux')) {
+    os = 'Linux';
+  }
+
+  return os;
+}
+
+class BrowserLauncher_ {
+    constructor() {}
+
+    async browser(options) {
+        console.log('Making new browser');
+        console.log(this._browser);
+        if (this._browser) return await this._browser
+
+        if (fs.existsSync("/.dockerenv"))
+        {
+            options.headless = true
+            options.args = (options.args || []).concat(['--no-sandbox', '--disable-setuid-sandbox'])
+        }
+
+        this._browser = puppeteer.launch(options);
+        return await this._browser
+    }
+}
+
+const BrowserLauncher = new BrowserLauncher_()
+
 
 module.exports = Bot

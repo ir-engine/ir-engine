@@ -63,7 +63,7 @@ export async function overrideXR() {
   }
 
   // send our device info to the polyfill API so it knows our capabilities
-  window.dispatchEvent(new CustomEvent('webxr-device-init', { detail: { stereoEffect: true, deviceDefinition } }))
+  window.dispatchEvent(new CustomEvent('webxr-device-init', { detail: { stereoEffect: false, deviceDefinition } }))
 }
 
 export async function xrSupported() {
@@ -173,11 +173,16 @@ export function getIsYourTurn() {
 }
 
 // is in world space, so subtract player pos from it
-export function getHeadInputPosition() {
+export function getXRInputPosition() {
   const input = (Object.values(globalThis.Network.instance.localClientEntity.components).find((component) => {
     return component.name === 'Input';
   }));
-  const head = input.data.get(37);
-  if(!head) return;
-  return head.value;
+  const headInputValue = input.data.get(37)?.value;
+  const leftControllerInputValue = input.data.get(38)?.value;
+  const rightControllerInputValue = input.data.get(39)?.value;
+  return {
+    headInputValue,
+    leftControllerInputValue,
+    rightControllerInputValue
+  }
 }

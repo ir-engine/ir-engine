@@ -259,14 +259,14 @@ export class CharacterControllerSystem extends System {
       if(!isEntityLocalClient(entity)) return;
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent);
       const transform = getComponent<TransformComponent>(entity, TransformComponent);
-      vector3.subVectors(Engine.camera.position, transform.position)
-      xrInputSourceComponent.head.position.copy(vector3)
-      // console.log('camera', Engine.camera.position.x, Engine.camera.position.y, Engine.camera.position.z)
-      // console.log('transform', transform.position.x, transform.position.y, transform.position.z)
-      // console.log('head', vector3.x, vector3.y, vector3.z)
+
       quat.copy(transform.rotation).invert()
       quat2.copy(Engine.camera.quaternion).premultiply(quat)
       xrInputSourceComponent.head.quaternion.copy(quat2)
+
+      vector3.subVectors(Engine.camera.position, transform.position)
+      vector3.applyQuaternion(quat)
+      xrInputSourceComponent.head.position.copy(vector3)
     })
 
     this.queryResults.ikAvatar.removed?.forEach((entity) => {
