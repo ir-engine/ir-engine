@@ -180,6 +180,12 @@ class Bot {
         return await this.page.evaluate(fn, ...args)
     }
 
+    async runHook(hook, ...args) {
+      return await this.page.evaluate(async (hook, ...args) => {
+        return globalThis.botHooks[hook](...args);
+      }, hook, ...args)
+    }
+
     async awaitPromise(fn, period = (1000/60), ...args) {
       return await new Promise((resolve) => {
         const interval = setInterval(async () => {
@@ -191,6 +197,16 @@ class Bot {
       })
     }
 
+    async awaitHookPromise(hook, period = (1000/60), ...args) {
+      return await new Promise((resolve) => {
+        const interval = setInterval(async () => {
+          if(await this.runHook(hook, ...args)) {
+            resolve()
+            clearInterval(interval)
+          }
+        }, period)
+      })
+    }
     /**
      * A main-program type wrapper. Runs a function and quits the bot with a
      * screenshot if the function throws an exception
