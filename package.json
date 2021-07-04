@@ -60,9 +60,7 @@
     "clean-node-modules": "npx rimraf node_modules && npx lerna exec npx rimraf node_modules"
   },
   "types": "lib/",
-  "pre-push": [
-    "lint"
-  ],
+  "pre-push": [],
   "pre-commit": [],
   "resolutions": {
     "socket.io": "4.1.2",
