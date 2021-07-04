@@ -8,7 +8,8 @@ const headless = true
 const bot = new XREngineBot({ name: 'bot-1', headless, autoLog: true })
 
 // TODO: get APP_HOST from dotenv
-const domain = '192.168.0.16:3000'
+//const domain = '192.168.0.16:3000'
+const domain = 'localhost:3000'
 // TODO: load GS & client from static world file instead of having to run independently
 const locationName = 'golf'
 
@@ -163,6 +164,29 @@ describe('Golf tests', () => {
     ).toBeLessThan(sqrt2)
     await bot.delay(2000)
 
+  }, maxTimeout)
+
+  test('Can hit ball', async () => {
+    // player should be at ball position
+    expect(
+      vector3.copy(await bot.runHook('getPlayerPosition')).sub(tee0Pos).length()
+    ).toBeLessThan(sqrt2)
+  
+    // ball should be at spawn position
+    expect(
+      vector3.copy(await bot.runHook('getBallPosition')).sub(tee0Pos).length()
+    ).toBeLessThan(sqrt2)
+    
+    // wait for turn, then move to ball position
+    await bot.awaitHookPromise('getIsYourTurn')
+    
+    await bot.delay(500)
+
+    
+    expect(
+      vector3.copy(await bot.runHook('getBallPosition')).sub(tee0Pos).length()
+    ).toBeLessThan(sqrt2)//.toBeGreaterThan(sqrt2 * 2)
+    await bot.delay(2000)
   }, maxTimeout)
 
   //
