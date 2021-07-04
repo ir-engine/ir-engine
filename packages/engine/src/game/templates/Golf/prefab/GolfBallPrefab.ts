@@ -1,5 +1,5 @@
 
-import { Group, MathUtils, Mesh, Vector3 } from 'three';
+import { Group, MathUtils, Mesh, MeshPhongMaterial, Vector3, BufferGeometry } from 'three';
 import { Body, BodyType, ShapeType, SHAPES } from 'three-physx';
 import { AssetLoader } from '../../../../assets/classes/AssetLoader';
 import { isClient } from '../../../../common/functions/isClient';
@@ -77,6 +77,15 @@ export const spawnBall: Behavior = (entityPlayer: Entity, args?: any, delta?: nu
 const golfBallRadius = 0.03; // this is the graphical size of the golf ball
 const golfBallColliderExpansion = 0.03; // this is the size of the ball collider
 
+const golfBallMaterials = [
+  new MeshPhongMaterial( { color: 0xff4400, name: 'orange' } ),
+  new MeshPhongMaterial( { color: 0x001166, name: 'blue' } ),
+  new MeshPhongMaterial( { color: 0x990000, name: 'red' } ),
+  new MeshPhongMaterial( { color: 0x000000, name: 'black' } ),
+  new MeshPhongMaterial( { color: 0xffffff, name: 'white' } ),
+  new MeshPhongMaterial( { color: 0x555555, name: 'metallic' } )
+];
+
 function assetLoadCallback(group: Group, ballEntity: Entity) {
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
   const transform = getComponent(ballEntity, TransformComponent);
@@ -86,7 +95,9 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   ballMesh.position.copy(transform.position);
   ballMesh.scale.copy(transform.scale);
   ballMesh.castShadow = true;
-  ballMesh.receiveShadow = true;
+  ballMesh.material = golfBallMaterials[0];
+  console.log(ballMesh);
+  
   addComponent(ballEntity, Object3DComponent, { value: ballMesh });
 }
 
@@ -97,7 +108,6 @@ export const initializeGolfBall = (ballEntity: Entity) => {
   const ownerNetworkObject = Object.values(Network.instance.networkObjects).find((obj) => {
     return obj.ownerId === networkObject.ownerId;
   }).component;
-
   if (isClient) {
     AssetLoader.load({
       url: Engine.publicPath + '/models/golf/golf_ball.glb',
@@ -132,7 +142,7 @@ export const initializeGolfBall = (ballEntity: Entity) => {
   collider.body = body;
 }
 
-type GolfBallSpawnParameters = {
+type GolfBallSpawnParameters = { 
   gameName: string;
   role: string;
   uuid: string;
