@@ -86,6 +86,7 @@ const golfBallMaterials = [
   new MeshPhongMaterial( { color: 0x555555, name: 'metallic' } )
 ];
 
+
 function assetLoadCallback(group: Group, ballEntity: Entity) {
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
   const transform = getComponent(ballEntity, TransformComponent);
