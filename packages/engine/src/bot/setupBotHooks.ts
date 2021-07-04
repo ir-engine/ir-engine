@@ -1,6 +1,7 @@
 import { Engine } from "../ecs/classes/Engine";
 import { EngineEvents } from "../ecs/classes/EngineEvents";
 import { System } from "../ecs/classes/System";
+import { getGameFromName } from "../game/functions/functions";
 import { Network } from "../networking/classes/Network";
 
 export const setupBotHooks = (): void => {
@@ -27,6 +28,7 @@ export const BotHooks = {
   pressControllerButton,
   moveControllerStick,
   getPlayerPosition,
+  getBallPosition,
   getIsYourTurn,
   getXRInputPosition
 }
@@ -172,6 +174,30 @@ export function getPlayerPosition() {
   if(!pos) return;
   // transform is centered on collider
   pos.y -= 0.9
+  return pos;
+}
+
+export function getBallPosition() {
+  const gameName = (Object.values(globalThis.Network.instance.localClientEntity.components).find((component) => {
+    return component.name === 'GamePlayer';
+  }))?.gameName;
+  
+  if(!gameName) return;
+  // transform is centered on collider
+  const game = getGameFromName(gameName)
+  if(!game) {
+    console.log('Game not found')
+    return;
+  }
+  const ballEntity = game.gameObjects['GolfBall'][0];
+  if(!ballEntity) {
+    console.log('ball entity not found')
+    return;
+  }
+  const pos = (Object.values(ballEntity.components).find((component) => {
+    return component.name === 'TransformComponent';
+  }))?.position;
+  if(!pos) return;
   return pos;
 }
 
