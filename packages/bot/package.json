@@ -22,6 +22,9 @@
   "dependencies": {
     "@google-cloud/agones-sdk": "1.14.0",
     "chai": "4.3.4",
+    "jest": "27.0.6",
+    "jest-puppeteer": "5.0.4",
+    "puppeteer": "9.1.1",
     "ts-jest": "27.0.3"
   },
   "devDependencies": {
@@ -37,9 +40,6 @@
     "cross-env": "7.0.3",
     "eslint": "7.30.0",
     "eslint-plugin-react": "7.24.0",
-    "jest": "27.0.6",
-    "jest-puppeteer": "5.0.4",
-    "puppeteer": "9.1.1",
     "semantic-release": "17.4.4",
     "semantic-release-monorepo": "7.0.5",
     "typescript": "4.3.5",

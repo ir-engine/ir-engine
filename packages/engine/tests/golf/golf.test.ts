@@ -1,6 +1,7 @@
+// @ts-ignore
 import { Quaternion, Vector3 } from 'three';
-import XREngineBot from '../src/bot';
-import { getXRInputPosition, getIsYourTurn, getPlayerPosition, overrideXR, startXR, updateController, updateHead, xrInitialized, xrSupported } from './engineTestUtils';
+import XREngineBot from '@xrengine/bot/src/bot';
+// import { getXRInputPosition, getIsYourTurn, getPlayerPosition, overrideXR, startXR, updateController, updateHead, xrInitialized, xrSupported } from '../../src/bot/setupBotHooks';
 
 const maxTimeout = 60 * 1000
 const headless = true
@@ -26,16 +27,16 @@ const rightControllerRotation = new Quaternion()
 let interval;
 
 const sendXRInputData = () => {
-  bot.evaluate(updateHead, {
+  bot.runHook('updateHead', {
     position: headPosition.toArray(),
     quaternion: headRotation.toArray()
   })
-  bot.evaluate(updateController, {
+  bot.runHook('updateController', {
     objectName: 'leftController',
     position: leftControllerPosition.toArray(),
     quaternion: leftControllerRotation.toArray()
   })
-  bot.evaluate(updateController, {
+  bot.runHook('updateController', {
     objectName: 'rightController',
     position: rightControllerPosition.toArray(),
     quaternion: rightControllerRotation.toArray()
@@ -84,8 +85,8 @@ describe('Golf tests', () => {
     await bot.enterRoom(`https://${domain}/location/${locationName}`)
     await bot.page.addScriptTag({ url: '/scripts/webxr-polyfill.js' })
     await bot.delay(500)
-    await bot.awaitPromise(getIsYourTurn)
-    await bot.evaluate(overrideXR)
+    await bot.awaitHookPromise('getIsYourTurn')
+    await bot.runHook('overrideXR')
   }, maxTimeout)
 
   afterAll(async () => {
@@ -94,9 +95,9 @@ describe('Golf tests', () => {
   }, maxTimeout)
 
   test('Web XR works', async () => {
-    expect(await bot.evaluate(xrSupported)).toBe(true)
-    await bot.evaluate(startXR)
-    expect(await bot.evaluate(xrInitialized)).toBe(true)
+    expect(await bot.runHook('xrSupported')).toBe(true)
+    await bot.runHook('startXR')
+    expect(await bot.runHook('xrInitialized')).toBe(true)
   }, maxTimeout)
 
 
@@ -108,7 +109,7 @@ describe('Golf tests', () => {
       headInputValue,
       leftControllerInputValue,
       rightControllerInputValue
-    } = await bot.evaluate(getXRInputPosition)
+    } = await bot.runHook('getXRInputPosition')
 
     compareArrays(
       [headInputValue.x, headInputValue.y, headInputValue.z],
@@ -148,17 +149,17 @@ describe('Golf tests', () => {
   test('Can teleport to ball', async () => {
     // should be at spawn position
     expect(
-      vector3.copy(await bot.evaluate(getPlayerPosition)).sub(spawnPos).length()
+      vector3.copy(await bot.runHook('getPlayerPosition')).sub(spawnPos).length()
     ).toBeLessThan(sqrt2 * 2)
 
     // wait for turn, then move to ball position
-    await bot.awaitPromise(getIsYourTurn)
+    await bot.awaitHookPromise('getIsYourTurn')
     await bot.keyPress('KeyK', 200)
     await bot.delay(500)
 
     // should be at ball position
     expect(
-      vector3.copy(await bot.evaluate(getPlayerPosition)).sub(tee0Pos).length()
+      vector3.copy(await bot.runHook('getPlayerPosition')).sub(tee0Pos).length()
     ).toBeLessThan(sqrt2)
     await bot.delay(2000)
 
