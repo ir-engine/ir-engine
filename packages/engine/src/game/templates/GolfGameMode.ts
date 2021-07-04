@@ -47,7 +47,7 @@ import { ColliderComponent } from "../../physics/components/ColliderComponent";
 import { BodyType } from "three-physx";
 import { Euler, Quaternion, Vector3 } from "three";
 import { removeSpawnedObjects } from "../functions/functions";
-import { ifMoved } from "./gameDefault/checkers/ifMoved";
+import { ifVelocity } from "./gameDefault/checkers/ifVelocity";
 import { spawnBall } from "./Golf/prefab/GolfBallPrefab";
 import { hitBall } from "./Golf/behaviors/hitBall";
 import { teleportPlayerBehavior } from "./Golf/behaviors/teleportPlayer";
@@ -58,6 +58,7 @@ import { createYourTurnPanel } from './Golf/behaviors/createYourTurnPanel'
 import { setupPlayerInput } from "./Golf/behaviors/setupPlayerInput";
 import { makeKinematic } from "./Golf/behaviors/makeKinematic";
 import { hasState } from "./gameDefault/checkers/hasState";
+import { GolfClubComponent } from "./Golf/components/GolfClubComponent";
 
 /**
  * @author HydraFire
@@ -261,6 +262,9 @@ export const GolfGameMode: GameMode = somePrepareFunction({
                 },{
                   function: dontHasState,
                   args: { stateComponent: State.Hit }
+                },{
+                  function: ifVelocity,
+                  args: { on:'target', component: GolfClubComponent, more: 0.01, less: 1 }
                 },{
                   function: customChecker,
                   args: {
@@ -475,24 +479,24 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           args: { on: 'self', remove: State.BallStopped, add: State.BallMoving },
           watchers:[ [ State.Ready ] ],
           checkers:[{
-            function: ifMoved,
-            args: { max: 0.01 }
+            function: ifVelocity,
+            args: { more: 0.01 }
           }]
         },
         {
           behavior: switchState,
           args: { on: 'self', remove: State.BallMoving, add: State.BallStopped },
           checkers:[{
-            function: ifMoved,
-            args: { min: 0.001 }
+            function: ifVelocity,
+            args: { less: 0.001 }
           }]
         },
         {
           behavior: removeVelocity,
           watchers:[ [ State.BallStopped , State.Inactive ] ],
           checkers:[{
-            function: ifMoved,
-            args: { on: 'self', max: 0.001 }
+            function: ifVelocity,
+            args: { on: 'self', more: 0.001 }
           }]
         },
         // {
@@ -508,11 +512,11 @@ export const GolfGameMode: GameMode = somePrepareFunction({
         // whan ball spawn he droping and gets moving State, we give Raady state for him whan he stop
         {
           behavior: switchState,
-          args: { on: 'self', remove: State.NotReady, add: State.Ready },
+          args: { remove: State.NotReady, add: State.Ready },
           watchers:[ [ State.BallStopped ] ],
           checkers:[{
-            function: ifMoved,
-            args: { on: 'self', min: 0.0001 }
+            function: ifVelocity,
+            args: { less: 0.0001 }
           }]
         }
       ],
