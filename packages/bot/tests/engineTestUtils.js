@@ -8,13 +8,13 @@ export const pipe = (...functions) => (value) => {
 
 /**
  * Because these functions are serialised, they must be already in-line.
- * It would be great to use esbuild or babel or something to 
- *  compile more complex functions into single es5 functions
+ * We can pass arguments in, which should be fine for now.
+ * @todo There are some hacky things we could do in the link below.
+ * https://stackoverflow.com/a/51122739
  */
 
 /**
  * @todo: make this file .ts and add typings from @xrengine/engine
- * @todo: https://stackoverflow.com/a/51122739
  */
 
 
