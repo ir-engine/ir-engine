@@ -56,7 +56,6 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
 
 
   serialize() {
-
     const backgroundprops= this.backgroundprops;
     return super.serialize({backgroundprops });
   }
@@ -93,11 +92,13 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   }
 
   setUpBackground(type:SkyTypeEnum){
+    console.log("Setting up background:"+type);
     switch(type){
 
 
       case SkyTypeEnum.color:
-        this.editor.scene.background = new Color(this.backgroundprops.backgroundColor);
+        console.log("Changing the Color of the Background")
+        this.editor.scene.background = new Color(this.backgroundColor);
         break;
 
       case SkyTypeEnum.cubemap:
@@ -110,7 +111,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
         const posz = "posz.jpg";
         const renderer=this.editor.renderer.renderer;
         new CubeTextureLoader()
-        .setPath(this.backgroundprops.cubemapPath)
+        .setPath(this.cubemapPath)
         .load([posx, negx, posy, negy, posz, negz],
         (texture) => {
           const pmremGenerator = new PMREMGenerator(renderer);
@@ -131,12 +132,13 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
 
       case SkyTypeEnum.equirectangular:
         console.log("Setting up Equirectangular");
-        new TextureLoader().load(this.backgroundprops.equirectangularPath, (texture) => {
+        new TextureLoader().load(this.equirectangularPath, (texture) => {
           this.editor.scene.background = texture;
         })
 
         break;
       default:
+        this.editor.scene.background=this.generateEnvironmentMap(this.editor.renderer.renderer);
         break;
     }
   }

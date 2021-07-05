@@ -11,6 +11,7 @@ import i18n from "i18next";
 import { withTranslation } from "react-i18next";
 import { Color } from "three";
 import ColorInput from "../inputs/ColorInput";
+import { SkyTypeEnum } from "@xrengine/engine/src/editor/nodes/SkyboxNode";
 
 const hoursToRadians = hours => hours / 24;
 const radiansToHours = rads => rads * 24;
@@ -24,19 +25,19 @@ const radiansToHours = rads => rads * 24;
 const SkyOption = [
   {
     label: "color",
-    value: "color"
+    value: SkyTypeEnum.color
   },
   {
     label: "skybox",
-    value: "skybox"
+    value: SkyTypeEnum.skybox
   },
   {
     label: "cubemap",
-    value: "cubemap"
+    value: SkyTypeEnum.cubemap
   },
   {
     label: "equirectangular",
-    value: "equirectangular"
+    value: SkyTypeEnum.equirectangular
   }
 ];
 
@@ -113,6 +114,7 @@ export class SkyboxNodeEditor extends Component<
       "skyType",
       skyType
     );
+    console.log("Changed Value of SkyType is:"+skyType);
   };
 
   //function to handle the changes backgroundPath
@@ -265,7 +267,7 @@ export class SkyboxNodeEditor extends Component<
         { /* @ts-ignore */}
         <ColorInput
           value={(node as any).backgroundColor ? (node as any).backgroundColor : 0x000000}
-          onChange={this.onChangeBackgroundColorOption}
+          onChange={this.onChangeColorOption}
           isValueAsInteger={true}
         />
       </InputGroup>
@@ -274,11 +276,11 @@ export class SkyboxNodeEditor extends Component<
   // creating editor view for skybox Properties
   renderSkyBoxProps = (node) => {
     switch (node.skyType) {
-      case "cubemap" as any:
+      case SkyTypeEnum.equirectangular as any:
         return this.renderTextureSettings((node as any).equirectangularPath, this.onChangeEquirectangularPathOption);
-      case "equirectangular" as any:
+      case SkyTypeEnum.cubemap as any:
         return this.renderTextureSettings((node as any).cubemapPath , this.onChangeCubemapPathOption);
-      case "color" as any:
+      case SkyTypeEnum.color as any:
           return this.renderColorSettings(node);
       default:
         return this.renderSkyboxSettings(node);

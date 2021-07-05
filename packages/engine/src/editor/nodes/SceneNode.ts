@@ -30,7 +30,7 @@ import {DistanceModelType} from "../../scene/classes/AudioSource";
 import { RethrownError } from "../functions/errors";
 import loadTexture from "../functions/loadTexture";
 import Image from "../../scene/classes/Image";
-import SkyboxNode from "./SkyboxNode";
+import SkyboxNode, { SkyTypeEnum } from "./SkyboxNode";
 
 export default class SceneNode extends EditorNodeMixin(Scene) {
   static nodeName = "Scene";
@@ -625,7 +625,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         const skyNode=(s_node as SkyboxNode);
         const type=skyNode.skyType;
         switch(type){
-          case "equirectangular":
+          case SkyTypeEnum.equirectangular:
             this.addGLTFComponent("envMap",{
               type:"Texture",
               options:{
@@ -634,7 +634,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
               }
             })
             break;
-          case "cubemap":
+          case SkyTypeEnum.cubemap:
             this.addGLTFComponent("envMap",{
               type:"Texture",
               options:{
@@ -643,7 +643,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
               }
             })
             break;
-          case "skybox":
+          case SkyTypeEnum.skybox:
           default:
             const options=skyNode.getSkyBoxProperties();
             this.addGLTFComponent("envMap",{type:"SkyBox",options});

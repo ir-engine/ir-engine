@@ -3,7 +3,9 @@ import {
   BoxBufferGeometry,
   CubeCamera,
   CubeTexture,
+  DepthModes,
   Mesh,
+  NeverDepth,
   Object3D,
   Scene,
   ShaderMaterial,
@@ -201,6 +203,7 @@ export class Sky extends Object3D {
       side: BackSide,
       fog: true
     });
+    Sky.material.depthWrite=false;
     this.skyScene = new Scene();
     this.cubeCamera = new CubeCamera(1, 100000, new WebGLCubeRenderTarget(512));
     this.skyScene.add(this.cubeCamera);
@@ -274,6 +277,7 @@ export class Sky extends Object3D {
     this.sky.scale.set(distance, distance, distance);
   }
   generateEnvironmentMap(renderer: WebGLRenderer) {
+    console.log('Generating the Skybox');
     this.skyScene.add(this.sky);
     this.cubeCamera.update(renderer, this.skyScene);
     (this as any).add(this.sky);
