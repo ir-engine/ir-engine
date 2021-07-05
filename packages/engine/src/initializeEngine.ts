@@ -159,8 +159,8 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
         Network.instance.schema = options.networking.schema;
         if (!options.networking.useOfflineMode) {
             registerSystem(ClientNetworkSystem, { ...options.networking, priority: 0 });
-            registerSystem(ClientNetworkStateSystem, { priority: 1 });
         }
+        registerSystem(ClientNetworkStateSystem, { priority: 1 });
 
         registerSystem(MediaStreamSystem, { priority: 2 });
     }
