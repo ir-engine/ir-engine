@@ -1,10 +1,10 @@
 // @ts-ignore
-import { Quaternion, Vector3 } from 'three';
-import XREngineBot from '@xrengine/bot/src/bot';
+import { Euler, MathUtils, Quaternion, Vector3 } from 'three';
+import XREngineBot from '../../../bot/src/bot';
 import { BotHooksTags } from '../../src/bot/setupBotHooks';
 
 const maxTimeout = 60 * 1000
-const headless = true
+const headless = false
 const bot = new XREngineBot({ name: 'bot-1', headless, autoLog: true })
 
 const domain = process.env.APP_HOST
@@ -15,40 +15,6 @@ const sqrt2 = Math.sqrt(2)
 const spawnPos = new Vector3(-1, 8.5, 15.5)
 const tee0Pos = new Vector3(0.2, 6.7, 10.06)
 const vector3 = new Vector3()
-
-const headPosition = new Vector3(0, 1.6, 0)
-const headRotation = new Quaternion()
-const leftControllerPosition = new Vector3(-0.5, 1.5, -1)
-const leftControllerRotation = new Quaternion()
-const rightControllerPosition = new Vector3(0.5, 1.5, -1)
-const rightControllerRotation = new Quaternion()
-
-let interval;
-
-const sendXRInputData = () => {
-  bot.runHook(BotHooksTags.updateHead, {
-    position: headPosition.toArray(),
-    quaternion: headRotation.toArray()
-  })
-  bot.runHook(BotHooksTags.updateController, {
-    objectName: 'leftController',
-    position: leftControllerPosition.toArray(),
-    quaternion: leftControllerRotation.toArray()
-  })
-  bot.runHook(BotHooksTags.updateController, {
-    objectName: 'rightController',
-    position: rightControllerPosition.toArray(),
-    quaternion: rightControllerRotation.toArray()
-  })
-}
-
-const startSendingXRInputData = () => {
-  interval = setInterval(sendXRInputData)
-}
-const stopSendingXRInputData = () => {
-  interval && clearInterval(interval)
-}
-
 
 const randomVector3 = (scale = 1) => {
   return new Vector3(
@@ -76,6 +42,11 @@ const compareArrays = (arr1, arr2, tolerance) => {
   }
 }
 
+const eulerToQuaternion = (x, y, z, order = 'XYZ') => {
+  return new Quaternion().setFromEuler(new Euler(x, y, z, order))
+}
+
+
 describe('Golf tests', () => {
 
   beforeAll(async () => {
@@ -89,7 +60,7 @@ describe('Golf tests', () => {
   }, maxTimeout)
 
   afterAll(async () => {
-    await bot.delay(1000)
+    await bot.delay(10000)
     await bot.quit()
   }, maxTimeout)
 
@@ -149,7 +120,7 @@ describe('Golf tests', () => {
     // should be at spawn position
     expect(
       vector3.copy(await bot.runHook(BotHooksTags.getPlayerPosition)).sub(spawnPos).length()
-    ).toBeLessThan(sqrt2 * 2)
+    ).toBeLessThan(sqrt2 * 2) // sqrt2 * 2 is the size of our spawn area
 
     // wait for turn, then move to ball position
     await bot.awaitHookPromise(BotHooksTags.getIsYourTurn)
@@ -159,32 +130,40 @@ describe('Golf tests', () => {
     // should be at ball position
     expect(
       vector3.copy(await bot.runHook(BotHooksTags.getPlayerPosition)).sub(tee0Pos).length()
-    ).toBeLessThan(sqrt2)
-    await bot.delay(2000)
+    ).toBeLessThan(0.1)
 
   }, maxTimeout)
 
   test('Can hit ball', async () => {
-    // player should be at ball position
-    expect(
-      vector3.copy(await bot.runHook(BotHooksTags.getPlayerPosition)).sub(tee0Pos).length()
-    ).toBeLessThan(sqrt2)
+
+    await bot.runHook(BotHooksTags.updateHead, {
+      position: [0, 2, 1],
+      rotation: eulerToQuaternion(-1.25, 0, 0).toArray()
+    })
+
+    console.log('ball position', await bot.runHook(BotHooksTags.getBallPosition))
+    console.log('tee position', tee0Pos)
   
     // ball should be at spawn position
     expect(
       vector3.copy(await bot.runHook(BotHooksTags.getBallPosition)).sub(tee0Pos).length()
-    ).toBeLessThan(sqrt2)
+    ).toBeLessThan(0.1)
     
+    await bot.delay(1000)
     // wait for turn, then move to ball position
     await bot.awaitHookPromise(BotHooksTags.getIsYourTurn)
     
     await bot.delay(500)
 
-    
+    // rotate left thumbstick 3 or 4 times to the left
+
+    await bot.runHook(BotHooksTags.swingClub)
+   
+    await bot.delay(2000)
     expect(
       vector3.copy(await bot.runHook(BotHooksTags.getBallPosition)).sub(tee0Pos).length()
-    ).toBeLessThan(sqrt2)//.toBeGreaterThan(sqrt2 * 2)
-    await bot.delay(2000)
+    ).toBeGreaterThan(0.5)
+    await bot.delay(5000)
   }, maxTimeout)
 
   //
