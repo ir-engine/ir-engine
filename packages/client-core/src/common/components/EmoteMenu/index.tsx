@@ -26,13 +26,13 @@ type EmoteMenuPropsType = {
 const EmoteMenuCore = (props: EmoteMenuPropsType) => {
     const items: MenuItemType[] = [
         {
-            body: 'Dance 1',
+            body: <img src="/static/Dance1.svg" alt="Dance 1" />,
             containerProps: {
                 onClick: () => runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_1  })
             },
         },
         {
-            body: 'Dance 2',
+            body: <img src="/static/Dance2.svg" alt="Dance 2" />,
             containerProps: {
                 onClick: () => runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_2 })
             },
@@ -50,13 +50,13 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
             },
         },
         {
-            body: 'Clapping',
+            body: <img src="/static/Clap.svg" alt="Clap" />,
             containerProps: {
                 onClick: () => runAnimation(CharacterStates.EMOTE, { animationName: CharacterAnimations.CLAPPING })
             },
         },
         {
-            body: 'Laughing',
+            body: <img src="/static/Laugh.svg" alt="Laugh" />,
             containerProps: {
                 onClick: () => runAnimation(CharacterStates.EMOTE, { animationName: CharacterAnimations.LAUGHING })
             },
@@ -84,7 +84,9 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
 
         if (animationComponent.currentState.name === animationState.name) {
             params.resetAnimation = true;
+            params.recalculateWeights = true;
             animationComponent.currentState.update(params);
+            animationComponent.animationGraph.updateNetwork(animationComponent, animationState.name, params);
         } else {
             animationComponent.animationGraph.transitionState(actor, animationComponent, animationState.name, params);
         }
@@ -133,7 +135,7 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
                     onMouseDown={jumpStart}
                     onMouseUp={jumpStop}
                 >
-                    Jump
+                    <img src="/static/Jump.svg" alt="Jump" />
                 </Button>
             </div>
         </section>
