@@ -62,19 +62,6 @@ const canvasStyle = {
   userSelect: 'none',
 } as React.CSSProperties;
 
-const clubCreateObjectProps = {
-  networkId: 2,
-  ownerId: 'cb1bd800-da5f-11eb-9917-8bb68160b7df',
-  uniqueId: 'D8D07D28-D2B3-4995-89AA-9DD868CCDF79',
-  prefabType: 11,
-  parameters: {
-    gameName: 'golf',
-    role: 'GolfClub',
-    uuid: 'D8D07D28-D2B3-4995-89AA-9DD868CCDF79',
-    ownerNetworkId: 1
-  }
-}
-
 interface Props {
   setAppLoaded?: any,
   sceneId?: string,
@@ -351,24 +338,6 @@ export const EnginePage = (props: Props) => {
     await new Promise<void>((resolve) => delay(resolve, 1000))
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState: testWorldState });
     await new Promise<void>((resolve) => delay(resolve, 1000))
-
-    // @todo: figure out how to do this location-specific
-    // spawn golf club
-    ClientNetworkStateSystem.instance.receivedServerWorldState.push({
-      clientsConnected: [],
-      clientsDisconnected: [],
-      createObjects: [clubCreateObjectProps],
-      editObjects: [],
-      destroyObjects: [],
-      gameState: [],
-      gameStateActions: [],
-    }) 
-
-    /**
-     * @todo: add offline testing inputs, do all logic for switching between holes here
-     * - X and Y on oculus controller which go to next or previous hole
-     * - have to add 
-     **/
     
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS));
   }
