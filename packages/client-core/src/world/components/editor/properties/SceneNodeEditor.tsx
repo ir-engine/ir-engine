@@ -46,7 +46,7 @@ const EnvMapSourceOptions=[
     value:EnvMapTextureType.Cubemap,
   },
   {
-    label:"Equilateral",
+    label:"Equirectangular",
     value:EnvMapTextureType.Equirectangular,
   },
 

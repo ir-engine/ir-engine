@@ -56,7 +56,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
         }
         this.gizmo=new BoxHelper(new Mesh(new BoxBufferGeometry()),0xff0000);
         this.centerBall.material=new MeshPhysicalMaterial({
-            roughness:0,metalness:1,
+            roughness:0,metalness:1,envMapIntensity:10,
         })
 
         this.add(this.gizmo);

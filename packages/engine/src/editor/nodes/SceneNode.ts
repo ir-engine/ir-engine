@@ -15,7 +15,8 @@ import {
   Texture,
   RGBFormat,
   CubeTextureLoader,
-  PMREMGenerator
+  PMREMGenerator,
+  TextureLoader
 } from "three";
 import EditorNodeMixin from "./EditorNodeMixin";
 import { setStaticMode, StaticModes, isStatic } from "../functions/StaticMode";
@@ -206,7 +207,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
 
   constructor(editor) {
     super(editor);
-    console.log("Constructing Scene Node");
     setStaticMode(this, StaticModes.Static);
   }
 
@@ -225,21 +225,24 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
 
   set envMapSourceColor(src){
     this._envMapSourceColor=src;
-    console.log("Setting up Color FOr Background");
-    // this._envMapSourceColor=src;
-    if(this.environment)
-    this.environment.dispose();
-    
+    if(this.environment?.dispose)
+      this.environment.dispose();
     const col=new Color(src);
     const resolution =1;
-    const data=new Uint8Array(3*resolution*resolution);
+    const data=new Uint8Array(4*resolution*resolution);
     for(let i=0; i<resolution*resolution;i++){
         data[i]=Math.floor(col.r*255);
         data[i+1]=Math.floor(col.g*255);
         data[i+2]=Math.floor(col.b*255);
+        data[i+3]=255;//Math.floor(col.b*255);
     }
+    const pmren=new PMREMGenerator(this.editor.renderer.renderer);
     const texture=new DataTexture(data,resolution,resolution,RGBFormat);
-    this.environment=texture;
+    texture.encoding=sRGBEncoding;
+    const tex=pmren.fromEquirectangular(texture).texture;
+    pmren.compileEquirectangularShader()
+    this.environment=tex;//pmren.fromEquirectangular(texture);
+    pmren.dispose();
   }
 
   get fogType() {
@@ -530,6 +533,13 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
 
   async load(src, onError?) {
 
+
+    if (this.environment?.dispose) {
+      this.environment.dispose();
+    }
+
+
+    const pmremGenerator=new PMREMGenerator(this.editor.renderer.renderer);
     switch(this.envMapTextureType){
       case EnvMapTextureType.Equirectangular:
         const nextSrc = src || "";
@@ -539,13 +549,14 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         this._envMapSourceURL = nextSrc;
         try {
           const { url } = await this.editor.api.resolveMedia(src);
-          if (this.environment) {
+          if (this.environment?.dispose) {
             this.environment.dispose();
           }
-          const texture = await loadTexture(src).catch(()=>this.errorInEnvmapURL=true) as any;
+          const texture = await new TextureLoader().loadAsync(src);
           texture.encoding = sRGBEncoding;
           texture.minFilter = LinearFilter;
-          this.environment=texture;
+          this.environment=pmremGenerator.fromEquirectangular(texture).texture;
+          this.background=texture;
           this.errorInEnvmapURL=false;
         } catch (error) {
           this.errorInEnvmapURL=true;
@@ -560,12 +571,10 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         const posx = "posx.jpg";
         const posy = "posy.jpg";
         const posz = "posz.jpg";
-        const renderer=this.editor.renderer.renderer;
         new CubeTextureLoader()
         .setPath(src)
         .load([posx, negx, posy, negy, posz, negz],
         (texture) => {
-          const pmremGenerator = new PMREMGenerator(renderer);
           const EnvMap = pmremGenerator.fromCubemap(texture).texture;
           EnvMap.encoding = sRGBEncoding;
           this.environment = EnvMap;
@@ -583,7 +592,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         );
       break;
     }
-
+    pmremGenerator.dispose();
     return this;
   }
 

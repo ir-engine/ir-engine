@@ -1,6 +1,6 @@
 import EditorNodeMixin from "./EditorNodeMixin";
 import { Sky } from "../../scene/classes/Sky";
-import { Color, CubeTexture, CubeTextureLoader, EquirectangularReflectionMapping, PMREMGenerator, sRGBEncoding, Texture, TextureLoader } from "three";
+import { Color, CubeTexture, CubeTextureLoader, EquirectangularReflectionMapping, Mesh, PMREMGenerator, sRGBEncoding, Texture, TextureLoader } from "three";
 
 export type SkyBoxRenderProps={
   turbidity :number,
@@ -70,10 +70,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
 
 
   onChange() {
-
-    console.log("On Change:"+this.skyType)
     this.setUpBackground(this.skyType)
-
   }
 
   onRemove() {
@@ -92,10 +89,12 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   }
 
   setUpBackground(type:SkyTypeEnum){
-    console.log("Setting up background:"+type);
+    if(this.editor.scene.background?.dispose)
+      this.editor.scene.background.dispose();
+
+    (this.sky as Mesh).visible=false;
+
     switch(type){
-
-
       case SkyTypeEnum.color:
         console.log("Changing the Color of the Background")
         this.editor.scene.background = new Color(this.backgroundColor);
@@ -135,9 +134,9 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
         new TextureLoader().load(this.equirectangularPath, (texture) => {
           this.editor.scene.background = texture;
         })
-
         break;
       default:
+        (this.sky as Mesh).visible=true;
         this.editor.scene.background=this.generateEnvironmentMap(this.editor.renderer.renderer);
         break;
     }
