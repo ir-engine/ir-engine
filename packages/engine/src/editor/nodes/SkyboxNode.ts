@@ -44,7 +44,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
     azimuth = 0
     distance = 1
 
-    skyType=SkyTypeEnum.skybox
+    backgroundType=SkyTypeEnum.skybox
     equirectangularPath= "/hdr/city.jpg"
     cubemapPath= "/cubemap/"
     backgroundColor= "#000000"
@@ -56,7 +56,23 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
 
 
   serialize() {
-    const backgroundprops= this.backgroundprops;
+    const backgroundprops:SceneBackgroundProps= {
+      backgroundColor: this.backgroundColor,
+      equirectangularPath: this.equirectangularPath,
+      cubemapPath: this.cubemapPath,
+      backgroundType: this.backgroundType,
+      skyboxProps: {
+        turbidity: this.turbidity,
+        rayleigh: this.rayleigh,
+        luminance: this.luminance,
+        mieCoefficient: this.mieCoefficient,
+        mieDirectionalG: this.mieDirectionalG,
+        inclination: this.inclination,
+        azimuth: this.azimuth,
+        distance: this.distance,
+      }
+    };
+
     return super.serialize({backgroundprops });
   }
 
@@ -64,7 +80,22 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json) as SkyboxNode;
     const skybox = json.components.find(c => c.name === "skybox");
-    node.backgroundprops=skybox.props.backgroundprops;
+    const prop=skybox.props.backgroundprops as SceneBackgroundProps;
+    if(prop){
+      node.backgroundColor= prop.backgroundColor;
+      node.equirectangularPath= prop.equirectangularPath;
+      node.cubemapPath= prop.cubemapPath;
+      node.backgroundType= prop.backgroundType;
+      node.turbidity= prop.skyboxProps.turbidity;
+      node.rayleigh= prop.skyboxProps.rayleigh;
+      node.luminance= prop.skyboxProps.luminance;
+      node.mieCoefficient= prop.skyboxProps.mieCoefficient;
+      node.mieDirectionalG= prop.skyboxProps.mieDirectionalG;
+      node.inclination= prop.skyboxProps.inclination;
+      node.azimuth= prop.skyboxProps.azimuth;
+      node.distance= prop.skyboxProps.distance;
+    }
+
     return node;
   }
 
@@ -79,13 +110,38 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
 
   prepareForExport() {
     super.prepareForExport();
-    this.addGLTFComponent("background", this.backgroundprops);
+    const backgroundprops:SceneBackgroundProps= {
+      backgroundColor: this.backgroundColor,
+      equirectangularPath: this.equirectangularPath,
+      cubemapPath: this.cubemapPath,
+      backgroundType: this.backgroundType,
+      skyboxProps: {
+        turbidity: this.turbidity,
+        rayleigh: this.rayleigh,
+        luminance: this.luminance,
+        mieCoefficient: this.mieCoefficient,
+        mieDirectionalG: this.mieDirectionalG,
+        inclination: this.inclination,
+        azimuth: this.azimuth,
+        distance: this.distance,
+      }
+    }
+    this.addGLTFComponent("background", backgroundprops);
     this.replaceObject();
   }
 
   getSkyBoxProperties(){
-      return this.backgroundprops.skyboxProps;
-
+    const skyProps= {
+      turbidity: this.turbidity,
+      rayleigh: this.rayleigh,
+      luminance: this.luminance,
+      mieCoefficient: this.mieCoefficient,
+      mieDirectionalG: this.mieDirectionalG,
+      inclination: this.inclination,
+      azimuth: this.azimuth,
+      distance: this.distance,
+    }
+    return skyProps;
   }
 
   setUpBackground(type:SkyTypeEnum){
@@ -96,7 +152,6 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
 
     switch(type){
       case SkyTypeEnum.color:
-        console.log("Changing the Color of the Background")
         this.editor.scene.background = new Color(this.backgroundColor);
         break;
 

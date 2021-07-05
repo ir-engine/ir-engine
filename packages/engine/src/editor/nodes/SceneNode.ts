@@ -203,7 +203,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   toneMappingExposure = 0.8;
   shadowMapType: ShadowMapType = PCFSoftShadowMap;
   errorInEnvmapURL=false;
-
+  _envMapIntensity=1;
 
   constructor(editor) {
     super(editor);
@@ -218,8 +218,19 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     this.load(src);
   }
 
+  get envMapIntensity(){
+    return this._envMapIntensity;
+  }
+
+  set envMapIntensity(value){
+    this._envMapIntensity=value;
+    this.traverse(child=>{
+      if(child.material)
+        child.material.envMapIntensity=value;
+    })
+  }
+
   get envMapSourceColor(){
-    console.log("Getting up the Color For Background "+this._envMapSourceColor);
     return this._envMapSourceColor;
   }
 
@@ -538,7 +549,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       this.environment.dispose();
     }
 
-
     const pmremGenerator=new PMREMGenerator(this.editor.renderer.renderer);
     switch(this.envMapTextureType){
       case EnvMapTextureType.Equirectangular:
@@ -556,14 +566,13 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
           texture.encoding = sRGBEncoding;
           texture.minFilter = LinearFilter;
           this.environment=pmremGenerator.fromEquirectangular(texture).texture;
-          this.background=texture;
           this.errorInEnvmapURL=false;
+          texture.dispose();
         } catch (error) {
           this.errorInEnvmapURL=true;
           console.error(`Error loading image ${this._envMapSourceURL}`);
         }
       break;
-      
       case EnvMapTextureType.Cubemap:
         const negx = "negx.jpg";
         const negy = "negy.jpg";
@@ -578,9 +587,8 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
           const EnvMap = pmremGenerator.fromCubemap(texture).texture;
           EnvMap.encoding = sRGBEncoding;
           this.environment = EnvMap;
-          texture.dispose();
-          pmremGenerator.dispose();
           this.errorInEnvmapURL=false;
+          texture.dispose();
         },
         (res)=> {
           console.log(res);

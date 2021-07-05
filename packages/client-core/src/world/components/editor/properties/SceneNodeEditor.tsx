@@ -183,6 +183,8 @@ export function SceneNodeEditor(props) {
   const onChangeUseToneMapping = useSetPropertySelected(editor, "toneMapping");
   const onChangeUseToneMappingExposure = useSetPropertySelected(editor, "toneMappingExposure");
   const onChangeUseShadowMapType = useSetPropertySelected(editor, "shadowMapType");
+  const envMapIntensityChanged=useSetPropertySelected(editor,"envMapIntensity")
+
 
   // returning editor view for property editor for sceneNode
   return (
@@ -233,7 +235,19 @@ export function SceneNodeEditor(props) {
               </div>
             )
         }
+        
 
+      { /* @ts-ignore */ }
+        <InputGroup name="EnvMap Intensity" label="EnvMap Intensity">
+          { /* @ts-ignore */ }
+          <CompoundNumericInput 
+            min={0}
+            max={20}
+            value={node.envMapIntensity}
+            onChange={envMapIntensityChanged}
+          />
+
+        </InputGroup>
 
       { /* @ts-ignore */ }
       <InputGroup
