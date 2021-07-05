@@ -72,7 +72,7 @@
     "@types/jest": "26.0.23",
     "@types/jest-environment-puppeteer": "4.4.1",
     "@types/puppeteer": "5.4.3",
-    "@types/three": "0.129.2",
+    "@types/three": "0.130.0",
     "@xrengine/bot": "^0.3.29",
     "esbuild": "0.12.14",
     "eslint": "7.30.0",
