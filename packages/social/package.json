@@ -48,7 +48,8 @@
     "redux": "4.1.0",
     "sass": "1.35.1",
     "styled-components": "5.3.0",
-    "volumetric": "https://github.com/XRFoundation/UniversalVolumetric"
+    "volumetric": "https://github.com/XRFoundation/UniversalVolumetric",
+    "webxr-native": "0.2.24"
   },
   "devDependencies": {
     "@types/node": "14.17.4",
