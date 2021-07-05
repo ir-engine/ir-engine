@@ -32,7 +32,8 @@ export default class VideoNode extends EditorNodeMixin(Video) {
       coneInnerAngle,
       coneOuterAngle,
       coneOuterGain,
-      projection
+      projection,
+      elementId
     } = json.components.find(c => c.name === "video").props;
     loadAsync(
       (async () => {
@@ -53,6 +54,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
         node.coneOuterAngle = coneOuterAngle;
         node.coneOuterGain = coneOuterGain;
         node.projection = projection;
+        node.elementId = elementId;
       })()
     );
     return node;
@@ -174,7 +176,8 @@ export default class VideoNode extends EditorNodeMixin(Video) {
         coneInnerAngle: this.coneInnerAngle,
         coneOuterAngle: this.coneOuterAngle,
         coneOuterGain: this.coneOuterGain,
-        projection: this.projection
+        projection: this.projection,
+        elementId: this.elementId,
       }
     });
   }
@@ -197,7 +200,8 @@ export default class VideoNode extends EditorNodeMixin(Video) {
       coneInnerAngle: this.coneInnerAngle,
       coneOuterAngle: this.coneOuterAngle,
       coneOuterGain: this.coneOuterGain,
-      projection: this.projection
+      projection: this.projection,
+      elementId: this.elementId,
     });
     this.addGLTFComponent("networked", {
       id: this.uuid

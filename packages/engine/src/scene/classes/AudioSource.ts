@@ -28,14 +28,27 @@ export default class AudioSource extends Object3D {
   audio: any;
   audioSource: any;
   isSynced: boolean;
-  constructor(audioListener, elTag = "audio") {
+  constructor(audioListener, elTag = "audio", id: string) {
     super();
-    const el = Engine.createElement(elTag, {
-      crossorigin: 'anonymous',
-      loop: true,
-      playsinline: '',
-      'webkit-playsinline': '',
-    }) as any;
+
+    let el: HTMLVideoElement | HTMLAudioElement = null;
+    if (elTag === 'video') {
+      const videoElement = document.getElementById(id) as HTMLVideoElement;
+      if (videoElement) {
+        el = videoElement;
+      }
+    }
+
+    if (!el) {
+      el = Engine.createElement(elTag, {
+        crossorigin: 'anonymous',
+        loop: true,
+        playsinline: '',
+        'webkit-playsinline': '',
+        id,
+      }) as any;
+    }
+
     this.el = el;
     this._src = "";
     this.audioListener = audioListener;
