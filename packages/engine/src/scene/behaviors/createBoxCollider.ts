@@ -1,3 +1,4 @@
+import { Quaternion, Vector3 } from 'three';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { addColliderWithoutEntity } from '../../physics/behaviors/colliderCreateFunctions';
 
@@ -5,7 +6,7 @@ import { addColliderWithoutEntity } from '../../physics/behaviors/colliderCreate
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const createBoxCollider: Behavior = (entity, args: any) => {
+export const createBoxCollider: Behavior = (entity, args: BoxColliderProps) => {
   // console.log('createBoxCollider', args)
   addColliderWithoutEntity(
     { type: 'box', action: args.action, link: args.link, isTrigger: args.isTrigger },
@@ -18,3 +19,14 @@ export const createBoxCollider: Behavior = (entity, args: any) => {
     },
   );
 };
+
+export interface BoxColliderProps {
+  position: Vector3,
+  quaternion: Quaternion,
+  scale: Vector3,
+  isTrigger: boolean,
+  action : string,
+  link : string,
+  collisionLayer:string | number,
+  collisionMask : string | number
+}

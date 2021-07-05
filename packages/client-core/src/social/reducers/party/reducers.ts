@@ -61,7 +61,9 @@ const partyReducer = (state = immutableState, action: PartyAction): any => {
       partyUser = newValues.partyUser;
       updateMap = _.cloneDeep(state.get('party'));
       if (updateMap != null) {
-        updateMap.partyUsers = updateMap.partyUsers.map((pUser) => { return pUser != null && (pUser.id === partyUser.id ? partyUser : pUser);});
+        updateMapPartyUsers = updateMap.partyUsers;
+        updateMapPartyUsers = Array.isArray(updateMapPartyUsers) ? (updateMapPartyUsers.find(pUser => { return pUser != null && (pUser.id === partyUser.id);}) == null ? updateMapPartyUsers.concat([partyUser]) : updateMap.partyUsers.map((pUser) => { return pUser != null && (pUser.id === partyUser.id) ? partyUser : pUser;})) : [partyUser];
+        updateMap.partyUsers = updateMapPartyUsers;
       }
 
       return state
