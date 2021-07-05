@@ -92,7 +92,7 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
 
     return (
         <section className={styles.emoteMenu}>
-            <ScrollableElement height={250}>
+            <ScrollableElement height={400}>
                 {items.map((item, index) => {
                     return (
                         <Button
@@ -105,7 +105,7 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
                     );
                 })}
             </ScrollableElement>
-            <div className={styles.jumpContainer}>
+            {/* <div className={styles.jumpContainer}>
                 <Button
                     className={styles.menuItem}
                     onMouseDown={jumpStart}
@@ -113,7 +113,7 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
                 >
                     <img src="/static/Jump.svg" alt="Jump" />
                 </Button>
-            </div>
+            </div> */}
         </section>
     );
 };
