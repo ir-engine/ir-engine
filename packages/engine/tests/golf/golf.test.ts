@@ -7,9 +7,7 @@ const maxTimeout = 60 * 1000
 const headless = true
 const bot = new XREngineBot({ name: 'bot-1', headless, autoLog: true })
 
-// TODO: get APP_HOST from dotenv
-//const domain = '192.168.0.16:3000'
-const domain = 'localhost:3000'
+const domain = process.env.APP_HOST
 // TODO: load GS & client from static world file instead of having to run independently
 const locationName = 'golf'
 

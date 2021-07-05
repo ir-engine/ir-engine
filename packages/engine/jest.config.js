@@ -4,8 +4,9 @@ module.exports = {
   globalSetup: 'jest-environment-puppeteer/setup',
   globalTeardown: 'jest-environment-puppeteer/teardown',
   testEnvironment: 'jest-environment-puppeteer',
-  setupTestFrameworkScriptFile: 'expect-puppeteer',
-  moduleDirectories: ["node_modules", "bower_components", "src"],
+  setupFilesAfterEnv: ['expect-puppeteer', "./tests/custom-env.js"],
+  moduleDirectories: ["node_modules", "src"],
+  setupFiles: [],
   transform: {
     ".(ts|tsx)": "ts-jest"
   },
