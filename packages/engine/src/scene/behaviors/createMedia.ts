@@ -46,6 +46,7 @@ export interface AudioProps {
 
 export interface VideoProps extends AudioProps {
   isLivestream: boolean;
+  elementId: string;
   projection: 'flat' | '360-equirectangular';
 }
 
@@ -117,7 +118,7 @@ export function createAudio(entity, args: AudioProps): void {
 
 
 export function createVideo(entity, args: VideoProps): void {
-  addObject3DComponent(entity, { obj3d: new Video(Engine.audioListener, args.synchronize), objArgs: args });
+  addObject3DComponent(entity, { obj3d: new Video(Engine.audioListener, args.synchronize, args.elementId), objArgs: args });
   if(args.interactable) addInteraction(entity);
 }
 

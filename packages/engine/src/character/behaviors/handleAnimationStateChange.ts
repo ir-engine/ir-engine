@@ -19,5 +19,10 @@ export const handleAnimationStateChange = (editObject: NetworkObjectEditInterfac
 
     const animationDetail = convertBufferSupportedStringToObj(editObject.data[0]);
     const animationState = animationComponent.animationGraph.states[animationDetail.state];
-    animationComponent.animationGraph.transitionState(actor, animationComponent, animationState.name, animationDetail.params);
+
+    if (animationDetail.params.recalculateWeights && animationState.name === animationComponent.currentState.name) {
+        animationComponent.currentState.update(animationDetail.params)
+    } else {
+        animationComponent.animationGraph.transitionState(actor, animationComponent, animationState.name, animationDetail.params);
+    }
 }
