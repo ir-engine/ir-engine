@@ -145,13 +145,13 @@ export class LoopableEmoteState extends AnimationState {
             loopType: LoopRepeat,
         },
         {
-            name: CharacterAnimations.CHEERING_1,
+            name: CharacterAnimations.DANCING_3,
             weight: 0,
             timeScale: 0.37,
             loopType: LoopRepeat,
         },
         {
-            name: CharacterAnimations.CHEERING_2,
+            name: CharacterAnimations.DANCING_4,
             weight: 0,
             timeScale: 0.37,
             loopType: LoopRepeat,

@@ -38,41 +38,17 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
             },
         },
         {
-            body: 'Cheering 1',
+            body: <img src="/static/Dance3.svg" alt="Dance 3" />,
             containerProps: {
-                onClick: () => runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.CHEERING_1 })
+                onClick: () => runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_3 })
             },
         },
         {
-            body: 'Cheering 2',
+            body: <img src="/static/Dance4.svg" alt="Dance 4" />,
             containerProps: {
-                onClick: () => runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.CHEERING_2 })
+                onClick: () => runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_4 })
             },
-        },
-        {
-            body: <img src="/static/Clap.svg" alt="Clap" />,
-            containerProps: {
-                onClick: () => runAnimation(CharacterStates.EMOTE, { animationName: CharacterAnimations.CLAPPING })
-            },
-        },
-        {
-            body: <img src="/static/Laugh.svg" alt="Laugh" />,
-            containerProps: {
-                onClick: () => runAnimation(CharacterStates.EMOTE, { animationName: CharacterAnimations.LAUGHING })
-            },
-        },
-        {
-            body: 'Wave Left',
-            containerProps: {
-                onClick: () => runAnimation(CharacterStates.EMOTE, { animationName: CharacterAnimations.WAVE_LEFT })
-            },
-        },
-        {
-            body: 'Wave Right',
-            containerProps: {
-                onClick: () => runAnimation(CharacterStates.EMOTE, { animationName: CharacterAnimations.WAVE_RIGHT })
-            },
-        },
+        }
     ];
 
     const runAnimation = (animationName: string, params: CalculateWeightsParams) => {
