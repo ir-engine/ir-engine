@@ -2,11 +2,10 @@ import { Capacitor, Plugins } from '@capacitor/core';
 import "webxr-native";
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    AxesHelper,
-    BoxGeometry, CameraHelper, Color,
-    GridHelper, Group,
-    Mesh,
-    MeshBasicMaterial, OrthographicCamera,
+    CameraHelper,
+    Color,
+    Group,
+    OrthographicCamera,
     PerspectiveCamera,
     Quaternion,
     Scene,
@@ -14,7 +13,6 @@ import {
     WebGLRenderer
 } from 'three';
 import VideocamIcon from '@material-ui/icons/Videocam';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import FlipCameraIosIcon from '@material-ui/icons/FlipCameraIos';
 import Player from 'volumetric/web/decoder/Player';
 // @ts-ignore
