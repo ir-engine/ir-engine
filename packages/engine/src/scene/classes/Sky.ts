@@ -186,7 +186,7 @@ export class Sky extends Object3D {
     vertexShader,
     fragmentShader
   };
-  static geometry = new BoxBufferGeometry(1, 1, 1);
+  static geometry = new BoxBufferGeometry(1000, 1000, 1000);
   skyScene: Scene;
   cubeCamera: CubeCamera;
   sky: Mesh;
