@@ -260,8 +260,8 @@ export class ServerNetworkIncomingSystem extends System {
       if(!inputs.data.has(BaseInput.XR_HEAD)) return;
 
       const head = inputs.data.get(BaseInput.XR_HEAD).value as SIXDOFType;
-      const left = inputs.data.get(BaseInput.XR_LEFT_HAND).value as SIXDOFType;
-      const right = inputs.data.get(BaseInput.XR_RIGHT_HAND).value as SIXDOFType;
+      const left = inputs.data.get(BaseInput.XR_CONTROLLER_LEFT_HAND).value as SIXDOFType;
+      const right = inputs.data.get(BaseInput.XR_CONTROLLER_RIGHT_HAND).value as SIXDOFType;
 
       xrInputSourceComponent.head.position.set(head.x, head.y, head.z);
       xrInputSourceComponent.head.quaternion.set(head.qX, head.qY, head.qZ, head.qW);

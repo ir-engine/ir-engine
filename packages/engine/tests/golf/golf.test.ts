@@ -1,7 +1,7 @@
 // @ts-ignore
 import { Quaternion, Vector3 } from 'three';
 import XREngineBot from '@xrengine/bot/src/bot';
-// import { getXRInputPosition, getIsYourTurn, getPlayerPosition, overrideXR, startXR, updateController, updateHead, xrInitialized, xrSupported } from '../../src/bot/setupBotHooks';
+import { BotHooksTags } from '../../src/bot/setupBotHooks';
 
 const maxTimeout = 60 * 1000
 const headless = true
@@ -28,16 +28,16 @@ const rightControllerRotation = new Quaternion()
 let interval;
 
 const sendXRInputData = () => {
-  bot.runHook('updateHead', {
+  bot.runHook(BotHooksTags.updateHead, {
     position: headPosition.toArray(),
     quaternion: headRotation.toArray()
   })
-  bot.runHook('updateController', {
+  bot.runHook(BotHooksTags.updateController, {
     objectName: 'leftController',
     position: leftControllerPosition.toArray(),
     quaternion: leftControllerRotation.toArray()
   })
-  bot.runHook('updateController', {
+  bot.runHook(BotHooksTags.updateController, {
     objectName: 'rightController',
     position: rightControllerPosition.toArray(),
     quaternion: rightControllerRotation.toArray()
@@ -69,7 +69,6 @@ const randomQuat = () => {
 const compareArrays = (arr1, arr2, tolerance) => {
   if(tolerance) {
     arr1.forEach((val, i) => {
-      console.log(arr2[i], val)
       expect(Math.abs(arr2[i] - val)).toBeLessThanOrEqual(tolerance)
     })
   } else {
@@ -86,8 +85,9 @@ describe('Golf tests', () => {
     await bot.enterRoom(`https://${domain}/location/${locationName}`)
     await bot.page.addScriptTag({ url: '/scripts/webxr-polyfill.js' })
     await bot.delay(500)
-    await bot.awaitHookPromise('getIsYourTurn')
-    await bot.runHook('overrideXR')
+    await bot.runHook(BotHooksTags.initializeBot)
+    await bot.awaitHookPromise(BotHooksTags.getIsYourTurn)
+    await bot.runHook(BotHooksTags.overrideXR)
   }, maxTimeout)
 
   afterAll(async () => {
@@ -96,9 +96,9 @@ describe('Golf tests', () => {
   }, maxTimeout)
 
   test('Web XR works', async () => {
-    expect(await bot.runHook('xrSupported')).toBe(true)
-    await bot.runHook('startXR')
-    expect(await bot.runHook('xrInitialized')).toBe(true)
+    expect(await bot.runHook(BotHooksTags.xrSupported)).toBe(true)
+    await bot.runHook(BotHooksTags.startXR)
+    expect(await bot.runHook(BotHooksTags.xrInitialized)).toBe(true)
   }, maxTimeout)
 
 
@@ -110,7 +110,7 @@ describe('Golf tests', () => {
       headInputValue,
       leftControllerInputValue,
       rightControllerInputValue
-    } = await bot.runHook('getXRInputPosition')
+    } = await bot.runHook(BotHooksTags.getXRInputPosition)
 
     compareArrays(
       [headInputValue.x, headInputValue.y, headInputValue.z],
@@ -150,17 +150,17 @@ describe('Golf tests', () => {
   test('Can teleport to ball', async () => {
     // should be at spawn position
     expect(
-      vector3.copy(await bot.runHook('getPlayerPosition')).sub(spawnPos).length()
+      vector3.copy(await bot.runHook(BotHooksTags.getPlayerPosition)).sub(spawnPos).length()
     ).toBeLessThan(sqrt2 * 2)
 
     // wait for turn, then move to ball position
-    await bot.awaitHookPromise('getIsYourTurn')
+    await bot.awaitHookPromise(BotHooksTags.getIsYourTurn)
     await bot.keyPress('KeyK', 200)
     await bot.delay(500)
 
     // should be at ball position
     expect(
-      vector3.copy(await bot.runHook('getPlayerPosition')).sub(tee0Pos).length()
+      vector3.copy(await bot.runHook(BotHooksTags.getPlayerPosition)).sub(tee0Pos).length()
     ).toBeLessThan(sqrt2)
     await bot.delay(2000)
 
@@ -169,22 +169,22 @@ describe('Golf tests', () => {
   test('Can hit ball', async () => {
     // player should be at ball position
     expect(
-      vector3.copy(await bot.runHook('getPlayerPosition')).sub(tee0Pos).length()
+      vector3.copy(await bot.runHook(BotHooksTags.getPlayerPosition)).sub(tee0Pos).length()
     ).toBeLessThan(sqrt2)
   
     // ball should be at spawn position
     expect(
-      vector3.copy(await bot.runHook('getBallPosition')).sub(tee0Pos).length()
+      vector3.copy(await bot.runHook(BotHooksTags.getBallPosition)).sub(tee0Pos).length()
     ).toBeLessThan(sqrt2)
     
     // wait for turn, then move to ball position
-    await bot.awaitHookPromise('getIsYourTurn')
+    await bot.awaitHookPromise(BotHooksTags.getIsYourTurn)
     
     await bot.delay(500)
 
     
     expect(
-      vector3.copy(await bot.runHook('getBallPosition')).sub(tee0Pos).length()
+      vector3.copy(await bot.runHook(BotHooksTags.getBallPosition)).sub(tee0Pos).length()
     ).toBeLessThan(sqrt2)//.toBeGreaterThan(sqrt2 * 2)
     await bot.delay(2000)
   }, maxTimeout)

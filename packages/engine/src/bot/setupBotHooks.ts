@@ -1,24 +1,20 @@
 import { Engine } from "../ecs/classes/Engine";
 import { EngineEvents } from "../ecs/classes/EngineEvents";
-import { System } from "../ecs/classes/System";
+import { getComponent, hasComponent } from "../ecs/functions/EntityFunctions";
+import { GamePlayer } from "../game/components/GamePlayer";
 import { getGameFromName } from "../game/functions/functions";
+import { YourTurn } from "../game/templates/Golf/components/YourTurnTagComponent";
+import { Input } from "../input/components/Input";
+import { BaseInput } from "../input/enums/BaseInput";
 import { Network } from "../networking/classes/Network";
+import { TransformComponent } from "../transform/components/TransformComponent";
 
 export const setupBotHooks = (): void => {
-  // expose all our interfaces for local dev for the bot tests
-  globalThis.Engine = Engine;
-  globalThis.EngineEvents = EngineEvents;
-  globalThis.Network = Network;
-  Engine.activeSystems.getAll().forEach((system: System) => {
-    globalThis[system.name] = system.constructor;
-  })
-  globalThis.botHooks = {}
-  Object.entries(BotHooks).forEach(([hookName, hook]) => {
-    globalThis.botHooks[hookName] = hook;
-  })
+  globalThis.botHooks = BotHooks
 }
 
 export const BotHooks = {
+  initializeBot,
   overrideXR,
   xrSupported,
   xrInitialized,
@@ -33,14 +29,22 @@ export const BotHooks = {
   getXRInputPosition
 }
 
+export const BotHooksTags = Object.fromEntries(
+  Object.entries(BotHooks).map(([key]) => [key, key])
+) as { [K in keyof typeof BotHooks]: K }
+
+export function initializeBot() {
+  Engine.isBot = true
+}
+
 // === SETUP WEBXR === //
 
 export async function overrideXR() {
-  // inject the webxr polyfill from the webxr emulator source
+  // inject the webxr polyfill from the webxr emulator source - this is a script added by the bot
   globalThis.WebXRPolyfillInjection();
   new globalThis.CustomWebXRPolyfill();
   // override session supported request, it hangs indefinitely for some reason
-  globalThis.navigator.xr.isSessionSupported = () => { return true }
+  (navigator as any).xr.isSessionSupported = () => { return true }
 
   const deviceDefinition = {
     "id": "Oculus Quest",
@@ -82,17 +86,17 @@ export async function overrideXR() {
 }
 
 export async function xrSupported() {
-  const supported = await navigator.xr.isSessionSupported("immersive-vr");
-  globalThis.Engine.xrSupported = supported;
+  const supported = await (navigator as any).xr.isSessionSupported("immersive-vr");
+  Engine.xrSupported = supported;
   return supported
 }
 
 export function xrInitialized() {
-  return Boolean(globalThis.Engine.xrSession);
+  return Boolean(Engine.xrSession);
 }
 
 export function startXR() {
-  globalThis.EngineEvents.instance.dispatchEvent({ type: 'WEBXR_RENDERER_SYSTEM_XR_START' });
+  EngineEvents.instance.dispatchEvent({ type: 'WEBXR_RENDERER_SYSTEM_XR_START' });
   window.dispatchEvent(new CustomEvent('webxr-pose', { 
     detail: {
       position: [0, 1.6, 0],
@@ -168,9 +172,7 @@ export function moveControllerStick(args) {
 // === ENGINE === //
 
 export function getPlayerPosition() {
-  const pos = (Object.values(globalThis.Network.instance.localClientEntity.components).find((component) => {
-    return component.name === 'TransformComponent';
-  }))?.position;
+  const pos = getComponent(Network.instance.localClientEntity, TransformComponent)?.position;
   if(!pos) return;
   // transform is centered on collider
   pos.y -= 0.9
@@ -178,12 +180,9 @@ export function getPlayerPosition() {
 }
 
 export function getBallPosition() {
-  const gameName = (Object.values(globalThis.Network.instance.localClientEntity.components).find((component) => {
-    return component.name === 'GamePlayer';
-  }))?.gameName;
+  const gameName = getComponent(Network.instance.localClientEntity, GamePlayer)?.gameName
   
   if(!gameName) return;
-  // transform is centered on collider
   const game = getGameFromName(gameName)
   if(!game) {
     console.log('Game not found')
@@ -194,27 +193,21 @@ export function getBallPosition() {
     console.log('ball entity not found')
     return;
   }
-  const pos = (Object.values(ballEntity.components).find((component) => {
-    return component.name === 'TransformComponent';
-  }))?.position;
+  const pos = getComponent(Network.instance.localClientEntity, TransformComponent)?.position;
   if(!pos) return;
   return pos;
 }
 
 export function getIsYourTurn() {
-  return typeof (Object.values(globalThis.Network.instance.localClientEntity.components).find((component) => {
-    return component.name === 'YourTurn';
-  })) !== 'undefined';
+  return hasComponent(Network.instance.localClientEntity, YourTurn);
 }
 
 // is in world space, so subtract player pos from it
 export function getXRInputPosition() {
-  const input = (Object.values(globalThis.Network.instance.localClientEntity.components).find((component) => {
-    return component.name === 'Input';
-  }));
-  const headInputValue = input.data.get(37)?.value;
-  const leftControllerInputValue = input.data.get(38)?.value;
-  const rightControllerInputValue = input.data.get(39)?.value;
+  const input = getComponent(Network.instance.localClientEntity, Input);
+  const headInputValue = input.data.get(BaseInput.XR_HEAD)?.value;
+  const leftControllerInputValue = input.data.get(BaseInput.XR_CONTROLLER_LEFT_HAND)?.value;
+  const rightControllerInputValue = input.data.get(BaseInput.XR_CONTROLLER_RIGHT_HAND)?.value;
   return {
     headInputValue,
     leftControllerInputValue,

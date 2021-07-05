@@ -93,8 +93,8 @@ export class ServerNetworkOutgoingSystem extends System {
       const input = getComponent(entity, Input);
 
       const hmd = input.data.get(BaseInput.XR_HEAD) as InputValue<SIXDOFType>;
-      const left = input.data.get(BaseInput.XR_LEFT_HAND) as InputValue<SIXDOFType>;
-      const right = input.data.get(BaseInput.XR_RIGHT_HAND) as InputValue<SIXDOFType>;
+      const left = input.data.get(BaseInput.XR_CONTROLLER_LEFT_HAND) as InputValue<SIXDOFType>;
+      const right = input.data.get(BaseInput.XR_CONTROLLER_RIGHT_HAND) as InputValue<SIXDOFType>;
 
       if(!hmd?.value || !left?.value || !right?.value) return;
 
