@@ -219,14 +219,18 @@ export async function createCamVideoProducer(channelType: string, channelId?: st
     if (MediaStreamSystem.instance.mediaStream !== null && networkTransport.videoEnabled === true) {
         const transport = channelType === 'instance' ? networkTransport.instanceSendTransport : networkTransport.channelSendTransport;
         if (transport != null) {
-            MediaStreamSystem.instance.camVideoProducer = await transport.produce({
-                track: MediaStreamSystem.instance.mediaStream.getVideoTracks()[0],
-                encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
-                appData: {mediaTag: "cam-video", channelType: channelType, channelId: channelId}
-            });
+            try {
+                MediaStreamSystem.instance.camVideoProducer = await transport.produce({
+                    track: MediaStreamSystem.instance.mediaStream.getVideoTracks()[0],
+                    encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
+                    appData: {mediaTag: "cam-video", channelType: channelType, channelId: channelId}
+                });
 
-            if (MediaStreamSystem.instance.videoPaused) await MediaStreamSystem.instance?.camVideoProducer.pause();
-            else await resumeProducer(MediaStreamSystem.instance.camVideoProducer);
+                if (MediaStreamSystem.instance.videoPaused) await MediaStreamSystem.instance?.camVideoProducer.pause();
+                else await resumeProducer(MediaStreamSystem.instance.camVideoProducer);
+            } catch(err) {
+                console.log('error producing video', err);
+            }
         }
     }
 }
@@ -249,14 +253,18 @@ export async function createCamAudioProducer(channelType: string, channelId?: st
         const transport = channelType === 'instance' ? networkTransport.instanceSendTransport : networkTransport.channelSendTransport;
 
         if (transport != null) {
-            // Create a new transport for audio and start producing
-            MediaStreamSystem.instance.camAudioProducer = await transport.produce({
-                track: MediaStreamSystem.instance.mediaStream.getAudioTracks()[0],
-                appData: {mediaTag: "cam-audio", channelType: channelType, channelId: channelId}
-            });
+            try {
+                // Create a new transport for audio and start producing
+                MediaStreamSystem.instance.camAudioProducer = await transport.produce({
+                    track: MediaStreamSystem.instance.mediaStream.getAudioTracks()[0],
+                    appData: {mediaTag: "cam-audio", channelType: channelType, channelId: channelId}
+                });
 
-            if (MediaStreamSystem.instance.audioPaused) MediaStreamSystem.instance?.camAudioProducer.pause();
-            else await resumeProducer(MediaStreamSystem.instance.camAudioProducer);
+                if (MediaStreamSystem.instance.audioPaused) MediaStreamSystem.instance?.camAudioProducer.pause();
+                else await resumeProducer(MediaStreamSystem.instance.camAudioProducer);
+            } catch(err) {
+                console.log('error producing audio', err);
+            }
         }
     }
 }

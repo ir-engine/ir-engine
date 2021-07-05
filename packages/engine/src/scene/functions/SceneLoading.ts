@@ -39,15 +39,23 @@ import { createPortal } from '../behaviors/createPortal';
 import { createGround } from '../behaviors/createGround';
 import { handleRendererSettings } from '../behaviors/handleRendererSettings';
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
+import { startLivestreamOnServer } from '../../networking/functions/startLivestreamOnServer';
+import LivestreamProxyComponent from '../components/LivestreamProxyComponent';
+import LivestreamComponent from '../components/LivestreamComponent';
 
+export enum SCENE_ASSET_TYPES {
+  ENVMAP,
+}
 export class WorldScene {
   loadedModels = 0;
   loaders: Promise<void>[] = [];
+  static callbacks: any
   static isLoading = false;
 
   constructor(private onCompleted?: Function, private onProgress?: Function) { }
 
   loadScene = (scene: SceneData) => {
+    WorldScene.callbacks = {}
     WorldScene.isLoading = true
     // reset renderer settings for if we are teleporting and the new scene does not have an override
     handleRendererSettings();
@@ -74,6 +82,15 @@ export class WorldScene {
   _onModelLoaded = () => {
     this.loadedModels++;
     if (typeof this.onProgress === 'function') this.onProgress(this.loaders.length - this.loadedModels);
+  }
+
+  static pushAssetTypeLoadCallback = (assetType: SCENE_ASSET_TYPES, callback: () => void): void => {
+    if(!WorldScene.callbacks[assetType]) WorldScene.callbacks[assetType] = [];
+    WorldScene.callbacks[assetType].push(callback)
+  }
+
+  static executeAssetTypeLoadCallback = (assetType: SCENE_ASSET_TYPES, ...args: any[]): void => {
+    WorldScene.callbacks[assetType]?.forEach((cb) => { cb(...args); })
   }
 
   loadComponent = (entity: Entity, component: SceneDataComponent): void => {
@@ -171,8 +188,17 @@ export class WorldScene {
         break;
 
       case 'video':
-        if (isClient) createVideo(entity, component.data);
-        else createMediaServer(entity, component.data);
+        // if livestream, server will send the video info to the client
+        if (isClient) {
+          if(!component.data.isLivestream) {
+            createVideo(entity, component.data);
+          }
+          addComponent(entity, LivestreamComponent)
+        } else if(component.data.isLivestream) {
+          addComponent(entity, LivestreamProxyComponent, { src: component.data.src })
+        } else {
+          createMediaServer(entity, component.data);
+        }
         break;
 
       case 'audio':
@@ -206,7 +232,7 @@ export class WorldScene {
         break;
 
       case 'background':
-        createBackground(entity, component.data);
+        createBackground(entity, component.data as any);
         break;
 
       case 'audio-settings':
@@ -214,9 +240,9 @@ export class WorldScene {
         break;
 
       case 'renderer-settings':
-        handleRendererSettings(component.data as any);
+        handleRendererSettings(component.data);
         break;
-      
+
       case 'spawn-point':
         addComponent(entity, SpawnPointComponent);
         break;
@@ -274,7 +300,7 @@ export class WorldScene {
       case 'persist':
         if(isClient) addComponent(entity, PersistTagComponent);
         break;
-      
+
       case 'portal': 
         createPortal(entity, component.data)
         break;

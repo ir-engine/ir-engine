@@ -6,14 +6,9 @@
  */
 
 import {
-  AudioListener as THREE_AudioListener,
   PerspectiveCamera,
   Scene,
   WebGLRenderer,
-  AudioLoader as THREE_AudioLoader,
-  VideoTexture as THREE_VideoTexture,
-  Audio as THREE_Audio,
-  PositionalAudio as THREE_PositionalAudio,
   XRSession
 } from 'three';
 import { TransformComponent } from '../../transform/components/TransformComponent';
@@ -23,26 +18,11 @@ import { EntityPool } from './EntityPool';
 import { EntityEventDispatcher } from './EntityEventDispatcher';
 import { Query } from './Query';
 import { createElement } from '../functions/createElement';
-import { isWebWorker } from '../../common/functions/getEnvironment';
-import { VideoTextureProxy } from '../../worker/VideoTexture';
-import { PositionalAudioObjectProxy, AudioObjectProxy, AudioListenerProxy, AudioLoaderProxy } from '../../worker/Audio';
 import { NumericalType } from '../../common/types/NumericalTypes';
 import { InputValue } from '../../input/interfaces/InputValue';
 import { GameMode } from "../../game/types/GameMode";
 import { EngineEvents } from './EngineEvents';
 import { ActiveSystems, System } from './System';
-
-export const Audio = isWebWorker ? AudioObjectProxy : THREE_Audio;
-export const AudioListener = isWebWorker ? AudioListenerProxy : THREE_AudioListener;
-export const AudioLoader = isWebWorker ? AudioLoaderProxy : THREE_AudioLoader;
-export const PositionalAudio = isWebWorker ? PositionalAudioObjectProxy : THREE_PositionalAudio;
-export const VideoTexture = isWebWorker ? VideoTextureProxy : THREE_VideoTexture;
-
-export type Audio = AudioObjectProxy | THREE_Audio;
-export type AudioListener = AudioListenerProxy | THREE_AudioListener;
-export type AudioLoader = AudioLoaderProxy | THREE_AudioLoader;
-export type PositionalAudio = PositionalAudioObjectProxy | THREE_PositionalAudio;
-export type VideoTexture = VideoTextureProxy | THREE_VideoTexture;
 
 /**
  * This is the base class which holds all the data related to the scene, camera,system etc.
@@ -58,6 +38,7 @@ export class Engine {
   public static gameMode: GameMode;
 
   public static xrSupported = false;
+  public static isBot = false;
 
   public static offlineMode = false;
   public static isHMD = false;
@@ -245,6 +226,8 @@ export class Engine {
 
   static workers = [];
   static simpleMaterials = false;
+
+  static hasEngaged = false;
 }
 
 export const awaitEngineLoaded = (): Promise<void> => {
@@ -254,5 +237,9 @@ export const awaitEngineLoaded = (): Promise<void> => {
   })
 }
 
-
-globalThis.Engine = Engine;
+export const awaitEngaged = (): Promise<void> => {
+  return new Promise<void>((resolve) => {
+    if(Engine.hasEngaged) resolve();
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, resolve)
+  })
+}

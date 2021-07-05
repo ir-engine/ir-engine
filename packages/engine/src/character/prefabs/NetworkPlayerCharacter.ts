@@ -129,8 +129,12 @@ const initializeCharacter: Behavior = (entity): void => {
 
 export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation: Quaternion): void => {
   const playerCollider = getMutableComponent(playerEntity, ControllerColliderComponent);
+	const actor = getMutableComponent(playerEntity, CharacterComponent);
+
+  const pos = position.clone()
+  pos.y += actor.actorHalfHeight;
   playerCollider.controller.updateTransform({
-    translation: position,
+    translation: pos,
     rotation,
   });
 };

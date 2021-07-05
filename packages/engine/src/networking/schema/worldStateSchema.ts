@@ -1,5 +1,6 @@
-import { float32, int32, Model, Schema, string, uint32, uint8 } from "../../assets/superbuffer";
+import { float32, Model, Schema, string, uint32, uint8 } from "../../assets/superbuffer";
 import { Network } from '../classes/Network';
+import { convertBufferSupportedStringToObj, convertObjToBufferSupportedString } from "../functions/jsonSerialize";
 import { WorldStateInterface } from "../interfaces/WorldState";
 
 const storageSchema = new Schema({
@@ -81,7 +82,7 @@ export class WorldStateModel {
   /** Convert to buffer. */
   static toBuffer(worldState: WorldStateInterface): ArrayBuffer {
     worldState.createObjects.forEach((createObject) => {
-      createObject.parameters = createObject.parameters ? JSON.stringify(createObject.parameters).replace(/"/g, '\'') : ''
+      createObject.parameters = createObject.parameters ? convertObjToBufferSupportedString(createObject.parameters) : ''
     });
     const state: any = {
       clientsConnected: worldState.clientsConnected,
@@ -100,8 +101,8 @@ export class WorldStateModel {
     try {
       const state: WorldStateInterface = Network.instance.packetCompression ? WorldStateModel.model.fromBuffer(buffer) : buffer;
       state.createObjects.forEach((createObject) => {
-        if(createObject.parameters !== '') createObject.parameters = JSON.parse(createObject.parameters.replace(/'/g, '"'))
-      })
+        if(createObject.parameters !== '') createObject.parameters = convertBufferSupportedStringToObj(createObject.parameters)
+      });
       return state;
     } catch (error) {
       console.warn("Couldn't deserialize buffer", buffer, error)

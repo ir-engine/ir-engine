@@ -1,7 +1,11 @@
 {
   "name": "@xrengine/server-core",
   "description": "Shared components for XREngine server",
-  "version": "0.2.29",
+  "version": "0.3.29",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/XRFoundation/XREngine.git"
+  },
   "homepage": "",
   "publishConfig": {
     "access": "public"
@@ -43,7 +47,8 @@
     "validate": "npm run lint && npm run build && npm run test",
     "precommit": "no-master-commits -b master,dev",
     "upload-avatar": "node ./scripts/upload-avatar.js",
-    "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642 --cors=*"
+    "serve-local-files": "http-server ./upload --ssl --cert ../../certs/cert.pem --key ../../certs/key.pem --port 8642 --cors=*",
+    "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {
     "socket.io": "4.1.2"
@@ -67,8 +72,8 @@
     "@feathersjs/socketio-client": "^5.0.0-pre.3",
     "@feathersjs/transport-commons": "^5.0.0-pre.3",
     "@google-cloud/agones-sdk": "1.14.0",
-    "@xrengine/common": "^0.2.29",
-    "@xrengine/engine": "^0.2.29",
+    "@xrengine/common": "^0.3.29",
+    "@xrengine/engine": "^0.3.29",
     "aws-sdk": "^2.811.0",
     "bent": "^7.3.0",
     "chargebee": "^2.5.7",
@@ -111,17 +116,17 @@
     "@types/node-fetch": "2.5.10",
     "@types/nodemailer-smtp-transport": "2.7.4",
     "@types/pug": "2.0.4",
-    "@typescript-eslint/eslint-plugin": "4.28.0",
-    "@typescript-eslint/parser": "4.28.0",
+    "@typescript-eslint/eslint-plugin": "4.28.1",
+    "@typescript-eslint/parser": "4.28.1",
     "app-root-path": "3.0.0",
     "cross-env": "7.0.3",
-    "eslint": "7.29.0",
+    "eslint": "7.30.0",
     "no-master-commits": "1.1.1",
-    "rollup-plugin-livereload": "2.0.0",
+    "rollup-plugin-livereload": "2.0.5",
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-typescript2": "0.30.0",
     "typedoc": "0.21.2",
-    "typescript": "4.3.4"
+    "typescript": "4.3.5"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }

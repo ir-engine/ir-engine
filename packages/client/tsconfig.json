@@ -29,5 +29,5 @@
   "include": [
     "./**/*.ts",
     "./**/*.tsx"
-, "../engine/src/ikrig/IKFunctions.ts"  ]
+  ]
 }

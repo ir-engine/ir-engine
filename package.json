@@ -47,23 +47,26 @@
     "test": "jest",
     "lint": "lerna run --ignore @xrengine/bot lint",
     "version-increment": "lerna version --conventional-commits --yes",
+    "version-increment-no-tag": "lerna version --conventional-commits --yes --no-git-tag-version",
     "publish": "lerna publish from-package --yes",
+    "publish-no-verify": "lerna publish from-package --yes --no-verify-access --ignore-scripts",
+    "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
     "validate": "lerna run validate",
     "build": "lerna run build --parallel",
     "build-publish": "lerna run --ignore @xrengine/client-ml --ignore @xrengine/docs --ignore @xrengine/social --ignore @xrengine/client --ignore @xrengine/server build-publish --parallel",
     "build-docker": "lerna run --ignore @xrengine/bot --ignore @xrengine/client-ml --ignore @xrengine/docs --ignore @xrengine/engine build --parallel",
-    "diff": "lerna diff"
+    "update-name-gh-package": "lerna run update-name-gh-package",
+    "diff": "lerna diff",
+    "clean-node-modules": "npx rimraf node_modules && npx lerna exec npx rimraf node_modules"
   },
   "types": "lib/",
-  "pre-push": [
-    "lint"
-  ],
+  "pre-push": [],
   "pre-commit": [],
   "resolutions": {
     "socket.io": "4.1.2",
     "terser": "^5.6.1",
-    "@typescript-eslint/eslint-plugin": "4.28.0",
-    "@typescript-eslint/parser": "4.28.0"
+    "@typescript-eslint/eslint-plugin": "4.28.1",
+    "@typescript-eslint/parser": "4.28.1"
   },
   "peerDependencies": {
     "@feathersjs/authentication": "^5.0.0-pre.3",
@@ -87,12 +90,12 @@
     "terser": "^5.6.1"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "4.28.0",
-    "@typescript-eslint/parser": "4.28.0",
+    "@typescript-eslint/eslint-plugin": "4.28.1",
+    "@typescript-eslint/parser": "4.28.1",
     "bcrypt": "5.0.1",
-    "esbuild": "0.12.9",
+    "esbuild": "0.12.14",
     "esbuild-plugin-sass": "0.5.0",
-    "jest": "27.0.5",
+    "jest": "27.0.6",
     "lerna": "4.0.0",
     "pre-commit": "1.2.2",
     "pre-push": "0.1.1",

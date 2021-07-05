@@ -340,7 +340,7 @@ const setLocalMovementDirection: Behavior = (entity, args: { z?: number; x?: num
 const moveFromXRInputs: Behavior = (entity, args): void => {
   const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
   const input = getComponent<Input>(entity, Input as any);
-  const values = input.data.get(BaseInput.XR_MOVE)?.value;
+  const values = input.data.get(BaseInput.XR_AXIS_MOVE)?.value;
   if(!values) return;
 
   actor.localMovementDirection.x = values[0] ?? actor.localMovementDirection.x;
@@ -355,7 +355,7 @@ const upVec = new Vector3(0, 1, 0);
 
 const lookFromXRInputs: Behavior = (entity, args): void => {
   const input = getComponent<Input>(entity, Input as any);
-  const values = input.data.get(BaseInput.XR_LOOK)?.value;
+  const values = input.data.get(BaseInput.XR_AXIS_LOOK)?.value;
   const rotationAngle = XRUserSettings.rotationAngle;
   let newAngleDiff = 0;
   switch (XRUserSettings.rotation) {
@@ -466,11 +466,11 @@ export const createCharacterInput = () => {
   map.set(GamepadAxis.Right, BaseInput.GAMEPAD_STICK_RIGHT);
 
   if (XRUserSettings.invertRotationAndMoveSticks) {
-    map.set(XRAxes.Left, BaseInput.XR_LOOK);
-    map.set(XRAxes.Right, BaseInput.XR_MOVE);
+    map.set(XRAxes.Left, BaseInput.XR_AXIS_LOOK);
+    map.set(XRAxes.Right, BaseInput.XR_AXIS_MOVE);
   } else {
-    map.set(XRAxes.Left, BaseInput.XR_MOVE);
-    map.set(XRAxes.Right, BaseInput.XR_LOOK);
+    map.set(XRAxes.Left, BaseInput.XR_AXIS_MOVE);
+    map.set(XRAxes.Right, BaseInput.XR_AXIS_LOOK);
   }
 
   map.set('w', BaseInput.FORWARD);
@@ -848,7 +848,7 @@ export const CharacterInputSchema: InputSchema = {
         }
       ]
     },
-    [BaseInput.XR_MOVE]: {
+    [BaseInput.XR_AXIS_MOVE]: {
       started: [
         {
           behavior: moveFromXRInputs,
@@ -865,7 +865,7 @@ export const CharacterInputSchema: InputSchema = {
         },
       ],
     },
-    [BaseInput.XR_LOOK]: {
+    [BaseInput.XR_AXIS_LOOK]: {
       started: [
         {
           behavior: lookFromXRInputs,

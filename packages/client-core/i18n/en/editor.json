@@ -131,6 +131,8 @@
             "info-controls": "Toggle the visibility of the media controls in Hubs.",
             "lbl-autoplay": "Auto Play",
             "info-autoplay": "If true, the media will play when first entering the scene.",
+            "lbl-synchronize": "Synchronize",
+            "info-synchronize": "If true, the media will be Synchronized on all the connected clients.",
             "lbl-loop": "Loop",
             "info-loop": "If true the media will loop indefinitely.",
             "lbl-audioType": "Audio Type",
@@ -365,7 +367,9 @@
         "video": {
             "description": "Dynamically loads a video.",
             "lbl-video": "Video",
-            "lbl-projection": "Projection"
+            "lbl-projection": "Projection",
+            "lbl-islivestream": "Live Stream",
+            "lbl-interactable": "Interactable"
         },
         "volumetric": {
             "description": "Dynamically loads a volumetric video.",

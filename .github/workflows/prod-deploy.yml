@@ -1,8 +1,8 @@
-name: workflow
+name: prod-deploy
 on:
   push:
     branches:
-      master
+      [master]
 jobs:
   prod-deploy:
     runs-on: ubuntu-latest

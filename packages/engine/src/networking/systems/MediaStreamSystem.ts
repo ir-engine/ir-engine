@@ -5,6 +5,10 @@ import { localMediaConstraints } from '../constants/VideoConstants';
 import {Network} from "../classes/Network";
 import { isClient } from "../../common/functions/isClient";
 import getNearbyUsers from "../functions/getNearbyUsers";
+import LivestreamProxyComponent from '../../scene/components/LivestreamProxyComponent';
+import { getComponent } from '../../ecs/functions/EntityFunctions';
+import { startLivestreamOnServer } from '../functions/startLivestreamOnServer';
+import LivestreamComponent from '../../scene/components/LivestreamComponent';
 
 /** System class for media streaming. */
 export class MediaStreamSystem extends System {
@@ -158,7 +162,7 @@ export class MediaStreamSystem extends System {
     if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && this.executeInProgress === false) {
       this.executeInProgress = true;
       const buffer = Network.instance.mediasoupOperationQueue.pop() as any;
-      if (buffer.object && buffer.object.closed !== true) {
+      if (buffer.object && buffer.object.closed !== true && buffer.object._closed !== true) {
         try {
           if (buffer.action === 'resume') await buffer.object.resume();
           else if (buffer.action === 'pause') await buffer.object.pause();
@@ -175,7 +179,7 @@ export class MediaStreamSystem extends System {
       }
     }
 
-    if (this.nearbyAvatarTick > 100) {
+    if (this.nearbyAvatarTick > 500) {
       this.nearbyAvatarTick = 0;
       if (isClient) {
         this.nearbyLayerUsers = getNearbyUsers(Network.instance.userId);
@@ -187,6 +191,12 @@ export class MediaStreamSystem extends System {
           }
         });
       }
+    }
+    for (const entity of this.queryResults.livestreamProxy.added) {
+      startLivestreamOnServer(entity)
+    }
+    for (const entity of this.queryResults.livestreamClient.added) {
+      // startLivestreamOnClient(entity)
     }
   }
 
@@ -377,3 +387,21 @@ export class MediaStreamSystem extends System {
     EngineEvents.instance.removeAllListenersForEvent(MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS);
   }
 }
+
+
+MediaStreamSystem.queries = {
+  livestreamClient: {
+    components: [LivestreamComponent],
+    listen: {
+      added: true,
+      changed: true
+    }
+  },
+  livestreamProxy: {
+    components: [LivestreamProxyComponent],
+    listen: {
+      added: true,
+      changed: true
+    }
+  },
+};

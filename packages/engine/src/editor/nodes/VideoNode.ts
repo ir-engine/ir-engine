@@ -17,8 +17,11 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     const node = await super.deserialize(editor, json);
     const {
       src,
+      interactable,
+      isLivestream,
       controls,
       autoPlay,
+      synchronize,
       loop,
       audioType,
       volume,
@@ -34,8 +37,11 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     loadAsync(
       (async () => {
         await node.load(src, onError);
+        node.interactable = interactable;
+        node.isLivestream = isLivestream;
         node.controls = controls || false;
         node.autoPlay = autoPlay;
+        node.synchronize = synchronize;
         node.loop = loop;
         node.audioType = audioType;
         node.volume = volume;
@@ -51,12 +57,14 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     );
     return node;
   }
+  _canonicalUrl = "";
+  _autoPlay = true;
+  volume = 0.5;
+  controls = true;
+  interactable = false;
+  isLivestream = false;
   constructor(editor) {
     super(editor, editor.audioListener);
-    this._canonicalUrl = "";
-    this._autoPlay = true;
-    this.volume = 0.5;
-    this.controls = true;
   }
   get src(): string {
     return this._canonicalUrl;
@@ -81,6 +89,9 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     this.hideErrorIcon();
     if (this.editor.playing) {
       (this.el as any).pause();
+    }
+    if(!this._canonicalUrl || this._canonicalUrl === "") {
+      return
     }
     try {
       const { url, contentType } = await this.editor.api.resolveMedia(
@@ -148,8 +159,11 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     return super.serialize({
       video: {
         src: this._canonicalUrl,
+        interactable: this.interactable,
+        isLivestream: this.isLivestream,
         controls: this.controls,
         autoPlay: this.autoPlay,
+        synchronize: this.synchronize,
         loop: this.loop,
         audioType: this.audioType,
         volume: this.volume,
@@ -168,8 +182,11 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     super.prepareForExport();
     this.addGLTFComponent("video", {
       src: this._canonicalUrl,
+      interactable: this.interactable,
+      isLivestream: this.isLivestream,
       controls: this.controls,
       autoPlay: this.autoPlay,
+      synchronize: this.synchronize,
       loop: this.loop,
       audioType: this.audioType,
       volume: this.volume,

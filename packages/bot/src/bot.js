@@ -1,9 +1,6 @@
 const  {URL} = require('url')
-const  {BrowserLauncher} = require('./browser-launcher')
-const  InBrowserBot = require('./in-browser-bot')
-const  InBrowserBotBuilder = require('./in-browser-bot-builder')
+const puppeteer = require('puppeteer');
 const  fs = require('fs');
-const  getOS = require('./platform');
 
 class PageUtils {
     constructor({page, autoLog = true}) {
@@ -52,42 +49,45 @@ class PageUtils {
         }, selector)
     }
 }
+// @todo
+// type BotProps = {
+//   headless?: boolean
+//   name?: string
+//   autoLog?: boolean
+//   fakeMediaPath?: string
+//   windowSize?: { width: number, height: number }
+// }
 
 /**
  * Main class for creating a bot.
  */
 class Bot {
     activeChannel;
-    constructor({
-        name = "Bot",
-        fakeMediaPath,
-        headless = true,
-        autoLog = true} = {}
-    ) {
-        this.headless = headless;
-        this.name = name;
-        this.autoLog = autoLog;
-        this.fakeMediaPath = fakeMediaPath;
+    // constructor(args: BotProps = {}) {
+    constructor(args = {}) {
+        this.headless = args.headless ?? true;
+        this.name = args.name ?? 'Bot';
+        this.autoLog = args.autoLog ?? true;
+        this.fakeMediaPath = args.fakeMediaPath ?? '';
+        this.windowSize = args.windowSize ?? { width: 1920, height: 1080 }
 
-        for (let method of Object.getOwnPropertyNames(InBrowserBot.prototype))
-        {
-            if (method in this) continue;
+        // for (let method of Object.getOwnPropertyNames(InBrowserBot.prototype))
+        // {
+        //     if (method in this) continue;
 
-            this[method] = (...args) => this.evaluate(InBrowserBot.prototype[method], ...args)
-        }
+        //     this[method] = (...args) => this.evaluate(InBrowserBot.prototype[method], ...args)
+        // }
         
-        const channelState = chatState.get('channels');
-        const channels = channelState.get('channels');
-        const activeChannelMatch = [...channels].find(([, channel]) => channel.channelType === 'instance');
-        if (activeChannelMatch && activeChannelMatch.length > 0) {
-            this.activeChannel = activeChannelMatch[1];
-        }
+        // const channelState = chatState.get('channels');
+        // const channels = channelState.get('channels');
+        // const activeChannelMatch = [...channels].find(([, channel]) => channel.channelType === 'instance');
+        // if (activeChannelMatch && activeChannelMatch.length > 0) {
+        //     this.activeChannel = activeChannelMatch[1];
+        // }
     }
 
     async keyPress(key, numMilliSeconds) {
         console.log('Running with key ' + key);
-        await this.setFocus('canvas');
-        await this.clickElementById('canvas', 'engine-renderer-canvas');
         const interval = setInterval(() => {
             console.log('Pressing', key);
             this.pressKey(key);
@@ -107,10 +107,10 @@ class Bot {
         await this.clickElementByClass('button', 'sendMessage');
     }
 
-    async getInstanceMessages() {
-        console.log("Getting messages from instance channel: ", this.activeChannel);
-        return this.activeChannel && this.activeChannel.chatState;
-    }
+    // async getInstanceMessages() {
+    //     console.log("Getting messages from instance channel: ", this.activeChannel);
+    //     return this.activeChannel && this.activeChannel.chatState;
+    // }
 
 
     async sendAudio(duration) {
@@ -171,18 +171,52 @@ class Bot {
         }
     }
 
+    async addScript(path) {
+      this.page.on('framenavigated', async frame => {
+        if (frame !== this.page.mainFrame()) { return; } 
+        else {
+          const el = await this.page.addScriptTag({ path });            
+          console.log(el)
+        }
+      });
+    }
+
     /**
      * Runs a funciton in the browser context
      * @param {Function} fn Function to evaluate in the browser context
      * @param args The arguments to be passed to fn. These will be serailized when passed through puppeteer
      */
     async evaluate(fn, ...args) {
-        if (!this.browser) {
-            await this.launchBrowser();
-        }
         return await this.page.evaluate(fn, ...args)
     }
 
+    async runHook(hook, ...args) {
+      return await this.page.evaluate(async (hook, ...args) => {
+        return globalThis.botHooks[hook](...args);
+      }, hook, ...args)
+    }
+
+    async awaitPromise(fn, period = (1000/60), ...args) {
+      return await new Promise((resolve) => {
+        const interval = setInterval(async () => {
+          if(await this.page.evaluate(fn, ...args)) {
+            resolve()
+            clearInterval(interval)
+          }
+        }, period)
+      })
+    }
+
+    async awaitHookPromise(hook, period = (1000/60), ...args) {
+      return await new Promise((resolve) => {
+        const interval = setInterval(async () => {
+          if(await this.runHook(hook, ...args)) {
+            resolve()
+            clearInterval(interval)
+          }
+        }, period)
+      })
+    }
     /**
      * A main-program type wrapper. Runs a function and quits the bot with a
      * screenshot if the function throws an exception
@@ -234,9 +268,10 @@ class Bot {
         console.log('Launching browser');
         const options = {
             headless: this.headless,
+            devtools: !this.headless,
             ignoreHTTPSErrors: true,
             args: [
-                "--disable-gpu",
+                `--window-size=${this.windowSize.width},${this.windowSize.height}`,
                 "--use-fake-ui-for-media-stream=1",
                 "--use-fake-device-for-media-stream=1",
                 `--use-file-for-fake-video-capture=${this.fakeMediaPath}/video.y4m`,
@@ -247,9 +282,11 @@ class Bot {
             //     // '--use-file-for-fake-audio-capture=/Users/apple/Downloads/BabyElephantWalk60.wav',
                 '--allow-file-access=1',
             ],
+            defaultViewport: this.windowSize,
             ignoreDefaultArgs: ['--mute-audio'],
             ...this.detectOsOption()
         };
+        if(this.headless) options.args.push("--disable-gpu")
         
         this.browser = await BrowserLauncher.browser(options);
         this.page = await this.browser.newPage();
@@ -259,7 +296,7 @@ class Bot {
             this.page.on('console', consoleObj => console.log(">> ", consoleObj.text()));
         }
 
-        this.page.setViewport({ width: 1600, height: 900});
+        // this.page
         await this.page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36')
 
         this.pu = new PageUtils(this);
@@ -297,25 +334,18 @@ class Bot {
      * @param {Object} opts
      * @param {string} opts.name Name to set as the bot name when joining the room
      */
-    async enterRoom(roomUrl, {name = 'bot'} = {}) {
+    async enterRoom(roomUrl) {
         await this.navigate(roomUrl);
         await this.page.waitForSelector("div[class*=\"instance-chat-container\"]", { timeout: 100000});
-
-        if (name) {
-            this.name = name
-        }
-        else {
-            name = this.name
-        }
 
         if (this.headless) {
             // Disable rendering for headless, otherwise chromium uses a LOT of CPU
         }
 
-        //@ts-ignore
-        if (this.setName != null) this.setName(name)
-
         await this.page.mouse.click(0, 0);
+
+        await this.setFocus('canvas');
+        await this.clickElementById('canvas', 'engine-renderer-canvas');
         // await new Promise(resolve => {setTimeout(async() => {
         //     // await this.pu.clickSelectorClassRegex("button", /join_world/);
         //     setTimeout(async() => {
@@ -348,21 +378,6 @@ class Bot {
     async setFocus(selector) {
         await this.page.focus(selector);
     }
-    /**
-     * Creates an {@link InBrowserBotBuilder} to allow building a bot for use in the
-     * developer console.
-     * @return {InBrowserBotBuilder} An InBrowserBotBuilder which can be used to
-     * create client-side code to execute `fn`. This code can then be copied and
-     * pasted into the developer console
-     * @param {Function} fn The function to execute in the browser context. The
-     `this` passed to fn will be an InBrowserBot version of this this. If
-     this bot is a subclass of Bot, the subclassed definitions will
-     be injected into the built [InBrowserBot](#inbrowserbot) code.
-     * @param args Arguments to be serialized and passed to fn
-     */
-    asBrowserBot(fn, ...args) {
-        return new InBrowserBotBuilder(this, fn, ...args)
-    }
 
     /**
      * Leaves the room and closes the browser instance without exiting node
@@ -376,5 +391,42 @@ class Bot {
         }
     }
 }
+
+function getOS() {
+  const platform = process.platform;
+  console.log(platform);
+
+  if (platform.includes('darwin')) {
+    os = 'Mac OS';
+  } else if (platform.includes('win32')) {
+    os = 'Windows';
+  } else if (platform.includes('linux')) {
+    os = 'Linux';
+  }
+
+  return os;
+}
+
+class BrowserLauncher_ {
+    constructor() {}
+
+    async browser(options) {
+        console.log('Making new browser');
+        console.log(this._browser);
+        if (this._browser) return await this._browser
+
+        if (fs.existsSync("/.dockerenv"))
+        {
+            options.headless = true
+            options.args = (options.args || []).concat(['--no-sandbox', '--disable-setuid-sandbox'])
+        }
+
+        this._browser = puppeteer.launch(options);
+        return await this._browser
+    }
+}
+
+const BrowserLauncher = new BrowserLauncher_()
+
 
 module.exports = Bot

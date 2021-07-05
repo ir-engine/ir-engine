@@ -6,7 +6,8 @@ import {
   DoubleSide,
   Mesh,
   SphereBufferGeometry,
-  RGBAFormat
+  RGBAFormat,
+  VideoTexture
 } from "three";
 import { RethrownError } from "../../editor/functions/errors";
 import Hls from "hls.js/dist/hls.light";
@@ -16,8 +17,7 @@ export const VideoProjection = {
   Flat: "flat",
   Equirectangular360: "360-equirectangular"
 };
-import { Engine, VideoTexture } from "../../ecs/classes/Engine";
-import { EngineEvents } from "../../ecs/classes/EngineEvents";
+import { Engine } from "../../ecs/classes/Engine";
 
 export default class Video extends AudioSource {
   // @ts-ignore
@@ -26,7 +26,7 @@ export default class Video extends AudioSource {
   _mesh: Mesh;
   _projection: string;
   hls: any;
-  constructor(audioListener) {
+  constructor(audioListener, isSynced: boolean) {
     super(audioListener, "video");
     // @ts-ignore
     this._videoTexture = new VideoTexture(this.el);
@@ -42,6 +42,7 @@ export default class Video extends AudioSource {
     (this as any).add(this._mesh);
     this._projection = "flat";
     this.hls = null;
+    this.isSynced = isSynced;
   }
   loadVideo(src, contentType) {
     return new Promise((resolve, reject) => {
@@ -57,6 +58,11 @@ export default class Video extends AudioSource {
         });
       } else {
         this.el.src = src;
+
+        // If media source requires to be synchronized then pause it for now.
+        if (this.isSynced) {
+          this.el.pause();
+        }
       }
       let cleanup = null;
       const onLoadedMetadata = () => {
@@ -156,6 +162,7 @@ export default class Video extends AudioSource {
       }
     }
     this.projection = source.projection;
+    this.isSynced = source.isSynced;
     return this;
   }
 }

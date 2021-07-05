@@ -79,7 +79,11 @@ export const NetworkDebug = ({ reinit  }) => {
 
         if (!comps[name]) comps[name] = {};
 
-        comps[name][e.name || e.id] = e;
+        if (e.name) {
+          comps[name][e.name + '-' + e.id] = e;
+        } else {
+          comps[name][e.id] = e;
+        }
       });
     });
 
@@ -89,7 +93,11 @@ export const NetworkDebug = ({ reinit  }) => {
   const renderEntities = () => {
     const map = {};
     Engine.entities.forEach(e => {
-      map[e.name || e.id] = e;
+      if (e.name) {
+        map[e.name + '-' + e.id] = e;
+      } else {
+        map[e.id] = e;
+      }
     });
     return map;
   };

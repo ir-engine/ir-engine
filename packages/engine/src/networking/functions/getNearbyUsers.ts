@@ -15,7 +15,7 @@ export default function(userId: string, maxMediaUsers= 8): Object3DComponent[] {
     }
     if (userAvatar != null) {
         const userComponent = getComponent(userAvatar.component.entity, Object3DComponent);
-        const userPosition = userComponent.value.position;
+        const userPosition = userComponent?.value?.position;
         if (userPosition != null) {
             const userDistances = [];
             otherAvatars.forEach(avatar => {

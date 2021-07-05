@@ -32,11 +32,13 @@ import { CameraSystem } from "../camera/systems/CameraSystem";
 import { DesiredTransformComponent } from "../transform/components/DesiredTransformComponent";
 import { CharacterAnimationGraph } from "./animations/CharacterAnimationGraph";
 import { CharacterStates } from "./animations/Util";
+import { isEntityLocalClient } from "../networking/functions/isEntityLocalClient";
 
 const forwardVector = new Vector3(0, 0, 1);
 const prevControllerColliderPosition = new Vector3();
 const vector3 = new Vector3();
 const quat = new Quaternion();
+const quat2 = new Quaternion();
 const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI);
 
 export class CharacterControllerSystem extends System {
@@ -102,7 +104,7 @@ export class CharacterControllerSystem extends System {
         type: SceneQueryType.Closest,
         origin: new Vector3(0, actor.actorHeight, 0),
         direction: new Vector3(0, -1, 0),
-        maxDistance: 0.1 + (actor.actorHeight * 0.5) + playerCollider.capsuleRadius,
+        maxDistance: actor.actorHalfHeight + 0.05,
         collisionMask: DefaultCollisionMask | CollisionGroups.Portal,
       }));
     });
@@ -111,6 +113,7 @@ export class CharacterControllerSystem extends System {
       const collider = getRemovedComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
       if (collider) {
         PhysicsSystem.instance.removeController(collider.controller);
+        PhysicsSystem.instance.removeRaycastQuery(collider.raycastQuery);
       }
 
       const actor = getMutableComponent(entity, CharacterComponent);
@@ -213,7 +216,9 @@ export class CharacterControllerSystem extends System {
       this.queryResults.animation.added?.forEach((entity) => {
         const animationComponent = getMutableComponent(entity, AnimationComponent);
         animationComponent.animationGraph = CharacterAnimationGraph.constructGraph();
-        animationComponent.currentState = animationComponent.animationGraph[CharacterStates.IDLE];
+        animationComponent.currentState = animationComponent.animationGraph.states[CharacterStates.IDLE];
+        animationComponent.currentState.mount(getMutableComponent(entity, CharacterComponent), {});
+        animationComponent.prevVelocity = new Vector3();
       });
 
       this.queryResults.animation.all?.forEach((entity) => {
@@ -228,7 +233,7 @@ export class CharacterControllerSystem extends System {
       const actor = getMutableComponent(entity, CharacterComponent);
       const object3DComponent = getComponent(entity, Object3DComponent);
 
-      xrInputSourceComponent.headGroup.position.setY(-actor.actorHalfHeight);
+      xrInputSourceComponent.controllerGroup.position.setY(-actor.actorHalfHeight);
 
       xrInputSourceComponent.controllerGroup.add(
         xrInputSourceComponent.controllerLeft, 
@@ -237,12 +242,10 @@ export class CharacterControllerSystem extends System {
         xrInputSourceComponent.controllerGripRight
       );
       
-      xrInputSourceComponent.headGroup.applyQuaternion(rotate180onY);
-      xrInputSourceComponent.headGroup.add(xrInputSourceComponent.controllerGroup, xrInputSourceComponent.head);
-      object3DComponent.value.add(xrInputSourceComponent.headGroup);
+      xrInputSourceComponent.controllerGroup.applyQuaternion(rotate180onY);
+      object3DComponent.value.add(xrInputSourceComponent.controllerGroup, xrInputSourceComponent.head);
 
-      if(entity === Network.instance.localClientEntity) {
-
+      if(isEntityLocalClient(entity)) {
         // TODO: Temporarily make rig invisible until rig is fixed
         actor?.modelContainer?.traverse((child) => {
           if(child.visible) {
@@ -252,12 +255,26 @@ export class CharacterControllerSystem extends System {
       }
     });
 
+    this.queryResults.ikAvatar.all?.forEach((entity) => {
+      if(!isEntityLocalClient(entity)) return;
+      const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent);
+      const transform = getComponent<TransformComponent>(entity, TransformComponent);
+
+      quat.copy(transform.rotation).invert()
+      quat2.copy(Engine.camera.quaternion).premultiply(quat)
+      xrInputSourceComponent.head.quaternion.copy(quat2)
+
+      vector3.subVectors(Engine.camera.position, transform.position)
+      vector3.applyQuaternion(quat)
+      xrInputSourceComponent.head.position.copy(vector3)
+    })
+
     this.queryResults.ikAvatar.removed?.forEach((entity) => {
 
       addComponent(entity, AnimationComponent);
       const actor = getMutableComponent(entity, CharacterComponent);
 
-      if(entity === Network.instance.localClientEntity)
+      if(isEntityLocalClient(entity))
       // TODO: Temporarily make rig invisible until rig is fixed
       actor?.modelContainer?.traverse((child) => {
         if(child.visible) {

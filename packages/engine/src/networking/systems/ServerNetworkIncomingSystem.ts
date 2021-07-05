@@ -22,7 +22,7 @@ import { getGameFromName } from '../../game/functions/functions';
 import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent';
 import { BaseInput } from '../../input/enums/BaseInput';
 import { Quaternion } from 'three';
-import { executeCommnads } from '../functions/executeCommands';
+import { executeCommands } from '../functions/executeCommands';
 
 
 export function cancelAllInputs(entity) {
@@ -117,7 +117,7 @@ export class ServerNetworkIncomingSystem extends System {
       }
 
       if (clientInput.commands.length > 0) {
-        executeCommnads(entity, clientInput.commands);
+        executeCommands(entity, clientInput.commands);
       }
 
       const actor = getMutableComponent(entity, CharacterComponent);
@@ -257,9 +257,11 @@ export class ServerNetworkIncomingSystem extends System {
       
       const inputs = getMutableComponent(entity, Input);
 
+      if(!inputs.data.has(BaseInput.XR_HEAD)) return;
+
       const head = inputs.data.get(BaseInput.XR_HEAD).value as SIXDOFType;
-      const left = inputs.data.get(BaseInput.XR_LEFT_HAND).value as SIXDOFType;
-      const right = inputs.data.get(BaseInput.XR_RIGHT_HAND).value as SIXDOFType;
+      const left = inputs.data.get(BaseInput.XR_CONTROLLER_LEFT_HAND).value as SIXDOFType;
+      const right = inputs.data.get(BaseInput.XR_CONTROLLER_RIGHT_HAND).value as SIXDOFType;
 
       xrInputSourceComponent.head.position.set(head.x, head.y, head.z);
       xrInputSourceComponent.head.quaternion.set(head.qX, head.qY, head.qZ, head.qW);

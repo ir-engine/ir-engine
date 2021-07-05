@@ -40,21 +40,24 @@ export class XRSystem extends System {
       Engine.renderer.outputEncoding = sRGBEncoding;
       const sessionInit = { optionalFeatures: [this.referenceSpaceType] };
       try {
+        console.log('XR_START')
         const session = await (navigator as any).xr.requestSession("immersive-vr", sessionInit)
 
         Engine.xrSession = session;
         Engine.xrRenderer.setReferenceSpaceType(this.referenceSpaceType);
         Engine.xrRenderer.setSession(session);
         EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_SESSION });
-
+        
         Engine.xrRenderer.addEventListener('sessionend', async () => {
-          await endXR();
+          endXR();
           EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_END });
         })
+        console.log('has session')
 
-        await startXR()
+        startXR()
+        console.log('has session')
 
-      } catch(e) { console.log(e) }
+      } catch(e) { console.log('Failed to create XR Session', e) }
     });
 
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => {
@@ -80,6 +83,7 @@ export class XRSystem extends System {
           const mapping = gamepadMapping[source.gamepad.mapping || 'xr-standard'][source.handedness];
           source.gamepad?.buttons.forEach((button, index) => {
             // TODO : support button.touched and button.value
+            button.pressed && console.log(index, mapping.buttons[index])
             Engine.inputState.set(mapping.buttons[index], {
               type: InputType.BUTTON,
               value: button.pressed ? BinaryValue.ON : BinaryValue.OFF,
