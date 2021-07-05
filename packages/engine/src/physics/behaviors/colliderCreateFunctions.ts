@@ -45,8 +45,7 @@ type ColliderData = {
   staticFriction?: number;
   dynamicFriction?: number;
   restitution?: number;
-  action?: any;
-  link?: any;
+  action?:any;
 }
 
 type ModelData = {
@@ -57,7 +56,7 @@ type ModelData = {
   collisionMask?: number | string;
 }
 
-export function addColliderWithoutEntity(userData: any, pos = new Vector3(), rot = new Quaternion(), scale = new Vector3(),
+export function addColliderWithoutEntity(userData: ColliderData, pos = new Vector3(), rot = new Quaternion(), scale = new Vector3(),
   model: ModelData = {}): Body {
   // console.log(userData, pos, rot, scale, model)
   if (model.mesh && !model.vertices) {
@@ -121,7 +120,7 @@ export function addColliderWithoutEntity(userData: any, pos = new Vector3(), rot
     staticFriction: userData.staticFriction ?? 0.1,
     dynamicFriction: userData.dynamicFriction ?? 0.1,
     restitution: userData.restitution ?? 0.1,
-   };
+  };
 
   shapeArgs.config.collisionLayer = Number(model.collisionLayer ?? CollisionGroups.Default);
   switch (model.collisionMask) {
