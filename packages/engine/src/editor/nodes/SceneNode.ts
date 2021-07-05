@@ -206,6 +206,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
 
   constructor(editor) {
     super(editor);
+    console.log("Constructing Scene Node");
     setStaticMode(this, StaticModes.Static);
   }
 
@@ -559,23 +560,24 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         const posx = "posx.jpg";
         const posy = "posy.jpg";
         const posz = "posz.jpg";
-
+        const renderer=this.editor.renderer.renderer;
         new CubeTextureLoader()
         .setPath(src)
         .load([posx, negx, posy, negy, posz, negz],
         (texture) => {
-          const renderer = this.scene.renderer
           const pmremGenerator = new PMREMGenerator(renderer);
           const EnvMap = pmremGenerator.fromCubemap(texture).texture;
           EnvMap.encoding = sRGBEncoding;
           this.environment = EnvMap;
           texture.dispose();
           pmremGenerator.dispose();
+          this.errorInEnvmapURL=false;
         },
         (res)=> {
           console.log(res);
         },
         (erro) => {
+          this.errorInEnvmapURL=true;
           console.warn('Skybox texture could not be found!', erro);
         }
         );
