@@ -98,7 +98,7 @@
     "url-toolkit": "2.2.2",
     "use-debounce": "7.0.0",
     "uuid": "8.3.2",
-    "vite": "2.3.8",
+    "vite": "2.4.0",
     "webxr-native": "0.2.25"
   },
   "devDependencies": {
