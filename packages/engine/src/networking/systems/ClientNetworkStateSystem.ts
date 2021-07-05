@@ -97,8 +97,8 @@ export class ClientNetworkStateSystem extends System {
   /** Update type of this system. **Default** to
      * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
   updateType = SystemUpdateType.Fixed;
-  receivedServerWorldState = [];
-  receivedServerTransformState = [];
+  receivedServerWorldState: WorldStateInterface[] = [];
+  receivedServerTransformState: TransformStateInterface[] = [];
   static instance: ClientNetworkStateSystem;
 
   /**

@@ -7,6 +7,7 @@ module.exports = {
   setupFilesAfterEnv: ['expect-puppeteer', "./tests/custom-env.js"],
   moduleDirectories: ["node_modules", "src"],
   setupFiles: [],
+  maxWorkers: 1,
   transform: {
     ".(ts|tsx)": "ts-jest"
   },

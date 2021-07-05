@@ -10,6 +10,7 @@ import VideoInput from "../inputs/VideoInput";
 import { Video } from "@styled-icons/fa-solid/Video";
 import AudioSourceProperties from "./AudioSourceProperties";
 import useSetPropertySelected from "./useSetPropertySelected";
+import { ControlledStringInput } from "../inputs/StringInput";
 import i18n from "i18next";
 import { useTranslation } from "react-i18next";
 
@@ -45,6 +46,9 @@ export function VideoNodeEditor(props) {
   //function to handle change in projection property
   const onChangeInteractable = useSetPropertySelected(editor, "interactable");
 
+  //function to handle change in projection property
+  const onChangeId = useSetPropertySelected(editor, "elementId");
+
    //editor view for VideoNode
   return (
     <NodeEditor description={VideoNodeEditor.description} {...props}>
@@ -65,6 +69,11 @@ export function VideoNodeEditor(props) {
       <InputGroup name="Interactable" label={t('editor:properties.video.lbl-interactable')}>
       { /* @ts-ignore */ }
         <BooleanInput value={node.interactable} onChange={onChangeInteractable} />
+      </InputGroup>
+      { /* @ts-ignore */}
+      <InputGroup name="Location" label={t('editor:properties.video.lbl-id')}>
+        { /* @ts-ignore */}
+        <ControlledStringInput value={node.elementId} onChange={onChangeId} />
       </InputGroup>
       <AudioSourceProperties {...props} />
     </NodeEditor>

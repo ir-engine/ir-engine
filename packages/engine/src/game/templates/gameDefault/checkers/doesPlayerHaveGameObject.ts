@@ -26,7 +26,7 @@ export const doesPlayerHaveGameObject: Checker = (entity: Entity, args?: any, en
       answer = true;
    }
    if(args.invert ? !answer : answer) {
-      console.warn('doesPlayerHaveGameObject === true')
+      // console.warn('doesPlayerHaveGameObject === true')
    }
    
    return args.invert ? !answer : answer;

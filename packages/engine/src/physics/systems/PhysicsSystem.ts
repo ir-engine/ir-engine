@@ -118,9 +118,7 @@ export class PhysicsSystem extends System {
       }
     });
 
-    if (isClient) {
-      if (!Network.instance?.snapshot) return;
-
+    if (isClient && Network.instance?.snapshot) {
       const snapshots: SnapshotData = {
         interpolation: calculateInterpolation('x y z quat velocity'),
         correction: Vault.instance?.get(Network.instance.snapshot.timeCorrection, true),
@@ -171,7 +169,6 @@ export class PhysicsSystem extends System {
       });
     }
 
-    if(this.enabled)
     PhysXInstance.instance.update();
   }
 

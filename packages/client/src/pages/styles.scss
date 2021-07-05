@@ -94,6 +94,8 @@ body{
   overscroll-behavior-y: contain;
 }
 
+body>video { display: none; }
+
 .menuDrawerOpened{
   [class*=InstanceChat_instance-chat-container]{
     right: 25vw;

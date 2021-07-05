@@ -105,16 +105,7 @@ export class AnimationGraph {
             this.pauseTransitionFor(animationComponent.currentState.pauseTransitionDuration);
         }
 
-        // Send change animation commnad over network for the local client entity
-        if (Network.instance.localClientEntity.id === animationComponent.entity.id && animationComponent.currentState.type === AnimationType.STATIC) {
-            Network.instance.clientInputState.commands.push({
-                type: Commands.CHANGE_ANIMATION_STATE,
-                args: convertObjToBufferSupportedString({
-                    state: newState,
-                    params,
-                }),
-            });
-        }
+        this.updateNetwork(animationComponent, newState, params);
     }
 
     /**
@@ -174,6 +165,25 @@ export class AnimationGraph {
             const idleWeight = 1 - (prevStateWeight + animationComponent.currentState.getTotalWeightsOfAnimations());
             this.defaultState.animations[0].weight = idleWeight;
             this.defaultState.update({ movement });
+        }
+    }
+
+    /**
+     * Update animations on network and sync action across all the connected clients
+     * @param animationComponent Animation component
+     * @param newState New state of the animation. If only the weights are recalculated then new state will be same as current state.
+     * @param params Parameters to be passed onver network
+     */
+    updateNetwork = (animationComponent: AnimationComponent, newState: string, params: CalculateWeightsParams): void => {
+        // Send change animation commnad over network for the local client entity
+        if (Network.instance.localClientEntity.id === animationComponent.entity.id && animationComponent.currentState.type === AnimationType.STATIC) {
+            Network.instance.clientInputState.commands.push({
+                type: Commands.CHANGE_ANIMATION_STATE,
+                args: convertObjToBufferSupportedString({
+                    state: newState,
+                    params,
+                }),
+            });
         }
     }
 }

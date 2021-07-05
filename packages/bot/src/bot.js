@@ -49,17 +49,27 @@ class PageUtils {
         }, selector)
     }
 }
+// @todo
+// type BotProps = {
+//   headless?: boolean
+//   name?: string
+//   autoLog?: boolean
+//   fakeMediaPath?: string
+//   windowSize?: { width: number, height: number }
+// }
 
 /**
  * Main class for creating a bot.
  */
 class Bot {
     activeChannel;
+    // constructor(args: BotProps = {}) {
     constructor(args = {}) {
         this.headless = args.headless ?? true;
         this.name = args.name ?? 'Bot';
         this.autoLog = args.autoLog ?? true;
         this.fakeMediaPath = args.fakeMediaPath ?? '';
+        this.windowSize = args.windowSize ?? { width: 1920, height: 1080 }
 
         // for (let method of Object.getOwnPropertyNames(InBrowserBot.prototype))
         // {
@@ -261,6 +271,7 @@ class Bot {
             devtools: !this.headless,
             ignoreHTTPSErrors: true,
             args: [
+                `--window-size=${this.windowSize.width},${this.windowSize.height}`,
                 "--use-fake-ui-for-media-stream=1",
                 "--use-fake-device-for-media-stream=1",
                 `--use-file-for-fake-video-capture=${this.fakeMediaPath}/video.y4m`,
@@ -271,6 +282,7 @@ class Bot {
             //     // '--use-file-for-fake-audio-capture=/Users/apple/Downloads/BabyElephantWalk60.wav',
                 '--allow-file-access=1',
             ],
+            defaultViewport: this.windowSize,
             ignoreDefaultArgs: ['--mute-audio'],
             ...this.detectOsOption()
         };

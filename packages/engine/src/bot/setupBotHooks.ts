@@ -1,3 +1,4 @@
+import { Quaternion, Vector3 } from "three";
 import { Engine } from "../ecs/classes/Engine";
 import { EngineEvents } from "../ecs/classes/EngineEvents";
 import { getComponent, hasComponent } from "../ecs/functions/EntityFunctions";
@@ -8,6 +9,7 @@ import { Input } from "../input/components/Input";
 import { BaseInput } from "../input/enums/BaseInput";
 import { Network } from "../networking/classes/Network";
 import { TransformComponent } from "../transform/components/TransformComponent";
+import { sendXRInputData, swingClub, updateController, updateHead,tweenXRInputSource } from './golfHooks'
 
 export const setupBotHooks = (): void => {
   globalThis.botHooks = BotHooks
@@ -26,7 +28,9 @@ export const BotHooks = {
   getPlayerPosition,
   getBallPosition,
   getIsYourTurn,
-  getXRInputPosition
+  getXRInputPosition,
+  tweenXRInputSource,
+  swingClub
 }
 
 export const BotHooksTags = Object.fromEntries(
@@ -117,32 +121,13 @@ export function startXR() {
       quaternion: [0, 0, 0, 1]
     }
   }))
+
+  // send our input data non stop
+  setInterval(() => {
+    sendXRInputData()
+  }, 1000 / 60)
 }
 
-/**
- * @param {object} args 
- * @param {array} args.position
- * @param {array} args.quaternion
- * @returns {function}
- */
- export function updateHead(args) {
-  window.dispatchEvent(new CustomEvent('webxr-pose', { 
-    detail: args
-  }))
-}
-
-/**
- * @param {object} args 
- * @param {array} args.position
- * @param {array} args.quaternion
- * @param {string} args.objectName
- * @returns {function}
- */
-export function updateController(args) {
-  window.dispatchEvent(new CustomEvent('webxr-input-pose', { 
-    detail: args
-  }))
-}
 /**
  * @param {object} args 
  * @param {boolean} args.pressed
@@ -180,7 +165,9 @@ export function getPlayerPosition() {
 }
 
 export function getBallPosition() {
-  const gameName = getComponent(Network.instance.localClientEntity, GamePlayer)?.gameName
+  const { gameName, role } = getComponent(Network.instance.localClientEntity, GamePlayer)
+
+  const playerNumber = Number(role.slice(0, 1))
   
   if(!gameName) return;
   const game = getGameFromName(gameName)
@@ -188,14 +175,13 @@ export function getBallPosition() {
     console.log('Game not found')
     return;
   }
+  // TODO: get player number
   const ballEntity = game.gameObjects['GolfBall'][0];
   if(!ballEntity) {
-    console.log('ball entity not found')
+    console.log('ball entity not found for player number', playerNumber, role)
     return;
   }
-  const pos = getComponent(Network.instance.localClientEntity, TransformComponent)?.position;
-  if(!pos) return;
-  return pos;
+  return getComponent(ballEntity, TransformComponent)?.position;
 }
 
 export function getIsYourTurn() {
