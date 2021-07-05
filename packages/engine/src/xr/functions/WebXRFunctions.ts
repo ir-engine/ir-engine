@@ -18,79 +18,73 @@ import { AnimationComponent } from "../../character/components/AnimationComponen
  * @returns {Promise<boolean>} returns true on success, otherwise throws error and returns false
  */
 
-export const startXR = async (): Promise<void> => {
+export const startXR = (): void => {
 
-  try {
+  const controllerLeft = Engine.xrRenderer.getController(1) as any;
+  const controllerRight = Engine.xrRenderer.getController(0) as any;
+  const controllerGripLeft = Engine.xrRenderer.getControllerGrip(1);
+  const controllerGripRight = Engine.xrRenderer.getControllerGrip(0);
+  const controllerGroup = new Group();
 
-    const controllerLeft = Engine.xrRenderer.getController(1) as any;
-    const controllerRight = Engine.xrRenderer.getController(0) as any;
-    const controllerGripLeft = Engine.xrRenderer.getControllerGrip(1);
-    const controllerGripRight = Engine.xrRenderer.getControllerGrip(0);
-    const controllerGroup = new Group();
+  Engine.scene.remove(Engine.camera);
+  controllerGroup.add(Engine.camera);
+  const head = new Group();
 
-    Engine.scene.remove(Engine.camera);
-    const headGroup = new Group();
-    const head = Engine.camera as any;
+  removeComponent(Network.instance.localClientEntity, FollowCameraComponent);
 
-    removeComponent(Network.instance.localClientEntity, FollowCameraComponent);
+  addComponent(Network.instance.localClientEntity, XRInputSourceComponent, {
+    head,
+    controllerGroup,
+    controllerLeft,
+    controllerRight,
+    controllerGripLeft,
+    controllerGripRight
+  });
 
-    addComponent(Network.instance.localClientEntity, XRInputSourceComponent, {
-      head,
-      headGroup,
-      controllerGroup,
-      controllerLeft,
-      controllerRight,
-      controllerGripLeft,
-      controllerGripRight
-    });
-
-    // Add our controller models & pointer lines
-    [controllerLeft, controllerRight].forEach((controller) => {
-/*
-      controller.addEventListener('select', (ev) => {})
-      controller.addEventListener('selectstart', (ev) => {})
-      controller.addEventListener('selectend', (ev) => {})
-      controller.addEventListener('squeeze', (ev) => {})
-      controller.addEventListener('squeezestart', (ev) => {})
-      controller.addEventListener('squeezeend', (ev) => {})
-*/
-      controller.addEventListener('connected', (ev) => {
-        if(controller.targetRay) {
-          controller.targetRay.visible = true;
-        } else {
-          const targetRay = createController(ev.data);
-          controller.add(targetRay);
-          controller.targetRay = targetRay;
-        }
-      })
-
-      controller.addEventListener('disconnected', (ev) => {
-        controller.targetRay.visible = false;
-      })
-
+  // Add our controller models & pointer lines
+  [controllerLeft, controllerRight].forEach((controller) => {
+    /*
+        controller.addEventListener('select', (ev) => {})
+        controller.addEventListener('selectstart', (ev) => {})
+        controller.addEventListener('selectend', (ev) => {})
+        controller.addEventListener('squeeze', (ev) => {})
+        controller.addEventListener('squeezestart', (ev) => {})
+        controller.addEventListener('squeezeend', (ev) => {})
+    */
+    controller.addEventListener('connected', (ev) => {
+      if (controller.targetRay) {
+        controller.targetRay.visible = true;
+      } else {
+        const targetRay = createController(ev.data);
+        controller.add(targetRay);
+        controller.targetRay = targetRay;
+      }
     })
 
-    getLoader().load('/models/webxr/controllers/valve_controller_knu_1_0_right.glb', (obj) => { 
-      const controller3DModel = obj.scene.children[2] as any;
-      
-      const controllerMeshRight = controller3DModel.clone();
-      const controllerMeshLeft = controller3DModel.clone();
-      
-      controllerMeshLeft.scale.multiply(new Vector3(-1, 1, 1));
-      
-      controllerMeshRight.material = new MeshPhongMaterial();
-      controllerMeshLeft.material = new MeshPhongMaterial();
-      
-      controllerMeshRight.position.z = -0.12;
-      controllerMeshLeft.position.z = -0.12;
-      
-      controllerGripRight.add(controllerMeshRight);
-      controllerGripLeft.add(controllerMeshLeft);
-    }, console.warn, console.error);
+    controller.addEventListener('disconnected', (ev) => {
+      controller.targetRay.visible = false;
+    })
 
-  } catch (e) {
-    console.error('Could not create VR session', e)
-  }
+  })
+
+  getLoader().load('/models/webxr/controllers/valve_controller_knu_1_0_right.glb', (obj) => {
+    const controller3DModel = obj.scene.children[2] as any;
+
+    const controllerMeshRight = controller3DModel.clone();
+    const controllerMeshLeft = controller3DModel.clone();
+
+    controllerMeshLeft.scale.multiply(new Vector3(-1, 1, 1));
+
+    controllerMeshRight.material = new MeshPhongMaterial();
+    controllerMeshLeft.material = new MeshPhongMaterial();
+
+    controllerMeshRight.position.z = -0.12;
+    controllerMeshLeft.position.z = -0.12;
+
+    controllerGripRight.add(controllerMeshRight);
+    controllerGripLeft.add(controllerMeshLeft);
+  }, console.warn, console.error);
+
 }
 
 /**
@@ -108,25 +102,24 @@ export const endXR = (): void => {
   addComponent(Network.instance.localClientEntity, FollowCameraComponent)
   removeComponent(Network.instance.localClientEntity, XRInputSourceComponent);
   initializeMovingState(Network.instance.localClientEntity)
-
 }
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
 const createController = (data) => {
   let geometry, material;
-  switch ( data.targetRayMode ) {
+  switch (data.targetRayMode) {
     case 'tracked-pointer':
       geometry = new BufferGeometry();
-      geometry.setAttribute( 'position', new Float32BufferAttribute( [ 0, 0, 0, 0, 0, - 1 ], 3 ) );
-      geometry.setAttribute( 'color', new Float32BufferAttribute( [ 0.5, 0.5, 0.5, 0, 0, 0 ], 3 ) );
-      geometry.setAttribute( 'alpha', new Float32BufferAttribute( [1, 0 ], 1 ) );
-      material = new LineBasicMaterial( { vertexColors: true, blending: AdditiveBlending } );
-      return new Line( geometry, material );
+      geometry.setAttribute('position', new Float32BufferAttribute([0, 0, 0, 0, 0, - 1], 3));
+      geometry.setAttribute('color', new Float32BufferAttribute([0.5, 0.5, 0.5, 0, 0, 0], 3));
+      geometry.setAttribute('alpha', new Float32BufferAttribute([1, 0], 1));
+      material = new LineBasicMaterial({ vertexColors: true, blending: AdditiveBlending });
+      return new Line(geometry, material);
 
     case 'gaze':
-      geometry = new RingGeometry( 0.02, 0.04, 32 ).translate( 0, 0, - 1 );
-      material = new MeshBasicMaterial( { opacity: 0.5, transparent: true } );
-      return new Mesh( geometry, material );
+      geometry = new RingGeometry(0.02, 0.04, 32).translate(0, 0, - 1);
+      material = new MeshBasicMaterial({ opacity: 0.5, transparent: true });
+      return new Mesh(geometry, material);
   }
 };
 
@@ -155,9 +148,9 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
   const actor = getComponent(entity, CharacterComponent);
   const transform = getComponent(entity, TransformComponent);
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
-  if(xrInputSourceComponent) {
+  if (xrInputSourceComponent) {
     const rigHand: Object3D = hand === ParityValue.LEFT ? xrInputSourceComponent.controllerLeft : xrInputSourceComponent.controllerRight;
-    if(rigHand) {
+    if (rigHand) {
       return rigHand.getWorldPosition(vec3);
     }
   }
@@ -176,9 +169,9 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
 export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.NONE): Quaternion => {
   const actor = getComponent(entity, CharacterComponent);
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
-  if(xrInputSourceComponent) {
+  if (xrInputSourceComponent) {
     const rigHand: Object3D = hand === ParityValue.LEFT ? xrInputSourceComponent.controllerLeft : xrInputSourceComponent.controllerRight;
-    if(rigHand) {
+    if (rigHand) {
       return rigHand.getWorldQuaternion(quat);
     }
   }
@@ -197,10 +190,10 @@ export const getHandTransform = (entity: Entity, hand: ParityValue = ParityValue
   const actor = getComponent(entity, CharacterComponent);
   const transform = getComponent(entity, TransformComponent);
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent);
-  if(xrInputSourceComponent) {
+  if (xrInputSourceComponent) {
     const rigHand: Object3D = hand === ParityValue.LEFT ? xrInputSourceComponent.controllerLeft : xrInputSourceComponent.controllerRight;
-    if(rigHand) {
-      return { 
+    if (rigHand) {
+      return {
         position: rigHand.getWorldPosition(vec3),
         rotation: rigHand.getWorldQuaternion(quat)
       };

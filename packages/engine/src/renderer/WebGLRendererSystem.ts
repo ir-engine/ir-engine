@@ -161,7 +161,7 @@ export class WebGLRendererSystem extends System {
 
     Engine.viewportElement = renderer.domElement;
     Engine.xrRenderer = renderer.xr;
-    Engine.xrRenderer.enabled = Engine.xrSupported;
+    Engine.xrRenderer.enabled = true;
 
     window.addEventListener('resize', this.onResize, false);
     this.onResize();
@@ -284,35 +284,33 @@ export class WebGLRendererSystem extends System {
 
     if (Engine.xrRenderer.isPresenting) {
 
-      if(this.rendereringEnabled) {
-        this.csm?.update();
-        Engine.renderer.render(Engine.scene, Engine.camera);
-      }
+      this.csm?.update();
+      Engine.renderer.render(Engine.scene, Engine.camera);
 
     } else {
 
-      if (this.needsResize) {
-        const curPixelRatio = Engine.renderer.getPixelRatio();
-        const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor;
+      if(this.rendereringEnabled) {
+        if (this.needsResize) {
+          const curPixelRatio = Engine.renderer.getPixelRatio();
+          const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor;
 
-        if (curPixelRatio !== scaledPixelRatio) Engine.renderer.setPixelRatio(scaledPixelRatio);
+          if (curPixelRatio !== scaledPixelRatio) Engine.renderer.setPixelRatio(scaledPixelRatio);
 
-        const width = window.innerWidth;
-        const height = window.innerHeight;
+          const width = window.innerWidth;
+          const height = window.innerHeight;
 
-        if ((Engine.camera as PerspectiveCamera).isPerspectiveCamera) {
-          const cam = Engine.camera as PerspectiveCamera;
-          cam.aspect = width / height;
-          cam.updateProjectionMatrix();
+          if ((Engine.camera as PerspectiveCamera).isPerspectiveCamera) {
+            const cam = Engine.camera as PerspectiveCamera;
+            cam.aspect = width / height;
+            cam.updateProjectionMatrix();
+          }
+
+          this.csm?.updateFrustums();
+          Engine.renderer.setSize(width, height, false);
+          this.composer.setSize(width, height, false);
+          this.needsResize = false;
         }
 
-        this.csm?.updateFrustums();
-        Engine.renderer.setSize(width, height, false);
-        this.composer.setSize(width, height, false);
-        this.needsResize = false;
-      }
-
-      if(this.rendereringEnabled) {
         this.csm?.update();
         if (this.usePostProcessing && this.postProcessingSchema) {
           this.composer.render(delta);

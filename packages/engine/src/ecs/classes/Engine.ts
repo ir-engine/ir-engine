@@ -38,6 +38,7 @@ export class Engine {
   public static gameMode: GameMode;
 
   public static xrSupported = false;
+  public static isBot = false;
 
   public static offlineMode = false;
   public static isHMD = false;

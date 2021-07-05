@@ -190,11 +190,10 @@ export class WorldScene {
           }
           addComponent(entity, LivestreamComponent)
         } else if(component.data.isLivestream) {
-          console.log(component.data.src)
           addComponent(entity, LivestreamProxyComponent, { src: component.data.src })
         } else {
           createMediaServer(entity, component.data);
-        } 
+        }
         break;
 
       case 'audio':
@@ -238,7 +237,7 @@ export class WorldScene {
       case 'renderer-settings':
         handleRendererSettings(component.data);
         break;
-      
+
       case 'spawn-point':
         addComponent(entity, SpawnPointComponent);
         break;
@@ -296,7 +295,7 @@ export class WorldScene {
       case 'persist':
         if(isClient) addComponent(entity, PersistTagComponent);
         break;
-      
+
       case 'portal': 
         createPortal(entity, component.data)
         break;

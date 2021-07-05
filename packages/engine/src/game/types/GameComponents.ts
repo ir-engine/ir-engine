@@ -2,8 +2,6 @@ import { Component } from "../../ecs/classes/Component";
 // Action Components
 import { HasHadInteraction } from "../actions/HasHadInteraction";
 import { GameObjectCollisionTag } from "../actions/GameObjectCollisionTag";
-import { BallMoving } from "../actions/BallMoving";
-import { BallStopped } from "../actions/BallStopped";
 // State TagComponents
 import { SpawnedObject } from '../templates/gameDefault/components/SpawnedObjectTagComponent';
 import { ButtonDown } from '../templates/gameDefault/components/ButtonDownTagComponent';
@@ -67,6 +65,9 @@ class WaitTurn extends Component<any> {}
 class addedGoal extends Component<any> {}
 class addedHit extends Component<any> {}
 class Hit extends Component<any> {}
+
+class BallMoving extends Component<any> {}
+class BallStopped extends Component<any> {}
 
 export const State = {
     [gameStates.Active]: Active,

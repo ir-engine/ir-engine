@@ -40,6 +40,7 @@ import { SceneObjectSystem } from '@xrengine/engine/src/scene/systems/SceneObjec
 import { ActiveSystems, System } from './ecs/classes/System';
 import { FontManager } from './ui/classes/FontManager';
 import { AudioSystem } from './audio/systems/AudioSystem';
+import { setupBotHooks } from './bot/setupBotHooks';
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -109,6 +110,8 @@ const configureClient = async (options: InitializeOptions) => {
     }
 
     registerClientSystems(options, useOffscreen, canvas);
+
+    setupBotHooks()
 }
 
 const configureEditor = async (options: InitializeOptions) => {
@@ -317,13 +320,4 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     // Mark engine initialized
     Engine.isInitialized = true;
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE });
-
-    if(process.env.NODE_ENV !== 'production') {
-      globalThis.Engine = Engine;
-      globalThis.EngineEvents = EngineEvents;
-      globalThis.Network = Network;
-      Engine.activeSystems.getAll().forEach((system: System) => {
-        globalThis[system.name] = system;
-      })
-    }
 };
