@@ -7,6 +7,9 @@
 			"launchShowDuration": 0
 		}
 	},
+	"ios": {
+		"limitsNavigationsToAppBoundDomains": true
+	},
 	"server": {
 		"url": "https://dev.arcmedia.us",
 		"allowNavigation": [
