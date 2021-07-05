@@ -6,6 +6,8 @@ import { GolfPrefabTypes } from "../GolfGameConstants"
 
 
 export const setupOfflineDebug = (entity: Entity) => {
+
+  if(Network.instance.transport) return;
   
   const game = getGame(entity);
 
