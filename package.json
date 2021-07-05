@@ -57,12 +57,10 @@
     "build-docker": "lerna run --ignore @xrengine/bot --ignore @xrengine/client-ml --ignore @xrengine/docs --ignore @xrengine/engine build --parallel",
     "update-name-gh-package": "lerna run update-name-gh-package",
     "diff": "lerna diff",
-    "clean-node-modules": "rimraf node_modules && npx lerna exec npx rimraf node_modules"
+    "clean-node-modules": "npx rimraf node_modules && npx lerna exec npx rimraf node_modules"
   },
   "types": "lib/",
-  "pre-push": [
-    "lint"
-  ],
+  "pre-push": [],
   "pre-commit": [],
   "resolutions": {
     "socket.io": "4.1.2",

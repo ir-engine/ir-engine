@@ -109,7 +109,7 @@ export class ActionSystem extends System {
         },
         lifecycleState: LifecycleValue.CHANGED
       });
-      input.data.set(BaseInput.XR_LEFT_HAND, {
+      input.data.set(BaseInput.XR_CONTROLLER_LEFT_HAND, {
         type: InputType.SIXDOF,
         value: {
           x: xrInputSourceComponent.controllerLeft.position.x,
@@ -122,7 +122,7 @@ export class ActionSystem extends System {
         },
         lifecycleState: LifecycleValue.CHANGED
       });
-      input.data.set(BaseInput.XR_RIGHT_HAND, {
+      input.data.set(BaseInput.XR_CONTROLLER_RIGHT_HAND, {
         type: InputType.SIXDOF,
         value: {
           x: xrInputSourceComponent.controllerRight.position.x,

@@ -27,14 +27,13 @@ export const startXR = (): void => {
   const controllerGroup = new Group();
 
   Engine.scene.remove(Engine.camera);
-  const headGroup = new Group();
-  const head = Engine.camera as any;
+  controllerGroup.add(Engine.camera);
+  const head = new Group();
 
   removeComponent(Network.instance.localClientEntity, FollowCameraComponent);
 
   addComponent(Network.instance.localClientEntity, XRInputSourceComponent, {
     head,
-    headGroup,
     controllerGroup,
     controllerLeft,
     controllerRight,

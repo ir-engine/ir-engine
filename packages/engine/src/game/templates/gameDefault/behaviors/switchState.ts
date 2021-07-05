@@ -12,7 +12,7 @@ import { getTargetEntity } from '../../../functions/functions';
    const entityArg = getTargetEntity(entity, entityTarget, args);
    if (hasComponent(entityArg, args.remove)) {
      removeStateComponent(entityArg, args.remove);
-     console.warn('switchState: ', args.add.name, args.remove.name)
+    //  console.warn('switchState: ', args.add.name, args.remove.name)
      addStateComponent(entityArg, args.add);
    }
  };
