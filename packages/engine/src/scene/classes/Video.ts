@@ -25,9 +25,13 @@ export default class Video extends AudioSource {
   _texture: any;
   _mesh: Mesh;
   _projection: string;
-  hls: any;
-  constructor(audioListener, isSynced: boolean) {
-    super(audioListener, "video");
+  hls: Hls;
+  constructor(audioListener, isSynced: boolean, id: string) {
+    super(audioListener, "video", id);
+
+    // Appending element to the body so that it can be find by document.getElementById
+    document.body.appendChild(this.el);
+
     // @ts-ignore
     this._videoTexture = new VideoTexture(this.el);
     this._videoTexture.minFilter = LinearFilter;
@@ -57,11 +61,14 @@ export default class Video extends AudioSource {
           this.hls.startLoad(-1);
         });
       } else {
-        this.el.src = src;
+        // If element has the src which means it is already loaded.
+        if (!this.el.src) {
+          this.el.src = src;
 
-        // If media source requires to be synchronized then pause it for now.
-        if (this.isSynced) {
-          this.el.pause();
+          // If media source requires to be synchronized then pause it for now.
+          if (this.isSynced) {
+            this.el.pause();
+          }
         }
       }
       let cleanup = null;

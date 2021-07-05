@@ -66,6 +66,8 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
                     <Redirect path="/location" to={"/location/" + Config.publicRuntimeConfig.lobbyLocationName} />
                     <Route path="/video360" component={React.lazy(() => import('../pages/video360'))} />
 
+                    <Route path="/offline/:locationName" component={React.lazy(() => import('../pages/offline/[locationName]'))} />
+
                     {/* Harmony Routes */}
                     <Route path="/harmony" component={React.lazy(() => import('../pages/harmony/index'))} />
 

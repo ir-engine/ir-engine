@@ -19,9 +19,9 @@ export const testWorldState = {
       "userId": testUserId,
       "name": testUserId,
       "avatarDetail": {
-        "thumbnailURL": "https://s3.amazonaws.com/xrengine-static-resources/avatars/Sonny.png",
-        "avatarURL": "https://s3.amazonaws.com/xrengine-static-resources/avatars/Sonny.glb",
-        "avatarId": "Andy"
+        "avatarId": "Sonny",
+        "avatarURL": "/models/avatars/Sonny.glb",
+        "thumbnailURL": "/static/Sonny.png"
       }
     }
   ],
@@ -30,15 +30,21 @@ export const testWorldState = {
     {
       "networkId": 1,
       "prefabType": 0,
-      "qW": 1,
-      "qX": 0,
-      "qY": 0,
-      "qZ": 0,
-      "x": 0,
-      "y": 0,
-      "z": 0,
+      "parameters": {
+          "position": {
+              "x": -1.3892272216183488,
+              "y": 9.3510433175368,
+              "z": 15.06581360099715
+          },
+          "rotation": {
+              "x": 3.313870358775352e-17,
+              "y": -0.9238795325112867,
+              "z": 3.313870358775352e-17,
+              "w": 0.3826834323650898
+          }
+      },
       "ownerId": testUserId,
-      "uniqueId": "character"
+      "uniqueId": testUserId
     }
   ],
   editObjects: [],

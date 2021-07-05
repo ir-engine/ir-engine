@@ -369,7 +369,8 @@
             "lbl-video": "Video",
             "lbl-projection": "Projection",
             "lbl-islivestream": "Live Stream",
-            "lbl-interactable": "Interactable"
+            "lbl-interactable": "Interactable",
+            "lbl-id": "Element Id"
         },
         "volumetric": {
             "description": "Dynamically loads a volumetric video.",
