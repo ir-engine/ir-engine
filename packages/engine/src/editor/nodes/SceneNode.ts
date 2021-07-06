@@ -28,9 +28,6 @@ import serializeColor from "../functions/serializeColor";
 import { FogType } from '../../scene/constants/FogType';
 import { EnvMapSourceType, EnvMapTextureType } from '../../scene/constants/EnvMapEnum';
 import {DistanceModelType} from "../../scene/classes/AudioSource";
-import { RethrownError } from "../functions/errors";
-import loadTexture from "../functions/loadTexture";
-import Image from "../../scene/classes/Image";
 import SkyboxNode, { SkyTypeEnum } from "./SkyboxNode";
 
 export default class SceneNode extends EditorNodeMixin(Scene) {
@@ -189,11 +186,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   mediaConeOuterAngle = 0;
   mediaConeOuterGain = 0;
 
-  envMapSourceType=EnvMapSourceType.Default;
-  envMapTextureType=EnvMapTextureType.Equirectangular;
-  _envMapSourceColor="";
-  _envMapSourceURL="";
-
+  
   simpleMaterials = false;
   overrideRendererSettings = false;
   csm = true;
@@ -202,20 +195,43 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   toneMapping = LinearToneMapping;
   toneMappingExposure = 0.8;
   shadowMapType: ShadowMapType = PCFSoftShadowMap;
+  
+  //#region EnvironmentMap
+  _envMapSourceType=EnvMapSourceType.Default;
+  envMapTextureType=EnvMapTextureType.Equirectangular;
+  _envMapSourceColor="";
+  _envMapSourceURL="";
   errorInEnvmapURL=false;
   _envMapIntensity=1;
+  //#endregion
+
 
   constructor(editor) {
     super(editor);
     setStaticMode(this, StaticModes.Static);
   }
 
+
+
+  //#region EnvironmentMap
+
+
+  get envMapSourceType(){
+    return this._envMapSourceType;
+  }
+
+  set envMapSourceType(type){
+    this._envMapSourceType=type;
+    this.setUpEnvironmentMap(type);
+  }
+
+
   get envMapSourceURL(){
     return this._envMapSourceURL;
   }
 
   set envMapSourceURL(src){
-    this.load(src);
+    this.loadEnvironmentMap(src);
   }
 
   get envMapIntensity(){
@@ -240,12 +256,11 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       this.environment.dispose();
     const col=new Color(src);
     const resolution =1;
-    const data=new Uint8Array(4*resolution*resolution);
+    const data=new Uint8Array(3*resolution*resolution);
     for(let i=0; i<resolution*resolution;i++){
         data[i]=Math.floor(col.r*255);
         data[i+1]=Math.floor(col.g*255);
         data[i+2]=Math.floor(col.b*255);
-        data[i+3]=255;//Math.floor(col.b*255);
     }
     const pmren=new PMREMGenerator(this.editor.renderer.renderer);
     const texture=new DataTexture(data,resolution,resolution,RGBFormat);
@@ -255,6 +270,150 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     this.environment=tex;//pmren.fromEquirectangular(texture);
     pmren.dispose();
   }
+
+
+  async loadEnvironmentMap(src, onError?) {
+
+
+    if (this.environment?.dispose) {
+      this.environment.dispose();
+    }
+
+    const pmremGenerator=new PMREMGenerator(this.editor.renderer.renderer);
+    switch(this.envMapTextureType){
+      case EnvMapTextureType.Equirectangular:
+        const nextSrc = src || "";
+        if (nextSrc === this._envMapSourceURL && nextSrc !== "") {
+          return;
+        }
+        this._envMapSourceURL = nextSrc;
+        try {
+          const { url } = await this.editor.api.resolveMedia(src);
+          if (this.environment?.dispose) {
+            this.environment.dispose();
+          }
+          const texture = await new TextureLoader().loadAsync(src);
+          texture.encoding = sRGBEncoding;
+          texture.minFilter = LinearFilter;
+          this.environment=pmremGenerator.fromEquirectangular(texture).texture;
+          this.errorInEnvmapURL=false;
+          texture.dispose();
+        } catch (error) {
+          this.errorInEnvmapURL=true;
+          console.error(`Error loading image ${this._envMapSourceURL}`);
+        }
+      break;
+      case EnvMapTextureType.Cubemap:
+        const negx = "negx.jpg";
+        const negy = "negy.jpg";
+        const negz = "negz.jpg";
+        const posx = "posx.jpg";
+        const posy = "posy.jpg";
+        const posz = "posz.jpg";
+        new CubeTextureLoader()
+        .setPath(src)
+        .load([posx, negx, posy, negy, posz, negz],
+        (texture) => {
+          const EnvMap = pmremGenerator.fromCubemap(texture).texture;
+          EnvMap.encoding = sRGBEncoding;
+          this.environment = EnvMap;
+          this.errorInEnvmapURL=false;
+          texture.dispose();
+        },
+        (res)=> {
+          console.log(res);
+        },
+        (erro) => {
+          this.errorInEnvmapURL=true;
+          console.warn('Skybox texture could not be found!', erro);
+        }
+        );
+      break;
+    }
+    pmremGenerator.dispose();
+    return this;
+  }
+
+  exportEnvMap(){
+    if(this.envMapSourceType===EnvMapSourceType.Color){
+      this.addGLTFComponent("envMap",{
+        type:"Color",
+        options:{
+          colorString:this._envMapSourceColor,
+          }
+        });
+    }
+    else if(this.envMapSourceType===EnvMapSourceType.Texture){
+      this.addGLTFComponent("envMap",{
+        type:"Texture",
+        options:{
+          url:this._envMapSourceURL,
+          type:this.envMapTextureType,
+        }
+      });
+    }
+    else if(this.envMapSourceType==EnvMapSourceType.Default){
+      let options={};
+      let s_node=null;
+      this.traverse(child => {
+        if (child.isNode && child !== this) {
+          if(child.nodeName==="Reflection Probe"){
+            options=child.getReflectionProbeProperties();
+            this.addGLTFComponent("envMap",{type:"ReflectionProbe",options});
+            return;
+          }
+          else if(child.nodeName==="Skybox"){
+            s_node=child;
+          }
+        }
+      });
+
+      if(s_node!==null){
+        const skyNode=(s_node as SkyboxNode);
+        const type=skyNode.skyType;
+        switch(type){
+          case SkyTypeEnum.equirectangular:
+            this.addGLTFComponent("envMap",{
+              type:"Texture",
+              options:{
+                url:skyNode.texturePath,
+                type:EnvMapTextureType.Equirectangular,
+              }
+            })
+            break;
+          case SkyTypeEnum.cubemap:
+            this.addGLTFComponent("envMap",{
+              type:"Texture",
+              options:{
+                url:skyNode.texturePath,
+                type:EnvMapTextureType.Cubemap,
+              }
+            })
+            break;
+          case SkyTypeEnum.skybox:
+          default:
+            const options=skyNode.getSkyBoxProperties();
+            this.addGLTFComponent("envMap",{type:"SkyBox",options});
+            break;
+        }
+      }
+    }
+  }
+
+
+  setUpEnvironmentMap(type:EnvMapSourceType){
+    switch(type){
+      case EnvMapSourceType.Default:
+        break;
+      case EnvMapSourceType.Color:
+        break;
+      case EnvMapSourceType.Texture:
+        break;
+    }
+  }
+
+  //#endregion
+
 
   get fogType() {
     return this._fogType;
@@ -542,132 +701,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
 
 
-  async load(src, onError?) {
 
-
-    if (this.environment?.dispose) {
-      this.environment.dispose();
-    }
-
-    const pmremGenerator=new PMREMGenerator(this.editor.renderer.renderer);
-    switch(this.envMapTextureType){
-      case EnvMapTextureType.Equirectangular:
-        const nextSrc = src || "";
-        if (nextSrc === this._envMapSourceURL && nextSrc !== "") {
-          return;
-        }
-        this._envMapSourceURL = nextSrc;
-        try {
-          const { url } = await this.editor.api.resolveMedia(src);
-          if (this.environment?.dispose) {
-            this.environment.dispose();
-          }
-          const texture = await new TextureLoader().loadAsync(src);
-          texture.encoding = sRGBEncoding;
-          texture.minFilter = LinearFilter;
-          this.environment=pmremGenerator.fromEquirectangular(texture).texture;
-          this.errorInEnvmapURL=false;
-          texture.dispose();
-        } catch (error) {
-          this.errorInEnvmapURL=true;
-          console.error(`Error loading image ${this._envMapSourceURL}`);
-        }
-      break;
-      case EnvMapTextureType.Cubemap:
-        const negx = "negx.jpg";
-        const negy = "negy.jpg";
-        const negz = "negz.jpg";
-        const posx = "posx.jpg";
-        const posy = "posy.jpg";
-        const posz = "posz.jpg";
-        new CubeTextureLoader()
-        .setPath(src)
-        .load([posx, negx, posy, negy, posz, negz],
-        (texture) => {
-          const EnvMap = pmremGenerator.fromCubemap(texture).texture;
-          EnvMap.encoding = sRGBEncoding;
-          this.environment = EnvMap;
-          this.errorInEnvmapURL=false;
-          texture.dispose();
-        },
-        (res)=> {
-          console.log(res);
-        },
-        (erro) => {
-          this.errorInEnvmapURL=true;
-          console.warn('Skybox texture could not be found!', erro);
-        }
-        );
-      break;
-    }
-    pmremGenerator.dispose();
-    return this;
-  }
-
-  exportEnvMap(){
-    if(this.envMapSourceType===EnvMapSourceType.Color){
-      this.addGLTFComponent("envMap",{
-        type:"Color",
-        options:{
-          colorString:this._envMapSourceColor,
-          }
-        });
-    }
-    else if(this.envMapSourceType===EnvMapSourceType.Texture){
-      this.addGLTFComponent("envMap",{
-        type:"Texture",
-        options:{
-          url:this._envMapSourceURL,
-          type:this.envMapTextureType,
-        }
-      });
-    }
-    else if(this.envMapSourceType==EnvMapSourceType.Default){
-      let options={};
-      let s_node=null;
-      this.traverse(child => {
-        if (child.isNode && child !== this) {
-          if(child.nodeName==="Reflection Probe"){
-            options=child.getReflectionProbeProperties();
-            this.addGLTFComponent("envMap",{type:"ReflectionProbe",options});
-            return;
-          }
-          else if(child.nodeName==="Skybox"){
-            s_node=child;
-          }
-        }
-      });
-
-      if(s_node!==null){
-        const skyNode=(s_node as SkyboxNode);
-        const type=skyNode.skyType;
-        switch(type){
-          case SkyTypeEnum.equirectangular:
-            this.addGLTFComponent("envMap",{
-              type:"Texture",
-              options:{
-                url:skyNode.texturePath,
-                type:EnvMapTextureType.Equirectangular,
-              }
-            })
-            break;
-          case SkyTypeEnum.cubemap:
-            this.addGLTFComponent("envMap",{
-              type:"Texture",
-              options:{
-                url:skyNode.texturePath,
-                type:EnvMapTextureType.Cubemap,
-              }
-            })
-            break;
-          case SkyTypeEnum.skybox:
-          default:
-            const options=skyNode.getSkyBoxProperties();
-            this.addGLTFComponent("envMap",{type:"SkyBox",options});
-            break;
-        }
-      }
-    }
-  }
 
 }
