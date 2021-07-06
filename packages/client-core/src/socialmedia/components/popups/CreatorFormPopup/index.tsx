@@ -9,6 +9,7 @@ import AppFooter from "../../Footer";
 //@ts-ignore
 import styles from './CreatorFormPopup.module.scss';
 import CreatorForm from "../../CreatorForm";
+import {isIOS} from "../../../../util/platformCheck";
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -27,7 +28,6 @@ interface Props{
 }
 export const CreatorFormPopup = ({popupsState, updateCreatorFormState, webxrRecorderActivity}: Props) =>{
   //common for creator form
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   const handleCreatorFormClose = () =>updateCreatorFormState(false);
 
   const renderCreatoFormModal = () =>
@@ -35,7 +35,7 @@ export const CreatorFormPopup = ({popupsState, updateCreatorFormState, webxrReco
         <SharedModal
             open={popupsState?.get('creatorForm')}
             onClose={handleCreatorFormClose}
-            className={isIOS ? styles.creatorFormPopup+' '+styles.isIos  : styles.creatorFormPopup}
+            className={styles.creatorFormPopup + " " + isIOS ? styles.isIos  : ""}
         >
             <CreatorForm />
             <AppFooter />

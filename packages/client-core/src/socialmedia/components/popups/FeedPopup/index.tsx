@@ -9,6 +9,7 @@ import Feed from "../../Feed";
 
 //@ts-ignore
 import styles from './FeedPopup.module.scss';
+import {isIOS} from "../../../../util/platformCheck";
 
 const mapStateToProps = (state: any): any => {
     return {
@@ -29,14 +30,14 @@ export const FeedPopup = ({popupsState, updateFeedPageState, webxrRecorderActivi
     //common for feed page
   const feedPageState = popupsState?.get('feedPage');
   const feedId = popupsState?.get('feedId');
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
   const handleFeedClose = () =>updateFeedPageState(false);
   const renderFeedModal = () =>
     popupsState?.get('feedPage') === true && !webxrRecorderActivity &&
         <SharedModal
             open={popupsState?.get('feedPage')}
             onClose={handleFeedClose}
-            className={isIOS ? styles.feedPagePopup+' '+styles.isIOS : styles.feedPagePopup}
+            className={styles.feedPagePopup + " " + isIOS ? styles.isIOS : ""}
         >
 			<div className={styles.feedPageIosWrapper}>
 				<Feed />
