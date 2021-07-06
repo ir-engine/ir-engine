@@ -64,7 +64,7 @@ const UserMenu = (props: UserMenuProps): any => {
     { id: Views.Profile, iconNode: PersonIcon },
     { id: Views.Settings, iconNode: SettingsIcon },
     { id: Views.Share, iconNode: LinkIcon },
-    { id: Views.Location, iconNode: FilterHdrIcon },
+    // { id: Views.Location, iconNode: FilterHdrIcon },
   ];
 
   const menuPanel = {
