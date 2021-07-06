@@ -63,8 +63,8 @@ const UserMenu = (props: UserMenuProps): any => {
   const menus = [
     { id: Views.Profile, iconNode: PersonIcon },
     { id: Views.Settings, iconNode: SettingsIcon },
-    { id: Views.Share, iconNode: LinkIcon },
-    // { id: Views.Location, iconNode: FilterHdrIcon },
+   // { id: Views.Share, iconNode: LinkIcon },
+  //  { id: Views.Location, iconNode: FilterHdrIcon },
   ];
 
   const menuPanel = {
@@ -82,7 +82,7 @@ const UserMenu = (props: UserMenuProps): any => {
   const selfUser = authState.get('user') || {};
   const avatarList = authState.get('avatarList') || [];
 
-  const [currentActiveMenu, setCurrentActiveMenu] = useState(null);
+  const [currentActiveMenu, setCurrentActiveMenu] = useState(menus[0] as any);
   const [activeLocation, setActiveLocation] = useState(null);
 
   const [userSetting, setUserSetting] = useState(selfUser?.user_setting);
