@@ -13,6 +13,7 @@
 body{
   font-size: 13px;
   font-family: "SFProText-Regular";
+  background: rgb(255,255,255) !important;
 }
 .viewport {
   position: fixed;
@@ -20,6 +21,9 @@ body{
   height: 100vh;
   display: flex;
   flex-direction: column;
+}
+.isIos{
+	padding-top: 2rem;
 }
 .hideContent{
   nav{

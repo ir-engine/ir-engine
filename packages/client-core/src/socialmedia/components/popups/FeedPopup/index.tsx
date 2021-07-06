@@ -15,7 +15,7 @@ const mapStateToProps = (state: any): any => {
       popupsState: selectPopupsState(state),
     };
   };
-  
+
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch),
 });
@@ -29,19 +29,23 @@ export const FeedPopup = ({popupsState, updateFeedPageState, webxrRecorderActivi
     //common for feed page
   const feedPageState = popupsState?.get('feedPage');
   const feedId = popupsState?.get('feedId');
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   const handleFeedClose = () =>updateFeedPageState(false);
   const renderFeedModal = () =>
     popupsState?.get('feedPage') === true && !webxrRecorderActivity &&
-        <SharedModal 
+        <SharedModal
             open={popupsState?.get('feedPage')}
-            onClose={handleFeedClose} 
-            className={styles.feedPagePopup}
+            onClose={handleFeedClose}
+            className={isIOS ? styles.feedPagePopup+' '+styles.isIOS : styles.feedPagePopup}
         >
-            <Feed />     
-            <AppFooter /> 
+			<div className={styles.feedPageIosWrapper}>
+				<Feed />
+				<AppFooter />
+			</div>
+
         </SharedModal>;
   useEffect(()=>{renderFeedModal();}, [feedPageState,feedId]);
-    return  renderFeedModal();         
+    return  renderFeedModal();
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedPopup);

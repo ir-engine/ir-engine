@@ -91,9 +91,10 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState, webxrnativeSt
 
   if(!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />;
 
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
 
-  return (<>
+  return (<div className={isIOS ? styles.isIos : ''}>
     {!feedOnborded && <FeedOnboarding setFeedOnborded={setFeedOnborded} />}
     <div className={webxrRecorderActivity ? styles.hideContent+' '+styles.viewport : styles.viewport}>
         <AppHeader logo="/assets/logoBlack.png" />
@@ -113,7 +114,7 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState, webxrnativeSt
         <FeedFormPopup />
         <SharedFormPopup />
     </div>
-  </>
+  </div>
   );
 };
 

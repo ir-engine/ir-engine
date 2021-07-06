@@ -15,7 +15,7 @@ const mapStateToProps = (state: any): any => {
       popupsState: selectPopupsState(state),
     };
   };
-  
+
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch),
 });
@@ -27,21 +27,23 @@ interface Props{
 }
 export const CreatorFormPopup = ({popupsState, updateCreatorFormState, webxrRecorderActivity}: Props) =>{
   //common for creator form
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   const handleCreatorFormClose = () =>updateCreatorFormState(false);
+
   const renderCreatoFormModal = () =>
     popupsState?.get('creatorForm') === true && !webxrRecorderActivity &&
-        <SharedModal 
+        <SharedModal
             open={popupsState?.get('creatorForm')}
-            onClose={handleCreatorFormClose} 
-            className={styles.creatorFormPopup}
+            onClose={handleCreatorFormClose}
+            className={isIOS ? styles.creatorFormPopup+' '+styles.isIos  : styles.creatorFormPopup}
         >
-            <CreatorForm />      
+            <CreatorForm />
             <AppFooter />
         </SharedModal>;
 
 const creatorFormState = popupsState?.get('creatorForm');
 useEffect(()=>{renderCreatoFormModal();}, [creatorFormState]);
-return  renderCreatoFormModal();         
+return  renderCreatoFormModal();
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CreatorFormPopup);
