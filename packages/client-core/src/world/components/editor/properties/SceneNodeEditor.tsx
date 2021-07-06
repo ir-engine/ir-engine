@@ -218,7 +218,7 @@ export function SceneNodeEditor(props) {
             (
               <div>
                 {/* @ts-ignore */} 
-                <InputGroup name='Texture Type' label="Texture URL">
+                <InputGroup name='Texture Type' label="Texture Type">
                   {/* @ts-ignore */} 
                   <SelectInput  options={EnvMapTextureOptions} value={node.envMapTextureType} onChange={onChangeEnvmapTextureType} />
                 </InputGroup>

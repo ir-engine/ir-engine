@@ -231,6 +231,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
 
   set envMapSourceURL(src){
+    
     this.loadEnvironmentMap(src);
   }
 
@@ -274,11 +275,10 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
 
   async loadEnvironmentMap(src, onError?) {
 
-
     if (this.environment?.dispose) {
       this.environment.dispose();
     }
-
+    
     const pmremGenerator=new PMREMGenerator(this.editor.renderer.renderer);
     switch(this.envMapTextureType){
       case EnvMapTextureType.Equirectangular:
@@ -286,7 +286,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         if (nextSrc === this._envMapSourceURL && nextSrc !== "") {
           return;
         }
-        this._envMapSourceURL = nextSrc;
         try {
           const { url } = await this.editor.api.resolveMedia(src);
           if (this.environment?.dispose) {
@@ -408,6 +407,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       case EnvMapSourceType.Color:
         break;
       case EnvMapSourceType.Texture:
+        this.loadEnvironmentMap(this.envMapSourceURL);
         break;
     }
   }
@@ -700,7 +700,19 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     this.metadata = Object.assign(existingMetadata, newMetadata);
   }
 
-
+  getDefaultEnvMapNode(){
+    //traverse the scene and find reflection probe or skybox
+      this.traverse(child => {
+        if (child.isNode && child !== this) {
+          if(child.nodeName==="Reflection Probe")
+            return child;
+          
+          else if(child.nodeName==="Skybox")
+            return child;
+        }
+      })
+    return null;
+  }
 
 
 }
