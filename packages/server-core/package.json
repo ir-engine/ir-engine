@@ -109,7 +109,7 @@
     "@rollup/plugin-node-resolve": "13.0.0",
     "@rollup/plugin-replace": "2.4.2",
     "@types/dotenv-flow": "3.1.0",
-    "@types/lodash": "4.14.170",
+    "@types/lodash": "4.14.171",
     "@types/mime-types": "2.1.0",
     "@types/multer": "1.4.6",
     "@types/node": "14.17.5",
