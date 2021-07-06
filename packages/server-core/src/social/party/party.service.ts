@@ -45,20 +45,20 @@ export default (app: Application): void => {
           partyId: data.id
         }
       }) as any;
-      await Promise.all(partyUsers.data.map(async (partyUser) => {
-        const avatarResult = await app.service('static-resource').find({
-          query: {
-            staticResourceType: 'user-thumbnail',
-            userId: partyUser.userId
-          }
-        }) as any;
+      // await Promise.all(partyUsers.data.map(async (partyUser) => {
+        // const avatarResult = await app.service('static-resource').find({
+        //   query: {
+        //     staticResourceType: 'user-thumbnail',
+        //     userId: partyUser.userId
+        //   }
+        // }) as any;
+        //
+        // if (avatarResult.total > 0) {
+        //   partyUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
+        // }
 
-        if (avatarResult.total > 0) {
-          partyUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
-        }
-
-        return await Promise.resolve();
-      }));
+        // return await Promise.resolve();
+      // }));
       data.partyUsers = partyUsers.data;
       const targetIds = (partyUsers).data.map((partyUser) => {
         return partyUser.userId;

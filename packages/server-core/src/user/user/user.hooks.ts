@@ -99,16 +99,16 @@ export default {
               }));
             }
 
-            const userAvatarResult = await app.service('static-resource').find({
-              query: {
-                staticResourceType: 'user-thumbnail',
-                userId: item.id
-              }
-            });
-
-            if (userAvatarResult.total > 0 && item.dataValues) {
-              item.dataValues.avatarUrl = userAvatarResult.data[0].url;
-            }
+            // const userAvatarResult = await app.service('static-resource').find({
+            //   query: {
+            //     staticResourceType: 'user-thumbnail',
+            //     userId: item.id
+            //   }
+            // });
+            //
+            // if (userAvatarResult.total > 0 && item.dataValues) {
+            //   item.dataValues.avatarUrl = userAvatarResult.data[0].url;
+            // }
           });
           return context;
         } catch (err) {
@@ -126,17 +126,17 @@ export default {
             }));
           }
 
-          const { id, app, result } = context;
-
-          const userAvatarResult = await app.service('static-resource').find({
-            query: {
-              staticResourceType: 'user-thumbnail',
-              userId: id
-            }
-          });
-          if (userAvatarResult.total > 0) {
-            result.dataValues.avatarUrl = userAvatarResult.data[0].url;
-          }
+          // const { id, app, result } = context;
+          //
+          // const userAvatarResult = await app.service('static-resource').find({
+          //   query: {
+          //     staticResourceType: 'user-thumbnail',
+          //     userId: id
+          //   }
+          // });
+          // if (userAvatarResult.total > 0) {
+          //   result.dataValues.avatarUrl = userAvatarResult.data[0].url;
+          // }
 
           return context;
         } catch (err) {
