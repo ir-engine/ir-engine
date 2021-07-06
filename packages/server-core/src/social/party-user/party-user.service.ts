@@ -64,16 +64,16 @@ export default (app: Application): void => {
         }
       });
       data.user = await app.service('user').get(data.userId);
-      const avatarResult = await app.service('static-resource').find({
-        query: {
-          staticResourceType: 'user-thumbnail',
-          userId: data.userId
-        }
-      }) as any;
-
-      if (avatarResult.total > 0) {
-        data.user.dataValues.avatarUrl = avatarResult.data[0].url;
-      }
+      // const avatarResult = await app.service('static-resource').find({
+      //   query: {
+      //     staticResourceType: 'user-thumbnail',
+      //     userId: data.userId
+      //   }
+      // }) as any;
+      //
+      // if (avatarResult.total > 0) {
+      //   data.user.dataValues.avatarUrl = avatarResult.data[0].url;
+      // }
       const targetIds = (partyUsers as any).data.map((partyUser) => {
         return partyUser.userId;
       });
@@ -120,16 +120,16 @@ export default (app: Application): void => {
         }
       });
       data.user = await app.service('user').get(data.userId);
-      const avatarResult = await app.service('static-resource').find({
-        query: {
-          staticResourceType: 'user-thumbnail',
-          userId: data.userId
-        }
-      }) as any;
-
-      if (avatarResult.total > 0) {
-        data.user.dataValues.avatarUrl = avatarResult.data[0].url;
-      }
+      // const avatarResult = await app.service('static-resource').find({
+      //   query: {
+      //     staticResourceType: 'user-thumbnail',
+      //     userId: data.userId
+      //   }
+      // }) as any;
+      //
+      // if (avatarResult.total > 0) {
+      //   data.user.dataValues.avatarUrl = avatarResult.data[0].url;
+      // }
 
       const targetIds = (partyUsers as any).data.map((partyUser) => {
         return partyUser.userId;
