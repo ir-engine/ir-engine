@@ -27,7 +27,7 @@ export const db: any = {
   charset: 'utf8mb4',
   collate: 'utf8mb4_general_ci',
   pool: {
-    max: parseInt(process.env.SEQUELIZE_POOL_MAX)
+    max: parseInt(process.env.SEQUELIZE_POOL_MAX || '5')
   }
 };
 db.url = process.env.MYSQL_URL ||
