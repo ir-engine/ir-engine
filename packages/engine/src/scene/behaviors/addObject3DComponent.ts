@@ -46,8 +46,8 @@ import {
   getComponent,
   removeComponent,
   removeEntity,
-  getMutableComponent
-  , addComponent
+  getMutableComponent, 
+  addComponent
 } from '../../ecs/functions/EntityFunctions';
 import { SkyboxComponent } from '../components/SkyboxComponent';
 import { Engine } from '../../ecs/classes/Engine';

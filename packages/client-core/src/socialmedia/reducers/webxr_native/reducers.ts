@@ -4,7 +4,7 @@
 
 import Immutable from 'immutable';
 import {
-  TOUGLE_WEBXRNATIVE, SET_WEBXRNATIVE
+  TOGGLE_WEBXRNATIVE, SET_WEBXRNATIVE
 } from './actions';
 
 
@@ -18,7 +18,7 @@ const webxrnativeReducer = (state = immutableState, action: any): any => {
   switch (action.type) {
     case SET_WEBXRNATIVE:
       return state.set('webxrnative', false);
-    case TOUGLE_WEBXRNATIVE:
+    case TOGGLE_WEBXRNATIVE:
       return state.set('webxrnative', !state.get('webxrnative'));
   }
   return state;

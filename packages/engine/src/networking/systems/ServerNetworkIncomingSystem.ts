@@ -11,7 +11,6 @@ import { InputAlias } from '../../input/types/InputAlias';
 import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
-import { handleInputFromNonLocalClients } from '../functions/handleInputOnServer';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { NetworkClientInputInterface } from "../interfaces/WorldState";
 import { ClientInputModel } from '../schema/clientInputSchema';
@@ -23,6 +22,7 @@ import { XRInputSourceComponent } from '../../character/components/XRInputSource
 import { BaseInput } from '../../input/enums/BaseInput';
 import { Quaternion } from 'three';
 import { executeCommands } from '../functions/executeCommands';
+import { handleInput } from '../functions/handleInput';
 
 
 export function cancelAllInputs(entity) {
@@ -190,7 +190,7 @@ export class ServerNetworkIncomingSystem extends System {
         addComponent(entity, XRInputSourceComponent);
       }      
 
-      handleInputFromNonLocalClients(entity, undefined, delta);
+      handleInput(entity, delta);
     }
 
     // Apply input for local user input onto client
@@ -209,8 +209,8 @@ export class ServerNetworkIncomingSystem extends System {
       });
 
       // Call behaviors associated with input
-      //handleInputFromNonLocalClients(entity, { isLocal: false, isServer: true }, delta);
       // addInputToWorldStateOnServer(entity);
+      // handleInput(entity, delta);
       //const input = getMutableComponent(entity, Input);
       // Get input object attached
     });
