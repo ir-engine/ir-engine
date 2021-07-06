@@ -95,10 +95,10 @@ const AvatarMenu = (props: any): any => {
 		const avatarList = [];
 		const startIndex = page * imgPerPage;
 		const endIndex = Math.min(startIndex + imgPerPage, props.avatarList.length);
-
 		for (let i = startIndex; i < endIndex; i++) {
 			const characterAvatar = props.avatarList[i];
 			avatarList.push(
+				<>
 				<Card
 					key={characterAvatar.avatar.id}
 					className={`
@@ -131,6 +131,7 @@ const AvatarMenu = (props: any): any => {
 							: null}
 					</CardContent>
 				</Card>
+				</>
 			);
 		}
 
@@ -152,9 +153,9 @@ const AvatarMenu = (props: any): any => {
 					<button type="button" className={styles.iconBlock} onClick={closeMenu}>
 						<Check />
 					</button>
-					<button type="button" className={styles.iconBlock} onClick={openAvatarSelectMenu}>
+					{/* <button type="button" className={styles.iconBlock} onClick={openAvatarSelectMenu}>
 						<PersonAdd />
-					</button>
+					</button> */}
 				</div>
 				<button type="button" className={`${styles.iconBlock} ${(page + 1) * imgPerPage >= props.avatarList.length ? styles.disabled : ''}`} onClick={loadNextAvatars}>
 					<NavigateNext />

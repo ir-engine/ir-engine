@@ -95,7 +95,6 @@ const UserMenu = (props: UserMenuProps): any => {
       EngineEvents.instance?.removeEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphicsSettings);
     };
   }, []);
-
   const onEngineLoaded = () => {
     setEngineLoaded(true);
     document.removeEventListener('ENGINE_LOADED', onEngineLoaded);
