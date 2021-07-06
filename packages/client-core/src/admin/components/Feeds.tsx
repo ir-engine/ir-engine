@@ -91,7 +91,7 @@ const TheFeedsConsole = ({ create, list, deleteTheFeed, update }:Props) => {
 
   return (
     <div>
-      <Typography variant="h2" color="primary">ARC TheFeeds List </Typography>
+      <Typography variant="h1" color="primary">Social Feeds List</Typography>
       <Button onClick={()=>{handleOpen('', '', '', '');}}  variant="outlined" color="secondary" >
         Create
       </Button>
