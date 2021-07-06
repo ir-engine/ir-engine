@@ -112,27 +112,27 @@ export class Channel extends Service {
         await Promise.all(results.rows.map(async (channel) => {
           return await new Promise(async (resolve) => {
             if (channel.channelType === 'user') {
-              const user1AvatarResult = await this.app.service('static-resource').find({
-                query: {
-                  staticResourceType: 'user-thumbnail',
-                  userId: channel.userId1
-                }
-              }) as any;
-
-              const user2AvatarResult = await this.app.service('static-resource').find({
-                query: {
-                  staticResourceType: 'user-thumbnail',
-                  userId: channel.userId2
-                }
-              }) as any;
-
-              if (user1AvatarResult.total > 0) {
-                channel.user1.dataValues.avatarUrl = user1AvatarResult.data[0].url;
-              }
-
-              if (user2AvatarResult.total > 0) {
-                channel.user2.dataValues.avatarUrl = user2AvatarResult.data[0].url;
-              }
+              // const user1AvatarResult = await this.app.service('static-resource').find({
+              //   query: {
+              //     staticResourceType: 'user-thumbnail',
+              //     userId: channel.userId1
+              //   }
+              // }) as any;
+              //
+              // const user2AvatarResult = await this.app.service('static-resource').find({
+              //   query: {
+              //     staticResourceType: 'user-thumbnail',
+              //     userId: channel.userId2
+              //   }
+              // }) as any;
+              //
+              // if (user1AvatarResult.total > 0) {
+              //   channel.user1.dataValues.avatarUrl = user1AvatarResult.data[0].url;
+              // }
+              //
+              // if (user2AvatarResult.total > 0) {
+              //   channel.user2.dataValues.avatarUrl = user2AvatarResult.data[0].url;
+              // }
 
               resolve(true);
             } else if (channel.channelType === 'group') {
@@ -146,20 +146,20 @@ export class Channel extends Service {
                   }
                 ]
               });
-              await Promise.all(groupUsers.map(async (groupUser) => {
-                const avatarResult = await this.app.service('static-resource').find({
-                  query: {
-                    staticResourceType: 'user-thumbnail',
-                    userId: groupUser.userId
-                  }
-                }) as any;
-
-                if (avatarResult.total > 0) {
-                  groupUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
-                }
-
-                return await Promise.resolve();
-              }));
+              // await Promise.all(groupUsers.map(async (groupUser) => {
+              //   const avatarResult = await this.app.service('static-resource').find({
+              //     query: {
+              //       staticResourceType: 'user-thumbnail',
+              //       userId: groupUser.userId
+              //     }
+              //   }) as any;
+              //
+              //   if (avatarResult.total > 0) {
+              //     groupUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
+              //   }
+              //
+              //   return await Promise.resolve();
+              // }));
 
               channel.group.dataValues.groupUsers = groupUsers;
               resolve(true);
@@ -174,20 +174,20 @@ export class Channel extends Service {
                   }
                 ]
               });
-              await Promise.all(partyUsers.map(async (partyUser) => {
-                const avatarResult = await this.app.service('static-resource').find({
-                  query: {
-                    staticResourceType: 'user-thumbnail',
-                    userId: partyUser.userId
-                  }
-                }) as any;
-
-                if (avatarResult.total > 0) {
-                  partyUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
-                }
-
-                return await Promise.resolve();
-              }));
+              // await Promise.all(partyUsers.map(async (partyUser) => {
+              //   const avatarResult = await this.app.service('static-resource').find({
+              //     query: {
+              //       staticResourceType: 'user-thumbnail',
+              //       userId: partyUser.userId
+              //     }
+              //   }) as any;
+              //
+              //   if (avatarResult.total > 0) {
+              //     partyUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
+              //   }
+              //
+              //   return await Promise.resolve();
+              // }));
               channel.party.dataValues.partyUsers = partyUsers;
               resolve(true);
             } else if (channel.channelType === 'instance') {
@@ -196,20 +196,20 @@ export class Channel extends Service {
                   instanceId: channel.instanceId
                 }
               });
-              await Promise.all(instanceUsers.map(async(user) => {
-                const avatarResult = await this.app.service('static-resource').find({
-                  query: {
-                    staticResourceType: 'user-thumbnail',
-                    userId: user.id
-                  }
-                }) as any;
-
-                if (avatarResult.total > 0) {
-                  user.dataValues.avatarUrl = avatarResult.data[0].url;
-                }
-
-                return await Promise.resolve();
-              }));
+              // await Promise.all(instanceUsers.map(async(user) => {
+              //   const avatarResult = await this.app.service('static-resource').find({
+              //     query: {
+              //       staticResourceType: 'user-thumbnail',
+              //       userId: user.id
+              //     }
+              //   }) as any;
+              //
+              //   if (avatarResult.total > 0) {
+              //     user.dataValues.avatarUrl = avatarResult.data[0].url;
+              //   }
+              //
+              //   return await Promise.resolve();
+              // }));
               channel.instance.dataValues.instanceUsers = instanceUsers;
               resolve(true);
             }

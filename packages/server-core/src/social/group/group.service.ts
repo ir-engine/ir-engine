@@ -46,20 +46,20 @@ export default (app: Application): any => {
         groupId: data.id
       }
     }) as any;
-    await Promise.all(groupUsers.data.map(async (groupUser) => {
-      const avatarResult = await app.service('static-resource').find({
-        query: {
-          staticResourceType: 'user-thumbnail',
-          userId: groupUser.userId
-        }
-      }) as any;
-
-      if (avatarResult.total > 0) {
-        groupUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
-      }
-
-      return await Promise.resolve();
-    }));
+    // await Promise.all(groupUsers.data.map(async (groupUser) => {
+    //   const avatarResult = await app.service('static-resource').find({
+    //     query: {
+    //       staticResourceType: 'user-thumbnail',
+    //       userId: groupUser.userId
+    //     }
+    //   }) as any;
+    //
+    //   if (avatarResult.total > 0) {
+    //     groupUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
+    //   }
+    //
+    //   return await Promise.resolve();
+    // }));
     data.groupUsers = groupUsers.data;
     const targetIds = (groupUsers).data.map((groupUser) => {
       return groupUser.userId;
@@ -87,20 +87,20 @@ export default (app: Application): any => {
         groupId: data.id
       }
     }) as any;
-    await Promise.all(groupUsers.data.map(async (groupUser) => {
-      const avatarResult = await app.service('static-resource').find({
-        query: {
-          staticResourceType: 'user-thumbnail',
-          userId: groupUser.userId
-        }
-      }) as any;
-
-      if (avatarResult.total > 0) {
-        groupUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
-      }
-
-      return await Promise.resolve();
-    }));
+    // await Promise.all(groupUsers.data.map(async (groupUser) => {
+    //   const avatarResult = await app.service('static-resource').find({
+    //     query: {
+    //       staticResourceType: 'user-thumbnail',
+    //       userId: groupUser.userId
+    //     }
+    //   }) as any;
+    //
+    //   if (avatarResult.total > 0) {
+    //     groupUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
+    //   }
+    //
+    //   return await Promise.resolve();
+    // }));
     data.groupUsers = groupUsers.data;
     const targetIds = (groupUsers).data.map((groupUser) => {
       return groupUser.userId;
