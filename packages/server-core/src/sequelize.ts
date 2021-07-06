@@ -17,9 +17,6 @@ export default (app: Application): void => {
             logging: forceRefresh ? console.log : false,
             define: {
                 freezeTableName: true
-            },
-            pool: {
-                max: 20
             }
         });
         const oldSetup = app.setup;
