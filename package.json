@@ -93,7 +93,7 @@
     "@typescript-eslint/eslint-plugin": "4.28.2",
     "@typescript-eslint/parser": "4.28.2",
     "bcrypt": "5.0.1",
-    "esbuild": "0.12.14",
+    "esbuild": "0.12.15",
     "esbuild-plugin-sass": "0.5.0",
     "jest": "27.0.6",
     "lerna": "4.0.0",

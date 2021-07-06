@@ -110,7 +110,7 @@
     "@types/react-dom": "17.0.8",
     "@types/three": "0.130.0",
     "cross-env": "7.0.3",
-    "esbuild": "0.12.14",
+    "esbuild": "0.12.15",
     "eslint": "7.30.0",
     "rimraf": "3.0.2",
     "rollup": "2.52.8",
