@@ -203,6 +203,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   _envMapSourceURL="";
   errorInEnvmapURL=false;
   _envMapIntensity=1;
+  environmentNodes=[];
   //#endregion
 
 
@@ -225,14 +226,13 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     this.setUpEnvironmentMap(type);
   }
 
-
   get envMapSourceURL(){
     return this._envMapSourceURL;
   }
 
   set envMapSourceURL(src){
-    
-    this.loadEnvironmentMap(src);
+    this._envMapSourceURL=src;
+    this.setUpEnvironmentMapTexture();
   }
 
   get envMapIntensity(){
@@ -252,28 +252,12 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
 
   set envMapSourceColor(src){
-    this._envMapSourceColor=src;
-    if(this.environment?.dispose)
-      this.environment.dispose();
-    const col=new Color(src);
-    const resolution =1;
-    const data=new Uint8Array(3*resolution*resolution);
-    for(let i=0; i<resolution*resolution;i++){
-        data[i]=Math.floor(col.r*255);
-        data[i+1]=Math.floor(col.g*255);
-        data[i+2]=Math.floor(col.b*255);
-    }
-    const pmren=new PMREMGenerator(this.editor.renderer.renderer);
-    const texture=new DataTexture(data,resolution,resolution,RGBFormat);
-    texture.encoding=sRGBEncoding;
-    const tex=pmren.fromEquirectangular(texture).texture;
-    pmren.compileEquirectangularShader()
-    this.environment=tex;//pmren.fromEquirectangular(texture);
-    pmren.dispose();
+    this._envMapSourceColor=src;  
+    this.setUpEnvironmentMapColor();
   }
 
 
-  async loadEnvironmentMap(src, onError?) {
+  async setUpEnvironmentMapTexture() {
 
     if (this.environment?.dispose) {
       this.environment.dispose();
@@ -282,16 +266,8 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     const pmremGenerator=new PMREMGenerator(this.editor.renderer.renderer);
     switch(this.envMapTextureType){
       case EnvMapTextureType.Equirectangular:
-        const nextSrc = src || "";
-        if (nextSrc === this._envMapSourceURL && nextSrc !== "") {
-          return;
-        }
         try {
-          const { url } = await this.editor.api.resolveMedia(src);
-          if (this.environment?.dispose) {
-            this.environment.dispose();
-          }
-          const texture = await new TextureLoader().loadAsync(src);
+          const texture = await new TextureLoader().loadAsync(this.envMapSourceURL);
           texture.encoding = sRGBEncoding;
           texture.minFilter = LinearFilter;
           this.environment=pmremGenerator.fromEquirectangular(texture).texture;
@@ -299,7 +275,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
           texture.dispose();
         } catch (error) {
           this.errorInEnvmapURL=true;
-          console.error(`Error loading image ${this._envMapSourceURL}`);
+          console.error(`Error loading image ${this.envMapSourceURL}`);
         }
       break;
       case EnvMapTextureType.Cubemap:
@@ -310,7 +286,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         const posy = "posy.jpg";
         const posz = "posz.jpg";
         new CubeTextureLoader()
-        .setPath(src)
+        .setPath(this.envMapSourceURL)
         .load([posx, negx, posy, negy, posz, negz],
         (texture) => {
           const EnvMap = pmremGenerator.fromCubemap(texture).texture;
@@ -405,16 +381,44 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       case EnvMapSourceType.Default:
         break;
       case EnvMapSourceType.Color:
+        this.setUpEnvironmentMapColor();
         break;
       case EnvMapSourceType.Texture:
-        this.loadEnvironmentMap(this.envMapSourceURL);
+        this.setUpEnvironmentMapTexture();
         break;
     }
   }
 
+  setUpEnvironmentMapColor(){
+    if(this.environment?.dispose)
+      this.environment.dispose();
+    const col=new Color(this.envMapSourceColor);
+    const resolution =1;
+    const data=new Uint8Array(3*resolution*resolution);
+    for(let i=0; i<resolution*resolution;i++){
+        data[i]=Math.floor(col.r*255);
+        data[i+1]=Math.floor(col.g*255);
+        data[i+2]=Math.floor(col.b*255);
+    }
+    const pmren=new PMREMGenerator(this.editor.renderer.renderer);
+    const texture=new DataTexture(data,resolution,resolution,RGBFormat);
+    texture.encoding=sRGBEncoding;
+    const tex=pmren.fromEquirectangular(texture).texture;
+    pmren.compileEquirectangularShader()
+    this.environment=tex;//pmren.fromEquirectangular(texture);
+    pmren.dispose();
+  }
+
+  registerEnvironmentMapNodes(node:any){
+    this.environmentNodes.push(node);
+  }
+  unregisterEnvironmentMapNodes(node:any){
+    this.environmentNodes=this.environmentNodes.filter((item)=>item!==node);
+  }
+
   //#endregion
 
-
+  //#region  fog
   get fogType() {
     return this._fogType;
   }
@@ -462,6 +466,8 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   set fogFarDistance(value) {
     this._fog.far = value;
   }
+
+  //#endregion
 
 
   copy(source, recursive = true) {
@@ -700,19 +706,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     this.metadata = Object.assign(existingMetadata, newMetadata);
   }
 
-  getDefaultEnvMapNode(){
-    //traverse the scene and find reflection probe or skybox
-      this.traverse(child => {
-        if (child.isNode && child !== this) {
-          if(child.nodeName==="Reflection Probe")
-            return child;
-          
-          else if(child.nodeName==="Skybox")
-            return child;
-        }
-      })
-    return null;
-  }
 
 
 }

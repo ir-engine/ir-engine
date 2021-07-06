@@ -60,6 +60,8 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
         })
 
         this.add(this.gizmo);
+
+        this.editor.scene.registerEnvironmentMapNodes(this);
     }
 
 
@@ -83,9 +85,9 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
             if(child.material)
                 child.material.envMapIntensity=this.reflectionProbeSettings.intensity;
         });
-        this.editor.scene.environment=this.visible?this.currentEnvMap?.texture:null;
-
+        //this.editor.scene.environment=this.visible?this.currentEnvMap?.texture:null;
     }
+
     injectShader(){
         this.editor.scene.traverse(child=>{
             if(child.material){
@@ -153,5 +155,11 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
             }
         });
         return sceneToBake;
+    }
+
+
+    onRemove() {
+        this.currentEnvMap.dispose();
+        this.editor.scene.unregisterEnvironmentMapNodes(this);
     }
 }
