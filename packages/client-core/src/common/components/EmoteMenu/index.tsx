@@ -26,53 +26,29 @@ type EmoteMenuPropsType = {
 const EmoteMenuCore = (props: EmoteMenuPropsType) => {
     const items: MenuItemType[] = [
         {
-            body: 'Dance 1',
+            body: <img src="/static/Dance1.svg" alt="Dance 1" />,
             containerProps: {
                 onClick: () => runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_1  })
             },
         },
         {
-            body: 'Dance 2',
+            body: <img src="/static/Dance2.svg" alt="Dance 2" />,
             containerProps: {
                 onClick: () => runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_2 })
             },
         },
         {
-            body: 'Cheering 1',
+            body: <img src="/static/Dance3.svg" alt="Dance 3" />,
             containerProps: {
-                onClick: () => runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.CHEERING_1 })
+                onClick: () => runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_3 })
             },
         },
         {
-            body: 'Cheering 2',
+            body: <img src="/static/Dance4.svg" alt="Dance 4" />,
             containerProps: {
-                onClick: () => runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.CHEERING_2 })
+                onClick: () => runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_4 })
             },
-        },
-        {
-            body: 'Clapping',
-            containerProps: {
-                onClick: () => runAnimation(CharacterStates.EMOTE, { animationName: CharacterAnimations.CLAPPING })
-            },
-        },
-        {
-            body: 'Laughing',
-            containerProps: {
-                onClick: () => runAnimation(CharacterStates.EMOTE, { animationName: CharacterAnimations.LAUGHING })
-            },
-        },
-        {
-            body: 'Wave Left',
-            containerProps: {
-                onClick: () => runAnimation(CharacterStates.EMOTE, { animationName: CharacterAnimations.WAVE_LEFT })
-            },
-        },
-        {
-            body: 'Wave Right',
-            containerProps: {
-                onClick: () => runAnimation(CharacterStates.EMOTE, { animationName: CharacterAnimations.WAVE_RIGHT })
-            },
-        },
+        }
     ];
 
     const runAnimation = (animationName: string, params: CalculateWeightsParams) => {
@@ -84,7 +60,9 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
 
         if (animationComponent.currentState.name === animationState.name) {
             params.resetAnimation = true;
+            params.recalculateWeights = true;
             animationComponent.currentState.update(params);
+            animationComponent.animationGraph.updateNetwork(animationComponent, animationState.name, params);
         } else {
             animationComponent.animationGraph.transitionState(actor, animationComponent, animationState.name, params);
         }
@@ -114,7 +92,7 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
 
     return (
         <section className={styles.emoteMenu}>
-            <ScrollableElement height={250}>
+            <ScrollableElement height={400}>
                 {items.map((item, index) => {
                     return (
                         <Button
@@ -127,15 +105,15 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
                     );
                 })}
             </ScrollableElement>
-            <div className={styles.jumpContainer}>
+            {/* <div className={styles.jumpContainer}>
                 <Button
                     className={styles.menuItem}
                     onMouseDown={jumpStart}
                     onMouseUp={jumpStop}
                 >
-                    Jump
+                    <img src="/static/Jump.svg" alt="Jump" />
                 </Button>
-            </div>
+            </div> */}
         </section>
     );
 };

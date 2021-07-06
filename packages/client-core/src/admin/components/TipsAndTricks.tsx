@@ -89,7 +89,7 @@ const ArMediaConsoleTipsAndTricks = ({ create, list, deleteTipsAndTricks, update
 
     return (
         <div>
-            <Typography variant="h2" color="primary">ARC Tips & Tricks List </Typography>
+            <Typography variant="h1" color="primary">Tips & Tricks List </Typography>
             <Button onClick={()=>{handleOpen('', '', '', '');}}  variant="outlined" color="secondary" >
                 Create
             </Button>

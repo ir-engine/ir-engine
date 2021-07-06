@@ -140,9 +140,6 @@ describe('Golf tests', () => {
       position: [0, 2, 1],
       rotation: eulerToQuaternion(-1.25, 0, 0).toArray()
     })
-
-    console.log('ball position', await bot.runHook(BotHooksTags.getBallPosition))
-    console.log('tee position', tee0Pos)
   
     // ball should be at spawn position
     expect(

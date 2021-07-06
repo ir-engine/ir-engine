@@ -81,7 +81,7 @@ export const sendCurrentProducers = async (socket: SocketIO.Socket, channelType:
     const selfClient = Network.instance.clients[userId];
     if (selfClient?.socketId != null) {
         const nearbyUsers = getNearbyUsers(userId);
-        const nearbyUserIds = nearbyUsers.map(user => user.id);
+        const nearbyUserIds = nearbyUsers == null ? [] : nearbyUsers.map(user => user.id);
         Object.entries(Network.instance.clients).forEach(([name, value]) => {
             if (name === userId || (channelType === 'instance' && nearbyUserIds.includes(name) === false) || value.media == null || value.socketId == null)
                 return;

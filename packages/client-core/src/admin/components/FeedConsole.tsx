@@ -162,7 +162,7 @@ const FeedConsole = (props: Props) => {
 
     return (
         <div>
-            <Typography variant="h2" color="primary">ARC Feeds List</Typography>
+            <Typography variant="h2" color="primary">Social Feeds List</Typography>
             <Paper className={styles.adminRoot}>
                 <TableContainer className={styles.tableContainer}>
                     <Table
