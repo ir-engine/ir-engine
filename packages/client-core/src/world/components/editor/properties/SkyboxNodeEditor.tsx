@@ -109,12 +109,11 @@ export class SkyboxNodeEditor extends Component<
   };
 
   //function to handle the changes skyType
-  onChangeSkyOption = skyType => {
+  onChangeSkyOption = backgroundType => {
     (this.props.editor as any).setPropertySelected(
-      "skyType",
-      skyType
+      "backgroundType",
+      backgroundType
     );
-    console.log("Changed Value of SkyType is:"+skyType);
   };
 
   //function to handle the changes backgroundPath
@@ -275,7 +274,7 @@ export class SkyboxNodeEditor extends Component<
 
   // creating editor view for skybox Properties
   renderSkyBoxProps = (node) => {
-    switch (node.skyType) {
+    switch (node.backgroundType) {
       case SkyTypeEnum.equirectangular as any:
         return this.renderTextureSettings((node as any).equirectangularPath, this.onChangeEquirectangularPathOption);
       case SkyTypeEnum.cubemap as any:
@@ -302,7 +301,7 @@ export class SkyboxNodeEditor extends Component<
           { /* @ts-ignore */}
           <SelectInput
             options={SkyOption}
-            value={(node as any).skyType}
+            value={(node as any).backgroundType}
             onChange={this.onChangeSkyOption}
           />
         </InputGroup>

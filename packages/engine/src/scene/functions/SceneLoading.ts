@@ -13,7 +13,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader';
 import { parseModelColliders, clearFromColliders } from '../../physics/behaviors/parseModelColliders';
 import { createVehicleFromSceneData } from '../../vehicle/prefabs/NetworkVehicle';
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers';
-import { createBackground } from '../behaviors/createBackground';
+import {createSkybox } from '../behaviors/createSkybox';
 import { createBoxCollider } from '../behaviors/createBoxCollider';
 import { createMeshCollider } from '../behaviors/createMeshCollider';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
@@ -227,7 +227,7 @@ export class WorldScene {
         break;
 
       case 'background':
-        createBackground(entity, component.data as any);
+        createSkybox(entity, component.data as any);
         break;
 
       case 'audio-settings':

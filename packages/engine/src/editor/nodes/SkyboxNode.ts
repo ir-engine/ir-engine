@@ -62,7 +62,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
 
 
   serialize() {
-    const backgroundprops:SceneBackgroundProps= {
+    const skybox:SceneBackgroundProps= {
       backgroundColor: this.backgroundColor,
       equirectangularPath: this.equirectangularPath,
       cubemapPath: this.cubemapPath,
@@ -79,19 +79,20 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
       }
     };
 
-    return super.serialize({backgroundprops });
+    return super.serialize({skybox });
   }
 
 
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json) as SkyboxNode;
     const skybox = json.components.find(c => c.name === "skybox");
-    const prop=skybox.props.backgroundprops as SceneBackgroundProps;
-    if(prop){
+    const prop=skybox.props as SceneBackgroundProps;
+    if(prop.skyboxProps){
       node.backgroundColor= prop.backgroundColor;
       node.equirectangularPath= prop.equirectangularPath;
       node.cubemapPath= prop.cubemapPath;
       node.backgroundType= prop.backgroundType;
+      node.turbidity= prop.skyboxProps.turbidity;
       node.turbidity= prop.skyboxProps.turbidity;
       node.rayleigh= prop.skyboxProps.rayleigh;
       node.luminance= prop.skyboxProps.luminance;
@@ -107,7 +108,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
 
 
   onChange() {
-    this.setUpBackground(this.skyType)
+    this.setUpBackground(this.backgroundType)
   }
 
   onRemove() {

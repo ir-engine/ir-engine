@@ -311,7 +311,7 @@ export * from './src/renderer/HighlightSystem';
 export * from './src/renderer/interfaces/PostProcessingSchema';
 export * from './src/renderer/WebGLRendererSystem';
 export * from './src/scene/behaviors/addObject3DComponent';
-export * from './src/scene/behaviors/createBackground';
+export * from './src/scene/behaviors/createSkybox';
 export * from './src/scene/behaviors/createBoxCollider';
 export * from './src/scene/behaviors/createCommonInteractive';
 export * from './src/scene/behaviors/createGame';

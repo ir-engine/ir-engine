@@ -2,6 +2,7 @@ import { Color, CubeTextureLoader, PMREMGenerator, sRGBEncoding, TextureLoader, 
 import { isClient } from '../../common/functions/isClient';
 import { Engine } from '../../ecs/classes/Engine';
 import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { SceneBackgroundProps } from '../../editor/nodes/SkyboxNode';
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 import { ScaleComponent } from '../../transform/components/ScaleComponent';
 import { Sky } from '../classes/Sky';
@@ -11,7 +12,7 @@ import { addObject3DComponent } from './addObject3DComponent';
 
 
 
-export const createBackground = (entity, args: SceneBackgroundProps): any => {
+export const createSkybox = (entity, args: SceneBackgroundProps): any => {
   if(isClient) {
     switch(args.backgroundType) {
       case 'skybox':

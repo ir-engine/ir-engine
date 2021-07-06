@@ -10,19 +10,20 @@ import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 import { ScaleComponent } from '../../transform/components/ScaleComponent';
 import { Sky } from '../classes/Sky';
 import { Object3DComponent } from '../components/Object3DComponent';
-import { EnvMapTextureType } from '../constants/EnvMapEnum';
+import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum';
 import { SceneObjectSystem } from '../systems/SceneObjectSystem';
 import { addObject3DComponent } from './addObject3DComponent';
 
-export const setEnvMap: Behavior = (entity, args: { type:string,options: any }) => {
+export const setEnvMap: Behavior = (entity, args: { type:EnvMapSourceType,options: any }) => {
 
   if (!isClient) {
     return;
   }
 
+  const pmremGenerator = new PMREMGenerator(Engine.renderer);
   switch(args.type){
 
-    case "Color":
+    case EnvMapSourceType.Color:
       const src=args.options.colorString;
       const col=new Color(src);
       const resolution =1;
@@ -33,10 +34,11 @@ export const setEnvMap: Behavior = (entity, args: { type:string,options: any }) 
           data[i+2]=Math.floor(col.b*255);
       }
       const texture=new DataTexture(data,resolution,resolution,RGBFormat);
-      Engine.scene.environment=texture;
+      texture.encoding=sRGBEncoding;
+      Engine.scene.environment=pmremGenerator.fromEquirectangular(texture).texture;
       break;
 
-    case "Texture":
+    case EnvMapSourceType.Texture:
       
       switch(args.options.type){
         case EnvMapTextureType.Cubemap:
@@ -52,13 +54,10 @@ export const setEnvMap: Behavior = (entity, args: { type:string,options: any }) 
           .setPath(args.options.url)
           .load([posx, negx, posy, negy, posz, negz],
           (texture) => {
-            const renderer = Engine.renderer
-            const pmremGenerator = new PMREMGenerator(renderer);
             const EnvMap = pmremGenerator.fromCubemap(texture).texture;
             EnvMap.encoding = sRGBEncoding;
             Engine.scene.environment = EnvMap;
             texture.dispose();
-            pmremGenerator.dispose();
           },
           (res)=> {
             console.log(res);
@@ -71,74 +70,79 @@ export const setEnvMap: Behavior = (entity, args: { type:string,options: any }) 
           break;
         case EnvMapTextureType.Equirectangular:
           new TextureLoader().load(args.options.url,(texture)=>{
-            Engine.scene.environment=texture;
+            const EnvMap = pmremGenerator.fromEquirectangular(texture).texture;
+            EnvMap.encoding = sRGBEncoding;
+            Engine.scene.environment=EnvMap;
             texture.dispose();
           });
           break;
         default:
           console.log("Can't find type of env texture");
           break;
-      } 
 
-      break;
+          
+        } 
+        
+
     
 
-    case "SkyBox":
-      const op=args.options;
-      addObject3DComponent(entity, { obj3d: Sky, objArgs: args });
-      addComponent(entity, ScaleComponent);
+    // case EnvMapSourceType.Default:
+    //   const op=args.options;
+    //   addObject3DComponent(entity, { obj3d: Sky, objArgs: args });
+    //   addComponent(entity, ScaleComponent);
 
-      const component = getComponent(entity, Object3DComponent);
-      const skyboxObject3D = component.value;
-      const scaleComponent = getMutableComponent<ScaleComponent>(entity, ScaleComponent);
-      scaleComponent.scale = [op.distance, op.distance, op.distance];
-      const uniforms = Sky.material.uniforms;
-      const sun = new Vector3();
-      const theta = Math.PI * (op.inclination - 0.5);
-      const phi = 2 * Math.PI * (op.azimuth - 0.5);
+    //   const component = getComponent(entity, Object3DComponent);
+    //   const skyboxObject3D = component.value;
+    //   const scaleComponent = getMutableComponent<ScaleComponent>(entity, ScaleComponent);
+    //   scaleComponent.scale = [op.distance, op.distance, op.distance];
+    //   const uniforms = Sky.material.uniforms;
+    //   const sun = new Vector3();
+    //   const theta = Math.PI * (op.inclination - 0.5);
+    //   const phi = 2 * Math.PI * (op.azimuth - 0.5);
 
-      sun.x = Math.cos(phi);
-      sun.y = Math.sin(phi) * Math.sin(theta);
-      sun.z = Math.sin(phi) * Math.cos(theta);
-      uniforms.mieCoefficient.value = op.mieCoefficient;
-      uniforms.mieDirectionalG.value = op.mieDirectionalG;
-      uniforms.rayleigh.value = op.rayleigh;
-      uniforms.turbidity.value = op.turbidity;
-      uniforms.luminance.value = op.luminance;
-      uniforms.sunPosition.value = sun;
-      WebGLRendererSystem.instance.csm?.lightDirection.set(-sun.x, -sun.y, -sun.z);
-      const skyboxTexture = (skyboxObject3D as any).generateEnvironmentMap(Engine.renderer);
-      Engine.scene.environment = skyboxTexture;
-      break;
+    //   sun.x = Math.cos(phi);
+    //   sun.y = Math.sin(phi) * Math.sin(theta);
+    //   sun.z = Math.sin(phi) * Math.cos(theta);
+    //   uniforms.mieCoefficient.value = op.mieCoefficient;
+    //   uniforms.mieDirectionalG.value = op.mieDirectionalG;
+    //   uniforms.rayleigh.value = op.rayleigh;
+    //   uniforms.turbidity.value = op.turbidity;
+    //   uniforms.luminance.value = op.luminance;
+    //   uniforms.sunPosition.value = sun;
+    //   WebGLRendererSystem.instance.csm?.lightDirection.set(-sun.x, -sun.y, -sun.z);
+    //   const skyboxTexture = (skyboxObject3D as any).generateEnvironmentMap(Engine.renderer);
+    //   Engine.scene.environment = skyboxTexture;
+    //   break;
 
 
 
-    case "ReflectionProbe":
-      const options =args.options as ReflectionProbeSettings;
-      SceneObjectSystem.instance.bpcemOptions.probeScale = options.probeScale;
-      SceneObjectSystem.instance.bpcemOptions.probePositionOffset = options.probePositionOffset;
-      SceneObjectSystem.instance.bpcemOptions.intensity = options.intensity;
+    // case "ReflectionProbe":
+    //   const options =args.options as ReflectionProbeSettings;
+    //   SceneObjectSystem.instance.bpcemOptions.probeScale = options.probeScale;
+    //   SceneObjectSystem.instance.bpcemOptions.probePositionOffset = options.probePositionOffset;
+    //   SceneObjectSystem.instance.bpcemOptions.intensity = options.intensity;
       
-      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
+    //   EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
         
-        switch (options.reflectionType) {
-          case ReflectionProbeTypes.Baked:
-            const envMapAddress = `/ReflectionProbe/${options.lookupName}.png`;
-            new TextureLoader().load(envMapAddress, (texture) => {
-              Engine.scene.environment = CubemapCapturer.convertEquiToCubemap(Engine.renderer, texture, options.resolution).texture;
-              texture.dispose();
-            });
+    //     switch (options.reflectionType) {
+    //       case ReflectionProbeTypes.Baked:
+    //         const envMapAddress = `/ReflectionProbe/${options.lookupName}.png`;
+    //         new TextureLoader().load(envMapAddress, (texture) => {
+    //           Engine.scene.environment = CubemapCapturer.convertEquiToCubemap(Engine.renderer, texture, options.resolution).texture;
+    //           texture.dispose();
+    //         });
             
-            break;
-            case ReflectionProbeTypes.Realtime:
-              const map = new CubemapCapturer(Engine.renderer, Engine.scene, options.resolution, '');
-              const EnvMap = (await map.update(options.probePosition)).cubeRenderTarget.texture;
-              Engine.scene.environment = EnvMap;
-              break;
-            }
-        });
-      break;
+    //         break;
+    //         case ReflectionProbeTypes.Realtime:
+    //           const map = new CubemapCapturer(Engine.renderer, Engine.scene, options.resolution, '');
+    //           const EnvMap = (await map.update(options.probePosition)).cubeRenderTarget.texture;
+    //           Engine.scene.environment = EnvMap;
+    //           break;
+    //         }
+    //     });
+    //   break;
   }
+  pmremGenerator.dispose();
 
 
 };
