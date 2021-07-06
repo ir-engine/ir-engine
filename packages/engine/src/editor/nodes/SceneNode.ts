@@ -643,7 +643,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       });
     }
 
-    this.exportEnvMap();
+    //this.exportEnvMap();
   }
   async combineMeshes() {
     await MeshCombinationGroup.combineMeshes(this);

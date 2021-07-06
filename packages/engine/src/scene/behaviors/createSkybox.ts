@@ -2,7 +2,7 @@ import { Color, CubeTextureLoader, PMREMGenerator, sRGBEncoding, TextureLoader, 
 import { isClient } from '../../common/functions/isClient';
 import { Engine } from '../../ecs/classes/Engine';
 import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { SceneBackgroundProps } from '../../editor/nodes/SkyboxNode';
+import { SceneBackgroundProps, SkyTypeEnum } from '../../editor/nodes/SkyboxNode';
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 import { ScaleComponent } from '../../transform/components/ScaleComponent';
 import { Sky } from '../classes/Sky';
@@ -13,38 +13,40 @@ import { addObject3DComponent } from './addObject3DComponent';
 
 
 export const createSkybox = (entity, args: SceneBackgroundProps): any => {
+  
   if(isClient) {
+    const pmremGenerator = new PMREMGenerator(Engine.renderer);
     switch(args.backgroundType) {
-      case 'skybox':
-        const op=args.skyboxProps as any;
-        addObject3DComponent(entity, { obj3d: Sky, objArgs: args });
-        addComponent(entity, ScaleComponent);
+      case SkyTypeEnum.skybox:
+        // const op=args.skyboxProps as any;
+        // addObject3DComponent(entity, { obj3d: Sky, objArgs: args });
+        // addComponent(entity, ScaleComponent);
   
-        const component = getComponent(entity, Object3DComponent);
-        const skyboxObject3D = component.value;
-        const scaleComponent = getMutableComponent<ScaleComponent>(entity, ScaleComponent);
-        scaleComponent.scale = [op.distance, op.distance, op.distance];
-        const uniforms = Sky.material.uniforms;
-        const sun = new Vector3();
-        const theta = Math.PI * (op.inclination - 0.5);
-        const phi = 2 * Math.PI * (op.azimuth - 0.5);
+        // const component = getComponent(entity, Object3DComponent);
+        // const skyboxObject3D = component.value;
+        // const scaleComponent = getMutableComponent<ScaleComponent>(entity, ScaleComponent);
+        // scaleComponent.scale = [op.distance, op.distance, op.distance];
+        // const uniforms = Sky.material.uniforms;
+        // const sun = new Vector3();
+        // const theta = Math.PI * (op.inclination - 0.5);
+        // const phi = 2 * Math.PI * (op.azimuth - 0.5);
   
-        sun.x = Math.cos(phi);
-        sun.y = Math.sin(phi) * Math.sin(theta);
-        sun.z = Math.sin(phi) * Math.cos(theta);
-        uniforms.mieCoefficient.value = op.mieCoefficient;
-        uniforms.mieDirectionalG.value = op.mieDirectionalG;
-        uniforms.rayleigh.value = op.rayleigh;
-        uniforms.turbidity.value = op.turbidity;
-        uniforms.luminance.value = op.luminance;
-        uniforms.sunPosition.value = sun;
-        WebGLRendererSystem.instance.csm?.lightDirection.set(-sun.x, -sun.y, -sun.z);
-        const skyboxTexture = (skyboxObject3D as any).generateEnvironmentMap(Engine.renderer);
-        Engine.scene.background = skyboxTexture;
+        // sun.x = Math.cos(phi);
+        // sun.y = Math.sin(phi) * Math.sin(theta);
+        // sun.z = Math.sin(phi) * Math.cos(theta);
+        // uniforms.mieCoefficient.value = op.mieCoefficient;
+        // uniforms.mieDirectionalG.value = op.mieDirectionalG;
+        // uniforms.rayleigh.value = op.rayleigh;
+        // uniforms.turbidity.value = op.turbidity;
+        // uniforms.luminance.value = op.luminance;
+        // uniforms.sunPosition.value = sun;
+        // WebGLRendererSystem.instance.csm?.lightDirection.set(-sun.x, -sun.y, -sun.z);
+        // const skyboxTexture = (skyboxObject3D as any).generateEnvironmentMap(Engine.renderer);
+        // Engine.scene.background = skyboxTexture;
         break;
 
 
-      case 'cubemap':
+      case SkyTypeEnum.cubemap:
         const negx = "negx.jpg";
         const negy = "negy.jpg";
         const negz = "negz.jpg";
@@ -56,11 +58,9 @@ export const createSkybox = (entity, args: SceneBackgroundProps): any => {
         .setPath(args.cubemapPath)
         .load([posx, negx, posy, negy, posz, negz],
         (texture) => {
-          const renderer = Engine.renderer
-          const pmremGenerator = new PMREMGenerator(renderer);
           const EnvMap = pmremGenerator.fromCubemap(texture).texture;
           EnvMap.encoding = sRGBEncoding;
-          Engine.scene.environment = EnvMap;
+          Engine.scene.background = EnvMap;
           texture.dispose();
           pmremGenerator.dispose();
         },
@@ -73,13 +73,13 @@ export const createSkybox = (entity, args: SceneBackgroundProps): any => {
         );
         break;
 
-      case 'equilateral':
-        new TextureLoader().load(args.equilateralPath, (texture) => {
-          Engine.scene.background = texture;
+      case SkyTypeEnum.equirectangular:
+        new TextureLoader().load(args.equirectangularPath, (texture) => {
+          Engine.scene.background = pmremGenerator.fromEquirectangular(texture).texture;
         })
         break;
 
-      case 'color': 
+      case SkyTypeEnum.color: 
         Engine.scene.background = new Color(args.backgroundColor);
       break;
     }

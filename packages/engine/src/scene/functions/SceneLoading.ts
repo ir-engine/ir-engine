@@ -226,7 +226,7 @@ export class WorldScene {
         setFog(entity, component.data);
         break;
 
-      case 'background':
+      case 'skybox':
         createSkybox(entity, component.data as any);
         break;
 

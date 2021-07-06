@@ -118,7 +118,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
 
   prepareForExport() {
     super.prepareForExport();
-    const backgroundprops:SceneBackgroundProps= {
+    const skybox:SceneBackgroundProps= {
       backgroundColor: this.backgroundColor,
       equirectangularPath: this.equirectangularPath,
       cubemapPath: this.cubemapPath,
@@ -134,7 +134,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
         distance: this.distance,
       }
     }
-    this.addGLTFComponent("background", backgroundprops);
+    this.addGLTFComponent("skybox", skybox);
     this.replaceObject();
   }
 
