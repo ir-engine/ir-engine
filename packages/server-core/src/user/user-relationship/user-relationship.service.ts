@@ -106,35 +106,35 @@ export default (app: Application): any => {
           data.user = await app.service('user').get(data.userId);
           data.relatedUser = await app.service('user').get(data.relatedUserId);
         }
-        const avatarResult = await app.service('static-resource').find({
-          query: {
-            staticResourceType: 'user-thumbnail',
-            userId: data.userId
-          }
-        }) as any;
+        // const avatarResult = await app.service('static-resource').find({
+        //   query: {
+        //     staticResourceType: 'user-thumbnail',
+        //     userId: data.userId
+        //   }
+        // }) as any;
+        //
+        // if (avatarResult.total > 0) {
+        //   if (data.dataValues != null) {
+        //     data.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
+        //   } else {
+        //     data.user.avatarUrl = avatarResult.data[0].url;
+        //   }
+        // }
 
-        if (avatarResult.total > 0) {
-          if (data.dataValues != null) {
-            data.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
-          } else {
-            data.user.avatarUrl = avatarResult.data[0].url;
-          }
-        }
-
-        const relatedAvatarResult = await app.service('static-resource').find({
-          query: {
-            staticResourceType: 'user-thumbnail',
-            userId: data.relatedUserId
-          }
-        }) as any;
-
-        if (relatedAvatarResult.total > 0) {
-          if (data.dataValues != null) {
-            data.dataValues.relatedUser.dataValues.avatarUrl = relatedAvatarResult.data[0].url;
-          } else {
-            data.relatedUser.avatarUrl = relatedAvatarResult.data[0].url;
-          }
-        }
+        // const relatedAvatarResult = await app.service('static-resource').find({
+        //   query: {
+        //     staticResourceType: 'user-thumbnail',
+        //     userId: data.relatedUserId
+        //   }
+        // }) as any;
+        //
+        // if (relatedAvatarResult.total > 0) {
+        //   if (data.dataValues != null) {
+        //     data.dataValues.relatedUser.dataValues.avatarUrl = relatedAvatarResult.data[0].url;
+        //   } else {
+        //     data.relatedUser.avatarUrl = relatedAvatarResult.data[0].url;
+        //   }
+        // }
 
         const targetIds = [data.userId, data.relatedUserId];
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
