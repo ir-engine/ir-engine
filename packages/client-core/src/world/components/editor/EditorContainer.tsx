@@ -878,21 +878,17 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         children: [
           {
             mode: 'vertical' as DockMode,
-            size: 7,
+            size: 8,
             children: [
               {
                 tabs: [{id: 'viewPanel', title: 'Viewport', content: <div />}],
-                size: 8,
-              },
-              {
-                tabs: [{id: 'assetsPanel', title: 'Elements', content: <AssetsPanel />}],
-                size: 2,
+                size: 1,
               }
             ]
           },
           {
             mode: 'vertical' as DockMode,
-            size: 3,
+            size: 2,
             children: [
               {
                 tabs: [{
@@ -907,14 +903,18 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
               },
               {
                 tabs: [{
-                  id: 'propertiesPanel', 
+                  id: 'propertiesPanel',
                   title: (
                     <PanelDragContainer>
                       <PanelIcon as={SlidersH} size={12} />
                       <PanelTitle>Properties</PanelTitle>
                     </PanelDragContainer>
-                  ), 
+                  ),
                   content: <PropertiesPanelContainer />
+                }, {
+                  id: 'assetsPanel',
+                  title: 'Elements',
+                  content: <AssetsPanel />
                 }],
               }
             ]
