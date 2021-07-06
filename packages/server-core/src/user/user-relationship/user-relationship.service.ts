@@ -76,29 +76,29 @@ export default (app: Application): any => {
         }
       });
       if (data.userRelationshipType === 'friend' && inverseRelationship != null) {
-        const channel = await (app.service('channel') as any).Model.findOne({
-          where: {
-            [Op.or]: [
-              {
-                userId1: data.userId,
-                userId2: data.relatedUserId
-              },
-              {
-                userId2: data.userId,
-                userId1: data.relatedUserId
-              }
-            ]
-          }
-        });
-        if (channel != null) {
-          await app.service('channel').patch(channel.id, {
-            channelType: channel.channelType
-          }, {
-            sequelize: {
-              silent: true
-            }
-          });
-        }
+        // const channel = await (app.service('channel') as any).Model.findOne({
+        //   where: {
+        //     [Op.or]: [
+        //       {
+        //         userId1: data.userId,
+        //         userId2: data.relatedUserId
+        //       },
+        //       {
+        //         userId2: data.userId,
+        //         userId1: data.relatedUserId
+        //       }
+        //     ]
+        //   }
+        // });
+        // if (channel != null) {
+        //   await app.service('channel').patch(channel.id, {
+        //     channelType: channel.channelType
+        //   }, {
+        //     sequelize: {
+        //       silent: true
+        //     }
+        //   });
+        // }
         if (data.dataValues != null) {
           data.dataValues.user = await app.service('user').get(data.userId);
           data.dataValues.relatedUser = await app.service('user').get(data.relatedUserId);

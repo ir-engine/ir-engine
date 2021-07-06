@@ -43,20 +43,20 @@ export default (app: Application): void => {
 
   service.publish('created', async (data): Promise<any> => {
     try {
-      const channel = await (app.service('channel') as any).Model.findOne({
-        where: {
-          partyId: data.partyId
-        }
-      });
-      if (channel != null) {
-        await app.service('channel').patch(channel.id, {
-          channelType: channel.channelType
-        }, {
-          sequelize: {
-            silent: true
-          }
-        });
-      }
+      // const channel = await (app.service('channel') as any).Model.findOne({
+      //   where: {
+      //     partyId: data.partyId
+      //   }
+      // });
+      // if (channel != null) {
+      //   await app.service('channel').patch(channel.id, {
+      //     channelType: channel.channelType
+      //   }, {
+      //     sequelize: {
+      //       silent: true
+      //     }
+      //   });
+      // }
       const partyUsers = await app.service('party-user').find({
         query: {
           $limit: 1000,
@@ -98,21 +98,21 @@ export default (app: Application): void => {
    */
   service.publish('patched', async (data): Promise<any> => {
     try {
-      const channel = await (app.service('channel') as any).Model.findOne({
-        where: {
-          partyId: data.partyId
-        }
-      });
-      if (channel != null) {
-        await app.service('channel').patch(channel.id, {
-          channelType: channel.channelType,
-          sequelize: {}
-        }, {
-          sequelize: {
-            silent: true
-          }
-        });
-      }
+      // const channel = await (app.service('channel') as any).Model.findOne({
+      //   where: {
+      //     partyId: data.partyId
+      //   }
+      // });
+      // if (channel != null) {
+      //   await app.service('channel').patch(channel.id, {
+      //     channelType: channel.channelType,
+      //     sequelize: {}
+      //   }, {
+      //     sequelize: {
+      //       silent: true
+      //     }
+      //   });
+      // }
       const partyUsers = await app.service('party-user').find({
         query: {
           $limit: 1000,
@@ -156,20 +156,20 @@ export default (app: Application): void => {
 
   service.publish('removed', async (data): Promise<any> => {
     try {
-      const channel = await (app.service('channel') as any).Model.findOne({
-        where: {
-          partyId: data.partyId
-        }
-      });
-      if (channel != null) {
-        await app.service('channel').patch(channel.id, {
-          channelType: channel.channelType
-        }, {
-          sequelize: {
-            silent: true
-          }
-        });
-      }
+      // const channel = await (app.service('channel') as any).Model.findOne({
+      //   where: {
+      //     partyId: data.partyId
+      //   }
+      // });
+      // if (channel != null) {
+      //   await app.service('channel').patch(channel.id, {
+      //     channelType: channel.channelType
+      //   }, {
+      //     sequelize: {
+      //       silent: true
+      //     }
+      //   });
+      // }
       const partyUsers = await app.service('party-user').find({
         query: {
           $limit: 1000,

@@ -44,20 +44,20 @@ export default (app: Application): any => {
       await app.service('group').emit('refresh', {
         userId: data.userId
       });
-      const channel = await (app.service('channel') as any).Model.findOne({
-        where: {
-          groupId: data.groupId
-        }
-      });
-      if (channel != null) {
-        await app.service('channel').patch(channel.id, {
-          channelType: channel.channelType
-        }, {
-          sequelize: {
-            silent: true
-          }
-        });
-      }
+      // const channel = await (app.service('channel') as any).Model.findOne({
+      //   where: {
+      //     groupId: data.groupId
+      //   }
+      // });
+      // if (channel != null) {
+      //   await app.service('channel').patch(channel.id, {
+      //     channelType: channel.channelType
+      //   }, {
+      //     sequelize: {
+      //       silent: true
+      //     }
+      //   });
+      // }
       const groupUsers = await app.service('group-user').find({
         query: {
           $limit: 1000,
@@ -98,20 +98,20 @@ export default (app: Application): any => {
    */
   service.publish('patched', async (data): Promise<any> => {
     try {
-      const channel = await (app.service('channel') as any).Model.findOne({
-        where: {
-          groupId: data.groupId
-        }
-      });
-      if (channel != null) {
-        await app.service('channel').patch(channel.id, {
-          channelType: channel.channelType
-        }, {
-          sequelize: {
-            silent: true
-          }
-        });
-      }
+      // const channel = await (app.service('channel') as any).Model.findOne({
+      //   where: {
+      //     groupId: data.groupId
+      //   }
+      // });
+      // if (channel != null) {
+      //   await app.service('channel').patch(channel.id, {
+      //     channelType: channel.channelType
+      //   }, {
+      //     sequelize: {
+      //       silent: true
+      //     }
+      //   });
+      // }
       const groupUsers = await app.service('group-user').find({
         query: {
           $limit: 1000,
@@ -154,20 +154,20 @@ export default (app: Application): any => {
    */
   service.publish('removed', async (data): Promise<any> => {
     try {
-      const channel = await (app.service('channel') as any).Model.findOne({
-        where: {
-          groupId: data.groupId
-        }
-      });
-      if (channel != null) {
-        await app.service('channel').patch(channel.id, {
-          channelType: channel.channelType
-        }, {
-          sequelize: {
-            silent: true
-          }
-        });
-      }
+      // const channel = await (app.service('channel') as any).Model.findOne({
+      //   where: {
+      //     groupId: data.groupId
+      //   }
+      // });
+      // if (channel != null) {
+      //   await app.service('channel').patch(channel.id, {
+      //     channelType: channel.channelType
+      //   }, {
+      //     sequelize: {
+      //       silent: true
+      //     }
+      //   });
+      // }
       const groupUsers = await app.service('group-user').find({
         query: {
           $limit: 1000,
