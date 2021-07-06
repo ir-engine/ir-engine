@@ -41,18 +41,18 @@ interface Props{
     popupsState?:any;
     updateFeedPageState?: typeof updateFeedPageState;
 }
-const Feed = ({feedsState, getFeed, popupsState, updateFeedPageState} : Props) => {
+const Feed = ({feedsState, getFeed, popupsState, updateFeedPageState} : Props) => { 
     let feed  = null as any;
 	const { t } = useTranslation();
     useEffect(()=> getFeed(popupsState.get('feedId')), [popupsState.get('feedId')]);
-    feed = feedsState && feedsState.get('fetching') === false && feedsState.get('feed');
+    feed = feedsState && feedsState.get('fetching') === false && feedsState.get('feed'); 
 
     return <section className={styles.feedContainer}>
             <section className={styles.controls}>
-                <Button variant="text" className={styles.backButton}
-                onClick={()=>updateFeedPageState(false)}><ArrowBackIosIcon />{t('social:feed.back')}</Button>
+                <Button variant="text" className={styles.backButton} 
+                onClick={()=>updateFeedPageState(false)}><ArrowBackIosIcon />{t('social:feed.back')}</Button>  
             </section>
-            {feed && <FeedCard feed={feed} />}
+            {feed && <FeedCard feed={feed} />}             
             {feed && <><Typography variant="h5">{t('social:feed.related')}</Typography><Featured type='creator' creatorId={feed.creator.id} /></>}
             {/*hided for now*/}
             {/* {feed && <CommentList feedId={feed.id} />}   */}
