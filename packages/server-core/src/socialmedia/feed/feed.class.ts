@@ -10,7 +10,7 @@ import { extractLoggedInUserFromParams } from "../../user/auth-management/auth-m
 import { BadRequest } from '@feathersjs/errors';
 import { getCreatorByUserId } from '../util/getCreator';
 /**
- * A class for ARC Feed service
+ * A class for Social Feed service
  */
 export class Feed extends Service {
   app: Application
