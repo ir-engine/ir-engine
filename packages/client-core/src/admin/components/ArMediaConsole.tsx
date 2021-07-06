@@ -182,7 +182,7 @@ const ArMediaConsole = (props: Props) => {
 
     return (
         <div>
-            <Typography variant="h2" color="primary">ARC Ar Media resources List</Typography>       
+            <Typography variant="h1" color="primary">Media Resources List</Typography>       
             <Button variant="outlined" color="secondary" onClick={()=>setModalOpen(true)} style={{width:'fit-content'}}>Create</Button>                                                                
             <Paper className={styles.adminRoot}>            
                 <TableContainer className={styles.tableContainer}>
