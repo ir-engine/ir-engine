@@ -11,6 +11,7 @@ import { Views } from '../util';
 const AvatarMenu = (props: any): any => {
 	const MAX_AVATARS_PER_PAGE = 6;
 	const MIN_AVATARS_PER_PAGE = 4;
+	const isBlondtron = window.location.pathname.slice(1, 10) === "blondtron" ? true : false;
 
 	const getAvatarPerPage = () => window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE;
 	const { t } = useTranslation();
@@ -153,9 +154,11 @@ const AvatarMenu = (props: any): any => {
 					<button type="button" className={styles.iconBlock} onClick={closeMenu}>
 						<Check />
 					</button>
-					{/* <button type="button" className={styles.iconBlock} onClick={openAvatarSelectMenu}>
+					{
+					!isBlondtron && <button type="button" className={styles.iconBlock} onClick={openAvatarSelectMenu}>
 						<PersonAdd />
-					</button> */}
+					</button>
+					}
 				</div>
 				<button type="button" className={`${styles.iconBlock} ${(page + 1) * imgPerPage >= props.avatarList.length ? styles.disabled : ''}`} onClick={loadNextAvatars}>
 					<NavigateNext />
