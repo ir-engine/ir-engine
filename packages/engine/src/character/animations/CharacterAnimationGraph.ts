@@ -1,5 +1,5 @@
 import { AnimationGraph } from "./AnimationGraph";
-import { EmoteState, EnteringVehicleState, ExitingVehicleState, IdleState, LoopableEmoteState, RunState, WalkState } from "./AnimationState";
+import { EnteringVehicleState, ExitingVehicleState, IdleState, LoopableEmoteState, RunState, WalkState } from "./AnimationState";
 import { CharacterStates } from "./Util";
 
 /** Class to hold the animation graph for player entity. Every character entity will have their saperate graph. */
@@ -17,7 +17,7 @@ export class CharacterAnimationGraph extends AnimationGraph {
         const runState = new RunState();
         const enteringVehicleState = new EnteringVehicleState();
         const exitingVehicleState = new ExitingVehicleState();
-        const emoteState = new EmoteState();
+        // const emoteState = new EmoteState();
         const loopableEmoteState = new LoopableEmoteState();
 
         // Set the next states
@@ -26,9 +26,9 @@ export class CharacterAnimationGraph extends AnimationGraph {
         enteringVehicleState.nextStates.push(ExitingVehicleState);
         exitingVehicleState.nextStates.push(IdleState, EnteringVehicleState);
         exitingVehicleState.autoTransitionTo = CharacterStates.IDLE;
-        emoteState.nextStates.push(IdleState, WalkState, RunState, EnteringVehicleState, LoopableEmoteState);
-        emoteState.autoTransitionTo = CharacterStates.IDLE;
-        loopableEmoteState.nextStates.push(IdleState, WalkState, RunState, EnteringVehicleState, EmoteState);
+        // emoteState.nextStates.push(IdleState, WalkState, RunState, EnteringVehicleState, LoopableEmoteState);
+        // emoteState.autoTransitionTo = CharacterStates.IDLE;
+        loopableEmoteState.nextStates.push(IdleState, WalkState, RunState, EnteringVehicleState);
 
         // Add states to the graph
         this.states[CharacterStates.IDLE] = idleState;
@@ -36,7 +36,7 @@ export class CharacterAnimationGraph extends AnimationGraph {
         this.states[CharacterStates.RUN] = runState;
         this.states[CharacterStates.ENTERING_VEHICLE] = enteringVehicleState;
         this.states[CharacterStates.EXITING_VEHICLE] = exitingVehicleState;
-        this.states[CharacterStates.EMOTE] = emoteState;
+        // this.states[CharacterStates.EMOTE] = emoteState;
         this.states[CharacterStates.LOOPABLE_EMOTE] = loopableEmoteState;
         this.defaultState = this.states[CharacterStates.IDLE];
     }

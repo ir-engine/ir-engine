@@ -220,7 +220,7 @@ export default function Dashboard({ children }) {
                       <ListItemIcon >
                         <RemoveFromQueueIcon style={{ color: "white" }} />
                       </ListItemIcon>
-                      <ListItemText primary="TheFeeds" />
+                      <ListItemText primary="Feeds" />
                     </ListItem>
                   </Link>
 

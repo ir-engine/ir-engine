@@ -14,6 +14,7 @@ import styles from '../UserMenu.module.scss';
 import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { useTranslation } from 'react-i18next';
+import { isMobile } from '../../../../../../engine/src/common/functions/isMobile';
 
 const SettingMenu = (props: any): JSX.Element => {
 	const { t } = useTranslation();
@@ -62,25 +63,27 @@ const SettingMenu = (props: any): JSX.Element => {
               step={0.125}
             />
           </div>
-          <div className={styles.row}>
-            <span className={styles.materialIconBlock}><CropOriginal color="primary"/></span>
-            <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-shadow')}</span>
-            <Slider
-              value={props.graphics.shadows}
-              onChange={(_, value) => { 
-                props.setGraphicsSettings({
-                  shadows: value,
-                  automatic: false
-                });
-                EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_SHADOW_QUALITY, payload: value });
-                EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, payload: false });
-              }}
-              className={styles.slider}
-              min={2}
-              max={5}
-              step={1}
-            />
-          </div>
+          { isMobile ? <></> : 
+            <div className={styles.row}>
+              <span className={styles.materialIconBlock}><CropOriginal color="primary"/></span>
+              <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-shadow')}</span>
+              <Slider
+                value={props.graphics.shadows}
+                onChange={(_, value) => { 
+                  props.setGraphicsSettings({
+                    shadows: value,
+                    automatic: false
+                  });
+                  EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_SHADOW_QUALITY, payload: value });
+                  EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, payload: false });
+                }}
+                className={styles.slider}
+                min={2}
+                max={5}
+                step={1}
+              />
+            </div>
+          }
           <div className={`${styles.row} ${styles.flexWrap}`}>
             <FormControlLabel
               className={styles.checkboxBlock}

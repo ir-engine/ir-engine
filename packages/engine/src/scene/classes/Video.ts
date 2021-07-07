@@ -79,9 +79,11 @@ export default class Video extends AudioSource {
       };
       const onError = error => {
         cleanup();
-        reject(
-          new RethrownError(`Error loading video "${this.el.src}"`, error)
-        );
+        console.log(`Error loading video "${this.el.src}"`, error)
+        resolve(null)
+        // reject(
+        //   new RethrownError()
+        // );
       };
       cleanup = () => {
         this.el.removeEventListener("loadeddata", onLoadedMetadata);
@@ -132,6 +134,7 @@ export default class Video extends AudioSource {
     this.load(src).catch(console.error);
   }
   async load(src, contentType?) {
+    if(!src) return this;
     this._mesh.visible = false;
     this._texture = await this.loadVideo(src, contentType);
     this.onResize();
