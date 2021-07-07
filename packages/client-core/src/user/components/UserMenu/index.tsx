@@ -58,8 +58,8 @@ const UserMenu = (props: UserMenuProps): any => {
     alertSuccess,
     uploadAvatarModel,
     fetchAvatarList,
+    enableSharing
   } = props;
-	const isBlondtron = window.location.pathname.slice(1, 10) === "blondtron" ? true : false;
 
   let menus = [
     { id: Views.Profile, iconNode: PersonIcon },
@@ -68,7 +68,7 @@ const UserMenu = (props: UserMenuProps): any => {
   //  { id: Views.Location, iconNode: FilterHdrIcon },
   ];
 
-  if(isBlondtron){
+  if(enableSharing === false){
     const share  = menus.find(el => el.id === Views.Share);  
     menus = menus.filter(el=> el.id !== share.id);
   }
@@ -88,7 +88,7 @@ const UserMenu = (props: UserMenuProps): any => {
   const selfUser = authState.get('user') || {};
   const avatarList = authState.get('avatarList') || [];
 
-  const [currentActiveMenu, setCurrentActiveMenu] = useState( isBlondtron ? menus[0] as any : null );
+  const [currentActiveMenu, setCurrentActiveMenu] = useState( enableSharing === false ? menus[0] as any : null );
   const [activeLocation, setActiveLocation] = useState(null);
 
   const [userSetting, setUserSetting] = useState(selfUser?.user_setting);
@@ -166,6 +166,7 @@ const UserMenu = (props: UserMenuProps): any => {
           fetchAvatarList: fetchAvatarList,
           avatarList: avatarList,
           avatarId: selfUser?.avatarId,
+          enableSharing: enableSharing
         };
         break;
       case Views.Settings:

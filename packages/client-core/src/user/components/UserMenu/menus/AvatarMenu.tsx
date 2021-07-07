@@ -13,6 +13,7 @@ const AvatarMenu = (props: any): any => {
 	const MIN_AVATARS_PER_PAGE = 4;
 	const isBlondtron = window.location.pathname.slice(1, 10) === "blondtron" ? true : false;
 
+
 	const getAvatarPerPage = () => window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE;
 	const { t } = useTranslation();
 
@@ -155,7 +156,7 @@ const AvatarMenu = (props: any): any => {
 						<Check />
 					</button>
 					{
-					!isBlondtron && <button type="button" className={styles.iconBlock} onClick={openAvatarSelectMenu}>
+					props.enableSharing !== false && <button type="button" className={styles.iconBlock} onClick={openAvatarSelectMenu}>
 						<PersonAdd />
 					</button>
 					}

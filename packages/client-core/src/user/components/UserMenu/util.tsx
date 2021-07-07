@@ -28,6 +28,7 @@ export interface UserMenuProps {
   updateUserSettings?: Function;
   removeAvatar?: Function;
   getLocations?: Function;
+  enableSharing: boolean
 }
 
 export interface SettingMenuProps {
