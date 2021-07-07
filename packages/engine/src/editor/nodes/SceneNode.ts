@@ -327,12 +327,12 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       envMapIntensity:this._envMapIntensity,
     });
 
-    // else if(this.envMapSourceType==EnvMapSourceType.Default){
+    // if(this.envMapSourceType==EnvMapSourceType.Default){
     //   let options={};
     //   let s_node=null;
     //   this.traverse(child => {
     //     if (child.isNode && child !== this) {
-    //       if(child.nodeName==="Reflection Probe"){
+    //       if(child.nodeName==="Skybox"){
     //         options=child.getReflectionProbeProperties();
     //         this.addGLTFComponent("envMap",{type:"ReflectionProbe",options});
     //         return;

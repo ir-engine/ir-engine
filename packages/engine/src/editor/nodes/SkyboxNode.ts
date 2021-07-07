@@ -2,7 +2,7 @@ import EditorNodeMixin from "./EditorNodeMixin";
 import { Sky } from "../../scene/classes/Sky";
 import { Color, CubeTexture, CubeTextureLoader, EquirectangularReflectionMapping, Mesh, PMREMGenerator, sRGBEncoding, Texture, TextureLoader } from "three";
 
-export type SkyBoxRenderProps={
+export type SkyBoxShaderProps={
   turbidity :number,
   rayleigh :number,
   luminance :number,
@@ -23,7 +23,7 @@ export type SceneBackgroundProps = {
   equirectangularPath: string
   cubemapPath: string
   backgroundType: SkyTypeEnum,
-  skyboxProps:SkyBoxRenderProps,
+  skyboxProps:SkyBoxShaderProps,
 }
 
 
@@ -138,8 +138,8 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
     this.replaceObject();
   }
 
-  getSkyBoxProperties(){
-    const skyProps= {
+  getSkyBoxShaderProperties(){
+    const skyProps:SkyBoxShaderProps= {
       turbidity: this.turbidity,
       rayleigh: this.rayleigh,
       luminance: this.luminance,
