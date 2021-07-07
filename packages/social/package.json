@@ -52,7 +52,7 @@
     "webxr-native": "0.2.24"
   },
   "devDependencies": {
-    "@types/node": "14.17.4",
+    "@types/node": "14.17.5",
     "@types/react": "17.0.13",
     "config": "3.3.6",
     "cross-env": "7.0.3",
