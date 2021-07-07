@@ -163,7 +163,6 @@ export class WorldScene {
             if (isClient && component.data.textureOverride) {
               setTimeout(() => {
                 Engine.scene.children.find((obj: any) => {
-                  console.log(obj.sceneEntityId === component.data.textureOverride, obj.sceneEntityId, component.data.textureOverride)
                   if (obj.sceneEntityId === component.data.textureOverride) return true;
                 })?.traverse((videoMesh: any) => {
                   if (videoMesh.name === 'VideoMesh') {
