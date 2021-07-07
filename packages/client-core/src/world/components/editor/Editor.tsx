@@ -2387,7 +2387,7 @@ export class Editor extends EventEmitter {
       return this.history.execute(new SetPropertyCommand(this, object, propertyName, value, disableCopy));
     }
 
-    if (value && value.copy && !disableCopy) {
+    if (value && value.copy && !disableCopy && !object.isObject3D) {
       object[propertyName].copy(value);
     } else {
       object[propertyName] = value;

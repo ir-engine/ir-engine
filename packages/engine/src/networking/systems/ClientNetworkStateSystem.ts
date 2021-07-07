@@ -163,19 +163,6 @@ export class ClientNetworkStateSystem extends System {
             console.warn("Client disconnected but was not found in our client list");
           }
         }
-        // Game Manager Messages
-        if (worldState.gameState && worldState.gameState.length > 0) {
-          worldState.gameState.forEach((stateMessage: GameStateUpdateMessage) => {
-            if (Network.instance.userId === stateMessage.ownerId) { // DOTO: test, with and without
-              console.log('get message', stateMessage);
-              applyStateToClient(stateMessage);
-            }
-          });
-        }
-
-        if (worldState.gameStateActions && worldState.gameStateActions.length > 0) {
-          worldState.gameStateActions.forEach((actionMessage: GameStateActionMessage) => applyActionComponent(actionMessage));
-        }
 
         // Handle all network objects created this frame
         for (const objectToCreateKey in worldState.createObjects) {
@@ -235,6 +222,19 @@ export class ClientNetworkStateSystem extends System {
             element.behavior(editObject);
           })
         });
+
+        // Game Manager Messages, must be after create object functions
+        if (worldState.gameState && worldState.gameState.length > 0) {
+          worldState.gameState.forEach((stateMessage: GameStateUpdateMessage) => {
+            if (Network.instance.userId === stateMessage.ownerId) {
+              console.log('get message', stateMessage);
+              applyStateToClient(stateMessage);
+            }
+          });
+        }
+        if (worldState.gameStateActions && worldState.gameStateActions.length > 0) {
+          worldState.gameStateActions.forEach((actionMessage: GameStateActionMessage) => applyActionComponent(actionMessage));
+        }
 
         // Handle all network objects destroyed this frame
         worldState.destroyObjects?.forEach(({ networkId }) => {

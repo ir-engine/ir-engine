@@ -10,6 +10,7 @@ import SelectInput from "../inputs/SelectInput";
 import StringInput from "../inputs/StringInput";
 import NodeEditor from "./NodeEditor";
 import dompurify from 'dompurify';
+import { Object3D } from "three";
 
 /**
  * Array containing options for InteractableOption.
@@ -115,6 +116,11 @@ export class ModelNodeEditor extends Component<
   //function to handle change in saveColliders property
   onChangeSaveColliders = saveColliders => {
     (this.props.editor as any).setPropertySelected("saveColliders", saveColliders);
+  };
+
+  onChangeTextureOverride = textureOverride => {
+    console.log(textureOverride);
+    (this.props.editor as any).setPropertySelected("textureOverride", textureOverride);
   };
 
   // function to handle changes in walkable property
@@ -395,6 +401,21 @@ export class ModelNodeEditor extends Component<
           <BooleanInput
             value={node.saveColliders}
             onChange={this.onChangeSaveColliders}
+          />
+        </InputGroup>
+        { /* @ts-ignore */}
+        <InputGroup name="Texture Override" label={this.props.t('editor:properties.model.lbl-textureOverride')}>
+        { /* @ts-ignore */}
+          <SelectInput
+          options={
+            this.props.editor.scene.children.map((obj: Object3D) => { 
+              return {
+                label: obj.name,
+                value: obj.uuid
+              }
+            })}
+            value={node.textureOverride}
+            onChange={this.onChangeTextureOverride}
           />
         </InputGroup>
         { /* @ts-ignore */}

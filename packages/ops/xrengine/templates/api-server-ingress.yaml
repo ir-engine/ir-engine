@@ -1,4 +1,4 @@
-{{- if and .Values.api.enabled .Values.api.ingress.enabled -}}
+{{- if and .Values.api.enabled (ne (.Values.api.ingress.disabled | default "") "true") -}}
 {{- $fullName := include "xrengine.api.fullname" . -}}
 {{- $svcPort := .Values.api.service.port -}}
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}

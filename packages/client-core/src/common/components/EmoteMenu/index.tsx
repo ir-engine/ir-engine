@@ -58,13 +58,15 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
 
         const animationState = animationComponent.animationGraph.states[animationName];
 
+        params.smoothChange = true;
         if (animationComponent.currentState.name === animationState.name) {
             params.resetAnimation = true;
             params.recalculateWeights = true;
-            animationComponent.currentState.update(params);
+            animationComponent.currentState.changeAnimationSmoothly(params);
             animationComponent.animationGraph.updateNetwork(animationComponent, animationState.name, params);
         } else {
             animationComponent.animationGraph.transitionState(actor, animationComponent, animationState.name, params);
+            animationComponent.currentState.changeAnimationSmoothly(params);
         }
     }
 
@@ -92,7 +94,7 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
 
     return (
         <section className={styles.emoteMenu}>
-            <ScrollableElement height={250}>
+            <ScrollableElement height={400}>
                 {items.map((item, index) => {
                     return (
                         <Button
@@ -105,7 +107,7 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
                     );
                 })}
             </ScrollableElement>
-            <div className={styles.jumpContainer}>
+            {/* <div className={styles.jumpContainer}>
                 <Button
                     className={styles.menuItem}
                     onMouseDown={jumpStart}
@@ -113,7 +115,7 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
                 >
                     <img src="/static/Jump.svg" alt="Jump" />
                 </Button>
-            </div>
+            </div> */}
         </section>
     );
 };

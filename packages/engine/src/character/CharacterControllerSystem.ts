@@ -212,22 +212,21 @@ export class CharacterControllerSystem extends System {
     })
 
     // temporarily disable animations on Oculus until we have buffer animation system / GPU animations
-    if(!Engine.isHMD) {
-      this.queryResults.animation.added?.forEach((entity) => {
-        const animationComponent = getMutableComponent(entity, AnimationComponent);
-        animationComponent.animationGraph = CharacterAnimationGraph.constructGraph();
-        animationComponent.currentState = animationComponent.animationGraph.states[CharacterStates.IDLE];
-        animationComponent.currentState.mount(getMutableComponent(entity, CharacterComponent), {});
-        animationComponent.prevVelocity = new Vector3();
-      });
+    this.queryResults.animation.added?.forEach((entity) => {
+      const animationComponent = getMutableComponent(entity, AnimationComponent);
+      animationComponent.animationGraph = CharacterAnimationGraph.constructGraph();
+      animationComponent.currentState = animationComponent.animationGraph.states[CharacterStates.IDLE];
+      animationComponent.currentState.mount(getMutableComponent(entity, CharacterComponent), {});
+      animationComponent.prevVelocity = new Vector3();
+    });
 
-      this.queryResults.animation.all?.forEach((entity) => {
-        AnimationManager.instance.renderAnimations(entity, delta);
-      });
-    }
+    this.queryResults.animation.all?.forEach((entity) => {
+      AnimationManager.instance.renderAnimations(entity, delta);
+    });
 
     this.queryResults.ikAvatar.added?.forEach((entity) => {
-      removeComponent(entity, AnimationComponent);
+      // TODO: once IK is, remove anim component
+      // removeComponent(entity, AnimationComponent);
 
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent);
       const actor = getMutableComponent(entity, CharacterComponent);
@@ -271,7 +270,8 @@ export class CharacterControllerSystem extends System {
 
     this.queryResults.ikAvatar.removed?.forEach((entity) => {
 
-      addComponent(entity, AnimationComponent);
+      // TODO: once IK is, remove anim component
+      // addComponent(entity, AnimationComponent);
       const actor = getMutableComponent(entity, CharacterComponent);
 
       if(isEntityLocalClient(entity))
