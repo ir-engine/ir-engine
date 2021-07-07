@@ -1,5 +1,5 @@
-import { Capacitor, Plugins } from '@capacitor/core';
-import "webxr-native";
+import { Capacitor } from '@capacitor/core';
+import {XRPlugin} from "webxr-native";
 import React, { useEffect, useRef, useState } from 'react';
 import {
     CameraHelper,
@@ -186,9 +186,9 @@ export const WebXRPlugin = ({
 
             console.log('WebXRComponent - stop plugin');
             // @ts-ignore
-            Plugins.XRPlugin.removeAllListeners();
+            XRPlugin.removeAllListeners();
             // @ts-ignore
-            Plugins.XRPlugin.stop({});
+            XRPlugin.stop({});
             window.screen.orientation.unlock();
 
             // setContentHidden();
@@ -380,7 +380,7 @@ export const WebXRPlugin = ({
 
             requestAnimationFrame(raf);
 
-            const { XRPlugin } = Plugins;
+            // const { XRPlugin } = Plugins;
 
             await XRPlugin.initialize({}).then(response => {
                 setInitializationResponse(response.status);
@@ -527,7 +527,7 @@ export const WebXRPlugin = ({
             console.log(clipTitle);
 
             // @ts-ignore
-            Plugins.XRPlugin.stopRecording({
+            XRPlugin.stopRecording({
                 audioId: mediaItemRef.current.audioId,
                 videoDelay: videoDelay,
                 clipTitle: clipTitle,
@@ -576,7 +576,7 @@ export const WebXRPlugin = ({
 
         //TODO: check why there are errors
         // @ts-ignore
-        Plugins.XRPlugin.startRecording({
+        XRPlugin.startRecording({
             isAudio: true,
             width: screenWidth,
             height: screenHeight,
@@ -620,28 +620,28 @@ export const WebXRPlugin = ({
         };
 
         // @ts-ignore
-        Plugins.XRPlugin.handleTap(params);
+        XRPlugin.handleTap(params);
     };
 
     const playVideo = () => {
         // @ts-ignore
-        Plugins.XRPlugin.playVideo();
+        XRPlugin.playVideo();
     };
 
     const pauseVideo = () => {
         // @ts-ignore
-        Plugins.XRPlugin.pauseVideo();
+        XRPlugin.pauseVideo();
     };
 
 
     const clearAnchors = () => {
         // @ts-ignore
-        Plugins.XRPlugin.clearAnchors();
+        XRPlugin.clearAnchors();
     };
 
     const stopRecord = () => {
         // @ts-ignore
-        Plugins.XRPlugin.stop({});
+        XRPlugin.stop({});
     };
 
     // useEffect(() => {
