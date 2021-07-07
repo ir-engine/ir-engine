@@ -40,8 +40,8 @@ export const staticResourceSeed = {
     },
     {
       name: 'Sonny',
-      url: getAvatarURL('Sonny.png'),
-      key: 'avatars/Sonny.png',
+      url: getAvatarURL('Sonny.jpg'),
+      key: 'avatars/Sonny.jpg',
       staticResourceType: 'user-thumbnail',
     },
     // {
