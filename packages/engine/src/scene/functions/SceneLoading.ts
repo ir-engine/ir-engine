@@ -288,7 +288,7 @@ export class WorldScene {
         setPostProcessing(entity, component.data);
         break;
 
-      case 'envMap':
+      case 'envmap':
         setEnvMap(entity,component.data);
         break;
 

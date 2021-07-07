@@ -117,11 +117,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         node.fogNearDistance = near;
         node.fogFarDistance = far;
       }
-      // const background = json.components.find(c => c.name === "background");
-      // if (background) {
-      //   const { color } = background.props;
-      //   node.background.set(color);
-      // }
       const audioSettings = json.components.find(
         c => c.name === "audio-settings"
       );
@@ -159,6 +154,19 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         node.toneMappingExposure = props.toneMappingExposure;
         node.shadowMapType = props.shadowMapType;
       }
+      const envmapsettings = json.components.find(
+        c => c.name === "envmap"
+      );
+      if(envmapsettings){  
+        const props=envmapsettings.props;
+        node._envMapSourceType=props.type;
+        node._envMapSourceURL=props.envMapSourceURL;
+        node.envMapTextureType=props.envMapTextureType;
+        node._envMapSourceColor=props.envMapSourceColor;
+      }
+
+
+
     }
     return node;
   }
@@ -308,24 +316,15 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     return this;
   }
 
-  exportEnvMap(){
-    if(this.envMapSourceType===EnvMapSourceType.Color){
-      this.addGLTFComponent("envMap",{
-        type:EnvMapSourceType.Color,
-        options:{
-          colorString:this._envMapSourceColor,
-          }
-        });
-    }
-    else if(this.envMapSourceType===EnvMapSourceType.Texture){
-      this.addGLTFComponent("envMap",{
-        type:EnvMapSourceType.Texture,
-        options:{
-          url:this._envMapSourceURL,
-          type:this.envMapTextureType,
-        }
-      });
-    }
+  getEnvMapProps(){
+
+    return({
+      type:this.envMapSourceType,
+      envMapSourceURL:this._envMapSourceURL,
+      envMapTextureType:this.envMapTextureType,
+      envMapSourceColor:this._envMapSourceColor,
+    });
+
     // else if(this.envMapSourceType==EnvMapSourceType.Default){
     //   let options={};
     //   let s_node=null;
@@ -522,12 +521,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
                 density: this.fogDensity
               }
             },
-            // {
-            //   name: "background",
-            //   props: {
-            //     color: serializeColor(this.background)
-            //   }
-            // },
             {
               name: "audio-settings",
               props: {
@@ -561,6 +554,10 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
                 toneMappingExposure: this.toneMappingExposure,
                 shadowMapType: this.shadowMapType,
               }
+            },
+            {
+              name: "envmap",
+              props: this.getEnvMapProps()
             },
           ]
         }
@@ -642,8 +639,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         simpleMaterials: this.simpleMaterials
       });
     }
-
-    //this.exportEnvMap();
   }
   async combineMeshes() {
     await MeshCombinationGroup.combineMeshes(this);
