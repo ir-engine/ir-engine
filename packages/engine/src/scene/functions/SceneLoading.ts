@@ -1,9 +1,9 @@
-import { AmbientLight, DirectionalLight, HemisphereLight, PointLight, SpotLight } from 'three';
+import { AmbientLight, DirectionalLight, HemisphereLight, Mesh, PointLight, SpotLight } from 'three';
 import { isClient } from "../../common/functions/isClient";
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from "../../ecs/classes/Entity";
-import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions';
+import { addComponent, createEntity, getComponent } from '../../ecs/functions/EntityFunctions';
 import { SceneData } from "../interfaces/SceneData";
 import { SceneDataComponent } from "../interfaces/SceneDataComponent";
 import { addObject3DComponent } from '../behaviors/addObject3DComponent';
@@ -13,7 +13,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader';
 import { parseModelColliders, clearFromColliders } from '../../physics/behaviors/parseModelColliders';
 import { createVehicleFromSceneData } from '../../vehicle/prefabs/NetworkVehicle';
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers';
-import {createSkybox } from '../behaviors/createSkybox';
+import { createSkybox } from '../behaviors/createSkybox';
 import { createBoxCollider } from '../behaviors/createBoxCollider';
 import { createMeshCollider } from '../behaviors/createMeshCollider';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
@@ -38,9 +38,7 @@ import { createPortal } from '../behaviors/createPortal';
 import { createGround } from '../behaviors/createGround';
 import { handleRendererSettings } from '../behaviors/handleRendererSettings';
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
-import { startLivestreamOnServer } from '../../networking/functions/startLivestreamOnServer';
-import LivestreamProxyComponent from '../components/LivestreamProxyComponent';
-import LivestreamComponent from '../components/LivestreamComponent';
+import { Object3DComponent } from '../components/Object3DComponent';
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP,
@@ -84,7 +82,7 @@ export class WorldScene {
   }
 
   static pushAssetTypeLoadCallback = (assetType: SCENE_ASSET_TYPES, callback: () => void): void => {
-    if(!WorldScene.callbacks[assetType]) WorldScene.callbacks[assetType] = [];
+    if (!WorldScene.callbacks[assetType]) WorldScene.callbacks[assetType] = [];
     WorldScene.callbacks[assetType].push(callback)
   }
 
@@ -96,7 +94,7 @@ export class WorldScene {
     // remove '-1', '-2' etc suffixes
     const name = component.name.replace(/(-\d+)|(\s)/g, "");
 
-    switch(name) {
+    switch (name) {
       case 'game':
         createGame(entity, component.data);
         break;
@@ -111,7 +109,7 @@ export class WorldScene {
         break;
 
       case 'directional-light':
-        if(isClient && WebGLRendererSystem.instance.csm) return console.warn('SCENE LOADING - Custom directional lights are not supported when CSM is enabled.');
+        if (isClient && WebGLRendererSystem.instance.csm) return console.warn('SCENE LOADING - Custom directional lights are not supported when CSM is enabled.');
         addObject3DComponent(
           entity,
           {
@@ -136,7 +134,7 @@ export class WorldScene {
       case 'point-light':
         addObject3DComponent(entity, { obj3d: PointLight, objArgs: component.data });
         break;
-  
+
       case 'collidable':
         // console.warn("'Collidable' is not implemented");
         break;
@@ -147,7 +145,7 @@ export class WorldScene {
       case 'simple-materials':
         Engine.simpleMaterials = component.data.simpleMaterials;
         break;
-    
+
       case 'gltf-model':
         // TODO: get rid of or rename dontParseModel
         if (!isClient && component.data.dontParseModel) return;
@@ -160,7 +158,22 @@ export class WorldScene {
               clearFromColliders(res);
             } else {
               parseModelColliders(entity, { asset: res, uniqueId: component.data.sceneEntityId });
-            } 
+            }
+            if (isClient && component.data.textureOverride) {
+              setTimeout(() => {
+                Engine.scene.children.find((obj: any) => {
+                  if (obj.sceneEntityId === component.data.textureOverride) return true;
+                })?.traverse((videoMesh: any) => {
+                  if (videoMesh.name === 'VideoMesh') {
+                    getComponent(entity, Object3DComponent)?.value?.traverse((obj: any) => {
+                      if (obj.material) {
+                        obj.material = videoMesh.material
+                      }
+                    })
+                  }
+                })
+              }, 1000)
+            }
             this._onModelLoaded();
             resolve();
           }, null, (err) => {
@@ -178,6 +191,7 @@ export class WorldScene {
         createGround(entity, component.data)
         break;
 
+
       case 'image':
         addObject3DComponent(entity, { obj3d: Image, objArgs: component.data });
         break;
@@ -185,12 +199,13 @@ export class WorldScene {
       case 'video':
         // if livestream, server will send the video info to the client
         if (isClient) {
-          if(!component.data.isLivestream) {
-            createVideo(entity, component.data);
-          }
-          addComponent(entity, LivestreamComponent)
-        } else if(component.data.isLivestream) {
-          addComponent(entity, LivestreamProxyComponent, { src: component.data.src })
+          // if(!component.data.isLivestream) {
+          createVideo(entity, component.data);
+          // }
+          // addComponent(entity, LivestreamComponent)
+          // } else if(component.data.isLivestream) {
+          // @todo
+          // addComponent(entity, LivestreamProxyComponent, { src: component.data.src })
         } else {
           createMediaServer(entity, component.data);
         }
@@ -289,15 +304,14 @@ export class WorldScene {
         break;
 
       case 'envmap':
-        console.log("Setting up envMap here");
         setEnvMap(entity,component.data);
         break;
 
       case 'persist':
-        if(isClient) addComponent(entity, PersistTagComponent);
+        if (isClient) addComponent(entity, PersistTagComponent);
         break;
 
-      case 'portal': 
+      case 'portal':
         createPortal(entity, component.data)
         break;
 
