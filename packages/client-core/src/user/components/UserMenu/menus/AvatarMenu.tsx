@@ -12,6 +12,7 @@ const AvatarMenu = (props: any): any => {
 	const MAX_AVATARS_PER_PAGE = 6;
 	const MIN_AVATARS_PER_PAGE = 4;
 
+
 	const getAvatarPerPage = () => window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE;
 	const { t } = useTranslation();
 
@@ -95,7 +96,6 @@ const AvatarMenu = (props: any): any => {
 		const avatarList = [];
 		const startIndex = page * imgPerPage;
 		const endIndex = Math.min(startIndex + imgPerPage, props.avatarList.length);
-
 		for (let i = startIndex; i < endIndex; i++) {
 			const characterAvatar = props.avatarList[i];
 			avatarList.push(
@@ -152,9 +152,11 @@ const AvatarMenu = (props: any): any => {
 					<button type="button" className={styles.iconBlock} onClick={closeMenu}>
 						<Check />
 					</button>
-					<button type="button" className={styles.iconBlock} onClick={openAvatarSelectMenu}>
+					{
+					props.enableSharing !== false && <button type="button" className={styles.iconBlock} onClick={openAvatarSelectMenu}>
 						<PersonAdd />
 					</button>
+					}
 				</div>
 				<button type="button" className={`${styles.iconBlock} ${(page + 1) * imgPerPage >= props.avatarList.length ? styles.disabled : ''}`} onClick={loadNextAvatars}>
 					<NavigateNext />
