@@ -3,7 +3,9 @@ import {
   BoxBufferGeometry,
   CubeCamera,
   CubeTexture,
+  DepthModes,
   Mesh,
+  NeverDepth,
   Object3D,
   Scene,
   ShaderMaterial,
@@ -184,7 +186,7 @@ export class Sky extends Object3D {
     vertexShader,
     fragmentShader
   };
-  static geometry = new BoxBufferGeometry(1, 1, 1);
+  static geometry = new BoxBufferGeometry(1000, 1000, 1000);
   skyScene: Scene;
   cubeCamera: CubeCamera;
   sky: Mesh;
@@ -201,6 +203,7 @@ export class Sky extends Object3D {
       side: BackSide,
       fog: true
     });
+    Sky.material.depthWrite=false;
     this.skyScene = new Scene();
     this.cubeCamera = new CubeCamera(1, 100000, new WebGLCubeRenderTarget(512));
     this.skyScene.add(this.cubeCamera);
@@ -273,7 +276,7 @@ export class Sky extends Object3D {
     (this.sky.material as ShaderMaterial).uniforms.sunPosition.value.set(x, y, z).normalize();
     this.sky.scale.set(distance, distance, distance);
   }
-  generateEnvironmentMap(renderer: WebGLRenderer) {
+  generateSkybox(renderer: WebGLRenderer) {
     this.skyScene.add(this.sky);
     this.cubeCamera.update(renderer, this.skyScene);
     (this as any).add(this.sky);
