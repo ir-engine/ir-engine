@@ -11,13 +11,15 @@ import { selectCreatorsState } from '../../reducers/creator/selector';
 import { createArMedia, getArMedia } from '../../reducers/arMedia/service';
 import { selectArMediaState } from '../../reducers/arMedia/selector';
 import { updateArMediaState,  updateWebXRState } from '../../reducers/popupsState/service';
-import {  Plugins } from '@capacitor/core';
+// import {  Plugins } from '@capacitor/core';
 import Preloader from "@xrengine/client-core/src/socialmedia/components/Preloader";
 
 // @ts-ignore
 import styles from './ArMedia.module.scss';
 
-const {XRPlugin} = Plugins;
+// const {XRPlugin} = Plugins;
+import {XRPlugin} from "webxr-native";
+
 
 const mapStateToProps = (state: any): any => {
     return {
