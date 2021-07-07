@@ -52,7 +52,7 @@ spec:
               value: {{ .Values.mariadb.db.name }}
             - name: MYSQL_PASSWORD
               {{- if not .Values.mariadb.enabled }}
-              value: {{ .Values.mariadb.db.password }}
+              value: {{ .Values.mariadb.db.password | quote }}
               {{- else }}
               valueFrom:
                 secretKeyRef:

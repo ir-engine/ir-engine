@@ -1,12 +1,15 @@
 import { isClient } from '../../common/functions/isClient';
 import { Component } from "../../ecs/classes/Component";
 import { Entity } from '../../ecs/classes/Entity';
-import { addComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions';
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
 import { Network } from "../../networking/classes/Network";
 
 import { Game } from "../components/Game";
+import { GameObject } from '../components/GameObject';
 import { GamePlayer } from "../components/GamePlayer";
+import { ClientActionToServer } from '../templates/DefaultGameStateAction';
+import { SpawnedObject } from '../templates/gameDefault/components/SpawnedObjectTagComponent';
 
 import { GamesSchema } from '../templates/GamesSchema';
 import { State } from '../types/GameComponents';
@@ -41,9 +44,34 @@ export const sendState = (game: Game, playerComp: GamePlayer): void => {
   }
 };
 
+export const sendSpawnGameObjects = (game: Game, uuid): void => {
+  if (!isClient && game.isGlobal) {
+      Object.keys(Network.instance.networkObjects).forEach(networkId => {
+        // in this if we filter and send only spawnded objects
+        if (hasComponent(Network.instance.networkObjects[networkId].component.entity, SpawnedObject) &&
+            getComponent(Network.instance.networkObjects[networkId].component.entity, GameObject).uuid === uuid) {
+             Network.instance.worldState.createObjects.push({
+                prefabType: Network.instance.networkObjects[networkId].prefabType,
+                networkId: Number(networkId),
+                ownerId: Network.instance.networkObjects[networkId].ownerId,
+                uniqueId: Network.instance.networkObjects[networkId].uniqueId,
+                parameters: Network.instance.networkObjects[networkId].parameters // prefabParameters if from project scene, this is ''
+            });
+        }
+    });
+  }
+};
+
 export const requireState = (game: Game, playerComp: GamePlayer): void => {
   if (isClient && game.isGlobal && playerComp.uuid === Network.instance.userId) {
-    const message: ClientGameActionMessage = { type: 'require', game: game.name, ownerId: playerComp.uuid };
+    const message: ClientGameActionMessage = { type: ClientActionToServer[0], game: game.name, ownerId: playerComp.uuid, uuid: '' };
+    Network.instance.clientGameAction.push(message);
+  }
+};
+
+export const requireSpawnObjects = (game: Game, uuid): void => {
+  if (isClient && game.isGlobal) {
+    const message: ClientGameActionMessage = { type: ClientActionToServer[1], game: game.name, ownerId: '', uuid: uuid };
     Network.instance.clientGameAction.push(message);
   }
 };
@@ -89,7 +117,8 @@ export const applyState = (game: Game): void => {
     if (localUuids.every(uuid => uuid != v.uuid)) {
       // spawn
       if (v.components.some(s => s === 'SpawnedObject')) {
-        console.warn('NEED TO SPAWN', v);
+        console.log('require to spawn object', v);
+        requireSpawnObjects(game, v.uuid);
       } else {
         console.warn('////////////////////////////////////////////////////////////////');
         console.warn('  WE HAVE A PROBLEM');
