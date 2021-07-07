@@ -317,13 +317,16 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
 
     // Get all network objects and add to createObjects
     Object.keys(Network.instance.networkObjects).forEach(networkId => {
-      worldState.createObjects.push({
-        prefabType: Network.instance.networkObjects[networkId].prefabType,
-        networkId: Number(networkId),
-        ownerId: Network.instance.networkObjects[networkId].ownerId,
-        uniqueId: Network.instance.networkObjects[networkId].uniqueId,
-        parameters: Network.instance.networkObjects[networkId].parameters // prefabParameters if from project scene, this is ''
-      });
+        // in this if we filter and dont send spawnded objects, just player or any from scene 
+        if (Network.instance.networkObjects[networkId].prefabType === 0 || Network.instance.networkObjects[networkId].parameters === '') {
+            worldState.createObjects.push({
+                prefabType: Network.instance.networkObjects[networkId].prefabType,
+                networkId: Number(networkId),
+                ownerId: Network.instance.networkObjects[networkId].ownerId,
+                uniqueId: Network.instance.networkObjects[networkId].uniqueId,
+                parameters: Network.instance.networkObjects[networkId].parameters // prefabParameters if from project scene, this is ''
+              });
+        }
     });
 
     // Get all clients and add to clientsConnected and push to world state frame

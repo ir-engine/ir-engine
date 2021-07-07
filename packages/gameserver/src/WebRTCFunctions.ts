@@ -351,6 +351,7 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
             });
             const internalConsumer = await createInternalDataConsumer(dataProducer, userId);
             if (internalConsumer) {
+                if (Network.instance.clients[userId] == null) return callback({ error: 'Client no longer exists' });
                 Network.instance.clients[userId].dataConsumers.set(label, internalConsumer);
                 // transport.handleConsumeDataEvent(socket);
                 logger.info("transport.handleConsumeDataEvent(socket);");
