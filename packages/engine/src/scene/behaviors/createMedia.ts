@@ -46,6 +46,7 @@ export interface AudioProps {
 
 export interface VideoProps extends AudioProps {
   isLivestream: boolean;
+  elementId: string;
   projection: 'flat' | '360-equirectangular';
 }
 
@@ -62,11 +63,10 @@ const onMediaInteraction: Behavior = (entityInitiator, args, delta, entityIntera
   }
 
   const source = getComponent(entityInteractive, Object3DComponent).value as AudioSource;
-
   if (elementPlaying(source.el)) {
-    source?.pause();
+    if(typeof source.pause === 'function') source.pause();
   } else {
-    source?.play();
+    if(typeof source.play === 'function')source.play();
   }
 };
 
@@ -117,11 +117,11 @@ export function createAudio(entity, args: AudioProps): void {
 
 
 export function createVideo(entity, args: VideoProps): void {
-  addObject3DComponent(entity, { obj3d: new Video(Engine.audioListener, args.synchronize), objArgs: args });
+  addObject3DComponent(entity, { obj3d: new Video(Engine.audioListener, args.synchronize, args.elementId), objArgs: args });
   if(args.interactable) addInteraction(entity);
 }
 
-export const createVolumetric: Behavior = (entity, args: any) => {
+export const createVolumetric: Behavior = (entity, args: VolumetricProps) => {
   addComponent(entity, VolumetricComponent);
   const volumetricComponent = getMutableComponent(entity, VolumetricComponent);
   const container = new Object3D();
@@ -151,6 +151,7 @@ function addInteraction(entity): void {
 
   const interactiveData = {
     onInteraction: onMediaInteraction,
+    onInteractionCheck: () => { return true; },
     onInteractionFocused: onMediaInteractionHover,
     data
   };
@@ -176,4 +177,12 @@ function addInteraction(entity): void {
       onVideoStateChange(false);
     });
   }
+}
+
+
+interface VolumetricProps{
+  src :string,
+  loop :number,
+  autoPlay  : boolean,
+  interactable: boolean
 }

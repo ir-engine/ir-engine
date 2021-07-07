@@ -7,7 +7,7 @@ import { TransformComponent } from '../../../../transform/components/TransformCo
 import { GamePlayer } from '../../../components/GamePlayer';
 import { getGame, getTargetEntity } from '../../../functions/functions';
 import { removeStateComponent } from '../../../functions/functionsState';
-import { getStorage } from '../../../functions/functionsStorage';
+import { getStorage, setStorage } from '../../../functions/functionsStorage';
 import { State } from '../../../types/GameComponents';
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -29,7 +29,26 @@ export const getPositionNextPoint = ( entity: Entity, args?: any, entityTarget?:
     const teeTransform = getComponent(teeEntity, TransformComponent);
     args.position = teeTransform.position;
     return args;
+  } else {
+    // do loop holes and re-start score on last goal
+    // its just becouse we will have finish 3d UI
+    const firstTeeEntity = game.gameObjects[args.positionCopyFromRole+0][0];
+    if (firstTeeEntity) {
+      const teeTransform = getComponent(firstTeeEntity, TransformComponent);
+      args.position = teeTransform.position;
+
+      gameScore.score.hits = 0;
+      gameScore.score.goal = 0;
+
+      if (hasComponent(entity, GamePlayer)) {
+        setStorage(entity, { name: 'GameScore' }, gameScore);
+      } else if (hasComponent(entityTarget, GamePlayer)) {
+        setStorage(entityTarget, { name: 'GameScore' }, gameScore);
+      }
+      return args;
+    }
+    //
   }
-  args.position = {x: 0, y:0, z: 0};
+  args.position = new Vector3();
   return args;
 };

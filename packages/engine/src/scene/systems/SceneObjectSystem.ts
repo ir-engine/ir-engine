@@ -19,22 +19,21 @@ import { PersistTagComponent } from "../components/PersistTagComponent";
 export type BPCEMProps = {
   probeScale: Vector3;
   probePositionOffset: Vector3;
-  intensity: number
 }
 
 export class SceneObjectSystem extends System {
-
+  
   updateType = SystemUpdateType.Fixed;
   static instance: SceneObjectSystem;
   
   bpcemOptions: BPCEMProps;
+  envMapIntensity: number=1;
 
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);
     this.bpcemOptions = {
       probeScale: new Vector3(1, 1, 1),
       probePositionOffset: new Vector3(),
-      intensity: 1,
     };
     SceneObjectSystem.instance = this;
   }
@@ -54,7 +53,10 @@ export class SceneObjectSystem extends System {
 
       // Apply material stuff
       object3DComponent.value.traverse((obj: Mesh) => {
-        if(Engine.simpleMaterials || Engine.isHMD) {
+        const material = obj.material as Material;
+        if (typeof material !== 'undefined') material.dithering = true
+
+        if(Engine.simpleMaterials) {// || Engine.isHMD) {
           if(obj.material instanceof MeshStandardMaterial) {
             const prevMaterial = obj.material;
             obj.material = new MeshPhongMaterial();
@@ -65,8 +67,8 @@ export class SceneObjectSystem extends System {
           if (typeof material !== 'undefined') {
 
             // BPCEM
-            material.onBeforeCompile = beforeMaterialCompile(this.bpcemOptions.probeScale, this.bpcemOptions.probePositionOffset);
-            (material as any).envMapIntensity = this.bpcemOptions.intensity;
+            //material.onBeforeCompile = beforeMaterialCompile(this.bpcemOptions.probeScale, this.bpcemOptions.probePositionOffset);
+            (material as any).envMapIntensity = SceneObjectSystem.instance.envMapIntensity;
 
             if (obj.receiveShadow) {
               WebGLRendererSystem.instance.csm?.setupMaterial(material);

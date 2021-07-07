@@ -18,6 +18,10 @@
             transform: scale(1.3);
         }
     }
+	.popover{
+		float: right;
+		margin: 14pt 22.7pt 20.3pt 0;
+	}
     @media screen and (max-width: 499px){
         h5{
             padding: 0px 15pt 8pt 15pt;

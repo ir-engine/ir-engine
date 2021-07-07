@@ -1,13 +1,17 @@
-export default {
-    moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs'],
-    //testEnvironment: 'jest-environment-node',
-    testEnvironment: './tests/custom-env.cjs',
-    transform: {
-      ".(ts|tsx)": "ts-jest"
-    },
-    testMatch: [
-      '<rootDir>/tests/**/*.test.(t|j)s(x)?',
-      //'<rootDir>/src/**/*.(t|j)s(x)?',// check all sources for syntax errors
-    ],
-    // snapshotSerializers: ["three-snapshot-serializer"],
-  }
+module.exports = {
+  preset: "ts-jest",
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs'],
+  globalSetup: 'jest-environment-puppeteer/setup',
+  globalTeardown: 'jest-environment-puppeteer/teardown',
+  testEnvironment: 'jest-environment-puppeteer',
+  setupFilesAfterEnv: ['expect-puppeteer', "./tests/custom-env.js"],
+  moduleDirectories: ["node_modules", "src"],
+  setupFiles: [],
+  maxWorkers: 1,
+  transform: {
+    ".(ts|tsx)": "ts-jest"
+  },
+  testMatch: [
+    '<rootDir>/tests/**/*.test.(t|j)s(x)?',
+  ],
+}

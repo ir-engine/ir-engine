@@ -40,6 +40,7 @@ import { SceneObjectSystem } from '@xrengine/engine/src/scene/systems/SceneObjec
 import { ActiveSystems, System } from './ecs/classes/System';
 import { FontManager } from './ui/classes/FontManager';
 import { AudioSystem } from './audio/systems/AudioSystem';
+import { setupBotHooks } from './bot/setupBotHooks';
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -109,6 +110,8 @@ const configureClient = async (options: InitializeOptions) => {
     }
 
     registerClientSystems(options, useOffscreen, canvas);
+
+    setupBotHooks()
 }
 
 const configureEditor = async (options: InitializeOptions) => {
@@ -156,8 +159,8 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
         Network.instance.schema = options.networking.schema;
         if (!options.networking.useOfflineMode) {
             registerSystem(ClientNetworkSystem, { ...options.networking, priority: 0 });
-            registerSystem(ClientNetworkStateSystem, { priority: 1 });
         }
+        registerSystem(ClientNetworkStateSystem, { priority: 1 });
 
         registerSystem(MediaStreamSystem, { priority: 2 });
     }
@@ -265,7 +268,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
         (window as any).iOS = os === 'iOS' || /iPad|iPhone|iPod/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
         (window as any).safariWebBrowser = browser?.name === 'safari';
 
-        Engine.isHMD = /Oculus/i.test(navigator.platform);  // TODO: more HMDs;
+        Engine.isHMD = /Oculus/i.test(navigator.userAgent);  // TODO: more HMDs;
         Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr');
     }
 
@@ -317,14 +320,4 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
     // Mark engine initialized
     Engine.isInitialized = true;
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE });
-
-    // expose all our interfaces for local dev for the bot tests
-    if(process.env.NODE_ENV !== 'production') {
-      globalThis.Engine = Engine;
-      globalThis.EngineEvents = EngineEvents;
-      globalThis.Network = Network;
-      Engine.activeSystems.getAll().forEach((system: System) => {
-        globalThis[system.name] = system;
-      })
-    }
 };

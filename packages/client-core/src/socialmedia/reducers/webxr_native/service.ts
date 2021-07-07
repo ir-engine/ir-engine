@@ -11,7 +11,7 @@ import {
 
 
 export function getWebXrNative() {
-  console.log('getWebXrNative Servise');
+  console.log('getWebXrNative Service');
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(setWebXrNative());
@@ -24,7 +24,7 @@ export function getWebXrNative() {
 
 
 export function changeWebXrNative() {
-  console.log('changeWebXrNative Servise');
+  console.log('changeWebXrNative Service');
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(tougleWebXrNative());

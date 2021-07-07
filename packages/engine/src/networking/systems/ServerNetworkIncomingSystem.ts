@@ -11,18 +11,19 @@ import { InputAlias } from '../../input/types/InputAlias';
 import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { Network } from '../classes/Network';
 import { NetworkObject } from '../components/NetworkObject';
-import { handleInputFromNonLocalClients } from '../functions/handleInputOnServer';
 import { NetworkSchema } from "../interfaces/NetworkSchema";
 import { NetworkClientInputInterface } from "../interfaces/WorldState";
 import { ClientInputModel } from '../schema/clientInputSchema';
 import { WorldStateModel } from '../schema/worldStateSchema';
 import { GamePlayer } from '../../game/components/GamePlayer';
-import { sendState } from '../../game/functions/functionsState';
+import { sendSpawnGameObjects, sendState } from '../../game/functions/functionsState';
 import { getGameFromName } from '../../game/functions/functions';
 import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent';
 import { BaseInput } from '../../input/enums/BaseInput';
 import { Quaternion } from 'three';
 import { executeCommands } from '../functions/executeCommands';
+import { handleInput } from '../functions/handleInput';
+import { ClientActionToServer } from '../../game/templates/DefaultGameStateAction';
 
 
 export function cancelAllInputs(entity) {
@@ -108,10 +109,12 @@ export class ServerNetworkIncomingSystem extends System {
 
       if (clientInput.clientGameAction.length > 0) {
         clientInput.clientGameAction.forEach(action => {
-          if (action.type === 'require') {
-            const playerComp = getComponent<GamePlayer>(entity, GamePlayer);
-            if (playerComp === undefined) return;
+          const playerComp = getComponent<GamePlayer>(entity, GamePlayer);
+          if (playerComp === undefined) return;
+          if (action.type === ClientActionToServer[0]) {
             sendState(getGameFromName(playerComp.gameName), playerComp);
+          } else if (action.type === ClientActionToServer[1]) {
+            sendSpawnGameObjects(getGameFromName(playerComp.gameName), action.uuid);
           }
         })
       }
@@ -190,7 +193,7 @@ export class ServerNetworkIncomingSystem extends System {
         addComponent(entity, XRInputSourceComponent);
       }      
 
-      handleInputFromNonLocalClients(entity, undefined, delta);
+      handleInput(entity, delta);
     }
 
     // Apply input for local user input onto client
@@ -209,8 +212,8 @@ export class ServerNetworkIncomingSystem extends System {
       });
 
       // Call behaviors associated with input
-      //handleInputFromNonLocalClients(entity, { isLocal: false, isServer: true }, delta);
       // addInputToWorldStateOnServer(entity);
+      // handleInput(entity, delta);
       //const input = getMutableComponent(entity, Input);
       // Get input object attached
     });
@@ -260,8 +263,8 @@ export class ServerNetworkIncomingSystem extends System {
       if(!inputs.data.has(BaseInput.XR_HEAD)) return;
 
       const head = inputs.data.get(BaseInput.XR_HEAD).value as SIXDOFType;
-      const left = inputs.data.get(BaseInput.XR_LEFT_HAND).value as SIXDOFType;
-      const right = inputs.data.get(BaseInput.XR_RIGHT_HAND).value as SIXDOFType;
+      const left = inputs.data.get(BaseInput.XR_CONTROLLER_LEFT_HAND).value as SIXDOFType;
+      const right = inputs.data.get(BaseInput.XR_CONTROLLER_RIGHT_HAND).value as SIXDOFType;
 
       xrInputSourceComponent.head.position.set(head.x, head.y, head.z);
       xrInputSourceComponent.head.quaternion.set(head.qX, head.qY, head.qZ, head.qW);

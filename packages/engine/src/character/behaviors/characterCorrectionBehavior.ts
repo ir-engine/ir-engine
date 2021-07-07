@@ -20,6 +20,8 @@ import { Vector3 } from "three";
  * @param {number} delta the delta of this frame
  */
 
+const vec3 = new Vector3()
+
 export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots: SnapshotData, delta: number): void => {
   
   const collider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
@@ -45,8 +47,20 @@ export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots:
   const offsetY = correction.y - currentSnapshot.y;
   const offsetZ = correction.z - currentSnapshot.z;
 
-  collider.controller.delta.x -= offsetX * delta;
-  collider.controller.delta.y -= offsetY * delta;
-  collider.controller.delta.z -= offsetZ * delta;
+  // user is too far away, such as falling through the world, reset them to where the server says they are
+  if(vec3.set(offsetX, offsetY, offsetZ).lengthSq() > 5) {
+    collider.controller.updateTransform({
+      translation: {
+        x: currentSnapshot.x,
+        y: currentSnapshot.y,
+        z: currentSnapshot.z,
+      }
+    });
+  } else { 
+    // otherwise move them slowly towards their true position
+    collider.controller.delta.x -= offsetX * delta;
+    collider.controller.delta.y -= offsetY * delta;
+    collider.controller.delta.z -= offsetZ * delta;
+  }
 
 };

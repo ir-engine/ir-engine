@@ -47,7 +47,8 @@ export const viewVectorSchema = new Schema({
 export const clientGameAction = new Schema({
   type: string,
   game: string,
-  ownerId: string
+  ownerId: string,
+  uuid: string
 });
 
 export const commandSchema = new Schema({

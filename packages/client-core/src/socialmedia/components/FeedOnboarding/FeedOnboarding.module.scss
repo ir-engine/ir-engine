@@ -2,6 +2,9 @@ $circle-size: 15px;
 $dot-color: #cb3332;
 $light-dot-color: #fff;
 $background: #333;
+.isIos{
+	top: 35px !important;
+}
 .unvisibile{
   top: -100vh !important;
 }

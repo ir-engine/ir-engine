@@ -38,8 +38,9 @@ export async function startWebRTC(): Promise<void> {
             logTags: ['sctp']
         });
 
-        newWorker.on("died", () => {
+        newWorker.on("died", (err) => {
             console.error("mediasoup worker died (this should never happen)");
+            console.error('Reported error', err);
             process.exit(1);
         });
 
@@ -80,7 +81,7 @@ export const sendCurrentProducers = async (socket: SocketIO.Socket, channelType:
     const selfClient = Network.instance.clients[userId];
     if (selfClient?.socketId != null) {
         const nearbyUsers = getNearbyUsers(userId);
-        const nearbyUserIds = nearbyUsers.map(user => user.id);
+        const nearbyUserIds = nearbyUsers == null ? [] : nearbyUsers.map(user => user.id);
         Object.entries(Network.instance.clients).forEach(([name, value]) => {
             if (name === userId || (channelType === 'instance' && nearbyUserIds.includes(name) === false) || value.media == null || value.socketId == null)
                 return;
@@ -113,17 +114,16 @@ export const handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
 
             dataConsumer.on('producerclose', () => {
                 dataConsumer.close();
-                Network.instance.clients[userId].dataConsumers.delete(
-                    dataProducer.id
-                );
+                if (Network.instance.clients[userId] != null) Network.instance.clients[userId].dataConsumers.delete(dataProducer.id);
             });
 
             logger.info('Setting data consumer to room state');
+            if (Network.instance.clients[userId] == null) return socket.emit(MessageTypes.WebRTCConsumeData.toString(), { error: 'client no longer exists'});
             Network.instance.clients[userId].dataConsumers.set(
                 dataProducer.id,
                 dataConsumer
             );
-
+            if (Network.instance.clients[userId] == null) return socket.emit(MessageTypes.WebRTCConsumeData.toString(), { error: 'client no longer exists'});
             const dataProducerOut = Network.instance.clients[userId].dataProducers.get('instance');
             // Data consumers are all consuming the single producer that outputs from the server's message queue
             socket.emit(MessageTypes.WebRTCConsumeData.toString(), {
@@ -313,7 +313,7 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
       return;
     }
     if (!data.label) throw ({ error: 'data producer label i.e. channel name is not provided!' });
-    if(!Network.instance.clients[userId]) throw('client not found for userId' + userId);
+    if (Network.instance.clients[userId] == null) return callback({ error: 'client no longer exists'});
     const { transportId, sctpStreamParameters, label, protocol, appData } = data;
     logger.info(`Data channel label: ${label} -- user id: ` + userId);
     logger.info("Data producer params", data);
@@ -328,34 +328,39 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
         const dataProducer = await transport.produceData(options);
         networkTransport.dataProducers.push(dataProducer);
         logger.info(`user ${userId} producing data`);
-        Network.instance.clients[userId].dataProducers.set(label, dataProducer);
+        if (Network.instance.clients[userId] != null) {
+            Network.instance.clients[userId].dataProducers.set(label, dataProducer);
 
-        const currentRouter = networkTransport.routers.instance.find(router => router._internal.routerId === (transport as any)._internal.routerId);
+            const currentRouter = networkTransport.routers.instance.find(router => router._internal.routerId === (transport as any)._internal.routerId);
 
-        await Promise.all(networkTransport.routers.instance.map(async router => {
-            if (router._internal.routerId !== (transport as any)._internal.routerId) return currentRouter.pipeToRouter({
-                dataProducerId: dataProducer.id,
-                router: router
+            await Promise.all(networkTransport.routers.instance.map(async router => {
+                if (router._internal.routerId !== (transport as any)._internal.routerId) return currentRouter.pipeToRouter({
+                    dataProducerId: dataProducer.id,
+                    router: router
+                });
+                else return Promise.resolve();
+            }));
+
+            // if our associated transport closes, close ourself, too
+            dataProducer.on("transportclose", () => {
+                networkTransport.dataProducers.splice(networkTransport.dataProducers.indexOf(dataProducer), 1);
+                logger.info("data producer's transport closed: " + dataProducer.id);
+                dataProducer.close();
+                Network.instance.clients[userId].dataProducers.delete(label);
             });
-            else return Promise.resolve();
-        }));
-
-        // if our associated transport closes, close ourself, too
-        dataProducer.on("transportclose", () => {
-            networkTransport.dataProducers.splice(networkTransport.dataProducers.indexOf(dataProducer), 1);
-            logger.info("data producer's transport closed: " + dataProducer.id);
-            dataProducer.close();
-            Network.instance.clients[userId].dataProducers.delete(label);
-        });
-        const internalConsumer = await createInternalDataConsumer(dataProducer, userId);
-        if (internalConsumer) {
-            Network.instance.clients[userId].dataConsumers.set(label, internalConsumer);
-            // transport.handleConsumeDataEvent(socket);
-            logger.info("transport.handleConsumeDataEvent(socket);");
-            // Possibly do stuff with appData here
-            logger.info("Sending dataproducer id to client:" + dataProducer.id);
-            return callback({id: dataProducer.id});
-        } else return callback({ error: 'invalid data producer' });
+            const internalConsumer = await createInternalDataConsumer(dataProducer, userId);
+            if (internalConsumer) {
+                if (Network.instance.clients[userId] == null) return callback({ error: 'Client no longer exists' });
+                Network.instance.clients[userId].dataConsumers.set(label, internalConsumer);
+                // transport.handleConsumeDataEvent(socket);
+                logger.info("transport.handleConsumeDataEvent(socket);");
+                // Possibly do stuff with appData here
+                logger.info("Sending dataproducer id to client:" + dataProducer.id);
+                return callback({id: dataProducer.id});
+            } else return callback({error: 'invalid data producer'});
+        } else {
+            return callback({ error: 'client no longer exists'});
+        }
     } else return callback({ error: 'invalid transport' });
 }
 
@@ -393,43 +398,51 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
 
     if (transport == null) return callback({ error: 'Invalid transport ID' });
 
-    const producer = await transport.produce({
-        kind,
-        rtpParameters,
-        paused,
-        appData: { ...appData, peerId: userId, transportId }
-    });
-
-    const routers = appData.channelType === 'instance' ? networkTransport.routers.instance : networkTransport.routers[`${appData.channelType}:${appData.channelId}`];
-    const currentRouter = routers.find(router => router._internal.routerId === (transport as any)._internal.routerId);
-
-    await Promise.all(routers.map(async (router: Router) => {
-        if ((router as any)._internal.routerId !== (transport as any)._internal.routerId) return currentRouter.pipeToRouter({ producerId: producer.id, router: router });
-        else return Promise.resolve();
-    }));
-
-    producer.on("transportclose", () => closeProducerAndAllPipeProducers(producer));
-
-    if(!MediaStreamSystem.instance?.producers) console.warn("Media stream producers is undefined");
-    MediaStreamSystem.instance?.producers?.push(producer);
-
-    if (userId != null && Network.instance.clients[userId] != null) {
-        Network.instance.clients[userId].media[appData.mediaTag] = {
+    try {
+        const producer = await transport.produce({
+            kind,
+            rtpParameters,
             paused,
-            producerId: producer.id,
-            globalMute: false,
-            encodings: rtpParameters.encodings,
-            channelType: appData.channelType,
-            channelId: appData.channelId
-        };
-    }
+            appData: {...appData, peerId: userId, transportId}
+        });
 
-    Object.keys(Network.instance.clients).forEach((key) => {
-        const client = Network.instance.clients[key];
-        if (client.userId !== userId)
-            client.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), userId, appData.mediaTag, producer.id, appData.channelType, appData.channelId);
-    });
-    callback({ id: producer.id });
+        const routers = appData.channelType === 'instance' ? networkTransport.routers.instance : networkTransport.routers[`${appData.channelType}:${appData.channelId}`];
+        const currentRouter = routers.find(router => router._internal.routerId === (transport as any)._internal.routerId);
+
+        await Promise.all(routers.map(async (router: Router) => {
+            if ((router as any)._internal.routerId !== (transport as any)._internal.routerId) return currentRouter.pipeToRouter({
+                producerId: producer.id,
+                router: router
+            });
+            else return Promise.resolve();
+        }));
+
+        producer.on("transportclose", () => closeProducerAndAllPipeProducers(producer));
+
+        if (!MediaStreamSystem.instance?.producers) console.warn("Media stream producers is undefined");
+        MediaStreamSystem.instance?.producers?.push(producer);
+
+        if (userId != null && Network.instance.clients[userId] != null) {
+            Network.instance.clients[userId].media[appData.mediaTag] = {
+                paused,
+                producerId: producer.id,
+                globalMute: false,
+                encodings: rtpParameters.encodings,
+                channelType: appData.channelType,
+                channelId: appData.channelId
+            };
+        }
+
+        Object.keys(Network.instance.clients).forEach((key) => {
+            const client = Network.instance.clients[key];
+            if (client.userId !== userId)
+                client.socket.emit(MessageTypes.WebRTCCreateProducer.toString(), userId, appData.mediaTag, producer.id, appData.channelType, appData.channelId);
+        });
+        callback({id: producer.id});
+    } catch(err) {
+        console.log('Error with sendTrack:', err);
+        callback({error: 'error with sendTrack: ' + err});
+    }
 }
 
 export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<any> {

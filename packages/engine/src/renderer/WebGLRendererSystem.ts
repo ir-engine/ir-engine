@@ -38,6 +38,7 @@ import { SystemUpdateType } from '../ecs/functions/SystemUpdateType';
 import WebGL from "./THREE.WebGL";
 import { FXAAEffect } from './effects/FXAAEffect';
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect';
+import { isMobile } from '../common/functions/isMobile';
 
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',
@@ -85,6 +86,10 @@ interface EffectComposerWithSchema extends EffectComposer {
   LinearTosRGBEffect: LinearTosRGBEffect,
 }
 
+let lastRenderTime = 0
+let renderTimeCounter = 0
+let renderTimeAccumulator = 0
+
 export class WebGLRendererSystem extends System {
 
   static EVENTS = {
@@ -116,10 +121,10 @@ export class WebGLRendererSystem extends System {
   qualityLevel: number = this.maxQualityLevel
   /** Previous Quality leve. */
   prevQualityLevel: number = this.qualityLevel
-  /** point at which we upgrade quality level (small delta) */
-  maxRenderDelta = 1000 / 25 // 25 fps
   /** point at which we downgrade quality level (large delta) */
-  minRenderDelta = 1000 / 50 // 50 fps
+  maxRenderDelta = 1000 / 30 // 30 fps = 33 ms
+  /** point at which we upgrade quality level (small delta) */
+  minRenderDelta = 1000 / 60 // 60 fps = 16 ms
 
   automatic = true;
   usePBR = true;
@@ -132,7 +137,6 @@ export class WebGLRendererSystem extends System {
   normalPass: NormalPass;
   renderContext: WebGLRenderingContext;
 
-  forcePostProcessing = false;
   supportWebGL2: boolean = WebGL.isWebGL2Available();
   rendereringEnabled: boolean;
 
@@ -161,7 +165,7 @@ export class WebGLRendererSystem extends System {
 
     Engine.viewportElement = renderer.domElement;
     Engine.xrRenderer = renderer.xr;
-    Engine.xrRenderer.enabled = Engine.xrSupported;
+    Engine.xrRenderer.enabled = true;
 
     window.addEventListener('resize', this.onResize, false);
     this.onResize();
@@ -280,39 +284,35 @@ export class WebGLRendererSystem extends System {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    const startTime = now();
-
     if (Engine.xrRenderer.isPresenting) {
 
-      if(this.rendereringEnabled) {
-        this.csm?.update();
-        Engine.renderer.render(Engine.scene, Engine.camera);
-      }
+      this.csm?.update();
+      Engine.renderer.render(Engine.scene, Engine.camera);
 
     } else {
 
-      if (this.needsResize) {
-        const curPixelRatio = Engine.renderer.getPixelRatio();
-        const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor;
+      if(this.rendereringEnabled) {
+        if (this.needsResize) {
+          const curPixelRatio = Engine.renderer.getPixelRatio();
+          const scaledPixelRatio = window.devicePixelRatio * this.scaleFactor;
 
-        if (curPixelRatio !== scaledPixelRatio) Engine.renderer.setPixelRatio(scaledPixelRatio);
+          if (curPixelRatio !== scaledPixelRatio) Engine.renderer.setPixelRatio(scaledPixelRatio);
 
-        const width = window.innerWidth;
-        const height = window.innerHeight;
+          const width = window.innerWidth;
+          const height = window.innerHeight;
 
-        if ((Engine.camera as PerspectiveCamera).isPerspectiveCamera) {
-          const cam = Engine.camera as PerspectiveCamera;
-          cam.aspect = width / height;
-          cam.updateProjectionMatrix();
+          if ((Engine.camera as PerspectiveCamera).isPerspectiveCamera) {
+            const cam = Engine.camera as PerspectiveCamera;
+            cam.aspect = width / height;
+            cam.updateProjectionMatrix();
+          }
+
+          this.csm?.updateFrustums();
+          Engine.renderer.setSize(width, height, false);
+          this.composer.setSize(width, height, false);
+          this.needsResize = false;
         }
 
-        this.csm?.updateFrustums();
-        Engine.renderer.setSize(width, height, false);
-        this.composer.setSize(width, height, false);
-        this.needsResize = false;
-      }
-
-      if(this.rendereringEnabled) {
         this.csm?.update();
         if (this.usePostProcessing && this.postProcessingSchema) {
           this.composer.render(delta);
@@ -320,52 +320,75 @@ export class WebGLRendererSystem extends System {
           Engine.renderer.autoClear = true;
           Engine.renderer.render(Engine.scene, Engine.camera);
         }
+        // if on oculus, render one frame and freeze, just to create a preview of the scene
+        if(Engine.isHMD) { this.rendereringEnabled = false }
       }
-    }
-
-    const lastTime = now();
-    const deltaRender = (lastTime - startTime);
-
-    if (this.automatic) {
-      this.changeQualityLevel(deltaRender);
+      this.changeQualityLevel();
     }
   }
 
 
   /**
    * Change the quality of the renderer.
-   * @param delta Time since last frame.
    */
-  changeQualityLevel(delta: number): void {
-    if (delta >= this.maxRenderDelta) {
-      this.downgradeTimer += delta;
-      this.upgradeTimer = 0;
-    } else if (delta <= this.minRenderDelta) {
-      this.upgradeTimer += delta;
-      this.downgradeTimer = 0;
+  changeQualityLevel(): void {
+
+    const time = now();
+    const deltaRender = (time - lastRenderTime);
+    lastRenderTime = time;
+    renderTimeAccumulator += deltaRender;
+    renderTimeCounter++;
+
+    if (renderTimeCounter < 60) return;
+
+    const delta = renderTimeAccumulator / 60;
+
+    renderTimeCounter = 0;
+    renderTimeAccumulator = 0;
+
+    if(!this.automatic) return;
+
+    if (delta >= this.maxRenderDelta && this.qualityLevel > 1) {
+
+      this.downgradeTimer++;
+
+      if(this.downgradeTimer > 3) {
+        this.qualityLevel--;
+        console.log('quality automatically scaled down', this.qualityLevel)
+      } else {
+        return
+      }
+
+    } else if (delta <= this.minRenderDelta && this.qualityLevel < this.maxQualityLevel) {
+
+      this.upgradeTimer++;
+
+      if(this.upgradeTimer > 3) {
+        this.qualityLevel++;
+
+        console.log('quality automatically scaled up', this.qualityLevel)
+      } else {
+        return
+      }
+
     } else {
-      this.upgradeTimer = 0;
-      this.downgradeTimer = 0;
       return
     }
-
-    // change quality level
-    if (this.downgradeTimer > 2000 && this.qualityLevel > 0) {
-      this.qualityLevel--;
-      this.downgradeTimer = 0;
-    } else if (this.upgradeTimer > 1000 && this.qualityLevel < this.maxQualityLevel) {
-      this.qualityLevel++;
-      this.upgradeTimer = 0;
-    }
+    this.downgradeTimer = 0;
+    this.upgradeTimer = 0;
 
     // set resolution scale
     if (this.prevQualityLevel !== this.qualityLevel) {
-      this.setShadowQuality(this.qualityLevel);
-      this.setResolution((this.qualityLevel) / 5);
-      if (this.forcePostProcessing)
-        this.setUsePostProcessing(this.qualityLevel > 1);
       this.prevQualityLevel = this.qualityLevel;
+      this.doAutomaticRenderQuality();
+      this.dispatchSettingsChangeEvent();
     }
+  }
+
+  doAutomaticRenderQuality() {
+    this.setShadowQuality(this.qualityLevel);
+    this.setResolution(this.qualityLevel / this.maxQualityLevel);
+    this.setUsePostProcessing(this.qualityLevel > 2);
   }
 
   dispatchSettingsChangeEvent() {
@@ -382,11 +405,7 @@ export class WebGLRendererSystem extends System {
   setUseAutomatic(automatic) {
     this.automatic = automatic;
     if (this.automatic) {
-      this.prevQualityLevel = -1;
-      this.setShadowQuality(this.qualityLevel);
-      this.setResolution((this.qualityLevel) / 5);
-      if (this.forcePostProcessing)
-        this.setUsePostProcessing(this.qualityLevel > 1);
+      this.doAutomaticRenderQuality();
     }
     ClientStorage.set(databasePrefix + RENDERER_SETTINGS.AUTOMATIC, this.automatic);
   }
@@ -399,13 +418,15 @@ export class WebGLRendererSystem extends System {
   }
 
   setShadowQuality(shadowSize) {
+    // hardcode mobile to always be 512
+    if(isMobile) return;
     this.shadowQuality = shadowSize;
     let mapSize = 512;
     switch (this.shadowQuality) {
-      default: break;
       case this.maxQualityLevel - 2: mapSize = 1024; break;
       case this.maxQualityLevel - 1: mapSize = 2048; break;
       case this.maxQualityLevel: mapSize = 2048; break;
+      default: break;
     }
     this.csm?.setShadowMapSize(mapSize);
     ClientStorage.set(databasePrefix + RENDERER_SETTINGS.SHADOW_QUALITY, this.shadowQuality);

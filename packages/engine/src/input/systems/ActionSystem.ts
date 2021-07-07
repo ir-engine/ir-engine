@@ -23,6 +23,7 @@ import { Quaternion, Vector3 } from "three";
 import { Entity } from "../../ecs/classes/Entity";
 import { TransformComponent } from "../../transform/components/TransformComponent";
 import { Engine } from "../../ecs/classes/Engine";
+import { handleInput } from "../../networking/functions/handleInput";
 
 const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
 
@@ -109,7 +110,7 @@ export class ActionSystem extends System {
         },
         lifecycleState: LifecycleValue.CHANGED
       });
-      input.data.set(BaseInput.XR_LEFT_HAND, {
+      input.data.set(BaseInput.XR_CONTROLLER_LEFT_HAND, {
         type: InputType.SIXDOF,
         value: {
           x: xrInputSourceComponent.controllerLeft.position.x,
@@ -122,7 +123,7 @@ export class ActionSystem extends System {
         },
         lifecycleState: LifecycleValue.CHANGED
       });
-      input.data.set(BaseInput.XR_RIGHT_HAND, {
+      input.data.set(BaseInput.XR_CONTROLLER_RIGHT_HAND, {
         type: InputType.SIXDOF,
         value: {
           x: xrInputSourceComponent.controllerRight.position.x,
@@ -181,66 +182,8 @@ export class ActionSystem extends System {
             ? LifecycleValue.UNCHANGED
             : LifecycleValue.CHANGED;
         });
-
-        // For each input currently on the input object:
-        input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-          // If the input exists on the input map (otherwise ignore it)
-          if (input.schema.inputButtonBehaviors[key]) {
-            // If the button is pressed
-            //  console.warn(key,['start','continue','end'][value.lifecycleState]);
-            if (value.value === BinaryValue.ON) {
-              // If the lifecycle hasn't been set or just started (so we don't keep spamming repeatedly)
-              if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
-
-              if (value.lifecycleState === LifecycleValue.STARTED) {
-                // Set the value of the input to continued to debounce
-                input.schema.inputButtonBehaviors[key].started?.forEach(element => {
-                  element.behavior(entity, element.args, delta);
-                });
-              } else if (value.lifecycleState === LifecycleValue.CONTINUED) {
-                // If the lifecycle equal continued
-
-                input.schema.inputButtonBehaviors[key].continued?.forEach(element =>
-                  element.behavior(entity, element.args, delta)
-                );
-
-              } else {
-                console.error('Unexpected lifecycleState', key, value.lifecycleState, LifecycleValue[value.lifecycleState], 'prev', LifecycleValue[input.prevData.get(key)?.lifecycleState]);
-              }
-            } else {
-              input.schema.inputButtonBehaviors[key].ended?.forEach(element =>
-                element.behavior(entity, element.args, delta)
-              );
-            }
-          } else if (input.schema.inputAxisBehaviors[key]) {
-            // If lifecycle hasn't been set, init it
-            if (value.lifecycleState === undefined) value.lifecycleState = LifecycleValue.STARTED;
-            switch (value.lifecycleState) {
-              case LifecycleValue.STARTED:
-                // Set the value to continued to debounce
-                input.schema.inputAxisBehaviors[key].started?.forEach(element =>
-                  element.behavior(entity, element.args, delta)
-                );
-                break;
-              case LifecycleValue.CHANGED:
-                // If the value is different from last frame, update it
-                input.schema.inputAxisBehaviors[key].changed?.forEach(element => {
-                  element.behavior(entity, element.args, delta);
-                });
-                break;
-              case LifecycleValue.UNCHANGED:
-                input.schema.inputAxisBehaviors[key].unchanged?.forEach(element =>
-                  element.behavior(entity, element.args, delta)
-                );
-                break;
-              case LifecycleValue.ENDED:
-                console.warn("Patch fix, need to handle properly: ", LifecycleValue.ENDED);
-                break;
-              default:
-                console.error('Unexpected lifecycleState', value.lifecycleState, LifecycleValue[value.lifecycleState]);
-            }
-          }
-        });
+        
+        handleInput(entity, delta)
 
         // store prevData
         input.prevData.clear();

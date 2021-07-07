@@ -1,4 +1,4 @@
-{{- if and .Values.media.enabled .Values.media.ingress.enabled -}}
+{{- if and .Values.media.enabled (ne (.Values.media.ingress.disabled | default "") "true") -}}
 {{- $fullName := include "xrengine.media.fullname" . -}}
 {{- $svcPort := .Values.media.service.port -}}
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}

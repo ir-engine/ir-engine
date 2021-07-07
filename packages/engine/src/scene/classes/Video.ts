@@ -9,8 +9,7 @@ import {
   RGBAFormat,
   VideoTexture
 } from "three";
-import { RethrownError } from "../../editor/functions/errors";
-import Hls from "hls.js/dist/hls.light";
+import Hls from "hls.js";
 import isHLS from "../../editor/functions/isHLS";
 import AudioSource from "./AudioSource";
 export const VideoProjection = {
@@ -21,20 +20,22 @@ import { Engine } from "../../ecs/classes/Engine";
 
 export default class Video extends AudioSource {
   // @ts-ignore
-  _videoTexture: any;
   _texture: any;
   _mesh: Mesh;
   _projection: string;
-  hls: any;
-  constructor(audioListener, isSynced: boolean) {
-    super(audioListener, "video");
+  hls: Hls;
+  constructor(audioListener, isSynced: boolean, id: string) {
+    super(audioListener, "video", id);
+
+    // Appending element to the body so that it can be find by document.getElementById
+    document.body.appendChild(this.el);
+
     // @ts-ignore
-    this._videoTexture = new VideoTexture(this.el);
-    this._videoTexture.minFilter = LinearFilter;
-    this._videoTexture.encoding = sRGBEncoding;
-    this._texture = this._videoTexture;
+    this._texture = new VideoTexture(this.el);
+    this._texture.minFilter = LinearFilter;
+    this._texture.encoding = sRGBEncoding;
     const geometry = new PlaneBufferGeometry();
-    const material = new MeshBasicMaterial();
+    const material = new MeshBasicMaterial({ color: 0xffffff });
     material.map = this._texture;
     material.side = DoubleSide;
     this._mesh = new Mesh(geometry, material);
@@ -45,38 +46,50 @@ export default class Video extends AudioSource {
     this.isSynced = isSynced;
   }
   loadVideo(src, contentType) {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       const _isHLS = isHLS(src, contentType);
       if (_isHLS) {
         if (!this.hls) {
           this.hls = new Hls();
         }
-        this.hls.loadSource(src);
+        this.hls.on(Hls.Events.MEDIA_ATTACHED, () => { 
+          this.hls.on((Hls as any).Events.MANIFEST_PARSED, (event, data) => {
+            document.addEventListener('click', () => {
+              this.el.play()
+            })
+            resolve()
+          });
+          this.hls.loadSource(src);
+        })
         this.hls.attachMedia(this.el);
-        this.hls.on((Hls as any).Events.MANIFEST_PARSED, () => {
-          this.hls.startLoad(-1);
-        });
-      } else {
-        this.el.src = src;
-
-        // If media source requires to be synchronized then pause it for now.
-        if (this.isSynced) {
-          this.el.pause();
-        }
       }
-      let cleanup = null;
+      if (!this.el.src) {
+        this.el.src = src;
+      }
+      if (this.isSynced) {
+        this.el.pause();
+      }
+      this.el.addEventListener('play', () => {
+        console.log('play')
+      });
+      this.el.addEventListener('pause', () => {
+        console.log('pause')
+      });
+      
       const onLoadedMetadata = () => {
         cleanup();
         cleanup();
-        resolve(this._videoTexture);
+        resolve();
       };
       const onError = error => {
         cleanup();
-        reject(
-          new RethrownError(`Error loading video "${this.el.src}"`, error)
-        );
+        console.log(`Error loading video "${this.el.src}"`, error)
+        resolve()
+        // reject(
+        //   new RethrownError()
+        // );
       };
-      cleanup = () => {
+      let cleanup = () => {
         this.el.removeEventListener("loadeddata", onLoadedMetadata);
         this.el.removeEventListener("error", onError);
       };
@@ -125,8 +138,9 @@ export default class Video extends AudioSource {
     this.load(src).catch(console.error);
   }
   async load(src, contentType?) {
+    if(!src) return this;
     this._mesh.visible = false;
-    this._texture = await this.loadVideo(src, contentType);
+    await this.loadVideo(src, contentType);
     this.onResize();
     if(Engine.useAudioSystem) {
       this.audioSource = this.audioListener.context.createMediaElementSource(this.el);

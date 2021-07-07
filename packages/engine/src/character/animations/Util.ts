@@ -41,14 +41,16 @@ export const CharacterAnimations = {
     RUN_STRAFE_LEFT: 'run_left',
 
     // Emotes
-    CHEERING_1: 'cheering_1',
-    CHEERING_2: 'cheering_2',
-    CLAPPING: 'clapping',
-    DANCING_1: 'dancing_1',
-    DANCING_2: 'dancing_2',
-    LAUGHING: 'laughing',
-    WAVE_LEFT: 'wave_left',
-    WAVE_RIGHT: 'wave_right',
+    // CHEERING_1: 'cheering_1',
+    // CHEERING_2: 'cheering_2',
+    // CLAPPING: 'clapping',
+    DANCING_1: 'dance1',
+    DANCING_2: 'dance2',
+    DANCING_3: 'dance3',
+    DANCING_4: 'dance4',
+    // LAUGHING: 'laughing',
+    // WAVE_LEFT: 'wave_left',
+    // WAVE_RIGHT: 'wave_right',
 }
 
 /** Type of movement of the character in any given frame */
