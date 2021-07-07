@@ -34,8 +34,6 @@ const DialogComponent = (props: Props): any => {
   const content = dialog.get('content');
   const history = useHistory();
 
-  console.log(content);
-
   useEffect(() => {
     history.listen(() => {
       closeDialog();
