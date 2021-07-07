@@ -12,7 +12,7 @@
   "npmClient": "npm",
   "jest": "ts-jest",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "cross-env NODE_ENV=production NODE_OPTIONS=--max_old_space_size=4096 vite build && cp src/server.js www/server.js",
     "validate": "npm run lint && npm run test",
     "start": "cp src/server.js www/server.js && node www/server.js",
