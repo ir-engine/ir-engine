@@ -57,7 +57,7 @@ export class SceneObjectSystem extends System {
         const material = obj.material as Material;
         if (typeof material !== 'undefined') material.dithering = true
 
-        if(Engine.simpleMaterials || Engine.isHMD) {
+        if(Engine.simpleMaterials) {// || Engine.isHMD) {
           if(obj.material instanceof MeshStandardMaterial) {
             const prevMaterial = obj.material;
             obj.material = new MeshPhongMaterial();

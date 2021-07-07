@@ -114,17 +114,16 @@ export const handleConsumeDataEvent = (socket: SocketIO.Socket) => async (
 
             dataConsumer.on('producerclose', () => {
                 dataConsumer.close();
-                Network.instance.clients[userId].dataConsumers.delete(
-                    dataProducer.id
-                );
+                if (Network.instance.clients[userId] != null) Network.instance.clients[userId].dataConsumers.delete(dataProducer.id);
             });
 
             logger.info('Setting data consumer to room state');
+            if (Network.instance.clients[userId] == null) return socket.emit(MessageTypes.WebRTCConsumeData.toString(), { error: 'client no longer exists'});
             Network.instance.clients[userId].dataConsumers.set(
                 dataProducer.id,
                 dataConsumer
             );
-
+            if (Network.instance.clients[userId] == null) return socket.emit(MessageTypes.WebRTCConsumeData.toString(), { error: 'client no longer exists'});
             const dataProducerOut = Network.instance.clients[userId].dataProducers.get('instance');
             // Data consumers are all consuming the single producer that outputs from the server's message queue
             socket.emit(MessageTypes.WebRTCConsumeData.toString(), {
@@ -314,7 +313,7 @@ export async function handleWebRtcProduceData(socket, data, callback): Promise<a
       return;
     }
     if (!data.label) throw ({ error: 'data producer label i.e. channel name is not provided!' });
-    if(!Network.instance.clients[userId]) throw('client not found for userId' + userId);
+    if (Network.instance.clients[userId] == null) return callback({ error: 'client no longer exists'});
     const { transportId, sctpStreamParameters, label, protocol, appData } = data;
     logger.info(`Data channel label: ${label} -- user id: ` + userId);
     logger.info("Data producer params", data);
