@@ -320,6 +320,8 @@ export class WebGLRendererSystem extends System {
           Engine.renderer.autoClear = true;
           Engine.renderer.render(Engine.scene, Engine.camera);
         }
+        // if on oculus, render one frame and freeze, just to create a preview of the scene
+        if(Engine.isHMD) { this.rendereringEnabled = false }
       }
       this.changeQualityLevel();
     }
@@ -410,7 +412,6 @@ export class WebGLRendererSystem extends System {
 
   setResolution(resolution) {
     this.scaleFactor = resolution;
-    console.log('setResolution',resolution)
     Engine.renderer.setPixelRatio(window.devicePixelRatio * this.scaleFactor);
     this.needsResize = true;
     ClientStorage.set(databasePrefix + RENDERER_SETTINGS.SCALE_FACTOR, this.scaleFactor);
