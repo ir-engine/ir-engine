@@ -63,11 +63,10 @@ const onMediaInteraction: Behavior = (entityInitiator, args, delta, entityIntera
   }
 
   const source = getComponent(entityInteractive, Object3DComponent).value as AudioSource;
-
   if (elementPlaying(source.el)) {
-    source?.pause();
+    if(typeof source.pause === 'function') source.pause();
   } else {
-    source?.play();
+    if(typeof source.play === 'function')source.play();
   }
 };
 
@@ -152,6 +151,7 @@ function addInteraction(entity): void {
 
   const interactiveData = {
     onInteraction: onMediaInteraction,
+    onInteractionCheck: () => { return true; },
     onInteractionFocused: onMediaInteractionHover,
     data
   };

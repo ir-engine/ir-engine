@@ -1,11 +1,12 @@
 import { Globe } from "@styled-icons/fa-solid/Globe";
 import { DistanceModelOptions, DistanceModelType } from "@xrengine/engine/src/scene/classes/AudioSource";
 import { FogType } from "@xrengine/engine/src/scene/constants/FogType";
+import { EnvMapSourceType,EnvMapTextureType } from "@xrengine/engine/src/scene/constants/EnvMapEnum";
 import i18n from "i18next";
 import PropTypes from "prop-types";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { ACESFilmicToneMapping, BasicDepthPacking, BasicShadowMap, CineonToneMapping, GammaEncoding, LinearEncoding, LinearToneMapping, LogLuvEncoding, NoToneMapping, PCFShadowMap, PCFSoftShadowMap, ReinhardToneMapping, RGBADepthPacking, RGBDEncoding, RGBEEncoding, RGBM16Encoding, RGBM7Encoding, sRGBEncoding, VSMShadowMap } from "three";
+import { ACESFilmicToneMapping, BasicDepthPacking, BasicShadowMap, CineonToneMapping, Color, GammaEncoding, LinearEncoding, LinearToneMapping, LogLuvEncoding, NoToneMapping, PCFShadowMap, PCFSoftShadowMap, ReinhardToneMapping, RGBADepthPacking, RGBDEncoding, RGBEEncoding, RGBM16Encoding, RGBM7Encoding, sRGBEncoding, VSMShadowMap } from "three";
 import BooleanInput from "../inputs/BooleanInput";
 import ColorInput from "../inputs/ColorInput";
 import CompoundNumericInput from "../inputs/CompoundNumericInput";
@@ -14,6 +15,42 @@ import NumericInputGroup from "../inputs/NumericInputGroup";
 import SelectInput from "../inputs/SelectInput";
 import NodeEditor from "./NodeEditor";
 import useSetPropertySelected from "./useSetPropertySelected";
+import ImageInput from "../inputs/ImageInput";
+import serializeColor from "@xrengine/engine/src/editor/functions/serializeColor";
+import SceneNode from "@xrengine/engine/src/editor/nodes/SceneNode";
+
+/**
+ * EnvMapSourceOptions array containing SourceOptions for Envmap
+ */
+const EnvMapSourceOptions=[
+  {
+    label:"Default",
+    value:EnvMapSourceType.Default,
+  },
+  {
+    label:"Texture",
+    value:EnvMapSourceType.Texture,
+  },
+  {
+    label:"Color",
+    value:EnvMapSourceType.Color,
+  },
+]
+
+/**
+ * EnvMapSourceOptions array containing SourceOptions for Envmap
+ */
+ const EnvMapTextureOptions=[
+  {
+    label:"Cubemap",
+    value:EnvMapTextureType.Cubemap,
+  },
+  {
+    label:"Equirectangular",
+    value:EnvMapTextureType.Equirectangular,
+  },
+
+]
 
 /**
  * FogTypeOptions array containing fogType options.
@@ -114,6 +151,18 @@ export function SceneNodeEditor(props) {
   const onChangeFogFarDistance = useSetPropertySelected(editor, "fogFarDistance");
   const onChangeFogDensity = useSetPropertySelected(editor, "fogDensity");
 
+  const onChangeEnvmapSourceType = useSetPropertySelected(editor, "envMapSourceType");
+  const onChangeEnvmapTextureType = useSetPropertySelected(editor, "envMapTextureType");
+  const onChangeEnvmapColorSource = (value)=>{
+    const colorString=serializeColor(value);
+    (props.editor as any).setPropertySelected(
+      "envMapSourceColor",
+      colorString
+    );
+
+  }
+  const onChangeEnvmapURLSource = useSetPropertySelected(editor, "envMapSourceURL");
+
   const onChangeOverrideAudioSettings = useSetPropertySelected(editor, "overrideAudioSettings");
   const onChangeMediaVolume = useSetPropertySelected(editor, "mediaVolume");
   const onChangeMediaDistanceModel = useSetPropertySelected(editor, "mediaDistanceModel");
@@ -134,6 +183,8 @@ export function SceneNodeEditor(props) {
   const onChangeUseToneMapping = useSetPropertySelected(editor, "toneMapping");
   const onChangeUseToneMappingExposure = useSetPropertySelected(editor, "toneMappingExposure");
   const onChangeUseShadowMapType = useSetPropertySelected(editor, "shadowMapType");
+  const envMapIntensityChanged=useSetPropertySelected(editor,"envMapIntensity")
+
 
   // returning editor view for property editor for sceneNode
   return (
@@ -146,6 +197,58 @@ export function SceneNodeEditor(props) {
       { /* @ts-ignore */ }
         {/* <ColorInput value={node.background} onChange={onChangeBackground} /> */}
       {/* </InputGroup> */}
+
+      { /* @ts-ignore */ }
+      <InputGroup name="Envmap Source" label="Envmap Source">
+      { /* @ts-ignore */ }
+        <SelectInput  options={EnvMapSourceOptions} value={node.envMapSourceType} onChange={onChangeEnvmapSourceType} />
+      </InputGroup>
+        {
+          (node.envMapSourceType===EnvMapSourceType.Color) &&
+            (
+               /* @ts-ignore */ 
+              <InputGroup name='EnvMapColor' label="EnvMap Color">
+                {/* @ts-ignore */} 
+                <ColorInput value={new Color(node.envMapSourceColor)} onChange={onChangeEnvmapColorSource}/>
+              </InputGroup>
+            )
+        }
+        {
+            (node.envMapSourceType===EnvMapSourceType.Texture) &&
+            (
+              <div>
+                {/* @ts-ignore */} 
+                <InputGroup name='Texture Type' label="Texture Type">
+                  {/* @ts-ignore */} 
+                  <SelectInput  options={EnvMapTextureOptions} value={node.envMapTextureType} onChange={onChangeEnvmapTextureType} />
+                </InputGroup>
+                {/* @ts-ignore */} 
+                <InputGroup name='Texture URL' label="Texture URL">
+                  <ImageInput value={node.envMapSourceURL} onChange={onChangeEnvmapURLSource}/>
+                  {
+                    (props.node as SceneNode).errorInEnvmapURL &&
+                    <div>Error Loading From URL </div>
+                  }
+
+                </InputGroup>
+
+              </div>
+            )
+        }
+        
+
+      { /* @ts-ignore */ }
+        <InputGroup name="EnvMap Intensity" label="EnvMap Intensity">
+          { /* @ts-ignore */ }
+          <CompoundNumericInput 
+            min={0}
+            max={20}
+            value={node.envMapIntensity}
+            onChange={envMapIntensityChanged}
+          />
+
+        </InputGroup>
+
       { /* @ts-ignore */ }
       <InputGroup
         name="Fog Type"

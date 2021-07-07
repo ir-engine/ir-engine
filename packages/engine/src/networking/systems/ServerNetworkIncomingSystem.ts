@@ -16,13 +16,14 @@ import { NetworkClientInputInterface } from "../interfaces/WorldState";
 import { ClientInputModel } from '../schema/clientInputSchema';
 import { WorldStateModel } from '../schema/worldStateSchema';
 import { GamePlayer } from '../../game/components/GamePlayer';
-import { sendState } from '../../game/functions/functionsState';
+import { sendSpawnGameObjects, sendState } from '../../game/functions/functionsState';
 import { getGameFromName } from '../../game/functions/functions';
 import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent';
 import { BaseInput } from '../../input/enums/BaseInput';
 import { Quaternion } from 'three';
 import { executeCommands } from '../functions/executeCommands';
 import { handleInput } from '../functions/handleInput';
+import { ClientActionToServer } from '../../game/templates/DefaultGameStateAction';
 
 
 export function cancelAllInputs(entity) {
@@ -108,10 +109,12 @@ export class ServerNetworkIncomingSystem extends System {
 
       if (clientInput.clientGameAction.length > 0) {
         clientInput.clientGameAction.forEach(action => {
-          if (action.type === 'require') {
-            const playerComp = getComponent<GamePlayer>(entity, GamePlayer);
-            if (playerComp === undefined) return;
+          const playerComp = getComponent<GamePlayer>(entity, GamePlayer);
+          if (playerComp === undefined) return;
+          if (action.type === ClientActionToServer[0]) {
             sendState(getGameFromName(playerComp.gameName), playerComp);
+          } else if (action.type === ClientActionToServer[1]) {
+            sendSpawnGameObjects(getGameFromName(playerComp.gameName), action.uuid);
           }
         })
       }

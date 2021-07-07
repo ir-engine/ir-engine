@@ -47,7 +47,7 @@ export const CharacterAnimations = {
     DANCING_1: 'dance1',
     DANCING_2: 'dance2',
     DANCING_3: 'dance3',
-    DANCING_4: 'dance4'
+    DANCING_4: 'dance4',
     // LAUGHING: 'laughing',
     // WAVE_LEFT: 'wave_left',
     // WAVE_RIGHT: 'wave_right',

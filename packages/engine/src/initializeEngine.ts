@@ -268,7 +268,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
         (window as any).iOS = os === 'iOS' || /iPad|iPhone|iPod/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
         (window as any).safariWebBrowser = browser?.name === 'safari';
 
-        Engine.isHMD = /Oculus/i.test(navigator.platform);  // TODO: more HMDs;
+        Engine.isHMD = /Oculus/i.test(navigator.userAgent);  // TODO: more HMDs;
         Engine.xrSupported = await (navigator as any).xr?.isSessionSupported('immersive-vr');
     }
 
