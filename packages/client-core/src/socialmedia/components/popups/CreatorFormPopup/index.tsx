@@ -29,13 +29,14 @@ interface Props{
 export const CreatorFormPopup = ({popupsState, updateCreatorFormState, webxrRecorderActivity}: Props) =>{
   //common for creator form
   const handleCreatorFormClose = () =>updateCreatorFormState(false);
+  const platformClass = isIOS ? styles.isIos : "";
 
   const renderCreatoFormModal = () =>
     popupsState?.get('creatorForm') === true && !webxrRecorderActivity &&
         <SharedModal
             open={popupsState?.get('creatorForm')}
             onClose={handleCreatorFormClose}
-            className={styles.creatorFormPopup + " " + isIOS ? styles.isIos  : ""}
+            className={styles.creatorFormPopup + " " + platformClass}
         >
             <CreatorForm />
             <AppFooter />

@@ -19,6 +19,10 @@ const Onboard = (props: Props) => {
 
     const [screen, setScreen] = useState(1);
     const { setOnborded, image, mockupIPhone } = props;
+    useEffect(()=>{
+		console.log('IsIos', isIOS)
+	})
+	const platformClass = isIOS ? styles.isIos : "";
     switch(screen){
 
         case(1):
@@ -47,7 +51,7 @@ const Onboard = (props: Props) => {
             </div>;
 
         case(3):
-            return <div className={styles.thirdScreen+" "+styles.onboarding+" " + isIOS ? styles.isIos : ""}>
+            return <div className={styles.thirdScreen+" "+styles.onboarding+" "+platformClass}>
                       <button type="button" onClick={()=>{setOnborded(true);}}> Next </button>
                       <div>
                           <h3>

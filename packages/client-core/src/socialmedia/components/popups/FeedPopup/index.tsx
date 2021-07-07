@@ -30,6 +30,7 @@ export const FeedPopup = ({popupsState, updateFeedPageState, webxrRecorderActivi
     //common for feed page
   const feedPageState = popupsState?.get('feedPage');
   const feedId = popupsState?.get('feedId');
+  const platformClass = isIOS ? styles.isIos : "";
 
   const handleFeedClose = () =>updateFeedPageState(false);
   const renderFeedModal = () =>
@@ -37,7 +38,7 @@ export const FeedPopup = ({popupsState, updateFeedPageState, webxrRecorderActivi
         <SharedModal
             open={popupsState?.get('feedPage')}
             onClose={handleFeedClose}
-            className={styles.feedPagePopup + " " + isIOS ? styles.isIOS : ""}
+            className={styles.feedPagePopup + " " + platformClass}
         >
 			<div className={styles.feedPageIosWrapper}>
 				<Feed />

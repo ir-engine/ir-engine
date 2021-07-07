@@ -62,7 +62,6 @@ const mapStateToProps = (state: any): any => {
     // addBookmarkToFeed: bindActionCreators(addBookmarkToFeed, dispatch),
     // removeBookmarkToFeed: bindActionCreators(removeBookmarkToFeed, dispatch),
     addViewToFeed: bindActionCreators(addViewToFeed, dispatch),
-    removeFeed: bindActionCreators(removeFeed, dispatch),
 });
 interface Props{
     feed : Feed;
@@ -141,7 +140,7 @@ const FeedCard = (props: Props) : any => {
     //         setOpenFiredModal(true);
     //     }
     // };
-    
+
 //     const checkGuest = props.authState.get('authUser')?.identityProvider?.type === 'guest' ? true : false;
 
     const creatorId = authState.get('currentCreator').id;
@@ -160,24 +159,6 @@ const FeedCard = (props: Props) : any => {
     };
 
 
-
-    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
-
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
-    const open = Boolean(anchorEl);
-    const id = open ? 'simple-popover' : undefined;
-
-    const deleteAction = (feedId, previewUrl, videoUrl) => {
-        removeFeed(feedId, previewUrl, videoUrl);
-        updateFeedPageState(false);
-    };
 
     useEffect(()=>{
         console.log('Feed Card Feed:', feed);
@@ -200,30 +181,7 @@ const FeedCard = (props: Props) : any => {
 {/*                     onClick={()=>setIsVideo(true)}                */}
 {/*                 />} */}
 
-                <div className={styles.popover}>
-                    {/* @ts-ignore */}
-                    <div aria-describedby={id} variant="contained" onClick={handleClick}>
-                        <MoreHorizIcon />
-                    </div>
-                    <Popover
-                        id={id}
-                        open={open}
-                        anchorEl={anchorEl}
-                        onClose={handleClose}
-                        anchorOrigin={{
-                          vertical: 'bottom',
-                          horizontal: 'center',
-                        }}
-                        transformOrigin={{
-                          vertical: 'top',
-                          horizontal: 'center',
-                        }}
-                    >
-                        <Button variant="outlined" onClick={()=>deleteAction(feed.id, feed.previewUrl, feed.videoUrl)}>
-                            Delete
-                        </Button>
-                    </Popover>
-                </div>
+
 
                 {!videoDisplay ? <img src={feed.previewUrl}
                                   className={styles.previewImage}
@@ -238,7 +196,7 @@ const FeedCard = (props: Props) : any => {
                              />}
 
                 <span className={styles.eyeLine}>{feed.viewsCount}<VisibilityIcon style={{fontSize: '16px'}}/></span>
-                <CardContent className={styles.cardContent}>                     
+                <CardContent className={styles.cardContent}>
                     <section className={styles.iconsContainer}>
 {/*                         <Typography className={styles.titleContainer} gutterBottom variant="h4" */}
 {/* //                         onClick={()=>history.push('/feed?feedId=' + feed.id)} */}
@@ -274,7 +232,7 @@ const FeedCard = (props: Props) : any => {
                         </section>
                         {/*hided for now*/}
                         {/* {feed.isBookmarked ? <BookmarkIcon onClick={()=>checkGuest ? setButtonPopup(true) : handleRemoveBookmarkClick(feed.id)} />
-                         : 
+                         :
                          <BookmarkBorderIcon onClick={()=>checkGuest ? setButtonPopup(true) : handleAddBookmarkClick(feed.id)} />} */}
                     </section>
 
