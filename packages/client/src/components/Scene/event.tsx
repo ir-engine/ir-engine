@@ -140,6 +140,7 @@ interface Props {
   resetInstanceServer?: typeof resetInstanceServer;
   setCurrentScene?: typeof setCurrentScene;
   harmonyOpen?: boolean;
+  enableSharing: boolean;
 }
 
 const mapStateToProps = (state: any) => {
@@ -184,6 +185,7 @@ export const EnginePage = (props: Props) => {
     setAppLoaded,
     locationName,
     history,
+    enableSharing
   } = props;
 
   const currentUser = authState.get('user');
@@ -586,7 +588,7 @@ export const EnginePage = (props: Props) => {
   if(userBanned) return (<div className="banned">You have been banned from this location</div>);
   return isInXR ? <></> : (
       <>
-        {isValidLocation && <UserMenu />}
+        {isValidLocation && <UserMenu   enableSharing={enableSharing}/>}
         <Snackbar open={!isValidLocation}
                   anchorOrigin={{
                     vertical: 'top',
@@ -598,6 +600,7 @@ export const EnginePage = (props: Props) => {
           </>
         </Snackbar>
         <LoadingScreen objectsToLoad={progressEntity} />
+        <MediaIconsBox />
         { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
         <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); setInputEnabled(true); }} data={openLinkData} />
         <canvas id={engineRendererCanvasId} style={canvasStyle} />

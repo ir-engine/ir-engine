@@ -25,7 +25,10 @@ export const db: any = {
   forceRefresh: process.env.FORCE_DB_REFRESH === 'true',
   url: '',
   charset: 'utf8mb4',
-  collate: 'utf8mb4_general_ci'
+  collate: 'utf8mb4_general_ci',
+  pool: {
+    max: parseInt(process.env.SEQUELIZE_POOL_MAX || '5')
+  }
 };
 db.url = process.env.MYSQL_URL ||
   `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`;

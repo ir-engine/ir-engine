@@ -31,6 +31,7 @@ import styles from './index.module.scss';
 import image from '/static/images/image.jpg';
 import mockupIPhone from '/static/images/mockupIPhone.jpg';
 import Splash from '@xrengine/client-core/src/socialmedia/components/Splash';
+import {isIOS} from "@xrengine/client-core/src/util/platformCheck";
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -84,6 +85,7 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState, webxrnativeSt
     setFeedOnborded(false);
     setFeedHintsOnborded(false);
   };
+  const platformClass = isIOS ? styles.isIos : "";
 
   if(!currentCreator || currentCreator === null) return <Splash />;
 
@@ -93,7 +95,8 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState, webxrnativeSt
 
 
 
-  return (<>
+
+  return (<div className={platformClass}>
     {!feedOnborded && <FeedOnboarding setFeedOnborded={setFeedOnborded} />}
     <div className={webxrRecorderActivity ? styles.hideContent+' '+styles.viewport : styles.viewport}>
         <AppHeader logo="/assets/logoBlack.png" />
@@ -113,7 +116,7 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState, webxrnativeSt
         <FeedFormPopup />
         <SharedFormPopup />
     </div>
-  </>
+  </div>
   );
 };
 

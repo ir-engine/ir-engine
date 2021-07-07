@@ -1,4 +1,4 @@
-import { Box3, Sphere, PropertyBinding, BufferGeometry, MathUtils, Matrix4, Quaternion, Vector3 } from "three";
+import { Box3, Sphere, PropertyBinding, BufferGeometry, MathUtils, Matrix4, Quaternion, Vector3, Object3D } from "three";
 import Model from "../../scene/classes/Model";
 import EditorNodeMixin from "./EditorNodeMixin";
 import { setStaticMode, StaticModes } from "../functions/StaticMode";
@@ -23,7 +23,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     const node = await super.deserialize(editor, json);
     loadAsync(
       (async () => {
-        const { src, envMapOverride } = json.components.find(
+        const { src, envMapOverride, textureOverride } = json.components.find(
           c => c.name === "gltf-model"
         ).props;
 
@@ -40,6 +40,9 @@ export default class ModelNode extends EditorNodeMixin(Model) {
 
         await node.load(src, onError);
         if(node.envMapOverride) node.envMapOverride = envMapOverride;
+        if(textureOverride) editor.scene.traverse((obj) => {
+          if(obj.uuid === textureOverride) node.textureOverride = obj.uuid
+        });
 
         node.collidable = !!json.components.find(c => c.name === "collidable");
         node.walkable = !!json.components.find(c => c.name === "walkable");
@@ -91,6 +94,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   _canonicalUrl = "";
   envMapOverride = "";
+  textureOverride: string = '';
   collidable = true;
   saveColliders = true;
   target = null;
@@ -365,6 +369,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       "gltf-model": {
         src: this._canonicalUrl,
         envMapOverride: this.envMapOverride !== "" ? this.envMapOverride : undefined,
+        textureOverride: this.textureOverride,
         dontParseModel: this.saveColliders
       },
       shadow: {
@@ -423,6 +428,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     }
     this.target = source.target;
     this.collidable = source.collidable;
+    this.textureOverride = source.textureOverride;
     this.saveColliders = source.saveColliders;
     this.walkable = source.walkable;
     return this;

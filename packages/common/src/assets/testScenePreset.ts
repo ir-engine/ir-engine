@@ -593,7 +593,7 @@ export const testScenePreset = {
                 "type": "transform"
             },
             {
-                "name": "reflectionprobe",
+                "name": "envMap",
                 "props": {
                     probePosition:{
                         "x": 0,
@@ -642,7 +642,7 @@ export const testScenePreset = {
                 "entityId": "1B698484-C15A-4CEC-9247-03873520DF70",
                 "createdAt": "2020-11-12T02:14:45.000Z",
                 "updatedAt": "2021-04-02T00:35:15.000Z",
-                "type": "reflectionprobe"
+                "type": "envMap"
             }
         ]
       },

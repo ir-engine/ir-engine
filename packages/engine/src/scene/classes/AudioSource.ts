@@ -43,6 +43,7 @@ export default class AudioSource extends Object3D {
       el = Engine.createElement(elTag, {
         crossorigin: 'anonymous',
         loop: true,
+        preload: 'none',
         playsinline: '',
         'webkit-playsinline': '',
         id,
@@ -55,7 +56,7 @@ export default class AudioSource extends Object3D {
     this.controls = true;
     this.audioType = AudioType.PannerNode;
     this.volume = 0.5;
-    console.log('audiosource create', this)
+    // console.log('audiosource create', this)
   }
   get duration() {
     return this.el.duration;
