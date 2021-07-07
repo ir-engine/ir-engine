@@ -42,7 +42,7 @@ export const createSkybox = (entity, args: SceneBackgroundProps): any => {
         uniforms.sunPosition.value = sun;
         WebGLRendererSystem.instance.csm?.lightDirection.set(-sun.x, -sun.y, -sun.z);
     
-        const skyboxTexture = (skyboxObject3D as any).generateEnvironmentMap(Engine.renderer);
+        const skyboxTexture = (skyboxObject3D as any).generateSkybox(Engine.renderer);
     
         Engine.scene.background = skyboxTexture;
         break;

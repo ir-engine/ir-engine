@@ -34,6 +34,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
   static ignoreRaycast = true
   static nodeName = "Skybox"
 
+  static handleEnvironmentMap=false;
 
     turbidity= 10
     rayleigh= 2
@@ -138,20 +139,6 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
     this.replaceObject();
   }
 
-  getSkyBoxShaderProperties(){
-    const skyProps:SkyBoxShaderProps= {
-      turbidity: this.turbidity,
-      rayleigh: this.rayleigh,
-      luminance: this.luminance,
-      mieCoefficient: this.mieCoefficient,
-      mieDirectionalG: this.mieDirectionalG,
-      inclination: this.inclination,
-      azimuth: this.azimuth,
-      distance: this.distance,
-    }
-    return skyProps;
-  }
-
   setUpBackground(type:SkyTypeEnum){
     if(this.editor.scene.background?.dispose)
       this.editor.scene.background.dispose();
@@ -200,8 +187,9 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
         break;
       default:
         (this.sky as Mesh).visible=true;
-        this.editor.scene.background=this.generateEnvironmentMap(this.editor.renderer.renderer);
+        this.editor.scene.background=this.generateSkybox(this.editor.renderer.renderer);
         break;
     }
   }
+
 }

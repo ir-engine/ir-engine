@@ -14,5 +14,4 @@ export type EnvMapProps={
     envMapSourceURL?:string,
     envMapTextureType?:EnvMapTextureType,
     envMapSourceColor?:string,
-    envMapSkyShaderProps?:SkyBoxShaderProps,
 }

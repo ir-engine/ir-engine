@@ -276,8 +276,7 @@ export class Sky extends Object3D {
     (this.sky.material as ShaderMaterial).uniforms.sunPosition.value.set(x, y, z).normalize();
     this.sky.scale.set(distance, distance, distance);
   }
-  generateEnvironmentMap(renderer: WebGLRenderer) {
-    console.log('Generating the Skybox');
+  generateSkybox(renderer: WebGLRenderer) {
     this.skyScene.add(this.sky);
     this.cubeCamera.update(renderer, this.skyScene);
     (this as any).add(this.sky);

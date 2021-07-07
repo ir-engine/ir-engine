@@ -26,7 +26,7 @@ import GroupNode from "./GroupNode";
 import getNodeWithUUID from "../functions/getNodeWithUUID";
 import serializeColor from "../functions/serializeColor";
 import { FogType } from '../../scene/constants/FogType';
-import { EnvMapSourceType, EnvMapTextureType } from '../../scene/constants/EnvMapEnum';
+import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '../../scene/constants/EnvMapEnum';
 import {DistanceModelType} from "../../scene/classes/AudioSource";
 
 export default class SceneNode extends EditorNodeMixin(Scene) {
@@ -319,60 +319,26 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
 
   getEnvMapProps(){
 
-    return({
-      type:this.envMapSourceType,
-      envMapSourceURL:this._envMapSourceURL,
-      envMapTextureType:this.envMapTextureType,
-      envMapSourceColor:this._envMapSourceColor,
-      envMapIntensity:this._envMapIntensity,
-    });
+    const envMapProps:EnvMapProps={
+      type: this.envMapSourceType,
+      envMapIntensity: this._envMapIntensity,
+    };
 
-    // if(this.envMapSourceType==EnvMapSourceType.Default){
-    //   let options={};
-    //   let s_node=null;
-    //   this.traverse(child => {
-    //     if (child.isNode && child !== this) {
-    //       if(child.nodeName==="Skybox"){
-    //         options=child.getReflectionProbeProperties();
-    //         this.addGLTFComponent("envMap",{type:"ReflectionProbe",options});
-    //         return;
-    //       }
-    //       else if(child.nodeName==="Skybox"){
-    //         s_node=child;
-    //       }
-    //     }
-    //   });
-
-    //   if(s_node!==null){
-    //     const skyNode=(s_node as SkyboxNode);
-    //     const type=skyNode.skyType;
-    //     switch(type){
-    //       case SkyTypeEnum.equirectangular:
-    //         this.addGLTFComponent("envMap",{
-    //           type:"Texture",
-    //           options:{
-    //             url:skyNode.texturePath,
-    //             type:EnvMapTextureType.Equirectangular,
-    //           }
-    //         })
-    //         break;
-    //       case SkyTypeEnum.cubemap:
-    //         this.addGLTFComponent("envMap",{
-    //           type:"Texture",
-    //           options:{
-    //             url:skyNode.texturePath,
-    //             type:EnvMapTextureType.Cubemap,
-    //           }
-    //         })
-    //         break;
-    //       case SkyTypeEnum.skybox:
-    //       default:
-    //         const options=skyNode.getSkyBoxProperties();
-    //         this.addGLTFComponent("envMap",{type:"SkyBox",options});
-    //         break;
-    //     }
-    //   }
-    // }
+    switch(this.envMapSourceType){
+      case EnvMapSourceType.Color:
+        envMapProps.envMapSourceColor=this._envMapSourceColor;
+        break;
+      case EnvMapSourceType.Texture:
+        envMapProps.envMapTextureType=this.envMapTextureType;
+        envMapProps.envMapSourceURL=this.envMapSourceURL;
+        break;
+      case EnvMapSourceType.Default:
+      default:
+        break;
+    }
+    
+    return envMapProps;
+      
   }
 
 
