@@ -99,7 +99,6 @@ const AvatarMenu = (props: any): any => {
 		for (let i = startIndex; i < endIndex; i++) {
 			const characterAvatar = props.avatarList[i];
 			avatarList.push(
-				<>
 				<Card
 					key={characterAvatar.avatar.id}
 					className={`
@@ -132,7 +131,6 @@ const AvatarMenu = (props: any): any => {
 							: null}
 					</CardContent>
 				</Card>
-				</>
 			);
 		}
 
