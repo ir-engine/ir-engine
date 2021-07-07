@@ -10,7 +10,7 @@ import { ReflectionProbeProperties } from "./ReflectionProbeProperties";
 
 
 export const enum ReflectionPropertyTypes{
-    "Numeric","Boolean","ReflectionProbeType","RefreshMode","Resolution","Vector","String"
+    "Boolean","ReflectionProbeType","RefreshMode","Resolution","Vector"
 }
 
 const DefaultReflectionProbeSettings=[
@@ -34,7 +34,6 @@ const DefaultReflectionProbeSettings=[
             },
         ]
     },
-
     {
         label:"Realtime Settings",
         options:[
@@ -50,16 +49,12 @@ const DefaultReflectionProbeSettings=[
         label:"Settings",
         options:[
             {
-                label:"Intensity",
-                propertyName:"intensity",
-                type:ReflectionPropertyTypes.Numeric,
-                min:0,
-                max:10,
-                step:0.1,
-            },
+                label:"Box Projection",
+                propertyName:"boxProjection",
+                type:ReflectionPropertyTypes.Boolean,
+            }
         ]
     },
-
     {
         label:"Capture Settings",
         options:[
@@ -67,11 +62,6 @@ const DefaultReflectionProbeSettings=[
                 label:"Resolution",
                 propertyName:"resolution",
                 type:ReflectionPropertyTypes.Resolution,
-            },
-            {
-                label:"Lookup Name",
-                propertyName:"lookupName",
-                type:ReflectionPropertyTypes.String,
             },
         ]
     },

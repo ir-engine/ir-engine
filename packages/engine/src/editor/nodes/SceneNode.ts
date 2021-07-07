@@ -211,7 +211,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   _envMapSourceURL="";
   errorInEnvmapURL=false;
   _envMapIntensity=1;
-  environmentNodes=[];
+  environmentNode=null;
   //#endregion
 
 
@@ -334,6 +334,8 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         break;
       case EnvMapSourceType.Default:
       default:
+        envMapProps.type=EnvMapSourceType.ReflectionProbe;
+        envMapProps.envMapReflectionProbe
         break;
     }
     
@@ -373,11 +375,12 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     pmren.dispose();
   }
 
-  registerEnvironmentMapNodes(node:any){
-    this.environmentNodes.push(node);
+  registerEnvironmentMapNode(node:any){
+    this.environmentNode=node;
   }
-  unregisterEnvironmentMapNodes(node:any){
-    this.environmentNodes=this.environmentNodes.filter((item)=>item!==node);
+  unregisterEnvironmentMapNode(node:any){
+    if(this.environmentNode===node)
+      this.environmentNode=null;
   }
 
   //#endregion

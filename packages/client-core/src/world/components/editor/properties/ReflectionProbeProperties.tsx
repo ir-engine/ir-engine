@@ -83,16 +83,6 @@ export const  ReflectionProbeProperties =(props:ReflectionProbePropertyEditorPro
         case ReflectionPropertyTypes.Boolean:
             renderVal= <BooleanInput value={getPropertyValue(propertyName)} onChange={(id)=>onChangeProperty(id,propertyName)}/>;
             break;
-        case ReflectionPropertyTypes.Numeric:
-            renderVal=        
-                <CompoundNumericInput
-                min={props.element.min}
-                max={props.element.max}
-                step={props.element.step}
-                value={getPropertyValue(propertyName)}
-                onChange={(id)=>onChangeProperty(id,propertyName)}
-            />;
-            break;
         case ReflectionPropertyTypes.ReflectionProbeType:
             /* @ts-ignore */
             renderVal=<SelectInput options={reflectionProbeSelectTypes} onChange={(id)=>{onChangeProperty(id,propertyName);}} value={getPropertyValue(propertyName)} />;
@@ -110,14 +100,6 @@ export const  ReflectionProbeProperties =(props:ReflectionProbePropertyEditorPro
 
         case ReflectionPropertyTypes.Vector:
             renderVal=<Vector3Input onChange={(id)=>{onChangeProperty(id,propertyName);}} value={getPropertyValue(propertyName)} />;
-            break;
-
-        case ReflectionPropertyTypes.String:
-            renderVal=<ControlledStringInput 
-                /* @ts-ignore */
-                onChange={(id)=>{onChangeProperty(id,propertyName);}}
-                value={getPropertyValue(propertyName)}
-                />;
             break;
 
         default:

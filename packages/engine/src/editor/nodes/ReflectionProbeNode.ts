@@ -21,11 +21,10 @@ export type ReflectionProbeSettings={
     probePositionOffset:Vector3,
     probeScale:Vector3,
     reflectionType:ReflectionProbeTypes,
-    intensity:number,
     resolution:number,
     refreshMode:ReflectionProbeRefreshTypes,
     envMapID:string,
-    lookupName:any
+    boxProjection:boolean,
 }
 
 
@@ -48,11 +47,10 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
             probePositionOffset:new Vector3(0),
             probeScale:new Vector3(1,1,1),
             reflectionType:ReflectionProbeTypes.Baked,
-            intensity:1,
             resolution:512,
             refreshMode:ReflectionProbeRefreshTypes.OnAwake,
             envMapID:"",
-            lookupName:""
+            boxProjection:true,
         }
         this.gizmo=new BoxHelper(new Mesh(new BoxBufferGeometry()),0xff0000);
         this.centerBall.material=new MeshPhysicalMaterial({
@@ -61,8 +59,13 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
 
         this.add(this.gizmo);
 
-        this.editor.scene.registerEnvironmentMapNodes(this);
+        this.editor.scene.registerEnvironmentMapNode(this);
     }
+
+    static canAddNode(editor) {
+        return editor.scene.findNodeByType(ReflectionProbeNode) === null;
+    }
+
 
 
     async captureCubeMap(){
@@ -81,10 +84,6 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
     onChange(){
 
         this.gizmo.matrix.compose(this.reflectionProbeSettings.probePositionOffset,new Quaternion(0),this.reflectionProbeSettings.probeScale);
-        this.editor.scene.traverse(child=>{
-            if(child.material)
-                child.material.envMapIntensity=this.reflectionProbeSettings.intensity;
-        });
         //this.editor.scene.environment=this.visible?this.currentEnvMap?.texture:null;
     }
 

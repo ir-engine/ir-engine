@@ -53,7 +53,6 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
 
   constructor(editor){
     super(editor);
-    this.editor.scene.registerEnvironmentMapNodes(this);
   }
 
 
@@ -114,7 +113,6 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
 
   onRemove() {
     this.editor.scene.background = new Color('black')
-    this.editor.scene.unregisterEnvironmentMapNodes(this);
   }
 
   prepareForExport() {
