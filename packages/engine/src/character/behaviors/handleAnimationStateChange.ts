@@ -21,8 +21,13 @@ export const handleAnimationStateChange = (editObject: NetworkObjectEditInterfac
     const animationState = animationComponent.animationGraph.states[animationDetail.state];
 
     if (animationDetail.params.recalculateWeights && animationState.name === animationComponent.currentState.name) {
-        animationComponent.currentState.update(animationDetail.params)
+        if (animationComponent.currentState.changeAnimationSmoothly) {
+            animationComponent.currentState.changeAnimationSmoothly(animationDetail.params)
+        }
     } else {
         animationComponent.animationGraph.transitionState(actor, animationComponent, animationState.name, animationDetail.params);
+        if (animationDetail.params.smoothChange && animationComponent.currentState.changeAnimationSmoothly) {
+            animationComponent.currentState.changeAnimationSmoothly(animationDetail.params)
+        }
     }
 }
