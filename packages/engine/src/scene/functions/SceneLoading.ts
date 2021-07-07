@@ -193,6 +193,7 @@ export class WorldScene {
                 const animationComponent = getMutableComponent(entity, AnimationComponent);
                 const object3d = getMutableComponent(entity, Object3DComponent);
 
+                actor.speedMultiplier = 1;
                 actor.mixer = new AnimationMixer(object3d.value.children[0]);
 
                 // Create a new animation state and set DJ animation
@@ -200,7 +201,6 @@ export class WorldScene {
                 animationComponent.currentState = new AnimationState();
                 const action = actor.mixer.clipAction(AnimationClip.findByName(res.animations, DJAnimationName));
                 action.setEffectiveWeight(1);
-                action.setEffectiveTimeScale(0.2);
                 animationComponent.currentState.animations = [
                   {
                     name: DJAnimationName,

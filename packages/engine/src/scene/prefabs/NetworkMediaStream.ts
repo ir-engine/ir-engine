@@ -1,5 +1,6 @@
 import { DJModelName } from "../../character/AnimationManager";
 import { AnimationComponent } from "../../character/components/AnimationComponent";
+import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { awaitEngaged } from "../../ecs/classes/Engine";
 import { getEntityByName, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { NetworkPrefab } from "../../networking/interfaces/NetworkPrefab";
@@ -32,7 +33,10 @@ export const NetworkMediaStream: NetworkPrefab = {
 
             if (djEntity) {
                 const animationComponent = getMutableComponent(djEntity, AnimationComponent);
+                const actor = getMutableComponent(djEntity, CharacterComponent);
+
                 animationComponent.currentState.animations[0].action.play();
+                actor.mixer.update(videoElement.currentTime)
             }
         }
     },
