@@ -1,4 +1,4 @@
-import { Color, CubeTextureLoader, DataTexture, PMREMGenerator, RGBFormat, sRGBEncoding, TextureLoader, Vector3 } from 'three';
+import { Color, CubeTextureLoader, DataTexture, Material, PMREMGenerator, RGBFormat, sRGBEncoding, TextureLoader, Vector3 } from 'three';
 import { isClient } from '../../common/functions/isClient';
 import { Behavior } from '../../common/interfaces/Behavior';
 import { Engine } from '../../ecs/classes/Engine';
@@ -11,20 +11,23 @@ import { ScaleComponent } from '../../transform/components/ScaleComponent';
 import { Sky } from '../classes/Sky';
 import { Object3DComponent } from '../components/Object3DComponent';
 import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum';
+import { SCENE_ASSET_TYPES, WorldScene } from '../functions/SceneLoading';
 import { SceneObjectSystem } from '../systems/SceneObjectSystem';
 import { addObject3DComponent } from './addObject3DComponent';
 
-export const setEnvMap: Behavior = (entity, args: { type:EnvMapSourceType,options: any }) => {
+export const setEnvMap: Behavior = (entity, args:any) => {
 
   if (!isClient) {
     return;
   }
 
   const pmremGenerator = new PMREMGenerator(Engine.renderer);
+
+  
   switch(args.type){
 
     case EnvMapSourceType.Color:
-      const src=args.options.colorString;
+      const src=args.envMapSourceColor;
       const col=new Color(src);
       const resolution =1;
       const data=new Uint8Array(3*resolution*resolution);
@@ -40,7 +43,7 @@ export const setEnvMap: Behavior = (entity, args: { type:EnvMapSourceType,option
 
     case EnvMapSourceType.Texture:
       
-      switch(args.options.type){
+      switch(args.envMapTextureType){
         case EnvMapTextureType.Cubemap:
 
           const negx = "negx.jpg";
@@ -51,7 +54,7 @@ export const setEnvMap: Behavior = (entity, args: { type:EnvMapSourceType,option
           const posz = "posz.jpg";
 
           new CubeTextureLoader()
-          .setPath(args.options.url)
+          .setPath(args.envMapSourceURL)
           .load([posx, negx, posy, negy, posz, negz],
           (texture) => {
             const EnvMap = pmremGenerator.fromCubemap(texture).texture;
@@ -69,7 +72,7 @@ export const setEnvMap: Behavior = (entity, args: { type:EnvMapSourceType,option
           
           break;
         case EnvMapTextureType.Equirectangular:
-          new TextureLoader().load(args.options.url,(texture)=>{
+          new TextureLoader().load(args.envMapSourceURL,(texture)=>{
             const EnvMap = pmremGenerator.fromEquirectangular(texture).texture;
             EnvMap.encoding = sRGBEncoding;
             Engine.scene.environment=EnvMap;
@@ -144,5 +147,8 @@ export const setEnvMap: Behavior = (entity, args: { type:EnvMapSourceType,option
   }
   pmremGenerator.dispose();
 
+  SceneObjectSystem.instance.envMapIntensity=args.envMapIntensity;
+  console.log("Setting up EnvMap");
+  console.log("Setting up EnvMap");
 
 };

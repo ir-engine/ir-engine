@@ -289,6 +289,7 @@ export class WorldScene {
         break;
 
       case 'envmap':
+        console.log("Setting up envMap here");
         setEnvMap(entity,component.data);
         break;
 

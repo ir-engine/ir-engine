@@ -115,7 +115,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
         data={
             options:this.reflectionProbeSettings
         };
-        return super.serialize({envMap:data});
+        return super.serialize({reflectionprobe:data});
     }
 
     static async deserialize(editor, json){

@@ -163,6 +163,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         node._envMapSourceURL=props.envMapSourceURL;
         node.envMapTextureType=props.envMapTextureType;
         node._envMapSourceColor=props.envMapSourceColor;
+        node._envMapIntensity=props.envMapIntensity;
       }
 
 
@@ -323,6 +324,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       envMapSourceURL:this._envMapSourceURL,
       envMapTextureType:this.envMapTextureType,
       envMapSourceColor:this._envMapSourceColor,
+      envMapIntensity:this._envMapIntensity,
     });
 
     // else if(this.envMapSourceType==EnvMapSourceType.Default){
