@@ -39,8 +39,6 @@ export const characterInterpolationBehavior: Behavior = (entity: Entity, snapsho
     }
   });
 
-  collider.controller.velocity = new Vector3(0, 0, 0);
-
   transform.rotation.set(
     interpolation.qX,
     interpolation.qY,
