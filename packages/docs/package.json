@@ -49,7 +49,7 @@
     "@docusaurus/module-type-aliases": "2.0.0-beta.3",
     "@tsconfig/docusaurus": "1.0.2",
     "@types/react": "17.0.13",
-    "@types/react-helmet": "6.1.1",
+    "@types/react-helmet": "6.1.2",
     "@types/react-router-dom": "5.1.7",
     "cross-env": "7.0.3",
     "docusaurus-plugin-typedoc": "0.15.1",
