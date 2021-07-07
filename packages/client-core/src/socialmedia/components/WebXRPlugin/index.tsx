@@ -70,7 +70,8 @@ enum RecordingStates {
 
 const correctionQuaternionZ = new Quaternion().setFromAxisAngle(new Vector3(0,0,1), Math.PI/2);
 
-const _DEBUG = false;
+// TODO: return it to false
+const _DEBUG = true;
 const DEBUG_MINI_VIEWPORT_SIZE = 100;
 
 export const WebXRPlugin = ({
@@ -289,7 +290,8 @@ export const WebXRPlugin = ({
                 anchorRef.current = new Group();
             }
             const anchor = anchorRef.current;
-            anchor.visible = false;
+            // TODO: return it to false
+            anchor.visible = true;
 //             anchor.add(new AxesHelper(0.3));
 //             const anchorC = new Mesh(geometry, materialC);
 //             anchor.add(anchorC);
