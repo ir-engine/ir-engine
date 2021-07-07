@@ -2,7 +2,7 @@ const HLS_MIMETYPES = [
   "application/x-mpegurl",
   "application/vnd.apple.mpegurl"
 ];
-export default function isHLS(src, type) {
+export default function isHLS(src: string, type?: any) {
   if (type && HLS_MIMETYPES.includes(type.toLowerCase())) {
     return true;
   }

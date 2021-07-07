@@ -9,7 +9,7 @@ import {
   RGBAFormat,
   VideoTexture
 } from "three";
-import Hls from "hls.js/dist/hls.light";
+import Hls from "hls.js";
 import isHLS from "../../editor/functions/isHLS";
 import AudioSource from "./AudioSource";
 export const VideoProjection = {
