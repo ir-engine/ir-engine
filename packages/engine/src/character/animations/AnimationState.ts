@@ -1,7 +1,7 @@
 import { AnimationAction, AnimationClip, LoopOnce, LoopRepeat, MathUtils } from "three"
 import { delay } from "../../ecs/functions/EngineFunctions";
 import { AnimationManager } from "../AnimationManager";
-import { CharacterComponent } from "../components/CharacterComponent";
+import { AnimationComponent } from "../components/AnimationComponent";
 import { Animation, AnimationType, CalculateWeightsParams, CharacterAnimations, CharacterStates } from "./Util";
 
 /** Class to hold state of an animation for entity */
@@ -52,7 +52,7 @@ export class AnimationState {
      * @param actor Actor component for which animation state will be mounted
      * @param params Parameters to calculate weigths
      */
-    mount = (actor: CharacterComponent, params: CalculateWeightsParams) => {
+    mount = (animationComponent: AnimationComponent, params: CalculateWeightsParams) => {
         // Calculate the weights of the animations
         params.isMounting = true;
         if (this.calculateWeights) this.calculateWeights(params);
@@ -67,7 +67,7 @@ export class AnimationState {
             }
 
             // get action from the animation mixer
-            animation.action = actor.mixer.clipAction(animation.clip);
+            animation.action = animationComponent.mixer.clipAction(animation.clip);
 
             animation.action.setEffectiveWeight(animation.weight);
             animation.action.setEffectiveTimeScale(animation.timeScale || 1);

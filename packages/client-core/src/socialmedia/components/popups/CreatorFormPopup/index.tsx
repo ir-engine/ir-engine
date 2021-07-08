@@ -9,13 +9,14 @@ import AppFooter from "../../Footer";
 //@ts-ignore
 import styles from './CreatorFormPopup.module.scss';
 import CreatorForm from "../../CreatorForm";
+import {isIOS} from "../../../../util/platformCheck";
 
 const mapStateToProps = (state: any): any => {
     return {
       popupsState: selectPopupsState(state),
     };
   };
-  
+
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateCreatorFormState: bindActionCreators(updateCreatorFormState, dispatch),
 });
@@ -28,20 +29,22 @@ interface Props{
 export const CreatorFormPopup = ({popupsState, updateCreatorFormState, webxrRecorderActivity}: Props) =>{
   //common for creator form
   const handleCreatorFormClose = () =>updateCreatorFormState(false);
+  const platformClass = isIOS ? styles.isIos : "";
+
   const renderCreatoFormModal = () =>
     popupsState?.get('creatorForm') === true && !webxrRecorderActivity &&
-        <SharedModal 
+        <SharedModal
             open={popupsState?.get('creatorForm')}
-            onClose={handleCreatorFormClose} 
-            className={styles.creatorFormPopup}
+            onClose={handleCreatorFormClose}
+            className={styles.creatorFormPopup + " " + platformClass}
         >
-            <CreatorForm />      
+            <CreatorForm />
             <AppFooter />
         </SharedModal>;
 
 const creatorFormState = popupsState?.get('creatorForm');
 useEffect(()=>{renderCreatoFormModal();}, [creatorFormState]);
-return  renderCreatoFormModal();         
+return  renderCreatoFormModal();
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CreatorFormPopup);

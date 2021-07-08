@@ -199,6 +199,7 @@ export class AssetLoader {
         if (response && (this.assetType === AssetType.glTF || this.assetType === AssetType.VRM)) {
             loadExtentions(this.result);
             this.result = response.scene;
+            this.result.animations = response.animations;
         }
 
         if (this.assetClass === AssetClass.Model) {

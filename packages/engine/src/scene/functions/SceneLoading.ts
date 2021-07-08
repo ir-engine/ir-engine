@@ -1,9 +1,9 @@
-import { AmbientLight, DirectionalLight, HemisphereLight, Mesh, PointLight, SpotLight } from 'three';
+import { AmbientLight, AnimationClip, AnimationMixer, DirectionalLight, HemisphereLight, LoopRepeat, PointLight, SpotLight, Vector3 } from 'three';
 import { isClient } from "../../common/functions/isClient";
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from "../../ecs/classes/Entity";
-import { addComponent, createEntity, getComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SceneData } from "../interfaces/SceneData";
 import { SceneDataComponent } from "../interfaces/SceneDataComponent";
 import { addObject3DComponent } from '../behaviors/addObject3DComponent';
@@ -13,7 +13,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader';
 import { parseModelColliders, clearFromColliders } from '../../physics/behaviors/parseModelColliders';
 import { createVehicleFromSceneData } from '../../vehicle/prefabs/NetworkVehicle';
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers';
-import { createBackground } from '../behaviors/createBackground';
+import { createSkybox } from '../behaviors/createSkybox';
 import { createBoxCollider } from '../behaviors/createBoxCollider';
 import { createMeshCollider } from '../behaviors/createMeshCollider';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
@@ -21,7 +21,6 @@ import { createGroup } from '../behaviors/createGroup';
 import { createLink } from '../behaviors/createLink';
 import { createAudio, createMediaServer, createVideo, createVolumetric } from "../behaviors/createMedia";
 import { createShadow } from '../behaviors/createShadow';
-import createSkybox from '../behaviors/createSkybox';
 import { createTransformComponent } from "../behaviors/createTransformComponent";
 import { createTriggerVolume } from '../behaviors/createTriggerVolume';
 import { handleAudioSettings } from '../behaviors/handleAudioSettings';
@@ -33,13 +32,20 @@ import Image from '../classes/Image';
 import { setPostProcessing } from "../behaviors/setPostProcessing";
 import { CameraSystem } from "../../camera/systems/CameraSystem";
 import { CopyTransformComponent } from "../../transform/components/CopyTransformComponent";
-import { setReflectionProbe } from '../behaviors/setReflectionProbe';
+import { setEnvMap } from '../behaviors/setEnvMap';
 import { PersistTagComponent } from '../components/PersistTagComponent';
 import { createPortal } from '../behaviors/createPortal';
 import { createGround } from '../behaviors/createGround';
 import { handleRendererSettings } from '../behaviors/handleRendererSettings';
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 import { Object3DComponent } from '../components/Object3DComponent';
+import { DJAnimationName, DJModelName } from '../../character/AnimationManager';
+import { CharacterComponent } from '../../character/components/CharacterComponent';
+import { AnimationComponent } from '../../character/components/AnimationComponent';
+import { AnimationState } from '../../character/animations/AnimationState';
+import { delay } from '../../ecs/functions/EngineFunctions';
+import { setSkyDirection } from './setSkyDirection';
+import { TransformComponent } from '../../transform/components/TransformComponent';
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP,
@@ -74,6 +80,8 @@ export class WorldScene {
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED });
 
       this.onCompleted();
+    }).catch((err) => {
+      console.error('Error while loading the scene entities =>', err);
     });
   }
 
@@ -110,7 +118,12 @@ export class WorldScene {
         break;
 
       case 'directional-light':
-        if (isClient && WebGLRendererSystem.instance.csm) return console.warn('SCENE LOADING - Custom directional lights are not supported when CSM is enabled.');
+        if (isClient && WebGLRendererSystem.instance.csm) {
+          // console.warn('SCENE LOADING - Custom directional lights are not supported when CSM is enabled.');
+          const direction = new Vector3(0, 0, 1).applyQuaternion(getComponent(entity, TransformComponent).rotation)
+          setSkyDirection(direction)
+          return;
+        }
         addObject3DComponent(
           entity,
           {
@@ -160,20 +173,55 @@ export class WorldScene {
             } else {
               parseModelColliders(entity, { asset: res, uniqueId: component.data.sceneEntityId });
             }
-            if (isClient && component.data.textureOverride) {
-              setTimeout(() => {
-                Engine.scene.children.find((obj: any) => {
-                  if (obj.sceneEntityId === component.data.textureOverride) return true;
-                })?.traverse((videoMesh: any) => {
-                  if (videoMesh.name === 'VideoMesh') {
-                    getComponent(entity, Object3DComponent)?.value?.traverse((obj: any) => {
-                      if (obj.material) {
-                        obj.material = videoMesh.material
-                      }
-                    })
-                  }
+
+            if (isClient) {
+              if (component.data.textureOverride) {
+                // we should push this to ECS, something like a SceneObjectLoadComponent,
+                // or add engine events for specific objects being added to the scene,
+                // the scene load event + delay 1 second delay works for now.
+                EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, async () => {
+                  await delay(1000)
+                  const objToCopy = Engine.scene.children.find((obj: any) => {
+                    return obj.sceneEntityId === component.data.textureOverride
+                  })
+                  if (objToCopy) objToCopy.traverse((videoMesh: any) => {
+                    if (videoMesh.name === 'VideoMesh') {
+                      getComponent(entity, Object3DComponent)?.value?.traverse((obj: any) => {
+                        if (obj.material) {
+                          obj.material = videoMesh.material
+                        }
+                      })
+                    }
+                  })
                 })
-              }, 1000)
+              }
+              console.log(entity.name)
+
+              // For DJ animations
+              if (entity.name === DJModelName) {
+                console.log('Loaded DJ')
+                addComponent(entity, AnimationComponent, { onlyUpdateMixerTime: true }); // We only have to update the mixer time for this animations on each frame
+
+                const animationComponent = getMutableComponent(entity, AnimationComponent);
+                const object3d = getMutableComponent(entity, Object3DComponent);
+
+                animationComponent.speedMultiplier = 1;
+                animationComponent.mixer = new AnimationMixer(object3d.value.children[0]);
+
+                // Create a new animation state and set DJ animation
+                // This animation will not be played until the user engagement
+                animationComponent.currentState = new AnimationState();
+                const action = animationComponent.mixer.clipAction(AnimationClip.findByName(res.animations, DJAnimationName));
+                action.setEffectiveWeight(1);
+                animationComponent.currentState.animations = [
+                  {
+                    name: DJAnimationName,
+                    weight: 1,
+                    loopType: LoopRepeat,
+                    action,
+                  }
+                ];
+              }
             }
             this._onModelLoaded();
             resolve();
@@ -192,9 +240,6 @@ export class WorldScene {
         createGround(entity, component.data)
         break;
 
-      case 'skybox':
-        createSkybox(entity, component.data);
-        break;
 
       case 'image':
         addObject3DComponent(entity, { obj3d: Image, objArgs: component.data });
@@ -245,8 +290,8 @@ export class WorldScene {
         setFog(entity, component.data);
         break;
 
-      case 'background':
-        createBackground(entity, component.data as any);
+      case 'skybox':
+        createSkybox(entity, component.data as any);
         break;
 
       case 'audio-settings':
@@ -307,8 +352,8 @@ export class WorldScene {
         setPostProcessing(entity, component.data);
         break;
 
-      case 'reflectionprobe':
-        setReflectionProbe(entity, component.data);
+      case 'envmap':
+        setEnvMap(entity, component.data);
         break;
 
       case 'persist':

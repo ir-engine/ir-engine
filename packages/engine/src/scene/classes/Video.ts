@@ -9,8 +9,7 @@ import {
   RGBAFormat,
   VideoTexture
 } from "three";
-import { RethrownError } from "../../editor/functions/errors";
-import Hls from "hls.js/dist/hls.light";
+import Hls from "hls.js";
 import isHLS from "../../editor/functions/isHLS";
 import AudioSource from "./AudioSource";
 export const VideoProjection = {
@@ -18,14 +17,15 @@ export const VideoProjection = {
   Equirectangular360: "360-equirectangular"
 };
 import { Engine } from "../../ecs/classes/Engine";
+import { elementPlaying } from "../behaviors/createMedia";
 
 export default class Video extends AudioSource {
   // @ts-ignore
-  _videoTexture: any;
   _texture: any;
   _mesh: Mesh;
   _projection: string;
   hls: Hls;
+  isSynced: boolean
   constructor(audioListener, isSynced: boolean, id: string) {
     super(audioListener, "video", id);
 
@@ -33,12 +33,11 @@ export default class Video extends AudioSource {
     document.body.appendChild(this.el);
 
     // @ts-ignore
-    this._videoTexture = new VideoTexture(this.el);
-    this._videoTexture.minFilter = LinearFilter;
-    this._videoTexture.encoding = sRGBEncoding;
-    this._texture = this._videoTexture;
+    this._texture = new VideoTexture(this.el);
+    this._texture.minFilter = LinearFilter;
+    this._texture.encoding = sRGBEncoding;
     const geometry = new PlaneBufferGeometry();
-    const material = new MeshBasicMaterial();
+    const material = new MeshBasicMaterial({ color: 0xffffff });
     material.map = this._texture;
     material.side = DoubleSide;
     this._mesh = new Mesh(geometry, material);
@@ -47,53 +46,73 @@ export default class Video extends AudioSource {
     this._projection = "flat";
     this.hls = null;
     this.isSynced = isSynced;
+    this.el.addEventListener('play', () => {
+      console.log('video is now playing')
+    });
+    this.el.addEventListener('pause', () => {
+      console.log('video is now paused')
+    });
   }
-  loadVideo(src, contentType) {
-    return new Promise((resolve, reject) => {
+  loadVideo(src, contentType?) {
+    return new Promise<void>((resolve, reject) => {
       const _isHLS = isHLS(src, contentType);
+      console.log(this)
       if (_isHLS) {
         if (!this.hls) {
           this.hls = new Hls();
         }
-        this.hls.loadSource(src);
-        this.hls.attachMedia(this.el);
-        this.hls.on((Hls as any).Events.MANIFEST_PARSED, () => {
-          this.hls.startLoad(-1);
+        this.hls.on(Hls.Events.ERROR, function (event, data) {
+          if (data.fatal) {
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                // try to recover network error
+                console.log('fatal network error encountered, try to recover', event, data);
+                this.hls.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                console.log('fatal media error encountered, try to recover', event, data);
+                this.hls.recoverMediaError();
+                break;
+              default:
+                // cannot recover
+                console.log('HLS fatal error encountered, destroying video...', event, data);
+                this.hls.destroy();
+                break;
+            }
+          }
         });
+        this.hls.once(Hls.Events.LEVEL_LOADED, () => { resolve() })
+        this.hls.on(Hls.Events.MEDIA_ATTACHED, () => { 
+          this.hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+          });
+          this.hls.loadSource(src);
+        })
+        this.hls.attachMedia(this.el);
       } else {
-        // If element has the src which means it is already loaded.
         if (!this.el.src) {
           this.el.src = src;
-
-          // If media source requires to be synchronized then pause it for now.
-          if (this.isSynced) {
-            this.el.pause();
-          }
         }
+        
+        const onLoadedMetadata = () => {
+          cleanup();
+          cleanup();
+          resolve();
+        };
+        const onError = error => {
+          cleanup();
+          console.log(`Error loading video "${this.el.src}"`, error)
+          resolve()
+          // reject(
+          //   new RethrownError()
+          // );
+        };
+        const cleanup = () => {
+          this.el.removeEventListener("loadeddata", onLoadedMetadata);
+          this.el.removeEventListener("error", onError);
+        };
+        this.el.addEventListener("loadeddata", onLoadedMetadata);
+        this.el.addEventListener("error", onError);
       }
-      let cleanup = null;
-      const onLoadedMetadata = () => {
-        cleanup();
-        cleanup();
-        resolve(this._videoTexture);
-      };
-      const onError = error => {
-        cleanup();
-        console.log(`Error loading video "${this.el.src}"`, error)
-        resolve(null)
-        // reject(
-        //   new RethrownError()
-        // );
-      };
-      cleanup = () => {
-        this.el.removeEventListener("loadeddata", onLoadedMetadata);
-        this.el.removeEventListener("error", onError);
-      };
-      if (_isHLS) {
-        this.hls.on((Hls as any).Events.ERROR, onError);
-      }
-      this.el.addEventListener("loadeddata", onLoadedMetadata);
-      this.el.addEventListener("error", onError);
     });
   }
   get projection() {
@@ -136,7 +155,12 @@ export default class Video extends AudioSource {
   async load(src, contentType?) {
     if(!src) return this;
     this._mesh.visible = false;
-    this._texture = await this.loadVideo(src, contentType);
+    // if video is synced to UTC loadVideo is called from NetworkMediaStream prefab init as server authorises it
+    if (this.isSynced) {
+      this.el.autoplay = 'none';
+    } else {
+      await this.loadVideo(src, contentType);
+    }
     this.onResize();
     if(Engine.useAudioSystem) {
       this.audioSource = this.audioListener.context.createMediaElementSource(this.el);

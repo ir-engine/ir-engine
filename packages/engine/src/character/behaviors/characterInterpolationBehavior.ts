@@ -7,6 +7,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { CharacterComponent } from '../components/CharacterComponent';
 import type { SnapshotData, StateInterEntity } from '../../networking/types/SnapshotDataTypes';
 import { Vector3 } from 'three';
+import { AnimationComponent } from '../components/AnimationComponent';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -19,13 +20,14 @@ import { Vector3 } from 'three';
 export const characterInterpolationBehavior: Behavior = (entity: Entity, snapshots: SnapshotData, delta: number): void => {
   const transform = getComponent<TransformComponent>(entity, TransformComponent);
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+  const animationComponent = getMutableComponent<AnimationComponent>(entity, AnimationComponent);
   const collider:any = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
 
   const interpolation = findInterpolationSnapshot(entity, snapshots.interpolation) as StateInterEntity;
 
   if (!collider.controller || !interpolation || isNaN(interpolation.vX)) return;
 
-  actor.animationVelocity.set(
+  animationComponent.animationVelocity.set(
     interpolation.vX,
     interpolation.vY,
     interpolation.vZ

@@ -1,6 +1,6 @@
 import EditorNodeMixin from "./EditorNodeMixin";
 import Video from "../../scene/classes/Video";
-import Hls from "hls.js/dist/hls.light";
+import Hls from "hls.js";
 import isHLS from "../functions/isHLS";
 // import editorLandingVideo from ;
 import { RethrownError } from "../functions/errors";
@@ -65,6 +65,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
   controls = true;
   interactable = false;
   isLivestream = false;
+  synchronize = 0;
   constructor(editor) {
     super(editor, editor.audioListener);
   }
@@ -101,11 +102,12 @@ export default class VideoNode extends EditorNodeMixin(Video) {
       );
       const isHls = isHLS(src, contentType);
       if (isHls) {
-        this.hls = new Hls({
-          xhrSetup: (xhr, url) => {
-            xhr.open("GET", this.editor.api.unproxyUrl(src, url));
-          }
-        });
+        // this.hls = new Hls({
+        //   xhrSetup: (xhr, url) => {
+        //     xhr.open("GET", this.editor.api.unproxyUrl(src, url));
+        //   }
+        // });
+        this.hls = new Hls()
       }
       await super.load(url, contentType);
       if (isHls && this.hls) {
@@ -118,15 +120,15 @@ export default class VideoNode extends EditorNodeMixin(Video) {
       }
     } catch (error) {
       this.showErrorIcon();
-      const videoError = new RethrownError(
-        `Error loading video ${this._canonicalUrl}`,
-        error
-      );
-      if (onError) {
-        onError(this, videoError);
-      }
-      console.error(videoError);
-      this.issues.push({ severity: "error", message: "Error loading video." });
+      // const videoError = new RethrownError(
+      //   `Error loading video ${this._canonicalUrl}`,
+      //   error
+      // );
+      // if (onError) {
+      //   onError(this, videoError);
+      // }
+      // console.error(videoError);
+      // this.issues.push({ severity: "error", message: "Error loading video." });
     }
     this.editor.emit("objectsChanged", [this]);
     this.editor.emit("selectionChanged");

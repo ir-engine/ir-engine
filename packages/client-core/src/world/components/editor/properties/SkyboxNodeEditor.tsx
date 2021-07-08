@@ -11,6 +11,7 @@ import i18n from "i18next";
 import { withTranslation } from "react-i18next";
 import { Color } from "three";
 import ColorInput from "../inputs/ColorInput";
+import { SkyTypeEnum } from "@xrengine/engine/src/editor/nodes/SkyboxNode";
 
 const hoursToRadians = hours => hours / 24;
 const radiansToHours = rads => rads * 24;
@@ -23,47 +24,22 @@ const radiansToHours = rads => rads * 24;
  */
 const SkyOption = [
   {
-    label: "none",
-    value: "none"
+    label: "color",
+    value: SkyTypeEnum.color
   },
   {
     label: "skybox",
-    value: "skybox"
+    value: SkyTypeEnum.skybox
   },
   {
     label: "cubemap",
-    value: "cubemap"
+    value: SkyTypeEnum.cubemap
   },
   {
     label: "equirectangular",
-    value: "equirectangular"
+    value: SkyTypeEnum.equirectangular
   }
 ];
-
-/**
- * Types of backgrounds
- * 
- * @author Josh Field
- * @type {Array}
- */
-const BackgroundTypeOption = [
-  {
-    label: "envmap",
-    value: "envmap"
-  },
-  {
-    label: "texture",
-    value: "texture"
-  },
-  {
-    label: "color",
-    value: "color"
-  },
-];
-
-const DefaultEquirectangularpPath = '/hdr/equirectangular/texture444.jpg';
-const DefaultCubemapPath = '/cubemap/';
-const DefaultTexturePath = '/cubemap/posx.jpg';
 
 /**
  * SkyboxNodeEditorProps declairing props for SkyboxNodeEditor.
@@ -133,76 +109,39 @@ export class SkyboxNodeEditor extends Component<
   };
 
   //function to handle the changes skyType
-  onChangeSkyOption = skyType => {
-    this.onChangeTextureOption(null);
+  onChangeSkyOption = backgroundType => {
     (this.props.editor as any).setPropertySelected(
-      "skyType",
-      skyType
-    );
-    this.setDefaultTextureOptionValue(skyType)
-  };
-
-  //function to handle the changes backgroundPath
-  onChangeBackgroundPathOption = backgroundPath => {
-    (this.props.editor as any).setPropertySelected(
-      "backgroundPath",
-      backgroundPath
+      "backgroundType",
+      backgroundType
     );
   };
 
   //function to handle the changes backgroundPath
-  onChangeBackgroundColorOption = backgroundColor => {
+  onChangeEquirectangularPathOption = path => {
+    (this.props.editor as any).setPropertySelected(
+      "equirectangularPath",
+      path
+    );
+  };
+
+
+  onChangeCubemapPathOption = path => {
+    (this.props.editor as any).setPropertySelected(
+      "cubemapPath",
+      path
+    );
+  };
+
+  //function to handle the changes backgroundPath
+  onChangeColorOption = backgroundColor => {
     (this.props.editor as any).setPropertySelected(
       "backgroundColor",
       backgroundColor
     );
   };
 
-  //function to handle the changes backgroundType
-  onChangeBackgroundTypeOption = backgroundType => {
-    (this.props.editor as any).setPropertySelected(
-      "backgroundType",
-      backgroundType
-    );
-    this.setDefaultBackgroundOptionValue(backgroundType)
-  };
 
-  // function to handle changes texturePath
-  onChangeTextureOption = texturePath => {
-    (this.props.editor as any).setPropertySelected(
-      "texturePath",
-      texturePath
-    );
-  };
 
-  // function to set default texture option on the basis of skyType
-  setDefaultBackgroundOptionValue = (backgroundType) => {
-    switch (backgroundType) {
-      case "color" as any:
-        this.onChangeBackgroundColorOption(0x000000);
-        break;
-      case "texture" as any:
-        this.onChangeBackgroundPathOption(DefaultTexturePath);
-        break;
-      default:
-        break;
-    }
-  }
-
-  // function to set default texture option on the basis of skyType
-  setDefaultTextureOptionValue = (skyType) => {
-    switch (skyType) {
-      case "cubemap" as any:
-        this.onChangeTextureOption(DefaultCubemapPath);
-        break;
-      case "equirectangular" as any:
-        this.onChangeTextureOption(DefaultEquirectangularpPath);
-        break;
-      default:
-        this.onChangeTextureOption(null);
-        break;
-    }
-  }
   //creating editor view for skybox setting
   renderSkyboxSettings = node =>
     <>
@@ -327,7 +266,7 @@ export class SkyboxNodeEditor extends Component<
         { /* @ts-ignore */}
         <ColorInput
           value={(node as any).backgroundColor ? (node as any).backgroundColor : 0x000000}
-          onChange={this.onChangeBackgroundColorOption}
+          onChange={this.onChangeColorOption}
           isValueAsInteger={true}
         />
       </InputGroup>
@@ -335,27 +274,15 @@ export class SkyboxNodeEditor extends Component<
 
   // creating editor view for skybox Properties
   renderSkyBoxProps = (node) => {
-    switch (node.skyType) {
-      case "cubemap" as any:
-        return this.renderTextureSettings((node as any).texturePath ? (node as any).texturePath : DefaultCubemapPath, this.onChangeTextureOption);
-      case "equirectangular" as any:
-        return this.renderTextureSettings((node as any).texturePath ? (node as any).texturePath : DefaultEquirectangularpPath, this.onChangeTextureOption);
-      case "skybox" as any:
-        return this.renderSkyboxSettings(node);
-      default:
-        return null
-    }
-  }
-
-  // creating editor view for background Properties
-  renderBackgroundProps = (node) => {
     switch (node.backgroundType) {
-      case "color" as any:
-        return this.renderColorSettings(node);
-      case "texture" as any:
-        return this.renderTextureSettings((node as any).backgroundPath ? (node as any).backgroundPath : DefaultTexturePath, this.onChangeBackgroundPathOption);
+      case SkyTypeEnum.equirectangular as any:
+        return this.renderTextureSettings((node as any).equirectangularPath, this.onChangeEquirectangularPathOption);
+      case SkyTypeEnum.cubemap as any:
+        return this.renderTextureSettings((node as any).cubemapPath , this.onChangeCubemapPathOption);
+      case SkyTypeEnum.color as any:
+          return this.renderColorSettings(node);
       default:
-        return null
+        return this.renderSkyboxSettings(node);
     }
   }
 
@@ -368,26 +295,13 @@ export class SkyboxNodeEditor extends Component<
       <NodeEditor description={SkyboxNodeEditor.description} {...this.props}>
         { /* @ts-ignore */}
         <InputGroup
-          name="Background Type"
-          label={this.props.t('editor:properties.skybox.lbl-backgroundType')}
-        >
-          { /* @ts-ignore */}
-          <SelectInput
-            options={BackgroundTypeOption}
-            value={(node as any).backgroundType ? (node as any).backgroundType : BackgroundTypeOption[0].value}
-            onChange={this.onChangeBackgroundTypeOption}
-          />
-        </InputGroup>
-        {this.renderBackgroundProps(node)}
-        { /* @ts-ignore */}
-        <InputGroup
           name="Sky Type"
           label={this.props.t('editor:properties.skybox.lbl-skyType')}
         >
           { /* @ts-ignore */}
           <SelectInput
             options={SkyOption}
-            value={(node as any).skyType ? (node as any).skyType : SkyOption[0].value}
+            value={(node as any).backgroundType}
             onChange={this.onChangeSkyOption}
           />
         </InputGroup>

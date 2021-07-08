@@ -1,4 +1,4 @@
-import { Group, Quaternion, Vector3 } from "three";
+import { Quaternion, Vector3 } from "three";
 import { Controller, ControllerHitEvent, RaycastQuery, SceneQueryType } from "three-physx";
 import { isClient } from "../common/functions/isClient";
 import { EngineEvents } from "../ecs/classes/EngineEvents";
@@ -24,9 +24,7 @@ import { ServerSpawnSystem } from "../scene/systems/ServerSpawnSystem";
 import { sendClientObjectUpdate } from "../networking/functions/sendClientObjectUpdate";
 import { NetworkObjectUpdateType } from "../networking/templates/NetworkObjectUpdateSchema";
 import { updatePlayerRotationFromViewVector } from "./functions/updatePlayerRotationFromViewVector";
-import { AnimationManager } from "./AnimationManager";
 import { Object3DComponent } from "../scene/components/Object3DComponent";
-import { applyVectorMatrixXZ } from "../common/functions/applyVectorMatrixXZ";
 import { FollowCameraComponent } from "../camera/components/FollowCameraComponent";
 import { CameraSystem } from "../camera/systems/CameraSystem";
 import { DesiredTransformComponent } from "../transform/components/DesiredTransformComponent";
@@ -173,6 +171,7 @@ export class CharacterControllerSystem extends System {
       const controllerCollider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent);
       const transform = getComponent<TransformComponent>(entity, TransformComponent);
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+      const animationComponent = getMutableComponent(entity, AnimationComponent)
       if (!controllerCollider.controller || !actor.movementEnabled) return;
 
       const x = controllerCollider.controller.transform.translation.x - prevControllerColliderPosition.x;
@@ -185,10 +184,10 @@ export class CharacterControllerSystem extends System {
         controllerCollider.controller.transform.translation.z
       )
       if (isNaN(x)) {
-        actor.animationVelocity.set(0,0,0);
+        animationComponent.animationVelocity.set(0,0,0);
       }
       quat.copy(transform.rotation).invert();
-      actor.animationVelocity.set(x, y, z).applyQuaternion(quat);
+      animationComponent.animationVelocity.set(x, y, z).applyQuaternion(quat);
 
       characterMoveBehavior(entity, delta);
 
@@ -212,17 +211,38 @@ export class CharacterControllerSystem extends System {
     })
 
     // temporarily disable animations on Oculus until we have buffer animation system / GPU animations
-    this.queryResults.animation.added?.forEach((entity) => {
+    this.queryResults.animationCharacter.added?.forEach((entity) => {
+      if(!isClient) return;
       const animationComponent = getMutableComponent(entity, AnimationComponent);
-      animationComponent.animationGraph = CharacterAnimationGraph.constructGraph();
+      animationComponent.animationGraph = new CharacterAnimationGraph();
       animationComponent.currentState = animationComponent.animationGraph.states[CharacterStates.IDLE];
-      animationComponent.currentState.mount(getMutableComponent(entity, CharacterComponent), {});
+      animationComponent.currentState.mount(animationComponent, {});
       animationComponent.prevVelocity = new Vector3();
     });
 
     this.queryResults.animation.all?.forEach((entity) => {
-      AnimationManager.instance.renderAnimations(entity, delta);
+      if (!isClient) return;
+      const animationComponent = getMutableComponent(entity, AnimationComponent);
+
+      const modifiedDelta = delta * animationComponent.speedMultiplier;
+      animationComponent.mixer?.update(modifiedDelta);
     });
+
+    this.queryResults.animationCharacter.all?.forEach((entity) => {
+      if (!isClient) return;
+
+      const actor = getMutableComponent(entity, CharacterComponent);
+      const animationComponent = getMutableComponent(entity, AnimationComponent);
+      const deltaTime = delta * animationComponent.speedMultiplier;
+
+      if (!animationComponent.onlyUpdateMixerTime) {
+        animationComponent.animationGraph.render(actor, animationComponent, deltaTime);
+      }
+
+      const prevStateWeight = animationComponent.animationGraph.unmountPrevState(animationComponent, deltaTime);
+      animationComponent.animationGraph.renderIdleWeight(animationComponent, prevStateWeight);
+    });
+
 
     this.queryResults.ikAvatar.added?.forEach((entity) => {
       // TODO: once IK is, remove anim component
@@ -240,7 +260,7 @@ export class CharacterControllerSystem extends System {
         xrInputSourceComponent.controllerRight, 
         xrInputSourceComponent.controllerGripRight
       );
-      
+
       xrInputSourceComponent.controllerGroup.applyQuaternion(rotate180onY);
       object3DComponent.value.add(xrInputSourceComponent.controllerGroup, xrInputSourceComponent.head);
 
@@ -308,14 +328,21 @@ CharacterControllerSystem.queries = {
     }
   },
   characterOnServer: {
-    components: [Not(LocalInputReceiver), Not(InterpolationComponent), CharacterComponent],
+    components: [Not(LocalInputReceiver), Not(InterpolationComponent), CharacterComponent, ControllerColliderComponent],
     listen: {
       added: true,
       removed: true
     }
   },
   animation: {
-    components: [CharacterComponent, AnimationComponent],
+    components: [AnimationComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  animationCharacter: {
+    components: [AnimationComponent, CharacterComponent],
     listen: {
       added: true,
       removed: true

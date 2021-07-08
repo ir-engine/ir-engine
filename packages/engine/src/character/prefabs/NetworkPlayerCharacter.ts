@@ -36,6 +36,7 @@ import { CharacterAnimationGraph } from "../animations/CharacterAnimationGraph";
 export const loadDefaultActorAvatar: Behavior = (entity) => {
   if(!isClient) return;
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+  const animationComponent = getMutableComponent(entity, AnimationComponent);
   const model = SkeletonUtils.clone(AnimationManager.instance._defaultModel);
   model.traverse((object) => {
     if (object.isMesh || object.isSkinnedMesh) {
@@ -43,7 +44,7 @@ export const loadDefaultActorAvatar: Behavior = (entity) => {
     }
   });
   model.children?.forEach(child => actor.modelContainer.add(child));
-  actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
+  animationComponent.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 };
 
 export const loadActorAvatar: Behavior = (entity) => {
@@ -66,9 +67,10 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 	}, (asset: Group) => {
     const model = SkeletonUtils.clone(asset);
 		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
+		const animationComponent = getMutableComponent(entity, AnimationComponent);
 
-		actor.mixer && actor.mixer.stopAllAction();
-		actor.currentAnimationAction = [];
+		animationComponent.mixer && animationComponent.mixer.stopAllAction();
+		animationComponent.currentAnimationAction = [];
 
 		([...actor.modelContainer.children]).forEach(child => actor.modelContainer.remove(child));
 
@@ -79,7 +81,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		});
 
 		model.children.forEach(child => actor.modelContainer.add(child));
-		actor.mixer = new AnimationMixer(actor.modelContainer.children[0]);
+		animationComponent.mixer = new AnimationMixer(actor.modelContainer.children[0]);
 	});
 };
 
@@ -88,10 +90,10 @@ const initializeCharacter: Behavior = (entity): void => {
 	entity.name = 'Player';
 
 	const actor = getMutableComponent(entity, CharacterComponent);
-	actor.mixer?.stopAllAction();
+  const animationComponent = getMutableComponent(entity, AnimationComponent);
 
 	// forget that we have any animation playing
-	actor.currentAnimationAction = [];
+	animationComponent.currentAnimationAction = [];
 
 	// clear current avatar mesh
 	if (actor.modelContainer !== undefined)
@@ -117,8 +119,8 @@ const initializeCharacter: Behavior = (entity): void => {
 
 	actor.velocitySimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.moveVectorSmooth = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
-	actor.animationVectorSimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 	actor.rotationSimulator = new RelativeSpringSimulator(60, actor.defaultRotationSimulatorMass, actor.defaultRotationSimulatorDamping);
+	animationComponent.animationVectorSimulator = new VectorSpringSimulator(60, actor.defaultVelocitySimulatorMass, actor.defaultVelocitySimulatorDamping);
 
 	actor.viewVector = new Vector3(0, 0, 1);
 
@@ -192,7 +194,11 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
 		// Local player input mapped to behaviors in the input map
 		{ type: Input, data: { schema: CharacterInputSchema } },
 		{ type: NamePlateComponent },
-		{ type: PositionalAudioComponent }
+		{ type: PositionalAudioComponent },
+		{ type: AnimationComponent, data: {
+			animationsSchema: movingAnimationSchema,
+			updateAnimationsValues: getMovementValues,
+		}}
 	],
 	// These are only created for the local player who owns this prefab
 	localClientComponents: [
@@ -204,10 +210,6 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
 	clientComponents: [
 		// Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player
 		{ type: InterpolationComponent },
-		{ type: AnimationComponent, data: {
-			animationsSchema: movingAnimationSchema,
-			updateAnimationsValues: getMovementValues,
-		}}
 	],
 	serverComponents: [],
 	onAfterCreate: [

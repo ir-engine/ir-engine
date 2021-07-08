@@ -8,7 +8,6 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { getMutableComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
 import { LocalInputReceiver } from '@xrengine/engine/src/input/components/LocalInputReceiver';
 import { AnimationComponent } from '@xrengine/engine/src/character/components/AnimationComponent';
-import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent';
 import { CalculateWeightsParams, CharacterAnimations, CharacterStates } from '@xrengine/engine/src/character/animations/Util';
 
 type MenuItemType = {
@@ -53,7 +52,6 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
 
     const runAnimation = (animationName: string, params: CalculateWeightsParams) => {
         const entity = Engine.entities.find(e => e.name === 'Player' && hasComponent(e, LocalInputReceiver));
-        const actor = getMutableComponent(entity, CharacterComponent);
         const animationComponent = getMutableComponent(entity, AnimationComponent);
 
         const animationState = animationComponent.animationGraph.states[animationName];
@@ -65,8 +63,10 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
             animationComponent.currentState.changeAnimationSmoothly(params);
             animationComponent.animationGraph.updateNetwork(animationComponent, animationState.name, params);
         } else {
-            animationComponent.animationGraph.transitionState(actor, animationComponent, animationState.name, params);
-            animationComponent.currentState.changeAnimationSmoothly(params);
+            animationComponent.animationGraph.transitionState(animationComponent, animationState.name, params);
+            if (animationComponent.currentState.changeAnimationSmoothly) {
+                animationComponent.currentState.changeAnimationSmoothly(params);
+            }
         }
     }
 
