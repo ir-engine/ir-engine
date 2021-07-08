@@ -94,7 +94,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   _canonicalUrl = "";
   envMapOverride = "";
-  textureOverride: string = '';
+  textureOverride = '';
   collidable = true;
   saveColliders = true;
   target = null;

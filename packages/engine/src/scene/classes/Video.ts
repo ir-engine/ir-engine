@@ -75,11 +75,11 @@ export default class Video extends AudioSource {
         });
         this.hls.on(Hls.Events.MEDIA_ATTACHED, () => { 
           this.hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
-            resolve()
           });
           this.hls.loadSource(src);
         })
         this.hls.attachMedia(this.el);
+        resolve()
       }
       if (!this.el.src) {
         this.el.src = src;
@@ -108,7 +108,7 @@ export default class Video extends AudioSource {
         //   new RethrownError()
         // );
       };
-      let cleanup = () => {
+      const cleanup = () => {
         this.el.removeEventListener("loadeddata", onLoadedMetadata);
         this.el.removeEventListener("error", onError);
       };
