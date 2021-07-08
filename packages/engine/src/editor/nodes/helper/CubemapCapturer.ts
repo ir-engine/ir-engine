@@ -73,23 +73,9 @@ export default class CubemapCapturer{
 		this.renderer = renderer;
 		this.api=api;
 		this.envMapID=envMapID;
-		this.material = new RawShaderMaterial( {
-			uniforms:{
-				map:new Uniform(new CubeTexture())
-			},
-			vertexShader: vertexShader,
-			fragmentShader: fragmentShader,
-			side: DoubleSide,
-			transparent: true
-		} );
+
 		
-		this.scene = new Scene();
-		this.quad = new Mesh(
-			new PlaneBufferGeometry( 1, 1 ),
-			this.material
-		);
-		this.scene.add( this.quad );
-		this.camera = new OrthographicCamera( 1 / - 2, 1 / 2, 1 / 2, 1 / - 2, -10000, 10000 );
+
 	
 		this.canvas = document.createElement( 'canvas' );
 		this.ctx = this.canvas.getContext( '2d' );
@@ -134,16 +120,7 @@ export default class CubemapCapturer{
 		return this.cubeCamera;
 	}
 
-	convertCubemapToEqui = function() {
 
-		this.quad.material.uniforms.map.value = this.cubeCamera.renderTarget.texture;
-		(this.renderer as WebGLRenderer).render( this.scene, this.camera);
-		const pixels = new Uint8Array( 4 * this.width * this.height );
-		this.renderer.readRenderTargetPixels( this.renderTarget, 0, 0, this.width, this.height, pixels );
-		const imageData = new ImageData( new Uint8ClampedArray( pixels ), this.width, this.height );
-		return imageData
-	
-	};
 
 
 	async uploadToServer (){
@@ -167,7 +144,7 @@ export default class CubemapCapturer{
 
 
 
-	update = async ( position:Vector3): Promise<{
+	update = async ( position:Vector3,downloadEnvmap=false): Promise<{
 		cubeRenderTarget: WebGLCubeRenderTarget;
 		envMapID: any;
 	}> => {
@@ -176,7 +153,8 @@ export default class CubemapCapturer{
 		this.cubeCamera.position.copy(position );
 		this.cubeCamera.update( this.renderer, this.sceneToRender );
 		this.renderer.autoClear = autoClear;
-		const envMapID = await this.uploadToServer();
+		const envMapID = downloadEnvmap?(await this.uploadToServer()):"";
+		this.download(this.convertCubemapToEqui());
 		const cubeRenderTarget = this.cubeRenderTarget;
 		return ({ cubeRenderTarget: this.cubeRenderTarget, envMapID });
 	}
@@ -185,7 +163,7 @@ export default class CubemapCapturer{
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
 	
-	 static convertEquiToCubemap = ( renderer:WebGLRenderer,source:Texture, size:number )=> {
+	static convertEquiToCubemap = ( renderer:WebGLRenderer,source:Texture, size:number )=> {
 
 		const convertScene = new Scene();
 	
@@ -214,7 +192,59 @@ export default class CubemapCapturer{
 		return cubeRenderTarget;
 	
 	}
+
+
+	static downloadImage = function( imageData:ImageData,imageName="Image" ) {
+		this.ctx.putImageData( imageData, 0, 0 );
 	
+		this.canvas.toBlob( ( blob ) => {
+	
+			const url = URL.createObjectURL(blob);
+			const fileName = `${imageName}.png`;
+			const anchor = document.createElement( 'a' );
+			anchor.href = url;
+			anchor.setAttribute("download", fileName);
+			anchor.className = "download-js-link";
+			anchor.innerHTML = "downloading...";
+			anchor.style.display = "none";
+			document.body.appendChild(anchor);
+			setTimeout(() => {
+				anchor.click();
+				document.body.removeChild(anchor);
+			}, 1 );
+	
+		}, 'image/png' );
+	
+	};
+
+	static convertCubemapToEqui = (renderer:WebGLRenderer,renderTarget:WebGLCubeRenderTarget,width:number,height:number):ImageData=>{
+
+		const scene = new Scene();
+		const material = new RawShaderMaterial( {
+			uniforms:{
+				map:new Uniform(new CubeTexture())
+			},
+			vertexShader: vertexShader,
+			fragmentShader: fragmentShader,
+			side: DoubleSide,
+			transparent: true
+		} );
+		const quad = new Mesh(
+			new PlaneBufferGeometry( 1, 1 ),
+			material
+		);
+		scene.add(quad );
+		const camera = new OrthographicCamera( 1 / - 2, 1 / 2, 1 / 2, 1 / - 2, -10000, 10000 );
+
+		quad.material.uniforms.map.value = renderTarget.texture;
+		renderer.render(scene, camera);
+		const pixels = new Uint8Array( 4 * width * height );
+		renderer.readRenderTargetPixels( renderTarget, 0, 0, width, height, pixels );
+		const imageData = new ImageData( new Uint8ClampedArray( pixels ), width, height );
+		return imageData
+	
+	};
+
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
