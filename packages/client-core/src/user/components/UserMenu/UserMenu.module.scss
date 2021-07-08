@@ -350,6 +350,9 @@
     color: black;
     max-height: calc(100vh - 175px);
     overflow: auto;
+    touch-action: auto;
+
+    * { touch-action: auto; }
 
     &>.profilePanel, &>.accountPanel, &>.settingPanel, &>.sharePanel, &>.locationPanel { margin: 30px 0; }
 
