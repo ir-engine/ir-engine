@@ -41,5 +41,10 @@
 
         &:hover { transform: scale(1.2); }
         > svg { height: 50%; width: 50%; }
+
+        @media screen and (max-height: 475px) {
+            height: 40px;
+            width: 40px;
+        }
     }
 }

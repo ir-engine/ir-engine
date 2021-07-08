@@ -230,6 +230,7 @@ export * from './src/user/reducers/user/actions';
 export * from './src/user/reducers/user/reducers';
 export * from './src/user/reducers/user/selector';
 export * from './src/user/reducers/user/service';
+export * from './src/util/platformCheck';
 export * from './src/world/components/editor/Api';
 export * from './src/world/components/editor/assets/AssetDropZone';
 export * from './src/world/components/editor/assets/AssetGrid';

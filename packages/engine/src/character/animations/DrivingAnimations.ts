@@ -110,7 +110,7 @@ const getDrivingValues: Behavior = (entity, args: {}, deltaTime: number): any =>
   //  test < 0.00001 ? test = 0:'';
   //  test = Math.min(test, 1);
 
-   return { actorVelocity, test };
+  //  return { actorVelocity, test };
 }
 
 export const initializeDriverState: Behavior = (entity) => {

@@ -2,7 +2,6 @@ import { AnimationAction, AnimationClip, LoopOnce, LoopRepeat, MathUtils } from 
 import { delay } from "../../ecs/functions/EngineFunctions";
 import { AnimationManager } from "../AnimationManager";
 import { AnimationComponent } from "../components/AnimationComponent";
-import { CharacterComponent } from "../components/CharacterComponent";
 import { Animation, AnimationType, CalculateWeightsParams, CharacterAnimations, CharacterStates } from "./Util";
 
 /** Class to hold state of an animation for entity */

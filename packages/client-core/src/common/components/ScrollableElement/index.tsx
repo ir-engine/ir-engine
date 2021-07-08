@@ -51,7 +51,7 @@ const ScrollableElement = (props: ScrollableElementPropsType) => {
                 className={styles.scrollContainer + (props.scrollContainerClass ? (' ' + props.scrollContainerClass) : '')}
                 onScroll={adjustShadows}
                 ref={scrollElement}
-                style={{ height: 'clamp(200px, 30vh, ' + (props.height || 210) + 'px)' }}
+                style={{ height: 'clamp(240px, 30vh, ' + (props.height || 210) + 'px)' }}
             >
                 {props.children}
             </div>
