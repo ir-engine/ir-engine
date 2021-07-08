@@ -10,11 +10,14 @@
     bottom: 20px;
     width: 100vw;
     z-index: 15;
+    display: flex;
+    align-items: center;
 
     .materialIconBlock {
         display: flex;
         justify-content: center;
         align-items: center;
+        width: 4em;
 
         svg{
             width: 100%;
@@ -25,10 +28,9 @@
     }
 
     .iconContainer {
-        display: flex;
+        display: inline-flex;
         border-radius: 5px;
         background: #00000050;
-        width: 12em;
         margin: auto;
 
         .materialIconBlock {
