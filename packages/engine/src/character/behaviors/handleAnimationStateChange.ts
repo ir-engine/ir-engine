@@ -4,7 +4,6 @@ import { Network } from "../../networking/classes/Network";
 import { convertBufferSupportedStringToObj } from "../../networking/functions/jsonSerialize";
 import { NetworkObjectEditInterface } from "../../networking/interfaces/WorldState";
 import { AnimationComponent } from "../components/AnimationComponent";
-import { CharacterComponent } from "../components/CharacterComponent";
 
 export const handleAnimationStateChange = (editObject: NetworkObjectEditInterface): void => {
     if(!Network.instance.networkObjects[editObject.networkId]) {
@@ -14,7 +13,6 @@ export const handleAnimationStateChange = (editObject: NetworkObjectEditInterfac
     if (Network.instance.networkObjects[editObject.networkId].ownerId === Network.instance.userId) return;
 
     const entity: Entity = Network.instance.networkObjects[editObject.networkId].component.entity;
-    const actor = getMutableComponent(entity, CharacterComponent);
     const animationComponent = getMutableComponent(entity, AnimationComponent);
 
     const animationDetail = convertBufferSupportedStringToObj(editObject.data[0]);
@@ -25,7 +23,7 @@ export const handleAnimationStateChange = (editObject: NetworkObjectEditInterfac
             animationComponent.currentState.changeAnimationSmoothly(animationDetail.params)
         }
     } else {
-        animationComponent.animationGraph.transitionState(actor, animationComponent, animationState.name, animationDetail.params);
+        animationComponent.animationGraph.transitionState(animationComponent, animationState.name, animationDetail.params);
         if (animationDetail.params.smoothChange && animationComponent.currentState.changeAnimationSmoothly) {
             animationComponent.currentState.changeAnimationSmoothly(animationDetail.params)
         }

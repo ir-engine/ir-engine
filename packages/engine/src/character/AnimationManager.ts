@@ -2,10 +2,6 @@ import { AnimationClip, Group, Material, Mesh, SkinnedMesh } from "three";
 import { getLoader } from "../assets/functions/LoadGLTF";
 import { isClient } from "../common/functions/isClient";
 import { Engine } from "../ecs/classes/Engine";
-import { Entity } from "../ecs/classes/Entity";
-import { getMutableComponent } from "../ecs/functions/EntityFunctions";
-import { AnimationComponent } from "./components/AnimationComponent";
-import { CharacterComponent } from "./components/CharacterComponent";
 
 export const DJModelName = 'dj';
 export const DJAnimationName = 'Animation';
