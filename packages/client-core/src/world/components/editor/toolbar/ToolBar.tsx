@@ -585,12 +585,6 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
     }
   };
 
-  handleShowStats = () => {
-    this.setState({
-      showStats: !this.state.showStats
-    })
-  }
-
   
 
   render() {
@@ -733,7 +727,7 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
             </ToggleButton>
           </ToolbarInputGroup>
           <ViewportToolbar
-            onToggleStats={this.handleShowStats}
+            onToggleStats={()=> this.setState({showStats: !this.state.showStats})}
             showStats={this.state.showStats} />
         </ToolToggles>
         <Spacer />
