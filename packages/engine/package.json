@@ -34,14 +34,14 @@
     "generate-doc": "node_modules/.bin/typedoc",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
-  "version": "0.3.30",
+  "version": "0.3.31",
   "peerDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.6.0",
     "@typescript-eslint/parser": "^4.4.1"
   },
   "dependencies": {
     "@pixiv/three-vrm": "^0.6.4",
-    "@xrengine/common": "^0.3.30",
+    "@xrengine/common": "^0.3.31",
     "browserfs": "^1.4.3",
     "cross-fetch": "^3.0.6",
     "ctix": "^0.3.1",
@@ -73,7 +73,7 @@
     "@types/jest-environment-puppeteer": "4.4.1",
     "@types/puppeteer": "5.4.4",
     "@types/three": "0.130.0",
-    "@xrengine/bot": "^0.3.30",
+    "@xrengine/bot": "^0.3.31",
     "esbuild": "0.12.15",
     "eslint": "7.30.0",
     "jest": "27.0.6",
