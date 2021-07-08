@@ -17,7 +17,7 @@ export class AnimationGraph {
     defaultState: AnimationState;
 
     /** Precision value */
-    EPSILON = 0.001;
+    EPSILON = 0.005;
 
     /** Indicates whether the transition from one state to another is paused or not */
     isTransitionPaused: boolean;
