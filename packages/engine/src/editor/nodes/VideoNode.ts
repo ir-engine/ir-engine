@@ -65,6 +65,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
   controls = true;
   interactable = false;
   isLivestream = false;
+  synchronize = 0;
   constructor(editor) {
     super(editor, editor.audioListener);
   }

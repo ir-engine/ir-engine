@@ -56,10 +56,12 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
         }
         this.gizmo=new BoxHelper(new Mesh(new BoxBufferGeometry()),0xff0000);
         this.centerBall.material=new MeshPhysicalMaterial({
-            roughness:0,metalness:1,
+            roughness:0,metalness:1,envMapIntensity:10,
         })
 
         this.add(this.gizmo);
+
+        this.editor.scene.registerEnvironmentMapNodes(this);
     }
 
 
@@ -83,9 +85,9 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
             if(child.material)
                 child.material.envMapIntensity=this.reflectionProbeSettings.intensity;
         });
-        this.editor.scene.environment=this.visible?this.currentEnvMap?.texture:null;
-
+        //this.editor.scene.environment=this.visible?this.currentEnvMap?.texture:null;
     }
+
     injectShader(){
         this.editor.scene.traverse(child=>{
             if(child.material){
@@ -131,12 +133,12 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
     }
 
     prepareForExport() {
-        super.prepareForExport();
-        this.reflectionProbeSettings.probePosition=this.position;
-        this.addGLTFComponent("reflectionprobe", {
-                options:this.reflectionProbeSettings
-        });
         this.replaceObject();
+    }
+
+    getReflectionProbeProperties(){
+        this.reflectionProbeSettings.probePosition=this.position;
+        return ( this.reflectionProbeSettings);
     }
 
     getSceneForBaking(scene:Scene){
@@ -153,5 +155,11 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
             }
         });
         return sceneToBake;
+    }
+
+
+    onRemove() {
+        this.currentEnvMap.dispose();
+        this.editor.scene.unregisterEnvironmentMapNodes(this);
     }
 }

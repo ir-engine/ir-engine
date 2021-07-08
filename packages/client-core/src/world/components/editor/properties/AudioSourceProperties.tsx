@@ -8,6 +8,7 @@ import CompoundNumericInput from "../inputs/CompoundNumericInput";
 import { AudioType, AudioTypeOptions, DistanceModelOptions, DistanceModelType } from "@xrengine/engine/src/scene/classes/AudioSource";
 import useSetPropertySelected from "./useSetPropertySelected";
 import { useTranslation } from "react-i18next";
+import NumericInput from "../inputs/NumericInput";
 
 /**
  * 
@@ -63,7 +64,8 @@ export function AudioSourceProperties({ node, editor, multiEdit }) {
         label={t('editor:properties.audio.lbl-synchronize')}
         info={t('editor:properties.audio.info-synchronize')}
       >
-        <BooleanInput value={node.synchronize} onChange={onChangeSynchronize} />
+      { /* @ts-ignore */ }
+        <NumericInput value={node.synchronize} onChange={onChangeSynchronize} />
       </InputGroup>
       { /* @ts-ignore */ }
       <InputGroup

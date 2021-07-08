@@ -13,7 +13,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader';
 import { parseModelColliders, clearFromColliders } from '../../physics/behaviors/parseModelColliders';
 import { createVehicleFromSceneData } from '../../vehicle/prefabs/NetworkVehicle';
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers';
-import { createBackground } from '../behaviors/createBackground';
+import { createSkybox } from '../behaviors/createSkybox';
 import { createBoxCollider } from '../behaviors/createBoxCollider';
 import { createMeshCollider } from '../behaviors/createMeshCollider';
 import { createCommonInteractive } from "../behaviors/createCommonInteractive";
@@ -21,7 +21,6 @@ import { createGroup } from '../behaviors/createGroup';
 import { createLink } from '../behaviors/createLink';
 import { createAudio, createMediaServer, createVideo, createVolumetric } from "../behaviors/createMedia";
 import { createShadow } from '../behaviors/createShadow';
-import createSkybox from '../behaviors/createSkybox';
 import { createTransformComponent } from "../behaviors/createTransformComponent";
 import { createTriggerVolume } from '../behaviors/createTriggerVolume';
 import { handleAudioSettings } from '../behaviors/handleAudioSettings';
@@ -33,7 +32,7 @@ import Image from '../classes/Image';
 import { setPostProcessing } from "../behaviors/setPostProcessing";
 import { CameraSystem } from "../../camera/systems/CameraSystem";
 import { CopyTransformComponent } from "../../transform/components/CopyTransformComponent";
-import { setReflectionProbe } from '../behaviors/setReflectionProbe';
+import { setEnvMap } from '../behaviors/setEnvMap';
 import { PersistTagComponent } from '../components/PersistTagComponent';
 import { createPortal } from '../behaviors/createPortal';
 import { createGround } from '../behaviors/createGround';
@@ -228,9 +227,6 @@ export class WorldScene {
         createGround(entity, component.data)
         break;
 
-      case 'skybox':
-        createSkybox(entity, component.data);
-        break;
 
       case 'image':
         addObject3DComponent(entity, { obj3d: Image, objArgs: component.data });
@@ -281,8 +277,8 @@ export class WorldScene {
         setFog(entity, component.data);
         break;
 
-      case 'background':
-        createBackground(entity, component.data as any);
+      case 'skybox':
+        createSkybox(entity, component.data as any);
         break;
 
       case 'audio-settings':
@@ -343,8 +339,8 @@ export class WorldScene {
         setPostProcessing(entity, component.data);
         break;
 
-      case 'reflectionprobe':
-        setReflectionProbe(entity, component.data);
+      case 'envmap':
+        setEnvMap(entity,component.data);
         break;
 
       case 'persist':

@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client",
-  "version": "0.3.29",
+  "version": "0.3.30",
   "private": true,
   "repository": {
     "type": "git",
@@ -26,7 +26,7 @@
   },
   "resolutions": {
     "socket.io": "4.1.2",
-    "@types/react": "17.0.13",
+    "@types/react": "17.0.14",
     "react": "17.0.2"
   },
   "peerDependencies": {
@@ -35,19 +35,19 @@
     "socket.io": "4.1.2"
   },
   "dependencies": {
-    "@capacitor/core": "3.0.2",
+    "@capacitor/core": "3.1.1",
     "@feathersjs/client": "5.0.0-pre.4",
-    "@material-ui/core": "4.11.4",
+    "@material-ui/core": "4.12.1",
     "@material-ui/icons": "4.11.2",
     "@material-ui/styles": "4.11.4",
     "@mui-treasury/components": "1.10.1",
     "@styled-icons/boxicons-regular": "10.34.0",
     "@styled-icons/fa-regular": "10.34.0",
     "@styled-icons/fa-solid": "10.34.0",
-    "@types/react-redux": "7.1.16",
+    "@types/react-redux": "7.1.17",
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.11",
-    "@xrengine/client-core": "^0.3.29",
+    "@xrengine/client-core": "^0.3.30",
     "axios": "0.21.1",
     "browserfs": "1.4.3",
     "classnames": "2.3.1",
@@ -63,7 +63,7 @@
     "immutable": "4.0.0-rc.12",
     "jwt-decode": "3.1.2",
     "lodash": "4.17.21",
-    "mediasoup-client": "3.6.34",
+    "mediasoup-client": "3.6.36",
     "moment": "2.29.1",
     "prop-types": "15.7.2",
     "rc-dock": "3.0.17",
@@ -90,7 +90,7 @@
     "redux-immutable": "4.0.0",
     "redux-thunk": "2.3.0",
     "reselect": "4.0.0",
-    "sass": "1.35.1",
+    "sass": "1.35.2",
     "semantic-ui-react": "2.0.3",
     "shaka-player": "3.1.1",
     "socket.io-client": "4.1.2",
@@ -98,14 +98,14 @@
     "url-toolkit": "2.2.2",
     "use-debounce": "7.0.0",
     "uuid": "8.3.2",
-    "vite": "2.4.0",
+    "vite": "2.4.1",
     "webxr-native": "0.2.25"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "8.2.1",
-    "@types/node": "14.17.4",
-    "@types/react": "17.0.13",
-    "@types/react-dom": "17.0.8",
+    "@types/node": "14.17.5",
+    "@types/react": "17.0.14",
+    "@types/react-dom": "17.0.9",
     "comlink": "4.3.1",
     "config": "3.3.6",
     "cross-env": "7.0.3",
