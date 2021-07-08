@@ -603,7 +603,7 @@ export const EnginePage = (props: Props) => {
         <LoadingScreen objectsToLoad={progressEntity} />
         { harmonyOpen !== true && <MediaIconsBox />}
         { userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
-        {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />}
+        {/* {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />} */}
         <InteractableModal onClose={() => { setModalData(null); setObjectActivated(false); setInputEnabled(true); }} data={infoBoxData} />
         <RecordingApp/>
         <OpenLink onClose={() => { setOpenLinkData(null); setObjectActivated(false); setInputEnabled(true); }} data={openLinkData} />

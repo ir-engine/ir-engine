@@ -81,14 +81,14 @@ const WarningRetryModal = (props: Props): any => {
                 aria-describedby="transition-modal-description"
                 className={styles.modal}
                 open={open}
-                onClose={handleClose}
+                onClose={(event, reason) => {
+                    if(reason === 'backdropClick' && closeEffect != null) closeEffect();
+                    else handleClose(event, reason)
+                }}
                 closeAfterTransition
                 BackdropComponent={Backdrop}
                 BackdropProps={{
                     timeout: 500
-                }}
-                onBackdropClick={() => {
-                    if (closeEffect != null) closeEffect();
                 }}
             >
                 <Fade in={props.open}>
