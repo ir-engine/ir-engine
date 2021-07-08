@@ -86,17 +86,14 @@ const  Home = ({ createCreator,  doLoginAuto, auth, creatorsState, webxrnativeSt
     setFeedHintsOnborded(false);
   };
   const platformClass = isIOS ? styles.isIos : "";
+  const hideContentOnRecord = webxrRecorderActivity ? styles.hideContentOnRecord : "";
 
   if(!currentCreator || currentCreator === null) return <Splash />;
-
-
 
   if(!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />;
 
 
-
-
-  return (<div className={platformClass}>
+  return (<div className={platformClass + ' ' + hideContentOnRecord}>
     {!feedOnborded && <FeedOnboarding setFeedOnborded={setFeedOnborded} />}
     <div className={webxrRecorderActivity ? styles.hideContent+' '+styles.viewport : styles.viewport}>
         <AppHeader logo="/assets/logoBlack.png" />
