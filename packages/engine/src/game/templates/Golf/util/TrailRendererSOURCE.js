@@ -5,11 +5,10 @@
 //=======================================
 // Trail Renderer
 //=======================================
-import { Group, MathUtils, Matrix4,BufferAttribute, BufferGeometry, Vector4,Quaternion, Matrix3, Mesh, Object3D, Vector3, CustomBlending, SrcAlphaFactor, OneMinusSrcAlphaFactor, AddEquation, DoubleSide, ShaderMaterial } from 'three';
 
-var TrailRenderer = function( scene, orientToMovement ) {
+THREE.TrailRenderer = function( scene, orientToMovement ) {
 
-	new Object3D.call( this );
+	THREE.Object3D.call( this );
 
 	this.active = false;
 
@@ -32,22 +31,22 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 }
 
- TrailRenderer.prototype = Object.create(  Object3D.prototype );
- TrailRenderer.prototype.constructor =  TrailRenderer;
+THREE.TrailRenderer.prototype = Object.create( THREE.Object3D.prototype );
+THREE.TrailRenderer.prototype.constructor = THREE.TrailRenderer;
 
- TrailRenderer.MaxHeadVertices = 128;
- TrailRenderer.LocalOrientationTangent = new  Vector3( 1, 0, 0 );
- TrailRenderer.LocalOrientationDirection = new  Vector3( 0, 0, -1 );
- TrailRenderer.LocalHeadOrigin = new  Vector3( 0, 0, 0 );
- TrailRenderer.PositionComponentCount = 3;
- TrailRenderer.UVComponentCount = 2;
- TrailRenderer.IndicesPerFace = 3;
- TrailRenderer.FacesPerQuad = 2;
+THREE.TrailRenderer.MaxHeadVertices = 128;
+THREE.TrailRenderer.LocalOrientationTangent = new THREE.Vector3( 1, 0, 0 );
+THREE.TrailRenderer.LocalOrientationDirection = new THREE.Vector3( 0, 0, -1 );
+THREE.TrailRenderer.LocalHeadOrigin = new THREE.Vector3( 0, 0, 0 );
+THREE.TrailRenderer.PositionComponentCount = 3;
+THREE.TrailRenderer.UVComponentCount = 2;
+THREE.TrailRenderer.IndicesPerFace = 3;
+THREE.TrailRenderer.FacesPerQuad = 2;
 
 
- TrailRenderer.Shader = {};
+THREE.TrailRenderer.Shader = {};
 
- TrailRenderer.Shader.BaseVertexVars = [
+THREE.TrailRenderer.Shader.BaseVertexVars = [
 
 	"attribute float nodeID;",
 	"attribute float nodeVertexID;",
@@ -67,30 +66,30 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 ].join( "\n" );
 
- TrailRenderer.Shader.TexturedVertexVars = [
+THREE.TrailRenderer.Shader.TexturedVertexVars = [
 
-	 TrailRenderer.Shader.BaseVertexVars, 
+	THREE.TrailRenderer.Shader.BaseVertexVars, 
 	"varying vec2 vUV;",
 	"uniform float dragTexture;",
 
 ].join( "\n" );
 
- TrailRenderer.Shader.BaseFragmentVars = [
+THREE.TrailRenderer.Shader.BaseFragmentVars = [
 
 	"varying vec4 vColor;",
 	"uniform sampler2D texture;",
 
 ].join( "\n" );
 
- TrailRenderer.Shader.TexturedFragmentVars = [
+THREE.TrailRenderer.Shader.TexturedFragmentVars = [
 
-	 TrailRenderer.Shader.BaseFragmentVars,
+	THREE.TrailRenderer.Shader.BaseFragmentVars,
 	"varying vec2 vUV;"
 
 ].join( "\n" );
 
 
- TrailRenderer.Shader.VertexShaderCore = [
+THREE.TrailRenderer.Shader.VertexShaderCore = [
 
 	"float fraction = ( maxID - nodeID ) / ( maxID - minID );",
 	"vColor = ( 1.0 - fraction ) * headColor + fraction * tailColor;",
@@ -98,22 +97,22 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 ].join( "\n" );
 
- TrailRenderer.Shader.BaseVertexShader = [
+THREE.TrailRenderer.Shader.BaseVertexShader = [
 
-	 TrailRenderer.Shader.BaseVertexVars,
+	THREE.TrailRenderer.Shader.BaseVertexVars,
 
 	"void main() { ",
 
-		 TrailRenderer.Shader.VertexShaderCore,
+		THREE.TrailRenderer.Shader.VertexShaderCore,
 		"gl_Position = projectionMatrix * viewMatrix * realPosition;",
 
 	"}"
 
 ].join( "\n" );
 
- TrailRenderer.Shader.BaseFragmentShader = [
+THREE.TrailRenderer.Shader.BaseFragmentShader = [
 
-	 TrailRenderer.Shader.BaseFragmentVars,
+	THREE.TrailRenderer.Shader.BaseFragmentVars,
 
 	"void main() { ",
 
@@ -123,13 +122,13 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 ].join( "\n" );
 
- TrailRenderer.Shader.TexturedVertexShader = [
+THREE.TrailRenderer.Shader.TexturedVertexShader = [
 
-	 TrailRenderer.Shader.TexturedVertexVars,
+	THREE.TrailRenderer.Shader.TexturedVertexVars,
 
 	"void main() { ",
 
-		 TrailRenderer.Shader.VertexShaderCore,
+		THREE.TrailRenderer.Shader.VertexShaderCore,
 		"float s = 0.0;",
 		"float t = 0.0;",
 		"if ( dragTexture == 1.0 ) { ",
@@ -146,9 +145,9 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 ].join( "\n" );
 
- TrailRenderer.Shader.TexturedFragmentShader = [
+THREE.TrailRenderer.Shader.TexturedFragmentShader = [
 
-	 TrailRenderer.Shader.TexturedFragmentVars,
+	THREE.TrailRenderer.Shader.TexturedFragmentVars,
 
 	"void main() { ",
 
@@ -159,7 +158,7 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 ].join( "\n" );
 
- TrailRenderer.createMaterial = function( vertexShader, fragmentShader, customUniforms ) {
+THREE.TrailRenderer.createMaterial = function( vertexShader, fragmentShader, customUniforms ) {
 
 	customUniforms = customUniforms || {};
 
@@ -171,13 +170,13 @@ var TrailRenderer = function( scene, orientToMovement ) {
 	customUniforms.maxTrailLength = { type: "f", value: null };
 	customUniforms.textureTileFactor = { type: "v2", value: null };
 
-	customUniforms.headColor = { type: "v4", value: new  Vector4() };
-	customUniforms.tailColor = { type: "v4", value: new  Vector4() };
+	customUniforms.headColor = { type: "v4", value: new THREE.Vector4() };
+	customUniforms.tailColor = { type: "v4", value: new THREE.Vector4() };
 
-	vertexShader = vertexShader ||  TrailRenderer.Shader.BaseVertexShader;
-	fragmentShader = fragmentShader ||  TrailRenderer.Shader.BaseFragmentShader;
+	vertexShader = vertexShader || THREE.TrailRenderer.Shader.BaseVertexShader;
+	fragmentShader = fragmentShader || THREE.TrailRenderer.Shader.BaseFragmentShader;
 
-	return new  ShaderMaterial(
+	return new THREE.ShaderMaterial(
 	{
 		uniforms: customUniforms,
 		vertexShader: vertexShader,
@@ -186,35 +185,35 @@ var TrailRenderer = function( scene, orientToMovement ) {
 		transparent: true,
 		alphaTest: 0.5,
 
-		blending :  CustomBlending,
-		blendSrc :  SrcAlphaFactor,
-		blendDst :  OneMinusSrcAlphaFactor,
-		blendEquation :  AddEquation,
+		blending : THREE.CustomBlending,
+		blendSrc : THREE.SrcAlphaFactor,
+		blendDst : THREE.OneMinusSrcAlphaFactor,
+		blendEquation : THREE.AddEquation,
 
 		depthTest: true,
 		depthWrite: false,
 
-		side:  DoubleSide
+		side: THREE.DoubleSide
 	} );
 
 }
 
- TrailRenderer.createBaseMaterial = function( customUniforms ) {
+THREE.TrailRenderer.createBaseMaterial = function( customUniforms ) {
 
-	return this.createMaterial(  TrailRenderer.Shader.BaseVertexShader,  TrailRenderer.Shader.BaseFragmentShader, customUniforms );
+	return this.createMaterial( THREE.TrailRenderer.Shader.BaseVertexShader, THREE.TrailRenderer.Shader.BaseFragmentShader, customUniforms );
 
 }
 
- TrailRenderer.createTexturedMaterial = function( customUniforms ) {
+THREE.TrailRenderer.createTexturedMaterial = function( customUniforms ) {
 
 	customUniforms = {};
 	customUniforms.texture = { type: "t", value: null };
 
-	return this.createMaterial(  TrailRenderer.Shader.TexturedVertexShader,  TrailRenderer.Shader.TexturedFragmentShader, customUniforms );
+	return this.createMaterial( THREE.TrailRenderer.Shader.TexturedVertexShader, THREE.TrailRenderer.Shader.TexturedFragmentShader, customUniforms );
 
 }
 
- TrailRenderer.prototype.initialize = function( material, length, dragTexture, localHeadWidth, localHeadGeometry, targetObject ) {
+THREE.TrailRenderer.prototype.initialize = function( material, length, dragTexture, localHeadWidth, localHeadGeometry, targetObject ) {
 
 		this.deactivate();
 		this.destroyMesh();
@@ -231,7 +230,7 @@ var TrailRenderer = function( scene, orientToMovement ) {
 		for (var i = 0; i < this.length; i ++ ) {
 
 			this.nodeIDs[ i ] = -1;
-			this.nodeCenters[ i ] = new  Vector3();
+			this.nodeCenters[ i ] = new THREE.Vector3();
 
 		}
 
@@ -246,13 +245,13 @@ var TrailRenderer = function( scene, orientToMovement ) {
 		this.material.uniforms.dragTexture.value = this.dragTexture;
 		this.material.uniforms.maxTrailLength.value = this.length;
 		this.material.uniforms.verticesPerNode.value = this.VerticesPerNode;
-		this.material.uniforms.textureTileFactor.value = new  Vector2( 1.0, 1.0 );
+		this.material.uniforms.textureTileFactor.value = new THREE.Vector2( 1.0, 1.0 );
 
 		this.reset();
 
 }
 
- TrailRenderer.prototype.initializeLocalHeadGeometry = function( localHeadWidth, localHeadGeometry ) {
+THREE.TrailRenderer.prototype.initializeLocalHeadGeometry = function( localHeadWidth, localHeadGeometry ) {
 
 	this.localHeadGeometry = [];
 
@@ -261,21 +260,21 @@ var TrailRenderer = function( scene, orientToMovement ) {
 		var halfWidth = localHeadWidth || 1.0;
 		halfWidth = halfWidth / 2.0;
 
-		this.localHeadGeometry.push( new  Vector3( -halfWidth, 0, 0 ) );
-		this.localHeadGeometry.push( new  Vector3( halfWidth, 0, 0 ) );
+		this.localHeadGeometry.push( new THREE.Vector3( -halfWidth, 0, 0 ) );
+		this.localHeadGeometry.push( new THREE.Vector3( halfWidth, 0, 0 ) );
 
 		this.VerticesPerNode = 2;
 
 	} else {
 
 		this.VerticesPerNode = 0;
-		for ( var i = 0; i < localHeadGeometry.length && i <  TrailRenderer.MaxHeadVertices; i ++ ) {
+		for ( var i = 0; i < localHeadGeometry.length && i < THREE.TrailRenderer.MaxHeadVertices; i ++ ) {
 
 			var vertex = localHeadGeometry[ i ];
 
-			if ( vertex && vertex instanceof  Vector3 ) {
+			if ( vertex && vertex instanceof THREE.Vector3 ) {
 
-				var vertexCopy = new  Vector3();
+				var vertexCopy = new THREE.Vector3();
 
 				vertexCopy.copy( vertex );
 
@@ -293,41 +292,41 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 }
 
- TrailRenderer.prototype.initializeGeometry = function() {
+THREE.TrailRenderer.prototype.initializeGeometry = function() {
 
 	this.vertexCount = this.length * this.VerticesPerNode;
 	this.faceCount = this.length * this.FacesPerNode;
 
-	var geometry = new  BufferGeometry();
+	var geometry = new THREE.BufferGeometry();
 
 	var nodeIDs = new Float32Array( this.vertexCount );
 	var nodeVertexIDs = new Float32Array( this.vertexCount * this.VerticesPerNode );
-	var positions = new Float32Array( this.vertexCount *  TrailRenderer.PositionComponentCount );
-	var nodeCenters = new Float32Array( this.vertexCount *  TrailRenderer.PositionComponentCount );
-	var uvs = new Float32Array( this.vertexCount *  TrailRenderer.UVComponentCount );
-	var indices = new Uint32Array( this.faceCount *  TrailRenderer.IndicesPerFace );
+	var positions = new Float32Array( this.vertexCount * THREE.TrailRenderer.PositionComponentCount );
+	var nodeCenters = new Float32Array( this.vertexCount * THREE.TrailRenderer.PositionComponentCount );
+	var uvs = new Float32Array( this.vertexCount * THREE.TrailRenderer.UVComponentCount );
+	var indices = new Uint32Array( this.faceCount * THREE.TrailRenderer.IndicesPerFace );
 
-	var nodeIDAttribute = new  BufferAttribute( nodeIDs, 1 );
+	var nodeIDAttribute = new THREE.BufferAttribute( nodeIDs, 1 );
 	nodeIDAttribute.setDynamic( true );
 	geometry.addAttribute( 'nodeID', nodeIDAttribute );
 
-	var nodeVertexIDAttribute = new  BufferAttribute( nodeVertexIDs, 1 );
+	var nodeVertexIDAttribute = new THREE.BufferAttribute( nodeVertexIDs, 1 );
 	nodeVertexIDAttribute.setDynamic( true );
 	geometry.addAttribute( 'nodeVertexID', nodeVertexIDAttribute );
 
-	var nodeCenterAttribute = new  BufferAttribute( nodeCenters,  TrailRenderer.PositionComponentCount );
+	var nodeCenterAttribute = new THREE.BufferAttribute( nodeCenters, THREE.TrailRenderer.PositionComponentCount );
 	nodeCenterAttribute.setDynamic( true );
 	geometry.addAttribute( 'nodeCenter', nodeCenterAttribute );
 
-	var positionAttribute = new  BufferAttribute( positions,  TrailRenderer.PositionComponentCount );
+	var positionAttribute = new THREE.BufferAttribute( positions, THREE.TrailRenderer.PositionComponentCount );
 	positionAttribute.setDynamic( true );
 	geometry.addAttribute( 'position', positionAttribute );
 
-	var uvAttribute = new  BufferAttribute( uvs,  TrailRenderer.UVComponentCount );
+	var uvAttribute = new THREE.BufferAttribute( uvs, THREE.TrailRenderer.UVComponentCount );
 	uvAttribute.setDynamic( true );
 	geometry.addAttribute( 'uv', uvAttribute );
 
-	var indexAttribute = new  BufferAttribute( indices, 1 );
+	var indexAttribute = new THREE.BufferAttribute( indices, 1 );
 	indexAttribute.setDynamic( true );
 	geometry.setIndex( indexAttribute );
 
@@ -335,7 +334,7 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 }
 
- TrailRenderer.prototype.zeroVertices = function( ) {
+THREE.TrailRenderer.prototype.zeroVertices = function( ) {
 
 	var positions = this.geometry.getAttribute( 'position' );
 
@@ -354,7 +353,7 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 }
 
- TrailRenderer.prototype.zeroIndices = function( ) {
+THREE.TrailRenderer.prototype.zeroIndices = function( ) {
 
 	var indices = this.geometry.getIndex();
 
@@ -373,7 +372,7 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 }
 
- TrailRenderer.prototype.formInitialFaces = function() {
+THREE.TrailRenderer.prototype.formInitialFaces = function() {
 
 	this.zeroIndices();
 
@@ -390,15 +389,15 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 }
 
- TrailRenderer.prototype.initializeMesh = function() {
+THREE.TrailRenderer.prototype.initializeMesh = function() {
 
-	this.mesh = new  Mesh( this.geometry, this.material );
+	this.mesh = new THREE.Mesh( this.geometry, this.material );
 	this.mesh.dynamic = true;
 	this.mesh.matrixAutoUpdate = false;
 
 }
 
- TrailRenderer.prototype.destroyMesh = function() {
+THREE.TrailRenderer.prototype.destroyMesh = function() {
 
 	if ( this.mesh ) {
 
@@ -409,7 +408,7 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 }
 
- TrailRenderer.prototype.reset = function() {
+THREE.TrailRenderer.prototype.reset = function() {
 
 	this.currentLength = 0;
 	this.currentEnd = -1;
@@ -427,7 +426,7 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 }
 
- TrailRenderer.prototype.updateUniforms = function() {
+THREE.TrailRenderer.prototype.updateUniforms = function() {
 
 	if ( this.currentLength < this.length ) {
 		
@@ -445,12 +444,12 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 }
 
- TrailRenderer.prototype.advance = function() {
+THREE.TrailRenderer.prototype.advance = function() {
 
-	var orientationTangent = new  Vector3();
-	var position = new  Vector3();
-	var offset = new  Vector3();
-	var tempMatrix4 = new  Matrix4();
+	var orientationTangent = new THREE.Vector3();
+	var position = new THREE.Vector3();
+	var offset = new THREE.Vector3();
+	var tempMatrix4 = new THREE.Matrix4();
 
 	return function advance() {
 
@@ -464,22 +463,22 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 }();
 
- TrailRenderer.prototype.advanceWithPositionAndOrientation = function( nextPosition, orientationTangent ) {
+THREE.TrailRenderer.prototype.advanceWithPositionAndOrientation = function( nextPosition, orientationTangent ) {
 
 	this.advanceGeometry( { position : nextPosition, tangent : orientationTangent }, null );
 
 }
 
- TrailRenderer.prototype.advanceWithTransform = function( transformMatrix ) {
+THREE.TrailRenderer.prototype.advanceWithTransform = function( transformMatrix ) {
 
 	this.advanceGeometry( null, transformMatrix );
 
 }
 
- TrailRenderer.prototype.advanceGeometry = function() { 
+THREE.TrailRenderer.prototype.advanceGeometry = function() { 
 
-	var direction = new  Vector3();
-	var tempPosition = new  Vector3();
+	var direction = new THREE.Vector3();
+	var tempPosition = new THREE.Vector3();
 
 	return function advanceGeometry( positionAndOrientation, transformMatrix ) {
 
@@ -541,9 +540,9 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 }();
 
- TrailRenderer.prototype.updateHead = function() {
+THREE.TrailRenderer.prototype.updateHead = function() {
 
-	var tempMatrix4 = new  Matrix4();
+	var tempMatrix4 = new THREE.Matrix4();
 
 	return function advance() {
 
@@ -557,7 +556,7 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 }();
 
- TrailRenderer.prototype.updateNodeID = function( nodeIndex, id ) { 
+THREE.TrailRenderer.prototype.updateNodeID = function( nodeIndex, id ) { 
 
 	this.nodeIDs[ nodeIndex ] = id;
 
@@ -583,7 +582,7 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 }
 
- TrailRenderer.prototype.updateNodeCenter = function( nodeIndex, nodeCenter ) { 
+THREE.TrailRenderer.prototype.updateNodeCenter = function( nodeIndex, nodeCenter ) { 
 
 	this.lastNodeCenter = this.currentNodeCenter;
 
@@ -603,21 +602,21 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 	nodeCenters.needsUpdate = true;
 
-	nodeCenters.updateRange.offset = nodeIndex * this.VerticesPerNode *  TrailRenderer.PositionComponentCount; 
-	nodeCenters.updateRange.count = this.VerticesPerNode *  TrailRenderer.PositionComponentCount; 
+	nodeCenters.updateRange.offset = nodeIndex * this.VerticesPerNode * THREE.TrailRenderer.PositionComponentCount; 
+	nodeCenters.updateRange.count = this.VerticesPerNode * THREE.TrailRenderer.PositionComponentCount; 
 
 }
 
- TrailRenderer.prototype.updateNodePositionsFromOrientationTangent = function() { 
+THREE.TrailRenderer.prototype.updateNodePositionsFromOrientationTangent = function() { 
 
-	var tempMatrix4 = new  Matrix4();
-	var tempQuaternion = new  Quaternion();
-	var tempOffset = new  Vector3();
+	var tempMatrix4 = new THREE.Matrix4();
+	var tempQuaternion = new THREE.Quaternion();
+	var tempOffset = new THREE.Vector3();
 	var tempLocalHeadGeometry = [];
 
-	for ( var i = 0; i <  TrailRenderer.MaxHeadVertices; i ++ ) {
+	for ( var i = 0; i < THREE.TrailRenderer.MaxHeadVertices; i ++ ) {
 
-		var vertex = new  Vector3();
+		var vertex = new THREE.Vector3();
 		tempLocalHeadGeometry.push( vertex );
 
 	}
@@ -629,8 +628,8 @@ var TrailRenderer = function( scene, orientToMovement ) {
 		this.updateNodeCenter( nodeIndex, nodeCenter );
 
 		tempOffset.copy( nodeCenter );
-		tempOffset.sub(  TrailRenderer.LocalHeadOrigin );
-		tempQuaternion.setFromUnitVectors(  TrailRenderer.LocalOrientationTangent, orientationTangent );
+		tempOffset.sub( THREE.TrailRenderer.LocalHeadOrigin );
+		tempQuaternion.setFromUnitVectors( THREE.TrailRenderer.LocalOrientationTangent, orientationTangent );
 		
 		for ( var i = 0; i < this.localHeadGeometry.length; i ++ ) {
 
@@ -642,7 +641,7 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 		for ( var i = 0; i <  this.localHeadGeometry.length; i ++ ) {
 
-			var positionIndex = ( ( this.VerticesPerNode * nodeIndex ) + i ) *  TrailRenderer.PositionComponentCount;
+			var positionIndex = ( ( this.VerticesPerNode * nodeIndex ) + i ) * THREE.TrailRenderer.PositionComponentCount;
 			var transformedHeadVertex = tempLocalHeadGeometry[ i ];
 
 			positions.array[ positionIndex ] = transformedHeadVertex.x;
@@ -657,20 +656,20 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 }();
 
- TrailRenderer.prototype.updateNodePositionsFromTransformMatrix = function() { 
+THREE.TrailRenderer.prototype.updateNodePositionsFromTransformMatrix = function() { 
 
-	var tempMatrix4 = new  Matrix4();
-	var tempMatrix3 = new  Matrix3();
-	var tempQuaternion = new  Quaternion();
-	var tempPosition = new  Vector3();
-	var tempOffset = new  Vector3();
-	var worldOrientation = new  Vector3();
-	var tempDirection = new  Vector3();
+	var tempMatrix4 = new THREE.Matrix4();
+	var tempMatrix3 = new THREE.Matrix3();
+	var tempQuaternion = new THREE.Quaternion();
+	var tempPosition = new THREE.Vector3();
+	var tempOffset = new THREE.Vector3();
+	var worldOrientation = new THREE.Vector3();
+	var tempDirection = new THREE.Vector3();
 
 	var tempLocalHeadGeometry = [];
-	for ( var i = 0; i <  TrailRenderer.MaxHeadVertices; i ++ ) {
+	for ( var i = 0; i < THREE.TrailRenderer.MaxHeadVertices; i ++ ) {
 
-		var vertex = new  Vector3();
+		var vertex = new THREE.Vector3();
 		tempLocalHeadGeometry.push( vertex );
 
 	}
@@ -723,7 +722,7 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 			if( tempDirection.lengthSq() > .0001 ) {
 
-				if( ! this.lastOrientationDir ) this.lastOrientationDir = new  Vector3();
+				if( ! this.lastOrientationDir ) this.lastOrientationDir = new THREE.Vector3();
 
 				tempQuaternion.setFromUnitVectors( worldOrientation, tempDirection );
 
@@ -743,7 +742,7 @@ var TrailRenderer = function( scene, orientToMovement ) {
 	
 		for ( var i = 0; i < this.localHeadGeometry.length; i ++ ) {
 
-			var positionIndex = ( ( this.VerticesPerNode * nodeIndex ) + i ) *  TrailRenderer.PositionComponentCount;
+			var positionIndex = ( ( this.VerticesPerNode * nodeIndex ) + i ) * THREE.TrailRenderer.PositionComponentCount;
 			var transformedHeadVertex = tempLocalHeadGeometry[ i ];
 
 			positions.array[ positionIndex ] = transformedHeadVertex.x;
@@ -754,13 +753,13 @@ var TrailRenderer = function( scene, orientToMovement ) {
 		
 		positions.needsUpdate = true;
 
-		positions.updateRange.offset = nodeIndex * this.VerticesPerNode *  TrailRenderer.PositionComponentCount; 
-		positions.updateRange.count = this.VerticesPerNode *  TrailRenderer.PositionComponentCount; 
+		positions.updateRange.offset = nodeIndex * this.VerticesPerNode * THREE.TrailRenderer.PositionComponentCount; 
+		positions.updateRange.count = this.VerticesPerNode * THREE.TrailRenderer.PositionComponentCount; 
 	}
 
 }();
 
- TrailRenderer.prototype.connectNodes = function() {
+THREE.TrailRenderer.prototype.connectNodes = function() {
 
 	var returnObj = {
 
@@ -779,7 +778,7 @@ var TrailRenderer = function( scene, orientToMovement ) {
 			var srcVertexIndex = ( this.VerticesPerNode * srcNodeIndex ) + i;
 			var destVertexIndex = ( this.VerticesPerNode * destNodeIndex ) + i;
 
-			var faceIndex = ( ( srcNodeIndex * this.FacesPerNode ) + ( i *  TrailRenderer.FacesPerQuad  ) ) *  TrailRenderer.IndicesPerFace;
+			var faceIndex = ( ( srcNodeIndex * this.FacesPerNode ) + ( i * THREE.TrailRenderer.FacesPerQuad  ) ) * THREE.TrailRenderer.IndicesPerFace;
 
 			indices.array[ faceIndex ] = srcVertexIndex;
 			indices.array[ faceIndex + 1 ] = destVertexIndex;
@@ -795,15 +794,15 @@ var TrailRenderer = function( scene, orientToMovement ) {
 		indices.updateRange.count = - 1;
 
 		returnObj.attribute = indices;
-		returnObj.offset =  srcNodeIndex * this.FacesPerNode *  TrailRenderer.IndicesPerFace;
-		returnObj.count = this.FacesPerNode *  TrailRenderer.IndicesPerFace;
+		returnObj.offset =  srcNodeIndex * this.FacesPerNode * THREE.TrailRenderer.IndicesPerFace;
+		returnObj.count = this.FacesPerNode * THREE.TrailRenderer.IndicesPerFace;
 
 		return returnObj;
 
 	}
 }();
 
- TrailRenderer.prototype.disconnectNodes = function( srcNodeIndex ) {
+THREE.TrailRenderer.prototype.disconnectNodes = function( srcNodeIndex ) {
 
 	var returnObj = {
 
@@ -821,7 +820,7 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 			var srcVertexIndex = ( this.VerticesPerNode * srcNodeIndex ) + i;
 
-			var faceIndex = ( ( srcNodeIndex * this.FacesPerNode ) + ( i *  TrailRenderer.FacesPerQuad ) ) *  TrailRenderer.IndicesPerFace;
+			var faceIndex = ( ( srcNodeIndex * this.FacesPerNode ) + ( i * THREE.TrailRenderer.FacesPerQuad ) ) * THREE.TrailRenderer.IndicesPerFace;
 
 			indices.array[ faceIndex ] = 0;
 			indices.array[ faceIndex + 1 ] = 0;
@@ -837,8 +836,8 @@ var TrailRenderer = function( scene, orientToMovement ) {
 		indices.updateRange.count = - 1;
 
 		returnObj.attribute = indices;
-		returnObj.offset = srcNodeIndex * this.FacesPerNode *  TrailRenderer.IndicesPerFace;
-		returnObj.count = this.FacesPerNode *  TrailRenderer.IndicesPerFace;
+		returnObj.offset = srcNodeIndex * this.FacesPerNode * THREE.TrailRenderer.IndicesPerFace;
+		returnObj.count = this.FacesPerNode * THREE.TrailRenderer.IndicesPerFace;
 
 		return returnObj;
 
@@ -846,7 +845,7 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 }();
 
- TrailRenderer.prototype.deactivate = function() {
+THREE.TrailRenderer.prototype.deactivate = function() {
 
 	if ( this.isActive ) {
 
@@ -857,7 +856,7 @@ var TrailRenderer = function( scene, orientToMovement ) {
 
 }
 
- TrailRenderer.prototype.activate = function() {
+THREE.TrailRenderer.prototype.activate = function() {
 
 	if ( ! this.isActive ) {
 
@@ -867,5 +866,3 @@ var TrailRenderer = function( scene, orientToMovement ) {
 	}
 
 }
-
-export default TrailRenderer;
