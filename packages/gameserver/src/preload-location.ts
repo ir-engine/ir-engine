@@ -55,7 +55,6 @@ export default async function (locationName) {
         } as any;
         (app as any).isChannelInstance = false;
         const instanceResult = await app.service('instance').create(newInstance);
-        await agonesSDK.allocate();
         (app as any).instance = instanceResult;
 
         if ((app as any).gsSubdomainNumber != null) {
