@@ -25,7 +25,7 @@ export class CharacterAnimationGraph extends AnimationGraph {
         exitingVehicleState.autoTransitionTo = CharacterStates.IDLE;
         // emoteState.nextStates.push(IdleState, WalkState, RunState, EnteringVehicleState, LoopableEmoteState);
         // emoteState.autoTransitionTo = CharacterStates.IDLE;
-        loopableEmoteState.nextStates.push(IdleState, WalkState, RunState, EnteringVehicleState);
+        loopableEmoteState.nextStates.push(WalkState, RunState, EnteringVehicleState);
 
         // Add states to the graph
         this.states[CharacterStates.IDLE] = idleState;
