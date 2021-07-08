@@ -101,18 +101,17 @@ export const movingAnimationSchema = [
 
 export const initializeMovingState: Behavior = (entity) => {
 
-  if(hasComponent(entity, AnimationComponent)) {
-    const animComponent = getMutableComponent(entity, AnimationComponent);
-    animComponent.animationsSchema = movingAnimationSchema;
-    animComponent.updateAnimationsValues = getMovementValues;
-  }
+  const animComponent = getMutableComponent(entity, AnimationComponent);
+  animComponent.animationsSchema = movingAnimationSchema;
+  animComponent.updateAnimationsValues = getMovementValues;
+
 	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
 
 	actor.velocitySimulator.damping = actor.defaultVelocitySimulatorDamping;
 	actor.velocitySimulator.mass = actor.defaultVelocitySimulatorMass;
 
-  actor.animationVectorSimulator.damping = actor.defaultRotationSimulatorDamping;
-	actor.animationVectorSimulator.mass = actor.defaultRotationSimulatorMass;
+  animComponent.animationVectorSimulator.damping = actor.defaultRotationSimulatorDamping;
+	animComponent.animationVectorSimulator.mass = actor.defaultRotationSimulatorMass;
 
   actor.moveVectorSmooth.damping = actor.defaultRotationSimulatorDamping;
 	actor.moveVectorSmooth.mass = actor.defaultRotationSimulatorMass;
@@ -125,13 +124,13 @@ export const initializeMovingState: Behavior = (entity) => {
 
 
 
-export const calculateMovement = (actor: CharacterComponent, delta: number, EPSILON: number): MovementType => {
+export const calculateMovement = (actor: CharacterComponent, animationComponent: AnimationComponent, delta: number, EPSILON: number): MovementType => {
   if (actor.moveVectorSmooth.position.length() < EPSILON) {
     actor.moveVectorSmooth.velocity.set(0,0,0);
     actor.moveVectorSmooth.position.set(0,0,0);
   }
 
-  actor.moveVectorSmooth.target.copy(actor.animationVelocity)
+  actor.moveVectorSmooth.target.copy(animationComponent.animationVelocity)
   actor.moveVectorSmooth.simulate(delta);
   const velocity = actor.moveVectorSmooth.position;
 
@@ -141,15 +140,16 @@ export const calculateMovement = (actor: CharacterComponent, delta: number, EPSI
     Math.abs(velocity.z) < EPSILON ? 0 : velocity.z,
   );
 
-  actor.animationVectorSimulator.target.setY(actor.isGrounded ? 0 : 1);
-  actor.animationVectorSimulator.simulate(delta);
-  const distanceFromGround = actor.animationVectorSimulator.position.y < EPSILON ? 0 : actor.animationVectorSimulator.position.y;
+  animationComponent.animationVectorSimulator.target.setY(actor.isGrounded ? 0 : 1);
+  animationComponent.animationVectorSimulator.simulate(delta);
+  const distanceFromGround = animationComponent.animationVectorSimulator.position.y < EPSILON ? 0 : animationComponent.animationVectorSimulator.position.y;
 
   return { velocity, distanceFromGround };
 }
 
 export const getMovementValues: Behavior = (entity, args: {}, deltaTime: number) => {
   const actor = getComponent(entity, CharacterComponent);
+  const animationComponent = getComponent(entity, AnimationComponent);
   // simulate rayCastHit as vectorY from 1 to 0, for smooth changes
   //  absSpeed = MathUtils.smoothstep(absSpeed, 0, 1);
 
@@ -157,15 +157,15 @@ export const getMovementValues: Behavior = (entity, args: {}, deltaTime: number)
 
   if(actor.moveVectorSmooth.position.length() < 0.001) { actor.moveVectorSmooth.velocity.set(0,0,0); actor.moveVectorSmooth.position.set(0,0,0); }
 
-  actor.moveVectorSmooth.target.copy(actor.animationVelocity);
+  actor.moveVectorSmooth.target.copy(animationComponent.animationVelocity);
   actor.moveVectorSmooth.simulate(deltaTime);
   const actorVelocity = actor.moveVectorSmooth.position;
 
 //  const actorVelocity = actor.animationVelocity.clone();
 
-  actor.animationVectorSimulator.target.setY(actor.isGrounded ? 0 : 1);
-  actor.animationVectorSimulator.simulate(deltaTime);
-  let dontHasHit = actor.animationVectorSimulator.position.y;
+animationComponent.animationVectorSimulator.target.setY(actor.isGrounded ? 0 : 1);
+  animationComponent.animationVectorSimulator.simulate(deltaTime);
+  let dontHasHit = animationComponent.animationVectorSimulator.position.y;
 
   dontHasHit < 0.00001 ? dontHasHit = 0:'';
   dontHasHit = Math.min(dontHasHit, 1);

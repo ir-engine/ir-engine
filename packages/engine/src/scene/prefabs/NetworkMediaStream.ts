@@ -44,10 +44,9 @@ export const NetworkMediaStream: NetworkPrefab = {
 
             if (djEntity) {
                 const animationComponent = getMutableComponent(djEntity, AnimationComponent);
-                const actor = getMutableComponent(djEntity, CharacterComponent);
 
                 animationComponent.currentState.animations[0].action.play();
-                actor.mixer.update(videoElement.currentTime)
+                animationComponent.mixer.update(videoElement.currentTime)
             }
         }
     },
