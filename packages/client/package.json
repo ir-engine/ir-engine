@@ -99,7 +99,7 @@
     "use-debounce": "7.0.0",
     "uuid": "8.3.2",
     "vite": "2.4.1",
-    "webxr-native": "0.2.25"
+    "webxr-native": "0.3.0"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "8.2.1",
