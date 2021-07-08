@@ -27,6 +27,6 @@ export default function(userId: string, maxMediaUsers= 8): Object3DComponent[] {
                 });
             });
             return userDistances.sort((a, b) => a.distance - b.distance).slice(0, maxMediaUsers);
-        }
+        } else return [];
     } else return [];
 }
