@@ -64,7 +64,7 @@
     "eventemitter3": "4.0.7",
     "formik": "2.2.9",
     "i18next": "20.3.2",
-    "immutable": "4.0.0-rc.12",
+    "immutable": "4.0.0-rc.14",
     "jwt-decode": "3.1.2",
     "lodash": "4.17.21",
     "material-ui-confirm": "2.1.3",
