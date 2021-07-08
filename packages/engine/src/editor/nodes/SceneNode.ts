@@ -28,6 +28,7 @@ import serializeColor from "../functions/serializeColor";
 import { FogType } from '../../scene/constants/FogType';
 import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '../../scene/constants/EnvMapEnum';
 import {DistanceModelType} from "../../scene/classes/AudioSource";
+import ReflectionProbeNode from "./ReflectionProbeNode";
 
 export default class SceneNode extends EditorNodeMixin(Scene) {
   static nodeName = "Scene";
@@ -334,8 +335,10 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         break;
       case EnvMapSourceType.Default:
       default:
+        if(!this.environmentNode)
+          break
         envMapProps.type=EnvMapSourceType.ReflectionProbe;
-        envMapProps.envMapReflectionProbe
+        envMapProps.envMapReflectionProbe=(this.environmentNode as ReflectionProbeNode).reflectionProbeSettings;
         break;
     }
     

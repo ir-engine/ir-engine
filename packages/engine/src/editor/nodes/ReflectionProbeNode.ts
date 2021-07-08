@@ -18,8 +18,8 @@ export enum ReflectionProbeRefreshTypes{
 
 export type ReflectionProbeSettings={
     probePosition:Vector3,
-    probePositionOffset:Vector3,
-    probeScale:Vector3,
+    probePositionOffset?:Vector3,
+    probeScale?:Vector3,
     reflectionType:ReflectionProbeTypes,
     resolution:number,
     refreshMode:ReflectionProbeRefreshTypes,

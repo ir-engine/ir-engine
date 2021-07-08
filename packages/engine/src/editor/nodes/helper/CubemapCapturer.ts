@@ -66,12 +66,12 @@ export default class CubemapCapturer{
 	api:Api;
 	envMapID:string;
 	
-	constructor(editor:any,sceneToRender:Scene,resolution:number,envMapID:string){
+	constructor(renderer:WebGLRenderer,sceneToRender:Scene,resolution:number,envMapID?:string,api?:Api){
 		this.width = resolution;
 		this.height = resolution;
 		this.sceneToRender=sceneToRender;
-		this.renderer = editor.renderer.renderer;
-		this.api=editor.api;
+		this.renderer = renderer;
+		this.api=api;
 		this.envMapID=envMapID;
 		this.material = new RawShaderMaterial( {
 			uniforms:{
