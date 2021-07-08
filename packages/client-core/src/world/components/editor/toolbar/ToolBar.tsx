@@ -178,7 +178,7 @@ const StyledToggleButton = (styled as any).div`
  * @author Robert Long
  * @param {any} styled
  */
- const ToolbarIconContainer = (styled as any).div`
+const ToolbarIconContainer = (styled as any).div`
  display: flex;
  justify-content: center;
  align-items: center;
@@ -234,7 +234,7 @@ IconToggle.propTypes = {
  * @param  {any} showStats
  * @constructor
  */
- function ViewportToolbar({ onToggleStats, showStats }) {
+function ViewportToolbar({ onToggleStats, showStats }) {
   const editor = useContext(EditorContext);
 
   const renderer = editor.renderer;
@@ -242,9 +242,9 @@ IconToggle.propTypes = {
 
   const options = renderer
     ? renderer.renderModes.map(mode => ({
-        label: mode.name,
-        value: mode
-      }))
+      label: mode.name,
+      value: mode
+    }))
     : [];
 
   useEffect(() => {
@@ -260,13 +260,13 @@ IconToggle.propTypes = {
     },
     [editor, setRenderMode]
   );
-  
+
 
   // creating ToolBar view
   return (
     <ViewportToolbarContainer>
       <IconToggle onClick={onToggleStats} value={showStats} tooltip="Toggle Stats" icon={ChartArea} />
-      { /* @ts-ignore */ }
+      { /* @ts-ignore */}
       <SelectInput value={renderMode} options={options} onChange={onChangeRenderMode} styles={selectInputStyles} />
     </ViewportToolbarContainer>
   );
@@ -393,9 +393,9 @@ const initialLocation = {
   sceneId: null,
   locationSettingsId: null,
   location_setting: {
-      instanceMediaChatEnabled: false,
-      videoEnabled: false,
-      locationType: 'private'
+    instanceMediaChatEnabled: false,
+    videoEnabled: false,
+    locationType: 'private'
   }
 };
 type ToolBarProps = {
@@ -585,8 +585,11 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
     }
   };
 
-  handleShowStats =()=>{
-    this.setState({ ...this.state, showStats: !this.state.showStats})
+  handleShowStats = () => {
+    this.setState({
+      ...this.state,
+      showStats: !this.state.showStats
+    })
   }
 
   render() {
@@ -606,13 +609,13 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
     } = (this.props as any).editor.editorControls;
 
     const queryParams = (this.props as any).queryParams;
-    
+
     //@ts-ignore
-    const button = <Button 
-        type="submit"
-        color="primary"
-        onClick={this.openModalCreate}
-       // className="mr-4 mt-2 mb-2 pl-5 pr-5"
+    const button = <Button
+      type="submit"
+      color="primary"
+      onClick={this.openModalCreate}
+    // className="mr-4 mt-2 mb-2 pl-5 pr-5"
     >
       Publish
     </Button>;
@@ -727,22 +730,22 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
               {(this.props as any).editor.playing ? <Pause size={14} /> : <Play size={14} />}
             </ToggleButton>
           </ToolbarInputGroup>
-          <ViewportToolbar 
-          onToggleStats={this.handleShowStats} 
-          showStats={this.state.showStats} />
+          <ViewportToolbar
+            onToggleStats={this.handleShowStats}
+            showStats={this.state.showStats} />
         </ToolToggles>
         <Spacer />
         {
           !queryParams ?
-          button
-         :
-         <Button
-          color="primary"
-          disabled={true}
-          className="mr-4 mt-2 mb-2 pl-5 pr-5"
-         >
-           Published
-         </Button>
+            button
+            :
+            <Button
+              color="primary"
+              disabled={true}
+              className="mr-4 mt-2 mb-2 pl-5 pr-5"
+            >
+              Published
+            </Button>
         }
         <LocationModal
           editing={this.state.locationEditing}
@@ -750,7 +753,7 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
           handleClose={this.handleLocationClose}
           location={this.state.selectedLocation}
         />
-        {this.state.showStats && <StatsFuc/> }
+        {this.state.showStats && <StatsFuc />}
         <ContextMenu id="menu">
           {(this.props as any).menu.map(menu => {
             return this.renderMenu(menu);
