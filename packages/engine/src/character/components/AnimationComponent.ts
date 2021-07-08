@@ -19,6 +19,9 @@ export class AnimationComponent extends Component<AnimationComponent> {
 
   /** Previous velocity of the character */
   prevVelocity: Vector3;
+
+  /** Whether to only update mixer time or run full render cycle */
+  onlyUpdateMixerTime: boolean;
 }
 
 AnimationComponent._schema = {
@@ -28,4 +31,5 @@ AnimationComponent._schema = {
   prevState: { type: Types.Ref, default: null },
   animationGraph: { type: Types.Ref, default: null },
   prevVelocity: { type: Types.Ref, default: null },
+  onlyUpdateMixerTime: { type: Types.Ref, default: false },
 };

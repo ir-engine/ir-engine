@@ -1,3 +1,6 @@
+import { DJModelName } from "../../character/AnimationManager";
+import { AnimationComponent } from "../../character/components/AnimationComponent";
+import { CharacterComponent } from "../../character/components/CharacterComponent";
 import { awaitEngaged } from "../../ecs/classes/Engine";
 import { getEntityByName, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { NetworkPrefab } from "../../networking/interfaces/NetworkPrefab";
@@ -16,7 +19,6 @@ export const NetworkMediaStream: NetworkPrefab = {
         // If user is not engaged then latest browsers will prevent autoplay of the video
         await awaitEngaged();
 
-
         const videoElement = (videoComp.value as any).el as HTMLVideoElement;
         if (videoElement) {
             // Get time elapsed since start of the video in seconds
@@ -25,6 +27,17 @@ export const NetworkMediaStream: NetworkPrefab = {
             // If time is greater than duration of the video then loop the video
             videoElement.currentTime = time % videoElement.duration;
             videoElement.play();
+
+            // Start animation for DJ.
+            const djEntity = getEntityByName(DJModelName);
+
+            if (djEntity) {
+                const animationComponent = getMutableComponent(djEntity, AnimationComponent);
+                const actor = getMutableComponent(djEntity, CharacterComponent);
+
+                animationComponent.currentState.animations[0].action.play();
+                actor.mixer.update(videoElement.currentTime)
+            }
         }
     },
     clientComponents: [],
