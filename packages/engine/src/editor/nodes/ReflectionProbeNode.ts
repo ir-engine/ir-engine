@@ -70,7 +70,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D){
 
     async captureCubeMap(){
         const sceneToBake=this.getSceneForBaking(this.editor.scene);
-        const cubemapCapturer=new CubemapCapturer(this.editor,sceneToBake,this.reflectionProbeSettings.resolution,this.reflectionProbeSettings.envMapID);
+        const cubemapCapturer=new CubemapCapturer(this.editor.renderer.renderer,sceneToBake,this.reflectionProbeSettings.resolution,this.reflectionProbeSettings.envMapID);
         const result=await cubemapCapturer.update(this.position);
         this.currentEnvMap=result.cubeRenderTarget;
         this.reflectionProbeSettings.envMapID=result.envMapID;
