@@ -4,13 +4,8 @@ import { CharacterComponent } from '../components/CharacterComponent';
 import { AnimationComponent } from "../components/AnimationComponent";
 import { isClient } from "../../common/functions/isClient";
 import { Behavior } from "../../common/interfaces/Behavior";
-import { Entity } from "../../ecs/classes/Entity";
 import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { AnimationManager } from "../AnimationManager";
-
-interface AnimationWeightScaleInterface {
-  weight: number
-}
 /*
 function safeFloat(float) {
   float < 0.00001 && float > - 0.00001 ? float = 0:'';
@@ -86,9 +81,9 @@ export const updateVectorAnimation = (entity, delta: number): void => {
   // Actor isn't initialized yet, so skip the animation
 	const actor = getMutableComponent(entity, CharacterComponent);
 	const animationComponent = getMutableComponent(entity, AnimationComponent);
-	if (!actor.mixer || !actor.modelContainer.children.length) return;
-  const acceleration = actor.speedMultiplier;
-  if (actor.mixer) actor.mixer.update(delta * animationSpeedMultiplier);
+	if (!animationComponent.mixer || !actor.modelContainer.children.length) return;
+  const acceleration = animationComponent.speedMultiplier;
+  if (animationComponent.mixer) animationComponent.mixer.update(delta * animationSpeedMultiplier);
 //  if(animationComponent.animationsSchema.length == 3) return;
 	// Get the magnitude of current velocity
 	const avatarAnimations = defaultAvatarAnimations;
@@ -110,11 +105,11 @@ export const updateVectorAnimation = (entity, delta: number): void => {
 			const avatarAnimation: AnimationConfigInterface = avatarAnimations[value.type];
 
 			const clip = AnimationClip.findByName(AnimationManager.instance._animations, avatarAnimation.name);
-			let action = actor.mixer.existingAction(clip, animationRoot);
+			let action = animationComponent.mixer.existingAction(clip, animationRoot);
 
 			if (!action) {
 				// get new action
-				action = actor.mixer.clipAction(clip, animationRoot);
+				action = animationComponent.mixer.clipAction(clip, animationRoot);
 				if (action === null) {
 					// console.warn('setActorAnimation [', avatarAnimation.name, '], not found');
 					return;
@@ -125,8 +120,8 @@ export const updateVectorAnimation = (entity, delta: number): void => {
 				action.setLoop(avatarAnimation.loop, Infinity);
 			}
 			// Push the action to our queue so we can handle it later if necessary
-			if(!actor.currentAnimationAction.includes(action))
-				actor.currentAnimationAction.push(action);
+			if(!animationComponent.currentAnimationAction.includes(action))
+      animationComponent.currentAnimationAction.push(action);
 
 			// just set weight and scale
 			action.setEffectiveWeight(value.weight);
@@ -140,29 +135,12 @@ export const updateVectorAnimation = (entity, delta: number): void => {
 	});
 };
 
-export const clearAnimOnChange: Behavior = (entity: Entity, args: { animationsSchema: any }, deltaTime: number): void => {
-  // const actor = getComponent<CharacterComponent>(entity, CharacterComponent as any);
-// Walking animation names
-// If animation is not in this array, remove
-  // Actor isn't initialized yet, so skip the animation
-  // if (!actor || !actor.mixer) return;
-  // const movementAnimationNames = args.animationsSchema.map(val => val.name);
-    // Clear existing animations
-    // actor.currentAnimationAction.forEach(currentAnimationAction => {
-    //   if(movementAnimationNames.filter(movAnim => movAnim === currentAnimationAction.getClip().name).length > 0)
-    //     return;
-      //currentAnimationAction.fadeOut(.3);
-      // currentAnimationAction.setEffectiveWeight(0);
-    // } )
-};
-
-
-
 export const changeAnimation: Behavior = (entity, args: {}, deltaTime: number): void => {
 
   if(!isClient) return;
-	const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any);
-	if (!actor.mixer) return;
+	const actor = getMutableComponent(entity, CharacterComponent);
+  const animationComponent = getMutableComponent(entity, AnimationComponent);
+	if (!animationComponent.mixer) return;
 	//@ts-ignore
 	const animationId = args.animationId;
 	//@ts-ignore
@@ -176,10 +154,10 @@ export const changeAnimation: Behavior = (entity, args: {}, deltaTime: number): 
 
 	const clip = AnimationClip.findByName(AnimationManager.instance._animations, avatarAnimation.name);
 
-	let newAction = actor.mixer.existingAction(clip, animationRoot);
+	let newAction = animationComponent.mixer.existingAction(clip, animationRoot);
 	if (!newAction) {
 		// get new action
-		newAction = actor.mixer.clipAction(clip, animationRoot);
+		newAction = animationComponent.mixer.clipAction(clip, animationRoot);
 		if (!newAction) {
 			console.warn('setActorAnimation', avatarAnimation.name, ', not found');
 			return;
@@ -190,7 +168,7 @@ export const changeAnimation: Behavior = (entity, args: {}, deltaTime: number): 
 		newAction.setLoop(avatarAnimation.loop, Infinity);
 
 	// Clear existing animations
-	actor.currentAnimationAction.forEach(currentAnimationAction => {
+	animationComponent.currentAnimationAction.forEach(currentAnimationAction => {
 		if(currentAnimationAction.getClip().name === newAction.getClip().name) return;
 		console.log("Fading out current animation action");
 		currentAnimationAction.fadeOut(transitionDuration);
@@ -205,7 +183,7 @@ export const changeAnimation: Behavior = (entity, args: {}, deltaTime: number): 
 		.play();
 		console.log("New action is ", newAction);
 
-	actor.currentAnimationAction = [newAction];
-	actor.currentAnimationLength = newAction.getClip().duration;
+  animationComponent.currentAnimationAction = [newAction];
+  animationComponent.currentAnimationLength = newAction.getClip().duration;
 
 };

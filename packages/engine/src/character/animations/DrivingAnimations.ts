@@ -98,17 +98,17 @@ const getDrivingValues: Behavior = (entity, args: {}, deltaTime: number): any =>
    // any parameters
    // simulate rayCastHit as vectorY from 1 to 0, for smooth changes
   //  absSpeed = MathUtils.smoothstep(absSpeed, 0, 1);
-   actor.moveVectorSmooth.target.copy(actor.animationVelocity);
-   actor.moveVectorSmooth.simulate(deltaTime);
-   const actorVelocity = actor.moveVectorSmooth.position;
+  //  actor.moveVectorSmooth.target.copy(actor.animationVelocity);
+  //  actor.moveVectorSmooth.simulate(deltaTime);
+  //  const actorVelocity = actor.moveVectorSmooth.position;
 
-   customVector.setY(testDrive ? 0 : 1);
-   actor.animationVectorSimulator.target.copy(customVector);
-   actor.animationVectorSimulator.simulate(deltaTime);
-   let test = actor.animationVectorSimulator.position.y;
+  //  customVector.setY(testDrive ? 0 : 1);
+  //  actor.animationVectorSimulator.target.copy(customVector);
+  //  actor.animationVectorSimulator.simulate(deltaTime);
+  //  let test = actor.animationVectorSimulator.position.y;
 
-   test < 0.00001 ? test = 0:'';
-   test = Math.min(test, 1);
+  //  test < 0.00001 ? test = 0:'';
+  //  test = Math.min(test, 1);
 
    return { actorVelocity, test };
 }

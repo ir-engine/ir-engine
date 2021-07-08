@@ -182,23 +182,23 @@ export class WorldScene {
                   })
                 }, 1000);
               }
+              console.log(entity.name)
 
               // For DJ animations
               if (entity.name === DJModelName) {
-                addComponent(entity, CharacterComponent);
+                console.log('Loaded DJ')
                 addComponent(entity, AnimationComponent, { onlyUpdateMixerTime: true }); // We only have to update the mixer time for this animations on each frame
 
-                const actor = getMutableComponent(entity, CharacterComponent);
                 const animationComponent = getMutableComponent(entity, AnimationComponent);
                 const object3d = getMutableComponent(entity, Object3DComponent);
 
-                actor.speedMultiplier = 1;
-                actor.mixer = new AnimationMixer(object3d.value.children[0]);
+                animationComponent.speedMultiplier = 1;
+                animationComponent.mixer = new AnimationMixer(object3d.value.children[0]);
 
                 // Create a new animation state and set DJ animation
                 // This animation will not be played until the user engagement
                 animationComponent.currentState = new AnimationState();
-                const action = actor.mixer.clipAction(AnimationClip.findByName(res.animations, DJAnimationName));
+                const action = animationComponent.mixer.clipAction(AnimationClip.findByName(res.animations, DJAnimationName));
                 action.setEffectiveWeight(1);
                 animationComponent.currentState.animations = [
                   {
@@ -208,6 +208,7 @@ export class WorldScene {
                     action,
                   }
                 ];
+                console.log(animationComponent)
               }
             }
             this._onModelLoaded();
