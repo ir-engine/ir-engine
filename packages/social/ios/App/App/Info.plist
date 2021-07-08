@@ -55,8 +55,10 @@
 	<key>WKAppBoundDomains</key>
 	<array>
 		<string>localhost</string>
+		<string>192.168.1.2</string>
 		<string>dev.arcmedia.us</string>
 		<string>api-dev.arcmedia.us</string>
+		<string>f9f82ce9c9dc.ngrok.io</string>
 	</array>
 </dict>
 </plist>
