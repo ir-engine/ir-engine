@@ -1,4 +1,4 @@
-import { AmbientLight, AnimationClip, AnimationMixer, DirectionalLight, HemisphereLight, LoopRepeat, PointLight, SpotLight } from 'three';
+import { AmbientLight, AnimationClip, AnimationMixer, DirectionalLight, HemisphereLight, LoopRepeat, PointLight, SpotLight, Vector3 } from 'three';
 import { isClient } from "../../common/functions/isClient";
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
@@ -43,6 +43,9 @@ import { DJAnimationName, DJModelName } from '../../character/AnimationManager';
 import { CharacterComponent } from '../../character/components/CharacterComponent';
 import { AnimationComponent } from '../../character/components/AnimationComponent';
 import { AnimationState } from '../../character/animations/AnimationState';
+import { delay } from '../../ecs/functions/EngineFunctions';
+import { setSkyDirection } from './setSkyDirection';
+import { TransformComponent } from '../../transform/components/TransformComponent';
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP,
@@ -115,7 +118,12 @@ export class WorldScene {
         break;
 
       case 'directional-light':
-        if (isClient && WebGLRendererSystem.instance.csm) return console.warn('SCENE LOADING - Custom directional lights are not supported when CSM is enabled.');
+        if (isClient && WebGLRendererSystem.instance.csm) {
+          // console.warn('SCENE LOADING - Custom directional lights are not supported when CSM is enabled.');
+          const direction = new Vector3(0, 0, 1).applyQuaternion(getComponent(entity, TransformComponent).rotation)
+          setSkyDirection(direction)
+          return;
+        }
         addObject3DComponent(
           entity,
           {
@@ -168,10 +176,15 @@ export class WorldScene {
 
             if (isClient) {
               if (component.data.textureOverride) {
-                setTimeout(() => {
-                  Engine.scene.children.find((obj: any) => {
-                    if (obj.sceneEntityId === component.data.textureOverride) return true;
-                  })?.traverse((videoMesh: any) => {
+                // we should push this to ECS, something like a SceneObjectLoadComponent,
+                // or add engine events for specific objects being added to the scene,
+                // the scene load event + delay 1 second delay works for now.
+                EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, async () => {
+                  await delay(1000)
+                  const objToCopy = Engine.scene.children.find((obj: any) => {
+                    return obj.sceneEntityId === component.data.textureOverride
+                  })
+                  if (objToCopy) objToCopy.traverse((videoMesh: any) => {
                     if (videoMesh.name === 'VideoMesh') {
                       getComponent(entity, Object3DComponent)?.value?.traverse((obj: any) => {
                         if (obj.material) {
@@ -180,7 +193,7 @@ export class WorldScene {
                       })
                     }
                   })
-                }, 1000);
+                })
               }
               console.log(entity.name)
 
@@ -208,7 +221,6 @@ export class WorldScene {
                     action,
                   }
                 ];
-                console.log(animationComponent)
               }
             }
             this._onModelLoaded();
@@ -341,7 +353,7 @@ export class WorldScene {
         break;
 
       case 'envmap':
-        setEnvMap(entity,component.data);
+        setEnvMap(entity, component.data);
         break;
 
       case 'persist':

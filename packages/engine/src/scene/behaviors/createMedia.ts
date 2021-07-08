@@ -97,6 +97,7 @@ export function createMediaServer(entity, args: any): void {
       sceneEntityId: args.sceneEntityId,
       sceneEntityName: entity.name,
       startTime: args.synchronize,
+      src: args.src
     },
   };
 
@@ -117,8 +118,7 @@ export function createAudio(entity, args: AudioProps): void {
 
 
 export function createVideo(entity, args: VideoProps): void {
-  console.log(args)
-  addObject3DComponent(entity, { obj3d: new Video(Engine.audioListener, Boolean(args.synchronize), args.elementId), objArgs: args });
+  addObject3DComponent(entity, { obj3d: new Video(Engine.audioListener, Boolean(args.synchronize), args.elementId), objArgs: { ...args } });
   if(args.interactable) addInteraction(entity);
 }
 
