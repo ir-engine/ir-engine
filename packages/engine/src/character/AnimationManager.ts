@@ -7,6 +7,9 @@ import { getMutableComponent } from "../ecs/functions/EntityFunctions";
 import { AnimationComponent } from "./components/AnimationComponent";
 import { CharacterComponent } from "./components/CharacterComponent";
 
+export const DJModelName = 'DJ';
+export const DJAnimationName = 'Animation';
+
 export class AnimationManager {
 	static instance: AnimationManager;
 
@@ -25,10 +28,12 @@ export class AnimationManager {
 		const animationComponent = getMutableComponent(characterEntity, AnimationComponent);
 
 		// If actor is not initialized then return
-		if (!actor.mixer || !actor.modelContainer.children.length) return;
+		if (!actor.mixer || (actor.modelContainer && !actor.modelContainer.children.length)) return;
 
 		const modifiedDelta = delta * actor.speedMultiplier;
 		actor.mixer.update(modifiedDelta);
+
+		if (animationComponent.onlyUpdateMixerTime) return;
 
 		animationComponent.animationGraph.render(actor, animationComponent, modifiedDelta);
 	}

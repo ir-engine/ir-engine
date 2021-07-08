@@ -1,9 +1,9 @@
-import { AmbientLight, DirectionalLight, HemisphereLight, Mesh, PointLight, SpotLight } from 'three';
+import { AmbientLight, AnimationClip, AnimationMixer, DirectionalLight, HemisphereLight, LoopRepeat, PointLight, SpotLight } from 'three';
 import { isClient } from "../../common/functions/isClient";
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
 import { Entity } from "../../ecs/classes/Entity";
-import { addComponent, createEntity, getComponent } from '../../ecs/functions/EntityFunctions';
+import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
 import { SceneData } from "../interfaces/SceneData";
 import { SceneDataComponent } from "../interfaces/SceneDataComponent";
 import { addObject3DComponent } from '../behaviors/addObject3DComponent';
@@ -39,6 +39,10 @@ import { createGround } from '../behaviors/createGround';
 import { handleRendererSettings } from '../behaviors/handleRendererSettings';
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 import { Object3DComponent } from '../components/Object3DComponent';
+import { DJAnimationName, DJModelName } from '../../character/AnimationManager';
+import { CharacterComponent } from '../../character/components/CharacterComponent';
+import { AnimationComponent } from '../../character/components/AnimationComponent';
+import { AnimationState } from '../../character/animations/AnimationState';
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP,
@@ -73,6 +77,8 @@ export class WorldScene {
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED });
 
       this.onCompleted();
+    }).catch((err) => {
+      console.error('Error while loading the scene entities =>', err);
     });
   }
 
@@ -159,20 +165,50 @@ export class WorldScene {
             } else {
               parseModelColliders(entity, { asset: res, uniqueId: component.data.sceneEntityId });
             }
-            if (isClient && component.data.textureOverride) {
-              setTimeout(() => {
-                Engine.scene.children.find((obj: any) => {
-                  if (obj.sceneEntityId === component.data.textureOverride) return true;
-                })?.traverse((videoMesh: any) => {
-                  if (videoMesh.name === 'VideoMesh') {
-                    getComponent(entity, Object3DComponent)?.value?.traverse((obj: any) => {
-                      if (obj.material) {
-                        obj.material = videoMesh.material
-                      }
-                    })
+
+            if (isClient) {
+              if (component.data.textureOverride) {
+                setTimeout(() => {
+                  Engine.scene.children.find((obj: any) => {
+                    if (obj.sceneEntityId === component.data.textureOverride) return true;
+                  })?.traverse((videoMesh: any) => {
+                    if (videoMesh.name === 'VideoMesh') {
+                      getComponent(entity, Object3DComponent)?.value?.traverse((obj: any) => {
+                        if (obj.material) {
+                          obj.material = videoMesh.material
+                        }
+                      })
+                    }
+                  })
+                }, 1000);
+              }
+
+              // For DJ animations
+              if (entity.name === DJModelName) {
+                addComponent(entity, CharacterComponent);
+                addComponent(entity, AnimationComponent, { onlyUpdateMixerTime: true }); // We only have to update the mixer time for this animations on each frame
+
+                const actor = getMutableComponent(entity, CharacterComponent);
+                const animationComponent = getMutableComponent(entity, AnimationComponent);
+                const object3d = getMutableComponent(entity, Object3DComponent);
+
+                actor.speedMultiplier = 1;
+                actor.mixer = new AnimationMixer(object3d.value.children[0]);
+
+                // Create a new animation state and set DJ animation
+                // This animation will not be played until the user engagement
+                animationComponent.currentState = new AnimationState();
+                const action = actor.mixer.clipAction(AnimationClip.findByName(res.animations, DJAnimationName));
+                action.setEffectiveWeight(1);
+                animationComponent.currentState.animations = [
+                  {
+                    name: DJAnimationName,
+                    weight: 1,
+                    loopType: LoopRepeat,
+                    action,
                   }
-                })
-              }, 1000)
+                ];
+              }
             }
             this._onModelLoaded();
             resolve();
