@@ -43,7 +43,7 @@
     "@styled-icons/fa-regular": "10.34.0",
     "@styled-icons/fa-solid": "10.34.0",
     "@styled-icons/material": "10.34.0",
-    "@types/react-infinite-scroller": "1.2.1",
+    "@types/react-infinite-scroller": "1.2.2",
     "@types/react-redux": "7.1.17",
     "@types/styled-components": "5.1.11",
     "@typescript-eslint/eslint-plugin": "4.28.2",
