@@ -1,5 +1,5 @@
-import { Capacitor, Plugins } from '@capacitor/core';
-// import {XRPlugin} from "webxr-native";
+import { Capacitor } from '@capacitor/core';
+import {XRPlugin} from "webxr-native";
 import React, { useEffect, useRef, useState } from 'react';
 import {
     CameraHelper,
@@ -30,7 +30,6 @@ import ZoomGestureHandler from "../../../zoom-gesture-handler";
 import HintOne from "../WebXrHints/HintOne";
 import HintTwo from "../WebXrHints/HintTwo";
 import {setLastFeedVideoUrl} from "../../reducers/feed/service";
-const {XRPlugin} = Plugins
 
 const mapStateToProps = (state: any): any => {
     return {
