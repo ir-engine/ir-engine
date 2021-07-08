@@ -141,6 +141,7 @@ export default (app: Application): void => {
                         } else {
                             try {
                                 const instance = await app.service('instance').get((app as any).instance.id);
+                                await agonesSDK.allocate();
                                 await app.service('instance').patch((app as any).instance.id, {
                                     currentUsers: (instance.currentUsers as number) + 1
                                 });
