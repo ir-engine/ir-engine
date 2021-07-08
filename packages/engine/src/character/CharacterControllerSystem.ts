@@ -224,7 +224,7 @@ export class CharacterControllerSystem extends System {
       if (!isClient) return;
       const animationComponent = getMutableComponent(entity, AnimationComponent);
 
-      const modifiedDelta = delta * animationComponent.speedMultiplier;
+      const modifiedDelta = delta * animationComponent.animationSpeed;
       animationComponent.mixer?.update(modifiedDelta);
     });
 
@@ -233,7 +233,7 @@ export class CharacterControllerSystem extends System {
 
       const actor = getMutableComponent(entity, CharacterComponent);
       const animationComponent = getMutableComponent(entity, AnimationComponent);
-      const deltaTime = delta * animationComponent.speedMultiplier;
+      const deltaTime = delta * animationComponent.animationSpeed;
 
       if (!animationComponent.onlyUpdateMixerTime) {
         animationComponent.animationGraph.render(actor, animationComponent, deltaTime);

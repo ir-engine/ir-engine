@@ -205,7 +205,6 @@ export class WorldScene {
                 const animationComponent = getMutableComponent(entity, AnimationComponent);
                 const object3d = getMutableComponent(entity, Object3DComponent);
 
-                animationComponent.speedMultiplier = 1;
                 animationComponent.mixer = new AnimationMixer(object3d.value.children[0]);
 
                 // Create a new animation state and set DJ animation
