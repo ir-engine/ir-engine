@@ -17,7 +17,7 @@ export const Button = styled.button.attrs(props => ({
   color: ${props => props.theme.white};
   white-space: nowrap;
   min-height: 24px;
-  font-size: 12px;
+  font-size: 15px;
   font-family: "Lato", sans-serif;
   text-align: center;
   cursor: pointer;
@@ -25,6 +25,8 @@ export const Button = styled.button.attrs(props => ({
   justify-content: center;
   text-decoration: none;
   padding: 1px 6px;
+  width: 150px;
+  margin-right: 15px;
 
   &:hover {
     color: ${props => props.theme.text};

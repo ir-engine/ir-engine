@@ -9,7 +9,7 @@ import { Magnet } from "@styled-icons/fa-solid/Magnet";
 import { Play } from "@styled-icons/fa-solid/Play";
 import { SyncAlt } from "@styled-icons/fa-solid/SyncAlt";
 import PropTypes from "prop-types";
-import React, { Component } from "react";
+import React, { Component, useCallback, useEffect, useContext, useState } from "react";
 import styled from "styled-components";
 import { TransformSpace } from "@xrengine/engine/src/editor/constants/TransformSpace";
 import { SnapMode, TransformMode, TransformPivot } from "@xrengine/engine/src/editor/controls/EditorControls";
@@ -21,7 +21,9 @@ import { InfoTooltip } from "../layout/Tooltip";
 import styledTheme from "../theme";
 import ToolButton from "./ToolButton";
 import LocationModal from '../../../../admin/components/LocationModal';
-
+import { ChartArea } from "@styled-icons/fa-solid/ChartArea";
+import { EditorContext } from "../contexts/EditorContext";
+import StatsFuc from "./StatsFuc"
 /**
  * 
  * @author Robert Long
@@ -169,6 +171,107 @@ const StyledToggleButton = (styled as any).div`
   }
 `;
 
+
+/**
+ * ToolbarIconContainer provides the styles for icon placed in toolbar.
+ * 
+ * @author Robert Long
+ * @param {any} styled
+ */
+ const ToolbarIconContainer = (styled as any).div`
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ padding: 0 8px;
+ border-left: 1px solid rgba(255, 255, 255, 0.2);
+ background-color: ${props => (props.value ? props.theme.blue : "transparent")};
+ cursor: pointer;
+
+ :hover {
+   background-color: ${props => (props.value ? props.theme.blueHover : props.theme.hover)};
+ }
+
+ :active {
+   background-color: ${props => (props.value ? props.theme.bluePressed : props.theme.hover2)};
+ }
+`;
+
+
+const ViewportToolbarContainer = (styled as any).div`
+  display: flex;
+  justify-content: flex-end;
+  flex: 1;
+`;
+
+function IconToggle({ icon: Icon, value, onClick, tooltip, ...rest }) {
+  const onToggle = useCallback(() => {
+    onClick(!value);
+  }, [value, onClick]);
+
+  return (
+    <InfoTooltip info={tooltip}>
+      <ToolbarIconContainer onClick={onToggle} value={value} {...rest}>
+        <Icon size={14} />
+      </ToolbarIconContainer>
+    </InfoTooltip>
+  );
+}
+
+// Declairing properties for IconToggle
+IconToggle.propTypes = {
+  icon: PropTypes.elementType,
+  value: PropTypes.bool,
+  onClick: PropTypes.func,
+  tooltip: PropTypes.string
+};
+
+
+/**
+ * ViewportToolbar used as warpper for IconToggle, SelectInput.
+ * 
+ * @author Robert Long
+ * @param  {any} onToggleStats
+ * @param  {any} showStats
+ * @constructor
+ */
+ function ViewportToolbar({ onToggleStats, showStats }) {
+  const editor = useContext(EditorContext);
+
+  const renderer = editor.renderer;
+  const [renderMode, setRenderMode] = useState(renderer && renderer.renderMode);
+
+  const options = renderer
+    ? renderer.renderModes.map(mode => ({
+        label: mode.name,
+        value: mode
+      }))
+    : [];
+
+  useEffect(() => {
+    editor.addListener("initialized", () => {
+      setRenderMode(editor.renderer.renderMode);
+    });
+  }, [editor]);
+
+  const onChangeRenderMode = useCallback(
+    mode => {
+      editor.renderer.setRenderMode(mode);
+      setRenderMode(mode);
+    },
+    [editor, setRenderMode]
+  );
+  
+
+  // creating ToolBar view
+  return (
+    <ViewportToolbarContainer>
+      <IconToggle onClick={onToggleStats} value={showStats} tooltip="Toggle Stats" icon={ChartArea} />
+      { /* @ts-ignore */ }
+      <SelectInput value={renderMode} options={options} onChange={onChangeRenderMode} styles={selectInputStyles} />
+    </ViewportToolbarContainer>
+  );
+}
+
 /**
  * 
  * @author Robert Long
@@ -188,6 +291,12 @@ function ToggleButton({ tooltip, children, ...rest }) {
 ToggleButton.propTypes = {
   tooltip: PropTypes.string,
   children: PropTypes.node
+};
+
+// creating properties for  ViewportToolbar
+ViewportToolbar.propTypes = {
+  showStats: PropTypes.bool,
+  onToggleStats: PropTypes.func
 };
 
 /**
@@ -302,7 +411,9 @@ type ToolBarState = {
   selectedLocation: any;
   editorInitialized: boolean;
   menuOpen: boolean;
-  locationEditing: boolean
+  locationEditing: boolean;
+  showStats: boolean;
+
 }
 
 /**
@@ -318,7 +429,6 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
     isPublishedScene: PropTypes.bool,
     queryParams: PropTypes.object,
   };
-
   constructor(props) {
     super(props);
 
@@ -327,7 +437,8 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
       menuOpen: false,
       locationModalOpen: false,
       selectedLocation: initialLocation,
-      locationEditing: false
+      locationEditing: false,
+      showStats: false,
     };
   }
 
@@ -474,6 +585,10 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
     }
   };
 
+  handleShowStats =()=>{
+    this.setState({ ...this.state, showStats: !this.state.showStats})
+  }
+
   render() {
     const { editorInitialized, menuOpen } = this.state as any;
 
@@ -491,15 +606,17 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
     } = (this.props as any).editor.editorControls;
 
     const queryParams = (this.props as any).queryParams;
-
+    
     //@ts-ignore
-    const button = <Button type="submit"
+    const button = <Button 
+        type="submit"
         color="primary"
         onClick={this.openModalCreate}
-        className="mr-4 mt-2 mb-2 pl-5 pr-5"
+       // className="mr-4 mt-2 mb-2 pl-5 pr-5"
     >
       Publish
     </Button>;
+
 
     return (
       <StyledToolbar>
@@ -610,6 +727,9 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
               {(this.props as any).editor.playing ? <Pause size={14} /> : <Play size={14} />}
             </ToggleButton>
           </ToolbarInputGroup>
+          <ViewportToolbar 
+          onToggleStats={this.handleShowStats} 
+          showStats={this.state.showStats} />
         </ToolToggles>
         <Spacer />
         {
@@ -630,6 +750,7 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
           handleClose={this.handleLocationClose}
           location={this.state.selectedLocation}
         />
+        {this.state.showStats && <StatsFuc/> }
         <ContextMenu id="menu">
           {(this.props as any).menu.map(menu => {
             return this.renderMenu(menu);
