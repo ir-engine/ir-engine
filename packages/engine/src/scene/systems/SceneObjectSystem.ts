@@ -27,7 +27,7 @@ export class SceneObjectSystem extends System {
   static instance: SceneObjectSystem;
   
   bpcemOptions: BPCEMProps;
-  envMapIntensity: number=1;
+  envMapIntensity=1;
 
   constructor(attributes: SystemAttributes = {}) {
     super(attributes);

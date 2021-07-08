@@ -108,7 +108,7 @@ export default class Video extends AudioSource {
         //   new RethrownError()
         // );
       };
-      let cleanup = () => {
+      const cleanup = () => {
         this.el.removeEventListener("loadeddata", onLoadedMetadata);
         this.el.removeEventListener("error", onError);
       };
