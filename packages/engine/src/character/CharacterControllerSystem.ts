@@ -214,6 +214,9 @@ export class CharacterControllerSystem extends System {
     // temporarily disable animations on Oculus until we have buffer animation system / GPU animations
     this.queryResults.animation.added?.forEach((entity) => {
       const animationComponent = getMutableComponent(entity, AnimationComponent);
+
+      if (animationComponent.onlyUpdateMixerTime) return;
+
       animationComponent.animationGraph = CharacterAnimationGraph.constructGraph();
       animationComponent.currentState = animationComponent.animationGraph.states[CharacterStates.IDLE];
       animationComponent.currentState.mount(getMutableComponent(entity, CharacterComponent), {});
@@ -308,7 +311,7 @@ CharacterControllerSystem.queries = {
     }
   },
   characterOnServer: {
-    components: [Not(LocalInputReceiver), Not(InterpolationComponent), CharacterComponent],
+    components: [Not(LocalInputReceiver), Not(InterpolationComponent), CharacterComponent, ControllerColliderComponent],
     listen: {
       added: true,
       removed: true
