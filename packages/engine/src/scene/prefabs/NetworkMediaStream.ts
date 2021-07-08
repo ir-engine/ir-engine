@@ -20,7 +20,7 @@ export const NetworkMediaStream: NetworkPrefab = {
         // Wait untill user made some engagement with the platform
         // If user is not engaged then latest browsers will prevent autoplay of the video
 
-        // disable for event
+        // TODO: disabled for event
         // await awaitEngaged();
 
         const videoElement = (videoComp.value as any).el as HTMLVideoElement;
