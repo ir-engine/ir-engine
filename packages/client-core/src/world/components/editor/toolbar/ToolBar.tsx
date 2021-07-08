@@ -587,13 +587,15 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
 
   handleShowStats = () => {
     this.setState({
-      ...this.state,
       showStats: !this.state.showStats
     })
   }
 
+  
+
   render() {
     const { editorInitialized, menuOpen } = this.state as any;
+    console.log(this.state);
 
     if (!editorInitialized) {
       return <StyledToolbar />;
