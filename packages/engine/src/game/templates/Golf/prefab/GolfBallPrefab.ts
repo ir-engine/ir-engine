@@ -99,7 +99,14 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   var trailMaterial = trail.createBaseMaterial({});
   var trailLength = 150;
   addComponent(ballEntity, Object3DComponent, { value: ballMesh });
-  trail.initialize(trailMaterial, trailLength, false, 0, trailHeadGeometry, getComponent(ballEntity, Object3DComponent));
+  // TESTING HOW TO ATTACH TRAIL TO OBJECT 3D, currently not working
+  var ballEntity3DObject = getComponent(ballEntity, Object3DComponent);
+  console.log(ballEntity3DObject);
+  var ballEntityTarget = JSON.parse(JSON.stringify(ballEntity3DObject));
+  console.log(ballEntityTarget);
+  console.log(Engine.scene.getObjectById(ballEntityTarget.value.object.uuid));
+  trail.initialize(trailMaterial, trailLength, false, 150, trailHeadGeometry, ballEntityTarget.value.object);
+  console.log(trail);
 }
 
 export const initializeGolfBall = (ballEntity: Entity) => {
