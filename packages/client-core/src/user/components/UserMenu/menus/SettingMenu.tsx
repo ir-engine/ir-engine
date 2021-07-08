@@ -28,7 +28,13 @@ const SettingMenu = (props: any): JSX.Element => {
             <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-volume')}</span>
             <Slider
               value={props.setting?.audio || 100}
-              onChange={(_, value) => { props.setUserSettings({ audio: value }); }}
+              onChange={(_, value) => {
+                props.setUserSettings({ audio: value });
+                const videoElements = document.getElementsByTagName('video');
+                for (let i = 0; i < videoElements.length; i++) {
+                  videoElements[i].volume = ((value as number)/ 100);
+                }
+              }}
               className={styles.slider}
             />
           </div>

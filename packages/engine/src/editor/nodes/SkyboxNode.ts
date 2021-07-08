@@ -163,12 +163,8 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
         .setPath(this.cubemapPath)
         .load([posx, negx, posy, negy, posz, negz],
         (texture) => {
-          const pmremGenerator = new PMREMGenerator(renderer);
-          const EnvMap = pmremGenerator.fromCubemap(texture).texture;
-          EnvMap.encoding = sRGBEncoding;
-          this.editor.scene.background = EnvMap;
+          this.editor.scene.background = texture;
           texture.dispose();
-          pmremGenerator.dispose();
         },
         (res)=> {
           console.log(res);
