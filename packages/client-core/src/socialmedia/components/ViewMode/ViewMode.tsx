@@ -16,13 +16,13 @@ import { selectAuthState } from '../../../user/reducers/auth/selector';
 import { selectPopupsState } from '../../reducers/popupsState/selector';
 import { Box, CardMedia, makeStyles, Typography } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
-// import { Plugins } from '@capacitor/core';
-//
-// const {XRPlugin} = Plugins;
-import {XRPlugin} from "webxr-native";
+import { Plugins } from '@capacitor/core';
+
+// import {XRPlugin} from "webxr-native";
 
 // @ts-ignore
 import classes from './ViewMode.module.scss';
+const {XRPlugin} = Plugins;
 
 const mapStateToProps = (state: any): any => {
   return {
