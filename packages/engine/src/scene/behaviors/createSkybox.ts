@@ -61,11 +61,8 @@ export const createSkybox = (entity, args: SceneBackgroundProps): any => {
         .setPath(args.cubemapPath)
         .load([posx, negx, posy, negy, posz, negz],
         (texture) => {
-          const EnvMap = pmremGenerator.fromCubemap(texture).texture;
-          EnvMap.encoding = sRGBEncoding;
-          Engine.scene.background = EnvMap;
-          texture.dispose();
-          pmremGenerator.dispose();
+          texture.encoding=sRGBEncoding;
+          Engine.scene.background = texture;
         },
         (res)=> {
           console.log(res);
@@ -78,6 +75,7 @@ export const createSkybox = (entity, args: SceneBackgroundProps): any => {
 
       case SkyTypeEnum.equirectangular:
         new TextureLoader().load(args.equirectangularPath, (texture) => {
+          texture.encoding=sRGBEncoding;
           Engine.scene.background = pmremGenerator.fromEquirectangular(texture).texture;
         })
         break;
