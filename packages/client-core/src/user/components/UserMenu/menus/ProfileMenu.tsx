@@ -74,7 +74,7 @@ const ProfileMenu = (props: Props): any => {
 	const [ emailPhone, setEmailPhone ] = useState('');
 	const [ error, setError ] = useState(false);
 	const [ errorUsername, setErrorUsername] = useState(false);
-
+	
 	let type = '';
 
 	const loadCredentialHandler = async () => {

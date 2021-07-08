@@ -9,13 +9,14 @@ import Feed from "../../Feed";
 
 //@ts-ignore
 import styles from './FeedPopup.module.scss';
+import {isIOS} from "../../../../util/platformCheck";
 
 const mapStateToProps = (state: any): any => {
     return {
       popupsState: selectPopupsState(state),
     };
   };
-  
+
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
     updateFeedPageState: bindActionCreators(updateFeedPageState, dispatch),
 });
@@ -29,19 +30,24 @@ export const FeedPopup = ({popupsState, updateFeedPageState, webxrRecorderActivi
     //common for feed page
   const feedPageState = popupsState?.get('feedPage');
   const feedId = popupsState?.get('feedId');
+  const platformClass = isIOS ? styles.isIos : "";
+
   const handleFeedClose = () =>updateFeedPageState(false);
   const renderFeedModal = () =>
     popupsState?.get('feedPage') === true && !webxrRecorderActivity &&
-        <SharedModal 
+        <SharedModal
             open={popupsState?.get('feedPage')}
-            onClose={handleFeedClose} 
-            className={styles.feedPagePopup}
+            onClose={handleFeedClose}
+            className={styles.feedPagePopup + " " + platformClass}
         >
-            <Feed />     
-            <AppFooter /> 
+			<div className={styles.feedPageIosWrapper}>
+				<Feed />
+				<AppFooter />
+			</div>
+
         </SharedModal>;
   useEffect(()=>{renderFeedModal();}, [feedPageState,feedId]);
-    return  renderFeedModal();         
+    return  renderFeedModal();
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(FeedPopup);

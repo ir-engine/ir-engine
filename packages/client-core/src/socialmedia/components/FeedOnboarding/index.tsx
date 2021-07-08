@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 // @ts-ignore
 import styles from './FeedOnboarding.module.scss';
+import {isIOS} from "../../../util/platformCheck";
 
 interface Props{
     setFeedOnborded?: any;
@@ -24,12 +25,14 @@ const FeedOnboarding = (props: Props) => {
             setFeedOnborded(true);
         }, 1000);
     };
+	const platformClass = isIOS ? styles.isIos : "";
+
     switch(screen){
 
         case(1):
             return <div className={!visibility ? styles.firstScreen
                     +" "+styles.onboarding+" "+styles.unvisibile : styles.firstScreen+" "+styles.onboarding}>
-                <button type="button" onClick={()=>{closeFeedOnboarding();}} className={styles.skip}>Skip</button>
+                <button type="button" onClick={()=>{closeFeedOnboarding();}} className={styles.skip + ' ' + platformClass}>Skip</button>
                 <div className={styles.relativeImage}>
                     <img src="/assets/feedOnboarding/plus.png" className={styles.mobImage} />
                     <ul className={styles.loadingFrame}>
@@ -72,7 +75,7 @@ const FeedOnboarding = (props: Props) => {
                     </div>
                 </div>
                 <button type="button" onClick={()=>{setScreen(3);}}> Next </button>
-                <button type="button" onClick={()=>{closeFeedOnboarding();}} className={styles.skip}>Skip</button>
+                <button type="button" onClick={()=>{closeFeedOnboarding();}} className={styles.skip + ' ' + platformClass}>Skip</button>
             </div>;
 
         case(3):
@@ -98,7 +101,7 @@ const FeedOnboarding = (props: Props) => {
                     </div>
                 </div>
                 <button type="button" onClick={()=>{closeFeedOnboarding();}}> Get Started ! </button>
-                <button type="button" onClick={()=>{closeFeedOnboarding();}} className={styles.skip}>Skip</button>
+                <button type="button" onClick={()=>{closeFeedOnboarding();}} className={styles.skip + ' ' + platformClass}>Skip</button>
             </div>;
         }
 };

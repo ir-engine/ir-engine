@@ -88,16 +88,16 @@ export class AnimationGraph {
         animationComponent.currentState = this.states[newState];
 
 		// Mount new state
-        animationComponent.currentState.mount(actor, params);
+        animationComponent.currentState.mount(animationComponent, params);
 
         // Add event to auto transit to new state when the animatin of current state finishes
         if (animationComponent.currentState.autoTransitionTo) {
             const transitionEvent = () => {
                 this.isTransitionPaused = false;
                 this.transitionState(actor, animationComponent, animationComponent.currentState.autoTransitionTo, params);
-                actor.mixer.removeEventListener('finished', transitionEvent);
+                animationComponent.mixer.removeEventListener('finished', transitionEvent);
             }
-            actor.mixer.addEventListener('finished', transitionEvent);
+            animationComponent.mixer.addEventListener('finished', transitionEvent);
         }
 
         // Pause transition if current state requires
@@ -118,7 +118,7 @@ export class AnimationGraph {
      */
     render = (actor: CharacterComponent, animationComponent: AnimationComponent, delta: number): void => {
         // Calculate movement fo the actor for this frame
-		const movement = calculateMovement(actor, delta, this.EPSILON);
+		    const movement = calculateMovement(actor, animationComponent, delta, this.EPSILON);
 
         // Check whether the velocity of the player is changed or not since last frame
         const isChanged = !animationComponent.prevVelocity.equals(movement.velocity);

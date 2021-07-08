@@ -21,7 +21,7 @@ export const testWorldState = {
       "avatarDetail": {
         "avatarId": "Sonny",
         "avatarURL": "/models/avatars/Sonny.glb",
-        "thumbnailURL": "/static/Sonny.png"
+        "thumbnailURL": "/static/Sonny.jpg"
       }
     }
   ],

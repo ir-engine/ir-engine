@@ -1,7 +1,7 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity';
-import { getComponent, getMutableComponent, removeEntity } from "@xrengine/engine/src/ecs/functions/EntityFunctions";
+import { getComponent, removeEntity } from "@xrengine/engine/src/ecs/functions/EntityFunctions";
 import { Network } from "@xrengine/engine/src/networking//classes/Network";
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes';
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState';
@@ -12,9 +12,9 @@ import config from '@xrengine/server-core/src/appconfig';
 import { closeTransport } from './WebRTCFunctions';
 import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem';
 import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema';
-import { ControllerColliderComponent } from '../../engine/src/character/components/ControllerColliderComponent';
-import { CharacterComponent } from '../../engine/src/character/components/CharacterComponent';
-import { TransformComponent } from '../../engine/src/transform/components/TransformComponent';
+import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent';
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent';
+import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType';
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
 
@@ -317,16 +317,13 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
 
     // Get all network objects and add to createObjects
     Object.keys(Network.instance.networkObjects).forEach(networkId => {
-        // in this if we filter and dont send spawnded objects, just player or any from scene 
-        if (Network.instance.networkObjects[networkId].prefabType === 0 || Network.instance.networkObjects[networkId].parameters === '') {
-            worldState.createObjects.push({
-                prefabType: Network.instance.networkObjects[networkId].prefabType,
-                networkId: Number(networkId),
-                ownerId: Network.instance.networkObjects[networkId].ownerId,
-                uniqueId: Network.instance.networkObjects[networkId].uniqueId,
-                parameters: Network.instance.networkObjects[networkId].parameters // prefabParameters if from project scene, this is ''
-              });
-        }
+      worldState.createObjects.push({
+        prefabType: Network.instance.networkObjects[networkId].prefabType,
+        networkId: Number(networkId),
+        ownerId: Network.instance.networkObjects[networkId].ownerId,
+        uniqueId: Network.instance.networkObjects[networkId].uniqueId,
+        parameters: Network.instance.networkObjects[networkId].parameters
+      });
     });
 
     // Get all clients and add to clientsConnected and push to world state frame

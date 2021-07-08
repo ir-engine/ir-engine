@@ -4,9 +4,6 @@ import { CharacterStates } from "./Util";
 
 /** Class to hold the animation graph for player entity. Every character entity will have their saperate graph. */
 export class CharacterAnimationGraph extends AnimationGraph {
-    static constructGraph = () => {
-        return new CharacterAnimationGraph();
-    }
 
     constructor() {
         super();

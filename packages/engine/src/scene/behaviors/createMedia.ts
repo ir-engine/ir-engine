@@ -50,8 +50,8 @@ export interface VideoProps extends AudioProps {
   projection: 'flat' | '360-equirectangular';
 }
 
-const elementPlaying = (element: any): boolean => {
-  if (isWebWorker) return element?._isPlaying;
+export const elementPlaying = (element: any): boolean => {
+  // if (isWebWorker) return element?._isPlaying;
   return element && (!!(element.currentTime > 0 && !element.paused && !element.ended && element.readyState > 2));
 };
 
@@ -61,6 +61,7 @@ const onMediaInteraction: Behavior = (entityInitiator, args, delta, entityIntera
     // TODO handle volumetric interaction here
     return
   }
+  console.log('onMediaInteraction')
 
   const source = getComponent(entityInteractive, Object3DComponent).value as AudioSource;
   if (elementPlaying(source.el)) {
@@ -84,10 +85,9 @@ const onMediaInteractionHover: Behavior = (entityInitiator, { focused }: { focus
 export function createMediaServer(entity, args: any): void {
   addObject3DComponent(entity, { obj3d: new Object3D(), objArgs: args });
   if (args.interactable) addInteraction(entity);
-
   // If media component is not requires to be sync then return
   if (!args.synchronize) return;
-
+  
   const data = {
     networkId: Network.getNetworkId(),
     prefabType: PrefabType.MediaStream,
@@ -96,7 +96,7 @@ export function createMediaServer(entity, args: any): void {
     parameters: {
       sceneEntityId: args.sceneEntityId,
       sceneEntityName: entity.name,
-      startTime: Date.now(),
+      startTime: args.synchronize,
     },
   };
 
@@ -117,7 +117,8 @@ export function createAudio(entity, args: AudioProps): void {
 
 
 export function createVideo(entity, args: VideoProps): void {
-  addObject3DComponent(entity, { obj3d: new Video(Engine.audioListener, args.synchronize, args.elementId), objArgs: args });
+  console.log(args)
+  addObject3DComponent(entity, { obj3d: new Video(Engine.audioListener, Boolean(args.synchronize), args.elementId), objArgs: args });
   if(args.interactable) addInteraction(entity);
 }
 
