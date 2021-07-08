@@ -8,6 +8,7 @@ import { ScaleComponent } from '../../transform/components/ScaleComponent';
 import { Sky } from '../classes/Sky';
 import { Object3DComponent } from '../components/Object3DComponent';
 import { SCENE_ASSET_TYPES, WorldScene } from '../functions/SceneLoading';
+import { setSkyDirection } from '../functions/setSkyDirection';
 import { addObject3DComponent } from './addObject3DComponent';
 
 
@@ -40,7 +41,7 @@ export const createSkybox = (entity, args: SceneBackgroundProps): any => {
         uniforms.turbidity.value = option.turbidity;
         uniforms.luminance.value = option.luminance;
         uniforms.sunPosition.value = sun;
-        WebGLRendererSystem.instance.csm?.lightDirection.set(-sun.x, -sun.y, -sun.z);
+        setSkyDirection(sun)
     
         const skyboxTexture = (skyboxObject3D as any).generateSkybox(Engine.renderer);
     

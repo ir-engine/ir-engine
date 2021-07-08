@@ -1,4 +1,4 @@
-import { AmbientLight, AnimationClip, AnimationMixer, DirectionalLight, HemisphereLight, LoopRepeat, PointLight, SpotLight } from 'three';
+import { AmbientLight, AnimationClip, AnimationMixer, DirectionalLight, HemisphereLight, LoopRepeat, PointLight, SpotLight, Vector3 } from 'three';
 import { isClient } from "../../common/functions/isClient";
 import { Engine } from '../../ecs/classes/Engine';
 import { EngineEvents } from '../../ecs/classes/EngineEvents';
@@ -44,6 +44,8 @@ import { CharacterComponent } from '../../character/components/CharacterComponen
 import { AnimationComponent } from '../../character/components/AnimationComponent';
 import { AnimationState } from '../../character/animations/AnimationState';
 import { delay } from '../../ecs/functions/EngineFunctions';
+import { setSkyDirection } from './setSkyDirection';
+import { TransformComponent } from '../../transform/components/TransformComponent';
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP,
@@ -116,7 +118,12 @@ export class WorldScene {
         break;
 
       case 'directional-light':
-        if (isClient && WebGLRendererSystem.instance.csm) return console.warn('SCENE LOADING - Custom directional lights are not supported when CSM is enabled.');
+        if (isClient && WebGLRendererSystem.instance.csm) {
+          // console.warn('SCENE LOADING - Custom directional lights are not supported when CSM is enabled.');
+          const direction = new Vector3(0, 0, 1).applyQuaternion(getComponent(entity, TransformComponent).rotation)
+          setSkyDirection(direction)
+          return;
+        }
         addObject3DComponent(
           entity,
           {
