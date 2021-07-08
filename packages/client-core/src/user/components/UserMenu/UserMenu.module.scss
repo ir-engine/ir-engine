@@ -350,6 +350,9 @@
     color: black;
     max-height: calc(100vh - 175px);
     overflow: auto;
+    touch-action: auto;
+
+    * { touch-action: auto; }
 
     &>.profilePanel, &>.accountPanel, &>.settingPanel, &>.sharePanel, &>.locationPanel { margin: 30px 0; }
 
@@ -617,7 +620,7 @@
             :global(.MuiSlider-root) {
                 &.slider {
                     color: #5F5FF1;
-                    margin-left: 10px;
+                    margin: 0 10px;
                 }
                 :global(.MuiSlider-thumb) {
                     background: #5F5FF1;
@@ -635,7 +638,7 @@
             right: 0;
 
             .checkboxBlock {
-                margin: 0;
+                margin: 0 -2px 0 0;
                 :global(.MuiCheckbox-root) {
                     margin-left: 10px;
                     margin-right: 0;

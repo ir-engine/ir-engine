@@ -30,7 +30,7 @@ export class AnimationComponent extends Component<AnimationComponent> {
 	animations: any[] = [];
 	currentAnimationAction: AnimationAction[] = [];
 	currentAnimationLength = 0; // we may not need this
-	speedMultiplier = 3;// TODO -- rename this to animation speed
+	animationSpeed = 1;
 	animationVectorSimulator: VectorSpringSimulator
 	animationVelocity: Vector3 = new Vector3();
 }

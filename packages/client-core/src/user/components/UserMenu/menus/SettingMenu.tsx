@@ -27,7 +27,7 @@ const SettingMenu = (props: any): JSX.Element => {
             <span className={styles.materialIconBlock}><VolumeUp color="primary"/></span>
             <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-volume')}</span>
             <Slider
-              value={props.setting?.audio || 100}
+              value={props.setting?.audio == null ? 100 : props.setting?.audio}
               onChange={(_, value) => {
                 props.setUserSettings({ audio: value });
                 const videoElements = document.getElementsByTagName('video');
@@ -36,15 +36,19 @@ const SettingMenu = (props: any): JSX.Element => {
                 }
               }}
               className={styles.slider}
+              max={100}
+              min={0}
             />
           </div>
           <div className={styles.row}>
             <span className={styles.materialIconBlock}><Mic color="primary"/></span>
             <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-microphone')}</span>
             <Slider
-              value={props.setting?.microphone || 100}
+              value={props.setting?.microphone == null ? 100 : props.setting?.microphone}
               onChange={(_, value) => { props.setUserSettings({ microphone: value }); }}
               className={styles.slider}
+              max={100}
+              min={0}
             />
           </div>
         </section>
@@ -75,7 +79,7 @@ const SettingMenu = (props: any): JSX.Element => {
               <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-shadow')}</span>
               <Slider
                 value={props.graphics.shadows}
-                onChange={(_, value) => { 
+                onChange={(_, value) => {
                   props.setGraphicsSettings({
                     shadows: value,
                     automatic: false

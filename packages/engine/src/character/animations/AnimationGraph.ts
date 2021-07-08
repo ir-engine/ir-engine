@@ -17,7 +17,7 @@ export class AnimationGraph {
     defaultState: AnimationState;
 
     /** Precision value */
-    EPSILON = 0.001;
+    EPSILON = 0.005;
 
     /** Indicates whether the transition from one state to another is paused or not */
     isTransitionPaused: boolean;
@@ -71,9 +71,14 @@ export class AnimationGraph {
             return;
         }
 
-		// Immediately unmount previous state if any
+		// Immediately unmount previous state if any except it is same as the new state
         if (animationComponent.prevState) {
-            animationComponent.prevState.unmount(true);
+            if (animationComponent.prevState.name === newState) {
+                animationComponent.prevState.timeElapsedAfterUnmount = 0;
+                animationComponent.prevState = null;
+            } else {
+                animationComponent.prevState.unmount(true);
+            }
         }
 
         // Never unmount default state
@@ -126,7 +131,7 @@ export class AnimationGraph {
         // If velocity is not changed then no updated and transition will happen
         if (isChanged) {
             let newState = '';
-            if (movement.velocity.length() > this.EPSILON * 3) {
+            if (movement.velocity.length() > this.EPSILON / 3) {
                 newState = actor.isWalking ? CharacterStates.WALK : CharacterStates.RUN;
             } else {
                 newState = CharacterStates.IDLE

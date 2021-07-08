@@ -211,7 +211,7 @@ const UserMenu = (props: UserMenuProps): any => {
   return (
     <>
       {engineLoaded && 
-        <ClickAwayListener onClickAway={() => changeActiveMenu(null)} mouseEvent="onMouseUp">
+        <ClickAwayListener onClickAway={() => changeActiveMenu(null)} mouseEvent="onMouseDown">
           <section className={styles.settingContainer}>
             <div className={styles.iconContainer}>
               {menus.map((menu, index) => {

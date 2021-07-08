@@ -82,7 +82,7 @@ export const updateVectorAnimation = (entity, delta: number): void => {
 	const actor = getMutableComponent(entity, CharacterComponent);
 	const animationComponent = getMutableComponent(entity, AnimationComponent);
 	if (!animationComponent.mixer || !actor.modelContainer.children.length) return;
-  const acceleration = animationComponent.speedMultiplier;
+  const acceleration = animationComponent.animationSpeed;
   if (animationComponent.mixer) animationComponent.mixer.update(delta * animationSpeedMultiplier);
 //  if(animationComponent.animationsSchema.length == 3) return;
 	// Get the magnitude of current velocity
