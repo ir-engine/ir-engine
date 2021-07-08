@@ -71,7 +71,7 @@ export default class Video extends AudioSource {
                 break;
               case Hls.ErrorTypes.MEDIA_ERROR:
                 console.log('fatal media error encountered, try to recover', event, data);
-                this.hls.recoverMediaError();
+                // this.hls.recoverMediaError();
                 break;
               default:
                 // cannot recover

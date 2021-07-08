@@ -152,7 +152,7 @@ export class AnimationGraph {
      */
     updateNetwork = (animationComponent: AnimationComponent, newState: string, params: CalculateWeightsParams): void => {
         // Send change animation commnad over network for the local client entity
-        if (Network.instance.localClientEntity.id === animationComponent.entity.id && animationComponent.currentState.type === AnimationType.STATIC) {
+        if (Network.instance.localClientEntity?.id === animationComponent.entity.id && animationComponent.currentState.type === AnimationType.STATIC) {
             Network.instance.clientInputState.commands.push({
                 type: Commands.CHANGE_ANIMATION_STATE,
                 args: convertObjToBufferSupportedString({

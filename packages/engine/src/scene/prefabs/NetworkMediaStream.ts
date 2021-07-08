@@ -22,7 +22,7 @@ export const NetworkMediaStream: NetworkPrefab = {
         // If user is not engaged then latest browsers will prevent autoplay of the video
 
         // TODO: disabled for event
-        // await awaitEngaged();
+        await awaitEngaged();
 
         // Get time elapsed since start of the video in seconds
         const time = Date.now() - args.parameters.startTime;
