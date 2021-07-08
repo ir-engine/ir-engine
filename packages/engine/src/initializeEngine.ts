@@ -303,6 +303,7 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
 
         const engageType = isMobile ? 'touchstart' : 'click';
         const onUserEngage = () => {
+            Engine.hasEngaged = true;
             EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE });
             document.removeEventListener(engageType, onUserEngage);
         };

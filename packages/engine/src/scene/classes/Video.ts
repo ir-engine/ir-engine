@@ -17,6 +17,7 @@ export const VideoProjection = {
   Equirectangular360: "360-equirectangular"
 };
 import { Engine } from "../../ecs/classes/Engine";
+import { elementPlaying } from "../behaviors/createMedia";
 
 export default class Video extends AudioSource {
   // @ts-ignore
@@ -24,6 +25,7 @@ export default class Video extends AudioSource {
   _mesh: Mesh;
   _projection: string;
   hls: Hls;
+  isSynced: boolean
   constructor(audioListener, isSynced: boolean, id: string) {
     super(audioListener, "video", id);
 
@@ -52,11 +54,27 @@ export default class Video extends AudioSource {
         if (!this.hls) {
           this.hls = new Hls();
         }
+        this.hls.on(Hls.Events.ERROR, function (event, data) {
+          if (data.fatal) {
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                // try to recover network error
+                console.log('fatal network error encountered, try to recover');
+                this.hls.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                console.log('fatal media error encountered, try to recover');
+                this.hls.recoverMediaError();
+                break;
+              default:
+                // cannot recover
+                this.hls.destroy();
+                break;
+            }
+          }
+        });
         this.hls.on(Hls.Events.MEDIA_ATTACHED, () => { 
-          this.hls.on((Hls as any).Events.MANIFEST_PARSED, (event, data) => {
-            document.addEventListener('click', () => {
-              this.el.play()
-            })
+          this.hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
             resolve()
           });
           this.hls.loadSource(src);
@@ -66,15 +84,16 @@ export default class Video extends AudioSource {
       if (!this.el.src) {
         this.el.src = src;
       }
-      if (this.isSynced) {
-        this.el.pause();
-      }
       this.el.addEventListener('play', () => {
-        console.log('play')
+        console.log('video is now playing')
       });
       this.el.addEventListener('pause', () => {
-        console.log('pause')
+        console.log('video is now paused')
       });
+      if (this.isSynced) {
+        this.el.autoplay = 'none';
+        this.el.pause();
+      }
       
       const onLoadedMetadata = () => {
         cleanup();
@@ -93,11 +112,9 @@ export default class Video extends AudioSource {
         this.el.removeEventListener("loadeddata", onLoadedMetadata);
         this.el.removeEventListener("error", onError);
       };
-      if (_isHLS) {
-        this.hls.on((Hls as any).Events.ERROR, onError);
-      }
       this.el.addEventListener("loadeddata", onLoadedMetadata);
       this.el.addEventListener("error", onError);
+      console.log(this.el)
     });
   }
   get projection() {

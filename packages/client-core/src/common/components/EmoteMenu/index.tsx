@@ -66,7 +66,9 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
             animationComponent.animationGraph.updateNetwork(animationComponent, animationState.name, params);
         } else {
             animationComponent.animationGraph.transitionState(actor, animationComponent, animationState.name, params);
-            animationComponent.currentState.changeAnimationSmoothly(params);
+            if (animationComponent.currentState.changeAnimationSmoothly) {
+                animationComponent.currentState.changeAnimationSmoothly(params);
+            }
         }
     }
 

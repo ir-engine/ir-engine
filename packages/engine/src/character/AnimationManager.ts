@@ -7,6 +7,9 @@ import { getMutableComponent } from "../ecs/functions/EntityFunctions";
 import { AnimationComponent } from "./components/AnimationComponent";
 import { CharacterComponent } from "./components/CharacterComponent";
 
+export const DJModelName = 'dj';
+export const DJAnimationName = 'Animation';
+
 export class AnimationManager {
 	static instance: AnimationManager;
 
@@ -17,21 +20,6 @@ export class AnimationManager {
 	_animations: AnimationClip[];
 	_defaultModel: Group;
 	_defaultSkeleton: SkinnedMesh;
-
-	renderAnimations = (characterEntity: Entity, delta: number) => {
-		if (!isClient) return;
-
-		const actor = getMutableComponent(characterEntity, CharacterComponent);
-		const animationComponent = getMutableComponent(characterEntity, AnimationComponent);
-
-		// If actor is not initialized then return
-		if (!actor.mixer || !actor.modelContainer.children.length) return;
-
-		const modifiedDelta = delta * actor.speedMultiplier;
-		actor.mixer.update(modifiedDelta);
-
-		animationComponent.animationGraph.render(actor, animationComponent, modifiedDelta);
-	}
 
 	getAnimationDuration(name: string): number {
 		const animation = this._animations.find(a => a.name === name)
