@@ -1,10 +1,3 @@
-//
-//  CustomCAPBridgeViewController.swift
-//  App
-//
-//  Created by Datamint Solutions on 08/07/21.
-//
-
 import UIKit
 import Capacitor
 
