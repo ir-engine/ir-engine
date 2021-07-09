@@ -32,6 +32,7 @@ type StateType = {
   username: any;
   userSetting: any;
   graphics: any;
+  hideLogin: boolean;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -58,7 +59,8 @@ const UserMenu = (props: UserMenuProps): any => {
     alertSuccess,
     uploadAvatarModel,
     fetchAvatarList,
-    enableSharing
+    enableSharing,
+    hideLogin
   } = props;
 
   let menus = [
@@ -156,6 +158,7 @@ const UserMenu = (props: UserMenuProps): any => {
       case Views.Profile:
         args = {
           changeActiveMenu: changeActiveMenu,
+          hideLogin
         };
         break;
       case Views.Avatar:

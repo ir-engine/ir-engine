@@ -592,7 +592,7 @@ export const EnginePage = (props: Props) => {
   if(userBanned) return (<div className="banned">You have been banned from this location</div>);
   return isInXR ? <></> : (
       <>
-        {isValidLocation && <UserMenu   enableSharing={enableSharing}/>}
+        {isValidLocation && <UserMenu hideLogin={true} enableSharing={enableSharing}/>}
         <Snackbar open={!isValidLocation}
                   anchorOrigin={{
                     vertical: 'top',
