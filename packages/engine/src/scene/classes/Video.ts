@@ -114,7 +114,6 @@ export default class Video extends AudioSource {
         };
         this.el.addEventListener("loadeddata", onLoadedMetadata);
         this.el.addEventListener("error", onError);
-        resolve()
       }
     });
   }
