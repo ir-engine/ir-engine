@@ -51,9 +51,8 @@ export const NetworkMediaStream: NetworkPrefab = {
         videoElement.currentTime = 0
       }
       if(!(window as any).iOS) {
-        videoElement.muted = true
+        videoElement.play();
       }
-      videoElement.play();
 
       await delay(100)
 

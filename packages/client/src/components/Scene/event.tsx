@@ -418,8 +418,12 @@ export const EnginePage = (props: Props) => {
 
         console.log(document.querySelectorAll('video'))
         document.querySelectorAll('video').forEach((video) => {
-          console.log('unmuting')
-          video.muted = false
+          // if not playing already
+          if(!(video.readyState > 2 && !video.paused)) {
+            console.log('unmuting and playing')
+            video.muted = false
+            video.play()
+          }
         })
       });
     });
