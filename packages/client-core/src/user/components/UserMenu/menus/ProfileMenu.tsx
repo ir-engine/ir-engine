@@ -34,6 +34,7 @@ interface Props {
 	addConnectionByEmail?: any;
 	logoutUser?: any;
 	removeUser?: any;
+	hideLogin?: any;
 }
 
 const mapStateToProps = (state: any): any => {
@@ -64,7 +65,8 @@ const ProfileMenu = (props: Props): any => {
 		loginUserByXRWallet,
 		logoutUser,
 		changeActiveMenu,
-		setProfileMenuOpen
+		setProfileMenuOpen,
+		hideLogin
 	} = props;
 	const { t } = useTranslation();
 
@@ -212,52 +214,57 @@ const ProfileMenu = (props: Props): any => {
 						{ selfUser?.inviteCode != null && <h2>{t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode}</h2> }
 					</div>
 				</section>
-				{ selfUser?.userRole === 'guest' && <section className={styles.emailPhoneSection}>
-					<Typography variant="h1" className={styles.panelHeader}>
-						{t('user:usermenu.profile.connectPhone')}
-					</Typography>
+				{ !hideLogin &&
+				<>
+					{ selfUser?.userRole === 'guest' && <section className={styles.emailPhoneSection}>
+						<Typography variant="h1" className={styles.panelHeader}>
+							{t('user:usermenu.profile.connectPhone')}
+						</Typography>
 
-					<form onSubmit={handleSubmit}>
-						<TextField
-							className={styles.emailField}
-							size="small"
-							placeholder={t('user:usermenu.profile.ph-phoneEmail')}
-							variant="outlined"
-							onChange={handleInputChange}
-							onBlur={validate}
-							error={error}
-							helperText={error ? t('user:usermenu.profile.phoneEmailError') : null}
-							InputProps={{
-								endAdornment: (
-									<InputAdornment position="end" onClick={handleSubmit}>
-										<a href="#" className={styles.materialIconBlock}>
-											<Send className={styles.primaryForeground} />
-										</a>
-									</InputAdornment>
-								),
-							}}
-						/>
-					</form>
-				</section>}
-				{ selfUser?.userRole === 'guest' && <section className={styles.walletSection}>
-					<Typography variant="h3" className={styles.textBlock}>{t('user:usermenu.profile.or')}</Typography>
-					<Button onClick={handleWalletLoginClick} className={styles.walletBtn}>
-					{t('user:usermenu.profile.lbl-wallet')}
-					</Button>
-				</section>}
-				{ selfUser?.userRole === 'guest' && <section className={styles.socialBlock}>
-					<Typography variant="h3" className={styles.textBlock}>{t('user:usermenu.profile.connectSocial')}</Typography>
-					<div className={styles.socialContainer}>
-						<a href="#" id="facebook" onClick={handleOAuthServiceClick}><FacebookIcon width="40" height="40" viewBox="0 0 40 40" /></a>
-						<a href="#" id="google" onClick={handleOAuthServiceClick}><GoogleIcon width="40" height="40" viewBox="0 0 40 40" /></a>
-						<a href="#" id="linkedin2" onClick={handleOAuthServiceClick}><LinkedInIcon width="40" height="40" viewBox="0 0 40 40" /></a>
-						<a href="#" id="twitter" onClick={handleOAuthServiceClick}><TwitterIcon width="40" height="40" viewBox="0 0 40 40" /></a>
-						<a href="#" id="github" onClick={handleOAuthServiceClick}><GitHub /></a>
-					</div>
-					<Typography variant="h4" className={styles.smallTextBlock}>{t('user:usermenu.profile.createOne')}</Typography>
-				</section>}
-				{ setProfileMenuOpen != null && <div className={styles.closeButton} onClick={() => setProfileMenuOpen(false)}><Close /></div>}
-			</section>
+						<form onSubmit={handleSubmit}>
+							<TextField
+								className={styles.emailField}
+								size="small"
+								placeholder={t('user:usermenu.profile.ph-phoneEmail')}
+								variant="outlined"
+								onChange={handleInputChange}
+								onBlur={validate}
+								error={error}
+								helperText={error ? t('user:usermenu.profile.phoneEmailError') : null}
+								InputProps={{
+									endAdornment: (
+										<InputAdornment position="end" onClick={handleSubmit}>
+											<a href="#" className={styles.materialIconBlock}>
+												<Send className={styles.primaryForeground} />
+											</a>
+										</InputAdornment>
+									),
+								}}
+							/>
+						</form>
+					</section>}
+					{ selfUser?.userRole === 'guest' && <section className={styles.walletSection}>
+						<Typography variant="h3" className={styles.textBlock}>{t('user:usermenu.profile.or')}</Typography>
+						<Button onClick={handleWalletLoginClick} className={styles.walletBtn}>
+						{t('user:usermenu.profile.lbl-wallet')}
+						</Button>
+					</section>}
+					{ selfUser?.userRole === 'guest' && <section className={styles.socialBlock}>
+						<Typography variant="h3" className={styles.textBlock}>{t('user:usermenu.profile.connectSocial')}</Typography>
+						<div className={styles.socialContainer}>
+							<a href="#" id="facebook" onClick={handleOAuthServiceClick}><FacebookIcon width="40" height="40" viewBox="0 0 40 40" /></a>
+							<a href="#" id="google" onClick={handleOAuthServiceClick}><GoogleIcon width="40" height="40" viewBox="0 0 40 40" /></a>
+							<a href="#" id="linkedin2" onClick={handleOAuthServiceClick}><LinkedInIcon width="40" height="40" viewBox="0 0 40 40" /></a>
+							<a href="#" id="twitter" onClick={handleOAuthServiceClick}><TwitterIcon width="40" height="40" viewBox="0 0 40 40" /></a>
+							<a href="#" id="github" onClick={handleOAuthServiceClick}><GitHub /></a>
+						</div>
+						<Typography variant="h4" className={styles.smallTextBlock}>{t('user:usermenu.profile.createOne')}</Typography>
+					</section>}
+					{ setProfileMenuOpen != null && <div className={styles.closeButton} onClick={() => setProfileMenuOpen(false)}><Close /></div>}
+				</>
+				}
+
+				</section>
 		</div>
 	);
 };
