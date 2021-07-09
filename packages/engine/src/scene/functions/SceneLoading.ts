@@ -39,8 +39,6 @@ import { createGround } from '../behaviors/createGround';
 import { handleRendererSettings } from '../behaviors/handleRendererSettings';
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
 import { Object3DComponent } from '../components/Object3DComponent';
-import { DJAnimationName, DJModelName } from '../../character/AnimationManager';
-import { CharacterComponent } from '../../character/components/CharacterComponent';
 import { AnimationComponent } from '../../character/components/AnimationComponent';
 import { AnimationState } from '../../character/animations/AnimationState';
 import { delay } from '../../ecs/functions/EngineFunctions';
@@ -175,6 +173,17 @@ export class WorldScene {
             }
 
             if (isClient) {
+
+              if(res.animations) {
+                addComponent(entity, AnimationComponent, { onlyUpdateMixerTime: true }); // We only have to update the mixer time for this animations on each frame
+                const animationComponent = getMutableComponent(entity, AnimationComponent);
+                animationComponent.animations = res.animations
+                const object3d = getMutableComponent(entity, Object3DComponent);
+
+                animationComponent.mixer = new AnimationMixer(object3d.value.children[0]);
+                animationComponent.currentState = new AnimationState();
+              }
+              
               if (component.data.textureOverride) {
                 // we should push this to ECS, something like a SceneObjectLoadComponent,
                 // or add engine events for specific objects being added to the scene,
@@ -194,32 +203,6 @@ export class WorldScene {
                     }
                   })
                 })
-              }
-              console.log(entity.name)
-
-              // For DJ animations
-              if (entity.name === DJModelName) {
-                console.log('Loaded DJ')
-                addComponent(entity, AnimationComponent, { onlyUpdateMixerTime: true }); // We only have to update the mixer time for this animations on each frame
-
-                const animationComponent = getMutableComponent(entity, AnimationComponent);
-                const object3d = getMutableComponent(entity, Object3DComponent);
-
-                animationComponent.mixer = new AnimationMixer(object3d.value.children[0]);
-
-                // Create a new animation state and set DJ animation
-                // This animation will not be played until the user engagement
-                animationComponent.currentState = new AnimationState();
-                const action = animationComponent.mixer.clipAction(AnimationClip.findByName(res.animations, DJAnimationName));
-                action.setEffectiveWeight(1);
-                animationComponent.currentState.animations = [
-                  {
-                    name: DJAnimationName,
-                    weight: 1,
-                    loopType: LoopRepeat,
-                    action,
-                  }
-                ];
               }
             }
             this._onModelLoaded();

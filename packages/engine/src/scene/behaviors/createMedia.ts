@@ -31,7 +31,7 @@ export interface AudioProps {
   controls: boolean;
   autoPlay: boolean;
   loop: boolean;
-  synchronize: boolean;
+  synchronize: number;
   audioType: 'stereo' | 'pannernode';
   volume: number; 
   distanceModel: 'linear' | 'inverse' | 'exponential';
@@ -86,20 +86,19 @@ export function createMediaServer(entity, args: any): void {
   addObject3DComponent(entity, { obj3d: new Object3D(), objArgs: args });
   if (args.interactable) addInteraction(entity);
   // If media component is not requires to be sync then return
-  if (!args.synchronize) return;
   
-  const data = {
-    networkId: Network.getNetworkId(),
-    prefabType: PrefabType.MediaStream,
-    uniqueId: MathUtils.generateUUID(),
-    ownerId: 'server',
-    parameters: {
-      sceneEntityId: args.sceneEntityId,
-      sceneEntityName: entity.name,
-      startTime: args.synchronize,
-      src: args.src
-    },
-  };
+  // const data = {
+  //   networkId: Network.getNetworkId(),
+  //   prefabType: PrefabType.MediaStream,
+  //   uniqueId: MathUtils.generateUUID(),
+  //   ownerId: 'server',
+  //   parameters: {
+  //     sceneEntityId: args.sceneEntityId,
+  //     sceneEntityName: entity.name,
+  //     startTime: args.synchronize,
+  //     src: args.src
+  //   },
+  // };
 
   // Currently we are only creating media objects while scene loading time,
   // Hence no need to send create object message to clients since they are not yet connected.
@@ -108,7 +107,7 @@ export function createMediaServer(entity, args: any): void {
   // Network.instance.worldState.createObjects.push({ ...data });
 
   // Added into the network Object list of the server
-  Network.instance.networkObjects[data.networkId] = data as any;
+  // Network.instance.networkObjects[data.networkId] = data as any;
 }
 
 export function createAudio(entity, args: AudioProps): void {
@@ -118,7 +117,12 @@ export function createAudio(entity, args: AudioProps): void {
 
 
 export function createVideo(entity, args: VideoProps): void {
-  addObject3DComponent(entity, { obj3d: new Video(Engine.audioListener, Boolean(args.synchronize), args.elementId), objArgs: { ...args } });
+  const video = new Video(Engine.audioListener, args.elementId)
+  if(args.synchronize) {
+    video.startTime = args.synchronize
+    video.isSynced = args.synchronize > 0
+  }
+  addObject3DComponent(entity, { obj3d: video, objArgs: { ...args } });
   if(args.interactable) addInteraction(entity);
 }
 

@@ -398,36 +398,6 @@ export const EnginePage = (props: Props) => {
       sceneData = await client.service(service).get(serviceId);
     }
 
-    store.dispatch(setAppSpecificOnBoardingStep(GeneralStateList.AWAITING_INPUT, false));
-
-    await new Promise<void>((resolve) => {
-
-      const onUserEngage = () => {
-          ['click', 'touchstart', 'touchend', 'pointerdown'].forEach(type => {
-            window.addEventListener(type, onUserEngage);
-          });
-          resolve()
-      };
-      ['click', 'touchstart', 'touchend', 'pointerdown'].forEach(type => {
-        window.addEventListener(type, onUserEngage);
-      });
-    });
-
-    ['click', 'touchstart', 'touchend', 'pointerdown'].forEach(type => {
-      window.addEventListener(type, () => {
-
-        console.log(document.querySelectorAll('video'))
-        document.querySelectorAll('video').forEach((video) => {
-          // if not playing already
-          if(!(video.readyState > 2 && !video.paused)) {
-            console.log('unmuting and playing')
-            video.muted = false
-            video.play()
-          }
-        })
-      });
-    });
-
     if (!Engine.isInitialized) {
       const initializationOptions: InitializeOptions = {
         publicPath: location.origin,
@@ -474,6 +444,19 @@ export const EnginePage = (props: Props) => {
     });
 
     await Promise.all([connectPromise, sceneLoadPromise]);
+
+    try {
+      // event logic hook must be in the form of `export async function [locationName] {}`
+      const event = await import(/* @vite-ignore */'../Events/'+ locationName)
+      await event[locationName]()
+    } catch (e) {
+      console.log('could not run event specific logic', locationName, e)
+    }
+
+    store.dispatch(setAppSpecificOnBoardingStep(GeneralStateList.AWAITING_INPUT, false));
+
+    await awaitEngaged()
+
     const worldState = await new Promise<any>(async (resolve) => {
       if(Config.publicRuntimeConfig.offlineMode) {
         EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId });
@@ -491,9 +474,10 @@ export const EnginePage = (props: Props) => {
       }
     });
 
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS));
     setPorting(false);
+
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState });
   }
 
   useEffect(() => {

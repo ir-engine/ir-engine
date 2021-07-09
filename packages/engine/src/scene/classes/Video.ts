@@ -18,6 +18,7 @@ export const VideoProjection = {
 };
 import { Engine } from "../../ecs/classes/Engine";
 import { elementPlaying } from "../behaviors/createMedia";
+import isDash from "../../editor/functions/isDash";
 
 export default class Video extends AudioSource {
   // @ts-ignore
@@ -25,8 +26,12 @@ export default class Video extends AudioSource {
   _mesh: Mesh;
   _projection: string;
   hls: Hls;
+  dash: any
+  
   isSynced: boolean
-  constructor(audioListener, isSynced: boolean, id: string) {
+  startTime: number
+
+  constructor(audioListener, id: string) {
     super(audioListener, "video", id);
 
     // Appending element to the body so that it can be find by document.getElementById
@@ -45,7 +50,6 @@ export default class Video extends AudioSource {
     (this as any).add(this._mesh);
     this._projection = "flat";
     this.hls = null;
-    this.isSynced = isSynced;
     this.el.addEventListener('play', () => {
       console.log('video is now playing')
     });
@@ -53,11 +57,10 @@ export default class Video extends AudioSource {
       console.log('video is now paused')
     });
   }
+  /// https://resources.theoverlay.io/basscoast-final/manifest.mpd
   loadVideo(src, contentType?) {
-    return new Promise<void>((resolve, reject) => {
-      const _isHLS = isHLS(src, contentType);
-      console.log(this)
-      if (_isHLS) {
+    return new Promise<void>(async (resolve, reject) => {
+      if (isHLS(src, contentType)) {
         if (!this.hls) {
           this.hls = new Hls();
         }
@@ -82,19 +85,24 @@ export default class Video extends AudioSource {
           }
         });
         this.hls.once(Hls.Events.LEVEL_LOADED, () => { resolve() })
-        this.hls.on(Hls.Events.MEDIA_ATTACHED, () => { 
+        this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
           this.hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
           });
           this.hls.loadSource(src);
         })
         this.hls.attachMedia(this.el);
+      } else if (isDash(src, contentType)) {
+        const { MediaPlayer } = await import('dashjs')
+        this.dash = MediaPlayer().create();
+        this.dash.initialize(this.el, src, this.autoPlay)
+        this.dash.on('ERROR', (e) => {
+          console.log('ERROR', e)
+        })
+        resolve()
       } else {
-        console.log(this.el.src)
         if (!this.el.src) {
           this.el.src = src;
         }
-        console.log(this.el.src)
-        
         const onLoadedMetadata = () => {
           console.log('on load metadata')
           cleanup();
@@ -148,14 +156,8 @@ export default class Video extends AudioSource {
     this._mesh = nextMesh;
     this.onResize();
   }
-  get src() {
-    return this.el.src;
-  }
-  set src(src) {
-    this.load(src).catch(console.error);
-  }
   async load(src, contentType?) {
-    if(!src) return this;
+    if (!src) return this;
     this._mesh.visible = false;
     // if video is synced to UTC loadVideo is called from NetworkMediaStream prefab init as server authorises it
     if (this.isSynced) {
@@ -164,7 +166,7 @@ export default class Video extends AudioSource {
       await this.loadVideo(src, contentType);
     }
     this.onResize();
-    if(Engine.useAudioSystem) {
+    if (Engine.useAudioSystem) {
       this.audioSource = this.audioListener.context.createMediaElementSource(this.el);
       this.audio.setNodeSource(this.audioSource);
     }
@@ -200,5 +202,12 @@ export default class Video extends AudioSource {
     this.projection = source.projection;
     this.isSynced = source.isSynced;
     return this;
+  }
+  seek(value: number) {
+    if(this.dash) {
+      this.dash.seek(value)
+      return
+    } 
+    this.el.currentTime = value
   }
 }

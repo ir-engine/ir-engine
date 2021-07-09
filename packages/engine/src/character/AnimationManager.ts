@@ -3,9 +3,6 @@ import { getLoader } from "../assets/functions/LoadGLTF";
 import { isClient } from "../common/functions/isClient";
 import { Engine } from "../ecs/classes/Engine";
 
-export const DJModelName = 'dj';
-export const DJAnimationName = 'Animation';
-
 export class AnimationManager {
 	static instance: AnimationManager;
 
@@ -55,7 +52,6 @@ export class AnimationManager {
 				resolve(new Group());
 			}
 			getLoader().load(Engine.publicPath + '/models/avatars/Sonny.glb', gltf => {
-				console.log('default model loaded');
 				this._defaultModel = gltf.scene;
 				this._defaultModel.traverse((obj: Mesh) => {
 					if (obj.material) {
