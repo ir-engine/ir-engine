@@ -41,7 +41,7 @@ export default class AudioSource extends Object3D {
 
     if (!el) {
       el = Engine.createElement(elTag, {
-        crossorigin: 'anonymous',
+        crossOrigin: 'anonymous',
         loop: true,
         preload: 'none',
         playsinline: '',

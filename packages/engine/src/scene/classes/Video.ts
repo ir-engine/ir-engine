@@ -89,12 +89,14 @@ export default class Video extends AudioSource {
         })
         this.hls.attachMedia(this.el);
       } else {
+        console.log(this.el.src)
         if (!this.el.src) {
           this.el.src = src;
         }
+        console.log(this.el.src)
         
         const onLoadedMetadata = () => {
-          cleanup();
+          console.log('on load metadata')
           cleanup();
           resolve();
         };
@@ -112,6 +114,7 @@ export default class Video extends AudioSource {
         };
         this.el.addEventListener("loadeddata", onLoadedMetadata);
         this.el.addEventListener("error", onError);
+        resolve()
       }
     });
   }

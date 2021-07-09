@@ -35,6 +35,9 @@ const LoadingScreen = (props: Props) => {
       case GeneralStateList.SCENE_LOADED:
         setLoadingText(t('common:loader.entering'));
       break;
+      case GeneralStateList.AWAITING_INPUT:
+        setLoadingText('Click to join');
+      break;
       case GeneralStateList.SUCCESS:
         setShowProgressBar(false); 
       break;

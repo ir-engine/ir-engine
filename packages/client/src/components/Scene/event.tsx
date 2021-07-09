@@ -444,6 +444,12 @@ export const EnginePage = (props: Props) => {
 
     await Promise.all([connectPromise, sceneLoadPromise]);
 
+    store.dispatch(setAppSpecificOnBoardingStep(GeneralStateList.AWAITING_INPUT, false));
+
+    await new Promise((resolve) => {
+      document.addEventListener('click', resolve)
+    })
+
     const worldState = await new Promise<any>(async (resolve) => {
       if(Config.publicRuntimeConfig.offlineMode) {
         EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId });
