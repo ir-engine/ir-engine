@@ -1,12 +1,12 @@
-import { CharacterAnimations } from "./CharacterAnimations";
-import { AnimationActionLoopStyles, LoopOnce } from 'three';
+import { CharacterAnimations } from './CharacterAnimations'
+import { AnimationActionLoopStyles, LoopOnce } from 'three'
 
 export interface CharacterAvatarData {
-  id: string;
-  title: string;
-  src: string;
-  height?: number;
-  animations?: { [key: number]: AnimationConfigInterface };
+  id: string
+  title: string
+  src: string
+  height?: number
+  animations?: { [key: number]: AnimationConfigInterface }
   /**
    * default - animations from Animations.glb
    * own - animations from avatar file
@@ -40,6 +40,6 @@ export const defaultAvatarAnimations: { [key: number]: AnimationConfigInterface 
   [CharacterAnimations.FALLING]: { name: 'falling' },
   [CharacterAnimations.FALLING_LONG]: { name: 'falling' },
   [CharacterAnimations.DROP]: { name: 'falling_to_land' },
-  [CharacterAnimations.DROP_ROLLING]: { name: 'falling_to_roll' },
+  [CharacterAnimations.DROP_ROLLING]: { name: 'falling_to_roll' }
 
-};
+}

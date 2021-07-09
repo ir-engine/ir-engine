@@ -1,27 +1,26 @@
-import { System } from "../../src/ecs/classes/System";
-import { Component } from "../../src/ecs/classes/Component";
-import { registerSystem, unregisterSystem } from "../../src/ecs/functions/SystemFunctions";
+import { System } from '../../src/ecs/classes/System'
+import { Component } from '../../src/ecs/classes/Component'
+import { registerSystem, unregisterSystem } from '../../src/ecs/functions/SystemFunctions'
 import {
   addComponent,
   createEntity,
   removeEntity,
   removeComponent,
   getMutableComponent, hasComponent, hasAllComponents, hasAnyComponents
-} from "../../src/ecs/functions/EntityFunctions";
-import { execute } from "../../src/ecs/functions/EngineFunctions";
-import { Types } from "../../src/ecs/types/Types";
-import { Not } from "../../src/ecs/functions/ComponentFunctions";
+} from '../../src/ecs/functions/EntityFunctions'
+import { execute } from '../../src/ecs/functions/EngineFunctions'
+import { Types } from '../../src/ecs/types/Types'
+import { Not } from '../../src/ecs/functions/ComponentFunctions'
 
 class TestComponent extends Component<TestComponent> {}
 TestComponent._schema = {
-  value: { type: Types.Number, default: 0 },
-};
+  value: { type: Types.Number, default: 0 }
+}
 
 class UnwantedComponent extends Component<TestComponent> {}
 
-
 class TestSystem extends System {
-  execute(delta: number, time: number): void {
+  execute (delta: number, time: number): void {
 
   }
 }
@@ -36,13 +35,13 @@ TestSystem.queries = {
     }
   },
   testNot: {
-    components: [ TestComponent, Not(UnwantedComponent) ],
+    components: [TestComponent, Not(UnwantedComponent)],
     listen: {
       added: true,
       removed: true
     }
-  },
-};
+  }
+}
 
 let entity, system
 beforeEach(() => {
@@ -56,8 +55,8 @@ afterEach(() => {
   unregisterSystem(TestSystem)
 })
 
-describe("add component", () => {
-  it("adds entity into query .added and .all", () => {
+describe('add component', () => {
+  it('adds entity into query .added and .all', () => {
     addComponent(entity, TestComponent)
     expect(system.queryResults.test.all.length).toBe(1)
     expect(system.queryResults.test.added.length).toBe(1)
@@ -65,7 +64,7 @@ describe("add component", () => {
     expect(system.queryResults.test.removed.length).toBe(0)
   })
 
-  it("removes from .added on next execution", () => {
+  it('removes from .added on next execution', () => {
     addComponent(entity, TestComponent)
     execute()
     expect(system.queryResults.test.all.length).toBe(1)
@@ -75,19 +74,19 @@ describe("add component", () => {
   })
 })
 
-describe("remove component", () => {
+describe('remove component', () => {
   beforeEach(() => {
     addComponent(entity, TestComponent)
     execute() // handle added
   })
 
-  it("removes component from entity", () => {
+  it('removes component from entity', () => {
     expect(hasComponent(entity, TestComponent)).toBe(true)
     removeComponent(entity, TestComponent)
     expect(hasComponent(entity, TestComponent)).toBe(false)
   })
 
-  it("adds entity into query .removed", () => {
+  it('adds entity into query .removed', () => {
     removeComponent(entity, TestComponent)
     expect(system.queryResults.test.all.length).toBe(0)
     expect(system.queryResults.test.added.length).toBe(0)
@@ -95,7 +94,7 @@ describe("remove component", () => {
     expect(system.queryResults.test.removed.length).toBe(1)
   })
 
-  it("removes from .removed and .all on next execution", () => {
+  it('removes from .removed and .all on next execution', () => {
     removeComponent(entity, TestComponent)
     execute()
     expect(system.queryResults.test.all.length).toBe(0)
@@ -105,7 +104,7 @@ describe("remove component", () => {
   })
 })
 
-test("entity deletion should trigger .removed", () => {
+test('entity deletion should trigger .removed', () => {
   addComponent(entity, TestComponent)
   execute() // handle added
 
@@ -134,13 +133,13 @@ test("entity deletion should trigger .removed", () => {
   entity = null
 })
 
-describe("change component", () => {
+describe('change component', () => {
   beforeEach(() => {
     addComponent(entity, TestComponent)
     execute() // handle added
   })
 
-  it("adds entity into query .changed", () => {
+  it('adds entity into query .changed', () => {
     const component = getMutableComponent(entity, TestComponent) as any
     component.value += 1
 
@@ -150,7 +149,7 @@ describe("change component", () => {
     expect(system.queryResults.test.removed.length).toBe(0)
   })
 
-  it("removes from .changed on next execution", () => {
+  it('removes from .changed on next execution', () => {
     const component = getMutableComponent(entity, TestComponent) as any
     component.value += 1
 
@@ -165,15 +164,14 @@ describe("change component", () => {
   })
 })
 
-describe("modifier Not. [TestComponent, Not(UnwantedComponent)]", () => {
-
-  it("TestComponent = +", () => {
+describe('modifier Not. [TestComponent, Not(UnwantedComponent)]', () => {
+  it('TestComponent = +', () => {
     expect(system.queryResults.testNot.all.length).toBe(0)
     addComponent(entity, TestComponent)
     expect(system.queryResults.testNot.all.length).toBe(1)
   })
 
-  it("[UnwantedComponent,TestComponent]-UnwantedComponent = +", () => {
+  it('[UnwantedComponent,TestComponent]-UnwantedComponent = +', () => {
     expect(system.queryResults.testNot.all.length).toBe(0)
     addComponent(entity, UnwantedComponent)
     addComponent(entity, TestComponent)
@@ -183,14 +181,14 @@ describe("modifier Not. [TestComponent, Not(UnwantedComponent)]", () => {
     expect(system.queryResults.testNot.all.length).toBe(1)
   })
 
-  it("[UnwantedComponent,TestComponent] -", () => {
+  it('[UnwantedComponent,TestComponent] -', () => {
     expect(system.queryResults.testNot.all.length).toBe(0)
     addComponent(entity, UnwantedComponent)
     addComponent(entity, TestComponent)
     expect(system.queryResults.testNot.all.length).toBe(0)
   })
 
-  it("[TestComponent,UnwantedComponent] -", () => {
+  it('[TestComponent,UnwantedComponent] -', () => {
     expect(system.queryResults.testNot.all.length).toBe(0)
     addComponent(entity, TestComponent)
     addComponent(entity, UnwantedComponent)

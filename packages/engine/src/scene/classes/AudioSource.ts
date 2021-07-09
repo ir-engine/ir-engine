@@ -1,46 +1,46 @@
-import { Object3D, Audio, PositionalAudio } from "three";
-import { Engine } from "../../ecs/classes/Engine";
-import { RethrownError } from "../../editor/functions/errors";
+import { Object3D, Audio, PositionalAudio } from 'three'
+import { Engine } from '../../ecs/classes/Engine'
+import { RethrownError } from '../../editor/functions/errors'
 
 export const AudioType = {
-  Stereo: "stereo",
-  PannerNode: "pannernode"
-};
+  Stereo: 'stereo',
+  PannerNode: 'pannernode'
+}
 export const DistanceModelType = {
-  Linear: "linear",
-  Inverse: "inverse",
-  Exponential: "exponential"
-};
+  Linear: 'linear',
+  Inverse: 'inverse',
+  Exponential: 'exponential'
+}
 export const AudioTypeOptions = Object.values(AudioType).map(v => ({
   label: v,
   value: v
-}));
+}))
 export const DistanceModelOptions = Object.values(DistanceModelType).map(v => ({
   label: v,
   value: v
-}));
+}))
 export default class AudioSource extends Object3D {
-  el: any;
-  src: string;
-  audioListener: any;
-  controls: boolean;
-  _audioType: any;
-  audio: any;
-  audioSource: any;
-  isSynced: boolean;
-  constructor(audioListener, elTag = "audio", id: string) {
-    super();
+  el: any
+  src: string
+  audioListener: any
+  controls: boolean
+  _audioType: any
+  audio: any
+  audioSource: any
+  isSynced: boolean
+  constructor (audioListener, elTag = 'audio', id: string) {
+    super()
 
-    let el: HTMLVideoElement | HTMLAudioElement = null;
+    let el: HTMLVideoElement | HTMLAudioElement = null
     if (elTag === 'video') {
-      const videoElement = document.getElementById(id) as HTMLVideoElement;
+      const videoElement = document.getElementById(id) as HTMLVideoElement
       if (videoElement) {
-        el = videoElement;
+        el = videoElement
       }
     }
 
     if (!el) {
-      el = document.createElement(elTag) as any;
+      el = document.createElement(elTag) as any
       el.setAttribute('crossOrigin', 'anonymous')
       el.setAttribute('loop', 'true')
       el.setAttribute('preload', 'none')
@@ -49,225 +49,251 @@ export default class AudioSource extends Object3D {
       el.setAttribute('webkit-playsInline', 'true')
       el.setAttribute('webkit-playsinline', 'true')
       el.setAttribute('muted', 'true')
-      el.muted = true;
-
+      el.muted = true
     }
 
-    this.el = el;
-    this.src = "";
-    this.audioListener = audioListener;
-    this.controls = true;
-    this.audioType = AudioType.PannerNode;
-    this.volume = 1;
+    this.el = el
+    this.src = ''
+    this.audioListener = audioListener
+    this.controls = true
+    this.audioType = AudioType.PannerNode
+    this.volume = 1
     // console.log('audiosource create', this)
   }
-  get duration() {
-    return this.el.duration;
+
+  get duration () {
+    return this.el.duration
   }
-  get autoPlay() {
-    return this.el.autoplay;
+
+  get autoPlay () {
+    return this.el.autoplay
   }
-  set autoPlay(value) {
-    this.el.autoplay = value;
+
+  set autoPlay (value) {
+    this.el.autoplay = value
   }
-  get loop() {
-    return this.el.loop;
+
+  get loop () {
+    return this.el.loop
   }
-  set loop(value) {
-    this.el.loop = value;
+
+  set loop (value) {
+    this.el.loop = value
   }
-  get audioType() {
-    return this._audioType;
+
+  get audioType () {
+    return this._audioType
   }
-  set audioType(type) {
-    if (type === this._audioType) return;
-    if(!Engine.useAudioSystem) return;
-    let audio;
-    const oldAudio = this.audio;
+
+  set audioType (type) {
+    if (type === this._audioType) return
+    if (!Engine.useAudioSystem) return
+    let audio
+    const oldAudio = this.audio
     if (type === AudioType.PannerNode) {
-      audio = new PositionalAudio(this.audioListener);
+      audio = new PositionalAudio(this.audioListener)
     } else {
-      audio = new Audio(this.audioListener);
+      audio = new Audio(this.audioListener)
     }
     if (oldAudio) {
-      audio.gain.gain.value = oldAudio.getVolume();
+      audio.gain.gain.value = oldAudio.getVolume()
       if (this.audioSource) {
-        oldAudio.disconnect();
+        oldAudio.disconnect()
       }
-      (this as any).remove(oldAudio);
+      (this as any).remove(oldAudio)
     }
     if (this.audioSource) {
-      audio.setNodeSource(this.audioSource);
+      audio.setNodeSource(this.audioSource)
     }
     this.audio = audio;
-    (this as any).add(audio);
-    this._audioType = type;
+    (this as any).add(audio)
+    this._audioType = type
   }
-  get volume() {
-    if(!Engine.useAudioSystem) return 1;
-    return this.audio.getVolume();
+
+  get volume () {
+    if (!Engine.useAudioSystem) return 1
+    return this.audio.getVolume()
   }
-  set volume(value) {
-    if(!Engine.useAudioSystem) return;
-    this.audio.gain.gain.value = value;
+
+  set volume (value) {
+    if (!Engine.useAudioSystem) return
+    this.audio.gain.gain.value = value
   }
-  get distanceModel() {
-    if(!Engine.useAudioSystem) return;
+
+  get distanceModel () {
+    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
-      return this.audio.getDistanceModel();
+      return this.audio.getDistanceModel()
     }
-    return null;
+    return null
   }
-  set distanceModel(value) {
-    if(!Engine.useAudioSystem) return;
+
+  set distanceModel (value) {
+    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
-      this.audio.setDistanceModel(value);
-    }
-  }
-  get rolloffFactor() {
-    if(!Engine.useAudioSystem) return;
-    if (this.audioType === AudioType.PannerNode) {
-      return this.audio.getRolloffFactor();
-    }
-    return null;
-  }
-  set rolloffFactor(value) {
-    if(!Engine.useAudioSystem) return;
-    if (this.audioType === AudioType.PannerNode) {
-      this.audio.setRolloffFactor(value);
-      return;
+      this.audio.setDistanceModel(value)
     }
   }
-  get refDistance() {
-    if(!Engine.useAudioSystem) return;
+
+  get rolloffFactor () {
+    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
-      return this.audio.getRefDistance();
+      return this.audio.getRolloffFactor()
     }
-    return null;
+    return null
   }
-  set refDistance(value) {
-    if(!Engine.useAudioSystem) return;
+
+  set rolloffFactor (value) {
+    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
-      this.audio.setRefDistance(value);
-    }
-  }
-  get maxDistance() {
-    if(!Engine.useAudioSystem) return;
-    if (this.audioType === AudioType.PannerNode) {
-      return this.audio.getMaxDistance();
-    }
-    return null;
-  }
-  set maxDistance(value) {
-    if(!Engine.useAudioSystem) return;
-    if (this.audioType === AudioType.PannerNode) {
-      this.audio.setMaxDistance(value);
+      this.audio.setRolloffFactor(value)
     }
   }
-  get coneInnerAngle() {
-    if(!Engine.useAudioSystem) return;
+
+  get refDistance () {
+    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
-      return this.audio.panner.coneInnerAngle;
+      return this.audio.getRefDistance()
     }
-    return null;
+    return null
   }
-  set coneInnerAngle(value) {
-    if(!Engine.useAudioSystem) return;
+
+  set refDistance (value) {
+    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
-      this.audio.panner.coneInnerAngle = value;
-    }
-  }
-  get coneOuterAngle() {
-    if(!Engine.useAudioSystem) return;
-    if (this.audioType === AudioType.PannerNode) {
-      return this.audio.panner.coneOuterAngle;
-    }
-    return null;
-  }
-  set coneOuterAngle(value) {
-    if(!Engine.useAudioSystem) return;
-    if (this.audioType === AudioType.PannerNode) {
-      this.audio.panner.coneOuterAngle = value;
+      this.audio.setRefDistance(value)
     }
   }
-  get coneOuterGain() {
-    if(!Engine.useAudioSystem) return;
+
+  get maxDistance () {
+    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
-      return this.audio.panner.coneOuterGain;
+      return this.audio.getMaxDistance()
     }
-    return null;
+    return null
   }
-  set coneOuterGain(value) {
-    if(!Engine.useAudioSystem) return;
+
+  set maxDistance (value) {
+    if (!Engine.useAudioSystem) return
     if (this.audioType === AudioType.PannerNode) {
-      this.audio.panner.coneOuterGain = value;
+      this.audio.setMaxDistance(value)
     }
   }
-  loadMedia(src): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.el.src = src;
+
+  get coneInnerAngle () {
+    if (!Engine.useAudioSystem) return
+    if (this.audioType === AudioType.PannerNode) {
+      return this.audio.panner.coneInnerAngle
+    }
+    return null
+  }
+
+  set coneInnerAngle (value) {
+    if (!Engine.useAudioSystem) return
+    if (this.audioType === AudioType.PannerNode) {
+      this.audio.panner.coneInnerAngle = value
+    }
+  }
+
+  get coneOuterAngle () {
+    if (!Engine.useAudioSystem) return
+    if (this.audioType === AudioType.PannerNode) {
+      return this.audio.panner.coneOuterAngle
+    }
+    return null
+  }
+
+  set coneOuterAngle (value) {
+    if (!Engine.useAudioSystem) return
+    if (this.audioType === AudioType.PannerNode) {
+      this.audio.panner.coneOuterAngle = value
+    }
+  }
+
+  get coneOuterGain () {
+    if (!Engine.useAudioSystem) return
+    if (this.audioType === AudioType.PannerNode) {
+      return this.audio.panner.coneOuterGain
+    }
+    return null
+  }
+
+  set coneOuterGain (value) {
+    if (!Engine.useAudioSystem) return
+    if (this.audioType === AudioType.PannerNode) {
+      this.audio.panner.coneOuterGain = value
+    }
+  }
+
+  async loadMedia (src): Promise<void> {
+    return await new Promise((resolve, reject) => {
+      this.el.src = src
 
       // If media source requires to be synchronized then pause it for now.
       if (this.isSynced) {
-        this.el.pause();
+        this.el.pause()
       }
 
-      let cleanup = null;
+      let cleanup = null
       const onLoadedData = () => {
-        cleanup();
-        resolve();
-      };
+        cleanup()
+        resolve()
+      }
       const onError = error => {
-        cleanup();
+        cleanup()
         reject(
           new RethrownError(`Error loading video "${this.el.src}"`, error)
-        );
-      };
+        )
+      }
       cleanup = () => {
-        this.el.removeEventListener("loadeddata", onLoadedData);
-        this.el.removeEventListener("error", onError);
-      };
-      this.el.addEventListener("loadeddata", onLoadedData);
-      this.el.addEventListener("error", onError);
-    });
+        this.el.removeEventListener('loadeddata', onLoadedData)
+        this.el.removeEventListener('error', onError)
+      }
+      this.el.addEventListener('loadeddata', onLoadedData)
+      this.el.addEventListener('error', onError)
+    })
   }
-  async load(src, contentType?) {
-    await this.loadMedia(src);
-    if(!Engine.useAudioSystem) return this;
-    this.audioSource = this.audioListener.context.createMediaElementSource(this.el);
-    this.audio.setNodeSource(this.audioSource);
-    return this;
+
+  async load (src, contentType?) {
+    await this.loadMedia(src)
+    if (!Engine.useAudioSystem) return this
+    this.audioSource = this.audioListener.context.createMediaElementSource(this.el)
+    this.audio.setNodeSource(this.audioSource)
+    return this
   }
-  copy(source, recursive = true) {
-    super.copy(source, false);
+
+  copy (source, recursive = true) {
+    super.copy(source, false)
     if (recursive) {
       for (let i = 0; i < source.children.length; i++) {
-        const child = source.children[i];
+        const child = source.children[i]
         if (child !== source.audio) {
-          (this as any).add(child.clone());
+          (this as any).add(child.clone())
         }
       }
     }
-    this.controls = source.controls;
-    this.autoPlay = source.autoPlay;
-    this.loop = source.loop;
-    this.audioType = source.audioType;
-    this.volume = source.volume;
-    this.distanceModel = source.distanceModel;
-    this.rolloffFactor = source.rolloffFactor;
-    this.refDistance = source.refDistance;
-    this.maxDistance = source.maxDistance;
-    this.coneInnerAngle = source.coneInnerAngle;
-    this.coneOuterAngle = source.coneOuterAngle;
-    this.coneOuterGain = source.coneOuterGain;
-    this.src = source.src;
-    this.isSynced = source.synchronize;
-    return this;
+    this.controls = source.controls
+    this.autoPlay = source.autoPlay
+    this.loop = source.loop
+    this.audioType = source.audioType
+    this.volume = source.volume
+    this.distanceModel = source.distanceModel
+    this.rolloffFactor = source.rolloffFactor
+    this.refDistance = source.refDistance
+    this.maxDistance = source.maxDistance
+    this.coneInnerAngle = source.coneInnerAngle
+    this.coneOuterAngle = source.coneOuterAngle
+    this.coneOuterGain = source.coneOuterGain
+    this.src = source.src
+    this.isSynced = source.synchronize
+    return this
   }
-  play() {
+
+  play () {
     this.el.play()
   }
-  pause() {
+
+  pause () {
     this.el.pause()
   }
 }

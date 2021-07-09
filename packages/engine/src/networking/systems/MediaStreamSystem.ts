@@ -1,24 +1,24 @@
-import { EngineEvents } from '../../ecs/classes/EngineEvents';
-import { System, SystemAttributes } from '../../ecs/classes/System';
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType';
-import { localMediaConstraints } from '../constants/VideoConstants';
-import {Network} from "../classes/Network";
-import { isClient } from "../../common/functions/isClient";
-import getNearbyUsers from "../functions/getNearbyUsers";
-import LivestreamProxyComponent from '../../scene/components/LivestreamProxyComponent';
-import { getComponent } from '../../ecs/functions/EntityFunctions';
-import { startLivestreamOnServer } from '../functions/startLivestreamOnServer';
-import LivestreamComponent from '../../scene/components/LivestreamComponent';
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { System, SystemAttributes } from '../../ecs/classes/System'
+import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
+import { localMediaConstraints } from '../constants/VideoConstants'
+import { Network } from '../classes/Network'
+import { isClient } from '../../common/functions/isClient'
+import getNearbyUsers from '../functions/getNearbyUsers'
+import LivestreamProxyComponent from '../../scene/components/LivestreamProxyComponent'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { startLivestreamOnServer } from '../functions/startLivestreamOnServer'
+import LivestreamComponent from '../../scene/components/LivestreamComponent'
 
 /** System class for media streaming. */
 export class MediaStreamSystem extends System {
-
   static EVENTS = {
     TRIGGER_UPDATE_CONSUMERS: 'NETWORK_TRANSPORT_EVENT_UPDATE_CONSUMERS',
     CLOSE_CONSUMER: 'NETWORK_TRANSPORT_EVENT_CLOSE_CONSUMER',
     UPDATE_NEARBY_LAYER_USERS: 'NETWORK_TRANSPORT_EVENT_UPDATE_NEARBY_LAYER_USERS'
   }
-  public static instance = null;
+
+  public static instance = null
 
   /** Whether the video is paused or not. */
   public videoPaused = false
@@ -59,11 +59,11 @@ export class MediaStreamSystem extends System {
 
   public nearbyLayerUsers = []
 
-  updateType = SystemUpdateType.Fixed;
+  updateType = SystemUpdateType.Fixed
 
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes);
-    MediaStreamSystem.instance = this;
+  constructor (attributes: SystemAttributes = {}) {
+    super(attributes)
+    MediaStreamSystem.instance = this
   }
 
   /**
@@ -72,8 +72,8 @@ export class MediaStreamSystem extends System {
    * @returns Updated face tracking state.
    */
   public setFaceTracking (state: boolean): boolean {
-    this.faceTracking = state;
-    return this.faceTracking;
+    this.faceTracking = state
+    return this.faceTracking
   }
 
   /**
@@ -82,9 +82,9 @@ export class MediaStreamSystem extends System {
    * @returns Updated Pause state.
    */
   public setVideoPaused (state: boolean): boolean {
-    console.log('setVideoPaused');
-    this.videoPaused = state;
-    return this.videoPaused;
+    console.log('setVideoPaused')
+    this.videoPaused = state
+    return this.videoPaused
   }
 
   /**
@@ -93,8 +93,8 @@ export class MediaStreamSystem extends System {
    * @returns Updated Pause state.
    */
   public setAudioPaused (state: boolean): boolean {
-    this.audioPaused = state;
-    return this.audioPaused;
+    this.audioPaused = state
+    return this.audioPaused
   }
 
   /**
@@ -103,8 +103,8 @@ export class MediaStreamSystem extends System {
    * @returns Updated Pause state.
    */
   public setScreenShareVideoPaused (state: boolean): boolean {
-    this.screenShareVideoPaused = state;
-    return this.screenShareVideoPaused;
+    this.screenShareVideoPaused = state
+    return this.screenShareVideoPaused
   }
 
   /**
@@ -113,8 +113,8 @@ export class MediaStreamSystem extends System {
    * @returns Updated Pause state.
    */
   public setScreenShareAudioPaused (state: boolean): boolean {
-    this.screenShareAudioPaused = state;
-    return this.screenShareAudioPaused;
+    this.screenShareAudioPaused = state
+    return this.screenShareAudioPaused
   }
 
   /**
@@ -122,10 +122,10 @@ export class MediaStreamSystem extends System {
    * @returns Updated Pause state.
    */
   public toggleVideoPaused (): boolean {
-    console.log('toggleVideoPaused');
-    console.log(this.videoPaused);
-    this.videoPaused = !this.videoPaused;
-    return this.videoPaused;
+    console.log('toggleVideoPaused')
+    console.log(this.videoPaused)
+    this.videoPaused = !this.videoPaused
+    return this.videoPaused
   }
 
   /**
@@ -133,8 +133,8 @@ export class MediaStreamSystem extends System {
    * @returns Updated Pause state.
    */
   public toggleAudioPaused (): boolean {
-    this.audioPaused = !this.audioPaused;
-    return this.audioPaused;
+    this.audioPaused = !this.audioPaused
+    return this.audioPaused
   }
 
   /**
@@ -142,8 +142,8 @@ export class MediaStreamSystem extends System {
    * @returns Updated Pause state.
    */
   public toggleScreenShareVideoPaused (): boolean {
-    this.screenShareVideoPaused = !this.screenShareVideoPaused;
-    return this.screenShareVideoPaused;
+    this.screenShareVideoPaused = !this.screenShareVideoPaused
+    return this.screenShareVideoPaused
   }
 
   /**
@@ -151,45 +151,44 @@ export class MediaStreamSystem extends System {
    * @returns Updated Pause state.
    */
   public toggleScreenShareAudioPaused (): boolean {
-    this.screenShareAudioPaused = !this.screenShareAudioPaused;
-    return this.screenShareAudioPaused;
+    this.screenShareAudioPaused = !this.screenShareAudioPaused
+    return this.screenShareAudioPaused
   }
 
   /** Execute the media stream system. */
   public execute = async (): Promise<void> => {
-    this.nearbyAvatarTick++;
+    this.nearbyAvatarTick++
 
-    if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && this.executeInProgress === false) {
-      this.executeInProgress = true;
-      const buffer = Network.instance.mediasoupOperationQueue.pop() as any;
+    if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && !this.executeInProgress) {
+      this.executeInProgress = true
+      const buffer = Network.instance.mediasoupOperationQueue.pop()
       if (buffer.object && buffer.object.closed !== true && buffer.object._closed !== true) {
         try {
-          if (buffer.action === 'resume') await buffer.object.resume();
-          else if (buffer.action === 'pause') await buffer.object.pause();
-          this.executeInProgress = false;
-        } catch(err) {
-          this.executeInProgress = false;
-          console.log('Pause or resume error');
-          console.log(err);
+          if (buffer.action === 'resume') await buffer.object.resume()
+          else if (buffer.action === 'pause') await buffer.object.pause()
+          this.executeInProgress = false
+        } catch (err) {
+          this.executeInProgress = false
+          console.log('Pause or resume error')
+          console.log(err)
           console.log(buffer.object)
         }
-      }
-      else {
-        this.executeInProgress = false;
+      } else {
+        this.executeInProgress = false
       }
     }
 
     if (this.nearbyAvatarTick > 500) {
-      this.nearbyAvatarTick = 0;
+      this.nearbyAvatarTick = 0
       if (isClient) {
-        this.nearbyLayerUsers = getNearbyUsers(Network.instance.userId);
-        const nearbyUserIds = this.nearbyLayerUsers.map(user => user.id);
-        EngineEvents.instance.dispatchEvent({ type: MediaStreamSystem.EVENTS.UPDATE_NEARBY_LAYER_USERS });
+        this.nearbyLayerUsers = getNearbyUsers(Network.instance.userId)
+        const nearbyUserIds = this.nearbyLayerUsers.map(user => user.id)
+        EngineEvents.instance.dispatchEvent({ type: MediaStreamSystem.EVENTS.UPDATE_NEARBY_LAYER_USERS })
         this.consumers.forEach(consumer => {
           if (!nearbyUserIds.includes(consumer._appData.peerId)) {
-            EngineEvents.instance.dispatchEvent({ type: MediaStreamSystem.EVENTS.CLOSE_CONSUMER, consumer });
+            EngineEvents.instance.dispatchEvent({ type: MediaStreamSystem.EVENTS.CLOSE_CONSUMER, consumer })
           }
-        });
+        })
       }
     }
     for (const entity of this.queryResults.livestreamProxy.added) {
@@ -204,9 +203,9 @@ export class MediaStreamSystem extends System {
    * Start the camera.
    * @returns Whether the camera is started or not. */
   async startCamera (): Promise<boolean> {
-    console.log('start camera');
-    if (this.mediaStream) return false;
-    return await this.getMediaStream();
+    console.log('start camera')
+    if (this.mediaStream) return false
+    return await this.getMediaStream()
   }
 
   /**
@@ -215,41 +214,41 @@ export class MediaStreamSystem extends System {
    */
   async cycleCamera (): Promise<boolean> {
     if (!(this.camVideoProducer && this.camVideoProducer.track)) {
-      console.log('cannot cycle camera - no current camera track');
-      return false;
+      console.log('cannot cycle camera - no current camera track')
+      return false
     }
-    console.log('cycle camera');
+    console.log('cycle camera')
 
     // find "next" device in device list
-    const deviceId = await this.getCurrentDeviceId();
-    const allDevices = await navigator.mediaDevices.enumerateDevices();
-    const vidDevices = allDevices.filter(d => d.kind === 'videoinput');
+    const deviceId = await this.getCurrentDeviceId()
+    const allDevices = await navigator.mediaDevices.enumerateDevices()
+    const vidDevices = allDevices.filter(d => d.kind === 'videoinput')
     if (!(vidDevices.length > 1)) {
-      console.log('cannot cycle camera - only one camera');
-      return false;
+      console.log('cannot cycle camera - only one camera')
+      return false
     }
-    let index = vidDevices.findIndex(d => d.deviceId === deviceId);
-    if (index === vidDevices.length - 1) index = 0;
-    else index += 1;
+    let index = vidDevices.findIndex(d => d.deviceId === deviceId)
+    if (index === vidDevices.length - 1) index = 0
+    else index += 1
 
     // get a new video stream. might as well get a new audio stream too,
     // just in case browsers want to group audio/video streams together
     // from the same device when possible (though they don't seem to,
     // currently)
-    console.log('getting a video stream from new device', vidDevices[index].label);
+    console.log('getting a video stream from new device', vidDevices[index].label)
     this.mediaStream = await navigator.mediaDevices.getUserMedia({
       video: { deviceId: { exact: vidDevices[index].deviceId } },
       audio: true
-    });
+    })
 
     // replace the tracks we are sending
     await this.camVideoProducer.replaceTrack({
       track: this.mediaStream.getVideoTracks()[0]
-    });
+    })
     await this.camAudioProducer.replaceTrack({
       track: this.mediaStream.getAudioTracks()[0]
-    });
-    return true;
+    })
+    return true
   }
 
   /**
@@ -257,7 +256,7 @@ export class MediaStreamSystem extends System {
    * @returns Screen video paused state.
    */
   getScreenPausedState (): boolean {
-    return this.screenShareVideoPaused;
+    return this.screenShareVideoPaused
   }
 
   /**
@@ -265,7 +264,7 @@ export class MediaStreamSystem extends System {
    * @returns Screen audio paused state.
    */
   getScreenAudioPausedState (): boolean {
-    return this.screenShareAudioPaused;
+    return this.screenShareAudioPaused
   }
 
   /**
@@ -274,8 +273,8 @@ export class MediaStreamSystem extends System {
    */
   static removeVideoAudio (consumer: any): void {
     document.querySelectorAll(consumer.id).forEach(v => {
-      if (v.consumer === consumer) v?.parentNode.removeChild(v);
-    });
+      if (v.consumer === consumer) v?.parentNode.removeChild(v)
+    })
   }
 
   /**
@@ -283,80 +282,80 @@ export class MediaStreamSystem extends System {
    * @param mediaStream Video and/or audio media stream to be added in element.
    * @param peerId ID to be used to find peer element in which media stream will be added.
    */
-  static addVideoAudio (mediaStream: { track: { clone: () => MediaStreamTrack }; kind: string }, peerId: any): void {
+  static addVideoAudio (mediaStream: { track: { clone: () => MediaStreamTrack }, kind: string }, peerId: any): void {
     if (!(mediaStream && mediaStream.track)) {
-      return;
+      return
     }
-    const elementID = `${peerId}_${mediaStream.kind}`;
-    let el = document.getElementById(elementID) as any;
+    const elementID = `${peerId}_${mediaStream.kind}`
+    let el = document.getElementById(elementID) as any
 
     // set some attributes on our audio and video elements to make
     // mobile Safari happy. note that for audio to play you need to be
     // capturing from the mic/camera
     if (mediaStream.kind === 'video') {
       if (el === null) {
-        el = document.createElement('video');
-        el.id = `${peerId}_${mediaStream.kind}`;
-        el.autoplay = true;
-        document.body.appendChild(el);
-        el.setAttribute('playsinline', 'true');
+        el = document.createElement('video')
+        el.id = `${peerId}_${mediaStream.kind}`
+        el.autoplay = true
+        document.body.appendChild(el)
+        el.setAttribute('playsinline', 'true')
       }
 
       // TODO: do i need to update video width and height? or is that based on stream...?
-      el.srcObject = new MediaStream([mediaStream.track.clone()]);
-      el.mediaStream = mediaStream;
+      el.srcObject = new MediaStream([mediaStream.track.clone()])
+      el.mediaStream = mediaStream
 
       // let's "yield" and return before playing, rather than awaiting on
       // play() succeeding. play() will not succeed on a producer-paused
       // track until the producer unpauses.
       try {
         el.play().then(() => console.log('Playing video')).catch((e: any) => {
-          console.log(`Play video error: ${e}`);
-          console.error(e);
-        });
-      } catch(err) {
-        console.log('video play error');
-        console.log(err);
+          console.log(`Play video error: ${e}`)
+          console.error(e)
+        })
+      } catch (err) {
+        console.log('video play error')
+        console.log(err)
       }
     } else {
       // Positional Audio Works in Firefox:
       // Global Audio:
       if (el === null) {
-        el = document.createElement('audio');
-        el.id = `${peerId}_${mediaStream.kind}`;
-        document.body.appendChild(el);
-        el.setAttribute('playsinline', 'true');
-        el.setAttribute('autoplay', 'true');
+        el = document.createElement('audio')
+        el.id = `${peerId}_${mediaStream.kind}`
+        document.body.appendChild(el)
+        el.setAttribute('playsinline', 'true')
+        el.setAttribute('autoplay', 'true')
       }
 
-      el.srcObject = new MediaStream([mediaStream.track.clone()]);
-      el.mediaStream = mediaStream;
-      el.volume = 0; // start at 0 and let the three.js scene take over from here...
+      el.srcObject = new MediaStream([mediaStream.track.clone()])
+      el.mediaStream = mediaStream
+      el.volume = 0 // start at 0 and let the three.js scene take over from here...
       // this.worldScene.createOrUpdatePositionalAudio(peerId)
 
       // let's "yield" and return before playing, rather than awaiting on
       // play() succeeding. play() will not succeed on a producer-paused
       // track until the producer unpauses.
       el.play().catch((e: any) => {
-        console.log(`Play audio error: ${e}`);
-        console.error(e);
-      });
+        console.log(`Play audio error: ${e}`)
+        console.error(e)
+      })
     }
   }
 
   /** Get device ID of device which is currently streaming media. */
   async getCurrentDeviceId (): Promise<string | null> {
-    if (!this.camVideoProducer) return null;
+    if (!this.camVideoProducer) return null
 
-    const { deviceId } = this.camVideoProducer.track.getSettings();
-    if (deviceId) return deviceId;
+    const { deviceId } = this.camVideoProducer.track.getSettings()
+    if (deviceId) return deviceId
     // Firefox doesn't have deviceId in MediaTrackSettings object
     const track =
-      this.mediaStream && this.mediaStream.getVideoTracks()[0];
-    if (!track) return null;
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const deviceInfo = devices.find(d => d.label.startsWith(track.label));
-    return deviceInfo.deviceId;
+      this.mediaStream && this.mediaStream.getVideoTracks()[0]
+    if (!track) return null
+    const devices = await navigator.mediaDevices.enumerateDevices()
+    const deviceInfo = devices.find(d => d.label.startsWith(track.label))
+    return deviceInfo.deviceId
   }
 
   /**
@@ -365,29 +364,28 @@ export class MediaStreamSystem extends System {
    */
   public async getMediaStream (): Promise<boolean> {
     try {
-      console.log('Getting media stream');
-      console.log(localMediaConstraints);
-      this.mediaStream = await navigator.mediaDevices.getUserMedia(localMediaConstraints);
-      console.log(this.mediaStream);
+      console.log('Getting media stream')
+      console.log(localMediaConstraints)
+      this.mediaStream = await navigator.mediaDevices.getUserMedia(localMediaConstraints)
+      console.log(this.mediaStream)
       if (this.mediaStream.active) {
-        this.audioPaused = false;
-        this.videoPaused = false;
-        return true;
+        this.audioPaused = false
+        this.videoPaused = false
+        return true
       }
-      this.audioPaused = true;
-      this.videoPaused = true;
-      return false;
-    } catch(err) {
-      console.log('failed to get media stream');
-      console.log(err);
+      this.audioPaused = true
+      this.videoPaused = true
+      return false
+    } catch (err) {
+      console.log('failed to get media stream')
+      console.log(err)
     }
   }
 
-  dispose() {
-    EngineEvents.instance.removeAllListenersForEvent(MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS);
+  dispose () {
+    EngineEvents.instance.removeAllListenersForEvent(MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS)
   }
 }
-
 
 MediaStreamSystem.queries = {
   livestreamClient: {
@@ -403,5 +401,5 @@ MediaStreamSystem.queries = {
       added: true,
       changed: true
     }
-  },
-};
+  }
+}

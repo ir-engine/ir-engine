@@ -1,34 +1,33 @@
-import { expect } from "@jest/globals";
-import {Schema, Model, ExtractSchemaObject} from "superbuffer";
-import {int16, int32, uint8, uint32, float32, boolean, string} from "superbuffer";
-//import { inputKeyArraySchema } from "@xrengine/engine/src/networking/schema/clientInputSchema";
+import { expect } from '@jest/globals'
+import { Schema, Model, ExtractSchemaObject, int16, int32, uint8, uint32, float32, boolean, string } from 'superbuffer'
+
+// import { inputKeyArraySchema } from "@xrengine/engine/src/networking/schema/clientInputSchema";
 
 const inputKeySchema = new Schema({
   input: uint8,
   value: uint8, // float32
   lifecycleState: uint8
-});
+})
 
 const inputAxis1DSchema = new Schema({
   input: uint8,
   valueX: float32,
   valueY: float32,
   lifecycleState: uint8
-});
+})
 
 const inputAxis2DSchema = new Schema({
   input: uint8,
   valueX: float32,
   valueY: float32,
   lifecycleState: uint8
-});
+})
 
 const viewVectorSchema = new Schema({
   x: float32,
   y: float32,
   z: float32
-});
-
+})
 
 const inputKeyArraySchema = new Schema({
   networkId: uint32,
@@ -36,7 +35,7 @@ const inputKeyArraySchema = new Schema({
   axes2d: [inputAxis2DSchema],
   buttons: [inputKeySchema],
   viewVector: viewVectorSchema
-});
+})
 
 /*
 
@@ -77,7 +76,6 @@ const createNetworkObjectSchema = new Schema({
     qW: float32
 });
 
-
 const destroyNetworkObjectSchema = new Schema({
     networkId: uint32
 });
@@ -93,7 +91,6 @@ const worldStateSchema = new Schema({
     transforms: [transformSchema]
 });
 */
-
 
 /*
 const nameSchema = new Schema({
@@ -124,8 +121,7 @@ const mainModel = new Schema({
 const dataModel = new Model(mainModel)
 console.log(Date.now());
 */
-test("compress/decompress", () => {
-
+test('compress/decompress', () => {
   const gameState = {
     networkId: 1,
     viewVector: { x: 0.6531652, y: -0.4165249, z: 0.6323624 },
@@ -154,15 +150,14 @@ test("compress/decompress", () => {
     ]
   }
 
-  console.log("Game state is", gameState);
+  console.log('Game state is', gameState)
 
-  const worldStateModel = new Model(inputKeyArraySchema);
+  const worldStateModel = new Model(inputKeyArraySchema)
   const buffer = worldStateModel.toBuffer(gameState)
 
-
-  const result = worldStateModel.fromBuffer(buffer);
-  console.log(result);
-  expect(result).toMatchObject(gameState);
+  const result = worldStateModel.fromBuffer(buffer)
+  console.log(result)
+  expect(result).toMatchObject(gameState)
 
   // const clientInputModel = new Model(inputsArraySchema);
   // const buffer = clientInputModel.toBuffer(inputs);

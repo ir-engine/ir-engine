@@ -1,5 +1,5 @@
-import { Component } from '../../ecs/classes/Component';
-import { Types } from '../../ecs/types/Types';
+import { Component } from '../../ecs/classes/Component'
+import { Types } from '../../ecs/types/Types'
 
 /** Component class for network objects. */
 export class NetworkObject extends Component<NetworkObject> {
@@ -21,4 +21,4 @@ NetworkObject._schema = {
   uniqueId: { type: Types.String },
   componentMap: { type: Types.Ref },
   snapShotTime: { type: Types.Number, default: 0 }
-};
+}

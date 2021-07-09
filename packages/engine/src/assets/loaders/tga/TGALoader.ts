@@ -1,9 +1,9 @@
-import { DefaultLoadingManager, Texture, FileLoader } from 'three';
+import { DefaultLoadingManager, Texture, FileLoader } from 'three'
 
 declare const OffscreenCanvas: {
-  prototype: any;
-  new (width: number, height: number): any;
-};
+  prototype: any
+  new (width: number, height: number): any
+}
 
 /** Loader class for TGA asset. */
 export class TGALoader {
@@ -13,41 +13,41 @@ export class TGALoader {
   manager: any
 
   /** Constructs TGA Loader. */
-  constructor() {
+  constructor () {
     this.manager =
-      this.manager !== undefined ? this.manager : DefaultLoadingManager;
+      this.manager !== undefined ? this.manager : DefaultLoadingManager
   }
 
   /** Load TGA texture. */
-  load(url, onLoad, onProgress, onError): Texture {
-    const texture = new Texture();
+  load (url, onLoad, onProgress, onError): Texture {
+    const texture = new Texture()
 
-    const loader = new FileLoader(this.manager);
-    loader.setResponseType('arraybuffer');
-    loader.setPath(this.path);
+    const loader = new FileLoader(this.manager)
+    loader.setResponseType('arraybuffer')
+    loader.setPath(this.path)
 
     loader.load(
       url,
       buffer => {
-        texture.image = this.parse(buffer);
-        texture.needsUpdate = true;
+        texture.image = this.parse(buffer)
+        texture.needsUpdate = true
 
         if (onLoad !== undefined) {
-          onLoad(texture);
+          onLoad(texture)
         }
       },
       onProgress,
       onError
-    );
+    )
 
-    return texture;
+    return texture
   }
 
   /** Parse the asset. */
-  parse(buffer) {
+  parse (buffer) {
     // reference from vthibault, https://github.com/vthibault/roBrowser/blob/master/src/Loaders/Targa.js
 
-    function tgaCheckHeader(header) {
+    function tgaCheckHeader (header) {
       switch (header.image_type) {
         // check indexed type
 
@@ -60,11 +60,11 @@ export class TGALoader {
           ) {
             console.error(
               'TGALoader: Invalid type colormap data for indexed type.'
-            );
+            )
           }
-          break;
+          break
 
-        // check colormap type
+          // check colormap type
 
         case TGA_TYPE_RGB:
         case TGA_TYPE_GREY:
@@ -73,28 +73,28 @@ export class TGALoader {
           if (header.colormap_type) {
             console.error(
               'TGALoader: Invalid type colormap data for colormap type.'
-            );
+            )
           }
-          break;
+          break
 
-        // What the need of a file without data ?
+          // What the need of a file without data ?
 
         case TGA_TYPE_NO_DATA:
-          console.error('TGALoader: No data.');
+          console.error('TGALoader: No data.')
 
-        // Invalid type ?
+          // Invalid type ?
 
         default:
           console.error(
             'TGALoader: Invalid type "%s".',
             header.image_type
-          );
+          )
       }
 
       // check image width and height
 
       if (header.width <= 0 || header.height <= 0) {
-        console.error('TGALoader: Invalid image size.');
+        console.error('TGALoader: Invalid image size.')
       }
 
       // check image pixel size
@@ -108,17 +108,17 @@ export class TGALoader {
         console.error(
           'TGALoader: Invalid pixel size "%s".',
           header.pixel_size
-        );
+        )
       }
     }
 
     // parse tga image buffer
 
-    function tgaParse(use_rle, use_pal, header, offset, data) {
-      let pixel_data, palettes;
+    function tgaParse (use_rle, use_pal, header, offset, data) {
+      let pixel_data, palettes
 
-      const pixel_size = header.pixel_size >> 3;
-      const pixel_total = header.width * header.height * pixel_size;
+      const pixel_size = header.pixel_size >> 3
+      const pixel_total = header.width * header.height * pixel_size
 
       // read palettes
 
@@ -126,21 +126,21 @@ export class TGALoader {
         palettes = data.subarray(
           offset,
           (offset += header.colormap_length * (header.colormap_size >> 3))
-        );
+        )
       }
 
       // read RLE
 
       if (use_rle) {
-        pixel_data = new Uint8Array(pixel_total);
+        pixel_data = new Uint8Array(pixel_total)
 
-        let c, count, i;
-        let shift = 0;
-        const pixels = new Uint8Array(pixel_size);
+        let c, count, i
+        let shift = 0
+        const pixels = new Uint8Array(pixel_size)
 
         while (shift < pixel_total) {
-          c = data[offset++];
-          count = (c & 0x7f) + 1;
+          c = data[offset++]
+          count = (c & 0x7f) + 1
 
           // RLE pixels
 
@@ -148,24 +148,24 @@ export class TGALoader {
             // bind pixel tmp array
 
             for (i = 0; i < pixel_size; ++i) {
-              pixels[i] = data[offset++];
+              pixels[i] = data[offset++]
             }
 
             // copy pixel array
 
             for (i = 0; i < count; ++i) {
-              pixel_data.set(pixels, shift + i * pixel_size);
+              pixel_data.set(pixels, shift + i * pixel_size)
             }
 
-            shift += pixel_size * count;
+            shift += pixel_size * count
           } else {
             // raw pixels
 
-            count *= pixel_size;
+            count *= pixel_size
             for (i = 0; i < count; ++i) {
-              pixel_data[shift + i] = data[offset++];
+              pixel_data[shift + i] = data[offset++]
             }
-            shift += count;
+            shift += count
           }
         }
       } else {
@@ -174,16 +174,16 @@ export class TGALoader {
         pixel_data = data.subarray(
           offset,
           (offset += use_pal ? header.width * header.height : pixel_total)
-        );
+        )
       }
 
       return {
         pixel_data: pixel_data,
         palettes: palettes
-      };
+      }
     }
 
-    function tgaGetImageData8bits(
+    function tgaGetImageData8bits (
       imageData,
       y_start,
       y_step,
@@ -194,27 +194,27 @@ export class TGALoader {
       image,
       palettes
     ) {
-      const colormap = palettes;
-      let color,
-        i = 0,
-        x,
-        y;
-      const width = header.width;
+      const colormap = palettes
+      let color
+      let i = 0
+      let x
+      let y
+      const width = header.width
 
       for (y = y_start; y !== y_end; y += y_step) {
         for (x = x_start; x !== x_end; x += x_step, i++) {
-          color = image[i];
-          imageData[(x + width * y) * 4 + 3] = 255;
-          imageData[(x + width * y) * 4 + 2] = colormap[color * 3 + 0];
-          imageData[(x + width * y) * 4 + 1] = colormap[color * 3 + 1];
-          imageData[(x + width * y) * 4 + 0] = colormap[color * 3 + 2];
+          color = image[i]
+          imageData[(x + width * y) * 4 + 3] = 255
+          imageData[(x + width * y) * 4 + 2] = colormap[color * 3 + 0]
+          imageData[(x + width * y) * 4 + 1] = colormap[color * 3 + 1]
+          imageData[(x + width * y) * 4 + 0] = colormap[color * 3 + 2]
         }
       }
 
-      return imageData;
+      return imageData
     }
 
-    function tgaGetImageData16bits(
+    function tgaGetImageData16bits (
       imageData,
       y_start,
       y_step,
@@ -224,26 +224,26 @@ export class TGALoader {
       x_end,
       image
     ) {
-      let color,
-        i = 0,
-        x,
-        y;
-      const width = header.width;
+      let color
+      let i = 0
+      let x
+      let y
+      const width = header.width
 
       for (y = y_start; y !== y_end; y += y_step) {
         for (x = x_start; x !== x_end; x += x_step, i += 2) {
-          color = image[i + 0] + (image[i + 1] << 8); // Inversed ?
-          imageData[(x + width * y) * 4 + 0] = (color & 0x7c00) >> 7;
-          imageData[(x + width * y) * 4 + 1] = (color & 0x03e0) >> 2;
-          imageData[(x + width * y) * 4 + 2] = (color & 0x001f) >> 3;
-          imageData[(x + width * y) * 4 + 3] = color & 0x8000 ? 0 : 255;
+          color = image[i + 0] + (image[i + 1] << 8) // Inversed ?
+          imageData[(x + width * y) * 4 + 0] = (color & 0x7c00) >> 7
+          imageData[(x + width * y) * 4 + 1] = (color & 0x03e0) >> 2
+          imageData[(x + width * y) * 4 + 2] = (color & 0x001f) >> 3
+          imageData[(x + width * y) * 4 + 3] = color & 0x8000 ? 0 : 255
         }
       }
 
-      return imageData;
+      return imageData
     }
 
-    function tgaGetImageData24bits(
+    function tgaGetImageData24bits (
       imageData,
       y_start,
       y_step,
@@ -253,24 +253,24 @@ export class TGALoader {
       x_end,
       image
     ) {
-      let i = 0,
-        x,
-        y;
-      const width = header.width;
+      let i = 0
+      let x
+      let y
+      const width = header.width
 
       for (y = y_start; y !== y_end; y += y_step) {
         for (x = x_start; x !== x_end; x += x_step, i += 3) {
-          imageData[(x + width * y) * 4 + 3] = 255;
-          imageData[(x + width * y) * 4 + 2] = image[i + 0];
-          imageData[(x + width * y) * 4 + 1] = image[i + 1];
-          imageData[(x + width * y) * 4 + 0] = image[i + 2];
+          imageData[(x + width * y) * 4 + 3] = 255
+          imageData[(x + width * y) * 4 + 2] = image[i + 0]
+          imageData[(x + width * y) * 4 + 1] = image[i + 1]
+          imageData[(x + width * y) * 4 + 0] = image[i + 2]
         }
       }
 
-      return imageData;
+      return imageData
     }
 
-    function tgaGetImageData32bits(
+    function tgaGetImageData32bits (
       imageData,
       y_start,
       y_step,
@@ -280,24 +280,24 @@ export class TGALoader {
       x_end,
       image
     ) {
-      let i = 0,
-        x,
-        y;
-      const width = header.width;
+      let i = 0
+      let x
+      let y
+      const width = header.width
 
       for (y = y_start; y !== y_end; y += y_step) {
         for (x = x_start; x !== x_end; x += x_step, i += 4) {
-          imageData[(x + width * y) * 4 + 2] = image[i + 0];
-          imageData[(x + width * y) * 4 + 1] = image[i + 1];
-          imageData[(x + width * y) * 4 + 0] = image[i + 2];
-          imageData[(x + width * y) * 4 + 3] = image[i + 3];
+          imageData[(x + width * y) * 4 + 2] = image[i + 0]
+          imageData[(x + width * y) * 4 + 1] = image[i + 1]
+          imageData[(x + width * y) * 4 + 0] = image[i + 2]
+          imageData[(x + width * y) * 4 + 3] = image[i + 3]
         }
       }
 
-      return imageData;
+      return imageData
     }
 
-    function tgaGetImageDataGrey8bits(
+    function tgaGetImageDataGrey8bits (
       imageData,
       y_start,
       y_step,
@@ -307,26 +307,26 @@ export class TGALoader {
       x_end,
       image
     ) {
-      let color,
-        i = 0,
-        x,
-        y;
-      const width = header.width;
+      let color
+      let i = 0
+      let x
+      let y
+      const width = header.width
 
       for (y = y_start; y !== y_end; y += y_step) {
         for (x = x_start; x !== x_end; x += x_step, i++) {
-          color = image[i];
-          imageData[(x + width * y) * 4 + 0] = color;
-          imageData[(x + width * y) * 4 + 1] = color;
-          imageData[(x + width * y) * 4 + 2] = color;
-          imageData[(x + width * y) * 4 + 3] = 255;
+          color = image[i]
+          imageData[(x + width * y) * 4 + 0] = color
+          imageData[(x + width * y) * 4 + 1] = color
+          imageData[(x + width * y) * 4 + 2] = color
+          imageData[(x + width * y) * 4 + 3] = 255
         }
       }
 
-      return imageData;
+      return imageData
     }
 
-    function tgaGetImageDataGrey16bits(
+    function tgaGetImageDataGrey16bits (
       imageData,
       y_start,
       y_step,
@@ -336,63 +336,63 @@ export class TGALoader {
       x_end,
       image
     ) {
-      let i = 0,
-        x,
-        y;
-      const width = header.width;
+      let i = 0
+      let x
+      let y
+      const width = header.width
 
       for (y = y_start; y !== y_end; y += y_step) {
         for (x = x_start; x !== x_end; x += x_step, i += 2) {
-          imageData[(x + width * y) * 4 + 0] = image[i + 0];
-          imageData[(x + width * y) * 4 + 1] = image[i + 0];
-          imageData[(x + width * y) * 4 + 2] = image[i + 0];
-          imageData[(x + width * y) * 4 + 3] = image[i + 1];
+          imageData[(x + width * y) * 4 + 0] = image[i + 0]
+          imageData[(x + width * y) * 4 + 1] = image[i + 0]
+          imageData[(x + width * y) * 4 + 2] = image[i + 0]
+          imageData[(x + width * y) * 4 + 3] = image[i + 1]
         }
       }
 
-      return imageData;
+      return imageData
     }
 
-    function getTgaRGBA(data, width, height, image, palette) {
-      let x_start, y_start, x_step, y_step, x_end, y_end;
+    function getTgaRGBA (data, width, height, image, palette) {
+      let x_start, y_start, x_step, y_step, x_end, y_end
 
       switch ((header.flags & TGA_ORIGIN_MASK) >> TGA_ORIGIN_SHIFT) {
         default:
         case TGA_ORIGIN_UL:
-          x_start = 0;
-          x_step = 1;
-          x_end = width;
-          y_start = 0;
-          y_step = 1;
-          y_end = height;
-          break;
+          x_start = 0
+          x_step = 1
+          x_end = width
+          y_start = 0
+          y_step = 1
+          y_end = height
+          break
 
         case TGA_ORIGIN_BL:
-          x_start = 0;
-          x_step = 1;
-          x_end = width;
-          y_start = height - 1;
-          y_step = -1;
-          y_end = -1;
-          break;
+          x_start = 0
+          x_step = 1
+          x_end = width
+          y_start = height - 1
+          y_step = -1
+          y_end = -1
+          break
 
         case TGA_ORIGIN_UR:
-          x_start = width - 1;
-          x_step = -1;
-          x_end = -1;
-          y_start = 0;
-          y_step = 1;
-          y_end = height;
-          break;
+          x_start = width - 1
+          x_step = -1
+          x_end = -1
+          y_start = 0
+          y_step = 1
+          y_end = height
+          break
 
         case TGA_ORIGIN_BR:
-          x_start = width - 1;
-          x_step = -1;
-          x_end = -1;
-          y_start = height - 1;
-          y_step = -1;
-          y_end = -1;
-          break;
+          x_start = width - 1
+          x_step = -1
+          x_end = -1
+          y_start = height - 1
+          y_step = -1
+          y_end = -1
+          break
       }
 
       if (use_grey) {
@@ -407,8 +407,8 @@ export class TGALoader {
               x_step,
               x_end,
               image
-            );
-            break;
+            )
+            break
 
           case 16:
             tgaGetImageDataGrey16bits(
@@ -420,12 +420,12 @@ export class TGALoader {
               x_step,
               x_end,
               image
-            );
-            break;
+            )
+            break
 
           default:
-            console.error('TGALoader: Format not supported.');
-            break;
+            console.error('TGALoader: Format not supported.')
+            break
         }
       } else {
         switch (header.pixel_size) {
@@ -440,8 +440,8 @@ export class TGALoader {
               x_end,
               image,
               palette
-            );
-            break;
+            )
+            break
 
           case 16:
             tgaGetImageData16bits(
@@ -453,8 +453,8 @@ export class TGALoader {
               x_step,
               x_end,
               image
-            );
-            break;
+            )
+            break
 
           case 24:
             tgaGetImageData24bits(
@@ -466,8 +466,8 @@ export class TGALoader {
               x_step,
               x_end,
               image
-            );
-            break;
+            )
+            break
 
           case 32:
             tgaGetImageData32bits(
@@ -479,134 +479,133 @@ export class TGALoader {
               x_step,
               x_end,
               image
-            );
-            break;
+            )
+            break
 
           default:
-            console.error('TGALoader: Format not supported.');
-            break;
+            console.error('TGALoader: Format not supported.')
+            break
         }
       }
 
       // Load image data according to specific method
       // const func = 'tgaGetImageData' + (use_grey ? 'Grey' : '') + (header.pixel_size) + 'bits';
       // func(data, y_start, y_step, y_end, x_start, x_step, x_end, width, image, palette );
-      return data;
+      return data
     }
 
     // TGA constants
 
-    const TGA_TYPE_NO_DATA = 0,
-      TGA_TYPE_INDEXED = 1,
-      TGA_TYPE_RGB = 2,
-      TGA_TYPE_GREY = 3,
-      TGA_TYPE_RLE_INDEXED = 9,
-      TGA_TYPE_RLE_RGB = 10,
-      TGA_TYPE_RLE_GREY = 11,
-      TGA_ORIGIN_MASK = 0x30,
-      TGA_ORIGIN_SHIFT = 0x04,
-      TGA_ORIGIN_BL = 0x00,
-      TGA_ORIGIN_BR = 0x01,
-      TGA_ORIGIN_UL = 0x02,
-      TGA_ORIGIN_UR = 0x03;
+    const TGA_TYPE_NO_DATA = 0
+    const TGA_TYPE_INDEXED = 1
+    const TGA_TYPE_RGB = 2
+    const TGA_TYPE_GREY = 3
+    const TGA_TYPE_RLE_INDEXED = 9
+    const TGA_TYPE_RLE_RGB = 10
+    const TGA_TYPE_RLE_GREY = 11
+    const TGA_ORIGIN_MASK = 0x30
+    const TGA_ORIGIN_SHIFT = 0x04
+    const TGA_ORIGIN_BL = 0x00
+    const TGA_ORIGIN_BR = 0x01
+    const TGA_ORIGIN_UL = 0x02
+    const TGA_ORIGIN_UR = 0x03
 
-    if (buffer.length < 19)
-      console.error('TGALoader: Not enough data to contain header.');
+    if (buffer.length < 19) { console.error('TGALoader: Not enough data to contain header.') }
 
-    const content = new Uint8Array(buffer);
-    let offset = 0;
+    const content = new Uint8Array(buffer)
+    let offset = 0
     const header = {
-        id_length: content[offset++],
-        colormap_type: content[offset++],
-        image_type: content[offset++],
-        colormap_index: content[offset++] | (content[offset++] << 8),
-        colormap_length: content[offset++] | (content[offset++] << 8),
-        colormap_size: content[offset++],
-        origin: [
-          content[offset++] | (content[offset++] << 8),
-          content[offset++] | (content[offset++] << 8)
-        ],
-        width: content[offset++] | (content[offset++] << 8),
-        height: content[offset++] | (content[offset++] << 8),
-        pixel_size: content[offset++],
-        flags: content[offset++]
-      };
+      id_length: content[offset++],
+      colormap_type: content[offset++],
+      image_type: content[offset++],
+      colormap_index: content[offset++] | (content[offset++] << 8),
+      colormap_length: content[offset++] | (content[offset++] << 8),
+      colormap_size: content[offset++],
+      origin: [
+        content[offset++] | (content[offset++] << 8),
+        content[offset++] | (content[offset++] << 8)
+      ],
+      width: content[offset++] | (content[offset++] << 8),
+      height: content[offset++] | (content[offset++] << 8),
+      pixel_size: content[offset++],
+      flags: content[offset++]
+    }
 
     // check tga if it is valid format
 
-    tgaCheckHeader(header);
+    tgaCheckHeader(header)
 
     if (header.id_length + offset > buffer.length) {
-      console.error('TGALoader: No data.');
+      console.error('TGALoader: No data.')
     }
 
     // skip the needn't data
 
-    offset += header.id_length;
+    offset += header.id_length
 
     // get targa information about RLE compression and palette
 
-    let use_rle = false,
-      use_pal = false,
-      use_grey = false;
+    let use_rle = false
+    let use_pal = false
+    let use_grey = false
 
     switch (header.image_type) {
       case TGA_TYPE_RLE_INDEXED:
-        use_rle = true;
-        use_pal = true;
-        break;
+        use_rle = true
+        use_pal = true
+        break
 
       case TGA_TYPE_INDEXED:
-        use_pal = true;
-        break;
+        use_pal = true
+        break
 
       case TGA_TYPE_RLE_RGB:
-        use_rle = true;
-        break;
+        use_rle = true
+        break
 
       case TGA_TYPE_RGB:
-        break;
+        break
 
       case TGA_TYPE_RLE_GREY:
-        use_rle = true;
-        use_grey = true;
-        break;
+        use_rle = true
+        use_grey = true
+        break
 
       case TGA_TYPE_GREY:
-        use_grey = true;
-        break;
+        use_grey = true
+        break
     }
 
     //
 
-    const useOffscreen = typeof OffscreenCanvas !== 'undefined';
+    const useOffscreen = typeof OffscreenCanvas !== 'undefined'
 
     const canvas = useOffscreen
       ? new OffscreenCanvas(header.width, header.height)
-      : document.createElement('canvas');
-    canvas.width = header.width;
-    canvas.height = header.height;
+      : document.createElement('canvas')
+    canvas.width = header.width
+    canvas.height = header.height
 
-    const context = canvas.getContext('2d');
-    const imageData = context.createImageData(header.width, header.height);
+    const context = canvas.getContext('2d')
+    const imageData = context.createImageData(header.width, header.height)
 
-    const result = tgaParse(use_rle, use_pal, header, offset, content);
+    const result = tgaParse(use_rle, use_pal, header, offset, content)
     const rgbaData = getTgaRGBA(
       imageData.data,
       header.width,
       header.height,
       result.pixel_data,
       result.palettes
-    );
+    )
 
-    context.putImageData(imageData, 0, 0);
+    context.putImageData(imageData, 0, 0)
 
-    return useOffscreen ? canvas.transferToImageBitmap() : canvas;
+    return useOffscreen ? canvas.transferToImageBitmap() : canvas
   }
 
   /** Setter method for path Property. */
-  setPath(value): TGALoader {
-    this.path = value;
-    return this;
+  setPath (value): TGALoader {
+    this.path = value
+    return this
   }
 }

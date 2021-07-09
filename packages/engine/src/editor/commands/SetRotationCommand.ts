@@ -1,39 +1,44 @@
-import Command from "./Command";
-import { TransformSpace } from "../constants/TransformSpace";
-import { serializeObject3D, serializeEuler } from "../functions/debug";
+import Command from './Command'
+import { TransformSpace } from '../constants/TransformSpace'
+import { serializeObject3D, serializeEuler } from '../functions/debug'
 export default class SetRotationCommand extends Command {
-  object: any;
-  rotation: any;
-  space: any;
-  oldRotation: any;
-  constructor(editor, object, rotation, space) {
-    super(editor);
-    this.object = object;
-    this.rotation = rotation.clone();
-    this.space = space;
-    this.oldRotation = object.rotation.clone();
+  object: any
+  rotation: any
+  space: any
+  oldRotation: any
+  constructor (editor, object, rotation, space) {
+    super(editor)
+    this.object = object
+    this.rotation = rotation.clone()
+    this.space = space
+    this.oldRotation = object.rotation.clone()
   }
-  execute() {
-    this.editor.setRotation(this.object, this.rotation, this.space, false);
+
+  execute () {
+    this.editor.setRotation(this.object, this.rotation, this.space, false)
   }
-  shouldUpdate(newCommand) {
-    return this.object === newCommand.object && this.space === newCommand.space;
+
+  shouldUpdate (newCommand) {
+    return this.object === newCommand.object && this.space === newCommand.space
   }
-  update(command) {
-    this.rotation = command.rotation.clone();
-    this.editor.setRotation(this.object, command.rotation, this.space, false);
+
+  update (command) {
+    this.rotation = command.rotation.clone()
+    this.editor.setRotation(this.object, command.rotation, this.space, false)
   }
-  undo() {
+
+  undo () {
     this.editor.setRotation(
       this.object,
       this.oldRotation,
       TransformSpace.Local,
       false
-    );
+    )
   }
-  toString() {
+
+  toString () {
     return `SetRotationCommand id: ${this.id} object: ${serializeObject3D(
       this.object
-    )} rotation: ${serializeEuler(this.rotation)} space: ${this.space}`;
+    )} rotation: ${serializeEuler(this.rotation)} space: ${this.space}`
   }
 }

@@ -1,12 +1,11 @@
 // TODO: Change camera properties to object and use setter that updates camera
 
-import { Component } from '../../ecs/classes/Component';
-import { Entity } from '../../ecs/classes/Entity';
-import { Types } from '../../ecs/types/Types';
+import { Component } from '../../ecs/classes/Component'
+import { Entity } from '../../ecs/classes/Entity'
+import { Types } from '../../ecs/types/Types'
 
 /** Component class for Camera. */
 export class CameraComponent extends Component<any> {
-
   /** Reference to the object that should be followed. */
   followTarget: any = null
   /** Field of view. */
@@ -26,12 +25,12 @@ export class CameraComponent extends Component<any> {
 
   /** Constructs Camera Component. */
   constructor () {
-    super();
+    super()
   }
 
   /** Dispose the component. */
-  dispose(): void {
-    super.dispose();
+  dispose (): void {
+    super.dispose()
   }
 }
 
@@ -43,4 +42,4 @@ CameraComponent._schema = {
   entity: { type: Types.Ref, default: null },
   // camera: { type: Types.Ref, default: null },
   followTarget: { type: Types.Ref, default: null }
-};
+}

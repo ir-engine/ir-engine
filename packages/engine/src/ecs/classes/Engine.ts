@@ -10,19 +10,19 @@ import {
   Scene,
   WebGLRenderer,
   XRSession
-} from 'three';
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { EngineOptions } from '../interfaces/EngineOptions';
-import { Entity } from './Entity';
-import { EntityPool } from './EntityPool';
-import { EntityEventDispatcher } from './EntityEventDispatcher';
-import { Query } from './Query';
-import { createElement } from '../functions/createElement';
-import { NumericalType } from '../../common/types/NumericalTypes';
-import { InputValue } from '../../input/interfaces/InputValue';
-import { GameMode } from "../../game/types/GameMode";
-import { EngineEvents } from './EngineEvents';
-import { ActiveSystems, System } from './System';
+} from 'three'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { EngineOptions } from '../interfaces/EngineOptions'
+import { Entity } from './Entity'
+import { EntityPool } from './EntityPool'
+import { EntityEventDispatcher } from './EntityEventDispatcher'
+import { Query } from './Query'
+import { createElement } from '../functions/createElement'
+import { NumericalType } from '../../common/types/NumericalTypes'
+import { InputValue } from '../../input/interfaces/InputValue'
+import { GameMode } from '../../game/types/GameMode'
+import { EngineEvents } from './EngineEvents'
+import { ActiveSystems, System } from './System'
 
 /**
  * This is the base class which holds all the data related to the scene, camera,system etc.
@@ -31,46 +31,45 @@ import { ActiveSystems, System } from './System';
  * @author Shaw, Josh, Vyacheslav and the XREngine Team
  */
 export class Engine {
+  public static engineTimer: { start: Function, stop: Function, clear: Function } = null
 
-  public static engineTimer: { start: Function; stop: Function, clear: Function } = null
+  public static supportedGameModes: { [key: string]: GameMode }
+  public static gameMode: GameMode
 
-  public static supportedGameModes: { [key: string]: GameMode };
-  public static gameMode: GameMode;
+  public static xrSupported = false
+  public static isBot = false
 
-  public static xrSupported = false;
-  public static isBot = false;
+  public static offlineMode = false
+  public static isHMD = false
 
-  public static offlineMode = false;
-  public static isHMD = false;
-
-  //public static stats: Stats
+  // public static stats: Stats
   // Move for sure
   // public static sky: Sky;
 
   /** Indicates whether engine is currently executing or not. */
-  public static isExecuting = false;
+  public static isExecuting = false
 
   /**
    * Frame rate for physics system.
    *
    * @default 60
    */
-  public static physicsFrameRate = 60;
+  public static physicsFrameRate = 60
 
   /**
    * Frame rate for network system.
    *
    * @default 20
    */
-  public static networkFramerate = 20;
+  public static networkFramerate = 20
 
-  public static accumulator: number;
-  public static justExecuted: boolean;
-  public static params: any;
+  public static accumulator: number
+  public static justExecuted: boolean
+  public static params: any
   /**
    * @default 1
    */
-  public static timeScaleTarget = 1;
+  public static timeScaleTarget = 1
 
   /**
    * Reference to the three.js renderer object.
@@ -86,13 +85,13 @@ export class Engine {
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static scene: Scene = null
-  static sceneLoaded = false;
+  static sceneLoaded = false
 
   /**
    * Reference to the three.js perspective camera object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
-   static camera: PerspectiveCamera = null
+  static camera: PerspectiveCamera = null
 
   /**
    * Reference to the Transform component of the three.js camera object.
@@ -117,7 +116,7 @@ export class Engine {
   */
   static options: { /** @default 0 */ entityPoolSize: number } & EngineOptions = {
     entityPoolSize: 0
-  };
+  }
 
   /**
    * Controls whether engine should execute this frame.
@@ -145,7 +144,7 @@ export class Engine {
   /**
    * Map of registered entities by ID
    */
-  static entityMap: Map<string, Entity> = new Map<string, Entity>();
+  static entityMap: Map<string, Entity> = new Map<string, Entity>()
 
   /**
    * List of registered queries.
@@ -205,41 +204,41 @@ export class Engine {
    *
    * @author Fernando Serrano, Robert Long
    */
-  static activeSystems: ActiveSystems;
-  static vehicles: any;
-  static lastTime: number;
+  static activeSystems: ActiveSystems
+  static vehicles: any
+  static lastTime: number
 
-  static tick = 0;
+  static tick = 0
   /** HTML Element in which Engine renders. */
-  static viewportElement: HTMLElement;
+  static viewportElement: HTMLElement
 
-  static createElement: any = createElement;
+  static createElement: any = createElement
 
-  static useAudioSystem = false;
+  static useAudioSystem = false
 
-  static inputState = new Map<any, InputValue<NumericalType>>();
-  static prevInputState = new Map<any, InputValue<NumericalType>>();
+  static inputState = new Map<any, InputValue<NumericalType>>()
+  static prevInputState = new Map<any, InputValue<NumericalType>>()
 
-  static isInitialized = false;
+  static isInitialized = false
 
-  static publicPath: string;
+  static publicPath: string
 
-  static workers = [];
-  static simpleMaterials = false;
+  static workers = []
+  static simpleMaterials = false
 
-  static hasEngaged = false;
+  static hasEngaged = false
 }
 
-export const awaitEngineLoaded = (): Promise<void> => {
-  return new Promise<void>((resolve) => {
-    if(Engine.isInitialized) resolve();
+export const awaitEngineLoaded = async (): Promise<void> => {
+  return await new Promise<void>((resolve) => {
+    if (Engine.isInitialized) resolve()
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.INITIALIZED_ENGINE, resolve)
   })
 }
 
-export const awaitEngaged = (): Promise<void> => {
-  return new Promise<void>((resolve) => {
-    if(Engine.hasEngaged) resolve();
+export const awaitEngaged = async (): Promise<void> => {
+  return await new Promise<void>((resolve) => {
+    if (Engine.hasEngaged) resolve()
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.USER_ENGAGE, resolve)
   })
 }

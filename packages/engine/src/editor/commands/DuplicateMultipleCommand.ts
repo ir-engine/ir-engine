@@ -1,22 +1,23 @@
-import Command from "./Command";
-import { serializeObject3DArray, serializeObject3D } from "../functions/debug";
+import Command from './Command'
+import { serializeObject3DArray, serializeObject3D } from '../functions/debug'
 export default class DuplicateMultipleCommand extends Command {
-  objects: any;
-  parent: any;
-  before: any;
-  selectObjects: any;
-  oldSelection: any;
-  duplicatedObjects: any[];
-  constructor(editor, objects, parent, before, selectObjects) {
-    super(editor);
-    this.objects = objects.slice(0);
-    this.parent = parent;
-    this.before = before;
-    this.selectObjects = selectObjects;
-    this.oldSelection = editor.selected.slice(0);
-    this.duplicatedObjects = [];
+  objects: any
+  parent: any
+  before: any
+  selectObjects: any
+  oldSelection: any
+  duplicatedObjects: any[]
+  constructor (editor, objects, parent, before, selectObjects) {
+    super(editor)
+    this.objects = objects.slice(0)
+    this.parent = parent
+    this.before = before
+    this.selectObjects = selectObjects
+    this.oldSelection = editor.selected.slice(0)
+    this.duplicatedObjects = []
   }
-  execute(redo) {
+
+  execute (redo) {
     if (redo) {
       this.editor.addMultipleObjects(
         this.duplicatedObjects,
@@ -25,7 +26,7 @@ export default class DuplicateMultipleCommand extends Command {
         false,
         true,
         this.selectObjects
-      );
+      )
     } else {
       this.duplicatedObjects = this.editor.duplicateMultiple(
         this.objects,
@@ -34,25 +35,27 @@ export default class DuplicateMultipleCommand extends Command {
         false,
         true,
         this.selectObjects
-      );
+      )
     }
   }
-  undo() {
+
+  undo () {
     this.editor.removeMultipleObjects(
       this.duplicatedObjects,
       false,
       true,
       false
-    );
-    this.editor.setSelection(this.oldSelection, false);
+    )
+    this.editor.setSelection(this.oldSelection, false)
   }
-  toString() {
+
+  toString () {
     return `DuplicateMultipleCommand id: ${
       this.id
     } objects: ${serializeObject3DArray(
       this.objects
     )} parent: ${serializeObject3D(this.parent)} before: ${serializeObject3D(
       this.before
-    )}`;
+    )}`
   }
 }

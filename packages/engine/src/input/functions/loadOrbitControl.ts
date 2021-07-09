@@ -1,5 +1,5 @@
-import { OrbitControls } from './OrbitControls';
+import { OrbitControls } from './OrbitControls'
 
-export function getOrbitControls(camera, el): OrbitControls {
-    return new OrbitControls(camera, el);
+export function getOrbitControls (camera, el): OrbitControls {
+  return new OrbitControls(camera, el)
 }

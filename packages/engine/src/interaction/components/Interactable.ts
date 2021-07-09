@@ -1,7 +1,7 @@
-import { Component } from "../../ecs/classes/Component";
-import { Types } from "../../ecs/types/Types";
-import { Behavior } from "../../common/interfaces/Behavior";
-import { InteractionCheckHandler, InteractionData } from "../types/InteractionTypes";
+import { Component } from '../../ecs/classes/Component'
+import { Types } from '../../ecs/types/Types'
+import { Behavior } from '../../common/interfaces/Behavior'
+import { InteractionCheckHandler, InteractionData } from '../types/InteractionTypes'
 
 export class Interactable extends Component<Interactable> {
   static _schema = {
@@ -18,7 +18,7 @@ export class Interactable extends Component<Interactable> {
   public onInteraction: Behavior
   public onInteractionFocused: Behavior
   public interactiveDistance: number
-  public interactionParts: Array<any> = []
-  public interactionPartsPosition: Array<any> = []
-  public data: InteractionData;
+  public interactionParts: any[] = []
+  public interactionPartsPosition: any[] = []
+  public data: InteractionData
 }

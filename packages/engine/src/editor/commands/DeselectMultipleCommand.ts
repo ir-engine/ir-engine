@@ -1,22 +1,25 @@
-import Command from "./Command";
-import { serializeObject3DArray } from "../functions/debug";
+import Command from './Command'
+import { serializeObject3DArray } from '../functions/debug'
 export default class DeselectMultipleCommand extends Command {
-  objects: any;
-  oldSelection: any;
-  constructor(editor, objects) {
-    super(editor);
-    this.objects = objects.slice(0);
-    this.oldSelection = editor.selected.slice(0);
+  objects: any
+  oldSelection: any
+  constructor (editor, objects) {
+    super(editor)
+    this.objects = objects.slice(0)
+    this.oldSelection = editor.selected.slice(0)
   }
-  execute() {
-    this.editor.deselectMultiple(this.objects, false);
+
+  execute () {
+    this.editor.deselectMultiple(this.objects, false)
   }
-  undo() {
-    this.editor.setSelection(this.oldSelection, false);
+
+  undo () {
+    this.editor.setSelection(this.oldSelection, false)
   }
-  toString() {
+
+  toString () {
     return `DeselectMultipleCommand id: ${
       this.id
-    } objects: ${serializeObject3DArray(this.objects)}`;
+    } objects: ${serializeObject3DArray(this.objects)}`
   }
 }

@@ -5,7 +5,6 @@
  * @author Josh Field <github.com/hexafield>
  */
 
-
 import {
   Mapping,
   RGBAFormat,
@@ -13,15 +12,15 @@ import {
   TextureDataType,
   TextureFilter,
   CanvasTexture,
-  Wrapping,
-} from 'three';
+  Wrapping
+} from 'three'
 
-import type { VideoDocumentElementProxy } from './MessageQueue';
+import type { VideoDocumentElementProxy } from './MessageQueue'
 
 export class VideoTextureProxy extends CanvasTexture {
-  isVideoTexture = true;
-  videoProxy: VideoDocumentElementProxy;
-  constructor(
+  isVideoTexture = true
+  videoProxy: VideoDocumentElementProxy
+  constructor (
     videoProxy: VideoDocumentElementProxy,
     mapping?: Mapping,
     wrapS?: Wrapping,
@@ -29,10 +28,10 @@ export class VideoTextureProxy extends CanvasTexture {
     magFilter?: TextureFilter,
     minFilter?: TextureFilter,
     type?: TextureDataType,
-    anisotropy?: number,
+    anisotropy?: number
   ) {
     super(
-      // @ts-ignore
+      // @ts-expect-error
       videoProxy.video,
       mapping,
       wrapS,
@@ -41,36 +40,37 @@ export class VideoTextureProxy extends CanvasTexture {
       minFilter,
       RGBAFormat,
       type,
-      anisotropy,
+      anisotropy
       // encoding,
-    );
+    )
     this.videoProxy = videoProxy;
     (this as any).minFilter = minFilter !== undefined ? minFilter : LinearFilter;
     (this as any).magFilter = magFilter !== undefined ? magFilter : LinearFilter;
     (this as any).generateMipmaps = false;
-    (this as any).flipY = true;
+    (this as any).flipY = true
 
     const updateVideo = () => {
       (this as any).image = this.videoProxy.video;
-      (this as any).needsUpdate = true;
-      videoProxy._requestVideoFrameCallback(updateVideo);
-    };
+      (this as any).needsUpdate = true
+      videoProxy._requestVideoFrameCallback(updateVideo)
+    }
 
     if ('_requestVideoFrameCallback' in videoProxy) {
-      videoProxy._requestVideoFrameCallback(updateVideo);
+      videoProxy._requestVideoFrameCallback(updateVideo)
     }
   }
-  clone() {
-    return (new VideoTextureProxy(this.videoProxy) as any).copy(this);
+
+  clone () {
+    return (new VideoTextureProxy(this.videoProxy) as any).copy(this)
   }
 
-  update() {
+  update () {
     if (
       !this.videoProxy._requestVideoFrameCallback &&
       this.videoProxy.readyState >= 2
     ) {
       (this as any).image = this.videoProxy.video;
-      (this as any).needsUpdate = true;
+      (this as any).needsUpdate = true
     }
   }
 }

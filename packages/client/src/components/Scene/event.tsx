@@ -447,7 +447,7 @@ export const EnginePage = (props: Props) => {
 
     try {
       // event logic hook must be in the form of `export async function [locationName] {}`
-      const event = await import(/* @vite-ignore */'../Events/'+ locationName)
+      const event = await import(/* @vite-ignore */`../Events/${locationName}.tsx`)
       await event[locationName]()
     } catch (e) {
       console.log('could not run event specific logic', locationName, e)
