@@ -1,5 +1,5 @@
 export const DEFAULT_AVATARS = ['Sonny', 'Razer1', 'Razer2', 'Razer3', 'Razer4', 'Razer5', 'Razer6']; // 'Allison', , 'Rose', 'Andy', 'Erik', 'Geoff', 'Jace', 'Karthik'
-export const DEFAULT_AVATAR_ID = 'Sonny';
+export const DEFAULT_AVATAR_ID = 'Razer1';
 export const AVATAR_FILE_ALLOWED_EXTENSIONS = '.glb,.gltf,.vrm,.fbx';
 export const MIN_AVATAR_FILE_SIZE = 0
 export const MAX_AVATAR_FILE_SIZE = 15728640          // 15 MB

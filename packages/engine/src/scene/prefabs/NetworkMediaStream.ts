@@ -6,6 +6,7 @@ import { delay } from "../../ecs/functions/EngineFunctions";
 import { getEntityByName, getMutableComponent } from "../../ecs/functions/EntityFunctions";
 import { NetworkPrefab } from "../../networking/interfaces/NetworkPrefab";
 import { NetworkObjectCreateInterface } from "../../networking/interfaces/WorldState";
+import { elementPlaying } from "../behaviors/createMedia";
 import Video from "../classes/Video";
 import { Object3DComponent } from "../components/Object3DComponent";
 
@@ -25,7 +26,7 @@ export const NetworkMediaStream: NetworkPrefab = {
 
     // TODO: disabled for event
     // await awaitEngaged();
-
+      
     // Get time elapsed since start of the video in seconds
     const time = Math.round(Date.now() - args.parameters.startTime);
     console.log('time', time)
@@ -33,31 +34,42 @@ export const NetworkMediaStream: NetworkPrefab = {
       await delay(Math.abs(time))
     }
 
-    const video = videoComp.value as Video;
-    await video.loadVideo(args.parameters.src);
+    const interval = setInterval(async () => {
 
-    const videoElement = video.el;
+      const video = videoComp.value as Video;
+      await video.loadVideo(args.parameters.src);
 
-    console.log('playing video...')
-    console.log(time / 1000, videoElement.duration)
-    // If event has already started, sync to the current time
-    if (time > 0) {
-      // If time is greater than duration of the video then loop the video
-      videoElement.currentTime = (time / 1000) % 2960;
-    } else {
-      videoElement.currentTime = 0
-    }
-    videoElement.play();
+      const videoElement = video.el;
 
-    // Start animation for DJ.
-    const djEntity = getEntityByName(DJModelName);
+      console.log('playing video...')
+      console.log(time / 1000, videoElement.duration)
+      // If event has already started, sync to the current time
+      if (time > 0) {
+        // If time is greater than duration of the video then loop the video
+        videoElement.currentTime = (time / 1000) % 2960;
+      } else {
+        videoElement.currentTime = 0
+      }
+      videoElement.play();
 
-    if (djEntity) {
-      const animationComponent = getMutableComponent(djEntity, AnimationComponent);
+      await delay(100)
 
-      animationComponent.currentState.animations[0].action.play();
-      animationComponent.mixer.update(videoElement.currentTime)
-    }
+      if(elementPlaying(videoElement)) {
+
+        // Start animation for DJ.
+        const djEntity = getEntityByName(DJModelName);
+    
+        if (djEntity) {
+          const animationComponent = getMutableComponent(djEntity, AnimationComponent);
+    
+          animationComponent.currentState.animations[0].action.play();
+          animationComponent.mixer.update(videoElement.currentTime)
+        }
+
+        clearInterval(interval)
+      }
+
+    }, 2000)
   },
   clientComponents: [],
   networkComponents: [],

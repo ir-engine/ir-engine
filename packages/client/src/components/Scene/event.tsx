@@ -428,7 +428,8 @@ export const EnginePage = (props: Props) => {
         const localClient = worldState.clientsConnected.find((client) => {
           return client.userId === Network.instance.userId;
         });
-        AssetLoader.load({ url: localClient.avatarDetail.avatarURL }, resolve);
+        AssetLoader.load({ url: localClient.avatarDetail.avatarURL });
+        resolve()
       });
     });
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADING));
