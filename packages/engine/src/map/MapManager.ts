@@ -1,6 +1,3 @@
-import * as THREE from 'three';
-if (!globalThis.THREE) globalThis.THREE = THREE;
-
 import { FrustumIntersection } from '@here/harp-mapview/lib/FrustumIntersection';
 import { overlayOnElevation } from '@here/harp-mapview/lib/geometry/overlayOnElevation';
 import { TileGeometryManager } from '@here/harp-mapview/lib/geometry/TileGeometryManager';
