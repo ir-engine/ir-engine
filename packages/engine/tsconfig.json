@@ -6,6 +6,7 @@
       "dom",
       "dom.iterable"
     ],
+    "strictNullChecks": true,
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,

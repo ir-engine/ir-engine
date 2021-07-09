@@ -1,6 +1,6 @@
-import { float32, int32, Model, Schema, string, uint32, uint8 } from "../../assets/superbuffer";
-import { Network } from '../classes/Network';
-import { TransformStateInterface, WorldStateInterface } from "../interfaces/WorldState";
+import { float32, int32, Model, Schema, string, uint32, uint8 } from '../../assets/superbuffer'
+import { Network } from '../classes/Network'
+import { TransformStateInterface, WorldStateInterface } from '../interfaces/WorldState'
 
 const transformSchema = new Schema({
   networkId: uint32,
@@ -12,7 +12,7 @@ const transformSchema = new Schema({
   qY: float32,
   qZ: float32,
   qW: float32
-});
+})
 
 const ikTransformOrientationSchema = new Schema({
   x: float32,
@@ -22,23 +22,23 @@ const ikTransformOrientationSchema = new Schema({
   qY: float32,
   qZ: float32,
   qW: float32
-});
+})
 
 const ikTransformSchema = new Schema({
   networkId: uint32,
   snapShotTime: uint32,
   hmd: ikTransformOrientationSchema,
   left: ikTransformOrientationSchema,
-  right: ikTransformOrientationSchema,
-});
+  right: ikTransformOrientationSchema
+})
 
 const transformStateSchema = new Schema({
   tick: uint32,
   timeFP: uint32,
   timeSP: uint32,
   transforms: [transformSchema],
-  ikTransforms: [ikTransformSchema],
-});
+  ikTransforms: [ikTransformSchema]
+})
 
 // TODO: convert WorldStateInterface to PacketReadyWorldState in toBuffer and back in fromBuffer
 /** Class for holding world state. */
@@ -47,8 +47,8 @@ export class TransformStateModel {
   static model: Model = new Model(transformStateSchema)
 
   /** Convert to buffer. */
-  static toBuffer(worldState: TransformStateInterface): ArrayBuffer {
-    const timeToTwoUinit32 = Date.now().toString();
+  static toBuffer (worldState: TransformStateInterface): ArrayBuffer {
+    const timeToTwoUinit32 = Date.now().toString()
     const state: any = {
       tick: worldState.tick,
       timeFP: Number(timeToTwoUinit32.slice(0, 6)), // first part
@@ -56,27 +56,27 @@ export class TransformStateModel {
       transforms: worldState.transforms.map(v => {
         return {
           ...v,
-          snapShotTime: v.snapShotTime,
+          snapShotTime: v.snapShotTime
         }
       }),
       ikTransforms: worldState.ikTransforms.map(v => {
         return {
           ...v,
-          snapShotTime: v.snapShotTime,
+          snapShotTime: v.snapShotTime
         }
-      }),
-    };
-    return Network.instance.packetCompression ? TransformStateModel.model.toBuffer(state) : state;
+      })
+    }
+    return Network.instance.packetCompression ? TransformStateModel.model.toBuffer(state) : state
   }
 
   /** Read from buffer. */
-  static fromBuffer(buffer: any): WorldStateInterface {
+  static fromBuffer (buffer: any): WorldStateInterface {
     try {
-      const state = Network.instance.packetCompression ? TransformStateModel.model.fromBuffer(buffer) : buffer;
+      const state = Network.instance.packetCompression ? TransformStateModel.model.fromBuffer(buffer) : buffer
 
       if (!state.transforms) {
-        console.warn('Packet not from this, will ignored', state);
-        return;
+        console.warn('Packet not from this, will ignored', state)
+        return
       }
 
       return {
@@ -84,17 +84,15 @@ export class TransformStateModel {
         tick: Number(state.tick),
         time: state.timeFP * 10000000 + state.timeSP, // get uint64 from two uint32
         transforms: state.transforms.map(v => {
-          const { snapShotTime, ...otherValues } = v;
+          const { snapShotTime, ...otherValues } = v
           return {
             ...otherValues,
             snapShotTime: Number(snapShotTime)
           }
-        }),
-      };
+        })
+      }
     } catch (error) {
       console.warn("Couldn't deserialize buffer", buffer, error)
     }
-
   }
-
 }

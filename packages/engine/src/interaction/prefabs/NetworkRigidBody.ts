@@ -1,19 +1,19 @@
-import { Entity } from '../../ecs/classes/Entity';
-import { NetworkPrefab } from '../../networking/interfaces/NetworkPrefab';
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { ColliderComponent } from '../../physics/components/ColliderComponent';
-import { RigidBodyComponent } from '../../physics/components/RigidBody';
-import { initializeNetworkObject } from '../../networking/functions/initializeNetworkObject';
-import { PrefabType } from '../../networking/templates/PrefabType';
-import { isClient } from '../../common/functions/isClient';
-import { Network } from '../../networking/classes/Network';
-import { InterpolationComponent } from '../../physics/components/InterpolationComponent';
+import { Entity } from '../../ecs/classes/Entity'
+import { NetworkPrefab } from '../../networking/interfaces/NetworkPrefab'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { RigidBodyComponent } from '../../physics/components/RigidBody'
+import { initializeNetworkObject } from '../../networking/functions/initializeNetworkObject'
+import { PrefabType } from '../../networking/templates/PrefabType'
+import { isClient } from '../../common/functions/isClient'
+import { Network } from '../../networking/classes/Network'
+import { InterpolationComponent } from '../../physics/components/InterpolationComponent'
 
 /**
 * @author HydraFire <github.com/HydraFire>
  */
 
-export function createNetworkRigidBody( args:{ parameters?: any, networkId?: number, uniqueId: string, entity?: Entity, ownerId?: string }) {
+export function createNetworkRigidBody (args: { parameters?: any, networkId?: number, uniqueId: string, entity?: Entity, ownerId?: string }) {
   const networkComponent = initializeNetworkObject({
     entity: args.entity,
     prefabType: PrefabType.RigidBody,
@@ -25,7 +25,7 @@ export function createNetworkRigidBody( args:{ parameters?: any, networkId?: num
           type: ColliderComponent,
           data: {
             body: args.parameters.body,
-            bodytype:  args.parameters.bodytype,
+            bodytype: args.parameters.bodytype,
             type: args.parameters.type,
             position: args.parameters.position,
             quaternion: args.parameters.quaternion,
@@ -38,15 +38,15 @@ export function createNetworkRigidBody( args:{ parameters?: any, networkId?: num
         }
       ]
     }
-  });
+  })
   if (!isClient) {
     Network.instance.worldState.createObjects.push({
-        networkId: networkComponent.networkId,
-        ownerId: networkComponent.ownerId,
-        prefabType: PrefabType.RigidBody,
-        uniqueId: networkComponent.uniqueId,
-        parameters: ''
-    });
+      networkId: networkComponent.networkId,
+      ownerId: networkComponent.ownerId,
+      prefabType: PrefabType.RigidBody,
+      uniqueId: networkComponent.uniqueId,
+      parameters: ''
+    })
   }
 }
 
@@ -64,9 +64,9 @@ export const NetworkRigidBody: NetworkPrefab = {
   // These are only created for the local player who owns this prefab
   localClientComponents: [],
   clientComponents: [
-		{ type: InterpolationComponent },
+    { type: InterpolationComponent }
   ],
   serverComponents: [],
   onAfterCreate: [],
   onBeforeDestroy: []
-};
+}

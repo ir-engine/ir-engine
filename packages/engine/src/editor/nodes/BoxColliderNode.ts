@@ -1,72 +1,73 @@
-import { Object3D, BoxBufferGeometry, Material, Mesh, BoxHelper } from "three";
-import EditorNodeMixin from "./EditorNodeMixin";
+import { Object3D, BoxBufferGeometry, Material, Mesh, BoxHelper } from 'three'
+import EditorNodeMixin from './EditorNodeMixin'
 export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
-  static legacyComponentName = "box-collider";
-  static nodeName = "Box Collider";
-  static _geometry = new BoxBufferGeometry();
-  static _material = new Material();
+  static legacyComponentName = 'box-collider'
+  static nodeName = 'Box Collider'
+  static _geometry = new BoxBufferGeometry()
+  static _material = new Material()
 
-  static async deserialize(editor, json) {
-    
-    const node = await super.deserialize(editor, json);
+  static async deserialize (editor, json) {
+    const node = await super.deserialize(editor, json)
 
     const gameObject = json.components.find(
-      c => c.name === "game-object"
-    );
+      c => c.name === 'game-object'
+    )
 
-    if(gameObject){
-      node.target = gameObject.props.target;
-      node.role = gameObject.props.role;
+    if (gameObject) {
+      node.target = gameObject.props.target
+      node.role = gameObject.props.role
     }
 
     const boxCollider = json.components.find(
-      c => c.name === "box-collider"
-    );
+      c => c.name === 'box-collider'
+    )
 
-    if(boxCollider) {
-      node.isTrigger = boxCollider.props.isTrigger;
+    if (boxCollider) {
+      node.isTrigger = boxCollider.props.isTrigger
     }
 
-    return node;
+    return node
   }
-  
-  constructor(editor) {
-    super(editor);
+
+  constructor (editor) {
+    super(editor)
     const boxMesh = new Mesh(
       BoxColliderNode._geometry,
       BoxColliderNode._material
-    );
-    const box = new BoxHelper(boxMesh, 0x00ff00);
-    box.layers.set(1);
-    this.helper = box;
-    this.add(box);
-    this.isTrigger = false;
+    )
+    const box = new BoxHelper(boxMesh, 0x00ff00)
+    box.layers.set(1)
+    this.helper = box
+    this.add(box)
+    this.isTrigger = false
   }
-  copy(source, recursive = true) {
+
+  copy (source, recursive = true) {
     if (recursive) {
-      this.remove(this.helper);
+      this.remove(this.helper)
     }
-    super.copy(source, recursive);
+    super.copy(source, recursive)
     if (recursive) {
-      const helperIndex = source.children.indexOf(source.helper);
+      const helperIndex = source.children.indexOf(source.helper)
       if (helperIndex !== -1) {
         const boxMesh = new Mesh(
           BoxColliderNode._geometry,
           BoxColliderNode._material
-        );
-        const box = new BoxHelper(boxMesh, 0x00ff00) as any;
-        box.layers.set(1);
-        this.helper = box;
-        box.parent = this;
-        this.children.splice(helperIndex, 1, box);
+        )
+        const box = new BoxHelper(boxMesh, 0x00ff00) as any
+        box.layers.set(1)
+        this.helper = box
+        box.parent = this
+        this.children.splice(helperIndex, 1, box)
       }
     }
-    this.isTrigger = source.isTrigger;
-    return this;
+    this.isTrigger = source.isTrigger
+    return this
   }
-  serialize() {
+
+  serialize () {
     const components = {
-      "box-collider": {
+      'box-collider': {
         type: this.target === undefined ? 'box' : 'game-object',
         isTrigger: this.isTrigger,
         mass: 0,
@@ -83,21 +84,22 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
           z: this.scale.z / 2
         }
       }
-    } as any;
+    } as any
 
-    if(this.target != undefined) {
+    if (this.target != undefined) {
       components['game-object'] = {
         gameName: this.editor.nodes.find(node => node.uuid === this.target).name,
         role: this.role,
         target: this.target
       }
     }
-    return super.serialize(components);
+    return super.serialize(components)
   }
-  prepareForExport() {
-    super.prepareForExport();
-    this.remove(this.helper);
-    this.addGLTFComponent("box-collider", {
+
+  prepareForExport () {
+    super.prepareForExport()
+    this.remove(this.helper)
+    this.addGLTFComponent('box-collider', {
       // TODO: Remove exporting these properties. They are already included in the transform props.
       type: this.target === undefined ? 'box' : 'game-object',
       isTrigger: this.isTrigger,
@@ -108,13 +110,13 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
         z: this.rotation.z
       },
       scale: this.scale
-    });
-    if(this.target != undefined) {
-      this.addGLTFComponent("game-object", {
+    })
+    if (this.target != undefined) {
+      this.addGLTFComponent('game-object', {
         gameName: this.editor.nodes.find(node => node.uuid === this.target).name,
         role: this.role,
         target: this.target
-      });
+      })
     }
   }
 }

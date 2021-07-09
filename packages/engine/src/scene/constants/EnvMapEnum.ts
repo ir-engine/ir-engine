@@ -1,17 +1,17 @@
-import { SkyBoxShaderProps } from "../../editor/nodes/SkyboxNode";
+import { SkyBoxShaderProps } from '../../editor/nodes/SkyboxNode'
 
 export const enum EnvMapSourceType{
-    "Default","Texture","Color",
+  'Default', 'Texture', 'Color',
 }
 
 export const enum EnvMapTextureType{
-    "Cubemap","Equirectangular",
+  'Cubemap', 'Equirectangular',
 }
 
-export type EnvMapProps={
-    type:EnvMapSourceType,
-    envMapIntensity:number,
-    envMapSourceURL?:string,
-    envMapTextureType?:EnvMapTextureType,
-    envMapSourceColor?:string,
+export interface EnvMapProps {
+  type: EnvMapSourceType
+  envMapIntensity: number
+  envMapSourceURL?: string
+  envMapTextureType?: EnvMapTextureType
+  envMapSourceColor?: string
 }

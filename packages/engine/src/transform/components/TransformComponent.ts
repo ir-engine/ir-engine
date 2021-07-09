@@ -1,6 +1,6 @@
-import { Component } from '../../ecs/classes/Component';
-import { Vector3, Quaternion, Euler } from 'three';
-import { Types } from '../../ecs/types/Types';
+import { Component } from '../../ecs/classes/Component'
+import { Vector3, Quaternion, Euler } from 'three'
+import { Types } from '../../ecs/types/Types'
 
 export class TransformComponent extends Component<TransformComponent> {
   position: Vector3
@@ -19,31 +19,31 @@ export class TransformComponent extends Component<TransformComponent> {
   }
 
   constructor () {
-    super();
-    this.reset();
+    super()
+    this.reset()
   }
 
-  copy(src: { position?: Vector3, rotation?: Quaternion, scale?: Vector3, velocity?: Vector3 }): this {
+  copy (src: { position?: Vector3, rotation?: Quaternion, scale?: Vector3, velocity?: Vector3 }): this {
     if (src.position) {
-      this.position.copy(src.position);
+      this.position.copy(src.position)
     }
     if (src.rotation) {
-      this.rotation.copy(src.rotation);
+      this.rotation.copy(src.rotation)
     }
     if (src.velocity) {
-      this.velocity.copy(src.velocity);
+      this.velocity.copy(src.velocity)
     }
     if (src.scale) {
-      this.scale.copy(src.scale);
+      this.scale.copy(src.scale)
     }
 
-    return this;
+    return this
   }
 
   reset (): void {
-    this.position = new Vector3();
-    this.rotation = new Quaternion();
-    this.velocity = new Vector3();
-    this.scale = new Vector3(1,1,1);
+    this.position = new Vector3()
+    this.rotation = new Quaternion()
+    this.velocity = new Vector3()
+    this.scale = new Vector3(1, 1, 1)
   }
 }

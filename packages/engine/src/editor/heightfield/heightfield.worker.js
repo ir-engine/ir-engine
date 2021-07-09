@@ -1,5 +1,5 @@
-import { Vector3, Mesh, BufferGeometry, Raycaster, BufferAttribute, Float32BufferAttribute, Object3D, EventDispatcher } from "three";
-import { acceleratedRaycast, computeBoundsTree } from "three-mesh-bvh";
+import { Vector3, Mesh, BufferGeometry, Raycaster, BufferAttribute, Float32BufferAttribute, Object3D, EventDispatcher } from 'three'
+import { acceleratedRaycast, computeBoundsTree } from 'three-mesh-bvh'
 
 // TODO: The worker script is exported as string as a workaround to create worker with webpack and nextjs. Implement better solution.
 export default `

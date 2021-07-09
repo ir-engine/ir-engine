@@ -1,118 +1,119 @@
-import { Color, Object3D, Raycaster, Vector3 } from "three";
-import { LoadGLTF } from "../../assets/functions/LoadGLTF";
-import { TransformAxis, TransformMode } from "../../editor/controls/EditorControls";
-import cloneObject3D from "../../editor/functions/cloneObject3D";
-let gizmoGltf: { scene: any; json: any; stats: any } = null;
-const GLTF_PATH = "/editor/TransformGizmo.glb"; // STATIC
+import { Color, Object3D, Raycaster, Vector3 } from 'three'
+import { LoadGLTF } from '../../assets/functions/LoadGLTF'
+import { TransformAxis, TransformMode } from '../../editor/controls/EditorControls'
+import cloneObject3D from '../../editor/functions/cloneObject3D'
+let gizmoGltf: { scene: any, json: any, stats: any } = null
+const GLTF_PATH = '/editor/TransformGizmo.glb' // STATIC
 export default class TransformGizmo extends Object3D {
-  model: any;
-  selectionColor: Color;
-  previousColor: Color;
-  raycasterResults: any[];
-  translateControls: any;
-  translateXAxis: any;
-  translateYAxis: any;
-  translateZAxis: any;
-  translateXYPlane: any;
-  translateYZPlane: any;
-  translateXZPlane: any;
-  rotateControls: any;
-  rotateXAxis: any;
-  rotateYAxis: any;
-  rotateZAxis: any;
-  scaleControls: any;
-  scaleXAxis: any;
-  scaleYAxis: any;
-  scaleZAxis: any;
-  scaleXYPlane: any;
-  scaleYZPlane: any;
-  scaleXZPlane: any;
-  scaleUniformHandle: any;
-  transformMode: string;
-  activeControls: any;
-  selectedAxis: any;
-  hoveredAxis: any;
-  rotateOnAxis: any;
-  static async load() {
+  model: any
+  selectionColor: Color
+  previousColor: Color
+  raycasterResults: any[]
+  translateControls: any
+  translateXAxis: any
+  translateYAxis: any
+  translateZAxis: any
+  translateXYPlane: any
+  translateYZPlane: any
+  translateXZPlane: any
+  rotateControls: any
+  rotateXAxis: any
+  rotateYAxis: any
+  rotateZAxis: any
+  scaleControls: any
+  scaleXAxis: any
+  scaleYAxis: any
+  scaleZAxis: any
+  scaleXYPlane: any
+  scaleYZPlane: any
+  scaleXZPlane: any
+  scaleUniformHandle: any
+  transformMode: string
+  activeControls: any
+  selectedAxis: any
+  hoveredAxis: any
+  rotateOnAxis: any
+  static async load () {
     if (gizmoGltf) {
-      return Promise.resolve(gizmoGltf);
+      return await Promise.resolve(gizmoGltf)
     }
-    const gltf = await LoadGLTF(GLTF_PATH);
+    const gltf = await LoadGLTF(GLTF_PATH)
 
-    gizmoGltf = gltf;
+    gizmoGltf = gltf
 
-    return gizmoGltf;
+    return gizmoGltf
   }
-  constructor() {
+
+  constructor () {
     super();
-    (this as any).name = "TransformGizmo";
+    (this as any).name = 'TransformGizmo'
     if (!gizmoGltf) {
       throw new Error(
-        "TransformGizmo must be loaded before it can be used. Await TransformGizmo.load()"
-      );
+        'TransformGizmo must be loaded before it can be used. Await TransformGizmo.load()'
+      )
     }
     this.model = cloneObject3D(gizmoGltf.scene);
-    (this as any).add(this.model);
-    this.selectionColor = new Color().setRGB(1, 1, 1);
-    this.previousColor = new Color();
-    this.raycasterResults = [];
-    this.translateControls = this.model.getObjectByName("TranslateControls");
+    (this as any).add(this.model)
+    this.selectionColor = new Color().setRGB(1, 1, 1)
+    this.previousColor = new Color()
+    this.raycasterResults = []
+    this.translateControls = this.model.getObjectByName('TranslateControls')
     this.translateXAxis = this.translateControls.getObjectByName(
-      "TranslateXAxis"
-    );
+      'TranslateXAxis'
+    )
     this.translateXAxis.axisInfo = {
       axis: TransformAxis.X,
       planeNormal: new Vector3(0, 1, 0),
       selectionColorTarget: this.translateXAxis.material
-    };
+    }
     this.translateYAxis = this.translateControls.getObjectByName(
-      "TranslateYAxis"
-    );
+      'TranslateYAxis'
+    )
     this.translateYAxis.axisInfo = {
       axis: TransformAxis.Y,
       planeNormal: new Vector3(0, 0, 1),
       selectionColorTarget: this.translateYAxis.material
-    };
+    }
     this.translateZAxis = this.translateControls.getObjectByName(
-      "TranslateZAxis"
-    );
+      'TranslateZAxis'
+    )
     this.translateZAxis.axisInfo = {
       axis: TransformAxis.Z,
       planeNormal: new Vector3(0, 1, 0),
       selectionColorTarget: this.translateZAxis.material
-    };
+    }
     this.translateXYPlane = this.translateControls.getObjectByName(
-      "TranslateXYPlane"
-    );
+      'TranslateXYPlane'
+    )
     this.translateXYPlane.axisInfo = {
       axis: TransformAxis.XY,
       planeNormal: new Vector3(0, 0, 1),
       selectionColorTarget: this.translateXYPlane.material
-    };
+    }
     this.translateYZPlane = this.translateControls.getObjectByName(
-      "TranslateYZPlane"
-    );
+      'TranslateYZPlane'
+    )
     this.translateYZPlane.axisInfo = {
       axis: TransformAxis.YZ,
       planeNormal: new Vector3(1, 0, 0),
       selectionColorTarget: this.translateYZPlane.material
-    };
+    }
     this.translateXZPlane = this.translateControls.getObjectByName(
-      "TranslateXZPlane"
-    );
+      'TranslateXZPlane'
+    )
     this.translateXZPlane.axisInfo = {
       axis: TransformAxis.XZ,
       planeNormal: new Vector3(0, 1, 0),
       selectionColorTarget: this.translateXZPlane.material
-    };
-    this.rotateControls = this.model.getObjectByName("RotateControls");
-    this.rotateXAxis = this.rotateControls.getObjectByName("RotateXAxis");
-    const rotateXAxisDisk = this.rotateXAxis.getObjectByName("RotateXAxisDisk");
+    }
+    this.rotateControls = this.model.getObjectByName('RotateControls')
+    this.rotateXAxis = this.rotateControls.getObjectByName('RotateXAxis')
+    const rotateXAxisDisk = this.rotateXAxis.getObjectByName('RotateXAxisDisk')
     const rotateXAxisStart = this.rotateXAxis.getObjectByName(
-      "RotateXAxisStart"
-    );
-    const rotateXAxisEnd = this.rotateXAxis.getObjectByName("RotateXAxisEnd");
-    const localRotateXAxisStart = rotateXAxisStart.clone();
+      'RotateXAxisStart'
+    )
+    const rotateXAxisEnd = this.rotateXAxis.getObjectByName('RotateXAxisEnd')
+    const localRotateXAxisStart = rotateXAxisStart.clone()
     rotateXAxisDisk.axisInfo = {
       axis: TransformAxis.X,
       planeNormal: new Vector3(1, 0, 0),
@@ -121,14 +122,14 @@ export default class TransformGizmo extends Object3D {
       startMarkerLocal: localRotateXAxisStart,
       endMarker: rotateXAxisEnd,
       selectionColorTarget: rotateXAxisDisk.material
-    };
-    this.rotateYAxis = this.rotateControls.getObjectByName("RotateYAxis");
-    const rotateYAxisDisk = this.rotateYAxis.getObjectByName("RotateYAxisDisk");
+    }
+    this.rotateYAxis = this.rotateControls.getObjectByName('RotateYAxis')
+    const rotateYAxisDisk = this.rotateYAxis.getObjectByName('RotateYAxisDisk')
     const rotateYAxisStart = this.rotateYAxis.getObjectByName(
-      "RotateYAxisStart"
-    );
-    const rotateYAxisEnd = this.rotateYAxis.getObjectByName("RotateYAxisEnd");
-    const localRotateYAxisStart = rotateYAxisStart.clone();
+      'RotateYAxisStart'
+    )
+    const rotateYAxisEnd = this.rotateYAxis.getObjectByName('RotateYAxisEnd')
+    const localRotateYAxisStart = rotateYAxisStart.clone()
     rotateYAxisDisk.axisInfo = {
       axis: TransformAxis.Y,
       planeNormal: new Vector3(0, 1, 0),
@@ -137,14 +138,14 @@ export default class TransformGizmo extends Object3D {
       startMarkerLocal: localRotateYAxisStart,
       endMarker: rotateYAxisEnd,
       selectionColorTarget: rotateYAxisDisk.material
-    };
-    this.rotateZAxis = this.rotateControls.getObjectByName("RotateZAxis");
-    const rotateZAxisDisk = this.rotateZAxis.getObjectByName("RotateZAxisDisk");
+    }
+    this.rotateZAxis = this.rotateControls.getObjectByName('RotateZAxis')
+    const rotateZAxisDisk = this.rotateZAxis.getObjectByName('RotateZAxisDisk')
     const rotateZAxisStart = this.rotateZAxis.getObjectByName(
-      "RotateZAxisStart"
-    );
-    const rotateZAxisEnd = this.rotateZAxis.getObjectByName("RotateZAxisEnd");
-    const localRotateZAxisStart = rotateZAxisStart.clone();
+      'RotateZAxisStart'
+    )
+    const rotateZAxisEnd = this.rotateZAxis.getObjectByName('RotateZAxisEnd')
+    const localRotateZAxisStart = rotateZAxisStart.clone()
     rotateZAxisDisk.axisInfo = {
       axis: TransformAxis.Z,
       planeNormal: new Vector3(0, 0, 1),
@@ -153,162 +154,168 @@ export default class TransformGizmo extends Object3D {
       startMarkerLocal: localRotateZAxisStart,
       endMarker: rotateZAxisEnd,
       selectionColorTarget: rotateZAxisDisk.material
-    };
-    this.scaleControls = this.model.getObjectByName("ScaleControls");
-    this.scaleXAxis = this.scaleControls.getObjectByName("ScaleXAxis");
+    }
+    this.scaleControls = this.model.getObjectByName('ScaleControls')
+    this.scaleXAxis = this.scaleControls.getObjectByName('ScaleXAxis')
     this.scaleXAxis.axisInfo = {
       axis: TransformAxis.X,
       planeNormal: new Vector3(0, 0, 1),
       selectionColorTarget: this.scaleXAxis.material
-    };
-    this.scaleYAxis = this.scaleControls.getObjectByName("ScaleYAxis");
+    }
+    this.scaleYAxis = this.scaleControls.getObjectByName('ScaleYAxis')
     this.scaleYAxis.axisInfo = {
       axis: TransformAxis.Y,
       planeNormal: new Vector3(0, 0, 1),
       selectionColorTarget: this.scaleYAxis.material
-    };
-    this.scaleZAxis = this.scaleControls.getObjectByName("ScaleZAxis");
+    }
+    this.scaleZAxis = this.scaleControls.getObjectByName('ScaleZAxis')
     this.scaleZAxis.axisInfo = {
       axis: TransformAxis.Z,
       planeNormal: new Vector3(0, 1, 0),
       selectionColorTarget: this.scaleZAxis.material
-    };
-    this.scaleXYPlane = this.scaleControls.getObjectByName("ScaleXYPlane");
+    }
+    this.scaleXYPlane = this.scaleControls.getObjectByName('ScaleXYPlane')
     this.scaleXYPlane.axisInfo = {
       axis: TransformAxis.XY,
       planeNormal: new Vector3(0, 0, 1),
       selectionColorTarget: this.scaleXYPlane.material
-    };
-    this.scaleYZPlane = this.scaleControls.getObjectByName("ScaleYZPlane");
+    }
+    this.scaleYZPlane = this.scaleControls.getObjectByName('ScaleYZPlane')
     this.scaleYZPlane.axisInfo = {
       axis: TransformAxis.YZ,
       planeNormal: new Vector3(1, 0, 0),
       selectionColorTarget: this.scaleYZPlane.material
-    };
-    this.scaleXZPlane = this.scaleControls.getObjectByName("ScaleXZPlane");
+    }
+    this.scaleXZPlane = this.scaleControls.getObjectByName('ScaleXZPlane')
     this.scaleXZPlane.axisInfo = {
       axis: TransformAxis.XZ,
       planeNormal: new Vector3(0, 1, 0),
       selectionColorTarget: this.scaleXZPlane.material
-    };
+    }
     this.scaleUniformHandle = this.scaleControls.getObjectByName(
-      "ScaleUniformHandle"
-    );
+      'ScaleUniformHandle'
+    )
     this.scaleUniformHandle.axisInfo = {
       axis: TransformAxis.XYZ,
       planeNormal: new Vector3(0, 1, 0),
       selectionColorTarget: this.scaleUniformHandle.material
-    };
-    rotateXAxisStart.visible = false;
-    rotateXAxisEnd.visible = false;
-    rotateYAxisStart.visible = false;
-    rotateYAxisEnd.visible = false;
-    rotateZAxisStart.visible = false;
-    rotateZAxisEnd.visible = false;
-    this.translateControls.visible = false;
-    this.rotateControls.visible = false;
-    this.scaleControls.visible = false;
-    this.transformMode = TransformMode.Disabled;
+    }
+    rotateXAxisStart.visible = false
+    rotateXAxisEnd.visible = false
+    rotateYAxisStart.visible = false
+    rotateYAxisEnd.visible = false
+    rotateZAxisStart.visible = false
+    rotateZAxisEnd.visible = false
+    this.translateControls.visible = false
+    this.rotateControls.visible = false
+    this.scaleControls.visible = false
+    this.transformMode = TransformMode.Disabled
     this.model.traverse(obj => {
       if (obj.isMesh) {
         // obj.layers.set(1);
-        obj.material.depthTest = false;
-        obj.material.depthWrite = false;
-        obj.renderOrder = 100;
+        obj.material.depthTest = false
+        obj.material.depthWrite = false
+        obj.renderOrder = 100
       }
-    });
+    })
   }
-  setTransformMode(transformMode) {
-    this.transformMode = transformMode;
-    this.translateControls.visible = false;
-    this.rotateControls.visible = false;
-    this.scaleControls.visible = false;
+
+  setTransformMode (transformMode) {
+    this.transformMode = transformMode
+    this.translateControls.visible = false
+    this.rotateControls.visible = false
+    this.scaleControls.visible = false
     switch (transformMode) {
       case TransformMode.Translate:
-        this.translateControls.visible = true;
-        this.activeControls = this.translateControls;
-        break;
+        this.translateControls.visible = true
+        this.activeControls = this.translateControls
+        break
       case TransformMode.Rotate:
-        this.rotateControls.visible = true;
-        this.activeControls = this.rotateControls;
-        break;
+        this.rotateControls.visible = true
+        this.activeControls = this.rotateControls
+        break
       case TransformMode.Scale:
-        this.scaleControls.visible = true;
-        this.activeControls = this.scaleControls;
-        break;
+        this.scaleControls.visible = true
+        this.activeControls = this.scaleControls
+        break
       default:
-        this.selectedAxis = undefined;
-        this.activeControls = null;
-        break;
+        this.selectedAxis = undefined
+        this.activeControls = null
+        break
     }
   }
-  setLocalScaleHandlesVisible(visible) {
-    this.scaleXAxis.visible = visible;
-    this.scaleYAxis.visible = visible;
-    this.scaleZAxis.visible = visible;
-    this.scaleXYPlane.visible = visible;
-    this.scaleYZPlane.visible = visible;
-    this.scaleXZPlane.visible = visible;
+
+  setLocalScaleHandlesVisible (visible) {
+    this.scaleXAxis.visible = visible
+    this.scaleYAxis.visible = visible
+    this.scaleZAxis.visible = visible
+    this.scaleXYPlane.visible = visible
+    this.scaleYZPlane.visible = visible
+    this.scaleXZPlane.visible = visible
   }
-  selectAxisWithRaycaster(raycaster: Raycaster) {
-    this.deselectAxis();
+
+  selectAxisWithRaycaster (raycaster: Raycaster) {
+    this.deselectAxis()
     if (!this.activeControls) {
-      return undefined;
+      return undefined
     }
-    this.raycasterResults.length = 0;
-    this.raycasterResults = raycaster.intersectObject(this.activeControls, true, this.raycasterResults);
+    this.raycasterResults.length = 0
+    this.raycasterResults = raycaster.intersectObject(this.activeControls, true, this.raycasterResults)
     const axisResult = this.raycasterResults.find(
       result => result.object.axisInfo !== undefined
-    );
+    )
     if (!axisResult) {
-      return undefined;
+      return undefined
     }
-    this.selectedAxis = axisResult.object;
-    const newAxisInfo = this.selectedAxis.axisInfo;
-    this.previousColor.copy(newAxisInfo.selectionColorTarget.color);
-    newAxisInfo.selectionColorTarget.color.copy(this.selectionColor);
+    this.selectedAxis = axisResult.object
+    const newAxisInfo = this.selectedAxis.axisInfo
+    this.previousColor.copy(newAxisInfo.selectionColorTarget.color)
+    newAxisInfo.selectionColorTarget.color.copy(this.selectionColor)
     if (newAxisInfo.rotationStartObject) {
-      newAxisInfo.rotationStartObject.visible = true;
+      newAxisInfo.rotationStartObject.visible = true
     }
     if (newAxisInfo.rotationEndObject) {
-      newAxisInfo.rotationEndObject.visible = true;
+      newAxisInfo.rotationEndObject.visible = true
     }
-    return newAxisInfo.axis;
+    return newAxisInfo.axis
   }
-  highlightHoveredAxis(raycaster: Raycaster) {
+
+  highlightHoveredAxis (raycaster: Raycaster) {
     if (!this.activeControls) {
-      return undefined;
+      return undefined
     }
     if (this.hoveredAxis) {
-      this.hoveredAxis.axisInfo.selectionColorTarget.opacity = 0.5;
+      this.hoveredAxis.axisInfo.selectionColorTarget.opacity = 0.5
     }
-    this.raycasterResults.length = 0;
-    this.raycasterResults = raycaster.intersectObject(this.activeControls, true, this.raycasterResults);
+    this.raycasterResults.length = 0
+    this.raycasterResults = raycaster.intersectObject(this.activeControls, true, this.raycasterResults)
     const axisResult = this.raycasterResults.find(
       result => result.object.axisInfo !== undefined
-    );
+    )
     if (!axisResult) {
-      return undefined;
+      return undefined
     }
-    axisResult.object.axisInfo.selectionColorTarget.opacity = 1;
-    this.hoveredAxis = axisResult.object;
+    axisResult.object.axisInfo.selectionColorTarget.opacity = 1
+    this.hoveredAxis = axisResult.object
   }
-  deselectAxis() {
+
+  deselectAxis () {
     if (this.selectedAxis) {
-      const oldAxisInfo = this.selectedAxis.axisInfo;
-      oldAxisInfo.selectionColorTarget.color.copy(this.previousColor);
+      const oldAxisInfo = this.selectedAxis.axisInfo
+      oldAxisInfo.selectionColorTarget.color.copy(this.previousColor)
       if (oldAxisInfo.rotationStartObject) {
-        oldAxisInfo.rotationStartObject.visible = false;
+        oldAxisInfo.rotationStartObject.visible = false
       }
       if (oldAxisInfo.rotationEndObject) {
-        oldAxisInfo.rotationEndObject.visible = false;
+        oldAxisInfo.rotationEndObject.visible = false
       }
-      this.selectedAxis = undefined;
+      this.selectedAxis = undefined
     }
   }
-  /** @ts-ignore */
-  clone() {
+
+  /** @ts-expect-error */
+  clone () {
     // You can only have one instance of TransformControls so return a dummy object when cloning.
-    return new Object3D().copy(this);
+    return new Object3D().copy(this)
   }
 }
