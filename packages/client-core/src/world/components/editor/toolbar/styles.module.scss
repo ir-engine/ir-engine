@@ -2,12 +2,13 @@
 // used to apply styles on statsContainer
 .statsContainer {
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: 50px;
+    z-index: 1000;
+    left: 0;
     color: white;
     padding: 8px;
     text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.7);
     border-radius: 4px;
     width: 150px;
     h3 {

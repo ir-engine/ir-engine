@@ -11,7 +11,6 @@ import {
 } from "react-contextmenu/dist/react-contextmenu";
 import { Theme, ThemeContext } from "../theme";
 import { createGlobalStyle } from "styled-components";
-import { ReactNode } from "react";
 export const connectMenu = _connectMenu;
 export const MenuItem = _MenuItem;
 export const showMenu = _showMenu;

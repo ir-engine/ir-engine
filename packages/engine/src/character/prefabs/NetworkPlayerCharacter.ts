@@ -51,7 +51,9 @@ export const loadActorAvatar: Behavior = (entity) => {
   const avatarURL = getComponent(entity, CharacterComponent)?.avatarURL
   if (avatarURL) {
     loadActorAvatarFromURL(entity, avatarURL)
-  }
+  } else {
+		loadDefaultActorAvatar(entity);
+	}
 }
 
 export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
@@ -185,52 +187,45 @@ export function createNetworkPlayer (args: { parameters: { position, rotation },
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const NetworkPlayerCharacter: NetworkPrefab = {
   initialize: createNetworkPlayer,
-  // These will be created for all players on the network
-  networkComponents: [
-    // ActorComponent has values like movement speed, deceleration, jump height, etc
-    { type: CharacterComponent, data: { avatarId: DEFAULT_AVATAR_ID || 'default' } }, // TODO: add to environment
-    // Transform system applies values from transform component to three.js object (position, rotation, etc)
-    { type: TransformComponent },
-    // Local player input mapped to behaviors in the input map
-    { type: Input, data: { schema: CharacterInputSchema } },
-    { type: NamePlateComponent },
-    { type: PositionalAudioComponent },
-    {
-      type: AnimationComponent,
-      data: {
-        animationsSchema: movingAnimationSchema,
-        updateAnimationsValues: getMovementValues
-      }
-    }
-  ],
-  // These are only created for the local player who owns this prefab
-  localClientComponents: [
-    { type: LocalInputReceiver },
-    { type: FollowCameraComponent },
-    { type: Interactor },
-    { type: PersistTagComponent }
-  ],
-  clientComponents: [
-    // Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player
-    { type: InterpolationComponent }
-  ],
-  serverComponents: [],
-  onAfterCreate: [
-    {
-      behavior: initializeCharacter,
-      networked: true
-    },
-    {
-      behavior: loadDefaultActorAvatar,
-      networked: true
-    },
-    {
-      behavior: loadActorAvatar,
-      networked: true
-    }
+	// These will be created for all players on the network
+	networkComponents: [
+		// ActorComponent has values like movement speed, deceleration, jump height, etc
+		{ type: CharacterComponent, data: { avatarId: DEFAULT_AVATAR_ID || 'default' } }, // TODO: add to environment
+		// Transform system applies values from transform component to three.js object (position, rotation, etc)
+		{ type: TransformComponent },
+		// Local player input mapped to behaviors in the input map
+		{ type: Input, data: { schema: CharacterInputSchema } },
+		{ type: NamePlateComponent },
+		{ type: PositionalAudioComponent },
+		{ type: AnimationComponent, data: {
+			animationsSchema: movingAnimationSchema,
+			updateAnimationsValues: getMovementValues,
+		}}
+	],
+	// These are only created for the local player who owns this prefab
+	localClientComponents: [
+		{ type: LocalInputReceiver },
+		{ type: FollowCameraComponent },
+		{ type: Interactor },
+		{ type: PersistTagComponent }
+	],
+	clientComponents: [
+		// Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player
+		{ type: InterpolationComponent },
+	],
+	serverComponents: [],
+	onAfterCreate: [
+		{
+			behavior: initializeCharacter,
+			networked: true
+		},
+		{
+			behavior: loadActorAvatar,
+			networked: true
+		}
 
-  ],
-  onBeforeDestroy: [
+	],
+	onBeforeDestroy: [
 
-  ]
+	]
 }
