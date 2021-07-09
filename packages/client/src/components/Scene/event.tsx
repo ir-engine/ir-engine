@@ -411,8 +411,18 @@ export const EnginePage = (props: Props) => {
       ['click', 'touchstart', 'touchend', 'pointerdown'].forEach(type => {
         window.addEventListener(type, onUserEngage);
       });
-    })
+    });
 
+    ['click', 'touchstart', 'touchend', 'pointerdown'].forEach(type => {
+      window.addEventListener(type, () => {
+
+        console.log(document.querySelectorAll('video'))
+        document.querySelectorAll('video').forEach((video) => {
+          console.log('unmuting')
+          video.muted = false
+        })
+      });
+    });
 
     if (!Engine.isInitialized) {
       const initializationOptions: InitializeOptions = {

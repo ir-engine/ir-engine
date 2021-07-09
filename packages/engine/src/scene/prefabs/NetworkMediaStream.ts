@@ -46,9 +46,12 @@ export const NetworkMediaStream: NetworkPrefab = {
       // If event has already started, sync to the current time
       if (time > 0) {
         // If time is greater than duration of the video then loop the video
-        videoElement.currentTime = (time / 1000) % 2960;
+        videoElement.currentTime = (time / 1000) % 3587;
       } else {
         videoElement.currentTime = 0
+      }
+      if(!(window as any).iOS) {
+        videoElement.muted = true
       }
       videoElement.play();
 
