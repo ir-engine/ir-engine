@@ -589,7 +589,7 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
 
   render() {
     const { editorInitialized, menuOpen } = this.state as any;
-    console.log(this.state);
+
 
     if (!editorInitialized) {
       return <StyledToolbar />;
@@ -727,7 +727,7 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
             </ToggleButton>
           </ToolbarInputGroup>
           <ViewportToolbar
-            onToggleStats={()=> this.setState({showStats: !this.state.showStats})}
+            onToggleStats={()=> this.setState((prevState, pros) =>  ({ showStats: !prevState.showStats}))}
             showStats={this.state.showStats} />
         </ToolToggles>
         <Spacer />
