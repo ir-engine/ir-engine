@@ -109,7 +109,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
         // });
         this.hls = new Hls()
       }
-      await super.load(url, contentType);
+      super.load(url, contentType);
       if (isHls && this.hls) {
         this.hls.stopLoad();
       } else if ((this.el as any).duration) {

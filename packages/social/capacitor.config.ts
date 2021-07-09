@@ -4,6 +4,7 @@ const config: CapacitorConfig = {
   appId: 'com.xrengine.social',
   appName: 'com.xrengine.social',
   webDir: 'www',
+  loggingBehavior: 'none',
   plugins: {
     SplashScreen: {
       launchShowDuration: 0,

@@ -2,7 +2,6 @@ import { AnimationAction, AnimationClip, LoopOnce, LoopRepeat, MathUtils } from 
 import { delay } from "../../ecs/functions/EngineFunctions";
 import { AnimationManager } from "../AnimationManager";
 import { AnimationComponent } from "../components/AnimationComponent";
-import { CharacterComponent } from "../components/CharacterComponent";
 import { Animation, AnimationType, CalculateWeightsParams, CharacterAnimations, CharacterStates } from "./Util";
 
 /** Class to hold state of an animation for entity */
@@ -143,25 +142,25 @@ export class LoopableEmoteState extends AnimationState {
         {
             name: CharacterAnimations.DANCING_1,
             weight: 0,
-            timeScale: 0.37,
+            timeScale: 1,
             loopType: LoopRepeat,
         },
         {
             name: CharacterAnimations.DANCING_2,
             weight: 0,
-            timeScale: 0.37,
+            timeScale: 1,
             loopType: LoopRepeat,
         },
         {
             name: CharacterAnimations.DANCING_3,
             weight: 0,
-            timeScale: 0.37,
+            timeScale: 1,
             loopType: LoopRepeat,
         },
         {
             name: CharacterAnimations.DANCING_4,
             weight: 0,
-            timeScale: 0.37,
+            timeScale: 1,
             loopType: LoopRepeat,
         },
     ];
@@ -202,7 +201,7 @@ export class LoopableEmoteState extends AnimationState {
 //         {
 //             name: CharacterAnimations.CLAPPING,
 //             weight: 0,
-//             timeScale: 0.37,
+//             timeScale: 1,
 //             loopType: LoopOnce,
 //             decorateAction: function(action: AnimationAction) {
 //                 action.setLoop(this.loopType, this.loopCount);
@@ -212,7 +211,7 @@ export class LoopableEmoteState extends AnimationState {
 //         {
 //             name: CharacterAnimations.WAVE_LEFT,
 //             weight: 0,
-//             timeScale: 0.37,
+//             timeScale: 1,
 //             loopType: LoopOnce,
 //             decorateAction: function(action: AnimationAction) {
 //                 action.setLoop(this.loopType, this.loopCount);
@@ -222,7 +221,7 @@ export class LoopableEmoteState extends AnimationState {
 //         {
 //             name: CharacterAnimations.WAVE_RIGHT,
 //             weight: 0,
-//             timeScale: 0.37,
+//             timeScale: 1,
 //             loopType: LoopOnce,
 //             decorateAction: function(action: AnimationAction) {
 //                 action.setLoop(this.loopType, this.loopCount);
@@ -232,7 +231,7 @@ export class LoopableEmoteState extends AnimationState {
 //         {
 //             name: CharacterAnimations.LAUGHING,
 //             weight: 0,
-//             timeScale: 0.37,
+//             timeScale: 1,
 //             loopType: LoopOnce,
 //             decorateAction: function(action: AnimationAction) {
 //                 action.setLoop(this.loopType, this.loopCount);
@@ -328,7 +327,7 @@ export class IdleState extends AnimationState {
     type = AnimationType.VELOCITY_BASED;
     nextStates = [];
     animations: Animation[] = [
-        { name: CharacterAnimations.IDLE, weight: 1, timeScale: 0.6, loopType: LoopRepeat, loopCount: Infinity }
+        { name: CharacterAnimations.IDLE, weight: 1, timeScale: 1, loopType: LoopRepeat, loopCount: Infinity }
     ];
 
     calculateWeights = (params: CalculateWeightsParams) => {
@@ -343,10 +342,10 @@ export class WalkState extends AnimationState {
     type = AnimationType.VELOCITY_BASED;
     nextStates = [];
     animations: Animation[] = [
-        { name: CharacterAnimations.WALK_FORWARD, weight: 0, timeScale: 0.6, loopType: LoopRepeat, loopCount: Infinity },
-        { name: CharacterAnimations.WALK_BACKWARD, weight: 0, timeScale: 0.6, loopType: LoopRepeat, loopCount: Infinity },
-        { name: CharacterAnimations.WALK_STRAFE_LEFT, weight: 0, timeScale: 0.6, loopType: LoopRepeat, loopCount: Infinity },
-        { name: CharacterAnimations.WALK_STRAFE_RIGHT, weight: 0, timeScale: 0.6, loopType: LoopRepeat, loopCount: Infinity },
+        { name: CharacterAnimations.WALK_FORWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
+        { name: CharacterAnimations.WALK_BACKWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
+        { name: CharacterAnimations.WALK_STRAFE_LEFT, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
+        { name: CharacterAnimations.WALK_STRAFE_RIGHT, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
     ];
 
     calculateWeights = (params: CalculateWeightsParams): void => {
@@ -377,10 +376,10 @@ export class RunState extends AnimationState {
     type = AnimationType.VELOCITY_BASED;
     nextStates = [];
     animations: Animation[] = [
-        { name: CharacterAnimations.RUN_FORWARD, weight: 0, timeScale: 0.5, loopType: LoopRepeat, loopCount: Infinity },
-        { name: CharacterAnimations.RUN_BACKWARD, weight: 0, timeScale: 0.5, loopType: LoopRepeat, loopCount: Infinity },
-        { name: CharacterAnimations.RUN_STRAFE_LEFT, weight: 0, timeScale: 0.5, loopType: LoopRepeat, loopCount: Infinity },
-        { name: CharacterAnimations.RUN_STRAFE_RIGHT, weight: 0, timeScale: 0.5, loopType: LoopRepeat, loopCount: Infinity },
+        { name: CharacterAnimations.RUN_FORWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
+        { name: CharacterAnimations.RUN_BACKWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
+        { name: CharacterAnimations.RUN_STRAFE_LEFT, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
+        { name: CharacterAnimations.RUN_STRAFE_RIGHT, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
     ];
 
     calculateWeights = (params: CalculateWeightsParams): void => {
@@ -389,10 +388,10 @@ export class RunState extends AnimationState {
         const maxWeight = distanceFromGround ? 0.5 : 1; // In Air wieght
 
         if (velocity.x > 0) {
-            this.animations[2].weight = MathUtils.mapLinear(velocity.x, 0, 0.08, 0, maxWeight);
+            this.animations[2].weight = MathUtils.mapLinear(velocity.x, 0, 0.04, 0, maxWeight);
             this.animations[3].weight = 0;
         } else {
-            this.animations[3].weight = MathUtils.mapLinear(velocity.x, 0, -0.08, 0, maxWeight);
+            this.animations[3].weight = MathUtils.mapLinear(velocity.x, 0, -0.04, 0, maxWeight);
             this.animations[2].weight = 0;
         }
 

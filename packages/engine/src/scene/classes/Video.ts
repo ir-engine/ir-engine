@@ -46,10 +46,17 @@ export default class Video extends AudioSource {
     this._projection = "flat";
     this.hls = null;
     this.isSynced = isSynced;
+    this.el.addEventListener('play', () => {
+      console.log('video is now playing')
+    });
+    this.el.addEventListener('pause', () => {
+      console.log('video is now paused')
+    });
   }
-  loadVideo(src, contentType) {
+  loadVideo(src, contentType?) {
     return new Promise<void>((resolve, reject) => {
       const _isHLS = isHLS(src, contentType);
+      console.log(this)
       if (_isHLS) {
         if (!this.hls) {
           this.hls = new Hls();
@@ -59,62 +66,56 @@ export default class Video extends AudioSource {
             switch (data.type) {
               case Hls.ErrorTypes.NETWORK_ERROR:
                 // try to recover network error
-                console.log('fatal network error encountered, try to recover');
+                console.log('fatal network error encountered, try to recover', event, data);
                 this.hls.startLoad();
                 break;
               case Hls.ErrorTypes.MEDIA_ERROR:
-                console.log('fatal media error encountered, try to recover');
-                this.hls.recoverMediaError();
+                console.log('fatal media error encountered, try to recover', event, data);
+                // this.hls.recoverMediaError();
                 break;
               default:
                 // cannot recover
+                console.log('HLS fatal error encountered, destroying video...', event, data);
                 this.hls.destroy();
                 break;
             }
           }
         });
+        this.hls.once(Hls.Events.LEVEL_LOADED, () => { resolve() })
         this.hls.on(Hls.Events.MEDIA_ATTACHED, () => { 
           this.hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
           });
           this.hls.loadSource(src);
         })
         this.hls.attachMedia(this.el);
+      } else {
+        console.log(this.el.src)
+        if (!this.el.src) {
+          this.el.src = src;
+        }
+        console.log(this.el.src)
+        
+        const onLoadedMetadata = () => {
+          console.log('on load metadata')
+          cleanup();
+          resolve();
+        };
+        const onError = error => {
+          cleanup();
+          console.log(`Error loading video "${this.el.src}"`, error)
+          resolve()
+          // reject(
+          //   new RethrownError()
+          // );
+        };
+        const cleanup = () => {
+          this.el.removeEventListener("loadeddata", onLoadedMetadata);
+          this.el.removeEventListener("error", onError);
+        };
+        this.el.addEventListener("loadeddata", onLoadedMetadata);
+        this.el.addEventListener("error", onError);
         resolve()
       }
-      if (!this.el.src) {
-        this.el.src = src;
-      }
-      this.el.addEventListener('play', () => {
-        console.log('video is now playing')
-      });
-      this.el.addEventListener('pause', () => {
-        console.log('video is now paused')
-      });
-      if (this.isSynced) {
-        this.el.autoplay = 'none';
-        this.el.pause();
-      }
-      
-      const onLoadedMetadata = () => {
-        cleanup();
-        cleanup();
-        resolve();
-      };
-      const onError = error => {
-        cleanup();
-        console.log(`Error loading video "${this.el.src}"`, error)
-        resolve()
-        // reject(
-        //   new RethrownError()
-        // );
-      };
-      const cleanup = () => {
-        this.el.removeEventListener("loadeddata", onLoadedMetadata);
-        this.el.removeEventListener("error", onError);
-      };
-      this.el.addEventListener("loadeddata", onLoadedMetadata);
-      this.el.addEventListener("error", onError);
-      console.log(this.el)
     });
   }
   get projection() {
@@ -157,7 +158,12 @@ export default class Video extends AudioSource {
   async load(src, contentType?) {
     if(!src) return this;
     this._mesh.visible = false;
-    await this.loadVideo(src, contentType);
+    // if video is synced to UTC loadVideo is called from NetworkMediaStream prefab init as server authorises it
+    if (this.isSynced) {
+      this.el.autoplay = 'none';
+    } else {
+      await this.loadVideo(src, contentType);
+    }
     this.onResize();
     if(Engine.useAudioSystem) {
       this.audioSource = this.audioListener.context.createMediaElementSource(this.el);

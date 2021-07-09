@@ -3,7 +3,7 @@ import { applyElementArguments } from "../../worker/MessageQueue";
 
 /**
  * 
- * @author Fernando Serrano, Robert Long
+ * @author Josh Field 
  * @param type 
  * @param args 
  * @returns 

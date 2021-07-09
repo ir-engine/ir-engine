@@ -26,7 +26,7 @@ import { FollowCameraComponent } from '@xrengine/engine/src/camera/components/Fo
 import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent';
 import { ControllerColliderComponent } from '@xrengine/engine/src/character/components/ControllerColliderComponent';
 import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
+import { awaitEngaged, Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { processLocationChange, resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
@@ -398,6 +398,36 @@ export const EnginePage = (props: Props) => {
       sceneData = await client.service(service).get(serviceId);
     }
 
+    store.dispatch(setAppSpecificOnBoardingStep(GeneralStateList.AWAITING_INPUT, false));
+
+    await new Promise<void>((resolve) => {
+
+      const onUserEngage = () => {
+          ['click', 'touchstart', 'touchend', 'pointerdown'].forEach(type => {
+            window.addEventListener(type, onUserEngage);
+          });
+          resolve()
+      };
+      ['click', 'touchstart', 'touchend', 'pointerdown'].forEach(type => {
+        window.addEventListener(type, onUserEngage);
+      });
+    });
+
+    ['click', 'touchstart', 'touchend', 'pointerdown'].forEach(type => {
+      window.addEventListener(type, () => {
+
+        console.log(document.querySelectorAll('video'))
+        document.querySelectorAll('video').forEach((video) => {
+          // if not playing already
+          if(!(video.readyState > 2 && !video.paused)) {
+            console.log('unmuting and playing')
+            video.muted = false
+            video.play()
+          }
+        })
+      });
+    });
+
     if (!Engine.isInitialized) {
       const initializationOptions: InitializeOptions = {
         publicPath: location.origin,
@@ -428,7 +458,8 @@ export const EnginePage = (props: Props) => {
         const localClient = worldState.clientsConnected.find((client) => {
           return client.userId === Network.instance.userId;
         });
-        AssetLoader.load({ url: localClient.avatarDetail.avatarURL }, resolve);
+        AssetLoader.load({ url: localClient.avatarDetail.avatarURL });
+        resolve()
       });
     });
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADING));
@@ -443,7 +474,6 @@ export const EnginePage = (props: Props) => {
     });
 
     await Promise.all([connectPromise, sceneLoadPromise]);
-
     const worldState = await new Promise<any>(async (resolve) => {
       if(Config.publicRuntimeConfig.offlineMode) {
         EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId });
@@ -588,7 +618,7 @@ export const EnginePage = (props: Props) => {
   if(userBanned) return (<div className="banned">You have been banned from this location</div>);
   return isInXR ? <></> : (
       <>
-        {isValidLocation && <UserMenu   enableSharing={enableSharing}/>}
+        {isValidLocation && <UserMenu hideLogin={true} enableSharing={enableSharing}/>}
         <Snackbar open={!isValidLocation}
                   anchorOrigin={{
                     vertical: 'top',

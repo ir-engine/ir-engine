@@ -1,6 +1,6 @@
 import EditorNodeMixin from "./EditorNodeMixin";
 import { Sky } from "../../scene/classes/Sky";
-import { Color, CubeTexture, CubeTextureLoader, EquirectangularReflectionMapping, Mesh, PMREMGenerator, sRGBEncoding, Texture, TextureLoader } from "three";
+import { Color, CubeTextureLoader, Mesh, PMREMGenerator, sRGBEncoding, TextureLoader } from "three";
 
 export type SkyBoxShaderProps={
   turbidity :number,
@@ -163,12 +163,8 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
         .setPath(this.cubemapPath)
         .load([posx, negx, posy, negy, posz, negz],
         (texture) => {
-          const pmremGenerator = new PMREMGenerator(renderer);
-          const EnvMap = pmremGenerator.fromCubemap(texture).texture;
-          EnvMap.encoding = sRGBEncoding;
-          this.editor.scene.background = EnvMap;
-          texture.dispose();
-          pmremGenerator.dispose();
+          texture.encoding=sRGBEncoding;
+          this.editor.scene.background = texture;
         },
         (res)=> {
           console.log(res);
@@ -180,9 +176,9 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
         break;
 
       case SkyTypeEnum.equirectangular:
-        console.log("Setting up Equirectangular");
         new TextureLoader().load(this.equirectangularPath, (texture) => {
-          this.editor.scene.background = texture;
+          texture.encoding=sRGBEncoding;
+          this.editor.scene.background =new PMREMGenerator(this.editor.renderer.renderer).fromEquirectangular(texture).texture;
         })
         break;
       default:

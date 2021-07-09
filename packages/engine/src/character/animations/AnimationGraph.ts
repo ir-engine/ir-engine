@@ -17,7 +17,7 @@ export class AnimationGraph {
     defaultState: AnimationState;
 
     /** Precision value */
-    EPSILON = 0.001;
+    EPSILON = 0.005;
 
     /** Indicates whether the transition from one state to another is paused or not */
     isTransitionPaused: boolean;
@@ -56,7 +56,7 @@ export class AnimationGraph {
      * @param newState New state to which transition will happen
      * @param params Parameters to calculate weigths
      */
-    transitionState = (actor: CharacterComponent, animationComponent: AnimationComponent, newState: string, params: CalculateWeightsParams): void => {
+    transitionState = (animationComponent: AnimationComponent, newState: string, params: CalculateWeightsParams): void => {
         // If transition is paused the return
         if (this.isTransitionPaused) return;
 
@@ -71,9 +71,14 @@ export class AnimationGraph {
             return;
         }
 
-		// Immediately unmount previous state if any
+		// Immediately unmount previous state if any except it is same as the new state
         if (animationComponent.prevState) {
-            animationComponent.prevState.unmount(true);
+            if (animationComponent.prevState.name === newState) {
+                animationComponent.prevState.timeElapsedAfterUnmount = 0;
+                animationComponent.prevState = null;
+            } else {
+                animationComponent.prevState.unmount(true);
+            }
         }
 
         // Never unmount default state
@@ -94,7 +99,7 @@ export class AnimationGraph {
         if (animationComponent.currentState.autoTransitionTo) {
             const transitionEvent = () => {
                 this.isTransitionPaused = false;
-                this.transitionState(actor, animationComponent, animationComponent.currentState.autoTransitionTo, params);
+                this.transitionState(animationComponent, animationComponent.currentState.autoTransitionTo, params);
                 animationComponent.mixer.removeEventListener('finished', transitionEvent);
             }
             animationComponent.mixer.addEventListener('finished', transitionEvent);
@@ -118,7 +123,7 @@ export class AnimationGraph {
      */
     render = (actor: CharacterComponent, animationComponent: AnimationComponent, delta: number): void => {
         // Calculate movement fo the actor for this frame
-		    const movement = calculateMovement(actor, animationComponent, delta, this.EPSILON);
+		const movement = calculateMovement(actor, animationComponent, delta, this.EPSILON);
 
         // Check whether the velocity of the player is changed or not since last frame
         const isChanged = !animationComponent.prevVelocity.equals(movement.velocity);
@@ -126,7 +131,7 @@ export class AnimationGraph {
         // If velocity is not changed then no updated and transition will happen
         if (isChanged) {
             let newState = '';
-            if (movement.velocity.length() > this.EPSILON * 3) {
+            if (movement.velocity.length() > this.EPSILON / 3) {
                 newState = actor.isWalking ? CharacterStates.WALK : CharacterStates.RUN;
             } else {
                 newState = CharacterStates.IDLE
@@ -134,37 +139,13 @@ export class AnimationGraph {
 
             // If new state is different than current state then transit other wise update the current state
             if (animationComponent.currentState.name !== newState) {
-                animationComponent.animationGraph.transitionState(actor, animationComponent, newState, { movement });
+                animationComponent.animationGraph.transitionState(animationComponent, newState, { movement });
             } else {
                 animationComponent.currentState.update({ movement });
             }
 
             // Set velocity as prev velocity
             animationComponent.prevVelocity.copy(movement.velocity);
-        }
-
-        let prevStateWeight = 0;
-
-        // If prev state exists then unmount it gradually
-        if (animationComponent.prevState) {
-            animationComponent.prevState.timeElapsedAfterUnmount += delta;
-            animationComponent.prevState.unmount();
-
-            prevStateWeight = animationComponent.prevState.getTotalWeightsOfAnimations();
-            if (animationComponent.prevState.name !== this.defaultState.name) {
-
-                // If there is no weight in the prevState animations then remove it.
-                if (prevStateWeight <= this.EPSILON) {
-                    animationComponent.prevState = null;
-                }
-            }
-        }
-
-        // Render idle weight with default animation to prevent T pose being rendered
-        if (animationComponent.currentState.name !== this.defaultState.name) {
-            const idleWeight = 1 - (prevStateWeight + animationComponent.currentState.getTotalWeightsOfAnimations());
-            this.defaultState.animations[0].weight = idleWeight;
-            this.defaultState.update({ movement });
         }
     }
 
@@ -176,7 +157,7 @@ export class AnimationGraph {
      */
     updateNetwork = (animationComponent: AnimationComponent, newState: string, params: CalculateWeightsParams): void => {
         // Send change animation commnad over network for the local client entity
-        if (Network.instance.localClientEntity.id === animationComponent.entity.id && animationComponent.currentState.type === AnimationType.STATIC) {
+        if (Network.instance.localClientEntity?.id === animationComponent.entity.id && animationComponent.currentState.type === AnimationType.STATIC) {
             Network.instance.clientInputState.commands.push({
                 type: Commands.CHANGE_ANIMATION_STATE,
                 args: convertObjToBufferSupportedString({
@@ -184,6 +165,45 @@ export class AnimationGraph {
                     params,
                 }),
             });
+        }
+    }
+
+    /** Unmounts previous state gradually.
+     * @param animationComponent Animation component
+     * @param delta Time since last frame
+     * @returns Total weight of the previous state animation
+     */
+    unmountPrevState = (animationComponent: AnimationComponent, delta: number): number => {
+        let prevStateWeight = 0;
+
+        if (animationComponent.prevState) {
+            animationComponent.prevState.timeElapsedAfterUnmount += delta;
+            animationComponent.prevState.unmount();
+
+            prevStateWeight = animationComponent.prevState.getTotalWeightsOfAnimations();
+            if (animationComponent.prevState.name !== this.defaultState.name) {
+
+                // If there is no weight in the prevState animations then remove it.
+                if (prevStateWeight <= this.EPSILON) {
+                    animationComponent.prevState.timeElapsedAfterUnmount = 0;
+                    animationComponent.prevState = null;
+                }
+            }
+        }
+
+        return prevStateWeight;
+    }
+
+    /**
+     * Renders idle weight with default animation to prevent T pose being rendered
+     * @param animationComponent Animation component
+     * @param prevStateWeight Weight of the previous state
+     */
+    renderIdleWeight = (animationComponent: AnimationComponent, prevStateWeight: number): void => {
+        if (animationComponent.currentState.name !== this.defaultState.name) {
+            const idleWeight = Math.max(1 - (prevStateWeight + animationComponent.currentState.getTotalWeightsOfAnimations()), 0);
+            this.defaultState.animations[0].weight = idleWeight;
+            this.defaultState.update({});
         }
     }
 }

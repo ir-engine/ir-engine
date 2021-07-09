@@ -1,4 +1,4 @@
-import { Group, Quaternion, Vector3 } from "three";
+import { Quaternion, Vector3 } from "three";
 import { Controller, ControllerHitEvent, RaycastQuery, SceneQueryType } from "three-physx";
 import { isClient } from "../common/functions/isClient";
 import { EngineEvents } from "../ecs/classes/EngineEvents";
@@ -24,9 +24,7 @@ import { ServerSpawnSystem } from "../scene/systems/ServerSpawnSystem";
 import { sendClientObjectUpdate } from "../networking/functions/sendClientObjectUpdate";
 import { NetworkObjectUpdateType } from "../networking/templates/NetworkObjectUpdateSchema";
 import { updatePlayerRotationFromViewVector } from "./functions/updatePlayerRotationFromViewVector";
-import { AnimationManager } from "./AnimationManager";
 import { Object3DComponent } from "../scene/components/Object3DComponent";
-import { applyVectorMatrixXZ } from "../common/functions/applyVectorMatrixXZ";
 import { FollowCameraComponent } from "../camera/components/FollowCameraComponent";
 import { CameraSystem } from "../camera/systems/CameraSystem";
 import { DesiredTransformComponent } from "../transform/components/DesiredTransformComponent";
@@ -225,20 +223,24 @@ export class CharacterControllerSystem extends System {
     this.queryResults.animation.all?.forEach((entity) => {
       if (!isClient) return;
       const animationComponent = getMutableComponent(entity, AnimationComponent);
-  
-      const modifiedDelta = delta * animationComponent.speedMultiplier;
+
+      const modifiedDelta = delta * animationComponent.animationSpeed;
       animationComponent.mixer?.update(modifiedDelta);
     });
 
     this.queryResults.animationCharacter.all?.forEach((entity) => {
       if (!isClient) return;
-  
+
       const actor = getMutableComponent(entity, CharacterComponent);
       const animationComponent = getMutableComponent(entity, AnimationComponent);
-  
-      if (animationComponent.onlyUpdateMixerTime) return;
-  
-      animationComponent.animationGraph.render(actor, animationComponent, delta * animationComponent.speedMultiplier);
+      const deltaTime = delta * animationComponent.animationSpeed;
+
+      if (!animationComponent.onlyUpdateMixerTime) {
+        animationComponent.animationGraph.render(actor, animationComponent, deltaTime);
+      }
+
+      const prevStateWeight = animationComponent.animationGraph.unmountPrevState(animationComponent, deltaTime);
+      animationComponent.animationGraph.renderIdleWeight(animationComponent, prevStateWeight);
     });
 
 
@@ -258,7 +260,7 @@ export class CharacterControllerSystem extends System {
         xrInputSourceComponent.controllerRight, 
         xrInputSourceComponent.controllerGripRight
       );
-      
+
       xrInputSourceComponent.controllerGroup.applyQuaternion(rotate180onY);
       object3DComponent.value.add(xrInputSourceComponent.controllerGroup, xrInputSourceComponent.head);
 

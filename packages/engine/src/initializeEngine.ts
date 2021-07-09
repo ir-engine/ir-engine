@@ -300,14 +300,17 @@ export const initializeEngine = async (initOptions: InitializeOptions): Promise<
         EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, () => {
             Engine.engineTimer.start();
         });
-
         const engageType = isMobile ? 'touchstart' : 'click';
         const onUserEngage = () => {
             Engine.hasEngaged = true;
             EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.USER_ENGAGE });
-            document.removeEventListener(engageType, onUserEngage);
+            ['click', 'touchstart', 'touchend', 'pointerdown'].forEach(type => {
+              window.addEventListener(type, onUserEngage);
+            });
         };
-        document.addEventListener(engageType, onUserEngage);
+        ['click', 'touchstart', 'touchend', 'pointerdown'].forEach(type => {
+          window.addEventListener(type, onUserEngage);
+        });
 
         EngineEvents.instance.once(ClientNetworkSystem.EVENTS.CONNECT, ({ id }) => {
             Network.instance.isInitialized = true;
