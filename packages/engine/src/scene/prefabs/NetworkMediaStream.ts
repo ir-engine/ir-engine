@@ -24,7 +24,7 @@ export const NetworkMediaStream: NetworkPrefab = {
     console.log('awaiting engagement')
 
     // TODO: disabled for event
-    await awaitEngaged();
+    // await awaitEngaged();
 
     // Get time elapsed since start of the video in seconds
     const time = Math.round(Date.now() - args.parameters.startTime);

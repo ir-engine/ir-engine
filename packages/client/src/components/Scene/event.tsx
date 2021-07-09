@@ -26,7 +26,7 @@ import { FollowCameraComponent } from '@xrengine/engine/src/camera/components/Fo
 import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent';
 import { ControllerColliderComponent } from '@xrengine/engine/src/character/components/ControllerColliderComponent';
 import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter';
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine';
+import { awaitEngaged, Engine } from '@xrengine/engine/src/ecs/classes/Engine';
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents';
 import { processLocationChange, resetEngine } from "@xrengine/engine/src/ecs/functions/EngineFunctions";
 import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
@@ -446,9 +446,7 @@ export const EnginePage = (props: Props) => {
 
     store.dispatch(setAppSpecificOnBoardingStep(GeneralStateList.AWAITING_INPUT, false));
 
-    await new Promise((resolve) => {
-      document.addEventListener('click', resolve)
-    })
+    await awaitEngaged()
 
     const worldState = await new Promise<any>(async (resolve) => {
       if(Config.publicRuntimeConfig.offlineMode) {
