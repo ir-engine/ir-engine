@@ -691,7 +691,7 @@ export class Editor extends EventEmitter {
     console.log(url);
 
     let blob;
-
+5
     if (file.name.toLowerCase().endsWith(".glb")) {
       const { scene } = await LoadGLTF(url);
 

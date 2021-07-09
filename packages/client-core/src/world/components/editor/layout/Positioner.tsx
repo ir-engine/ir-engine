@@ -465,7 +465,7 @@ export function Positioner({ children, position, padding, getTargetRef, ...rest 
       /* @ts-ignore */
       const positionerContainerRect = positionerContainerRef.current.getBoundingClientRect();
       const targetRect = getTargetRef().current.getBoundingClientRect();
-      const viewportHeight = document.documentElement.clientHeight;
+      const viewportHeight = document.documentElement.height;
       const viewportWidth = document.documentElement.clientWidth;
 
       // @ts-ignore

@@ -27,7 +27,7 @@ const ScrollableElement = (props: ScrollableElementPropsType) => {
 
         const el = scrollElement.current as HTMLElement;
 
-        if (el.clientHeight >= el.scrollHeight) {
+        if (el.height >= el.scrollHeight) {
             setShadows({ top: false, bottom: false });
             return;
         }
@@ -37,7 +37,7 @@ const ScrollableElement = (props: ScrollableElementPropsType) => {
             return;
         }
 
-        if (el.scrollTop >= el.scrollHeight - el.clientHeight) {
+        if (el.scrollTop >= el.scrollHeight - el.height) {
             setShadows({ top: true, bottom: false });
             return;
         }

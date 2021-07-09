@@ -12,6 +12,7 @@ import HemisphereLightNode from "@xrengine/engine/src/editor/nodes/HemisphereLig
 import ImageNode from "@xrengine/engine/src/editor/nodes/ImageNode";
 import LinkNode from "@xrengine/engine/src/editor/nodes/LinkNode";
 import ModelNode from "@xrengine/engine/src/editor/nodes/ModelNode";
+import MapNode from "@xrengine/engine/src/editor/nodes/MapNode";
 import ParticleEmitterNode from "@xrengine/engine/src/editor/nodes/ParticleEmitterNode";
 import PointLightNode from "@xrengine/engine/src/editor/nodes/PointLightNode";
 import PostProcessingNode from "@xrengine/engine/src/editor/nodes/PostProcessingNode";
@@ -35,6 +36,7 @@ import PortalNodeEditor from "./properties/PortalNodeEditor";
 import DirectionalLightNodeEditor from "./properties/DirectionalLightNodeEditor";
 import FloorPlanNodeEditor from "./properties/FloorPlanNodeEditor";
 import GameNodeEditor from "./properties/GameNodeEditor";
+import MapNodeEditor from "./properties/MapNodeEditor";
 import GroundPlaneNodeEditor from "./properties/GroundPlaneNodeEditor";
 import GroupNodeEditor from "./properties/GroupNodeEditor";
 import HemisphereLightNodeEditor from "./properties/HemisphereLightNodeEditor";
@@ -93,6 +95,7 @@ export function createEditor(api, settings, Engine) {
   editor.registerSource(new ElementsSource(editor));
   editor.registerSource(new MyAssetsSource(editor));
   editor.registerNode(GameNode, GameNodeEditor);
+  editor.registerNode(MapNode, MapNodeEditor);
   editor.registerNode(ReflectionProbeNode,ReflectionProbeNodeEditor);
 
   return editor;
