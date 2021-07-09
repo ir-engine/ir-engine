@@ -398,6 +398,22 @@ export const EnginePage = (props: Props) => {
       sceneData = await client.service(service).get(serviceId);
     }
 
+    store.dispatch(setAppSpecificOnBoardingStep(GeneralStateList.AWAITING_INPUT, false));
+
+    await new Promise<void>((resolve) => {
+
+      const onUserEngage = () => {
+          ['click', 'touchstart', 'touchend', 'pointerdown'].forEach(type => {
+            window.addEventListener(type, onUserEngage);
+          });
+          resolve()
+      };
+      ['click', 'touchstart', 'touchend', 'pointerdown'].forEach(type => {
+        window.addEventListener(type, onUserEngage);
+      });
+    })
+
+
     if (!Engine.isInitialized) {
       const initializationOptions: InitializeOptions = {
         publicPath: location.origin,
@@ -444,11 +460,6 @@ export const EnginePage = (props: Props) => {
     });
 
     await Promise.all([connectPromise, sceneLoadPromise]);
-
-    store.dispatch(setAppSpecificOnBoardingStep(GeneralStateList.AWAITING_INPUT, false));
-
-    await awaitEngaged()
-
     const worldState = await new Promise<any>(async (resolve) => {
       if(Config.publicRuntimeConfig.offlineMode) {
         EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId });

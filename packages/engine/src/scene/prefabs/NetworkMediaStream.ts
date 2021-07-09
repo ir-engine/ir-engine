@@ -54,7 +54,9 @@ export const NetworkMediaStream: NetworkPrefab = {
 
       await delay(100)
 
-      if(elementPlaying(videoElement)) {
+      console.log(videoElement.currentTime, !videoElement.paused, !videoElement.ended, videoElement.readyState > 2)
+
+      if(videoElement.readyState > 2 && !videoElement.paused ) {
 
         // Start animation for DJ.
         const djEntity = getEntityByName(DJModelName);
