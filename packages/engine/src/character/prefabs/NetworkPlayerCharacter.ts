@@ -30,7 +30,6 @@ import { NamePlateComponent } from '../components/NamePlateComponent';
 import { PersistTagComponent } from "../../scene/components/PersistTagComponent";
 import { SkeletonUtils } from "../SkeletonUtils";
 import type { NetworkObject } from "../../networking/components/NetworkObject";
-import { CharacterAnimationGraph } from "../animations/CharacterAnimationGraph";
 
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
@@ -52,6 +51,8 @@ export const loadActorAvatar: Behavior = (entity) => {
 	const avatarURL = getComponent(entity, CharacterComponent)?.avatarURL;
 	if (avatarURL) {
 		loadActorAvatarFromURL(entity, avatarURL);
+	} else {
+		loadDefaultActorAvatar(entity);
 	}
 };
 
@@ -215,10 +216,6 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
 	onAfterCreate: [
 		{
 			behavior: initializeCharacter,
-			networked: true
-		},
-		{
-			behavior: loadDefaultActorAvatar,
 			networked: true
 		},
 		{
