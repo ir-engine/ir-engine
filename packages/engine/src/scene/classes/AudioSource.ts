@@ -48,6 +48,8 @@ export default class AudioSource extends Object3D {
       el.setAttribute('playsinline', 'true')
       el.setAttribute('webkit-playsInline', 'true')
       el.setAttribute('webkit-playsinline', 'true')
+      el.setAttribute('muted', 'true')
+
     }
 
     this.el = el;
