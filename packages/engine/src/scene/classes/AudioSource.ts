@@ -40,14 +40,14 @@ export default class AudioSource extends Object3D {
     }
 
     if (!el) {
-      el = Engine.createElement(elTag, {
-        crossOrigin: 'anonymous',
-        loop: true,
-        preload: 'none',
-        playsinline: '',
-        'webkit-playsinline': '',
-        id,
-      }) as any;
+      el = document.createElement(elTag) as any;
+      el.setAttribute('crossOrigin', 'anonymous')
+      el.setAttribute('loop', 'true')
+      el.setAttribute('preload', 'none')
+      el.setAttribute('playsInline', 'true')
+      el.setAttribute('playsinline', 'true')
+      el.setAttribute('webkit-playsInline', 'true')
+      el.setAttribute('webkit-playsinline', 'true')
     }
 
     this.el = el;
