@@ -2,9 +2,12 @@ import { Capacitor } from '@capacitor/core';
 import {XRPlugin} from "webxr-native";
 import React, { useEffect, useRef, useState } from 'react';
 import {
+    BufferGeometry,
     CameraHelper,
     Color,
     Group,
+    Line,
+    LineBasicMaterial,
     OrthographicCamera,
     PerspectiveCamera,
     Quaternion,
@@ -71,7 +74,7 @@ enum RecordingStates {
 const correctionQuaternionZ = new Quaternion().setFromAxisAngle(new Vector3(0,0,1), Math.PI/2);
 
 // TODO: return it to false
-const _DEBUG = true;
+const _DEBUG = false;
 const DEBUG_MINI_VIEWPORT_SIZE = 100;
 
 export const WebXRPlugin = ({
@@ -286,12 +289,27 @@ export const WebXRPlugin = ({
 //             const materialY = new MeshBasicMaterial({ color: 0x00ff00 });
 //             const materialZ = new MeshBasicMaterial({ color: 0x0000ff });
 //             const materialC = new MeshBasicMaterial({ color: 0xffffff });
+               const materialLine = new LineBasicMaterial({
+	              color: 0x0000ff
+             });
+
             if (!anchorRef.current) {
                 anchorRef.current = new Group();
             }
             const anchor = anchorRef.current;
             // TODO: return it to false
             anchor.visible = true;
+            var points = [];
+            let radius = 0.25;
+           
+            for(let i = 0; i <= 360; i++){
+                points.push(Math.sin(i*(Math.PI/180))*radius, Math.cos(i*(Math.PI/180))*radius, 0);
+            }
+            const geometryLine = new BufferGeometry().setFromPoints( points );
+            const line = new Line( geometryLine, materialLine );
+            anchor.add(line)
+
+
 //             anchor.add(new AxesHelper(0.3));
 //             const anchorC = new Mesh(geometry, materialC);
 //             anchor.add(anchorC);
