@@ -36,6 +36,8 @@ export const NetworkMediaStream: NetworkPrefab = {
 
     const interval = setInterval(async () => {
 
+      const time = Math.round(Date.now() - args.parameters.startTime);
+
       const video = videoComp.value as Video;
       await video.loadVideo(args.parameters.src);
 
@@ -73,7 +75,7 @@ export const NetworkMediaStream: NetworkPrefab = {
         clearInterval(interval)
       }
 
-    }, 2000)
+    }, 5000)
   },
   clientComponents: [],
   networkComponents: [],
