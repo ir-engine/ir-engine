@@ -44,10 +44,10 @@ import { setupBotHooks } from './bot/setupBotHooks'
 // @ts-expect-error
 Quaternion.prototype.toJSON = function () {
   return { x: this._x, y: this._y, z: this._z, w: this._w }
-}
-Mesh.prototype.raycast = acceleratedRaycast
-(BufferGeometry.prototype as any).disposeBoundsTree = disposeBoundsTree
-(BufferGeometry.prototype as any).computeBoundsTree = computeBoundsTree
+};
+Mesh.prototype.raycast = acceleratedRaycast;
+(BufferGeometry.prototype as any).disposeBoundsTree = disposeBoundsTree;
+(BufferGeometry.prototype as any).computeBoundsTree = computeBoundsTree;
 
 const configureClient = async (options: InitializeOptions) => {
   const canvas = configCanvasElement(options.renderer.canvasId)
@@ -177,7 +177,6 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
 
   // Input Systems
   registerSystem(UISystem, { priority: 2 }) // Free
-  registerSystem(UIPanelSystem, { priority: 2 })
   registerSystem(ActionSystem, { priority: 3 })
   registerSystem(CharacterControllerSystem, { priority: 4 })
 

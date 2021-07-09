@@ -21,7 +21,6 @@ export const VideoProjection = {
 }
 
 export default class Video extends AudioSource {
-  // @ts-expect-error
   _texture: any
   _mesh: Mesh
   _projection: string
@@ -37,7 +36,6 @@ export default class Video extends AudioSource {
     // Appending element to the body so that it can be find by document.getElementById
     document.body.appendChild(this.el)
 
-    // @ts-expect-error
     this._texture = new VideoTexture(this.el)
     this._texture.minFilter = LinearFilter
     this._texture.encoding = sRGBEncoding
@@ -49,7 +47,6 @@ export default class Video extends AudioSource {
     this._mesh.name = 'VideoMesh';
     (this as any).add(this._mesh)
     this._projection = 'flat'
-    this.hls = null
     this.el.addEventListener('play', () => {
       console.log('video is now playing')
     })

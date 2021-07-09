@@ -22,6 +22,15 @@
     "type": "git",
     "url": "git+https://github.com/XRFoundation/XREngine.git"
   },
+  "ts-standard": {
+    "ignore": [
+      "dist",
+      "node_modules",
+      "scripts",
+      "index.ts",
+      "tests"
+    ]
+  },
   "scripts": {
     "check-errors": "tsc --noemit",
     "lint": "ts-standard --fix *.ts",
