@@ -49,6 +49,7 @@ export default class AudioSource extends Object3D {
       el.setAttribute('webkit-playsInline', 'true')
       el.setAttribute('webkit-playsinline', 'true')
       el.setAttribute('muted', 'true')
+      el.muted = true;
 
     }
 
@@ -57,7 +58,7 @@ export default class AudioSource extends Object3D {
     this.audioListener = audioListener;
     this.controls = true;
     this.audioType = AudioType.PannerNode;
-    this.volume = 0.5;
+    this.volume = 1;
     // console.log('audiosource create', this)
   }
   get duration() {
@@ -67,7 +68,9 @@ export default class AudioSource extends Object3D {
     return this.el.src;
   }
   set src(src) {
-    this.load(src).catch(console.error);
+    this.load(src).catch(() => {
+      setTimeout(() => {this.load(src).catch( () => console.log("Delayed error in playback"))}, 3);
+    });
   }
   get autoPlay() {
     return this.el.autoplay;
