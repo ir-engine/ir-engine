@@ -1,47 +1,43 @@
-import Command from './Command'
-import { TransformSpace } from '../constants/TransformSpace'
-import arrayShallowEqual from '../functions/arrayShallowEqual'
-import { serializeObject3DArray, serializeEuler } from '../functions/debug'
+import Command from "./Command";
+import { TransformSpace } from "../constants/TransformSpace";
+import arrayShallowEqual from "../functions/arrayShallowEqual";
+import { serializeObject3DArray, serializeEuler } from "../functions/debug";
 export default class SetRotationMultipleCommand extends Command {
-  objects: any
-  rotation: any
-  space: any
-  oldRotations: any
-  constructor (editor, objects, rotation, space) {
-    super(editor)
-    this.objects = objects.slice(0)
-    this.rotation = rotation.clone()
-    this.space = space
-    this.oldRotations = objects.map(o => o.rotation.clone())
+  objects: any;
+  rotation: any;
+  space: any;
+  oldRotations: any;
+  constructor(editor, objects, rotation, space) {
+    super(editor);
+    this.objects = objects.slice(0);
+    this.rotation = rotation.clone();
+    this.space = space;
+    this.oldRotations = objects.map(o => o.rotation.clone());
   }
-
-  execute () {
+  execute() {
     this.editor.setRotationMultiple(
       this.objects,
       this.rotation,
       this.space,
       false
-    )
+    );
   }
-
-  shouldUpdate (newCommand) {
+  shouldUpdate(newCommand) {
     return (
       this.space === newCommand.space &&
       arrayShallowEqual(this.objects, newCommand.objects)
-    )
+    );
   }
-
-  update (command) {
-    this.rotation = command.rotation.clone()
+  update(command) {
+    this.rotation = command.rotation.clone();
     this.editor.setRotationMultiple(
       this.objects,
       command.rotation,
       this.space,
       false
-    )
+    );
   }
-
-  undo () {
+  undo() {
     for (let i = 0; i < this.objects.length; i++) {
       this.editor.setRotation(
         this.objects[i],
@@ -49,16 +45,15 @@ export default class SetRotationMultipleCommand extends Command {
         TransformSpace.Local,
         false,
         false
-      )
+      );
     }
-    this.editor.emit('objectsChanged', this.objects, 'rotation')
+    this.editor.emit("objectsChanged", this.objects, "rotation");
   }
-
-  toString () {
+  toString() {
     return `SetRotationMultipleCommand id: ${
       this.id
     } objects: ${serializeObject3DArray(
       this.objects
-    )} rotation: ${serializeEuler(this.rotation)} space: ${this.space}`
+    )} rotation: ${serializeEuler(this.rotation)} space: ${this.space}`;
   }
 }

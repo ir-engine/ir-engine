@@ -24,6 +24,7 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
+    "lint": "eslint --fix --quiet --ext .ts src/",
     "dev": "vite",
     "build": "rimraf dist && mkdir dist && ctix entrypoint ./src && node build.js",
     "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
@@ -44,6 +45,7 @@
     "browserfs": "^1.4.3",
     "cross-fetch": "^3.0.6",
     "ctix": "^0.3.1",
+    "dashjs": "^4.0.0-npm",
     "detect-browser": "^5.2.0",
     "draco3dgltf": "^1.4.1",
     "ethereal": "^2.0.4",

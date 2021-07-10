@@ -1,14 +1,14 @@
-import json from '@rollup/plugin-json'
-import resolve from '@rollup/plugin-node-resolve'
-import replace from '@rollup/plugin-replace'
-import typescript from '@rollup/plugin-typescript'
-import path from 'path'
-import nodePolyfills from 'rollup-plugin-node-polyfills'
-import scss from 'rollup-plugin-scss'
-import { defineConfig } from 'vite'
+import json from '@rollup/plugin-json';
+import resolve from '@rollup/plugin-node-resolve';
+import replace from '@rollup/plugin-replace';
+import typescript from '@rollup/plugin-typescript';
+import path from 'path';
+import nodePolyfills from 'rollup-plugin-node-polyfills';
+import scss from 'rollup-plugin-scss';
+import { defineConfig } from 'vite';
 
-const isProd = process.env.NODE_ENV === 'production'
-const extensions = ['.js', '.ts', '.tsx']
+const isProd = process.env.NODE_ENV === 'production';
+const extensions = ['.js', '.ts', '.tsx'];
 
 process.env.VITE_IS_LIB_MODE = false
 
@@ -26,21 +26,21 @@ export default defineConfig(() => {
           nodePolyfills(),
           scss({
             exclude: /node_modules/,
-            output: 'dist/index.css'
+            output: 'dist/index.css',
           }),
           json(),
           typescript({
-            tsconfig: 'tsconfig.json'
+            tsconfig: 'tsconfig.json',
           }),
           replace({
             'process.env.NODE_ENV': JSON.stringify(isProd ? 'production' : 'development'),
             preventAssignment: false
           }),
           resolve({
-            extensions
+            extensions,
           })
-        ]
+        ],
       }
     }
   }
-})
+});

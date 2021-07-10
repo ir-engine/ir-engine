@@ -1,4 +1,4 @@
-import Recast from './recast'
+import Recast from "./recast";
 
 // TODO: The worker script is exported as string as a workaround to create worker with webpack and nextjs. Implement better solution.
 export default `

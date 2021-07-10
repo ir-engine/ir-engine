@@ -1,5 +1,5 @@
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
+import { Component } from "../../ecs/classes/Component";
+import { Types } from "../../ecs/types/Types";
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -13,4 +13,4 @@ GamePlayer._schema = {
   gameName: { type: Types.String, default: null },
   role: { type: Types.String, default: null },
   uuid: { type: Types.String, default: null }
-}
+};

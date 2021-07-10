@@ -1,12 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2019",
-    "lib": [
-      "es2019",
-      "DOM",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["es2019", "DOM", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -16,12 +11,8 @@
     "noImplicitAny": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "moduleResolution": "node",
-    "typeRoots": [
-      "../packages/common/types",
-      "packages/common/types",
-      "./node_modules/@types"
-    ],
+    "moduleResolution":"node",
+    "typeRoots": ["../packages/common/types", "packages/common/types", "./node_modules/@types"],
     "sourceMap": true,
     "jsx": "react",
     "outDir": "./lib",
@@ -34,5 +25,9 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx"
-  ]
+, "../server-core/src/appconfig.ts", "../server-core/src/config.ts", "declarations.d.ts"  ]
 }
+
+
+
+

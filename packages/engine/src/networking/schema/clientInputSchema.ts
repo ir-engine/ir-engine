@@ -1,6 +1,6 @@
-import { string, float32, Model, Schema, uint32, uint8 } from '../../assets/superbuffer'
-import { Network } from '../classes/Network'
-import { NetworkClientInputInterface } from '../interfaces/WorldState'
+import { string, float32, Model, Schema, uint32, uint8 } from "../../assets/superbuffer";
+import { Network } from '../classes/Network';
+import { NetworkClientInputInterface } from "../interfaces/WorldState";
 
 /**
 * @author HydraFire <github.com/HydraFire>
@@ -10,19 +10,19 @@ export const inputKeySchema = new Schema({
   input: uint8,
   value: uint8, // float32
   lifecycleState: uint8
-})
+});
 
 export const inputAxis1DSchema = new Schema({
   input: uint8,
   value: float32,
   lifecycleState: uint8
-})
+});
 
 export const inputAxis2DSchema = new Schema({
   input: uint8,
   value: [float32],
   lifecycleState: uint8
-})
+});
 
 export const inputAxis6DOFSchema = new Schema({
   input: uint8,
@@ -34,25 +34,26 @@ export const inputAxis6DOFSchema = new Schema({
     qY: float32,
     qZ: float32,
     qW: float32
-  })
-})
+  }),
+});
+
 
 export const viewVectorSchema = new Schema({
   x: float32,
   y: float32,
   z: float32
-})
+});
 
 export const clientGameAction = new Schema({
   type: string,
   game: string,
   ownerId: string,
   uuid: string
-})
+});
 
 export const commandSchema = new Schema({
   type: uint8,
-  args: string
+  args: string,
 })
 
 /** Schema for input. */
@@ -65,29 +66,28 @@ export const inputKeyArraySchema = new Schema({
   viewVector: viewVectorSchema,
   snapShotTime: uint32,
   clientGameAction: [clientGameAction],
-  commands: [commandSchema]
-})
+  commands: [commandSchema],
+});
 
 /** Class for client input. */
 export class ClientInputModel {
   /** Model holding client input. */
   static model: Model = new Model(inputKeyArraySchema)
   /** Convert to buffer. */
-  static toBuffer (inputs: NetworkClientInputInterface): Buffer {
+  static toBuffer(inputs: NetworkClientInputInterface): Buffer {
     const packetInputs: any = {
       ...inputs,
-      snapShotTime: inputs.snapShotTime
+      snapShotTime: inputs.snapShotTime,
     }
-    return Network.instance.packetCompression ? ClientInputModel.model.toBuffer(packetInputs) : packetInputs
+    return Network.instance.packetCompression ? ClientInputModel.model.toBuffer(packetInputs) : packetInputs;
   }
-
   /** Read from buffer. */
-  static fromBuffer (buffer: Buffer): NetworkClientInputInterface {
-    const packetInputs = Network.instance.packetCompression ? ClientInputModel.model.fromBuffer(buffer) as any : buffer
+  static fromBuffer(buffer:Buffer): NetworkClientInputInterface {
+    const packetInputs = Network.instance.packetCompression ? ClientInputModel.model.fromBuffer(buffer) as any : buffer;
 
     return {
       ...packetInputs,
       snapShotTime: Number(packetInputs.snapShotTime)
-    }
+    };
   }
 }

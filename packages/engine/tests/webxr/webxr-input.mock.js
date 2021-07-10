@@ -1,7 +1,7 @@
 
 navigator.xr = {
-  requestSession: async () => new XRSesion(),
-  isSessionSupported: async () => true
+  requestSession: async () => new XRSesion,
+  isSessionSupported: async () => true,
 }
 
 /*

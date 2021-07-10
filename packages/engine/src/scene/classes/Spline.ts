@@ -1,210 +1,252 @@
-import {
-  Vector3,
-  BufferGeometry,
-  BufferAttribute,
-  CatmullRomCurve3, Line, LineBasicMaterial,
-  Object3D
-} from 'three'
-import SplineHelperNode from '../../editor/nodes/SplineHelperNode'
-import { removeElementFromArray } from '@xrengine/engine/src/editor/functions/utils'
+import { 
+	Vector3,
+	BufferGeometry,
+	BufferAttribute,
+	CatmullRomCurve3, Line, LineBasicMaterial,
+	Object3D
+  } from "three";
+import SplineHelperNode from "../../editor/nodes/SplineHelperNode";
+import { removeElementFromArray } from "@xrengine/engine/src/editor/functions/utils";
+
 
 export default class Spline extends Object3D {
-  ARC_SEGMENTS = 200
-  INIT_POINTS_COUNT = 2
+	ARC_SEGMENTS = 200;
+	INIT_POINTS_COUNT = 2;
 
-  _splineHelperObjects = []
-  _splinePointsLength = this.INIT_POINTS_COUNT
-  _positions = []
-  _point = new Vector3()
+	_splineHelperObjects = [];
+	_splinePointsLength = this.INIT_POINTS_COUNT;
+	_positions = [];
+	_point = new Vector3();
 
-  _splines = {} as any
-  editor: any
+	_splines = {} as any;
+	editor: any;
 
-  _editor = null
+	_editor = null;
 
-  constructor () {
-    super()
-  }
+	constructor() {
+		super();
+	}
 
-  init (editor = null, loadedSplinePositions = null) {
-    /*******
-     * Curves
-     *********/
+	init(editor = null, loadedSplinePositions = null) {
+		
+		/*******
+		 * Curves
+		 *********/
 
-    console.log('Spline Init')
+		console.log("Spline Init");
 
-    if (loadedSplinePositions != null) {
-      this._splinePointsLength = loadedSplinePositions.length
-    }
+		if(loadedSplinePositions != null) {
+			this._splinePointsLength = loadedSplinePositions.length;
+		}
 
-    this._editor = editor
+		this._editor = editor;
 
-    for (let i = 0; i < this._splinePointsLength; i++) {
-      this.addSplineObject(this._positions[i])
-    }
+		for ( let i = 0; i < this._splinePointsLength; i ++ ) {
 
-    this._positions.length = 0
+			this.addSplineObject( this._positions[ i ] );
 
-    for (let i = 0; i < this._splinePointsLength; i++) {
-      this._positions.push(this._splineHelperObjects[i].position)
-    }
+		}
 
-    const geometry = new BufferGeometry()
-    geometry.setAttribute('position', new BufferAttribute(new Float32Array(this.ARC_SEGMENTS * 3), 3))
+		this._positions.length = 0;
 
-    const catmullRomCurve3 = new CatmullRomCurve3(this._positions)
-    // curve.curveType = 'catmullrom';
-    const curveMesh = new Line(geometry.clone(), new LineBasicMaterial({
-      color: 0xff0000,
-      opacity: 0.35
-    }))
-    curveMesh.castShadow = true
+		for ( let i = 0; i < this._splinePointsLength; i ++ ) {
 
-    const spline = {
-      curve: catmullRomCurve3,
-      mesh: curveMesh
-    }
+			this._positions.push( this._splineHelperObjects[ i ].position );
 
-    this._splines.uniform = spline
+		}
 
-    // curve = new CatmullRomCurve3( this._positions );
-    // curve.curveType = 'centripetal';
-    // curve.mesh = new Line( geometry.clone(), new LineBasicMaterial( {
-    //   color: 0x00ff00,
-    //   opacity: 0.35
-    // } ) );
-    // curve.mesh.castShadow = true;
-    // this._splines.centripetal = curve;
+		const geometry = new BufferGeometry();
+		geometry.setAttribute( 'position', new BufferAttribute( new Float32Array( this.ARC_SEGMENTS * 3 ), 3 ) );
 
-    // curve = new CatmullRomCurve3( this._positions );
-    // curve.curveType = 'chordal';
-    // curve.mesh = new Line( geometry.clone(), new LineBasicMaterial( {
-    //   color: 0x0000ff,
-    //   opacity: 0.35
-    // } ) );
-    // curve.mesh.castShadow = true;
-    // this._splines.chordal = curve;
+		const catmullRomCurve3 = new CatmullRomCurve3( this._positions );
+		// curve.curveType = 'catmullrom';
+		const curveMesh = new Line( geometry.clone(), new LineBasicMaterial( {
+			color: 0xff0000,
+			opacity: 0.35
+		} ) );
+		curveMesh.castShadow = true;
 
-    for (const k in this._splines) {
-      const spline = this._splines[k]
-      spline.mesh.layers.set(1)
-      super.add(spline.mesh)
-    }
+		const spline = {
+			curve: catmullRomCurve3,
+			mesh: curveMesh,
+		}
 
-    if (loadedSplinePositions != null) {
-      this.load(loadedSplinePositions)
-    } else {
-      this.load([new Vector3(0, 0.514, 0.10018915737797), new Vector3(1.56300074753207, 1.49711742836848, 1.495472686253045)])
-    }
-  }
+		this._splines.uniform = spline;
 
-  getCurrentSplineHelperObjects () {
-    return this._splineHelperObjects
-  }
+		// curve = new CatmullRomCurve3( this._positions );
+		// curve.curveType = 'centripetal';
+		// curve.mesh = new Line( geometry.clone(), new LineBasicMaterial( {
+		// 	color: 0x00ff00,
+		// 	opacity: 0.35
+		// } ) );
+		// curve.mesh.castShadow = true;
+		// this._splines.centripetal = curve;
 
-  addSplineObject (position = null) {
-    const splineHelperNode = new SplineHelperNode(this._editor, this)
-    const object = splineHelperNode
+		// curve = new CatmullRomCurve3( this._positions );
+		// curve.curveType = 'chordal';
+		// curve.mesh = new Line( geometry.clone(), new LineBasicMaterial( {
+		// 	color: 0x0000ff,
+		// 	opacity: 0.35
+		// } ) );
+		// curve.mesh.castShadow = true;
+		// this._splines.chordal = curve;
 
-    if (position) {
-      object.position.copy(position)
-    } else {
-      object.position.x = Math.random() * 10 - 5
-      object.position.y = Math.random() * 6
-      object.position.z = Math.random() * 8 - 4
-    }
+		for ( const k in this._splines ) {
 
-    object.castShadow = true
-    object.receiveShadow = true
-    // super.add( object );
-    this._splineHelperObjects.push(object)
-    return object
-  }
+			const spline = this._splines[ k ];
+			spline.mesh.layers.set(1);
+			super.add( spline.mesh );
 
-  addPoint () {
-    this._splinePointsLength++
+		}
 
-    const newSplineObject = this.addSplineObject()
-    this._positions.push(newSplineObject.position)
+		if(loadedSplinePositions != null) {
+			this.load(loadedSplinePositions);
+		}
+		else {
+			this.load( [ new Vector3( 0, 0.514, 0.10018915737797 ), new Vector3( 1.56300074753207, 1.49711742836848, 1.495472686253045 )] );	
+		}
+	}
 
-    this.updateSplineOutline()
+	getCurrentSplineHelperObjects() {
+		return this._splineHelperObjects;
+	}
 
-    return newSplineObject
-  }
+	addSplineObject( position = null ) {
 
-  removeLastPoint () {
-    if (this._splinePointsLength <= this.INIT_POINTS_COUNT) {
-      return
-    }
+		const splineHelperNode = new SplineHelperNode(this._editor, this);
+		const object = splineHelperNode;
 
-    const point = this._splineHelperObjects.pop()
-    this._splinePointsLength--
-    this._positions.pop()
+		if ( position ) {
 
-    // super.remove( point );
+			object.position.copy( position );
 
-    this.updateSplineOutline()
-  }
+		} else {
 
-  removePoint (splineHelperNode) {
-    if (this._splinePointsLength <= this.INIT_POINTS_COUNT) {
-      return
-    }
+			object.position.x = Math.random() * 10 - 5;
+			object.position.y = Math.random() * 6;
+			object.position.z = Math.random() * 8 - 4;
 
-    removeElementFromArray(this._splineHelperObjects, splineHelperNode)
-    this._splinePointsLength--
+		}
 
-    removeElementFromArray(this._positions, splineHelperNode.position)
+		object.castShadow = true;
+		object.receiveShadow = true;
+		// super.add( object );
+		this._splineHelperObjects.push( object );
+		return object;
 
-    // This is done from onRemove of editor
-    // super.remove( splineHelperNode );
+	}
 
-    this.updateSplineOutline()
-  }
+	addPoint() {
 
-  updateSplineOutline () {
-    for (const k in this._splines) {
-      const spline = this._splines[k]
+		this._splinePointsLength ++;
 
-      const splineMesh = spline.mesh
-      const position = splineMesh.geometry.attributes.position
+		const newSplineObject = this.addSplineObject();
+		this._positions.push( newSplineObject.position );
 
-      const splineCurve = spline.curve
+		this.updateSplineOutline();
 
-      for (let i = 0; i < this.ARC_SEGMENTS; i++) {
-        const t = i / (this.ARC_SEGMENTS - 1)
-        splineCurve.getPoint(t, this._point)
-        position.setXYZ(i, this._point.x, this._point.y, this._point.z)
-      }
+		return newSplineObject;
+	}
 
-      position.needsUpdate = true
-    }
-  }
+	removeLastPoint() {
 
-  exportSpline () {
-    const strplace = []
+		if ( this._splinePointsLength <= this.INIT_POINTS_COUNT ) {
 
-    for (let i = 0; i < this._splinePointsLength; i++) {
-      const p = this._splineHelperObjects[i].position
-      strplace.push(p)
-    }
+			return;
 
-    return strplace
-  }
+		}
 
-  load (new_positions) {
-    while (new_positions.length > this._positions.length) {
-      this.addPoint()
-    }
+		const point = this._splineHelperObjects.pop();
+		this._splinePointsLength --;
+		this._positions.pop();
 
-    while (new_positions.length < this._positions.length) {
-      this.removeLastPoint()
-    }
+		// super.remove( point );
 
-    for (let i = 0; i < this._positions.length; i++) {
-      this._positions[i].copy(new_positions[i])
-    }
+		this.updateSplineOutline();
 
-    this.updateSplineOutline()
-  }
+	}
+
+	removePoint(splineHelperNode) {
+
+		if ( this._splinePointsLength <= this.INIT_POINTS_COUNT ) {
+	
+			return;
+
+		}
+
+		removeElementFromArray(this._splineHelperObjects, splineHelperNode);
+		this._splinePointsLength --;
+
+		removeElementFromArray(this._positions, splineHelperNode.position);
+
+		// This is done from onRemove of editor
+		// super.remove( splineHelperNode );
+
+		this.updateSplineOutline();
+
+	}
+
+	updateSplineOutline() {
+
+		for ( const k in this._splines ) {
+
+			const spline = this._splines[ k ];
+
+			const splineMesh = spline.mesh;
+			const position = splineMesh.geometry.attributes.position;
+
+			const splineCurve = spline.curve;
+
+			for ( let i = 0; i < this.ARC_SEGMENTS; i ++ ) {
+
+				const t = i / ( this.ARC_SEGMENTS - 1 );
+				splineCurve.getPoint( t, this._point );
+				position.setXYZ( i, this._point.x, this._point.y, this._point.z );
+
+			}
+
+			position.needsUpdate = true;
+
+		}
+
+	}
+
+	exportSpline() {
+
+		const strplace = [];
+
+		for ( let i = 0; i < this._splinePointsLength; i ++ ) {
+
+			const p = this._splineHelperObjects[ i ].position;
+			strplace.push(p);
+
+		}
+
+		return strplace;
+
+	}
+
+	load( new_positions ) {
+
+		while ( new_positions.length > this._positions.length ) {
+
+			this.addPoint();
+
+		}
+
+		while ( new_positions.length < this._positions.length ) {
+
+			this.removeLastPoint();
+
+		}
+
+		for ( let i = 0; i < this._positions.length; i ++ ) {
+
+			this._positions[ i ].copy( new_positions[ i ] );
+
+		}
+
+		this.updateSplineOutline();
+
+	}
 }
