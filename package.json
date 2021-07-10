@@ -46,6 +46,7 @@
     "dev": "lerna run dev --parallel",
     "test": "jest",
     "lint": "lerna run --ignore @xrengine/bot lint",
+    "format": "lerna run --ignore @xrengine/bot format",
     "version-increment": "lerna version --conventional-commits --yes",
     "version-increment-no-tag": "lerna version --conventional-commits --yes --no-git-tag-version",
     "publish": "lerna publish from-package --yes",
