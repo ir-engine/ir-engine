@@ -71,7 +71,7 @@
     "@feathersjs/socketio-client": "5.0.0-pre.4",
     "@feathersjs/transport-commons": "5.0.0-pre.4",
     "@xrengine/server-core": "^0.3.31",
-    "aws-sdk": "2.942.0",
+    "aws-sdk": "2.943.0",
     "bent": "7.3.12",
     "chargebee": "2.6.5",
     "comlink": "4.3.1",
@@ -120,7 +120,7 @@
   },
   "devDependencies": {
     "@types/compression": "1.7.1",
-    "@types/cors": "2.8.11",
+    "@types/cors": "2.8.12",
     "@types/node": "14.17.5",
     "@types/serve-favicon": "2.5.3",
     "@typescript-eslint/eslint-plugin": "4.28.2",
@@ -129,7 +129,7 @@
     "cross-env": "7.0.3",
     "eslint": "7.30.0",
     "no-master-commits": "1.1.1",
-    "ts-node": "10.0.0",
+    "ts-node": "10.1.0",
     "typedoc": "0.21.2",
     "typescript": "4.3.5"
   },
