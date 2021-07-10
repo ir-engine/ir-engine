@@ -92,13 +92,13 @@ export default class Video extends AudioSource {
         })
         this.hls.attachMedia(this.el);
       } else if (isDash(src, contentType)) {
-        const { MediaPlayer } = await import('dashjs')
-        this.dash = MediaPlayer().create();
-        this.dash.initialize(this.el, src, this.autoPlay)
-        this.dash.on('ERROR', (e) => {
-          console.log('ERROR', e)
-        })
-        resolve()
+        // const { MediaPlayer } = await import('dashjs')
+        // this.dash = MediaPlayer().create();
+        // this.dash.initialize(this.el, src, this.autoPlay)
+        // this.dash.on('ERROR', (e) => {
+        //   console.log('ERROR', e)
+        // })
+        // resolve()
       } else {
         if (!this.el.src) {
           this.el.src = src;
