@@ -18,7 +18,6 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "jsx": "react",
-    "semicolon": [true, "never"],
     "isolatedModules": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
