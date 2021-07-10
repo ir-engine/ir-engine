@@ -1,9 +1,9 @@
-import { BinaryValue } from "../../common/enums/BinaryValue";
+import { BinaryValue } from '../../common/enums/BinaryValue'
 
-type isEquipped = BinaryValue;
-type equippedEntityId = number;
+type isEquipped = BinaryValue
+type equippedEntityId = number
 
-export type EquippedStateUpdateSchema = [isEquipped, equippedEntityId?];
+export type EquippedStateUpdateSchema = [isEquipped, equippedEntityId?]
 
 export enum EquippableAttachmentPoint {
   HEAD,

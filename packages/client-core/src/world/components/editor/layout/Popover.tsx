@@ -1,61 +1,61 @@
-import React, { useRef, useState, useCallback } from "react";
-import PropTypes from "prop-types";
-import Portal from "./Portal";
-import Positioner from "./Positioner";
-import Overlay from "./Overlay";
+import React, { useRef, useState, useCallback } from 'react'
+import PropTypes from 'prop-types'
+import Portal from './Portal'
+import Positioner from './Positioner'
+import Overlay from './Overlay'
 
 /**
- * 
+ *
  * @author Robert Long
  * @param {any} children
- * @param {any} padding  
+ * @param {any} padding
  * @param {any} position
  * @param {any} renderContent
  * @param {any} disabled
- * @param {any} rest 
- * @returns 
+ * @param {any} rest
+ * @returns
  */
 export function Popover({ children, padding, position, renderContent, disabled, ...rest }) {
-  const popoverTriggerRef = useRef();
-  const [isOpen, setIsOpen] = useState(false);
+  const popoverTriggerRef = useRef()
+  const [isOpen, setIsOpen] = useState(false)
 
   /**
-   * 
+   *
    * @author Robert Long
    */
   const onOpen = useCallback(() => {
     if (!disabled) {
-      setIsOpen(true);
+      setIsOpen(true)
     }
-  }, [setIsOpen, disabled]);
+  }, [setIsOpen, disabled])
 
   /**
-   * 
+   *
    * @author Robert Long
    */
   const onClose = useCallback(
-    e => {
-      setIsOpen(false);
-      e.stopPropagation();
+    (e) => {
+      setIsOpen(false)
+      e.stopPropagation()
     },
     [setIsOpen]
-  );
+  )
 
   /**
-   * 
+   *
    * @author Robert Long
    */
-  const onPreventClose = useCallback(e => {
-    e.stopPropagation();
-  }, []);
+  const onPreventClose = useCallback((e) => {
+    e.stopPropagation()
+  }, [])
 
   /**
-   * 
+   *
    * @author Robert Long
    */
   const getTargetRef = useCallback(() => {
-    return popoverTriggerRef;
-  }, [popoverTriggerRef]);
+    return popoverTriggerRef
+  }, [popoverTriggerRef])
 
   return (
     <div ref={popoverTriggerRef} onClick={onOpen} {...rest}>
@@ -69,7 +69,7 @@ export function Popover({ children, padding, position, renderContent, disabled, 
         </Portal>
       )}
     </div>
-  );
+  )
 }
 
 Popover.propTypes = {
@@ -78,5 +78,5 @@ Popover.propTypes = {
   padding: PropTypes.number,
   position: PropTypes.string,
   renderContent: PropTypes.func.isRequired
-};
-export default Popover;
+}
+export default Popover

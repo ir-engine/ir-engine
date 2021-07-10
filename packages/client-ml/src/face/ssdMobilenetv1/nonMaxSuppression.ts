@@ -7,23 +7,19 @@ export function nonMaxSuppression(
   iouThreshold: number,
   scoreThreshold: number
 ): number[] {
-
   const numBoxes = boxes.shape[0]
-  const outputSize = Math.min(
-    maxOutputSize,
-    numBoxes
-  )
+  const outputSize = Math.min(maxOutputSize, numBoxes)
 
   const candidates = scores
     .map((score, boxIndex) => ({ score, boxIndex }))
-    .filter(c => c.score > scoreThreshold)
+    .filter((c) => c.score > scoreThreshold)
     .sort((c1, c2) => c2.score - c1.score)
 
-  const suppressFunc = (x: number) => x <= iouThreshold ? 1 : 0
+  const suppressFunc = (x: number) => (x <= iouThreshold ? 1 : 0)
 
   const selected: number[] = []
 
-  candidates.forEach(c => {
+  candidates.forEach((c) => {
     if (selected.length >= outputSize) {
       return
     }
@@ -68,7 +64,6 @@ function IOU(boxes: tf.Tensor2D, i: number, j: number) {
   const intersectionYmax = Math.min(ymaxI, ymaxJ)
   const intersectionXmax = Math.min(xmaxI, xmaxJ)
   const intersectionArea =
-      Math.max(intersectionYmax - intersectionYmin, 0.0) *
-      Math.max(intersectionXmax - intersectionXmin, 0.0)
+    Math.max(intersectionYmax - intersectionYmin, 0.0) * Math.max(intersectionXmax - intersectionXmin, 0.0)
   return intersectionArea / (areaI + areaJ - intersectionArea)
 }

@@ -1,38 +1,38 @@
 // import * as authentication from '@feathersjs/authentication'
-import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query';
-import addAssociations from '@xrengine/server-core/src/hooks/add-associations';
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics';
-import { HookContext } from '@feathersjs/feathers';
-import * as authentication from '@feathersjs/authentication';
+import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
+import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
+import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
+import { HookContext } from '@feathersjs/feathers'
+import * as authentication from '@feathersjs/authentication'
 
 const logRequest = (options = {}) => {
   return async (context: HookContext): Promise<HookContext> => {
-    const { data, params } = context;
-    if(context.error){
-      console.log("***** Error");
-      console.log(context.error);
+    const { data, params } = context
+    if (context.error) {
+      console.log('***** Error')
+      console.log(context.error)
     }
-    const body = params.body || {};
-    console.log(body);
-    return context;
-  };
-};
+    const body = params.body || {}
+    console.log(body)
+    return context
+  }
+}
 
-function processCollectionEntities (collection: any): any {
-  const entitesObject: { [key: string]: any } = {};
-  const collectionJson = collection.toJSON();
-  let rootEntity: any = null;
+function processCollectionEntities(collection: any): any {
+  const entitesObject: { [key: string]: any } = {}
+  const collectionJson = collection.toJSON()
+  let rootEntity: any = null
   collectionJson.entities.forEach((entity: any) => {
     if (entity.parent === null) {
-      delete entity.parent;
-      delete entity.index;
-      rootEntity = entity;
+      delete entity.parent
+      delete entity.index
+      rootEntity = entity
     }
-    entitesObject[entity.entityId] = entity;
-  });
-  collectionJson.root = rootEntity?.entityId;
-  collectionJson.entities = entitesObject;
-  return collectionJson;
+    entitesObject[entity.entityId] = entity
+  })
+  collectionJson.root = rootEntity?.entityId
+  collectionJson.entities = entitesObject
+  return collectionJson
 }
 
 /* function processCollectionsEntities () {
@@ -42,11 +42,11 @@ function processCollectionEntities (collection: any): any {
   }
 } */
 
-const { authenticate } = authentication.hooks;
+const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [collectAnalytics(), authenticate('jwt')], /* authenticate('jwt') */
+    all: [collectAnalytics(), authenticate('jwt')] /* authenticate('jwt') */,
     find: [
       attachOwnerIdInQuery('userId'),
       addAssociations({
@@ -89,8 +89,8 @@ export default {
     ],
     get: [
       (context: HookContext): HookContext => {
-        context.result = processCollectionEntities(context.result);
-        return context;
+        context.result = processCollectionEntities(context.result)
+        return context
       }
     ],
     create: [],
@@ -108,4 +108,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}

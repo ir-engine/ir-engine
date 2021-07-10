@@ -1,10 +1,9 @@
-import { isValidNumber } from '../utils';
-import { IBoundingBox } from './BoundingBox';
-import { Box } from './Box';
-import { IRect } from './Rect';
+import { isValidNumber } from '../utils'
+import { IBoundingBox } from './BoundingBox'
+import { Box } from './Box'
+import { IRect } from './Rect'
 
 export class LabeledBox extends Box<LabeledBox> {
-
   public static assertIsValidLabeledBox(box: any, callee: string) {
     Box.assertIsValidBox(box, callee)
 
@@ -20,6 +19,7 @@ export class LabeledBox extends Box<LabeledBox> {
     this._label = label
   }
 
-  public get label(): number { return this._label }
-
+  public get label(): number {
+    return this._label
+  }
 }

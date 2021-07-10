@@ -24,7 +24,6 @@
  */
 
 export const BlendFunction = {
-
   SKIP: 0,
   ADD: 1,
   ALPHA: 2,
@@ -44,5 +43,4 @@ export const BlendFunction = {
   SCREEN: 16,
   SOFT_LIGHT: 17,
   SUBTRACT: 18
-
-};
+}

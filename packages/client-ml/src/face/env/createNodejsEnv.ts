@@ -1,28 +1,29 @@
-import { createFileSystem } from './createFileSystem';
-import { Environment } from './types';
+import { createFileSystem } from './createFileSystem'
+import { Environment } from './types'
 
 export function createNodejsEnv(): Environment {
-
   const Canvas = global['Canvas'] || global['HTMLCanvasElement']
   const Image = global['Image'] || global['HTMLImageElement']
 
-  const createCanvasElement = function() {
+  const createCanvasElement = function () {
     if (Canvas) {
       return new Canvas()
     }
     throw new Error('createCanvasElement - missing Canvas implementation for nodejs environment')
   }
 
-  const createImageElement = function() {
+  const createImageElement = function () {
     if (Image) {
       return new Image()
     }
     throw new Error('createImageElement - missing Image implementation for nodejs environment')
   }
 
-  const fetch = global['fetch'] || function() {
-    throw new Error('fetch - missing fetch implementation for nodejs environment')
-  }
+  const fetch =
+    global['fetch'] ||
+    function () {
+      throw new Error('fetch - missing fetch implementation for nodejs environment')
+    }
 
   const fileSystem = createFileSystem()
 

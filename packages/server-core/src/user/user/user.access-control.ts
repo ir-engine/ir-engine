@@ -1,6 +1,6 @@
 /**
- * @Object which declare permission of user based 
- * on their role  
+ * @Object which declare permission of user based
+ * on their role
  */
 
 const accessControls = {
@@ -25,6 +25,6 @@ const accessControls = {
     updateScope: 'none',
     deleteScope: 'none'
   }
-};
+}
 
-export default accessControls;
+export default accessControls

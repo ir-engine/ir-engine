@@ -1,8 +1,7 @@
-import React from 'react';
+import React from 'react'
 
-import { GithubCallback } from '@xrengine/client-core/src/user/components/Oauth/GithubCallback';
+import { GithubCallback } from '@xrengine/client-core/src/user/components/Oauth/GithubCallback'
 
-export const GithubHomePage = () => <GithubCallback />;
+export const GithubHomePage = () => <GithubCallback />
 
-export default GithubHomePage;
-
+export default GithubHomePage

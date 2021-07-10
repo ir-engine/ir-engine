@@ -1,17 +1,17 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { withEditor } from "../contexts/EditorContext";
-import DefaultNodeEditor from "./DefaultNodeEditor";
-import styled from "styled-components";
-import TransformPropertyGroup from "./TransformPropertyGroup";
-import NameInputGroup from "./NameInputGroup";
-import InputGroup from "../inputs/InputGroup";
-import BooleanInput from "../inputs/BooleanInput";
-import { withTranslation } from "react-i18next";
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import { withEditor } from '../contexts/EditorContext'
+import DefaultNodeEditor from './DefaultNodeEditor'
+import styled from 'styled-components'
+import TransformPropertyGroup from './TransformPropertyGroup'
+import NameInputGroup from './NameInputGroup'
+import InputGroup from '../inputs/InputGroup'
+import BooleanInput from '../inputs/BooleanInput'
+import { withTranslation } from 'react-i18next'
 
 /**
  * StyledNodeEditor used as wrapper container element properties container.
- * 
+ *
  * @author Robert Long
  * @type {styled component}
  */
@@ -19,19 +19,18 @@ const StyledNodeEditor = (styled as any).div`
   display: flex;
   flex: 1;
   flex-direction: column;
-`;
+`
 
 /**
  * PropertiesHeader used as a wrapper for NameInputGroupContainer component.
- * 
+ *
  * @author Robert Long
  */
 const PropertiesHeader = (styled as any).div`
-  background-color: ${props => props.theme.panel2};
+  background-color: ${(props) => props.theme.panel2};
   border: none !important;
   padding-bottom: 0 !important;
-`;
-
+`
 
 /**
  * NameInputGroupContainer used to provides styles and contains NameInputGroup and VisibleInputGroup.
@@ -44,10 +43,10 @@ const NameInputGroupContainer = (styled as any).div`
   flex-flow: row wrap;
   align-items: flex-start;
   padding: 8px 0;
-`;
+`
 /**
  * Styled component used to provide styles for visiblity checkbox.
- * 
+ *
  * @author Robert Long
  */
 const VisibleInputGroup = (styled as any)(InputGroup)`
@@ -58,14 +57,14 @@ const VisibleInputGroup = (styled as any)(InputGroup)`
     width: auto !important;
     padding-right: 8px;
   }
-`;
+`
 
 /**
  * Styled component used to provide styles for visiblity checkbox.
- * 
+ *
  * @author Robert Long
  */
- const PersistInputGroup = (styled as any)(InputGroup)`
+const PersistInputGroup = (styled as any)(InputGroup)`
  display: flex;
  flex: 0;
 
@@ -73,11 +72,11 @@ const VisibleInputGroup = (styled as any)(InputGroup)`
    width: auto !important;
    padding-right: 8px;
  }
-`;
+`
 
 /**
  * PropertiesPanelContent used as container element contains content of editor view.
- * 
+ *
  * @author Robert Long
  * @type {Styled Component}
  */
@@ -87,11 +86,11 @@ const PropertiesPanelContent = (styled as any).div`
   flex: 1;
   overflow-y: auto;
   height: 100%;
-`;
+`
 
 /**
  * NoNodeSelectedMessage used to show the message when no selected no is there.
- * 
+ *
  * @author Robert Long
  * @type {Styled component}
  */
@@ -100,127 +99,129 @@ const NoNodeSelectedMessage = (styled as any).div`
   justify-content: center;
   align-items: center;
   height: 100%;
-`;
+`
 
 /**
  * PropertiesPanelContainer used to render editor view to customize property of selected element.
- * 
+ *
  * @author Robert Long
  * @extends Component
  */
-class PropertiesPanelContainer extends Component<{t: Function}> {
+class PropertiesPanelContainer extends Component<{ t: Function }> {
   static propTypes = {
     editor: PropTypes.object
-  };
+  }
 
   //setting the props and state
   constructor(props) {
-    super(props);
+    super(props)
 
     this.state = {
       selected: props.editor.selected
-    };
+    }
   }
 
   // adding listeners when component get mounted
   componentDidMount() {
-    const editor = (this.props as any).editor;
-    editor.addListener("selectionChanged", this.onSelectionChanged);
-    editor.addListener("objectsChanged", this.onObjectsChanged);
+    const editor = (this.props as any).editor
+    editor.addListener('selectionChanged', this.onSelectionChanged)
+    editor.addListener('objectsChanged', this.onObjectsChanged)
   }
 
   // removing listeners when components get unmounted
   componentWillUnmount() {
-    const editor = (this.props as any).editor;
-    editor.removeListener("selectionChanged", this.onSelectionChanged);
-    editor.removeListener("objectsChanged", this.onObjectsChanged);
+    const editor = (this.props as any).editor
+    editor.removeListener('selectionChanged', this.onSelectionChanged)
+    editor.removeListener('objectsChanged', this.onObjectsChanged)
   }
 
   // updating state when selection of element get changed
   onSelectionChanged = () => {
-    this.setState({ selected: (this.props as any).editor.selected });
-  };
+    this.setState({ selected: (this.props as any).editor.selected })
+  }
 
-   //function to handle the changes object properties
+  //function to handle the changes object properties
   onObjectsChanged = (objects, property) => {
-    const selected = (this.props as any).editor.selected;
+    const selected = (this.props as any).editor.selected
 
-    if (property === "position" || property === "rotation" || property === "scale" || property === "matrix") {
-      return;
+    if (property === 'position' || property === 'rotation' || property === 'scale' || property === 'matrix') {
+      return
     }
 
     for (let i = 0; i < objects.length; i++) {
       if (selected.indexOf(objects[i]) !== -1) {
-        this.setState({ selected: (this.props as any).editor.selected });
-        return;
+        this.setState({ selected: (this.props as any).editor.selected })
+        return
       }
     }
-  };
+  }
 
-   // function to handle the changes property visible
-  onChangeVisible = value => {
-    ((this.props as any).editor as any).setPropertySelected("visible", value);
-  };
+  // function to handle the changes property visible
+  onChangeVisible = (value) => {
+    ;((this.props as any).editor as any).setPropertySelected('visible', value)
+  }
 
-  onChangeProbeStatic = value => {
-    ((this.props as any).editor as any).setPropertySelected("reflectionProbeStatic", value);
-  };
+  onChangeProbeStatic = (value) => {
+    ;((this.props as any).editor as any).setPropertySelected('reflectionProbeStatic', value)
+  }
 
-  onChangePersist = value => {
-    ((this.props as any).editor as any).setPropertySelected("persist", value);
-  };
+  onChangePersist = (value) => {
+    ;((this.props as any).editor as any).setPropertySelected('persist', value)
+  }
 
   //rendering editor views for customization of element properties
   render() {
-    const editor = (this.props as any).editor;
-    const selected = (this.state as any).selected;
+    const editor = (this.props as any).editor
+    const selected = (this.state as any).selected
 
-    let content;
+    let content
 
     if (selected.length === 0) {
-      content = <NoNodeSelectedMessage>{this.props.t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>;
+      content = <NoNodeSelectedMessage>{this.props.t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
     } else {
-      const activeNode = selected[selected.length - 1];
-      const NodeEditor = editor.getNodeEditor(activeNode) || DefaultNodeEditor;
+      const activeNode = selected[selected.length - 1]
+      const NodeEditor = editor.getNodeEditor(activeNode) || DefaultNodeEditor
 
-      const multiEdit = selected.length > 1;
+      const multiEdit = selected.length > 1
 
-      let showNodeEditor = true;
+      let showNodeEditor = true
 
       for (let i = 0; i < selected.length - 1; i++) {
         if (editor.getNodeEditor(selected[i]) !== NodeEditor) {
-          showNodeEditor = false;
-          break;
+          showNodeEditor = false
+          break
         }
       }
 
-      let nodeEditor;
+      let nodeEditor
 
       if (showNodeEditor) {
-        nodeEditor = <NodeEditor multiEdit={multiEdit} node={activeNode} editor={editor} />;
+        nodeEditor = <NodeEditor multiEdit={multiEdit} node={activeNode} editor={editor} />
       } else {
-        nodeEditor = <NoNodeSelectedMessage>{this.props.t('editor:properties.multipleNodeSelected')}</NoNodeSelectedMessage>;
+        nodeEditor = (
+          <NoNodeSelectedMessage>{this.props.t('editor:properties.multipleNodeSelected')}</NoNodeSelectedMessage>
+        )
       }
 
-      const disableTransform = selected.some(node => node.disableTransform);
-      const haveStaticTags=selected.some(node=>node.haveStaticTags);
-      
+      const disableTransform = selected.some((node) => node.disableTransform)
+      const haveStaticTags = selected.some((node) => node.haveStaticTags)
+
       content = (
         <StyledNodeEditor>
           <PropertiesHeader>
             <NameInputGroupContainer>
               <NameInputGroup node={activeNode} editor={editor} />
-              {activeNode.nodeName !== "Scene" && (
+              {activeNode.nodeName !== 'Scene' && (
                 <>
-                <VisibleInputGroup name="Visible" label={this.props.t('editor:properties.lbl-visible')}>
-                  <BooleanInput value={activeNode.visible} onChange={this.onChangeVisible} />
-                </VisibleInputGroup>
-                {(haveStaticTags)&&(
-                <VisibleInputGroup name="Probe Static" label="Probe Static">
-                <BooleanInput value={activeNode.reflectionProbeStatic} onChange={this.onChangeProbeStatic} />
-                </VisibleInputGroup>
-                )}
-              </>
+                  <VisibleInputGroup name="Visible" label={this.props.t('editor:properties.lbl-visible')}>
+                    <BooleanInput value={activeNode.visible} onChange={this.onChangeVisible} />
+                  </VisibleInputGroup>
+                  {haveStaticTags && (
+                    <VisibleInputGroup name="Probe Static" label="Probe Static">
+                      <BooleanInput value={activeNode.reflectionProbeStatic} onChange={this.onChangeProbeStatic} />
+                    </VisibleInputGroup>
+                  )}
+                </>
               )}
             </NameInputGroupContainer>
             <PersistInputGroup name="Persist" label={this.props.t('editor:properties.lbl-persist')}>
@@ -230,13 +231,11 @@ class PropertiesPanelContainer extends Component<{t: Function}> {
           </PropertiesHeader>
           {nodeEditor}
         </StyledNodeEditor>
-      );
+      )
     }
 
-    return (
-        <PropertiesPanelContent>{content}</PropertiesPanelContent>
-    );
+    return <PropertiesPanelContent>{content}</PropertiesPanelContent>
   }
 }
 
-export default withTranslation()(withEditor(PropertiesPanelContainer));
+export default withTranslation()(withEditor(PropertiesPanelContainer))

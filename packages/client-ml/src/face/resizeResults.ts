@@ -1,11 +1,10 @@
-import { Dimensions, IDimensions } from './classes/Dimensions';
-import { FaceDetection } from './classes/FaceDetection';
-import { FaceLandmarks } from './classes/FaceLandmarks';
-import { extendWithFaceDetection, isWithFaceDetection } from './factories/WithFaceDetection';
-import { extendWithFaceLandmarks, isWithFaceLandmarks } from './factories/WithFaceLandmarks';
+import { Dimensions, IDimensions } from './classes/Dimensions'
+import { FaceDetection } from './classes/FaceDetection'
+import { FaceLandmarks } from './classes/FaceLandmarks'
+import { extendWithFaceDetection, isWithFaceDetection } from './factories/WithFaceDetection'
+import { extendWithFaceLandmarks, isWithFaceLandmarks } from './factories/WithFaceLandmarks'
 
 export function resizeResults<T>(results: T, dimensions: IDimensions): T {
-
   const { width, height } = new Dimensions(dimensions.width, dimensions.height)
 
   if (width <= 0 || height <= 0) {
@@ -13,7 +12,7 @@ export function resizeResults<T>(results: T, dimensions: IDimensions): T {
   }
 
   if (Array.isArray(results)) {
-    return results.map(obj => resizeResults(obj, { width, height })) as any as T
+    return results.map((obj) => resizeResults(obj, { width, height })) as any as T
   }
 
   if (isWithFaceLandmarks(results)) {

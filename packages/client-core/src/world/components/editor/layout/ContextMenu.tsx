@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react'
 // react-contextmenu has a bug when built, and the only viable
 // workaround is to import from the /dist bunled copy of it.
 import {
@@ -8,24 +8,23 @@ import {
   showMenu as _showMenu,
   SubMenu as _SubMenu,
   ContextMenuTrigger as _ContextMenuTrigger
-} from "react-contextmenu/dist/react-contextmenu";
-import { Theme, ThemeContext } from "../theme";
-import { createGlobalStyle } from "styled-components";
-import { ReactNode } from "react";
-export const connectMenu = _connectMenu;
-export const MenuItem = _MenuItem;
-export const showMenu = _showMenu;
-export const SubMenu = _SubMenu;
-export const ContextMenuTrigger = _ContextMenuTrigger;
+} from 'react-contextmenu/dist/react-contextmenu'
+import { Theme, ThemeContext } from '../theme'
+import { createGlobalStyle } from 'styled-components'
+export const connectMenu = _connectMenu
+export const MenuItem = _MenuItem
+export const showMenu = _showMenu
+export const SubMenu = _SubMenu
+export const ContextMenuTrigger = _ContextMenuTrigger
 // @ts-ignore
 
 /**
- * 
+ *
  * @author Robert Long
  */
-export const ContextMenuStyles = createGlobalStyle<{ theme: Theme}>`
+export const ContextMenuStyles = createGlobalStyle<{ theme: Theme }>`
   .react-contextmenu {
-    background-color: ${props => props.theme.dropdown};
+    background-color: ${(props) => props.theme.dropdown};
     background-clip: padding-box;
     border-radius: 4px;
     margin: 2px 0 0;
@@ -35,7 +34,7 @@ export const ContextMenuStyles = createGlobalStyle<{ theme: Theme}>`
     padding: 4px 0;
     pointer-events: none;
     text-align: left;
-    box-shadow: ${props => props.theme.shadow30};
+    box-shadow: ${(props) => props.theme.shadow30};
   }
 
   .react-contextmenu.react-contextmenu--visible {
@@ -55,13 +54,13 @@ export const ContextMenuStyles = createGlobalStyle<{ theme: Theme}>`
     display: flex;
     flex: 1;
     justify-content: space-between;
-    color: ${props => props.theme.text};
+    color: ${(props) => props.theme.text};
   }
 
   .react-contextmenu-item.react-contextmenu-item--active,
   .react-contextmenu-item.react-contextmenu-item--selected {
-    color: ${props => props.theme.text};
-    background-color: ${props => props.theme.selected};
+    color: ${(props) => props.theme.text};
+    background-color: ${(props) => props.theme.selected};
     border-color: transparent;
     text-decoration: none;
   }
@@ -70,11 +69,11 @@ export const ContextMenuStyles = createGlobalStyle<{ theme: Theme}>`
   .react-contextmenu-item.react-contextmenu-item--disabled:hover {
     background-color: transparent;
     border-color: rgba(0,0,0,.15);
-    color: ${props => props.theme.text};
+    color: ${(props) => props.theme.text};
   }
 
   .react-contextmenu-item--divider {
-    border-bottom: 1px solid ${props => props.theme.border};
+    border-bottom: 1px solid ${(props) => props.theme.border};
     cursor: inherit;
     margin: 4px 0;
     height: 1px;
@@ -91,21 +90,23 @@ export const ContextMenuStyles = createGlobalStyle<{ theme: Theme}>`
     content: "▸";
     vertical-align: middle;
   }
-`;
+`
 
 /**
- * 
+ *
  * @author Robert Long
  * @param {ReactNode} children
  * @param {string} id
- * @param {any} rest 
- * @returns 
+ * @param {any} rest
+ * @returns
  */
 export const ContextMenu: React.FC<{ id: string }> = ({ children, id, ...rest }) => {
   return (
     <>
-      <ReactContextMenu id={id} {...rest}>{children}</ReactContextMenu>
+      <ReactContextMenu id={id} {...rest}>
+        {children}
+      </ReactContextMenu>
       <ContextMenuStyles />
     </>
-  );
-};
+  )
+}

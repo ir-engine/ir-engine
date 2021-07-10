@@ -1,17 +1,17 @@
-import { GameMode } from "../../game/types/GameMode";
-import { TransformComponent } from '../../transform/components/TransformComponent';
+import { GameMode } from '../../game/types/GameMode'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 // game State Tag Component
-import { Open } from "./gameDefault/components/OpenTagComponent";
-import { Closed } from "./gameDefault/components/ClosedTagComponent";
-import { ButtonUp } from "./gameDefault/components/ButtonUpTagComponent";
-import { ButtonDown } from "./gameDefault/components/ButtonDownTagComponent";
+import { Open } from './gameDefault/components/OpenTagComponent'
+import { Closed } from './gameDefault/components/ClosedTagComponent'
+import { ButtonUp } from './gameDefault/components/ButtonUpTagComponent'
+import { ButtonDown } from './gameDefault/components/ButtonDownTagComponent'
 // game Action Tag Component
-import { HasHadInteraction } from "../../game/actions/HasHadInteraction";
+import { HasHadInteraction } from '../../game/actions/HasHadInteraction'
 // game behavior
 //import { upDownButton } from "./gameDefault/behaviors/upDownButton";
 //import { giveOpenOrCloseState, doorOpeningOrClosing } from "./gameDefault/behaviors/openOrCloseDoor";
 // checkers
-import { ifNamed } from "./gameDefault/checkers/ifNamed";
+import { ifNamed } from './gameDefault/checkers/ifNamed'
 //import { isOpen, isClosed } from "./gameDefault/checkers/isOpenIsClosed";
 
 /**
@@ -19,17 +19,10 @@ import { ifNamed } from "./gameDefault/checkers/ifNamed";
  */
 
 export const DefaultGameMode: GameMode = {
-  name: "Default",
+  name: 'Default',
   priority: 0,
-  registerActionTagComponents: [
-    HasHadInteraction
-  ],
-  registerStateTagComponents: [
-    Open,
-    Closed,
-    ButtonUp,
-    ButtonDown
-  ],
+  registerActionTagComponents: [HasHadInteraction],
+  registerStateTagComponents: [Open, Closed, ButtonUp, ButtonDown],
   initGameState: {
     /*
     'Button': {
@@ -53,11 +46,11 @@ export const DefaultGameMode: GameMode = {
     */
   },
   gamePlayerRoles: {
-    'Playing': {
-      'getVictory': []
+    Playing: {
+      getVictory: []
     },
-    'itsYourTurn': {
-      'allowHitBall': []
+    itsYourTurn: {
+      allowHitBall: []
     }
   },
   gameObjectRoles: {
@@ -199,8 +192,7 @@ export const DefaultGameMode: GameMode = {
     }
     */
   }
-
-};
+}
 /*
 export const gameStartAction: GameStateAction = (data: any): void => {
   console.log("Game started!");

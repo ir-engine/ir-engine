@@ -1,12 +1,12 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import NumericInput from "./NumericInput";
-import Scrubber from "./Scrubber";
-import { Vector2 } from "three";
-import styled from "styled-components";
-import { Link } from "@styled-icons/fa-solid/Link";
-import { Unlink } from "@styled-icons/fa-solid/Unlink";
-import Hidden from "../layout/Hidden";
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import NumericInput from './NumericInput'
+import Scrubber from './Scrubber'
+import { Vector2 } from 'three'
+import styled from 'styled-components'
+import { Link } from '@styled-icons/fa-solid/Link'
+import { Unlink } from '@styled-icons/fa-solid/Unlink'
+import Hidden from '../layout/Hidden'
 
 export const Vector2InputContainer = (styled as any).div`
   display: flex;
@@ -14,14 +14,14 @@ export const Vector2InputContainer = (styled as any).div`
   flex: 1 1 auto;
   width: 70%;
   justify-content: flex-start;
-`;
+`
 
 export const Vector2Scrubber = (styled as any)(Scrubber)`
   display: flex;
   align-items: center;
   padding: 0 8px;
-  color: ${props => props.theme.text2};
-`;
+  color: ${(props) => props.theme.text2};
+`
 
 const UniformButtonContainer = (styled as any).div`
   display: flex;
@@ -32,18 +32,18 @@ const UniformButtonContainer = (styled as any).div`
   }
 
   label {
-    color: ${props => props.theme.text2};
+    color: ${(props) => props.theme.text2};
   }
 
   label:hover {
-    color: ${props => props.theme.blueHover};
+    color: ${(props) => props.theme.blueHover};
   }
-`;
+`
 
-let uniqueId = 0;
+let uniqueId = 0
 
 /**
- * 
+ *
  * @author Robert Long
  */
 export class Vector2Input extends Component {
@@ -51,63 +51,63 @@ export class Vector2Input extends Component {
     uniformScaling: PropTypes.bool,
     value: PropTypes.object,
     onChange: PropTypes.func
-  };
+  }
 
   static defaultProps = {
     value: new Vector2(),
     onChange: () => {}
-  };
+  }
 
   constructor(props) {
-    super(props);
+    super(props)
 
-    this.id = uniqueId++;
+    this.id = uniqueId++
 
-    this.newValue = new Vector2();
+    this.newValue = new Vector2()
 
     this.state = {
       ...this.state,
       uniformEnabled: props.uniformScaling
-    };
+    }
   }
 
   state: {
-    uniformEnabled: any;
-    value: any;
+    uniformEnabled: any
+    value: any
   }
-  id: number;
-  newValue: Vector2;
+  id: number
+  newValue: Vector2
 
   onToggleUniform = () => {
-    this.setState({ uniformEnabled: !this.state.uniformEnabled });
-  };
+    this.setState({ uniformEnabled: !this.state.uniformEnabled })
+  }
 
   onChange = (field, fieldValue) => {
-    const value = (this.props as any).value;
+    const value = (this.props as any).value
 
     if (this.state.uniformEnabled) {
-      this.newValue.set(fieldValue, fieldValue);
+      this.newValue.set(fieldValue, fieldValue)
     } else {
-      const x = value ? value.x : 0;
-      const y = value ? value.y : 0;
+      const x = value ? value.x : 0
+      const y = value ? value.y : 0
 
-      this.newValue.x = field === "x" ? fieldValue : x;
-      this.newValue.y = field === "y" ? fieldValue : y;
+      this.newValue.x = field === 'x' ? fieldValue : x
+      this.newValue.y = field === 'y' ? fieldValue : y
     }
 
-    (this.props as any).onChange(this.newValue);
-  };
+    ;(this.props as any).onChange(this.newValue)
+  }
 
-  onChangeX = x => this.onChange("x", x);
+  onChangeX = (x) => this.onChange('x', x)
 
-  onChangeY = y => this.onChange("y", y);
+  onChangeY = (y) => this.onChange('y', y)
 
   render() {
-    const { uniformScaling, value, onChange, ...rest } = this.props as any;
-    const { uniformEnabled } = this.state as any;
-    const vx = value ? value.x : 0;
-    const vy = value ? value.y : 0;
-    const checkboxId = "uniform-button-" + this.id;
+    const { uniformScaling, value, onChange, ...rest } = this.props as any
+    const { uniformEnabled } = this.state as any
+    const vx = value ? value.x : 0
+    const vy = value ? value.y : 0
+    const checkboxId = 'uniform-button-' + this.id
 
     return (
       <Vector2InputContainer>
@@ -134,8 +134,8 @@ export class Vector2Input extends Component {
         </Vector2Scrubber>
         <NumericInput {...rest} value={vy} onChange={this.onChangeY} />
       </Vector2InputContainer>
-    );
+    )
   }
 }
 
-export default Vector2Input;
+export default Vector2Input

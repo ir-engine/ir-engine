@@ -4,15 +4,14 @@
  * @author Andrii Blashchuk
  */
 export default {
-    definitions: {
-        'comments-fires': {
-            type: 'object',
-            properties: {
-            }
-        },
-        'comments-fires_list': {
-            type: 'array',
-            items: { $ref: '#/definitions/comments-fires' }
-        }
+  definitions: {
+    'comments-fires': {
+      type: 'object',
+      properties: {}
+    },
+    'comments-fires_list': {
+      type: 'array',
+      items: { $ref: '#/definitions/comments-fires' }
     }
-};
+  }
+}

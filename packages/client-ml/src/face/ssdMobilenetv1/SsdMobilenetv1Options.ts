@@ -22,6 +22,10 @@ export class SsdMobilenetv1Options {
     }
   }
 
-  get minConfidence(): number { return this._minConfidence }
-  get maxResults(): number { return this._maxResults }
+  get minConfidence(): number {
+    return this._minConfidence
+  }
+  get maxResults(): number {
+    return this._maxResults
+  }
 }

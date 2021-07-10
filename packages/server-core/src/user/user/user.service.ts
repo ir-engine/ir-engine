@@ -1,108 +1,117 @@
-import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../../declarations';
-import { User } from './user.class';
-import createModel from './user.model';
-import hooks from './user.hooks';
-import _ from 'lodash';
-import logger from '../../logger';
-import userDocs from './user.docs';
+import { ServiceAddons } from '@feathersjs/feathers'
+import { Application } from '../../../declarations'
+import { User } from './user.class'
+import createModel from './user.model'
+import hooks from './user.hooks'
+import _ from 'lodash'
+import logger from '../../logger'
+import userDocs from './user.docs'
 
 declare module '../../../declarations' {
-
   /**
    * Interface for users input
    */
   interface ServiceTypes {
-    'user': User & ServiceAddons<any>;
+    user: User & ServiceAddons<any>
   }
 }
-
 
 export default (app: Application): void => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
-  };
+  }
 
-  const event = new User(options, app);
-  event.docs = userDocs;
+  const event = new User(options, app)
+  event.docs = userDocs
 
-  app.use('/user', event);
+  app.use('/user', event)
 
-  const service = app.service('user');
+  const service = app.service('user')
 
-  service.hooks(hooks as any);
-  
+  service.hooks(hooks as any)
+
   /**
    * This method find all users
    * @returns users
    */
 
-  
   service.publish('patched', async (data, params): Promise<any> => {
     try {
       const groupUsers = await (app.service('group-user') as any).Model.findAll({
         where: {
           userId: data.id
         }
-      });
+      })
       const partyUsers = await (app.service('party-user') as any).Model.findAll({
         where: {
           userId: data.id
         }
-      });
+      })
       const userRelationships = await (app.service('user-relationship') as any).Model.findAll({
         where: {
           userRelationshipType: 'friend',
           relatedUserId: data.id
         }
-      });
+      })
 
-      let targetIds = [data.id];
-      const updatePromises = [];
+      let targetIds = [data.id]
+      const updatePromises = []
 
-      let layerUsers = [];
+      let layerUsers = []
       if (data.instanceId != null || params.params?.instanceId != null) {
         layerUsers = await (app.service('user') as any).Model.findAll({
           where: {
             instanceId: data.instanceId || params.params?.instanceId
           }
-        });
-        targetIds = targetIds.concat(layerUsers.map(user => user.id));
+        })
+        targetIds = targetIds.concat(layerUsers.map((user) => user.id))
       }
 
       groupUsers.forEach((groupUser) => {
-        updatePromises.push(app.service('group-user').patch(groupUser.id, {
-          groupUserRank: groupUser.groupUserRank
-        }));
-        targetIds.push(groupUser.userId);
-      });
+        updatePromises.push(
+          app.service('group-user').patch(groupUser.id, {
+            groupUserRank: groupUser.groupUserRank
+          })
+        )
+        targetIds.push(groupUser.userId)
+      })
       partyUsers.forEach((partyUser) => {
-        updatePromises.push(app.service('party-user').patch(partyUser.id, {
-          isOwner: partyUser.isOwner
-        }));
-        targetIds.push(partyUser.userId);
-      });
+        updatePromises.push(
+          app.service('party-user').patch(partyUser.id, {
+            isOwner: partyUser.isOwner
+          })
+        )
+        targetIds.push(partyUser.userId)
+      })
       userRelationships.forEach((userRelationship) => {
-        updatePromises.push(app.service('user-relationship').patch(userRelationship.id, {
-          userRelationshipType: userRelationship.userRelationshipType,
-          userId: userRelationship.userId
-        }, params));
-        targetIds.push(userRelationship.userId);
-        targetIds.push(userRelationship.relatedUserId);
-      });
+        updatePromises.push(
+          app.service('user-relationship').patch(
+            userRelationship.id,
+            {
+              userRelationshipType: userRelationship.userRelationshipType,
+              userId: userRelationship.userId
+            },
+            params
+          )
+        )
+        targetIds.push(userRelationship.userId)
+        targetIds.push(userRelationship.relatedUserId)
+      })
 
-      await Promise.all(updatePromises);
-      targetIds = _.uniq(targetIds);
-      return Promise.all(targetIds.map((userId: string) => {
-        return app.channel(`userIds/${userId}`).send({
-          userRelationship: data
-        });
-      }));
+      await Promise.all(updatePromises)
+      targetIds = _.uniq(targetIds)
+      return Promise.all(
+        targetIds.map((userId: string) => {
+          return app.channel(`userIds/${userId}`).send({
+            userRelationship: data
+          })
+        })
+      )
     } catch (err) {
-      logger.error(err);
-      throw err;
+      logger.error(err)
+      throw err
     }
-  });
-};
+  })
+}

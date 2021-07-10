@@ -1,6 +1,6 @@
-import { HookContext } from '@feathersjs/feathers';
-import { disallow } from 'feathers-hooks-common';
-import logger from '../../logger';
+import { HookContext } from '@feathersjs/feathers'
+import { disallow } from 'feathers-hooks-common'
+import logger from '../../logger'
 
 export default {
   before: {
@@ -20,19 +20,19 @@ export default {
     create: [
       async (context: HookContext): Promise<HookContext> => {
         try {
-          const command = context.arguments[0]?.command;
-          const bot = context.result.id;
+          const command = context.arguments[0]?.command
+          const bot = context.result.id
           command.forEach(async (element: any) => {
-            await context.app.service("bot-command").create({
-               name: element.name,
-               description: element.description,
-               botId: bot
-            });
-          }); 
-          return context;
+            await context.app.service('bot-command').create({
+              name: element.name,
+              description: element.description,
+              botId: bot
+            })
+          })
+          return context
         } catch (error) {
-          logger.error("BOT AFTER CREATE ERROR");
-          logger.error(error);
+          logger.error('BOT AFTER CREATE ERROR')
+          logger.error(error)
         }
       }
     ],
@@ -50,4 +50,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}

@@ -4,20 +4,20 @@ export type SctpParameters = {
   /**
    * Must always equal 5000.
    */
-  port: number;
+  port: number
 
   /**
    * Initially requested number of outgoing SCTP streams.
    */
-  OS: number;
+  OS: number
 
   /**
    * Maximum number of incoming SCTP streams.
    */
-  MIS: number;
+  MIS: number
 
   /**
    * Maximum allowed size for SCTP messages.
    */
-  maxMessageSize: number;
-};
+  maxMessageSize: number
+}

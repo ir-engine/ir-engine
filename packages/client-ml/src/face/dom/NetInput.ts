@@ -1,12 +1,12 @@
-import * as tf from '@tensorflow/tfjs-core';
+import * as tf from '@tensorflow/tfjs-core'
 
-import { Dimensions } from '../classes/Dimensions';
-import { env } from '../env';
-import { padToSquare } from '../ops/padToSquare';
-import { computeReshapedDimensions, isTensor3D, isTensor4D, range } from '../utils';
-import { createCanvasFromMedia } from './createCanvas';
-import { imageToSquare } from './imageToSquare';
-import { TResolvedNetInput } from './types';
+import { Dimensions } from '../classes/Dimensions'
+import { env } from '../env'
+import { padToSquare } from '../ops/padToSquare'
+import { computeReshapedDimensions, isTensor3D, isTensor4D, range } from '../utils'
+import { createCanvasFromMedia } from './createCanvas'
+import { imageToSquare } from './imageToSquare'
+import { TResolvedNetInput } from './types'
 
 export class NetInput {
   private _imageTensors: Array<tf.Tensor3D | tf.Tensor4D> = []
@@ -17,19 +17,17 @@ export class NetInput {
   private _inputDimensions: number[][] = []
   private _inputSize: number
 
-  constructor(
-    inputs: Array<TResolvedNetInput>,
-    treatAsBatchInput = false
-  ) {
+  constructor(inputs: Array<TResolvedNetInput>, treatAsBatchInput = false) {
     if (!Array.isArray(inputs)) {
-      throw new Error(`NetInput.constructor - expected inputs to be an Array of TResolvedNetInput or to be instanceof tf.Tensor4D, instead have ${inputs}`)
+      throw new Error(
+        `NetInput.constructor - expected inputs to be an Array of TResolvedNetInput or to be instanceof tf.Tensor4D, instead have ${inputs}`
+      )
     }
 
     this._treatAsBatchInput = treatAsBatchInput
     this._batchSize = inputs.length
 
     inputs.forEach((input, index) => {
-
       if (isTensor3D(input)) {
         this._imageTensors[index] = input
         this._inputDimensions[index] = input.shape
@@ -78,12 +76,10 @@ export class NetInput {
   }
 
   public get reshapedInputDimensions(): Dimensions[] {
-    return range(this.batchSize, 0, 1).map(
-      (_, batchIdx) => this.getReshapedInputDimensions(batchIdx)
-    )
+    return range(this.batchSize, 0, 1).map((_, batchIdx) => this.getReshapedInputDimensions(batchIdx))
   }
 
-  public getInput(batchIdx: number): tf.Tensor3D  | tf.Tensor4D | HTMLCanvasElement {
+  public getInput(batchIdx: number): tf.Tensor3D | tf.Tensor4D | HTMLCanvasElement {
     return this.canvases[batchIdx] || this.imageTensors[batchIdx]
   }
 
@@ -119,12 +115,10 @@ export class NetInput {
    * @returns The batch tensor.
    */
   public toBatchTensor(inputSize: number, isCenterInputs = true): tf.Tensor4D {
-
     this._inputSize = inputSize
 
     return tf.tidy(() => {
-
-      const inputTensors = range(this.batchSize, 0, 1).map(batchIdx => {
+      const inputTensors = range(this.batchSize, 0, 1).map((batchIdx) => {
         const input = this.getInput(batchIdx)
 
         if (input instanceof tf.Tensor) {
@@ -143,10 +137,17 @@ export class NetInput {
           return tf.browser.fromPixels(imageToSquare(input, inputSize, isCenterInputs))
         }
 
-        throw new Error(`toBatchTensor - at batchIdx ${batchIdx}, expected input to be instanceof tf.Tensor or instanceof HTMLCanvasElement, instead have ${input}`)
+        throw new Error(
+          `toBatchTensor - at batchIdx ${batchIdx}, expected input to be instanceof tf.Tensor or instanceof HTMLCanvasElement, instead have ${input}`
+        )
       })
 
-      const batchTensor = (tf.stack(inputTensors.map(t => t.toFloat())) as any).as4D(this.batchSize, inputSize, inputSize, 3)
+      const batchTensor = (tf.stack(inputTensors.map((t) => t.toFloat())) as any).as4D(
+        this.batchSize,
+        inputSize,
+        inputSize,
+        3
+      )
 
       return batchTensor
     })

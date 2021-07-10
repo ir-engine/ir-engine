@@ -1,10 +1,6 @@
-import { env } from '../env';
+import { env } from '../env'
 
-export async function fetchOrThrow(
-  url: string,
-  init?: RequestInit
-): Promise<Response> {
-
+export async function fetchOrThrow(url: string, init?: RequestInit): Promise<Response> {
   const fetch = env.getEnv().fetch
   const res = await fetch(url, init)
   if (!(res.status < 400)) {

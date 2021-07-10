@@ -1,21 +1,22 @@
-import { HookContext, Hook } from '@feathersjs/feathers';
+import { HookContext, Hook } from '@feathersjs/feathers'
 
-export default (): Hook => async (context: HookContext): Promise<HookContext> => {
-  if (!context.id || !context.params.query.userId) return context;
-  const { collection } = context.app.get('sequelizeClient').models;
+export default (): Hook =>
+  async (context: HookContext): Promise<HookContext> => {
+    if (!context.id || !context.params.query.userId) return context
+    const { collection } = context.app.get('sequelizeClient').models
 
-  const { thumbnailOwnedFileId } = await collection.findOne({
-    attributes: ['thumbnailOwnedFileId'],
-    where: {
-      sid: context.id,
-      userId: context.params.query.userId
+    const { thumbnailOwnedFileId } = await collection.findOne({
+      attributes: ['thumbnailOwnedFileId'],
+      where: {
+        sid: context.id,
+        userId: context.params.query.userId
+      }
+    })
+
+    context.params.query = {
+      ...context.params.query,
+      resourceId: thumbnailOwnedFileId
     }
-  });
 
-  context.params.query = {
-    ...context.params.query,
-    resourceId: thumbnailOwnedFileId
-  };
-
-  return context;
-};
+    return context
+  }

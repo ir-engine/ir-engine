@@ -1,10 +1,10 @@
-import React, { Fragment } from 'react';
-import { Alerts } from '../Alerts';
-import { UIDialog } from '../Dialog/Dialog';
+import React, { Fragment } from 'react'
+import { Alerts } from '../Alerts'
+import { UIDialog } from '../Dialog/Dialog'
 
 interface Props {
-  pageTitle?: any;
-  children: any;
+  pageTitle?: any
+  children: any
 }
 
 export const EmptyLayout = ({ children, pageTitle }: Props): any => (
@@ -13,4 +13,4 @@ export const EmptyLayout = ({ children, pageTitle }: Props): any => (
     <Alerts />
     {children}
   </Fragment>
-);
+)

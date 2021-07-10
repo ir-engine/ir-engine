@@ -1,69 +1,69 @@
 // @ts-nocheck
-import React from "react";
-import PropTypes from "prop-types";
-import Select from "react-select";
-import CreatableSelect from "react-select/creatable";
+import React from 'react'
+import PropTypes from 'prop-types'
+import Select from 'react-select'
+import CreatableSelect from 'react-select/creatable'
 
 /**
  * @author Robert Long
  */
 const staticStyle = {
-  container: base => ({
+  container: (base) => ({
     ...base,
-    width: "100%",
-    maxWidth: "200px"
+    width: '100%',
+    maxWidth: '200px'
   }),
   control: (base, { isDisabled }) => ({
     ...base,
-    backgroundColor: isDisabled ? "#222222" : "black",
-    minHeight: "24px",
-    border: "1px solid #5D646C",
-    cursor: "pointer"
+    backgroundColor: isDisabled ? '#222222' : 'black',
+    minHeight: '24px',
+    border: '1px solid #5D646C',
+    cursor: 'pointer'
   }),
   input: (base, { isDisabled }) => ({
     ...base,
-    margin: "0px",
-    color: isDisabled ? "grey" : "white"
+    margin: '0px',
+    color: isDisabled ? 'grey' : 'white'
   }),
-  dropdownIndicator: base => ({
+  dropdownIndicator: (base) => ({
     ...base,
-    padding: "0 4px 0 0"
+    padding: '0 4px 0 0'
   }),
-  clearIndicator: base => ({
+  clearIndicator: (base) => ({
     ...base,
-    padding: "0",
-    width: "16px",
-    height: "16px",
-    alignItems: "center",
-    paddingTop: "1px"
+    padding: '0',
+    width: '16px',
+    height: '16px',
+    alignItems: 'center',
+    paddingTop: '1px'
   }),
-  menu: base => ({
+  menu: (base) => ({
     ...base,
-    borderRadius: "4px",
-    border: "1px solid black",
-    backgroundColor: "black",
-    outline: "none",
-    padding: "0",
-    position: "absolute",
-    top: "20px"
+    borderRadius: '4px',
+    border: '1px solid black',
+    backgroundColor: 'black',
+    outline: 'none',
+    padding: '0',
+    position: 'absolute',
+    top: '20px'
   }),
-  menuList: base => ({
+  menuList: (base) => ({
     ...base,
-    padding: "0"
+    padding: '0'
   }),
   option: (base, { isFocused }) => ({
     ...base,
-    backgroundColor: isFocused ? "#006EFF" : "black",
-    cursor: "pointer"
+    backgroundColor: isFocused ? '#006EFF' : 'black',
+    cursor: 'pointer'
   }),
   singleValue: (base, { isDisabled }) => ({
     ...base,
-    color: isDisabled ? "grey" : "white"
+    color: isDisabled ? 'grey' : 'white'
   })
-};
+}
 
 /**
- * 
+ *
  * @author Robert Long
  * @param {any} value
  * @param {any} options
@@ -74,40 +74,30 @@ const staticStyle = {
  * @param {any} styles
  * @param {any} creatable
  * @param {any} rest
- * @returns 
+ * @returns
  */
-export function SelectInput({
-  value,
-  options,
-  onChange,
-  placeholder,
-  disabled,
-  error,
-  styles,
-  creatable,
-  ...rest
-}) {
+export function SelectInput({ value, options, onChange, placeholder, disabled, error, styles, creatable, ...rest }) {
   const selectedOption =
-    options.find(o => {
+    options.find((o) => {
       if (o === null) {
-        return o;
+        return o
       } else if (o.value && o.value.equals) {
-        return o.value.equals(value);
+        return o.value.equals(value)
       } else {
-        return o.value === value;
+        return o.value === value
       }
-    }) || null;
+    }) || null
 
   const dynamicStyle = {
     ...staticStyle,
     placeholder: (base, { isDisabled }) => ({
       ...base,
-      color: isDisabled ? "grey" : error ? "red" : "white"
+      color: isDisabled ? 'grey' : error ? 'red' : 'white'
     }),
     ...styles
-  };
+  }
 
-  const Component = creatable ? CreatableSelect : Select;
+  const Component = creatable ? CreatableSelect : Select
 
   return (
     <Component
@@ -117,22 +107,22 @@ export function SelectInput({
       components={{ IndicatorSeparator: () => null }}
       placeholder={placeholder}
       options={options}
-      onChange={option => onChange(option && option.value, option)}
+      onChange={(option) => onChange(option && option.value, option)}
       isDisabled={disabled}
     />
-  );
+  )
 }
 
 SelectInput.defaultProps = {
   value: null,
-  placeholder: "Select...",
-  optionNotFoundPlaceholder: "Error",
+  placeholder: 'Select...',
+  optionNotFoundPlaceholder: 'Error',
   onChange: () => {},
   styles: {},
   error: false,
   disabled: false,
   creatable: false
-};
+}
 
 SelectInput.propTypes = {
   value: PropTypes.any,
@@ -148,5 +138,5 @@ SelectInput.propTypes = {
   error: PropTypes.bool,
   disabled: PropTypes.bool,
   creatable: PropTypes.bool
-};
-export default SelectInput;
+}
+export default SelectInput

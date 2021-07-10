@@ -21,8 +21,7 @@
     "start": "cp src/server.js dist/server.js && node dist/server.js",
     "validate": "npm run lint && npm run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
-    "localbuild": "cross-env LOCAL_BUILD=true npm run build && npm run start",
-    "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
+    "localbuild": "cross-env LOCAL_BUILD=true npm run build && npm run start"
   },
   "resolutions": {
     "socket.io": "4.1.2",
@@ -44,7 +43,7 @@
     "@styled-icons/boxicons-regular": "10.34.0",
     "@styled-icons/fa-regular": "10.34.0",
     "@styled-icons/fa-solid": "10.34.0",
-    "@types/react-redux": "7.1.17",
+    "@types/react-redux": "7.1.18",
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.11",
     "@xrengine/client-core": "^0.3.31",
@@ -60,7 +59,7 @@
     "fuse.js": "6.4.6",
     "i18next": "20.3.2",
     "i18next-browser-languagedetector": "6.1.2",
-    "immutable": "4.0.0-rc.12",
+    "immutable": "4.0.0-rc.14",
     "jwt-decode": "3.1.2",
     "lodash": "4.17.21",
     "mediasoup-client": "3.6.36",
@@ -99,7 +98,7 @@
     "use-debounce": "7.0.0",
     "uuid": "8.3.2",
     "vite": "2.4.1",
-    "webxr-native": "0.2.25"
+    "webxr-native": "0.3.0"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "8.2.1",

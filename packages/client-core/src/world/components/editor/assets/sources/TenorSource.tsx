@@ -1,29 +1,29 @@
-import VideoMediaSource from "../VideoMediaSource";
-import { ItemTypes } from "../../dnd";
-import VideoNode from "@xrengine/engine/src/editor/nodes/VideoNode";
-import Api from "../../Api";
-import i18n from "i18next";
+import VideoMediaSource from '../VideoMediaSource'
+import { ItemTypes } from '../../dnd'
+import VideoNode from '@xrengine/engine/src/editor/nodes/VideoNode'
+import Api from '../../Api'
+import i18n from 'i18next'
 
 /**
  * TenorSource component used to provide visual objects.
- * 
+ *
  * @author Robert Long
  * @type {class component}
  */
 export class TenorSource extends VideoMediaSource {
-  searchPlaceholder: string;
-  searchLegalCopy: string;
-  privacyPolicyUrl: string;
-  api: Api;
+  searchPlaceholder: string
+  searchLegalCopy: string
+  privacyPolicyUrl: string
+  api: Api
 
   // initializing variables for this object
   constructor(api) {
-    super(api);
-    this.id = "tenor";
-    this.name = i18n.t('editor:sources.tenor.name');
-    this.searchPlaceholder = i18n.t('editor:sources.tenor.ph-search');
-    this.searchLegalCopy = i18n.t('editor:sources.tenor.search');
-    this.privacyPolicyUrl = "https://tenor.com/legal-privacy";
+    super(api)
+    this.id = 'tenor'
+    this.name = i18n.t('editor:sources.tenor.name')
+    this.searchPlaceholder = i18n.t('editor:sources.tenor.ph-search')
+    this.searchLegalCopy = i18n.t('editor:sources.tenor.search')
+    this.privacyPolicyUrl = 'https://tenor.com/legal-privacy'
   }
 
   //function used to handle search and call API if there is any change in search input.
@@ -36,15 +36,11 @@ export class TenorSource extends VideoMediaSource {
       },
       cursor,
       abortSignal
-    );
+    )
     return {
-      results: results.map(result => ({
+      results: results.map((result) => ({
         id: result.id,
-        videoUrl:
-          result &&
-          result.images &&
-          result.images.preview &&
-          result.images.preview.url,
+        videoUrl: result && result.images && result.images.preview && result.images.preview.url,
         label: result.name,
         type: ItemTypes.Video,
         url: result.url,
@@ -57,8 +53,8 @@ export class TenorSource extends VideoMediaSource {
       suggestions,
       nextCursor,
       hasMore: !!nextCursor
-    };
+    }
   }
 }
 
-export default TenorSource;
+export default TenorSource

@@ -1,8 +1,7 @@
-
 /**
  * @author HydraFire <github.com/HydraFire>
  */
- 
+
 export interface ClientGameActionMessage {
   type: string
   game: string
