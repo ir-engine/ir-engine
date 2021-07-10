@@ -17,6 +17,7 @@ import {
 import EditorNodeMixin from './EditorNodeMixin'
 import { envmapPhysicalParsReplace, worldposReplace } from './helper/BPCEMShader'
 import CubemapCapturer from './helper/CubemapCapturer'
+import { convertCubemapToEquiImageData, downloadImage } from './helper/ImageUtils'
 
 export enum ReflectionProbeTypes {
   'Realtime',
@@ -83,12 +84,12 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
     const cubemapCapturer = new CubemapCapturer(
       this.editor.renderer.renderer,
       sceneToBake,
-      this.reflectionProbeSettings.resolution,
-      this.reflectionProbeSettings.envMapID
+      this.reflectionProbeSettings.resolution
     )
-    const result = await cubemapCapturer.update(this.position)
-    this.currentEnvMap = result.cubeRenderTarget
-    this.reflectionProbeSettings.envMapID = result.envMapID
+    const result = cubemapCapturer.update(this.position)
+    const imageData = convertCubemapToEquiImageData(this.editor.renderer.renderer, result, 512, 512)
+    downloadImage(imageData, 'Hello', 512, 512)
+    this.currentEnvMap = result
     this.injectShader()
   }
 

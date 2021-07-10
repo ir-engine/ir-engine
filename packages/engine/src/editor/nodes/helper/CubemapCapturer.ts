@@ -48,27 +48,12 @@ export default class CubemapCapturer {
     this.cubeCamera = new CubeCamera(0.1, 1000, this.cubeRenderTarget)
   }
 
-  update = async (
-    position: Vector3,
-    downloadEnvmap = false
-  ): Promise<{
-    cubeRenderTarget: WebGLCubeRenderTarget
-    envMapID: any
-  }> => {
+  update = (position: Vector3): WebGLCubeRenderTarget => {
     const autoClear = this.renderer.autoClear
     this.renderer.autoClear = true
     this.cubeCamera.position.copy(position)
     this.cubeCamera.update(this.renderer, this.sceneToRender)
     this.renderer.autoClear = autoClear
-    const envMapID = downloadEnvmap ? await this.uploadToServer() : ''
-    const imageData = CubemapCapturer.convertCubemapToEqui(
-      this.renderer,
-      this.cubeRenderTarget,
-      this.width,
-      this.height
-    )
-    CubemapCapturer.downloadImage(imageData, 'MEME', this.width, this.height)
-    const cubeRenderTarget = this.cubeRenderTarget
-    return { cubeRenderTarget: this.cubeRenderTarget, envMapID }
+    return this.cubeRenderTarget
   }
 }

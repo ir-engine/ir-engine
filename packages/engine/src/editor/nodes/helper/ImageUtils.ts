@@ -98,7 +98,12 @@ export const downloadImage = (imageData: ImageData, imageName = 'Image', width: 
 }
 
 //convert Cubemap To Equirectangular map
-export const convertCubemapToEqui = (renderer: WebGLRenderer, width: number, height: number): ImageData => {
+export const convertCubemapToEquiImageData = (
+  renderer: WebGLRenderer,
+  source: WebGLCubeRenderTarget,
+  width: number,
+  height: number
+): ImageData => {
   const scene = new Scene()
   const material = new RawShaderMaterial({
     uniforms: {
@@ -130,7 +135,7 @@ export const convertCubemapToEqui = (renderer: WebGLRenderer, width: number, hei
 
   renderer.setRenderTarget(renderTarget)
 
-  quad.material.uniforms.map.value = renderTarget.texture
+  quad.material.uniforms.map.value = source
   renderer.render(scene, camera)
   const pixels = new Uint8Array(4 * width * height)
   renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
