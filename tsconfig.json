@@ -18,9 +18,10 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "jsx": "react",
+    "semicolon": [true, "never"],
     "isolatedModules": true,
     "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": false,
+    "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
     "declaration": true,
     "outDir": "./lib"
