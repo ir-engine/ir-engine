@@ -16,9 +16,7 @@
     "start": "node run-bot.js",
     "validate": "npm run lint && npm run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
-    "golf": "jest",
-    "lint": "prettier --check .",
-    "format": "prettier --write ."
+    "golf": "jest"
   },
   "dependencies": {
     "@google-cloud/agones-sdk": "1.14.0",

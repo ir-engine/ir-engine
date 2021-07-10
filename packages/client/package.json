@@ -21,9 +21,7 @@
     "start": "cp src/server.js dist/server.js && node dist/server.js",
     "validate": "npm run lint && npm run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
-    "localbuild": "cross-env LOCAL_BUILD=true npm run build && npm run start",
-    "lint": "prettier --check .",
-    "format": "prettier --write ."
+    "localbuild": "cross-env LOCAL_BUILD=true npm run build && npm run start"
   },
   "resolutions": {
     "socket.io": "4.1.2",
