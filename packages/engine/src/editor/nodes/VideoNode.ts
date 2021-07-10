@@ -37,7 +37,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     } = json.components.find(c => c.name === "video").props;
     loadAsync(
       (async () => {
-        await node.load(src, onError);
+        node.load(src, onError);
         node.interactable = interactable;
         node.isLivestream = isLivestream;
         node.controls = controls || false;
@@ -96,40 +96,40 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     if(!this._canonicalUrl || this._canonicalUrl === "") {
       return
     }
-    try {
-      const { url, contentType } = await this.editor.api.resolveMedia(
-        src
-      );
-      const isHls = isHLS(src, contentType);
-      if (isHls) {
-        // this.hls = new Hls({
-        //   xhrSetup: (xhr, url) => {
-        //     xhr.open("GET", this.editor.api.unproxyUrl(src, url));
-        //   }
-        // });
-        this.hls = new Hls()
-      }
-      super.load(url, contentType);
-      if (isHls && this.hls) {
-        this.hls.stopLoad();
-      } else if ((this.el as any).duration) {
-        (this.el as any).currentTime = 1;
-      }
-      if (this.editor.playing && this.autoPlay) {
-        (this.el as any).play();
-      }
-    } catch (error) {
-      this.showErrorIcon();
-      // const videoError = new RethrownError(
-      //   `Error loading video ${this._canonicalUrl}`,
-      //   error
-      // );
-      // if (onError) {
-      //   onError(this, videoError);
-      // }
-      // console.error(videoError);
-      // this.issues.push({ severity: "error", message: "Error loading video." });
-    }
+    // try {
+    //   const { url, contentType } = await this.editor.api.resolveMedia(
+    //     src
+    //   );
+    //   const isHls = isHLS(src, contentType);
+    //   if (isHls) {
+    //     // this.hls = new Hls({
+    //     //   xhrSetup: (xhr, url) => {
+    //     //     xhr.open("GET", this.editor.api.unproxyUrl(src, url));
+    //     //   }
+    //     // });
+    //     this.hls = new Hls()
+    //   }
+    //   super.load(url, contentType);
+    //   if (isHls && this.hls) {
+    //     this.hls.stopLoad();
+    //   } else if ((this.el as any).duration) {
+    //     (this.el as any).currentTime = 1;
+    //   }
+    //   if (this.editor.playing && this.autoPlay) {
+    //     (this.el as any).play();
+    //   }
+    // } catch (error) {
+    //   this.showErrorIcon();
+    //   // const videoError = new RethrownError(
+    //   //   `Error loading video ${this._canonicalUrl}`,
+    //   //   error
+    //   // );
+    //   // if (onError) {
+    //   //   onError(this, videoError);
+    //   // }
+    //   // console.error(videoError);
+    //   // this.issues.push({ severity: "error", message: "Error loading video." });
+    // }
     this.editor.emit("objectsChanged", [this]);
     this.editor.emit("selectionChanged");
     // this.hideLoadingCube();

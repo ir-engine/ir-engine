@@ -21,7 +21,7 @@ export const DistanceModelOptions = Object.values(DistanceModelType).map(v => ({
 }));
 export default class AudioSource extends Object3D {
   el: any;
-  _src: string;
+  src: string;
   audioListener: any;
   controls: boolean;
   _audioType: any;
@@ -54,7 +54,7 @@ export default class AudioSource extends Object3D {
     }
 
     this.el = el;
-    this._src = "";
+    this.src = "";
     this.audioListener = audioListener;
     this.controls = true;
     this.audioType = AudioType.PannerNode;
@@ -63,14 +63,6 @@ export default class AudioSource extends Object3D {
   }
   get duration() {
     return this.el.duration;
-  }
-  get src() {
-    return this.el.src;
-  }
-  set src(src) {
-    this.load(src).catch(() => {
-      setTimeout(() => {this.load(src).catch( () => console.log("Delayed error in playback"))}, 3);
-    });
   }
   get autoPlay() {
     return this.el.autoplay;
