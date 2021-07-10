@@ -1,7 +1,7 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { FaceDetection } from '../classes/FaceDetection';
-import { Rect } from '../classes/Rect';
-import { isTensor3D, isTensor4D } from '../utils';
+import * as tf from '@tensorflow/tfjs-core'
+import { FaceDetection } from '../classes/FaceDetection'
+import { Rect } from '../classes/Rect'
+import { isTensor3D, isTensor4D } from '../utils'
 
 /**
  * Extracts the tensors of the image regions containing the detected faces.
@@ -17,7 +17,6 @@ export async function extractFaceTensors(
   imageTensor: tf.Tensor3D | tf.Tensor4D,
   detections: Array<FaceDetection | Rect>
 ): Promise<tf.Tensor3D[]> {
-
   if (!isTensor3D(imageTensor) && !isTensor4D(imageTensor)) {
     throw new Error('extractFaceTensors - expected image tensor to be 3D or 4D')
   }
@@ -29,12 +28,9 @@ export async function extractFaceTensors(
   return tf.tidy(() => {
     const [imgHeight, imgWidth, numChannels] = imageTensor.shape.slice(isTensor4D(imageTensor) ? 1 : 0)
 
-    const boxes = detections.map(
-      det => det instanceof FaceDetection
-        ? det.forSize(imgWidth, imgHeight).box
-        : det
-    )
-      .map(box => box.clipAtImageBorders(imgWidth, imgHeight))
+    const boxes = detections
+      .map((det) => (det instanceof FaceDetection ? det.forSize(imgWidth, imgHeight).box : det))
+      .map((box) => box.clipAtImageBorders(imgWidth, imgHeight))
 
     const faceTensors = boxes.map(({ x, y, width, height }) =>
       tf.slice3d(imageTensor.as3D(imgHeight, imgWidth, numChannels), [y, x, 0], [height, width, numChannels])

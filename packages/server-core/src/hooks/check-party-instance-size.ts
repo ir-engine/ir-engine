@@ -1,29 +1,29 @@
-import { HookContext } from '@feathersjs/feathers';
-import Sequelize, {Op} from "sequelize";
-import _ from "lodash";
-import getLocalServerIp from "../util/get-local-server-ip";
-import logger from '../logger';
-import config from '../appconfig';
+import { HookContext } from '@feathersjs/feathers'
+import Sequelize, { Op } from 'sequelize'
+import _ from 'lodash'
+import getLocalServerIp from '../util/get-local-server-ip'
+import logger from '../logger'
+import config from '../appconfig'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {
     try {
       // Getting logged in user and attaching owner of user
-      const {result, params} = context;
-      const partyId = result.partyId;
-      const party = await context.app.service('party').get(partyId);
+      const { result, params } = context
+      const partyId = result.partyId
+      const party = await context.app.service('party').get(partyId)
       const partyUserResult = await context.app.service('party-user').find({
         query: {
           partyId: partyId
         }
-      });
-      const partyOwner = partyUserResult.data.find((partyUser) => (partyUser.isOwner === 1 || partyUser.isOwner === true));
+      })
+      const partyOwner = partyUserResult.data.find((partyUser) => partyUser.isOwner === 1 || partyUser.isOwner === true)
       if (party.instanceId != null) {
-        const instance = await context.app.service('instance').get(party.instanceId);
-        const location = await context.app.service('location').get(instance.locationId);
+        const instance = await context.app.service('instance').get(party.instanceId)
+        const location = await context.app.service('location').get(instance.locationId)
         if (params.oldInstanceId !== instance.id && instance.currentUsers + 1 > location.maxUsersPerInstance) {
-          logger.info('Putting party onto a new server');
+          logger.info('Putting party onto a new server')
           const availableLocationInstances = await (context.app.service('instance') as any).Model.findAll({
             where: {
               locationId: location.id,
@@ -34,35 +34,35 @@ export default () => {
             include: [
               {
                 model: (context.app.service('location') as any).Model,
-                where: {
-                }
+                where: {}
               }
             ]
-          });
+          })
           if (availableLocationInstances.length === 0) {
-            logger.info('Spinning up new instance server');
-            let selfIpAddress, status;
-            const emittedIp = (!config.kubernetes.enabled) ? await getLocalServerIp() : { ipAddress: status.address, port: status.portsList[0].port};
+            logger.info('Spinning up new instance server')
+            let selfIpAddress, status
+            const emittedIp = !config.kubernetes.enabled
+              ? await getLocalServerIp()
+              : { ipAddress: status.address, port: status.portsList[0].port }
             if (config.kubernetes.enabled) {
-              const serverResult = await (context.app as any).k8AgonesClient.get('gameservers');
-              const readyServers = _.filter(serverResult.items, (server: any) => server.status.state === 'Ready');
-              const server = readyServers[Math.floor(Math.random() * readyServers.length)];
-              status = server.status;
-              selfIpAddress = `${(server.status.address as string)}:${(server.status.portsList[0].port as string)}`;
-            }
-            else {
-              const agonesSDK = (context.app as any).agonesSDK;
-              const gsResult = await agonesSDK.getGameServer();
-              status = gsResult.status;
-              selfIpAddress = `${emittedIp.ipAddress}:3031`;
+              const serverResult = await (context.app as any).k8AgonesClient.get('gameservers')
+              const readyServers = _.filter(serverResult.items, (server: any) => server.status.state === 'Ready')
+              const server = readyServers[Math.floor(Math.random() * readyServers.length)]
+              status = server.status
+              selfIpAddress = `${server.status.address as string}:${server.status.portsList[0].port as string}`
+            } else {
+              const agonesSDK = (context.app as any).agonesSDK
+              const gsResult = await agonesSDK.getGameServer()
+              status = gsResult.status
+              selfIpAddress = `${emittedIp.ipAddress}:3031`
             }
             const instance = await context.app.service('instance').create({
               currentUsers: partyUserResult.total,
               locationId: location.id,
               ipAddress: selfIpAddress
-            });
+            })
             if (!config.kubernetes.enabled) {
-              (context.app as any).instance.id = instance.id;
+              ;(context.app as any).instance.id = instance.id
             }
 
             await context.app.service('instance-provision').emit('created', {
@@ -71,18 +71,23 @@ export default () => {
               sceneId: location.sceneId,
               ipAddress: emittedIp.ipAddress,
               port: emittedIp.port
-            });
+            })
           } else {
-            logger.info('Putting party on existing server with space');
-            const instanceModel = (context.app.service('instance') as any).Model;
-            const instanceUserSort = _.sortBy(availableLocationInstances, (instance: typeof instanceModel) => instance.currentUsers);
-            const selectedInstance = instanceUserSort[0];
+            logger.info('Putting party on existing server with space')
+            const instanceModel = (context.app.service('instance') as any).Model
+            const instanceUserSort = _.sortBy(
+              availableLocationInstances,
+              (instance: typeof instanceModel) => instance.currentUsers
+            )
+            const selectedInstance = instanceUserSort[0]
             if (!config.kubernetes.enabled) {
-              (context.app as any).instance.id = selectedInstance.id;
+              ;(context.app as any).instance.id = selectedInstance.id
             }
-            logger.info('Putting party users on instance ' + selectedInstance.id);
-            const addressSplit = selectedInstance.ipAddress.split(':');
-            const emittedIp = (!config.kubernetes.enabled) ? await getLocalServerIp() : { ipAddress: addressSplit[0], port: addressSplit[1]};
+            logger.info('Putting party users on instance ' + selectedInstance.id)
+            const addressSplit = selectedInstance.ipAddress.split(':')
+            const emittedIp = !config.kubernetes.enabled
+              ? await getLocalServerIp()
+              : { ipAddress: addressSplit[0], port: addressSplit[1] }
             await context.app.service('instance-provision').emit('created', {
               userId: partyOwner.userId,
               locationId: location.id,
@@ -90,14 +95,14 @@ export default () => {
               instanceId: instance.id,
               ipAddress: emittedIp.ipAddress,
               port: emittedIp.port
-            });
+            })
           }
         }
       }
-      return context;
-    } catch(err) {
-      logger.error('check-party-instance error');
-      logger.error(err);
+      return context
+    } catch (err) {
+      logger.error('check-party-instance error')
+      logger.error(err)
     }
-  };
-};
+  }
+}

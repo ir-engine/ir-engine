@@ -1,14 +1,14 @@
-import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../../declarations';
-import { GroupUser } from './group-user.class';
-import createModel from './group-user.model';
-import hooks from './group-user.hooks';
-import logger from '../../logger';
-import groupUserDocs from './group-user.docs';
+import { ServiceAddons } from '@feathersjs/feathers'
+import { Application } from '../../../declarations'
+import { GroupUser } from './group-user.class'
+import createModel from './group-user.model'
+import hooks from './group-user.hooks'
+import logger from '../../logger'
+import groupUserDocs from './group-user.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'group-user': GroupUser & ServiceAddons<any>;
+    'group-user': GroupUser & ServiceAddons<any>
   }
 }
 
@@ -17,25 +17,25 @@ export default (app: Application): any => {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
-  };
+  }
 
   /**
-   * Initialize our service with any options it requires and docs 
-   * 
+   * Initialize our service with any options it requires and docs
+   *
    * @author Vyacheslav Solovjov
    */
-  const event = new GroupUser(options, app);
-  event.docs = groupUserDocs;
-  app.use('/group-user', event);
+  const event = new GroupUser(options, app)
+  event.docs = groupUserDocs
+  app.use('/group-user', event)
 
-  const service = app.service('group-user');
+  const service = app.service('group-user')
 
-  service.hooks(hooks as any);
+  service.hooks(hooks as any)
 
   /**
    * A method which is used to create group user
-   * 
-   * @param data which is parsed to create group user  
+   *
+   * @param data which is parsed to create group user
    * @returns created group user
    * @author Vyacheslav Solovjov
    */
@@ -43,7 +43,7 @@ export default (app: Application): any => {
     try {
       await app.service('group').emit('refresh', {
         userId: data.userId
-      });
+      })
       // const channel = await (app.service('channel') as any).Model.findOne({
       //   where: {
       //     groupId: data.groupId
@@ -63,8 +63,8 @@ export default (app: Application): any => {
           $limit: 1000,
           groupId: data.groupId
         }
-      });
-      data.user = await app.service('user').get(data.userId);
+      })
+      data.user = await app.service('user').get(data.userId)
       // const avatarResult = await app.service('static-resource').find({
       //   query: {
       //     staticResourceType: 'user-thumbnail',
@@ -76,24 +76,26 @@ export default (app: Application): any => {
       //   data.user.dataValues.avatarUrl = avatarResult.data[0].url;
       // }
       const targetIds = (groupUsers as any).data.map((groupUser) => {
-        return groupUser.userId;
-      });
-      return Promise.all(targetIds.map((userId: string) => {
-        return app.channel(`userIds/${userId}`).send({
-          groupUser: data
-        });
-      }));
+        return groupUser.userId
+      })
+      return Promise.all(
+        targetIds.map((userId: string) => {
+          return app.channel(`userIds/${userId}`).send({
+            groupUser: data
+          })
+        })
+      )
     } catch (err) {
-      logger.error(err);
-      throw err;
+      logger.error(err)
+      throw err
     }
-  });
+  })
 
   /**
-   * A method used to update group user 
-   * 
-   * @param data which is used to update group user 
-   * @returns updated GroupUser data 
+   * A method used to update group user
+   *
+   * @param data which is used to update group user
+   * @returns updated GroupUser data
    * @author Vyacheslav Solovjov
    */
   service.publish('patched', async (data): Promise<any> => {
@@ -117,8 +119,8 @@ export default (app: Application): any => {
           $limit: 1000,
           groupId: data.groupId
         }
-      });
-      data.user = await app.service('user').get(data.userId);
+      })
+      data.user = await app.service('user').get(data.userId)
       // const avatarResult = await app.service('static-resource').find({
       //   query: {
       //     staticResourceType: 'user-thumbnail',
@@ -131,25 +133,27 @@ export default (app: Application): any => {
       // }
 
       const targetIds = (groupUsers as any).data.map((groupUser) => {
-        return groupUser.userId;
-      });
+        return groupUser.userId
+      })
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      return Promise.all(targetIds.map((userId: string) => {
-        return app.channel(`userIds/${userId}`).send({
-          groupUser: data
-        });
-      }));
+      return Promise.all(
+        targetIds.map((userId: string) => {
+          return app.channel(`userIds/${userId}`).send({
+            groupUser: data
+          })
+        })
+      )
     } catch (err) {
-      logger.error(err);
-      throw err;
+      logger.error(err)
+      throw err
     }
-  });
+  })
 
   /**
-   * A method used to remove specific groupUser 
-   * 
+   * A method used to remove specific groupUser
+   *
    * @param data which contains groupId
-   * @returns deleted channel data 
+   * @returns deleted channel data
    * @author Vyacheslav Solovjov
    */
   service.publish('removed', async (data): Promise<any> => {
@@ -173,21 +177,23 @@ export default (app: Application): any => {
           $limit: 1000,
           groupId: data.groupId
         }
-      });
+      })
       const targetIds = (groupUsers as any).data.map((groupUser) => {
-        return groupUser.userId;
-      });
-      targetIds.push(data.userId);
+        return groupUser.userId
+      })
+      targetIds.push(data.userId)
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      return Promise.all(targetIds.map((userId: string) => {
-        return app.channel(`userIds/${userId}`).send({
-          groupUser: data,
-          self: userId === data.userId
-        });
-      }));
+      return Promise.all(
+        targetIds.map((userId: string) => {
+          return app.channel(`userIds/${userId}`).send({
+            groupUser: data,
+            self: userId === data.userId
+          })
+        })
+      )
     } catch (err) {
-      logger.error(err);
-      throw err;
+      logger.error(err)
+      throw err
     }
-  });
-};
+  })
+}

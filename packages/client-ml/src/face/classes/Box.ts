@@ -1,18 +1,19 @@
-import { isDimensions, isValidNumber } from '../utils';
-import { IBoundingBox } from './BoundingBox';
-import { IDimensions } from './Dimensions';
-import { Point } from './Point';
-import { IRect } from './Rect';
+import { isDimensions, isValidNumber } from '../utils'
+import { IBoundingBox } from './BoundingBox'
+import { IDimensions } from './Dimensions'
+import { Point } from './Point'
+import { IRect } from './Rect'
 
 export class Box<BoxType = any> implements IBoundingBox, IRect {
-
   public static isRect(rect: any): boolean {
     return !!rect && [rect.x, rect.y, rect.width, rect.height].every(isValidNumber)
   }
 
   public static assertIsValidBox(box: any, callee: string, allowNegativeDimensions = false) {
     if (!Box.isRect(box)) {
-      throw new Error(`${callee} - invalid box: ${JSON.stringify(box)}, expected object with properties x, y, width, height`)
+      throw new Error(
+        `${callee} - invalid box: ${JSON.stringify(box)}, expected object with properties x, y, width, height`
+      )
     }
 
     if (!allowNegativeDimensions && (box.width < 0 || box.height < 0)) {
@@ -47,29 +48,53 @@ export class Box<BoxType = any> implements IBoundingBox, IRect {
     this._height = height
   }
 
-  public get x(): number { return this._x }
-  public get y(): number { return this._y }
-  public get width(): number { return this._width }
-  public get height(): number { return this._height }
-  public get left(): number { return this.x }
-  public get top(): number { return this.y }
-  public get right(): number { return this.x + this.width }
-  public get bottom(): number { return this.y + this.height }
-  public get area(): number { return this.width * this.height }
-  public get topLeft(): Point { return new Point(this.left, this.top) }
-  public get topRight(): Point { return new Point(this.right, this.top) }
-  public get bottomLeft(): Point { return new Point(this.left, this.bottom) }
-  public get bottomRight(): Point { return new Point(this.right, this.bottom) }
+  public get x(): number {
+    return this._x
+  }
+  public get y(): number {
+    return this._y
+  }
+  public get width(): number {
+    return this._width
+  }
+  public get height(): number {
+    return this._height
+  }
+  public get left(): number {
+    return this.x
+  }
+  public get top(): number {
+    return this.y
+  }
+  public get right(): number {
+    return this.x + this.width
+  }
+  public get bottom(): number {
+    return this.y + this.height
+  }
+  public get area(): number {
+    return this.width * this.height
+  }
+  public get topLeft(): Point {
+    return new Point(this.left, this.top)
+  }
+  public get topRight(): Point {
+    return new Point(this.right, this.top)
+  }
+  public get bottomLeft(): Point {
+    return new Point(this.left, this.bottom)
+  }
+  public get bottomRight(): Point {
+    return new Point(this.right, this.bottom)
+  }
 
   public round(): Box<BoxType> {
-    const [x, y, width, height] = [this.x, this.y, this.width, this.height]
-      .map(val => Math.round(val))
+    const [x, y, width, height] = [this.x, this.y, this.width, this.height].map((val) => Math.round(val))
     return new Box({ x, y, width, height })
   }
 
   public floor(): Box<BoxType> {
-    const [x, y, width, height] = [this.x, this.y, this.width, this.height]
-      .map(val => Math.floor(val))
+    const [x, y, width, height] = [this.x, this.y, this.width, this.height].map((val) => Math.floor(val))
     return new Box({ x, y, width, height })
   }
 
@@ -77,11 +102,11 @@ export class Box<BoxType = any> implements IBoundingBox, IRect {
     let { x, y, width, height } = this
     const diff = Math.abs(width - height)
     if (width < height) {
-      x -= (diff / 2)
+      x -= diff / 2
       width += diff
     }
     if (height < width) {
-      y -= (diff / 2)
+      y -= diff / 2
       height += diff
     }
 
@@ -89,8 +114,8 @@ export class Box<BoxType = any> implements IBoundingBox, IRect {
   }
 
   public rescale(s: IDimensions | number): Box<BoxType> {
-    const scaleX = isDimensions(s) ? (s as IDimensions).width : s as number
-    const scaleY = isDimensions(s) ? (s as IDimensions).height : s as number
+    const scaleX = isDimensions(s) ? (s as IDimensions).width : (s as number)
+    const scaleY = isDimensions(s) ? (s as IDimensions).height : (s as number)
     return new Box({
       x: this.x * scaleX,
       y: this.y * scaleY,
@@ -100,12 +125,7 @@ export class Box<BoxType = any> implements IBoundingBox, IRect {
   }
 
   public pad(padX: number, padY: number): Box<BoxType> {
-    const [x, y, width, height] = [
-      this.x - (padX / 2),
-      this.y - (padY / 2),
-      this.width + padX,
-      this.height + padY
-    ]
+    const [x, y, width, height] = [this.x - padX / 2, this.y - padY / 2, this.width + padX, this.height + padY]
     return new Box({ x, y, width, height })
   }
 
@@ -119,7 +139,7 @@ export class Box<BoxType = any> implements IBoundingBox, IRect {
     const clippedWidth = Math.min(newWidth, imgWidth - clippedX)
     const clippedHeight = Math.min(newHeight, imgHeight - clippedY)
 
-    return (new Box({ x: clippedX, y: clippedY, width: clippedWidth, height: clippedHeight})).floor()
+    return new Box({ x: clippedX, y: clippedY, width: clippedWidth, height: clippedHeight }).floor()
   }
 
   public shift(sx: number, sy: number): Box<BoxType> {
@@ -166,10 +186,12 @@ export class Box<BoxType = any> implements IBoundingBox, IRect {
 
   public calibrate(region: Box) {
     return new Box({
-      left: this.left + (region.left * this.width),
-      top: this.top + (region.top * this.height),
-      right: this.right + (region.right * this.width),
-      bottom: this.bottom + (region.bottom * this.height)
-    }).toSquare().round()
+      left: this.left + region.left * this.width,
+      top: this.top + region.top * this.height,
+      right: this.right + region.right * this.width,
+      bottom: this.bottom + region.bottom * this.height
+    })
+      .toSquare()
+      .round()
   }
 }

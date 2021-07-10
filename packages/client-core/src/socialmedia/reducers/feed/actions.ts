@@ -29,211 +29,206 @@ import {
   CLEAR_CREATOR_FEATURED,
   DELETE_FEED,
   LAST_FEED_VIDEO_URL
-} from '../actions';
-import { FeedShort, Feed } from '@xrengine/common/src/interfaces/Feed';
+} from '../actions'
+import { FeedShort, Feed } from '@xrengine/common/src/interfaces/Feed'
 
 export interface FeedsRetrievedAction {
-  type: string;
-  feeds: FeedShort[];
+  type: string
+  feeds: FeedShort[]
 }
 
 export interface FeedRetrievedAction {
-  type: string;
-  feed: Feed;
+  type: string
+  feed: Feed
 }
 
 export interface FetchingFeedsAction {
-  type: string;
+  type: string
 }
 
 export interface oneFeedAction {
-  type: string;
-  feedId: string;
+  type: string
+  feedId: string
 }
 
-export type FeedsAction =
-FeedsRetrievedAction
-  | FeedRetrievedAction
-  | FetchingFeedsAction
-  | oneFeedAction
+export type FeedsAction = FeedsRetrievedAction | FeedRetrievedAction | FetchingFeedsAction | oneFeedAction
 
-export function feedsRetrieved (feeds: Feed[]): FeedsRetrievedAction {
+export function feedsRetrieved(feeds: Feed[]): FeedsRetrievedAction {
   return {
     type: FEEDS_RETRIEVED,
     feeds: feeds
-  };
+  }
 }
 
-export function feedsFeaturedRetrieved (feeds: FeedShort[]): FeedsRetrievedAction {
+export function feedsFeaturedRetrieved(feeds: FeedShort[]): FeedsRetrievedAction {
   return {
     type: FEEDS_FEATURED_RETRIEVED,
     feeds: feeds
-  };
+  }
 }
 
 export function feedsCreatorRetrieved(feeds: FeedShort[]): FeedsRetrievedAction {
   return {
     type: FEEDS_CREATOR_RETRIEVED,
     feeds: feeds
-  };
+  }
 }
 
 export function feedsBookmarkRetrieved(feeds: FeedShort[]): FeedsRetrievedAction {
   return {
     type: FEEDS_BOOKMARK_RETRIEVED,
     feeds: feeds
-  };
+  }
 }
 
 export function feedsFiredRetrieved(feeds: FeedShort[]): FeedsRetrievedAction {
   return {
     type: FEEDS_FIRED_RETRIEVED,
     feeds: feeds
-  };
+  }
 }
 
 export function feedsMyFeaturedRetrieved(feeds: FeedShort[]): FeedsRetrievedAction {
   return {
     type: FEEDS_MY_FEATURED_RETRIEVED,
     feeds: feeds
-  };
+  }
 }
 
-export function feedRetrieved (feed: Feed): FeedRetrievedAction {
+export function feedRetrieved(feed: Feed): FeedRetrievedAction {
   return {
     type: FEED_RETRIEVED,
     feed: feed
-  };
+  }
 }
 
-
-export function fetchingFeeds (): FetchingFeedsAction {
+export function fetchingFeeds(): FetchingFeedsAction {
   return {
     type: FEEDS_FETCH
-  };
+  }
 }
 
-export function fetchingFeaturedFeeds (): FetchingFeedsAction {
+export function fetchingFeaturedFeeds(): FetchingFeedsAction {
   return {
     type: FEATURED_FEEDS_FETCH
-  };
+  }
 }
 
-export function fetchingCreatorFeeds (): FetchingFeedsAction {
+export function fetchingCreatorFeeds(): FetchingFeedsAction {
   return {
     type: CREATOR_FEEDS_FETCH
-  };
+  }
 }
 
-export function fetchingBookmarkedFeeds (): FetchingFeedsAction {
+export function fetchingBookmarkedFeeds(): FetchingFeedsAction {
   return {
     type: BOOKMARK_FEEDS_FETCH
-  };
+  }
 }
 
-export function fetchingFiredFeeds (): FetchingFeedsAction {
+export function fetchingFiredFeeds(): FetchingFeedsAction {
   return {
     type: FIRED_FEEDS_FETCH
-  };
+  }
 }
 
-export function fetchingMyFeaturedFeeds (): FetchingFeedsAction {
+export function fetchingMyFeaturedFeeds(): FetchingFeedsAction {
   return {
     type: MY_FEATURED_FEEDS_FETCH
-  };
+  }
 }
 
-export function fetchingAdminFeeds (): FetchingFeedsAction {
+export function fetchingAdminFeeds(): FetchingFeedsAction {
   return {
     type: ADMIN_FEEDS_FETCH
-  };
+  }
 }
 
-export function addFeedFire (feedId:string) : oneFeedAction{
+export function addFeedFire(feedId: string): oneFeedAction {
   return {
     type: ADD_FEED_FIRES,
     feedId: feedId
-  };
-} 
+  }
+}
 
-export function feedAsFeatured(feedId:string) : oneFeedAction{
+export function feedAsFeatured(feedId: string): oneFeedAction {
   return {
     type: ADD_FEED_FEATURED,
     feedId: feedId
-  };
-} 
+  }
+}
 
-export function feedNotFeatured(feedId:string) : oneFeedAction{
+export function feedNotFeatured(feedId: string): oneFeedAction {
   return {
     type: REMOVE_FEED_FEATURED,
     feedId: feedId
-  };
-} 
-export function removeFeedFire (feedId:string) : oneFeedAction{
+  }
+}
+export function removeFeedFire(feedId: string): oneFeedAction {
   return {
     type: REMOVE_FEED_FIRES,
     feedId
-  };
-} 
+  }
+}
 
-export function addFeedBookmark (feedId:string) : oneFeedAction{
+export function addFeedBookmark(feedId: string): oneFeedAction {
   return {
     type: ADD_FEED_BOOKMARK,
     feedId: feedId
-  };
-} 
+  }
+}
 
-export function removeFeedBookmark (feedId:string) : oneFeedAction{
+export function removeFeedBookmark(feedId: string): oneFeedAction {
   return {
     type: REMOVE_FEED_BOOKMARK,
     feedId
-  };
-} 
+  }
+}
 
-export function addFeedView (feedId:string) : oneFeedAction{
+export function addFeedView(feedId: string): oneFeedAction {
   return {
     type: ADD_FEED_VIEW,
     feedId: feedId
-  };
+  }
 }
 
-export function deleteFeed (feedId:string) : oneFeedAction{
+export function deleteFeed(feedId: string): oneFeedAction {
   return {
     type: DELETE_FEED,
     feedId: feedId
-  };
+  }
 }
 
-export function addFeed(feed:Feed): FeedRetrievedAction{
+export function addFeed(feed: Feed): FeedRetrievedAction {
   return {
     type: ADD_FEED,
     feed: feed
-  };
+  }
 }
 
 export function feedsAdminRetrieved(feeds: any[]): FeedsRetrievedAction {
   return {
     type: FEEDS_AS_ADMIN_RETRIEVED,
     feeds: feeds
-  };
+  }
 }
 
-export function updateFeedInList(feed: Feed): FeedRetrievedAction{
+export function updateFeedInList(feed: Feed): FeedRetrievedAction {
   return {
     type: UPDATE_FEED,
     feed
-  };
+  }
 }
 
-export function reduxClearCreatorFeatured (): FetchingFeedsAction {
+export function reduxClearCreatorFeatured(): FetchingFeedsAction {
   return {
     type: CLEAR_CREATOR_FEATURED
-  };
+  }
 }
 
-export function lastFeedVideoUrl (filePath): oneFeedAction {
+export function lastFeedVideoUrl(filePath): oneFeedAction {
   return {
     type: LAST_FEED_VIDEO_URL,
     feedId: filePath
-  };
+  }
 }

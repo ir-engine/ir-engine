@@ -11,7 +11,9 @@ export class FaceExpressions {
 
   constructor(probabilities: number[] | Float32Array) {
     if (probabilities.length !== 7) {
-      throw new Error(`FaceExpressions.constructor - expected probabilities.length to be 7, have: ${probabilities.length}`)
+      throw new Error(
+        `FaceExpressions.constructor - expected probabilities.length to be 7, have: ${probabilities.length}`
+      )
     }
 
     FACE_EXPRESSION_LABELS.forEach((expression, index) => {
@@ -20,8 +22,8 @@ export class FaceExpressions {
   }
 
   asSortedArray() {
-    return FACE_EXPRESSION_LABELS
-      .map(expression => ({ expression, probability: this[expression] as number }))
-      .sort((e0, e1) => e1.probability - e0.probability)
+    return FACE_EXPRESSION_LABELS.map((expression) => ({ expression, probability: this[expression] as number })).sort(
+      (e0, e1) => e1.probability - e0.probability
+    )
   }
 }

@@ -1,4 +1,4 @@
-import Immutable from 'immutable';
+import Immutable from 'immutable'
 import {
   InstanceRemovedResponse,
   InstancesRetrievedResponse,
@@ -8,7 +8,7 @@ import {
   AdminUserCreatedAction,
   userRoleRetrievedResponse,
   VideoCreatedAction
-} from './actions';
+} from './actions'
 
 import {
   VIDEO_CREATED,
@@ -19,14 +19,14 @@ import {
   USER_ADMIN_REMOVED,
   USER_SEARCH_ADMIN,
   SINGLE_USER_ADMIN_LOADED
-} from "../actions";
+} from '../actions'
 import {
   LOCATIONS_RETRIEVED,
   LOCATION_CREATED,
   LOCATION_PATCHED,
   LOCATION_REMOVED,
   INSTANCE_REMOVED
-} from '../../../social/reducers/actions';
+} from '../../../social/reducers/actions'
 import {
   SCENES_RETRIEVED,
   LOCATION_TYPES_RETRIEVED,
@@ -34,20 +34,16 @@ import {
   INSTANCES_RETRIEVED,
   USER_ROLE_CREATED,
   USER_ROLE_UPDATED
-} from "../../../world/reducers/actions";
-import {
-  ADMIN_LOADED_USERS,
-} from '@xrengine/client-core/src/admin/reducers/actions';
-import { UserSeed } from '@xrengine/common/src/interfaces/User';
-import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider';
-import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser';
-import {
-  LoadedUsersAction
-} from "../../../user/reducers/user/actions";
-import { CollectionsFetchedAction } from "../../../world/reducers/scenes/actions";
-import { LocationsRetrievedAction } from '../../../social/reducers/location/actions';
+} from '../../../world/reducers/actions'
+import { ADMIN_LOADED_USERS } from '@xrengine/client-core/src/admin/reducers/actions'
+import { UserSeed } from '@xrengine/common/src/interfaces/User'
+import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
+import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
+import { LoadedUsersAction } from '../../../user/reducers/user/actions'
+import { CollectionsFetchedAction } from '../../../world/reducers/scenes/actions'
+import { LocationsRetrievedAction } from '../../../social/reducers/location/actions'
 
-export const PAGE_LIMIT = 100;
+export const PAGE_LIMIT = 100
 
 export const initialAdminState = {
   isLoggedIn: false,
@@ -117,219 +113,204 @@ export const initialAdminState = {
     total: 0,
     retrieving: false,
     fetched: false,
-    updateNeeded: true,
+    updateNeeded: true
   },
-  singleUser:{
+  singleUser: {
     singleUser: {},
     retrieving: false,
     fetched: false,
     updateNeeded: true
   }
-};
+}
 
-const immutableState = Immutable.fromJS(initialAdminState);
+const immutableState = Immutable.fromJS(initialAdminState)
 
 const adminReducer = (state = immutableState, action: any): any => {
-  let result, updateMap;
+  let result, updateMap
   switch (action.type) {
     case VIDEO_CREATED:
-      return state
-        .set('data', (action as VideoCreatedAction).data);
+      return state.set('data', (action as VideoCreatedAction).data)
 
     case LOCATIONS_RETRIEVED:
-      result = (action as LocationsRetrievedAction).locations;
-      updateMap = new Map(state.get('locations'));
-      updateMap.set('locations', result.data);
-      updateMap.set('skip', (result as any).skip);
-      updateMap.set('limit', (result as any).limit);
-      updateMap.set('total', (result as any).total);
-      updateMap.set('retrieving', false);
-      updateMap.set('fetched', true);
-      updateMap.set('updateNeeded', false);
-      updateMap.set('lastFetched', new Date());
-      return state
-        .set('locations', updateMap);
+      result = (action as LocationsRetrievedAction).locations
+      updateMap = new Map(state.get('locations'))
+      updateMap.set('locations', result.data)
+      updateMap.set('skip', (result as any).skip)
+      updateMap.set('limit', (result as any).limit)
+      updateMap.set('total', (result as any).total)
+      updateMap.set('retrieving', false)
+      updateMap.set('fetched', true)
+      updateMap.set('updateNeeded', false)
+      updateMap.set('lastFetched', new Date())
+      return state.set('locations', updateMap)
 
     case LOCATION_CREATED:
-      updateMap = new Map(state.get('locations'));
-      updateMap.set('updateNeeded', true);
-      return state
-        .set('locations', updateMap);
+      updateMap = new Map(state.get('locations'))
+      updateMap.set('updateNeeded', true)
+      return state.set('locations', updateMap)
 
     case LOCATION_PATCHED:
-      updateMap = new Map(state.get('locations'));
-      const locations = updateMap.get('locations');
+      updateMap = new Map(state.get('locations'))
+      const locations = updateMap.get('locations')
 
       for (let i = 0; i < locations.length; i++) {
         if (locations[i].id === (action as any).location.id) {
-          locations[i] = (action as any).location;
+          locations[i] = (action as any).location
         } else if ((action as any).location.isLobby && locations[i].isLobby) {
           // if updated location is lobby then remove old lobby.
-          locations[i].isLobby = false;
+          locations[i].isLobby = false
         }
       }
 
-      updateMap.set('locations', locations);
-      return state
-        .set('locations', updateMap);
+      updateMap.set('locations', locations)
+      return state.set('locations', updateMap)
 
     case LOCATION_REMOVED:
-      updateMap = new Map(state.get('locations'));
-      updateMap.set('updateNeeded', true);
-      return state
-        .set('locations', updateMap);
+      updateMap = new Map(state.get('locations'))
+      updateMap.set('updateNeeded', true)
+      return state.set('locations', updateMap)
 
     case ADMIN_LOADED_USERS:
-      result = (action as LoadedUsersAction).users;
-      updateMap = new Map(state.get('users'));
-      let combinedUsers = state.get('users').get('users');
-      (result as any).data.forEach(item => {
-        const match = combinedUsers.find(user => user.id === item.id);
+      result = (action as LoadedUsersAction).users
+      updateMap = new Map(state.get('users'))
+      let combinedUsers = state.get('users').get('users')
+      ;(result as any).data.forEach((item) => {
+        const match = combinedUsers.find((user) => user.id === item.id)
         if (match == null) {
-          combinedUsers = combinedUsers.concat(item);
+          combinedUsers = combinedUsers.concat(item)
         } else {
-          combinedUsers = combinedUsers.map((user) => user.id === item.id ? item : user);
+          combinedUsers = combinedUsers.map((user) => (user.id === item.id ? item : user))
         }
-      });
-      updateMap.set('users', combinedUsers);
-      updateMap.set('skip', (result as any).skip);
-      updateMap.set('limit', (result as any).limit);
-      updateMap.set('total', (result as any).total);
-      updateMap.set('retrieving', false);
-      updateMap.set('fetched', true);
-      updateMap.set('updateNeeded', false);
-      updateMap.set('lastFetched', new Date());
-      return state
-        .set('users', updateMap);
+      })
+      updateMap.set('users', combinedUsers)
+      updateMap.set('skip', (result as any).skip)
+      updateMap.set('limit', (result as any).limit)
+      updateMap.set('total', (result as any).total)
+      updateMap.set('retrieving', false)
+      updateMap.set('fetched', true)
+      updateMap.set('updateNeeded', false)
+      updateMap.set('lastFetched', new Date())
+      return state.set('users', updateMap)
 
     case INSTANCES_RETRIEVED:
-      result = (action as InstancesRetrievedResponse).instances;
-      updateMap = new Map(state.get('instances'));
-      let combinedInstances = state.get('instances').get('instances');
-      (result as any).data.forEach(item => {
-        const match = combinedInstances.find(instance => instance.id === item.id);
+      result = (action as InstancesRetrievedResponse).instances
+      updateMap = new Map(state.get('instances'))
+      let combinedInstances = state.get('instances').get('instances')
+      ;(result as any).data.forEach((item) => {
+        const match = combinedInstances.find((instance) => instance.id === item.id)
         if (match == null) {
-          combinedInstances = combinedInstances.concat(item);
+          combinedInstances = combinedInstances.concat(item)
         } else {
-          combinedInstances = combinedInstances.map((instance) => instance.id === item.id ? item : instance);
+          combinedInstances = combinedInstances.map((instance) => (instance.id === item.id ? item : instance))
         }
-      });
-      updateMap.set('instances', combinedInstances);
-      updateMap.set('skip', (result as any).skip);
-      updateMap.set('limit', (result as any).limit);
-      updateMap.set('total', (result as any).total);
-      updateMap.set('retrieving', false);
-      updateMap.set('fetched', true);
-      updateMap.set('updateNeeded', false);
-      updateMap.set('lastFetched', new Date());
-      return state
-        .set('instances', updateMap);
+      })
+      updateMap.set('instances', combinedInstances)
+      updateMap.set('skip', (result as any).skip)
+      updateMap.set('limit', (result as any).limit)
+      updateMap.set('total', (result as any).total)
+      updateMap.set('retrieving', false)
+      updateMap.set('fetched', true)
+      updateMap.set('updateNeeded', false)
+      updateMap.set('lastFetched', new Date())
+      return state.set('instances', updateMap)
 
     case SCENES_RETRIEVED:
-      result = (action as CollectionsFetchedAction).collections;
-      updateMap = new Map(state.get('scenes'));
-      updateMap.set('scenes', (result as any).data);
-      updateMap.set('skip', (result as any).skip);
-      updateMap.set('limit', (result as any).limit);
-      updateMap.set('total', (result as any).total);
-      updateMap.set('retrieving', false);
-      updateMap.set('fetched', true);
-      updateMap.set('updateNeeded', false);
-      updateMap.set('lastFetched', new Date());
-      return state
-        .set('scenes', updateMap);
+      result = (action as CollectionsFetchedAction).collections
+      updateMap = new Map(state.get('scenes'))
+      updateMap.set('scenes', (result as any).data)
+      updateMap.set('skip', (result as any).skip)
+      updateMap.set('limit', (result as any).limit)
+      updateMap.set('total', (result as any).total)
+      updateMap.set('retrieving', false)
+      updateMap.set('fetched', true)
+      updateMap.set('updateNeeded', false)
+      updateMap.set('lastFetched', new Date())
+      return state.set('scenes', updateMap)
 
     case LOCATION_TYPES_RETRIEVED:
-      result = (action as LocationTypesRetrievedResponse).types;
-      updateMap = new Map(state.get('locationTypes'));
-      updateMap.set('locationTypes', result.data);
-      updateMap.set('updateNeeded', false);
-      return state
-        .set('locationTypes', updateMap);
+      result = (action as LocationTypesRetrievedResponse).types
+      updateMap = new Map(state.get('locationTypes'))
+      updateMap.set('locationTypes', result.data)
+      updateMap.set('updateNeeded', false)
+      return state.set('locationTypes', updateMap)
 
     case INSTANCE_REMOVED:
-      result = (action as InstanceRemovedResponse).instance;
-      updateMap = new Map(state.get('instances'));
-      let instances = updateMap.get('instances');
-      instances = instances.filter(instance => instance.id !== result.id);
-      updateMap.set('instances', instances);
-      return state
-        .set('instances', updateMap);
+      result = (action as InstanceRemovedResponse).instance
+      updateMap = new Map(state.get('instances'))
+      let instances = updateMap.get('instances')
+      instances = instances.filter((instance) => instance.id !== result.id)
+      updateMap.set('instances', instances)
+      return state.set('instances', updateMap)
 
     case USER_ROLE_RETRIEVED:
-      result = (action as userRoleRetrievedResponse).types;
-      updateMap = new Map(state.get('userRole'));
-      updateMap.set('userRole', result.data);
-      updateMap.set('updateNeeded', false);
-      return state
-        .set('userRole', updateMap);
+      result = (action as userRoleRetrievedResponse).types
+      updateMap = new Map(state.get('userRole'))
+      updateMap.set('userRole', result.data)
+      updateMap.set('updateNeeded', false)
+      return state.set('userRole', updateMap)
 
     case USER_ROLE_CREATED:
-      updateMap = new Map(state.get('userRole'));
-      updateMap.set('updateNeeded', true);
-      return state
-        .set('userRole', updateMap);
+      updateMap = new Map(state.get('userRole'))
+      updateMap.set('updateNeeded', true)
+      return state.set('userRole', updateMap)
 
     case PARTY_ADMIN_DISPLAYED:
-      result = (action as partyAdminCreatedResponse).data;
-      updateMap = new Map(state.get("parties"));
-      updateMap.set("parties", result);
-      updateMap.set("updateNeeded", false);
-      return state.set("parties", updateMap);
+      result = (action as partyAdminCreatedResponse).data
+      updateMap = new Map(state.get('parties'))
+      updateMap.set('parties', result)
+      updateMap.set('updateNeeded', false)
+      return state.set('parties', updateMap)
 
     case PARTY_ADMIN_CREATED:
-
-      updateMap = new Map(state.get("parties"));
-      updateMap.set("updateNeeded", true);
-      return state.set("parties", updateMap);
+      updateMap = new Map(state.get('parties'))
+      updateMap.set('updateNeeded', true)
+      return state.set('parties', updateMap)
 
     case USER_ADMIN_REMOVED:
-      result = (action as userAdminRemovedResponse).data;
-      updateMap = new Map(state.get("users"));
-      let userRemove = updateMap.get('users');
-      userRemove = userRemove.filter(user => user.id !== result.id);
-      updateMap.set("updateNeeded", true);
-      updateMap.set('users', userRemove);
-      return state.set("users", updateMap);
+      result = (action as userAdminRemovedResponse).data
+      updateMap = new Map(state.get('users'))
+      let userRemove = updateMap.get('users')
+      userRemove = userRemove.filter((user) => user.id !== result.id)
+      updateMap.set('updateNeeded', true)
+      updateMap.set('users', userRemove)
+      return state.set('users', updateMap)
     case USER_ADMIN_CREATED:
-      result = (action as AdminUserCreatedAction).user;
-      updateMap = new Map(state.get("users"));
-      updateMap.set("updateNeeded", true);
-      return state.set("users", updateMap);
+      result = (action as AdminUserCreatedAction).user
+      updateMap = new Map(state.get('users'))
+      updateMap.set('updateNeeded', true)
+      return state.set('users', updateMap)
     case USER_ADMIN_PATCHED:
-      result = (action as AdminUserCreatedAction).user;
-      updateMap = new Map(state.get("users"));
-      updateMap.set("updateNeeded", true);
-      return state.set("users", updateMap);
+      result = (action as AdminUserCreatedAction).user
+      updateMap = new Map(state.get('users'))
+      updateMap.set('updateNeeded', true)
+      return state.set('users', updateMap)
     case USER_ROLE_UPDATED:
-      updateMap = new Map(state.get('users'));
-      updateMap.set('updateNeeded', true);
-      return state
-        .set('users', updateMap);
+      updateMap = new Map(state.get('users'))
+      updateMap.set('updateNeeded', true)
+      return state.set('users', updateMap)
     case USER_SEARCH_ADMIN:
-      result = (action as any).data;
-      updateMap = new Map(state.get("users"));
-      updateMap.set("users", (result as any).data);
-      updateMap.set('skip', (result as any).skip);
-      updateMap.set('limit', (result as any).limit);
-      updateMap.set('total', (result as any).total);
-      updateMap.set('retrieving', false);
-      updateMap.set('fetched', true);
-      updateMap.set('updateNeeded', false);
-      updateMap.set('lastFetched', new Date());
-      return state
-        .set("users", updateMap);
-    case SINGLE_USER_ADMIN_LOADED: 
-      result = (action as any).data;
-      updateMap = new Map(state.get("singleUser"));
-      updateMap.set("singleUser", result);
-      updateMap.set('retrieving', false);
-      updateMap.set("fetched", true);
-      updateMap.set("updateNeeded", false);
-      return state.set("singleUser", updateMap);   
+      result = (action as any).data
+      updateMap = new Map(state.get('users'))
+      updateMap.set('users', (result as any).data)
+      updateMap.set('skip', (result as any).skip)
+      updateMap.set('limit', (result as any).limit)
+      updateMap.set('total', (result as any).total)
+      updateMap.set('retrieving', false)
+      updateMap.set('fetched', true)
+      updateMap.set('updateNeeded', false)
+      updateMap.set('lastFetched', new Date())
+      return state.set('users', updateMap)
+    case SINGLE_USER_ADMIN_LOADED:
+      result = (action as any).data
+      updateMap = new Map(state.get('singleUser'))
+      updateMap.set('singleUser', result)
+      updateMap.set('retrieving', false)
+      updateMap.set('fetched', true)
+      updateMap.set('updateNeeded', false)
+      return state.set('singleUser', updateMap)
   }
 
-  return state;
-};
+  return state
+}
 
-export default adminReducer;
+export default adminReducer

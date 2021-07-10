@@ -35,24 +35,34 @@ export class MtcnnOptions {
     }
 
     if (
-      !Array.isArray(this._scoreThresholds)
-        || this._scoreThresholds.length !== 3
-        || this._scoreThresholds.some(th => typeof th !== 'number')
+      !Array.isArray(this._scoreThresholds) ||
+      this._scoreThresholds.length !== 3 ||
+      this._scoreThresholds.some((th) => typeof th !== 'number')
     ) {
       throw new Error(`${this._name} - expected scoreThresholds to be an array of numbers of length 3`)
     }
 
     if (
-      this._scaleSteps
-        && (!Array.isArray(this._scaleSteps) || this._scaleSteps.some(th => typeof th !== 'number'))
+      this._scaleSteps &&
+      (!Array.isArray(this._scaleSteps) || this._scaleSteps.some((th) => typeof th !== 'number'))
     ) {
       throw new Error(`${this._name} - expected scaleSteps to be an array of numbers`)
     }
   }
 
-  get minFaceSize(): number { return this._minFaceSize }
-  get scaleFactor(): number { return this._scaleFactor }
-  get maxNumScales(): number { return this._maxNumScales }
-  get scoreThresholds(): number[] { return this._scoreThresholds }
-  get scaleSteps(): number[] | undefined { return this._scaleSteps }
+  get minFaceSize(): number {
+    return this._minFaceSize
+  }
+  get scaleFactor(): number {
+    return this._scaleFactor
+  }
+  get maxNumScales(): number {
+    return this._maxNumScales
+  }
+  get scoreThresholds(): number[] {
+    return this._scoreThresholds
+  }
+  get scaleSteps(): number[] | undefined {
+    return this._scaleSteps
+  }
 }

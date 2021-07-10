@@ -1,40 +1,40 @@
-import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../../declarations';
-import { SubscriptionConfirm } from './subscription-confirm.class';
-import hooks from './subscription-confirm.hooks';
-import config from '../../appconfig';
-import subscriptionConfirmDocs from './subscription-confirm.docs';
+import { ServiceAddons } from '@feathersjs/feathers'
+import { Application } from '../../../declarations'
+import { SubscriptionConfirm } from './subscription-confirm.class'
+import hooks from './subscription-confirm.hooks'
+import config from '../../appconfig'
+import subscriptionConfirmDocs from './subscription-confirm.docs'
 
 // Add this service to the service type index
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'subscription-confirm': SubscriptionConfirm & ServiceAddons<any>;
+    'subscription-confirm': SubscriptionConfirm & ServiceAddons<any>
   }
 }
 
 export default (app: Application): any => {
   const options = {
     paginate: app.get('paginate')
-  };
+  }
 
   /**
-   * Initialize our service with any options it requires and docs 
-   * 
+   * Initialize our service with any options it requires and docs
+   *
    * @author Vyacheslav Solovjov
    */
-  const event = new SubscriptionConfirm(options, app);
-  event.docs = subscriptionConfirmDocs;
-  
+  const event = new SubscriptionConfirm(options, app)
+  event.docs = subscriptionConfirmDocs
+
   app.use('/subscription-confirm', event, (req, res) => {
-    res.redirect(config.client.url);
-  });
+    res.redirect(config.client.url)
+  })
 
   /**
    * Get our initialized service so that we can register hooks
-   * 
+   *
    * @author Vyacheslav Solovjov
    */
-  const service = app.service('subscription-confirm');
+  const service = app.service('subscription-confirm')
 
-  service.hooks(hooks as any);
-};
+  service.hooks(hooks as any)
+}

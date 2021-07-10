@@ -1,7 +1,7 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { createSelector } from 'reselect';
+import { createSelector } from 'reselect'
 
-const selectState = (state: any): any => state.get('creators');
-export const selectCreatorsState = createSelector([selectState], (creators) => creators);
+const selectState = (state: any): any => state.get('creators')
+export const selectCreatorsState = createSelector([selectState], (creators) => creators)

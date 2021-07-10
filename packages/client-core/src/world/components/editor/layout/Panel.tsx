@@ -1,9 +1,9 @@
-import React, { Component } from "react";
-import styled from "styled-components";
-import PropTypes from "prop-types";
+import React, { Component } from 'react'
+import styled from 'styled-components'
+import PropTypes from 'prop-types'
 
 /**
- * 
+ *
  *  @author Hanzla  Mateen
  */
 export const PanelDragContainer = (styled as any).div`
@@ -11,10 +11,10 @@ export const PanelDragContainer = (styled as any).div`
   flex: 1;
   flex-direction: row;
   align-items: center;
-`;
+`
 
 /**
- * 
+ *
  *  @author Robert Long
  */
 export const PanelContainer = (styled as any).div`
@@ -23,12 +23,12 @@ export const PanelContainer = (styled as any).div`
   flex: 1;
   flex-direction: column;
   border-radius: 4px;
-  background-color: ${props => props.theme.panel};
+  background-color: ${(props) => props.theme.panel};
   overflow: hidden;
   user-select: none;
-`;
+`
 /**
- * 
+ *
  *  @author Robert Long
  */
 export const PanelToolbar = (styled as any).div`
@@ -37,24 +37,24 @@ export const PanelToolbar = (styled as any).div`
   height: 24px;
   align-items: center;
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-`;
+`
 
 /**
- * 
+ *
  *  @author Robert Long
  */
 export const PanelIcon = (styled as any).div`
   margin-right: 8px;
-`;
+`
 
 /**
- * 
+ *
  *  @author Robert Long
  */
-export const PanelTitle = (styled as any).div``;
+export const PanelTitle = (styled as any).div``
 
 /**
- * 
+ *
  *  @author Robert Long
  */
 export const PanelContent = (styled as any).div`
@@ -63,10 +63,10 @@ export const PanelContent = (styled as any).div`
   flex-direction: column;
   position: relative;
   overflow: hidden;
-`;
+`
 
 /**
- * 
+ *
  *  @author Robert Long
  */
 export class Panel extends Component {
@@ -75,10 +75,10 @@ export class Panel extends Component {
     title: PropTypes.string,
     children: PropTypes.node,
     toolbarContent: PropTypes.node
-  };
+  }
 
   render() {
-    const { icon, title, children, toolbarContent, ...rest } = this.props as any;
+    const { icon, title, children, toolbarContent, ...rest } = this.props as any
 
     return (
       <PanelContainer {...rest}>
@@ -89,8 +89,8 @@ export class Panel extends Component {
         </PanelToolbar>
         <PanelContent>{children}</PanelContent>
       </PanelContainer>
-    );
+    )
   }
 }
 
-export default Panel;
+export default Panel

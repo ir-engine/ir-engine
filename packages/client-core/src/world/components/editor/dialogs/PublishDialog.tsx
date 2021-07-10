@@ -1,26 +1,25 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import configs from "../configs";
-import PreviewDialog from "./PreviewDialog";
-import StringInput from "../inputs/StringInput";
-import BooleanInput from "../inputs/BooleanInput";
-import FormField from "../inputs/FormField";
-import { Trans, withTranslation } from "react-i18next";
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import configs from '../configs'
+import PreviewDialog from './PreviewDialog'
+import StringInput from '../inputs/StringInput'
+import BooleanInput from '../inputs/BooleanInput'
+import FormField from '../inputs/FormField'
+import { Trans, withTranslation } from 'react-i18next'
 
 /**
  * PublishDialog used to show the dialog when we are going to publish scene.
- * 
+ *
  * @author Robert Long
  * @type {class component}
  */
-export class PublishDialog extends Component<{t: Function}> {
-
-/**
- * Declairing propTypes for publishDialog component.
- * 
- * @author Robert Long
- * @type {Object}
- */
+export class PublishDialog extends Component<{ t: Function }> {
+  /**
+   * Declairing propTypes for publishDialog component.
+   *
+   * @author Robert Long
+   * @type {Object}
+   */
   static propTypes = {
     onCancel: PropTypes.func,
     screenshotUrl: PropTypes.string,
@@ -28,32 +27,32 @@ export class PublishDialog extends Component<{t: Function}> {
     isPublished: PropTypes.bool,
     sceneUrl: PropTypes.string,
     initialSceneParams: PropTypes.object,
-    t: PropTypes.func,
-  };
+    t: PropTypes.func
+  }
 
   //initializing state when object of class get invoked.
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
-      name: "",
+      name: '',
       ...props.initialSceneParams
-    };
+    }
   }
 
   //setting state when there is change in name.
-  onChangeName = name => this.setState({ name });
+  onChangeName = (name) => this.setState({ name })
 
   //function to handle the confirmation of publishDialog
   onConfirm = () => {
-    const publishState = { ...this.state } as any;
-    publishState.name = publishState.name.trim();
-    (this.props as any).onPublish(publishState);
-  };
+    const publishState = { ...this.state } as any
+    publishState.name = publishState.name.trim()
+    ;(this.props as any).onPublish(publishState)
+  }
 
   // creating and rendering PreviewDialog view.
-  render(){
-    const { onCancel, screenshotUrl } = this.props as any;
-    const { name } = this.state as any;
+  render() {
+    const { onCancel, screenshotUrl } = this.props as any
+    const { name } = this.state as any
     return (
       <PreviewDialog
         imageSrc={screenshotUrl}
@@ -62,22 +61,22 @@ export class PublishDialog extends Component<{t: Function}> {
         onCancel={onCancel}
         confirmLabel={this.props.t('editor:dialog.publish.lbl-confirm')}
       >
-        { /* @ts-ignore */ }
+        {/* @ts-ignore */}
         <FormField>
           <label htmlFor="sceneName">{this.props.t('editor:dialog.publish.lbl-name')}</label>
           <StringInput
             /* @ts-ignore */
             id="sceneName"
             required
-            pattern={"[A-Za-z0-9-':\"!@#$%^&*(),.?~ ]{4,64}"}
+            pattern={'[A-Za-z0-9-\':"!@#$%^&*(),.?~ ]{4,64}'}
             title={this.props.t('editor:dialog.publish.info-name')}
             value={name}
             onChange={this.onChangeName}
           />
         </FormField>
       </PreviewDialog>
-    );
+    )
   }
 }
 
-export default withTranslation()(PublishDialog);
+export default withTranslation()(PublishDialog)

@@ -1,41 +1,51 @@
-import { Entity } from '../../../../ecs/classes/Entity';
-import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunctions';
-import { NetworkObject } from '../../../../networking/components/NetworkObject';
-import { createGolfBallPrefab } from '../prefab/GolfBallPrefab';
-import { Network } from '../../../../networking/classes/Network';
-import { isClient } from '../../../../common/functions/isClient';
-import { getGame } from '../../../functions/functions';
-import { MathUtils, Vector3 } from 'three';
-import { GolfPrefabTypes } from '../GolfGameConstants';
-import { TransformComponent } from "../../../../transform/components/TransformComponent";
-import { Behavior } from '../../../../common/interfaces/Behavior';
+import { Entity } from '../../../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunctions'
+import { NetworkObject } from '../../../../networking/components/NetworkObject'
+import { createGolfBallPrefab } from '../prefab/GolfBallPrefab'
+import { Network } from '../../../../networking/classes/Network'
+import { isClient } from '../../../../common/functions/isClient'
+import { getGame } from '../../../functions/functions'
+import { MathUtils, Vector3 } from 'three'
+import { GolfPrefabTypes } from '../GolfGameConstants'
+import { TransformComponent } from '../../../../transform/components/TransformComponent'
+import { Behavior } from '../../../../common/interfaces/Behavior'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const spawnBall: Behavior = (entity: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
-
+export const spawnBall: Behavior = (
+  entity: Entity,
+  args?: any,
+  delta?: number,
+  entityTarget?: Entity,
+  time?: number,
+  checks?: any
+): void => {
   // server sends clients the entity data
-  if (isClient) return;
+  if (isClient) return
 
-  const game = getGame(entity);
-  const ownerId = getComponent(entity, NetworkObject).ownerId;
+  const game = getGame(entity)
+  const ownerId = getComponent(entity, NetworkObject).ownerId
 
-  const networkId = Network.getNetworkId();
-  const uuid = MathUtils.generateUUID();
+  const networkId = Network.getNetworkId()
+  const uuid = MathUtils.generateUUID()
   // send position to spawn
   // now we have just one location
   // but soon
   const teeEntity = game.gameObjects[args.positionCopyFromRole][0]
-  const teeTransform = getComponent(teeEntity, TransformComponent);
+  const teeTransform = getComponent(teeEntity, TransformComponent)
 
   const parameters = {
     gameName: game.name,
     role: 'GolfBall',
-    spawnPosition: new Vector3(teeTransform.position.x, teeTransform.position.y + args.offsetY, teeTransform.position.z),
+    spawnPosition: new Vector3(
+      teeTransform.position.x,
+      teeTransform.position.y + args.offsetY,
+      teeTransform.position.z
+    ),
     uuid
-  };
+  }
 
   // this spawns the ball on the server
   createGolfBallPrefab({
@@ -51,6 +61,6 @@ export const spawnBall: Behavior = (entity: Entity, args?: any, delta?: number, 
     ownerId,
     uniqueId: uuid,
     prefabType: GolfPrefabTypes.Ball,
-    parameters,
+    parameters
   })
-};
+}

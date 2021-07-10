@@ -1,14 +1,14 @@
-import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers';
-import Paginated from '../../types/PageObject';
-import { Application } from '../../../declarations';
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+import Paginated from '../../types/PageObject'
+import { Application } from '../../../declarations'
 
 interface Data {}
 
 interface ServiceOptions {}
 
 /**
- * A class for Upload service 
- * 
+ * A class for Upload service
+ *
  * @author Vyacheslav Solovjov
  */
 export class Upload implements ServiceMethods<Data> {
@@ -16,26 +16,27 @@ export class Upload implements ServiceMethods<Data> {
   options: ServiceOptions
   docs: any
 
-  constructor (options: ServiceOptions = {}, app: Application) {
-    this.options = options;
-    this.app = app;
+  constructor(options: ServiceOptions = {}, app: Application) {
+    this.options = options
+    this.app = app
   }
 
   async setup() {}
 
-  async find (params?: Params): Promise<Data[] | Paginated<Data>> {
-    return [];
+  async find(params?: Params): Promise<Data[] | Paginated<Data>> {
+    return []
   }
 
-  async get (id: Id, params?: Params): Promise<Data> {
+  async get(id: Id, params?: Params): Promise<Data> {
     return {
-      id, text: `A new message with ID: ${id}!`
-    };
+      id,
+      text: `A new message with ID: ${id}!`
+    }
   }
 
-  async create (data: Data, params?: Params): Promise<Data> {
+  async create(data: Data, params?: Params): Promise<Data> {
     if (Array.isArray(data)) {
-      return await Promise.all(data.map(current => this.create(current, params)));
+      return await Promise.all(data.map((current) => this.create(current, params)))
     }
 
     const result = await this.app.service('static-resource').create({
@@ -43,20 +44,20 @@ export class Upload implements ServiceMethods<Data> {
       description: (data as any).description,
       url: (data as any).url,
       mimeType: (data as any).mimeType
-    });
+    })
 
-    return result;
+    return result
   }
 
-  async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data;
+  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
+    return data
   }
 
-  async patch (id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data;
+  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
+    return data
   }
 
-  async remove (id: NullableId, params?: Params): Promise<Data> {
-    return { id };
+  async remove(id: NullableId, params?: Params): Promise<Data> {
+    return { id }
   }
 }

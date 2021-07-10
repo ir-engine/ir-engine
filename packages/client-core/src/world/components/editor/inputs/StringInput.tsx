@@ -1,8 +1,8 @@
 // @ts-nocheck
-import React, { useState, useEffect, useCallback, useRef } from "react";
-import PropTypes from "prop-types";
-import styled from "styled-components";
-import Input from "./Input";
+import React, { useState, useEffect, useCallback, useRef } from 'react'
+import PropTypes from 'prop-types'
+import styled from 'styled-components'
+import Input from './Input'
 
 /**
  * @author Robert Long
@@ -10,27 +10,27 @@ import Input from "./Input";
 const StyledStringInput = (styled as any)(Input)`
   display: flex;
   width: 100%;
-`;
+`
 
 /**
  * @author Robert Long
  */
 const StringInput = React.forwardRef(({ onChange, ...rest }, ref) => (
-  <StyledStringInput onChange={e => onChange(e.target.value, e)} {...rest} ref={ref} />
-));
+  <StyledStringInput onChange={(e) => onChange(e.target.value, e)} {...rest} ref={ref} />
+))
 
-StringInput.displayName = "StringInput";
+StringInput.displayName = 'StringInput'
 
 /**
  * @author Robert Long
  */
 StringInput.defaultProps = {
-  value: "",
+  value: '',
   onChange: () => {},
-  type: "text",
+  type: 'text',
   required: false,
   placeholder: ''
-};
+}
 
 StringInput.propTypes = {
   id: PropTypes.string,
@@ -39,44 +39,44 @@ StringInput.propTypes = {
   required: PropTypes.bool,
   placeholder: PropTypes.string,
   onChange: PropTypes.func
-};
+}
 
-export default StringInput;
+export default StringInput
 
 const DropContainer = (styled as any).div`
   display: flex;
   width: 100%;
-`;
+`
 
 /**
  * @author Robert Long
  */
 export const ControlledStringInput = React.forwardRef((values, ref) => {
-  const { onChange, value, ...rest } = values as any;
-  const inputRef = useRef();
+  const { onChange, value, ...rest } = values as any
+  const inputRef = useRef()
 
-  const [tempValue, setTempValue] = useState(value);
+  const [tempValue, setTempValue] = useState(value)
 
-  const onKeyUp = useCallback(e => {
-    if (e.key === "Enter" || e.key === "Escape") {
-      inputRef.current.blur();
+  const onKeyUp = useCallback((e) => {
+    if (e.key === 'Enter' || e.key === 'Escape') {
+      inputRef.current.blur()
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
-    setTempValue(value);
-  }, [value]);
+    setTempValue(value)
+  }, [value])
 
   const onBlur = useCallback(() => {
-    onChange(tempValue);
-  }, [onChange, tempValue]);
+    onChange(tempValue)
+  }, [onChange, tempValue])
 
   const onChangeValue = useCallback(
-    e => {
-      setTempValue(e.target.value);
+    (e) => {
+      setTempValue(e.target.value)
     },
     [setTempValue]
-  );
+  )
 
   return (
     <DropContainer ref={ref}>
@@ -89,17 +89,17 @@ export const ControlledStringInput = React.forwardRef((values, ref) => {
         {...rest}
       />
     </DropContainer>
-  );
-});
+  )
+})
 
-ControlledStringInput.displayName = "ControlledStringInput";
+ControlledStringInput.displayName = 'ControlledStringInput'
 
 ControlledStringInput.defaultProps = {
-  value: "",
+  value: '',
   onChange: () => {},
-  type: "text",
+  type: 'text',
   required: false
-};
+}
 
 ControlledStringInput.propTypes = {
   className: PropTypes.string,
@@ -108,4 +108,4 @@ ControlledStringInput.propTypes = {
   required: PropTypes.bool,
   placeholder: PropTypes.string,
   onChange: PropTypes.func
-};
+}

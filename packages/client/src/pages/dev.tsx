@@ -1,33 +1,28 @@
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine';
-import { CharacterInputSchema } from '@xrengine/engine/src/character/CharacterInputSchema';
-import React, { useEffect } from 'react';
-import { InitializeOptions } from '../../../engine/src/initializationOptions';
+import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { CharacterInputSchema } from '@xrengine/engine/src/character/CharacterInputSchema'
+import React, { useEffect } from 'react'
+import { InitializeOptions } from '../../../engine/src/initializationOptions'
 
 const LocationPage = () => {
   useEffect(() => {
-
-
     const initializationOptions: InitializeOptions = {
       publicPath: '',
       input: {
-        schema: CharacterInputSchema,
+        schema: CharacterInputSchema
       },
       networking: {
-        useOfflineMode: true,
+        useOfflineMode: true
       },
       renderer: {
         disabled: true,
-        postProcessing: false,
+        postProcessing: false
       }
-    };
+    }
 
-    initializeEngine(initializationOptions);
-  }, []);
+    initializeEngine(initializationOptions)
+  }, [])
 
-  return (
-    <>
-    </>
-  );
-};
+  return <></>
+}
 
-export default LocationPage;
+export default LocationPage

@@ -1,15 +1,15 @@
-import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../../declarations';
-import { UserRelationship } from './user-relationship.class';
-import createModel from './user-relationship.model';
-import hooks from './user-relationship.hooks';
-import { Op } from 'sequelize';
-import logger from '../../logger';
-import userRalationshipDocs from './user-ralationship.docs';
+import { ServiceAddons } from '@feathersjs/feathers'
+import { Application } from '../../../declarations'
+import { UserRelationship } from './user-relationship.class'
+import createModel from './user-relationship.model'
+import hooks from './user-relationship.hooks'
+import { Op } from 'sequelize'
+import logger from '../../logger'
+import userRalationshipDocs from './user-ralationship.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'user-relationship': UserRelationship & ServiceAddons<any>;
+    'user-relationship': UserRelationship & ServiceAddons<any>
   }
 }
 
@@ -18,20 +18,20 @@ export default (app: Application): any => {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
-  };
-  
+  }
+
   /**
-   * Initialize our service with any options it requires and docs 
-   * 
+   * Initialize our service with any options it requires and docs
+   *
    * @author Vyacheslav Solovjov
    */
-  const event = new UserRelationship(options, app);
-  event.docs = userRalationshipDocs;
-  app.use('/user-relationship', event);
+  const event = new UserRelationship(options, app)
+  event.docs = userRalationshipDocs
+  app.use('/user-relationship', event)
 
-  const service = app.service('user-relationship');
+  const service = app.service('user-relationship')
 
-  service.hooks(hooks as any);
+  service.hooks(hooks as any)
 
   // service.publish('created', async (data): Promise<any> => {
   //   data.user1 = await app.service('user').get(data.userId1)
@@ -74,7 +74,7 @@ export default (app: Application): any => {
           relatedUserId: data.userId,
           userId: data.relatedUserId
         }
-      });
+      })
       if (data.userRelationshipType === 'friend' && inverseRelationship != null) {
         // const channel = await (app.service('channel') as any).Model.findOne({
         //   where: {
@@ -100,11 +100,11 @@ export default (app: Application): any => {
         //   });
         // }
         if (data.dataValues != null) {
-          data.dataValues.user = await app.service('user').get(data.userId);
-          data.dataValues.relatedUser = await app.service('user').get(data.relatedUserId);
+          data.dataValues.user = await app.service('user').get(data.userId)
+          data.dataValues.relatedUser = await app.service('user').get(data.relatedUserId)
         } else {
-          data.user = await app.service('user').get(data.userId);
-          data.relatedUser = await app.service('user').get(data.relatedUserId);
+          data.user = await app.service('user').get(data.userId)
+          data.relatedUser = await app.service('user').get(data.relatedUserId)
         }
         // const avatarResult = await app.service('static-resource').find({
         //   query: {
@@ -136,19 +136,21 @@ export default (app: Application): any => {
         //   }
         // }
 
-        const targetIds = [data.userId, data.relatedUserId];
+        const targetIds = [data.userId, data.relatedUserId]
         // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        return await Promise.all(targetIds.map((userId: string) => {
-          return app.channel(`userIds/${userId}`).send({
-            userRelationship: data
-          });
-        }));
+        return await Promise.all(
+          targetIds.map((userId: string) => {
+            return app.channel(`userIds/${userId}`).send({
+              userRelationship: data
+            })
+          })
+        )
       }
     } catch (err) {
-      logger.error(err);
-      throw err;
+      logger.error(err)
+      throw err
     }
-  });
+  })
 
   service.publish('removed', async (data): Promise<any> => {
     try {
@@ -165,20 +167,22 @@ export default (app: Application): any => {
             }
           ]
         }
-      });
+      })
       if (channel != null) {
-        await app.service('channel').remove(channel.id);
+        await app.service('channel').remove(channel.id)
       }
-      const targetIds = [data.userId, data.relatedUserId];
+      const targetIds = [data.userId, data.relatedUserId]
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      return await Promise.all(targetIds.map((userId: string) => {
-        return app.channel(`userIds/${userId}`).send({
-          userRelationship: data
-        });
-      }));
+      return await Promise.all(
+        targetIds.map((userId: string) => {
+          return app.channel(`userIds/${userId}`).send({
+            userRelationship: data
+          })
+        })
+      )
     } catch (err) {
-      logger.error(err);
-      throw err;
+      logger.error(err)
+      throw err
     }
-  });
-};
+  })
+}

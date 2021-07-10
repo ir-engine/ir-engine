@@ -12,8 +12,12 @@ export class Point implements IPoint {
     this._y = y
   }
 
-  get x(): number { return this._x }
-  get y(): number { return this._y }
+  get x(): number {
+    return this._x
+  }
+  get y(): number {
+    return this._y
+  }
 
   public add(pt: IPoint): Point {
     return new Point(this.x + pt.x, this.y + pt.y)

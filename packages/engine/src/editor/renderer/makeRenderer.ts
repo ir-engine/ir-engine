@@ -1,14 +1,14 @@
-import { WebGL1Renderer, WebGLRenderer, PCFSoftShadowMap, LinearToneMapping, sRGBEncoding } from "three";
+import { WebGL1Renderer, WebGLRenderer, PCFSoftShadowMap, LinearToneMapping, sRGBEncoding } from 'three'
 export default function makeRenderer(width, height, props = {}) {
-  let { canvas } = props as any;
+  let { canvas } = props as any
   if (!canvas) {
-    canvas = document.createElement("canvas");
+    canvas = document.createElement('canvas')
   }
-  let context;
+  let context
   try {
-    context = canvas.getContext("webgl2", { antialias: true });
+    context = canvas.getContext('webgl2', { antialias: true })
   } catch (error) {
-    context = canvas.getContext("webgl", { antialias: true });
+    context = canvas.getContext('webgl', { antialias: true })
   }
   const options = {
     ...props,
@@ -16,16 +16,16 @@ export default function makeRenderer(width, height, props = {}) {
     context,
     antialias: true,
     preserveDrawingBuffer: true
-  };
+  }
   const { safariWebBrowser } = window as any
-  const renderer = safariWebBrowser ? new WebGL1Renderer(options) : new WebGLRenderer(options);
-  renderer.physicallyCorrectLights = true;
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = PCFSoftShadowMap;
-  renderer.outputEncoding = sRGBEncoding;
-  renderer.toneMapping = LinearToneMapping;
-  renderer.toneMappingExposure = 2;
-  renderer.setSize(width, height, false);
+  const renderer = safariWebBrowser ? new WebGL1Renderer(options) : new WebGLRenderer(options)
+  renderer.physicallyCorrectLights = true
+  renderer.shadowMap.enabled = true
+  renderer.shadowMap.type = PCFSoftShadowMap
+  renderer.outputEncoding = sRGBEncoding
+  renderer.toneMapping = LinearToneMapping
+  renderer.toneMappingExposure = 2
+  renderer.setSize(width, height, false)
 
-  return renderer;
+  return renderer
 }

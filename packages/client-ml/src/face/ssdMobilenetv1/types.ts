@@ -1,41 +1,40 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { ConvParams } from '../common/types';
+import * as tf from '@tensorflow/tfjs-core'
+import { ConvParams } from '../common/types'
 
 export type PointwiseConvParams = {
   filters: tf.Tensor4D
   batch_norm_offset: tf.Tensor1D
 }
 
-  export type DepthwiseConvParams = {
-    filters: tf.Tensor4D
-    batch_norm_scale: tf.Tensor1D
-    batch_norm_offset: tf.Tensor1D
-    batch_norm_mean: tf.Tensor1D
-    batch_norm_variance: tf.Tensor1D
-  }
+export type DepthwiseConvParams = {
+  filters: tf.Tensor4D
+  batch_norm_scale: tf.Tensor1D
+  batch_norm_offset: tf.Tensor1D
+  batch_norm_mean: tf.Tensor1D
+  batch_norm_variance: tf.Tensor1D
+}
 
-  export type ConvPairParams = {
-    depthwise_conv: DepthwiseConvParams
-    pointwise_conv: PointwiseConvParams
-  }
+export type ConvPairParams = {
+  depthwise_conv: DepthwiseConvParams
+  pointwise_conv: PointwiseConvParams
+}
 
-  export type Params = {
-    conv_0: PointwiseConvParams
-    conv_1: ConvPairParams
-    conv_2: ConvPairParams
-    conv_3: ConvPairParams
-    conv_4: ConvPairParams
-    conv_5: ConvPairParams
-    conv_6: ConvPairParams
-    conv_7: ConvPairParams
-    conv_8: ConvPairParams
-    conv_9: ConvPairParams
-    conv_10: ConvPairParams
-    conv_11: ConvPairParams
-    conv_12: ConvPairParams
-    conv_13: ConvPairParams
-  }
-
+export type Params = {
+  conv_0: PointwiseConvParams
+  conv_1: ConvPairParams
+  conv_2: ConvPairParams
+  conv_3: ConvPairParams
+  conv_4: ConvPairParams
+  conv_5: ConvPairParams
+  conv_6: ConvPairParams
+  conv_7: ConvPairParams
+  conv_8: ConvPairParams
+  conv_9: ConvPairParams
+  conv_10: ConvPairParams
+  conv_11: ConvPairParams
+  conv_12: ConvPairParams
+  conv_13: ConvPairParams
+}
 
 export type BoxPredictionParams = {
   box_encoding_predictor: ConvParams
@@ -64,7 +63,7 @@ export type OutputLayerParams = {
 }
 
 export type NetParams = {
-  mobilenetv1: Params,
-  prediction_layer: PredictionLayerParams,
+  mobilenetv1: Params
+  prediction_layer: PredictionLayerParams
   output_layer: OutputLayerParams
 }

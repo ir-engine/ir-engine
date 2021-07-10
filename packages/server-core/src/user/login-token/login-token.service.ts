@@ -1,15 +1,15 @@
 // Initializes the `login-token` service on path `/login-token`
-import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../../declarations';
-import { LoginToken } from './login-token.class';
-import createModel from './login-token.model';
-import hooks from './login-token.hooks';
-import loginTokenDocs from "./login-token.docs";
+import { ServiceAddons } from '@feathersjs/feathers'
+import { Application } from '../../../declarations'
+import { LoginToken } from './login-token.class'
+import createModel from './login-token.model'
+import hooks from './login-token.hooks'
+import loginTokenDocs from './login-token.docs'
 
 // Add this service to the service type index
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'login-token': LoginToken & ServiceAddons<any>;
+    'login-token': LoginToken & ServiceAddons<any>
   }
 }
 
@@ -17,23 +17,23 @@ export default (app: Application): any => {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate')
-  };
+  }
 
-   /**
-   * Initialize our service with any options it requires and docs 
-   * 
+  /**
+   * Initialize our service with any options it requires and docs
+   *
    * @author Vyacheslav Solovjov
    */
-  const event = new LoginToken(options, app);
-  event.docs = loginTokenDocs;
-  app.use('/login-token', event );
+  const event = new LoginToken(options, app)
+  event.docs = loginTokenDocs
+  app.use('/login-token', event)
 
   /**
    * Get our initialized service so that we can register hooks
-   * 
+   *
    * @author Vyacheslav Solovjov
    */
-  const service = app.service('login-token');
+  const service = app.service('login-token')
 
-  service.hooks(hooks as any);
-};
+  service.hooks(hooks as any)
+}

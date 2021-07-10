@@ -1,4 +1,4 @@
-import type { Vector3 } from "three";
+import type { Vector3 } from 'three'
 
 /**
  * Constructs a 2D matrix from first vector, replacing the Y axes with the global Y axis,
@@ -10,9 +10,5 @@ import type { Vector3 } from "three";
  */
 
 export function applyVectorMatrixXZ(a: Vector3, b: Vector3): Vector3 {
-	return a.set(
-		(a.x * b.z + a.z * b.x),
-		b.y,
-		(a.z * b.z + -a.x * b.x)
-	);
+  return a.set(a.x * b.z + a.z * b.x, b.y, a.z * b.z + -a.x * b.x)
 }

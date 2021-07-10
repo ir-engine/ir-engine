@@ -1,4 +1,4 @@
-import { Object3D } from "three";
+import { Object3D } from 'three'
 import {
   BlendFunction,
   BloomEffect,
@@ -11,9 +11,9 @@ import {
   OutlineEffect,
   SSAOEffect,
   ToneMappingEffect
-} from "postprocessing";
-import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect';
-import { FXAAEffect } from '../../renderer/effects/FXAAEffect';
+} from 'postprocessing'
+import { LinearTosRGBEffect } from '../../renderer/effects/LinearTosRGBEffect'
+import { FXAAEffect } from '../../renderer/effects/FXAAEffect'
 
 /**
  * @author Shaw & Abhishek Pathak <abhi.pathak401@gmail.com>
@@ -21,42 +21,42 @@ import { FXAAEffect } from '../../renderer/effects/FXAAEffect';
 
 export const effectType = {
   FXAAEffect: {
-    effect: FXAAEffect,
+    effect: FXAAEffect
   },
   OutlineEffect: {
-    effect: OutlineEffect,
+    effect: OutlineEffect
   },
   SSAOEffect: {
-    effect: SSAOEffect,
+    effect: SSAOEffect
   },
   DepthOfFieldEffect: {
-    effect: DepthOfFieldEffect,
+    effect: DepthOfFieldEffect
   },
   BloomEffect: {
-    effect: BloomEffect,
+    effect: BloomEffect
   },
   ToneMappingEffect: {
-    effect: ToneMappingEffect,
+    effect: ToneMappingEffect
   },
   BrightnessContrastEffect: {
-    effect: BrightnessContrastEffect,
+    effect: BrightnessContrastEffect
   },
   HueSaturationEffect: {
-    effect: HueSaturationEffect,
+    effect: HueSaturationEffect
   },
 
   ColorDepthEffect: {
-    effect: ColorDepthEffect,
+    effect: ColorDepthEffect
   },
   LinearTosRGBEffect: {
-    effect: LinearTosRGBEffect,
+    effect: LinearTosRGBEffect
   }
 }
 
 export const defaultPostProcessingSchema = {
   FXAAEffect: {
     isActive: true,
-    blendFunction: BlendFunction.NORMAL,
+    blendFunction: BlendFunction.NORMAL
   },
   OutlineEffect: {
     isActive: true,
@@ -80,11 +80,11 @@ export const defaultPostProcessingSchema = {
     depthAwareUpsampling: true,
     samples: 16,
     rings: 7,
-    distanceThreshold: .125,	// Render up to a distance of ~20 world units
-    distanceFalloff: 0.02,	// with an additional ~2.5 units of falloff.
+    distanceThreshold: 0.125, // Render up to a distance of ~20 world units
+    distanceFalloff: 0.02, // with an additional ~2.5 units of falloff.
     minRadiusScale: 1,
-    bias: .25,
-    radius: .01,
+    bias: 0.25,
+    radius: 0.01,
     intensity: 2,
     fade: 0.05
   },
@@ -121,32 +121,31 @@ export const defaultPostProcessingSchema = {
   HueSaturationEffect: {
     isActive: false,
     hue: 0,
-    saturation: -.15
+    saturation: -0.15
   },
   ColorDepthEffect: {
     isActive: false,
     bits: 16
   },
   LinearTosRGBEffect: {
-    isActive: false,
+    isActive: false
   }
-};
+}
 
 export default class PostProcessing extends Object3D {
-  postProcessingOptions: any = {};
+  postProcessingOptions: any = {}
   visible = true
   static get defaultOptions() {
-    return (defaultPostProcessingSchema);
+    return defaultPostProcessingSchema
   }
 
   getPropertyValue = (schemaArra: []): any => {
-    if (schemaArra.length < 1) return null;
-    let value = this.postProcessingOptions;
-    schemaArra.forEach(element => {
-      if (value[element] === "")
-        return null;
-      value = value[element];
-    });
-    return value;
+    if (schemaArra.length < 1) return null
+    let value = this.postProcessingOptions
+    schemaArra.forEach((element) => {
+      if (value[element] === '') return null
+      value = value[element]
+    })
+    return value
   }
 }

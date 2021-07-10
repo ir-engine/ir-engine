@@ -1,4 +1,4 @@
-const padTime = (t: number): string => t < 10 ? `0${t}` : `${t}`
+const padTime = (t: number): string => (t < 10 ? `0${t}` : `${t}`)
 
 const secondsToString = (seconds: number): string => {
   const hrs = Math.floor(((seconds % 31536000) % 86400) / 3600)
