@@ -243,7 +243,6 @@ export function interpolate(
           tmpSnapshot.state[i].qY = qn.y
           tmpSnapshot.state[i].qZ = qn.z
           tmpSnapshot.state[i].qW = qn.w
-
           ;(tmpSnapshot.state[i] as StateInterEntity).vX = x
           ;(tmpSnapshot.state[i] as StateInterEntity).vY = y
           ;(tmpSnapshot.state[i] as StateInterEntity).vZ = z

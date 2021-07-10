@@ -258,7 +258,6 @@ export class NumericInput extends Component {
   precision: PropTypes.number.isRequired,
   displayPrecision: PropTypes.number.isRequired
 }
-
 ;(NumericInput as any).defaultProps = {
   value: 0,
   smallStep: 0.025,

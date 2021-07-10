@@ -119,7 +119,6 @@ if (config.gameserver.enabled) {
               : `redis://${config.redis.address}:${config.redis.port}`
         })
       )
-
       ;(app as any).sync.ready.then(() => {
         logger.info('Feathers-sync started')
       })
@@ -158,7 +157,6 @@ if (config.gameserver.enabled) {
           '\x1b[33mError: Agones is not running!. If you are in local development, please run xrengine/scripts/sh start-agones.sh and restart server\x1b[0m'
         )
       })
-
       ;(app as any).agonesSDK = agonesSDK
       setInterval(() => agonesSDK.health(), 1000)
 

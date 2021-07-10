@@ -110,7 +110,6 @@ class Scrubber extends Component {
       mouseX: event.clientX,
       mouseY: event.clientY
     })
-
     ;(this.scrubberEl.current as any).requestPointerLock()
 
     window.addEventListener('mousemove', this.handleMouseMove)

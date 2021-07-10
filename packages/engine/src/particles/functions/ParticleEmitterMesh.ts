@@ -87,7 +87,6 @@ export class ParticleEmitterMesh extends Mesh {
     material.uniforms.emitterMatrix.value = new Matrix4()
 
     super(geometry, material)
-
     ;(this as any).frustumCulled = false
     this.initialPositions = []
     this.lifetimes = []
@@ -174,7 +173,6 @@ export class ParticleEmitterMesh extends Mesh {
       'particleAngle',
       new InstancedBufferAttribute(new Float32Array(angles), 1).setUsage(DynamicDrawUsage)
     )
-
     ;(this as any).geometry = tempGeo as ParticleEmitterGeometry
     this.initialPositions = initialPositions
     this.particleSizeRandomness = particleSizeRandomness

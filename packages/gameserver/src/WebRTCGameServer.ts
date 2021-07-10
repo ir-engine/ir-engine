@@ -7,7 +7,6 @@ import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/Networ
 import config from '@xrengine/server-core/src/appconfig'
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-
 ;(globalThis as any).XMLHttpRequest = XMLHttpRequest
 
 const currentPath = (process.platform === 'win32' ? 'file:///' : '') + path.dirname(__filename)

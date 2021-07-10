@@ -509,7 +509,6 @@ export class OrbitControls extends EventDispatcher {
     )
 
     this.spherical.makeSafe()
-
     ;(this.spherical as any).radius *= this.scale
 
     // restrict radius to be between desired limits
@@ -683,7 +682,6 @@ export class OrbitControls extends EventDispatcher {
     this.target.copy(this.target0)
     this.object.position.copy(this.position0)
     ;(this.object as any).zoom = this.zoom0
-
     ;(this.object as any).updateProjectionMatrix()
     this.dispatchEvent(CHANGE_EVENT)
 

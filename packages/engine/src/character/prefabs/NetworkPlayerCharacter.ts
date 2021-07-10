@@ -73,7 +73,6 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 
       animationComponent.mixer && animationComponent.mixer.stopAllAction()
       animationComponent.currentAnimationAction = []
-
       ;[...actor.modelContainer.children].forEach((child) => actor.modelContainer.remove(child))
 
       model.traverse((object) => {

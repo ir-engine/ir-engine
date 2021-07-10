@@ -46,7 +46,6 @@ export default (): Hook => {
             return context.app.service('static-resource').remove(item.id)
           })
         )
-
         ;(resourceData as any).userId = body.userId
       }
       context.result = await context.app.service('static-resource').create(resourceData)

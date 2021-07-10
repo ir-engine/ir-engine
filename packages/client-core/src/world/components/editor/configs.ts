@@ -22,7 +22,6 @@ const get = (configs, key, defaultValue) => {
 
 get(configs, 'GA_TRACKING_ID', process.env.VITE_GA_TRACKING_ID)
 get(configs, 'SENTRY_DSN', process.env.VITE_SENTRY_DSN)
-
 ;(configs as any).name = (): string => 'Scene Editor'
 ;(configs as any).longName = (): string => 'Scene Editor'
 ;(configs as any).SERVER_URL = Config.publicRuntimeConfig.apiServer

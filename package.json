@@ -62,7 +62,7 @@
   },
   "types": "lib/",
   "pre-push": [],
-  "pre-commit": [],
+  "pre-commit": ["lint"],
   "resolutions": {
     "socket.io": "4.1.2",
     "terser": "^5.6.1",

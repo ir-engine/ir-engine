@@ -115,7 +115,6 @@ if (config.server.enabled) {
               : `redis://${config.redis.address}:${config.redis.port}`
         })
       )
-
       ;(app as any).sync.ready.then(() => {
         logger.info('Feathers-sync started')
       })

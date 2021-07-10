@@ -170,7 +170,6 @@ export function loginUserByPassword(form: EmailLoginForm) {
     }
 
     dispatch(actionProcessing(true))
-
     ;(client as any)
       .authenticate({
         strategy: 'local',
@@ -608,11 +607,9 @@ export function uploadAvatarModel(model: any, thumbnail: any) {
       client
         .service('upload-presigned')
         .get('', { query: { type: 'avatar', fileName: model.name, fileSize: model.size } }),
-      client
-        .service('upload-presigned')
-        .get('', {
-          query: { type: 'user-thumbnail', fileName: name + '.png', fileSize: thumbnail.size, mimeType: thumbnail.type }
-        })
+      client.service('upload-presigned').get('', {
+        query: { type: 'user-thumbnail', fileName: name + '.png', fileSize: thumbnail.size, mimeType: thumbnail.type }
+      })
     ])
 
     const modelData = new FormData()

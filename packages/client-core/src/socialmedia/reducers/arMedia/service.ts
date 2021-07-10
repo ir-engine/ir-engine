@@ -64,15 +64,13 @@ export function createArMedia(mediaItem: any, files: any) {
       const preview = await api.upload(files.preview, null)
 
       //@ts-ignore error that this vars are void because upload is defines as void function
-      const newItem = await client
-        .service('ar-media')
-        .create({
-          ...mediaItem,
-          manifestId: manifest.file_id,
-          audioId: audio.file_id,
-          dracosisId: dracosis.file_id,
-          previewId: preview.file_id
-        })
+      const newItem = await client.service('ar-media').create({
+        ...mediaItem,
+        manifestId: manifest.file_id,
+        audioId: audio.file_id,
+        dracosisId: dracosis.file_id,
+        previewId: preview.file_id
+      })
       dispatch(addAdminArMedia(newItem))
     } catch (err) {
       console.log(err)

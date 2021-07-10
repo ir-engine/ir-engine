@@ -104,16 +104,14 @@ export async function removeFeedCommentFire(context: any): Promise<HookContext> 
   try {
     const { result, params } = context
     const comment = await context.app.service('comments').get(result.commentId, params)
-    const notification = await context.app
-      .service('notifications')
-      .find({
-        ...params,
-        action: 'getNotificationId',
-        feedId: comment.feedId,
-        commentId: comment.id,
-        creatorAuthorId: result.creatorAuthorId,
-        type: 'comment-fire'
-      })
+    const notification = await context.app.service('notifications').find({
+      ...params,
+      action: 'getNotificationId',
+      feedId: comment.feedId,
+      commentId: comment.id,
+      creatorAuthorId: result.creatorAuthorId,
+      type: 'comment-fire'
+    })
     await context.app.service('notifications').remove(notification.id)
     return context
   } catch (err) {

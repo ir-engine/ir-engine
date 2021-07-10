@@ -230,7 +230,6 @@ export const WebXRPlugin = ({
       renderer.setViewport(10, 10 * 2 + DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE)
       renderer.setScissor(10, 10 * 2 + DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE)
       renderer.render(scene, debugCamera.overview)
-
       ;[debugCamera.xz, debugCamera.xy, debugCamera.zy].forEach((cam, index) => {
         const left = 10 + (DEBUG_MINI_VIEWPORT_SIZE + 10) * index
         renderer.setViewport(left, 10, DEBUG_MINI_VIEWPORT_SIZE, DEBUG_MINI_VIEWPORT_SIZE)
