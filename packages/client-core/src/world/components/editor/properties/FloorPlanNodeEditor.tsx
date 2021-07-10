@@ -1,80 +1,78 @@
-import React, { Component } from "react";
-import NodeEditor from "./NodeEditor";
-import InputGroup from "../inputs/InputGroup";
-import BooleanInput from "../inputs/BooleanInput";
-import NumericInputGroup from "../inputs/NumericInputGroup";
-import { PropertiesPanelButton } from "../inputs/Button";
-import { ProgressDialog } from "../dialogs/ProgressDialog";
-import ErrorDialog from "../dialogs/ErrorDialog";
-import { withDialog } from "../contexts/DialogContext";
-import { withSettings } from "../contexts/SettingsContext";
-import { ShoePrints } from "@styled-icons/fa-solid/ShoePrints";
-import FloorPlanNode from "@xrengine/engine/src/editor/nodes/FloorPlanNode";
-import i18n from "i18next";
-import { withTranslation } from "react-i18next";
-import { Config } from "../../../../helper";
+import React, { Component } from 'react'
+import NodeEditor from './NodeEditor'
+import InputGroup from '../inputs/InputGroup'
+import BooleanInput from '../inputs/BooleanInput'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import { PropertiesPanelButton } from '../inputs/Button'
+import { ProgressDialog } from '../dialogs/ProgressDialog'
+import ErrorDialog from '../dialogs/ErrorDialog'
+import { withDialog } from '../contexts/DialogContext'
+import { withSettings } from '../contexts/SettingsContext'
+import { ShoePrints } from '@styled-icons/fa-solid/ShoePrints'
+import FloorPlanNode from '@xrengine/engine/src/editor/nodes/FloorPlanNode'
+import i18n from 'i18next'
+import { withTranslation } from 'react-i18next'
+import { Config } from '../../../../helper'
 
 /**
  * Defining properties for FloorPlanNodeEditor.
- * 
+ *
  * @author Robert Long
  * @type {Object}
  */
 type FloorPlanNodeEditorProps = {
-  hideDialog: (...args: any[]) => any;
-  showDialog: (...args: any[]) => any;
-  editor?: object;
-  settings: object;
-  node?: FloorPlanNode;
-  t: Function;
-};
+  hideDialog: (...args: any[]) => any
+  showDialog: (...args: any[]) => any
+  editor?: object
+  settings: object
+  node?: FloorPlanNode
+  t: Function
+}
 
 /**
  * FloorPlanNodeEditor class component used to render view to customize properties of floor plan element.
- * 
+ *
  * @author Robert Long
  * @extends Component
  */
 class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
-
   //initializing floorPlanNode properties
-    constructor(props) {
-        super(props);
-        const createPropSetter = propName => value =>
-            (this.props.editor as any).setPropertySelected(propName, value);
-        this.onChangeAutoCellSize = createPropSetter("autoCellSize");
-        this.onChangeCellSize = createPropSetter("cellSize");
-        this.onChangeCellHeight = createPropSetter("cellHeight");
-        this.onChangeAgentHeight = createPropSetter("agentHeight");
-        this.onChangeAgentRadius = createPropSetter("agentRadius");
-        this.onChangeAgentMaxClimb = createPropSetter("agentMaxClimb");
-        this.onChangeAgentMaxSlope = createPropSetter("agentMaxSlope");
-        this.onChangeRegionMinSize = createPropSetter("regionMinSize");
-        this.onChangeMaxTriangles = createPropSetter("maxTriangles");
-        this.onChangeForceTrimesh = createPropSetter("forceTrimesh");
-    }
+  constructor(props) {
+    super(props)
+    const createPropSetter = (propName) => (value) => (this.props.editor as any).setPropertySelected(propName, value)
+    this.onChangeAutoCellSize = createPropSetter('autoCellSize')
+    this.onChangeCellSize = createPropSetter('cellSize')
+    this.onChangeCellHeight = createPropSetter('cellHeight')
+    this.onChangeAgentHeight = createPropSetter('agentHeight')
+    this.onChangeAgentRadius = createPropSetter('agentRadius')
+    this.onChangeAgentMaxClimb = createPropSetter('agentMaxClimb')
+    this.onChangeAgentMaxSlope = createPropSetter('agentMaxSlope')
+    this.onChangeRegionMinSize = createPropSetter('regionMinSize')
+    this.onChangeMaxTriangles = createPropSetter('maxTriangles')
+    this.onChangeForceTrimesh = createPropSetter('forceTrimesh')
+  }
 
-    // setting icon component
-    static iconComponent = ShoePrints;
+  // setting icon component
+  static iconComponent = ShoePrints
 
-    // setting description and will appears in the property Container
-    static description = i18n.t('editor:properties.floorPlan.description');
+  // setting description and will appears in the property Container
+  static description = i18n.t('editor:properties.floorPlan.description')
 
-    // Declairing floorPlanNode Properties
-  onChangeAutoCellSize: (value: any) => any;
-  onChangeCellSize: (value: any) => any;
-  onChangeCellHeight: (value: any) => any;
-  onChangeAgentHeight: (value: any) => any;
-  onChangeAgentRadius: (value: any) => any;
-  onChangeAgentMaxClimb: (value: any) => any;
-  onChangeAgentMaxSlope: (value: any) => any;
-  onChangeRegionMinSize: (value: any) => any;
-  onChangeMaxTriangles: (value: any) => any;
-  onChangeForceTrimesh: (value: any) => any;
+  // Declairing floorPlanNode Properties
+  onChangeAutoCellSize: (value: any) => any
+  onChangeCellSize: (value: any) => any
+  onChangeCellHeight: (value: any) => any
+  onChangeAgentHeight: (value: any) => any
+  onChangeAgentRadius: (value: any) => any
+  onChangeAgentMaxClimb: (value: any) => any
+  onChangeAgentMaxSlope: (value: any) => any
+  onChangeRegionMinSize: (value: any) => any
+  onChangeMaxTriangles: (value: any) => any
+  onChangeForceTrimesh: (value: any) => any
 
   // function to Regenerate floorPlanNode
   onRegenerate = async () => {
-    const abortController = new AbortController();
+    const abortController = new AbortController()
 
     // showing message dialog
     this.props.showDialog(ProgressDialog, {
@@ -82,44 +80,38 @@ class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
       message: this.props.t('editor:properties.floorPlan.generatePlanMsg'),
       cancelable: true,
       onCancel: () => abortController.abort()
-    });
+    })
 
     // generating floorPlanNode
     try {
-      await this.props.node?.generate(abortController.signal, Config.publicRuntimeConfig.wasmUrl);
-      this.props.hideDialog();
+      await this.props.node?.generate(abortController.signal, Config.publicRuntimeConfig.wasmUrl)
+      this.props.hideDialog()
     } catch (error) {
-      if (error["aborted"]) {
-        this.props.hideDialog();
-        return;
+      if (error['aborted']) {
+        this.props.hideDialog()
+        return
       }
-      console.error(error);
+      console.error(error)
 
       //showing error dialog if there is an error
       this.props.showDialog(ErrorDialog, {
         title: this.props.t('editor:properties.floorPlan.generatePlanError'),
         message: error.message || this.props.t('editor:properties.floorPlan.generatePlanErrorMsg'),
         error
-      });
+      })
     }
-  };
+  }
 
   //rendering floorPlanNode view
   render() {
-    FloorPlanNodeEditor.description = this.props.t('editor:properties.floorPlan.description');
-    const { node, settings } = this.props as any;
+    FloorPlanNodeEditor.description = this.props.t('editor:properties.floorPlan.description')
+    const { node, settings } = this.props as any
     return (
       /* @ts-ignore */
       <NodeEditor {...this.props} description={FloorPlanNodeEditor.description}>
-        { /* @ts-ignore */ }
-        <InputGroup
-          name="Auto Cell Size"
-          label={this.props.t('editor:properties.floorPlan.lbl-autoCellSize')}
-        >
-          <BooleanInput
-            value={node.autoCellSize}
-            onChange={this.onChangeAutoCellSize}
-          />
+        {/* @ts-ignore */}
+        <InputGroup name="Auto Cell Size" label={this.props.t('editor:properties.floorPlan.lbl-autoCellSize')}>
+          <BooleanInput value={node.autoCellSize} onChange={this.onChangeAutoCellSize} />
         </InputGroup>
         {!node.autoCellSize && (
           /* @ts-ignore */
@@ -135,7 +127,7 @@ class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
             onChange={this.onChangeCellSize}
           />
         )}
-        { /* @ts-ignore */ }
+        {/* @ts-ignore */}
         <NumericInputGroup
           name="Cell Height"
           label={this.props.t('editor:properties.floorPlan.lbl-cellHeight')}
@@ -147,7 +139,7 @@ class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
           onChange={this.onChangeCellHeight}
           unit="m"
         />
-        { /* @ts-ignore */ }
+        {/* @ts-ignore */}
         <NumericInputGroup
           name="Agent Height"
           label={this.props.t('editor:properties.floorPlan.lbl-agentHeight')}
@@ -159,7 +151,7 @@ class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
           onChange={this.onChangeAgentHeight}
           unit="m"
         />
-        { /* @ts-ignore */ }
+        {/* @ts-ignore */}
         <NumericInputGroup
           name="Agent Radius"
           label={this.props.t('editor:properties.floorPlan.lbl-agentRadius')}
@@ -171,7 +163,7 @@ class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
           onChange={this.onChangeAgentRadius}
           unit="m"
         />
-        { /* @ts-ignore */ }
+        {/* @ts-ignore */}
         <NumericInputGroup
           name="Maximum Step Height"
           label={this.props.t('editor:properties.floorPlan.lbl-maxStepHeight')}
@@ -183,7 +175,7 @@ class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
           onChange={this.onChangeAgentMaxClimb}
           unit="m"
         />
-        { /* @ts-ignore */ }
+        {/* @ts-ignore */}
         <NumericInputGroup
           name="Maximum Slope"
           label={this.props.t('editor:properties.floorPlan.lbl-maxSlope')}
@@ -196,7 +188,7 @@ class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
           onChange={this.onChangeAgentMaxSlope}
           unit="°"
         />
-        { /* @ts-ignore */ }
+        {/* @ts-ignore */}
         <NumericInputGroup
           name="Minimum Region Area"
           label={this.props.t('editor:properties.floorPlan.lbl-minRegionArea')}
@@ -208,41 +200,33 @@ class FloorPlanNodeEditor extends Component<FloorPlanNodeEditorProps, {}> {
           onChange={this.onChangeRegionMinSize}
           unit="m²"
         />
-        { /* @ts-ignore */ }
-        <InputGroup
-          name="Force Trimesh"
-          label={this.props.t('editor:properties.floorPlan.lbl-forceTrimesh')}
-        >
-          <BooleanInput
-            value={node.forceTrimesh}
-            onChange={this.onChangeForceTrimesh}
-          />
+        {/* @ts-ignore */}
+        <InputGroup name="Force Trimesh" label={this.props.t('editor:properties.floorPlan.lbl-forceTrimesh')}>
+          <BooleanInput value={node.forceTrimesh} onChange={this.onChangeForceTrimesh} />
         </InputGroup>
         {!node.forceTrimesh && (
-            /* @ts-ignore */
-            <NumericInputGroup
-              name="Collision Geo Triangle Threshold"
-              label={this.props.t('editor:properties.floorPlan.lbl-collisionThreshold')}
-              value={node.maxTriangles}
-              min={10}
-              max={10000}
-              smallStep={1}
-              mediumStep={100}
-              largeStep={1000}
-              precision={1}
-              onChange={this.onChangeMaxTriangles}
-            />
-          )}
+          /* @ts-ignore */
+          <NumericInputGroup
+            name="Collision Geo Triangle Threshold"
+            label={this.props.t('editor:properties.floorPlan.lbl-collisionThreshold')}
+            value={node.maxTriangles}
+            min={10}
+            max={10000}
+            smallStep={1}
+            mediumStep={100}
+            largeStep={1000}
+            precision={1}
+            onChange={this.onChangeMaxTriangles}
+          />
+        )}
         <PropertiesPanelButton onClick={this.onRegenerate}>
           {this.props.t('editor:properties.floorPlan.lbl-regenerate')}
         </PropertiesPanelButton>
       </NodeEditor>
-    );
+    )
   }
 }
-const FloorPlanNodeEditorContainer = withDialog(
-  withSettings(FloorPlanNodeEditor)
-);
-(FloorPlanNodeEditorContainer as any).iconComponent = FloorPlanNodeEditor.iconComponent;
-(FloorPlanNodeEditorContainer as any).description = FloorPlanNodeEditor.description;
-export default withTranslation()(FloorPlanNodeEditorContainer);
+const FloorPlanNodeEditorContainer = withDialog(withSettings(FloorPlanNodeEditor))
+;(FloorPlanNodeEditorContainer as any).iconComponent = FloorPlanNodeEditor.iconComponent
+;(FloorPlanNodeEditorContainer as any).description = FloorPlanNodeEditor.description
+export default withTranslation()(FloorPlanNodeEditorContainer)

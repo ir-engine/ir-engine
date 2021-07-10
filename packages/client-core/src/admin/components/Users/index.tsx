@@ -1,64 +1,49 @@
-import React from "react";
-import Grid from "@material-ui/core/Grid";
-import Button from '@material-ui/core/Button';
-import UserModel from "./CreateUser";
-import UserTable from "./UserTable";
-import SearchUser from "./SearchUser";
-import { useStyles } from "./styles";
-
+import React from 'react'
+import Grid from '@material-ui/core/Grid'
+import Button from '@material-ui/core/Button'
+import UserModel from './CreateUser'
+import UserTable from './UserTable'
+import SearchUser from './SearchUser'
+import { useStyles } from './styles'
 
 const Users = () => {
-    const classes = useStyles();
-    const [userModalOpen, setUserModalOpen] = React.useState(false);
-    
-    const openModalCreate = (open: boolean) => 
-        (
-            event: React.KeyboardEvent | React.MouseEvent,
-        ) => {
-            if (
-                event.type === 'keydown' &&
-                ((event as React.KeyboardEvent).key === 'Tab' ||
-                    (event as React.KeyboardEvent).key === 'Shift')
-            ) {
-                return;
-            }
+  const classes = useStyles()
+  const [userModalOpen, setUserModalOpen] = React.useState(false)
 
-            setUserModalOpen(open);
-        };
+  const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    if (
+      event.type === 'keydown' &&
+      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
+    ) {
+      return
+    }
 
-    const closeViewModel = (open: boolean) => {
-        setUserModalOpen(open);
-    };
+    setUserModalOpen(open)
+  }
 
+  const closeViewModel = (open: boolean) => {
+    setUserModalOpen(open)
+  }
 
-    return (
-        <div>
-            <Grid container spacing={3} className={classes.marginBottom}>
-                <Grid item xs={9}>
-                    <SearchUser />
-                </Grid>
-                <Grid item xs={3}>
-                    <Button
-                        className={classes.createBtn}
-                        type="submit"
-                        variant="contained"
-                        onClick={openModalCreate(true)}
-                    >
-                        Create New User
-                    </Button>
-                </Grid>
-            </Grid>
-            <div className={classes.rootTable}>
-                <UserTable />
-            </div>
+  return (
+    <div>
+      <Grid container spacing={3} className={classes.marginBottom}>
+        <Grid item xs={9}>
+          <SearchUser />
+        </Grid>
+        <Grid item xs={3}>
+          <Button className={classes.createBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
+            Create New User
+          </Button>
+        </Grid>
+      </Grid>
+      <div className={classes.rootTable}>
+        <UserTable />
+      </div>
 
-            <UserModel
-                open={userModalOpen}
-                handleClose={openModalCreate}
-                closeViewModel={closeViewModel}
-            />
-        </div>
-    );
-};
+      <UserModel open={userModalOpen} handleClose={openModalCreate} closeViewModel={closeViewModel} />
+    </div>
+  )
+}
 
-export default Users;
+export default Users

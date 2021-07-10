@@ -1,10 +1,10 @@
-import React, { FunctionComponent } from "react";
-import "@google/model-viewer/dist/model-viewer";
+import React, { FunctionComponent } from 'react'
+import '@google/model-viewer/dist/model-viewer'
 
 type ModelViewProps = {
-  modelUrl: string;
-  iosModelUrl?: string;
-};
+  modelUrl: string
+  iosModelUrl?: string
+}
 
 /**
  *
@@ -14,7 +14,16 @@ type ModelViewProps = {
  */
 export const ModelView: FunctionComponent<ModelViewProps> = ({ modelUrl, iosModelUrl }: ModelViewProps) => {
   // @ts-ignore
-  return <model-viewer style={{width: '100%', height: '300px'}} src={modelUrl} ios-src={iosModelUrl} ar auto-rotate camera-controls />;
-};
+  return (
+    <model-viewer
+      style={{ width: '100%', height: '300px' }}
+      src={modelUrl}
+      ios-src={iosModelUrl}
+      ar
+      auto-rotate
+      camera-controls
+    />
+  )
+}
 
-export default ModelView;
+export default ModelView

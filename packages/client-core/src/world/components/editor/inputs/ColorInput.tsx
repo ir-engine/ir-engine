@@ -1,14 +1,14 @@
-import React, { useCallback } from "react";
-import PropTypes from "prop-types";
-import SketchPicker from "react-color/lib/Sketch";
-import Input from "./Input";
-import { Color } from "three";
-import styled from "styled-components";
-import Popover from "../layout/Popover";
+import React, { useCallback } from 'react'
+import PropTypes from 'prop-types'
+import SketchPicker from 'react-color/lib/Sketch'
+import Input from './Input'
+import { Color } from 'three'
+import styled from 'styled-components'
+import Popover from '../layout/Popover'
 
 /**
  * ColorInputContainer used to provide styles for ColorInputContainer div.
- * 
+ *
  * @author Robert Long
  * @type {styled component}
  */
@@ -17,11 +17,11 @@ const ColorInputContainer = (styled as any).div`
   position: relative;
   width: 100%;
   max-width: 100px;
-`;
+`
 
 /**
  * StyledColorInput used to provide styles for StyledColorInput div.
- * 
+ *
  * @author Robert Long
  * @type {styled component}
  */
@@ -29,11 +29,11 @@ const StyledColorInput = (styled as any)(Input)`
   display: flex;
   flex: 1;
   align-items: center;
-`;
+`
 
 /**
  * ColorPreview used to provide styles for ColorPreview div.
- * 
+ *
  * @author Robert Long
  * @type {styled component}
  */
@@ -43,32 +43,32 @@ const ColorPreview = (styled as any).div`
   border-radius: 2px;
   padding: 6px;
   margin-right: 8px;
-`;
+`
 
 /**
  * ColorText used to provide styles for ColorText div.
- * 
+ *
  * @author Robert Long
  * @type {styled component}
  */
 const ColorText = (styled as any).div`
   padding-top: 2px;
-`;
+`
 
 /**
  * ColorInputPopover used to provide styles for ColorText popover.
- * 
+ *
  * @author Robert Long
  * @type {styled component}
  */
 const ColorInputPopover = (styled as any).div`
-  box-shadow: ${props => props.theme.shadow30};
+  box-shadow: ${(props) => props.theme.shadow30};
   margin-bottom: 3px;
-`;
+`
 
 /**
  * ColorInput used to render the view of component.
- * 
+ *
  * @author Robert Long
  * @param       {object | number} value
  * @param       {function} onChange
@@ -77,22 +77,21 @@ const ColorInputPopover = (styled as any).div`
  * @constructor
  */
 
-export function ColorInput({ value, onChange, disabled,isValueAsInteger=false, ...rest }) {
+export function ColorInput({ value, onChange, disabled, isValueAsInteger = false, ...rest }) {
+  const onChangePicker = useCallback(
+    ({ hex }) => {
+      onChange(isValueAsInteger ? new Color(hex).getHex() : new Color(hex))
+    },
+    [onChange]
+  )
 
-    const onChangePicker = useCallback(
-      ({ hex }) => {
-        onChange(isValueAsInteger?(new Color(hex)).getHex():(new Color(hex)));
-      },
-      [onChange]
-    );
-
-    //initializing hexColor by getting hexString
-    const hexColor = "#" + (isValueAsInteger?value.toString(16):value.getHexString());
+  //initializing hexColor by getting hexString
+  const hexColor = '#' + (isValueAsInteger ? value.toString(16) : value.getHexString())
 
   //creating view for ColorInput
   return (
     <ColorInputContainer>
-    { /* @ts-ignore */ }
+      {/* @ts-ignore */}
       <Popover
         disabled={disabled}
         renderContent={() => (
@@ -107,12 +106,12 @@ export function ColorInput({ value, onChange, disabled,isValueAsInteger=false, .
         </StyledColorInput>
       </Popover>
     </ColorInputContainer>
-  );
+  )
 }
 
 /**
  * Declairing propTypes for ColorInput.
- * 
+ *
  * @author Robert Long
  * @type {Object}
  */
@@ -124,12 +123,12 @@ export function ColorInput({ value, onChange, disabled,isValueAsInteger=false, .
 
 /**
  * Initializing defaultProps for ColorInput.
- * 
+ *
  * @author Robert Long
  * @type {Object}
  */
 ColorInput.defaultProps = {
   value: new Color(),
   onChange: () => {}
-};
-export default ColorInput;
+}
+export default ColorInput

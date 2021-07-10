@@ -29,6 +29,10 @@ export class TinyYolov2Options {
     }
   }
 
-  get inputSize(): number { return this._inputSize }
-  get scoreThreshold(): number { return this._scoreThreshold }
+  get inputSize(): number {
+    return this._inputSize
+  }
+  get scoreThreshold(): number {
+    return this._scoreThreshold
+  }
 }

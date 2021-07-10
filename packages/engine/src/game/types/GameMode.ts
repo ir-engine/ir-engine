@@ -1,8 +1,8 @@
-import { Component } from "../../ecs/classes/Component";
-import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces';
-import { Behavior } from "../../common/interfaces/Behavior";
-import { Checker } from "../../game/types/Checker";
-import { Entity } from "../../ecs/classes/Entity";
+import { Component } from '../../ecs/classes/Component'
+import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
+import { Behavior } from '../../common/interfaces/Behavior'
+import { Checker } from '../../game/types/Checker'
+import { Entity } from '../../ecs/classes/Entity'
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -30,8 +30,8 @@ export interface GameMode {
   preparePlayersRole?: (gameRules: GameMode, maxPlayerCount: any) => void
   onGameLoading?: (gameEntity: Entity) => void
   onGameStart?: (gameEntity: Entity) => void
-  onBeforeExecute?: (gameEntity: Entity) => void,
-  onAfterExecute?: (gameEntity: Entity) => void,
+  onBeforeExecute?: (gameEntity: Entity) => void
+  onAfterExecute?: (gameEntity: Entity) => void
   beforePlayerLeave?: (gameEntity: Entity) => void
   onPlayerLeave?: (gameEntity: Entity, playerComponent, game) => void
   registerActionTagComponents: ComponentConstructor<Component<any>>[]
@@ -41,19 +41,19 @@ export interface GameMode {
       components?: ComponentConstructor<Component<any>>[]
       storage?: InitStorageInterface[]
       behaviors?: any
-    };
-  };
+    }
+  }
   gamePlayerRoles: GameRolesInterface
   gameObjectRoles: GameRolesInterface
 }
 
 export interface RoleBehaviorWithTarget {
-  sortMethod?: any,
+  sortMethod?: any
   targetsRole: {
     [key: string]: {
-      watchers?: ComponentConstructor<Component<any>>[][],
+      watchers?: ComponentConstructor<Component<any>>[][]
       checkers?: Array<{
-        function: Checker,
+        function: Checker
         args?: any
       }>
       args?: any
@@ -61,22 +61,22 @@ export interface RoleBehaviorWithTarget {
   }
 }
 
-export type RoleBehaviorTarget = (entity: Entity) => Entity;
+export type RoleBehaviorTarget = (entity: Entity) => Entity
 
 export interface RoleBehaviors {
   [key: string]: Array<{
-    behavior: Behavior,
-    prepareArgs?: any,
-    args?: any | ((entity: Entity) => void),
-    watchers?: ComponentConstructor<Component<any>>[][],
+    behavior: Behavior
+    prepareArgs?: any
+    args?: any | ((entity: Entity) => void)
+    watchers?: ComponentConstructor<Component<any>>[][]
     checkers?: Array<{
-      function: Checker,
+      function: Checker
       args?: any
-    }>,
-    takeEffectOn?: RoleBehaviorWithTarget | RoleBehaviorTarget;
-  }>;
+    }>
+    takeEffectOn?: RoleBehaviorWithTarget | RoleBehaviorTarget
+  }>
 }
 
 export interface GameRolesInterface {
-    [key: string]: RoleBehaviors
+  [key: string]: RoleBehaviors
 }

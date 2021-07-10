@@ -1,42 +1,32 @@
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics';
-import * as authentication from '@feathersjs/authentication';
-import { disallow } from 'feathers-hooks-common';
-import generateInvitePasscode from '@xrengine/server-core/src/hooks/generate-invite-passcode';
-import sendInvite from '@xrengine/server-core/src/hooks/send-invite';
-import attachOwnerIdInBody from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body';
-import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query';
-import { HookContext } from '@feathersjs/feathers';
-import inviteRemoveAuthenticate from '@xrengine/server-core/src/hooks/invite-remove-authenticate';
-import * as commonHooks from 'feathers-hooks-common';
-import logger from '../../logger';
+import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
+import * as authentication from '@feathersjs/authentication'
+import { disallow } from 'feathers-hooks-common'
+import generateInvitePasscode from '@xrengine/server-core/src/hooks/generate-invite-passcode'
+import sendInvite from '@xrengine/server-core/src/hooks/send-invite'
+import attachOwnerIdInBody from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
+import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
+import { HookContext } from '@feathersjs/feathers'
+import inviteRemoveAuthenticate from '@xrengine/server-core/src/hooks/invite-remove-authenticate'
+import * as commonHooks from 'feathers-hooks-common'
+import logger from '../../logger'
 
-const { authenticate } = authentication.hooks;
+const { authenticate } = authentication.hooks
 
 export default {
   before: {
     all: [collectAnalytics()],
-    find: [
-      authenticate('jwt'),
-      attachOwnerIdInQuery('userId')
-    ],
+    find: [authenticate('jwt'), attachOwnerIdInQuery('userId')],
     get: [
       commonHooks.iff(
         commonHooks.isProvider('external'),
         authenticate('jwt') as any,
-        attachOwnerIdInQuery('userId') as any,
+        attachOwnerIdInQuery('userId') as any
       )
     ],
-    create: [
-      authenticate('jwt'),
-      attachOwnerIdInBody('userId'),
-      generateInvitePasscode()
-    ],
+    create: [authenticate('jwt'), attachOwnerIdInBody('userId'), generateInvitePasscode()],
     update: [disallow()],
     patch: [disallow()],
-    remove: [
-      authenticate('jwt'),
-      inviteRemoveAuthenticate()
-    ]
+    remove: [authenticate('jwt'), inviteRemoveAuthenticate()]
   },
 
   after: {
@@ -44,37 +34,37 @@ export default {
     find: [
       async (context: HookContext): Promise<HookContext> => {
         try {
-          const { app, result } = context;
-          await Promise.all(result.data.map(async (item) => {
-            return await new Promise(async (resolve) => {
-              if (item.inviteeId != null) {
-                item.invitee = await app.service('user').get(item.inviteeId);
-              } else if (item.token) {
-                const identityProvider = await app.service('identity-provider').find({
-                  query: {
-                    token: item.token
+          const { app, result } = context
+          await Promise.all(
+            result.data.map(async (item) => {
+              return await new Promise(async (resolve) => {
+                if (item.inviteeId != null) {
+                  item.invitee = await app.service('user').get(item.inviteeId)
+                } else if (item.token) {
+                  const identityProvider = await app.service('identity-provider').find({
+                    query: {
+                      token: item.token
+                    }
+                  })
+                  if (identityProvider.data.length > 0) {
+                    item.invitee = await app.service('user').get(identityProvider.data[0].userId)
                   }
-                });
-                if (identityProvider.data.length > 0) {
-                  item.invitee = await app.service('user').get(identityProvider.data[0].userId);
                 }
-              }
-              item.user = await app.service('user').get(item.userId);
+                item.user = await app.service('user').get(item.userId)
 
-              resolve(true);
-            });
-          }));
-          return context;
+                resolve(true)
+              })
+            })
+          )
+          return context
         } catch (err) {
-          logger.error('INVITE AFTER HOOK ERROR');
-          logger.error(err);
+          logger.error('INVITE AFTER HOOK ERROR')
+          logger.error(err)
         }
       }
     ],
     get: [],
-    create: [
-      sendInvite()
-    ],
+    create: [sendInvite()],
     update: [],
     patch: [],
     remove: []
@@ -89,4 +79,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}

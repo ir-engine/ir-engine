@@ -1,7 +1,7 @@
 /**
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
-import * as notifications from "@xrengine/server-core/src/hooks/notifications";
+import * as notifications from '@xrengine/server-core/src/hooks/notifications'
 
 export default {
   before: {
@@ -33,4 +33,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}

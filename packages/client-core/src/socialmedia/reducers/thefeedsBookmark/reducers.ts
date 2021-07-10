@@ -1,7 +1,7 @@
 /**
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
-import Immutable from 'immutable';
+import Immutable from 'immutable'
 
 /**
  * Commenting code to compile TSDOC Docusaurus
@@ -14,29 +14,27 @@ import Immutable from 'immutable';
 // TheFeeds
 // THEFEEDS
 
-import {
-  THEFEEDS_FIRES_FETCH,
-  THEFEEDS_FIRES_RETRIEVED
-} from '../actions';
-import { TheFeedsFiresAction, TheFeedsFiresRetriveAction } from '../thefeedsFires/actions';
+import { THEFEEDS_FIRES_FETCH, THEFEEDS_FIRES_RETRIEVED } from '../actions'
+import { TheFeedsFiresAction, TheFeedsFiresRetriveAction } from '../thefeedsFires/actions'
 
 export const initialTheFeedsBookmarkState = {
   thefeedsFires: {
     thefeedsFires: [],
     fetching: false
-  },
-};
+  }
+}
 
-const immutableState = Immutable.fromJS(initialTheFeedsBookmarkState);
+const immutableState = Immutable.fromJS(initialTheFeedsBookmarkState)
 
 const thefeedsFiresReducer = (state = immutableState, action: TheFeedsFiresAction): any => {
   switch (action.type) {
-    case THEFEEDS_FIRES_FETCH : return state.set('fetching', true);
+    case THEFEEDS_FIRES_FETCH:
+      return state.set('fetching', true)
     case THEFEEDS_FIRES_RETRIEVED:
-      return state.set('thefeedsFires', (action as TheFeedsFiresRetriveAction).thefeedsFires).set('fetching', false);
+      return state.set('thefeedsFires', (action as TheFeedsFiresRetriveAction).thefeedsFires).set('fetching', false)
   }
 
-  return state;
-};
+  return state
+}
 
-export default thefeedsFiresReducer;
+export default thefeedsFiresReducer

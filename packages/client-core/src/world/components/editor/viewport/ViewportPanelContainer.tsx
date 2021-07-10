@@ -1,22 +1,22 @@
-import React, { useEffect, useRef, useCallback, useContext, useState } from "react";
-import PropTypes from "prop-types";
-import { EditorContext } from "../contexts/EditorContext";
-import styled from "styled-components";
-import Panel from "../layout/Panel";
-import { WindowMaximize } from "@styled-icons/fa-solid/WindowMaximize";
-import { useDrop } from "react-dnd";
-import { ItemTypes, AssetTypes, addAssetAtCursorPositionOnDrop } from "../dnd";
+import React, { useEffect, useRef, useCallback, useContext, useState } from 'react'
+import PropTypes from 'prop-types'
+import { EditorContext } from '../contexts/EditorContext'
+import styled from 'styled-components'
+import Panel from '../layout/Panel'
+import { WindowMaximize } from '@styled-icons/fa-solid/WindowMaximize'
+import { useDrop } from 'react-dnd'
+import { ItemTypes, AssetTypes, addAssetAtCursorPositionOnDrop } from '../dnd'
 // import SelectInput from "../inputs/SelectInput";
-import { TransformMode } from "@xrengine/engine/src/editor/controls/EditorControls";
-import AssetDropZone from "../assets/AssetDropZone";
+import { TransformMode } from '@xrengine/engine/src/editor/controls/EditorControls'
+import AssetDropZone from '../assets/AssetDropZone'
 // import { ChartArea } from "@styled-icons/fa-solid/ChartArea";
-import { InfoTooltip } from "../layout/Tooltip";
+import { InfoTooltip } from '../layout/Tooltip'
 // import Stats from "./Stats";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'
 
 /**
  * BorderColor used to get border color.
- * 
+ *
  * @author Robert Long
  * @param  {any} props
  * @param  {any} defaultColor
@@ -24,28 +24,28 @@ import { useTranslation } from 'react-i18next';
  */
 function borderColor(props, defaultColor) {
   if (props.canDrop) {
-    return props.theme.blue;
+    return props.theme.blue
   } else if (props.error) {
-    return props.theme.error;
+    return props.theme.error
   } else {
-    return defaultColor;
+    return defaultColor
   }
 }
 
 /**
  * styled component created using canvas to show the viewport.
- * 
+ *
  * @author Robert Long
  */
 const Viewport = (styled as any).canvas`
   width: 100%;
   height: 100%;
   position: relative;
-`;
+`
 
 /**
  * ViewportContainer used as wrapper element for Viewport, ControlsText.
- * 
+ *
  * @author Robert Long
  * @type {[Styled component]}
  */
@@ -62,13 +62,13 @@ const ViewportContainer = (styled as any).div`
     right: 0;
     content: "";
     pointer-events: none;
-    border: 1px solid ${props => borderColor(props, "transparent")};
+    border: 1px solid ${(props) => borderColor(props, 'transparent')};
   }
-`;
+`
 
 /**
  * ControlsText used to show the control keys.
- * 
+ *
  * @author Robert Long
  * @type {[Styled component]}
  */
@@ -80,11 +80,11 @@ const ControlsText = (styled as any).div`
   color: white;
   padding: 8px;
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
-`;
+`
 
 /**
  * ViewportToolbarContainer used to show title and options for view port.
- * 
+ *
  * @author Robert Long
  * @type {[styled component]}
  */
@@ -94,10 +94,9 @@ const ControlsText = (styled as any).div`
 //   flex: 1;
 // `;
 
-
 /**
  * ToolbarIconContainer provides the styles for icon placed in toolbar.
- * 
+ *
  * @author Robert Long
  * @param {any} styled
  */
@@ -107,21 +106,21 @@ const ToolbarIconContainer = (styled as any).div`
   align-items: center;
   padding: 0 8px;
   border-left: 1px solid rgba(255, 255, 255, 0.2);
-  background-color: ${props => (props.value ? props.theme.blue : "transparent")};
+  background-color: ${(props) => (props.value ? props.theme.blue : 'transparent')};
   cursor: pointer;
 
   :hover {
-    background-color: ${props => (props.value ? props.theme.blueHover : props.theme.hover)};
+    background-color: ${(props) => (props.value ? props.theme.blueHover : props.theme.hover)};
   }
 
   :active {
-    background-color: ${props => (props.value ? props.theme.bluePressed : props.theme.hover2)};
+    background-color: ${(props) => (props.value ? props.theme.bluePressed : props.theme.hover2)};
   }
-`;
+`
 
 /**
  * IconToggle used to show stats when we click on it, and shows the tooltip info if we hover over the icon.
- * 
+ *
  * @author      Robert Long
  * @param       {Icon} icon
  * @param       {any} value
@@ -132,8 +131,8 @@ const ToolbarIconContainer = (styled as any).div`
  */
 function IconToggle({ icon: Icon, value, onClick, tooltip, ...rest }) {
   const onToggle = useCallback(() => {
-    onClick(!value);
-  }, [value, onClick]);
+    onClick(!value)
+  }, [value, onClick])
 
   return (
     <InfoTooltip info={tooltip}>
@@ -141,7 +140,7 @@ function IconToggle({ icon: Icon, value, onClick, tooltip, ...rest }) {
         <Icon size={14} />
       </ToolbarIconContainer>
     </InfoTooltip>
-  );
+  )
 }
 
 // Declairing properties for IconToggle
@@ -150,11 +149,11 @@ IconToggle.propTypes = {
   value: PropTypes.bool,
   onClick: PropTypes.func,
   tooltip: PropTypes.string
-};
+}
 
 // /**
 //  * SelectInputStyles used to show select input inside ToolBar.
-//  * 
+//  *
 //  * @author Robert Long
 //  * @type {Object}
 //  */
@@ -179,7 +178,7 @@ IconToggle.propTypes = {
 
 /**
  * ViewportToolbar used as warpper for IconToggle, SelectInput.
- * 
+ *
  * @author Robert Long
  * @param  {any} onToggleStats
  * @param  {any} showStats
@@ -230,113 +229,131 @@ IconToggle.propTypes = {
 
 /**
  * ViewportPanelContainer used to render viewport.
- * 
+ *
  * @author Robert Long
  * @constructor
  */
 export function ViewportPanelContainer() {
-  const editor = useContext(EditorContext);
-  const canvasRef = React.createRef();
-  const [flyModeEnabled, setFlyModeEnabled] = useState(false);
-  const [objectSelected, setObjectSelected] = useState(false);
-  const [transformMode, setTransformMode] = useState(null);
+  const editor = useContext(EditorContext)
+  const canvasRef = React.createRef()
+  const [flyModeEnabled, setFlyModeEnabled] = useState(false)
+  const [objectSelected, setObjectSelected] = useState(false)
+  const [transformMode, setTransformMode] = useState(null)
   // const [showStats, setShowStats] = useState(false);
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   const onSelectionChanged = useCallback(() => {
-    setObjectSelected(editor.selected.length > 0);
-  }, [editor]);
+    setObjectSelected(editor.selected.length > 0)
+  }, [editor])
 
   const onFlyModeChanged = useCallback(() => {
-    setFlyModeEnabled(editor.flyControls.enabled);
-  }, [editor, setFlyModeEnabled]);
+    setFlyModeEnabled(editor.flyControls.enabled)
+  }, [editor, setFlyModeEnabled])
 
-  const onTransformModeChanged = useCallback(mode => {
-    setTransformMode(mode);
-  }, []);
+  const onTransformModeChanged = useCallback((mode) => {
+    setTransformMode(mode)
+  }, [])
 
   const onEditorInitialized = useCallback(() => {
-    editor.addListener("selectionChanged", onSelectionChanged);
-    editor.editorControls.addListener("flyModeChanged", onFlyModeChanged);
-    editor.editorControls.addListener("transformModeChanged", onTransformModeChanged);
-  }, [editor, onSelectionChanged, onFlyModeChanged, onTransformModeChanged]);
+    editor.addListener('selectionChanged', onSelectionChanged)
+    editor.editorControls.addListener('flyModeChanged', onFlyModeChanged)
+    editor.editorControls.addListener('transformModeChanged', onTransformModeChanged)
+  }, [editor, onSelectionChanged, onFlyModeChanged, onTransformModeChanged])
 
   const initEditor = () => {
-    editor.addListener("initialized", onEditorInitialized);
-    editor.initializeRenderer(canvasRef.current);
+    editor.addListener('initialized', onEditorInitialized)
+    editor.initializeRenderer(canvasRef.current)
 
     return () => {
-      editor.removeListener("selectionChanged", onSelectionChanged);
+      editor.removeListener('selectionChanged', onSelectionChanged)
 
       if (editor.editorControls) {
-        editor.editorControls.removeListener("flyModeChanged", onFlyModeChanged);
+        editor.editorControls.removeListener('flyModeChanged', onFlyModeChanged)
       }
 
       if (editor.renderer) {
-        editor.renderer.dispose();
+        editor.renderer.dispose()
       }
-    };
-  };
-  useEffect(initEditor, []);
+    }
+  }
+  useEffect(initEditor, [])
 
   const [{ canDrop, isOver }, dropRef] = useDrop({
     accept: [ItemTypes.Node, ...AssetTypes],
     drop(item: any, monitor) {
-      const mousePos = monitor.getClientOffset();
+      const mousePos = monitor.getClientOffset()
 
       if (item.type === ItemTypes.Node) {
         if (item.multiple) {
-          editor.reparentToSceneAtCursorPosition(item.value, mousePos);
+          editor.reparentToSceneAtCursorPosition(item.value, mousePos)
         } else {
-          editor.reparentToSceneAtCursorPosition([item.value], mousePos);
+          editor.reparentToSceneAtCursorPosition([item.value], mousePos)
         }
 
-        return;
+        return
       }
-      addAssetAtCursorPositionOnDrop(editor, item, mousePos);
+      addAssetAtCursorPositionOnDrop(editor, item, mousePos)
     },
-    collect: monitor => ({
+    collect: (monitor) => ({
       canDrop: monitor.canDrop(),
       isOver: monitor.isOver()
     })
-  });
+  })
 
   const onAfterUploadAssets = useCallback(
-    assets => {
+    (assets) => {
       Promise.all(
         assets.map(({ url }) => {
-          editor.addMedia(url);
+          editor.addMedia(url)
         })
-      ).catch(err => {
-        editor.emit("error", err);
-      });
+      ).catch((err) => {
+        editor.emit('error', err)
+      })
     },
     [editor]
-  );
+  )
 
-  let controlsText;
+  let controlsText
 
   if (flyModeEnabled) {
-    controlsText = "[W][A][S][D] " + t('editor:viewport.command.movecamera') + " | [Shift] " + t('editor:viewport.command.flyFast');
+    controlsText =
+      '[W][A][S][D] ' + t('editor:viewport.command.movecamera') + ' | [Shift] ' + t('editor:viewport.command.flyFast')
   } else {
-    controlsText = "[LMB] " + t('editor:viewport.command.orbit') + " | [MMB] " + t('editor:viewport.command.pan') + " | [RMB] " + t('editor:viewport.command.fly');
+    controlsText =
+      '[LMB] ' +
+      t('editor:viewport.command.orbit') +
+      ' | [MMB] ' +
+      t('editor:viewport.command.pan') +
+      ' | [RMB] ' +
+      t('editor:viewport.command.fly')
   }
 
   if (objectSelected) {
-    controlsText += " | [F] " + t('editor:viewport.command.focus') + " | [Q] " + t('editor:viewport.command.rotateLeft') + " | [E] " + t('editor:viewport.command.rotateRight');
+    controlsText +=
+      ' | [F] ' +
+      t('editor:viewport.command.focus') +
+      ' | [Q] ' +
+      t('editor:viewport.command.rotateLeft') +
+      ' | [E] ' +
+      t('editor:viewport.command.rotateRight')
   }
 
   if (transformMode === TransformMode.Placement) {
-    controlsText += " | [ESC / G] " + t('editor:viewport.command.cancelPlacement');
+    controlsText += ' | [ESC / G] ' + t('editor:viewport.command.cancelPlacement')
   } else if (transformMode === TransformMode.Grab) {
-    controlsText += " | [Shift + Click] " + t('editor:viewport.command.placeDuplicate') + " | [ESC / G] " + t('editor:viewport.command.cancelGrab');
+    controlsText +=
+      ' | [Shift + Click] ' +
+      t('editor:viewport.command.placeDuplicate') +
+      ' | [ESC / G] ' +
+      t('editor:viewport.command.cancelGrab')
   } else if (objectSelected) {
-    controlsText += "| [G] " + t('editor:viewport.command.grab') + " | [ESC] " + t('editor:viewport.command.deselectAll');
+    controlsText +=
+      '| [G] ' + t('editor:viewport.command.grab') + ' | [ESC] ' + t('editor:viewport.command.deselectAll')
   }
 
   return (
     <Panel
-    /* @ts-ignore */
+      /* @ts-ignore */
       id="viewport-panel"
       title={t('editor:viewport.title')}
       icon={WindowMaximize}
@@ -349,6 +366,6 @@ export function ViewportPanelContainer() {
         <AssetDropZone afterUpload={onAfterUploadAssets} />
       </ViewportContainer>
     </Panel>
-  );
+  )
 }
-export default ViewportPanelContainer;
+export default ViewportPanelContainer

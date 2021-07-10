@@ -1,8 +1,8 @@
-import { IBoundingBox } from '../classes/BoundingBox';
-import { Box } from '../classes/Box';
-import { IRect } from '../classes/Rect';
-import { getContext2dOrThrow } from '../dom/getContext2dOrThrow';
-import { AnchorPosition, DrawTextField, DrawTextFieldOptions, IDrawTextFieldOptions } from './DrawTextField';
+import { IBoundingBox } from '../classes/BoundingBox'
+import { Box } from '../classes/Box'
+import { IRect } from '../classes/Rect'
+import { getContext2dOrThrow } from '../dom/getContext2dOrThrow'
+import { AnchorPosition, DrawTextField, DrawTextFieldOptions, IDrawTextFieldOptions } from './DrawTextField'
 
 export interface IDrawBoxOptions {
   boxColor?: string
@@ -35,10 +35,7 @@ export class DrawBox {
   public box: Box
   public options: DrawBoxOptions
 
-  constructor(
-    box: IBoundingBox | IRect,
-    options: IDrawBoxOptions = {}
-  ) {
+  constructor(box: IBoundingBox | IRect, options: IDrawBoxOptions = {}) {
     this.box = new Box(box)
     this.options = new DrawBoxOptions(options)
   }
@@ -55,7 +52,7 @@ export class DrawBox {
 
     const { label } = this.options
     if (label) {
-      new DrawTextField([label], { x: x - (lineWidth / 2), y }, this.options.drawLabelOptions).draw(canvasArg)
+      new DrawTextField([label], { x: x - lineWidth / 2, y }, this.options.drawLabelOptions).draw(canvasArg)
     }
   }
 }

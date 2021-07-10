@@ -1,4 +1,4 @@
-import { Entity } from '../../ecs/classes/Entity';
+import { Entity } from '../../ecs/classes/Entity'
 
 /** Type for Behavior of different components.
  * @param entity Entity for which behavior will be defined.
@@ -7,4 +7,11 @@ import { Entity } from '../../ecs/classes/Entity';
  * @param entityOut
  * @param time
  */
-export type Behavior<Args=any> = (entity: Entity, args?: Args, delta?: number, entityOut?: Entity, time?: number, checks?: any) => void
+export type Behavior<Args = any> = (
+  entity: Entity,
+  args?: Args,
+  delta?: number,
+  entityOut?: Entity,
+  time?: number,
+  checks?: any
+) => void

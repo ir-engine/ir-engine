@@ -1,16 +1,16 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { ConvParams } from '../common/types';
-import { NetInput } from '../dom/NetInput';
-import { toNetInput } from '../dom/toNetInput';
-import { TNetInput } from '../dom/types';
+import * as tf from '@tensorflow/tfjs-core'
+import { ConvParams } from '../common/types'
+import { NetInput } from '../dom/NetInput'
+import { toNetInput } from '../dom/toNetInput'
+import { TNetInput } from '../dom/types'
 
-import { NeuralNetwork } from '../NeuralNetwork';
-import { normalize } from '../ops';
-import { depthwiseSeparableConv } from '../tinyYolov2/depthwiseSeparableConv';
-import { range } from '../utils';
-import { extractParams } from './extractParams';
-import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
-import { MainBlockParams, ReductionBlockParams, TinyXceptionParams } from './types';
+import { NeuralNetwork } from '../NeuralNetwork'
+import { normalize } from '../ops'
+import { depthwiseSeparableConv } from '../tinyYolov2/depthwiseSeparableConv'
+import { range } from '../utils'
+import { extractParams } from './extractParams'
+import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap'
+import { MainBlockParams, ReductionBlockParams, TinyXceptionParams } from './types'
 
 function conv(x: tf.Tensor4D, params: ConvParams, stride: [number, number]): tf.Tensor4D {
   return tf.add(tf.conv2d(x, params.filters, stride, 'same'), params.bias)
@@ -19,9 +19,9 @@ function conv(x: tf.Tensor4D, params: ConvParams, stride: [number, number]): tf.
 function reductionBlock(x: tf.Tensor4D, params: ReductionBlockParams, isActivateInput = true): tf.Tensor4D {
   let out = isActivateInput ? tf.relu(x) : x
   out = depthwiseSeparableConv(out, params.separable_conv0)
-  out = depthwiseSeparableConv(tf.relu(out),  params.separable_conv1)
+  out = depthwiseSeparableConv(tf.relu(out), params.separable_conv1)
   out = tf.maxPool(out, [3, 3], [2, 2], 'same')
-  out = tf.add(out, conv(x,  params.expansion_conv, [2, 2]))
+  out = tf.add(out, conv(x, params.expansion_conv, [2, 2]))
   return out
 }
 
@@ -34,7 +34,6 @@ function mainBlock(x: tf.Tensor4D, params: MainBlockParams): tf.Tensor4D {
 }
 
 export class TinyXception extends NeuralNetwork<TinyXceptionParams> {
-
   private _numMainBlocks: number
 
   constructor(numMainBlocks: number) {
@@ -43,7 +42,6 @@ export class TinyXception extends NeuralNetwork<TinyXceptionParams> {
   }
 
   public forwardInput(input: NetInput): tf.Tensor4D {
-
     const { params } = this
 
     if (!params) {

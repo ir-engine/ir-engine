@@ -1,10 +1,5 @@
-import {
-	Curve,
-	Vector2,
-	Vector3,
-	Vector4
-} from "three";
-import * as NURBSUtils from "./NURBSUtils";
+import { Curve, Vector2, Vector3, Vector4 } from 'three'
+import * as NURBSUtils from './NURBSUtils'
 /**
  * NURBS curve object
  *
@@ -14,61 +9,51 @@ import * as NURBSUtils from "./NURBSUtils";
  *
  **/
 
-
 export class NURBSCurve extends Curve<Vector3> {
-	degree: number;
-	knots: number[];
-	controlPoints: any[];
-	startKnot: number;
-	endKnot: number;
-	
-	constructor(degree: number, knots: number[], controlPoints: Vector4[], startKnot: number, endKnot: number) {
-		super();
-		this.degree = degree;
-		this.knots = knots;
-		this.controlPoints = [];
-		// Used by periodic NURBS to remove hidden spans
-		this.startKnot = startKnot || 0;
-		this.endKnot = endKnot || (this.knots.length - 1);
-		for (let i = 0; i < controlPoints.length; ++i) {
+  degree: number
+  knots: number[]
+  controlPoints: any[]
+  startKnot: number
+  endKnot: number
 
-			// ensure Vector4 for control points
-			const point = controlPoints[i] as Vector4;
-			this.controlPoints[i] = new Vector4(point.x, point.y, point.z, point.w);
+  constructor(degree: number, knots: number[], controlPoints: Vector4[], startKnot: number, endKnot: number) {
+    super()
+    this.degree = degree
+    this.knots = knots
+    this.controlPoints = []
+    // Used by periodic NURBS to remove hidden spans
+    this.startKnot = startKnot || 0
+    this.endKnot = endKnot || this.knots.length - 1
+    for (let i = 0; i < controlPoints.length; ++i) {
+      // ensure Vector4 for control points
+      const point = controlPoints[i] as Vector4
+      this.controlPoints[i] = new Vector4(point.x, point.y, point.z, point.w)
+    }
+  }
 
-		}
-	}
+  getPoint(t, optionalTarget?) {
+    const point = optionalTarget || new Vector3()
 
-	getPoint (t, optionalTarget?) {
+    const u = this.knots[this.startKnot] + t * (this.knots[this.endKnot] - this.knots[this.startKnot]) // linear mapping t->u
 
-		const point = optionalTarget || new Vector3();
+    // following results in (wx, wy, wz, w) homogeneous point
+    const hpoint: any = NURBSUtils.calcBSplinePoint(this.degree, this.knots, this.controlPoints, u)
 
-		const u = this.knots[this.startKnot] + t * (this.knots[this.endKnot] - this.knots[this.startKnot]); // linear mapping t->u
+    if (hpoint.w != 1.0) {
+      // project to 3D space: (wx, wy, wz, w) -> (x, y, z, 1)
+      hpoint.divideScalar(hpoint.w)
+    }
 
-		// following results in (wx, wy, wz, w) homogeneous point
-		const hpoint: any = NURBSUtils.calcBSplinePoint(this.degree, this.knots, this.controlPoints, u);
+    return point.set(hpoint.x, hpoint.y, hpoint.z)
+  }
 
-		if (hpoint.w != 1.0) {
+  getTangent(t, optionalTarget?) {
+    const tangent = optionalTarget || new Vector3()
 
-			// project to 3D space: (wx, wy, wz, w) -> (x, y, z, 1)
-			hpoint.divideScalar(hpoint.w);
+    const u = this.knots[0] + t * (this.knots[this.knots.length - 1] - this.knots[0])
+    const ders = NURBSUtils.calcNURBSDerivatives(this.degree, this.knots, this.controlPoints, u, 1)
+    tangent.copy(ders[1]).normalize()
 
-		}
-
-		return point.set(hpoint.x, hpoint.y, hpoint.z);
-
-	}
-
-	getTangent (t, optionalTarget?) {
-
-		const tangent = optionalTarget || new Vector3();
-
-		const u = this.knots[0] + t * (this.knots[this.knots.length - 1] - this.knots[0]);
-		const ders = NURBSUtils.calcNURBSDerivatives(this.degree, this.knots, this.controlPoints, u, 1);
-		tangent.copy(ders[1]).normalize();
-
-		return tangent;
-
-	}
+    return tangent
+  }
 }
-

@@ -1,23 +1,21 @@
-import * as tf from '@tensorflow/tfjs-core';
+import * as tf from '@tensorflow/tfjs-core'
 
-import { fullyConnectedLayer } from '../common/fullyConnectedLayer';
-import { NetInput } from '../dom/NetInput';
+import { fullyConnectedLayer } from '../common/fullyConnectedLayer'
+import { NetInput } from '../dom/NetInput'
 import {
   FaceFeatureExtractorParams,
   IFaceFeatureExtractor,
-  TinyFaceFeatureExtractorParams,
-} from '../faceFeatureExtractor/types';
-import { NeuralNetwork } from '../NeuralNetwork';
-import { extractParams } from './extractParams';
-import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
-import { NetParams } from './types';
-import { seperateWeightMaps } from './util';
+  TinyFaceFeatureExtractorParams
+} from '../faceFeatureExtractor/types'
+import { NeuralNetwork } from '../NeuralNetwork'
+import { extractParams } from './extractParams'
+import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap'
+import { NetParams } from './types'
+import { seperateWeightMaps } from './util'
 
 export abstract class FaceProcessor<
   TExtractorParams extends FaceFeatureExtractorParams | TinyFaceFeatureExtractorParams
->
-  extends NeuralNetwork<NetParams> {
-
+> extends NeuralNetwork<NetParams> {
   protected _faceFeatureExtractor: IFaceFeatureExtractor<TExtractorParams>
 
   constructor(_name: string, faceFeatureExtractor: IFaceFeatureExtractor<TExtractorParams>) {
@@ -34,7 +32,6 @@ export abstract class FaceProcessor<
   protected abstract getClassifierChannelsOut(): number
 
   public runNet(input: NetInput | tf.Tensor4D): tf.Tensor2D {
-
     const { params } = this
 
     if (!params) {
@@ -42,9 +39,7 @@ export abstract class FaceProcessor<
     }
 
     return tf.tidy(() => {
-      const bottleneckFeatures = input instanceof NetInput
-        ? this.faceFeatureExtractor.forwardInput(input)
-        : input
+      const bottleneckFeatures = input instanceof NetInput ? this.faceFeatureExtractor.forwardInput(input) : input
       return fullyConnectedLayer((bottleneckFeatures as any).as2D(bottleneckFeatures.shape[0], -1), params.fc)
     })
   }
@@ -65,7 +60,6 @@ export abstract class FaceProcessor<
   }
 
   protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap) {
-
     const { featureExtractorMap, classifierMap } = seperateWeightMaps(weightMap)
 
     this.faceFeatureExtractor.loadFromWeightMap(featureExtractorMap)
@@ -74,10 +68,9 @@ export abstract class FaceProcessor<
   }
 
   protected extractParams(weights: Float32Array) {
-
     const cIn = this.getClassifierChannelsIn()
     const cOut = this.getClassifierChannelsOut()
-    const classifierWeightSize = (cOut * cIn ) + cOut
+    const classifierWeightSize = cOut * cIn + cOut
 
     const featureExtractorWeights = weights.slice(0, weights.length - classifierWeightSize)
     const classifierWeights = weights.slice(weights.length - classifierWeightSize)

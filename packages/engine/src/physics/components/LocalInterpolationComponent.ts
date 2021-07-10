@@ -1,6 +1,6 @@
-import { Vector3 } from 'three';
-import { Component } from '../../ecs/classes/Component';
-import { Types } from '../../ecs/types/Types';
+import { Vector3 } from 'three'
+import { Component } from '../../ecs/classes/Component'
+import { Types } from '../../ecs/types/Types'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -15,5 +15,5 @@ export class LocalInterpolationComponent extends Component<any> {
 
 LocalInterpolationComponent._schema = {
   correctionStart: { type: Types.Boolean, default: true },
-  positionDiff: { type: Types.Ref, default: new Vector3() },
-};
+  positionDiff: { type: Types.Ref, default: new Vector3() }
+}

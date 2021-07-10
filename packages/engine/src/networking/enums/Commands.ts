@@ -1,3 +1,3 @@
 export enum Commands {
-    CHANGE_ANIMATION_STATE,
+  CHANGE_ANIMATION_STATE
 }

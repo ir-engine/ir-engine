@@ -1,12 +1,10 @@
-import * as authentication from '@feathersjs/authentication';
+import * as authentication from '@feathersjs/authentication'
 
-const { authenticate } = authentication.hooks;
+const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [
-      authenticate('jwt')
-    ],
+    all: [authenticate('jwt')],
     find: [],
     get: [],
     create: [],
@@ -34,4 +32,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}

@@ -1,29 +1,27 @@
 /**
- * An object for swagger documentation configiration 
- * 
+ * An object for swagger documentation configiration
+ *
  * @author Kevin KIMENYI
  */
 export default {
-    definitions: {
-        message: {
-            type: 'object',
-            properties:{
-                text: {
-                    type: 'string'
-                }
-            }
-        },
-        message_list: {
-            type: 'array',
-            items: { $ref: '#/definitions/message'}
+  definitions: {
+    message: {
+      type: 'object',
+      properties: {
+        text: {
+          type: 'string'
         }
-    },
-    securities: ['create', 'update', 'patch', 'remove'],
-    operations: {
-      find: {
-        security: [
-          { bearer: [] }
-        ]
       }
-    } 
-};
+    },
+    message_list: {
+      type: 'array',
+      items: { $ref: '#/definitions/message' }
+    }
+  },
+  securities: ['create', 'update', 'patch', 'remove'],
+  operations: {
+    find: {
+      security: [{ bearer: [] }]
+    }
+  }
+}

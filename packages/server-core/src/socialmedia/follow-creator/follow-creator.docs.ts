@@ -4,11 +4,10 @@
  * @author Andrii Blashchuk
  */
 export default {
-    definitions: {
-        'follow-creator': {
-            type: 'object',
-            properties: {
-            }
-        },        
+  definitions: {
+    'follow-creator': {
+      type: 'object',
+      properties: {}
     }
-};
+  }
+}

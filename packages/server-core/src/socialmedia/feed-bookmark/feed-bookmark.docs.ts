@@ -4,15 +4,14 @@
  * @author Andrii Blashchuk
  */
 export default {
-    definitions: {
-        'feed-bookmark': {
-            type: 'object',
-            properties: {
-            }
-        },
-        'feed-bookmark_list': {
-            type: 'array',
-            items: { $ref: '#/definitions/feed-bookmark' }
-        }
+  definitions: {
+    'feed-bookmark': {
+      type: 'object',
+      properties: {}
+    },
+    'feed-bookmark_list': {
+      type: 'array',
+      items: { $ref: '#/definitions/feed-bookmark' }
     }
-};
+  }
+}

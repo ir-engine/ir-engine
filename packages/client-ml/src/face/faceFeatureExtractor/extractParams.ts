@@ -1,21 +1,17 @@
-import { extractWeightsFactory } from '../common/extractWeightsFactory';
-import { ParamMapping } from '../common/types';
-import { extractorsFactory } from './extractorsFactory';
-import { FaceFeatureExtractorParams } from './types';
+import { extractWeightsFactory } from '../common/extractWeightsFactory'
+import { ParamMapping } from '../common/types'
+import { extractorsFactory } from './extractorsFactory'
+import { FaceFeatureExtractorParams } from './types'
 
-
-export function extractParams(weights: Float32Array): { params: FaceFeatureExtractorParams, paramMappings: ParamMapping[] } {
-
+export function extractParams(weights: Float32Array): {
+  params: FaceFeatureExtractorParams
+  paramMappings: ParamMapping[]
+} {
   const paramMappings: ParamMapping[] = []
 
-  const {
-    extractWeights,
-    getRemainingWeights
-  } = extractWeightsFactory(weights)
+  const { extractWeights, getRemainingWeights } = extractWeightsFactory(weights)
 
-  const {
-    extractDenseBlock4Params
-  } = extractorsFactory(extractWeights, paramMappings)
+  const { extractDenseBlock4Params } = extractorsFactory(extractWeights, paramMappings)
 
   const dense0 = extractDenseBlock4Params(3, 32, 'dense0', true)
   const dense1 = extractDenseBlock4Params(32, 64, 'dense1')

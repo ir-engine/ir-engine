@@ -1,11 +1,11 @@
-import { TNetInput } from '../dom/types';
-import { WithFaceDescriptor } from '../factories/WithFaceDescriptor';
-import { WithFaceDetection } from '../factories/WithFaceDetection';
-import { WithFaceLandmarks } from '../factories/WithFaceLandmarks';
-import { IMtcnnOptions, MtcnnOptions } from '../mtcnn/MtcnnOptions';
-import { SsdMobilenetv1Options } from '../ssdMobilenetv1';
-import { ITinyYolov2Options, TinyYolov2Options } from '../tinyYolov2';
-import { detectAllFaces } from './detectFaces';
+import { TNetInput } from '../dom/types'
+import { WithFaceDescriptor } from '../factories/WithFaceDescriptor'
+import { WithFaceDetection } from '../factories/WithFaceDetection'
+import { WithFaceLandmarks } from '../factories/WithFaceLandmarks'
+import { IMtcnnOptions, MtcnnOptions } from '../mtcnn/MtcnnOptions'
+import { SsdMobilenetv1Options } from '../ssdMobilenetv1'
+import { ITinyYolov2Options, TinyYolov2Options } from '../tinyYolov2'
+import { detectAllFaces } from './detectFaces'
 
 // export allFaces API for backward compatibility
 
@@ -24,9 +24,7 @@ export async function allFacesTinyYolov2(
   forwardParams: ITinyYolov2Options = {}
 ): Promise<WithFaceDescriptor<WithFaceLandmarks<WithFaceDetection<{}>>>[]> {
   console.warn('allFacesTinyYolov2 is deprecated and will be removed soon, use the high level api instead')
-  return await detectAllFaces(input, new TinyYolov2Options(forwardParams))
-    .withFaceLandmarks()
-    .withFaceDescriptors()
+  return await detectAllFaces(input, new TinyYolov2Options(forwardParams)).withFaceLandmarks().withFaceDescriptors()
 }
 
 export async function allFacesMtcnn(
@@ -34,9 +32,7 @@ export async function allFacesMtcnn(
   forwardParams: IMtcnnOptions = {}
 ): Promise<WithFaceDescriptor<WithFaceLandmarks<WithFaceDetection<{}>>>[]> {
   console.warn('allFacesMtcnn is deprecated and will be removed soon, use the high level api instead')
-  return await detectAllFaces(input, new MtcnnOptions(forwardParams))
-    .withFaceLandmarks()
-    .withFaceDescriptors()
+  return await detectAllFaces(input, new MtcnnOptions(forwardParams)).withFaceLandmarks().withFaceDescriptors()
 }
 
 export const allFaces = allFacesSsdMobilenetv1

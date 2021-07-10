@@ -1,5 +1,5 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { FCParams } from '../common/types';
+import * as tf from '@tensorflow/tfjs-core'
+import { FCParams } from '../common/types'
 
 export type AgeAndGenderPrediction = {
   age: number
@@ -12,7 +12,7 @@ export enum Gender {
   MALE = 'male'
 }
 
-export type NetOutput = { age: tf.Tensor1D, gender: tf.Tensor2D }
+export type NetOutput = { age: tf.Tensor1D; gender: tf.Tensor2D }
 
 export type NetParams = {
   fc: {

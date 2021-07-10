@@ -1,14 +1,14 @@
-import { Dispatch } from 'redux';
+import { Dispatch } from 'redux'
 import {
   scenesFetchedSuccess,
   // scenesFetchedError,
   PublicScene
-} from './actions';
-import { Config } from '../../../helper';
+} from './actions'
+import { Config } from '../../../helper'
 
-export function fetchPublicScenes () {
+export function fetchPublicScenes() {
   return (dispatch: Dispatch): any => {
-    const scenes = Config.publicRuntimeConfig.xr.vrRoomGrid.scenes as PublicScene[];
-    return dispatch(scenesFetchedSuccess(scenes));
-  };
+    const scenes = Config.publicRuntimeConfig.xr.vrRoomGrid.scenes as PublicScene[]
+    return dispatch(scenesFetchedSuccess(scenes))
+  }
 }

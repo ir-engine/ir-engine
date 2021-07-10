@@ -1,8 +1,8 @@
-import React, { useCallback } from "react";
-import PropTypes from "prop-types";
-import { Button, SecondaryButton } from "../inputs/Button";
-import styled from "styled-components";
-import i18n from "i18next";
+import React, { useCallback } from 'react'
+import PropTypes from 'prop-types'
+import { Button, SecondaryButton } from '../inputs/Button'
+import styled from 'styled-components'
+import i18n from 'i18next'
 
 /**
  * DialogContainer used as container element for DialogHeader, DialogContent and DialogBottomNav.
@@ -20,11 +20,11 @@ const DialogContainer = (styled as any).form`
   min-width: 400px;
   min-height: 150px;
   max-height: 80vh;
-`;
+`
 
 /**
  * DialogHeader used for providing styles to header text.
- * 
+ *
  * @author Robert Long
  * @type {Styled component}
  */
@@ -44,17 +44,16 @@ const DialogHeader = (styled as any).div`
     display: flex;
     align-items: center;
   }
-`;
-
+`
 
 /**
  * DialogContent used to provide styles for dialog body content.
- * 
+ *
  * @author Robert Long
  * @type {Styled component}
  */
 export const DialogContent = (styled as any).div`
-  color: ${props => props.theme.text2};
+  color: ${(props) => props.theme.text2};
   display: flex;
   flex: 1;
   flex-direction: row;
@@ -65,7 +64,7 @@ export const DialogContent = (styled as any).div`
 
   h1 {
     font-size: 2em;
-    color: ${props => props.theme.text};
+    color: ${(props) => props.theme.text};
     margin-bottom: 16px;
   }
 
@@ -73,11 +72,11 @@ export const DialogContent = (styled as any).div`
     margin-bottom: 12px;
     line-height: 1.5em;
   }
-`;
+`
 
 /**
  * DialogBottomNav used to provide styles for bottom nav of Dialog component.
- * 
+ *
  * @author Robert Long
  * @type {Styled component}
  */
@@ -93,7 +92,7 @@ const DialogBottomNav = (styled as any).div`
   padding: 8px;
 
   a {
-    color: ${props => props.theme.text2};
+    color: ${(props) => props.theme.text2};
   }
 
   button {
@@ -103,64 +102,55 @@ const DialogBottomNav = (styled as any).div`
   & > * {
     margin: 0 8px;
   }
-`;
+`
 
 /**
  * declairing props for Dialog component.
- * 
+ *
  * @author Robert Long
  * @type {Props}
  */
 interface Props {
-    tag?;
-    title?;
-    onCancel?;
-    cancelLabel?;
-    onConfirm?;
-    confirmLabel?;
-    bottomNav?;
-    children?;
+  tag?
+  title?
+  onCancel?
+  cancelLabel?
+  onConfirm?
+  confirmLabel?
+  bottomNav?
+  children?
 }
 
 /**
  * Dialog used to render view for Dialog which contains form.
- * 
+ *
  * @author Robert Long
  * @param  {Props}
  * @constructor
  */
 export function Dialog(props: Props) {
+  // initializing component properties using props.
+  const { tag, title, onCancel, cancelLabel, onConfirm, confirmLabel, bottomNav, children, ...rest } = props
 
- // initializing component properties using props.
-  const {
-    tag,
-    title,
-    onCancel,
-    cancelLabel,
-    onConfirm,
-    confirmLabel,
-    bottomNav,
-    children,
-    ...rest
-} = props;
-
- // callback function used to handle form submit
+  // callback function used to handle form submit
   const onSubmitForm = useCallback(
-    e => {
-      e.preventDefault();
+    (e) => {
+      e.preventDefault()
 
       if (onConfirm) {
-        onConfirm(e);
+        onConfirm(e)
       }
     },
     [onConfirm]
-  );
+  )
   //@ts-ignore
-  const button = <Button type="submit" onClick={tag === "form" ? null : onConfirm}>
+  const button = (
+    <Button type="submit" onClick={tag === 'form' ? null : onConfirm}>
       {confirmLabel}
-  </Button>;
+    </Button>
+  )
 
-// returning view for Dialog component
+  // returning view for Dialog component
   return (
     <DialogContainer as={tag} onSubmit={onSubmitForm} {...rest}>
       <DialogHeader>
@@ -171,17 +161,15 @@ export function Dialog(props: Props) {
         <DialogBottomNav>
           {bottomNav}
           {onCancel && <SecondaryButton onClick={onCancel}>{cancelLabel}</SecondaryButton>}
-          {onConfirm && (
-            button
-          )}
+          {onConfirm && button}
         </DialogBottomNav>
       )}
     </DialogContainer>
-  );
+  )
 }
 /**
  * propTypes declared for Dialog component.
- * 
+ *
  * @author Robert Long
  * @param {string} tag
  * @param {string} title
@@ -201,17 +189,17 @@ Dialog.propTypes = {
   confirmLabel: PropTypes.string,
   bottomNav: PropTypes.node,
   children: PropTypes.node
-};
+}
 
 /**
  * defaultProps defined for  Dialog component
- * 
+ *
  * @author Robert Long
  */
 Dialog.defaultProps = {
-  tag: "form",
-  title: i18n.t('editor:dialog.title') || "Editor",
-  confirmLabel: i18n.t('editor:dialog.lbl-confirm') || "Ok",
-  cancelLabel: i18n.t('editor:dialog.lbl-cancel') || "Cancel",
-};
-export default Dialog;
+  tag: 'form',
+  title: i18n.t('editor:dialog.title') || 'Editor',
+  confirmLabel: i18n.t('editor:dialog.lbl-confirm') || 'Ok',
+  cancelLabel: i18n.t('editor:dialog.lbl-cancel') || 'Cancel'
+}
+export default Dialog

@@ -1,6 +1,6 @@
-import * as tf from '@tensorflow/tfjs-core';
+import * as tf from '@tensorflow/tfjs-core'
 
-import { NetInput } from './NetInput';
+import { NetInput } from './NetInput'
 
 export type TMediaElement = HTMLImageElement | HTMLVideoElement | HTMLCanvasElement
 

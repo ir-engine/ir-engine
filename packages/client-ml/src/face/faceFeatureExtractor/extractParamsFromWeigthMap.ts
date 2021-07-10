@@ -1,18 +1,16 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { disposeUnusedWeightTensors } from '../common/disposeUnusedWeightTensors';
-import { ParamMapping } from '../common/types';
-import { loadParamsFactory } from './loadParamsFactory';
-import { FaceFeatureExtractorParams } from './types';
+import * as tf from '@tensorflow/tfjs-core'
+import { disposeUnusedWeightTensors } from '../common/disposeUnusedWeightTensors'
+import { ParamMapping } from '../common/types'
+import { loadParamsFactory } from './loadParamsFactory'
+import { FaceFeatureExtractorParams } from './types'
 
-export function extractParamsFromWeigthMap(
-  weightMap: tf.NamedTensorMap
-): { params: FaceFeatureExtractorParams, paramMappings: ParamMapping[] } {
-
+export function extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): {
+  params: FaceFeatureExtractorParams
+  paramMappings: ParamMapping[]
+} {
   const paramMappings: ParamMapping[] = []
 
-  const {
-    extractDenseBlock4Params
-  } = loadParamsFactory(weightMap, paramMappings)
+  const { extractDenseBlock4Params } = loadParamsFactory(weightMap, paramMappings)
 
   const params = {
     dense0: extractDenseBlock4Params('dense0', true),

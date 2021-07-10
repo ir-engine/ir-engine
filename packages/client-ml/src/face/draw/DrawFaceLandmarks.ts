@@ -1,10 +1,10 @@
-import { FaceLandmarks } from '../classes/FaceLandmarks';
-import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
-import { IPoint } from '../classes/Point';
-import { getContext2dOrThrow } from '../dom/getContext2dOrThrow';
-import { WithFaceDetection } from '../factories/WithFaceDetection';
-import { isWithFaceLandmarks, WithFaceLandmarks } from '../factories/WithFaceLandmarks';
-import { drawContour } from './drawContour';
+import { FaceLandmarks } from '../classes/FaceLandmarks'
+import { FaceLandmarks68 } from '../classes/FaceLandmarks68'
+import { IPoint } from '../classes/Point'
+import { getContext2dOrThrow } from '../dom/getContext2dOrThrow'
+import { WithFaceDetection } from '../factories/WithFaceDetection'
+import { isWithFaceLandmarks, WithFaceLandmarks } from '../factories/WithFaceLandmarks'
+import { drawContour } from './drawContour'
 
 export interface IDrawFaceLandmarksOptions {
   drawLines?: boolean
@@ -38,10 +38,7 @@ export class DrawFaceLandmarks {
   public faceLandmarks: FaceLandmarks
   public options: DrawFaceLandmarksOptions
 
-  constructor(
-    faceLandmarks: FaceLandmarks,
-    options: IDrawFaceLandmarksOptions = {}
-  ) {
+  constructor(faceLandmarks: FaceLandmarks, options: IDrawFaceLandmarksOptions = {}) {
     this.faceLandmarks = faceLandmarks
     this.options = new DrawFaceLandmarksOptions(options)
   }
@@ -84,12 +81,12 @@ export function drawFaceLandmarks(
   faceLandmarks: DrawFaceLandmarksInput | Array<DrawFaceLandmarksInput>
 ) {
   const faceLandmarksArray = Array.isArray(faceLandmarks) ? faceLandmarks : [faceLandmarks]
-  faceLandmarksArray.forEach(f => {
-    const landmarks = f instanceof FaceLandmarks
-      ? f
-      : (isWithFaceLandmarks(f) ? f.landmarks : undefined)
+  faceLandmarksArray.forEach((f) => {
+    const landmarks = f instanceof FaceLandmarks ? f : isWithFaceLandmarks(f) ? f.landmarks : undefined
     if (!landmarks) {
-      throw new Error('drawFaceLandmarks - expected faceExpressions to be FaceLandmarks | WithFaceLandmarks<WithFaceDetection<{}>> or array thereof')
+      throw new Error(
+        'drawFaceLandmarks - expected faceExpressions to be FaceLandmarks | WithFaceLandmarks<WithFaceDetection<{}>> or array thereof'
+      )
     }
 
     new DrawFaceLandmarks(landmarks).draw(canvasArg)

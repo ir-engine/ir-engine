@@ -1,12 +1,13 @@
-import React, { Suspense } from "react";
-import { Dispatch } from "redux";
-import {connect} from "react-redux";
+import React, { Suspense } from 'react'
+import { Dispatch } from 'redux'
+import { connect } from 'react-redux'
 
 /**
  * Exporting component by dynamicaly loaded component.
  */
-const CreateProjectPage = React.lazy(() => import("@xrengine/client-core/src/world/components/editor/projects/CreateProjectPage"));
-
+const CreateProjectPage = React.lazy(
+  () => import('@xrengine/client-core/src/world/components/editor/projects/CreateProjectPage')
+)
 
 /**
  * Declairing Props interface having two props.
@@ -21,21 +22,23 @@ interface Props {}
  */
 
 const mapStateToProps = (state: any): any => {
-    return {};
-};
+  return {}
+}
 
 /**
  *Function component providing doAutoLogin on the basis of dispatch.
  */
-const mapDispatchToProps = (dispatch: Dispatch): any => ({});
+const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 /**
  * Function component providing project editor view.
  */
 const CreatePage = (props: Props) => {
-    return <Suspense fallback={React.Fragment}>
-        <CreateProjectPage />
-    </Suspense>;
-};
+  return (
+    <Suspense fallback={React.Fragment}>
+      <CreateProjectPage />
+    </Suspense>
+  )
+}
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreatePage);
+export default connect(mapStateToProps, mapDispatchToProps)(CreatePage)

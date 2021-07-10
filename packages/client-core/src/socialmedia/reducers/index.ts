@@ -1,13 +1,13 @@
-import arMediaReducer from './arMedia/reducers';
-import creatorReducer from './creator/reducers';
-import feedReducer from './feed/reducers';
-import feedCommentsReducer from './feedComment/reducers';
-import feedFiresReducer from './feedFires/reducers';
-import popupsStateReducer from './popupsState/reducers';
-import tipsAndTricksReducer from './tips_and_tricks/reducers';
-import thefeedsReducer from './thefeeds/reducers';
-import thefeedsFiresReducer from './thefeedsFires/reducers';
-import webxrnativeReducer from './webxr_native/reducers';
+import arMediaReducer from './arMedia/reducers'
+import creatorReducer from './creator/reducers'
+import feedReducer from './feed/reducers'
+import feedCommentsReducer from './feedComment/reducers'
+import feedFiresReducer from './feedFires/reducers'
+import popupsStateReducer from './popupsState/reducers'
+import tipsAndTricksReducer from './tips_and_tricks/reducers'
+import thefeedsReducer from './thefeeds/reducers'
+import thefeedsFiresReducer from './thefeedsFires/reducers'
+import webxrnativeReducer from './webxr_native/reducers'
 
 export default {
   creators: creatorReducer,
@@ -20,4 +20,4 @@ export default {
   thefeeds: thefeedsReducer,
   thefeedsFires: thefeedsFiresReducer,
   webxrnative: webxrnativeReducer
-};
+}

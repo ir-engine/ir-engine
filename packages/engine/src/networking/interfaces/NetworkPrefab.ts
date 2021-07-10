@@ -1,24 +1,24 @@
-import { Prefab } from '../../common/interfaces/Prefab';
+import { Prefab } from '../../common/interfaces/Prefab'
 
 /** Interface for network component. */
 interface NetworkComponentInterface {
   /** Type of the component. */
-  type: any;
+  type: any
   /** Data of the component. */
-  data?: any;
+  data?: any
   /** Network attributes. */
   networkedAttributes?: {
     /** Key is name of network attribute. */
-    [key: string]: any;
-  };
+    [key: string]: any
+  }
 }
 
 /** Interface for Network prefab. */
 export interface NetworkPrefab extends Prefab {
   /** List of only client components. */
-  clientComponents: Array<NetworkComponentInterface>;
+  clientComponents: Array<NetworkComponentInterface>
   /** List of network components. */
-  networkComponents: Array<NetworkComponentInterface>;
+  networkComponents: Array<NetworkComponentInterface>
   /** List of server components. */
-  serverComponents: Array<NetworkComponentInterface>;
+  serverComponents: Array<NetworkComponentInterface>
 }

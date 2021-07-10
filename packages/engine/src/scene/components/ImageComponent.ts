@@ -1,5 +1,5 @@
-import { Component } from '../../ecs/classes/Component';
-import { Types } from '../../ecs/types/Types';
+import { Component } from '../../ecs/classes/Component'
+import { Types } from '../../ecs/types/Types'
 
 class ImageComponent extends Component<ImageComponent> {
   src: string
@@ -13,4 +13,4 @@ class ImageComponent extends Component<ImageComponent> {
   }
 }
 
-export default ImageComponent;
+export default ImageComponent
