@@ -22,18 +22,8 @@
     "type": "git",
     "url": "git+https://github.com/XRFoundation/XREngine.git"
   },
-  "ts-standard": {
-    "ignore": [
-      "dist",
-      "node_modules",
-      "scripts",
-      "index.ts",
-      "tests"
-    ]
-  },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "lint": "ts-standard --fix *.ts",
     "dev": "vite",
     "build": "rimraf dist && mkdir dist && ctix entrypoint ./src && node build.js",
     "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
