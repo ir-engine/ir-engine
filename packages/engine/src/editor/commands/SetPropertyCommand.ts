@@ -1,30 +1,29 @@
-import Command from './Command'
-import { serializeObject3D, serializeProperty } from '../functions/debug'
+import Command from "./Command";
+import { serializeObject3D, serializeProperty } from "../functions/debug";
 export default class SetPropertyCommand extends Command {
-  object: any
-  propertyName: any
-  disableCopy: any
-  newValue: any
-  oldValue: any
-  constructor (editor, object, propertyName, value, disableCopy) {
-    super(editor)
-    this.object = object
-    this.propertyName = propertyName
-    this.disableCopy = disableCopy
+  object: any;
+  propertyName: any;
+  disableCopy: any;
+  newValue: any;
+  oldValue: any;
+  constructor(editor, object, propertyName, value, disableCopy) {
+    super(editor);
+    this.object = object;
+    this.propertyName = propertyName;
+    this.disableCopy = disableCopy;
     if (value && value.clone && !disableCopy) {
-      this.newValue = value.clone()
+      this.newValue = value.clone();
     } else {
-      this.newValue = value
+      this.newValue = value;
     }
-    const oldValue = this.object[propertyName]
+    const oldValue = this.object[propertyName];
     if (oldValue && oldValue.clone && !disableCopy) {
-      this.oldValue = oldValue.clone()
+      this.oldValue = oldValue.clone();
     } else {
-      this.oldValue = oldValue
+      this.oldValue = oldValue;
     }
   }
-
-  execute () {
+  execute() {
     this.editor.setProperty(
       this.object,
       this.propertyName,
@@ -32,22 +31,20 @@ export default class SetPropertyCommand extends Command {
       false,
       true,
       this.disableCopy
-    )
+    );
   }
-
-  shouldUpdate (newCommand) {
+  shouldUpdate(newCommand) {
     return (
       this.object === newCommand.object &&
       this.propertyName === newCommand.propertyName
-    )
+    );
   }
-
-  update (command) {
-    const newValue = command.newValue
+  update(command) {
+    const newValue = command.newValue;
     if (newValue && newValue.clone && newValue.copy && !this.disableCopy) {
-      this.newValue = newValue.clone()
+      this.newValue = newValue.clone();
     } else {
-      this.newValue = newValue
+      this.newValue = newValue;
     }
     this.editor.setProperty(
       this.object,
@@ -56,10 +53,9 @@ export default class SetPropertyCommand extends Command {
       false,
       true,
       this.disableCopy
-    )
+    );
   }
-
-  undo () {
+  undo() {
     this.editor.setProperty(
       this.object,
       this.propertyName,
@@ -67,14 +63,13 @@ export default class SetPropertyCommand extends Command {
       false,
       true,
       this.disableCopy
-    )
+    );
   }
-
-  toString () {
+  toString() {
     return `SetPropertyCommand id: ${this.id} object: ${serializeObject3D(
       this.object
     )} propertyName: ${this.propertyName} newValue: ${serializeProperty(
       this.newValue
-    )}`
+    )}`;
   }
 }

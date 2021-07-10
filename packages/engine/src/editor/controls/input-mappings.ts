@@ -1,83 +1,83 @@
-function requestPointerLockHandler (filter) {
+function requestPointerLockHandler(filter) {
   return {
     handler: (event, input) => {
-      const shouldRequest = filter ? filter(event, input) : true
+      const shouldRequest = filter ? filter(event, input) : true;
       if (shouldRequest) {
-        input.canvas.requestPointerLock()
+        input.canvas.requestPointerLock();
       }
     }
-  }
+  };
 }
-function exitPointerLockHandler (filter) {
+function exitPointerLockHandler(filter) {
   return {
     handler: (event, input) => {
-      const shouldExit = filter ? filter(event, input) : true
+      const shouldExit = filter ? filter(event, input) : true;
       if (shouldExit && document.pointerLockElement === input.canvas) {
-        document.exitPointerLock()
+        document.exitPointerLock();
       }
     }
-  }
+  };
 }
-function booleanEventHandler (outputAction) {
+function booleanEventHandler(outputAction) {
   return {
     reset: true,
     defaultValue: false,
     handler: () => true,
     action: outputAction
-  }
+  };
 }
 export const Fly = {
-  moveLeft: 'moveLeft',
-  moveRight: 'moveRight',
-  moveX: 'moveX',
-  moveForward: 'moveForward',
-  moveBackward: 'moveBackward',
-  moveZ: 'moveZ',
-  lookX: 'lookX',
-  lookY: 'lookY',
-  moveDown: 'moveDown',
-  moveUp: 'moveUp',
-  moveY: 'moveY',
-  boost: 'boost'
-}
+  moveLeft: "moveLeft",
+  moveRight: "moveRight",
+  moveX: "moveX",
+  moveForward: "moveForward",
+  moveBackward: "moveBackward",
+  moveZ: "moveZ",
+  lookX: "lookX",
+  lookY: "lookY",
+  moveDown: "moveDown",
+  moveUp: "moveUp",
+  moveY: "moveY",
+  boost: "boost"
+};
 export const Editor = {
-  grab: 'grab',
-  focus: 'focus',
-  focusPosition: 'focusPosition',
-  focusSelection: 'focusSelection',
-  zoomDelta: 'zoomDelta',
-  enableFlyMode: 'enableFlyMode',
-  disableFlyMode: 'disableFlyMode',
-  flying: 'flying',
-  selecting: 'selecting',
-  selectStart: 'selectStart',
-  selectStartPosition: 'selectStartPosition',
-  selectEnd: 'selectEnd',
-  selectEndPosition: 'selectEndPosition',
-  cursorPosition: 'cursorPosition',
-  cursorDeltaX: 'cursorDeltaX',
-  cursorDeltaY: 'cursorDeltaY',
-  panning: 'panning',
-  setTranslateMode: 'setTranslateMode',
-  setRotateMode: 'setRotateMode',
-  setScaleMode: 'setScaleMode',
-  toggleSnapMode: 'toggleSnapMode',
-  toggleTransformPivot: 'toggleTransformPivot',
-  modifier: 'modifier',
-  shift: 'shift',
-  toggleTransformSpace: 'toggleTransformSpace',
-  deleteSelected: 'deleteSelected',
-  undo: 'undo',
-  redo: 'redo',
-  duplicateSelected: 'duplicateSelected',
-  groupSelected: 'groupSelected',
-  saveProject: 'saveProject',
-  cancel: 'cancel',
-  rotateLeft: 'rotateLeft',
-  rotateRight: 'rotateRight',
-  incrementGridHeight: 'incrementGridHeight',
-  decrementGridHeight: 'decrementGridHeight'
-}
+  grab: "grab",
+  focus: "focus",
+  focusPosition: "focusPosition",
+  focusSelection: "focusSelection",
+  zoomDelta: "zoomDelta",
+  enableFlyMode: "enableFlyMode",
+  disableFlyMode: "disableFlyMode",
+  flying: "flying",
+  selecting: "selecting",
+  selectStart: "selectStart",
+  selectStartPosition: "selectStartPosition",
+  selectEnd: "selectEnd",
+  selectEndPosition: "selectEndPosition",
+  cursorPosition: "cursorPosition",
+  cursorDeltaX: "cursorDeltaX",
+  cursorDeltaY: "cursorDeltaY",
+  panning: "panning",
+  setTranslateMode: "setTranslateMode",
+  setRotateMode: "setRotateMode",
+  setScaleMode: "setScaleMode",
+  toggleSnapMode: "toggleSnapMode",
+  toggleTransformPivot: "toggleTransformPivot",
+  modifier: "modifier",
+  shift: "shift",
+  toggleTransformSpace: "toggleTransformSpace",
+  deleteSelected: "deleteSelected",
+  undo: "undo",
+  redo: "redo",
+  duplicateSelected: "duplicateSelected",
+  groupSelected: "groupSelected",
+  saveProject: "saveProject",
+  cancel: "cancel",
+  rotateLeft: "rotateLeft",
+  rotateRight: "rotateRight",
+  incrementGridHeight: "incrementGridHeight",
+  decrementGridHeight: "decrementGridHeight"
+};
 export const FlyMapping = {
   keyboard: {
     pressed: {
@@ -111,7 +111,7 @@ export const FlyMapping = {
       action: Fly.moveZ
     }
   ]
-}
+};
 export const EditorMapping = {
   mouse: {
     dblclick: {
@@ -150,8 +150,8 @@ export const EditorMapping = {
       shift: Editor.shift
     },
     hotkeys: {
-      '=': Editor.incrementGridHeight,
-      '-': Editor.decrementGridHeight,
+      "=": Editor.incrementGridHeight,
+      "-": Editor.decrementGridHeight,
       f: Editor.focusSelection,
       t: Editor.setTranslateMode,
       r: Editor.setRotateMode,
@@ -164,14 +164,14 @@ export const EditorMapping = {
       c: Editor.toggleSnapMode,
       backspace: Editor.deleteSelected,
       del: Editor.deleteSelected,
-      'mod+z': Editor.undo,
-      'mod+shift+z': Editor.redo,
-      'mod+d': Editor.duplicateSelected,
-      'mod+g': Editor.groupSelected,
+      "mod+z": Editor.undo,
+      "mod+shift+z": Editor.redo,
+      "mod+d": Editor.duplicateSelected,
+      "mod+g": Editor.groupSelected,
       esc: Editor.cancel
     },
     globalHotkeys: {
-      'mod+s': Editor.saveProject
+      "mod+s": Editor.saveProject
     }
   }
-}
+};

@@ -1,6 +1,6 @@
-import { Euler, Quaternion, Vector3 } from 'three'
+import { Euler, Quaternion, Vector3 } from "three"
 
-const frameDelta = 1000 / 60
+const frameDelta = 1000 / 60;
 
 const headPosition = new Vector3(0, 1.6, 0)
 const headRotation = new Quaternion()
@@ -13,16 +13,16 @@ type InputSource = 'head' | 'leftController' | 'rightController'
 
 const getInputSourcePosition = (inputSource: InputSource) => {
   switch (inputSource) {
-    case 'head': return headPosition
-    case 'leftController': return leftControllerPosition
-    case 'rightController': return rightControllerPosition
+    case 'head': return headPosition;
+    case 'leftController': return leftControllerPosition;
+    case 'rightController': return rightControllerPosition;
   }
 }
 const getInputSourceRotation = (inputSource: InputSource) => {
   switch (inputSource) {
-    case 'head': return headRotation
-    case 'leftController': return leftControllerRotation
-    case 'rightController': return rightControllerRotation
+    case 'head': return headRotation;
+    case 'leftController': return leftControllerRotation;
+    case 'rightController': return rightControllerRotation;
   }
 }
 
@@ -49,36 +49,36 @@ export const sendXRInputData = () => {
   }))
 }
 
-export interface InputSourceTweenProps {
-  objectName: InputSource
+export type InputSourceTweenProps = {
+  objectName: InputSource,
   time: number // in frames
-  positionFrom: Vector3
-  positionTo: Vector3
+  positionFrom: Vector3,
+  positionTo: Vector3,
   quaternionFrom: Quaternion
   quaternionTo: Quaternion
   callback: () => void
 }
 
 /**
- * @param {object} args
+ * @param {object} args 
  * @param {array} args.position
  * @param {array} args.quaternion
  * @returns {function}
  */
-export function updateHead (args) {
+ export function updateHead(args) {
   headPosition.fromArray(args.position)
   headRotation.fromArray(args.rotation)
 }
 
 /**
- * @param {object} args
+ * @param {object} args 
  * @param {array} args.position
  * @param {array} args.quaternion
  * @param {string} args.objectName
  * @returns {function}
  */
-export function updateController (args) {
-  if (args.objectName === 'leftController') {
+export function updateController(args) {
+  if(args.objectName === 'leftController') {
     leftControllerPosition.fromArray(args.position)
     leftControllerRotation.fromArray(args.rotation)
   } else {
@@ -95,15 +95,15 @@ export function tweenXRInputSource (args: InputSourceTweenProps) {
     vec3.lerpVectors(args.positionFrom, args.positionTo, counter / args.time)
     quat.slerpQuaternions(args.quaternionFrom, args.quaternionTo, counter / args.time)
     if (counter >= args.time) {
-      clearInterval(interval)
+      clearInterval(interval);
       args.callback()
     }
-    counter++
+    counter++;
   }, frameDelta)
 }
 
-export async function swingClub () {
-  return await new Promise<void>((resolve) => {
+export function swingClub() {
+  return new Promise<void>((resolve) => {
     tweenXRInputSource({
       objectName: 'rightController',
       time: 20, // 1 second

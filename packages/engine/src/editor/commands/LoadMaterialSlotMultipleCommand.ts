@@ -1,35 +1,33 @@
-import Command from './Command'
-import { serializeObject3DArray } from '../functions/debug'
+import Command from "./Command";
+import { serializeObject3DArray } from "../functions/debug";
 export default class LoadMaterialSlotMultipleCommand extends Command {
-  objects: any
-  subPieceId: any
-  materialSlotId: any
-  materialId: any
-  prevMaterialIds: any
-  constructor (editor, objects, subPieceId, materialSlotId, materialId) {
-    super(editor)
-    this.objects = objects.slice(0)
-    this.subPieceId = subPieceId
-    this.materialSlotId = materialSlotId
-    this.materialId = materialId
+  objects: any;
+  subPieceId: any;
+  materialSlotId: any;
+  materialId: any;
+  prevMaterialIds: any;
+  constructor(editor, objects, subPieceId, materialSlotId, materialId) {
+    super(editor);
+    this.objects = objects.slice(0);
+    this.subPieceId = subPieceId;
+    this.materialSlotId = materialSlotId;
+    this.materialId = materialId;
     this.prevMaterialIds = objects.map(object =>
       object.getMaterialIdForMaterialSlot(subPieceId, materialSlotId)
-    )
+    );
   }
-
-  execute () {
+  execute() {
     this.editor.loadMaterialSlotMultiple(
       this.objects,
       this.subPieceId,
       this.materialSlotId,
       this.materialId,
       false
-    )
+    );
   }
-
-  undo () {
+  undo() {
     for (let i = 0; i < this.objects.length; i++) {
-      const object = this.objects[i]
+      const object = this.objects[i];
       this.editor.loadMaterialSlot(
         object,
         this.subPieceId,
@@ -37,16 +35,15 @@ export default class LoadMaterialSlotMultipleCommand extends Command {
         this.prevMaterialIds[i],
         false,
         false
-      )
+      );
     }
-    this.editor.emit('objectsChanged', this.objects, 'materialSlot')
+    this.editor.emit("objectsChanged", this.objects, "materialSlot");
   }
-
-  toString () {
+  toString() {
     return `LoadMaterialSlotMultipleCommand id: ${
       this.id
     } objects: ${serializeObject3DArray(this.objects)} subPieceId: ${
       this.subPieceId
-    } materialSlotId: ${this.materialSlotId} materialId: ${this.materialId}`
+    } materialSlotId: ${this.materialSlotId} materialId: ${this.materialId}`;
   }
 }

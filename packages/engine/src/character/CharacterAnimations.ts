@@ -9,7 +9,7 @@ export enum CharacterAnimations {
   WALK,
   SPRINT,
   INTERACTING,
-
+  
   DROP_IDLE,
   DROP_ROLLING,
   DROP_RUNNING,

@@ -1,4 +1,4 @@
-import { ComponentSchema, ComponentConstructor } from '../interfaces/ComponentInterfaces'
+import { ComponentSchema, ComponentConstructor } from '../interfaces/ComponentInterfaces';
 
 /**
  * Components are added to entities to define behavior.\
@@ -31,63 +31,63 @@ export class Component<C> {
   /**
    * The name of the component instance, derived from the class name.
    */
-  name: any = ''
+  name: any = ""
 
   /**
    * The "entity" this component is attached to.
    */
-  entity: any = ''
+  entity: any = ""
 
   /**
    * Component class constructor.
    */
   constructor (props?: Partial<Omit<C, keyof Component<any>>> | false) {
-    this.name = this.constructor.name
+    this.name = this.constructor.name;
     if (props !== false) {
-      const schema = (this.constructor as ComponentConstructor<Component<C>>)._schema
+      const schema = (this.constructor as ComponentConstructor<Component<C>>)._schema;
 
       for (const key in schema) {
         if (props && (props as any).key != undefined) {
-          this[key] = props[key]
+          this[key] = props[key];
         } else {
-          const schemaProp = schema[key]
+          const schemaProp = schema[key];
           if (schemaProp.default !== undefined) {
-            this[key] = schemaProp.type.clone(schemaProp.default)
+            this[key] = schemaProp.type.clone(schemaProp.default);
           } else {
-            const type = schemaProp.type
-            this[key] = type.clone(type.default)
+            const type = schemaProp.type;
+            this[key] = type.clone(type.default);
           }
         }
       }
 
       if (process.env.NODE_ENV !== 'production' && props !== undefined) {
-        this.checkUndefinedAttributes(props)
+        this.checkUndefinedAttributes(props);
       }
     }
 
-    this._pool = null
+    this._pool = null;
   }
 
   /**
    * Default logic for copying component.
    * Each component class can override this.
-   *
+   * 
    * @param source Source Component.
    * @returns this new component as a copy of the source.
    */
   copy (source): any {
-    const schema = (this.constructor as ComponentConstructor<Component<C>>)._schema
+    const schema = (this.constructor as ComponentConstructor<Component<C>>)._schema;
 
     for (const key in schema) {
-      if (source[key] !== undefined) { this[key] = schema[key].type.copy(source[key], this[key]) }
+      if (source[key] !== undefined) { this[key] = schema[key].type.copy(source[key], this[key]); }
     }
 
     // @DEBUG
     if (process.env.NODE_ENV !== 'production') {
-      this.checkUndefinedAttributes(source)
+      this.checkUndefinedAttributes(source);
     }
 
-    return this
+    return this;
   }
 
   /**
@@ -96,7 +96,7 @@ export class Component<C> {
    * @returns a new component as a clone of itself.
    */
   clone (): any {
-    return (this.constructor as any).prototype.copy(this)
+    return (this.constructor as any).prototype.copy(this);
   }
 
   /**
@@ -104,16 +104,16 @@ export class Component<C> {
    * Each component class can override this.
    */
   reset (): void {
-    const schema = (this.constructor as ComponentConstructor<Component<C>>)._schema
+    const schema = (this.constructor as ComponentConstructor<Component<C>>)._schema;
 
     for (const key in schema) {
-      const schemaProp = schema[key]
+      const schemaProp = schema[key];
 
       if (schemaProp.default !== undefined) {
-        this[key] = schemaProp.type.copy(schemaProp.default, this[key])
+        this[key] = schemaProp.type.copy(schemaProp.default, this[key]);
       } else {
-        const type = schemaProp.type
-        this[key] = type.copy(type.default, this[key])
+        const type = schemaProp.type;
+        this[key] = type.copy(type.default, this[key]);
       }
     }
   }
@@ -124,7 +124,7 @@ export class Component<C> {
    */
   dispose (): void {
     if (this._pool) {
-      this._pool.release(this)
+      this._pool.release(this);
     }
   }
 
@@ -133,21 +133,21 @@ export class Component<C> {
    * Useful for JSON serialization, etc.
    */
   static getName (): string {
-    return (this.constructor as any).getName()
+    return (this.constructor as any).getName();
   }
 
   /**
    * Make sure attributes on this component have been defined in the schema
    */
   checkUndefinedAttributes (src): void {
-    const schema = (this.constructor as ComponentConstructor<Component<C>>)._schema
+    const schema = (this.constructor as ComponentConstructor<Component<C>>)._schema;
     Object.keys(src).forEach(srcKey => {
       if (!schema[srcKey]) {
         console.warn(
           `Trying to set attribute '${srcKey}' not defined in the '${this.constructor.name}' schema. Please fix the schema, the attribute value won't be set`
-        )
+        );
       }
-    })
+    });
   }
 
   /**
@@ -155,24 +155,24 @@ export class Component<C> {
    * Called when JSON.stringify is called on the component
    * @returns {object} the JSONified component
    */
-  toJSON () {
-    const schema = (this.constructor as ComponentConstructor<Component<C>>)._schema
+  toJSON() {
+    const schema = (this.constructor as ComponentConstructor<Component<C>>)._schema;
     const props = {}
-    for (const key in schema) {
-      if (typeof this[key] === 'undefined') {
-        const schemaProp = schema[key]
+    for(const key in schema) {
+      if(typeof this[key] === 'undefined') {
+        const schemaProp = schema[key];
         if (schemaProp.default !== undefined) {
-          props[key] = schemaProp.type.clone(schemaProp.default)
+          props[key] = schemaProp.type.clone(schemaProp.default);
         }
       } else {
-        props[key] = this[key]
+        props[key] = this[key];
       }
     }
-    return JSON.parse(JSON.stringify(props))
+    return JSON.parse(JSON.stringify(props));
   }
 }
 
-Component._schema = {}
+Component._schema = {};
 Component.getName = function () {
-  return this.name
-}
+  return this.name;
+};

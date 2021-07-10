@@ -1,46 +1,46 @@
-import { ParticleMesh, ParticleMeshMaterial, particleMeshOptions, ParticleGeometry } from '../interfaces'
+import { ParticleMesh, ParticleMeshMaterial, particleMeshOptions, ParticleGeometry } from "../interfaces";
 
-import { DataTexture, RGBFormat, TextureLoader, NormalBlending, InstancedBufferGeometry, BufferGeometry, ShaderLib, UniformsUtils, ShaderMaterial, Mesh, Points, InstancedBufferAttribute, Float32BufferAttribute, Matrix4, Texture } from 'three'
+import { DataTexture, RGBFormat, TextureLoader, NormalBlending, InstancedBufferGeometry, BufferGeometry, ShaderLib, UniformsUtils, ShaderMaterial, Mesh, Points, InstancedBufferAttribute, Float32BufferAttribute, Matrix4, Texture } from "three";
 // import { RGBFormat } from "three"
 // import { DataTexture } from "three"
 // import { TextureLoader } from "three"
 // import { InstancedBufferGeometry } from "three"
-const WHITE_TEXTURE = new DataTexture(new Uint8Array(3).fill(255), 1, 1, RGBFormat)
-WHITE_TEXTURE.needsUpdate = true
+const WHITE_TEXTURE = new DataTexture(new Uint8Array(3).fill(255), 1, 1, RGBFormat);
+WHITE_TEXTURE.needsUpdate = true;
 
-const textureLoader = new TextureLoader()
+const textureLoader = new TextureLoader();
 
 // from threejs
 const shaderIDs = {
-  MeshDepthMaterial: 'depth',
-  MeshDistanceMaterial: 'distanceRGBA',
-  MeshNormalMaterial: 'normal',
-  MeshBasicMaterial: 'basic',
-  MeshLambertMaterial: 'lambert',
-  MeshPhongMaterial: 'phong',
-  MeshToonMaterial: 'toon',
-  MeshStandardMaterial: 'physical',
-  MeshPhysicalMaterial: 'physical',
-  MeshMatcapMaterial: 'matcap',
-  LineBasicMaterial: 'basic',
-  LineDashedMaterial: 'dashed',
-  PointsMaterial: 'points',
-  ShadowMaterial: 'shadow',
-  SpriteMaterial: 'sprite'
-}
+  MeshDepthMaterial: "depth",
+  MeshDistanceMaterial: "distanceRGBA",
+  MeshNormalMaterial: "normal",
+  MeshBasicMaterial: "basic",
+  MeshLambertMaterial: "lambert",
+  MeshPhongMaterial: "phong",
+  MeshToonMaterial: "toon",
+  MeshStandardMaterial: "physical",
+  MeshPhysicalMaterial: "physical",
+  MeshMatcapMaterial: "matcap",
+  LineBasicMaterial: "basic",
+  LineDashedMaterial: "dashed",
+  PointsMaterial: "points",
+  ShadowMaterial: "shadow",
+  SpriteMaterial: "sprite"
+};
 
 /**
  * Create particle mesh from options.
  * @param options Options to be applied on particle mesh.
- *
+ * 
  * @returns Newly created particle mesh.
  */
-export function createParticleMesh (options: particleMeshOptions): ParticleMesh {
+export function createParticleMesh(options: particleMeshOptions): ParticleMesh {
   const config: particleMeshOptions = {
     particleCount: 1000,
-    texture: '',
+    texture: "",
     textureFrame: { cols: 1, rows: 1 },
-    style: 'particle',
+    style: "particle",
     mesh: null,
     particleSize: 10,
     transparent: false,
@@ -58,20 +58,20 @@ export function createParticleMesh (options: particleMeshOptions): ParticleMesh 
     useBrownianMotion: false,
     useVelocityScale: false,
     useFramesOrOrientation: true
-  }
+  };
 
-  Object.defineProperties(config, Object.getOwnPropertyDescriptors(options)) // preserves getters
+  Object.defineProperties(config, Object.getOwnPropertyDescriptors(options)); // preserves getters
 
-  const isMesh = config.style === 'mesh'
-  const geometry = isMesh ? new InstancedBufferGeometry().copy(config.mesh.geometry) : new BufferGeometry()
+  const isMesh = config.style === "mesh";
+  const geometry = isMesh ? new InstancedBufferGeometry().copy(config.mesh.geometry) : new BufferGeometry();
 
-  updateGeometry(geometry, config)
+  updateGeometry(geometry, config);
 
-  let shaderID = 'points'
+  let shaderID = "points";
   if (isMesh) {
-    shaderID = shaderIDs[config.mesh.material.type] || 'physical'
+    shaderID = shaderIDs[config.mesh.material.type] || "physical";
   }
-  const shader = ShaderLib[shaderID]
+  const shader = ShaderLib[shaderID];
 
   const uniforms = UniformsUtils.merge([
     shader.uniforms,
@@ -79,7 +79,7 @@ export function createParticleMesh (options: particleMeshOptions): ParticleMesh 
       time: { value: 0 },
       textureAtlas: { value: new Float32Array(2) }
     }
-  ])
+  ]);
 
   // custom uniforms can only be used on ShaderMaterial and RawShaderMaterial
   const material = new ShaderMaterial({
@@ -88,30 +88,30 @@ export function createParticleMesh (options: particleMeshOptions): ParticleMesh 
     fragmentShader: shader.fragmentShader,
     defines: {},
     extensions: {
-      derivatives: shaderID === 'physical' // I don't know who should set this!!
+      derivatives: shaderID === "physical" // I don't know who should set this!!
     },
     lights: isMesh // lights are automatically setup for various materials, but must be manually setup for ShaderMaterial
-  })
+  });
 
-  injectParticleShaderCode(material)
+  injectParticleShaderCode(material);
 
-  updateMaterial(material as ParticleMeshMaterial, config)
+  updateMaterial(material as ParticleMeshMaterial, config);
 
-  let particleMesh
+  let particleMesh;
   if (isMesh) {
-    particleMesh = new Mesh(geometry, material)
-    material.originalMaterial = config.mesh.material
+    particleMesh = new Mesh(geometry, material);
+    material["originalMaterial"] = config.mesh.material;
   } else {
-    particleMesh = new Points(geometry, material)
+    particleMesh = new Points(geometry, material);
   }
 
-  particleMesh.frustumCulled = false
+  particleMesh.frustumCulled = false;
   particleMesh.userData = {
     nextIndex: 0,
     meshConfig: config
-  }
+  };
 
-  return particleMesh
+  return particleMesh;
 }
 
 /**
@@ -119,76 +119,76 @@ export function createParticleMesh (options: particleMeshOptions): ParticleMesh 
  * @param geometry Geometry to be updated.
  * @param config Config which will be applied on geometry.
  */
-export function updateGeometry (geometry: ParticleGeometry, config: particleMeshOptions): void {
-  const particleCount = config.particleCount
-  const NUM_KEYFRAMES = 3
+export function updateGeometry(geometry: ParticleGeometry, config: particleMeshOptions): void {
+  const particleCount = config.particleCount;
+  const NUM_KEYFRAMES = 3;
 
-  const offsets = new Float32Array(particleCount * 3)
-  const row1s = new Float32Array(particleCount * 4)
-  const row2s = new Float32Array(particleCount * 4)
-  const row3s = new Float32Array(particleCount * 4)
-  const scales = new Float32Array(particleCount * NUM_KEYFRAMES) // scales over time (0 scale implies hidden)
-  const orientations = new Float32Array(particleCount * (NUM_KEYFRAMES + 1)) // orientation over time + screen up
-  const colors = new Float32Array(particleCount * (NUM_KEYFRAMES + 1)) // colors over time (rgb is packed into a single float) + frameInfo part 1
-  const opacities = new Float32Array(particleCount * (NUM_KEYFRAMES + 1)).fill(1) // opacities over time + frameInfo part 2
-  const timings = new Float32Array(particleCount * 4)
+  const offsets = new Float32Array(particleCount * 3);
+  const row1s = new Float32Array(particleCount * 4);
+  const row2s = new Float32Array(particleCount * 4);
+  const row3s = new Float32Array(particleCount * 4);
+  const scales = new Float32Array(particleCount * NUM_KEYFRAMES); // scales over time (0 scale implies hidden)
+  const orientations = new Float32Array(particleCount * (NUM_KEYFRAMES + 1)); // orientation over time + screen up
+  const colors = new Float32Array(particleCount * (NUM_KEYFRAMES + 1)); // colors over time (rgb is packed into a single float) + frameInfo part 1
+  const opacities = new Float32Array(particleCount * (NUM_KEYFRAMES + 1)).fill(1); // opacities over time + frameInfo part 2
+  const timings = new Float32Array(particleCount * 4);
 
-  const isInstancedBufferGeometry = geometry instanceof InstancedBufferGeometry
-  const bufferFn = isInstancedBufferGeometry ? InstancedBufferAttribute : Float32BufferAttribute
+  const isInstancedBufferGeometry = geometry instanceof InstancedBufferGeometry;
+  const bufferFn = isInstancedBufferGeometry ? InstancedBufferAttribute : Float32BufferAttribute;
 
   if (!isInstancedBufferGeometry) {
     // this.renderBufferDirect() in threejs assumes an attribute called *position* exists and uses the attribute's *count* to
     // determine the number of particles to draw!
-    geometry.setAttribute('position', new Float32BufferAttribute(new Float32Array(particleCount * 3), 3))
+    geometry.setAttribute("position", new Float32BufferAttribute(new Float32Array(particleCount * 3), 3));
   }
 
-  geometry.setAttribute('row1', new bufferFn(row1s, row1s.length / particleCount))
-  geometry.setAttribute('row2', new bufferFn(row2s, row2s.length / particleCount))
-  geometry.setAttribute('row3', new bufferFn(row3s, row3s.length / particleCount))
-  geometry.setAttribute('offset', new bufferFn(offsets, offsets.length / particleCount))
-  geometry.setAttribute('scales', new bufferFn(scales, scales.length / particleCount))
-  geometry.setAttribute('orientations', new bufferFn(orientations, orientations.length / particleCount))
-  geometry.setAttribute('colors', new bufferFn(colors, colors.length / particleCount))
-  geometry.setAttribute('opacities', new bufferFn(opacities, opacities.length / particleCount))
-  geometry.setAttribute('timings', new bufferFn(timings, timings.length / particleCount))
+  geometry.setAttribute("row1", new bufferFn(row1s, row1s.length / particleCount));
+  geometry.setAttribute("row2", new bufferFn(row2s, row2s.length / particleCount));
+  geometry.setAttribute("row3", new bufferFn(row3s, row3s.length / particleCount));
+  geometry.setAttribute("offset", new bufferFn(offsets, offsets.length / particleCount));
+  geometry.setAttribute("scales", new bufferFn(scales, scales.length / particleCount));
+  geometry.setAttribute("orientations", new bufferFn(orientations, orientations.length / particleCount));
+  geometry.setAttribute("colors", new bufferFn(colors, colors.length / particleCount));
+  geometry.setAttribute("opacities", new bufferFn(opacities, opacities.length / particleCount));
+  geometry.setAttribute("timings", new bufferFn(timings, timings.length / particleCount));
 
   if (config.useLinearMotion || config.useRadialMotion) {
-    const velocities = new Float32Array(particleCount * 4) // linearVelocity (xyz) + radialVelocity (w)
-    const accelerations = new Float32Array(particleCount * 4) // linearAcceleration (xyz) + radialAcceleration (w)
-    geometry.setAttribute('velocity', new bufferFn(velocities, velocities.length / particleCount))
-    geometry.setAttribute('acceleration', new bufferFn(accelerations, accelerations.length / particleCount))
+    const velocities = new Float32Array(particleCount * 4); // linearVelocity (xyz) + radialVelocity (w)
+    const accelerations = new Float32Array(particleCount * 4); // linearAcceleration (xyz) + radialAcceleration (w)
+    geometry.setAttribute("velocity", new bufferFn(velocities, velocities.length / particleCount));
+    geometry.setAttribute("acceleration", new bufferFn(accelerations, accelerations.length / particleCount));
   }
 
   if (config.useAngularMotion || config.useOrbitalMotion) {
-    const angularVelocities = new Float32Array(particleCount * 4) // angularVelocity (xyz) + orbitalVelocity (w)
-    const angularAccelerations = new Float32Array(particleCount * 4) // angularAcceleration (xyz) + orbitalAcceleration (w)
-    geometry.setAttribute('angularvelocity', new bufferFn(angularVelocities, angularVelocities.length / particleCount))
+    const angularVelocities = new Float32Array(particleCount * 4); // angularVelocity (xyz) + orbitalVelocity (w)
+    const angularAccelerations = new Float32Array(particleCount * 4); // angularAcceleration (xyz) + orbitalAcceleration (w)
+    geometry.setAttribute("angularvelocity", new bufferFn(angularVelocities, angularVelocities.length / particleCount));
     geometry.setAttribute(
-      'angularacceleration',
+      "angularacceleration",
       new bufferFn(angularAccelerations, angularAccelerations.length / particleCount)
-    )
+    );
   }
 
   if (config.useWorldMotion || config.useBrownianMotion) {
-    const worldAccelerations = new Float32Array(particleCount * 4) // worldAcceleration (xyz) + brownian (w)
+    const worldAccelerations = new Float32Array(particleCount * 4); // worldAcceleration (xyz) + brownian (w)
     geometry.setAttribute(
-      'worldacceleration',
+      "worldacceleration",
       new bufferFn(worldAccelerations, worldAccelerations.length / particleCount)
-    )
+    );
   }
 
   if (config.useVelocityScale) {
-    const velocityScales = new Float32Array(particleCount * 3) // velocityScale (x), velocityScaleMin (y), velocityScaleMax (z)
-    geometry.setAttribute('velocityscale', new bufferFn(velocityScales, velocityScales.length / particleCount))
+    const velocityScales = new Float32Array(particleCount * 3); // velocityScale (x), velocityScaleMin (y), velocityScaleMax (z)
+    geometry.setAttribute("velocityscale", new bufferFn(velocityScales, velocityScales.length / particleCount));
   }
 
   if (geometry instanceof InstancedBufferGeometry) {
-    geometry.instanceCount = particleCount
+    geometry.instanceCount = particleCount;
   }
 
-  const identity = new Matrix4()
+  const identity = new Matrix4();
   for (let i = 0; i < particleCount; i++) {
-    setMatrixAt(geometry, i, identity)
+    setMatrixAt(geometry, i, identity);
   }
 }
 
@@ -197,84 +197,84 @@ export function updateGeometry (geometry: ParticleGeometry, config: particleMesh
  * @param material Material to be updated.
  * @param config Config which will be applied on material.
  */
-export function updateMaterial (material: any, config: particleMeshOptions): void {
-  updateOriginalMaterialUniforms(material)
+export function updateMaterial(material: any, config: particleMeshOptions): void {
+  updateOriginalMaterialUniforms(material);
 
-  material.uniforms.textureAtlas.value[0] = 0 // 0,0 unpacked uvs
-  material.uniforms.textureAtlas.value[1] = 0.50012207031 // 1.,1. unpacked uvs
+  material.uniforms.textureAtlas.value[0] = 0; // 0,0 unpacked uvs
+  material.uniforms.textureAtlas.value[1] = 0.50012207031; // 1.,1. unpacked uvs
 
-  material.transparent = config.transparent
-  material.blending = config.blending
-  material.fog = config.fog
-  material.depthWrite = config.depthWrite
-  material.depthTest = config.depthTest
+  material.transparent = config.transparent;
+  material.blending = config.blending;
+  material.fog = config.fog;
+  material.depthWrite = config.depthWrite;
+  material.depthTest = config.depthTest;
 
-  const style = config.style.toLowerCase()
-  const defines = material.defines
+  const style = config.style.toLowerCase();
+  const defines = material.defines;
 
-  if (config.useAngularMotion) defines.USE_ANGULAR_MOTION = true
-  if (config.useRadialMotion) defines.USE_RADIAL_MOTION = true
-  if (config.useOrbitalMotion) defines.USE_ORBITAL_MOTION = true
-  if (config.useLinearMotion) defines.USE_LINEAR_MOTION = true
-  if (config.useWorldMotion) defines.USE_WORLD_MOTION = true
-  if (config.useBrownianMotion) defines.USE_BROWNIAN_MOTION = true
-  if (config.fog) defines.USE_FOG = true
-  if (config.alphaTest) defines.ALPHATEST = config.alphaTest
-  if (style === 'ribbon') defines.USE_RIBBON = true
-  if (style === 'mesh') defines.USE_MESH = true
-  defines.ATLAS_SIZE = 1
+  if (config.useAngularMotion) defines.USE_ANGULAR_MOTION = true;
+  if (config.useRadialMotion) defines.USE_RADIAL_MOTION = true;
+  if (config.useOrbitalMotion) defines.USE_ORBITAL_MOTION = true;
+  if (config.useLinearMotion) defines.USE_LINEAR_MOTION = true;
+  if (config.useWorldMotion) defines.USE_WORLD_MOTION = true;
+  if (config.useBrownianMotion) defines.USE_BROWNIAN_MOTION = true;
+  if (config.fog) defines.USE_FOG = true;
+  if (config.alphaTest) defines.ALPHATEST = config.alphaTest;
+  if (style === "ribbon") defines.USE_RIBBON = true;
+  if (style === "mesh") defines.USE_MESH = true;
+  defines.ATLAS_SIZE = 1;
 
-  if (style !== 'mesh') {
-    if (config.useVelocityScale) defines.USE_VELOCITY_SCALE = true
-    if (config.useFramesOrOrientation) defines.USE_FRAMES_OR_ORIENTATION = true
-    if (config.usePerspective) defines.USE_SIZEATTENUATION = true
-    material.uniforms.size.value = config.particleSize
+  if (style !== "mesh") {
+    if (config.useVelocityScale) defines.USE_VELOCITY_SCALE = true;
+    if (config.useFramesOrOrientation) defines.USE_FRAMES_OR_ORIENTATION = true;
+    if (config.usePerspective) defines.USE_SIZEATTENUATION = true;
+    material.uniforms.size.value = config.particleSize;
 
-    material.uniforms.map.value = WHITE_TEXTURE
-    material.map = WHITE_TEXTURE // WARNING textures don't appear unless this is set to something
+    material.uniforms.map.value = WHITE_TEXTURE;
+    material.map = WHITE_TEXTURE; // WARNING textures don't appear unless this is set to something
 
     if (config.texture) {
       if (config.texture instanceof Texture) {
-        material.uniforms.map.value = config.texture
+        material.uniforms.map.value = config.texture;
       } else {
         textureLoader.load(
           config.texture,
           texture => {
-            material.uniforms.map.value = texture
+            material.uniforms.map.value = texture;
           },
           undefined,
           err => console.error(err)
-        )
+        );
       }
     }
   }
 
-  Object.assign(material.defines, defines)
+  Object.assign(material.defines, defines);
 
-  material.needsUpdate = true
+  material.needsUpdate = true;
 }
 
 /**
  * Update Material uniforms
  * @param material Material to be updated.
  */
-export function updateOriginalMaterialUniforms (material: ParticleMeshMaterial): void {
+export function updateOriginalMaterialUniforms(material: ParticleMeshMaterial): void {
   if (material.originalMaterial) {
     for (const k in material.uniforms) {
       if (k in material) {
-        material.uniforms[k].value = material.originalMaterial[k]
+        material.uniforms[k].value = material.originalMaterial[k];
       }
     }
   }
 }
 
 /**
- * Update material time
+ * Update material time 
  * @param material Material to be updated.
  * @param time Updated time.
  */
-export function setMaterialTime (material: ParticleMeshMaterial, time: number): void {
-  material.uniforms.time.value = time
+export function setMaterialTime(material: ParticleMeshMaterial, time: number): void {
+  material.uniforms.time.value = time;
 }
 
 /**
@@ -284,44 +284,44 @@ export function setMaterialTime (material: ParticleMeshMaterial, time: number): 
  * @param startIndex Start index of the mesh geometry.
  * @param endIndex End index of the mesh geometry.
  */
-export function loadTexturePackerJSON (mesh, config, startIndex, endIndex): void {
-  const jsonFilename = mesh.userData.meshConfig.texture.replace(/\.[^.]+$/, '.json')
+export function loadTexturePackerJSON(mesh, config, startIndex, endIndex): void {
+  const jsonFilename = mesh.userData.meshConfig.texture.replace(/\.[^.]+$/, ".json");
 
   if (!jsonFilename) {
     // console.warn('meshConfig.texture is empty', mesh.userData.meshConfig.texture)
-    return
+    return;
   }
 
   fetch(jsonFilename)
-    .then(async response => {
-      return await response.json()
+    .then(response => {
+      return response.json();
     })
     .then(atlasJSON => {
-      setTextureAtlas(mesh.material, atlasJSON)
+      setTextureAtlas(mesh.material, atlasJSON);
 
-      if (typeof config.atlas === 'string') {
+      if (typeof config.atlas === "string") {
         const atlasIndex = Array.isArray(atlasJSON.frames)
           ? atlasJSON.frames.findIndex(frame => frame.filename === config.atlas)
-          : Object.keys(atlasJSON.frames).findIndex(filename => filename === config.atlas)
+          : Object.keys(atlasJSON.frames).findIndex(filename => filename === config.atlas);
 
         if (atlasIndex < 0) {
-          console.error(`unable to find atlas entry '${config.atlas}'`)
+          console.error(`unable to find atlas entry '${config.atlas}'`);
         }
 
         for (let i = startIndex; i < endIndex; i++) {
-          setAtlasIndexAt(mesh.geometry, i, atlasIndex)
+          setAtlasIndexAt(mesh.geometry, i, atlasIndex);
         }
 
-        needsUpdate(mesh.geometry, ['colors', 'opacities'])
+        needsUpdate(mesh.geometry, ["colors", "opacities"]);
       }
-    })
+    });
 }
 
-function packUVs (u, v) {
+function packUVs(u, v) {
   // bring u,v into the range (0,0.5) then pack into 12 bits each
   // uvs have a maximum resolution of 1/2048
   // return value must be in the range (0,1]
-  return ~~(u * 2048) / 4096 + ~~(v * 2048) / 16777216 // 2x12 bits = 24 bits
+  return ~~(u * 2048) / 4096 + ~~(v * 2048) / 16777216; // 2x12 bits = 24 bits
 }
 
 /**
@@ -329,27 +329,27 @@ function packUVs (u, v) {
  * @param material Material of which texture atlas will be saved.
  * @param atlasJSON Atlas JSON to get texture atlas.
  */
-export function setTextureAtlas (material, atlasJSON): void {
+export function setTextureAtlas(material, atlasJSON): void {
   if (!atlasJSON) {
-    return
+    return;
   }
 
-  const parts = Array.isArray(atlasJSON.frames) ? atlasJSON.frames : Object.values(atlasJSON.frames)
-  const imageSize = atlasJSON.meta.size
-  const PARTS_PER_TEXTURE = 2
-  const packedTextureAtlas = new Float32Array(PARTS_PER_TEXTURE * parts.length)
+  const parts = Array.isArray(atlasJSON.frames) ? atlasJSON.frames : Object.values(atlasJSON.frames);
+  const imageSize = atlasJSON.meta.size;
+  const PARTS_PER_TEXTURE = 2;
+  const packedTextureAtlas = new Float32Array(PARTS_PER_TEXTURE * parts.length);
 
   for (let i = 0; i < parts.length; i++) {
-    const part = parts[i]
-    const j = i * PARTS_PER_TEXTURE
-    const frame = part.frame
-    packedTextureAtlas[j] = packUVs(frame.x / imageSize.w, frame.y / imageSize.h)
-    packedTextureAtlas[j + 1] = packUVs(frame.w / imageSize.w, frame.h / imageSize.h)
+    const part = parts[i];
+    const j = i * PARTS_PER_TEXTURE;
+    const frame = part.frame;
+    packedTextureAtlas[j] = packUVs(frame.x / imageSize.w, frame.y / imageSize.h);
+    packedTextureAtlas[j + 1] = packUVs(frame.w / imageSize.w, frame.h / imageSize.h);
   }
 
-  material.uniforms.textureAtlas.value = packedTextureAtlas
-  material.defines.ATLAS_SIZE = parts.length
-  material.needsUpdate = true
+  material.uniforms.textureAtlas.value = packedTextureAtlas;
+  material.defines.ATLAS_SIZE = parts.length;
+  material.needsUpdate = true;
 }
 
 /**
@@ -358,14 +358,14 @@ export function setTextureAtlas (material, atlasJSON): void {
  * @param i Index of geometry on which matrix will be set.
  * @param mat4 Matrix to be set on geometry.
  */
-export function setMatrixAt (geometry, i, mat4): void {
-  const m = mat4.elements
-  const row1 = geometry.getAttribute('row1')
-  const row2 = geometry.getAttribute('row2')
-  const row3 = geometry.getAttribute('row3')
-  row1.setXYZW(i, m[0], m[4], m[8], m[12])
-  row2.setXYZW(i, m[1], m[5], m[9], m[13])
-  row3.setXYZW(i, m[2], m[6], m[10], m[14])
+export function setMatrixAt(geometry, i, mat4): void {
+  const m = mat4.elements;
+  const row1 = geometry.getAttribute("row1");
+  const row2 = geometry.getAttribute("row2");
+  const row3 = geometry.getAttribute("row3");
+  row1.setXYZW(i, m[0], m[4], m[8], m[12]);
+  row2.setXYZW(i, m[1], m[5], m[9], m[13]);
+  row3.setXYZW(i, m[2], m[6], m[10], m[14]);
 }
 
 /**
@@ -376,23 +376,23 @@ export function setMatrixAt (geometry, i, mat4): void {
  * @param y
  * @param z
  */
-export function setOffsetAt (geometry: any, i: number, x: number, y?: number, z?: number): void {
-  const offset = geometry.getAttribute('offset')
+export function setOffsetAt(geometry: any, i: number, x: number, y?: number, z?: number): void {
+  const offset = geometry.getAttribute("offset");
   if (Array.isArray(x)) {
-    z = x[2]
-    y = x[1]
-    x = x[0]
-  } else if (typeof x === 'object') {
-    z = (x as any).z
-    y = (x as any).y
-    x = (x as any).x
+    z = x[2];
+    y = x[1];
+    x = x[0];
+  } else if (typeof x === "object") {
+    z = (x as any).z;
+    y = (x as any).y;
+    x = (x as any).x;
   }
 
-  offset.setXYZ(i, x, y, z)
+  offset.setXYZ(i, x, y, z);
 }
 
-function packRGB (r, g, b) {
-  return ~~(r * 255) / 256 + ~~(g * 255) / 65536 + ~~(b * 255) / 16777216 // 3x8 bits = 24 bits
+function packRGB(r, g, b) {
+  return ~~(r * 255) / 256 + ~~(g * 255) / 65536 + ~~(b * 255) / 16777216; // 3x8 bits = 24 bits
 }
 
 /**
@@ -401,30 +401,30 @@ function packRGB (r, g, b) {
  * @param i Index of geometry on which color will be set.
  * @param colorArray Color array to be set on geometry.
  */
-export function setColorsAt (geometry: any, i: any, colorArray: any): void {
-  const colors = geometry.getAttribute('colors')
-  const color0 = colorArray[0]
-  const color1 = colorArray[1]
-  const color2 = colorArray[2]
-  let packedR, packedG, packedB
+export function setColorsAt(geometry: any, i: any, colorArray: any): void {
+  const colors = geometry.getAttribute("colors");
+  const color0 = colorArray[0];
+  const color1 = colorArray[1];
+  const color2 = colorArray[2];
+  let packedR, packedG, packedB;
 
   // white
-  if (colorArray.length === 0) packedR = packedG = packedB = packRGB(1, 1, 1)
+  if (colorArray.length === 0) packedR = packedG = packedB = packRGB(1, 1, 1);
   else if (colorArray.length === 1) {
-    packedR = packRGB(color0.r, color0.r, color0.r)
-    packedG = packRGB(color0.g, color0.g, color0.g)
-    packedB = packRGB(color0.b, color0.b, color0.b)
+    packedR = packRGB(color0.r, color0.r, color0.r);
+    packedG = packRGB(color0.g, color0.g, color0.g);
+    packedB = packRGB(color0.b, color0.b, color0.b);
   } else if (colorArray.length === 2) {
-    packedR = packRGB(color0.r, 0.5 * (color0.r + color1.r), color1.r)
-    packedG = packRGB(color0.g, 0.5 * (color0.g + color1.g), color1.g)
-    packedB = packRGB(color0.b, 0.5 * (color0.b + color1.b), color1.b)
+    packedR = packRGB(color0.r, 0.5 * (color0.r + color1.r), color1.r);
+    packedG = packRGB(color0.g, 0.5 * (color0.g + color1.g), color1.g);
+    packedB = packRGB(color0.b, 0.5 * (color0.b + color1.b), color1.b);
   } else {
-    packedR = packRGB(color0.r, color1.r, color2.r)
-    packedG = packRGB(color0.g, color1.g, color2.g)
-    packedB = packRGB(color0.b, color1.b, color2.b)
+    packedR = packRGB(color0.r, color1.r, color2.r);
+    packedG = packRGB(color0.g, color1.g, color2.g);
+    packedB = packRGB(color0.b, color1.b, color2.b);
   }
 
-  colors.setXYZ(i, packedR, packedG, packedB)
+  colors.setXYZ(i, packedR, packedG, packedB);
 }
 
 /**
@@ -433,9 +433,9 @@ export function setColorsAt (geometry: any, i: any, colorArray: any): void {
  * @param i Index of geometry on which opacity will be set.
  * @param opacityArray Opacity array to be set on geometry.
  */
-export function setOpacitiesAt (geometry, i, opacityArray): void {
-  const opacities = geometry.getAttribute('opacities')
-  setKeyframesAt(opacities, i, opacityArray, 1)
+export function setOpacitiesAt(geometry, i, opacityArray): void {
+  const opacities = geometry.getAttribute("opacities");
+  setKeyframesAt(opacities, i, opacityArray, 1);
 }
 
 /**
@@ -443,9 +443,9 @@ export function setOpacitiesAt (geometry, i, opacityArray): void {
  * @param geometry Geometry for which timings will be set.
  * @param i Index of geometry on which timings will be set.
  */
-export function setTimingsAt (geometry, i, spawnTime, lifeTime, repeatTime, seed = Math.random()): void {
-  const timings = geometry.getAttribute('timings')
-  timings.setXYZW(i, spawnTime, lifeTime, repeatTime, seed)
+export function setTimingsAt(geometry, i, spawnTime, lifeTime, repeatTime, seed = Math.random()): void {
+  const timings = geometry.getAttribute("timings");
+  timings.setXYZW(i, spawnTime, lifeTime, repeatTime, seed);
 }
 
 /**
@@ -459,13 +459,13 @@ export function setTimingsAt (geometry, i, spawnTime, lifeTime, repeatTime, seed
  * @param cols Columns of the frame.
  * @param rows Rows of the frames.
  */
-export function setFrameAt (geometry, i, atlasIndex, frameStyle, startFrame, endFrame, cols, rows): void {
-  const colors = geometry.getAttribute('colors')
-  const opacities = geometry.getAttribute('opacities')
-  const packA = ~~cols + ~~rows / 64 + ~~startFrame / 262144
-  const packB = frameStyle + Math.max(0, atlasIndex) / 64 + ~~endFrame / 262144
-  colors.setW(i, packA)
-  opacities.setW(i, packB)
+export function setFrameAt(geometry, i, atlasIndex, frameStyle, startFrame, endFrame, cols, rows): void {
+  const colors = geometry.getAttribute("colors");
+  const opacities = geometry.getAttribute("opacities");
+  const packA = ~~cols + ~~rows / 64 + ~~startFrame / 262144;
+  const packB = frameStyle + Math.max(0, atlasIndex) / 64 + ~~endFrame / 262144;
+  colors.setW(i, packA);
+  opacities.setW(i, packB);
 }
 
 /**
@@ -474,10 +474,10 @@ export function setFrameAt (geometry, i, atlasIndex, frameStyle, startFrame, end
  * @param i Index of geometry on which atlas index will be set.
  * @param atlasIndex Atlas index to be set.
  */
-export function setAtlasIndexAt (geometry, i, atlasIndex): void {
-  const opacities = geometry.getAttribute('opacities')
-  const packB = opacities.getW(i)
-  opacities.setW(i, Math.floor(packB) + Math.max(0, atlasIndex) / 64 + ((packB * 262144) % 4096) / 262144)
+export function setAtlasIndexAt(geometry, i, atlasIndex): void {
+  const opacities = geometry.getAttribute("opacities");
+  const packB = opacities.getW(i);
+  opacities.setW(i, Math.floor(packB) + Math.max(0, atlasIndex) / 64 + ((packB * 262144) % 4096) / 262144);
 }
 
 /**
@@ -486,9 +486,9 @@ export function setAtlasIndexAt (geometry, i, atlasIndex): void {
  * @param i Index of geometry on which scale will be set.
  * @param scaleArray Scale to be set.
  */
-export function setScalesAt (geometry, i, scaleArray) {
-  const scales = geometry.getAttribute('scales')
-  setKeyframesAt(scales, i, scaleArray, 1)
+export function setScalesAt(geometry, i, scaleArray) {
+  const scales = geometry.getAttribute("scales");
+  setKeyframesAt(scales, i, scaleArray, 1);
 }
 
 /**
@@ -498,10 +498,10 @@ export function setScalesAt (geometry, i, scaleArray) {
  * @param orientationArray Orientation to be set.
  * @param worldUp Should Maintain world Up?
  */
-export function setOrientationsAt (geometry, i, orientationArray, worldUp = 0): void {
-  const orientations = geometry.getAttribute('orientations')
-  setKeyframesAt(orientations, i, orientationArray, 0)
-  orientations.setW(i, worldUp)
+export function setOrientationsAt(geometry, i, orientationArray, worldUp = 0): void {
+  const orientations = geometry.getAttribute("orientations");
+  setKeyframesAt(orientations, i, orientationArray, 0);
+  orientations.setW(i, worldUp);
 }
 
 /**
@@ -509,10 +509,10 @@ export function setOrientationsAt (geometry, i, orientationArray, worldUp = 0): 
  * @param geometry Geometry for which velocity will be set.
  * @param i Index of geometry on which velocity will be set.
  */
-export function setVelocityAt (geometry, i, x, y, z, radial = 0): void {
-  const velocity = geometry.getAttribute('velocity')
+export function setVelocityAt(geometry, i, x, y, z, radial = 0): void {
+  const velocity = geometry.getAttribute("velocity");
   if (velocity) {
-    velocity.setXYZW(i, x, y, z, radial)
+    velocity.setXYZW(i, x, y, z, radial);
   }
 }
 
@@ -521,10 +521,10 @@ export function setVelocityAt (geometry, i, x, y, z, radial = 0): void {
  * @param geometry Geometry for which acceleration will be set.
  * @param i Index of geometry on which acceleration will be set.
  */
-export function setAccelerationAt (geometry, i, x, y, z, radial = 0): void {
-  const acceleration = geometry.getAttribute('acceleration')
+export function setAccelerationAt(geometry, i, x, y, z, radial = 0): void {
+  const acceleration = geometry.getAttribute("acceleration");
   if (acceleration) {
-    acceleration.setXYZW(i, x, y, z, radial)
+    acceleration.setXYZW(i, x, y, z, radial);
   }
 }
 
@@ -533,10 +533,10 @@ export function setAccelerationAt (geometry, i, x, y, z, radial = 0): void {
  * @param geometry Geometry for which angular velocity will be set.
  * @param i Index of geometry on which angular velocity will be set.
  */
-export function setAngularVelocityAt (geometry, i, x, y, z, orbital = 0): void {
-  const angularvelocity = geometry.getAttribute('angularvelocity')
+export function setAngularVelocityAt(geometry, i, x, y, z, orbital = 0): void {
+  const angularvelocity = geometry.getAttribute("angularvelocity");
   if (angularvelocity) {
-    angularvelocity.setXYZW(i, x, y, z, orbital)
+    angularvelocity.setXYZW(i, x, y, z, orbital);
   }
 }
 
@@ -545,10 +545,10 @@ export function setAngularVelocityAt (geometry, i, x, y, z, orbital = 0): void {
  * @param geometry Geometry for which angular acceleration will be set.
  * @param i Index of geometry on which angular acceleration will be set.
  */
-export function setAngularAccelerationAt (geometry, i, x, y, z, orbital = 0): void {
-  const angularacceleration = geometry.getAttribute('angularacceleration')
+export function setAngularAccelerationAt(geometry, i, x, y, z, orbital = 0): void {
+  const angularacceleration = geometry.getAttribute("angularacceleration");
   if (angularacceleration) {
-    angularacceleration.setXYZW(i, x, y, z, orbital)
+    angularacceleration.setXYZW(i, x, y, z, orbital);
   }
 }
 
@@ -557,15 +557,15 @@ export function setAngularAccelerationAt (geometry, i, x, y, z, orbital = 0): vo
  * @param geometry Geometry for which world acceleration will be set.
  * @param i Index of geometry on which world acceleration will be set.
  */
-export function setWorldAccelerationAt (geometry, i, x, y, z): void {
-  const worldacceleration = geometry.getAttribute('worldacceleration')
+export function setWorldAccelerationAt(geometry, i, x, y, z): void {
+  const worldacceleration = geometry.getAttribute("worldacceleration");
   if (worldacceleration) {
-    worldacceleration.setXYZ(i, x, y, z)
+    worldacceleration.setXYZ(i, x, y, z);
   }
 }
 
-function packBrownain (speed, scale) {
-  return ~~(speed * 64) / 4096 + ~~(scale * 64) / 16777216
+function packBrownain(speed, scale) {
+  return ~~(speed * 64) / 4096 + ~~(scale * 64) / 16777216;
 }
 
 /**
@@ -575,12 +575,12 @@ function packBrownain (speed, scale) {
  * @param brownianSpeed Brownian speed to be set.
  * @param brownianScale Brownian scale to be set.
  */
-export function setBrownianAt (geometry, i, brownianSpeed, brownianScale): void {
-  console.assert(brownianSpeed >= 0 && brownianSpeed < 64)
-  console.assert(brownianScale >= 0 && brownianScale < 64)
-  const worldacceleration = geometry.getAttribute('worldacceleration')
+export function setBrownianAt(geometry, i, brownianSpeed, brownianScale): void {
+  console.assert(brownianSpeed >= 0 && brownianSpeed < 64);
+  console.assert(brownianScale >= 0 && brownianScale < 64);
+  const worldacceleration = geometry.getAttribute("worldacceleration");
   if (worldacceleration) {
-    worldacceleration.setW(i, packBrownain(brownianSpeed, brownianScale))
+    worldacceleration.setW(i, packBrownain(brownianSpeed, brownianScale));
   }
 }
 
@@ -592,10 +592,10 @@ export function setBrownianAt (geometry, i, brownianSpeed, brownianScale): void 
  * @param velocityMin Minimum velocity to be applied.
  * @param velocityMax Maximum velocity to be applied.
  */
-export function setVelocityScaleAt (geometry, i, velocityScale, velocityMin, velocityMax): void {
-  const vs = geometry.getAttribute('velocityscale')
+export function setVelocityScaleAt(geometry, i, velocityScale, velocityMin, velocityMax): void {
+  const vs = geometry.getAttribute("velocityscale");
   if (vs) {
-    vs.setXYZ(i, velocityScale, velocityMin, velocityMax)
+    vs.setXYZ(i, velocityScale, velocityMin, velocityMax);
   }
 }
 
@@ -606,14 +606,14 @@ export function setVelocityScaleAt (geometry, i, velocityScale, velocityMin, vel
  * @param valueArray Key frame to be applied.
  * @param defaultValue Default value of the frame.
  */
-export function setKeyframesAt (attribute, i, valueArray, defaultValue): void {
-  const x = valueArray[0]
-  const y = valueArray[1]
-  const z = valueArray[2]
-  if (valueArray.length === 0) attribute.setXYZ(i, defaultValue, defaultValue, defaultValue)
-  else if (valueArray.length === 1) attribute.setXYZ(i, x, x, x)
-  if (valueArray.length === 1) attribute.setXYZ(i, x, 0.5 * (x + y), y)
-  else attribute.setXYZ(i, x, y, z)
+export function setKeyframesAt(attribute, i, valueArray, defaultValue): void {
+  const x = valueArray[0],
+    y = valueArray[1],
+    z = valueArray[2];
+  if (valueArray.length === 0) attribute.setXYZ(i, defaultValue, defaultValue, defaultValue);
+  else if (valueArray.length === 1) attribute.setXYZ(i, x, x, x);
+  if (valueArray.length === 1) attribute.setXYZ(i, x, 0.5 * (x + y), y);
+  else attribute.setXYZ(i, x, y, z);
 }
 
 /**
@@ -621,39 +621,38 @@ export function setKeyframesAt (attribute, i, valueArray, defaultValue): void {
  * @param geometry Geometry.
  * @param attrs List of attributes to be updated.
  */
-export function needsUpdate (geometry, attrs?): void {
+export function needsUpdate(geometry, attrs?): void {
   attrs = attrs || [
-    'row1',
-    'row2',
-    'row3',
-    'offset',
-    'scales',
-    'colors',
-    'opacities',
-    'orientations',
-    'timings',
-    'velocity',
-    'acceleration',
-    'worldacceleration',
-    'velocityscale'
-  ]
-  if (attrs) {
+    "row1",
+    "row2",
+    "row3",
+    "offset",
+    "scales",
+    "colors",
+    "opacities",
+    "orientations",
+    "timings",
+    "velocity",
+    "acceleration",
+    "worldacceleration",
+    "velocityscale"
+  ];
+  if (attrs)
     for (const attr of attrs) {
-      const attribute = geometry.getAttribute(attr)
+      const attribute = geometry.getAttribute(attr);
       if (attribute) {
-        attribute.needsUpdate = true
+        attribute.needsUpdate = true;
       }
     }
-  }
 }
 
 // eulerToQuaternion() from https://github.com/mrdoob/js/blob/master/src/math/Quaternion.js
 // axisAngleToQuaternion() from http://www.euclideanspace.com/maths/geometry/orientations/conversions/angleToQuaternion/index.htm
 // fbm3() from https://github.com/yiwenl/glsl-fbm
 // instead of rand3() should we generate a random point on a sphere?
-function injectParticleShaderCode (material) {
+function injectParticleShaderCode(material) {
   material.vertexShader = material.vertexShader.replace(
-    'void main()',
+    "void main()",
     `
 attribute vec4 row1;
 attribute vec4 row2;
@@ -843,10 +842,10 @@ vec4 calcGlobalMotion( const mat4 particleMatrix, float distance, vec3 direction
 }
 
 void main()`
-  )
+  );
 
   material.vertexShader = material.vertexShader.replace(
-    '#include <project_vertex>',
+    "#include <project_vertex>",
     `
 
 vec4 globalMotion = vec4(0.);
@@ -971,54 +970,54 @@ if (particleScale <= 0. || timeRatio < 0. || timeRatio > 1. )
 {
   gl_Position.w = -2.; // don't draw
 }`
-  )
+  );
 
   // style particles only
   material.vertexShader = material.vertexShader.replace(
-    'if ( isPerspective ) gl_PointSize *= ( scale / - mvPosition.z );',
+    "if ( isPerspective ) gl_PointSize *= ( scale / - mvPosition.z );",
     `
 if ( isPerspective ) gl_PointSize *= ( scale * particleScale / -mvPosition.z );`
-  )
+  );
 
   material.fragmentShader = material.fragmentShader.replace(
-    'void main()',
+    "void main()",
     `
 varying mat3 vUvTransform;
 varying vec4 vParticleColor;
 
 void main()`
-  )
+  );
 
   // style particles only
   material.fragmentShader = material.fragmentShader.replace(
-    '#include <map_particle_fragment>',
+    "#include <map_particle_fragment>",
     `
 #if defined( USE_MAP ) || defined( USE_ALPHAMAP )
 
-  vec2 uv = ( uvTransform * vUvTransform * vec3( gl_PointCoord.x, 1.0 - gl_PointCoord.y, 1 ) ).xy;
+	vec2 uv = ( uvTransform * vUvTransform * vec3( gl_PointCoord.x, 1.0 - gl_PointCoord.y, 1 ) ).xy;
 
 #endif
 
 #ifdef USE_MAP
 
-  vec4 mapTexel = texture2D( map, uv );
+	vec4 mapTexel = texture2D( map, uv );
   diffuseColor *= mapTexelToLinear( mapTexel );
 
 #endif
 
 #ifdef USE_ALPHAMAP
 
-  diffuseColor.a *= texture2D( alphaMap, uv ).g;
+	diffuseColor.a *= texture2D( alphaMap, uv ).g;
 
 #endif`
-  )
+  );
 
   // style mesh or ribbon
   material.fragmentShader = material.fragmentShader.replace(
-    '#include <color_fragment>',
+    "#include <color_fragment>",
     `
 diffuseColor *= vParticleColor;
 
 #include <color_fragment>`
-  )
+  );
 }

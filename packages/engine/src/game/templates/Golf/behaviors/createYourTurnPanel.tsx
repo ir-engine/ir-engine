@@ -19,13 +19,13 @@ export const Panel = styled.div`
 `
 
 export const YourTurnPanel = () => {
-  return <Panel>Your turn!</Panel>
+    return <Panel>Your turn!</Panel>
 }
 
-export async function createYourTurnPanel (player: Entity) {
-  if (player === Network.instance.localClientEntity) {
-    const uiEntity = await createUI(YourTurnPanel)
-    addComponent(uiEntity, TransformComponent)
-    addComponent(uiEntity, TransformChildComponent, { parent: player, offsetPosition: new Vector3(0, 0, 1) })
-  }
+export async function createYourTurnPanel(player:Entity) {
+    if (player === Network.instance.localClientEntity) {
+        const uiEntity = await createUI(YourTurnPanel)
+        addComponent(uiEntity, TransformComponent)
+        addComponent(uiEntity, TransformChildComponent, {parent:player, offsetPosition:new Vector3(0,0,1)})
+    }
 }

@@ -1,6 +1,6 @@
-import { Vector3 } from 'three'
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
+import { Vector3 } from 'three';
+import { Component } from '../../ecs/classes/Component';
+import { Types } from '../../ecs/types/Types';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -9,13 +9,14 @@ import { Types } from '../../ecs/types/Types'
  */
 
 export class VehicleComponent extends Component<VehicleComponent> {
+
   wantsExit: any
   passenger: number
   driver: number
   seatPlane: any
 
   vehicleMesh: boolean
-  vehiclePhysics: any// RaycastVehicle
+  vehiclePhysics: any;//RaycastVehicle
   vehicleCollider: any
   vehicleSphereColliders: any
   addShapeArray: any
@@ -35,21 +36,26 @@ export class VehicleComponent extends Component<VehicleComponent> {
   seatsArray: any
 
   isMoved: boolean
-  //  hasStoped: boolean
+//  hasStoped: boolean
 
   maxSteerVal = 0.5
   maxForce = 300
   brakeForce = 1000000
   mass: number
-  vehicle: any// RaycastVehicle
+  vehicle: any;//RaycastVehicle
+
 }
+
+
+
 
 VehicleComponent._schema = {
 
   wantsExit: { type: Types.Ref, default: [null, null] },
   passenger: { type: Types.Number, default: null },
   driver: { type: Types.Number, default: null },
-  seatPlane: { type: Types.Ref, default: ['driver', 'passenger'] },
+  seatPlane: { type: Types.Ref, default: ['driver','passenger']},
+
 
   vehicleMesh: { type: Types.Boolean, default: false },
   vehiclePhysics: { type: Types.Ref, default: null },
@@ -72,11 +78,11 @@ VehicleComponent._schema = {
   seatsArray: { type: Types.Ref, default: [] },
 
   isMoved: { type: Types.Boolean, default: false },
-  //  hasStoped: { type: Types.Boolean, default: false },
+//  hasStoped: { type: Types.Boolean, default: false },
 
   mass: { type: Types.Number, default: 150 },
   maxSteerVal: { type: Types.Number, default: 0.5 },
   maxForce: { type: Types.Number, default: 500 },
   brakeForce: { type: Types.Number, default: 1000000 },
   vehicle: { type: Types.Ref, default: null }
-}
+};

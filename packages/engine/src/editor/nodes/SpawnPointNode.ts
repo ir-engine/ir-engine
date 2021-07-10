@@ -1,69 +1,70 @@
-import { BoxBufferGeometry, BoxHelper, Group, Mesh, Object3D, Quaternion, Vector3 } from 'three'
-import { LoadGLTF } from '../../assets/functions/LoadGLTF'
-import EditorNodeMixin from './EditorNodeMixin'
+import { BoxBufferGeometry, BoxHelper, Group, Mesh, Object3D, Quaternion, Vector3 } from "three";
+import { LoadGLTF } from "../../assets/functions/LoadGLTF";
+import EditorNodeMixin from "./EditorNodeMixin";
 
 // TODO: add circle option
 
-let spawnPointHelperModel = null
-const GLTF_PATH = '/editor/spawn-point.glb' // Static
+let spawnPointHelperModel = null;
+const GLTF_PATH = "/editor/spawn-point.glb"; // Static
 
 export default class SpawnPointNode extends EditorNodeMixin(Object3D) {
-  static legacyComponentName = 'spawn-point'
-  static nodeName = 'Spawn Point'
-  static async load () {
-    const { scene } = await LoadGLTF(GLTF_PATH)
-    spawnPointHelperModel = scene
+
+  static legacyComponentName = "spawn-point";
+  static nodeName = "Spawn Point";
+  static async load() {
+    const { scene } = await LoadGLTF(GLTF_PATH);
+    spawnPointHelperModel = scene;
   }
 
-  helperBox: BoxHelper
-  helperModel: Group
+  helperBox: BoxHelper;
+  helperModel: Group;
 
-  constructor (editor) {
-    super(editor)
+  constructor(editor) {
+    super(editor);
     if (spawnPointHelperModel) {
-      this.helperModel = spawnPointHelperModel.clone()
-      this.add(this.helperModel)
+      this.helperModel = spawnPointHelperModel.clone();
+      this.add(this.helperModel);
     } else {
       console.warn(
-        'SpawnPointNode: helper model was not loaded before creating a new SpawnPointNode'
-      )
-      this.helperModel = null
+        "SpawnPointNode: helper model was not loaded before creating a new SpawnPointNode"
+      );
+      this.helperModel = null;
     }
-    this.helperBox = new BoxHelper(new Mesh(new BoxBufferGeometry(1, 0, 1).translate(0, 0, 0)), 0xffffff)
-    this.add(this.helperBox)
+    this.helperBox = new BoxHelper(new Mesh(new BoxBufferGeometry(1, 0, 1).translate(0, 0, 0)), 0xffffff);
+    this.add(this.helperBox);
   }
 
-  copy (source, recursive = true) {
+  copy(source, recursive = true) {
     if (recursive) {
-      this.remove(this.helperModel)
-      this.remove(this.helperBox)
+      this.remove(this.helperModel);
+      this.remove(this.helperBox);
     }
-    super.copy(source, recursive)
+    super.copy(source, recursive);
     if (recursive) {
       const helperIndex = source.children.findIndex(
         child => child === source.helper
-      )
+      );
       if (helperIndex !== -1) {
-        this.helperModel = this.children[helperIndex]
+        this.helperModel = this.children[helperIndex];
       }
     }
-    return this
+    return this;
   }
 
-  onChange (prop: string) {
-    this.helperModel.scale.set(1 / this.scale.x, 1 / this.scale.y, 1 / this.scale.z)
+  onChange(prop: string) {
+    this.helperModel.scale.set(1 / this.scale.x, 1 / this.scale.y, 1 / this.scale.z);
   }
 
-  serialize () {
+  serialize() {
     return super.serialize({
-      'spawn-point': {}
-    })
+      "spawn-point": {}
+    });
   }
 
-  prepareForExport () {
-    super.prepareForExport()
-    this.remove(this.helperModel)
-    this.remove(this.helperBox)
-    this.addGLTFComponent('spawn-point', {})
+  prepareForExport() {
+    super.prepareForExport();
+    this.remove(this.helperModel);
+    this.remove(this.helperBox);
+    this.addGLTFComponent("spawn-point", {});
   }
 }

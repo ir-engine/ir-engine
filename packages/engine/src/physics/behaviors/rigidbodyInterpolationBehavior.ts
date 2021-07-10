@@ -1,10 +1,10 @@
-import { Behavior } from '../../common/interfaces/Behavior'
-import { Entity } from '../../ecs/classes/Entity'
-import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import { Network } from '../../networking/classes/Network'
-import { SnapshotData, StateInterEntity } from '../../networking/types/SnapshotDataTypes'
-import { ColliderComponent } from '../components/ColliderComponent'
-import { findInterpolationSnapshot } from './findInterpolationSnapshot'
+import { Behavior } from "../../common/interfaces/Behavior";
+import { Entity } from "../../ecs/classes/Entity";
+import { getMutableComponent } from "../../ecs/functions/EntityFunctions";
+import { Network } from "../../networking/classes/Network";
+import { SnapshotData, StateInterEntity } from "../../networking/types/SnapshotDataTypes";
+import { ColliderComponent } from "../components/ColliderComponent";
+import { findInterpolationSnapshot } from "./findInterpolationSnapshot";
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -15,23 +15,24 @@ import { findInterpolationSnapshot } from './findInterpolationSnapshot'
  */
 
 export const rigidbodyInterpolationBehavior: Behavior = (entity: Entity, snapshots: SnapshotData, delta): void => {
-  const collider = getMutableComponent(entity, ColliderComponent)
-  const interpolationSnapshot = findInterpolationSnapshot(entity, snapshots.interpolation) ?? findInterpolationSnapshot(entity, Network.instance.snapshot)
 
-  if (interpolationSnapshot == null) return
+  const collider = getMutableComponent(entity, ColliderComponent);
+  const interpolationSnapshot = findInterpolationSnapshot(entity, snapshots.interpolation) ?? findInterpolationSnapshot(entity, Network.instance.snapshot);
+
+  if (interpolationSnapshot == null) return;
 
   collider.body.updateTransform({
     translation: {
       x: interpolationSnapshot.x,
       y: interpolationSnapshot.y,
-      z: interpolationSnapshot.z
+      z: interpolationSnapshot.z,
     },
     rotation: {
       x: interpolationSnapshot.qX,
       y: interpolationSnapshot.qY,
       z: interpolationSnapshot.qZ,
       w: interpolationSnapshot.qW
-    }
+    },
     // linearVelocity: {
     //   x: (interpolationSnapshot as StateInterEntity).vX,
     //   y: (interpolationSnapshot as StateInterEntity).vY,
@@ -44,4 +45,5 @@ export const rigidbodyInterpolationBehavior: Behavior = (entity: Entity, snapsho
   //   (interpolationSnapshot as StateInterEntity).vY,
   //   (interpolationSnapshot as StateInterEntity).vZ,
   // );
-}
+
+};

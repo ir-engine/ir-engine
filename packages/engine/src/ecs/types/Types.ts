@@ -1,4 +1,4 @@
-import { ComponentSchema } from '../interfaces/ComponentInterfaces'
+import { ComponentSchema } from "../interfaces/ComponentInterfaces";
 
 /** Copy function definition */
 export type TypeCopyFunction<T> = (src: T, dest: T) => T
@@ -8,22 +8,22 @@ export type TypeCloneFunction<T> = (value: T) => T
 /** Base Interface for prop type */
 export interface PropTypeDefinition<T, D> {
   /** Name of the prop. */
-  name: string
+  name: string;
   /** Default value. */
-  default?: D
+  default?: D;
   /** Copy Function */
-  copy: TypeCopyFunction<T>
+  copy: TypeCopyFunction<T>;
   /** Clone Function */
-  clone: TypeCloneFunction<T>
+  clone: TypeCloneFunction<T>;
 }
 
 /**
- *
+ * 
  * @author Fernando Serrano, Robert Long
  */
 export interface PropType<T, D> extends PropTypeDefinition<T, D> {
   /** Mark the prop as type. */
-  isType: true
+  isType: true;
 }
 
 export type NumberPropType = PropType<number, number>
@@ -33,62 +33,62 @@ export type ArrayPropType<T> = PropType<T[], []>
 export type RefPropType<T> = PropType<T, undefined>
 export type JSONPropType = PropType<any, null>
 
-export const copyValue = <T>(src: T, dest: T): T => { dest = src; return src }
+export const copyValue = <T>(src: T, dest: T): T => { dest = src; return src; };
 
-export const cloneValue = <T>(value: T): T => value
+export const cloneValue = <T>(value: T): T => value;
 
 export const copyArray = <T>(src?: T[], dest?: T[]): T[] => {
-  dest = [...src]
-  return dest
-}
-export const cloneArray = <T>(value: T[]): T[] => value && value.slice()
+  dest = [...src];
+  return dest;
+};
+export const cloneArray = <T>(value: T[]): T[] => value && value.slice();
 
-export const copyJSON = (src: any, dest: any): any => JSON.parse(JSON.stringify(src))
+export const copyJSON = (src: any, dest: any): any => JSON.parse(JSON.stringify(src));
 
-export const cloneJSON = (value: any): any => JSON.parse(JSON.stringify(value))
+export const cloneJSON = (value: any): any => JSON.parse(JSON.stringify(value));
 
 export const copyCopyable = <T>(src: T, dest: T): T => {
   if (!src) {
-    return src
+    return src;
   }
 
   if (!dest) {
-    return (src as any).clone()
+    return (src as any).clone();
   }
 
-  return (dest as any).copy(src)
-}
+  return (dest as any).copy(src);
+};
 
-export const cloneClonable = <T>(value: T): T => value && (value as any).clone()
+export const cloneClonable = <T>(value: T): T => value && (value as any).clone();
 
 /** Create a Type
- *
+ * 
  * @author Fernando Serrano, Robert Long
  * @param typeDefinition Definition of the type which will be used to create the type
  * @returns Props Type created with given type definition.
  */
 export function createType<T, D> (typeDefinition: PropTypeDefinition<T, D>): PropType<T, D> {
-  const mandatoryProperties = ['name', 'copy', 'clone']
+  const mandatoryProperties = ['name', 'copy', 'clone'];
 
   const undefinedProperties = mandatoryProperties.filter(p => {
-    return !typeDefinition[p]
-  })
+    return !typeDefinition[p];
+  });
 
   if (undefinedProperties.length > 0) {
     throw new Error(
       `createType expects a type definition with the following properties: ${undefinedProperties.join(', ')}`
-    )
+    );
   }
 
-  (typeDefinition as any).isType = true
+  (typeDefinition as any).isType = true;
 
-  return typeDefinition as PropType<T, D>
+  return typeDefinition as PropType<T, D>;
 }
 
 /**
  * Standard types.
  * **NOTE:** Use ref for attaching objects to this entity unless you want to make the object clonable.
- *
+ * 
  * @author Fernando Serrano, Robert Long
  */
 export const Types = {
@@ -154,27 +154,27 @@ export const Types = {
     copy: copyCopyable,
     clone: cloneClonable
   })
-}
+};
 
 /**
- *
+ * 
  * @author Fernando Serrano, Robert Long
  */
-export const fromEntries = (Object as any).fromEntries || (iterable =>
+export const fromEntries = (Object as any).fromEntries || ( iterable =>
   [...iterable].reduce((obj, [key, val]) => {
-    obj[key] = val
-    return obj
+    obj[key] = val;
+    return obj;
   }, {})
-)
+);
 
-const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1)
+const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1);
 
-export function types (
-  defaults: object = { value: { type: Types.Ref } }
+export function types(
+  defaults: object = {value: {type: Types.Ref}}
 ): ComponentSchema {
   return fromEntries(
-    Object.entries(defaults).map((name, value) =>
-      [name, { type: Types[capitalize(typeof value)] || Types.Ref, default: value }]
-    )
-  )
+      Object.entries(defaults).map( (name, value) => 
+          [name, {type: Types[capitalize(typeof value)] || Types.Ref, default: value}]
+      )
+  );
 }

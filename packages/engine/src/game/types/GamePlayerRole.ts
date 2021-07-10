@@ -1,6 +1,6 @@
 export type GamePlayerRole = string
 
-interface Player {
-  userId: string
-  state: any
-}
+type Player = {
+    userId: string;
+    state: any;
+};

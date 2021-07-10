@@ -1,31 +1,31 @@
-import { Behavior } from '../../common/interfaces/Behavior'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import { VehicleComponent } from '../components/VehicleComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { PhysicsLifecycleState } from '../../physics/enums/PhysicsStates'
-import { Vector3 } from 'three'
-import { isClient } from '../../common/functions/isClient'
+import { Behavior } from '../../common/interfaces/Behavior';
+import { Entity } from '../../ecs/classes/Entity';
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
+import { VehicleComponent } from '../components/VehicleComponent';
+import { TransformComponent } from '../../transform/components/TransformComponent';
+import { CollisionGroups } from "../../physics/enums/CollisionGroups";
+import { PhysicsLifecycleState } from "../../physics/enums/PhysicsStates";
+import { Vector3 } from "three";
+import { isClient } from '../../common/functions/isClient';
 
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 
-function createVehicleComponent (entity: Entity) {
-  const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent)
-  // @ts-expect-error
-  const colliderTrimOffset = new Vector3().set(...vehicleComponent.colliderTrimOffset)
-  // @ts-expect-error
-  const collidersSphereOffset = new Vector3().set(...vehicleComponent.collidersSphereOffset)
-  const wheelsPositions = vehicleComponent.arrayWheelsPosition
-  const wheelRadius = vehicleComponent.wheelRadius
-  const chassisBody = vehicleComponent.vehicleCollider
+function createVehicleComponent (entity: Entity ) {
+  const vehicleComponent = getMutableComponent<VehicleComponent>(entity, VehicleComponent);
+  // @ts-ignore
+  const colliderTrimOffset = new Vector3().set(...vehicleComponent.colliderTrimOffset);
+  // @ts-ignore
+  const collidersSphereOffset = new Vector3().set(...vehicleComponent.collidersSphereOffset);
+  const wheelsPositions = vehicleComponent.arrayWheelsPosition;
+  const wheelRadius = vehicleComponent.wheelRadius;
+  const chassisBody = vehicleComponent.vehicleCollider;
 
-  chassisBody.collisionFilterGroup = CollisionGroups.Car
-  chassisBody.position.set(...vehicleComponent.startPosition)
-  chassisBody.quaternion.set(...vehicleComponent.startQuaternion)
-  // chassisBody.angularVelocity.set(0, 0, 0.5);
+  chassisBody.collisionFilterGroup = CollisionGroups.Car;
+  chassisBody.position.set( ...vehicleComponent.startPosition );
+  chassisBody.quaternion.set( ...vehicleComponent.startQuaternion );
+  //chassisBody.angularVelocity.set(0, 0, 0.5);
 
   const options = {
     radius: wheelRadius,
@@ -42,7 +42,7 @@ function createVehicleComponent (entity: Entity) {
     maxSuspensionTravel: 0.3,
     customSlidingRotationalSpeed: -30,
     useCustomSlidingRotationalSpeed: true
-  }
+  };
 
   // TODO: implement vehicles in physx
 
@@ -58,6 +58,7 @@ function createVehicleComponent (entity: Entity) {
   //   options.chassisConnectionPointLocal.set( wheelsPositions[i][0], wheelsPositions[i][1], wheelsPositions[i][2]);
   //   vehicle.addWheel(options);
   // }
+
 
   /*
     const wheelBodies = [];
@@ -76,67 +77,73 @@ function createVehicleComponent (entity: Entity) {
 
   // vehicle.addToWorld(PhysicsSystem.instance);
 
-  /*
+/*
   for (let i = 0; i < wheelBodies.length; i++) {
     PhysicsSystem.instance.addBody(wheelBodies[i]);
   }
   */
   // return vehicle;
-  return null
+  return null;
 }
 
 export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
   if (args.phase == PhysicsLifecycleState.onAdded) {
-    const vehicleComponent = getMutableComponent(entity, VehicleComponent)
-    const vehicle = createVehicleComponent(entity)
-    vehicleComponent.vehiclePhysics = vehicle
-  } else if (args.phase == PhysicsLifecycleState.onUpdate) {
-    const transform = getMutableComponent<TransformComponent>(entity, TransformComponent)
-    const vehicleComponent = getComponent(entity, VehicleComponent) as VehicleComponent
+    const vehicleComponent = getMutableComponent(entity, VehicleComponent);
+    const vehicle = createVehicleComponent(entity);
+    vehicleComponent.vehiclePhysics = vehicle;
+  } else if ( args.phase == PhysicsLifecycleState.onUpdate) {
 
-    if (vehicleComponent.vehiclePhysics != null) {
-      const vehicle = vehicleComponent.vehiclePhysics
-      const isMoved = vehicleComponent.isMoved
-      const chassisBody = vehicle.chassisBody
-      const wheels = vehicleComponent.arrayWheelsMesh
-      const carSpeed = vehicle.currentVehicleSpeedKmHour
+    const transform = getMutableComponent<TransformComponent>(entity, TransformComponent);
+    const vehicleComponent = getComponent(entity, VehicleComponent) as VehicleComponent;
 
-      // STOP FORCE
-      if (!isMoved && (carSpeed > 1 || carSpeed < -1)) {
-        vehicle.applyEngineForce(carSpeed * 2, 2)
-        vehicle.applyEngineForce(carSpeed * 2, 3)
-      } else if (!isMoved && (carSpeed < 0.1 && carSpeed > -0.1)) {
-        vehicle.setBrake(0.3, 0)
-        vehicle.setBrake(0.3, 1)
-        vehicle.applyEngineForce(-1, 2)
-        vehicle.applyEngineForce(-1, 3)
-      } else if (!isMoved && (carSpeed < 1 && carSpeed > -1)) {
-        vehicle.setBrake(2, 0)
-        vehicle.setBrake(2, 1)
-        vehicle.applyEngineForce(-3, 2)
-        vehicle.applyEngineForce(-3, 3)
-      }
+    if( vehicleComponent.vehiclePhysics != null ) {
+
+      const vehicle = vehicleComponent.vehiclePhysics;
+      const isMoved = vehicleComponent.isMoved;
+      const chassisBody = vehicle.chassisBody;
+      const wheels = vehicleComponent.arrayWheelsMesh;
+      const carSpeed = vehicle.currentVehicleSpeedKmHour;
+
+
+        // STOP FORCE
+        if (!isMoved && (carSpeed > 1 || carSpeed < -1) ) {
+          vehicle.applyEngineForce(carSpeed * 2, 2);
+          vehicle.applyEngineForce(carSpeed * 2, 3);
+        } else if (!isMoved && (carSpeed < 0.1 && carSpeed > -0.1)) {
+          vehicle.setBrake(0.3, 0);
+          vehicle.setBrake(0.3, 1);
+          vehicle.applyEngineForce(-1, 2);
+          vehicle.applyEngineForce(-1, 3);
+        } else if (!isMoved && (carSpeed < 1 && carSpeed > -1)) {
+          vehicle.setBrake(2, 0);
+          vehicle.setBrake(2, 1);
+          vehicle.applyEngineForce(-3, 2);
+          vehicle.applyEngineForce(-3, 3);
+        }
+
 
       // APPLY PHYSICS TO TRANSFORM
       transform.position.set(
         chassisBody.position.x,
         chassisBody.position.y,
         chassisBody.position.z
-      )
+      );
       transform.rotation.set(
         chassisBody.quaternion.x,
         chassisBody.quaternion.y,
         chassisBody.quaternion.z,
         chassisBody.quaternion.w
-      )
-      if (!isClient) {
+      );
+      if(!isClient) {
         for (let i = 0; i < wheels.length; i++) {
-          vehicle.updateWheelTransform(i)
+          vehicle.updateWheelTransform(i);
         }
       }
+
     } else {
-      console.warn('User data for vehicle not found')
+      console.warn("User data for vehicle not found");
     }
+
   } else if (args.phase == PhysicsLifecycleState.onRemoved) {
     // TO DO
     /*
@@ -149,4 +156,4 @@ export const VehicleBehavior: Behavior = (entity: Entity, args): void => {
     PhysicsSystem.instance.removeBody(body);
     */
   }
-}
+};
