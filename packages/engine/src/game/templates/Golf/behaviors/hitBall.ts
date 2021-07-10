@@ -1,32 +1,33 @@
-import { Vector3 } from 'three'
-import { Behavior } from '../../../../common/interfaces/Behavior'
-import { Entity } from '../../../../ecs/classes/Entity'
-import { getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
-import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
-import { GolfClubComponent } from '../components/GolfClubComponent'
+import { Vector3 } from 'three';
+import { Behavior } from '../../../../common/interfaces/Behavior';
+import { Entity } from '../../../../ecs/classes/Entity';
+import { getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions';
+import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
+import { GolfClubComponent } from '../components/GolfClubComponent';
 
 /**
  * @author Josh Field <github.com/HexaField>
  * @author HydraFire <github.com/HydraFire>
  */
 
-const vector0 = new Vector3()
-const vector1 = new Vector3()
+const vector0 = new Vector3();
+const vector1 = new Vector3();
 
 export const hitBall: Behavior = (entityClub: Entity, args?: any, delta?: number, entityBall?: Entity, time?: number, checks?: any): void => {
   // const game = getComponent(playerEntity, GamePlayer).game;
   // const gameSchema = GamesSchema[game.gameMode];
-  console.warn('hitBall')
+  console.warn('hitBall');
+  
+  if (!hasComponent(entityClub, GolfClubComponent)) return;
 
-  if (!hasComponent(entityClub, GolfClubComponent)) return
 
-  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
-  const collider = getMutableComponent(entityBall, ColliderComponent)
-  collider.body.setLinearDamping(0.1)
-  collider.body.setAngularDamping(0.1)
-  // force is in kg, we need it in grams, so x1000
-  const velocityMultiplier = args.clubPowerMultiplier * 1000
-
+  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
+  const collider = getMutableComponent(entityBall, ColliderComponent);
+  collider.body.setLinearDamping(0.1);
+  collider.body.setAngularDamping(0.1);
+    // force is in kg, we need it in grams, so x1000
+  const velocityMultiplier = args.clubPowerMultiplier * 1000;
+  
   // TODO: fix this - use normal and velocity magnitude to determine hits
   /*
   // get velocity in local space
@@ -41,26 +42,27 @@ export const hitBall: Behavior = (entityClub: Entity, args?: any, delta?: number
   vec3.applyAxisAngle(upVector, clubMoveDirection * angleOfIncidence).normalize().multiplyScalar(golfClubComponent.velocity.length());
 */
 
-  vector0.copy(golfClubComponent.velocity).multiplyScalar(args.hitAdvanceFactor).multiplyScalar(0.5)
+  vector0.copy(golfClubComponent.velocity).multiplyScalar(args.hitAdvanceFactor).multiplyScalar(0.5);
   // vector0.copy(vec3).multiplyScalar(hitAdvanceFactor);
   // lock to XZ plane if we disable chip shots
-  if (!golfClubComponent.canDoChipShots) {
-    vector0.y = 0
+  if(!golfClubComponent.canDoChipShots) {
+    vector0.y = 0;
   }
   // teleport ball in front of club a little bit
   collider.body.updateTransform({
     translation: {
       x: collider.body.transform.translation.x + vector0.x,
       y: collider.body.transform.translation.y + vector0.y,
-      z: collider.body.transform.translation.z + vector0.z
+      z: collider.body.transform.translation.z + vector0.z,
     }
-  })
-  vector1.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier).multiplyScalar(0.5)
+  });
+  vector1.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier).multiplyScalar(0.5);
   // vector1.copy(vec3).multiplyScalar(velocityMultiplier);
-  if (!golfClubComponent.canDoChipShots) {
-    vector1.y = 0
+  if(!golfClubComponent.canDoChipShots) {
+    vector1.y = 0;
   }
-  console.log(vector1)
+  console.log(vector1);
+  
+  collider.body.addForce(vector1);
 
-  collider.body.addForce(vector1)
 }

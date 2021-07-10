@@ -1,4 +1,4 @@
-import { Behavior } from '../../common/interfaces/Behavior'
+import { Behavior } from '../../common/interfaces/Behavior';
 
 export const handleAudioSettings: Behavior = (entity, args: {
   avatarDistanceModel: string
@@ -15,5 +15,5 @@ export const handleAudioSettings: Behavior = (entity, args: {
   mediaVolume: number
   overrideAudioSettings: boolean
 }) => {
-  // console.warn("TODO: handle audio settings, args are", args);
-}
+    // console.warn("TODO: handle audio settings, args are", args);
+};

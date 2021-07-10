@@ -1,7 +1,7 @@
-// @ts-expect-error
-import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
-import XREngineBot from '../../../bot/src/bot'
-import { BotHooksTags } from '../../src/bot/setupBotHooks'
+// @ts-ignore
+import { Euler, MathUtils, Quaternion, Vector3 } from 'three';
+import XREngineBot from '../../../bot/src/bot';
+import { BotHooksTags } from '../../src/bot/setupBotHooks';
 
 const maxTimeout = 60 * 1000
 const headless = false
@@ -20,17 +20,18 @@ const randomVector3 = (scale = 1) => {
   return new Vector3(
     (Math.random() - 0.5) * 2,
     (Math.random() - 0.5) * 2,
-    (Math.random() - 0.5) * 2
+    (Math.random() - 0.5) * 2,
   ).normalize().multiplyScalar(scale)
+
 }
-const randomQuat = () => {
+const randomQuat = () => {  
   return new Quaternion().setFromUnitVectors(
-    new Vector3(),
+    new Vector3(), 
     randomVector3()
   )
 }
 const compareArrays = (arr1, arr2, tolerance) => {
-  if (tolerance) {
+  if(tolerance) {
     arr1.forEach((val, i) => {
       expect(Math.abs(arr2[i] - val)).toBeLessThanOrEqual(tolerance)
     })
@@ -45,7 +46,9 @@ const eulerToQuaternion = (x, y, z, order = 'XYZ') => {
   return new Quaternion().setFromEuler(new Euler(x, y, z, order))
 }
 
+
 describe('Golf tests', () => {
+
   beforeAll(async () => {
     await bot.launchBrowser()
     await bot.enterRoom(`https://${domain}/location/${locationName}`)
@@ -67,10 +70,12 @@ describe('Golf tests', () => {
     expect(await bot.runHook(BotHooksTags.xrInitialized)).toBe(true)
   }, maxTimeout)
 
+
   test('Can detect and move input sources', async () => {
+
     await bot.delay(1000)
     // Detect default head view transform
-    const {
+    const { 
       headInputValue,
       leftControllerInputValue,
       rightControllerInputValue
@@ -86,7 +91,7 @@ describe('Golf tests', () => {
       [0, 1, 0, 0], // rotated around Y as WebXR is inverted look direction
       0.01
     )
-
+    
     compareArrays(
       [leftControllerInputValue.x, leftControllerInputValue.y, leftControllerInputValue.z],
       [-0.5, 1.5, -1],
@@ -97,7 +102,7 @@ describe('Golf tests', () => {
       [0, 0, 0, 1],
       0.01
     )
-
+    
     compareArrays(
       [rightControllerInputValue.x, rightControllerInputValue.y, rightControllerInputValue.z],
       [0.5, 1.5, -1],
@@ -109,6 +114,7 @@ describe('Golf tests', () => {
       0.01
     )
   }, maxTimeout)
+
 
   test('Can teleport to ball', async () => {
     // should be at spawn position
@@ -125,29 +131,31 @@ describe('Golf tests', () => {
     expect(
       vector3.copy(await bot.runHook(BotHooksTags.getPlayerPosition)).sub(tee0Pos).length()
     ).toBeLessThan(0.1)
+
   }, maxTimeout)
 
   test('Can hit ball', async () => {
+
     await bot.runHook(BotHooksTags.updateHead, {
       position: [0, 2, 1],
       rotation: eulerToQuaternion(-1.25, 0, 0).toArray()
     })
-
+  
     // ball should be at spawn position
     expect(
       vector3.copy(await bot.runHook(BotHooksTags.getBallPosition)).sub(tee0Pos).length()
     ).toBeLessThan(0.1)
-
+    
     await bot.delay(1000)
     // wait for turn, then move to ball position
     await bot.awaitHookPromise(BotHooksTags.getIsYourTurn)
-
+    
     await bot.delay(500)
 
     // rotate left thumbstick 3 or 4 times to the left
 
     await bot.runHook(BotHooksTags.swingClub)
-
+   
     await bot.delay(2000)
     expect(
       vector3.copy(await bot.runHook(BotHooksTags.getBallPosition)).sub(tee0Pos).length()
@@ -156,4 +164,5 @@ describe('Golf tests', () => {
   }, maxTimeout)
 
   //
+
 })

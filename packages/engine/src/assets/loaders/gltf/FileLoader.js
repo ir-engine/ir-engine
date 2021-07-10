@@ -1,188 +1,225 @@
-import { Cache, Loader } from 'three'
-import fetch from 'cross-fetch'
+import { Cache, Loader } from 'three';
+import fetch from "cross-fetch"
 
-const loading = {}
+const loading = {};
 
 class FileLoader extends Loader {
-  constructor (manager) {
+
+	constructor(manager) {
     super(manager)
   }
 
-  load (url, onLoad, onProgress, onError) {
-    if (url === undefined) url = ''
+	load(url, onLoad, onProgress, onError) {
 
-    if (this.path !== undefined) url = this.path + url
+		if (url === undefined) url = '';
 
-    url = this.manager.resolveURL(url)
+		if (this.path !== undefined) url = this.path + url;
 
-    const scope = this
+		url = this.manager.resolveURL(url);
 
-    const cached = Cache.get(url)
+		const scope = this;
 
-    if (cached !== undefined) {
-      scope.manager.itemStart(url)
+		const cached = Cache.get(url);
 
-      setTimeout(function () {
-        if (onLoad) onLoad(cached)
+		if (cached !== undefined) {
 
-        scope.manager.itemEnd(url)
-      }, 0)
+			scope.manager.itemStart(url);
 
-      return cached
-    }
+			setTimeout(function () {
 
-    // Check if request is duplicate
+				if (onLoad) onLoad(cached);
 
-    if (loading[url] !== undefined) {
-      loading[url].push({
+				scope.manager.itemEnd(url);
 
-        onLoad: onLoad,
-        onProgress: onProgress,
-        onError: onError
+			}, 0);
 
-      })
+			return cached;
 
-      return
-    }
+		}
 
-    // Check for data: URI
-    const dataUriRegex = /^data:(.*?)(;base64)?,(.*)$/
-    const dataUriRegexResult = url.match(dataUriRegex)
+		// Check if request is duplicate
 
-    // Safari can not handle Data URIs through XMLHttpRequest so process manually
-    if (dataUriRegexResult) {
-      const mimeType = dataUriRegexResult[1]
-      const isBase64 = !!dataUriRegexResult[2]
+		if (loading[url] !== undefined) {
 
-      let data = dataUriRegexResult[3]
-      data = decodeURIComponent(data)
+			loading[url].push({
 
-      if (isBase64) data = atob(data)
+				onLoad: onLoad,
+				onProgress: onProgress,
+				onError: onError
 
-      try {
-        let response
-        const responseType = (this.responseType || '').toLowerCase()
+			});
 
-        switch (responseType) {
-          case 'arraybuffer':
-          case 'blob':
+			return;
 
-            const view = new Uint8Array(data.length)
+		}
 
-            for (let i = 0; i < data.length; i++) {
-              view[i] = data.charCodeAt(i)
-            }
+		// Check for data: URI
+		const dataUriRegex = /^data:(.*?)(;base64)?,(.*)$/;
+		const dataUriRegexResult = url.match(dataUriRegex);
 
-            if (responseType === 'blob') {
-              response = new Blob([view.buffer], { type: mimeType })
-            } else {
-              response = view.buffer
-            }
+		// Safari can not handle Data URIs through XMLHttpRequest so process manually
+		if (dataUriRegexResult) {
 
-            break
+			const mimeType = dataUriRegexResult[1];
+			const isBase64 = !!dataUriRegexResult[2];
 
-          case 'document':
+			let data = dataUriRegexResult[3];
+			data = decodeURIComponent(data);
 
-            const parser = new DOMParser()
-            response = parser.parseFromString(data, mimeType)
+			if (isBase64) data = atob(data);
 
-            break
+			try {
 
-          case 'json':
+				let response;
+				const responseType = (this.responseType || '').toLowerCase();
 
-            response = JSON.parse(data)
+				switch (responseType) {
 
-            break
+					case 'arraybuffer':
+					case 'blob':
 
-          default: // 'text' or other
+						const view = new Uint8Array(data.length);
 
-            response = data
+						for (let i = 0; i < data.length; i++) {
 
-            break
-        }
+							view[i] = data.charCodeAt(i);
 
-        // Wait for next browser tick like standard XMLHttpRequest event dispatching does
-        setTimeout(function () {
-          if (onLoad) onLoad(response)
+						}
 
-          scope.manager.itemEnd(url)
-        }, 0)
-      } catch (error) {
-        // Wait for next browser tick like standard XMLHttpRequest event dispatching does
-        setTimeout(function () {
-          if (onError) onError(error)
+						if (responseType === 'blob') {
 
-          scope.manager.itemError(url)
-          scope.manager.itemEnd(url)
-        }, 0)
-      }
-    } else {
-      // Initialise array for duplicate requests
+							response = new Blob([view.buffer], { type: mimeType });
 
-      loading[url] = []
+						} else {
 
-      loading[url].push({
+							response = view.buffer;
 
-        onLoad: onLoad,
-        onProgress: onProgress,
-        onError: onError
+						}
 
-      })
+						break;
 
-      fetch(url).then(res => res.blob()).then(async (res) => {
-        // console.log("***************** URL IS", url);
-        const response = await res.arrayBuffer()
+					case 'document':
 
-        const callbacks = loading[url]
-        scope.manager.itemStart(url)
+						const parser = new DOMParser();
+						response = parser.parseFromString(data, mimeType);
 
-        delete loading[url]
+						break;
 
-        // console.log("********* FileLoader LOADED")
-        // console.log(res);
+					case 'json':
 
-        // Some browsers return HTTP Status 0 when using non-http protocol
-        // e.g. 'file://' or 'data://'. Handle as success.
+						response = JSON.parse(data);
 
-        if (res.status === 0) console.warn('THREE.FileLoader: HTTP Status 0 received.')
+						break;
 
-        // Add to cache only on HTTP success, so that we do not cache
-        // error response bodies as proper responses to requests.
-        Cache.add(url, res)
+					default: // 'text' or other
 
-        for (let i = 0, il = callbacks.length; i < il; i++) {
-          // console.log("*************** CALLBACK")
+						response = data;
 
-          const callback = callbacks[i]
-          if (callback.onLoad) callback.onLoad(response)
-        }
+						break;
 
-        scope.manager.itemEnd(url)
-      }).catch((event) => {
-        const callbacks = loading[url]
+				}
 
-        delete loading[url]
+				// Wait for next browser tick like standard XMLHttpRequest event dispatching does
+				setTimeout(function () {
 
-        for (let i = 0, il = callbacks.length; i < il; i++) {
-          const callback = callbacks[i]
-          if (callback.onError) callback.onError(event)
-        }
+					if (onLoad) onLoad(response);
 
-        scope.manager.itemError(url)
-        scope.manager.itemEnd(url)
-      })
-    }
-  }
+					scope.manager.itemEnd(url);
 
-  setResponseType (value) {
-    this.responseType = value
-    return this
-  }
+				}, 0);
 
-  setMimeType (value) {
-    this.mimeType = value
-    return this
-  }
+			} catch (error) {
+
+				// Wait for next browser tick like standard XMLHttpRequest event dispatching does
+				setTimeout(function () {
+
+					if (onError) onError(error);
+
+					scope.manager.itemError(url);
+					scope.manager.itemEnd(url);
+
+				}, 0);
+
+			}
+
+		} else {
+
+			// Initialise array for duplicate requests
+
+			loading[url] = [];
+
+			loading[url].push({
+
+				onLoad: onLoad,
+				onProgress: onProgress,
+				onError: onError
+
+			});
+
+
+			fetch(url).then(res => res.blob()).then(async (res) => {
+				// console.log("***************** URL IS", url);
+				const response = await res.arrayBuffer();
+
+				const callbacks = loading[url];
+				scope.manager.itemStart(url);
+
+				delete loading[url];
+
+				// console.log("********* FileLoader LOADED")
+				// console.log(res);
+
+				// Some browsers return HTTP Status 0 when using non-http protocol
+				// e.g. 'file://' or 'data://'. Handle as success.
+
+				if (res.status === 0) console.warn('THREE.FileLoader: HTTP Status 0 received.');
+
+				// Add to cache only on HTTP success, so that we do not cache
+				// error response bodies as proper responses to requests.
+				Cache.add(url, res);
+
+				for (let i = 0, il = callbacks.length; i < il; i++) {
+					// console.log("*************** CALLBACK")
+
+					const callback = callbacks[i];
+					if (callback.onLoad) callback.onLoad(response);
+
+				}
+
+				scope.manager.itemEnd(url);
+			}).catch((event) => {
+				const callbacks = loading[url];
+
+				delete loading[url];
+
+				for (let i = 0, il = callbacks.length; i < il; i++) {
+
+					const callback = callbacks[i];
+					if (callback.onError) callback.onError(event);
+
+				}
+
+				scope.manager.itemError(url);
+				scope.manager.itemEnd(url);
+			});
+		}
+	}
+
+	setResponseType (value) {
+
+		this.responseType = value;
+		return this;
+
+	}
+
+	setMimeType (value) {
+
+		this.mimeType = value;
+		return this;
+
+	}
+
 }
 
-export { FileLoader }
+
+export { FileLoader };

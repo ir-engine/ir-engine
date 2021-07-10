@@ -7,46 +7,46 @@ export class ObjectPool<T> {
   /**
    * Objects in pool that are available for allocation.
    * @todo: make this a sparse array or ring buffer
-   *
+   * 
    * @author Fernando Serrano, Robert Long
    */
   freeList: any[] = []
 
   /**
    * Current size of the pool.''
-   *
+   * 
    * @author Fernando Serrano, Robert Long
    */
   poolSize = 0
 
   /**
    * Type is set on construction.
-   *
+   * 
    * @author Fernando Serrano, Robert Long
    */
   type: new(...args: any[]) => T
 
   /**
-   *
+   * 
    * @author Fernando Serrano, Robert Long
    * @param baseObject Type of the pool will be the type of this object.
    * @param initialSize Initial size of the pool when created.
-   *
+   * 
    * @typeparam T {@link ecs/classes/Entity.Entity | Entity},
    *     {@link ecs/classes/Component.Component | Component} or Subclass of any of these.
    * @todo Add initial size
    */
   constructor (baseObject, initialSize?: number) {
-    this.type = baseObject
+    this.type = baseObject;
     if (typeof initialSize !== 'undefined') {
-      this.expand(initialSize)
+      this.expand(initialSize);
     }
   }
 
   /**
    * Get an object from {@link freeList} of the pool.\
    * If {@link freeList} is empty then expands the pool first and them retrieves the object.
-   *
+   * 
    * @author Fernando Serrano, Robert Long
    * @typeparam T {@link ecs/classes/Entity.Entity | Entity},
    *     {@link ecs/classes/Component.Component | Component} or Subclass of any of these.
@@ -56,25 +56,25 @@ export class ObjectPool<T> {
   acquire (): T {
     // Grow the list by 20%ish if we're out
     if (this.freeList.length <= 0) {
-      this.expand(Math.round(this.poolSize * 0.2) + 1)
+      this.expand(Math.round(this.poolSize * 0.2) + 1);
     }
 
-    const item = this.freeList.pop()
+    const item = this.freeList.pop();
 
-    return item
+    return item;
   }
 
   /**
    * Put on object back in the pool.
-   *
+   * 
    * @author Fernando Serrano, Robert Long
    * @param item Object to be released.
    * @typeparam T {@link ecs/classes/Entity.Entity | Entity},
    *     {@link ecs/classes/Component.Component | Component} or Subclass of any of these.
    */
   release (item: T): void {
-    item && (item as any).reset()
-    this.freeList.push(item)
+    item && (item as any).reset();
+    this.freeList.push(item);
   }
 
   /**
@@ -85,10 +85,10 @@ export class ObjectPool<T> {
   */
   expand (count: number): void {
     for (let n = 0; n < count; n++) {
-      const clone = new this.type() as any
-      clone._pool = this
-      this.freeList.push(clone)
+      const clone = new this.type() as any;
+      clone._pool = this;
+      this.freeList.push(clone);
     }
-    this.poolSize += count
+    this.poolSize += count;
   }
 }

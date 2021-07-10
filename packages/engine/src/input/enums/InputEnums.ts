@@ -67,4 +67,4 @@ export const CameraInput = {
   Pucker: 107,
   Widen: 108,
   Open: 109
-}
+};

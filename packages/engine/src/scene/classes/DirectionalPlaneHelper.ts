@@ -5,17 +5,17 @@ import {
   BufferGeometry,
   LineBasicMaterial,
   Float32BufferAttribute
-} from 'three'
-import { addIsHelperFlag } from '../../editor/functions/addIsHelperFlag'
+} from "three";
+import { addIsHelperFlag } from "../../editor/functions/addIsHelperFlag";
 export default class DirectionalPlaneHelper extends Object3D {
-  plane: Line<BufferGeometry, LineBasicMaterial>
-  directionLine: Line<BufferGeometry, LineBasicMaterial>
-  constructor (size = 1) {
-    super()
-    this.name = 'DirectionalPlaneHelper'
-    let geometry = new BufferGeometry()
+  plane: Line<BufferGeometry, LineBasicMaterial>;
+  directionLine: Line<BufferGeometry, LineBasicMaterial>;
+  constructor(size = 1) {
+    super();
+    this.name = "DirectionalPlaneHelper";
+    let geometry = new BufferGeometry();
     geometry.setAttribute(
-      'position',
+      "position",
       new Float32BufferAttribute(
         [
           -size,
@@ -36,33 +36,31 @@ export default class DirectionalPlaneHelper extends Object3D {
         ],
         3
       )
-    )
-    const material = new LineBasicMaterial({ fog: false })
-    this.plane = new Line(geometry, material)
-    this.plane.layers.set(1)
-    this.add(this.plane)
-    geometry = new BufferGeometry()
+    );
+    const material = new LineBasicMaterial({ fog: false });
+    this.plane = new Line(geometry, material);
+    this.plane.layers.set(1);
+    this.add(this.plane);
+    geometry = new BufferGeometry();
     geometry.setAttribute(
-      'position',
+      "position",
       new Float32BufferAttribute([0, 0, 0, 0, 0, 1], 3)
-    )
-    this.directionLine = new Line(geometry, material)
-    this.directionLine.layers.set(1)
-    this.add(this.directionLine)
-    addIsHelperFlag(this)
+    );
+    this.directionLine = new Line(geometry, material);
+    this.directionLine.layers.set(1);
+    this.add(this.directionLine);
+    addIsHelperFlag(this);
   }
-
-  setColor (color) {
-    // @ts-expect-error
-    this.plane.material.color.copy(color)
-    // @ts-expect-error
-    this.directionLine.material.color.copy(color)
+  setColor(color) {
+    // @ts-ignore
+    this.plane.material.color.copy(color);
+    // @ts-ignore
+    this.directionLine.material.color.copy(color);
   }
-
-  dispose () {
-    this.plane.geometry.dispose()
-    this.plane.material.dispose()
-    this.directionLine.geometry.dispose()
-    this.directionLine.material.dispose()
+  dispose() {
+    this.plane.geometry.dispose();
+    this.plane.material.dispose();
+    this.directionLine.geometry.dispose();
+    this.directionLine.material.dispose();
   }
 }

@@ -45,4 +45,4 @@ export const BlendFunction = {
   SOFT_LIGHT: 17,
   SUBTRACT: 18
 
-}
+};

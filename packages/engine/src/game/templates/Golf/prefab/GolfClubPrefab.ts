@@ -1,64 +1,65 @@
 
-import { Entity } from '../../../../ecs/classes/Entity'
-import { NetworkPrefab } from '../../../../networking/interfaces/NetworkPrefab'
-import { TransformComponent } from '../../../../transform/components/TransformComponent'
-import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
-import { RigidBodyComponent } from '../../../../physics/components/RigidBody'
-import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject'
-import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants'
-import { BoxBufferGeometry, DoubleSide, Group, Material, Mesh, MeshStandardMaterial, Quaternion, Vector3, MathUtils } from 'three'
-import { Body, BodyType, ColliderHitEvent, ShapeType, RaycastQuery, SceneQueryType, SHAPES } from 'three-physx'
-import { CollisionGroups } from '../../../../physics/enums/CollisionGroups'
-import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem'
-import { Object3DComponent } from '../../../../scene/components/Object3DComponent'
-import { GameObject } from '../../../components/GameObject'
-import { Behavior } from '../../../../common/interfaces/Behavior'
-import { hasComponent, addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions'
-import { Network } from '../../../../networking/classes/Network'
-import { isClient } from '../../../../common/functions/isClient'
-import { getGame } from '../../../functions/functions'
-import { NetworkObject } from '../../../../networking/components/NetworkObject'
-import { GolfClubComponent } from '../components/GolfClubComponent'
-import { getHandTransform } from '../../../../xr/functions/WebXRFunctions'
-import { DebugArrowComponent } from '../../../../debug/DebugArrowComponent'
-import { GameObjectInteractionBehavior } from '../../../interfaces/GameObjectPrefab'
-import { NetworkObjectOwner } from '../../../../networking/components/NetworkObjectOwner'
-import { Action, State } from '../../../types/GameComponents'
-import { addActionComponent } from '../../../functions/functionsActions'
-import { GamePlayer } from '../../../components/GamePlayer'
-import { YourTurn } from '../components/YourTurnTagComponent'
-import { XRUserSettings } from '../../../../xr/types/XRUserSettings'
-import { Interactable } from '../../../../interaction/components/Interactable'
+import { Entity } from '../../../../ecs/classes/Entity';
+import { NetworkPrefab } from '../../../../networking/interfaces/NetworkPrefab';
+import { TransformComponent } from '../../../../transform/components/TransformComponent';
+import { ColliderComponent } from '../../../../physics/components/ColliderComponent';
+import { RigidBodyComponent } from '../../../../physics/components/RigidBody';
+import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject';
+import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants';
+import { BoxBufferGeometry, DoubleSide, Group, Material, Mesh, MeshStandardMaterial, Quaternion, Vector3, MathUtils } from 'three';
+import { Body, BodyType, ColliderHitEvent, ShapeType, RaycastQuery, SceneQueryType, SHAPES } from 'three-physx';
+import { CollisionGroups } from '../../../../physics/enums/CollisionGroups';
+import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem';
+import { Object3DComponent } from '../../../../scene/components/Object3DComponent';
+import { GameObject } from '../../../components/GameObject';
+import { Behavior } from '../../../../common/interfaces/Behavior';
+import { hasComponent, addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions';
+import { Network } from '../../../../networking/classes/Network';
+import { isClient } from '../../../../common/functions/isClient';
+import { getGame } from '../../../functions/functions';
+import { NetworkObject } from '../../../../networking/components/NetworkObject';
+import { GolfClubComponent } from '../components/GolfClubComponent';
+import { getHandTransform } from '../../../../xr/functions/WebXRFunctions';
+import { DebugArrowComponent } from '../../../../debug/DebugArrowComponent';
+import { GameObjectInteractionBehavior } from '../../../interfaces/GameObjectPrefab';
+import { NetworkObjectOwner } from '../../../../networking/components/NetworkObjectOwner';
+import { Action, State } from '../../../types/GameComponents';
+import { addActionComponent } from '../../../functions/functionsActions';
+import { GamePlayer } from '../../../components/GamePlayer';
+import { YourTurn } from '../components/YourTurnTagComponent';
+import { XRUserSettings } from '../../../../xr/types/XRUserSettings';
+import { Interactable } from '../../../../interaction/components/Interactable';
 
-const vector0 = new Vector3()
-const vector1 = new Vector3()
-const vec3 = new Vector3()
-const quat = new Quaternion()
-const quat2 = new Quaternion()
-const quat3 = new Quaternion()
+const vector0 = new Vector3();
+const vector1 = new Vector3();
+const vec3 = new Vector3();
+const quat = new Quaternion();
+const quat2 = new Quaternion();
+const quat3 = new Quaternion();
 
 /**
  * @author Josh Field <github.com/HexaField>
  */
 
 export const spawnClub: Behavior = (entityPlayer: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
-  // server sends clients the entity data
-  if (isClient) return
 
-  const game = getGame(entityPlayer)
-  const playerNetworkObject = getComponent(entityPlayer, NetworkObject)
+  // server sends clients the entity data
+  if (isClient) return;
+
+  const game = getGame(entityPlayer);
+  const playerNetworkObject = getComponent(entityPlayer, NetworkObject);
 
   console.log('spawning club for player', playerNetworkObject.ownerId)
 
-  const networkId = Network.getNetworkId()
-  const uuid = MathUtils.generateUUID()
+  const networkId = Network.getNetworkId();
+  const uuid = MathUtils.generateUUID();
 
   const parameters: GolfClubSpawnParameters = {
     gameName: game.name,
     role: 'GolfClub',
     uuid,
     ownerNetworkId: playerNetworkObject.networkId
-  }
+  };
 
   // this spawns the club on the server
   createGolfClubPrefab({
@@ -74,16 +75,16 @@ export const spawnClub: Behavior = (entityPlayer: Entity, args?: any, delta?: nu
     ownerId: playerNetworkObject.ownerId,
     uniqueId: uuid,
     prefabType: GolfPrefabTypes.Club,
-    parameters
+    parameters,
   })
-}
+};
 
 export const enableClub = (entityClub: Entity, enable: boolean): void => {
-  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
-  golfClubComponent.canHitBall = enable
+  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
+  golfClubComponent.canHitBall = enable;
   golfClubComponent.meshGroup.traverse((obj: Mesh) => {
-    if (obj.material) {
-      (obj.material as Material).opacity = enable ? 1 : 0.3
+    if(obj.material) {
+      (obj.material as Material).opacity = enable ? 1 : 0.3;
     }
   })
 }
@@ -93,79 +94,79 @@ export const enableClub = (entityClub: Entity, enable: boolean): void => {
  */
 
 export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: number, entityTarget?: Entity, time?: number, checks?: any): void => {
-  if (!hasComponent(entityClub, NetworkObjectOwner)) return
+  if (!hasComponent(entityClub, NetworkObjectOwner)) return;
 
-  const ownerNetworkObject = Network.instance.networkObjects[getComponent(entityClub, NetworkObjectOwner).networkId].component
+  const ownerNetworkObject = Network.instance.networkObjects[getComponent(entityClub, NetworkObjectOwner).networkId].component;
 
-  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
+  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
 
-  const transformClub = getMutableComponent(entityClub, TransformComponent)
-  const collider = getMutableComponent(entityClub, ColliderComponent)
+  const transformClub = getMutableComponent(entityClub, TransformComponent);
+  const collider = getMutableComponent(entityClub, ColliderComponent);
 
-  const ownerEntity = Network.instance.networkObjects[ownerNetworkObject.networkId].component.entity
+  const ownerEntity = Network.instance.networkObjects[ownerNetworkObject.networkId].component.entity;
 
-  const handTransform = getHandTransform(ownerEntity)
-  const { position, rotation } = handTransform
+  const handTransform = getHandTransform(ownerEntity);
+  const { position, rotation } = handTransform;
 
-  transformClub.position.copy(position)
-  transformClub.rotation.copy(rotation)
+  transformClub.position.copy(position);
+  transformClub.rotation.copy(rotation);
 
-  golfClubComponent.raycast.origin.copy(position)
-  golfClubComponent.raycast.direction.set(0, 0, -1).applyQuaternion(rotation)
+  golfClubComponent.raycast.origin.copy(position);
+  golfClubComponent.raycast.direction.set(0, 0, -1).applyQuaternion(rotation);
 
   // find the rotation along the XZ plane the hand is pointing
   quat2.setFromUnitVectors(
     vector0.set(0, 0, -1),
     vector1.set(0, 0, -1).applyQuaternion(rotation).setY(0).normalize()
-  )
+  );
 
-  const hit = golfClubComponent.raycast.hits[0]
-  const headDistance = XRUserSettings.staticLengthGolfClub ? clubLength : (hit ? hit.distance : clubLength)
+  const hit = golfClubComponent.raycast.hits[0];
+  const headDistance = XRUserSettings.staticLengthGolfClub ? clubLength : (hit ? hit.distance : clubLength);
 
-  if (hasComponent(ownerEntity, YourTurn)) {
-    enableClub(entityClub, true)
+  if(hasComponent(ownerEntity, YourTurn)) {
+    enableClub(entityClub, true);
   } else {
-    enableClub(entityClub, false)
+    enableClub(entityClub, false);
   }
 
   // update position of club
   golfClubComponent.headGroup.position.setZ(-headDistance)
-  golfClubComponent.neckObject.position.setZ(-headDistance * 0.5)
-  golfClubComponent.neckObject.scale.setZ(headDistance * 0.5)
+  golfClubComponent.neckObject.position.setZ(-headDistance * 0.5);
+  golfClubComponent.neckObject.scale.setZ(headDistance * 0.5);
 
-  golfClubComponent.meshGroup.getWorldQuaternion(quat)
+  golfClubComponent.meshGroup.getWorldQuaternion(quat);
   // get rotation of club relative to parent
-  golfClubComponent.headGroup.quaternion.copy(quat).invert().multiply(quat2)
-  golfClubComponent.headGroup.updateMatrixWorld(true)
+  golfClubComponent.headGroup.quaternion.copy(quat).invert().multiply(quat2);
+  golfClubComponent.headGroup.updateMatrixWorld(true);
 
   // make rotation flush to ground
   // TODO: use ground normal instead of world up vector
-  golfClubComponent.headGroup.getWorldDirection(vector1).setY(0)
+  golfClubComponent.headGroup.getWorldDirection(vector1).setY(0);
   // get local forward direction, then apply that in world space
-  quat2.setFromUnitVectors(vector0.set(0, 0, 1), vector1)
-  golfClubComponent.meshGroup.getWorldQuaternion(quat)
-  golfClubComponent.headGroup.quaternion.copy(quat).invert().multiply(quat2)
-  golfClubComponent.headGroup.updateMatrixWorld(true)
+  quat2.setFromUnitVectors(vector0.set(0, 0, 1), vector1);
+  golfClubComponent.meshGroup.getWorldQuaternion(quat);
+  golfClubComponent.headGroup.quaternion.copy(quat).invert().multiply(quat2);
+  golfClubComponent.headGroup.updateMatrixWorld(true);
 
   // calculate velocity of the head of the golf club
   // average over multiple frames
   golfClubComponent.headGroup.getWorldPosition(vector1)
   vector0.subVectors(vector1, golfClubComponent.lastPositions[0])
-  for (let i = 0; i < golfClubComponent.velocityPositionsToCalculate - 1; i++) {
+  for(let i = 0; i < golfClubComponent.velocityPositionsToCalculate - 1; i++) {
     vector0.add(vector1.subVectors(golfClubComponent.lastPositions[i], golfClubComponent.lastPositions[i + 1]))
   }
-  vector0.multiplyScalar(1 / (golfClubComponent.velocityPositionsToCalculate + 1))
-  golfClubComponent.velocity.copy(vector0)
-  golfClubComponent.body.transform.linearVelocity.x = vector0.x
-  golfClubComponent.body.transform.linearVelocity.y = vector0.y
-  golfClubComponent.body.transform.linearVelocity.z = vector0.z
+  vector0.multiplyScalar(1 / (golfClubComponent.velocityPositionsToCalculate + 1));
+  golfClubComponent.velocity.copy(vector0);
+  golfClubComponent.body.transform.linearVelocity.x = vector0.x;
+  golfClubComponent.body.transform.linearVelocity.y = vector0.y;
+  golfClubComponent.body.transform.linearVelocity.z = vector0.z;
   // now shift all previous positions down the list
-  for (let i = golfClubComponent.velocityPositionsToCalculate - 1; i > 0; i--) {
-    golfClubComponent.lastPositions[i].copy(golfClubComponent.lastPositions[i - 1])
+  for(let i = golfClubComponent.velocityPositionsToCalculate - 1; i > 0; i--) {
+    golfClubComponent.lastPositions[i].copy(golfClubComponent.lastPositions[i - 1]);
   }
   // add latest position to list
   golfClubComponent.headGroup.getWorldPosition(vector1)
-  golfClubComponent.lastPositions[0].copy(vector1)
+  golfClubComponent.lastPositions[0].copy(vector1);
 
   // calculate relative rotation of club head
   quat.set(collider.body.transform.rotation.x, collider.body.transform.rotation.y, collider.body.transform.rotation.z, collider.body.transform.rotation.w)
@@ -184,9 +185,9 @@ export const updateClub: Behavior = (entityClub: Entity, args?: any, delta?: num
 // https://github.com/PersoSirEduard/OculusQuest-Godot-MiniGolfGame/blob/master/Scripts/GolfClub/GolfClub.gd#L18
 
 export const onClubColliderWithBall: GameObjectInteractionBehavior = (entityClub: Entity, delta: number, args: { hitEvent: ColliderHitEvent }, entityBall: Entity) => {
-  if (hasComponent(entityBall, State.Active) && hasComponent(entityClub, State.Active)) {
-    addActionComponent(entityBall, Action.GameObjectCollisionTag)
-    addActionComponent(entityClub, Action.GameObjectCollisionTag)
+  if(hasComponent(entityBall, State.Active) && hasComponent(entityClub, State.Active)) {
+    addActionComponent(entityBall, Action.GameObjectCollisionTag);
+    addActionComponent(entityClub, Action.GameObjectCollisionTag);
   }
 }
 
@@ -194,50 +195,51 @@ export const onClubColliderWithBall: GameObjectInteractionBehavior = (entityClub
 * @author Josh Field <github.com/HexaField>
  */
 
-const clubColliderSize = new Vector3(0.03, 0.05, 0.1)
-const clubHalfWidth = 0.05
-const clubPutterLength = 0.1
-const clubLength = 1
+const clubColliderSize = new Vector3(0.03, 0.05, 0.1);
+const clubHalfWidth = 0.05;
+const clubPutterLength = 0.1;
+const clubLength = 1;
 
-const upVector = new Vector3(0, 1, 0)
-const HALF_PI = Math.PI / 2
+const upVector = new Vector3(0, 1, 0);
+const HALF_PI = Math.PI / 2;
 
 export const initializeGolfClub = (entityClub: Entity) => {
-  const transform = getComponent(entityClub, TransformComponent)
 
-  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
+  const transform = getComponent(entityClub, TransformComponent);
+
+  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent);
 
   golfClubComponent.raycast = PhysicsSystem.instance.addRaycastQuery(new RaycastQuery({
     type: SceneQueryType.Closest,
     origin: new Vector3(),
     direction: new Vector3(0, -1, 0),
     maxDistance: clubLength,
-    collisionMask: CollisionGroups.Default | CollisionGroups.Ground
-  }))
+    collisionMask: CollisionGroups.Default | CollisionGroups.Ground,
+  }));
 
-  const handleObject = new Mesh(new BoxBufferGeometry(clubHalfWidth, clubHalfWidth, 0.25), new MeshStandardMaterial({ color: 0xff2126, transparent: true }))
-  golfClubComponent.handleObject = handleObject
+  const handleObject = new Mesh(new BoxBufferGeometry(clubHalfWidth, clubHalfWidth, 0.25), new MeshStandardMaterial({ color: 0xff2126, transparent: true }));
+  golfClubComponent.handleObject = handleObject;
 
-  const headGroup = new Group()
-  const headObject = new Mesh(new BoxBufferGeometry(clubHalfWidth, clubHalfWidth, clubPutterLength * 2), new MeshStandardMaterial({ color: 0x2126ff, transparent: true }))
+  const headGroup = new Group();
+  const headObject = new Mesh(new BoxBufferGeometry(clubHalfWidth, clubHalfWidth, clubPutterLength * 2), new MeshStandardMaterial({ color: 0x2126ff , transparent: true }));
   // raise the club by half it's height and move it out by half it's length so it's flush to ground and attached at end
-  headObject.position.set(0, clubHalfWidth, -(clubPutterLength * 0.5))
-  headGroup.add(headObject)
-  golfClubComponent.headGroup = headGroup
+  headObject.position.set(0, clubHalfWidth, - (clubPutterLength * 0.5));
+  headGroup.add(headObject);
+  golfClubComponent.headGroup = headGroup;
 
-  const neckObject = new Mesh(new BoxBufferGeometry(clubHalfWidth * 0.5, clubHalfWidth * 0.5, -1.75), new MeshStandardMaterial({ color: 0x21ff26, transparent: true, side: DoubleSide }))
-  golfClubComponent.neckObject = neckObject
+  const neckObject = new Mesh(new BoxBufferGeometry(clubHalfWidth * 0.5, clubHalfWidth * 0.5, -1.75), new MeshStandardMaterial({ color: 0x21ff26, transparent: true, side: DoubleSide }));
+  golfClubComponent.neckObject = neckObject;
 
-  const meshGroup = new Group()
-  meshGroup.add(handleObject, headGroup, neckObject)
-  golfClubComponent.meshGroup = meshGroup
+  const meshGroup = new Group();
+  meshGroup.add(handleObject, headGroup, neckObject);
+  golfClubComponent.meshGroup = meshGroup;
 
   meshGroup.traverse((obj) => {
-    obj.castShadow = true
-    obj.receiveShadow = true
+    obj.castShadow = true;
+    obj.receiveShadow = true;
   })
 
-  addComponent(entityClub, Object3DComponent, { value: meshGroup })
+  addComponent(entityClub, Object3DComponent, { value: meshGroup });
 
   const shapeHead: ShapeType = {
     shape: SHAPES.Box,
@@ -247,7 +249,7 @@ export const initializeGolfClub = (entityClub: Entity) => {
       collisionLayer: GolfCollisionGroups.Club,
       collisionMask: GolfCollisionGroups.Ball
     }
-  }
+  };
 
   const body = PhysicsSystem.instance.addBody(new Body({
     shapes: [shapeHead],
@@ -255,30 +257,30 @@ export const initializeGolfClub = (entityClub: Entity) => {
     transform: {
       translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z }
     }
-  }))
+  }));
 
-  const collider = getMutableComponent(entityClub, ColliderComponent)
-  collider.body = body
-  golfClubComponent.body = body
+  const collider = getMutableComponent(entityClub, ColliderComponent);
+  collider.body = body;
+  golfClubComponent.body = body;
 
-  for (let i = 0; i < golfClubComponent.velocityPositionsToCalculate; i++) {
-    golfClubComponent.lastPositions[i] = new Vector3()
+  for(let i = 0; i < golfClubComponent.velocityPositionsToCalculate; i++) {
+    golfClubComponent.lastPositions[i] = new Vector3();
   }
-  golfClubComponent.velocity = new Vector3()
+  golfClubComponent.velocity = new Vector3();
   addComponent(entityClub, DebugArrowComponent)
-
-  const gameObject = getComponent(entityClub, GameObject)
-  gameObject.collisionBehaviors.GolfBall = onClubColliderWithBall
+ 
+  const gameObject = getComponent(entityClub, GameObject);
+  gameObject.collisionBehaviors['GolfBall'] = onClubColliderWithBall;
 }
 
-interface GolfClubSpawnParameters {
-  gameName: string
-  role: string
-  uuid: string
-  ownerNetworkId: number
+type GolfClubSpawnParameters = {
+  gameName: string;
+  role: string;
+  uuid: string;
+  ownerNetworkId: number;
 }
 
-export const createGolfClubPrefab = (args: { parameters?: GolfClubSpawnParameters, networkId?: number, uniqueId: string, ownerId?: string }) => {
+export const createGolfClubPrefab = ( args:{ parameters?: GolfClubSpawnParameters, networkId?: number, uniqueId: string, ownerId?: string }) => {
   console.log('createGolfClubPrefab')
   initializeNetworkObject({
     prefabType: GolfPrefabTypes.Club,
@@ -304,7 +306,7 @@ export const createGolfClubPrefab = (args: { parameters?: GolfClubSpawnParameter
         }
       ]
     }
-  })
+  });
 }
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
@@ -323,7 +325,7 @@ export const GolfClubPrefab: NetworkPrefab = {
   ],
   // These are only created for the local player who owns this prefab
   localClientComponents: [],
-  // clientComponents: [{ type: InterpolationComponent, data: { } }],
+  //clientComponents: [{ type: InterpolationComponent, data: { } }],
   clientComponents: [],
   serverComponents: [],
   onAfterCreate: [
@@ -333,4 +335,4 @@ export const GolfClubPrefab: NetworkPrefab = {
     }
   ],
   onBeforeDestroy: []
-}
+};

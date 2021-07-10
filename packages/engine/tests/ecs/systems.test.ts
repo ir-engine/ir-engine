@@ -1,12 +1,12 @@
-import { System } from '../../src/ecs/classes/System'
-import { Component } from '../../src/ecs/classes/Component'
-import { registerSystem, unregisterSystem } from '../../src/ecs/functions/SystemFunctions'
-import { Engine } from '../../src/ecs/classes/Engine'
+import { System } from "../../src/ecs/classes/System";
+import { Component } from "../../src/ecs/classes/Component";
+import { registerSystem, unregisterSystem } from "../../src/ecs/functions/SystemFunctions";
+import { Engine } from "../../src/ecs/classes/Engine";
 
 class TestComponent extends Component<TestComponent> {}
 
 class TestSystem extends System {
-  execute (delta: number, time: number): void {}
+  execute(delta: number, time: number): void {}
 }
 
 TestSystem.queries = {
@@ -17,9 +17,9 @@ TestSystem.queries = {
       removed: true
     }
   }
-}
+};
 
-test('unregisterSystem', () => {
+test("unregisterSystem", () => {
   registerSystem(TestSystem)
   unregisterSystem(TestSystem)
   expect(Engine.systems.length).toBe(0)

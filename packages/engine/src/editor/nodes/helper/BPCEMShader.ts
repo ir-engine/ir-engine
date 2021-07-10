@@ -13,7 +13,7 @@ export const worldposReplace = /* glsl */`
     #endif
 
 #endif
-`
+`;
 
 export const envmapPhysicalParsReplace = /* glsl */`
 #if defined( USE_ENVMAP )
@@ -154,20 +154,25 @@ export const envmapPhysicalParsReplace = /* glsl */`
         return envMapColor.rgb * envMapIntensity;
     }
 #endif
-`
+`;
 
-export const beforeMaterialCompile = (probeScale, probePositionOffset) => {
-  return function (shader) {
-    shader.uniforms.cubeMapSize = { value: probeScale }
-    shader.uniforms.cubeMapPos = { value: probePositionOffset }
-    shader.vertexShader = 'varying vec3 vBPCEMWorldPosition;\n' + shader.vertexShader
-    shader.vertexShader = shader.vertexShader.replace(
-      '#include <worldpos_vertex>',
-      worldposReplace
-    )
-    shader.fragmentShader = shader.fragmentShader.replace(
-      '#include <envmap_physical_pars_fragment>',
-      envmapPhysicalParsReplace
-    )
-  }
+
+
+
+
+
+export const beforeMaterialCompile=(probeScale,probePositionOffset)=>{
+    return function ( shader ) {
+        shader.uniforms.cubeMapSize = { value:probeScale};
+        shader.uniforms.cubeMapPos = { value: probePositionOffset};
+        shader.vertexShader = 'varying vec3 vBPCEMWorldPosition;\n' + shader.vertexShader;
+        shader.vertexShader = shader.vertexShader.replace(
+            '#include <worldpos_vertex>',
+            worldposReplace
+        );
+        shader.fragmentShader = shader.fragmentShader.replace(
+            '#include <envmap_physical_pars_fragment>',
+            envmapPhysicalParsReplace
+        );
+    }
 }

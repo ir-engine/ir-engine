@@ -6,24 +6,24 @@ import {
   BufferGeometry,
   LineBasicMaterial,
   Float32BufferAttribute
-} from 'three'
-import { addIsHelperFlag } from '../functions/addIsHelperFlag'
+} from "three";
+import { addIsHelperFlag } from "../functions/addIsHelperFlag";
 export default class EditorDirectionalLightHelper extends Object3D {
-  light: any
-  color: any
-  lightPlane: Line<BufferGeometry, LineBasicMaterial>
-  targetLine: Line<BufferGeometry, LineBasicMaterial>
-  name: string
-  add: any
-  constructor (light, size?, color?) {
-    super()
-    this.name = 'EditorDirectionalLightHelper'
-    this.light = light
-    this.color = color
-    if (size === undefined) size = 1
-    let geometry = new BufferGeometry()
+  light: any;
+  color: any;
+  lightPlane: Line<BufferGeometry, LineBasicMaterial>;
+  targetLine: Line<BufferGeometry, LineBasicMaterial>;
+  name: string;
+  add: any;
+  constructor(light, size?, color?) {
+    super();
+    this.name = "EditorDirectionalLightHelper";
+    this.light = light;
+    this.color = color;
+    if (size === undefined) size = 1;
+    let geometry = new BufferGeometry();
     geometry.setAttribute(
-      'position',
+      "position",
       new Float32BufferAttribute(
         [
           -size,
@@ -44,41 +44,39 @@ export default class EditorDirectionalLightHelper extends Object3D {
         ],
         3
       )
-    )
-    const material = new LineBasicMaterial({ fog: false })
-    this.lightPlane = new Line(geometry, material)
-    this.lightPlane.layers.set(1)
-    this.add(this.lightPlane)
-    geometry = new BufferGeometry()
+    );
+    const material = new LineBasicMaterial({ fog: false });
+    this.lightPlane = new Line(geometry, material);
+    this.lightPlane.layers.set(1);
+    this.add(this.lightPlane);
+    geometry = new BufferGeometry();
     geometry.setAttribute(
-      'position',
+      "position",
       new Float32BufferAttribute([0, 0, 0, 0, 0, 1], 3)
-    )
-    this.targetLine = new Line(geometry, material)
-    this.targetLine.layers.set(1)
-    this.add(this.targetLine)
-    this.update()
-    addIsHelperFlag(this)
+    );
+    this.targetLine = new Line(geometry, material);
+    this.targetLine.layers.set(1);
+    this.add(this.targetLine);
+    this.update();
+    addIsHelperFlag(this);
   }
-
-  update () {
+  update() {
     if (this.color !== undefined) {
-      // @ts-expect-error
-      this.lightPlane.material.color.set(this.color)
-      // @ts-expect-error
-      this.targetLine.material.color.set(this.color)
+      // @ts-ignore
+      this.lightPlane.material.color.set(this.color);
+      // @ts-ignore
+      this.targetLine.material.color.set(this.color);
     } else {
-      // @ts-expect-error
-      this.lightPlane.material.color.copy(this.light.color)
-      // @ts-expect-error
-      this.targetLine.material.color.copy(this.light.color)
+      // @ts-ignore
+      this.lightPlane.material.color.copy(this.light.color);
+      // @ts-ignore
+      this.targetLine.material.color.copy(this.light.color);
     }
   }
-
-  dispose () {
-    this.lightPlane.geometry.dispose()
-    this.lightPlane.material.dispose()
-    this.targetLine.geometry.dispose()
-    this.targetLine.material.dispose()
+  dispose() {
+    this.lightPlane.geometry.dispose();
+    this.lightPlane.material.dispose();
+    this.targetLine.geometry.dispose();
+    this.targetLine.material.dispose();
   }
 }

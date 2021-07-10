@@ -1,8 +1,8 @@
 /** Interface to define Engine Options. */
 export interface EngineOptions {
   /** Size of the entity pool. */
-  entityPoolSize?: number
+  entityPoolSize?: number;
 
   /** Any other properties. */
-  [propName: string]: any
+  [propName: string]: any;
 }

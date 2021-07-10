@@ -1,49 +1,59 @@
 import {
-  BufferGeometry,
-  Float32BufferAttribute
-} from 'three'
-import { ConvexHull } from './ConvexHull'
+	BufferGeometry,
+	Float32BufferAttribute
+} from 'three';
+import { ConvexHull } from './ConvexHull';
 
 class ConvexGeometry extends BufferGeometry {
-  constructor (points) {
-    super()
 
-    // buffers
+	constructor( points ) {
 
-    const vertices = []
-    const normals = []
+		super();
 
-    if (ConvexHull === undefined) {
-      console.error('THREE.ConvexBufferGeometry: ConvexBufferGeometry relies on ConvexHull')
-    }
+		// buffers
 
-    const convexHull = new ConvexHull().setFromPoints(points)
+		const vertices = [];
+		const normals = [];
 
-    // generate vertices and normals
+		if ( ConvexHull === undefined ) {
 
-    const faces = convexHull.faces
+			console.error( 'THREE.ConvexBufferGeometry: ConvexBufferGeometry relies on ConvexHull' );
 
-    for (let i = 0; i < faces.length; i++) {
-      const face = faces[i]
-      let edge = face.edge
+		}
 
-      // we move along a doubly-connected edge list to access all face points (see HalfEdge docs)
+		const convexHull = new ConvexHull().setFromPoints( points );
 
-      do {
-        const point = edge.head().point
+		// generate vertices and normals
 
-        vertices.push(point.x, point.y, point.z)
-        normals.push(face.normal.x, face.normal.y, face.normal.z)
+		const faces = convexHull.faces;
 
-        edge = edge.next
-      } while (edge !== face.edge)
-    }
+		for ( let i = 0; i < faces.length; i ++ ) {
 
-    // build geometry
+			const face = faces[ i ];
+			let edge = face.edge;
 
-    this.setAttribute('position', new Float32BufferAttribute(vertices, 3))
-    this.setAttribute('normal', new Float32BufferAttribute(normals, 3))
-  }
+			// we move along a doubly-connected edge list to access all face points (see HalfEdge docs)
+
+			do {
+
+				const point = edge.head().point;
+
+				vertices.push( point.x, point.y, point.z );
+				normals.push( face.normal.x, face.normal.y, face.normal.z );
+
+				edge = edge.next;
+
+			} while ( edge !== face.edge );
+
+		}
+
+		// build geometry
+
+		this.setAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
+		this.setAttribute( 'normal', new Float32BufferAttribute( normals, 3 ) );
+
+	}
+
 }
 
-export { ConvexGeometry }
+export { ConvexGeometry };

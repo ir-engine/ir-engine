@@ -1,5 +1,5 @@
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
+import { Component } from '../../ecs/classes/Component';
+import { Types } from '../../ecs/types/Types';
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -11,5 +11,5 @@ export class InterpolationComponent extends Component<any> {
 }
 
 InterpolationComponent._schema = {
-  lastUpdate: { type: Types.Number, default: 0 }
-}
+  lastUpdate: { type: Types.Number, default: 0 },
+};
