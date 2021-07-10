@@ -1,4 +1,4 @@
-import { ITinyYolov2Options, TinyYolov2Options } from '../tinyYolov2';
+import { ITinyYolov2Options, TinyYolov2Options } from '../tinyYolov2'
 
 export interface ITinyFaceDetectorOptions extends ITinyYolov2Options {}
 

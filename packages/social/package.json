@@ -16,7 +16,8 @@
     "build": "cross-env NODE_ENV=production NODE_OPTIONS=--max_old_space_size=4096 vite build && cp src/server.js www/server.js",
     "validate": "npm run lint && npm run test",
     "start": "cp src/server.js www/server.js && node www/server.js",
-    "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
+    "lint": "prettier --check .",
+    "format": "prettier --write ."
   },
   "resolutions": {
     "socket.io": "4.1.2",

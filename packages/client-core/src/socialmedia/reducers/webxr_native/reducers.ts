@@ -2,26 +2,23 @@
  * @author Gleb Ordinsky <glebordinskijj@gmail.com>
  */
 
-import Immutable from 'immutable';
-import {
-  TOGGLE_WEBXRNATIVE, SET_WEBXRNATIVE
-} from './actions';
-
+import Immutable from 'immutable'
+import { TOGGLE_WEBXRNATIVE, SET_WEBXRNATIVE } from './actions'
 
 export const initialWebXrNative = {
   webxrnative: null
-};
+}
 
-const immutableState = Immutable.fromJS(initialWebXrNative);
+const immutableState = Immutable.fromJS(initialWebXrNative)
 
 const webxrnativeReducer = (state = immutableState, action: any): any => {
   switch (action.type) {
     case SET_WEBXRNATIVE:
-      return state.set('webxrnative', false);
+      return state.set('webxrnative', false)
     case TOGGLE_WEBXRNATIVE:
-      return state.set('webxrnative', !state.get('webxrnative'));
+      return state.set('webxrnative', !state.get('webxrnative'))
   }
-  return state;
-};
+  return state
+}
 
-export default webxrnativeReducer;
+export default webxrnativeReducer

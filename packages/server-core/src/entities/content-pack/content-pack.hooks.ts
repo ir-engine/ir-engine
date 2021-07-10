@@ -1,11 +1,11 @@
-import * as authentication from '@feathersjs/authentication';
-import { disallow } from 'feathers-hooks-common';
-import logRequest from '../../hooks/log-request';
-import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role';
+import * as authentication from '@feathersjs/authentication'
+import { disallow } from 'feathers-hooks-common'
+import logRequest from '../../hooks/log-request'
+import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
-const { authenticate } = authentication.hooks;
+const { authenticate } = authentication.hooks
 
 export default {
   before: {
@@ -22,7 +22,9 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [/*reformatUploadResult(), addThumbnailFileId(), removePreviousThumbnail(), createOwnedFile(), setResponseStatus(200)*/],
+    create: [
+      /*reformatUploadResult(), addThumbnailFileId(), removePreviousThumbnail(), createOwnedFile(), setResponseStatus(200)*/
+    ],
     update: [],
     patch: [],
     remove: []
@@ -37,4 +39,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}

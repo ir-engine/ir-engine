@@ -1,13 +1,15 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { convLayer } from '../common/convLayer';
-import { fullyConnectedLayer } from '../common/fullyConnectedLayer';
-import { prelu } from './prelu';
-import { sharedLayer } from './sharedLayers';
-import { ONetParams } from './types';
+import * as tf from '@tensorflow/tfjs-core'
+import { convLayer } from '../common/convLayer'
+import { fullyConnectedLayer } from '../common/fullyConnectedLayer'
+import { prelu } from './prelu'
+import { sharedLayer } from './sharedLayers'
+import { ONetParams } from './types'
 
-export function ONet(x: tf.Tensor4D, params: ONetParams): { scores: tf.Tensor1D, regions: tf.Tensor2D, points: tf.Tensor2D } {
+export function ONet(
+  x: tf.Tensor4D,
+  params: ONetParams
+): { scores: tf.Tensor1D; regions: tf.Tensor2D; points: tf.Tensor2D } {
   return tf.tidy(() => {
-
     let out = sharedLayer(x, params)
     out = tf.maxPool(out, [2, 2], [2, 2], 'same')
     out = convLayer(out, params.conv4, 'valid')

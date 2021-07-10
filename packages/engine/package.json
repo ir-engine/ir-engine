@@ -24,7 +24,8 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "lint": "eslint --fix --quiet --ext .ts src/",
+    "lint": "prettier --check .",
+    "format": "prettier --write .",
     "dev": "vite",
     "build": "rimraf dist && mkdir dist && ctix entrypoint ./src && node build.js",
     "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",

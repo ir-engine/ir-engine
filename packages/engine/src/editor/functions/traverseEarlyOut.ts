@@ -1,13 +1,13 @@
 export default function traverseEarlyOut(object, cb) {
-  let result = cb(object);
+  let result = cb(object)
   if (result !== false) {
-    const children = object.children;
+    const children = object.children
     for (let i = 0; i < children.length; i++) {
-      result = traverseEarlyOut(children[i], cb);
+      result = traverseEarlyOut(children[i], cb)
       if (result === false) {
-        break;
+        break
       }
     }
   }
-  return result;
+  return result
 }

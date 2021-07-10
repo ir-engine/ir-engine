@@ -2,7 +2,7 @@
  * This Module contains classes for every type of 3D Components in the three.js core library.
  */
 
-import { Component } from '../../ecs/classes/Component';
+import { Component } from '../../ecs/classes/Component'
 
 /** @category Audio Component */
 export class AudioTagComponent extends Component<AudioTagComponent> {

@@ -1,23 +1,23 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import styled from "styled-components";
-import { showMenu } from "../layout/ContextMenu";
-import { MenuButton } from "../inputs/Button";
-import StylableContextMenuTrigger from "./StylableContextMenuTrigger";
-import { EllipsisV } from "@styled-icons/fa-solid/EllipsisV";
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import styled from 'styled-components'
+import { showMenu } from '../layout/ContextMenu'
+import { MenuButton } from '../inputs/Button'
+import StylableContextMenuTrigger from './StylableContextMenuTrigger'
+import { EllipsisV } from '@styled-icons/fa-solid/EllipsisV'
 
 /**
- * 
+ *
  * @author Robert Long
- * @param {any} project 
- * @returns 
+ * @param {any} project
+ * @returns
  */
 function collectMenuProps({ project }) {
-  return { project };
+  return { project }
 }
 
 /**
- * 
+ *
  * @author Robert Long
  */
 const StyledProjectGridItem = styled.div`
@@ -25,18 +25,18 @@ const StyledProjectGridItem = styled.div`
   flex-direction: column;
   height: 220px;
   border-radius: 6px;
-  background-color: ${props => props.theme.toolbar};
+  background-color: ${(props) => props.theme.toolbar};
   text-decoration: none;
   border: 1px solid transparent;
 
   &:hover {
     color: inherit;
-    border-color: ${props => props.theme.selected};
+    border-color: ${(props) => props.theme.selected};
   }
-`;
+`
 
 /**
- * 
+ *
  * @author Robert Long
  */
 const StyledContextMenuTrigger = styled(StylableContextMenuTrigger)`
@@ -45,10 +45,10 @@ const StyledContextMenuTrigger = styled(StylableContextMenuTrigger)`
   flex: 1;
   border-top-left-radius: inherit;
   border-top-right-radius: inherit;
-`;
+`
 
 /**
- * 
+ *
  * @author Robert Long
  */
 const TitleContainer = styled.div`
@@ -69,10 +69,10 @@ const TitleContainer = styled.div`
       height: 1em;
     }
   }
-`;
+`
 
 /**
- * 
+ *
  * @author Robert Long
  */
 const ThumbnailContainer = styled.div`
@@ -80,14 +80,14 @@ const ThumbnailContainer = styled.div`
   flex: 1 0 auto;
   justify-content: center;
   align-items: stretch;
-  background-color: ${props => props.theme.panel};
+  background-color: ${(props) => props.theme.panel};
   overflow: hidden;
   border-top-left-radius: inherit;
   border-top-right-radius: inherit;
-`;
+`
 
 /**
- * 
+ *
  * @author Robert Long
  */
 const Thumbnail = styled.div<{ src: string }>`
@@ -96,11 +96,11 @@ const Thumbnail = styled.div<{ src: string }>`
   background-size: cover;
   background-position: 50%;
   background-repeat: no-repeat;
-  background-image: url(${props => props.src});
-`;
+  background-image: url(${(props) => props.src});
+`
 
 /**
- * 
+ *
  * @author Robert Long
  */
 const Col = styled.div`
@@ -108,26 +108,26 @@ const Col = styled.div`
   flex-direction: column;
 
   p {
-    color: ${props => props.theme.text2};
+    color: ${(props) => props.theme.text2};
   }
-`;
+`
 
 /**
- * 
+ *
  * @author Robert Long
  */
-export class ProjectGridItem extends Component<{ contextMenuId: string, project: any }> {
+export class ProjectGridItem extends Component<{ contextMenuId: string; project: any }> {
   static propTypes = {
     contextMenuId: PropTypes.string,
     project: PropTypes.object.isRequired
-  };
+  }
 
-  onShowMenu = event => {
-    event.preventDefault();
-    event.stopPropagation();
+  onShowMenu = (event) => {
+    event.preventDefault()
+    event.stopPropagation()
 
-    const x = event.clientX || (event.touches && event.touches[0].pageX);
-    const y = event.clientY || (event.touches && event.touches[0].pageY);
+    const x = event.clientX || (event.touches && event.touches[0].pageX)
+    const y = event.clientY || (event.touches && event.touches[0].pageY)
     showMenu({
       position: { x, y },
       target: event.currentTarget,
@@ -135,11 +135,11 @@ export class ProjectGridItem extends Component<{ contextMenuId: string, project:
       data: {
         project: this.props.project
       }
-    });
-  };
+    })
+  }
 
   render() {
-    const { project, contextMenuId } = this.props as any;
+    const { project, contextMenuId } = this.props as any
 
     const content = (
       <>
@@ -155,7 +155,7 @@ export class ProjectGridItem extends Component<{ contextMenuId: string, project:
           )}
         </TitleContainer>
       </>
-    );
+    )
 
     if (contextMenuId) {
       return (
@@ -165,11 +165,15 @@ export class ProjectGridItem extends Component<{ contextMenuId: string, project:
             {content}
           </StyledContextMenuTrigger>
         </StyledProjectGridItem>
-      );
+      )
     } else {
-      return <StyledProjectGridItem as="a" href={project.url}>{content}</StyledProjectGridItem>;
+      return (
+        <StyledProjectGridItem as="a" href={project.url}>
+          {content}
+        </StyledProjectGridItem>
+      )
     }
   }
 }
 
-export default ProjectGridItem;
+export default ProjectGridItem

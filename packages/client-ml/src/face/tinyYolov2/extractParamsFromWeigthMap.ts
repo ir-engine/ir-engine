@@ -1,13 +1,12 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { disposeUnusedWeightTensors } from '../common/disposeUnusedWeightTensors';
-import { loadSeparableConvParamsFactory } from '../common/extractSeparableConvParamsFactory';
-import { extractWeightEntryFactory } from '../common/extractWeightEntryFactory';
-import { ConvParams, ParamMapping } from '../common/types';
-import { TinyYolov2Config } from './config';
-import { BatchNorm, ConvWithBatchNorm, TinyYolov2NetParams } from './types';
+import * as tf from '@tensorflow/tfjs-core'
+import { disposeUnusedWeightTensors } from '../common/disposeUnusedWeightTensors'
+import { loadSeparableConvParamsFactory } from '../common/extractSeparableConvParamsFactory'
+import { extractWeightEntryFactory } from '../common/extractWeightEntryFactory'
+import { ConvParams, ParamMapping } from '../common/types'
+import { TinyYolov2Config } from './config'
+import { BatchNorm, ConvWithBatchNorm, TinyYolov2NetParams } from './types'
 
 function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
-
   const extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings)
 
   function extractBatchNormParams(prefix: string): BatchNorm {
@@ -35,26 +34,23 @@ function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
     extractConvWithBatchNormParams,
     extractSeparableConvParams
   }
-
 }
 
 export function extractParamsFromWeigthMap(
   weightMap: tf.NamedTensorMap,
   config: TinyYolov2Config
-): { params: TinyYolov2NetParams, paramMappings: ParamMapping[] } {
-
+): { params: TinyYolov2NetParams; paramMappings: ParamMapping[] } {
   const paramMappings: ParamMapping[] = []
 
-  const {
-    extractConvParams,
-    extractConvWithBatchNormParams,
-    extractSeparableConvParams
-  } = extractorsFactory(weightMap, paramMappings)
+  const { extractConvParams, extractConvWithBatchNormParams, extractSeparableConvParams } = extractorsFactory(
+    weightMap,
+    paramMappings
+  )
 
   let params: TinyYolov2NetParams
 
   if (config.withSeparableConvs) {
-    const numFilters = (config.filterSizes && config.filterSizes.length || 9)
+    const numFilters = (config.filterSizes && config.filterSizes.length) || 9
     params = {
       conv0: config.isFirstLayerConv2d ? extractConvParams('conv0') : extractSeparableConvParams('conv0'),
       conv1: extractSeparableConvParams('conv1'),

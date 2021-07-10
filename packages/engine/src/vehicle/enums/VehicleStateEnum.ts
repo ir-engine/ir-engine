@@ -7,8 +7,8 @@ export enum VehicleState {
   onUpdate
 }
 
-type NetworkDriverId = number;
-type NetworkCarId = number;
-type CurrentFocusedPart = number;
+type NetworkDriverId = number
+type NetworkCarId = number
+type CurrentFocusedPart = number
 
 export type VehicleStateUpdateSchema = [VehicleState, NetworkCarId?, CurrentFocusedPart?]

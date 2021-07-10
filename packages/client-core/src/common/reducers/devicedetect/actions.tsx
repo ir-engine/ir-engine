@@ -1,21 +1,20 @@
-import { DETECT_DEVICE_TYPE } from "../../../user/reducers/actions";
-import {Dispatch} from 'redux';
-
+import { DETECT_DEVICE_TYPE } from '../../../user/reducers/actions'
+import { Dispatch } from 'redux'
 
 export interface DeviceDetectState {
-  isDetected: boolean;
+  isDetected: boolean
   content: {
-    device: any,
-    WebXRSupported: boolean,
+    device: any
+    WebXRSupported: boolean
     touchDetected: boolean
-  };
+  }
 }
 
 export interface DeviceDetectAction {
-  type: string;
-  content: DeviceDetectState['content'];
+  type: string
+  content: DeviceDetectState['content']
 }
 
-export function getDeviceType(content:DeviceDetectState['content']) : DeviceDetectAction {
-  return {type:DETECT_DEVICE_TYPE, content};
+export function getDeviceType(content: DeviceDetectState['content']): DeviceDetectAction {
+  return { type: DETECT_DEVICE_TYPE, content }
 }

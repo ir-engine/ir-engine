@@ -1,6 +1,6 @@
-import { Types } from "../../ecs//types/Types";
-import { Component } from "../../ecs/classes/Component";
-import { ParticleEmitterMesh } from "../functions/ParticleEmitterMesh";
+import { Types } from '../../ecs//types/Types'
+import { Component } from '../../ecs/classes/Component'
+import { ParticleEmitterMesh } from '../functions/ParticleEmitterMesh'
 
 /** Class component for particle emitter. */
 export class ParticleEmitterComponent extends Component<ParticleEmitterComponent> {
@@ -44,7 +44,7 @@ export class ParticleEmitterComponent extends Component<ParticleEmitterComponent
 
 ParticleEmitterComponent._schema = {
   ...ParticleEmitterComponent._schema,
-  particleEmitterMesh: { type: Types.Ref, default: null },
+  particleEmitterMesh: { type: Types.Ref, default: null }
   // particleMesh: { type: Types.Ref, default: new Mesh() },
   // src: { type: Types.String, default: null },
 
@@ -72,4 +72,4 @@ ParticleEmitterComponent._schema = {
   // endVelocity: { type: Types.Ref, default: new Vector3(0, 0, 0.5)},
   // angularVelocity: { type: Types.String, default: 0 },
   // velocityCurve: { type: Types.String, default: 'linear' },
-};
+}

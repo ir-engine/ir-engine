@@ -1,17 +1,19 @@
-import { extractConvParamsFactory } from '../common/extractConvParamsFactory';
-import { extractSeparableConvParamsFactory } from '../common/extractSeparableConvParamsFactory';
-import { extractWeightsFactory } from '../common/extractWeightsFactory';
-import { ExtractWeightsFunction, ParamMapping } from '../common/types';
-import { range } from '../utils';
-import { MainBlockParams, ReductionBlockParams, TinyXceptionParams } from './types';
+import { extractConvParamsFactory } from '../common/extractConvParamsFactory'
+import { extractSeparableConvParamsFactory } from '../common/extractSeparableConvParamsFactory'
+import { extractWeightsFactory } from '../common/extractWeightsFactory'
+import { ExtractWeightsFunction, ParamMapping } from '../common/types'
+import { range } from '../utils'
+import { MainBlockParams, ReductionBlockParams, TinyXceptionParams } from './types'
 
 function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings: ParamMapping[]) {
-
   const extractConvParams = extractConvParamsFactory(extractWeights, paramMappings)
   const extractSeparableConvParams = extractSeparableConvParamsFactory(extractWeights, paramMappings)
 
-  function extractReductionBlockParams(channelsIn: number, channelsOut: number, mappedPrefix: string): ReductionBlockParams {
-
+  function extractReductionBlockParams(
+    channelsIn: number,
+    channelsOut: number,
+    mappedPrefix: string
+  ): ReductionBlockParams {
     const separable_conv0 = extractSeparableConvParams(channelsIn, channelsOut, `${mappedPrefix}/separable_conv0`)
     const separable_conv1 = extractSeparableConvParams(channelsOut, channelsOut, `${mappedPrefix}/separable_conv1`)
     const expansion_conv = extractConvParams(channelsIn, channelsOut, 1, `${mappedPrefix}/expansion_conv`)
@@ -20,7 +22,6 @@ function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings
   }
 
   function extractMainBlockParams(channels: number, mappedPrefix: string): MainBlockParams {
-
     const separable_conv0 = extractSeparableConvParams(channels, channels, `${mappedPrefix}/separable_conv0`)
     const separable_conv1 = extractSeparableConvParams(channels, channels, `${mappedPrefix}/separable_conv1`)
     const separable_conv2 = extractSeparableConvParams(channels, channels, `${mappedPrefix}/separable_conv2`)
@@ -34,24 +35,18 @@ function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings
     extractReductionBlockParams,
     extractMainBlockParams
   }
-
 }
 
-export function extractParams(weights: Float32Array, numMainBlocks: number): { params: TinyXceptionParams, paramMappings: ParamMapping[] } {
-
+export function extractParams(
+  weights: Float32Array,
+  numMainBlocks: number
+): { params: TinyXceptionParams; paramMappings: ParamMapping[] } {
   const paramMappings: ParamMapping[] = []
 
-  const {
-    extractWeights,
-    getRemainingWeights
-  } = extractWeightsFactory(weights)
+  const { extractWeights, getRemainingWeights } = extractWeightsFactory(weights)
 
-  const {
-    extractConvParams,
-    extractSeparableConvParams,
-    extractReductionBlockParams,
-    extractMainBlockParams
-  } = extractorsFactory(extractWeights, paramMappings)
+  const { extractConvParams, extractSeparableConvParams, extractReductionBlockParams, extractMainBlockParams } =
+    extractorsFactory(extractWeights, paramMappings)
 
   const entry_flow_conv_in = extractConvParams(3, 32, 3, 'entry_flow/conv_in')
   const entry_flow_reduction_block_0 = extractReductionBlockParams(32, 64, 'entry_flow/reduction_block_0')

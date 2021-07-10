@@ -1,6 +1,6 @@
-import { getCenterPoint } from '../utils';
-import { FaceLandmarks } from './FaceLandmarks';
-import { Point } from './Point';
+import { getCenterPoint } from '../utils'
+import { FaceLandmarks } from './FaceLandmarks'
+import { Point } from './Point'
 
 export class FaceLandmarks68 extends FaceLandmarks {
   public getJawOutline(): Point[] {
@@ -32,10 +32,6 @@ export class FaceLandmarks68 extends FaceLandmarks {
   }
 
   protected getRefPointsForAlignment(): Point[] {
-    return [
-      this.getLeftEye(),
-      this.getRightEye(),
-      this.getMouth()
-    ].map(getCenterPoint)
+    return [this.getLeftEye(), this.getRightEye(), this.getMouth()].map(getCenterPoint)
   }
 }

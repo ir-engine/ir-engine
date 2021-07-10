@@ -1,6 +1,6 @@
-import { Sky } from "../../scene/classes/Sky";
-import { Component } from '../../ecs/classes/Component';
-import { Types } from '../../ecs/types/Types';
+import { Sky } from '../../scene/classes/Sky'
+import { Component } from '../../ecs/classes/Component'
+import { Types } from '../../ecs/types/Types'
 
 export class SkyboxComponent extends Component<SkyboxComponent> {
   value: Sky
@@ -8,4 +8,4 @@ export class SkyboxComponent extends Component<SkyboxComponent> {
 
 SkyboxComponent._schema = {
   value: { type: Types.Ref, default: null }
-};
+}

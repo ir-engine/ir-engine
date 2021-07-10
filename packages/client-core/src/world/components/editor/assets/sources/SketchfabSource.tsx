@@ -1,64 +1,64 @@
-import ModelMediaSource from "../ModelMediaSource";
-import { TransformPivot } from "@xrengine/engine/src/editor/controls/EditorControls";
-import i18n from "i18next";
+import ModelMediaSource from '../ModelMediaSource'
+import { TransformPivot } from '@xrengine/engine/src/editor/controls/EditorControls'
+import i18n from 'i18next'
 
 /**
  * SketchfabSource component used to provide visual object from sketchfab.
- * 
+ *
  * @author Robert Long
  * @type {class}
  */
-export  class SketchfabSource extends ModelMediaSource {
-  tags: any;
-  searchLegalCopy: string;
-  privacyPolicyUrl: string;
-  transformPivot: string;
+export class SketchfabSource extends ModelMediaSource {
+  tags: any
+  searchLegalCopy: string
+  privacyPolicyUrl: string
+  transformPivot: string
 
   //initializing variables for this component
   constructor(api) {
-    super(api);
-    this.id = "sketchfab";
-    this.name = i18n.t('editor:sources.sketchfab.name');
+    super(api)
+    this.id = 'sketchfab'
+    this.name = i18n.t('editor:sources.sketchfab.name')
 
     //Array containing tag options and used to show navbar for tags
     this.tags = [
       {
         disabled: true,
-        label: "Categories",
-        value: "categories",
+        label: 'Categories',
+        value: 'categories',
         children: [
-          { label: "Featured", value: "featured" },
-          { label: "Animals", value: "animals-pets" },
-          { label: "Architecture", value: "architecture" },
-          { label: "Art", value: "art-abstract" },
-          { label: "Vehicles", value: "cars-vehicles" },
-          { label: "Characters", value: "characters-creatures" },
-          { label: "Culture", value: "cultural-heritage-history" },
-          { label: "Gadgets", value: "electronics-gadgets" },
-          { label: "Fashion", value: "fashion-style" },
-          { label: "Food", value: "food-drink" },
-          { label: "Furniture", value: "furniture-home" },
-          { label: "Music", value: "music" },
-          { label: "Nature", value: "nature-plants" },
-          { label: "News", value: "news-politics" },
-          { label: "People", value: "people" },
-          { label: "Places", value: "places-travel" },
-          { label: "Science", value: "science-technology" },
-          { label: "Sports", value: "sports-fitness" },
-          { label: "Weapons", value: "weapons-military" }
+          { label: 'Featured', value: 'featured' },
+          { label: 'Animals', value: 'animals-pets' },
+          { label: 'Architecture', value: 'architecture' },
+          { label: 'Art', value: 'art-abstract' },
+          { label: 'Vehicles', value: 'cars-vehicles' },
+          { label: 'Characters', value: 'characters-creatures' },
+          { label: 'Culture', value: 'cultural-heritage-history' },
+          { label: 'Gadgets', value: 'electronics-gadgets' },
+          { label: 'Fashion', value: 'fashion-style' },
+          { label: 'Food', value: 'food-drink' },
+          { label: 'Furniture', value: 'furniture-home' },
+          { label: 'Music', value: 'music' },
+          { label: 'Nature', value: 'nature-plants' },
+          { label: 'News', value: 'news-politics' },
+          { label: 'People', value: 'people' },
+          { label: 'Places', value: 'places-travel' },
+          { label: 'Science', value: 'science-technology' },
+          { label: 'Sports', value: 'sports-fitness' },
+          { label: 'Weapons', value: 'weapons-military' }
         ]
       },
       {
         disabled: true,
-        label: "Collections",
-        value: "collections",
+        label: 'Collections',
+        value: 'collections',
         children: [
           {
-            label: "Hubs Scene Props",
-            value: "51b7fd61abd04bc888cc8e7146125741",
-            paramsKey: "collection",
+            label: 'Hubs Scene Props',
+            value: '51b7fd61abd04bc888cc8e7146125741',
+            paramsKey: 'collection',
             initialNodeProps: {
-              initialScale: "fit",
+              initialScale: 'fit',
               castShadow: true,
               receiveShadow: true
             },
@@ -67,11 +67,11 @@ export  class SketchfabSource extends ModelMediaSource {
             }
           },
           {
-            label: "Hubs Recommended Props",
-            value: "6cc8879692694161b1208c4626c48aba",
-            paramsKey: "collection",
+            label: 'Hubs Recommended Props',
+            value: '6cc8879692694161b1208c4626c48aba',
+            paramsKey: 'collection',
             initialNodeProps: {
-              initialScale: "fit"
+              initialScale: 'fit'
             },
             itemProps: {
               transformPivot: TransformPivot.Bottom
@@ -79,13 +79,13 @@ export  class SketchfabSource extends ModelMediaSource {
           },
           {
             disabled: true,
-            label: "Medieval Fantasy Contest",
-            value: "medieval-fantasy-contest",
+            label: 'Medieval Fantasy Contest',
+            value: 'medieval-fantasy-contest',
             children: [
               {
-                label: "Medieval City Builder - by Eanorien",
-                value: "355623519b124985a08c4370d93a3810",
-                paramsKey: "collection",
+                label: 'Medieval City Builder - by Eanorien',
+                value: '355623519b124985a08c4370d93a3810',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -96,9 +96,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Sky Castle - by Alok",
-                value: "bdf05d92317b4bfba9ffd81fea39a368",
-                paramsKey: "collection",
+                label: 'Sky Castle - by Alok',
+                value: 'bdf05d92317b4bfba9ffd81fea39a368',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -109,9 +109,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Middle Ages Mine - by Vladislav Laryushin",
-                value: "d106792122154e8ba89b5f28f1889f8b",
-                paramsKey: "collection",
+                label: 'Middle Ages Mine - by Vladislav Laryushin',
+                value: 'd106792122154e8ba89b5f28f1889f8b',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -122,9 +122,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Medieval Labyrinth - by NomadKing",
-                value: "965f436a8aff41548cc5fa689ac114b8",
-                paramsKey: "collection",
+                label: 'Medieval Labyrinth - by NomadKing',
+                value: '965f436a8aff41548cc5fa689ac114b8',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -135,9 +135,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Medieval Town Port - by lakos",
-                value: "6c227e9f36fc4558a23de3f4af9a5c80",
-                paramsKey: "collection",
+                label: 'Medieval Town Port - by lakos',
+                value: '6c227e9f36fc4558a23de3f4af9a5c80',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -148,9 +148,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Assassin Hideout - by marti3d",
-                value: "05c5c177f1c7403597c18b6c14886b63",
-                paramsKey: "collection",
+                label: 'Assassin Hideout - by marti3d',
+                value: '05c5c177f1c7403597c18b6c14886b63',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -161,9 +161,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Medieval Castle with Village - by Artbake Graphics",
-                value: "39a126f30394489d9de6af7f452d553a",
-                paramsKey: "collection",
+                label: 'Medieval Castle with Village - by Artbake Graphics',
+                value: '39a126f30394489d9de6af7f452d553a',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -174,9 +174,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Medieval Fantasy Book - by Pixel",
-                value: "cf717f81734b4eefba9f17e9e6a1c9e4",
-                paramsKey: "collection",
+                label: 'Medieval Fantasy Book - by Pixel',
+                value: 'cf717f81734b4eefba9f17e9e6a1c9e4',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -188,8 +188,8 @@ export  class SketchfabSource extends ModelMediaSource {
               },
               {
                 label: "Blacksmith's Workshop - by Kyan0s",
-                value: "a013c33e56a44b479cc527e2dc992b7f",
-                paramsKey: "collection",
+                value: 'a013c33e56a44b479cc527e2dc992b7f',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -200,9 +200,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Castle, Siege, Army - by BlackSpire",
-                value: "53b764aab88b472ebe4ad80c4148c336",
-                paramsKey: "collection",
+                label: 'Castle, Siege, Army - by BlackSpire',
+                value: '53b764aab88b472ebe4ad80c4148c336',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -213,9 +213,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Treasure Island - by rogueisland",
-                value: "8f14c1d6b54d467784dfccb82aa882eb",
-                paramsKey: "collection",
+                label: 'Treasure Island - by rogueisland',
+                value: '8f14c1d6b54d467784dfccb82aa882eb',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -226,9 +226,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Medieval Country Village - by David",
-                value: "2c995b31f2774df1b8fac87e65b1752d",
-                paramsKey: "collection",
+                label: 'Medieval Country Village - by David',
+                value: '2c995b31f2774df1b8fac87e65b1752d',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -239,9 +239,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Mobile Dragon Shop - by Nive",
-                value: "ef4745784f664105a76d009d56004f15",
-                paramsKey: "collection",
+                label: 'Mobile Dragon Shop - by Nive',
+                value: 'ef4745784f664105a76d009d56004f15',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -252,9 +252,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "The Tavern - by François Espagnet",
-                value: "9983f117e3a8471da0076e8dadce2438",
-                paramsKey: "collection",
+                label: 'The Tavern - by François Espagnet',
+                value: '9983f117e3a8471da0076e8dadce2438',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -265,9 +265,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Dragon Attack Aftermath - by Guillermo T",
-                value: "d5445aa9dc8a457bb225c4d4ce9ce97f",
-                paramsKey: "collection",
+                label: 'Dragon Attack Aftermath - by Guillermo T',
+                value: 'd5445aa9dc8a457bb225c4d4ce9ce97f',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -278,9 +278,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Building Modules - by Tobal",
-                value: "ca06c20e01a1405f9bc444fe36cdc175",
-                paramsKey: "collection",
+                label: 'Building Modules - by Tobal',
+                value: 'ca06c20e01a1405f9bc444fe36cdc175',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -292,8 +292,8 @@ export  class SketchfabSource extends ModelMediaSource {
               },
               {
                 label: "The Great Sorcerer's Room - by moyicat",
-                value: "316a36ae8dac4ab281baa79f79ef38c2",
-                paramsKey: "collection",
+                value: '316a36ae8dac4ab281baa79f79ef38c2',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -304,9 +304,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Plateau Sanctuary - by BenjiToddArtist",
-                value: "4409d7ed90054082bf9e626cde88a9a9",
-                paramsKey: "collection",
+                label: 'Plateau Sanctuary - by BenjiToddArtist',
+                value: '4409d7ed90054082bf9e626cde88a9a9',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -317,9 +317,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Throne Room - by tuturu",
-                value: "e3ad5aebeaa84806afcc4b0efe4ae39b",
-                paramsKey: "collection",
+                label: 'Throne Room - by tuturu',
+                value: 'e3ad5aebeaa84806afcc4b0efe4ae39b',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -330,9 +330,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Dark Age Motte and Bailey - by MattMakesSwords",
-                value: "50758d11ea7146378f96440655682ce0",
-                paramsKey: "collection",
+                label: 'Dark Age Motte and Bailey - by MattMakesSwords',
+                value: '50758d11ea7146378f96440655682ce0',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 2.25,
                   castShadow: true,
@@ -343,9 +343,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Market Square - by Feyfolken",
-                value: "50b5b42e549748418f93354c785a195c",
-                paramsKey: "collection",
+                label: 'Market Square - by Feyfolken',
+                value: '50b5b42e549748418f93354c785a195c',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -356,9 +356,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Cemetary Fantasy Battle - by daniel_slusarz",
-                value: "7eaba35bf3e54475b8ecefa0e7725bb8",
-                paramsKey: "collection",
+                label: 'Cemetary Fantasy Battle - by daniel_slusarz',
+                value: '7eaba35bf3e54475b8ecefa0e7725bb8',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 0.01,
                   castShadow: true,
@@ -370,8 +370,8 @@ export  class SketchfabSource extends ModelMediaSource {
               },
               {
                 label: `"The Drunk Troll" Tavern - by mrrobot`,
-                value: "b0e926a29dd644e48fd4c40fd416f0b8",
-                paramsKey: "collection",
+                value: 'b0e926a29dd644e48fd4c40fd416f0b8',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 0.04,
                   castShadow: true,
@@ -382,9 +382,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Siege Equipment - by Carrigan Raketic",
-                value: "cc6b26d45b2a4d45be66ccdc80d5ba86",
-                paramsKey: "collection",
+                label: 'Siege Equipment - by Carrigan Raketic',
+                value: 'cc6b26d45b2a4d45be66ccdc80d5ba86',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 3,
                   castShadow: true,
@@ -398,13 +398,13 @@ export  class SketchfabSource extends ModelMediaSource {
           },
           {
             disabled: true,
-            label: "Hubs Clubhouse Contest",
-            value: "hubs-clubhouse-contest",
+            label: 'Hubs Clubhouse Contest',
+            value: 'hubs-clubhouse-contest',
             children: [
               {
-                label: "Mozilla Playground - by Tombolaso",
-                value: "cfdeae6bb4ba480e9ca0c52b6a7965bd",
-                paramsKey: "collection",
+                label: 'Mozilla Playground - by Tombolaso',
+                value: 'cfdeae6bb4ba480e9ca0c52b6a7965bd',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -430,8 +430,8 @@ export  class SketchfabSource extends ModelMediaSource {
               // },
               {
                 label: "Wizard's Library - by mediochrea",
-                value: "9ed3d50e891d4261a6b31d664869d419",
-                paramsKey: "collection",
+                value: '9ed3d50e891d4261a6b31d664869d419',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 0.01,
                   castShadow: true,
@@ -442,9 +442,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Tree House - by grigoriyarx",
-                value: "6e739d5f763043769828569164d6fad0",
-                paramsKey: "collection",
+                label: 'Tree House - by grigoriyarx',
+                value: '6e739d5f763043769828569164d6fad0',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -455,9 +455,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Theatre - by daedaljs",
-                value: "aede4e128b284e9d9672038bdbfd8423",
-                paramsKey: "collection",
+                label: 'Theatre - by daedaljs',
+                value: 'aede4e128b284e9d9672038bdbfd8423',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -468,9 +468,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Round Table Room - by plasmaernst",
-                value: "486d77de949749a998e1be80b7be5bd6",
-                paramsKey: "collection",
+                label: 'Round Table Room - by plasmaernst',
+                value: '486d77de949749a998e1be80b7be5bd6',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 0.01,
                   castShadow: true,
@@ -481,9 +481,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Space Dome - by rudolfs",
-                value: "ce3cdb49e8144b51a8beb3a5b3aa191c",
-                paramsKey: "collection",
+                label: 'Space Dome - by rudolfs',
+                value: 'ce3cdb49e8144b51a8beb3a5b3aa191c',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 0.01,
                   castShadow: true,
@@ -494,9 +494,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Summer Festival - by proxy_doug",
-                value: "44fc5a8ed00943fd82002c78027bfe3e",
-                paramsKey: "collection",
+                label: 'Summer Festival - by proxy_doug',
+                value: '44fc5a8ed00943fd82002c78027bfe3e',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -521,9 +521,9 @@ export  class SketchfabSource extends ModelMediaSource {
               //   }
               // },
               {
-                label: "Space Smugglers Clubhouse - by sawcisson",
-                value: "9edad35200f44fc09c42ddd5fca73c8e",
-                paramsKey: "collection",
+                label: 'Space Smugglers Clubhouse - by sawcisson',
+                value: '9edad35200f44fc09c42ddd5fca73c8e',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -534,9 +534,9 @@ export  class SketchfabSource extends ModelMediaSource {
                 }
               },
               {
-                label: "Morning Dew Coffee Shop - by CameronMckenzie",
-                value: "4a4511d656374c79a743c4b17efea961",
-                paramsKey: "collection",
+                label: 'Morning Dew Coffee Shop - by CameronMckenzie',
+                value: '4a4511d656374c79a743c4b17efea961',
+                paramsKey: 'collection',
                 initialNodeProps: {
                   initialScale: 1,
                   castShadow: true,
@@ -550,11 +550,11 @@ export  class SketchfabSource extends ModelMediaSource {
           }
         ]
       }
-    ];
-    this.searchLegalCopy = i18n.t('editor:sources.sketchfab.search');
-    this.privacyPolicyUrl = "https://sketchfab.com/privacy";
-    this.transformPivot = TransformPivot.Bottom;
+    ]
+    this.searchLegalCopy = i18n.t('editor:sources.sketchfab.search')
+    this.privacyPolicyUrl = 'https://sketchfab.com/privacy'
+    this.transformPivot = TransformPivot.Bottom
   }
 }
 
-export default SketchfabSource;
+export default SketchfabSource

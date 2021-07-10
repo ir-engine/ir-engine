@@ -1,30 +1,28 @@
-import { ServiceAddons } from "@feathersjs/feathers";
-import hooks from "./Bot-command.hooks"; 
-import { Application } from "../../../declarations";
-import { BotCommand } from "./bot-command.class";
-import createModel from "./bot-command.model";
-import docs from "./bot-command.docs";
+import { ServiceAddons } from '@feathersjs/feathers'
+import hooks from './Bot-command.hooks'
+import { Application } from '../../../declarations'
+import { BotCommand } from './bot-command.class'
+import createModel from './bot-command.model'
+import docs from './bot-command.docs'
 
-declare module "../../../declarations" {
-
-    interface ServiceTypes {
-        "bot-command": BotCommand & ServiceAddons<any>
-    }
+declare module '../../../declarations' {
+  interface ServiceTypes {
+    'bot-command': BotCommand & ServiceAddons<any>
+  }
 }
 
 export default (app: Application): void => {
-    const options = {
-        Model: createModel(app),
-        paginate: app.get("paginate"),
-        multi: true
-    };
+  const options = {
+    Model: createModel(app),
+    paginate: app.get('paginate'),
+    multi: true
+  }
 
-    const event = new BotCommand(options, app);
-    event.docs = docs; 
-    app.use("/bot-command", event);
+  const event = new BotCommand(options, app)
+  event.docs = docs
+  app.use('/bot-command', event)
 
-    const service = app.service("bot-command");
+  const service = app.service('bot-command')
 
-    service.hooks(hooks as any);
-    
-};
+  service.hooks(hooks as any)
+}

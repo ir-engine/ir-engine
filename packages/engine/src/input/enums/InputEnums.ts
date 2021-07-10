@@ -22,7 +22,7 @@ export enum TouchInputs {
   SwipeRight = 18,
   SwipeUp = 19,
   SwipeDown = 20,
-  Scale = 21,
+  Scale = 21
 }
 
 export enum XRAxes {
@@ -67,4 +67,4 @@ export const CameraInput = {
   Pucker: 107,
   Widen: 108,
   Open: 109
-};
+}

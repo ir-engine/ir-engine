@@ -1,12 +1,12 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { Params } from '@feathersjs/feathers';
-import { SequelizeServiceOptions, Service } from 'feathers-sequelize';
-import { QueryTypes } from 'sequelize';
-import { Application } from '../../../declarations';
-import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils';
-import { getCreatorByUserId } from '../util/getCreator';
+import { Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { QueryTypes } from 'sequelize'
+import { Application } from '../../../declarations'
+import { extractLoggedInUserFromParams } from '../../user/auth-management/auth-management.utils'
+import { getCreatorByUserId } from '../util/getCreator'
 
 /**
  * A class for ARC Feed service
@@ -17,10 +17,9 @@ export class Notifications extends Service {
   docs: any
 
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
-    super(options);
-    this.app = app;
+    super(options)
+    this.app = app
   }
-
 
   /**
    * @function find it is used to find specific users
@@ -29,34 +28,36 @@ export class Notifications extends Service {
    * @returns {@Array} of found users
    */
 
-   async find (params: Params): Promise<any> {
-    let action = params.action;   
-    const creatorId = await getCreatorByUserId(extractLoggedInUserFromParams(params)?.userId, this.app.get('sequelizeClient')) ;
-    
-    if(action === 'getNotificationId'){
-      const feedId = params.feedId;
-      const type = params.type;
+  async find(params: Params): Promise<any> {
+    let action = params.action
+    const creatorId = await getCreatorByUserId(
+      extractLoggedInUserFromParams(params)?.userId,
+      this.app.get('sequelizeClient')
+    )
+
+    if (action === 'getNotificationId') {
+      const feedId = params.feedId
+      const type = params.type
 
       const dataQuery = `SELECT id 
       FROM \`notifications\` 
-      WHERE feedId=:feedId AND creatorAuthorId=:creatorId AND type=:type`;
-    
-      const [notification] = await this.app.get('sequelizeClient').query(dataQuery,
-      {
+      WHERE feedId=:feedId AND creatorAuthorId=:creatorId AND type=:type`
+
+      const [notification] = await this.app.get('sequelizeClient').query(dataQuery, {
         type: QueryTypes.SELECT,
         raw: true,
         replacements: {
-          feedId, 
+          feedId,
           creatorId,
           type
         }
-      });
-      return notification;
+      })
+      return notification
     }
 
-    action = params.query?.action;
-    if(action === 'byCurrentCreator'){
-        const dataQuery = `SELECT notifications.*, sr.url as previewUrl, creator.username as creator_username,  sr2.url as avatar, comments.text as comment_text 
+    action = params.query?.action
+    if (action === 'byCurrentCreator') {
+      const dataQuery = `SELECT notifications.*, sr.url as previewUrl, creator.username as creator_username,  sr2.url as avatar, comments.text as comment_text 
         FROM \`notifications\` as notifications
         LEFT JOIN \`feed\` as feed ON feed.id=notifications.feedId
         LEFT JOIN \`static_resource\` as sr ON sr.id=feed.previewId
@@ -64,21 +65,17 @@ export class Notifications extends Service {
         LEFT JOIN \`static_resource\` as sr2 ON sr2.id=creator.avatarId
         LEFT JOIN \`comments\` as comments ON comments.id=notifications.commentId
         WHERE notifications.creatorViewerId=:creatorId 
-        ORDER BY notifications.createdAt DESC`;
+        ORDER BY notifications.createdAt DESC`
 
-        const notificationList = await this.app.get('sequelizeClient').query(dataQuery,
-        {
-          type: QueryTypes.SELECT,
-          raw: true,
-          replacements: {
-            creatorId,
-          }
-        });
-        return notificationList;
+      const notificationList = await this.app.get('sequelizeClient').query(dataQuery, {
+        type: QueryTypes.SELECT,
+        raw: true,
+        replacements: {
+          creatorId
+        }
+      })
+      return notificationList
     }
-    return 1;
+    return 1
   }
-
-
-
 }

@@ -1,4 +1,4 @@
-import { createSelector } from 'reselect';
+import { createSelector } from 'reselect'
 
-const selectState = (state: any): any => state.get('friends');
-export const selectFriendState = createSelector([selectState], (friend) => friend);
+const selectState = (state: any): any => state.get('friends')
+export const selectFriendState = createSelector([selectState], (friend) => friend)

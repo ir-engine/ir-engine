@@ -1,122 +1,128 @@
-import config from '../../appconfig';
+import config from '../../appconfig'
 
 const getAvatarURL = (avatarName) => {
   if (config.aws.s3.s3DevMode === 'local' || !config) {
-    if (avatarName.includes('.glb') || avatarName.includes('.glb')) return '/models/avatars/' + avatarName;
-    else return '/static/' + avatarName;
+    if (avatarName.includes('.glb') || avatarName.includes('.glb')) return '/models/avatars/' + avatarName
+    else return '/static/' + avatarName
   } else {
-    return 'https://s3.amazonaws.com/' + config.aws.s3.staticResourceBucket + '/' + config.aws.s3.avatarDir + '/' + avatarName;
+    return (
+      'https://s3.amazonaws.com/' +
+      config.aws.s3.staticResourceBucket +
+      '/' +
+      config.aws.s3.avatarDir +
+      '/' +
+      avatarName
+    )
   }
-};
+}
 
 export const staticResourceSeed = {
   disabled: !config || !config.db.forceRefresh,
   delete: config && config.db.forceRefresh,
   randomize: false,
   path: 'static-resource',
-  templates:
-  [
+  templates: [
     {
-      id : "d0828450-24e4-11eb-8630-81b209daf73a",
-      sid : "j9o2NLiD",
-      name : null,
-      description : null,
-      url : "https://resources.theoverlay.io/19176bb0-24e8-11eb-8630-81b209daf73a.jpeg",
-      key : "d0828450-24e4-11eb-8630-81b209daf73a.jpeg",
-      mimeType : "image/jpeg",
-      metadata : null,
-      createdAt : "2020-11-12 12:44:37",
-      updatedAt : "2020-11-12 13:08:04",
-      staticResourceType : null,
-      subscriptionLevel : null,
-      componentId : null,
-      parentResourceId : null
+      id: 'd0828450-24e4-11eb-8630-81b209daf73a',
+      sid: 'j9o2NLiD',
+      name: null,
+      description: null,
+      url: 'https://resources.theoverlay.io/19176bb0-24e8-11eb-8630-81b209daf73a.jpeg',
+      key: 'd0828450-24e4-11eb-8630-81b209daf73a.jpeg',
+      mimeType: 'image/jpeg',
+      metadata: null,
+      createdAt: '2020-11-12 12:44:37',
+      updatedAt: '2020-11-12 13:08:04',
+      staticResourceType: null,
+      subscriptionLevel: null,
+      componentId: null,
+      parentResourceId: null
     },
     {
       name: 'Sonny',
       url: getAvatarURL('Sonny.glb'),
       key: 'avatars/Sonny.glb',
-      staticResourceType: 'avatar',
+      staticResourceType: 'avatar'
     },
     {
       name: 'Sonny',
       url: getAvatarURL('Sonny.jpg'),
       key: 'avatars/Sonny.jpg',
-      staticResourceType: 'user-thumbnail',
+      staticResourceType: 'user-thumbnail'
     },
 
     {
       name: 'Razer1',
       url: getAvatarURL('Razer1.glb'),
       key: 'avatars/Razer1.glb',
-      staticResourceType: 'avatar',
+      staticResourceType: 'avatar'
     },
     {
       name: 'Razer1',
       url: getAvatarURL('Razer1.jpg'),
       key: 'avatars/Razer1.jpg',
-      staticResourceType: 'user-thumbnail',
+      staticResourceType: 'user-thumbnail'
     },
     {
       name: 'Razer2',
       url: getAvatarURL('Razer2.glb'),
       key: 'avatars/Razer2.glb',
-      staticResourceType: 'avatar',
+      staticResourceType: 'avatar'
     },
     {
       name: 'Razer2',
       url: getAvatarURL('Razer2.jpg'),
       key: 'avatars/Razer2.jpg',
-      staticResourceType: 'user-thumbnail',
+      staticResourceType: 'user-thumbnail'
     },
     {
       name: 'Razer3',
       url: getAvatarURL('Razer3.glb'),
       key: 'avatars/Razer3.glb',
-      staticResourceType: 'avatar',
+      staticResourceType: 'avatar'
     },
     {
       name: 'Razer3',
       url: getAvatarURL('Razer3.jpg'),
       key: 'avatars/Razer3.jpg',
-      staticResourceType: 'user-thumbnail',
+      staticResourceType: 'user-thumbnail'
     },
     {
       name: 'Razer4',
       url: getAvatarURL('Razer4.glb'),
       key: 'avatars/Razer4.glb',
-      staticResourceType: 'avatar',
+      staticResourceType: 'avatar'
     },
     {
       name: 'Razer4',
       url: getAvatarURL('Razer4.jpg'),
       key: 'avatars/Razer4.jpg',
-      staticResourceType: 'user-thumbnail',
+      staticResourceType: 'user-thumbnail'
     },
     {
       name: 'Razer5',
       url: getAvatarURL('Razer5.glb'),
       key: 'avatars/Razer5.glb',
-      staticResourceType: 'avatar',
+      staticResourceType: 'avatar'
     },
     {
       name: 'Razer5',
       url: getAvatarURL('Razer5.jpg'),
       key: 'avatars/Razer5.jpg',
-      staticResourceType: 'user-thumbnail',
+      staticResourceType: 'user-thumbnail'
     },
     {
       name: 'Razer6',
       url: getAvatarURL('Razer6.glb'),
       key: 'avatars/Razer6.glb',
-      staticResourceType: 'avatar',
+      staticResourceType: 'avatar'
     },
     {
       name: 'Razer6',
       url: getAvatarURL('Razer6.jpg'),
       key: 'avatars/Razer6.jpg',
-      staticResourceType: 'user-thumbnail',
-    },
+      staticResourceType: 'user-thumbnail'
+    }
     // {
     //   name: 'Allison',
     //   url: getAvatarURL('Allison.glb'),
@@ -202,4 +208,4 @@ export const staticResourceSeed = {
     //   staticResourceType: 'user-thumbnail',
     // },
   ]
-};
+}

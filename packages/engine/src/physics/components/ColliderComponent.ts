@@ -1,13 +1,12 @@
-import { Quaternion, Vector3 } from "three";
-import type { Body } from "three-physx";
-import { Component } from '../../ecs/classes/Component';
-import { Types } from '../../ecs/types/Types';
-import { ColliderTypes } from "../types/PhysicsTypes";
+import { Quaternion, Vector3 } from 'three'
+import type { Body } from 'three-physx'
+import { Component } from '../../ecs/classes/Component'
+import { Types } from '../../ecs/types/Types'
+import { ColliderTypes } from '../types/PhysicsTypes'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  */
-
 
 export class ColliderComponent extends Component<ColliderComponent> {
   bodytype: any
@@ -37,9 +36,9 @@ ColliderComponent._schema = {
   velocity: { type: Types.Vector3Type, default: new Vector3() },
   quaternion: { type: Types.QuaternionType, default: new Quaternion() },
   scale: { type: Types.Vector3Type, default: new Vector3() },
-  mesh: { type: Types.Ref, default: null},
-  vertices: { type: Types.Ref, default: null},
-  indices: { type: Types.Ref, default: null},
+  mesh: { type: Types.Ref, default: null },
+  vertices: { type: Types.Ref, default: null },
+  indices: { type: Types.Ref, default: null },
   collisionLayer: { type: Types.Number, default: null },
   collisionMask: { type: Types.Number, default: -1 }
-};
+}

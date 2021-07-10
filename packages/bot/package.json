@@ -17,7 +17,8 @@
     "validate": "npm run lint && npm run test",
     "test": "echo \"TODO: Add Testing to Client\" && exit 0",
     "golf": "jest",
-    "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\""
+    "lint": "prettier --check .",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@google-cloud/agones-sdk": "1.14.0",

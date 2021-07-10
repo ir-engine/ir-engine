@@ -1,5 +1,4 @@
-
 export interface SocketCreatedAction {
-  type: string;
-  socket: any;
+  type: string
+  socket: any
 }

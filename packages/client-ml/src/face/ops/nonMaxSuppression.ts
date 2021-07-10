@@ -1,21 +1,15 @@
-import { Box } from '../classes/Box';
-import { iou } from './iou';
+import { Box } from '../classes/Box'
+import { iou } from './iou'
 
-export function nonMaxSuppression(
-  boxes: Box[],
-  scores: number[],
-  iouThreshold: number,
-  isIOU = true
-): number[] {
-
+export function nonMaxSuppression(boxes: Box[], scores: number[], iouThreshold: number, isIOU = true): number[] {
   let indicesSortedByScore = scores
     .map((score, boxIndex) => ({ score, boxIndex }))
     .sort((c1, c2) => c1.score - c2.score)
-    .map(c => c.boxIndex)
+    .map((c) => c.boxIndex)
 
   const pick: number[] = []
 
-  while(indicesSortedByScore.length > 0) {
+  while (indicesSortedByScore.length > 0) {
     const curr = indicesSortedByScore.pop() as number
     pick.push(curr)
 
@@ -31,11 +25,8 @@ export function nonMaxSuppression(
       outputs.push(iou(currBox, idxBox, isIOU))
     }
 
-    indicesSortedByScore = indicesSortedByScore.filter(
-      (_, j) => outputs[j] <= iouThreshold
-    )
+    indicesSortedByScore = indicesSortedByScore.filter((_, j) => outputs[j] <= iouThreshold)
   }
 
   return pick
-
 }

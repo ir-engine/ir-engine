@@ -1,7 +1,7 @@
-import { IDimensions } from '../classes/Dimensions';
-import { IPoint } from '../classes/Point';
-import { getContext2dOrThrow } from '../dom/getContext2dOrThrow';
-import { resolveInput } from '../dom/resolveInput';
+import { IDimensions } from '../classes/Dimensions'
+import { IPoint } from '../classes/Point'
+import { getContext2dOrThrow } from '../dom/getContext2dOrThrow'
+import { resolveInput } from '../dom/resolveInput'
 
 export enum AnchorPosition {
   TOP_LEFT = 'TOP_LEFT',
@@ -40,29 +40,23 @@ export class DrawTextFieldOptions implements IDrawTextFieldOptions {
 
 export class DrawTextField {
   public text: string[]
-  public anchor : IPoint
+  public anchor: IPoint
   public options: DrawTextFieldOptions
 
-  constructor(
-    text: string | string[] | DrawTextField,
-    anchor: IPoint,
-    options: IDrawTextFieldOptions = {}
-  ) {
-    this.text = typeof text === 'string'
-      ? [text]
-      : (text instanceof DrawTextField ? text.text : text)
+  constructor(text: string | string[] | DrawTextField, anchor: IPoint, options: IDrawTextFieldOptions = {}) {
+    this.text = typeof text === 'string' ? [text] : text instanceof DrawTextField ? text.text : text
     this.anchor = anchor
     this.options = new DrawTextFieldOptions(options)
   }
 
   measureWidth(ctx: CanvasRenderingContext2D): number {
     const { padding } = this.options
-    return this.text.map(l => ctx.measureText(l).width).reduce((w0, w1) => w0 < w1 ? w1 : w0, 0) + (2 * padding)
+    return this.text.map((l) => ctx.measureText(l).width).reduce((w0, w1) => (w0 < w1 ? w1 : w0), 0) + 2 * padding
   }
 
   measureHeight(): number {
     const { fontSize, padding } = this.options
-    return this.text.length * fontSize + (2 * padding)
+    return this.text.length * fontSize + 2 * padding
   }
 
   getUpperLeft(ctx: CanvasRenderingContext2D, canvasDims?: IDimensions): IPoint {
@@ -72,7 +66,7 @@ export class DrawTextField {
 
     const textFieldWidth = this.measureWidth(ctx)
     const textFieldHeight = this.measureHeight()
-    const x = (isShiftLeft ? this.anchor.x - textFieldWidth : this.anchor.x)
+    const x = isShiftLeft ? this.anchor.x - textFieldWidth : this.anchor.x
     const y = isShiftTop ? this.anchor.y - textFieldHeight : this.anchor.y
 
     // adjust anchor if text box exceeds canvas borders
@@ -99,10 +93,10 @@ export class DrawTextField {
     const upperLeft = this.getUpperLeft(ctx, canvas)
     ctx.fillRect(upperLeft.x, upperLeft.y, maxTextWidth, textHeight)
 
-    ctx.fillStyle = fontColor;
+    ctx.fillStyle = fontColor
     this.text.forEach((textLine, i) => {
       const x = padding + upperLeft.x
-      const y = padding + upperLeft.y + ((i + 1) * fontSize)
+      const y = padding + upperLeft.y + (i + 1) * fontSize
       ctx.fillText(textLine, x, y)
     })
   }

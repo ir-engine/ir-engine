@@ -1,22 +1,23 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { NetInput } from '../dom/NetInput';
-import { toNetInput } from '../dom/toNetInput';
-import { TNetInput } from '../dom/types';
-import { NeuralNetwork } from '../NeuralNetwork';
-import { normalize } from '../ops';
-import { denseBlock3 } from './denseBlock';
-import { extractParamsFromWeigthMapTiny } from './extractParamsFromWeigthMapTiny';
-import { extractParamsTiny } from './extractParamsTiny';
-import { IFaceFeatureExtractor, TinyFaceFeatureExtractorParams } from './types';
+import * as tf from '@tensorflow/tfjs-core'
+import { NetInput } from '../dom/NetInput'
+import { toNetInput } from '../dom/toNetInput'
+import { TNetInput } from '../dom/types'
+import { NeuralNetwork } from '../NeuralNetwork'
+import { normalize } from '../ops'
+import { denseBlock3 } from './denseBlock'
+import { extractParamsFromWeigthMapTiny } from './extractParamsFromWeigthMapTiny'
+import { extractParamsTiny } from './extractParamsTiny'
+import { IFaceFeatureExtractor, TinyFaceFeatureExtractorParams } from './types'
 
-export class TinyFaceFeatureExtractor extends NeuralNetwork<TinyFaceFeatureExtractorParams> implements IFaceFeatureExtractor<TinyFaceFeatureExtractorParams> {
-
+export class TinyFaceFeatureExtractor
+  extends NeuralNetwork<TinyFaceFeatureExtractorParams>
+  implements IFaceFeatureExtractor<TinyFaceFeatureExtractorParams>
+{
   constructor() {
     super('TinyFaceFeatureExtractor')
   }
 
   public forwardInput(input: NetInput): tf.Tensor4D {
-
     const { params } = this
 
     if (!params) {

@@ -1,4 +1,4 @@
-import config from '../../appconfig';
+import config from '../../appconfig'
 
 export const locationTypeSeed = {
   disabled: !config.db.forceRefresh,
@@ -10,4 +10,4 @@ export const locationTypeSeed = {
     { type: 'public' }, // parse metadata for video staticResourceType (eg 360-eac)
     { type: 'showroom' }
   ]
-};
+}

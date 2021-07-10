@@ -1,13 +1,13 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import Immutable from 'immutable';
+import Immutable from 'immutable'
 import {
   CreatorsAction,
   CreatorRetrievedAction,
   CreatorsRetrievedAction,
   CreatorsNotificationsRetrievedAction
-} from './actions';
+} from './actions'
 
 import {
   CREATORS_RETRIEVED,
@@ -21,64 +21,71 @@ import {
   CREATOR_FOLLOWING_RETRIEVED,
   CREATORS_FETCH,
   CURRENT_CREATOR_FETCH
-} from '../actions';
+} from '../actions'
 
 export const initialCreatorState = {
   creators: {
     creators: [],
-    fetchingCreators:false,
+    fetchingCreators: false,
     creator: {},
     fetchingCreator: false,
     currentCreator: {},
-    fetchingCurrentCreator:false,
+    fetchingCurrentCreator: false,
     currentCreatorNotifications: {},
-    followers:[],
+    followers: [],
     following: [],
     fetching: false
-  },
-};
+  }
+}
 
-const immutableState = Immutable.fromJS(initialCreatorState);
+const immutableState = Immutable.fromJS(initialCreatorState)
 
 const creatorReducer = (state = immutableState, action: CreatorsAction): any => {
-  switch (action.type) {    
-    case CURRENT_CREATOR_FETCH : return state.set('fetchingCurrentCreator', true);
+  switch (action.type) {
+    case CURRENT_CREATOR_FETCH:
+      return state.set('fetchingCurrentCreator', true)
     case CURRENT_CREATOR_RETRIEVED:
-      return state.set('currentCreator', (action as CreatorRetrievedAction).creator).
-      set('creators', state.get('creators')?.map(creator => {
-        if(creator.id === (action as CreatorRetrievedAction).creator.id) {
-          return {...(action as CreatorRetrievedAction).creator};
-        }
-        return {...creator};
-      })).
-      set('fetchingCurrentCreator', false);
+      return state
+        .set('currentCreator', (action as CreatorRetrievedAction).creator)
+        .set(
+          'creators',
+          state.get('creators')?.map((creator) => {
+            if (creator.id === (action as CreatorRetrievedAction).creator.id) {
+              return { ...(action as CreatorRetrievedAction).creator }
+            }
+            return { ...creator }
+          })
+        )
+        .set('fetchingCurrentCreator', false)
 
-    case CREATOR_FETCH : return state.set('fetchingCreator', true).set('creator',{});
-    case CREATOR_RETRIEVED: 
-      return state.set('creator', (action as CreatorRetrievedAction).creator).set('fetchingCreator', false);
+    case CREATOR_FETCH:
+      return state.set('fetchingCreator', true).set('creator', {})
+    case CREATOR_RETRIEVED:
+      return state.set('creator', (action as CreatorRetrievedAction).creator).set('fetchingCreator', false)
 
-    case CREATORS_FETCH : return state.set('fetchingCreators', true).set('creators',[]);
+    case CREATORS_FETCH:
+      return state.set('fetchingCreators', true).set('creators', [])
     case CREATORS_RETRIEVED:
-      return state.set('creators', (action as CreatorsRetrievedAction).creators).set('fetchingCreators', false); 
-    
+      return state.set('creators', (action as CreatorsRetrievedAction).creators).set('fetchingCreators', false)
 
     case CREATOR_NOTIFICATION_LIST_RETRIEVED:
-      return state.set('currentCreatorNotifications', (action as CreatorsNotificationsRetrievedAction).notifications).set('fetching', false);
+      return state
+        .set('currentCreatorNotifications', (action as CreatorsNotificationsRetrievedAction).notifications)
+        .set('fetching', false)
 
     case SET_CREATOR_AS_FOLLOWED:
-      return state.set('creator', {...state.get('creator'), followed:true});
-    
+      return state.set('creator', { ...state.get('creator'), followed: true })
+
     case SET_CREATOR_NOT_FOLLOWED:
-        return state.set('creator', {...state.get('creator'), followed:false});
+      return state.set('creator', { ...state.get('creator'), followed: false })
 
     case CREATOR_FOLLOWERS_RETRIEVED:
-        return state.set('followers', (action as CreatorsRetrievedAction).creators);
+      return state.set('followers', (action as CreatorsRetrievedAction).creators)
 
     case CREATOR_FOLLOWING_RETRIEVED:
-      return state.set('following', (action as CreatorsRetrievedAction).creators);
-
+      return state.set('following', (action as CreatorsRetrievedAction).creators)
   }
-  return state;
-};
+  return state
+}
 
-export default creatorReducer;
+export default creatorReducer
