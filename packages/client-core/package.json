@@ -19,7 +19,7 @@
     "build": "rimraf dist && mkdir dist && ctix entrypoint ./src && node build.js",
     "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
     "buildx": "esbuild",
-    "lint": "eslint --fix --quiet \"*.ts\" \"**/*.ts\" \"**/*.tsx\"",
+    "lint": "eslint --fix \"**/*.ts\" \"**/*.tsx\"",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {

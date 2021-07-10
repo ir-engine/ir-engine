@@ -1,37 +1,11 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "es2019",
-    "lib": [
-      "es2019",
-      "dom",
-      "dom.iterable"
-    ],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": false,
-    "noEmit": false,
-    "module": "esnext",
-    "strict": false,
-    "noImplicitAny": false,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "sourceMap": true,
-    "jsx": "react",
-    "isolatedModules": false,
-    "preserveConstEnums": true,
-    "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "declaration": true
+    "outDir": "./lib"
   },
   "exclude": [
     "node_modules",
     "tests/**",
     "./**/*.d.ts"
   ],
-  "include": [
-    "./**/*.ts",
-    "./**/*.tsx"
-  ]
 }
