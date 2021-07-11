@@ -1,8 +1,7 @@
 
-import { Group, MathUtils, Matrix4,BufferAttribute, BufferGeometry, Vector4,Quaternion, Matrix3, Mesh, Object3D, Vector3, CustomBlending, SrcAlphaFactor, OneMinusSrcAlphaFactor, AddEquation, DoubleSide, ShaderMaterial, Scene } from 'three';
+import { Group, MathUtils, Matrix4, BufferAttribute, BufferGeometry, Vector4, Quaternion, Matrix3, Mesh, Object3D, Vector3, CustomBlending, SrcAlphaFactor, OneMinusSrcAlphaFactor, AddEquation, DoubleSide, ShaderMaterial, Scene } from 'three';
 import { Body, BodyType, ShapeType, SHAPES } from 'three-physx';
 import { AssetLoader } from '../../../../assets/classes/AssetLoader';
-import { boolean } from '../../../../assets/superbuffer';
 import { isClient } from '../../../../common/functions/isClient';
 import { Behavior } from '../../../../common/interfaces/Behavior';
 import { Engine } from '../../../../ecs/classes/Engine';
@@ -23,8 +22,8 @@ import { TransformComponent } from '../../../../transform/components/TransformCo
 import { GameObject } from '../../../components/GameObject';
 import { getGame } from '../../../functions/functions';
 import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants';
-import TrailRenderer from '../util/TrailRenderer';
-//import TrailRenderer from '../util/TrailRenderer';
+import TrailRenderer from '../../../../scene/classes/TrailRenderer';
+
 /**
  * @author Josh Field <github.com/HexaField>
  */
@@ -89,20 +88,23 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   ballMesh.scale.copy(transform.scale);
   ballMesh.castShadow = true;
   ballMesh.receiveShadow = true;
-  var trailHeadGeometry = [];
-  trailHeadGeometry.push( 
-    new Vector3( -10.0, 0.0, 0.0 ), 
-    new Vector3( 0.0, 0.0, 0.0 ), 
-    new Vector3( 10.0, 0.0, 0.0 ) 
+
+  // Add trail effect
+
+  const trailHeadGeometry = [];
+  trailHeadGeometry.push(
+    new Vector3(-10.0, 0.0, 0.0),
+    new Vector3(0.0, 0.0, 0.0),
+    new Vector3(10.0, 0.0, 0.0)
   );
-  var trail = new TrailRenderer( Engine.scene, false );
-  var trailMaterial = trail.createBaseMaterial({});
-  var trailLength = 150;
+  const trail = new TrailRenderer(Engine.scene, false);
+  const trailMaterial = trail.createBaseMaterial({});
+  const trailLength = 150;
   addComponent(ballEntity, Object3DComponent, { value: ballMesh });
   // TESTING HOW TO ATTACH TRAIL TO OBJECT 3D, currently not working
-  var ballEntity3DObject = getComponent(ballEntity, Object3DComponent);
+  const ballEntity3DObject = getComponent(ballEntity, Object3DComponent);
   console.log(ballEntity3DObject);
-  var ballEntityTarget = JSON.parse(JSON.stringify(ballEntity3DObject));
+  const ballEntityTarget = JSON.parse(JSON.stringify(ballEntity3DObject));
   console.log(ballEntityTarget);
   console.log(Engine.scene.getObjectById(ballEntityTarget.value.object.uuid));
   trail.initialize(trailMaterial, trailLength, false, 150, trailHeadGeometry, ballEntityTarget.value.object);
@@ -206,7 +208,7 @@ export const GolfBallPrefab: NetworkPrefab = {
     { type: LocalInterpolationComponent }
   ],
   clientComponents: [
-		{ type: InterpolationComponent },
+    { type: InterpolationComponent },
   ],
   serverComponents: [],
   onAfterCreate: [
