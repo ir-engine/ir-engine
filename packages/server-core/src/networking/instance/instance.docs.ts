@@ -1,33 +1,31 @@
 /**
- * An object for swagger documentation configiration 
- * 
+ * An object for swagger documentation configiration
+ *
  * @author Kevin KIMENYI
  */
 
 export default {
-    definitions: {
-        instance: {
-            type: 'object',
-            properties: {
-                ipAddress: {
-                    type: 'string'
-                },
-                currentUsers: {
-                    type: 'string'
-                }
-            }
+  definitions: {
+    instance: {
+      type: 'object',
+      properties: {
+        ipAddress: {
+          type: 'string'
         },
-        instance_list: {
-            type: 'array',
-            items: { $ref: '#/definitions/instance'}
+        currentUsers: {
+          type: 'string'
         }
-    },
-    securities: ['create', 'update', 'patch', 'remove'],
-    operations: {
-      find: {
-        security: [
-          { bearer: [] }
-        ]
       }
-    } 
-};
+    },
+    instance_list: {
+      type: 'array',
+      items: { $ref: '#/definitions/instance' }
+    }
+  },
+  securities: ['create', 'update', 'patch', 'remove'],
+  operations: {
+    find: {
+      security: [{ bearer: [] }]
+    }
+  }
+}

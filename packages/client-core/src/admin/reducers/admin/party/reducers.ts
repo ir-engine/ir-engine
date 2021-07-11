@@ -1,17 +1,12 @@
-import Immutable from 'immutable';
-import {
-  partyAdminCreatedResponse,
-} from './actions';
+import Immutable from 'immutable'
+import { partyAdminCreatedResponse } from './actions'
 
-import {
-  PARTY_ADMIN_CREATED,
-  PARTY_ADMIN_DISPLAYED,
-} from "../../actions";
-import { UserSeed } from '@xrengine/common/src/interfaces/User';
-import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider';
-import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser';
+import { PARTY_ADMIN_CREATED, PARTY_ADMIN_DISPLAYED } from '../../actions'
+import { UserSeed } from '@xrengine/common/src/interfaces/User'
+import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
+import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
 
-export const PAGE_LIMIT = 100;
+export const PAGE_LIMIT = 100
 
 export const initialAdminState = {
   isLoggedIn: false,
@@ -30,27 +25,27 @@ export const initialAdminState = {
     updateNeeded: true,
     lastFetched: new Date()
   }
-};
+}
 
-const immutableState = Immutable.fromJS(initialAdminState);
+const immutableState = Immutable.fromJS(initialAdminState)
 
 const adminReducer = (state = immutableState, action: any): any => {
-  let result, updateMap;
+  let result, updateMap
   switch (action.type) {
     case PARTY_ADMIN_DISPLAYED:
-      result = (action as partyAdminCreatedResponse).data;
-      updateMap = new Map(state.get("parties"));
-      updateMap.set("parties", result);
-      updateMap.set("updateNeeded", false);
-      return state.set("parties", updateMap);
+      result = (action as partyAdminCreatedResponse).data
+      updateMap = new Map(state.get('parties'))
+      updateMap.set('parties', result)
+      updateMap.set('updateNeeded', false)
+      return state.set('parties', updateMap)
 
     case PARTY_ADMIN_CREATED:
-      updateMap = new Map(state.get("parties"));
-      updateMap.set("updateNeeded", true);
-      return state.set("parties", updateMap);
-    }
+      updateMap = new Map(state.get('parties'))
+      updateMap.set('updateNeeded', true)
+      return state.set('parties', updateMap)
+  }
 
-  return state;
-};
+  return state
+}
 
-export default adminReducer;
+export default adminReducer

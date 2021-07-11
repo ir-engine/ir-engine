@@ -1,5 +1,5 @@
-import sceneReducer from './scenes/reducers';
+import sceneReducer from './scenes/reducers'
 
 export default {
   scenes: sceneReducer
-};
+}

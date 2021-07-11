@@ -1,6 +1,5 @@
-import { ServicesSeedConfig } from "@xrengine/common/src/interfaces/ServicesSeedConfig";
+import { ServicesSeedConfig } from '@xrengine/common/src/interfaces/ServicesSeedConfig'
 
-export const worldSeeds: Array<ServicesSeedConfig> = [
-  ];
+export const worldSeeds: Array<ServicesSeedConfig> = []
 
-export default worldSeeds;
+export default worldSeeds

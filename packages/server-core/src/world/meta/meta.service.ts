@@ -1,35 +1,35 @@
-import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../../declarations';
-import { Meta } from './meta.class';
-import metaDocs from './meta.docs';
-import hooks from './meta.hooks';
+import { ServiceAddons } from '@feathersjs/feathers'
+import { Application } from '../../../declarations'
+import { Meta } from './meta.class'
+import metaDocs from './meta.docs'
+import hooks from './meta.hooks'
 
 // Add this service to the service type index
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'meta': Meta & ServiceAddons<any>;
+    meta: Meta & ServiceAddons<any>
   }
 }
 
 export default (app: Application): void => {
-  const options = {};
+  const options = {}
 
   /**
-   * Initialize our service with any options it requires and docs 
-   * 
+   * Initialize our service with any options it requires and docs
+   *
    * @author Vyacheslav Solovjov
    */
-  const event = new Meta(options, app);
-  event.docs = metaDocs;
+  const event = new Meta(options, app)
+  event.docs = metaDocs
 
-  app.use('/meta', event);
+  app.use('/meta', event)
 
   /**
    * Get our initialized service so that we can register hooks
-   * 
+   *
    * @author Vyacheslav Solovjov
    */
-  const service = app.service('meta');
+  const service = app.service('meta')
 
-  service.hooks(hooks as any);
-};
+  service.hooks(hooks as any)
+}

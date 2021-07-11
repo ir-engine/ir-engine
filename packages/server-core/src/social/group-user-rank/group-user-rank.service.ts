@@ -1,13 +1,13 @@
-import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../../declarations';
-import { GroupUserRank } from './group-user-rank.class';
-import createModel from './group-user-rank.model';
-import hooks from './group-user-rank.hooks';
-import groupUserRankDocs from './group-user-rank.docs';
+import { ServiceAddons } from '@feathersjs/feathers'
+import { Application } from '../../../declarations'
+import { GroupUserRank } from './group-user-rank.class'
+import createModel from './group-user-rank.model'
+import hooks from './group-user-rank.hooks'
+import groupUserRankDocs from './group-user-rank.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'group-user-rank': GroupUserRank & ServiceAddons<any>;
+    'group-user-rank': GroupUserRank & ServiceAddons<any>
   }
 }
 
@@ -16,18 +16,18 @@ export default (app: Application): any => {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
-  };
+  }
 
   /**
-   * Initialize our service with any options it requires and docs 
-   * 
+   * Initialize our service with any options it requires and docs
+   *
    * @author Vyacheslav Solovjov
    */
-  const event = new GroupUserRank(options, app);
-  event.docs = groupUserRankDocs;
-  app.use('/group-user-rank', event);
+  const event = new GroupUserRank(options, app)
+  event.docs = groupUserRankDocs
+  app.use('/group-user-rank', event)
 
-  const service = app.service('group-user-rank');
+  const service = app.service('group-user-rank')
 
-  service.hooks(hooks as any);
-};
+  service.hooks(hooks as any)
+}

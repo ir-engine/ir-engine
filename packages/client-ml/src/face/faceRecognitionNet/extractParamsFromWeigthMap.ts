@@ -1,16 +1,14 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { disposeUnusedWeightTensors } from '../common/disposeUnusedWeightTensors';
-import { extractWeightEntryFactory } from '../common/extractWeightEntryFactory';
-import { ParamMapping } from '../common/types';
-import { isTensor2D } from '../utils';
-import { ConvLayerParams, NetParams, ResidualLayerParams, ScaleLayerParams } from './types';
+import * as tf from '@tensorflow/tfjs-core'
+import { disposeUnusedWeightTensors } from '../common/disposeUnusedWeightTensors'
+import { extractWeightEntryFactory } from '../common/extractWeightEntryFactory'
+import { ParamMapping } from '../common/types'
+import { isTensor2D } from '../utils'
+import { ConvLayerParams, NetParams, ResidualLayerParams, ScaleLayerParams } from './types'
 
 function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
-
   const extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings)
 
   function extractScaleLayerParams(prefix: string): ScaleLayerParams {
-
     const weights = extractWeightEntry<tf.Tensor1D>(`${prefix}/scale/weights`, 1)
     const biases = extractWeightEntry<tf.Tensor1D>(`${prefix}/scale/biases`, 1)
 
@@ -18,7 +16,6 @@ function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
   }
 
   function extractConvLayerParams(prefix: string): ConvLayerParams {
-
     const filters = extractWeightEntry<tf.Tensor4D>(`${prefix}/conv/filters`, 4)
     const bias = extractWeightEntry<tf.Tensor1D>(`${prefix}/conv/bias`, 1)
     const scale = extractScaleLayerParams(prefix)
@@ -37,19 +34,15 @@ function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
     extractConvLayerParams,
     extractResidualLayerParams
   }
-
 }
 
-export function extractParamsFromWeigthMap(
-  weightMap: tf.NamedTensorMap
-): { params: NetParams, paramMappings: ParamMapping[] } {
-
+export function extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): {
+  params: NetParams
+  paramMappings: ParamMapping[]
+} {
   const paramMappings: ParamMapping[] = []
 
-  const {
-    extractConvLayerParams,
-    extractResidualLayerParams
-  } = extractorsFactory(weightMap, paramMappings)
+  const { extractConvLayerParams, extractResidualLayerParams } = extractorsFactory(weightMap, paramMappings)
 
   const conv32_down = extractConvLayerParams('conv32_down')
   const conv32_1 = extractResidualLayerParams('conv32_1')

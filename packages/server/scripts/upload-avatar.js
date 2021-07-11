@@ -72,12 +72,18 @@ const AVATAR_LIST = [
     // 'Geoff',
     // 'Jace',
     // 'Karthik'
-    'Sonny'
+    'Sonny',
+    'Razer1',
+    'Razer2',
+    'Razer3',
+    'Razer4',
+    'Razer5',
+    'Razer6'
 ];
 const MODEL_PATH = process.cwd() + '/../client/public/models/avatars/';
 const THUMBNAIL_PATH = process.cwd() + '/../client/public/static/';
 const MODEL_EXTENSION = '.glb';
-const THUMBNAIL_EXTENSION = '.png';
+const THUMBNAIL_EXTENSION = '.jpg';
 const BUCKET = process.env.STORAGE_S3_STATIC_RESOURCE_BUCKET;
 const AVATAR_FOLDER = process.env.STORAGE_S3_AVATAR_DIRECTORY;
 const AVATAR_RESOURCE_TYPE = 'avatar';

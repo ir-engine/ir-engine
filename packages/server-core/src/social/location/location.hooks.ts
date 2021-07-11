@@ -1,9 +1,9 @@
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics';
-import * as authentication from '@feathersjs/authentication';
-import addAssociations from "@xrengine/server-core/src/hooks/add-associations";
-import { HookContext } from '@feathersjs/feathers';
+import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
+import * as authentication from '@feathersjs/authentication'
+import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
+import { HookContext } from '@feathersjs/feathers'
 
-const { authenticate } = authentication.hooks;
+const { authenticate } = authentication.hooks
 
 export default {
   before: {
@@ -35,21 +35,23 @@ export default {
     create: [],
     update: [],
     patch: [],
-    remove: [async (context: HookContext): Promise<HookContext> => {
-      const location = await (context.app.service('location') as any).Model.findOne({
-        where: {
-          isLobby: true,
-          id: context.id,
-        },
-        attributes: ['id', 'isLobby']
-      });
+    remove: [
+      async (context: HookContext): Promise<HookContext> => {
+        const location = await (context.app.service('location') as any).Model.findOne({
+          where: {
+            isLobby: true,
+            id: context.id
+          },
+          attributes: ['id', 'isLobby']
+        })
 
-      if (location) {
-        throw new Error("Lobby can't be deleted");
+        if (location) {
+          throw new Error("Lobby can't be deleted")
+        }
+
+        return context
       }
-
-      return context;
-    }]
+    ]
   },
 
   after: {
@@ -71,4 +73,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}

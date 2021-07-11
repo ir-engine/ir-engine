@@ -1,24 +1,21 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { NetInput } from '../dom/NetInput';
-import { toNetInput } from '../dom/toNetInput';
-import { TNetInput } from '../dom/types';
-import { NeuralNetwork } from '../NeuralNetwork';
-import { normalize } from '../ops';
-import { convDown } from './convLayer';
-import { extractParams } from './extractParams';
-import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
-import { residual, residualDown } from './residualLayer';
-import { NetParams } from './types';
-
+import * as tf from '@tensorflow/tfjs-core'
+import { NetInput } from '../dom/NetInput'
+import { toNetInput } from '../dom/toNetInput'
+import { TNetInput } from '../dom/types'
+import { NeuralNetwork } from '../NeuralNetwork'
+import { normalize } from '../ops'
+import { convDown } from './convLayer'
+import { extractParams } from './extractParams'
+import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap'
+import { residual, residualDown } from './residualLayer'
+import { NetParams } from './types'
 
 export class FaceRecognitionNet extends NeuralNetwork<NetParams> {
-
   constructor() {
     super('FaceRecognitionNet')
   }
 
   public forwardInput(input: NetInput): tf.Tensor2D {
-
     const { params } = this
 
     if (!params) {
@@ -63,22 +60,16 @@ export class FaceRecognitionNet extends NeuralNetwork<NetParams> {
     return this.forwardInput(await toNetInput(input))
   }
 
-  public async computeFaceDescriptor(input: TNetInput): Promise<Float32Array|Float32Array[]> {
+  public async computeFaceDescriptor(input: TNetInput): Promise<Float32Array | Float32Array[]> {
     const netInput = await toNetInput(input)
 
-    const faceDescriptorTensors = tf.tidy(
-      () => tf.unstack(this.forwardInput(netInput))
-    )
+    const faceDescriptorTensors = tf.tidy(() => tf.unstack(this.forwardInput(netInput)))
 
-    const faceDescriptorsForBatch = await Promise.all(faceDescriptorTensors.map(
-      t => t.data()
-    )) as Float32Array[]
+    const faceDescriptorsForBatch = (await Promise.all(faceDescriptorTensors.map((t) => t.data()))) as Float32Array[]
 
-    faceDescriptorTensors.forEach(t => t.dispose())
+    faceDescriptorTensors.forEach((t) => t.dispose())
 
-    return netInput.isBatchInput
-      ? faceDescriptorsForBatch
-      : faceDescriptorsForBatch[0]
+    return netInput.isBatchInput ? faceDescriptorsForBatch : faceDescriptorsForBatch[0]
   }
 
   protected getDefaultModelName(): string {

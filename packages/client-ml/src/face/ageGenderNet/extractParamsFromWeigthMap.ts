@@ -1,14 +1,14 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { disposeUnusedWeightTensors } from '../common/disposeUnusedWeightTensors';
-import { extractWeightEntryFactory } from '../common/extractWeightEntryFactory';
-import { ParamMapping, FCParams } from '../common/types';
+import * as tf from '@tensorflow/tfjs-core'
+import { disposeUnusedWeightTensors } from '../common/disposeUnusedWeightTensors'
+import { extractWeightEntryFactory } from '../common/extractWeightEntryFactory'
+import { ParamMapping, FCParams } from '../common/types'
 
-import { NetParams } from './types';
+import { NetParams } from './types'
 
-export function extractParamsFromWeigthMap(
-  weightMap: tf.NamedTensorMap
-): { params: NetParams, paramMappings: ParamMapping[] } {
-
+export function extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): {
+  params: NetParams
+  paramMappings: ParamMapping[]
+} {
   const paramMappings: ParamMapping[] = []
 
   const extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings)

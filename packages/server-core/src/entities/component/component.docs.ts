@@ -1,24 +1,24 @@
 /**
- * An object for swagger documentation configiration 
- * 
+ * An object for swagger documentation configiration
+ *
  * @author Kevin KIMENYI
  */
 export default {
-    definitions: {
-        component: {
-            type: 'object',
-            properties: {
-               data: {
-                   type: 'object'
-               },
-               entityId:{
-                   type: 'string'
-               }
-            }
+  definitions: {
+    component: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'object'
         },
-        component_list: {
-            type: 'array',
-            items: { $ref: '#/definitions/component'}
+        entityId: {
+          type: 'string'
         }
+      }
+    },
+    component_list: {
+      type: 'array',
+      items: { $ref: '#/definitions/component' }
     }
-};
+  }
+}

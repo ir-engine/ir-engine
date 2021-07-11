@@ -10,11 +10,14 @@
     bottom: 20px;
     width: 100vw;
     z-index: 15;
+    display: flex;
+    align-items: center;
 
     .materialIconBlock {
         display: flex;
         justify-content: center;
         align-items: center;
+        width: 4em;
 
         svg{
             width: 100%;
@@ -25,10 +28,9 @@
     }
 
     .iconContainer {
-        display: flex;
+        display: inline-flex;
         border-radius: 5px;
         background: #00000050;
-        width: 12em;
         margin: auto;
 
         .materialIconBlock {
@@ -348,6 +350,9 @@
     color: black;
     max-height: calc(100vh - 175px);
     overflow: auto;
+    touch-action: auto;
+
+    * { touch-action: auto; }
 
     &>.profilePanel, &>.accountPanel, &>.settingPanel, &>.sharePanel, &>.locationPanel { margin: 30px 0; }
 
@@ -615,7 +620,7 @@
             :global(.MuiSlider-root) {
                 &.slider {
                     color: #5F5FF1;
-                    margin-left: 10px;
+                    margin: 0 10px;
                 }
                 :global(.MuiSlider-thumb) {
                     background: #5F5FF1;
@@ -633,7 +638,7 @@
             right: 0;
 
             .checkboxBlock {
-                margin: 0;
+                margin: 0 -2px 0 0;
                 :global(.MuiCheckbox-root) {
                     margin-left: 10px;
                     margin-right: 0;

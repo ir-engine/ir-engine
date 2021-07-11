@@ -1,33 +1,33 @@
 export default {
-    definitions: {
-        'bot-command': {
-            type: 'object',
-            properties: {
-                name: {
-                    type: 'string',
-                    description: ''
-                  },
-                  description: {
-                    type: 'string',
-                    description: ''
-                  },
-                  botId: {
-                      type: "string",
-                      description: "reference for bot id"
-                  }
-            }
+  definitions: {
+    'bot-command': {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          description: ''
         },
-        'bot-command_list': {
-            type: 'array',
-            items: { $ref: '#/definitions/bot-command'}
+        description: {
+          type: 'string',
+          description: ''
+        },
+        botId: {
+          type: 'string',
+          description: 'reference for bot id'
         }
+      }
     },
-    // securities: ['create', 'update', 'patch', 'remove'],
-    // operations: {
-    //   find: {
-    //     security: [
-    //       { bearer: [] }
-    //     ]
-    //   }
-    // } 
-};
+    'bot-command_list': {
+      type: 'array',
+      items: { $ref: '#/definitions/bot-command' }
+    }
+  }
+  // securities: ['create', 'update', 'patch', 'remove'],
+  // operations: {
+  //   find: {
+  //     security: [
+  //       { bearer: [] }
+  //     ]
+  //   }
+  // }
+}

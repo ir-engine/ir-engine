@@ -1,3 +1,4 @@
+/*
 export enum DefaultGameStateAction {
   onGameStarted,
   onGameEnded,
@@ -11,4 +12,9 @@ export enum DefaultGameStateAction {
   onPlayerAttempted,
   // onObjectOutOfBounds,
   // onVote
+}
+*/
+export enum ClientActionToServer {
+  requireState,
+  requireObjects
 }

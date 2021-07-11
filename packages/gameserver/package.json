@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/gameserver",
   "description": "Multiplayer Gameserver for XREngine",
-  "version": "0.3.29",
+  "version": "0.3.31",
   "private": true,
   "homepage": "",
   "main": "./src",
@@ -37,17 +37,16 @@
     "dev": "nodemon -r ts-eager/register src/index.ts",
     "dev-nossl": "cross-env NOSSL=true ts-eager src/index.ts",
     "test": "echo \"TODO: no test specified\" && exit 0",
-    "lint": "eslint --fix --ext \"**/*.js\" \"**/*.ts\"",
     "validate": "npm run lint && npm run build && npm run test",
     "precommit": "no-master-commits -b master,dev"
   },
   "types": "lib/",
   "resolutions": {
-    "socket.io": "4.1.2"
+    "socket.io": "4.1.3"
   },
   "peerDependencies": {
     "chokidar": "^3.4.2",
-    "socket.io": "4.1.2"
+    "socket.io": "4.1.3"
   },
   "dependencies": {
     "@feathersjs/authentication": "5.0.0-pre.4",
@@ -64,9 +63,9 @@
     "@feathersjs/socketio-client": "5.0.0-pre.4",
     "@feathersjs/transport-commons": "5.0.0-pre.4",
     "@google-cloud/agones-sdk": "1.14.0",
-    "@xrengine/engine": "^0.3.29",
-    "@xrengine/server-core": "^0.3.29",
-    "aws-sdk": "2.939.0",
+    "@xrengine/engine": "^0.3.31",
+    "@xrengine/server-core": "^0.3.31",
+    "aws-sdk": "2.943.0",
     "bent": "7.3.12",
     "chargebee": "2.6.5",
     "comlink": "4.3.1",
@@ -87,21 +86,21 @@
     "internal-ip": "6.2.0",
     "js-yaml": "4.1.0",
     "lodash": "4.17.21",
-    "mediasoup": "3.7.17",
+    "mediasoup": "3.7.18",
     "mime-types": "2.1.31",
     "moment": "2.29.1",
     "multer": "1.4.2",
     "nanoid": "3.1.23",
     "node-fetch": "2.6.1",
     "nodemailer-smtp-transport": "2.7.4",
-    "nodemon": "2.0.9",
+    "nodemon": "2.0.12",
     "ps-list": "7.2.0",
     "pug": "3.0.2",
     "request": "2.88.2",
     "require-main-filename": "2.0.0",
     "rx": "4.1.0",
     "s3-blob-store": "4.1.1",
-    "sequelize": "6.6.4",
+    "sequelize": "6.6.5",
     "serve-favicon": "2.5.0",
     "slugify": "1.5.3",
     "universal-analytics": "0.4.23",
@@ -110,10 +109,10 @@
     "winston": "3.3.3"
   },
   "devDependencies": {
-    "@types/compression": "1.7.0",
-    "@types/cors": "2.8.10",
-    "@types/node": "14.17.4",
-    "@types/serve-favicon": "2.5.2",
+    "@types/compression": "1.7.1",
+    "@types/cors": "2.8.12",
+    "@types/node": "14.17.5",
+    "@types/serve-favicon": "2.5.3",
     "@typescript-eslint/eslint-plugin": "4.28.2",
     "@typescript-eslint/parser": "4.28.2",
     "app-root-path": "3.0.0",
@@ -122,7 +121,7 @@
     "no-master-commits": "1.1.1",
     "semantic-release": "17.4.4",
     "semantic-release-monorepo": "7.0.5",
-    "typedoc": "0.21.2",
+    "typedoc": "0.21.3",
     "typescript": "4.3.5"
   },
   "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"

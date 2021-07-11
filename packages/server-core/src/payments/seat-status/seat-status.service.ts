@@ -1,13 +1,13 @@
-import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../../declarations';
-import { SeatStatus } from './seat-status.class';
-import createModel from './seat-status.model';
-import hooks from './seat-status.hooks';
-import seatStatusDocs from './seat-status.docs';
+import { ServiceAddons } from '@feathersjs/feathers'
+import { Application } from '../../../declarations'
+import { SeatStatus } from './seat-status.class'
+import createModel from './seat-status.model'
+import hooks from './seat-status.hooks'
+import seatStatusDocs from './seat-status.docs'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'seat-status': SeatStatus & ServiceAddons<any>;
+    'seat-status': SeatStatus & ServiceAddons<any>
   }
 }
 
@@ -16,22 +16,22 @@ export default (app: Application): any => {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
-  };
+  }
   /**
-   * Initialize our service with any options it requires and docs 
-   * 
+   * Initialize our service with any options it requires and docs
+   *
    * @author Vyacheslav Solovjov
    */
-  const event = new SeatStatus(options, app);
-  event.docs = seatStatusDocs;
-  app.use('/seat-status', event);
+  const event = new SeatStatus(options, app)
+  event.docs = seatStatusDocs
+  app.use('/seat-status', event)
 
   /**
    * Get our initialized service so that we can register hooks
-   * 
+   *
    * @author Vyacheslav Solovjov
    */
-  const service = app.service('seat-status');
+  const service = app.service('seat-status')
 
-  service.hooks(hooks as any);
-};
+  service.hooks(hooks as any)
+}

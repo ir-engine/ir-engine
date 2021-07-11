@@ -1,12 +1,12 @@
-
 /**
  * @author HydraFire <github.com/HydraFire>
  */
- 
+
 export interface ClientGameActionMessage {
   type: string
   game: string
   ownerId: string
+  uuid: string
 }
 
 export interface StorageElement {

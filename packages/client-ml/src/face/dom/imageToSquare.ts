@@ -1,10 +1,9 @@
-import { env } from '../env';
-import { createCanvas, createCanvasFromMedia } from './createCanvas';
-import { getContext2dOrThrow } from './getContext2dOrThrow';
-import { getMediaDimensions } from './getMediaDimensions';
+import { env } from '../env'
+import { createCanvas, createCanvasFromMedia } from './createCanvas'
+import { getContext2dOrThrow } from './getContext2dOrThrow'
+import { getMediaDimensions } from './getMediaDimensions'
 
 export function imageToSquare(input: HTMLImageElement | HTMLCanvasElement, inputSize: number, centerImage = false) {
-
   const { Image, Canvas } = env.getEnv()
 
   if (!(input instanceof Image || input instanceof Canvas)) {
