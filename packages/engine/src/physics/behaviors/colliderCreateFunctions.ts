@@ -39,7 +39,7 @@ const xVec = new Vector3(1, 0, 0);
 const halfPI = Math.PI / 2;
 
 type ColliderData = {
-  type: ColliderTypes;
+  type?: ColliderTypes;
   bodytype?: BodyType;
   isTrigger?: boolean;
   staticFriction?: number;

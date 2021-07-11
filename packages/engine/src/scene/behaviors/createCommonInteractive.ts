@@ -7,7 +7,7 @@ import { Object3DComponent } from "../components/Object3DComponent";
 import { grabEquippable } from "../../interaction/functions/grabEquippable";
 import { InteractionData } from "../../interaction/types/InteractionTypes";
 
-export const onInteraction: Behavior = (entityInitiator, args, delta, entityInteractive, time) => {
+export const onInteraction = (entityInitiator, args, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);
 
   if(interactiveComponent.data.interactionType === 'equippable') {
@@ -17,7 +17,7 @@ export const onInteraction: Behavior = (entityInitiator, args, delta, entityInte
   }
 };
 
-export const onInteractionHover: Behavior = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
+export const onInteractionHover = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
   const interactiveComponent = getComponent(entityInteractive, Interactable);
 
   const engineEvent: any = { type: InteractiveSystem.EVENTS.OBJECT_HOVER, focused, ...interactiveComponent.data };
@@ -38,7 +38,7 @@ export const onInteractionHover: Behavior = (entityInitiator, { focused }: { foc
   // const object3d = getMutableComponent(entityInteractive, Object3DComponent).value as Mesh;
 };
 
-export const createCommonInteractive: Behavior = (entity, args: InteractionData) => {
+export const createCommonInteractive = (entity, args: InteractionData) => {
   if (!args.interactable) {
     return;
   }
