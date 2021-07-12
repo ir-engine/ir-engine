@@ -81,7 +81,7 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
         target: this.target
       }
     }
-    return await super.serialize(projectID,components)
+    return await super.serialize(projectID, components)
   }
   prepareForExport() {
     super.prepareForExport()

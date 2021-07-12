@@ -234,7 +234,7 @@ export default class FloorPlanNode extends EditorNodeMixin(FloorPlan) {
     return this
   }
   async serialize(projectID) {
-    return await super.serialize(projectID,{
+    return await super.serialize(projectID, {
       'floor-plan': {
         autoCellSize: this.autoCellSize,
         cellSize: this.cellSize,

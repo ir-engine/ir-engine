@@ -149,7 +149,7 @@ export default class ParticleEmitterNode extends EditorNodeMixin(ParticleEmitter
   }
 
   async serialize(projectID) {
-    return await super.serialize(projectID,{
+    return await super.serialize(projectID, {
       'particle-emitter': {
         src: this._canonicalUrl,
         startColor: this.startColor,

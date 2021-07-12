@@ -58,7 +58,7 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
     return this
   }
   async serialize(projectID) {
-    return await super.serialize(projectID,{
+    return await super.serialize(projectID, {
       'directional-light': {
         color: this.color,
         intensity: this.intensity,

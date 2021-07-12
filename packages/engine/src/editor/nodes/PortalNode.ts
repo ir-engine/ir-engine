@@ -61,7 +61,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
         spawnRotation: this.spawnRotation
       }
     } as any
-    return await super.serialize(projectID,components)
+    return await super.serialize(projectID, components)
   }
   prepareForExport() {
     super.prepareForExport()

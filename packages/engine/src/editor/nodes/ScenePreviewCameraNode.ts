@@ -26,7 +26,7 @@ export default class ScenePreviewCameraNode extends EditorNodeMixin(PerspectiveC
     this.editor.scene.remove(this.helper)
   }
   async serialize(projectID) {
-    return await super.serialize(projectID,{ 'scene-preview-camera': {} })
+    return await super.serialize(projectID, { 'scene-preview-camera': {} })
   }
   prepareForExport() {
     super.prepareForExport()

@@ -76,7 +76,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
       }
     }
 
-    return await super.serialize(projectID,{ skybox })
+    return await super.serialize(projectID, { skybox })
   }
 
   static async deserialize(editor, json) {

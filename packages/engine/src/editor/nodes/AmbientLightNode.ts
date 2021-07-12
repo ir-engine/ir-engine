@@ -15,7 +15,7 @@ export default class AmbientLightNode extends EditorNodeMixin(AmbientLight) {
     return node
   }
   async serialize(projectID) {
-    return await super.serialize(projectID,{
+    return await super.serialize(projectID, {
       'ambient-light': {
         color: this.color,
         intensity: this.intensity

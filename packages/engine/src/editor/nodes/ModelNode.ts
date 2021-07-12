@@ -446,7 +446,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     if (this.walkable) {
       components['walkable'] = {}
     }
-    return await super.serialize(projectID,components)
+    return await super.serialize(projectID, components)
   }
   copy(source, recursive = true) {
     super.copy(source, recursive)

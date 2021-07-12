@@ -55,7 +55,7 @@ export default class GroundPlaneNode extends EditorNodeMixin(GroundPlane) {
     if (this.walkable) {
       ;(components as any).walkable = {}
     }
-    return await super.serialize(projectID,components)
+    return await super.serialize(projectID, components)
   }
   prepareForExport() {
     super.prepareForExport()

@@ -136,7 +136,7 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
     return this
   }
   async serialize(projectID) {
-    return await super.serialize(projectID,{
+    return await super.serialize(projectID, {
       audio: {
         src: this._canonicalUrl,
         controls: this.controls,

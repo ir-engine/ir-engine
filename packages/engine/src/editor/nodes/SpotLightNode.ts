@@ -70,7 +70,7 @@ export default class SpotLightNode extends EditorNodeMixin(PhysicalSpotLight) {
     return this
   }
   async serialize(projectID) {
-    return await super.serialize(projectID,{
+    return await super.serialize(projectID, {
       'spot-light': {
         color: this.color,
         intensity: this.intensity,

@@ -187,7 +187,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   _envMapSourceURL = ''
   errorInEnvmapURL = false
   _envMapIntensity = 1
-  environmentNode:ReflectionProbeNode = null
+  environmentNode: ReflectionProbeNode = null
   //#endregion
 
   constructor(editor) {
@@ -304,9 +304,9 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         if (!this.environmentNode) break
         envMapProps.type = EnvMapSourceType.ReflectionProbe
         envMapProps.envMapReflectionProbe = this.environmentNode.reflectionProbeSettings
-        let envMapID=""
-        if(this.environmentNode .reflectionProbeSettings.reflectionType===ReflectionProbeTypes.Baked)
-          envMapProps.envMapReflectionProbe.envMapID=this.environmentNode.Bake()
+        let envMapID = ''
+        if (this.environmentNode.reflectionProbeSettings.reflectionType === ReflectionProbeTypes.Baked)
+          envMapProps.envMapReflectionProbe.envMapID = this.environmentNode.Bake()
         break
     }
 

@@ -73,7 +73,7 @@ export default class GameNode extends EditorNodeMixin(Object3D) {
         gameMode: this.gameMode
       }
     } as any
-    return await super.serialize(projectID,components)
+    return await super.serialize(projectID, components)
   }
   prepareForExport() {
     super.prepareForExport()
