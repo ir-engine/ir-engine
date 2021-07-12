@@ -1,23 +1,4 @@
-import {
-  Group,
-  MathUtils,
-  Matrix4,
-  BufferAttribute,
-  BufferGeometry,
-  Vector4,
-  Quaternion,
-  Matrix3,
-  Mesh,
-  Object3D,
-  Vector3,
-  CustomBlending,
-  SrcAlphaFactor,
-  OneMinusSrcAlphaFactor,
-  AddEquation,
-  DoubleSide,
-  ShaderMaterial,
-  Scene
-} from 'three'
+import { Group, MathUtils, Mesh, Vector3 } from 'three'
 import { Body, BodyType, ShapeType, SHAPES } from 'three-physx'
 import { AssetLoader } from '../../../../assets/classes/AssetLoader'
 import { isClient } from '../../../../common/functions/isClient'
@@ -103,6 +84,28 @@ export const spawnBall: Behavior = (
  * @author Josh Field <github.com/HexaField>
  */
 
+export const updateBall: Behavior = (
+  entityBall: Entity,
+  args?: any,
+  delta?: number,
+  entityTarget?: Entity,
+  time?: number,
+  checks?: any
+): void => {
+  if (isClient) {
+    const obj = getComponent(entityBall, Object3DComponent)
+    if (!obj?.value) return
+    const ballMesh = obj.value.userData.trailObject as TrailRenderer
+    ballMesh.advance()
+    ballMesh.updateHead()
+    console.log(ballMesh)
+  }
+}
+
+/**
+ * @author Josh Field <github.com/HexaField>
+ */
+
 const golfBallRadius = 0.03 // this is the graphical size of the golf ball
 const golfBallColliderExpansion = 0.03 // this is the size of the ball collider
 
@@ -122,26 +125,18 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
 
   const trailHeadGeometry = []
   trailHeadGeometry.push(new Vector3(-10.0, 0.0, 0.0), new Vector3(0.0, 0.0, 0.0), new Vector3(10.0, 0.0, 0.0))
-  const trail = new TrailRenderer(Engine.scene, false)
-  const trailMaterial = trail.createBaseMaterial({})
+  const trailObject = new TrailRenderer(false)
+  const trailMaterial = TrailRenderer.createBaseMaterial()
   const trailLength = 150
-  // TESTING HOW TO ATTACH TRAIL TO OBJECT 3D, currently not working
-  const ballEntity3DObject = getComponent(ballEntity, Object3DComponent)
-  console.log(ballEntity3DObject)
-  const ballEntityTarget = JSON.parse(JSON.stringify(ballEntity3DObject))
-  console.log(ballEntityTarget)
-  console.log(Engine.scene.getObjectById(ballEntityTarget.value.object.uuid))
-  trail.initialize(trailMaterial, trailLength, false, 150, trailHeadGeometry, ballEntityTarget.value.object)
-  console.log(trail)
+  Engine.scene.add(trailObject)
+  trailObject.initialize(trailMaterial, trailLength, false, 150, trailHeadGeometry, ballMesh)
+  ballMesh.userData.trailObject = trailObject
+  console.log(ballMesh)
 }
 
 export const initializeGolfBall = (ballEntity: Entity) => {
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
   const transform = getComponent(ballEntity, TransformComponent)
-  const networkObject = getComponent(ballEntity, NetworkObject)
-  const ownerNetworkObject = Object.values(Network.instance.networkObjects).find((obj) => {
-    return obj.ownerId === networkObject.ownerId
-  }).component
 
   if (isClient) {
     AssetLoader.load(
