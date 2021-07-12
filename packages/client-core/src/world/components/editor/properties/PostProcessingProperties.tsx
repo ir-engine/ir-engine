@@ -1,123 +1,122 @@
-import { AnyMxRecord } from "dns";
-import React from "react";
-import BooleanInput from "../inputs/BooleanInput";
-import ColorInput from "../inputs/ColorInput";
-import CompoundNumericInput from "../inputs/CompoundNumericInput";
-import InputGroup from "../inputs/InputGroup";
-import SelectInput from "../inputs/SelectInput";
-import { PostProcessingPropertyTypes } from "./PostProcessingNodeEditor";
+import { AnyMxRecord } from 'dns'
+import React from 'react'
+import BooleanInput from '../inputs/BooleanInput'
+import ColorInput from '../inputs/ColorInput'
+import CompoundNumericInput from '../inputs/CompoundNumericInput'
+import InputGroup from '../inputs/InputGroup'
+import SelectInput from '../inputs/SelectInput'
+import { PostProcessingPropertyTypes } from './PostProcessingNodeEditor'
 
 const BlendFunctionSelect = [
   {
-    label: "Skip",
+    label: 'Skip',
     value: 0
   },
   {
-    label: "Add",
+    label: 'Add',
     value: 1
   },
   {
-    label: "ALPHA",
+    label: 'ALPHA',
     value: 2
   },
   {
-    label: "AVERAGE",
+    label: 'AVERAGE',
     value: 3
   },
   {
-    label: "COLOR_BURN",
+    label: 'COLOR_BURN',
     value: 4
   },
   {
-    label: "COLOR_DODGE",
+    label: 'COLOR_DODGE',
     value: 5
   },
   {
-    label: "DARKEN",
+    label: 'DARKEN',
     value: 6
   },
   {
-    label: "DIFFERENCE",
+    label: 'DIFFERENCE',
     value: 7
   },
   {
-    label: "EXCLUSION",
+    label: 'EXCLUSION',
     value: 8
   },
   {
-    label: "LIGHTEN",
+    label: 'LIGHTEN',
     value: 9
   },
   {
-    label: "MULTIPLY",
+    label: 'MULTIPLY',
     value: 10
   },
   {
-    label: "DIVIDE",
+    label: 'DIVIDE',
     value: 11
   },
   {
-    label: "NEGATION",
+    label: 'NEGATION',
     value: 12
   },
   {
-    label: "NORMAL",
+    label: 'NORMAL',
     value: 13
   },
   {
-    label: "OVERLAY",
+    label: 'OVERLAY',
     value: 14
   },
   {
-    label: "REFLECT",
+    label: 'REFLECT',
     value: 15
   },
   {
-    label: "SCREEN",
+    label: 'SCREEN',
     value: 16
   },
   {
-    label: "SOFT_LIGHT",
+    label: 'SOFT_LIGHT',
     value: 17
   },
   {
-    label: "SUBTRACT",
+    label: 'SUBTRACT',
     value: 18
-  },
-];
+  }
+]
 
 const KernelSizeSelect = [
-
   {
-    label: "VERY_SMALL",
+    label: 'VERY_SMALL',
     value: 0
   },
   {
-    label: "SMALL",
+    label: 'SMALL',
     value: 1
   },
 
   {
-    label: "MEDIUM",
+    label: 'MEDIUM',
     value: 2
   },
   {
-    label: "LARGE",
+    label: 'LARGE',
     value: 3
   },
   {
-    label: "VERY_LARGE",
+    label: 'VERY_LARGE',
     value: 4
   },
   {
-    label: "HUGE",
+    label: 'HUGE',
     value: 5
-  },
-];
+  }
+]
 interface Props {
-  value?: any,
-  onChangeFunction?: any,
-  op?: any,
+  value?: any
+  onChangeFunction?: any
+  op?: any
   getProp?: any
 }
 
@@ -125,94 +124,96 @@ interface Props {
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
 export const PostProcessingProperties = (props: Props) => {
-  const { value, op, onChangeFunction, getProp } = props;
+  const { value, op, onChangeFunction, getProp } = props
   const onPropertyValueChanged = (event) => {
-    let address = '';
+    let address = ''
     op.forEach((element, id) => {
-      if (id < op.length - 1)
-        address += element + ".";
-      else
-        address += element;
-    });
-    { /* @ts-ignore */ }
-    onChangeFunction(address, event);
-  };
-
-  const getPropertyValue = () => {
-    const val = getProp(op);
-    return val;
-  };
-
-  { /* @ts-ignore */ }
-  if (value.keys === "") return <></>;
-
-
-  let renderVal = <></>;
-  { /* @ts-ignore */ }
-  switch (value.propertyType) {
-    case PostProcessingPropertyTypes.Number:
-      renderVal = <>
-        { /* @ts-ignore */}
-        <CompoundNumericInput
-          min={value.min}
-          max={value.max}
-          step={value.step}
-          value={getPropertyValue()}
-          onChange={onPropertyValueChanged}
-        />
-      </>;
-      break;
-
-    case PostProcessingPropertyTypes.Boolean:
-      renderVal = <><BooleanInput
-        onChange={onPropertyValueChanged}
-        value={getPropertyValue()}
-      /> </>;
-      break;
-    case PostProcessingPropertyTypes.BlendFunction:
-      renderVal = <>
-        { /* @ts-ignore */}
-        <SelectInput options={BlendFunctionSelect}
-          onChange={onPropertyValueChanged}
-          value={getPropertyValue()}
-        />
-      </>;
-      break;
-
-    case PostProcessingPropertyTypes.Color:
-      { /* @ts-ignore */ }
-      renderVal = <ColorInput
-        value={getPropertyValue()}
-        onChange={onPropertyValueChanged}
-        isValueAsInteger={true}
-      />;
-      break;
-
-    case PostProcessingPropertyTypes.KernelSize:
-      renderVal = <>
-        { /* @ts-ignore */}
-        <SelectInput options={KernelSizeSelect}
-          onChange={onPropertyValueChanged}
-          value={getPropertyValue()}
-        />
-
-      </>;
-      break;
-    default:
-      renderVal = <>Can't Determine type of property</>;
-
+      if (id < op.length - 1) address += element + '.'
+      else address += element
+    })
+    {
+      /* @ts-ignore */
+    }
+    onChangeFunction(address, event)
   }
 
-  return (<div style={{
+  const getPropertyValue = () => {
+    const val = getProp(op)
+    return val
+  }
 
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center"
-  }}>
-    { /* @ts-ignore */}
-    <InputGroup name={value.name} label={value.name}>
-      {renderVal}
-    </InputGroup>
-  </div>
-  );
-};
+  {
+    /* @ts-ignore */
+  }
+  if (value.keys === '') return <></>
+
+  let renderVal = <></>
+  {
+    /* @ts-ignore */
+  }
+  switch (value.propertyType) {
+    case PostProcessingPropertyTypes.Number:
+      renderVal = (
+        <>
+          {/* @ts-ignore */}
+          <CompoundNumericInput
+            min={value.min}
+            max={value.max}
+            step={value.step}
+            value={getPropertyValue()}
+            onChange={onPropertyValueChanged}
+          />
+        </>
+      )
+      break
+
+    case PostProcessingPropertyTypes.Boolean:
+      renderVal = (
+        <>
+          <BooleanInput onChange={onPropertyValueChanged} value={getPropertyValue()} />{' '}
+        </>
+      )
+      break
+    case PostProcessingPropertyTypes.BlendFunction:
+      renderVal = (
+        <>
+          {/* @ts-ignore */}
+          <SelectInput options={BlendFunctionSelect} onChange={onPropertyValueChanged} value={getPropertyValue()} />
+        </>
+      )
+      break
+
+    case PostProcessingPropertyTypes.Color:
+      {
+        /* @ts-ignore */
+      }
+      renderVal = <ColorInput value={getPropertyValue()} onChange={onPropertyValueChanged} isValueAsInteger={true} />
+      break
+
+    case PostProcessingPropertyTypes.KernelSize:
+      renderVal = (
+        <>
+          {/* @ts-ignore */}
+          <SelectInput options={KernelSizeSelect} onChange={onPropertyValueChanged} value={getPropertyValue()} />
+        </>
+      )
+      break
+    default:
+      renderVal = <>Can't Determine type of property</>
+  }
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}
+    >
+      {/* @ts-ignore */}
+      <InputGroup name={value.name} label={value.name}>
+        {renderVal}
+      </InputGroup>
+    </div>
+  )
+}

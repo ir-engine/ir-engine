@@ -1,38 +1,41 @@
-import fs from 'fs-blob-store';
-import { StorageProviderInterface } from './storageprovider.interface';
+import fs from 'fs-blob-store'
+import { StorageProviderInterface } from './storageprovider.interface'
 
 export class LocalStorage implements StorageProviderInterface {
-  path = './upload';
- 
-  getProvider = (): StorageProviderInterface => this;
-  getStorage = (): any => fs(this.path);
+  path = './upload'
+
+  getProvider = (): StorageProviderInterface => this
+  getStorage = (): any => fs(this.path)
 
   deleteResources(keys: string[]): Promise<any> {
-    const blobs = this.getStorage();
+    const blobs = this.getStorage()
 
-    return Promise.all(keys.map(key => {
-      return new Promise(resolve => {
-        blobs.exists(key, (err, exists) => {
-          if (err) {
-            console.error(err);
-            resolve(false);
-            return;
-          }
-
-          if (exists) blobs.remove(key, (err) => {
+    return Promise.all(
+      keys.map((key) => {
+        return new Promise((resolve) => {
+          blobs.exists(key, (err, exists) => {
             if (err) {
-              console.error(err);
-              resolve(false);
-              return;
+              console.error(err)
+              resolve(false)
+              return
             }
 
-            resolve(true);
-          });
+            if (exists)
+              blobs.remove(key, (err) => {
+                if (err) {
+                  console.error(err)
+                  resolve(false)
+                  return
+                }
 
-          resolve(true);
-        });
-      });
-    }));
+                resolve(true)
+              })
+
+            resolve(true)
+          })
+        })
+      })
+    )
   }
 }
-export default LocalStorage;
+export default LocalStorage

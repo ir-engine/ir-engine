@@ -1,8 +1,8 @@
-import React, { Fragment } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { Fragment } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export const Error = ({ statusCode }: { statusCode?: number }): any => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
   return (
     <Fragment>
       <p>
@@ -12,12 +12,12 @@ export const Error = ({ statusCode }: { statusCode?: number }): any => {
       </p>
       <a href="/">{t('error.goHomeLink')}</a>
     </Fragment>
-  );
-};
+  )
+}
 
 Error.getInitialProps = ({ res, err }) => {
-  const statusCode = res ? res.statusCode : err ? err.statusCode : 404;
-  return { statusCode };
-};
+  const statusCode = res ? res.statusCode : err ? err.statusCode : 404
+  return { statusCode }
+}
 
-export default Error;
+export default Error

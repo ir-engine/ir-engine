@@ -1,11 +1,11 @@
 // TODO: Add config var for analytics ID
-import ReactGA from 'react-ga';
+import ReactGA from 'react-ga'
 
 export const initGA = () => {
-  ReactGA.initialize('UA-164023274-1');
-};
+  ReactGA.initialize('UA-164023274-1')
+}
 
 export const logPageView = () => {
-  ReactGA.set({ page: window.location.pathname });
-  ReactGA.pageview(window.location.pathname);
-};
+  ReactGA.set({ page: window.location.pathname })
+  ReactGA.pageview(window.location.pathname)
+}

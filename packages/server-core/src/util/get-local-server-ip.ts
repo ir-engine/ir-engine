@@ -1,14 +1,14 @@
-import internalIp from 'internal-ip';
+import internalIp from 'internal-ip'
 
 interface ServerAddress {
-    ipAddress: string;
-    port: string;
+  ipAddress: string
+  port: string
 }
 
 export default async (): Promise<ServerAddress> => {
-    const ip = await internalIp.v4();
-    return {
-        ipAddress: ip,
-        port: '3031'
-    };
-};
+  const ip = await internalIp.v4()
+  return {
+    ipAddress: ip,
+    port: '3031'
+  }
+}

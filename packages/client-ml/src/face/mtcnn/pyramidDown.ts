@@ -1,7 +1,6 @@
 import { CELL_SIZE } from './config'
 
 export function pyramidDown(minFaceSize: number, scaleFactor: number, dims: number[]): number[] {
-
   const [height, width] = dims
   const m = CELL_SIZE / minFaceSize
 

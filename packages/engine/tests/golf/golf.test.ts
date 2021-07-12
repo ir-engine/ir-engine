@@ -1,7 +1,6 @@
 // @ts-ignore
-import { Euler, MathUtils, Quaternion, Vector3 } from 'three';
-import XREngineBot from '../../../bot/src/bot';
-import { BotHooksTags } from '../../src/bot/setupBotHooks';
+import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
+import XREngineBot from '../../../bot/src/bot'
 
 const maxTimeout = 60 * 1000
 const headless = false
@@ -54,20 +53,20 @@ describe('Golf tests', () => {
     await bot.enterRoom(`https://${domain}/location/${locationName}`)
     await bot.page.addScriptTag({ url: '/scripts/webxr-polyfill.js' })
     await bot.delay(500)
-    await bot.runHook(BotHooksTags.initializeBot)
-    await bot.awaitHookPromise(BotHooksTags.getIsYourTurn)
-    await bot.runHook(BotHooksTags.overrideXR)
+    await bot.runHook("initializeBot")
+    await bot.awaitHookPromise("getIsYourTurn")
+    await bot.runHook("overrideXR")
   }, maxTimeout)
 
   afterAll(async () => {
-    await bot.delay(10000)
+    await bot.delay(1000)
     await bot.quit()
   }, maxTimeout)
 
   test('Web XR works', async () => {
-    expect(await bot.runHook(BotHooksTags.xrSupported)).toBe(true)
-    await bot.runHook(BotHooksTags.startXR)
-    expect(await bot.runHook(BotHooksTags.xrInitialized)).toBe(true)
+    expect(await bot.runHook("xrSupported")).toBe(true)
+    await bot.runHook("startXR")
+    expect(await bot.runHook("xrInitialized")).toBe(true)
   }, maxTimeout)
 
 
@@ -79,7 +78,7 @@ describe('Golf tests', () => {
       headInputValue,
       leftControllerInputValue,
       rightControllerInputValue
-    } = await bot.runHook(BotHooksTags.getXRInputPosition)
+    } = await bot.runHook("getXRInputPosition")
 
     compareArrays(
       [headInputValue.x, headInputValue.y, headInputValue.z],
@@ -119,48 +118,48 @@ describe('Golf tests', () => {
   test('Can teleport to ball', async () => {
     // should be at spawn position
     expect(
-      vector3.copy(await bot.runHook(BotHooksTags.getPlayerPosition)).sub(spawnPos).length()
+      vector3.copy(await bot.runHook("getPlayerPosition")).sub(spawnPos).length()
     ).toBeLessThan(sqrt2 * 2) // sqrt2 * 2 is the size of our spawn area
 
     // wait for turn, then move to ball position
-    await bot.awaitHookPromise(BotHooksTags.getIsYourTurn)
+    await bot.awaitHookPromise("getIsYourTurn")
     await bot.keyPress('KeyK', 200)
     await bot.delay(500)
 
     // should be at ball position
     expect(
-      vector3.copy(await bot.runHook(BotHooksTags.getPlayerPosition)).sub(tee0Pos).length()
+      vector3.copy(await bot.runHook("getPlayerPosition")).sub(tee0Pos).length()
     ).toBeLessThan(0.1)
 
   }, maxTimeout)
 
   test('Can hit ball', async () => {
 
-    await bot.runHook(BotHooksTags.updateHead, {
+    await bot.runHook("updateHead", {
       position: [0, 2, 1],
       rotation: eulerToQuaternion(-1.25, 0, 0).toArray()
     })
   
     // ball should be at spawn position
     expect(
-      vector3.copy(await bot.runHook(BotHooksTags.getBallPosition)).sub(tee0Pos).length()
+      vector3.copy(await bot.runHook("getBallPosition")).sub(tee0Pos).length()
     ).toBeLessThan(0.1)
     
     await bot.delay(1000)
     // wait for turn, then move to ball position
-    await bot.awaitHookPromise(BotHooksTags.getIsYourTurn)
+    await bot.awaitHookPromise("getIsYourTurn")
     
     await bot.delay(500)
 
     // rotate left thumbstick 3 or 4 times to the left
 
-    await bot.runHook(BotHooksTags.swingClub)
+    await bot.runHook("swingClub")
    
     await bot.delay(2000)
     expect(
-      vector3.copy(await bot.runHook(BotHooksTags.getBallPosition)).sub(tee0Pos).length()
+      vector3.copy(await bot.runHook("getBallPosition")).sub(tee0Pos).length()
     ).toBeGreaterThan(0.5)
-    await bot.delay(5000)
+    await bot.delay(1000)
   }, maxTimeout)
 
   //

@@ -1,204 +1,214 @@
-import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers';
-import { Application } from '../../../declarations';
-import {BadRequest} from '@feathersjs/errors';
-import _ from 'lodash';
-import Sequelize, { Op } from 'sequelize';
-import getLocalServerIp from '../../util/get-local-server-ip';
-import logger from '../../logger';
-import config from '../../appconfig';
+import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+import { Application } from '../../../declarations'
+import { BadRequest } from '@feathersjs/errors'
+import _ from 'lodash'
+import Sequelize, { Op } from 'sequelize'
+import getLocalServerIp from '../../util/get-local-server-ip'
+import logger from '../../logger'
+import config from '../../appconfig'
 
-
-const releaseRegex = /^([a-zA-Z0-9]+)-/;
+const releaseRegex = /^([a-zA-Z0-9]+)-/
 
 interface Data {}
 
 interface ServiceOptions {}
 
-const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/;
-const pressureThresholdPercent = 0.8;
-
+const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
+const pressureThresholdPercent = 0.8
 
 /**
- * @class for InstanceProvision service 
- * 
+ * @class for InstanceProvision service
+ *
  * @author Vyacheslav Solovjov
  */
 export class InstanceProvision implements ServiceMethods<Data> {
-  app: Application;
-  options: ServiceOptions;
+  app: Application
+  options: ServiceOptions
   docs: any
-  constructor (options: ServiceOptions = {}, app: Application) {
-    this.options = options;
-    this.app = app;
+  constructor(options: ServiceOptions = {}, app: Application) {
+    this.options = options
+    this.app = app
   }
 
   async setup() {}
 
   /**
-   * An method which start server for instance 
+   * An method which start server for instance
    * @author Vyacheslav Solovjov
    */
   async getFreeGameserver(): Promise<any> {
     if (!config.kubernetes.enabled) {
-      console.log('Local server spinning up new instance');
-      return getLocalServerIp();
+      console.log('Local server spinning up new instance')
+      return getLocalServerIp()
     }
-    logger.info('Getting free gameserver');
-    const serverResult = await (this.app as any).k8AgonesClient.get('gameservers');
+    logger.info('Getting free gameserver')
+    const serverResult = await (this.app as any).k8AgonesClient.get('gameservers')
     const readyServers = _.filter(serverResult.items, (server: any) => {
-      const releaseMatch = releaseRegex.exec(server.metadata.name);
-      return server.status.state === 'Ready' && releaseMatch != null && releaseMatch[1] === config.server.releaseName;
-    } );
-    const server = readyServers[Math.floor(Math.random() * readyServers.length)];
+      const releaseMatch = releaseRegex.exec(server.metadata.name)
+      return server.status.state === 'Ready' && releaseMatch != null && releaseMatch[1] === config.server.releaseName
+    })
+    const server = readyServers[Math.floor(Math.random() * readyServers.length)]
     if (server == null) {
       return {
         ipAddress: null,
         port: null
-      };
+      }
     }
     return {
       ipAddress: server.status.address,
       port: server.status.ports[0].port
-    };
+    }
   }
 
   /**
-   * A method which get instance of GameServerr 
-   * @param availableLocationInstances for Gameserver 
-   * @returns ipAddress and port 
+   * A method which get instance of GameServerr
+   * @param availableLocationInstances for Gameserver
+   * @returns ipAddress and port
    * @author Vyacheslav Solovjov
    */
 
   async getGSInService(availableLocationInstances): Promise<any> {
-    const instanceModel = (this.app.service('instance') as any).Model;
-    const instanceUserSort = _.orderBy(availableLocationInstances, ['currentUsers'], ['desc']);
-    const nonPressuredInstances = instanceUserSort.filter((instance: typeof instanceModel) =>  {
-      return instance.currentUsers < pressureThresholdPercent * instance.location.maxUsersPerInstance;
-    });
-    const instances = nonPressuredInstances.length > 0 ? nonPressuredInstances : instanceUserSort;
+    const instanceModel = (this.app.service('instance') as any).Model
+    const instanceUserSort = _.orderBy(availableLocationInstances, ['currentUsers'], ['desc'])
+    const nonPressuredInstances = instanceUserSort.filter((instance: typeof instanceModel) => {
+      return instance.currentUsers < pressureThresholdPercent * instance.location.maxUsersPerInstance
+    })
+    const instances = nonPressuredInstances.length > 0 ? nonPressuredInstances : instanceUserSort
     if (!config.kubernetes.enabled) {
-      logger.info('Resetting local instance to ' + instances[0].id);
-      return getLocalServerIp();
+      logger.info('Resetting local instance to ' + instances[0].id)
+      return getLocalServerIp()
     }
-    const gsCleanup = await this.gsCleanup(instances[0]);
-    if (gsCleanup === true)  {
-      logger.info('GS did not exist and was cleaned up');
-      if (availableLocationInstances.length > 1) return this.getGSInService(availableLocationInstances.slice(1));
-      else return this.getFreeGameserver();
+    const gsCleanup = await this.gsCleanup(instances[0])
+    if (gsCleanup === true) {
+      logger.info('GS did not exist and was cleaned up')
+      if (availableLocationInstances.length > 1) return this.getGSInService(availableLocationInstances.slice(1))
+      else return this.getFreeGameserver()
     }
-    logger.info('GS existed, using it');
-    const ipAddressSplit = instances[0].ipAddress.split(':');
+    logger.info('GS existed, using it')
+    const ipAddressSplit = instances[0].ipAddress.split(':')
     return {
       ipAddress: ipAddressSplit[0],
       port: ipAddressSplit[1]
-    };
+    }
   }
   /**
-   * A method which get clean up server 
-   * 
-   * @param instance of ipaddress and port 
+   * A method which get clean up server
+   *
+   * @param instance of ipaddress and port
    * @returns {@Boolean}
    * @author Vyacheslav Solovjov
    */
 
   async gsCleanup(instance): Promise<boolean> {
-    const gameservers = await (this.app as any).k8AgonesClient.get('gameservers');
-    const gsIds = gameservers.items.map(gs => gsNameRegex.exec(gs.metadata.name) != null ? gsNameRegex.exec(gs.metadata.name)[1] : null);
-    const [ip, port] = instance.ipAddress.split(':');
-    const match = gameservers?.items?.find(gs => {
-      const inputPort = gs.status.ports?.find(port => port.name === 'default');
-      return gs.status.address === ip && inputPort?.port?.toString() === port;
-    });
+    const gameservers = await (this.app as any).k8AgonesClient.get('gameservers')
+    const gsIds = gameservers.items.map((gs) =>
+      gsNameRegex.exec(gs.metadata.name) != null ? gsNameRegex.exec(gs.metadata.name)[1] : null
+    )
+    const [ip, port] = instance.ipAddress.split(':')
+    const match = gameservers?.items?.find((gs) => {
+      const inputPort = gs.status.ports?.find((port) => port.name === 'default')
+      return gs.status.address === ip && inputPort?.port?.toString() === port
+    })
     if (match == null) {
-      await this.app.service('instance').remove(instance.id);
-      await this.app.service('gameserver-subdomain-provision').patch(null, {
-        allocated: false
-      }, {
-        query: {
-          instanceId: null,
-          gs_id: {
-            $nin: gsIds
+      await this.app.service('instance').remove(instance.id)
+      await this.app.service('gameserver-subdomain-provision').patch(
+        null,
+        {
+          allocated: false
+        },
+        {
+          query: {
+            instanceId: null,
+            gs_id: {
+              $nin: gsIds
+            }
           }
         }
-      });
-      return true;
+      )
+      return true
     }
 
-    return false;
+    return false
   }
-  
+
   /**
-   * A method which find running Gameserver 
-   * 
-   * @param params of query of locationId and instanceId 
+   * A method which find running Gameserver
+   *
+   * @param params of query of locationId and instanceId
    * @returns {@function} getFreeGameserver and getGSInService
    * @author Vyacheslav Solovjov
    */
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async find (params?: Params): Promise<any> {
+  async find(params?: Params): Promise<any> {
     try {
-      let userId;
-      const locationId = params.query.locationId;
-      const instanceId = params.query.instanceId;
-      const channelId = params.query.channelId;
-      const token = params.query.token;
+      let userId
+      const locationId = params.query.locationId
+      const instanceId = params.query.instanceId
+      const channelId = params.query.channelId
+      const token = params.query.token
       if (channelId != null) {
         // Check if JWT resolves to a user
         if (token != null) {
-          const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate({accessToken: token}, {});
-          const identityProvider = authResult['identity-provider'];
+          const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
+            { accessToken: token },
+            {}
+          )
+          const identityProvider = authResult['identity-provider']
           if (identityProvider != null) {
-            userId = identityProvider.userId;
+            userId = identityProvider.userId
           } else {
-            throw new BadRequest('Invalid user credentials');
+            throw new BadRequest('Invalid user credentials')
           }
         }
         const channelInstance = await (this.app.service('instance') as any).Model.findOne({
           where: {
             channelId: channelId
           }
-        });
-        if (channelInstance == null) return this.getFreeGameserver();
+        })
+        if (channelInstance == null) return this.getFreeGameserver()
         else {
-          const ipAddressSplit = channelInstance.ipAddress.split(':');
+          const ipAddressSplit = channelInstance.ipAddress.split(':')
           return {
             ipAddress: ipAddressSplit[0],
             port: ipAddressSplit[1]
-          };
+          }
         }
       } else {
         if (locationId == null) {
-          throw new BadRequest('Missing location ID');
+          throw new BadRequest('Missing location ID')
         }
-        const location = await this.app.service('location').get(locationId);
+        const location = await this.app.service('location').get(locationId)
         if (location == null) {
-          throw new BadRequest('Invalid location ID');
+          throw new BadRequest('Invalid location ID')
         }
         if (instanceId != null) {
-          const instance = await this.app.service('instance').get(instanceId);
+          const instance = await this.app.service('instance').get(instanceId)
           if (instance == null) {
-            throw new BadRequest('Invalid instance ID');
+            throw new BadRequest('Invalid instance ID')
           }
           if (instance.currentUsers < location.maxUsersPerInstance) {
-            const ipAddressSplit = instance.ipAddress.split(':');
+            const ipAddressSplit = instance.ipAddress.split(':')
             return {
               ipAddress: ipAddressSplit[0],
               port: ipAddressSplit[1]
-            };
+            }
           }
         }
         // Check if JWT resolves to a user
         if (token != null) {
-          const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate({accessToken: token}, {});
-          const identityProvider = authResult['identity-provider'];
+          const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
+            { accessToken: token },
+            {}
+          )
+          const identityProvider = authResult['identity-provider']
           if (identityProvider != null) {
-            userId = identityProvider.userId;
+            userId = identityProvider.userId
           } else {
-            throw new BadRequest('Invalid user credentials');
+            throw new BadRequest('Invalid user credentials')
           }
         }
-        const user = await this.app.service('user').get(userId);
+        const user = await this.app.service('user').get(userId)
         // If the user is in a party, they should be sent to their party's server as long as they are
         // trying to go to the scene their party is in.
         // If the user is going to a different scene, they will be removed from the party and sent to a random instance
@@ -267,38 +277,38 @@ export class InstanceProvision implements ServiceMethods<Data> {
               }
             }
           ]
-        });
+        })
         if (friendsAtLocationResult.count > 0) {
-          const instances = {};
+          const instances = {}
           friendsAtLocationResult.rows.forEach((friend) => {
             if (instances[friend.instanceId] == null) {
-              instances[friend.instanceId] = 1;
+              instances[friend.instanceId] = 1
             } else {
-              instances[friend.instanceId]++;
+              instances[friend.instanceId]++
             }
-          });
-          let maxFriends, maxInstanceId;
+          })
+          let maxFriends, maxInstanceId
           Object.keys(instances).forEach((key) => {
             if (maxFriends == null) {
-              maxFriends = instances[key];
-              maxInstanceId = key;
+              maxFriends = instances[key]
+              maxInstanceId = key
             } else {
               if (instances[key] > maxFriends) {
-                maxFriends = instances[key];
-                maxInstanceId = key;
+                maxFriends = instances[key]
+                maxInstanceId = key
               }
             }
-          });
-          const maxInstance = await this.app.service('instance').get(maxInstanceId);
+          })
+          const maxInstance = await this.app.service('instance').get(maxInstanceId)
           if (!config.kubernetes.enabled) {
-            logger.info('Resetting local instance to ' + maxInstanceId);
-            return getLocalServerIp();
+            logger.info('Resetting local instance to ' + maxInstanceId)
+            return getLocalServerIp()
           }
-          const ipAddressSplit = maxInstance.ipAddress.split(':');
+          const ipAddressSplit = maxInstance.ipAddress.split(':')
           return {
             ipAddress: ipAddressSplit[0],
             port: ipAddressSplit[1]
-          };
+          }
         }
         const availableLocationInstances = await (this.app.service('instance') as any).Model.findAll({
           where: {
@@ -314,78 +324,79 @@ export class InstanceProvision implements ServiceMethods<Data> {
               }
             }
           ]
-        });
-        if (availableLocationInstances.length === 0) return this.getFreeGameserver();
-        else return this.getGSInService(availableLocationInstances);
+        })
+        if (availableLocationInstances.length === 0) return this.getFreeGameserver()
+        else return this.getGSInService(availableLocationInstances)
       }
     } catch (err) {
-      logger.error(err);
-      throw err;
+      logger.error(err)
+      throw err
     }
   }
 
   /**
-   * A method which get specific instance 
-   * 
-   * @param id of instance 
-   * @param params 
-   * @returns id and text 
+   * A method which get specific instance
+   *
+   * @param id of instance
+   * @param params
+   * @returns id and text
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async get (id: Id, params?: Params): Promise<Data> {
+  async get(id: Id, params?: Params): Promise<Data> {
     return {
-      id, text: `A new message with ID: ${id}!`
-    };
+      id,
+      text: `A new message with ID: ${id}!`
+    }
   }
 
   /**
-   * A method which is used to create instance 
-   * 
-   * @param data which is used to create instance 
-   * @param params 
-   * @returns data of instance 
+   * A method which is used to create instance
+   *
+   * @param data which is used to create instance
+   * @param params
+   * @returns data of instance
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async create (data: Data, params?: Params): Promise<Data> {
+  async create(data: Data, params?: Params): Promise<Data> {
     if (Array.isArray(data)) {
-      return Promise.all(data.map(current => this.create(current, params)));
+      return Promise.all(data.map((current) => this.create(current, params)))
     }
 
-    return data;
+    return data
   }
-/**
- * A method used to update instance 
- * 
- * @param id 
- * @param data which is used to update instance 
- * @param params 
- * @returns data of updated instance
- */
+  /**
+   * A method used to update instance
+   *
+   * @param id
+   * @param data which is used to update instance
+   * @param params
+   * @returns data of updated instance
+   */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async update (id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data;
+  async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
+    return data
   }
 
   /**
-   * 
-   * @param id 
-   * @param data  
-   * @param params 
+   *
+   * @param id
+   * @param data
+   * @param params
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async patch (id: NullableId, data: Data, params?: Params): Promise<Data> {
-    return data;
+  async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
+    return data
   }
 
   /**
-   * A method used to remove specific instance 
-   * 
-   * @param id of instance 
-   * @param params 
-   * @returns id 
+   * A method used to remove specific instance
+   *
+   * @param id of instance
+   * @param params
+   * @returns id
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async remove (id: NullableId, params?: Params): Promise<Data> {
-    return { id };
+  async remove(id: NullableId, params?: Params): Promise<Data> {
+    return { id }
   }
 }

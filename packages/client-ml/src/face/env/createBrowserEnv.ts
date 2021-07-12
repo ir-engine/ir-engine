@@ -1,12 +1,13 @@
-import { Environment } from './types';
+import { Environment } from './types'
 
 export function createBrowserEnv(): Environment {
+  const fetch =
+    window['fetch'] ||
+    function () {
+      throw new Error('fetch - missing fetch implementation for browser environment')
+    }
 
-  const fetch = window['fetch'] || function() {
-    throw new Error('fetch - missing fetch implementation for browser environment')
-  }
-
-  const readFile = function() {
+  const readFile = function () {
     throw new Error('readFile - filesystem not available for browser environment')
   }
 

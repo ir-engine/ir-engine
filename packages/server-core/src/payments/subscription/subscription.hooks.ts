@@ -1,19 +1,16 @@
-import * as authentication from '@feathersjs/authentication';
-import { disallow } from 'feathers-hooks-common';
-import setLoggedInUser from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body';
+import * as authentication from '@feathersjs/authentication'
+import { disallow } from 'feathers-hooks-common'
+import setLoggedInUser from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
 // Don't remove this comment. It's needed to format import lines nicely.
 
-const { authenticate } = authentication.hooks;
+const { authenticate } = authentication.hooks
 
 export default {
   before: {
     all: [],
     find: [authenticate('jwt')],
     get: [authenticate('jwt')],
-    create: [
-      authenticate('jwt'),
-      setLoggedInUser('userId')
-    ],
+    create: [authenticate('jwt'), setLoggedInUser('userId')],
     update: [disallow('external')],
     patch: [disallow('external')],
     remove: [disallow('external')]
@@ -38,4 +35,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}

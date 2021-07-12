@@ -1,8 +1,8 @@
-import React from 'react';
-import { Config } from '../../../helper';
+import React from 'react'
+import { Config } from '../../../helper'
 
 interface Props {
-  onClick: any;
+  onClick: any
 }
 
 const Logo = (props: Props): any => {
@@ -16,7 +16,7 @@ const Logo = (props: Props): any => {
         onClick={props.onClick ?? null}
       />
     </div>
-  );
-};
+  )
+}
 
-export default Logo;
+export default Logo

@@ -1,15 +1,15 @@
 // Initializes the `location-type` service on path `/location-type`
-import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../../declarations';
-import { LocationType } from './location-type.class';
-import createModel from './location-type.model';
-import hooks from './location-type.hooks';
-import locationTypeDocs from './location-type.docs';
+import { ServiceAddons } from '@feathersjs/feathers'
+import { Application } from '../../../declarations'
+import { LocationType } from './location-type.class'
+import createModel from './location-type.model'
+import hooks from './location-type.hooks'
+import locationTypeDocs from './location-type.docs'
 
 // Add this service to the service type index
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'location-type': LocationType & ServiceAddons<any>;
+    'location-type': LocationType & ServiceAddons<any>
   }
 }
 
@@ -18,23 +18,23 @@ export default function (app: Application): void {
     Model: createModel(app),
     paginate: app.get('paginate'),
     multi: true
-  };
+  }
 
   /**
-   * Initialize our service with any options it requires and docs 
-   * 
+   * Initialize our service with any options it requires and docs
+   *
    * @author Vyacheslav Solovjov
    */
-  const event = new LocationType(options, app);
-  event.docs = locationTypeDocs;
-  app.use('/location-type', event );
+  const event = new LocationType(options, app)
+  event.docs = locationTypeDocs
+  app.use('/location-type', event)
 
-   /**
+  /**
    * Get our initialized service so that we can register hooks
-   * 
+   *
    * @author Vyacheslav Solovjov
    */
-  const service = app.service('location-type');
+  const service = app.service('location-type')
 
-  service.hooks(hooks as any);
+  service.hooks(hooks as any)
 }

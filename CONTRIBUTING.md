@@ -13,6 +13,6 @@ Increase the version numbers in any examples files and the README.md to the new 
 Before merging in any Pull Request, ensure that all checks pass, particularly the workflow/compile-codebase check. This ensures that the codebase will continue to build and deploy successfully.
 You may merge the Pull Request in once you have the sign-off of two other developers, or if you do not have permission to do that, you may request the second reviewer to merge it for you.
 Code Standards
-Use linting engine (Standard.js + TypeScript config)
+Use linting engine (eslint + TypeScript config)
 Use automatic code formatter (prettier)
 120 char line limit, whenever possible (in code, READMEs)

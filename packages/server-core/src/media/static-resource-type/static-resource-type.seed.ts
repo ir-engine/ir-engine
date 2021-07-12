@@ -1,4 +1,4 @@
-import config from '../../appconfig';
+import config from '../../appconfig'
 
 export const staticResourceTypeSeed = {
   disabled: !config.db.forceRefresh,
@@ -17,4 +17,4 @@ export const staticResourceTypeSeed = {
     { type: 'user-thumbnail' }, // User avatar profile thumbnail
     { type: 'data' } // arbitrary data of any other type
   ]
-};
+}

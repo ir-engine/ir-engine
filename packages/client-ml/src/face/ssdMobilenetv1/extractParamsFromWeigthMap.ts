@@ -1,34 +1,67 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { disposeUnusedWeightTensors } from '../common/disposeUnusedWeightTensors';
-import { extractWeightEntryFactory } from '../common/extractWeightEntryFactory';
-import { ParamMapping, ConvParams } from '../common/types';
-import { isTensor3D } from '../utils';
-import { BoxPredictionParams, ConvPairParams, MobileNetV1, NetParams, Params, PointwiseConvParams, PredictionLayerParams } from './types';
+import * as tf from '@tensorflow/tfjs-core'
+import { disposeUnusedWeightTensors } from '../common/disposeUnusedWeightTensors'
+import { extractWeightEntryFactory } from '../common/extractWeightEntryFactory'
+import { ParamMapping, ConvParams } from '../common/types'
+import { isTensor3D } from '../utils'
+import {
+  BoxPredictionParams,
+  ConvPairParams,
+  MobileNetV1,
+  NetParams,
+  Params,
+  PointwiseConvParams,
+  PredictionLayerParams
+} from './types'
 
 function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
-
   const extractWeightEntry = extractWeightEntryFactory(weightMap, paramMappings)
 
   function extractPointwiseConvParams(prefix: string, index: number, mappedPrefix: string): PointwiseConvParams {
-
-    const filters = extractWeightEntry<tf.Tensor4D>(`${prefix}/Conv2d_${index}_pointwise/weights`, 4, `${mappedPrefix}/filters`)
-    const batch_norm_offset = extractWeightEntry<tf.Tensor1D>(`${prefix}/Conv2d_${index}_pointwise/convolution_bn_offset`, 1, `${mappedPrefix}/batch_norm_offset`)
+    const filters = extractWeightEntry<tf.Tensor4D>(
+      `${prefix}/Conv2d_${index}_pointwise/weights`,
+      4,
+      `${mappedPrefix}/filters`
+    )
+    const batch_norm_offset = extractWeightEntry<tf.Tensor1D>(
+      `${prefix}/Conv2d_${index}_pointwise/convolution_bn_offset`,
+      1,
+      `${mappedPrefix}/batch_norm_offset`
+    )
 
     return { filters, batch_norm_offset }
   }
 
   function extractConvPairParams(index: number): ConvPairParams {
-
     const mappedPrefix = `mobilenetv1/conv_${index}`
     const prefixDepthwiseConv = `MobilenetV1/Conv2d_${index}_depthwise`
     const mappedPrefixDepthwiseConv = `${mappedPrefix}/depthwise_conv`
     const mappedPrefixPointwiseConv = `${mappedPrefix}/pointwise_conv`
 
-    const filters = extractWeightEntry<tf.Tensor4D>(`${prefixDepthwiseConv}/depthwise_weights`, 4, `${mappedPrefixDepthwiseConv}/filters`)
-    const batch_norm_scale = extractWeightEntry<tf.Tensor1D>(`${prefixDepthwiseConv}/BatchNorm/gamma`, 1, `${mappedPrefixDepthwiseConv}/batch_norm_scale`)
-    const batch_norm_offset = extractWeightEntry<tf.Tensor1D>(`${prefixDepthwiseConv}/BatchNorm/beta`, 1, `${mappedPrefixDepthwiseConv}/batch_norm_offset`)
-    const batch_norm_mean = extractWeightEntry<tf.Tensor1D>(`${prefixDepthwiseConv}/BatchNorm/moving_mean`, 1, `${mappedPrefixDepthwiseConv}/batch_norm_mean`)
-    const batch_norm_variance = extractWeightEntry<tf.Tensor1D>(`${prefixDepthwiseConv}/BatchNorm/moving_variance`, 1, `${mappedPrefixDepthwiseConv}/batch_norm_variance`)
+    const filters = extractWeightEntry<tf.Tensor4D>(
+      `${prefixDepthwiseConv}/depthwise_weights`,
+      4,
+      `${mappedPrefixDepthwiseConv}/filters`
+    )
+    const batch_norm_scale = extractWeightEntry<tf.Tensor1D>(
+      `${prefixDepthwiseConv}/BatchNorm/gamma`,
+      1,
+      `${mappedPrefixDepthwiseConv}/batch_norm_scale`
+    )
+    const batch_norm_offset = extractWeightEntry<tf.Tensor1D>(
+      `${prefixDepthwiseConv}/BatchNorm/beta`,
+      1,
+      `${mappedPrefixDepthwiseConv}/batch_norm_offset`
+    )
+    const batch_norm_mean = extractWeightEntry<tf.Tensor1D>(
+      `${prefixDepthwiseConv}/BatchNorm/moving_mean`,
+      1,
+      `${mappedPrefixDepthwiseConv}/batch_norm_mean`
+    )
+    const batch_norm_variance = extractWeightEntry<tf.Tensor1D>(
+      `${prefixDepthwiseConv}/BatchNorm/moving_variance`,
+      1,
+      `${mappedPrefixDepthwiseConv}/batch_norm_variance`
+    )
 
     return {
       depthwise_conv: {
@@ -69,7 +102,6 @@ function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
   }
 
   function extractBoxPredictorParams(index: number): BoxPredictionParams {
-
     const box_encoding_predictor = extractConvParams(
       `Prediction/BoxPredictor_${index}/BoxEncodingPredictor`,
       `prediction_layer/box_predictor_${index}/box_encoding_predictor`
@@ -107,16 +139,13 @@ function extractorsFactory(weightMap: any, paramMappings: ParamMapping[]) {
   }
 }
 
-export function extractParamsFromWeigthMap(
-  weightMap: tf.NamedTensorMap
-): { params: NetParams, paramMappings: ParamMapping[] } {
-
+export function extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): {
+  params: NetParams
+  paramMappings: ParamMapping[]
+} {
   const paramMappings: ParamMapping[] = []
 
-  const {
-    extractMobilenetV1Params,
-    extractPredictionLayerParams
-  } = extractorsFactory(weightMap, paramMappings)
+  const { extractMobilenetV1Params, extractPredictionLayerParams } = extractorsFactory(weightMap, paramMappings)
 
   const extra_dim = weightMap['Output/extra_dim']
   paramMappings.push({ originalPath: 'Output/extra_dim', paramPath: 'output_layer/extra_dim' })

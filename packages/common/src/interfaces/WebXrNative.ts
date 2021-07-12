@@ -1,4 +1,4 @@
-import {CreatorShort} from './Creator'
+import { CreatorShort } from './Creator'
 export interface WebXrNativeShort {
   value: boolean
 }

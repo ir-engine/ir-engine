@@ -1,10 +1,10 @@
-import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics';
-import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-permission-authenticate';
-import createGroupOwner from '@xrengine/server-core/src/hooks/create-group-owner';
-import removeGroupUsers from '@xrengine/server-core/src/hooks/remove-group-users';
-import * as authentication from '@feathersjs/authentication';
+import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
+import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-permission-authenticate'
+import createGroupOwner from '@xrengine/server-core/src/hooks/create-group-owner'
+import removeGroupUsers from '@xrengine/server-core/src/hooks/remove-group-users'
+import * as authentication from '@feathersjs/authentication'
 
-const { authenticate } = authentication.hooks;
+const { authenticate } = authentication.hooks
 
 export default {
   before: {
@@ -12,25 +12,16 @@ export default {
     find: [],
     get: [],
     create: [],
-    update: [
-      groupPermissionAuthenticate()
-    ],
-    patch: [
-      groupPermissionAuthenticate()
-    ],
-    remove: [
-      groupPermissionAuthenticate(),
-      removeGroupUsers()
-    ]
+    update: [groupPermissionAuthenticate()],
+    patch: [groupPermissionAuthenticate()],
+    remove: [groupPermissionAuthenticate(), removeGroupUsers()]
   },
 
   after: {
     all: [],
     find: [],
     get: [],
-    create: [
-      createGroupOwner()
-    ],
+    create: [createGroupOwner()],
     update: [],
     patch: [],
     remove: []
@@ -45,4 +36,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}

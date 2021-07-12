@@ -16,7 +16,7 @@ export const AuthUserSeed = {
   identityProvider: IdentityProviderSeed
 }
 
-export function resolveAuthUser (res: any): AuthUser {
+export function resolveAuthUser(res: any): AuthUser {
   return {
     accessToken: res.accessToken,
     authentication: res.authentication,

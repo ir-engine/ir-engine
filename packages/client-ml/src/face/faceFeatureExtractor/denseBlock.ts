@@ -1,21 +1,17 @@
-import * as tf from '@tensorflow/tfjs-core';
+import * as tf from '@tensorflow/tfjs-core'
 
-import { depthwiseSeparableConv } from '../common/depthwiseSeparableConv';
-import { ConvParams, SeparableConvParams } from '../common/types';
-import { DenseBlock3Params, DenseBlock4Params } from './types';
+import { depthwiseSeparableConv } from '../common/depthwiseSeparableConv'
+import { ConvParams, SeparableConvParams } from '../common/types'
+import { DenseBlock3Params, DenseBlock4Params } from './types'
 
-export function denseBlock3(
-  x: tf.Tensor4D,
-  denseBlockParams: DenseBlock3Params,
-  isFirstLayer = false
-): tf.Tensor4D {
+export function denseBlock3(x: tf.Tensor4D, denseBlockParams: DenseBlock3Params, isFirstLayer = false): tf.Tensor4D {
   return tf.tidy(() => {
     const out1 = tf.relu(
       isFirstLayer
         ? tf.add(
-          tf.conv2d(x, (denseBlockParams.conv0 as ConvParams).filters, [2, 2], 'same'),
-          denseBlockParams.conv0.bias
-        )
+            tf.conv2d(x, (denseBlockParams.conv0 as ConvParams).filters, [2, 2], 'same'),
+            denseBlockParams.conv0.bias
+          )
         : depthwiseSeparableConv(x, denseBlockParams.conv0 as SeparableConvParams, [2, 2])
     ) as tf.Tensor4D
     const out2 = depthwiseSeparableConv(out1, denseBlockParams.conv1, [1, 1])
@@ -37,9 +33,9 @@ export function denseBlock4(
     const out1 = tf.relu(
       isFirstLayer
         ? tf.add(
-          tf.conv2d(x, (denseBlockParams.conv0 as ConvParams).filters, isScaleDown ? [2, 2] : [1, 1], 'same'),
-          denseBlockParams.conv0.bias
-        )
+            tf.conv2d(x, (denseBlockParams.conv0 as ConvParams).filters, isScaleDown ? [2, 2] : [1, 1], 'same'),
+            denseBlockParams.conv0.bias
+          )
         : depthwiseSeparableConv(x, denseBlockParams.conv0 as SeparableConvParams, isScaleDown ? [2, 2] : [1, 1])
     ) as tf.Tensor4D
     const out2 = depthwiseSeparableConv(out1, denseBlockParams.conv1, [1, 1])

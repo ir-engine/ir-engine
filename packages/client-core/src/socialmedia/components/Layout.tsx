@@ -1,5 +1,5 @@
-import React from "react";
-import Header from "./Header";
+import React from 'react'
+import Header from './Header'
 
 export function Layout({ children, user = null }) {
   return (
@@ -7,6 +7,6 @@ export function Layout({ children, user = null }) {
       <Header />
       <div className="homepage-container flex justify-center">{children}</div>
     </div>
-  );
+  )
 }
- export {};
+export {}

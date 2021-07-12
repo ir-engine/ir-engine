@@ -1,12 +1,12 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import styled from "styled-components";
-import { ThemeContext } from "./theme";
-import { withTranslation } from "react-i18next";
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import styled from 'styled-components'
+import { ThemeContext } from './theme'
+import { withTranslation } from 'react-i18next'
 
 /**
  * StyledError styled component used to provide styles for error container.
- * 
+ *
  * @type {styled component}
  */
 const StyledError = (styled as any).div`
@@ -17,38 +17,36 @@ const StyledError = (styled as any).div`
   align-items: center;
   height: 100vh;
   width: 100vw;
-  color: ${props => props.theme.red};
+  color: ${(props) => props.theme.red};
 
   svg {
     margin-bottom: 20px;
   }
-`;
+`
 /**
  * Error component used to error message.
- * 
+ *
  * @author Robert Long
  * @type {component class}
  */
-export class Error extends Component<{t: Function}> {
+export class Error extends Component<{ t: Function }> {
   static propTypes = {
     message: PropTypes.node,
-    t: PropTypes.func,
-  };
+    t: PropTypes.func
+  }
 
   static contextType = ThemeContext
 
-// rendering error message
+  // rendering error message
   render() {
-    const theme = this.context;
+    const theme = this.context
     return (
       <StyledError theme={theme}>
-        <a href="/">
-          {this.props.t('editor:lbl-return')}
-        </a>
+        <a href="/">{this.props.t('editor:lbl-return')}</a>
         {(this.props as any).message}
       </StyledError>
-    );
+    )
   }
 }
 
-export default withTranslation()(Error);
+export default withTranslation()(Error)

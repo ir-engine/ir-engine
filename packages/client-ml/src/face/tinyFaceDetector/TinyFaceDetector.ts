@@ -1,15 +1,14 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { FaceDetection } from '../classes/FaceDetection';
-import { Point } from '../classes/Point';
-import { ParamMapping } from '../common/types';
-import { TNetInput } from '../dom/types';
-import { ITinyYolov2Options } from '../tinyYolov2';
-import { TinyYolov2Base } from '../tinyYolov2/TinyYolov2Base';
-import { TinyYolov2NetParams } from '../tinyYolov2/types';
-import { BOX_ANCHORS, IOU_THRESHOLD, MEAN_RGB } from './const';
+import * as tf from '@tensorflow/tfjs-core'
+import { FaceDetection } from '../classes/FaceDetection'
+import { Point } from '../classes/Point'
+import { ParamMapping } from '../common/types'
+import { TNetInput } from '../dom/types'
+import { ITinyYolov2Options } from '../tinyYolov2'
+import { TinyYolov2Base } from '../tinyYolov2/TinyYolov2Base'
+import { TinyYolov2NetParams } from '../tinyYolov2/types'
+import { BOX_ANCHORS, IOU_THRESHOLD, MEAN_RGB } from './const'
 
 export class TinyFaceDetector extends TinyYolov2Base {
-
   constructor() {
     const config = {
       withSeparableConvs: true,
@@ -30,14 +29,19 @@ export class TinyFaceDetector extends TinyYolov2Base {
 
   public async locateFaces(input: TNetInput, forwardParams: ITinyYolov2Options): Promise<FaceDetection[]> {
     const objectDetections = await this.detect(input, forwardParams)
-    return objectDetections.map(det => new FaceDetection(det.score, det.relativeBox, { width: det.imageWidth, height: det.imageHeight }))
+    return objectDetections.map(
+      (det) => new FaceDetection(det.score, det.relativeBox, { width: det.imageWidth, height: det.imageHeight })
+    )
   }
 
   protected getDefaultModelName(): string {
     return 'tiny_face_detector_model'
   }
 
-  protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): { params: TinyYolov2NetParams, paramMappings: ParamMapping[] } {
+  protected extractParamsFromWeigthMap(weightMap: tf.NamedTensorMap): {
+    params: TinyYolov2NetParams
+    paramMappings: ParamMapping[]
+  } {
     return super.extractParamsFromWeigthMap(weightMap)
   }
 }

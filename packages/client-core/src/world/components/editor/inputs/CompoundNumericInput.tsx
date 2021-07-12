@@ -1,12 +1,12 @@
-import React from "react";
-import PropTypes from "prop-types";
-import Slider from "./Slider";
-import NumericInput from "./NumericInput";
-import styled from "styled-components";
+import React from 'react'
+import PropTypes from 'prop-types'
+import Slider from './Slider'
+import NumericInput from './NumericInput'
+import styled from 'styled-components'
 
 /**
  * StyledCompoundNumericInput used to provide styles for CompoundNumericInput.
- * 
+ *
  * @author Robert Long
  * @type {Styled component}
  */
@@ -16,11 +16,11 @@ const StyledCompoundNumericInput = (styled as any).div`
     justify-content: space-between;
     align-items: center;
     width: 100%;
-`;
+`
 
 /**
  * CompoundNumericInput used to render the view of component.
- * 
+ *
  * @author Robert Long
  * @param       {number} value
  * @param       {function} onChange
@@ -28,19 +28,19 @@ const StyledCompoundNumericInput = (styled as any).div`
  * @constructor
  */
 export function CompoundNumericInput({ value, onChange, ...extras }) {
-  const { min, max, step } = extras;
+  const { min, max, step } = extras
   return (
     <StyledCompoundNumericInput>
       <Slider min={min} max={max} value={value} step={step} onChange={onChange} />
-      { /* @ts-ignore */ }
+      {/* @ts-ignore */}
       <NumericInput {...extras} mediumStep={step} value={value} onChange={onChange} />
     </StyledCompoundNumericInput>
-  );
+  )
 }
 
 /**
  * defaultProps used to set default properties for CompoundNumericInput component.
- * 
+ *
  * @author Robert Long
  * @type {Object}
  */
@@ -51,16 +51,16 @@ CompoundNumericInput.defaultProps = {
   min: 0,
   max: 1,
   step: 0.01
-};
+}
 
 /**
  * Declaring protoTypes for CompoundNumericInput.
- * 
+ *
  * @author Robert Long
  * @type {Object}
  */
 CompoundNumericInput.propTypes = {
   value: PropTypes.number,
   onChange: PropTypes.func
-};
-export default CompoundNumericInput;
+}
+export default CompoundNumericInput

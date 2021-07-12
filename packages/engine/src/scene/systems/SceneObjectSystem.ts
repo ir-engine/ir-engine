@@ -1,13 +1,13 @@
-import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Vector3 } from "three";
-import { CameraLayers } from "../../camera/constants/CameraLayers";
-import { Engine } from "../../ecs/classes/Engine";
-import { System, SystemAttributes } from "../../ecs/classes/System";
-import { getComponent, hasComponent } from "../../ecs/functions/EntityFunctions";
-import { SystemUpdateType } from "../../ecs/functions/SystemUpdateType";
-import { beforeMaterialCompile } from "../../editor/nodes/helper/BPCEMShader";
-import { WebGLRendererSystem } from "../../renderer/WebGLRendererSystem";
-import { Object3DComponent } from "../components/Object3DComponent";
-import { PersistTagComponent } from "../components/PersistTagComponent";
+import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Vector3 } from 'three'
+import { CameraLayers } from '../../camera/constants/CameraLayers'
+import { Engine } from '../../ecs/classes/Engine'
+import { System, SystemAttributes } from '../../ecs/classes/System'
+import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
+import { beforeMaterialCompile } from '../../editor/nodes/helper/BPCEMShader'
+import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
+import { Object3DComponent } from '../components/Object3DComponent'
+import { PersistTagComponent } from '../components/PersistTagComponent'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -17,73 +17,71 @@ import { PersistTagComponent } from "../components/PersistTagComponent";
 // GameManagerSystem already has physics interaction behaviors, these could be made generic and not game dependent
 
 export type BPCEMProps = {
-  probeScale: Vector3;
-  probePositionOffset: Vector3;
+  probeScale: Vector3
+  probePositionOffset: Vector3
 }
 
 export class SceneObjectSystem extends System {
-  
-  updateType = SystemUpdateType.Fixed;
-  static instance: SceneObjectSystem;
-  
-  bpcemOptions: BPCEMProps;
-  envMapIntensity=1;
+  updateType = SystemUpdateType.Fixed
+  static instance: SceneObjectSystem
+
+  bpcemOptions: BPCEMProps
+  envMapIntensity = 1
 
   constructor(attributes: SystemAttributes = {}) {
-    super(attributes);
+    super(attributes)
     this.bpcemOptions = {
       probeScale: new Vector3(1, 1, 1),
-      probePositionOffset: new Vector3(),
-    };
-    SceneObjectSystem.instance = this;
+      probePositionOffset: new Vector3()
+    }
+    SceneObjectSystem.instance = this
   }
 
   /** Executes the system. */
   execute(deltaTime, time): void {
-
     for (const entity of this.queryResults.sceneObject.added) {
-      const object3DComponent = getComponent(entity, Object3DComponent);
+      const object3DComponent = getComponent(entity, Object3DComponent)
 
       // Add to scene
       if (!Engine.scene.children.includes(object3DComponent.value)) {
-        Engine.scene.add(object3DComponent.value);
+        Engine.scene.add(object3DComponent.value)
       } else {
         console.warn('[Object3DComponent]: Scene object has been added manually.')
       }
 
       // Apply material stuff
       object3DComponent.value.traverse((obj: Mesh) => {
-        const material = obj.material as Material;
+        const material = obj.material as Material
         if (typeof material !== 'undefined') material.dithering = true
 
-        if(Engine.simpleMaterials) {// || Engine.isHMD) {
-          if(obj.material instanceof MeshStandardMaterial) {
-            const prevMaterial = obj.material;
-            obj.material = new MeshPhongMaterial();
-            MeshBasicMaterial.prototype.copy.call(obj.material, prevMaterial);
+        if (Engine.simpleMaterials) {
+          // || Engine.isHMD) {
+          if (obj.material instanceof MeshStandardMaterial) {
+            const prevMaterial = obj.material
+            obj.material = new MeshPhongMaterial()
+            MeshBasicMaterial.prototype.copy.call(obj.material, prevMaterial)
           }
         } else {
-          const material = obj.material as Material;
+          const material = obj.material as Material
           if (typeof material !== 'undefined') {
-
             // BPCEM
             //material.onBeforeCompile = beforeMaterialCompile(this.bpcemOptions.probeScale, this.bpcemOptions.probePositionOffset);
-            (material as any).envMapIntensity = SceneObjectSystem.instance.envMapIntensity;
+            ;(material as any).envMapIntensity = SceneObjectSystem.instance.envMapIntensity
 
             if (obj.receiveShadow) {
-              WebGLRendererSystem.instance.csm?.setupMaterial(material);
+              WebGLRendererSystem.instance.csm?.setupMaterial(material)
             }
           }
         }
-      });
+      })
     }
 
     for (const entity of this.queryResults.sceneObject.removed) {
-      const object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent, true);
+      const object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent, true)
 
       // Remove from scene
       if (object3DComponent && Engine.scene.children.includes(object3DComponent.value)) {
-        Engine.scene.remove(object3DComponent.value);
+        Engine.scene.remove(object3DComponent.value)
       } else {
         console.warn('[Object3DComponent]: Scene object has been removed manually.')
       }
@@ -91,10 +89,10 @@ export class SceneObjectSystem extends System {
 
     // Enable second camera layer for persistant entities for fun portal effects
     for (const entity of this.queryResults.persist.added) {
-      const object3DComponent = getComponent(entity, Object3DComponent);
+      const object3DComponent = getComponent(entity, Object3DComponent)
       object3DComponent?.value?.traverse((obj) => {
-        obj.layers.enable(CameraLayers.Portal);
-      });
+        obj.layers.enable(CameraLayers.Portal)
+      })
     }
   }
 }
@@ -113,5 +111,5 @@ SceneObjectSystem.queries = {
       removed: true,
       added: true
     }
-  },
-};
+  }
+}

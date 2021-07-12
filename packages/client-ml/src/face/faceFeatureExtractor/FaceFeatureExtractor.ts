@@ -1,22 +1,23 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { NetInput } from '../dom/NetInput';
-import { toNetInput } from '../dom/toNetInput';
-import { TNetInput } from '../dom/types';
-import { NeuralNetwork } from '../NeuralNetwork';
-import { normalize } from '../ops';
-import { denseBlock4 } from './denseBlock';
-import { extractParams } from './extractParams';
-import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap';
-import { FaceFeatureExtractorParams, IFaceFeatureExtractor } from './types';
+import * as tf from '@tensorflow/tfjs-core'
+import { NetInput } from '../dom/NetInput'
+import { toNetInput } from '../dom/toNetInput'
+import { TNetInput } from '../dom/types'
+import { NeuralNetwork } from '../NeuralNetwork'
+import { normalize } from '../ops'
+import { denseBlock4 } from './denseBlock'
+import { extractParams } from './extractParams'
+import { extractParamsFromWeigthMap } from './extractParamsFromWeigthMap'
+import { FaceFeatureExtractorParams, IFaceFeatureExtractor } from './types'
 
-export class FaceFeatureExtractor extends NeuralNetwork<FaceFeatureExtractorParams> implements IFaceFeatureExtractor<FaceFeatureExtractorParams> {
-
+export class FaceFeatureExtractor
+  extends NeuralNetwork<FaceFeatureExtractorParams>
+  implements IFaceFeatureExtractor<FaceFeatureExtractorParams>
+{
   constructor() {
     super('FaceFeatureExtractor')
   }
 
   public forwardInput(input: NetInput): tf.Tensor4D {
-
     const { params } = this
 
     if (!params) {

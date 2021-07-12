@@ -1,45 +1,45 @@
-import React from "react";
-import PropTypes from "prop-types";
-import { ControlledStringInput } from "./StringInput";
-import { useDrop } from "react-dnd";
-import { ItemTypes } from "../dnd";
-import useUpload from "../assets/useUpload";
-import { ModelFileTypes } from "../assets/fileTypes";
+import React from 'react'
+import PropTypes from 'prop-types'
+import { ControlledStringInput } from './StringInput'
+import { useDrop } from 'react-dnd'
+import { ItemTypes } from '../dnd'
+import useUpload from '../assets/useUpload'
+import { ModelFileTypes } from '../assets/fileTypes'
 
 const uploadOptions = {
   multiple: false,
   accepts: ModelFileTypes
-};
+}
 
 /**
  * Function component used for rendering ControlledStringInput.
- * 
+ *
  * @author Robert Long
  * @param {function} onChange
- * @param {any} rest 
- * @returns 
+ * @param {any} rest
+ * @returns
  */
 export function ModelInput({ onChange, ...rest }) {
-  const onUpload = useUpload();
+  const onUpload = useUpload()
   const [{ canDrop, isOver }, dropRef] = useDrop({
     accept: [ItemTypes.Model, ItemTypes.File],
     drop(item: any) {
       if (item.type === ItemTypes.Model) {
-        onChange(item.value.url, item.value.initialProps || {});
+        onChange(item.value.url, item.value.initialProps || {})
       } else {
         /* @ts-ignore */
-        onUpload(item.files, uploadOptions).then(assets => {
+        onUpload(item.files, uploadOptions).then((assets) => {
           if (assets && assets.length > 0) {
-            onChange(assets[0].url, {});
+            onChange(assets[0].url, {})
           }
-        });
+        })
       }
     },
-    collect: monitor => ({
+    collect: (monitor) => ({
       canDrop: monitor.canDrop(),
       isOver: monitor.isOver()
     })
-  });
+  })
 
   return (
     <ControlledStringInput
@@ -50,10 +50,10 @@ export function ModelInput({ onChange, ...rest }) {
       canDrop={isOver && canDrop}
       {...rest}
     />
-  );
+  )
 }
 
 ModelInput.propTypes = {
   onChange: PropTypes.func.isRequired
-};
-export default ModelInput;
+}
+export default ModelInput

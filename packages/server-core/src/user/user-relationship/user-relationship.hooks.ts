@@ -1,15 +1,12 @@
-import * as authentication from '@feathersjs/authentication';
-import * as commonHooks from 'feathers-hooks-common';
-import {HookContext} from "@feathersjs/feathers";
+import * as authentication from '@feathersjs/authentication'
+import * as commonHooks from 'feathers-hooks-common'
+import { HookContext } from '@feathersjs/feathers'
 
-const { authenticate } = authentication.hooks;
+const { authenticate } = authentication.hooks
 
 export default {
   before: {
-    all: [commonHooks.iff(
-      commonHooks.isProvider('external'),
-      authenticate('jwt') as any
-    )],
+    all: [commonHooks.iff(commonHooks.isProvider('external'), authenticate('jwt') as any)],
     find: [],
     get: [],
     create: [],
@@ -24,19 +21,22 @@ export default {
     get: [],
     create: [
       async (context: HookContext): Promise<HookContext> => {
-        const { app, result } = context;
-        const user = await app.service('user').get(result.userId);
-        await app.service('message').create({
-          targetObjectId: result.relatedUserId,
-          targetObjectType: 'user',
-          text: 'Hey friend!',
-          isNotification: true
-        }, {
-          'identity-provider': {
-            userId: result.userId
+        const { app, result } = context
+        const user = await app.service('user').get(result.userId)
+        await app.service('message').create(
+          {
+            targetObjectId: result.relatedUserId,
+            targetObjectType: 'user',
+            text: 'Hey friend!',
+            isNotification: true
+          },
+          {
+            'identity-provider': {
+              userId: result.userId
+            }
           }
-        });
-        return context;
+        )
+        return context
       }
     ],
     update: [],
@@ -53,4 +53,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}

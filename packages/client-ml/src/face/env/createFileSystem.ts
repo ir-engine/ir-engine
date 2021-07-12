@@ -1,7 +1,6 @@
-import { FileSystem } from './types';
+import { FileSystem } from './types'
 
 export function createFileSystem(fs?: any): FileSystem {
-
   let requireFsError = ''
 
   if (!fs) {
@@ -13,16 +12,16 @@ export function createFileSystem(fs?: any): FileSystem {
   }
 
   const readFile = fs
-    ? function(filePath: string) {
-      return new Promise<Buffer>((res, rej) => {
-        fs.readFile(filePath, (err: any, buffer: Buffer) => {
-          return err ? rej(err) : res(buffer)
+    ? function (filePath: string) {
+        return new Promise<Buffer>((res, rej) => {
+          fs.readFile(filePath, (err: any, buffer: Buffer) => {
+            return err ? rej(err) : res(buffer)
+          })
         })
-      })
-    }
-    : function() {
-      throw new Error(`readFile - failed to require fs in nodejs environment with error: ${requireFsError}`)
-    }
+      }
+    : function () {
+        throw new Error(`readFile - failed to require fs in nodejs environment with error: ${requireFsError}`)
+      }
 
   return {
     readFile

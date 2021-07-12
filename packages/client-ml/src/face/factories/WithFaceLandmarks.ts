@@ -1,7 +1,7 @@
-import { FaceDetection } from '../classes/FaceDetection';
-import { FaceLandmarks } from '../classes/FaceLandmarks';
-import { FaceLandmarks68 } from '../classes/FaceLandmarks68';
-import { isWithFaceDetection, WithFaceDetection } from './WithFaceDetection';
+import { FaceDetection } from '../classes/FaceDetection'
+import { FaceLandmarks } from '../classes/FaceLandmarks'
+import { FaceLandmarks68 } from '../classes/FaceLandmarks68'
+import { isWithFaceDetection, WithFaceDetection } from './WithFaceDetection'
 
 export type WithFaceLandmarks<
   TSource extends WithFaceDetection<{}>,
@@ -13,20 +13,18 @@ export type WithFaceLandmarks<
 }
 
 export function isWithFaceLandmarks(obj: any): obj is WithFaceLandmarks<WithFaceDetection<{}>, FaceLandmarks> {
-  return isWithFaceDetection(obj)
-    && obj['landmarks'] instanceof FaceLandmarks
-    && obj['unshiftedLandmarks'] instanceof FaceLandmarks
-    && obj['alignedRect'] instanceof FaceDetection
+  return (
+    isWithFaceDetection(obj) &&
+    obj['landmarks'] instanceof FaceLandmarks &&
+    obj['unshiftedLandmarks'] instanceof FaceLandmarks &&
+    obj['alignedRect'] instanceof FaceDetection
+  )
 }
 
 export function extendWithFaceLandmarks<
   TSource extends WithFaceDetection<{}>,
   TFaceLandmarks extends FaceLandmarks = FaceLandmarks68
-> (
-  sourceObj: TSource,
-  unshiftedLandmarks: TFaceLandmarks
-): WithFaceLandmarks<TSource, TFaceLandmarks> {
-
+>(sourceObj: TSource, unshiftedLandmarks: TFaceLandmarks): WithFaceLandmarks<TSource, TFaceLandmarks> {
   const { box: shift } = sourceObj.detection
   const landmarks = unshiftedLandmarks.shiftBy<TFaceLandmarks>(shift.x, shift.y)
 
