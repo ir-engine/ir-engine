@@ -193,7 +193,7 @@ export class WorldScene {
                     animationComponent.animations = res.animations
                     const object3d = getMutableComponent(entity, Object3DComponent)
 
-                    animationComponent.mixer = new AnimationMixer(object3d.value.children[0])
+                    animationComponent.mixer = new AnimationMixer(object3d.value)
                     animationComponent.currentState = new AnimationState()
                   }
 
