@@ -29,6 +29,7 @@ import { FogType } from '../../scene/constants/FogType'
 import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '../../scene/constants/EnvMapEnum'
 import { DistanceModelType } from '../../scene/classes/AudioSource'
 import ReflectionProbeNode, { ReflectionProbeTypes } from './ReflectionProbeNode'
+import asyncTraverse from '../functions/asyncTraverse'
 
 export default class SceneNode extends EditorNodeMixin(Scene) {
   static nodeName = 'Scene'
@@ -306,7 +307,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         envMapProps.envMapReflectionProbe = this.environmentNode.reflectionProbeSettings
         if (this.environmentNode.reflectionProbeSettings.reflectionType === ReflectionProbeTypes.Baked)
           //envMapProps.envMapReflectionProbe.envMapID = this.environmentNode.Bake()
-        break
+          break
     }
 
     return envMapProps
@@ -436,7 +437,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     return this
   }
   // @ts-ignore
-  serialize() {
+  async serialize() {
     const sceneJson = {
       version: 4,
       root: this.uuid,
@@ -497,11 +498,12 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         }
       }
     }
-    this.traverse((child) => {
+
+    const serializeCallback = async (child) => {
       if (!child.isNode || child === this) {
         return
       }
-      const entityJson = child.serialize()
+      const entityJson = await child.serialize()
       entityJson.parent = child.parent.uuid
       let index = 0
       for (const sibling of child.parent.children) {
@@ -513,7 +515,8 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       }
       entityJson.index = index
       sceneJson.entities[child.uuid] = entityJson
-    })
+    }
+    await asyncTraverse(this, serializeCallback)
     return sceneJson
   }
   // @ts-ignore

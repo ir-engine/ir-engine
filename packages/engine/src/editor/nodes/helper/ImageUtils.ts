@@ -2,6 +2,7 @@
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
 
+import { Api } from '@xrengine/client-core'
 import {
   BackSide,
   ClampToEdgeWrapping,
@@ -165,3 +166,5 @@ export const convertEquiToCubemap = (renderer: WebGLRenderer, source: Texture, s
   cubecam.update(renderer, convertScene)
   return cubeRenderTarget
 }
+
+export const uploadImage = (imageData: ImageData, api: Api) => {}
