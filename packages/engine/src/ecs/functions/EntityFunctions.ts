@@ -98,7 +98,7 @@ export function addComponent<C extends Component<C>>(
   entity: Entity,
   Component: ComponentConstructor<C>,
   values?: Partial<Omit<C, keyof Component<C>>>
-): Component<C> {
+): C {
   if (typeof Component._typeId === 'undefined' && !Engine.componentsMap[(Component as any)._typeId]) {
     registerComponent(Component)
   }
@@ -146,7 +146,7 @@ export function addComponent<C extends Component<C>>(
   Engine.numComponents[component._typeId]++
 
   Engine.eventDispatcher.dispatchEvent(COMPONENT_ADDED, entity, Component as any)
-  return component as Component<C>
+  return component as C
 }
 
 /**
