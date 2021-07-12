@@ -244,9 +244,6 @@ export class CharacterControllerSystem extends System {
     this.queryResults.animation.all?.forEach((entity) => {
       if (!isClient) return
       const animationComponent = getMutableComponent(entity, AnimationComponent)
-
-      if (!animationComponent.mixer) return
-
       const modifiedDelta = delta * animationComponent.animationSpeed
       animationComponent.mixer.update(modifiedDelta)
     })
@@ -256,8 +253,6 @@ export class CharacterControllerSystem extends System {
 
       const actor = getMutableComponent(entity, CharacterComponent)
       const animationComponent = getMutableComponent(entity, AnimationComponent)
-
-      if (!animationComponent.mixer) return
 
       const deltaTime = delta * animationComponent.animationSpeed
 
@@ -270,9 +265,6 @@ export class CharacterControllerSystem extends System {
     })
 
     this.queryResults.ikAvatar.added?.forEach((entity) => {
-      // TODO: once IK is, remove anim component
-      // removeComponent(entity, AnimationComponent);
-
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent)
       const actor = getMutableComponent(entity, CharacterComponent)
       const object3DComponent = getComponent(entity, Object3DComponent)
@@ -314,8 +306,6 @@ export class CharacterControllerSystem extends System {
     })
 
     this.queryResults.ikAvatar.removed?.forEach((entity) => {
-      // TODO: once IK is, remove anim component
-      // addComponent(entity, AnimationComponent);
       const actor = getMutableComponent(entity, CharacterComponent)
 
       if (isEntityLocalClient(entity))

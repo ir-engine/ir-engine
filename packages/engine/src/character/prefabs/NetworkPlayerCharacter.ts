@@ -32,17 +32,18 @@ import { SkeletonUtils } from '../SkeletonUtils'
 import type { NetworkObject } from '../../networking/components/NetworkObject'
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
-  if (!isClient) return
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
-  const animationComponent = getMutableComponent(entity, AnimationComponent)
   const model = SkeletonUtils.clone(AnimationManager.instance._defaultModel)
+
   model.traverse((object) => {
     if (object.isMesh || object.isSkinnedMesh) {
       object.material = object.material.clone()
     }
   })
-  model.children?.forEach((child) => actor.modelContainer.add(child))
-  animationComponent.mixer = new AnimationMixer(actor.modelContainer.children[0])
+  model.children.forEach((child) => actor.modelContainer.add(child))
+
+  const animationComponent = getMutableComponent(entity, AnimationComponent)
+  animationComponent.mixer = new AnimationMixer(actor.modelContainer)
 }
 
 export const loadActorAvatar: Behavior = (entity) => {
@@ -56,8 +57,6 @@ export const loadActorAvatar: Behavior = (entity) => {
 }
 
 export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
-  if (!isClient) return
-
   createShadow(entity, { castShadow: true, receiveShadow: true })
 
   AssetLoader.load(
@@ -71,7 +70,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
       const animationComponent = getMutableComponent(entity, AnimationComponent)
 
-      animationComponent.mixer && animationComponent.mixer.stopAllAction()
+      animationComponent.mixer.stopAllAction()
       animationComponent.currentAnimationAction = []
       ;[...actor.modelContainer.children].forEach((child) => actor.modelContainer.remove(child))
 
@@ -81,11 +80,15 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
         }
       })
 
+      animationComponent.mixer = new AnimationMixer(actor.modelContainer)
       model.children.forEach((child) => actor.modelContainer.add(child))
-      animationComponent.mixer = new AnimationMixer(actor.modelContainer.children[0])
+
       if (animationComponent.currentState) {
-        animationComponent.currentState.mount(animationComponent, {})
+        animationComponent.currentState.mount(animationComponent, {}, true)
       }
+
+      // advance animation for a frame to eliminate potential t-pose
+      animationComponent.mixer.update(1 / 60)
     }
   )
 }
@@ -95,17 +98,9 @@ const initializeCharacter: Behavior = (entity): void => {
   entity.name = 'Player'
 
   const actor = getMutableComponent(entity, CharacterComponent)
-  const animationComponent = getMutableComponent(entity, AnimationComponent)
-
-  // forget that we have any animation playing
-  animationComponent.currentAnimationAction = []
-
   // clear current avatar mesh
   if (actor.modelContainer !== undefined)
     [...actor.modelContainer.children].forEach((child) => actor.modelContainer.remove(child))
-  // const stateComponent = getComponent(entity, State);
-  // trigger all states to restart?
-  // stateComponent.data.forEach(data => data.lifecycleState = LifecycleValue.STARTED);
 
   // The visuals group is centered for easy actor tilting
   const obj3d = new Group()
@@ -117,8 +112,12 @@ const initializeCharacter: Behavior = (entity): void => {
   actor.modelContainer.position.setY(-actor.actorHalfHeight)
   obj3d.add(actor.modelContainer)
 
-  // by default all asset childs are moved into entity object3dComponent, which is tiltContainer
-  // we should keep it clean till asset loaded and all it's content moved into modelContainer
+  const animationComponent = addComponent(entity, AnimationComponent, {
+    animationsSchema: movingAnimationSchema,
+    updateAnimationsValues: getMovementValues,
+    mixer: new AnimationMixer(actor.modelContainer)
+  })
+
   addObject3DComponent(entity, { obj3d })
 
   actor.velocitySimulator = new VectorSpringSimulator(
@@ -223,14 +222,7 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     // Local player input mapped to behaviors in the input map
     { type: Input, data: { schema: CharacterInputSchema } },
     { type: NamePlateComponent },
-    { type: PositionalAudioComponent },
-    {
-      type: AnimationComponent,
-      data: {
-        animationsSchema: movingAnimationSchema,
-        updateAnimationsValues: getMovementValues
-      }
-    }
+    { type: PositionalAudioComponent }
   ],
   // These are only created for the local player who owns this prefab
   localClientComponents: [

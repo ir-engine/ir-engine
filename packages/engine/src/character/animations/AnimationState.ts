@@ -52,10 +52,13 @@ export class AnimationState {
    * @param actor Actor component for which animation state will be mounted
    * @param params Parameters to calculate weigths
    */
-  mount = (animationComponent: AnimationComponent, params: CalculateWeightsParams) => {
-    // Calculate the weights of the animations
-    params.isMounting = true
-    if (this.calculateWeights) this.calculateWeights(params)
+  mount = (animationComponent: AnimationComponent, params: CalculateWeightsParams, ignoreWeights = false) => {
+    // We need to ignore weights if we change avatar
+    if (!ignoreWeights) {
+      // Calculate the weights of the animations
+      params.isMounting = true
+      if (this.calculateWeights) this.calculateWeights(params)
+    }
 
     this.animations.forEach((animation) => {
       // Take the clip from the loaded animations
