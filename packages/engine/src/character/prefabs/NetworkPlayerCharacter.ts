@@ -83,6 +83,9 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 
       model.children.forEach((child) => actor.modelContainer.add(child))
       animationComponent.mixer = new AnimationMixer(actor.modelContainer.children[0])
+      if (animationComponent.currentState) {
+        animationComponent.currentState.mount(animationComponent, {})
+      }
     }
   )
 }

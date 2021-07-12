@@ -125,14 +125,24 @@ export class AnimationGraph {
    * @param delta Time since last frame
    */
   render = (actor: CharacterComponent, animationComponent: AnimationComponent, delta: number): void => {
+    if (!animationComponent.currentState) return
+
     // Calculate movement fo the actor for this frame
     const movement = calculateMovement(actor, animationComponent, delta, this.EPSILON)
 
     // Check whether the velocity of the player is changed or not since last frame
-    const isChanged = !animationComponent.prevVelocity.equals(movement.velocity)
+    const isChanged =
+      !animationComponent.prevVelocity.equals(movement.velocity) ||
+      animationComponent.prevDistanceFromGround !== movement.distanceFromGround
 
     // If velocity is not changed then no updated and transition will happen
-    if (isChanged) {
+    if (!isChanged) return
+
+    if (actor.isJumping) {
+      if (animationComponent.currentState.name !== CharacterStates.JUMP) {
+        animationComponent.animationGraph.transitionState(animationComponent, CharacterStates.JUMP, {})
+      }
+    } else {
       let newState = ''
       if (movement.velocity.length() > this.EPSILON / 3) {
         newState = actor.isWalking ? CharacterStates.WALK : CharacterStates.RUN
@@ -146,10 +156,11 @@ export class AnimationGraph {
       } else {
         animationComponent.currentState.update({ movement })
       }
-
-      // Set velocity as prev velocity
-      animationComponent.prevVelocity.copy(movement.velocity)
     }
+
+    // Set velocity as prev velocity
+    animationComponent.prevVelocity.copy(movement.velocity)
+    animationComponent.prevDistanceFromGround = movement.distanceFromGround
   }
 
   /**
