@@ -340,6 +340,30 @@ export class IdleState extends AnimationState {
   }
 }
 
+export class JumpState extends AnimationState {
+  name = CharacterStates.JUMP
+  type = AnimationType.VELOCITY_BASED
+  nextStates = []
+  animations: Animation[] = [
+    {
+      name: CharacterAnimations.JUMP,
+      weight: 1,
+      timeScale: 1,
+      loopType: LoopOnce,
+      decorateAction: function (action: AnimationAction) {
+        action.setLoop(this.loopType, this.loopCount)
+        action.clampWhenFinished = true
+      }
+    }
+  ]
+
+  calculateWeights = (params: CalculateWeightsParams) => {
+    if (params.isMounting) {
+      this.animations.forEach((a) => (a.weight = 1))
+    }
+  }
+}
+
 export class WalkState extends AnimationState {
   name = CharacterStates.WALK
   type = AnimationType.VELOCITY_BASED

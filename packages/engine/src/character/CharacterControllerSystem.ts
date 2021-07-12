@@ -237,14 +237,18 @@ export class CharacterControllerSystem extends System {
       animationComponent.currentState = animationComponent.animationGraph.states[CharacterStates.IDLE]
       animationComponent.currentState.mount(animationComponent, {})
       animationComponent.prevVelocity = new Vector3()
+      animationComponent.prevDistanceFromGround = 0
+      if (!animationComponent.currentState) animationComponent.currentState.mount(animationComponent, {})
     })
 
     this.queryResults.animation.all?.forEach((entity) => {
       if (!isClient) return
       const animationComponent = getMutableComponent(entity, AnimationComponent)
 
+      if (!animationComponent.mixer) return
+
       const modifiedDelta = delta * animationComponent.animationSpeed
-      animationComponent.mixer?.update(modifiedDelta)
+      animationComponent.mixer.update(modifiedDelta)
     })
 
     this.queryResults.animationCharacter.all?.forEach((entity) => {
@@ -252,6 +256,9 @@ export class CharacterControllerSystem extends System {
 
       const actor = getMutableComponent(entity, CharacterComponent)
       const animationComponent = getMutableComponent(entity, AnimationComponent)
+
+      if (!animationComponent.mixer) return
+
       const deltaTime = delta * animationComponent.animationSpeed
 
       if (!animationComponent.onlyUpdateMixerTime) {

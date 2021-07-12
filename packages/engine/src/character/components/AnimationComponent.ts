@@ -21,6 +21,9 @@ export class AnimationComponent extends Component<AnimationComponent> {
   /** Previous velocity of the character */
   prevVelocity: Vector3
 
+  /** Previous distance of the character from ground */
+  prevDistanceFromGround: number
+
   /** Whether to only update mixer time or run full render cycle */
   onlyUpdateMixerTime: boolean
 
