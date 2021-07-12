@@ -304,9 +304,8 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         if (!this.environmentNode) break
         envMapProps.type = EnvMapSourceType.ReflectionProbe
         envMapProps.envMapReflectionProbe = this.environmentNode.reflectionProbeSettings
-        let envMapID = ''
         if (this.environmentNode.reflectionProbeSettings.reflectionType === ReflectionProbeTypes.Baked)
-          envMapProps.envMapReflectionProbe.envMapID = this.environmentNode.Bake()
+          //envMapProps.envMapReflectionProbe.envMapID = this.environmentNode.Bake()
         break
     }
 
