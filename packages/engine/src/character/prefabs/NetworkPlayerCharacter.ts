@@ -66,7 +66,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 		castShadow: true,
 		receiveShadow: true,
 	}, (asset: Group) => {
-    const model = SkeletonUtils.clone(asset);
+    	const model = SkeletonUtils.clone(asset);
 		const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent);
 		const animationComponent = getMutableComponent(entity, AnimationComponent);
 
@@ -83,6 +83,9 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 
 		model.children.forEach(child => actor.modelContainer.add(child));
 		animationComponent.mixer = new AnimationMixer(actor.modelContainer.children[0]);
+		if (animationComponent.currentState) {
+			animationComponent.currentState.mount(animationComponent, {});
+		}
 	});
 };
 
