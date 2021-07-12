@@ -124,41 +124,43 @@ export class AnimationGraph {
    * @param animationComponent Animation component which holds animation details
    * @param delta Time since last frame
    */
-   render = (actor: CharacterComponent, animationComponent: AnimationComponent, delta: number): void => {
-    if (!animationComponent.currentState) return;
+  render = (actor: CharacterComponent, animationComponent: AnimationComponent, delta: number): void => {
+    if (!animationComponent.currentState) return
 
     // Calculate movement fo the actor for this frame
-    const movement = calculateMovement(actor, animationComponent, delta, this.EPSILON);
+    const movement = calculateMovement(actor, animationComponent, delta, this.EPSILON)
 
     // Check whether the velocity of the player is changed or not since last frame
-    const isChanged = !animationComponent.prevVelocity.equals(movement.velocity) || animationComponent.prevDistanceFromGround !== movement.distanceFromGround;
+    const isChanged =
+      !animationComponent.prevVelocity.equals(movement.velocity) ||
+      animationComponent.prevDistanceFromGround !== movement.distanceFromGround
 
     // If velocity is not changed then no updated and transition will happen
-    if (!isChanged) return;
+    if (!isChanged) return
 
     if (actor.isJumping) {
       if (animationComponent.currentState.name !== CharacterStates.JUMP) {
-        animationComponent.animationGraph.transitionState(animationComponent, CharacterStates.JUMP, {});
+        animationComponent.animationGraph.transitionState(animationComponent, CharacterStates.JUMP, {})
       }
     } else {
-      let newState = '';
+      let newState = ''
       if (movement.velocity.length() > this.EPSILON / 3) {
-        newState = actor.isWalking ? CharacterStates.WALK : CharacterStates.RUN;
+        newState = actor.isWalking ? CharacterStates.WALK : CharacterStates.RUN
       } else {
         newState = CharacterStates.IDLE
       }
 
       // If new state is different than current state then transit other wise update the current state
       if (animationComponent.currentState.name !== newState) {
-        animationComponent.animationGraph.transitionState(animationComponent, newState, { movement });
+        animationComponent.animationGraph.transitionState(animationComponent, newState, { movement })
       } else {
-        animationComponent.currentState.update({ movement });
+        animationComponent.currentState.update({ movement })
       }
     }
 
     // Set velocity as prev velocity
-    animationComponent.prevVelocity.copy(movement.velocity);
-    animationComponent.prevDistanceFromGround = movement.distanceFromGround;
+    animationComponent.prevVelocity.copy(movement.velocity)
+    animationComponent.prevDistanceFromGround = movement.distanceFromGround
   }
 
   /**
