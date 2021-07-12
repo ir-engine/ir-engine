@@ -588,7 +588,7 @@ export class Api extends EventEmitter {
       throw new Error(i18n.t('editor:errors.saveProjectAborted'))
     }
 
-    const serializedScene = editor.scene.serialize()
+    const serializedScene = await editor.scene.serialize()
     const projectBlob = new Blob([JSON.stringify(serializedScene)], { type: 'application/json' })
     const {
       file_id: projectFileId,

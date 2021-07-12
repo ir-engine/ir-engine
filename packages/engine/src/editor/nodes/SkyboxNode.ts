@@ -58,7 +58,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
     return editor.scene.findNodeByType(SkyboxNode) === null
   }
 
-  serialize() {
+  async serialize(projectID) {
     const skybox: SceneBackgroundProps = {
       backgroundColor: this.backgroundColor,
       equirectangularPath: this.equirectangularPath,
@@ -76,7 +76,7 @@ export default class SkyboxNode extends EditorNodeMixin(Sky) {
       }
     }
 
-    return super.serialize({ skybox })
+    return await super.serialize(projectID,{ skybox })
   }
 
   static async deserialize(editor, json) {

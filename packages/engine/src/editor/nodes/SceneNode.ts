@@ -28,7 +28,7 @@ import serializeColor from '../functions/serializeColor'
 import { FogType } from '../../scene/constants/FogType'
 import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '../../scene/constants/EnvMapEnum'
 import { DistanceModelType } from '../../scene/classes/AudioSource'
-import ReflectionProbeNode from './ReflectionProbeNode'
+import ReflectionProbeNode, { ReflectionProbeTypes } from './ReflectionProbeNode'
 
 export default class SceneNode extends EditorNodeMixin(Scene) {
   static nodeName = 'Scene'
@@ -187,7 +187,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   _envMapSourceURL = ''
   errorInEnvmapURL = false
   _envMapIntensity = 1
-  environmentNode = null
+  environmentNode:ReflectionProbeNode = null
   //#endregion
 
   constructor(editor) {
@@ -303,7 +303,10 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       default:
         if (!this.environmentNode) break
         envMapProps.type = EnvMapSourceType.ReflectionProbe
-        envMapProps.envMapReflectionProbe = (this.environmentNode as ReflectionProbeNode).reflectionProbeSettings
+        envMapProps.envMapReflectionProbe = this.environmentNode.reflectionProbeSettings
+        let envMapID=""
+        if(this.environmentNode .reflectionProbeSettings.reflectionType===ReflectionProbeTypes.Baked)
+          envMapProps.envMapReflectionProbe.envMapID=this.environmentNode.Bake()
         break
     }
 
@@ -340,10 +343,10 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     pmren.dispose()
   }
 
-  registerEnvironmentMapNode(node: any) {
+  registerEnvironmentMapNode(node: ReflectionProbeNode) {
     this.environmentNode = node
   }
-  unregisterEnvironmentMapNode(node: any) {
+  unregisterEnvironmentMapNode(node: ReflectionProbeNode) {
     if (this.environmentNode === node) this.environmentNode = null
   }
 

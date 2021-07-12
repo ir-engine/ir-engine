@@ -18,6 +18,7 @@ import EditorNodeMixin from './EditorNodeMixin'
 import { envmapPhysicalParsReplace, worldposReplace } from './helper/BPCEMShader'
 import CubemapCapturer from './helper/CubemapCapturer'
 import { convertCubemapToEquiImageData, downloadImage } from './helper/ImageUtils'
+import SkyboxNode from './SkyboxNode'
 
 export enum ReflectionProbeTypes {
   'Realtime',
@@ -69,9 +70,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
       metalness: 1,
       envMapIntensity: 10
     })
-
     this.add(this.gizmo)
-
     this.editor.scene.registerEnvironmentMapNode(this)
   }
 
@@ -123,13 +122,13 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
     })
   }
 
-  serialize() {
+  async serialize(projectID) {
     let data: any = {}
     this.reflectionProbeSettings.probePosition = this.position
     data = {
       options: this.reflectionProbeSettings
     }
-    return super.serialize({ reflectionprobe: data })
+    return await super.serialize(projectID,{ reflectionprobe: data })
   }
 
   static async deserialize(editor, json) {
@@ -138,10 +137,10 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
     const { options } = reflectionOptions.props
     if (options) {
       node.reflectionProbeSettings = options as ReflectionProbeSettings
-      let v = (node.reflectionProbeSettings as ReflectionProbeSettings).probeScale
-      ;(node.reflectionProbeSettings as ReflectionProbeSettings).probeScale = new Vector3(v.x, v.y, v.z)
-      v = (node.reflectionProbeSettings as ReflectionProbeSettings).probePositionOffset
-      ;(node.reflectionProbeSettings as ReflectionProbeSettings).probePositionOffset = new Vector3(v.x, v.y, v.z)
+      let v = (node.reflectionProbeSettings as ReflectionProbeSettings).probeScale;
+      (node.reflectionProbeSettings as ReflectionProbeSettings).probeScale = new Vector3(v.x, v.y, v.z)
+      v = (node.reflectionProbeSettings as ReflectionProbeSettings).probePositionOffset;
+      (node.reflectionProbeSettings as ReflectionProbeSettings).probePositionOffset = new Vector3(v.x, v.y, v.z)
     }
     return node
   }
@@ -162,7 +161,12 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
         const o = obj.clone()
         o.traverse((child) => {
           //disable specular highlights
-          ;(child as any).material && ((child as any).material.roughness = 1)
+          (child as any).material && ((child as any).material.roughness = 1)
+          if((child as any).isNode){
+            if(child.constructor===SkyboxNode)
+              sceneToBake.background=this.editor.scene.background
+          }
+
         })
         sceneToBake.add(o)
       }
@@ -174,4 +178,8 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
     this.currentEnvMap.dispose()
     this.editor.scene.unregisterEnvironmentMapNodes(this)
   }
+
+
+
+  
 }

@@ -98,21 +98,21 @@ export const setEnvMap: Behavior = (entity, args: EnvMapProps) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
         switch (options.reflectionType) {
           case ReflectionProbeTypes.Baked:
-            const envMapAddress = `/ReflectionProbe/${options.envMapID}.png`
-            new TextureLoader().load(envMapAddress, (texture) => {
-              Engine.scene.environment = CubemapCapturer.convertEquiToCubemap(
-                Engine.renderer,
-                texture,
-                options.resolution
-              ).texture
-              texture.dispose()
-            })
+            // const envMapAddress = `/ReflectionProbe/${options.envMapID}.png`
+            // new TextureLoader().load(envMapAddress, (texture) => {
+            //   Engine.scene.environment = CubemapCapturer.convertEquiToCubemap(
+            //     Engine.renderer,
+            //     texture,
+            //     options.resolution
+            //   ).texture
+            //   texture.dispose()
+            // })
 
             break
           case ReflectionProbeTypes.Realtime:
-            const map = new CubemapCapturer(Engine.renderer, Engine.scene, options.resolution)
-            const EnvMap = (await map.update(options.probePosition)).cubeRenderTarget.texture
-            Engine.scene.environment = EnvMap
+            // const map = new CubemapCapturer(Engine.renderer, Engine.scene, options.resolution)
+            // const EnvMap = (await map.update(options.probePosition)).cubeRenderTarget.texture
+            // Engine.scene.environment = EnvMap
             break
         }
       })
