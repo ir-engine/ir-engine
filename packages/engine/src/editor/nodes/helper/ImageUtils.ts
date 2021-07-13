@@ -148,7 +148,7 @@ export const convertCubemapToEquiImageData = async (
     canvas.width = width
     canvas.height = height
     ctx.putImageData(imageData, 0, 0)
-    const blob = await getCanvasBlob(canvas)
+    const blob = (await new Promise((resolve) => canvas.toBlob(resolve))) as Blob
     return { blob }
   }
   return { imageData }
@@ -185,13 +185,7 @@ export const uploadCubemap = async (
   projectID?: any
 ) => {
   const blob = (await convertCubemapToEquiImageData(renderer, source, resoulution, resoulution, true)).blob
-  const {
-    file_id: fileId,
-    meta: { access_token: fileToken }
-  } = (await api.upload(blob, null, null, projectID)) as any
+  const value = (await api.upload(blob, null, null, projectID)) as any
 
-  return {
-    fileId,
-    fileToken
-  }
+  return value.origin
 }

@@ -310,8 +310,8 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         if (this.environmentNode.reflectionProbeSettings.reflectionType === ReflectionProbeTypes.Baked) {
           const rt = await this.environmentNode.Bake()
           const resolution = this.environmentNode.reflectionProbeSettings.resolution
-          const id = await uploadCubemap(this.editor.renderer.renderer, this.editor.api, rt, resolution, projectId)
-          this.environmentNode.reflectionProbeSettings.envMapId = id
+          const origin = await uploadCubemap(this.editor.renderer.renderer, this.editor.api, rt, resolution, projectId)
+          this.environmentNode.reflectionProbeSettings.envMapOrigin = origin
         }
         break
     }

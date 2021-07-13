@@ -37,10 +37,7 @@ export type ReflectionProbeSettings = {
   reflectionType: ReflectionProbeTypes
   resolution: number
   refreshMode: ReflectionProbeRefreshTypes
-  envMapId: {
-    fileId: any
-    fileToken: any
-  }
+  envMapOrigin: string
   boxProjection: boolean
 }
 
@@ -64,7 +61,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
       reflectionType: ReflectionProbeTypes.Baked,
       resolution: 512,
       refreshMode: ReflectionProbeRefreshTypes.OnAwake,
-      envMapID: '',
+      envMapOrigin: '',
       boxProjection: true
     }
     this.gizmo = new BoxHelper(new Mesh(new BoxBufferGeometry()), 0xff0000)

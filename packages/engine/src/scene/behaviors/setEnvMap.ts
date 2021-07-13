@@ -15,6 +15,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import CubemapCapturer from '../../editor/nodes/helper/CubemapCapturer'
+import { convertEquiToCubemap } from '../../editor/nodes/helper/ImageUtils'
 import { ReflectionProbeSettings, ReflectionProbeTypes } from '../../editor/nodes/ReflectionProbeNode'
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
 import { ScaleComponent } from '../../transform/components/ScaleComponent'
@@ -98,15 +99,10 @@ export const setEnvMap: Behavior = (entity, args: EnvMapProps) => {
       EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
         switch (options.reflectionType) {
           case ReflectionProbeTypes.Baked:
-            // const envMapAddress = `/ReflectionProbe/${options.envMapID}.png`
-            // new TextureLoader().load(envMapAddress, (texture) => {
-            //   Engine.scene.environment = CubemapCapturer.convertEquiToCubemap(
-            //     Engine.renderer,
-            //     texture,
-            //     options.resolution
-            //   ).texture
-            //   texture.dispose()
-            // })
+            new TextureLoader().load(options.envMapOrigin, (texture) => {
+              Engine.scene.environment = convertEquiToCubemap(Engine.renderer, texture, options.resolution).texture
+              texture.dispose()
+            })
 
             break
           case ReflectionProbeTypes.Realtime:
