@@ -16,7 +16,7 @@ export function MapNodeEditor(props: { editor?: any; node?: any; t: any }) {
   const { node, editor, t } = props
 
   const onChangeStartLatitude = (payload) => {
-    editor.setPropertySelected('onChangeStartLatitude', payload)
+    editor.setPropertySelected('startLatitude', payload)
   }
 
   const onChangeStartLongitude = (payload) => {
@@ -57,7 +57,7 @@ export function MapNodeEditor(props: { editor?: any; node?: any; t: any }) {
       <InputGroup name="Start Latitude" label={t('editor:properties.map.lbl-startLatitude')}>
         <StringInput
           /* @ts-ignore */
-          value={node.style}
+          value={node.startLatitude}
           onChange={onChangeStartLatitude}
         />
       </InputGroup>
