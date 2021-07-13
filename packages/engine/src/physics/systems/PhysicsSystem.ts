@@ -25,7 +25,6 @@ import { ControllerColliderComponent } from '../../character/components/Controll
 import { rigidbodyCorrectionBehavior } from '../behaviors/rigidbodyCorrectionBehavior'
 import Worker from 'web-worker'
 import { Engine } from '../../ecs/classes/Engine'
-console.log(Worker)
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -66,7 +65,7 @@ export class PhysicsSystem extends System {
 
   async initialize() {
     super.initialize()
-    console.log(import.meta.url)
+    console.log(import.meta)
     const url = new URL('../functions/loadPhysX', import.meta.url)
     console.log(url)
     this.worker = new Worker(url, { type: 'module' })
