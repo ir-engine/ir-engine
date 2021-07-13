@@ -25,6 +25,7 @@ import {
   WebGLRenderTarget
 } from 'three'
 import { WebGLRenderer } from 'three/src/renderers/WebGLRenderer'
+import { getCanvasBlob } from '../../functions/thumbnails'
 
 //#region CubemapToEquirectangular Shader
 const vertexShader = `
@@ -99,12 +100,13 @@ export const downloadImage = (imageData: ImageData, imageName = 'Image', width: 
 }
 
 //convert Cubemap To Equirectangular map
-export const convertCubemapToEquiImageData = (
+export const convertCubemapToEquiImageData = async (
   renderer: WebGLRenderer,
   source: WebGLCubeRenderTarget,
   width: number,
-  height: number
-): ImageData => {
+  height: number,
+  returnAsBlob = false
+): Promise<{ imageData?: ImageData; blob?: Blob }> => {
   const scene = new Scene()
   const material = new RawShaderMaterial({
     uniforms: {
@@ -135,13 +137,21 @@ export const convertCubemapToEquiImageData = (
   })
 
   renderer.setRenderTarget(renderTarget)
-
   quad.material.uniforms.map.value = source
   renderer.render(scene, camera)
   const pixels = new Uint8Array(4 * width * height)
   renderer.readRenderTargetPixels(renderTarget, 0, 0, width, height, pixels)
   const imageData = new ImageData(new Uint8ClampedArray(pixels), width, height)
-  return imageData
+  if (returnAsBlob) {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    canvas.width = width
+    canvas.height = height
+    ctx.putImageData(imageData, 0, 0)
+    const blob = await getCanvasBlob(canvas)
+    return { blob }
+  }
+  return { imageData }
 }
 
 //convert Equirectangular map to WebGlCubeRenderTarget
@@ -167,4 +177,21 @@ export const convertEquiToCubemap = (renderer: WebGLRenderer, source: Texture, s
   return cubeRenderTarget
 }
 
-export const uploadImage = (imageData: ImageData, api: Api) => {}
+export const uploadCubemap = async (
+  renderer: WebGLRenderer,
+  api: Api,
+  source: WebGLCubeRenderTarget,
+  resoulution: number,
+  projectID?: any
+) => {
+  const blob = (await convertCubemapToEquiImageData(renderer, source, resoulution, resoulution, true)).blob
+  const {
+    file_id: fileId,
+    meta: { access_token: fileToken }
+  } = (await api.upload(blob, null, null, projectID)) as any
+
+  return {
+    fileId,
+    fileToken
+  }
+}

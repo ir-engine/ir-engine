@@ -30,6 +30,8 @@ import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '../../scene/co
 import { DistanceModelType } from '../../scene/classes/AudioSource'
 import ReflectionProbeNode, { ReflectionProbeTypes } from './ReflectionProbeNode'
 import asyncTraverse from '../functions/asyncTraverse'
+import { Api } from '@xrengine/client-core'
+import { uploadCubemap } from './helper/ImageUtils'
 
 export default class SceneNode extends EditorNodeMixin(Scene) {
   static nodeName = 'Scene'
@@ -286,7 +288,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     return this
   }
 
-  getEnvMapProps() {
+  async getEnvMapProps(projectId = null) {
     const envMapProps: EnvMapProps = {
       type: this.envMapSourceType,
       envMapIntensity: this._envMapIntensity
@@ -305,9 +307,13 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         if (!this.environmentNode) break
         envMapProps.type = EnvMapSourceType.ReflectionProbe
         envMapProps.envMapReflectionProbe = this.environmentNode.reflectionProbeSettings
-        if (this.environmentNode.reflectionProbeSettings.reflectionType === ReflectionProbeTypes.Baked)
-          //envMapProps.envMapReflectionProbe.envMapID = this.environmentNode.Bake()
-          break
+        if (this.environmentNode.reflectionProbeSettings.reflectionType === ReflectionProbeTypes.Baked) {
+          const rt = await this.environmentNode.Bake()
+          const resolution = this.environmentNode.reflectionProbeSettings.resolution
+          const id = await uploadCubemap(this.editor.renderer.renderer, this.editor.api, rt, resolution, projectId)
+          this.environmentNode.reflectionProbeSettings.envMapId = id
+        }
+        break
     }
 
     return envMapProps
@@ -437,7 +443,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     return this
   }
   // @ts-ignore
-  async serialize() {
+  async serialize(projectId) {
     const sceneJson = {
       version: 4,
       root: this.uuid,
@@ -492,7 +498,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
             },
             {
               name: 'envmap',
-              props: this.getEnvMapProps()
+              props: await this.getEnvMapProps(projectId)
             }
           ]
         }
@@ -503,7 +509,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       if (!child.isNode || child === this) {
         return
       }
-      const entityJson = await child.serialize()
+      const entityJson = await child.serialize(projectId)
       entityJson.parent = child.parent.uuid
       let index = 0
       for (const sibling of child.parent.children) {

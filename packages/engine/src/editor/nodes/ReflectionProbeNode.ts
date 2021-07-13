@@ -37,7 +37,10 @@ export type ReflectionProbeSettings = {
   reflectionType: ReflectionProbeTypes
   resolution: number
   refreshMode: ReflectionProbeRefreshTypes
-  envMapID: string
+  envMapId: {
+    fileId: any
+    fileToken: any
+  }
   boxProjection: boolean
 }
 
@@ -86,14 +89,16 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
       this.reflectionProbeSettings.resolution
     )
     const result = cubemapCapturer.update(this.position)
-    const imageData = convertCubemapToEquiImageData(this.editor.renderer.renderer, result, 512, 512)
+    const imageData = (await convertCubemapToEquiImageData(this.editor.renderer.renderer, result, 512, 512, false))
+      .imageData
     downloadImage(imageData, 'Hello', 512, 512)
     this.currentEnvMap = result
     this.injectShader()
+    return result
   }
 
   Bake = () => {
-    this.captureCubeMap()
+    return this.captureCubeMap()
   }
 
   onChange() {
