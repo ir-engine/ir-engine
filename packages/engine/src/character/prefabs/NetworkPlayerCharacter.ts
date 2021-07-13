@@ -105,11 +105,11 @@ const initializeCharacter: Behavior = (entity): void => {
   // The visuals group is centered for easy actor tilting
   const obj3d = new Group()
   obj3d.name = 'Actor (tiltContainer)' + entity.id
+  obj3d.position.setY(actor.actorHalfHeight)
 
   // // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
   actor.modelContainer = new Group()
   actor.modelContainer.name = 'Actor (modelContainer)' + entity.id
-  actor.modelContainer.position.setY(-actor.actorHalfHeight)
   obj3d.add(actor.modelContainer)
 
   const animationComponent = addComponent(entity, AnimationComponent, {
@@ -158,6 +158,7 @@ export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation
     translation: pos,
     rotation
   })
+  playerCollider.controller.velocity.setScalar(0)
 }
 
 export function createNetworkPlayer(args: {
@@ -166,6 +167,7 @@ export function createNetworkPlayer(args: {
   networkId?: number
   entity?: Entity
 }): NetworkObject {
+  console.log(args)
   const position = new Vector3()
   const rotation = new Quaternion()
   if (args.parameters) {

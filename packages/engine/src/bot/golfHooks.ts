@@ -118,7 +118,7 @@ export function swingClub() {
   return new Promise<void>((resolve) => {
     tweenXRInputSource({
       objectName: 'rightController',
-      time: 20, // 1 second
+      time: 10,
       positionFrom: new Vector3(0.5, 1, 0.04),
       positionTo: new Vector3(-0.5, 1, 0.04),
       quaternionFrom: eulerToQuaternion(-1.54, 0, 0),

@@ -11,6 +11,7 @@ import { findInterpolationSnapshot } from '../../physics/behaviors/findInterpola
 import { ControllerColliderComponent } from '../components/ControllerColliderComponent'
 import { SnapshotData } from '../../networking/types/SnapshotDataTypes'
 import { Vector3 } from 'three'
+import { CharacterComponent } from '../components/CharacterComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -23,13 +24,14 @@ import { Vector3 } from 'three'
 const vec3 = new Vector3()
 
 export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots: SnapshotData, delta: number): void => {
-  const collider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
+  const collider = getComponent(entity, ControllerColliderComponent)
+  const actor = getComponent(entity, CharacterComponent)
   const networkId = getComponent(entity, NetworkObject).networkId
 
   snapshots.new.push({
     networkId,
     x: collider.controller.transform.translation.x,
-    y: collider.controller.transform.translation.y,
+    y: collider.controller.transform.translation.y - actor.actorHalfHeight,
     z: collider.controller.transform.translation.z,
     qX: 0, // physx controllers dont have rotation
     qY: 0,
@@ -51,7 +53,7 @@ export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots:
     collider.controller.updateTransform({
       translation: {
         x: currentSnapshot.x,
-        y: currentSnapshot.y,
+        y: currentSnapshot.y + actor.actorHalfHeight,
         z: currentSnapshot.z
       }
     })

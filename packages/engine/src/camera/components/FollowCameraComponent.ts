@@ -30,8 +30,6 @@ export class FollowCameraComponent extends Component<FollowCameraComponent> {
   ry2: number
   /** Distance to which interactive objects from the camera will be highlighted. **Default** value is 5. */
   farDistance: number
-  /** Stores the shoulder offset amount */
-  offset: Vector3
   /** Rotation around Y axis */
   theta: number
   /** Rotation around Z axis */
@@ -58,7 +56,6 @@ FollowCameraComponent._schema = {
   rx2: { type: Types.Number, default: 0.1 },
   ry2: { type: Types.Number, default: 0.1 },
   farDistance: { type: Types.Number, default: 5 },
-  offset: { type: Types.Vector3Type, default: new Vector3(0, 1, 0) },
   theta: { type: Types.Number, default: 0 },
   phi: { type: Types.Number, default: 0 },
   shoulderSide: { type: Types.Boolean, default: true },
