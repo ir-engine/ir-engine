@@ -1,4 +1,5 @@
 import { Object3D, BoxBufferGeometry, Material } from "three";
+import { MapManager } from "../../map/MapManager";
 import EditorNodeMixin from "./EditorNodeMixin";
 export default class MapNode extends EditorNodeMixin(Object3D) {
   static legacyComponentName = "map";
@@ -10,6 +11,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     const node = await super.deserialize(editor, json);
     const {
       isGlobal,
+      name,
       // style,
       // useTimeOfDay,
       // useDirectionalShadows,
@@ -24,14 +26,14 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     node.useStartCoordinates = useStartCoordinates;
     node.startLatitude = startLatitude;
     node.startLongitude = startLongitude;
-
+    node.name = name;
     return node;
   }
   constructor(editor) {
     super(editor);
-
-    
-
+    const mapManager = MapManager.getInstance();
+    console.log(mapManager);
+    mapManager.createMap();
 
 
 
@@ -43,15 +45,16 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   }
   serialize() {
     const components = {
-      "game": {
+      "map": {
         id: this.id,
+        name: this.name,
         isGlobal: this.isGlobal,
         // style: this.style,
         // useTimeOfDay: this.useTimeOfDay,
         // useDirectionalShadows: this.useDirectionalShadows,
         useStartCoordinates: this.useStartCoordinates,
         startLatitude: this.startLatitude,
-        startLongitude: this.startLatitude
+        startLongitude: this.startLongitude
       }
     } as any;
     return super.serialize(components);
