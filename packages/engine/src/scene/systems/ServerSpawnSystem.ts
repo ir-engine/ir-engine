@@ -29,7 +29,9 @@ export class ServerSpawnSystem extends System {
       // Get new spawn point (round robin)
       this.lastSpawnIndex = (this.lastSpawnIndex + 1) % this.spawnPoints.length
       return {
-        position: spawnTransform.position.clone().add(randomPositionCentered(spawnTransform.scale)),
+        position: spawnTransform.position
+          .clone()
+          .add(randomPositionCentered(new Vector3(spawnTransform.scale.x, 0, spawnTransform.scale.z))),
         rotation: spawnTransform.rotation.clone()
       }
     }

@@ -1,3 +1,5 @@
+import { actionProcessing } from '../../../../client-core'
+import { CharacterComponent } from '../../character/components/CharacterComponent'
 import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
@@ -25,8 +27,9 @@ export const handleForceTransform = (editObject: NetworkObjectEditInterface): vo
 
   const controllerComponent = getComponent(entity, ControllerColliderComponent)
   if (controllerComponent) {
+    const actor = getComponent(entity, CharacterComponent)
     controllerComponent.controller?.updateTransform({
-      translation: { x, y, z },
+      translation: { x, y: y + actor.actorHalfHeight, z },
       rotation: { x: qX, y: qY, z: qZ, w: qW }
     })
   }
