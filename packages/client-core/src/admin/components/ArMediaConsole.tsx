@@ -221,8 +221,8 @@ const ArMediaConsole = (props: Props) => {
                         <TableCell className={styles.tcell} align="center">
                           <CardMedia
                             className={styles.previewImage}
-                            image={row.previewUrl.toString()}
-                            title={row.title.toString()}
+                            image={row.previewUrl?.toString()}
+                            title={row.title?.toString()}
                           />
                         </TableCell>
                         <TableCell className={styles.tcell} align="center">
