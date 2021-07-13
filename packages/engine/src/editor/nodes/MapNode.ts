@@ -2,9 +2,9 @@ import EditorNodeMixin from './EditorNodeMixin'
 import { Object3D, PlaneBufferGeometry, MeshBasicMaterial, Mesh, DoubleSide } from 'three'
 import loadTexture from '../functions/loadTexture'
 let linkHelperTexture = null
-export default class LinkNode extends EditorNodeMixin(Object3D) {
-  static legacyComponentName = 'link'
-  static nodeName = 'Link'
+export default class MapNode extends EditorNodeMixin(Object3D) {
+  static legacyComponentName = 'map'
+  static nodeName = 'Map'
   static async load() {
     linkHelperTexture = await loadTexture('/editor/link-icon.png')
   }
@@ -22,7 +22,6 @@ export default class LinkNode extends EditorNodeMixin(Object3D) {
     material.map = linkHelperTexture
     material.side = DoubleSide
     material.transparent = true
-    debugger;
     this.helper = new Mesh(geometry, material)
     this.helper.layers.set(1)
     this.add(this.helper)

@@ -10,6 +10,7 @@ import GroupNode from '@xrengine/engine/src/editor/nodes/GroupNode'
 import HemisphereLightNode from '@xrengine/engine/src/editor/nodes/HemisphereLightNode'
 import ImageNode from '@xrengine/engine/src/editor/nodes/ImageNode'
 import LinkNode from '@xrengine/engine/src/editor/nodes/LinkNode'
+import MapNode from '@xrengine/engine/src/editor/nodes/MapNode'
 import ModelNode from '@xrengine/engine/src/editor/nodes/ModelNode'
 import ParticleEmitterNode from '@xrengine/engine/src/editor/nodes/ParticleEmitterNode'
 import PointLightNode from '@xrengine/engine/src/editor/nodes/PointLightNode'
@@ -39,6 +40,7 @@ import GroupNodeEditor from './properties/GroupNodeEditor'
 import HemisphereLightNodeEditor from './properties/HemisphereLightNodeEditor'
 import ImageNodeEditor from './properties/ImageNodeEditor'
 import LinkNodeEditor from './properties/LinkNodeEditor'
+import MapNodeEditor from './properties/MapNodeEditor'
 import ModelNodeEditor from './properties/ModelNodeEditor'
 import ParticleEmitterNodeEditor from './properties/ParticleEmitterNodeEditor'
 import PointLightNodeEditor from './properties/PointLightNodeEditor'
@@ -86,6 +88,7 @@ export function createEditor(api, settings, Engine) {
   editor.registerNode(PostProcessingNode, PostProcessingNodeEditor)
   editor.registerNode(TriggerVolumeNode, TriggerVolumeNodeEditor)
   editor.registerNode(LinkNode, LinkNodeEditor)
+  editor.registerNode(MapNode, MapNodeEditor)
   editor.registerNode(ScenePreviewCameraNode, ScenePreviewCameraNodeEditor)
   editor.registerNode(ParticleEmitterNode, ParticleEmitterNodeEditor)
   editor.registerNode(SplineNode, SplineNodeEditor)

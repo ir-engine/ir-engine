@@ -492,6 +492,7 @@ export { default as srcEditorNodesHelperCubemapCapturer } from './src/editor/nod
 export { default as srcEditorNodesHemisphereLightNode } from './src/editor/nodes/HemisphereLightNode';
 export { default as srcEditorNodesImageNode } from './src/editor/nodes/ImageNode';
 export { default as srcEditorNodesLinkNode } from './src/editor/nodes/LinkNode';
+export { default as srcEditorNodesMapNode } from './src/editor/nodes/MapNode';
 export { default as srcEditorNodesModelNode } from './src/editor/nodes/ModelNode';
 export { default as srcEditorNodesParticleEmitterNode } from './src/editor/nodes/ParticleEmitterNode';
 export { default as srcEditorNodesPointLightNode } from './src/editor/nodes/PointLightNode';
