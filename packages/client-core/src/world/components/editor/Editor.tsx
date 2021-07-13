@@ -189,7 +189,6 @@ export class Editor extends EventEmitter {
 
     // this.camera = new PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.2, 8000);
     this.audioListener = new AudioListener()
-    console.log('This camera is', this.camera)
     this.camera.add(this.audioListener)
     this.camera.layers.enable(1)
     this.camera.name = 'Camera'

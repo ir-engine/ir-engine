@@ -1,3 +1,4 @@
+
 import { Theme, FlatTheme, PostEffects, FontCatalogConfig, TextStyleDefinition } from '@here/harp-datasource-protocol';
 import { Env, MapEnv, Value } from '@here/harp-datasource-protocol/index-decoder';
 import { EarthConstants, GeoBoxExtentLike, Projection, TilingScheme, Vector3Like } from '@here/harp-geoutils';
@@ -52,6 +53,12 @@ import { Engine } from '../ecs/classes/Engine';
 const mapWorker = Engine.publicPath + "/scripts/harp-gl-decoders.js";
 
 declare const process: any;
+import { Config } from '@xrengine/client-core/src/helper'
+
+const API_KEY: string = Config.publicRuntimeConfig.HARPGL_API_KEY
+
+console.log("****** API KEY IS");
+console.log(API_KEY)
 
 // Cache value, because access to process.env.NODE_ENV is SLOW!
 const isProduction = process.env.NODE_ENV === "production";
@@ -1005,13 +1012,35 @@ export class MapView extends EventDispatcher {
         // Initialization of mCamera and mVisibleTiles
         const { width, height } = this.getCanvasClientSize();
         const aspect = width / height;
-        this.m_camera = globalThis.Editor.camera;
         
+
+        this.m_camera = new PerspectiveCamera(
+            this.m_options.fovCalculation.fov,
+            aspect,
+            DEFAULT_CAM_NEAR_PLANE,
+            DEFAULT_CAM_FAR_PLANE
+        );
+
+        setInterval(() => {
+            this.m_camera.position.copy(globalThis.Editor.camera.position);
+            this.m_camera.quaternion.copy(globalThis.Editor.camera.quaternion);
+            this.m_camera.matrixWorldNeedsUpdate = true;
+        }, 1000/30);
+
+        globalThis.Editor.scene.remove(globalThis.Editor.camera);
+        globalThis.Editor.camera = this.m_camera;
         this.m_camera.up.set(0, 0, 1);
         this.projection.projectPoint(this.m_targetGeoPos, this.m_targetWorldPos);
-        this.m_scene.add(this.m_camera); // ensure the camera is added to the scene.
+        globalThis.Editor.scene.add(this.m_camera); // ensure the camera is added to the scene.
         globalThis.Editor.scene.add(this.m_scene);
         this.m_screenProjector = new ScreenProjector(this.m_camera);
+        // setup camera with initial position
+
+
+
+
+
+
 
         // Scheduler must be initialized before VisibleTileSet.
         this.m_taskScheduler = new MapViewTaskScheduler(this.maxFps);
@@ -3384,10 +3413,6 @@ export class MapView extends EventDispatcher {
         this.m_sceneRoot.children.length = 0;
         this.m_overlaySceneRoot.children.length = 0;
 
-        if (gatherStatistics) {
-            setupTime = PerformanceTimer.now();
-        }
-
         // TBD: Update renderList only any of its params (camera, etc...) has changed.
         if (!this.lockVisibleTileSet) {
             const viewRangesStatus = this.m_visibleTiles.updateRenderList(
@@ -3943,7 +3968,7 @@ export class MapManager {
         
         const vectorDataSource = new VectorTileDataSource({
             baseUrl: "https://vector.hereapi.com/v2/vectortiles/base/mc",
-            authenticationCode: "YOUR-APIKEY"
+            authenticationCode: API_KEY
         });
         map.addDataSource(vectorDataSource);
     }
