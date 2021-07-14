@@ -52,10 +52,13 @@ export class AnimationState {
    * @param actor Actor component for which animation state will be mounted
    * @param params Parameters to calculate weigths
    */
-  mount = (animationComponent: AnimationComponent, params: CalculateWeightsParams) => {
-    // Calculate the weights of the animations
-    params.isMounting = true
-    if (this.calculateWeights) this.calculateWeights(params)
+  mount = (animationComponent: AnimationComponent, params: CalculateWeightsParams, ignoreWeights = false) => {
+    // We need to ignore weights if we change avatar
+    if (!ignoreWeights) {
+      // Calculate the weights of the animations
+      params.isMounting = true
+      if (this.calculateWeights) this.calculateWeights(params)
+    }
 
     this.animations.forEach((animation) => {
       // Take the clip from the loaded animations
@@ -331,6 +334,30 @@ export class IdleState extends AnimationState {
   nextStates = []
   animations: Animation[] = [
     { name: CharacterAnimations.IDLE, weight: 1, timeScale: 1, loopType: LoopRepeat, loopCount: Infinity }
+  ]
+
+  calculateWeights = (params: CalculateWeightsParams) => {
+    if (params.isMounting) {
+      this.animations.forEach((a) => (a.weight = 1))
+    }
+  }
+}
+
+export class JumpState extends AnimationState {
+  name = CharacterStates.JUMP
+  type = AnimationType.VELOCITY_BASED
+  nextStates = []
+  animations: Animation[] = [
+    {
+      name: CharacterAnimations.JUMP,
+      weight: 1,
+      timeScale: 1,
+      loopType: LoopOnce,
+      decorateAction: function (action: AnimationAction) {
+        action.setLoop(this.loopType, this.loopCount)
+        action.clampWhenFinished = true
+      }
+    }
   ]
 
   calculateWeights = (params: CalculateWeightsParams) => {

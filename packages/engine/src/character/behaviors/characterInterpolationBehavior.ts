@@ -6,7 +6,6 @@ import { ControllerColliderComponent } from '../components/ControllerColliderCom
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CharacterComponent } from '../components/CharacterComponent'
 import type { SnapshotData, StateInterEntity } from '../../networking/types/SnapshotDataTypes'
-import { Vector3 } from 'three'
 import { AnimationComponent } from '../components/AnimationComponent'
 
 /**
@@ -36,7 +35,7 @@ export const characterInterpolationBehavior: Behavior = (
   collider.controller.updateTransform({
     translation: {
       x: interpolation.x,
-      y: interpolation.y,
+      y: interpolation.y + actor.actorHalfHeight,
       z: interpolation.z
     }
   })

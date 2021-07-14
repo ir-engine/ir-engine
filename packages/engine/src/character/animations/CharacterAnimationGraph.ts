@@ -5,7 +5,8 @@ import {
   IdleState,
   LoopableEmoteState,
   RunState,
-  WalkState
+  WalkState,
+  JumpState
 } from './AnimationState'
 import { CharacterStates } from './Util'
 
@@ -22,6 +23,7 @@ export class CharacterAnimationGraph extends AnimationGraph {
     const exitingVehicleState = new ExitingVehicleState()
     // const emoteState = new EmoteState();
     const loopableEmoteState = new LoopableEmoteState()
+    const jumpState = new JumpState()
 
     // Set the next states
     walkState.nextStates.push(IdleState, RunState, EnteringVehicleState)
@@ -32,11 +34,13 @@ export class CharacterAnimationGraph extends AnimationGraph {
     // emoteState.nextStates.push(IdleState, WalkState, RunState, EnteringVehicleState, LoopableEmoteState);
     // emoteState.autoTransitionTo = CharacterStates.IDLE;
     loopableEmoteState.nextStates.push(WalkState, RunState, EnteringVehicleState)
+    jumpState.nextStates.push(IdleState, WalkState, RunState)
 
     // Add states to the graph
     this.states[CharacterStates.IDLE] = idleState
     this.states[CharacterStates.WALK] = walkState
     this.states[CharacterStates.RUN] = runState
+    this.states[CharacterStates.JUMP] = jumpState
     this.states[CharacterStates.ENTERING_VEHICLE] = enteringVehicleState
     this.states[CharacterStates.EXITING_VEHICLE] = exitingVehicleState
     // this.states[CharacterStates.EMOTE] = emoteState;

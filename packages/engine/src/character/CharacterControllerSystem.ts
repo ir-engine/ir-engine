@@ -111,7 +111,7 @@ export class CharacterControllerSystem extends System {
       playerCollider.raycastQuery = PhysicsSystem.instance.addRaycastQuery(
         new RaycastQuery({
           type: SceneQueryType.Closest,
-          origin: new Vector3(0, actor.actorHeight, 0),
+          origin: new Vector3(0, actor.actorHalfHeight, 0),
           direction: new Vector3(0, -1, 0),
           maxDistance: actor.actorHalfHeight + 0.05,
           collisionMask: DefaultCollisionMask | CollisionGroups.Portal
@@ -158,10 +158,11 @@ export class CharacterControllerSystem extends System {
       // TODO: implement scene lower bounds parameter
       if (!isClient && collider.controller.transform.translation.y < -10) {
         const { position, rotation } = ServerSpawnSystem.instance.getRandomSpawnPoint()
-        position.y += actor.actorHalfHeight
+        const pos = position.clone()
+        pos.y += actor.actorHalfHeight
         console.log('player has fallen through the floor, teleporting them to', position)
         collider.controller.updateTransform({
-          translation: position,
+          translation: pos,
           rotation
         })
         sendClientObjectUpdate(entity, NetworkObjectUpdateType.ForceTransformUpdate, [
@@ -177,11 +178,11 @@ export class CharacterControllerSystem extends System {
 
       transform.position.set(
         collider.controller.transform.translation.x,
-        collider.controller.transform.translation.y,
+        collider.controller.transform.translation.y - actor.actorHalfHeight,
         collider.controller.transform.translation.z
       )
 
-      collider.raycastQuery.origin.copy(transform.position)
+      collider.raycastQuery.origin.copy(transform.position).y += actor.actorHalfHeight
       collider.closestHit = collider.raycastQuery.hits[0]
       actor.isGrounded = collider.raycastQuery.hits.length > 0 || collider.controller.collisions.down
     })
@@ -237,14 +238,15 @@ export class CharacterControllerSystem extends System {
       animationComponent.currentState = animationComponent.animationGraph.states[CharacterStates.IDLE]
       animationComponent.currentState.mount(animationComponent, {})
       animationComponent.prevVelocity = new Vector3()
+      animationComponent.prevDistanceFromGround = 0
+      if (!animationComponent.currentState) animationComponent.currentState.mount(animationComponent, {})
     })
 
     this.queryResults.animation.all?.forEach((entity) => {
       if (!isClient) return
       const animationComponent = getMutableComponent(entity, AnimationComponent)
-
       const modifiedDelta = delta * animationComponent.animationSpeed
-      animationComponent.mixer?.update(modifiedDelta)
+      animationComponent.mixer.update(modifiedDelta)
     })
 
     this.queryResults.animationCharacter.all?.forEach((entity) => {
@@ -252,6 +254,7 @@ export class CharacterControllerSystem extends System {
 
       const actor = getMutableComponent(entity, CharacterComponent)
       const animationComponent = getMutableComponent(entity, AnimationComponent)
+
       const deltaTime = delta * animationComponent.animationSpeed
 
       if (!animationComponent.onlyUpdateMixerTime) {
@@ -263,14 +266,9 @@ export class CharacterControllerSystem extends System {
     })
 
     this.queryResults.ikAvatar.added?.forEach((entity) => {
-      // TODO: once IK is, remove anim component
-      // removeComponent(entity, AnimationComponent);
-
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent)
       const actor = getMutableComponent(entity, CharacterComponent)
       const object3DComponent = getComponent(entity, Object3DComponent)
-
-      xrInputSourceComponent.controllerGroup.position.setY(-actor.actorHalfHeight)
 
       xrInputSourceComponent.controllerGroup.add(
         xrInputSourceComponent.controllerLeft,
@@ -307,8 +305,6 @@ export class CharacterControllerSystem extends System {
     })
 
     this.queryResults.ikAvatar.removed?.forEach((entity) => {
-      // TODO: once IK is, remove anim component
-      // addComponent(entity, AnimationComponent);
       const actor = getMutableComponent(entity, CharacterComponent)
 
       if (isEntityLocalClient(entity))

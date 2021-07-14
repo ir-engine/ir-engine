@@ -317,7 +317,6 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
   const networkObject = createNetworkPlayer({ ownerId: userId, parameters: spawnPos })
 
   const actor = getComponent(networkObject.entity, CharacterComponent)
-  spawnPos.position.y += actor.actorHalfHeight
 
   const transform = getComponent(networkObject.entity, TransformComponent)
   transform.position.copy(spawnPos.position)

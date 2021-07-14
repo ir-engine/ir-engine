@@ -135,6 +135,10 @@ const configureEditor = async (options: InitializeOptions) => {
 
   Engine.workers.push(options.physics.physxWorker)
 
+  new FontManager()
+  new AnimationManager()
+  AnimationManager.instance.getAnimations()
+
   registerEditorSystems(options)
 }
 

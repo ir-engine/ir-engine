@@ -226,4 +226,10 @@ export class AssetLoader {
     const loader = new AssetLoader(params, onLoad, onProgress, onError)
     return loader
   }
+
+  static async loadAsync(params: AssetLoaderParamType) {
+    return new Promise<any>((resolve, reject) => {
+      new AssetLoader(params, resolve, () => {}, reject)
+    })
+  }
 }
