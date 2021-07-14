@@ -33,7 +33,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     super(editor);
     const mapManager = MapManager.getInstance();
     console.log(mapManager);
-    mapManager.createMap();
+    mapManager.getMap();
   }
   copy(source, recursive = true) {
     super.copy(source, recursive);

@@ -18,7 +18,7 @@ import { isVector3Like } from '@here/harp-geoutils/lib/math/Vector3Like';
 import { mercatorProjection } from '@here/harp-geoutils/lib/projection/MercatorProjection';
 import { ProjectionType } from '@here/harp-geoutils/lib/projection/Projection';
 import { MapControls } from "@here/harp-map-controls";
-import { MapAnchors, DataSource, VisibleTileSetOptions, ClipPlanesEvaluator, ElevationProvider, ElevationRangeSource, FrameStats, MapViewFog, PerformanceStatistics, PickResult, TextElement, Tile, ViewUpdateCallback } from '@here/harp-mapview';
+import { MapAnchors, DataSource, VisibleTileSetOptions, ClipPlanesEvaluator, ElevationProvider, ElevationRangeSource, FrameStats, MapViewFog, PickResult, TextElement, Tile, ViewUpdateCallback } from '@here/harp-mapview';
 import { AnimatedExtrusionHandler } from '@here/harp-mapview/lib/AnimatedExtrusionHandler';
 import { CameraMovementDetector } from '@here/harp-mapview/lib/CameraMovementDetector';
 import { createDefaultClipPlanesEvaluator } from '@here/harp-mapview/lib/ClipPlanesEvaluator';
@@ -56,9 +56,6 @@ declare const process: any;
 import { Config } from '@xrengine/client-core/src/helper'
 
 const API_KEY: string = Config.publicRuntimeConfig.HARPGL_API_KEY
-
-console.log("****** API KEY IS");
-console.log(API_KEY)
 
 // Cache value, because access to process.env.NODE_ENV is SLOW!
 const isProduction = process.env.NODE_ENV === "production";
@@ -218,17 +215,6 @@ export enum MapViewPowerPreference {
  * User configuration for the {@link MapView}.
  */
 export interface MapViewOptions extends TextElementsRendererOptions, Partial<LookAtParams> {
-    /**
-     * The canvas element used to render the scene.
-     */
-    canvas: HTMLCanvasElement;
-
-    /**
-     * Optional WebGL Rendering Context.
-     * (https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext)
-     */
-    context?: WebGLRenderingContext;
-
     /**
      * `true` if the canvas contains an alpha (transparency) buffer or not. Default is `false`.
      */
@@ -407,11 +393,6 @@ export interface MapViewOptions extends TextElementsRendererOptions, Partial<Loo
     quadTreeSearchDistanceDown?: number;
 
     /**
-     * Set to `true` to measure performance statistics.
-     */
-    enableStatistics?: boolean;
-
-    /**
      * Preserve the buffers until they are cleared manually or overwritten.
      *
      * Set to `true` in order to copy {@link MapView} canvas contents
@@ -450,18 +431,6 @@ export interface MapViewOptions extends TextElementsRendererOptions, Partial<Loo
     languages?: string[];
 
     /**
-     * Sets the data sources to use specific country point of view (political view).
-     *
-     * This option may result in rendering different country borders then commonly accepted for
-     * some regions and it mainly regards to so called __disputed borders__. Although not all
-     * data sources or themes may support it.
-     *
-     * @note Country code should be coded in lower-case ISO 3166-1 alpha-2 standard, if this option
-     * is `undefined` the majority point of view will be used.
-     */
-    politicalView?: string;
-
-    /**
      * Set fixed pixel ratio for rendering. Useful when rendering on high resolution displays with
      * low performance GPUs that may be fill-rate limited.
      * @default `window.devicePixelRatio`
@@ -474,7 +443,7 @@ export interface MapViewOptions extends TextElementsRendererOptions, Partial<Loo
      * fill-rate limited.
      *
      * If a value is specified, a low resolution render pass is used to render the scene into a
-     * low resolution render target, before it is copied to the screen.
+     * low resolution render target, before it is copied to the screen. 
      *
      * A value of `undefined` disables the low res render pass. Values between 0.5 and
      * `window.devicePixelRatio` can be tried to give  good results. The value should not be larger
@@ -756,9 +725,12 @@ export class MapView extends EventDispatcher {
      * property to allow access and modification of some parameters of the rendering process at
      * runtime.
      */
+    m_scene: Scene = globalThis.Editor.scene;
+
     readonly mapRenderingManager: IMapRenderingManager;
 
     private m_renderLabels: boolean = true;
+    private canvas: any;
 
     private m_movementFinishedUpdateTimerId?: any;
     private m_postEffects?: PostEffects;
@@ -813,8 +785,6 @@ export class MapView extends EventDispatcher {
     private m_pixelToWorld?: number;
     private m_pixelRatio?: number;
 
-    /** Default scene for map objects and map anchors */
-    private readonly m_scene: Scene = new Scene();
     /** Separate scene for overlay map anchors */
     private readonly m_overlayScene: Scene = new Scene();
     /** Root node of [[m_scene]] that gets cleared every frame. */
@@ -881,7 +851,6 @@ export class MapView extends EventDispatcher {
     private m_thisFrameTilesChanged: boolean | undefined;
     private m_lastTileIds: string = "";
     private m_languages: string[] | undefined;
-    private m_politicalView: string | undefined;
     private m_copyrightInfo: CopyrightInfo[] = [];
     private readonly m_animatedExtrusionHandler: AnimatedExtrusionHandler;
 
@@ -890,10 +859,11 @@ export class MapView extends EventDispatcher {
 
     private m_taskScheduler: MapViewTaskScheduler;
     private readonly m_themeManager: MapViewThemeManager;
-    private readonly m_sceneEnvironment: MapViewEnvironment;
+    // private readonly m_sceneEnvironment: MapViewEnvironment;
 
     // `true` if dispose() has been called on `MapView`.
     private m_disposed = false;
+    fovCalculation: FovCalculation;
 
     /**
      * Constructs a new `MapView` with the given options or canvas element.
@@ -980,67 +950,55 @@ export class MapView extends EventDispatcher {
         this.m_pixelRatio = options.pixelRatio;
         this.m_options.maxFps = this.m_options.maxFps ?? 0;
 
-        this.m_options.enableStatistics = this.m_options.enableStatistics === true;
-
         this.m_languages = this.m_options.languages;
-        this.m_politicalView = this.m_options.politicalView;
 
         this.handleRequestAnimationFrame = this.renderLoop.bind(this);
 
         if (this.m_options.tileWrappingEnabled !== undefined) {
             this.m_tileWrappingEnabled = this.m_options.tileWrappingEnabled;
         }
+        
+        // Initialization of the renderer, enable backward compatibility with three.js <= 0.117
+        this.m_renderer = globalThis.Editor.renderer.renderer;
+        globalThis.Editor.animationCallback = () => this.renderSync;
 
+        this.canvas = this.m_renderer.context.canvas;
         this.canvas.addEventListener("webglcontextlost", this.onWebGLContextLost);
         this.canvas.addEventListener("webglcontextrestored", this.onWebGLContextRestored);
 
-        // Initialization of the renderer, enable backward compatibility with three.js <= 0.117
-        this.m_renderer = globalThis.Editor.renderer.renderer;
-
         this.m_tileObjectRenderer = new TileObjectRenderer(this.m_env, this.m_renderer);
-        this.setupRenderer(this.m_tileObjectRenderer);
 
-        this.m_options.fovCalculation =
-            this.m_options.fovCalculation === undefined
-                ? DEFAULT_FOV_CALCULATION
-                : this.m_options.fovCalculation;
-        this.m_options.fovCalculation.fov = MathUtils.clamp(
-            this.m_options.fovCalculation!.fov,
+        globalThis.Editor.scene.add(this.m_sceneRoot);
+        this.m_overlayScene.add(this.m_overlaySceneRoot);
+
+        this.shadowsEnabled = this.m_options.enableShadows ?? false;
+
+        this.m_tileObjectRenderer.setupRenderer();
+
+        this.fovCalculation = DEFAULT_FOV_CALCULATION;
+        this.fovCalculation.fov = MathUtils.clamp(
+            this.fovCalculation!.fov,
             MIN_FIELD_OF_VIEW,
             MAX_FIELD_OF_VIEW
         );
         // Initialization of mCamera and mVisibleTiles
-        const { width, height } = this.getCanvasClientSize();
-        const aspect = width / height;
-        
+        // const { width, height } = this.getCanvasClientSize();
+        // const aspect = width / height;
 
-        this.m_camera = new PerspectiveCamera(
-            this.m_options.fovCalculation.fov,
-            aspect,
-            DEFAULT_CAM_NEAR_PLANE,
-            DEFAULT_CAM_FAR_PLANE
-        );
+        this.m_camera = globalThis.Editor.camera;
 
-        setInterval(() => {
-            this.m_camera.position.copy(globalThis.Editor.camera.position);
-            this.m_camera.quaternion.copy(globalThis.Editor.camera.quaternion);
-            this.m_camera.matrixWorldNeedsUpdate = true;
-        }, 1000/30);
 
-        globalThis.Editor.scene.remove(globalThis.Editor.camera);
-        globalThis.Editor.camera = this.m_camera;
+        // setInterval(() => {
+        //     this.m_camera.position.copy(globalThis.Editor.camera.position);
+        //     this.m_camera.quaternion.copy(globalThis.Editor.camera.quaternion);
+        //     this.m_camera.matrixWorldNeedsUpdate = true;
+        // }, 1000 / 30);
+        // globalThis.Editor.scene.remove(globalThis.Editor.camera);
+        // globalThis.Editor.camera = this.m_camera;
         this.m_camera.up.set(0, 0, 1);
         this.projection.projectPoint(this.m_targetGeoPos, this.m_targetWorldPos);
-        globalThis.Editor.scene.add(this.m_camera); // ensure the camera is added to the scene.
-        globalThis.Editor.scene.add(this.m_scene);
+        // globalThis.Editor.scene.add(this.m_camera); // ensure the camera is added to the scene.
         this.m_screenProjector = new ScreenProjector(this.m_camera);
-        // setup camera with initial position
-
-
-
-
-
-
 
         // Scheduler must be initialized before VisibleTileSet.
         this.m_taskScheduler = new MapViewTaskScheduler(this.maxFps);
@@ -1055,7 +1013,12 @@ export class MapView extends EventDispatcher {
         // this.m_visibleTiles is set in createVisibleTileSet, set it here again only to let tsc
         // know the member is set in the constructor.
         this.m_visibleTiles = this.createVisibleTileSet();
-        this.m_sceneEnvironment = new MapViewEnvironment(this as any, options);
+        console.log("Visible tiles are")
+        console.log(this.m_visibleTiles);
+
+        this.m_scene = globalThis.Editor.scene;
+        
+       //  this.m_sceneEnvironment = new MapViewEnvironment(this as any, options);
 
         // setup camera with initial position
         this.setupCamera();
@@ -1074,53 +1037,38 @@ export class MapView extends EventDispatcher {
 
         const mapPassAntialiasSettings = this.m_options.customAntialiasSettings;
         this.mapRenderingManager = new MapRenderingManager(
-            width,
-            height,
+            this.m_renderer.context.canvas.width,
+            this.m_renderer.context.canvas.height,
             this.m_options.dynamicPixelRatio,
             mapPassAntialiasSettings
         );
 
         this.m_animatedExtrusionHandler = new AnimatedExtrusionHandler(this as any);
 
-        if (this.m_enablePolarDataSource) {
-            const styleSetName =
-                options.polarStyleSetName !== undefined
-                    ? options.polarStyleSetName
-                    : DEFAULT_POLAR_STYLE_SET_NAME;
-
-            this.m_polarDataSource = new PolarTileDataSource({
-                styleSetName,
-                geometryLevelOffset: options.polarGeometryLevelOffset
-            });
-
-            this.updatePolarDataSource();
-        }
 
         this.m_taskScheduler.addEventListener(MapViewEventNames.Update, () => {
             this.update();
         });
 
-        if (options.throttlingEnabled !== undefined) {
-            this.m_taskScheduler.throttlingEnabled = options.throttlingEnabled;
-        }
-
-        this.m_themeManager = new MapViewThemeManager(this as any, this.m_uriResolver);
+        // this.m_themeManager = new MapViewThemeManager(this as any, this.m_uriResolver);
 
         // will initialize with an empty theme and updated when theme is loaded and set
         // this.m_textElementsRenderer = this.createTextRenderer();
 
-        this.setTheme(getOptionValue(this.m_options.theme, MapViewDefaults.theme));
+       // this.setTheme(getOptionValue(this.m_options.theme, MapViewDefaults.theme));
 
         this.update();
+
+        this.renderSync();
     }
 
     /**
      * @returns The lights configured by the theme, this is just a convenience method, because the
      * lights can still be accessed by traversing the children of the [[scene]].
      */
-    get lights(): Light[] {
-        return this.m_sceneEnvironment.lights;
-    }
+    // get lights(): Light[] {
+    //     return this.m_sceneEnvironment.lights;
+    // }
 
     get taskQueue(): TaskQueue {
         return this.m_taskScheduler.taskQueue;
@@ -1273,7 +1221,7 @@ export class MapView extends EventDispatcher {
             this.m_renderer.forceContextLoss();
         }
 
-        this.m_themeManager.dispose();
+        // this.m_themeManager.dispose();
         this.m_tileGeometryManager.clear();
 
         this.m_movementDetector.dispose();
@@ -1324,7 +1272,7 @@ export class MapView extends EventDispatcher {
         this.m_visibleTiles.setDataSourceCacheSize(size);
         numVisibleTiles = numVisibleTiles !== undefined ? numVisibleTiles : size / 2;
         this.m_visibleTiles.setNumberOfVisibleTiles(Math.floor(numVisibleTiles));
-        this.m_themeManager.updateCache();
+       //  this.m_themeManager.updateCache();
         // this.m_textElementsRenderer.invalidateCache();
         this.update();
     }
@@ -1401,25 +1349,10 @@ export class MapView extends EventDispatcher {
     }
 
     /**
-     * Gets the current `Theme` used by this `MapView` to style map elements.
-     * @deprecated
-     */
-    get theme(): Theme {
-        return this.m_themeManager.theme;
-    }
-
-    /**
-     * Changes the `Theme` used by this `MapView` to style map elements.
-     * @deprecated use MapView.setTheme instead
-     */
-    set theme(theme: Theme) {
-        this.setTheme(theme);
-    }
-
-    /**
      * Changes the `Theme`used by this `MapView`to style map elements.
      */
     async setTheme(theme: Theme | FlatTheme | string): Promise<Theme> {
+        return console.warn("Not setting theme");
         const newTheme = await this.m_themeManager.setTheme(theme);
 
         this.THEME_LOADED_EVENT.time = Date.now();
@@ -1478,35 +1411,6 @@ export class MapView extends EventDispatcher {
         this.update();
     }
 
-    /**
-     * Get currently presented political point of view - the country code.
-     *
-     * @note Country code is stored in lower-case ISO 3166-1 alpha-2 standard.
-     * @return Country code or undefined if default
-     * (majorly accepted) point of view is used.
-     */
-    get politicalView(): string | undefined {
-        return this.m_politicalView;
-    }
-
-    /**
-     * Set the political view (country code) to be used when rendering disputed features (borders).
-     *
-     * @note Country code should be encoded in lower-case ISO 3166-1 alpha-2 standard.
-     * @param pov - The code of the country which point of view should be presented,
-     * if `undefined` or empty string is set then "defacto" or most widely accepted point of view
-     * will be presented.
-     */
-    set politicalView(pov: string | undefined) {
-        if (this.m_politicalView === pov) {
-            return;
-        }
-        this.m_politicalView = pov;
-        this.m_tileDataSources.forEach((dataSource: DataSource) => {
-            dataSource.setPoliticalView(pov);
-        });
-    }
-
     get copyrightInfo(): CopyrightInfo[] {
         return this.m_copyrightInfo;
     }
@@ -1521,7 +1425,7 @@ export class MapView extends EventDispatcher {
     }
 
     get disableFading(): boolean {
-       return false; // return this.m_textElementsRenderer.disableFading;
+        return false; // return this.m_textElementsRenderer.disableFading;
     }
 
     /**
@@ -1589,22 +1493,8 @@ export class MapView extends EventDispatcher {
     /**
      * The HTML canvas element used by this `MapView`.
      */
-    get canvas(): HTMLCanvasElement {
-        return this.m_options.canvas;
-    }
-
-    /**
-     * The HTML canvas element used by this `MapView`.
-     */
     get collisionDebugCanvas(): HTMLCanvasElement | undefined {
         return this.m_collisionDebugCanvas;
-    }
-
-    /**
-     * The js scene used by this `MapView`.
-     */
-    get scene(): Scene {
-        return this.m_scene;
     }
 
     /**
@@ -1618,9 +1508,9 @@ export class MapView extends EventDispatcher {
      * The MapViewEnvironment used by this `MapView`.
      * @internal
      */
-    get sceneEnvironment(): MapViewEnvironment {
-        return this.m_sceneEnvironment;
-    }
+    // get sceneEnvironment(): MapViewEnvironment {
+    //     return this.m_sceneEnvironment;
+    // }
 
     /**
      * The js camera used by this `MapView` to render the main scene.
@@ -1936,11 +1826,11 @@ export class MapView extends EventDispatcher {
         this.m_geoMaxBounds = bounds;
         this.m_worldMaxBounds = this.m_geoMaxBounds
             ? this.projection.projectBox(
-                  this.m_geoMaxBounds,
-                  this.projection.type === ProjectionType.Planar
-                      ? new Box3()
-                      : new OrientedBox3()
-              )
+                this.m_geoMaxBounds,
+                this.projection.type === ProjectionType.Planar
+                    ? new Box3()
+                    : new OrientedBox3()
+            )
             : undefined;
     }
 
@@ -2049,7 +1939,7 @@ export class MapView extends EventDispatcher {
      * @param fovCalculation - How the FOV is calculated.
      */
     setFovCalculation(fovCalculation: FovCalculation) {
-        this.m_options.fovCalculation = fovCalculation;
+        this.fovCalculation = fovCalculation;
         this.calculateFocalLength(this.m_renderer.getSize(cache.vector2[0]).height);
         this.updateCameras();
     }
@@ -2107,7 +1997,7 @@ export class MapView extends EventDispatcher {
             );
         }
         this.m_tileDataSources.push(dataSource);
-        this.m_sceneEnvironment?.updateBackgroundDataSource();
+        // this.m_sceneEnvironment?.updateBackgroundDataSource();
 
         try {
             await dataSource.connect();
@@ -2120,12 +2010,12 @@ export class MapView extends EventDispatcher {
                 this.update();
             });
 
-            const theme = await this.getTheme();
-            dataSource.setLanguages(this.m_languages);
+            // const theme = await this.getTheme();
+            // dataSource.setLanguages(this.m_languages);
 
-            if (theme !== undefined && theme.styles !== undefined) {
-                await dataSource.setTheme(theme);
-            }
+            // if (theme !== undefined && theme.styles !== undefined) {
+            //     await dataSource.setTheme(theme);
+            // }
 
             this.m_connectedDataSources.add(dataSource.name);
 
@@ -2167,7 +2057,7 @@ export class MapView extends EventDispatcher {
         this.m_connectedDataSources.delete(dataSource.name);
         this.m_failedDataSources.delete(dataSource.name);
 
-        this.m_sceneEnvironment.updateBackgroundDataSource();
+        // this.m_sceneEnvironment.updateBackgroundDataSource();
 
         this.update();
     }
@@ -2318,8 +2208,8 @@ export class MapView extends EventDispatcher {
         if (this.projection.type === ProjectionType.Spherical) {
             const maxPitchRadWithCurvature = Math.asin(
                 EarthConstants.EQUATORIAL_RADIUS /
-                    (MapViewUtils.calculateDistanceToGroundFromZoomLevel(this, zoomLevel) +
-                        EarthConstants.EQUATORIAL_RADIUS)
+                (MapViewUtils.calculateDistanceToGroundFromZoomLevel(this, zoomLevel) +
+                    EarthConstants.EQUATORIAL_RADIUS)
             );
             const maxPitchDegWithCurvature = MathUtils.radToDeg(maxPitchRadWithCurvature);
             limitedPitch = Math.min(limitedPitch, maxPitchDegWithCurvature);
@@ -2427,7 +2317,7 @@ export class MapView extends EventDispatcher {
     get pixelToWorld(): number {
         if (this.m_pixelToWorld === undefined) {
             // At this point fov calculation should be always defined.
-            assert(this.m_options.fovCalculation !== undefined);
+            assert(this.fovCalculation !== undefined);
             // NOTE: Look at distance is the distance to camera focus (and pivot) point.
             // In screen space this point is located in the center of canvas.
             // Given that zoom level is not modified (clamped by camera pitch), the following
@@ -2682,6 +2572,7 @@ export class MapView extends EventDispatcher {
      * @param height - The new height.
      */
     resize(width: number, height: number) {
+        return;
         this.m_renderer.setSize(width, height, false);
         if (this.m_renderer.getPixelRatio() !== this.pixelRatio) {
             this.m_renderer.setPixelRatio(this.pixelRatio);
@@ -2892,13 +2783,6 @@ export class MapView extends EventDispatcher {
         this.clearTileCache();
     }
 
-    /**
-     * Public access to {@link MapViewFog} allowing to toggle it by setting its `enabled` property.
-     */
-    get fog(): MapViewFog {
-        return this.m_sceneEnvironment.fog;
-    }
-
     private setPostEffects() {
         // First clear all the effects, then enable them from what is specified.
         this.mapRenderingManager.bloom.enabled = false;
@@ -3022,16 +2906,16 @@ export class MapView extends EventDispatcher {
         const distance =
             params.zoomLevel !== undefined
                 ? MapViewUtils.calculateDistanceFromZoomLevel(
-                      this,
-                      MathUtils.clamp(
-                          params.zoomLevel,
-                          this.m_minZoomLevel,
-                          this.m_maxZoomLevel
-                      )
-                  )
+                    this,
+                    MathUtils.clamp(
+                        params.zoomLevel,
+                        this.m_minZoomLevel,
+                        this.m_maxZoomLevel
+                    )
+                )
                 : params.distance !== undefined
-                ? params.distance
-                : this.m_targetDistance;
+                    ? params.distance
+                    : this.m_targetDistance;
 
         let target: GeoCoordinates | undefined;
         if (params.bounds !== undefined) {
@@ -3171,7 +3055,7 @@ export class MapView extends EventDispatcher {
         const { width, height } = this.m_renderer.getSize(cache.vector2[0]);
         this.m_camera.aspect =
             this.m_forceCameraAspect !== undefined ? this.m_forceCameraAspect : width / height;
-        this.setFovOnCamera(this.m_options.fovCalculation!, height);
+        this.setFovOnCamera(this.fovCalculation!, height);
 
         // When calculating clip planes account for the highest building on the earth,
         // multiplying its height by projection scaling factor. This approach assumes
@@ -3193,9 +3077,9 @@ export class MapView extends EventDispatcher {
             this.m_viewRanges,
             viewRanges === undefined
                 ? this.m_visibleTiles.updateClipPlanes(
-                      maxGeometryHeightScaled,
-                      minGeometryHeightScaled
-                  )
+                    maxGeometryHeightScaled,
+                    minGeometryHeightScaled
+                )
                 : viewRanges
         );
         this.m_camera.near = this.m_viewRanges.near;
@@ -3214,7 +3098,7 @@ export class MapView extends EventDispatcher {
         this.m_screenProjector.update(this.camera, width, height);
 
         this.m_pixelToWorld = undefined;
-        this.m_sceneEnvironment.update();
+        // this.m_sceneEnvironment.update();
     }
 
     /**
@@ -3281,6 +3165,7 @@ export class MapView extends EventDispatcher {
      * @param frameStartTime - The start time of the current frame
      */
     private renderLoop(frameStartTime: number) {
+        return;
         // Render loop shouldn't run when synchronous rendering is enabled or if `MapView` has been
         // disposed of.
         if (this.m_options.synchronousRendering === true || this.disposed) {
@@ -3363,26 +3248,6 @@ export class MapView extends EventDispatcher {
         ++this.m_frameNumber;
 
         let currentFrameEvent: FrameStats | undefined;
-        const stats = PerformanceStatistics.instance;
-        const gatherStatistics: boolean = stats.enabled;
-        if (gatherStatistics) {
-            currentFrameEvent = stats.currentFrame;
-
-            if (this.m_previousFrameTimeStamp !== undefined) {
-                // In contrast to fullFrameTime we also measure the application code
-                // for the FPS. This means FPS != 1000 / fullFrameTime.
-                const timeSincePreviousFrame = frameStartTime - this.m_previousFrameTimeStamp;
-                currentFrameEvent.setValue("render.fps", 1000 / timeSincePreviousFrame);
-            }
-
-            // We store the last frame statistics at the beginning of the next frame b/c additional
-            // work (i.e. geometry creation) is done outside of the animation frame but still needs
-            // to be added to the `fullFrameTime` (see [[TileGeometryLoader]]).
-            stats.storeAndClearFrameInfo();
-
-            currentFrameEvent = currentFrameEvent as FrameStats;
-            currentFrameEvent.setValue("renderCount.frameNumber", this.m_frameNumber);
-        }
 
         this.m_previousFrameTimeStamp = frameStartTime;
 
@@ -3427,10 +3292,6 @@ export class MapView extends EventDispatcher {
             if (viewRangesStatus.viewRangesChanged) {
                 this.updateCameras(viewRangesStatus.viewRanges);
             }
-        }
-
-        if (gatherStatistics) {
-            cullTime = PerformanceTimer.now();
         }
 
         const renderList = this.m_visibleTiles.dataSourceTileList;
@@ -3519,20 +3380,12 @@ export class MapView extends EventDispatcher {
             // this.m_textElementsRenderer.placeText(renderList, frameStartTime);
         }
 
-        if (gatherStatistics) {
-            textPlacementTime = PerformanceTimer.now();
-        }
-
         this.mapRenderingManager.render(
             this.m_renderer,
-            this.m_scene,
+            globalThis.Editor.scene,
             camera,
             !this.isDynamicFrame
         );
-
-        if (gatherStatistics) {
-            drawTime = PerformanceTimer.now();
-        }
 
         if (this.renderLabels && !this.m_pointOfView) {
             // this.m_textElementsRenderer.renderText(this.m_viewRanges.maximum);
@@ -3542,16 +3395,8 @@ export class MapView extends EventDispatcher {
             this.m_renderer.render(this.m_overlayScene, camera);
         }
 
-        if (gatherStatistics) {
-            textDrawTime = PerformanceTimer.now();
-        }
-
         if (!this.m_firstFrameRendered) {
             this.m_firstFrameRendered = true;
-
-            if (gatherStatistics) {
-                stats.appResults.set("firstFrame", frameStartTime);
-            }
 
             this.FIRST_FRAME_EVENT.time = frameStartTime;
             this.dispatchEvent(this.FIRST_FRAME_EVENT);
@@ -3590,16 +3435,6 @@ export class MapView extends EventDispatcher {
             // this frame, this number will be increased in the TileGeometryLoader.
             currentFrameEvent.setValue("render.fullFrameTime", frameRenderTime);
             currentFrameEvent.setValue("render.geometryCreationTime", 0);
-
-            // Add js statistics
-            stats.addWebGLInfo(this.m_renderer.info);
-
-            // Add memory statistics
-            // FIXME:
-            // This will only measure the memory of the rendering and not of the geometry creation.
-            // Assuming the garbage collector is not kicking in immediately we will at least see
-            // the geometry creation memory consumption accounted in the next frame.
-            stats.addMemoryInfo();
         }
 
         this.DID_RENDER_EVENT.time = frameStartTime;
@@ -3618,9 +3453,6 @@ export class MapView extends EventDispatcher {
         ) {
             if (this.m_firstFrameComplete === false) {
                 this.m_firstFrameComplete = true;
-                if (gatherStatistics) {
-                    stats.appResults.set("firstFrameComplete", frameStartTime);
-                }
             }
 
             this.FRAME_COMPLETE_EVENT.time = frameStartTime;
@@ -3788,18 +3620,7 @@ export class MapView extends EventDispatcher {
         return result;
     }
 
-    private setupStats(enable: boolean) {
-        new PerformanceStatistics(enable, 1000);
-    }
 
-    private setupRenderer(tileObjectRenderer: TileObjectRenderer) {
-        this.m_scene.add(this.m_sceneRoot);
-        this.m_overlayScene.add(this.m_overlaySceneRoot);
-
-        this.shadowsEnabled = this.m_options.enableShadows ?? false;
-
-        tileObjectRenderer.setupRenderer();
-    }
 
     private createTextRenderer(): TextElementsRenderer {
         const updateCallback: ViewUpdateCallback = () => {
@@ -3852,10 +3673,10 @@ export class MapView extends EventDispatcher {
         this.dispatchEvent(this.CONTEXT_RESTORED_EVENT);
         if (this.m_renderer !== undefined) {
             // this.textElementsRenderer.restoreRenderers(this.m_renderer);
-            this.getTheme().then(theme => {
-                this.m_sceneEnvironment.updateClearColor(theme.clearColor, theme.clearAlpha);
-                this.update();
-            });
+            // this.getTheme().then(theme => {
+            //     // this.m_sceneEnvironment.updateClearColor(theme.clearColor, theme.clearAlpha);
+            // });
+            this.update();
         }
         logger.warn("WebGL context restored", event);
     };
@@ -3905,71 +3726,73 @@ export class MapView extends EventDispatcher {
      * @param height - Height of the canvas in css / client pixels.
      */
     private calculateFocalLength(height: number) {
-        assert(this.m_options.fovCalculation !== undefined);
+        assert(this.fovCalculation !== undefined);
         this.m_focalLength = MapViewUtils.calculateFocalLengthByVerticalFov(
-            MathUtils.degToRad(this.m_options.fovCalculation!.fov),
+            MathUtils.degToRad(this.fovCalculation!.fov),
             height
         );
     }
 
-        /**
-     * Get canvas client size in css/client pixels.
-     *
-     * Supports canvases not attached to DOM, which have 0 as `clientWidth` and `clientHeight` by
-     * calculating it from actual canvas size and current pixel ratio.
-     */
-         private getCanvasClientSize(): { width: number; height: number } {
-            const { clientWidth, clientHeight } = this.canvas;
-            if (
-                clientWidth === 0 ||
-                clientHeight === 0 ||
-                typeof clientWidth !== "number" ||
-                typeof clientHeight !== "number"
-            ) {
-                const pixelRatio = this.m_renderer.getPixelRatio();
-                return {
-                    width: Math.round(this.canvas.width / pixelRatio),
-                    height: Math.round(this.canvas.height / pixelRatio)
-                };
-            } else {
-                return { width: clientWidth, height: clientHeight };
-            }
+    /**
+ * Get canvas client size in css/client pixels.
+ *
+ * Supports canvases not attached to DOM, which have 0 as `clientWidth` and `clientHeight` by
+ * calculating it from actual canvas size and current pixel ratio.
+ */
+    private getCanvasClientSize(): { width: number; height: number } {
+        const { clientWidth, clientHeight } = this.canvas;
+        if (
+            clientWidth === 0 ||
+            clientHeight === 0 ||
+            typeof clientWidth !== "number" ||
+            typeof clientHeight !== "number"
+        ) {
+            const pixelRatio = this.m_renderer.getPixelRatio();
+            return {
+                width: Math.round(this.canvas.width / pixelRatio),
+                height: Math.round(this.canvas.height / pixelRatio)
+            };
+        } else {
+            return { width: clientWidth, height: clientHeight };
         }
     }
-
-
+}
 
 export class MapManager {
     static instance;
+    map: MapView;
 
     static getInstance = () => {
-        if(!MapManager.instance){
+        if (!MapManager.instance) {
             MapManager.instance = new MapManager();
         }
         return MapManager.instance;
     }
 
-    constructor(){
-
+    constructor() {
+        this.getMap();
     }
 
-    createMap = () => {
-        const map = new MapView({
-            decoderUrl: mapWorker,
-            canvas: globalThis.Editor.renderer.canvas,
-            theme:
-                "https://unpkg.com/@here/harp-map-theme@latest/resources/berlin_tilezen_night_reduced.json",
-            target: new GeoCoordinates(37.773972, -122.431297), //San Francisco,
-            zoomLevel: 13
-        });
-        const controls = new MapControls(map as any);
-        
-        window.onresize = () => map.resize(window.innerWidth, window.innerHeight);
-        
-        const vectorDataSource = new VectorTileDataSource({
-            baseUrl: "https://vector.hereapi.com/v2/vectortiles/base/mc",
-            authenticationCode: API_KEY
-        });
-        map.addDataSource(vectorDataSource);
+    getMap = () => {
+        if (this.map == null) {
+            const map = new MapView({
+                decoderUrl: mapWorker,
+                theme:
+                    "https://unpkg.com/@here/harp-map-theme@latest/resources/berlin_tilezen_night_reduced.json",
+                target: new GeoCoordinates(37.773972, -122.431297), //San Francisco,
+                zoomLevel: 13
+            });
+
+            const controls = new MapControls(map as any);
+
+            // window.onresize = () => map.resize(window.innerWidth, window.innerHeight);
+
+            const vectorDataSource = new VectorTileDataSource({
+                baseUrl: "https://vector.hereapi.com/v2/vectortiles/base/mc",
+                authenticationCode: API_KEY
+            });
+            map.addDataSource(vectorDataSource);
+            this.map = map;
+        }
     }
 }
