@@ -182,10 +182,11 @@ export const uploadCubemap = async (
   api: Api,
   source: WebGLCubeRenderTarget,
   resoulution: number,
+  imageIdentifier?: string,
   projectID?: any
 ) => {
   const blob = (await convertCubemapToEquiImageData(renderer, source, resoulution, resoulution, true)).blob
-  const value = (await api.upload(blob, null, null, projectID)) as any
+  const value = (await api.upload(blob, null, null, imageIdentifier, projectID)) as any
 
-  return value.origin
+  return value
 }

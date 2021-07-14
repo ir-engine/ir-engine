@@ -1,28 +1,4 @@
-import {
-  WebGLCubeRenderTarget,
-  ClampToEdgeWrapping,
-  CubeCamera,
-  DoubleSide,
-  LinearFilter,
-  Mesh,
-  OrthographicCamera,
-  PlaneBufferGeometry,
-  RawShaderMaterial,
-  RGBAFormat,
-  Scene,
-  UnsignedByteType,
-  Vector3,
-  WebGLRenderer,
-  WebGLRenderTarget,
-  Uniform,
-  CubeTexture,
-  PMREMGenerator,
-  BackSide,
-  MeshBasicMaterial,
-  IcosahedronGeometry,
-  Texture
-} from 'three'
-import Api from '@xrengine/client-core/src/world/components/editor/Api'
+import { WebGLCubeRenderTarget, CubeCamera, LinearFilter, RGBAFormat, Scene, Vector3, WebGLRenderer } from 'three'
 
 export default class CubemapCapturer {
   width: number
