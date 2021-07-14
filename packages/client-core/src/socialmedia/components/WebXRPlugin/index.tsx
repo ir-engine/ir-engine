@@ -177,7 +177,7 @@ export const WebXRPlugin = ({
       document.removeEventListener('backbutton', onBackButton)
 
       if (animationFrameIdRef.current) {
-          cancelAnimationFrame(animationFrameIdRef.current)
+        cancelAnimationFrame(animationFrameIdRef.current)
       }
 
       if (playerRef.current) {
