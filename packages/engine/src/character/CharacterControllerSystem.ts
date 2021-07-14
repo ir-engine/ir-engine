@@ -187,13 +187,10 @@ export class CharacterControllerSystem extends System {
       actor.isGrounded = collider.raycastQuery.hits.length > 0 || collider.controller.collisions.down
     })
 
-    // PhysicsMove LocalCharacter and Update velocity vector for Animations
-    this.queryResults.localCharacter.all?.forEach((entity) => {
+    this.queryResults.localAnimationCharacter.all?.forEach((entity) => {
       const controllerCollider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
       const transform = getComponent<TransformComponent>(entity, TransformComponent)
-      const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
       const animationComponent = getMutableComponent(entity, AnimationComponent)
-      if (!controllerCollider.controller || !actor.movementEnabled) return
 
       const x = controllerCollider.controller.transform.translation.x - prevControllerColliderPosition.x
       const y = controllerCollider.controller.transform.translation.y - prevControllerColliderPosition.y
@@ -209,7 +206,11 @@ export class CharacterControllerSystem extends System {
       }
       quat.copy(transform.rotation).invert()
       animationComponent.animationVelocity.set(x, y, z).applyQuaternion(quat)
+    })
 
+    this.queryResults.localCharacter.all?.forEach((entity) => {
+      const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
+      const transform = getComponent<TransformComponent>(entity, TransformComponent)
       characterMoveBehavior(entity, delta)
 
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
@@ -321,6 +322,13 @@ export class CharacterControllerSystem extends System {
 CharacterControllerSystem.queries = {
   localCharacter: {
     components: [LocalInputReceiver, ControllerColliderComponent, CharacterComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  localAnimationCharacter: {
+    components: [LocalInputReceiver, AnimationComponent, ControllerColliderComponent, CharacterComponent],
     listen: {
       added: true,
       removed: true

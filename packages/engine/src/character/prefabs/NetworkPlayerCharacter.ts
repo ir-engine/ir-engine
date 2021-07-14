@@ -72,7 +72,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 
       animationComponent.mixer.stopAllAction()
       animationComponent.currentAnimationAction = []
-      ;[...actor.modelContainer.children].forEach((child) => actor.modelContainer.remove(child))
+      actor.modelContainer.children.forEach((child) => child.removeFromParent())
 
       model.traverse((object) => {
         if (object.isMesh || object.isSkinnedMesh) {
@@ -98,9 +98,6 @@ const initializeCharacter: Behavior = (entity): void => {
   entity.name = 'Player'
 
   const actor = getMutableComponent(entity, CharacterComponent)
-  // clear current avatar mesh
-  if (actor.modelContainer !== undefined)
-    [...actor.modelContainer.children].forEach((child) => actor.modelContainer.remove(child))
 
   // The visuals group is centered for easy actor tilting
   const obj3d = new Group()
