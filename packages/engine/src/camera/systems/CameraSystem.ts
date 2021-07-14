@@ -29,7 +29,7 @@ import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 
-let direction = new Vector3()
+const direction = new Vector3()
 const upVector = new Vector3(0, 1, 0)
 const forwardVector = new Vector3(0, 0, 1)
 const empty = new Vector3()
@@ -112,8 +112,7 @@ const followCameraBehavior = (entity: Entity) => {
     vec3.z + camDist * Math.cos(followCamera.theta * PI_2Deg) * Math.cos(phi * PI_2Deg)
   )
 
-  direction.copy(cameraDesiredTransform.position)
-  direction = direction.sub(vec3).normalize()
+  direction.copy(cameraDesiredTransform.position).sub(vec3).normalize()
 
   mx.lookAt(direction, empty, upVector)
   cameraDesiredTransform.rotation.setFromRotationMatrix(mx)
@@ -136,7 +135,7 @@ const followCameraBehavior = (entity: Entity) => {
   }
 }
 
-const resetFollowCamera = () => {
+export const resetFollowCamera = () => {
   const transform = getComponent(CameraSystem.instance.activeCamera, TransformComponent)
   const desiredTransform = getComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent)
   if (transform && desiredTransform) {

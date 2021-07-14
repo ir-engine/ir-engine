@@ -111,9 +111,9 @@ export class CharacterControllerSystem extends System {
       playerCollider.raycastQuery = PhysicsSystem.instance.addRaycastQuery(
         new RaycastQuery({
           type: SceneQueryType.Closest,
-          origin: new Vector3(0, 0, 0),
+          origin: new Vector3(0, actor.actorHalfHeight, 0),
           direction: new Vector3(0, -1, 0),
-          maxDistance: 0.05,
+          maxDistance: actor.actorHalfHeight + 0.05,
           collisionMask: DefaultCollisionMask | CollisionGroups.Portal
         })
       )
@@ -182,7 +182,7 @@ export class CharacterControllerSystem extends System {
         collider.controller.transform.translation.z
       )
 
-      collider.raycastQuery.origin.copy(transform.position)
+      collider.raycastQuery.origin.copy(transform.position).y += actor.actorHalfHeight
       collider.closestHit = collider.raycastQuery.hits[0]
       actor.isGrounded = collider.raycastQuery.hits.length > 0 || collider.controller.collisions.down
     })
