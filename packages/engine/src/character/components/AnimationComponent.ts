@@ -1,4 +1,4 @@
-import { AnimationAction, AnimationMixer, Vector3 } from 'three'
+import { AnimationAction, AnimationClip, AnimationMixer, Vector3 } from 'three'
 import { Component } from '../../ecs/classes/Component'
 import { Types } from '../../ecs/types/Types'
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator'
@@ -30,7 +30,7 @@ export class AnimationComponent extends Component<AnimationComponent> {
   // === ANIMATION === // // TODO: Move these to AnimationComponent
 
   mixer: AnimationMixer
-  animations: any[] = []
+  animations: AnimationClip[] = []
   currentAnimationAction: AnimationAction[] = []
   currentAnimationLength = 0 // we may not need this
   animationSpeed = 1
