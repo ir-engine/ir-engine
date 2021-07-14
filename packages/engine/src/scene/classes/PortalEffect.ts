@@ -14,7 +14,6 @@ import {
   Vector2,
   Vector3
 } from 'three'
-// import gasp from 'gsap'
 
 /**
  * https://github.com/Mamboleoo/InfiniteTubes
@@ -25,22 +24,12 @@ const rand = () => {
 }
 
 export class PortalEffect extends Object3D {
-  speed = 8
   curve: CatmullRomCurve3
   splineMesh: Line
   tubeMaterial: MeshBasicMaterial
   tubeGeometry: TubeGeometry
-  tubeGeometry_o: BufferGeometry
   tubeMesh: Mesh
-  textureParams: {
-    offsetX: number
-    offsetY: number
-    repeatX: number
-    repeatY: number
-  }
-  cameraShake: Vector2
   texture: Texture
-  counter = 0
   fadingIn = false
   fadingOut = false
   numPoints = 200
@@ -51,7 +40,6 @@ export class PortalEffect extends Object3D {
 
     this.createMesh()
     this.add(this.tubeMesh)
-    // this.initAnimation();
   }
 
   createMesh() {
@@ -101,7 +89,6 @@ export class PortalEffect extends Object3D {
       tube.setY(i, tube.getY(i) * factor)
     }
 
-    this.tubeGeometry_o = this.tubeGeometry.clone()
     this.tubeMesh = new Mesh(this.tubeGeometry, this.tubeMaterial)
     this.tubeMesh.position.set(-1, 0, 0)
   }
@@ -118,49 +105,9 @@ export class PortalEffect extends Object3D {
     this.remove(this.tubeMesh)
   }
 
-  // initAnimation() {
-  //   // Timeline animation
-  //   this.textureParams = {
-  //     offsetX: 0,
-  //     offsetY: 0,
-  //     repeatX: 10,
-  //     repeatY: 4
-  //   };
-  //   this.cameraShake = new Vector2()
-  // };
-
   updateMaterialOffset(delta: number) {
     this.tubeMaterial.map.offset.x += delta
   }
-
-  // updateCurve(mouse: Vector2) {
-  //   const tubeVertices = this.tubeGeometry.getAttribute('position') as BufferAttribute
-  //   const tubeVertices_o = this.tubeGeometry_o.getAttribute('position') as BufferAttribute
-  //   const splineVertices = this.splineMesh.geometry.getAttribute('position') as BufferAttribute
-
-  //   // for (let i = 0; i < tubeVertices.array.length; i += 3) {
-  //   //   const vertice_oX = tubeVertices_o.array[i];
-  //   //   const verticeX = tubeVertices.array[i];
-  //   //   const vertice_oY = tubeVertices_o.array[i + 1];
-  //   //   const verticeY = tubeVertices.array[i + 1];
-  //   //   const index = Math.floor(i / 30);
-  //   //   tubeVertices.set([verticeX + (vertice_oX + splineVertices.array[index] - verticeX) / 15], i);
-  //   //   tubeVertices.set([verticeY + (vertice_oY + splineVertices.array[index + 1] - verticeY) /15], i + 1);
-  //   // }
-  //   // tubeVertices.needsUpdate = true
-
-  //   this.curve.points[2].x = 0.6 * (1 - mouse.x) - 0.3;
-  //   this.curve.points[3].x = 0;
-  //   this.curve.points[4].x = 0.6 * (1 - mouse.x) - 0.3;
-
-  //   this.curve.points[2].y = 0.6 * (1 - mouse.y) - 0.3;
-  //   this.curve.points[3].y = 0;
-  //   this.curve.points[4].y = 0.6 * (1 - mouse.y) - 0.3;
-
-  //   splineVertices.needsUpdate = true
-  //   const curvePoints = this.curve.getPoints(70).map((val: Vector3) => { return val.toArray() }).flat()
-  //   splineVertices.set(curvePoints);
-  // };
 
   update(delta: number) {
     this.updateMaterialOffset(delta)
@@ -180,7 +127,5 @@ export class PortalEffect extends Object3D {
         this.tubeMaterial.opacity -= delta
       }
     }
-    // this.createMesh()
-    // this.updateCurve(mouse);
   }
 }

@@ -568,7 +568,7 @@ export const EnginePage = (props: Props) => {
 
     const playerObj = getComponent(Network.instance.localClientEntity, Object3DComponent)
     const texture = await AssetLoader.loadAsync({
-      url: 'https://raw.githubusercontent.com/Mamboleoo/InfiniteTubes/master/img/demo3/galaxyTexture.jpg'
+      url: '/hdr/galaxyTexture.jpg'
     })
     const hyperspaceEffect = new PortalEffect(texture)
     hyperspaceEffect.scale.set(10, 10, 10)

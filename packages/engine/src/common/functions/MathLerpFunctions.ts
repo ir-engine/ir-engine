@@ -9,7 +9,7 @@ import { PI, TAU } from '../constants/MathConstants'
  * @returns Interpolation between start and end.
  */
 export const lerp = (start: number, end: number, t: number): number => {
-  return (1 - t) * start + t * end
+  return start + (end - start) * t
 }
 
 /**
