@@ -1,11 +1,14 @@
+import { Entity } from '../../ecs/classes/Entity'
+import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { Commands } from '../../networking/enums/Commands'
 import { convertObjToBufferSupportedString } from '../../networking/functions/jsonSerialize'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { CharacterComponent } from '../components/CharacterComponent'
+import AnimationRenderer from './AnimationRenderer'
 import { AnimationState } from './AnimationState'
 import { calculateMovement } from './MovingAnimations'
-import { AnimationType, CalculateWeightsParams, CharacterStates } from './Util'
+import { AnimationType, WeightsParameterType, CharacterStates } from './Util'
 
 /** Base Class which hold the animation graph for entity. Animation graph will resides in Animation Component. */
 export class AnimationGraph {
@@ -36,14 +39,14 @@ export class AnimationGraph {
   /**
    * Validates the transition. If the current state has no next states then transition is valid
    * @param currentState current state of the animiation
-   * @param newState New state to which transition is going to take place
+   * @param newStateName New state to which transition is going to take place
    * @returns Whether the transition is valid or not
    */
-  validateTransition = (currentState: AnimationState, newState: AnimationState): boolean => {
+  validateTransition = (currentState: AnimationState, newStateName: AnimationState): boolean => {
     if (currentState.nextStates.length === 0) return true
 
     for (let i = 0; i < currentState.nextStates.length; i++) {
-      if (newState.constructor.name === currentState.nextStates[i].name) return true
+      if (newStateName.constructor.name === currentState.nextStates[i].name) return true
     }
 
     return false
@@ -51,37 +54,36 @@ export class AnimationGraph {
 
   /**
    * Transit the state from one state to another
-   * @param actor Character compoenent which holds character details
    * @param animationComponent Animation component which holds animation details
-   * @param newState New state to which transition will happen
+   * @param newStateName New state to which transition will happen
    * @param params Parameters to calculate weigths
    */
   transitionState = (
     animationComponent: AnimationComponent,
-    newState: string,
-    params: CalculateWeightsParams
+    newStateName: string,
+    params: WeightsParameterType
   ): void => {
     // If transition is paused the return
     if (this.isTransitionPaused) return
 
     // If new state is the same as old one skip transition
-    if (!params.forceTransition && newState === animationComponent.currentState.name) {
+    if (!params.forceTransition && newStateName === animationComponent.currentState.name) {
       return
     }
 
     // Validate the transition
-    const nextState = this.states[newState]
+    const nextState = this.states[newStateName]
     if (!this.validateTransition(animationComponent.currentState, nextState)) {
       return
     }
 
-    // Immediately unmount previous state if any except it is same as the new state
+    // Immediately unmount previous state
     if (animationComponent.prevState) {
-      if (animationComponent.prevState.name === newState) {
-        animationComponent.prevState.timeElapsedAfterUnmount = 0
-        animationComponent.prevState = null
+      // If it is same as new state then just reset it
+      if (animationComponent.prevState.name === newStateName) {
+        AnimationRenderer.resetPreviousState(animationComponent, true)
       } else {
-        animationComponent.prevState.unmount(true)
+        AnimationRenderer.unmountPreviousState(animationComponent, 0, true)
       }
     }
 
@@ -89,14 +91,15 @@ export class AnimationGraph {
     if (animationComponent.currentState.name !== this.defaultState.name) {
       // Set current state as previous state
       animationComponent.prevState = animationComponent.currentState
-      animationComponent.prevState.timeElapsedAfterUnmount = 0
+      AnimationRenderer.resetPreviousState(animationComponent)
     }
 
     // Set new state
-    animationComponent.currentState = this.states[newState]
+    animationComponent.currentState = this.states[newStateName]
+    animationComponent.currentState.weightParams = params
 
     // Mount new state
-    animationComponent.currentState.mount(animationComponent, params)
+    AnimationRenderer.mountCurrentState(animationComponent)
 
     // Add event to auto transit to new state when the animatin of current state finishes
     if (animationComponent.currentState.autoTransitionTo) {
@@ -113,19 +116,20 @@ export class AnimationGraph {
       this.pauseTransitionFor(animationComponent.currentState.pauseTransitionDuration)
     }
 
-    this.updateNetwork(animationComponent, newState, params)
+    // update the network to sync animation
+    this.updateNetwork(animationComponent, newStateName, params)
   }
 
   /**
-   * An animation state check for state transition, previous state unmount and running default state for idle weight for the velocity based animations.
-   * This method will not run the animation it will just handle the transition, weight change and unmounting of the animation.
+   * An animation state check for state transition for the velocity based animations.
+   * This method will not run the animation it will just handle the transition and weight change.
    * Animations will be handled by Three js library's animation manager.
    * @param actor Character compoenent which holds character details
    * @param animationComponent Animation component which holds animation details
    * @param delta Time since last frame
    */
   render = (actor: CharacterComponent, animationComponent: AnimationComponent, delta: number): void => {
-    if (!animationComponent.currentState) return
+    let params: WeightsParameterType = {}
 
     // Calculate movement fo the actor for this frame
     const movement = calculateMovement(actor, animationComponent, delta, this.EPSILON)
@@ -138,25 +142,30 @@ export class AnimationGraph {
     // If velocity is not changed then no updated and transition will happen
     if (!isChanged) return
 
+    params.movement = movement
+
+    animationComponent.currentState.weightParams = params
+
     if (actor.isJumping) {
       if (animationComponent.currentState.name !== CharacterStates.JUMP) {
-        animationComponent.animationGraph.transitionState(animationComponent, CharacterStates.JUMP, {})
+        animationComponent.animationGraph.transitionState(animationComponent, CharacterStates.JUMP, params)
       }
     } else {
-      let newState = ''
-      if (movement.velocity.length() > this.EPSILON / 3) {
-        newState = actor.isWalking ? CharacterStates.WALK : CharacterStates.RUN
+      let newStateName = ''
+      if (Math.abs(movement.velocity.x) + Math.abs(movement.velocity.z) > this.EPSILON / 2) {
+        newStateName = actor.isWalking ? CharacterStates.WALK : CharacterStates.RUN
       } else {
-        newState = CharacterStates.IDLE
+        newStateName = CharacterStates.IDLE
       }
 
-      // If new state is different than current state then transit other wise update the current state
-      if (animationComponent.currentState.name !== newState) {
-        animationComponent.animationGraph.transitionState(animationComponent, newState, { movement })
-      } else {
-        animationComponent.currentState.update({ movement })
+      // If new state is different than current state then transit
+      if (animationComponent.currentState.name !== newStateName) {
+        animationComponent.animationGraph.transitionState(animationComponent, newStateName, params)
       }
     }
+
+    // update weights based on velocity of the character
+    animationComponent.currentState.updateWeights()
 
     // Set velocity as prev velocity
     animationComponent.prevVelocity.copy(movement.velocity)
@@ -166,10 +175,14 @@ export class AnimationGraph {
   /**
    * Update animations on network and sync action across all the connected clients
    * @param animationComponent Animation component
-   * @param newState New state of the animation. If only the weights are recalculated then new state will be same as current state.
+   * @param newStateName New state of the animation. If only the weights are recalculated then new state will be same as current state.
    * @param params Parameters to be passed onver network
    */
-  updateNetwork = (animationComponent: AnimationComponent, newState: string, params: CalculateWeightsParams): void => {
+  updateNetwork = (
+    animationComponent: AnimationComponent,
+    newStateName: string,
+    params: WeightsParameterType
+  ): void => {
     // Send change animation commnad over network for the local client entity
     if (
       Network.instance.localClientEntity?.id === animationComponent.entity.id &&
@@ -178,51 +191,34 @@ export class AnimationGraph {
       Network.instance.clientInputState.commands.push({
         type: Commands.CHANGE_ANIMATION_STATE,
         args: convertObjToBufferSupportedString({
-          state: newState,
+          state: newStateName,
           params
         })
       })
     }
   }
 
-  /** Unmounts previous state gradually.
-   * @param animationComponent Animation component
-   * @param delta Time since last frame
-   * @returns Total weight of the previous state animation
-   */
-  unmountPrevState = (animationComponent: AnimationComponent, delta: number): number => {
-    let prevStateWeight = 0
-
-    if (animationComponent.prevState) {
-      animationComponent.prevState.timeElapsedAfterUnmount += delta
-      animationComponent.prevState.unmount()
-
-      prevStateWeight = animationComponent.prevState.getTotalWeightsOfAnimations()
-      if (animationComponent.prevState.name !== this.defaultState.name) {
-        // If there is no weight in the prevState animations then remove it.
-        if (prevStateWeight <= this.EPSILON) {
-          animationComponent.prevState.timeElapsedAfterUnmount = 0
-          animationComponent.prevState = null
-        }
-      }
-    }
-
-    return prevStateWeight
-  }
-
   /**
-   * Renders idle weight with default animation to prevent T pose being rendered
-   * @param animationComponent Animation component
-   * @param prevStateWeight Weight of the previous state
+   * Update animation state manually
+   * @param entity Entity of which animation state will be updated
+   * @param newStateName New state of the animation. If only the weights are recalculated then new state will be same as current state.
+   * @param params Parameters to be passed onver network
    */
-  renderIdleWeight = (animationComponent: AnimationComponent, prevStateWeight: number): void => {
-    if (animationComponent.currentState.name !== this.defaultState.name) {
-      const idleWeight = Math.max(
-        1 - (prevStateWeight + animationComponent.currentState.getTotalWeightsOfAnimations()),
-        0
-      )
-      this.defaultState.animations[0].weight = idleWeight
-      this.defaultState.update({})
+  static forceUpdateAnimationState = (entity: Entity, newStateName: string, params: WeightsParameterType) => {
+    const animationComponent = getMutableComponent(entity, AnimationComponent)
+
+    const animationState = animationComponent.animationGraph.states[newStateName]
+
+    // If new state is same as current state then just update params and sync network
+    if (animationComponent.currentState.name === animationState.name) {
+      params.resetAnimation = true
+      animationComponent.currentState.weightParams = params
+      animationComponent.animationGraph.updateNetwork(animationComponent, animationState.name, params)
+    } else {
+      animationComponent.animationGraph.transitionState(animationComponent, animationState.name, params)
     }
+
+    // Update weights of the state
+    animationComponent.currentState.updateWeights()
   }
 }

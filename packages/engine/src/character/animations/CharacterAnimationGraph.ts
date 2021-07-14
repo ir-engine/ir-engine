@@ -26,14 +26,14 @@ export class CharacterAnimationGraph extends AnimationGraph {
     const jumpState = new JumpState()
 
     // Set the next states
-    walkState.nextStates.push(IdleState, RunState, EnteringVehicleState)
-    runState.nextStates.push(IdleState, WalkState, EnteringVehicleState)
+    walkState.nextStates.push(IdleState, RunState, EnteringVehicleState, JumpState)
+    runState.nextStates.push(IdleState, WalkState, EnteringVehicleState, JumpState)
     enteringVehicleState.nextStates.push(ExitingVehicleState)
     exitingVehicleState.nextStates.push(IdleState, EnteringVehicleState)
     exitingVehicleState.autoTransitionTo = CharacterStates.IDLE
     // emoteState.nextStates.push(IdleState, WalkState, RunState, EnteringVehicleState, LoopableEmoteState);
     // emoteState.autoTransitionTo = CharacterStates.IDLE;
-    loopableEmoteState.nextStates.push(WalkState, RunState, EnteringVehicleState)
+    loopableEmoteState.nextStates.push(WalkState, RunState, EnteringVehicleState, JumpState)
     jumpState.nextStates.push(IdleState, WalkState, RunState)
 
     // Add states to the graph

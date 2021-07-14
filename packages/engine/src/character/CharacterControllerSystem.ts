@@ -39,6 +39,7 @@ import { DesiredTransformComponent } from '../transform/components/DesiredTransf
 import { CharacterAnimationGraph } from './animations/CharacterAnimationGraph'
 import { CharacterStates } from './animations/Util'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
+import AnimationRenderer from './animations/AnimationRenderer'
 
 const forwardVector = new Vector3(0, 0, 1)
 const prevControllerColliderPosition = new Vector3()
@@ -236,10 +237,9 @@ export class CharacterControllerSystem extends System {
       const animationComponent = getMutableComponent(entity, AnimationComponent)
       animationComponent.animationGraph = new CharacterAnimationGraph()
       animationComponent.currentState = animationComponent.animationGraph.states[CharacterStates.IDLE]
-      animationComponent.currentState.mount(animationComponent, {})
       animationComponent.prevVelocity = new Vector3()
       animationComponent.prevDistanceFromGround = 0
-      if (!animationComponent.currentState) animationComponent.currentState.mount(animationComponent, {})
+      if (animationComponent.currentState) AnimationRenderer.mountCurrentState(animationComponent)
     })
 
     this.queryResults.animation.all?.forEach((entity) => {
@@ -259,10 +259,8 @@ export class CharacterControllerSystem extends System {
 
       if (!animationComponent.onlyUpdateMixerTime) {
         animationComponent.animationGraph.render(actor, animationComponent, deltaTime)
+        AnimationRenderer.render(animationComponent, delta)
       }
-
-      const prevStateWeight = animationComponent.animationGraph.unmountPrevState(animationComponent, deltaTime)
-      animationComponent.animationGraph.renderIdleWeight(animationComponent, prevStateWeight)
     })
 
     this.queryResults.ikAvatar.added?.forEach((entity) => {
