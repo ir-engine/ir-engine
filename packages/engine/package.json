@@ -61,7 +61,7 @@
     "three-physx": "^0.0.33",
     "twitch-m3u8": "^1.1.4",
     "vite": "2.4.2",
-    "volumetric": "https://github.com/XRFoundation/UniversalVolumetric"
+    "volumetric": "0.2.25"
   },
   "devDependencies": {
     "@rollup/plugin-json": "4.1.0",
