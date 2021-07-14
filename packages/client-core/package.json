@@ -62,7 +62,7 @@
     "esbuild-plugin-sass": "0.5.2",
     "eventemitter3": "4.0.7",
     "formik": "2.2.9",
-    "i18next": "20.3.2",
+    "i18next": "20.3.3",
     "immutable": "4.0.0-rc.14",
     "jwt-decode": "3.1.2",
     "lodash": "4.17.21",
