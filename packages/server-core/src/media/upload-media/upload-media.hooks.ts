@@ -1,5 +1,6 @@
 import * as authentication from '@feathersjs/authentication'
 import { disallow } from 'feathers-hooks-common'
+import { SYNC } from 'feathers-sync'
 
 import addThumbnailFileId from '@xrengine/server-core/src/hooks/add-thumbnail-file-id'
 import addUriToFile from '@xrengine/server-core/src/hooks/add-uri-to-file'
@@ -35,6 +36,7 @@ export default {
       addThumbnailFileId(),
       removePreviousThumbnail(),
       createOwnedFile(),
+      (context) => (context[SYNC] = false),
       setResponseStatus(200)
     ],
     update: [],

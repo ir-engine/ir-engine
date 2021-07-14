@@ -131,7 +131,6 @@ const switchShoulderSide: Behavior = (entity: Entity, args: any, detla: number):
   const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent)
   if (cameraFollow) {
     cameraFollow.shoulderSide = !cameraFollow.shoulderSide
-    cameraFollow.offset.x = -cameraFollow.offset.x
   }
 }
 
@@ -165,7 +164,6 @@ const switchCameraMode = (entity: Entity, args: any = { pointerLock: false, mode
   switch (args.mode) {
     case CameraModes.FirstPerson:
       {
-        cameraFollow.offset.set(0, 1, 0)
         cameraFollow.phi = 0
         cameraFollow.locked = true
         setVisible(entity, false)
@@ -174,7 +172,6 @@ const switchCameraMode = (entity: Entity, args: any = { pointerLock: false, mode
 
     case CameraModes.ShoulderCam:
       {
-        cameraFollow.offset.set(cameraFollow.shoulderSide ? -0.25 : 0.25, 1, 0)
         setVisible(entity, true)
       }
       break
@@ -182,14 +179,12 @@ const switchCameraMode = (entity: Entity, args: any = { pointerLock: false, mode
     default:
     case CameraModes.ThirdPerson:
       {
-        cameraFollow.offset.set(cameraFollow.shoulderSide ? -0.25 : 0.25, 1, 0)
         setVisible(entity, true)
       }
       break
 
     case CameraModes.TopDown:
       {
-        cameraFollow.offset.set(0, 1, 0)
         setVisible(entity, true)
       }
       break
