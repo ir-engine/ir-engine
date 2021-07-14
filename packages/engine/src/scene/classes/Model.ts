@@ -1,5 +1,6 @@
 import { AnimationMixer, Object3D } from 'three'
 import { LoadGLTF } from '../../assets/functions/LoadGLTF'
+import { AnimationManager } from '../../character/AnimationManager'
 import cloneObject3D from '../../editor/functions/cloneObject3D'
 export default class Model extends Object3D {
   model: any
@@ -9,6 +10,7 @@ export default class Model extends Object3D {
   activeClipIndex: number
   animationMixer: any
   activeClipAction: any
+  hasAvatarAnimations = false
   constructor() {
     super()
     ;(this as any).type = 'Model'
@@ -31,7 +33,7 @@ export default class Model extends Object3D {
     // const gltf = await new GLTFLoader(src).loadGLTF();
     const gltf = await LoadGLTF(src)
     const model = gltf.scene
-    model.animations = model.animations || []
+    model.animations = this.hasAvatarAnimations ? AnimationManager.instance._animations : model.animations || []
     return model
   }
   async load(src, ...args) {
@@ -41,7 +43,7 @@ export default class Model extends Object3D {
       this.model = null
     }
     const model = await this.loadGLTF(src)
-    model.animations = model.animations || []
+    model.animations = this.hasAvatarAnimations ? AnimationManager.instance._animations : model.animations || []
     this.model = model
     ;(this as any).add(model)
     if (model.animations && model.animations.length > 0) {
