@@ -106,7 +106,7 @@ export const WebXRPlugin = ({
   const sceneRef = useRef<Scene | null>(null)
   const cameraRef = useRef<PerspectiveCamera | null>(null)
   const rendererRef = useRef<WebGLRenderer | null>(null)
-  //   const animationFrameIdRef = useRef<number>(0)
+  const animationFrameIdRef = useRef<number>(0)
   const zoomHandlerRef = useRef<ZoomGestureHandler | null>(null)
 
   const recordingStateRef = React.useRef(recordingState)
@@ -176,9 +176,9 @@ export const WebXRPlugin = ({
       // console.log('WebXRComponent UNMOUNT');
       document.removeEventListener('backbutton', onBackButton)
 
-      //   if (animationFrameIdRef.current) {
-      //     cancelAnimationFrame(animationFrameIdRef.current)
-      //   }
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current)
+      }
 
       if (playerRef.current) {
         console.log('WebXRComponent - dispose player')
@@ -203,8 +203,8 @@ export const WebXRPlugin = ({
     }
   }, [])
 
-  const render = () => {
-    // animationFrameIdRef.current = requestAnimationFrame(raf) // always request new frame
+  const raf = () => {
+    animationFrameIdRef.current = requestAnimationFrame(raf) // always request new frame
     const scene = sceneRef.current
     const camera = cameraRef.current
     const renderer = rendererRef.current
@@ -397,7 +397,7 @@ export const WebXRPlugin = ({
         //video.muted = true;
       }
 
-      //   requestAnimationFrame(raf)
+      requestAnimationFrame(raf)
 
       // const { XRPlugin } = Plugins;
 
@@ -504,7 +504,7 @@ export const WebXRPlugin = ({
           // }
         }
 
-        render()
+        // render()
       })
 
       // @ts-ignore
