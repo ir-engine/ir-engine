@@ -54,6 +54,7 @@ import { AnimationState } from '../../character/animations/AnimationState'
 import { delay } from '../../ecs/functions/EngineFunctions'
 import { setSkyDirection } from './setSkyDirection'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { AnimationManager } from '../../character/AnimationManager'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -187,8 +188,10 @@ export class WorldScene {
                 }
 
                 if (isClient) {
+                  // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
                   if (res.animations) {
-                    addComponent(entity, AnimationComponent, { onlyUpdateMixerTime: true }) // We only have to update the mixer time for this animations on each frame
+                    // We only have to update the mixer time for this animations on each frame
+                    addComponent(entity, AnimationComponent, { onlyUpdateMixerTime: true })
                     const animationComponent = getMutableComponent(entity, AnimationComponent)
                     animationComponent.animations = res.animations
                     const object3d = getMutableComponent(entity, Object3DComponent)
@@ -201,7 +204,7 @@ export class WorldScene {
                     // we should push this to ECS, something like a SceneObjectLoadComponent,
                     // or add engine events for specific objects being added to the scene,
                     // the scene load event + delay 1 second delay works for now.
-                    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, async () => {
+                    EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
                       await delay(1000)
                       const objToCopy = Engine.scene.children.find((obj: any) => {
                         return obj.sceneEntityId === component.data.textureOverride
@@ -230,6 +233,45 @@ export class WorldScene {
             )
           })
         )
+        break
+
+      case 'loop-animation':
+        if (isClient) {
+          EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
+            // We only have to update the mixer time for this animations on each frame
+            const object3d = getMutableComponent(entity, Object3DComponent)
+            if (!object3d) {
+              console.warn(
+                'Tried to load animation without an Object3D Component attached! Are you sure the model has loaded?'
+              )
+            }
+            addComponent(entity, AnimationComponent, { onlyUpdateMixerTime: true })
+            const animationComponent = getMutableComponent(entity, AnimationComponent)
+            if (component.data.hasAvatarAnimations) {
+              animationComponent.animations = AnimationManager.instance._animations
+            } else {
+              animationComponent.animations = object3d.value.animations
+            }
+            animationComponent.mixer = new AnimationMixer(object3d.value)
+            animationComponent.currentState = new AnimationState()
+            if (component.data.activeClipIndex >= 0) {
+              const clip = animationComponent.animations[component.data.activeClipIndex]
+              const action = animationComponent.mixer.clipAction(
+                AnimationClip.findByName(animationComponent.animations, clip.name)
+              )
+              action.setEffectiveWeight(1)
+              animationComponent.currentState.animations = [
+                {
+                  name: clip.name,
+                  weight: 1,
+                  loopType: LoopRepeat,
+                  action
+                }
+              ]
+              animationComponent.currentState.animations[0].action.play()
+            }
+          })
+        }
         break
 
       case 'interact':
