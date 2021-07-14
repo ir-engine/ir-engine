@@ -176,9 +176,9 @@ export const WebXRPlugin = ({
       // console.log('WebXRComponent UNMOUNT');
       document.removeEventListener('backbutton', onBackButton)
 
-        if (animationFrameIdRef.current) {
+      if (animationFrameIdRef.current) {
           cancelAnimationFrame(animationFrameIdRef.current)
-        }
+      }
 
       if (playerRef.current) {
         console.log('WebXRComponent - dispose player')
