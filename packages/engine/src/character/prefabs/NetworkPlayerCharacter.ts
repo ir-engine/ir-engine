@@ -30,6 +30,7 @@ import { NamePlateComponent } from '../components/NamePlateComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
 import type { NetworkObject } from '../../networking/components/NetworkObject'
+import AnimationRenderer from '../animations/AnimationRenderer'
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
@@ -84,7 +85,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
       model.children.forEach((child) => actor.modelContainer.add(child))
 
       if (animationComponent.currentState) {
-        animationComponent.currentState.mount(animationComponent, {}, true)
+        AnimationRenderer.mountCurrentState(animationComponent)
       }
 
       // advance animation for a frame to eliminate potential t-pose
