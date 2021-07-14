@@ -3,6 +3,7 @@ import { AnimationComponent } from '../../../../character/components/AnimationCo
 import { CharacterComponent } from '../../../../character/components/CharacterComponent'
 import { XRInputSourceComponent } from '../../../../character/components/XRInputSourceComponent'
 import { SkeletonUtils } from '../../../../character/SkeletonUtils'
+import { isClient } from '../../../../common/functions/isClient'
 import { EngineEvents } from '../../../../ecs/classes/EngineEvents'
 import { Entity } from '../../../../ecs/classes/Entity'
 import { delay } from '../../../../ecs/functions/EngineFunctions'
@@ -14,6 +15,8 @@ import { XRSystem } from '../../../../xr/systems/XRSystem'
 const avatarScale = 1.3
 
 export const setupPlayerAvatar = async (entityPlayer: Entity) => {
+  if (!isClient) return
+
   removeComponent(entityPlayer, AnimationComponent)
 
   const actor = getComponent(entityPlayer, CharacterComponent)
@@ -29,7 +32,7 @@ export const setupPlayerAvatar = async (entityPlayer: Entity) => {
 
   const leftHandModel = SkeletonUtils.clone(handGLTF)
   const rightHandModel = SkeletonUtils.clone(handGLTF)
-  rightHandModel.scale.set(-1, 1, 1)
+  leftHandModel.scale.set(-1, 1, 1)
   // TODO: replace pos offset with animation hand position once new animation rig is in
   leftHandModel.position.set(0.35, 1, 0)
   leftHandModel.scale.multiplyScalar(avatarScale)
@@ -51,9 +54,9 @@ export const setupPlayerAvatar = async (entityPlayer: Entity) => {
     const handGLTF = await AssetLoader.loadAsync({ url: '/models/golf/avatars/avatar_hands.glb' })
     const leftHandModel = SkeletonUtils.clone(handGLTF)
     const rightHandModel = SkeletonUtils.clone(handGLTF)
-    leftHandModel.scale.set(1, 1, -1)
+    leftHandModel.scale.set(-1, 1, -1)
     leftHandModel.scale.multiplyScalar(avatarScale)
-    rightHandModel.scale.set(-1, 1, -1)
+    rightHandModel.scale.set(1, 1, -1)
     rightHandModel.scale.multiplyScalar(avatarScale)
 
     const { controllerLeft, controllerRight, controllerGripLeft, controllerGripRight } = getComponent(
