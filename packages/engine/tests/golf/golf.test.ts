@@ -3,8 +3,8 @@ import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
 import XREngineBot from '../../../bot/src/bot'
 
 const maxTimeout = 60 * 1000
-const headless = false
-const bot = new XREngineBot({ name: 'bot-1', headless, autoLog: true })
+const headless = true
+const bot = new XREngineBot({ name: 'bot-1', headless, autoLog: false })
 
 const domain = process.env.APP_HOST
 // TODO: load GS & client from static world file instead of having to run independently
@@ -79,10 +79,11 @@ describe('Golf tests', () => {
       leftControllerInputValue,
       rightControllerInputValue
     } = await bot.runHook("getXRInputPosition")
+    console.log(headInputValue.x, headInputValue.y, headInputValue.z)
 
     compareArrays(
       [headInputValue.x, headInputValue.y, headInputValue.z],
-      [0, 0.7, 0],
+      [0, 1.6, 0],
       0.01
     )
     compareArrays(
@@ -124,7 +125,7 @@ describe('Golf tests', () => {
     // wait for turn, then move to ball position
     await bot.awaitHookPromise("getIsYourTurn")
     await bot.keyPress('KeyK', 200)
-    await bot.delay(500)
+    await bot.delay(1000)
 
     // should be at ball position
     expect(

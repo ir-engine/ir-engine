@@ -503,6 +503,8 @@ export const WebXRPlugin = ({
           // }
           // }
         }
+
+        // render()
       })
 
       // @ts-ignore

@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from 'three'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
+import { System } from '../ecs/classes/System'
 import { getComponent, hasComponent } from '../ecs/functions/EntityFunctions'
 import { GamePlayer } from '../game/components/GamePlayer'
 import { getGameFromName } from '../game/functions/functions'
@@ -13,6 +14,12 @@ import { sendXRInputData, swingClub, updateController, updateHead, tweenXRInputS
 
 export const setupBotHooks = (): void => {
   globalThis.botHooks = BotHooks
+  globalThis.Engine = Engine
+  globalThis.EngineEvents = EngineEvents
+  globalThis.Network = Network
+  Engine.activeSystems.getAll().forEach((system: System) => {
+    globalThis[system.name] = system.constructor
+  })
 }
 
 export const BotHooks = {
@@ -166,11 +173,7 @@ export function moveControllerStick(args) {
 // === ENGINE === //
 
 export function getPlayerPosition() {
-  const pos = getComponent(Network.instance.localClientEntity, TransformComponent)?.position
-  if (!pos) return
-  // transform is centered on collider
-  pos.y -= 0.9
-  return pos
+  return getComponent(Network.instance.localClientEntity, TransformComponent)?.position
 }
 
 export function getBallPosition() {

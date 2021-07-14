@@ -5,14 +5,14 @@ import ScrollableElement from '../ScrollableElement'
 import styles from './EmoteMenu.module.scss'
 import { ClientInputSchema } from '@xrengine/engine/src/input/schema/ClientInputSchema'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getMutableComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { LocalInputReceiver } from '@xrengine/engine/src/input/components/LocalInputReceiver'
-import { AnimationComponent } from '@xrengine/engine/src/character/components/AnimationComponent'
 import {
-  CalculateWeightsParams,
+  WeightsParameterType,
   CharacterAnimations,
   CharacterStates
 } from '@xrengine/engine/src/character/animations/Util'
+import { AnimationGraph } from '@xrengine/engine/src/character/animations/AnimationGraph'
 
 type MenuItemType = {
   body: any
@@ -53,24 +53,10 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
     }
   ]
 
-  const runAnimation = (animationName: string, params: CalculateWeightsParams) => {
+  const runAnimation = (animationName: string, params: WeightsParameterType) => {
     const entity = Engine.entities.find((e) => e.name === 'Player' && hasComponent(e, LocalInputReceiver))
-    const animationComponent = getMutableComponent(entity, AnimationComponent)
 
-    const animationState = animationComponent.animationGraph.states[animationName]
-
-    params.smoothChange = true
-    if (animationComponent.currentState.name === animationState.name) {
-      params.resetAnimation = true
-      params.recalculateWeights = true
-      animationComponent.currentState.changeAnimationSmoothly(params)
-      animationComponent.animationGraph.updateNetwork(animationComponent, animationState.name, params)
-    } else {
-      animationComponent.animationGraph.transitionState(animationComponent, animationState.name, params)
-      if (animationComponent.currentState.changeAnimationSmoothly) {
-        animationComponent.currentState.changeAnimationSmoothly(params)
-      }
-    }
+    AnimationGraph.forceUpdateAnimationState(entity, animationName, params)
   }
 
   const jumpStart = () => {
