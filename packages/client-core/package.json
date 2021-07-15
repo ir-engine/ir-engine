@@ -99,7 +99,7 @@
     "use-debounce": "7.0.0",
     "use-http": "1.0.21",
     "uuid": "8.3.2",
-    "volumetric": "0.2.26",
+    "volumetric": "0.2.27",
     "yup": "0.32.9"
   },
   "devDependencies": {
