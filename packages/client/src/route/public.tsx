@@ -47,9 +47,11 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
           {/* Admin Routes*/}
           <Route path="/admin" component={ProtectedRoute} />
 
+          {/* Dev Routes */}
           <Route path="/offlineDev" component={React.lazy(() => import('../pages/offlineDev'))} />
           <Route path="/examples/helloworld" component={React.lazy(() => import('../pages/examples/ecs_helloworld'))} />
           <Route path="/examples/ikrig" component={React.lazy(() => import('../pages/examples/ikrig'))} />
+          <Route path="/examples/navmesh" component={React.lazy(() => import('../pages/examples/navmesh'))} />
           <Route path="/asset-test" component={React.lazy(() => import('../pages/examples/asset-test'))} />
 
           {/* Auth Routes */}
@@ -73,7 +75,7 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
             path="/blondtron/:locationName"
             component={React.lazy(() => import('../pages/event/[locationName]'))}
           />
-
+          <Route path="/event/:locationName" component={React.lazy(() => import('../pages/event/[locationName]'))} />
           <Route
             path="/offline/:locationName"
             component={React.lazy(() => import('../pages/offline/[locationName]'))}

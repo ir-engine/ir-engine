@@ -7,8 +7,13 @@ import seederConfig from './seeder-config'
 
 export default (app: Application): void => {
   try {
-    const { forceRefresh } = config.db
     const { performDryRun } = config.server
+
+    let forceRefresh = config.db.forceRefresh
+    const setForceRefresh = () => {
+      console.log('Detected unseeded database. Forcing Refresh.')
+      forceRefresh = true
+    }
 
     console.log('Starting app')
 
@@ -34,6 +39,15 @@ export default (app: Application): void => {
       sequelize
         .query('SET FOREIGN_KEY_CHECKS = 0')
         .then(() => {
+          return sequelize.query('SELECT COUNT(*) FROM user;')
+        })
+        .then(([results]) => {
+          if (results[0]['COUNT(*)'] === 0) {
+            setForceRefresh()
+          }
+        })
+        .catch(setForceRefresh)
+        .then(() => {
           // Sync to the database
           for (const model of Object.keys(sequelize.models)) {
             if (forceRefresh) console.log('creating associations for =>', sequelize.models[model])
@@ -45,7 +59,13 @@ export default (app: Application): void => {
             .sync({ force: forceRefresh })
             .then(() => {
               return (app as any)
-                .configure(seeder({ services: seederConfig }))
+                .configure(
+                  seeder({
+                    delete: forceRefresh,
+                    disabled: !forceRefresh,
+                    services: seederConfig
+                  })
+                )
                 .seed()
                 .then(() => {
                   console.log('Server Ready')
