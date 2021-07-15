@@ -30,7 +30,6 @@ import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '../../scene/co
 import { DistanceModelType } from '../../scene/classes/AudioSource'
 import ReflectionProbeNode, { ReflectionProbeTypes } from './ReflectionProbeNode'
 import asyncTraverse from '../functions/asyncTraverse'
-import { Api } from '@xrengine/client-core'
 import { uploadCubemap } from './helper/ImageUtils'
 
 export default class SceneNode extends EditorNodeMixin(Scene) {
@@ -323,7 +322,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
             file_id: fileId,
             meta: { access_token: fileToken }
           } = value
-          this.editor.api.ownedUploadedFiles['envmap'] = {
+          this.editor.api.filesToUpload['envMapOwnedFileId'] = {
             file_id: fileId,
             file_token: fileToken
           }

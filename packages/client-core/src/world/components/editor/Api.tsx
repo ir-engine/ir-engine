@@ -96,7 +96,7 @@ export class Api extends EventEmitter {
   projectDirectoryPath: string
   maxUploadSize: number
   props: any
-  ownedUploadedFiles: {}
+  filesToUpload: {}
 
   /**
    * [constructor ]
@@ -116,7 +116,7 @@ export class Api extends EventEmitter {
     // Max size in MB
     this.maxUploadSize = 128
 
-    this.ownedUploadedFiles = {}
+    this.filesToUpload = {}
 
     // This will manage the not authorized users
     this.handleAuthorization()
@@ -495,8 +495,8 @@ export class Api extends EventEmitter {
 
     const project = {
       name: scene.name,
-      ownedUploadedFiles: {
-        thumbnail: {
+      filesToUpload: {
+        thumbnailOwnedFileId: {
           file_id: thumbnailFileId,
           file_token: thumbnailFileToken
         }
@@ -509,8 +509,8 @@ export class Api extends EventEmitter {
       project['parent_scene_id'] = parentSceneId
     }
 
-    Object.assign(project.ownedUploadedFiles, this.ownedUploadedFiles)
-    this.ownedUploadedFiles = {}
+    Object.assign(project.filesToUpload, this.filesToUpload)
+    this.filesToUpload = {}
 
     const body = JSON.stringify({ project })
 
@@ -618,8 +618,8 @@ export class Api extends EventEmitter {
 
     const project = {
       name: editor.scene.name,
-      ownedUploadedFiles: {
-        thumbnail: {
+      filesToUpload: {
+        thumbnailOwnedFileId: {
           file_id: thumbnailFileId,
           file_token: thumbnailFileToken
         }
@@ -634,8 +634,8 @@ export class Api extends EventEmitter {
       project['scene_id'] = sceneId
     }
 
-    Object.assign(project.ownedUploadedFiles, this.ownedUploadedFiles)
-    this.ownedUploadedFiles = {}
+    Object.assign(project.filesToUpload, this.filesToUpload)
+    this.filesToUpload = {}
 
     const body = JSON.stringify({
       project
@@ -972,7 +972,7 @@ export class Api extends EventEmitter {
    * @param  {any}  onUploadProgress
    * @param  {any}  signal
    * @param  {any}  projectId
-   * @param  {string}  imageIdentifier
+   * @param  {string}  fileIdentifier
    * @return {Promise}
    */
   async upload(blob, onUploadProgress, signal?, fileIdentifier?, projectId?): Promise<void> {
@@ -1027,7 +1027,7 @@ export class Api extends EventEmitter {
         formData.set('projectId', projectId)
       }
       if (fileIdentifier) {
-        formData.set('imageIdentifier', fileIdentifier)
+        formData.set('fileIdentifier', fileIdentifier)
       }
 
       formData.set('media', blob)
