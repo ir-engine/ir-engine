@@ -7,9 +7,11 @@ import {
   BoxBufferGeometry,
   MeshStandardMaterial,
   Vector3,
-  PerspectiveCamera
+  PerspectiveCamera,
+  AmbientLight,
 } from 'three'
-import TrailRenderer from '../../../../engine/src/scene/classes/TrailRenderer'
+import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
+import TrailRenderer from '@xrengine/engine/src/scene/classes/TrailRenderer'
 
 const canvasStyle = {
   zIndex: 0,
@@ -46,11 +48,12 @@ const DevPage = () => {
     renderer.setPixelRatio(window.devicePixelRatio)
 
     const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-    camera.position.set(40, 10, 20)
+    camera.position.set(20, 15, 10)
     camera.lookAt(0, 0, 0)
 
-    const trailTarget = new Mesh(new BoxBufferGeometry(), new MeshStandardMaterial({ color: new Color('lime') }))
+    const trailTarget = new Mesh(new BoxBufferGeometry(), new MeshStandardMaterial({ color: new Color('#fff') }))
     scene.add(trailTarget)
+    scene.add(new AmbientLight(0xaaaaaa))
 
     const trailHeadGeometry = []
     trailHeadGeometry.push(new Vector3(-1.0, 0.0, 0.0), new Vector3(0.0, 0.0, 0.0), new Vector3(1.0, 0.0, 0.0))
@@ -58,15 +61,27 @@ const DevPage = () => {
     const trailMaterial = TrailRenderer.createBaseMaterial()
     const trailLength = 150
 
-    trail.initialize(trailMaterial, trailLength, false, 150, trailHeadGeometry, trailTarget)
-    scene.add(trail)
+    trail.initialize(trailMaterial, trailLength, false, 0, trailHeadGeometry, trailTarget)
+    scene.add(trail.mesh)
 
+
+    const controls = new OrbitControls( camera, renderer.domElement );
+		controls.target.set( 0, 0, 0 );
+		controls.update();
+
+    let lastTrailUpdateTime = 0
     const animate = () => {
       requestAnimationFrame(animate)
 
       count += 0.02
-
-      trailTarget.position.set(Math.sin(count) * 10, 0, Math.cos(count) * 10)
+      trailTarget.position.set(Math.sin(count) * 10, 10, Math.cos(count) * 10)
+      const time = Date.now()
+      if ( time - lastTrailUpdateTime > 10 ) {
+        trail.advance();
+        lastTrailUpdateTime = time;
+      } else {
+        trail.updateHead();
+      }
 
       renderer.render(scene, camera)
     }

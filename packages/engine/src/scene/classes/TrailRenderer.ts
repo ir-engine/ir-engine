@@ -1,6 +1,4 @@
 import {
-  Group,
-  MathUtils,
   Matrix4,
   BufferAttribute,
   BufferGeometry,
@@ -344,8 +342,8 @@ class TrailRenderer extends Object3D {
       const index = i * 3
 
       positions.setX(index, 0)
-      positions.setY(index + 1, 0)
-      positions.setZ(index + 2, 0)
+      positions.setY(index, 0)
+      positions.setZ(index, 0)
     }
 
     positions.needsUpdate = true
@@ -359,8 +357,8 @@ class TrailRenderer extends Object3D {
       const index = i * 3
 
       indices.setX(index, 0)
-      indices.setY(index + 1, 0)
-      indices.setZ(index + 2, 0)
+      indices.setY(index, 0)
+      indices.setZ(index, 0)
     }
 
     indices.needsUpdate = true
@@ -389,6 +387,7 @@ class TrailRenderer extends Object3D {
 
   destroyMesh() {
     if (this.mesh) {
+      // TODO: remove from sceen
       this.mesh = null
     }
   }
@@ -522,7 +521,7 @@ class TrailRenderer extends Object3D {
     const nodeCenters = this.geometry.getAttribute('nodeCenter') as BufferAttribute
 
     for (let i = 0; i < this.VerticesPerNode; i++) {
-      const baseIndex = (nodeIndex * this.VerticesPerNode + i) * 3
+      const baseIndex = (nodeIndex * this.VerticesPerNode + i)
       nodeCenters.setX(baseIndex, nodeCenter.x)
       nodeCenters.setY(baseIndex, nodeCenter.y)
       nodeCenters.setZ(baseIndex, nodeCenter.z)
@@ -550,7 +549,7 @@ class TrailRenderer extends Object3D {
     }
 
     for (let i = 0; i < this.localHeadGeometry.length; i++) {
-      const positionIndex = (this.VerticesPerNode * nodeIndex + i) * PositionComponentCount
+      const positionIndex = (this.VerticesPerNode * nodeIndex + i)
       const transformedHeadVertex = tempLocalHeadGeometry[i]
 
       positions.setX(positionIndex, transformedHeadVertex.x)
@@ -608,12 +607,13 @@ class TrailRenderer extends Object3D {
     }
 
     for (let i = 0; i < this.localHeadGeometry.length; i++) {
-      const positionIndex = (this.VerticesPerNode * nodeIndex + i) * PositionComponentCount
+      const positionIndex = (this.VerticesPerNode * nodeIndex + i)
       const transformedHeadVertex = tempLocalHeadGeometry2[i]
 
       positions.setX(positionIndex, transformedHeadVertex.x)
-      positions.setY(positionIndex + 1, transformedHeadVertex.y)
-      positions.setZ(positionIndex + 2, transformedHeadVertex.z)
+      positions.setY(positionIndex, transformedHeadVertex.y)
+      positions.setZ(positionIndex, transformedHeadVertex.z)
+
     }
 
     positions.needsUpdate = true
@@ -629,15 +629,15 @@ class TrailRenderer extends Object3D {
       const srcVertexIndex = this.VerticesPerNode * srcNodeIndex + i
       const destVertexIndex = this.VerticesPerNode * destNodeIndex + i
 
-      const faceIndex = (srcNodeIndex * this.FacesPerNode + i * FacesPerQuad) * IndicesPerFace
+      const faceIndex = ((srcNodeIndex * this.FacesPerNode) + (i * FacesPerQuad))
 
       indices.setX(faceIndex, srcVertexIndex)
-      indices.setY(faceIndex + 1, destVertexIndex)
-      indices.setZ(faceIndex + 2, srcVertexIndex + 1)
+      indices.setY(faceIndex, destVertexIndex)
+      indices.setZ(faceIndex, srcVertexIndex + 1)
 
-      indices.setX(faceIndex + 3, destVertexIndex)
-      indices.setY(faceIndex + 4, destVertexIndex + 1)
-      indices.setZ(faceIndex + 5, srcVertexIndex + 1)
+      indices.setX(faceIndex + 1, destVertexIndex)
+      indices.setY(faceIndex + 1, destVertexIndex + 1)
+      indices.setZ(faceIndex + 1, srcVertexIndex + 1)
     }
 
     indices.needsUpdate = true
@@ -654,15 +654,15 @@ class TrailRenderer extends Object3D {
     const indices = this.geometry.getIndex()
 
     for (let i = 0; i < this.localHeadGeometry.length - 1; i++) {
-      const faceIndex = (srcNodeIndex * this.FacesPerNode + i * FacesPerQuad) * IndicesPerFace
+      const faceIndex = (srcNodeIndex * this.FacesPerNode + i * FacesPerQuad)
 
       indices.setX(faceIndex, 0)
-      indices.setY(faceIndex + 1, 0)
-      indices.setZ(faceIndex + 2, 0)
+      indices.setY(faceIndex, 0)
+      indices.setZ(faceIndex, 0)
 
-      indices.setX(faceIndex + 3, 0)
-      indices.setY(faceIndex + 4, 0)
-      indices.setZ(faceIndex + 5, 0)
+      indices.setX(faceIndex + 1, 0)
+      indices.setY(faceIndex + 1, 0)
+      indices.setZ(faceIndex + 1, 0)
     }
 
     indices.needsUpdate = true
