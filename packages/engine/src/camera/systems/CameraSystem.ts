@@ -29,7 +29,7 @@ import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 
-let direction = new Vector3()
+const direction = new Vector3()
 const upVector = new Vector3(0, 1, 0)
 const forwardVector = new Vector3(0, 0, 1)
 const empty = new Vector3()
@@ -82,16 +82,17 @@ const followCameraBehavior = (entity: Entity) => {
 
   const phi = followCamera.mode === CameraModes.TopDown ? 85 : followCamera.phi
 
-  const shoulderOffsetWorld = followCamera.offset.clone().applyQuaternion(actorTransform.rotation)
-  const targetPosition = vec3.copy(actorTransform.position).add(shoulderOffsetWorld)
+  vec3.set(followCamera.shoulderSide ? -0.25 : 0.25, actor.actorHeight, 0)
+  vec3.applyQuaternion(actorTransform.rotation)
+  vec3.add(actorTransform.position)
 
   // Raycast for camera
   const cameraTransform: TransformComponent = getMutableComponent(
     CameraSystem.instance.activeCamera,
     TransformComponent
   )
-  const raycastDirection = new Vector3().subVectors(cameraTransform.position, targetPosition).normalize()
-  followCamera.raycastQuery.origin.copy(targetPosition)
+  const raycastDirection = new Vector3().subVectors(cameraTransform.position, vec3).normalize()
+  followCamera.raycastQuery.origin.copy(vec3)
   followCamera.raycastQuery.direction.copy(raycastDirection)
 
   const closestHit = followCamera.raycastQuery.hits[0]
@@ -106,13 +107,12 @@ const followCameraBehavior = (entity: Entity) => {
   }
 
   cameraDesiredTransform.position.set(
-    targetPosition.x + camDist * Math.sin(followCamera.theta * PI_2Deg) * Math.cos(phi * PI_2Deg),
-    targetPosition.y + camDist * Math.sin(phi * PI_2Deg),
-    targetPosition.z + camDist * Math.cos(followCamera.theta * PI_2Deg) * Math.cos(phi * PI_2Deg)
+    vec3.x + camDist * Math.sin(followCamera.theta * PI_2Deg) * Math.cos(phi * PI_2Deg),
+    vec3.y + camDist * Math.sin(phi * PI_2Deg),
+    vec3.z + camDist * Math.cos(followCamera.theta * PI_2Deg) * Math.cos(phi * PI_2Deg)
   )
 
-  direction.copy(cameraDesiredTransform.position)
-  direction = direction.sub(targetPosition).normalize()
+  direction.copy(cameraDesiredTransform.position).sub(vec3).normalize()
 
   mx.lookAt(direction, empty, upVector)
   cameraDesiredTransform.rotation.setFromRotationMatrix(mx)
@@ -135,7 +135,7 @@ const followCameraBehavior = (entity: Entity) => {
   }
 }
 
-const resetFollowCamera = () => {
+export const resetFollowCamera = () => {
   const transform = getComponent(CameraSystem.instance.activeCamera, TransformComponent)
   const desiredTransform = getComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent)
   if (transform && desiredTransform) {

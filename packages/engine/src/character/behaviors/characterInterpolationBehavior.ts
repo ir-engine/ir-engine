@@ -6,7 +6,6 @@ import { ControllerColliderComponent } from '../components/ControllerColliderCom
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CharacterComponent } from '../components/CharacterComponent'
 import type { SnapshotData, StateInterEntity } from '../../networking/types/SnapshotDataTypes'
-import { Vector3 } from 'three'
 import { AnimationComponent } from '../components/AnimationComponent'
 
 /**
@@ -24,22 +23,20 @@ export const characterInterpolationBehavior: Behavior = (
 ): void => {
   const transform = getComponent<TransformComponent>(entity, TransformComponent)
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
-  const animationComponent = getMutableComponent<AnimationComponent>(entity, AnimationComponent)
   const collider: any = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
 
   const interpolation = findInterpolationSnapshot(entity, snapshots.interpolation) as StateInterEntity
 
   if (!collider.controller || !interpolation || isNaN(interpolation.vX)) return
 
-  animationComponent.animationVelocity.set(interpolation.vX, interpolation.vY, interpolation.vZ)
-
   collider.controller.updateTransform({
     translation: {
       x: interpolation.x,
-      y: interpolation.y,
+      y: interpolation.y + actor.actorHalfHeight,
       z: interpolation.z
     }
   })
 
   transform.rotation.set(interpolation.qX, interpolation.qY, interpolation.qZ, interpolation.qW)
+  collider.controller.velocity.set(interpolation.vX, interpolation.vY, interpolation.vZ)
 }

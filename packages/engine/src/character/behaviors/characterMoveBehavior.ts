@@ -31,8 +31,7 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
     actor.velocitySimulator.target.copy(vec3)
     actor.velocitySimulator.simulate(deltaTime)
 
-    actor.velocity.copy(actor.velocitySimulator.position)
-    newVelocity.copy(actor.velocity).multiplyScalar(actor.moveSpeed)
+    newVelocity.copy(actor.velocitySimulator.position).multiplyScalar(actor.moveSpeed)
 
     const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
     if (xrInputSourceComponent) {

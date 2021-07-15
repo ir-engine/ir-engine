@@ -1,4 +1,4 @@
-import { AnimationAction, AnimationMixer, Vector3 } from 'three'
+import { AnimationAction, AnimationClip, AnimationMixer, Vector3 } from 'three'
 import { Component } from '../../ecs/classes/Component'
 import { Types } from '../../ecs/types/Types'
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator'
@@ -21,13 +21,16 @@ export class AnimationComponent extends Component<AnimationComponent> {
   /** Previous velocity of the character */
   prevVelocity: Vector3
 
+  /** Previous distance of the character from ground */
+  prevDistanceFromGround: number
+
   /** Whether to only update mixer time or run full render cycle */
   onlyUpdateMixerTime: boolean
 
   // === ANIMATION === // // TODO: Move these to AnimationComponent
 
   mixer: AnimationMixer
-  animations: any[] = []
+  animations: AnimationClip[] = []
   currentAnimationAction: AnimationAction[] = []
   currentAnimationLength = 0 // we may not need this
   animationSpeed = 1
@@ -38,5 +41,6 @@ export class AnimationComponent extends Component<AnimationComponent> {
 AnimationComponent._schema = {
   animationsSchema: { type: Types.Ref, default: null },
   updateAnimationsValues: { type: Types.Ref, default: null },
-  onlyUpdateMixerTime: { type: Types.Ref, default: false }
+  onlyUpdateMixerTime: { type: Types.Ref, default: false },
+  mixer: { type: Types.Ref, default: null }
 }

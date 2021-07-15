@@ -39,6 +39,7 @@ import { DesiredTransformComponent } from '../transform/components/DesiredTransf
 import { CharacterAnimationGraph } from './animations/CharacterAnimationGraph'
 import { CharacterStates } from './animations/Util'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
+import AnimationRenderer from './animations/AnimationRenderer'
 
 const forwardVector = new Vector3(0, 0, 1)
 const prevControllerColliderPosition = new Vector3()
@@ -111,7 +112,7 @@ export class CharacterControllerSystem extends System {
       playerCollider.raycastQuery = PhysicsSystem.instance.addRaycastQuery(
         new RaycastQuery({
           type: SceneQueryType.Closest,
-          origin: new Vector3(0, actor.actorHeight, 0),
+          origin: new Vector3(0, actor.actorHalfHeight, 0),
           direction: new Vector3(0, -1, 0),
           maxDistance: actor.actorHalfHeight + 0.05,
           collisionMask: DefaultCollisionMask | CollisionGroups.Portal
@@ -133,10 +134,10 @@ export class CharacterControllerSystem extends System {
     })
 
     this.queryResults.controller.all?.forEach((entity) => {
-      const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
+      const controller = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
 
       // iterate on all collisions since the last update
-      collider.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => {})
+      controller.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => {})
 
       if (!isClient || (entity && entity === Network.instance.localClientEntity)) detectUserInPortal(entity)
 
@@ -147,21 +148,22 @@ export class CharacterControllerSystem extends System {
       const transform = getComponent<TransformComponent>(entity, TransformComponent as any)
 
       // reset if vals are invalid
-      if (isNaN(collider.controller.transform.translation.x)) {
-        console.warn('WARNING: Character physics data reporting NaN', collider.controller.transform.translation)
-        collider.controller.updateTransform({
+      if (isNaN(controller.controller.transform.translation.x)) {
+        console.warn('WARNING: Character physics data reporting NaN', controller.controller.transform.translation)
+        controller.controller.updateTransform({
           translation: { x: 0, y: 10, z: 0 },
           rotation: { x: 0, y: 0, z: 0, w: 1 }
         })
       }
 
       // TODO: implement scene lower bounds parameter
-      if (!isClient && collider.controller.transform.translation.y < -10) {
+      if (!isClient && controller.controller.transform.translation.y < -10) {
         const { position, rotation } = ServerSpawnSystem.instance.getRandomSpawnPoint()
-        position.y += actor.actorHalfHeight
+        const pos = position.clone()
+        pos.y += actor.actorHalfHeight
         console.log('player has fallen through the floor, teleporting them to', position)
-        collider.controller.updateTransform({
-          translation: position,
+        controller.controller.updateTransform({
+          translation: pos,
           rotation
         })
         sendClientObjectUpdate(entity, NetworkObjectUpdateType.ForceTransformUpdate, [
@@ -176,39 +178,19 @@ export class CharacterControllerSystem extends System {
       }
 
       transform.position.set(
-        collider.controller.transform.translation.x,
-        collider.controller.transform.translation.y,
-        collider.controller.transform.translation.z
+        controller.controller.transform.translation.x,
+        controller.controller.transform.translation.y - actor.actorHalfHeight,
+        controller.controller.transform.translation.z
       )
 
-      collider.raycastQuery.origin.copy(transform.position)
-      collider.closestHit = collider.raycastQuery.hits[0]
-      actor.isGrounded = collider.raycastQuery.hits.length > 0 || collider.controller.collisions.down
+      controller.raycastQuery.origin.copy(transform.position).y += actor.actorHalfHeight
+      controller.closestHit = controller.raycastQuery.hits[0]
+      actor.isGrounded = controller.raycastQuery.hits.length > 0 || controller.controller.collisions.down
     })
 
-    // PhysicsMove LocalCharacter and Update velocity vector for Animations
     this.queryResults.localCharacter.all?.forEach((entity) => {
-      const controllerCollider = getComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
-      const transform = getComponent<TransformComponent>(entity, TransformComponent)
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
-      const animationComponent = getMutableComponent(entity, AnimationComponent)
-      if (!controllerCollider.controller || !actor.movementEnabled) return
-
-      const x = controllerCollider.controller.transform.translation.x - prevControllerColliderPosition.x
-      const y = controllerCollider.controller.transform.translation.y - prevControllerColliderPosition.y
-      const z = controllerCollider.controller.transform.translation.z - prevControllerColliderPosition.z
-
-      prevControllerColliderPosition.set(
-        controllerCollider.controller.transform.translation.x,
-        controllerCollider.controller.transform.translation.y,
-        controllerCollider.controller.transform.translation.z
-      )
-      if (isNaN(x)) {
-        animationComponent.animationVelocity.set(0, 0, 0)
-      }
-      quat.copy(transform.rotation).invert()
-      animationComponent.animationVelocity.set(x, y, z).applyQuaternion(quat)
-
+      const transform = getComponent<TransformComponent>(entity, TransformComponent)
       characterMoveBehavior(entity, delta)
 
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
@@ -232,19 +214,22 @@ export class CharacterControllerSystem extends System {
     // temporarily disable animations on Oculus until we have buffer animation system / GPU animations
     this.queryResults.animationCharacter.added?.forEach((entity) => {
       if (!isClient) return
+
       const animationComponent = getMutableComponent(entity, AnimationComponent)
       animationComponent.animationGraph = new CharacterAnimationGraph()
       animationComponent.currentState = animationComponent.animationGraph.states[CharacterStates.IDLE]
-      animationComponent.currentState.mount(animationComponent, {})
       animationComponent.prevVelocity = new Vector3()
+      animationComponent.prevDistanceFromGround = 0
+      if (animationComponent.currentState) {
+        AnimationRenderer.mountCurrentState(animationComponent)
+      }
     })
 
     this.queryResults.animation.all?.forEach((entity) => {
       if (!isClient) return
       const animationComponent = getMutableComponent(entity, AnimationComponent)
-
       const modifiedDelta = delta * animationComponent.animationSpeed
-      animationComponent.mixer?.update(modifiedDelta)
+      animationComponent.mixer.update(modifiedDelta)
     })
 
     this.queryResults.animationCharacter.all?.forEach((entity) => {
@@ -252,25 +237,22 @@ export class CharacterControllerSystem extends System {
 
       const actor = getMutableComponent(entity, CharacterComponent)
       const animationComponent = getMutableComponent(entity, AnimationComponent)
+
+      const controller = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
+      animationComponent.animationVelocity.copy(controller.controller.velocity)
+
       const deltaTime = delta * animationComponent.animationSpeed
 
       if (!animationComponent.onlyUpdateMixerTime) {
         animationComponent.animationGraph.render(actor, animationComponent, deltaTime)
+        AnimationRenderer.render(animationComponent, delta)
       }
-
-      const prevStateWeight = animationComponent.animationGraph.unmountPrevState(animationComponent, deltaTime)
-      animationComponent.animationGraph.renderIdleWeight(animationComponent, prevStateWeight)
     })
 
     this.queryResults.ikAvatar.added?.forEach((entity) => {
-      // TODO: once IK is, remove anim component
-      // removeComponent(entity, AnimationComponent);
-
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent)
       const actor = getMutableComponent(entity, CharacterComponent)
       const object3DComponent = getComponent(entity, Object3DComponent)
-
-      xrInputSourceComponent.controllerGroup.position.setY(-actor.actorHalfHeight)
 
       xrInputSourceComponent.controllerGroup.add(
         xrInputSourceComponent.controllerLeft,
@@ -307,8 +289,6 @@ export class CharacterControllerSystem extends System {
     })
 
     this.queryResults.ikAvatar.removed?.forEach((entity) => {
-      // TODO: once IK is, remove anim component
-      // addComponent(entity, AnimationComponent);
       const actor = getMutableComponent(entity, CharacterComponent)
 
       if (isEntityLocalClient(entity))
@@ -359,7 +339,7 @@ CharacterControllerSystem.queries = {
     }
   },
   animationCharacter: {
-    components: [AnimationComponent, CharacterComponent],
+    components: [AnimationComponent, ControllerColliderComponent],
     listen: {
       added: true,
       removed: true
