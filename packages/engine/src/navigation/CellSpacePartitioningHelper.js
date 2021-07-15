@@ -2,16 +2,16 @@
  * @author Mugen87 / https://github.com/Mugen87
  */
 
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.109/build/three.module.js';
+import { BufferGeometry, LineBasicMaterial, LineSegments } from 'three';
 
 function createCellSpaceHelper( spatialIndex ) {
 
 	const cells = spatialIndex.cells;
 
-	const geometry = new THREE.BufferGeometry();
-	const material = new THREE.LineBasicMaterial();
+	const geometry = new BufferGeometry();
+	const material = new LineBasicMaterial();
 
-	const lines = new THREE.LineSegments( geometry, material );
+	const lines = new LineSegments( geometry, material );
 
 	const positions = [];
 
@@ -46,7 +46,7 @@ function createCellSpaceHelper( spatialIndex ) {
 
 	}
 
-	geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
+	geometry.addAttribute( 'position', new Float32BufferAttribute( positions, 3 ) );
 
 	return lines;
 

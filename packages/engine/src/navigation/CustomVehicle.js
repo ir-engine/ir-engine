@@ -2,7 +2,7 @@
  * @author Mugen87 / https://github.com/Mugen87
  */
 
-import { Vehicle } from '../../../../build/yuka.module.js';
+import { Vehicle } from 'yuka';
 
 class CustomVehicle extends Vehicle {
 

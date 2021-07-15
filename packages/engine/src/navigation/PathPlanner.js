@@ -2,8 +2,8 @@
  * @author robp94 / https://github.com/robp94
  */
 
-import { TaskQueue } from '../../../../build/yuka.module.js';
-import { PathPlannerTask } from './PathPlannerTask.js';
+import { TaskQueue } from 'yuka';
+import { PathPlannerTask } from './PathPlannerTask';
 
 class PathPlanner {
 

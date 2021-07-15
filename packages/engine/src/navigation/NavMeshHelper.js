@@ -2,21 +2,21 @@
  * @author Mugen87 / https://github.com/Mugen87
  */
 
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.109/build/three.module.js';
+import { VertexColors, Float32BufferAttribute, Color, BufferGeometry, MeshBasicMaterial, Mesh } from 'three';
 
 function createConvexRegionHelper( navMesh ) {
 
 	const regions = navMesh.regions;
 
-	const geometry = new THREE.BufferGeometry();
-	const material = new THREE.MeshBasicMaterial( { vertexColors: THREE.VertexColors } );
+	const geometry = new BufferGeometry();
+	const material = new MeshBasicMaterial( { vertexColors: VertexColors } );
 
-	const mesh = new THREE.Mesh( geometry, material );
+	const mesh = new Mesh( geometry, material );
 
 	const positions = [];
 	const colors = [];
 
-	const color = new THREE.Color();
+	const color = new Color();
 
 	for ( let region of regions ) {
 
@@ -59,8 +59,8 @@ function createConvexRegionHelper( navMesh ) {
 
 	}
 
-	geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( positions, 3 ) );
-	geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+	geometry.addAttribute( 'position', new Float32BufferAttribute( positions, 3 ) );
+	geometry.addAttribute( 'color', new Float32BufferAttribute( colors, 3 ) );
 
 	return mesh;
 

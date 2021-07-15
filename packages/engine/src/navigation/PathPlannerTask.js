@@ -2,7 +2,7 @@
  * @author robp94 / https://github.com/robp94
  */
 
-import { Task } from '../../../../build/yuka.module.js';
+import { Task } from 'yuka';
 
 class PathPlannerTask extends Task {
 
