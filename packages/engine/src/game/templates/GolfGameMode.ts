@@ -59,6 +59,7 @@ import { makeKinematic } from './Golf/behaviors/makeKinematic'
 import { hasState } from './gameDefault/checkers/hasState'
 import { GolfClubComponent } from './Golf/components/GolfClubComponent'
 import { setupOfflineDebug } from './Golf/behaviors/setupOfflineDebug'
+import { setupPlayerAvatar } from './Golf/behaviors/setupPlayerAvatar'
 
 /**
  * @author HydraFire
@@ -208,7 +209,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   registerStateTagComponents: [],
   initGameState: {
     newPlayer: {
-      behaviors: [addRole, setupPlayerInput, createYourTurnPanel, setupOfflineDebug]
+      behaviors: [addRole, setupPlayerAvatar, setupPlayerInput, createYourTurnPanel, setupOfflineDebug]
     },
     '1-Player': {
       components: [State.WaitTurn],
