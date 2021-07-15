@@ -628,7 +628,7 @@ export const WebXRPlugin = ({
     }
 
     if (playerRef.current && playerRef.current.currentFrame <= 0) {
-    playerRef.current.playOneFrame();
+      playerRef.current.playOneFrame();
     }
     // @ts-ignore
     XRPlugin.handleTap(params)
