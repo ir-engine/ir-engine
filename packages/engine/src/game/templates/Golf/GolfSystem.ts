@@ -4,22 +4,31 @@ import { addComponent, getComponent, hasComponent } from '../../../ecs/functions
 import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
 import { Network } from '../../../networking/classes/Network'
 import { NetworkObjectOwner } from '../../../networking/components/NetworkObjectOwner'
+import { Game } from '../../components/Game'
 import { GameObject } from '../../components/GameObject'
 import { GamePlayer } from '../../components/GamePlayer'
-import { addStateComponent } from '../../functions/functionsState'
+import { getGame } from '../../functions/functions'
+import { addStateComponent, removeStateComponent } from '../../functions/functionsState'
+import { getStorage } from '../../functions/functionsStorage'
 import { Action, State } from '../../types/GameComponents'
-import { addState } from '../gameDefault/behaviors/switchState'
+import { addState, removeState, switchState } from '../gameDefault/behaviors/switchState'
 import { doesPlayerHaveGameObject } from '../gameDefault/checkers/doesPlayerHaveGameObject'
+import { dontHasState } from '../gameDefault/checkers/dontHasState'
 import { hasState } from '../gameDefault/checkers/hasState'
 import { ifVelocity } from '../gameDefault/checkers/ifVelocity'
 import { addRole } from './behaviors/addRole'
 import { addTurn } from './behaviors/addTurn'
 import { createYourTurnPanel } from './behaviors/createYourTurnPanel'
+import { saveGoalScore } from './behaviors/displayScore'
+import { getPositionNextPoint } from './behaviors/getPositionNextPoint'
 import { hitBall } from './behaviors/hitBall'
+import { nextTurn } from './behaviors/nextTurn'
 import { initScore } from './behaviors/saveScore'
 import { setupOfflineDebug } from './behaviors/setupOfflineDebug'
 import { setupPlayerAvatar } from './behaviors/setupPlayerAvatar'
 import { setupPlayerInput } from './behaviors/setupPlayerInput'
+import { teleportObject } from './behaviors/teleportObject'
+import { teleportPlayerBehavior } from './behaviors/teleportPlayer'
 import { GolfBallComponent } from './components/GolfBallComponent'
 import { GolfClubComponent } from './components/GolfClubComponent'
 import { NewPlayerTagComponent } from './components/GolfTagComponents'
@@ -56,17 +65,17 @@ export class GolfSystem extends System {
     // initGameState.newPlayer
     this.queryResults.player.added.forEach((entity) => {
       behaviorsToExecute.push(() => {
-        addComponent(entity, State.WaitTurn)
-        addRole(entity)
-        setupPlayerAvatar(entity)
-        setupPlayerInput(entity)
-        createYourTurnPanel(entity)
-        setupOfflineDebug(entity)
-        spawnClub(entity)
-        initScore(entity)
-        if (getComponent(entity, GamePlayer).role === '1-Player') {
-          addTurn(entity)
-        }
+        // addComponent(entity, State.WaitTurn)
+        // addRole(entity)
+        // setupPlayerAvatar(entity)
+        // setupPlayerInput(entity)
+        // createYourTurnPanel(entity)
+        // setupOfflineDebug(entity)
+        // spawnClub(entity)
+        // initScore(entity)
+        // if (getComponent(entity, GamePlayer).role === '1-Player') {
+        //   addTurn(entity)
+        // }
       })
     })
 
@@ -74,22 +83,30 @@ export class GolfSystem extends System {
     this.queryResults.player.all.forEach((entity) => {
       const playerComponent = getComponent(entity, GamePlayer)
 
-      // gamePlayerRoles.1-Player.spawnBall
+      const clubEntity = playerComponent.ownedObjects['GolfClub']
+      const ballEntity = playerComponent.ownedObjects['GolfBall']
+
+      const gameScore = getStorage(entity, { name: 'GameScore' })
+      const game = getGame(entity)
+
       if (hasComponent(entity, State.YourTurn)) {
+        // If the player does not have a ball, spawn one
+        // TODO: refactor, we shouldn't have to check this each frame
+
+        // gamePlayerRoles.1-Player.spawnBall
         if (doesPlayerHaveGameObject(entity, { on: 'self', objectRoleName: 'GolfBall', invert: true })) {
           behaviorsToExecute.push(() => {
             spawnBall(entity, { positionCopyFromRole: 'GolfTee-0', offsetY: 1 })
           })
         }
 
-        const clubEntity = playerComponent.ownedObjects?.['GolfClub']
-        const ballEntity = playerComponent.ownedObjects?.['GolfBall']
+        // If the ball and the club have collided, add the hit state
 
         // gamePlayerRoles.1-Player.HitBall
         if (clubEntity && ballEntity) {
           if (hasComponent(clubEntity, Action.GameObjectCollisionTag)) {
             if (!hasComponent(clubEntity, State.Hit)) {
-              if (ifVelocity(clubEntity, { on: 'target', component: GolfClubComponent, more: 0.01, less: 1 })) {
+              if (ifVelocity(entity, { on: 'target', component: GolfClubComponent, more: 0.01, less: 1 }, clubEntity)) {
                 if (
                   hasComponent(ballEntity, Action.GameObjectCollisionTag) &&
                   hasComponent(ballEntity, State.BallStopped) &&
@@ -102,6 +119,93 @@ export class GolfSystem extends System {
                 }
               }
             }
+          }
+        }
+      }
+
+      // If the ball and the hole have collided, add the goal state
+      // gamePlayerRoles.1-Player.Goal
+      if (ballEntity) {
+        if (hasComponent(entity, State.Waiting)) {
+          if (dontHasState(entity, { stateComponent: State.Goal })) {
+            if (hasComponent(ballEntity, Action.GameObjectCollisionTag) && hasComponent(ballEntity, State.Ready)) {
+              const currentHoleEntity = gameScore.score
+                ? game.gameObjects['GolfHole-' + gameScore.score.goal][0]
+                : undefined
+              if (hasComponent(currentHoleEntity, Action.GameObjectCollisionTag)) {
+                behaviorsToExecute.push(() => {
+                  addStateComponent(entity, State.addedGoal)
+                })
+              }
+            }
+          }
+        }
+
+        // gamePlayerRoles.1-Player.Goal
+        if (hasComponent(entity, State.addedGoal)) {
+          behaviorsToExecute.push(() => {
+            saveGoalScore(entity)
+
+            removeStateComponent(entity, State.addedGoal)
+            addStateComponent(entity, State.Goal)
+
+            removeStateComponent(ballEntity, State.Ready)
+            addStateComponent(ballEntity, State.NotReady)
+          })
+        }
+
+        if (hasComponent(entity, State.Goal)) {
+          behaviorsToExecute.push(() => {
+            teleportPlayerBehavior(
+              entity,
+              getPositionNextPoint(entity, { on: 'self', positionCopyFromRole: 'GolfTee-', position: null })
+            )
+            teleportObject(
+              entity,
+              getPositionNextPoint(
+                entity,
+                { on: 'target', positionCopyFromRole: 'GolfTee-', position: null },
+                ballEntity
+              ),
+              delta,
+              ballEntity
+            )
+            removeStateComponent(entity, State.Goal)
+          })
+        }
+
+        // gamePlayerRoles.1-Player.updateTurn
+        // give Ball Inactive State for player cant hit Ball again in one game turn
+        if (hasComponent(entity, State.Waiting)) {
+          if (hasComponent(ballEntity, State.Active) && hasComponent(ballEntity, State.BallMoving)) {
+            behaviorsToExecute.push(() => {
+              removeStateComponent(ballEntity, State.Active)
+              addStateComponent(ballEntity, State.Inactive)
+            })
+          }
+
+          if (hasComponent(ballEntity, State.Active) && hasComponent(ballEntity, State.BallMoving)) {
+            behaviorsToExecute.push(() => {
+              nextTurn(entity)
+            })
+          }
+        }
+
+        // do ball Active on next Turn
+        if (hasComponent(entity, State.YourTurn)) {
+          if (ballEntity)
+            if (hasComponent(ballEntity, State.addedHit)) {
+              behaviorsToExecute.push(() => {
+                removeStateComponent(entity, State.YourTurn)
+                addStateComponent(entity, State.Waiting)
+              })
+            }
+
+          if (hasComponent(ballEntity, State.BallStopped) && hasComponent(ballEntity, State.Inactive)) {
+            behaviorsToExecute.push(() => {
+              removeStateComponent(ballEntity, State.Inactive)
+              addStateComponent(ballEntity, State.Active)
+            })
           }
         }
       }
@@ -118,6 +222,8 @@ export class GolfSystem extends System {
         const ownerGamePlayer = getComponent(ownerPlayerEntity, GamePlayer)
 
         ownerGamePlayer.ownedObjects['GolfClub'] = entity
+
+        console.log('GOLF CLUB')
       })
     })
 
@@ -157,6 +263,7 @@ export class GolfSystem extends System {
         const ownerGamePlayer = getComponent(ownerPlayerEntity, GamePlayer)
 
         ownerGamePlayer.ownedObjects['GolfBall'] = entity
+        console.log('GOLF BALL')
       })
     })
 

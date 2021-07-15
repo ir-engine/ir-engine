@@ -209,15 +209,15 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   registerStateTagComponents: [],
   initGameState: {
     newPlayer: {
-      // behaviors: [addRole, setupPlayerAvatar, setupPlayerInput, createYourTurnPanel, setupOfflineDebug]
+      behaviors: [addRole, setupPlayerAvatar, setupPlayerInput, createYourTurnPanel, setupOfflineDebug]
     },
     '1-Player': {
-      // components: [State.WaitTurn],
-      // behaviors: [spawnClub, initScore, addTurn]
+      components: [State.WaitTurn],
+      behaviors: [spawnClub, initScore, addTurn]
     },
     '2-Player': {
-      // components: [State.WaitTurn],
-      // behaviors: [spawnClub, initScore]
+      components: [State.WaitTurn],
+      behaviors: [spawnClub, initScore]
     },
     GolfBall: {
       // components: [State.SpawnedObject, State.NotReady, State.Active, State.BallMoving]
@@ -248,215 +248,215 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   gamePlayerRoles: {
     newPlayer: {},
     '1-Player': {
-      spawnBall: [
-        // {
-        //   behavior: spawnBall,
-        //   args: { positionCopyFromRole: 'GolfTee-0', offsetY: 1 },
-        //   watchers: [[State.YourTurn]],
-        //   checkers: [
-        //     {
-        //       function: doesPlayerHaveGameObject,
-        //       args: { on: 'self', objectRoleName: 'GolfBall', invert: true }
-        //     }
-        //   ]
-        // }
-      ],
-      HitBall: [
-        // {
-        //   behavior: addState,
-        //   args: { on: 'target', add: State.addedHit },
-        //   watchers: [[State.YourTurn]],
-        //   takeEffectOn: {
-        //     targetsRole: {
-        //       GolfClub: {
-        //         watchers: [[Action.GameObjectCollisionTag]],
-        //         checkers: [
-        //           {
-        //             function: ifOwned
-        //           },
-        //           {
-        //             function: dontHasState,
-        //             args: { stateComponent: State.Hit }
-        //           },
-        //           {
-        //             function: ifVelocity,
-        //             args: { on: 'target', component: GolfClubComponent, more: 0.01, less: 1 }
-        //           },
-        //           {
-        //             function: customChecker,
-        //             args: {
-        //               on: 'GolfBall',
-        //               watchers: [[Action.GameObjectCollisionTag, State.BallStopped, State.Ready, State.Active]],
-        //               checkers: [
-        //                 {
-        //                   function: ifOwned
-        //                 }
-        //               ]
-        //             }
-        //           }
-        //         ]
-        //       }
-        //     }
-        //   }
-        // }
-      ],
-      Goal: [
-        {
-          behavior: addState,
-          args: { on: 'self', add: State.addedGoal },
-          watchers: [[State.Waiting]],
-          checkers: [
-            {
-              function: dontHasState,
-              args: { stateComponent: State.Goal }
-            }
-          ],
-          takeEffectOn: {
-            targetsRole: {
-              GolfBall: {
-                watchers: [[Action.GameObjectCollisionTag, State.Ready]],
-                checkers: [
-                  {
-                    function: ifOwned
-                  },
-                  {
-                    function: customChecker,
-                    args: {
-                      on: 'GolfHole',
-                      watchers: [[Action.GameObjectCollisionTag]]
-                    }
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          behavior: saveGoalScore,
-          watchers: [[State.addedGoal]]
-        },
-        {
-          behavior: switchState,
-          args: { on: 'self', remove: State.addedGoal, add: State.Goal },
-          watchers: [[State.addedGoal]]
-        },
-        // takeEffectOn Player, Gall
-        {
-          behavior: teleportPlayerBehavior,
-          prepareArgs: getPositionNextPoint,
-          args: { on: 'self', positionCopyFromRole: 'GolfTee-', position: null },
-          watchers: [[State.Goal]]
-        },
-        {
-          behavior: teleportObject,
-          prepareArgs: getPositionNextPoint,
-          args: { on: 'target', positionCopyFromRole: 'GolfTee-', position: null },
-          watchers: [[State.Goal]],
-          takeEffectOn: {
-            targetsRole: {
-              GolfBall: {
-                checkers: [
-                  {
-                    function: ifOwned
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          behavior: switchState,
-          args: { on: 'target', remove: State.Ready, add: State.NotReady },
-          watchers: [[State.addedGoal]],
-          takeEffectOn: {
-            targetsRole: {
-              GolfBall: {
-                checkers: [
-                  {
-                    function: ifOwned
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          behavior: removeState,
-          args: { on: 'self', remove: State.Goal },
-          watchers: [[State.Goal]]
-        }
-      ],
-      updateTurn: [
-        // give Ball Inactive State for player cant hit Ball again in one game turn
-        {
-          behavior: switchState,
-          args: { on: 'target', remove: State.Active, add: State.Inactive },
-          watchers: [[State.Waiting]],
-          takeEffectOn: {
-            targetsRole: {
-              GolfBall: {
-                watchers: [[State.Active, State.BallMoving]],
-                checkers: [
-                  {
-                    function: ifOwned
-                  }
-                ]
-              }
-            }
-          }
-        },
-        // do ball Active on next Turn
-        {
-          behavior: switchState,
-          args: { on: 'self', remove: State.YourTurn, add: State.Waiting },
-          watchers: [[State.YourTurn]],
-          takeEffectOn: {
-            targetsRole: {
-              GolfClub: {
-                watchers: [[State.addedHit]],
-                checkers: [
-                  {
-                    function: ifOwned
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          behavior: switchState, // GameObjectCollisionTag
-          args: { on: 'target', remove: State.Inactive, add: State.Active },
-          watchers: [[State.YourTurn]],
-          takeEffectOn: {
-            targetsRole: {
-              GolfBall: {
-                watchers: [[State.BallStopped, State.Inactive]],
-                checkers: [
-                  {
-                    function: ifOwned
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          behavior: nextTurn, // GameObjectCollisionTag
-          watchers: [[State.Waiting]],
-          takeEffectOn: {
-            targetsRole: {
-              GolfBall: {
-                watchers: [[State.BallStopped, State.Inactive]],
-                checkers: [
-                  {
-                    function: ifOwned
-                  }
-                ]
-              }
-            }
-          }
-        }
-      ]
+      // spawnBall: [
+      // {
+      //   behavior: spawnBall,
+      //   args: { positionCopyFromRole: 'GolfTee-0', offsetY: 1 },
+      //   watchers: [[State.YourTurn]],
+      //   checkers: [
+      //     {
+      //       function: doesPlayerHaveGameObject,
+      //       args: { on: 'self', objectRoleName: 'GolfBall', invert: true }
+      //     }
+      //   ]
+      // }
+      // ],
+      // HitBall: [
+      // {
+      //   behavior: addState,
+      //   args: { on: 'target', add: State.addedHit },
+      //   watchers: [[State.YourTurn]],
+      //   takeEffectOn: {
+      //     targetsRole: {
+      //       GolfClub: {
+      //         watchers: [[Action.GameObjectCollisionTag]],
+      //         checkers: [
+      //           {
+      //             function: ifOwned
+      //           },
+      //           {
+      //             function: dontHasState,
+      //             args: { stateComponent: State.Hit }
+      //           },
+      //           {
+      //             function: ifVelocity,
+      //             args: { on: 'target', component: GolfClubComponent, more: 0.01, less: 1 }
+      //           },
+      //           {
+      //             function: customChecker,
+      //             args: {
+      //               on: 'GolfBall',
+      //               watchers: [[Action.GameObjectCollisionTag, State.BallStopped, State.Ready, State.Active]],
+      //               checkers: [
+      //                 {
+      //                   function: ifOwned
+      //                 }
+      //               ]
+      //             }
+      //           }
+      //         ]
+      //       }
+      //     }
+      //   }
+      // }
+      // ],
+      // Goal: [
+      // {
+      //   behavior: addState,
+      //   args: { on: 'self', add: State.addedGoal },
+      //   watchers: [[State.Waiting]],
+      //   checkers: [
+      //     {
+      //       function: dontHasState,
+      //       args: { stateComponent: State.Goal }
+      //     }
+      //   ],
+      //   takeEffectOn: {
+      //     targetsRole: {
+      //       GolfBall: {
+      //         watchers: [[Action.GameObjectCollisionTag, State.Ready]],
+      //         checkers: [
+      //           {
+      //             function: ifOwned
+      //           },
+      //           {
+      //             function: customChecker,
+      //             args: {
+      //               on: 'GolfHole',
+      //               watchers: [[Action.GameObjectCollisionTag]]
+      //             }
+      //           }
+      //         ]
+      //       }
+      //     }
+      //   }
+      // },
+      // {
+      //   behavior: saveGoalScore,
+      //   watchers: [[State.addedGoal]]
+      // },
+      // {
+      //   behavior: switchState,
+      //   args: { on: 'self', remove: State.addedGoal, add: State.Goal },
+      //   watchers: [[State.addedGoal]]
+      // },
+      // takeEffectOn Player, Ball
+      // {
+      //   behavior: teleportPlayerBehavior,
+      //   prepareArgs: getPositionNextPoint,
+      //   args: { on: 'self', positionCopyFromRole: 'GolfTee-', position: null },
+      //   watchers: [[State.Goal]]
+      // },
+      // {
+      //   behavior: teleportObject,
+      //   prepareArgs: getPositionNextPoint,
+      //   args: { on: 'target', positionCopyFromRole: 'GolfTee-', position: null },
+      //   watchers: [[State.Goal]],
+      //   takeEffectOn: {
+      //     targetsRole: {
+      //       GolfBall: {
+      //         checkers: [
+      //           {
+      //             function: ifOwned
+      //           }
+      //         ]
+      //       }
+      //     }
+      //   }
+      // },
+      // {
+      //   behavior: switchState,
+      //   args: { on: 'target', remove: State.Ready, add: State.NotReady },
+      //   watchers: [[State.addedGoal]],
+      //   takeEffectOn: {
+      //     targetsRole: {
+      //       GolfBall: {
+      //         checkers: [
+      //           {
+      //             function: ifOwned
+      //           }
+      //         ]
+      //       }
+      //     }
+      //   }
+      // },
+      // {
+      //   behavior: removeState,
+      //   args: { on: 'self', remove: State.Goal },
+      //   watchers: [[State.Goal]]
+      // }
+      // ],
+      // updateTurn: [
+      // give Ball Inactive State for player cant hit Ball again in one game turn
+      // {
+      //   behavior: switchState,
+      //   args: { on: 'target', remove: State.Active, add: State.Inactive },
+      //   watchers: [[State.Waiting]],
+      //   takeEffectOn: {
+      //     targetsRole: {
+      //       GolfBall: {
+      //         watchers: [[State.Active, State.BallMoving]],
+      //         checkers: [
+      //           {
+      //             function: ifOwned
+      //           }
+      //         ]
+      //       }
+      //     }
+      //   }
+      // },
+      // do ball Active on next Turn
+      // {
+      //   behavior: switchState,
+      //   args: { on: 'self', remove: State.YourTurn, add: State.Waiting },
+      //   watchers: [[State.YourTurn]],
+      //   takeEffectOn: {
+      //     targetsRole: {
+      //       GolfClub: {
+      //         watchers: [[State.addedHit]],
+      //         checkers: [
+      //           {
+      //             function: ifOwned
+      //           }
+      //         ]
+      //       }
+      //     }
+      //   }
+      // },
+      // {
+      //   behavior: switchState, // GameObjectCollisionTag
+      //   args: { on: 'target', remove: State.Inactive, add: State.Active },
+      //   watchers: [[State.YourTurn]],
+      //   takeEffectOn: {
+      //     targetsRole: {
+      //       GolfBall: {
+      //         watchers: [[State.BallStopped, State.Inactive]],
+      //         checkers: [
+      //           {
+      //             function: ifOwned
+      //           }
+      //         ]
+      //       }
+      //     }
+      //   }
+      // },
+      // {
+      //   behavior: nextTurn, // GameObjectCollisionTag
+      //   watchers: [[State.Waiting]],
+      //   takeEffectOn: {
+      //     targetsRole: {
+      //       GolfBall: {
+      //         watchers: [[State.BallStopped, State.Inactive]],
+      //         checkers: [
+      //           {
+      //             function: ifOwned
+      //           }
+      //         ]
+      //       }
+      //     }
+      //   }
+      // }
+      // ]
     }
   },
   //
