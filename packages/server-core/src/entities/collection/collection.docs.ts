@@ -31,7 +31,7 @@ export default {
           type: 'string'
         },
         //
-        imagefiles: {
+        ownedUploadedFiles: {
           type: {
             type: 'string'
           }

@@ -96,7 +96,7 @@ export class Api extends EventEmitter {
   projectDirectoryPath: string
   maxUploadSize: number
   props: any
-  imageFilesToUpload: {}
+  ownedUploadedFiles: {}
 
   /**
    * [constructor ]
@@ -116,7 +116,7 @@ export class Api extends EventEmitter {
     // Max size in MB
     this.maxUploadSize = 128
 
-    this.imageFilesToUpload = {}
+    this.ownedUploadedFiles = {}
 
     // This will manage the not authorized users
     this.handleAuthorization()
@@ -495,7 +495,7 @@ export class Api extends EventEmitter {
 
     const project = {
       name: scene.name,
-      imagefiles: {
+      ownedUploadedFiles: {
         thumbnail: {
           file_id: thumbnailFileId,
           file_token: thumbnailFileToken
@@ -509,8 +509,8 @@ export class Api extends EventEmitter {
       project['parent_scene_id'] = parentSceneId
     }
 
-    Object.assign(project.imagefiles, this.imageFilesToUpload)
-    this.imageFilesToUpload = {}
+    Object.assign(project.ownedUploadedFiles, this.ownedUploadedFiles)
+    this.ownedUploadedFiles = {}
 
     const body = JSON.stringify({ project })
 
@@ -618,7 +618,7 @@ export class Api extends EventEmitter {
 
     const project = {
       name: editor.scene.name,
-      imagefiles: {
+      ownedUploadedFiles: {
         thumbnail: {
           file_id: thumbnailFileId,
           file_token: thumbnailFileToken
@@ -634,8 +634,8 @@ export class Api extends EventEmitter {
       project['scene_id'] = sceneId
     }
 
-    Object.assign(project.imagefiles, this.imageFilesToUpload)
-    this.imageFilesToUpload = {}
+    Object.assign(project.ownedUploadedFiles, this.ownedUploadedFiles)
+    this.ownedUploadedFiles = {}
 
     const body = JSON.stringify({
       project
@@ -975,7 +975,7 @@ export class Api extends EventEmitter {
    * @param  {string}  imageIdentifier
    * @return {Promise}
    */
-  async upload(blob, onUploadProgress, signal?, imageIdentifier?, projectId?): Promise<void> {
+  async upload(blob, onUploadProgress, signal?, fileIdentifier?, projectId?): Promise<void> {
     let host, port
     const token = this.getToken()
 
@@ -1026,8 +1026,8 @@ export class Api extends EventEmitter {
       if (projectId) {
         formData.set('projectId', projectId)
       }
-      if (imageIdentifier) {
-        formData.set('imageIdentifier', imageIdentifier)
+      if (fileIdentifier) {
+        formData.set('imageIdentifier', fileIdentifier)
       }
 
       formData.set('media', blob)

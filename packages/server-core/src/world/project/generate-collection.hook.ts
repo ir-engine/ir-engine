@@ -45,7 +45,7 @@ export default (options: any) => {
     if (!sceneData) return
     const savedCollection = await CollectionModel.create({
       //thumbnailOwnedFileId: context.data.thumbnailOwnedFileId,
-      ownedimages: JSON.stringify(context.data.ownedimages),
+      ownedfiles: JSON.stringify(context.data.ownedfiles),
       type: options.type ?? collectionType.scene,
       name: context.data.name,
       metadata: sceneData.metadata,

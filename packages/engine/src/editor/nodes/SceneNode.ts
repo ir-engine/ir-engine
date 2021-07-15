@@ -323,7 +323,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
             file_id: fileId,
             meta: { access_token: fileToken }
           } = value
-          this.editor.api.imageFilesToUpload['envmap'] = {
+          this.editor.api.ownedUploadedFiles['envmap'] = {
             file_id: fileId,
             file_token: fileToken
           }
