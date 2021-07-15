@@ -3,9 +3,6 @@ import { DEFAULT_FEATURE_STYLES } from './styles'
 import { vectors } from './vectors'
 import turf_buffer from '@turf/buffer'
 
-// TODO uninstall earcut
-// import earcut from 'earcut'
-
 const extend = function (defaults: Object, o1: Object, o2?: Object, o3?: Object) {
   var extended = {}
   var prop
