@@ -23,14 +23,11 @@ export const characterInterpolationBehavior: Behavior = (
 ): void => {
   const transform = getComponent<TransformComponent>(entity, TransformComponent)
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
-  const animationComponent = getMutableComponent<AnimationComponent>(entity, AnimationComponent)
   const collider: any = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
 
   const interpolation = findInterpolationSnapshot(entity, snapshots.interpolation) as StateInterEntity
 
   if (!collider.controller || !interpolation || isNaN(interpolation.vX)) return
-
-  animationComponent.animationVelocity.set(interpolation.vX, interpolation.vY, interpolation.vZ)
 
   collider.controller.updateTransform({
     translation: {
@@ -41,4 +38,5 @@ export const characterInterpolationBehavior: Behavior = (
   })
 
   transform.rotation.set(interpolation.qX, interpolation.qY, interpolation.qZ, interpolation.qW)
+  collider.controller.velocity.set(interpolation.vX, interpolation.vY, interpolation.vZ)
 }

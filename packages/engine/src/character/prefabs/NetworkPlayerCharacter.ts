@@ -30,6 +30,7 @@ import { NamePlateComponent } from '../components/NamePlateComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
 import type { NetworkObject } from '../../networking/components/NetworkObject'
+import AnimationRenderer from '../animations/AnimationRenderer'
 
 export const loadDefaultActorAvatar: Behavior = (entity) => {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
@@ -72,7 +73,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 
       animationComponent.mixer.stopAllAction()
       animationComponent.currentAnimationAction = []
-      ;[...actor.modelContainer.children].forEach((child) => actor.modelContainer.remove(child))
+      actor.modelContainer.children.forEach((child) => child.removeFromParent())
 
       model.traverse((object) => {
         if (object.isMesh || object.isSkinnedMesh) {
@@ -84,7 +85,7 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
       model.children.forEach((child) => actor.modelContainer.add(child))
 
       if (animationComponent.currentState) {
-        animationComponent.currentState.mount(animationComponent, {}, true)
+        AnimationRenderer.mountCurrentState(animationComponent)
       }
 
       // advance animation for a frame to eliminate potential t-pose
@@ -98,9 +99,6 @@ const initializeCharacter: Behavior = (entity): void => {
   entity.name = 'Player'
 
   const actor = getMutableComponent(entity, CharacterComponent)
-  // clear current avatar mesh
-  if (actor.modelContainer !== undefined)
-    [...actor.modelContainer.children].forEach((child) => actor.modelContainer.remove(child))
 
   // The visuals group is centered for easy actor tilting
   const obj3d = new Group()
