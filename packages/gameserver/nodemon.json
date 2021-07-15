@@ -1,10 +1,9 @@
 {
   "verbose": true,
   "watch": [
-    "../engine/src/**/*.ts",
-    "src/**/*.ts"
+    "../engine/src/**",
+    "src/**"
   ],
-  "exec": "etsc && node ./dist/src/index.js",
   "env": {
     "NODE_ENV": "development" 
   }
