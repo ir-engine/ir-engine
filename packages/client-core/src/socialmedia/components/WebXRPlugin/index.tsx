@@ -627,8 +627,8 @@ export const WebXRPlugin = ({
       y: e.clientY * window.devicePixelRatio
     }
 
-    if (playerRef.current) {
-      playerRef.current.playOneFrame();
+    if (playerRef.current && playerRef.current.currentFrame <= 0) {
+    playerRef.current.playOneFrame();
     }
     // @ts-ignore
     XRPlugin.handleTap(params)
