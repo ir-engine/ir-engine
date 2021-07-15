@@ -152,6 +152,7 @@ export class Editor extends EventEmitter {
   thumbnailRenderer: ThumbnailRenderer
   playing: boolean
   Engine: Engine
+  animationCallback = null
 
   // initializing component properties with default value.
   constructor(api, settings = {}, Engine) {
@@ -771,6 +772,10 @@ export class Editor extends EventEmitter {
       })
       this.flyControls.update(delta)
       this.editorControls.update()
+
+      if (this.animationCallback) {
+        this.animationCallback()
+      }
 
       this.renderer.update(delta, time)
       this.inputManager.reset()
