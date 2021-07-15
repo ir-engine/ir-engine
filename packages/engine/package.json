@@ -39,15 +39,13 @@
     "@typescript-eslint/parser": "^4.4.1"
   },
   "dependencies": {
-    "@here/harp-map-controls": "^0.25.0",
-    "@here/harp-vectortile-datasource": "^0.25.0",
-    "@here/harp.gl": "^0.25.0",
     "@pixiv/three-vrm": "^0.6.4",
     "@xrengine/common": "^0.3.31",
     "browserfs": "^1.4.3",
     "cross-fetch": "^3.0.6",
     "ctix": "^0.3.1",
     "dashjs": "^4.0.0-npm",
+    "dat": "^13.13.1",
     "detect-browser": "^5.2.0",
     "draco3dgltf": "^1.4.1",
     "ethereal": "^2.0.4",
