@@ -12,7 +12,11 @@ const immutableState = Immutable.fromJS(initialAlertState)
 const alertReducer = (state = immutableState, action: AlertAction): any => {
   switch (action.type) {
     case SHOW_NOTIFICATION:
-      return state.set('type', action.alertType).set('message', action.message)
+      const altertType = action.alertType;
+      const message = action.message;
+      return state
+      .set('type', altertType)
+      .set('message', message)
     case HIDE_NOTIFICATION:
       return state.set('type', action.alertType).set('message', action.message)
     default:
