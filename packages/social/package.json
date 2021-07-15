@@ -47,7 +47,7 @@
     "redux": "4.1.0",
     "sass": "1.35.2",
     "styled-components": "5.3.0",
-    "volumetric": "0.2.26",
+    "volumetric": "0.2.27",
     "webxr-native": "0.3.0"
   },
   "devDependencies": {
