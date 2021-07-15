@@ -93,8 +93,8 @@ const EffectsOptions = {
     samples: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: 'Samples',
-      min: -1,
-      max: 1,
+      min: 1,
+      max: 64,
       step: 0.01
     },
 
