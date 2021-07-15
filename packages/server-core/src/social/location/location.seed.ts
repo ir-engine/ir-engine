@@ -2,8 +2,6 @@ import config from '../../appconfig'
 import { locationSettingsSeed } from '../location-settings/location-settings.seed'
 
 export const locationSeed = {
-  disabled: !config.db.forceRefresh,
-  delete: config.db.forceRefresh,
   randomize: false,
   path: 'location',
   templates: [

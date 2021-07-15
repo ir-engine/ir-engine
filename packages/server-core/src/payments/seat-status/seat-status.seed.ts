@@ -1,8 +1,6 @@
 import config from '../../appconfig'
 
 export const seed = {
-  disabled: !config.db.forceRefresh,
-  delete: config.db.forceRefresh,
   path: 'seat-status',
   randomize: false,
   templates: [{ status: 'pending' }, { status: 'filled' }]

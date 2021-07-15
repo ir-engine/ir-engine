@@ -1,8 +1,6 @@
 import config from '../../appconfig'
 
 export const staticResourceTypeSeed = {
-  disabled: !config.db.forceRefresh,
-  delete: config.db.forceRefresh,
   path: 'static-resource-type',
   randomize: false,
   templates: [

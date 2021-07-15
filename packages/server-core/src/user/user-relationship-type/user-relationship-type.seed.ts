@@ -1,8 +1,6 @@
 import config from '../../appconfig'
 
 export const userRelationshipTypeSeed = {
-  disabled: !config.db.forceRefresh,
-  delete: config.db.forceRefresh,
   path: 'user-relationship-type',
   randomize: false,
   templates: [
