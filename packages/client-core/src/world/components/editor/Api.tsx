@@ -592,7 +592,7 @@ export class Api extends EventEmitter {
     const {
       file_id: thumbnailFileId,
       meta: { access_token: thumbnailFileToken }
-    } = (await this.upload(thumbnailBlob, undefined, signal, projectId, 'thumbnailOwnedFileId')) as any
+    } = (await this.upload(thumbnailBlob, undefined, signal, 'thumbnailOwnedFileId', projectId)) as any
 
     if (signal.aborted) {
       throw new Error(i18n.t('editor:errors.saveProjectAborted'))
