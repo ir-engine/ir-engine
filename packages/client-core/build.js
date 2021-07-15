@@ -1,6 +1,5 @@
 const esbuild = require('esbuild');
 const sassPlugin = require('esbuild-plugin-sass')
-const metaUrlPlugin = require('@chialab/esbuild-plugin-meta-url')
 
 esbuild.build({
     entryPoints: ['index.ts'],
@@ -9,7 +8,6 @@ esbuild.build({
     outfile: 'dist/client-core.es.js',
     plugins: [
         sassPlugin(),
-        metaUrlPlugin()
     ],
     platform: "browser",
     define: {
