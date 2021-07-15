@@ -106,7 +106,7 @@
     "webxr-native": "0.3.0"
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "8.2.1",
+    "@rollup/plugin-typescript": "8.2.3",
     "@types/node": "14.17.5",
     "@types/react": "17.0.14",
     "@types/react-dom": "17.0.9",
