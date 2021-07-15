@@ -1,8 +1,9 @@
+import mimeType from 'mime-types'
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
 import { Application } from '../../../declarations'
 import S3Provider from '../../media/storageprovider/s3.storage'
-import { assembleScene, populateScene } from './content-pack-helper'
+import { assembleScene, populateScene, uploadAvatar } from './content-pack-helper'
 import config from '../../appconfig'
 import axios from 'axios'
 
@@ -14,7 +15,7 @@ const packRegex = /content-pack\/([a-zA-Z0-9_-]+)\/manifest.json/
 const thumbnailRegex = /([a-zA-Z0-9_-]+).jpeg/
 
 const getManifestKey = (packName: string) => `content-pack/${packName}/manifest.json`
-const getWorldFileKey = (packName: string, uuid: string) => `content-pack/${packName}/world/${uuid}.world`
+const getWorldFileKey = (packName: string, name: string) => `content-pack/${packName}/world/${name}.world`
 const getWorldFileUrl = (packName: string, uuid: string) =>
   `https://${config.aws.cloudfront.domain}/content-pack/${packName}/world/${uuid}.world`
 const getThumbnailKey = (packName: string, url: string) => {
@@ -25,6 +26,8 @@ const getThumbnailUrl = (packName: string, url: string) => {
   const uuidRegexExec = thumbnailRegex.exec(url)
   return `https://${config.aws.cloudfront.domain}/content-pack/${packName}/img/${uuidRegexExec[1]}.jpeg`
 }
+const getAvatarUrl = (packName: string, avatar: any) => `https://${config.aws.cloudfront.domain}/content-pack/${packName}/${avatar.key}`
+const getAvatarThumbnailUrl = (packName: string, thumbnail: any) => `https://${config.aws.cloudfront.domain}/content-pack/${packName}/${thumbnail.key}`
 
 /**
  * A class for Upload Media service
@@ -98,7 +101,8 @@ export class ContentPack implements ServiceMethods<Data> {
     }
 
     let uploadPromises = []
-    const { scene, contentPack } = data as any
+    const { scene, contentPack, avatar, thumbnail } = data as any
+    console.log('new content-pack data', data)
     await new Promise((resolve, reject) => {
       s3.provider.getObjectAcl(
         {
@@ -187,6 +191,16 @@ export class ContentPack implements ServiceMethods<Data> {
       }
       if (thumbnailLink != null) (newScene as any).thumbnail = thumbnailLink
       body.scenes.push(newScene)
+    }
+    else if (avatar != null) {
+      await uploadAvatar(avatar, thumbnail, contentPack)
+      const newAvatar = {
+        name: avatar.name,
+        avatar: getAvatarUrl(contentPack, avatar),
+        thumbnailLink: getAvatarThumbnailUrl(contentPack, thumbnail)
+      }
+      body.avatars.push(newAvatar)
+      console.log('body with avatar', body)
     }
 
     await new Promise((resolve, reject) => {
