@@ -39,6 +39,9 @@ export default defineConfig(() => {
     return {
         plugins: [],
         server: { 
+            hmr: {
+                port: 443
+            },
             https: {
                 key: fs.readFileSync('../../certs/key.pem'),
                 cert: fs.readFileSync('../../certs/cert.pem')
