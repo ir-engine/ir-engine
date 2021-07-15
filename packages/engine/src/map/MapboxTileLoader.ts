@@ -29,6 +29,8 @@ const extend = function (defaults: Object, o1: Object, o2?: Object, o3?: Object)
   return extended
 }
 
+const METERS_PER_DEGREE_LL = 111139
+
 var long2tile = function (lon, zoom) {
   return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom))
 }
@@ -79,7 +81,6 @@ export class MapboxTileLoader {
   private feature_meshes: Array<any>
   private feature_styles: Object
   private meshes_by_layer: Object
-  private scale: number
 
   constructor(scene: THREE.Scene, opts: IOpts) {
     this.scene = scene
@@ -105,7 +106,6 @@ export class MapboxTileLoader {
     this.feature_meshes = []
     this.feature_styles = {} // global eature styling object.
     this.meshes_by_layer = {}
-    this.scale = 200000
 
     this.init_feature_styles({})
 
@@ -343,7 +343,10 @@ export class MapboxTileLoader {
   }
 
   ll_to_scene_coords(coord) {
-    return [(coord[0] - this.center.start_lng) * this.scale, (coord[1] - this.center.start_lat) * this.scale]
+    return [
+      (coord[0] - this.center.start_lng) * METERS_PER_DEGREE_LL,
+      (coord[1] - this.center.start_lat) * METERS_PER_DEGREE_LL
+    ]
   }
 
   init_feature_styles(styles) {
