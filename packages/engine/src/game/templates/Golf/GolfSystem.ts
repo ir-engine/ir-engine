@@ -63,19 +63,58 @@ export class GolfSystem extends System {
     const behaviorsToExecute: (() => void)[] = []
 
     // initGameState.newPlayer
+    this.queryResults.newPlayer.added.forEach((entity) => {
+      behaviorsToExecute.push(() => {
+        addRole(entity)
+        setupPlayerAvatar(entity)
+        setupPlayerInput(entity)
+        createYourTurnPanel(entity)
+        setupOfflineDebug(entity)
+      })
+    })
+
     this.queryResults.player.added.forEach((entity) => {
       behaviorsToExecute.push(() => {
-        // addComponent(entity, State.WaitTurn)
-        // addRole(entity)
-        // setupPlayerAvatar(entity)
-        // setupPlayerInput(entity)
-        // createYourTurnPanel(entity)
-        // setupOfflineDebug(entity)
-        // spawnClub(entity)
-        // initScore(entity)
-        // if (getComponent(entity, GamePlayer).role === '1-Player') {
-        //   addTurn(entity)
-        // }
+        addComponent(entity, State.WaitTurn)
+        spawnClub(entity)
+        initScore(entity)
+        if (getComponent(entity, GamePlayer).role === '1-Player') {
+          addTurn(entity)
+        }
+      })
+    })
+
+    // initGameState.GolfClub
+    this.queryResults.golfClub.added.forEach((entity) => {
+      console.log('golf club added')
+      behaviorsToExecute.push(() => {
+        addComponent(entity, State.SpawnedObject)
+        addComponent(entity, State.Active)
+
+        const ownerPlayerEntity =
+          Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity
+        const ownerGamePlayer = getComponent(ownerPlayerEntity, GamePlayer)
+
+        ownerGamePlayer.ownedObjects['GolfClub'] = entity
+
+        console.log('GOLF CLUB')
+      })
+    })
+
+    this.queryResults.golfBall.added.forEach((entity) => {
+      console.log('golf ball added')
+      behaviorsToExecute.push(() => {
+        addComponent(entity, State.SpawnedObject)
+        addComponent(entity, State.NotReady)
+        addComponent(entity, State.Active)
+        addComponent(entity, State.BallMoving)
+
+        const ownerPlayerEntity =
+          Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity
+        const ownerGamePlayer = getComponent(ownerPlayerEntity, GamePlayer)
+
+        ownerGamePlayer.ownedObjects['GolfBall'] = entity
+        console.log('GOLF BALL')
       })
     })
 
@@ -210,23 +249,6 @@ export class GolfSystem extends System {
         }
       }
     })
-
-    // initGameState.GolfClub
-    this.queryResults.golfClub.added.forEach((entity) => {
-      behaviorsToExecute.push(() => {
-        addComponent(entity, State.SpawnedObject)
-        addComponent(entity, State.Active)
-
-        const ownerPlayerEntity =
-          Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity
-        const ownerGamePlayer = getComponent(ownerPlayerEntity, GamePlayer)
-
-        ownerGamePlayer.ownedObjects['GolfClub'] = entity
-
-        console.log('GOLF CLUB')
-      })
-    })
-
     // gameObjectRoles.GolfClub
     // this.queryResults.golfClub.all.forEach((entity) => {
 
@@ -251,26 +273,17 @@ export class GolfSystem extends System {
     //   }
     // })
 
-    this.queryResults.golfBall.added.forEach((entity) => {
-      behaviorsToExecute.push(() => {
-        addComponent(entity, State.SpawnedObject)
-        addComponent(entity, State.NotReady)
-        addComponent(entity, State.Active)
-        addComponent(entity, State.BallMoving)
-
-        const ownerPlayerEntity =
-          Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity
-        const ownerGamePlayer = getComponent(ownerPlayerEntity, GamePlayer)
-
-        ownerGamePlayer.ownedObjects['GolfBall'] = entity
-        console.log('GOLF BALL')
-      })
-    })
-
     behaviorsToExecute.forEach((v) => v())
   }
 
   static queries = {
+    newPlayer: {
+      components: [NewPlayerTagComponent],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
     player: {
       components: [GamePlayer],
       listen: {

@@ -188,6 +188,8 @@ export const clearRemovedEntitysFromGame = (game): void => {
 }
 
 export const addStateComponent = (entity: Entity, component: ComponentConstructor<Component<any>>): void => {
+  if (hasComponent(entity, component)) return
+
   const uuid = getUuid(entity)
   const role = getRole(entity)
   const game = getGame(entity)
@@ -216,6 +218,8 @@ export const addStateComponent = (entity: Entity, component: ComponentConstructo
 }
 
 export const removeStateComponent = (entity: Entity, component: ComponentConstructor<Component<any>>): void => {
+  if (!hasComponent(entity, component)) return
+
   const uuid = getUuid(entity)
   const game = getGame(entity)
 

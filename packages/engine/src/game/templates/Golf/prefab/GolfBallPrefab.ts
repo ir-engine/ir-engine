@@ -5,7 +5,12 @@ import { isClient } from '../../../../common/functions/isClient'
 import { Behavior } from '../../../../common/interfaces/Behavior'
 import { Engine } from '../../../../ecs/classes/Engine'
 import { Entity } from '../../../../ecs/classes/Entity'
-import { addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions'
+import {
+  addComponent,
+  getComponent,
+  getMutableComponent,
+  hasComponent
+} from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
 import { NetworkObject } from '../../../../networking/components/NetworkObject'
 import { NetworkObjectOwner } from '../../../../networking/components/NetworkObjectOwner'

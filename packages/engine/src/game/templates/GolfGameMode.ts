@@ -209,15 +209,15 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   registerStateTagComponents: [],
   initGameState: {
     newPlayer: {
-      behaviors: [addRole, setupPlayerAvatar, setupPlayerInput, createYourTurnPanel, setupOfflineDebug]
+      // behaviors: [addRole, setupPlayerAvatar, setupPlayerInput, createYourTurnPanel, setupOfflineDebug]
     },
     '1-Player': {
-      components: [State.WaitTurn],
-      behaviors: [spawnClub, initScore, addTurn]
+      // components: [State.WaitTurn],
+      // behaviors: [spawnClub, initScore, addTurn]
     },
     '2-Player': {
-      components: [State.WaitTurn],
-      behaviors: [spawnClub, initScore]
+      // components: [State.WaitTurn],
+      // behaviors: [spawnClub, initScore]
     },
     GolfBall: {
       // components: [State.SpawnedObject, State.NotReady, State.Active, State.BallMoving]
@@ -653,115 +653,115 @@ export const GolfGameMode: GameMode = somePrepareFunction({
           watchers: [[State.Hit]]
         }
       ]
-    },
-    GoalPanel: {
-      objectMove: templates.switchStateAndObjectMove({
-        y: 1,
-        stateToMoveBack: State.PanelDown,
-        stateToMove: State.PanelUp,
-        min: 0.2,
-        max: 3
-      })
-    },
-    '1stTurnPanel': {
-      objectMove: templates.switchStateAndObjectMove({
-        y: 1,
-        min: 0.2,
-        max: 4,
-        stateToMoveBack: State.PanelDown,
-        stateToMove: State.PanelUp
-      }),
-      updateState: [
-        {
-          behavior: switchState,
-          args: { on: 'self', remove: State.PanelDown, add: State.PanelUp },
-          watchers: [[State.PanelDown]],
-          takeEffectOn: {
-            targetsRole: {
-              '1-Player': {
-                watchers: [[State.YourTurn]]
-              }
-            }
-          }
-        },
-        {
-          behavior: switchState,
-          args: { on: 'self', remove: State.PanelUp, add: State.PanelDown },
-          watchers: [[State.PanelUp]],
-          takeEffectOn: {
-            targetsRole: {
-              '1-Player': {
-                watchers: [[State.WaitTurn]]
-              }
-            }
-          }
-        }
-      ]
-    },
-    '2stTurnPanel': {
-      objectMove: templates.switchStateAndObjectMove({
-        y: 1,
-        min: 0.2,
-        max: 4,
-        stateToMoveBack: State.PanelDown,
-        stateToMove: State.PanelUp
-      }),
-      updateState: [
-        {
-          behavior: switchState,
-          args: { on: 'self', remove: State.PanelDown, add: State.PanelUp },
-          watchers: [[State.PanelDown]],
-          takeEffectOn: {
-            targetsRole: {
-              '2-Player': {
-                watchers: [[State.YourTurn]]
-              }
-            }
-          }
-        },
-        {
-          behavior: switchState,
-          args: { on: 'self', remove: State.PanelUp, add: State.PanelDown },
-          watchers: [[State.PanelUp]],
-          takeEffectOn: {
-            targetsRole: {
-              '2-Player': {
-                watchers: [[State.WaitTurn]]
-              }
-            }
-          }
-        }
-      ]
-    },
-    StartGamePanel: {
-      switchState: templates.isPlayerInGameAndSwitchState({ remove: State.PanelUp, add: State.PanelDown }),
-      objectMove: templates.switchStateAndObjectMove({
-        y: 1,
-        min: 0.2,
-        max: 5,
-        stateToMoveBack: State.PanelDown,
-        stateToMove: State.PanelUp
-      })
-    },
-    WaitingPanel: {
-      switchState: templates.isPlayerInGameAndSwitchState({ remove: State.PanelDown, add: State.PanelUp }),
-      objectMove: templates.switchStateAndObjectMove({
-        y: 1,
-        min: 0.2,
-        max: 5,
-        stateToMoveBack: State.PanelDown,
-        stateToMove: State.PanelUp
-      })
-    },
-    Door: {
-      switchState: templates.hasHadInteractionAndSwitchState({ remove: State.Closed, add: State.Open }),
-      objectMove: templates.switchStateAndObjectMove({
-        z: 1,
-        min: 0.2,
-        max: 3,
-        stateToMoveBack: State.Closed,
-        stateToMove: State.Open
-      })
     }
+    // GoalPanel: {
+    //   objectMove: templates.switchStateAndObjectMove({
+    //     y: 1,
+    //     stateToMoveBack: State.PanelDown,
+    //     stateToMove: State.PanelUp,
+    //     min: 0.2,
+    //     max: 3
+    //   })
+    // },
+    // '1stTurnPanel': {
+    //   objectMove: templates.switchStateAndObjectMove({
+    //     y: 1,
+    //     min: 0.2,
+    //     max: 4,
+    //     stateToMoveBack: State.PanelDown,
+    //     stateToMove: State.PanelUp
+    //   }),
+    //   updateState: [
+    //     {
+    //       behavior: switchState,
+    //       args: { on: 'self', remove: State.PanelDown, add: State.PanelUp },
+    //       watchers: [[State.PanelDown]],
+    //       takeEffectOn: {
+    //         targetsRole: {
+    //           '1-Player': {
+    //             watchers: [[State.YourTurn]]
+    //           }
+    //         }
+    //       }
+    //     },
+    //     {
+    //       behavior: switchState,
+    //       args: { on: 'self', remove: State.PanelUp, add: State.PanelDown },
+    //       watchers: [[State.PanelUp]],
+    //       takeEffectOn: {
+    //         targetsRole: {
+    //           '1-Player': {
+    //             watchers: [[State.WaitTurn]]
+    //           }
+    //         }
+    //       }
+    //     }
+    //   ]
+    // },
+    // '2stTurnPanel': {
+    //   objectMove: templates.switchStateAndObjectMove({
+    //     y: 1,
+    //     min: 0.2,
+    //     max: 4,
+    //     stateToMoveBack: State.PanelDown,
+    //     stateToMove: State.PanelUp
+    //   }),
+    //   updateState: [
+    //     {
+    //       behavior: switchState,
+    //       args: { on: 'self', remove: State.PanelDown, add: State.PanelUp },
+    //       watchers: [[State.PanelDown]],
+    //       takeEffectOn: {
+    //         targetsRole: {
+    //           '2-Player': {
+    //             watchers: [[State.YourTurn]]
+    //           }
+    //         }
+    //       }
+    //     },
+    //     {
+    //       behavior: switchState,
+    //       args: { on: 'self', remove: State.PanelUp, add: State.PanelDown },
+    //       watchers: [[State.PanelUp]],
+    //       takeEffectOn: {
+    //         targetsRole: {
+    //           '2-Player': {
+    //             watchers: [[State.WaitTurn]]
+    //           }
+    //         }
+    //       }
+    //     }
+    //   ]
+    // },
+    // StartGamePanel: {
+    //   switchState: templates.isPlayerInGameAndSwitchState({ remove: State.PanelUp, add: State.PanelDown }),
+    //   objectMove: templates.switchStateAndObjectMove({
+    //     y: 1,
+    //     min: 0.2,
+    //     max: 5,
+    //     stateToMoveBack: State.PanelDown,
+    //     stateToMove: State.PanelUp
+    //   })
+    // },
+    // WaitingPanel: {
+    //   switchState: templates.isPlayerInGameAndSwitchState({ remove: State.PanelDown, add: State.PanelUp }),
+    //   objectMove: templates.switchStateAndObjectMove({
+    //     y: 1,
+    //     min: 0.2,
+    //     max: 5,
+    //     stateToMoveBack: State.PanelDown,
+    //     stateToMove: State.PanelUp
+    //   })
+    // },
+    // Door: {
+    //   switchState: templates.hasHadInteractionAndSwitchState({ remove: State.Closed, add: State.Open }),
+    //   objectMove: templates.switchStateAndObjectMove({
+    //     z: 1,
+    //     min: 0.2,
+    //     max: 3,
+    //     stateToMoveBack: State.Closed,
+    //     stateToMove: State.Open
+    //   })
+    // }
   }
 })

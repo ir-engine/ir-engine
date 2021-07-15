@@ -270,38 +270,38 @@ export class GameManagerSystem extends System {
 
       // GAME AREA ADDIND PLAYERS or REMOVE
       // adding or remove players from this Game, always give the first Role from GameSchema
-      // if (this.updateLastTime > this.updateNewPlayersRate) {
-      Object.keys(Network.instance.networkObjects)
-        .map(Number)
-        .filter((key) => Network.instance.networkObjects[key].prefabType === PrefabType.Player)
-        .map((key) => Network.instance.networkObjects[key].component.entity)
-        .map((entity) => isPlayerInGameArea(entity, gameArea))
-        .forEach((v) => {
-          // is Player in Game Area
-          if (v.inGameArea && hasComponent(v.entity, GamePlayer)) {
-            /*
+      if (this.updateLastTime > this.updateNewPlayersRate) {
+        Object.keys(Network.instance.networkObjects)
+          .map(Number)
+          .filter((key) => Network.instance.networkObjects[key].prefabType === PrefabType.Player)
+          .map((key) => Network.instance.networkObjects[key].component.entity)
+          .map((entity) => isPlayerInGameArea(entity, gameArea))
+          .forEach((v) => {
+            // is Player in Game Area
+            if (v.inGameArea && hasComponent(v.entity, GamePlayer)) {
+              /*
               if (getComponent(v.entity, GamePlayer).gameName != game.name) {
                 getGameFromName(getComponent(v.entity, GamePlayer).gameName).priority < game.priority;
                 removeComponent(v.entity, GamePlayer);
               }
               */
-          } else if (v.inGameArea && !hasComponent(v.entity, GamePlayer)) {
-            addComponent(v.entity, GamePlayer, {
-              gameName: game.name,
-              role: Object.keys(gameSchema.gamePlayerRoles)[0],
-              uuid: getComponent(v.entity, NetworkObject).ownerId
-            })
-            addComponent(v.entity, NewPlayerTagComponent)
-          } else if (!v.inGameArea && hasComponent(v.entity, GamePlayer)) {
-            if (getComponent(v.entity, GamePlayer).gameName === game.name) {
-              removeComponent(v.entity, GamePlayer)
+            } else if (v.inGameArea && !hasComponent(v.entity, GamePlayer)) {
+              addComponent(v.entity, GamePlayer, {
+                gameName: game.name,
+                role: Object.keys(gameSchema.gamePlayerRoles)[0],
+                uuid: getComponent(v.entity, NetworkObject).ownerId
+              })
+              addComponent(v.entity, NewPlayerTagComponent)
+            } else if (!v.inGameArea && hasComponent(v.entity, GamePlayer)) {
+              if (getComponent(v.entity, GamePlayer).gameName === game.name) {
+                removeComponent(v.entity, GamePlayer)
+              }
             }
-          }
-        })
-      //   this.updateLastTime = 0
-      // } else {
-      //   this.updateLastTime += 1
-      // }
+          })
+        this.updateLastTime = 0
+      } else {
+        this.updateLastTime += 1
+      }
       // end of frame circle one game
     })
 
