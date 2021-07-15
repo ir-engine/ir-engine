@@ -67,13 +67,13 @@
     "three-physx": "^0.0.33",
     "twitch-m3u8": "^1.1.4",
     "vite": "2.4.2",
-    "volumetric": "0.2.25"
+    "volumetric": "0.2.26"
   },
   "devDependencies": {
     "@rollup/plugin-json": "4.1.0",
-    "@rollup/plugin-node-resolve": "13.0.0",
+    "@rollup/plugin-node-resolve": "13.0.1",
     "@rollup/plugin-replace": "2.4.2",
-    "@rollup/plugin-typescript": "8.2.1",
+    "@rollup/plugin-typescript": "8.2.3",
     "@types/expect-puppeteer": "4.4.6",
     "@types/jest": "26.0.24",
     "@types/jest-environment-puppeteer": "4.4.1",
@@ -84,7 +84,7 @@
     "jest": "27.0.6",
     "jest-puppeteer": "5.0.4",
     "puppeteer": "9.1.1",
-    "rollup": "2.53.1",
+    "rollup": "2.53.2",
     "rollup-plugin-node-polyfills": "0.2.1",
     "rollup-plugin-scss": "3.0.0",
     "ts-jest": "27.0.3",
