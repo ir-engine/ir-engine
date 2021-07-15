@@ -38,7 +38,6 @@ export class CharacterComponent extends Component<CharacterComponent> {
   moveSpeed = 5
   jumpHeight = 4
   localMovementDirection = new Vector3()
-  velocity: Vector3 = new Vector3()
 
   defaultVelocitySimulatorDamping = 0.8
   defaultVelocitySimulatorMass = 50

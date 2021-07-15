@@ -27,20 +27,25 @@ export class AnimationManager {
       if (!isClient) {
         resolve([])
       }
-      getLoader().load(Engine.publicPath + '/models/avatars/Animations.glb', (gltf) => {
-        gltf.scene.traverse((child) => {
-          if (child.type === 'SkinnedMesh' && !this._defaultSkeleton) {
-            this._defaultSkeleton = child
-          }
-        })
+      getLoader().load(
+        Engine.publicPath + '/models/avatars/Animations.glb',
+        (gltf) => {
+          gltf.scene.traverse((child) => {
+            if (child.type === 'SkinnedMesh' && !this._defaultSkeleton) {
+              this._defaultSkeleton = child
+            }
+          })
 
-        this._animations = gltf.animations
-        this._animations?.forEach((clip) => {
-          // TODO: make list of morph targets names
-          clip.tracks = clip.tracks.filter((track) => !track.name.match(/^CC_Base_/))
-        })
-        resolve(this._animations)
-      })
+          this._animations = gltf.animations
+          this._animations?.forEach((clip) => {
+            // TODO: make list of morph targets names
+            clip.tracks = clip.tracks.filter((track) => !track.name.match(/^CC_Base_/))
+          })
+          resolve(this._animations)
+        },
+        console.log,
+        console.error
+      )
     })
   }
   getDefaultModel(): Promise<Group> {
@@ -51,16 +56,21 @@ export class AnimationManager {
       if (!isClient) {
         resolve(new Group())
       }
-      getLoader().load(Engine.publicPath + '/models/avatars/Sonny.glb', (gltf) => {
-        this._defaultModel = gltf.scene
-        this._defaultModel.traverse((obj: Mesh) => {
-          if (obj.material) {
-            ;(obj.material as Material).transparent = true
-            ;(obj.material as Material).opacity = 0.5
-          }
-        })
-        resolve(this._defaultModel)
-      })
+      getLoader().load(
+        Engine.publicPath + '/models/avatars/Sonny.glb',
+        (gltf) => {
+          this._defaultModel = gltf.scene
+          this._defaultModel.traverse((obj: Mesh) => {
+            if (obj.material) {
+              ;(obj.material as Material).transparent = true
+              ;(obj.material as Material).opacity = 0.5
+            }
+          })
+          resolve(this._defaultModel)
+        },
+        console.log,
+        console.error
+      )
     })
   }
 }

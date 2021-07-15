@@ -72,15 +72,15 @@ export enum AnimationType {
 }
 
 /** Type of calculate weights method parameters */
-export type CalculateWeightsParams = {
+export type WeightsParameterType = {
   /** Movement of the character in the frame */
   movement?: MovementType
 
-  /** Whether the weight are calculated at the time of mounting */
-  isMounting?: boolean
-
-  /** Whether reset currrent playing animation */
+  /** Whether reset currrent playing animation. Useful while intra state transition */
   resetAnimation?: boolean
+
+  /** Skip validation check and force state transition */
+  forceTransition?: boolean
 
   /** Other data to be passed with */
   [key: string]: any
@@ -94,8 +94,11 @@ export interface Animation {
   /** Weight of this animation */
   weight: number
 
-  /** Weigth at the time of unmounting process started */
-  weightWhenUnmount?: number
+  /** Weight when transition will start. Value will be used to interpolate */
+  transitionStartWeight?: number
+
+  /** Weight when transition will end. Value will be used to interpolate */
+  transitionEndWeight?: number
 
   /** Type of the loop */
   loopType: AnimationActionLoopStyles

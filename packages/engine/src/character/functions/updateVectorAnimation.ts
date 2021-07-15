@@ -83,9 +83,9 @@ export const updateVectorAnimation = (entity, delta: number): void => {
   // Actor isn't initialized yet, so skip the animation
   const actor = getMutableComponent(entity, CharacterComponent)
   const animationComponent = getMutableComponent(entity, AnimationComponent)
-  if (!animationComponent.mixer || !actor.modelContainer.children.length) return
+  if (!actor.modelContainer.children.length) return
   const acceleration = animationComponent.animationSpeed
-  if (animationComponent.mixer) animationComponent.mixer.update(delta * animationSpeedMultiplier)
+  animationComponent.mixer.update(delta * animationSpeedMultiplier)
   //  if(animationComponent.animationsSchema.length == 3) return;
   // Get the magnitude of current velocity
   const avatarAnimations = defaultAvatarAnimations
@@ -152,6 +152,7 @@ export const changeAnimation: Behavior = (entity, args: {}, deltaTime: number): 
   const actor = getMutableComponent(entity, CharacterComponent)
   const animationComponent = getMutableComponent(entity, AnimationComponent)
   if (!animationComponent.mixer) return
+
   //@ts-ignore
   const animationId = args.animationId
   //@ts-ignore

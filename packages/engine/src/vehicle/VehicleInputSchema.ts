@@ -137,7 +137,6 @@ const switchCameraMode = (entity: Entity, args: any = { pointerLock: false, mode
   switch (args.mode) {
     case CameraModes.FirstPerson:
       {
-        cameraFollow.offset.set(0, 1, 0)
         cameraFollow.phi = 0
         cameraFollow.locked = true
         //setVisible(actor, false);
@@ -145,21 +144,18 @@ const switchCameraMode = (entity: Entity, args: any = { pointerLock: false, mode
       break
     /*
     case CameraModes.ShoulderCam: {
-      cameraFollow.offset.set(cameraFollow.shoulderSide ? -0.25 : 0.25, 1, 0);
     //  setVisible(actor, true);
     } break;
 */
     default:
     case CameraModes.ThirdPerson:
       {
-        cameraFollow.offset.set(cameraFollow.shoulderSide ? -0.25 : 0.25, 1, 0)
         //  setVisible(actor, true);
       }
       break
 
     case CameraModes.TopDown:
       {
-        cameraFollow.offset.set(0, 1, 0)
         //setVisible(actor, true);
       }
       break

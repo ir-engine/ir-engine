@@ -158,7 +158,7 @@ export class Editor extends EventEmitter {
   constructor(api, settings = {}, Engine) {
     super()
     this.Engine = Engine
-    globalThis.Editor = this;
+    globalThis.Editor = this
     this.camera = Engine.camera
     this.api = api
     this.settings = settings
@@ -346,7 +346,7 @@ export class Editor extends EventEmitter {
     this.inputManager = new InputManager(this.renderer.canvas)
 
     // TOOD: Consolidate me
-    globalThis.renderer = this.renderer as any;
+    globalThis.renderer = this.renderer as any
 
     // initializing controls
     this.flyControls = new FlyControls(this.camera as any, this.inputManager)

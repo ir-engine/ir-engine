@@ -103,6 +103,11 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
     ;(this.props.editor as any).setPropertySelected('activeClipIndex', activeClipIndex)
   }
 
+  onChangeAnimationSource = (hasAvatarAnimations) => {
+    ;(this.props.editor as any).setPropertySelected('hasAvatarAnimations', hasAvatarAnimations)
+    ;(this.props.node as any).reload()
+  }
+
   //function to handle change in collidable property
   // not currently in use, used by floor plan
   // onChangeCollidable = collidable => {
@@ -389,6 +394,11 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
             value={node.activeClipIndex}
             onChange={this.onChangeAnimation}
           />
+        </InputGroup>
+        {/* @ts-ignore */}
+        <InputGroup name="Is Avatar" label={this.props.t('editor:properties.model.lbl-isAvatar')}>
+          {/* @ts-ignore */}
+          <BooleanInput value={node.hasAvatarAnimations} onChange={this.onChangeAnimationSource} />
         </InputGroup>
         {/* @ts-ignore */}
         {/* <InputGroup name="Collidable" label={this.props.t('editor:properties.model.lbl-collidable')}>
