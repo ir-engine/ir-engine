@@ -27,8 +27,8 @@ import { getGame, getGameEntityFromName, getRole, setRole, getUuid } from './fun
  */
 
 export const initState = (game: Game, gameSchema: GameMode): void => {
-  Object.keys(gameSchema.gameObjectRoles).forEach((role) => (game.gameObjects[role] = []))
-  Object.keys(gameSchema.gamePlayerRoles).forEach((role) => (game.gamePlayers[role] = []))
+  gameSchema.gameObjectRoles.forEach((role) => (game.gameObjects[role] = []))
+  gameSchema.gamePlayerRoles.forEach((role) => (game.gamePlayers[role] = []))
 }
 
 export const saveInitStateCopy = (entity: Entity): void => {
@@ -263,12 +263,4 @@ export const changeRole = (entity: Entity, newGameRole: string): void => {
   })
 
   game.gamePlayers[newGameRole].push(entity)
-
-  // const gameSchema = GamesSchema[game.gameMode]
-  // const schema = gameSchema.initGameState[newGameRole]
-  // if (schema != undefined) {
-  //   schema.components?.forEach((component) => addStateComponent(entity, component))
-  //   //initStorage(entity, schema.storage);
-  //   schema.behaviors?.forEach((behavior) => behavior(entity))
-  // }
 }

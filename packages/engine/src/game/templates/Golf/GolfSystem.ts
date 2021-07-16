@@ -87,7 +87,6 @@ export class GolfSystem extends System {
       })
     })
 
-    // initGameState.GolfClub
     this.queryResults.golfClub.added.forEach((entity) => {
       behaviorsToExecute.push(() => {
         addStateComponent(entity, State.SpawnedObject)
@@ -102,6 +101,7 @@ export class GolfSystem extends System {
         console.log('GOLF CLUB')
       })
     })
+
     if (this.queryResults.golfBall.added.length) console.log('GOLF BALL', this.queryResults.golfBall.added)
     this.queryResults.golfBall.added.forEach((entity) => {
       behaviorsToExecute.push(() => {

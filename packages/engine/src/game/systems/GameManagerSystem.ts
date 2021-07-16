@@ -128,10 +128,6 @@ export class GameManagerSystem extends System {
     this.queryResults.game.all?.forEach((entityGame) => {
       const game = getComponent(entityGame, Game)
       const gameArea = game.gameArea
-      const gameSchema = GamesSchema[game.gameMode]
-      const gameObjects = game.gameObjects
-      const gamePlayers = game.gamePlayers
-      //const gameState = game.state;
       if (isClient && game.isGlobal && checkIsGamePredictionStillRight()) {
         clearPredictionCheckList()
         requireState(
@@ -192,7 +188,7 @@ export class GameManagerSystem extends System {
         const game = getComponent(entityGame, Game)
         const gamePlayer = getComponent(entity, GamePlayer, true)
         if (gamePlayer === undefined || gamePlayer.gameName != game.name) return
-        const gameSchema = GamesSchema[game.gameMode]
+        const gameSchema = GamesSchema[game.gameMode] as GameMode
         gameSchema.beforePlayerLeave(entity)
         console.log('removeEntityFromState', gamePlayer.role)
         removeEntityFromState(gamePlayer, game)
