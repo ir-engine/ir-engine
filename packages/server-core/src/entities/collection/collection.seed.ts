@@ -1,8 +1,4 @@
-import config from '../../appconfig'
-
 export const collectionSeed = {
-  disabled: !config.db.forceRefresh,
-  delete: config.db.forceRefresh,
   path: 'collection',
   randomize: false,
   templates: [
