@@ -38,6 +38,19 @@ class RenderSystem extends System {
 
 }
 
+const pathMaterial = new LineBasicMaterial({ color: 0xff0000 });
+const vehicleMaterial = new MeshBasicMaterial({ color: 0xff0000 });
+const vehicleGeometry = new ConeBufferGeometry(0.1, 0.5, 16);
+vehicleGeometry.rotateX(Math.PI * 0.5);
+vehicleGeometry.translate(0, 0.1, 0);
+const vehicleCount = 100;
+    
+const vehicleMesh = new InstancedMesh(vehicleGeometry, vehicleMaterial, vehicleCount);
+    // setup spatial index
+
+    const width = 100, height = 40, depth = 75;
+    const cellsX = 20, cellsY = 5, cellsZ = 20;
+
 class NavigationComponent extends Component<NavigationComponent>{
   pathPlanner: PathPlanner = new PathPlanner();
   entityManager: EntityManager  = new EntityManager();
@@ -46,117 +59,81 @@ class NavigationComponent extends Component<NavigationComponent>{
   pathHelpers = [];
   spatialIndexHelper;
   regionHelper;
+  navigationMesh;
+}
+
+const meshUrl = '/models/navmesh/navmesh.glb';
+
+const loadNavMeshFromUrl = async (meshurl, navigationComponent) => {
+  const navigationMesh = await (new NavMeshLoader()).load(meshurl);
+  loadNavMesh(navigationMesh, navigationComponent);
+}
+
+const loadNavMesh = async (navigationMesh, navigationComponent) => {
+    //       // visualize convex regions
+
+    navigationComponent.regionHelper = createConvexRegionHelper(navigationMesh);
+    navigationComponent.regionHelper.visible = true;
+    Engine.scene.add(navigationComponent.regionHelper);
+
+    navigationComponent.pathPlanner = new PathPlanner(navigationMesh);
+
+    navigationMesh.spatialIndex = new CellSpacePartitioning(width, height, depth, cellsX, cellsY, cellsZ);
+    navigationMesh.updateSpatialIndex();
+    navigationComponent.navigationMesh = navigationMesh;
+
+    navigationComponent.spatialIndexHelper = createCellSpaceHelper(navigationMesh.spatialIndex);
+    Engine.scene.add(navigationComponent.spatialIndexHelper);
+    navigationComponent.spatialIndexHelper.visible = false;
+}
+
+async function startDemo(entity){
+  const navigationComponent = getMutableComponent(entity, NavigationComponent);
+   await loadNavMeshFromUrl(meshUrl, navigationComponent)
+
+    vehicleMesh.frustumCulled = false;
+    Engine.scene.add(vehicleMesh);
+
+    for (let i = 0; i < vehicleCount; i++) {
+
+      // path helper
+
+      const pathHelper = new Line(new BufferGeometry(), pathMaterial);
+      pathHelper.visible = false;
+      Engine.scene.add(pathHelper);
+      navigationComponent.pathHelpers.push(pathHelper);
+
+      // vehicle
+
+      const vehicle = new CustomVehicle();
+      vehicle.navMesh = navigationComponent.navigationMesh;
+      vehicle.maxSpeed = 1.5;
+      vehicle.maxForce = 10;
+
+      const toRegion = vehicle.navMesh.getRandomRegion();
+      vehicle.position.copy(toRegion.centroid);
+      vehicle.toRegion = toRegion;
+
+      const followPathBehavior = new FollowPathBehavior();
+      followPathBehavior.nextWaypointDistance = 0.5;
+      followPathBehavior.active = false;
+      vehicle.steering.add(followPathBehavior);
+
+      navigationComponent.entityManager.add(vehicle);
+      navigationComponent.vehicles.push(vehicle);
+
+    }
 }
 
   class NavigationSystem extends System {
     updateType = SystemUpdateType.Fixed
-
-    // remove me
-    vehicleMesh;
-    // remopve me
-    vehicleCount = 100;
 
     constructor(){
       super();
       registerComponent(NavigationComponent);
       const entity = createEntity();
       addComponent(entity, NavigationComponent);
-      const navigationComponent = getMutableComponent(entity, NavigationComponent);
-
-      const pathMaterial = new LineBasicMaterial({ color: 0xff0000 });
-
-    const vehicleGeometry = new ConeBufferGeometry(0.1, 0.5, 16);
-    vehicleGeometry.rotateX(Math.PI * 0.5);
-    vehicleGeometry.translate(0, 0.1, 0);
-    const vehicleMaterial = new MeshBasicMaterial({ color: 0xff0000 });
-
-    const hemiLight = new HemisphereLight(0xffffff, 0x444444, 0.6);
-    hemiLight.position.set(0, 100, 0);
-    Engine.scene.add(hemiLight);
-
-    const dirLight = new DirectionalLight(0xffffff, 0.8);
-    dirLight.position.set(0, 200, 100);
-    Engine.scene.add(dirLight);
-
-    // window.addEventListener( 'resize', onWindowResize, false );
-    const loadingManager = new LoadingManager(() => {
-
-      //     // 3D assets are loaded, now load nav mesh
-
-      const loader = new NavMeshLoader();
-      loader.load('/models/navmesh/navmesh.glb').then((navigationMesh) => {
-
-        //       // visualize convex regions
-
-        navigationComponent.regionHelper = createConvexRegionHelper(navigationMesh);
-        navigationComponent.regionHelper.visible = false;
-        Engine.scene.add(navigationComponent.regionHelper);
-
-
-
-        navigationComponent.pathPlanner = new PathPlanner(navigationMesh);
-
-        // setup spatial index
-
-        const width = 100, height = 40, depth = 75;
-        const cellsX = 20, cellsY = 5, cellsZ = 20;
-
-        navigationMesh.spatialIndex = new CellSpacePartitioning(width, height, depth, cellsX, cellsY, cellsZ);
-        navigationMesh.updateSpatialIndex();
-
-        navigationComponent.spatialIndexHelper = createCellSpaceHelper(navigationMesh.spatialIndex);
-        Engine.scene.add(navigationComponent.spatialIndexHelper);
-        navigationComponent.spatialIndexHelper.visible = false;
-
-        // create vehicles
-
-        this.vehicleMesh = new InstancedMesh(vehicleGeometry, vehicleMaterial, this.vehicleCount);
-        this.vehicleMesh.frustumCulled = false;
-        Engine.scene.add(this.vehicleMesh);
-
-        for (let i = 0; i < this.vehicleCount; i++) {
-
-          // path helper
-
-          const pathHelper = new Line(new BufferGeometry(), pathMaterial);
-          pathHelper.visible = false;
-          Engine.scene.add(pathHelper);
-          navigationComponent.pathHelpers.push(pathHelper);
-
-          // vehicle
-
-          const vehicle = new CustomVehicle();
-          vehicle.navMesh = navigationMesh;
-          vehicle.maxSpeed = 1.5;
-          vehicle.maxForce = 10;
-
-          const toRegion = vehicle.navMesh.getRandomRegion();
-          vehicle.position.copy(toRegion.centroid);
-          vehicle.toRegion = toRegion;
-
-          const followPathBehavior = new FollowPathBehavior();
-          followPathBehavior.nextWaypointDistance = 0.5;
-          followPathBehavior.active = false;
-          vehicle.steering.add(followPathBehavior);
-
-          navigationComponent.entityManager.add(vehicle);
-          navigationComponent.vehicles.push(vehicle);
-
-        }
-      });
-
-    });
-
-    //
-    const glTFLoader = new GLTFLoader(loadingManager);
-    glTFLoader.load('/models/navmesh/level.glb', (gltf) => {
-
-      // add object to scene
-
-      Engine.scene.add(gltf.scene);
-      gltf.scene.rotation.y = Math.PI;
-
-    });
+      startDemo(entity);
     }
   
     /**
@@ -166,7 +143,7 @@ class NavigationComponent extends Component<NavigationComponent>{
      * @param delta time since last frame.
      */
     execute(delta: number): void {
-     this.queryResults.sceneObject.all?.forEach(entity => {
+     this.queryResults.navigation.all?.forEach(entity => {
        const navComponent = getComponent(entity, NavigationComponent);
     
         navComponent.entityManager.update(delta);
@@ -218,19 +195,12 @@ class NavigationComponent extends Component<NavigationComponent>{
           // Update instancing
           for (let i = 0, l = navComponent.vehicles.length; i < l; i++) {
             const vehicle = navComponent.vehicles[i];
-            this.vehicleMesh.setMatrixAt(i, vehicle.worldMatrix);
+            vehicleMesh.setMatrixAt(i, vehicle.worldMatrix);
           }
       
-          this.vehicleMesh.instanceMatrix.needsUpdate = true;
+          vehicleMesh.instanceMatrix.needsUpdate = true;
         });
     }
-
-
-  params = {
-    showNavigationPaths: false,
-    showRegions: false,
-    showSpatialIndex: false,
-  };
 
 }
 

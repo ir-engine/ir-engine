@@ -1,14 +1,13 @@
 import React from 'react'
-import Scene from './event'
-import Layout from './EventLayout'
+import Scene from './map'
+import Layout from './Layout'
 import { useTranslation } from 'react-i18next'
 
 const LocationPage = (props) => {
   const { t } = useTranslation()
-
   return (
     <Layout pageTitle={t('location.locationName.pageTitle')}>
-      <Scene locationName={props.match.params.locationName} enableSharing={false} history={props.history} />
+      <Scene locationName={props.match.params.locationName} history={props.history} />
     </Layout>
   )
 }

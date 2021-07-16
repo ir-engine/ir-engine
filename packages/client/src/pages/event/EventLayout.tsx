@@ -15,9 +15,9 @@ import { Helmet } from 'react-helmet'
 import { connect } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import { bindActionCreators, Dispatch } from 'redux'
-import LeftDrawer from '../Drawer/Left'
-import RightDrawer from '../Drawer/Right'
-import InstanceChat from '../InstanceChat'
+import LeftDrawer from '../../components/Drawer/Left'
+import RightDrawer from '../../components/Drawer/Right'
+import InstanceChat from '../../components/InstanceChat'
 // @ts-ignore
 import styles from './Layout.module.scss'
 

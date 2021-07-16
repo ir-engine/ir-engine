@@ -1,8 +1,6 @@
 import Button from '@material-ui/core/Button'
 import Snackbar from '@material-ui/core/Snackbar'
-import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
-import TooltipContainer from '@xrengine/client-core/src/common/components/TooltipContainer'
 import {
   GeneralStateList,
   setAppLoaded,
@@ -21,9 +19,6 @@ import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector'
-import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
-import NamePlate from '@xrengine/client-core/src/world/components/NamePlate'
-import { OpenLink } from '@xrengine/client-core/src/world/components/OpenLink'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
@@ -38,7 +33,6 @@ import { addComponent, getComponent, removeComponent } from '@xrengine/engine/sr
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
-import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
@@ -49,15 +43,14 @@ import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSyste
 import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
 import querystring from 'querystring'
 import React, { Suspense, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
 import { CameraLayers } from '../../../../engine/src/camera/constants/CameraLayers'
-import MediaIconsBox from '../MediaIconsBox'
-import NetworkDebug from '../NetworkDebug'
+import WarningRefreshModal from '../../components/AlertModals/WarningRetryModal'
+import MediaIconsBox from './MapMediaIconsBox'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import {
   connectToInstanceServer,
@@ -65,8 +58,6 @@ import {
   resetInstanceServer
 } from '../../reducers/instanceConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
-import WarningRefreshModal from '../AlertModals/WarningRetryModal'
-import RecordingApp from '../Recorder/RecordingApp'
 
 const store = Store.store
 
@@ -195,9 +186,6 @@ export const EnginePage = (props: Props) => {
     enableSharing
   } = props
 
-  const currentUser = authState.get('user')
-  const [hoveredLabel, setHoveredLabel] = useState('')
-  const [infoBoxData, setModalData] = useState(null)
   const [userBanned, setUserBannedState] = useState(false)
   const [openLinkData, setOpenLinkData] = useState(null)
 
@@ -205,7 +193,6 @@ export const EnginePage = (props: Props) => {
   const [userHovered, setonUserHover] = useState(false)
   const [userId, setonUserId] = useState(null)
   const [position, setonUserPosition] = useState(null)
-  const [objectActivated, setObjectActivated] = useState(false)
   const [objectHovered, setObjectHovered] = useState(false)
 
   const [isValidLocation, setIsValidLocation] = useState(true)
@@ -538,22 +525,6 @@ export const EnginePage = (props: Props) => {
     setProgressEntity(left || 0)
   }
 
-  const onObjectHover = ({ focused, interactionText }: { focused: boolean; interactionText: string }): void => {
-    setObjectHovered(focused)
-    let displayText = interactionText
-    const length = interactionText && interactionText.length
-    if (length > 110) {
-      displayText = interactionText.substring(0, 110) + '...'
-    }
-    setHoveredLabel(displayText)
-  }
-
-  const onUserHover = ({ focused, userId, position }): void => {
-    setonUserHover(focused)
-    setonUserId(focused ? userId : null)
-    setonUserPosition(focused ? position : null)
-  }
-
   const portToLocation = async ({ portalComponent }: { portalComponent: PortalProps }) => {
     // console.log('portToLocation', slugifiedName, portalComponent);
 
@@ -613,36 +584,7 @@ export const EnginePage = (props: Props) => {
   }
 
   const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover)
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation)
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover)
     EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async () => {
-      setIsInXR(true)
-    })
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async () => {
-      setIsInXR(false)
-    })
-  }
-
-  let characterAvatar: CharacterComponent = null
-  let networkUser
-  const onObjectActivation = (interactionData): void => {
-    switch (interactionData.interactionType) {
-      case 'link':
-        setOpenLinkData(interactionData)
-        setInputEnabled(false)
-        setObjectActivated(true)
-        break
-      case 'infoBox':
-      case 'mediaSource':
-        setModalData(interactionData)
-        setInputEnabled(false)
-        setObjectActivated(true)
-        break
-      default:
-        break
-    }
   }
 
   useEffect(() => {
@@ -657,7 +599,7 @@ export const EnginePage = (props: Props) => {
   }, [])
 
   //touch gamepad
-  const touchGamepadProps = { hovered: objectHovered, layout: 'default' }
+  const touchGamepadProps = { hovered: false, layout: 'default' }
   const touchGamepad = deviceState.get('content')?.touchDetected ? (
     <Suspense fallback={<></>}>
       <TouchGamepad {...touchGamepadProps} />
@@ -665,11 +607,8 @@ export const EnginePage = (props: Props) => {
   ) : null
 
   if (userBanned) return <div className="banned">You have been banned from this location</div>
-  return isInXR ? (
-    <></>
-  ) : (
+  return (
     <>
-      {isValidLocation && <UserMenu hideLogin={true} enableSharing={enableSharing} />}
       <Snackbar
         open={!isValidLocation}
         anchorOrigin={{
@@ -684,15 +623,6 @@ export const EnginePage = (props: Props) => {
       </Snackbar>
       <LoadingScreen objectsToLoad={progressEntity} />
       <MediaIconsBox />
-      {userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
-      <OpenLink
-        onClose={() => {
-          setOpenLinkData(null)
-          setObjectActivated(false)
-          setInputEnabled(true)
-        }}
-        data={openLinkData}
-      />
       <canvas id={engineRendererCanvasId} style={canvasStyle} />
       {touchGamepad}
       <WarningRefreshModal
@@ -707,7 +637,6 @@ export const EnginePage = (props: Props) => {
         timeout={warningRefreshModalValues.timeout}
         noCountdown={warningRefreshModalValues.noCountdown}
       />
-      <EmoteMenu />
     </>
   )
 }
