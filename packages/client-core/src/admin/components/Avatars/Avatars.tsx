@@ -14,12 +14,12 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { selectAppState } from '../../../common/reducers/app/selector'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { PAGE_LIMIT } from '../../reducers/admin/reducers'
-import { fetchAdminScenes } from '../../reducers/admin/scene/service'
 import { fetchLocationTypes } from '../../reducers/admin/location/service'
+import { fetchAdminAvatars } from '../../reducers/admin/avatar/service'
 // @ts-ignore
-import styles from './Scenes.module.scss'
+import styles from './Avatars.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
-import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
+import { selectAdminAvatarState } from '../../reducers/admin/avatar/selector'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -28,35 +28,36 @@ if (!global.setImmediate) {
 interface Props {
   authState?: any
   locationState?: any
-  fetchAdminScenes?: any
+  fetchAdminAvatars?: any
   fetchLocationTypes?: any
-  adminSceneState?: any
+  adminAvatarState?: any
 }
 
 const mapStateToProps = (state: any): any => {
   return {
     appState: selectAppState(state),
     authState: selectAuthState(state),
-    adminSceneState: selectAdminSceneState(state)
+    adminAvatarState: selectAdminAvatarState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminScenes: bindActionCreators(fetchAdminScenes, dispatch),
+  fetchAdminAvatars: bindActionCreators(fetchAdminAvatars, dispatch),
   fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch)
 })
 
-const Scenes = (props: Props) => {
-  const { authState, fetchAdminScenes, adminSceneState } = props
+const Avatars = (props: Props) => {
+  const { authState, fetchAdminAvatars, adminAvatarState } = props
 
   const user = authState.get('user')
-  const adminScenes = adminSceneState.get('scenes').get('scenes')
-  const adminScenesCount = adminSceneState.get('scenes').get('total')
+  const adminAvatars = adminAvatarState.get('avatars').get('avatars')
+  const adminThumbnails = adminAvatarState.get('avatars').get('thumbnails')
+  const adminAvatarCount = adminAvatarState.get('avatars').get('total')
 
   const headCell = [
     { id: 'sid', numeric: false, disablePadding: true, label: 'ID' },
     { id: 'name', numeric: false, disablePadding: false, label: 'Name' },
-    { id: 'description', numeric: false, disablePadding: false, label: 'Description' },
+    { id: 'key', numeric: false, disablePadding: false, label: 'Key' },
     { id: 'addToContentPack', numeric: false, disablePadding: false, label: 'Add to Content Pack' }
   ]
 
@@ -139,7 +140,8 @@ const Scenes = (props: Props) => {
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
   const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
-  const [selectedScene, setSelectedScene] = useState({})
+  const [selectedAvatar, setSelectedAvatar] = useState({})
+  const [selectedThumbnail, setSelectedThumbnail] = useState({})
 
   const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -149,7 +151,7 @@ const Scenes = (props: Props) => {
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = adminScenes.map((n) => n.name)
+      const newSelecteds = adminAvatars.map((n) => n.name)
       setSelected(newSelecteds)
       return
     }
@@ -158,7 +160,7 @@ const Scenes = (props: Props) => {
 
   const handleChangePage = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
-    fetchAdminScenes(incDec)
+    fetchAdminAvatars(incDec)
     setPage(newPage)
   }
 
@@ -167,14 +169,16 @@ const Scenes = (props: Props) => {
     setPage(0)
   }
 
-  const openAddToContentPackModal = (scene: any) => {
-    setSelectedScene(scene)
+  const openAddToContentPackModal = (avatar: any) => {
+    setSelectedAvatar(avatar)
+    setSelectedThumbnail(adminThumbnails.find((thumbnail) => thumbnail.name === avatar.name))
     setAddToContentPackModalOpen(true)
   }
 
   const closeAddToContentPackModal = () => {
     setAddToContentPackModalOpen(false)
-    setSelectedScene({})
+    setSelectedAvatar({})
+    setSelectedThumbnail({})
   }
 
   const fetchTick = () => {
@@ -189,11 +193,11 @@ const Scenes = (props: Props) => {
   }, [])
 
   useEffect(() => {
-    if (user?.id != null && (adminSceneState.get('scenes').get('updateNeeded') === true || refetch === true)) {
-      fetchAdminScenes()
+    if (user?.id != null && (adminAvatarState.get('avatars').get('updateNeeded') === true || refetch === true)) {
+      fetchAdminAvatars()
     }
     setRefetch(false)
-  }, [authState, adminSceneState, refetch])
+  }, [authState, adminAvatarState, refetch])
 
   return (
     <div>
@@ -201,16 +205,19 @@ const Scenes = (props: Props) => {
         <TableContainer className={styles.tableContainer}>
           <Table stickyHeader aria-labelledby="tableTitle" size={'medium'} aria-label="enhanced table">
             <EnhancedTableHead
-              object={'scenes'}
+              object={'avatars'}
               numSelected={selected.length}
               order={order}
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={adminScenesCount || 0}
+              rowCount={adminAvatarCount || 0}
             />
             <TableBody className={styles.thead}>
-              {stableSort(adminScenes, getComparator(order, orderBy))
+              {stableSort(
+                adminAvatars.filter((item) => item.staticResourceType === 'avatar'),
+                getComparator(order, orderBy)
+              )
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
                   return (
@@ -236,7 +243,7 @@ const Scenes = (props: Props) => {
                         {row.name}
                       </TableCell>
                       <TableCell className={styles.tcell} align="right">
-                        {row.description}
+                        {row.key}
                       </TableCell>
                       <TableCell className={styles.tcell} align="right">
                         {user.userRole === 'admin' && (
@@ -261,7 +268,7 @@ const Scenes = (props: Props) => {
           <TablePagination
             rowsPerPageOptions={[PAGE_LIMIT]}
             component="div"
-            count={adminScenesCount}
+            count={adminAvatarCount}
             rowsPerPage={rowsPerPage}
             page={page}
             onChangePage={handleChangePage}
@@ -271,7 +278,8 @@ const Scenes = (props: Props) => {
         </div>
         <AddToContentPackModal
           open={addToContentPackModalOpen}
-          scene={selectedScene}
+          avatar={selectedAvatar}
+          thumbnail={selectedThumbnail}
           handleClose={closeAddToContentPackModal}
         />
       </Paper>
@@ -279,4 +287,4 @@ const Scenes = (props: Props) => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Scenes)
+export default connect(mapStateToProps, mapDispatchToProps)(Avatars)

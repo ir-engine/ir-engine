@@ -23,6 +23,10 @@
     opacity: 0.75;
   }
 }
+.avatar {
+  margin: 7px;
+  background-color: #3f51b5;
+}
 .form {
   width: 100%;
   margin-top: 14px;
@@ -100,6 +104,15 @@
 
 .tableContainer {
   overflow-y: auto;
+
+  [class*='MuiTableSortLabel-root'] {
+    &[class*='MuiTableSortLabel-active'] {
+      color: rgb(56, 178, 56);
+    }
+    &:hover {
+      color: lighten(rgb(56, 178, 56), 10%);
+    }
+  }
 }
 .tablePagination {
   min-height: 55px;
@@ -136,55 +149,9 @@
   display: flex;
   flex-direction: column;
   width: 50%;
-  color: black;
 
   @media (max-width: 768px) {
     width: 90%;
-  }
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-
-  .title {
-    font-size: 2em;
-    text-align: center;
-  }
-
-  .body {
-    .avatars-container,
-    .scenes-container {
-      .header {
-        font-size: 1.5em;
-      }
-
-      .container {
-        display: flex;
-        flex-direction: row;
-
-        .avatar,
-        .scene {
-          display: flex;
-          flex-direction: column;
-          margin-right: 10px;
-
-          .name {
-            font-size: 1.25em;
-          }
-
-          & > :not(:first-child) {
-            margin-top: 5px;
-          }
-
-          img {
-            max-width: 100px;
-          }
-        }
-      }
-    }
   }
 }
 
@@ -201,21 +168,29 @@
   justify-content: space-between;
 }
 
-.closeButton {
-  &:hover {
-    cursor: pointer;
-    color: red;
-  }
+.pack-select {
+  margin-bottom: 10px;
 }
 
-.pack-list {
-  margin-top: 10px !important;
-  background-color: white;
-  color: black;
-}
-
-.success {
-  display: flex;
-  align-items: center;
+.error-message {
+  color: red;
+  font-size: 1.5em;
   margin-top: 10px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .title {
+    font-size: 1.5em;
+  }
+
+  .closeButton {
+    &:hover {
+      cursor: pointer;
+      color: red;
+    }
+  }
 }

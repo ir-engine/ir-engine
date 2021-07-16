@@ -6,8 +6,9 @@ import { selectAppState } from '../../../common/reducers/app/selector'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { selectContentPackState } from '../../reducers/contentPack/selector'
 // @ts-ignore
-import styles from './Scenes.module.scss'
+import styles from '../Scenes/Scenes.module.scss'
 import {
+  addAvatarToContentPack,
   addSceneToContentPack,
   createContentPack,
   fetchContentPacks,
@@ -30,11 +31,14 @@ import CloseIcon from '@material-ui/icons/Close'
 interface Props {
   open: boolean
   handleClose: any
-  scene: any
+  scene?: any
+  avatar?: any
+  thumbnail?: any
   adminState?: any
   contentPackState?: any
   uploadAvatars?: any
   addSceneToContentPack?: any
+  addAvatarToContentPack?: any
   createContentPack?: any
   fetchContentPacks?: any
 }
@@ -49,14 +53,25 @@ const mapStateToProps = (state: any): any => {
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   addSceneToContentPack: bindActionCreators(addSceneToContentPack, dispatch),
+  addAvatarToContentPack: bindActionCreators(addAvatarToContentPack, dispatch),
   createContentPack: bindActionCreators(createContentPack, dispatch),
   fetchContentPacks: bindActionCreators(fetchContentPacks, dispatch),
   uploadAvatars: bindActionCreators(uploadAvatars, dispatch)
 })
 
 const AddToContentPackModal = (props: Props): any => {
-  const { addSceneToContentPack, createContentPack, open, handleClose, scene, contentPackState, fetchContentPacks } =
-    props
+  const {
+    addAvatarToContentPack,
+    addSceneToContentPack,
+    createContentPack,
+    open,
+    handleClose,
+    avatar,
+    thumbnail,
+    scene,
+    contentPackState,
+    fetchContentPacks
+  } = props
 
   const [error, setError] = useState('')
   const [createOrPatch, setCreateOrPatch] = useState('patch')
@@ -88,12 +103,33 @@ const AddToContentPackModal = (props: Props): any => {
     }
   }
 
+  const addCurrentAvatarToContentPack = async () => {
+    try {
+      await addAvatarToContentPack({
+        avatar: avatar,
+        thumbnail: thumbnail,
+        contentPack: contentPackName
+      })
+      window.location.href = '/admin/content-packs'
+      closeModal()
+    } catch (err) {
+      showError(err.message)
+    }
+  }
+
   const createNewContentPack = async () => {
     try {
-      await createContentPack({
-        scene: scene,
-        contentPack: newContentPackName
-      })
+      if (scene != null)
+        await createContentPack({
+          scene: scene,
+          contentPack: newContentPackName
+        })
+      else if (avatar != null)
+        await createContentPack({
+          avatar: avatar,
+          thumbnail: thumbnail,
+          contentPack: newContentPackName
+        })
       window.location.href = '/admin/content-packs'
       closeModal()
     } catch (err) {
@@ -136,7 +172,8 @@ const AddToContentPackModal = (props: Props): any => {
           >
             <div className={styles['modal-header']}>
               <div />
-              <div className={styles['title']}>{scene.name}</div>
+              {scene && scene.name && <div className={styles['title']}>{scene.name}</div>}
+              {avatar && avatar.name && <div className={styles['title']}>{avatar.name}</div>}
               <IconButton aria-label="close" className={styles.closeButton} onClick={handleClose}>
                 <CloseIcon />
               </IconButton>
@@ -173,7 +210,12 @@ const AddToContentPackModal = (props: Props): any => {
                       </MenuItem>
                     ))}
                   </Select>
-                  <Button type="submit" variant="contained" color="primary" onClick={addCurrentSceneToContentPack}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    onClick={scene != null ? addCurrentSceneToContentPack : addCurrentAvatarToContentPack}
+                  >
                     Update Content Pack
                   </Button>
                 </FormControl>
