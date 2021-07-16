@@ -93,9 +93,9 @@ const EffectsOptions = {
     samples: {
       propertyType: PostProcessingPropertyTypes.Number,
       name: 'Samples',
-      min: -1,
-      max: 1,
-      step: 0.01
+      min: 1,
+      max: 32,
+      step: 1
     },
 
     rings: {
