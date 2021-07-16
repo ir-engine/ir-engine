@@ -262,11 +262,11 @@ export const changeRole = (entity: Entity, newGameRole: string): void => {
 
   game.gamePlayers[newGameRole].push(entity)
 
-  const gameSchema = GamesSchema[game.gameMode]
-  const schema = gameSchema.initGameState[newGameRole]
-  if (schema != undefined) {
-    schema.components?.forEach((component) => addStateComponent(entity, component))
-    //initStorage(entity, schema.storage);
-    schema.behaviors?.forEach((behavior) => behavior(entity))
-  }
+  // const gameSchema = GamesSchema[game.gameMode]
+  // const schema = gameSchema.initGameState[newGameRole]
+  // if (schema != undefined) {
+  //   schema.components?.forEach((component) => addStateComponent(entity, component))
+  //   //initStorage(entity, schema.storage);
+  //   schema.behaviors?.forEach((behavior) => behavior(entity))
+  // }
 }
