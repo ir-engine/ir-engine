@@ -3,7 +3,7 @@ import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
 import { Application } from '../../../declarations'
 import S3Provider from '../../media/storageprovider/s3.storage'
-import { assembleScene, populateScene, uploadAvatar } from './content-pack-helper'
+import {assembleScene, populateAvatar, populateScene, uploadAvatar} from './content-pack-helper'
 import config from '../../appconfig'
 import axios from 'axios'
 
@@ -102,7 +102,6 @@ export class ContentPack implements ServiceMethods<Data> {
 
     let uploadPromises = []
     const { scene, contentPack, avatar, thumbnail } = data as any
-    console.log('new content-pack data', data)
     await new Promise((resolve, reject) => {
       s3.provider.getObjectAcl(
         {
@@ -197,10 +196,9 @@ export class ContentPack implements ServiceMethods<Data> {
       const newAvatar = {
         name: avatar.name,
         avatar: getAvatarUrl(contentPack, avatar),
-        thumbnailLink: getAvatarThumbnailUrl(contentPack, thumbnail)
+        thumbnail: getAvatarThumbnailUrl(contentPack, thumbnail)
       }
       body.avatars.push(newAvatar)
-      console.log('body with avatar', body)
     }
 
     await new Promise((resolve, reject) => {
@@ -230,17 +228,20 @@ export class ContentPack implements ServiceMethods<Data> {
     const manifestUrl = (data as any).manifestUrl
     const manifestResult = await axios.get(manifestUrl)
     const { avatars, scenes } = manifestResult.data
+    const promises = []
     for (const index in scenes) {
       const scene = scenes[index]
       const sceneResult = await axios.get(scene.worldFile)
-      await populateScene(scene.sid, sceneResult.data, this.app, scene.thumbnail)
+      promises.push(populateScene(scene.sid, sceneResult.data, this.app, scene.thumbnail))
     }
+    for (const index in avatars) promises.push(populateAvatar(avatars[index], this.app))
+    await Promise.all(promises)
     return data
   }
 
   async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
     let uploadPromises = []
-    const { scene, contentPack } = data as any
+    const { scene, contentPack, avatar, thumbnail } = data as any
     const pack = await new Promise((resolve, reject) => {
       s3.provider.getObject(
         {
@@ -317,8 +318,7 @@ export class ContentPack implements ServiceMethods<Data> {
           }
         )
       })
-      const existingSceneIndex = body.scenes.findIndex((existingScene) => existingScene.sid === scene.sid)
-      if (existingSceneIndex > -1) body.scenes.splice(existingSceneIndex, 1)
+      body.scenes = body.scenes.filter(existingScene => existingScene.sid !== scene.sid)
       const newScene = {
         sid: scene.sid,
         name: scene.name,
@@ -326,6 +326,16 @@ export class ContentPack implements ServiceMethods<Data> {
       }
       if (thumbnailLink != null) (newScene as any).thumbnail = thumbnailLink
       body.scenes.push(newScene)
+    }
+    else if (avatar != null) {
+      await uploadAvatar(avatar, thumbnail, contentPack)
+      body.avatars = body.avatars.filter(existingAvatar => existingAvatar.name !== avatar.name)
+      const newAvatar = {
+        name: avatar.name,
+        avatar: getAvatarUrl(contentPack, avatar),
+        thumbnail: getAvatarThumbnailUrl(contentPack, thumbnail)
+      }
+      body.avatars.push(newAvatar)
     }
 
     if (body.version) body.version++

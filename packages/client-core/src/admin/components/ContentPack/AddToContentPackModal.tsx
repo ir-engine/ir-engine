@@ -63,7 +63,6 @@ const AddToContentPackModal = (props: Props): any => {
   const { addAvatarToContentPack, addSceneToContentPack, createContentPack, open, handleClose, avatar, thumbnail, scene, contentPackState, fetchContentPacks } =
     props
 
-  console.log('Modal props', props)
   const [error, setError] = useState('')
   const [createOrPatch, setCreateOrPatch] = useState('patch')
   const [contentPackName, setContentPackName] = useState('')
