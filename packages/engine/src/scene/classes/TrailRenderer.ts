@@ -442,7 +442,7 @@ class TrailRenderer extends Object3D {
 
     if (transformMatrix) {
       this.updateNodePositionsFromTransformMatrix(nextIndex, transformMatrix)
-    } else {
+    } else if (positionAndOrientation) {
       this.updateNodePositionsFromOrientationTangent(
         nextIndex,
         positionAndOrientation.position,
