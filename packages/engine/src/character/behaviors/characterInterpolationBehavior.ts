@@ -38,5 +38,5 @@ export const characterInterpolationBehavior: Behavior = (
   })
 
   transform.rotation.set(interpolation.qX, interpolation.qY, interpolation.qZ, interpolation.qW)
-  collider.controller.velocity.set(interpolation.vX, interpolation.vY, interpolation.vZ)
+  actor.velocity.set(interpolation.vX, interpolation.vY, interpolation.vZ)
 }

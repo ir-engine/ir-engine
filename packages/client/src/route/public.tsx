@@ -49,6 +49,7 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
 
           {/* Dev Routes */}
           <Route path="/offlineDev" component={React.lazy(() => import('../pages/offlineDev'))} />
+          <Route path="/test" component={React.lazy(() => import('../pages/examples/test_three'))} />
           <Route path="/examples/helloworld" component={React.lazy(() => import('../pages/examples/ecs_helloworld'))} />
           <Route path="/examples/ikrig" component={React.lazy(() => import('../pages/examples/ikrig'))} />
           <Route path="/examples/navmesh" component={React.lazy(() => import('../pages/examples/navmesh'))} />
@@ -69,6 +70,8 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
             path="/location/:locationName"
             component={React.lazy(() => import('../pages/location/[locationName]'))}
           />
+          <Route path="/mappa/:locationName" component={React.lazy(() => import('../pages/map/[locationName]'))} />
+          <Route path="/map/:locationName" component={React.lazy(() => import('../pages/map/[locationName]'))} />
           <Redirect path="/location" to={'/location/' + Config.publicRuntimeConfig.lobbyLocationName} />
           <Route path="/video360" component={React.lazy(() => import('../pages/video360'))} />
           <Route

@@ -109,8 +109,8 @@
     "pre-push": "0.1.1",
     "prettier": "2.3.2",
     "cli": "1.0.1",
-    "concurrently": "^6.2.0",
+    "concurrently": "6.2.0",
     "supertest": "6.1.3",
-    "yuka": "^0.7.6"
+    "yuka": "0.7.6"
   }
 }
