@@ -64,12 +64,12 @@
     "three-physx": "^0.0.33",
     "twitch-m3u8": "^1.1.4",
     "vite": "2.4.2",
-    "volumetric": "0.2.26"
+    "volumetric": "0.2.27"
   },
   "devDependencies": {
     "@rollup/plugin-json": "4.1.0",
-    "@rollup/plugin-node-resolve": "13.0.1",
-    "@rollup/plugin-replace": "2.4.2",
+    "@rollup/plugin-node-resolve": "13.0.2",
+    "@rollup/plugin-replace": "3.0.0",
     "@rollup/plugin-typescript": "8.2.3",
     "@types/expect-puppeteer": "4.4.6",
     "@types/jest": "26.0.24",

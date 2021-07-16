@@ -21,7 +21,6 @@ import { Component } from '@xrengine/engine/src/ecs/classes/Component'
 import { addComponent, createEntity, getComponent, getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
 import { registerComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions';
 
-
 class RenderSystem extends System {
   updateType = SystemUpdateType.Fixed
   /**
@@ -33,7 +32,6 @@ class RenderSystem extends System {
   execute(delta: number): void {
 
     Engine.renderer.render(Engine.scene, Engine.camera);
-
   }
 
 }
@@ -210,10 +208,10 @@ NavigationSystem.queries = {
     listen: {
       removed: true,
       added: true
+
     }
   }
 }
-
 
 // This is a functional React component
 const Page = () => {
@@ -277,7 +275,6 @@ const Page = () => {
   // Some JSX to keep the compiler from complaining
   return (
     <section id="loading-screen">
-
     </section>
   )
 }

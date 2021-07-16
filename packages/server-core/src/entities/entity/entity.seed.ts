@@ -1,8 +1,6 @@
 import config from '../../appconfig'
 import { collectionSeed } from '../collection/collection.seed'
 export const entitySeed = {
-  disabled: !config.db.forceRefresh,
-  delete: config.db.forceRefresh,
   path: 'entity',
   randomize: false,
   templates: [

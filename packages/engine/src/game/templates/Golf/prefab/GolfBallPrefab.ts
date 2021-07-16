@@ -21,6 +21,7 @@ import { TransformComponent } from '../../../../transform/components/TransformCo
 import { GameObject } from '../../../components/GameObject'
 import { getGame } from '../../../functions/functions'
 import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants'
+import TrailRenderer from '../../../../scene/classes/TrailRenderer'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -83,6 +84,33 @@ export const spawnBall: Behavior = (
  * @author Josh Field <github.com/HexaField>
  */
 
+export const updateBall: Behavior = (
+  entityBall: Entity,
+  args?: any,
+  delta?: number,
+  entityTarget?: Entity,
+  time?: number,
+  checks?: any
+): void => {
+  if (isClient) {
+    const obj = getComponent(entityBall, Object3DComponent)
+    if (!obj?.value) return
+    const trail = obj.value.userData.trailObject as TrailRenderer
+
+    const time = Date.now()
+    if (time - obj.value.userData.lastTrailUpdateTime > 10) {
+      trail.advance()
+      obj.value.userData.lastTrailUpdateTime = time
+    } else {
+      trail.updateHead()
+    }
+  }
+}
+
+/**
+ * @author Josh Field <github.com/HexaField>
+ */
+
 const golfBallRadius = 0.03 // this is the graphical size of the golf ball
 const golfBallColliderExpansion = 0.03 // this is the size of the ball collider
 
@@ -97,15 +125,24 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   ballMesh.castShadow = true
   ballMesh.receiveShadow = true
   addComponent(ballEntity, Object3DComponent, { value: ballMesh })
+
+  // Add trail effect
+
+  const trailHeadGeometry = []
+  trailHeadGeometry.push(new Vector3(-1.0, 0.0, 0.0), new Vector3(0.0, 0.0, 0.0), new Vector3(1.0, 0.0, 0.0))
+  const trailObject = new TrailRenderer(false)
+  const trailMaterial = TrailRenderer.createBaseMaterial()
+  const trailLength = 150
+  trailObject.initialize(trailMaterial, trailLength, false, 0, trailHeadGeometry, ballMesh)
+  Engine.scene.add(trailObject)
+  ballMesh.userData.trailObject = trailObject
+  ballMesh.userData.lastTrailUpdateTime = Date.now()
+  console.log(trailObject)
 }
 
 export const initializeGolfBall = (ballEntity: Entity) => {
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
   const transform = getComponent(ballEntity, TransformComponent)
-  const networkObject = getComponent(ballEntity, NetworkObject)
-  const ownerNetworkObject = Object.values(Network.instance.networkObjects).find((obj) => {
-    return obj.ownerId === networkObject.ownerId
-  }).component
 
   if (isClient) {
     AssetLoader.load(
