@@ -1,20 +1,16 @@
-import { Entity } from '../../../ecs/classes/Entity'
 import { System, SystemAttributes } from '../../../ecs/classes/System'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/EntityFunctions'
 import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
 import { Network } from '../../../networking/classes/Network'
 import { NetworkObjectOwner } from '../../../networking/components/NetworkObjectOwner'
-import { Game } from '../../components/Game'
 import { GameObject } from '../../components/GameObject'
 import { GamePlayer } from '../../components/GamePlayer'
 import { getGame } from '../../functions/functions'
 import { addStateComponent, removeStateComponent } from '../../functions/functionsState'
 import { getStorage } from '../../functions/functionsStorage'
 import { Action, State } from '../../types/GameComponents'
-import { addState, removeState, switchState } from '../gameDefault/behaviors/switchState'
 import { doesPlayerHaveGameObject } from '../gameDefault/checkers/doesPlayerHaveGameObject'
 import { dontHasState } from '../gameDefault/checkers/dontHasState'
-import { hasState } from '../gameDefault/checkers/hasState'
 import { ifGetOut } from '../gameDefault/checkers/ifGetOut'
 import { ifOwned } from '../gameDefault/checkers/ifOwned'
 import { ifVelocity } from '../gameDefault/checkers/ifVelocity'
@@ -35,7 +31,6 @@ import { teleportPlayerBehavior } from './behaviors/teleportPlayer'
 import { GolfBallComponent } from './components/GolfBallComponent'
 import { GolfClubComponent } from './components/GolfClubComponent'
 import { GolfHoleComponent } from './components/GolfHoleComponent'
-import { NewPlayerTagComponent } from './components/GolfTagComponents'
 import { GolfTeeComponent } from './components/GolfTeeComponent'
 import { spawnBall } from './prefab/GolfBallPrefab'
 import { spawnClub, updateClub } from './prefab/GolfClubPrefab'
@@ -51,13 +46,7 @@ export class GolfSystem extends System {
 
   constructor(attributes: SystemAttributes = {}) {
     super(attributes)
-
     GolfSystem.instance = this
-  }
-
-  /** Removes resize listener. */
-  dispose(): void {
-    super.dispose()
   }
 
   /**
@@ -70,7 +59,7 @@ export class GolfSystem extends System {
     this.queryResults.player.added.forEach((entity) => {
       behaviorsToExecute.push(() => {
         addRole(entity)
-        setupPlayerAvatar(entity)
+        // setupPlayerAvatar(entity)
         setupPlayerInput(entity)
         createYourTurnPanel(entity)
         setupOfflineDebug(entity)
@@ -113,7 +102,7 @@ export class GolfSystem extends System {
         console.log('GOLF CLUB')
       })
     })
-
+    if (this.queryResults.golfBall.added.length) console.log('GOLF BALL', this.queryResults.golfBall.added)
     this.queryResults.golfBall.added.forEach((entity) => {
       behaviorsToExecute.push(() => {
         addStateComponent(entity, State.SpawnedObject)
@@ -135,6 +124,16 @@ export class GolfSystem extends System {
         console.log('golf hole added')
         addHole(entity)
       })
+    })
+
+    this.queryResults.golfTee.added.forEach((entity) => {
+      behaviorsToExecute.push(() => {
+        console.log('golf tee added')
+      })
+    })
+
+    this.queryResults.golfBall.removed.forEach((entity) => {
+      console.log('golf ball remove added')
     })
 
     // gamePlayerRoles
@@ -172,6 +171,8 @@ export class GolfSystem extends System {
                   hasComponent(ballEntity, State.Active)
                 ) {
                   behaviorsToExecute.push(() => {
+                    removeStateComponent(ballEntity, Action.GameObjectCollisionTag)
+                    removeStateComponent(clubEntity, Action.GameObjectCollisionTag)
                     addStateComponent(clubEntity, State.addedHit)
                   })
                 }
@@ -192,6 +193,8 @@ export class GolfSystem extends System {
                 : undefined
               if (hasComponent(currentHoleEntity, Action.GameObjectCollisionTag)) {
                 behaviorsToExecute.push(() => {
+                  removeStateComponent(ballEntity, Action.GameObjectCollisionTag)
+                  removeStateComponent(entity, Action.GameObjectCollisionTag)
                   addStateComponent(entity, State.addedGoal)
                 })
               }
@@ -366,28 +369,28 @@ export class GolfSystem extends System {
       }
     },
     golfClub: {
-      components: [GameObject, GolfClubComponent],
+      components: [GolfClubComponent],
       listen: {
         added: true,
         removed: true
       }
     },
     golfBall: {
-      components: [GameObject, GolfBallComponent],
+      components: [GolfBallComponent],
       listen: {
         added: true,
         removed: true
       }
     },
     golfHole: {
-      components: [GameObject, GolfHoleComponent],
+      components: [GolfHoleComponent],
       listen: {
         added: true,
         removed: true
       }
     },
     golfTee: {
-      components: [GameObject, GolfTeeComponent],
+      components: [GolfTeeComponent],
       listen: {
         added: true,
         removed: true

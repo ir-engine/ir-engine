@@ -98,7 +98,7 @@ export class GameManagerSystem extends System {
     this.queryResults.game.added?.forEach((entity) => {
       const game = getMutableComponent(entity, Game)
       const gameSchema = GamesSchema[game.gameMode] as GameMode
-      game.maxPlayers ? gameSchema.preparePlayersRole(gameSchema, game.maxPlayers) : ''
+      gameSchema.preparePlayersRole(gameSchema, game.maxPlayers)
       game.priority = gameSchema.priority // DOTO: set its from editor
       initState(game, gameSchema)
       this.gameEntities.push(entity)
@@ -143,15 +143,15 @@ export class GameManagerSystem extends System {
         )
       }
       // Clean onetime Tag components for every gameobject
-      Object.keys(gamePlayers)
-        .concat(Object.keys(gameObjects))
-        .forEach((role: string) => {
-          ;(gameObjects[role] || gamePlayers[role]).forEach((entity) => {
-            gameSchema.registerActionTagComponents.forEach((component) =>
-              hasComponent(entity, component) ? removeComponent(entity, component) : ''
-            )
-          })
-        })
+      // Object.keys(gamePlayers)
+      //   .concat(Object.keys(gameObjects))
+      //   .forEach((role: string) => {
+      //     ;(gameObjects[role] || gamePlayers[role]).forEach((entity) => {
+      //       gameSchema.registerActionTagComponents.forEach((component) =>
+      //         hasComponent(entity, component) ? removeComponent(entity, component) : ''
+      //       )
+      //     })
+      //   })
 
       // GAME AREA ADDIND PLAYERS or REMOVE
       // adding or remove players from this Game, always give the first Role from GameSchema
@@ -170,12 +170,14 @@ export class GameManagerSystem extends System {
             }
             */
           } else if (v.inGameArea && !hasComponent(v.entity, GamePlayer)) {
+            console.log('add game player')
             addComponent(v.entity, GamePlayer, {
               gameName: game.name,
               role: 'newPlayer',
               uuid: getComponent(v.entity, NetworkObject).ownerId
             })
           } else if (!v.inGameArea && hasComponent(v.entity, GamePlayer)) {
+            console.log('remove gameplayer')
             if (getComponent(v.entity, GamePlayer).gameName === game.name) {
               removeComponent(v.entity, GamePlayer)
             }
@@ -192,6 +194,7 @@ export class GameManagerSystem extends System {
         if (gamePlayer === undefined || gamePlayer.gameName != game.name) return
         const gameSchema = GamesSchema[game.gameMode]
         gameSchema.beforePlayerLeave(entity)
+        console.log('removeEntityFromState', gamePlayer.role)
         removeEntityFromState(gamePlayer, game)
         clearRemovedEntitysFromGame(game)
         game.gamePlayers[gamePlayer.role] = game.gamePlayers[gamePlayer.role].filter((entityFind) =>
@@ -207,6 +210,7 @@ export class GameManagerSystem extends System {
         const game = getComponent(entityGame, Game)
         const gameObject = getComponent(entity, GameObject, true)
         if (gameObject === undefined || gameObject.gameName != game.name) return
+        console.log('removeEntityFromState', gameObject.role)
         removeEntityFromState(gameObject, game)
         clearRemovedEntitysFromGame(game)
       })

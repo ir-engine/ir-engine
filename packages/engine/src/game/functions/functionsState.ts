@@ -113,6 +113,7 @@ export const applyState = (game: Game): void => {
       });
 */
         gameSchema.registerStateTagComponents.forEach((component) => {
+          console.log('remove component', component)
           hasComponent(entity, component) ? removeComponent(entity, component) : ''
         })
         // add all states
@@ -247,6 +248,7 @@ export const changeRole = (entity: Entity, newGameRole: string): void => {
     console.log('dont have this entity in State')
   }
 
+  console.log('changeRole', objectState.role, newGameRole)
   objectState.role = newGameRole
   objectState.components = []
   objectState.storage = []

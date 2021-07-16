@@ -130,7 +130,7 @@ function somePrepareFunction(gameRules: GameMode) {
   return gameRules
 }
 
-function preparePlayerRoles(gameRules: GameMode, maxPlayerCount) {
+function preparePlayerRoles(gameRules: GameMode, maxPlayerCount = 1) {
   for (let playerNumber = 2; playerNumber <= maxPlayerCount; playerNumber++) {
     cloneSameRoleRules(gameRules.gamePlayerRoles, { from: '1-Player', to: playerNumber + '-Player' })
     searchPlaceAndAddRole(gameRules.gameObjectRoles, playerNumber + '-Player')
