@@ -47,7 +47,6 @@
     "cross-fetch": "^3.0.6",
     "ctix": "^0.3.1",
     "dashjs": "^4.0.0-npm",
-    "dat": "^13.13.1",
     "detect-browser": "^5.2.0",
     "draco3dgltf": "^1.4.1",
     "ethereal": "^2.0.4",
