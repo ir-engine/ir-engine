@@ -8,12 +8,7 @@ import seederConfig from './seeder-config'
 export default (app: Application): void => {
   try {
     const { performDryRun } = config.server
-
-    let forceRefresh = config.db.forceRefresh
-    const setForceRefresh = () => {
-      console.log('Detected unseeded database. Forcing Refresh.')
-      forceRefresh = true
-    }
+    let { forceRefresh } = config.db
 
     console.log('Starting app')
 
@@ -39,14 +34,15 @@ export default (app: Application): void => {
       sequelize
         .query('SET FOREIGN_KEY_CHECKS = 0')
         .then(() => {
-          return sequelize.query('SELECT COUNT(*) FROM user;')
+          return sequelize.query("SHOW TABLES LIKE 'user';")
         })
         .then(([results]) => {
-          if (results[0]['COUNT(*)'] === 0) {
-            setForceRefresh()
+          if (results.length === 0) {
+            console.log('User table does not exist.')
+            console.log('Detected unseeded database. Forcing Refresh.')
+            forceRefresh = true
           }
         })
-        .catch(setForceRefresh)
         .then(() => {
           // Sync to the database
           for (const model of Object.keys(sequelize.models)) {
