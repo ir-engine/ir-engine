@@ -110,10 +110,15 @@ const initializeCharacter: Behavior = (entity): void => {
   actor.modelContainer.name = 'Actor (modelContainer)' + entity.id
   obj3d.add(actor.modelContainer)
 
-  const animationComponent = addComponent(entity, AnimationComponent, {
+  addComponent(entity, AnimationComponent, {
     animationsSchema: movingAnimationSchema,
     updateAnimationsValues: getMovementValues,
-    mixer: new AnimationMixer(actor.modelContainer)
+    mixer: new AnimationMixer(actor.modelContainer),
+    animationVectorSimulator: new VectorSpringSimulator(
+      60,
+      actor.defaultVelocitySimulatorMass,
+      actor.defaultVelocitySimulatorDamping
+    )
   })
 
   addObject3DComponent(entity, { obj3d })
@@ -132,11 +137,6 @@ const initializeCharacter: Behavior = (entity): void => {
     60,
     actor.defaultRotationSimulatorMass,
     actor.defaultRotationSimulatorDamping
-  )
-  animationComponent.animationVectorSimulator = new VectorSpringSimulator(
-    60,
-    actor.defaultVelocitySimulatorMass,
-    actor.defaultVelocitySimulatorDamping
   )
 
   actor.viewVector = new Vector3(0, 0, 1)

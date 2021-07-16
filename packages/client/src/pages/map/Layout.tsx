@@ -159,14 +159,11 @@ const Layout = (props: Props): any => {
                 {siteTitle} | {pageTitle}
               </title>
             </Helmet>
-            <Fragment>
-              {childrenWithProps}
-            </Fragment>
+            <Fragment>{childrenWithProps}</Fragment>
             <footer>
               {locationState.get('currentLocation')?.get('location')?.id &&
                 authState.get('authUser') != null &&
-                authState.get('isLoggedIn') === true &&
-                 <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen} />}
+                authState.get('isLoggedIn') === true && <InstanceChat setBottomDrawerOpen={setBottomDrawerOpen} />}
             </footer>
           </section>
         </ThemeProvider>

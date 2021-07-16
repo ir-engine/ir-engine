@@ -11,15 +11,31 @@ import { createConvexRegionHelper } from '@xrengine/engine/src/navigation/NavMes
 import { PathPlanner } from '@xrengine/engine/src/navigation/PathPlanner'
 import React, { useEffect } from 'react'
 import {
-  AmbientLight, BufferGeometry, ConeBufferGeometry, DirectionalLight,
-  GridHelper, HemisphereLight, InstancedMesh, Line, LineBasicMaterial, LoadingManager, MeshBasicMaterial, PerspectiveCamera,
-  Scene, WebGLRenderer
+  AmbientLight,
+  BufferGeometry,
+  ConeBufferGeometry,
+  DirectionalLight,
+  GridHelper,
+  HemisphereLight,
+  InstancedMesh,
+  Line,
+  LineBasicMaterial,
+  LoadingManager,
+  MeshBasicMaterial,
+  PerspectiveCamera,
+  Scene,
+  WebGLRenderer
 } from 'three'
 import { CellSpacePartitioning, EntityManager, FollowPathBehavior, NavMeshLoader, Time } from 'yuka'
-import { GLTFLoader } from '@xrengine/engine/src/assets/loaders/gltf/GLTFLoader';
+import { GLTFLoader } from '@xrengine/engine/src/assets/loaders/gltf/GLTFLoader'
 import { Component } from '@xrengine/engine/src/ecs/classes/Component'
-import { addComponent, createEntity, getComponent, getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions';
-import { registerComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions';
+import {
+  addComponent,
+  createEntity,
+  getComponent,
+  getMutableComponent
+} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { registerComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 class RenderSystem extends System {
   updateType = SystemUpdateType.Fixed
@@ -30,176 +46,167 @@ class RenderSystem extends System {
    * @param delta time since last frame.
    */
   execute(delta: number): void {
-
-    Engine.renderer.render(Engine.scene, Engine.camera);
+    Engine.renderer.render(Engine.scene, Engine.camera)
   }
-
 }
 
-const pathMaterial = new LineBasicMaterial({ color: 0xff0000 });
-const vehicleMaterial = new MeshBasicMaterial({ color: 0xff0000 });
-const vehicleGeometry = new ConeBufferGeometry(0.1, 0.5, 16);
-vehicleGeometry.rotateX(Math.PI * 0.5);
-vehicleGeometry.translate(0, 0.1, 0);
-const vehicleCount = 100;
-    
-const vehicleMesh = new InstancedMesh(vehicleGeometry, vehicleMaterial, vehicleCount);
-    // setup spatial index
+const pathMaterial = new LineBasicMaterial({ color: 0xff0000 })
+const vehicleMaterial = new MeshBasicMaterial({ color: 0xff0000 })
+const vehicleGeometry = new ConeBufferGeometry(0.1, 0.5, 16)
+vehicleGeometry.rotateX(Math.PI * 0.5)
+vehicleGeometry.translate(0, 0.1, 0)
+const vehicleCount = 100
 
-    const width = 100, height = 40, depth = 75;
-    const cellsX = 20, cellsY = 5, cellsZ = 20;
+const vehicleMesh = new InstancedMesh(vehicleGeometry, vehicleMaterial, vehicleCount)
+// setup spatial index
 
-class NavigationComponent extends Component<NavigationComponent>{
-  pathPlanner: PathPlanner = new PathPlanner();
-  entityManager: EntityManager  = new EntityManager();
-  time: Time = new Time();
-  vehicles = [];
-  pathHelpers = [];
-  spatialIndexHelper;
-  regionHelper;
-  navigationMesh;
+const width = 100,
+  height = 40,
+  depth = 75
+const cellsX = 20,
+  cellsY = 5,
+  cellsZ = 20
+
+class NavigationComponent extends Component<NavigationComponent> {
+  pathPlanner: PathPlanner = new PathPlanner()
+  entityManager: EntityManager = new EntityManager()
+  time: Time = new Time()
+  vehicles = []
+  pathHelpers = []
+  spatialIndexHelper
+  regionHelper
+  navigationMesh
 }
 
-const meshUrl = '/models/navmesh/navmesh.glb';
+const meshUrl = '/models/navmesh/navmesh.glb'
 
 const loadNavMeshFromUrl = async (meshurl, navigationComponent) => {
-  const navigationMesh = await (new NavMeshLoader()).load(meshurl);
-  loadNavMesh(navigationMesh, navigationComponent);
+  const navigationMesh = await new NavMeshLoader().load(meshurl)
+  loadNavMesh(navigationMesh, navigationComponent)
 }
 
 const loadNavMesh = async (navigationMesh, navigationComponent) => {
-    //       // visualize convex regions
+  //       // visualize convex regions
 
-    navigationComponent.regionHelper = createConvexRegionHelper(navigationMesh);
-    navigationComponent.regionHelper.visible = true;
-    Engine.scene.add(navigationComponent.regionHelper);
+  navigationComponent.regionHelper = createConvexRegionHelper(navigationMesh)
+  navigationComponent.regionHelper.visible = true
+  Engine.scene.add(navigationComponent.regionHelper)
 
-    navigationComponent.pathPlanner = new PathPlanner(navigationMesh);
+  navigationComponent.pathPlanner = new PathPlanner(navigationMesh)
 
-    navigationMesh.spatialIndex = new CellSpacePartitioning(width, height, depth, cellsX, cellsY, cellsZ);
-    navigationMesh.updateSpatialIndex();
-    navigationComponent.navigationMesh = navigationMesh;
+  navigationMesh.spatialIndex = new CellSpacePartitioning(width, height, depth, cellsX, cellsY, cellsZ)
+  navigationMesh.updateSpatialIndex()
+  navigationComponent.navigationMesh = navigationMesh
 
-    navigationComponent.spatialIndexHelper = createCellSpaceHelper(navigationMesh.spatialIndex);
-    Engine.scene.add(navigationComponent.spatialIndexHelper);
-    navigationComponent.spatialIndexHelper.visible = false;
+  navigationComponent.spatialIndexHelper = createCellSpaceHelper(navigationMesh.spatialIndex)
+  Engine.scene.add(navigationComponent.spatialIndexHelper)
+  navigationComponent.spatialIndexHelper.visible = false
 }
 
-async function startDemo(entity){
-  const navigationComponent = getMutableComponent(entity, NavigationComponent);
-   await loadNavMeshFromUrl(meshUrl, navigationComponent)
+async function startDemo(entity) {
+  const navigationComponent = getMutableComponent(entity, NavigationComponent)
+  await loadNavMeshFromUrl(meshUrl, navigationComponent)
 
-    vehicleMesh.frustumCulled = false;
-    Engine.scene.add(vehicleMesh);
+  vehicleMesh.frustumCulled = false
+  Engine.scene.add(vehicleMesh)
 
-    for (let i = 0; i < vehicleCount; i++) {
+  for (let i = 0; i < vehicleCount; i++) {
+    // path helper
 
-      // path helper
+    const pathHelper = new Line(new BufferGeometry(), pathMaterial)
+    pathHelper.visible = false
+    Engine.scene.add(pathHelper)
+    navigationComponent.pathHelpers.push(pathHelper)
 
-      const pathHelper = new Line(new BufferGeometry(), pathMaterial);
-      pathHelper.visible = false;
-      Engine.scene.add(pathHelper);
-      navigationComponent.pathHelpers.push(pathHelper);
+    // vehicle
 
-      // vehicle
+    const vehicle = new CustomVehicle()
+    vehicle.navMesh = navigationComponent.navigationMesh
+    vehicle.maxSpeed = 1.5
+    vehicle.maxForce = 10
 
-      const vehicle = new CustomVehicle();
-      vehicle.navMesh = navigationComponent.navigationMesh;
-      vehicle.maxSpeed = 1.5;
-      vehicle.maxForce = 10;
+    const toRegion = vehicle.navMesh.getRandomRegion()
+    vehicle.position.copy(toRegion.centroid)
+    vehicle.toRegion = toRegion
 
-      const toRegion = vehicle.navMesh.getRandomRegion();
-      vehicle.position.copy(toRegion.centroid);
-      vehicle.toRegion = toRegion;
+    const followPathBehavior = new FollowPathBehavior()
+    followPathBehavior.nextWaypointDistance = 0.5
+    followPathBehavior.active = false
+    vehicle.steering.add(followPathBehavior)
 
-      const followPathBehavior = new FollowPathBehavior();
-      followPathBehavior.nextWaypointDistance = 0.5;
-      followPathBehavior.active = false;
-      vehicle.steering.add(followPathBehavior);
-
-      navigationComponent.entityManager.add(vehicle);
-      navigationComponent.vehicles.push(vehicle);
-
-    }
+    navigationComponent.entityManager.add(vehicle)
+    navigationComponent.vehicles.push(vehicle)
+  }
 }
 
-  class NavigationSystem extends System {
-    updateType = SystemUpdateType.Fixed
+class NavigationSystem extends System {
+  updateType = SystemUpdateType.Fixed
 
-    constructor(){
-      super();
-      registerComponent(NavigationComponent);
-      const entity = createEntity();
-      addComponent(entity, NavigationComponent);
-      startDemo(entity);
-    }
-  
-    /**
-     * Execute the camera system for different events of queries.\
-     * Called each frame by default.
-     *
-     * @param delta time since last frame.
-     */
-    execute(delta: number): void {
-     this.queryResults.navigation.all?.forEach(entity => {
-       const navComponent = getComponent(entity, NavigationComponent);
-    
-        navComponent.entityManager.update(delta);
-    
-          navComponent.pathPlanner.update();
+  constructor() {
+    super()
+    registerComponent(NavigationComponent)
+    const entity = createEntity()
+    addComponent(entity, NavigationComponent)
+    startDemo(entity)
+  }
 
-          // Update pathfinding
+  /**
+   * Execute the camera system for different events of queries.\
+   * Called each frame by default.
+   *
+   * @param delta time since last frame.
+   */
+  execute(delta: number): void {
+    this.queryResults.navigation.all?.forEach((entity) => {
+      const navComponent = getComponent(entity, NavigationComponent)
 
-    for (let i = 0, l = navComponent.vehicles.length; i < l; i++) {
+      navComponent.entityManager.update(delta)
 
-      const vehicle = navComponent.vehicles[i];
+      navComponent.pathPlanner.update()
 
-      if (vehicle.currentRegion === vehicle.toRegion) {
+      // Update pathfinding
 
-        vehicle.fromRegion = vehicle.toRegion;
-        vehicle.toRegion = vehicle.navMesh.getRandomRegion();
+      for (let i = 0, l = navComponent.vehicles.length; i < l; i++) {
+        const vehicle = navComponent.vehicles[i]
 
-        const from = vehicle.position;
-        const to = vehicle.toRegion.centroid;
+        if (vehicle.currentRegion === vehicle.toRegion) {
+          vehicle.fromRegion = vehicle.toRegion
+          vehicle.toRegion = vehicle.navMesh.getRandomRegion()
 
-        navComponent.pathPlanner.findPath(vehicle, from, to, (vehicle, path) => {
+          const from = vehicle.position
+          const to = vehicle.toRegion.centroid
 
-          // update path helper
-      
-          const index = navComponent.vehicles.indexOf(vehicle);
-          const pathHelper = navComponent.pathHelpers[index];
-      
-          pathHelper.geometry.dispose();
-          pathHelper.geometry = new BufferGeometry().setFromPoints(path);
-      
-          // update path and steering
-      
-          const followPathBehavior = vehicle.steering.behaviors[0];
-          followPathBehavior.active = true;
-          followPathBehavior.path.clear();
-      
-          for (const point of path) {
-      
-            followPathBehavior.path.add(point);
-      
-          }
-      
-        });
+          navComponent.pathPlanner.findPath(vehicle, from, to, (vehicle, path) => {
+            // update path helper
 
+            const index = navComponent.vehicles.indexOf(vehicle)
+            const pathHelper = navComponent.pathHelpers[index]
+
+            pathHelper.geometry.dispose()
+            pathHelper.geometry = new BufferGeometry().setFromPoints(path)
+
+            // update path and steering
+
+            const followPathBehavior = vehicle.steering.behaviors[0]
+            followPathBehavior.active = true
+            followPathBehavior.path.clear()
+
+            for (const point of path) {
+              followPathBehavior.path.add(point)
+            }
+          })
+        }
       }
 
-    }
+      // Update instancing
+      for (let i = 0, l = navComponent.vehicles.length; i < l; i++) {
+        const vehicle = navComponent.vehicles[i]
+        vehicleMesh.setMatrixAt(i, vehicle.worldMatrix)
+      }
 
-          // Update instancing
-          for (let i = 0, l = navComponent.vehicles.length; i < l; i++) {
-            const vehicle = navComponent.vehicles[i];
-            vehicleMesh.setMatrixAt(i, vehicle.worldMatrix);
-          }
-      
-          vehicleMesh.instanceMatrix.needsUpdate = true;
-        });
-    }
-
+      vehicleMesh.instanceMatrix.needsUpdate = true
+    })
+  }
 }
 
 NavigationSystem.queries = {
@@ -208,7 +215,6 @@ NavigationSystem.queries = {
     listen: {
       removed: true,
       added: true
-
     }
   }
 }
@@ -216,7 +222,7 @@ NavigationSystem.queries = {
 // This is a functional React component
 const Page = () => {
   useEffect(() => {
-    (async function () {
+    ;(async function () {
       // Register our systems to do stuff
 
       Engine.engineTimer = Timer(
@@ -263,20 +269,15 @@ const Page = () => {
 
       Engine.scene.add(new AmbientLight(0x404040))
 
-      registerSystem(NavigationSystem);
+      registerSystem(NavigationSystem)
       registerSystem(RenderSystem)
       await Promise.all(Engine.systems.map((system) => system.initialize()))
 
-      Engine.engineTimer.start();
-
-
+      Engine.engineTimer.start()
     })()
   }, [])
   // Some JSX to keep the compiler from complaining
-  return (
-    <section id="loading-screen">
-    </section>
-  )
+  return <section id="loading-screen"></section>
 }
 
 export default Page

@@ -24,10 +24,10 @@ export function registerSystem(SystemClass: SystemConstructor<any>, attributes?:
   const system = new SystemClass(attributes)
   Engine.systems.push(system)
   if (system.execute) {
-    if(!Engine.activeSystems){
-      Engine.activeSystems = new ActiveSystems();
+    if (!Engine.activeSystems) {
+      Engine.activeSystems = new ActiveSystems()
     }
-    
+
     Engine.activeSystems.add(system)
     Engine.activeSystems.sort(system.updateType)
   }
