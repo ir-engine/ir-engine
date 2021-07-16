@@ -107,16 +107,6 @@ if (globalThis.process?.env.NODE_ENV === 'development') {
     consoleerror(...args)
     consoleLog.push('Error: ' + args.join(' '))
   }
-
-  globalThis.dump = () => {
-    document.body.innerHTML = consoleLog
-      .map((log) => {
-        return `<p>${log}</p>`
-      })
-      .join('')
-    consolelog(consoleLog)
-    resetEngine()
-  }
 }
 
 interface Props {
