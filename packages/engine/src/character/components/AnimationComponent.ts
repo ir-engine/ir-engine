@@ -42,5 +42,6 @@ AnimationComponent._schema = {
   animationsSchema: { type: Types.Ref, default: null },
   updateAnimationsValues: { type: Types.Ref, default: null },
   onlyUpdateMixerTime: { type: Types.Ref, default: false },
-  mixer: { type: Types.Ref, default: null }
+  mixer: { type: Types.Ref, default: null },
+  animationVectorSimulator: { type: Types.Ref, default: null }
 }
