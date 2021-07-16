@@ -211,43 +211,36 @@ export class CharacterControllerSystem extends System {
       characterMoveBehavior(entity, delta)
     })
 
-    // temporarily disable animations on Oculus until we have buffer animation system / GPU animations
-    this.queryResults.animationCharacter.added?.forEach((entity) => {
-      if (!isClient) return
+    if (isClient) {
+      this.queryResults.animationCharacter.added?.forEach((entity) => {
+        const animationComponent = getMutableComponent(entity, AnimationComponent)
+        animationComponent.animationGraph = new CharacterAnimationGraph()
+        animationComponent.currentState = animationComponent.animationGraph.states[CharacterStates.IDLE]
+        animationComponent.prevVelocity = new Vector3()
+        animationComponent.prevDistanceFromGround = 0
+        if (animationComponent.currentState) {
+          AnimationRenderer.mountCurrentState(animationComponent)
+        }
+      })
 
-      const animationComponent = getMutableComponent(entity, AnimationComponent)
-      animationComponent.animationGraph = new CharacterAnimationGraph()
-      animationComponent.currentState = animationComponent.animationGraph.states[CharacterStates.IDLE]
-      animationComponent.prevVelocity = new Vector3()
-      animationComponent.prevDistanceFromGround = 0
-      if (animationComponent.currentState) {
-        AnimationRenderer.mountCurrentState(animationComponent)
-      }
-    })
+      this.queryResults.animation.all?.forEach((entity) => {
+        const animationComponent = getMutableComponent(entity, AnimationComponent)
+        const modifiedDelta = delta * animationComponent.animationSpeed
+        animationComponent.mixer.update(modifiedDelta)
+      })
 
-    this.queryResults.animation.all?.forEach((entity) => {
-      if (!isClient) return
-      const animationComponent = getMutableComponent(entity, AnimationComponent)
-      const modifiedDelta = delta * animationComponent.animationSpeed
-      animationComponent.mixer.update(modifiedDelta)
-    })
+      this.queryResults.animationCharacter.all?.forEach((entity) => {
+        const actor = getMutableComponent(entity, CharacterComponent)
+        const animationComponent = getMutableComponent(entity, AnimationComponent)
+        animationComponent.animationVelocity.copy(actor.velocity)
 
-    this.queryResults.animationCharacter.all?.forEach((entity) => {
-      if (!isClient) return
-
-      const actor = getMutableComponent(entity, CharacterComponent)
-      const animationComponent = getMutableComponent(entity, AnimationComponent)
-
-      const controller = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
-      animationComponent.animationVelocity.copy(controller.controller.velocity)
-
-      const deltaTime = delta * animationComponent.animationSpeed
-
-      if (!animationComponent.onlyUpdateMixerTime) {
-        animationComponent.animationGraph.render(actor, animationComponent, deltaTime)
-        AnimationRenderer.render(animationComponent, delta)
-      }
-    })
+        if (!animationComponent.onlyUpdateMixerTime) {
+          const deltaTime = delta * animationComponent.animationSpeed
+          animationComponent.animationGraph.render(actor, animationComponent, deltaTime)
+          AnimationRenderer.render(animationComponent, delta)
+        }
+      })
+    }
 
     this.queryResults.ikAvatar.added?.forEach((entity) => {
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent)

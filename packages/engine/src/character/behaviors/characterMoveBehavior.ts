@@ -23,24 +23,21 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
   if (!collider.controller || !actor.movementEnabled) return
 
-  newVelocity.setScalar(0)
-  onGroundVelocity.setScalar(0)
-
   if (actor.isGrounded) {
     vec3.copy(actor.localMovementDirection).multiplyScalar(deltaTime)
     actor.velocitySimulator.target.copy(vec3)
     actor.velocitySimulator.simulate(deltaTime)
 
     newVelocity.copy(actor.velocitySimulator.position).multiplyScalar(actor.moveSpeed)
+    actor.velocity.copy(newVelocity)
 
     const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
     if (xrInputSourceComponent) {
-      // Apply direction from head look
+      // if in VR follow look direction
       xrInputSourceComponent.head.getWorldQuaternion(quat)
-      // console.log(xrInputSourceComponent.head.getWorldPosition(new Vector3()), quat);
       newVelocity.applyQuaternion(quat)
     } else {
-      // Apply direction from character orientation
+      // otherwise ppply direction from character orientation
       newVelocity.applyQuaternion(transform.rotation)
     }
 
