@@ -152,12 +152,13 @@ export class Editor extends EventEmitter {
   thumbnailRenderer: ThumbnailRenderer
   playing: boolean
   Engine: Engine
+  animationCallback = null
 
   // initializing component properties with default value.
   constructor(api, settings = {}, Engine) {
     super()
     this.Engine = Engine
-    globalThis.Editor = this;
+    globalThis.Editor = this
     this.camera = Engine.camera
     this.api = api
     this.settings = settings
@@ -345,7 +346,7 @@ export class Editor extends EventEmitter {
     this.inputManager = new InputManager(this.renderer.canvas)
 
     // TOOD: Consolidate me
-    globalThis.renderer = this.renderer as any;
+    globalThis.renderer = this.renderer as any
 
     // initializing controls
     this.flyControls = new FlyControls(this.camera as any, this.inputManager)
@@ -771,6 +772,10 @@ export class Editor extends EventEmitter {
       })
       this.flyControls.update(delta)
       this.editorControls.update()
+
+      if (this.animationCallback) {
+        this.animationCallback()
+      }
 
       this.renderer.update(delta, time)
       this.inputManager.reset()

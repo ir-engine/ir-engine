@@ -3,8 +3,7 @@ import config from '../../appconfig'
 
 export const userSeed = {
   count: 3,
-  disabled: !config.db.forceRefresh,
-  delete: config.db.forceRefresh,
+
   // randomize: false,
   path: 'user',
   templates: [

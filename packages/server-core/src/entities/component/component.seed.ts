@@ -4,8 +4,6 @@ import { defaultPostProcessingSchema } from '@xrengine/engine/src/scene/classes/
 import { Vector3 } from 'three'
 
 export const componentSeed = {
-  disabled: !config.db.forceRefresh,
-  delete: config.db.forceRefresh,
   path: 'component',
   randomize: false,
   templates: [
