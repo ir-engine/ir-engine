@@ -2,7 +2,7 @@ import S3Provider from '../../media/storageprovider/s3.storage'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import axios from 'axios'
-import mimeType from "mime-types";
+import mimeType from 'mime-types'
 
 const s3: any = new S3Provider()
 const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_.~#?&//=]*)$/
@@ -12,8 +12,8 @@ const avatarRegex = /avatars\/([a-zA-Z0-9_-]+).([a-zA-Z0-9_-]+)/
 const getAssetKey = (value: string, packName: string) => `content-pack/${packName}/assets/${value}`
 const getAssetS3Key = (value: string) => value.replace('/assets', '')
 
-const getAvatarKey = (packName: string, key: string ) => `content-pack/${packName}/${key}`
-const getAvatarThumbnailKey = (packName: string, key: string ) => `content-pack/${packName}/${key}`
+const getAvatarKey = (packName: string, key: string) => `content-pack/${packName}/${key}`
+const getAvatarThumbnailKey = (packName: string, key: string) => `content-pack/${packName}/${key}`
 
 const replaceRelativePath = (value: string) => {
   const stripped = value.replace('/assets', '')
@@ -248,30 +248,27 @@ export async function populateScene(
   return Promise.all(promises)
 }
 
-export async function populateAvatar(
-    avatar: any,
-    app: Application
-): Promise<any> {
-  const avatarPromise = new Promise(async resolve => {
+export async function populateAvatar(avatar: any, app: Application): Promise<any> {
+  const avatarPromise = new Promise(async (resolve) => {
     const avatarResult = await axios.get(avatar.avatar, { responseType: 'arraybuffer' })
     const avatarKey = getAvatarLinkKey(avatar.avatar)
     await new Promise((resolve, reject) => {
       s3.provider.putObject(
-          {
-            ACL: 'public-read',
-            Body: avatarResult.data,
-            Bucket: s3.bucket,
-            ContentType: mimeType.lookup(avatarKey),
-            Key: avatarKey
-          },
-          (err, data) => {
-            if (err) {
-              console.error(err)
-              reject(err)
-            } else {
-              resolve(data)
-            }
+        {
+          ACL: 'public-read',
+          Body: avatarResult.data,
+          Bucket: s3.bucket,
+          ContentType: mimeType.lookup(avatarKey),
+          Key: avatarKey
+        },
+        (err, data) => {
+          if (err) {
+            console.error(err)
+            reject(err)
+          } else {
+            resolve(data)
           }
+        }
       )
     })
     const existingAvatarResult = await (app.service('static-resource') as any).Model.findOne({
@@ -289,26 +286,26 @@ export async function populateAvatar(
     })
     resolve(true)
   })
-  const thumbnailPromise = new Promise(async resolve => {
+  const thumbnailPromise = new Promise(async (resolve) => {
     const thumbnailResult = await axios.get(avatar.thumbnail, { responseType: 'arraybuffer' })
     const thumbnailKey = getAvatarLinkKey(avatar.thumbnail)
     await new Promise((resolve, reject) => {
       s3.provider.putObject(
-          {
-            ACL: 'public-read',
-            Body: thumbnailResult.data,
-            Bucket: s3.bucket,
-            ContentType: mimeType.lookup(thumbnailKey),
-            Key: thumbnailKey
-          },
-          (err, data) => {
-            if (err) {
-              console.error(err)
-              reject(err)
-            } else {
-              resolve(data)
-            }
+        {
+          ACL: 'public-read',
+          Body: thumbnailResult.data,
+          Bucket: s3.bucket,
+          ContentType: mimeType.lookup(thumbnailKey),
+          Key: thumbnailKey
+        },
+        (err, data) => {
+          if (err) {
+            console.error(err)
+            reject(err)
+          } else {
+            resolve(data)
           }
+        }
       )
     })
     const existingThumbnailResult = await (app.service('static-resource') as any).Model.findOne({
@@ -329,12 +326,7 @@ export async function populateAvatar(
   return Promise.all([avatarPromise, thumbnailPromise])
 }
 
-export async function uploadAvatar(
-    avatar: any,
-    thumbnail: any,
-    contentPack: string
-): Promise<any> {
-
+export async function uploadAvatar(avatar: any, thumbnail: any, contentPack: string): Promise<any> {
   if (avatar.url[0] === '/') {
     const protocol = config.noSSL === true ? 'http://' : 'https://'
     const domain = 'localhost:3000'
@@ -349,47 +341,47 @@ export async function uploadAvatar(
     const avatarResult = await axios.get(avatar.url, { responseType: 'arraybuffer' })
     await new Promise((resolve, reject) => {
       s3.provider.putObject(
-          {
-            ACL: 'public-read',
-            Body: avatarResult.data,
-            Bucket: s3.bucket,
-            ContentType: mimeType.lookup(avatar.url),
-            Key: getAvatarKey(contentPack, avatar.key)
-          },
-          (err, data) => {
-            if (err) {
-              console.error(err)
-              reject(err)
-            } else {
-              resolve(data)
-            }
+        {
+          ACL: 'public-read',
+          Body: avatarResult.data,
+          Bucket: s3.bucket,
+          ContentType: mimeType.lookup(avatar.url),
+          Key: getAvatarKey(contentPack, avatar.key)
+        },
+        (err, data) => {
+          if (err) {
+            console.error(err)
+            reject(err)
+          } else {
+            resolve(data)
           }
+        }
       )
     })
     resolve(true)
   })
   const avatarThumbnailUploadPromise = new Promise(async (resolve, reject) => {
-    const avatarThumbnailResult = await axios.get(thumbnail.url, { responseType: 'arraybuffer'})
+    const avatarThumbnailResult = await axios.get(thumbnail.url, { responseType: 'arraybuffer' })
     await new Promise((resolve, reject) => {
       s3.provider.putObject(
-          {
-            ACL: 'public-read',
-            Body: avatarThumbnailResult.data,
-            Bucket: s3.bucket,
-            ContentType: mimeType.lookup(thumbnail.url),
-            Key: getAvatarThumbnailKey(contentPack, thumbnail.key)
-          },
-          (err, data) => {
-            if (err) {
-              console.error(err)
-              reject(err)
-            } else {
-              resolve(data)
-            }
+        {
+          ACL: 'public-read',
+          Body: avatarThumbnailResult.data,
+          Bucket: s3.bucket,
+          ContentType: mimeType.lookup(thumbnail.url),
+          Key: getAvatarThumbnailKey(contentPack, thumbnail.key)
+        },
+        (err, data) => {
+          if (err) {
+            console.error(err)
+            reject(err)
+          } else {
+            resolve(data)
           }
+        }
       )
     })
     resolve(true)
   })
-  return Promise.all([avatarUploadPromise, avatarThumbnailUploadPromise]);
+  return Promise.all([avatarUploadPromise, avatarThumbnailUploadPromise])
 }

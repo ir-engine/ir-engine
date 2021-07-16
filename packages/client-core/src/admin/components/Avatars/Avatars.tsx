@@ -15,7 +15,7 @@ import { selectAppState } from '../../../common/reducers/app/selector'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { PAGE_LIMIT } from '../../reducers/admin/reducers'
 import { fetchLocationTypes } from '../../reducers/admin/location/service'
-import {fetchAdminAvatars} from "../../reducers/admin/avatar/service";
+import { fetchAdminAvatars } from '../../reducers/admin/avatar/service'
 // @ts-ignore
 import styles from './Avatars.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
@@ -171,7 +171,7 @@ const Avatars = (props: Props) => {
 
   const openAddToContentPackModal = (avatar: any) => {
     setSelectedAvatar(avatar)
-    setSelectedThumbnail(adminThumbnails.find(thumbnail => thumbnail.name === avatar.name))
+    setSelectedThumbnail(adminThumbnails.find((thumbnail) => thumbnail.name === avatar.name))
     setAddToContentPackModalOpen(true)
   }
 
@@ -214,7 +214,10 @@ const Avatars = (props: Props) => {
               rowCount={adminAvatarCount || 0}
             />
             <TableBody className={styles.thead}>
-              {stableSort(adminAvatars.filter(item => item.staticResourceType === 'avatar'), getComparator(order, orderBy))
+              {stableSort(
+                adminAvatars.filter((item) => item.staticResourceType === 'avatar'),
+                getComparator(order, orderBy)
+              )
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
                   return (

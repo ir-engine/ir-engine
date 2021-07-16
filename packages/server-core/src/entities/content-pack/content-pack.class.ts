@@ -3,7 +3,7 @@ import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
 import Paginated from '../../types/PageObject'
 import { Application } from '../../../declarations'
 import S3Provider from '../../media/storageprovider/s3.storage'
-import {assembleScene, populateAvatar, populateScene, uploadAvatar} from './content-pack-helper'
+import { assembleScene, populateAvatar, populateScene, uploadAvatar } from './content-pack-helper'
 import config from '../../appconfig'
 import axios from 'axios'
 
@@ -26,8 +26,10 @@ const getThumbnailUrl = (packName: string, url: string) => {
   const uuidRegexExec = thumbnailRegex.exec(url)
   return `https://${config.aws.cloudfront.domain}/content-pack/${packName}/img/${uuidRegexExec[1]}.jpeg`
 }
-const getAvatarUrl = (packName: string, avatar: any) => `https://${config.aws.cloudfront.domain}/content-pack/${packName}/${avatar.key}`
-const getAvatarThumbnailUrl = (packName: string, thumbnail: any) => `https://${config.aws.cloudfront.domain}/content-pack/${packName}/${thumbnail.key}`
+const getAvatarUrl = (packName: string, avatar: any) =>
+  `https://${config.aws.cloudfront.domain}/content-pack/${packName}/${avatar.key}`
+const getAvatarThumbnailUrl = (packName: string, thumbnail: any) =>
+  `https://${config.aws.cloudfront.domain}/content-pack/${packName}/${thumbnail.key}`
 
 /**
  * A class for Upload Media service
@@ -190,8 +192,7 @@ export class ContentPack implements ServiceMethods<Data> {
       }
       if (thumbnailLink != null) (newScene as any).thumbnail = thumbnailLink
       body.scenes.push(newScene)
-    }
-    else if (avatar != null) {
+    } else if (avatar != null) {
       await uploadAvatar(avatar, thumbnail, contentPack)
       const newAvatar = {
         name: avatar.name,
@@ -318,7 +319,7 @@ export class ContentPack implements ServiceMethods<Data> {
           }
         )
       })
-      body.scenes = body.scenes.filter(existingScene => existingScene.sid !== scene.sid)
+      body.scenes = body.scenes.filter((existingScene) => existingScene.sid !== scene.sid)
       const newScene = {
         sid: scene.sid,
         name: scene.name,
@@ -326,10 +327,9 @@ export class ContentPack implements ServiceMethods<Data> {
       }
       if (thumbnailLink != null) (newScene as any).thumbnail = thumbnailLink
       body.scenes.push(newScene)
-    }
-    else if (avatar != null) {
+    } else if (avatar != null) {
       await uploadAvatar(avatar, thumbnail, contentPack)
-      body.avatars = body.avatars.filter(existingAvatar => existingAvatar.name !== avatar.name)
+      body.avatars = body.avatars.filter((existingAvatar) => existingAvatar.name !== avatar.name)
       const newAvatar = {
         name: avatar.name,
         avatar: getAvatarUrl(contentPack, avatar),

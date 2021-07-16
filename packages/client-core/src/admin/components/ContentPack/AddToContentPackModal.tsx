@@ -32,8 +32,8 @@ interface Props {
   open: boolean
   handleClose: any
   scene?: any
-  avatar?: any,
-  thumbnail?: any,
+  avatar?: any
+  thumbnail?: any
   adminState?: any
   contentPackState?: any
   uploadAvatars?: any
@@ -60,8 +60,18 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 })
 
 const AddToContentPackModal = (props: Props): any => {
-  const { addAvatarToContentPack, addSceneToContentPack, createContentPack, open, handleClose, avatar, thumbnail, scene, contentPackState, fetchContentPacks } =
-    props
+  const {
+    addAvatarToContentPack,
+    addSceneToContentPack,
+    createContentPack,
+    open,
+    handleClose,
+    avatar,
+    thumbnail,
+    scene,
+    contentPackState,
+    fetchContentPacks
+  } = props
 
   const [error, setError] = useState('')
   const [createOrPatch, setCreateOrPatch] = useState('patch')
@@ -109,15 +119,17 @@ const AddToContentPackModal = (props: Props): any => {
 
   const createNewContentPack = async () => {
     try {
-      if (scene != null) await createContentPack({
+      if (scene != null)
+        await createContentPack({
           scene: scene,
           contentPack: newContentPackName
         })
-      else if (avatar != null) await createContentPack({
-        avatar: avatar,
-        thumbnail: thumbnail,
-        contentPack: newContentPackName
-      })
+      else if (avatar != null)
+        await createContentPack({
+          avatar: avatar,
+          thumbnail: thumbnail,
+          contentPack: newContentPackName
+        })
       window.location.href = '/admin/content-packs'
       closeModal()
     } catch (err) {
@@ -160,8 +172,8 @@ const AddToContentPackModal = (props: Props): any => {
           >
             <div className={styles['modal-header']}>
               <div />
-              { scene && scene.name && <div className={styles['title']}>{scene.name}</div> }
-              { avatar && avatar.name && <div className={styles['title']}>{avatar.name}</div>}
+              {scene && scene.name && <div className={styles['title']}>{scene.name}</div>}
+              {avatar && avatar.name && <div className={styles['title']}>{avatar.name}</div>}
               <IconButton aria-label="close" className={styles.closeButton} onClick={handleClose}>
                 <CloseIcon />
               </IconButton>
@@ -198,7 +210,12 @@ const AddToContentPackModal = (props: Props): any => {
                       </MenuItem>
                     ))}
                   </Select>
-                  <Button type="submit" variant="contained" color="primary" onClick={scene != null ? addCurrentSceneToContentPack : addCurrentAvatarToContentPack}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    onClick={scene != null ? addCurrentSceneToContentPack : addCurrentAvatarToContentPack}
+                  >
                     Update Content Pack
                   </Button>
                 </FormControl>
