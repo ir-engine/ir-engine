@@ -8,7 +8,7 @@ import {
   MeshStandardMaterial,
   Vector3,
   PerspectiveCamera,
-  AmbientLight,
+  AmbientLight
 } from 'three'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import TrailRenderer from '@xrengine/engine/src/scene/classes/TrailRenderer'
@@ -64,24 +64,28 @@ const DevPage = () => {
     trail.initialize(trailMaterial, trailLength, false, 0, trailHeadGeometry, trailTarget)
     scene.add(trail.mesh)
 
-
-    const controls = new OrbitControls( camera, renderer.domElement );
-		controls.target.set( 0, 0, 0 );
-		controls.update();
+    const controls = new OrbitControls(camera, renderer.domElement)
+    controls.target.set(0, 0, 0)
+    controls.update()
 
     let lastTrailUpdateTime = 0
     const animate = () => {
       requestAnimationFrame(animate)
 
-      count += 0.02
-      trailTarget.position.set(Math.sin(count) * 10, 10, Math.cos(count) * 10)
       const time = Date.now()
-      if ( time - lastTrailUpdateTime > 10 ) {
-        trail.advance();
-        lastTrailUpdateTime = time;
+      if (time - lastTrailUpdateTime > 10) {
+        trail.advance()
+        lastTrailUpdateTime = time
       } else {
-        trail.updateHead();
+        trail.updateHead()
       }
+
+      var scaledTime = time * 0.001
+      var areaScale = 10
+      count += 0.02
+      trailTarget.position.x = Math.sin(scaledTime) * areaScale
+      trailTarget.position.y = Math.sin(scaledTime * 1.1) * areaScale
+      trailTarget.position.z = Math.sin(scaledTime * 1.6) * areaScale
 
       renderer.render(scene, camera)
     }
