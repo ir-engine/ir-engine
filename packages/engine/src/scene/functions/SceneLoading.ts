@@ -30,6 +30,7 @@ import { createCommonInteractive } from '../behaviors/createCommonInteractive'
 import { createGroup } from '../behaviors/createGroup'
 import { createLink } from '../behaviors/createLink'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../behaviors/createMedia'
+import { createMap } from '../behaviors/createMap'
 import { createShadow } from '../behaviors/createShadow'
 import { createTransformComponent } from '../behaviors/createTransformComponent'
 import { createTriggerVolume } from '../behaviors/createTriggerVolume'
@@ -299,6 +300,10 @@ export class WorldScene {
         } else {
           createMediaServer(entity, component.data)
         }
+        break
+
+      case 'map':
+        if (isClient) createMap(entity, component.data)
         break
 
       case 'audio':
