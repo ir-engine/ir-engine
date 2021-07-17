@@ -85,7 +85,16 @@ export class MapboxTileLoader {
   constructor(scene: THREE.Scene, opts: IOpts) {
     this.scene = scene
     this.opts = opts = opts || {}
-    this.opts.layers = this.opts.layers || ['building']
+    this.opts.layers = this.opts.layers || [
+      'building',
+      'road',
+      // 'road_label',
+      // 'barrier_line'
+      // 'contour',
+      // 'landuse',
+      // 'motorway_junction',
+      // 'poi_label',
+    ]
 
     // tally feature tags.
     this.names = {}
