@@ -38,6 +38,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
   moveSpeed = 5
   jumpHeight = 4
   localMovementDirection = new Vector3()
+  velocity: Vector3 // velocity in local space
 
   defaultVelocitySimulatorDamping = 0.8
   defaultVelocitySimulatorMass = 50
@@ -60,6 +61,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
   static _schema = {
     avatarId: { type: Types.String, default: null },
     thumbnailURL: { type: Types.String, default: null },
-    avatarURL: { type: Types.String, default: null }
+    avatarURL: { type: Types.String, default: null },
+    velocity: { type: Types.Vector3Type, default: new Vector3() }
   }
 }

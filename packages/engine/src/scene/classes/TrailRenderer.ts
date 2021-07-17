@@ -32,14 +32,10 @@ const UVComponentCount = 2
 const IndicesPerFace = 3
 const FacesPerQuad = 2
 
-let lastTrailUpdateTime
-
-const direction = new Vector3()
 const tempPosition = new Vector3()
 
 const tempMatrix4 = new Matrix4()
 const LocalOrientationTangent = new Vector3(1, 0, 0)
-const LocalOrientationDirection = new Vector3(0, 0, -1)
 const LocalHeadOrigin = new Vector3(0, 0, 0)
 const tempQuaternion = new Quaternion()
 const tempOffset = new Vector3()
@@ -152,9 +148,8 @@ const TexturedFragmentShader = [
   '}'
 ].join('\n')
 
-class TrailRenderer extends Object3D {
+class TrailRenderer extends Mesh {
   orientToMovement = false
-  geometry: BufferGeometry
   mesh: Mesh
   nodeCenters: Vector3[]
   lastNodeCenter: Vector3
@@ -165,8 +160,6 @@ class TrailRenderer extends Object3D {
   currentEnd = 0
   currentNodeID = 0
 
-  scene: Scene
-  material: ShaderMaterial
   length = 200
   localHeadGeometry: Vector3[]
   // Test fix
@@ -226,7 +219,8 @@ class TrailRenderer extends Object3D {
 
   constructor(orientToMovement) {
     super()
-
+    this.matrixAutoUpdate = false
+    this.frustumCulled = false
     if (orientToMovement) this.orientToMovement = true
   }
 
@@ -238,9 +232,6 @@ class TrailRenderer extends Object3D {
     localHeadGeometry: Vector3[],
     targetObject: any
   ) {
-    // TODO make targetObject object3d type
-    this.destroyMesh()
-
     this.length = length > 0 ? length + 1 : 0
     this.dragTexture = dragTexture
     this.targetObject = targetObject
@@ -258,15 +249,14 @@ class TrailRenderer extends Object3D {
     this.material = material
 
     this.initializeGeometry()
-    this.initializeMesh()
 
-    this.material.uniforms.trailLength.value = 0
-    this.material.uniforms.minID.value = 0
-    this.material.uniforms.maxID.value = 0
-    this.material.uniforms.dragTexture.value = this.dragTexture
-    this.material.uniforms.maxTrailLength.value = this.length
-    this.material.uniforms.verticesPerNode.value = this.VerticesPerNode
-    this.material.uniforms.textureTileFactor.value = new Vector2(1.0, 1.0)
+    material.uniforms.trailLength.value = 0
+    material.uniforms.minID.value = 0
+    material.uniforms.maxID.value = 0
+    material.uniforms.dragTexture.value = this.dragTexture
+    material.uniforms.maxTrailLength.value = this.length
+    material.uniforms.verticesPerNode.value = this.VerticesPerNode
+    material.uniforms.textureTileFactor.value = new Vector2(1.0, 1.0)
 
     this.reset()
   }
@@ -341,9 +331,7 @@ class TrailRenderer extends Object3D {
     for (let i = 0; i < this.vertexCount; i++) {
       const index = i
 
-      positions.setX(index, 0)
-      positions.setY(index, 0)
-      positions.setZ(index, 0)
+      positions.setXYZ(index, 0, 0, 0)
     }
 
     positions.needsUpdate = true
@@ -356,9 +344,7 @@ class TrailRenderer extends Object3D {
     for (let i = 0; i < this.faceCount; i++) {
       const index = i * 3
 
-      indices.setX(index, 0)
-      indices.setY(index, 0)
-      indices.setZ(index, 0)
+      indices.setXYZ(index, 0, 0, 0)
     }
 
     indices.needsUpdate = true
@@ -378,20 +364,6 @@ class TrailRenderer extends Object3D {
     indices.updateRange.count = -1
   }
 
-  initializeMesh() {
-    this.mesh = new Mesh(this.geometry, this.material)
-    //StackOverflow says .dynamic unneeded in later versions
-    //this.mesh.dynamic = true;
-    this.mesh.matrixAutoUpdate = false
-  }
-
-  destroyMesh() {
-    if (this.mesh) {
-      // TODO: remove from sceen
-      this.mesh = null
-    }
-  }
-
   reset() {
     this.currentLength = 0
     this.currentEnd = -1
@@ -409,15 +381,16 @@ class TrailRenderer extends Object3D {
   }
 
   updateUniforms() {
+    const material = this.material as ShaderMaterial
     if (this.currentLength < this.length) {
-      this.material.uniforms.minID.value = 0
+      material.uniforms.minID.value = 0
     } else {
-      this.material.uniforms.minID.value = this.currentNodeID - this.length
+      material.uniforms.minID.value = this.currentNodeID - this.length
     }
-    this.material.uniforms.maxID.value = this.currentNodeID
-    this.material.uniforms.trailLength.value = this.currentLength
-    this.material.uniforms.maxTrailLength.value = this.length
-    this.material.uniforms.verticesPerNode.value = this.VerticesPerNode
+    material.uniforms.maxID.value = this.currentNodeID
+    material.uniforms.trailLength.value = this.currentLength
+    material.uniforms.maxTrailLength.value = this.length
+    material.uniforms.verticesPerNode.value = this.VerticesPerNode
   }
 
   advance() {
@@ -522,9 +495,7 @@ class TrailRenderer extends Object3D {
 
     for (let i = 0; i < this.VerticesPerNode; i++) {
       const baseIndex = nodeIndex * this.VerticesPerNode + i
-      nodeCenters.setX(baseIndex, nodeCenter.x)
-      nodeCenters.setY(baseIndex, nodeCenter.y)
-      nodeCenters.setZ(baseIndex, nodeCenter.z)
+      nodeCenters.setXYZ(baseIndex, nodeCenter.x, nodeCenter.y, nodeCenter.z)
     }
 
     nodeCenters.needsUpdate = true
@@ -552,9 +523,7 @@ class TrailRenderer extends Object3D {
       const positionIndex = this.VerticesPerNode * nodeIndex + i
       const transformedHeadVertex = tempLocalHeadGeometry[i]
 
-      positions.setX(positionIndex, transformedHeadVertex.x)
-      positions.setY(positionIndex + 1, transformedHeadVertex.y)
-      positions.setZ(positionIndex + 2, transformedHeadVertex.z)
+      positions.setXYZ(positionIndex, transformedHeadVertex.x, transformedHeadVertex.y, transformedHeadVertex.z)
     }
 
     positions.needsUpdate = true
@@ -610,9 +579,7 @@ class TrailRenderer extends Object3D {
       const positionIndex = this.VerticesPerNode * nodeIndex + i
       const transformedHeadVertex = tempLocalHeadGeometry2[i]
 
-      positions.setX(positionIndex, transformedHeadVertex.x)
-      positions.setY(positionIndex, transformedHeadVertex.y)
-      positions.setZ(positionIndex, transformedHeadVertex.z)
+      positions.setXYZ(positionIndex, transformedHeadVertex.x, transformedHeadVertex.y, transformedHeadVertex.z)
     }
 
     positions.needsUpdate = true
@@ -630,23 +597,20 @@ class TrailRenderer extends Object3D {
 
       const faceIndex = (srcNodeIndex * this.FacesPerNode + i * FacesPerQuad) * IndicesPerFace
 
-      indices.setX(faceIndex, srcVertexIndex)
-      indices.setY(faceIndex, destVertexIndex)
-      indices.setZ(faceIndex, srcVertexIndex + 1)
-
-      indices.setX(faceIndex + 3, destVertexIndex)
-      indices.setY(faceIndex + 3, destVertexIndex + 1)
-      indices.setZ(faceIndex + 3, srcVertexIndex + 1)
+      indices.set(
+        [srcVertexIndex, destVertexIndex, srcVertexIndex + 1, destVertexIndex, destVertexIndex + 1, srcVertexIndex + 1],
+        faceIndex
+      )
     }
 
     indices.needsUpdate = true
     indices.updateRange.count = -1
 
-    returnObj.attribute = indices
-    returnObj.offset = srcNodeIndex * this.FacesPerNode * IndicesPerFace
-    returnObj.count = this.FacesPerNode * IndicesPerFace
+    // returnObj.attribute = indices
+    // returnObj.offset = srcNodeIndex * this.FacesPerNode * IndicesPerFace
+    // returnObj.count = this.FacesPerNode * IndicesPerFace
 
-    return returnObj
+    // return returnObj
   }
 
   disconnectNodes(srcNodeIndex) {
@@ -655,23 +619,17 @@ class TrailRenderer extends Object3D {
     for (let i = 0; i < this.localHeadGeometry.length - 1; i++) {
       const faceIndex = (srcNodeIndex * this.FacesPerNode + i * FacesPerQuad) * IndicesPerFace
 
-      indices.setX(faceIndex, 0)
-      indices.setY(faceIndex, 0)
-      indices.setZ(faceIndex, 0)
-
-      indices.setX(faceIndex + 3, 0)
-      indices.setY(faceIndex + 3, 0)
-      indices.setZ(faceIndex + 3, 0)
+      indices.set([0, 0, 0, 0, 0, 0], faceIndex)
     }
 
     indices.needsUpdate = true
     indices.updateRange.count = -1
 
-    returnObj2.attribute = indices
-    returnObj2.offset = srcNodeIndex * this.FacesPerNode * IndicesPerFace
-    returnObj2.count = this.FacesPerNode * IndicesPerFace
+    // returnObj2.attribute = indices
+    // returnObj2.offset = srcNodeIndex * this.FacesPerNode * IndicesPerFace
+    // returnObj2.count = this.FacesPerNode * IndicesPerFace
 
-    return returnObj2
+    // return returnObj2
   }
 }
 

@@ -14,6 +14,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import { useTranslation } from 'react-i18next'
 import {
+  Accessibility,
   CalendarViewDay,
   ChevronLeft,
   ChevronRight,
@@ -210,6 +211,14 @@ const Dashboard = ({ children, authState }: Props) => {
                 <PhotoLibrary style={{ color: 'white' }} />
               </ListItemIcon>
               <ListItemText primary={t('user:dashboard.scenes')} />
+            </ListItem>
+          </Link>
+          <Link to="/admin/avatars" className={classes.textLink}>
+            <ListItem style={{ color: 'white' }} button>
+              <ListItemIcon>
+                <Accessibility style={{ color: 'white' }} />
+              </ListItemIcon>
+              <ListItemText primary={t('user:dashboard.avatars')} />
             </ListItem>
           </Link>
           <Link to="/admin/bots" className={classes.textLink}>

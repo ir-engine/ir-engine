@@ -95,10 +95,15 @@ export const updateBall: Behavior = (
   if (isClient) {
     const obj = getComponent(entityBall, Object3DComponent)
     if (!obj?.value) return
-    const ballMesh = obj.value.userData.trailObject as TrailRenderer
-    ballMesh.advance()
-    ballMesh.updateHead()
-    console.log(ballMesh)
+    const trail = obj.value.userData.trailObject as TrailRenderer
+
+    const time = Date.now()
+    if (time - obj.value.userData.lastTrailUpdateTime > 10) {
+      trail.advance()
+      obj.value.userData.lastTrailUpdateTime = time
+    } else {
+      trail.updateHead()
+    }
   }
 }
 
@@ -124,14 +129,15 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   // Add trail effect
 
   const trailHeadGeometry = []
-  trailHeadGeometry.push(new Vector3(-10.0, 0.0, 0.0), new Vector3(0.0, 0.0, 0.0), new Vector3(10.0, 0.0, 0.0))
+  trailHeadGeometry.push(new Vector3(-1.0, 0.0, 0.0), new Vector3(0.0, 0.0, 0.0), new Vector3(1.0, 0.0, 0.0))
   const trailObject = new TrailRenderer(false)
   const trailMaterial = TrailRenderer.createBaseMaterial()
   const trailLength = 150
+  trailObject.initialize(trailMaterial, trailLength, false, 0, trailHeadGeometry, ballMesh)
   Engine.scene.add(trailObject)
-  trailObject.initialize(trailMaterial, trailLength, false, 150, trailHeadGeometry, ballMesh)
   ballMesh.userData.trailObject = trailObject
-  console.log(ballMesh)
+  ballMesh.userData.lastTrailUpdateTime = Date.now()
+  console.log(trailObject)
 }
 
 export const initializeGolfBall = (ballEntity: Entity) => {

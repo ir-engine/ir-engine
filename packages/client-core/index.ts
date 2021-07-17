@@ -398,7 +398,7 @@ export { default as srcAdminComponentsLocationModal } from './src/admin/componen
 export { default as srcAdminComponentsPartyCreateParty } from './src/admin/components/Party/CreateParty';
 export { default as srcAdminComponentsPartyIndex } from './src/admin/components/Party/index';
 export { default as srcAdminComponentsPartyPartyTable } from './src/admin/components/Party/PartyTable';
-export { default as srcAdminComponentsScenesAddToContentPackModal } from './src/admin/components/Scenes/AddToContentPackModal';
+export { default as srcAdminComponentsScenesAddToContentPackModal } from './src/admin/components/ContentPack/AddToContentPackModal';
 export { default as srcAdminComponentsScenesScenes } from './src/admin/components/Scenes/Scenes';
 export { default as srcAdminComponentsSearch } from './src/admin/components/Search';
 export { default as srcAdminComponentsSharedModal } from './src/admin/components/SharedModal';

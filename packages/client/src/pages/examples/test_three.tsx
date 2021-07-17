@@ -62,7 +62,7 @@ const DevPage = () => {
     const trailLength = 150
 
     trail.initialize(trailMaterial, trailLength, false, 0, trailHeadGeometry, trailTarget)
-    scene.add(trail.mesh)
+    scene.add(trail)
 
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.target.set(0, 0, 0)

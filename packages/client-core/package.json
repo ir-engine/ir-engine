@@ -99,13 +99,13 @@
     "use-debounce": "7.0.0",
     "use-http": "1.0.21",
     "uuid": "8.3.2",
-    "volumetric": "0.2.26",
+    "volumetric": "0.2.27",
     "yup": "0.32.9"
   },
   "devDependencies": {
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-node-resolve": "13.0.2",
-    "@rollup/plugin-replace": "2.4.2",
+    "@rollup/plugin-replace": "3.0.0",
     "@types/node": "14.17.5",
     "@types/react": "17.0.14",
     "@types/react-dom": "17.0.9",
