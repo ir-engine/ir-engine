@@ -24,6 +24,7 @@ function recurseSearchEmptyRole(game: Game, gameSchema: GameMode, newPlayerNumbe
     return newPlayerNumber
   }
 }
+
 export const addRole: Behavior = (
   entity: Entity,
   args?: any,
@@ -35,8 +36,11 @@ export const addRole: Behavior = (
   const game = getGame(entity)
   const gameSchema = GamesSchema[game.gameMode] as GameMode
   let newPlayerNumber = Object.keys(game.gamePlayers).reduce((acc, v) => acc + game.gamePlayers[v].length, 0)
-  // check if role buzy
-  newPlayerNumber = recurseSearchEmptyRole(game, gameSchema, newPlayerNumber) //last parameter - allowInOneRole, for futured RedTeam vs BlueTeam
+  console.log(game.gamePlayers)
+  console.log('newPlayerNumber', newPlayerNumber)
+  console.log(gameSchema.gamePlayerRoles)
+  // TODO: this doesnt work
+  // newPlayerNumber = recurseSearchEmptyRole(game, gameSchema, newPlayerNumber) //last parameter - allowInOneRole, for futured RedTeam vs BlueTeam
 
   if (newPlayerNumber === null || newPlayerNumber > game.maxPlayers) {
     console.warn(

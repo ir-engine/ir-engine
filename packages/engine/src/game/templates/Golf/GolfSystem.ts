@@ -1,12 +1,15 @@
+import { isClient } from '../../../common/functions/isClient'
 import { System, SystemAttributes } from '../../../ecs/classes/System'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/EntityFunctions'
 import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
 import { Network } from '../../../networking/classes/Network'
+import { NetworkObject } from '../../../networking/components/NetworkObject'
 import { NetworkObjectOwner } from '../../../networking/components/NetworkObjectOwner'
+import { Game } from '../../components/Game'
 import { GameObject } from '../../components/GameObject'
 import { GamePlayer } from '../../components/GamePlayer'
 import { getGame } from '../../functions/functions'
-import { addStateComponent, removeStateComponent } from '../../functions/functionsState'
+import { addStateComponent, removeStateComponent, sendState } from '../../functions/functionsState'
 import { getStorage } from '../../functions/functionsStorage'
 import { Action, State } from '../../types/GameComponents'
 import { doesPlayerHaveGameObject } from '../gameDefault/checkers/doesPlayerHaveGameObject'
@@ -31,6 +34,7 @@ import { teleportPlayerBehavior } from './behaviors/teleportPlayer'
 import { GolfBallComponent } from './components/GolfBallComponent'
 import { GolfClubComponent } from './components/GolfClubComponent'
 import { GolfHoleComponent } from './components/GolfHoleComponent'
+import { NewPlayerTagComponent } from './components/GolfTagComponents'
 import { GolfTeeComponent } from './components/GolfTeeComponent'
 import { spawnBall, updateBall } from './prefab/GolfBallPrefab'
 import { spawnClub, updateClub } from './prefab/GolfClubPrefab'
@@ -82,16 +86,17 @@ export class GolfSystem extends System {
         if (clubEntity && ballEntity) {
           if (hasComponent(clubEntity, Action.GameObjectCollisionTag)) {
             if (!hasComponent(clubEntity, State.Hit)) {
-              if (ifVelocity(entity, { on: 'target', component: GolfClubComponent, more: 0.01, less: 1 }, clubEntity)) {
+              if (ifVelocity(clubEntity, { component: GolfClubComponent, more: 0.01, less: 1 })) {
                 if (
                   hasComponent(ballEntity, Action.GameObjectCollisionTag) &&
                   hasComponent(ballEntity, State.BallStopped) &&
                   hasComponent(ballEntity, State.Ready) &&
                   hasComponent(ballEntity, State.Active)
                 ) {
+                  console.log('successfully hit ball')
                   behaviorsToExecute.push(() => {
-                    removeStateComponent(ballEntity, Action.GameObjectCollisionTag)
-                    removeStateComponent(clubEntity, Action.GameObjectCollisionTag)
+                    removeComponent(ballEntity, Action.GameObjectCollisionTag)
+                    removeComponent(clubEntity, Action.GameObjectCollisionTag)
                     addStateComponent(clubEntity, State.addedHit)
                   })
                 }
@@ -111,8 +116,8 @@ export class GolfSystem extends System {
                 : undefined
               if (hasComponent(currentHoleEntity, Action.GameObjectCollisionTag)) {
                 behaviorsToExecute.push(() => {
-                  removeStateComponent(ballEntity, Action.GameObjectCollisionTag)
-                  removeStateComponent(entity, Action.GameObjectCollisionTag)
+                  removeComponent(ballEntity, Action.GameObjectCollisionTag)
+                  removeComponent(entity, Action.GameObjectCollisionTag)
                   addStateComponent(entity, State.addedGoal)
                 })
               }
@@ -136,15 +141,11 @@ export class GolfSystem extends System {
           behaviorsToExecute.push(() => {
             teleportPlayerBehavior(
               entity,
-              getPositionNextPoint(entity, { on: 'self', positionCopyFromRole: 'GolfTee-', position: null })
+              getPositionNextPoint(entity, { positionCopyFromRole: 'GolfTee-', position: null })
             )
             teleportObject(
               entity,
-              getPositionNextPoint(
-                entity,
-                { on: 'target', positionCopyFromRole: 'GolfTee-', position: null },
-                ballEntity
-              ),
+              getPositionNextPoint(ballEntity, { positionCopyFromRole: 'GolfTee-', position: null }),
               delta,
               ballEntity
             )
@@ -194,9 +195,11 @@ export class GolfSystem extends System {
       })
       if (ifGetOut(entity, { area: 'GameArea' })) {
         behaviorsToExecute.push(() => {
+          const ownerEntity =
+            Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity
           teleportObject(
             entity,
-            getPositionNextPoint(entity, { on: 'self', positionCopyFromRole: 'GolfTee-', position: null })
+            getPositionNextPoint(ownerEntity, { positionCopyFromRole: 'GolfTee-', position: null })
           )
         })
       }
@@ -270,13 +273,23 @@ export class GolfSystem extends System {
 
     // DO ALL ECS LOGIC HERE (added and removed queries)
 
-    this.queryResults.player.added.forEach((entity) => {
+    this.queryResults.newPlayer.added.forEach((entity) => {
+      const newPlayer = getComponent(entity, NewPlayerTagComponent)
+      addComponent(entity, GamePlayer, {
+        gameName: newPlayer.gameName,
+        role: 'newPlayer',
+        uuid: getComponent(entity, NetworkObject).ownerId
+      })
       addRole(entity)
+      removeComponent(entity, NewPlayerTagComponent)
       // setupPlayerAvatar(entity)
       setupPlayerInput(entity)
       createYourTurnPanel(entity)
       setupOfflineDebug(entity)
       addStateComponent(entity, State.WaitTurn)
+    })
+
+    this.queryResults.player.added.forEach((entity) => {
       spawnClub(entity)
       initScore(entity)
       if (getComponent(entity, GamePlayer).role === '1-Player') {
@@ -327,6 +340,13 @@ export class GolfSystem extends System {
   }
 
   static queries = {
+    newPlayer: {
+      components: [NewPlayerTagComponent],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
     player: {
       components: [GamePlayer],
       listen: {

@@ -173,14 +173,10 @@ export class GameManagerSystem extends System {
             }
             */
           } else if (v.inGameArea && !hasComponent(v.entity, GamePlayer)) {
-            console.log('add game player')
-            addComponent(v.entity, GamePlayer, {
-              gameName: game.name,
-              role: 'newPlayer',
-              uuid: getComponent(v.entity, NetworkObject).ownerId
-            })
+            // console.log('add game player')
+            addComponent(v.entity, NewPlayerTagComponent, { gameName: game.name })
           } else if (!v.inGameArea && hasComponent(v.entity, GamePlayer)) {
-            console.log('remove gameplayer')
+            // console.log('remove gameplayer')
             if (getComponent(v.entity, GamePlayer).gameName === game.name) {
               removeComponent(v.entity, GamePlayer)
             }
@@ -232,7 +228,7 @@ export class GameManagerSystem extends System {
         )
         if (countAllPlayersInGame == 1) saveInitStateCopy(entityGame)
         // add to gamePlayers list sorted by role
-        game.gamePlayers[gamePlayer.role].push(entity)
+        // game.gamePlayers[gamePlayer.role].push(entity)
         requireState(game, gamePlayer)
       })
     })

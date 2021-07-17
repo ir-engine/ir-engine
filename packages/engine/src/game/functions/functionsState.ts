@@ -163,7 +163,7 @@ export const applyState = (game: Game): void => {
         }
       })
     })
-  console.warn('applyState', game.state)
+  // console.warn('applyState', game.state)
 }
 
 export const correctState = (): void => {
@@ -190,7 +190,7 @@ export const clearRemovedEntitysFromGame = (game): void => {
 
 export const addStateComponent = (entity: Entity, component: ComponentConstructor<Component<any>>): void => {
   if (hasComponent(entity, component)) return
-
+  console.log('addStateComponent', component.name)
   const uuid = getUuid(entity)
   const role = getRole(entity)
   const game = getGame(entity)
@@ -222,6 +222,8 @@ export const removeStateComponent = (entity: Entity, component: ComponentConstru
   const uuid = getUuid(entity)
   const game = getGame(entity)
 
+  console.log('removeStateComponent', component.name)
+
   removeComponent(entity, component)
 
   const objectState = game.state.find((v) => v.uuid === uuid)
@@ -242,7 +244,6 @@ export const changeRole = (entity: Entity, newGameRole: string): void => {
   if (objectState === undefined) {
     objectState = { uuid: uuid, role: '', components: [], storage: [] }
     game.state.push(objectState)
-    console.log('dont have this entity in State')
   }
 
   console.log('change role', newGameRole)

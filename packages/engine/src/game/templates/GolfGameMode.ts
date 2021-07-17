@@ -72,7 +72,7 @@ function somePrepareFunction(gameRules: GameMode) {
 }
 
 function preparePlayerRoles(gameRules: GameMode, maxPlayerCount = 1) {
-  for (let playerNumber = 2; playerNumber <= maxPlayerCount; playerNumber++) {
+  for (let playerNumber = 1; playerNumber <= maxPlayerCount; playerNumber++) {
     gameRules.gamePlayerRoles.push(playerNumber + '-Player')
   }
 }
@@ -116,7 +116,7 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   onPlayerLeave: onGolfPlayerLeave, // player can leave game without disconnect
   registerActionTagComponents: [], // now auto adding
   registerStateTagComponents: [],
-  gamePlayerRoles: ['newPlayer', '1-Player'],
+  gamePlayerRoles: [],
   gameObjectRoles: [
     'GolfBall',
     'GolfTee-0',

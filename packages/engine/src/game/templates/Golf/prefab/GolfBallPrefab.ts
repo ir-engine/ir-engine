@@ -26,7 +26,6 @@ import TrailRenderer from '../../../../scene/classes/TrailRenderer'
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GameObject } from '../../../components/GameObject'
-import { GamePlayer } from '../../../components/GamePlayer'
 import { getGame } from '../../../functions/functions'
 import { GolfBallComponent } from '../components/GolfBallComponent'
 import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants'
@@ -206,7 +205,7 @@ export const createGolfBallPrefab = (args: {
   uniqueId: string
   ownerId?: string
 }) => {
-  console.log('createGolfBallPrefab', args.parameters)
+  // console.log('createGolfBallPrefab', args.parameters)
   initializeNetworkObject({
     prefabType: GolfPrefabTypes.Ball,
     uniqueId: args.uniqueId,
