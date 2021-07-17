@@ -87,7 +87,7 @@ export class MapboxTileLoader {
     this.opts = opts = opts || {}
     this.opts.layers = this.opts.layers || [
       'building',
-      'road',
+      'road'
       // 'road_label',
       // 'barrier_line'
       // 'contour',
