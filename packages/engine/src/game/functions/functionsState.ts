@@ -158,8 +158,8 @@ export const applyState = (game: Game): void => {
             else console.warn("Couldn't find component", componentName)
           })
         } else {
-          console.log('Local object dont have state, v.uuid != uuid')
-          console.log(role, uuid)
+         // console.log('Local object dont have state, v.uuid != uuid')
+         // console.log(role, uuid)
         }
       })
     })

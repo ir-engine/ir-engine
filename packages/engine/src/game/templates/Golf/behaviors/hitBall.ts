@@ -54,6 +54,18 @@ export const hitBall: Behavior = (
   if (!golfClubComponent.canDoChipShots) {
     vector0.y = 0
   }
+  // block teleport ball if distance to wall less length of what we want to teleport
+  const dir = golfClubComponent.velocity.clone().normalize();
+  const ballPosition = collider.body.transform.translation;
+  collider.raycastQuery2.origin.copy(ballPosition);
+  collider.raycastQuery2.direction.copy(dir);
+  // console.warn(collider.raycastQuery2.hits[0]?.distance, vector0.length());
+  if (collider.raycastQuery2.hits[0]?.distance != undefined && collider.raycastQuery2.hits[0].distance < vector0.length()) {
+    vector0.x = 0
+    vector0.y = 0
+    vector0.z = 0
+  }
+  
   // teleport ball in front of club a little bit
   collider.body.updateTransform({
     translation: {

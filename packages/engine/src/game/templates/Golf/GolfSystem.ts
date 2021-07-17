@@ -38,7 +38,8 @@ import { NewPlayerTagComponent } from './components/GolfTagComponents'
 import { GolfTeeComponent } from './components/GolfTeeComponent'
 import { spawnBall, updateBall } from './prefab/GolfBallPrefab'
 import { spawnClub, updateClub } from './prefab/GolfClubPrefab'
-
+import { initBallRaycast } from './behaviors/initBallRaycast'
+import { ifFirstHit, ifOutCourse } from '../gameDefault/checkers/ifOutCourse'
 /**
  *
  * @author Josh Field <github.com/hexafield>
@@ -67,7 +68,7 @@ export class GolfSystem extends System {
 
       const clubEntity = playerComponent.ownedObjects['GolfClub']
       const ballEntity = playerComponent.ownedObjects['GolfBall']
-
+      
       const gameScore = getStorage(entity, { name: 'GameScore' })
       const game = getGame(entity)
 
@@ -201,6 +202,13 @@ export class GolfSystem extends System {
           )
         })
       }
+      if (hasComponent(entity, State.BallStopped) && ifVelocity(entity, { less: 0.001 }) && ifOutCourse(entity)) {
+        const ownerEntity = Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity;
+        teleportObject(
+          entity,
+          getPositionNextPoint(ownerEntity, { positionCopyFromRole: 'GolfTee-', position: null })
+        )
+      }
       if (ifVelocity(entity, { more: 0.01 })) {
         if (hasComponent(entity, State.Ready)) {
           behaviorsToExecute.push(() => {
@@ -330,6 +338,8 @@ export class GolfSystem extends System {
       const ownerGamePlayer = getComponent(ownerPlayerEntity, GamePlayer)
 
       ownerGamePlayer.ownedObjects['GolfBall'] = entity
+
+      initBallRaycast(entity);
     })
 
     this.queryResults.golfHole.added.forEach((entity) => {

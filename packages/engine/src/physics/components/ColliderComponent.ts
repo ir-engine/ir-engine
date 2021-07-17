@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from 'three'
-import type { Body } from 'three-physx'
+import type { Body, RaycastQuery } from "three-physx";
 import { Component } from '../../ecs/classes/Component'
 import { Types } from '../../ecs/types/Types'
 import { ColliderTypes } from '../types/PhysicsTypes'
@@ -12,6 +12,8 @@ export class ColliderComponent extends Component<ColliderComponent> {
   bodytype: any
   body: Body
   type: ColliderTypes
+  raycastQuery: RaycastQuery
+  raycastQuery2: RaycastQuery
   mass: number
   position: Vector3
   /**
