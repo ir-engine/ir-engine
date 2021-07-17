@@ -8,7 +8,7 @@ import { grabEquippable } from '../../interaction/functions/grabEquippable'
 import { InteractionData } from '../../interaction/types/InteractionTypes'
 
 export const onInteraction = (entityInitiator, args, delta, entityInteractive, time) => {
-  const interactiveComponent = getComponent(entityInteractive, Interactable);
+  const interactiveComponent = getComponent(entityInteractive, Interactable)
 
   if (interactiveComponent.data.interactionType === 'equippable') {
     grabEquippable(entityInitiator, args, delta, entityInteractive)
@@ -20,8 +20,14 @@ export const onInteraction = (entityInitiator, args, delta, entityInteractive, t
   }
 }
 
-export const onInteractionHover = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
-  const interactiveComponent = getComponent(entityInteractive, Interactable);
+export const onInteractionHover = (
+  entityInitiator,
+  { focused }: { focused: boolean },
+  delta,
+  entityInteractive,
+  time
+) => {
+  const interactiveComponent = getComponent(entityInteractive, Interactable)
 
   const engineEvent: any = { type: InteractiveSystem.EVENTS.OBJECT_HOVER, focused, ...interactiveComponent.data }
   EngineEvents.instance.dispatchEvent(engineEvent)

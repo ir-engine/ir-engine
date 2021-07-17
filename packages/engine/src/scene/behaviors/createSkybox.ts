@@ -12,33 +12,32 @@ import { setSkyDirection } from '../functions/setSkyDirection'
 import { addObject3DComponent } from './addObject3DComponent'
 
 export const createSkybox = (entity, args: SceneBackgroundProps) => {
-  
-  if(isClient) {
-    const pmremGenerator = new PMREMGenerator(Engine.renderer);
-    switch(args.backgroundType) {
+  if (isClient) {
+    const pmremGenerator = new PMREMGenerator(Engine.renderer)
+    switch (args.backgroundType) {
       case SkyTypeEnum.skybox:
-        const option=args.skyboxProps ;
-        addObject3DComponent(entity, { obj3d: new Sky, objArgs:{  skyBoxShaderProps:option }});
-        addComponent(entity, ScaleComponent);
-    
-        const component = getComponent(entity, Object3DComponent);
-        const skyboxObject3D = component.value;
-        const scaleComponent = getMutableComponent<ScaleComponent>(entity, ScaleComponent);
-        scaleComponent.scale = [option.distance, option.distance, option.distance];
-        const uniforms = Sky.material.uniforms;
-        const sun = new Vector3();
-        const theta = Math.PI * (option.inclination - 0.5);
-        const phi = 2 * Math.PI * (option.azimuth - 0.5);
-    
-        sun.x = Math.cos(phi);
-        sun.y = Math.sin(phi) * Math.sin(theta);
-        sun.z = Math.sin(phi) * Math.cos(theta);
-        uniforms.mieCoefficient.value = option.mieCoefficient;
-        uniforms.mieDirectionalG.value = option.mieDirectionalG;
-        uniforms.rayleigh.value = option.rayleigh;
-        uniforms.turbidity.value = option.turbidity;
-        uniforms.luminance.value = option.luminance;
-        uniforms.sunPosition.value = sun;
+        const option = args.skyboxProps
+        addObject3DComponent(entity, { obj3d: new Sky(), objArgs: { skyBoxShaderProps: option } })
+        addComponent(entity, ScaleComponent)
+
+        const component = getComponent(entity, Object3DComponent)
+        const skyboxObject3D = component.value
+        const scaleComponent = getMutableComponent<ScaleComponent>(entity, ScaleComponent)
+        scaleComponent.scale = [option.distance, option.distance, option.distance]
+        const uniforms = Sky.material.uniforms
+        const sun = new Vector3()
+        const theta = Math.PI * (option.inclination - 0.5)
+        const phi = 2 * Math.PI * (option.azimuth - 0.5)
+
+        sun.x = Math.cos(phi)
+        sun.y = Math.sin(phi) * Math.sin(theta)
+        sun.z = Math.sin(phi) * Math.cos(theta)
+        uniforms.mieCoefficient.value = option.mieCoefficient
+        uniforms.mieDirectionalG.value = option.mieDirectionalG
+        uniforms.rayleigh.value = option.rayleigh
+        uniforms.turbidity.value = option.turbidity
+        uniforms.luminance.value = option.luminance
+        uniforms.sunPosition.value = sun
         setSkyDirection(sun)
 
         const skyboxTexture = (skyboxObject3D as any).generateSkybox(Engine.renderer)

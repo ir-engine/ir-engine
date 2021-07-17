@@ -17,10 +17,8 @@ interface GameDataProps {
   role: string
 }
 
-
 export const createGame = (entity, args: GameDataProps) => {
-  console.log(args.gameMode+' GAME LOADING ...');
-
+  console.log(args.gameMode + ' GAME LOADING ...')
 
   const transform = getMutableComponent(entity, TransformComponent)
   transform.scale.set(Math.abs(transform.scale.x) / 2, Math.abs(transform.scale.y) / 2, Math.abs(transform.scale.z) / 2)

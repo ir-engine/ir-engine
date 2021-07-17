@@ -1,23 +1,31 @@
-import { Color, CubeTextureLoader, DataTexture, Material, PMREMGenerator, RGBFormat, sRGBEncoding, TextureLoader, Vector3 } from 'three';
-import { isClient } from '../../common/functions/isClient';
-import { Behavior } from '../../common/interfaces/Behavior';
-import { Engine } from '../../ecs/classes/Engine';
-import { EngineEvents } from '../../ecs/classes/EngineEvents';
-import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import CubemapCapturer from '../../editor/nodes/helper/CubemapCapturer';
-import { ReflectionProbeSettings, ReflectionProbeTypes } from '../../editor/nodes/ReflectionProbeNode';
-import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem';
-import { ScaleComponent } from '../../transform/components/ScaleComponent';
-import { Sky } from '../classes/Sky';
-import { Object3DComponent } from '../components/Object3DComponent';
-import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum';
-import { SCENE_ASSET_TYPES, WorldScene } from '../functions/SceneLoading';
-import { SceneObjectSystem } from '../systems/SceneObjectSystem';
-import { addObject3DComponent } from './addObject3DComponent';
+import {
+  Color,
+  CubeTextureLoader,
+  DataTexture,
+  Material,
+  PMREMGenerator,
+  RGBFormat,
+  sRGBEncoding,
+  TextureLoader,
+  Vector3
+} from 'three'
+import { isClient } from '../../common/functions/isClient'
+import { Behavior } from '../../common/interfaces/Behavior'
+import { Engine } from '../../ecs/classes/Engine'
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import CubemapCapturer from '../../editor/nodes/helper/CubemapCapturer'
+import { ReflectionProbeSettings, ReflectionProbeTypes } from '../../editor/nodes/ReflectionProbeNode'
+import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
+import { ScaleComponent } from '../../transform/components/ScaleComponent'
+import { Sky } from '../classes/Sky'
+import { Object3DComponent } from '../components/Object3DComponent'
+import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
+import { SCENE_ASSET_TYPES, WorldScene } from '../functions/SceneLoading'
+import { SceneObjectSystem } from '../systems/SceneObjectSystem'
+import { addObject3DComponent } from './addObject3DComponent'
 
-export const setEnvMap =  (entity, args:EnvMapProps) => {
-
-export const setEnvMap: Behavior = (entity, args: EnvMapProps) => {
+export const setEnvMap = (entity, args: EnvMapProps) => {
   if (!isClient) {
     return
   }

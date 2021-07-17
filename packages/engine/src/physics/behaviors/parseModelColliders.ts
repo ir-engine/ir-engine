@@ -114,7 +114,7 @@ type ModelColliderProps = {
  */
 
 export const parseModelColliders = (entity: Entity, args: ModelColliderProps) => {
-  const arr = [];
+  const arr = []
   const parseColliders = (mesh) => {
     // have user data physics its our case
     if (

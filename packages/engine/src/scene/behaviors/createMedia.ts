@@ -1,24 +1,24 @@
-import { MathUtils, Object3D } from 'three';
-import { addObject3DComponent } from './addObject3DComponent';
-import { Engine } from '../../ecs/classes/Engine';
-import { Interactable } from "../../interaction/components/Interactable";
-import { Behavior } from "../../common/interfaces/Behavior";
-import { getComponent } from "../../ecs/functions/EntityFunctions";
-import AudioSource from '../classes/AudioSource';
-import { Object3DComponent } from '../components/Object3DComponent';
-import { isWebWorker } from '../../common/functions/getEnvironment';
-import VolumetricComponent from "../components/VolumetricComponent";
-import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions';
-import { EngineEvents } from '../../ecs/classes/EngineEvents';
-import { InteractiveSystem } from '../../interaction/systems/InteractiveSystem';
-import Video from '../classes/Video';
-import { Network } from '../../networking/classes/Network';
-import { PrefabType } from '../../networking/templates/PrefabType';
-import { Time } from '../../networking/types/SnapshotDataTypes';
+import { MathUtils, Object3D } from 'three'
+import { addObject3DComponent } from './addObject3DComponent'
+import { Engine } from '../../ecs/classes/Engine'
+import { Interactable } from '../../interaction/components/Interactable'
+import { Behavior } from '../../common/interfaces/Behavior'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
+import AudioSource from '../classes/AudioSource'
+import { Object3DComponent } from '../components/Object3DComponent'
+import { isWebWorker } from '../../common/functions/getEnvironment'
+import VolumetricComponent from '../components/VolumetricComponent'
+import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { InteractiveSystem } from '../../interaction/systems/InteractiveSystem'
+import Video from '../classes/Video'
+import { Network } from '../../networking/classes/Network'
+import { PrefabType } from '../../networking/templates/PrefabType'
+import { Time } from '../../networking/types/SnapshotDataTypes'
 
-const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
+const isBrowser = new Function('try {return this===window;}catch(e){ return false;}')
 
-const DracosisPlayer = null;
+const DracosisPlayer = null
 if (isBrowser()) {
   // import("volumetric/src/Player").then(imported => {
   //   DracosisPlayer = imported;
@@ -28,42 +28,41 @@ if (isBrowser()) {
 }
 
 export interface AudioProps {
-  src?: string;
-  controls?: boolean;
-  autoPlay?: boolean;
-  loop?: boolean;
-  synchronize?: number;
-  audioType?: 'stereo' | 'pannernode';
-  volume?: number; 
-  distanceModel?: 'linear' | 'inverse' | 'exponential';
-  rolloffFactor?: number;
-  refDistance?: number;
-  maxDistance?: number;
-  coneInnerAngle?: number;
-  coneOuterAngle?: number;
-  coneOuterGain?: number;
-  interactable?: boolean;
+  src?: string
+  controls?: boolean
+  autoPlay?: boolean
+  loop?: boolean
+  synchronize?: number
+  audioType?: 'stereo' | 'pannernode'
+  volume?: number
+  distanceModel?: 'linear' | 'inverse' | 'exponential'
+  rolloffFactor?: number
+  refDistance?: number
+  maxDistance?: number
+  coneInnerAngle?: number
+  coneOuterAngle?: number
+  coneOuterGain?: number
+  interactable?: boolean
 }
 
 export interface VideoProps extends AudioProps {
-  isLivestream?: boolean;
-  elementId?: string;
-  projection?: 'flat' | '360-equirectangular';
+  isLivestream?: boolean
+  elementId?: string
+  projection?: 'flat' | '360-equirectangular'
 }
 
 export const elementPlaying = (element: {
-  currentTime:Time,
-  paused:boolean,
-  ended:boolean,
-  readyState:number
+  currentTime: Time
+  paused: boolean
+  ended: boolean
+  readyState: number
 }): boolean => {
   // if (isWebWorker) return element?._isPlaying;
   return element && !!(element.currentTime > 0 && !element.paused && !element.ended && element.readyState > 2)
 }
 
-
 const onMediaInteraction = (entityInitiator, args, delta, entityInteractive, time) => {
-  const volumetric = getComponent(entityInteractive, VolumetricComponent);
+  const volumetric = getComponent(entityInteractive, VolumetricComponent)
   if (volumetric) {
     // TODO handle volumetric interaction here
     return
@@ -78,9 +77,14 @@ const onMediaInteraction = (entityInitiator, args, delta, entityInteractive, tim
   }
 }
 
-
-const onMediaInteractionHover = (entityInitiator, { focused }: { focused: boolean }, delta, entityInteractive, time) => {
-  const { el: mediaElement } = getComponent(entityInteractive, Object3DComponent).value as AudioSource;
+const onMediaInteractionHover = (
+  entityInitiator,
+  { focused }: { focused: boolean },
+  delta,
+  entityInteractive,
+  time
+) => {
+  const { el: mediaElement } = getComponent(entityInteractive, Object3DComponent).value as AudioSource
 
   EngineEvents.instance.dispatchEvent({
     type: InteractiveSystem.EVENTS.OBJECT_HOVER,
@@ -90,10 +94,9 @@ const onMediaInteractionHover = (entityInitiator, { focused }: { focused: boolea
   })
 }
 
-
-export function createMediaServer(entity, args: {interactable:boolean}): void {
-  addObject3DComponent(entity, { obj3d: new Object3D(), objArgs: args });
-  if (args.interactable) addInteraction(entity);
+export function createMediaServer(entity, args: { interactable: boolean }): void {
+  addObject3DComponent(entity, { obj3d: new Object3D(), objArgs: args })
+  if (args.interactable) addInteraction(entity)
 
   // If media component is not requires to be sync then return
 
@@ -135,11 +138,10 @@ export function createVideo(entity, args: VideoProps): void {
   if (args.interactable) addInteraction(entity)
 }
 
-
 export const createVolumetric = (entity, args: VolumetricProps) => {
-  addComponent(entity, VolumetricComponent);
-  const volumetricComponent = getMutableComponent(entity, VolumetricComponent);
-  const container = new Object3D();
+  addComponent(entity, VolumetricComponent)
+  const volumetricComponent = getMutableComponent(entity, VolumetricComponent)
+  const container = new Object3D()
 
   // const worker = new PlayerWorker();
   const DracosisSequence = new DracosisPlayer({

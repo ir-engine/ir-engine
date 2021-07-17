@@ -1,20 +1,19 @@
-import { BufferGeometry, Euler, ExtrudeGeometry, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from 'three';
-import { Body, BodyType, ShapeType, SHAPES } from 'three-physx';
-import { AssetLoader } from '../../assets/classes/AssetLoader';
-import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils';
-import { isClient } from '../../common/functions/isClient';
-import { Behavior } from '../../common/interfaces/Behavior';
-import { Engine } from '../../ecs/classes/Engine';
-import { Entity } from '../../ecs/classes/Entity';
-import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions';
-import { ColliderComponent } from '../../physics/components/ColliderComponent';
-import { CollisionGroups } from '../../physics/enums/CollisionGroups';
-import { PhysicsSystem } from '../../physics/systems/PhysicsSystem';
-import { TransformComponent } from '../../transform/components/TransformComponent';
-import { FontManager } from '../../ui/classes/FontManager';
-import { Object3DComponent } from '../components/Object3DComponent';
-import { PortalComponent } from '../components/PortalComponent';
-
+import { BufferGeometry, Euler, ExtrudeGeometry, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from 'three'
+import { Body, BodyType, ShapeType, SHAPES } from 'three-physx'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
+import { isClient } from '../../common/functions/isClient'
+import { Behavior } from '../../common/interfaces/Behavior'
+import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
+import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
+import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { PhysicsSystem } from '../../physics/systems/PhysicsSystem'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { FontManager } from '../../ui/classes/FontManager'
+import { Object3DComponent } from '../components/Object3DComponent'
+import { PortalComponent } from '../components/PortalComponent'
 
 export type PortalProps = {
   location: string
@@ -25,9 +24,8 @@ export type PortalProps = {
 
 const vec3 = new Vector3()
 
-export const createPortal= (entity : Entity, args:PortalProps) => {
-
-  const { location, displayText, spawnPosition } = args;
+export const createPortal = (entity: Entity, args: PortalProps) => {
+  const { location, displayText, spawnPosition } = args
 
   const spawnRotation = new Quaternion().setFromEuler(
     new Euler().setFromVector3(new Vector3(args.spawnRotation.x, args.spawnRotation.y, args.spawnRotation.z), 'XYZ')
