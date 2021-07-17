@@ -17,7 +17,7 @@ export const getPositionNextPoint = (entity: Entity, args?: any) => {
   const gameScore = getStorage(entity, { name: 'GameScore' })
 
   const game = getGame(entity)
-  console.warn(args.positionCopyFromRole + gameScore.score.goal)
+  console.warn(args.positionCopyFromRole, gameScore)
   const teeEntity = game.gameObjects[args.positionCopyFromRole + gameScore.score.goal][0]
   if (teeEntity) {
     const teeTransform = getComponent(teeEntity, TransformComponent)

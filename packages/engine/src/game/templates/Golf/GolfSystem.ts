@@ -110,13 +110,15 @@ export class GolfSystem extends System {
         if (hasComponent(entity, State.Waiting)) {
           if (!hasComponent(entity, State.Goal)) {
             if (hasComponent(ballEntity, Action.GameObjectCollisionTag) && hasComponent(ballEntity, State.Ready)) {
+              console.log(gameScore)
               const currentHoleEntity = gameScore.score
-                ? game.gameObjects['GolfHole-' + gameScore.score.goal][0]
-                : undefined
-              if (hasComponent(currentHoleEntity, Action.GameObjectCollisionTag)) {
+                ? game.gameObjects['GolfHole'][gameScore.score.goal]
+                : game.gameObjects['GolfHole'][0]
+              if (currentHoleEntity && hasComponent(currentHoleEntity, Action.GameObjectCollisionTag)) {
                 behaviorsToExecute.push(() => {
+                  console.log('adding goal')
                   removeComponent(ballEntity, Action.GameObjectCollisionTag)
-                  removeComponent(entity, Action.GameObjectCollisionTag)
+                  removeComponent(currentHoleEntity, Action.GameObjectCollisionTag)
                   addStateComponent(entity, State.addedGoal)
                 })
               }
@@ -143,10 +145,8 @@ export class GolfSystem extends System {
               getPositionNextPoint(entity, { positionCopyFromRole: 'GolfTee-', position: null })
             )
             teleportObject(
-              entity,
-              getPositionNextPoint(ballEntity, { positionCopyFromRole: 'GolfTee-', position: null }),
-              delta,
-              ballEntity
+              ballEntity,
+              getPositionNextPoint(entity, { positionCopyFromRole: 'GolfTee-', position: null })
             )
             removeStateComponent(entity, State.Goal)
           })
