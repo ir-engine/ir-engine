@@ -1,47 +1,62 @@
-import { Engine } from "@xrengine/engine/src/ecs/classes/Engine";
-import React, { useEffect, useRef, useState } from "react";
-import JSONTree from 'react-json-tree';
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import React, { useEffect, useRef, useState } from 'react'
+import JSONTree from 'react-json-tree'
 
 export const Debug = () => {
-  const [isShowing, setShowing] = useState(false);
-  const showingStateRef = useRef(isShowing);
+  const [isShowing, setShowing] = useState(false)
+  const showingStateRef = useRef(isShowing)
 
   function setupListener() {
-    window.addEventListener('keydown', downHandler);
+    window.addEventListener('keydown', downHandler)
   }
 
   // If pressed key is our target key then set to true
   function downHandler({ keyCode }) {
-    if (keyCode === 192) { // `
-      showingStateRef.current = !showingStateRef.current;
-      setShowing(showingStateRef.current);
+    if (keyCode === 192) {
+      // `
+      showingStateRef.current = !showingStateRef.current
+      setShowing(showingStateRef.current)
     }
   }
 
   // Add event listeners
   useEffect(() => {
-    setupListener();
+    setupListener()
     const interval = setInterval(() => {
-      setRemountCount(Math.random());
-    }, 1000);
+      setRemountCount(Math.random())
+    }, 1000)
     return () => {
-      clearInterval(interval);
-    };
-  }, []);
+      clearInterval(interval)
+    }
+  }, [])
 
-  const [remountCount, setRemountCount] = useState(0);
-  const refresh = () => setRemountCount(remountCount + 1);
+  const [remountCount, setRemountCount] = useState(0)
+  const refresh = () => setRemountCount(remountCount + 1)
 
-  if (isShowing) return (
-    <div style={{ position: "absolute", overflowY: "auto", top: 0, zIndex: 100000, height: "auto", maxHeight: "95%", width: "auto", maxWidth: "50%" }}>
-      <button type="submit" value="Refresh" onClick={refresh}>Refresh</button>
+  if (isShowing)
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          overflowY: 'auto',
+          top: 0,
+          zIndex: 100000,
+          height: 'auto',
+          maxHeight: '95%',
+          width: 'auto',
+          maxWidth: '50%'
+        }}
+      >
+        <button type="submit" value="Refresh" onClick={refresh}>
+          Refresh
+        </button>
         <div>
           <h1>Engine Entities</h1>
           <JSONTree data={{ ...Engine.entities }} />
         </div>
       </div>
-  );
-  else return null;
-};
+    )
+  else return null
+}
 
-export default Debug;
+export default Debug

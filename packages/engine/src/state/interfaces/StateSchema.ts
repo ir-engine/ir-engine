@@ -1,30 +1,30 @@
-import { StateAlias } from '../types/StateAlias';
+import { StateAlias } from '../types/StateAlias'
 
 export interface StateSchemaValue {
-    component?: any;
-    blockedBy?: StateAlias;
-    overrides?: StateAlias;
-    componentProperties?: {
-      component: any;
-      properties: {
-        [key: string]: any;
-      };
-    }[];
-    onEntry?: BehaviorAlias[];
-    onChanged?: BehaviorAlias[];
-    onUpdate?: BehaviorAlias[];
-    onLateUpdate?: BehaviorAlias[];
-    onExit?: BehaviorAlias[];
+  component?: any
+  blockedBy?: StateAlias
+  overrides?: StateAlias
+  componentProperties?: {
+    component: any
+    properties: {
+      [key: string]: any
+    }
+  }[]
+  onEntry?: BehaviorAlias[]
+  onChanged?: BehaviorAlias[]
+  onUpdate?: BehaviorAlias[]
+  onLateUpdate?: BehaviorAlias[]
+  onExit?: BehaviorAlias[]
 }
 
 export interface BehaviorAlias {
-  behavior: any;
-  args?: any;
+  behavior: any
+  args?: any
 }
 
 export interface StateSchema {
-  default: number | string,
+  default: number | string
   states: {
-    [key: number]: StateSchemaValue;
-  };
+    [key: number]: StateSchemaValue
+  }
 }

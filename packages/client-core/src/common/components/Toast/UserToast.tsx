@@ -1,37 +1,42 @@
-import React from "react";
-import { connect } from 'react-redux';
-import { selectUserState } from '../../../user/reducers/user/selector';
-import Toast from './Toast';
+import React from 'react'
+import { connect } from 'react-redux'
+import { selectUserState } from '../../../user/reducers/user/selector'
+import Toast from './Toast'
 // @ts-ignore
-import styles from "./toast.module.scss";
-import { useTranslation } from 'react-i18next';
+import styles from './toast.module.scss'
+import { useTranslation } from 'react-i18next'
 
 type Props = {
-  user?: any;
+  user?: any
 }
 
 const mapStateToProps = (state: any): any => {
   return {
-    user: selectUserState(state),
-  };
-};
+    user: selectUserState(state)
+  }
+}
 
 const UserToast = (props: Props) => {
-  const messages = props.user?.get('toastMessages');
-	const { t } = useTranslation();
+  const messages = props.user?.get('toastMessages')
+  const { t } = useTranslation()
   const msgs = messages
     ? Array.from(messages).map((m: any) => {
-      if (m.args.userAdded) return <span><span className={styles.userAdded}>{m.user.name}</span> {t('common:toast.joined')}</span>;
-      else if (m.args.userRemoved) return <span><span className={styles.userRemoved}>{m.user.name}</span> {t('common:toast.left')}</span>;
-    }) : [];
+        if (m.args.userAdded)
+          return (
+            <span>
+              <span className={styles.userAdded}>{m.user.name}</span> {t('common:toast.joined')}
+            </span>
+          )
+        else if (m.args.userRemoved)
+          return (
+            <span>
+              <span className={styles.userRemoved}>{m.user.name}</span> {t('common:toast.left')}
+            </span>
+          )
+      })
+    : []
 
+  return <Toast messages={msgs} customClass={styles.userToastContainer} />
+}
 
-  return (
-    <Toast
-      messages={msgs}
-      customClass={styles.userToastContainer}
-    />
-  );
-};
-
-export default connect(mapStateToProps)(UserToast);
+export default connect(mapStateToProps)(UserToast)

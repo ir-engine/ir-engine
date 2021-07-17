@@ -1,9 +1,5 @@
-import Immutable from 'immutable';
-import {
-  AppLoadedAction,
-  GeneralStateList,
-  SetViewportAction
-} from './actions';
+import Immutable from 'immutable'
+import { AppLoadedAction, GeneralStateList, SetViewportAction } from './actions'
 
 import {
   SET_APP_LOADED,
@@ -13,18 +9,18 @@ import {
   SET_APP_ONBOARDING_STEP,
   SET_APP_SPECIFIC_ONBOARDING_STEP,
   SET_USER_HAS_INTERACTED
-} from '../actions';
+} from '../actions'
 
 type AppState = {
-  loaded: boolean;
-  inVrMode: boolean;
+  loaded: boolean
+  inVrMode: boolean
   viewport: {
-    width: number;
-    height: number;
-  };
-  onBoardingStep: number;
-  isTutorial: boolean | false;
-  userHasInteracted: boolean;
+    width: number
+    height: number
+  }
+  onBoardingStep: number
+  isTutorial: boolean | false
+  userHasInteracted: boolean
 }
 
 export const initialAppState: AppState = {
@@ -37,46 +33,48 @@ export const initialAppState: AppState = {
   onBoardingStep: GeneralStateList.START_STATE,
   isTutorial: false,
   userHasInteracted: false
-};
+}
 
-const immutableState = Immutable.fromJS(initialAppState);
+const immutableState = Immutable.fromJS(initialAppState)
 
 const appReducer = (state = immutableState, action: AppLoadedAction | SetViewportAction): AppState => {
   switch (action.type) {
     case SET_APP_LOADED:
-      return state
-        .set('loaded', action.loaded);
+      return state.set('loaded', action.loaded)
     case SET_APP_LOADING_PERCENT:
-      return state
-        .set('loadPercent', action.loadPercent);
+      return state.set('loadPercent', action.loadPercent)
     case SET_VIEWPORT_SIZE:
-      return state
-        .set('viewport', { width: action.width, height: action.height });
+      return state.set('viewport', { width: action.width, height: action.height })
     case SET_IN_VR_MODE:
-      return state
-        .set('inVrMode', action.inVrMode);
+      return state.set('inVrMode', action.inVrMode)
     case SET_USER_HAS_INTERACTED:
-      return state
-        .set('userHasInteracted', true);
+      return state.set('userHasInteracted', true)
     case SET_APP_ONBOARDING_STEP:
-      return (action.onBoardingStep === GeneralStateList.ALL_DONE) ?
-        state.set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ?
-        action.onBoardingStep : state.get('onBoardingStep')) :
-        (action.onBoardingStep === GeneralStateList.SCENE_LOADED) ?
-          state.set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ?
-          action.onBoardingStep : state.get('onBoardingStep'))
+      return action.onBoardingStep === GeneralStateList.ALL_DONE
+        ? state.set(
+            'onBoardingStep',
+            action.onBoardingStep >= state.get('onBoardingStep') ? action.onBoardingStep : state.get('onBoardingStep')
+          )
+        : action.onBoardingStep === GeneralStateList.SCENE_LOADED
+        ? state
+            .set(
+              'onBoardingStep',
+              action.onBoardingStep >= state.get('onBoardingStep') ? action.onBoardingStep : state.get('onBoardingStep')
+            )
             .set('isTutorial', true)
-          :
-          state
-            .set('onBoardingStep', action.onBoardingStep >= state.get('onBoardingStep') ? action.onBoardingStep : state.get('onBoardingStep'))
-            .set('isTutorial', false);
+        : state
+            .set(
+              'onBoardingStep',
+              action.onBoardingStep >= state.get('onBoardingStep') ? action.onBoardingStep : state.get('onBoardingStep')
+            )
+            .set('isTutorial', false)
     case SET_APP_SPECIFIC_ONBOARDING_STEP:
-      return state.set('onBoardingStep', action.onBoardingStep).set('isTutorial', action.isTutorial);
+      return state.set('onBoardingStep', action.onBoardingStep).set('isTutorial', action.isTutorial)
     default:
-      break;
+      break
   }
 
-  return state;
-};
+  return state
+}
 
-export default appReducer;
+export default appReducer

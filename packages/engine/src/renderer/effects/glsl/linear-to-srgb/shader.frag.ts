@@ -2,4 +2,4 @@ export default `void mainImage(const in vec4 inputColor, const in vec2 uv, out v
 
 	outputColor = LinearTosRGB(max(inputColor, 0.0));
 
-}`;
+}`

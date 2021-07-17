@@ -1,32 +1,30 @@
 /**
- * An object for swagger documentation configiration 
- * 
+ * An object for swagger documentation configiration
+ *
  * @author Kevin KIMENYI
  */
 export default {
-    definitions: {
-        group: {
-            type: 'object',
-            properties: {
-                name: {
-                    type: 'string'
-                },
-                description: {
-                    type: 'string'
-                }
-            }
+  definitions: {
+    group: {
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string'
         },
-        group_list: {
-            type: 'array',
-            items: { $ref: '#/definitions/group'}
+        description: {
+          type: 'string'
         }
-    },
-    securities: ['create', 'update', 'patch', 'remove'],
-    operations: {
-      find: {
-        security: [
-          { bearer: [] }
-        ]
       }
-    } 
-};
+    },
+    group_list: {
+      type: 'array',
+      items: { $ref: '#/definitions/group' }
+    }
+  },
+  securities: ['create', 'update', 'patch', 'remove'],
+  operations: {
+    find: {
+      security: [{ bearer: [] }]
+    }
+  }
+}

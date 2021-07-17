@@ -1,6 +1,5 @@
-import React from "react";
-import Api from "../Api";
-
+import React from 'react'
+import Api from '../Api'
 
 /**
  * Context lets us pass a value deep into the component tree
@@ -9,19 +8,19 @@ import Api from "../Api";
  *
  * @author Robert Long
  */
-export const ApiContext = React.createContext<Api | undefined>(undefined);
+export const ApiContext = React.createContext<Api | undefined>(undefined)
 
 /**
  * withApi used to provide component context value by calling api.
- * 
+ *
  * @author Robert Long
  */
 export function withApi(Component) {
   return function ApiContextComponent(props) {
     return (
       <ApiContext.Consumer>
-        {api => api ? <Component {...props} api={api} /> : <React.Fragment />}
+        {(api) => (api ? <Component {...props} api={api} /> : <React.Fragment />)}
       </ApiContext.Consumer>
-    );
-  };
+    )
+  }
 }

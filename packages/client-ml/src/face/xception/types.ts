@@ -1,4 +1,4 @@
-import { SeparableConvParams, ConvParams } from "../common/types"
+import { SeparableConvParams, ConvParams } from '../common/types'
 
 export type ReductionBlockParams = {
   separable_conv0: SeparableConvParams
@@ -18,7 +18,7 @@ export type TinyXceptionParams = {
     reduction_block_0: ReductionBlockParams
     reduction_block_1: ReductionBlockParams
   }
-  middle_flow: any,
+  middle_flow: any
   exit_flow: {
     reduction_block: ReductionBlockParams
     separable_conv: SeparableConvParams

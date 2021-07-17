@@ -1,22 +1,21 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { BoundingBox } from '../classes/BoundingBox';
-import { Point } from '../classes/Point';
-import { nonMaxSuppression } from '../ops';
-import { CELL_SIZE, CELL_STRIDE } from './config';
-import { getSizesForScale } from './getSizesForScale';
-import { MtcnnBox } from './MtcnnBox';
-import { normalize } from './normalize';
-import { PNet } from './PNet';
-import { PNetParams } from './types';
+import * as tf from '@tensorflow/tfjs-core'
+import { BoundingBox } from '../classes/BoundingBox'
+import { Point } from '../classes/Point'
+import { nonMaxSuppression } from '../ops'
+import { CELL_SIZE, CELL_STRIDE } from './config'
+import { getSizesForScale } from './getSizesForScale'
+import { MtcnnBox } from './MtcnnBox'
+import { normalize } from './normalize'
+import { PNet } from './PNet'
+import { PNetParams } from './types'
 
 function rescaleAndNormalize(x: tf.Tensor4D, scale: number): tf.Tensor4D {
   return tf.tidy(() => {
-
     const { height, width } = getSizesForScale(scale, x.shape.slice(1))
     const resized = tf.image.resizeBilinear(x, [height, width])
     const normalized = normalize(resized)
 
-    return (tf.transpose(normalized, [0, 2, 1, 3]) as tf.Tensor4D)
+    return tf.transpose(normalized, [0, 2, 1, 3]) as tf.Tensor4D
   })
 }
 
@@ -26,10 +25,9 @@ function extractBoundingBoxes(
   scale: number,
   scoreThreshold: number
 ) {
-
   // TODO: fix this!, maybe better to use tf.gather here
   const indices: Point[] = []
-  const scoresData = scoresTensor.arraySync();
+  const scoresData = scoresTensor.arraySync()
   for (let y = 0; y < scoresTensor.shape[0]; y++) {
     for (let x = 0; x < scoresTensor.shape[1]; x++) {
       if (scoresData[y][x] >= scoreThreshold) {
@@ -38,7 +36,7 @@ function extractBoundingBoxes(
     }
   }
 
-  const boundingBoxes = indices.map(index => {
+  const boundingBoxes = indices.map((index) => {
     const cell = new BoundingBox(
       Math.round((index.y * CELL_STRIDE + 1) / scale),
       Math.round((index.x * CELL_STRIDE + 1) / scale),
@@ -75,32 +73,29 @@ export function stage1(
 ) {
   stats.stage1 = []
 
-  const pnetOutputs = scales.map((scale) => tf.tidy(() => {
-    const statsForScale: any = { scale }
-    const resized = rescaleAndNormalize(imgTensor, scale)
+  const pnetOutputs = scales.map((scale) =>
+    tf.tidy(() => {
+      const statsForScale: any = { scale }
+      const resized = rescaleAndNormalize(imgTensor, scale)
 
-    const ts = Date.now()
-    const { prob, regions } = PNet(resized, params)
-    statsForScale.pnet = Date.now() - ts
+      const ts = Date.now()
+      const { prob, regions } = PNet(resized, params)
+      statsForScale.pnet = Date.now() - ts
 
-    const scoresTensor = tf.unstack(tf.unstack(prob, 3)[1])[0] as tf.Tensor2D
-    const regionsTensor = tf.unstack(regions)[0] as tf.Tensor3D
+      const scoresTensor = tf.unstack(tf.unstack(prob, 3)[1])[0] as tf.Tensor2D
+      const regionsTensor = tf.unstack(regions)[0] as tf.Tensor3D
 
-    return {
-      scoresTensor,
-      regionsTensor,
-      scale,
-      statsForScale
-    }
-  }))
+      return {
+        scoresTensor,
+        regionsTensor,
+        scale,
+        statsForScale
+      }
+    })
+  )
 
   const boxesForScale = pnetOutputs.map(({ scoresTensor, regionsTensor, scale, statsForScale }) => {
-    const boundingBoxes = extractBoundingBoxes(
-      scoresTensor,
-      regionsTensor,
-      scale,
-      scoreThreshold
-    )
+    const boundingBoxes = extractBoundingBoxes(scoresTensor, regionsTensor, scale, scoreThreshold)
 
     scoresTensor.dispose()
     regionsTensor.dispose()
@@ -112,20 +107,18 @@ export function stage1(
 
     const ts = Date.now()
     const indices = nonMaxSuppression(
-      boundingBoxes.map(bbox => bbox.cell),
-      boundingBoxes.map(bbox => bbox.score),
+      boundingBoxes.map((bbox) => bbox.cell),
+      boundingBoxes.map((bbox) => bbox.score),
       0.5
     )
     statsForScale.nms = Date.now() - ts
     statsForScale.numBoxes = indices.length
 
     stats.stage1.push(statsForScale)
-    return indices.map(boxIdx => boundingBoxes[boxIdx])
+    return indices.map((boxIdx) => boundingBoxes[boxIdx])
   })
 
-  const allBoxes = boxesForScale.reduce(
-    (all, boxes) => all.concat(boxes), []
-  )
+  const allBoxes = boxesForScale.reduce((all, boxes) => all.concat(boxes), [])
 
   let finalBoxes: BoundingBox[] = []
   let finalScores: number[] = []
@@ -133,29 +126,29 @@ export function stage1(
   if (allBoxes.length > 0) {
     const ts = Date.now()
     const indices = nonMaxSuppression(
-      allBoxes.map(bbox => bbox.cell),
-      allBoxes.map(bbox => bbox.score),
+      allBoxes.map((bbox) => bbox.cell),
+      allBoxes.map((bbox) => bbox.score),
       0.7
     )
     stats.stage1_nms = Date.now() - ts
 
-    finalScores = indices.map(index => allBoxes[index].score)
+    finalScores = indices.map((index) => allBoxes[index].score)
     finalBoxes = indices
-      .map(index => allBoxes[index])
+      .map((index) => allBoxes[index])
       .map(({ cell, region }) =>
         new BoundingBox(
-          cell.left + (region.left * cell.width),
-          cell.top + (region.top * cell.height),
-          cell.right + (region.right * cell.width),
-          cell.bottom + (region.bottom * cell.height)
-        ).toSquare().round()
+          cell.left + region.left * cell.width,
+          cell.top + region.top * cell.height,
+          cell.right + region.right * cell.width,
+          cell.bottom + region.bottom * cell.height
+        )
+          .toSquare()
+          .round()
       )
-
   }
 
   return {
     boxes: finalBoxes,
     scores: finalScores
   }
-
 }

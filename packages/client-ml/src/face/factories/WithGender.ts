@@ -1,5 +1,5 @@
-import { Gender } from '../ageGenderNet/types';
-import { isValidProbablitiy } from '../utils';
+import { Gender } from '../ageGenderNet/types'
+import { isValidProbablitiy } from '../utils'
 
 export type WithGender<TSource> = TSource & {
   gender: Gender
@@ -7,18 +7,16 @@ export type WithGender<TSource> = TSource & {
 }
 
 export function isWithGender(obj: any): obj is WithGender<{}> {
-  return (obj['gender'] === Gender.MALE || obj['gender'] === Gender.FEMALE)
-    && isValidProbablitiy(obj['genderProbability'])
+  return (
+    (obj['gender'] === Gender.MALE || obj['gender'] === Gender.FEMALE) && isValidProbablitiy(obj['genderProbability'])
+  )
 }
 
-export function extendWithGender<
-  TSource
-> (
+export function extendWithGender<TSource>(
   sourceObj: TSource,
   gender: Gender,
   genderProbability: number
 ): WithGender<TSource> {
-
   const extension = { gender, genderProbability }
   return Object.assign({}, sourceObj, extension)
 }

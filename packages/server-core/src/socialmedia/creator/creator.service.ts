@@ -1,16 +1,16 @@
 // Initializes the `feed` service on path `/feed`
-import { ServiceAddons } from '@feathersjs/feathers';
-import { Application } from '../../../declarations';
-import { Creator } from './creator.class';
-import createModel from './creator.model';
-import hooks from './creator.hooks';
-import { Creator as CreatorInterface } from '@xrengine/common/src/interfaces/Creator';
-import creatorDocs from './creator.docs';
+import { ServiceAddons } from '@feathersjs/feathers'
+import { Application } from '../../../declarations'
+import { Creator } from './creator.class'
+import createModel from './creator.model'
+import hooks from './creator.hooks'
+import { Creator as CreatorInterface } from '@xrengine/common/src/interfaces/Creator'
+import creatorDocs from './creator.docs'
 
 // Add this service to the service type index
 declare module '../../../declarations' {
   interface ServiceTypes {
-    'creator': CreatorInterface & ServiceAddons<any>;
+    creator: CreatorInterface & ServiceAddons<any>
   }
 }
 
@@ -18,15 +18,15 @@ export default function (app: Application): void {
   const options = {
     Model: createModel(app),
     paginate: app.get('paginate')
-  };
+  }
 
   // Initialize our service with any options it requires
-  const creator = new Creator(options, app);
-  creator.docs = creatorDocs;
-  app.use('/creator', creator);
+  const creator = new Creator(options, app)
+  creator.docs = creatorDocs
+  app.use('/creator', creator)
 
   // Get our initialized service so that we can register hooks
-  const service = app.service('creator');
+  const service = app.service('creator')
 
-  service.hooks(hooks as any);
+  service.hooks(hooks as any)
 }

@@ -1,30 +1,30 @@
-import { PropType } from '../types/Types';
-import { Component } from '../classes/Component';
+import { PropType } from '../types/Types'
+import { Component } from '../classes/Component'
 
 /**
  * For getting type and default values from a newly added component
- * 
+ *
  * @author Fernando Serrano, Robert Long
  */
 export interface ComponentSchema {
   /** Property of the Component. */
   [propName: string]: {
     /** Checks if the property is default. */
-    default?: any;
+    default?: any
     /** Defines the type of the property. */
-    type: PropType<any, any>;
-  };
+    type: PropType<any, any>
+  }
 }
 
 /**
  * Interface for defining new component.
- * 
+ *
  * @author Fernando Serrano, Robert Long
  */
 export interface ComponentConstructor<C extends Component<C>> {
   /** Schema for the Component. */
-  _schema: ComponentSchema;
+  _schema: ComponentSchema
   /** Type of the Component. */
-  _typeId: any;
-  new(props?: Partial<Omit<C, keyof Component<C>>> | false): C;
+  _typeId: any
+  new (props?: Partial<Omit<C, keyof Component<C>>> | false): C
 }

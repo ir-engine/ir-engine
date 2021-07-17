@@ -1,32 +1,11 @@
+
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "allowJs": true,
-    "alwaysStrict": true,
-    "baseUrl": "./",
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "lib": ["ESNext", "DOM", "DOM.Iterable", "WebWorker"],
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "noEmit": true,
-    "paths": { "@/*": ["src/*"] },
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "strict": false,
-    "target": "ESNext",
-    "noImplicitAny": false,
-    "typeRoots": ["../packages/common/types", "packages/common/types", "./node_modules/@types"],
-    "sourceMap": true,
-    "experimentalDecorators": true
+    "outDir": "./lib"
   },
   "exclude": [
     "node_modules",
     "../../node_modules/k8s/*"
   ],
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx"
-  ]
 }

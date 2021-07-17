@@ -1,8 +1,8 @@
-import * as tf from '@tensorflow/tfjs-core';
-import { FaceLandmarks5 } from '../classes/FaceLandmarks5';
-import { ConvParams, FCParams } from '../common/types';
-import { WithFaceDetection } from '../factories/WithFaceDetection';
-import { WithFaceLandmarks } from '../factories/WithFaceLandmarks';
+import * as tf from '@tensorflow/tfjs-core'
+import { FaceLandmarks5 } from '../classes/FaceLandmarks5'
+import { ConvParams, FCParams } from '../common/types'
+import { WithFaceDetection } from '../factories/WithFaceDetection'
+import { WithFaceLandmarks } from '../factories/WithFaceLandmarks'
 
 export type SharedParams = {
   conv1: ConvParams

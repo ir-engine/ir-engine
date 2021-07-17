@@ -6,20 +6,20 @@ export class EventDispatcher {
   _listeners: {}
 
   constructor() {
-    this._listeners = {};
+    this._listeners = {}
   }
 
   /** Resets the Dispatcher */
   public reset(): void {
-    Object.keys(this._listeners).forEach(key => {
-      delete this._listeners[key];
-    });
+    Object.keys(this._listeners).forEach((key) => {
+      delete this._listeners[key]
+    })
   }
 
   once(eventName: string | number, listener: Function, ...args: any): void {
     const onEvent = (ev) => {
-      this.removeEventListener(eventName, onEvent);
-      listener(ev);
+      this.removeEventListener(eventName, onEvent)
+      listener(ev)
     }
     this.addEventListener(eventName, onEvent)
   }
@@ -31,13 +31,13 @@ export class EventDispatcher {
    */
   addEventListener(eventName: string | number, listener: Function, ...args: any): void {
     console.log(this)
-    const listeners = this._listeners;
+    const listeners = this._listeners
     if (listeners[eventName] === undefined) {
-      listeners[eventName] = [];
+      listeners[eventName] = []
     }
 
     if (listeners[eventName].indexOf(listener) === -1) {
-      listeners[eventName].push(listener);
+      listeners[eventName].push(listener)
     }
   }
 
@@ -47,7 +47,7 @@ export class EventDispatcher {
    * @param listener Callback for the specified event.
    */
   hasEventListener(eventName: string | number, listener: Function, ...args: any): boolean {
-    return this._listeners[eventName] !== undefined && this._listeners[eventName].indexOf(listener) !== -1;
+    return this._listeners[eventName] !== undefined && this._listeners[eventName].indexOf(listener) !== -1
   }
 
   /**
@@ -56,11 +56,11 @@ export class EventDispatcher {
    * @param listener Callback for the specified event.
    */
   removeEventListener(eventName: string | number, listener: Function, ...args: any): void {
-    const listenerArray = this._listeners[eventName];
+    const listenerArray = this._listeners[eventName]
     if (listenerArray !== undefined) {
-      const index = listenerArray.indexOf(listener);
+      const index = listenerArray.indexOf(listener)
       if (index !== -1) {
-        listenerArray.splice(index, 1);
+        listenerArray.splice(index, 1)
       }
     }
   }
@@ -71,12 +71,11 @@ export class EventDispatcher {
    */
   removeAllListenersForEvent(eventName: string, deleteEvent?: boolean, ...args: any) {
     if (deleteEvent) {
-      delete this._listeners[eventName];
+      delete this._listeners[eventName]
     } else {
-      this._listeners[eventName] = [];
+      this._listeners[eventName] = []
     }
   }
-
 
   /**
    * Dispatches an event with given Entity and Component and increases fired event's count.
@@ -86,13 +85,13 @@ export class EventDispatcher {
    * Fire an event type.
    * @param type The type of event that gets fired.
    */
-  dispatchEvent(event: { type: string;[attachment: string]: any }, ...args: any): void {
-    const listenerArray = this._listeners[event.type];
+  dispatchEvent(event: { type: string; [attachment: string]: any }, ...args: any): void {
+    const listenerArray = this._listeners[event.type]
     if (listenerArray !== undefined) {
-      const array = listenerArray.slice(0);
+      const array = listenerArray.slice(0)
 
       for (let i = 0; i < array.length; i++) {
-        array[i].call(this, event, ...args);
+        array[i].call(this, event, ...args)
       }
     }
   }

@@ -1,18 +1,15 @@
-import { hooks } from '@feathersjs/authentication';
-import { iff, disallow } from 'feathers-hooks-common';
-import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role';
-import addUserToBody from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body';
-import config from '../../appconfig';
+import { hooks } from '@feathersjs/authentication'
+import { iff, disallow } from 'feathers-hooks-common'
+import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role'
+import addUserToBody from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
+import config from '../../appconfig'
 
-const { authenticate } = hooks;
+const { authenticate } = hooks
 
 export default {
   before: {
     all: [
-      iff(
-        config.server.mode !== 'media' && config.server.mode !== 'local',
-        disallow('external')
-      ),
+      iff(config.server.mode !== 'media' && config.server.mode !== 'local', disallow('external')),
       authenticate('jwt'),
       restrictUserRole('admin')
     ],
@@ -43,4 +40,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}

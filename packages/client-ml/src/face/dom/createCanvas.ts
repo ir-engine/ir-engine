@@ -1,11 +1,10 @@
-import { IDimensions } from '../classes/Dimensions';
-import { env } from '../env';
-import { getContext2dOrThrow } from './getContext2dOrThrow';
-import { getMediaDimensions } from './getMediaDimensions';
-import { isMediaLoaded } from './isMediaLoaded';
+import { IDimensions } from '../classes/Dimensions'
+import { env } from '../env'
+import { getContext2dOrThrow } from './getContext2dOrThrow'
+import { getMediaDimensions } from './getMediaDimensions'
+import { isMediaLoaded } from './isMediaLoaded'
 
 export function createCanvas({ width, height }: IDimensions): HTMLCanvasElement {
-
   const { createCanvasElement } = env.getEnv()
   const canvas = createCanvasElement()
   canvas.width = width
@@ -13,8 +12,10 @@ export function createCanvas({ width, height }: IDimensions): HTMLCanvasElement 
   return canvas
 }
 
-export function createCanvasFromMedia(media: HTMLImageElement | HTMLVideoElement | ImageData, dims?: IDimensions): HTMLCanvasElement {
-
+export function createCanvasFromMedia(
+  media: HTMLImageElement | HTMLVideoElement | ImageData,
+  dims?: IDimensions
+): HTMLCanvasElement {
   const { ImageData } = env.getEnv()
 
   if (!(media instanceof ImageData) && !isMediaLoaded(media)) {

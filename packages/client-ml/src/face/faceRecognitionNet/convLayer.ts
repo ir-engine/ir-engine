@@ -1,8 +1,7 @@
-import * as tf from '@tensorflow/tfjs-core';
+import * as tf from '@tensorflow/tfjs-core'
 
-import { scale } from './scaleLayer';
-import { ConvLayerParams } from './types';
-
+import { scale } from './scaleLayer'
+import { ConvLayerParams } from './types'
 
 function convLayer(
   x: tf.Tensor4D,

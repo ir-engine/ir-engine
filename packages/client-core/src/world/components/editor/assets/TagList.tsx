@@ -1,15 +1,14 @@
-import React, { useCallback, useState, useRef, useContext, useEffect } from "react";
-import PropTypes from "prop-types";
-import styled, { ThemeContext } from "styled-components";
-import { Column, Row } from "../layout/Flex";
-import { useSelectionHandler } from "./useSelection";
-import { CaretRight } from "@styled-icons/fa-solid/CaretRight";
-import { CaretDown } from "@styled-icons/fa-solid/CaretDown";
-
+import React, { useCallback, useState, useRef, useContext, useEffect } from 'react'
+import PropTypes from 'prop-types'
+import styled, { ThemeContext } from 'styled-components'
+import { Column, Row } from '../layout/Flex'
+import { useSelectionHandler } from './useSelection'
+import { CaretRight } from '@styled-icons/fa-solid/CaretRight'
+import { CaretDown } from '@styled-icons/fa-solid/CaretDown'
 
 /**
  * StyledTagList used to provide styles for tag list.
- * 
+ *
  * @author Robert Long
  * @type {styled component}
  */
@@ -17,28 +16,28 @@ const StyledTagList = (styled as any)(Column)`
   height: auto;
   min-height: 100%;
   min-width: 175px;
-  border-right: 1px solid ${props => props.theme.panel};
-`;
+  border-right: 1px solid ${(props) => props.theme.panel};
+`
 
 /**
  * TagListHeader used to provide styles for tag list header.
- * 
+ *
  * @author Robert Long
  * @type {Styled component}
  */
 const TagListHeader = (styled as any)(Row)`
-  color: ${props => props.theme.text2};
+  color: ${(props) => props.theme.text2};
   justify-content: space-between;
   align-items: center;
   padding: 0 4px;
   min-height: 24px;
-  background-color: ${props => props.theme.panel2};
-  border-bottom: 1px solid ${props => props.theme.panel};
-`;
+  background-color: ${(props) => props.theme.panel2};
+  border-bottom: 1px solid ${(props) => props.theme.panel};
+`
 
 /**
  * TagListContainer used as container element for tag list.
- * 
+ *
  * @author Robert Long
  * @type {Styled component}
  */
@@ -46,10 +45,10 @@ const TagListContainer = (styled as any).div`
   height: 100%;
   overflow-y: scroll;
   overflow-x: auto;
-`;
+`
 /**
  * TagListToggle styled componet used to create view for toggle list.
- * 
+ *
  * @author Robert Long
  * @type {Styled component}
  */
@@ -58,15 +57,15 @@ const TagListToggle = (styled as any).div`
   margin: 0 2px;
 
   :hover {
-    color: ${props => props.theme.text};
-    background-color: ${props => props.theme.hover2};
+    color: ${(props) => props.theme.text};
+    background-color: ${(props) => props.theme.hover2};
     border-radius: 3px;
   }
-`;
+`
 
 /**
  * TagContent used to provide styles to tag content.
- * 
+ *
  * @author Robert Long
  * @type {styled component}
  */
@@ -75,27 +74,27 @@ const TagContent = (styled as any).div`
   align-items: center;
   min-height: 24px;
 
-  padding-left: ${props => props.depth * 20}px;
+  padding-left: ${(props) => props.depth * 20}px;
 
-  color: ${props => props.theme.text};
+  color: ${(props) => props.theme.text};
 
-  background-color: ${props => (props.selected ? props.theme.selected : "transparent")};
+  background-color: ${(props) => (props.selected ? props.theme.selected : 'transparent')};
 
   :hover,
   :focus {
-    background-color: ${props => (props.selected ? props.theme.blueHover : props.theme.hover)};
-    color: ${props => props.theme.text};
+    background-color: ${(props) => (props.selected ? props.theme.blueHover : props.theme.hover)};
+    color: ${(props) => props.theme.text};
   }
 
   :active {
-    background-color: ${props => props.theme.bluePressed};
-    color: ${props => props.theme.text};
+    background-color: ${(props) => props.theme.bluePressed};
+    color: ${(props) => props.theme.text};
   }
-`;
+`
 
 /**
  * TreeListItem used to provide styles for list.
- * 
+ *
  * @author Robert Long
  * @type {styled component}
  */
@@ -107,32 +106,32 @@ export const TreeListItem = (styled as any).li`
   user-select: none;
   min-height: 24px;
   white-space: nowrap;
-`;
+`
 
 /**
  * TagChildrenList used to provides styles for tag child list.
- * 
+ *
  * @author Robert Long
  * @type {styled component}
  */
 const TagChildrenList = (styled as any).ul`
   width: max-content;
   min-width: 100%;
-`;
+`
 
 /**
  * TreeLeafSpacer used to provide styles for leaf spacer.
- * 
+ *
  * @author Robert Long
  * @type {Styled component}
  */
 const TreeLeafSpacer = (styled as any).div`
   width: 16px;
-`;
+`
 
 /**
  * TagListItem used to render tag list item.
- * 
+ *
  * @author Robert Long
  * @param       {object} tag
  * @param       {number} depth
@@ -145,36 +144,35 @@ const TreeLeafSpacer = (styled as any).div`
  */
 function TagListItem({ tag, depth, onClick, expanded, onToggleExpanded, selectedTags, ...rest }) {
   const onClickItem = useCallback(
-    e => {
-      e.stopPropagation();
+    (e) => {
+      e.stopPropagation()
 
       if (tag.disabled) {
-        return;
+        return
       }
 
-      onClick(tag, e);
+      onClick(tag, e)
     },
     [onClick, tag]
-  );
+  )
 
   /**
    * callback function to handle toggle on tag items
    */
   const onClickToggle = useCallback(
-    e => {
-      e.stopPropagation();
-      onToggleExpanded(tag);
+    (e) => {
+      e.stopPropagation()
+      onToggleExpanded(tag)
     },
     [onToggleExpanded, tag]
-  );
+  )
 
+  const selected = selectedTags.indexOf(tag) !== -1 || (selectedTags.length === 0 && tag.value === 'All')
+  const isExpanded = expanded[tag.value]
 
-  const selected = selectedTags.indexOf(tag) !== -1 || (selectedTags.length === 0 && tag.value === "All");
-  const isExpanded = expanded[tag.value];
-
-/**
- * retrun TreeListItem view
- */
+  /**
+   * retrun TreeListItem view
+   */
   return (
     <TreeListItem selected={selected} {...rest}>
       <TagContent depth={depth} selected={selected} onClick={onClickItem}>
@@ -189,7 +187,7 @@ function TagListItem({ tag, depth, onClick, expanded, onToggleExpanded, selected
       </TagContent>
       {tag.children && isExpanded && (
         <TagChildrenList>
-          {tag.children.map(child => (
+          {tag.children.map((child) => (
             <TagListItem
               key={child.value}
               tag={child}
@@ -204,7 +202,7 @@ function TagListItem({ tag, depth, onClick, expanded, onToggleExpanded, selected
         </TagChildrenList>
       )}
     </TreeListItem>
-  );
+  )
 }
 /**
  * declare TagListItem propTypes
@@ -216,11 +214,11 @@ TagListItem.propTypes = {
   expanded: PropTypes.object,
   onToggleExpanded: PropTypes.func,
   selectedTags: PropTypes.arrayOf(PropTypes.object)
-};
+}
 // declare tagList Default props
 TagListItem.defaultProps = {
   depth: 0
-};
+}
 /**
  * define and export TagList component
  * @param       {array} tags
@@ -231,56 +229,49 @@ TagListItem.defaultProps = {
  * @param       {function} onChangeExpandedTags
  * @constructor
  */
-export function TagList({
-  tags,
-  selectedTags,
-  onChange,
-  multiselect,
-  initialExpandedTags,
-  onChangeExpandedTags
-}) {
-  const theme = useContext(ThemeContext);
-  const tagListContainerRef = useRef();
-  const [onSelect, clearSelection] = useSelectionHandler(tags, selectedTags, onChange, multiselect);
-  const [expanded, setExpanded] = useState(initialExpandedTags || {});
+export function TagList({ tags, selectedTags, onChange, multiselect, initialExpandedTags, onChangeExpandedTags }) {
+  const theme = useContext(ThemeContext)
+  const tagListContainerRef = useRef()
+  const [onSelect, clearSelection] = useSelectionHandler(tags, selectedTags, onChange, multiselect)
+  const [expanded, setExpanded] = useState(initialExpandedTags || {})
   const onToggleExpanded = useCallback(
-    tag => {
+    (tag) => {
       const nextExpanded = {
         ...expanded,
         [tag.value]: !expanded[tag.value]
-      };
+      }
 
-      setExpanded(nextExpanded);
-      onChangeExpandedTags(nextExpanded);
+      setExpanded(nextExpanded)
+      onChangeExpandedTags(nextExpanded)
     },
     [expanded, setExpanded, onChangeExpandedTags]
-  );
+  )
 
   useEffect(() => {
-    (tagListContainerRef as any).current.querySelectorAll("li").forEach((el, index) => {
+    ;(tagListContainerRef as any).current.querySelectorAll('li').forEach((el, index) => {
       /* @ts-ignore */
-      el.style.backgroundColor = index % 2 === 0 ? theme.panel : theme.panel2;
-    });
-  }, [tagListContainerRef, theme, expanded, tags]);
+      el.style.backgroundColor = index % 2 === 0 ? theme.panel : theme.panel2
+    })
+  }, [tagListContainerRef, theme, expanded, tags])
 
-/**
- * retrun view for TagList
- */
+  /**
+   * retrun view for TagList
+   */
   return (
     <StyledTagList>
       <TagListHeader>Tags</TagListHeader>
       <TagListContainer ref={tagListContainerRef}>
         <TagChildrenList>
-          { /* @ts-ignore */ }
+          {/* @ts-ignore */}
           <TagListItem
             key="All"
             onClick={clearSelection}
             onToggleExpanded={onToggleExpanded}
             expanded={expanded}
             selectedTags={selectedTags}
-            tag={{ label: "All", value: "All" }}
+            tag={{ label: 'All', value: 'All' }}
           />
-          {tags.map(tag => (
+          {tags.map((tag) => (
             /* @ts-ignore */
             <TagListItem
               key={tag.value}
@@ -294,26 +285,26 @@ export function TagList({
         </TagChildrenList>
       </TagListContainer>
     </StyledTagList>
-  );
+  )
 }
 
 /**
  * declaring TagList propTypes
- * 
+ *
  * @author Robert Long
  * @type {Object} propTypes
  */
-TagList.propTypes  = {
+TagList.propTypes = {
   selectedTags: PropTypes.arrayOf(PropTypes.object).isRequired,
   tags: PropTypes.arrayOf(PropTypes.object).isRequired,
   onChange: PropTypes.func.isRequired,
   multiselect: PropTypes.bool,
   initialExpandedTags: PropTypes.object,
   onChangeExpandedTags: PropTypes.func
-};
+}
 /**
  * declaring TagList Default Props
- * 
+ *
  * @author Robert Long
  */
 TagList.defaultProps = {
@@ -322,5 +313,5 @@ TagList.defaultProps = {
   onSelect: () => {},
   initialExpandedTags: {},
   onChangeExpandedTags: () => {}
-};
-export default TagList;
+}
+export default TagList

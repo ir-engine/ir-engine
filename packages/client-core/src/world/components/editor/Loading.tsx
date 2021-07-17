@@ -1,11 +1,11 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import styled from "styled-components";
-import { withTranslation } from "react-i18next";
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import styled from 'styled-components'
+import { withTranslation } from 'react-i18next'
 
 /**
  * StyledLoading provides the styles for loading component.
- * 
+ *
  * @author Robert Long
  * @type {styled component}
  */
@@ -14,37 +14,37 @@ const StyledLoading = (styled as any).div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: ${props => (props.isFullscreen ? "100vh" : "100%")};
-  width: ${props => (props.isFullScreen ? "100vw" : "100%")};
+  height: ${(props) => (props.isFullscreen ? '100vh' : '100%')};
+  width: ${(props) => (props.isFullScreen ? '100vw' : '100%')};
   min-height: 300px;
 
   svg {
     margin-bottom: 20px;
   }
-`;
+`
 
 /**
  * loading class used to render loading message.
- * 
+ *
  * @author Robert Long
  * @type {component class}
  */
-export class Loading extends Component<{t: Function}> {
+export class Loading extends Component<{ t: Function }> {
   static propTypes = {
     message: PropTypes.string,
     isFullscreen: PropTypes.bool,
-    t: PropTypes.func,
-  };
+    t: PropTypes.func
+  }
 
-//creating and rendering loading view
+  //creating and rendering loading view
   render() {
     return (
       <StyledLoading fullScreen={(this.props as any).fullScreen}>
         {this.props.t('editor:lbl-return')}
         {(this.props as any).message}
       </StyledLoading>
-    );
+    )
   }
 }
 
-export default withTranslation()(Loading);
+export default withTranslation()(Loading)

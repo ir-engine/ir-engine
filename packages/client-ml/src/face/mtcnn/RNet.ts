@@ -1,13 +1,12 @@
-import * as tf from '@tensorflow/tfjs-core';
+import * as tf from '@tensorflow/tfjs-core'
 
-import { fullyConnectedLayer } from '../common/fullyConnectedLayer';
-import { prelu } from './prelu';
-import { sharedLayer } from './sharedLayers';
-import { RNetParams } from './types';
+import { fullyConnectedLayer } from '../common/fullyConnectedLayer'
+import { prelu } from './prelu'
+import { sharedLayer } from './sharedLayers'
+import { RNetParams } from './types'
 
-export function RNet(x: tf.Tensor4D, params: RNetParams): { scores: tf.Tensor1D, regions: tf.Tensor2D } {
+export function RNet(x: tf.Tensor4D, params: RNetParams): { scores: tf.Tensor1D; regions: tf.Tensor2D } {
   return tf.tidy(() => {
-
     const convOut = sharedLayer(x, params)
     const vectorized = tf.reshape(convOut, [convOut.shape[0], params.fc1.weights.shape[0]]) as tf.Tensor2D
     const fc1 = fullyConnectedLayer(vectorized, params.fc1)

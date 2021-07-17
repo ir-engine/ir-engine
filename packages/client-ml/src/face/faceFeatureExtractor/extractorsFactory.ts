@@ -1,15 +1,18 @@
-import { extractConvParamsFactory } from '../common/extractConvParamsFactory';
-import { extractSeparableConvParamsFactory } from '../common/extractSeparableConvParamsFactory';
-import { ExtractWeightsFunction, ParamMapping } from '../common/types';
-import { DenseBlock3Params, DenseBlock4Params } from './types';
+import { extractConvParamsFactory } from '../common/extractConvParamsFactory'
+import { extractSeparableConvParamsFactory } from '../common/extractSeparableConvParamsFactory'
+import { ExtractWeightsFunction, ParamMapping } from '../common/types'
+import { DenseBlock3Params, DenseBlock4Params } from './types'
 
 export function extractorsFactory(extractWeights: ExtractWeightsFunction, paramMappings: ParamMapping[]) {
-
   const extractConvParams = extractConvParamsFactory(extractWeights, paramMappings)
   const extractSeparableConvParams = extractSeparableConvParamsFactory(extractWeights, paramMappings)
 
-  function extractDenseBlock3Params(channelsIn: number, channelsOut: number, mappedPrefix: string, isFirstLayer = false): DenseBlock3Params {
-
+  function extractDenseBlock3Params(
+    channelsIn: number,
+    channelsOut: number,
+    mappedPrefix: string,
+    isFirstLayer = false
+  ): DenseBlock3Params {
     const conv0 = isFirstLayer
       ? extractConvParams(channelsIn, channelsOut, 3, `${mappedPrefix}/conv0`)
       : extractSeparableConvParams(channelsIn, channelsOut, `${mappedPrefix}/conv0`)
@@ -19,8 +22,12 @@ export function extractorsFactory(extractWeights: ExtractWeightsFunction, paramM
     return { conv0, conv1, conv2 }
   }
 
-  function extractDenseBlock4Params(channelsIn: number, channelsOut: number, mappedPrefix: string, isFirstLayer = false): DenseBlock4Params {
-
+  function extractDenseBlock4Params(
+    channelsIn: number,
+    channelsOut: number,
+    mappedPrefix: string,
+    isFirstLayer = false
+  ): DenseBlock4Params {
     const { conv0, conv1, conv2 } = extractDenseBlock3Params(channelsIn, channelsOut, mappedPrefix, isFirstLayer)
     const conv3 = extractSeparableConvParams(channelsOut, channelsOut, `${mappedPrefix}/conv3`)
 
@@ -31,5 +38,4 @@ export function extractorsFactory(extractWeights: ExtractWeightsFunction, paramM
     extractDenseBlock3Params,
     extractDenseBlock4Params
   }
-
 }

@@ -1,18 +1,18 @@
 export default function getIntersectingNode(results, scene) {
   if (results.length > 0) {
     for (const result of results) {
-      let curObject = result.object;
+      let curObject = result.object
       while (curObject) {
         if (curObject.isNode) {
-          break;
+          break
         }
-        curObject = curObject.parent;
+        curObject = curObject.parent
       }
       if (curObject && curObject !== scene && !curObject.ignoreRaycast) {
-        result.node = curObject;
-        return result;
+        result.node = curObject
+        return result
       }
     }
   }
-  return null;
+  return null
 }

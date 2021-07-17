@@ -1,9 +1,9 @@
-import { Vector3 } from 'three';
-import { Component } from '../../ecs/classes/Component';
-import { Types } from '../../ecs/types/Types';
-import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups';
-import { RaycastQuery } from "three-physx";
-import { CameraModes } from '../types/CameraModes';
+import { Vector3 } from 'three'
+import { Component } from '../../ecs/classes/Component'
+import { Types } from '../../ecs/types/Types'
+import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
+import { RaycastQuery } from 'three-physx'
+import { CameraModes } from '../types/CameraModes'
 
 /** The component is added to any entity and hangs the camera watching it. */
 export class FollowCameraComponent extends Component<FollowCameraComponent> {
@@ -30,8 +30,6 @@ export class FollowCameraComponent extends Component<FollowCameraComponent> {
   ry2: number
   /** Distance to which interactive objects from the camera will be highlighted. **Default** value is 5. */
   farDistance: number
-  /** Stores the shoulder offset amount */
-  offset: Vector3
   /** Rotation around Y axis */
   theta: number
   /** Rotation around Z axis */
@@ -41,12 +39,11 @@ export class FollowCameraComponent extends Component<FollowCameraComponent> {
   /** Whether the camera auto-rotates toward the target **Default** value is true. */
   locked: boolean
   /** Camera physics raycast data */
-	raycastQuery: RaycastQuery;
+  raycastQuery: RaycastQuery
   /** Camera physics raycast has hit */
-	rayHasHit = false;
-  collisionMask: CollisionGroups;
+  rayHasHit = false
+  collisionMask: CollisionGroups
 }
-
 
 FollowCameraComponent._schema = {
   mode: { type: Types.String, default: CameraModes.ThirdPerson },
@@ -59,12 +56,11 @@ FollowCameraComponent._schema = {
   rx2: { type: Types.Number, default: 0.1 },
   ry2: { type: Types.Number, default: 0.1 },
   farDistance: { type: Types.Number, default: 5 },
-  offset: { type: Types.Vector3Type, default: new Vector3(0, 1, 0) },
   theta: { type: Types.Number, default: 0 },
   phi: { type: Types.Number, default: 0 },
   shoulderSide: { type: Types.Boolean, default: true },
   locked: { type: Types.Boolean, default: true },
   raycastQuery: { type: Types.Ref, default: null },
   rayHasHit: { type: Types.Boolean, default: false },
-  collisionMask: { type: Types.Number, default: DefaultCollisionMask },
-};
+  collisionMask: { type: Types.Number, default: DefaultCollisionMask }
+}

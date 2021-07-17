@@ -1,12 +1,12 @@
-import * as authentication from '@feathersjs/authentication';
-import { disallow } from 'feathers-hooks-common';
+import * as authentication from '@feathersjs/authentication'
+import { disallow } from 'feathers-hooks-common'
 
 /**
  *  Don't remove this comment. It's needed to format import lines nicely.
- * 
+ *
  */
 
-const { authenticate } = authentication.hooks;
+const { authenticate } = authentication.hooks
 
 export default {
   before: {
@@ -38,4 +38,4 @@ export default {
     patch: [],
     remove: []
   }
-};
+}

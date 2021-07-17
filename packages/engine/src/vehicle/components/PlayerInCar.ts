@@ -1,5 +1,5 @@
-import { Component } from '../../ecs/classes/Component';
-import { Types } from '../../ecs/types/Types';
+import { Component } from '../../ecs/classes/Component'
+import { Types } from '../../ecs/types/Types'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -22,4 +22,4 @@ PlayerInCar._schema = {
   currentFrame: { type: Types.Number, default: 0 },
   timeOut: { type: Types.Number, default: 30 },
   angel: { type: Types.Number, default: Math.PI / 3.5 }
-};
+}
