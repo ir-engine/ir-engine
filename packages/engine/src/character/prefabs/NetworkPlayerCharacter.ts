@@ -95,7 +95,6 @@ export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
 }
 
 const initializeCharacter: Behavior = (entity): void => {
-  console.warn('Initializing character')
   entity.name = 'Player'
 
   const actor = getMutableComponent(entity, CharacterComponent)
@@ -165,7 +164,7 @@ export function createNetworkPlayer(args: {
   networkId?: number
   entity?: Entity
 }): NetworkObject {
-  console.log(args)
+  // console.log('createNetworkPlayer', args)
   const position = new Vector3()
   const rotation = new Quaternion()
   if (args.parameters) {

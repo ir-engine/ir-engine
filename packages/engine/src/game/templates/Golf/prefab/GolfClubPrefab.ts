@@ -69,8 +69,6 @@ export const spawnClub: Behavior = (
   const game = getGame(entityPlayer)
   const playerNetworkObject = getComponent(entityPlayer, NetworkObject)
 
-  console.log('spawning club for player', playerNetworkObject.ownerId)
-
   const networkId = Network.getNetworkId()
   const uuid = MathUtils.generateUUID()
 
@@ -121,17 +119,12 @@ export const updateClub: Behavior = (
   time?: number,
   checks?: any
 ): void => {
-  if (!hasComponent(entityClub, NetworkObjectOwner)) return
-
-  const ownerNetworkObject =
-    Network.instance.networkObjects[getComponent(entityClub, NetworkObjectOwner).networkId].component
+  const ownerNetworkId = getComponent(entityClub, NetworkObjectOwner).networkId
+  const ownerEntity = Network.instance.networkObjects[ownerNetworkId].component.entity
 
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
-
   const transformClub = getMutableComponent(entityClub, TransformComponent)
   const collider = getMutableComponent(entityClub, ColliderComponent)
-
-  const ownerEntity = Network.instance.networkObjects[ownerNetworkObject.networkId].component.entity
 
   const handTransform = getHandTransform(ownerEntity)
   const { position, rotation } = handTransform
@@ -240,7 +233,6 @@ const HALF_PI = Math.PI / 2
 
 export const initializeGolfClub = (entityClub: Entity) => {
   const transform = getComponent(entityClub, TransformComponent)
-
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
 
   golfClubComponent.raycast = PhysicsSystem.instance.addRaycastQuery(
@@ -333,7 +325,7 @@ export const createGolfClubPrefab = (args: {
   uniqueId: string
   ownerId?: string
 }) => {
-  console.log('createGolfClubPrefab')
+  // console.log('createGolfClubPrefab', args)
   initializeNetworkObject({
     prefabType: GolfPrefabTypes.Club,
     uniqueId: args.uniqueId,
