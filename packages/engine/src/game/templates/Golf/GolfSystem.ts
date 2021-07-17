@@ -93,7 +93,6 @@ export class GolfSystem extends System {
                   hasComponent(ballEntity, State.Ready) &&
                   hasComponent(ballEntity, State.Active)
                 ) {
-                  console.log('successfully hit ball')
                   behaviorsToExecute.push(() => {
                     removeComponent(ballEntity, Action.GameObjectCollisionTag)
                     removeComponent(clubEntity, Action.GameObjectCollisionTag)
@@ -162,7 +161,7 @@ export class GolfSystem extends System {
             })
           }
 
-          if (hasComponent(ballEntity, State.Active) && hasComponent(ballEntity, State.BallMoving)) {
+          if (hasComponent(ballEntity, State.Inactive) && hasComponent(ballEntity, State.BallStopped)) {
             behaviorsToExecute.push(() => {
               nextTurn(entity)
             })
@@ -171,13 +170,12 @@ export class GolfSystem extends System {
 
         // do ball Active on next Turn
         if (hasComponent(entity, State.YourTurn)) {
-          if (ballEntity)
-            if (hasComponent(ballEntity, State.addedHit)) {
-              behaviorsToExecute.push(() => {
-                removeStateComponent(entity, State.YourTurn)
-                addStateComponent(entity, State.Waiting)
-              })
-            }
+          if (hasComponent(clubEntity, State.addedHit)) {
+            behaviorsToExecute.push(() => {
+              removeStateComponent(entity, State.YourTurn)
+              addStateComponent(entity, State.Waiting)
+            })
+          }
 
           if (hasComponent(ballEntity, State.BallStopped) && hasComponent(ballEntity, State.Inactive)) {
             behaviorsToExecute.push(() => {
