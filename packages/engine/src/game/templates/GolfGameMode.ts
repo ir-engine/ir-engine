@@ -73,12 +73,8 @@ function somePrepareFunction(gameRules: GameMode) {
 
 function preparePlayerRoles(gameRules: GameMode, maxPlayerCount = 1) {
   for (let playerNumber = 2; playerNumber <= maxPlayerCount; playerNumber++) {
-    cloneSameRoleRules(gameRules.gamePlayerRoles, { from: '1-Player', to: playerNumber + '-Player' })
+    gameRules.gamePlayerRoles.push(playerNumber + '-Player')
   }
-}
-
-function cloneSameRoleRules(object, args) {
-  object[args.to] = object[args.from]
 }
 
 function registerAllActions() {

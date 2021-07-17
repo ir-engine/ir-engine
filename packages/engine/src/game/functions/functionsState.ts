@@ -163,7 +163,7 @@ export const applyState = (game: Game): void => {
         }
       })
     })
-  //console.warn('applyState', game.state);
+  console.warn('applyState', game.state)
 }
 
 export const correctState = (): void => {
@@ -215,12 +215,10 @@ export const addStateComponent = (entity: Entity, component: ComponentConstructo
   } else {
     console.warn('we have this gameState already, why?', component.name)
   }
-  //console.log(game.state);
 }
 
 export const removeStateComponent = (entity: Entity, component: ComponentConstructor<Component<any>>): void => {
   if (!hasComponent(entity, component)) return
-
   const uuid = getUuid(entity)
   const game = getGame(entity)
 
@@ -233,7 +231,6 @@ export const removeStateComponent = (entity: Entity, component: ComponentConstru
   } else {
     objectState.components.splice(index, 1)
   }
-  //console.warn(game.state);
 }
 
 export const changeRole = (entity: Entity, newGameRole: string): void => {
@@ -248,7 +245,8 @@ export const changeRole = (entity: Entity, newGameRole: string): void => {
     console.log('dont have this entity in State')
   }
 
-  console.log('changeRole', objectState.role, newGameRole)
+  console.log('change role', newGameRole)
+
   objectState.role = newGameRole
   objectState.components = []
   objectState.storage = []

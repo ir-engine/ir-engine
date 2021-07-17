@@ -22,6 +22,7 @@ import { LocalInterpolationComponent } from '../../../../physics/components/Loca
 import { RigidBodyComponent } from '../../../../physics/components/RigidBody'
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups'
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem'
+import TrailRenderer from '../../../../scene/classes/TrailRenderer'
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GameObject } from '../../../components/GameObject'
@@ -29,7 +30,6 @@ import { GamePlayer } from '../../../components/GamePlayer'
 import { getGame } from '../../../functions/functions'
 import { GolfBallComponent } from '../components/GolfBallComponent'
 import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants'
-import TrailRenderer from '../../../../scene/classes/TrailRenderer'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -145,7 +145,6 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   Engine.scene.add(trailObject)
   ballMesh.userData.trailObject = trailObject
   ballMesh.userData.lastTrailUpdateTime = Date.now()
-  console.log(trailObject)
 }
 
 export const initializeGolfBall = (ballEntity: Entity) => {

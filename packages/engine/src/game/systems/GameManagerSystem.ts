@@ -20,8 +20,7 @@ import {
   removeEntityFromState,
   clearRemovedEntitysFromGame,
   saveInitStateCopy,
-  requireState,
-  addStateComponent
+  requireState
 } from '../functions/functionsState'
 import { getStorage, initStorage } from '../functions/functionsStorage'
 
@@ -34,6 +33,9 @@ import { ColliderHitEvent } from 'three-physx'
 import { isClient } from '../../common/functions/isClient'
 import { checkIsGamePredictionStillRight, clearPredictionCheckList } from '../functions/functionsActions'
 import { NewPlayerTagComponent } from '../templates/Golf/components/GolfTagComponents'
+import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
+import { Component } from '../../ecs/classes/Component'
+import { getGame, getRole, getUuid } from '../functions/functions'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -66,6 +68,11 @@ function isPlayerInGameArea(entity, gameArea) {
 /**
  * @author HydraFire <github.com/HydraFire>
  */
+
+type ComponentStateChangeType = {
+  entity: Entity
+  component: ComponentConstructor<Component<any>>
+}
 
 export class GameManagerSystem extends System {
   static instance: GameManagerSystem
