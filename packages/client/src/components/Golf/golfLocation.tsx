@@ -52,8 +52,9 @@ import {
 } from '../../reducers/instanceConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import WarningRefreshModal from '../AlertModals/WarningRetryModal'
-import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { registerSystem, unregisterSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { GolfSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
+import { AnimationSystem } from '../../../../engine/src/character/AnimationSystem'
 
 const store = Store.store
 
@@ -400,6 +401,9 @@ export const EnginePage = (props: Props) => {
       }
 
       await initializeEngine(initializationOptions)
+
+      // TODO: find a better way to do this
+      unregisterSystem(AnimationSystem)
 
       document.dispatchEvent(new CustomEvent('ENGINE_LOADED')) // this is the only time we should use document events. would be good to replace this with react state
       addUIEvents()
