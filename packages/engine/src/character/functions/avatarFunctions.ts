@@ -7,7 +7,7 @@ import { AnimationManager } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { CharacterComponent } from '../components/CharacterComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
-import AnimationRenderer from '../animations/AnimationRenderer'
+import { AnimationRenderer } from '../animations/AnimationRenderer'
 
 export const loadDefaultActorAvatar = (entity) => {
   const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)

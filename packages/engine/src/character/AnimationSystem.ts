@@ -8,7 +8,7 @@ import { AnimationComponent } from './components/AnimationComponent'
 import { CharacterComponent } from './components/CharacterComponent'
 import { CharacterAnimationGraph } from './animations/CharacterAnimationGraph'
 import { CharacterStates } from './animations/Util'
-import AnimationRenderer from './animations/AnimationRenderer'
+import { AnimationRenderer } from './animations/AnimationRenderer'
 import { loadActorAvatar } from './functions/avatarFunctions'
 
 export class AnimationSystem extends System {
@@ -23,10 +23,10 @@ export class AnimationSystem extends System {
 
     EngineEvents.instance.addEventListener(AnimationSystem.EVENTS.LOAD_AVATAR, ({ entityID, avatarId, avatarURL }) => {
       const entity = getEntityByID(entityID)
-      const characterAvatar = getMutableComponent(entity, CharacterComponent)
-      if (characterAvatar != null) {
-        characterAvatar.avatarId = avatarId
-        characterAvatar.avatarURL = avatarURL
+      const actor = getMutableComponent(entity, CharacterComponent)
+      if (actor) {
+        actor.avatarId = avatarId
+        actor.avatarURL = avatarURL
       }
       loadActorAvatar(entity)
     })

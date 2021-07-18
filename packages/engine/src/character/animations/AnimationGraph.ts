@@ -5,9 +5,9 @@ import { Commands } from '../../networking/enums/Commands'
 import { convertObjToBufferSupportedString } from '../../networking/functions/jsonSerialize'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { CharacterComponent } from '../components/CharacterComponent'
-import AnimationRenderer from './AnimationRenderer'
+import { calculateAnimationMovement } from '../functions/calculateAnimationMovement'
+import { AnimationRenderer } from './AnimationRenderer'
 import { AnimationState } from './AnimationState'
-import { calculateMovement } from './MovingAnimations'
 import { AnimationType, WeightsParameterType, CharacterStates } from './Util'
 
 /** Base Class which hold the animation graph for entity. Animation graph will resides in Animation Component. */
@@ -132,7 +132,7 @@ export class AnimationGraph {
     let params: WeightsParameterType = {}
 
     // Calculate movement fo the actor for this frame
-    const movement = calculateMovement(actor, animationComponent, delta, this.EPSILON)
+    const movement = calculateAnimationMovement(actor, animationComponent, delta, this.EPSILON)
 
     // Check whether the velocity of the player is changed or not since last frame
     const isChanged =

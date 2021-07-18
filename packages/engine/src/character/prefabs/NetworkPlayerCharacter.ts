@@ -18,7 +18,6 @@ import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulat
 import { InterpolationComponent } from '../../physics/components/InterpolationComponent'
 import { addObject3DComponent } from '../../scene/behaviors/addObject3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { getMovementValues, initializeMovingState, movingAnimationSchema } from '../animations/MovingAnimations'
 import { CharacterInputSchema } from '../CharacterInputSchema'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { CharacterComponent } from '../components/CharacterComponent'
@@ -43,8 +42,6 @@ const initializeCharacter: Behavior = (entity): void => {
   obj3d.add(actor.modelContainer)
 
   addComponent(entity, AnimationComponent, {
-    animationsSchema: movingAnimationSchema,
-    updateAnimationsValues: getMovementValues,
     mixer: new AnimationMixer(actor.modelContainer),
     animationVectorSimulator: new VectorSpringSimulator(
       60,
@@ -74,8 +71,6 @@ const initializeCharacter: Behavior = (entity): void => {
   actor.viewVector = new Vector3(0, 0, 1)
 
   addComponent(entity, ControllerColliderComponent)
-
-  initializeMovingState(entity)
 }
 
 export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation: Quaternion): void => {

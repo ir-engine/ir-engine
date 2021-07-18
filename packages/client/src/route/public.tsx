@@ -73,7 +73,6 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
           <Route path="/mappa/:locationName" component={React.lazy(() => import('../pages/map/[locationName]'))} />
           <Route path="/map/:locationName" component={React.lazy(() => import('../pages/map/[locationName]'))} />
           <Redirect path="/location" to={'/location/' + Config.publicRuntimeConfig.lobbyLocationName} />
-          <Route path="/video360" component={React.lazy(() => import('../pages/video360'))} />
           <Route
             path="/blondtron/:locationName"
             component={React.lazy(() => import('../pages/event/[locationName]'))}

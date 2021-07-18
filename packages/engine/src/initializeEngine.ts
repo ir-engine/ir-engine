@@ -25,7 +25,6 @@ import { PhysicsSystem } from './physics/systems/PhysicsSystem'
 import { configCanvasElement } from './renderer/functions/canvas'
 import { HighlightSystem } from './renderer/HighlightSystem'
 import { TransformSystem } from './transform/systems/TransformSystem'
-import { UIPanelSystem } from './ui-old/systems/UIPanelSystem'
 import { UISystem } from './ui/systems/UISystem'
 import { XRSystem } from './xr/systems/XRSystem'
 import { WebGLRendererSystem } from './renderer/WebGLRendererSystem'
@@ -184,7 +183,6 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
 
   // Input Systems
   registerSystem(UISystem, { priority: 2 }) // Free
-  registerSystem(UIPanelSystem, { priority: 2 })
   registerSystem(ActionSystem, { priority: 3 })
   registerSystem(CharacterControllerSystem, { priority: 4 })
   registerSystem(AnimationSystem, { priority: 5 })
