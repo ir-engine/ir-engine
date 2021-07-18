@@ -12,8 +12,6 @@ export class ColliderComponent extends Component<ColliderComponent> {
   bodytype: any
   body: Body
   type: ColliderTypes
-  raycastQuery: RaycastQuery
-  raycastQuery2: RaycastQuery
   mass: number
   position: Vector3
   /**

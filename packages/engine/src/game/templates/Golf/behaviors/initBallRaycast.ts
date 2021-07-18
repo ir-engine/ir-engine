@@ -2,10 +2,11 @@ import { Vector3 } from 'three'
 import { RaycastQuery, SceneQueryType } from 'three-physx'
 import { Behavior } from '../../../../common/interfaces/Behavior'
 import { Entity } from '../../../../ecs/classes/Entity'
-import { getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
+import { getComponent, getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups'
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem'
+import { GolfBallComponent } from '../components/GolfBallComponent'
 import { GolfCollisionGroups } from '../GolfGameConstants'
 
 /**
@@ -23,12 +24,11 @@ export const initBallRaycast: Behavior = (
   time?: number,
   checks?: any
 ): void => {
-  // const game = getComponent(playerEntity, GamePlayer).game;
-  // const gameSchema = GamesSchema[game.gameMode];
-  const collider = getMutableComponent(entity, ColliderComponent)
-  const ballPosition = collider.body.transform.translation
+  const golfBallComponent = getMutableComponent(entity, GolfBallComponent)
+  const ballPosition = getComponent(entity, ColliderComponent).body.transform.translation
+
   // for track ground
-  collider.raycastQuery = PhysicsSystem.instance.addRaycastQuery(
+  golfBallComponent.groundRaycast = PhysicsSystem.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
       origin: ballPosition,
@@ -37,8 +37,9 @@ export const initBallRaycast: Behavior = (
       collisionMask: GolfCollisionGroups.Course
     })
   )
+
   // for track wall
-  collider.raycastQuery2 = PhysicsSystem.instance.addRaycastQuery(
+  golfBallComponent.wallRaycast = PhysicsSystem.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
       origin: ballPosition,
