@@ -11,6 +11,8 @@ import { GolfBallComponent } from '../../Golf/components/GolfBallComponent'
 
 export const ifOutCourse: Checker = (entity: Entity, args?: any, entityTarget?: Entity): any | undefined => {
   const golfBallComponent = getComponent(entity, GolfBallComponent)
+  if (!golfBallComponent.groundRaycast) return
+
   const collider = getComponent(entity, ColliderComponent)
   const ballPosition = collider.body.transform.translation
   golfBallComponent.groundRaycast.origin.copy(ballPosition)

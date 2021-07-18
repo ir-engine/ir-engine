@@ -41,6 +41,7 @@ import { ActiveSystems, System } from './ecs/classes/System'
 import { FontManager } from './ui/classes/FontManager'
 import { AudioSystem } from './audio/systems/AudioSystem'
 import { setupBotHooks } from './bot/functions/botHookFunctions'
+import { AnimationSystem } from './character/AnimationSystem'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -186,11 +187,12 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
   registerSystem(UIPanelSystem, { priority: 2 })
   registerSystem(ActionSystem, { priority: 3 })
   registerSystem(CharacterControllerSystem, { priority: 4 })
+  registerSystem(AnimationSystem, { priority: 5 })
 
   // Scene Systems
-  registerSystem(InteractiveSystem, { priority: 5 })
-  registerSystem(GameManagerSystem, { priority: 6 })
-  registerSystem(TransformSystem, { priority: 7 }) // Free
+  registerSystem(InteractiveSystem, { priority: 6 })
+  registerSystem(GameManagerSystem, { priority: 7 })
+  registerSystem(TransformSystem, { priority: 8 })
   registerSystem(PhysicsSystem, {
     simulationEnabled: options.physics.simulationEnabled,
     worker: options.physics.physxWorker,

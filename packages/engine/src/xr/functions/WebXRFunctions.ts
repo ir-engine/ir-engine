@@ -115,15 +115,9 @@ export const startXR = (): void => {
  */
 
 export const endXR = (): void => {
-  const cameraFollow = getMutableComponent<FollowCameraComponent>(
-    Network.instance.localClientEntity,
-    FollowCameraComponent
-  ) as FollowCameraComponent
-  cameraFollow.mode = CameraModes.ThirdPerson
   Engine.xrSession.end()
   Engine.xrSession = null
   Engine.scene.add(Engine.camera)
-  addComponent(Network.instance.localClientEntity, AnimationComponent)
   addComponent(Network.instance.localClientEntity, FollowCameraComponent)
   removeComponent(Network.instance.localClientEntity, XRInputSourceComponent)
   initializeMovingState(Network.instance.localClientEntity)
