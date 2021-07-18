@@ -23,38 +23,9 @@ export const DefaultGameMode: GameMode = {
   priority: 0,
   registerActionTagComponents: [HasHadInteraction],
   registerStateTagComponents: [Open, Closed, ButtonUp, ButtonDown],
-  initGameState: {
-    /*
-    'Button': {
-      components: [ButtonUp],
-      storage:[
-        { component: TransformComponent, variables: ['position'] }
-       ]
-     },
-    'Door': {
-      components: [Closed],
-      storage:[
-        { component: TransformComponent, variables: ['position'] }
-      ]
-    },
-    'selfOpeningDoor': {
-      components: [Closed],
-      storage:[
-        { component: TransformComponent, variables: ['position'] }
-      ]
-    }
-    */
-  },
-  gamePlayerRoles: {
-    Playing: {
-      getVictory: []
-    },
-    itsYourTurn: {
-      allowHitBall: []
-    }
-  },
-  gameObjectRoles: {
-    /*
+  gamePlayerRoles: [],
+  gameObjectRoles: []
+  /*
     'Button': {
       'Action-OpenOrCloseDoor': [
         {
@@ -191,7 +162,7 @@ export const DefaultGameMode: GameMode = {
       ]
     }
     */
-  }
+  // }
 }
 /*
 export const gameStartAction: GameStateAction = (data: any): void => {

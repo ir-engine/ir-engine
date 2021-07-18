@@ -1,6 +1,6 @@
 /** Functions to provide system level functionalities. */
 
-import { System, SystemConstructor } from '../classes/System'
+import { ActiveSystems, System, SystemConstructor } from '../classes/System'
 import { Engine } from '../classes/Engine'
 
 /**
@@ -24,6 +24,10 @@ export function registerSystem(SystemClass: SystemConstructor<any>, attributes?:
   const system = new SystemClass(attributes)
   Engine.systems.push(system)
   if (system.execute) {
+    if (!Engine.activeSystems) {
+      Engine.activeSystems = new ActiveSystems()
+    }
+
     Engine.activeSystems.add(system)
     Engine.activeSystems.sort(system.updateType)
   }

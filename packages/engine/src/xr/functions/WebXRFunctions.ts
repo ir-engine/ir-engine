@@ -27,7 +27,6 @@ import {
 import { Network } from '../../networking/classes/Network'
 import { CharacterComponent } from '../../character/components/CharacterComponent'
 import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent'
-import { initializeMovingState } from '../../character/animations/MovingAnimations'
 import { Entity } from '../../ecs/classes/Entity'
 import { ParityValue } from '../../common/enums/ParityValue'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -59,54 +58,6 @@ export const startXR = (): void => {
     controllerGripLeft,
     controllerGripRight
   })
-
-  // Add our controller models & pointer lines
-  ;[controllerLeft, controllerRight].forEach((controller) => {
-    /*
-        controller.addEventListener('select', (ev) => {})
-        controller.addEventListener('selectstart', (ev) => {})
-        controller.addEventListener('selectend', (ev) => {})
-        controller.addEventListener('squeeze', (ev) => {})
-        controller.addEventListener('squeezestart', (ev) => {})
-        controller.addEventListener('squeezeend', (ev) => {})
-    */
-    controller.addEventListener('connected', (ev) => {
-      if (controller.targetRay) {
-        controller.targetRay.visible = true
-      } else {
-        const targetRay = createController(ev.data)
-        controller.add(targetRay)
-        controller.targetRay = targetRay
-      }
-    })
-
-    controller.addEventListener('disconnected', (ev) => {
-      controller.targetRay.visible = false
-    })
-  })
-
-  getLoader().load(
-    '/models/webxr/controllers/valve_controller_knu_1_0_right.glb',
-    (obj) => {
-      const controller3DModel = obj.scene.children[2] as any
-
-      const controllerMeshRight = controller3DModel.clone()
-      const controllerMeshLeft = controller3DModel.clone()
-
-      controllerMeshLeft.scale.multiply(new Vector3(-1, 1, 1))
-
-      controllerMeshRight.material = new MeshPhongMaterial()
-      controllerMeshLeft.material = new MeshPhongMaterial()
-
-      controllerMeshRight.position.z = -0.12
-      controllerMeshLeft.position.z = -0.12
-
-      controllerGripRight.add(controllerMeshRight)
-      controllerGripLeft.add(controllerMeshLeft)
-    },
-    console.warn,
-    console.error
-  )
 }
 
 /**
@@ -115,37 +66,11 @@ export const startXR = (): void => {
  */
 
 export const endXR = (): void => {
-  const cameraFollow = getMutableComponent<FollowCameraComponent>(
-    Network.instance.localClientEntity,
-    FollowCameraComponent
-  ) as FollowCameraComponent
-  cameraFollow.mode = CameraModes.ThirdPerson
   Engine.xrSession.end()
   Engine.xrSession = null
   Engine.scene.add(Engine.camera)
-  addComponent(Network.instance.localClientEntity, AnimationComponent)
   addComponent(Network.instance.localClientEntity, FollowCameraComponent)
   removeComponent(Network.instance.localClientEntity, XRInputSourceComponent)
-  initializeMovingState(Network.instance.localClientEntity)
-}
-
-// pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
-const createController = (data) => {
-  let geometry, material
-  switch (data.targetRayMode) {
-    case 'tracked-pointer':
-      geometry = new BufferGeometry()
-      geometry.setAttribute('position', new Float32BufferAttribute([0, 0, 0, 0, 0, -1], 3))
-      geometry.setAttribute('color', new Float32BufferAttribute([0.5, 0.5, 0.5, 0, 0, 0], 3))
-      geometry.setAttribute('alpha', new Float32BufferAttribute([1, 0], 1))
-      material = new LineBasicMaterial({ vertexColors: true, blending: AdditiveBlending })
-      return new Line(geometry, material)
-
-    case 'gaze':
-      geometry = new RingGeometry(0.02, 0.04, 32).translate(0, 0, -1)
-      material = new MeshBasicMaterial({ opacity: 0.5, transparent: true })
-      return new Mesh(geometry, material)
-  }
 }
 
 /**

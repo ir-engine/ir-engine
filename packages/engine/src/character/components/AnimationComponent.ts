@@ -6,9 +6,6 @@ import { AnimationGraph } from '../animations/AnimationGraph'
 import { AnimationState } from '../animations/AnimationState'
 
 export class AnimationComponent extends Component<AnimationComponent> {
-  animationsSchema: any
-  updateAnimationsValues: any
-
   /** Animaiton graph of this entity */
   animationGraph: AnimationGraph
 
@@ -27,8 +24,6 @@ export class AnimationComponent extends Component<AnimationComponent> {
   /** Whether to only update mixer time or run full render cycle */
   onlyUpdateMixerTime: boolean
 
-  // === ANIMATION === // // TODO: Move these to AnimationComponent
-
   mixer: AnimationMixer
   animations: AnimationClip[] = []
   currentAnimationAction: AnimationAction[] = []
@@ -42,5 +37,6 @@ AnimationComponent._schema = {
   animationsSchema: { type: Types.Ref, default: null },
   updateAnimationsValues: { type: Types.Ref, default: null },
   onlyUpdateMixerTime: { type: Types.Ref, default: false },
-  mixer: { type: Types.Ref, default: null }
+  mixer: { type: Types.Ref, default: null },
+  animationVectorSimulator: { type: Types.Ref, default: null }
 }

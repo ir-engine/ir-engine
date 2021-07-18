@@ -25,7 +25,7 @@ export class Config {
     siteDescription: 'Connected Worlds for Everyone',
     feathersStoreKey: 'TheOverlay-Auth-Store',
     localStorageKey: 'theoverlay-client-store-key-v1',
-    HARPGL_API_KEY: 'Ttss4aUB77Zt0zEDvFs-4kwmG6CbM58pV5unTlZrXMA',
+    HARPGL_API_KEY: '09FUGcfVRbY_48zNxgwH9dansJCKdDljfQzYxiyPDCw',
     auth: {
       enableSmsMagicLink: true,
       enableEmailMagicLink: true,

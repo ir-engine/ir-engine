@@ -18,7 +18,7 @@ import { fetchAdminScenes } from '../../reducers/admin/scene/service'
 import { fetchLocationTypes } from '../../reducers/admin/location/service'
 // @ts-ignore
 import styles from './Scenes.module.scss'
-import AddToContentPackModel from './AddToContentPackModal'
+import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import { selectAdminSceneState } from '../../reducers/admin/scene/selector'
 
 if (!global.setImmediate) {
@@ -269,7 +269,7 @@ const Scenes = (props: Props) => {
             className={styles.tablePagination}
           />
         </div>
-        <AddToContentPackModel
+        <AddToContentPackModal
           open={addToContentPackModalOpen}
           scene={selectedScene}
           handleClose={closeAddToContentPackModal}

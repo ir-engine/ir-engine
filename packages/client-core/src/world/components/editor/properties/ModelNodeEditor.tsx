@@ -1,7 +1,7 @@
 import { Cube } from '@styled-icons/fa-solid/Cube'
 import ModelNode from '@xrengine/engine/src/editor/nodes/ModelNode'
 import i18n from 'i18next'
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import { withTranslation } from 'react-i18next'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
@@ -11,6 +11,7 @@ import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
 import dompurify from 'dompurify'
 import { Object3D } from 'three'
+import NumericInputGroup from '../inputs/NumericInputGroup'
 
 /**
  * Array containing options for InteractableOption.
@@ -193,8 +194,8 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
   // function to handle changes in payloadHtmlContent
   onChangePayloadHtmlContent = (payloadHtmlContent) => {
     const sanitizedHTML = dompurify.sanitize(payloadHtmlContent)
-    if (sanitizedHTML !== payloadHtmlContent)
-      console.warn("Code has been sanitized, don't try anything sneaky please...")
+    if (sanitizedHTML !== payloadHtmlContent);
+    console.warn("Code has been sanitized, don't try anything sneaky please...")
     ;(this.props.editor as any).setPropertySelected('payloadHtmlContent', sanitizedHTML)
   }
 
@@ -215,27 +216,16 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
 
     let selectValues = []
     if (node.target) {
-      // Get current game mode -- check target game mode
-      console.log('Target is', node.target)
-
-      console.log('Editor nodes are', this.props.editor.nodes)
-
       const nodeTarget = this.props.editor.nodes.find((node) => node.uuid === target)
 
       if (nodeTarget) {
-        console.log('nodeTarget', nodeTarget)
-
         const gameMode = this.props.editor.Engine.supportedGameModes[nodeTarget.gameMode]
 
         const gameObjectRoles = Object.keys(gameMode.gameObjectRoles)
 
-        console.log('gameObjectRoles are', gameObjectRoles)
-
         selectValues = gameObjectRoles.map((role, index) => {
           return { label: role, value: index }
         })
-
-        console.log('SelectValues are', selectValues)
       }
     }
 
@@ -327,7 +317,7 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
     switch (node.interactable) {
       case true:
         return (
-          <>
+          <Fragment>
             {/* @ts-ignore */}
             <InputGroup name="Interaction Text" label={this.props.t('editor:properties.model.lbl-interactionText')}>
               {/* @ts-ignore */}
@@ -347,19 +337,18 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
               />
             </InputGroup>
             {/* @ts-ignore */}
-            <InputGroup
+            <NumericInputGroup
               name="Interaction Distance"
               label={this.props.t('editor:properties.model.lbl-interactionDistance')}
-            >
-              {/* @ts-ignore */}
-              <SelectInput
-                options={InteractableOption}
-                value={node.interactionDistance}
-                onChange={this.onChangeInteractionDistance}
-              />
-            </InputGroup>
+              onChange={this.onChangeInteractionDistance}
+              min={0}
+              smallStep={0.001}
+              mediumStep={0.01}
+              largeStep={0.1}
+              value={(node as any).intensity}
+            />
             {this.renderInteractableTypeOptions(node)}
-          </>
+          </Fragment>
         )
       default:
         break

@@ -1,8 +1,6 @@
 import config from '../../appconfig'
 
 export const componentTypeSeed = {
-  disabled: !config.db.forceRefresh,
-  delete: config.db.forceRefresh,
   path: 'component-type',
   randomize: false,
   templates: [

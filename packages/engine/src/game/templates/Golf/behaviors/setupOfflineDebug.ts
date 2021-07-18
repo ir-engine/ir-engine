@@ -53,6 +53,8 @@ const hitBall = (entityBall: Entity, velocity: Vector3) => {
 export const setupOfflineDebug = (entityPlayer: Entity) => {
   if (Network.instance.transport) return
 
+  console.warn('GOLF: Setting up offline debug. This should not happen for production!')
+
   const game = getGame(entityPlayer)
 
   const tees = Object.entries(game.gameObjects)

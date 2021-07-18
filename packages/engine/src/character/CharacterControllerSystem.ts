@@ -1,18 +1,9 @@
 import { Quaternion, Vector3 } from 'three'
 import { Controller, ControllerHitEvent, RaycastQuery, SceneQueryType } from 'three-physx'
 import { isClient } from '../common/functions/isClient'
-import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { System, SystemAttributes } from '../ecs/classes/System'
 import { Not } from '../ecs/functions/ComponentFunctions'
-import {
-  getMutableComponent,
-  getComponent,
-  getRemovedComponent,
-  getEntityByID,
-  removeComponent,
-  addComponent,
-  hasComponent
-} from '../ecs/functions/EntityFunctions'
+import { getMutableComponent, getComponent, getRemovedComponent, hasComponent } from '../ecs/functions/EntityFunctions'
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
 import { LocalInputReceiver } from '../input/components/LocalInputReceiver'
 import { characterMoveBehavior } from './behaviors/characterMoveBehavior'
@@ -21,9 +12,7 @@ import { InterpolationComponent } from '../physics/components/InterpolationCompo
 import { CollisionGroups, DefaultCollisionMask } from '../physics/enums/CollisionGroups'
 import { PhysicsSystem } from '../physics/systems/PhysicsSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { AnimationComponent } from './components/AnimationComponent'
 import { CharacterComponent } from './components/CharacterComponent'
-import { loadActorAvatar } from './prefabs/NetworkPlayerCharacter'
 import { Engine } from '../ecs/classes/Engine'
 import { XRInputSourceComponent } from './components/XRInputSourceComponent'
 import { Network } from '../networking/classes/Network'
@@ -36,46 +25,22 @@ import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { CameraSystem } from '../camera/systems/CameraSystem'
 import { DesiredTransformComponent } from '../transform/components/DesiredTransformComponent'
-import { CharacterAnimationGraph } from './animations/CharacterAnimationGraph'
-import { CharacterStates } from './animations/Util'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
-import AnimationRenderer from './animations/AnimationRenderer'
 
-const forwardVector = new Vector3(0, 0, 1)
-const prevControllerColliderPosition = new Vector3()
 const vector3 = new Vector3()
 const quat = new Quaternion()
 const quat2 = new Quaternion()
 const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
 export class CharacterControllerSystem extends System {
-  // Entity
-  static EVENTS = {
-    LOAD_AVATAR: 'CHARCACTER_SYSTEM_LOAD_AVATAR'
-  }
-
   updateType = SystemUpdateType.Fixed
   constructor(attributes: SystemAttributes = {}) {
     super(attributes)
-
-    EngineEvents.instance.addEventListener(
-      CharacterControllerSystem.EVENTS.LOAD_AVATAR,
-      ({ entityID, avatarId, avatarURL }) => {
-        const entity = getEntityByID(entityID)
-        const characterAvatar = getMutableComponent(entity, CharacterComponent)
-        if (characterAvatar != null) {
-          characterAvatar.avatarId = avatarId
-          characterAvatar.avatarURL = avatarURL
-        }
-        loadActorAvatar(entity)
-      }
-    )
   }
 
   /** Removes resize listener. */
   dispose(): void {
     super.dispose()
-    EngineEvents.instance.removeAllListenersForEvent(CharacterControllerSystem.EVENTS.LOAD_AVATAR)
   }
 
   /**
@@ -211,44 +176,6 @@ export class CharacterControllerSystem extends System {
       characterMoveBehavior(entity, delta)
     })
 
-    // temporarily disable animations on Oculus until we have buffer animation system / GPU animations
-    this.queryResults.animationCharacter.added?.forEach((entity) => {
-      if (!isClient) return
-
-      const animationComponent = getMutableComponent(entity, AnimationComponent)
-      animationComponent.animationGraph = new CharacterAnimationGraph()
-      animationComponent.currentState = animationComponent.animationGraph.states[CharacterStates.IDLE]
-      animationComponent.prevVelocity = new Vector3()
-      animationComponent.prevDistanceFromGround = 0
-      if (animationComponent.currentState) {
-        AnimationRenderer.mountCurrentState(animationComponent)
-      }
-    })
-
-    this.queryResults.animation.all?.forEach((entity) => {
-      if (!isClient) return
-      const animationComponent = getMutableComponent(entity, AnimationComponent)
-      const modifiedDelta = delta * animationComponent.animationSpeed
-      animationComponent.mixer.update(modifiedDelta)
-    })
-
-    this.queryResults.animationCharacter.all?.forEach((entity) => {
-      if (!isClient) return
-
-      const actor = getMutableComponent(entity, CharacterComponent)
-      const animationComponent = getMutableComponent(entity, AnimationComponent)
-
-      const controller = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
-      animationComponent.animationVelocity.copy(controller.controller.velocity)
-
-      const deltaTime = delta * animationComponent.animationSpeed
-
-      if (!animationComponent.onlyUpdateMixerTime) {
-        animationComponent.animationGraph.render(actor, animationComponent, deltaTime)
-        AnimationRenderer.render(animationComponent, delta)
-      }
-    })
-
     this.queryResults.ikAvatar.added?.forEach((entity) => {
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent)
       const actor = getMutableComponent(entity, CharacterComponent)
@@ -326,20 +253,6 @@ CharacterControllerSystem.queries = {
   },
   characterOnServer: {
     components: [Not(LocalInputReceiver), Not(InterpolationComponent), CharacterComponent, ControllerColliderComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  animation: {
-    components: [AnimationComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  animationCharacter: {
-    components: [AnimationComponent, ControllerColliderComponent],
     listen: {
       added: true,
       removed: true

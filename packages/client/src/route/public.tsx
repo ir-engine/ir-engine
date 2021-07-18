@@ -47,9 +47,12 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
           {/* Admin Routes*/}
           <Route path="/admin" component={ProtectedRoute} />
 
+          {/* Dev Routes */}
           <Route path="/offlineDev" component={React.lazy(() => import('../pages/offlineDev'))} />
+          <Route path="/test" component={React.lazy(() => import('../pages/examples/test_three'))} />
           <Route path="/examples/helloworld" component={React.lazy(() => import('../pages/examples/ecs_helloworld'))} />
           <Route path="/examples/ikrig" component={React.lazy(() => import('../pages/examples/ikrig'))} />
+          <Route path="/examples/navmesh" component={React.lazy(() => import('../pages/examples/navmesh'))} />
           <Route path="/asset-test" component={React.lazy(() => import('../pages/examples/asset-test'))} />
 
           {/* Auth Routes */}
@@ -67,8 +70,9 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
             path="/location/:locationName"
             component={React.lazy(() => import('../pages/location/[locationName]'))}
           />
+          <Route path="/mappa/:locationName" component={React.lazy(() => import('../pages/map/[locationName]'))} />
+          <Route path="/map/:locationName" component={React.lazy(() => import('../pages/map/[locationName]'))} />
           <Redirect path="/location" to={'/location/' + Config.publicRuntimeConfig.lobbyLocationName} />
-          <Route path="/video360" component={React.lazy(() => import('../pages/video360'))} />
           <Route
             path="/blondtron/:locationName"
             component={React.lazy(() => import('../pages/event/[locationName]'))}
@@ -78,6 +82,8 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
             path="/offline/:locationName"
             component={React.lazy(() => import('../pages/offline/[locationName]'))}
           />
+
+          <Route path="/golf/:locationName" component={React.lazy(() => import('../pages/golf/[locationName]'))} />
 
           {/* Harmony Routes */}
           <Route path="/harmony" component={React.lazy(() => import('../pages/harmony/index'))} />

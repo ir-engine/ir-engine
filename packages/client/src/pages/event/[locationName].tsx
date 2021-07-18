@@ -1,6 +1,6 @@
 import React from 'react'
-import Scene from '../../components/Scene/event'
-import Layout from '../../components/Layout/EventLayout'
+import Scene from './event'
+import Layout from './EventLayout'
 import { useTranslation } from 'react-i18next'
 
 const LocationPage = (props) => {

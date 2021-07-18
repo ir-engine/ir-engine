@@ -25,7 +25,6 @@ import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { DebugArrowComponent } from '../DebugArrowComponent'
 import { DebugRenderer } from './DebugRenderer'
 import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent'
-import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent'
 
 type ComponentHelpers = 'viewVector' | 'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box'
 
@@ -129,21 +128,20 @@ export class DebugHelpersSystem extends System {
     this.queryResults.characterDebug?.all?.forEach((entity) => {
       // view vector
       const actor = getComponent(entity, CharacterComponent)
-      const controller = getComponent(entity, ControllerColliderComponent)
       const transform = getComponent(entity, TransformComponent)
       const arrowHelper = this.helpersByEntity.viewVector.get(entity) as ArrowHelper
 
       if (arrowHelper != null) {
         arrowHelper.setDirection(vector3.copy(actor.viewVector).setY(0).normalize())
-        arrowHelper.position.copy(transform.position)
+        arrowHelper.position.copy(transform.position).y += actor.actorHalfHeight
       }
 
       // velocity
       const velocityArrowHelper = this.helpersByEntity.velocityArrow.get(entity) as ArrowHelper
-      if (velocityArrowHelper != null && controller) {
-        velocityArrowHelper.setDirection(vector3.copy(controller.controller.velocity).normalize())
-        velocityArrowHelper.setLength(controller.controller.velocity.length() * 60)
-        velocityArrowHelper.position.copy(transform.position)
+      if (velocityArrowHelper != null) {
+        velocityArrowHelper.setDirection(vector3.copy(actor.velocity).normalize())
+        velocityArrowHelper.setLength(actor.velocity.length() * 20)
+        velocityArrowHelper.position.copy(transform.position).y += actor.actorHalfHeight
       }
     })
 
