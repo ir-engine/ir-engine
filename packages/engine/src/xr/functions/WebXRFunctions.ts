@@ -27,7 +27,6 @@ import {
 import { Network } from '../../networking/classes/Network'
 import { CharacterComponent } from '../../character/components/CharacterComponent'
 import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent'
-import { initializeMovingState } from '../../character/animations/MovingAnimations'
 import { Entity } from '../../ecs/classes/Entity'
 import { ParityValue } from '../../common/enums/ParityValue'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -115,18 +114,11 @@ export const startXR = (): void => {
  */
 
 export const endXR = (): void => {
-  const cameraFollow = getMutableComponent<FollowCameraComponent>(
-    Network.instance.localClientEntity,
-    FollowCameraComponent
-  ) as FollowCameraComponent
-  cameraFollow.mode = CameraModes.ThirdPerson
   Engine.xrSession.end()
   Engine.xrSession = null
   Engine.scene.add(Engine.camera)
-  addComponent(Network.instance.localClientEntity, AnimationComponent)
   addComponent(Network.instance.localClientEntity, FollowCameraComponent)
   removeComponent(Network.instance.localClientEntity, XRInputSourceComponent)
-  initializeMovingState(Network.instance.localClientEntity)
 }
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html

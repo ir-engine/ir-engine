@@ -173,10 +173,10 @@ export class GameManagerSystem extends System {
             }
             */
           } else if (v.inGameArea && !hasComponent(v.entity, GamePlayer)) {
-            // console.log('add game player')
+            console.log('add game player')
             addComponent(v.entity, NewPlayerTagComponent, { gameName: game.name })
           } else if (!v.inGameArea && hasComponent(v.entity, GamePlayer)) {
-            // console.log('remove gameplayer')
+            console.log('remove gameplayer')
             if (getComponent(v.entity, GamePlayer).gameName === game.name) {
               removeComponent(v.entity, GamePlayer)
             }

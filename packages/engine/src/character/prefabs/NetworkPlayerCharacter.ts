@@ -1,12 +1,11 @@
 import { DEFAULT_AVATAR_ID } from '@xrengine/common/src/constants/AvatarConstants'
 import { AnimationMixer, Group, Quaternion, Vector3 } from 'three'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { isClient } from '../../common/functions/isClient'
 import { Behavior } from '../../common/interfaces/Behavior'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import { Input } from '../../input/components/Input'
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
 import { Interactor } from '../../interaction/components/Interactor'
@@ -18,81 +17,14 @@ import { RelativeSpringSimulator } from '../../physics/classes/SpringSimulator'
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator'
 import { InterpolationComponent } from '../../physics/components/InterpolationComponent'
 import { addObject3DComponent } from '../../scene/behaviors/addObject3DComponent'
-import { createShadow } from '../../scene/behaviors/createShadow'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AnimationManager } from '../AnimationManager'
-import { getMovementValues, initializeMovingState, movingAnimationSchema } from '../animations/MovingAnimations'
 import { CharacterInputSchema } from '../CharacterInputSchema'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { CharacterComponent } from '../components/CharacterComponent'
 import { ControllerColliderComponent } from '../components/ControllerColliderComponent'
 import { NamePlateComponent } from '../components/NamePlateComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
-import { SkeletonUtils } from '../SkeletonUtils'
 import type { NetworkObject } from '../../networking/components/NetworkObject'
-import AnimationRenderer from '../animations/AnimationRenderer'
-
-export const loadDefaultActorAvatar: Behavior = (entity) => {
-  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
-  const model = SkeletonUtils.clone(AnimationManager.instance._defaultModel)
-
-  model.traverse((object) => {
-    if (object.isMesh || object.isSkinnedMesh) {
-      object.material = object.material.clone()
-    }
-  })
-  model.children.forEach((child) => actor.modelContainer.add(child))
-
-  const animationComponent = getMutableComponent(entity, AnimationComponent)
-  animationComponent.mixer = new AnimationMixer(actor.modelContainer)
-}
-
-export const loadActorAvatar: Behavior = (entity) => {
-  if (!isClient) return
-  const avatarURL = getComponent(entity, CharacterComponent)?.avatarURL
-  if (avatarURL) {
-    loadActorAvatarFromURL(entity, avatarURL)
-  } else {
-    loadDefaultActorAvatar(entity)
-  }
-}
-
-export const loadActorAvatarFromURL: Behavior = (entity, avatarURL) => {
-  createShadow(entity, { castShadow: true, receiveShadow: true })
-
-  AssetLoader.load(
-    {
-      url: avatarURL,
-      castShadow: true,
-      receiveShadow: true
-    },
-    (asset: Group) => {
-      const model = SkeletonUtils.clone(asset)
-      const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
-      const animationComponent = getMutableComponent(entity, AnimationComponent)
-
-      animationComponent.mixer.stopAllAction()
-      animationComponent.currentAnimationAction = []
-      actor.modelContainer.children.forEach((child) => child.removeFromParent())
-
-      model.traverse((object) => {
-        if (object.isMesh || object.isSkinnedMesh) {
-          object.material = object.material.clone()
-        }
-      })
-
-      animationComponent.mixer = new AnimationMixer(actor.modelContainer)
-      model.children.forEach((child) => actor.modelContainer.add(child))
-
-      if (animationComponent.currentState) {
-        AnimationRenderer.mountCurrentState(animationComponent)
-      }
-
-      // advance animation for a frame to eliminate potential t-pose
-      animationComponent.mixer.update(1 / 60)
-    }
-  )
-}
 
 const initializeCharacter: Behavior = (entity): void => {
   entity.name = 'Player'
@@ -110,8 +42,6 @@ const initializeCharacter: Behavior = (entity): void => {
   obj3d.add(actor.modelContainer)
 
   addComponent(entity, AnimationComponent, {
-    animationsSchema: movingAnimationSchema,
-    updateAnimationsValues: getMovementValues,
     mixer: new AnimationMixer(actor.modelContainer),
     animationVectorSimulator: new VectorSpringSimulator(
       60,
@@ -141,8 +71,6 @@ const initializeCharacter: Behavior = (entity): void => {
   actor.viewVector = new Vector3(0, 0, 1)
 
   addComponent(entity, ControllerColliderComponent)
-
-  initializeMovingState(entity)
 }
 
 export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation: Quaternion): void => {
@@ -164,7 +92,7 @@ export function createNetworkPlayer(args: {
   networkId?: number
   entity?: Entity
 }): NetworkObject {
-  // console.log('createNetworkPlayer', args)
+  console.log('createNetworkPlayer', args)
   const position = new Vector3()
   const rotation = new Quaternion()
   if (args.parameters) {
@@ -238,10 +166,6 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
   onAfterCreate: [
     {
       behavior: initializeCharacter,
-      networked: true
-    },
-    {
-      behavior: loadActorAvatar,
       networked: true
     }
   ],

@@ -27,7 +27,7 @@ import { hitBall } from './behaviors/hitBall'
 import { nextTurn } from './behaviors/nextTurn'
 import { initScore, saveScore } from './behaviors/saveScore'
 import { setupOfflineDebug } from './behaviors/setupOfflineDebug'
-import { setupPlayerAvatar } from './behaviors/setupPlayerAvatar'
+import { setupPlayerAvatar, setupPlayerAvatarNotInVR, setupPlayerAvatarVR } from './behaviors/setupPlayerAvatar'
 import { setupPlayerInput } from './behaviors/setupPlayerInput'
 import { removeVelocity, teleportObject } from './behaviors/teleportObject'
 import { teleportPlayerBehavior } from './behaviors/teleportPlayer'
@@ -41,6 +41,7 @@ import { spawnClub, updateClub } from './prefab/GolfClubPrefab'
 import { initBallRaycast } from './behaviors/initBallRaycast'
 import { ifFirstHit, ifOutCourse } from '../gameDefault/checkers/ifOutCourse'
 import { registerGolfBotHooks } from './functions/registerGolfBotHooks'
+import { XRInputSourceComponent } from '../../../character/components/XRInputSourceComponent'
 /**
  *
  * @author Josh Field <github.com/hexafield>
@@ -71,6 +72,9 @@ export class GolfSystem extends System {
 
       const clubEntity = playerComponent.ownedObjects['GolfClub']
       const ballEntity = playerComponent.ownedObjects['GolfBall']
+
+      // not initialised yet
+      if (!clubEntity) return
 
       const gameScore = getStorage(entity, { name: 'GameScore' })
       const game = getGame(entity)
@@ -114,13 +118,11 @@ export class GolfSystem extends System {
         if (hasComponent(entity, State.Waiting)) {
           if (!hasComponent(entity, State.Goal)) {
             if (hasComponent(ballEntity, Action.GameObjectCollisionTag) && hasComponent(ballEntity, State.Ready)) {
-              console.log(gameScore)
               const currentHoleEntity = gameScore.score
                 ? game.gameObjects['GolfHole'][gameScore.score.goal]
                 : game.gameObjects['GolfHole'][0]
               if (currentHoleEntity && hasComponent(currentHoleEntity, Action.GameObjectCollisionTag)) {
                 behaviorsToExecute.push(() => {
-                  console.log('adding goal')
                   removeComponent(ballEntity, Action.GameObjectCollisionTag)
                   removeComponent(currentHoleEntity, Action.GameObjectCollisionTag)
                   addStateComponent(entity, State.addedGoal)
@@ -289,7 +291,7 @@ export class GolfSystem extends System {
       })
       addRole(entity)
       removeComponent(entity, NewPlayerTagComponent)
-      // setupPlayerAvatar(entity)
+      isClient && setupPlayerAvatar(entity)
       setupPlayerInput(entity)
       createYourTurnPanel(entity)
       setupOfflineDebug(entity)
@@ -297,7 +299,7 @@ export class GolfSystem extends System {
     })
 
     this.queryResults.player.added.forEach((entity) => {
-      spawnClub(entity)
+      !isClient && spawnClub(entity)
       initScore(entity)
       if (getComponent(entity, GamePlayer).role === '1-Player') {
         addTurn(entity)
@@ -346,6 +348,16 @@ export class GolfSystem extends System {
     this.queryResults.golfHole.added.forEach((entity) => {
       addHole(entity)
     })
+
+    if (isClient) {
+      this.queryResults.playerVR.added.forEach((entity) => {
+        setupPlayerAvatarVR(entity)
+      })
+
+      this.queryResults.playerVR.removed.forEach((entity) => {
+        setupPlayerAvatarNotInVR(entity)
+      })
+    }
   }
 
   static queries = {
@@ -358,6 +370,13 @@ export class GolfSystem extends System {
     },
     player: {
       components: [GamePlayer],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    playerVR: {
+      components: [GamePlayer, XRInputSourceComponent],
       listen: {
         added: true,
         removed: true

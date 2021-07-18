@@ -106,6 +106,7 @@ export class XRSystem extends System {
       })
     }
   }
+  // TODO: add and remove controller models from grips
 }
 
 XRSystem.queries = {}

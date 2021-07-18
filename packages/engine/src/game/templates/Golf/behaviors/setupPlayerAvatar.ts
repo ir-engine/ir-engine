@@ -1,77 +1,77 @@
 import { AssetLoader } from '../../../../assets/classes/AssetLoader'
-import { AnimationComponent } from '../../../../character/components/AnimationComponent'
+import { Model } from '../../../../assets/superbuffer'
 import { CharacterComponent } from '../../../../character/components/CharacterComponent'
 import { XRInputSourceComponent } from '../../../../character/components/XRInputSourceComponent'
 import { SkeletonUtils } from '../../../../character/SkeletonUtils'
-import { isClient } from '../../../../common/functions/isClient'
-import { EngineEvents } from '../../../../ecs/classes/EngineEvents'
 import { Entity } from '../../../../ecs/classes/Entity'
-import { delay } from '../../../../ecs/functions/EngineFunctions'
-import { getComponent, removeComponent } from '../../../../ecs/functions/EntityFunctions'
-import { Input } from '../../../../input/components/Input'
+import { addComponent, getComponent, removeComponent } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
-import { XRSystem } from '../../../../xr/systems/XRSystem'
+import { GolfAvatarComponent } from '../components/GolfAvatarComponent'
 
 const avatarScale = 1.3
 
 export const setupPlayerAvatar = async (entityPlayer: Entity) => {
-  if (!isClient) return
-
-  removeComponent(entityPlayer, AnimationComponent)
-
-  const actor = getComponent(entityPlayer, CharacterComponent)
-
-  actor.modelContainer.children.forEach((child) => child.removeFromParent())
   const headGLTF = await AssetLoader.loadAsync({ url: '/models/golf/avatars/avatar_head.glb' })
   const handGLTF = await AssetLoader.loadAsync({ url: '/models/golf/avatars/avatar_hands.glb' })
   const torsoGLTF = await AssetLoader.loadAsync({ url: '/models/golf/avatars/avatar_torso.glb' })
 
   const headModel = SkeletonUtils.clone(headGLTF)
-  headModel.position.setY(1.6)
   headModel.scale.multiplyScalar(avatarScale)
 
   const leftHandModel = SkeletonUtils.clone(handGLTF)
   const rightHandModel = SkeletonUtils.clone(handGLTF)
-  leftHandModel.scale.set(-1, 1, 1)
-  // TODO: replace pos offset with animation hand position once new animation rig is in
-  leftHandModel.position.set(0.35, 1, 0)
+  leftHandModel.scale.setX(-1)
   leftHandModel.scale.multiplyScalar(avatarScale)
-  rightHandModel.position.set(-0.35, 1, 0)
   rightHandModel.scale.multiplyScalar(avatarScale)
 
   const torsoModel = SkeletonUtils.clone(torsoGLTF)
-  torsoModel.position.setY(1.25)
   torsoModel.scale.multiplyScalar(avatarScale)
 
-  actor.modelContainer.add(headModel, leftHandModel, rightHandModel, torsoModel)
+  addComponent(entityPlayer, GolfAvatarComponent, { headModel, leftHandModel, rightHandModel, torsoModel })
 
-  // TEMPORARY until refactor when we can query for components easily
-  // this only works for own local entity
+  setupPlayerAvatarNotInVR(entityPlayer)
+}
 
-  EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_SESSION, async () => {
-    await delay(250)
+export const setupPlayerAvatarVR = async (entityPlayer: Entity) => {
+  const golfAvatarComponent = getComponent(entityPlayer, GolfAvatarComponent)
+  ;[
+    golfAvatarComponent.headModel,
+    golfAvatarComponent.leftHandModel,
+    golfAvatarComponent.rightHandModel,
+    golfAvatarComponent.torsoModel
+  ].forEach((model) => model.removeFromParent())
 
-    const handGLTF = await AssetLoader.loadAsync({ url: '/models/golf/avatars/avatar_hands.glb' })
-    const leftHandModel = SkeletonUtils.clone(handGLTF)
-    const rightHandModel = SkeletonUtils.clone(handGLTF)
-    leftHandModel.scale.set(-1, 1, -1)
-    leftHandModel.scale.multiplyScalar(avatarScale)
-    rightHandModel.scale.set(1, 1, -1)
-    rightHandModel.scale.multiplyScalar(avatarScale)
+  const xrInputSourceComponent = getComponent(entityPlayer, XRInputSourceComponent)
 
-    const { controllerLeft, controllerRight, controllerGripLeft, controllerGripRight } = getComponent(
-      Network.instance.localClientEntity,
-      XRInputSourceComponent
-    )
+  golfAvatarComponent.headModel.position.set(0, 0, 0)
+  golfAvatarComponent.leftHandModel.position.set(0, 0, 0)
+  golfAvatarComponent.rightHandModel.position.set(0, 0, 0)
+  golfAvatarComponent.torsoModel.position.set(0, 0, 0)
 
-    actor.modelContainer.children.forEach((child) => child.removeFromParent())
-    controllerGripLeft.children.forEach((child) => child.removeFromParent())
-    controllerGripRight.children.forEach((child) => child.removeFromParent())
+  xrInputSourceComponent.controllerLeft.add(golfAvatarComponent.leftHandModel)
+  xrInputSourceComponent.controllerRight.add(golfAvatarComponent.rightHandModel)
+}
 
-    leftHandModel.position.set(0, 0, 0)
-    rightHandModel.position.set(0, 0, 0)
+export const setupPlayerAvatarNotInVR = (entityPlayer: Entity) => {
+  const golfAvatarComponent = getComponent(entityPlayer, GolfAvatarComponent)
+  ;[
+    golfAvatarComponent.headModel,
+    golfAvatarComponent.leftHandModel,
+    golfAvatarComponent.rightHandModel,
+    golfAvatarComponent.torsoModel
+  ].forEach((model) => model.removeFromParent())
 
-    controllerLeft.add(leftHandModel)
-    controllerRight.add(rightHandModel)
-  })
+  // TODO: replace pos offset with animation hand position once new animation rig is in
+  golfAvatarComponent.headModel.position.set(0, 1.6, 0)
+  golfAvatarComponent.leftHandModel.position.set(0.35, 1, 0)
+  golfAvatarComponent.rightHandModel.position.set(-0.35, 1, 0)
+  golfAvatarComponent.torsoModel.position.set(0, 1.25, 0)
+
+  const actor = getComponent(entityPlayer, CharacterComponent)
+  actor.modelContainer.add(
+    golfAvatarComponent.headModel,
+    golfAvatarComponent.leftHandModel,
+    golfAvatarComponent.rightHandModel,
+    golfAvatarComponent.torsoModel
+  )
 }

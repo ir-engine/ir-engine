@@ -25,7 +25,6 @@ import { PhysicsSystem } from './physics/systems/PhysicsSystem'
 import { configCanvasElement } from './renderer/functions/canvas'
 import { HighlightSystem } from './renderer/HighlightSystem'
 import { TransformSystem } from './transform/systems/TransformSystem'
-import { UIPanelSystem } from './ui-old/systems/UIPanelSystem'
 import { UISystem } from './ui/systems/UISystem'
 import { XRSystem } from './xr/systems/XRSystem'
 import { WebGLRendererSystem } from './renderer/WebGLRendererSystem'
@@ -41,6 +40,7 @@ import { ActiveSystems, System } from './ecs/classes/System'
 import { FontManager } from './ui/classes/FontManager'
 import { AudioSystem } from './audio/systems/AudioSystem'
 import { setupBotHooks } from './bot/functions/botHookFunctions'
+import { AnimationSystem } from './character/AnimationSystem'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -183,14 +183,14 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
 
   // Input Systems
   registerSystem(UISystem, { priority: 2 }) // Free
-  registerSystem(UIPanelSystem, { priority: 2 })
   registerSystem(ActionSystem, { priority: 3 })
   registerSystem(CharacterControllerSystem, { priority: 4 })
+  registerSystem(AnimationSystem, { priority: 5 })
 
   // Scene Systems
-  registerSystem(InteractiveSystem, { priority: 5 })
-  registerSystem(GameManagerSystem, { priority: 6 })
-  registerSystem(TransformSystem, { priority: 7 }) // Free
+  registerSystem(InteractiveSystem, { priority: 6 })
+  registerSystem(GameManagerSystem, { priority: 7 })
+  registerSystem(TransformSystem, { priority: 8 })
   registerSystem(PhysicsSystem, {
     simulationEnabled: options.physics.simulationEnabled,
     worker: options.physics.physxWorker,
