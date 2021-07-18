@@ -40,6 +40,7 @@ import { spawnBall, updateBall } from './prefab/GolfBallPrefab'
 import { spawnClub, updateClub } from './prefab/GolfClubPrefab'
 import { initBallRaycast } from './behaviors/initBallRaycast'
 import { ifFirstHit, ifOutCourse } from '../gameDefault/checkers/ifOutCourse'
+import { registerGolfBotHooks } from './functions/registerGolfBotHooks'
 /**
  *
  * @author Josh Field <github.com/hexafield>
@@ -52,6 +53,8 @@ export class GolfSystem extends System {
   constructor(attributes: SystemAttributes = {}) {
     super(attributes)
     GolfSystem.instance = this
+
+    if (isClient) registerGolfBotHooks()
   }
 
   /**
@@ -68,7 +71,7 @@ export class GolfSystem extends System {
 
       const clubEntity = playerComponent.ownedObjects['GolfClub']
       const ballEntity = playerComponent.ownedObjects['GolfBall']
-      
+
       const gameScore = getStorage(entity, { name: 'GameScore' })
       const game = getGame(entity)
 
@@ -203,11 +206,9 @@ export class GolfSystem extends System {
         })
       }
       if (hasComponent(entity, State.BallStopped) && ifVelocity(entity, { less: 0.001 }) && ifOutCourse(entity)) {
-        const ownerEntity = Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity;
-        teleportObject(
-          entity,
-          getPositionNextPoint(ownerEntity, { positionCopyFromRole: 'GolfTee-', position: null })
-        )
+        const ownerEntity =
+          Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity
+        teleportObject(entity, getPositionNextPoint(ownerEntity, { positionCopyFromRole: 'GolfTee-', position: null }))
       }
       if (ifVelocity(entity, { more: 0.01 })) {
         if (hasComponent(entity, State.Ready)) {
@@ -339,7 +340,7 @@ export class GolfSystem extends System {
 
       ownerGamePlayer.ownedObjects['GolfBall'] = entity
 
-      initBallRaycast(entity);
+      initBallRaycast(entity)
     })
 
     this.queryResults.golfHole.added.forEach((entity) => {

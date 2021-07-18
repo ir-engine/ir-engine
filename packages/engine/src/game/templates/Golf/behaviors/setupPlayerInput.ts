@@ -43,7 +43,6 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
     ]
   }
 
-
   // DEBUG STUFF
   if (isDev) {
     const teleportballkey = 130

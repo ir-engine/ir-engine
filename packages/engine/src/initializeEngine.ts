@@ -40,7 +40,7 @@ import { SceneObjectSystem } from './scene/systems/SceneObjectSystem'
 import { ActiveSystems, System } from './ecs/classes/System'
 import { FontManager } from './ui/classes/FontManager'
 import { AudioSystem } from './audio/systems/AudioSystem'
-import { setupBotHooks } from './bot/setupBotHooks'
+import { setupBotHooks } from './bot/functions/botHookFunctions'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -109,9 +109,9 @@ const configureClient = async (options: InitializeOptions) => {
     }
   }
 
-  registerClientSystems(options, useOffscreen, canvas)
-
   setupBotHooks()
+
+  registerClientSystems(options, useOffscreen, canvas)
 }
 
 const configureEditor = async (options: InitializeOptions) => {
