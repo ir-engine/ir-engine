@@ -4,7 +4,7 @@ import StorageProvider from '../media/storageprovider/storageprovider'
 
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {
-    console.log('Removing Previous Thumbnail:' + JSON.stringify(context.params.body))
+    console.log('Removing Previous Thumbnail:' + context.params.previousFileId)
 
     if (context.params.previousFileId) {
       // Fetch Key of the thumbnail file and use the key to remove from local-store or AWS S3
