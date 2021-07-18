@@ -58,7 +58,7 @@ export const hitBall: Behavior = (
 
   const hit = golfBallComponent.wallRaycast.hits[0]
 
-  if (hit && hit.distance * hit.distance > vector0.lengthSq()) {
+  if (!hit || hit.distance * hit.distance > vector0.lengthSq()) {
     // teleport ball in front of club a little bit
     collider.body.updateTransform({
       translation: {
