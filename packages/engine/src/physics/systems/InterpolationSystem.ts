@@ -1,18 +1,15 @@
 import { Not } from '../../ecs/functions/ComponentFunctions'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { System, SystemAttributes } from '../../ecs/classes/System'
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
 import { Network } from '../../networking/classes/Network'
 import { Vault } from '../../networking/classes/Vault'
 import { NetworkObject } from '../../networking/components/NetworkObject'
 import { calculateInterpolation, createSnapshot } from '../../networking/functions/NetworkInterpolationFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { InterpolationComponent } from '../components/InterpolationComponent'
-import { isClient } from '../../common/functions/isClient'
-import { BodyType, PhysXConfig, PhysXInstance } from 'three-physx'
+import { BodyType } from 'three-physx'
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot'
 import { Vector3 } from 'three'
 import { SnapshotData } from '../../networking/types/SnapshotDataTypes'
@@ -34,11 +31,6 @@ const vec3 = new Vector3()
 export class InterpolationSystem extends System {
   static instance: InterpolationSystem
   updateType = SystemUpdateType.Fixed
-
-  physicsWorldConfig: PhysXConfig
-  worker: Worker
-
-  simulationEnabled: boolean
 
   constructor(attributes: SystemAttributes = {}) {
     super(attributes)
