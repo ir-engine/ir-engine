@@ -36,15 +36,8 @@ export interface GameMode {
   onPlayerLeave?: (gameEntity: Entity, playerComponent, game) => void
   registerActionTagComponents: ComponentConstructor<Component<any>>[]
   registerStateTagComponents: ComponentConstructor<Component<any>>[]
-  initGameState: {
-    [key: string]: {
-      components?: ComponentConstructor<Component<any>>[]
-      storage?: InitStorageInterface[]
-      behaviors?: any
-    }
-  }
-  gamePlayerRoles: GameRolesInterface
-  gameObjectRoles: GameRolesInterface
+  gamePlayerRoles: string[]
+  gameObjectRoles: string[]
 }
 
 export interface RoleBehaviorWithTarget {

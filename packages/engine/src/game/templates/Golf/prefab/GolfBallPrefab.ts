@@ -5,9 +5,15 @@ import { isClient } from '../../../../common/functions/isClient'
 import { Behavior } from '../../../../common/interfaces/Behavior'
 import { Engine } from '../../../../ecs/classes/Engine'
 import { Entity } from '../../../../ecs/classes/Entity'
-import { addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions'
+import {
+  addComponent,
+  getComponent,
+  getMutableComponent,
+  hasComponent
+} from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
 import { NetworkObject } from '../../../../networking/components/NetworkObject'
+import { NetworkObjectOwner } from '../../../../networking/components/NetworkObjectOwner'
 import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject'
 import { NetworkPrefab } from '../../../../networking/interfaces/NetworkPrefab'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
@@ -16,12 +22,13 @@ import { LocalInterpolationComponent } from '../../../../physics/components/Loca
 import { RigidBodyComponent } from '../../../../physics/components/RigidBody'
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups'
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem'
+import TrailRenderer from '../../../../scene/classes/TrailRenderer'
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GameObject } from '../../../components/GameObject'
 import { getGame } from '../../../functions/functions'
+import { GolfBallComponent } from '../components/GolfBallComponent'
 import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants'
-import TrailRenderer from '../../../../scene/classes/TrailRenderer'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -137,7 +144,6 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   Engine.scene.add(trailObject)
   ballMesh.userData.trailObject = trailObject
   ballMesh.userData.lastTrailUpdateTime = Date.now()
-  console.log(trailObject)
 }
 
 export const initializeGolfBall = (ballEntity: Entity) => {
@@ -166,7 +172,8 @@ export const initializeGolfBall = (ballEntity: Entity) => {
       contactOffset: golfBallColliderExpansion,
       material: { staticFriction: 0.2, dynamicFriction: 0.2, restitution: 0.9 },
       collisionLayer: GolfCollisionGroups.Ball,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Hole
+      collisionMask:
+        CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course | GolfCollisionGroups.Hole
     }
   }
 
@@ -226,6 +233,12 @@ export const createGolfBallPrefab = (args: {
             ),
             scale: new Vector3().setScalar(golfBallRadius)
           }
+        },
+        {
+          type: NetworkObjectOwner,
+          data: {
+            networkId: args.parameters.ownerNetworkId
+          }
         }
       ]
     }
@@ -241,7 +254,9 @@ export const GolfBallPrefab: NetworkPrefab = {
     { type: TransformComponent },
     { type: ColliderComponent },
     { type: RigidBodyComponent },
-    { type: GameObject }
+    { type: GameObject },
+    { type: NetworkObjectOwner },
+    { type: GolfBallComponent }
     // Local player input mapped to behaviors in the input map
   ],
   // These are only created for the local player who owns this prefab

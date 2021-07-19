@@ -17,7 +17,9 @@ export const giveGoalState: Behavior = (
   const gameSchema = GamesSchema[game.gameMode]
   const nameObject = getComponent(entityTarget, Interactable).data.interactionText ?? '1'
 
-  const entityPlayer = game.gamePlayers[Object.keys(gameSchema.gamePlayerRoles)[nameObject]][0]
+  // TODO: check this is right
+  const entityPlayer = game.gamePlayers[gameSchema.gamePlayerRoles[nameObject]][0]
 
-  //addStateComponent( entityPlayer, Goal );
+  // TODO
+  // addStateComponent( entityPlayer, Goal );
 }
