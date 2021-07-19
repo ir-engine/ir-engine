@@ -1,5 +1,5 @@
 import { Params, Id, NullableId, ServiceMethods } from '@feathersjs/feathers'
-import { Transaction } from 'sequelize/types'
+import {Transaction } from 'sequelize/types'
 import fetch from 'node-fetch'
 
 import {
@@ -178,9 +178,10 @@ export class Project implements ServiceMethods<Data> {
         {
           name: data.name,
           metadata: sceneData.metadata,
-          version: sceneData.version
+          version: sceneData.version,
+          thumbnailOwnedFileId:JSON.stringify(data.ownedUploadedFileId)
         },
-        { fields: ['name', 'metadata', 'version'], transaction }
+        { fields: ['name', 'metadata', 'version','thumbnailOwnedFileId'], transaction }
       )
 
       // First delete existing collection, entity and components and create new ones
@@ -268,11 +269,7 @@ export class Project implements ServiceMethods<Data> {
         { transaction }
       )
     })
-
-    console.log("Just going to Returning The SavedProject")
     const savedProject = await this.reloadProject(project.id, project)
-
-    console.log("Returning The SavedProject")
     return mapProjectDetailData(savedProject.toJSON())
   }
   /**
