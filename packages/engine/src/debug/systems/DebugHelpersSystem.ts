@@ -133,15 +133,15 @@ export class DebugHelpersSystem extends System {
 
       if (arrowHelper != null) {
         arrowHelper.setDirection(vector3.copy(actor.viewVector).setY(0).normalize())
-        arrowHelper.position.copy(transform.position)
+        arrowHelper.position.copy(transform.position).y += actor.actorHalfHeight
       }
 
       // velocity
       const velocityArrowHelper = this.helpersByEntity.velocityArrow.get(entity) as ArrowHelper
       if (velocityArrowHelper != null) {
         velocityArrowHelper.setDirection(vector3.copy(actor.velocity).normalize())
-        velocityArrowHelper.setLength(actor.velocity.length() * 60)
-        velocityArrowHelper.position.copy(transform.position)
+        velocityArrowHelper.setLength(actor.velocity.length() * 20)
+        velocityArrowHelper.position.copy(transform.position).y += actor.actorHalfHeight
       }
     })
 

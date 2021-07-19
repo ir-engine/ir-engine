@@ -3,6 +3,7 @@ import { Behavior } from '../../../../common/interfaces/Behavior'
 import { Entity } from '../../../../ecs/classes/Entity'
 import { getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
+import { GolfBallComponent } from '../components/GolfBallComponent'
 import { GolfClubComponent } from '../components/GolfClubComponent'
 
 /**
@@ -11,7 +12,6 @@ import { GolfClubComponent } from '../components/GolfClubComponent'
  */
 
 const vector0 = new Vector3()
-const vector1 = new Vector3()
 
 export const hitBall: Behavior = (
   entityClub: Entity,
@@ -21,14 +21,11 @@ export const hitBall: Behavior = (
   time?: number,
   checks?: any
 ): void => {
-  // const game = getComponent(playerEntity, GamePlayer).game;
-  // const gameSchema = GamesSchema[game.gameMode];
-  console.warn('hitBall')
-
   if (!hasComponent(entityClub, GolfClubComponent)) return
 
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
   const collider = getMutableComponent(entityBall, ColliderComponent)
+  const golfBallComponent = getMutableComponent(entityBall, GolfBallComponent)
   collider.body.setLinearDamping(0.1)
   collider.body.setAngularDamping(0.1)
   // force is in kg, we need it in grams, so x1000
@@ -54,20 +51,29 @@ export const hitBall: Behavior = (
   if (!golfClubComponent.canDoChipShots) {
     vector0.y = 0
   }
-  // teleport ball in front of club a little bit
-  collider.body.updateTransform({
-    translation: {
-      x: collider.body.transform.translation.x + vector0.x,
-      y: collider.body.transform.translation.y + vector0.y,
-      z: collider.body.transform.translation.z + vector0.z
-    }
-  })
-  vector1.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier).multiplyScalar(0.5)
+
+  // block teleport ball if distance to wall less length of what we want to teleport
+  golfBallComponent.wallRaycast.origin.copy(collider.body.transform.translation)
+  golfBallComponent.wallRaycast.direction.copy(golfClubComponent.velocity).normalize()
+
+  const hit = golfBallComponent.wallRaycast.hits[0]
+
+  if (!hit || hit.distance * hit.distance > vector0.lengthSq()) {
+    // teleport ball in front of club a little bit
+    collider.body.updateTransform({
+      translation: {
+        x: collider.body.transform.translation.x + vector0.x,
+        y: collider.body.transform.translation.y + vector0.y,
+        z: collider.body.transform.translation.z + vector0.z
+      }
+    })
+  }
+
+  vector0.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier).multiplyScalar(0.5)
   // vector1.copy(vec3).multiplyScalar(velocityMultiplier);
   if (!golfClubComponent.canDoChipShots) {
-    vector1.y = 0
+    vector0.y = 0
   }
-  console.log(vector1)
 
-  collider.body.addForce(vector1)
+  collider.body.addForce(vector0)
 }

@@ -4,9 +4,10 @@ import EditorNodeMixin from './EditorNodeMixin'
 import { setStaticMode, StaticModes } from '../functions/StaticMode'
 import cloneObject3D from '../functions/cloneObject3D'
 import { RethrownError } from '../functions/errors'
-import { clearFromColliders, plusParameter } from '../../physics/behaviors/parseModelColliders'
+import { makeCollidersInvisible, applyTransform } from '../../physics/behaviors/parseModelColliders'
 import { parseCarModel } from '../../vehicle/prefabs/NetworkVehicle'
 import { getGeometry } from '../../scene/functions/getGeometry'
+import { AnimationManager } from '../../character/AnimationManager'
 
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = 'Model'
@@ -31,8 +32,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           node.target = gameObject.props.target
           node.role = gameObject.props.role
         }
-        // its need be first then load
-        node.saveColliders = !!json.components.find((c) => c.name === 'mesh-collider-0')
 
         await node.load(src, onError)
         if (node.envMapOverride) node.envMapOverride = envMapOverride
@@ -45,7 +44,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         node.walkable = !!json.components.find((c) => c.name === 'walkable')
         const loopAnimationComponent = json.components.find((c) => c.name === 'loop-animation')
         if (loopAnimationComponent && loopAnimationComponent.props) {
-          const { clip, activeClipIndex } = loopAnimationComponent.props
+          const { clip, activeClipIndex, hasAvatarAnimations } = loopAnimationComponent.props
+          node.hasAvatarAnimations = hasAvatarAnimations
           if (activeClipIndex !== undefined) {
             node.activeClipIndex = loopAnimationComponent.props.activeClipIndex
           } else if (clip !== undefined && node.model && node.model.animations) {
@@ -83,11 +83,11 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     )
     return node
   }
+
   _canonicalUrl = ''
   envMapOverride = ''
   textureOverride = ''
   collidable = true
-  saveColliders = true
   target = null
   walkable = true
   initialScale: string | number = 1
@@ -95,6 +95,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   boundingSphere = new Sphere()
   gltfJson = null
   isValidURL = false
+
   constructor(editor) {
     super(editor)
   }
@@ -105,6 +106,10 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   // When getters are overridden you must also override the setter.
   set src(value: string) {
     this.load(value).catch(console.error)
+  }
+  reload() {
+    console.log('reload')
+    this.load(this.src).catch(console.error)
   }
   // Overrides Model's loadGLTF method and uses the Editor's gltf cache.
   async loadGLTF(src) {
@@ -117,7 +122,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   // Overrides Model's load method and resolves the src url before loading.
   async load(src, onError?) {
     const nextSrc = src || ''
-    if (nextSrc === this._canonicalUrl && nextSrc !== '') {
+    if (nextSrc === '') {
       return
     }
     this._canonicalUrl = nextSrc
@@ -130,7 +135,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     }
     this.hideErrorIcon()
     try {
-      console.log('Try')
       this.isValidURL = true
       const { url, files } = await this.editor.api.resolveMedia(src)
       if (this.model) {
@@ -170,7 +174,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           }
         })
       }
-      if (this.saveColliders) clearFromColliders(this.model, true)
+      makeCollidersInvisible(this.model)
       this.updateStaticModes()
     } catch (error) {
       this.showErrorIcon()
@@ -206,7 +210,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
   onUpdate(delta: number, time: number) {
     super.onUpdate(delta, time)
-    if (this.editor.playing) {
+    if (this.editor.playing || this.animationMixer) {
       this.update(delta)
     }
   }
@@ -359,7 +363,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     // its for vehicle
     if (collider.data == 'vehicle') return collider
 
-    const [position, quaternion, scale] = plusParameter(
+    const [position, quaternion, scale] = applyTransform(
       collider.position,
       collider.quaternion,
       collider.scale,
@@ -382,28 +386,30 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   updateStaticModes() {
     if (!this.model) return
     setStaticMode(this.model, StaticModes.Static)
-    if (this.model.animations && this.model.animations.length > 0) {
-      for (const animation of this.model.animations) {
-        for (const track of animation.tracks) {
-          const { nodeName: uuid } = PropertyBinding.parseTrackName(track.name)
-          const animatedNode = this.model.getObjectByProperty('uuid', uuid)
-          if (!animatedNode) {
-            throw new Error(
-              `Model.updateStaticModes: model with url "${this._canonicalUrl}" has an invalid animation "${animation.name}"`
-            )
+    AnimationManager.instance.getAnimations().then((animations) => {
+      if (animations && animations.length > 0) {
+        for (const animation of animations) {
+          for (const track of animation.tracks) {
+            const { nodeName: uuid } = PropertyBinding.parseTrackName(track.name)
+            const animatedNode = this.model.getObjectByProperty('uuid', uuid)
+            if (!animatedNode) {
+              // throw new Error(
+              //   `Model.updateStaticModes: model with url "${this._canonicalUrl}" has an invalid animation "${animation.name}"`
+              // )
+            } else {
+              setStaticMode(animatedNode, StaticModes.Dynamic)
+            }
           }
-          setStaticMode(animatedNode, StaticModes.Dynamic)
         }
       }
-    }
+    })
   }
   serialize() {
     const components = {
       'gltf-model': {
         src: this._canonicalUrl,
         envMapOverride: this.envMapOverride !== '' ? this.envMapOverride : undefined,
-        textureOverride: this.textureOverride,
-        dontParseModel: this.saveColliders
+        textureOverride: this.textureOverride
       },
       shadow: {
         cast: this.castShadow,
@@ -431,13 +437,12 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       }
     }
 
-    if (this.saveColliders) {
-      this.parseAndSaveColliders(components)
-      clearFromColliders(this.model, true)
-    }
+    this.parseAndSaveColliders(components)
+
     if (this.activeClipIndex !== -1) {
       components['loop-animation'] = {
-        activeClipIndex: this.activeClipIndex
+        activeClipIndex: this.activeClipIndex,
+        hasAvatarAnimations: this.hasAvatarAnimations
       }
     }
     if (this.collidable) {
@@ -462,7 +467,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.target = source.target
     this.collidable = source.collidable
     this.textureOverride = source.textureOverride
-    this.saveColliders = source.saveColliders
     this.walkable = source.walkable
     return this
   }
@@ -482,6 +486,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         )
       } else {
         this.addGLTFComponent('loop-animation', {
+          hasAvatarAnimations: this.hasAvatarAnimations,
           activeClipIndex: activeClipIndex
         })
       }

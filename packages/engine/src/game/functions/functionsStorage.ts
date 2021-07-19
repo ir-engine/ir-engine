@@ -38,6 +38,7 @@ export const getStorage = (entity: Entity, component: any): any => {
   const uuid = getUuid(entity)
   const game = getGame(entity)
   const objectState = game.state.find((v) => v.uuid === uuid)
+  if (!objectState) return {}
   const storageComponent = objectState.storage.find((v) => v.component === component.name)
   if (!storageComponent) return {} // empty just in case
   return JSON.parse(storageComponent.variables.replace(/'/g, '"')) //customConverter(objectState.storage.find(v => v.component === component.name).variables);//JSON.parse();

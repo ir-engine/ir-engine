@@ -141,6 +141,8 @@ export default (app: Application): void => {
                   }
                 }, 1000)
 
+                console.log('Loading scene...')
+
                 WorldScene.load(
                   result,
                   () => {
@@ -156,7 +158,6 @@ export default (app: Application): void => {
                     entitiesLeft = left
                   }
                 )
-                console.log('Loading scene...')
               }
             } else {
               try {

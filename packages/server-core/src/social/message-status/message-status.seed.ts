@@ -1,8 +1,6 @@
 import config from '../../appconfig'
 
 export const messageStatusSeed = {
-  disabled: !config.db.forceRefresh,
-  delete: config.db.forceRefresh,
   path: 'message-status',
   randomize: false,
   templates: [

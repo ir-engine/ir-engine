@@ -20,7 +20,7 @@ import { addObject3DComponent } from '../behaviors/addObject3DComponent'
 import { createGame, createGameObject } from '../behaviors/createGame'
 import { LightTagComponent, VisibleTagComponent } from '../components/Object3DTagComponents'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { parseModelColliders, clearFromColliders } from '../../physics/behaviors/parseModelColliders'
+import { removeCollidersFromModel } from '../../physics/behaviors/parseModelColliders'
 import { createVehicleFromSceneData } from '../../vehicle/prefabs/NetworkVehicle'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
 import { createSkybox } from '../behaviors/createSkybox'
@@ -30,6 +30,7 @@ import { createCommonInteractive } from '../behaviors/createCommonInteractive'
 import { createGroup } from '../behaviors/createGroup'
 import { createLink } from '../behaviors/createLink'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../behaviors/createMedia'
+import { createMap } from '../behaviors/createMap'
 import { createShadow } from '../behaviors/createShadow'
 import { createTransformComponent } from '../behaviors/createTransformComponent'
 import { createTriggerVolume } from '../behaviors/createTriggerVolume'
@@ -54,6 +55,7 @@ import { AnimationState } from '../../character/animations/AnimationState'
 import { delay } from '../../ecs/functions/EngineFunctions'
 import { setSkyDirection } from './setSkyDirection'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { AnimationManager } from '../../character/AnimationManager'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -170,25 +172,21 @@ export class WorldScene {
         break
 
       case 'gltf-model':
-        // TODO: get rid of or rename dontParseModel
-        if (!isClient && component.data.dontParseModel) return
-        this.loaders.push(
-          new Promise<void>((resolve) => {
-            AssetLoader.load(
-              {
-                url: component.data.src,
-                entity
-              },
-              (res) => {
-                if (component.data.dontParseModel) {
-                  clearFromColliders(res)
-                } else {
-                  parseModelColliders(entity, { asset: res, uniqueId: component.data.sceneEntityId })
-                }
+        if (isClient) {
+          this.loaders.push(
+            new Promise<void>((resolve) => {
+              AssetLoader.load(
+                {
+                  url: component.data.src,
+                  entity
+                },
+                (res) => {
+                  removeCollidersFromModel(entity, res)
 
-                if (isClient) {
+                  // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
                   if (res.animations) {
-                    addComponent(entity, AnimationComponent, { onlyUpdateMixerTime: true }) // We only have to update the mixer time for this animations on each frame
+                    // We only have to update the mixer time for this animations on each frame
+                    addComponent(entity, AnimationComponent, { onlyUpdateMixerTime: true })
                     const animationComponent = getMutableComponent(entity, AnimationComponent)
                     animationComponent.animations = res.animations
                     const object3d = getMutableComponent(entity, Object3DComponent)
@@ -201,7 +199,7 @@ export class WorldScene {
                     // we should push this to ECS, something like a SceneObjectLoadComponent,
                     // or add engine events for specific objects being added to the scene,
                     // the scene load event + delay 1 second delay works for now.
-                    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.SCENE_LOADED, async () => {
+                    EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
                       await delay(1000)
                       const objToCopy = Engine.scene.children.find((obj: any) => {
                         return obj.sceneEntityId === component.data.textureOverride
@@ -218,18 +216,57 @@ export class WorldScene {
                         })
                     })
                   }
+                  this._onModelLoaded()
+                  resolve()
+                },
+                null,
+                (err) => {
+                  this._onModelLoaded()
+                  resolve()
                 }
-                this._onModelLoaded()
-                resolve()
-              },
-              null,
-              (err) => {
-                this._onModelLoaded()
-                resolve()
-              }
-            )
+              )
+            })
+          )
+        }
+        break
+
+      case 'loop-animation':
+        if (isClient) {
+          EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
+            // We only have to update the mixer time for this animations on each frame
+            const object3d = getMutableComponent(entity, Object3DComponent)
+            if (!object3d) {
+              console.warn(
+                'Tried to load animation without an Object3D Component attached! Are you sure the model has loaded?'
+              )
+            }
+            addComponent(entity, AnimationComponent, { onlyUpdateMixerTime: true })
+            const animationComponent = getMutableComponent(entity, AnimationComponent)
+            if (component.data.hasAvatarAnimations) {
+              animationComponent.animations = AnimationManager.instance._animations
+            } else {
+              animationComponent.animations = object3d.value.animations
+            }
+            animationComponent.mixer = new AnimationMixer(object3d.value)
+            animationComponent.currentState = new AnimationState()
+            if (component.data.activeClipIndex >= 0) {
+              const clip = animationComponent.animations[component.data.activeClipIndex]
+              const action = animationComponent.mixer.clipAction(
+                AnimationClip.findByName(animationComponent.animations, clip.name)
+              )
+              action.setEffectiveWeight(1)
+              animationComponent.currentState.animations = [
+                {
+                  name: clip.name,
+                  weight: 1,
+                  loopType: LoopRepeat,
+                  action
+                }
+              ]
+              animationComponent.currentState.animations[0].action.play()
+            }
           })
-        )
+        }
         break
 
       case 'interact':
@@ -257,6 +294,10 @@ export class WorldScene {
         } else {
           createMediaServer(entity, component.data)
         }
+        break
+
+      case 'map':
+        if (isClient) createMap(entity, component.data)
         break
 
       case 'audio':

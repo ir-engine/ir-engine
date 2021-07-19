@@ -63,13 +63,8 @@ export const spawnClub: Behavior = (
   time?: number,
   checks?: any
 ): void => {
-  // server sends clients the entity data
-  if (isClient) return
-
   const game = getGame(entityPlayer)
   const playerNetworkObject = getComponent(entityPlayer, NetworkObject)
-
-  console.log('spawning club for player', playerNetworkObject.ownerId)
 
   const networkId = Network.getNetworkId()
   const uuid = MathUtils.generateUUID()
@@ -121,17 +116,12 @@ export const updateClub: Behavior = (
   time?: number,
   checks?: any
 ): void => {
-  if (!hasComponent(entityClub, NetworkObjectOwner)) return
-
-  const ownerNetworkObject =
-    Network.instance.networkObjects[getComponent(entityClub, NetworkObjectOwner).networkId].component
+  const ownerNetworkId = getComponent(entityClub, NetworkObjectOwner).networkId
+  const ownerEntity = Network.instance.networkObjects[ownerNetworkId].component.entity
 
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
-
   const transformClub = getMutableComponent(entityClub, TransformComponent)
   const collider = getMutableComponent(entityClub, ColliderComponent)
-
-  const ownerEntity = Network.instance.networkObjects[ownerNetworkObject.networkId].component.entity
 
   const handTransform = getHandTransform(ownerEntity)
   const { position, rotation } = handTransform
@@ -233,14 +223,10 @@ export const onClubColliderWithBall: GameObjectInteractionBehavior = (
 const clubColliderSize = new Vector3(0.03, 0.05, 0.1)
 const clubHalfWidth = 0.05
 const clubPutterLength = 0.1
-const clubLength = 1
-
-const upVector = new Vector3(0, 1, 0)
-const HALF_PI = Math.PI / 2
+const clubLength = 1.2
 
 export const initializeGolfClub = (entityClub: Entity) => {
   const transform = getComponent(entityClub, TransformComponent)
-
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
 
   golfClubComponent.raycast = PhysicsSystem.instance.addRaycastQuery(
@@ -333,7 +319,7 @@ export const createGolfClubPrefab = (args: {
   uniqueId: string
   ownerId?: string
 }) => {
-  console.log('createGolfClubPrefab')
+  console.log('createGolfClubPrefab', args)
   initializeNetworkObject({
     prefabType: GolfPrefabTypes.Club,
     uniqueId: args.uniqueId,

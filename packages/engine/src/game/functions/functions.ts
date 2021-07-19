@@ -89,7 +89,7 @@ export const getTargetEntitys = (entity: Entity, entityTarget: Entity, args: any
  * @author HydraFire <github.com/HydraFire>
  */
 export const getTargetEntity = (entity: Entity, entityTarget: Entity, args: any): Entity => {
-  return args.on === 'target' ? entityTarget : entity
+  return args?.on === 'target' ? entityTarget : entity
 }
 
 export const checkRolesNames = (entity: Entity, str: string) => {

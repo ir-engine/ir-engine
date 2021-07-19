@@ -268,7 +268,6 @@ export const processLocationChange = async (): Promise<void> => {
   Engine.scene.environment = null
 
   Engine.scene.traverse((o: any) => {
-    console.log(o, o.entity)
     if (!o.entity) return
     if (!removedEntities.includes(o.entity.id)) return
 
@@ -292,8 +291,10 @@ export const processLocationChange = async (): Promise<void> => {
 
 export const resetPhysics = async (): Promise<void> => {
   PhysicsSystem.instance.worker.terminate()
+  PhysicsSystem.instance.enabled = false
   Engine.workers.splice(Engine.workers.indexOf(PhysicsSystem.instance.worker), 1)
   PhysXInstance.instance.dispose()
   PhysXInstance.instance = new PhysXInstance()
   await PhysicsSystem.instance.initialize()
+  PhysicsSystem.instance.enabled = true
 }

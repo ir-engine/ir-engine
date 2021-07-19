@@ -9,6 +9,11 @@ import { InputType } from '../../input/enums/InputType'
 import { endXR, startXR } from '../functions/WebXRFunctions'
 import { XRFrame, XRReferenceSpace, XRReferenceSpaceType, XRWebGLLayer } from '../../input/types/WebXR'
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
+import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
+import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { addControllerModels } from '../functions/addControllerModels'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 
 /**
  * System for XR session and input handling
@@ -35,11 +40,14 @@ export class XRSystem extends System {
 
     XRSystem.instance = this
 
+    // TEMPORARY - precache controller model
+    // TODO: remove this when IK system is in
+    AssetLoader.loadAsync({ url: '/models/webxr/controllers/valve_controller_knu_1_0_right.glb' })
+
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => {
       Engine.renderer.outputEncoding = sRGBEncoding
       const sessionInit = { optionalFeatures: [this.referenceSpaceType] }
       try {
-        console.log('XR_START')
         const session = await (navigator as any).xr.requestSession('immersive-vr', sessionInit)
 
         Engine.xrSession = session
@@ -47,20 +55,16 @@ export class XRSystem extends System {
         Engine.xrRenderer.setSession(session)
         EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_SESSION })
 
-        Engine.xrRenderer.addEventListener('sessionend', async () => {
+        Engine.xrRenderer.once('sessionend', async () => {
           endXR()
           EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_END })
         })
-        console.log('has session')
 
         startXR()
-        console.log('has session')
       } catch (e) {
         console.log('Failed to create XR Session', e)
       }
     })
-
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => {})
   }
 
   /** Removes resize listener. */
@@ -105,7 +109,20 @@ export class XRSystem extends System {
         }
       })
     }
+
+    for (const entity of this.queryResults.localXRController.added) {
+      addControllerModels(entity)
+    }
   }
+  // TODO: add and remove controller models from grips
 }
 
-XRSystem.queries = {}
+XRSystem.queries = {
+  localXRController: {
+    components: [LocalInputReceiver, XRInputSourceComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  }
+}

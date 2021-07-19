@@ -33,7 +33,7 @@ import { ControllerColliderComponent } from '@xrengine/engine/src/character/comp
 import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { processLocationChange, resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
+import { delay, processLocationChange, resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
@@ -56,6 +56,11 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
 import { CameraLayers } from '../../../../engine/src/camera/constants/CameraLayers'
+import { resetFollowCamera } from '../../../../engine/src/camera/systems/CameraSystem'
+import { lerp } from '../../../../engine/src/common/functions/MathLerpFunctions'
+import { PortalEffect } from '../../../../engine/src/scene/classes/PortalEffect'
+import { Object3DComponent } from '../../../../engine/src/scene/components/Object3DComponent'
+import { teleportToScene } from '../../../../engine/src/scene/functions/teleportToScene'
 import MediaIconsBox from '../../components/MediaIconsBox'
 import NetworkDebug from '../../components/NetworkDebug'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
@@ -194,7 +199,6 @@ export const EnginePage = (props: Props) => {
     history
   } = props
 
-  const currentUser = authState.get('user')
   const [hoveredLabel, setHoveredLabel] = useState('')
   const [infoBoxData, setModalData] = useState(null)
   const [userBanned, setUserBannedState] = useState(false)
@@ -553,48 +557,14 @@ export const EnginePage = (props: Props) => {
     resetInstanceServer()
     Network.instance.transport.close()
 
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
+    await teleportToScene(portalComponent, async () => {
+      // change our browser URL
+      history.replace('/location/' + portalComponent.location)
+      setNewSpawnPos(portalComponent)
 
-    // remove controller since physics world will be destroyed and we don't want it moving
-    PhysicsSystem.instance.removeController(
-      getComponent(Network.instance.localClientEntity, ControllerColliderComponent).controller
-    )
-    removeComponent(Network.instance.localClientEntity, ControllerColliderComponent)
+      await processLocationChange()
 
-    // Handle Camera transition while player is moving
-    // Remove the follow component, and attach the camera to the player, so it moves with them without causing discomfort while in VR
-    removeComponent(Network.instance.localClientEntity, FollowCameraComponent)
-    const camParent = Engine.camera.parent
-    if (camParent) Engine.camera.removeFromParent()
-    Engine.camera.layers.disable(CameraLayers.Scene)
-
-    // change our browser URL
-    history.replace('/location/' + portalComponent.location)
-    setNewSpawnPos(portalComponent)
-
-    await processLocationChange()
-
-    getLocationByName(portalComponent.location)
-
-    // add back the collider using previous parameters
-    EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
-      // teleport player to where the portal is
-      const transform = getComponent(Network.instance.localClientEntity, TransformComponent)
-      const actor = getComponent(Network.instance.localClientEntity, CharacterComponent)
-      transform.position.set(
-        portalComponent.spawnPosition.x,
-        portalComponent.spawnPosition.y + actor.actorHalfHeight,
-        portalComponent.spawnPosition.z
-      )
-      transform.rotation.copy(portalComponent.spawnRotation)
-
-      addComponent(Network.instance.localClientEntity, ControllerColliderComponent)
-
-      addComponent(Network.instance.localClientEntity, FollowCameraComponent)
-      if (camParent) camParent.add(Engine.camera)
-      Engine.camera.layers.enable(CameraLayers.Scene)
-
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: true })
+      getLocationByName(portalComponent.location)
     })
   }
 
@@ -611,8 +581,6 @@ export const EnginePage = (props: Props) => {
     })
   }
 
-  let characterAvatar: CharacterComponent = null
-  let networkUser
   const onObjectActivation = (interactionData): void => {
     switch (interactionData.interactionType) {
       case 'link':

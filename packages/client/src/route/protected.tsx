@@ -6,6 +6,7 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 
 const analytic = React.lazy(() => import('../pages/admin/index'))
+const avatars = React.lazy(() => import('../pages/admin/avatars'))
 const contentPacks = React.lazy(() => import('../pages/admin/content-packs'))
 const groups = React.lazy(() => import('../pages/admin/groups'))
 const instance = React.lazy(() => import('../pages/admin/instance'))
@@ -53,6 +54,7 @@ const ProtectedRoutes = (props: Props) => {
       >
         <Switch>
           <PrivateRoute exact path="/admin" component={analytic} />
+          <PrivateRoute exact path="/admin/avatars" component={avatars} />
           <PrivateRoute exact path="/admin/content-packs" component={contentPacks} />
           <PrivateRoute exact path="/admin/groups" component={groups} />
           <PrivateRoute exact path="/admin/instance" component={instance} />

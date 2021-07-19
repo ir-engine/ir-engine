@@ -21,11 +21,7 @@ export const teleportObject: Behavior = (
   time?: number,
   checks?: any
 ): void => {
-  console.warn('Teleport Object')
-
-  const entityArg = getTargetEntity(entity, entityTarget, args)
-
-  const collider = getMutableComponent(entityArg, ColliderComponent)
+  const collider = getMutableComponent(entity, ColliderComponent)
 
   collider.velocity.set(0, 0, 0)
 

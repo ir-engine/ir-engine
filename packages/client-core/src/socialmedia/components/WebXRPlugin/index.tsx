@@ -106,7 +106,7 @@ export const WebXRPlugin = ({
   const sceneRef = useRef<Scene | null>(null)
   const cameraRef = useRef<PerspectiveCamera | null>(null)
   const rendererRef = useRef<WebGLRenderer | null>(null)
-  //   const animationFrameIdRef = useRef<number>(0)
+  const animationFrameIdRef = useRef<number>(0)
   const zoomHandlerRef = useRef<ZoomGestureHandler | null>(null)
 
   const recordingStateRef = React.useRef(recordingState)
@@ -176,9 +176,9 @@ export const WebXRPlugin = ({
       // console.log('WebXRComponent UNMOUNT');
       document.removeEventListener('backbutton', onBackButton)
 
-      //   if (animationFrameIdRef.current) {
-      //     cancelAnimationFrame(animationFrameIdRef.current)
-      //   }
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current)
+      }
 
       if (playerRef.current) {
         console.log('WebXRComponent - dispose player')
@@ -203,8 +203,8 @@ export const WebXRPlugin = ({
     }
   }, [])
 
-  const render = () => {
-    // animationFrameIdRef.current = requestAnimationFrame(raf) // always request new frame
+  const raf = () => {
+    animationFrameIdRef.current = requestAnimationFrame(raf) // always request new frame
     const scene = sceneRef.current
     const camera = cameraRef.current
     const renderer = rendererRef.current
@@ -290,9 +290,6 @@ export const WebXRPlugin = ({
       //             const materialY = new MeshBasicMaterial({ color: 0x00ff00 });
       //             const materialZ = new MeshBasicMaterial({ color: 0x0000ff });
       //             const materialC = new MeshBasicMaterial({ color: 0xffffff });
-      const materialLine = new LineBasicMaterial({
-        color: 0x0000ff
-      })
 
       if (!anchorRef.current) {
         anchorRef.current = new Group()
@@ -300,15 +297,6 @@ export const WebXRPlugin = ({
       const anchor = anchorRef.current
       // TODO: return it to false
       anchor.visible = true
-      var points = []
-      let radius = 0.25
-
-      for (let i = 0; i <= 360; i++) {
-        points.push(Math.sin(i * (Math.PI / 180)) * radius, Math.cos(i * (Math.PI / 180)) * radius, 0)
-      }
-      const geometryLine = new BufferGeometry().setFromPoints(points)
-      const line = new Line(geometryLine, materialLine)
-      anchor.add(line)
 
       //             anchor.add(new AxesHelper(0.3));
       //             const anchorC = new Mesh(geometry, materialC);
@@ -397,7 +385,7 @@ export const WebXRPlugin = ({
         //video.muted = true;
       }
 
-      //   requestAnimationFrame(raf)
+      requestAnimationFrame(raf)
 
       // const { XRPlugin } = Plugins;
 
@@ -503,8 +491,6 @@ export const WebXRPlugin = ({
           // }
           // }
         }
-
-        render()
       })
 
       // @ts-ignore
@@ -559,7 +545,7 @@ export const WebXRPlugin = ({
         // @ts-ignore
         .then(({ result, filePath, nameId }) => {
           console.log('END RECORDING, result IS', result)
-          console.log('filePath IS', filePath)
+          alert(filePath)
           setLastFeedVideoUrl(filePath)
           getArMediaItem(null)
           setSavedFilePath('file://' + filePath)
@@ -641,6 +627,9 @@ export const WebXRPlugin = ({
       y: e.clientY * window.devicePixelRatio
     }
 
+    if (playerRef.current && playerRef.current.currentFrame <= 0) {
+      playerRef.current.playOneFrame()
+    }
     // @ts-ignore
     XRPlugin.handleTap(params)
   }

@@ -38,7 +38,7 @@ export default defineConfig(() => {
 
     return {
         plugins: [],
-        server: {
+        server: { 
             hmr: {
                 port: 443
             },
