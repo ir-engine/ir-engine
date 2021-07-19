@@ -50,6 +50,8 @@ const getParityFromInputValue = (key: InputAlias): ParityValue => {
  */
 
 const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number): void => {
+  if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+
   const parityValue = getParityFromInputValue(inputKey)
 
   if (!isClient) {
@@ -116,6 +118,7 @@ const cycleCameraMode = (
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
+  if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
   const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent)
 
   switch (cameraFollow?.mode) {
@@ -146,6 +149,7 @@ const fixedCameraBehindCharacter: InputBehaviorType = (
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
+  if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
   const follower = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent)
   if (follower && follower.mode !== CameraModes.FirstPerson) {
     follower.locked = !follower.locked
@@ -158,6 +162,7 @@ const switchShoulderSide: InputBehaviorType = (
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
+  if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
   const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent)
   if (cameraFollow) {
     cameraFollow.shoulderSide = !cameraFollow.shoulderSide
