@@ -3,9 +3,12 @@ const sassPlugin = require('esbuild-plugin-sass')
 
 esbuild.build({
     entryPoints: ['index.ts'],
+    target: 'esnext',
     bundle: true,
     outfile: 'dist/client-core.es.js',
-    plugins: [sassPlugin()],
+    plugins: [
+        sassPlugin(),
+    ],
     platform: "browser",
     define: {
         ["process.env.NODE_ENV"]: "'production'",

@@ -1,8 +1,8 @@
 {
   "verbose": true,
   "watch": [
-    "../engine/src/**/*.ts",
-    "src/**/*.ts"
+    "../engine/src/**",
+    "src/**"
   ],
   "env": {
     "NODE_ENV": "development" 
