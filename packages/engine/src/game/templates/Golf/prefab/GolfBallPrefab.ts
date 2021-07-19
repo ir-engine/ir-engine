@@ -241,7 +241,8 @@ export const createGolfBallPrefab = (args: {
           }
         }
       ]
-    }
+    },
+    shouldSendOnPlayerJoin: false
   })
 }
 

@@ -22,7 +22,6 @@ import {
   saveInitStateCopy,
   requireState
 } from '../functions/functionsState'
-import { getStorage, initStorage } from '../functions/functionsStorage'
 
 import { GamesSchema } from '../../game/templates/GamesSchema'
 import { PrefabType } from '../../networking/templates/PrefabType'
@@ -35,7 +34,6 @@ import { checkIsGamePredictionStillRight, clearPredictionCheckList } from '../fu
 import { NewPlayerTagComponent } from '../templates/Golf/components/GolfTagComponents'
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
 import { Component } from '../../ecs/classes/Component'
-import { getGame, getRole, getUuid } from '../functions/functions'
 
 /**
  * @author HydraFire <github.com/HydraFire>

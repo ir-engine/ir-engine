@@ -55,7 +55,7 @@ export class XRSystem extends System {
         Engine.xrRenderer.setSession(session)
         EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_SESSION })
 
-        Engine.xrRenderer.once('sessionend', async () => {
+        Engine.xrRenderer.addEventListener('sessionend', async () => {
           endXR()
           EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_END })
         })

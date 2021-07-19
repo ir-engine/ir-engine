@@ -5,15 +5,12 @@ import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
 import { Network } from '../../../networking/classes/Network'
 import { NetworkObject } from '../../../networking/components/NetworkObject'
 import { NetworkObjectOwner } from '../../../networking/components/NetworkObjectOwner'
-import { Game } from '../../components/Game'
 import { GameObject } from '../../components/GameObject'
 import { GamePlayer } from '../../components/GamePlayer'
-import { getGame } from '../../functions/functions'
-import { addStateComponent, removeStateComponent, sendState } from '../../functions/functionsState'
-import { getStorage } from '../../functions/functionsStorage'
+import { getGame, getUuid } from '../../functions/functions'
+import { addStateComponent, removeStateComponent } from '../../functions/functionsState'
+import { getStorage, initStorage, setStorage } from '../../functions/functionsStorage'
 import { Action, State } from '../../types/GameComponents'
-import { doesPlayerHaveGameObject } from '../gameDefault/checkers/doesPlayerHaveGameObject'
-import { dontHasState } from '../gameDefault/checkers/dontHasState'
 import { ifGetOut } from '../gameDefault/checkers/ifGetOut'
 import { ifOwned } from '../gameDefault/checkers/ifOwned'
 import { ifVelocity } from '../gameDefault/checkers/ifVelocity'
@@ -68,22 +65,36 @@ export class GolfSystem extends System {
     // DO ALL STATE LOGIC HERE (all queries)
 
     this.queryResults.player.all.forEach((entity) => {
+      const game = getGame(entity)
       const playerComponent = getComponent(entity, GamePlayer)
+      const ownerId = getUuid(entity)
+
+      if (!playerComponent.ownedObjects['GolfClub']) {
+        playerComponent.ownedObjects['GolfClub'] = game.gameObjects['GolfClub'].find(
+          (entity) => getComponent(entity, NetworkObject)?.ownerId === ownerId
+        )
+      }
+
+      if (!playerComponent.ownedObjects['GolfBall']) {
+        playerComponent.ownedObjects['GolfBall'] = game.gameObjects['GolfBall'].find(
+          (entity) => getComponent(entity, NetworkObject)?.ownerId === ownerId
+        )
+      }
 
       const clubEntity = playerComponent.ownedObjects['GolfClub']
       const ballEntity = playerComponent.ownedObjects['GolfBall']
 
-      // not initialised yet
       if (!clubEntity) return
 
+      // not initialised yet
+
       const gameScore = getStorage(entity, { name: 'GameScore' })
-      const game = getGame(entity)
 
       if (hasComponent(entity, State.YourTurn)) {
         // If the player does not have a ball, spawn one
         // TODO: refactor, we shouldn't have to check this each frame
 
-        if (doesPlayerHaveGameObject(entity, { on: 'self', objectRoleName: 'GolfBall', invert: true })) {
+        if (!ballEntity) {
           behaviorsToExecute.push(() => {
             spawnBall(entity, { positionCopyFromRole: 'GolfTee-0', offsetY: 1 })
           })
@@ -210,7 +221,12 @@ export class GolfSystem extends System {
       if (hasComponent(entity, State.BallStopped) && ifVelocity(entity, { less: 0.001 }) && ifOutCourse(entity)) {
         const ownerEntity =
           Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity
-        teleportObject(entity, getPositionNextPoint(ownerEntity, { positionCopyFromRole: 'GolfTee-', position: null }))
+        if (ownerEntity) {
+          teleportObject(
+            entity,
+            getPositionNextPoint(ownerEntity, { positionCopyFromRole: 'GolfTee-', position: null })
+          )
+        }
       }
       if (ifVelocity(entity, { more: 0.01 })) {
         if (hasComponent(entity, State.Ready)) {
@@ -322,12 +338,6 @@ export class GolfSystem extends System {
     this.queryResults.golfClub.added.forEach((entity) => {
       addStateComponent(entity, State.SpawnedObject)
       addStateComponent(entity, State.Active)
-
-      const ownerPlayerEntity =
-        Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity
-      const ownerGamePlayer = getComponent(ownerPlayerEntity, GamePlayer)
-
-      // ownerGamePlayer.ownedObjects['GolfClub'] = entity
     })
 
     this.queryResults.golfBall.added.forEach((entity) => {
@@ -335,13 +345,6 @@ export class GolfSystem extends System {
       addStateComponent(entity, State.NotReady)
       addStateComponent(entity, State.Active)
       addStateComponent(entity, State.BallMoving)
-
-      const ownerPlayerEntity =
-        Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity
-      const ownerGamePlayer = getComponent(ownerPlayerEntity, GamePlayer)
-
-      // ownerGamePlayer.ownedObjects['GolfBall'] = entity
-
       initBallRaycast(entity)
     })
 

@@ -343,7 +343,8 @@ export const createGolfClubPrefab = (args: {
           }
         }
       ]
-    }
+    },
+    shouldSendOnPlayerJoin: false
   })
 }
 

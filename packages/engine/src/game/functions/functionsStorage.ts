@@ -1,7 +1,5 @@
-import { Component } from '../../ecs/classes/Component'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
 import { InitStorageInterface } from '../types/GameMode'
 import { getGame, getRole, getUuid } from './functions'
 
@@ -15,15 +13,15 @@ const customConverter = (str: string) => str.split(';').reduce((acc, v) => Objec
 const customArchives = (variable: string, objData) => variable+'='+Object.keys(objData).map(v => [v,objData[v]].join('_')).join(',')+ ';';
 */
 
-export const initStorage = (entity: Entity, initSchemaStorege: InitStorageInterface[]): void => {
-  //console.log('initStorage', entity, initSchemaStorege)
-  if (initSchemaStorege === undefined) return
+export const initStorage = (entity: Entity, initSchemaStorage: InitStorageInterface[]): void => {
+  console.log('initStorage', entity, initSchemaStorage)
+  if (initSchemaStorage === undefined) return
   const role = getRole(entity)
   const uuid = getUuid(entity)
   const game = getGame(entity)
   const objectState = game.state.find((v) => v.uuid === uuid)
   if (objectState != undefined) {
-    objectState.storage = initSchemaStorege.map((v) => {
+    objectState.storage = initSchemaStorage.map((v) => {
       const data = getComponent(entity, v.component)
       const readyValues = v.variables.reduce((acc, variable) => Object.assign(acc, { [variable]: data[variable] }), {})
       return { component: v.component.name, variables: JSON.stringify(readyValues).replace(/"/g, "'") }
@@ -45,6 +43,7 @@ export const getStorage = (entity: Entity, component: any): any => {
 }
 
 export const setStorage = (entity: Entity, component: any, data: any): void => {
+  console.log('setStorage', entity, component, data)
   const role = getRole(entity)
   const uuid = getUuid(entity)
   const game = getGame(entity)

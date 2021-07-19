@@ -156,6 +156,7 @@ export function initializeNetworkObject(args: {
   networkId?: number
   uniqueId: string
   override?: any
+  shouldSendOnPlayerJoin?: boolean
 }): NetworkObject {
   // Instantiate into the world
   const entity = args.entity ?? createEntity()
@@ -164,6 +165,7 @@ export function initializeNetworkObject(args: {
   const networkId = args.networkId ?? checkIfIdHavePrepair(args.uniqueId)
   const uniqueId = args.uniqueId
   const parameters = args.parameters
+  const shouldSendOnPlayerJoin = args.shouldSendOnPlayerJoin ?? true
 
   const networkEntity = createNetworkPrefab(
     entity,
@@ -184,7 +186,8 @@ export function initializeNetworkObject(args: {
     prefabType,
     component: networkObject,
     uniqueId,
-    parameters
+    parameters,
+    shouldSendOnPlayerJoin
   }
 
   if (prefabType === PrefabType.Player && ownerId === Network.instance.userId) {
