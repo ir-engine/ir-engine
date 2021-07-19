@@ -20,7 +20,7 @@ import { addObject3DComponent } from '../behaviors/addObject3DComponent'
 import { createGame, createGameObject } from '../behaviors/createGame'
 import { LightTagComponent, VisibleTagComponent } from '../components/Object3DTagComponents'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { parseModelColliders, clearFromColliders } from '../../physics/behaviors/parseModelColliders'
+import { removeCollidersFromModel } from '../../physics/behaviors/parseModelColliders'
 import { createVehicleFromSceneData } from '../../vehicle/prefabs/NetworkVehicle'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
 import { createSkybox } from '../behaviors/createSkybox'
@@ -172,23 +172,17 @@ export class WorldScene {
         break
 
       case 'gltf-model':
-        // TODO: get rid of or rename dontParseModel
-        if (!isClient && component.data.dontParseModel) return
-        this.loaders.push(
-          new Promise<void>((resolve) => {
-            AssetLoader.load(
-              {
-                url: component.data.src,
-                entity
-              },
-              (res) => {
-                if (component.data.dontParseModel) {
-                  clearFromColliders(res)
-                } else {
-                  parseModelColliders(entity, { asset: res, uniqueId: component.data.sceneEntityId })
-                }
+        if (isClient) {
+          this.loaders.push(
+            new Promise<void>((resolve) => {
+              AssetLoader.load(
+                {
+                  url: component.data.src,
+                  entity
+                },
+                (res) => {
+                  removeCollidersFromModel(entity, res)
 
-                if (isClient) {
                   // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
                   if (res.animations) {
                     // We only have to update the mixer time for this animations on each frame
@@ -222,18 +216,18 @@ export class WorldScene {
                         })
                     })
                   }
+                  this._onModelLoaded()
+                  resolve()
+                },
+                null,
+                (err) => {
+                  this._onModelLoaded()
+                  resolve()
                 }
-                this._onModelLoaded()
-                resolve()
-              },
-              null,
-              (err) => {
-                this._onModelLoaded()
-                resolve()
-              }
-            )
-          })
-        )
+              )
+            })
+          )
+        }
         break
 
       case 'loop-animation':

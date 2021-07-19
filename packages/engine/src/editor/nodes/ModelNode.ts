@@ -4,7 +4,7 @@ import EditorNodeMixin from './EditorNodeMixin'
 import { setStaticMode, StaticModes } from '../functions/StaticMode'
 import cloneObject3D from '../functions/cloneObject3D'
 import { RethrownError } from '../functions/errors'
-import { clearFromColliders, plusParameter } from '../../physics/behaviors/parseModelColliders'
+import { makeCollidersInvisible, applyTransform } from '../../physics/behaviors/parseModelColliders'
 import { parseCarModel } from '../../vehicle/prefabs/NetworkVehicle'
 import { getGeometry } from '../../scene/functions/getGeometry'
 import { AnimationManager } from '../../character/AnimationManager'
@@ -32,8 +32,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           node.target = gameObject.props.target
           node.role = gameObject.props.role
         }
-        // its need be first then load
-        node.saveColliders = !!json.components.find((c) => c.name === 'mesh-collider-0')
 
         await node.load(src, onError)
         if (node.envMapOverride) node.envMapOverride = envMapOverride
@@ -90,7 +88,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   envMapOverride = ''
   textureOverride = ''
   collidable = true
-  saveColliders = true
   target = null
   walkable = true
   initialScale: string | number = 1
@@ -177,7 +174,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           }
         })
       }
-      if (this.saveColliders) clearFromColliders(this.model, true)
+      makeCollidersInvisible(this.model)
       this.updateStaticModes()
     } catch (error) {
       this.showErrorIcon()
@@ -366,7 +363,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     // its for vehicle
     if (collider.data == 'vehicle') return collider
 
-    const [position, quaternion, scale] = plusParameter(
+    const [position, quaternion, scale] = applyTransform(
       collider.position,
       collider.quaternion,
       collider.scale,
@@ -412,8 +409,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       'gltf-model': {
         src: this._canonicalUrl,
         envMapOverride: this.envMapOverride !== '' ? this.envMapOverride : undefined,
-        textureOverride: this.textureOverride,
-        dontParseModel: this.saveColliders
+        textureOverride: this.textureOverride
       },
       shadow: {
         cast: this.castShadow,
@@ -441,10 +437,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       }
     }
 
-    if (this.saveColliders) {
-      this.parseAndSaveColliders(components)
-      clearFromColliders(this.model, true)
-    }
+    this.parseAndSaveColliders(components)
+
     if (this.activeClipIndex !== -1) {
       components['loop-animation'] = {
         activeClipIndex: this.activeClipIndex,
@@ -473,7 +467,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     this.target = source.target
     this.collidable = source.collidable
     this.textureOverride = source.textureOverride
-    this.saveColliders = source.saveColliders
     this.walkable = source.walkable
     return this
   }

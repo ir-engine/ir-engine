@@ -115,11 +115,6 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
   //   (this.props.editor as any).setPropertySelected("collidable", collidable);
   // };
 
-  //function to handle change in saveColliders property
-  onChangeSaveColliders = (saveColliders) => {
-    ;(this.props.editor as any).setPropertySelected('saveColliders', saveColliders)
-  }
-
   onChangeTextureOverride = (textureOverride) => {
     console.log(textureOverride)
     ;(this.props.editor as any).setPropertySelected('textureOverride', textureOverride)
@@ -397,10 +392,6 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
             onChange={this.onChangeCollidable}
           />
         </InputGroup> */}
-        {/* @ts-ignore */}
-        <InputGroup name="Save Colliders" label={this.props.t('editor:properties.model.lbl-saveColliders')}>
-          <BooleanInput value={node.saveColliders} onChange={this.onChangeSaveColliders} />
-        </InputGroup>
         {/* @ts-ignore */}
         <InputGroup name="Texture Override" label={this.props.t('editor:properties.model.lbl-textureOverride')}>
           {/* @ts-ignore */}

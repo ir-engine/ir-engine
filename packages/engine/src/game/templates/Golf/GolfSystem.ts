@@ -327,7 +327,7 @@ export class GolfSystem extends System {
         Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity
       const ownerGamePlayer = getComponent(ownerPlayerEntity, GamePlayer)
 
-      ownerGamePlayer.ownedObjects['GolfClub'] = entity
+      // ownerGamePlayer.ownedObjects['GolfClub'] = entity
     })
 
     this.queryResults.golfBall.added.forEach((entity) => {
@@ -340,7 +340,7 @@ export class GolfSystem extends System {
         Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity
       const ownerGamePlayer = getComponent(ownerPlayerEntity, GamePlayer)
 
-      ownerGamePlayer.ownedObjects['GolfBall'] = entity
+      // ownerGamePlayer.ownedObjects['GolfBall'] = entity
 
       initBallRaycast(entity)
     })
