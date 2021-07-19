@@ -357,10 +357,10 @@ export class MapboxTileLoader {
     if (this.opts.enableEdgeLines) {
       const edges = new THREE.EdgesGeometry(mesh.geometry, 30)
       const lineSegments = new THREE.LineSegments(edges, lineMaterial)
+      this.scene.add(lineSegments)
     }
 
     this.scene.add(mesh)
-    this.scene.add(lineSegments)
     this.feature_meshes.push(mesh)
     this.meshes_by_layer[layername] = this.meshes_by_layer[layername] || []
     this.meshes_by_layer[layername].push(mesh)
