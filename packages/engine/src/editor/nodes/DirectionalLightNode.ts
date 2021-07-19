@@ -1,19 +1,39 @@
 import EditorNodeMixin from './EditorNodeMixin'
 import PhysicalDirectionalLight from '../../scene/classes/PhysicalDirectionalLight'
 import EditorDirectionalLightHelper from '../classes/EditorDirectionalLightHelper'
+import { CameraHelper } from 'three'
 export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirectionalLight) {
   static legacyComponentName = 'directional-light'
   static nodeName = 'Directional Light'
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json)
-    const { color, intensity, castShadow, shadowMapResolution, shadowBias, shadowRadius } = json.components.find(
-      (c) => c.name === 'directional-light'
-    ).props
+    const {
+      color,
+      intensity,
+      castShadow,
+      shadowMapResolution,
+      shadowBias,
+      shadowRadius,
+      cameraFar,
+      cameraNear,
+      cameraBottom,
+      cameraTop,
+      cameraLeft,
+      cameraRight,
+      showCameraHelper
+    } = json.components.find((c) => c.name === 'directional-light').props
     node.color.set(color)
     node.intensity = intensity
+    node.cameraFar = cameraFar || 2000
+    node.cameraNear = cameraNear || 0.1
+    node.cameraTop = cameraTop || 5
+    node.cameraBottom = cameraBottom || -5
+    node.cameraLeft = cameraLeft || -5
+    node.cameraRight = cameraRight || 5
     node.castShadow = castShadow
     node.shadowBias = shadowBias || 0
     node.shadowRadius = shadowRadius === undefined ? 1 : shadowRadius
+    node.showCameraHelper = !!showCameraHelper
     if (shadowMapResolution) {
       node.shadowMapResolution.fromArray(shadowMapResolution)
     }
@@ -24,18 +44,41 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
     this.helper = new EditorDirectionalLightHelper(this)
     this.helper.visible = false
     this.add(this.helper)
+
+    this.cameraHelper = new CameraHelper(this.shadow.camera)
+    this.cameraHelper.visible = false
+    this.add(this.cameraHelper)
   }
   onAdd() {
     this.helper.update()
   }
   onChange() {
     this.helper.update()
+    this.cameraHelper.visible = this.showCameraHelper
+
+    this.shadow.bias = this.shadowBias
+    this.shadow.radius = this.shadowRadius
+
+    this.shadow.camera.far = this.cameraFar
+    this.shadow.camera.near = this.cameraNear
+    this.shadow.camera.top = this.cameraTop
+    this.shadow.camera.bottom = this.cameraBottom
+    this.shadow.camera.left = this.cameraLeft
+    this.shadow.camera.right = this.cameraRight
+
+    this.shadow.camera.updateProjectionMatrix()
+
+    this.shadow.needsUpdate = true
+
+    this.cameraHelper.update()
   }
   onSelect() {
     this.helper.visible = true
+    this.cameraHelper.visible = this.showCameraHelper
   }
   onDeselect() {
     this.helper.visible = false
+    this.cameraHelper.visible = false
   }
   copy(source, recursive = true) {
     super.copy(source, false)
@@ -65,7 +108,14 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
         castShadow: this.castShadow,
         shadowMapResolution: this.shadowMapResolution.toArray(),
         shadowBias: this.shadowBias,
-        shadowRadius: this.shadowRadius
+        shadowRadius: this.shadowRadius,
+        cameraFar: this.cameraFar,
+        cameraNear: this.cameraNear,
+        cameraTop: this.cameraTop,
+        cameraBottom: this.cameraBottom,
+        cameraLeft: this.cameraLeft,
+        cameraRight: this.cameraRight,
+        showCameraHelper: this.showCameraHelper
       }
     })
   }
@@ -78,7 +128,14 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
       castShadow: this.castShadow,
       shadowMapResolution: this.shadowMapResolution.toArray(),
       shadowBias: this.shadowBias,
-      shadowRadius: this.shadowRadius
+      shadowRadius: this.shadowRadius,
+      cameraFar: this.cameraFar,
+      cameraNear: this.cameraNear,
+      cameraTop: this.cameraTop,
+      cameraBottom: this.cameraBottom,
+      cameraLeft: this.cameraLeft,
+      cameraRight: this.cameraRight,
+      showCameraHelper: this.showCameraHelper
     })
     this.replaceObject()
   }

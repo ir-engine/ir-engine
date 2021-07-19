@@ -2,11 +2,13 @@ import {
   AmbientLight,
   AnimationClip,
   AnimationMixer,
+  CameraHelper,
   DirectionalLight,
   HemisphereLight,
   LoopRepeat,
   PointLight,
   SpotLight,
+  Vector2,
   Vector3
 } from 'three'
 import { isClient } from '../../common/functions/isClient'
@@ -47,7 +49,7 @@ import { setEnvMap } from '../behaviors/setEnvMap'
 import { PersistTagComponent } from '../components/PersistTagComponent'
 import { createPortal } from '../behaviors/createPortal'
 import { createGround } from '../behaviors/createGround'
-import { handleRendererSettings } from '../behaviors/handleRendererSettings'
+import { configureCSM, handleRendererSettings } from '../behaviors/handleRendererSettings'
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { AnimationComponent } from '../../character/components/AnimationComponent'
@@ -60,6 +62,11 @@ import { AnimationManager } from '../../character/AnimationManager'
 export enum SCENE_ASSET_TYPES {
   ENVMAP
 }
+
+type ScenePropertyType = {
+  directionalLights: DirectionalLight[]
+  isCSMEnabled: boolean
+}
 export class WorldScene {
   loadedModels = 0
   loaders: Promise<void>[] = []
@@ -71,8 +78,15 @@ export class WorldScene {
   loadScene = (scene: SceneData) => {
     WorldScene.callbacks = {}
     WorldScene.isLoading = true
+
     // reset renderer settings for if we are teleporting and the new scene does not have an override
-    handleRendererSettings()
+    handleRendererSettings(null, true)
+    configureCSM(null, true)
+
+    const sceneProperty: ScenePropertyType = {
+      directionalLights: []
+    } as ScenePropertyType
+
     Object.keys(scene.entities).forEach((key) => {
       const sceneEntity = scene.entities[key]
       const entity = createEntity()
@@ -80,7 +94,7 @@ export class WorldScene {
 
       sceneEntity.components.forEach((component) => {
         component.data.sceneEntityId = sceneEntity.entityId
-        this.loadComponent(entity, component)
+        this.loadComponent(entity, component, sceneProperty)
       })
     })
 
@@ -88,6 +102,7 @@ export class WorldScene {
       .then(() => {
         WorldScene.isLoading = false
         Engine.sceneLoaded = true
+        configureCSM(sceneProperty.directionalLights)
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
 
         this.onCompleted()
@@ -113,7 +128,7 @@ export class WorldScene {
     })
   }
 
-  loadComponent = (entity: Entity, component: SceneDataComponent): void => {
+  loadComponent = (entity: Entity, component: SceneDataComponent, sceneProperty: ScenePropertyType): void => {
     // remove '-1', '-2' etc suffixes
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
 
@@ -138,18 +153,33 @@ export class WorldScene {
           setSkyDirection(direction)
           return
         }
+
         addObject3DComponent(entity, {
           obj3d: DirectionalLight,
           objArgs: {
-            'shadow.mapSize': component.data.shadowMapResolution,
+            'shadow.mapSize': new Vector2(component.data.shadowMapResolution[0], component.data.shadowMapResolution[1]),
             'shadow.bias': component.data.shadowBias,
             'shadow.radius': component.data.shadowRadius,
             intensity: component.data.intensity,
             color: component.data.color,
-            castShadow: true
+            castShadow: component.data.castShadow,
+            'shadow.camera.far': component.data.cameraFar,
+            'shadow.camera.near': component.data.cameraNear,
+            'shadow.camera.top': component.data.cameraTop,
+            'shadow.camera.bottom': component.data.cameraBottom,
+            'shadow.camera.left': component.data.cameraLeft,
+            'shadow.camera.right': component.data.cameraRight
           }
         })
-        addComponent(entity, LightTagComponent)
+
+        const light = getComponent(entity, Object3DComponent).value as DirectionalLight
+
+        if (component.data.showCameraHelper) {
+          const helper = new CameraHelper(light.shadow.camera)
+          light.add(helper)
+        }
+
+        sceneProperty.directionalLights.push(light)
         break
 
       case 'hemisphere-light':
@@ -340,6 +370,7 @@ export class WorldScene {
 
       case 'renderer-settings':
         handleRendererSettings(component.data)
+        sceneProperty.isCSMEnabled = component.data.csm
         break
 
       case 'spawn-point':
