@@ -269,7 +269,10 @@ export class Project implements ServiceMethods<Data> {
       )
     })
 
+    console.log("Just going to Returning The SavedProject")
     const savedProject = await this.reloadProject(project.id, project)
+
+    console.log("Returning The SavedProject")
     return mapProjectDetailData(savedProject.toJSON())
   }
   /**
@@ -334,7 +337,7 @@ export class Project implements ServiceMethods<Data> {
       where: {
         id: projectId
       },
-      attributes: ['name', 'id', 'sid', 'url', 'ownedUploadedFileId'],
+      attributes: ['name', 'id', 'sid', 'url', 'thumbnailOwnedFileId'],
       include: projectIncludes
     })
 
