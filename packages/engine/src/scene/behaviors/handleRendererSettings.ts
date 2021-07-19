@@ -13,8 +13,8 @@ export type RenderSettingsProps = {
   shadowMapType: ShadowMapType
 }
 
-export const configureCSM = (directionaLights: DirectionalLight[], remove?: boolean) => {
-  if (!isClient) return
+export const configureCSM = (directionalLights: DirectionalLight[], remove?: boolean): void => {
+  if (!isClient || !Engine.renderer.shadowMap.enabled) return
 
   if (remove) {
     if (!WebGLRendererSystem.instance.csm) return
@@ -29,13 +29,13 @@ export const configureCSM = (directionaLights: DirectionalLight[], remove?: bool
   if (Engine.isHMD || WebGLRendererSystem.instance.csm) return
 
   const csm = new CSM({
-    cascades: 4,
+    cascades: directionalLights?.length || 4,
     lightIntensity: 1,
     shadowMapSize: isMobile ? 512 : 1024,
     maxFar: 100,
     camera: Engine.camera,
     parent: Engine.scene,
-    lights: directionaLights
+    lights: directionalLights
   })
 
   csm.fade = true

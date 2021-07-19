@@ -2,11 +2,13 @@ import {
   AmbientLight,
   AnimationClip,
   AnimationMixer,
+  CameraHelper,
   DirectionalLight,
   HemisphereLight,
   LoopRepeat,
   PointLight,
   SpotLight,
+  Vector2,
   Vector3
 } from 'three'
 import { isClient } from '../../common/functions/isClient'
@@ -151,20 +153,33 @@ export class WorldScene {
           setSkyDirection(direction)
           return
         }
+
         addObject3DComponent(entity, {
           obj3d: DirectionalLight,
           objArgs: {
-            'shadow.mapSize': component.data.shadowMapResolution,
+            'shadow.mapSize': new Vector2(component.data.shadowMapResolution[0], component.data.shadowMapResolution[1]),
             'shadow.bias': component.data.shadowBias,
             'shadow.radius': component.data.shadowRadius,
             intensity: component.data.intensity,
             color: component.data.color,
-            castShadow: true
+            castShadow: component.data.castShadow,
+            'shadow.camera.far': component.data.cameraFar,
+            'shadow.camera.near': component.data.cameraNear,
+            'shadow.camera.top': component.data.cameraTop,
+            'shadow.camera.bottom': component.data.cameraBottom,
+            'shadow.camera.left': component.data.cameraLeft,
+            'shadow.camera.right': component.data.cameraRight
           }
         })
-        addComponent(entity, LightTagComponent)
 
-        sceneProperty.directionalLights.push(getComponent(entity, Object3DComponent).value as DirectionalLight)
+        const light = getComponent(entity, Object3DComponent).value as DirectionalLight
+
+        if (component.data.showCameraHelper) {
+          const helper = new CameraHelper(light.shadow.camera)
+          light.add(helper)
+        }
+
+        sceneProperty.directionalLights.push(light)
         break
 
       case 'hemisphere-light':

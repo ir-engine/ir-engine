@@ -112,6 +112,20 @@ export class CSM {
   }
 
   createLights(lights?: DirectionalLight[]): void {
+    if (lights) {
+      for (let i = 0; i < this.cascades; i++) {
+        const light = lights[i]
+
+        light.castShadow = true
+
+        this.parent.add(light)
+        this.parent.add(light.target)
+        this.lights.push(light)
+      }
+
+      return
+    }
+
     for (let i = 0; i < this.cascades; i++) {
       const light = lights && lights[i] ? lights[i] : new DirectionalLight(0xffffff, this.lightIntensity)
 

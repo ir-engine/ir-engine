@@ -162,11 +162,17 @@
             "description": "A light which illuminates the entire scene, but emits along a single direction.",
             "lbl-color": "Color",
             "lbl-intensity": "Intensity",
-            "lbl-cameraFar": "Camera Far Distance",
+            "lbl-cameraFar": "Camera Far",
+            "lbl-cameraNear": "Camera Near",
+            "lbl-cameraTop": "Camera Top",
+            "lbl-cameraBottom": "Camera Bottom",
+            "lbl-cameraLeft": "Camera Left",
+            "lbl-cameraRight": "Camera Right",
             "lbl-castShadow": "Cast Shadow",
             "lbl-shadowmapResolution": "Shadow Map Resolution",
             "lbl-shadowBias": "Shadow Bias",
-            "lbl-shadowRadius": "Shadow Radius"
+            "lbl-shadowRadius": "Shadow Radius",
+            "lbl-showCameraHelper": "Show Camera Helper"
         },
         "floorPlan": {
             "description": "Sets the walkable surface area in your scene.",
