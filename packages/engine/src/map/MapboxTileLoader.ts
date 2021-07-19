@@ -58,11 +58,27 @@ var _get_material_cached = (color, opacity) => {
   return _mtl_cache[key]
 }
 
+const lineMaterial = new THREE.LineBasicMaterial({
+  // Color of lines
+  color: 'rgb(0,0,0)',
+  transparent: true,
+  linewidth: 1,
+  opacity: 0.7
+})
+// Prevent z-flighting
+lineMaterial.polygonOffset = true
+lineMaterial.depthTest = true
+lineMaterial.polygonOffsetFactor = 1
+lineMaterial.polygonOffsetUnits = 1.0
+
 interface IOpts {
   lat?: number
   lng?: number
   layers?: string[]
   marker?: THREE.Object3D
+
+  /** draw superimposed lines along the edges of all meshes */
+  enableEdgeLines: boolean
 }
 
 export class MapboxTileLoader {
@@ -291,6 +307,7 @@ export class MapboxTileLoader {
     var scope = this
     for (var i = 0; i < vector_layer.length; i++) {
       var feature = vector_layer.feature(i).toGeoJSON(x, y, z)
+      console.log('feature', feature)
       this.add_feature(feature, layername)
     }
   }
@@ -333,19 +350,17 @@ export class MapboxTileLoader {
     var opacity = (styles as any).opacity || 1
     let material = _get_material_cached((styles as any).color, opacity)
 
-    // TODO, a better z-fighting avoidance method.
-    /*
-    material.polygonOffset = true;
-    material.polygonOffsetFactor = (feature.properties.sort_rank || 100);
-    material.polygonOffsetUnits = .1;
-    material.depthTest = true;*/
-
     var mesh = new THREE.Mesh(geometry, material)
-
     // TODO, a better z-fighting avoidance method.
     mesh.position.y = (styles as any).offy || 0
 
+    if (this.opts.enableEdgeLines) {
+      const edges = new THREE.EdgesGeometry(mesh.geometry, 30)
+      const lineSegments = new THREE.LineSegments(edges, lineMaterial)
+    }
+
     this.scene.add(mesh)
+    this.scene.add(lineSegments)
     this.feature_meshes.push(mesh)
     this.meshes_by_layer[layername] = this.meshes_by_layer[layername] || []
     this.meshes_by_layer[layername].push(mesh)
