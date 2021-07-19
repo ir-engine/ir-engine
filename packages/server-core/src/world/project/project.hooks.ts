@@ -24,8 +24,10 @@ const mapProjectSaveData = () => {
     Object.keys(context.data.project.filesToUpload).forEach((value) => {
       context.data.ownedUploadedFileId[value] = context.data.project.filesToUpload[value]['file_id']
     })
+    context.data.thumbnailOwnedFileId = JSON.stringify(context.data.ownedUploadedFileId)
+    console.log('Mapping Project Data:' + context.data.thumbnailOwnedFileId)
+    //console.log("Here a re the :"+JSON.stringify())
 
-    console.log('Mapping Project Data:' + JSON.stringify(context.data))
     return context
   }
 }
@@ -36,6 +38,8 @@ const validateCollectionData = () => {
       return await Promise.reject(new BadRequest('Project Data is required!'))
     }
     console.log('Validating Project Data')
+    console.log('Collection of our project is:' + context.params.collection)
+
     return context
   }
 }

@@ -10,6 +10,8 @@ import { readJSONFromBlobStore } from './project-helper'
 
 export default (options: any) => {
   return async (context: HookContext): Promise<HookContext> => {
+    console.log('Generating teh Colleciton-111')
+
     const seqeulizeClient = context.app.get('sequelizeClient')
     const models = seqeulizeClient.models
     const CollectionModel = models.collection
@@ -47,12 +49,8 @@ export default (options: any) => {
     }
     if (!sceneData) return
     console.log('Generating teh Colleciton22+' + JSON.stringify(context.data.ownedUploadedFileId))
-    const id = context.data.ownedUploadedFileId['thumbnailOwnedFileId']
-    const iiiddd = JSON.stringify(context.data.ownedUploadedFileId)
     const savedCollection = await CollectionModel.create({
-      //thumbnailOwnedFileId: iiiddd,
-      thumbnailOwnedFileId: iiiddd,
-      //ownedUploadedFileId: JSON.stringify(context.data.ownedUploadedFileId),
+      thumbnailOwnedFileId: context.data.thumbnailOwnedFileId,
       type: options.type ?? collectionType.scene,
       name: context.data.name,
       metadata: sceneData.metadata,

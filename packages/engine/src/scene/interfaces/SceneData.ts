@@ -11,7 +11,7 @@ export interface SceneData {
   root: string
   sid: string
   //thumbnailOwnedFileId: string
-  ownedUploadedFiles: {}
+  thumbnailOwnedFileId: string
   type: string // "project"
   url: string
   userId: string

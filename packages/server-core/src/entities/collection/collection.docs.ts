@@ -31,10 +31,8 @@ export default {
           type: 'string'
         },
         //
-        ownedUploadedFiles: {
-          type: {
-            type: 'string'
-          }
+        thumbnailOwnedFileId: {
+          type: 'string'
         }
       }
     },
