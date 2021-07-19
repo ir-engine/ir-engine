@@ -4,7 +4,6 @@
     "../engine/src/**/*.ts",
     "src/**/*.ts"
   ],
-  "exec": "etsc && node ./dist/src/index.js",
   "env": {
     "NODE_ENV": "development" 
   }

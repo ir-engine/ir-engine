@@ -9,7 +9,7 @@ import { addColliderWithoutEntity } from '../../physics/behaviors/colliderCreate
 export const createBoxCollider: Behavior = (entity, args: BoxColliderProps) => {
   // console.log('createBoxCollider', args)
   addColliderWithoutEntity(
-    { type: 'box', action: args.action, link: args.link, isTrigger: args.isTrigger },
+    { type: 'box', isTrigger: args.isTrigger } ,
     args.position,
     args.quaternion,
     args.scale,

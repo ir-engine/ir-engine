@@ -253,6 +253,7 @@ export default (app: Application): void => {
           } catch (err) {
             if (err.code === 401 && err.data.name === 'TokenExpiredError') {
               const jwtDecoded = decode(token)
+              //@ts-ignore
               const idProvider = await app.service('identityProvider').get(jwtDecoded.sub)
               authResult = {
                 'identity-provider': idProvider
