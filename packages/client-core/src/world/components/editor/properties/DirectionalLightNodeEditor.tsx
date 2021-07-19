@@ -41,6 +41,10 @@ export class DirectionalLightNodeEditor extends Component<DirectionalLightNodeEd
   onChangeIntensity = (intensity) => {
     ;(this.props.editor as any).setPropertySelected('intensity', intensity)
   }
+  //function to handle the changes in camera far property of DirectionalLight
+  onChangeCameraFar = (cameraFar) => {
+    ;(this.props.editor as any).setPropertySelected('cameraFar', cameraFar)
+  }
 
   // renders editor view, provides inputs to customize properties of DirectionalLight element.
   render() {
@@ -70,6 +74,17 @@ export class DirectionalLightNodeEditor extends Component<DirectionalLightNodeEd
           unit="cd"
         />
         <LightShadowProperties node={node} editor={editor} />
+        {/* @ts-ignore */}
+        <NumericInputGroup
+          name="CameraFar"
+          label={this.props.t('editor:properties.directionalLight.lbl-cameraFar')}
+          min={0}
+          smallStep={0.001}
+          mediumStep={0.01}
+          largeStep={0.1}
+          value={node.cameraFar}
+          onChange={this.onChangeCameraFar}
+        />
       </NodeEditor>
     )
   }

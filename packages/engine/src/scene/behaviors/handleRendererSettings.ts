@@ -14,6 +14,8 @@ export type RenderSettingsProps = {
 }
 
 export const configureCSM = (directionaLights: DirectionalLight[], remove?: boolean) => {
+  if (!isClient) return
+
   if (remove) {
     if (!WebGLRendererSystem.instance.csm) return
 

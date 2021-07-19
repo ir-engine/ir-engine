@@ -6,11 +6,12 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
   static nodeName = 'Directional Light'
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json)
-    const { color, intensity, castShadow, shadowMapResolution, shadowBias, shadowRadius } = json.components.find(
+    const { color, intensity, castShadow, shadowMapResolution, shadowBias, shadowRadius, cameraFar } = json.components.find(
       (c) => c.name === 'directional-light'
     ).props
     node.color.set(color)
     node.intensity = intensity
+    node.cameraFar = cameraFar || 0
     node.castShadow = castShadow
     node.shadowBias = shadowBias || 0
     node.shadowRadius = shadowRadius === undefined ? 1 : shadowRadius
@@ -65,7 +66,8 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
         castShadow: this.castShadow,
         shadowMapResolution: this.shadowMapResolution.toArray(),
         shadowBias: this.shadowBias,
-        shadowRadius: this.shadowRadius
+        shadowRadius: this.shadowRadius,
+        cameraFar: this.cameraFar
       }
     })
   }
@@ -78,7 +80,8 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
       castShadow: this.castShadow,
       shadowMapResolution: this.shadowMapResolution.toArray(),
       shadowBias: this.shadowBias,
-      shadowRadius: this.shadowRadius
+      shadowRadius: this.shadowRadius,
+      cameraFar: this.cameraFar
     })
     this.replaceObject()
   }
