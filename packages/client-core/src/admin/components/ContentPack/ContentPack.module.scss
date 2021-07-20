@@ -219,3 +219,44 @@
   align-items: center;
   margin-top: 10px;
 }
+
+
+.pack-select {
+  margin-bottom: 10px;
+}
+
+.error-message {
+  color: red;
+  font-size: 1.5em;
+  margin-top: 10px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .title {
+    font-size: 1.5em;
+    color: black;
+  }
+
+  .closeButton {
+    &:hover {
+      cursor: pointer;
+      color: red;
+    }
+  }
+}
+
+.processing {
+  color: black;
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+
+  .text {
+    margin-left: 5px;
+    font-size: 1.5em;
+  }
+}

@@ -262,6 +262,7 @@ export class ContentPack implements ServiceMethods<Data> {
       )
     })
     const body = JSON.parse((pack as any).Body.toString())
+    const invalidationItems = [`/content-pack/${contentPack}/manifest.json`]
     if (scene != null) {
       const thumbnailFind = await this.app.service('static-resource').find({
         query: {
@@ -274,11 +275,13 @@ export class ContentPack implements ServiceMethods<Data> {
       uploadPromises = assembleResponse.uploadPromises
       if (typeof worldFile.metadata === 'string') worldFile.metadata = JSON.parse(worldFile.metadata)
       const worldFileKey = getWorldFileKey(contentPack, worldFile.metadata.name)
+      invalidationItems.push(`/${worldFileKey}`)
       let thumbnailLink
       if (thumbnailFind.total > 0) {
         const thumbnail = thumbnailFind.data[0]
         const url = thumbnail.url
         const thumbnailDownload = await axios.get(url, { responseType: 'arraybuffer' })
+        const thumbnailKey = getThumbnailKey(contentPack, url)
         await new Promise((resolve, reject) => {
           s3.provider.putObject(
             {
@@ -286,7 +289,7 @@ export class ContentPack implements ServiceMethods<Data> {
               Body: thumbnailDownload.data,
               Bucket: s3.bucket,
               ContentType: 'jpeg',
-              Key: getThumbnailKey(contentPack, url)
+              Key: thumbnailKey
             },
             (err, data) => {
               if (err) {
@@ -299,6 +302,7 @@ export class ContentPack implements ServiceMethods<Data> {
           )
         })
         thumbnailLink = getThumbnailUrl(contentPack, url)
+        invalidationItems.push(`/${thumbnailKey}`)
       }
       await new Promise((resolve, reject) => {
         s3.provider.putObject(
@@ -335,6 +339,7 @@ export class ContentPack implements ServiceMethods<Data> {
         avatar: getAvatarUrl(contentPack, avatar),
         thumbnail: getAvatarThumbnailUrl(contentPack, thumbnail)
       }
+      invalidationItems.push(`/content-pack/${contentPack}/avatars/${avatar.name}.*`)
       body.avatars.push(newAvatar)
     }
 
@@ -360,6 +365,28 @@ export class ContentPack implements ServiceMethods<Data> {
       )
     })
     await Promise.all(uploadPromises)
+    await new Promise((resolve, reject) => {
+      s3.cloudfront.createInvalidation(
+        {
+          DistributionId: config.aws.cloudfront.distributionId,
+          InvalidationBatch: {
+            CallerReference: Date.now().toString(),
+            Paths: {
+              Quantity: invalidationItems.length,
+              Items: invalidationItems
+            }
+          }
+        },
+        (err, data) => {
+          if (err) {
+            console.error(err)
+            reject(err)
+          } else {
+            resolve(data)
+          }
+        }
+      )
+    })
     return data
   }
 

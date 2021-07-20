@@ -15,6 +15,7 @@ import { downloadContentPack } from '../../reducers/contentPack/service'
 import { Done } from '@material-ui/icons'
 import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 interface Props {
   contentPack: any
@@ -41,6 +42,7 @@ const ContentPackDetailsModal = (props: Props): any => {
   const { contentPack, open, handleClose, downloadContentPack } = props
 
   const [error, setError] = useState('')
+  const [processing, setProcessing] = useState(false)
   const [success, setSuccess] = useState(false)
 
   const showError = (err: string) => {
@@ -59,9 +61,12 @@ const ContentPackDetailsModal = (props: Props): any => {
 
   const getContentPack = async () => {
     try {
+      setProcessing(true)
       await downloadContentPack(contentPack.url)
+      setProcessing(false)
       showSuccess()
     } catch (err) {
+      setProcessing(false)
       showError('Invalid URL')
     }
   }
@@ -133,6 +138,11 @@ const ContentPackDetailsModal = (props: Props): any => {
                 </div>
               </div>
             </div>
+            {processing === true && (
+              <div>
+                <CircularProgress color="black" /> Processing{' '}
+              </div>
+            )}
             {success === true && (
               <div className={styles['success']}>
                 <Done color="primary" />
