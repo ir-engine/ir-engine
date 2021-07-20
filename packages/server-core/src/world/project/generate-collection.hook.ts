@@ -10,8 +10,6 @@ import { readJSONFromBlobStore } from './project-helper'
 
 export default (options: any) => {
   return async (context: HookContext): Promise<HookContext> => {
-    console.log('Generating teh Colleciton-111')
-
     const seqeulizeClient = context.app.get('sequelizeClient')
     const models = seqeulizeClient.models
     const CollectionModel = models.collection
@@ -36,11 +34,9 @@ export default (options: any) => {
       raw: true
     })
 
-    console.log('Generating teh Colleciton0')
     if (!ownedFile) {
       return await Promise.reject(new BadRequest('Project File not found!'))
     }
-    console.log('Generating teh Colleciton')
     let sceneData
     if (config.server.storageProvider === 'aws') {
       sceneData = await fetch(ownedFile.url).then((res) => res.json())
@@ -48,7 +44,6 @@ export default (options: any) => {
       sceneData = await readJSONFromBlobStore(storage, ownedFile.key)
     }
     if (!sceneData) return
-    console.log('Generating teh Colleciton22+' + JSON.stringify(context.data.ownedUploadedFileId))
     const savedCollection = await CollectionModel.create({
       thumbnailOwnedFileId: context.data.thumbnailOwnedFileId,
       type: options.type ?? collectionType.scene,
@@ -57,8 +52,6 @@ export default (options: any) => {
       version: sceneData.version,
       userId: loggedInUser.userId
     })
-    console.log('Generating teh Colleciton33')
-    console.log('Colleciton Model Generated is:' + JSON.stringify(savedCollection))
     const sceneEntitiesArray: any = []
 
     for (const prop in sceneData.entities) {

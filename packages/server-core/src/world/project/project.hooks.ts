@@ -25,8 +25,6 @@ const mapProjectSaveData = () => {
       context.data.ownedUploadedFileId[value] = context.data.project.filesToUpload[value]['file_id']
     })
     context.data.thumbnailOwnedFileId = JSON.stringify(context.data.ownedUploadedFileId)
-    console.log('Mapping Project Data:' + context.data.thumbnailOwnedFileId)
-    //console.log("Here a re the :"+JSON.stringify())
 
     return context
   }
@@ -34,12 +32,13 @@ const mapProjectSaveData = () => {
 
 const validateCollectionData = () => {
   return async (context: HookContext): Promise<HookContext> => {
-    if (!context?.data?.ownedFileId || !context?.data?.name || context?.data?.ownedUploadedFileId == {}) {
+    if (
+      !context?.data?.ownedFileId ||
+      !context?.data?.name ||
+      Object.keys(context.data.ownedUploadedFileId).length !== 0
+    ) {
       return await Promise.reject(new BadRequest('Project Data is required!'))
     }
-    console.log('Validating Project Data')
-    console.log('Collection of our project is:' + context.params.collection)
-
     return context
   }
 }
