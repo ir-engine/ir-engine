@@ -50,8 +50,6 @@ export default () => {
         ...resourceData,
         mimeType: resourceData.content_type
       }
-
-      console.log('Modified Resource Data:' + JSON.stringify(modifiedResourceData))
       savedFile = await context.app.service('static-resource').create(modifiedResourceData)
     }
     context.result = {

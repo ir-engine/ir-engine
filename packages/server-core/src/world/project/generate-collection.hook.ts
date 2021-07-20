@@ -26,7 +26,6 @@ export default (options: any) => {
     // After creating of project, remove the owned_file of project json
 
     // Find the project owned_file from database
-
     const ownedFile = await StaticResourceModel.findOne({
       where: {
         id: context.data.ownedFileId
@@ -52,6 +51,7 @@ export default (options: any) => {
       version: sceneData.version,
       userId: loggedInUser.userId
     })
+
     const sceneEntitiesArray: any = []
 
     for (const prop in sceneData.entities) {

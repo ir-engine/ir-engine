@@ -309,7 +309,6 @@ export class Project implements ServiceMethods<Data> {
     const projectIncludes: any = [
       {
         model: StaticResourceModel,
-        /////////////
         as: 'thumbnail_owned_file',
         attributes: ['url']
       }
