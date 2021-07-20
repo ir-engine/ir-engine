@@ -119,10 +119,11 @@ export const updateClub: Behavior = (
   const ownerNetworkId = getComponent(entityClub, NetworkObjectOwner).networkId
   const ownerEntity = Network.instance.networkObjects[ownerNetworkId].component.entity
 
-  if (!ownerEntity) return
+  // if (!ownerEntity) return
 
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
-  if (!golfClubComponent.raycast) return
+  // if (!golfClubComponent.raycast) return
+
   const transformClub = getMutableComponent(entityClub, TransformComponent)
   const collider = getMutableComponent(entityClub, ColliderComponent)
 
@@ -235,7 +236,7 @@ export const initializeGolfClub = (entityClub: Entity) => {
   const ownerNetworkId = getComponent(entityClub, NetworkObjectOwner).networkId
   const ownerEntity = Network.instance.networkObjects[ownerNetworkId].component.entity
   const ownerPlayerNumber = Number(getComponent(ownerEntity, GamePlayer).role.substr(0, 1)) - 1
-  console.log(getComponent(ownerEntity, GamePlayer).role)
+
   const color = GolfColours[ownerPlayerNumber]
 
   golfClubComponent.raycast = PhysicsSystem.instance.addRaycastQuery(
