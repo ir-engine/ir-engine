@@ -71,13 +71,13 @@ export class CSM {
     this.camera = data.camera
     this.parent = data.parent
     this.cascades = data.cascades || 3
-    this.maxFar = data.maxFar || 100000
+    this.maxFar = data.maxFar || 100
     this.mode = data.mode || CSMModes.PRACTICAL
     this.shadowMapSize = data.shadowMapSize || 2048
-    this.shadowBias = data.shadowBias || 0.000001
+    this.shadowBias = data.shadowBias || 0.00001
     this.lightDirection = data.lightDirection || new Vector3(1, -1, 1).normalize()
     this.lightIntensity = data.lightIntensity || 1
-    this.lightNear = data.lightNear || 1
+    this.lightNear = data.lightNear || 0.1
     this.lightFar = data.lightFar || 2000
     this.lightMargin = data.lightMargin || 200
     this.customSplitsCallback = data.customSplitsCallback
@@ -112,7 +112,7 @@ export class CSM {
   }
 
   createLights(lights?: DirectionalLight[]): void {
-    if (lights) {
+    if (lights && lights.length > 0) {
       for (let i = 0; i < this.cascades; i++) {
         const light = lights[i]
 
@@ -127,7 +127,7 @@ export class CSM {
     }
 
     for (let i = 0; i < this.cascades; i++) {
-      const light = lights && lights[i] ? lights[i] : new DirectionalLight(0xffffff, this.lightIntensity)
+      const light = new DirectionalLight(0xffffff, this.lightIntensity)
 
       light.castShadow = true
       light.shadow.mapSize.width = this.shadowMapSize
@@ -246,8 +246,10 @@ export class CSM {
     for (let i = 0; i < frustums.length; i++) {
       const light = this.lights[i]
       const shadowCam = light.shadow.camera
-      const texelWidth = (shadowCam.right - shadowCam.left) / this.shadowMapSize
-      const texelHeight = (shadowCam.top - shadowCam.bottom) / this.shadowMapSize
+
+      const texelWidth = (shadowCam.right - shadowCam.left) / light.shadow.mapSize.x
+      const texelHeight = (shadowCam.top - shadowCam.bottom) / light.shadow.mapSize.y
+
       light.shadow.camera.updateMatrixWorld(true)
       _cameraToLightMatrix.multiplyMatrices(light.shadow.camera.matrixWorldInverse, camera.matrixWorld)
       frustums[i].toSpace(_cameraToLightMatrix, _lightSpaceFrustum)

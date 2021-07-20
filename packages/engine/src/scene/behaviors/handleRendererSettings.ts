@@ -29,10 +29,8 @@ export const configureCSM = (directionalLights: DirectionalLight[], remove?: boo
   if (Engine.isHMD || WebGLRendererSystem.instance.csm) return
 
   const csm = new CSM({
-    cascades: directionalLights?.length || 4,
-    lightIntensity: 1,
-    shadowMapSize: isMobile ? 512 : 1024,
-    maxFar: 100,
+    cascades: directionalLights?.length,
+    shadowMapSize: isMobile ? 512 : 2048,
     camera: Engine.camera,
     parent: Engine.scene,
     lights: directionalLights
