@@ -4,7 +4,7 @@ import { TransformComponent } from '../../../../transform/components/TransformCo
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
 import { RigidBodyComponent } from '../../../../physics/components/RigidBody'
 import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject'
-import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants'
+import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameConstants'
 import {
   BoxBufferGeometry,
   DoubleSide,
@@ -119,7 +119,10 @@ export const updateClub: Behavior = (
   const ownerNetworkId = getComponent(entityClub, NetworkObjectOwner).networkId
   const ownerEntity = Network.instance.networkObjects[ownerNetworkId].component.entity
 
+  if (!ownerEntity) return
+
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
+  if (!golfClubComponent.raycast) return
   const transformClub = getMutableComponent(entityClub, TransformComponent)
   const collider = getMutableComponent(entityClub, ColliderComponent)
 
@@ -172,9 +175,9 @@ export const updateClub: Behavior = (
   }
   vector0.multiplyScalar(1 / (golfClubComponent.velocityPositionsToCalculate + 1))
   golfClubComponent.velocity.copy(vector0)
-  golfClubComponent.body.transform.linearVelocity.x = vector0.x
-  golfClubComponent.body.transform.linearVelocity.y = vector0.y
-  golfClubComponent.body.transform.linearVelocity.z = vector0.z
+  collider.body.transform.linearVelocity.x = vector0.x
+  collider.body.transform.linearVelocity.y = vector0.y
+  collider.body.transform.linearVelocity.z = vector0.z
   // now shift all previous positions down the list
   for (let i = golfClubComponent.velocityPositionsToCalculate - 1; i > 0; i--) {
     golfClubComponent.lastPositions[i].copy(golfClubComponent.lastPositions[i - 1])
@@ -229,6 +232,12 @@ export const initializeGolfClub = (entityClub: Entity) => {
   const transform = getComponent(entityClub, TransformComponent)
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
 
+  const ownerNetworkId = getComponent(entityClub, NetworkObjectOwner).networkId
+  const ownerEntity = Network.instance.networkObjects[ownerNetworkId].component.entity
+  const ownerPlayerNumber = Number(getComponent(ownerEntity, GamePlayer).role.substr(0, 1)) - 1
+  console.log(getComponent(ownerEntity, GamePlayer).role)
+  const color = GolfColours[ownerPlayerNumber]
+
   golfClubComponent.raycast = PhysicsSystem.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
@@ -241,14 +250,14 @@ export const initializeGolfClub = (entityClub: Entity) => {
 
   const handleObject = new Mesh(
     new BoxBufferGeometry(clubHalfWidth, clubHalfWidth, 0.25),
-    new MeshStandardMaterial({ color: 0xff2126, transparent: true })
+    new MeshStandardMaterial({ color, transparent: true })
   )
   golfClubComponent.handleObject = handleObject
 
   const headGroup = new Group()
   const headObject = new Mesh(
     new BoxBufferGeometry(clubHalfWidth, clubHalfWidth, clubPutterLength * 2),
-    new MeshStandardMaterial({ color: 0x2126ff, transparent: true })
+    new MeshStandardMaterial({ color: 0x736e63, transparent: true })
   )
   // raise the club by half it's height and move it out by half it's length so it's flush to ground and attached at end
   headObject.position.set(0, clubHalfWidth, -(clubPutterLength * 0.5))
@@ -257,7 +266,7 @@ export const initializeGolfClub = (entityClub: Entity) => {
 
   const neckObject = new Mesh(
     new BoxBufferGeometry(clubHalfWidth * 0.5, clubHalfWidth * 0.5, -1.75),
-    new MeshStandardMaterial({ color: 0x21ff26, transparent: true, side: DoubleSide })
+    new MeshStandardMaterial({ color: 0x736e63, transparent: true, side: DoubleSide })
   )
   golfClubComponent.neckObject = neckObject
 
@@ -292,9 +301,7 @@ export const initializeGolfClub = (entityClub: Entity) => {
     })
   )
 
-  const collider = getMutableComponent(entityClub, ColliderComponent)
-  collider.body = body
-  golfClubComponent.body = body
+  addComponent(entityClub, ColliderComponent, { body })
 
   for (let i = 0; i < golfClubComponent.velocityPositionsToCalculate; i++) {
     golfClubComponent.lastPositions[i] = new Vector3()
@@ -354,7 +361,6 @@ export const GolfClubPrefab: NetworkPrefab = {
   networkComponents: [
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
-    { type: ColliderComponent },
     { type: RigidBodyComponent },
     { type: GameObject },
     { type: GolfClubComponent },
@@ -366,11 +372,6 @@ export const GolfClubPrefab: NetworkPrefab = {
   //clientComponents: [{ type: InterpolationComponent, data: { } }],
   clientComponents: [],
   serverComponents: [],
-  onAfterCreate: [
-    {
-      behavior: initializeGolfClub,
-      networked: true
-    }
-  ],
+  onAfterCreate: [],
   onBeforeDestroy: []
 }

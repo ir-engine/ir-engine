@@ -162,10 +162,17 @@
             "description": "A light which illuminates the entire scene, but emits along a single direction.",
             "lbl-color": "Color",
             "lbl-intensity": "Intensity",
+            "lbl-cameraFar": "Camera Far",
+            "lbl-cameraNear": "Camera Near",
+            "lbl-cameraTop": "Camera Top",
+            "lbl-cameraBottom": "Camera Bottom",
+            "lbl-cameraLeft": "Camera Left",
+            "lbl-cameraRight": "Camera Right",
             "lbl-castShadow": "Cast Shadow",
             "lbl-shadowmapResolution": "Shadow Map Resolution",
             "lbl-shadowBias": "Shadow Bias",
-            "lbl-shadowRadius": "Shadow Radius"
+            "lbl-shadowRadius": "Shadow Radius",
+            "lbl-showCameraHelper": "Show Camera Helper"
         },
         "floorPlan": {
             "description": "Sets the walkable surface area in your scene.",
@@ -206,7 +213,6 @@
             "lbl-loopAnimation": "Loop Animation",
             "lbl-isAvatar": "Is Avatar",
             "lbl-collidable": "Collidable",
-            "lbl-saveColliders": "Save Colliders",
             "lbl-walkable": "Walkable",
             "lbl-castShadow": "Cast Shadow",
             "lbl-receiveShadow": "Receive Shadow",
@@ -320,6 +326,8 @@
             "lbl-toneMapping": "Tone Mapping",
             "info-toneMapping": "Enables tone mapping on the scene renderer. Has no effect when a post processing is enabled.",
             "lbl-toneMappingExposure": "Tone Mapping Exposure",
+            "lbl-shadowMapType": "Shadow Map Type",
+            "info-shadowMapType": "Type of shadow map",
             "info-toneMappingExposure": "Specifies the tone mapping exposure on the scene renderer. Has no effect when a post processing is enabled."
         },
         "sceneCamera": {

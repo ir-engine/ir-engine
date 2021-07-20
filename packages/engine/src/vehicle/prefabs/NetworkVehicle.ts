@@ -122,7 +122,7 @@ export const parseCarModel = (groupMeshes: any, mode = 'location') => {
 }
 
 function addCollidersShapeInOneBody(entity: Entity, addShapeArray, mass = 0) {
-  throw new Error('VEHICLES NOT IMPLEMENTED - PHYSX REFACTOR')
+  throw new Error('VEHICLES NOT IMPLEMENTED')
   // console.warn(mass);
   // const body = new Body({mass});
   // for (let i = 0; i < addShapeArray.length; i++) {
@@ -141,7 +141,7 @@ function addCollidersShapeInOneBody(entity: Entity, addShapeArray, mass = 0) {
 }
 
 export function addCollidersToNetworkVehicle(args: { parameters?: any; entity?: Entity }) {
-  throw new Error('VEHICLES NOT IMPLEMENTED - PHYSX REFACTOR')
+  throw new Error('VEHICLES NOT IMPLEMENTED')
   // let shape = null;
   // switch (args.parameters.type) {
   //   case 'box':

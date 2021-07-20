@@ -5,7 +5,6 @@ import { addComponent } from '../../ecs/functions/EntityFunctions'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { addColliderWithoutEntity } from '../../physics/behaviors/colliderCreateFunctions'
 import { createNetworkRigidBody } from '../../interaction/prefabs/NetworkRigidBody'
-import { addCollidersToNetworkVehicle } from '../../vehicle/prefabs/NetworkVehicle'
 import { Quaternion, Vector3 } from 'three'
 import { ColliderTypes } from '../../physics/types/PhysicsTypes'
 
@@ -70,21 +69,22 @@ export const createMeshCollider: Behavior = (entity: Entity, args: MeshColliderP
       })
       break
 
-    case 'vehicle':
-      addCollidersToNetworkVehicle({
-        parameters: {
-          type: args.type,
-          scale: args.scale,
-          position: args.position,
-          quaternion: args.quaternion,
-          mesh: null,
-          mass: args.mass ?? 1,
-          vertices: args.vertices,
-          indices: args.indices
-        },
-        entity: entity
-      })
-      break
+    // TODO: implement vehicles
+    // case 'vehicle':
+    //   addCollidersToNetworkVehicle({
+    //     parameters: {
+    //       type: args.type,
+    //       scale: args.scale,
+    //       position: args.position,
+    //       quaternion: args.quaternion,
+    //       mesh: null,
+    //       mass: args.mass ?? 1,
+    //       vertices: args.vertices,
+    //       indices: args.indices
+    //     },
+    //     entity: entity
+    //   })
+    //   break
 
     default:
       console.warn('Invalid Args for Mesh Collider: ' + args.data)

@@ -41,6 +41,7 @@ import { FontManager } from './ui/classes/FontManager'
 import { AudioSystem } from './audio/systems/AudioSystem'
 import { setupBotHooks } from './bot/functions/botHookFunctions'
 import { AnimationSystem } from './character/AnimationSystem'
+import { InterpolationSystem } from './physics/systems/InterpolationSystem'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -191,20 +192,21 @@ const registerClientSystems = (options: InitializeOptions, useOffscreen: boolean
   registerSystem(InteractiveSystem, { priority: 6 })
   registerSystem(GameManagerSystem, { priority: 7 })
   registerSystem(TransformSystem, { priority: 8 })
+  registerSystem(InterpolationSystem, { priority: 9 })
   registerSystem(PhysicsSystem, {
     simulationEnabled: options.physics.simulationEnabled,
     worker: options.physics.physxWorker,
     physicsWorldConfig: options.physics.physicsWorldConfig,
-    priority: 8
+    priority: 10
   })
 
   // Miscellaneous Systems
-  registerSystem(HighlightSystem, { priority: 9 })
-  registerSystem(ParticleSystem, { priority: 10 })
-  registerSystem(DebugHelpersSystem, { priority: 11 })
-  registerSystem(AudioSystem, { priority: 12 })
-  registerSystem(PositionalAudioSystem, { priority: 13 })
-  registerSystem(SceneObjectSystem, { priority: 14 })
+  registerSystem(HighlightSystem, { priority: 11 })
+  registerSystem(ParticleSystem, { priority: 12 })
+  registerSystem(DebugHelpersSystem, { priority: 13 })
+  registerSystem(AudioSystem, { priority: 14 })
+  registerSystem(PositionalAudioSystem, { priority: 15 })
+  registerSystem(SceneObjectSystem, { priority: 16 })
 }
 
 const registerEditorSystems = (options: InitializeOptions) => {
