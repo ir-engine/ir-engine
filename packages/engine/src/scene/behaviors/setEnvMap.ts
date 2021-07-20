@@ -115,7 +115,7 @@ export const setEnvMap: Behavior = (entity, args: EnvMapProps) => {
 
       SceneObjectSystem.instance.boxProjection = args.envMapReflectionProbe.boxProjection
       SceneObjectSystem.instance.bpcemOptions.probePositionOffset = args.envMapReflectionProbe.probePositionOffset
-      SceneObjectSystem.instance.bpcemOptions.probeScale = args.envMapReflectionProbe.probePositionOffset
+      SceneObjectSystem.instance.bpcemOptions.probeScale = args.envMapReflectionProbe.probeScale
       break
   }
 
