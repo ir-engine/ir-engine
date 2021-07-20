@@ -4,7 +4,7 @@ import { Entity } from '../ecs/classes/Entity'
 import { getComponent } from '../ecs/functions/EntityFunctions'
 import { Input } from '../input/components/Input'
 import { BaseInput } from '../input/enums/BaseInput'
-import { Material, Mesh, Quaternion, Vector3 } from 'three'
+import { Camera, Material, Mesh, Quaternion, Vector3 } from 'three'
 import { SkinnedMesh } from 'three/src/objects/SkinnedMesh'
 import { CameraModes } from '../camera/types/CameraModes'
 import { LifecycleValue } from '../common/enums/LifecycleValue'
@@ -207,7 +207,7 @@ const changeCameraDistanceByDelta: Behavior = (
   }
 
   const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent)
-  if (cameraFollow === undefined) return //console.warn("cameraFollow is undefined");
+  if (cameraFollow === undefined || cameraFollow.mode === CameraModes.Isometric) return //console.warn("cameraFollow is undefined");
 
   const inputPrevValue = (inputComponent.prevData.get(inputAxes)?.value as number) ?? 0
   const inputValue = inputComponent.data.get(inputAxes).value as number

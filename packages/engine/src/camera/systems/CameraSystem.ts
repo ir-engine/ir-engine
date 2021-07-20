@@ -69,20 +69,26 @@ const followCameraBehavior = (entity: Entity) => {
     followCamera.theta = (Math.atan2(actor.viewVector.x, actor.viewVector.z) * 180) / Math.PI + 180
   }
 
-  followCamera.theta -= inputValue[0] * (isMobile ? 60 : 100)
-  followCamera.theta %= 360
+  if (followCamera.mode !== CameraModes.Isometric) {
+    followCamera.theta -= inputValue[0] * (isMobile ? 60 : 100)
+    followCamera.theta %= 360
 
-  followCamera.phi -= inputValue[1] * (isMobile ? 60 : 100)
-  followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi))
+    followCamera.phi -= inputValue[1] * (isMobile ? 60 : 100)
+    followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi))
+  }
 
   let camDist = followCamera.distance
   if (followCamera.mode === CameraModes.FirstPerson) camDist = 0.01
   else if (followCamera.mode === CameraModes.ShoulderCam) camDist = followCamera.minDistance
   else if (followCamera.mode === CameraModes.TopDown) camDist = followCamera.maxDistance
 
-  const phi = followCamera.mode === CameraModes.TopDown ? 85 : followCamera.phi
+  let phi = followCamera.mode === CameraModes.TopDown ? 85 : followCamera.phi
+  phi = followCamera.mode === CameraModes.Isometric ? 150 : phi
+  const theta = followCamera.mode === CameraModes.Isometric ? 180 : followCamera.theta
 
-  vec3.set(followCamera.shoulderSide ? -0.25 : 0.25, actor.actorHeight, 0)
+  const camInitialHeight = followCamera.mode === CameraModes.Isometric ? actor.actorHeight * 2 : actor.actorHeight
+  const camInitialZOffset = followCamera.mode === CameraModes.Isometric ? -3 : 0
+  vec3.set(followCamera.shoulderSide ? -0.25 : 0.25, camInitialHeight, camInitialZOffset)
   vec3.applyQuaternion(actorTransform.rotation)
   vec3.add(actorTransform.position)
 
@@ -98,7 +104,12 @@ const followCameraBehavior = (entity: Entity) => {
   const closestHit = followCamera.raycastQuery.hits[0]
   followCamera.rayHasHit = typeof closestHit !== 'undefined'
 
-  if (followCamera.mode !== CameraModes.FirstPerson && followCamera.rayHasHit && closestHit.distance < camDist) {
+  if (
+    followCamera.mode !== CameraModes.FirstPerson &&
+    followCamera.mode !== CameraModes.Isometric &&
+    followCamera.rayHasHit &&
+    closestHit.distance < camDist
+  ) {
     if (closestHit.distance < 0.5) {
       camDist = closestHit.distance
     } else {
@@ -107,9 +118,9 @@ const followCameraBehavior = (entity: Entity) => {
   }
 
   cameraDesiredTransform.position.set(
-    vec3.x + camDist * Math.sin(followCamera.theta * PI_2Deg) * Math.cos(phi * PI_2Deg),
+    vec3.x + camDist * Math.sin(theta * PI_2Deg) * Math.cos(phi * PI_2Deg),
     vec3.y + camDist * Math.sin(phi * PI_2Deg),
-    vec3.z + camDist * Math.cos(followCamera.theta * PI_2Deg) * Math.cos(phi * PI_2Deg)
+    vec3.z + camDist * Math.cos(theta * PI_2Deg) * Math.cos(phi * PI_2Deg)
   )
 
   direction.copy(cameraDesiredTransform.position).sub(vec3).normalize()
