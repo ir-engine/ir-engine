@@ -7,31 +7,13 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
   static nodeName = 'Directional Light'
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json)
-    const {
-      color,
-      intensity,
-      castShadow,
-      shadowMapResolution,
-      shadowBias,
-      shadowRadius,
-      cameraFar,
-      cameraNear,
-      cameraBottom,
-      cameraTop,
-      cameraLeft,
-      cameraRight,
-      showCameraHelper
-    } = json.components.find((c) => c.name === 'directional-light').props
+    const { color, intensity, castShadow, shadowMapResolution, shadowBias, shadowRadius, cameraFar, showCameraHelper } =
+      json.components.find((c) => c.name === 'directional-light').props
     node.color.set(color)
     node.intensity = intensity
-    node.cameraFar = cameraFar || 2000
-    node.cameraNear = cameraNear || 0.1
-    node.cameraTop = cameraTop || 5
-    node.cameraBottom = cameraBottom || -5
-    node.cameraLeft = cameraLeft || -5
-    node.cameraRight = cameraRight || 5
+    node.cameraFar = cameraFar ?? 100
     node.castShadow = castShadow
-    node.shadowBias = shadowBias || 0
+    node.shadowBias = shadowBias ?? 0.5
     node.shadowRadius = shadowRadius === undefined ? 1 : shadowRadius
     node.showCameraHelper = !!showCameraHelper
     if (shadowMapResolution) {
@@ -60,12 +42,6 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
     this.shadow.radius = this.shadowRadius
 
     this.shadow.camera.far = this.cameraFar
-    this.shadow.camera.near = this.cameraNear
-    this.shadow.camera.top = this.cameraTop
-    this.shadow.camera.bottom = this.cameraBottom
-    this.shadow.camera.left = this.cameraLeft
-    this.shadow.camera.right = this.cameraRight
-
     this.shadow.camera.updateProjectionMatrix()
 
     this.shadow.needsUpdate = true
@@ -110,11 +86,6 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
         shadowBias: this.shadowBias,
         shadowRadius: this.shadowRadius,
         cameraFar: this.cameraFar,
-        cameraNear: this.cameraNear,
-        cameraTop: this.cameraTop,
-        cameraBottom: this.cameraBottom,
-        cameraLeft: this.cameraLeft,
-        cameraRight: this.cameraRight,
         showCameraHelper: this.showCameraHelper
       }
     })
@@ -130,11 +101,6 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
       shadowBias: this.shadowBias,
       shadowRadius: this.shadowRadius,
       cameraFar: this.cameraFar,
-      cameraNear: this.cameraNear,
-      cameraTop: this.cameraTop,
-      cameraBottom: this.cameraBottom,
-      cameraLeft: this.cameraLeft,
-      cameraRight: this.cameraRight,
       showCameraHelper: this.showCameraHelper
     })
     this.replaceObject()
