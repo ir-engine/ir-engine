@@ -57,7 +57,10 @@ enum gameStates {
   Inactive = 'Inactive',
 
   Ready = 'Ready',
-  NotReady = 'NotReady'
+  NotReady = 'NotReady',
+
+  BallHidden = 'BallHidden',
+  BallVisible = 'BallVisible'
 }
 
 class Waiting extends Component<any> {}
@@ -68,6 +71,9 @@ class Hit extends Component<any> {}
 
 class BallMoving extends Component<any> {}
 class BallStopped extends Component<any> {}
+
+class BallHidden extends Component<any> {}
+class BallVisible extends Component<any> {}
 
 export const State = {
   [gameStates.Active]: Active,
@@ -89,5 +95,7 @@ export const State = {
   [gameStates.BallMoving]: BallMoving,
   [gameStates.BallStopped]: BallStopped,
   [gameStates.Ready]: Ready,
-  [gameStates.NotReady]: NotReady
+  [gameStates.NotReady]: NotReady,
+  [gameStates.BallHidden]: BallHidden,
+  [gameStates.BallVisible]: BallVisible
 }
