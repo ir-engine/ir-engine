@@ -112,8 +112,13 @@ export const setEnvMap: Behavior = (entity, args: EnvMapProps) => {
             break
         }
       })
+
+      SceneObjectSystem.instance.boxProjection = args.envMapReflectionProbe.boxProjection
+      SceneObjectSystem.instance.bpcemOptions.probePositionOffset = args.envMapReflectionProbe.probePositionOffset
+      SceneObjectSystem.instance.bpcemOptions.probeScale = args.envMapReflectionProbe.probePositionOffset
       break
   }
+
   pmremGenerator.dispose()
 
   SceneObjectSystem.instance.envMapIntensity = args.envMapIntensity
