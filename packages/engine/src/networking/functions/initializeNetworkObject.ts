@@ -187,6 +187,7 @@ export function initializeNetworkObject(args: {
     parameters
   }
 
+  // TODO: move this to network system
   if (prefabType === PrefabType.Player && ownerId === Network.instance.userId) {
     // console.log('Give Player Id by Server', networkId, args.networkId, typeof networkId, typeof args.networkId, ownerId, Network.instance.userId);
     Network.instance.localAvatarNetworkId = networkId
