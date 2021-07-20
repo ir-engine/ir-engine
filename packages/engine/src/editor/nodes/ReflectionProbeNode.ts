@@ -92,6 +92,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
       .imageData
     downloadImage(imageData, 'Hello', 512, 512)
     this.currentEnvMap = result
+    this.editor.scene.environment = result.texture
     this.injectShader()
     return result
   }
@@ -110,18 +111,21 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
   }
 
   injectShader() {
+    const position = this.reflectionProbeSettings.probePosition.clone()
+    position.add(this.reflectionProbeSettings.probePositionOffset)
+    const scale = this.reflectionProbeSettings.probeScale
     this.editor.scene.traverse((child) => {
       if (child.material) {
         child.material.onBeforeCompile = function (shader) {
-          shader.uniforms.cubeMapSize = { value: this.reflectionProbeSettings.probeScale }
-          shader.uniforms.cubeMapPos = { value: this.reflectionProbeSettings.probePositionOffset }
+          shader.uniforms.cubeMapSize = { value: scale }
+          shader.uniforms.cubeMapPos = { value: position }
           shader.vertexShader = 'varying vec3 vBPCEMWorldPosition;\n' + shader.vertexShader
           shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
           shader.fragmentShader = shader.fragmentShader.replace(
             '#include <envmap_physical_pars_fragment>',
             envmapPhysicalParsReplace
           )
-        }.bind(this)
+        }
       }
     })
   }
@@ -132,6 +136,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
     data = {
       options: this.reflectionProbeSettings
     }
+
     return await super.serialize(projectID, { reflectionprobe: data })
   }
 
@@ -145,6 +150,8 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
       ;(node.reflectionProbeSettings as ReflectionProbeSettings).probeScale = new Vector3(v.x, v.y, v.z)
       v = (node.reflectionProbeSettings as ReflectionProbeSettings).probePositionOffset
       ;(node.reflectionProbeSettings as ReflectionProbeSettings).probePositionOffset = new Vector3(v.x, v.y, v.z)
+      v = (node.reflectionProbeSettings as ReflectionProbeSettings).probePosition
+      ;(node.reflectionProbeSettings as ReflectionProbeSettings).probePosition = new Vector3(v.x, v.y, v.z)
     }
     return node
   }
