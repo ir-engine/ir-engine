@@ -335,15 +335,13 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
 
   // Get all network objects and add to createObjects
   Object.keys(Network.instance.networkObjects).forEach((networkId) => {
-    if (Network.instance.networkObjects[networkId].shouldSendOnPlayerJoin) {
-      worldState.createObjects.push({
-        prefabType: Network.instance.networkObjects[networkId].prefabType,
-        networkId: Number(networkId),
-        ownerId: Network.instance.networkObjects[networkId].ownerId,
-        uniqueId: Network.instance.networkObjects[networkId].uniqueId,
-        parameters: Network.instance.networkObjects[networkId].parameters
-      })
-    }
+    worldState.createObjects.push({
+      prefabType: Network.instance.networkObjects[networkId].prefabType,
+      networkId: Number(networkId),
+      ownerId: Network.instance.networkObjects[networkId].ownerId,
+      uniqueId: Network.instance.networkObjects[networkId].uniqueId,
+      parameters: Network.instance.networkObjects[networkId].parameters
+    })
   })
 
   // Get all clients and add to clientsConnected and push to world state frame

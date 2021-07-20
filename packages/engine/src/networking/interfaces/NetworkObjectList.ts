@@ -14,7 +14,5 @@ export interface NetworkObjectList {
     component: NetworkObject
     /** its needs to correct network id in clients by loading models get same id like in server */
     uniqueId: string
-    /** Should server send this on client joining the world or not */
-    shouldSendOnPlayerJoin: boolean
   }
 }

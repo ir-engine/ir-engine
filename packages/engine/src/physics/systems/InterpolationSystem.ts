@@ -104,10 +104,22 @@ InterpolationSystem.queries = {
     components: [Not(LocalInputReceiver), ControllerColliderComponent, InterpolationComponent, NetworkObject]
   },
   localObjectInterpolation: {
-    components: [Not(CharacterComponent), LocalInterpolationComponent, InterpolationComponent, NetworkObject]
+    components: [
+      Not(CharacterComponent),
+      LocalInterpolationComponent,
+      InterpolationComponent,
+      ColliderComponent,
+      NetworkObject
+    ]
   },
   networkObjectInterpolation: {
-    components: [Not(CharacterComponent), Not(LocalInterpolationComponent), InterpolationComponent, NetworkObject]
+    components: [
+      Not(CharacterComponent),
+      Not(LocalInterpolationComponent),
+      InterpolationComponent,
+      ColliderComponent,
+      NetworkObject
+    ]
   },
   correctionFromServer: {
     components: [Not(InterpolationComponent), NetworkObject]

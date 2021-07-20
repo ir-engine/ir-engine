@@ -33,8 +33,8 @@ import { GolfClubComponent } from './components/GolfClubComponent'
 import { GolfHoleComponent } from './components/GolfHoleComponent'
 import { NewPlayerTagComponent } from './components/GolfTagComponents'
 import { GolfTeeComponent } from './components/GolfTeeComponent'
-import { spawnBall, updateBall } from './prefab/GolfBallPrefab'
-import { spawnClub, updateClub } from './prefab/GolfClubPrefab'
+import { initializeGolfBall, spawnBall, updateBall } from './prefab/GolfBallPrefab'
+import { initializeGolfClub, spawnClub, updateClub } from './prefab/GolfClubPrefab'
 import { initBallRaycast } from './behaviors/initBallRaycast'
 import { ifFirstHit, ifOutCourse } from '../gameDefault/checkers/ifOutCourse'
 import { registerGolfBotHooks } from './functions/registerGolfBotHooks'
@@ -65,20 +65,32 @@ export class GolfSystem extends System {
     // DO ALL STATE LOGIC HERE (all queries)
 
     this.queryResults.player.all.forEach((entity) => {
+      if (!hasComponent(entity, State.Active)) return
+
       const game = getGame(entity)
       const playerComponent = getComponent(entity, GamePlayer)
       const ownerId = getUuid(entity)
 
       if (!playerComponent.ownedObjects['GolfClub']) {
-        playerComponent.ownedObjects['GolfClub'] = game.gameObjects['GolfClub'].find(
+        const club = game.gameObjects['GolfClub'].find(
           (entity) => getComponent(entity, NetworkObject)?.ownerId === ownerId
         )
+        if (club) {
+          console.log('club')
+          playerComponent.ownedObjects['GolfClub'] = club
+          initializeGolfClub(club)
+        }
       }
 
       if (!playerComponent.ownedObjects['GolfBall']) {
-        playerComponent.ownedObjects['GolfBall'] = game.gameObjects['GolfBall'].find(
+        const ball = game.gameObjects['GolfBall'].find(
           (entity) => getComponent(entity, NetworkObject)?.ownerId === ownerId
         )
+        if (ball) {
+          console.log('ball')
+          playerComponent.ownedObjects['GolfBall'] = ball
+          initializeGolfBall(ball)
+        }
       }
 
       const clubEntity = playerComponent.ownedObjects['GolfClub']
@@ -205,13 +217,16 @@ export class GolfSystem extends System {
     })
 
     this.queryResults.golfBall.all.forEach((entity) => {
+      const ownerEntity =
+        Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity
+      if (!hasComponent(ownerEntity, State.Active)) return
+      if (!hasComponent(entity, State.SpawnedObject)) return
+
       behaviorsToExecute.push(() => {
         updateBall(entity, {}, delta)
       })
       if (ifGetOut(entity, { area: 'GameArea' })) {
         behaviorsToExecute.push(() => {
-          const ownerEntity =
-            Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity
           teleportObject(
             entity,
             getPositionNextPoint(ownerEntity, { positionCopyFromRole: 'GolfTee-', position: null })
@@ -219,8 +234,6 @@ export class GolfSystem extends System {
         })
       }
       if (hasComponent(entity, State.BallStopped) && ifVelocity(entity, { less: 0.001 }) && ifOutCourse(entity)) {
-        const ownerEntity =
-          Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity
         if (ownerEntity) {
           teleportObject(
             entity,
@@ -264,6 +277,12 @@ export class GolfSystem extends System {
     this.queryResults.golfHole.all.forEach((entity) => {})
 
     this.queryResults.golfClub.all.forEach((entity) => {
+      const ownerEntity =
+        Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity
+      if (!hasComponent(ownerEntity, State.Active)) return
+
+      if (!hasComponent(entity, State.SpawnedObject)) return
+
       behaviorsToExecute.push(() => {
         updateClub(entity)
       })
@@ -298,28 +317,23 @@ export class GolfSystem extends System {
 
     // DO ALL ECS LOGIC HERE (added and removed queries)
 
-    this.queryResults.newPlayer.added.forEach((entity) => {
-      const newPlayer = getComponent(entity, NewPlayerTagComponent)
-      addComponent(entity, GamePlayer, {
-        gameName: newPlayer.gameName,
-        role: 'newPlayer',
-        uuid: getComponent(entity, NetworkObject).ownerId
-      })
-      addRole(entity)
-      removeComponent(entity, NewPlayerTagComponent)
-      isClient && setupPlayerAvatar(entity)
+    this.queryResults.player.added.forEach((entity) => {
+      // set up client side stuff
       setupPlayerInput(entity)
       createYourTurnPanel(entity)
+      isClient && setupPlayerAvatar(entity)
       setupOfflineDebug(entity)
-      addStateComponent(entity, State.WaitTurn)
-    })
 
-    this.queryResults.player.added.forEach((entity) => {
-      !isClient && spawnClub(entity)
-      initScore(entity)
+      // set up game logic
+      addStateComponent(entity, State.WaitTurn)
+      addRole(entity)
+      setStorage(entity, { name: 'GameScore' }, { score: { hits: 0, goal: 0 } })
       if (getComponent(entity, GamePlayer).role === '1-Player') {
         addTurn(entity)
       }
+      !isClient && spawnClub(entity)
+
+      addStateComponent(entity, State.Active)
     })
 
     this.queryResults.gameObject.added.forEach((entity) => {
@@ -345,7 +359,6 @@ export class GolfSystem extends System {
       addStateComponent(entity, State.NotReady)
       addStateComponent(entity, State.Active)
       addStateComponent(entity, State.BallMoving)
-      initBallRaycast(entity)
     })
 
     this.queryResults.golfHole.added.forEach((entity) => {
@@ -364,13 +377,6 @@ export class GolfSystem extends System {
   }
 
   static queries = {
-    newPlayer: {
-      components: [NewPlayerTagComponent],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
     player: {
       components: [GamePlayer],
       listen: {

@@ -13,7 +13,8 @@ import {
   getComponent,
   getMutableComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  removeEntity
 } from '../../ecs/functions/EntityFunctions'
 import {
   initState,
@@ -34,6 +35,8 @@ import { checkIsGamePredictionStillRight, clearPredictionCheckList } from '../fu
 import { NewPlayerTagComponent } from '../templates/Golf/components/GolfTagComponents'
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
 import { Component } from '../../ecs/classes/Component'
+import { CharacterComponent } from '../../character/components/CharacterComponent'
+import { addRole } from '../templates/Golf/behaviors/addRole'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -143,44 +146,16 @@ export class GameManagerSystem extends System {
           )
         )
       }
-      // Clean onetime Tag components for every gameobject
-      // Object.keys(gamePlayers)
-      //   .concat(Object.keys(gameObjects))
-      //   .forEach((role: string) => {
-      //     ;(gameObjects[role] || gamePlayers[role]).forEach((entity) => {
-      //       gameSchema.registerActionTagComponents.forEach((component) =>
-      //         hasComponent(entity, component) ? removeComponent(entity, component) : ''
-      //       )
-      //     })
-      //   })
 
-      // GAME AREA ADDIND PLAYERS or REMOVE
-      // adding or remove players from this Game, always give the first Role from GameSchema
-      Object.keys(Network.instance.networkObjects)
-        .map(Number)
-        .filter((key) => Network.instance.networkObjects[key].prefabType === PrefabType.Player)
-        .map((key) => Network.instance.networkObjects[key].component.entity)
-        .map((entity) => isPlayerInGameArea(entity, gameArea))
-        .forEach((v) => {
-          // is Player in Game Area
-          if (v.inGameArea && hasComponent(v.entity, GamePlayer)) {
-            /*
-            if (getComponent(v.entity, GamePlayer).gameName != game.name) {
-              getGameFromName(getComponent(v.entity, GamePlayer).gameName).priority < game.priority;
-              removeComponent(v.entity, GamePlayer);
-            }
-            */
-          } else if (v.inGameArea && !hasComponent(v.entity, GamePlayer)) {
-            console.log('add game player')
-            addComponent(v.entity, NewPlayerTagComponent, { gameName: game.name })
-          } else if (!v.inGameArea && hasComponent(v.entity, GamePlayer)) {
-            console.log('remove gameplayer')
-            if (getComponent(v.entity, GamePlayer).gameName === game.name) {
-              removeComponent(v.entity, GamePlayer)
-            }
-          }
-        })
-      // end of frame circle one game
+      this.queryResults.characters.added.forEach((entity) => {
+        console.log('new client joining game')
+        addComponent(entity, NewPlayerTagComponent, { gameName: game.name })
+      })
+
+      this.queryResults.characters.removed.forEach((entity) => {
+        hasComponent(entity, NewPlayerTagComponent) && removeComponent(entity, NewPlayerTagComponent)
+        hasComponent(entity, GamePlayer) && removeComponent(entity, GamePlayer)
+      })
     })
 
     // PLAYERS REMOVE
@@ -193,10 +168,11 @@ export class GameManagerSystem extends System {
         gameSchema.beforePlayerLeave(entity)
         console.log('removeEntityFromState', gamePlayer.role)
         removeEntityFromState(gamePlayer, game)
-        clearRemovedEntitysFromGame(game)
-        game.gamePlayers[gamePlayer.role] = game.gamePlayers[gamePlayer.role].filter((entityFind) =>
-          hasComponent(entityFind, GamePlayer)
-        )
+        // clearRemovedEntitysFromGame(game)
+        Object.values(gamePlayer.ownedObjects).forEach((entity) => {
+          removeEntity(entity)
+        })
+        game.gamePlayers[gamePlayer.role] = []
         gameSchema.onPlayerLeave(entity, gamePlayer, game)
       })
     })
@@ -209,7 +185,7 @@ export class GameManagerSystem extends System {
         if (gameObject === undefined || gameObject.gameName != game.name) return
         console.log('removeEntityFromState', gameObject.role)
         removeEntityFromState(gameObject, game)
-        clearRemovedEntitysFromGame(game)
+        game.gameObjects[gameObject.role] = []
       })
     })
     // PLAYERS ADDIND
@@ -244,6 +220,17 @@ export class GameManagerSystem extends System {
       })
     })
 
+    this.queryResults.newPlayer.added.forEach((entity) => {
+      console.log('new player')
+      const newPlayer = getComponent(entity, NewPlayerTagComponent)
+      addComponent(entity, GamePlayer, {
+        gameName: newPlayer.gameName,
+        role: 'newPlayer',
+        uuid: getComponent(entity, NetworkObject).ownerId
+      })
+      removeComponent(entity, NewPlayerTagComponent)
+    })
+
     // end of execute
   }
 }
@@ -255,6 +242,20 @@ this.queryResults.gameObject.removed?.forEach(entity => {
 });
 */
 GameManagerSystem.queries = {
+  characters: {
+    components: [CharacterComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  newPlayer: {
+    components: [NewPlayerTagComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
   game: {
     components: [Game],
     listen: {

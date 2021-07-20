@@ -14,7 +14,6 @@ const customArchives = (variable: string, objData) => variable+'='+Object.keys(o
 */
 
 export const initStorage = (entity: Entity, initSchemaStorage: InitStorageInterface[]): void => {
-  console.log('initStorage', entity, initSchemaStorage)
   if (initSchemaStorage === undefined) return
   const role = getRole(entity)
   const uuid = getUuid(entity)
@@ -43,7 +42,6 @@ export const getStorage = (entity: Entity, component: any): any => {
 }
 
 export const setStorage = (entity: Entity, component: any, data: any): void => {
-  console.log('setStorage', entity, component, data)
   const role = getRole(entity)
   const uuid = getUuid(entity)
   const game = getGame(entity)
