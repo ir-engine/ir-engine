@@ -204,6 +204,8 @@ export class GolfSystem extends System {
 
           if (hasComponent(ballEntity, State.Inactive) && hasComponent(ballEntity, State.BallStopped)) {
             behaviorsToExecute.push(() => {
+              removeComponent(ballEntity, Action.GameObjectCollisionTag)
+              removeComponent(clubEntity, Action.GameObjectCollisionTag)
               nextTurn(entity)
             })
           }
