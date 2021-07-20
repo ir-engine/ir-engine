@@ -175,7 +175,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
   }
 
   onRemove() {
-    this.currentEnvMap.dispose()
-    this.editor.scene.unregisterEnvironmentMapNodes(this)
+    this.currentEnvMap?.dispose()
+    this.editor.scene.unregisterEnvironmentMapNode(this)
   }
 }
