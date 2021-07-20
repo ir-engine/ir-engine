@@ -102,7 +102,11 @@ export class WorldScene {
       .then(() => {
         WorldScene.isLoading = false
         Engine.sceneLoaded = true
-        configureCSM(sceneProperty.directionalLights)
+
+        if (sceneProperty.isCSMEnabled) {
+          configureCSM(sceneProperty.directionalLights)
+        }
+
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
 
         this.onCompleted()
