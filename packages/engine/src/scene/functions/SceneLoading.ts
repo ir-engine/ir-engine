@@ -127,7 +127,7 @@ export class WorldScene {
         break
 
       case 'ambient-light':
-        addObject3DComponent(entity, { obj3d: AmbientLight, objArgs: component.data })
+        addObject3DComponent(entity, AmbientLight, component.data)
         addComponent(entity, LightTagComponent)
         break
 
@@ -138,26 +138,23 @@ export class WorldScene {
           setSkyDirection(direction)
           return
         }
-        addObject3DComponent(entity, {
-          obj3d: DirectionalLight,
-          objArgs: {
-            'shadow.mapSize': component.data.shadowMapResolution,
-            'shadow.bias': component.data.shadowBias,
-            'shadow.radius': component.data.shadowRadius,
-            intensity: component.data.intensity,
-            color: component.data.color,
-            castShadow: true
-          }
+        addObject3DComponent(entity, DirectionalLight, {
+          'shadow.mapSize': component.data.shadowMapResolution,
+          'shadow.bias': component.data.shadowBias,
+          'shadow.radius': component.data.shadowRadius,
+          intensity: component.data.intensity,
+          color: component.data.color,
+          castShadow: true
         })
         addComponent(entity, LightTagComponent)
         break
 
       case 'hemisphere-light':
-        addObject3DComponent(entity, { obj3d: HemisphereLight, objArgs: component.data })
+        addObject3DComponent(entity, HemisphereLight, component.data)
         break
 
       case 'point-light':
-        addObject3DComponent(entity, { obj3d: PointLight, objArgs: component.data })
+        addObject3DComponent(entity, PointLight, component.data)
         break
 
       case 'collidable':
@@ -284,7 +281,7 @@ export class WorldScene {
         break
 
       case 'image':
-        addObject3DComponent(entity, { obj3d: Image, objArgs: component.data })
+        addObject3DComponent(entity, Image, component.data)
         break
 
       case 'video':
@@ -317,7 +314,7 @@ export class WorldScene {
         break
 
       case 'spot-light':
-        addObject3DComponent(entity, { obj3d: SpotLight, objArgs: component.data })
+        addObject3DComponent(entity, SpotLight, component.data)
         break
 
       case 'transform':

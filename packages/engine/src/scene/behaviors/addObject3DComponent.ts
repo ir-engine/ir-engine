@@ -67,16 +67,22 @@ interface ObjArgs extends VideoProps {
   skyBoxShaderProps?: SkyBoxShaderProps
 }
 
-type Object3DProps = {
-  obj3d?: Object3D | HTMLAudioElement
-  objArgs?: ObjArgs
-  parentEntity?: Entity
-}
+// type Object3DProps = {
+//   obj3d?: T | (new(...args:any[]) => T)
+//   objArgs?: ObjArgs
+//   parentEntity?: Entity
+// }
 /**
  * Add Object3D Component with args into Entity from the Behavior.
  */
-export const addObject3DComponent = (entity: Entity, args: Object3DProps) => {
-  const isObject3d = typeof args.obj3d === 'object'
+export const addObject3DComponent = <T extends Object3D>(
+  entity: Entity,
+  obj3D: T | (new (...args: any[]) => T) | HTMLAudioElement,
+  objArgs?: any,
+  parentEntity?: Entity
+) => {
+  // export const addObject3DComponent = (entity: Entity, args: Object3DProps) => {
+  const isObject3d = typeof obj3D === 'object'
   let object3d
 
   /**
@@ -111,21 +117,21 @@ export const addObject3DComponent = (entity: Entity, args: Object3DProps) => {
     }
   }
 
-  if (isObject3d) object3d = args.obj3d
+  if (isObject3d) object3d = obj3D
   // else object3d = new args.obj3d();
 
-  typeof args.objArgs === 'object' &&
-    Object.keys(args.objArgs).forEach((key) => {
-      applyDeepValue(object3d, key, args.objArgs[key])
+  typeof objArgs === 'object' &&
+    Object.keys(objArgs).forEach((key) => {
+      applyDeepValue(object3d, key, objArgs[key])
     })
 
-  if (args.parentEntity && hasComponent(args.parentEntity, ShadowComponent)) {
-    createShadow(entity, getMutableComponent(args.parentEntity, ShadowComponent))
+  if (parentEntity && hasComponent(parentEntity, ShadowComponent)) {
+    createShadow(entity, getMutableComponent(parentEntity, ShadowComponent))
   }
 
   const hasShadow = getMutableComponent(entity, ShadowComponent)
-  const castShadow = Boolean(hasShadow?.castShadow || args.objArgs?.castShadow)
-  const receiveshadow = Boolean(hasShadow?.receiveShadow || args.objArgs?.receiveShadow)
+  const castShadow = Boolean(hasShadow?.castShadow || objArgs?.castShadow)
+  const receiveshadow = Boolean(hasShadow?.receiveShadow || objArgs?.receiveShadow)
 
   object3d.traverse((obj) => {
     obj.castShadow = castShadow
@@ -216,8 +222,8 @@ export const addObject3DComponent = (entity: Entity, args: Object3DProps) => {
   components.forEach((component: any) => {
     addComponent(entity, component)
   })
-  if (args.parentEntity && hasComponent(args.parentEntity, Object3DComponent as any)) {
-    getComponent<Object3DComponent>(args.parentEntity, Object3DComponent).value.add(object3d)
+  if (parentEntity && hasComponent(parentEntity, Object3DComponent as any)) {
+    getComponent<Object3DComponent>(parentEntity, Object3DComponent).value.add(object3d)
   }
   object3d.entity = entity
   return entity

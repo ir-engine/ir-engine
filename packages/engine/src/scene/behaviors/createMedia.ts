@@ -95,7 +95,7 @@ const onMediaInteractionHover = (
 }
 
 export function createMediaServer(entity, args: { interactable: boolean }): void {
-  addObject3DComponent(entity, { obj3d: new Object3D(), objArgs: args })
+  addObject3DComponent(entity, new Object3D(), args)
   if (args.interactable) addInteraction(entity)
 
   // If media component is not requires to be sync then return
@@ -124,7 +124,7 @@ export function createMediaServer(entity, args: { interactable: boolean }): void
 }
 
 export function createAudio(entity, args: AudioProps): void {
-  addObject3DComponent(entity, { obj3d: new Audio(Engine.audioListener), objArgs: args })
+  addObject3DComponent(entity, new Audio(Engine.audioListener), args)
   if (args.interactable) addInteraction(entity)
 }
 
@@ -134,7 +134,7 @@ export function createVideo(entity, args: VideoProps): void {
     video.startTime = args.synchronize
     video.isSynced = args.synchronize > 0
   }
-  addObject3DComponent(entity, { obj3d: video, objArgs: { ...args } })
+  addObject3DComponent(entity, video, { ...args })
   if (args.interactable) addInteraction(entity)
 }
 
@@ -157,7 +157,7 @@ export const createVolumetric = (entity, args: VolumetricProps) => {
     frameRate: 25
   })
   volumetricComponent.player = DracosisSequence
-  addObject3DComponent(entity, { obj3d: container })
+  addObject3DComponent(entity, container)
   if (args.interactable) addInteraction(entity)
 }
 

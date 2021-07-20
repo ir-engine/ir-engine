@@ -193,10 +193,10 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
 
   // function to handle changes in payloadHtmlContent
   onChangePayloadHtmlContent = (payloadHtmlContent) => {
-    const sanitizedHTML = dompurify.sanitize(payloadHtmlContent);
+    const sanitizedHTML = dompurify.sanitize(payloadHtmlContent)
     if (sanitizedHTML !== payloadHtmlContent);
-      console.warn("Code has been sanitized, don't try anything sneaky please...");
-      (this.props.editor as any).setPropertySelected('payloadHtmlContent', sanitizedHTML);
+    console.warn("Code has been sanitized, don't try anything sneaky please...")
+    ;(this.props.editor as any).setPropertySelected('payloadHtmlContent', sanitizedHTML)
   }
 
   // function to handle changes in isAnimationPropertyDisabled
@@ -205,7 +205,7 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
     if (multiEdit) {
       return editor.selected.some((selectedNode) => selectedNode.src !== node.src)
     }
-    return false;
+    return false
   }
 
   // creating view for interactable type
@@ -336,17 +336,17 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
                 onChange={this.onChangeInteractionType}
               />
             </InputGroup>
-        {/* @ts-ignore */}
-        <NumericInputGroup
+            {/* @ts-ignore */}
+            <NumericInputGroup
               name="Interaction Distance"
               label={this.props.t('editor:properties.model.lbl-interactionDistance')}
-                onChange={this.onChangeInteractionDistance}
-                min={0}
-                smallStep={0.001}
-                mediumStep={0.01}
-                largeStep={0.1}
-                value={(node as any).intensity}
-              />
+              onChange={this.onChangeInteractionDistance}
+              min={0}
+              smallStep={0.001}
+              mediumStep={0.01}
+              largeStep={0.1}
+              value={(node as any).intensity}
+            />
             {this.renderInteractableTypeOptions(node)}
           </Fragment>
         )

@@ -12,7 +12,7 @@ export const addMap = function (scene: THREE.Scene) {
     // lng: -122.4194
 
     // ATL
-    lat: 33.7490,
-    lng: -84.3880
+    lat: 33.749,
+    lng: -84.388
   })
 }

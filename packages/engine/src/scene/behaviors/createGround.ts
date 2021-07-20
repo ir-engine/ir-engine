@@ -22,10 +22,7 @@ export const createGround = (entity: Entity, args: GroundProps) => {
     })
   )
 
-  addObject3DComponent(entity, {
-    obj3d: mesh,
-    objArgs: { receiveShadow: true, 'material.color': args.color }
-  })
+  addObject3DComponent(entity, mesh, { receiveShadow: true, 'material.color': args.color })
 
   addComponent(entity, ColliderComponent, {
     bodytype: BodyType.STATIC,

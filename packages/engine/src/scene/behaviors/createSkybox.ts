@@ -17,7 +17,7 @@ export const createSkybox = (entity, args: SceneBackgroundProps) => {
     switch (args.backgroundType) {
       case SkyTypeEnum.skybox:
         const option = args.skyboxProps
-        addObject3DComponent(entity, { obj3d: new Sky(), objArgs: { skyBoxShaderProps: option } })
+        addObject3DComponent(entity, new Sky(), { skyBoxShaderProps: option })
         addComponent(entity, ScaleComponent)
 
         const component = getComponent(entity, Object3DComponent)
