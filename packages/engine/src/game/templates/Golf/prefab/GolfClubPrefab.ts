@@ -119,10 +119,10 @@ export const updateClub: Behavior = (
   const ownerNetworkId = getComponent(entityClub, NetworkObjectOwner).networkId
   const ownerEntity = Network.instance.networkObjects[ownerNetworkId].component.entity
 
-  // if (!ownerEntity) return
+  if (!ownerEntity) return
 
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
-  // if (!golfClubComponent.raycast) return
+  if (!golfClubComponent.raycast) return
 
   const transformClub = getMutableComponent(entityClub, TransformComponent)
   const collider = getMutableComponent(entityClub, ColliderComponent)
