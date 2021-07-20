@@ -284,6 +284,7 @@ export class ClientNetworkStateSystem extends System {
 
         // Game Manager Messages, must be after create object functions
         if (worldState.gameState && worldState.gameState.length > 0) {
+          //console.warn('get state')
           worldState.gameState.forEach((stateMessage: GameStateUpdateMessage) => {
             if (Network.instance.userId === stateMessage.ownerId) {
               console.log('get message', stateMessage)
@@ -292,6 +293,7 @@ export class ClientNetworkStateSystem extends System {
           })
         }
         if (worldState.gameStateActions && worldState.gameStateActions.length > 0) {
+          //console.warn('get action')
           worldState.gameStateActions.forEach((actionMessage: GameStateActionMessage) =>
             applyActionComponent(actionMessage)
           )

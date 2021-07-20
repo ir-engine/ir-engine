@@ -202,12 +202,13 @@ export class ActionSystem extends System {
           Network.instance.clientInputState.viewVector.y = actor.viewVector.y
           Network.instance.clientInputState.viewVector.z = actor.viewVector.z
         }
-
+        // Do not remenber why its needed 
+/*
         if (Network.instance.clientGameAction.length > 0) {
-          console.warn(Network.instance.clientGameAction)
+          console.log(Network.instance.clientGameAction)
           Network.instance.clientGameAction = []
         }
-
+*/
         input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
           if (value.type === InputType.BUTTON) {
             if (value.lifecycleState === LifecycleValue.ENDED) {

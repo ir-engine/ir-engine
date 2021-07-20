@@ -37,11 +37,12 @@ import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
 import { Component } from '../../ecs/classes/Component'
 import { CharacterComponent } from '../../character/components/CharacterComponent'
 import { addRole } from '../templates/Golf/behaviors/addRole'
+import { getGameEntityFromName, getGameFromName } from '../functions/functions'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  */
-
+/*
 function checkWatchers(entity, arr) {
   return (
     arr === undefined ||
@@ -53,7 +54,7 @@ function checkWatchers(entity, arr) {
 function checkCheckers(entity, entityOther, arr) {
   return arr.map((checker) => checker.function(entity, checker.args, entityOther))
 }
-
+*/
 function isPlayerInGameArea(entity, gameArea) {
   const p = getComponent(entity, TransformComponent).position
   const inGameArea =
@@ -223,11 +224,13 @@ export class GameManagerSystem extends System {
     this.queryResults.newPlayer.added.forEach((entity) => {
       console.log('new player')
       const newPlayer = getComponent(entity, NewPlayerTagComponent)
-      addComponent(entity, GamePlayer, {
+      const gamePlayerComp = addComponent(entity, GamePlayer, {
         gameName: newPlayer.gameName,
         role: 'newPlayer',
         uuid: getComponent(entity, NetworkObject).ownerId
       })
+      const game = getGameFromName(newPlayer.gameName)
+      requireState(game, gamePlayerComp)
       removeComponent(entity, NewPlayerTagComponent)
     })
 
