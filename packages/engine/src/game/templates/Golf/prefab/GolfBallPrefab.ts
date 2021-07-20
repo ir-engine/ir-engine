@@ -1,5 +1,5 @@
-import { Group, MathUtils, Mesh, Vector3 } from 'three'
-import { Body, BodyType, ShapeType, SHAPES } from 'three-physx'
+import { Color, Group, MathUtils, Mesh, MeshPhongMaterial, Vector3 } from 'three'
+import { Body, BodyType, ShapeType, SHAPES, RaycastQuery, SceneQueryType } from 'three-physx'
 import { AssetLoader } from '../../../../assets/classes/AssetLoader'
 import { isClient } from '../../../../common/functions/isClient'
 import { Behavior } from '../../../../common/interfaces/Behavior'
@@ -26,9 +26,10 @@ import TrailRenderer from '../../../../scene/classes/TrailRenderer'
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GameObject } from '../../../components/GameObject'
+import { GamePlayer } from '../../../components/GamePlayer'
 import { getGame } from '../../../functions/functions'
 import { GolfBallComponent } from '../components/GolfBallComponent'
-import { GolfCollisionGroups, GolfPrefabTypes } from '../GolfGameConstants'
+import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameConstants'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -122,6 +123,12 @@ const golfBallRadius = 0.03 // this is the graphical size of the golf ball
 const golfBallColliderExpansion = 0.03 // this is the size of the ball collider
 
 function assetLoadCallback(group: Group, ballEntity: Entity) {
+  const ownerNetworkId = getComponent(ballEntity, NetworkObjectOwner).networkId
+  const ownerEntity = Network.instance.networkObjects[ownerNetworkId].component.entity
+  const ownerPlayerNumber = Number(getComponent(ownerEntity, GamePlayer).role.substr(0, 1)) - 1
+
+  const color = GolfColours[ownerPlayerNumber]
+
   // its transform was set in createGolfBallPrefab from parameters (its transform Golf Tee);
   const transform = getComponent(ballEntity, TransformComponent)
   const gameObject = getComponent(ballEntity, GameObject)
@@ -131,6 +138,7 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   ballMesh.scale.copy(transform.scale)
   ballMesh.castShadow = true
   ballMesh.receiveShadow = true
+  ;(ballMesh.material as MeshPhongMaterial).color = new Color(color)
   addComponent(ballEntity, Object3DComponent, { value: ballMesh })
 
   // Add trail effect
@@ -139,7 +147,7 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   trailHeadGeometry.push(new Vector3(-1.0, 0.0, 0.0), new Vector3(0.0, 0.0, 0.0), new Vector3(1.0, 0.0, 0.0))
   const trailObject = new TrailRenderer(false)
   const trailMaterial = TrailRenderer.createBaseMaterial()
-  const trailLength = 150
+  const trailLength = 50
   trailObject.initialize(trailMaterial, trailLength, false, 0, trailHeadGeometry, ballMesh)
   Engine.scene.add(trailObject)
   ballMesh.userData.trailObject = trailObject
@@ -188,8 +196,32 @@ export const initializeGolfBall = (ballEntity: Entity) => {
     })
   )
 
-  const collider = getMutableComponent(ballEntity, ColliderComponent)
-  collider.body = body
+  addComponent(ballEntity, ColliderComponent, { body })
+
+  const golfBallComponent = getMutableComponent(ballEntity, GolfBallComponent)
+  const ballPosition = getComponent(ballEntity, ColliderComponent).body.transform.translation
+
+  // for track ground
+  golfBallComponent.groundRaycast = PhysicsSystem.instance.addRaycastQuery(
+    new RaycastQuery({
+      type: SceneQueryType.Closest,
+      origin: ballPosition,
+      direction: new Vector3(0, -1, 0),
+      maxDistance: 0.5,
+      collisionMask: GolfCollisionGroups.Course
+    })
+  )
+
+  // for track wall
+  golfBallComponent.wallRaycast = PhysicsSystem.instance.addRaycastQuery(
+    new RaycastQuery({
+      type: SceneQueryType.Closest,
+      origin: ballPosition,
+      direction: new Vector3(0, 0, 0),
+      maxDistance: 0.5,
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
+    })
+  )
 }
 
 type GolfBallSpawnParameters = {
@@ -252,7 +284,6 @@ export const GolfBallPrefab: NetworkPrefab = {
   networkComponents: [
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
-    { type: ColliderComponent },
     { type: RigidBodyComponent },
     { type: GameObject },
     { type: NetworkObjectOwner },
@@ -263,11 +294,6 @@ export const GolfBallPrefab: NetworkPrefab = {
   localClientComponents: [{ type: LocalInterpolationComponent }],
   clientComponents: [{ type: InterpolationComponent }],
   serverComponents: [],
-  onAfterCreate: [
-    {
-      behavior: initializeGolfBall,
-      networked: true
-    }
-  ],
+  onAfterCreate: [],
   onBeforeDestroy: []
 }
