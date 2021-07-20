@@ -1,7 +1,5 @@
-import { Component } from '../../ecs/classes/Component'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
 import { InitStorageInterface } from '../types/GameMode'
 import { getGame, getRole, getUuid } from './functions'
 
@@ -15,15 +13,14 @@ const customConverter = (str: string) => str.split(';').reduce((acc, v) => Objec
 const customArchives = (variable: string, objData) => variable+'='+Object.keys(objData).map(v => [v,objData[v]].join('_')).join(',')+ ';';
 */
 
-export const initStorage = (entity: Entity, initSchemaStorege: InitStorageInterface[]): void => {
-  //console.log('initStorage', entity, initSchemaStorege)
-  if (initSchemaStorege === undefined) return
+export const initStorage = (entity: Entity, initSchemaStorage: InitStorageInterface[]): void => {
+  if (initSchemaStorage === undefined) return
   const role = getRole(entity)
   const uuid = getUuid(entity)
   const game = getGame(entity)
   const objectState = game.state.find((v) => v.uuid === uuid)
   if (objectState != undefined) {
-    objectState.storage = initSchemaStorege.map((v) => {
+    objectState.storage = initSchemaStorage.map((v) => {
       const data = getComponent(entity, v.component)
       const readyValues = v.variables.reduce((acc, variable) => Object.assign(acc, { [variable]: data[variable] }), {})
       return { component: v.component.name, variables: JSON.stringify(readyValues).replace(/"/g, "'") }
@@ -38,6 +35,7 @@ export const getStorage = (entity: Entity, component: any): any => {
   const uuid = getUuid(entity)
   const game = getGame(entity)
   const objectState = game.state.find((v) => v.uuid === uuid)
+  if (!objectState) return {}
   const storageComponent = objectState.storage.find((v) => v.component === component.name)
   if (!storageComponent) return {} // empty just in case
   return JSON.parse(storageComponent.variables.replace(/'/g, '"')) //customConverter(objectState.storage.find(v => v.component === component.name).variables);//JSON.parse();

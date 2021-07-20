@@ -199,7 +199,6 @@
             "lbl-loopAnimation": "Loop Animation",
             "lbl-isAvatar": "Is Avatar",
             "lbl-collidable": "Collidable",
-            "lbl-saveColliders": "Save Colliders",
             "lbl-walkable": "Walkable",
             "lbl-castShadow": "Cast Shadow",
             "lbl-receiveShadow": "Receive Shadow",

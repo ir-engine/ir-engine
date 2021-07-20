@@ -13,16 +13,11 @@ import { State } from '../../../types/GameComponents'
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const getPositionNextPoint = (entity: Entity, args?: any, entityTarget?: Entity) => {
-  let gameScore = null
-  if (hasComponent(entity, GamePlayer)) {
-    gameScore = getStorage(entity, { name: 'GameScore' })
-  } else if (hasComponent(entityTarget, GamePlayer)) {
-    gameScore = getStorage(entityTarget, { name: 'GameScore' })
-  }
+export const getPositionNextPoint = (entity: Entity, args?: any) => {
+  const gameScore = getStorage(entity, { name: 'GameScore' })
 
   const game = getGame(entity)
-  console.warn(args.positionCopyFromRole + gameScore.score.goal)
+  console.warn(args.positionCopyFromRole, gameScore)
   const teeEntity = game.gameObjects[args.positionCopyFromRole + gameScore.score.goal][0]
   if (teeEntity) {
     const teeTransform = getComponent(teeEntity, TransformComponent)
@@ -39,11 +34,7 @@ export const getPositionNextPoint = (entity: Entity, args?: any, entityTarget?: 
       gameScore.score.hits = 0
       gameScore.score.goal = 0
 
-      if (hasComponent(entity, GamePlayer)) {
-        setStorage(entity, { name: 'GameScore' }, gameScore)
-      } else if (hasComponent(entityTarget, GamePlayer)) {
-        setStorage(entityTarget, { name: 'GameScore' }, gameScore)
-      }
+      setStorage(entity, { name: 'GameScore' }, gameScore)
       return args
     }
     //

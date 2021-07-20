@@ -29,7 +29,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
 
   // === MOVEMENT === //
 
-  movementEnabled = false
+  movementEnabled = true
   isGrounded: boolean
   isJumping: boolean
   isWalking = false

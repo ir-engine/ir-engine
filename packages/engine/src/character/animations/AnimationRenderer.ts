@@ -4,7 +4,7 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { Animation } from './Util'
 
 /** Class to handle rendering of an animation and smoothout the transition of the animation from one state to another */
-export default class AnimationRenderer {
+export class AnimationRenderer {
   /** Renders current state animations, unmounts previous state animations and also renders idle weight with default animation
    * @param animationComponent Animation component which holds animation details
    * @param delta Time since last frame

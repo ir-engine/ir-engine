@@ -192,6 +192,7 @@ class Bot {
 
     async runHook(hook, ...args) {
       return await this.page.evaluate(async (hook, ...args) => {
+        console.log('[XR-BOT]:', hook, ...args)
         return globalThis.botHooks[hook](...args);
       }, hook, ...args)
     }
@@ -343,8 +344,26 @@ class Bot {
         }
 
         await this.page.mouse.click(0, 0);
+        // await new Promise(resolve => {setTimeout(async() => {
+        //     // await this.pu.clickSelectorClassRegex("button", /join_world/);
+        //     setTimeout(async() => {
+        //         // await this.page.waitForSelector('button.openChat');
+        //         resolve();
+        //     }, 30000)
+        // }, 2000) });
+    }
 
-        await this.setFocus('canvas');
+    /** Enters the room specified, enabling the first microphone and speaker found
+     * @param {string} roomUrl The url of the room to join
+     * @param {Object} opts
+     * @param {string} opts.name Name to set as the bot name when joining the room
+     */
+    async enterLocation(roomUrl) {
+        await this.navigate(roomUrl);
+        await this.page.waitForFunction("document.querySelector('canvas')", { timeout: 100000});
+        console.log('selected sucessfully')
+        await this.page.mouse.click(0, 0);
+        await this.setFocus('canvas')
         await this.clickElementById('canvas', 'engine-renderer-canvas');
         // await new Promise(resolve => {setTimeout(async() => {
         //     // await this.pu.clickSelectorClassRegex("button", /join_world/);
