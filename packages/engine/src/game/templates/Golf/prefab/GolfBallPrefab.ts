@@ -1,4 +1,4 @@
-import { Color, Group, MathUtils, Mesh, MeshPhongMaterial, Vector3 } from 'three'
+import { Color, Group, MathUtils, Mesh, MeshPhongMaterial, Vector3, Vector4 } from 'three'
 import { Body, BodyType, ShapeType, SHAPES, RaycastQuery, SceneQueryType } from 'three-physx'
 import { AssetLoader } from '../../../../assets/classes/AssetLoader'
 import { isClient } from '../../../../common/functions/isClient'
@@ -138,7 +138,6 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   ballMesh.scale.copy(transform.scale)
   ballMesh.castShadow = true
   ballMesh.receiveShadow = true
-  ;(ballMesh.material as MeshPhongMaterial).color = new Color(color)
   addComponent(ballEntity, Object3DComponent, { value: ballMesh })
 
   // Add trail effect
@@ -147,6 +146,9 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   trailHeadGeometry.push(new Vector3(-1.0, 0.0, 0.0), new Vector3(0.0, 0.0, 0.0), new Vector3(1.0, 0.0, 0.0))
   const trailObject = new TrailRenderer(false)
   const trailMaterial = TrailRenderer.createBaseMaterial()
+  const colorVec4 = new Vector4().fromArray([...new Color(color).toArray(), 1])
+  trailMaterial.uniforms.headColor.value = colorVec4
+  trailMaterial.uniforms.tailColor.value = colorVec4
   const trailLength = 50
   trailObject.initialize(trailMaterial, trailLength, false, 0, trailHeadGeometry, ballMesh)
   Engine.scene.add(trailObject)
