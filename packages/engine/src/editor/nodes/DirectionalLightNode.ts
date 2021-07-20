@@ -30,6 +30,13 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
     this.cameraHelper = new CameraHelper(this.shadow.camera)
     this.cameraHelper.visible = false
     this.add(this.cameraHelper)
+
+    this.cameraFar = 2000
+    this.cameraNear = 0.1
+    this.cameraTop = 5
+    this.cameraBottom = -5
+    this.cameraLeft = -5
+    this.cameraRight = 5
   }
   onAdd() {
     this.helper.update()
@@ -69,6 +76,10 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
         } else if (child === source.target) {
           this.target = child.clone()
           this.add(this.target)
+        } else if (child === source.cameraHelper) {
+          this.cameraHelper = new CameraHelper(this.shadow.camera)
+          this.cameraHelper.visible = false
+          this.add(this.cameraHelper)
         } else {
           this.add(child.clone())
         }
