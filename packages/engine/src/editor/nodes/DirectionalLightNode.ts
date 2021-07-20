@@ -87,6 +87,7 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
       this.remove(this.target)
       for (let i = 0; i < source.children.length; i++) {
         const child = source.children[i]
+        if (child.type === 'CameraHelper') continue
         if (child === source.helper) {
           this.helper = new EditorDirectionalLightHelper(this)
           this.add(this.helper)
