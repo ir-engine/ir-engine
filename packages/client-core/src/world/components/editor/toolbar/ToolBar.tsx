@@ -21,6 +21,7 @@ import { InfoTooltip } from '../layout/Tooltip'
 import styledTheme from '../theme'
 import ToolButton from './ToolButton'
 import LocationModal from '../../../../admin/components/LocationModal'
+import PublishModel from './PublishModel'
 import { ChartArea } from '@styled-icons/fa-solid/ChartArea'
 import { EditorContext } from '../contexts/EditorContext'
 import StatsFuc from './StatsFuc'
@@ -445,7 +446,6 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
   componentWillUnmount() {
     const editor = (this.props as any).editor
     editor.removeListener('initialized', this.onEditorInitialized)
-
     if (editor.editorControls) {
       editor.editorControls.removeListener('transformModeChanged', this.onForceUpdate)
       editor.editorControls.removeListener('transformSpaceChanged', this.onForceUpdate)
@@ -725,7 +725,7 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
             Published
           </Button>
         )}
-        <LocationModal
+        <PublishModel
           editing={this.state.locationEditing}
           open={this.state.locationModalOpen}
           handleClose={this.handleLocationClose}

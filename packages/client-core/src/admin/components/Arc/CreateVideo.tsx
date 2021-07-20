@@ -23,6 +23,7 @@ const CreateVideo = (props: Props) => {
   const { open, handleClose, closeViewModel } = props
   const classes = useStyles()
   const classesx = useStyle()
+  const [type, setType] = React.useState('0')
   return (
     <React.Fragment>
       <Drawer classes={{ paper: classesx.paper }} anchor="right" open={open} onClose={handleClose(false)}>
@@ -51,6 +52,7 @@ const CreateVideo = (props: Props) => {
                 displayEmpty
                 className={classes.select}
                 MenuProps={{ classes: { paper: classesx.selectPaper } }}
+                value={type}
               >
                 <MenuItem value="0" disabled>
                   <em>Select type</em>
