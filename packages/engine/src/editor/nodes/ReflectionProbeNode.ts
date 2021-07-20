@@ -92,7 +92,6 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
       .imageData
     downloadImage(imageData, 'Hello', 512, 512)
     this.currentEnvMap = result
-    this.editor.scene.environment = result.texture
     this.injectShader()
     return result
   }
@@ -207,5 +206,10 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
       file_id: fileId,
       file_token: fileToken
     }
+  }
+
+  async setEnvMap() {
+    await this.captureCubeMap()
+    this.editor.scene.environment = this.currentEnvMap.texture
   }
 }

@@ -236,10 +236,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
 
   async setUpEnvironmentMapTexture() {
-    if (this.environment?.dispose) {
-      this.environment.dispose()
-    }
-
     const pmremGenerator = new PMREMGenerator(this.editor.renderer.renderer)
     switch (this.envMapTextureType) {
       case EnvMapTextureType.Equirectangular:
@@ -314,8 +310,10 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
 
   setUpEnvironmentMap(type: EnvMapSourceType) {
+    if (this.environment?.dispose) this.environment.dispose()
     switch (type) {
       case EnvMapSourceType.Default:
+        this.environmentNode?.setEnvMap()
         break
       case EnvMapSourceType.Color:
         this.setUpEnvironmentMapColor()
@@ -327,7 +325,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
 
   setUpEnvironmentMapColor() {
-    if (this.environment?.dispose) this.environment.dispose()
     const col = new Color(this.envMapSourceColor)
     const resolution = 1
     const data = new Uint8Array(3 * resolution * resolution)
