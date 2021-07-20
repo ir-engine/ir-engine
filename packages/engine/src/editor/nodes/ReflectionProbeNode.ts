@@ -17,7 +17,7 @@ import {
 import EditorNodeMixin from './EditorNodeMixin'
 import { envmapPhysicalParsReplace, worldposReplace } from './helper/BPCEMShader'
 import CubemapCapturer from './helper/CubemapCapturer'
-import { convertCubemapToEquiImageData, downloadImage } from './helper/ImageUtils'
+import { convertCubemapToEquiImageData, downloadImage, uploadCubemap } from './helper/ImageUtils'
 import SkyboxNode from './SkyboxNode'
 
 export enum ReflectionProbeTypes {
@@ -49,6 +49,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
   reflectionProbeSettings: ReflectionProbeSettings
   centerBall: any
   currentEnvMap: WebGLCubeRenderTarget
+  ownedFileIdentifier: string
 
   constructor(editor) {
     super(editor)
@@ -71,6 +72,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
       envMapIntensity: 10
     })
     this.add(this.gizmo)
+    this.ownedFileIdentifier = 'envMapOwnedFileId'
     this.editor.scene.registerEnvironmentMapNode(this)
   }
 
@@ -177,5 +179,26 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
   onRemove() {
     this.currentEnvMap?.dispose()
     this.editor.scene.unregisterEnvironmentMapNode(this)
+  }
+
+  async uploadBakeToServer(projectID: any) {
+    const rt = await this.Bake()
+    const value = await uploadCubemap(
+      this.editor.renderer.renderer,
+      this.editor.api,
+      rt,
+      this.reflectionProbeSettings.resolution,
+      this.ownedFileIdentifier,
+      projectID
+    )
+    this.reflectionProbeSettings.envMapOrigin = value.origin
+    const {
+      file_id: fileId,
+      meta: { access_token: fileToken }
+    } = value
+    this.editor.api.filesToUpload[this.ownedFileIdentifier] = {
+      file_id: fileId,
+      file_token: fileToken
+    }
   }
 }

@@ -509,7 +509,6 @@ export class Api extends EventEmitter {
     }
 
     Object.assign(project.filesToUpload, this.filesToUpload)
-    this.filesToUpload = {}
 
     const body = JSON.stringify({ project })
 
@@ -634,7 +633,6 @@ export class Api extends EventEmitter {
     }
 
     Object.assign(project.filesToUpload, this.filesToUpload)
-    this.filesToUpload = {}
 
     const body = JSON.stringify({
       project

@@ -12,7 +12,6 @@ import {
   sRGBEncoding,
   LinearFilter,
   DataTexture,
-  Texture,
   RGBFormat,
   CubeTextureLoader,
   PMREMGenerator,
@@ -30,7 +29,6 @@ import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '../../scene/co
 import { DistanceModelType } from '../../scene/classes/AudioSource'
 import ReflectionProbeNode, { ReflectionProbeTypes } from './ReflectionProbeNode'
 import asyncTraverse from '../functions/asyncTraverse'
-import { uploadCubemap } from './helper/ImageUtils'
 
 export default class SceneNode extends EditorNodeMixin(Scene) {
   static nodeName = 'Scene'
@@ -307,25 +305,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         envMapProps.type = EnvMapSourceType.ReflectionProbe
         envMapProps.envMapReflectionProbe = this.environmentNode.reflectionProbeSettings
         if (this.environmentNode.reflectionProbeSettings.reflectionType === ReflectionProbeTypes.Baked) {
-          const rt = await this.environmentNode.Bake()
-          const resolution = this.environmentNode.reflectionProbeSettings.resolution
-          const value = await uploadCubemap(
-            this.editor.renderer.renderer,
-            this.editor.api,
-            rt,
-            resolution,
-            'envMapOwnedFileId',
-            projectId
-          )
-          this.environmentNode.reflectionProbeSettings.envMapOrigin = value.origin
-          const {
-            file_id: fileId,
-            meta: { access_token: fileToken }
-          } = value
-          this.editor.api.filesToUpload['envMapOwnedFileId'] = {
-            file_id: fileId,
-            file_token: fileToken
-          }
+          await this.environmentNode.uploadBakeToServer(projectId)
         }
         break
     }
