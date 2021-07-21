@@ -19,7 +19,7 @@
     "golf": "jest"
   },
   "dependencies": {
-    "@google-cloud/agones-sdk": "1.14.0",
+    "@google-cloud/agones-sdk": "1.16.0",
     "chai": "4.3.4",
     "jest": "27.0.6",
     "jest-puppeteer": "5.0.4",
