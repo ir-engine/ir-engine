@@ -114,8 +114,7 @@ export const setEnvMap: Behavior = (entity, args: EnvMapProps) => {
         }
       })
       const offset = args.envMapReflectionProbe.probePositionOffset
-      const pos = args.envMapReflectionProbe.probePosition
-      const position = new Vector3(offset.x + pos.x, offset.y + pos.y, offset.z + pos.z)
+      const position = new Vector3(offset.x, offset.y, offset.z)
       SceneObjectSystem.instance.boxProjection = args.envMapReflectionProbe.boxProjection
       SceneObjectSystem.instance.bpcemOptions.probePositionOffset = position
       SceneObjectSystem.instance.bpcemOptions.probeScale = args.envMapReflectionProbe.probeScale
