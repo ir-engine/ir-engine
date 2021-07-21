@@ -16,7 +16,7 @@ import { PersistTagComponent } from '../components/PersistTagComponent'
 // TODO: refactor this to be named something more generic like ObjectSystem, add object-object interactions (physics & non physics)
 // GameManagerSystem already has physics interaction behaviors, these could be made generic and not game dependent
 
-export type BPCEMProps = {
+type BPCEMProps = {
   probeScale: Vector3
   probePositionOffset: Vector3
 }
@@ -27,6 +27,7 @@ export class SceneObjectSystem extends System {
 
   bpcemOptions: BPCEMProps
   envMapIntensity = 1
+  boxProjection = false
 
   constructor(attributes: SystemAttributes = {}) {
     super(attributes)
@@ -65,7 +66,11 @@ export class SceneObjectSystem extends System {
           const material = obj.material as Material
           if (typeof material !== 'undefined') {
             // BPCEM
-            //material.onBeforeCompile = beforeMaterialCompile(this.bpcemOptions.probeScale, this.bpcemOptions.probePositionOffset);
+            if (SceneObjectSystem.instance.boxProjection)
+              material.onBeforeCompile = beforeMaterialCompile(
+                this.bpcemOptions.probeScale,
+                this.bpcemOptions.probePositionOffset
+              )
             ;(material as any).envMapIntensity = SceneObjectSystem.instance.envMapIntensity
 
             if (obj.receiveShadow) {

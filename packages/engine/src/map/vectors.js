@@ -20,7 +20,6 @@ export function vectors(blob, cb) {
         if (err) throw err
 
         var tile = new VectorTile(new Protobuf(buf));
-        console.log(tile.layers);
         cb(tile);
     })
 
