@@ -114,6 +114,6 @@
     "yuka": "0.7.6"
   },
   "dependencies": {
-    "three-stdlib": "^2.3.1"
+    "three-stdlib": "2.3.1"
   }
 }
