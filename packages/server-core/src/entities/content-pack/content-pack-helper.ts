@@ -15,11 +15,6 @@ const getAssetS3Key = (value: string) => value.replace('/assets', '')
 const getAvatarKey = (packName: string, key: string) => `content-pack/${packName}/${key}`
 const getAvatarThumbnailKey = (packName: string, key: string) => `content-pack/${packName}/${key}`
 
-const replaceRelativePath = (value: string) => {
-  const stripped = value.replace('/assets', '')
-  return `https://${config.aws.cloudfront.domain}${stripped}`
-}
-
 const getThumbnailKey = (value: string) => {
   const regexExec = thumbnailRegex.exec(value)
   return `${regexExec[0]}`
@@ -123,10 +118,12 @@ export function assembleScene(scene: any, contentPack: string): any {
 export async function populateScene(
   sceneId: string,
   scene: any,
+  manifestUrl: any,
   app: Application,
   thumbnailUrl?: string
 ): Promise<any> {
   const promises = []
+  const rootPackUrl = manifestUrl.replace('/manifest.json', '')
   const existingSceneResult = await (app.service('collection') as any).Model.findOne({
     where: {
       sid: sceneId
@@ -211,7 +208,7 @@ export async function populateScene(
     value.components.forEach(async (component) => {
       for (const [key, value] of Object.entries(component.props)) {
         if (typeof value === 'string' && /^\/assets/.test(value) === true) {
-          component.props[key] = replaceRelativePath(value)
+          component.props[key] = rootPackUrl + value
           // Insert Download/S3 upload
           const contentType = getContentType(component.props[key])
           const downloadResult = await axios.get(component.props[key], {

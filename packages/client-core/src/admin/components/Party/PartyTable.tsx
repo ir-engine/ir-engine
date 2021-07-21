@@ -39,7 +39,7 @@ const PartyTable = (props: PropsTable) => {
   const adminParty = adminPartyState.get('parties')
   const adminPartyData = adminParty.get('parties').data ? adminParty.get('parties').data : []
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handlePageChange = (event: unknown, newPage: number) => {
     setPage(newPage)
   }
 
@@ -68,7 +68,7 @@ const PartyTable = (props: PropsTable) => {
     }
   }
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
   }
@@ -123,8 +123,8 @@ const PartyTable = (props: PropsTable) => {
         count={rows.length}
         rowsPerPage={rowsPerPage}
         page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
         className={classex.tableFooter}
       />
     </div>

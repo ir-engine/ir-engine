@@ -9,7 +9,8 @@ export default () => {
           sid: context.params.body.projectId
         }
       })
-      context.params.previousFileId = JSON.parse(ownedFileIds)[fileIdentifier]
+      const parsedOwnedFileIds = JSON.parse(ownedFileIds)
+      context.params.previousFileId = parsedOwnedFileIds != null ? parsedOwnedFileIds[fileIdentifier] : null
     }
     return context
   }

@@ -167,3 +167,15 @@
 .locationModalButtons {
   justify-content: space-between;
 }
+
+.checkbox {
+  color: white !important;
+}
+
+.open-modal {
+  position: fixed;
+  left: 45%;
+  z-index: 1300;
+  top: 10px;
+}
+

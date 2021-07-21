@@ -139,8 +139,9 @@ const ContentPackDetailsModal = (props: Props): any => {
               </div>
             </div>
             {processing === true && (
-              <div>
-                <CircularProgress color="black" /> Processing{' '}
+              <div className={styles.processing}>
+                <CircularProgress color="primary" />
+                <div className={styles.text}>Processing</div>
               </div>
             )}
             {success === true && (
