@@ -67,21 +67,17 @@ interface ObjArgs extends VideoProps {
   skyBoxShaderProps?: SkyBoxShaderProps
 }
 
-// type Object3DProps = {
-//   obj3d?: T | (new(...args:any[]) => T)
-//   objArgs?: ObjArgs
-//   parentEntity?: Entity
-// }
+
 /**
  * Add Object3D Component with args into Entity from the Behavior.
  */
 export const addObject3DComponent = <T extends Object3D>(
   entity: Entity,
-  obj3D: T | (new (...args: any[]) => T) | HTMLAudioElement,
+  obj3D: T | (new (...args: any[]) => T),
   objArgs?: any,
   parentEntity?: Entity
 ) => {
-  // export const addObject3DComponent = (entity: Entity, args: Object3DProps) => {
+
   const isObject3d = typeof obj3D === 'object'
   let object3d
 

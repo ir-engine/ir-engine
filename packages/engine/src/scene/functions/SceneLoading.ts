@@ -158,23 +158,20 @@ export class WorldScene {
           return
         }
 
-
-        addObject3DComponent(entity,
-          DirectionalLight,
-          {
-            'shadow.mapSize': new Vector2(component.data.shadowMapResolution[0], component.data.shadowMapResolution[1]),
-            'shadow.bias': component.data.shadowBias,
-            'shadow.radius': component.data.shadowRadius,
-            intensity: component.data.intensity,
-            color: component.data.color,
-            castShadow: component.data.castShadow,
-            'shadow.camera.far': component.data.cameraFar,
-            'shadow.camera.near': component.data.cameraNear,
-            'shadow.camera.top': component.data.cameraTop,
-            'shadow.camera.bottom': component.data.cameraBottom,
-            'shadow.camera.left': component.data.cameraLeft,
-            'shadow.camera.right': component.data.cameraRight
-          })
+        addObject3DComponent(entity, DirectionalLight, {
+          'shadow.mapSize': new Vector2(component.data.shadowMapResolution[0], component.data.shadowMapResolution[1]),
+          'shadow.bias': component.data.shadowBias,
+          'shadow.radius': component.data.shadowRadius,
+          intensity: component.data.intensity,
+          color: component.data.color,
+          castShadow: component.data.castShadow,
+          'shadow.camera.far': component.data.cameraFar,
+          'shadow.camera.near': component.data.cameraNear,
+          'shadow.camera.top': component.data.cameraTop,
+          'shadow.camera.bottom': component.data.cameraBottom,
+          'shadow.camera.left': component.data.cameraLeft,
+          'shadow.camera.right': component.data.cameraRight
+        })
 
         const light = getComponent(entity, Object3DComponent).value as DirectionalLight
 
