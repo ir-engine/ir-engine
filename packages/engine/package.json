@@ -75,7 +75,7 @@
     "@types/jest": "26.0.24",
     "@types/jest-environment-puppeteer": "4.4.1",
     "@types/puppeteer": "5.4.4",
-    "@types/three": "0.130.0",
+    "@types/three": "0.130.1",
     "esbuild": "0.12.15",
     "eslint": "7.31.0",
     "jest": "27.0.6",
