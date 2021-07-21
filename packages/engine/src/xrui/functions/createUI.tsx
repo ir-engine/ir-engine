@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState as useStateReact } from 'react'
 import { StyleSheetManager } from 'styled-components'
 
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions'
@@ -6,15 +6,19 @@ import { UIRootComponent } from '../components/UIRootComponent'
 import { UIComponent } from '../components/UIComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 
+import { createState, State } from '@hookstate/core'
+import { Entity } from '../../ecs/classes/Entity'
+import { Engine } from '../../ecs/classes/Engine'
+
 let depsLoaded: Promise<[typeof import('ethereal'), typeof import('react-dom')]>
 
-export async function createUI(UI: React.FC) {
+async function createUIRootLayer<S extends unknown>(UIFunc: React.FC<{ state: S }>, state: S) {
   const [Ethereal, ReactDOM] = await (depsLoaded = depsLoaded || Promise.all([import('ethereal'), import('react-dom')]))
 
-  const ui = <UI />
+  const ui = <UIFunc state={state} />
 
   const GenerateStyles = (props) => {
-    const [styles, setStyles] = useState('')
+    const [styles, setStyles] = useStateReact('')
     useEffect(() => {
       if (!styles) {
         const target = document.createElement('div')
@@ -47,14 +51,28 @@ export async function createUI(UI: React.FC) {
 
   const uiRoot = new Ethereal.WebLayer3D(containerElement, {
     onLayerCreate: (layer) => {
-      layer.element['layer'] = layer
       const layerEntity = createEntity()
       addComponent(layerEntity, UIComponent, { layer })
     }
   })
-  const uiEntity = createEntity()
-  addComponent(uiEntity, Object3DComponent, { value: uiRoot })
-  addComponent(uiEntity, UIRootComponent, { layer: uiRoot })
 
-  return uiEntity
+  return uiRoot
+}
+
+export function createUI<S>(UIFunc: React.FC<{ state: S }>, state: S): XRUI<S> {
+  const entity = createEntity()
+  createUIRootLayer(UIFunc, state).then((uiRoot) => {
+    // Make sure entity still exists, since we are adding these components asynchronously,
+    // and bad things might happen if we add these components after entity has been removed
+    // TODO: revise this pattern after refactor
+    if (Engine.entities.indexOf(entity) === -1) return
+    addComponent(entity, Object3DComponent, { value: uiRoot })
+    addComponent(entity, UIRootComponent, { layer: uiRoot })
+  })
+  return { entity, state }
+}
+
+export interface XRUI<S> {
+  entity: Entity
+  state: S
 }

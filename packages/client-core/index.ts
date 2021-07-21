@@ -692,7 +692,6 @@ export { default as srcWorldComponentsEditorToolbarToolBar } from './src/world/c
 export { default as srcWorldComponentsEditorToolbarToolButton } from './src/world/components/editor/toolbar/ToolButton';
 export { default as srcWorldComponentsEditorViewportViewportPanelContainer } from './src/world/components/editor/viewport/ViewportPanelContainer';
 export { default as srcWorldComponentsInteractableModalModelView } from './src/world/components/InteractableModal/modelView';
-export { default as srcWorldComponentsNamePlateIndex } from './src/world/components/NamePlate/index';
 export { default as srcWorldReducersIndex } from './src/world/reducers/index';
 export { default as srcWorldReducersScenesReducers } from './src/world/reducers/scenes/reducers';
 export { default as srcZoomGestureHandler } from './src/zoom-gesture-handler';

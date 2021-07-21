@@ -2,7 +2,7 @@ import os from 'os'
 import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { Network } from '@xrengine/engine/src/networking//classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import getNearbyUsers from '@xrengine/engine/src/networking/functions/getNearbyUsers'
+import { getNearbyUsers } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
 import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTransportParams'
 import { createWorker } from 'mediasoup'
 import {

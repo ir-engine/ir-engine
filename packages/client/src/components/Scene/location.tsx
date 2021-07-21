@@ -22,7 +22,6 @@ import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/se
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector'
 import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
-import NamePlate from '@xrengine/client-core/src/world/components/NamePlate'
 import { OpenLink } from '@xrengine/client-core/src/world/components/OpenLink'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
@@ -570,7 +569,6 @@ export const EnginePage = (props: Props) => {
   }
 
   const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover)
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation)
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover)
     EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
@@ -641,7 +639,6 @@ export const EnginePage = (props: Props) => {
       <NetworkDebug reinit={reinit} />
       <LoadingScreen objectsToLoad={progressEntity} />
       {harmonyOpen !== true && <MediaIconsBox />}
-      {userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
       {/* {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />} */}
       <InteractableModal
         onClose={() => {
