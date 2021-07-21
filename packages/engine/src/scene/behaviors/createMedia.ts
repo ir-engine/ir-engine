@@ -1,5 +1,4 @@
-import { MathUtils, Object3D, Audio} from 'three'
-
+import { MathUtils, Object3D, Audio } from 'three'
 
 import { addObject3DComponent } from './addObject3DComponent'
 import { Engine } from '../../ecs/classes/Engine'

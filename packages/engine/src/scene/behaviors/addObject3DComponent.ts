@@ -67,7 +67,6 @@ interface ObjArgs extends VideoProps {
   skyBoxShaderProps?: SkyBoxShaderProps
 }
 
-
 /**
  * Add Object3D Component with args into Entity from the Behavior.
  */
@@ -77,7 +76,6 @@ export const addObject3DComponent = <T extends Object3D>(
   objArgs?: any,
   parentEntity?: Entity
 ) => {
-
   const isObject3d = typeof obj3D === 'object'
   let object3d
 
