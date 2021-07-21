@@ -120,8 +120,8 @@ export const updateBall: Behavior = (
  * @author Josh Field <github.com/HexaField>
  */
 
-const golfBallRadius = 0.03 // this is the graphical size of the golf ball
-const golfBallColliderExpansion = 0.03 // this is the size of the ball collider
+const golfBallRadius = 0.03
+const golfBallColliderExpansion = 0.01
 
 function assetLoadCallback(group: Group, ballEntity: Entity) {
   const ownerNetworkId = getComponent(ballEntity, NetworkObjectOwner).networkId
