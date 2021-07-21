@@ -245,7 +245,7 @@ export const initializeGolfClub = (entityClub: Entity) => {
       origin: new Vector3(),
       direction: new Vector3(0, -1, 0),
       maxDistance: clubLength,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
     })
   )
 
