@@ -3,6 +3,67 @@ import { DEFAULT_FEATURE_STYLES } from './styles'
 import { vectors } from './vectors'
 import turf_buffer from '@turf/buffer'
 
+// Generate a building canvas with the given width and height and return it
+function generateBuildingCanvas(width, height) {
+  // Build a small canvas we're going to use to create our window elements
+  var smallCanvas = globalThis.document.createElement('canvas')
+
+  smallCanvas.width = width
+  smallCanvas.height = height
+
+  // Get a two-dimensional rendering context for our canvas
+  var context = smallCanvas.getContext('2d')
+
+  // Set the fill style to the same color as our building material
+  context.fillStyle = '#e8e8e8'
+
+  // Draw a filled rectangle whose starting point is (0, 0) and whose size is specified by
+  // the width and height variables.
+  context.fillRect(0, 0, width, height)
+
+  // Set the building window dimensions
+  const windowWidth = 1
+  const windowHeight = 2
+  const windowSpacingX = 0
+  const windowSpacingY = 2
+
+  // Draw the building windows
+  for (var y = windowSpacingY / 2; y < height - windowSpacingY / 2; y += windowSpacingY + windowHeight) {
+    for (var x = windowSpacingX / 2; x < width - windowSpacingX / 2; x += windowSpacingX + windowWidth) {
+      // Here, we add slight color variations to vary the look of each window
+      var colorValue = Math.floor(Math.random() * 64)
+      context.fillStyle = 'rgb(' + [colorValue, colorValue, colorValue].join(',') + ')'
+
+      // Draw the window / rectangle at the given (x, y) position using our defined window dimensions
+      context.fillRect(x, y, windowWidth, windowHeight)
+    }
+  }
+
+  // Create a large canvas and copy the small one onto it. We do this to increase our original canvas
+  // resolution:
+
+  var largeCanvas = globalThis.document.createElement('canvas')
+
+  largeCanvas.width = 256
+  largeCanvas.height = 512
+
+  context = largeCanvas.getContext('2d')
+
+  // Disable the smoothing in order to avoid blurring our original one
+  context.imageSmoothingEnabled = false
+  ;(context as any).webkitImageSmoothingEnabled = false
+  ;(context as any).mozImageSmoothingEnabled = false
+
+  // Copy the smaller canvas onto the larger one
+  context.drawImage(smallCanvas, 0, 0, largeCanvas.width, largeCanvas.height)
+
+  return largeCanvas
+}
+
+const sideBuildingCanvasShort = generateBuildingCanvas(8, 16)
+const sideBuildingCanvasTall = generateBuildingCanvas(8, 32)
+const sideBuildingCanvasSkyScraper = generateBuildingCanvas(8, 64)
+
 const extend = function (defaults: Object, o1: Object, o2?: Object, o3?: Object) {
   var extended = {}
   var prop
@@ -58,11 +119,32 @@ var _get_material_cached = (color, opacity) => {
   return _mtl_cache[key]
 }
 
+// We use a regular non-textured lambert mesh for our top / bottom faces
+var topBottomMaterial = new THREE.MeshLambertMaterial({
+  color: 0xe8e8e8
+})
+
+const lineMaterial = new THREE.LineBasicMaterial({
+  // Color of lines
+  color: 'rgb(0,0,0)',
+  transparent: true,
+  linewidth: 2,
+  opacity: 1
+})
+// Prevent z-flighting
+lineMaterial.polygonOffset = true
+lineMaterial.depthTest = true
+lineMaterial.polygonOffsetFactor = 1
+lineMaterial.polygonOffsetUnits = 1.0
+
 interface IOpts {
   lat?: number
   lng?: number
   layers?: string[]
   marker?: THREE.Object3D
+
+  /** draw superimposed lines along the edges of all meshes */
+  enableEdgeLines?: boolean
 }
 
 export class MapboxTileLoader {
@@ -193,8 +275,9 @@ export class MapboxTileLoader {
   /**
    * Takes a 2d geojson, converts it to a THREE.Geometry, and extrudes it to a height
    * suitable for 3d viewing, such as for buildings.
+   *
    */
-  extrude_feature_shape(feature, styles) {
+  extrude_feature_shape(feature, styles): THREE.ExtrudeGeometry {
     var shape = new THREE.Shape()
 
     // Buffer the linestrings so they have some thickness (uses turf.js)
@@ -324,26 +407,52 @@ export class MapboxTileLoader {
     this.names[feature.properties.name]++
     this.kind_details[feature.properties.subclass]++
 
-    var geometry = this.extrude_feature_shape(feature, styles)
+    const geometry = this.extrude_feature_shape(feature, styles)
     if (!geometry) {
       console.warn('no geomtry for feature')
       return
     }
 
-    var opacity = (styles as any).opacity || 1
-    let material = _get_material_cached((styles as any).color, opacity)
+    const sideBuildingMaterial = new THREE.MeshLambertMaterial({
+      color: '#e8e8e8'
+    })
+    geometry.computeBoundingBox()
+    const bbox = geometry.boundingBox
+    const height = bbox.max.y - bbox.min.y
 
-    // TODO, a better z-fighting avoidance method.
-    /*
-    material.polygonOffset = true;
-    material.polygonOffsetFactor = (feature.properties.sort_rank || 100);
-    material.polygonOffsetUnits = .1;
-    material.depthTest = true;*/
+    const MIN_HEIGHT_SKYSCRAPER = 120
+    const MIN_HEIGHT_TALL_BUILDING = 30
+    const MIN_HEIGHT_SMALL_BUILDING = 10
+    if (height > MIN_HEIGHT_SMALL_BUILDING) {
+      const texture = new THREE.CanvasTexture(
+        height > MIN_HEIGHT_SKYSCRAPER
+          ? sideBuildingCanvasSkyScraper
+          : height > MIN_HEIGHT_TALL_BUILDING
+          ? sideBuildingCanvasTall
+          : sideBuildingCanvasShort
+      )
+      // Offset windows from the ground a bit for skyscrapers
+      texture.offset.set(1, height > MIN_HEIGHT_SKYSCRAPER ? 1 + 10 / height : 1 + 1 / height)
 
-    var mesh = new THREE.Mesh(geometry, material)
+      // Set repeat so that texture is scaled proportionally to height
+      const repeat = height > MIN_HEIGHT_SKYSCRAPER ? 1.1 / height : 1.2 / height
+      texture.repeat.set(repeat, repeat)
 
-    // TODO, a better z-fighting avoidance method.
-    mesh.position.y = (styles as any).offy || 0
+      // Repeat horizontally but not vertically
+      texture.wrapS = THREE.RepeatWrapping
+
+      // Necessary when using a canvas texture
+      texture.needsUpdate = true
+
+      sideBuildingMaterial.map = texture
+    }
+    var mesh = new THREE.Mesh(geometry, [topBottomMaterial, sideBuildingMaterial])
+
+    if (this.opts.enableEdgeLines) {
+      const edges = new THREE.EdgesGeometry(mesh.geometry, 30)
+      const lineSegments = new THREE.LineSegments(edges, lineMaterial)
+      this.scene.add(lineSegments)
+    }
 
     this.scene.add(mesh)
     this.feature_meshes.push(mesh)
