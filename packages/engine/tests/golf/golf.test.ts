@@ -7,7 +7,7 @@ import { GolfBotHooks } from '../../src/bot/enums/GolfBotHooks'
 import { eulerToQuaternion } from '../utils/MathTestUtils'
 
 const maxTimeout = 60 * 1000
-const headless = true
+const headless = false
 const bot = new XREngineBot({ name: 'bot-1', headless, autoLog: false })
 
 const domain = process.env.APP_HOST
@@ -63,6 +63,8 @@ describe('Golf tests', () => {
       position: [0, 2, 1],
       rotation: eulerToQuaternion(-1.25, 0, 0).toArray()
     })
+
+    await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)
   
     // ball should be at spawn position
     expect(
