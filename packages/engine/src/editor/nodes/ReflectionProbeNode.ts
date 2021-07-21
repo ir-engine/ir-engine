@@ -110,14 +110,11 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
   }
 
   injectShader() {
-    const position = this.reflectionProbeSettings.probePosition.clone()
-    position.add(this.reflectionProbeSettings.probePositionOffset)
-    const scale = this.reflectionProbeSettings.probeScale
     this.editor.scene.traverse((child) => {
       if (child.material) {
-        child.material.onBeforeCompile = function (shader) {
-          shader.uniforms.cubeMapSize = { value: scale }
-          shader.uniforms.cubeMapPos = { value: position }
+        child.material.onBeforeCompile = (shader) => {
+          shader.uniforms.cubeMapSize = { value: this.reflectionProbeSettings.probeScale }
+          shader.uniforms.cubeMapPos = { value: this.reflectionProbeSettings.probePositionOffset }
           shader.vertexShader = 'varying vec3 vBPCEMWorldPosition;\n' + shader.vertexShader
           shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
           shader.fragmentShader = shader.fragmentShader.replace(
