@@ -203,7 +203,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
 
   set envMapSourceType(type) {
     this._envMapSourceType = type
-    this.setUpEnvironmentMap(type)
+    this.setUpEnvironmentMap()
   }
 
   get envMapSourceURL() {
@@ -298,7 +298,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       case EnvMapSourceType.Default:
       default:
         if (!this.environmentNode) break
-        envMapProps.type = EnvMapSourceType.ReflectionProbe
         envMapProps.envMapReflectionProbe = this.environmentNode.reflectionProbeSettings
         if (this.environmentNode.reflectionProbeSettings.reflectionType === ReflectionProbeTypes.Baked) {
           await this.environmentNode.uploadBakeToServer(projectId)
@@ -309,9 +308,9 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     return envMapProps
   }
 
-  setUpEnvironmentMap(type: EnvMapSourceType) {
+  setUpEnvironmentMap() {
     if (this.environment?.dispose) this.environment.dispose()
-    switch (type) {
+    switch (this._envMapSourceType) {
       case EnvMapSourceType.Default:
         this.environmentNode?.setEnvMap()
         break

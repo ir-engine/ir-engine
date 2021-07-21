@@ -3,9 +3,7 @@ import { ReflectionProbeSettings } from '../../editor/nodes/ReflectionProbeNode'
 export const enum EnvMapSourceType {
   'Default',
   'Texture',
-  'Color',
-  'Skybox',
-  'ReflectionProbe'
+  'Color'
 }
 
 export const enum EnvMapTextureType {

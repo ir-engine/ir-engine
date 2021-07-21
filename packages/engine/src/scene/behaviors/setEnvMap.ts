@@ -91,8 +91,9 @@ export const setEnvMap: Behavior = (entity, args: EnvMapProps) => {
 
       break
 
-    case EnvMapSourceType.ReflectionProbe:
+    case EnvMapSourceType.Default:
       const options = args.envMapReflectionProbe
+      if (!options) return
       SceneObjectSystem.instance.bpcemOptions.probeScale = options.probeScale
       SceneObjectSystem.instance.bpcemOptions.probePositionOffset = options.probePositionOffset
 
