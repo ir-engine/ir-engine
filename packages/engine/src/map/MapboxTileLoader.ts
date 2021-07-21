@@ -67,32 +67,6 @@ const sideBuildingCanvasShort = generateBuildingCanvas(8, 16)
 const sideBuildingCanvasTall = generateBuildingCanvas(8, 32)
 const sideBuildingCanvasSkyScraper = generateBuildingCanvas(8, 64)
 
-const extend = function (defaults: Object, o1: Object, o2?: Object, o3?: Object) {
-  var extended = {}
-  var prop
-  for (prop in defaults) {
-    if (Object.prototype.hasOwnProperty.call(defaults, prop)) {
-      extended[prop] = defaults[prop]
-    }
-  }
-  for (prop in o1) {
-    if (Object.prototype.hasOwnProperty.call(o1, prop)) {
-      extended[prop] = o1[prop]
-    }
-  }
-  for (prop in o2 || {}) {
-    if (Object.prototype.hasOwnProperty.call(o2, prop)) {
-      extended[prop] = o2[prop]
-    }
-  }
-  for (prop in o3 || {}) {
-    if (Object.prototype.hasOwnProperty.call(o3, prop)) {
-      extended[prop] = o3[prop]
-    }
-  }
-  return extended
-}
-
 const METERS_PER_DEGREE_LL = 111139
 
 var long2tile = function (lon, zoom) {
@@ -106,21 +80,6 @@ var lat2tile = function (lat, zoom) {
   )
 }
 var TILE_ZOOM = 16
-
-// cache materials for perf.
-var _mtl_cache = {}
-var _get_material_cached = (color, opacity) => {
-  var key = color + '|' + opacity
-  if (!_mtl_cache[key]) {
-    _mtl_cache[key] = new THREE.MeshLambertMaterial({
-      color: color || 0xffffff,
-      opacity: opacity,
-      transparent: opacity < 1
-      // shading: THREE.SmoothShading
-    })
-  }
-  return _mtl_cache[key]
-}
 
 // We use a regular non-textured lambert mesh for our top / bottom faces
 var topBottomMaterial = new THREE.MeshLambertMaterial({
@@ -144,7 +103,6 @@ interface IOpts {
   lat?: number
   lng?: number
   layers?: string[]
-  marker?: THREE.Object3D
 
   /** draw superimposed lines along the edges of all meshes */
   enableEdgeLines?: boolean
@@ -153,7 +111,6 @@ interface IOpts {
 export class MapboxTileLoader {
   private scene: THREE.Scene
   private opts: IOpts
-  private marker?: THREE.Object3D
   private names: Object
   private kinds: Object
   private kind_details: Object
@@ -187,7 +144,6 @@ export class MapboxTileLoader {
     this.kind_details = {}
 
     this.center = {}
-    this.marker = opts.marker
 
     if (opts.lat) {
       this.center.lat = opts.lat
@@ -202,21 +158,6 @@ export class MapboxTileLoader {
     this.meshes_by_layer = {}
 
     this.init_feature_styles({})
-
-    //setInterval(
-    //  function () {
-    //    if (!this.center.lat) return
-
-    //    // keep latitude and longitude up to date for tile loading.
-    //    if (this.marker) {
-    //      this.center.lng = this.center.start_lng + this.marker.position.x / this.scale
-    //      this.center.lat = this.center.start_lat - this.marker.position.z / this.scale
-    //    }
-
-    //    //load_tiles(this.center.lat, this.center.lng);
-    //  }.bind(this),
-    //  1000
-    //)
 
     this.center.start_lng = this.center.lng
     this.center.start_lat = this.center.lat
@@ -359,22 +300,11 @@ export class MapboxTileLoader {
     return geometry
   }
 
-  /**
-   * Add a geojson tile to the scene.
-   */
-  add_geojson(data, layername) {
-    const geojson = data[layername]
-    geojson.features.forEach((feature) => {
-      this.add_feature(feature, layername)
-    })
-  }
-
   add_vt(tile, layername, x, y, z) {
     const vector_layer = tile.layers[layername]
 
     if (!vector_layer) return
 
-    var scope = this
     for (var i = 0; i < vector_layer.length; i++) {
       var feature = vector_layer.feature(i).toGeoJSON(x, y, z)
       this.add_feature(feature, layername)
@@ -400,7 +330,7 @@ export class MapboxTileLoader {
     var name_styles = feature_styles[feature.properties.name] || {}
 
     // Many features have a 'kind' property scope can be used for styling.
-    var styles = extend(layer_styles, kind_styles, kind_detail_styles, name_styles)
+    var styles = {...layer_styles, ...kind_styles, ...kind_detail_styles, ...name_styles}
 
     // tally feature "kind" (descriptive tags). used for debugging/enumerating available features and building stylesheets.
     this.kinds[feature.properties.class] = this.kinds[feature.properties.class] || 1
@@ -471,58 +401,8 @@ export class MapboxTileLoader {
   }
 
   init_feature_styles(styles) {
-    // map feature styles.
-
     for (var k in DEFAULT_FEATURE_STYLES) {
       this.feature_styles[k] = DEFAULT_FEATURE_STYLES[k]
     }
-
-    for (var k in styles) {
-      this.feature_styles[k] = extend(this.feature_styles[k] || {}, styles[k])
-    }
-
-    for (var kind in this.feature_styles) {
-      if (this.feature_styles[kind].fragment_shader || this.feature_styles[kind].vertex_shader) {
-        this.feature_styles[kind].shader_material = this.setup_shader(this.feature_styles[kind])
-      }
-    }
-  }
-
-  /**
-   * create a shader material from shader programs/snippets.
-   * @param fs_part just modifies vec3 color and float opacity.
-   * @param vs_part just modifies mvPosition.
-   */
-
-  setup_shader(opts) {
-    var shader_uniforms = {
-      time: { value: 1.0 },
-      resolution: { value: new THREE.Vector2() }
-    }
-    return new THREE.ShaderMaterial({
-      transparent: true,
-      uniforms: shader_uniforms,
-      vertexShader:
-        opts.vertex_shader ||
-        'uniform float time;\n' +
-          'varying vec3 worldPos;\n' +
-          'void main()\n' +
-          '{\n' +
-          '  vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );\n' +
-          '  worldPos = position;\n' +
-          opts.vs_part ||
-        '' + '  gl_Position = projectionMatrix * mvPosition;\n' + '}\n',
-      fragmentShader:
-        opts.fragment_shader ||
-        'uniform vec2 resolution;\n' +
-          'uniform float time;\n' +
-          'varying vec3 worldPos;\n' +
-          'void main(void)\n' +
-          '{\n' +
-          '  float opacity = 1.0;\n' +
-          '  vec3 color = vec3(1.0,1.0,1.0);' +
-          opts.fs_part ||
-        '' + '  gl_FragColor=vec4(color,opacity);\n' + '}\n'
-    })
   }
 }
