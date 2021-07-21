@@ -31,12 +31,7 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
     this.cameraHelper.visible = false
     this.add(this.cameraHelper)
 
-    this.cameraFar = 2000
-    this.cameraNear = 0.1
-    this.cameraTop = 5
-    this.cameraBottom = -5
-    this.cameraLeft = -5
-    this.cameraRight = 5
+    this.cameraFar = 100
   }
   onAdd() {
     this.helper.update()

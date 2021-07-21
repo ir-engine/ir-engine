@@ -141,7 +141,7 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   ballMesh.receiveShadow = true
   addComponent(ballEntity, Object3DComponent, { value: ballMesh })
   // after because break trail
-  applyHideOrVisibleState(ballEntity);
+  applyHideOrVisibleState(ballEntity)
 
   // Add trail effect
 
@@ -157,7 +157,6 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   Engine.scene.add(trailObject)
   ballMesh.userData.trailObject = trailObject
   ballMesh.userData.lastTrailUpdateTime = Date.now()
-  
 }
 
 export const initializeGolfBall = (ballEntity: Entity) => {
@@ -303,5 +302,3 @@ export const GolfBallPrefab: NetworkPrefab = {
   onAfterCreate: [],
   onBeforeDestroy: []
 }
-
-

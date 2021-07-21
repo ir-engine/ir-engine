@@ -202,8 +202,8 @@ export class ActionSystem extends System {
           Network.instance.clientInputState.viewVector.y = actor.viewVector.y
           Network.instance.clientInputState.viewVector.z = actor.viewVector.z
         }
-        // Do not remenber why its needed 
-/*
+        // Do not remenber why its needed
+        /*
         if (Network.instance.clientGameAction.length > 0) {
           console.log(Network.instance.clientGameAction)
           Network.instance.clientGameAction = []
