@@ -22,7 +22,6 @@ import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/se
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector'
 import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
-import NamePlate from '@xrengine/client-core/src/world/components/NamePlate'
 import { OpenLink } from '@xrengine/client-core/src/world/components/OpenLink'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
@@ -202,9 +201,6 @@ export const EnginePage = (props: Props) => {
   const [openLinkData, setOpenLinkData] = useState(null)
 
   const [progressEntity, setProgressEntity] = useState(99)
-  const [userHovered, setonUserHover] = useState(false)
-  const [userId, setonUserId] = useState(null)
-  const [position, setonUserPosition] = useState(null)
   const [objectActivated, setObjectActivated] = useState(false)
   const [objectHovered, setObjectHovered] = useState(false)
 
@@ -548,12 +544,6 @@ export const EnginePage = (props: Props) => {
     setHoveredLabel(displayText)
   }
 
-  const onUserHover = ({ focused, userId, position }): void => {
-    setonUserHover(focused)
-    setonUserId(focused ? userId : null)
-    setonUserPosition(focused ? position : null)
-  }
-
   const portToLocation = async ({ portalComponent }: { portalComponent: PortalProps }) => {
     // console.log('portToLocation', slugifiedName, portalComponent);
 
@@ -613,7 +603,6 @@ export const EnginePage = (props: Props) => {
   }
 
   const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover)
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation)
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover)
     EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
@@ -684,7 +673,6 @@ export const EnginePage = (props: Props) => {
       </Snackbar>
       <LoadingScreen objectsToLoad={progressEntity} />
       <MediaIconsBox />
-      {userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
       <OpenLink
         onClose={() => {
           setOpenLinkData(null)

@@ -22,7 +22,6 @@ import { RigidBodyComponent } from '../../physics/components/RigidBody'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { CharacterComponent } from '../../character/components/CharacterComponent'
-import { NamePlateComponent } from '../../character/components/NamePlateComponent'
 import { VehicleComponent } from '../../vehicle/components/VehicleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBox } from '../components/BoundingBox'
@@ -251,7 +250,6 @@ const interactBoxRaycast: Behavior = (
 
 export class InteractiveSystem extends System {
   static EVENTS = {
-    USER_HOVER: 'INTERACTIVE_SYSTEM_USER_HOVER',
     OBJECT_HOVER: 'INTERACTIVE_SYSTEM_OBJECT_HOVER',
     OBJECT_ACTIVATION: 'INTERACTIVE_SYSTEM_OBJECT_ACTIVATION'
   }
@@ -285,7 +283,6 @@ export class InteractiveSystem extends System {
     super.dispose()
     this.reset()
 
-    EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.USER_HOVER)
     EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.OBJECT_ACTIVATION)
     EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.OBJECT_HOVER)
   }
@@ -293,75 +290,6 @@ export class InteractiveSystem extends System {
   execute(delta: number, time: number): void {
     this.newFocused.clear()
     if (isClient) {
-      const canvas = Engine.renderer.domElement
-      const width = canvas.width
-      const height = canvas.height
-
-      this.queryResults.local_user?.all.forEach((entity) => {
-        const camera = Engine.camera
-
-        const localTransform = getComponent(entity, TransformComponent)
-        const localCharacter = getComponent(entity, CharacterComponent)
-
-        const closestHoveredUser = this.queryResults.network_user.all
-          ?.filter((entity) => {
-            const transform = getComponent(entity, TransformComponent)
-            const dir = transform.position.clone().sub(localTransform.position).normalize()
-            return localCharacter.viewVector.dot(dir) > 0.7
-          })
-          ?.reduce((closestEntity, currentEntity) => {
-            if (!closestEntity) {
-              return currentEntity
-            }
-            const closestTransform = getComponent(closestEntity, TransformComponent)
-            const currentTransform = getComponent(currentEntity, TransformComponent)
-
-            if (
-              currentTransform.position.distanceTo(localTransform.position) <
-              closestTransform.position.distanceTo(localTransform.position)
-            ) {
-              return currentEntity
-            } else {
-              return closestEntity
-            }
-          }, null)
-
-        if (!closestHoveredUser) {
-          if (this.previousEntity) {
-            EngineEvents.instance.dispatchEvent({ type: InteractiveSystem.EVENTS.USER_HOVER, focused: false })
-
-            this.previousEntity = null
-            this.previousEntity2DPosition = null
-          }
-          return
-        }
-
-        const networkUserID = getComponent(closestHoveredUser, NetworkObject)?.ownerId
-        const closestPosition = getComponent(closestHoveredUser, TransformComponent).position.clone()
-        closestPosition.y = 2
-        const point2DPosition = vectorToScreenXYZ(closestPosition, camera, width, height)
-
-        const nameplateData = {
-          userId: networkUserID,
-          position: {
-            x: point2DPosition.x,
-            y: point2DPosition.y,
-            z: point2DPosition.z
-          },
-          focused: true
-        }
-
-        if (!this.previousEntity2DPosition || !point2DPosition.equals(this.previousEntity2DPosition)) {
-          if (closestHoveredUser !== this.previousEntity) {
-            this.previousEntity = closestHoveredUser
-            this.previousEntity2DPosition = point2DPosition
-          } else if (localTransform.position.distanceTo(closestPosition) >= 5) {
-            nameplateData.focused = false
-          }
-          EngineEvents.instance.dispatchEvent({ type: InteractiveSystem.EVENTS.USER_HOVER, ...nameplateData })
-        }
-      })
-
       this.queryResults.interactors?.all.forEach((entity) => {
         if (this.queryResults.interactive?.all.length) {
           //interactRaycast(entity, { interactive: this.queryResults.interactive.all });
@@ -535,7 +463,7 @@ export class InteractiveSystem extends System {
       }
     },
     network_user: {
-      components: [Not(LocalInputReceiver), NamePlateComponent, CharacterComponent, TransformComponent],
+      components: [Not(LocalInputReceiver), CharacterComponent, TransformComponent],
       listen: {
         added: true,
         removed: true

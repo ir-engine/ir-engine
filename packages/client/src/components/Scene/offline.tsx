@@ -400,7 +400,6 @@ export const EnginePage = (props: Props) => {
   }
 
   const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover)
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation)
     EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover)
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async () => {

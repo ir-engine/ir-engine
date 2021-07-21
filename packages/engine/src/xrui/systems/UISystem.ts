@@ -4,7 +4,7 @@ import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { UIRootComponent } from '../components/UIRootComponent'
 
 export class UISystem extends System {
-  updateType = SystemUpdateType.Free
+  updateType = SystemUpdateType.Fixed
 
   execute(): void {
     const interactionRays = []

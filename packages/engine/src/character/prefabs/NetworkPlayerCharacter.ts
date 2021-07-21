@@ -22,7 +22,6 @@ import { CharacterInputSchema } from '../CharacterInputSchema'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { CharacterComponent } from '../components/CharacterComponent'
 import { ControllerColliderComponent } from '../components/ControllerColliderComponent'
-import { NamePlateComponent } from '../components/NamePlateComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import type { NetworkObject } from '../../networking/components/NetworkObject'
 
@@ -148,7 +147,6 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     { type: TransformComponent },
     // Local player input mapped to behaviors in the input map
     { type: Input, data: { schema: CharacterInputSchema } },
-    { type: NamePlateComponent },
     { type: PositionalAudioComponent }
   ],
   // These are only created for the local player who owns this prefab

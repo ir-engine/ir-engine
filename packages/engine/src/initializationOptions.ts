@@ -65,6 +65,10 @@ export const DefaultInitializationOptions: InitializeOptions = {
   gameModes: {
     [DefaultGameMode.name]: DefaultGameMode
   },
+  xrui: {
+    showUsernames: true,
+    showVideo: true
+  },
   physics: {
     simulationEnabled: true // start the engine with the physics simulation running
   },

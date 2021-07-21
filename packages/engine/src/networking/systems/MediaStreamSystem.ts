@@ -4,7 +4,7 @@ import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { localMediaConstraints } from '../constants/VideoConstants'
 import { Network } from '../classes/Network'
 import { isClient } from '../../common/functions/isClient'
-import getNearbyUsers from '../functions/getNearbyUsers'
+import { getNearbyUsers, NearbyUser } from '../functions/getNearbyUsers'
 import LivestreamProxyComponent from '../../scene/components/LivestreamProxyComponent'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { startLivestreamOnServer } from '../functions/startLivestreamOnServer'
@@ -56,7 +56,7 @@ export class MediaStreamSystem extends System {
 
   private nearbyAvatarTick = 0
 
-  public nearbyLayerUsers = []
+  public nearbyLayerUsers = [] as NearbyUser[]
 
   updateType = SystemUpdateType.Fixed
 
