@@ -2,9 +2,11 @@ import * as THREE from 'three'
 import { DEFAULT_FEATURE_STYLES } from './styles'
 import { vectors } from './vectors'
 import turf_buffer from '@turf/buffer'
+import { isClient } from '../common/functions/isClient'
 
 // Generate a building canvas with the given width and height and return it
 function generateBuildingCanvas(width, height) {
+  if (!isClient) return
   // Build a small canvas we're going to use to create our window elements
   var smallCanvas = globalThis.document.createElement('canvas')
 

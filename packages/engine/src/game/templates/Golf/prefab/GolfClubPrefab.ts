@@ -140,7 +140,7 @@ export const updateClub: Behavior = (
   quat2.setFromUnitVectors(vector0.set(0, 0, -1), vector1.set(0, 0, -1).applyQuaternion(rotation).setY(0).normalize())
 
   const hit = golfClubComponent.raycast.hits[0]
-  const headDistance = XRUserSettings.staticLengthGolfClub ? clubLength : hit ? hit.distance : clubLength
+  const headDistance = XRUserSettings.staticLengthGolfClub || !hit?.distance ? clubLength : hit.distance
 
   if (hasComponent(ownerEntity, YourTurn)) {
     enableClub(entityClub, true)
