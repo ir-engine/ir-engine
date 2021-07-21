@@ -65,6 +65,7 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
       this.remove(this.target)
       for (let i = 0; i < source.children.length; i++) {
         const child = source.children[i]
+        if (child.type === 'CameraHelper') continue
         if (child === source.helper) {
           this.helper = new EditorDirectionalLightHelper(this)
           this.add(this.helper)
@@ -82,8 +83,8 @@ export default class DirectionalLightNode extends EditorNodeMixin(PhysicalDirect
     }
     return this
   }
-  serialize() {
-    return super.serialize({
+  async serialize(projectID) {
+    return await super.serialize(projectID, {
       'directional-light': {
         color: this.color,
         intensity: this.intensity,
