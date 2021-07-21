@@ -39,6 +39,7 @@ import { initBallRaycast } from './behaviors/initBallRaycast'
 import { ifFirstHit, ifOutCourse } from '../gameDefault/checkers/ifOutCourse'
 import { registerGolfBotHooks } from './functions/registerGolfBotHooks'
 import { XRInputSourceComponent } from '../../../character/components/XRInputSourceComponent'
+import { hideBall, unhideBall } from './behaviors/hideUnhideBall'
 /**
  *
  * @author Josh Field <github.com/hexafield>
@@ -132,6 +133,21 @@ export class GolfSystem extends System {
             }
           }
         }
+        // after hit do player waiting for ball stop to change turn.
+        if (hasComponent(clubEntity, State.addedHit)) {
+          behaviorsToExecute.push(() => {
+            removeStateComponent(entity, State.YourTurn)
+            addStateComponent(entity, State.Waiting)
+          })
+        }
+
+        // do ball Active on next Turn
+        if (hasComponent(ballEntity, State.BallStopped) && hasComponent(ballEntity, State.Inactive)) {
+          behaviorsToExecute.push(() => {
+            removeStateComponent(ballEntity, State.Inactive)
+            addStateComponent(ballEntity, State.Active)
+          })
+        }
       }
 
       // If the ball and the hole have collided, add the goal state
@@ -188,24 +204,9 @@ export class GolfSystem extends System {
 
           if (hasComponent(ballEntity, State.Inactive) && hasComponent(ballEntity, State.BallStopped)) {
             behaviorsToExecute.push(() => {
+              removeComponent(ballEntity, Action.GameObjectCollisionTag)
+              removeComponent(clubEntity, Action.GameObjectCollisionTag)
               nextTurn(entity)
-            })
-          }
-        }
-
-        // do ball Active on next Turn
-        if (isYourTurn) {
-          if (hasComponent(clubEntity, State.addedHit)) {
-            behaviorsToExecute.push(() => {
-              removeStateComponent(entity, State.YourTurn)
-              addStateComponent(entity, State.Waiting)
-            })
-          }
-
-          if (hasComponent(ballEntity, State.BallStopped) && hasComponent(ballEntity, State.Inactive)) {
-            behaviorsToExecute.push(() => {
-              removeStateComponent(ballEntity, State.Inactive)
-              addStateComponent(ballEntity, State.Active)
             })
           }
         }
@@ -215,11 +216,13 @@ export class GolfSystem extends System {
     this.queryResults.golfBall.all.forEach((entity) => {
       if (!hasComponent(entity, State.SpawnedObject)) return
       const ownerEntity =
-        Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity
+        Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId]?.component.entity
+      if (ownerEntity === undefined) return
 
       behaviorsToExecute.push(() => {
         updateBall(entity, {}, delta)
       })
+
       if (ifGetOut(entity, { area: 'GameArea' })) {
         behaviorsToExecute.push(() => {
           teleportObject(
@@ -236,6 +239,23 @@ export class GolfSystem extends System {
           )
         }
       }
+
+      // Hide Ball on not YourTurn
+      if (hasComponent(ownerEntity, State.YourTurn) && hasComponent(entity, State.BallHidden)) {
+        behaviorsToExecute.push(() => {
+          removeStateComponent(entity, State.BallHidden)
+          addStateComponent(entity, State.BallVisible)
+        })
+      }
+
+      if (hasComponent(ownerEntity, State.WaitTurn) && hasComponent(entity, State.BallVisible)) {
+        behaviorsToExecute.push(() => {
+          removeStateComponent(entity, State.BallVisible)
+          addStateComponent(entity, State.BallHidden)
+        })
+      }
+
+      // Part about moving ball
       if (ifVelocity(entity, { more: 0.01 })) {
         if (hasComponent(entity, State.Ready)) {
           behaviorsToExecute.push(() => {
@@ -274,7 +294,8 @@ export class GolfSystem extends System {
     this.queryResults.golfClub.all.forEach((entity) => {
       if (!hasComponent(entity, State.SpawnedObject)) return
       const ownerEntity =
-        Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity
+        Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId]?.component.entity
+      if (ownerEntity === undefined) return
 
       behaviorsToExecute.push(() => {
         updateClub(entity)
@@ -318,8 +339,9 @@ export class GolfSystem extends System {
       setupOfflineDebug(entity)
 
       // set up game logic
-      addStateComponent(entity, State.WaitTurn)
       addRole(entity)
+      addStateComponent(entity, State.WaitTurn)
+
       setStorage(entity, { name: 'GameScore' }, { score: { hits: 0, goal: 0 } })
       if (getComponent(entity, GamePlayer).role === '1-Player') {
         addTurn(entity)
@@ -353,6 +375,7 @@ export class GolfSystem extends System {
       addStateComponent(entity, State.NotReady)
       addStateComponent(entity, State.Active)
       addStateComponent(entity, State.BallMoving)
+      addStateComponent(entity, State.BallHidden)
     })
 
     this.queryResults.golfHole.added.forEach((entity) => {
@@ -366,6 +389,18 @@ export class GolfSystem extends System {
 
       this.queryResults.playerVR.removed.forEach((entity) => {
         setupPlayerAvatarNotInVR(entity)
+      })
+
+      this.queryResults.ballHidden.added.forEach((entity) => {
+        if (isClient) {
+          hideBall(entity)
+        }
+      })
+
+      this.queryResults.ballVisible.added.forEach((entity) => {
+        if (isClient) {
+          unhideBall(entity)
+        }
       })
     }
   }
@@ -415,6 +450,20 @@ export class GolfSystem extends System {
     },
     golfTee: {
       components: [GolfTeeComponent],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    ballHidden: {
+      components: [State.BallHidden],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    ballVisible: {
+      components: [State.BallVisible],
       listen: {
         added: true,
         removed: true

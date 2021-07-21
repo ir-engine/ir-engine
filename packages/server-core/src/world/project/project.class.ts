@@ -178,9 +178,10 @@ export class Project implements ServiceMethods<Data> {
         {
           name: data.name,
           metadata: sceneData.metadata,
-          version: sceneData.version
+          version: sceneData.version,
+          thumbnailOwnedFileId: JSON.stringify(data.ownedUploadedFileId)
         },
-        { fields: ['name', 'metadata', 'version'], transaction }
+        { fields: ['name', 'metadata', 'version', 'thumbnailOwnedFileId'], transaction }
       )
 
       // First delete existing collection, entity and components and create new ones
@@ -268,7 +269,6 @@ export class Project implements ServiceMethods<Data> {
         { transaction }
       )
     })
-
     const savedProject = await this.reloadProject(project.id, project)
     return mapProjectDetailData(savedProject.toJSON())
   }

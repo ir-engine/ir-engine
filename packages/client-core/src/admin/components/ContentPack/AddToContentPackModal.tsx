@@ -6,7 +6,7 @@ import { selectAppState } from '../../../common/reducers/app/selector'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { selectContentPackState } from '../../reducers/contentPack/selector'
 // @ts-ignore
-import styles from '../Scenes/Scenes.module.scss'
+import styles from './ContentPack.module.scss'
 import {
   addAvatarToContentPack,
   addSceneToContentPack,
@@ -27,6 +27,7 @@ import Select from '@material-ui/core/Select'
 import TextField from '@material-ui/core/TextField'
 import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 interface Props {
   open: boolean
@@ -73,6 +74,7 @@ const AddToContentPackModal = (props: Props): any => {
     fetchContentPacks
   } = props
 
+  const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
   const [createOrPatch, setCreateOrPatch] = useState('patch')
   const [contentPackName, setContentPackName] = useState('')
@@ -92,33 +94,40 @@ const AddToContentPackModal = (props: Props): any => {
 
   const addCurrentSceneToContentPack = async () => {
     try {
+      setProcessing(true)
       await addSceneToContentPack({
         scene: scene,
         contentPack: contentPackName
       })
+      setProcessing(false)
       window.location.href = '/admin/content-packs'
       closeModal()
     } catch (err) {
+      setProcessing(false)
       showError(err.message)
     }
   }
 
   const addCurrentAvatarToContentPack = async () => {
     try {
+      setProcessing(true)
       await addAvatarToContentPack({
         avatar: avatar,
         thumbnail: thumbnail,
         contentPack: contentPackName
       })
+      setProcessing(false)
       window.location.href = '/admin/content-packs'
       closeModal()
     } catch (err) {
+      setProcessing(false)
       showError(err.message)
     }
   }
 
   const createNewContentPack = async () => {
     try {
+      setProcessing(true)
       if (scene != null)
         await createContentPack({
           scene: scene,
@@ -130,9 +139,11 @@ const AddToContentPackModal = (props: Props): any => {
           thumbnail: thumbnail,
           contentPack: newContentPackName
         })
+      setProcessing(false)
       window.location.href = '/admin/content-packs'
       closeModal()
     } catch (err) {
+      setProcessing(false)
       showError(err.message)
     }
   }
@@ -193,7 +204,7 @@ const AddToContentPackModal = (props: Props): any => {
                 Create New Content Pack
               </ToggleButton>
             </ToggleButtonGroup>
-            {createOrPatch === 'patch' && (
+            {processing === false && createOrPatch === 'patch' && (
               <div>
                 <FormControl>
                   <InputLabel id="contentPackSelect">Content Pack</InputLabel>
@@ -221,7 +232,7 @@ const AddToContentPackModal = (props: Props): any => {
                 </FormControl>
               </div>
             )}
-            {createOrPatch === 'create' && (
+            {processing === false && createOrPatch === 'create' && (
               <div>
                 <FormControl>
                   <TextField
@@ -240,6 +251,12 @@ const AddToContentPackModal = (props: Props): any => {
                     Create Content Pack
                   </Button>
                 </FormControl>
+              </div>
+            )}
+            {processing === true && (
+              <div className={styles.processing}>
+                <CircularProgress color="black" />
+                <div className={styles.text}>Processing</div>
               </div>
             )}
             {error && error.length > 0 && <h2 className={styles['error-message']}>{error}</h2>}

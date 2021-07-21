@@ -58,6 +58,8 @@ import { delay } from '../../ecs/functions/EngineFunctions'
 import { setSkyDirection } from './setSkyDirection'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AnimationManager } from '../../character/AnimationManager'
+import { isMobile } from '../../common/functions/isMobile'
+import { createObject3dFromArgs } from '../behaviors/createObject3dFromArgs'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -67,6 +69,7 @@ type ScenePropertyType = {
   directionalLights: DirectionalLight[]
   isCSMEnabled: boolean
 }
+
 export class WorldScene {
   loadedModels = 0
   loaders: Promise<void>[] = []
@@ -81,11 +84,11 @@ export class WorldScene {
 
     // reset renderer settings for if we are teleporting and the new scene does not have an override
     handleRendererSettings(null, true)
-    configureCSM(null, true)
 
     const sceneProperty: ScenePropertyType = {
-      directionalLights: []
-    } as ScenePropertyType
+      directionalLights: [],
+      isCSMEnabled: true
+    }
 
     Object.keys(scene.entities).forEach((key) => {
       const sceneEntity = scene.entities[key]
@@ -103,9 +106,7 @@ export class WorldScene {
         WorldScene.isLoading = false
         Engine.sceneLoaded = true
 
-        if (sceneProperty.isCSMEnabled) {
-          configureCSM(sceneProperty.directionalLights)
-        }
+        configureCSM(sceneProperty.directionalLights, !sceneProperty.isCSMEnabled)
 
         EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.SCENE_LOADED })
 
@@ -151,39 +152,39 @@ export class WorldScene {
         break
 
       case 'directional-light':
-        if (isClient && WebGLRendererSystem.instance.csm) {
+        if (isClient) {
           // console.warn('SCENE LOADING - Custom directional lights are not supported when CSM is enabled.');
-          const direction = new Vector3(0, 0, 1).applyQuaternion(getComponent(entity, TransformComponent).rotation)
-          setSkyDirection(direction)
-          return
-        }
+          // const direction = new Vector3(0, 0, 1).applyQuaternion(getComponent(entity, TransformComponent).rotation)
+          // setSkyDirection(direction)
 
-        addObject3DComponent(entity, {
-          obj3d: DirectionalLight,
-          objArgs: {
-            'shadow.mapSize': new Vector2(component.data.shadowMapResolution[0], component.data.shadowMapResolution[1]),
-            'shadow.bias': component.data.shadowBias,
-            'shadow.radius': component.data.shadowRadius,
-            intensity: component.data.intensity,
-            color: component.data.color,
-            castShadow: component.data.castShadow,
-            'shadow.camera.far': component.data.cameraFar,
-            'shadow.camera.near': component.data.cameraNear,
-            'shadow.camera.top': component.data.cameraTop,
-            'shadow.camera.bottom': component.data.cameraBottom,
-            'shadow.camera.left': component.data.cameraLeft,
-            'shadow.camera.right': component.data.cameraRight
+          const mapSize = new Vector2().fromArray(component.data.shadowMapResolution)
+
+          if (isMobile) {
+            mapSize.set(512, 512)
           }
-        })
 
-        const light = getComponent(entity, Object3DComponent).value as DirectionalLight
+          const args = {
+            obj3d: DirectionalLight,
+            objArgs: {
+              'shadow.mapSize': mapSize,
+              'shadow.bias': component.data.shadowBias,
+              'shadow.radius': component.data.shadowRadius,
+              intensity: component.data.intensity,
+              color: component.data.color,
+              castShadow: component.data.castShadow,
+              'shadow.camera.far': component.data.cameraFar
+            }
+          }
 
-        if (component.data.showCameraHelper) {
-          const helper = new CameraHelper(light.shadow.camera)
-          light.add(helper)
+          if (sceneProperty.isCSMEnabled) {
+            const object3d = createObject3dFromArgs(entity, args, false)
+            console.log(object3d)
+            sceneProperty.directionalLights.push(object3d)
+          } else {
+            addObject3DComponent(entity, args)
+          }
         }
 
-        sceneProperty.directionalLights.push(light)
         break
 
       case 'hemisphere-light':
