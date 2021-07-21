@@ -1,13 +1,14 @@
 import * as THREE from 'three'
-import { DEFAULT_FEATURE_STYLES } from './styles'
+import { IFeatureStyles, IFeatureStylesByLayerName, DEFAULT_FEATURE_STYLES } from './styles'
 import { vectors } from './vectors'
 import turf_buffer from '@turf/buffer'
+import { VectorTile, VectorTileFeature } from '@mapbox/vector-tile'
 
 // Generate a building canvas with the given width and height and return it
 // Inspired by
 //   - https://codepen.io/photonlines/details/JzaLYJ
 //   - https://github.com/jeromeetienne/threex.proceduralcity/blob/master/threex.proceduralcity.js
-function generateBuildingCanvas(width, height) {
+function generateBuildingCanvas(width: number, height: number): HTMLCanvasElement {
   // Build a small canvas we're going to use to create our window elements
   var smallCanvas = globalThis.document.createElement('canvas')
 
@@ -69,11 +70,11 @@ const sideBuildingCanvasSkyScraper = generateBuildingCanvas(8, 64)
 
 const METERS_PER_DEGREE_LL = 111139
 
-var long2tile = function (lon, zoom) {
+function long2tile(lon: number, zoom: number) {
   return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom))
 }
 
-var lat2tile = function (lat, zoom) {
+function lat2tile(lat: number, zoom: number) {
   return Math.floor(
     ((1 - Math.log(Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180)) / Math.PI) / 2) *
       Math.pow(2, zoom)
@@ -121,7 +122,7 @@ export class MapboxTileLoader {
     start_lng?: number
   }
   private feature_meshes: Array<any>
-  private feature_styles: Object
+  private feature_styles: IFeatureStylesByLayerName
   private meshes_by_layer: Object
 
   constructor(scene: THREE.Scene, opts: IOpts) {
@@ -157,14 +158,14 @@ export class MapboxTileLoader {
     this.feature_styles = {} // global eature styling object.
     this.meshes_by_layer = {}
 
-    this.init_feature_styles({})
+    this.init_feature_styles()
 
     this.center.start_lng = this.center.lng
     this.center.start_lat = this.center.lat
     this.load_tiles(this.center.lat, this.center.lng)
   }
 
-  handle_data = (data, x, y, z) => {
+  handle_data = (data: VectorTile, x: number, y: number, z: number) => {
     this.opts.layers.forEach((layername) => {
       if (this.feature_styles[layername]) {
         this.add_vt(data, layername, x, y, z)
@@ -172,8 +173,7 @@ export class MapboxTileLoader {
     })
   }
 
-  load_tile = (tx, ty, zoom, callback) => {
-    var key = tx + '_' + ty + '_' + zoom
+  load_tile = (tx: number, ty: number, zoom: number) => {
     var MAPBOX_API_KEY =
       'pk.eyJ1IjoiY291bnRhYmxlLXdlYiIsImEiOiJjamQyZG90dzAxcmxmMndtdzBuY3Ywa2ViIn0.MU-sGTVDS9aGzgdJJ3EwHA'
 
@@ -188,18 +188,17 @@ export class MapboxTileLoader {
       MAPBOX_API_KEY
 
     fetch(url)
-      .then(function (response) {
+      .then((response) => {
         return response.blob()
       })
-      .then(function (blob) {
-        //console.log(raw);
-        vectors(blob, function (tile) {
-          callback(tile, tx, ty, zoom)
+      .then((blob) => {
+        vectors(blob, (tile: VectorTile) => {
+          this.handle_data(tile, tx, ty, zoom)
         })
       })
   }
 
-  load_tiles = (lat, lng) => {
+  load_tiles = (lat: number, lng: number) => {
     var MAP_CACHE = {}
     var tile_x0 = long2tile(lng, TILE_ZOOM)
     var tile_y0 = lat2tile(lat, TILE_ZOOM)
@@ -210,7 +209,7 @@ export class MapboxTileLoader {
         var tile_y = tile_y0 + j
         if (!tile_x || !tile_y) continue
         if (!MAP_CACHE[tile_x + '_' + tile_y + '_' + TILE_ZOOM]) {
-          this.load_tile(tile_x, tile_y, TILE_ZOOM, this.handle_data)
+          this.load_tile(tile_x, tile_y, TILE_ZOOM)
         }
       }
     }
@@ -221,7 +220,7 @@ export class MapboxTileLoader {
    * suitable for 3d viewing, such as for buildings.
    *
    */
-  extrude_feature_shape(feature, styles): THREE.ExtrudeGeometry {
+  extrude_feature_shape(feature: VectorTileFeature, styles: IFeatureStyles): THREE.BufferGeometry {
     var shape = new THREE.Shape()
 
     // Buffer the linestrings so they have some thickness (uses turf.js)
@@ -246,14 +245,14 @@ export class MapboxTileLoader {
     shape.moveTo(point[0], point[1])
 
     var scope = this
-    coords.slice(1).forEach(function (coord) {
+    coords.slice(1).forEach(function (coord: [number, number]) {
       point = scope.ll_to_scene_coords(coord)
       shape.lineTo(point[0], point[1])
     })
     point = this.ll_to_scene_coords(coords[0])
     shape.lineTo(point[0], point[1])
 
-    var height
+    let height: number
 
     if (styles.height === 'a') {
       if (feature.properties.height) {
@@ -269,10 +268,10 @@ export class MapboxTileLoader {
       }
       height *= styles.height_scale || 1
     } else {
-      var height = styles.height || 1
+      height = styles.height || 1
     }
 
-    let geometry
+    let geometry: THREE.BufferGeometry
 
     if (styles.extrude === 'flat') {
       geometry = new THREE.ShapeGeometry(shape)
@@ -300,7 +299,7 @@ export class MapboxTileLoader {
     return geometry
   }
 
-  add_vt(tile, layername, x, y, z) {
+  add_vt(tile: VectorTile, layername: string, x: number, y: number, z: number) {
     const vector_layer = tile.layers[layername]
 
     if (!vector_layer) return
@@ -311,7 +310,7 @@ export class MapboxTileLoader {
     }
   }
 
-  add_feature(feature, layername) {
+  add_feature(feature: VectorTileFeature, layername: string) {
     feature.layername = layername
     var feature_styles = this.feature_styles
 
@@ -319,7 +318,7 @@ export class MapboxTileLoader {
     var layer_styles = feature_styles[layername]
     var kind_styles = feature_styles[feature.properties.class] || {}
 
-    let kind_detail_styles
+    let kind_detail_styles: IFeatureStyles
     // kind_detail seems to copy landuse for roads, which is dumb, don't color it.
     if (layername === 'roads') {
       kind_detail_styles = {}
@@ -330,7 +329,7 @@ export class MapboxTileLoader {
     var name_styles = feature_styles[feature.properties.name] || {}
 
     // Many features have a 'kind' property scope can be used for styling.
-    var styles = {...layer_styles, ...kind_styles, ...kind_detail_styles, ...name_styles}
+    var styles = { ...layer_styles, ...kind_styles, ...kind_detail_styles, ...name_styles }
 
     // tally feature "kind" (descriptive tags). used for debugging/enumerating available features and building stylesheets.
     this.kinds[feature.properties.class] = this.kinds[feature.properties.class] || 1
@@ -393,14 +392,14 @@ export class MapboxTileLoader {
     this.meshes_by_layer[layername].push(mesh)
   }
 
-  ll_to_scene_coords(coord) {
+  ll_to_scene_coords(coord: [number, number]) {
     return [
       (coord[0] - this.center.start_lng) * METERS_PER_DEGREE_LL,
       (coord[1] - this.center.start_lat) * METERS_PER_DEGREE_LL
     ]
   }
 
-  init_feature_styles(styles) {
+  init_feature_styles() {
     for (var k in DEFAULT_FEATURE_STYLES) {
       this.feature_styles[k] = DEFAULT_FEATURE_STYLES[k]
     }
