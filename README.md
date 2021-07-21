@@ -25,10 +25,6 @@
 - Built end-to-end in Typescript
 - Free, open source, MIT-licensed
 
-## Demos:
-
-https://xrengine.io
-
 # Getting Started
 
 Getting up and running requires only a few steps. 
