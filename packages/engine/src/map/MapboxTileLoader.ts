@@ -4,6 +4,9 @@ import { vectors } from './vectors'
 import turf_buffer from '@turf/buffer'
 
 // Generate a building canvas with the given width and height and return it
+// Inspired by
+//   - https://codepen.io/photonlines/details/JzaLYJ
+//   - https://github.com/jeromeetienne/threex.proceduralcity/blob/master/threex.proceduralcity.js
 function generateBuildingCanvas(width, height) {
   // Build a small canvas we're going to use to create our window elements
   var smallCanvas = globalThis.document.createElement('canvas')
