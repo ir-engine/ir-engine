@@ -4,7 +4,7 @@
  * */
 
 import { Object3DComponent } from '../components/Object3DComponent'
-import { Object3D } from 'three';
+import { Object3D } from 'three'
 import {
   AmbientLightProbeTagComponent,
   AmbientLightTagComponent,
@@ -42,10 +42,7 @@ import { Component } from '../../ecs/classes/Component'
 import { hasComponent, getComponent, addComponent } from '../../ecs/functions/EntityFunctions'
 import { SkyboxComponent } from '../components/SkyboxComponent'
 
-
-
 import { createObject3dFromArgs } from './createObject3dFromArgs'
-
 
 /**
  * Add Object3D Component with args into Entity from the Behavior.
@@ -57,9 +54,7 @@ export const addObject3DComponent = <T extends Object3D>(
   objArgs?: any,
   parentEntity?: Entity
 ) => {
-  
-  const object3d = createObject3dFromArgs(entity, obj3D,true,objArgs,parentEntity)
-
+  const object3d = createObject3dFromArgs(entity, obj3D, true, objArgs, parentEntity)
 
   addComponent(entity, Object3DComponent, { value: object3d })
 

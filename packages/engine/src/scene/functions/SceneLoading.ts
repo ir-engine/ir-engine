@@ -157,7 +157,6 @@ export class WorldScene {
           // const direction = new Vector3(0, 0, 1).applyQuaternion(getComponent(entity, TransformComponent).rotation)
           // setSkyDirection(direction)
 
-
           const mapSize = new Vector2().fromArray(component.data.shadowMapResolution)
 
           if (isMobile) {
@@ -165,22 +164,21 @@ export class WorldScene {
           }
 
           const args = {
-              'shadow.mapSize': mapSize,
-              'shadow.bias': component.data.shadowBias,
-              'shadow.radius': component.data.shadowRadius,
-              intensity: component.data.intensity,
-              color: component.data.color,
-              castShadow: component.data.castShadow,
-              'shadow.camera.far': component.data.cameraFar
-            }
-          
+            'shadow.mapSize': mapSize,
+            'shadow.bias': component.data.shadowBias,
+            'shadow.radius': component.data.shadowRadius,
+            intensity: component.data.intensity,
+            color: component.data.color,
+            castShadow: component.data.castShadow,
+            'shadow.camera.far': component.data.cameraFar
+          }
 
           if (sceneProperty.isCSMEnabled) {
-            const object3d = createObject3dFromArgs(entity,DirectionalLight, false, args)
+            const object3d = createObject3dFromArgs(entity, DirectionalLight, false, args)
             console.log(object3d)
             sceneProperty.directionalLights.push(object3d)
           } else {
-            addObject3DComponent(entity, DirectionalLight,args)
+            addObject3DComponent(entity, DirectionalLight, args)
           }
         }
 

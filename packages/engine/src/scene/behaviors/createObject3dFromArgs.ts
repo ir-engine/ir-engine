@@ -11,11 +11,11 @@ import { getMutableComponent, hasComponent } from '../../ecs/functions/EntityFun
 
 export const createObject3dFromArgs = <T extends Object3D>(
   entity: Entity,
-  obj3d:   T | (new (...args: any[]) => T),
+  obj3d: T | (new (...args: any[]) => T),
   addToScene: boolean,
   objArgs?: any,
-  parentEntity?: Entity,
-  ) => {
+  parentEntity?: Entity
+) => {
   const isObject3d = typeof obj3d === 'object'
   let object3d
 
