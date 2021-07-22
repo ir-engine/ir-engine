@@ -72,9 +72,9 @@ const arMediaReducer = (state = immutableState, action: ArMediaAction): any => {
       updateMap.set('updateNeeded', true)
       return state.set('arMedia', updateMap)
     case REMOVE_ARMEDIA:
-      updateMap = new Map(state.get('arMedia'))
-      updateMap.set('updateNeeded', true)
-      return state.set('arMedia', updateMap)
+      const dataMap = new Map(state.get('arMedia'))
+      dataMap.set('updateNeeded', true)
+      return state.set('arMedia', dataMap)
     case ARMEDIA_FETCHING_ITEM:
       return state.set('fetchingItem', true)
     case ARMEDIA_RETRIEVED_ITEM:
