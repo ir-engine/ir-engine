@@ -56,6 +56,10 @@ export default (app: Application): any => {
         set(): void {
           throw new Error('Do not try to set the `url` value!')
         }
+      },
+      ownedFileIds: {
+        type: DataTypes.TEXT({ length: 'medium' }),
+        allowNull: true
       }
     },
     {

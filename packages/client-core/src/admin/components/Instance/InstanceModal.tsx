@@ -130,7 +130,7 @@ const InstanceModal = (props: Props): any => {
               className={styles.tcell}
               key={headCell.id}
               align="right"
-              padding={headCell.disablePadding ? 'none' : 'default'}
+              padding={headCell.disablePadding ? 'none' : 'normal'}
               sortDirection={orderBy === headCell.id ? order : false}
             >
               <TableSortLabel active={orderBy === headCell.id} direction={orderBy === headCell.id ? order : 'asc'}>

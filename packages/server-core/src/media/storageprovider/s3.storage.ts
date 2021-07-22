@@ -17,6 +17,11 @@ export class S3Provider implements StorageProviderInterface {
     ACL: 'public-read'
   })
 
+  cloudfront: AWS.CloudFront = new AWS.CloudFront({
+    accessKeyId: config.aws.keys.accessKeyId,
+    secretAccessKey: config.aws.keys.secretAccessKey
+  })
+
   getProvider = (): any => {
     return this.provider
   }

@@ -27,7 +27,7 @@ export const staticResourceSeed = {
       sid: 'j9o2NLiD',
       name: null,
       description: null,
-      url: 'https://resources.theoverlay.io/19176bb0-24e8-11eb-8630-81b209daf73a.jpeg',
+      url: 'https://resources.theoverlay.io/c4efdc80-c9f0-11eb-b166-5b4d0f7861e6.jpeg',
       key: 'd0828450-24e4-11eb-8630-81b209daf73a.jpeg',
       mimeType: 'image/jpeg',
       metadata: null,

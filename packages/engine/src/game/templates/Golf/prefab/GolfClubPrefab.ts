@@ -145,11 +145,8 @@ export const updateClub: Behavior = (
   golfClubComponent.raycast.direction.set(0, 0, -1).applyQuaternion(rotation)
 
   const hit = golfClubComponent.raycast.hits[0]
-  const headDistance = XRUserSettings.staticLengthGolfClub
-    ? clubLength
-    : hit
-    ? Math.min(hit.distance, clubLength)
-    : clubLength
+  
+  const headDistance = XRUserSettings.staticLengthGolfClub || !hit?.distance ? clubLength : Math.min(hit.distance, clubLength)
 
   // update position of club
   golfClubComponent.headGroup.position.setZ(-(headDistance - clubPutterLength * 0.5))
@@ -256,7 +253,7 @@ export const initializeGolfClub = (entityClub: Entity) => {
       origin: new Vector3(),
       direction: new Vector3(0, -1, 0),
       maxDistance: rayLength,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground
+      collisionMask:  CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
     })
   )
   golfClubComponent.raycast1 = PhysicsSystem.instance.addRaycastQuery(
@@ -265,7 +262,7 @@ export const initializeGolfClub = (entityClub: Entity) => {
       origin: new Vector3(),
       direction: new Vector3(0, -1, 0),
       maxDistance: rayLength,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
     })
   )
 

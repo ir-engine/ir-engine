@@ -52,7 +52,7 @@ const LocationMenu = ({ changeActiveLocation }) => {
       })
   }
 
-  const handleChangePage = (_, page) => {
+  const handlePageChange = (_, page) => {
     fetchLocations(page, ROWS_PER_PAGE)
     setPage(page)
   }
@@ -140,7 +140,7 @@ const LocationMenu = ({ changeActiveLocation }) => {
               rowsPerPage={ROWS_PER_PAGE}
               rowsPerPageOptions={[ROWS_PER_PAGE]}
               page={page}
-              onChangePage={handleChangePage}
+              onPageChange={handlePageChange}
               size="small"
               className={styles.tablePagination}
             />

@@ -15,6 +15,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import CubemapCapturer from '../../editor/nodes/helper/CubemapCapturer'
+import { convertEquiToCubemap } from '../../editor/nodes/helper/ImageUtils'
 import { ReflectionProbeSettings, ReflectionProbeTypes } from '../../editor/nodes/ReflectionProbeNode'
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
 import { ScaleComponent } from '../../transform/components/ScaleComponent'
@@ -91,34 +92,35 @@ export const setEnvMap: Behavior = (entity, args: EnvMapProps) => {
       break
 
     case EnvMapSourceType.Default:
+      const options = args.envMapReflectionProbe
+      if (!options) return
+      SceneObjectSystem.instance.bpcemOptions.probeScale = options.probeScale
+      SceneObjectSystem.instance.bpcemOptions.probePositionOffset = options.probePositionOffset
+
+      EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
+        switch (options.reflectionType) {
+          case ReflectionProbeTypes.Baked:
+            new TextureLoader().load(options.envMapOrigin, (texture) => {
+              Engine.scene.environment = convertEquiToCubemap(Engine.renderer, texture, options.resolution).texture
+              texture.dispose()
+            })
+
+            break
+          case ReflectionProbeTypes.Realtime:
+            // const map = new CubemapCapturer(Engine.renderer, Engine.scene, options.resolution)
+            // const EnvMap = (await map.update(options.probePosition)).cubeRenderTarget.texture
+            // Engine.scene.environment = EnvMap
+            break
+        }
+      })
+      const offset = args.envMapReflectionProbe.probePositionOffset
+      const position = new Vector3(offset.x, offset.y, offset.z)
+      SceneObjectSystem.instance.boxProjection = args.envMapReflectionProbe.boxProjection
+      SceneObjectSystem.instance.bpcemOptions.probePositionOffset = position
+      SceneObjectSystem.instance.bpcemOptions.probeScale = args.envMapReflectionProbe.probeScale
       break
-
-    // case "ReflectionProbe":
-    //   const options =args.options as ReflectionProbeSettings;
-    //   SceneObjectSystem.instance.bpcemOptions.probeScale = options.probeScale;
-    //   SceneObjectSystem.instance.bpcemOptions.probePositionOffset = options.probePositionOffset;
-    //   SceneObjectSystem.instance.bpcemOptions.intensity = options.intensity;
-
-    //   EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
-
-    //     switch (options.reflectionType) {
-    //       case ReflectionProbeTypes.Baked:
-    //         const envMapAddress = `/ReflectionProbe/${options.lookupName}.png`;
-    //         new TextureLoader().load(envMapAddress, (texture) => {
-    //           Engine.scene.environment = CubemapCapturer.convertEquiToCubemap(Engine.renderer, texture, options.resolution).texture;
-    //           texture.dispose();
-    //         });
-
-    //         break;
-    //         case ReflectionProbeTypes.Realtime:
-    //           const map = new CubemapCapturer(Engine.renderer, Engine.scene, options.resolution, '');
-    //           const EnvMap = (await map.update(options.probePosition)).cubeRenderTarget.texture;
-    //           Engine.scene.environment = EnvMap;
-    //           break;
-    //         }
-    //     });
-    //   break;
   }
+
   pmremGenerator.dispose()
 
   SceneObjectSystem.instance.envMapIntensity = args.envMapIntensity

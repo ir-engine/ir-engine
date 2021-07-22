@@ -76,11 +76,11 @@ const LocationTable = (props: Props) => {
   const adminLocations = adminLocationState.get('locations').get('locations')
   const { t } = useTranslation()
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handlePageChange = (event: unknown, newPage: number) => {
     setPage(newPage)
   }
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
   }
@@ -236,8 +236,8 @@ const LocationTable = (props: Props) => {
         count={12}
         rowsPerPage={rowsPerPage}
         page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
         className={classex.tableFooter}
       />
       <Dialog

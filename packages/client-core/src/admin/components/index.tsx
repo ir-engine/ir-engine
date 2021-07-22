@@ -129,7 +129,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
             className={styles.tcell}
             key={headCell.id}
             align="center"
-            padding={headCell.disablePadding ? 'none' : 'default'}
+            padding={headCell.disablePadding ? 'none' : 'normal'}
             sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel
@@ -350,7 +350,7 @@ const AdminConsole = (props: Props) => {
     setInstanceModalOpen(true)
   }
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
     switch (selectedTab) {
       case 'locations':
@@ -366,7 +366,7 @@ const AdminConsole = (props: Props) => {
     setPage(newPage)
   }
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10))
     setPage(0)
   }
@@ -679,8 +679,8 @@ const AdminConsole = (props: Props) => {
             count={selectCount}
             rowsPerPage={rowsPerPage}
             page={page}
-            onChangePage={handleChangePage}
-            onChangeRowsPerPage={handleChangeRowsPerPage}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
             className={styles.tablePagination}
           />
         </div>

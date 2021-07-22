@@ -6,13 +6,12 @@ import { selectAppState } from '../../../common/reducers/app/selector'
 import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { selectContentPackState } from '../../reducers/contentPack/selector'
 // @ts-ignore
-import styles from '../Scenes/Scenes.module.scss'
+import styles from './ContentPack.module.scss'
 import {
-  addAvatarToContentPack,
-  addSceneToContentPack,
+  addAvatarsToContentPack,
+  addScenesToContentPack,
   createContentPack,
-  fetchContentPacks,
-  uploadAvatars
+  fetchContentPacks
 } from '../../reducers/contentPack/service'
 import { Add, Edit } from '@material-ui/icons'
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab'
@@ -27,18 +26,17 @@ import Select from '@material-ui/core/Select'
 import TextField from '@material-ui/core/TextField'
 import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 interface Props {
   open: boolean
   handleClose: any
-  scene?: any
-  avatar?: any
-  thumbnail?: any
+  scenes?: any
+  avatars?: any
   adminState?: any
   contentPackState?: any
-  uploadAvatars?: any
-  addSceneToContentPack?: any
-  addAvatarToContentPack?: any
+  addScenesToContentPack?: any
+  addAvatarsToContentPack?: any
   createContentPack?: any
   fetchContentPacks?: any
 }
@@ -52,27 +50,26 @@ const mapStateToProps = (state: any): any => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  addSceneToContentPack: bindActionCreators(addSceneToContentPack, dispatch),
-  addAvatarToContentPack: bindActionCreators(addAvatarToContentPack, dispatch),
+  addScenesToContentPack: bindActionCreators(addScenesToContentPack, dispatch),
+  addAvatarsToContentPack: bindActionCreators(addAvatarsToContentPack, dispatch),
   createContentPack: bindActionCreators(createContentPack, dispatch),
-  fetchContentPacks: bindActionCreators(fetchContentPacks, dispatch),
-  uploadAvatars: bindActionCreators(uploadAvatars, dispatch)
+  fetchContentPacks: bindActionCreators(fetchContentPacks, dispatch)
 })
 
 const AddToContentPackModal = (props: Props): any => {
   const {
-    addAvatarToContentPack,
-    addSceneToContentPack,
+    addAvatarsToContentPack,
+    addScenesToContentPack,
     createContentPack,
     open,
     handleClose,
-    avatar,
-    thumbnail,
-    scene,
+    avatars,
+    scenes,
     contentPackState,
     fetchContentPacks
   } = props
 
+  const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
   const [createOrPatch, setCreateOrPatch] = useState('patch')
   const [contentPackName, setContentPackName] = useState('')
@@ -90,49 +87,56 @@ const AddToContentPackModal = (props: Props): any => {
     setCreateOrPatch(newValue)
   }
 
-  const addCurrentSceneToContentPack = async () => {
+  const addCurrentScenesToContentPack = async () => {
     try {
-      await addSceneToContentPack({
-        scene: scene,
+      setProcessing(true)
+      await addScenesToContentPack({
+        scenes: scenes,
         contentPack: contentPackName
       })
+      setProcessing(false)
       window.location.href = '/admin/content-packs'
       closeModal()
     } catch (err) {
+      setProcessing(false)
       showError(err.message)
     }
   }
 
-  const addCurrentAvatarToContentPack = async () => {
+  const addCurrentAvatarsToContentPack = async () => {
     try {
-      await addAvatarToContentPack({
-        avatar: avatar,
-        thumbnail: thumbnail,
+      setProcessing(true)
+      await addAvatarsToContentPack({
+        avatars: avatars,
         contentPack: contentPackName
       })
+      setProcessing(false)
       window.location.href = '/admin/content-packs'
       closeModal()
     } catch (err) {
+      setProcessing(false)
       showError(err.message)
     }
   }
 
   const createNewContentPack = async () => {
     try {
-      if (scene != null)
+      setProcessing(true)
+      if (scenes != null)
         await createContentPack({
-          scene: scene,
+          scenes: scenes,
           contentPack: newContentPackName
         })
-      else if (avatar != null)
+      else if (avatars != null)
         await createContentPack({
-          avatar: avatar,
-          thumbnail: thumbnail,
+          avatars: avatars,
           contentPack: newContentPackName
         })
+      setProcessing(false)
       window.location.href = '/admin/content-packs'
       closeModal()
     } catch (err) {
+      setProcessing(false)
       showError(err.message)
     }
   }
@@ -172,8 +176,8 @@ const AddToContentPackModal = (props: Props): any => {
           >
             <div className={styles['modal-header']}>
               <div />
-              {scene && scene.name && <div className={styles['title']}>{scene.name}</div>}
-              {avatar && avatar.name && <div className={styles['title']}>{avatar.name}</div>}
+              {scenes && <div className={styles['title']}>Adding {scenes.length} Scenes</div>}
+              {avatars && <div className={styles['title']}>Adding {avatars.length} Avatars</div>}
               <IconButton aria-label="close" className={styles.closeButton} onClick={handleClose}>
                 <CloseIcon />
               </IconButton>
@@ -193,7 +197,7 @@ const AddToContentPackModal = (props: Props): any => {
                 Create New Content Pack
               </ToggleButton>
             </ToggleButtonGroup>
-            {createOrPatch === 'patch' && (
+            {processing === false && createOrPatch === 'patch' && (
               <div>
                 <FormControl>
                   <InputLabel id="contentPackSelect">Content Pack</InputLabel>
@@ -214,14 +218,14 @@ const AddToContentPackModal = (props: Props): any => {
                     type="submit"
                     variant="contained"
                     color="primary"
-                    onClick={scene != null ? addCurrentSceneToContentPack : addCurrentAvatarToContentPack}
+                    onClick={scenes != null ? addCurrentScenesToContentPack : addCurrentAvatarsToContentPack}
                   >
                     Update Content Pack
                   </Button>
                 </FormControl>
               </div>
             )}
-            {createOrPatch === 'create' && (
+            {processing === false && createOrPatch === 'create' && (
               <div>
                 <FormControl>
                   <TextField
@@ -240,6 +244,12 @@ const AddToContentPackModal = (props: Props): any => {
                     Create Content Pack
                   </Button>
                 </FormControl>
+              </div>
+            )}
+            {processing === true && (
+              <div className={styles.processing}>
+                <CircularProgress color="primary" />
+                <div className={styles.text}>Processing</div>
               </div>
             )}
             {error && error.length > 0 && <h2 className={styles['error-message']}>{error}</h2>}

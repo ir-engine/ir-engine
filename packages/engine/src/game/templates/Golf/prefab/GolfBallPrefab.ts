@@ -1,4 +1,4 @@
-import { Color, Group, MathUtils, Mesh, MeshPhongMaterial, Vector3 } from 'three'
+import { Color, Group, MathUtils, Mesh, MeshPhongMaterial, Vector3, Vector4 } from 'three'
 import { Body, BodyType, ShapeType, SHAPES, RaycastQuery, SceneQueryType } from 'three-physx'
 import { AssetLoader } from '../../../../assets/classes/AssetLoader'
 import { isClient } from '../../../../common/functions/isClient'
@@ -28,6 +28,7 @@ import { TransformComponent } from '../../../../transform/components/TransformCo
 import { GameObject } from '../../../components/GameObject'
 import { GamePlayer } from '../../../components/GamePlayer'
 import { getGame } from '../../../functions/functions'
+import { applyHideOrVisibleState } from '../behaviors/hideUnhideBall'
 import { GolfBallComponent } from '../components/GolfBallComponent'
 import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameConstants'
 
@@ -119,8 +120,8 @@ export const updateBall: Behavior = (
  * @author Josh Field <github.com/HexaField>
  */
 
-const golfBallRadius = 0.03 // this is the graphical size of the golf ball
-const golfBallColliderExpansion = 0.03 // this is the size of the ball collider
+const golfBallRadius = 0.03
+const golfBallColliderExpansion = 0.01
 
 function assetLoadCallback(group: Group, ballEntity: Entity) {
   const ownerNetworkId = getComponent(ballEntity, NetworkObjectOwner).networkId
@@ -138,8 +139,9 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   ballMesh.scale.copy(transform.scale)
   ballMesh.castShadow = true
   ballMesh.receiveShadow = true
-  ;(ballMesh.material as MeshPhongMaterial).color = new Color(color)
   addComponent(ballEntity, Object3DComponent, { value: ballMesh })
+  // after because break trail
+  applyHideOrVisibleState(ballEntity)
 
   // Add trail effect
 
@@ -147,6 +149,9 @@ function assetLoadCallback(group: Group, ballEntity: Entity) {
   trailHeadGeometry.push(new Vector3(-1.0, 0.0, 0.0), new Vector3(0.0, 0.0, 0.0), new Vector3(1.0, 0.0, 0.0))
   const trailObject = new TrailRenderer(false)
   const trailMaterial = TrailRenderer.createBaseMaterial()
+  const colorVec4 = new Vector4().fromArray([...new Color(color).toArray(), 1])
+  trailMaterial.uniforms.headColor.value = colorVec4
+  trailMaterial.uniforms.tailColor.value = colorVec4
   const trailLength = 50
   trailObject.initialize(trailMaterial, trailLength, false, 0, trailHeadGeometry, ballMesh)
   Engine.scene.add(trailObject)
