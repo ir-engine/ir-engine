@@ -60,22 +60,16 @@ export function createContentPack(data: any) {
   }
 }
 
-export function addSceneToContentPack(data: any) {
+export function addScenesToContentPack(data: any) {
   return async (dispatch: Dispatch, getState: any) => {
     await client.service('content-pack').patch(null, data)
     dispatch(patchedContentPack())
   }
 }
 
-export function addAvatarToContentPack(data: any) {
+export function addAvatarsToContentPack(data: any) {
   return async (dispatch: Dispatch) => {
-    const result = await client.service('content-pack').patch(null, {
-      avatar: data.avatar,
-      thumbnail: data.thumbnail,
-      contentPack: data.contentPack
-    })
-    console.log('addAvatar result:')
-    console.log(result)
+    const result = await client.service('content-pack').patch(null, data)
     dispatch(patchedContentPack())
   }
 }

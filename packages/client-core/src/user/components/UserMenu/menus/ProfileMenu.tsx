@@ -158,7 +158,7 @@ const ProfileMenu = (props: Props): any => {
     if (changeActiveMenu != null) changeActiveMenu(null)
     else if (setProfileMenuOpen != null) setProfileMenuOpen(false)
     await logoutUser()
-    window.location.reload()
+    // window.location.reload()
   }
 
   const handleWalletLoginClick = async (e) => {

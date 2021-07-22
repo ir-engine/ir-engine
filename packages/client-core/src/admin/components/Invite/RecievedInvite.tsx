@@ -63,28 +63,28 @@ interface TablePaginationActionsProps {
   count: number
   page: number
   rowsPerPage: number
-  onChangePage: (event: React.MouseEvent<HTMLButtonElement>, newPage: number) => void
+  onPageChange: (event: React.MouseEvent<HTMLButtonElement>, newPage: number) => void
 }
 
 function TablePaginationActions(props: TablePaginationActionsProps) {
   const classes = useStyles1()
   const theme = useTheme()
-  const { count, page, rowsPerPage, onChangePage } = props
+  const { count, page, rowsPerPage, onPageChange } = props
 
   const handleFirstPageButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    onChangePage(event, 0)
+    onPageChange(event, 0)
   }
 
   const handleBackButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    onChangePage(event, page - 1)
+    onPageChange(event, page - 1)
   }
 
   const handleNextButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    onChangePage(event, page + 1)
+    onPageChange(event, page + 1)
   }
 
   const handleLastPageButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    onChangePage(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1))
+    onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1))
   }
 
   return (
@@ -123,11 +123,11 @@ const RecievedInvite = (props: Props) => {
 
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage)
 
-  const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+  const handlePageChange = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage)
   }
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10))
     setPage(0)
   }
@@ -179,8 +179,8 @@ const RecievedInvite = (props: Props) => {
                 inputProps: { 'aria-label': 'rows per page' },
                 native: true
               }}
-              onChangePage={handleChangePage}
-              onChangeRowsPerPage={handleChangeRowsPerPage}
+              onPageChange={handlePageChange}
+              onRowsPerPageChange={handleRowsPerPageChange}
               ActionsComponent={TablePaginationActions}
             />
           </TableRow>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Button from '@material-ui/core/Button'
+import Checkbox from '@material-ui/core/Checkbox'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableContainer from '@material-ui/core/TableContainer'
@@ -116,7 +117,7 @@ const Avatars = (props: Props) => {
               className={styles.tcell}
               key={headCell.id}
               align="right"
-              padding={headCell.disablePadding ? 'none' : 'default'}
+              padding={headCell.disablePadding ? 'none' : 'normal'}
               sortDirection={orderBy === headCell.id ? order : false}
             >
               <TableSortLabel
@@ -140,8 +141,7 @@ const Avatars = (props: Props) => {
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
   const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
-  const [selectedAvatar, setSelectedAvatar] = useState({})
-  const [selectedThumbnail, setSelectedThumbnail] = useState({})
+  const [selectedAvatars, setSelectedAvatars] = useState([])
 
   const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -158,27 +158,31 @@ const Avatars = (props: Props) => {
     setSelected([])
   }
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
     fetchAdminAvatars(incDec)
     setPage(newPage)
   }
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10))
     setPage(0)
   }
 
-  const openAddToContentPackModal = (avatar: any) => {
-    setSelectedAvatar(avatar)
-    setSelectedThumbnail(adminThumbnails.find((thumbnail) => thumbnail.name === avatar.name))
-    setAddToContentPackModalOpen(true)
-  }
+  const handleCheck = (e: any, row: any) => {
+    const newItem = {
+      avatar: row,
+      thumbnail: adminThumbnails.find((thumbnail) => thumbnail.name === row.name)
+    }
 
-  const closeAddToContentPackModal = () => {
-    setAddToContentPackModalOpen(false)
-    setSelectedAvatar({})
-    setSelectedThumbnail({})
+    const existingAvatarIndex = selectedAvatars.findIndex((avatar) => avatar.avatar.id === row.id)
+    if (e.target.checked === true) {
+      if (existingAvatarIndex >= 0) setSelectedAvatars(selectedAvatars.splice(existingAvatarIndex, 1, newItem))
+      else setSelectedAvatars(selectedAvatars.concat(newItem))
+    } else setSelectedAvatars(selectedAvatars.splice(existingAvatarIndex, 1))
+    setTimeout(() => {
+      console.log('selectedAvatars after', selectedAvatars)
+    }, 500)
   }
 
   const fetchTick = () => {
@@ -247,14 +251,12 @@ const Avatars = (props: Props) => {
                       </TableCell>
                       <TableCell className={styles.tcell} align="right">
                         {user.userRole === 'admin' && (
-                          <Button
-                            type="button"
-                            variant="contained"
+                          <Checkbox
+                            className={styles.checkbox}
+                            onChange={(e) => handleCheck(e, row)}
+                            name="stereoscopic"
                             color="primary"
-                            onClick={() => openAddToContentPackModal(row)}
-                          >
-                            Add to Content Pack
-                          </Button>
+                          />
                         )}
                       </TableCell>
                     </TableRow>
@@ -271,18 +273,26 @@ const Avatars = (props: Props) => {
             count={adminAvatarCount}
             rowsPerPage={rowsPerPage}
             page={page}
-            onChangePage={handleChangePage}
-            onChangeRowsPerPage={handleChangeRowsPerPage}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
             className={styles.tablePagination}
           />
         </div>
         <AddToContentPackModal
           open={addToContentPackModalOpen}
-          avatar={selectedAvatar}
-          thumbnail={selectedThumbnail}
-          handleClose={closeAddToContentPackModal}
+          avatars={selectedAvatars}
+          handleClose={() => setAddToContentPackModalOpen(false)}
         />
       </Paper>
+      <Button
+        className={styles['open-modal']}
+        type="button"
+        variant="contained"
+        color="primary"
+        onClick={() => setAddToContentPackModalOpen(true)}
+      >
+        Add to Content Pack
+      </Button>
     </div>
   )
 }
