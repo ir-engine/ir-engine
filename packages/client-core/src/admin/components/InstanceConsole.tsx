@@ -161,7 +161,7 @@ function InstanceConsole(props: Props) {
               className={styles.tcell}
               key={headCell.id}
               align="right"
-              padding={headCell.disablePadding ? 'none' : 'default'}
+              padding={headCell.disablePadding ? 'none' : 'normal'}
               sortDirection={orderBy === headCell.id ? order : false}
             >
               <TableSortLabel

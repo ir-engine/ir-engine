@@ -8,11 +8,10 @@ import { selectContentPackState } from '../../reducers/contentPack/selector'
 // @ts-ignore
 import styles from './ContentPack.module.scss'
 import {
-  addAvatarToContentPack,
-  addSceneToContentPack,
+  addAvatarsToContentPack,
+  addScenesToContentPack,
   createContentPack,
-  fetchContentPacks,
-  uploadAvatars
+  fetchContentPacks
 } from '../../reducers/contentPack/service'
 import { Add, Edit } from '@material-ui/icons'
 import { ToggleButton, ToggleButtonGroup } from '@material-ui/lab'
@@ -32,14 +31,12 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 interface Props {
   open: boolean
   handleClose: any
-  scene?: any
-  avatar?: any
-  thumbnail?: any
+  scenes?: any
+  avatars?: any
   adminState?: any
   contentPackState?: any
-  uploadAvatars?: any
-  addSceneToContentPack?: any
-  addAvatarToContentPack?: any
+  addScenesToContentPack?: any
+  addAvatarsToContentPack?: any
   createContentPack?: any
   fetchContentPacks?: any
 }
@@ -53,23 +50,21 @@ const mapStateToProps = (state: any): any => {
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  addSceneToContentPack: bindActionCreators(addSceneToContentPack, dispatch),
-  addAvatarToContentPack: bindActionCreators(addAvatarToContentPack, dispatch),
+  addScenesToContentPack: bindActionCreators(addScenesToContentPack, dispatch),
+  addAvatarsToContentPack: bindActionCreators(addAvatarsToContentPack, dispatch),
   createContentPack: bindActionCreators(createContentPack, dispatch),
-  fetchContentPacks: bindActionCreators(fetchContentPacks, dispatch),
-  uploadAvatars: bindActionCreators(uploadAvatars, dispatch)
+  fetchContentPacks: bindActionCreators(fetchContentPacks, dispatch)
 })
 
 const AddToContentPackModal = (props: Props): any => {
   const {
-    addAvatarToContentPack,
-    addSceneToContentPack,
+    addAvatarsToContentPack,
+    addScenesToContentPack,
     createContentPack,
     open,
     handleClose,
-    avatar,
-    thumbnail,
-    scene,
+    avatars,
+    scenes,
     contentPackState,
     fetchContentPacks
   } = props
@@ -92,11 +87,11 @@ const AddToContentPackModal = (props: Props): any => {
     setCreateOrPatch(newValue)
   }
 
-  const addCurrentSceneToContentPack = async () => {
+  const addCurrentScenesToContentPack = async () => {
     try {
       setProcessing(true)
-      await addSceneToContentPack({
-        scene: scene,
+      await addScenesToContentPack({
+        scenes: scenes,
         contentPack: contentPackName
       })
       setProcessing(false)
@@ -108,12 +103,11 @@ const AddToContentPackModal = (props: Props): any => {
     }
   }
 
-  const addCurrentAvatarToContentPack = async () => {
+  const addCurrentAvatarsToContentPack = async () => {
     try {
       setProcessing(true)
-      await addAvatarToContentPack({
-        avatar: avatar,
-        thumbnail: thumbnail,
+      await addAvatarsToContentPack({
+        avatars: avatars,
         contentPack: contentPackName
       })
       setProcessing(false)
@@ -128,15 +122,14 @@ const AddToContentPackModal = (props: Props): any => {
   const createNewContentPack = async () => {
     try {
       setProcessing(true)
-      if (scene != null)
+      if (scenes != null)
         await createContentPack({
-          scene: scene,
+          scenes: scenes,
           contentPack: newContentPackName
         })
-      else if (avatar != null)
+      else if (avatars != null)
         await createContentPack({
-          avatar: avatar,
-          thumbnail: thumbnail,
+          avatars: avatars,
           contentPack: newContentPackName
         })
       setProcessing(false)
@@ -183,8 +176,8 @@ const AddToContentPackModal = (props: Props): any => {
           >
             <div className={styles['modal-header']}>
               <div />
-              {scene && scene.name && <div className={styles['title']}>{scene.name}</div>}
-              {avatar && avatar.name && <div className={styles['title']}>{avatar.name}</div>}
+              {scenes && <div className={styles['title']}>Adding {scenes.length} Scenes</div>}
+              {avatars && <div className={styles['title']}>Adding {avatars.length} Avatars</div>}
               <IconButton aria-label="close" className={styles.closeButton} onClick={handleClose}>
                 <CloseIcon />
               </IconButton>
@@ -225,7 +218,7 @@ const AddToContentPackModal = (props: Props): any => {
                     type="submit"
                     variant="contained"
                     color="primary"
-                    onClick={scene != null ? addCurrentSceneToContentPack : addCurrentAvatarToContentPack}
+                    onClick={scenes != null ? addCurrentScenesToContentPack : addCurrentAvatarsToContentPack}
                   >
                     Update Content Pack
                   </Button>
@@ -255,7 +248,7 @@ const AddToContentPackModal = (props: Props): any => {
             )}
             {processing === true && (
               <div className={styles.processing}>
-                <CircularProgress color="black" />
+                <CircularProgress color="primary" />
                 <div className={styles.text}>Processing</div>
               </div>
             )}

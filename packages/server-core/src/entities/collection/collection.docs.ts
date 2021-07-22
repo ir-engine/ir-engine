@@ -30,8 +30,10 @@ export default {
         type: {
           type: 'string'
         },
-        //
         thumbnailOwnedFileId: {
+          type: 'string'
+        },
+        ownedFileIds: {
           type: 'string'
         }
       }

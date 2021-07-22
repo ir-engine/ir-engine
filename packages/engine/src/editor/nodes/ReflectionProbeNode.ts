@@ -68,8 +68,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
     this.gizmo = new BoxHelper(new Mesh(new BoxBufferGeometry()), 0xff0000)
     this.centerBall.material = new MeshPhysicalMaterial({
       roughness: 0,
-      metalness: 1,
-      envMapIntensity: 10
+      metalness: 1
     })
     this.add(this.gizmo)
     this.ownedFileIdentifier = 'envMapOwnedFileId'
@@ -93,6 +92,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
     downloadImage(imageData, 'Hello', 512, 512)
     this.currentEnvMap = result
     this.injectShader()
+    this.editor.scene.setUpEnvironmentMap()
     return result
   }
 
@@ -110,14 +110,11 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
   }
 
   injectShader() {
-    const position = this.reflectionProbeSettings.probePosition.clone()
-    position.add(this.reflectionProbeSettings.probePositionOffset)
-    const scale = this.reflectionProbeSettings.probeScale
     this.editor.scene.traverse((child) => {
       if (child.material) {
-        child.material.onBeforeCompile = function (shader) {
-          shader.uniforms.cubeMapSize = { value: scale }
-          shader.uniforms.cubeMapPos = { value: position }
+        child.material.onBeforeCompile = (shader) => {
+          shader.uniforms.cubeMapSize = { value: this.reflectionProbeSettings.probeScale }
+          shader.uniforms.cubeMapPos = { value: this.reflectionProbeSettings.probePositionOffset }
           shader.vertexShader = 'varying vec3 vBPCEMWorldPosition;\n' + shader.vertexShader
           shader.vertexShader = shader.vertexShader.replace('#include <worldpos_vertex>', worldposReplace)
           shader.fragmentShader = shader.fragmentShader.replace(
@@ -208,8 +205,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
     }
   }
 
-  async setEnvMap() {
-    await this.captureCubeMap()
+  setEnvMap() {
     this.editor.scene.environment = this.currentEnvMap.texture
   }
 }

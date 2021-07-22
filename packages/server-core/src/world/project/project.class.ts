@@ -179,9 +179,9 @@ export class Project implements ServiceMethods<Data> {
           name: data.name,
           metadata: sceneData.metadata,
           version: sceneData.version,
-          thumbnailOwnedFileId: JSON.stringify(data.ownedUploadedFileId)
+          ownedFileIds: JSON.stringify(data.ownedUploadedFileId)
         },
-        { fields: ['name', 'metadata', 'version', 'thumbnailOwnedFileId'], transaction }
+        { fields: ['name', 'metadata', 'version', 'ownedFileIds'], transaction }
       )
 
       // First delete existing collection, entity and components and create new ones
