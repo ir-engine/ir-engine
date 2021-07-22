@@ -4,6 +4,16 @@ import { vectors } from './vectors'
 import turf_buffer from '@turf/buffer'
 import { VectorTile, VectorTileFeature } from '@mapbox/vector-tile'
 
+function getRandomGreyColor(minValue, maxValue) {
+  var colorValue = Math.floor(Math.random() * maxValue + minValue)
+  return new THREE.Color(colorValue / 256, colorValue / 256, colorValue / 256);
+}
+
+function getRandomGreyColorString(minValue, maxValue) {
+  const color = getRandomGreyColor(minValue, maxValue)
+  return `#${color.getHexString()}`
+}
+
 // Generate a building canvas with the given width and height and return it
 // Inspired by
 //   - https://codepen.io/photonlines/details/JzaLYJ
@@ -18,13 +28,6 @@ function generateBuildingCanvas(width: number, height: number): HTMLCanvasElemen
   // Get a two-dimensional rendering context for our canvas
   var context = smallCanvas.getContext('2d')
 
-  // Set the fill style to the same color as our building material
-  context.fillStyle = '#e8e8e8'
-
-  // Draw a filled rectangle whose starting point is (0, 0) and whose size is specified by
-  // the width and height variables.
-  context.fillRect(0, 0, width, height)
-
   // Set the building window dimensions
   const windowWidth = 1
   const windowHeight = 2
@@ -35,8 +38,7 @@ function generateBuildingCanvas(width: number, height: number): HTMLCanvasElemen
   for (var y = windowSpacingY / 2; y < height - windowSpacingY / 2; y += windowSpacingY + windowHeight) {
     for (var x = windowSpacingX / 2; x < width - windowSpacingX / 2; x += windowSpacingX + windowWidth) {
       // Here, we add slight color variations to vary the look of each window
-      var colorValue = Math.floor(Math.random() * 64)
-      context.fillStyle = 'rgb(' + [colorValue, colorValue, colorValue].join(',') + ')'
+      context.fillStyle = getRandomGreyColorString(8, 64)
 
       // Draw the window / rectangle at the given (x, y) position using our defined window dimensions
       context.fillRect(x, y, windowWidth, windowHeight)
@@ -268,7 +270,7 @@ export class MapboxTileLoader {
       }
       height *= styles.height_scale || 1
     } else {
-      height = styles.height || 1
+      height = styles.height || 4
     }
 
     let geometry: THREE.BufferGeometry
@@ -346,7 +348,7 @@ export class MapboxTileLoader {
     }
 
     const sideBuildingMaterial = new THREE.MeshLambertMaterial({
-      color: '#e8e8e8'
+      color: getRandomGreyColor(0, 256)
     })
     geometry.computeBoundingBox()
     const bbox = geometry.boundingBox

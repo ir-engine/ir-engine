@@ -83,13 +83,15 @@ export interface IFeatureStyles {
   height_scale?: number
   width?: number
   extrude?: string
+  offy?: number
+  opacity?: number
 }
 
 export interface IFeatureStylesByLayerName {
   [layerName: string]: IFeatureStyles
 }
 
-export const DEFAULT_FEATURE_STYLES = {
+export const DEFAULT_FEATURE_STYLES: IFeatureStylesByLayerName = {
   building: {
     /*fragment_shader:
            "uniform vec2 resolution;\n"
