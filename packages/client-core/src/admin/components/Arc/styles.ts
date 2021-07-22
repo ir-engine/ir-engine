@@ -33,6 +33,17 @@ export const useStyles = makeStyles((theme: Theme) =>
       flex: 1,
       color: '#f1f1f1'
     },
+    redBorder: {
+      border: '1px solid red',
+      padding: '2px 4px',
+      display: 'flex',
+      alignItems: 'center',
+      //width: "45vw",
+      marginTop: '10px',
+      marginBottom: '15px',
+      background: '#343b41',
+      color: '#f1f1f1 !important'
+    },
     iconButton: {
       padding: 10,
       color: '#f1f1f1'
@@ -44,7 +55,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       flexGrow: 1,
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fit, minmax(12rem, 1fr))',
-      gridGap: '3rem 20px',
+      gridGap: '1rem 20px',
       width: '100%',
       backgroundColor: '#43484F',
       padding: '2rem'
@@ -146,13 +157,17 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     button: {
       background: '#343b41'
+    },
+    btn: {
+      background: '#343b41',
+      width: '100%'
     }
   })
 )
 
 export const useStyle = makeStyles({
   paper: {
-    width: '40%',
+    maxWidth: '80%',
     backgroundColor: '#43484F',
     color: '#f1f1f1'
   },

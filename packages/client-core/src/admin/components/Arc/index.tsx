@@ -7,35 +7,35 @@ import { useStyles } from './styles'
 import SearchVideo from './SearchVideo'
 import MediaTable from './MediaTable'
 import MediaModel from './CreateVideo'
-import { fetchAdminArmedia } from '../../reducers/admin/armedia/service'
-import { selectAdminArmediaState } from '../../reducers/admin/armedia/selectors'
+import { getArMediaService } from '../../../socialmedia/reducers/arMedia/service'
+import { selectArMediaState } from '../../../socialmedia/reducers/arMedia/selector'
 
 interface Props {
   list?: any
-  fetchAdminArmedia?: () => void
+  getArMediaService?: () => void
   adminArmediaState?: any
 }
 
 const mapStateToProps = (state: any): any => {
   return {
-    adminArmediaState: selectAdminArmediaState(state)
+    adminArmediaState: selectArMediaState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchAdminArmedia: bindActionCreators(fetchAdminArmedia, dispatch)
+  getArMediaService: bindActionCreators(getArMediaService, dispatch)
 })
 
 const VideoMedia = (props: Props) => {
-  const { fetchAdminArmedia, adminArmediaState } = props
+  const { getArMediaService, adminArmediaState } = props
   //   const [allMedia, setAllMedia] = useState(props.list)
 
-  const armediaState = adminArmediaState.get('armedia')
-  const armediaData = armediaState.get('armedia')
+  const armediaState = adminArmediaState.get('arMedia')
+  const armediaData = armediaState.get('arMedia')
 
   React.useEffect(() => {
     if (armediaState.get('updateNeeded')) {
-      fetchAdminArmedia()
+      getArMediaService()
     }
   }, [armediaState])
   const classes = useStyles()
@@ -59,10 +59,10 @@ const VideoMedia = (props: Props) => {
   return (
     <div>
       <Grid container spacing={3} className={classes.marginBottom}>
-        <Grid item xs={9}>
+        <Grid item xs={12} sm={9}>
           <SearchVideo />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={12} sm={3}>
           <Button className={classes.createBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
             Create Media
           </Button>

@@ -7,7 +7,6 @@ import adminLocationReducer from './admin/location/reducers'
 import adminPartyReducer from './admin/party/reducers'
 import adminSceneReducer from './admin/scene/reducers'
 import adminBotsReducer from './admin/bots/reducers'
-import adminArmediaReducer from './admin/armedia/reducers'
 
 /**
  * TODO: I am moving admin reducer to different packages
@@ -24,6 +23,5 @@ export default {
   adminLocation: adminLocationReducer,
   adminParty: adminPartyReducer,
   adminScene: adminSceneReducer,
-  adminBots: adminBotsReducer,
-  adminArmedia: adminArmediaReducer
+  adminBots: adminBotsReducer
 }

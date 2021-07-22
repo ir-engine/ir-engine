@@ -19,7 +19,6 @@ const ViewMedia = (props: Props) => {
   const { openView, closeViewModel, mediaAdmin } = props
   const [editMode, setEditMode] = React.useState(false)
 
-  console.log(mediaAdmin)
   const classx = useStyle()
   const classes = useStyles()
 
