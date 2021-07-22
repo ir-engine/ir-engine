@@ -1,6 +1,12 @@
 import { isClient } from '../../../common/functions/isClient'
 import { System, SystemAttributes } from '../../../ecs/classes/System'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/EntityFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  getMutableComponent
+} from '../../../ecs/functions/EntityFunctions'
 import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
 import { Network } from '../../../networking/classes/Network'
 import { NetworkObject } from '../../../networking/components/NetworkObject'
@@ -31,10 +37,11 @@ import { teleportPlayerBehavior } from './behaviors/teleportPlayer'
 import { GolfBallComponent } from './components/GolfBallComponent'
 import { GolfClubComponent } from './components/GolfClubComponent'
 import { GolfHoleComponent } from './components/GolfHoleComponent'
+import { YourTurn } from './components/YourTurnTagComponent'
 import { NewPlayerTagComponent } from './components/GolfTagComponents'
 import { GolfTeeComponent } from './components/GolfTeeComponent'
 import { initializeGolfBall, spawnBall, updateBall } from './prefab/GolfBallPrefab'
-import { initializeGolfClub, spawnClub, updateClub } from './prefab/GolfClubPrefab'
+import { initializeGolfClub, spawnClub, updateClub, hideClub, enableClub } from './prefab/GolfClubPrefab'
 import { initBallRaycast } from './behaviors/initBallRaycast'
 import { ifFirstHit, ifOutCourse } from '../gameDefault/checkers/ifOutCourse'
 import { registerGolfBotHooks } from './functions/registerGolfBotHooks'
@@ -298,7 +305,7 @@ export class GolfSystem extends System {
       if (ownerEntity === undefined) return
 
       behaviorsToExecute.push(() => {
-        updateClub(entity)
+        updateClub(entity, null, delta)
       })
       if (hasComponent(entity, State.addedHit)) {
         const ballEntity = this.queryResults.golfBall.all.find((e) => {
@@ -403,6 +410,33 @@ export class GolfSystem extends System {
         }
       })
     }
+
+    this.queryResults.yourTurn.added.forEach((entity) => {
+      const playerComponent = getComponent(entity, GamePlayer)
+      const clubEntity = playerComponent.ownedObjects['GolfClub']
+
+      // TODO: Undefined at first run
+      if (!clubEntity) return
+
+      const golfClubComponent = getMutableComponent(clubEntity, GolfClubComponent)
+      golfClubComponent.hidden = false
+
+      if (isClient) {
+        enableClub(clubEntity, true)
+      }
+    })
+
+    this.queryResults.yourTurn.removed.forEach((entity) => {
+      const playerComponent = getComponent(entity, GamePlayer)
+      const clubEntity = playerComponent.ownedObjects['GolfClub']
+
+      // TODO: undefined at first run
+      if (!clubEntity) return
+
+      if (isClient) {
+        enableClub(clubEntity, false)
+      }
+    })
   }
 
   static queries = {
@@ -450,6 +484,13 @@ export class GolfSystem extends System {
     },
     golfTee: {
       components: [GolfTeeComponent],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    yourTurn: {
+      components: [State.YourTurn],
       listen: {
         added: true,
         removed: true

@@ -10,12 +10,15 @@ export class GolfClubComponent extends Component<GolfClubComponent> {
   headGroup: Group
   meshGroup: Group
   raycast: RaycastQuery
+  raycast1: RaycastQuery
   canHitBall: boolean
   hasHitBall: boolean
   velocityPositionsToCalculate = 4
   lastPositions: Vector3[] = []
   velocity: Vector3
   swingVelocity: number
+  hidden: boolean = false
+  disabledOpacity: number = 0.3
 
   static _schema = {
     canDoChipShots: { default: false, type: Types.Boolean },

@@ -1,10 +1,10 @@
-import { Quaternion, Vector3 } from 'three'
+import { Material, Mesh, Quaternion, Vector3 } from 'three'
 import { teleportPlayer } from '../../../../character/prefabs/NetworkPlayerCharacter'
 import { LifecycleValue } from '../../../../common/enums/LifecycleValue'
 import { isDev } from '../../../../common/functions/isDev'
 import { NumericalType } from '../../../../common/types/NumericalTypes'
 import { Entity } from '../../../../ecs/classes/Entity'
-import { getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions'
+import { getComponent, getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
 import { Input } from '../../../../input/components/Input'
 import { GamepadButtons } from '../../../../input/enums/InputEnums'
 import { InputValue } from '../../../../input/interfaces/InputValue'
@@ -18,11 +18,15 @@ import { addStateComponent } from '../../../functions/functionsState'
 import { getStorage } from '../../../functions/functionsStorage'
 import { State } from '../../../types/GameComponents'
 import { teleportObject } from './teleportObject'
+import { GolfClubComponent } from '../components/GolfClubComponent'
+import { hideClub } from '../prefab/GolfClubPrefab'
+import { isClient } from '../../../../common/functions/isClient'
 
 // we need to figure out a better way than polluting an 8 bit namespace :/
 
 export enum GolfInput {
-  TELEPORT = 120
+  TELEPORT = 120,
+  TOGGLECLUB = 121
 }
 
 export const setupPlayerInput = (entityPlayer: Entity) => {
@@ -43,6 +47,26 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
       const position = ballTransform.position
       console.log('teleporting to', position.x, position.y, position.z)
       teleportPlayer(entity, position, new Quaternion())
+    }
+  )
+
+  inputs.schema.inputMap.set('y', GolfInput.TOGGLECLUB)
+  inputs.schema.inputMap.set(GamepadButtons.Y, GolfInput.TOGGLECLUB)
+
+  inputs.schema.behaviorMap.set(
+    GolfInput.TOGGLECLUB,
+    (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
+      if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
+      if (hasComponent(entity, State.YourTurn)) return
+
+      const { ownedObjects } = getComponent(entity, GamePlayer)
+      const clubEntity = ownedObjects['GolfClub']
+      const golfClubComponent = getMutableComponent(clubEntity, GolfClubComponent)
+      golfClubComponent.hidden = !golfClubComponent.hidden
+
+      if (isClient) {
+        hideClub(clubEntity, golfClubComponent.hidden, false)
+      }
     }
   )
 
