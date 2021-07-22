@@ -1202,7 +1202,8 @@ export class Api extends EventEmitter {
 
     const headers = {
       'content-type': 'application/json',
-      authorization: `Bearer ${token}`
+      authorization: `Bearer ${token}`,
+      fileid: assetId
     }
 
     const assetEndpoint = `${SERVER_URL}/static-resource/${assetId}`

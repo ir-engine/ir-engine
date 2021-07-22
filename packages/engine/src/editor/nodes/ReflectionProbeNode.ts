@@ -2,6 +2,7 @@
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
 
+import { Api } from '@xrengine/client-core'
 import {
   BoxBufferGeometry,
   BoxHelper,
@@ -182,6 +183,13 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
   onRemove() {
     this.currentEnvMap?.dispose()
     this.editor.scene.unregisterEnvironmentMapNode(this)
+    const fileID = (this.editor.api as Api).filesToUpload[this.ownedFileIdentifier]['file_id']
+    console.log(JSON.stringify(fileID))
+    if (fileID) {
+      this.editor.api.deleteAsset(fileID)
+      delete (this.editor.api as Api).filesToUpload[this.ownedFileIdentifier]
+      console.log('Deleting the asset:' + this.editor.api.filesToUpload)
+    }
   }
 
   async uploadBakeToServer(projectID: any) {

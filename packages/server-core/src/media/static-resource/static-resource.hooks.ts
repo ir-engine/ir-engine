@@ -1,9 +1,8 @@
 import { HookContext } from '@feathersjs/feathers'
 import { hooks } from '@feathersjs/authentication'
 import dauria from 'dauria'
-import removeRelatedResources from '@xrengine/server-core/src/hooks/remove-related-resources'
+import removeOwnedFile from '@xrengine/server-core/src/hooks/remove-owned-file'
 import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
-import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 import replaceThumbnailLink from '@xrengine/server-core/src/hooks/replace-thumbnail-link'
 
 const { authenticate } = hooks
@@ -31,7 +30,7 @@ export default {
     ],
     update: [authenticate('jwt')],
     patch: [authenticate('jwt'), replaceThumbnailLink()],
-    remove: [authenticate('jwt'), removeRelatedResources()]
+    remove: [authenticate('jwt'), removeOwnedFile()]
   },
 
   after: {
