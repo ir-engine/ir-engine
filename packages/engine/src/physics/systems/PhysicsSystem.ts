@@ -6,6 +6,8 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { ColliderComponent } from '../components/ColliderComponent'
 import { BodyType, PhysXConfig, PhysXInstance } from 'three-physx'
 import { Vector3 } from 'three'
+import { NetworkObject } from '../../networking/components/NetworkObject'
+import { Network } from '../../networking/classes/Network'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -96,6 +98,13 @@ export class PhysicsSystem extends System {
       }
     })
 
+    // TODO: this is temporary - we should refactor all our network entity handling to be on the ECS
+    this.queryResults.networkObject.removed.forEach((entity) => {
+      const networkObject = getComponent(entity, NetworkObject, true)
+      delete Network.instance.networkObjects[networkObject.networkId]
+      console.log('removed prefab with id', networkObject.networkId)
+    })
+
     PhysXInstance.instance.update()
   }
 
@@ -130,6 +139,13 @@ export class PhysicsSystem extends System {
 PhysicsSystem.queries = {
   collider: {
     components: [ColliderComponent, TransformComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  networkObject: {
+    components: [NetworkObject],
     listen: {
       added: true,
       removed: true

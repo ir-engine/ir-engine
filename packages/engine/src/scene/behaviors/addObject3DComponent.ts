@@ -3,8 +3,8 @@
  * @packageDocumentation
  * */
 
-import { Audio, BufferGeometry, Color, Mesh, MeshStandardMaterial, Object3D } from 'three'
 import { Object3DComponent } from '../components/Object3DComponent'
+import { Object3D } from 'three';
 import {
   AmbientLightProbeTagComponent,
   AmbientLightTagComponent,
@@ -37,100 +37,29 @@ import {
   SpotLightTagComponent,
   SpriteTagComponent
 } from '../components/Object3DTagComponents'
-import { Behavior } from '../../common/interfaces/Behavior'
 import { Entity } from '../../ecs/classes/Entity'
 import { Component } from '../../ecs/classes/Component'
-import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
-import {
-  hasComponent,
-  getComponent,
-  removeComponent,
-  removeEntity,
-  getMutableComponent,
-  addComponent
-} from '../../ecs/functions/EntityFunctions'
+import { hasComponent, getComponent, addComponent } from '../../ecs/functions/EntityFunctions'
 import { SkyboxComponent } from '../components/SkyboxComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import ShadowComponent from '../components/ShadowComponent'
-import { createShadow } from './createShadow'
-import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
-import { isClient } from '../../common/functions/isClient'
-import { VideoProps } from './createMedia'
-import { SceneBackgroundProps, SkyBoxShaderProps, SkyTypeEnum } from '../../editor/nodes/SkyboxNode'
 
-interface ObjArgs extends VideoProps {
-  key?: string
-  receiveShadow?: boolean
-  castShadow?: boolean
-  'material.color'?: string
-  href?: string
-  skyBoxShaderProps?: SkyBoxShaderProps
-}
+
+
+import { createObject3dFromArgs } from './createObject3dFromArgs'
+
 
 /**
  * Add Object3D Component with args into Entity from the Behavior.
  */
+
 export const addObject3DComponent = <T extends Object3D>(
   entity: Entity,
   obj3D: T | (new (...args: any[]) => T),
   objArgs?: any,
   parentEntity?: Entity
 ) => {
-  const isObject3d = typeof obj3D === 'object'
-  let object3d
+  
+  const object3d = createObject3dFromArgs(entity, obj3D,true,objArgs,parentEntity)
 
-  /**
-   * apply value to sub object by path, like material.color = '#fff' will set { material:{ color }}
-   * @param subj
-   * @param path
-   * @param value
-   */
-  const applyDeepValue = (subj: object, path: string, value: unknown): void => {
-    if (!subj) {
-      console.warn('subj is not an object', subj)
-      return
-    }
-    const groups = path.match(/(?<property>[^.]+)(\.(?<nextPath>.*))?/)?.groups
-    if (!groups) {
-      return
-    }
-    const { property, nextPath } = groups
-
-    if (!property) {
-      // console.warn('property not found', property);
-      return
-    }
-    if (nextPath) {
-      return applyDeepValue(subj[property], nextPath, value)
-    }
-
-    if (subj[property] instanceof Color && (typeof value === 'number' || typeof value === 'string')) {
-      subj[property] = new Color(value)
-    } else {
-      subj[property] = value
-    }
-  }
-
-  if (isObject3d) object3d = obj3D
-  // else object3d = new args.obj3d();
-
-  typeof objArgs === 'object' &&
-    Object.keys(objArgs).forEach((key) => {
-      applyDeepValue(object3d, key, objArgs[key])
-    })
-
-  if (parentEntity && hasComponent(parentEntity, ShadowComponent)) {
-    createShadow(entity, getMutableComponent(parentEntity, ShadowComponent))
-  }
-
-  const hasShadow = getMutableComponent(entity, ShadowComponent)
-  const castShadow = Boolean(hasShadow?.castShadow || objArgs?.castShadow)
-  const receiveshadow = Boolean(hasShadow?.receiveShadow || objArgs?.receiveShadow)
-
-  object3d.traverse((obj) => {
-    obj.castShadow = castShadow
-    obj.receiveShadow = receiveshadow
-  })
 
   addComponent(entity, Object3DComponent, { value: object3d })
 

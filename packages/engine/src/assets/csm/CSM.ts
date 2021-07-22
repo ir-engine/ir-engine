@@ -50,21 +50,22 @@ export class CSM {
   camera: PerspectiveCamera
   parent: Object3D
   cascades: number
-  maxFar?: number
-  mode?: CSMModes
-  shadowMapSize?: number
-  shadowBias?: number
-  lightDirection?: Vector3
-  lightIntensity?: number
-  lightNear?: number
-  lightFar?: number
-  lightMargin?: number
+  maxFar: number
+  mode: CSMModes
+  shadowMapSize: number
+  shadowBias: number
+  lightDirection: Vector3
+  lightIntensity: number
+  lightNear: number
+  lightFar: number
+  lightMargin: number
   customSplitsCallback?: (amount: number, near: number, far: number, target: number[]) => void
   fade: boolean
   mainFrustum: Frustum
   frustums: Frustum[]
   breaks: number[]
-  lights: DirectionalLight[]
+  lights: DirectionalLight[][]
+  lightSourcesCount: number
   shaders: Map<Material, ShaderType>
 
   constructor(data: CSMParams = {} as CSMParams) {
@@ -74,14 +75,14 @@ export class CSM {
     this.maxFar = data.maxFar || 100
     this.mode = data.mode || CSMModes.PRACTICAL
     this.shadowMapSize = data.shadowMapSize || 2048
-    this.shadowBias = data.shadowBias || 0.00001
+    this.shadowBias = data.shadowBias || 0.05
     this.lightDirection = data.lightDirection || new Vector3(1, -1, 1).normalize()
     this.lightIntensity = data.lightIntensity || 1
-    this.lightNear = data.lightNear || 0.1
-    this.lightFar = data.lightFar || 2000
-    this.lightMargin = data.lightMargin || 200
+    this.lightNear = data.lightNear || 1
+    this.lightFar = data.lightFar || 100
+    this.lightMargin = data.lightMargin || 50
     this.customSplitsCallback = data.customSplitsCallback
-    this.fade = false
+    this.fade = true
     this.mainFrustum = new Frustum()
     this.frustums = []
     this.breaks = []
@@ -100,31 +101,41 @@ export class CSM {
     }
 
     this.shadowMapSize = newSize
-
-    for (let i = 0; i < this.cascades; i++) {
-      this.lights[i].shadow.mapSize.width = newSize
-      this.lights[i].shadow.mapSize.height = newSize
-      if (this.lights[i].shadow.map) {
-        ;(this.lights[i].shadow.map as WebGLRenderTarget).dispose()
-        this.lights[i].shadow.map = null
+    for (const light of this.lights) {
+      for (let i = 0; i < this.cascades; i++) {
+        light[i].shadow.mapSize.width = newSize
+        light[i].shadow.mapSize.height = newSize
+        if (light[i].shadow.map) {
+          ;(light[i].shadow.map as WebGLRenderTarget).dispose()
+          light[i].shadow.map = null
+        }
       }
     }
   }
 
   createLights(lights?: DirectionalLight[]): void {
-    if (lights && lights.length > 0) {
+    // TODO: support multiple lights (requires shader changes)
+
+    // for (const sourceLightIndex in lights) {
+    if (lights?.length) {
+      const sourceLightIndex = 0
+      const sourceLight = lights[sourceLightIndex]
+      this.lights[sourceLightIndex] = []
+
       for (let i = 0; i < this.cascades; i++) {
-        const light = lights[i]
-
+        const light = sourceLight.clone()
+        light.target = sourceLight.target.clone()
         light.castShadow = true
-
-        this.parent.add(light)
-        this.parent.add(light.target)
-        this.lights.push(light)
+        this.parent.add(light, light.target)
+        this.lights[sourceLightIndex].push(light)
       }
-
-      return
     }
+    // }
+
+    // if no lights are provided, create default ones
+    if (lights.length) return
+
+    this.lights[0] = []
 
     for (let i = 0; i < this.cascades; i++) {
       const light = new DirectionalLight(0xffffff, this.lightIntensity)
@@ -137,9 +148,8 @@ export class CSM {
       light.shadow.camera.far = this.lightFar
       light.shadow.bias = this.shadowBias
 
-      this.parent.add(light)
-      this.parent.add(light.target)
-      this.lights.push(light)
+      this.parent.add(light, light.target)
+      this.lights[0].push(light)
     }
   }
 
@@ -153,39 +163,42 @@ export class CSM {
   updateShadowBounds(): void {
     const frustums = this.frustums
     for (let i = 0; i < frustums.length; i++) {
-      const light = this.lights[i]
-      const shadowCam = light.shadow.camera
-      const frustum = this.frustums[i]
+      for (const lights of this.lights) {
+        const light = lights[i]
 
-      // Get the two points that represent that furthest points on the frustum assuming
-      // that's either the diagonal across the far plane or the diagonal across the whole
-      // frustum itself.
-      const nearVerts = frustum.vertices.near
-      const farVerts = frustum.vertices.far
-      const point1 = farVerts[0]
-      let point2
-      if (point1.distanceTo(farVerts[2]) > point1.distanceTo(nearVerts[2])) {
-        point2 = farVerts[2]
-      } else {
-        point2 = nearVerts[2]
+        const shadowCam = light.shadow.camera
+        const frustum = this.frustums[i]
+
+        // Get the two points that represent that furthest points on the frustum assuming
+        // that's either the diagonal across the far plane or the diagonal across the whole
+        // frustum itself.
+        const nearVerts = frustum.vertices.near
+        const farVerts = frustum.vertices.far
+        const point1 = farVerts[0]
+        let point2
+        if (point1.distanceTo(farVerts[2]) > point1.distanceTo(nearVerts[2])) {
+          point2 = farVerts[2]
+        } else {
+          point2 = nearVerts[2]
+        }
+
+        let squaredBBWidth = point1.distanceTo(point2)
+        if (this.fade) {
+          // expand the shadow extents by the fade margin if fade is enabled.
+          const camera = this.camera
+          const far = Math.max(camera.far, this.maxFar)
+          const linearDepth = frustum.vertices.far[0].z / (far - camera.near)
+          const margin = 0.25 * Math.pow(linearDepth, 2.0) * (far - camera.near)
+
+          squaredBBWidth += margin
+        }
+
+        shadowCam.left = -squaredBBWidth / 2
+        shadowCam.right = squaredBBWidth / 2
+        shadowCam.top = squaredBBWidth / 2
+        shadowCam.bottom = -squaredBBWidth / 2
+        shadowCam.updateProjectionMatrix()
       }
-
-      let squaredBBWidth = point1.distanceTo(point2)
-      if (this.fade) {
-        // expand the shadow extents by the fade margin if fade is enabled.
-        const camera = this.camera
-        const far = Math.max(camera.far, this.maxFar)
-        const linearDepth = frustum.vertices.far[0].z / (far - camera.near)
-        const margin = 0.25 * Math.pow(linearDepth, 2.0) * (far - camera.near)
-
-        squaredBBWidth += margin
-      }
-
-      shadowCam.left = -squaredBBWidth / 2
-      shadowCam.right = squaredBBWidth / 2
-      shadowCam.top = squaredBBWidth / 2
-      shadowCam.bottom = -squaredBBWidth / 2
-      shadowCam.updateProjectionMatrix()
     }
   }
 
@@ -244,36 +257,38 @@ export class CSM {
     const camera = this.camera
     const frustums = this.frustums
     for (let i = 0; i < frustums.length; i++) {
-      const light = this.lights[i]
-      const shadowCam = light.shadow.camera
+      for (const lights of this.lights) {
+        const light = lights[i]
+        const shadowCam = light.shadow.camera
 
-      const texelWidth = (shadowCam.right - shadowCam.left) / light.shadow.mapSize.x
-      const texelHeight = (shadowCam.top - shadowCam.bottom) / light.shadow.mapSize.y
+        const texelWidth = (shadowCam.right - shadowCam.left) / light.shadow.mapSize.x
+        const texelHeight = (shadowCam.top - shadowCam.bottom) / light.shadow.mapSize.y
 
-      light.shadow.camera.updateMatrixWorld(true)
-      _cameraToLightMatrix.multiplyMatrices(light.shadow.camera.matrixWorldInverse, camera.matrixWorld)
-      frustums[i].toSpace(_cameraToLightMatrix, _lightSpaceFrustum)
+        light.shadow.camera.updateMatrixWorld(true)
+        _cameraToLightMatrix.multiplyMatrices(light.shadow.camera.matrixWorldInverse, camera.matrixWorld)
+        frustums[i].toSpace(_cameraToLightMatrix, _lightSpaceFrustum)
 
-      const nearVerts = _lightSpaceFrustum.vertices.near
-      const farVerts = _lightSpaceFrustum.vertices.far
-      _bbox.makeEmpty()
-      for (let j = 0; j < 4; j++) {
-        _bbox.expandByPoint(nearVerts[j])
-        _bbox.expandByPoint(farVerts[j])
+        const nearVerts = _lightSpaceFrustum.vertices.near
+        const farVerts = _lightSpaceFrustum.vertices.far
+        _bbox.makeEmpty()
+        for (let j = 0; j < 4; j++) {
+          _bbox.expandByPoint(nearVerts[j])
+          _bbox.expandByPoint(farVerts[j])
+        }
+
+        _bbox.getCenter(_center)
+        _center.z = _bbox.max.z + this.lightMargin
+        _center.x = Math.floor(_center.x / texelWidth) * texelWidth
+        _center.y = Math.floor(_center.y / texelHeight) * texelHeight
+        _center.applyMatrix4(light.shadow.camera.matrixWorld)
+
+        light.position.copy(_center)
+        light.target.position.copy(_center)
+
+        light.target.position.x += this.lightDirection.x
+        light.target.position.y += this.lightDirection.y
+        light.target.position.z += this.lightDirection.z
       }
-
-      _bbox.getCenter(_center)
-      _center.z = _bbox.max.z + this.lightMargin
-      _center.x = Math.floor(_center.x / texelWidth) * texelWidth
-      _center.y = Math.floor(_center.y / texelHeight) * texelHeight
-      _center.applyMatrix4(light.shadow.camera.matrixWorld)
-
-      light.position.copy(_center)
-      light.target.position.copy(_center)
-
-      light.target.position.x += this.lightDirection.x
-      light.target.position.y += this.lightDirection.y
-      light.target.position.z += this.lightDirection.z
     }
   }
 
@@ -292,15 +307,14 @@ export class CSM {
     }
 
     const breaksVec2 = []
-    const scope = this
     const shaders = this.shaders
 
-    material.onBeforeCompile = function (shader: ShaderType) {
-      const far = Math.min(scope.camera.far, scope.maxFar)
-      scope.getExtendedBreaks(breaksVec2)
+    material.onBeforeCompile = (shader: ShaderType) => {
+      const far = Math.min(this.camera.far, this.maxFar)
+      this.getExtendedBreaks(breaksVec2)
 
       shader.uniforms.CSM_cascades = { value: breaksVec2 }
-      shader.uniforms.cameraNear = { value: scope.camera.near }
+      shader.uniforms.cameraNear = { value: this.camera.near }
       shader.uniforms.shadowFar = { value: far }
 
       shaders.set(material, shader)
@@ -355,7 +369,10 @@ export class CSM {
 
   remove(): void {
     for (let i = 0; i < this.lights.length; i++) {
-      this.parent.remove(this.lights[i])
+      for (const lights of this.lights) {
+        this.parent.remove(lights[i])
+        this.parent.remove(lights[i].target)
+      }
     }
   }
 
