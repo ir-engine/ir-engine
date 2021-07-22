@@ -277,7 +277,7 @@ export class GolfSystem extends System {
         Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId].component.entity
 
       behaviorsToExecute.push(() => {
-        updateClub(entity)
+        updateClub(entity, null, delta)
       })
       if (hasComponent(entity, State.addedHit)) {
         const ballEntity = this.queryResults.golfBall.all.find((e) => {

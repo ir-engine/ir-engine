@@ -14,7 +14,8 @@ import {
   MeshStandardMaterial,
   Quaternion,
   Vector3,
-  MathUtils
+  MathUtils,
+  Euler
 } from 'three'
 import { Body, BodyType, ColliderHitEvent, ShapeType, RaycastQuery, SceneQueryType, SHAPES } from 'three-physx'
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups'
@@ -46,10 +47,8 @@ import { Interactable } from '../../../../interaction/components/Interactable'
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()
-const vec3 = new Vector3()
-const quat = new Quaternion()
-const quat2 = new Quaternion()
-const quat3 = new Quaternion()
+const vector2 = new Vector3()
+const eulerX90 = new Euler(Math.PI * 0.5, 0, 0)
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -136,11 +135,12 @@ export const updateClub: Behavior = (
   golfClubComponent.raycast.origin.copy(position)
   golfClubComponent.raycast.direction.set(0, 0, -1).applyQuaternion(rotation)
 
-  // find the rotation along the XZ plane the hand is pointing
-  quat2.setFromUnitVectors(vector0.set(0, 0, -1), vector1.set(0, 0, -1).applyQuaternion(rotation).setY(0).normalize())
-
   const hit = golfClubComponent.raycast.hits[0]
-  const headDistance = XRUserSettings.staticLengthGolfClub ? clubLength : hit ? hit.distance : clubLength
+  const headDistance = XRUserSettings.staticLengthGolfClub
+    ? clubLength
+    : hit
+    ? Math.min(hit.distance, clubLength)
+    : clubLength
 
   if (hasComponent(ownerEntity, YourTurn)) {
     enableClub(entityClub, true)
@@ -149,23 +149,33 @@ export const updateClub: Behavior = (
   }
 
   // update position of club
-  golfClubComponent.headGroup.position.setZ(-headDistance)
+  golfClubComponent.headGroup.position.setZ(-(headDistance - clubPutterLength * 0.5))
   golfClubComponent.neckObject.position.setZ(-headDistance * 0.5)
   golfClubComponent.neckObject.scale.setZ(headDistance * 0.5)
 
-  golfClubComponent.meshGroup.getWorldQuaternion(quat)
-  // get rotation of club relative to parent
-  golfClubComponent.headGroup.quaternion.copy(quat).invert().multiply(quat2)
-  golfClubComponent.headGroup.updateMatrixWorld(true)
+  golfClubComponent.headGroup.quaternion.setFromEuler(eulerX90)
+  golfClubComponent.headGroup.getWorldDirection(vector2)
+  golfClubComponent.raycast1.origin.copy(position.addScaledVector(vector2, -clubHalfWidth * 2))
+  golfClubComponent.raycast1.direction.set(0, 0, -1).applyQuaternion(rotation)
 
-  // make rotation flush to ground
-  // TODO: use ground normal instead of world up vector
-  golfClubComponent.headGroup.getWorldDirection(vector1).setY(0)
-  // get local forward direction, then apply that in world space
-  quat2.setFromUnitVectors(vector0.set(0, 0, 1), vector1)
-  golfClubComponent.meshGroup.getWorldQuaternion(quat)
-  golfClubComponent.headGroup.quaternion.copy(quat).invert().multiply(quat2)
-  golfClubComponent.headGroup.updateMatrixWorld(true)
+  const hit1 = golfClubComponent.raycast1.hits[0]
+
+  if (hit && hit1) {
+    // Update the head's up direction using ground normal
+    // We can use interpolated normals between two ray hits for more accurate result
+    vector0.set(hit.normal.x, hit.normal.y, hit.normal.z)
+
+    // Only apply the rotation on nearly horizontal surfaces
+    if (vector0.dot(vector1.set(0, 1, 0)) >= 0.75) {
+      golfClubComponent.headGroup.up.copy(vector0)
+
+      vector2.set(hit1.position.x - hit.position.x, hit1.position.y - hit.position.y, hit1.position.z - hit.position.z)
+
+      golfClubComponent.headGroup.getWorldPosition(vector1)
+      vector1.addScaledVector(vector2, -1)
+      golfClubComponent.headGroup.lookAt(vector1)
+    }
+  }
 
   // calculate velocity of the head of the golf club
   // average over multiple frames
@@ -188,21 +198,18 @@ export const updateClub: Behavior = (
   golfClubComponent.lastPositions[0].copy(vector1)
 
   // calculate relative rotation of club head
-  quat.set(
-    collider.body.transform.rotation.x,
-    collider.body.transform.rotation.y,
-    collider.body.transform.rotation.z,
-    collider.body.transform.rotation.w
-  )
-  quat.invert().multiply(quat2)
+  vector0.copy(golfClubComponent.headGroup.position)
+  vector1.copy(golfClubComponent.headGroup.children[0].position)
+  vector1.applyQuaternion(golfClubComponent.headGroup.quaternion)
+  vector0.add(vector1)
 
   collider.body.shapes[0].transform = {
     translation: {
-      x: golfClubComponent.headGroup.position.x,
-      y: golfClubComponent.headGroup.position.y,
-      z: golfClubComponent.headGroup.position.z
+      x: vector0.x,
+      y: vector0.y,
+      z: vector0.z
     },
-    rotation: quat
+    rotation: golfClubComponent.headGroup.quaternion
   }
 }
 
@@ -224,10 +231,11 @@ export const onClubColliderWithBall: GameObjectInteractionBehavior = (
  * @author Josh Field <github.com/HexaField>
  */
 
-const clubColliderSize = new Vector3(0.03, 0.05, 0.1)
 const clubHalfWidth = 0.05
 const clubPutterLength = 0.1
+const clubColliderSize = new Vector3(clubHalfWidth * 0.5, clubHalfWidth * 0.5, clubPutterLength)
 const clubLength = 1.2
+const rayLength = clubLength * 1.1
 
 export const initializeGolfClub = (entityClub: Entity) => {
   const transform = getComponent(entityClub, TransformComponent)
@@ -244,7 +252,16 @@ export const initializeGolfClub = (entityClub: Entity) => {
       type: SceneQueryType.Closest,
       origin: new Vector3(),
       direction: new Vector3(0, -1, 0),
-      maxDistance: clubLength,
+      maxDistance: rayLength,
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground
+    })
+  )
+  golfClubComponent.raycast1 = PhysicsSystem.instance.addRaycastQuery(
+    new RaycastQuery({
+      type: SceneQueryType.Closest,
+      origin: new Vector3(),
+      direction: new Vector3(0, -1, 0),
+      maxDistance: rayLength,
       collisionMask: CollisionGroups.Default | CollisionGroups.Ground
     })
   )
@@ -279,7 +296,6 @@ export const initializeGolfClub = (entityClub: Entity) => {
     obj.castShadow = true
     obj.receiveShadow = true
   })
-
   addComponent(entityClub, Object3DComponent, { value: meshGroup })
 
   const shapeHead: ShapeType = {

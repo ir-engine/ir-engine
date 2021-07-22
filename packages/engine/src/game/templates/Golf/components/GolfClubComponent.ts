@@ -10,6 +10,7 @@ export class GolfClubComponent extends Component<GolfClubComponent> {
   headGroup: Group
   meshGroup: Group
   raycast: RaycastQuery
+  raycast1: RaycastQuery
   canHitBall: boolean
   hasHitBall: boolean
   velocityPositionsToCalculate = 4
