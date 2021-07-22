@@ -96,8 +96,8 @@ export const removeFile = async (context: HookContext, resourceId) => {
 export default (): Hook => {
   return async (context: HookContext) => {
     const { params } = context
-    const resourceId = params.headers.fileid
-    await removeFile(context, resourceId)
+    const resourceId = params.headers?.fileid
+    if (resourceId) await removeFile(context, resourceId)
     return context
   }
 }
