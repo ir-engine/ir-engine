@@ -1,4 +1,13 @@
-import { MeshLambertMaterial, BufferGeometry, Mesh, Shape, ShapeGeometry, ExtrudeGeometry, Texture } from 'three'
+import {
+  MeshLambertMaterial,
+  BufferGeometry,
+  Mesh,
+  Shape,
+  ShapeGeometry,
+  ExtrudeGeometry,
+  Texture,
+  WebGLRenderer
+} from 'three'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { VectorTile } from '@mapbox/vector-tile'
 import { DEFAULT_FEATURE_STYLES } from './styles'
@@ -18,17 +27,14 @@ interface IFeatureX extends Feature {
 
 const METERS_PER_DEGREE_LL = 111139
 function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position): Position {
-  return [
-    (lng - lngCenter) * METERS_PER_DEGREE_LL,
-    (lat - latCenter) * METERS_PER_DEGREE_LL,
-  ]
+  return [(lng - lngCenter) * METERS_PER_DEGREE_LL, (lat - latCenter) * METERS_PER_DEGREE_LL]
 }
 
 function buildGeometry(feature: IFeatureX, llCenter: Position): BufferGeometry | null {
   const shape = new Shape()
   const styles = DEFAULT_FEATURE_STYLES[feature.properties.layer_name]
 
-  let goodGeometry: Geometry;
+  let goodGeometry: Geometry
 
   let coords: Position[]
   // Buffer the linestrings (e.g. roads) so they have some thickness
@@ -43,7 +49,7 @@ function buildGeometry(feature: IFeatureX, llCenter: Position): BufferGeometry |
     })
     goodGeometry = buf.geometry
   } else {
-    goodGeometry = feature.geometry;
+    goodGeometry = feature.geometry
   }
 
   // TODO switch statement
@@ -150,7 +156,7 @@ function generateTextureCanvas() {
 /**
  * TODO adapt code from https://raw.githubusercontent.com/jeromeetienne/threex.proceduralcity/master/threex.proceduralcity.js
  */
-export function buildMesh(tiles: IFeatureX[], llCenter: Position): Mesh {
+export function buildMesh(tiles: IFeatureX[], llCenter: Position, renderer: WebGLRenderer): Mesh {
   const geometries = tiles
     .map((tile) => buildGeometry(tile, llCenter))
     .filter((geometry) => geometry)
@@ -160,7 +166,7 @@ export function buildMesh(tiles: IFeatureX[], llCenter: Position): Mesh {
 
   // generate the texture
   var texture = new Texture(generateTextureCanvas())
-  // texture.anisotropy = renderer.getMaxAnisotropy()
+  texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
   texture.needsUpdate = true
 
   // build the mesh

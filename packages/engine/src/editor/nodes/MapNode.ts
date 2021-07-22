@@ -35,7 +35,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   constructor(editor: Editor) {
     super(editor)
     console.log('creating map')
-    addMap(editor.scene as any)
+    addMap(editor.scene as any, editor.renderer.renderer)
   }
   copy(source, recursive = true) {
     super.copy(source, recursive)
