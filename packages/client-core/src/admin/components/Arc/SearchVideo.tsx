@@ -24,7 +24,7 @@ const SearchVideo = (props: Props) => {
         className={classes.input}
         placeholder={'Search for media'}
         inputProps={{ 'aria-label': 'search for media' }}
-        onChange={handleChange}
+        // onChange={handleChange}
       />
       <IconButton type="submit" className={classes.iconButton} arial-label="search">
         <SearchIcon />

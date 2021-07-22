@@ -170,7 +170,7 @@ export default function Dashboard({ children }) {
         </div>
         <Divider />
         <List>
-          <Link to="/admin">
+          <Link style={{ textDecoration: 'none' }} to="/admin">
             <ListItem style={{ color: 'white' }} onClick={changeComponent} button>
               <ListItemIcon>
                 <DashboardIcon style={{ color: 'white' }} />
@@ -178,7 +178,7 @@ export default function Dashboard({ children }) {
               <ListItemText primary={t('social:dashboard.dashboard')} />
             </ListItem>
           </Link>
-          <Link to="/admin/users">
+          <Link style={{ textDecoration: 'none' }} to="/admin/users">
             <ListItem style={{ color: 'white' }} onClick={changeComponent} button>
               <ListItemIcon>
                 <SuperviosorAccount style={{ color: 'white' }} />
@@ -186,7 +186,7 @@ export default function Dashboard({ children }) {
               <ListItemText primary={t('social:dashboard.users')} />
             </ListItem>
           </Link>
-          <Link to="/admin/feeds">
+          <Link style={{ textDecoration: 'none' }} to="/admin/feeds">
             <ListItem style={{ color: 'white' }} onClick={changeComponent} button>
               <ListItemIcon>
                 <ViewModuleIcon style={{ color: 'white' }} />
@@ -194,7 +194,7 @@ export default function Dashboard({ children }) {
               <ListItemText primary={t('social:dashboard.feeds')} />
             </ListItem>
           </Link>
-          <Link to="/admin/armedia">
+          <Link style={{ textDecoration: 'none' }} to="/admin/armedia">
             <ListItem style={{ color: 'white' }} onClick={changeComponent} button>
               <ListItemIcon>
                 <EmojiPeopleIcon style={{ color: 'white' }} />
@@ -202,7 +202,7 @@ export default function Dashboard({ children }) {
               <ListItemText primary={t('social:dashboard.arMedia')} />
             </ListItem>
           </Link>
-          <Link to="/admin/tips-and-tricks">
+          <Link style={{ textDecoration: 'none' }} to="/admin/tips-and-tricks">
             <ListItem style={{ color: 'white' }} onClick={changeComponent} button>
               <ListItemIcon>
                 <SettingsSystemDaydreamIcon style={{ color: 'white' }} />
@@ -211,7 +211,7 @@ export default function Dashboard({ children }) {
             </ListItem>
           </Link>
 
-          <Link to="/admin/thefeeds">
+          <Link style={{ textDecoration: 'none' }} to="/admin/thefeeds">
             <ListItem style={{ color: 'white' }} onClick={changeComponent} button>
               <ListItemIcon>
                 <RemoveFromQueueIcon style={{ color: 'white' }} />
@@ -220,7 +220,7 @@ export default function Dashboard({ children }) {
             </ListItem>
           </Link>
 
-          <Link to="/editor/projects/create">
+          <Link style={{ textDecoration: 'none' }} to="/editor/projects/create">
             <ListItem style={{ color: 'white' }} onClick={changeComponent} button>
               <ListItemIcon>
                 <GradientIcon style={{ color: 'white' }} />
