@@ -12,7 +12,6 @@ import {
   Material,
   Mesh,
   MeshStandardMaterial,
-  Quaternion,
   Vector3,
   MathUtils,
   Euler
@@ -93,14 +92,24 @@ export const spawnClub: Behavior = (
   })
 }
 
+export const setClubOpacity = (golfClubComponent: GolfClubComponent, opacity: number): void => {
+  golfClubComponent.meshGroup.traverse((obj: Mesh) => {
+    if (obj.material) {
+      ;(obj.material as Material).opacity = opacity
+    }
+  })
+}
+
 export const enableClub = (entityClub: Entity, enable: boolean): void => {
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
   golfClubComponent.canHitBall = enable
-  golfClubComponent.meshGroup.traverse((obj: Mesh) => {
-    if (obj.material) {
-      ;(obj.material as Material).opacity = enable ? 1 : 0.3
-    }
-  })
+  setClubOpacity(golfClubComponent, enable ? 1 : golfClubComponent.disabledOpacity)
+}
+
+export const hideClub = (entityClub: Entity, hide: boolean, yourTurn: boolean): void => {
+  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
+  const maxOpacity = yourTurn ? 1 : golfClubComponent.disabledOpacity
+  setClubOpacity(golfClubComponent, hide ? 0 : maxOpacity)
 }
 
 /**
@@ -141,12 +150,6 @@ export const updateClub: Behavior = (
     : hit
     ? Math.min(hit.distance, clubLength)
     : clubLength
-
-  if (hasComponent(ownerEntity, YourTurn)) {
-    enableClub(entityClub, true)
-  } else {
-    enableClub(entityClub, false)
-  }
 
   // update position of club
   golfClubComponent.headGroup.position.setZ(-(headDistance - clubPutterLength * 0.5))

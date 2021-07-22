@@ -17,6 +17,8 @@ export class GolfClubComponent extends Component<GolfClubComponent> {
   lastPositions: Vector3[] = []
   velocity: Vector3
   swingVelocity: number
+  hidden: boolean = false
+  disabledOpacity: number = 0.3
 
   static _schema = {
     canDoChipShots: { default: false, type: Types.Boolean },
