@@ -40,12 +40,10 @@ export type InitializeOptions = {
     physicsWorldConfig?: PhysXConfig
     physxWorker?: any
   }
-  systems?: [
-    {
-      system: SystemConstructor<any>
-      args?: any
-    }
-  ]
+  systems: {
+    system: SystemConstructor<any>
+    args?: any
+  }[]
 }
 
 /**
@@ -82,5 +80,6 @@ export const DefaultInitializationOptions: InitializeOptions = {
       substeps: 1,
       gravity: { x: 0, y: -9.81, z: 0 }
     }
-  }
+  },
+  systems: []
 }
