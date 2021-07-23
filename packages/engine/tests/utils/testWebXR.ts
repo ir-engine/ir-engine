@@ -1,21 +1,23 @@
-
-import type XREngineBot from '../../../bot/src/bot'
+import type { XREngineBot } from '@xrengine/bot/src/bot'
 import { XRBotHooks } from '../../src/bot/enums/BotHooks'
-import { compareArrays } from '../utils/MathTestUtils'
+import { compareArrays } from './MathTestUtils'
+
+export const setupXR = async (bot: XREngineBot) => {
+  await bot.page.addScriptTag({ url: '/scripts/webxr-polyfill.js' })
+  await bot.runHook(XRBotHooks.OverrideXR)
+  await bot.runHook(XRBotHooks.StartXR)
+}
 
 export const testWebXR = (bot: XREngineBot) => {
 
   test('Web XR works', async () => {
-    await bot.delay(1000)
     expect(await bot.runHook(XRBotHooks.XRSupported)).toBe(true)
-    await bot.runHook(XRBotHooks.StartXR)
     expect(await bot.runHook(XRBotHooks.XRInitialized)).toBe(true)
-  }, 5 * 1000)
-
+  }, 10 * 1000)
 
   test('Can detect and move input sources', async () => {
 
-    await bot.delay(1000)
+    await bot.delay(2000)
     // Detect default head view transform
     const { 
       headInputValue,

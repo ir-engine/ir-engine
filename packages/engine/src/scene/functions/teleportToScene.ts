@@ -17,6 +17,7 @@ import { Object3DComponent } from '../components/Object3DComponent'
 
 export const teleportToScene = async (portalComponent: PortalProps, handleNewScene: () => void) => {
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
+  Engine.hasJoinedWorld = false
 
   // remove controller since physics world will be destroyed and we don't want it moving
   PhysicsSystem.instance.removeController(
@@ -67,6 +68,7 @@ export const teleportToScene = async (portalComponent: PortalProps, handleNewSce
   await handleNewScene()
 
   await new Promise<void>((resolve) => {
+    Engine.hasJoinedWorld = true
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, resolve)
   })
 

@@ -66,6 +66,7 @@ const configureClient = async (options: InitializeOptions) => {
       renderer: enableRenderer,
       physics: true
     })
+    Engine.hasJoinedWorld = true
   })
 
   if (options.renderer.disabled !== true) {
@@ -95,6 +96,7 @@ const configureServer = async (options: InitializeOptions) => {
 
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: true, physics: true })
+    Engine.hasJoinedWorld = true
   })
 
   registerServerSystems(options)
@@ -193,6 +195,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.offlineMode = typeof options.networking.schema === 'undefined'
   Engine.publicPath = options.publicPath
   Engine.lastTime = now() / 1000
+  Engine.activeSystems = new ActiveSystems()
 
   if (options.renderer && options.renderer.canvasId) {
     Engine.options.canvasId = options.renderer.canvasId

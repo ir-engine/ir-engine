@@ -198,7 +198,7 @@ export class Engine {
    *
    * @author Fernando Serrano, Robert Long
    */
-  static activeSystems: ActiveSystems = new ActiveSystems()
+  static activeSystems: ActiveSystems = null
   static vehicles: any
   static lastTime: number
 
@@ -214,6 +214,8 @@ export class Engine {
   static prevInputState = new Map<any, InputValue<NumericalType>>()
 
   static isInitialized = false
+
+  static hasJoinedWorld = false
 
   static publicPath: string
 
