@@ -58,7 +58,7 @@
     "publish": "lerna publish from-package --yes",
     "publish-no-verify": "lerna publish from-package --yes --no-verify-access --ignore-scripts",
     "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
-    "validate": "lerna run validate",
+    "validate": "npm run lint && lerna run validate",
     "build": "lerna run build --parallel",
     "build-publish": "lerna run --ignore @xrengine/client-ml --ignore @xrengine/docs --ignore @xrengine/social --ignore @xrengine/client --ignore @xrengine/server build-publish --parallel",
     "build-docker": "lerna run --ignore @xrengine/bot --ignore @xrengine/client-ml --ignore @xrengine/docs --ignore @xrengine/engine build --parallel",
