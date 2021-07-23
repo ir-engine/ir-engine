@@ -60,12 +60,15 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { AnimationManager } from '../../character/AnimationManager'
 import { isMobile } from '../../common/functions/isMobile'
 import { createObject3dFromArgs } from '../behaviors/createObject3dFromArgs'
+import { createDirectionalLight } from '../behaviors/createDirectionalLight'
+import { loadGLTFModel } from '../behaviors/loadGLTFModel'
+import { loadModelAnimation } from '../behaviors/loadModelAnimation'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
 }
 
-type ScenePropertyType = {
+export type ScenePropertyType = {
   directionalLights: DirectionalLight[]
   isCSMEnabled: boolean
 }
@@ -152,39 +155,7 @@ export class WorldScene {
         break
 
       case 'directional-light':
-        if (isClient) {
-          // console.warn('SCENE LOADING - Custom directional lights are not supported when CSM is enabled.');
-          // const direction = new Vector3(0, 0, 1).applyQuaternion(getComponent(entity, TransformComponent).rotation)
-          // setSkyDirection(direction)
-
-          const mapSize = new Vector2().fromArray(component.data.shadowMapResolution)
-
-          if (isMobile) {
-            mapSize.set(512, 512)
-          }
-
-          const args = {
-            obj3d: DirectionalLight,
-            objArgs: {
-              'shadow.mapSize': mapSize,
-              'shadow.bias': component.data.shadowBias,
-              'shadow.radius': component.data.shadowRadius,
-              intensity: component.data.intensity,
-              color: component.data.color,
-              castShadow: component.data.castShadow,
-              'shadow.camera.far': component.data.cameraFar
-            }
-          }
-
-          if (sceneProperty.isCSMEnabled) {
-            const object3d = createObject3dFromArgs(entity, args, false)
-            console.log(object3d)
-            sceneProperty.directionalLights.push(object3d)
-          } else {
-            addObject3DComponent(entity, args)
-          }
-        }
-
+        createDirectionalLight(entity, component, sceneProperty)
         break
 
       case 'hemisphere-light':
@@ -207,101 +178,11 @@ export class WorldScene {
         break
 
       case 'gltf-model':
-        if (isClient) {
-          this.loaders.push(
-            new Promise<void>((resolve) => {
-              AssetLoader.load(
-                {
-                  url: component.data.src,
-                  entity
-                },
-                (res) => {
-                  removeCollidersFromModel(entity, res)
-
-                  // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
-                  if (res.animations) {
-                    // We only have to update the mixer time for this animations on each frame
-                    addComponent(entity, AnimationComponent, { onlyUpdateMixerTime: true })
-                    const animationComponent = getMutableComponent(entity, AnimationComponent)
-                    animationComponent.animations = res.animations
-                    const object3d = getMutableComponent(entity, Object3DComponent)
-
-                    animationComponent.mixer = new AnimationMixer(object3d.value)
-                    animationComponent.currentState = new AnimationState()
-                  }
-
-                  if (component.data.textureOverride) {
-                    // we should push this to ECS, something like a SceneObjectLoadComponent,
-                    // or add engine events for specific objects being added to the scene,
-                    // the scene load event + delay 1 second delay works for now.
-                    EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
-                      await delay(1000)
-                      const objToCopy = Engine.scene.children.find((obj: any) => {
-                        return obj.sceneEntityId === component.data.textureOverride
-                      })
-                      if (objToCopy)
-                        objToCopy.traverse((videoMesh: any) => {
-                          if (videoMesh.name === 'VideoMesh') {
-                            getComponent(entity, Object3DComponent)?.value?.traverse((obj: any) => {
-                              if (obj.material) {
-                                obj.material = videoMesh.material
-                              }
-                            })
-                          }
-                        })
-                    })
-                  }
-                  this._onModelLoaded()
-                  resolve()
-                },
-                null,
-                (err) => {
-                  this._onModelLoaded()
-                  resolve()
-                }
-              )
-            })
-          )
-        }
+        loadGLTFModel(this, entity, component, sceneProperty)
         break
 
       case 'loop-animation':
-        if (isClient) {
-          EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
-            // We only have to update the mixer time for this animations on each frame
-            const object3d = getMutableComponent(entity, Object3DComponent)
-            if (!object3d) {
-              console.warn(
-                'Tried to load animation without an Object3D Component attached! Are you sure the model has loaded?'
-              )
-            }
-            addComponent(entity, AnimationComponent, { onlyUpdateMixerTime: true })
-            const animationComponent = getMutableComponent(entity, AnimationComponent)
-            if (component.data.hasAvatarAnimations) {
-              animationComponent.animations = AnimationManager.instance._animations
-            } else {
-              animationComponent.animations = object3d.value.animations
-            }
-            animationComponent.mixer = new AnimationMixer(object3d.value)
-            animationComponent.currentState = new AnimationState()
-            if (component.data.activeClipIndex >= 0) {
-              const clip = animationComponent.animations[component.data.activeClipIndex]
-              const action = animationComponent.mixer.clipAction(
-                AnimationClip.findByName(animationComponent.animations, clip.name)
-              )
-              action.setEffectiveWeight(1)
-              animationComponent.currentState.animations = [
-                {
-                  name: clip.name,
-                  weight: 1,
-                  loopType: LoopRepeat,
-                  action
-                }
-              ]
-              animationComponent.currentState.animations[0].action.play()
-            }
-          })
-        }
+        loadModelAnimation(entity, component)
         break
 
       case 'interact':
@@ -438,6 +319,11 @@ export class WorldScene {
 
       case 'portal':
         createPortal(entity, component.data)
+        break
+
+      case 'reflectionprobestatic':
+      case 'reflectionprobe':
+        // intentionally empty - these are only for the editor
         break
 
       default:
