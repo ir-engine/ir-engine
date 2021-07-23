@@ -193,7 +193,6 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   Engine.offlineMode = typeof options.networking.schema === 'undefined'
   Engine.publicPath = options.publicPath
   Engine.lastTime = now() / 1000
-  Engine.activeSystems = new ActiveSystems()
 
   if (options.renderer && options.renderer.canvasId) {
     Engine.options.canvasId = options.renderer.canvasId
