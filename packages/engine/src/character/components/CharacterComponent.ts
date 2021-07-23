@@ -1,4 +1,4 @@
-import { Group, Vector3 } from 'three'
+import { Group, PerspectiveCamera, Vector3 } from 'three'
 import { Component } from '../../ecs/classes/Component'
 import { Types } from '../../ecs/types/Types'
 import { RelativeSpringSimulator } from '../../physics/classes/SpringSimulator'
@@ -17,6 +17,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
    * It's center is at the center of the collider, except with y sitting at the bottom of the collider, flush with the ground
    */
   modelContainer: Group
+  frustumCamera: PerspectiveCamera = new PerspectiveCamera(60, 2, 0.1, 3)
   visible = true // used for turning model invisble when first person
 
   // === AVATAR === //

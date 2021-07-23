@@ -1,4 +1,4 @@
-import { Box3, Frustum, Matrix4, Mesh, Object3D, Vector3 } from 'three'
+import { Box3, Frustum, Group, Matrix4, Mesh, MeshBasicMaterial, MeshPhongMaterial, Object3D, Vector3 } from 'three'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { isClient } from '../../common/functions/isClient'
 import { vectorToScreenXYZ } from '../../common/functions/vectorToScreenXYZ'
@@ -10,6 +10,7 @@ import { System, SystemAttributes } from '../../ecs/classes/System'
 import { Not } from '../../ecs/functions/ComponentFunctions'
 import {
   addComponent,
+  createEntity,
   getComponent,
   getMutableComponent,
   hasComponent,
@@ -47,6 +48,10 @@ import {
 } from '../../character/functions/getInteractiveIsInReachDistance'
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
 import { unequipEntity } from '../functions/equippableFunctions'
+import { Network } from '../../networking/classes/Network'
+import { FontManager } from '../../ui/classes/FontManager'
+import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
+import { Sphere } from 'three'
 
 const vector3 = new Vector3()
 // but is works on client too, i will config out this
@@ -141,6 +146,20 @@ const interactFocused: Behavior = (entity: Entity, args, delta: number): void =>
   }
 }
 
+const mat4 = new Matrix4()
+const projectionMatrix = new Matrix4().makePerspective(
+  -0.1, // x1
+  0.1, // x2
+  -0.1, // y1
+  0.1, // y2
+  0.1, // near
+  5 // far
+)
+const frustum = new Frustum()
+const vec3 = new Vector3()
+
+type RaycastResult = [Entity, boolean, number?, number?]
+
 /**
  * Checks if entity can interact with any of entities listed in 'interactive' array, checking distance, guards and raycast
  * @param entity
@@ -154,37 +173,25 @@ const interactBoxRaycast: Behavior = (
   delta: number
 ): void => {
   const interacts = getMutableComponent(entity, Interactor)
-  if (!hasComponent(entity, FollowCameraComponent)) {
+  if (!isEntityLocalClient(entity)) {
     interacts.subFocusedArray = []
     interacts.focusedInteractive = null
     return
   }
 
-  const followCamera = getComponent(entity, FollowCameraComponent)
-  if (!followCamera.raycastBoxOn) return
-
-  const transform = getComponent<TransformComponent>(entity, TransformComponent)
+  const transform = getComponent(entity, TransformComponent)
+  const actor = getComponent(entity, CharacterComponent)
 
   if (!raycastList.length) {
     return
   }
 
-  const projectionMatrix = new Matrix4().makePerspective(
-    followCamera.rx1,
-    followCamera.rx2,
-    followCamera.ry1,
-    followCamera.ry2,
-    Engine.camera.near,
-    followCamera.farDistance
-  )
+  actor.frustumCamera.updateMatrixWorld()
+  actor.frustumCamera.matrixWorldInverse.copy(actor.frustumCamera.matrixWorld).invert()
 
-  Engine.camera.updateMatrixWorld()
-  Engine.camera.matrixWorldInverse.copy(Engine.camera.matrixWorld).invert()
+  mat4.multiplyMatrices(projectionMatrix, actor.frustumCamera.matrixWorldInverse)
+  frustum.setFromProjectionMatrix(mat4)
 
-  const viewProjectionMatrix = new Matrix4().multiplyMatrices(projectionMatrix, Engine.camera.matrixWorldInverse)
-  const frustum = new Frustum().setFromProjectionMatrix(viewProjectionMatrix)
-
-  type RaycastResult = [Entity, boolean, number?, number?]
   const subFocusedArray = raycastList
     .map((entityIn): RaycastResult => {
       const boundingBox = getComponent(entityIn, BoundingBox)
@@ -268,9 +275,25 @@ export class InteractiveSystem extends System {
   previousEntity: Entity
   previousEntity2DPosition: Vector3
 
+  interactText: Group
+
   constructor(attributes: SystemAttributes = {}) {
     super(attributes)
+    if (isClient) {
+      const geometry = FontManager.instance.create3dText('INTERACT', new Vector3(0.8, 1, 0.2))
 
+      const textSize = 0.1
+      const text = new Mesh(
+        geometry,
+        new MeshPhongMaterial({ color: 0xd4af37, emissive: 0xd4af37, emissiveIntensity: 1 })
+      )
+      text.scale.setScalar(textSize)
+
+      this.interactText = new Group().add(text)
+
+      this.interactText.visible = false
+      Engine.scene.add(this.interactText)
+    }
     this.reset()
   }
 
@@ -432,10 +455,26 @@ export class InteractiveSystem extends System {
       // removal is the first because the hint must first be deleted, and then a new one appears
       this.queryResults.focus.removed?.forEach((entity) => {
         interactFocused(entity, null, delta)
+        this.interactText.visible = false
       })
 
       this.queryResults.focus.added?.forEach((entity) => {
         interactFocused(entity, null, delta)
+        const bb = getComponent(entity, BoundingBox)
+        if (bb) {
+          bb.box.getCenter(this.interactText.position)
+          // this.interactText.position.y += bb.box.max.y
+        } else {
+          const obj3d = getComponent(entity, Object3DComponent).value as Mesh
+          this.interactText.position.copy(obj3d.position)
+          if (obj3d.geometry) {
+            // this.interactText.position.y += obj3d.geometry.boundingBox.max.y
+          } else {
+            // this.interactText.position.y += 0.5
+          }
+        }
+        this.interactText.position.y += 0.5
+        this.interactText.visible = true
       })
 
       this.queryResults.subfocus.added?.forEach((entity) => {
@@ -501,6 +540,13 @@ export class InteractiveSystem extends System {
         ] as EquippedStateUpdateSchema)
       }
     })
+
+    // animate the interact text up and down if it's visible
+    if (Network.instance.localClientEntity && this.interactText.visible) {
+      this.interactText.children[0].position.y = Math.sin(time) * 0.1
+      const { x, z } = getComponent(Network.instance.localClientEntity, TransformComponent).position
+      this.interactText.lookAt(x, this.interactText.position.y, z)
+    }
   }
 
   static queries: any = {
