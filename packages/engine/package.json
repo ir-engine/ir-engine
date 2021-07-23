@@ -11,7 +11,9 @@
   "publishConfig": {
     "access": "public"
   },
-  "jest": "ts-jest",
+  "jest": {
+    "preset": "ts-jest"
+  },
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
   "homepage": "https://github.com/XRFoundation/XREngine#readme",
   "license": "MIT",
@@ -77,6 +79,7 @@
     "@types/jest-environment-puppeteer": "4.4.1",
     "@types/puppeteer": "5.4.4",
     "@types/three": "0.130.1",
+    "@types/yuka": "^0.7.1",
     "esbuild": "0.12.15",
     "eslint": "7.31.0",
     "rollup": "2.53.3",
