@@ -545,12 +545,13 @@ export const WebXRPlugin = ({
         // @ts-ignore
         .then(({ result, filePath, nameId }) => {
           console.log('END RECORDING, result IS', result)
-          alert(filePath)
+          console.log('filePath is', filePath)
           setLastFeedVideoUrl(filePath)
           getArMediaItem(null)
           setSavedFilePath('file://' + filePath)
           if (!closeBtnAction.current) {
             const videoPath = Capacitor.convertFileSrc(filePath)
+            console.log(videoPath)
             updateNewFeedPageState(true, videoPath, filePath, nameId)
           }
           setRecordingState(RecordingStates.OFF)
@@ -596,7 +597,8 @@ export const WebXRPlugin = ({
         console.log('RECORDING, STATUS IS', status)
         if (playerRef.current) {
           // const video = playerRef.current.video as HTMLMediaElement;
-          // video.muted = false;
+          // video.muted = true;
+          playerRef.current.video.muted = true
           console.log('Player.play()!')
           playerRef.current.play()
           const end = new Date()
