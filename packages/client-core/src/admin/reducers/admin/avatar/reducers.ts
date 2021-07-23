@@ -49,7 +49,6 @@ const adminReducer = (state = immutableState, action: any): any => {
       updateMap.set('fetched', true)
       updateMap.set('updateNeeded', false)
       updateMap.set('lastFetched', new Date())
-      console.log('updated avatars map', updateMap)
       return state.set('avatars', updateMap)
   }
 

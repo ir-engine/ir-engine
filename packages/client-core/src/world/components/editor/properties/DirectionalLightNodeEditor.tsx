@@ -48,28 +48,6 @@ export class DirectionalLightNodeEditor extends Component<DirectionalLightNodeEd
     ;(this.props.editor as any).setPropertySelected('cameraFar', cameraFar)
   }
 
-  //function to handle the changes in camera near property of DirectionalLight
-  onChangeCameraNear = (cameraNear) => {
-    ;(this.props.editor as any).setPropertySelected('cameraNear', cameraNear)
-  }
-
-  //function to handle the changes in camera Top property of DirectionalLight
-  onChangeCameraTop = (cameraTop) => {
-    ;(this.props.editor as any).setPropertySelected('cameraTop', cameraTop)
-  }
-  //function to handle the changes in camera Bottom property of DirectionalLight
-  onChangeCameraBottom = (cameraBottom) => {
-    ;(this.props.editor as any).setPropertySelected('cameraBottom', cameraBottom)
-  }
-  //function to handle the changes in camera Left property of DirectionalLight
-  onChangeCameraLeft = (cameraLeft) => {
-    ;(this.props.editor as any).setPropertySelected('cameraLeft', cameraLeft)
-  }
-  //function to handle the changes in camera Right property of DirectionalLight
-  onChangeCameraRight = (cameraRight) => {
-    ;(this.props.editor as any).setPropertySelected('cameraRight', cameraRight)
-  }
-
   // function to handle changes in showCameraHelper propery
   onChangeshowCameraHelper = (showCameraHelper) => {
     ;(this.props.editor as any).setPropertySelected('showCameraHelper', showCameraHelper)
@@ -112,17 +90,6 @@ export class DirectionalLightNodeEditor extends Component<DirectionalLightNodeEd
         </InputGroup>
         {/* @ts-ignore */}
         <NumericInputGroup
-          name="CameraNear"
-          label={this.props.t('editor:properties.directionalLight.lbl-cameraNear')}
-          min={0}
-          smallStep={0.01}
-          mediumStep={0.1}
-          largeStep={1}
-          value={node.cameraNear}
-          onChange={this.onChangeCameraNear}
-        />
-        {/* @ts-ignore */}
-        <NumericInputGroup
           name="CameraFar"
           label={this.props.t('editor:properties.directionalLight.lbl-cameraFar')}
           min={0}
@@ -131,46 +98,6 @@ export class DirectionalLightNodeEditor extends Component<DirectionalLightNodeEd
           largeStep={1}
           value={node.cameraFar}
           onChange={this.onChangeCameraFar}
-        />
-        {/* @ts-ignore */}
-        <NumericInputGroup
-          name="CameraTop"
-          label={this.props.t('editor:properties.directionalLight.lbl-cameraTop')}
-          smallStep={0.01}
-          mediumStep={0.1}
-          largeStep={1}
-          value={node.cameraTop}
-          onChange={this.onChangeCameraTop}
-        />
-        {/* @ts-ignore */}
-        <NumericInputGroup
-          name="CameraBottom"
-          label={this.props.t('editor:properties.directionalLight.lbl-cameraBottom')}
-          smallStep={0.01}
-          mediumStep={0.1}
-          largeStep={1}
-          value={node.cameraBottom}
-          onChange={this.onChangeCameraBottom}
-        />
-        {/* @ts-ignore */}
-        <NumericInputGroup
-          name="CameraLeft"
-          label={this.props.t('editor:properties.directionalLight.lbl-cameraLeft')}
-          smallStep={0.01}
-          mediumStep={0.1}
-          largeStep={1}
-          value={node.cameraLeft}
-          onChange={this.onChangeCameraLeft}
-        />
-        {/* @ts-ignore */}
-        <NumericInputGroup
-          name="CameraRight"
-          label={this.props.t('editor:properties.directionalLight.lbl-cameraRight')}
-          smallStep={0.01}
-          mediumStep={0.1}
-          largeStep={1}
-          value={node.cameraRight}
-          onChange={this.onChangeCameraRight}
         />
       </NodeEditor>
     )

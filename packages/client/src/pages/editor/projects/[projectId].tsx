@@ -14,7 +14,6 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { GamesSchema } from '@xrengine/engine/src/game/templates/GamesSchema'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 /**
  * Declairing Props interface having two props.

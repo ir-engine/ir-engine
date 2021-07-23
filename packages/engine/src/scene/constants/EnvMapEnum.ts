@@ -1,4 +1,4 @@
-import { SkyBoxShaderProps } from '../../editor/nodes/SkyboxNode'
+import { ReflectionProbeSettings } from '../../editor/nodes/ReflectionProbeNode'
 
 export const enum EnvMapSourceType {
   'Default',
@@ -17,4 +17,5 @@ export type EnvMapProps = {
   envMapSourceURL?: string
   envMapTextureType?: EnvMapTextureType
   envMapSourceColor?: string
+  envMapReflectionProbe?: ReflectionProbeSettings
 }

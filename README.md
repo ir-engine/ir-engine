@@ -11,7 +11,6 @@
 ## Popular features
 - Player rigs to support 2D, 3D and XR interaction
 - High-performance ECS engine
-- Full-featured world editor
 - Fully networked player controller, physics, vehicles and particles
 - Fully data-oriented design
 - Chat, groups, parties and friends
@@ -24,10 +23,6 @@
 - Fast, unreliable messaging with SCTP data channels
 - Built end-to-end in Typescript
 - Free, open source, MIT-licensed
-
-## Demos:
-
-https://xrengine.io
 
 # Getting Started
 
@@ -324,7 +319,7 @@ Test user Admin privliges by going to `/admin`
 
 # Deployment
 
-[AWS EKS Deployment](https://github.com/XRFoundation/XREngine/blob/dev/packages/ops/docs/EKS-setup.md)
+[AWS EKS Deployment](https://github.com/XRFoundation/XREngine/blob/dev/packages/ops/docs/AWS-setup.md)
 
 [Managing Kubernets](https://github.com/XRFoundation/XREngine/blob/dev/packages/ops/docs/managing_remote_kubernets.md)
 

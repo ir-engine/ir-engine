@@ -137,7 +137,7 @@ export class WebGLRendererSystem extends System {
   renderContext: WebGLRenderingContext
 
   supportWebGL2: boolean = WebGL.isWebGL2Available()
-  rendereringEnabled: boolean
+  rendereringEnabled = true
 
   /** Constructs WebGL Renderer System. */
   constructor(attributes: SystemAttributes = {}) {
@@ -191,7 +191,6 @@ export class WebGLRendererSystem extends System {
         this.rendereringEnabled = ev.renderer
       }
     })
-    this.rendereringEnabled = attributes.rendereringEnabled ?? true
   }
 
   async initialize() {

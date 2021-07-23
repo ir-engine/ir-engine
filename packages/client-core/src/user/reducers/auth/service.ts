@@ -55,7 +55,8 @@ export function doLoginAuto(allowGuest?: boolean, forceClientAuthReset?: boolean
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const authData = getStoredState('auth')
-      let accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined
+      let accessToken =
+        forceClientAuthReset !== true && authData && authData.authUser ? authData.authUser.accessToken : undefined
 
       if (allowGuest !== true && accessToken == null) {
         return

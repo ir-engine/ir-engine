@@ -4,10 +4,10 @@ import { getComponent, getMutableComponent, hasComponent } from '../../../../ecs
 import { changeRole } from '../../../../game/functions/functionsState'
 import { GamePlayer } from '../../../components/GamePlayer'
 import { YourTurn } from '../components/YourTurnTagComponent'
-import { GamesSchema } from '../../GamesSchema'
 import { getGame } from '../../../functions/functions'
 import { Game } from '../../../components/Game'
 import { GameMode } from '../../../types/GameMode'
+import { Engine } from '../../../../ecs/classes/Engine'
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -34,13 +34,11 @@ export const addRole: Behavior = (
   checks?: any
 ): void => {
   const game = getGame(entity)
-  const gameSchema = GamesSchema[game.gameMode] as GameMode
-  let newPlayerNumber = Object.keys(game.gamePlayers).reduce((acc, v) => acc + game.gamePlayers[v].length, 0)
-  console.log(game.gamePlayers)
-  console.log('newPlayerNumber', newPlayerNumber)
-  console.log(gameSchema.gamePlayerRoles)
-  // TODO: this doesnt work
-  // newPlayerNumber = recurseSearchEmptyRole(game, gameSchema, newPlayerNumber) //last parameter - allowInOneRole, for futured RedTeam vs BlueTeam
+  const gameSchema = Engine.gameModes[game.gameMode]
+  const [availableRole] = Object.entries(game.gamePlayers).find(([key, entities]) => {
+    return entities.length === 0
+  })
+  const newPlayerNumber = Number(availableRole.substr(0, 1)) - 1
 
   if (newPlayerNumber === null || newPlayerNumber > game.maxPlayers) {
     console.warn(

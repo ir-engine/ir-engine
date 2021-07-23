@@ -1,11 +1,11 @@
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import app from './app'
+import { Application } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 
-export default async function (locationName) {
-  await app.isSetup
+export default async function (locationName, app: Application) {
+  await (app as any).isSetup
   let service, serviceId
   const locationResult = await app.service('location').find({
     query: {

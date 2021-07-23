@@ -50,9 +50,6 @@ const DevPage = () => {
         canvasId: engineRendererCanvasId,
         postProcessing: false
       },
-      networking: {
-        useOfflineMode: true
-      },
       physics: {
         physxWorker: new Worker('/scripts/loadPhysXClassic.js')
       }

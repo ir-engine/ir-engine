@@ -99,7 +99,6 @@ export async function reset(): Promise<void> {
   AssetLoader.Cache.clear()
 
   // Engine.enabled = false;
-  Engine.gameMode = null
   Engine.inputState.clear()
   Engine.prevInputState.clear()
   Engine.viewportElement = null

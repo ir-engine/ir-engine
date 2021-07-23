@@ -103,7 +103,7 @@ export class ContentPack implements ServiceMethods<Data> {
     }
 
     let uploadPromises = []
-    const { scene, contentPack, avatar, thumbnail } = data as any
+    const { scenes, contentPack, avatars } = data as any
     await new Promise((resolve, reject) => {
       s3.provider.getObjectAcl(
         {
@@ -128,80 +128,97 @@ export class ContentPack implements ServiceMethods<Data> {
       avatars: [],
       scenes: []
     }
-    if (scene != null) {
-      const thumbnailFind = await this.app.service('static-resource').find({
-        query: {
-          sid: scene.sid
-        }
-      })
-
-      const assembleResponse = assembleScene(scene, contentPack)
-      const worldFile = assembleResponse.worldFile
-      uploadPromises = assembleResponse.uploadPromises
-      if (typeof worldFile.metadata === 'string') worldFile.metadata = JSON.parse(worldFile.metadata)
-      const worldFileKey = getWorldFileKey(contentPack, worldFile.metadata.name)
-      let thumbnailLink
-      if (thumbnailFind.total > 0) {
-        const thumbnail = thumbnailFind.data[0]
-        const url = thumbnail.url
-        const thumbnailDownload = await axios.get(url, { responseType: 'arraybuffer' })
-        await new Promise((resolve, reject) => {
-          s3.provider.putObject(
-            {
-              ACL: 'public-read',
-              Body: thumbnailDownload.data,
-              Bucket: s3.bucket,
-              ContentType: 'jpeg',
-              Key: getThumbnailKey(contentPack, url)
-            },
-            (err, data) => {
-              if (err) {
-                console.error(err)
-                reject(err)
-              } else {
-                resolve(data)
+    const promises = []
+    if (scenes != null) {
+      for (const scene of scenes) {
+        promises.push(
+          new Promise(async (resolve) => {
+            const thumbnailFind = await this.app.service('static-resource').find({
+              query: {
+                sid: scene.sid
               }
+            })
+
+            const assembleResponse = assembleScene(scene, contentPack)
+            const worldFile = assembleResponse.worldFile
+            uploadPromises = assembleResponse.uploadPromises
+            if (typeof worldFile.metadata === 'string') worldFile.metadata = JSON.parse(worldFile.metadata)
+            const worldFileKey = getWorldFileKey(contentPack, worldFile.metadata.name)
+            let thumbnailLink
+            if (thumbnailFind.total > 0) {
+              const thumbnail = thumbnailFind.data[0]
+              const url = thumbnail.url
+              const thumbnailDownload = await axios.get(url, { responseType: 'arraybuffer' })
+              await new Promise((resolve, reject) => {
+                s3.provider.putObject(
+                  {
+                    ACL: 'public-read',
+                    Body: thumbnailDownload.data,
+                    Bucket: s3.bucket,
+                    ContentType: 'jpeg',
+                    Key: getThumbnailKey(contentPack, url)
+                  },
+                  (err, data) => {
+                    if (err) {
+                      console.error(err)
+                      reject(err)
+                    } else {
+                      resolve(data)
+                    }
+                  }
+                )
+              })
+              thumbnailLink = getThumbnailUrl(contentPack, url)
             }
-          )
-        })
-        thumbnailLink = getThumbnailUrl(contentPack, url)
-      }
-      await new Promise((resolve, reject) => {
-        s3.provider.putObject(
-          {
-            ACL: 'public-read',
-            Body: Buffer.from(JSON.stringify(worldFile)),
-            Bucket: s3.bucket,
-            ContentType: 'application/json',
-            Key: worldFileKey
-          },
-          (err, data) => {
-            if (err) {
-              console.error(err)
-              reject(err)
-            } else {
-              resolve(data)
+            await new Promise((resolve, reject) => {
+              s3.provider.putObject(
+                {
+                  ACL: 'public-read',
+                  Body: Buffer.from(JSON.stringify(worldFile)),
+                  Bucket: s3.bucket,
+                  ContentType: 'application/json',
+                  Key: worldFileKey
+                },
+                (err, data) => {
+                  if (err) {
+                    console.error(err)
+                    reject(err)
+                  } else {
+                    resolve(data)
+                  }
+                }
+              )
+            })
+            const newScene = {
+              sid: scene.sid,
+              name: scene.name,
+              worldFile: getWorldFileUrl(contentPack, worldFile.metadata.name)
             }
-          }
+            if (thumbnailLink != null) (newScene as any).thumbnail = thumbnailLink
+            body.scenes.push(newScene)
+            resolve(true)
+          })
         )
-      })
-      const newScene = {
-        sid: scene.sid,
-        name: scene.name,
-        worldFile: getWorldFileUrl(contentPack, worldFile.metadata.name)
       }
-      if (thumbnailLink != null) (newScene as any).thumbnail = thumbnailLink
-      body.scenes.push(newScene)
-    } else if (avatar != null) {
-      await uploadAvatar(avatar, thumbnail, contentPack)
-      const newAvatar = {
-        name: avatar.name,
-        avatar: getAvatarUrl(contentPack, avatar),
-        thumbnail: getAvatarThumbnailUrl(contentPack, thumbnail)
+    } else if (avatars != null) {
+      for (const avatarItem of avatars) {
+        promises.push(
+          new Promise(async (resolve) => {
+            const { avatar, thumbnail } = avatarItem
+            await uploadAvatar(avatar, thumbnail, contentPack)
+            const newAvatar = {
+              name: avatar.name,
+              avatar: getAvatarUrl(contentPack, avatar),
+              thumbnail: getAvatarThumbnailUrl(contentPack, thumbnail)
+            }
+            body.avatars.push(newAvatar)
+            resolve(true)
+          })
+        )
       }
-      body.avatars.push(newAvatar)
     }
 
+    await Promise.all(promises)
     await new Promise((resolve, reject) => {
       s3.provider.putObject(
         {
@@ -233,7 +250,7 @@ export class ContentPack implements ServiceMethods<Data> {
     for (const index in scenes) {
       const scene = scenes[index]
       const sceneResult = await axios.get(scene.worldFile)
-      promises.push(populateScene(scene.sid, sceneResult.data, this.app, scene.thumbnail))
+      promises.push(populateScene(scene.sid, sceneResult.data, manifestUrl, this.app, scene.thumbnail))
     }
     for (const index in avatars) promises.push(populateAvatar(avatars[index], this.app))
     await Promise.all(promises)
@@ -242,7 +259,7 @@ export class ContentPack implements ServiceMethods<Data> {
 
   async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
     let uploadPromises = []
-    const { scene, contentPack, avatar, thumbnail } = data as any
+    const { scenes, contentPack, avatars } = data as any
     const pack = await new Promise((resolve, reject) => {
       s3.provider.getObject(
         {
@@ -262,82 +279,104 @@ export class ContentPack implements ServiceMethods<Data> {
       )
     })
     const body = JSON.parse((pack as any).Body.toString())
-    if (scene != null) {
-      const thumbnailFind = await this.app.service('static-resource').find({
-        query: {
-          sid: scene.sid
-        }
-      })
-
-      const assembleResponse = assembleScene(scene, contentPack)
-      const worldFile = assembleResponse.worldFile
-      uploadPromises = assembleResponse.uploadPromises
-      if (typeof worldFile.metadata === 'string') worldFile.metadata = JSON.parse(worldFile.metadata)
-      const worldFileKey = getWorldFileKey(contentPack, worldFile.metadata.name)
-      let thumbnailLink
-      if (thumbnailFind.total > 0) {
-        const thumbnail = thumbnailFind.data[0]
-        const url = thumbnail.url
-        const thumbnailDownload = await axios.get(url, { responseType: 'arraybuffer' })
-        await new Promise((resolve, reject) => {
-          s3.provider.putObject(
-            {
-              ACL: 'public-read',
-              Body: thumbnailDownload.data,
-              Bucket: s3.bucket,
-              ContentType: 'jpeg',
-              Key: getThumbnailKey(contentPack, url)
-            },
-            (err, data) => {
-              if (err) {
-                console.error(err)
-                reject(err)
-              } else {
-                resolve(data)
+    const invalidationItems = [`/content-pack/${contentPack}/manifest.json`]
+    const promises = []
+    if (scenes != null) {
+      for (const scene of scenes) {
+        promises.push(
+          new Promise(async (resolve) => {
+            const thumbnailFind = await this.app.service('static-resource').find({
+              query: {
+                sid: scene.sid
               }
+            })
+
+            const assembleResponse = assembleScene(scene, contentPack)
+            const worldFile = assembleResponse.worldFile
+            uploadPromises = assembleResponse.uploadPromises
+            if (typeof worldFile.metadata === 'string') worldFile.metadata = JSON.parse(worldFile.metadata)
+            const worldFileKey = getWorldFileKey(contentPack, worldFile.metadata.name)
+            invalidationItems.push(`/${worldFileKey}`)
+            let thumbnailLink
+            if (thumbnailFind.total > 0) {
+              const thumbnail = thumbnailFind.data[0]
+              const url = thumbnail.url
+              const thumbnailDownload = await axios.get(url, { responseType: 'arraybuffer' })
+              const thumbnailKey = getThumbnailKey(contentPack, url)
+              await new Promise((resolve, reject) => {
+                s3.provider.putObject(
+                  {
+                    ACL: 'public-read',
+                    Body: thumbnailDownload.data,
+                    Bucket: s3.bucket,
+                    ContentType: 'jpeg',
+                    Key: thumbnailKey
+                  },
+                  (err, data) => {
+                    if (err) {
+                      console.error(err)
+                      reject(err)
+                    } else {
+                      resolve(data)
+                    }
+                  }
+                )
+              })
+              thumbnailLink = getThumbnailUrl(contentPack, url)
+              invalidationItems.push(`/${thumbnailKey}`)
             }
-          )
-        })
-        thumbnailLink = getThumbnailUrl(contentPack, url)
-      }
-      await new Promise((resolve, reject) => {
-        s3.provider.putObject(
-          {
-            ACL: 'public-read',
-            Body: Buffer.from(JSON.stringify(worldFile)),
-            Bucket: s3.bucket,
-            ContentType: 'application/json',
-            Key: worldFileKey
-          },
-          (err, data) => {
-            if (err) {
-              console.error(err)
-              reject(err)
-            } else {
-              resolve(data)
+            await new Promise((resolve, reject) => {
+              s3.provider.putObject(
+                {
+                  ACL: 'public-read',
+                  Body: Buffer.from(JSON.stringify(worldFile)),
+                  Bucket: s3.bucket,
+                  ContentType: 'application/json',
+                  Key: worldFileKey
+                },
+                (err, data) => {
+                  if (err) {
+                    console.error(err)
+                    reject(err)
+                  } else {
+                    resolve(data)
+                  }
+                }
+              )
+            })
+            body.scenes = body.scenes.filter((existingScene) => existingScene.sid !== scene.sid)
+            const newScene = {
+              sid: scene.sid,
+              name: scene.name,
+              worldFile: getWorldFileUrl(contentPack, worldFile.metadata.name)
             }
-          }
+            if (thumbnailLink != null) (newScene as any).thumbnail = thumbnailLink
+            body.scenes.push(newScene)
+            resolve(true)
+          })
         )
-      })
-      body.scenes = body.scenes.filter((existingScene) => existingScene.sid !== scene.sid)
-      const newScene = {
-        sid: scene.sid,
-        name: scene.name,
-        worldFile: getWorldFileUrl(contentPack, worldFile.metadata.name)
       }
-      if (thumbnailLink != null) (newScene as any).thumbnail = thumbnailLink
-      body.scenes.push(newScene)
-    } else if (avatar != null) {
-      await uploadAvatar(avatar, thumbnail, contentPack)
-      body.avatars = body.avatars.filter((existingAvatar) => existingAvatar.name !== avatar.name)
-      const newAvatar = {
-        name: avatar.name,
-        avatar: getAvatarUrl(contentPack, avatar),
-        thumbnail: getAvatarThumbnailUrl(contentPack, thumbnail)
+    } else if (avatars != null) {
+      for (const avatarItem of avatars) {
+        promises.push(
+          new Promise(async (resolve) => {
+            const { avatar, thumbnail } = avatarItem
+            await uploadAvatar(avatar, thumbnail, contentPack)
+            body.avatars = body.avatars.filter((existingAvatar) => existingAvatar.name !== avatar.name)
+            const newAvatar = {
+              name: avatar.name,
+              avatar: getAvatarUrl(contentPack, avatar),
+              thumbnail: getAvatarThumbnailUrl(contentPack, thumbnail)
+            }
+            invalidationItems.push(`/content-pack/${contentPack}/avatars/${avatar.name}.*`)
+            body.avatars.push(newAvatar)
+            resolve(true)
+          })
+        )
       }
-      body.avatars.push(newAvatar)
     }
 
+    await Promise.all(promises)
     if (body.version) body.version++
     else body.version = 1
     await new Promise((resolve, reject) => {
@@ -360,6 +399,28 @@ export class ContentPack implements ServiceMethods<Data> {
       )
     })
     await Promise.all(uploadPromises)
+    await new Promise((resolve, reject) => {
+      s3.cloudfront.createInvalidation(
+        {
+          DistributionId: config.aws.cloudfront.distributionId,
+          InvalidationBatch: {
+            CallerReference: Date.now().toString(),
+            Paths: {
+              Quantity: invalidationItems.length,
+              Items: invalidationItems
+            }
+          }
+        },
+        (err, data) => {
+          if (err) {
+            console.error(err)
+            reject(err)
+          } else {
+            resolve(data)
+          }
+        }
+      )
+    })
     return data
   }
 

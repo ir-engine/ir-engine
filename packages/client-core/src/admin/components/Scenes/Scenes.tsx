@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Button from '@material-ui/core/Button'
+import Checkbox from '@material-ui/core/Checkbox'
 import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableContainer from '@material-ui/core/TableContainer'
@@ -115,7 +116,7 @@ const Scenes = (props: Props) => {
               className={styles.tcell}
               key={headCell.id}
               align="right"
-              padding={headCell.disablePadding ? 'none' : 'default'}
+              padding={headCell.disablePadding ? 'none' : 'normal'}
               sortDirection={orderBy === headCell.id ? order : false}
             >
               <TableSortLabel
@@ -139,7 +140,7 @@ const Scenes = (props: Props) => {
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
   const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
-  const [selectedScene, setSelectedScene] = useState({})
+  const [selectedScenes, setSelectedScenes] = useState([])
 
   const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -156,25 +157,15 @@ const Scenes = (props: Props) => {
     setSelected([])
   }
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handlePageChange = (event: unknown, newPage: number) => {
     const incDec = page < newPage ? 'increment' : 'decrement'
     fetchAdminScenes(incDec)
     setPage(newPage)
   }
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10))
     setPage(0)
-  }
-
-  const openAddToContentPackModal = (scene: any) => {
-    setSelectedScene(scene)
-    setAddToContentPackModalOpen(true)
-  }
-
-  const closeAddToContentPackModal = () => {
-    setAddToContentPackModalOpen(false)
-    setSelectedScene({})
   }
 
   const fetchTick = () => {
@@ -182,6 +173,14 @@ const Scenes = (props: Props) => {
       setRefetch(true)
       fetchTick()
     }, 5000)
+  }
+
+  const handleCheck = (e: any, row: any) => {
+    const existingSceneIndex = selectedScenes.findIndex((scene) => scene.id === row.id)
+    if (e.target.checked === true) {
+      if (existingSceneIndex >= 0) setSelectedScenes(selectedScenes.splice(existingSceneIndex, 1, row))
+      else setSelectedScenes(selectedScenes.concat(row))
+    } else setSelectedScenes(selectedScenes.splice(existingSceneIndex, 1))
   }
 
   useEffect(() => {
@@ -240,14 +239,12 @@ const Scenes = (props: Props) => {
                       </TableCell>
                       <TableCell className={styles.tcell} align="right">
                         {user.userRole === 'admin' && (
-                          <Button
-                            type="button"
-                            variant="contained"
+                          <Checkbox
+                            className={styles.checkbox}
+                            onChange={(e) => handleCheck(e, row)}
+                            name="stereoscopic"
                             color="primary"
-                            onClick={() => openAddToContentPackModal(row)}
-                          >
-                            Add to Content Pack
-                          </Button>
+                          />
                         )}
                       </TableCell>
                     </TableRow>
@@ -264,17 +261,26 @@ const Scenes = (props: Props) => {
             count={adminScenesCount}
             rowsPerPage={rowsPerPage}
             page={page}
-            onChangePage={handleChangePage}
-            onChangeRowsPerPage={handleChangeRowsPerPage}
+            onPageChange={handlePageChange}
+            onRowsPerPageChange={handleRowsPerPageChange}
             className={styles.tablePagination}
           />
         </div>
         <AddToContentPackModal
           open={addToContentPackModalOpen}
-          scene={selectedScene}
-          handleClose={closeAddToContentPackModal}
+          scenes={selectedScenes}
+          handleClose={() => setAddToContentPackModalOpen(false)}
         />
       </Paper>
+      <Button
+        className={styles['open-modal']}
+        type="button"
+        variant="contained"
+        color="primary"
+        onClick={() => setAddToContentPackModalOpen(true)}
+      >
+        Add to Content Pack
+      </Button>
     </div>
   )
 }

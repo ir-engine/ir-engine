@@ -27,8 +27,13 @@ export class LinkedInStrategy extends CustomOAuthStrategy {
     )
     const identityProvider = authResult['identity-provider']
     const user = await this.app.service('user').get(entity.userId)
+    const adminCount = await (this.app.service('user') as any).Model.count({
+      where: {
+        userRole: 'admin'
+      }
+    })
     await this.app.service('user').patch(entity.userId, {
-      userRole: user?.userRole === 'admin' ? 'admin' : 'user'
+      userRole: user?.userRole === 'admin' || adminCount === 0 ? 'admin' : 'user'
     })
     if (entity.type !== 'guest') {
       await this.app.service('identity-provider').remove(identityProvider.id)

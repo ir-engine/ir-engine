@@ -6,6 +6,9 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { ColliderComponent } from '../components/ColliderComponent'
 import { BodyType, PhysXConfig, PhysXInstance } from 'three-physx'
 import { Vector3 } from 'three'
+import { NetworkObject } from '../../networking/components/NetworkObject'
+import { Network } from '../../networking/classes/Network'
+import { Engine } from '../../ecs/classes/Engine'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -29,7 +32,15 @@ export class PhysicsSystem extends System {
   constructor(attributes: SystemAttributes = {}) {
     super(attributes)
     PhysicsSystem.instance = this
-    this.physicsWorldConfig = Object.assign({}, attributes.physicsWorldConfig)
+    this.physicsWorldConfig = {
+      bounceThresholdVelocity: 0.5,
+      maximumDelta: 1000 / 20, // limits physics maximum delta so no huge jumps can be made
+      start: false,
+      lengthScale: 1,
+      verbose: false,
+      substeps: 1,
+      gravity: { x: 0, y: -9.81, z: 0 }
+    }
     this.worker = attributes.worker
 
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
@@ -48,6 +59,7 @@ export class PhysicsSystem extends System {
   async initialize() {
     super.initialize()
     await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig)
+    Engine.workers.push(this.worker)
   }
 
   reset(): void {
@@ -96,6 +108,13 @@ export class PhysicsSystem extends System {
       }
     })
 
+    // TODO: this is temporary - we should refactor all our network entity handling to be on the ECS
+    this.queryResults.networkObject.removed.forEach((entity) => {
+      const networkObject = getComponent(entity, NetworkObject, true)
+      delete Network.instance.networkObjects[networkObject.networkId]
+      console.log('removed prefab with id', networkObject.networkId)
+    })
+
     PhysXInstance.instance.update()
   }
 
@@ -130,6 +149,13 @@ export class PhysicsSystem extends System {
 PhysicsSystem.queries = {
   collider: {
     components: [ColliderComponent, TransformComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  networkObject: {
+    components: [NetworkObject],
     listen: {
       added: true,
       removed: true

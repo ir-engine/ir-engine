@@ -3,6 +3,7 @@ import { IFeatureStyles, IFeatureStylesByLayerName, DEFAULT_FEATURE_STYLES } fro
 import { vectors } from './vectors'
 import turf_buffer from '@turf/buffer'
 import { VectorTile, VectorTileFeature } from '@mapbox/vector-tile'
+import { isClient } from '../common/functions/isClient'
 
 function getRandomGreyColor(minValue, maxValue) {
   var colorValue = Math.floor(Math.random() * maxValue + minValue)

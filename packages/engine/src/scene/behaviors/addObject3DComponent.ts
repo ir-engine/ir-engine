@@ -3,7 +3,6 @@
  * @packageDocumentation
  * */
 
-import { Color, Object3D } from 'three'
 import { Object3DComponent } from '../components/Object3DComponent'
 import {
   AmbientLightProbeTagComponent,
@@ -37,87 +36,17 @@ import {
   SpotLightTagComponent,
   SpriteTagComponent
 } from '../components/Object3DTagComponents'
-import { Behavior } from '../../common/interfaces/Behavior'
 import { Entity } from '../../ecs/classes/Entity'
 import { Component } from '../../ecs/classes/Component'
-import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
-import {
-  hasComponent,
-  getComponent,
-  removeComponent,
-  removeEntity,
-  getMutableComponent,
-  addComponent
-} from '../../ecs/functions/EntityFunctions'
+import { hasComponent, getComponent, addComponent } from '../../ecs/functions/EntityFunctions'
 import { SkyboxComponent } from '../components/SkyboxComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import ShadowComponent from '../components/ShadowComponent'
-import { createShadow } from './createShadow'
-import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
-import { isClient } from '../../common/functions/isClient'
+import { createObject3dFromArgs } from './createObject3dFromArgs'
 
 /**
  * Add Object3D Component with args into Entity from the Behavior.
  */
-export const addObject3DComponent: Behavior<{ obj3d: any; objArgs?: any; parentEntity?: Entity }> = (
-  entity: Entity,
-  args
-) => {
-  const isObject3d = typeof args.obj3d === 'object'
-  let object3d
-
-  /**
-   * apply value to sub object by path, like material.color = '#fff' will set { material:{ color }}
-   * @param subj
-   * @param path
-   * @param value
-   */
-  const applyDeepValue = (subj: object, path: string, value: unknown): void => {
-    if (!subj) {
-      console.warn('subj is not an object', subj)
-      return
-    }
-    const groups = path.match(/(?<property>[^.]+)(\.(?<nextPath>.*))?/)?.groups
-    if (!groups) {
-      return
-    }
-    const { property, nextPath } = groups
-
-    if (!property) {
-      // console.warn('property not found', property);
-      return
-    }
-    if (nextPath) {
-      return applyDeepValue(subj[property], nextPath, value)
-    }
-
-    if (subj[property] instanceof Color && (typeof value === 'number' || typeof value === 'string')) {
-      subj[property] = new Color(value)
-    } else {
-      subj[property] = value
-    }
-  }
-
-  if (isObject3d) object3d = args.obj3d
-  else object3d = new args.obj3d()
-
-  typeof args.objArgs === 'object' &&
-    Object.keys(args.objArgs).forEach((key) => {
-      applyDeepValue(object3d, key, args.objArgs[key])
-    })
-
-  if (args.parentEntity && hasComponent(args.parentEntity, ShadowComponent)) {
-    createShadow(entity, getMutableComponent(args.parentEntity, ShadowComponent))
-  }
-
-  const hasShadow = getMutableComponent(entity, ShadowComponent)
-  const castShadow = Boolean(hasShadow?.castShadow || args.objArgs?.castShadow)
-  const receiveshadow = Boolean(hasShadow?.receiveShadow || args.objArgs?.receiveShadow)
-
-  object3d.traverse((obj) => {
-    obj.castShadow = castShadow
-    obj.receiveShadow = receiveshadow
-  })
+export const addObject3DComponent = (entity: Entity, args: any) => {
+  const object3d = createObject3dFromArgs(entity, args, true)
 
   addComponent(entity, Object3DComponent, { value: object3d })
 

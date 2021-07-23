@@ -1,5 +1,5 @@
-import { Euler, Quaternion, Vector3 } from 'three'
-import { eulerToQuaternion } from '../../../tests/utils/MathTestUtils'
+import { Vector3 } from 'three'
+import { eulerToQuaternion } from '../../common/functions/MathRandomFunctions'
 import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { GamePlayer } from '../../game/components/GamePlayer'
 import { getGameFromName } from '../../game/functions/functions'
@@ -16,6 +16,7 @@ export const GolfBotHookFunctions = {
 }
 
 export function getIsYourTurn() {
+  if (!Network.instance.localClientEntity) return false
   return hasComponent(Network.instance.localClientEntity, YourTurn)
 }
 
@@ -34,6 +35,7 @@ export function swingClub() {
 }
 
 export function getBallPosition() {
+  if (!Network.instance.localClientEntity) return false
   const { gameName, role } = getComponent(Network.instance.localClientEntity, GamePlayer)
 
   const playerNumber = Number(role.slice(0, 1))

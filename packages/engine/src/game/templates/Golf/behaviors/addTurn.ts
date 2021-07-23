@@ -5,7 +5,6 @@ import { addStateComponent, removeStateComponent } from '../../../../game/functi
 import { GamePlayer } from '../../../components/GamePlayer'
 import { getGame } from '../../../functions/functions'
 import { State } from '../../../types/GameComponents'
-import { YourTurn } from '../components/YourTurnTagComponent'
 import { spawnBall } from '../prefab/GolfBallPrefab'
 
 /**
@@ -33,6 +32,6 @@ export const addTurn: Behavior = (
   }
   if (noOneTurn) {
     removeStateComponent(entityPlayer, State.WaitTurn)
-    addStateComponent(entityPlayer, YourTurn)
+    addStateComponent(entityPlayer, State.YourTurn)
   }
 }

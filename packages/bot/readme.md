@@ -2,32 +2,39 @@
 
 ### Example
 
-```js
+```ts
+import { Vector3 } from 'three'
+import { XREngineBot } from '@xrengine/bot/src/bot'
+import { BotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
 
-const {
-  BotAction,
-  setupBots,
-  runBots
-} = require('./src/bot-api');
+const maxTimeout = 10 * 1000
+const bot = new XREngineBot({ name: 'bot-1', headless: false, autoLog: false })
+const vector3 = new Vector3()
 
-const BotManager = setupBots();
+const domain = process.env.APP_HOST
+const locationName = 'test'
+const sqrt2 = Math.sqrt(2)
 
-BotManager.addBot("bot1");
-BotManager.addAction("bot1", BotAction.delay(1000));
-BotManager.addAction("bot1", BotAction.disconnect());
+describe('My Bot Tests', () => {
 
-runBots(BotManager);
+  beforeAll(async () => {
+    await bot.launchBrowser()
+    await bot.enterLocation(`https://${domain}/location/${locationName}`)
+    await bot.delay(1000)
+    await bot.runHook(BotHooks.InitializeBot)
+  }, maxTimeout)
 
-```
+  afterAll(async () => {
+    await bot.delay(1000)
+    await bot.quit()
+  }, maxTimeout)
 
+  test('Can spawn in the world', async () => {
+    expect(
+      vector3.copy(await bot.runHook(BotHooks.GetPlayerPosition)).length()
+    ).toBeLessThan(sqrt2 * 2) // sqrt2 * 2 is the default size of our spawn area
+  })
 
-### API
-
-```
-const bot = Bot({ name: string, fakeMediaPath: string, headless: true, autolog: true })
-
-async bot.keyPress(key: string, numMilliSeconds: number)
-
-// ... TODO
+})
 
 ```

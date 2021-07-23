@@ -333,9 +333,6 @@ export const EnginePage = (props: Props) => {
 
     const initializationOptions: InitializeOptions = {
       publicPath: location.origin,
-      networking: {
-        useOfflineMode: true
-      },
       renderer: {
         canvasId: engineRendererCanvasId
       },

@@ -12,7 +12,6 @@ import {
   sRGBEncoding,
   LinearFilter,
   DataTexture,
-  Texture,
   RGBFormat,
   CubeTextureLoader,
   PMREMGenerator,
@@ -28,6 +27,8 @@ import serializeColor from '../functions/serializeColor'
 import { FogType } from '../../scene/constants/FogType'
 import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '../../scene/constants/EnvMapEnum'
 import { DistanceModelType } from '../../scene/classes/AudioSource'
+import ReflectionProbeNode, { ReflectionProbeTypes } from './ReflectionProbeNode'
+import asyncTraverse from '../functions/asyncTraverse'
 
 export default class SceneNode extends EditorNodeMixin(Scene) {
   static nodeName = 'Scene'
@@ -186,7 +187,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   _envMapSourceURL = ''
   errorInEnvmapURL = false
   _envMapIntensity = 1
-  environmentNodes = []
+  environmentNode: ReflectionProbeNode = null
   //#endregion
 
   constructor(editor) {
@@ -202,7 +203,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
 
   set envMapSourceType(type) {
     this._envMapSourceType = type
-    this.setUpEnvironmentMap(type)
+    this.setUpEnvironmentMap()
   }
 
   get envMapSourceURL() {
@@ -235,10 +236,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
 
   async setUpEnvironmentMapTexture() {
-    if (this.environment?.dispose) {
-      this.environment.dispose()
-    }
-
     const pmremGenerator = new PMREMGenerator(this.editor.renderer.renderer)
     switch (this.envMapTextureType) {
       case EnvMapTextureType.Equirectangular:
@@ -284,7 +281,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     return this
   }
 
-  getEnvMapProps() {
+  async getEnvMapProps(projectId = null) {
     const envMapProps: EnvMapProps = {
       type: this.envMapSourceType,
       envMapIntensity: this._envMapIntensity
@@ -300,15 +297,22 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
         break
       case EnvMapSourceType.Default:
       default:
+        if (!this.environmentNode) break
+        envMapProps.envMapReflectionProbe = this.environmentNode.reflectionProbeSettings
+        if (this.environmentNode.reflectionProbeSettings.reflectionType === ReflectionProbeTypes.Baked) {
+          await this.environmentNode.uploadBakeToServer(projectId)
+        }
         break
     }
 
     return envMapProps
   }
 
-  setUpEnvironmentMap(type: EnvMapSourceType) {
-    switch (type) {
+  setUpEnvironmentMap() {
+    if (this.environment?.dispose) this.environment.dispose()
+    switch (this._envMapSourceType) {
       case EnvMapSourceType.Default:
+        this.environmentNode?.setEnvMap()
         break
       case EnvMapSourceType.Color:
         this.setUpEnvironmentMapColor()
@@ -320,7 +324,6 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
 
   setUpEnvironmentMapColor() {
-    if (this.environment?.dispose) this.environment.dispose()
     const col = new Color(this.envMapSourceColor)
     const resolution = 1
     const data = new Uint8Array(3 * resolution * resolution)
@@ -336,11 +339,11 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     pmren.dispose()
   }
 
-  registerEnvironmentMapNodes(node: any) {
-    this.environmentNodes.push(node)
+  registerEnvironmentMapNode(node: ReflectionProbeNode) {
+    this.environmentNode = node
   }
-  unregisterEnvironmentMapNodes(node: any) {
-    this.environmentNodes = this.environmentNodes.filter((item) => item !== node)
+  unregisterEnvironmentMapNode(node: ReflectionProbeNode) {
+    if (this.environmentNode === node) this.environmentNode = null
   }
 
   //#endregion
@@ -430,7 +433,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     return this
   }
   // @ts-ignore
-  serialize() {
+  async serialize(projectId) {
     const sceneJson = {
       version: 4,
       root: this.uuid,
@@ -485,17 +488,18 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
             },
             {
               name: 'envmap',
-              props: this.getEnvMapProps()
+              props: await this.getEnvMapProps(projectId)
             }
           ]
         }
       }
     }
-    this.traverse((child) => {
+
+    const serializeCallback = async (child) => {
       if (!child.isNode || child === this) {
         return
       }
-      const entityJson = child.serialize()
+      const entityJson = await child.serialize(projectId)
       entityJson.parent = child.parent.uuid
       let index = 0
       for (const sibling of child.parent.children) {
@@ -507,7 +511,8 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       }
       entityJson.index = index
       sceneJson.entities[child.uuid] = entityJson
-    })
+    }
+    await asyncTraverse(this, serializeCallback)
     return sceneJson
   }
   // @ts-ignore
