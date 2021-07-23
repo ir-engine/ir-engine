@@ -2,7 +2,7 @@
 	"appId": "com.xrengine.social",
 	"appName": "com.xrengine.social",
 	"webDir": "www",
-    "loggingBehavior": "none",
+	"loggingBehavior": "none",
 	"plugins": {
 		"SplashScreen": {
 			"launchShowDuration": 0
