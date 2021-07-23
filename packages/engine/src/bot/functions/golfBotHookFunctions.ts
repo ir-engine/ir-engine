@@ -1,5 +1,5 @@
-import { Euler, Quaternion, Vector3 } from 'three'
-import { eulerToQuaternion } from '../../../tests/utils/MathTestUtils'
+import { Vector3 } from 'three'
+import { eulerToQuaternion } from '../../common/functions/MathRandomFunctions'
 import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { GamePlayer } from '../../game/components/GamePlayer'
 import { getGameFromName } from '../../game/functions/functions'
