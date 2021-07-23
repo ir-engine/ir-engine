@@ -1,5 +1,6 @@
 import { isClient } from '../../common/functions/isClient'
 import { Component } from '../../ecs/classes/Component'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
@@ -17,7 +18,6 @@ import { GamePlayer } from '../components/GamePlayer'
 import { ClientActionToServer } from '../templates/DefaultGameStateAction'
 import { SpawnedObject } from '../templates/gameDefault/components/SpawnedObjectTagComponent'
 
-import { GamesSchema } from '../templates/GamesSchema'
 import { State } from '../types/GameComponents'
 import { ClientGameActionMessage, GameStateUpdateMessage } from '../types/GameMessage'
 import { GameMode, StateObject } from '../types/GameMode'
@@ -99,7 +99,7 @@ export const applyStateToClient = (stateMessage: GameStateUpdateMessage): void =
 }
 
 export const applyState = (game: Game): void => {
-  const gameSchema = GamesSchema[game.gameMode]
+  const gameSchema = Engine.gameModes[game.gameMode]
 
   // clean all states
   Object.keys(game.gamePlayers)

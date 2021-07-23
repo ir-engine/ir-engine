@@ -2,14 +2,9 @@ import { Font, FontLoader } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 
 export class FontManager {
-  static instance: FontManager
-  private _loader: FontLoader
+  static instance: FontManager = new FontManager()
+  private _loader: FontLoader = new FontLoader()
   _defaultFont: Font
-
-  constructor() {
-    FontManager.instance = this
-    this._loader = new FontLoader()
-  }
 
   getDefaultFont(): Promise<Font> {
     return new Promise((resolve) => {

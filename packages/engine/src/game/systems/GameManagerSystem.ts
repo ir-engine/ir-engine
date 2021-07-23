@@ -16,16 +16,8 @@ import {
   removeComponent,
   removeEntity
 } from '../../ecs/functions/EntityFunctions'
-import {
-  initState,
-  removeEntityFromState,
-  clearRemovedEntitysFromGame,
-  saveInitStateCopy,
-  requireState
-} from '../functions/functionsState'
+import { initState, removeEntityFromState, saveInitStateCopy, requireState } from '../functions/functionsState'
 
-import { GamesSchema } from '../../game/templates/GamesSchema'
-import { PrefabType } from '../../networking/templates/PrefabType'
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { GameMode } from '../types/GameMode'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
@@ -36,8 +28,8 @@ import { NewPlayerTagComponent } from '../templates/Golf/components/GolfTagCompo
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
 import { Component } from '../../ecs/classes/Component'
 import { CharacterComponent } from '../../character/components/CharacterComponent'
-import { addRole } from '../templates/Golf/behaviors/addRole'
-import { getGameEntityFromName, getGameFromName } from '../functions/functions'
+import { getGameFromName } from '../functions/functions'
+import { Engine } from '../../ecs/classes/Engine'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -106,7 +98,7 @@ export class GameManagerSystem extends System {
   execute(delta: number, time: number): void {
     this.queryResults.game.added?.forEach((entity) => {
       const game = getMutableComponent(entity, Game)
-      const gameSchema = GamesSchema[game.gameMode] as GameMode
+      const gameSchema = Engine.gameModes[game.gameMode] as GameMode
       gameSchema.preparePlayersRole(gameSchema, game.maxPlayers)
       game.priority = gameSchema.priority // DOTO: set its from editor
       initState(game, gameSchema)
@@ -165,7 +157,7 @@ export class GameManagerSystem extends System {
         const game = getComponent(entityGame, Game)
         const gamePlayer = getComponent(entity, GamePlayer, true)
         if (gamePlayer === undefined || gamePlayer.gameName != game.name) return
-        const gameSchema = GamesSchema[game.gameMode] as GameMode
+        const gameSchema = Engine.gameModes[game.gameMode]
         gameSchema.beforePlayerLeave(entity)
         console.log('removeEntityFromState', gamePlayer.role)
         removeEntityFromState(gamePlayer, game)
