@@ -35,7 +35,6 @@ export class AnimationSystem extends System {
 
   async initialize(): Promise<void> {
     super.initialize()
-    new AnimationManager()
     await Promise.all([AnimationManager.instance.getDefaultModel(), AnimationManager.instance.getAnimations()])
   }
 
