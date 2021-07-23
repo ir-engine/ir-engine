@@ -5,8 +5,10 @@ import {
   Shape,
   ShapeGeometry,
   ExtrudeGeometry,
-  Texture,
-  WebGLRenderer
+  WebGLRenderer,
+  BufferAttribute,
+  Color,
+  CanvasTexture
 } from 'three'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { VectorTile } from '@mapbox/vector-tile'
@@ -116,6 +118,8 @@ function buildGeometry(feature: IFeatureX, llCenter: Position): BufferGeometry |
 
   geometry.rotateX(-Math.PI / 2)
 
+  colorVertices(geometry, getRandomBuildingColor())
+
   return geometry
 }
 
@@ -150,7 +154,32 @@ function generateTextureCanvas() {
   // then draw the image
   context.drawImage(canvas, 0, 0, canvas2.width, canvas2.height)
   // return the just built canvas2
+
   return canvas2
+}
+
+function getRandomBuildingColor() {
+  const value = 1 - Math.random() * Math.random()
+  return new Color().setRGB(value + Math.random() * 0.1, value, value + Math.random() * 0.1)
+}
+
+function colorVertices(geometry: BufferGeometry, baseColor: Color) {
+  const normals = geometry.attributes.normal
+  const light = new Color(0xffffff)
+  const shadow = new Color(0x303050)
+  const topColor	= baseColor.clone().multiply( light );
+  const bottomColor	= baseColor.clone().multiply( shadow );
+
+  geometry.setAttribute('color', new BufferAttribute(new Float32Array(normals.count * 3), 3))
+
+  const colors = geometry.attributes.color
+
+  geometry.computeVertexNormals()
+
+  for (let i = 0; i < normals.count; i++) {
+    const color = normals.getY(i) === 1 ? topColor : bottomColor
+    colors.setXYZ(i, color.r, color.g, color.b)
+  }
 }
 
 /**
@@ -165,18 +194,16 @@ export function buildMesh(tiles: IFeatureX[], llCenter: Position, renderer: WebG
   const mergedGeometry = mergeBufferGeometries(geometries)
 
   // generate the texture
-  var texture = new Texture(generateTextureCanvas())
+  var texture = new CanvasTexture(generateTextureCanvas())
   texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
   texture.needsUpdate = true
 
   // build the mesh
   var material = new MeshLambertMaterial({
-    color: 0xe8e8e8,
-    map: texture
-    // vertexColors: THREE.VertexColors
+    map: texture,
+    vertexColors: true
   })
   var mesh = new Mesh(mergedGeometry, material)
-  // var mesh = new Mesh(geometries[0], material)
   return mesh
 }
 
