@@ -128,7 +128,8 @@ interface Props {
   resetInstanceServer?: typeof resetInstanceServer
   setCurrentScene?: typeof setCurrentScene
   harmonyOpen?: boolean
-  enableSharing: boolean
+  enableSharing?: boolean
+
 }
 
 const mapStateToProps = (state: any) => {

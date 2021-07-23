@@ -3,6 +3,8 @@ import { Route, Switch, Redirect } from 'react-router-dom'
 import { Config } from '@xrengine/client-core/src/helper'
 import ProtectedRoute from './protected'
 import homePage from '../pages/index'
+import LOADER from '../pages/map/loader/Loading'
+import Microphone from '../pages/map/microphone/Mic'
 import CircularProgress from '@material-ui/core/CircularProgress'
 
 class RouterComp extends React.Component<{}, { hasError: boolean }> {
@@ -42,6 +44,8 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
       >
         <Switch>
           <Route path="/" component={homePage} exact />
+          <Route path="/loading" component= {LOADER} />
+          <Route path="/microphone" component= {Microphone} />
           <Route path="/login" component={React.lazy(() => import('../pages/login'))} />
 
           {/* Admin Routes*/}
@@ -99,6 +103,7 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
 
           <Route path="/workerTest" component={React.lazy(() => import('../pages/WorkerTest'))} />
           <Route path="*" component={React.lazy(() => import('../pages/404'))} />
+
         </Switch>
       </Suspense>
     )
