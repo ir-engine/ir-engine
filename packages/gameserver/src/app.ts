@@ -161,8 +161,6 @@ export const createApp = (): Application => {
         ;(app as any).agonesSDK = agonesSDK
         setInterval(() => agonesSDK.health(), 1000)
 
-        console.log('========= initialising new game server instance')
-
         // Create new gameserver instance
         WebRTCGameServer.instance.initialize(app).then(() => {
           console.log('Initialized new gameserver instance')

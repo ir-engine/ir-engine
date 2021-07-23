@@ -6,8 +6,14 @@ import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import config from '@xrengine/server-core/src/appconfig'
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
-import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+import {
+  DefaultInitializationOptions,
+  EngineSystemPresets,
+  InitializeOptions
+} from '@xrengine/engine/src/initializationOptions'
 import { GolfSystem } from '../../engine/src/game/templates/Golf/GolfSystem'
+import _ from 'lodash'
+import { GolfGameMode } from '../../engine/src/game/templates/GolfGameMode'
 ;(globalThis as any).XMLHttpRequest = XMLHttpRequest
 
 const currentPath = (process.platform === 'win32' ? 'file:///' : '') + path.dirname(__filename)
@@ -21,6 +27,9 @@ export class WebRTCGameServer {
       schema: {
         transport: SocketWebRTCServerTransport
       } as NetworkSchema
+    },
+    gameModes: {
+      [GolfGameMode.name]: GolfGameMode
     },
     publicPath: config.client.url,
     physics: {

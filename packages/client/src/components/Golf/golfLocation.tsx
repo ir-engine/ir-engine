@@ -55,6 +55,7 @@ import WarningRefreshModal from '../AlertModals/WarningRetryModal'
 import { registerSystem, unregisterSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { GolfSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
 import { AnimationSystem } from '../../../../engine/src/character/AnimationSystem'
+import { GolfGameMode } from '../../../../engine/src/game/templates/GolfGameMode'
 
 const store = Store.store
 
@@ -384,6 +385,9 @@ export const EnginePage = (props: Props) => {
           schema: {
             transport: SocketWebRTCClientTransport
           } as NetworkSchema
+        },
+        gameModes: {
+          [GolfGameMode.name]: GolfGameMode
         },
         renderer: {
           canvasId: engineRendererCanvasId
