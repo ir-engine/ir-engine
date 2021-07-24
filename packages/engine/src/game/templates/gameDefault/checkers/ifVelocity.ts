@@ -20,7 +20,7 @@ export const ifVelocity: Checker = (entity: Entity, args?: any): any | undefined
     if (args.more && args.less) {
       return velocity >= args.more && velocity <= args.less
     }
-    return (args.more && velocity >= args.more) || (args.less && velocity <= args.less)
+    return (args.more && velocity > args.more) || (args.less && velocity < args.less)
   }
   return false
 }

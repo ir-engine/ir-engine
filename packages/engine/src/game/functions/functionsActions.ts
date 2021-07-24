@@ -29,16 +29,22 @@ export const addActionComponent = (
   component: ComponentConstructor<Component<any>>,
   componentArgs: any = {}
 ): void => {
-  if (!(hasComponent(entity, GameObject) || hasComponent(entity, GamePlayer))) return
+  if (hasComponent(entity, component) || !(hasComponent(entity, GameObject) || hasComponent(entity, GamePlayer))) return
   const game = getGame(entity)
+  //const role = getRole(entity)
+  //if (role != 'GolfBall') {
+    
+  //}
   //// Clients dont apply self actions, only in not Global mode
   if (isClient && !game.isGlobal) {
     addComponent(entity, component, componentArgs)
     //// Server apply actions to himself send Actions and clients apply its
   } else if (isClient && game.isGlobal && isOwnedLocalPlayer(entity)) {
+  //  console.log(role,' action ', component.name)
     addComponent(entity, component, componentArgs)
     addToCheckList(entity, component, componentArgs)
   } else if (!isClient && game.isGlobal) {
+  //  console.log(role,' action ', component.name)
     addComponent(entity, component, componentArgs)
     sendActionComponent(entity, component, componentArgs)
   }
@@ -79,6 +85,9 @@ export const applyActionComponent = (actionMessage: GameStateActionMessage): voi
   try {
     componentArgs = JSON.parse(actionMessage.componentArgs.replace(/'/g, '"')) // replace single quotes with double quotes
   } catch (e) {}
+
+  const role = getRole(entity)
+  //console.log(role,' server action ', component.name)
   addComponent(entity, component, componentArgs)
 }
 
