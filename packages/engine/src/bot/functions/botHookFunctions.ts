@@ -30,6 +30,7 @@ export const setupBotHooks = (): void => {
 
 export const BotHookFunctions = {
   [BotHooks.InitializeBot]: initializeBot,
+  [BotHooks.LocationLoaded]: locationLoaded,
   [BotHooks.GetPlayerPosition]: getPlayerPosition,
   [XRBotHooks.OverrideXR]: overrideXR,
   [XRBotHooks.XRSupported]: xrSupported,
@@ -48,6 +49,10 @@ export function initializeBot() {
 }
 
 // === ENGINE === //
+
+export function locationLoaded() {
+  return Engine.hasJoinedWorld
+}
 
 export function getPlayerPosition() {
   return getComponent(Network.instance.localClientEntity, TransformComponent)?.position

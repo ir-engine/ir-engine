@@ -4,11 +4,7 @@ import { isClient } from '../common/functions/isClient'
 import { Engine } from '../ecs/classes/Engine'
 
 export class AnimationManager {
-  static instance: AnimationManager
-
-  constructor() {
-    AnimationManager.instance = this
-  }
+  static instance: AnimationManager = new AnimationManager()
 
   _animations: AnimationClip[]
   _defaultModel: Group

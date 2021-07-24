@@ -1,5 +1,6 @@
 export enum BotHooks {
   InitializeBot = 'BotHooks_InitializeBot',
+  LocationLoaded = 'BotHooks_LocationLoaded',
   GetPlayerPosition = 'BotHooks_GetPlayerPosition'
 }
 

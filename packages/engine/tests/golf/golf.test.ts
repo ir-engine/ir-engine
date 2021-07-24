@@ -1,14 +1,12 @@
-// @ts-ignore
-import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
-import XREngineBot from '../../../bot/src/bot'
-import { testWebXR } from './testWebXR'
+import { Vector3 } from 'three'
+import { XREngineBot } from '@xrengine/bot'
+import { setupXR, testWebXR } from '../utils/testWebXR'
 import { BotHooks, XRBotHooks } from '../../src/bot/enums/BotHooks'
 import { GolfBotHooks } from '../../src/bot/enums/GolfBotHooks'
 import { eulerToQuaternion } from '../utils/MathTestUtils'
 
 const maxTimeout = 60 * 1000
-const headless = false
-const bot = new XREngineBot({ name: 'bot-1', headless, autoLog: false })
+const bot = new XREngineBot({ name: 'bot-1', headless: false, autoLog: true })
 
 const domain = process.env.APP_HOST
 // TODO: load GS & client from static world file instead of having to run independently
@@ -24,9 +22,8 @@ describe('Golf tests', () => {
   beforeAll(async () => {
     await bot.launchBrowser()
     await bot.enterLocation(`https://${domain}/golf/${locationName}`)
-    await bot.delay(1000)
-    await bot.page.addScriptTag({ url: '/scripts/webxr-polyfill.js' })
-    await bot.delay(1000)
+    await bot.awaitHookPromise(BotHooks.LocationLoaded)
+    await setupXR(bot)
     await bot.runHook(BotHooks.InitializeBot)
     await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)
     await bot.runHook(XRBotHooks.OverrideXR)

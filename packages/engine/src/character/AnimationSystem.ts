@@ -10,6 +10,7 @@ import { CharacterAnimationGraph } from './animations/CharacterAnimationGraph'
 import { CharacterStates } from './animations/Util'
 import { AnimationRenderer } from './animations/AnimationRenderer'
 import { loadActorAvatar } from './functions/avatarFunctions'
+import { AnimationManager } from './AnimationManager'
 
 export class AnimationSystem extends System {
   // Entity
@@ -30,6 +31,11 @@ export class AnimationSystem extends System {
       }
       loadActorAvatar(entity)
     })
+  }
+
+  async initialize(): Promise<void> {
+    super.initialize()
+    await Promise.all([AnimationManager.instance.getDefaultModel(), AnimationManager.instance.getAnimations()])
   }
 
   /** Removes resize listener. */
