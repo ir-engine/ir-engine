@@ -101,7 +101,11 @@ export class GolfSystem extends System {
           initializeGolfBall(ball)
           addStateComponent(ball, State.SpawnedObject)
         }
+        if (getComponent(entity, GamePlayer).role === '1-Player') {
+          addTurn(entity)
+        }
       }
+      
     })
     
     ///////////////////////////////////////////////////////////
@@ -123,8 +127,9 @@ export class GolfSystem extends System {
       const playerComponent = getComponent(entity, GamePlayer);
       const ballEntity = playerComponent.ownedObjects['GolfBall'];
       if(!ballEntity) return;
-      if (hasComponent(ballEntity, State.BallMoving)) {
+      if (hasComponent(ballEntity, State.BallMoving) && hasComponent(entity, State.alreadyHit)) {
         removeStateComponent(entity, State.YourTurn);
+        removeStateComponent(entity, State.alreadyHit);
         addStateComponent(entity, State.Waiting);
       }
     })
@@ -221,32 +226,14 @@ export class GolfSystem extends System {
       }
     })
 
-    this.queryResults.yourTurn.added.forEach((entity) => {
-      const playerComponent = getComponent(entity, GamePlayer)
-      const clubEntity = playerComponent.ownedObjects['GolfClub']
-      if (!clubEntity) return
-      const golfClubComponent = getMutableComponent(clubEntity, GolfClubComponent)
-      golfClubComponent.hidden = false
-      if (isClient) {
-        enableClub(clubEntity, true)
-      }
-    })
-
-    this.queryResults.waitTurn.added.forEach((entity) => {
-      const playerComponent = getComponent(entity, GamePlayer)
-      const clubEntity = playerComponent.ownedObjects['GolfClub']
-      if (!clubEntity) return
-      if (isClient) {
-        enableClub(clubEntity, false)
-      }
-    })
-
     //////////////////////////////////////////////////////////
     //////////////////////// HOLE ////////////////////////////
     //////////////////////////////////////////////////////////
 
     this.queryResults.holeHit.added.forEach((holeEntity) => {
-      this.queryResults.ballHit.added.forEach((ballEntity) => {
+      this.queryResults.ballHit.all.forEach((ballEntity) => {
+        console.log('test');
+        
         const entityPlayer =
         Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectOwner).networkId]?.component.entity
         const gameScore = getStorage(entityPlayer, { name: 'GameScore' });
@@ -305,10 +292,35 @@ export class GolfSystem extends System {
     this.queryResults.hit.removed.forEach((clubEntity) => {
       const playerEntity =
         Network.instance.networkObjects[getComponent(clubEntity, NetworkObjectOwner).networkId]?.component.entity
-     // removeStateComponent(playerEntity, State.YourTurn);
       saveScore(playerEntity);
+      addStateComponent(playerEntity, State.alreadyHit); 
     })
 
+    this.queryResults.yourTurn.added.forEach((entity) => {
+      const playerComponent = getComponent(entity, GamePlayer);
+      const entityClub = playerComponent.ownedObjects['GolfClub'];
+      removeStateComponent(entityClub, State.Inactive);
+      addStateComponent(entityClub, State.Active);
+    })
+
+    this.queryResults.waitTurn.added.forEach((entity) => {
+      const playerComponent = getComponent(entity, GamePlayer);
+      const entityClub = playerComponent.ownedObjects['GolfClub'];
+      removeStateComponent(entityClub, State.Active);
+      addStateComponent(entityClub, State.Inactive);
+    })
+
+    this.queryResults.activeClub.added.forEach((entity) => {
+      if (isClient) {
+        enableClub(entity, true )
+      }
+    })
+
+    this.queryResults.inctiveClub.added.forEach((entity) => {
+      if (isClient) {
+        enableClub(entity, false)
+      }
+    })
     ///////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////
@@ -330,10 +342,6 @@ export class GolfSystem extends System {
       
       setStorage(entity, { name: 'GameScore' }, { score: { hits: 0, goal: 0 } })
 
-      if (getComponent(entity, GamePlayer).role === '1-Player') {
-        addTurn(entity)
-      }
-
       if (!isClient) {
         spawnClub(entity)
         spawnBall(entity, { positionCopyFromRole: 'GolfTee-0', offsetY: 0.3 })
@@ -354,7 +362,7 @@ export class GolfSystem extends System {
     })
 
     this.queryResults.golfClub.added.forEach((entity) => {
-      addStateComponent(entity, State.Active)
+      addStateComponent(entity, State.Inactive)
     })
 
     this.queryResults.golfBall.added.forEach((entity) => {
@@ -431,6 +439,13 @@ export class GolfSystem extends System {
     //
     // Ball States
     //
+    ballHit: {
+      components: [GolfBallComponent, Action.GameObjectCollisionTag ],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
     ballMoving: {
       components: [GolfBallComponent, State.BallMoving],
       listen: {
@@ -483,8 +498,15 @@ export class GolfSystem extends System {
         removed: true
       }
     },
-    ballHit: {
-      components: [GolfBallComponent, Action.GameObjectCollisionTag ],
+    activeClub: {
+      components: [GolfClubComponent, State.Active ],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    inctiveClub: {
+      components: [GolfClubComponent, State.Inactive ],
       listen: {
         added: true,
         removed: true
@@ -526,6 +548,13 @@ export class GolfSystem extends System {
     },
     goal: {
       components: [GamePlayer, State.Goal],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    hitBallOnThisTurn: {
+      components: [GamePlayer, State.alreadyHit],
       listen: {
         added: true,
         removed: true
