@@ -20,7 +20,7 @@ export function getArMediaService(type?: string) {
     try {
       dispatch(fetchingArMedia())
       const list = await client.service('ar-media').find({ query: { action: type } })
-      dispatch(setAdminArMedia(list.data))
+      dispatch(setAdminArMedia(list))
     } catch (err) {
       console.log(err)
       dispatchAlertError(dispatch, err.message)
@@ -62,7 +62,6 @@ export function createArMedia(mediaItem: any, files: any) {
       const audio = await api.upload(files.audio, null)
       const dracosis = await api.upload(files.dracosis, null)
       const preview = await api.upload(files.preview, null)
-
       //@ts-ignore error that this vars are void because upload is defines as void function
       const newItem = await client.service('ar-media').create({
         ...mediaItem,
