@@ -1,3 +1,4 @@
+import { PerspectiveCamera } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
 import { resetFollowCamera } from '../../camera/systems/CameraSystem'
@@ -38,10 +39,19 @@ export const teleportToScene = async (portalComponent: PortalProps, handleNewSce
   hyperspaceEffect.quaternion.copy(playerObj.value.quaternion)
 
   // TODO add an ECS thing somewhere to update this properly
+  const delta = 1 / 60
+  const camera = Engine.scene.getObjectByProperty('isPerspectiveCamera', true as any) as PerspectiveCamera
+  camera.zoom = 1.5
   const hyperSpaceUpdateInterval = setInterval(() => {
-    hyperspaceEffect.update(1 / 60)
+    hyperspaceEffect.update(delta)
+
+    if (camera.zoom > 0.75) {
+      camera.zoom -= delta
+      camera.updateProjectionMatrix()
+    }
   }, 1000 / 60)
 
+  Engine.scene.background = null
   Engine.camera.layers.enable(CameraLayers.Portal)
   Engine.camera.layers.disable(CameraLayers.Scene)
 
@@ -56,7 +66,6 @@ export const teleportToScene = async (portalComponent: PortalProps, handleNewSce
 
   await new Promise<void>((resolve) => {
     const portalFadeInInterval = setInterval(() => {
-      hyperspaceEffect.tubeMesh.position.z = lerp(20, -5, hyperspaceEffect.tubeMaterial.opacity)
       if (!hyperspaceEffect.fadingIn) {
         clearInterval(portalFadeInInterval)
         resolve()
