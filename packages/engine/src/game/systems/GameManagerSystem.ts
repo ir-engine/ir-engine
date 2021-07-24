@@ -202,7 +202,19 @@ export class GameManagerSystem extends System {
         requireState(game, gamePlayer)
       })
     })
-
+    
+    this.queryResults.newPlayer.added.forEach((entity) => {
+      console.log('new player')
+      const newPlayer = getComponent(entity, NewPlayerTagComponent)
+      const gamePlayerComp = addComponent(entity, GamePlayer, {
+        gameName: newPlayer.gameName,
+        role: 'newPlayer',
+        uuid: getComponent(entity, NetworkObject).ownerId
+      })
+      const game = getGameFromName(newPlayer.gameName)
+      requireState(game, gamePlayerComp)
+      removeComponent(entity, NewPlayerTagComponent)
+    })
     // OBJECTS ADDIND
     // its needet for allow dynamicly adding objects and exept errors when enitor gives object without created game
     this.queryResults.gameObject.added?.forEach((entity) => {
@@ -216,18 +228,7 @@ export class GameManagerSystem extends System {
       })
     })
 
-    this.queryResults.newPlayer.added.forEach((entity) => {
-      console.log('new player')
-      const newPlayer = getComponent(entity, NewPlayerTagComponent)
-      const gamePlayerComp = addComponent(entity, GamePlayer, {
-        gameName: newPlayer.gameName,
-        role: 'newPlayer',
-        uuid: getComponent(entity, NetworkObject).ownerId
-      })
-      const game = getGameFromName(newPlayer.gameName)
-      requireState(game, gamePlayerComp)
-      removeComponent(entity, NewPlayerTagComponent)
-    })
+    
 
     // end of execute
   }

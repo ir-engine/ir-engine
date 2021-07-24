@@ -1,3 +1,4 @@
+/*
 import { isClient } from '../../../common/functions/isClient'
 import { System, SystemAttributes } from '../../../ecs/classes/System'
 import {
@@ -47,10 +48,7 @@ import { ifFirstHit, ifOutCourse } from '../gameDefault/checkers/ifOutCourse'
 import { registerGolfBotHooks } from './functions/registerGolfBotHooks'
 import { XRInputSourceComponent } from '../../../character/components/XRInputSourceComponent'
 import { hideBall, unhideBall } from './behaviors/hideUnhideBall'
-/**
- * @author HydraFire <github.com/HydraFire>
- * @author Josh Field <github.com/hexafield>
- */
+
 
 export class GolfSystem extends System {
   static instance: GolfSystem
@@ -63,10 +61,6 @@ export class GolfSystem extends System {
     if (isClient) registerGolfBotHooks()
   }
 
-  /**
-   * Executes the system. Called each frame by default from the Engine.
-   * @param delta Time since last frame.
-   */
   execute(delta: number, time: number): void {
     const behaviorsToExecute: (() => void)[] = []
 
@@ -512,3 +506,6 @@ export class GolfSystem extends System {
     }
   }
 }
+
+*/
+

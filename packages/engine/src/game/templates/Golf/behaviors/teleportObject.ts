@@ -34,7 +34,7 @@ export const teleportObject: Behavior = (
   collider.body.updateTransform({
     translation: {
       x: args.position.x,
-      y: args.position.y,
+      y: args.position.y+0.5,
       z: args.position.z
     },
     rotation: {

@@ -67,7 +67,7 @@ export const sendActionComponent = (
 }
 
 export const applyActionComponent = (actionMessage: GameStateActionMessage): void => {
-  // console.warn('applyActionComponent', actionMessage);
+   console.warn('applyActionComponent', actionMessage);
   const entityGame = getGameEntityFromName(actionMessage.game)
   if (!entityGame) return
   const game = getComponent(entityGame, Game)
@@ -108,20 +108,24 @@ const addToCheckList = (
 }
 
 export const checkIsGamePredictionStillRight = (): boolean => {
-  //gamePredictionCheckList.length > 0 ? console.log(gamePredictionCheckList):'';
+  gamePredictionCheckList.length > 0 ? console.log(gamePredictionCheckList):'';
   return gamePredictionCheckList.some((v) => Date.now() - v.time > timeAfterClientDesideHeWasgetWrongAction)
 }
 
 const ifWasSameBeforeByPrediction = (actionMessage: GameStateActionMessage): boolean => {
+  console.log(actionMessage.component, actionMessage.role);
+  console.log(gamePredictionCheckList[0].componentName, gamePredictionCheckList[0].dataForCheck.role);
+  
   return gamePredictionCheckList.some(
     (v) => v.componentName === actionMessage.component && v.dataForCheck.role === actionMessage.role
   )
 }
 
 const removeSameInGamePredictionCheckList = (actionMessage: GameStateActionMessage): void => {
-  gamePredictionCheckList = gamePredictionCheckList.filter(
-    (v) => !(v.componentName === actionMessage.component && v.dataForCheck.role === actionMessage.role)
-  )
+  const index = gamePredictionCheckList.findIndex( v => v.componentName === actionMessage.component && v.dataForCheck.role === actionMessage.role)
+  if (index != -1) {
+    gamePredictionCheckList.splice(index, 1);
+  }
 }
 
 export const clearPredictionCheckList = (): void => {
