@@ -235,7 +235,6 @@ function indexBufferGeometry(src, dst, fullIndex) {
 }
 
 export function toIndexed(src: THREE.BufferGeometry, fullIndex = false, precision = 6) {
-
   prec = Math.pow(10, precision)
   precHalf = Math.pow(10, Math.floor(precision / 2))
 

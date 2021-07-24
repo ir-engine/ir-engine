@@ -54,8 +54,6 @@ function buildGeometry(feature: IFeatureX, llCenter: Position): BufferGeometry |
     goodGeometry = feature.geometry
   }
 
-  console.log("GEO TYPE", feature.geometry.type);
-
   // TODO switch statement
   if (goodGeometry.type === 'MultiPolygon') {
     coords = goodGeometry.coordinates[0][0] // TODO: add all multipolygon coords.
@@ -169,8 +167,8 @@ function colorVertices(geometry: BufferGeometry, baseColor: Color) {
   const normals = geometry.attributes.normal
   const light = new Color(0xffffff)
   const shadow = new Color(0x303050)
-  const topColor	= baseColor.clone().multiply( light );
-  const bottomColor	= baseColor.clone().multiply( shadow );
+  const topColor = baseColor.clone().multiply(light)
+  const bottomColor = baseColor.clone().multiply(shadow)
 
   geometry.setAttribute('color', new BufferAttribute(new Float32Array(normals.count * 3), 3))
 

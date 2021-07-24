@@ -7,7 +7,7 @@ import { isClient } from '../common/functions/isClient'
 
 function getRandomGreyColor(minValue, maxValue) {
   var colorValue = Math.floor(Math.random() * maxValue + minValue)
-  return new THREE.Color(colorValue / 256, colorValue / 256, colorValue / 256);
+  return new THREE.Color(colorValue / 256, colorValue / 256, colorValue / 256)
 }
 
 function getRandomGreyColorString(minValue, maxValue) {
