@@ -41,9 +41,11 @@ import { Action, State } from '../../../types/GameComponents'
 import { addActionComponent } from '../../../functions/functionsActions'
 import { GamePlayer } from '../../../components/GamePlayer'
 import { XRUserSettings } from '../../../../xr/types/XRUserSettings'
+
 import { ifVelocity } from '../../gameDefault/checkers/ifVelocity'
 import { ifOwned } from '../../gameDefault/checkers/ifOwned'
 import { isClient } from '../../../../common/functions/isClient'
+
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()

@@ -87,7 +87,7 @@ export const applyActionComponent = (actionMessage: GameStateActionMessage): voi
   } catch (e) {}
 
   const role = getRole(entity)
-  console.log(role,' server action ', component.name)
+  //console.log(role,' server action ', component.name)
   addComponent(entity, component, componentArgs)
 }
 

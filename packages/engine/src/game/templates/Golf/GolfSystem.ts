@@ -133,6 +133,7 @@ export class GolfSystem extends System {
         addStateComponent(entity, State.Waiting);
       }
     })
+
     ///////////////////////////////////////////////////////////
     /////////////////// BALL STUFF ///////////////////////////
     ///////////////////////////////////////////////////////////
@@ -173,6 +174,7 @@ export class GolfSystem extends System {
     this.queryResults.ballStopped.added.forEach((entity) => {
       if (ifOutCourse(entity)) {
         teleportObject(entity, getPositionNextPoint(entity, { positionCopyFromRole: 'GolfTee-' }))
+
       }
     })
     // SWITCH STATE on ball if he start moving
@@ -223,6 +225,7 @@ export class GolfSystem extends System {
     this.queryResults.ballVisible.added.forEach((entity) => {
       if (isClient) {
         unhideBall(entity)
+
       }
     })
 
@@ -232,8 +235,6 @@ export class GolfSystem extends System {
 
     this.queryResults.holeHit.added.forEach((holeEntity) => {
       this.queryResults.ballHit.all.forEach((ballEntity) => {
-        console.log('test');
-        
         const entityPlayer =
         Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectOwner).networkId]?.component.entity
         const gameScore = getStorage(entityPlayer, { name: 'GameScore' });
@@ -287,6 +288,7 @@ export class GolfSystem extends System {
       // its needed to revome action if action added from network, in normal case thay remmoving in place where thay adding
       removeComponent(clubEntity, Action.GameObjectCollisionTag)
       removeComponent(ballEntity, Action.GameObjectCollisionTag)
+
     })
 
     this.queryResults.hit.removed.forEach((clubEntity) => {
@@ -439,6 +441,7 @@ export class GolfSystem extends System {
     //
     // Ball States
     //
+
     ballHit: {
       components: [GolfBallComponent, Action.GameObjectCollisionTag ],
       listen: {
@@ -446,6 +449,7 @@ export class GolfSystem extends System {
         removed: true
       }
     },
+
     ballMoving: {
       components: [GolfBallComponent, State.BallMoving],
       listen: {

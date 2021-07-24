@@ -61,7 +61,6 @@ export class GolfSystem extends System {
     if (isClient) registerGolfBotHooks()
   }
 
-
   execute(delta: number, time: number): void {
     const behaviorsToExecute: (() => void)[] = []
 
@@ -507,4 +506,6 @@ export class GolfSystem extends System {
     }
   }
 }
+
 */
+
