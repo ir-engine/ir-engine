@@ -328,8 +328,15 @@ Test user Admin privliges by going to `/admin`
 [Cloudformation Scripts](https://github.com/XRFoundation/XREngine/blob/dev/packages/ops/xrengine-cloudformation)
 
 ## Testing
+### Integration Tests
 
-Simply run `npm run test` and all your tests in the `test/` directory will be run.
+Simply run `npm run test` and all the tests in the `tests/` directory will be run.
+This will launch the whole xrengine development environment, so any existing processes (including the database + utils, client & servers) should be stopped.
+
+## Unit Tests
+
+The engine and server packages have tests. These can be ran individually by navigating to the package and running `npm run test`.
+Individual files can be tested via `npx jest ./tests/file.test.js`.
 
 ## Linting
 

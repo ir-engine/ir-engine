@@ -11,7 +11,7 @@
 
 module.exports = {
   displayName: "Integration Tests",
-  preset: "ts-jest",
+  preset: "jest-puppeteer",
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs'],
   globalSetup: 'jest-environment-puppeteer/setup',
   globalTeardown: 'jest-environment-puppeteer/teardown',
@@ -26,4 +26,9 @@ module.exports = {
   testMatch: [
     '<rootDir>/tests/**/*.test.(t|j)s(x)?',
   ],
+  globals: {
+    'ts-jest': {
+      tsConfig: '<rootDir>/tsconfig.json',
+    },
+  },
 }
