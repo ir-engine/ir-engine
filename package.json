@@ -109,7 +109,7 @@
     "esbuild-plugin-sass": "0.5.2",
     "jest": "27.0.6",
     "jest-puppeteer": "5.0.4",
-    "kill-port": "^1.6.1",
+    "kill-port": "1.6.1",
     "lerna": "4.0.0",
     "pre-commit": "1.2.2",
     "pre-push": "0.1.1",
