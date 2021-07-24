@@ -1,21 +1,24 @@
 import React, { useEffect, useState as useStateReact } from 'react'
-import { StyleSheetManager } from 'styled-components'
+import { StyleSheetManager, ThemeProvider } from 'styled-components'
 
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions'
 import { UIRootComponent } from '../components/UIRootComponent'
 import { UIComponent } from '../components/UIComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-
-import { createState, State } from '@hookstate/core'
 import { Entity } from '../../ecs/classes/Entity'
 import { Engine } from '../../ecs/classes/Engine'
+import { theme as defaultTheme } from '../../../../common/src/ui/theme'
 
 let depsLoaded: Promise<[typeof import('ethereal'), typeof import('react-dom')]>
 
-async function createUIRootLayer<S extends unknown>(UIFunc: React.FC<{ state: S }>, state: S) {
+async function createUIRootLayer<S extends unknown>(UIFunc: React.FC<{ state: S }>, state: S, theme: any) {
   const [Ethereal, ReactDOM] = await (depsLoaded = depsLoaded || Promise.all([import('ethereal'), import('react-dom')]))
 
-  const ui = <UIFunc state={state} />
+  const ui = (
+    <ThemeProvider theme={theme}>
+      <UIFunc state={state} />
+    </ThemeProvider>
+  )
 
   const GenerateStyles = (props) => {
     const [styles, setStyles] = useStateReact('')
@@ -59,9 +62,9 @@ async function createUIRootLayer<S extends unknown>(UIFunc: React.FC<{ state: S 
   return uiRoot
 }
 
-export function createUI<S>(UIFunc: React.FC<{ state: S }>, state: S): XRUI<S> {
+export function createUI<S>(UIFunc: React.FC<{ state: S }>, state: S, theme = defaultTheme): XRUI<S> {
   const entity = createEntity()
-  createUIRootLayer(UIFunc, state).then((uiRoot) => {
+  createUIRootLayer(UIFunc, state, theme).then((uiRoot) => {
     // Make sure entity still exists, since we are adding these components asynchronously,
     // and bad things might happen if we add these components after entity has been removed
     // TODO: revise this pattern after refactor

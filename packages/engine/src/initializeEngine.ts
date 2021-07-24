@@ -39,7 +39,8 @@ import { AudioSystem } from './audio/systems/AudioSystem'
 import { setupBotHooks } from './bot/functions/botHookFunctions'
 import { AnimationSystem } from './character/AnimationSystem'
 import { InterpolationSystem } from './physics/systems/InterpolationSystem'
-import { FontManager } from './ui/classes/FontManager'
+import { FontManager } from './xrui/classes/FontManager'
+import { CharacterUISystem } from './character/CharacterUISystem'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -128,7 +129,8 @@ const registerClientSystems = (options: InitializeOptions, canvas: HTMLCanvasEle
   registerSystem(WebGLRendererSystem, { priority: 3, canvas }) // Free
 
   // Input Systems
-  registerSystem(UISystem, { priority: 2 }) // Free
+  registerSystem(UISystem, { priority: 2 })
+  registerSystem(CharacterUISystem, { priority: 2 })
   registerSystem(ActionSystem, { priority: 3 })
   registerSystem(CharacterControllerSystem, { priority: 4 })
   registerSystem(AnimationSystem, { priority: 5 })

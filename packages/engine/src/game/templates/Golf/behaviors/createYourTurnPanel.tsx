@@ -8,12 +8,13 @@ import { TransformChildComponent } from '../../../../transform/components/Transf
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { Entity } from '../../../../ecs/classes/Entity'
 import { Vector3 } from 'three'
+import { useTheme } from '../../../../../../common/src/ui/theme'
 
 export const Panel = styled.div`
   background: #ffffff55;
   border-radius: 3px;
   border: 2px solid palevioletred;
-  color: palevioletred;
+  color: ${() => useTheme().palette.info.main};
   margin: 0.5em 1em;
   padding: 0.25em 1em;
 `
@@ -24,7 +25,7 @@ export const YourTurnPanel = () => {
 
 export async function createYourTurnPanel(player: Entity) {
   if (player === Network.instance.localClientEntity) {
-    const ui = createUI(YourTurnPanel)
+    const ui = createUI(YourTurnPanel, {})
     addComponent(ui.entity, TransformComponent)
     addComponent(ui.entity, TransformChildComponent, { parent: player, offsetPosition: new Vector3(0, 0, 1) })
   }

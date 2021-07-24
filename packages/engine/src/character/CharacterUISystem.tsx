@@ -11,6 +11,7 @@ import { TransformChildComponent } from '../transform/components/TransformChildC
 import { Vector3 } from 'three'
 import { createCharacterDetailView } from './ui/CharacterDetailView'
 
+// TODO: This becomes an AoS component post-ecs refactor
 export const CharacterUI = new Map<Entity, ReturnType<typeof createCharacterDetailView>>()
 
 export class CharacterUISystem extends System {

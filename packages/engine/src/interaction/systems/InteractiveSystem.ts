@@ -48,7 +48,7 @@ import {
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
 import { unequipEntity } from '../functions/equippableFunctions'
 import { Network } from '../../networking/classes/Network'
-import { FontManager } from '../../ui/classes/FontManager'
+import { FontManager } from '../../xrui/classes/FontManager'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { Sphere } from 'three'
 
