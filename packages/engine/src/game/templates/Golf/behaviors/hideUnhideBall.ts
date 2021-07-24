@@ -18,7 +18,7 @@ export const hideBall: Behavior = (
   const object3D = getMutableComponent(entity, Object3DComponent)?.value
   if (object3D === undefined) return
   object3D.visible = false
-  console.log('hideBall', object3D)
+ // console.log('hideBall', object3D)
 }
 
 export const unhideBall: Behavior = (
@@ -32,7 +32,7 @@ export const unhideBall: Behavior = (
   const object3D = getMutableComponent(entity, Object3DComponent)?.value
   if (object3D === undefined) return
   object3D.visible = true
-  console.log('unhideBall', object3D)
+  //console.log('unhideBall', object3D)
 }
 
 export const applyHideOrVisibleState: Behavior = (

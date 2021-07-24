@@ -26,7 +26,8 @@ import {
   hasComponent,
   addComponent,
   getComponent,
-  getMutableComponent
+  getMutableComponent,
+  removeComponent
 } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
 import { isClient } from '../../../../common/functions/isClient'
@@ -43,6 +44,8 @@ import { GamePlayer } from '../../../components/GamePlayer'
 import { YourTurn } from '../components/YourTurnTagComponent'
 import { XRUserSettings } from '../../../../xr/types/XRUserSettings'
 import { Interactable } from '../../../../interaction/components/Interactable'
+import { ifVelocity } from '../../gameDefault/checkers/ifVelocity'
+import { ifOwned } from '../../gameDefault/checkers/ifOwned'
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()
@@ -222,9 +225,17 @@ export const onClubColliderWithBall: GameObjectInteractionBehavior = (
   args: { hitEvent: ColliderHitEvent },
   entityBall: Entity
 ) => {
-  if (hasComponent(entityBall, State.Active) && hasComponent(entityClub, State.Active)) {
+  if (args.hitEvent.type === 'TRIGGER_START' &&
+      hasComponent(entityBall, State.Active) &&
+      hasComponent(entityClub, State.Active) &&
+      ifOwned(entityClub, null, entityBall) &&
+      ifVelocity(entityClub, { component: GolfClubComponent, more: 0.01, less: 1 })
+  ) {
     addActionComponent(entityBall, Action.GameObjectCollisionTag)
     addActionComponent(entityClub, Action.GameObjectCollisionTag)
+  } else if (args.hitEvent.type === 'TRIGGER_END') {
+    removeComponent(entityBall, Action.GameObjectCollisionTag)
+    removeComponent(entityClub, Action.GameObjectCollisionTag)
   }
 }
 

@@ -189,10 +189,18 @@ export const clearRemovedEntitysFromGame = (game): void => {
 
 export const addStateComponent = (entity: Entity, component: ComponentConstructor<Component<any>>): void => {
   if (hasComponent(entity, component)) return
-  // console.log('addStateComponent', component.name)
+  
   const uuid = getUuid(entity)
   const role = getRole(entity)
   const game = getGame(entity)
+  /*
+  if (role != 'GolfBall') {
+    console.warn(role,' add ', component.name)
+  } else {
+    console.log(role,' add ', component.name)
+  }
+  */
+
 
   if (uuid === undefined || role === undefined || game === undefined) {
     console.warn('addStateComponent cant add State, looks like Object or Player leave game')
@@ -220,9 +228,14 @@ export const removeStateComponent = (entity: Entity, component: ComponentConstru
   if (!hasComponent(entity, component)) return
   const uuid = getUuid(entity)
   const game = getGame(entity)
-
-  // console.log('removeStateComponent', component.name)
-
+  /*
+  const role = getRole(entity)
+  if (role != 'GolfBall') {
+   console.warn(role,' remove ', component.name)
+  } else {
+    console.log(role,' remove ', component.name)
+  }
+  */
   removeComponent(entity, component)
 
   const objectState = game.state.find((v) => v.uuid === uuid)

@@ -23,13 +23,14 @@ import { GameMode } from '../types/GameMode'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { ColliderHitEvent } from 'three-physx'
 import { isClient } from '../../common/functions/isClient'
-import { checkIsGamePredictionStillRight, clearPredictionCheckList } from '../functions/functionsActions'
+import { addActionComponent, checkIsGamePredictionStillRight, clearPredictionCheckList } from '../functions/functionsActions'
 import { NewPlayerTagComponent } from '../templates/Golf/components/GolfTagComponents'
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
 import { Component } from '../../ecs/classes/Component'
 import { CharacterComponent } from '../../character/components/CharacterComponent'
 import { getGameFromName } from '../functions/functions'
 import { Engine } from '../../ecs/classes/Engine'
+import { Action } from '../types/GameComponents'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -115,7 +116,7 @@ export class GameManagerSystem extends System {
       const gameObject = getComponent(entity, GameObject)
       collider.body?.collisionEvents?.forEach((collisionEvent: ColliderHitEvent) => {
         const otherEntity = collisionEvent.bodyOther.userData as Entity
-        if (typeof otherEntity === 'undefined') return
+        if (typeof otherEntity === 'undefined') return;
         const otherGameObject = getComponent<GameObject>(otherEntity, GameObject)
         if (!otherGameObject) return
         Object.keys(gameObject.collisionBehaviors).forEach((role) => {
@@ -129,6 +130,7 @@ export class GameManagerSystem extends System {
     this.queryResults.game.all?.forEach((entityGame) => {
       const game = getComponent(entityGame, Game)
       const gameArea = game.gameArea
+      
       if (isClient && game.isGlobal && checkIsGamePredictionStillRight()) {
         clearPredictionCheckList()
         requireState(
@@ -139,7 +141,7 @@ export class GameManagerSystem extends System {
           )
         )
       }
-
+      
       this.queryResults.characters.added.forEach((entity) => {
         console.log('new client joining game')
         addComponent(entity, NewPlayerTagComponent, { gameName: game.name })
@@ -162,11 +164,12 @@ export class GameManagerSystem extends System {
         console.log('removeEntityFromState', gamePlayer.role)
         removeEntityFromState(gamePlayer, game)
         // clearRemovedEntitysFromGame(game)
-        Object.values(gamePlayer.ownedObjects).forEach((entity) => {
-          removeEntity(entity)
+        Object.values(gamePlayer.ownedObjects).forEach((entityObj) => {
+          removeEntity(entityObj)
         })
         game.gamePlayers[gamePlayer.role] = []
         gameSchema.onPlayerLeave(entity, gamePlayer, game)
+        removeEntity(entity);
       })
     })
 
