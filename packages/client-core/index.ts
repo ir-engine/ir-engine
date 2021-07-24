@@ -378,7 +378,6 @@ export { default as srcAdminComponentsAnalyticsApiLinks } from './src/admin/comp
 export { default as srcAdminComponentsAnalyticsCardNumber } from './src/admin/components/Analytics/CardNumber';
 export { default as srcAdminComponentsAnalyticsGraph } from './src/admin/components/Analytics/Graph';
 export { default as srcAdminComponentsAnalyticsIndex } from './src/admin/components/Analytics/index';
-export { default as srcAdminComponentsArMediaConsole } from './src/admin/components/ArMediaConsole';
 export { default as srcAdminComponentsAvatarsAvatars } from './src/admin/components/Avatars/Avatars';
 export { default as srcAdminComponentsBotsCreateBot } from './src/admin/components/Bots/CreateBot';
 export { default as srcAdminComponentsBotsDisplayBots } from './src/admin/components/Bots/displayBots';

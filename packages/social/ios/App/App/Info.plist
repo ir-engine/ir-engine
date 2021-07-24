@@ -29,6 +29,10 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Need to AR baby!</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Record audio</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Save Sample Video to Camera Roll</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

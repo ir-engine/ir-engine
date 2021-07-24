@@ -89,7 +89,8 @@ if (config.server.enabled) {
             origin: [
               'https://' + config.server.clientHost,
               'capacitor://' + config.server.clientHost,
-              'ionic://' + config.server.clientHost
+              'ionic://' + config.server.clientHost,
+              'https://localhost:3001'
             ],
             methods: ['OPTIONS', 'GET', 'POST'],
             allowedHeaders: '*',
