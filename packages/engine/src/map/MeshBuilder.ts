@@ -54,11 +54,13 @@ function buildGeometry(feature: IFeatureX, llCenter: Position): BufferGeometry |
     goodGeometry = feature.geometry
   }
 
+  console.log("GEO TYPE", feature.geometry.type);
+
   // TODO switch statement
   if (goodGeometry.type === 'MultiPolygon') {
     coords = goodGeometry.coordinates[0][0] // TODO: add all multipolygon coords.
   } else if (goodGeometry.type === 'Polygon') {
-    coords = goodGeometry.coordinates[0]
+    coords = goodGeometry.coordinates[0] // TODO: handle interior rings
   } else if (goodGeometry.type === 'MultiPoint') {
     // TODO is this a bug?
     coords = goodGeometry.coordinates[0] as any

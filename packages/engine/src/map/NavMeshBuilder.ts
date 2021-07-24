@@ -12,14 +12,20 @@ export class NavMeshBuilder {
     return this.build()
   }
 
-  _toYukaPolygon(geometry: Geometry, elevation: number): YUKA.Polygon {
-    const result = new YUKA.Polygon()
+  _toYukaPolygons(geometry: Geometry, elevation: number): YUKA.Polygon[] {
     switch (geometry.type) {
       case 'Polygon':
-        const vec3s = this._toYukaVectors3(geometry.coordinates[0], elevation)
-        result.fromContour(vec3s)
-        return result
+        return [this._coordsToYukaPolygon(geometry.coordinates, elevation)]
+      case 'MultiPolygon':
+        return geometry.coordinates.map((polygonCoords) => this._coordsToYukaPolygon(polygonCoords, elevation))
     }
+  }
+
+  _coordsToYukaPolygon(coords: Position[][], elevation: number): YUKA.Polygon {
+    const result = new YUKA.Polygon()
+    const vec3s = this._toYukaVectors3(coords[0], elevation)
+    result.fromContour(vec3s)
+    return result
   }
 
   _toYukaVectors3(coords: Position[], elevation: number) {
@@ -29,7 +35,7 @@ export class NavMeshBuilder {
   }
 
   addGeometry(geometry: Geometry, elevation = 0): NavMeshBuilder {
-    this.polygons.push(this._toYukaPolygon(geometry, elevation))
+    this.polygons = this.polygons.concat(this._toYukaPolygons(geometry, elevation))
     return this
   }
 
