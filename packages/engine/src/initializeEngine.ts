@@ -39,6 +39,7 @@ import { AudioSystem } from './audio/systems/AudioSystem'
 import { setupBotHooks } from './bot/functions/botHookFunctions'
 import { AnimationSystem } from './character/AnimationSystem'
 import { InterpolationSystem } from './physics/systems/InterpolationSystem'
+import { FontManager } from './ui/classes/FontManager'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -74,6 +75,8 @@ const configureClient = async (options: InitializeOptions) => {
     Engine.camera.layers.enableAll()
     Engine.scene.add(Engine.camera)
   }
+
+  await FontManager.instance.getDefaultFont()
 
   setupBotHooks()
 

@@ -4,7 +4,8 @@
 import React, { useEffect } from 'react'
 
 import Dashboard from '@xrengine/client-core/src/socialmedia/components/Dashboard'
-import ArMediaConsole from '@xrengine/client-core/src/admin/components/ArMediaConsole'
+import ArMediaConsole from '@xrengine/client-core/src/admin/components/Arc/ArMediaConsole'
+import ArMediaDashboard from '@xrengine/client-core/src/admin/components/Arc/index'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 
@@ -33,7 +34,8 @@ const ArMediaPage = ({ arMediaState, getArMedia }: Props) => {
     <>
       <div>
         <Dashboard>
-          <ArMediaConsole list={arMediaList} />
+          {/* <ArMediaConsole list={arMediaList} /> */}
+          <ArMediaDashboard list={arMediaList} />
         </Dashboard>
       </div>
     </>

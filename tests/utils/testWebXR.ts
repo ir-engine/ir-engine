@@ -1,6 +1,6 @@
 import type { XREngineBot } from '@xrengine/bot/src/bot'
-import { XRBotHooks } from '../../src/bot/enums/BotHooks'
-import { compareArrays } from './MathTestUtils'
+import { XRBotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
+import { compareArrays } from '@xrengine/engine/src/common/functions/MathRandomFunctions'
 
 export const setupXR = async (bot: XREngineBot) => {
   await bot.page.addScriptTag({ url: '/scripts/webxr-polyfill.js' })

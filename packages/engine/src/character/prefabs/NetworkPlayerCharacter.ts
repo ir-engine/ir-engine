@@ -39,7 +39,9 @@ const initializeCharacter: Behavior = (entity): void => {
   // // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
   actor.modelContainer = new Group()
   actor.modelContainer.name = 'Actor (modelContainer)' + entity.id
-  obj3d.add(actor.modelContainer)
+  obj3d.add(actor.modelContainer, actor.frustumCamera)
+  actor.frustumCamera.position.setY(actor.actorHalfHeight)
+  actor.frustumCamera.rotateY(Math.PI)
 
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(actor.modelContainer),
