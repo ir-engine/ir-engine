@@ -311,6 +311,9 @@ export class GolfSystem extends System {
       const ballEntity = playerComponent.ownedObjects['GolfBall']
       removeStateComponent(ballEntity, State.BallHidden)
       addStateComponent(ballEntity, State.BallVisible)
+      const entityClub = playerComponent.ownedObjects['GolfClub']
+      removeStateComponent(entityClub, State.Inactive)
+      addStateComponent(entityClub, State.Active)
     })
 
     // Hide Ball on not YourTurn

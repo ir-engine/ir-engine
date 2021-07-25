@@ -25,7 +25,8 @@ export const teleportObject: Behavior = (
   checks?: any
 ): void => {
   const collider = getMutableComponent(entity, ColliderComponent)
-  //isClient ? addComponent(entity, State.TeleportBall):'';
+  if (!collider) return
+  isClient ? addComponent(entity, State.TeleportBall) : ''
 
   collider.velocity.set(0, 0, 0)
 
