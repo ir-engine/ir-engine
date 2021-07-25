@@ -109,12 +109,15 @@ const addToCheckList = (
 
 export const checkIsGamePredictionStillRight = (): boolean => {
   // gamePredictionCheckList.length > 0 ? console.log(gamePredictionCheckList):'';
+  gamePredictionCheckList.length > 0 ? console.log(gamePredictionCheckList) : ''
   return gamePredictionCheckList.some((v) => Date.now() - v.time > timeAfterClientDesideHeWasgetWrongAction)
 }
 
 const ifWasSameBeforeByPrediction = (actionMessage: GameStateActionMessage): boolean => {
   //console.log(actionMessage.component, actionMessage.role);
   //console.log(gamePredictionCheckList[0].componentName, gamePredictionCheckList[0].dataForCheck.role);
+  console.log(actionMessage.component, actionMessage.role)
+  console.log(gamePredictionCheckList[0].componentName, gamePredictionCheckList[0].dataForCheck.role)
 
   return gamePredictionCheckList.some(
     (v) => v.componentName === actionMessage.component && v.dataForCheck.role === actionMessage.role
