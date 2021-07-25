@@ -1,4 +1,15 @@
-import { Box3, Frustum, Group, Matrix4, Mesh, MeshBasicMaterial, MeshPhongMaterial, Object3D, Vector3 } from 'three'
+import {
+  Box3,
+  Frustum,
+  Group,
+  MathUtils,
+  Matrix4,
+  Mesh,
+  MeshBasicMaterial,
+  MeshPhongMaterial,
+  Object3D,
+  Vector3
+} from 'three'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { isClient } from '../../common/functions/isClient'
 import { vectorToScreenXYZ } from '../../common/functions/vectorToScreenXYZ'
@@ -26,7 +37,7 @@ import { CharacterComponent } from '../../character/components/CharacterComponen
 import { NamePlateComponent } from '../../character/components/NamePlateComponent'
 import { VehicleComponent } from '../../vehicle/components/VehicleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { BoundingBox } from '../components/BoundingBox'
+import { BoundingBoxComponent } from '../components/BoundingBox'
 import { Interactable } from '../components/Interactable'
 import { InteractiveFocused } from '../components/InteractiveFocused'
 import { Interactor } from '../components/Interactor'
@@ -52,6 +63,11 @@ import { Network } from '../../networking/classes/Network'
 import { FontManager } from '../../ui/classes/FontManager'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { Sphere } from 'three'
+import { TweenComponent } from '../../transform/components/TweenComponent'
+import { Tween } from '@tweenjs/tween.js'
+import { hideInteractText, showInteractText } from '../functions/interactText'
+import { CameraComponent } from '../../camera/components/CameraComponent'
+import { CameraSystem } from '../../camera/systems/CameraSystem'
 
 const vector3 = new Vector3()
 // but is works on client too, i will config out this
@@ -153,7 +169,7 @@ const projectionMatrix = new Matrix4().makePerspective(
   -0.1, // y1
   0.1, // y2
   0.1, // near
-  5 // far
+  2 // far
 )
 const frustum = new Frustum()
 const vec3 = new Vector3()
@@ -194,7 +210,7 @@ const interactBoxRaycast: Behavior = (
 
   const subFocusedArray = raycastList
     .map((entityIn): RaycastResult => {
-      const boundingBox = getComponent(entityIn, BoundingBox)
+      const boundingBox = getComponent(entityIn, BoundingBoxComponent)
       const interactive = getComponent(entityIn, Interactable)
       if (boundingBox.boxArray.length) {
         // TO DO: static group object
@@ -256,6 +272,8 @@ const interactBoxRaycast: Behavior = (
   }
 }
 
+const upVec = new Vector3(0, 1, 0)
+
 export class InteractiveSystem extends System {
   static EVENTS = {
     USER_HOVER: 'INTERACTIVE_SYSTEM_USER_HOVER',
@@ -275,25 +293,10 @@ export class InteractiveSystem extends System {
   previousEntity: Entity
   previousEntity2DPosition: Vector3
 
-  interactText: Group
+  interactTextEntity: Entity
 
   constructor(attributes: SystemAttributes = {}) {
     super(attributes)
-    if (isClient) {
-      const geometry = FontManager.instance.create3dText('INTERACT', new Vector3(0.8, 1, 0.2))
-
-      const textSize = 0.1
-      const text = new Mesh(
-        geometry,
-        new MeshPhongMaterial({ color: 0xd4af37, emissive: 0xd4af37, emissiveIntensity: 1 })
-      )
-      text.scale.setScalar(textSize)
-
-      this.interactText = new Group().add(text)
-
-      this.interactText.visible = false
-      Engine.scene.add(this.interactText)
-    }
     this.reset()
   }
 
@@ -311,6 +314,27 @@ export class InteractiveSystem extends System {
     EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.USER_HOVER)
     EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.OBJECT_ACTIVATION)
     EngineEvents.instance.removeAllListenersForEvent(InteractiveSystem.EVENTS.OBJECT_HOVER)
+  }
+
+  async initialize() {
+    super.initialize()
+    if (isClient) {
+      const geometry = FontManager.instance.create3dText('INTERACT', new Vector3(0.8, 1, 0.2))
+
+      const textSize = 0.1
+      const text = new Mesh(
+        geometry,
+        new MeshPhongMaterial({ color: 0xd4af37, emissive: 0xd4af37, emissiveIntensity: 1 })
+      )
+      text.scale.setScalar(textSize)
+
+      this.interactTextEntity = createEntity()
+      const textGroup = new Group().add(text)
+      addComponent(this.interactTextEntity, Object3DComponent, { value: textGroup })
+      const transformComponent = addComponent(this.interactTextEntity, TransformComponent)
+      transformComponent.scale.setScalar(0)
+      textGroup.visible = false
+    }
   }
 
   execute(delta: number, time: number): void {
@@ -401,11 +425,11 @@ export class InteractiveSystem extends System {
           // unmark all unfocused
           this.queryResults.interactive?.all.forEach((entityInter) => {
             if (
-              !hasComponent(entityInter, BoundingBox) &&
+              !hasComponent(entityInter, BoundingBoxComponent) &&
               hasComponent(entityInter, Object3DComponent) &&
               hasComponent(entityInter, TransformComponent)
             ) {
-              addComponent(entityInter, BoundingBox, {
+              addComponent(entityInter, BoundingBoxComponent, {
                 dynamic: hasComponent(entityInter, RigidBodyComponent) || hasComponent(entityInter, VehicleComponent)
               })
             }
@@ -425,28 +449,29 @@ export class InteractiveSystem extends System {
 
       this.queryResults.boundingBox.added?.forEach((entity) => {
         const interactive = getMutableComponent(entity, Interactable)
-        const calcBoundingBox = getMutableComponent(entity, BoundingBox)
+        const calcBoundingBox = getMutableComponent(entity, BoundingBoxComponent)
 
         const object3D = getMutableComponent(entity, Object3DComponent).value
         const transform = getComponent(entity, TransformComponent)
 
         object3D.position.copy(transform.position)
         object3D.rotation.setFromQuaternion(transform.rotation)
-        calcBoundingBox.dynamic ? '' : object3D.updateMatrixWorld()
+        if (!calcBoundingBox.dynamic) object3D.updateMatrixWorld()
 
         if (interactive.interactionParts.length) {
           const arr = interactive.interactionParts.map((name) => object3D.children[0].getObjectByName(name))
           calcBoundingBox.boxArray = arr
         } else {
-          const aabb = new Box3()
-          object3D.traverse((v) => {
-            //object3D instanceof Object3D aabb.setFromCenterAndSize(new Vector3(0, 0, 0), new Vector3(0.5, 0.5, 0.5))
-            if (v instanceof Mesh) {
-              v.geometry.boundingBox == null ? v.geometry.computeBoundingBox() : ''
-              aabb.copy(v.geometry.boundingBox)
-              calcBoundingBox.dynamic ? '' : aabb.applyMatrix4(v.matrixWorld)
-              calcBoundingBox.box = aabb
-              return
+          object3D.traverse((obj3d: Mesh) => {
+            if (obj3d instanceof Mesh) {
+              if (!obj3d.geometry.boundingBox) obj3d.geometry.computeBoundingBox()
+              const aabb = new Box3().copy(obj3d.geometry.boundingBox)
+              if (!calcBoundingBox.dynamic) aabb.applyMatrix4(obj3d.matrixWorld)
+              if (!calcBoundingBox.box) {
+                calcBoundingBox.box = aabb
+              } else {
+                calcBoundingBox.box.union(aabb)
+              }
             }
           })
         }
@@ -455,26 +480,12 @@ export class InteractiveSystem extends System {
       // removal is the first because the hint must first be deleted, and then a new one appears
       this.queryResults.focus.removed?.forEach((entity) => {
         interactFocused(entity, null, delta)
-        this.interactText.visible = false
+        hideInteractText(this.interactTextEntity)
       })
 
       this.queryResults.focus.added?.forEach((entity) => {
         interactFocused(entity, null, delta)
-        const bb = getComponent(entity, BoundingBox)
-        if (bb) {
-          bb.box.getCenter(this.interactText.position)
-          // this.interactText.position.y += bb.box.max.y
-        } else {
-          const obj3d = getComponent(entity, Object3DComponent).value as Mesh
-          this.interactText.position.copy(obj3d.position)
-          if (obj3d.geometry) {
-            // this.interactText.position.y += obj3d.geometry.boundingBox.max.y
-          } else {
-            // this.interactText.position.y += 0.5
-          }
-        }
-        this.interactText.position.y += 0.5
-        this.interactText.visible = true
+        showInteractText(this.interactTextEntity, entity)
       })
 
       this.queryResults.subfocus.added?.forEach((entity) => {
@@ -542,10 +553,20 @@ export class InteractiveSystem extends System {
     })
 
     // animate the interact text up and down if it's visible
-    if (Network.instance.localClientEntity && this.interactText.visible) {
-      this.interactText.children[0].position.y = Math.sin(time) * 0.1
-      const { x, z } = getComponent(Network.instance.localClientEntity, TransformComponent).position
-      this.interactText.lookAt(x, this.interactText.position.y, z)
+    if (Network.instance.localClientEntity) {
+      const interactTextObject = getComponent(this.interactTextEntity, Object3DComponent).value
+      interactTextObject.children[0].position.y = Math.sin(time * 1.8) * 0.05
+
+      const activeCameraComponent = getMutableComponent(CameraSystem.instance.activeCamera, CameraComponent)
+      if (activeCameraComponent.followTarget) {
+        interactTextObject.children[0].setRotationFromAxisAngle(
+          upVec,
+          MathUtils.degToRad(getComponent(activeCameraComponent.followTarget, FollowCameraComponent).theta)
+        )
+      } else {
+        const { x, z } = getComponent(Network.instance.localClientEntity, TransformComponent).position
+        interactTextObject.lookAt(x, interactTextObject.position.y, z)
+      }
     }
   }
 
@@ -553,7 +574,7 @@ export class InteractiveSystem extends System {
     interactors: { components: [Interactor] },
     interactive: { components: [Interactable] },
     boundingBox: {
-      components: [BoundingBox],
+      components: [BoundingBoxComponent],
       listen: {
         added: true,
         removed: true
