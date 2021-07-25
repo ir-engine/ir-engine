@@ -1,28 +1,24 @@
 import { Vector3 } from 'three'
-import { Behavior } from '../../../../common/interfaces/Behavior'
-import { Entity } from '../../../../ecs/classes/Entity'
-import { getComponent, getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
-import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
+import { getComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
+import { Network } from '../../../../networking/classes/Network'
+import { NetworkObjectOwner } from '../../../../networking/components/NetworkObjectOwner'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GamePlayer } from '../../../components/GamePlayer'
-import { getGame, getTargetEntity } from '../../../functions/functions'
-import { removeStateComponent } from '../../../functions/functionsState'
+import { getGame } from '../../../functions/functions'
 import { getStorage, setStorage } from '../../../functions/functionsStorage'
-import { State } from '../../../types/GameComponents'
+
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const getPositionNextPoint = (entity: Entity, args?: any, entityTarget?: Entity) => {
-  let gameScore = null
-  if (hasComponent(entity, GamePlayer)) {
-    gameScore = getStorage(entity, { name: 'GameScore' })
-  } else if (hasComponent(entityTarget, GamePlayer)) {
-    gameScore = getStorage(entityTarget, { name: 'GameScore' })
-  }
-
+export const getPositionNextPoint = (entity, args?: any) => {
+  // work with playerEntity but if you give game object will searsh playerEntity from owned component
+  const ownerEntity = hasComponent(entity, GamePlayer)
+    ? entity
+    : Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId]?.component.entity
+  const gameScore = getStorage(ownerEntity, { name: 'GameScore' })
   const game = getGame(entity)
-  console.warn(args.positionCopyFromRole + gameScore.score.goal)
+
   const teeEntity = game.gameObjects[args.positionCopyFromRole + gameScore.score.goal][0]
   if (teeEntity) {
     const teeTransform = getComponent(teeEntity, TransformComponent)
@@ -39,15 +35,12 @@ export const getPositionNextPoint = (entity: Entity, args?: any, entityTarget?: 
       gameScore.score.hits = 0
       gameScore.score.goal = 0
 
-      if (hasComponent(entity, GamePlayer)) {
-        setStorage(entity, { name: 'GameScore' }, gameScore)
-      } else if (hasComponent(entityTarget, GamePlayer)) {
-        setStorage(entityTarget, { name: 'GameScore' }, gameScore)
-      }
+      setStorage(ownerEntity, { name: 'GameScore' }, gameScore)
       return args
     }
     //
   }
-  args.position = new Vector3()
+  console.warn('Cant find Tee to teleport on', gameScore)
+  args.position = new Vector3(0, 10, 0)
   return args
 }

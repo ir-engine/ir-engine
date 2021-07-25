@@ -47,7 +47,7 @@ import {
   usernameUpdated,
   userUpdated
 } from './actions'
-import { CharacterControllerSystem } from '@xrengine/engine/src/character/CharacterControllerSystem'
+import { AnimationSystem } from '@xrengine/engine/src/character/AnimationSystem'
 
 const store = Store.store
 
@@ -55,7 +55,8 @@ export function doLoginAuto(allowGuest?: boolean, forceClientAuthReset?: boolean
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       const authData = getStoredState('auth')
-      let accessToken = authData && authData.authUser ? authData.authUser.accessToken : undefined
+      let accessToken =
+        forceClientAuthReset !== true && authData && authData.authUser ? authData.authUser.accessToken : undefined
 
       if (allowGuest !== true && accessToken == null) {
         return
@@ -815,7 +816,7 @@ const loadAvatarForUpdatedUser = async (user) => {
         const obj = Network.instance.networkObjects[key]
         if (obj?.ownerId === user.id) {
           EngineEvents.instance.dispatchEvent({
-            type: CharacterControllerSystem.EVENTS.LOAD_AVATAR,
+            type: AnimationSystem.EVENTS.LOAD_AVATAR,
             entityID: obj.component.entity.id,
             avatarId: user.avatarId,
             avatarURL
@@ -853,7 +854,7 @@ const loadXRAvatarForUpdatedUser = async (user) => {
       const obj = Network.instance.networkObjects[key]
       if (obj?.ownerId === user.id) {
         EngineEvents.instance.dispatchEvent({
-          type: CharacterControllerSystem.EVENTS.LOAD_AVATAR,
+          type: AnimationSystem.EVENTS.LOAD_AVATAR,
           entityID: obj.component.entity.id,
           avatarId: user.avatarId,
           avatarURL

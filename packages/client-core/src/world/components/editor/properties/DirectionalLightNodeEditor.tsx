@@ -7,6 +7,7 @@ import LightShadowProperties from './LightShadowProperties'
 import { Bolt } from '@styled-icons/fa-solid/Bolt'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
+import BooleanInput from '../inputs/BooleanInput'
 
 /**
  * Defining properties for DirectionalLightNodeEditor.
@@ -42,6 +43,16 @@ export class DirectionalLightNodeEditor extends Component<DirectionalLightNodeEd
     ;(this.props.editor as any).setPropertySelected('intensity', intensity)
   }
 
+  //function to handle the changes in camera far property of DirectionalLight
+  onChangeCameraFar = (cameraFar) => {
+    ;(this.props.editor as any).setPropertySelected('cameraFar', cameraFar)
+  }
+
+  // function to handle changes in showCameraHelper propery
+  onChangeshowCameraHelper = (showCameraHelper) => {
+    ;(this.props.editor as any).setPropertySelected('showCameraHelper', showCameraHelper)
+  }
+
   // renders editor view, provides inputs to customize properties of DirectionalLight element.
   render() {
     DirectionalLightNodeEditor.description = this.props.t('editor:properties.directionalLight.description')
@@ -70,6 +81,24 @@ export class DirectionalLightNodeEditor extends Component<DirectionalLightNodeEd
           unit="cd"
         />
         <LightShadowProperties node={node} editor={editor} />
+        {/* @ts-ignore */}
+        <InputGroup
+          name="Camera Debugger"
+          label={this.props.t('editor:properties.directionalLight.lbl-showCameraHelper')}
+        >
+          <BooleanInput value={(node as any).showCameraHelper} onChange={this.onChangeshowCameraHelper} />
+        </InputGroup>
+        {/* @ts-ignore */}
+        <NumericInputGroup
+          name="CameraFar"
+          label={this.props.t('editor:properties.directionalLight.lbl-cameraFar')}
+          min={0}
+          smallStep={0.01}
+          mediumStep={0.1}
+          largeStep={1}
+          value={node.cameraFar}
+          onChange={this.onChangeCameraFar}
+        />
       </NodeEditor>
     )
   }

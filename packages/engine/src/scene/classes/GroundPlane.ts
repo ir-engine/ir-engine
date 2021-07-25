@@ -1,4 +1,4 @@
-import { Object3D, CircleBufferGeometry, MeshStandardMaterial, Mesh } from 'three'
+import { Object3D, CircleBufferGeometry, MeshStandardMaterial, Mesh, Color } from 'three'
 export default class GroundPlane extends Object3D {
   static _geometry = new CircleBufferGeometry(4000, 32)
   _receiveShadow: boolean
@@ -23,6 +23,9 @@ export default class GroundPlane extends Object3D {
   }
   get color() {
     return (this.mesh.material as MeshStandardMaterial).color
+  }
+  set color(color: Color) {
+    ;(this.mesh.material as MeshStandardMaterial).color = color
   }
   // @ts-ignore
   get receiveShadow() {

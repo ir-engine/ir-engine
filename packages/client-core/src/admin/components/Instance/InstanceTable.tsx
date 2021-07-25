@@ -51,10 +51,10 @@ const InstanceTable = (props: Props) => {
 
   const user = authState.get('user')
   const adminInstances = adminInstanceState.get('instances')
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handlePageChange = (event: unknown, newPage: number) => {
     setPage(newPage)
   }
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
   }
@@ -135,8 +135,8 @@ const InstanceTable = (props: Props) => {
         count={12}
         rowsPerPage={rowsPerPage}
         page={page}
-        onChangePage={handleChangePage}
-        onChangeRowsPerPage={handleChangeRowsPerPage}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
         className={classex.tableFooter}
       />
     </div>

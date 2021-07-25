@@ -41,11 +41,11 @@ function searchSameInAnotherId(objectToCreate) {
   if (objectToCreate.prefabType === PrefabType.Player) {
     return Object.keys(Network.instance.networkObjects)
       .map(Number)
-      .some((key) => Network.instance.networkObjects[key]?.ownerId === objectToCreate.ownerId)
+      .find((key) => Network.instance.networkObjects[key]?.ownerId === objectToCreate.ownerId)
   } else {
     return Object.keys(Network.instance.networkObjects)
       .map(Number)
-      .some((key) => Network.instance.networkObjects[key]?.uniqueId === objectToCreate.uniqueId)
+      .find((key) => Network.instance.networkObjects[key]?.uniqueId === objectToCreate.uniqueId)
   }
 }
 
@@ -218,20 +218,40 @@ export class ClientNetworkStateSystem extends System {
             isIdFull &&
             Network.instance.networkObjects[objectToCreate.networkId].component.uniqueId === objectToCreate.uniqueId
 
+          const entityExistsInAnotherId = searchSameInAnotherId(objectToCreate)
+
           if ((isPlayerPref && isSameOwnerId) || (isOtherPref && isSameUniqueId)) {
-            console.log('*createObjects* same object' + objectToCreate.networkId)
+            console.log('[Network]: creating object with an existing networkId', objectToCreate.networkId)
             continue
-          } else if (searchSameInAnotherId(objectToCreate)) {
+          } else if (typeof entityExistsInAnotherId !== 'undefined') {
+            console.warn(
+              '[Network]: Found local client in a different networkId. Was ',
+              entityExistsInAnotherId,
+              'now',
+              objectToCreate.networkId
+            )
+
+            // set existing entity to new id
             Network.instance.networkObjects[objectToCreate.networkId] =
-              Network.instance.networkObjects[Network.instance.localAvatarNetworkId]
-            Network.instance.networkObjects[Network.instance.localAvatarNetworkId] = undefined
-            Network.instance.localAvatarNetworkId = objectToCreate.networkId
-            const newNetworkObjectComponent = Network.instance.networkObjects[objectToCreate.networkId].component
-            newNetworkObjectComponent.networkId = objectToCreate.networkId
-            console.log('*createObjects* same object but in anotherId ' + objectToCreate.networkId)
+              Network.instance.networkObjects[entityExistsInAnotherId]
+
+            // remove old id
+            delete Network.instance.networkObjects[entityExistsInAnotherId]
+
+            // change network component id
+            Network.instance.networkObjects[objectToCreate.networkId].component.networkId = objectToCreate.networkId
+
+            // if it's the local actor
+            if (objectToCreate.networkId === Network.instance.localAvatarNetworkId) {
+              Network.instance.localAvatarNetworkId = objectToCreate.networkId
+            }
+
             continue
           } else if (isIdFull) {
-            console.log('*createObjects* dont have object but Id not empty ' + objectToCreate.networkId)
+            console.warn(
+              '[Network]: creating an object with an existing id but a different type...',
+              objectToCreate.networkId
+            )
             syncPhysicsObjects(objectToCreate)
           }
 
@@ -264,6 +284,7 @@ export class ClientNetworkStateSystem extends System {
 
         // Game Manager Messages, must be after create object functions
         if (worldState.gameState && worldState.gameState.length > 0) {
+          //console.warn('get state')
           worldState.gameState.forEach((stateMessage: GameStateUpdateMessage) => {
             if (Network.instance.userId === stateMessage.ownerId) {
               console.log('get message', stateMessage)
@@ -272,6 +293,7 @@ export class ClientNetworkStateSystem extends System {
           })
         }
         if (worldState.gameStateActions && worldState.gameStateActions.length > 0) {
+          //console.warn('get action')
           worldState.gameStateActions.forEach((actionMessage: GameStateActionMessage) =>
             applyActionComponent(actionMessage)
           )

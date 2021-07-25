@@ -3,7 +3,7 @@ import { Entity } from '../../../../ecs/classes/Entity'
 import { Body, BodyType, ColliderHitEvent, ShapeType, SHAPES, Transform } from 'three-physx'
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem'
 
-import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../../../ecs/functions/EntityFunctions'
 import { GameObject } from '../../../components/GameObject'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
@@ -11,7 +11,7 @@ import { GolfCollisionGroups } from '../GolfGameConstants'
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent'
 import { getGame } from '../../../functions/functions'
 import { GameObjectInteractionBehavior } from '../../../interfaces/GameObjectPrefab'
-import { Action } from '../../../types/GameComponents'
+import { Action, State } from '../../../types/GameComponents'
 import { addActionComponent } from '../../../functions/functionsActions'
 
 export const onHoleCollideWithBall: GameObjectInteractionBehavior = (
@@ -20,12 +20,13 @@ export const onHoleCollideWithBall: GameObjectInteractionBehavior = (
   args: { hitEvent: ColliderHitEvent },
   entityBall: Entity
 ) => {
-  //if(hasComponent(entityHole, State.Active) && hasComponent(entityHole, State.Active)) {
-  console.log('HOLE')
-
-  addActionComponent(entityHole, Action.GameObjectCollisionTag)
-  addActionComponent(entityBall, Action.GameObjectCollisionTag)
-  // }
+  if (args.hitEvent.type === 'TRIGGER_START') {
+    addActionComponent(entityHole, Action.GameObjectCollisionTag)
+    addActionComponent(entityBall, Action.GameObjectCollisionTag)
+  } else if (args.hitEvent.type === 'TRIGGER_END') {
+    removeComponent(entityHole, Action.GameObjectCollisionTag)
+    removeComponent(entityBall, Action.GameObjectCollisionTag)
+  }
 }
 
 /**

@@ -1,5 +1,6 @@
 import { isClient } from '../../common/functions/isClient'
 import { Component } from '../../ecs/classes/Component'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
@@ -17,7 +18,6 @@ import { GamePlayer } from '../components/GamePlayer'
 import { ClientActionToServer } from '../templates/DefaultGameStateAction'
 import { SpawnedObject } from '../templates/gameDefault/components/SpawnedObjectTagComponent'
 
-import { GamesSchema } from '../templates/GamesSchema'
 import { State } from '../types/GameComponents'
 import { ClientGameActionMessage, GameStateUpdateMessage } from '../types/GameMessage'
 import { GameMode, StateObject } from '../types/GameMode'
@@ -27,8 +27,8 @@ import { getGame, getGameEntityFromName, getRole, setRole, getUuid } from './fun
  */
 
 export const initState = (game: Game, gameSchema: GameMode): void => {
-  Object.keys(gameSchema.gameObjectRoles).forEach((role) => (game.gameObjects[role] = []))
-  Object.keys(gameSchema.gamePlayerRoles).forEach((role) => (game.gamePlayers[role] = []))
+  gameSchema.gameObjectRoles.forEach((role) => (game.gameObjects[role] = []))
+  gameSchema.gamePlayerRoles.forEach((role) => (game.gamePlayers[role] = []))
 }
 
 export const saveInitStateCopy = (entity: Entity): void => {
@@ -99,7 +99,7 @@ export const applyStateToClient = (stateMessage: GameStateUpdateMessage): void =
 }
 
 export const applyState = (game: Game): void => {
-  const gameSchema = GamesSchema[game.gameMode]
+  const gameSchema = Engine.gameModes[game.gameMode]
 
   // clean all states
   Object.keys(game.gamePlayers)
@@ -157,12 +157,12 @@ export const applyState = (game: Game): void => {
             else console.warn("Couldn't find component", componentName)
           })
         } else {
-          console.log('Local object dont have state, v.uuid != uuid')
-          console.log(role, uuid)
+          // console.log('Local object dont have state, v.uuid != uuid')
+          // console.log(role, uuid)
         }
       })
     })
-  //console.warn('applyState', game.state);
+  // console.warn('applyState', game.state)
 }
 
 export const correctState = (): void => {
@@ -188,9 +188,18 @@ export const clearRemovedEntitysFromGame = (game): void => {
 }
 
 export const addStateComponent = (entity: Entity, component: ComponentConstructor<Component<any>>): void => {
+  if (hasComponent(entity, component)) return
+
   const uuid = getUuid(entity)
   const role = getRole(entity)
   const game = getGame(entity)
+  /*
+  if (role != 'GolfBall') {
+    console.warn(role,' add ', component.name)
+  } else {
+    console.log(role,' add ', component.name)
+  }
+  */
 
   if (uuid === undefined || role === undefined || game === undefined) {
     console.warn('addStateComponent cant add State, looks like Object or Player leave game')
@@ -212,13 +221,20 @@ export const addStateComponent = (entity: Entity, component: ComponentConstructo
   } else {
     console.warn('we have this gameState already, why?', component.name)
   }
-  //console.log(game.state);
 }
 
 export const removeStateComponent = (entity: Entity, component: ComponentConstructor<Component<any>>): void => {
+  if (!hasComponent(entity, component)) return
   const uuid = getUuid(entity)
   const game = getGame(entity)
-
+  /*
+  const role = getRole(entity)
+  if (role != 'GolfBall') {
+   console.warn(role,' remove ', component.name)
+  } else {
+    console.log(role,' remove ', component.name)
+  }
+  */
   removeComponent(entity, component)
 
   const objectState = game.state.find((v) => v.uuid === uuid)
@@ -228,7 +244,6 @@ export const removeStateComponent = (entity: Entity, component: ComponentConstru
   } else {
     objectState.components.splice(index, 1)
   }
-  //console.warn(game.state);
 }
 
 export const changeRole = (entity: Entity, newGameRole: string): void => {
@@ -240,8 +255,9 @@ export const changeRole = (entity: Entity, newGameRole: string): void => {
   if (objectState === undefined) {
     objectState = { uuid: uuid, role: '', components: [], storage: [] }
     game.state.push(objectState)
-    console.log('dont have this entity in State')
   }
+
+  console.log('change role', newGameRole)
 
   objectState.role = newGameRole
   objectState.components = []
@@ -257,12 +273,4 @@ export const changeRole = (entity: Entity, newGameRole: string): void => {
   })
 
   game.gamePlayers[newGameRole].push(entity)
-
-  const gameSchema = GamesSchema[game.gameMode]
-  const schema = gameSchema.initGameState[newGameRole]
-  if (schema != undefined) {
-    schema.components?.forEach((component) => addStateComponent(entity, component))
-    //initStorage(entity, schema.storage);
-    schema.behaviors?.forEach((behavior) => behavior(entity))
-  }
 }

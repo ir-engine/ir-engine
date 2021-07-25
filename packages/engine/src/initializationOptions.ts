@@ -1,11 +1,11 @@
 import { CharacterInputSchema } from './character/CharacterInputSchema'
 import { DefaultGameMode } from './game/templates/DefaultGameMode'
 import { DefaultNetworkSchema } from './networking/templates/DefaultNetworkSchema'
-import { GamesSchema, GameType } from './game/templates/GamesSchema'
 import { InputSchema } from './input/interfaces/InputSchema'
 import { NetworkSchema } from './networking/interfaces/NetworkSchema'
 import { GameMode } from './game/types/GameMode'
 import { PhysXConfig } from 'three-physx'
+import { SystemConstructor } from './ecs/classes/System'
 
 export enum EngineSystemPresets {
   CLIENT,
@@ -13,32 +13,34 @@ export enum EngineSystemPresets {
   SERVER
 }
 
+export type SystemInitializeType = {
+  system: SystemConstructor<any>
+  args?: any
+}[]
+
 export type InitializeOptions = {
   type?: EngineSystemPresets
   input?: {
-    disabled?: boolean
-    schema: InputSchema
+    schemas: InputSchema[]
   }
   networking?: {
-    schema?: NetworkSchema
+    schema: NetworkSchema
     app?: any
-    useOfflineMode?: boolean
   }
   renderer?: {
-    canvasId?: string
     disabled?: boolean
+    canvasId?: string
     postProcessing?: boolean
   }
-  gameMode?: GameMode
-  supportedGameModes?: {
+  gameModes?: {
     [key: string]: GameMode
   }
   publicPath?: string
   physics?: {
     simulationEnabled?: boolean
-    physicsWorldConfig?: PhysXConfig
     physxWorker?: any
   }
+  systems?: SystemInitializeType
 }
 
 /**
@@ -51,29 +53,20 @@ export const DefaultInitializationOptions: InitializeOptions = {
   type: EngineSystemPresets.CLIENT,
   publicPath: '',
   input: {
-    disabled: false,
-    schema: CharacterInputSchema
+    schemas: [CharacterInputSchema]
   },
   networking: {
-    schema: DefaultNetworkSchema,
-    useOfflineMode: false
+    schema: DefaultNetworkSchema
   },
   renderer: {
     disabled: false,
     postProcessing: true
   },
-  gameMode: DefaultGameMode,
-  supportedGameModes: GamesSchema,
+  gameModes: {
+    [DefaultGameMode.name]: DefaultGameMode
+  },
   physics: {
-    simulationEnabled: true, // start the engine with the physics simulation running
-    physicsWorldConfig: {
-      bounceThresholdVelocity: 0.5,
-      maximumDelta: 1000 / 20, // limits physics maximum delta so no huge jumps can be made
-      start: false,
-      lengthScale: 1,
-      verbose: false,
-      substeps: 1,
-      gravity: { x: 0, y: -9.81, z: 0 }
-    }
-  }
+    simulationEnabled: true // start the engine with the physics simulation running
+  },
+  systems: []
 }

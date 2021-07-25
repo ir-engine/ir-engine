@@ -9,6 +9,7 @@ import { DesiredTransformComponent } from '../components/DesiredTransformCompone
 import { TransformChildComponent } from '../components/TransformChildComponent'
 import { TransformComponent } from '../components/TransformComponent'
 import { TransformParentComponent } from '../components/TransformParentComponent'
+import { TweenComponent } from '../components/TweenComponent'
 
 const MAX_IGNORED_DISTANCE = 0.001
 const MAX_IGNORED_ANGLE = 0.001
@@ -21,7 +22,7 @@ const quat = new Quaternion()
 export class TransformSystem extends System {
   updateType = SystemUpdateType.Fixed
 
-  execute(delta) {
+  execute(delta: number, time: number) {
     this.queryResults.parent.all?.forEach((entity) => {
       const parentTransform = getMutableComponent(entity, TransformComponent)
       const parentingComponent = getComponent<TransformParentComponent>(entity, TransformParentComponent)
@@ -131,6 +132,11 @@ export class TransformSystem extends System {
       }
     })
 
+    this.queryResults.tweens.all?.forEach((entity) => {
+      const tween = getComponent(entity, TweenComponent)
+      tween.tween.update()
+    })
+
     this.queryResults.transforms.all?.forEach((entity) => {
       const transform = getMutableComponent(entity, TransformComponent)
 
@@ -178,5 +184,12 @@ TransformSystem.queries = {
   },
   copyTransform: {
     components: [CopyTransformComponent]
+  },
+  tweens: {
+    components: [TweenComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
   }
 }

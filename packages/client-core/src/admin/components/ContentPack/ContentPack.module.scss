@@ -136,6 +136,7 @@
   display: flex;
   flex-direction: column;
   width: 50%;
+  color: black;
 
   @media (max-width: 768px) {
     width: 90%;
@@ -163,6 +164,7 @@
       .container {
         display: flex;
         flex-direction: row;
+        flex-wrap: wrap;
 
         .avatar,
         .scene {
@@ -210,10 +212,52 @@
 .pack-list {
   margin-top: 10px !important;
   background-color: white;
+  color: black;
 }
 
 .success {
   display: flex;
   align-items: center;
   margin-top: 10px;
+}
+
+
+.pack-select {
+  margin-bottom: 10px;
+}
+
+.error-message {
+  color: red;
+  font-size: 1.5em;
+  margin-top: 10px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .title {
+    font-size: 1.5em;
+    color: black;
+  }
+
+  .closeButton {
+    &:hover {
+      cursor: pointer;
+      color: red;
+    }
+  }
+}
+
+.processing {
+  color: black;
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+
+  .text {
+    margin-left: 5px;
+    font-size: 1.5em;
+  }
 }

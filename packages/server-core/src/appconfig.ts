@@ -209,7 +209,8 @@ const aws = {
     s3DevMode: process.env.STORAGE_S3_DEV_MODE
   },
   cloudfront: {
-    domain: process.env.STORAGE_CLOUDFRONT_DOMAIN
+    domain: process.env.STORAGE_CLOUDFRONT_DOMAIN,
+    distributionId: process.env.STORAGE_CLOUDFRONT_DISTRIBUTION_ID
   },
   sms: {
     accessKeyId: process.env.AWS_SMS_ACCESS_KEY_ID,

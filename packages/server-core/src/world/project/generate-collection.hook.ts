@@ -26,6 +26,8 @@ export default (options: any) => {
     // After creating of project, remove the owned_file of project json
 
     // Find the project owned_file from database
+    console.log(context.data)
+
     const ownedFile = await StaticResourceModel.findOne({
       where: {
         id: context.data.ownedFileId
@@ -45,6 +47,7 @@ export default (options: any) => {
     if (!sceneData) return
     const savedCollection = await CollectionModel.create({
       thumbnailOwnedFileId: context.data.thumbnailOwnedFileId,
+      ownedFileIds: context.data.ownedFileIds,
       type: options.type ?? collectionType.scene,
       name: context.data.name,
       metadata: sceneData.metadata,

@@ -32,6 +32,9 @@ export default {
         },
         thumbnailOwnedFileId: {
           type: 'string'
+        },
+        ownedFileIds: {
+          type: 'string'
         }
       }
     },

@@ -43,11 +43,11 @@ const UserTable = (props: Props) => {
   const [userAdmin, setUserAdmin] = React.useState('')
   const user = authState.get('user')
   const adminUsers = adminUserState.get('users').get('users')
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handlePageChange = (event: unknown, newPage: number) => {
     setPage(newPage)
   }
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
   }
@@ -141,7 +141,6 @@ const UserTable = (props: Props) => {
   })
 
   const count = rows.size ? rows.size : rows.length
-
   return (
     <div className={classes.root}>
       <TableContainer className={classes.container}>
@@ -184,8 +183,8 @@ const UserTable = (props: Props) => {
         count={count || 12}
         rowsPerPage={rowsPerPage}
         page={page}
-        onChangePage={handleChangePage}
-        onChangeRowsPerPage={handleChangeRowsPerPage}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
         className={classx.tableFooter}
       />
       <Dialog

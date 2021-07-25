@@ -20,7 +20,7 @@ import { NotReady } from '../templates/Golf/components/NotReadyTagComponent'
  * @author HydraFire <github.com/HydraFire>
  */
 // its for adding new Action in State in One Plase, please don't splite this
-enum gameActions {
+export enum gameActions {
   HasHadInteraction = 'HasHadInteraction',
   GameObjectCollisionTag = 'GameObjectCollisionTag'
 }
@@ -30,7 +30,7 @@ export const Action = {
   [gameActions.GameObjectCollisionTag]: GameObjectCollisionTag
 }
 // its for adding new Action in State in One Plase, please don't splite this
-enum gameStates {
+export enum gameStates {
   Open = 'Open',
   Closed = 'Closed',
   ButtonUp = 'ButtonUp',
@@ -51,23 +51,37 @@ enum gameStates {
   SpawnedObject = 'SpawnedObject',
 
   BallMoving = 'BallMoving',
+  AlmostStopped = 'AlmostStopped',
   BallStopped = 'BallStopped',
 
   Active = 'Active',
   Inactive = 'Inactive',
 
   Ready = 'Ready',
-  NotReady = 'NotReady'
+  NotReady = 'NotReady',
+
+  BallHidden = 'BallHidden',
+  BallVisible = 'BallVisible',
+
+  TeleportBall = 'TeleportBall',
+  alreadyHit = 'alreadyHit'
 }
 
-class Waiting extends Component<any> {}
-class WaitTurn extends Component<any> {}
-class addedGoal extends Component<any> {}
-class addedHit extends Component<any> {}
-class Hit extends Component<any> {}
+export class Waiting extends Component<any> {}
+export class WaitTurn extends Component<any> {}
+export class addedGoal extends Component<any> {}
+export class addedHit extends Component<any> {}
+export class Hit extends Component<any> {}
 
-class BallMoving extends Component<any> {}
-class BallStopped extends Component<any> {}
+export class BallMoving extends Component<any> {}
+export class AlmostStopped extends Component<any> {}
+export class BallStopped extends Component<any> {}
+
+export class BallHidden extends Component<any> {}
+export class BallVisible extends Component<any> {}
+
+export class TeleportBall extends Component<any> {}
+export class alreadyHit extends Component<any> {}
 
 export const State = {
   [gameStates.Active]: Active,
@@ -87,7 +101,12 @@ export const State = {
   [gameStates.Hit]: Hit,
   [gameStates.SpawnedObject]: SpawnedObject,
   [gameStates.BallMoving]: BallMoving,
+  [gameStates.AlmostStopped]: AlmostStopped,
   [gameStates.BallStopped]: BallStopped,
   [gameStates.Ready]: Ready,
-  [gameStates.NotReady]: NotReady
+  [gameStates.NotReady]: NotReady,
+  [gameStates.BallHidden]: BallHidden,
+  [gameStates.BallVisible]: BallVisible,
+  [gameStates.TeleportBall]: TeleportBall,
+  [gameStates.alreadyHit]: alreadyHit
 }

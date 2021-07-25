@@ -135,13 +135,18 @@ export class IdentityProvider extends Service {
 
     const code = await getFreeInviteCode(this.app)
     // if there is no user with userId, then we create a user and a identity provider.
+    const adminCount = await (this.app.service('user') as any).Model.count({
+      where: {
+        userRole: 'admin'
+      }
+    })
     const result = await super.create(
       {
         ...data,
         ...identityProvider,
         user: {
           id: userId,
-          userRole: type === 'guest' ? 'guest' : type === 'admin' ? 'admin' : 'user',
+          userRole: type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user',
           inviteCode: type === 'guest' ? null : code,
           avatarId: DEFAULT_AVATARS[random(DEFAULT_AVATARS.length - 1)]
         }

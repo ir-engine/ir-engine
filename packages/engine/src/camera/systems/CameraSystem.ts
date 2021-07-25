@@ -51,18 +51,12 @@ const followCameraBehavior = (entity: Entity) => {
     FollowCameraComponent
   ) as FollowCameraComponent
 
-  cameraDesiredTransform.rotationRate = isMobile || followCamera.mode === CameraModes.FirstPerson ? 5 : 3.5
-  cameraDesiredTransform.positionRate = isMobile || followCamera.mode === CameraModes.FirstPerson ? 3.5 : 2
-
   const inputComponent = getComponent(entity, Input) as Input
 
   // this is for future integration of MMO style pointer lock controls
-  // let inputAxes;
-  // if (cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam) {
-  //   inputAxes = BaseInput.MOUSE_MOVEMENT;
-  // } else {
+  // const inputAxes = followCamera.mode === CameraModes.FirstPerson ? BaseInput.MOUSE_MOVEMENT : BaseInput.LOOKTURN_PLAYERONE
   const inputAxes = BaseInput.LOOKTURN_PLAYERONE
-  // }
+
   const inputValue = inputComponent.data.get(inputAxes)?.value ?? ([0, 0] as Vector2Type)
 
   if (followCamera.locked) {
@@ -86,9 +80,10 @@ const followCameraBehavior = (entity: Entity) => {
   phi = followCamera.mode === CameraModes.Isometric ? 150 : phi
   const theta = followCamera.mode === CameraModes.Isometric ? 180 : followCamera.theta
 
-  const camInitialHeight = followCamera.mode === CameraModes.Isometric ? actor.actorHeight * 2 : actor.actorHeight
+  const camInitialHeight =
+    followCamera.mode === CameraModes.Isometric ? actor.actorHeight * 2 : actor.actorHeight + 0.25
   const camInitialZOffset = followCamera.mode === CameraModes.Isometric ? -3 : 0
-  vec3.set(followCamera.shoulderSide ? -0.25 : 0.25, camInitialHeight, camInitialZOffset)
+  vec3.set(followCamera.shoulderSide ? -0.2 : 0.2, camInitialHeight, camInitialZOffset)
   vec3.applyQuaternion(actorTransform.rotation)
   vec3.add(actorTransform.position)
 
@@ -128,17 +123,11 @@ const followCameraBehavior = (entity: Entity) => {
   mx.lookAt(direction, empty, upVector)
   cameraDesiredTransform.rotation.setFromRotationMatrix(mx)
 
-  // for pointer lock controls
-  // if(cameraFollow.mode === CameraModes.FirstPerson || cameraFollow.mode === CameraModes.ShoulderCam) {
-  //     cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
-  // }
   if (followCamera.mode === CameraModes.FirstPerson) {
-    // cameraTransform.rotation.copy(cameraDesiredTransform.rotation);
+    cameraTransform.rotation.copy(cameraDesiredTransform.rotation)
     cameraTransform.position.copy(cameraDesiredTransform.position)
   }
-  // apply user input
 
-  // rotate character
   if (followCamera.locked || followCamera.mode === CameraModes.FirstPerson) {
     actorTransform.rotation.setFromAxisAngle(upVector, (followCamera.theta - 180) * (Math.PI / 180))
     vec3.copy(forwardVector).applyQuaternion(actorTransform.rotation)
@@ -210,7 +199,9 @@ export class CameraSystem extends System {
         removeComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent)
       }
       addComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent, {
-        lockRotationAxis: [false, true, false]
+        lockRotationAxis: [false, true, false],
+        rotationRate: isMobile ? 5 : 3.5,
+        positionRate: isMobile ? 3.5 : 2
       })
       resetFollowCamera()
     })

@@ -13,31 +13,33 @@ import {
   getComponent,
   getMutableComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  removeEntity
 } from '../../ecs/functions/EntityFunctions'
-import {
-  initState,
-  removeEntityFromState,
-  clearRemovedEntitysFromGame,
-  saveInitStateCopy,
-  requireState,
-  addStateComponent
-} from '../functions/functionsState'
-import { getStorage, initStorage } from '../functions/functionsStorage'
+import { initState, removeEntityFromState, saveInitStateCopy, requireState } from '../functions/functionsState'
 
-import { GamesSchema } from '../../game/templates/GamesSchema'
-import { PrefabType } from '../../networking/templates/PrefabType'
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { GameMode } from '../types/GameMode'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { ColliderHitEvent } from 'three-physx'
 import { isClient } from '../../common/functions/isClient'
-import { checkIsGamePredictionStillRight, clearPredictionCheckList } from '../functions/functionsActions'
+import {
+  addActionComponent,
+  checkIsGamePredictionStillRight,
+  clearPredictionCheckList
+} from '../functions/functionsActions'
+import { NewPlayerTagComponent } from '../templates/Golf/components/GolfTagComponents'
+import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
+import { Component } from '../../ecs/classes/Component'
+import { CharacterComponent } from '../../character/components/CharacterComponent'
+import { getGameFromName } from '../functions/functions'
+import { Engine } from '../../ecs/classes/Engine'
+import { Action } from '../types/GameComponents'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  */
-
+/*
 function checkWatchers(entity, arr) {
   return (
     arr === undefined ||
@@ -49,7 +51,7 @@ function checkWatchers(entity, arr) {
 function checkCheckers(entity, entityOther, arr) {
   return arr.map((checker) => checker.function(entity, checker.args, entityOther))
 }
-
+*/
 function isPlayerInGameArea(entity, gameArea) {
   const p = getComponent(entity, TransformComponent).position
   const inGameArea =
@@ -65,6 +67,11 @@ function isPlayerInGameArea(entity, gameArea) {
 /**
  * @author HydraFire <github.com/HydraFire>
  */
+
+type ComponentStateChangeType = {
+  entity: Entity
+  component: ComponentConstructor<Component<any>>
+}
 
 export class GameManagerSystem extends System {
   static instance: GameManagerSystem
@@ -96,8 +103,8 @@ export class GameManagerSystem extends System {
   execute(delta: number, time: number): void {
     this.queryResults.game.added?.forEach((entity) => {
       const game = getMutableComponent(entity, Game)
-      const gameSchema = GamesSchema[game.gameMode] as GameMode
-      game.maxPlayers ? gameSchema.preparePlayersRole(gameSchema, game.maxPlayers) : ''
+      const gameSchema = Engine.gameModes[game.gameMode] as GameMode
+      gameSchema.preparePlayersRole(gameSchema, game.maxPlayers)
       game.priority = gameSchema.priority // DOTO: set its from editor
       initState(game, gameSchema)
       this.gameEntities.push(entity)
@@ -111,7 +118,7 @@ export class GameManagerSystem extends System {
     this.queryResults.gameObjectCollisions?.all?.forEach((entity) => {
       const collider = getComponent(entity, ColliderComponent)
       const gameObject = getComponent(entity, GameObject)
-      collider.body.collisionEvents?.forEach((collisionEvent: ColliderHitEvent) => {
+      collider.body?.collisionEvents?.forEach((collisionEvent: ColliderHitEvent) => {
         const otherEntity = collisionEvent.bodyOther.userData as Entity
         if (typeof otherEntity === 'undefined') return
         const otherGameObject = getComponent<GameObject>(otherEntity, GameObject)
@@ -127,10 +134,7 @@ export class GameManagerSystem extends System {
     this.queryResults.game.all?.forEach((entityGame) => {
       const game = getComponent(entityGame, Game)
       const gameArea = game.gameArea
-      const gameSchema = GamesSchema[game.gameMode]
-      const gameObjects = game.gameObjects
-      const gamePlayers = game.gamePlayers
-      //const gameState = game.state;
+
       if (isClient && game.isGlobal && checkIsGamePredictionStillRight()) {
         clearPredictionCheckList()
         requireState(
@@ -141,158 +145,16 @@ export class GameManagerSystem extends System {
           )
         )
       }
-      // MAIN EXECUTE
-      const executeComplexResult = []
-      // its case beter then this.queryResults.gameObject.all, becose its sync execute all role groubs entity, and you not think about behavior do work on haotic case
-      Object.keys(gamePlayers)
-        .concat(Object.keys(gameObjects))
-        .forEach((role) => {
-          ;(gameObjects[role] || gamePlayers[role]).forEach((entity) => {
-            const gameObject = hasComponent(entity, GameObject)
-              ? getComponent(entity, GameObject)
-              : getComponent(entity, GamePlayer)
-            const actionSchema = gameSchema.gameObjectRoles[role] || gameSchema.gamePlayerRoles[role]
 
-            Object.keys(actionSchema).forEach((actionName) => {
-              const actionBehaviors = actionSchema[actionName]
-              actionBehaviors.forEach((b) => {
-                let args = []
-                let checkersResult = []
+      this.queryResults.characters.added.forEach((entity) => {
+        console.log('new client joining game')
+        addComponent(entity, NewPlayerTagComponent, { gameName: game.name })
+      })
 
-                if (checkWatchers(entity, b.watchers) === false) return
-
-                if (b.checkers != undefined && b.checkers.length > 0) {
-                  checkersResult = checkCheckers(entity, undefined, b.checkers)
-                  if (checkersResult.some((result) => result === undefined || result === null || result === false))
-                    return
-                }
-                /*
-              if(typeof b.takeEffectOn === 'function') {
-                const entityOther = b.takeEffectOn(entity);
-                if(entityOther) {
-                  executeComplexResult.push({ behavior: b.behavior, entity: entity, entityOther, args, checkersResult });
-                }
-              } else
-              */
-                b.args != undefined ? (args = b.args) : ''
-                if (typeof b.takeEffectOn === 'undefined' || typeof b.takeEffectOn.targetsRole === 'undefined') {
-                  //b.behavior(entity, undefined, args, checkersResult);
-                  // used to prepair position of golf tee
-                  b.prepareArgs != undefined ? (args = b.prepareArgs(entity, b.args)) : ''
-
-                  executeComplexResult.push({
-                    behavior: b.behavior,
-                    entity: entity,
-                    entityOther: undefined,
-                    args,
-                    checkersResult
-                  })
-                } else {
-                  const complexResultObjects = Object.keys(b.takeEffectOn.targetsRole).reduce(
-                    (acc, searchedRoleName) => {
-                      const targetRoleSchema = b.takeEffectOn.targetsRole[searchedRoleName]
-                      // search second entity
-                      let resultObjects = (gameObjects[searchedRoleName] || gamePlayers[searchedRoleName]) as any
-
-                      if (targetRoleSchema.watchers != undefined && targetRoleSchema.watchers.length > 0) {
-                        resultObjects = resultObjects.filter((entityOtherObj) =>
-                          checkWatchers(entityOtherObj, targetRoleSchema.watchers)
-                        )
-                      }
-
-                      resultObjects = resultObjects.map((v) => ({
-                        entity: v,
-                        checkersResult: [],
-                        args: targetRoleSchema.args
-                      }))
-
-                      if (targetRoleSchema.checkers != undefined && targetRoleSchema.checkers.length > 0) {
-                        resultObjects.forEach((complexOtherObj) => {
-                          complexOtherObj.checkersResult = checkCheckers(
-                            entity,
-                            complexOtherObj.entity,
-                            targetRoleSchema.checkers
-                          )
-                        })
-                        resultObjects = resultObjects.filter((complexOtherObj) => {
-                          return !complexOtherObj.checkersResult.some(
-                            (result) => result === undefined || result === null || result === false
-                          )
-                        })
-                      }
-
-                      return acc.concat(resultObjects)
-                    },
-                    []
-                  )
-
-                  /*
-                if (b.takeEffectOn.sortMethod != undefined && complexResultObjects.length > 1 ) {
-                  complexResultObjects = b.takeEffectOn.sortMethod(complexResultObjects)
-                }
-                */
-                  complexResultObjects.forEach((complexResult) => {
-                    b.prepareArgs != undefined ? (args = b.prepareArgs(entity, b.args, complexResult.entity)) : ''
-                    executeComplexResult.push({
-                      behavior: b.behavior,
-                      entity: entity,
-                      entityOther: complexResult.entity,
-                      args: { ...args, ...complexResult.args },
-                      checkersResult: { ...checkersResult, ...complexResult.checkersResult }
-                    })
-                  })
-                }
-              })
-            })
-          })
-        })
-      // execute all behavior after all preparing
-      executeComplexResult.forEach((v) => v.behavior(v.entity, v.args, delta, v.entityOther, time, v.checkersResult))
-      // Clean onetime Tag components for every gameobject
-      Object.keys(gamePlayers)
-        .concat(Object.keys(gameObjects))
-        .forEach((role: string) => {
-          ;(gameObjects[role] || gamePlayers[role]).forEach((entity) => {
-            gameSchema.registerActionTagComponents.forEach((component) =>
-              hasComponent(entity, component) ? removeComponent(entity, component) : ''
-            )
-          })
-        })
-
-      // GAME AREA ADDIND PLAYERS or REMOVE
-      // adding or remove players from this Game, always give the first Role from GameSchema
-      if (this.updateLastTime > this.updateNewPlayersRate) {
-        Object.keys(Network.instance.networkObjects)
-          .map(Number)
-          .filter((key) => Network.instance.networkObjects[key].prefabType === PrefabType.Player)
-          .map((key) => Network.instance.networkObjects[key].component.entity)
-          .map((entity) => isPlayerInGameArea(entity, gameArea))
-          .forEach((v) => {
-            // is Player in Game Area
-            if (v.inGameArea && hasComponent(v.entity, GamePlayer)) {
-              /*
-              if (getComponent(v.entity, GamePlayer).gameName != game.name) {
-                getGameFromName(getComponent(v.entity, GamePlayer).gameName).priority < game.priority;
-                removeComponent(v.entity, GamePlayer);
-              }
-              */
-            } else if (v.inGameArea && !hasComponent(v.entity, GamePlayer)) {
-              addComponent(v.entity, GamePlayer, {
-                gameName: game.name,
-                role: Object.keys(gameSchema.gamePlayerRoles)[0],
-                uuid: getComponent(v.entity, NetworkObject).ownerId
-              })
-            } else if (!v.inGameArea && hasComponent(v.entity, GamePlayer)) {
-              if (getComponent(v.entity, GamePlayer).gameName === game.name) {
-                removeComponent(v.entity, GamePlayer)
-              }
-            }
-          })
-        this.updateLastTime = 0
-      } else {
-        this.updateLastTime += 1
-      }
-      // end of frame circle one game
+      this.queryResults.characters.removed.forEach((entity) => {
+        hasComponent(entity, NewPlayerTagComponent) && removeComponent(entity, NewPlayerTagComponent)
+        hasComponent(entity, GamePlayer) && removeComponent(entity, GamePlayer)
+      })
     })
 
     // PLAYERS REMOVE
@@ -301,14 +163,17 @@ export class GameManagerSystem extends System {
         const game = getComponent(entityGame, Game)
         const gamePlayer = getComponent(entity, GamePlayer, true)
         if (gamePlayer === undefined || gamePlayer.gameName != game.name) return
-        const gameSchema = GamesSchema[game.gameMode]
+        const gameSchema = Engine.gameModes[game.gameMode]
         gameSchema.beforePlayerLeave(entity)
+        console.log('removeEntityFromState', gamePlayer.role)
         removeEntityFromState(gamePlayer, game)
-        clearRemovedEntitysFromGame(game)
-        game.gamePlayers[gamePlayer.role] = game.gamePlayers[gamePlayer.role].filter((entityFind) =>
-          hasComponent(entityFind, GamePlayer)
-        )
+        // clearRemovedEntitysFromGame(game)
+        Object.values(gamePlayer.ownedObjects).forEach((entityObj) => {
+          removeEntity(entityObj)
+        })
+        game.gamePlayers[gamePlayer.role] = []
         gameSchema.onPlayerLeave(entity, gamePlayer, game)
+        removeEntity(entity)
       })
     })
 
@@ -318,8 +183,9 @@ export class GameManagerSystem extends System {
         const game = getComponent(entityGame, Game)
         const gameObject = getComponent(entity, GameObject, true)
         if (gameObject === undefined || gameObject.gameName != game.name) return
+        console.log('removeEntityFromState', gameObject.role)
         removeEntityFromState(gameObject, game)
-        clearRemovedEntitysFromGame(game)
+        game.gameObjects[gameObject.role] = []
       })
     })
     // PLAYERS ADDIND
@@ -329,7 +195,6 @@ export class GameManagerSystem extends System {
         const gamePlayer = getComponent(entity, GamePlayer)
         if (gamePlayer.gameName != game.name) return
 
-        const gameSchema = GamesSchema[game.gameMode]
         // befor adding first player
         const countAllPlayersInGame = Object.keys(game.gamePlayers).reduce(
           (acc, v) => acc + game.gamePlayers[v].length,
@@ -337,19 +202,23 @@ export class GameManagerSystem extends System {
         )
         if (countAllPlayersInGame == 1) saveInitStateCopy(entityGame)
         // add to gamePlayers list sorted by role
-        game.gamePlayers[gamePlayer.role].push(entity)
-        // add init Tag components for start state of Games
-        const schema = gameSchema.initGameState[gamePlayer.role]
-        if (schema != undefined) {
-          schema.components?.forEach((component) => addStateComponent(entity, component))
-          //initStorage(entity, schema.storage);
-          schema.behaviors?.forEach((behavior) => behavior(entity))
-        }
-        //console.warn(game.state);
+        // game.gamePlayers[gamePlayer.role].push(entity)
         requireState(game, gamePlayer)
       })
     })
 
+    this.queryResults.newPlayer.added.forEach((entity) => {
+      console.log('new player')
+      const newPlayer = getComponent(entity, NewPlayerTagComponent)
+      const gamePlayerComp = addComponent(entity, GamePlayer, {
+        gameName: newPlayer.gameName,
+        role: 'newPlayer',
+        uuid: getComponent(entity, NetworkObject).ownerId
+      })
+      const game = getGameFromName(newPlayer.gameName)
+      requireState(game, gamePlayerComp)
+      removeComponent(entity, NewPlayerTagComponent)
+    })
     // OBJECTS ADDIND
     // its needet for allow dynamicly adding objects and exept errors when enitor gives object without created game
     this.queryResults.gameObject.added?.forEach((entity) => {
@@ -357,17 +226,9 @@ export class GameManagerSystem extends System {
         const game = getComponent(entityGame, Game)
         if (getComponent(entity, GameObject).gameName != game.name) return
 
-        const gameSchema = GamesSchema[game.gameMode]
         const gameObjects = game.gameObjects
         // add to gameObjects list sorted by role
         gameObjects[getComponent(entity, GameObject).role].push(entity)
-        // add init Tag components for start state of Games
-        const schema = gameSchema.initGameState[getComponent(entity, GameObject).role]
-        if (schema != undefined) {
-          schema.components?.forEach((component) => addStateComponent(entity, component))
-          initStorage(entity, schema.storage)
-          schema.behaviors?.forEach((behavior) => behavior(entity))
-        }
       })
     })
 
@@ -382,6 +243,20 @@ this.queryResults.gameObject.removed?.forEach(entity => {
 });
 */
 GameManagerSystem.queries = {
+  characters: {
+    components: [CharacterComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  newPlayer: {
+    components: [NewPlayerTagComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
   game: {
     components: [Game],
     listen: {

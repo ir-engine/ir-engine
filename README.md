@@ -11,7 +11,6 @@
 ## Popular features
 - Player rigs to support 2D, 3D and XR interaction
 - High-performance ECS engine
-- Full-featured world editor
 - Fully networked player controller, physics, vehicles and particles
 - Fully data-oriented design
 - Chat, groups, parties and friends
@@ -24,10 +23,6 @@
 - Fast, unreliable messaging with SCTP data channels
 - Built end-to-end in Typescript
 - Free, open source, MIT-licensed
-
-## Demos:
-
-https://xrengine.io
 
 # Getting Started
 
@@ -324,7 +319,7 @@ Test user Admin privliges by going to `/admin`
 
 # Deployment
 
-[AWS EKS Deployment](https://github.com/XRFoundation/XREngine/blob/dev/packages/ops/docs/EKS-setup.md)
+[AWS EKS Deployment](https://github.com/XRFoundation/XREngine/blob/dev/packages/ops/docs/AWS-setup.md)
 
 [Managing Kubernets](https://github.com/XRFoundation/XREngine/blob/dev/packages/ops/docs/managing_remote_kubernets.md)
 
@@ -333,8 +328,15 @@ Test user Admin privliges by going to `/admin`
 [Cloudformation Scripts](https://github.com/XRFoundation/XREngine/blob/dev/packages/ops/xrengine-cloudformation)
 
 ## Testing
+### Integration Tests
 
-Simply run `npm run test` and all your tests in the `test/` directory will be run.
+Simply run `npm run test` and all the tests in the `tests/` directory will be run.
+This will launch the whole xrengine development environment, so any existing processes (including the database + utils, client & servers) should be stopped.
+
+## Unit Tests
+
+The engine and server packages have tests. These can be ran individually by navigating to the package and running `npm run test`.
+Individual files can be tested via `npx jest ./tests/file.test.js`.
 
 ## Linting
 

@@ -20,14 +20,20 @@ const mapProjectSaveData = () => {
   return (context: HookContext): HookContext => {
     context.data.ownedFileId = context.data.project.project_file_id
     context.data.name = context.data.project.name
-    context.data.thumbnailOwnedFileId = context.data.project.thumbnail_file_id
+    context.data.ownedUploadedFileId = {}
+    Object.keys(context.data.project.filesToUpload).forEach((value) => {
+      context.data.ownedUploadedFileId[value] = context.data.project.filesToUpload[value]['file_id']
+    })
+    context.data.thumbnailOwnedFileId = context.data.ownedUploadedFileId.thumbnailOwnedFileId
+    context.data.ownedFileIds = JSON.stringify(context.data.ownedUploadedFileId)
+
     return context
   }
 }
 
 const validateCollectionData = () => {
   return async (context: HookContext): Promise<HookContext> => {
-    if (!context?.data?.ownedFileId || !context?.data?.name || !context?.data?.thumbnailOwnedFileId) {
+    if (!context?.data?.ownedFileId || !context?.data?.name || !context?.data?.ownedFileIds) {
       return await Promise.reject(new BadRequest('Project Data is required!'))
     }
     return context

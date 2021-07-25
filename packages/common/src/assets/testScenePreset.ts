@@ -419,7 +419,7 @@ export const testScenePreset = {
           props: {
             position: {
               x: 0,
-              y: 10,
+              y: 0,
               z: 0
             },
             rotation: {
@@ -436,7 +436,7 @@ export const testScenePreset = {
           data: {
             position: {
               x: 0,
-              y: 10,
+              y: 0,
               z: 0
             },
             rotation: {

@@ -1,4 +1,4 @@
-import { LinearToneMapping, PCFSoftShadowMap, ShadowMapType, sRGBEncoding, TextureEncoding, ToneMapping } from 'three'
+import { DirectionalLight, LinearToneMapping, PCFSoftShadowMap, ShadowMapType, ToneMapping } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { CSM } from '../../assets/csm/CSM'
 import { Engine } from '../../ecs/classes/Engine'
@@ -13,43 +13,35 @@ export type RenderSettingsProps = {
   shadowMapType: ShadowMapType
 }
 
-const enableCSM = (enable: boolean) => {
-  if (enable) {
-    if (WebGLRendererSystem.instance.csm) return
-    const csm = new CSM({
-      cascades: 4,
-      lightIntensity: 1,
-      shadowMapSize: isMobile ? 512 : 1024,
-      maxFar: 100,
-      camera: Engine.camera,
-      parent: Engine.scene
-    })
-    csm.fade = true
-    WebGLRendererSystem.instance.csm = csm
-  } else {
+export const configureCSM = (directionalLights: DirectionalLight[], remove?: boolean): void => {
+  if (!isClient || !Engine.renderer.shadowMap.enabled) return
+
+  if (remove || !directionalLights.length) {
     if (!WebGLRendererSystem.instance.csm) return
+
     WebGLRendererSystem.instance.csm.remove()
     WebGLRendererSystem.instance.csm.dispose()
     WebGLRendererSystem.instance.csm = undefined
+
+    return
   }
+
+  if (Engine.isHMD || WebGLRendererSystem.instance.csm) return
+
+  const csm = new CSM({
+    camera: Engine.camera,
+    parent: Engine.scene,
+    lights: directionalLights
+  })
+
+  csm.fade = true
+  WebGLRendererSystem.instance.csm = csm
 }
 
-export const handleRendererSettings = (args?: RenderSettingsProps): void => {
+export const handleRendererSettings = (args: RenderSettingsProps, reset?: boolean): void => {
   if (!isClient) return
-  if (args) {
-    Engine.renderer.toneMapping = args.toneMapping
-    Engine.renderer.toneMappingExposure = args.toneMappingExposure
 
-    if (typeof args.shadowMapType === 'undefined') {
-      Engine.renderer.shadowMap.enabled = false
-    } else {
-      Engine.renderer.shadowMap.enabled = true
-      Engine.renderer.shadowMap.type = args.shadowMapType
-      Engine.renderer.shadowMap.needsUpdate = true
-    }
-
-    enableCSM(!Engine.isHMD && args.csm)
-  } else {
+  if (reset) {
     Engine.renderer.shadowMap.enabled = true
     Engine.renderer.shadowMap.type = PCFSoftShadowMap
     Engine.renderer.shadowMap.needsUpdate = true
@@ -57,6 +49,17 @@ export const handleRendererSettings = (args?: RenderSettingsProps): void => {
     Engine.renderer.toneMapping = LinearToneMapping
     Engine.renderer.toneMappingExposure = 0.8
 
-    enableCSM(!Engine.isHMD && true)
+    return
+  }
+
+  Engine.renderer.toneMapping = args.toneMapping
+  Engine.renderer.toneMappingExposure = args.toneMappingExposure
+
+  if (typeof args.shadowMapType === 'undefined') {
+    Engine.renderer.shadowMap.enabled = false
+  } else {
+    Engine.renderer.shadowMap.enabled = true
+    Engine.renderer.shadowMap.type = args.shadowMapType
+    Engine.renderer.shadowMap.needsUpdate = true
   }
 }

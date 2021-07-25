@@ -1,10 +1,9 @@
 import { Behavior } from '../../common/interfaces/Behavior'
 import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import { GamesSchema } from '../../game/templates/GamesSchema'
 import { Game } from '../../game/components/Game'
 import { GameObject } from '../../game/components/GameObject'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { GameMode } from '../../game/types/GameMode'
+import { Engine } from '../../ecs/classes/Engine'
 
 interface GameDataProps {
   minPlayers: number
@@ -39,7 +38,7 @@ export const createGame: Behavior = (entity, args: GameDataProps) => {
 
   addComponent(entity, Game, gameData)
   // register spawn objects prefabs
-  const gameSchema = GamesSchema[args.gameMode] as GameMode
+  const gameSchema = Engine.gameModes[args.gameMode]
   gameSchema.onGameLoading(entity)
 }
 
