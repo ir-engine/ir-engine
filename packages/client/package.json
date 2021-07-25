@@ -65,7 +65,7 @@
     "mediasoup-client": "3.6.36",
     "moment": "2.29.1",
     "prop-types": "15.7.2",
-    "rc-dock": "3.0.17",
+    "rc-dock": "3.0.18",
     "rc-slider": "9.7.2",
     "react": "^17.0.0",
     "react-color": "2.19.3",
@@ -103,7 +103,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "8.2.3",
-    "@types/node": "14.17.5",
+    "@types/node": "14.17.6",
     "@types/react": "17.0.14",
     "@types/react-dom": "17.0.9",
     "comlink": "4.3.1",
