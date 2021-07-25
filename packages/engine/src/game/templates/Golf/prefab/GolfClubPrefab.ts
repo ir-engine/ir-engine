@@ -96,7 +96,7 @@ export const spawnClub: Behavior = (
 
 export const setClubOpacity = (golfClubComponent: GolfClubComponent, opacity: number): void => {
   //@ts-ignore
-  golfClubComponent?.meshGroup.traverse((obj: Mesh) => {
+  golfClubComponent?.meshGroup?.traverse((obj: Mesh) => {
     if (obj.material) {
       ;(obj.material as Material).opacity = opacity
     }
@@ -255,7 +255,8 @@ export const initializeGolfClub = (entityClub: Entity) => {
   const transform = getComponent(entityClub, TransformComponent)
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
 
-  const ownerNetworkId = getComponent(entityClub, NetworkObjectOwner).networkId
+  const ownerNetworkId = getComponent(entityClub, NetworkObjectOwner)?.networkId
+  if (ownerNetworkId === undefined) return
   const ownerEntity = Network.instance.networkObjects[ownerNetworkId].component.entity
   const ownerPlayerNumber = Number(getComponent(ownerEntity, GamePlayer).role.substr(0, 1)) - 1
 

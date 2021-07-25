@@ -16,7 +16,13 @@ import {
   removeComponent,
   removeEntity
 } from '../../ecs/functions/EntityFunctions'
-import { initState, removeEntityFromState, saveInitStateCopy, requireState } from '../functions/functionsState'
+import {
+  initState,
+  removeEntityFromState,
+  saveInitStateCopy,
+  requireState,
+  clearRemovedEntitysFromGame
+} from '../functions/functionsState'
 
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { GameMode } from '../types/GameMode'
@@ -133,8 +139,7 @@ export class GameManagerSystem extends System {
 
     this.queryResults.game.all?.forEach((entityGame) => {
       const game = getComponent(entityGame, Game)
-      const gameArea = game.gameArea
-
+      // this part about check if client get same actions as server send him.
       if (isClient && game.isGlobal && checkIsGamePredictionStillRight()) {
         clearPredictionCheckList()
         requireState(
@@ -150,11 +155,12 @@ export class GameManagerSystem extends System {
         console.log('new client joining game')
         addComponent(entity, NewPlayerTagComponent, { gameName: game.name })
       })
-
+      /*
       this.queryResults.characters.removed.forEach((entity) => {
         hasComponent(entity, NewPlayerTagComponent) && removeComponent(entity, NewPlayerTagComponent)
         hasComponent(entity, GamePlayer) && removeComponent(entity, GamePlayer)
       })
+      */
     })
 
     // PLAYERS REMOVE
@@ -167,13 +173,16 @@ export class GameManagerSystem extends System {
         gameSchema.beforePlayerLeave(entity)
         console.log('removeEntityFromState', gamePlayer.role)
         removeEntityFromState(gamePlayer, game)
-        // clearRemovedEntitysFromGame(game)
+        clearRemovedEntitysFromGame(game)
+        game.gamePlayers[gamePlayer.role] = []
+        gameSchema.onPlayerLeave(entity, gamePlayer, game)
+        /*
         Object.values(gamePlayer.ownedObjects).forEach((entityObj) => {
           removeEntity(entityObj)
         })
-        game.gamePlayers[gamePlayer.role] = []
-        gameSchema.onPlayerLeave(entity, gamePlayer, game)
-        removeEntity(entity)
+        
+        removeEntity(entity);
+        */
       })
     })
 
