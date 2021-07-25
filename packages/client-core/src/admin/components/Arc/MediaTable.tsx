@@ -16,6 +16,7 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import Typography from '@material-ui/core/Typography'
 import ViewMedia from './ViewMedia'
 import { useStyles } from './styles'
+import Grid from '@material-ui/core/Grid'
 
 interface Props {
   list?: any
@@ -62,42 +63,46 @@ const MediaTable = (props: Props) => {
     removeArMedia(mediaId)
     handleClose()
   }
-
+  console.log(list)
   const rows = list.map((media) => {
     return (
-      <Card key={media.audioId} className={classes.rootCard}>
-        <CardActionArea>
-          <CardMedia className={classes.media} image={`${media.previewUrl}`} title="Contemplative Reptile" />
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="h2" className={classes.typo}>
-              {media.title}
-            </Typography>
-          </CardContent>
-        </CardActionArea>
-        <CardActions>
-          <Button
-            size="medium"
-            style={{ color: '#f1f1f1' }}
-            className={classes.saveBtn}
-            onClick={openViewModel(true, media)}
-          >
-            View
-          </Button>
-          <Button
-            onClick={() => handleClickOpen(media.id.toString())}
-            size="medium"
-            className={`${classes.spanDange} ${classes.saveBtn}`}
-          >
-            Delete
-          </Button>
-        </CardActions>
-      </Card>
+      <Grid key={media.audioId} item xs={12} sm={6} md={3}>
+        <Card className={classes.rootCard}>
+          <CardActionArea>
+            <CardMedia className={classes.media} image={`${media.previewUrl}`} title="Contemplative Reptile" />
+            <CardContent>
+              <Typography gutterBottom variant="h5" component="h2" className={classes.typo}>
+                {media.title}
+              </Typography>
+            </CardContent>
+          </CardActionArea>
+          <CardActions>
+            <Button
+              size="medium"
+              style={{ color: '#f1f1f1' }}
+              className={classes.saveBtn}
+              onClick={openViewModel(true, media)}
+            >
+              View
+            </Button>
+            <Button
+              onClick={() => handleClickOpen(media.id.toString())}
+              size="medium"
+              className={`${classes.spanDange} ${classes.saveBtn}`}
+            >
+              Delete
+            </Button>
+          </CardActions>
+        </Card>
+      </Grid>
     )
   })
 
   return (
     <React.Fragment>
-      {rows}
+      <Grid container spacing={3}>
+        {rows}
+      </Grid>
       {mediaAdmin && <ViewMedia openView={viewModel} mediaAdmin={mediaAdmin} closeViewModel={closeViewModel} />}
 
       <Dialog
@@ -106,15 +111,19 @@ const MediaTable = (props: Props) => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{'Confirm to delete this media!'}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">Deleting this media can not be recovered!</DialogContentText>
+        <DialogTitle className={classes.alert} id="alert-dialog-title">
+          {'Confirm to delete this media!'}
+        </DialogTitle>
+        <DialogContent className={classes.alert}>
+          <DialogContentText className={classes.alert} id="alert-dialog-description">
+            Deleting this media can not be recovered!
+          </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
+        <DialogActions className={classes.alert}>
+          <Button onClick={handleClose} className={classes.spanNone}>
             Cancel
           </Button>
-          <Button onClick={handleDelete} color="primary" autoFocus>
+          <Button className={classes.spanDange} onClick={handleDelete} autoFocus>
             Confirm
           </Button>
         </DialogActions>

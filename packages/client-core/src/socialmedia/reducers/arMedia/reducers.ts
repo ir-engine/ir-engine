@@ -17,7 +17,8 @@ import {
   ADD_ARMEDIA,
   REMOVE_ARMEDIA,
   ARMEDIA_FETCHING_ITEM,
-  ARMEDIA_RETRIEVED_ITEM
+  ARMEDIA_RETRIEVED_ITEM,
+  UPDATE_AR_MEDIA
 } from '../actions'
 import {
   ArMediaAction,
@@ -79,6 +80,10 @@ const arMediaReducer = (state = immutableState, action: ArMediaAction): any => {
       return state.set('fetchingItem', true)
     case ARMEDIA_RETRIEVED_ITEM:
       return state.set('item', (action as ArMediaRetrievedItemAction).item).set('fetchingItem', false)
+    case UPDATE_AR_MEDIA:
+      let update = new Map(state.get('arMedia'))
+      update.set('updateNeeded', true)
+      return state.set('arMedia', update)
   }
 
   return state
