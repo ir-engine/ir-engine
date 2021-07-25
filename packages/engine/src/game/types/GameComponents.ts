@@ -63,7 +63,7 @@ export enum gameStates {
   BallHidden = 'BallHidden',
   BallVisible = 'BallVisible',
 
-  TeleportBall = 'TeleportBall',
+  CorrectBallPosition = 'CorrectBallPosition',
   alreadyHit = 'alreadyHit'
 
 }
@@ -81,7 +81,7 @@ export class BallStopped extends Component<any> {}
 export class BallHidden extends Component<any> {}
 export class BallVisible extends Component<any> {}
 
-export class TeleportBall extends Component<any> {}
+export class CorrectBallPosition extends Component<any> {}
 export class alreadyHit extends Component<any> {}
 
 
@@ -109,7 +109,7 @@ export const State = {
   [gameStates.NotReady]: NotReady,
   [gameStates.BallHidden]: BallHidden,
   [gameStates.BallVisible]: BallVisible,
-  [gameStates.TeleportBall]: TeleportBall,
+  [gameStates.CorrectBallPosition]: CorrectBallPosition,
   [gameStates.alreadyHit]: alreadyHit
 
 }

@@ -32,7 +32,7 @@ import { initScore, saveScore } from './behaviors/saveScore'
 import { setupOfflineDebug } from './behaviors/setupOfflineDebug'
 import { setupPlayerAvatar, setupPlayerAvatarNotInVR, setupPlayerAvatarVR } from './behaviors/setupPlayerAvatar'
 import { setupPlayerInput } from './behaviors/setupPlayerInput'
-import { removeVelocity, teleportObject } from './behaviors/teleportObject'
+import { removeVelocity, teleportObject, updateColliderPosition } from './behaviors/teleportObject'
 import { teleportPlayerBehavior } from './behaviors/teleportPlayer'
 import { GolfBallComponent } from './components/GolfBallComponent'
 import { GolfClubComponent } from './components/GolfClubComponent'
@@ -138,6 +138,10 @@ export class GolfSystem extends System {
     /////////////////// BALL STUFF ///////////////////////////
     ///////////////////////////////////////////////////////////
     
+    this.queryResults.correctBallPosition.added.forEach((entity) => {
+      updateColliderPosition(entity);
+      removeComponent(entity, State.CorrectBallPosition);
+    })
 
     this.queryResults.golfBall.all.forEach((entity) => {
       if (!hasComponent(entity, State.SpawnedObject)) return;
@@ -183,9 +187,120 @@ export class GolfSystem extends System {
         removeStateComponent(entity, State.BallStopped); addStateComponent(entity, State.BallMoving)
       }
     })
- //
+
+    //////////////////////////////////////////////////////////
+    //////////////////////// HOLE ////////////////////////////
+    //////////////////////////////////////////////////////////
+
+    this.queryResults.holeHit.added.forEach((holeEntity) => {
+      this.queryResults.ballHit.all.forEach((ballEntity) => {
+        const entityPlayer =
+        Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectOwner).networkId]?.component.entity
+        const gameScore = getStorage(entityPlayer, { name: 'GameScore' });
+        const game = getGame(entityPlayer)
+        const currentHoleEntity = gameScore.score
+              ? game.gameObjects['GolfHole'][gameScore.score.goal]
+              : game.gameObjects['GolfHole'][0]
+        if (currentHoleEntity) {
+          addStateComponent(entityPlayer, State.Goal)
+          saveGoalScore(entityPlayer)
+          removeComponent(holeEntity, Action.GameObjectCollisionTag)
+          removeComponent(ballEntity, Action.GameObjectCollisionTag)
+        } 
+
+        
+        if (isClient){
+          const entityYourPlayer =
+               Network.instance.networkObjects[Network.instance.localAvatarNetworkId]?.component.entity
+          if ( !hasComponent(entityYourPlayer, State.Goal) && !hasComponent(entityYourPlayer,State.YourTurn)) {
+          // this case when other player hit ball but you still waiting yours ball to stop
+          // but you need waite because you use interpolation correction bevavior, other player not and server not
+          
+          
+            removeStateComponent(entityYourPlayer, State.WaitTurn)
+            addStateComponent(entityYourPlayer, State.YourTurn)
+
+         //   removeStateComponent(entityPlayer, State.YourTurn)
+         //   removeStateComponent(entityPlayer, State.Waiting)
+         //   addStateComponent(entityPlayer, State.WaitTurn)
+
+          }
+        }
+     })
+    })
+
+    this.queryResults.goal.added.forEach((entity) => {
+      const playerComponent = getComponent(entity, GamePlayer);
+      const ballEntity = playerComponent.ownedObjects['GolfBall'];
+      teleportPlayerBehavior(
+        entity,
+        getPositionNextPoint(entity, { positionCopyFromRole: 'GolfTee-' })
+      )
+      teleportObject(
+        ballEntity,
+        getPositionNextPoint(entity, { positionCopyFromRole: 'GolfTee-' })
+      )
+      removeStateComponent(entity, State.Goal);
+    })
+    ///////////////////////////////////////////////////////////
+    /////////////////////// CLUB //////////////////////////////
+    ///////////////////////////////////////////////////////////
+    this.queryResults.golfClub.all.forEach((entity) => {
+      if (!hasComponent(entity, State.SpawnedObject)) return;
+      updateClub(entity, null, delta)
+    })
+
+    this.queryResults.clubHit.added.forEach((clubEntity) => {
+      this.queryResults.ballHit.added.forEach((ballEntity) => {
+        if (hasComponent(ballEntity, State.BallStopped) && hasComponent(ballEntity, State.Active)) {
+          addStateComponent(clubEntity, State.Hit)
+        } else if (isClient) {
+        // this case when other player hit ball but you still waiting yours ball to stop
+        // but you need waite because you use interpolation correction bevavior, other player not and server not
+          if (Network.instance.networkObjects[Network.instance.localAvatarNetworkId].ownerId !=
+              Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectOwner).networkId].ownerId
+          ) {
+            const entityYourPlayer =
+             Network.instance.networkObjects[Network.instance.localAvatarNetworkId]?.component.entity
+            removeStateComponent(entityYourPlayer, State.Waiting)
+            addStateComponent(entityYourPlayer, State.WaitTurn)
+            const entityPlayer =
+              Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectOwner).networkId]?.component.entity
+            addStateComponent(entityPlayer, State.YourTurn)
+            addStateComponent(clubEntity, State.Hit)
+          }
+        }
+     })
+    })
+ 
+    this.queryResults.hit.added.forEach((clubEntity) => {
+      const ballEntity = this.queryResults.golfBall.all.find((e) => ifOwned(clubEntity, null, e))
+      hitBall(clubEntity, { clubPowerMultiplier: 5, hitAdvanceFactor: 4 }, delta, ballEntity);
+      removeStateComponent(clubEntity, State.Hit);
+      // its needed to revome action if action added from network, in normal case thay remmoving in place where thay adding
+      removeComponent(clubEntity, Action.GameObjectCollisionTag)
+      removeComponent(ballEntity, Action.GameObjectCollisionTag)
+
+    })
+
+    this.queryResults.hit.removed.forEach((clubEntity) => {
+      const playerEntity =
+        Network.instance.networkObjects[getComponent(clubEntity, NetworkObjectOwner).networkId]?.component.entity
+      saveScore(playerEntity);
+      addStateComponent(playerEntity, State.alreadyHit); 
+    })
+
+    ///////////////////////////////////////////////////////////
+    ////////////////////    Turn reuired quary     ////////////
+    ///////////////////////////////////////////////////////////
+
+    
+    // DO ALL ECS LOGIC HERE (added and removed queries)
+
+     //
     // do ball Active on next Turn
     this.queryResults.yourTurn.added.forEach((entity) => {
+      console.warn('Yes ITS ADD NORMALL')
       const playerComponent = getComponent(entity, GamePlayer);
       const ballEntity = playerComponent.ownedObjects['GolfBall'];
       removeStateComponent(ballEntity, State.Inactive)
@@ -229,74 +344,6 @@ export class GolfSystem extends System {
       }
     })
 
-    //////////////////////////////////////////////////////////
-    //////////////////////// HOLE ////////////////////////////
-    //////////////////////////////////////////////////////////
-
-    this.queryResults.holeHit.added.forEach((holeEntity) => {
-      this.queryResults.ballHit.all.forEach((ballEntity) => {
-        const entityPlayer =
-        Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectOwner).networkId]?.component.entity
-        const gameScore = getStorage(entityPlayer, { name: 'GameScore' });
-        const game = getGame(entityPlayer)
-        const currentHoleEntity = gameScore.score
-              ? game.gameObjects['GolfHole'][gameScore.score.goal]
-              : game.gameObjects['GolfHole'][0]
-        if (currentHoleEntity) {
-          addStateComponent(entityPlayer, State.Goal)
-          saveGoalScore(entityPlayer)
-          // its needed to revome action if action added from network, in normal case thay remmoving in place where thay adding
-          removeComponent(holeEntity, Action.GameObjectCollisionTag)
-          removeComponent(ballEntity, Action.GameObjectCollisionTag)
-        }
-     })
-    })
-
-    this.queryResults.goal.added.forEach((entity) => {
-      const playerComponent = getComponent(entity, GamePlayer);
-      const ballEntity = playerComponent.ownedObjects['GolfBall'];
-      teleportPlayerBehavior(
-        entity,
-        getPositionNextPoint(entity, { positionCopyFromRole: 'GolfTee-' })
-      )
-      teleportObject(
-        ballEntity,
-        getPositionNextPoint(entity, { positionCopyFromRole: 'GolfTee-' })
-      )
-      removeStateComponent(entity, State.Goal);
-    })
-    ///////////////////////////////////////////////////////////
-    /////////////////////// CLUB //////////////////////////////
-    ///////////////////////////////////////////////////////////
-    this.queryResults.golfClub.all.forEach((entity) => {
-      if (!hasComponent(entity, State.SpawnedObject)) return;
-      updateClub(entity, null, delta)
-    })
-
-    this.queryResults.clubHit.added.forEach((clubEntity) => {
-      this.queryResults.ballHit.added.forEach((ballEntity) => {
-        if (hasComponent(ballEntity, State.BallStopped) && hasComponent(ballEntity, State.Active)) {
-          addStateComponent(clubEntity, State.Hit)
-        }
-     })
-    })
- 
-    this.queryResults.hit.added.forEach((clubEntity) => {
-      const ballEntity = this.queryResults.golfBall.all.find((e) => ifOwned(clubEntity, null, e))
-      hitBall(clubEntity, { clubPowerMultiplier: 5, hitAdvanceFactor: 4 }, delta, ballEntity);
-      removeStateComponent(clubEntity, State.Hit);
-      // its needed to revome action if action added from network, in normal case thay remmoving in place where thay adding
-      removeComponent(clubEntity, Action.GameObjectCollisionTag)
-      removeComponent(ballEntity, Action.GameObjectCollisionTag)
-
-    })
-
-    this.queryResults.hit.removed.forEach((clubEntity) => {
-      const playerEntity =
-        Network.instance.networkObjects[getComponent(clubEntity, NetworkObjectOwner).networkId]?.component.entity
-      saveScore(playerEntity);
-      addStateComponent(playerEntity, State.alreadyHit); 
-    })
 
     this.queryResults.yourTurn.added.forEach((entity) => {
       const playerComponent = getComponent(entity, GamePlayer);
@@ -323,12 +370,11 @@ export class GolfSystem extends System {
         enableClub(entity, false)
       }
     })
-    ///////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////
+
+       ///////////////////////////////////////////////////////////
+    //////////////////////////////////////////    ////////////
     ///////////////////////////////////////////////////////////
 
-    
-    // DO ALL ECS LOGIC HERE (added and removed queries)
    
     this.queryResults.player.added.forEach((entity) => {
       // set up client side stuff
@@ -485,6 +531,14 @@ export class GolfSystem extends System {
         removed: true
       }
     },
+    correctBallPosition: {
+      components: [GolfBallComponent, State.CorrectBallPosition],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    
     //
     // Club States
     //
