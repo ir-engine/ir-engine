@@ -558,7 +558,10 @@ export class InteractiveSystem extends System {
       interactTextObject.children[0].position.y = Math.sin(time * 1.8) * 0.05
 
       const activeCameraComponent = getMutableComponent(CameraSystem.instance.activeCamera, CameraComponent)
-      if (activeCameraComponent.followTarget) {
+      if (
+        activeCameraComponent.followTarget &&
+        hasComponent(activeCameraComponent.followTarget, FollowCameraComponent)
+      ) {
         interactTextObject.children[0].setRotationFromAxisAngle(
           upVec,
           MathUtils.degToRad(getComponent(activeCameraComponent.followTarget, FollowCameraComponent).theta)

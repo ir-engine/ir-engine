@@ -46,7 +46,6 @@ import { ifVelocity } from '../../gameDefault/checkers/ifVelocity'
 import { ifOwned } from '../../gameDefault/checkers/ifOwned'
 import { isClient } from '../../../../common/functions/isClient'
 
-
 const vector0 = new Vector3()
 const vector1 = new Vector3()
 const vector2 = new Vector3()
@@ -106,7 +105,7 @@ export const setClubOpacity = (golfClubComponent: GolfClubComponent, opacity: nu
 
 export const enableClub = (entityClub: Entity, enable: boolean): void => {
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
-  if(golfClubComponent === undefined) return;
+  if (golfClubComponent === undefined) return
   golfClubComponent.canHitBall = enable
   setClubOpacity(golfClubComponent, enable ? 1 : golfClubComponent.disabledOpacity)
 }
@@ -227,11 +226,12 @@ export const onClubColliderWithBall: GameObjectInteractionBehavior = (
   args: { hitEvent: ColliderHitEvent },
   entityBall: Entity
 ) => {
-  if (args.hitEvent.type === 'TRIGGER_START' &&
-      hasComponent(entityBall, State.Active) &&
-      hasComponent(entityClub, State.Active) &&
-      ifOwned(entityClub, null, entityBall) &&
-      ifVelocity(entityClub, { component: GolfClubComponent, more: 0.01, less: 1 })
+  if (
+    args.hitEvent.type === 'TRIGGER_START' &&
+    hasComponent(entityBall, State.Active) &&
+    hasComponent(entityClub, State.Active) &&
+    ifOwned(entityClub, null, entityBall) &&
+    ifVelocity(entityClub, { component: GolfClubComponent, more: 0.01, less: 1 })
   ) {
     addActionComponent(entityBall, Action.GameObjectCollisionTag)
     addActionComponent(entityClub, Action.GameObjectCollisionTag)
@@ -245,10 +245,10 @@ export const onClubColliderWithBall: GameObjectInteractionBehavior = (
  * @author Josh Field <github.com/HexaField>
  */
 
-const clubHalfWidth = 0.05
+const clubHalfWidth = 0.03
 const clubPutterLength = 0.1
 const clubColliderSize = new Vector3(clubHalfWidth * 0.5, clubHalfWidth * 0.5, clubPutterLength)
-const clubLength = 1.2
+const clubLength = 1.5
 const rayLength = clubLength * 1.1
 
 export const initializeGolfClub = (entityClub: Entity) => {
@@ -348,7 +348,7 @@ export const initializeGolfClub = (entityClub: Entity) => {
       enableClub(entityClub, true)
     } else if (hasComponent(entityClub, State.Inactive)) {
       enableClub(entityClub, false)
-    } 
+    }
   }
 }
 

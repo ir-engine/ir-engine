@@ -87,8 +87,8 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
         const gameScore = getStorage(entity, { name: 'GameScore' })
         const holeEntity = game.gameObjects['GolfHole'][gameScore.score.goal]
         const ballEntity = ownedObjects['GolfBall']
-        addStateComponent(ballEntity, State.Inactive);
-        addStateComponent(ballEntity, State.BallMoving);
+        addStateComponent(ballEntity, State.Inactive)
+        addStateComponent(ballEntity, State.BallMoving)
         const position = new Vector3().copy(getComponent(holeEntity, TransformComponent).position)
         position.y += 1.5
         teleportObject(ballEntity, { position })

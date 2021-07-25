@@ -23,7 +23,11 @@ import { GameMode } from '../types/GameMode'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { ColliderHitEvent } from 'three-physx'
 import { isClient } from '../../common/functions/isClient'
-import { addActionComponent, checkIsGamePredictionStillRight, clearPredictionCheckList } from '../functions/functionsActions'
+import {
+  addActionComponent,
+  checkIsGamePredictionStillRight,
+  clearPredictionCheckList
+} from '../functions/functionsActions'
 import { NewPlayerTagComponent } from '../templates/Golf/components/GolfTagComponents'
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
 import { Component } from '../../ecs/classes/Component'
@@ -116,7 +120,7 @@ export class GameManagerSystem extends System {
       const gameObject = getComponent(entity, GameObject)
       collider.body?.collisionEvents?.forEach((collisionEvent: ColliderHitEvent) => {
         const otherEntity = collisionEvent.bodyOther.userData as Entity
-        if (typeof otherEntity === 'undefined') return;
+        if (typeof otherEntity === 'undefined') return
         const otherGameObject = getComponent<GameObject>(otherEntity, GameObject)
         if (!otherGameObject) return
         Object.keys(gameObject.collisionBehaviors).forEach((role) => {
@@ -130,7 +134,7 @@ export class GameManagerSystem extends System {
     this.queryResults.game.all?.forEach((entityGame) => {
       const game = getComponent(entityGame, Game)
       const gameArea = game.gameArea
-      
+
       if (isClient && game.isGlobal && checkIsGamePredictionStillRight()) {
         clearPredictionCheckList()
         requireState(
@@ -141,7 +145,7 @@ export class GameManagerSystem extends System {
           )
         )
       }
-      
+
       this.queryResults.characters.added.forEach((entity) => {
         console.log('new client joining game')
         addComponent(entity, NewPlayerTagComponent, { gameName: game.name })
@@ -169,7 +173,7 @@ export class GameManagerSystem extends System {
         })
         game.gamePlayers[gamePlayer.role] = []
         gameSchema.onPlayerLeave(entity, gamePlayer, game)
-        removeEntity(entity);
+        removeEntity(entity)
       })
     })
 
@@ -202,7 +206,7 @@ export class GameManagerSystem extends System {
         requireState(game, gamePlayer)
       })
     })
-    
+
     this.queryResults.newPlayer.added.forEach((entity) => {
       console.log('new player')
       const newPlayer = getComponent(entity, NewPlayerTagComponent)
@@ -227,8 +231,6 @@ export class GameManagerSystem extends System {
         gameObjects[getComponent(entity, GameObject).role].push(entity)
       })
     })
-
-    
 
     // end of execute
   }

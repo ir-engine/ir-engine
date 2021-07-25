@@ -4,7 +4,7 @@ import { CharacterComponent } from '../../../../character/components/CharacterCo
 import { XRInputSourceComponent } from '../../../../character/components/XRInputSourceComponent'
 import { SkeletonUtils } from '../../../../character/SkeletonUtils'
 import { Entity } from '../../../../ecs/classes/Entity'
-import { addComponent, getComponent, removeComponent } from '../../../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
 import { GolfAvatarComponent } from '../components/GolfAvatarComponent'
 
@@ -53,6 +53,7 @@ export const setupPlayerAvatarVR = async (entityPlayer: Entity) => {
 }
 
 export const setupPlayerAvatarNotInVR = (entityPlayer: Entity) => {
+  if (!entityPlayer || !hasComponent(entityPlayer, GolfAvatarComponent)) return
   const golfAvatarComponent = getComponent(entityPlayer, GolfAvatarComponent)
   ;[
     golfAvatarComponent.headModel,

@@ -1,5 +1,5 @@
 import { Vector3 } from 'three'
-import { getComponent, hasComponent} from '../../../../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
 import { NetworkObjectOwner } from '../../../../networking/components/NetworkObjectOwner'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
@@ -13,9 +13,11 @@ import { getStorage, setStorage } from '../../../functions/functionsStorage'
 
 export const getPositionNextPoint = (entity, args?: any) => {
   // work with playerEntity but if you give game object will searsh playerEntity from owned component
-  const ownerEntity = hasComponent(entity, GamePlayer) ? entity : Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId]?.component.entity;
+  const ownerEntity = hasComponent(entity, GamePlayer)
+    ? entity
+    : Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId]?.component.entity
   const gameScore = getStorage(ownerEntity, { name: 'GameScore' })
-  const game = getGame(entity);
+  const game = getGame(entity)
 
   const teeEntity = game.gameObjects[args.positionCopyFromRole + gameScore.score.goal][0]
   if (teeEntity) {
@@ -38,7 +40,7 @@ export const getPositionNextPoint = (entity, args?: any) => {
     }
     //
   }
-  console.warn('Cant find Tee to teleport on', gameScore);
-  args.position = new Vector3(0,10,0);
+  console.warn('Cant find Tee to teleport on', gameScore)
+  args.position = new Vector3(0, 10, 0)
   return args
 }

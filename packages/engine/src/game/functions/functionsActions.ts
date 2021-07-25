@@ -33,18 +33,18 @@ export const addActionComponent = (
   const game = getGame(entity)
   //const role = getRole(entity)
   //if (role != 'GolfBall') {
-    
+
   //}
   //// Clients dont apply self actions, only in not Global mode
   if (isClient && !game.isGlobal) {
     addComponent(entity, component, componentArgs)
     //// Server apply actions to himself send Actions and clients apply its
   } else if (isClient && game.isGlobal && isOwnedLocalPlayer(entity)) {
-  //  console.log(role,' action ', component.name)
+    //  console.log(role,' action ', component.name)
     addComponent(entity, component, componentArgs)
     addToCheckList(entity, component, componentArgs)
   } else if (!isClient && game.isGlobal) {
-  //  console.log(role,' action ', component.name)
+    //  console.log(role,' action ', component.name)
     addComponent(entity, component, componentArgs)
     sendActionComponent(entity, component, componentArgs)
   }
@@ -67,7 +67,7 @@ export const sendActionComponent = (
 }
 
 export const applyActionComponent = (actionMessage: GameStateActionMessage): void => {
-   console.warn('applyActionComponent', actionMessage);
+  console.warn('applyActionComponent', actionMessage)
   const entityGame = getGameEntityFromName(actionMessage.game)
   if (!entityGame) return
   const game = getComponent(entityGame, Game)
@@ -108,23 +108,25 @@ const addToCheckList = (
 }
 
 export const checkIsGamePredictionStillRight = (): boolean => {
-  gamePredictionCheckList.length > 0 ? console.log(gamePredictionCheckList):'';
+  gamePredictionCheckList.length > 0 ? console.log(gamePredictionCheckList) : ''
   return gamePredictionCheckList.some((v) => Date.now() - v.time > timeAfterClientDesideHeWasgetWrongAction)
 }
 
 const ifWasSameBeforeByPrediction = (actionMessage: GameStateActionMessage): boolean => {
-  console.log(actionMessage.component, actionMessage.role);
-  console.log(gamePredictionCheckList[0].componentName, gamePredictionCheckList[0].dataForCheck.role);
-  
+  // console.log(actionMessage.component, actionMessage.role);
+  // console.log(gamePredictionCheckList[0]?.componentName, gamePredictionCheckList[0]?.dataForCheck.role);
+
   return gamePredictionCheckList.some(
     (v) => v.componentName === actionMessage.component && v.dataForCheck.role === actionMessage.role
   )
 }
 
 const removeSameInGamePredictionCheckList = (actionMessage: GameStateActionMessage): void => {
-  const index = gamePredictionCheckList.findIndex( v => v.componentName === actionMessage.component && v.dataForCheck.role === actionMessage.role)
+  const index = gamePredictionCheckList.findIndex(
+    (v) => v.componentName === actionMessage.component && v.dataForCheck.role === actionMessage.role
+  )
   if (index != -1) {
-    gamePredictionCheckList.splice(index, 1);
+    gamePredictionCheckList.splice(index, 1)
   }
 }
 

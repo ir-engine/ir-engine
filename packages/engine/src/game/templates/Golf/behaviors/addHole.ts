@@ -20,8 +20,7 @@ export const onHoleCollideWithBall: GameObjectInteractionBehavior = (
   args: { hitEvent: ColliderHitEvent },
   entityBall: Entity
 ) => {
-  if (args.hitEvent.type === 'TRIGGER_START'
-  ) {
+  if (args.hitEvent.type === 'TRIGGER_START') {
     addActionComponent(entityHole, Action.GameObjectCollisionTag)
     addActionComponent(entityBall, Action.GameObjectCollisionTag)
   } else if (args.hitEvent.type === 'TRIGGER_END') {
