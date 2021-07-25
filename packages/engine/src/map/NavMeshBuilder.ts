@@ -6,12 +6,6 @@ export class NavMeshBuilder {
 
   constructor() {}
 
-  buildFromGeometries(geometriesIn: Geometry[], elevation = 0): YUKA.NavMesh {
-    geometriesIn.forEach((g) => this.addGeometry(g, elevation))
-
-    return this.build()
-  }
-
   _toYukaPolygons(geometry: Geometry, elevation: number): YUKA.Polygon[] {
     switch (geometry.type) {
       case 'Polygon':

@@ -6,22 +6,27 @@ function mockCallArg(fn: Function, callIdx: number, argIdx: number): any {
   return (fn as jest.Mock).mock.calls[callIdx][argIdx]
 }
 
+const boxCoords = [
+  [0, 0],
+  [1, 0],
+  [1, 1],
+  [0, 1]
+]
+const polygon: Geometry = {
+  type: 'Polygon',
+  coordinates: [boxCoords]
+}
+const multiPolygon: Geometry = {
+  type: 'MultiPolygon',
+  coordinates: [[boxCoords], [boxCoords.map(([x, z]) => [x + 5, z + 5])]]
+}
+
 describe('NavMeshBuilder', () => {
   it('handles GeoJSON Polygons', () => {
     jest.spyOn(YUKA.NavMesh.prototype, 'fromPolygons')
     const sut = new NavMeshBuilder()
-    const coords = [
-      [0, 0],
-      [1, 0],
-      [1, 1],
-      [0, 1]
-    ]
-
-    const polygon: Geometry = {
-      type: 'Polygon',
-      coordinates: [coords]
-    }
-    expect(sut.buildFromGeometries([polygon])).toBeInstanceOf(YUKA.NavMesh)
+    ;[polygon, multiPolygon].forEach((geometry) => sut.addGeometry(geometry))
+    expect(sut.build()).toBeInstanceOf(YUKA.NavMesh)
     expect(mockCallArg(YUKA.NavMesh.prototype.fromPolygons, 0, 0)).toEqual(sut.polygons)
   })
 
@@ -36,21 +41,6 @@ describe('NavMeshBuilder', () => {
   test('_toYukaPolygons', () => {
     jest.spyOn(YUKA.Polygon.prototype, 'fromContour').mockImplementation(fromContourMock)
     const sut = new NavMeshBuilder()
-
-    const boxCoords = [
-      [0, 0],
-      [1, 0],
-      [1, 1],
-      [0, 1]
-    ]
-    const polygon: Geometry = {
-      type: 'Polygon',
-      coordinates: [boxCoords]
-    }
-    const multiPolygon: Geometry = {
-      type: 'MultiPolygon',
-      coordinates: [[boxCoords], [boxCoords.map(([x, z]) => [x + 5, z + 5])]]
-    }
 
     let result = sut._toYukaPolygons(polygon, 0)
     expect((result[0] as any).vec3s).toEqual(sut._toYukaVectors3(polygon.coordinates[0], 0))
