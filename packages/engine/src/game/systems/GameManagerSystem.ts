@@ -183,9 +183,6 @@ export class GameManagerSystem extends System {
         
         removeEntity(entity);
         */
-        game.gamePlayers[gamePlayer.role] = []
-        gameSchema.onPlayerLeave(entity, gamePlayer, game)
-        removeEntity(entity)
       })
     })
 

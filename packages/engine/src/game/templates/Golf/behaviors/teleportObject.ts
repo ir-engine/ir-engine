@@ -12,6 +12,7 @@ import {
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
 import { findInterpolationSnapshot } from '../../../../physics/behaviors/findInterpolationSnapshot'
 import { Network } from '../../../../networking/classes/Network'
+import { State } from '../../../types/GameComponents'
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -25,8 +26,6 @@ export const teleportObject: Behavior = (
   checks?: any
 ): void => {
   const collider = getMutableComponent(entity, ColliderComponent)
-  if (!collider) return
-  isClient ? addComponent(entity, State.TeleportBall) : ''
 
   collider.velocity.set(0, 0, 0)
 
@@ -71,8 +70,8 @@ export const removeVelocity: Behavior = (
   collider.body.setLinearDamping(10)
   collider.body.setAngularDamping(10)
   /*
-  if (isClient && hasComponent(entity, State.TeleportBall)) {
-    removeComponent(entity, State.TeleportBall)
+  if (isClient && hasComponent(entity, State.CorrectBallPosition)) {
+    removeComponent(entity, State.CorrectBallPosition)
   }
   */
   //collider.body.setLinearVelocity(new Vector3(), true);
