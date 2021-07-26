@@ -1,5 +1,5 @@
-import { subtract, copy } from './GeoJSONFns'
-import { Geometry, Position } from 'geojson'
+import { subtract, copy, computeBoundingBox } from './GeoJSONFns'
+import { Geometry, Polygon, Position } from 'geojson'
 const boxCoords = [
   [-1, -1],
   [1, -1],
@@ -38,5 +38,29 @@ describe('GeoJSONFns', () => {
     expect(result.coordinates[0]).toEqual(polygonBig.coordinates[0])
     expect(result.coordinates[1]).toEqual(multiPolygonSmall.coordinates[0][0].reverse())
     expect(result.coordinates[2]).toEqual(multiPolygonSmall.coordinates[1][0].reverse())
+  })
+
+  it('computes the bounding box (2D) of a set of polygons', () => {
+    const polygons: Polygon[] = polygonBig.coordinates[0].map((offsetCoords) => ({
+      type: 'Polygon',
+      coordinates: [
+        polygonSmall.coordinates[0].map((boxCoords) => {
+          return [boxCoords[0] + offsetCoords[0], boxCoords[1] + offsetCoords[1]]
+        })
+      ]
+    }))
+
+    expect(computeBoundingBox(polygons)).toEqual({
+      type: 'Polygon',
+      coordinates: [
+        [
+          [-6, -6],
+          [6, -6],
+          [6, 6],
+          [-6, 6],
+          [-6, -6]
+        ]
+      ]
+    })
   })
 })
