@@ -12,6 +12,7 @@ import NodeEditor from './NodeEditor'
 import dompurify from 'dompurify'
 import { Object3D } from 'three'
 import NumericInputGroup from '../inputs/NumericInputGroup'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 /**
  * Array containing options for InteractableOption.
@@ -189,8 +190,8 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
   // function to handle changes in payloadHtmlContent
   onChangePayloadHtmlContent = (payloadHtmlContent) => {
     const sanitizedHTML = dompurify.sanitize(payloadHtmlContent)
-    if (sanitizedHTML !== payloadHtmlContent);
-    console.warn("Code has been sanitized, don't try anything sneaky please...")
+    if (sanitizedHTML !== payloadHtmlContent)
+      console.warn("Code has been sanitized, don't try anything sneaky please...")
     ;(this.props.editor as any).setPropertySelected('payloadHtmlContent', sanitizedHTML)
   }
 
@@ -214,7 +215,7 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
       const nodeTarget = this.props.editor.nodes.find((node) => node.uuid === target)
 
       if (nodeTarget) {
-        const gameMode = this.props.editor.Engine.supportedGameModes[nodeTarget.gameMode]
+        const gameMode = Engine.gameModes[nodeTarget.gameMode]
 
         const gameObjectRoles = Object.keys(gameMode.gameObjectRoles)
 

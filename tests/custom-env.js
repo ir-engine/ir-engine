@@ -25,7 +25,7 @@ killPorts()
 let dev 
 let running = false
 beforeAll(async () => {
-  dev = spawn("npm", ["run", "dev"])
+  dev = spawn("cross-env" [`PRELOAD_LOCATION_NAME=${process.env.TEST_LOCATION_NAME}`, "npm", "run", "dev"])
   let timeout
 
   // process.stdin.pipe(dev.stdin)
@@ -34,7 +34,7 @@ beforeAll(async () => {
     new Promise((resolve) => {
       const listen = (message) => {
         if(!running) {
-          // console.log(message.toString()) // UNCOMMENT THIS FOR DEBUGGING LAUNCHING THE STACK
+          console.log(message.toString()) // UNCOMMENT THIS FOR DEBUGGING LAUNCHING THE STACK
           if(message.toString().includes('Server Ready')) {
             console.log(`Successfully launched stack! Took ${Date.now() - time} seconds.`)
             dev.stdout.off('data', listen)

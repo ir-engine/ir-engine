@@ -52,7 +52,7 @@
     "dev-nginx": "",
     "test": "jest --detectOpenHandles",
     "cleanup-tests": "node tests/cleanup-tests.js",
-    "test:golf": "jest --testPathPattern=tests/golf --detectOpenHandles",
+    "test:golf": "cross-env TEST_LOCATION_NAME=golftest jest --testPathPattern=tests/golf --detectOpenHandles",
     "lint": "prettier --check \"packages/*/src/**/*.{ts,tsx}\"",
     "format": "prettier --write \"packages/*/src/**/*.{ts,tsx}\"",
     "version-increment": "lerna version --conventional-commits --yes",
