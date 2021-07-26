@@ -1,5 +1,6 @@
 import * as YUKA from 'yuka'
 import { Geometry, Position } from 'geojson'
+import earcut from 'earcut'
 
 export class NavMeshBuilder {
   polygons: YUKA.Polygon[] = []
@@ -9,17 +10,49 @@ export class NavMeshBuilder {
   _toYukaPolygons(geometry: Geometry, elevation: number): YUKA.Polygon[] {
     switch (geometry.type) {
       case 'Polygon':
-        return [this._coordsToYukaPolygon(geometry.coordinates, elevation)]
+        return this._coordsToYukaPolygons(geometry.coordinates, elevation)
       case 'MultiPolygon':
-        return geometry.coordinates.map((polygonCoords) => this._coordsToYukaPolygon(polygonCoords, elevation))
+        return geometry.coordinates.reduce(
+          (acc, polygonCoords) => acc.concat(this._coordsToYukaPolygons(polygonCoords, elevation)),
+          new Array<YUKA.Polygon>()
+        )
     }
   }
 
-  _coordsToYukaPolygon(coords: Position[][], elevation: number): YUKA.Polygon {
-    const result = new YUKA.Polygon()
-    const vec3s = this._toYukaVectors3(coords[0], elevation)
-    result.fromContour(vec3s)
-    return result
+  _coordsToYukaPolygons(coords: Position[][], elevation: number): YUKA.Polygon[] {
+    /** array of non-overlapping polygons */
+    const flatCoords: Position[][] = coords.length > 1 ? this._tessellate(coords) : coords
+    return flatCoords.map((polygonCoords) => {
+      const result = new YUKA.Polygon()
+      const vec3s = this._toYukaVectors3(polygonCoords, elevation)
+
+      result.fromContour(vec3s)
+
+      return result
+    })
+  }
+
+  _indexedVerticesToGeoJSONTriangles(indexes: number[], vertices: number[]): Position[][] {
+    const count = indexes.length
+
+    const trianglesFlat: Position[] = []
+    const triangles: Position[][] = []
+
+    for (let i = 0; i < count; i++) {
+      var index = indexes[i]
+      trianglesFlat.push([vertices[index * 2], vertices[index * 2 + 1]])
+    }
+
+    for (let i = 0; i < count; i += 3) {
+      triangles.push(trianglesFlat.slice(i, i + 3))
+    }
+    return triangles
+  }
+
+  _tessellate(coords: Position[][]): Position[][] {
+    const { vertices, holes } = earcut.flatten(coords)
+    const indexes = earcut(vertices, holes, 2)
+    return this._indexedVerticesToGeoJSONTriangles(indexes, vertices)
   }
 
   _toYukaVectors3(coords: Position[], elevation: number) {
