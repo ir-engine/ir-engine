@@ -37,21 +37,19 @@ const PI_2Deg = Math.PI / 180
 const mx = new Matrix4()
 const vec3 = new Vector3()
 
-const followCameraBehavior = (entity: Entity) => {
+const followCameraBehavior = (entity: Entity, portCamera?: boolean) => {
   if (!entity) return
+
   const cameraDesiredTransform = getMutableComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) // Camera
 
-  if (!cameraDesiredTransform) return
+  if (!cameraDesiredTransform && !portCamera) return
 
-  const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any)
+  const actor = getMutableComponent(entity, CharacterComponent)
   const actorTransform = getMutableComponent(entity, TransformComponent)
 
-  const followCamera = getMutableComponent<FollowCameraComponent>(
-    entity,
-    FollowCameraComponent
-  ) as FollowCameraComponent
+  const followCamera = getMutableComponent(entity, FollowCameraComponent)
 
-  const inputComponent = getComponent(entity, Input) as Input
+  const inputComponent = getComponent(entity, Input)
 
   // this is for future integration of MMO style pointer lock controls
   // const inputAxes = followCamera.mode === CameraModes.FirstPerson ? BaseInput.MOUSE_MOVEMENT : BaseInput.LOOKTURN_PLAYERONE
@@ -81,10 +79,7 @@ const followCameraBehavior = (entity: Entity) => {
   vec3.add(actorTransform.position)
 
   // Raycast for camera
-  const cameraTransform: TransformComponent = getMutableComponent(
-    CameraSystem.instance.activeCamera,
-    TransformComponent
-  )
+  const cameraTransform = getMutableComponent(CameraSystem.instance.activeCamera, TransformComponent)
   const raycastDirection = new Vector3().subVectors(cameraTransform.position, vec3).normalize()
   followCamera.raycastQuery.origin.copy(vec3)
   followCamera.raycastQuery.direction.copy(raycastDirection)
@@ -100,20 +95,22 @@ const followCameraBehavior = (entity: Entity) => {
     }
   }
 
-  cameraDesiredTransform.position.set(
+  const ct = portCamera ? cameraTransform : cameraDesiredTransform
+
+  ct.position.set(
     vec3.x + camDist * Math.sin(followCamera.theta * PI_2Deg) * Math.cos(phi * PI_2Deg),
     vec3.y + camDist * Math.sin(phi * PI_2Deg),
     vec3.z + camDist * Math.cos(followCamera.theta * PI_2Deg) * Math.cos(phi * PI_2Deg)
   )
 
-  direction.copy(cameraDesiredTransform.position).sub(vec3).normalize()
+  direction.copy(ct.position).sub(vec3).normalize()
 
   mx.lookAt(direction, empty, upVector)
-  cameraDesiredTransform.rotation.setFromRotationMatrix(mx)
+  ct.rotation.setFromRotationMatrix(mx)
 
   if (followCamera.mode === CameraModes.FirstPerson) {
-    cameraTransform.rotation.copy(cameraDesiredTransform.rotation)
-    cameraTransform.position.copy(cameraDesiredTransform.position)
+    cameraTransform.rotation.copy(ct.rotation)
+    cameraTransform.position.copy(ct.position)
   }
 
   if (followCamera.locked || followCamera.mode === CameraModes.FirstPerson) {
@@ -141,6 +138,8 @@ export class CameraSystem extends System {
 
   activeCamera: Entity
   prevState = [0, 0] as NumericalType
+
+  portCamera: boolean = false
 
   /** Constructs camera system. */
   constructor(attributes: SystemAttributes = {}) {
@@ -206,7 +205,7 @@ export class CameraSystem extends System {
 
     // follow camera component should only ever be on the character
     this.queryResults.followCameraComponent.all?.forEach((entity) => {
-      followCameraBehavior(entity)
+      followCameraBehavior(entity, this.portCamera)
     })
   }
 }

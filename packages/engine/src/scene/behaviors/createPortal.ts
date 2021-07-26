@@ -27,7 +27,7 @@ export const createPortal: Behavior = (entity, args) => {
   const { location, displayText, spawnPosition } = args
 
   const spawnRotation = new Quaternion().setFromEuler(
-    new Euler().setFromVector3(new Vector3(args.spawnRotation.x, args.spawnRotation.y, args.spawnRotation.z), 'XYZ')
+    new Euler(args.spawnRotation._x, args.spawnRotation._y, args.spawnRotation._z, 'XYZ')
   )
 
   const transform = getComponent(entity, TransformComponent)

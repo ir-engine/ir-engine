@@ -37,6 +37,7 @@ export class PortalEffect extends Object3D {
   constructor(texture: Texture) {
     super()
     this.texture = texture
+    this.name = 'PortalEffect'
 
     this.createMesh()
     this.add(this.tubeMesh)
@@ -93,12 +94,31 @@ export class PortalEffect extends Object3D {
     this.tubeMesh.position.set(-0.5, 0, -5)
   }
 
-  fadeIn() {
+  fadeIn(delta: number): Promise<void> {
     this.fadingIn = true
+
+    return new Promise<void>((resolve) => {
+      const portalFadeInInterval = setInterval(() => {
+        if (!this.fadingIn) {
+          clearInterval(portalFadeInInterval)
+          resolve()
+        }
+      }, delta * 1000)
+    })
   }
 
-  fadeOut() {
+  fadeOut(delta: number): Promise<void> {
     this.fadingOut = true
+
+    return new Promise<void>((resolve) => {
+      const portalFadeOutInterval = setInterval(() => {
+        // this.tubeMesh.position.z = lerp(-5, -200, 1 - this.tubeMaterial.opacity)
+        if (!this.fadingOut) {
+          clearInterval(portalFadeOutInterval)
+          resolve()
+        }
+      }, delta * 1000)
+    })
   }
 
   deleteMesh() {

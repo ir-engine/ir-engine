@@ -2,7 +2,6 @@ import Button from '@material-ui/core/Button'
 import Snackbar from '@material-ui/core/Snackbar'
 import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
-import TooltipContainer from '@xrengine/client-core/src/common/components/TooltipContainer'
 import {
   GeneralStateList,
   setAppLoaded,
@@ -27,14 +26,10 @@ import { OpenLink } from '@xrengine/client-core/src/world/components/OpenLink'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { FollowCameraComponent } from '@xrengine/engine/src/camera/components/FollowCameraComponent'
-import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent'
-import { ControllerColliderComponent } from '@xrengine/engine/src/character/components/ControllerColliderComponent'
 import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { delay, processLocationChange, resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
-import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { processLocationChange, resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
@@ -48,18 +43,12 @@ import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/Cli
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
 import querystring from 'querystring'
 import React, { Suspense, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
-import { CameraLayers } from '../../../../engine/src/camera/constants/CameraLayers'
-import { resetFollowCamera } from '../../../../engine/src/camera/systems/CameraSystem'
-import { lerp } from '../../../../engine/src/common/functions/MathLerpFunctions'
-import { PortalEffect } from '../../../../engine/src/scene/classes/PortalEffect'
-import { Object3DComponent } from '../../../../engine/src/scene/components/Object3DComponent'
 import { teleportToScene } from '../../../../engine/src/scene/functions/teleportToScene'
 import MediaIconsBox from '../../components/MediaIconsBox'
 import NetworkDebug from '../../components/NetworkDebug'
@@ -562,9 +551,7 @@ export const EnginePage = (props: Props) => {
       // change our browser URL
       history.replace('/location/' + portalComponent.location)
       setNewSpawnPos(portalComponent)
-
       await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'))
-
       getLocationByName(portalComponent.location)
     })
   }
