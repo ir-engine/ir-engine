@@ -3,7 +3,7 @@ import { Entity } from '../../../../ecs/classes/Entity'
 import { Body, BodyType, ColliderHitEvent, ShapeType, SHAPES, Transform } from 'three-physx'
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem'
 
-import { addComponent, getComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../../../ecs/functions/EntityFunctions'
 import { GameObject } from '../../../components/GameObject'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
@@ -20,12 +20,13 @@ export const onHoleCollideWithBall: GameObjectInteractionBehavior = (
   args: { hitEvent: ColliderHitEvent },
   entityBall: Entity
 ) => {
-  // if(hasComponent(entityHole, State.Active)) {
-  console.log('HOLE', entityHole, entityBall)
-
-  addActionComponent(entityHole, Action.GameObjectCollisionTag)
-  addActionComponent(entityBall, Action.GameObjectCollisionTag)
-  // }
+  if (args.hitEvent.type === 'TRIGGER_START') {
+    addActionComponent(entityHole, Action.GameObjectCollisionTag)
+    addActionComponent(entityBall, Action.GameObjectCollisionTag)
+  } else if (args.hitEvent.type === 'TRIGGER_END') {
+    removeComponent(entityHole, Action.GameObjectCollisionTag)
+    removeComponent(entityBall, Action.GameObjectCollisionTag)
+  }
 }
 
 /**

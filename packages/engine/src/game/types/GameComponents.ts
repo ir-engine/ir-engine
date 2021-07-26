@@ -51,6 +51,7 @@ export enum gameStates {
   SpawnedObject = 'SpawnedObject',
 
   BallMoving = 'BallMoving',
+  AlmostStopped = 'AlmostStopped',
   BallStopped = 'BallStopped',
 
   Active = 'Active',
@@ -60,7 +61,10 @@ export enum gameStates {
   NotReady = 'NotReady',
 
   BallHidden = 'BallHidden',
-  BallVisible = 'BallVisible'
+  BallVisible = 'BallVisible',
+
+  CorrectBallPosition = 'CorrectBallPosition',
+  alreadyHit = 'alreadyHit'
 }
 
 export class Waiting extends Component<any> {}
@@ -70,10 +74,14 @@ export class addedHit extends Component<any> {}
 export class Hit extends Component<any> {}
 
 export class BallMoving extends Component<any> {}
+export class AlmostStopped extends Component<any> {}
 export class BallStopped extends Component<any> {}
 
 export class BallHidden extends Component<any> {}
 export class BallVisible extends Component<any> {}
+
+export class CorrectBallPosition extends Component<any> {}
+export class alreadyHit extends Component<any> {}
 
 export const State = {
   [gameStates.Active]: Active,
@@ -93,9 +101,12 @@ export const State = {
   [gameStates.Hit]: Hit,
   [gameStates.SpawnedObject]: SpawnedObject,
   [gameStates.BallMoving]: BallMoving,
+  [gameStates.AlmostStopped]: AlmostStopped,
   [gameStates.BallStopped]: BallStopped,
   [gameStates.Ready]: Ready,
   [gameStates.NotReady]: NotReady,
   [gameStates.BallHidden]: BallHidden,
-  [gameStates.BallVisible]: BallVisible
+  [gameStates.BallVisible]: BallVisible,
+  [gameStates.CorrectBallPosition]: CorrectBallPosition,
+  [gameStates.alreadyHit]: alreadyHit
 }

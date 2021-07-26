@@ -284,6 +284,7 @@ export const createGolfBallPrefab = (args: {
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const GolfBallPrefab: NetworkPrefab = {
+  //@ts-ignore
   initialize: createGolfBallPrefab,
   // These will be created for all players on the network
   networkComponents: [

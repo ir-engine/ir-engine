@@ -16,20 +16,31 @@ import {
   removeComponent,
   removeEntity
 } from '../../ecs/functions/EntityFunctions'
-import { initState, removeEntityFromState, saveInitStateCopy, requireState } from '../functions/functionsState'
+import {
+  initState,
+  removeEntityFromState,
+  saveInitStateCopy,
+  requireState,
+  clearRemovedEntitysFromGame
+} from '../functions/functionsState'
 
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { GameMode } from '../types/GameMode'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { ColliderHitEvent } from 'three-physx'
 import { isClient } from '../../common/functions/isClient'
-import { checkIsGamePredictionStillRight, clearPredictionCheckList } from '../functions/functionsActions'
+import {
+  addActionComponent,
+  checkIsGamePredictionStillRight,
+  clearPredictionCheckList
+} from '../functions/functionsActions'
 import { NewPlayerTagComponent } from '../templates/Golf/components/GolfTagComponents'
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
 import { Component } from '../../ecs/classes/Component'
 import { CharacterComponent } from '../../character/components/CharacterComponent'
 import { getGameFromName } from '../functions/functions'
 import { Engine } from '../../ecs/classes/Engine'
+import { Action } from '../types/GameComponents'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -128,7 +139,7 @@ export class GameManagerSystem extends System {
 
     this.queryResults.game.all?.forEach((entityGame) => {
       const game = getComponent(entityGame, Game)
-      const gameArea = game.gameArea
+      // this part about check if client get same actions as server send him.
       if (isClient && game.isGlobal && checkIsGamePredictionStillRight()) {
         clearPredictionCheckList()
         requireState(
@@ -144,11 +155,12 @@ export class GameManagerSystem extends System {
         console.log('new client joining game')
         addComponent(entity, NewPlayerTagComponent, { gameName: game.name })
       })
-
+      /*
       this.queryResults.characters.removed.forEach((entity) => {
         hasComponent(entity, NewPlayerTagComponent) && removeComponent(entity, NewPlayerTagComponent)
         hasComponent(entity, GamePlayer) && removeComponent(entity, GamePlayer)
       })
+      */
     })
 
     // PLAYERS REMOVE
@@ -161,12 +173,16 @@ export class GameManagerSystem extends System {
         gameSchema.beforePlayerLeave(entity)
         console.log('removeEntityFromState', gamePlayer.role)
         removeEntityFromState(gamePlayer, game)
-        // clearRemovedEntitysFromGame(game)
-        Object.values(gamePlayer.ownedObjects).forEach((entity) => {
-          removeEntity(entity)
-        })
+        clearRemovedEntitysFromGame(game)
         game.gamePlayers[gamePlayer.role] = []
         gameSchema.onPlayerLeave(entity, gamePlayer, game)
+        /*
+        Object.values(gamePlayer.ownedObjects).forEach((entityObj) => {
+          removeEntity(entityObj)
+        })
+        
+        removeEntity(entity);
+        */
       })
     })
 
@@ -200,19 +216,6 @@ export class GameManagerSystem extends System {
       })
     })
 
-    // OBJECTS ADDIND
-    // its needet for allow dynamicly adding objects and exept errors when enitor gives object without created game
-    this.queryResults.gameObject.added?.forEach((entity) => {
-      this.queryResults.game.all?.forEach((entityGame) => {
-        const game = getComponent(entityGame, Game)
-        if (getComponent(entity, GameObject).gameName != game.name) return
-
-        const gameObjects = game.gameObjects
-        // add to gameObjects list sorted by role
-        gameObjects[getComponent(entity, GameObject).role].push(entity)
-      })
-    })
-
     this.queryResults.newPlayer.added.forEach((entity) => {
       console.log('new player')
       const newPlayer = getComponent(entity, NewPlayerTagComponent)
@@ -224,6 +227,18 @@ export class GameManagerSystem extends System {
       const game = getGameFromName(newPlayer.gameName)
       requireState(game, gamePlayerComp)
       removeComponent(entity, NewPlayerTagComponent)
+    })
+    // OBJECTS ADDIND
+    // its needet for allow dynamicly adding objects and exept errors when enitor gives object without created game
+    this.queryResults.gameObject.added?.forEach((entity) => {
+      this.queryResults.game.all?.forEach((entityGame) => {
+        const game = getComponent(entityGame, Game)
+        if (getComponent(entity, GameObject).gameName != game.name) return
+
+        const gameObjects = game.gameObjects
+        // add to gameObjects list sorted by role
+        gameObjects[getComponent(entity, GameObject).role].push(entity)
+      })
     })
 
     // end of execute

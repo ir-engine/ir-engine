@@ -231,7 +231,6 @@ export function tweenXRInputSource(args: InputSourceTweenProps) {
  * @param {object} args
  * @param {array} args.position
  * @param {array} args.quaternion
- * @returns {function}
  */
 export function updateHead(args) {
   headPosition.fromArray(args.position)

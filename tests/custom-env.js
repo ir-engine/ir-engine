@@ -26,22 +26,26 @@ let dev
 let running = false
 beforeAll(async () => {
   dev = spawn("npm", ["run", "dev"])
+  let timeout
 
   // process.stdin.pipe(dev.stdin)
   const time = Date.now()
   await Promise.race([
     new Promise((resolve) => {
       const listen = (message) => {
-        if(!running && message.toString().includes('Server Ready')) {
-          console.log(`Successfully launched stack! Took ${Date.now() - time} seconds.`)
-          dev.stdout.off('data', listen)
-          resolve()
+        if(!running) {
+          console.log(message.toString()) // UNCOMMENT THIS FOR DEBUGGING LAUNCHING THE STACK
+          if(message.toString().includes('Server Ready')) {
+            console.log(`Successfully launched stack! Took ${Date.now() - time} seconds.`)
+            dev.stdout.off('data', listen)
+            resolve()
+          }
         }
       }
       dev.stdout.on('data', listen)
     }),
     new Promise((resolve) => {
-      setTimeout(() => {
+      timeout = setTimeout(() => {
         if(running) return
         console.log('WARNING: Stack too long to launch! Tests will run anyway...')
         resolve()
@@ -49,6 +53,7 @@ beforeAll(async () => {
     })
   ])
   running = true
+  clearTimeout(timeout)
 }, 60 * 1000)
 
 afterAll(async () => {
