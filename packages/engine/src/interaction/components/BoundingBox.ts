@@ -6,7 +6,7 @@ import { Types } from '../../ecs/types/Types'
  * @author HydraFire <github.com/HydraFire>
  */
 
-export class BoundingBox extends Component<BoundingBox> {
+export class BoundingBoxComponent extends Component<BoundingBoxComponent> {
   public box: Box3 = new Box3()
   public boxArray: any[]
   public dynamic: boolean

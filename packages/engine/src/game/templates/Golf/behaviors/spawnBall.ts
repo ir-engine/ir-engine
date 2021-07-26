@@ -46,7 +46,7 @@ export const spawnBall: Behavior = (
     ),
     uuid
   }
-
+  /*
   // this spawns the ball on the server
   createGolfBallPrefab({
     networkId,
@@ -54,7 +54,7 @@ export const spawnBall: Behavior = (
     ownerId, // the uuid of the player whose ball this is
     parameters
   })
-
+*/
   // this sends the ball to the clients
   Network.instance.worldState.createObjects.push({
     networkId,

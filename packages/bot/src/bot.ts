@@ -348,7 +348,7 @@ export class XREngineBot {
     context.overridePermissions(parsedUrl.origin, ['microphone', 'camera'])
 
     console.log('Going to ' + url)
-    await this.page.goto(url, { waitUntil: 'domcontentloaded' })
+    await this.page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60 * 1000 })
 
     const granted = await this.page.evaluate(async () => {
       return (await navigator.permissions.query({ name: 'camera' })).state

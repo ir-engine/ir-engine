@@ -11,6 +11,7 @@ import {
 } from '../../ecs/functions/EntityFunctions'
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
 import { Network } from '../../networking/classes/Network'
+import { NetworkObject } from '../../networking/components/NetworkObject'
 
 import { Game } from '../components/Game'
 import { GameObject } from '../components/GameObject'
@@ -100,7 +101,6 @@ export const applyStateToClient = (stateMessage: GameStateUpdateMessage): void =
 
 export const applyState = (game: Game): void => {
   const gameSchema = Engine.gameModes[game.gameMode]
-
   // clean all states
   Object.keys(game.gamePlayers)
     .concat(Object.keys(game.gameObjects))
@@ -156,6 +156,14 @@ export const applyState = (game: Game): void => {
             if (State[componentName]) addComponent(entity, State[componentName])
             else console.warn("Couldn't find component", componentName)
           })
+          // get ball server position
+          if (
+            role === 'GolfBall' &&
+            Network.instance.networkObjects[Network.instance.localAvatarNetworkId].ownerId ===
+              getComponent(entity, NetworkObject).ownerId
+          ) {
+            addComponent(entity, State.CorrectBallPosition)
+          }
         } else {
           // console.log('Local object dont have state, v.uuid != uuid')
           // console.log(role, uuid)
@@ -188,11 +196,19 @@ export const clearRemovedEntitysFromGame = (game): void => {
 }
 
 export const addStateComponent = (entity: Entity, component: ComponentConstructor<Component<any>>): void => {
+  if (entity === undefined || hasComponent(entity, component)) return
   if (hasComponent(entity, component)) return
-  // console.log('addStateComponent', component.name)
+
   const uuid = getUuid(entity)
   const role = getRole(entity)
   const game = getGame(entity)
+  /*
+  if (role != 'GolfBall') {
+    console.warn(role,' add ', component.name)
+  } else {
+    console.log(role,' add ', component.name)
+  }
+  */
 
   if (uuid === undefined || role === undefined || game === undefined) {
     console.warn('addStateComponent cant add State, looks like Object or Player leave game')
@@ -217,12 +233,17 @@ export const addStateComponent = (entity: Entity, component: ComponentConstructo
 }
 
 export const removeStateComponent = (entity: Entity, component: ComponentConstructor<Component<any>>): void => {
-  if (!hasComponent(entity, component)) return
+  if (entity === undefined || !hasComponent(entity, component)) return
   const uuid = getUuid(entity)
   const game = getGame(entity)
-
-  // console.log('removeStateComponent', component.name)
-
+  /*
+  const role = getRole(entity)
+  if (role != 'GolfBall') {
+   console.warn(role,' remove ', component.name)
+  } else {
+    console.log(role,' remove ', component.name)
+  }
+  */
   removeComponent(entity, component)
 
   const objectState = game.state.find((v) => v.uuid === uuid)

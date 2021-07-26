@@ -2,6 +2,7 @@ import { HandPaper } from '@styled-icons/fa-solid/HandPaper'
 import i18n from 'i18next'
 import React from 'react'
 import { withTranslation } from 'react-i18next'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
@@ -17,8 +18,8 @@ export function GameNodeEditor(props: { editor?: any; node?: any; t: any }) {
   const { node, editor, t } = props
 
   // function to handle changes in payloadName property
-  const onChangePayloadGameMode = (payloadGame, selected) => {
-    editor.setPropertySelected('gameMode', selected.label)
+  const onChangePayloadGameMode = (gameMode) => {
+    editor.setPropertySelected('gameMode', gameMode)
   }
 
   const onChangeMinPlayers = (payloadMinPlayers) => {
@@ -36,7 +37,7 @@ export function GameNodeEditor(props: { editor?: any; node?: any; t: any }) {
   // available to add in scene in assets.
   const description = i18n.t('editor:properties.game.description')
 
-  const selectValues = Object.keys(editor.Engine.supportedGameModes).map((key, index) => {
+  const selectValues = Object.keys(Engine.gameModes).map((key, index) => {
     return { label: key, value: index }
   })
   return (
@@ -44,9 +45,9 @@ export function GameNodeEditor(props: { editor?: any; node?: any; t: any }) {
       {/* @ts-ignore */}
       <InputGroup name="Game Mode" label={t('editor:properties.game.lbl-gameMode')}>
         {/* @ts-ignore */}
-        <SelectInput
-          options={selectValues}
-          value={selectValues.findIndex((v) => v.label === node.gameMode)}
+        <StringInput
+          /* @ts-ignore */
+          value={node.gameMode}
           onChange={onChangePayloadGameMode}
         />
       </InputGroup>

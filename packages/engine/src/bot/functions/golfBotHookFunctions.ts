@@ -2,15 +2,19 @@ import { Vector3 } from 'three'
 import { eulerToQuaternion } from '../../common/functions/MathRandomFunctions'
 import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { GamePlayer } from '../../game/components/GamePlayer'
-import { getGameFromName } from '../../game/functions/functions'
+import { getGame, getGameFromName } from '../../game/functions/functions'
+import { getStorage } from '../../game/functions/functionsStorage'
+import { getPositionNextPoint } from '../../game/templates/Golf/behaviors/getPositionNextPoint'
 import { YourTurn } from '../../game/templates/Golf/components/YourTurnTagComponent'
 import { Network } from '../../networking/classes/Network'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GolfBotHooks } from '../enums/GolfBotHooks'
-import { tweenXRInputSource } from './setupXRBotHooks'
+import { tweenXRInputSource } from './xrBotHookFunctions'
 
 export const GolfBotHookFunctions = {
   [GolfBotHooks.GetBallPosition]: getBallPosition,
+  [GolfBotHooks.GetHolePosition]: getHolePosition,
+  [GolfBotHooks.GetTeePosition]: getTeePosition,
   [GolfBotHooks.GetIsYourTurn]: getIsYourTurn,
   [GolfBotHooks.SwingClub]: swingClub
 }
@@ -34,10 +38,30 @@ export function swingClub() {
   })
 }
 
-export function getBallPosition() {
-  if (!Network.instance.localClientEntity) return false
-  const { gameName, role } = getComponent(Network.instance.localClientEntity, GamePlayer)
+export function getPlayerNumber() {
+  if (!Network.instance.localClientEntity) return
+  const { role } = getComponent(Network.instance.localClientEntity, GamePlayer)
+  const playerNumber = Number(role.slice(0, 1))
+  return playerNumber
+}
 
+export function getTeePosition() {
+  const { position } = getPositionNextPoint(Network.instance.localClientEntity, { positionCopyFromRole: 'GolfTee-' })
+  console.log(position)
+  return position
+}
+
+export function getHolePosition() {
+  const gameScore = getStorage(Network.instance.localClientEntity, { name: 'GameScore' })
+  const game = getGame(Network.instance.localClientEntity)
+  const currentHoleEntity = gameScore.score
+    ? game.gameObjects['GolfHole'][gameScore.score.goal]
+    : game.gameObjects['GolfHole'][0]
+  return getComponent(currentHoleEntity, TransformComponent)?.position
+}
+
+export function getBallPosition() {
+  const { gameName, role } = getComponent(Network.instance.localClientEntity, GamePlayer)
   const playerNumber = Number(role.slice(0, 1))
 
   if (!gameName) return
@@ -46,8 +70,7 @@ export function getBallPosition() {
     console.log('Game not found')
     return
   }
-  // TODO: get player number
-  const ballEntity = game.gameObjects['GolfBall'][0]
+  const ballEntity = game.gameObjects['GolfBall'][playerNumber - 1]
   if (!ballEntity) {
     console.log('ball entity not found for player number', playerNumber, role)
     return

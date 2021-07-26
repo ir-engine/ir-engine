@@ -6,6 +6,9 @@ import SelectInput from '../inputs/SelectInput'
 import { HandPaper } from '@styled-icons/fa-solid/HandPaper'
 import i18n from 'i18next'
 import { withTranslation } from 'react-i18next'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import StringInput from '../inputs/StringInput'
+
 type BoxColliderNodeEditorProps = {
   editor?: any
   node?: any
@@ -46,8 +49,8 @@ export class BoxColliderNodeEditor extends Component<BoxColliderNodeEditorProps,
   static description = i18n.t('editor:properties.boxCollider.description')
 
   // function to handle changes in payloadName property
-  onChangeRole = (role, selected) => {
-    ;(this.props.editor as any).setPropertySelected('role', selected.label)
+  onChangeRole = (role) => {
+    ;(this.props.editor as any).setPropertySelected('role', role)
   }
 
   //function to handle the changes in target
@@ -65,6 +68,7 @@ export class BoxColliderNodeEditor extends Component<BoxColliderNodeEditorProps,
     const target = targetOption ? targetOption.value : null
     const targetNotFound = node.target && target === null
 
+    /*
     let selectValues = []
     if (node.target) {
       // Get current game mode -- check target game mode
@@ -77,7 +81,7 @@ export class BoxColliderNodeEditor extends Component<BoxColliderNodeEditorProps,
       if (nodeTarget) {
         console.log('nodeTarget', nodeTarget)
 
-        const gameMode = this.props.editor.Engine.supportedGameModes[nodeTarget.gameMode]
+        const gameMode = Engine.gameModes[nodeTarget.gameMode]
 
         const gameObjectRoles = Object.keys(gameMode.gameObjectRoles)
 
@@ -89,7 +93,7 @@ export class BoxColliderNodeEditor extends Component<BoxColliderNodeEditorProps,
 
         console.log('SelectValues are', selectValues)
       }
-    }
+    }*/
 
     return (
       <>
@@ -113,9 +117,9 @@ export class BoxColliderNodeEditor extends Component<BoxColliderNodeEditorProps,
           /* @ts-ignore */
           <InputGroup name="Role" label={i18n.t('editor:properties.model.lbl-role')}>
             {/* @ts-ignore */}
-            <SelectInput
-              options={selectValues}
-              value={selectValues.findIndex((v) => v.label === node.role)}
+            <StringInput
+              /* @ts-ignore */
+              value={node.role}
               onChange={this.onChangeRole}
             />
           </InputGroup>
