@@ -358,7 +358,7 @@ const moveByInputAxis: InputBehaviorType = (
   delta: number
 ): void => {
   const actor = getMutableComponent(entity, CharacterComponent)
-  const input = getComponent<Input>(entity, Input as any)
+  const input = getComponent(entity, Input)
 
   const data = input.data.get(inputKey)
 
@@ -417,7 +417,7 @@ const moveFromXRInputs: InputBehaviorType = (
   delta: number
 ): void => {
   const actor = getMutableComponent(entity, CharacterComponent)
-  const input = getComponent<Input>(entity, Input as any)
+  const input = getComponent(entity, Input)
   const values = input.data.get(BaseInput.XR_AXIS_MOVE)?.value
   if (!values) return
 
@@ -437,7 +437,7 @@ const lookFromXRInputs: InputBehaviorType = (
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
-  const input = getComponent<Input>(entity, Input as any)
+  const input = getComponent(entity, Input)
   const values = input.data.get(BaseInput.XR_AXIS_LOOK)?.value
   const rotationAngle = XRUserSettings.rotationAngle
   let newAngleDiff = 0
@@ -472,7 +472,7 @@ const lookByInputAxis: InputBehaviorType = (
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
-  const input = getMutableComponent<Input>(entity, Input)
+  const input = getMutableComponent(entity, Input)
   const data = input.data.get(BaseInput.GAMEPAD_STICK_RIGHT)
   const multiplier = 0.1
   // adding very small noise to trigger same value to be "changed"

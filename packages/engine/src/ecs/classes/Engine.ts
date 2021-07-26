@@ -28,8 +28,7 @@ import { ActiveSystems, System } from './System'
 export class Engine {
   public static engineTimer: { start: Function; stop: Function; clear: Function } = null
 
-  public static supportedGameModes: { [key: string]: GameMode }
-  public static gameMode: GameMode
+  public static gameModes: { [key: string]: GameMode }
 
   public static xrSupported = false
   public static isBot = false
@@ -199,7 +198,7 @@ export class Engine {
    *
    * @author Fernando Serrano, Robert Long
    */
-  static activeSystems: ActiveSystems
+  static activeSystems: ActiveSystems = null
   static vehicles: any
   static lastTime: number
 
@@ -215,6 +214,8 @@ export class Engine {
   static prevInputState = new Map<any, InputValue<NumericalType>>()
 
   static isInitialized = false
+
+  static hasJoinedWorld = false
 
   static publicPath: string
 

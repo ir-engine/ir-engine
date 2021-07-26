@@ -7,6 +7,7 @@ import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Input } from '../../input/components/Input'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { Network } from '../../networking/classes/Network'
+import { XRSystem } from '../../xr/systems/XRSystem'
 
 export async function overrideXR() {
   // inject the webxr polyfill from the webxr emulator source - this is a script added by the bot
@@ -64,7 +65,7 @@ export function xrInitialized() {
 }
 
 export function startXR() {
-  EngineEvents.instance.dispatchEvent({ type: 'WEBXR_RENDERER_SYSTEM_XR_START' })
+  EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_START })
   window.dispatchEvent(
     new CustomEvent('webxr-pose', {
       detail: {
@@ -230,7 +231,6 @@ export function tweenXRInputSource(args: InputSourceTweenProps) {
  * @param {object} args
  * @param {array} args.position
  * @param {array} args.quaternion
- * @returns {function}
  */
 export function updateHead(args) {
   headPosition.fromArray(args.position)

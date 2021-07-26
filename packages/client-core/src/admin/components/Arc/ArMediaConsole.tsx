@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { PAGE_LIMIT } from '../reducers/admin/reducers'
+import { PAGE_LIMIT } from '../../reducers/admin/reducers'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import {
   Table,
@@ -19,19 +19,19 @@ import {
   CardMedia
 } from '@material-ui/core'
 // @ts-ignore
-import styles from './Admin.module.scss'
+import styles from '../Admin.module.scss'
 import Backdrop from '@material-ui/core/Backdrop'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import Slide from '@material-ui/core/Slide'
 import { TransitionProps } from '@material-ui/core/transitions'
-import { EnhancedTableHead } from './AdminHelpers'
-import { updateFeedAsAdmin } from '../../socialmedia/reducers/feed/service'
-import SharedModal from './SharedModal'
-import ArMediaForm from '../../socialmedia/components/ArMediaForm'
-import { fetchAdminScenes } from '../reducers/admin/service'
-import { selectAdminState } from '../reducers/admin/selector'
-import { doLoginAuto } from '../../user/reducers/auth/service'
-import { removeArMedia } from '../../socialmedia/reducers/arMedia/service'
+import { EnhancedTableHead } from '../AdminHelpers'
+import { updateFeedAsAdmin } from '../../../socialmedia/reducers/feed/service'
+import SharedModal from '../SharedModal'
+import ArMediaForm from '../../../socialmedia/components/ArMediaForm'
+import { fetchAdminScenes } from '../../reducers/admin/service'
+import { selectAdminState } from '../../reducers/admin/selector'
+import { doLoginAuto } from '../../../user/reducers/auth/service'
+import { removeArMedia } from '../../../socialmedia/reducers/arMedia/service'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -159,10 +159,10 @@ const ArMediaConsole = (props: Props) => {
     setOrderBy(property)
   }
 
-  // const handleView = (id: string) => {
-  //     setView(list.find(item => item.id === id));
-  //     setModalOpen(true);
-  // };
+  const handleView = (id: string) => {
+    setView(list.find((item) => item.id === id))
+    setModalOpen(true)
+  }
 
   const handleDelete = (id: string) => {
     removeArMedia(id)
@@ -232,7 +232,15 @@ const ArMediaConsole = (props: Props) => {
                           {row.createdAt}
                         </TableCell>
                         <TableCell className={styles.tcell}>
-                          {/* <Button variant="outlined" color="secondary" style={{width:'fit-content'}} onClick={() => handleView(row.id.toString())}><Edit className="text-success"/>Edit</Button> */}
+                          <Button
+                            variant="outlined"
+                            color="secondary"
+                            style={{ width: 'fit-content' }}
+                            onClick={() => handleView(row.id.toString())}
+                          >
+                            <Button className="text-success" />
+                            Edit
+                          </Button>
                           <Button
                             variant="outlined"
                             color="secondary"

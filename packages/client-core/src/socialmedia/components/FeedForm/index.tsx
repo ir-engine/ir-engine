@@ -14,6 +14,9 @@ import BackupIcon from '@material-ui/icons/Backup'
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos'
 import { useTranslation } from 'react-i18next'
 import { Capacitor, Plugins } from '@capacitor/core'
+import { Http, HttpResponse } from '@capacitor-community/http'
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem'
+import { Share } from '@capacitor/share'
 // @ts-ignore
 import styles from './FeedForm.module.scss'
 import { createFeed, updateFeedAsAdmin } from '../../reducers/feed/service'
@@ -76,6 +79,7 @@ const FeedForm = ({
   const [preview, setPreview] = useState(null)
   const [preloader, setPreloader] = useState(false)
   const [readyToPublish, setReadyToPublish] = useState(false)
+  const [saveStatus, setSaveStatus] = useState(false)
   const titleRef = React.useRef<HTMLInputElement>()
   const textRef = React.useRef<HTMLInputElement>()
   const videoRef = React.useRef<HTMLInputElement>()
@@ -92,6 +96,7 @@ const FeedForm = ({
 
   useEffect(() => {
     console.log('videoUrl', lastFeedVideoUrl)
+    console.log(lastFeedVideoUrl)
   }, [lastFeedVideoUrl])
   const handleCreateFeed = async () => {
     const newFeed = {
@@ -100,6 +105,8 @@ const FeedForm = ({
       video,
       preview
     } as any
+
+    console.log(newFeed)
 
     if (!newFeed.video && !newFeed.preview) {
       alert('Error! Please try again.')
@@ -145,61 +152,135 @@ const FeedForm = ({
   }
 
   const shareVideo = (title: string, path: string) => {
-    XRPlugin.shareMedia({ title, path })
+    Share.share({
+      title: t('social:shareForm.arcMedia'),
+      text: t('social:shareForm.videoCreated'),
+      url: videoDir,
+      dialogTitle: t('social:shareForm.shareWithBuddies')
+    })
+    // XRPlugin.shareMedia({ title, path })
+  }
+
+  // const doGet = async () => {
+  //   alert('START RESPONSE')
+  //   const options = {
+  //     method: "GET",
+  //     url: videoPath,
+  //     // headers: { 'X-Fake-Header': 'Max was here' },
+  //     // params: { size: 'XL' },
+  //   };
+  //
+  //   const response: HttpResponse = await Http.request(options).catch((error) => alert(JSON.stringify(error.message)));
+  //   alert(JSON.stringify(response))
+  //
+  //   // or...
+  //   // const response = await Http.request({ ...options, method: 'GET' })
+  // };
+
+  const readFilePath = async () => {
+    // Here's an example of reading a file with a full file path. Use this to
+    // read binary data (base64 encoded) from plugins that return File URIs, such as
+    // the Camera.
+    const contents = await Filesystem.readFile({
+      path: videoDir
+    })
+
+    // const codeContents = atob(contents)
+    // alert(JSON.stringify(codeContents))
+
+    var contentType = contentType || ''
+    var sliceSize = 1024
+    try {
+      var byteCharacters = atob(contents.data)
+    } catch (e) {
+      alert(JSON.stringify(e))
+    }
+
+    var bytesLength = byteCharacters.length
+    var slicesCount = Math.ceil(bytesLength / sliceSize)
+    var byteArrays = new Array(slicesCount)
+    for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+      var begin = sliceIndex * sliceSize
+      var end = Math.min(begin + sliceSize, bytesLength)
+      var bytes = new Array(end - begin)
+      for (var offset = begin, i = 0; offset < end; ++i, ++offset) {
+        bytes[i] = byteCharacters[offset].charCodeAt(0)
+      }
+      byteArrays[sliceIndex] = new Uint8Array(bytes)
+    }
+    const myBlob = new Blob(byteArrays, { type: contentType })
+
+    const myFile = new File([myBlob], 'test.mp4')
+    console.log(myFile.size)
+    setVideo(myFile)
+    //
+    /*Preview Begin*/
+    const file = myFile
+    const fileReader = new FileReader()
+
+    // fileReader.onload = function() {
+    //   const blob = new Blob([fileReader.result], { type: file.type })
+    //   const url = URL.createObjectURL(blob)
+    //   const video = document.createElement('video')
+    //
+    //   const timeupdate = function() {
+    //     if (snapImage()) {
+    //       video.removeEventListener('timeupdate', timeupdate)
+    //       video.pause()
+    //     }
+    //   }
+    //
+    //   video.addEventListener('loadeddata', () => {
+
+    //     if (snapImage()) {
+    //       video.removeEventListener('timeupdate', timeupdate)
+    //     }
+    //   })
+
+    // const snapImage = function() {
+    //   alert('Snap')
+    //   const canvas = document.createElement('canvas')
+    //   canvas.width = video.videoWidth
+    //   canvas.height = video.videoHeight
+    //   canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height)
+    //   const image = canvas.toDataURL()
+    //   alert(JSON.stringify(image.length))
+    //   const success = image.length > 100000
+    //   alert(JSON.stringify(success))
+    // if (success) {
+    setPreview(myFile)
+    //   URL.revokeObjectURL(url)
+    // // }
+    // return success
+    // }
+
+    // video.autoplay = true
+    // video.preload = 'metadata'
+    // video.playsInline = true
+    // video.addEventListener('timeupdate', timeupdate)
+    // video.src = url
+    // // Load video in Safari / IE11
+    // video.muted = true
+    //
+    // video.play()
+    // }
+    // fileReader.readAsArrayBuffer(file)
+    /*Preview Finish*/
+    setReadyToPublish(true)
   }
 
   useEffect(() => {
-    fetch(videoPath)
-      .then((res) => res.blob())
-      .then((myBlob) => {
-        const myFile = new File([myBlob], 'test.mp4')
-        setVideo(myFile)
-        console.log('test.mp4', myFile)
-        /*Preview Begin*/
-        const file = myFile
-        const fileReader = new FileReader()
+    readFilePath()
 
-        fileReader.onload = function () {
-          const blob = new Blob([fileReader.result], { type: file.type })
-          const url = URL.createObjectURL(blob)
-          const video = document.createElement('video')
-          const timeupdate = function () {
-            if (snapImage()) {
-              video.removeEventListener('timeupdate', timeupdate)
-              video.pause()
-            }
-          }
-          video.addEventListener('loadeddata', () => {
-            if (snapImage()) {
-              video.removeEventListener('timeupdate', timeupdate)
-            }
-          })
-          const snapImage = function () {
-            const canvas = document.createElement('canvas')
-            canvas.width = video.videoWidth
-            canvas.height = video.videoHeight
-            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height)
-            const image = canvas.toDataURL()
-            const success = image.length > 100000
-            if (success) {
-              setPreview(dataURItoBlob(image))
-              URL.revokeObjectURL(url)
-            }
-            return success
-          }
-          video.addEventListener('timeupdate', timeupdate)
-          video.preload = 'metadata'
-          video.src = url
-          // Load video in Safari / IE11
-          video.muted = true
-          video.playsInline = true
-          video.play()
-        }
-        fileReader.readAsArrayBuffer(file)
-        /*Preview Finish*/
-        setReadyToPublish(true)
-      })
-      .catch((error) => console.log(error.message))
+    // doGet()
+
+    // fetch(videoPath).catch((error) => alert(JSON.stringify(error.message)))
+    //   .then((res) => res.blob()).catch((error) => alert(JSON.stringify(error.message)))
+    //   .then((myBlob) => {
+
+    //
+    //   })
+    //   .catch((error) => console.log(error.message))
   }, [])
 
   const closePopUp = () => {
@@ -280,11 +361,21 @@ const FeedForm = ({
                 multiline
                 placeholder={t('social:feedForm.ph-type')}
                 />     */}
-          <video className={styles.feedVideoPreview} autoPlay={true} loop muted={false}>
-            <source src={videoPath} type="video/mp4" />
-          </video>
+          {videoPath && (
+            <video
+              className={styles.feedVideoPreview}
+              id={video}
+              autoPlay={false}
+              loop
+              muted={false}
+              playsinline={true}
+              controls={true}
+            >
+              <source src={videoPath} type="video/mp4" />
+            </video>
+          )}
           <div className={styles.buttonWraper}>
-            {readyToPublish && (
+            {videoPath && (
               <div>
                 <Button variant="contained" className={styles.submit} onClick={() => handleCreateFeed()}>
                   {/*                         {t('social:feedForm.lbl-share')} */}
@@ -302,13 +393,20 @@ const FeedForm = ({
               </Button>
             )}
 
-            <Button
-              variant="contained"
-              className={styles.submit}
-              onClick={() => XRPlugin.saveVideoTo({ videoDir: videoDir, nameId: nameId })}
-            >
-              Save
-            </Button>
+            {saveStatus ? (
+              ''
+            ) : (
+              <Button
+                variant="contained"
+                className={styles.submit}
+                onClick={() => {
+                  XRPlugin.saveVideoTo({ videoDir: videoDir, nameId: nameId })
+                  setSaveStatus(true)
+                }}
+              >
+                Save
+              </Button>
+            )}
             <Button variant="contained" className={styles.submit} onClick={() => closePopUp()}>
               Cancel
             </Button>
