@@ -98,7 +98,7 @@
     "styled-components": "5.3.0",
     "url-toolkit": "2.2.3",
     "use-debounce": "7.0.0",
-    "use-http": "1.0.21",
+    "use-http": "1.0.22",
     "uuid": "8.3.2",
     "volumetric": "0.2.27",
     "yup": "0.32.9"
