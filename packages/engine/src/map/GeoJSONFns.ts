@@ -6,6 +6,7 @@ import rewind from '@mapbox/geojson-rewind'
  *   - self completely surrounds all of the other polygons
  *   - self does not contain holes/interior rings
  *   - self is a simple polygon without overlapping edges
+ *   - other polygons do not have holes, or not ones we care about
  */
 export function subtract(self: Polygon, others: (Polygon | MultiPolygon)[]): Polygon {
   others.forEach((other) => {
