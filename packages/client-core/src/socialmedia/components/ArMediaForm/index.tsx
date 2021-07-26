@@ -53,7 +53,10 @@ const ArMediaForm = ({ projects, createArMedia, view }: Props) => {
     createArMedia({ type, title }, { manifest, audio, dracosis, preview })
   }
 
-  const handlePickManifest = async (file) => setManifest(file.target.files[0])
+  const handlePickManifest = async (file) => {
+    console.log(file.target)
+    return setManifest(file.target.files[0])
+  }
   const handlePickAudio = async (file) => setAudio(file.target.files[0])
   const handlePickDracosis = async (file) => setDracosis(file.target.files[0])
   const handlePickPreview = async (file) => setPreview(file.target.files[0])

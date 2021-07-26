@@ -15,21 +15,6 @@ export class FollowCameraComponent extends Component<FollowCameraComponent> {
   minDistance: number
   /** * **Default** value is 7. */
   maxDistance: number
-  /** * **Default** value is ```true```. */
-  raycastBoxOn: boolean
-  /**
-   * First right x point of screen, two-dimensional square on the screen, hitting which the interactive objects are highlighted.\
-   * **Default** value is -0.1.
-   */
-  rx1: number
-  /** First right y point of screen. **Default** value is -0.1. */
-  ry1: number
-  /** Second right x point of screen. **Default** value is 0.1. */
-  rx2: number
-  /** Second right y point of screen. **Default** value is 0.1. */
-  ry2: number
-  /** Distance to which interactive objects from the camera will be highlighted. **Default** value is 5. */
-  farDistance: number
   /** Rotation around Y axis */
   theta: number
   /** Rotation around Z axis */
@@ -50,12 +35,6 @@ FollowCameraComponent._schema = {
   distance: { type: Types.Number, default: 3 },
   minDistance: { type: Types.Number, default: 1 },
   maxDistance: { type: Types.Number, default: 10 },
-  raycastBoxOn: { type: Types.Boolean, default: true },
-  rx1: { type: Types.Number, default: -0.1 },
-  ry1: { type: Types.Number, default: -0.1 },
-  rx2: { type: Types.Number, default: 0.1 },
-  ry2: { type: Types.Number, default: 0.1 },
-  farDistance: { type: Types.Number, default: 5 },
   theta: { type: Types.Number, default: 0 },
   phi: { type: Types.Number, default: 0 },
   shoulderSide: { type: Types.Boolean, default: true },
