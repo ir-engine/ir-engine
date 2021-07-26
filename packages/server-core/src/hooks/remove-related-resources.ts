@@ -6,7 +6,6 @@ export default (): Hook => {
     const { params } = context
     if (params.query && params.query.resourceIds) {
       Object.values(params.query.resourceIds).forEach(async (resourceId: string) => {
-        console.log('ResourceID is:' + resourceId)
         await removeFile(context, resourceId)
       })
       return context

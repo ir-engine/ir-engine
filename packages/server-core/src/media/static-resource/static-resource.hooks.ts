@@ -4,6 +4,7 @@ import dauria from 'dauria'
 import removeOwnedFile from '@xrengine/server-core/src/hooks/remove-owned-file'
 import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
 import replaceThumbnailLink from '@xrengine/server-core/src/hooks/replace-thumbnail-link'
+import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
 
 const { authenticate } = hooks
 
@@ -30,7 +31,7 @@ export default {
     ],
     update: [authenticate('jwt')],
     patch: [authenticate('jwt'), replaceThumbnailLink()],
-    remove: [authenticate('jwt'), removeOwnedFile()]
+    remove: [authenticate('jwt'), attachOwnerIdInQuery('userId'), removeOwnedFile()]
   },
 
   after: {

@@ -41,6 +41,8 @@ export const removeFile = async (context: HookContext, resourceId) => {
     }
   })
   const staticResource = staticResourceResult.data[0]
+
+  if (!staticResource) return
   const storageRemovePromise = provider.deleteResources([staticResource.key])
   // // new Promise((resolve, reject) => {
   //   // if (staticResource.url && staticResource.url.length > 0) {
@@ -96,8 +98,43 @@ export const removeFile = async (context: HookContext, resourceId) => {
 export default (): Hook => {
   return async (context: HookContext) => {
     const { params } = context
-    const resourceId = params.headers?.fileid
-    if (resourceId) await removeFile(context, resourceId)
+    const assetId = params.headers?.assetId
+    const fileidentifier = params.headers?.fileidentifier
+    const projectID = params.headers?.projectid
+    if (!(projectID && fileidentifier)) {
+      if (assetId) await removeFile(context, assetId)
+      return context
+    }
+
+    const sequelizeClient = context.app.get('sequelizeClient')
+    const collection = sequelizeClient.models.collection
+
+    const { ownedFileIds } = await collection.findOne({
+      attribute: ['ownedFileIds'],
+      where: {
+        sid: projectID,
+        userId: context.params.query.userId
+      }
+    })
+    const modifiedOwnedFileID = JSON.parse(ownedFileIds)
+    const id = modifiedOwnedFileID[fileidentifier]
+    console.log('ID is:' + id)
+    if (id) {
+      await removeFile(context, id)
+      delete modifiedOwnedFileID[fileidentifier]
+    }
+
+    collection.update(
+      {
+        ownedFileIds: JSON.stringify(modifiedOwnedFileID)
+      },
+      {
+        where: {
+          sid: projectID,
+          userId: context.params.query.userId
+        }
+      }
+    )
     return context
   }
 }
