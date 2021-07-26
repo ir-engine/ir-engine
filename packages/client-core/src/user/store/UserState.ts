@@ -1,6 +1,6 @@
 import { createState, useState, none } from '@hookstate/core'
-import { RelationshipSeed } from '../interfaces/Relationship'
-import { User } from '../interfaces/User'
+import { RelationshipSeed } from '@xrengine/common/src/interfaces/Relationship'
+import { User } from '@xrengine/common/src/interfaces/User'
 import { UserActionType } from './UserAction'
 
 const state = createState({
@@ -14,18 +14,23 @@ const state = createState({
   toastMessages: [] as Array<{ user: User; args: { userAdded?: boolean; userRemoved?: boolean } }>
 })
 
-export const userReceptor = (action: UserActionType): void => {
+export const userReceptor = (_, action: UserActionType): typeof state => {
   switch (action.type) {
     case 'LOADED_RELATIONSHIP':
-      return state.merge({ relationship: action.relationship, updateNeeded: false })
+      state.merge({ relationship: action.relationship, updateNeeded: false })
+      return state
     case 'ADMIN_LOADED_USERS':
-      return state.merge({ users: action.users, updateNeeded: false })
+      state.merge({ users: action.users, updateNeeded: false })
+      return state
     case 'CHANGED_RELATION':
-      return state.updateNeeded.set(true)
+      state.updateNeeded.set(true)
+      return state
     case 'CLEAR_LAYER_USERS':
-      return state.merge({ layerUsers: [], layerUsersUpdateNeeded: true })
+      state.merge({ layerUsers: [], layerUsersUpdateNeeded: true })
+      return state
     case 'LOADED_LAYER_USERS':
-      return state.merge({ layerUsers: action.users, layerUsersUpdateNeeded: false })
+      state.merge({ layerUsers: action.users, layerUsersUpdateNeeded: false })
+      return state
     case 'ADDED_LAYER_USER': {
       const newUser = action.user
       const idx = state.layerUsers.findIndex((layerUser) => {
@@ -36,25 +41,29 @@ export const userReceptor = (action: UserActionType): void => {
       } else {
         state.layerUsers[idx].set(newUser)
       }
-      return state.layerUsersUpdateNeeded.set(true)
+      state.layerUsersUpdateNeeded.set(true)
+      return state
     }
     case 'REMOVED_LAYER_USER': {
       const layerUsers = state.layerUsers
       const idx = layerUsers.findIndex((layerUser) => {
         return layerUser != null && layerUser.value.id !== action.user.id
       })
-      return state.layerUsers[idx].set(none)
+      state.layerUsers[idx].set(none)
+      return state
     }
     case 'CLEAR_CHANNEL_LAYER_USERS':
-      return state.merge({
+      state.merge({
         channelLayerUsers: [],
         channelLayerUsersUpdateNeeded: true
       })
+      return state
     case 'LOADED_CHANNEL_LAYER_USERS':
-      return state.merge({
+      state.merge({
         channelLayerUsers: action.users,
         channelLayerUsersUpdateNeeded: false
       })
+      return state
     case 'ADDED_CHANNEL_LAYER_USER': {
       const newUser = action.user
       const idx = state.channelLayerUsers.findIndex((layerUser) => {
@@ -65,16 +74,19 @@ export const userReceptor = (action: UserActionType): void => {
       } else {
         state.channelLayerUsers[idx].set(newUser)
       }
-      return state.channelLayerUsersUpdateNeeded.set(true)
+      state.channelLayerUsersUpdateNeeded.set(true)
+      return state
     }
     case 'REMOVED_CHANNEL_LAYER_USER':
       const newUser = action.user
       const idx = state.channelLayerUsers.findIndex((layerUser) => {
         return layerUser != null && layerUser.value.id !== newUser.id
       })
-      return state.channelLayerUsers[idx].set(none)
+      state.channelLayerUsers[idx].set(none)
+      return state
     case 'USER_TOAST':
-      return state.toastMessages.merge([action.message])
+      state.toastMessages.merge([action.message])
+      return state
   }
 }
 
