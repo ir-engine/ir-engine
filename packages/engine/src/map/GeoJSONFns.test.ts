@@ -1,4 +1,4 @@
-import { subtract } from './GeoJSONFns'
+import { subtract, copy } from './GeoJSONFns'
 import { Geometry, Position } from 'geojson'
 const boxCoords = [
   [-1, -1],
@@ -27,13 +27,13 @@ const polygonBig: Geometry = {
 }
 describe('GeoJSONFns', () => {
   it('subtracts a small polygon from a big one', () => {
-    const result = subtract(polygonBig, [polygonSmall])
+    const result = subtract(copy(polygonBig), [polygonSmall])
 
     expect(result.coordinates[0]).toEqual(polygonBig.coordinates[0])
     expect(result.coordinates[1]).toEqual(polygonSmall.coordinates[0].reverse())
   })
   it('subtracts a small multi-polygon from a big one', () => {
-    const result = subtract(polygonBig, [multiPolygonSmall])
+    const result = subtract(copy(polygonBig), [multiPolygonSmall])
 
     expect(result.coordinates[0]).toEqual(polygonBig.coordinates[0])
     expect(result.coordinates[1]).toEqual(multiPolygonSmall.coordinates[0][0].reverse())

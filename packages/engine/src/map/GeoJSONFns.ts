@@ -25,3 +25,10 @@ export function subtract(self: Polygon, others: (Polygon | MultiPolygon)[]): Pol
 function subtractPolygonCoordinates(self: Polygon, other: Position[][]) {
   self.coordinates.push(other[0])
 }
+
+export function copy(self: Polygon): Polygon {
+  return {
+    type: 'Polygon',
+    coordinates: self.coordinates.slice()
+  }
+}
