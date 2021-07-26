@@ -3,14 +3,16 @@
     margin:0;
     padding:0
 }
+body{
+    background: #e5e5e5;
+   
+}
  
 .blockbg {
-    background: #e5e5e5;
-    height:100vh;
     .block{ 
         margin:0;
         position:absolute;
-        top:48%;
+        top:45%;
         left: 50%;
         transform: translate(-50%, -50%);
         

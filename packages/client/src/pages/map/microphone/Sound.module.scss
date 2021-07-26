@@ -3,12 +3,11 @@
    margin:0;
    padding:0;
 }
-
+body{
+    background: #c4c4c4!important;
+}
 
 .top{
-    background: #ffffff;
-    height:100vh;
-
     .icondown{
         position:absolute;
         left:53.47%;
@@ -16,6 +15,7 @@
         top:10%;
         bottom:90.2%;
         color:#614AD3;
+        cursor: pointer;
     }
     .icontop{
         position:absolute;
@@ -23,7 +23,8 @@
         right:0%;
         top:10.50%;
         bottom:8.33%;
-        color:#614AD3
+        color:#614AD3;
+        cursor: pointer;
     }
     .iconmessage{
         color:#624bd4;
@@ -34,6 +35,7 @@
         border:1px solid #614AD3;
         border-radius:50%;
         padding:1rem;
+        background: #ffffff;
          width:55px;
          height:55px;
          cursor:pointer
