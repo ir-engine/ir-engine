@@ -12,8 +12,6 @@ const domain = process.env.APP_HOST
 // TODO: load GS & client from static world file instead of having to run independently
 const locationName = process.env.TEST_LOCATION_NAME
 
-const sqrt2 = Math.sqrt(2)
-const spawnPos = new Vector3(-1, 8.5, 15.5)
 const vector3 = new Vector3()
 
 describe('Golf tests', () => {
@@ -36,10 +34,7 @@ describe('Golf tests', () => {
   testWebXR(bot)
 
   test('Can teleport to ball', async () => {
-    // should be at spawn position
-    expect(
-      vector3.copy(await bot.runHook(BotHooks.GetPlayerPosition)).sub(spawnPos).length()
-    ).toBeLessThan(sqrt2 * 2) // sqrt2 * 2 is the size of our spawn area
+    await bot.delay(1000)
 
     // wait for turn, then move to ball position
     await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)

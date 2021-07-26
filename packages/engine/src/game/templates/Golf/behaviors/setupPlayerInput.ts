@@ -40,9 +40,9 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
     GolfInput.TELEPORT,
     (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
       if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
-      const { gameName, ownedObjects } = getComponent(entity, GamePlayer)
-      const game = getGameFromName(gameName)
+      const { ownedObjects } = getComponent(entity, GamePlayer)
       const ballEntity = ownedObjects['GolfBall']
+      if (!ballEntity) return
       const ballTransform = getComponent(ballEntity, TransformComponent)
       const position = ballTransform.position
       console.log('teleporting to', position.x, position.y, position.z)

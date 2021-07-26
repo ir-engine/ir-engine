@@ -40,13 +40,14 @@ export function swingClub() {
 
 export function getPlayerNumber() {
   if (!Network.instance.localClientEntity) return
-  const { gameName, role } = getComponent(Network.instance.localClientEntity, GamePlayer)
+  const { role } = getComponent(Network.instance.localClientEntity, GamePlayer)
   const playerNumber = Number(role.slice(0, 1))
   return playerNumber
 }
 
 export function getTeePosition() {
   const { position } = getPositionNextPoint(Network.instance.localClientEntity, { positionCopyFromRole: 'GolfTee-' })
+  console.log(position)
   return position
 }
 
