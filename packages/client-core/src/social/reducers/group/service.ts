@@ -15,7 +15,7 @@ import {
   removedGroup,
   removedGroupUser
 } from './actions'
-import { addedChannelLayerUser, removedChannelLayerUser } from '../../../user/reducers/user/actions'
+import { UserAction } from '../../../user/store/UserAction'
 
 const store = Store.store
 
@@ -127,9 +127,9 @@ if (!Config.publicRuntimeConfig.offlineMode) {
       newGroupUser.user.channelInstanceId != null &&
       newGroupUser.user.channelInstanceId === selfUser.channelInstanceId
     )
-      store.dispatch(addedChannelLayerUser(newGroupUser.user))
+      store.dispatch(UserAction.addedChannelLayerUser(newGroupUser.user))
     if (newGroupUser.user.channelInstanceId !== selfUser.channelInstanceId)
-      store.dispatch(removedChannelLayerUser(newGroupUser.user))
+      store.dispatch(UserAction.removedChannelLayerUser(newGroupUser.user))
   })
 
   client.service('group-user').on('patched', (params) => {
@@ -140,9 +140,9 @@ if (!Config.publicRuntimeConfig.offlineMode) {
       updatedGroupUser.user.channelInstanceId != null &&
       updatedGroupUser.user.channelInstanceId === selfUser.channelInstanceId
     )
-      store.dispatch(addedChannelLayerUser(updatedGroupUser.user))
+      store.dispatch(UserAction.addedChannelLayerUser(updatedGroupUser.user))
     if (updatedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId)
-      store.dispatch(removedChannelLayerUser(updatedGroupUser.user))
+      store.dispatch(UserAction.removedChannelLayerUser(updatedGroupUser.user))
   })
 
   client.service('group-user').on('removed', (params) => {
@@ -153,9 +153,9 @@ if (!Config.publicRuntimeConfig.offlineMode) {
       deletedGroupUser.user.channelInstanceId != null &&
       deletedGroupUser.user.channelInstanceId === selfUser.channelInstanceId
     )
-      store.dispatch(addedChannelLayerUser(deletedGroupUser.user))
+      store.dispatch(UserAction.addedChannelLayerUser(deletedGroupUser.user))
     if (deletedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId)
-      store.dispatch(removedChannelLayerUser(deletedGroupUser.user))
+      store.dispatch(UserAction.removedChannelLayerUser(deletedGroupUser.user))
   })
 
   client.service('group').on('created', (params) => {

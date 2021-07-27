@@ -33,8 +33,6 @@ class AnimationComponent extends Component<AnimationComponent> {
   animations: AnimationClip[] = []
 }
 class AnimationSystem extends System {
-  updateType = SystemUpdateType.Fixed
-
   /**
    * Execute the camera system for different events of queries.\
    * Called each frame by default.

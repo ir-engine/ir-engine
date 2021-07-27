@@ -1,5 +1,5 @@
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { System, SystemAttributes } from '../../ecs/classes/System'
+import { System } from '../../ecs/classes/System'
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -22,14 +22,13 @@ export class PhysicsSystem extends System {
     PORTAL_REDIRECT_EVENT: 'PHYSICS_SYSTEM_PORTAL_REDIRECT'
   }
   static instance: PhysicsSystem
-  updateType = SystemUpdateType.Fixed
 
   physicsWorldConfig: PhysXConfig
   worker: Worker
 
   simulationEnabled: boolean
 
-  constructor(attributes: SystemAttributes = {}) {
+  constructor(attributes: { worker?: Worker; simulationEnabled?: boolean } = {}) {
     super(attributes)
     PhysicsSystem.instance = this
     this.physicsWorldConfig = {

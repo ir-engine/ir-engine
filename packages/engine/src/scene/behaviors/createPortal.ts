@@ -11,7 +11,7 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { PhysicsSystem } from '../../physics/systems/PhysicsSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { FontManager } from '../../ui/classes/FontManager'
+import { FontManager } from '../../xrui/classes/FontManager'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { PortalComponent } from '../components/PortalComponent'
 
