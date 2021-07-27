@@ -139,15 +139,15 @@ export const handleGamepadAxis = (args: { gamepad: Gamepad; inputIndex: number; 
  * @param {Entity} entity The entity
  * @param args is argument object
  */
-export const handleGamepadConnected = (args: { event: any }): void => {
-  console.log('A gamepad connected:', args.event.gamepad, args.event.gamepad.mapping)
+export const handleGamepadConnected = (event: any): void => {
+  console.log('A gamepad connected:', event.gamepad, event.gamepad.mapping)
 
-  if (args.event.gamepad.mapping !== 'standard') {
+  if (event.gamepad.mapping !== 'standard') {
     console.error('Non-standard gamepad mapping detected, it could be handled not properly.')
   }
 
   gamepadConnected = true
-  gamepad = args.event.gamepad
+  gamepad = event.gamepad
 
   for (let index = 0; index < gamepad.buttons.length; index++) {
     if (typeof gamepadButtons[index] === 'undefined') gamepadButtons[index] = 0
@@ -160,9 +160,9 @@ export const handleGamepadConnected = (args: { event: any }): void => {
  * @param {Entity} entity The entity
  * @param args is argument object
  */
-export const handleGamepadDisconnected = (args: { event: any }): void => {
+export const handleGamepadDisconnected = (event: any): void => {
   // Get immutable reference to Input and check if the button is defined -- ignore undefined buttons
-  console.log('A gamepad disconnected:', args.event.gamepad)
+  console.log('A gamepad disconnected:', event.gamepad)
 
   gamepadConnected = false
 
@@ -170,7 +170,7 @@ export const handleGamepadDisconnected = (args: { event: any }): void => {
 
   for (let index = 0; index < gamepadButtons.length; index++) {
     if (gamepadButtons[index] === BinaryValue.ON) {
-      input.data.set(gamepadMapping[args.event.gamepad.mapping || 'standard'][index], {
+      input.data.set(gamepadMapping[event.gamepad.mapping || 'standard'][index], {
         type: InputType.BUTTON,
         value: BinaryValue.OFF
       })

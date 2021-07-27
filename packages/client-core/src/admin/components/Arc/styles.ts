@@ -1,5 +1,13 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
+export const useIt = makeStyles((theme) => {
+  return {
+    marginLft: {
+      marginLeft: '1px'
+    }
+  }
+})
+
 export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     large: {
@@ -51,6 +59,9 @@ export const useStyles = makeStyles((theme: Theme) =>
     marginBottom: {
       marginBottom: '10px'
     },
+    mgBtn: {
+      marginBottom: '25px'
+    },
     rootTable: {
       flexGrow: 1,
       display: 'grid',
@@ -83,6 +94,9 @@ export const useStyles = makeStyles((theme: Theme) =>
     spanDange: {
       color: '#FF8C00'
     },
+    spanNone: {
+      color: '#808080'
+    },
     typo: {
       textTransform: 'capitalize'
     },
@@ -94,20 +108,21 @@ export const useStyles = makeStyles((theme: Theme) =>
       textAlign: 'center'
     },
     cardHolder: {
-      background: '#f1f1f1',
       display: 'flex',
-      justifyContent: 'space-between'
+      flexDirection: 'column',
+      backgroundColor: '#343b41'
     },
     space: {
       padding: '1.2rem'
     },
     Card: {
-      display: 'inline-block',
-      maxWidth: '49%',
-      overflow: 'hidden'
+      marginTop: '10px'
     },
     mt10: {
       marginTop: '10%'
+    },
+    mt5: {
+      marginTop: '6%'
     },
     position: {
       marginTop: '1.7rem'
@@ -125,7 +140,7 @@ export const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       alignItems: 'center',
       //width: "45vw",
-      marginTop: '10px',
+      marginTop: '3px',
       marginBottom: '15px',
       background: '#343b41',
       border: '1px solid #23282c',
@@ -158,8 +173,29 @@ export const useStyles = makeStyles((theme: Theme) =>
     button: {
       background: '#343b41'
     },
+    size: {
+      height: '15rem'
+    },
     btn: {
       background: '#343b41',
+      width: '100%'
+    },
+    alert: {
+      background: '#343b41',
+      color: '#f1f1f1'
+    },
+    pos: {
+      position: 'relative'
+    },
+    imageList: {
+      width: 500,
+      height: 450
+    },
+    icon: {
+      color: 'rgba(255, 0, 0, 0.54)'
+    },
+    image: {
+      height: '18rem',
       width: '100%'
     }
   })
@@ -168,7 +204,8 @@ export const useStyles = makeStyles((theme: Theme) =>
 export const useStyle = makeStyles({
   paper: {
     maxWidth: '80%',
-    backgroundColor: '#43484F',
+    minWidth: '40%',
+    backgroundColor: '#43484F ',
     color: '#f1f1f1'
   },
   paperDialog: {
@@ -187,5 +224,52 @@ export const useStyle = makeStyles({
   selectPaper: {
     background: '#343b41',
     color: '#f1f1f1'
+  }
+})
+
+export const useStylePlayer = makeStyles((theme) => {
+  return {
+    root: {
+      [theme.breakpoints.down('sm')]: {
+        width: '100%'
+      },
+      background: '#43484F !important'
+    },
+    playIcon: {
+      color: '#f1f1f1 !important',
+      '&:hover': {
+        color: '#f1f1f1 !important'
+      }
+    },
+    pauseIcon: {
+      color: '#f1f1f1 !important',
+      '&:hover': {
+        color: '#f1f1f1 !important'
+      }
+    },
+    volumeIcon: {
+      color: '#f1f1f1 !important',
+      '&:hover': {
+        color: '#f1f1f1 !important'
+      }
+    },
+    volumeSlider: {
+      color: 'black'
+    },
+    progressTime: {
+      color: '#f1f1f1 !important'
+    },
+    mainSlider: {
+      color: '#f1f1f1 !important',
+      '& .MuiSlider-rail': {
+        color: '#f1f1f1 !important'
+      },
+      '& .MuiSlider-track': {
+        color: '#f1f1f1 !important'
+      },
+      '& .MuiSlider-thumb': {
+        color: '#f1f1f1 !important'
+      }
+    }
   }
 })
