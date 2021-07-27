@@ -1,7 +1,6 @@
 import { Object3D, BoxBufferGeometry, Material } from 'three'
 import { addMap } from '../../map'
 import EditorNodeMixin from './EditorNodeMixin'
-import { Editor } from '@xrengine/client-core'
 
 export default class MapNode extends EditorNodeMixin(Object3D) {
   static legacyComponentName = 'map'
@@ -32,10 +31,10 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     node.name = name
     return node
   }
-  constructor(editor: Editor) {
+  constructor(editor) {
     super(editor)
     console.log('creating map')
-    addMap(editor.scene as any)
+    addMap(editor.scene)
   }
   copy(source, recursive = true) {
     super.copy(source, recursive)
@@ -44,7 +43,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   onUpdate(delta: number, time: number) {
     // this.map.renderSync(time);
   }
-  serialize() {
+  serialize(projectID) {
     const components = {
       map: {
         id: this.id,
@@ -58,7 +57,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
         startLongitude: this.startLongitude
       }
     } as any
-    return super.serialize(components)
+    return super.serialize(projectID, components)
   }
   prepareForExport() {
     super.prepareForExport()

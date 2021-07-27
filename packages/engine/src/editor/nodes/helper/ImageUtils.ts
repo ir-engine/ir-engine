@@ -2,7 +2,6 @@
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
 
-import { Api } from '@xrengine/client-core'
 import {
   BackSide,
   ClampToEdgeWrapping,
@@ -179,7 +178,7 @@ export const convertEquiToCubemap = (renderer: WebGLRenderer, source: Texture, s
 
 export const uploadCubemap = async (
   renderer: WebGLRenderer,
-  api: Api,
+  api: any,
   source: WebGLCubeRenderTarget,
   resoulution: number,
   fileIdentifier?: string,
