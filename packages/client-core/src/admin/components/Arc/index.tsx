@@ -12,10 +12,10 @@ import { selectArMediaState } from '../../../socialmedia/reducers/arMedia/select
 
 interface Props {
   list?: any
-  getArMediaService?: () => void
+  getArMediaService?: (type?: string, limit?: Number) => void
   adminArmediaState?: any
 }
-
+const NUMBER_PER_PAGE = 12
 const mapStateToProps = (state: any): any => {
   return {
     adminArmediaState: selectArMediaState(state)
@@ -32,6 +32,7 @@ const VideoMedia = (props: Props) => {
 
   const armediaState = adminArmediaState.get('arMedia')
   const armediaData = armediaState.get('arMedia')
+  const limit = armediaState.get('limit')
 
   React.useEffect(() => {
     if (armediaState.get('updateNeeded')) {
@@ -56,8 +57,15 @@ const VideoMedia = (props: Props) => {
     setMediaModalOpen(open)
   }
 
+  const fetchNextData = (e) => {
+    const triggerHeight = e.target.scrollTop + e.target.offsetHeight
+    if (triggerHeight >= e.target.scrollHeight && armediaData.length + NUMBER_PER_PAGE > limit) {
+      getArMediaService(null, limit + NUMBER_PER_PAGE)
+    }
+  }
+
   return (
-    <div>
+    <div className={classes.containerScroll} onScroll={fetchNextData}>
       <Grid container spacing={3} className={classes.marginBottom}>
         <Grid item xs={12} sm={9}>
           <SearchVideo />
