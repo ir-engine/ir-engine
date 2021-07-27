@@ -11,13 +11,13 @@ import { SCENE_ASSET_TYPES, WorldScene } from '../functions/SceneLoading'
 import { setSkyDirection } from '../functions/setSkyDirection'
 import { addObject3DComponent } from './addObject3DComponent'
 
-export const createSkybox = (entity, args: SceneBackgroundProps) => {
+export const createSkybox = (entity, args: SceneBackgroundProps): any => {
   if (isClient) {
     const pmremGenerator = new PMREMGenerator(Engine.renderer)
     switch (args.backgroundType) {
       case SkyTypeEnum.skybox:
         const option = args.skyboxProps
-        addObject3DComponent(entity, new Sky(), { skyBoxShaderProps: option })
+        addObject3DComponent(entity, { obj3d: Sky, objArgs: option })
         addComponent(entity, ScaleComponent)
 
         const component = getComponent(entity, Object3DComponent)

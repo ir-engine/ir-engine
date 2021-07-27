@@ -1,5 +1,4 @@
 {
-  "name": "@xrengine/engine",
   "author": {
     "name": "XREngine",
     "email": "shawmakesmagic@gmail.com",
@@ -8,6 +7,7 @@
   "bugs": {
     "url": "https://github.com/XRFoundation/XREngine/issues"
   },
+  "name": "@xrengine/engine",
   "publishConfig": {
     "access": "public"
   },
