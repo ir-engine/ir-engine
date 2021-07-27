@@ -20,9 +20,6 @@ import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { addObject3DComponent } from '../behaviors/addObject3DComponent'
 import { createGame, createGameObject } from '../behaviors/createGame'
-import { LightTagComponent, VisibleTagComponent } from '../components/Object3DTagComponents'
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { removeCollidersFromModel } from '../../physics/behaviors/parseModelColliders'
 import { createVehicleFromSceneData } from '../../vehicle/prefabs/NetworkVehicle'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
 import { createSkybox } from '../behaviors/createSkybox'
@@ -50,16 +47,6 @@ import { PersistTagComponent } from '../components/PersistTagComponent'
 import { createPortal } from '../behaviors/createPortal'
 import { createGround } from '../behaviors/createGround'
 import { configureCSM, handleRendererSettings } from '../behaviors/handleRendererSettings'
-import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
-import { Object3DComponent } from '../components/Object3DComponent'
-import { AnimationComponent } from '../../character/components/AnimationComponent'
-import { AnimationState } from '../../character/animations/AnimationState'
-import { delay } from '../../ecs/functions/EngineFunctions'
-import { setSkyDirection } from './setSkyDirection'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AnimationManager } from '../../character/AnimationManager'
-import { isMobile } from '../../common/functions/isMobile'
-import { createObject3dFromArgs } from '../behaviors/createObject3dFromArgs'
 import { createDirectionalLight } from '../behaviors/createDirectionalLight'
 import { loadGLTFModel } from '../behaviors/loadGLTFModel'
 import { loadModelAnimation } from '../behaviors/loadModelAnimation'
@@ -150,8 +137,7 @@ export class WorldScene {
         break
 
       case 'ambient-light':
-        addObject3DComponent(entity, AmbientLight, component.data)
-        addComponent(entity, LightTagComponent)
+        addObject3DComponent(entity, new AmbientLight(), component.data)
         break
 
       case 'directional-light':
@@ -159,11 +145,11 @@ export class WorldScene {
         break
 
       case 'hemisphere-light':
-        addObject3DComponent(entity, HemisphereLight, component.data)
+        addObject3DComponent(entity, new HemisphereLight(), component.data)
         break
 
       case 'point-light':
-        addObject3DComponent(entity, PointLight, component.data)
+        addObject3DComponent(entity, new PointLight(), component.data)
         break
 
       case 'collidable':
@@ -194,7 +180,7 @@ export class WorldScene {
         break
 
       case 'image':
-        addObject3DComponent(entity, Image, component.data)
+        addObject3DComponent(entity, new Image(), component.data)
         break
 
       case 'video':
@@ -227,15 +213,11 @@ export class WorldScene {
         break
 
       case 'spot-light':
-        addObject3DComponent(entity, SpotLight, component.data)
+        addObject3DComponent(entity, new SpotLight(), component.data)
         break
 
       case 'transform':
         createTransformComponent(entity, component.data)
-        break
-
-      case 'visible':
-        addComponent(entity, VisibleTagComponent)
         break
 
       case 'walkable':

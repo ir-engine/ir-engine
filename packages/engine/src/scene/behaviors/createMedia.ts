@@ -158,7 +158,7 @@ export const createVolumetric = (entity, args: VolumetricProps) => {
     frameRate: 25
   })
   volumetricComponent.player = DracosisSequence
-  addObject3DComponent(entity, container)
+  addComponent(entity, Object3DComponent, { value: container })
   if (args.interactable) addInteraction(entity)
 }
 

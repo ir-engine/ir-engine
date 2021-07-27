@@ -1,24 +1,17 @@
-import { Engine } from '../../ecs/classes/Engine'
 import ShadowComponent from '../components/ShadowComponent'
 import { createShadow } from './createShadow'
 import { Object3D } from 'three'
-import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
-import { isClient } from '../../common/functions/isClient'
 import { Entity } from '../../ecs/classes/Entity'
-import { Component } from '../../ecs/classes/Component'
 import { Color } from 'three'
 import { getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 
-export const createObject3dFromArgs = <T extends Object3D>(
+export const applyArgsToObject3d = <T extends Object3D>(
   entity: Entity,
-  obj3d: T | (new (...args: any[]) => T),
+  object3d: T,
   addToScene: boolean,
   objArgs?: any,
   parentEntity?: Entity
 ) => {
-  const isObject3d = typeof obj3d === 'object'
-  let object3d
-
   /**
    * apply value to sub object by path, like material.color = '#fff' will set { material:{ color }}
    * @param subj
@@ -50,9 +43,6 @@ export const createObject3dFromArgs = <T extends Object3D>(
       subj[property] = value
     }
   }
-
-  if (isObject3d) object3d = obj3d
-  // else object3d = new obj3d()
 
   typeof objArgs === 'object' &&
     Object.keys(objArgs).forEach((key) => {

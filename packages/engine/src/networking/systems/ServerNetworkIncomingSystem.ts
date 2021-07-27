@@ -40,22 +40,8 @@ export class ServerNetworkIncomingSystem extends System {
    * Constructs the system.
    * @param attributes Attributes to be passed to super class constructor.
    */
-  constructor(attributes: { schema: NetworkSchema; app: any }) {
+  constructor(attributes) {
     super(attributes)
-
-    const { schema, app } = attributes
-    Network.instance.schema = schema
-    // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
-    Network.instance.transport = new schema.transport(app)
-
-    // Initialize the server automatically - client is initialized in connectToServer
-    if (
-      process.env.SERVER_MODE !== undefined &&
-      (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')
-    ) {
-      Network.instance.transport.initialize()
-      Network.instance.isInitialized = true
-    }
   }
 
   /** Call execution on server */

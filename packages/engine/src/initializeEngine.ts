@@ -97,6 +97,18 @@ const configureServer = async (options: InitializeOptions) => {
   Engine.scene = new Scene()
   Network.instance = new Network()
 
+  const { schema, app } = options.networking
+  Network.instance.schema = schema
+  Network.instance.transport = new schema.transport(app)
+
+  if (
+    process.env.SERVER_MODE !== undefined &&
+    (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')
+  ) {
+    Network.instance.transport.initialize()
+    Network.instance.isInitialized = true
+  }
+
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: true, physics: true })
     Engine.hasJoinedWorld = true
@@ -170,8 +182,8 @@ const registerEditorSystems = (options: InitializeOptions) => {
 
 const registerServerSystems = (options: InitializeOptions) => {
   // Network Systems
-  registerSystem(ServerNetworkIncomingSystem, { ...options.networking, priority: 1 }) // first
-  registerSystem(ServerNetworkOutgoingSystem, { ...options.networking, priority: 100 }) // last
+  registerSystem(ServerNetworkIncomingSystem, { priority: 1 }) // first
+  registerSystem(ServerNetworkOutgoingSystem, { priority: 100 }) // last
   registerSystem(MediaStreamSystem, { priority: 3 })
 
   // Input Systems
