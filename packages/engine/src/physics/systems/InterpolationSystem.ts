@@ -53,27 +53,27 @@ export class InterpolationSystem extends System {
     // Create new snapshot position for next frame server correction
     Vault.instance.add(createSnapshot(snapshots.new))
 
-    this.queryResults.localCharacterInterpolation.all?.forEach((entity) => {
+    for (const entity of this.queryResults.localCharacterInterpolation.all) {
       characterCorrectionBehavior(entity, snapshots, delta)
-    })
+    }
 
-    this.queryResults.networkClientInterpolation.all?.forEach((entity) => {
+    for (const entity of this.queryResults.networkClientInterpolation.all) {
       characterInterpolationBehavior(entity, snapshots, delta)
-    })
+    }
 
-    this.queryResults.networkObjectInterpolation.all?.forEach((entity) => {
+    for (const entity of this.queryResults.networkObjectInterpolation.all) {
       rigidbodyInterpolationBehavior(entity, snapshots, delta)
-    })
+    }
 
-    this.queryResults.localObjectInterpolation.all?.forEach((entity) => {
+    for (const entity of this.queryResults.localObjectInterpolation.all) {
       rigidbodyCorrectionBehavior(entity, snapshots, delta)
       // experementalRigidbodyCorrectionBehavior(entity, snapshots, delta);
-    })
+    }
 
     // If a networked entity does not have an interpolation component, just copy the data
-    this.queryResults.correctionFromServer.all?.forEach((entity) => {
+    for (const entity of this.queryResults.correctionFromServer.all) {
       const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
-      if (snapshot == null) return
+      if (snapshot == null) continue
       const collider = getMutableComponent(entity, ColliderComponent)
       // dynamic objects should be interpolated, kinematic objects should not
       if (collider && collider.body.type !== BodyType.KINEMATIC) {
@@ -92,7 +92,7 @@ export class InterpolationSystem extends System {
           }
         })
       }
-    })
+    }
   }
 }
 

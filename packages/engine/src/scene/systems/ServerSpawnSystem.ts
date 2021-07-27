@@ -46,14 +46,16 @@ export class ServerSpawnSystem extends System {
 
   execute(): void {
     // Keep a list of spawn points so we can send our user to one
-    this.queryResults.spawnPoint.added?.forEach((entity) => {
-      if (!hasComponent(entity, TransformComponent))
-        return console.warn("Can't add spawn point, no transform component on entity")
+    for (const entity of this.queryResults.spawnPoint.added) {
+      if (!hasComponent(entity, TransformComponent)) {
+        console.warn("Can't add spawn point, no transform component on entity")
+        continue
+      }
       this.spawnPoints.push(entity)
-    })
-    this.queryResults.spawnPoint.removed?.forEach((entity) => {
+    }
+    for (const entity of this.queryResults.spawnPoint.removed) {
       this.spawnPoints.splice(this.spawnPoints.indexOf(entity))
-    })
+    }
   }
 }
 

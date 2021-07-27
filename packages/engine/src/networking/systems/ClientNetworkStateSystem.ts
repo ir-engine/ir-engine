@@ -410,7 +410,7 @@ export class ClientNetworkStateSystem extends System {
 
     const inputSnapshot = Vault.instance?.get()
     if (inputSnapshot !== undefined) {
-      this.queryResults.localClientInput.all?.forEach((entity) => {
+      for (const entity of this.queryResults.localClientInput.all) {
         const buffer = ClientInputModel.toBuffer(Network.instance.clientInputState)
         EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.SEND_DATA, buffer }, false, [buffer])
         Network.instance.clientInputState = {
@@ -424,7 +424,7 @@ export class ClientNetworkStateSystem extends System {
           clientGameAction: getClientGameActions(), // Network.instance.clientGameAction,
           commands: []
         }
-      })
+      }
     }
   }
 

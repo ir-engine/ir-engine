@@ -42,7 +42,7 @@ export class ServerNetworkOutgoingSystem extends System {
 
     // Transforms that are updated are automatically collected
     // note: onChanged needs to currently be handled outside of fixedExecute
-    this.queryResults.networkTransforms.all?.forEach((entity: Entity) => {
+    for (const entity of this.queryResults.networkTransforms.all) {
       const transformComponent = getComponent(entity, TransformComponent)
       const networkObject = getComponent(entity, NetworkObject)
       const currentPosition = transformComponent.position
@@ -60,9 +60,9 @@ export class ServerNetworkOutgoingSystem extends System {
         qZ: transformComponent.rotation.z,
         qW: transformComponent.rotation.w
       })
-    })
+    }
 
-    this.queryResults.characterTransforms.all?.forEach((entity: Entity) => {
+    for (const entity of this.queryResults.characterTransforms.all) {
       const transformComponent = getComponent(entity, TransformComponent)
       const actor = getComponent(entity, CharacterComponent)
       const networkObject = getComponent(entity, NetworkObject)
@@ -80,9 +80,9 @@ export class ServerNetworkOutgoingSystem extends System {
         qZ: actor.viewVector.z,
         qW: 0 // TODO: reduce quaternions over network to three components
       })
-    })
+    }
 
-    this.queryResults.ikTransforms.all?.forEach((entity: Entity) => {
+    for (const entity of this.queryResults.ikTransforms.all) {
       const networkObject = getComponent(entity, NetworkObject)
       const snapShotTime = networkObject.snapShotTime
 
@@ -92,7 +92,7 @@ export class ServerNetworkOutgoingSystem extends System {
       const left = input.data.get(BaseInput.XR_CONTROLLER_LEFT_HAND) as InputValue<SIXDOFType>
       const right = input.data.get(BaseInput.XR_CONTROLLER_RIGHT_HAND) as InputValue<SIXDOFType>
 
-      if (!hmd?.value || !left?.value || !right?.value) return
+      if (!hmd?.value || !left?.value || !right?.value) continue
 
       transformState.ikTransforms.push({
         networkId: networkObject.networkId,
@@ -101,7 +101,8 @@ export class ServerNetworkOutgoingSystem extends System {
         left: left.value,
         right: right.value
       })
-    })
+    }
+
     try {
       if (
         Network.instance.worldState.clientsConnected.length ||

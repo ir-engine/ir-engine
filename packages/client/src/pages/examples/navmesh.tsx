@@ -157,7 +157,7 @@ class NavigationSystem extends System {
    * @param delta time since last frame.
    */
   execute(delta: number): void {
-    this.queryResults.navigation.all?.forEach((entity) => {
+    for (const entity of this.queryResults.navigation.all) {
       const navComponent = getComponent(entity, NavigationComponent)
 
       navComponent.entityManager.update(delta)
@@ -205,7 +205,7 @@ class NavigationSystem extends System {
       }
 
       vehicleMesh.instanceMatrix.needsUpdate = true
-    })
+    }
   }
 }
 
