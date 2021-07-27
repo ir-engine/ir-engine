@@ -66,7 +66,7 @@ export class GolfSystem extends System {
 
     // DO ALL STATE LOGIC HERE (all queries)
 
-    this.queryResults.player.all.forEach((entity) => {
+    for(const entity of this.queryResults.player.all) {
       if (!hasComponent(entity, State.Active)) return
 
       const game = getGame(entity)
@@ -214,7 +214,7 @@ export class GolfSystem extends System {
       }
     })
 
-    this.queryResults.golfBall.all.forEach((entity) => {
+    for(const entity of this.queryResults.golfBall.all) {
       if (!hasComponent(entity, State.SpawnedObject)) return
       const ownerEntity =
         Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId]?.component.entity
@@ -290,9 +290,9 @@ export class GolfSystem extends System {
       }
     })
 
-    this.queryResults.golfHole.all.forEach((entity) => {})
+    for(const entity of this.queryResults.golfHole.all) {})
 
-    this.queryResults.golfClub.all.forEach((entity) => {
+    for(const entity of this.queryResults.golfClub.all) {
       if (!hasComponent(entity, State.SpawnedObject)) return
       const ownerEntity =
         Network.instance.networkObjects[getComponent(entity, NetworkObjectOwner).networkId]?.component.entity
@@ -302,7 +302,7 @@ export class GolfSystem extends System {
         updateClub(entity, null, delta)
       })
       if (hasComponent(entity, State.addedHit)) {
-        const ballEntity = this.queryResults.golfBall.all.find((e) => {
+        const ballEntity = for(const entity of this.queryResults.golfBall.all.find((e) => {
           return hasComponent(e, State.Active)
         })
         if (ballEntity) {
@@ -314,7 +314,7 @@ export class GolfSystem extends System {
           removeStateComponent(entity, State.addedHit)
           addStateComponent(entity, State.Hit)
         })
-        const playerEntity = this.queryResults.player.all.find((e) => {
+        const playerEntity = for(const entity of this.queryResults.player.all.find((e) => {
           return ifOwned(e, undefined, entity)
         })
         behaviorsToExecute.push(() => {
@@ -332,7 +332,7 @@ export class GolfSystem extends System {
 
     // DO ALL ECS LOGIC HERE (added and removed queries)
 
-    this.queryResults.player.added.forEach((entity) => {
+    for(const entity of this.queryResults.player.added) {
       // set up client side stuff
       setupPlayerInput(entity)
       createYourTurnPanel(entity)
@@ -355,7 +355,7 @@ export class GolfSystem extends System {
       addStateComponent(entity, State.Active)
     })
 
-    this.queryResults.gameObject.added.forEach((entity) => {
+    for(const entity of this.queryResults.gameObject.added) {
       const gameObject = getComponent(entity, GameObject)
       const role = gameObject.role.split('-')[0]
       switch (role) {
@@ -368,44 +368,44 @@ export class GolfSystem extends System {
       }
     })
 
-    this.queryResults.golfClub.added.forEach((entity) => {
+    for(const entity of this.queryResults.golfClub.added) {
       addStateComponent(entity, State.Active)
     })
 
-    this.queryResults.golfBall.added.forEach((entity) => {
+    for(const entity of this.queryResults.golfBall.added) {
       addStateComponent(entity, State.NotReady)
       addStateComponent(entity, State.Active)
       addStateComponent(entity, State.BallMoving)
       addStateComponent(entity, State.BallHidden)
     })
 
-    this.queryResults.golfHole.added.forEach((entity) => {
+    for(const entity of this.queryResults.golfHole.added) {
       addHole(entity)
     })
 
     if (isClient) {
-      this.queryResults.playerVR.added.forEach((entity) => {
+      for(const entity of this.queryResults.playerVR.added) {
         setupPlayerAvatarVR(entity)
       })
 
-      this.queryResults.playerVR.removed.forEach((entity) => {
+      for(const entity of this.queryResults.playerVR.removed) {
         setupPlayerAvatarNotInVR(entity)
       })
 
-      this.queryResults.ballHidden.added.forEach((entity) => {
+      for(const entity of this.queryResults.ballHidden.added) {
         if (isClient) {
           hideBall(entity)
         }
       })
 
-      this.queryResults.ballVisible.added.forEach((entity) => {
+      for(const entity of this.queryResults.ballVisible.added) {
         if (isClient) {
           unhideBall(entity)
         }
       })
     }
 
-    this.queryResults.yourTurn.added.forEach((entity) => {
+    for(const entity of this.queryResults.yourTurn.added) {
       const playerComponent = getComponent(entity, GamePlayer)
       const clubEntity = playerComponent.ownedObjects['GolfClub']
 
@@ -420,7 +420,7 @@ export class GolfSystem extends System {
       }
     })
 
-    this.queryResults.yourTurn.removed.forEach((entity) => {
+    for(const entity of this.queryResults.yourTurn.removed) {
       const playerComponent = getComponent(entity, GamePlayer)
       const clubEntity = playerComponent.ownedObjects['GolfClub']
 

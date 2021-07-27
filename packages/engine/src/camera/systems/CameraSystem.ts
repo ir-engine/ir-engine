@@ -168,7 +168,7 @@ export class CameraSystem extends System {
    * @param delta time since last frame.
    */
   execute(delta: number): void {
-    this.queryResults.followCameraComponent.added?.forEach((entity) => {
+    for (const entity of this.queryResults.followCameraComponent.added) {
       const cameraFollow = getMutableComponent(entity, FollowCameraComponent)
       cameraFollow.raycastQuery = PhysicsSystem.instance.addRaycastQuery(
         new RaycastQuery({
@@ -190,9 +190,9 @@ export class CameraSystem extends System {
         positionRate: isMobile ? 3.5 : 2
       })
       resetFollowCamera()
-    })
+    }
 
-    this.queryResults.followCameraComponent.removed?.forEach((entity) => {
+    for (const entity of this.queryResults.followCameraComponent.removed) {
       const cameraFollow = getComponent(entity, FollowCameraComponent, true)
       if (cameraFollow) PhysicsSystem.instance.removeRaycastQuery(cameraFollow.raycastQuery)
       const activeCameraComponent = getMutableComponent(CameraSystem.instance.activeCamera, CameraComponent)
@@ -200,12 +200,12 @@ export class CameraSystem extends System {
         activeCameraComponent.followTarget = null
         removeComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) as DesiredTransformComponent
       }
-    })
+    }
 
     // follow camera component should only ever be on the character
-    this.queryResults.followCameraComponent.all?.forEach((entity) => {
+    for (const entity of this.queryResults.followCameraComponent.all) {
       followCameraBehavior(entity)
-    })
+    }
   }
 }
 

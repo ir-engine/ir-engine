@@ -92,14 +92,17 @@ export class DebugHelpersSystem extends System {
   execute(delta: number, time: number): void {
     // ===== AVATAR ===== //
 
-    this.queryResults.characterDebug?.added?.forEach((entity) => {
+    for (const entity of this.queryResults.characterDebug?.added) {
       const actor = getComponent(entity, CharacterComponent)
 
       // view vector
       const origin = new Vector3(0, 2, 0)
       const length = 0.5
       const hex = 0xffff00
-      if (!actor || !actor.viewVector) return console.warn('actor.viewVector is null')
+      if (!actor || !actor.viewVector) {
+        console.warn('actor.viewVector is null')
+        continue
+      }
       const arrowHelper = new ArrowHelper(actor.viewVector.clone().normalize(), origin, length, hex)
       arrowHelper.visible = this.avatarDebugEnabled
       Engine.scene.add(arrowHelper)
@@ -111,9 +114,9 @@ export class DebugHelpersSystem extends System {
       velocityArrowHelper.visible = this.avatarDebugEnabled
       Engine.scene.add(velocityArrowHelper)
       this.helpersByEntity.velocityArrow.set(entity, velocityArrowHelper)
-    })
+    }
 
-    this.queryResults.characterDebug?.removed?.forEach((entity) => {
+    for (const entity of this.queryResults.characterDebug?.removed) {
       // view vector
       const arrowHelper = this.helpersByEntity.viewVector.get(entity) as Object3D
       Engine.scene.remove(arrowHelper)
@@ -123,9 +126,9 @@ export class DebugHelpersSystem extends System {
       const velocityArrowHelper = this.helpersByEntity.velocityArrow.get(entity) as Object3D
       Engine.scene.remove(velocityArrowHelper)
       this.helpersByEntity.velocityArrow.delete(entity)
-    })
+    }
 
-    this.queryResults.characterDebug?.all?.forEach((entity) => {
+    for (const entity of this.queryResults.characterDebug?.all) {
       // view vector
       const actor = getComponent(entity, CharacterComponent)
       const transform = getComponent(entity, TransformComponent)
@@ -143,9 +146,9 @@ export class DebugHelpersSystem extends System {
         velocityArrowHelper.setLength(actor.velocity.length() * 20)
         velocityArrowHelper.position.copy(transform.position).y += actor.actorHalfHeight
       }
-    })
+    }
 
-    this.queryResults.ikAvatar.added?.forEach((entity) => {
+    for (const entity of this.queryResults.ikAvatar.added) {
       const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red') }))
       const debugLeft = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('yellow') }))
       const debugRight = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('blue') }))
@@ -156,9 +159,9 @@ export class DebugHelpersSystem extends System {
       Engine.scene.add(debugLeft)
       Engine.scene.add(debugRight)
       this.helpersByEntity.ikExtents.set(entity, [debugHead, debugLeft, debugRight])
-    })
+    }
 
-    this.queryResults.ikAvatar.all?.forEach((entity) => {
+    for (const entity of this.queryResults.ikAvatar.all) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
       const [debugHead, debugLeft, debugRight] = this.helpersByEntity.ikExtents.get(entity) as Object3D[]
       debugHead.position.copy(xrInputSourceComponent.head.getWorldPosition(vector3))
@@ -167,18 +170,18 @@ export class DebugHelpersSystem extends System {
       debugLeft.quaternion.copy(xrInputSourceComponent.controllerLeft.getWorldQuaternion(quat))
       debugRight.position.copy(xrInputSourceComponent.controllerRight.getWorldPosition(vector3))
       debugRight.quaternion.copy(xrInputSourceComponent.controllerRight.getWorldQuaternion(quat))
-    })
+    }
 
-    this.queryResults.ikAvatar.removed?.forEach((entity) => {
+    for (const entity of this.queryResults.ikAvatar.removed) {
       ;(this.helpersByEntity.ikExtents.get(entity) as Object3D[]).forEach((obj: Object3D) => {
         obj.removeFromParent()
       })
       this.helpersByEntity.ikExtents.delete(entity)
-    })
+    }
 
     // ===== COLLIDERS ===== //
 
-    this.queryResults.colliderComponent.removed?.forEach((entity) => {
+    for (const entity of this.queryResults.colliderComponent.removed) {
       // view vector
       const arrowHelper = this.helpersByEntity.viewVector.get(entity) as Object3D
       Engine.scene.remove(arrowHelper)
@@ -188,16 +191,19 @@ export class DebugHelpersSystem extends System {
       const velocityArrowHelper = this.helpersByEntity.velocityArrow.get(entity) as Object3D
       Engine.scene.remove(velocityArrowHelper)
       this.helpersByEntity.velocityArrow.delete(entity)
-    })
+    }
 
-    this.queryResults.colliderComponent.added?.forEach((entity) => {
+    for (const entity of this.queryResults.colliderComponent.added) {
       const collider = getComponent(entity, ColliderComponent)
 
       // view vector
       const origin = new Vector3(0, 2, 0)
       const length = 0.5
       const hex = 0xffff00
-      if (!collider || !collider.body) return console.warn('collider.body is null')
+      if (!collider || !collider.body) {
+        console.warn('collider.body is null')
+        continue
+      }
       const arrowHelper = new ArrowHelper(
         vector3.copy(collider.body.transform.translation).normalize(),
         origin,
@@ -214,9 +220,9 @@ export class DebugHelpersSystem extends System {
       velocityArrowHelper.visible = this.avatarDebugEnabled
       Engine.scene.add(velocityArrowHelper)
       this.helpersByEntity.velocityArrow.set(entity, velocityArrowHelper)
-    })
+    }
 
-    this.queryResults.colliderComponent.all?.forEach((entity) => {
+    for (const entity of this.queryResults.colliderComponent.all) {
       // view vector
       const collider = getComponent(entity, ColliderComponent)
       const transform = getComponent(entity, TransformComponent)
@@ -234,12 +240,12 @@ export class DebugHelpersSystem extends System {
         velocityArrowHelper.setLength(collider.body.transform.linearVelocity.length() * 60)
         velocityArrowHelper.position.copy(transform.position)
       }
-    })
+    }
 
     // ===== INTERACTABLES ===== //
 
     // bounding box
-    this.queryResults.boundingBoxComponent?.added.forEach((entity) => {
+    for (const entity of this.queryResults.boundingBoxComponent?.added) {
       this.helpersByEntity.box.set(entity, [])
       const boundingBox = getComponent(entity, BoundingBoxComponent)
       if (boundingBox.boxArray.length) {
@@ -263,33 +269,33 @@ export class DebugHelpersSystem extends System {
         Engine.scene.add(helper)
         ;(this.helpersByEntity.box.get(entity) as Object3D[]).push(helper)
       }
-    })
+    }
 
-    this.queryResults.boundingBoxComponent?.removed?.forEach((entity) => {
+    for (const entity of this.queryResults.boundingBoxComponent?.removed) {
       const boxes = this.helpersByEntity.box.get(entity) as Object3D[]
       boxes.forEach((box) => {
         Engine.scene.remove(box)
       })
       this.helpersByEntity.box.delete(entity)
-    })
+    }
 
     // ===== CUSTOM ===== //
 
-    this.queryResults.arrowHelper?.added?.forEach((entity) => {
+    for (const entity of this.queryResults.arrowHelper?.added) {
       const arrow = getComponent(entity, DebugArrowComponent)
       const arrowHelper = new ArrowHelper(new Vector3(), new Vector3(0, 0, 0), 0.5, arrow.color)
       arrowHelper.visible = this.physicsDebugEnabled
       Engine.scene.add(arrowHelper)
       this.helpersByEntity.helperArrow.set(entity, arrowHelper)
-    })
+    }
 
-    this.queryResults.arrowHelper?.removed?.forEach((entity) => {
+    for (const entity of this.queryResults.arrowHelper?.removed) {
       const arrowHelper = this.helpersByEntity.helperArrow.get(entity) as Object3D
       Engine.scene.remove(arrowHelper)
       this.helpersByEntity.helperArrow.delete(entity)
-    })
+    }
 
-    this.queryResults.arrowHelper?.all?.forEach((entity) => {
+    for (const entity of this.queryResults.arrowHelper?.all) {
       const arrow = getComponent(entity, DebugArrowComponent)
       const arrowHelper = this.helpersByEntity.helperArrow.get(entity) as ArrowHelper
       if (arrowHelper != null) {
@@ -297,7 +303,7 @@ export class DebugHelpersSystem extends System {
         arrowHelper.setLength(arrow.direction.length())
         arrowHelper.position.copy(arrow.position)
       }
-    })
+    }
 
     this.physicsDebugRenderer.update()
   }

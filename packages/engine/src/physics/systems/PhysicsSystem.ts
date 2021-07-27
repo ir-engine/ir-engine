@@ -74,14 +74,14 @@ export class PhysicsSystem extends System {
   }
 
   execute(delta: number): void {
-    this.queryResults.collider.removed?.forEach((entity) => {
+    for (const entity of this.queryResults.collider.removed) {
       const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true)
       if (colliderComponent) {
         this.removeBody(colliderComponent.body)
       }
-    })
+    }
 
-    this.queryResults.collider.all?.forEach((entity) => {
+    for (const entity of this.queryResults.collider.all) {
       const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent)
       const transform = getComponent(entity, TransformComponent)
 
@@ -106,14 +106,14 @@ export class PhysicsSystem extends System {
         )
         collider.quaternion.copy(transform.rotation)
       }
-    })
+    }
 
     // TODO: this is temporary - we should refactor all our network entity handling to be on the ECS
-    this.queryResults.networkObject.removed.forEach((entity) => {
+    for (const entity of this.queryResults.networkObject.removed) {
       const networkObject = getComponent(entity, NetworkObject, true)
       delete Network.instance.networkObjects[networkObject.networkId]
       console.log('removed prefab with id', networkObject.networkId)
-    })
+    }
 
     PhysXInstance.instance.update()
   }
