@@ -1,0 +1,50 @@
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0
+}
+body{
+    background: #e5e5e5;
+   
+}
+ 
+.blockbg {
+    .block{ 
+        margin:0;
+        position:absolute;
+        top:45%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        
+    }
+    .title{
+        font-family:Arial Rounded MT Bold;
+        font-style:normal;
+        font-weight:normal;
+        color:#614AD3;
+        font-size:25px;
+        line-height:1rem;
+        text-transform:capitalize;
+    }
+    
+}
+
+@media (max-width:768px) {
+    .title {
+        padding-left: 2rem;
+    }
+}
+
+@media (max-width:669px) {
+    .title {
+        padding-left: 2rem;
+    }
+}
+
+@media (max-width:375px) {
+    .title {
+        padding-left: 4rem;
+    }
+}
+
+
