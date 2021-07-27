@@ -16,11 +16,16 @@ import {
 } from './actions'
 import Api from '../../../world/components/editor/Api'
 
-export function getArMediaService(type?: string) {
+export function getArMediaService(type?: string, limit: Number = 12) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
       dispatch(fetchingArMedia())
-      const list = await client.service('ar-media').find({ query: { action: type } })
+      const list = await client.service('ar-media').find({
+        query: {
+          action: type,
+          $limit: limit
+        }
+      })
       dispatch(setAdminArMedia(list))
     } catch (err) {
       console.log(err)

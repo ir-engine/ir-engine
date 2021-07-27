@@ -63,7 +63,7 @@ const MediaTable = (props: Props) => {
     removeArMedia(mediaId)
     handleClose()
   }
-  console.log(list)
+
   const rows = list.map((media) => {
     return (
       <Grid key={media.audioId} item xs={12} sm={6} md={3}>

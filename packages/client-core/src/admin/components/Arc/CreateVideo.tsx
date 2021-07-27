@@ -194,7 +194,7 @@ const CreateVideo = (props: Props) => {
                 <input
                   name="dracosis"
                   onChange={handleChange}
-                  // accept=".uvol"
+                  accept=".uvol,.drcs"
                   className={classes.input}
                   id="contained-button-file"
                   multiple
@@ -211,7 +211,7 @@ const CreateVideo = (props: Props) => {
               <Button variant="contained" className={classes.btn} startIcon={<CloudUploadIcon />}>
                 <input
                   name="manifest"
-                  // accept=".manifest"
+                  accept=".manifest"
                   className={classes.input}
                   id="contained-button-file"
                   multiple
