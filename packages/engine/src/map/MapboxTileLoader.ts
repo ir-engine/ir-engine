@@ -21,6 +21,7 @@ function getRandomGreyColorString(minValue, maxValue) {
 //   - https://github.com/jeromeetienne/threex.proceduralcity/blob/master/threex.proceduralcity.js
 function generateBuildingCanvas(width: number, height: number): HTMLCanvasElement {
   // Build a small canvas we're going to use to create our window elements
+  if (!globalThis.document) return
   var smallCanvas = globalThis.document.createElement('canvas')
 
   smallCanvas.width = width

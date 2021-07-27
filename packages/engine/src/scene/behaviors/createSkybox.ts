@@ -39,10 +39,7 @@ export const createSkybox = (entity, args: SceneBackgroundProps): any => {
         uniforms.luminance.value = option.luminance
         uniforms.sunPosition.value = sun
         setSkyDirection(sun)
-
-        const skyboxTexture = (skyboxObject3D as any).generateSkybox(Engine.renderer)
-
-        Engine.scene.background = skyboxTexture
+        ;(skyboxObject3D as any).generateSkybox(Engine.renderer)
         break
 
       case SkyTypeEnum.cubemap:

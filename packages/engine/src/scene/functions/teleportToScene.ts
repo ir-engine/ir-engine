@@ -1,7 +1,8 @@
-import { PerspectiveCamera } from 'three'
+import { AmbientLight, PerspectiveCamera } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
-import { CameraSystem } from '../../camera/systems/CameraSystem'
+import { CameraSystem, getViewVectorFromAngle } from '../../camera/systems/CameraSystem'
+import { CharacterComponent } from '../../character/components/CharacterComponent'
 import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
@@ -35,6 +36,10 @@ export const teleportToScene = async (portalComponent: PortalProps, handleNewSce
   })
   hyperspaceEffect.position.copy(playerObj.value.position)
   hyperspaceEffect.quaternion.copy(playerObj.value.quaternion)
+
+  const light = new AmbientLight('#aaa')
+  light.layers.enable(CameraLayers.Portal)
+  Engine.scene.add(light)
 
   Engine.scene.add(hyperspaceEffect)
 
@@ -72,6 +77,7 @@ export const teleportToScene = async (portalComponent: PortalProps, handleNewSce
   CameraSystem.instance.portCamera = true
 
   await new Promise<void>((resolve) => {
+    Engine.scene.background = null
     Engine.hasJoinedWorld = true
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, resolve)
   })
@@ -85,19 +91,18 @@ export const teleportToScene = async (portalComponent: PortalProps, handleNewSce
     portalComponent.spawnPosition.y,
     portalComponent.spawnPosition.z
   )
-  transform.rotation.copy(portalComponent.spawnRotation)
 
-  // resetFollowCamera()
+  const actor = getComponent(Network.instance.localClientEntity, CharacterComponent)
+  actor.viewVector.copy(getViewVectorFromAngle(actor.viewVector, (portalComponent.spawnEuler as any)._y))
 
   addComponent(Network.instance.localClientEntity, ControllerColliderComponent)
-
-  Engine.scene.background = null
 
   const fadeOut = hyperspaceEffect.fadeOut(delta)
 
   await delay(250)
 
   Engine.camera.layers.enable(CameraLayers.Scene)
+  light.removeFromParent()
 
   await fadeOut
 

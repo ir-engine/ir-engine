@@ -209,7 +209,7 @@ export const EnginePage = (props: Props) => {
   const [instanceKickedMessage, setInstanceKickedMessage] = useState('')
   const [isInputEnabled, setInputEnabled] = useState(true)
   const [porting, setPorting] = useState(false)
-  const [newSpawnPos, setNewSpawnPos] = useState(null)
+  const [newSpawnPos, setNewSpawnPos] = useState<PortalProps>(null)
 
   const appLoaded = appState.get('loaded')
   const selfUser = authState.get('user')
@@ -548,10 +548,11 @@ export const EnginePage = (props: Props) => {
     Network.instance.transport.close()
 
     await teleportToScene(portalComponent, async () => {
+      await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'))
+
       // change our browser URL
       history.replace('/location/' + portalComponent.location)
       setNewSpawnPos(portalComponent)
-      await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'))
       getLocationByName(portalComponent.location)
     })
   }

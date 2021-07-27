@@ -91,7 +91,7 @@ export class PortalEffect extends Object3D {
     }
 
     this.tubeMesh = new Mesh(this.tubeGeometry, this.tubeMaterial)
-    this.tubeMesh.position.set(-0.5, 0, -5)
+    this.tubeMesh.position.set(-0.5, 0, -15)
   }
 
   fadeIn(delta: number): Promise<void> {

@@ -52,7 +52,11 @@ export class ServerSpawnSystem extends System {
       this.spawnPoints.push(entity)
     })
     this.queryResults.spawnPoint.removed?.forEach((entity) => {
-      this.spawnPoints.splice(this.spawnPoints.indexOf(entity))
+      const index = this.spawnPoints.indexOf(entity)
+
+      if (index > -1) {
+        this.spawnPoints.splice(index)
+      }
     })
   }
 }
