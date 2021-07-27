@@ -21,7 +21,7 @@ const isBrowser = new Function('try {return this===window;}catch(e){ return fals
 
 const DracosisPlayer = null
 if (isBrowser()) {
-  // import("volumetric/src/Player").then(imported => {
+  // import("volumetric").then(imported => {
   //   DracosisPlayer = imported;
   // });
   // @ts-ignore
@@ -62,71 +62,14 @@ export const elementPlaying = (element: {
   return element && !!(element.currentTime > 0 && !element.paused && !element.ended && element.readyState > 2)
 }
 
-const onMediaInteraction = (entityInitiator, args, delta, entityInteractive, time) => {
-  const volumetric = getComponent(entityInteractive, VolumetricComponent)
-  if (volumetric) {
-    // TODO handle volumetric interaction here
-    return
-  }
-  console.log('onMediaInteraction')
-
-  const source = getComponent(entityInteractive, Object3DComponent).value as AudioSource
-  if (elementPlaying(source.el)) {
-    if (typeof source.pause === 'function') source.pause()
-  } else {
-    if (typeof source.play === 'function') source.play()
-  }
-}
-
-const onMediaInteractionHover = (
-  entityInitiator,
-  { focused }: { focused: boolean },
-  delta,
-  entityInteractive,
-  time
-) => {
-  const { el: mediaElement } = getComponent(entityInteractive, Object3DComponent).value as AudioSource
-
-  EngineEvents.instance.dispatchEvent({
-    type: InteractiveSystem.EVENTS.OBJECT_HOVER,
-    focused,
-    interactionType: 'mediaSource',
-    interactionText: elementPlaying(mediaElement) ? 'pause video' : 'play video'
-  })
-}
-
 export function createMediaServer(entity, args: { interactable: boolean }): void {
   addObject3DComponent(entity, new Object3D(), args)
-  if (args.interactable) addInteraction(entity)
-
-  // If media component is not requires to be sync then return
-
-  // const data = {
-  //   networkId: Network.getNetworkId(),
-  //   prefabType: PrefabType.MediaStream,
-  //   uniqueId: MathUtils.generateUUID(),
-  //   ownerId: 'server',
-  //   parameters: {
-  //     sceneEntityId: args.sceneEntityId,
-  //     sceneEntityName: entity.name,
-  //     startTime: args.synchronize,
-  //     src: args.src
-  //   },
-  // };
-
-  // Currently we are only creating media objects while scene loading time,
-  // Hence no need to send create object message to clients since they are not yet connected.
-  // It will be used when the objects will be created while running.
-  // Spread the object so that the changes to the object will not affect original data.
-  // Network.instance.worldState.createObjects.push({ ...data });
-
-  // Added into the network Object list of the server
-  // Network.instance.networkObjects[data.networkId] = data as any;
+  if (args.interactable) addComponent(entity, Interactable)
 }
 
 export function createAudio(entity, args: AudioProps): void {
   addObject3DComponent(entity, new Audio(Engine.audioListener), args)
-  if (args.interactable) addInteraction(entity)
+  if (args.interactable) addComponent(entity, Interactable)
 }
 
 export function createVideo(entity, args: VideoProps): void {
@@ -136,7 +79,14 @@ export function createVideo(entity, args: VideoProps): void {
     video.isSynced = args.synchronize > 0
   }
   addObject3DComponent(entity, video, { ...args })
-  if (args.interactable) addInteraction(entity)
+  if (args.interactable) addComponent(entity, Interactable)
+}
+
+interface VolumetricProps {
+  src: string
+  loop: number
+  autoPlay: boolean
+  interactable: boolean
 }
 
 export const createVolumetric = (entity, args: VolumetricProps) => {
@@ -159,49 +109,5 @@ export const createVolumetric = (entity, args: VolumetricProps) => {
   })
   volumetricComponent.player = DracosisSequence
   addComponent(entity, Object3DComponent, { value: container })
-  if (args.interactable) addInteraction(entity)
-}
-
-function addInteraction(entity): void {
-  const data = {
-    interactionType: 'mediaSource'
-  }
-
-  const interactiveData = {
-    onInteraction: onMediaInteraction,
-    onInteractionCheck: () => {
-      return true
-    },
-    onInteractionFocused: onMediaInteractionHover,
-    data
-  }
-
-  addComponent(entity, Interactable, interactiveData)
-
-  const onVideoStateChange = (didPlay) => {
-    EngineEvents.instance.dispatchEvent({
-      type: InteractiveSystem.EVENTS.OBJECT_HOVER,
-      focused: true,
-      interactionType: 'mediaSource',
-      interactionText: didPlay ? 'pause media' : 'play media'
-    })
-  }
-
-  const { el: mediaElement } = getComponent(entity, Object3DComponent).value as AudioSource
-
-  if (mediaElement) {
-    mediaElement.addEventListener('play', () => {
-      onVideoStateChange(true)
-    })
-    mediaElement.addEventListener('pause', () => {
-      onVideoStateChange(false)
-    })
-  }
-}
-
-interface VolumetricProps {
-  src: string
-  loop: number
-  autoPlay: boolean
-  interactable: boolean
+  if (args.interactable) addComponent(entity, Interactable)
 }

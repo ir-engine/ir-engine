@@ -31,7 +31,6 @@ import { delay, processLocationChange, resetEngine } from '@xrengine/engine/src/
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
-import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
@@ -185,14 +184,8 @@ export const EnginePage = (props: Props) => {
     history
   } = props
 
-  const [hoveredLabel, setHoveredLabel] = useState('')
-  const [infoBoxData, setModalData] = useState(null)
   const [userBanned, setUserBannedState] = useState(false)
-  const [openLinkData, setOpenLinkData] = useState(null)
-
   const [progressEntity, setProgressEntity] = useState(99)
-  const [objectActivated, setObjectActivated] = useState(false)
-  const [objectHovered, setObjectHovered] = useState(false)
 
   const [isValidLocation, setIsValidLocation] = useState(true)
   const [isInXR, setIsInXR] = useState(false)
@@ -201,7 +194,6 @@ export const EnginePage = (props: Props) => {
   const [instanceDisconnected, setInstanceDisconnected] = useState(false)
   const [instanceKicked, setInstanceKicked] = useState(false)
   const [instanceKickedMessage, setInstanceKickedMessage] = useState('')
-  const [isInputEnabled, setInputEnabled] = useState(true)
   const [porting, setPorting] = useState(false)
   const [newSpawnPos, setNewSpawnPos] = useState(null)
 
@@ -506,26 +498,8 @@ export const EnginePage = (props: Props) => {
     setPorting(false)
   }
 
-  useEffect(() => {
-    EngineEvents.instance.dispatchEvent({
-      type: ClientInputSystem.EVENTS.ENABLE_INPUT,
-      keyboard: isInputEnabled,
-      mouse: isInputEnabled
-    })
-  }, [isInputEnabled])
-
   const onSceneLoadedEntity = (left: number): void => {
     setProgressEntity(left || 0)
-  }
-
-  const onObjectHover = ({ focused, interactionText }: { focused: boolean; interactionText: string }): void => {
-    setObjectHovered(focused)
-    let displayText = interactionText
-    const length = interactionText && interactionText.length
-    if (length > 110) {
-      displayText = interactionText.substring(0, 110) + '...'
-    }
-    setHoveredLabel(displayText)
   }
 
   const portToLocation = async ({ portalComponent }: { portalComponent: PortalProps }) => {
@@ -553,8 +527,6 @@ export const EnginePage = (props: Props) => {
   }
 
   const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation)
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover)
     EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async () => {
       setIsInXR(true)
@@ -562,24 +534,6 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async () => {
       setIsInXR(false)
     })
-  }
-
-  const onObjectActivation = (interactionData): void => {
-    switch (interactionData.interactionType) {
-      case 'link':
-        setOpenLinkData(interactionData)
-        setInputEnabled(false)
-        setObjectActivated(true)
-        break
-      case 'infoBox':
-      case 'mediaSource':
-        setModalData(interactionData)
-        setInputEnabled(false)
-        setObjectActivated(true)
-        break
-      default:
-        break
-    }
   }
 
   useEffect(() => {
@@ -594,7 +548,7 @@ export const EnginePage = (props: Props) => {
   }, [])
 
   //touch gamepad
-  const touchGamepadProps = { hovered: objectHovered, layout: 'default' }
+  const touchGamepadProps = { layout: 'default' }
   const touchGamepad = deviceState.get('content')?.touchDetected ? (
     <Suspense fallback={<></>}>
       <TouchGamepad {...touchGamepadProps} />
@@ -623,24 +577,8 @@ export const EnginePage = (props: Props) => {
       <NetworkDebug reinit={reinit} />
       <LoadingScreen objectsToLoad={progressEntity} />
       {harmonyOpen !== true && <MediaIconsBox />}
-      {/* {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />} */}
-      <InteractableModal
-        onClose={() => {
-          setModalData(null)
-          setObjectActivated(false)
-          setInputEnabled(true)
-        }}
-        data={infoBoxData}
-      />
+      <InteractableModal />
       <RecordingApp />
-      <OpenLink
-        onClose={() => {
-          setOpenLinkData(null)
-          setObjectActivated(false)
-          setInputEnabled(true)
-        }}
-        data={openLinkData}
-      />
       <canvas id={engineRendererCanvasId} style={canvasStyle} />
       {touchGamepad}
       <WarningRefreshModal
