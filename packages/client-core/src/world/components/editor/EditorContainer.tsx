@@ -593,7 +593,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     )
 
     editor.sceneModified = false
-
+    this.props.api.currentProjectID = project.project_id
     this.updateModifiedState(() => {
       this.setState({ creatingProject: true, project }, () => {
         this.props.history.replace(`/editor/projects/${project.project_id}`)
