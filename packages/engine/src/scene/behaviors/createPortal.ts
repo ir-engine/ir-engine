@@ -28,7 +28,7 @@ const vec3 = new Vector3()
 export const createPortal = (entity: Entity, args: PortalProps) => {
   const { location, displayText, spawnPosition } = args
 
-  const spawnEuler = new Euler(args.spawnRotation._x, args.spawnRotation._y, args.spawnRotation._z, 'XYZ')
+  const spawnEuler = new Euler(args.spawnRotation.x, args.spawnRotation.y, args.spawnRotation.z, 'XYZ')
   const spawnRotation = new Quaternion().setFromEuler(spawnEuler)
 
   const transform = getComponent(entity, TransformComponent)
