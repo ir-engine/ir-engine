@@ -9,7 +9,6 @@ import { Network } from '../networking/classes/Network'
 import { NetworkObject } from '../networking/components/NetworkObject'
 import { VehicleBehavior } from './behaviors/VehicleBehavior'
 import { PlayerInCar } from './components/PlayerInCar'
-import { PhysicsLifecycleState } from '../physics/enums/PhysicsStates'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { onAddedInCar } from './behaviors/onAddedInCar'
 import { onAddEndingInCar } from './behaviors/onAddEndingInCar'
@@ -34,65 +33,7 @@ export class VehicleSystem extends System {
     super.dispose()
   }
 
-  execute(delta: number): void {
-    this.queryResults.VehicleComponent.added?.forEach((entity) => {
-      VehicleBehavior(entity, { phase: PhysicsLifecycleState.onAdded })
-    })
-
-    this.queryResults.VehicleComponent.all?.forEach((entityCar) => {
-      const networkCarId = getComponent(entityCar, NetworkObject).networkId
-      VehicleBehavior(entityCar, { phase: PhysicsLifecycleState.onUpdate })
-
-      this.queryResults.playerInCar.added?.forEach((entity) => {
-        const component = getComponent(entity, PlayerInCar)
-        if (component.networkCarId == networkCarId)
-          onAddedInCar(entity, entityCar, component.currentFocusedPart, this.diffSpeed)
-      })
-
-      this.queryResults.playerInCar.all?.forEach((entity) => {
-        const component = getComponent(entity, PlayerInCar)
-        if (component.networkCarId == networkCarId) {
-          switch (component.state) {
-            case PhysicsLifecycleState.onAddEnding:
-              onAddEndingInCar(entity, entityCar, component.currentFocusedPart, this.diffSpeed)
-              break
-            case PhysicsLifecycleState.onUpdate:
-              onUpdatePlayerInCar(entity, entityCar, component.currentFocusedPart, this.diffSpeed)
-              break
-            case PhysicsLifecycleState.onStartRemove:
-              onStartRemoveFromCar(entity, entityCar, component.currentFocusedPart, this.diffSpeed)
-              break
-          }
-        }
-      })
-
-      this.queryResults.playerInCar.removed?.forEach((entity) => {
-        let networkPlayerId
-        const vehicle = getComponent(entityCar, VehicleComponent)
-        if (!hasComponent(entity, NetworkObject)) {
-          for (let i = 0; i < vehicle.seatPlane.length; i++) {
-            if (
-              vehicle[vehicle.seatPlane[i]] != null &&
-              !Network.instance.networkObjects[vehicle[vehicle.seatPlane[i]]]
-            ) {
-              networkPlayerId = vehicle[vehicle.seatPlane[i]]
-            }
-          }
-        } else {
-          networkPlayerId = getComponent(entity, NetworkObject).networkId
-        }
-        for (let i = 0; i < vehicle.seatPlane.length; i++) {
-          if (networkPlayerId == vehicle[vehicle.seatPlane[i]]) {
-            onRemovedFromCar(entity, entityCar, i, this.diffSpeed)
-          }
-        }
-      })
-    })
-
-    this.queryResults.VehicleComponent.removed?.forEach((entity) => {
-      VehicleBehavior(entity, { phase: PhysicsLifecycleState.onRemoved })
-    })
-  }
+  execute(delta: number): void {}
 }
 
 VehicleSystem.queries = {

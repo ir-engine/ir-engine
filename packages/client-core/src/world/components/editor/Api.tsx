@@ -96,6 +96,7 @@ export class Api extends EventEmitter {
   maxUploadSize: number
   props: any
   filesToUpload: {}
+  currentProjectID: string
 
   /**
    * [constructor ]
@@ -116,7 +117,7 @@ export class Api extends EventEmitter {
     this.maxUploadSize = 128
 
     this.filesToUpload = {}
-
+    this.currentProjectID = ''
     // This will manage the not authorized users
     this.handleAuthorization()
   }
@@ -1197,13 +1198,17 @@ export class Api extends EventEmitter {
    * @param  {any}  assetId
    * @return {Promise}               [true if deleted successfully else throw error]
    */
-  async deleteAsset(assetId): Promise<any> {
+  async deleteAsset(assetId, projectid?, fileidentifier?): Promise<any> {
     const token = this.getToken()
 
     const headers = {
       'content-type': 'application/json',
-      authorization: `Bearer ${token}`
+      authorization: `Bearer ${token}`,
+      assetId: assetId
     }
+    if (projectid) headers['projectid'] = projectid
+
+    if (fileidentifier) headers['fileidentifier'] = fileidentifier
 
     const assetEndpoint = `${SERVER_URL}/static-resource/${assetId}`
 

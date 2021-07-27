@@ -39,7 +39,7 @@ if (isBrowser())
 
 export class ActionSystem extends System {
   updateType = SystemUpdateType.Fixed
-  receivedClientInputs = []
+  receivedClientInputs: Map<InputAlias, InputValue<NumericalType>>[] = []
 
   constructor(attributes: SystemAttributes = {}) {
     super(attributes)
@@ -70,7 +70,7 @@ export class ActionSystem extends System {
    */
 
   public execute(delta: number): void {
-    this.queryResults.localClientInputXR.all?.forEach((entity) => {
+    for (const entity of this.queryResults.localClientInputXR.all) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
       const input = getMutableComponent(entity, Input)
       input.data.set(BaseInput.XR_HEAD, {
@@ -112,15 +112,15 @@ export class ActionSystem extends System {
         },
         lifecycleState: LifecycleValue.CHANGED
       })
-    })
+    }
 
-    this.queryResults.localClientInput.all?.forEach((entity) => {
+    for (const entity of this.queryResults.localClientInput.all) {
       const input = getMutableComponent(entity, Input)
 
       // Apply input for local user input onto client
       const receivedClientInput = [...this.receivedClientInputs]
       this.receivedClientInputs = []
-      receivedClientInput?.forEach((stateUpdate) => {
+      for (const stateUpdate of receivedClientInput) {
         // key is the input type enu, value is the input value
         stateUpdate.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
           if (input.schema.inputMap.has(key)) {
@@ -202,13 +202,7 @@ export class ActionSystem extends System {
           Network.instance.clientInputState.viewVector.y = actor.viewVector.y
           Network.instance.clientInputState.viewVector.z = actor.viewVector.z
         }
-        // Do not remenber why its needed
-        /*
-        if (Network.instance.clientGameAction.length > 0) {
-          console.log(Network.instance.clientGameAction)
-          Network.instance.clientGameAction = []
-        }
-*/
+
         input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
           if (value.type === InputType.BUTTON) {
             if (value.lifecycleState === LifecycleValue.ENDED) {
@@ -216,22 +210,22 @@ export class ActionSystem extends System {
             }
           }
         })
-      })
-    })
+      }
+    }
 
     // Called when input component is added to entity
-    this.queryResults.localClientInput.added?.forEach((entity) => {
+    for (const entity of this.queryResults.localClientInput.added) {
       // Get component reference
       const input = getComponent(entity, Input)
       input.schema.onAdded(entity, delta)
-    })
+    }
 
     // Called when input component is removed from entity
-    this.queryResults.localClientInput.removed.forEach((entity) => {
+    for (const entity of this.queryResults.localClientInput.removed) {
       // Get component reference
       const input = getComponent(entity, Input, true)
       input.schema.onRemove(entity, delta)
-    })
+    }
   }
 }
 

@@ -1,17 +1,17 @@
-import { Engine } from '../../ecs/classes/Engine'
 import ShadowComponent from '../components/ShadowComponent'
 import { createShadow } from './createShadow'
-import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
-import { isClient } from '../../common/functions/isClient'
+import { Object3D } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { Component } from '../../ecs/classes/Component'
 import { Color } from 'three'
 import { getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 
-export const createObject3dFromArgs = (entity: Entity, args: any, addToScene: boolean) => {
-  const isObject3d = typeof args.obj3d === 'object'
-  let object3d
-
+export const applyArgsToObject3d = <T extends Object3D>(
+  entity: Entity,
+  object3d: T,
+  addToScene: boolean,
+  objArgs?: any,
+  parentEntity?: Entity
+) => {
   /**
    * apply value to sub object by path, like material.color = '#fff' will set { material:{ color }}
    * @param subj
@@ -44,23 +44,20 @@ export const createObject3dFromArgs = (entity: Entity, args: any, addToScene: bo
     }
   }
 
-  if (isObject3d) object3d = args.obj3d
-  else object3d = new args.obj3d()
-
-  typeof args.objArgs === 'object' &&
-    Object.keys(args.objArgs).forEach((key) => {
-      applyDeepValue(object3d, key, args.objArgs[key])
+  typeof objArgs === 'object' &&
+    Object.keys(objArgs).forEach((key) => {
+      applyDeepValue(object3d, key, objArgs[key])
     })
 
   if (addToScene) {
-    if (args.parentEntity && hasComponent(args.parentEntity, ShadowComponent)) {
-      createShadow(entity, getMutableComponent(args.parentEntity, ShadowComponent))
+    if (parentEntity && hasComponent(parentEntity, ShadowComponent)) {
+      createShadow(entity, getMutableComponent(parentEntity, ShadowComponent))
     }
   }
 
   const hasShadow = getMutableComponent(entity, ShadowComponent)
-  const castShadow = Boolean(hasShadow?.castShadow || args.objArgs?.castShadow)
-  const receiveshadow = Boolean(hasShadow?.receiveShadow || args.objArgs?.receiveShadow)
+  const castShadow = Boolean(hasShadow?.castShadow || objArgs?.castShadow)
+  const receiveshadow = Boolean(hasShadow?.receiveShadow || objArgs?.receiveShadow)
 
   object3d.traverse((obj) => {
     obj.castShadow = castShadow

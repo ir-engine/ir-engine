@@ -45,7 +45,7 @@ export class CharacterControllerSystem extends System {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    this.queryResults.controller.added?.forEach((entity) => {
+    for (const entity of this.queryResults.controller.added) {
       const playerCollider = getMutableComponent(entity, ControllerColliderComponent)
       const actor = getMutableComponent(entity, CharacterComponent)
       const transform = getComponent(entity, TransformComponent)
@@ -80,9 +80,9 @@ export class CharacterControllerSystem extends System {
           collisionMask: DefaultCollisionMask | CollisionGroups.Portal
         })
       )
-    })
+    }
 
-    this.queryResults.controller.removed?.forEach((entity) => {
+    for (const entity of this.queryResults.controller.removed) {
       const collider = getRemovedComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
       if (collider) {
         PhysicsSystem.instance.removeController(collider.controller)
@@ -93,9 +93,9 @@ export class CharacterControllerSystem extends System {
       if (actor) {
         actor.isGrounded = false
       }
-    })
+    }
 
-    this.queryResults.controller.all?.forEach((entity) => {
+    for (const entity of this.queryResults.controller.all) {
       const controller = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
 
       // iterate on all collisions since the last update
@@ -148,9 +148,9 @@ export class CharacterControllerSystem extends System {
       controller.raycastQuery.origin.copy(transform.position).y += actor.actorHalfHeight
       controller.closestHit = controller.raycastQuery.hits[0]
       actor.isGrounded = controller.raycastQuery.hits.length > 0 || controller.controller.collisions.down
-    })
+    }
 
-    this.queryResults.localCharacter.all?.forEach((entity) => {
+    for (const entity of this.queryResults.localCharacter.all) {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
       const transform = getComponent<TransformComponent>(entity, TransformComponent)
 
@@ -160,16 +160,16 @@ export class CharacterControllerSystem extends System {
       if (xrInputSourceComponent) {
         actor.viewVector.set(0, 0, 1).applyQuaternion(transform.rotation)
       }
-    })
+    }
 
     // PhysicsMove Characters On Server
     // its beacose we need physicsMove on server and for localCharacter, not for all character
-    this.queryResults.characterOnServer.all?.forEach((entity) => {
+    for (const entity of this.queryResults.characterOnServer.all) {
       updatePlayerRotationFromViewVector(entity)
       characterMoveBehavior(entity, delta)
-    })
+    }
 
-    this.queryResults.ikAvatar.added?.forEach((entity) => {
+    for (const entity of this.queryResults.ikAvatar.added) {
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent)
       const actor = getMutableComponent(entity, CharacterComponent)
       const object3DComponent = getComponent(entity, Object3DComponent)
@@ -192,9 +192,9 @@ export class CharacterControllerSystem extends System {
           }
         })
       }
-    })
+    }
 
-    this.queryResults.ikAvatar.all?.forEach((entity) => {
+    for (const entity of this.queryResults.ikAvatar.all) {
       if (!isEntityLocalClient(entity)) return
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent)
       const transform = getComponent<TransformComponent>(entity, TransformComponent)
@@ -206,9 +206,9 @@ export class CharacterControllerSystem extends System {
       vector3.subVectors(Engine.camera.position, transform.position)
       vector3.applyQuaternion(quat)
       xrInputSourceComponent.head.position.copy(vector3)
-    })
+    }
 
-    this.queryResults.ikAvatar.removed?.forEach((entity) => {
+    for (const entity of this.queryResults.ikAvatar.removed) {
       const actor = getMutableComponent(entity, CharacterComponent)
 
       if (isEntityLocalClient(entity))
@@ -218,7 +218,7 @@ export class CharacterControllerSystem extends System {
             child.visible = true
           }
         })
-    })
+    }
   }
 }
 

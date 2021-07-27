@@ -344,7 +344,7 @@ export class InteractiveSystem extends System {
       const width = canvas.width
       const height = canvas.height
 
-      this.queryResults.local_user?.all.forEach((entity) => {
+      for (const entity of this.queryResults.local_user?.all) {
         const camera = Engine.camera
 
         const localTransform = getComponent(entity, TransformComponent)
@@ -380,7 +380,7 @@ export class InteractiveSystem extends System {
             this.previousEntity = null
             this.previousEntity2DPosition = null
           }
-          return
+          continue
         }
 
         const networkUserID = getComponent(closestHoveredUser, NetworkObject)?.ownerId
@@ -407,11 +407,10 @@ export class InteractiveSystem extends System {
           }
           EngineEvents.instance.dispatchEvent({ type: InteractiveSystem.EVENTS.USER_HOVER, ...nameplateData })
         }
-      })
+      }
 
-      this.queryResults.interactors?.all.forEach((entity) => {
+      for (const entity of this.queryResults.interactors?.all) {
         if (this.queryResults.interactive?.all.length) {
-          //interactRaycast(entity, { interactive: this.queryResults.interactive.all });
           interactBoxRaycast(entity, { raycastList: this.queryResults.boundingBox.all })
           const interacts = getComponent(entity, Interactor)
           if (interacts.focusedInteractive) {
@@ -423,7 +422,7 @@ export class InteractiveSystem extends System {
           }
 
           // unmark all unfocused
-          this.queryResults.interactive?.all.forEach((entityInter) => {
+          for (const entityInter of this.queryResults.interactive.all) {
             if (
               !hasComponent(entityInter, BoundingBoxComponent) &&
               hasComponent(entityInter, Object3DComponent) &&
@@ -443,11 +442,11 @@ export class InteractiveSystem extends System {
             } else {
               removeComponent(entityInter, SubFocused)
             }
-          })
+          }
         }
-      })
+      }
 
-      this.queryResults.boundingBox.added?.forEach((entity) => {
+      for (const entity of this.queryResults.boundingBox.added) {
         const interactive = getMutableComponent(entity, Interactable)
         const calcBoundingBox = getMutableComponent(entity, BoundingBoxComponent)
 
@@ -475,31 +474,31 @@ export class InteractiveSystem extends System {
             }
           })
         }
-      })
+      }
 
       // removal is the first because the hint must first be deleted, and then a new one appears
-      this.queryResults.focus.removed?.forEach((entity) => {
+      for (const entity of this.queryResults.focus.removed) {
         interactFocused(entity, null, delta)
         hideInteractText(this.interactTextEntity)
-      })
+      }
 
-      this.queryResults.focus.added?.forEach((entity) => {
+      for (const entity of this.queryResults.focus.added) {
         interactFocused(entity, null, delta)
         showInteractText(this.interactTextEntity, entity)
-      })
+      }
 
-      this.queryResults.subfocus.added?.forEach((entity) => {
+      for (const entity of this.queryResults.subfocus.added) {
         subFocused(entity, null, delta)
-      })
-      this.queryResults.subfocus.removed?.forEach((entity) => {
+      }
+      for (const entity of this.queryResults.subfocus.removed) {
         subFocused(entity, null, delta)
-      })
+      }
 
       this.focused.clear()
       this.newFocused.forEach((e) => this.focused.add(e))
     }
 
-    this.queryResults.equippable.added?.forEach((entity) => {
+    for (const entity of this.queryResults.equippable.added) {
       const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity
       // all equippables must have a collider to grab by in VR
       const collider = getComponent(equippedEntity, ColliderComponent)
@@ -512,9 +511,9 @@ export class InteractiveSystem extends System {
           networkObject.networkId
         ] as EquippedStateUpdateSchema)
       }
-    })
+    }
 
-    this.queryResults.equippable.all?.forEach((entity) => {
+    for (const entity of this.queryResults.equippable.all) {
       const equipperComponent = getComponent(entity, EquipperComponent)
       const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent)
       const handTransform = getHandTransform(entity)
@@ -522,17 +521,17 @@ export class InteractiveSystem extends System {
       equippableTransform.position.copy(position)
       equippableTransform.rotation.copy(rotation)
       if (!isClient) {
-        this.queryResults.network_user.added.forEach((userEntity) => {
+        for (const userEntity of this.queryResults.network_user.added) {
           const networkObject = getComponent(equipperComponent.equippedEntity, NetworkObject)
           sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [
             BinaryValue.TRUE,
             networkObject.networkId
           ] as EquippedStateUpdateSchema)
-        })
+        }
       }
-    })
+    }
 
-    this.queryResults.equippable.removed?.forEach((entity) => {
+    for (const entity of this.queryResults.equippable.removed) {
       const equipperComponent = getComponent(entity, EquipperComponent, true)
       const equippedEntity = equipperComponent.equippedEntity
       const equippedTransform = getComponent(equippedEntity, TransformComponent)
@@ -550,7 +549,7 @@ export class InteractiveSystem extends System {
           BinaryValue.FALSE
         ] as EquippedStateUpdateSchema)
       }
-    })
+    }
 
     // animate the interact text up and down if it's visible
     if (Network.instance.localClientEntity) {

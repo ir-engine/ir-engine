@@ -42,10 +42,10 @@ class AnimationSystem extends System {
    * @param delta time since last frame.
    */
   execute(delta: number): void {
-    this.queryResults.animation.all?.forEach((entity) => {
+    for (const entity of this.queryResults.animation.all) {
       let ac = getMutableComponent(entity, AnimationComponent)
       ac.mixer.update(delta)
-    })
+    }
   }
 }
 

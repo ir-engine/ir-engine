@@ -48,7 +48,7 @@ export class AudioSystem extends System {
    * @param time current time.
    */
   execute(delta, time): void {
-    this.queryResults.sound_effects.added?.forEach((entity) => {
+    for (const entity of this.queryResults.sound_effects.added) {
       const effect = getMutableComponent(entity, SoundEffect)
       if (effect.src && !this.audio) {
         effect.audio = new Audio()
@@ -57,16 +57,16 @@ export class AudioSystem extends System {
         })
         effect.audio.src = effect.src
       }
-    })
-    this.queryResults.music.added?.forEach((entity) => {
+    }
+    for (const entity of this.queryResults.music.added) {
       this.whenReady(() => this.startBackgroundMusic(entity))
-    })
-    this.queryResults.music.removed?.forEach((entity) => {
+    }
+    for (const entity of this.queryResults.music.removed) {
       this.stopBackgroundMusic(entity)
-    })
-    this.queryResults.play.added?.forEach((entity) => {
+    }
+    for (const entity of this.queryResults.play.added) {
       this.whenReady(() => this.playSoundEffect(entity))
-    })
+    }
   }
 
   /**

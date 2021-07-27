@@ -19,11 +19,11 @@ export class ParticleSystem extends System {
       this.clearEventQueues()
     }
 
-    this.queryResults.emitters.all?.forEach((entity) => {
+    for (const entity of this.queryResults.emitters.all) {
       const emitter = getMutableComponent(entity, ParticleEmitterComponent)
       applyTransform(entity, emitter)
       emitter.particleEmitterMesh?.update(deltaTime)
-    })
+    }
 
     for (const entity of this.queryResults.emitters.removed) {
     }

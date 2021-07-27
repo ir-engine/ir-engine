@@ -107,7 +107,7 @@ export class GameManagerSystem extends System {
   }
 
   execute(delta: number, time: number): void {
-    this.queryResults.game.added?.forEach((entity) => {
+    for (const entity of this.queryResults.game.added) {
       const game = getMutableComponent(entity, Game)
       const gameSchema = Engine.gameModes[game.gameMode] as GameMode
       gameSchema.preparePlayersRole(gameSchema, game.maxPlayers)
@@ -119,25 +119,25 @@ export class GameManagerSystem extends System {
       // TODO: add start & stop functions to be able to start and end games
       gameSchema.onGameStart(entity)
       console.log('CREATE GAME')
-    })
+    }
 
-    this.queryResults.gameObjectCollisions?.all?.forEach((entity) => {
+    for (const entity of this.queryResults.gameObjectCollisions.all) {
       const collider = getComponent(entity, ColliderComponent)
       const gameObject = getComponent(entity, GameObject)
-      collider.body?.collisionEvents?.forEach((collisionEvent: ColliderHitEvent) => {
+      for (const collisionEvent of collider.body?.collisionEvents) {
         const otherEntity = collisionEvent.bodyOther.userData as Entity
-        if (typeof otherEntity === 'undefined') return
+        if (typeof otherEntity === 'undefined') continue
         const otherGameObject = getComponent<GameObject>(otherEntity, GameObject)
-        if (!otherGameObject) return
+        if (!otherGameObject) continue
         Object.keys(gameObject.collisionBehaviors).forEach((role) => {
           if (role === otherGameObject.role) {
             gameObject.collisionBehaviors[role](entity, delta, { hitEvent: collisionEvent }, otherEntity)
           }
         })
-      })
-    })
+      }
+    }
 
-    this.queryResults.game.all?.forEach((entityGame) => {
+    for (const entityGame of this.queryResults.game.all) {
       const game = getComponent(entityGame, Game)
       // this part about check if client get same actions as server send him.
       if (isClient && game.isGlobal && checkIsGamePredictionStillRight()) {
@@ -151,24 +151,24 @@ export class GameManagerSystem extends System {
         )
       }
 
-      this.queryResults.characters.added.forEach((entity) => {
+      for (const entity of this.queryResults.characters.added) {
         console.log('new client joining game')
         addComponent(entity, NewPlayerTagComponent, { gameName: game.name })
-      })
+      }
       /*
-      this.queryResults.characters.removed.forEach((entity) => {
+      for(const entity of this.queryResults.characters.removed) {
         hasComponent(entity, NewPlayerTagComponent) && removeComponent(entity, NewPlayerTagComponent)
         hasComponent(entity, GamePlayer) && removeComponent(entity, GamePlayer)
       })
       */
-    })
+    }
 
     // PLAYERS REMOVE
-    this.queryResults.gamePlayer.removed?.forEach((entity) => {
-      this.queryResults.game.all?.forEach((entityGame) => {
+    for (const entity of this.queryResults.gamePlayer.removed) {
+      for (const entityGame of this.queryResults.game.all) {
         const game = getComponent(entityGame, Game)
         const gamePlayer = getComponent(entity, GamePlayer, true)
-        if (gamePlayer === undefined || gamePlayer.gameName != game.name) return
+        if (gamePlayer === undefined || gamePlayer.gameName != game.name) continue
         const gameSchema = Engine.gameModes[game.gameMode]
         gameSchema.beforePlayerLeave(entity)
         console.log('removeEntityFromState', gamePlayer.role)
@@ -183,26 +183,27 @@ export class GameManagerSystem extends System {
         
         removeEntity(entity);
         */
-      })
-    })
+      }
+    }
 
     // OBJECTS REMOVE
-    this.queryResults.gameObject.removed?.forEach((entity) => {
-      this.queryResults.game.all?.forEach((entityGame) => {
+    for (const entity of this.queryResults.gameObject.removed) {
+      for (const entityGame of this.queryResults.game.all) {
         const game = getComponent(entityGame, Game)
         const gameObject = getComponent(entity, GameObject, true)
-        if (gameObject === undefined || gameObject.gameName != game.name) return
+        if (gameObject === undefined || gameObject.gameName != game.name) continue
         console.log('removeEntityFromState', gameObject.role)
         removeEntityFromState(gameObject, game)
         game.gameObjects[gameObject.role] = []
-      })
-    })
+      }
+    }
+
     // PLAYERS ADDIND
-    this.queryResults.gamePlayer.added?.forEach((entity) => {
-      this.queryResults.game.all?.forEach((entityGame) => {
+    for (const entity of this.queryResults.gamePlayer.added) {
+      for (const entityGame of this.queryResults.game.all) {
         const game = getComponent(entityGame, Game)
         const gamePlayer = getComponent(entity, GamePlayer)
-        if (gamePlayer.gameName != game.name) return
+        if (gamePlayer.gameName != game.name) continue
 
         // befor adding first player
         const countAllPlayersInGame = Object.keys(game.gamePlayers).reduce(
@@ -213,10 +214,10 @@ export class GameManagerSystem extends System {
         // add to gamePlayers list sorted by role
         // game.gamePlayers[gamePlayer.role].push(entity)
         requireState(game, gamePlayer)
-      })
-    })
+      }
+    }
 
-    this.queryResults.newPlayer.added.forEach((entity) => {
+    for (const entity of this.queryResults.newPlayer.added) {
       console.log('new player')
       const newPlayer = getComponent(entity, NewPlayerTagComponent)
       const gamePlayerComp = addComponent(entity, GamePlayer, {
@@ -227,25 +228,26 @@ export class GameManagerSystem extends System {
       const game = getGameFromName(newPlayer.gameName)
       requireState(game, gamePlayerComp)
       removeComponent(entity, NewPlayerTagComponent)
-    })
+    }
+
     // OBJECTS ADDIND
     // its needet for allow dynamicly adding objects and exept errors when enitor gives object without created game
-    this.queryResults.gameObject.added?.forEach((entity) => {
-      this.queryResults.game.all?.forEach((entityGame) => {
+    for (const entity of this.queryResults.gameObject.added) {
+      for (const entityGame of this.queryResults.game.all) {
         const game = getComponent(entityGame, Game)
-        if (getComponent(entity, GameObject).gameName != game.name) return
+        if (getComponent(entity, GameObject).gameName != game.name) continue
 
         const gameObjects = game.gameObjects
         // add to gameObjects list sorted by role
         gameObjects[getComponent(entity, GameObject).role].push(entity)
-      })
-    })
+      }
+    }
 
     // end of execute
   }
 }
 /*
-this.queryResults.gameObject.removed?.forEach(entity => {
+for(const entity of this.queryResults.gameObject.removed?.forEach(entity => {
   removeFromGame(entity);
   removeFromState(entity);
   console.warn('ONE OBJECT REMOVED');

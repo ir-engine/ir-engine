@@ -49,7 +49,7 @@ export class AnimationSystem extends System {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    this.queryResults.animationCharacter.added?.forEach((entity) => {
+    for (const entity of this.queryResults.animationCharacter.added) {
       loadActorAvatar(entity)
       const animationComponent = getMutableComponent(entity, AnimationComponent)
       animationComponent.animationGraph = new CharacterAnimationGraph()
@@ -59,15 +59,15 @@ export class AnimationSystem extends System {
       if (animationComponent.currentState) {
         AnimationRenderer.mountCurrentState(animationComponent)
       }
-    })
+    }
 
-    this.queryResults.animation.all?.forEach((entity) => {
+    for (const entity of this.queryResults.animation.all) {
       const animationComponent = getMutableComponent(entity, AnimationComponent)
       const modifiedDelta = delta * animationComponent.animationSpeed
       animationComponent.mixer.update(modifiedDelta)
-    })
+    }
 
-    this.queryResults.animationCharacter.all?.forEach((entity) => {
+    for (const entity of this.queryResults.animationCharacter.all) {
       const actor = getMutableComponent(entity, CharacterComponent)
       const animationComponent = getMutableComponent(entity, AnimationComponent)
       animationComponent.animationVelocity.copy(actor.velocity)
@@ -77,7 +77,7 @@ export class AnimationSystem extends System {
         animationComponent.animationGraph.render(actor, animationComponent, deltaTime)
         AnimationRenderer.render(animationComponent, delta)
       }
-    })
+    }
   }
 }
 

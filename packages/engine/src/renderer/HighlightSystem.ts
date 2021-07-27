@@ -25,7 +25,7 @@ export class HighlightSystem extends System {
     for (const entity of this.queryResults.highlights.added) {
       const highlightedObject = getComponent(entity, Object3DComponent)
       const compHL = getComponent(entity, HighlightComponent)
-      if (!compHL) return
+      if (!compHL) continue
       highlightedObject?.value?.traverse((obj) => {
         if (obj !== undefined) {
           WebGLRendererSystem.instance.composer.OutlineEffect.selection.add(obj)

@@ -177,7 +177,7 @@ export class ClientNetworkStateSystem extends System {
     if (this.receivedServerWorldState.length > 0) {
       const receivedWorldState = [...this.receivedServerWorldState]
       this.receivedServerWorldState = []
-      receivedWorldState?.forEach((worldState: WorldStateInterface) => {
+      for (const worldState of receivedWorldState) {
         // Handle all clients that connected this frame
         for (const connectingClient in worldState.clientsConnected) {
           // Add them to our client list
@@ -276,40 +276,38 @@ export class ClientNetworkStateSystem extends System {
         }
         syncNetworkObjectsTest(worldState.createObjects)
 
-        worldState.editObjects?.forEach((editObject) => {
-          NetworkObjectUpdateSchema[editObject.type]?.forEach((element) => {
-            element.behavior(editObject)
-          })
-        })
+        for (const editObject of worldState.editObjects) {
+          NetworkObjectUpdateSchema[editObject.type](editObject)
+        }
 
         // Game Manager Messages, must be after create object functions
         if (worldState.gameState && worldState.gameState.length > 0) {
           //console.warn('get state')
-          worldState.gameState.forEach((stateMessage: GameStateUpdateMessage) => {
+          for (const stateMessage of worldState.gameState) {
             if (Network.instance.userId === stateMessage.ownerId) {
               console.log('get message', stateMessage)
               applyStateToClient(stateMessage)
             }
-          })
+          }
         }
         if (worldState.gameStateActions && worldState.gameStateActions.length > 0) {
           //console.warn('get action')
-          worldState.gameStateActions.forEach((actionMessage: GameStateActionMessage) =>
+          for (const actionMessage of worldState.gameStateActions) {
             applyActionComponent(actionMessage)
-          )
+          }
         }
 
         // Handle all network objects destroyed this frame
-        worldState.destroyObjects?.forEach(({ networkId }) => {
+        for (const { networkId } of worldState.destroyObjects) {
           console.log('Destroying ', networkId)
-          if (Network.instance.networkObjects[networkId] === undefined)
-            return console.warn("Can't destroy object as it doesn't appear to exist")
-          // console.log("Destroying network object ", Network.instance.networkObjects[networkId].component.networkId);
-          // get network object
+          if (Network.instance.networkObjects[networkId] === undefined) {
+            console.warn("Can't destroy object as it doesn't appear to exist")
+            continue
+          }
 
           if (Network.instance.localAvatarNetworkId === networkId) {
             console.warn('Can not remove owner...')
-            return
+            continue
           }
           const entity = Network.instance.networkObjects[networkId].component.entity
           if (hasComponent(entity, Object3DComponent)) {
@@ -319,14 +317,14 @@ export class ClientNetworkStateSystem extends System {
           removeEntity(entity)
           // Remove network object from list
           delete Network.instance.networkObjects[networkId]
-        })
-      })
+        }
+      }
     }
 
     if (this.receivedServerTransformState.length > 0) {
       const receivedTransformState = [...this.receivedServerTransformState]
       this.receivedServerTransformState = []
-      receivedTransformState?.forEach((transformState: TransformStateInterface) => {
+      for (const transformState of receivedTransformState) {
         if (Network.instance.tick < transformState.tick - 1) {
           // we dropped packets
           // Check how many
@@ -341,7 +339,7 @@ export class ClientNetworkStateSystem extends System {
         if (transformState.transforms.length) {
           // do our reverse manipulations back from network
           // TODO: minimise quaternions to 3 components
-          transformState.transforms.forEach((transform: StateEntity) => {
+          for (const transform of transformState.transforms) {
             const networkObject = Network.instance.networkObjects[transform.networkId]
             // for character entities, we are sending the view vector, so we have to apply it and retrieve the rotation
             if (
@@ -363,7 +361,7 @@ export class ClientNetworkStateSystem extends System {
               transform.qZ = quat.z
               transform.qW = quat.w
             }
-          })
+          }
 
           const myPlayerTime = transformState.transforms.find(
             (v) => v.networkId == Network.instance.localAvatarNetworkId
@@ -379,11 +377,11 @@ export class ClientNetworkStateSystem extends System {
           addSnapshot(newServerSnapshot)
         }
 
-        transformState.ikTransforms?.forEach((ikTransform: StateEntityIK) => {
-          if (!Network.instance.networkObjects[ikTransform.networkId]) return
+        for (const ikTransform of transformState.ikTransforms) {
+          if (!Network.instance.networkObjects[ikTransform.networkId]) continue
           const entity = Network.instance.networkObjects[ikTransform.networkId].component.entity
           // ignore our own transform
-          if (entity === Network.instance.localClientEntity) return
+          if (entity === Network.instance.localClientEntity) continue
           if (!hasComponent(entity, XRInputSourceComponent)) {
             addComponent(entity, XRInputSourceComponent)
           }
@@ -395,8 +393,8 @@ export class ClientNetworkStateSystem extends System {
           xrInputSourceComponent.controllerLeft.quaternion.set(left.qX, left.qY, left.qZ, left.qW)
           xrInputSourceComponent.controllerRight.position.set(right.x, right.y, right.z)
           xrInputSourceComponent.controllerRight.quaternion.set(right.qX, right.qY, right.qZ, right.qW)
-        })
-      })
+        }
+      }
     }
 
     function getClientGameActions() {
@@ -410,32 +408,22 @@ export class ClientNetworkStateSystem extends System {
 
     const inputSnapshot = Vault.instance?.get()
     if (inputSnapshot !== undefined) {
-      this.queryResults.localClientInput.all?.forEach((entity) => {
-        const buffer = ClientInputModel.toBuffer(Network.instance.clientInputState)
-        EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.SEND_DATA, buffer }, false, [buffer])
-        Network.instance.clientInputState = {
-          networkId: Network.instance.localAvatarNetworkId,
-          snapShotTime: inputSnapshot.time - Network.instance.timeSnaphotCorrection ?? 0,
-          buttons: [],
-          axes1d: [],
-          axes2d: [],
-          axes6DOF: [],
-          viewVector: Network.instance.clientInputState.viewVector,
-          clientGameAction: getClientGameActions(), // Network.instance.clientGameAction,
-          commands: []
-        }
-      })
+      const buffer = ClientInputModel.toBuffer(Network.instance.clientInputState)
+      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.SEND_DATA, buffer }, false, [buffer])
+      Network.instance.clientInputState = {
+        networkId: Network.instance.localAvatarNetworkId,
+        snapShotTime: inputSnapshot.time - Network.instance.timeSnaphotCorrection ?? 0,
+        buttons: [],
+        axes1d: [],
+        axes2d: [],
+        axes6DOF: [],
+        viewVector: Network.instance.clientInputState.viewVector,
+        clientGameAction: getClientGameActions(), // Network.instance.clientGameAction,
+        commands: []
+      }
     }
   }
 
   /** Queries for the system. */
-  static queries: any = {
-    localClientInput: {
-      components: [Input, LocalInputReceiver, CharacterComponent],
-      listen: {
-        added: true,
-        removed: true
-      }
-    }
-  }
+  static queries: any = {}
 }
