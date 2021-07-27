@@ -21,6 +21,8 @@ export const createDirectionalLight = (
   }
 
   const args = {
+    obj3d: DirectionalLight,
+    objArgs: {
       'shadow.mapSize': mapSize,
       'shadow.bias': component.data.shadowBias,
       'shadow.radius': component.data.shadowRadius,
@@ -28,13 +30,14 @@ export const createDirectionalLight = (
       color: component.data.color,
       castShadow: component.data.castShadow,
       'shadow.camera.far': component.data.cameraFar
+    }
   }
 
   if (sceneProperty.isCSMEnabled) {
-    const object3d = createObject3dFromArgs(entity,DirectionalLight,false, args)
+    const object3d = createObject3dFromArgs(entity, args, false)
     console.log(object3d)
     sceneProperty.directionalLights.push(object3d)
   } else {
-    addObject3DComponent(entity,DirectionalLight, args)
+    addObject3DComponent(entity, args)
   }
 }
