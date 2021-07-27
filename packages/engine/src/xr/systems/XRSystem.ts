@@ -81,7 +81,7 @@ export class XRSystem extends System {
   execute(delta: number): void {
     if (Engine.xrRenderer?.isPresenting) {
       const session = this.xrFrame.session
-      session.inputSources.forEach((source) => {
+      for (const source of session.inputSources) {
         if (source.gamepad) {
           const mapping = gamepadMapping[source.gamepad.mapping || 'xr-standard'][source.handedness]
           source.gamepad?.buttons.forEach((button, index) => {
@@ -107,7 +107,7 @@ export class XRSystem extends System {
             })
           }
         }
-      })
+      }
     }
 
     for (const entity of this.queryResults.localXRController.added) {

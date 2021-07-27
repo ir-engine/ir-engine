@@ -165,7 +165,7 @@ export class ClientInputSystem extends System {
     if (!Engine.xrSession) {
       handleGamepads()
     }
-    const newState = new Map()
+    const newState = new Map<InputAlias, InputValue<NumericalType>>()
     Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
       if (!Engine.prevInputState.has(key)) {
         return

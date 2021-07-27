@@ -39,7 +39,7 @@ if (isBrowser())
 
 export class ActionSystem extends System {
   updateType = SystemUpdateType.Fixed
-  receivedClientInputs = []
+  receivedClientInputs: Map<InputAlias, InputValue<NumericalType>>[] = []
 
   constructor(attributes: SystemAttributes = {}) {
     super(attributes)
@@ -120,7 +120,7 @@ export class ActionSystem extends System {
       // Apply input for local user input onto client
       const receivedClientInput = [...this.receivedClientInputs]
       this.receivedClientInputs = []
-      receivedClientInput?.forEach((stateUpdate) => {
+      for (const stateUpdate of receivedClientInput) {
         // key is the input type enu, value is the input value
         stateUpdate.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
           if (input.schema.inputMap.has(key)) {
@@ -202,13 +202,7 @@ export class ActionSystem extends System {
           Network.instance.clientInputState.viewVector.y = actor.viewVector.y
           Network.instance.clientInputState.viewVector.z = actor.viewVector.z
         }
-        // Do not remenber why its needed
-        /*
-        if (Network.instance.clientGameAction.length > 0) {
-          console.log(Network.instance.clientGameAction)
-          Network.instance.clientGameAction = []
-        }
-*/
+
         input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
           if (value.type === InputType.BUTTON) {
             if (value.lifecycleState === LifecycleValue.ENDED) {
@@ -216,7 +210,7 @@ export class ActionSystem extends System {
             }
           }
         })
-      })
+      }
     }
 
     // Called when input component is added to entity

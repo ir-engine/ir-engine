@@ -305,6 +305,7 @@ export class WorldScene {
 
       case 'reflectionprobestatic':
       case 'reflectionprobe':
+      case 'visible':
         // intentionally empty - these are only for the editor
         break
 
