@@ -395,7 +395,7 @@ export const EnginePage = (props: Props) => {
         systems: [
           {
             system: GolfSystem,
-            args: { priority: 6 }
+            before: InteractiveSystem
           }
         ]
       }
@@ -403,7 +403,7 @@ export const EnginePage = (props: Props) => {
       await initializeEngine(initializationOptions)
 
       // TODO: find a better way to do this
-      unregisterSystem(AnimationSystem)
+      unregisterSystem(SystemUpdateTime.FIXED, AnimationSystem)
 
       document.dispatchEvent(new CustomEvent('ENGINE_LOADED')) // this is the only time we should use document events. would be good to replace this with react state
       addUIEvents()

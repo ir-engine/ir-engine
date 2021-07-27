@@ -1,7 +1,6 @@
 import { Not } from '../../ecs/functions/ComponentFunctions'
-import { System, SystemAttributes } from '../../ecs/classes/System'
+import { System } from '../../ecs/classes/System'
 import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
 import { Network } from '../../networking/classes/Network'
 import { Vault } from '../../networking/classes/Vault'
@@ -30,10 +29,9 @@ const vec3 = new Vector3()
 
 export class InterpolationSystem extends System {
   static instance: InterpolationSystem
-  updateType = SystemUpdateType.Fixed
 
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
+  constructor() {
+    super()
     InterpolationSystem.instance = this
   }
 

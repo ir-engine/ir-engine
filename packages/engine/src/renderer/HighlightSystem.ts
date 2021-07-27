@@ -1,7 +1,6 @@
 import { Object3DComponent } from '../scene/components/Object3DComponent'
-import { System, SystemAttributes } from '../ecs/classes/System'
+import { System } from '../ecs/classes/System'
 import { getComponent } from '../ecs/functions/EntityFunctions'
-import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
 import { WebGLRendererSystem } from './WebGLRendererSystem'
 import { HighlightComponent } from './components/HighlightComponent'
 
@@ -9,16 +8,6 @@ import { HighlightComponent } from './components/HighlightComponent'
  * This system will highlight the entity with {@link effects/components/HighlightComponent.HighlightComponent | Highlight} Component attached.
  */
 export class HighlightSystem extends System {
-  /** Update type of the system. **Default** value is
-   * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type.
-   */
-  updateType = SystemUpdateType.Free
-
-  /** Constructs Highlight system. */
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
-  }
-
   /** Executes the system. */
   execute(deltaTime, time): void {
     if (!WebGLRendererSystem.instance.composer.OutlineEffect) return

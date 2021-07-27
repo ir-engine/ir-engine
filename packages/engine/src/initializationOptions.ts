@@ -5,7 +5,7 @@ import { InputSchema } from './input/interfaces/InputSchema'
 import { NetworkSchema } from './networking/interfaces/NetworkSchema'
 import { GameMode } from './game/types/GameMode'
 import { PhysXConfig } from 'three-physx'
-import { SystemConstructor } from './ecs/classes/System'
+import { System, SystemConstructor } from './ecs/classes/System'
 
 export enum EngineSystemPresets {
   CLIENT,
@@ -13,10 +13,17 @@ export enum EngineSystemPresets {
   SERVER
 }
 
-export type SystemInitializeType = {
-  system: SystemConstructor<any>
-  args?: any
-}[]
+export type SystemInitializeType<S extends System, A> =
+  | {
+      system: SystemConstructor<S, A>
+      args?: A
+      before: SystemConstructor<System, any>
+    }
+  | {
+      system: SystemConstructor<S, A>
+      args?: A
+      after: SystemConstructor<System, any>
+    }
 
 export type InitializeOptions = {
   type?: EngineSystemPresets
@@ -40,7 +47,7 @@ export type InitializeOptions = {
     simulationEnabled?: boolean
     physxWorker?: any
   }
-  systems?: SystemInitializeType
+  systems?: SystemInitializeType<System, any>[]
 }
 
 /**
@@ -49,7 +56,7 @@ export type InitializeOptions = {
  * If you just want to start up multiplayer worlds, use this.
  * Otherwise you should copy this into your own into your initializeEngine call.
  */
-export const DefaultInitializationOptions: InitializeOptions = {
+export const DefaultInitializationOptions: Partial<InitializeOptions> = {
   type: EngineSystemPresets.CLIENT,
   publicPath: '',
   input: {
@@ -64,10 +71,6 @@ export const DefaultInitializationOptions: InitializeOptions = {
   },
   gameModes: {
     [DefaultGameMode.name]: DefaultGameMode
-  },
-  xrui: {
-    showUsernames: true,
-    showVideo: true
   },
   physics: {
     simulationEnabled: true // start the engine with the physics simulation running

@@ -1,10 +1,9 @@
 import { Quaternion, Vector3 } from 'three'
 import { Controller, ControllerHitEvent, RaycastQuery, SceneQueryType } from 'three-physx'
 import { isClient } from '../common/functions/isClient'
-import { System, SystemAttributes } from '../ecs/classes/System'
+import { System } from '../ecs/classes/System'
 import { Not } from '../ecs/functions/ComponentFunctions'
 import { getMutableComponent, getComponent, getRemovedComponent, hasComponent } from '../ecs/functions/EntityFunctions'
-import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
 import { LocalInputReceiver } from '../input/components/LocalInputReceiver'
 import { characterMoveBehavior } from './behaviors/characterMoveBehavior'
 import { ControllerColliderComponent } from './components/ControllerColliderComponent'
@@ -33,11 +32,6 @@ const quat2 = new Quaternion()
 const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
 export class CharacterControllerSystem extends System {
-  updateType = SystemUpdateType.Fixed
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
-  }
-
   /** Removes resize listener. */
   dispose(): void {
     super.dispose()

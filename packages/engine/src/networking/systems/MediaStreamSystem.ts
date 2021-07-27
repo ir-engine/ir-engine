@@ -58,8 +58,6 @@ export class MediaStreamSystem extends System {
 
   public nearbyLayerUsers = [] as NearbyUser[]
 
-  updateType = SystemUpdateType.Fixed
-
   constructor(attributes: SystemAttributes = {}) {
     super(attributes)
     MediaStreamSystem.instance = this

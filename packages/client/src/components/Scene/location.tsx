@@ -42,11 +42,13 @@ import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSyste
 import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
+import { UISystem } from '@xrengine/engine/src/xrui/systems/UISystem'
 import querystring from 'querystring'
 import React, { Suspense, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
+import { CharacterUISystem } from '../../../../client-core/index'
 import { teleportToScene } from '../../../../engine/src/scene/functions/teleportToScene'
 import MediaIconsBox from '../../components/MediaIconsBox'
 import NetworkDebug from '../../components/NetworkDebug'
@@ -433,7 +435,13 @@ export const EnginePage = (props: Props) => {
         physics: {
           simulationEnabled: false,
           physxWorker: new Worker('/scripts/loadPhysXClassic.js')
-        }
+        },
+        systems: [
+          {
+            system: CharacterUISystem,
+            after: UISystem
+          }
+        ]
       }
 
       await initializeEngine(initializationOptions)

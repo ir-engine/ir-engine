@@ -1,6 +1,7 @@
 /** Functions to provide system level functionalities. */
 
 import { System, SystemConstructor } from '../classes/System'
+import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { Engine } from '../classes/Engine'
 
 /**
@@ -12,7 +13,20 @@ import { Engine } from '../classes/Engine'
  * @param attributes Attributes of the system being created.
  * @returns Registered system.
  */
-export function registerSystem(SystemClass: SystemConstructor<any>, attributes?: any): System {
+export function registerSystem<S extends System>(
+  updateType: SystemUpdateType,
+  SystemClass: SystemConstructor<S, void>
+): System
+export function registerSystem<S extends System, A>(
+  updateType: SystemUpdateType,
+  SystemClass: SystemConstructor<S, A>,
+  attributes: A
+): System
+export function registerSystem<S extends System, A = void>(
+  updateType: SystemUpdateType,
+  SystemClass: SystemConstructor<S, A>,
+  attributes?: any
+): System {
   if (!SystemClass.isSystem) {
     throw new Error(`System '${SystemClass.name}' does not extend 'System' class`)
   }
@@ -21,11 +35,12 @@ export function registerSystem(SystemClass: SystemConstructor<any>, attributes?:
     console.warn(`System '${SystemClass.name}' already registered.`)
   }
 
+  SystemClass.updateType = updateType
+
   const system = new SystemClass(attributes)
   Engine.systems.push(system)
   if (system.execute) {
-    Engine.activeSystems.add(system)
-    Engine.activeSystems.sort(system.updateType)
+    Engine.activeSystems.add(updateType, system)
   }
   return system as System
 }
@@ -37,7 +52,7 @@ export function registerSystem(SystemClass: SystemConstructor<any>, attributes?:
  * @author Fernando Serrano, Robert Long
  * @param SystemClass Type of system being unregistered.
  */
-export function unregisterSystem(SystemClass: SystemConstructor<any>): void {
+export function unregisterSystem(updateType: SystemUpdateType, SystemClass: SystemConstructor<any, any>): void {
   const system = getSystem(SystemClass)
   if (system === undefined) {
     console.warn(`Can't unregister system '${SystemClass.name}'. It doesn't exist.`)
@@ -45,7 +60,7 @@ export function unregisterSystem(SystemClass: SystemConstructor<any>): void {
 
   Engine.systems.splice(Engine.systems.indexOf(system), 1)
 
-  if (system.execute) Engine.activeSystems.remove(system)
+  if (system.execute) Engine.activeSystems.remove(updateType, system)
 }
 
 /**
@@ -55,7 +70,7 @@ export function unregisterSystem(SystemClass: SystemConstructor<any>): void {
  * @param SystemClass Type ot the system.
  * @returns System instance.
  */
-export function getSystem<S extends System>(SystemClass: SystemConstructor<S>): S {
+export function getSystem<S extends System>(SystemClass: SystemConstructor<S, any>): S {
   return Engine.systems.find((s) => s instanceof SystemClass) as S
 }
 

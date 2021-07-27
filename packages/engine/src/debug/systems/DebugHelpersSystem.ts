@@ -21,7 +21,6 @@ import { BoundingBoxComponent } from '../../interaction/components/BoundingBox'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { DebugArrowComponent } from '../DebugArrowComponent'
 import { DebugRenderer } from './DebugRenderer'
 import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent'
@@ -36,7 +35,7 @@ cubeGeometry.rotateX(-Math.PI * 0.5)
 
 export class DebugHelpersSystem extends System {
   private helpersByEntity: Record<ComponentHelpers, Map<Entity, any>>
-  updateType = SystemUpdateType.Fixed
+
   physicsDebugRenderer: DebugRenderer
   static instance: DebugHelpersSystem
   static EVENTS = {
@@ -46,8 +45,8 @@ export class DebugHelpersSystem extends System {
   physicsDebugEnabled = false
   avatarDebugEnabled = false
 
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
+  constructor() {
+    super()
     DebugHelpersSystem.instance = this
     this.physicsDebugRenderer = new DebugRenderer(Engine.scene)
 

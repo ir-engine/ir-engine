@@ -13,43 +13,49 @@ let depsLoaded: Promise<[typeof import('ethereal'), typeof import('react-dom')]>
 async function createUIRootLayer<S extends unknown>(UIFunc: React.FC<{ state: S }>, state: S, theme: any) {
   const [Ethereal, ReactDOM] = await (depsLoaded = depsLoaded || Promise.all([import('ethereal'), import('react-dom')]))
 
-  const ui = (
+  const UI = () => (
     <ThemeProvider theme={theme}>
       <UIFunc state={state} />
     </ThemeProvider>
   )
 
-  const GenerateStyles = (props) => {
+  const GenerateStyles = (props: { children: (props: { styles: string }) => JSX.Element }) => {
     const [styles, setStyles] = useStateReact('')
     useEffect(() => {
-      if (!styles) {
-        const target = document.createElement('div')
-        ReactDOM.render(
-          <StyleSheetManager target={target}>{ui}</StyleSheetManager>,
-          document.createElement('div'),
-          () => {
-            setStyles(target.innerHTML)
-          }
-        )
-      }
+      const target = document.createElement('div')
+      ReactDOM.render(
+        <StyleSheetManager target={target}>
+          <UI />
+        </StyleSheetManager>,
+        document.createElement('div'),
+        () => {
+          const newStyles = target.innerHTML
+          if (styles !== newStyles) setStyles(newStyles)
+        }
+      )
     })
     return props.children({ styles })
   }
 
   const containerElement = document.createElement('div')
   containerElement.style.position = 'fixed'
+  const stylesContainer = document.createElement('div')
+  stylesContainer.className = 'styles'
+  containerElement.appendChild(stylesContainer)
 
   ReactDOM.render(
     <GenerateStyles>
       {({ styles }) => (
         <>
-          <div dangerouslySetInnerHTML={{ __html: styles }} />
-          {ui}
+          <div data-styles dangerouslySetInnerHTML={{ __html: styles }} />
+          <UI />
         </>
       )}
     </GenerateStyles>,
     containerElement
   )
+
+  // ReactDOM.render(<UI/>, containerElement)
 
   const uiRoot = new Ethereal.WebLayer3D(containerElement, {
     onLayerCreate: (layer) => {

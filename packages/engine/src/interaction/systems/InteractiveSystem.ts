@@ -17,7 +17,7 @@ import { Behavior } from '../../common/interfaces/Behavior'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { System, SystemAttributes } from '../../ecs/classes/System'
+import { System } from '../../ecs/classes/System'
 import { Not } from '../../ecs/functions/ComponentFunctions'
 import {
   addComponent,
@@ -278,7 +278,6 @@ export class InteractiveSystem extends System {
     OBJECT_HOVER: 'INTERACTIVE_SYSTEM_OBJECT_HOVER',
     OBJECT_ACTIVATION: 'INTERACTIVE_SYSTEM_OBJECT_ACTIVATION'
   }
-  updateType = SystemUpdateType.Fixed
 
   /**
    * Elements that was in focused state on last execution
@@ -293,8 +292,8 @@ export class InteractiveSystem extends System {
 
   interactTextEntity: Entity
 
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
+  constructor() {
+    super()
     this.reset()
   }
 

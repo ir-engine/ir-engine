@@ -2,7 +2,6 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType, SIXDOFType } from '../../common/types/NumericalTypes'
 import { System } from '../../ecs/classes/System'
 import { addComponent, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { DelegatedInputReceiver } from '../../input/components/DelegatedInputReceiver'
 import { Input } from '../../input/components/Input'
 import { InputType } from '../../input/enums/InputType'
@@ -32,10 +31,6 @@ export function cancelAllInputs(entity) {
 
 /** System class to handle incoming messages. */
 export class ServerNetworkIncomingSystem extends System {
-  /** Update type of this system. **Default** to
-   * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
-  updateType = SystemUpdateType.Fixed
-
   /**
    * Constructs the system.
    * @param attributes Attributes to be passed to super class constructor.

@@ -1,7 +1,7 @@
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { System, SystemAttributes } from '../../ecs/classes/System'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
+import { System } from '../../ecs/classes/System'
 import { Network } from '../classes/Network'
+import { NetworkSchema } from '../interfaces/NetworkSchema'
 import { TransformStateModel } from '../schema/transformStateSchema'
 import { WorldStateModel } from '../schema/worldStateSchema'
 
@@ -14,16 +14,12 @@ export class ClientNetworkSystem extends System {
     RECEIVE_DATA_RELIABLE: 'CLIENT_NETWORK_SYSTEM_RECEIVE_DATA_RELIABLE',
     CONNECTION_LOST: 'CORE_CONNECTION_LOST'
   }
-  /** Update type of this system. **Default** to
-   * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
-  updateType = SystemUpdateType.Fixed
-
   /**
    * Constructs the system. Adds Network Components, initializes transport and initializes server.
    * @param attributes Attributes to be passed to super class constructor.
    */
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
+  constructor(attributes: { schema: NetworkSchema }) {
+    super()
 
     const { schema } = attributes
 

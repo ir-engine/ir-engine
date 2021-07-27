@@ -1,9 +1,8 @@
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType } from '../../common/types/NumericalTypes'
-import { System, SystemAttributes } from '../../ecs/classes/System'
+import { System } from '../../ecs/classes/System'
 import { Not } from '../../ecs/functions/ComponentFunctions'
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObject } from '../../networking/components/NetworkObject'
 import { CharacterComponent } from '../../character/components/CharacterComponent'
@@ -38,11 +37,10 @@ if (isBrowser())
  */
 
 export class ActionSystem extends System {
-  updateType = SystemUpdateType.Fixed
   receivedClientInputs = []
 
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
+  constructor() {
+    super()
 
     EngineEvents.instance.addEventListener(WEBCAM_INPUT_EVENTS.FACE_INPUT, ({ detection }) => {
       faceToInput(Network.instance.localClientEntity, detection)

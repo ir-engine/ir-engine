@@ -1,5 +1,5 @@
 import { Entity } from '../../ecs/classes/Entity'
-import { System, SystemAttributes } from '../../ecs/classes/System'
+import { System } from '../../ecs/classes/System'
 import { Network } from '../../networking/classes/Network'
 
 import { NetworkObject } from '../../networking/components/NetworkObject'
@@ -81,15 +81,14 @@ type ComponentStateChangeType = {
 
 export class GameManagerSystem extends System {
   static instance: GameManagerSystem
-  updateType = SystemUpdateType.Fixed
 
   updateNewPlayersRate: number
   updateLastTime: number
   currentGames: Map<string, Game>
   gameEntities: Entity[]
 
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
+  constructor() {
+    super()
     GameManagerSystem.instance = this
     this.reset()
   }

@@ -1,8 +1,6 @@
 import { Euler, Quaternion } from 'three'
-import { Engine } from '../../ecs/classes/Engine'
 import { System } from '../../ecs/classes/System'
 import { getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { CopyTransformComponent } from '../components/CopyTransformComponent'
 import { DesiredTransformComponent } from '../components/DesiredTransformComponent'
@@ -20,8 +18,6 @@ euler2YXZ.order = 'YXZ'
 const quat = new Quaternion()
 
 export class TransformSystem extends System {
-  updateType = SystemUpdateType.Fixed
-
   execute(delta: number, time: number) {
     this.queryResults.parent.all?.forEach((entity) => {
       const parentTransform = getMutableComponent(entity, TransformComponent)

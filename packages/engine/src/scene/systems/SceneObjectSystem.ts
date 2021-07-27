@@ -1,9 +1,8 @@
 import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Vector3 } from 'three'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
 import { Engine } from '../../ecs/classes/Engine'
-import { System, SystemAttributes } from '../../ecs/classes/System'
+import { System } from '../../ecs/classes/System'
 import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { beforeMaterialCompile } from '../../editor/nodes/helper/BPCEMShader'
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -22,15 +21,14 @@ type BPCEMProps = {
 }
 
 export class SceneObjectSystem extends System {
-  updateType = SystemUpdateType.Fixed
   static instance: SceneObjectSystem
 
   bpcemOptions: BPCEMProps
   envMapIntensity = 1
   boxProjection = false
 
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
+  constructor() {
+    super()
     this.bpcemOptions = {
       probeScale: new Vector3(1, 1, 1),
       probePositionOffset: new Vector3()

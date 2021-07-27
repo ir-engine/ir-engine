@@ -3,12 +3,11 @@ import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { System, SystemAttributes } from '../../ecs/classes/System'
+import { System } from '../../ecs/classes/System'
 import { gamepadMapping } from '../../input/behaviors/GamepadInputBehaviors'
 import { InputType } from '../../input/enums/InputType'
 import { endXR, startXR } from '../functions/WebXRFunctions'
 import { XRFrame, XRReferenceSpace, XRReferenceSpaceType, XRWebGLLayer } from '../../input/types/WebXR'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
 import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
@@ -29,14 +28,13 @@ export class XRSystem extends System {
   }
 
   xrFrame: XRFrame
-  updateType = SystemUpdateType.Free
 
   referenceSpaceType: XRReferenceSpaceType = 'local-floor'
   referenceSpace: XRReferenceSpace
   static instance: XRSystem
 
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
+  constructor() {
+    super()
 
     XRSystem.instance = this
 

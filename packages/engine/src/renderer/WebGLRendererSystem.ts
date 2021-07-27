@@ -31,7 +31,7 @@ import { ClientStorage } from '../common/classes/ClientStorage'
 import { now } from '../common/functions/now'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
-import { System, SystemAttributes } from '../ecs/classes/System'
+import { System } from '../ecs/classes/System'
 import { defaultPostProcessingSchema, effectType } from '../scene/classes/PostProcessing'
 import { PostProcessingSchema } from './interfaces/PostProcessingSchema'
 import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
@@ -140,7 +140,7 @@ export class WebGLRendererSystem extends System {
   rendereringEnabled = true
 
   /** Constructs WebGL Renderer System. */
-  constructor(attributes: SystemAttributes = {}) {
+  constructor(attributes: { canvas: HTMLCanvasElement }) {
     super(attributes)
     WebGLRendererSystem.instance = this
 

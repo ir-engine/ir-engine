@@ -16,7 +16,7 @@ import { bindActionCreators, Dispatch } from 'redux'
 // @ts-ignore
 import styles from './Admin.module.scss'
 import InstanceModal from './Instance/InstanceModal'
-import CreateInstance from './Instance/CreateInstance'
+// import CreateInstance from './Instance/CreateInstance'
 import { Delete, Edit } from '@material-ui/icons'
 import Dialog from '@material-ui/core/Dialog'
 import DialogActions from '@material-ui/core/DialogActions'
@@ -342,12 +342,15 @@ function InstanceConsole(props: Props) {
           </Table>
         </TableContainer>
         <InstanceModal instance={selectedInstance} open={instanceModalOpen} handleClose={handleInstanceClose} />
+        {/* 
+        TODO: This import is missing?!
         <CreateInstance
           open={instanceCreateOpen}
           handleClose={handleCreateInstanceClose}
           editing={instanceEditing}
           instanceEdit={instanceEdit}
-        />
+        /> 
+        */}
 
         <Dialog
           open={open}

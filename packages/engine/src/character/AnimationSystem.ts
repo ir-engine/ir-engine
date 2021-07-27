@@ -1,8 +1,7 @@
 import { Quaternion, Vector3 } from 'three'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
-import { System, SystemAttributes } from '../ecs/classes/System'
+import { System } from '../ecs/classes/System'
 import { getMutableComponent, getEntityByID } from '../ecs/functions/EntityFunctions'
-import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
 import { ControllerColliderComponent } from './components/ControllerColliderComponent'
 import { AnimationComponent } from './components/AnimationComponent'
 import { CharacterComponent } from './components/CharacterComponent'
@@ -18,9 +17,8 @@ export class AnimationSystem extends System {
     LOAD_AVATAR: 'ANIMATION_SYSTEM_LOAD_AVATAR'
   }
 
-  updateType = SystemUpdateType.Fixed
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
+  constructor() {
+    super()
 
     EngineEvents.instance.addEventListener(AnimationSystem.EVENTS.LOAD_AVATAR, ({ entityID, avatarId, avatarURL }) => {
       const entity = getEntityByID(entityID)

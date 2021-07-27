@@ -5,32 +5,18 @@ import { Entity } from '../../ecs/classes/Entity'
 import { System } from '../../ecs/classes/System'
 import { Not } from '../../ecs/functions/ComponentFunctions'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { Input } from '../../input/components/Input'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Network } from '../classes/Network'
 import { NetworkObject } from '../components/NetworkObject'
-import { NetworkSchema } from '../interfaces/NetworkSchema'
 import { TransformStateInterface } from '../interfaces/WorldState'
 import { TransformStateModel } from '../schema/transformStateSchema'
 import { WorldStateModel } from '../schema/worldStateSchema'
 
 /** System class to handle outgoing messages. */
 export class ServerNetworkOutgoingSystem extends System {
-  /** Update type of this system. **Default** to
-   * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
-  updateType = SystemUpdateType.Fixed
-
-  /**
-   * Constructs the system.
-   * @param attributes Attributes to be passed to super class constructor.
-   */
-  constructor(attributes: { schema: NetworkSchema; app: any }) {
-    super(attributes)
-  }
-
   /** Call execution on server */
   execute = (delta: number): void => {
     const transformState: TransformStateInterface = {
