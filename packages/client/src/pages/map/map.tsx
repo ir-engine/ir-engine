@@ -129,7 +129,6 @@ interface Props {
   setCurrentScene?: typeof setCurrentScene
   harmonyOpen?: boolean
   enableSharing?: boolean
-
 }
 
 const mapStateToProps = (state: any) => {
