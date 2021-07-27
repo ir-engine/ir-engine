@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
@@ -50,11 +50,6 @@ const CreateVideo = (props: Props) => {
       preview: ''
     }
   })
-
-  const volumetricManifest = useRef<HTMLInputElement>()
-  const volumetricAudios = useRef<HTMLInputElement>()
-  const volumetricDracosis = useRef<HTMLInputElement>()
-  const volumetricPreview = useRef<HTMLInputElement>()
 
   const handleChange = (e) => {
     const { name } = e.target
@@ -114,7 +109,11 @@ const CreateVideo = (props: Props) => {
       setState({
         ...state,
         title: '',
-        type: ''
+        type: '',
+        audio: '',
+        manifest: '',
+        dracosis: '',
+        preview: ''
       })
     }
   }
@@ -168,14 +167,13 @@ const CreateVideo = (props: Props) => {
               </FormControl>
             </Paper>
 
-            <span>Video</span>
+            <span>Audio</span>
             <Paper
               component="div"
               className={`${state.formErrors.audio.length > 0 ? classes.redBorder : classes.createInput}`}
             >
               <Button variant="contained" className={classes.btn} startIcon={<CloudUploadIcon />}>
                 <input
-                  ref={volumetricAudios}
                   name="audio"
                   onChange={handleChange}
                   accept="audio/*"
@@ -194,7 +192,6 @@ const CreateVideo = (props: Props) => {
             >
               <Button variant="contained" className={classes.btn} startIcon={<CloudUploadIcon />}>
                 <input
-                  ref={volumetricDracosis}
                   name="dracosis"
                   onChange={handleChange}
                   // accept=".uvol"
@@ -213,7 +210,6 @@ const CreateVideo = (props: Props) => {
             >
               <Button variant="contained" className={classes.btn} startIcon={<CloudUploadIcon />}>
                 <input
-                  ref={volumetricManifest}
                   name="manifest"
                   // accept=".manifest"
                   className={classes.input}
@@ -232,7 +228,6 @@ const CreateVideo = (props: Props) => {
             >
               <Button variant="contained" className={classes.btn} startIcon={<PhotoCamera />}>
                 <input
-                  ref={volumetricPreview}
                   name="preview"
                   onChange={handleChange}
                   accept="image/*"

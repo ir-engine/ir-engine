@@ -16,6 +16,7 @@ export const ifOutCourse: Checker = (entity: Entity, args?: any, entityTarget?: 
   const collider = getComponent(entity, ColliderComponent)
   const ballPosition = collider.body.transform.translation
   golfBallComponent.groundRaycast.origin.copy(ballPosition)
+  console.log('OUT OF COURSE', typeof golfBallComponent.groundRaycast.hits[0] === 'undefined')
   return typeof golfBallComponent.groundRaycast.hits[0] === 'undefined'
 }
 

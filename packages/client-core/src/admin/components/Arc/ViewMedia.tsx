@@ -1,12 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Drawer from '@material-ui/core/Drawer'
 import Container from '@material-ui/core/Container'
 import Paper from '@material-ui/core/Paper'
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import DialogActions from '@material-ui/core/DialogActions'
-import { Edit, Save } from '@material-ui/icons'
-import { useStyle, useStyles } from './styles'
+import AudioPlayer from 'material-ui-audio-player'
+import { useStyle, useStyles, useStylePlayer } from './styles'
+import EditArMedia from './EditArmedia'
 
 interface Props {
   openView: boolean
@@ -16,16 +17,15 @@ interface Props {
 
 const ViewMedia = (props: Props) => {
   const classex = useStyle()
+  const classes = useStyles()
   const { openView, closeViewModel, mediaAdmin } = props
   const [editMode, setEditMode] = React.useState(false)
-
-  const classx = useStyle()
-  const classes = useStyles()
-
   return (
     <React.Fragment>
       <Drawer anchor="right" open={openView} onClose={() => closeViewModel(false)} classes={{ paper: classex.paper }}>
-        {mediaAdmin && (
+        {editMode ? (
+          <EditArMedia mediaAdmin={mediaAdmin} onCloseEdit={() => setEditMode(false)} />
+        ) : (
           <React.Fragment>
             <Paper elevation={3} className={classes.paperHeight}>
               <Container maxWidth="sm">
@@ -34,51 +34,47 @@ const ViewMedia = (props: Props) => {
                     {mediaAdmin.title}
                   </Typography>
                 </div>
-                <div className={classes.position}>
-                  <Typography variant="h6" component="span" className={classes.typo}>
-                    {`${mediaAdmin.type}`}
-                  </Typography>
-                </div>
               </Container>
             </Paper>
-            <Paper elevation={3} className={classes.space}>
-              <div className={classes.cardHolder}>
+            <Container maxWidth="sm">
+              <div className={`${classes.space} ${classes.cardHolder}`} style={{ marginTop: '20px' }}>
+                <Typography variant="h6" component="span" className={classes.typo}>
+                  {`${mediaAdmin.type}`}
+                </Typography>
+
                 <div className={classes.Card}>
-                  <img src={`${mediaAdmin.audioUrl}`} />
+                  <img className={classes.image} src={`${mediaAdmin.previewUrl}`} />
                 </div>
-                <div className={classes.Card}>
-                  <img src={`${mediaAdmin.dracosisUrl}`} />
-                </div>
+
+                <AudioPlayer
+                  elevation={1}
+                  useStyles={useStylePlayer}
+                  spacing={1}
+                  width="100%"
+                  download={false}
+                  autoplay={false}
+                  order="standart"
+                  loop={false}
+                  src={`${mediaAdmin.audioUrl}`}
+                />
               </div>
-              <div className={classes.cardHolder}>
-                <div className={classes.Card}>
-                  <img src={`${mediaAdmin.manifestUrl}`} />
-                </div>
-                <div className={classes.Card}>
-                  <img src={`${mediaAdmin.previewUrl}`} />
-                </div>
-              </div>
-            </Paper>
-            <DialogActions className={classes.mt10}>
-              {editMode ? (
+
+              <DialogActions className={classes.mt5}>
                 <div>
-                  <Button className={classx.saveBtn}>
-                    <span style={{ marginRight: '15px' }}>
-                      <Save />
-                    </span>{' '}
-                    Submit
+                  <Button
+                    onClick={() => {
+                      setEditMode(true)
+                    }}
+                    className={classex.saveBtn}
+                  >
+                    EDIT
                   </Button>
-                  <Button className={classx.saveBtn}>CANCEL</Button>
-                </div>
-              ) : (
-                <div>
-                  <Button className={classx.saveBtn}>EDIT</Button>
-                  <Button onClick={() => closeViewModel(false)} className={classx.saveBtn}>
+                  <Button onClick={() => closeViewModel(false)} className={classex.saveBtn}>
                     CANCEL
                   </Button>
                 </div>
-              )}
-            </DialogActions>
+              </DialogActions>
+            </Container>
           </React.Fragment>
         )}
       </Drawer>
