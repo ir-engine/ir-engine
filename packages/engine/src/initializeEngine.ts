@@ -40,7 +40,7 @@ import { setupBotHooks } from './bot/functions/botHookFunctions'
 import { AnimationSystem } from './character/AnimationSystem'
 import { InterpolationSystem } from './physics/systems/InterpolationSystem'
 import { FontManager } from './xrui/classes/FontManager'
-import { CharacterUISystem } from './character/CharacterUISystem'
+import { CharacterUISystem } from '../../client-core/src/user/systems/CharacterUISystem'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {

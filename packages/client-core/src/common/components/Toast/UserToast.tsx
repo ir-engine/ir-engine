@@ -1,26 +1,16 @@
 import React from 'react'
-import { connect } from 'react-redux'
-import { selectUserState } from '../../../user/reducers/user/selector'
 import Toast from './Toast'
 // @ts-ignore
 import styles from './toast.module.scss'
 import { useTranslation } from 'react-i18next'
+import { accessUserState } from '../../../user/store/UserState'
+import { useState } from '@hookstate/core'
 
-type Props = {
-  user?: any
-}
-
-const mapStateToProps = (state: any): any => {
-  return {
-    user: selectUserState(state)
-  }
-}
-
-const UserToast = (props: Props) => {
-  const messages = props.user?.get('toastMessages')
+const UserToast = () => {
+  const toastMessages = useState(accessUserState().toastMessages).value
   const { t } = useTranslation()
-  const msgs = messages
-    ? Array.from(messages).map((m: any) => {
+  const msgs = toastMessages
+    ? Array.from(toastMessages).map((m) => {
         if (m.args.userAdded)
           return (
             <span>
@@ -39,4 +29,4 @@ const UserToast = (props: Props) => {
   return <Toast messages={msgs} customClass={styles.userToastContainer} />
 }
 
-export default connect(mapStateToProps)(UserToast)
+export default UserToast

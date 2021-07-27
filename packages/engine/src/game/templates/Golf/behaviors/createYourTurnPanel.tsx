@@ -8,13 +8,12 @@ import { TransformChildComponent } from '../../../../transform/components/Transf
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { Entity } from '../../../../ecs/classes/Entity'
 import { Vector3 } from 'three'
-import { useTheme } from '../../../../../../common/src/ui/theme'
 
 export const Panel = styled.div`
   background: #ffffff55;
   border-radius: 3px;
   border: 2px solid palevioletred;
-  color: ${() => useTheme().palette.info.main};
+  /* color: () => {palette.info.main}; */
   margin: 0.5em 1em;
   padding: 0.25em 1em;
 `

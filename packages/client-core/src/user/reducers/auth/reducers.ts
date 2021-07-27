@@ -34,7 +34,7 @@ import {
   UPDATE_USER_SETTINGS,
   USERAVATARID_UPDATED
 } from '../actions'
-import { getStoredState } from '../../../persisted.store'
+import { getStoredAuthState } from '../../../persisted.store'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
@@ -82,7 +82,7 @@ const authReducer = (state = immutableState, action: any): any => {
       return state.set('user', user)
     }
     case RESTORE: {
-      const stored = getStoredState('auth')
+      const stored = getStoredAuthState()
 
       if (stored) {
         return state

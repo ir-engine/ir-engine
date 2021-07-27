@@ -14,80 +14,75 @@ const state = createState({
   toastMessages: [] as Array<{ user: User; args: { userAdded?: boolean; userRemoved?: boolean } }>
 })
 
-export const userReceptor = (_, action: UserActionType): typeof state => {
-  switch (action.type) {
-    case 'LOADED_RELATIONSHIP':
-      state.merge({ relationship: action.relationship, updateNeeded: false })
-      return state
-    case 'ADMIN_LOADED_USERS':
-      state.merge({ users: action.users, updateNeeded: false })
-      return state
-    case 'CHANGED_RELATION':
-      state.updateNeeded.set(true)
-      return state
-    case 'CLEAR_LAYER_USERS':
-      state.merge({ layerUsers: [], layerUsersUpdateNeeded: true })
-      return state
-    case 'LOADED_LAYER_USERS':
-      state.merge({ layerUsers: action.users, layerUsersUpdateNeeded: false })
-      return state
-    case 'ADDED_LAYER_USER': {
-      const newUser = action.user
-      const idx = state.layerUsers.findIndex((layerUser) => {
-        return layerUser != null && layerUser.id.value === newUser.id
-      })
-      if (idx === -1) {
-        state.layerUsers.merge([newUser])
-      } else {
-        state.layerUsers[idx].set(newUser)
+export const userReducer = (_, action: UserActionType) => {
+  Promise.resolve().then(() => userReceptor(action))
+  return state
+}
+
+export const userReceptor = (action: UserActionType): void => {
+  state.batch((s) => {
+    switch (action.type) {
+      case 'LOADED_RELATIONSHIP':
+        return s.merge({ relationship: action.relationship, updateNeeded: false })
+      case 'ADMIN_LOADED_USERS':
+        return s.merge({ users: action.users, updateNeeded: false })
+      case 'CHANGED_RELATION':
+        return s.updateNeeded.set(true)
+      case 'CLEAR_LAYER_USERS':
+        return s.merge({ layerUsers: [], layerUsersUpdateNeeded: true })
+      case 'LOADED_LAYER_USERS':
+        return s.merge({ layerUsers: action.users, layerUsersUpdateNeeded: false })
+      case 'ADDED_LAYER_USER': {
+        const newUser = action.user
+        const idx = s.layerUsers.findIndex((layerUser) => {
+          return layerUser != null && layerUser.id.value === newUser.id
+        })
+        if (idx === -1) {
+          s.layerUsers.merge([newUser])
+        } else {
+          s.layerUsers[idx].set(newUser)
+        }
+        return s.layerUsersUpdateNeeded.set(true)
       }
-      state.layerUsersUpdateNeeded.set(true)
-      return state
-    }
-    case 'REMOVED_LAYER_USER': {
-      const layerUsers = state.layerUsers
-      const idx = layerUsers.findIndex((layerUser) => {
-        return layerUser != null && layerUser.value.id !== action.user.id
-      })
-      state.layerUsers[idx].set(none)
-      return state
-    }
-    case 'CLEAR_CHANNEL_LAYER_USERS':
-      state.merge({
-        channelLayerUsers: [],
-        channelLayerUsersUpdateNeeded: true
-      })
-      return state
-    case 'LOADED_CHANNEL_LAYER_USERS':
-      state.merge({
-        channelLayerUsers: action.users,
-        channelLayerUsersUpdateNeeded: false
-      })
-      return state
-    case 'ADDED_CHANNEL_LAYER_USER': {
-      const newUser = action.user
-      const idx = state.channelLayerUsers.findIndex((layerUser) => {
-        return layerUser != null && layerUser.value.id === newUser.id
-      })
-      if (idx === -1) {
-        state.channelLayerUsers.merge([newUser])
-      } else {
-        state.channelLayerUsers[idx].set(newUser)
+      case 'REMOVED_LAYER_USER': {
+        const layerUsers = s.layerUsers
+        const idx = layerUsers.findIndex((layerUser) => {
+          return layerUser != null && layerUser.value.id !== action.user.id
+        })
+        return s.layerUsers[idx].set(none)
       }
-      state.channelLayerUsersUpdateNeeded.set(true)
-      return state
+      case 'CLEAR_CHANNEL_LAYER_USERS':
+        return s.merge({
+          channelLayerUsers: [],
+          channelLayerUsersUpdateNeeded: true
+        })
+      case 'LOADED_CHANNEL_LAYER_USERS':
+        return s.merge({
+          channelLayerUsers: action.users,
+          channelLayerUsersUpdateNeeded: false
+        })
+      case 'ADDED_CHANNEL_LAYER_USER': {
+        const newUser = action.user
+        const idx = s.channelLayerUsers.findIndex((layerUser) => {
+          return layerUser != null && layerUser.value.id === newUser.id
+        })
+        if (idx === -1) {
+          s.channelLayerUsers.merge([newUser])
+        } else {
+          s.channelLayerUsers[idx].set(newUser)
+        }
+        return s.channelLayerUsersUpdateNeeded.set(true)
+      }
+      case 'REMOVED_CHANNEL_LAYER_USER':
+        const newUser = action.user
+        const idx = s.channelLayerUsers.findIndex((layerUser) => {
+          return layerUser != null && layerUser.value.id !== newUser.id
+        })
+        return s.channelLayerUsers[idx].set(none)
+      case 'USER_TOAST':
+        return s.toastMessages.merge([action.message])
     }
-    case 'REMOVED_CHANNEL_LAYER_USER':
-      const newUser = action.user
-      const idx = state.channelLayerUsers.findIndex((layerUser) => {
-        return layerUser != null && layerUser.value.id !== newUser.id
-      })
-      state.channelLayerUsers[idx].set(none)
-      return state
-    case 'USER_TOAST':
-      state.toastMessages.merge([action.message])
-      return state
-  }
+  }, action.type)
 }
 
 export const accessUserState = () => state

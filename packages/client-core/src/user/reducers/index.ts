@@ -1,6 +1,6 @@
 import authReducer from './auth/reducers'
-import { userReceptor } from '../store/UserState'
+import { userReducer } from '../store/UserState'
 export default {
   auth: authReducer,
-  user: userReceptor
+  user: userReducer
 }

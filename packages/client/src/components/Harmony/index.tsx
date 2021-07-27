@@ -71,8 +71,8 @@ import {
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
-import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector'
-import { getLayerUsers } from '@xrengine/client-core/src/user/reducers/user/service'
+import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
+import { UserService } from '@xrengine/client-core/src/user/store/UserService'
 import PartyParticipantWindow from '../../components/PartyParticipantWindow'
 import { selectChannelConnectionState } from '../../reducers/channelConnection/selector'
 import {
@@ -113,6 +113,8 @@ import styles from './style.module.scss'
 import WarningRefreshModal from '../AlertModals/WarningRetryModal'
 import { resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { InitializeOptions } from '../../../../engine/src/initializationOptions'
+import { Downgraded } from '@hookstate/core'
+
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
 const mapStateToProps = (state: any): any => {
@@ -120,7 +122,6 @@ const mapStateToProps = (state: any): any => {
     authState: selectAuthState(state),
     chatState: selectChatState(state),
     channelConnectionState: selectChannelConnectionState(state),
-    userState: selectUserState(state),
     friendState: selectFriendState(state),
     groupState: selectGroupState(state),
     locationState: selectLocationState(state),
@@ -155,7 +156,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   removePartyUser: bindActionCreators(removePartyUser, dispatch),
   transferPartyOwner: bindActionCreators(transferPartyOwner, dispatch),
   updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch),
-  getLayerUsers: bindActionCreators(getLayerUsers, dispatch),
   banUserFromLocation: bindActionCreators(banUserFromLocation, dispatch),
   changeChannelTypeState: bindActionCreators(changeChannelTypeState, dispatch)
 })
@@ -174,7 +174,6 @@ interface Props {
   updateChatTarget?: any
   patchMessage?: any
   updateMessageScrollInit?: any
-  userState?: any
   provisionChannelServer?: typeof provisionChannelServer
   connectToChannelServer?: typeof connectToChannelServer
   resetChannelServer?: typeof resetChannelServer
@@ -225,7 +224,6 @@ const Harmony = (props: Props): any => {
     updateChatTarget,
     patchMessage,
     updateMessageScrollInit,
-    userState,
     provisionChannelServer,
     connectToChannelServer,
     resetChannelServer,
@@ -248,6 +246,8 @@ const Harmony = (props: Props): any => {
     isHarmonyPage,
     harmonyHidden
   } = props
+
+  const userState = useUserState()
 
   const messageRef = React.useRef()
   const messageEl = messageRef.current
@@ -289,8 +289,8 @@ const Harmony = (props: Props): any => {
   const [noGameserverProvision, setNoGameserverProvision] = useState(false)
   const [channelDisconnected, setChannelDisconnected] = useState(false)
 
-  const instanceLayerUsers = userState.get('layerUsers') ?? []
-  const channelLayerUsers = userState.get('channelLayerUsers') ?? []
+  const instanceLayerUsers = userState.layerUsers.value
+  const channelLayerUsers = userState.channelLayerUsers.value
   const layerUsers =
     channels.get(activeAVChannelId)?.channelType === 'instance' ? instanceLayerUsers : channelLayerUsers
   const friendSubState = friendState.get('friends')
@@ -390,11 +390,12 @@ const Harmony = (props: Props): any => {
     }
   }, [])
 
+  const layerUsersUpdateNeeded = userState.layerUsersUpdateNeeded.attach(Downgraded).value
+  const channelLayerUsersUpdateNeeded = userState.layerUsersUpdateNeeded.attach(Downgraded).value
   useEffect(() => {
-    if (selfUser.instanceId != null && userState.get('layerUsersUpdateNeeded') === true) getLayerUsers(true)
-    if (selfUser.channelInstanceId != null && userState.get('channelLayerUsersUpdateNeeded') === true)
-      getLayerUsers(false)
-  }, [userState])
+    if (selfUser.instanceId != null && layerUsersUpdateNeeded === true) UserService.getLayerUsers(true)
+    if (selfUser.channelInstanceId != null && channelLayerUsersUpdateNeeded === true) UserService.getLayerUsers(false)
+  }, [layerUsersUpdateNeeded, channelLayerUsersUpdateNeeded])
 
   useEffect(() => {
     if ((Network.instance?.transport as any)?.channelType === 'instance') {
@@ -1101,7 +1102,8 @@ const Harmony = (props: Props): any => {
                 {instanceLayerUsers &&
                   instanceLayerUsers.length > 0 &&
                   instanceLayerUsers
-                    .sort((a, b) => a.name - b.name)
+                    .slice()
+                    .sort((a, b) => a.name.localeCompare(b.name))
                     .map((layerUser) => {
                       return (
                         <ListItem key={layerUser.id}>
@@ -1286,8 +1288,8 @@ const Harmony = (props: Props): any => {
                   [styles['grid-item']]: true,
                   [styles.single]: layerUsers.length == null || layerUsers.length <= 1,
                   [styles.two]: layerUsers.length === 2,
-                  [styles.four]: layerUsers.length === 3 && layerUsers.length === 4,
-                  [styles.six]: layerUsers.length === 5 && layerUsers.length === 6,
+                  [styles.four]: layerUsers.length === 3 || layerUsers.length === 4,
+                  [styles.six]: layerUsers.length === 5 || layerUsers.length === 6,
                   [styles.nine]: layerUsers.length >= 7 && layerUsers.length <= 9,
                   [styles.many]: layerUsers.length > 9
                 })}
@@ -1304,8 +1306,8 @@ const Harmony = (props: Props): any => {
                       [styles['grid-item']]: true,
                       [styles.single]: layerUsers.length == null || layerUsers.length <= 1,
                       [styles.two]: layerUsers.length === 2,
-                      [styles.four]: layerUsers.length === 3 && layerUsers.length === 4,
-                      [styles.six]: layerUsers.length === 5 && layerUsers.length === 6,
+                      [styles.four]: layerUsers.length === 3 || layerUsers.length === 4,
+                      [styles.six]: layerUsers.length === 5 || layerUsers.length === 6,
                       [styles.nine]: layerUsers.length >= 7 && layerUsers.length <= 9,
                       [styles.many]: layerUsers.length > 9
                     })}

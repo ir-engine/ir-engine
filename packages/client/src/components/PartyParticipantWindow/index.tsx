@@ -18,7 +18,7 @@ import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/se
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { getAvatarURLFromNetwork } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
-import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector'
+import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service'
 import { PositionalAudioSystem } from '@xrengine/engine/src/audio/systems/PositionalAudioSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
@@ -40,6 +40,7 @@ import {
 import Draggable from './Draggable'
 // @ts-ignore
 import styles from './PartyParticipantWindow.module.scss'
+import { Downgraded } from '@hookstate/core'
 
 interface ContainerProportions {
   width: number | string
@@ -53,7 +54,6 @@ interface Props {
   appState?: any
   authState?: any
   locationState?: any
-  userState?: any
   mediastream?: any
 }
 
@@ -62,7 +62,6 @@ const mapStateToProps = (state: any): any => {
     appState: selectAppState(state),
     authState: selectAuthState(state),
     locationState: selectLocationState(state),
-    userState: selectUserState(state),
     mediastream: selectMediastreamState(state)
   }
 }
@@ -82,7 +81,8 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const [videoTrackClones, setVideoTrackClones] = useState([])
   const [toggle, setToggle] = useState(0)
   const [volume, setVolume] = useState(100)
-  const { harmony, peerId, appState, authState, locationState, userState, mediastream } = props
+  const { harmony, peerId, appState, authState, locationState, mediastream } = props
+  const userState = useUserState()
   const videoRef = React.createRef<HTMLVideoElement>()
   const audioRef = React.createRef<HTMLAudioElement>()
   const videoStreamRef = useRef(videoStream)
@@ -94,7 +94,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const enableGlobalMute =
     currentLocation?.locationSettings?.locationType === 'showroom' &&
     selfUser?.locationAdmins?.find((locationAdmin) => currentLocation.id === locationAdmin.locationId) != null
-  const user = userState.get('layerUsers').find((user) => user.id === peerId)
+  const user = userState.layerUsers.find((user) => user.id.value === peerId)?.attach(Downgraded).value
 
   const isCamVideoEnabled = mediastream.get('isCamVideoEnabled')
   const isCamAudioEnabled = mediastream.get('isCamAudioEnabled')

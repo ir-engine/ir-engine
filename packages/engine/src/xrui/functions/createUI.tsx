@@ -7,7 +7,6 @@ import { UIComponent } from '../components/UIComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { Engine } from '../../ecs/classes/Engine'
-import { theme as defaultTheme } from '../../../../common/src/ui/theme'
 
 let depsLoaded: Promise<[typeof import('ethereal'), typeof import('react-dom')]>
 
@@ -62,7 +61,7 @@ async function createUIRootLayer<S extends unknown>(UIFunc: React.FC<{ state: S 
   return uiRoot
 }
 
-export function createUI<S>(UIFunc: React.FC<{ state: S }>, state: S, theme = defaultTheme): XRUI<S> {
+export function createUI<S>(UIFunc: React.FC<{ state: S }>, state: S, theme = {}): XRUI<S> {
   const entity = createEntity()
   createUIRootLayer(UIFunc, state, theme).then((uiRoot) => {
     // Make sure entity still exists, since we are adding these components asynchronously,

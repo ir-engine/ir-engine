@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { createState } from '@hookstate/core'
-import { createUI } from '../../xrui/functions/createUI'
+import { createUI } from '@xrengine/engine/src/xrui/functions/createUI'
 
 export function createCharacterDetailView() {
   return createUI(CharacterDetailView, createCharacterDetailState())
