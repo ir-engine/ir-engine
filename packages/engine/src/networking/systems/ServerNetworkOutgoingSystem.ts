@@ -27,7 +27,7 @@ export class ServerNetworkOutgoingSystem extends System {
    * Constructs the system.
    * @param attributes Attributes to be passed to super class constructor.
    */
-  constructor(attributes: { schema: NetworkSchema; app: any }) {
+  constructor(attributes) {
     super(attributes)
   }
 

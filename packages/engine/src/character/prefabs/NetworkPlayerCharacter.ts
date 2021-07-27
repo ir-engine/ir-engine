@@ -16,7 +16,6 @@ import { PrefabType } from '../../networking/templates/PrefabType'
 import { RelativeSpringSimulator } from '../../physics/classes/SpringSimulator'
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator'
 import { InterpolationComponent } from '../../physics/components/InterpolationComponent'
-import { addObject3DComponent } from '../../scene/behaviors/addObject3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CharacterInputSchema } from '../CharacterInputSchema'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -25,6 +24,7 @@ import { ControllerColliderComponent } from '../components/ControllerColliderCom
 import { NamePlateComponent } from '../components/NamePlateComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import type { NetworkObject } from '../../networking/components/NetworkObject'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
 
 const initializeCharacter: Behavior = (entity): void => {
   entity.name = 'Player'
@@ -52,7 +52,7 @@ const initializeCharacter: Behavior = (entity): void => {
     )
   })
 
-  addObject3DComponent(entity, obj3d)
+  addComponent(entity, Object3DComponent, { value: obj3d })
 
   actor.velocitySimulator = new VectorSpringSimulator(
     60,

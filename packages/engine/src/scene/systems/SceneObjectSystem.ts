@@ -43,6 +43,8 @@ export class SceneObjectSystem extends System {
     for (const entity of this.queryResults.sceneObject.added) {
       const object3DComponent = getComponent(entity, Object3DComponent)
 
+      ;(object3DComponent.value as any).entity = entity
+
       // Add to scene
       if (!Engine.scene.children.includes(object3DComponent.value)) {
         Engine.scene.add(object3DComponent.value)

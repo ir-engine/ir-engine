@@ -1,5 +1,4 @@
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { addObject3DComponent } from '../../scene/behaviors/addObject3DComponent'
 import { CameraTagComponent } from '../../scene/components/Object3DTagComponents'
 import { isMobile } from '../../common/functions/isMobile'
 import { NumericalType, Vector2Type } from '../../common/types/NumericalTypes'
@@ -28,6 +27,7 @@ import { BaseInput } from '../../input/enums/BaseInput'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
 
 const direction = new Vector3()
 const upVector = new Vector3(0, 1, 0)
@@ -150,7 +150,7 @@ export class CameraSystem extends System {
     const cameraEntity = createEntity()
     addComponent(cameraEntity, CameraComponent)
     addComponent(cameraEntity, CameraTagComponent)
-    addObject3DComponent(cameraEntity, Engine.camera)
+    addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })
     addComponent(cameraEntity, TransformComponent)
     addComponent(cameraEntity, PersistTagComponent)
     CameraSystem.instance.activeCamera = cameraEntity

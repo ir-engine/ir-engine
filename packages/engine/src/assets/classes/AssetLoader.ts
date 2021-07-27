@@ -3,9 +3,14 @@ import { getLoader as getGLTFLoader, loadExtentions } from '../functions/LoadGLT
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { AssetType } from '../enum/AssetType'
 import { AssetClass } from '../enum/AssetClass'
-import { createEntity, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import {
+  addComponent,
+  createEntity,
+  getComponent,
+  getMutableComponent,
+  hasComponent
+} from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { addObject3DComponent } from '../../scene/behaviors/addObject3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { Engine } from '../../ecs/classes/Engine'
@@ -155,7 +160,7 @@ export class AssetLoader {
           getMutableComponent<Object3DComponent>(this.params.entity, Object3DComponent).value.add(asset)
         else getMutableComponent<Object3DComponent>(this.params.entity, Object3DComponent).value = asset
       } else {
-        addObject3DComponent(this.params.entity, asset)
+        addComponent(this.params.entity, Object3DComponent, { value: asset })
       }
     }
   }
