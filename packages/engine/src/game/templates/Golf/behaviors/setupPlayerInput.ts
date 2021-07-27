@@ -14,7 +14,7 @@ import { ColliderComponent } from '../../../../physics/components/ColliderCompon
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GamePlayer } from '../../../components/GamePlayer'
 import { getGameFromName } from '../../../functions/functions'
-import { addStateComponent } from '../../../functions/functionsState'
+import { addStateComponent, removeStateComponent } from '../../../functions/functionsState'
 import { getStorage } from '../../../functions/functionsStorage'
 import { State } from '../../../types/GameComponents'
 import { teleportObject } from './teleportObject'
@@ -40,9 +40,9 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
     GolfInput.TELEPORT,
     (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
       if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
-      const { gameName, ownedObjects } = getComponent(entity, GamePlayer)
-      const game = getGameFromName(gameName)
+      const { ownedObjects } = getComponent(entity, GamePlayer)
       const ballEntity = ownedObjects['GolfBall']
+      if (!ballEntity) return
       const ballTransform = getComponent(ballEntity, TransformComponent)
       const position = ballTransform.position
       console.log('teleporting to', position.x, position.y, position.z)
@@ -87,8 +87,14 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
         const gameScore = getStorage(entity, { name: 'GameScore' })
         const holeEntity = game.gameObjects['GolfHole'][gameScore.score.goal]
         const ballEntity = ownedObjects['GolfBall']
+        removeStateComponent(ballEntity, State.Active)
+        addStateComponent(ballEntity, State.Inactive)
+        removeStateComponent(ballEntity, State.BallStopped)
+        removeStateComponent(ballEntity, State.AlmostStopped)
+        addStateComponent(ballEntity, State.BallMoving)
+        addStateComponent(entity, State.alreadyHit)
         const position = new Vector3().copy(getComponent(holeEntity, TransformComponent).position)
-        position.y += 0.5
+        position.y += 1.5
         teleportObject(ballEntity, { position })
       }
     )

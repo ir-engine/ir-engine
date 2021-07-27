@@ -38,7 +38,7 @@ export const nextTurn: Behavior = (
 
   const whoseRoleTurnNow = getComponent(entity, GamePlayer, true).role //arrPlayersInGame.filter(role => hasComponent(game.gamePlayers[role][0], State.Waiting))[0];
   const roleNumber = parseFloat(whoseRoleTurnNow[0])
-
+  console.log('roleNumber ', roleNumber)
   if (hasComponent(entity, GamePlayer)) {
     removeStateComponent(entity, State.Waiting)
     addStateComponent(entity, State.WaitTurn)
@@ -47,14 +47,14 @@ export const nextTurn: Behavior = (
   const sortedRoleNumbers = arrPlayersInGame.map((v) => parseFloat(v[0])).sort((a, b) => b - a)
 
   const lastNumber = sortedRoleNumbers[0]
-
+  console.log('lastNumber ', lastNumber)
   let chooseNumber = null
   if (roleNumber === lastNumber) {
     chooseNumber = sortedRoleNumbers[sortedRoleNumbers.length - 1]
   } else {
     chooseNumber = sortedRoleNumbers[sortedRoleNumbers.findIndex((f) => f === roleNumber) - 1]
   }
-
+  console.log('chooseNumber ', chooseNumber)
   const roleFullName = arrPlayersInGame.filter((role) => parseFloat(role[0]) === chooseNumber)[0]
   if (game.gamePlayers[roleFullName] === undefined) return
   const entityP = game.gamePlayers[roleFullName][0]

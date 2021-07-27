@@ -17,7 +17,7 @@ import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { BoundingBox } from '../../interaction/components/BoundingBox'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBox'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
@@ -78,8 +78,8 @@ export class DebugHelpersSystem extends System {
       this.helpersByEntity.helperArrow.forEach((obj: Object3D) => {
         obj.visible = enabled
       })
-      this.helpersByEntity.box.forEach((obj: Object3D) => {
-        obj.visible = enabled
+      this.helpersByEntity.box.forEach((entry: Object3D[]) => {
+        entry.forEach((obj) => (obj.visible = enabled))
       })
     })
   }
@@ -241,7 +241,7 @@ export class DebugHelpersSystem extends System {
     // bounding box
     this.queryResults.boundingBoxComponent?.added.forEach((entity) => {
       this.helpersByEntity.box.set(entity, [])
-      const boundingBox = getComponent(entity, BoundingBox)
+      const boundingBox = getComponent(entity, BoundingBoxComponent)
       if (boundingBox.boxArray.length) {
         if (boundingBox.dynamic) {
           boundingBox.boxArray.forEach((object3D, index) => {
@@ -312,7 +312,7 @@ DebugHelpersSystem.queries = {
     }
   },
   boundingBoxComponent: {
-    components: [BoundingBox],
+    components: [BoundingBoxComponent],
     listen: {
       added: true,
       removed: true

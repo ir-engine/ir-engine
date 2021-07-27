@@ -22,6 +22,7 @@ export class GolfClubComponent extends Component<GolfClubComponent> {
 
   static _schema = {
     canDoChipShots: { default: false, type: Types.Boolean },
-    velocity: { default: new Vector3(), type: Types.Vector3Type }
+    velocity: { default: new Vector3(), type: Types.Vector3Type },
+    disabledOpacity: { default: 0.3, type: Types.Number }
   }
 }

@@ -466,14 +466,6 @@ export const EnginePage = (props: Props) => {
 
     await Promise.all([connectPromise, sceneLoadPromise])
 
-    try {
-      // event logic hook must be in the form of `export async function [locationName] {}`
-      const event = await import(/* @vite-ignore */ `../Events/${locationName}.tsx`)
-      await event[locationName]()
-    } catch (e) {
-      console.log('could not run event specific logic', locationName, e)
-    }
-
     store.dispatch(setAppSpecificOnBoardingStep(GeneralStateList.AWAITING_INPUT, false))
 
     await awaitEngaged()

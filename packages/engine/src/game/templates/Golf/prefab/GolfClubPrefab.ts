@@ -26,10 +26,10 @@ import {
   hasComponent,
   addComponent,
   getComponent,
-  getMutableComponent
+  getMutableComponent,
+  removeComponent
 } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
-import { isClient } from '../../../../common/functions/isClient'
 import { getGame } from '../../../functions/functions'
 import { NetworkObject } from '../../../../networking/components/NetworkObject'
 import { GolfClubComponent } from '../components/GolfClubComponent'
@@ -40,9 +40,11 @@ import { NetworkObjectOwner } from '../../../../networking/components/NetworkObj
 import { Action, State } from '../../../types/GameComponents'
 import { addActionComponent } from '../../../functions/functionsActions'
 import { GamePlayer } from '../../../components/GamePlayer'
-import { YourTurn } from '../components/YourTurnTagComponent'
 import { XRUserSettings } from '../../../../xr/types/XRUserSettings'
-import { Interactable } from '../../../../interaction/components/Interactable'
+
+import { ifVelocity } from '../../gameDefault/checkers/ifVelocity'
+import { ifOwned } from '../../gameDefault/checkers/ifOwned'
+import { isClient } from '../../../../common/functions/isClient'
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()
@@ -93,7 +95,8 @@ export const spawnClub: Behavior = (
 }
 
 export const setClubOpacity = (golfClubComponent: GolfClubComponent, opacity: number): void => {
-  golfClubComponent.meshGroup.traverse((obj: Mesh) => {
+  //@ts-ignore
+  golfClubComponent?.meshGroup?.traverse((obj: Mesh) => {
     if (obj.material) {
       ;(obj.material as Material).opacity = opacity
     }
@@ -102,6 +105,7 @@ export const setClubOpacity = (golfClubComponent: GolfClubComponent, opacity: nu
 
 export const enableClub = (entityClub: Entity, enable: boolean): void => {
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
+  if (golfClubComponent === undefined) return
   golfClubComponent.canHitBall = enable
   setClubOpacity(golfClubComponent, enable ? 1 : golfClubComponent.disabledOpacity)
 }
@@ -125,7 +129,7 @@ export const updateClub: Behavior = (
   checks?: any
 ): void => {
   const ownerNetworkId = getComponent(entityClub, NetworkObjectOwner).networkId
-  const ownerEntity = Network.instance.networkObjects[ownerNetworkId].component.entity
+  const ownerEntity = Network.instance.networkObjects[ownerNetworkId]?.component.entity
 
   if (!ownerEntity) return
 
@@ -222,9 +226,18 @@ export const onClubColliderWithBall: GameObjectInteractionBehavior = (
   args: { hitEvent: ColliderHitEvent },
   entityBall: Entity
 ) => {
-  if (hasComponent(entityBall, State.Active) && hasComponent(entityClub, State.Active)) {
+  if (
+    args.hitEvent.type === 'TRIGGER_START' &&
+    hasComponent(entityBall, State.Active) &&
+    hasComponent(entityClub, State.Active) &&
+    ifOwned(entityClub, null, entityBall) &&
+    ifVelocity(entityClub, { component: GolfClubComponent, more: 0.01, less: 1 })
+  ) {
     addActionComponent(entityBall, Action.GameObjectCollisionTag)
     addActionComponent(entityClub, Action.GameObjectCollisionTag)
+  } else if (args.hitEvent.type === 'TRIGGER_END') {
+    removeComponent(entityBall, Action.GameObjectCollisionTag)
+    removeComponent(entityClub, Action.GameObjectCollisionTag)
   }
 }
 
@@ -232,17 +245,18 @@ export const onClubColliderWithBall: GameObjectInteractionBehavior = (
  * @author Josh Field <github.com/HexaField>
  */
 
-const clubHalfWidth = 0.05
+const clubHalfWidth = 0.03
 const clubPutterLength = 0.1
 const clubColliderSize = new Vector3(clubHalfWidth * 0.5, clubHalfWidth * 0.5, clubPutterLength)
-const clubLength = 1.2
+const clubLength = 1.5
 const rayLength = clubLength * 1.1
 
 export const initializeGolfClub = (entityClub: Entity) => {
   const transform = getComponent(entityClub, TransformComponent)
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
 
-  const ownerNetworkId = getComponent(entityClub, NetworkObjectOwner).networkId
+  const ownerNetworkId = getComponent(entityClub, NetworkObjectOwner)?.networkId
+  if (ownerNetworkId === undefined) return
   const ownerEntity = Network.instance.networkObjects[ownerNetworkId].component.entity
   const ownerPlayerNumber = Number(getComponent(ownerEntity, GamePlayer).role.substr(0, 1)) - 1
 
@@ -329,6 +343,14 @@ export const initializeGolfClub = (entityClub: Entity) => {
 
   const gameObject = getComponent(entityClub, GameObject)
   gameObject.collisionBehaviors['GolfBall'] = onClubColliderWithBall
+
+  if (isClient) {
+    if (hasComponent(entityClub, State.Active)) {
+      enableClub(entityClub, true)
+    } else if (hasComponent(entityClub, State.Inactive)) {
+      enableClub(entityClub, false)
+    }
+  }
 }
 
 type GolfClubSpawnParameters = {
@@ -374,6 +396,7 @@ export const createGolfClubPrefab = (args: {
 
 // Prefab is a pattern for creating an entity and component collection as a prototype
 export const GolfClubPrefab: NetworkPrefab = {
+  //@ts-ignore
   initialize: createGolfClubPrefab,
   // These will be created for all players on the network
   networkComponents: [
