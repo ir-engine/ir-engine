@@ -52,7 +52,7 @@ const initializeCharacter: Behavior = (entity): void => {
     )
   })
 
-  addObject3DComponent(entity, { obj3d })
+  addObject3DComponent(entity, obj3d)
 
   actor.velocitySimulator = new VectorSpringSimulator(
     60,

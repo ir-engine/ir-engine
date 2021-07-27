@@ -4,6 +4,7 @@
  * */
 
 import { Object3DComponent } from '../components/Object3DComponent'
+import { Object3D } from 'three'
 import {
   AmbientLightProbeTagComponent,
   AmbientLightTagComponent,
@@ -40,13 +41,20 @@ import { Entity } from '../../ecs/classes/Entity'
 import { Component } from '../../ecs/classes/Component'
 import { hasComponent, getComponent, addComponent } from '../../ecs/functions/EntityFunctions'
 import { SkyboxComponent } from '../components/SkyboxComponent'
+
 import { createObject3dFromArgs } from './createObject3dFromArgs'
 
 /**
  * Add Object3D Component with args into Entity from the Behavior.
  */
-export const addObject3DComponent = (entity: Entity, args: any) => {
-  const object3d = createObject3dFromArgs(entity, args, true)
+
+export const addObject3DComponent = <T extends Object3D>(
+  entity: Entity,
+  obj3D: T | (new (...args: any[]) => T),
+  objArgs?: any,
+  parentEntity?: Entity
+) => {
+  const object3d = createObject3dFromArgs(entity, obj3D, true, objArgs, parentEntity)
 
   addComponent(entity, Object3DComponent, { value: object3d })
 
@@ -132,8 +140,8 @@ export const addObject3DComponent = (entity: Entity, args: any) => {
   components.forEach((component: any) => {
     addComponent(entity, component)
   })
-  if (args.parentEntity && hasComponent(args.parentEntity, Object3DComponent as any)) {
-    getComponent<Object3DComponent>(args.parentEntity, Object3DComponent).value.add(object3d)
+  if (parentEntity && hasComponent(parentEntity, Object3DComponent as any)) {
+    getComponent<Object3DComponent>(parentEntity, Object3DComponent).value.add(object3d)
   }
   object3d.entity = entity
   return entity

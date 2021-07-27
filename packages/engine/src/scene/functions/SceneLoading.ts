@@ -150,7 +150,7 @@ export class WorldScene {
         break
 
       case 'ambient-light':
-        addObject3DComponent(entity, { obj3d: AmbientLight, objArgs: component.data })
+        addObject3DComponent(entity, AmbientLight, component.data)
         addComponent(entity, LightTagComponent)
         break
 
@@ -159,11 +159,11 @@ export class WorldScene {
         break
 
       case 'hemisphere-light':
-        addObject3DComponent(entity, { obj3d: HemisphereLight, objArgs: component.data })
+        addObject3DComponent(entity, HemisphereLight, component.data)
         break
 
       case 'point-light':
-        addObject3DComponent(entity, { obj3d: PointLight, objArgs: component.data })
+        addObject3DComponent(entity, PointLight, component.data)
         break
 
       case 'collidable':
@@ -194,7 +194,7 @@ export class WorldScene {
         break
 
       case 'image':
-        addObject3DComponent(entity, { obj3d: Image, objArgs: component.data })
+        addObject3DComponent(entity, Image, component.data)
         break
 
       case 'video':
@@ -227,7 +227,7 @@ export class WorldScene {
         break
 
       case 'spot-light':
-        addObject3DComponent(entity, { obj3d: SpotLight, objArgs: component.data })
+        addObject3DComponent(entity, SpotLight, component.data)
         break
 
       case 'transform':

@@ -155,7 +155,7 @@ export class AssetLoader {
           getMutableComponent<Object3DComponent>(this.params.entity, Object3DComponent).value.add(asset)
         else getMutableComponent<Object3DComponent>(this.params.entity, Object3DComponent).value = asset
       } else {
-        addObject3DComponent(this.params.entity, { obj3d: asset })
+        addObject3DComponent(this.params.entity, asset)
       }
     }
   }
