@@ -16,15 +16,15 @@ import { applyArgsToObject3d } from './applyArgsToObject3d'
 export const addObject3DComponent = <T extends Object3D>(
   entity: Entity,
   object3d: T,
-  objArgs: any,
+  objArgs?: any,
   parentEntity?: Entity
 ) => {
   applyArgsToObject3d(entity, object3d, true, objArgs, parentEntity)
 
   addComponent(entity, Object3DComponent, { value: object3d })
 
-  if (parentEntity && hasComponent(parentEntity, Object3DComponent as any)) {
-    getComponent<Object3DComponent>(parentEntity, Object3DComponent).value.add(object3d)
+  if (parentEntity && hasComponent(parentEntity, Object3DComponent)) {
+    getComponent(parentEntity, Object3DComponent).value.add(object3d)
   }
   return entity
 }

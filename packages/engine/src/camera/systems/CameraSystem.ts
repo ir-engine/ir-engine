@@ -1,5 +1,4 @@
 import { Matrix4, Quaternion, Vector3 } from 'three'
-import { CameraTagComponent } from '../../scene/components/Object3DTagComponents'
 import { isMobile } from '../../common/functions/isMobile'
 import { NumericalType, Vector2Type } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
@@ -149,7 +148,6 @@ export class CameraSystem extends System {
 
     const cameraEntity = createEntity()
     addComponent(cameraEntity, CameraComponent)
-    addComponent(cameraEntity, CameraTagComponent)
     addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })
     addComponent(cameraEntity, TransformComponent)
     addComponent(cameraEntity, PersistTagComponent)

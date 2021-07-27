@@ -3,11 +3,9 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import { SceneBackgroundProps, SkyTypeEnum } from '../../editor/nodes/SkyboxNode'
-import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
 import { ScaleComponent } from '../../transform/components/ScaleComponent'
 import { Sky } from '../classes/Sky'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { SCENE_ASSET_TYPES, WorldScene } from '../functions/SceneLoading'
 import { setSkyDirection } from '../functions/setSkyDirection'
 import { addObject3DComponent } from './addObject3DComponent'
 
@@ -17,7 +15,7 @@ export const createSkybox = (entity, args: SceneBackgroundProps) => {
     switch (args.backgroundType) {
       case SkyTypeEnum.skybox:
         const option = args.skyboxProps
-        addObject3DComponent(entity, new Sky(), { skyBoxShaderProps: option })
+        addComponent(entity, Object3DComponent, { value: new Sky() })
         addComponent(entity, ScaleComponent)
 
         const component = getComponent(entity, Object3DComponent)
