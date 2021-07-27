@@ -16,6 +16,7 @@ const scenes = React.lazy(() => import('../pages/admin/scenes'))
 const users = React.lazy(() => import('../pages/admin/users'))
 const party = React.lazy(() => import('../pages/admin/party'))
 const botSetting = React.lazy(() => import('../pages/admin/bot'))
+const arMedia = React.lazy(() => import('../pages/admin/social/armedia'))
 
 interface Props {
   authState?: any
@@ -63,7 +64,14 @@ const ProtectedRoutes = (props: Props) => {
           <PrivateRoute exact path="/admin/scenes" component={scenes} />
           <PrivateRoute exact path="/admin/parties" component={party} />
           <PrivateRoute exact path="/admin/bots" component={botSetting} />
+          <PrivateRoute exact path="/admin/armedia" component={arMedia} />
+          {/* <PrivateRoute exact path="/admin/thefeeds" component={} /> */}
           <PrivateRoute exact Path="/admin/users" component={users} />
+
+          {/* <Route path="/admin/tips-and-tricks" component={React.lazy(() => import('./pages/admin/tips-and-tricks'))} />
+        <Route path="/admin/thefeeds" component={React.lazy(() => import('./pages/admin/thefeeds'))} />
+        <Route path="/admin/feeds" component={React.lazy(() => import('./pages/admin/feeds'))} />
+        <Route path="/admin/users" component={React.lazy(() => import('./pages/admin/users'))} /> */}
         </Switch>
       </Suspense>
     </Fragment>
