@@ -150,7 +150,7 @@ export class CameraSystem extends System {
     const cameraEntity = createEntity()
     addComponent(cameraEntity, CameraComponent)
     addComponent(cameraEntity, CameraTagComponent)
-    addObject3DComponent(cameraEntity, { obj3d: Engine.camera })
+    addObject3DComponent(cameraEntity, Engine.camera)
     addComponent(cameraEntity, TransformComponent)
     addComponent(cameraEntity, PersistTagComponent)
     CameraSystem.instance.activeCamera = cameraEntity

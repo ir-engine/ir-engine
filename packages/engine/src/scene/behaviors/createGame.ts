@@ -16,7 +16,7 @@ interface GameDataProps {
   role: string
 }
 
-export const createGame: Behavior = (entity, args: GameDataProps) => {
+export const createGame = (entity, args: GameDataProps) => {
   console.log(args.gameMode + ' GAME LOADING ...')
 
   const transform = getMutableComponent(entity, TransformComponent)
@@ -42,7 +42,7 @@ export const createGame: Behavior = (entity, args: GameDataProps) => {
   gameSchema.onGameLoading(entity)
 }
 
-export const createGameObject: Behavior = (entity, args: GameDataProps) => {
+export const createGameObject = (entity, args: GameDataProps) => {
   if (args.sceneEntityId === undefined) {
     console.warn('DONT SAVE COLLIDER FOR GAME OBJECT')
   }
