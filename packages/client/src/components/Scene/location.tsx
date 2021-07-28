@@ -62,7 +62,6 @@ import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/behaviors/cr
 import { getAllMutableComponentOfType } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import configs from '@xrengine/client-core/src/world/components/editor/configs'
 
-
 const store = Store.store
 
 const goHome = () => (window.location.href = window.location.origin)
@@ -488,8 +487,8 @@ export const EnginePage = (props: Props) => {
     await Promise.all(
       portals.map(async (portal: PortalComponent): Promise<void> => {
         return fetch(`${SERVER_URL}/portal/${portal.linkedPortalId}`, options)
-          .then(res => res.json())
-          .then(res => {
+          .then((res) => res.json())
+          .then((res) => {
             setRemoteLocationDetail(portal, res)
           })
       })
@@ -500,7 +499,11 @@ export const EnginePage = (props: Props) => {
     // console.log('portToLocation', slugifiedName, portalComponent);
 
     if (slugifiedName === portalComponent.location) {
-      teleportPlayer(Network.instance.localClientEntity, portalComponent.remoteSpawnPosition, portalComponent.remoteSpawnRotation)
+      teleportPlayer(
+        Network.instance.localClientEntity,
+        portalComponent.remoteSpawnPosition,
+        portalComponent.remoteSpawnRotation
+      )
       return
     }
 

@@ -86,19 +86,19 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
     this.loadPortals()
   }
 
-
   loadPortals = async () => {
     const SERVER_URL = (configs as any).SERVER_URL
-    const portalsDetail = await this.props.editor.api.fetchUrl(`${SERVER_URL}/portal/list`)
-      .then(res => res.json())
-      .catch(err => {
+    const portalsDetail = await this.props.editor.api
+      .fetchUrl(`${SERVER_URL}/portal/list`)
+      .then((res) => res.json())
+      .catch((err) => {
         console.error(err)
         return []
       })
 
     const portals = []
 
-    portalsDetail.forEach(portal => {
+    portalsDetail.forEach((portal) => {
       if (portal.entity.entityId === (this.props.node as any).entityId) return
 
       portals.push({

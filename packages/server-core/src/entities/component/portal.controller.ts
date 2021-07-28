@@ -41,7 +41,6 @@ export const getPortal = (app: any): any => {
   }
 }
 
-
 export const getPortalByEntityId = async (app, entityId: string) => {
   const models = app.get('sequelizeClient').models
 

@@ -23,14 +23,14 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       node.spawnPosition = new Vector3()
       if (portalComponent.props.spawnPosition)
         node.spawnPosition.set(
-          portalComponent.props.spawnPosition.x - node.position.x,    // Have to convert from global space to local space
+          portalComponent.props.spawnPosition.x - node.position.x, // Have to convert from global space to local space
           portalComponent.props.spawnPosition.y - node.position.y,
           portalComponent.props.spawnPosition.z - node.position.z
         )
       node.spawnRotation = new Euler()
       if (portalComponent.props.spawnRotation)
         node.spawnRotation.set(
-          portalComponent.props.spawnRotation.x - node.rotation.x,    // Have to convert from global space to local space
+          portalComponent.props.spawnRotation.x - node.rotation.x, // Have to convert from global space to local space
           portalComponent.props.spawnRotation.y - node.rotation.y,
           portalComponent.props.spawnRotation.z - node.rotation.z
         )
@@ -44,13 +44,13 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       this.add(this.mesh)
 
       this.spawnCylinder = new Mesh(
-        new  CylinderGeometry(1, 1, 0.3, 6, 1, false, 30 * Math.PI / 180),
-        new MeshBasicMaterial({ color: 0x2B59C3 })
+        new CylinderGeometry(1, 1, 0.3, 6, 1, false, (30 * Math.PI) / 180),
+        new MeshBasicMaterial({ color: 0x2b59c3 })
       )
 
       const spawnDirection = new Mesh(
         new ConeGeometry(0.15, 0.5, 4, 1, false, Math.PI / 4),
-        new MeshBasicMaterial({ color: 0xD36582 })
+        new MeshBasicMaterial({ color: 0xd36582 })
       )
 
       spawnDirection.position.set(0, 0, 1.25)
@@ -86,7 +86,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       portal: {
         linkedPortalId: this.linkedPortalId,
         displayText: this.displayText,
-        spawnPosition: this.spawnPosition.add(this.position),   // Have to convert from local space to global space
+        spawnPosition: this.spawnPosition.add(this.position), // Have to convert from local space to global space
         spawnRotation: rotation
       }
     } as any
@@ -106,25 +106,17 @@ export default class PortalNode extends EditorNodeMixin(Model) {
     this.addGLTFComponent('portal', {
       linkedPortalId: this.linkedPortalId,
       displayText: this.displayText,
-      spawnPosition: this.spawnPosition.add(this.position),   // Have to convert from local space to global space
+      spawnPosition: this.spawnPosition.add(this.position), // Have to convert from local space to global space
       spawnRotation: rotation
     })
   }
 
   updateSpawnPositionOnScene() {
-    this.spawnCylinder.position.set(
-      this.spawnPosition.x || 0,
-      this.spawnPosition.y || 0,
-      this.spawnPosition.z || 0,
-    )
+    this.spawnCylinder.position.set(this.spawnPosition.x || 0, this.spawnPosition.y || 0, this.spawnPosition.z || 0)
   }
 
   updateSpawnRotationOnScene() {
-    this.spawnCylinder.rotation.set(
-      this.spawnRotation.x || 0,
-      this.spawnRotation.y || 0,
-      this.spawnRotation.z || 0,
-    )
+    this.spawnCylinder.rotation.set(this.spawnRotation.x || 0, this.spawnRotation.y || 0, this.spawnRotation.z || 0)
   }
 
   onSelect() {

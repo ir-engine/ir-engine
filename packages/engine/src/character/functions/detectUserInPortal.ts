@@ -13,7 +13,8 @@ export const detectUserInPortal = (controller: ControllerColliderComponent): voi
     !controller.raycastQuery.hits[0] ||
     !controller.raycastQuery.hits[0].body ||
     !controller.raycastQuery.hits[0].body.userData
-  ) return
+  )
+    return
 
   const portalEntity = controller.raycastQuery.hits[0].body.userData
   const portalComponent = getMutableComponent(portalEntity, PortalComponent)

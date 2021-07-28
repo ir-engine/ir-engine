@@ -161,10 +161,9 @@ export default (app: Application): void => {
                     const portals = getAllMutableComponentOfType(PortalComponent)
                     await Promise.all(
                       portals.map(async (portal: PortalComponent): Promise<void> => {
-                        return getPortalByEntityId(app, portal.linkedPortalId)
-                          .then(res => {
-                            setRemoteLocationDetail(portal, res)
-                          })
+                        return getPortalByEntityId(app, portal.linkedPortalId).then((res) => {
+                          setRemoteLocationDetail(portal, res)
+                        })
                       })
                     )
                   },
