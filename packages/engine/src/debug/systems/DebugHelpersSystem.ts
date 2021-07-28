@@ -1,4 +1,4 @@
-import { System, SystemAttributes } from '../../ecs/classes/System'
+import { System } from '../../ecs/classes/System'
 import { CharacterComponent } from '../../character/components/CharacterComponent'
 import {
   ArrowHelper,

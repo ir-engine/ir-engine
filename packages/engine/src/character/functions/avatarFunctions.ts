@@ -2,7 +2,6 @@ import { AnimationMixer, Group } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import { createShadow } from '../../scene/behaviors/createShadow'
 import { AnimationManager } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { CharacterComponent } from '../components/CharacterComponent'
@@ -35,8 +34,6 @@ export const loadActorAvatar = (entity) => {
 }
 
 export const loadActorAvatarFromURL = (entity, avatarURL) => {
-  createShadow(entity, { castShadow: true, receiveShadow: true })
-
   AssetLoader.load(
     {
       url: avatarURL,
@@ -53,7 +50,7 @@ export const loadActorAvatarFromURL = (entity, avatarURL) => {
       actor.modelContainer.children.forEach((child) => child.removeFromParent())
 
       model.traverse((object) => {
-        if (object.isMesh || object.isSkinnedMesh) {
+        if (typeof object.material !== 'undefined') {
           object.material = object.material.clone()
         }
       })

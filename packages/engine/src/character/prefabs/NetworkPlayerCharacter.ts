@@ -25,6 +25,7 @@ import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import type { NetworkObject } from '../../networking/components/NetworkObject'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { rotateViewVectorXZ } from '../../camera/systems/CameraSystem'
+import { ShadowComponent } from '../../scene/components/ShadowComponent'
 
 const initializeCharacter: Behavior = (entity): void => {
   entity.name = 'Player'
@@ -168,7 +169,8 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
   ],
   clientComponents: [
     // Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player
-    { type: InterpolationComponent }
+    { type: InterpolationComponent },
+    { type: ShadowComponent }
   ],
   serverComponents: [],
   onAfterCreate: [

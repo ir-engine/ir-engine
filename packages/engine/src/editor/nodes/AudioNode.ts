@@ -32,7 +32,7 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
     } = json.components.find((c) => c.name === 'audio').props
     loadAsync(
       (async () => {
-        await node.load(src, onError)
+        node.src = src
         node.controls = controls || false
         node.autoPlay = autoPlay
         node.synchronize = synchronize
@@ -97,11 +97,7 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
       this.helper.visible = true
     } catch (error) {
       this.showErrorIcon()
-      const audioError = new RethrownError(`Error loading audio ${this._canonicalUrl}`, error)
-      if (onError) {
-        onError(this, audioError)
-      }
-      console.error(audioError)
+      console.log(`Error loading audio ${this._canonicalUrl}`)
     }
     this.editor.emit('objectsChanged', [this])
     this.editor.emit('selectionChanged')

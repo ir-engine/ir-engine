@@ -13,10 +13,6 @@ export const onInteraction = (entityInitiator, args, delta, entityInteractive, t
   if (interactiveComponent.data.interactionType === 'equippable') {
     grabEquippable(entityInitiator, args, delta, entityInteractive)
   } else {
-    EngineEvents.instance.dispatchEvent({
-      type: InteractiveSystem.EVENTS.OBJECT_ACTIVATION,
-      ...interactiveComponent.data
-    })
   }
 }
 
@@ -52,10 +48,6 @@ export const createCommonInteractive = (entity, args: InteractionData) => {
 
   const interactiveData = {
     onInteraction: onInteraction,
-    onInteractionFocused: onInteractionHover,
-    onInteractionCheck: () => {
-      return true
-    },
     data: args
   }
 

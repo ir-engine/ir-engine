@@ -1,6 +1,5 @@
 import { Component } from '../../ecs/classes/Component'
 // Action Components
-import { HasHadInteraction } from '../actions/HasHadInteraction'
 import { GameObjectCollisionTag } from '../actions/GameObjectCollisionTag'
 // State TagComponents
 import { SpawnedObject } from '../templates/gameDefault/components/SpawnedObjectTagComponent'
@@ -21,12 +20,10 @@ import { NotReady } from '../templates/Golf/components/NotReadyTagComponent'
  */
 // its for adding new Action in State in One Plase, please don't splite this
 export enum gameActions {
-  HasHadInteraction = 'HasHadInteraction',
   GameObjectCollisionTag = 'GameObjectCollisionTag'
 }
 
 export const Action = {
-  [gameActions.HasHadInteraction]: HasHadInteraction,
   [gameActions.GameObjectCollisionTag]: GameObjectCollisionTag
 }
 // its for adding new Action in State in One Plase, please don't splite this

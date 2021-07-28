@@ -100,7 +100,13 @@ const followCameraBehavior = (entity: Entity, portCamera?: boolean) => {
 
   const phi = followCamera.mode === CameraModes.TopDown ? 85 : followCamera.phi
 
-  vec3.set(followCamera.shoulderSide ? -0.2 : 0.2, actor.actorHeight + 0.25, 0)
+  const shoulderOffset = followCamera.shoulderSide ? -0.2 : 0.2
+
+  if (followCamera.mode === CameraModes.FirstPerson) {
+    vec3.set(0, actor.actorHeight, 0)
+  } else {
+    vec3.set(shoulderOffset, actor.actorHeight + 0.25, 0)
+  }
   vec3.applyQuaternion(actorTransform.rotation)
   vec3.add(actorTransform.position)
 

@@ -6,10 +6,10 @@ export type InteractionCheckHandler = (
   focusedPart?: number,
   args?: any
 ) => boolean
-export type InteractBehaviorArguments = { raycastList: Entity[] }
+
 export type InteractionData = {
   interactable?: boolean
-  interactionType: string
+  interactionType?: string
   interactionText?: string
   interactionDistance?: number
   payloadName?: string
@@ -17,4 +17,5 @@ export type InteractionData = {
   payloadBuyUrl?: string
   payloadLearnMoreUrl?: string
   payloadHtmlContent?: string
+  action?: any
 }

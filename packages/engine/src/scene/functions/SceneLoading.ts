@@ -1,21 +1,9 @@
-import {
-  AmbientLight,
-  AnimationClip,
-  AnimationMixer,
-  CameraHelper,
-  DirectionalLight,
-  HemisphereLight,
-  LoopRepeat,
-  PointLight,
-  SpotLight,
-  Vector2,
-  Vector3
-} from 'three'
+import { AmbientLight, DirectionalLight, HemisphereLight, Object3D, PointLight, SpotLight } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { addObject3DComponent } from '../behaviors/addObject3DComponent'
@@ -27,10 +15,8 @@ import { createBoxCollider } from '../behaviors/createBoxCollider'
 import { createMeshCollider } from '../behaviors/createMeshCollider'
 import { createCommonInteractive } from '../behaviors/createCommonInteractive'
 import { createGroup } from '../behaviors/createGroup'
-import { createLink } from '../behaviors/createLink'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../behaviors/createMedia'
 import { createMap } from '../behaviors/createMap'
-import { createShadow } from '../behaviors/createShadow'
 import { createTransformComponent } from '../behaviors/createTransformComponent'
 import { createTriggerVolume } from '../behaviors/createTriggerVolume'
 import { handleAudioSettings } from '../behaviors/handleAudioSettings'
@@ -50,6 +36,8 @@ import { configureCSM, handleRendererSettings } from '../behaviors/handleRendere
 import { createDirectionalLight } from '../behaviors/createDirectionalLight'
 import { loadGLTFModel } from '../behaviors/loadGLTFModel'
 import { loadModelAnimation } from '../behaviors/loadModelAnimation'
+import { Interactable } from '../../interaction/components/Interactable'
+import { ShadowComponent } from '../components/ShadowComponent'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -253,7 +241,7 @@ export class WorldScene {
         break
 
       case 'shadow':
-        createShadow(entity, {
+        addComponent(entity, ShadowComponent, {
           castShadow: component.data.cast,
           receiveShadow: component.data.receive
         })
@@ -280,7 +268,8 @@ export class WorldScene {
         break
 
       case 'link':
-        createLink(entity, component.data)
+        addObject3DComponent(entity, new Object3D(), component.data)
+        addComponent(entity, Interactable, { data: { action: 'link' } })
         break
 
       case 'particle-emitter':
