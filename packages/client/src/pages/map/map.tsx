@@ -25,11 +25,11 @@ import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { FollowCameraComponent } from '@xrengine/engine/src/camera/components/FollowCameraComponent'
 import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent'
 import { ControllerColliderComponent } from '@xrengine/engine/src/character/components/ControllerColliderComponent'
-import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
+import { NetworkPlayerCharacter, teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
 import { awaitEngaged, Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { processLocationChange, resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
-import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
@@ -58,6 +58,25 @@ import {
   resetInstanceServer
 } from '../../reducers/instanceConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { Object3DComponent } from '../../../../engine/src/scene/components/Object3DComponent'
+import { LocalInputReceiver } from '../../../../engine/src/input/components/LocalInputReceiver'
+
+
+
+
+NetworkPlayerCharacter.onAfterCreate.push(
+  {
+    behavior: (entity):void => { console.log('created', entity , Network.instance.localClientEntity, hasComponent(entity,LocalInputReceiver))
+    if(hasComponent(entity,LocalInputReceiver) == true) {
+      console.log('true')
+     Engine.audioListener.removeFromParent()
+    getComponent(entity, Object3DComponent).value.add(Engine.audioListener)
+    console.log(getComponent(entity, Object3DComponent))
+    }
+  },
+    networked: false
+  }
+)
 
 const store = Store.store
 
@@ -486,6 +505,10 @@ export const EnginePage = (props: Props) => {
           { spawnTransform }
         )
         resolve(WorldStateModel.fromBuffer(worldState))
+
+        // Engine.audioListener.removeFromParent()
+// getComponent(Network.instance.localClientEntity, Object3DComponent).value.add(Engine.audioListener)
+
       }
     })
 
@@ -494,6 +517,7 @@ export const EnginePage = (props: Props) => {
 
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState })
   }
+
 
   useEffect(() => {
     EngineEvents.instance.dispatchEvent({
@@ -506,6 +530,7 @@ export const EnginePage = (props: Props) => {
   const onSceneLoadedEntity = (left: number): void => {
     setProgressEntity(left || 0)
   }
+ 
 
   const portToLocation = async ({ portalComponent }: { portalComponent: PortalProps }) => {
     // console.log('portToLocation', slugifiedName, portalComponent);
@@ -567,6 +592,7 @@ export const EnginePage = (props: Props) => {
 
   const addUIEvents = () => {
     EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
+    
   }
 
   useEffect(() => {
