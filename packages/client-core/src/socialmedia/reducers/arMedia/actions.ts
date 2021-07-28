@@ -1,7 +1,6 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { func } from 'prop-types'
 import {
   ARMEDIA_ADMIN_RETRIEVED,
   ARMEDIA_FETCHING,

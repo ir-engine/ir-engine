@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
-import { removeArMedia } from '../../../socialmedia/reducers/arMedia/service'
+import { removeArMedia } from '../../../reducers/admin/Social/arMedia/service'
 import Card from '@material-ui/core/Card'
 import CardActionArea from '@material-ui/core/CardActionArea'
 import CardActions from '@material-ui/core/CardActions'

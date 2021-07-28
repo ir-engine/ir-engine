@@ -17,13 +17,11 @@ import AudioPlayer from 'material-ui-audio-player'
 import { useTranslation } from 'react-i18next'
 import { Save } from '@material-ui/icons'
 import { formValid } from './validation'
-import { updateArMedia } from '../../../socialmedia/reducers/arMedia/service'
+import { updateArMedia } from '../../../reducers/admin/Social/arMedia/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import InsertDriveFile from '@material-ui/icons/InsertDriveFile'
-import Grid from '@material-ui/core/Grid'
 import Card from '@material-ui/core/Card'
-import Typography from '@material-ui/core/Typography'
 
 interface Props {
   mediaAdmin: any

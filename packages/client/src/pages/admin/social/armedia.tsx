@@ -3,12 +3,12 @@
  */
 import React, { useEffect } from 'react'
 
-import ArMediaDashboard from '@xrengine/client-core/src/admin/components/Arc/index'
+import ArMediaDashboard from '@xrengine/client-core/src/admin/components/Social/Armedia'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 
-import { selectArMediaState } from '@xrengine/client-core/src/socialmedia/reducers/arMedia/selector'
-import { getArMediaService } from '@xrengine/client-core/src/socialmedia/reducers/arMedia/service'
+import { selectArMediaState } from '@xrengine/client-core/src/admin/reducers/admin/Social/arMedia/selector'
+import { getArMediaService } from '@xrengine/client-core/src/admin/reducers/admin/Social/arMedia/service'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -28,16 +28,7 @@ const ArMediaPage = ({ arMediaState, getArMedia }: Props) => {
   useEffect(() => getArMedia('admin'), [])
   const arMediaList =
     arMediaState.get('fetching') === false && arMediaState?.get('adminList') ? arMediaState.get('adminList') : null
-  return (
-    <>
-      <div>
-        {/* <Dashboard> */}
-        {/* <ArMediaConsole list={arMediaList} /> */}
-        <ArMediaDashboard list={arMediaList} />
-        {/* </Dashboard> */}
-      </div>
-    </>
-  )
+  return <ArMediaDashboard list={arMediaList} />
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ArMediaPage)

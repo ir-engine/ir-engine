@@ -7,15 +7,17 @@ import { useStyles } from './styles'
 import SearchVideo from './SearchVideo'
 import MediaTable from './MediaTable'
 import MediaModel from './CreateVideo'
-import { getArMediaService } from '../../../socialmedia/reducers/arMedia/service'
-import { selectArMediaState } from '../../../socialmedia/reducers/arMedia/selector'
+import { getArMediaService } from '../../../reducers/admin/Social/arMedia/service'
+import { selectArMediaState } from '../../../reducers/admin/Social/arMedia/selector'
 
 interface Props {
   list?: any
   getArMediaService?: (type?: string, limit?: Number) => void
   adminArmediaState?: any
 }
+
 const NUMBER_PER_PAGE = 12
+
 const mapStateToProps = (state: any): any => {
   return {
     adminArmediaState: selectArMediaState(state)
