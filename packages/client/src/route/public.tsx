@@ -10,6 +10,10 @@ import Chatmicon from '../pages/map/chatmicon/MicOn'
 import Chatmicoff from '../pages/map/chatmicoff/Chat'
 import CircularProgress from '@material-ui/core/CircularProgress'
 
+if(typeof globalThis.process === 'undefined') {
+  (globalThis as any).process = {}
+}
+
 class RouterComp extends React.Component<{}, { hasError: boolean }> {
   static getDerivedStateFromError() {
     return { hasError: true }
