@@ -480,7 +480,10 @@ export class InteractiveSystem extends System {
 
     // animate the interact text up and down if it's visible
     if (Network.instance.localClientEntity) {
-      const interactTextObject = getComponent(this.interactTextEntity, Object3DComponent).value
+      const interactTextObject = getComponent(this.interactTextEntity, Object3DComponent)?.value
+
+      if (!interactTextObject) return
+
       interactTextObject.children[0].position.y = Math.sin(time * 1.8) * 0.05
 
       const activeCameraComponent = getMutableComponent(CameraSystem.instance.activeCamera, CameraComponent)

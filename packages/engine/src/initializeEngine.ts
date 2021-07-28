@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import { detect, detectOS } from 'detect-browser'
-import { AudioListener, BufferGeometry, Mesh, PerspectiveCamera, Quaternion, Scene } from 'three'
+import { AudioListener, BufferGeometry, Euler, Mesh, PerspectiveCamera, Quaternion, Scene } from 'three'
 import { acceleratedRaycast, disposeBoundsTree, computeBoundsTree } from 'three-mesh-bvh'
 import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem'
 import { CameraSystem } from './camera/systems/CameraSystem'
@@ -45,6 +45,12 @@ import { FontManager } from './xrui/classes/FontManager'
 Quaternion.prototype.toJSON = function () {
   return { x: this._x, y: this._y, z: this._z, w: this._w }
 }
+
+// @ts-ignore
+Euler.prototype.toJSON = function () {
+  return { x: this._x, y: this._y, z: this._z }
+}
+
 Mesh.prototype.raycast = acceleratedRaycast
 BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
 BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree

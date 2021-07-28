@@ -22,6 +22,7 @@ function getRandomGreyColorString(minValue, maxValue) {
 function generateBuildingCanvas(width: number, height: number): HTMLCanvasElement {
   if (!isClient) return
   // Build a small canvas we're going to use to create our window elements
+  if (!globalThis.document) return
   var smallCanvas = globalThis.document.createElement('canvas')
 
   smallCanvas.width = width
