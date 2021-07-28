@@ -1,5 +1,5 @@
 import { DEFAULT_AVATAR_ID } from '@xrengine/common/src/constants/AvatarConstants'
-import { AnimationMixer, Group, Quaternion, Vector3 } from 'three'
+import { AnimationMixer, Euler, Group, Quaternion, Vector3 } from 'three'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { isClient } from '../../common/functions/isClient'
@@ -24,6 +24,7 @@ import { ControllerColliderComponent } from '../components/ControllerColliderCom
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import type { NetworkObject } from '../../networking/components/NetworkObject'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { rotateViewVectorXZ } from '../../camera/systems/CameraSystem'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 
 const initializeCharacter: Behavior = (entity): void => {
@@ -79,12 +80,19 @@ export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation
   const playerCollider = getMutableComponent(playerEntity, ControllerColliderComponent)
   const actor = getMutableComponent(playerEntity, CharacterComponent)
 
-  const pos = position.clone()
+  if (!(rotation instanceof Quaternion)) {
+    rotation = new Quaternion((rotation as any).x, (rotation as any).y, (rotation as any).z, (rotation as any).w)
+  }
+
+  const pos = new Vector3(position.x, position.y, position.z)
   pos.y += actor.actorHalfHeight
   playerCollider.controller.updateTransform({
     translation: pos,
     rotation
   })
+
+  const euler = new Euler().setFromQuaternion(rotation)
+  rotateViewVectorXZ(actor.viewVector, euler.y)
   playerCollider.controller.velocity.setScalar(0)
 }
 

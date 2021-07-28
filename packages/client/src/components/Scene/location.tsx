@@ -36,7 +36,7 @@ import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/
 import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema'
 import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem'
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
-import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal'
+import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
 import { UISystem } from '@xrengine/engine/src/xrui/systems/UISystem'
@@ -58,6 +58,9 @@ import {
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import WarningRefreshModal from '../AlertModals/WarningRetryModal'
 import RecordingApp from './../Recorder/RecordingApp'
+import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/behaviors/createPortal'
+import { getAllMutableComponentOfType } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import configs from '@xrengine/client-core/src/world/components/editor/configs'
 
 const store = Store.store
 
@@ -161,7 +164,7 @@ export const EnginePage = (props: Props) => {
   const [instanceKicked, setInstanceKicked] = useState(false)
   const [instanceKickedMessage, setInstanceKickedMessage] = useState('')
   const [porting, setPorting] = useState(false)
-  const [newSpawnPos, setNewSpawnPos] = useState<PortalProps>(null)
+  const [newSpawnPos, setNewSpawnPos] = useState<PortalComponent>(null)
 
   const appLoaded = appState.get('loaded')
   const selfUser = authState.get('user')
@@ -428,10 +431,11 @@ export const EnginePage = (props: Props) => {
     const sceneLoadPromise = new Promise<void>((resolve) => {
       WorldScene.load(
         sceneData,
-        () => {
+        async () => {
           setProgressEntity(0)
           store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
           setAppLoaded(true)
+          await fetchPortalDetails()
           resolve()
         },
         onSceneLoadedEntity
@@ -468,11 +472,38 @@ export const EnginePage = (props: Props) => {
     setProgressEntity(left || 0)
   }
 
-  const portToLocation = async ({ portalComponent }: { portalComponent: PortalProps }) => {
+  const fetchPortalDetails = async () => {
+    const token = localStorage.getItem((configs as any).FEATHERS_STORE_KEY)
+    const SERVER_URL = (configs as any).SERVER_URL
+
+    const options = {
+      headers: {
+        authorization: `Bearer ${token}`
+      }
+    }
+
+    const portals = getAllMutableComponentOfType(PortalComponent)
+
+    await Promise.all(
+      portals.map(async (portal: PortalComponent): Promise<void> => {
+        return fetch(`${SERVER_URL}/portal/${portal.linkedPortalId}`, options)
+          .then((res) => res.json())
+          .then((res) => {
+            setRemoteLocationDetail(portal, res)
+          })
+      })
+    )
+  }
+
+  const portToLocation = async ({ portalComponent }: { portalComponent: PortalComponent }) => {
     // console.log('portToLocation', slugifiedName, portalComponent);
 
     if (slugifiedName === portalComponent.location) {
-      teleportPlayer(Network.instance.localClientEntity, portalComponent.spawnPosition, portalComponent.spawnRotation)
+      teleportPlayer(
+        Network.instance.localClientEntity,
+        portalComponent.remoteSpawnPosition,
+        portalComponent.remoteSpawnRotation
+      )
       return
     }
 
