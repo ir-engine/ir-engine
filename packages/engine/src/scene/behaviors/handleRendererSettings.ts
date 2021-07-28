@@ -59,7 +59,7 @@ export const handleRendererSettings = (args: RenderSettingsProps, reset?: boolea
   Engine.renderer.toneMapping = args.toneMapping
   Engine.renderer.toneMappingExposure = args.toneMappingExposure
 
-  AssetLoader.LOD_DISTANCES = { '0': args.LODs.x, '1': args.LODs.y, '2': args.LODs.y }
+  if (args.LODs) AssetLoader.LOD_DISTANCES = { '0': args.LODs.x, '1': args.LODs.y, '2': args.LODs.y }
 
   if (typeof args.shadowMapType === 'undefined') {
     Engine.renderer.shadowMap.enabled = false
