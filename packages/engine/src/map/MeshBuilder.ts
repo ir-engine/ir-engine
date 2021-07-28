@@ -249,7 +249,7 @@ function loadTile(tileX: number, tileY: number): Promise<IFeatureX[]> {
     'pk.eyJ1IjoiY291bnRhYmxlLXdlYiIsImEiOiJjamQyZG90dzAxcmxmMndtdzBuY3Ywa2ViIn0.MU-sGTVDS9aGzgdJJ3EwHA'
 
   const url =
-    'https://api.mapbox.com/v4/mapbox.mapbox-terrain-v2,mapbox.mapbox-streets-v7/' +
+    'https://api.mapbox.com/v4/mapbox.mapbox-streets-v7/' +
     TILE_ZOOM +
     '/' +
     tileX +
