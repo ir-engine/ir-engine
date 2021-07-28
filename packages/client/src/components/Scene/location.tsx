@@ -20,7 +20,6 @@ import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
-import { OpenLink } from '@xrengine/client-core/src/world/components/OpenLink'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
@@ -30,7 +29,6 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { delay, processLocationChange, resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
@@ -47,8 +45,8 @@ import React, { Suspense, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
-import { CharacterUISystem } from '../../../../client-core/index'
-import { teleportToScene } from '../../../../engine/src/scene/functions/teleportToScene'
+import { CharacterUISystem } from '@xrengine/client-core/index'
+import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import MediaIconsBox from '../../components/MediaIconsBox'
 import NetworkDebug from '../../components/NetworkDebug'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
@@ -88,38 +86,6 @@ const canvasStyle = {
   WebkitUserSelect: 'none',
   userSelect: 'none'
 } as React.CSSProperties
-
-// debug for contexts where devtools may be unavailable
-const consoleLog = []
-if (globalThis.process?.env.NODE_ENV === 'development') {
-  const consolelog = console.log
-  console.log = (...args) => {
-    consolelog(...args)
-    consoleLog.push('Log: ' + args.join(' '))
-  }
-
-  const consolewarn = console.warn
-  console.warn = (...args) => {
-    consolewarn(...args)
-    consoleLog.push('Warn: ' + args.join(' '))
-  }
-
-  const consoleerror = console.error
-  console.error = (...args) => {
-    consoleerror(...args)
-    consoleLog.push('Error: ' + args.join(' '))
-  }
-
-  globalThis.dump = () => {
-    document.body.innerHTML = consoleLog
-      .map((log) => {
-        return `<p>${log}</p>`
-      })
-      .join('')
-    consolelog(consoleLog)
-    resetEngine()
-  }
-}
 
 interface Props {
   setAppLoaded?: any
@@ -538,11 +504,6 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     return (): void => {
-      document.body.innerHTML = consoleLog
-        .map((log) => {
-          ;`<p>${log}</p>`
-        })
-        .join()
       resetEngine()
     }
   }, [])
