@@ -29,9 +29,9 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       node.spawnRotation = new Euler()
       if (portalComponent.props.spawnRotation)
         node.spawnRotation.set(
-          portalComponent.props.spawnRotation._x,
-          portalComponent.props.spawnRotation._y,
-          portalComponent.props.spawnRotation._z
+          portalComponent.props.spawnRotation.x,
+          portalComponent.props.spawnRotation.y,
+          portalComponent.props.spawnRotation.z
         )
     }
     return node

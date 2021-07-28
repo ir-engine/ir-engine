@@ -42,7 +42,7 @@ const vec3 = new Vector3()
  * @param isDegree Whether the angle is in degree or radian
  * @returns View vector having given angle in the world space
  */
-export const getViewVectorFromAngle = (viewVector: Vector3, angle: number, isDegree?: boolean): Vector3 => {
+export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?: boolean): Vector3 => {
   if (isDegree) {
     angle = (angle * Math.PI) / 180 // Convert to Radian
   }
@@ -53,9 +53,12 @@ export const getViewVectorFromAngle = (viewVector: Vector3, angle: number, isDeg
   // newTheta - theta ==> To rotate Right on mouse drage Right -> Left
   const dif = oldAngle - angle
 
-  if (Math.abs(dif) % Math.PI < 0.001) return viewVector
+  if (Math.abs(dif) % Math.PI > 0.001) {
+    viewVector.setX(Math.sin(oldAngle - dif))
+    viewVector.setZ(Math.cos(oldAngle - dif))
+  }
 
-  return new Vector3(Math.sin(oldAngle - dif), 0, Math.cos(oldAngle - dif))
+  return viewVector
 }
 
 const followCameraBehavior = (entity: Entity, portCamera?: boolean) => {
@@ -141,10 +144,7 @@ const followCameraBehavior = (entity: Entity, portCamera?: boolean) => {
     actorTransform.rotation.setFromAxisAngle(upVector, newTheta)
 
     // Update the view vector
-    const newViewVector = getViewVectorFromAngle(actor.viewVector, newTheta)
-    if (actor.viewVector !== newViewVector) {
-      actor.viewVector.copy(newViewVector)
-    }
+    rotateViewVectorXZ(actor.viewVector, newTheta)
   }
 }
 

@@ -1,7 +1,7 @@
 import { AmbientLight, PerspectiveCamera } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
-import { CameraSystem, getViewVectorFromAngle } from '../../camera/systems/CameraSystem'
+import { CameraSystem, rotateViewVectorXZ } from '../../camera/systems/CameraSystem'
 import { CharacterComponent } from '../../character/components/CharacterComponent'
 import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -93,7 +93,7 @@ export const teleportToScene = async (portalComponent: PortalProps, handleNewSce
   )
 
   const actor = getComponent(Network.instance.localClientEntity, CharacterComponent)
-  actor.viewVector.copy(getViewVectorFromAngle(actor.viewVector, (portalComponent.spawnEuler as any)._y))
+  rotateViewVectorXZ(actor.viewVector, portalComponent.spawnEuler.y)
 
   addComponent(Network.instance.localClientEntity, ControllerColliderComponent)
 
