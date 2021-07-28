@@ -11,11 +11,11 @@ import { addComponent, getComponent, removeComponent } from '../../ecs/functions
 import { Network } from '../../networking/classes/Network'
 import { PhysicsSystem } from '../../physics/systems/PhysicsSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { PortalProps } from '../behaviors/createPortal'
+import { PortalComponent } from '../components/PortalComponent'
 import { PortalEffect } from '../classes/PortalEffect'
 import { Object3DComponent } from '../components/Object3DComponent'
 
-export const teleportToScene = async (portalComponent: PortalProps, handleNewScene: () => void) => {
+export const teleportToScene = async (portalComponent: PortalComponent, handleNewScene: () => void) => {
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
   Engine.hasJoinedWorld = false
 
@@ -87,13 +87,13 @@ export const teleportToScene = async (portalComponent: PortalProps, handleNewSce
   // teleport player to where the portal is
   const transform = getComponent(Network.instance.localClientEntity, TransformComponent)
   transform.position.set(
-    portalComponent.spawnPosition.x,
-    portalComponent.spawnPosition.y,
-    portalComponent.spawnPosition.z
+    portalComponent.remoteSpawnPosition.x,
+    portalComponent.remoteSpawnPosition.y,
+    portalComponent.remoteSpawnPosition.z
   )
 
   const actor = getComponent(Network.instance.localClientEntity, CharacterComponent)
-  rotateViewVectorXZ(actor.viewVector, portalComponent.spawnEuler.y)
+  rotateViewVectorXZ(actor.viewVector, portalComponent.remoteSpawnEuler.y)
 
   addComponent(Network.instance.localClientEntity, ControllerColliderComponent)
 
