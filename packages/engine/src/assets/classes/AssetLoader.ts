@@ -14,7 +14,7 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { Engine } from '../../ecs/classes/Engine'
-import { LOADER_STATUS, LODS_REGEXP, LOD_DISTANCES } from '../constants/LoaderConstants'
+import { LOADER_STATUS, LODS_REGEXP, DEFAULT_LOD_DISTANCES } from '../constants/LoaderConstants'
 
 type AssetLoaderParamType = {
   entity?: Entity
@@ -26,6 +26,7 @@ type AssetLoaderParamType = {
 export class AssetLoader {
   static Cache = new Map<string, any>()
   static loaders = new Map<number, any>()
+  static LOD_DISTANCES = DEFAULT_LOD_DISTANCES
 
   assetType: AssetType
   assetClass: AssetClass
@@ -113,7 +114,7 @@ export class AssetLoader {
       value[0].object.parent.add(lod)
 
       value.forEach(({ level, object }) => {
-        lod.addLevel(object, LOD_DISTANCES[level])
+        lod.addLevel(object, AssetLoader.LOD_DISTANCES[level])
       })
     })
 
@@ -146,7 +147,7 @@ export class AssetLoader {
     })
     replacedMaterials.clear()
 
-    asset = this.handleLODs(asset)
+    this.handleLODs(asset)
 
     if (asset.children.length) {
       asset.children.forEach((child) => this.handleLODs(child))
