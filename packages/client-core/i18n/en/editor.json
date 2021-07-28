@@ -394,6 +394,13 @@
         "spline": {
             "description": "Dynamically create and customize curves.",
             "lbl-addNode": "Add node to curve."
+        },
+        "portal": {
+            "description": "A Portat to teleport players to specified location",
+            "location": "Location",
+            "displayText": "Display Text",
+            "spawnPosition": "Spawn position",
+            "spawnRotation": "Spawn Rotation"
         }
     },
     "projects": {

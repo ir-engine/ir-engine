@@ -95,7 +95,7 @@ export class CharacterControllerSystem extends System {
       // iterate on all collisions since the last update
       controller.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => {})
 
-      if (!isClient || (entity && entity === Network.instance.localClientEntity)) detectUserInPortal(entity)
+      if (!isClient || (entity && entity === Network.instance.localClientEntity)) detectUserInPortal(controller)
 
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
 

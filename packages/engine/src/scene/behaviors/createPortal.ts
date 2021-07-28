@@ -3,7 +3,6 @@ import { Body, BodyType, ShapeType, SHAPES } from 'three-physx'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { isClient } from '../../common/functions/isClient'
-import { Behavior } from '../../common/interfaces/Behavior'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
@@ -16,7 +15,7 @@ import { Object3DComponent } from '../components/Object3DComponent'
 import { PortalComponent } from '../components/PortalComponent'
 
 export type PortalProps = {
-  location: string
+  linkedPortalId: string
   displayText: string
   spawnPosition: Vector3
   spawnRotation: Quaternion
@@ -25,8 +24,8 @@ export type PortalProps = {
 
 const vec3 = new Vector3()
 
-export const createPortal = (entity: Entity, args: PortalProps) => {
-  const { location, displayText, spawnPosition } = args
+export const createPortal = async (entity: Entity, args: PortalProps) => {
+  const { linkedPortalId, displayText, spawnPosition } = args
 
   const spawnEuler = new Euler(args.spawnRotation.x, args.spawnRotation.y, args.spawnRotation.z, 'XYZ')
   const spawnRotation = new Quaternion().setFromEuler(spawnEuler)
@@ -112,10 +111,28 @@ export const createPortal = (entity: Entity, args: PortalProps) => {
   })
 
   addComponent(entity, PortalComponent, {
-    location,
+    linkedPortalId,
     displayText,
     spawnPosition,
     spawnRotation,
     spawnEuler
   })
+}
+
+export const setRemoteLocationDetail = (portal: PortalComponent, remote: any): void => {
+  portal.location = remote.entity.collection.location.slugifiedName
+  portal.remoteSpawnPosition = new Vector3(
+    remote.data.spawnPosition.x,
+    remote.data.spawnPosition.y,
+    remote.data.spawnPosition.z
+  )
+
+  portal.remoteSpawnEuler = new Euler(
+    remote.data.spawnRotation.x,
+    remote.data.spawnRotation.y,
+    remote.data.spawnRotation.z,
+    'XYZ'
+  )
+
+  portal.remoteSpawnRotation = new Quaternion().setFromEuler(portal.remoteSpawnEuler)
 }
