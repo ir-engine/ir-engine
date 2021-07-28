@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Drawer from '@material-ui/core/Drawer'
 import Container from '@material-ui/core/Container'
 import Paper from '@material-ui/core/Paper'
@@ -8,6 +8,9 @@ import DialogActions from '@material-ui/core/DialogActions'
 import AudioPlayer from 'material-ui-audio-player'
 import { useStyle, useStyles, useStylePlayer } from './styles'
 import EditArMedia from './EditArmedia'
+import InsertDriveFile from '@material-ui/icons/InsertDriveFile'
+import Grid from '@material-ui/core/Grid'
+import Card from '@material-ui/core/Card'
 
 interface Props {
   openView: boolean
@@ -20,6 +23,7 @@ const ViewMedia = (props: Props) => {
   const classes = useStyles()
   const { openView, closeViewModel, mediaAdmin } = props
   const [editMode, setEditMode] = React.useState(false)
+
   return (
     <React.Fragment>
       <Drawer anchor="right" open={openView} onClose={() => closeViewModel(false)} classes={{ paper: classex.paper }}>
@@ -57,6 +61,31 @@ const ViewMedia = (props: Props) => {
                   loop={false}
                   src={`${mediaAdmin.audioUrl}`}
                 />
+
+                <div className={classes.Card}>
+                  <Grid container spacing={2} className={`${classes.marginBottom} ${classes.containerFile}`}>
+                    {mediaAdmin.dracosisUrl && (
+                      <Grid item xs={12} sm={6}>
+                        <Typography variant="h6" component="p" className={classes.typo}>
+                          Dracosis
+                        </Typography>
+                        <Card className={classes.file}>
+                          <InsertDriveFile className={classes.placeHolderFile} />
+                        </Card>
+                      </Grid>
+                    )}
+                    {mediaAdmin.manifestUrl && (
+                      <Grid item xs={12} sm={6}>
+                        <Typography variant="h6" component="p" className={classes.typo}>
+                          Manifest
+                        </Typography>
+                        <Card className={classes.file}>
+                          <InsertDriveFile className={classes.placeHolderFile} />
+                        </Card>
+                      </Grid>
+                    )}
+                  </Grid>
+                </div>
               </div>
 
               <DialogActions className={classes.mt5}>

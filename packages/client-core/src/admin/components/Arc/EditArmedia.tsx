@@ -20,6 +20,10 @@ import { formValid } from './validation'
 import { updateArMedia } from '../../../socialmedia/reducers/arMedia/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
+import InsertDriveFile from '@material-ui/icons/InsertDriveFile'
+import Grid from '@material-ui/core/Grid'
+import Card from '@material-ui/core/Card'
+import Typography from '@material-ui/core/Typography'
 
 interface Props {
   mediaAdmin: any
@@ -259,42 +263,86 @@ const EditArMedia = (props: Props) => {
           </Paper>
         )}
         <div className={classes.mgBtn}>
-          <span>Dracosis</span>
-          <Paper
-            component="div"
-            className={`${state.formErrors.dracosis.length > 0 ? classes.redBorder : classes.createInput}`}
-          >
-            <Button variant="contained" className={classes.btn} startIcon={<CloudUploadIcon />}>
-              <input
-                name="dracosis"
-                onChange={handleChange}
-                // accept=".uvol"
-                className={classes.input}
-                id="contained-button-file"
-                multiple
-                type="file"
-              />
-            </Button>
-          </Paper>
+          <p>Dracosis</p>
+          {state.dracosis instanceof File || !state.dracosis ? (
+            <Paper
+              component="div"
+              className={`${state.formErrors.dracosis.length > 0 ? classes.redBorder : classes.createInput}`}
+            >
+              <Button variant="contained" className={classes.btn} startIcon={<CloudUploadIcon />}>
+                <input
+                  name="dracosis"
+                  onChange={handleChange}
+                  accept=".uvol"
+                  className={classes.input}
+                  id="contained-button-file"
+                  multiple
+                  type="file"
+                />
+              </Button>
+            </Paper>
+          ) : (
+            <Badge
+              badgeContent={
+                <IconButton
+                  onClick={() =>
+                    setState({
+                      ...state,
+                      dracosis: ''
+                    })
+                  }
+                  className={classes.spanDange}
+                >
+                  <ClearIcon style={{ fontWeight: 'bold' }} />
+                </IconButton>
+              }
+            >
+              <Card className={classes.file}>
+                <InsertDriveFile className={classes.placeHolderFile} />
+              </Card>
+            </Badge>
+          )}
         </div>
         <div className={classes.mgBtn}>
-          <span>Manifest </span>
-          <Paper
-            component="div"
-            className={`${state.formErrors.manifest.length > 0 ? classes.redBorder : classes.createInput}`}
-          >
-            <Button variant="contained" className={classes.btn} startIcon={<CloudUploadIcon />}>
-              <input
-                name="manifest"
-                // accept=".manifest"
-                className={classes.input}
-                id="contained-button-file"
-                multiple
-                type="file"
-                onChange={handleChange}
-              />
-            </Button>
-          </Paper>
+          <p>Manifest </p>
+          {state.manifest instanceof File || !state.manifest ? (
+            <Paper
+              component="div"
+              className={`${state.formErrors.manifest.length > 0 ? classes.redBorder : classes.createInput}`}
+            >
+              <Button variant="contained" className={classes.btn} startIcon={<CloudUploadIcon />}>
+                <input
+                  name="manifest"
+                  accept=".manifest"
+                  className={classes.input}
+                  id="contained-button-file"
+                  multiple
+                  type="file"
+                  onChange={handleChange}
+                />
+              </Button>
+            </Paper>
+          ) : (
+            <Badge
+              badgeContent={
+                <IconButton
+                  onClick={() =>
+                    setState({
+                      ...state,
+                      manifest: ''
+                    })
+                  }
+                  className={classes.spanDange}
+                >
+                  <ClearIcon style={{ fontWeight: 'bold' }} />
+                </IconButton>
+              }
+            >
+              <Card className={classes.file}>
+                <InsertDriveFile className={classes.placeHolderFile} />
+              </Card>
+            </Badge>
+          )}
         </div>
 
         <div>

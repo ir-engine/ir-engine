@@ -18,7 +18,6 @@ import Store from '@xrengine/client-core/src/store'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
-import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
@@ -112,7 +111,6 @@ if (globalThis.process?.env.NODE_ENV === 'development') {
 interface Props {
   setAppLoaded?: any
   sceneId?: string
-  userState?: any
   deviceState?: any
   locationName: string
   appState?: any
@@ -128,12 +126,11 @@ interface Props {
   resetInstanceServer?: typeof resetInstanceServer
   setCurrentScene?: typeof setCurrentScene
   harmonyOpen?: boolean
-  enableSharing: boolean
+  enableSharing?: boolean
 }
 
 const mapStateToProps = (state: any) => {
   return {
-    userState: selectUserState(state),
     appState: selectAppState(state),
     deviceState: selectDeviceDetectState(state),
     authState: selectAuthState(state),
@@ -161,7 +158,6 @@ export const EnginePage = (props: Props) => {
     authState,
     locationState,
     partyState,
-    userState,
     deviceState,
     instanceConnectionState,
     doLoginAuto,

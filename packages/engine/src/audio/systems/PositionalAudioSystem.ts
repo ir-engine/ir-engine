@@ -1,5 +1,5 @@
 import { Engine } from '../../ecs/classes/Engine'
-import { System, SystemAttributes } from '../../ecs/classes/System'
+import { System } from '../../ecs/classes/System'
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
 import { NetworkObject } from '../../networking/components/NetworkObject'
@@ -28,14 +28,12 @@ export class PositionalAudioSystem extends System {
   /** Static instance for positional audio. */
   public static instance: PositionalAudioSystem = null
 
-  updateType = SystemUpdateType.Fixed
-
   characterAudioStream: Map<Entity, any>
   audioInitialised: boolean
 
   /** Constructs Positional Audio System. */
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
+  constructor() {
+    super()
     PositionalAudioSystem.instance = this
     Engine.useAudioSystem = true
     // not needed to reset, only for initial load of page

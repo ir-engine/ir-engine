@@ -1,5 +1,5 @@
 import { createStore, applyMiddleware } from 'redux'
-import { saveState } from './persisted.store'
+import { saveAuthState } from './persisted.store'
 import thunkMiddleware from 'redux-thunk'
 import Immutable from 'immutable'
 import { composeWithDevTools } from 'redux-devtools-extension'
@@ -17,7 +17,7 @@ export function configureStore(reducers) {
   ;(window as any).store = Store.store // Exposing the store to window to make it intentionally available to bots and clients and whatnot
   // add a listener that will be invoked on any state change.
   Store.store.subscribe(() => {
-    saveState(Store.store.getState())
+    saveAuthState(Store.store.getState())
   })
 
   return Store.store

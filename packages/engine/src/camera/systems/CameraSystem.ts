@@ -2,7 +2,7 @@ import { Matrix4, Vector3 } from 'three'
 import { isMobile } from '../../common/functions/isMobile'
 import { NumericalType, Vector2Type } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
-import { System, SystemAttributes } from '../../ecs/classes/System'
+import { System } from '../../ecs/classes/System'
 import {
   addComponent,
   createEntity,
@@ -162,16 +162,14 @@ export const resetFollowCamera = () => {
 export class CameraSystem extends System {
   static instance: CameraSystem
 
-  updateType = SystemUpdateType.Free
-
   activeCamera: Entity
   prevState = [0, 0] as NumericalType
 
   portCamera: boolean = false
 
   /** Constructs camera system. */
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
+  constructor() {
+    super()
     CameraSystem.instance = this
 
     const cameraEntity = createEntity()

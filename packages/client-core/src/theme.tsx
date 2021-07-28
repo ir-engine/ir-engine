@@ -1,7 +1,8 @@
 import { createTheme } from '@material-ui/core/styles'
 import { red } from '@material-ui/core/colors'
+import { useTheme as styledUseTheme } from 'styled-components'
 
-const lightTheme = createTheme({
+const theme = createTheme({
   palette: {
     primary: {
       main: '#5151FF'
@@ -13,7 +14,7 @@ const lightTheme = createTheme({
       main: red.A400
     },
     background: {
-      default: '#000000'
+      default: '#ff0000'
     },
     text: {
       primary: '#FFFFFF',
@@ -65,7 +66,7 @@ const lightTheme = createTheme({
         display: 'flex',
         alignItems: 'center',
         '&.MuiTypography-colorSecondary': {
-          color: '#8A8A8E'
+          color: '#FFD600'
         }
       },
       alignRight: {
@@ -374,5 +375,9 @@ const lightTheme = createTheme({
   }
 })
 
-// export default darkTheme;
-export default lightTheme
+export { theme }
+export type Theme = typeof theme
+
+export function useTheme() {
+  return styledUseTheme() as Theme
+}

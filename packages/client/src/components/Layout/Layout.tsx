@@ -9,7 +9,7 @@ import { setUserHasInteracted } from '@xrengine/client-core/src/common/reducers/
 import { selectAppOnBoardingStep, selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
-import theme from '@xrengine/client-core/src/theme'
+import { theme } from '@xrengine/client-core/src/theme'
 import Harmony from '../Harmony'
 import InstanceChat from '../InstanceChat'
 import PartyVideoWindows from '../PartyVideoWindows'

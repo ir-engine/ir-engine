@@ -1,13 +1,5 @@
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 
-export const useIt = makeStyles((theme) => {
-  return {
-    marginLft: {
-      marginLeft: '1px'
-    }
-  }
-})
-
 export const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     large: {
@@ -70,6 +62,15 @@ export const useStyles = makeStyles((theme: Theme) =>
       width: '100%',
       backgroundColor: '#43484F',
       padding: '2rem'
+    },
+    containerScroll: {
+      /*scroll */
+      maxHeight: '90vh',
+      boxSizing: 'border-box',
+      overflow: 'auto',
+      '&::-webkit-scrollbar': {
+        display: 'none'
+      }
     },
     marginTp: {
       marginTop: '20%'
@@ -197,6 +198,19 @@ export const useStyles = makeStyles((theme: Theme) =>
     image: {
       height: '18rem',
       width: '100%'
+    },
+    placeHolderFile: {
+      fontSize: '6rem'
+    },
+    file: {
+      textAlign: 'center',
+      background: '#43484F !important',
+      color: '#f1f1f1',
+      width: '10rem',
+      marginTop: '.6rem'
+    },
+    containerFile: {
+      marginTop: '.7rem'
     }
   })
 )
@@ -206,7 +220,10 @@ export const useStyle = makeStyles({
     maxWidth: '80%',
     minWidth: '40%',
     backgroundColor: '#43484F ',
-    color: '#f1f1f1'
+    color: '#f1f1f1',
+    '&::-webkit-scrollbar': {
+      display: 'none'
+    }
   },
   paperDialog: {
     background: 'rgb(58, 65, 73) !important',
