@@ -119,20 +119,26 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
   })
 }
 
-export const setRemoteLocationDetail = (portal: PortalComponent, remote: any): void => {
-  portal.location = remote.entity.collection.location.slugifiedName
-  portal.remoteSpawnPosition = new Vector3(
-    remote.data.spawnPosition.x,
-    remote.data.spawnPosition.y,
-    remote.data.spawnPosition.z
-  )
+export const setRemoteLocationDetail = (
+  portal: PortalComponent,
+  locationName: string,
+  spawnPosition: Vector3,
+  spawnRotation: Euler
+): void => {
+  portal.location = locationName
 
-  portal.remoteSpawnEuler = new Euler(
-    remote.data.spawnRotation.x,
-    remote.data.spawnRotation.y,
-    remote.data.spawnRotation.z,
-    'XYZ'
-  )
+  // portal.remoteSpawnPosition = new Vector3(
+  //   spawnPosition.x,
+  //   spawnPosition.y,
+  //   spawnPosition.z
+  // )
 
-  portal.remoteSpawnRotation = new Quaternion().setFromEuler(portal.remoteSpawnEuler)
+  // portal.remoteSpawnEuler = new Euler(
+  //   spawnRotation.x,
+  //   spawnRotation.y,
+  //   spawnRotation.z,
+  //   'XYZ'
+  // )
+
+  // portal.remoteSpawnRotation = new Quaternion().setFromEuler(portal.remoteSpawnEuler)
 }

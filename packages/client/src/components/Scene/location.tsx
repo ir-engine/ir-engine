@@ -58,9 +58,8 @@ import {
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import WarningRefreshModal from '../AlertModals/WarningRetryModal'
 import RecordingApp from './../Recorder/RecordingApp'
-import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/behaviors/createPortal'
-import { getAllMutableComponentOfType } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import configs from '@xrengine/client-core/src/world/components/editor/configs'
+import { getPortalDetails } from '../../functions/getPortalDetails'
 
 const store = Store.store
 
@@ -433,9 +432,9 @@ export const EnginePage = (props: Props) => {
         sceneData,
         async () => {
           setProgressEntity(0)
+          getPortalDetails(configs)
           store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
           setAppLoaded(true)
-          await fetchPortalDetails()
           resolve()
         },
         onSceneLoadedEntity
@@ -470,29 +469,6 @@ export const EnginePage = (props: Props) => {
 
   const onSceneLoadedEntity = (left: number): void => {
     setProgressEntity(left || 0)
-  }
-
-  const fetchPortalDetails = async () => {
-    const token = localStorage.getItem((configs as any).FEATHERS_STORE_KEY)
-    const SERVER_URL = (configs as any).SERVER_URL
-
-    const options = {
-      headers: {
-        authorization: `Bearer ${token}`
-      }
-    }
-
-    const portals = getAllMutableComponentOfType(PortalComponent)
-
-    await Promise.all(
-      portals.map(async (portal: PortalComponent): Promise<void> => {
-        return fetch(`${SERVER_URL}/portal/${portal.linkedPortalId}`, options)
-          .then((res) => res.json())
-          .then((res) => {
-            setRemoteLocationDetail(portal, res)
-          })
-      })
-    )
   }
 
   const portToLocation = async ({ portalComponent }: { portalComponent: PortalComponent }) => {
@@ -533,9 +509,7 @@ export const EnginePage = (props: Props) => {
   }
 
   useEffect(() => {
-    return (): void => {
-      resetEngine()
-    }
+    return (): void => {}
   }, [])
 
   //touch gamepad

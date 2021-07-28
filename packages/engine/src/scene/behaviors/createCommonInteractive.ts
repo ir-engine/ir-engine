@@ -45,11 +45,5 @@ export const createCommonInteractive = (entity, args: InteractionData) => {
   if (!args.interactable) {
     return
   }
-
-  const interactiveData = {
-    onInteraction: onInteraction,
-    data: args
-  }
-
-  addComponent(entity, Interactable, interactiveData)
+  addComponent(entity, Interactable, { data: args })
 }
