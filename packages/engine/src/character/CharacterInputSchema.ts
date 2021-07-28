@@ -1,6 +1,6 @@
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { Entity } from '../ecs/classes/Entity'
-import { getComponent } from '../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../ecs/functions/EntityFunctions'
 import { Input } from '../input/components/Input'
 import { BaseInput } from '../input/enums/BaseInput'
 import { Material, Mesh, Quaternion, Vector3 } from 'three'
@@ -25,6 +25,7 @@ import { InputValue } from '../input/interfaces/InputValue'
 import { NumericalType } from '../common/types/NumericalTypes'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { InteractiveSystem } from '../interaction/systems/InteractiveSystem'
+import { InteractedComponent } from '../interaction/components/InteractedComponent'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -49,13 +50,9 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue<N
   const parityValue = getParityFromInputValue(inputKey)
 
   const interactor = getComponent(entity, Interactor)
-  if (!interactor) return
-  const interactive = getComponent(interactor.focusedInteractive, Interactable)
+  if (!interactor?.focusedInteractive) return
 
-  EngineEvents.instance.dispatchEvent({
-    type: InteractiveSystem.EVENTS.OBJECT_ACTIVATION,
-    ...interactive.data
-  })
+  addComponent(interactor.focusedInteractive, InteractedComponent, { interactor: entity, parity: parityValue })
 }
 
 /**

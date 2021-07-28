@@ -586,7 +586,7 @@ export { default as srcSceneClassesTrailRenderer } from './src/scene/classes/Tra
 export { default as srcSceneClassesTransformGizmo } from './src/scene/classes/TransformGizmo';
 export { default as srcSceneClassesVideo } from './src/scene/classes/Video';
 export { default as srcSceneClassesVolumetric } from './src/scene/classes/Volumetric';
-export { default as srcSceneComponentsAudioSource } from './src/scene/components/AudioSource';
+export { default as srcSceneComponentsAudioSource } from './src/scene/components/MediaComponent';
 export { default as srcSceneComponentsCollidable } from './src/scene/components/Collidable';
 export { default as srcSceneComponentsFloorPlan } from './src/scene/components/FloorPlan';
 export { default as srcSceneComponentsGroundPlane } from './src/scene/components/GroundPlane';
@@ -598,7 +598,7 @@ export { default as srcSceneComponentsScenePreviewCamera } from './src/scene/com
 export { default as srcSceneComponentsShadowComponent } from './src/scene/components/ShadowComponent';
 export { default as srcSceneComponentsSpawnPointComponent } from './src/scene/components/SpawnPointComponent';
 export { default as srcSceneComponentsTransformGizmo } from './src/scene/components/TransformGizmo';
-export { default as srcSceneComponentsVideo } from './src/scene/components/Video';
+export { default as srcSceneComponentsVideo } from './src/scene/components/VideoComponent';
 export { default as srcSceneComponentsVolumetricComponent } from './src/scene/components/VolumetricComponent';
 export { default as srcSceneComponentsWalkable } from './src/scene/components/Walkable';
 export { default as srcXrClassesArmTransforms } from './src/xr/classes/ArmTransforms';

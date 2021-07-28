@@ -47,21 +47,9 @@ export const InteractableModal: FunctionComponent = () => {
   }
 
   const onObjectActivation = (interactionData): void => {
-    switch (interactionData.interactionType) {
-      case 'link':
-        setOpenLinkData(interactionData)
-        setInputEnabled(false)
-        setObjectActivated(true)
-        break
-      case 'infoBox':
-      case 'mediaSource':
-        setModalData(interactionData)
-        setInputEnabled(false)
-        setObjectActivated(true)
-        break
-      default:
-        break
-    }
+    setModalData(interactionData)
+    setInputEnabled(false)
+    setObjectActivated(true)
   }
 
   const onEngineLoaded = () => {

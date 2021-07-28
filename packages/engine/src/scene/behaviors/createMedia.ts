@@ -1,21 +1,13 @@
-import { MathUtils, Object3D, Audio } from 'three'
+import { Object3D } from 'three'
 
 import { addObject3DComponent } from './addObject3DComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Interactable } from '../../interaction/components/Interactable'
-import { Behavior } from '../../common/interfaces/Behavior'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
-import AudioSource from '../classes/AudioSource'
-import { Object3DComponent } from '../components/Object3DComponent'
-import { isWebWorker } from '../../common/functions/getEnvironment'
 import VolumetricComponent from '../components/VolumetricComponent'
 import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { InteractiveSystem } from '../../interaction/systems/InteractiveSystem'
 import Video from '../classes/Video'
-import { Network } from '../../networking/classes/Network'
-import { PrefabType } from '../../networking/templates/PrefabType'
-import { Time } from '../../networking/types/SnapshotDataTypes'
+import MediaComponent from '../components/MediaComponent'
+import AudioSource from '../classes/AudioSource'
 
 const isBrowser = new Function('try {return this===window;}catch(e){ return false;}')
 
@@ -52,24 +44,17 @@ export interface VideoProps extends AudioProps {
   projection?: 'flat' | '360-equirectangular'
 }
 
-export const elementPlaying = (element: {
-  currentTime: Time
-  paused: boolean
-  ended: boolean
-  readyState: number
-}): boolean => {
-  // if (isWebWorker) return element?._isPlaying;
-  return element && !!(element.currentTime > 0 && !element.paused && !element.ended && element.readyState > 2)
-}
-
 export function createMediaServer(entity, args: { interactable: boolean }): void {
   addObject3DComponent(entity, new Object3D(), args)
-  if (args.interactable) addComponent(entity, Interactable)
+  addComponent(entity, Interactable)
 }
 
 export function createAudio(entity, args: AudioProps): void {
-  addObject3DComponent(entity, new Audio(Engine.audioListener), args)
-  if (args.interactable) addComponent(entity, Interactable)
+  const audio = new AudioSource(Engine.audioListener)
+  addObject3DComponent(entity, audio, args)
+  audio.load()
+  addComponent(entity, MediaComponent)
+  addComponent(entity, Interactable)
 }
 
 export function createVideo(entity, args: VideoProps): void {
@@ -78,8 +63,10 @@ export function createVideo(entity, args: VideoProps): void {
     video.startTime = args.synchronize
     video.isSynced = args.synchronize > 0
   }
-  addObject3DComponent(entity, video, { ...args })
-  if (args.interactable) addComponent(entity, Interactable)
+  addObject3DComponent(entity, video, args)
+  video.load()
+  addComponent(entity, MediaComponent)
+  addComponent(entity, Interactable)
 }
 
 interface VolumetricProps {
@@ -108,6 +95,6 @@ export const createVolumetric = (entity, args: VolumetricProps) => {
     frameRate: 25
   })
   volumetricComponent.player = DracosisSequence
-  addComponent(entity, Object3DComponent, { value: container })
-  if (args.interactable) addComponent(entity, Interactable)
+  addObject3DComponent(entity, container, args)
+  addComponent(entity, Interactable)
 }

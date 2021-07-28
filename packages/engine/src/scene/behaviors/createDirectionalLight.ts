@@ -31,7 +31,7 @@ export const createDirectionalLight = (
   }
 
   if (sceneProperty.isCSMEnabled) {
-    const object3d = applyArgsToObject3d(entity, new DirectionalLight(), false, args)
+    const object3d = applyArgsToObject3d(entity, new DirectionalLight(), args)
     sceneProperty.directionalLights.push(object3d)
   } else {
     addObject3DComponent(entity, new DirectionalLight(), args)

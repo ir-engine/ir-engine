@@ -17,7 +17,6 @@ export const VideoProjection = {
   Equirectangular360: '360-equirectangular'
 }
 import { Engine } from '../../ecs/classes/Engine'
-import { elementPlaying } from '../behaviors/createMedia'
 import isDash from '../../editor/functions/isDash'
 
 export default class Video extends AudioSource {
@@ -32,11 +31,6 @@ export default class Video extends AudioSource {
 
   constructor(audioListener, id: string) {
     super(audioListener, 'video', id)
-
-    // Appending element to the body so that it can be find by document.getElementById
-    document.body.appendChild(this.el)
-
-    // @ts-ignore
     this._texture = new VideoTexture(this.el)
     this._texture.minFilter = LinearFilter
     this._texture.encoding = sRGBEncoding
@@ -57,9 +51,9 @@ export default class Video extends AudioSource {
     })
   }
   /// https://resources.theoverlay.io/basscoast-final/manifest.mpd
-  loadVideo(src, contentType?) {
-    return new Promise<void>(async (resolve, reject) => {
-      if (isHLS(src, contentType)) {
+  async loadVideo() {
+    await new Promise<void>(async (resolve, reject) => {
+      if (isHLS(this.src)) {
         if (!this.hls) {
           this.hls = new Hls()
         }
@@ -88,10 +82,10 @@ export default class Video extends AudioSource {
         })
         this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
           this.hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {})
-          this.hls.loadSource(src)
+          this.hls.loadSource(this.src)
         })
         this.hls.attachMedia(this.el)
-      } else if (isDash(src, contentType)) {
+      } else if (isDash(this.src)) {
         // const { MediaPlayer } = await import('dashjs')
         // this.dash = MediaPlayer().create();
         // this.dash.initialize(this.el, src, this.autoPlay)
@@ -100,9 +94,7 @@ export default class Video extends AudioSource {
         // })
         // resolve()
       } else {
-        if (!this.el.src) {
-          this.el.src = src
-        }
+        this.el.src = this.src
         const onLoadedMetadata = () => {
           console.log('on load metadata')
           cleanup()
@@ -156,15 +148,10 @@ export default class Video extends AudioSource {
     this._mesh = nextMesh
     this.onResize()
   }
-  async load(src, contentType?) {
-    if (!src) return this
-    this._mesh.visible = false
-    // if video is synced to UTC loadVideo is called from NetworkMediaStream prefab init as server authorises it
-    if (this.isSynced) {
-      this.el.autoplay = 'none'
-    } else {
-      await this.loadVideo(src, contentType)
-    }
+  async load() {
+    if (!this.src) return this
+    await this.loadVideo()
+    console.log('loaded', this.src, this._mesh)
     this.onResize()
     if (Engine.useAudioSystem) {
       this.audioSource = this.audioListener.context.createMediaElementSource(this.el)
@@ -175,7 +162,6 @@ export default class Video extends AudioSource {
     }
     ;(this._mesh.material as MeshBasicMaterial).map = this._texture
     ;(this._mesh.material as MeshBasicMaterial).needsUpdate = true
-    this._mesh.visible = true
     return this
   }
   onResize() {

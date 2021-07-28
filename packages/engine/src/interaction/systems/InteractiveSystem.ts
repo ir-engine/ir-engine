@@ -56,6 +56,9 @@ import { hideInteractText, showInteractText } from '../functions/interactText'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { CameraSystem } from '../../camera/systems/CameraSystem'
 import { interactBoxRaycast } from '../functions/interactBoxRaycast'
+import { InteractedComponent } from '../components/InteractedComponent'
+import MediaComponent from '../../scene/components/MediaComponent'
+import AudioSource from '../../scene/classes/AudioSource'
 
 const vector3 = new Vector3()
 
@@ -148,7 +151,7 @@ export class InteractiveSystem extends System {
   execute(delta: number, time: number): void {
     this.newFocused.clear()
     if (isClient) {
-      this.queryResults.interactors?.all.forEach((entity) => {
+      for (const entity of this.queryResults.interactors.all) {
         if (this.queryResults.interactive?.all.length) {
           interactBoxRaycast(entity, this.queryResults.boundingBox.all)
           const interacts = getComponent(entity, Interactor)
@@ -183,10 +186,9 @@ export class InteractiveSystem extends System {
             }
           }
         }
-      })
+      }
 
       for (const entity of this.queryResults.boundingBox.added) {
-        const interactive = getMutableComponent(entity, Interactable)
         const calcBoundingBox = getMutableComponent(entity, BoundingBoxComponent)
 
         const object3D = getMutableComponent(entity, Object3DComponent).value
@@ -196,18 +198,29 @@ export class InteractiveSystem extends System {
         object3D.rotation.setFromQuaternion(transform.rotation)
         if (!calcBoundingBox.dynamic) object3D.updateMatrixWorld()
 
+        let hasBoxExpanded = false
+
+        // expand bounding box to
         object3D.traverse((obj3d: Mesh) => {
           if (obj3d instanceof Mesh) {
             if (!obj3d.geometry.boundingBox) obj3d.geometry.computeBoundingBox()
             const aabb = new Box3().copy(obj3d.geometry.boundingBox)
             if (!calcBoundingBox.dynamic) aabb.applyMatrix4(obj3d.matrixWorld)
-            if (!calcBoundingBox.box) {
-              calcBoundingBox.box = aabb
-            } else {
+            if (hasBoxExpanded) {
               calcBoundingBox.box.union(aabb)
+            } else {
+              calcBoundingBox.box = aabb
+              hasBoxExpanded = true
             }
           }
         })
+        // if no meshes, create a small bb so interactables still detect it
+        if (!hasBoxExpanded) {
+          calcBoundingBox.box = new Box3(
+            new Vector3(-0.05, -0.05, -0.05).add(transform.position),
+            new Vector3(0.05, 0.05, 0.05).add(transform.position)
+          )
+        }
       }
 
       // removal is the first because the hint must first be deleted, and then a new one appears
@@ -230,6 +243,20 @@ export class InteractiveSystem extends System {
 
       this.focused.clear()
       this.newFocused.forEach((e) => this.focused.add(e))
+    }
+
+    for (const entity of this.queryResults.interacted.added) {
+      const interactiveComponent = getComponent(entity, Interactable)
+      if (hasComponent(entity, MediaComponent)) {
+        const mediaObject = getComponent(entity, Object3DComponent).value as AudioSource
+        mediaObject?.toggle()
+      } else {
+        EngineEvents.instance.dispatchEvent({
+          type: InteractiveSystem.EVENTS.OBJECT_ACTIVATION,
+          ...interactiveComponent.data
+        })
+      }
+      removeComponent(entity, InteractedComponent)
     }
 
     for (const entity of this.queryResults.equippable.added) {
@@ -286,7 +313,7 @@ export class InteractiveSystem extends System {
     }
 
     // animate the interact text up and down if it's visible
-    if (Network.instance.localClientEntity) {
+    if (Network.instance.localClientEntity && hasComponent(this.interactTextEntity, Object3DComponent)) {
       const interactTextObject = getComponent(this.interactTextEntity, Object3DComponent).value
       interactTextObject.children[0].position.y = Math.sin(time * 1.8) * 0.05
 
@@ -346,6 +373,13 @@ export class InteractiveSystem extends System {
     },
     equippable: {
       components: [EquipperComponent],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    interacted: {
+      components: [InteractedComponent],
       listen: {
         added: true,
         removed: true
