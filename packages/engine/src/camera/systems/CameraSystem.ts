@@ -1,4 +1,4 @@
-import { Matrix4, Quaternion, Vector3 } from 'three'
+import { Matrix4, Vector3 } from 'three'
 import { isMobile } from '../../common/functions/isMobile'
 import { NumericalType, Vector2Type } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
@@ -30,27 +30,50 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 
 const direction = new Vector3()
 const upVector = new Vector3(0, 1, 0)
-const forwardVector = new Vector3(0, 0, 1)
 const empty = new Vector3()
 const PI_2Deg = Math.PI / 180
 const mx = new Matrix4()
 const vec3 = new Vector3()
 
-const followCameraBehavior = (entity: Entity) => {
+/**
+ * Calculates and returns view vector for give angle. View vector will be at the given angle after the calculation
+ * @param viewVector Current view vector
+ * @param angle angle to which view vector will be rotated
+ * @param isDegree Whether the angle is in degree or radian
+ * @returns View vector having given angle in the world space
+ */
+export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?: boolean): Vector3 => {
+  if (isDegree) {
+    angle = (angle * Math.PI) / 180 // Convert to Radian
+  }
+
+  const oldAngle = Math.atan2(viewVector.x, viewVector.z)
+
+  // theta - newTheta ==> To rotate Left on mouse drage Right -> Left
+  // newTheta - theta ==> To rotate Right on mouse drage Right -> Left
+  const dif = oldAngle - angle
+
+  if (Math.abs(dif) % Math.PI > 0.001) {
+    viewVector.setX(Math.sin(oldAngle - dif))
+    viewVector.setZ(Math.cos(oldAngle - dif))
+  }
+
+  return viewVector
+}
+
+const followCameraBehavior = (entity: Entity, portCamera?: boolean) => {
   if (!entity) return
+
   const cameraDesiredTransform = getMutableComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) // Camera
 
-  if (!cameraDesiredTransform) return
+  if (!cameraDesiredTransform && !portCamera) return
 
-  const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any)
+  const actor = getMutableComponent(entity, CharacterComponent)
   const actorTransform = getMutableComponent(entity, TransformComponent)
 
-  const followCamera = getMutableComponent<FollowCameraComponent>(
-    entity,
-    FollowCameraComponent
-  ) as FollowCameraComponent
+  const followCamera = getMutableComponent(entity, FollowCameraComponent)
 
-  const inputComponent = getComponent(entity, Input) as Input
+  const inputComponent = getComponent(entity, Input)
 
   // this is for future integration of MMO style pointer lock controls
   // const inputAxes = followCamera.mode === CameraModes.FirstPerson ? BaseInput.MOUSE_MOVEMENT : BaseInput.LOOKTURN_PLAYERONE
@@ -58,8 +81,10 @@ const followCameraBehavior = (entity: Entity) => {
 
   const inputValue = inputComponent.data.get(inputAxes)?.value ?? ([0, 0] as Vector2Type)
 
+  const theta = Math.atan2(actor.viewVector.x, actor.viewVector.z)
+
   if (followCamera.locked) {
-    followCamera.theta = (Math.atan2(actor.viewVector.x, actor.viewVector.z) * 180) / Math.PI + 180
+    followCamera.theta = (theta * 180) / Math.PI + 180
   }
 
   followCamera.theta -= inputValue[0] * (isMobile ? 60 : 100)
@@ -80,10 +105,7 @@ const followCameraBehavior = (entity: Entity) => {
   vec3.add(actorTransform.position)
 
   // Raycast for camera
-  const cameraTransform: TransformComponent = getMutableComponent(
-    CameraSystem.instance.activeCamera,
-    TransformComponent
-  )
+  const cameraTransform = getMutableComponent(CameraSystem.instance.activeCamera, TransformComponent)
   const raycastDirection = new Vector3().subVectors(cameraTransform.position, vec3).normalize()
   followCamera.raycastQuery.origin.copy(vec3)
   followCamera.raycastQuery.direction.copy(raycastDirection)
@@ -110,15 +132,19 @@ const followCameraBehavior = (entity: Entity) => {
   mx.lookAt(direction, empty, upVector)
   cameraDesiredTransform.rotation.setFromRotationMatrix(mx)
 
-  if (followCamera.mode === CameraModes.FirstPerson) {
-    cameraTransform.rotation.copy(cameraDesiredTransform.rotation)
+  if (followCamera.mode === CameraModes.FirstPerson || portCamera) {
     cameraTransform.position.copy(cameraDesiredTransform.position)
+    cameraTransform.rotation.copy(cameraDesiredTransform.rotation)
   }
 
   if (followCamera.locked || followCamera.mode === CameraModes.FirstPerson) {
-    actorTransform.rotation.setFromAxisAngle(upVector, (followCamera.theta - 180) * (Math.PI / 180))
-    vec3.copy(forwardVector).applyQuaternion(actorTransform.rotation)
-    actorTransform.rotation.setFromUnitVectors(forwardVector, vec3.setY(0))
+    const newTheta = ((followCamera.theta - 180) * Math.PI) / 180
+
+    // Rotate actor
+    actorTransform.rotation.setFromAxisAngle(upVector, newTheta)
+
+    // Update the view vector
+    rotateViewVectorXZ(actor.viewVector, newTheta)
   }
 }
 
@@ -138,6 +164,8 @@ export class CameraSystem extends System {
 
   activeCamera: Entity
   prevState = [0, 0] as NumericalType
+
+  portCamera: boolean = false
 
   /** Constructs camera system. */
   constructor() {
@@ -202,7 +230,7 @@ export class CameraSystem extends System {
 
     // follow camera component should only ever be on the character
     for (const entity of this.queryResults.followCameraComponent.all) {
-      followCameraBehavior(entity)
+      followCameraBehavior(entity, this.portCamera)
     }
   }
 }

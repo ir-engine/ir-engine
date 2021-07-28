@@ -26,7 +26,7 @@ import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { delay, processLocationChange, resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
+import { processLocationChange, resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
@@ -45,7 +45,7 @@ import React, { Suspense, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
-import { CharacterUISystem } from '@xrengine/client-core/index'
+import { CharacterUISystem } from '@xrengine/client-core/src/systems/CharacterUISystem'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import MediaIconsBox from '../../components/MediaIconsBox'
 import NetworkDebug from '../../components/NetworkDebug'
@@ -161,7 +161,7 @@ export const EnginePage = (props: Props) => {
   const [instanceKicked, setInstanceKicked] = useState(false)
   const [instanceKickedMessage, setInstanceKickedMessage] = useState('')
   const [porting, setPorting] = useState(false)
-  const [newSpawnPos, setNewSpawnPos] = useState(null)
+  const [newSpawnPos, setNewSpawnPos] = useState<PortalProps>(null)
 
   const appLoaded = appState.get('loaded')
   const selfUser = authState.get('user')
@@ -482,12 +482,11 @@ export const EnginePage = (props: Props) => {
     Network.instance.transport.close()
 
     await teleportToScene(portalComponent, async () => {
+      await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'))
+
       // change our browser URL
       history.replace('/location/' + portalComponent.location)
       setNewSpawnPos(portalComponent)
-
-      await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'))
-
       getLocationByName(portalComponent.location)
     })
   }

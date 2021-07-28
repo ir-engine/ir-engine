@@ -373,7 +373,7 @@ export function getComponent<C extends Component<C>>(
     _component = entity.componentsToRemove[component._typeId]
   }
 
-  return process.env.NODE_ENV !== 'production' ? wrapImmutableComponent(_component) : <C>_component
+  return process.env.NODE_ENV === 'development' ? wrapImmutableComponent(_component) : <C>_component
 }
 
 /**

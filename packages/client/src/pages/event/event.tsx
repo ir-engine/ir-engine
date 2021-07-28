@@ -168,7 +168,7 @@ export const EnginePage = (props: Props) => {
   const [instanceKicked, setInstanceKicked] = useState(false)
   const [instanceKickedMessage, setInstanceKickedMessage] = useState('')
   const [porting, setPorting] = useState(false)
-  const [newSpawnPos, setNewSpawnPos] = useState(null)
+  const [newSpawnPos, setNewSpawnPos] = useState<PortalProps>(null)
 
   const appLoaded = appState.get('loaded')
   const selfUser = authState.get('user')

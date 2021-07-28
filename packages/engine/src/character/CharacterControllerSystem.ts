@@ -21,9 +21,6 @@ import { sendClientObjectUpdate } from '../networking/functions/sendClientObject
 import { NetworkObjectUpdateType } from '../networking/templates/NetworkObjectUpdateSchema'
 import { updatePlayerRotationFromViewVector } from './functions/updatePlayerRotationFromViewVector'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
-import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
-import { CameraSystem } from '../camera/systems/CameraSystem'
-import { DesiredTransformComponent } from '../transform/components/DesiredTransformComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 
 const vector3 = new Vector3()
@@ -150,15 +147,11 @@ export class CharacterControllerSystem extends System {
     for (const entity of this.queryResults.localCharacter.all) {
       const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
       const transform = getComponent<TransformComponent>(entity, TransformComponent)
+
       characterMoveBehavior(entity, delta)
 
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      if (hasComponent(entity, FollowCameraComponent)) {
-        const camTransform = getComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent)
-        if (camTransform) {
-          actor.viewVector.set(0, 0, -1).applyQuaternion(camTransform.rotation)
-        }
-      } else if (xrInputSourceComponent) {
+      if (xrInputSourceComponent) {
         actor.viewVector.set(0, 0, 1).applyQuaternion(transform.rotation)
       }
     }
