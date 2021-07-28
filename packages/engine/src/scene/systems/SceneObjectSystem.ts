@@ -7,6 +7,7 @@ import { beforeMaterialCompile } from '../../editor/nodes/helper/BPCEMShader'
 import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
+import { ShadowComponent } from '../components/ShadowComponent'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -40,6 +41,7 @@ export class SceneObjectSystem extends System {
   execute(deltaTime, time): void {
     for (const entity of this.queryResults.sceneObject.added) {
       const object3DComponent = getComponent(entity, Object3DComponent)
+      const shadowComponent = getComponent(entity, ShadowComponent)
 
       ;(object3DComponent.value as any).entity = entity
 
@@ -54,6 +56,11 @@ export class SceneObjectSystem extends System {
       object3DComponent.value.traverse((obj: Mesh) => {
         const material = obj.material as Material
         if (typeof material !== 'undefined') material.dithering = true
+
+        if (shadowComponent) {
+          obj.receiveShadow = shadowComponent.receiveShadow
+          obj.castShadow = shadowComponent.castShadow
+        }
 
         if (Engine.simpleMaterials) {
           // || Engine.isHMD) {
@@ -72,7 +79,6 @@ export class SceneObjectSystem extends System {
                 this.bpcemOptions.probePositionOffset
               )
             ;(material as any).envMapIntensity = SceneObjectSystem.instance.envMapIntensity
-
             if (obj.receiveShadow) {
               WebGLRendererSystem.instance.csm?.setupMaterial(material)
             }

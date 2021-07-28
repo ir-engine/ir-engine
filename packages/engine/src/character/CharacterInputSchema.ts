@@ -124,7 +124,13 @@ const setVisible = (entity: Entity, visible: boolean): void => {
     object3DComponent.value.traverse((obj) => {
       const mat = (obj as SkinnedMesh).material
       if (mat) {
-        ;(mat as Material).visible = visible
+        if (visible) {
+          ;(mat as Material).opacity = 1
+          ;(mat as Material).transparent = false
+        } else {
+          ;(mat as Material).opacity = 0
+          ;(mat as Material).transparent = true
+        }
       }
     })
   }
