@@ -14,6 +14,7 @@ import {
 import { GolfSystem } from '../../engine/src/game/templates/Golf/GolfSystem'
 import _ from 'lodash'
 import { GolfGameMode } from '../../engine/src/game/templates/GolfGameMode'
+import { InteractiveSystem } from '../../engine/src/interaction/systems/InteractiveSystem'
 ;(globalThis as any).XMLHttpRequest = XMLHttpRequest
 
 const currentPath = (process.platform === 'win32' ? 'file:///' : '') + path.dirname(__filename)
@@ -39,7 +40,7 @@ export class WebRTCGameServer {
       // TODO: we need to register this here still as this is not currently set up to work in deploy
       {
         system: GolfSystem,
-        args: { priority: 6 }
+        before: InteractiveSystem
       }
     ]
   }
