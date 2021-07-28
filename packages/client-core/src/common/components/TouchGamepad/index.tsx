@@ -8,7 +8,7 @@ import React, { FunctionComponent, useEffect, useRef } from 'react'
 import styles from './TouchGamepad.module.scss'
 import { TouchGamepadProps } from './TouchGamepadProps'
 
-export const TouchGamepad: FunctionComponent<TouchGamepadProps> = ({ hovered }: TouchGamepadProps) => {
+export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
   const leftContainer = useRef<HTMLDivElement>()
 
   const triggerButton = (button: GamepadButtons, pressed: boolean): void => {
@@ -29,11 +29,8 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = ({ hovered }: 
       <div
         key={index}
         className={
-          styles.controllButton +
-          ' ' +
-          styles[`gamepadButton_${value.label}`] +
-          ' ' +
-          (hovered ? styles.availableButton : styles.notAvailableButton)
+          styles.controllButton + ' ' + styles[`gamepadButton_${value.label}`] + ' ' + styles.availableButton
+          // (hovered ? styles.availableButton : styles.notAvailableButton)
         }
         onPointerDown={(): void => triggerButton(value.button, true)}
         onPointerUp={(): void => triggerButton(value.button, false)}

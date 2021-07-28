@@ -20,7 +20,6 @@ import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
-import { OpenLink } from '@xrengine/client-core/src/world/components/OpenLink'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
@@ -30,8 +29,6 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { processLocationChange, resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
-import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
@@ -89,38 +86,6 @@ const canvasStyle = {
   WebkitUserSelect: 'none',
   userSelect: 'none'
 } as React.CSSProperties
-
-// debug for contexts where devtools may be unavailable
-const consoleLog = []
-if (globalThis.process?.env.NODE_ENV === 'development') {
-  const consolelog = console.log
-  console.log = (...args) => {
-    consolelog(...args)
-    consoleLog.push('Log: ' + args.join(' '))
-  }
-
-  const consolewarn = console.warn
-  console.warn = (...args) => {
-    consolewarn(...args)
-    consoleLog.push('Warn: ' + args.join(' '))
-  }
-
-  const consoleerror = console.error
-  console.error = (...args) => {
-    consoleerror(...args)
-    consoleLog.push('Error: ' + args.join(' '))
-  }
-
-  globalThis.dump = () => {
-    document.body.innerHTML = consoleLog
-      .map((log) => {
-        return `<p>${log}</p>`
-      })
-      .join('')
-    consolelog(consoleLog)
-    resetEngine()
-  }
-}
 
 interface Props {
   setAppLoaded?: any
@@ -185,14 +150,8 @@ export const EnginePage = (props: Props) => {
     history
   } = props
 
-  const [hoveredLabel, setHoveredLabel] = useState('')
-  const [infoBoxData, setModalData] = useState(null)
   const [userBanned, setUserBannedState] = useState(false)
-  const [openLinkData, setOpenLinkData] = useState(null)
-
   const [progressEntity, setProgressEntity] = useState(99)
-  const [objectActivated, setObjectActivated] = useState(false)
-  const [objectHovered, setObjectHovered] = useState(false)
 
   const [isValidLocation, setIsValidLocation] = useState(true)
   const [isInXR, setIsInXR] = useState(false)
@@ -201,7 +160,6 @@ export const EnginePage = (props: Props) => {
   const [instanceDisconnected, setInstanceDisconnected] = useState(false)
   const [instanceKicked, setInstanceKicked] = useState(false)
   const [instanceKickedMessage, setInstanceKickedMessage] = useState('')
-  const [isInputEnabled, setInputEnabled] = useState(true)
   const [porting, setPorting] = useState(false)
   const [newSpawnPos, setNewSpawnPos] = useState<PortalProps>(null)
 
@@ -506,26 +464,8 @@ export const EnginePage = (props: Props) => {
     setPorting(false)
   }
 
-  useEffect(() => {
-    EngineEvents.instance.dispatchEvent({
-      type: ClientInputSystem.EVENTS.ENABLE_INPUT,
-      keyboard: isInputEnabled,
-      mouse: isInputEnabled
-    })
-  }, [isInputEnabled])
-
   const onSceneLoadedEntity = (left: number): void => {
     setProgressEntity(left || 0)
-  }
-
-  const onObjectHover = ({ focused, interactionText }: { focused: boolean; interactionText: string }): void => {
-    setObjectHovered(focused)
-    let displayText = interactionText
-    const length = interactionText && interactionText.length
-    if (length > 110) {
-      displayText = interactionText.substring(0, 110) + '...'
-    }
-    setHoveredLabel(displayText)
   }
 
   const portToLocation = async ({ portalComponent }: { portalComponent: PortalProps }) => {
@@ -552,8 +492,6 @@ export const EnginePage = (props: Props) => {
   }
 
   const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation)
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover)
     EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async () => {
       setIsInXR(true)
@@ -563,37 +501,14 @@ export const EnginePage = (props: Props) => {
     })
   }
 
-  const onObjectActivation = (interactionData): void => {
-    switch (interactionData.interactionType) {
-      case 'link':
-        setOpenLinkData(interactionData)
-        setInputEnabled(false)
-        setObjectActivated(true)
-        break
-      case 'infoBox':
-      case 'mediaSource':
-        setModalData(interactionData)
-        setInputEnabled(false)
-        setObjectActivated(true)
-        break
-      default:
-        break
-    }
-  }
-
   useEffect(() => {
     return (): void => {
-      document.body.innerHTML = consoleLog
-        .map((log) => {
-          ;`<p>${log}</p>`
-        })
-        .join()
       resetEngine()
     }
   }, [])
 
   //touch gamepad
-  const touchGamepadProps = { hovered: objectHovered, layout: 'default' }
+  const touchGamepadProps = { layout: 'default' }
   const touchGamepad = deviceState.get('content')?.touchDetected ? (
     <Suspense fallback={<></>}>
       <TouchGamepad {...touchGamepadProps} />
@@ -622,24 +537,8 @@ export const EnginePage = (props: Props) => {
       <NetworkDebug reinit={reinit} />
       <LoadingScreen objectsToLoad={progressEntity} />
       {harmonyOpen !== true && <MediaIconsBox />}
-      {/* {objectHovered && !objectActivated && <TooltipContainer message={hoveredLabel} />} */}
-      <InteractableModal
-        onClose={() => {
-          setModalData(null)
-          setObjectActivated(false)
-          setInputEnabled(true)
-        }}
-        data={infoBoxData}
-      />
+      <InteractableModal />
       <RecordingApp />
-      <OpenLink
-        onClose={() => {
-          setOpenLinkData(null)
-          setObjectActivated(false)
-          setInputEnabled(true)
-        }}
-        data={openLinkData}
-      />
       <canvas id={engineRendererCanvasId} style={canvasStyle} />
       {touchGamepad}
       <WarningRefreshModal

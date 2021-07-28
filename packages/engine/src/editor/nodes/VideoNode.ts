@@ -14,10 +14,9 @@ export default class VideoNode extends EditorNodeMixin(Video) {
   // };
   static initialElementProps = {}
   static async deserialize(editor, json, loadAsync, onError) {
-    const node = await super.deserialize(editor, json)
+    const node = (await super.deserialize(editor, json)) as VideoNode
     const {
       src,
-      interactable,
       isLivestream,
       controls,
       autoPlay,
@@ -37,8 +36,7 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     } = json.components.find((c) => c.name === 'video').props
     loadAsync(
       (async () => {
-        node.load(src, onError)
-        node.interactable = interactable
+        node.src = src
         node.isLivestream = isLivestream
         node.controls = controls || false
         node.autoPlay = autoPlay
@@ -88,7 +86,6 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     }
     this._canonicalUrl = src || ''
     this.issues = []
-    this._mesh.visible = false
     this.hideErrorIcon()
     if (this.editor.playing) {
       ;(this.el as any).pause()
@@ -96,40 +93,39 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     if (!this._canonicalUrl || this._canonicalUrl === '') {
       return
     }
-    // try {
-    //   const { url, contentType } = await this.editor.api.resolveMedia(
-    //     src
-    //   );
-    //   const isHls = isHLS(src, contentType);
-    //   if (isHls) {
-    //     // this.hls = new Hls({
-    //     //   xhrSetup: (xhr, url) => {
-    //     //     xhr.open("GET", this.editor.api.unproxyUrl(src, url));
-    //     //   }
-    //     // });
-    //     this.hls = new Hls()
-    //   }
-    //   super.load(url, contentType);
-    //   if (isHls && this.hls) {
-    //     this.hls.stopLoad();
-    //   } else if ((this.el as any).duration) {
-    //     (this.el as any).currentTime = 1;
-    //   }
-    //   if (this.editor.playing && this.autoPlay) {
-    //     (this.el as any).play();
-    //   }
-    // } catch (error) {
-    //   this.showErrorIcon();
-    //   // const videoError = new RethrownError(
-    //   //   `Error loading video ${this._canonicalUrl}`,
-    //   //   error
-    //   // );
-    //   // if (onError) {
-    //   //   onError(this, videoError);
-    //   // }
-    //   // console.error(videoError);
-    //   // this.issues.push({ severity: "error", message: "Error loading video." });
-    // }
+    try {
+      const { url, contentType } = await this.editor.api.resolveMedia(src)
+      const isHls = isHLS(src, contentType)
+      if (isHls) {
+        // this.hls = new Hls({
+        //   xhrSetup: (xhr, url) => {
+        //     xhr.open("GET", this.editor.api.unproxyUrl(src, url));
+        //   }
+        // });
+        this.hls = new Hls()
+      }
+      super.load(src, contentType)
+      if (isHls && this.hls) {
+        this.hls.stopLoad()
+      } else if ((this.el as any).duration) {
+        ;(this.el as any).currentTime = 1
+      }
+      if (this.editor.playing && this.autoPlay) {
+        ;(this.el as any).play()
+      }
+      ;(this.el as any).play()
+    } catch (error) {
+      this.showErrorIcon()
+      // const videoError = new RethrownError(
+      //   `Error loading video ${this._canonicalUrl}`,
+      //   error
+      // );
+      // if (onError) {
+      //   onError(this, videoError);
+      // }
+      // console.error(videoError);
+      // this.issues.push({ severity: "error", message: "Error loading video." });
+    }
     this.editor.emit('objectsChanged', [this])
     this.editor.emit('selectionChanged')
     // this.hideLoadingCube();
@@ -160,7 +156,6 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     return await super.serialize(projectID, {
       video: {
         src: this._canonicalUrl,
-        interactable: this.interactable,
         isLivestream: this.isLivestream,
         controls: this.controls,
         autoPlay: this.autoPlay,
@@ -184,7 +179,6 @@ export default class VideoNode extends EditorNodeMixin(Video) {
     super.prepareForExport()
     this.addGLTFComponent('video', {
       src: this._canonicalUrl,
-      interactable: this.interactable,
       isLivestream: this.isLivestream,
       controls: this.controls,
       autoPlay: this.autoPlay,

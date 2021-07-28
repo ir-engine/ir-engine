@@ -6,6 +6,7 @@ import {
   DirectionalLight,
   HemisphereLight,
   LoopRepeat,
+  Object3D,
   PointLight,
   SpotLight,
   Vector2,
@@ -27,7 +28,6 @@ import { createBoxCollider } from '../behaviors/createBoxCollider'
 import { createMeshCollider } from '../behaviors/createMeshCollider'
 import { createCommonInteractive } from '../behaviors/createCommonInteractive'
 import { createGroup } from '../behaviors/createGroup'
-import { createLink } from '../behaviors/createLink'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../behaviors/createMedia'
 import { createMap } from '../behaviors/createMap'
 import { createShadow } from '../behaviors/createShadow'
@@ -50,6 +50,7 @@ import { configureCSM, handleRendererSettings } from '../behaviors/handleRendere
 import { createDirectionalLight } from '../behaviors/createDirectionalLight'
 import { loadGLTFModel } from '../behaviors/loadGLTFModel'
 import { loadModelAnimation } from '../behaviors/loadModelAnimation'
+import { Interactable } from '../../interaction/components/Interactable'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -280,7 +281,8 @@ export class WorldScene {
         break
 
       case 'link':
-        createLink(entity, component.data)
+        addObject3DComponent(entity, new Object3D(), component.data)
+        addComponent(entity, Interactable, { data: { action: 'link' } })
         break
 
       case 'particle-emitter':

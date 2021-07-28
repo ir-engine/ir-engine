@@ -4,7 +4,7 @@ import { Types } from '../../ecs/types/Types'
 import { Intersection } from 'three'
 
 export class Interactor extends Component<Interactor> {
-  public focusedInteractive: any
+  public focusedInteractive: Entity
   public focusedRayHit: Intersection | null
   public subFocusedArray: any[] | null
 

@@ -60,7 +60,7 @@ export class Component<C> {
         }
       }
 
-      if (process.env.NODE_ENV !== 'production' && props !== undefined) {
+      if (process.env.NODE_ENV === 'development' && props !== undefined) {
         this.checkUndefinedAttributes(props)
       }
     }
@@ -85,7 +85,7 @@ export class Component<C> {
     }
 
     // @DEBUG
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV === 'development') {
       this.checkUndefinedAttributes(source)
     }
 

@@ -1,17 +1,10 @@
 import ShadowComponent from '../components/ShadowComponent'
-import { createShadow } from './createShadow'
 import { Object3D } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { Color } from 'three'
-import { getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
 
-export const applyArgsToObject3d = <T extends Object3D>(
-  entity: Entity,
-  object3d: T,
-  addToScene: boolean,
-  objArgs?: any,
-  parentEntity?: Entity
-) => {
+export const applyArgsToObject3d = <T extends Object3D>(entity: Entity, object3d: T, objArgs?: any) => {
   /**
    * apply value to sub object by path, like material.color = '#fff' will set { material:{ color }}
    * @param subj
@@ -48,12 +41,6 @@ export const applyArgsToObject3d = <T extends Object3D>(
     Object.keys(objArgs).forEach((key) => {
       applyDeepValue(object3d, key, objArgs[key])
     })
-
-  if (addToScene) {
-    if (parentEntity && hasComponent(parentEntity, ShadowComponent)) {
-      createShadow(entity, getMutableComponent(parentEntity, ShadowComponent))
-    }
-  }
 
   const hasShadow = getMutableComponent(entity, ShadowComponent)
   const castShadow = Boolean(hasShadow?.castShadow || objArgs?.castShadow)

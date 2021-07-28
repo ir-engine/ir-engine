@@ -56,6 +56,7 @@ import { GolfSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
 import { AnimationSystem } from '../../../../engine/src/character/AnimationSystem'
 import { GolfGameMode } from '../../../../engine/src/game/templates/GolfGameMode'
 import { InteractiveSystem } from '../../../../engine/src/interaction/systems/InteractiveSystem'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 
 const store = Store.store
 
@@ -404,7 +405,7 @@ export const EnginePage = (props: Props) => {
       await initializeEngine(initializationOptions)
 
       // TODO: find a better way to do this
-      unregisterSystem(SystemUpdateTime.FIXED, AnimationSystem)
+      unregisterSystem(SystemUpdateType.Fixed, AnimationSystem)
 
       document.dispatchEvent(new CustomEvent('ENGINE_LOADED')) // this is the only time we should use document events. would be good to replace this with react state
       addUIEvents()
