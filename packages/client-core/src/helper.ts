@@ -25,7 +25,8 @@ export class Config {
     siteDescription: 'Connected Worlds for Everyone',
     feathersStoreKey: 'TheOverlay-Auth-Store',
     localStorageKey: 'theoverlay-client-store-key-v1',
-    HARPGL_API_KEY: '09FUGcfVRbY_48zNxgwH9dansJCKdDljfQzYxiyPDCw',
+    // TODO: find a better place for API keys
+    MAPBOX_API_KEY: 'pk.eyJ1IjoicHNjYWxlMDEiLCJhIjoiY2pkcWI5NzVhMDJvdTJxbzlrcDRoOTVhayJ9.fCWGc7YYwB0bz9Dc8AloNA',
     auth: {
       enableSmsMagicLink: true,
       enableEmailMagicLink: true,
@@ -47,7 +48,7 @@ export class Config {
       vrRoomGrid: {
         scenes: []
       }
-    }
+    },
   }
 }
 

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { MapboxTileLoader } from './MapboxTileLoader'
-import { fetchFeatures, buildMesh } from './MeshBuilder'
+import { fetchTiles, buildMesh } from './MeshBuilder'
 
 const useNew = true
 
@@ -8,8 +8,8 @@ export const addMap = async function (scene: THREE.Scene, renderer: THREE.WebGLR
   if (useNew) {
     // TODO use object
     const center = [-84.388, 33.79]
-    const features = await fetchFeatures(center)
-    const mesh = buildMesh(features, center, renderer)
+    const tiles = await fetchTiles(center)
+    const mesh = buildMesh(tiles, center, renderer)
     scene.add(mesh)
   } else {
     new MapboxTileLoader(scene, {

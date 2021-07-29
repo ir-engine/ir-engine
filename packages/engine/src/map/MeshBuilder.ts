@@ -8,60 +8,70 @@ import {
   WebGLRenderer,
   BufferAttribute,
   Color,
-  CanvasTexture
+  CanvasTexture,
+  ImageBitmapLoader,
+  PlaneGeometry
 } from 'three'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { VectorTile } from '@mapbox/vector-tile'
 import { DEFAULT_FEATURE_STYLES } from './styles'
 import turf_buffer from '@turf/buffer'
-import { Feature, GeoJsonProperties, Geometry, Position } from 'geojson'
+import { Feature, Geometry, Position } from 'geojson'
 import { toIndexed } from './toIndexed'
+import { Config } from '@xrengine/client-core/src/helper'
 
 type ILayerName = 'building' | 'road'
 
-interface IPropertiesX extends GeoJsonProperties {
-  layer_name: ILayerName
-}
-
-interface IFeatureX extends Feature {
-  properties: IPropertiesX
-}
+// TODO free resources used by canvases, bitmaps etc
 
 const METERS_PER_DEGREE_LL = 111139
 function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position): Position {
   return [(lng - lngCenter) * METERS_PER_DEGREE_LL, (lat - latCenter) * METERS_PER_DEGREE_LL]
 }
 
-function buildGeometry(feature: IFeatureX, llCenter: Position): BufferGeometry | null {
-  const shape = new Shape()
-  const styles = DEFAULT_FEATURE_STYLES[feature.properties.layer_name]
+const NUMBER_OF_TILES_PER_DIMENSION = 3
+const WHOLE_NUMBER_OF_TILES_FROM_CENTER = Math.floor(NUMBER_OF_TILES_PER_DIMENSION / 2)
+const NUMBER_OF_TILES_IS_ODD = NUMBER_OF_TILES_PER_DIMENSION % 2
 
-  let goodGeometry: Geometry
+const MAPBOX_RASTER_TILE_PIXEL_SIZE_HI_DPI = 512
+
+/** from https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale */
+const LENGTH_OF_EQUATOR_METERS = 40075.016686
+const METERS_PER_PIXEL_AT_EQUATOR = (LENGTH_OF_EQUATOR_METERS * 1000) / MAPBOX_RASTER_TILE_PIXEL_SIZE_HI_DPI
+function getMetersPerPixel(latitude: number) {
+  return (Math.cos(latitude) * METERS_PER_PIXEL_AT_EQUATOR) / Math.pow(2, TILE_ZOOM)
+}
+
+function buildBuildingGeometry(feature: Feature, llCenter: Position): BufferGeometry | null {
+  const shape = new Shape()
+  const styles = DEFAULT_FEATURE_STYLES.building
+
+  const geometry = feature.geometry
 
   let coords: Position[]
   // Buffer the linestrings (e.g. roads) so they have some thickness
-  if (
-    feature.geometry.type === 'LineString' ||
-    feature.geometry.type === 'Point' ||
-    feature.geometry.type === 'MultiLineString'
-  ) {
-    const width = styles.width || 1
-    const buf = turf_buffer(feature, width, {
-      units: 'meters'
-    })
-    goodGeometry = buf.geometry
-  } else {
-    goodGeometry = feature.geometry
-  }
+  // if (
+  //   feature.geometry.type === 'LineString' ||
+  //   feature.geometry.type === 'Point' ||
+  //   feature.geometry.type === 'MultiLineString'
+  // ) {
+  //   const width = styles.width || 1
+  //   const buf = turf_buffer(feature, width, {
+  //     units: 'meters'
+  //   })
+  //   geometry = buf.geometry
+  // } else {
+  //   geometry = feature.geometry
+  // }
 
   // TODO switch statement
-  if (goodGeometry.type === 'MultiPolygon') {
-    coords = goodGeometry.coordinates[0][0] // TODO: add all multipolygon coords.
-  } else if (goodGeometry.type === 'Polygon') {
-    coords = goodGeometry.coordinates[0] // TODO: handle interior rings
-  } else if (goodGeometry.type === 'MultiPoint') {
+  if (geometry.type === 'MultiPolygon') {
+    coords = geometry.coordinates[0][0] // TODO: add all multipolygon coords.
+  } else if (geometry.type === 'Polygon') {
+    coords = geometry.coordinates[0] // TODO: handle interior rings
+  } else if (geometry.type === 'MultiPoint') {
     // TODO is this a bug?
-    coords = goodGeometry.coordinates[0] as any
+    coords = geometry.coordinates[0] as any
   } else {
     // TODO handle feature.geometry.type === 'GeometryCollection'?
   }
@@ -95,12 +105,12 @@ function buildGeometry(feature: IFeatureX, llCenter: Position): BufferGeometry |
     height = styles.height || 4
   }
 
-  let geometry: BufferGeometry | null
+  let threejsGeometry: BufferGeometry | null
 
   if (styles.extrude === 'flat') {
-    geometry = new ShapeGeometry(shape)
+    threejsGeometry = new ShapeGeometry(shape)
   } else if (styles.extrude === 'rounded') {
-    geometry = new ExtrudeGeometry(shape, {
+    threejsGeometry = new ExtrudeGeometry(shape, {
       steps: 1,
       depth: height || 1,
       bevelEnabled: true,
@@ -109,53 +119,54 @@ function buildGeometry(feature: IFeatureX, llCenter: Position): BufferGeometry |
       bevelSegments: 16
     })
   } else {
-    geometry = new ExtrudeGeometry(shape, {
+    threejsGeometry = new ExtrudeGeometry(shape, {
       steps: 1,
       depth: height || 1,
       bevelEnabled: false
     })
   }
 
-  geometry.rotateX(-Math.PI / 2)
+  threejsGeometry.rotateX(-Math.PI / 2)
 
-  colorVertices(geometry, getRandomBuildingColor())
+  colorVertices(threejsGeometry, getRandomBuildingColor())
 
-  return geometry
+  return threejsGeometry
+}
+
+function createCanvasRenderingContext2D(width: number, height: number) {
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  return canvas.getContext('2d')
 }
 
 function generateTextureCanvas() {
-  // build a small canvas 32x64 and paint it in white
-  var canvas = document.createElement('canvas')
-  canvas.width = 32
-  canvas.height = 64
-  var context = canvas.getContext('2d')
+  const contextSmall = createCanvasRenderingContext2D(32, 64)
   // plain it in white
-  context.fillStyle = '#ffffff'
-  context.fillRect(0, 0, 32, 64)
+  contextSmall.fillStyle = '#ffffff'
+  contextSmall.fillRect(0, 0, 32, 64)
   // draw the window rows - with a small noise to simulate light variations in each room
   for (var y = 2; y < 64; y += 2) {
     for (var x = 0; x < 32; x += 2) {
       var value = Math.floor(Math.random() * 64)
-      context.fillStyle = 'rgb(' + [value, value, value].join(',') + ')'
-      context.fillRect(x, y, 2, 1)
+      contextSmall.fillStyle = 'rgb(' + [value, value, value].join(',') + ')'
+      contextSmall.fillRect(x, y, 2, 1)
     }
   }
 
   // build a bigger canvas and copy the small one in it
   // This is a trick to upscale the texture without filtering
-  var canvas2 = document.createElement('canvas')
-  canvas2.width = 512
-  canvas2.height = 1024
-  var context = canvas2.getContext('2d')
+  const largeCanvasWidth = 512
+  const largeCanvasHeight = 1024
+  const contextLarge = createCanvasRenderingContext2D(largeCanvasWidth, largeCanvasHeight)
   // disable smoothing
-  context.imageSmoothingEnabled = false
-  ;(context as any).webkitImageSmoothingEnabled = false
-  ;(context as any).mozImageSmoothingEnabled = false
+  contextLarge.imageSmoothingEnabled = false
+  ;(contextLarge as any).webkitImageSmoothingEnabled = false
+  ;(contextLarge as any).mozImageSmoothingEnabled = false
   // then draw the image
-  context.drawImage(canvas, 0, 0, canvas2.width, canvas2.height)
-  // return the just built canvas2
+  contextLarge.drawImage(contextSmall.canvas, 0, 0, largeCanvasWidth, largeCanvasHeight)
 
-  return canvas2
+  return contextLarge.canvas
 }
 
 function getRandomBuildingColor() {
@@ -185,33 +196,86 @@ function colorVertices(geometry: BufferGeometry, baseColor: Color) {
 /**
  * TODO adapt code from https://raw.githubusercontent.com/jeromeetienne/threex.proceduralcity/master/threex.proceduralcity.js
  */
-export function buildMesh(tiles: IFeatureX[], llCenter: Position, renderer: WebGLRenderer): Mesh {
-  const geometries = tiles
-    .map((tile) => buildGeometry(tile, llCenter))
+export function buildBuildingsMesh(features: Feature[], llCenter: Position, renderer: WebGLRenderer): Mesh {
+  const geometries = features
+    .map((feature) => buildBuildingGeometry(feature, llCenter))
     .filter((geometry) => geometry)
     .map((geometry) => toIndexed(geometry))
 
   const mergedGeometry = mergeBufferGeometries(geometries)
 
-  // generate the texture
-  var texture = new CanvasTexture(generateTextureCanvas())
+  const texture = new CanvasTexture(generateTextureCanvas())
   texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
   texture.needsUpdate = true
 
-  // build the mesh
-  var material = new MeshLambertMaterial({
+  const material = new MeshLambertMaterial({
     map: texture,
     vertexColors: true
   })
-  var mesh = new Mesh(mergedGeometry, material)
+  const mesh = new Mesh(mergedGeometry, material)
+
   return mesh
+}
+
+function drawGroundFeatures(ctx: CanvasRenderingContext2D, features: Feature[], llCenter: Position) {
+  ctx.lineWidth = 5
+  features.forEach((feature) => {
+    // assuming they're all roads for now
+    const geometry = feature.geometry
+    switch (geometry.type) {
+      case 'LineString':
+        const coords = geometry.coordinates.map((coords) => llToScene(coords, llCenter))
+        const start = coords[0]
+        ctx.beginPath()
+        ctx.moveTo(start[0], start[1])
+        geometry.coordinates.slice(1).forEach(([x, y]) => {
+          ctx.lineTo(x, y)
+        })
+        ctx.closePath()
+        ctx.stroke()
+        break
+    }
+  })
+}
+
+export function buildGroundMesh(features: Feature[], llCenter: Position) {
+  const sizeInMeters = getMetersPerPixel(llCenter[1]) * MAPBOX_RASTER_TILE_PIXEL_SIZE_HI_DPI
+  const geometry = new PlaneGeometry(sizeInMeters, sizeInMeters)
+
+  const count = NUMBER_OF_TILES_PER_DIMENSION
+
+  const canvasSize = count * MAPBOX_RASTER_TILE_PIXEL_SIZE_HI_DPI
+  const canvasContext = createCanvasRenderingContext2D(canvasSize, canvasSize)
+
+  drawGroundFeatures(canvasContext, features, llCenter)
+
+  const texture = new CanvasTexture(canvasContext.canvas)
+
+  const material = new MeshLambertMaterial({
+    map: texture
+  })
+
+  return new Mesh(geometry, material)
+}
+
+export function buildMesh(tiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Mesh {
+  const buildingFeatures = tiles.reduce((acc, tile) => acc.concat(tile.building), [])
+  const groundFeatures = tiles.reduce((acc, tile) => acc.concat(tile.road), [])
+  const featuresMesh = buildBuildingsMesh(buildingFeatures, llCenter, renderer)
+  const groundMesh = buildGroundMesh(groundFeatures, llCenter)
+  groundMesh.rotateX(-Math.PI / 2)
+  groundMesh.updateMatrix()
+  groundMesh.rotateZ(Math.PI)
+  featuresMesh.add(groundMesh)
+
+  return featuresMesh
 }
 
 /**
  * TODO this belongs in mapboxGeojsonClient
  */
 const TILE_ZOOM = 16
-const LAYERS: ILayerName[] = ['building']
+const LAYERS: ILayerName[] = ['building', 'road']
 
 import { vectors } from './vectors'
 function long2tile(lon: number, zoom: number) {
@@ -228,73 +292,69 @@ function lat2tile(lat: number, zoom: number) {
 /**
  * Return the features we care about from a tiles
  */
-function vectorTile2GeoJSON(tile: VectorTile, [tileX, tileY]: Position): IFeatureX[] {
-  const result = []
+function vectorTile2GeoJSON(tile: VectorTile, [tileX, tileY]: Position): TileFeaturesByLayer {
+  const result: TileFeaturesByLayer = {
+    building: [],
+    road: []
+  }
   LAYERS.forEach((layerName) => {
     const vectorLayer = tile.layers[layerName]
 
     if (!vectorLayer) return
 
     for (let i = 0; i < vectorLayer.length; i++) {
-      const feature: IFeatureX = vectorLayer.feature(i).toGeoJSON(tileX, tileY, TILE_ZOOM)
-      feature.properties.layer_name = layerName
-      result.push(feature)
+      const feature = vectorLayer.feature(i).toGeoJSON(tileX, tileY, TILE_ZOOM)
+      result[layerName].push(feature)
     }
   })
   return result
 }
 
-function loadTile(tileX: number, tileY: number): Promise<IFeatureX[]> {
-  const MAPBOX_API_KEY =
-    'pk.eyJ1IjoiY291bnRhYmxlLXdlYiIsImEiOiJjamQyZG90dzAxcmxmMndtdzBuY3Ywa2ViIn0.MU-sGTVDS9aGzgdJJ3EwHA'
+function getMapBoxUrl(layerId: string, tileX: number, tileY: number, format: string, higherDPI = false) {
+  return `https://api.mapbox.com/v4/${layerId}/${TILE_ZOOM}/${tileX}/${tileY}${
+    higherDPI ? '@2x' : ''
+  }.${format}?access_token=${Config.publicRuntimeConfig.MAPBOX_API_KEY}`
+}
 
-  const url =
-    'https://api.mapbox.com/v4/mapbox.mapbox-streets-v7/' +
-    TILE_ZOOM +
-    '/' +
-    tileX +
-    '/' +
-    tileY +
-    '.vector.pbf?access_token=' +
-    MAPBOX_API_KEY
+interface TileFeaturesByLayer {
+  building: Feature[]
+  road: Feature[]
+}
+async function fetchTileFeatures(tileX: number, tileY: number): Promise<TileFeaturesByLayer> {
+  const url = getMapBoxUrl('mapbox.mapbox-streets-v7' /* or v8? */, tileX, tileY, 'vector.pbf')
 
-  return fetch(url)
-    .then((response) => {
-      return response.blob()
+  const response = await fetch(url)
+  const blob = await response.blob()
+  return new Promise((resolve) => {
+    vectors(blob, (tile: VectorTile) => {
+      resolve(vectorTile2GeoJSON(tile, [tileX, tileY]))
     })
-    .then((blob) => {
-      return new Promise((resolve) => {
-        vectors(blob, (tile: VectorTile) => {
-          resolve(vectorTile2GeoJSON(tile, [tileX, tileY]))
-        })
-      })
-    })
+  })
+}
+
+function forEachSurroundingTile(llCenter: Position, callback: (tileX: number, tileY: number) => void) {
+  const tileX0 = long2tile(llCenter[0], TILE_ZOOM)
+  const tileY0 = lat2tile(llCenter[1], TILE_ZOOM)
+  const startIndex = -WHOLE_NUMBER_OF_TILES_FROM_CENTER
+  const endIndex = NUMBER_OF_TILES_IS_ODD ? WHOLE_NUMBER_OF_TILES_FROM_CENTER : WHOLE_NUMBER_OF_TILES_FROM_CENTER - 1
+  for (let i = startIndex; i <= endIndex; i++) {
+    for (let j = startIndex; j <= endIndex; j++) {
+      const tileX = tileX0 + i
+      const tileY = tileY0 + j
+      callback(tileX, tileY)
+    }
+  }
 }
 
 /**
  * @returns promise resolving to array containing one array of features per tile
  */
-function fetchSurroundingTiles([lngCenter, latCenter]: Position, size: number): Promise<IFeatureX[][]> {
+function fetchSurroundingTiles(llCenter: Position): Promise<TileFeaturesByLayer[]> {
   const promises = []
-  const tile_x0 = long2tile(lngCenter, TILE_ZOOM)
-  const tile_y0 = lat2tile(latCenter, TILE_ZOOM)
-  for (let i = -size; i <= size; i++) {
-    for (let j = -size; j <= size; j++) {
-      var tile_x = tile_x0 + i
-      var tile_y = tile_y0 + j
-      promises.push(loadTile(tile_x, tile_y))
-    }
-  }
+  forEachSurroundingTile(llCenter, (tileX, tileY) => promises.push(fetchTileFeatures(tileX, tileY)))
   return Promise.all(promises)
 }
 
-export async function fetchFeatures(llCenter: Position): Promise<IFeatureX[]> {
-  let result: IFeatureX[] = []
-  const tiles = await fetchSurroundingTiles(llCenter, 1)
-  tiles.forEach((features) => {
-    if (features.length > 0) {
-      result = result.concat(features)
-    }
-  })
-  return result
+export function fetchTiles(llCenter: Position): Promise<TileFeaturesByLayer[]> {
+  return fetchSurroundingTiles(llCenter)
 }
