@@ -1,7 +1,6 @@
 import { System, SystemAttributes } from '../../ecs/classes/System'
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
-import { Entity } from '../../ecs/classes/Entity'
-import { EntityManager, FollowPathBehavior, NavMesh, Vector3 as YukaVector3, Vehicle } from 'yuka'
+import { EntityManager, NavMesh, Vector3 as YukaVector3, Path } from 'yuka'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
 import { AutoPilotComponent } from '../component/AutoPilotComponent'
 import {
@@ -13,63 +12,26 @@ import {
 } from "../../ecs/functions/EntityFunctions";
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NavMeshComponent } from '../component/NavMeshComponent'
-import { ConeBufferGeometry, Mesh, MeshNormalMaterial, Vector2, Vector3 } from "three";
+import { Vector3 } from "three";
 import { Object3DComponent } from "../../scene/components/Object3DComponent";
 import { Engine } from "../../ecs/classes/Engine";
-import { Input } from "../../input/components/Input";
 import { InputType } from "../../input/enums/InputType";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { GamepadAxis } from "../../input/enums/InputEnums";
 import { NumericalType } from "../../common/types/NumericalTypes";
 import { CharacterComponent } from "../../character/components/CharacterComponent";
 
-const createVehicle = (): Vehicle => {
-  const vehicle = new Vehicle()
-  // vehicle.navMesh = navMesh
-  // TODO: use Actor speed
-  vehicle.maxSpeed = 1.5
-  // TODO: check this out
-  vehicle.maxForce = 10
+const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3): Path => {
+  const points = navMesh.findPath(
+    new YukaVector3(from.x, from.y, from.z),
+    new YukaVector3(to.x, to.y, to.z)
+  )
 
-  const vehicleGeometry = new ConeBufferGeometry( 0.25, 1, 16 );
-  vehicleGeometry.rotateX( Math.PI * 0.5 );
-  vehicleGeometry.translate( 0, 0.25, 0 );
-  const vehicleMaterial = new MeshNormalMaterial();
-
-  const vehicleMesh = new Mesh( vehicleGeometry, vehicleMaterial );
-  vehicleMesh.matrixAutoUpdate = false;
-  Engine.scene.add( vehicleMesh );
-  vehicle.setRenderComponent( vehicleMesh, ( entity, renderComponent ) => {
-
-    // @ts-ignore
-    renderComponent.matrix.copy( entity.worldMatrix );
-
-  } );
-
-  const followPathBehavior = new FollowPathBehavior()
-  followPathBehavior.active = false
-  followPathBehavior.path.clear()
-
-  vehicle.steering.add(followPathBehavior)
-
-  return vehicle
-}
-
-const runVehicleByPath = (vehicle: Vehicle, navMesh: NavMesh, from: Vector3, to: Vector3): void => {
-  const yukaFrom = new YukaVector3(from.x, from.y, from.z)
-  const yukaTo = new YukaVector3(to.x, to.y, to.z)
-  const path = navMesh.findPath(yukaFrom, yukaTo)
-
-  // TODO: search by FollowPathBehavior class?
-  console.log('vehicle.steering', vehicle.steering)
-  const followPathBehavior = vehicle.steering.behaviors[0] as FollowPathBehavior
-  followPathBehavior.path.clear()
-
-  for (const point of path) {
-    followPathBehavior.path.add(point)
+  const path = new Path()
+  for (const point of points) {
+    path.add(point)
   }
-
-  followPathBehavior.active = true
+  return path
 }
 
 export class AutopilotSystem extends System {
@@ -104,15 +66,12 @@ export class AutopilotSystem extends System {
         // reuse component
         autopilotComponent = getMutableComponent(entity, AutoPilotComponent)
       } else {
-        autopilotComponent = addComponent(entity, AutoPilotComponent, {
-          yukaVehicle: createVehicle()
-        })
+        autopilotComponent = addComponent(entity, AutoPilotComponent)
       }
       autopilotComponent.navEntity = request.navEntity
 
       const { position } = getComponent(entity, TransformComponent)
-      autopilotComponent.yukaVehicle.position.copy( position as any )
-      runVehicleByPath(autopilotComponent.yukaVehicle, navMeshComponent.yukaNavMesh, position, request.point)
+      autopilotComponent.path = findPath(navMeshComponent.yukaNavMesh, position, request.point)
 
       // TODO: "mount" player? disable movement, etc.
 
@@ -120,52 +79,45 @@ export class AutopilotSystem extends System {
     }
 
     // ongoing
-    // register new "vehicle"s
-    for (const entity of this.queryResults.ongoing.added) {
-      console.log('REGISTER Vehicle!')
-      const autopilot = getComponent(entity, AutoPilotComponent)
-
-      this.entityManager.add(autopilot.yukaVehicle)
-    }
-
-    // cleanup removed "vehicle"s from manager
-    for (const entity of this.queryResults.ongoing.removed) {
-      console.log('Remove Vehicle!')
-      const autopilot = getComponent(entity, AutoPilotComponent, true)
-
-      this.entityManager.remove(autopilot.yukaVehicle)
-    }
-
-    // update Yuka.EntityManager
     if (this.queryResults.ongoing.all.length) {
-      // TODO: update vehicle transform from our entity transforms?
-
-      this.entityManager.update(delta)
-
       // update our entity transform from vehicle
+      const stick = GamepadAxis.Left;
       this.queryResults.ongoing.all.forEach(entity => {
         const autopilot = getComponent(entity, AutoPilotComponent)
-        const actor = getComponent(entity, CharacterComponent)
         const { position:actorPosition } = getComponent(entity, TransformComponent)
-        const stick = GamepadAxis.Left;
-        const input = getComponent(entity, Input)
+        if (autopilot.path.current().distanceTo(actorPosition as any) < 0.2) {
+          if (autopilot.path.finished()) {
+            // Path is finished!
+            Engine.inputState.set(stick, {
+              type: InputType.TWODIM,
+              value: [0,0,0],
+              lifecycleState: LifecycleValue.CHANGED
+            })
 
+            // Path is finished - remove component
+            removeComponent(entity, AutoPilotComponent)
+            return
+          }
+          autopilot.path.advance()
+        }
+
+        const actor = getComponent(entity, CharacterComponent)
         const actorViewRotation = Math.atan2(actor.viewVector.x, actor.viewVector.z)
-        const vehiclePosition = new Vector3(
-          autopilot.yukaVehicle.position.x,
-          0,
-          autopilot.yukaVehicle.position.z,
-        );
 
-        const velocity = vehiclePosition.sub(actorPosition.clone().setY(0))
+        const targetPosition = new Vector3(
+          autopilot.path.current().x,
+          0,
+          autopilot.path.current().z,
+        );
+        const direction = targetPosition.sub(actorPosition.clone().setY(0))
           .applyAxisAngle(new Vector3(0,-1,0), actorViewRotation)
           .normalize()
-          .multiplyScalar(0.3) // speed
+          // .multiplyScalar(0.6) // speed
 
         const stickPosition:NumericalType = [
-          velocity.z,
-          velocity.x,
-          Math.atan2(velocity.x, velocity.z)
+          direction.z,
+          direction.x,
+          Math.atan2(direction.x, direction.z)
         ]
         // If position not set, set it with lifecycle started
         if (!Engine.inputState.has(stick)) {
@@ -186,15 +138,9 @@ export class AutopilotSystem extends System {
               value: stickPosition,
               lifecycleState: LifecycleValue.CHANGED
             })
-          } else {
-            // console.log('---not changed');
-            // Otherwise, remove it
-            //Engine.inputState.delete(mappedKey)
           }
         }
       })
-
-      // TODO: handle followPath is finished
     }
   }
 
