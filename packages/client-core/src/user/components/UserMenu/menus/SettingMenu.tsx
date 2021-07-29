@@ -83,37 +83,6 @@ const SettingMenu = (props: any): JSX.Element => {
               step={0.125}
             />
           </div>
-          {isMobile ? (
-            <></>
-          ) : (
-            <div className={styles.row}>
-              <span className={styles.materialIconBlock}>
-                <CropOriginal color="primary" />
-              </span>
-              <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-shadow')}</span>
-              <Slider
-                value={props.graphics.shadows}
-                onChange={(_, value) => {
-                  props.setGraphicsSettings({
-                    shadows: value,
-                    automatic: false
-                  })
-                  EngineEvents.instance.dispatchEvent({
-                    type: WebGLRendererSystem.EVENTS.SET_SHADOW_QUALITY,
-                    payload: value
-                  })
-                  EngineEvents.instance.dispatchEvent({
-                    type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC,
-                    payload: false
-                  })
-                }}
-                className={styles.slider}
-                min={2}
-                max={5}
-                step={1}
-              />
-            </div>
-          )}
           <div className={`${styles.row} ${styles.flexWrap}`}>
             <FormControlLabel
               className={styles.checkboxBlock}
@@ -134,13 +103,27 @@ const SettingMenu = (props: any): JSX.Element => {
                 })
               }}
             />
-            <FormControlLabel
+            {/* <FormControlLabel
               className={styles.checkboxBlock}
               control={<Checkbox checked={props.graphics.pbr} size="small" />}
               label={t('user:usermenu.setting.lbl-pbr')}
               onChange={(_, value) => {
                 props.setGraphicsSettings({
                   pbr: value
+                })
+              }}
+            /> */}
+            <FormControlLabel
+              className={styles.checkboxBlock}
+              control={<Checkbox checked={props.graphics.pbr} size="small" />}
+              label={t('user:usermenu.setting.lbl-shadow')}
+              onChange={(_, value) => {
+                props.setGraphicsSettings({
+                  pbr: value
+                })
+                EngineEvents.instance.dispatchEvent({
+                  type: WebGLRendererSystem.EVENTS.USE_SHADOWS,
+                  payload: value
                 })
               }}
             />
