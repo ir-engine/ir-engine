@@ -16,5 +16,5 @@ export function createMap(entity, args: MapProps): void {
   console.log('***MAP read, attempting to deserialize...')
   console.log('***MAP args are')
   console.log(args)
-  addMap(Engine.scene)
+  addMap(Engine.scene, Engine.renderer)
 }
