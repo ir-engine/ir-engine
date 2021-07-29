@@ -8,7 +8,7 @@ export function restoreState(): any {
   }
 }
 
-export function getStoredState(key: string) {
+export function getStoredAuthState() {
   if (!window) {
     return undefined
   }
@@ -17,10 +17,10 @@ export function getStoredState(key: string) {
     return undefined
   }
   const state = JSON.parse(rawState)
-  return state[key]
+  return state
 }
 
-export function saveState(state: any) {
-  if (JSON.parse(JSON.stringify(state))['auth']['isLoggedIn'])
-    localStorage.setItem(Config.publicRuntimeConfig.localStorageKey, JSON.stringify(state))
+export function saveAuthState(state: any) {
+  if (state.get('auth').get('isLoggedIn'))
+    localStorage.setItem(Config.publicRuntimeConfig.localStorageKey, JSON.stringify(state.get('auth')))
 }

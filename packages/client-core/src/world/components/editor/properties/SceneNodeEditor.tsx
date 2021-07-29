@@ -8,24 +8,14 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ACESFilmicToneMapping,
-  BasicDepthPacking,
   BasicShadowMap,
   CineonToneMapping,
   Color,
-  GammaEncoding,
-  LinearEncoding,
   LinearToneMapping,
-  LogLuvEncoding,
   NoToneMapping,
   PCFShadowMap,
   PCFSoftShadowMap,
   ReinhardToneMapping,
-  RGBADepthPacking,
-  RGBDEncoding,
-  RGBEEncoding,
-  RGBM16Encoding,
-  RGBM7Encoding,
-  sRGBEncoding,
   VSMShadowMap
 } from 'three'
 import BooleanInput from '../inputs/BooleanInput'
@@ -39,6 +29,7 @@ import useSetPropertySelected from './useSetPropertySelected'
 import ImageInput from '../inputs/ImageInput'
 import serializeColor from '@xrengine/engine/src/editor/functions/serializeColor'
 import SceneNode from '@xrengine/engine/src/editor/nodes/SceneNode'
+import Vector3Input from '../inputs/Vector3Input'
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
@@ -195,6 +186,7 @@ export function SceneNodeEditor(props) {
 
   const onChangeUseSimpleMaterials = useSetPropertySelected(editor, 'simpleMaterials')
   const onChangeOverrideRendererettings = useSetPropertySelected(editor, 'overrideRendererSettings')
+  const onChangeLODs = useSetPropertySelected(editor, 'LODs')
   const onChangeUseCSM = useSetPropertySelected(editor, 'csm')
   const onChangeUseToneMapping = useSetPropertySelected(editor, 'toneMapping')
   const onChangeUseToneMappingExposure = useSetPropertySelected(editor, 'toneMappingExposure')
@@ -505,7 +497,23 @@ export function SceneNodeEditor(props) {
       >
         <BooleanInput value={node.simpleMaterials} onChange={onChangeUseSimpleMaterials} />
       </InputGroup>
-
+      {/* @ts-ignore */}
+      <InputGroup
+        name="LODs"
+        label={t('editor:properties.scene.lbl-lods')}
+        info={t('editor:properties.scene.info-lods')}
+      >
+        {/* @ts-ignore */}
+        <Vector3Input
+          hideLabels={true}
+          value={node.LODs}
+          /* @ts-ignore */
+          smallStep={0.01}
+          mediumStep={0.1}
+          largeStep={1}
+          onChange={onChangeLODs}
+        />
+      </InputGroup>
       {/* @ts-ignore */}
       <InputGroup name="Override Renderer Settings" label={t('editor:properties.scene.lbl-rendererSettings')}>
         <BooleanInput value={node.overrideRendererSettings} onChange={onChangeOverrideRendererettings} />

@@ -298,7 +298,7 @@ Create a user at `/login`
 
 Method 1: 
 
-1. Run `node scripts/make-user-admin.js [USER ID]` 
+1. Run `node scripts/make-user-admin.js --id=[USER ID]` 
 2. TODO: Improve with email/phone ID support
 
 Method 2: 

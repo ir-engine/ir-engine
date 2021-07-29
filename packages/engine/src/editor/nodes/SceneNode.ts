@@ -15,7 +15,8 @@ import {
   RGBFormat,
   CubeTextureLoader,
   PMREMGenerator,
-  TextureLoader
+  TextureLoader,
+  Vector3
 } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
 import { setStaticMode, StaticModes, isStatic } from '../functions/StaticMode'
@@ -130,6 +131,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
       const rendererSettings = json.components.find((c) => c.name === 'renderer-settings')
       if (rendererSettings) {
         const props = rendererSettings.props
+        if (props.LODs) node.LODs.set(props.LODs.x, props.LODs.y, props.LODs.z)
         node.overrideRendererSettings = props.overrideRendererSettings
         node.csm = props.csm
         node.toneMapping = props.toneMapping
@@ -179,6 +181,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   toneMapping = LinearToneMapping
   toneMappingExposure = 0.8
   shadowMapType: ShadowMapType = PCFSoftShadowMap
+  LODs: Vector3 = new Vector3(5, 15, 30)
 
   //#region EnvironmentMap
   _envMapSourceType = EnvMapSourceType.Default
@@ -424,6 +427,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
 
     this.simpleMaterials = source.simpleMaterials
 
+    this.LODs = source.LODs
     this.overrideRendererSettings = source.overrideRendererSettings
     this.csm = source.csm
     this.toneMapping = source.toneMapping
@@ -479,6 +483,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
             {
               name: 'renderer-settings',
               props: {
+                LODs: this.LODs,
                 overrideRendererSettings: this.overrideRendererSettings,
                 csm: this.csm,
                 toneMapping: this.toneMapping,
@@ -560,6 +565,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     }
     if (this.overrideRendererSettings) {
       this.addGLTFComponent('renderer-settings', {
+        LODs: this.LODs,
         csm: this.csm,
         toneMapping: this.toneMapping,
         toneMappingExposure: this.toneMappingExposure,

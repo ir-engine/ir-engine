@@ -14,17 +14,19 @@ export class StateSystem extends System {
   private _state: State
   private readonly _args: any
   public execute(delta: number): void {
-    this.queryResults.state.added?.forEach((entity) => {
+    for (const entity of this.queryResults.state.added) {
       // If stategroup has a default, add it to our state map
       this._state = getComponent(entity, State)
-      if (this._state === undefined)
-        return console.warn('Tried to execute on a newly added input component, but it was undefined')
+      if (this._state === undefined) {
+        console.warn('Tried to execute on a newly added input component, but it was undefined')
+        continue
+      }
       setState(entity, { state: this._state.schema.default })
-    })
-    this.queryResults.state.all?.forEach((entity) => {
+    }
+    for (const entity of this.queryResults.state.all) {
       callBehaviors(entity, { phase: 'onUpdate' }, delta)
       // callBehaviors(entity, { phase: 'onLateUpdate' }, delta);
-    })
+    }
   }
 }
 

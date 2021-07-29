@@ -50,6 +50,7 @@ let uniqueId = 0
 export class Vector3Input extends Component {
   static propTypes = {
     uniformScaling: PropTypes.bool,
+    hideLabels: PropTypes.bool,
     value: PropTypes.object,
     onChange: PropTypes.func,
     smallStep: PropTypes.number,
@@ -59,6 +60,7 @@ export class Vector3Input extends Component {
 
   static defaultProps = {
     value: new Vector3(),
+    hideLabels: false,
     onChange: () => {}
   }
 
@@ -70,15 +72,18 @@ export class Vector3Input extends Component {
     this.newValue = new Vector3()
 
     this.state = {
-      uniformEnabled: props.uniformScaling
+      uniformEnabled: props.uniformScaling,
+      hideLabels: props.hideLabels ?? false
     }
   }
 
   state: {
     uniformEnabled: any
+    hideLabels: boolean
   }
   id: number
   newValue: Vector3
+  hideLabels: boolean
 
   onToggleUniform = () => {
     this.setState({ uniformEnabled: !this.state.uniformEnabled })
@@ -109,7 +114,7 @@ export class Vector3Input extends Component {
   onChangeZ = (z) => this.onChange('z', z)
 
   render() {
-    const { uniformScaling, value, onChange, ...rest } = this.props as any
+    const { uniformScaling, hideLabels, value, onChange, ...rest } = this.props as any
     const { uniformEnabled } = this.state as any
     const vx = value ? value.x : 0
     const vy = value ? value.y : 0
@@ -133,15 +138,15 @@ export class Vector3Input extends Component {
           </UniformButtonContainer>
         )}
         <Vector3Scrubber {...rest} tag="div" value={vx} onChange={this.onChangeX}>
-          X:
+          {!hideLabels && <div>X:</div>}
         </Vector3Scrubber>
         <NumericInput {...rest} value={vx} onChange={this.onChangeX} />
         <Vector3Scrubber {...rest} tag="div" value={vy} onChange={this.onChangeY}>
-          Y:
+          {!hideLabels && <div>Y:</div>}
         </Vector3Scrubber>
         <NumericInput {...rest} value={vy} onChange={this.onChangeY} />
         <Vector3Scrubber {...rest} tag="div" value={vz} onChange={this.onChangeZ}>
-          Z:
+          {!hideLabels && <div>Z:</div>}
         </Vector3Scrubber>
         <NumericInput {...rest} value={vz} onChange={this.onChangeZ} />
       </Vector3InputContainer>

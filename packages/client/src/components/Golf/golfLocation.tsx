@@ -20,7 +20,6 @@ import Store from '@xrengine/client-core/src/store'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
-import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
@@ -56,6 +55,9 @@ import { registerSystem, unregisterSystem } from '@xrengine/engine/src/ecs/funct
 import { GolfSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
 import { AnimationSystem } from '../../../../engine/src/character/AnimationSystem'
 import { GolfGameMode } from '../../../../engine/src/game/templates/GolfGameMode'
+import { InteractiveSystem } from '../../../../engine/src/interaction/systems/InteractiveSystem'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { registerGolfBotHooks } from '../../../../engine/src/game/templates/Golf/functions/registerGolfBotHooks'
 
 const store = Store.store
 
@@ -86,7 +88,6 @@ const canvasStyle = {
 interface Props {
   setAppLoaded?: any
   sceneId?: string
-  userState?: any
   deviceState?: any
   locationName: string
   appState?: any
@@ -106,7 +107,6 @@ interface Props {
 
 const mapStateToProps = (state: any) => {
   return {
-    userState: selectUserState(state),
     appState: selectAppState(state),
     deviceState: selectDeviceDetectState(state),
     authState: selectAuthState(state),
@@ -134,7 +134,6 @@ export const EnginePage = (props: Props) => {
     authState,
     locationState,
     partyState,
-    userState,
     deviceState,
     instanceConnectionState,
     doLoginAuto,
@@ -399,15 +398,16 @@ export const EnginePage = (props: Props) => {
         systems: [
           {
             system: GolfSystem,
-            args: { priority: 6 }
+            before: InteractiveSystem
           }
         ]
       }
 
       await initializeEngine(initializationOptions)
+      registerGolfBotHooks()
 
       // TODO: find a better way to do this
-      unregisterSystem(AnimationSystem)
+      unregisterSystem(SystemUpdateType.Fixed, AnimationSystem)
 
       document.dispatchEvent(new CustomEvent('ENGINE_LOADED')) // this is the only time we should use document events. would be good to replace this with react state
       addUIEvents()

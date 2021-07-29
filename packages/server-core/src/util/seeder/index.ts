@@ -20,7 +20,6 @@ export default function seeder(opts = {}) {
   return function () {
     const app = this
     const seeder = new Seeder(app, opts)
-
     app.seed = () => {
       return seeder
         .seedApp()

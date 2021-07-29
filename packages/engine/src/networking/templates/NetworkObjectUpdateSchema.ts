@@ -11,24 +11,8 @@ export enum NetworkObjectUpdateType {
 }
 
 export const NetworkObjectUpdateSchema = {
-  [NetworkObjectUpdateType.VehicleStateChange]: [
-    {
-      behavior: handleVehicleStateChange
-    }
-  ],
-  [NetworkObjectUpdateType.ObjectEquipped]: [
-    {
-      behavior: handleObjectEquipped
-    }
-  ],
-  [NetworkObjectUpdateType.ForceTransformUpdate]: [
-    {
-      behavior: handleForceTransform
-    }
-  ],
-  [NetworkObjectUpdateType.AnimationUpdate]: [
-    {
-      behavior: handleAnimationStateChange
-    }
-  ]
+  [NetworkObjectUpdateType.VehicleStateChange]: handleVehicleStateChange,
+  [NetworkObjectUpdateType.ObjectEquipped]: handleObjectEquipped,
+  [NetworkObjectUpdateType.ForceTransformUpdate]: handleForceTransform,
+  [NetworkObjectUpdateType.AnimationUpdate]: handleAnimationStateChange
 }

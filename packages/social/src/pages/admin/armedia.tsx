@@ -4,8 +4,7 @@
 import React, { useEffect } from 'react'
 
 import Dashboard from '@xrengine/client-core/src/socialmedia/components/Dashboard'
-import ArMediaConsole from '@xrengine/client-core/src/admin/components/Arc/ArMediaConsole'
-import ArMediaDashboard from '@xrengine/client-core/src/admin/components/Arc/index'
+import ArMediaDashboard from '@xrengine/client-core/src/admin/components/Social/Armedia'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 

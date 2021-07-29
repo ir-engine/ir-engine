@@ -6,7 +6,6 @@ import { Closed } from './gameDefault/components/ClosedTagComponent'
 import { ButtonUp } from './gameDefault/components/ButtonUpTagComponent'
 import { ButtonDown } from './gameDefault/components/ButtonDownTagComponent'
 // game Action Tag Component
-import { HasHadInteraction } from '../../game/actions/HasHadInteraction'
 // game behavior
 //import { upDownButton } from "./gameDefault/behaviors/upDownButton";
 //import { giveOpenOrCloseState, doorOpeningOrClosing } from "./gameDefault/behaviors/openOrCloseDoor";
@@ -21,7 +20,7 @@ import { ifNamed } from './gameDefault/checkers/ifNamed'
 export const DefaultGameMode: GameMode = {
   name: 'Default',
   priority: 0,
-  registerActionTagComponents: [HasHadInteraction],
+  registerActionTagComponents: [],
   registerStateTagComponents: [Open, Closed, ButtonUp, ButtonDown],
   gamePlayerRoles: [],
   gameObjectRoles: []

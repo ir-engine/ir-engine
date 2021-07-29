@@ -1,7 +1,6 @@
 /**
  * @author Tanya Vykliuk <tanya.vykliuk@gmail.com>
  */
-import { func } from 'prop-types'
 import {
   ARMEDIA_ADMIN_RETRIEVED,
   ARMEDIA_FETCHING,
@@ -9,7 +8,8 @@ import {
   ARMEDIA_FETCHING_ITEM,
   ARMEDIA_RETRIEVED_ITEM,
   ADD_ARMEDIA,
-  REMOVE_ARMEDIA
+  REMOVE_ARMEDIA,
+  UPDATE_AR_MEDIA
 } from '../actions'
 
 export interface ArMediaRetriveAction {
@@ -87,5 +87,12 @@ export function retrievedArMediaItem(item): ArMediaRetrievedItemAction {
   return {
     type: ARMEDIA_RETRIEVED_ITEM,
     item
+  }
+}
+
+export function updateAdminArMedia(result): ArMediaAction {
+  return {
+    type: UPDATE_AR_MEDIA,
+    item: result
   }
 }

@@ -14,17 +14,9 @@ import { Dispatch } from 'redux'
 import { v1 } from 'uuid'
 import { client } from '../../../feathers'
 import { validateEmail, validatePhoneNumber } from '../../../helper'
-import { getStoredState } from '../../../persisted.store'
+import { getStoredAuthState } from '../../../persisted.store'
 import Store from '../../../store'
-import {
-  addedChannelLayerUser,
-  addedLayerUser,
-  clearChannelLayerUsers,
-  clearLayerUsers,
-  displayUserToast,
-  removedChannelLayerUser,
-  removedLayerUser
-} from '../user/actions'
+import { UserAction } from '../../store/UserAction'
 import {
   actionProcessing,
   avatarUpdated,
@@ -54,7 +46,7 @@ const store = Store.store
 export function doLoginAuto(allowGuest?: boolean, forceClientAuthReset?: boolean) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      const authData = getStoredState('auth')
+      const authData = getStoredAuthState()
       let accessToken =
         forceClientAuthReset !== true && authData && authData.authUser ? authData.authUser.accessToken : undefined
 
@@ -875,8 +867,8 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     if (Network.instance != null) await loadAvatarForUpdatedUser(user)
 
     if (selfUser.id === user.id) {
-      if (selfUser.instanceId !== user.instanceId) store.dispatch(clearLayerUsers())
-      if (selfUser.channelInstanceId !== user.channelInstanceId) store.dispatch(clearChannelLayerUsers())
+      if (selfUser.instanceId !== user.instanceId) store.dispatch(UserAction.clearLayerUsers())
+      if (selfUser.channelInstanceId !== user.channelInstanceId) store.dispatch(UserAction.clearChannelLayerUsers())
       store.dispatch(userUpdated(user))
       if (user.partyId) {
         // setRelationship('party', user.partyId);
@@ -892,16 +884,17 @@ if (!Config.publicRuntimeConfig.offlineMode) {
       }
     } else {
       if (user.channelInstanceId != null && user.channelInstanceId === selfUser.channelInstanceId)
-        store.dispatch(addedChannelLayerUser(user))
+        store.dispatch(UserAction.addedChannelLayerUser(user))
       if (user.instanceId != null && user.instanceId === selfUser.instanceId) {
-        store.dispatch(addedLayerUser(user))
-        store.dispatch(displayUserToast(user, { userAdded: true }))
+        store.dispatch(UserAction.addedLayerUser(user))
+        store.dispatch(UserAction.displayUserToast(user, { userAdded: true }))
       }
       if (user.instanceId !== selfUser.instanceId) {
-        store.dispatch(removedLayerUser(user))
-        store.dispatch(displayUserToast(user, { userRemoved: true }))
+        store.dispatch(UserAction.removedLayerUser(user))
+        store.dispatch(UserAction.displayUserToast(user, { userRemoved: true }))
       }
-      if (user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(user))
+      if (user.channelInstanceId !== selfUser.channelInstanceId)
+        store.dispatch(UserAction.removedChannelLayerUser(user))
     }
   })
   client.service('location-ban').on('created', async (params) => {

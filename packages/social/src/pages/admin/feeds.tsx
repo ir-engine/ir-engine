@@ -9,6 +9,7 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { selectFeedsState } from '@xrengine/client-core/src/socialmedia/reducers/feed/selector'
 import { getFeeds } from '@xrengine/client-core/src/socialmedia/reducers/feed/service'
+// import Feed from '../../../../client-core/src/admin/components/Feed/index'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -31,7 +32,10 @@ const FeedsPage = ({ feedsState, getFeeds }: Props) => {
   return (
     <>
       <div>
-        <Dashboard>{feedsList && <FeedConsole list={feedsList} />}</Dashboard>
+        <Dashboard>
+          <div />
+          {/* {feedsList && <FeedConsole list={feedsList} />} */}
+        </Dashboard>
       </div>
     </>
   )

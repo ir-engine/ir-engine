@@ -7,7 +7,7 @@ import { setUserHasInteracted } from '@xrengine/client-core/src/common/reducers/
 import { selectAppOnBoardingStep, selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector'
 import { Config } from '@xrengine/client-core/src/helper'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
-import theme from '@xrengine/client-core/src/theme'
+import { theme } from '@xrengine/client-core/src/theme'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import React, { Fragment, useCallback, useEffect, useState } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'

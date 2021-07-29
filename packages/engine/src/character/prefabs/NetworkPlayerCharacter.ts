@@ -1,5 +1,5 @@
 import { DEFAULT_AVATAR_ID } from '@xrengine/common/src/constants/AvatarConstants'
-import { AnimationMixer, Group, Quaternion, Vector3 } from 'three'
+import { AnimationMixer, Euler, Group, Quaternion, Vector3 } from 'three'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { isClient } from '../../common/functions/isClient'
@@ -16,15 +16,16 @@ import { PrefabType } from '../../networking/templates/PrefabType'
 import { RelativeSpringSimulator } from '../../physics/classes/SpringSimulator'
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator'
 import { InterpolationComponent } from '../../physics/components/InterpolationComponent'
-import { addObject3DComponent } from '../../scene/behaviors/addObject3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CharacterInputSchema } from '../CharacterInputSchema'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { CharacterComponent } from '../components/CharacterComponent'
 import { ControllerColliderComponent } from '../components/ControllerColliderComponent'
-import { NamePlateComponent } from '../components/NamePlateComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import type { NetworkObject } from '../../networking/components/NetworkObject'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { rotateViewVectorXZ } from '../../camera/systems/CameraSystem'
+import { ShadowComponent } from '../../scene/components/ShadowComponent'
 
 const initializeCharacter: Behavior = (entity): void => {
   entity.name = 'Player'
@@ -52,7 +53,7 @@ const initializeCharacter: Behavior = (entity): void => {
     )
   })
 
-  addObject3DComponent(entity, { obj3d })
+  addComponent(entity, Object3DComponent, { value: obj3d })
 
   actor.velocitySimulator = new VectorSpringSimulator(
     60,
@@ -79,12 +80,19 @@ export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation
   const playerCollider = getMutableComponent(playerEntity, ControllerColliderComponent)
   const actor = getMutableComponent(playerEntity, CharacterComponent)
 
-  const pos = position.clone()
+  if (!(rotation instanceof Quaternion)) {
+    rotation = new Quaternion((rotation as any).x, (rotation as any).y, (rotation as any).z, (rotation as any).w)
+  }
+
+  const pos = new Vector3(position.x, position.y, position.z)
   pos.y += actor.actorHalfHeight
   playerCollider.controller.updateTransform({
     translation: pos,
     rotation
   })
+
+  const euler = new Euler().setFromQuaternion(rotation)
+  rotateViewVectorXZ(actor.viewVector, euler.y)
   playerCollider.controller.velocity.setScalar(0)
 }
 
@@ -150,7 +158,6 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     { type: TransformComponent },
     // Local player input mapped to behaviors in the input map
     { type: Input, data: { schema: CharacterInputSchema } },
-    { type: NamePlateComponent },
     { type: PositionalAudioComponent }
   ],
   // These are only created for the local player who owns this prefab
@@ -162,7 +169,8 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
   ],
   clientComponents: [
     // Its component is a pass to Interpolation for Other Players and Serrver Correction for Your Local Player
-    { type: InterpolationComponent }
+    { type: InterpolationComponent },
+    { type: ShadowComponent }
   ],
   serverComponents: [],
   onAfterCreate: [

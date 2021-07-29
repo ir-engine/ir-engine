@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React from 'react'
 import PropTypes from 'prop-types'
-import { ControlledStringInput } from './StringInput'
+import StringInput from './StringInput'
 import { useDrop } from 'react-dnd'
 import { ItemTypes } from '../dnd'
 import useUpload from '../assets/useUpload'
@@ -41,13 +41,7 @@ export function VideoInput({ onChange, ...rest }) {
   })
 
   return (
-    <ControlledStringInput
-      ref={dropRef}
-      onChange={onChange}
-      error={isOver && !canDrop}
-      canDrop={isOver && canDrop}
-      {...rest}
-    />
+    <StringInput ref={dropRef} onChange={onChange} error={isOver && !canDrop} canDrop={isOver && canDrop} {...rest} />
   )
 }
 

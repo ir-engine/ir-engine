@@ -1,8 +1,7 @@
 import { Quaternion, Vector3 } from 'three'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
-import { System, SystemAttributes } from '../ecs/classes/System'
+import { System } from '../ecs/classes/System'
 import { getMutableComponent, getEntityByID } from '../ecs/functions/EntityFunctions'
-import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
 import { ControllerColliderComponent } from './components/ControllerColliderComponent'
 import { AnimationComponent } from './components/AnimationComponent'
 import { CharacterComponent } from './components/CharacterComponent'
@@ -18,9 +17,8 @@ export class AnimationSystem extends System {
     LOAD_AVATAR: 'ANIMATION_SYSTEM_LOAD_AVATAR'
   }
 
-  updateType = SystemUpdateType.Fixed
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
+  constructor() {
+    super()
 
     EngineEvents.instance.addEventListener(AnimationSystem.EVENTS.LOAD_AVATAR, ({ entityID, avatarId, avatarURL }) => {
       const entity = getEntityByID(entityID)
@@ -49,7 +47,7 @@ export class AnimationSystem extends System {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    this.queryResults.animationCharacter.added?.forEach((entity) => {
+    for (const entity of this.queryResults.animationCharacter.added) {
       loadActorAvatar(entity)
       const animationComponent = getMutableComponent(entity, AnimationComponent)
       animationComponent.animationGraph = new CharacterAnimationGraph()
@@ -59,15 +57,15 @@ export class AnimationSystem extends System {
       if (animationComponent.currentState) {
         AnimationRenderer.mountCurrentState(animationComponent)
       }
-    })
+    }
 
-    this.queryResults.animation.all?.forEach((entity) => {
+    for (const entity of this.queryResults.animation.all) {
       const animationComponent = getMutableComponent(entity, AnimationComponent)
       const modifiedDelta = delta * animationComponent.animationSpeed
       animationComponent.mixer.update(modifiedDelta)
-    })
+    }
 
-    this.queryResults.animationCharacter.all?.forEach((entity) => {
+    for (const entity of this.queryResults.animationCharacter.all) {
       const actor = getMutableComponent(entity, CharacterComponent)
       const animationComponent = getMutableComponent(entity, AnimationComponent)
       animationComponent.animationVelocity.copy(actor.velocity)
@@ -77,7 +75,7 @@ export class AnimationSystem extends System {
         animationComponent.animationGraph.render(actor, animationComponent, deltaTime)
         AnimationRenderer.render(animationComponent, delta)
       }
-    })
+    }
   }
 }
 

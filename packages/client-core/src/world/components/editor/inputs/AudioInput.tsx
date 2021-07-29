@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React from 'react'
 import PropTypes from 'prop-types'
-import { ControlledStringInput } from './StringInput'
+import StringInput from './StringInput'
 import { useDrop } from 'react-dnd'
 import { ItemTypes } from '../dnd'
 import useUpload from '../assets/useUpload'
@@ -53,7 +53,7 @@ export function AudioInput({ onChange, ...rest }) {
    * @author Robert Long
    */
   return (
-    <ControlledStringInput
+    <StringInput
       ref={dropRef}
       /* @ts-ignore */
       onChange={onChange}
