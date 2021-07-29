@@ -8,9 +8,13 @@ import { AutoPilotRequestComponent } from "../component/AutoPilotRequestComponen
 import { getSystem } from "../../ecs/functions/SystemFunctions";
 import { Input } from "../../input/components/Input";
 import { InputBehaviorType } from "../../input/interfaces/InputSchema";
+import { LifecycleValue } from "../../common/enums/LifecycleValue";
 
-export const doRaycast:InputBehaviorType = (actorEntity):void => {
-  console.log('CLICK!!!', Engine.systems)
+export const doRaycast:InputBehaviorType = (actorEntity,  inputKey, inputValue):void => {
+  if (inputValue.lifecycleState !== LifecycleValue.STARTED) {
+    return
+  }
+  console.log('CLICK!!!')
   const autopilotSystem = getSystem(AutopilotSystem)
   const input = getComponent(actorEntity, Input)
   const coords = input.data.get(BaseInput.SCREENXY).value

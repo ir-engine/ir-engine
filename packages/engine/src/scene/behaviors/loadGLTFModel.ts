@@ -15,6 +15,7 @@ import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { parseGeometry } from "../../map/parseGeometry";
 import * as YUKA from "yuka";
 import { NavMeshComponent } from "../../navigation/component/NavMeshComponent";
+import { createConvexRegionHelper } from "../../navigation/NavMeshHelper";
 
 export const loadGLTFModel = (
   sceneLoader: WorldScene,
@@ -40,7 +41,10 @@ export const loadGLTFModel = (
               let polygons = []
               res.traverse(child => {
                 if (typeof child.geometry !== 'undefined' && child.geometry instanceof BufferGeometry) {
-                  const childPolygons = parseGeometry(child.geometry.attributes)
+                  const childPolygons = parseGeometry({
+                    position: child.geometry.attributes.position.array,
+                    index: child.geometry.index.array
+                  })
                   if (childPolygons?.length) {
                     polygons = polygons.concat(childPolygons)
                   }
@@ -50,6 +54,9 @@ export const loadGLTFModel = (
               if (polygons.length) {
                 const navMesh = new YUKA.NavMesh()
                 navMesh.fromPolygons(polygons)
+
+                const helper = createConvexRegionHelper(navMesh)
+                Engine.scene.add(helper)
 
                 console.log('navMesh', navMesh)
                 addComponent(entity, NavMeshComponent, {

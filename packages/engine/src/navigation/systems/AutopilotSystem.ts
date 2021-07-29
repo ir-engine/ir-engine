@@ -13,7 +13,7 @@ import {
 } from "../../ecs/functions/EntityFunctions";
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NavMeshComponent } from '../component/NavMeshComponent'
-import { ConeBufferGeometry, Mesh, MeshNormalMaterial, Vector3 } from "three";
+import { ConeBufferGeometry, Mesh, MeshNormalMaterial, Vector2, Vector3 } from "three";
 import { Object3DComponent } from "../../scene/components/Object3DComponent";
 import { Engine } from "../../ecs/classes/Engine";
 import { Input } from "../../input/components/Input";
@@ -21,6 +21,7 @@ import { InputType } from "../../input/enums/InputType";
 import { LifecycleValue } from "../../common/enums/LifecycleValue";
 import { GamepadAxis } from "../../input/enums/InputEnums";
 import { NumericalType } from "../../common/types/NumericalTypes";
+import { CharacterComponent } from "../../character/components/CharacterComponent";
 
 const createVehicle = (): Vehicle => {
   const vehicle = new Vehicle()
@@ -110,6 +111,7 @@ export class AutopilotSystem extends System {
       autopilotComponent.navEntity = request.navEntity
 
       const { position } = getComponent(entity, TransformComponent)
+      autopilotComponent.yukaVehicle.position.copy( position as any )
       runVehicleByPath(autopilotComponent.yukaVehicle, navMeshComponent.yukaNavMesh, position, request.point)
 
       // TODO: "mount" player? disable movement, etc.
@@ -141,43 +143,56 @@ export class AutopilotSystem extends System {
       this.entityManager.update(delta)
 
       // update our entity transform from vehicle
-      // this.queryResults.ongoing.all.forEach(entity => {
-      //   const autopilot = getComponent(entity, AutoPilotComponent)
-      //   const stick = GamepadAxis.Left;
-      //   const input = getComponent(entity, Input)
-      //   const velocity = autopilot.yukaVehicle.velocity.clone().normalize()
-      //   const stickPosition:NumericalType = [
-      //     velocity.x,
-      //     velocity.z,
-      //     Math.atan2(velocity.x, velocity.z)
-      //   ]
-      //   console.log('upd!', JSON.stringify(stickPosition))
-      //   // If position not set, set it with lifecycle started
-      //   if (!Engine.inputState.has(stick)) {
-      //     Engine.inputState.set(stick, {
-      //       type: InputType.TWODIM,
-      //       value: stickPosition,
-      //       lifecycleState: LifecycleValue.STARTED
-      //     })
-      //   } else {
-      //     // If position set, check it's value
-      //     const oldStickPosition = Engine.inputState.get(stick)
-      //     // If it's not the same, set it and update the lifecycle value to changed
-      //     if (JSON.stringify(oldStickPosition) !== JSON.stringify(stickPosition)) {
-      //       // console.log('---changed');
-      //       // Set type to TWODIM (two-dimensional axis) and value to a normalized -1, 1 on X and Y
-      //       Engine.inputState.set(stick, {
-      //         type: InputType.TWODIM,
-      //         value: stickPosition,
-      //         lifecycleState: LifecycleValue.CHANGED
-      //       })
-      //     } else {
-      //       // console.log('---not changed');
-      //       // Otherwise, remove it
-      //       //Engine.inputState.delete(mappedKey)
-      //     }
-      //   }
-      // })
+      this.queryResults.ongoing.all.forEach(entity => {
+        const autopilot = getComponent(entity, AutoPilotComponent)
+        const actor = getComponent(entity, CharacterComponent)
+        const { position:actorPosition } = getComponent(entity, TransformComponent)
+        const stick = GamepadAxis.Left;
+        const input = getComponent(entity, Input)
+
+        const actorViewRotation = Math.atan2(actor.viewVector.x, actor.viewVector.z)
+        const vehiclePosition = new Vector3(
+          autopilot.yukaVehicle.position.x,
+          0,
+          autopilot.yukaVehicle.position.z,
+        );
+
+        const velocity = vehiclePosition.sub(actorPosition.clone().setY(0))
+          .applyAxisAngle(new Vector3(0,-1,0), actorViewRotation)
+          .normalize()
+          .multiplyScalar(0.3) // speed
+
+        const stickPosition:NumericalType = [
+          velocity.z,
+          velocity.x,
+          Math.atan2(velocity.x, velocity.z)
+        ]
+        // If position not set, set it with lifecycle started
+        if (!Engine.inputState.has(stick)) {
+          Engine.inputState.set(stick, {
+            type: InputType.TWODIM,
+            value: stickPosition,
+            lifecycleState: LifecycleValue.STARTED
+          })
+        } else {
+          // If position set, check it's value
+          const oldStickPosition = Engine.inputState.get(stick)
+          // If it's not the same, set it and update the lifecycle value to changed
+          if (JSON.stringify(oldStickPosition) !== JSON.stringify(stickPosition)) {
+            // console.log('---changed');
+            // Set type to TWODIM (two-dimensional axis) and value to a normalized -1, 1 on X and Y
+            Engine.inputState.set(stick, {
+              type: InputType.TWODIM,
+              value: stickPosition,
+              lifecycleState: LifecycleValue.CHANGED
+            })
+          } else {
+            // console.log('---not changed');
+            // Otherwise, remove it
+            //Engine.inputState.delete(mappedKey)
+          }
+        }
+      })
 
       // TODO: handle followPath is finished
     }

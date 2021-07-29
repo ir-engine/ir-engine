@@ -5,8 +5,8 @@ function parseGeometry( data:{ index:number[], position:number[] } ): Polygon[] 
   const index = data.index;
   const position = data.position;
 
-  const vertices = new Array();
-  const polygons = new Array();
+  const vertices = [];
+  const polygons = [];
 
   // vertices
 
