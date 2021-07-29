@@ -38,11 +38,6 @@ export default class CloudNode extends EditorNodeMixin(Clouds) {
     return node
   }
 
-  static async load(): Promise<void> {
-    defaultParticleSprite = await loadTexture(defaultParticleUrl)
-    defaultParticleSprite.flipY = false
-  }
-
   constructor(editor) {
     super(editor, defaultParticleSprite)
     this.disableOutline = true

@@ -199,10 +199,12 @@ export class Clouds extends Mesh {
 
   static fromArgs(args): Promise<Clouds> {
     return new Promise((resolve) => {
-      loadTexture(args.src).then((texture) => {
-        ;(texture as any).flipY = false
-        resolve(new Clouds(texture as Texture, args))
-      })
+      loadTexture(args.src)
+        .then((texture) => {
+          ;(texture as any).flipY = false
+          resolve(new Clouds(texture as Texture, args))
+        })
+        .catch(console.error)
     })
   }
 }
