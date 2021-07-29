@@ -3,7 +3,7 @@ import { getComponent } from '../../../../ecs/functions/EntityFunctions'
 import { Checker } from '../../../types/Checker'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
 import { getStorage } from '../../../functions/functionsStorage'
-import { GolfBallComponent } from '../../Golf/components/GolfBallComponent'
+import { GolfBallComponent } from '../components/GolfBallComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>

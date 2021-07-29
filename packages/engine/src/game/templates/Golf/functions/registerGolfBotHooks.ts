@@ -1,4 +1,4 @@
-import { GolfBotHookFunctions } from '../../../../bot/functions/golfBotHookFunctions'
+import { GolfBotHookFunctions } from './golfBotHookFunctions'
 
 export const registerGolfBotHooks = () => {
   Object.entries(GolfBotHookFunctions).forEach(([key, func]) => {

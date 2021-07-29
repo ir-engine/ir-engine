@@ -42,7 +42,7 @@ import { addActionComponent } from '../../../functions/functionsActions'
 import { GamePlayer } from '../../../components/GamePlayer'
 import { XRUserSettings } from '../../../../xr/types/XRUserSettings'
 
-import { ifVelocity } from '../../gameDefault/checkers/ifVelocity'
+import { ifVelocity } from '../functions/ifVelocity'
 import { ifOwned } from '../../gameDefault/checkers/ifOwned'
 import { isClient } from '../../../../common/functions/isClient'
 
@@ -150,8 +150,7 @@ export const updateClub: Behavior = (
 
   const hit = golfClubComponent.raycast.hits[0]
 
-  const headDistance =
-    XRUserSettings.staticLengthGolfClub || !hit?.distance ? clubLength : Math.min(hit.distance, clubLength)
+  const headDistance = !hit?.distance ? clubLength : Math.min(hit.distance, clubLength)
 
   // update position of club
   golfClubComponent.headGroup.position.setZ(-(headDistance - clubPutterLength * 0.5))

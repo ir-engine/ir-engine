@@ -4,7 +4,7 @@ import { getComponent, hasComponent } from '../../../../ecs/functions/EntityFunc
 import { addStateComponent, removeStateComponent } from '../../../../game/functions/functionsState'
 import { GamePlayer } from '../../../components/GamePlayer'
 import { getGame } from '../../../functions/functions'
-import { YourTurn } from '../components/YourTurnTagComponent'
+import { YourTurn } from '../../gameDefault/components/YourTurnTagComponent'
 //import { spawnGolfBall } from './spawnGolfBall';
 /**
  * @author HydraFire <github.com/HydraFire>
