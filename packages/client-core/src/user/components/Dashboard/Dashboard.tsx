@@ -71,11 +71,11 @@ const Dashboard = ({ children, authState }: Props) => {
             <Menu />
           </IconButton>
           <Typography variant="h6">Dashboard</Typography>
-          {admin['name'] && (
+          {admin?.name && (
             <div className={classes.avatarPosition}>
-              <Avatar className={classes.orange}>{admin['name']?.charAt(0)?.toUpperCase()}</Avatar>
+              <Avatar className={classes.orange}>{admin?.name?.charAt(0)?.toUpperCase()}</Avatar>
               <Typography variant="h6" className={classes.marginLft}>
-                {admin['name']}
+                {admin?.name}
               </Typography>
             </div>
           )}

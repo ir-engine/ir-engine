@@ -32,8 +32,10 @@ const mapStateToProps = (state: any): any => {
 const ProtectedRoutes = (props: Props) => {
   const { authState } = props
   const admin = authState.get('user')
-  if (admin['userRole']) {
-    if (admin['userRole'] !== 'admin') {
+  console.log(admin)
+
+  if (admin?.userRole) {
+    if (admin?.userRole !== 'admin') {
       return <Redirect to="/login" />
     }
   }
