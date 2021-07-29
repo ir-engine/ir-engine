@@ -472,8 +472,6 @@ export const EnginePage = (props: Props) => {
   }
 
   const portToLocation = async ({ portalComponent }: { portalComponent: PortalComponent }) => {
-    // console.log('portToLocation', slugifiedName, portalComponent);
-
     if (slugifiedName === portalComponent.location) {
       teleportPlayer(
         Network.instance.localClientEntity,

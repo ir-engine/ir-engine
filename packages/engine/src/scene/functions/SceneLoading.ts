@@ -13,7 +13,6 @@ import { createParticleEmitterObject } from '../../particles/functions/particleH
 import { createSkybox } from '../behaviors/createSkybox'
 import { createBoxCollider } from '../behaviors/createBoxCollider'
 import { createMeshCollider } from '../behaviors/createMeshCollider'
-import { createCommonInteractive } from '../behaviors/createCommonInteractive'
 import { createGroup } from '../behaviors/createGroup'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../behaviors/createMedia'
 import { createMap } from '../behaviors/createMap'
@@ -160,7 +159,7 @@ export class WorldScene {
         break
 
       case 'interact':
-        createCommonInteractive(entity, component.data)
+        if (component.data.interactable) addComponent(entity, Interactable, { data: component.data })
         break
 
       case 'ground-plane':

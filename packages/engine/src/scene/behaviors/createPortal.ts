@@ -127,18 +127,9 @@ export const setRemoteLocationDetail = (
 ): void => {
   portal.location = locationName
 
-  // portal.remoteSpawnPosition = new Vector3(
-  //   spawnPosition.x,
-  //   spawnPosition.y,
-  //   spawnPosition.z
-  // )
+  portal.remoteSpawnPosition = new Vector3(spawnPosition.x, spawnPosition.y, spawnPosition.z)
 
-  // portal.remoteSpawnEuler = new Euler(
-  //   spawnRotation.x,
-  //   spawnRotation.y,
-  //   spawnRotation.z,
-  //   'XYZ'
-  // )
+  portal.remoteSpawnEuler = new Euler(spawnRotation.x, spawnRotation.y, spawnRotation.z, 'XYZ')
 
-  // portal.remoteSpawnRotation = new Quaternion().setFromEuler(portal.remoteSpawnEuler)
+  portal.remoteSpawnRotation = new Quaternion().setFromEuler(portal.remoteSpawnEuler)
 }
