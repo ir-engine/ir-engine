@@ -1,20 +1,6 @@
-import {
-  Box3,
-  Frustum,
-  Group,
-  MathUtils,
-  Matrix4,
-  Mesh,
-  MeshBasicMaterial,
-  MeshPhongMaterial,
-  Object3D,
-  Vector3
-} from 'three'
+import { Box3, Group, MathUtils, Mesh, MeshPhongMaterial, Vector3 } from 'three'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { isClient } from '../../common/functions/isClient'
-import { vectorToScreenXYZ } from '../../common/functions/vectorToScreenXYZ'
-import { Behavior } from '../../common/interfaces/Behavior'
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { System } from '../../ecs/classes/System'
@@ -28,7 +14,6 @@ import {
   removeComponent
 } from '../../ecs/functions/EntityFunctions'
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
-import { NetworkObject } from '../../networking/components/NetworkObject'
 import { RigidBodyComponent } from '../../physics/components/RigidBody'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -40,14 +25,6 @@ import { Interactable } from '../components/Interactable'
 import { InteractiveFocused } from '../components/InteractiveFocused'
 import { Interactor } from '../components/Interactor'
 import { SubFocused } from '../components/SubFocused'
-import { EquipperComponent } from '../components/EquipperComponent'
-import { EquippedStateUpdateSchema } from '../enums/EquippedEnums'
-import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { NetworkObjectUpdateType } from '../../networking/templates/NetworkObjectUpdateSchema'
-import { sendClientObjectUpdate } from '../../networking/functions/sendClientObjectUpdate'
-import { BodyType } from 'three-physx'
-import { BinaryValue } from '../../common/enums/BinaryValue'
-import { getHandTransform } from '../../xr/functions/WebXRFunctions'
 import { Network } from '../../networking/classes/Network'
 import { FontManager } from '../../xrui/classes/FontManager'
 import { hideInteractText, showInteractText } from '../functions/interactText'
@@ -212,59 +189,6 @@ export class InteractiveSystem extends System {
       removeComponent(entity, InteractedComponent)
     }
 
-    for (const entity of this.queryResults.equippable.added) {
-      const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity
-      // all equippables must have a collider to grab by in VR
-      const collider = getComponent(equippedEntity, ColliderComponent)
-      if (collider) collider.body.type = BodyType.KINEMATIC
-      // send equip to clients
-      if (!isClient) {
-        const networkObject = getComponent(equippedEntity, NetworkObject)
-        sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [
-          BinaryValue.TRUE,
-          networkObject.networkId
-        ] as EquippedStateUpdateSchema)
-      }
-    }
-
-    for (const entity of this.queryResults.equippable.all) {
-      const equipperComponent = getComponent(entity, EquipperComponent)
-      const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent)
-      const handTransform = getHandTransform(entity)
-      const { position, rotation } = handTransform
-      equippableTransform.position.copy(position)
-      equippableTransform.rotation.copy(rotation)
-      if (!isClient) {
-        for (const userEntity of this.queryResults.network_user.added) {
-          const networkObject = getComponent(equipperComponent.equippedEntity, NetworkObject)
-          sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [
-            BinaryValue.TRUE,
-            networkObject.networkId
-          ] as EquippedStateUpdateSchema)
-        }
-      }
-    }
-
-    for (const entity of this.queryResults.equippable.removed) {
-      const equipperComponent = getComponent(entity, EquipperComponent, true)
-      const equippedEntity = equipperComponent.equippedEntity
-      const equippedTransform = getComponent(equippedEntity, TransformComponent)
-      const collider = getComponent(equippedEntity, ColliderComponent)
-      if (collider) {
-        collider.body.type = BodyType.DYNAMIC
-        collider.body.updateTransform({
-          translation: equippedTransform.position,
-          rotation: equippedTransform.rotation
-        })
-      }
-      // send unequip to clients
-      if (!isClient) {
-        sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [
-          BinaryValue.FALSE
-        ] as EquippedStateUpdateSchema)
-      }
-    }
-
     // animate the interact text up and down if it's visible
     if (Network.instance.localClientEntity && hasComponent(this.interactTextEntity, Object3DComponent)) {
       const interactTextObject = getComponent(this.interactTextEntity, Object3DComponent).value
@@ -325,13 +249,6 @@ export class InteractiveSystem extends System {
     },
     network_user: {
       components: [Not(LocalInputReceiver), CharacterComponent, TransformComponent],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    equippable: {
-      components: [EquipperComponent],
       listen: {
         added: true,
         removed: true

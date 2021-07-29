@@ -5,6 +5,8 @@ import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { EquippableAttachmentPoint, EquippedStateUpdateSchema } from '../enums/EquippedEnums'
 
+// TODO: refactor equippables
+
 export const equipEntity = (
   equipperEntity: Entity,
   equippedEntity: Entity,
