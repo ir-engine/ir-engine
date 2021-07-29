@@ -5,6 +5,8 @@ export * from './src/admin/components/Arc/styles';
 export * from './src/admin/components/Arc/validation';
 export * from './src/admin/components/Bots/styles';
 export * from './src/admin/components/Bots/validation';
+export * from './src/admin/components/Feed/styles';
+export * from './src/admin/components/Feed/Variables';
 export * from './src/admin/components/Instance/styles';
 export * from './src/admin/components/Instance/validation';
 export * from './src/admin/components/Instance/variables';
@@ -384,6 +386,7 @@ export { default as srcAdminComponentsAnalyticsGraph } from './src/admin/compone
 export { default as srcAdminComponentsAnalyticsIndex } from './src/admin/components/Analytics/index';
 export { default as srcAdminComponentsArcArMediaConsole } from './src/admin/components/Arc/ArMediaConsole';
 export { default as srcAdminComponentsArcCreateVideo } from './src/admin/components/Arc/CreateVideo';
+export { default as srcAdminComponentsArcEditArmedia } from './src/admin/components/Arc/EditArmedia';
 export { default as srcAdminComponentsArcIndex } from './src/admin/components/Arc/index';
 export { default as srcAdminComponentsArcMediaTable } from './src/admin/components/Arc/MediaTable';
 export { default as srcAdminComponentsArcSearchVideo } from './src/admin/components/Arc/SearchVideo';
@@ -398,6 +401,9 @@ export { default as srcAdminComponentsContentPackContentPackConsole } from './sr
 export { default as srcAdminComponentsContentPackContentPackDetailsModal } from './src/admin/components/ContentPack/ContentPackDetailsModal';
 export { default as srcAdminComponentsContentPackDownloadModal } from './src/admin/components/ContentPack/DownloadModal';
 export { default as srcAdminComponentsCreatorConsole } from './src/admin/components/CreatorConsole';
+export { default as srcAdminComponentsFeedFeedTable } from './src/admin/components/Feed/FeedTable';
+export { default as srcAdminComponentsFeedIndex } from './src/admin/components/Feed/index';
+export { default as srcAdminComponentsFeedSearchFeed } from './src/admin/components/Feed/SearchFeed';
 export { default as srcAdminComponentsFeedConsole } from './src/admin/components/FeedConsole';
 export { default as srcAdminComponentsFeeds } from './src/admin/components/Feeds';
 export { default as srcAdminComponentsGroupsConsole } from './src/admin/components/GroupsConsole';
