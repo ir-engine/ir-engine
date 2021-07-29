@@ -70,8 +70,8 @@ export const removeVelocity: Behavior = (
   collider.body.setLinearDamping(10)
   collider.body.setAngularDamping(10)
   /*
-  if (isClient && hasComponent(entity, State.CorrectBallPosition)) {
-    removeComponent(entity, State.CorrectBallPosition)
+  if (isClient && hasComponent(entity, GolfState.CorrectBallPosition)) {
+    removeComponent(entity, GolfState.CorrectBallPosition)
   }
   */
   //collider.body.setLinearVelocity(new Vector3(), true);

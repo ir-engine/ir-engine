@@ -3,7 +3,7 @@ import { getComponent, hasComponent } from '../../../../ecs/functions/EntityFunc
 import { Checker } from '../../../types/Checker'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
 import { getTargetEntity } from '../../../functions/functions'
-import { GolfClubComponent } from '../../Golf/components/GolfClubComponent'
+import { GolfClubComponent } from '../components/GolfClubComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>

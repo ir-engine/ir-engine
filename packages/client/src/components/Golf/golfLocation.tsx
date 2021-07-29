@@ -57,6 +57,7 @@ import { AnimationSystem } from '../../../../engine/src/character/AnimationSyste
 import { GolfGameMode } from '../../../../engine/src/game/templates/GolfGameMode'
 import { InteractiveSystem } from '../../../../engine/src/interaction/systems/InteractiveSystem'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
+import { registerGolfBotHooks } from '../../../../engine/src/game/templates/Golf/functions/registerGolfBotHooks'
 
 const store = Store.store
 
@@ -403,6 +404,7 @@ export const EnginePage = (props: Props) => {
       }
 
       await initializeEngine(initializationOptions)
+      registerGolfBotHooks()
 
       // TODO: find a better way to do this
       unregisterSystem(SystemUpdateType.Fixed, AnimationSystem)

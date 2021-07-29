@@ -8,14 +8,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { GameObject } from '../components/GameObject'
 import { GamePlayer } from '../components/GamePlayer'
 
-import {
-  addComponent,
-  getComponent,
-  getMutableComponent,
-  hasComponent,
-  removeComponent,
-  removeEntity
-} from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import {
   initState,
   removeEntityFromState,
@@ -24,40 +17,14 @@ import {
   clearRemovedEntitysFromGame
 } from '../functions/functionsState'
 
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { GameMode } from '../types/GameMode'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { ColliderHitEvent } from 'three-physx'
 import { isClient } from '../../common/functions/isClient'
-import {
-  addActionComponent,
-  checkIsGamePredictionStillRight,
-  clearPredictionCheckList
-} from '../functions/functionsActions'
-import { NewPlayerTagComponent } from '../templates/Golf/components/GolfTagComponents'
-import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
-import { Component } from '../../ecs/classes/Component'
+import { checkIsGamePredictionStillRight, clearPredictionCheckList } from '../functions/functionsActions'
 import { CharacterComponent } from '../../character/components/CharacterComponent'
-import { getGameFromName } from '../functions/functions'
 import { Engine } from '../../ecs/classes/Engine'
-import { Action } from '../types/GameComponents'
 
-/**
- * @author HydraFire <github.com/HydraFire>
- */
-/*
-function checkWatchers(entity, arr) {
-  return (
-    arr === undefined ||
-    arr.length === 0 ||
-    arr.some((componentArr) => componentArr.every((component) => hasComponent(entity, component)))
-  )
-}
-
-function checkCheckers(entity, entityOther, arr) {
-  return arr.map((checker) => checker.function(entity, checker.args, entityOther))
-}
-*/
+// TODO: add game areas back
 function isPlayerInGameArea(entity, gameArea) {
   const p = getComponent(entity, TransformComponent).position
   const inGameArea =
@@ -73,12 +40,6 @@ function isPlayerInGameArea(entity, gameArea) {
 /**
  * @author HydraFire <github.com/HydraFire>
  */
-
-type ComponentStateChangeType = {
-  entity: Entity
-  component: ComponentConstructor<Component<any>>
-}
-
 export class GameManagerSystem extends System {
   static instance: GameManagerSystem
 
@@ -151,15 +112,14 @@ export class GameManagerSystem extends System {
       }
 
       for (const entity of this.queryResults.characters.added) {
-        console.log('new client joining game')
-        addComponent(entity, NewPlayerTagComponent, { gameName: game.name })
+        console.log('new player')
+        const gamePlayerComp = addComponent(entity, GamePlayer, {
+          gameName: game.name,
+          role: 'newPlayer',
+          uuid: getComponent(entity, NetworkObject).ownerId
+        })
+        requireState(game, gamePlayerComp)
       }
-      /*
-      for(const entity of this.queryResults.characters.removed) {
-        hasComponent(entity, NewPlayerTagComponent) && removeComponent(entity, NewPlayerTagComponent)
-        hasComponent(entity, GamePlayer) && removeComponent(entity, GamePlayer)
-      })
-      */
     }
 
     // PLAYERS REMOVE
@@ -175,13 +135,6 @@ export class GameManagerSystem extends System {
         clearRemovedEntitysFromGame(game)
         game.gamePlayers[gamePlayer.role] = []
         gameSchema.onPlayerLeave(entity, gamePlayer, game)
-        /*
-        Object.values(gamePlayer.ownedObjects).forEach((entityObj) => {
-          removeEntity(entityObj)
-        })
-        
-        removeEntity(entity);
-        */
       }
     }
 
@@ -216,19 +169,6 @@ export class GameManagerSystem extends System {
       }
     }
 
-    for (const entity of this.queryResults.newPlayer.added) {
-      console.log('new player')
-      const newPlayer = getComponent(entity, NewPlayerTagComponent)
-      const gamePlayerComp = addComponent(entity, GamePlayer, {
-        gameName: newPlayer.gameName,
-        role: 'newPlayer',
-        uuid: getComponent(entity, NetworkObject).ownerId
-      })
-      const game = getGameFromName(newPlayer.gameName)
-      requireState(game, gamePlayerComp)
-      removeComponent(entity, NewPlayerTagComponent)
-    }
-
     // OBJECTS ADDIND
     // its needet for allow dynamicly adding objects and exept errors when enitor gives object without created game
     for (const entity of this.queryResults.gameObject.added) {
@@ -255,13 +195,6 @@ for(const entity of this.queryResults.gameObject.removed?.forEach(entity => {
 GameManagerSystem.queries = {
   characters: {
     components: [CharacterComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  newPlayer: {
-    components: [NewPlayerTagComponent],
     listen: {
       added: true,
       removed: true
