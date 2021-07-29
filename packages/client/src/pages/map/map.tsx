@@ -34,7 +34,7 @@ import {
   getComponent,
   getMutableComponent,
   removeComponent
-} from "@xrengine/engine/src/ecs/functions/EntityFunctions";
+} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
@@ -63,9 +63,9 @@ import {
   resetInstanceServer
 } from '../../reducers/instanceConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
-import { CharacterInputSchema } from "../../../../engine/src/character/CharacterInputSchema";
-import { BaseInput } from "@xrengine/engine/src/input/enums/BaseInput";
-import { AutopilotSystem } from "../../../../engine/src/navigation/systems/AutopilotSystem";
+import { CharacterInputSchema } from '../../../../engine/src/character/CharacterInputSchema'
+import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
+import { AutopilotSystem } from '../../../../engine/src/navigation/systems/AutopilotSystem'
 import { doRaycast } from '../../../../engine/src/navigation/behaviors/doRaycast'
 
 const store = Store.store
@@ -444,7 +444,7 @@ export const EnginePage = (props: Props) => {
         ]
       }
 
-      CharacterInputSchema.behaviorMap.set(BaseInput.PRIMARY, doRaycast);
+      CharacterInputSchema.behaviorMap.set(BaseInput.PRIMARY, doRaycast)
 
       await initializeEngine(initializationOptions)
 

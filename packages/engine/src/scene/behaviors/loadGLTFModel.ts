@@ -1,4 +1,4 @@
-import { AnimationMixer, BufferGeometry, Object3D } from "three";
+import { AnimationMixer, BufferGeometry, Object3D } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AnimationState } from '../../character/animations/AnimationState'
 import { AnimationComponent } from '../../character/components/AnimationComponent'
@@ -12,10 +12,10 @@ import { removeCollidersFromModel } from '../../physics/behaviors/parseModelColl
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ScenePropertyType, WorldScene } from '../functions/SceneLoading'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
-import { parseGeometry } from "../../map/parseGeometry";
-import * as YUKA from "yuka";
-import { NavMeshComponent } from "../../navigation/component/NavMeshComponent";
-import { createConvexRegionHelper } from "../../navigation/NavMeshHelper";
+import { parseGeometry } from '../../map/parseGeometry'
+import * as YUKA from 'yuka'
+import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
+import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
 
 export const loadGLTFModel = (
   sceneLoader: WorldScene,
@@ -39,7 +39,7 @@ export const loadGLTFModel = (
             if (component.data.src.match(/navmesh/)) {
               console.log('generate navmesh')
               let polygons = []
-              res.traverse(child => {
+              res.traverse((child) => {
                 if (typeof child.geometry !== 'undefined' && child.geometry instanceof BufferGeometry) {
                   const childPolygons = parseGeometry({
                     position: child.geometry.attributes.position.array,
