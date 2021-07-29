@@ -47,9 +47,7 @@ import { NetworkObjectUpdateType } from '../../networking/templates/NetworkObjec
 import { sendClientObjectUpdate } from '../../networking/functions/sendClientObjectUpdate'
 import { BodyType } from 'three-physx'
 import { BinaryValue } from '../../common/enums/BinaryValue'
-import { getInteractiveIsInReachDistance } from '../../character/functions/getInteractiveIsInReachDistance'
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
-import { unequipEntity } from '../functions/equippableFunctions'
 import { Network } from '../../networking/classes/Network'
 import { FontManager } from '../../xrui/classes/FontManager'
 import { hideInteractText, showInteractText } from '../functions/interactText'
@@ -60,32 +58,6 @@ import { InteractedComponent } from '../components/InteractedComponent'
 import MediaComponent from '../../scene/components/MediaComponent'
 import AudioSource from '../../scene/classes/AudioSource'
 
-const vector3 = new Vector3()
-
-export const subFocused: Behavior = (entity: Entity, args, delta: number): void => {
-  if (!hasComponent(entity, Interactable)) {
-    console.error('Attempted to call interact behavior, but target does not have Interactive component')
-    return
-  }
-  hasComponent(entity, SubFocused)
-    ? addComponent(entity, HighlightComponent, { color: 0xff0000, hiddenColor: 0x0000ff })
-    : removeComponent(entity, HighlightComponent)
-}
-
-const interactFocused: Behavior = (entity: Entity, args, delta: number): void => {
-  if (!hasComponent(entity, Interactable)) {
-    console.error('Attempted to call interact behavior, but target does not have Interactive component')
-    return
-  }
-
-  const focused = hasComponent(entity, InteractiveFocused)
-
-  const interactive = getComponent(entity, Interactable)
-
-  const entityFocuser = focused ? getComponent(entity, InteractiveFocused).interacts : null
-  // on interactive focused
-}
-
 const upVec = new Vector3(0, 1, 0)
 
 export class InteractiveSystem extends System {
@@ -94,14 +66,6 @@ export class InteractiveSystem extends System {
     OBJECT_ACTIVATION: 'INTERACTIVE_SYSTEM_OBJECT_ACTIVATION'
   }
 
-  /**
-   * Elements that was in focused state on last execution
-   */
-  focused: Set<Entity>
-  /**
-   * Elements that are focused on current execution
-   */
-  newFocused: Set<Entity>
   previousEntity: Entity
   previousEntity2DPosition: Vector3
 
@@ -115,8 +79,6 @@ export class InteractiveSystem extends System {
   reset(): void {
     this.previousEntity = null
     this.previousEntity2DPosition = null
-    this.focused = new Set<Entity>()
-    this.newFocused = new Set<Entity>()
   }
 
   dispose(): void {
@@ -149,15 +111,20 @@ export class InteractiveSystem extends System {
   }
 
   execute(delta: number, time: number): void {
-    this.newFocused.clear()
     if (isClient) {
+      for (const entity of this.queryResults.interactive.added) {
+        if (!hasComponent(entity, BoundingBoxComponent) && hasComponent(entity, Object3DComponent)) {
+          addComponent(entity, BoundingBoxComponent, {
+            dynamic: hasComponent(entity, RigidBodyComponent) || hasComponent(entity, VehicleComponent)
+          })
+        }
+      }
+
       for (const entity of this.queryResults.interactors.all) {
-        if (this.queryResults.interactive?.all.length) {
+        if (this.queryResults.interactive.all.length) {
           interactBoxRaycast(entity, this.queryResults.boundingBox.all)
           const interacts = getComponent(entity, Interactor)
           if (interacts.focusedInteractive) {
-            this.newFocused.add(interacts.focusedInteractive)
-            // TODO: can someone else focus object? should we update 'interacts' entity
             if (!hasComponent(interacts.focusedInteractive, InteractiveFocused)) {
               addComponent(interacts.focusedInteractive, InteractiveFocused, { interacts: entity })
             }
@@ -165,15 +132,6 @@ export class InteractiveSystem extends System {
 
           // unmark all unfocused
           for (const entityInter of this.queryResults.interactive.all) {
-            if (
-              !hasComponent(entityInter, BoundingBoxComponent) &&
-              hasComponent(entityInter, Object3DComponent) &&
-              hasComponent(entityInter, TransformComponent)
-            ) {
-              addComponent(entityInter, BoundingBoxComponent, {
-                dynamic: hasComponent(entityInter, RigidBodyComponent) || hasComponent(entityInter, VehicleComponent)
-              })
-            }
             if (entityInter !== interacts.focusedInteractive && hasComponent(entityInter, InteractiveFocused)) {
               removeComponent(entityInter, InteractiveFocused)
             }
@@ -225,24 +183,19 @@ export class InteractiveSystem extends System {
 
       // removal is the first because the hint must first be deleted, and then a new one appears
       for (const entity of this.queryResults.focus.removed) {
-        interactFocused(entity, null, delta)
         hideInteractText(this.interactTextEntity)
       }
 
       for (const entity of this.queryResults.focus.added) {
-        interactFocused(entity, null, delta)
         showInteractText(this.interactTextEntity, entity)
       }
 
       for (const entity of this.queryResults.subfocus.added) {
-        subFocused(entity, null, delta)
+        addComponent(entity, HighlightComponent, { color: 0xff0000, hiddenColor: 0x0000ff })
       }
       for (const entity of this.queryResults.subfocus.removed) {
-        subFocused(entity, null, delta)
+        removeComponent(entity, HighlightComponent)
       }
-
-      this.focused.clear()
-      this.newFocused.forEach((e) => this.focused.add(e))
     }
 
     for (const entity of this.queryResults.interacted.added) {
@@ -335,7 +288,13 @@ export class InteractiveSystem extends System {
 
   static queries: any = {
     interactors: { components: [Interactor] },
-    interactive: { components: [Interactable] },
+    interactive: {
+      components: [Interactable],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
     boundingBox: {
       components: [BoundingBoxComponent],
       listen: {
