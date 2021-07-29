@@ -31,10 +31,6 @@ export const addActionComponent = (
 ): void => {
   if (hasComponent(entity, component) || !(hasComponent(entity, GameObject) || hasComponent(entity, GamePlayer))) return
   const game = getGame(entity)
-  //const role = getRole(entity)
-  //if (role != 'GolfBall') {
-
-  //}
   //// Clients dont apply self actions, only in not Global mode
   if (isClient && !game.isGlobal) {
     addComponent(entity, component, componentArgs)
@@ -108,14 +104,10 @@ const addToCheckList = (
 }
 
 export const checkIsGamePredictionStillRight = (): boolean => {
-  // gamePredictionCheckList.length > 0 ? console.log(gamePredictionCheckList):'';
   return gamePredictionCheckList.some((v) => Date.now() - v.time > timeAfterClientDesideHeWasgetWrongAction)
 }
 
 const ifWasSameBeforeByPrediction = (actionMessage: GameStateActionMessage): boolean => {
-  //console.log(actionMessage.component, actionMessage.role);
-  //console.log(gamePredictionCheckList[0].componentName, gamePredictionCheckList[0].dataForCheck.role);
-
   return gamePredictionCheckList.some(
     (v) => v.componentName === actionMessage.component && v.dataForCheck.role === actionMessage.role
   )

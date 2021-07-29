@@ -1,4 +1,4 @@
-export const LOD_DISTANCES = {
+export const DEFAULT_LOD_DISTANCES = {
   '0': 5,
   '1': 15,
   '2': 30

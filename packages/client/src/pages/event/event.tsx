@@ -2,7 +2,6 @@ import Button from '@material-ui/core/Button'
 import Snackbar from '@material-ui/core/Snackbar'
 import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
-import TooltipContainer from '@xrengine/client-core/src/common/components/TooltipContainer'
 import {
   GeneralStateList,
   setAppLoaded,
@@ -20,10 +19,6 @@ import Store from '@xrengine/client-core/src/store'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
-import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector'
-import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
-import NamePlate from '@xrengine/client-core/src/world/components/NamePlate'
-import { OpenLink } from '@xrengine/client-core/src/world/components/OpenLink'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
@@ -55,9 +50,8 @@ import React, { Suspense, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
-import { CameraLayers } from '../../../../engine/src/camera/constants/CameraLayers'
+import { CameraLayers } from '@xrengine/engine/src/camera/constants/CameraLayers'
 import MediaIconsBox from '../../components/MediaIconsBox'
-import NetworkDebug from '../../components/NetworkDebug'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import {
   connectToInstanceServer,
@@ -66,7 +60,8 @@ import {
 } from '../../reducers/instanceConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import WarningRefreshModal from '../../components/AlertModals/WarningRetryModal'
-import RecordingApp from '../../components/Recorder/RecordingApp'
+import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
+import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 
 const store = Store.store
 
@@ -96,42 +91,9 @@ const canvasStyle = {
   userSelect: 'none'
 } as React.CSSProperties
 
-// debug for contexts where devtools may be unavailable
-const consoleLog = []
-if (globalThis.process?.env.NODE_ENV === 'development') {
-  const consolelog = console.log
-  console.log = (...args) => {
-    consolelog(...args)
-    consoleLog.push('Log: ' + args.join(' '))
-  }
-
-  const consolewarn = console.warn
-  console.warn = (...args) => {
-    consolewarn(...args)
-    consoleLog.push('Warn: ' + args.join(' '))
-  }
-
-  const consoleerror = console.error
-  console.error = (...args) => {
-    consoleerror(...args)
-    consoleLog.push('Error: ' + args.join(' '))
-  }
-
-  globalThis.dump = () => {
-    document.body.innerHTML = consoleLog
-      .map((log) => {
-        return `<p>${log}</p>`
-      })
-      .join('')
-    consolelog(consoleLog)
-    resetEngine()
-  }
-}
-
 interface Props {
   setAppLoaded?: any
   sceneId?: string
-  userState?: any
   deviceState?: any
   locationName: string
   appState?: any
@@ -152,7 +114,6 @@ interface Props {
 
 const mapStateToProps = (state: any) => {
   return {
-    userState: selectUserState(state),
     appState: selectAppState(state),
     deviceState: selectDeviceDetectState(state),
     authState: selectAuthState(state),
@@ -180,7 +141,6 @@ export const EnginePage = (props: Props) => {
     authState,
     locationState,
     partyState,
-    userState,
     deviceState,
     instanceConnectionState,
     doLoginAuto,
@@ -196,17 +156,9 @@ export const EnginePage = (props: Props) => {
   } = props
 
   const currentUser = authState.get('user')
-  const [hoveredLabel, setHoveredLabel] = useState('')
-  const [infoBoxData, setModalData] = useState(null)
   const [userBanned, setUserBannedState] = useState(false)
-  const [openLinkData, setOpenLinkData] = useState(null)
 
   const [progressEntity, setProgressEntity] = useState(99)
-  const [userHovered, setonUserHover] = useState(false)
-  const [userId, setonUserId] = useState(null)
-  const [position, setonUserPosition] = useState(null)
-  const [objectActivated, setObjectActivated] = useState(false)
-  const [objectHovered, setObjectHovered] = useState(false)
 
   const [isValidLocation, setIsValidLocation] = useState(true)
   const [isInXR, setIsInXR] = useState(false)
@@ -215,9 +167,8 @@ export const EnginePage = (props: Props) => {
   const [instanceDisconnected, setInstanceDisconnected] = useState(false)
   const [instanceKicked, setInstanceKicked] = useState(false)
   const [instanceKickedMessage, setInstanceKickedMessage] = useState('')
-  const [isInputEnabled, setInputEnabled] = useState(true)
   const [porting, setPorting] = useState(false)
-  const [newSpawnPos, setNewSpawnPos] = useState(null)
+  const [newSpawnPos, setNewSpawnPos] = useState<PortalProps>(null)
 
   const appLoaded = appState.get('loaded')
   const selfUser = authState.get('user')
@@ -526,32 +477,8 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState })
   }
 
-  useEffect(() => {
-    EngineEvents.instance.dispatchEvent({
-      type: ClientInputSystem.EVENTS.ENABLE_INPUT,
-      keyboard: isInputEnabled,
-      mouse: isInputEnabled
-    })
-  }, [isInputEnabled])
-
   const onSceneLoadedEntity = (left: number): void => {
     setProgressEntity(left || 0)
-  }
-
-  const onObjectHover = ({ focused, interactionText }: { focused: boolean; interactionText: string }): void => {
-    setObjectHovered(focused)
-    let displayText = interactionText
-    const length = interactionText && interactionText.length
-    if (length > 110) {
-      displayText = interactionText.substring(0, 110) + '...'
-    }
-    setHoveredLabel(displayText)
-  }
-
-  const onUserHover = ({ focused, userId, position }): void => {
-    setonUserHover(focused)
-    setonUserId(focused ? userId : null)
-    setonUserPosition(focused ? position : null)
   }
 
   const portToLocation = async ({ portalComponent }: { portalComponent: PortalProps }) => {
@@ -567,55 +494,18 @@ export const EnginePage = (props: Props) => {
     resetInstanceServer()
     Network.instance.transport.close()
 
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
+    await teleportToScene(portalComponent, async () => {
+      // change our browser URL
+      history.replace('/location/' + portalComponent.location)
+      setNewSpawnPos(portalComponent)
 
-    // remove controller since physics world will be destroyed and we don't want it moving
-    PhysicsSystem.instance.removeController(
-      getComponent(Network.instance.localClientEntity, ControllerColliderComponent).controller
-    )
-    removeComponent(Network.instance.localClientEntity, ControllerColliderComponent)
+      await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'))
 
-    // Handle Camera transition while player is moving
-    // Remove the follow component, and attach the camera to the player, so it moves with them without causing discomfort while in VR
-    removeComponent(Network.instance.localClientEntity, FollowCameraComponent)
-    const camParent = Engine.camera.parent
-    if (camParent) Engine.camera.removeFromParent()
-    Engine.camera.layers.disable(CameraLayers.Scene)
-
-    // change our browser URL
-    history.replace('/location/' + portalComponent.location)
-    setNewSpawnPos(portalComponent)
-
-    await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'))
-
-    getLocationByName(portalComponent.location)
-
-    // add back the collider using previous parameters
-    EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
-      // teleport player to where the portal is
-      const transform = getComponent(Network.instance.localClientEntity, TransformComponent)
-      const actor = getComponent(Network.instance.localClientEntity, CharacterComponent)
-      transform.position.set(
-        portalComponent.spawnPosition.x,
-        portalComponent.spawnPosition.y + actor.actorHalfHeight,
-        portalComponent.spawnPosition.z
-      )
-      transform.rotation.copy(portalComponent.spawnRotation)
-
-      addComponent(Network.instance.localClientEntity, ControllerColliderComponent)
-
-      addComponent(Network.instance.localClientEntity, FollowCameraComponent)
-      if (camParent) camParent.add(Engine.camera)
-      Engine.camera.layers.enable(CameraLayers.Scene)
-
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: true })
+      getLocationByName(portalComponent.location)
     })
   }
 
   const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover)
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation)
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover)
     EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async () => {
       setIsInXR(true)
@@ -625,39 +515,14 @@ export const EnginePage = (props: Props) => {
     })
   }
 
-  let characterAvatar: CharacterComponent = null
-  let networkUser
-  const onObjectActivation = (interactionData): void => {
-    switch (interactionData.interactionType) {
-      case 'link':
-        setOpenLinkData(interactionData)
-        setInputEnabled(false)
-        setObjectActivated(true)
-        break
-      case 'infoBox':
-      case 'mediaSource':
-        setModalData(interactionData)
-        setInputEnabled(false)
-        setObjectActivated(true)
-        break
-      default:
-        break
-    }
-  }
-
   useEffect(() => {
     return (): void => {
-      document.body.innerHTML = consoleLog
-        .map((log) => {
-          ;`<p>${log}</p>`
-        })
-        .join()
       resetEngine()
     }
   }, [])
 
   //touch gamepad
-  const touchGamepadProps = { hovered: objectHovered, layout: 'default' }
+  const touchGamepadProps = { layout: 'default' }
   const touchGamepad = deviceState.get('content')?.touchDetected ? (
     <Suspense fallback={<></>}>
       <TouchGamepad {...touchGamepadProps} />
@@ -684,15 +549,7 @@ export const EnginePage = (props: Props) => {
       </Snackbar>
       <LoadingScreen objectsToLoad={progressEntity} />
       <MediaIconsBox />
-      {userHovered && <NamePlate userId={userId} position={{ x: position?.x, y: position?.y }} focused={userHovered} />}
-      <OpenLink
-        onClose={() => {
-          setOpenLinkData(null)
-          setObjectActivated(false)
-          setInputEnabled(true)
-        }}
-        data={openLinkData}
-      />
+      <InteractableModal />
       <canvas id={engineRendererCanvasId} style={canvasStyle} />
       {touchGamepad}
       <WarningRefreshModal

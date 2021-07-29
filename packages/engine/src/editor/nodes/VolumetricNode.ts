@@ -30,7 +30,7 @@ export default class VolumetricNode extends EditorNodeMixin(Volumetric) {
     } = json.components.find((c) => c.name === 'volumetric').props
     loadAsync(
       (async () => {
-        await node.load(src, onError)
+        node.src = src
         node.controls = controls || false
         node.autoPlay = autoPlay
         node.loop = loop

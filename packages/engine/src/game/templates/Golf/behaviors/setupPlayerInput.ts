@@ -21,6 +21,7 @@ import { teleportObject } from './teleportObject'
 import { GolfClubComponent } from '../components/GolfClubComponent'
 import { hideClub } from '../prefab/GolfClubPrefab'
 import { isClient } from '../../../../common/functions/isClient'
+import { GolfState } from '../GolfGameComponents'
 
 // we need to figure out a better way than polluting an 8 bit namespace :/
 
@@ -89,10 +90,10 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
         const ballEntity = ownedObjects['GolfBall']
         removeStateComponent(ballEntity, State.Active)
         addStateComponent(ballEntity, State.Inactive)
-        removeStateComponent(ballEntity, State.BallStopped)
-        removeStateComponent(ballEntity, State.AlmostStopped)
-        addStateComponent(ballEntity, State.BallMoving)
-        addStateComponent(entity, State.alreadyHit)
+        removeStateComponent(ballEntity, GolfState.BallStopped)
+        removeStateComponent(ballEntity, GolfState.AlmostStopped)
+        addStateComponent(ballEntity, GolfState.BallMoving)
+        addStateComponent(entity, GolfState.AlreadyHit)
         const position = new Vector3().copy(getComponent(holeEntity, TransformComponent).position)
         position.y += 1.5
         teleportObject(ballEntity, { position })

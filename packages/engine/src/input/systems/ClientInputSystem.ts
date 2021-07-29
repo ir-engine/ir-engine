@@ -1,9 +1,21 @@
-import { DomEventBehaviorValue } from '../../common/interfaces/DomEventBehaviorValue'
 import { Engine } from '../../ecs/classes/Engine'
-import { ClientInputSchema } from '../schema/ClientInputSchema'
+import {
+  handleContextMenu,
+  handleKey,
+  handleMouseButton,
+  handleMouseLeave,
+  handleMouseMovement,
+  handleMouseWheel,
+  handleTouch,
+  handleTouchDirectionalPad,
+  handleTouchGamepadButton,
+  handleTouchMove,
+  handleVisibilityChange,
+  handleWindowFocus
+} from '../schema/ClientInputSchema'
 import { System, SystemAttributes } from '../../ecs/classes/System'
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
-import { handleGamepads } from '../behaviors/GamepadInputBehaviors'
+import { handleGamepadConnected, handleGamepadDisconnected, handleGamepads } from '../behaviors/GamepadInputBehaviors'
 import { InputType } from '../enums/InputType'
 import { InputValue } from '../interfaces/InputValue'
 import { NumericalType } from '../../common/types/NumericalTypes'
@@ -11,7 +23,7 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { InputAlias } from '../types/InputAlias'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 
-const supportsPassive = (): boolean => {
+const supportsPassive = (function () {
   let supportsPassiveValue = false
   try {
     const opts = Object.defineProperty({}, 'passive', {
@@ -23,6 +35,19 @@ const supportsPassive = (): boolean => {
     window.removeEventListener('testPassive', null, opts)
   } catch (error) {}
   return supportsPassiveValue
+})()
+
+const keys = { 37: 1, 38: 1, 39: 1, 40: 1 }
+
+function preventDefault(e) {
+  e.preventDefault()
+}
+
+function preventDefaultForScrollKeys(e) {
+  if (keys[e.keyCode]) {
+    preventDefault(e)
+    return false
+  }
 }
 
 // for future api stuff, we should replace ClientInputSchema with a user given option & default to ClientInputSchema
@@ -30,7 +55,7 @@ const supportsPassive = (): boolean => {
 interface ListenerBindingData {
   domElement: any
   eventName: string
-  listener: Function
+  callback: (event) => void
 }
 
 /**
@@ -61,62 +86,71 @@ export class ClientInputSystem extends System {
 
     ClientInputSystem.instance = this
 
-    ClientInputSchema.onAdded.forEach((behavior) => {
-      behavior.behavior()
-    })
+    window.addEventListener('DOMMouseScroll', preventDefault, false)
+    window.addEventListener('keydown', preventDefaultForScrollKeys, false)
 
     EngineEvents.instance.addEventListener(ClientInputSystem.EVENTS.ENABLE_INPUT, ({ keyboard, mouse }) => {
       if (typeof keyboard !== 'undefined') ClientInputSystem.instance.keyboardInputEnabled = keyboard
       if (typeof mouse !== 'undefined') ClientInputSystem.instance.mouseInputEnabled = mouse
     })
 
-    Object.keys(ClientInputSchema.eventBindings)?.forEach((eventName: string) => {
-      ClientInputSchema.eventBindings[eventName].forEach((behaviorEntry: DomEventBehaviorValue) => {
-        // const domParentElement:EventTarget = document;
-        let domParentElement: EventTarget = Engine.viewportElement ?? (document as any)
-        if (behaviorEntry.element) {
-          switch (behaviorEntry.element) {
-            case 'window':
-              domParentElement = window as any
-              break
-            case 'document':
-              domParentElement = document as any
-              break
-            case 'viewport':
-            default:
-              domParentElement = Engine.viewportElement
-              break
-          }
-        }
-        const domElement = domParentElement
-        if (domElement) {
-          const listener = (event: Event) => behaviorEntry.behavior({ event, ...behaviorEntry.args })
-          if (behaviorEntry.passive && supportsPassive()) {
-            domElement.addEventListener(eventName, listener, { passive: behaviorEntry.passive })
-          } else {
-            domElement.addEventListener(eventName, listener)
-          }
-          this.boundListeners.push({
-            domElement,
-            eventName,
-            listener
-          })
-          return [domElement, eventName, listener]
-        } else {
-          console.warn('DOM Element not found:', domElement)
-          return false
-        }
+    const addListener = (domElement, eventName, callback, passive = false) => {
+      if (passive && supportsPassive) {
+        domElement.addEventListener(eventName, callback, { passive })
+      } else {
+        domElement.addEventListener(eventName, callback)
+      }
+      this.boundListeners.push({
+        domElement,
+        eventName,
+        callback
       })
-    })
+    }
+
+    const viewportElement = Engine.viewportElement ?? (document as any)
+
+    addListener(viewportElement, 'contextmenu', handleContextMenu)
+
+    addListener(viewportElement, 'mousemove', handleMouseMovement)
+    addListener(viewportElement, 'mouseup', handleMouseButton)
+    addListener(viewportElement, 'mousedown', handleMouseButton)
+    addListener(viewportElement, 'mouseleave', handleMouseLeave)
+    addListener(viewportElement, 'wheel', handleMouseWheel, true)
+
+    addListener(
+      viewportElement,
+      'touchstart',
+      (e) => {
+        handleTouch(e)
+        handleTouchMove(e)
+      },
+      true
+    )
+    addListener(viewportElement, 'touchend', handleTouch, true)
+    addListener(viewportElement, 'touchcancel', handleTouch, true)
+    addListener(viewportElement, 'touchmove', handleTouchMove, true)
+
+    addListener(document, 'keyup', handleKey)
+    addListener(document, 'keydown', handleKey)
+
+    addListener(window, 'focus', handleWindowFocus)
+    addListener(window, 'blur', handleWindowFocus)
+
+    addListener(document, 'visibilitychange', handleVisibilityChange)
+    addListener(document, 'touchstickmove', handleTouchDirectionalPad)
+    addListener(document, 'touchgamepadbuttondown', handleTouchGamepadButton)
+    addListener(document, 'touchgamepadbuttonup', handleTouchGamepadButton)
+
+    addListener(window, 'gamepadconnected', handleGamepadConnected)
+    addListener(window, 'gamepaddisconnected', handleGamepadDisconnected)
   }
 
   dispose(): void {
-    // disposeVR();
-    ClientInputSchema.onRemoved.forEach((behavior) => {
-      behavior.behavior()
-    })
-    this.boundListeners.forEach(({ domElement, eventName, listener }) => {
-      domElement.removeEventListener(eventName, listener)
+    window.removeEventListener('DOMMouseScroll', preventDefault, false)
+    window.removeEventListener('keydown', preventDefaultForScrollKeys, false)
+
+    this.boundListeners.forEach(({ domElement, eventName, callback }) => {
+      domElement.removeEventListener(eventName, callback)
     })
     EngineEvents.instance.removeAllListenersForEvent(ClientInputSystem.EVENTS.ENABLE_INPUT)
   }
@@ -131,7 +165,7 @@ export class ClientInputSystem extends System {
     if (!Engine.xrSession) {
       handleGamepads()
     }
-    const newState = new Map()
+    const newState = new Map<InputAlias, InputValue<NumericalType>>()
     Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
       if (!Engine.prevInputState.has(key)) {
         return

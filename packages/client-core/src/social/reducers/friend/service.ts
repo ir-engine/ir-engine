@@ -6,7 +6,7 @@ import Store from '../../../store'
 import { User } from '@xrengine/common/src/interfaces/User'
 
 import { Config } from '../../../helper'
-import { addedChannelLayerUser, removedChannelLayerUser } from '../../../user/reducers/user/actions'
+import { UserAction } from '../../../user/store/UserAction'
 
 const store = Store.store
 
@@ -133,9 +133,9 @@ if (!Config.publicRuntimeConfig.offlineMode) {
         patchedUserRelationship.user.channelInstanceId != null &&
         patchedUserRelationship.user.channelInstanceId === selfUser.channelInstanceId
       )
-        store.dispatch(addedChannelLayerUser(patchedUserRelationship.user))
+        store.dispatch(UserAction.addedChannelLayerUser(patchedUserRelationship.user))
       if (patchedUserRelationship.user.channelInstanceId !== selfUser.channelInstanceId)
-        store.dispatch(removedChannelLayerUser(patchedUserRelationship.user))
+        store.dispatch(UserAction.removedChannelLayerUser(patchedUserRelationship.user))
     }
   })
 
@@ -148,9 +148,9 @@ if (!Config.publicRuntimeConfig.offlineMode) {
         deletedUserRelationship.user.channelInstanceId != null &&
         deletedUserRelationship.user.channelInstanceId === selfUser.channelInstanceId
       )
-        store.dispatch(addedChannelLayerUser(deletedUserRelationship.user))
+        store.dispatch(UserAction.addedChannelLayerUser(deletedUserRelationship.user))
       if (deletedUserRelationship.user.channelInstanceId !== selfUser.channelInstanceId)
-        store.dispatch(removedChannelLayerUser(deletedUserRelationship.user))
+        store.dispatch(UserAction.removedChannelLayerUser(deletedUserRelationship.user))
     }
   })
 }

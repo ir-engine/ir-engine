@@ -1,6 +1,7 @@
 // TODO: this file will be removed when it is moved to the golf repository
 
-import { GolfSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
+import { GolfGameMode } from '@xrengine/engine/src/game/templates/GolfGameMode'
+import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem'
 import { WebRTCGameServer } from './WebRTCGameServer'
 import { start } from './start'
 
@@ -9,7 +10,7 @@ WebRTCGameServer.options.systems
   // TODO: we need to register this still in WebRTCGameServer as this is not currently set up to work in deploy
   // {
   //   system: GolfSystem,
-  //   args: { priority: 6 }
+  //   after: GameManagerSystem
   // }
   ()
 

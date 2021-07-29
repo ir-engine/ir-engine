@@ -14,7 +14,6 @@ import { selectPartyState } from '@xrengine/client-core/src/social/reducers/part
 import Store from '@xrengine/client-core/src/store'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
-import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
@@ -70,7 +69,6 @@ const canvasStyle = {
 interface Props {
   setAppLoaded?: any
   sceneId?: string
-  userState?: any
   deviceState?: any
   locationName: string
   appState?: any
@@ -90,7 +88,6 @@ interface Props {
 
 const mapStateToProps = (state: any) => {
   return {
-    userState: selectUserState(state),
     appState: selectAppState(state),
     deviceState: selectDeviceDetectState(state),
     authState: selectAuthState(state),
@@ -118,7 +115,6 @@ export const EnginePage = (props: Props) => {
     authState,
     locationState,
     partyState,
-    userState,
     deviceState,
     instanceConnectionState,
     doLoginAuto,
@@ -134,17 +130,8 @@ export const EnginePage = (props: Props) => {
   } = props
 
   const currentUser = authState.get('user')
-  const [hoveredLabel, setHoveredLabel] = useState('')
-  const [infoBoxData, setModalData] = useState(null)
   const [userBanned, setUserBannedState] = useState(false)
-  const [openLinkData, setOpenLinkData] = useState(null)
-
   const [progressEntity, setProgressEntity] = useState(99)
-  const [userHovered, setonUserHover] = useState(false)
-  const [userId, setonUserId] = useState(null)
-  const [position, setonUserPosition] = useState(null)
-  const [objectActivated, setObjectActivated] = useState(false)
-  const [objectHovered, setObjectHovered] = useState(false)
 
   const [isValidLocation, setIsValidLocation] = useState(true)
   const [isInXR, setIsInXR] = useState(false)
@@ -153,9 +140,6 @@ export const EnginePage = (props: Props) => {
   const [instanceDisconnected, setInstanceDisconnected] = useState(false)
   const [instanceKicked, setInstanceKicked] = useState(false)
   const [instanceKickedMessage, setInstanceKickedMessage] = useState('')
-  const [isInputEnabled, setInputEnabled] = useState(true)
-  const [porting, setPorting] = useState(false)
-  const [newSpawnPos, setNewSpawnPos] = useState(null)
 
   const appLoaded = appState.get('loaded')
   const selfUser = authState.get('user')
@@ -280,7 +264,7 @@ export const EnginePage = (props: Props) => {
   }, [noGameserverProvision])
 
   useEffect(() => {
-    if (instanceDisconnected === true && !porting) {
+    if (instanceDisconnected === true) {
       const newValues = {
         open: true,
         title: 'World disconnected',
@@ -371,62 +355,17 @@ export const EnginePage = (props: Props) => {
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS))
   }
 
-  useEffect(() => {
-    EngineEvents.instance.dispatchEvent({
-      type: ClientInputSystem.EVENTS.ENABLE_INPUT,
-      keyboard: isInputEnabled,
-      mouse: isInputEnabled
-    })
-  }, [isInputEnabled])
-
   const onSceneLoadedEntity = (left: number): void => {
     setProgressEntity(left || 0)
   }
 
-  const onObjectHover = ({ focused, interactionText }: { focused: boolean; interactionText: string }): void => {
-    setObjectHovered(focused)
-    let displayText = interactionText
-    const length = interactionText && interactionText.length
-    if (length > 110) {
-      displayText = interactionText.substring(0, 110) + '...'
-    }
-    setHoveredLabel(displayText)
-  }
-
-  const onUserHover = ({ focused, userId, position }): void => {
-    setonUserHover(focused)
-    setonUserId(focused ? userId : null)
-    setonUserPosition(focused ? position : null)
-  }
-
   const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover)
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation)
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover)
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async () => {
       setIsInXR(true)
     })
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async () => {
       setIsInXR(false)
     })
-  }
-
-  const onObjectActivation = (interactionData): void => {
-    switch (interactionData.interactionType) {
-      case 'link':
-        setOpenLinkData(interactionData)
-        setInputEnabled(false)
-        setObjectActivated(true)
-        break
-      case 'infoBox':
-      case 'mediaSource':
-        setModalData(interactionData)
-        setInputEnabled(false)
-        setObjectActivated(true)
-        break
-      default:
-        break
-    }
   }
 
   useEffect(() => {

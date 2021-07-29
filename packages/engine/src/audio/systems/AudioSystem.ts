@@ -1,16 +1,11 @@
-import { System, SystemAttributes } from '../../ecs/classes/System'
+import { System } from '../../ecs/classes/System'
 import { SoundEffect } from '../components/SoundEffect'
 import { BackgroundMusic } from '../components/BackgroundMusic'
 import { PlaySoundEffect } from '../components/PlaySoundEffect'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
 
 /** System class which provides methods for Audio system. */
 export class AudioSystem extends System {
-  /** Update type of this system. **Default** to
-   * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
-  updateType = SystemUpdateType.Fixed
-
   /** Indicates whether the system is ready or not. */
   audioReady: boolean
   /** Callbacks to be called after system is ready. */
@@ -23,8 +18,8 @@ export class AudioSystem extends System {
   context: AudioContext
 
   /** Constructs Audio System. */
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
+  constructor() {
+    super()
     this.startAudio = this.startAudio.bind(this)
     this.audioReady = false
     this.callbacks = []
@@ -48,7 +43,7 @@ export class AudioSystem extends System {
    * @param time current time.
    */
   execute(delta, time): void {
-    this.queryResults.sound_effects.added?.forEach((entity) => {
+    for (const entity of this.queryResults.sound_effects.added) {
       const effect = getMutableComponent(entity, SoundEffect)
       if (effect.src && !this.audio) {
         effect.audio = new Audio()
@@ -57,16 +52,16 @@ export class AudioSystem extends System {
         })
         effect.audio.src = effect.src
       }
-    })
-    this.queryResults.music.added?.forEach((entity) => {
+    }
+    for (const entity of this.queryResults.music.added) {
       this.whenReady(() => this.startBackgroundMusic(entity))
-    })
-    this.queryResults.music.removed?.forEach((entity) => {
+    }
+    for (const entity of this.queryResults.music.removed) {
       this.stopBackgroundMusic(entity)
-    })
-    this.queryResults.play.added?.forEach((entity) => {
+    }
+    for (const entity of this.queryResults.play.added) {
       this.whenReady(() => this.playSoundEffect(entity))
-    })
+    }
   }
 
   /**

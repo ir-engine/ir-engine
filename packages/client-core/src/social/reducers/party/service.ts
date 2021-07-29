@@ -17,7 +17,7 @@ import {
 import { Config } from '../../../helper'
 import { dispatchAlertError } from '../../../common/reducers/alert/service'
 import Store from '../../../store'
-import { addedChannelLayerUser, removedChannelLayerUser } from '../../../user/reducers/user/actions'
+import { UserAction } from '../../../user/store/UserAction'
 
 const store = Store.store
 
@@ -167,9 +167,9 @@ if (!Config.publicRuntimeConfig.offlineMode) {
       updatedPartyUser.user.channelInstanceId != null &&
       updatedPartyUser.user.channelInstanceId === selfUser.channelInstanceId
     )
-      store.dispatch(addedChannelLayerUser(updatedPartyUser.user))
+      store.dispatch(UserAction.addedChannelLayerUser(updatedPartyUser.user))
     if (updatedPartyUser.user.channelInstanceId !== selfUser.channelInstanceId)
-      store.dispatch(removedChannelLayerUser(updatedPartyUser.user))
+      store.dispatch(UserAction.removedChannelLayerUser(updatedPartyUser.user))
   })
 
   client.service('party-user').on('removed', (params) => {
@@ -180,9 +180,9 @@ if (!Config.publicRuntimeConfig.offlineMode) {
       deletedPartyUser.user.channelInstanceId != null &&
       deletedPartyUser.user.channelInstanceId === selfUser.channelInstanceId
     )
-      store.dispatch(addedChannelLayerUser(deletedPartyUser.user))
+      store.dispatch(UserAction.addedChannelLayerUser(deletedPartyUser.user))
     if (deletedPartyUser.user.channelInstanceId !== selfUser.channelInstanceId)
-      store.dispatch(removedChannelLayerUser(deletedPartyUser.user))
+      store.dispatch(UserAction.removedChannelLayerUser(deletedPartyUser.user))
     if (params.partyUser.userId === selfUser.id) {
       console.log('Attempting to end video call')
       // TODO: Reenable me!

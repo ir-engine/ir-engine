@@ -2,7 +2,6 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType, SIXDOFType } from '../../common/types/NumericalTypes'
 import { System } from '../../ecs/classes/System'
 import { addComponent, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { DelegatedInputReceiver } from '../../input/components/DelegatedInputReceiver'
 import { Input } from '../../input/components/Input'
 import { InputType } from '../../input/enums/InputType'
@@ -32,30 +31,12 @@ export function cancelAllInputs(entity) {
 
 /** System class to handle incoming messages. */
 export class ServerNetworkIncomingSystem extends System {
-  /** Update type of this system. **Default** to
-   * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
-  updateType = SystemUpdateType.Fixed
-
   /**
    * Constructs the system.
    * @param attributes Attributes to be passed to super class constructor.
    */
-  constructor(attributes: { schema: NetworkSchema; app: any }) {
+  constructor(attributes) {
     super(attributes)
-
-    const { schema, app } = attributes
-    Network.instance.schema = schema
-    // Instantiate the provided transport (SocketWebRTCClientTransport / SocketWebRTCServerTransport by default)
-    Network.instance.transport = new schema.transport(app)
-
-    // Initialize the server automatically - client is initialized in connectToServer
-    if (
-      process.env.SERVER_MODE !== undefined &&
-      (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')
-    ) {
-      Network.instance.transport.initialize()
-      Network.instance.isInitialized = true
-    }
   }
 
   /** Call execution on server */
@@ -75,13 +56,13 @@ export class ServerNetworkIncomingSystem extends System {
         try {
           WorldStateModel.fromBuffer(buffer)
           console.warn('Server is sending receiving its own outgoing messages...', error, buffer)
-          return
+          continue
         } catch (error) {
           console.warn('Unknown or corrupt data is entering the incoming server message stream', error, buffer)
-          return
+          continue
         }
       }
-      if (!clientInput) return
+      if (!clientInput) continue
 
       // TODO: Handle client incoming state actions
       // Are they host or not?
@@ -95,7 +76,7 @@ export class ServerNetworkIncomingSystem extends System {
 
       if (Network.instance.networkObjects[clientInput.networkId] === undefined) {
         // console.error('Network object not found for networkId', clientInput.networkId);
-        return
+        continue
       }
 
       const delegatedInputReceiver = getComponent(
@@ -133,7 +114,7 @@ export class ServerNetworkIncomingSystem extends System {
       const userNetworkObject = getMutableComponent(entity, NetworkObject)
       if (userNetworkObject != null) {
         userNetworkObject.snapShotTime = clientInput.snapShotTime
-        if (userNetworkObject.snapShotTime > clientInput.snapShotTime) return
+        if (userNetworkObject.snapShotTime > clientInput.snapShotTime) continue
       }
 
       // this snapShotTime which will be sent bac k to the client, so that he knows exactly what inputs led to the change and when it was.
@@ -141,7 +122,7 @@ export class ServerNetworkIncomingSystem extends System {
       // Get input component
       const input = getMutableComponent(entityInputReceiver, Input)
       if (!input) {
-        return
+        continue
       }
       // Clear current data
       input.data.clear()
@@ -192,7 +173,7 @@ export class ServerNetworkIncomingSystem extends System {
     }
 
     // Apply input for local user input onto client
-    this.queryResults.networkObjectsWithInput.all?.forEach((entity) => {
+    for (const entity of this.queryResults.networkObjectsWithInput.all) {
       //  const actor = getMutableComponent(entity, CharacterComponent);
       const input = getMutableComponent(entity, Input)
 
@@ -205,36 +186,36 @@ export class ServerNetworkIncomingSystem extends System {
           }
         }
       })
-    })
+    }
 
-    this.queryResults.networkObjectsWithInput.added?.forEach((entity) => {
+    for (const entity of this.queryResults.networkObjectsWithInput.added) {
       const input = getComponent(entity, Input)
       input.schema.onAdded(entity, delta)
-    })
+    }
 
-    this.queryResults.networkObjectsWithInput.removed?.forEach((entity) => {
+    for (const entity of this.queryResults.networkObjectsWithInput.removed) {
       const input = getComponent(entity, Input, true)
       input.schema.onRemove(entity, delta)
-    })
+    }
 
-    this.queryResults.delegatedInputRouting.added?.forEach((entity) => {
+    for (const entity of this.queryResults.delegatedInputRouting.added) {
       const networkId = getComponent(entity, DelegatedInputReceiver).networkId
       if (Network.instance.networkObjects[networkId]) {
         cancelAllInputs(Network.instance.networkObjects[networkId].component.entity)
       }
       cancelAllInputs(entity)
-    })
-    this.queryResults.delegatedInputRouting.removed?.forEach((entity) => {
+    }
+    for (const entity of this.queryResults.delegatedInputRouting.removed) {
       cancelAllInputs(entity)
-    })
+    }
 
     // Handle server input from client
-    this.queryResults.networkClientInputXR.all?.forEach((entity) => {
+    for (const entity of this.queryResults.networkClientInputXR.all) {
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent)
 
       const inputs = getMutableComponent(entity, Input)
 
-      if (!inputs.data.has(BaseInput.XR_HEAD)) return
+      if (!inputs.data.has(BaseInput.XR_HEAD)) continue
 
       const head = inputs.data.get(BaseInput.XR_HEAD).value as SIXDOFType
       const left = inputs.data.get(BaseInput.XR_CONTROLLER_LEFT_HAND).value as SIXDOFType
@@ -248,7 +229,7 @@ export class ServerNetworkIncomingSystem extends System {
 
       xrInputSourceComponent.controllerRight.position.set(right.x, right.y, right.z)
       xrInputSourceComponent.controllerRight.quaternion.set(right.qX, right.qY, right.qZ, right.qW)
-    })
+    }
   }
 
   /** Queries of the system. */

@@ -1,5 +1,5 @@
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { System, SystemAttributes } from '../../ecs/classes/System'
+import { System } from '../../ecs/classes/System'
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -22,14 +22,13 @@ export class PhysicsSystem extends System {
     PORTAL_REDIRECT_EVENT: 'PHYSICS_SYSTEM_PORTAL_REDIRECT'
   }
   static instance: PhysicsSystem
-  updateType = SystemUpdateType.Fixed
 
   physicsWorldConfig: PhysXConfig
   worker: Worker
 
   simulationEnabled: boolean
 
-  constructor(attributes: SystemAttributes = {}) {
+  constructor(attributes: { worker?: Worker; simulationEnabled?: boolean } = {}) {
     super(attributes)
     PhysicsSystem.instance = this
     this.physicsWorldConfig = {
@@ -74,14 +73,14 @@ export class PhysicsSystem extends System {
   }
 
   execute(delta: number): void {
-    this.queryResults.collider.removed?.forEach((entity) => {
+    for (const entity of this.queryResults.collider.removed) {
       const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true)
       if (colliderComponent) {
         this.removeBody(colliderComponent.body)
       }
-    })
+    }
 
-    this.queryResults.collider.all?.forEach((entity) => {
+    for (const entity of this.queryResults.collider.all) {
       const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent)
       const transform = getComponent(entity, TransformComponent)
 
@@ -106,14 +105,14 @@ export class PhysicsSystem extends System {
         )
         collider.quaternion.copy(transform.rotation)
       }
-    })
+    }
 
     // TODO: this is temporary - we should refactor all our network entity handling to be on the ECS
-    this.queryResults.networkObject.removed.forEach((entity) => {
+    for (const entity of this.queryResults.networkObject.removed) {
       const networkObject = getComponent(entity, NetworkObject, true)
       delete Network.instance.networkObjects[networkObject.networkId]
       console.log('removed prefab with id', networkObject.networkId)
-    })
+    }
 
     PhysXInstance.instance.update()
   }

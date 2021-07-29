@@ -1,8 +1,8 @@
-import { Vector3, Quaternion } from 'three'
+import { Vector3 } from 'three'
 import { XREngineBot } from '@xrengine/bot'
 import { setupXR, testWebXR } from '../utils/testWebXR'
 import { BotHooks, XRBotHooks } from '@xrengine/engine/src/bot/enums/BotHooks'
-import { GolfBotHooks } from '@xrengine/engine/src/bot/enums/GolfBotHooks'
+import { GolfBotHooks } from '../../packages/engine/src/game/templates/Golf/functions/GolfBotHooks'
 import { eulerToQuaternion } from '@xrengine/engine/src/common/functions/MathRandomFunctions'
 
 const maxTimeout = 60 * 1000

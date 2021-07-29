@@ -5,7 +5,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { ScenePropertyType } from '../functions/SceneLoading'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { addObject3DComponent } from './addObject3DComponent'
-import { createObject3dFromArgs } from './createObject3dFromArgs'
+import { applyArgsToObject3d } from './applyArgsToObject3d'
 
 export const createDirectionalLight = (
   entity: Entity,
@@ -21,23 +21,19 @@ export const createDirectionalLight = (
   }
 
   const args = {
-    obj3d: DirectionalLight,
-    objArgs: {
-      'shadow.mapSize': mapSize,
-      'shadow.bias': component.data.shadowBias,
-      'shadow.radius': component.data.shadowRadius,
-      intensity: component.data.intensity,
-      color: component.data.color,
-      castShadow: component.data.castShadow,
-      'shadow.camera.far': component.data.cameraFar
-    }
+    'shadow.mapSize': mapSize,
+    'shadow.bias': component.data.shadowBias,
+    'shadow.radius': component.data.shadowRadius,
+    intensity: component.data.intensity,
+    color: component.data.color,
+    castShadow: component.data.castShadow,
+    'shadow.camera.far': component.data.cameraFar
   }
 
   if (sceneProperty.isCSMEnabled) {
-    const object3d = createObject3dFromArgs(entity, args, false)
-    console.log(object3d)
+    const object3d = applyArgsToObject3d(entity, new DirectionalLight(), args)
     sceneProperty.directionalLights.push(object3d)
   } else {
-    addObject3DComponent(entity, args)
+    addObject3DComponent(entity, new DirectionalLight(), args)
   }
 }

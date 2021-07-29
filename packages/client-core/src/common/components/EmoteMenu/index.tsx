@@ -3,7 +3,6 @@ import Button from '@material-ui/core/Button'
 import ScrollableElement from '../ScrollableElement'
 // @ts-ignore
 import styles from './EmoteMenu.module.scss'
-import { ClientInputSchema } from '@xrengine/engine/src/input/schema/ClientInputSchema'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { LocalInputReceiver } from '@xrengine/engine/src/input/components/LocalInputReceiver'
@@ -57,28 +56,6 @@ const EmoteMenuCore = (props: EmoteMenuPropsType) => {
     const entity = Engine.entities.find((e) => e.name === 'Player' && hasComponent(e, LocalInputReceiver))
 
     AnimationGraph.forceUpdateAnimationState(entity, animationName, params)
-  }
-
-  const jumpStart = () => {
-    const keydownEvent = ClientInputSchema.eventBindings.keydown[0]
-
-    keydownEvent.behavior({
-      value: keydownEvent.args.value,
-      event: {
-        key: ' '
-      } as KeyboardEvent
-    })
-  }
-
-  const jumpStop = () => {
-    const keyUpEvent = ClientInputSchema.eventBindings.keyup[0]
-
-    keyUpEvent.behavior({
-      value: keyUpEvent.args.value,
-      event: {
-        key: ' '
-      } as KeyboardEvent
-    })
   }
 
   return (

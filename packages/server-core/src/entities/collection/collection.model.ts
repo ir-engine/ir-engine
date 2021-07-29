@@ -79,7 +79,7 @@ export default (app: Application): any => {
       constraints: false
     })
     ;(collection as any).hasMany(models.entity, { required: false, constraints: false, delete: 'cascade' })
-    ;(collection as any).belongsTo(models.location)
+    // ;(collection as any).belongsTo(models.location, { foreignKey: 'sid', targetKey: 'sceneId' })
   }
 
   return collection

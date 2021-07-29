@@ -3,13 +3,18 @@ import { getLoader as getGLTFLoader, loadExtentions } from '../functions/LoadGLT
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { AssetType } from '../enum/AssetType'
 import { AssetClass } from '../enum/AssetClass'
-import { createEntity, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import {
+  addComponent,
+  createEntity,
+  getComponent,
+  getMutableComponent,
+  hasComponent
+} from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { addObject3DComponent } from '../../scene/behaviors/addObject3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { Engine } from '../../ecs/classes/Engine'
-import { LOADER_STATUS, LODS_REGEXP, LOD_DISTANCES } from '../constants/LoaderConstants'
+import { LOADER_STATUS, LODS_REGEXP, DEFAULT_LOD_DISTANCES } from '../constants/LoaderConstants'
 
 type AssetLoaderParamType = {
   entity?: Entity
@@ -21,6 +26,7 @@ type AssetLoaderParamType = {
 export class AssetLoader {
   static Cache = new Map<string, any>()
   static loaders = new Map<number, any>()
+  static LOD_DISTANCES = DEFAULT_LOD_DISTANCES
 
   assetType: AssetType
   assetClass: AssetClass
@@ -108,7 +114,7 @@ export class AssetLoader {
       value[0].object.parent.add(lod)
 
       value.forEach(({ level, object }) => {
-        lod.addLevel(object, LOD_DISTANCES[level])
+        lod.addLevel(object, AssetLoader.LOD_DISTANCES[level])
       })
     })
 
@@ -141,7 +147,7 @@ export class AssetLoader {
     })
     replacedMaterials.clear()
 
-    asset = this.handleLODs(asset)
+    this.handleLODs(asset)
 
     if (asset.children.length) {
       asset.children.forEach((child) => this.handleLODs(child))
@@ -155,7 +161,7 @@ export class AssetLoader {
           getMutableComponent<Object3DComponent>(this.params.entity, Object3DComponent).value.add(asset)
         else getMutableComponent<Object3DComponent>(this.params.entity, Object3DComponent).value = asset
       } else {
-        addObject3DComponent(this.params.entity, { obj3d: asset })
+        addComponent(this.params.entity, Object3DComponent, { value: asset })
       }
     }
   }
