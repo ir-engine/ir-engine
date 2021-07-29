@@ -87,7 +87,7 @@
     "@types/yuka": "0.7.1",
     "esbuild": "0.12.16",
     "eslint": "7.31.0",
-    "rollup": "2.55.0",
+    "rollup": "2.55.1",
     "rollup-plugin-node-polyfills": "0.2.1",
     "rollup-plugin-scss": "3.0.0",
     "ts-jest": "27.0.4",
