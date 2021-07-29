@@ -43,6 +43,9 @@ export function VideoNodeEditor(props) {
   const onChangeProjection = useSetPropertySelected(editor, 'projection')
 
   //function to handle change in projection property
+  const onChangeInteractable = useSetPropertySelected(editor, 'interactable')
+
+  //function to handle change in projection property
   const onChangeId = useSetPropertySelected(editor, 'elementId')
 
   //editor view for VideoNode
@@ -60,6 +63,10 @@ export function VideoNodeEditor(props) {
       <InputGroup name="Projection" label={t('editor:properties.video.lbl-projection')}>
         {/* @ts-ignore */}
         <SelectInput options={videoProjectionOptions} value={node.projection} onChange={onChangeProjection} />
+      </InputGroup>
+      <InputGroup name="Interactable" label={t('editor:properties.video.lbl-interactable')}>
+        {/* @ts-ignore */}
+        <BooleanInput value={node.interactable} onChange={onChangeInteractable} />
       </InputGroup>
       {/* @ts-ignore */}
       <InputGroup name="Location" label={t('editor:properties.video.lbl-id')}>

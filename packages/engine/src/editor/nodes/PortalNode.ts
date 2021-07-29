@@ -12,9 +12,10 @@ export default class PortalNode extends EditorNodeMixin(Model) {
   displayText: string
   spawnPosition: Vector3 = new Vector3()
   spawnRotation: Euler = new Euler()
+  spawnCylinder: Mesh
 
   static async deserialize(editor, json) {
-    const node = await super.deserialize(editor, json)
+    const node = (await super.deserialize(editor, json)) as PortalNode
     const portalComponent = json.components.find((c) => c.name === 'portal')
     if (portalComponent) {
       node.entityId = json.entityId

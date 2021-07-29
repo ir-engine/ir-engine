@@ -46,7 +46,7 @@ export interface VideoProps extends AudioProps {
 
 export function createMediaServer(entity, args: { interactable: boolean }): void {
   addObject3DComponent(entity, new Object3D(), args)
-  addComponent(entity, Interactable)
+  if (args.interactable) addComponent(entity, Interactable)
 }
 
 export function createAudio(entity, args: AudioProps): void {
@@ -54,7 +54,7 @@ export function createAudio(entity, args: AudioProps): void {
   addObject3DComponent(entity, audio, args)
   audio.load()
   addComponent(entity, MediaComponent)
-  addComponent(entity, Interactable)
+  if (args.interactable) addComponent(entity, Interactable)
 }
 
 export function createVideo(entity, args: VideoProps): void {
@@ -66,7 +66,7 @@ export function createVideo(entity, args: VideoProps): void {
   addObject3DComponent(entity, video, args)
   video.load()
   addComponent(entity, MediaComponent)
-  addComponent(entity, Interactable)
+  if (args.interactable) addComponent(entity, Interactable)
 }
 
 interface VolumetricProps {
@@ -96,5 +96,5 @@ export const createVolumetric = (entity, args: VolumetricProps) => {
   })
   volumetricComponent.player = DracosisSequence
   addObject3DComponent(entity, container, args)
-  addComponent(entity, Interactable)
+  if (args.interactable) addComponent(entity, Interactable)
 }
