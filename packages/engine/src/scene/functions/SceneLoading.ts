@@ -63,6 +63,7 @@ import { createObject3dFromArgs } from '../behaviors/createObject3dFromArgs'
 import { createDirectionalLight } from '../behaviors/createDirectionalLight'
 import { loadGLTFModel } from '../behaviors/loadGLTFModel'
 import { loadModelAnimation } from '../behaviors/loadModelAnimation'
+import { Clouds } from '../classes/Clouds'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -303,6 +304,10 @@ export class WorldScene {
 
       case 'particle-emitter':
         createParticleEmitterObject(entity, component.data)
+        break
+
+      case 'cloud':
+        addObject3DComponent(entity, { obj3d: Clouds, objArgs: component.data })
         break
 
       case 'postprocessing':
