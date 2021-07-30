@@ -102,7 +102,7 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
     portalsDetail.forEach((portal) => {
       if (portal.entity.entityId === (this.props.node as any).entityId) return
       portals.push({
-        name: `${portal.entity.name} (${portal.entity.name})`,
+        name: `${portal.entity.collection.name} (${portal.entity.name})`,
         value: portal.entity.entityId
       })
     })

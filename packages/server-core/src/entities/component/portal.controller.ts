@@ -16,7 +16,7 @@ export const getAllPortals = (app: any): any => {
           include: [
             {
               model: models.collection,
-              attributes: ['id', 'sid']
+              attributes: ['id', 'sid', 'name']
             }
           ]
         }
