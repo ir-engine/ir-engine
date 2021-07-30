@@ -56,12 +56,14 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
     }
   }
 
-  // handle change in location property of PortalNode
+  onChangeLocationName = (locationName) => {
+    this.props.editor.setPropertySelected('locationName', locationName)
+  }
+
   onChangeLinkedPortalId = (linkedPortalId) => {
     this.props.editor.setPropertySelected('linkedPortalId', linkedPortalId)
   }
 
-  // handle change in displayText property of PortalNode
   onChangeDisplayText = (displayText) => {
     this.props.editor.setPropertySelected('displayText', displayText)
   }
@@ -95,14 +97,12 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
         console.error(err)
         return []
       })
-
     const portals = []
 
     portalsDetail.forEach((portal) => {
       if (portal.entity.entityId === (this.props.node as any).entityId) return
-
       portals.push({
-        name: `${portal.entity.name} (${portal.entity.collection.location.name})`,
+        name: `${portal.entity.name} (${portal.entity.name})`,
         value: portal.entity.entityId
       })
     })
@@ -118,7 +118,12 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
       /* @ts-ignore */
       <NodeEditor description={PortalNodeEditor.description} {...this.props}>
         {/* @ts-ignore */}
-        <InputGroup name="Location" label={this.props.t('editor:properties.portal.location')}>
+        <InputGroup name="Location" label={this.props.t('editor:properties.portal.locationName')}>
+          {/* @ts-ignore */}
+          <ControlledStringInput value={node.locationName} onChange={this.onChangeLocationName} />
+        </InputGroup>
+        {/* @ts-ignore */}
+        <InputGroup name="Portal" label={this.props.t('editor:properties.portal.portal')}>
           {/* @ts-ignore */}
           <SelectInput
             options={this.state.portals}
