@@ -8,8 +8,6 @@ export const CharacterStates = {
   RUN: 'RUN',
   JUMP: 'JUMP',
   INTERACTING: 'INTERACTING',
-  ENTERING_VEHICLE: 'ENTERING_VEHICLE',
-  EXITING_VEHICLE: 'EXITING_VEHICLE',
   EMOTE: 'EMOTE',
   LOOPABLE_EMOTE: 'LOOPABLE_EMOTE'
 }
@@ -20,13 +18,6 @@ export const CharacterAnimations = {
   FALLING: 'falling',
   LANDING_AFTER_FALL: 'falling_to_land',
   ROLLING_AFTER_FALL: 'falling_to_roll',
-
-  // Driving
-  DRIVING: 'driving',
-  ENTERING_VEHICLE_DRIVER: 'vehicle_enter_driver',
-  EXITING_VEHICLE_DRIVER: 'vehicle_exit_driver',
-  ENTERING_VEHICLE_PASSENGER: 'vehicle_enter_passenger',
-  EXITING_VEHICLE_PASSENGER: 'vehicle_exit_passenger',
 
   // Walking and running
   IDLE: 'idle',

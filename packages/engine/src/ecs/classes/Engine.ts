@@ -199,7 +199,6 @@ export class Engine {
    * @author Fernando Serrano, Robert Long
    */
   static activeSystems: ActiveSystems = null
-  static vehicles: any
   static lastTime: number
 
   static tick = 0

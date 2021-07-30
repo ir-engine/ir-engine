@@ -8,7 +8,6 @@ import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { addObject3DComponent } from '../behaviors/addObject3DComponent'
 import { createGame, createGameObject } from '../behaviors/createGame'
-import { createVehicleFromSceneData } from '../../vehicle/prefabs/NetworkVehicle'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
 import { createSkybox } from '../behaviors/createSkybox'
 import { createBoxCollider } from '../behaviors/createBoxCollider'
@@ -257,10 +256,6 @@ export class WorldScene {
 
       case 'mesh-collider':
         createMeshCollider(entity, component.data)
-        break
-
-      case 'vehicle-saved-in-scene':
-        createVehicleFromSceneData(entity, component.data)
         break
 
       case 'trigger-volume':

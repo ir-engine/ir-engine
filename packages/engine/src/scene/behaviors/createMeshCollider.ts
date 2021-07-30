@@ -69,23 +69,6 @@ export const createMeshCollider = (entity: Entity, args: MeshColliderProps) => {
       })
       break
 
-    // TODO: implement vehicles
-    // case 'vehicle':
-    //   addCollidersToNetworkVehicle({
-    //     parameters: {
-    //       type: args.type,
-    //       scale: args.scale,
-    //       position: args.position,
-    //       quaternion: args.quaternion,
-    //       mesh: null,
-    //       mass: args.mass ?? 1,
-    //       vertices: args.vertices,
-    //       indices: args.indices
-    //     },
-    //     entity: entity
-    //   })
-    //   break
-
     default:
       console.warn('Invalid Args for Mesh Collider: ' + args.data)
       break

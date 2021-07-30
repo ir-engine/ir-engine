@@ -18,7 +18,6 @@ import { RigidBodyComponent } from '../../physics/components/RigidBody'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { CharacterComponent } from '../../character/components/CharacterComponent'
-import { VehicleComponent } from '../../vehicle/components/VehicleComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBox'
 import { Interactable } from '../components/Interactable'
@@ -92,7 +91,7 @@ export class InteractiveSystem extends System {
       for (const entity of this.queryResults.interactive.added) {
         if (!hasComponent(entity, BoundingBoxComponent) && hasComponent(entity, Object3DComponent)) {
           addComponent(entity, BoundingBoxComponent, {
-            dynamic: hasComponent(entity, RigidBodyComponent) || hasComponent(entity, VehicleComponent)
+            dynamic: hasComponent(entity, RigidBodyComponent)
           })
         }
       }
