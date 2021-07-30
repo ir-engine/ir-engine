@@ -100,6 +100,7 @@ const theme = createTheme({
     },
     MuiDialogTitle: {
       root: {
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
         display: 'flex',
         flexDirection: 'row-reverse',
         alignItems: 'center'
@@ -107,13 +108,14 @@ const theme = createTheme({
     },
     MuiDialogContent: {
       root: {
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
         textAlign: 'justify',
         padding: ' 0 24px 24px 24px'
       }
     },
     MuiButtonBase: {
       root: {
-        backgroundColor: 'rgba(0, 0, 0, ,0.9)',
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
         color: '#000000',
         fontSize: 16,
         textAlign: 'center'

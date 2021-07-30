@@ -3,18 +3,9 @@
  */
 
 import { Engine } from '../ecs/classes/Engine'
-import { System, SystemAttributes } from '../ecs/classes/System'
-import { getComponent, hasComponent } from '../ecs/functions/EntityFunctions'
-import { Network } from '../networking/classes/Network'
-import { NetworkObject } from '../networking/components/NetworkObject'
-import { VehicleBehavior } from './behaviors/VehicleBehavior'
+import { System } from '../ecs/classes/System'
 import { PlayerInCar } from './components/PlayerInCar'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { onAddedInCar } from './behaviors/onAddedInCar'
-import { onAddEndingInCar } from './behaviors/onAddEndingInCar'
-import { onRemovedFromCar } from './behaviors/onRemovedFromCar'
-import { onStartRemoveFromCar } from './behaviors/onStartRemoveFromCar'
-import { onUpdatePlayerInCar } from './behaviors/onUpdatePlayerInCar'
 import { VehicleComponent } from './components/VehicleComponent'
 
 export class VehicleSystem extends System {
@@ -24,8 +15,8 @@ export class VehicleSystem extends System {
   clientSnapshotFreezeTime = 0
   serverSnapshotFreezeTime = 0
 
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
+  constructor() {
+    super()
     VehicleSystem.instance = this
   }
 

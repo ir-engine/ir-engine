@@ -1,12 +1,10 @@
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { System, SystemAttributes } from '../../ecs/classes/System'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
+import { System } from '../../ecs/classes/System'
 import { localMediaConstraints } from '../constants/VideoConstants'
 import { Network } from '../classes/Network'
 import { isClient } from '../../common/functions/isClient'
 import { getNearbyUsers, NearbyUser } from '../functions/getNearbyUsers'
 import LivestreamProxyComponent from '../../scene/components/LivestreamProxyComponent'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { startLivestreamOnServer } from '../functions/startLivestreamOnServer'
 import LivestreamComponent from '../../scene/components/LivestreamComponent'
 
@@ -58,8 +56,8 @@ export class MediaStreamSystem extends System {
 
   public nearbyLayerUsers = [] as NearbyUser[]
 
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
+  constructor() {
+    super()
     MediaStreamSystem.instance = this
   }
 

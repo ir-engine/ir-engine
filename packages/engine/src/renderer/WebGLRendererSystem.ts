@@ -94,7 +94,7 @@ export class WebGLRendererSystem extends System {
   static EVENTS = {
     QUALITY_CHANGED: 'WEBGL_RENDERER_SYSTEM_EVENT_QUALITY_CHANGE',
     SET_RESOLUTION: 'WEBGL_RENDERER_SYSTEM_EVENT_SET_RESOLUTION',
-    SET_SHADOW_QUALITY: 'WEBGL_RENDERER_SYSTEM_EVENT_SET_SHADOW_QUALITY',
+    USE_SHADOWS: 'WEBGL_RENDERER_SYSTEM_EVENT_SET_SHADOW_QUALITY',
     SET_POST_PROCESSING: 'WEBGL_RENDERER_SYSTEM_EVENT_SET_POST_PROCESSING',
     SET_USE_AUTOMATIC: 'WEBGL_RENDERER_SYSTEM_EVENT_SET_USE_AUTOMATIC'
   }
@@ -121,14 +121,14 @@ export class WebGLRendererSystem extends System {
   /** Previous Quality leve. */
   prevQualityLevel: number = this.qualityLevel
   /** point at which we downgrade quality level (large delta) */
-  maxRenderDelta = 1000 / 30 // 30 fps = 33 ms
+  maxRenderDelta = 1000 / 20 // 20 fps = 50 ms
   /** point at which we upgrade quality level (small delta) */
   minRenderDelta = 1000 / 60 // 60 fps = 16 ms
 
   automatic = true
   usePBR = true
   usePostProcessing = true
-  shadowQuality = 5
+  useShadows = true
   /** Resoulion scale. **Default** value is 1. */
   scaleFactor = 1
 
@@ -180,7 +180,7 @@ export class WebGLRendererSystem extends System {
     EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_RESOLUTION, (ev: any) => {
       this.setResolution(ev.payload)
     })
-    EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_SHADOW_QUALITY, (ev: any) => {
+    EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.USE_SHADOWS, (ev: any) => {
       this.setShadowQuality(ev.payload)
     })
     EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, (ev: any) => {
@@ -211,7 +211,7 @@ export class WebGLRendererSystem extends System {
     window.removeEventListener('resize', this.onResize)
     EngineEvents.instance.removeAllListenersForEvent(WebGLRendererSystem.EVENTS.SET_POST_PROCESSING)
     EngineEvents.instance.removeAllListenersForEvent(WebGLRendererSystem.EVENTS.SET_RESOLUTION)
-    EngineEvents.instance.removeAllListenersForEvent(WebGLRendererSystem.EVENTS.SET_SHADOW_QUALITY)
+    EngineEvents.instance.removeAllListenersForEvent(WebGLRendererSystem.EVENTS.USE_SHADOWS)
     EngineEvents.instance.removeAllListenersForEvent(WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC)
     EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.ENABLE_SCENE)
   }
@@ -302,13 +302,13 @@ export class WebGLRendererSystem extends System {
             cam.updateProjectionMatrix()
           }
 
-          this.csm?.updateFrustums()
+          this.qualityLevel > 0 && this.csm?.updateFrustums()
           Engine.renderer.setSize(width, height, false)
           this.composer.setSize(width, height, false)
           this.needsResize = false
         }
 
-        this.csm?.update()
+        this.qualityLevel > 0 && this.csm?.update()
         if (this.usePostProcessing && this.postProcessingSchema) {
           this.composer.render(delta)
         } else {
@@ -377,7 +377,7 @@ export class WebGLRendererSystem extends System {
   }
 
   doAutomaticRenderQuality() {
-    this.setShadowQuality(this.qualityLevel)
+    this.setShadowQuality(this.qualityLevel > 1)
     this.setResolution(this.qualityLevel / this.maxQualityLevel)
     this.setUsePostProcessing(this.qualityLevel > 2)
   }
@@ -385,7 +385,7 @@ export class WebGLRendererSystem extends System {
   dispatchSettingsChangeEvent() {
     EngineEvents.instance.dispatchEvent({
       type: WebGLRendererSystem.EVENTS.QUALITY_CHANGED,
-      shadows: this.shadowQuality,
+      shadows: this.useShadows,
       resolution: this.scaleFactor,
       postProcessing: this.usePostProcessing,
       pbr: this.usePBR,
@@ -408,26 +408,10 @@ export class WebGLRendererSystem extends System {
     ClientStorage.set(databasePrefix + RENDERER_SETTINGS.SCALE_FACTOR, this.scaleFactor)
   }
 
-  setShadowQuality(shadowSize) {
-    // hardcode mobile to always be 512
-    if (isMobile) return
-    this.shadowQuality = shadowSize
-    let mapSize = 512
-    switch (this.shadowQuality) {
-      case this.maxQualityLevel - 2:
-        mapSize = 1024
-        break
-      case this.maxQualityLevel - 1:
-        mapSize = 2048
-        break
-      case this.maxQualityLevel:
-        mapSize = 2048
-        break
-      default:
-        break
-    }
-    this.csm?.setShadowMapSize(mapSize)
-    ClientStorage.set(databasePrefix + RENDERER_SETTINGS.SHADOW_QUALITY, this.shadowQuality)
+  setShadowQuality(useShadows) {
+    this.useShadows = useShadows
+    Engine.renderer.shadowMap.enabled = useShadows
+    ClientStorage.set(databasePrefix + RENDERER_SETTINGS.SHADOW_QUALITY, this.useShadows)
   }
 
   setUsePostProcessing(usePostProcessing) {
@@ -438,7 +422,7 @@ export class WebGLRendererSystem extends System {
   async loadGraphicsSettingsFromStorage() {
     this.automatic = ((await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.AUTOMATIC)) as boolean) ?? true
     this.scaleFactor = ((await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.SCALE_FACTOR)) as number) ?? 1
-    this.shadowQuality = ((await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.SHADOW_QUALITY)) as number) ?? 5
+    this.useShadows = ((await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.SHADOW_QUALITY)) as boolean) ?? true
     // this.usePBR = await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.PBR) as boolean ?? true; // TODO: implement PBR setting
     this.usePostProcessing =
       ((await ClientStorage.get(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING)) as boolean) ?? true

@@ -24,7 +24,6 @@ import { Not } from '../../ecs/functions/ComponentFunctions'
 import { Input } from '../../input/components/Input'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 

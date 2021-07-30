@@ -13,8 +13,7 @@ import {
   handleVisibilityChange,
   handleWindowFocus
 } from '../schema/ClientInputSchema'
-import { System, SystemAttributes } from '../../ecs/classes/System'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
+import { System } from '../../ecs/classes/System'
 import { handleGamepadConnected, handleGamepadDisconnected, handleGamepads } from '../behaviors/GamepadInputBehaviors'
 import { InputType } from '../enums/InputType'
 import { InputValue } from '../interfaces/InputValue'
@@ -74,15 +73,14 @@ export class ClientInputSystem extends System {
 
   static instance: ClientInputSystem
 
-  updateType = SystemUpdateType.Free
   needSend = false
   switchId = 1
   boundListeners: ListenerBindingData[] = []
   mouseInputEnabled = true
   keyboardInputEnabled = true
 
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
+  constructor() {
+    super()
 
     ClientInputSystem.instance = this
 

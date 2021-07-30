@@ -2,7 +2,6 @@
  * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
 
-import { Api } from '@xrengine/client-core'
 import {
   BoxBufferGeometry,
   BoxHelper,
@@ -183,7 +182,7 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
   onRemove() {
     this.currentEnvMap?.dispose()
     this.editor.scene.unregisterEnvironmentMapNode(this)
-    const api = this.editor.api as Api
+    const api = this.editor.api
     const fileID = api.filesToUpload[this.ownedFileIdentifier]
     if (fileID) {
       const id = fileID['file_id']

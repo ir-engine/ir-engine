@@ -15,7 +15,6 @@ import { selectLocationState } from '@xrengine/client-core/src/social/reducers/l
 import { getLobby, getLocationByName } from '@xrengine/client-core/src/social/reducers/location/service'
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
 import Store from '@xrengine/client-core/src/store'
-import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
@@ -31,6 +30,7 @@ import { processLocationChange, resetEngine } from '@xrengine/engine/src/ecs/fun
 import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
@@ -48,8 +48,9 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
 import { CameraLayers } from '../../../../engine/src/camera/constants/CameraLayers'
+import { CharacterInputSchema } from '../../../../engine/src/character/CharacterInputSchema'
+import { doRaycast } from '../../../../engine/src/navigation/behaviors/doRaycast'
 import WarningRefreshModal from '../../components/AlertModals/WarningRetryModal'
-import MediaIconsBox from './MapMediaIconsBox'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import {
   connectToInstanceServer,
@@ -57,6 +58,7 @@ import {
   resetInstanceServer
 } from '../../reducers/instanceConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import MediaIconsBox from './MapMediaIconsBox'
 
 const store = Store.store
 
@@ -71,7 +73,7 @@ const initialRefreshModalValues = {
   open: false,
   title: '',
   body: '',
-  action: async () => {},
+  action: async () => { },
   parameters: [],
   timeout: 10000,
   noCountdown: false
@@ -173,16 +175,10 @@ export const EnginePage = (props: Props) => {
   } = props
 
   const [userBanned, setUserBannedState] = useState(false)
-  const [openLinkData, setOpenLinkData] = useState(null)
 
   const [progressEntity, setProgressEntity] = useState(99)
-  const [userHovered, setonUserHover] = useState(false)
-  const [userId, setonUserId] = useState(null)
-  const [position, setonUserPosition] = useState(null)
-  const [objectHovered, setObjectHovered] = useState(false)
 
   const [isValidLocation, setIsValidLocation] = useState(true)
-  const [isInXR, setIsInXR] = useState(false)
   const [warningRefreshModalValues, setWarningRefreshModalValues] = useState(initialRefreshModalValues)
   const [noGameserverProvision, setNoGameserverProvision] = useState(false)
   const [instanceDisconnected, setInstanceDisconnected] = useState(false)
@@ -335,6 +331,22 @@ export const EnginePage = (props: Props) => {
     }
   }, [appState])
 
+  // If user if on Firefox in Private Browsing mode, throw error, since they can't use db storage currently
+  useEffect(() => {
+    var db = indexedDB.open("test")
+    db.onerror = function () {
+      const newValues = {
+        ...warningRefreshModalValues,
+        open: true,
+        title: "Browser Error",
+        body: 'Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode. ',
+        noCountdown: true
+      }
+      setWarningRefreshModalValues(newValues)
+      setInstanceDisconnected(false)
+    }
+  }, [])
+
   useEffect(() => {
     if (noGameserverProvision === true) {
       const currentLocation = locationState.get('currentLocation').get('location')
@@ -342,11 +354,10 @@ export const EnginePage = (props: Props) => {
         open: true,
         title: 'No Available Servers',
         body: "There aren't any servers available for you to connect to. Attempting to re-connect in",
-        action: provisionInstanceServer,
+        action: async () => { provisionInstanceServer() },
         parameters: [currentLocation.id, instanceId, currentLocation.sceneId],
         timeout: 10000
       }
-      //@ts-ignore
       setWarningRefreshModalValues(newValues)
       setNoGameserverProvision(false)
     }
@@ -355,28 +366,46 @@ export const EnginePage = (props: Props) => {
   useEffect(() => {
     if (instanceDisconnected === true && !porting) {
       const newValues = {
+        ...warningRefreshModalValues,
         open: true,
         title: 'World disconnected',
         body: "You've lost your connection with the world. We'll try to reconnect before the following time runs out, otherwise you'll be forwarded to a different instance.",
-        action: window.location.reload,
+        action: async () => window.location.reload(),
         parameters: [],
         timeout: 30000
       }
-      //@ts-ignore
       setWarningRefreshModalValues(newValues)
       setInstanceDisconnected(false)
     }
   }, [instanceDisconnected])
 
+
+
+  // If user if on Firefox in Private Browsing mode, throw error, since they can't use db storage currently
+  useEffect(() => {
+    var db = indexedDB.open("test")
+    db.onerror = function () {
+      const newValues = {
+        ...warningRefreshModalValues,
+        open: true,
+        title: "Browser Error",
+        body: 'Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode. ',
+        noCountdown: true
+      }
+      setWarningRefreshModalValues(newValues)
+      setInstanceDisconnected(false)
+    }
+  }, [])
+
   useEffect(() => {
     if (instanceKicked === true) {
       const newValues = {
+        ...warningRefreshModalValues,
         open: true,
         title: "You've been kicked from the world",
         body: 'You were kicked from this world for the following reason: ' + instanceKickedMessage,
         noCountdown: true
       }
-      //@ts-ignore
       setWarningRefreshModalValues(newValues)
       setInstanceDisconnected(false)
     }
@@ -424,6 +453,8 @@ export const EnginePage = (props: Props) => {
           physxWorker: new Worker('/scripts/loadPhysXClassic.js')
         }
       }
+
+      CharacterInputSchema.behaviorMap.set(BaseInput.PRIMARY, doRaycast)
 
       await initializeEngine(initializationOptions)
 
@@ -477,17 +508,21 @@ export const EnginePage = (props: Props) => {
           spawnTransform = { position: newSpawnPos.spawnPosition, rotation: newSpawnPos.spawnRotation }
         }
 
-        const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
+        const { worldState: ws } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
           MessageTypes.JoinWorld.toString(),
           { spawnTransform }
         )
-        resolve(WorldStateModel.fromBuffer(worldState))
+        console.log("world state is", ws)
+        resolve(WorldStateModel.fromBuffer(ws))
       }
     })
+    console.log("EngineEvents.instance")
+    console.log(EngineEvents.instance)
 
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS))
     setPorting(false)
 
+    // WTF IS GOING ON HEREEEE
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState })
   }
 
@@ -569,7 +604,7 @@ export const EnginePage = (props: Props) => {
     return (): void => {
       document.body.innerHTML = consoleLog
         .map((log) => {
-          ;`<p>${log}</p>`
+          ; `<p>${log}</p>`
         })
         .join()
       resetEngine()
