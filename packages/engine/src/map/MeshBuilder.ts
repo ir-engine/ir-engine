@@ -10,7 +10,8 @@ import {
   Color,
   CanvasTexture,
   ImageBitmapLoader,
-  PlaneGeometry
+  PlaneGeometry,
+  Matrix4
 } from 'three'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { VectorTile } from '@mapbox/vector-tile'
@@ -25,44 +26,43 @@ type ILayerName = 'building' | 'road'
 // TODO free resources used by canvases, bitmaps etc
 
 const METERS_PER_DEGREE_LL = 111139
+
 function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position): Position {
   return [(lng - lngCenter) * METERS_PER_DEGREE_LL, (lat - latCenter) * METERS_PER_DEGREE_LL]
+}
+function tile2long(x: number, zoom: number) {
+  return (x / Math.pow(2, zoom)) * 360 - 180
+}
+function tile2lat(y: number, zoom: number) {
+  var n = Math.PI - (2 * Math.PI * y) / Math.pow(2, zoom)
+  return (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)))
 }
 
 const NUMBER_OF_TILES_PER_DIMENSION = 3
 const WHOLE_NUMBER_OF_TILES_FROM_CENTER = Math.floor(NUMBER_OF_TILES_PER_DIMENSION / 2)
 const NUMBER_OF_TILES_IS_ODD = NUMBER_OF_TILES_PER_DIMENSION % 2
 
-const MAPBOX_RASTER_TILE_PIXEL_SIZE_HI_DPI = 512
-
-/** from https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale */
-const LENGTH_OF_EQUATOR_METERS = 40075.016686
-const METERS_PER_PIXEL_AT_EQUATOR = (LENGTH_OF_EQUATOR_METERS * 1000) / MAPBOX_RASTER_TILE_PIXEL_SIZE_HI_DPI
-function getMetersPerPixel(latitude: number) {
-  return (Math.cos(latitude) * METERS_PER_PIXEL_AT_EQUATOR) / Math.pow(2, TILE_ZOOM)
-}
-
 function buildBuildingGeometry(feature: Feature, llCenter: Position): BufferGeometry | null {
   const shape = new Shape()
   const styles = DEFAULT_FEATURE_STYLES.building
 
-  const geometry = feature.geometry
+  let geometry: Geometry
 
   let coords: Position[]
   // Buffer the linestrings (e.g. roads) so they have some thickness
-  // if (
-  //   feature.geometry.type === 'LineString' ||
-  //   feature.geometry.type === 'Point' ||
-  //   feature.geometry.type === 'MultiLineString'
-  // ) {
-  //   const width = styles.width || 1
-  //   const buf = turf_buffer(feature, width, {
-  //     units: 'meters'
-  //   })
-  //   geometry = buf.geometry
-  // } else {
-  //   geometry = feature.geometry
-  // }
+  if (
+    feature.geometry.type === 'LineString' ||
+    feature.geometry.type === 'Point' ||
+    feature.geometry.type === 'MultiLineString'
+  ) {
+    const width = styles.width || 1
+    const buf = turf_buffer(feature, width, {
+      units: 'meters'
+    })
+    geometry = buf.geometry
+  } else {
+    geometry = feature.geometry
+  }
 
   // TODO switch statement
   if (geometry.type === 'MultiPolygon') {
@@ -88,6 +88,7 @@ function buildBuildingGeometry(feature: Feature, llCenter: Position): BufferGeom
 
   let height: number
 
+  // TODO handle min_height
   if (styles.height === 'a') {
     if (feature.properties.height) {
       height = feature.properties.height
@@ -217,18 +218,16 @@ export function buildBuildingsMesh(features: Feature[], llCenter: Position, rend
   return mesh
 }
 
-function drawGroundFeatures(ctx: CanvasRenderingContext2D, features: Feature[], llCenter: Position) {
+function drawRoads(ctx: CanvasRenderingContext2D, features: Feature[], llCenter: Position) {
   ctx.lineWidth = 5
-  features.forEach((feature) => {
-    // assuming they're all roads for now
-    const geometry = feature.geometry
+  features.forEach(({ geometry }) => {
     switch (geometry.type) {
       case 'LineString':
         const coords = geometry.coordinates.map((coords) => llToScene(coords, llCenter))
         const start = coords[0]
         ctx.beginPath()
         ctx.moveTo(start[0], start[1])
-        geometry.coordinates.slice(1).forEach(([x, y]) => {
+        coords.slice(1).forEach(([x, y]) => {
           ctx.lineTo(x, y)
         })
         ctx.closePath()
@@ -238,20 +237,39 @@ function drawGroundFeatures(ctx: CanvasRenderingContext2D, features: Feature[], 
   })
 }
 
-export function buildGroundMesh(features: Feature[], llCenter: Position) {
-  const sizeInMeters = getMetersPerPixel(llCenter[1]) * MAPBOX_RASTER_TILE_PIXEL_SIZE_HI_DPI
-  const geometry = new PlaneGeometry(sizeInMeters, sizeInMeters)
+export function buildGroundMesh(tiles: TileFeaturesByLayer[], llCenter: Position) {
+  const startLongitude = tile2long(
+    long2tile(llCenter[0], TILE_ZOOM) - NUMBER_OF_TILES_PER_DIMENSION / 2,
+    TILE_ZOOM
+  )
+  const endLongitude = tile2long(
+    long2tile(llCenter[0], TILE_ZOOM) + NUMBER_OF_TILES_PER_DIMENSION / 2,
+    TILE_ZOOM
+  )
+  const startLatitude = tile2lat(
+    lat2tile(llCenter[1], TILE_ZOOM) - NUMBER_OF_TILES_PER_DIMENSION / 2,
+    TILE_ZOOM
+  )
+  const endLatitude = tile2lat(
+    lat2tile(llCenter[1], TILE_ZOOM) + NUMBER_OF_TILES_PER_DIMENSION / 2,
+    TILE_ZOOM
+  )
+  const diffLongitude = endLongitude - startLongitude
+  const diffLatitude = endLatitude - startLatitude
+  const geometry = new PlaneGeometry(diffLongitude * METERS_PER_DEGREE_LL, Math.abs(diffLatitude) * METERS_PER_DEGREE_LL)
 
-  const count = NUMBER_OF_TILES_PER_DIMENSION
-
-  const canvasSize = count * MAPBOX_RASTER_TILE_PIXEL_SIZE_HI_DPI
+  const canvasSize = 128 * NUMBER_OF_TILES_PER_DIMENSION
   const canvasContext = createCanvasRenderingContext2D(canvasSize, canvasSize)
 
-  drawGroundFeatures(canvasContext, features, llCenter)
+  tiles.forEach((tile) => {
+    drawRoads(canvasContext, tile.road, llCenter)
+  })
 
   const texture = new CanvasTexture(canvasContext.canvas)
 
   const material = new MeshLambertMaterial({
+    // enable renderOrder
+    depthTest: false,
     map: texture
   })
 
@@ -260,15 +278,20 @@ export function buildGroundMesh(features: Feature[], llCenter: Position) {
 
 export function buildMesh(tiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Mesh {
   const buildingFeatures = tiles.reduce((acc, tile) => acc.concat(tile.building), [])
-  const groundFeatures = tiles.reduce((acc, tile) => acc.concat(tile.road), [])
-  const featuresMesh = buildBuildingsMesh(buildingFeatures, llCenter, renderer)
-  const groundMesh = buildGroundMesh(groundFeatures, llCenter)
-  groundMesh.rotateX(-Math.PI / 2)
-  groundMesh.updateMatrix()
-  groundMesh.rotateZ(Math.PI)
-  featuresMesh.add(groundMesh)
+  const buildingsMesh = buildBuildingsMesh(buildingFeatures, llCenter, renderer)
+  const groundMesh = buildGroundMesh(tiles, llCenter)
 
-  return featuresMesh
+  // prevent shimmer/z-fighting
+  buildingsMesh.renderOrder = 1
+  groundMesh.renderOrder = 0
+
+  groundMesh.rotateX(-Math.PI / 2)
+  // buildingsMesh.geometry.computeBoundingBox()
+  // buildingsMesh.geometry.boundingBox.getCenter(groundMesh.position)
+  // groundMesh.position.y = 0
+  buildingsMesh.add(groundMesh)
+
+  return buildingsMesh
 }
 
 /**
@@ -310,10 +333,8 @@ function vectorTile2GeoJSON(tile: VectorTile, [tileX, tileY]: Position): TileFea
   return result
 }
 
-function getMapBoxUrl(layerId: string, tileX: number, tileY: number, format: string, higherDPI = false) {
-  return `https://api.mapbox.com/v4/${layerId}/${TILE_ZOOM}/${tileX}/${tileY}${
-    higherDPI ? '@2x' : ''
-  }.${format}?access_token=${Config.publicRuntimeConfig.MAPBOX_API_KEY}`
+function getMapBoxUrl(layerId: string, tileX: number, tileY: number, format: string) {
+  return `https://api.mapbox.com/v4/${layerId}/${TILE_ZOOM}/${tileX}/${tileY}.${format}?access_token=${Config.publicRuntimeConfig.MAPBOX_API_KEY}`
 }
 
 interface TileFeaturesByLayer {
@@ -321,7 +342,7 @@ interface TileFeaturesByLayer {
   road: Feature[]
 }
 async function fetchTileFeatures(tileX: number, tileY: number): Promise<TileFeaturesByLayer> {
-  const url = getMapBoxUrl('mapbox.mapbox-streets-v7' /* or v8? */, tileX, tileY, 'vector.pbf')
+  const url = getMapBoxUrl('mapbox.mapbox-streets-v8' /* or v8? */, tileX, tileY, 'vector.pbf')
 
   const response = await fetch(url)
   const blob = await response.blob()
