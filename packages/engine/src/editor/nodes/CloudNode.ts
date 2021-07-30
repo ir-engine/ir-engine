@@ -14,26 +14,28 @@ export default class CloudNode extends EditorNodeMixin(Clouds) {
     src: new URL(defaultParticleUrl, (window as any)?.location).href
   }
 
-  static async deserialize(editor, json, loadAsync?, onError?) {
-    const node = await super.deserialize(editor, json)
+  static async deserialize(editor, json, loadAsync?, onError?): Promise<CloudNode> {
+    const node = (await super.deserialize(editor, json)) as CloudNode
 
     const { src, worldScale, dimensions, noiseZoom, noiseOffset, spriteScaleRange, fogColor, fogRange } =
       json.components.find((c) => c.name === 'cloud').props
 
-    node.worldScale.copy(worldScale)
-    node.dimensions.copy(dimensions)
-    node.noiseZoom.copy(noiseZoom)
-    node.noiseOffset.copy(noiseOffset)
-    node.spriteScaleRange.copy(spriteScaleRange)
-    node.fogColor.copy(fogColor)
-    node.fogRange.copy(fogRange)
+    const mesh = node as any as Clouds
+    mesh.worldScale.copy(worldScale)
+    mesh.dimensions.copy(dimensions)
+    mesh.noiseZoom.copy(noiseZoom)
+    mesh.noiseOffset.copy(noiseOffset)
+    mesh.spriteScaleRange.copy(spriteScaleRange)
+    mesh.fogColor.set(fogColor)
+    mesh.fogRange.copy(fogRange)
 
     loadAsync(
       (async () => {
         await node.load(src, onError)
       })()
     )
-    node.updateParticles()
+
+    mesh.updateParticles()
 
     return node
   }
@@ -45,6 +47,18 @@ export default class CloudNode extends EditorNodeMixin(Clouds) {
     this.helper = new DirectionalPlaneHelper()
     this.helper.visible = false
     this.add(this.helper)
+
+    const mesh = this as any as Clouds
+
+    // Base mesh defaults
+    mesh.worldScale.set(1000, 150, 1000)
+    mesh.dimensions.set(8, 4, 8)
+    mesh.noiseZoom.set(7, 11, 7)
+    mesh.noiseOffset.set(0, 4000, 3137)
+    mesh.spriteScaleRange.set(50, 100)
+    mesh.fogColor.set(0x4584b4)
+    mesh.fogRange.set(-100, 3000)
+    mesh.updateParticles()
   }
 
   get src() {
@@ -65,7 +79,7 @@ export default class CloudNode extends EditorNodeMixin(Clouds) {
 
     try {
       const { url } = await this.editor.api.resolveMedia(src)
-      this.material.uniforms.map.value = await loadTexture(url)
+      this.setTexture(await loadTexture(url))
     } catch (error) {
       if (onError) {
         onError(this, error)

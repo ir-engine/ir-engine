@@ -5,14 +5,11 @@ import {
   ShaderMaterial,
   Vector3,
   InstancedBufferAttribute,
-  Texture,
   RawShaderMaterial,
   UniformsUtils,
-  Fog,
   Vector2,
   Color
 } from 'three'
-import loadTexture from '../../editor/functions/loadTexture'
 import SimplexNoise from 'simplex-noise'
 
 const vertexShader = `
@@ -68,21 +65,19 @@ export class Clouds extends Mesh {
   fogColor: Color
   noise: SimplexNoise
 
-  constructor(texture: Texture, configs: any) {
+  constructor() {
     const planeGeometry = new PlaneBufferGeometry(1, 1, 1, 1)
     const geometry = new InstancedBufferGeometry()
     geometry.index = planeGeometry.index
     geometry.attributes = planeGeometry.attributes
 
-    const fog = new Fog(0x4584b4, -100, 3000)
-
     const material = new ShaderMaterial({
       uniforms: UniformsUtils.merge([
         {
-          map: { value: texture },
-          fogColor: { type: 'c', value: fog.color },
-          fogNear: { type: 'f', value: fog.near },
-          fogFar: { type: 'f', value: fog.far }
+          map: { type: 't', value: null },
+          fogColor: { type: 'c', value: null },
+          fogNear: { type: 'f', value: null },
+          fogFar: { type: 'f', value: null }
         }
       ]),
       vertexShader,
@@ -91,30 +86,26 @@ export class Clouds extends Mesh {
       depthWrite: false
     })
 
-    material.uniforms.map.value = texture
     super(geometry, material)
 
     this.frustumCulled = false
-    this.worldScale = new Vector3(1000, 150, 1000)
-    this.dimensions = new Vector3(8, 4, 8)
-    this.noiseZoom = new Vector3(7, 11, 7)
-    this.noiseOffset = new Vector3(0, 4000, 3137)
-    this.spriteScaleRange = new Vector2(50, 100) // Min/Max
-    this.fogColor = new Color(0x4584b4)
-    this.fogRange = new Vector2(-100, 3000)
     this.noise = new SimplexNoise('seed')
 
-    if (configs) {
-      for (const key of Object.keys(configs)) {
-        this[key] = configs[key]
-      }
-    }
-
-    this.updateParticles()
+    this.worldScale = new Vector3()
+    this.dimensions = new Vector3()
+    this.noiseZoom = new Vector3()
+    this.noiseOffset = new Vector3()
+    this.spriteScaleRange = new Vector2()
+    this.fogColor = new Color()
+    this.fogRange = new Vector2()
   }
 
   getNoise3D(x, y, z) {
     return (this.noise.noise3D(x, y, z) + 1) * 0.5
+  }
+
+  setTexture(texture) {
+    ;(this.material as any).uniforms.map.value = texture
   }
 
   updateParticles() {
@@ -195,16 +186,5 @@ export class Clouds extends Mesh {
     this.fogRange.copy(source.fogRange)
 
     return this
-  }
-
-  static fromArgs(args): Promise<Clouds> {
-    return new Promise((resolve) => {
-      loadTexture(args.src)
-        .then((texture) => {
-          ;(texture as any).flipY = false
-          resolve(new Clouds(texture as Texture, args))
-        })
-        .catch(console.error)
-    })
   }
 }

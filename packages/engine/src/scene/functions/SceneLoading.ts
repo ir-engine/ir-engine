@@ -277,7 +277,7 @@ export class WorldScene {
         break
 
       case 'cloud':
-        addObject3DComponent(entity, { obj3d: Clouds, objArgs: component.data })
+        addObject3DComponent(entity, new Clouds(), component.data)
         break
 
       case 'postprocessing':
