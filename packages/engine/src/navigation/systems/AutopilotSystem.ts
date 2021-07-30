@@ -1,4 +1,4 @@
-import { System, SystemAttributes } from '../../ecs/classes/System'
+import { System } from '../../ecs/classes/System'
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { EntityManager, NavMesh, Vector3 as YukaVector3, Path } from 'yuka'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
@@ -35,8 +35,8 @@ export class AutopilotSystem extends System {
   updateType = SystemUpdateType.Free
   entityManager: EntityManager
 
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
+  constructor() {
+    super()
     this.entityManager = new EntityManager()
     this.reset()
   }
