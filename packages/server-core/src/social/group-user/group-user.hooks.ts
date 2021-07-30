@@ -63,8 +63,6 @@ export default {
     remove: [
       async (context: HookContext): Promise<HookContext> => {
         const { app, params, result } = context
-        console.log('Group user removal result:')
-        console.log(result)
         const user = await app.service('user').get(result.userId)
         await app.service('message').create({
           targetObjectId: result.groupId,

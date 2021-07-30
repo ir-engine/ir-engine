@@ -7,10 +7,6 @@ import { random } from 'lodash'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 import { AuthenticationService } from '@feathersjs/authentication'
 
-interface Data {
-  userId: string
-}
-
 /**
  * A class for identity-provider service
  *
@@ -163,7 +159,6 @@ export class IdentityProvider extends Service {
       // this.app.service('authentication')
       result.accessToken = await authService.createAccessToken({}, { subject: result.id.toString() })
     }
-    console.log(result)
     return result
   }
 }
