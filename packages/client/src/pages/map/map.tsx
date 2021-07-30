@@ -27,10 +27,7 @@ import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPl
 import { awaitEngaged, Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { processLocationChange, resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
-import {
-  addComponent,
-  getComponent, removeComponent
-} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'

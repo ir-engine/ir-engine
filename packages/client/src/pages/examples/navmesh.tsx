@@ -23,9 +23,11 @@ import {
   BufferGeometry,
   ConeBufferGeometry,
   DirectionalLight,
-  GridHelper, InstancedMesh,
+  GridHelper,
+  InstancedMesh,
   Line,
-  LineBasicMaterial, MeshBasicMaterial,
+  LineBasicMaterial,
+  MeshBasicMaterial,
   PerspectiveCamera,
   Scene,
   WebGLRenderer

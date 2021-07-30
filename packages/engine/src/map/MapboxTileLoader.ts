@@ -16,7 +16,7 @@ function getRandomGreyColorString(minValue, maxValue) {
   return `#${color.getHexString()}`
 }
 
-function rescale(object3D: Object3D, scaleFactor: number){
+function rescale(object3D: Object3D, scaleFactor: number) {
   object3D.position.multiplyScalar(scaleFactor)
   object3D.scale.multiplyScalar(scaleFactor)
 }
@@ -116,7 +116,7 @@ interface IOpts {
   lng?: number
   layers?: string[]
   scale?: Vector3
-  
+
   /** draw superimposed lines along the edges of all meshes */
   enableEdgeLines?: boolean
 }
@@ -149,11 +149,11 @@ export class MapboxTileLoader {
       // 'contour',
       // 'landuse',
       // 'motorway_junction',
-      'poi_label',
+      'poi_label'
     ]
-    console.log("args.scale is", args.scale);
-    this.scale = args.scale;
-    console.log('scale is', this.scale);
+    console.log('args.scale is', args.scale)
+    this.scale = args.scale
+    console.log('scale is', this.scale)
 
     // tally feature tags.
     this.names = {}
@@ -400,10 +400,8 @@ export class MapboxTileLoader {
       const edges = new THREE.EdgesGeometry(mesh.geometry, 30)
       const lineSegments = new THREE.LineSegments(edges, lineMaterial)
       rescale(lineSegments, this.scale.x)
-      
+
       this.scene.add(lineSegments)
-
-
     }
     rescale(mesh, this.scale.x)
 

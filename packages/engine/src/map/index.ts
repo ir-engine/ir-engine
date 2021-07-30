@@ -6,7 +6,7 @@ import { MapProps } from './MapProps'
 const useNew = false
 
 export const addMap = async function (scene: THREE.Scene, renderer: THREE.WebGLRenderer, args: MapProps) {
-  console.log("addmap called with args:", args);
+  console.log('addmap called with args:', args)
   if (useNew) {
     // TODO use object
     const center = [args.startLongitude, args.startLatitude]

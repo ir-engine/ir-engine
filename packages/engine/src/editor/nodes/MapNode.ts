@@ -21,14 +21,14 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
       scale
     } = json.components.find((c) => c.name === 'map').props
     node.isGlobal = isGlobal
-    node.useTimeOfDay = useTimeOfDay;
-    node.useDirectionalShadows = useDirectionalShadows;
+    node.useTimeOfDay = useTimeOfDay
+    node.useDirectionalShadows = useDirectionalShadows
     node.useStartCoordinates = useStartCoordinates
     node.startLatitude = startLatitude
     node.startLongitude = startLongitude
     node.name = name
-    console.log('setting node.scale, which is', node.scale);
-    node.scale.set(scale.x, scale.y, scale.z);
+    console.log('setting node.scale, which is', node.scale)
+    node.scale.set(scale.x, scale.y, scale.z)
     return node
   }
   constructor(editor) {
@@ -42,7 +42,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
       useDirectionalShadows: this.useDirectionalShadows,
       useStartCoordinates: this.useStartCoordinates,
       startLatitude: this.startLatitude,
-      startLongitude: this.startLongitude 
+      startLongitude: this.startLongitude
     })
   }
   copy(source, recursive = true) {

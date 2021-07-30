@@ -147,7 +147,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Fixed, ActionSystem)
   registerSystem(SystemUpdateType.Fixed, CharacterControllerSystem)
   registerSystem(SystemUpdateType.Fixed, AnimationSystem)
-  registerSystem(SystemUpdateType.Fixed, AutopilotSystem);
+  registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
 
   // Scene Systems
   registerSystem(SystemUpdateType.Fixed, InteractiveSystem)
