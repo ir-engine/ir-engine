@@ -26,8 +26,6 @@ export default (options: any) => {
     // After creating of project, remove the owned_file of project json
 
     // Find the project owned_file from database
-    console.log(context.data)
-
     const ownedFile = await StaticResourceModel.findOne({
       where: {
         id: context.data.ownedFileId
