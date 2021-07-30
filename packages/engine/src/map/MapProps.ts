@@ -8,6 +8,6 @@ export interface MapProps {
   useTimeOfDay?: number
   useDirectionalShadows?: boolean
   useStartCoordinates?: boolean
-  startLatitude?: number
-  startLongitude?: number
+  startLatitude?: string
+  startLongitude?: string
 }
