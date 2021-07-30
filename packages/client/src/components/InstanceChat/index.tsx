@@ -167,7 +167,7 @@ const InstanceChat = (props: Props): any => {
                   .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
                   .slice(
                     activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0,
-                    activeChannel.mesages?.length
+                    activeChannel.messages?.length
                   )
                   .map((message) => {
                     return (

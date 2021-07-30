@@ -34,21 +34,13 @@ Make sure to increase the maximum node limit, as by default target, minimum, and
 set to 2, and XREngine's setup will definitely need more than two nodes if you've configured
 them to use relatively small instance types such as t3a.medium.
 
-### Create nodegroup for gameservers
-
-Once the cluster is set up, you should create a second nodegroup for gameservers.
-While this isn't strictly necessary, and they could run on the initial nodegroup, it
-can be useful to have them running on a different group; there's no conflict for
-resources with the other server types, and you can specify more powerful instance types
-if needed.
-
 #### Create launch template
 Go to EC2 -> Launch Templates and make a new one. Name it something like 'xrengine-production-gameserver'.
 Most settings can be left as-is, except for the following:
 * Storage -> Add a volume, set the size to ~80GB, and for Device name select '/dev/xvda'.
 * Network Interfaces -> Add one, and under 'Auto-assign public IP' select 'Enable'
 
-#### Create nodegroup
+#### Create nodegroup for gameservers
 Go to the AWS website, then go to EKS -> Clusters -> click on the cluster you just made -> Configuration -> Compute.
 You should see one managed nodegroup already there; clicking on its name will open up information
 and editing, though you can't change the instance type after it's been made.
@@ -117,6 +109,16 @@ the Helm config file.
 XREngine is backed by a SQL server. We use MariaDB in development, but it has also been run on AWS with
 Aurora without issue. Most other versions of SQL should work but have not been explicitly tested.
 
+
+### Accessing RDS box from an external machine
+By default, an RDS box is only accessible from within the VPC it's located.
+If you want to be able to connect to it from outside that VPC, you'll need to either set up a bastion box
+and SSH into that box, or make the RDS box publicly accessible.
+
+Setting up a bastion box is not covered here at this time. The steps to make it public will be noted
+below by **Make RDS public**
+
+### Create RDS instance
 Go to RDS and click the Create Database button. Most options can be left at their default values.
 Under Settings, give a more descriptive DB cluster identifier. The Master Username can be left as admin;
 enter a Master Password and then enter it again in Confirm Password.
@@ -127,14 +129,25 @@ Under Availability and Durability, it's recommended that you leave it on the def
 making an Aurora Replica in another AZ.
 
 Under Connectivity, make sure that it's in the VPC that was made as part of the EKS cluster.
-Under VPC security group, choose Create New. Enter a name in the box New VPC security group name.
 
-Open the Additional Configuration dropdown. Under Database Options-> Initial Database Name,
+**Make RDS public**
+If you want to be able to access it externally, you should set Public Access to 'Yes'.
+
+Under VPC security group, select the ones titled 
+`eksctl-<EKS_cluster_name>-cluster-ClusterSharedNodeSecurityGroup-<random_string>` and
+`eks-clustersg-<EKS_cluster_name>-<random_string>`.
+
+Open the top-level Additional Configuration dropdown (not the one within Connectivity). Under Database Options-> Initial Database Name,
 name the default database and save this for later use in the Helm config file.
 
 Finally, click the Create Database button at the very bottom of the page.
 
-## Edit security group to allow gameserver traffic
+**Make RDS Public** You will need to add a Security Group to the RDS instance that allows traffic over port
+3306 (or whatever port you chose to run it on). You can have this SG only let in traffic from your IP address(es)
+if you want to be very secure about this, or from anywhere (0.0.0.0/0) if you're less concerned about someone
+getting access.
+
+## Edit security group to allow gameserver traffic into VPC
 You'll need to edit the new cluster's main security group to allow gameserver traffic.
 On the AWS web client, go to EC2 -> Security Groups. There should be three SGs that have
 the node's name somewhere in their name; look for the one that is in the form
@@ -414,6 +427,8 @@ You should make the following 'A' records to the loadbalancer, substituting your
 * api-dev.xrengine.io
 * api.xrengine.io
 * dev.xrengine.io
+* gameserver.xrengine.io
+* gameserver-dev.xrengine.io
 
 You also need to make an 'A' record pointing 'resources.xrengine.io' to the CloudFront distribution you made earlier.
 
@@ -435,10 +450,17 @@ There are many fields to fill in, most marked with <>. Not all are necessary for
 using social login, for instance, you don't need credentials for Github/Google/Facebook/etc. `
 
 ### Run Helm install
-Run ```helm install -f </path/to/*.values.yaml> --set api.image.tag=<latest_github_commit_SHA>,client.image.tag=<latest_github_commit_SHA>,gameserver.image.tag=<latest_github_commit_SHA> <stage_name> xrengine/xrengine```
+Run ```helm install -f </path/to/*.values.yaml> --set api.image.tag=<latest_github_commit_SHA>,client.image.tag=<latest_github_commit_SHA>,gameserver.image.tag=<latest_github_commit_SHA> --set-string api.extraEnv.FORCE_DB_REFRESH=true <stage_name> xrengine/xrengine```
 
 After a minute or so, all of the pods should be up and running, and you should be able to
 go to the root domain you have this deployment running on and see something.
+
+#### Unset FORCE_DB_REFRESH
+Setting the environment variable api.extraEnv.FORCE_DB_REFRESH to 'true' tells the API servers to wipe
+and (re-)seed the database. This is required during initial setup, but you don't want every new api server
+pod that's spun up to re-run this. A few minutes after running the `helm install` command, you should
+run ```helm upgrade --reuse-values --set-string api.extraEnv.FORCE_DB_REFRESH=false <stage_name> xrengine/xrengine```.
+This will set the ENV_VAR to 'false', and the API servers will not attempt to seed anything.
 
 ### Upgrading an existing Helm deployment
 One of the features of Helm is being able to easily upgrade deployments with new values. The command to
