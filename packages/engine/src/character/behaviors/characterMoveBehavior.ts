@@ -18,9 +18,9 @@ const onGroundVelocity = new Vector3()
 const vec3 = new Vector3()
 
 export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
-  const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any)
-  const transform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent as any)
-  const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
+  const actor: CharacterComponent = getMutableComponent(entity, CharacterComponent as any)
+  const transform: TransformComponent = getMutableComponent(entity, TransformComponent as any)
+  const collider = getMutableComponent(entity, ControllerColliderComponent)
   if (!collider.controller || !actor.movementEnabled) return
 
   if (actor.isGrounded) {

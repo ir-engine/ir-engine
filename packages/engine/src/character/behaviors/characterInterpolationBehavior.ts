@@ -6,7 +6,6 @@ import { ControllerColliderComponent } from '../components/ControllerColliderCom
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CharacterComponent } from '../components/CharacterComponent'
 import type { SnapshotData, StateInterEntity } from '../../networking/types/SnapshotDataTypes'
-import { AnimationComponent } from '../components/AnimationComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -21,9 +20,9 @@ export const characterInterpolationBehavior: Behavior = (
   snapshots: SnapshotData,
   delta: number
 ): void => {
-  const transform = getComponent<TransformComponent>(entity, TransformComponent)
-  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
-  const collider: any = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
+  const transform = getComponent(entity, TransformComponent)
+  const actor = getMutableComponent(entity, CharacterComponent)
+  const collider = getMutableComponent(entity, ControllerColliderComponent)
 
   const interpolation = findInterpolationSnapshot(entity, snapshots.interpolation) as StateInterEntity
 

@@ -388,14 +388,14 @@ MediaStreamSystem.queries = {
     components: [LivestreamComponent],
     listen: {
       added: true,
-      changed: true
+      removed: true
     }
   },
   livestreamProxy: {
     components: [LivestreamProxyComponent],
     listen: {
       added: true,
-      changed: true
+      removed: true
     }
   }
 }

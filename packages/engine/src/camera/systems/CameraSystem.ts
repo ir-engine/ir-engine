@@ -244,18 +244,10 @@ export class CameraSystem extends System {
  * Queries must have components attribute which defines the list of components
  */
 CameraSystem.queries = {
-  cameraComponent: {
-    components: [Not(FollowCameraComponent), CameraComponent, TransformComponent],
-    listen: {
-      added: true,
-      changed: true
-    }
-  },
   followCameraComponent: {
     components: [FollowCameraComponent, TransformComponent, CharacterComponent],
     listen: {
       added: true,
-      changed: true,
       removed: true
     }
   }

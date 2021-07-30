@@ -52,8 +52,7 @@ AnimationSystem.queries = {
     components: [AnimationComponent],
     listen: {
       added: true,
-      removed: true,
-      changed: true
+      removed: true
     }
   }
 }

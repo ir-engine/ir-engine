@@ -1,13 +1,11 @@
 import { Color, CubeTextureLoader, PMREMGenerator, sRGBEncoding, TextureLoader, Vector3 } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
 import { SceneBackgroundProps, SkyTypeEnum } from '../../editor/nodes/SkyboxNode'
-import { ScaleComponent } from '../../transform/components/ScaleComponent'
 import { Sky } from '../classes/Sky'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { setSkyDirection } from '../functions/setSkyDirection'
-import { addObject3DComponent } from './addObject3DComponent'
 
 export const createSkybox = (entity, args: SceneBackgroundProps) => {
   if (isClient) {
@@ -16,12 +14,9 @@ export const createSkybox = (entity, args: SceneBackgroundProps) => {
       case SkyTypeEnum.skybox:
         const option = args.skyboxProps
         addComponent(entity, Object3DComponent, { value: new Sky() })
-        addComponent(entity, ScaleComponent)
 
         const component = getComponent(entity, Object3DComponent)
         const skyboxObject3D = component.value
-        const scaleComponent = getMutableComponent<ScaleComponent>(entity, ScaleComponent)
-        scaleComponent.scale = [option.distance, option.distance, option.distance]
         const uniforms = Sky.material.uniforms
         const sun = new Vector3()
         const theta = Math.PI * (option.inclination - 0.5)

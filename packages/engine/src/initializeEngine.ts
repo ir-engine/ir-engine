@@ -195,6 +195,7 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
 
   // Input Systems
   registerSystem(SystemUpdateType.Fixed, CharacterControllerSystem)
+  registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
 
   // Scene Systems
   registerSystem(SystemUpdateType.Fixed, InteractiveSystem)

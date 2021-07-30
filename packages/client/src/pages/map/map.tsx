@@ -73,7 +73,7 @@ const initialRefreshModalValues = {
   open: false,
   title: '',
   body: '',
-  action: async () => { },
+  action: async () => {},
   parameters: [],
   timeout: 10000,
   noCountdown: false
@@ -333,12 +333,12 @@ export const EnginePage = (props: Props) => {
 
   // If user if on Firefox in Private Browsing mode, throw error, since they can't use db storage currently
   useEffect(() => {
-    var db = indexedDB.open("test")
+    var db = indexedDB.open('test')
     db.onerror = function () {
       const newValues = {
         ...warningRefreshModalValues,
         open: true,
-        title: "Browser Error",
+        title: 'Browser Error',
         body: 'Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode. ',
         noCountdown: true
       }
@@ -354,7 +354,9 @@ export const EnginePage = (props: Props) => {
         open: true,
         title: 'No Available Servers',
         body: "There aren't any servers available for you to connect to. Attempting to re-connect in",
-        action: async () => { provisionInstanceServer() },
+        action: async () => {
+          provisionInstanceServer()
+        },
         parameters: [currentLocation.id, instanceId, currentLocation.sceneId],
         timeout: 10000
       }
@@ -379,16 +381,14 @@ export const EnginePage = (props: Props) => {
     }
   }, [instanceDisconnected])
 
-
-
   // If user if on Firefox in Private Browsing mode, throw error, since they can't use db storage currently
   useEffect(() => {
-    var db = indexedDB.open("test")
+    var db = indexedDB.open('test')
     db.onerror = function () {
       const newValues = {
         ...warningRefreshModalValues,
         open: true,
-        title: "Browser Error",
+        title: 'Browser Error',
         body: 'Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode. ',
         noCountdown: true
       }
@@ -512,11 +512,11 @@ export const EnginePage = (props: Props) => {
           MessageTypes.JoinWorld.toString(),
           { spawnTransform }
         )
-        console.log("world state is", ws)
+        console.log('world state is', ws)
         resolve(WorldStateModel.fromBuffer(ws))
       }
     })
-    console.log("EngineEvents.instance")
+    console.log('EngineEvents.instance')
     console.log(EngineEvents.instance)
 
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS))
@@ -604,7 +604,7 @@ export const EnginePage = (props: Props) => {
     return (): void => {
       document.body.innerHTML = consoleLog
         .map((log) => {
-          ; `<p>${log}</p>`
+          ;`<p>${log}</p>`
         })
         .join()
       resetEngine()

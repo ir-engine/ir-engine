@@ -1,6 +1,6 @@
-import { getAllMutableComponentOfType } from '../../../engine/src/ecs/functions/EntityFunctions'
-import { setRemoteLocationDetail } from '../../../engine/src/scene/behaviors/createPortal'
-import { PortalComponent } from '../../../engine/src/scene/components/PortalComponent'
+import { getAllMutableComponentOfType } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/behaviors/createPortal'
+import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 
 export const getPortalDetails = async (configs) => {
   const token = localStorage.getItem((configs as any).FEATHERS_STORE_KEY)

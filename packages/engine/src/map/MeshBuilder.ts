@@ -279,7 +279,6 @@ function fetchSurroundingTiles([lngCenter, latCenter]: Position, size: number): 
   const tile_x0 = long2tile(lngCenter, TILE_ZOOM)
   const tile_y0 = lat2tile(latCenter, TILE_ZOOM)
 
-  
   for (let i = -size; i <= size; i++) {
     for (let j = -size; j <= size; j++) {
       var tile_x = tile_x0 + i

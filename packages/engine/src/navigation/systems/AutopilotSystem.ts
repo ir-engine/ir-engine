@@ -36,8 +36,8 @@ export class AutopilotSystem extends System {
   entityManager: EntityManager
   static instance: AutopilotSystem
 
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
+  constructor() {
+    super()
     AutopilotSystem.instance = this
     this.entityManager = new EntityManager()
     this.reset()

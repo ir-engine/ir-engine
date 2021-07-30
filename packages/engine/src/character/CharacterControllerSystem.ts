@@ -156,14 +156,12 @@ export class CharacterControllerSystem extends System {
       }
     }
 
-    // PhysicsMove Characters On Server
-    // its beacose we need physicsMove on server and for localCharacter, not for all character
     for (const entity of this.queryResults.characterOnServer.all) {
       updatePlayerRotationFromViewVector(entity)
       characterMoveBehavior(entity, delta)
     }
 
-    for (const entity of this.queryResults.ikAvatar.added) {
+    for (const entity of this.queryResults.xrInput.added) {
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent)
       const actor = getMutableComponent(entity, CharacterComponent)
       const object3DComponent = getComponent(entity, Object3DComponent)
@@ -188,7 +186,7 @@ export class CharacterControllerSystem extends System {
       }
     }
 
-    for (const entity of this.queryResults.ikAvatar.all) {
+    for (const entity of this.queryResults.xrInput.all) {
       if (!isEntityLocalClient(entity)) return
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent)
       const transform = getComponent<TransformComponent>(entity, TransformComponent)
@@ -202,7 +200,7 @@ export class CharacterControllerSystem extends System {
       xrInputSourceComponent.head.position.copy(vector3)
     }
 
-    for (const entity of this.queryResults.ikAvatar.removed) {
+    for (const entity of this.queryResults.xrInput.removed) {
       const actor = getMutableComponent(entity, CharacterComponent)
 
       if (isEntityLocalClient(entity))
@@ -245,7 +243,7 @@ CharacterControllerSystem.queries = {
       removed: true
     }
   },
-  ikAvatar: {
+  xrInput: {
     components: [CharacterComponent, XRInputSourceComponent],
     listen: {
       added: true,

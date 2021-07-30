@@ -84,7 +84,6 @@ StateSystem.queries = {
     components: [State],
     listen: {
       added: true,
-      changed: true,
       removed: true
     }
   }
