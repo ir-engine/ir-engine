@@ -1,4 +1,4 @@
-import { System, SystemAttributes } from '../../ecs/classes/System'
+import { System } from '../../ecs/classes/System'
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { EntityManager, NavMesh, Vector3 as YukaVector3, Path } from 'yuka'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
@@ -34,9 +34,11 @@ const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3): Path => {
 export class AutopilotSystem extends System {
   updateType = SystemUpdateType.Free
   entityManager: EntityManager
+  static instance: AutopilotSystem
 
   constructor(attributes: SystemAttributes = {}) {
     super(attributes)
+    AutopilotSystem.instance = this
     this.entityManager = new EntityManager()
     this.reset()
   }

@@ -12,18 +12,13 @@ import { NetworkObjectUpdateSchema } from '../templates/NetworkObjectUpdateSchem
 import { Network } from '../classes/Network'
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions'
 import { TransformStateInterface, WorldStateInterface } from '../interfaces/WorldState'
-import { StateEntity, StateEntityIK } from '../types/SnapshotDataTypes'
 import { PrefabType } from '../templates/PrefabType'
-import { GameStateActionMessage, GameStateUpdateMessage } from '../../game/types/GameMessage'
 import { applyActionComponent } from '../../game/functions/functionsActions'
 import { applyStateToClient } from '../../game/functions/functionsState'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
-import { System, SystemAttributes } from '../../ecs/classes/System'
+import { System } from '../../ecs/classes/System'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { ClientNetworkSystem } from './ClientNetworkSystem'
 import { ClientInputModel } from '../schema/clientInputSchema'
-import { Input } from '../../input/components/Input'
-import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
 import { Vault } from '../classes/Vault'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -125,9 +120,6 @@ const forwardVector = new Vector3(0, 0, 1)
 
 /** System class for network system of client. */
 export class ClientNetworkStateSystem extends System {
-  /** Update type of this system. **Default** to
-   * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
-  updateType = SystemUpdateType.Fixed
   receivedServerWorldState: WorldStateInterface[] = []
   receivedServerTransformState: TransformStateInterface[] = []
   static instance: ClientNetworkStateSystem
@@ -136,8 +128,8 @@ export class ClientNetworkStateSystem extends System {
    * Constructs the system. Adds Network Components, initializes transport and initializes server.
    * @param attributes SystemAttributes to be passed to super class constructor.
    */
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
+  constructor() {
+    super()
     ClientNetworkStateSystem.instance = this
 
     EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, ({ worldState }) => {

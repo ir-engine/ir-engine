@@ -15,6 +15,7 @@ import { Object3DComponent } from '../components/Object3DComponent'
 import { PortalComponent } from '../components/PortalComponent'
 
 export type PortalProps = {
+  locationName: string
   linkedPortalId: string
   displayText: string
   spawnPosition: Vector3
@@ -25,7 +26,8 @@ export type PortalProps = {
 const vec3 = new Vector3()
 
 export const createPortal = async (entity: Entity, args: PortalProps) => {
-  const { linkedPortalId, displayText, spawnPosition } = args
+  console.log(args)
+  const { locationName, linkedPortalId, displayText, spawnPosition } = args
 
   const spawnEuler = new Euler(args.spawnRotation.x, args.spawnRotation.y, args.spawnRotation.z, 'XYZ')
   const spawnRotation = new Quaternion().setFromEuler(spawnEuler)
@@ -111,6 +113,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
   })
 
   addComponent(entity, PortalComponent, {
+    location: locationName,
     linkedPortalId,
     displayText,
     spawnPosition,
@@ -121,15 +124,10 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
 
 export const setRemoteLocationDetail = (
   portal: PortalComponent,
-  locationName: string,
   spawnPosition: Vector3,
   spawnRotation: Euler
 ): void => {
-  portal.location = locationName
-
   portal.remoteSpawnPosition = new Vector3(spawnPosition.x, spawnPosition.y, spawnPosition.z)
-
   portal.remoteSpawnEuler = new Euler(spawnRotation.x, spawnRotation.y, spawnRotation.z, 'XYZ')
-
   portal.remoteSpawnRotation = new Quaternion().setFromEuler(portal.remoteSpawnEuler)
 }

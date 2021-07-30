@@ -41,6 +41,7 @@ import { AnimationSystem } from './character/AnimationSystem'
 import { InterpolationSystem } from './physics/systems/InterpolationSystem'
 import { FontManager } from './xrui/classes/FontManager'
 import { EquippableSystem } from './interaction/systems/EquippableSystem'
+import { AutopilotSystem } from './navigation/systems/AutopilotSystem'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -146,6 +147,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Fixed, ActionSystem)
   registerSystem(SystemUpdateType.Fixed, CharacterControllerSystem)
   registerSystem(SystemUpdateType.Fixed, AnimationSystem)
+  registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
 
   // Scene Systems
   registerSystem(SystemUpdateType.Fixed, InteractiveSystem)
