@@ -26,6 +26,7 @@ export class Config {
     feathersStoreKey: 'TheOverlay-Auth-Store',
     localStorageKey: 'theoverlay-client-store-key-v1',
     HARPGL_API_KEY: '09FUGcfVRbY_48zNxgwH9dansJCKdDljfQzYxiyPDCw',
+    rootRedirect: false,
     auth: {
       enableSmsMagicLink: true,
       enableEmailMagicLink: true,
