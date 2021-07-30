@@ -15,7 +15,6 @@ import { selectLocationState } from '@xrengine/client-core/src/social/reducers/l
 import { getLobby, getLocationByName } from '@xrengine/client-core/src/social/reducers/location/service'
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
 import Store from '@xrengine/client-core/src/store'
-import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
@@ -28,14 +27,10 @@ import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPl
 import { awaitEngaged, Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { processLocationChange, resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
-import {
-  addComponent,
-  getComponent,
-  getMutableComponent,
-  removeComponent
-} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
@@ -53,8 +48,9 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
 import { CameraLayers } from '../../../../engine/src/camera/constants/CameraLayers'
+import { CharacterInputSchema } from '../../../../engine/src/character/CharacterInputSchema'
+import { doRaycast } from '../../../../engine/src/navigation/behaviors/doRaycast'
 import WarningRefreshModal from '../../components/AlertModals/WarningRetryModal'
-import MediaIconsBox from './MapMediaIconsBox'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import {
   connectToInstanceServer,
@@ -62,10 +58,7 @@ import {
   resetInstanceServer
 } from '../../reducers/instanceConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
-import { CharacterInputSchema } from '../../../../engine/src/character/CharacterInputSchema'
-import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
-import { AutopilotSystem } from '../../../../engine/src/navigation/systems/AutopilotSystem'
-import { doRaycast } from '../../../../engine/src/navigation/behaviors/doRaycast'
+import MediaIconsBox from './MapMediaIconsBox'
 
 const store = Store.store
 
@@ -431,13 +424,7 @@ export const EnginePage = (props: Props) => {
         physics: {
           simulationEnabled: false,
           physxWorker: new Worker('/scripts/loadPhysXClassic.js')
-        },
-        systems: [
-          {
-            system: AutopilotSystem,
-            args: {}
-          }
-        ]
+        }
       }
 
       CharacterInputSchema.behaviorMap.set(BaseInput.PRIMARY, doRaycast)
