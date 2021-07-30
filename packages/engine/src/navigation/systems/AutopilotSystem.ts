@@ -34,9 +34,11 @@ const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3): Path => {
 export class AutopilotSystem extends System {
   updateType = SystemUpdateType.Free
   entityManager: EntityManager
+  static instance: AutopilotSystem
 
   constructor(attributes: SystemAttributes = {}) {
     super(attributes)
+    AutopilotSystem.instance = this
     this.entityManager = new EntityManager()
     this.reset()
   }

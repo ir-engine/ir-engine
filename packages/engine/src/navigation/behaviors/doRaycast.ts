@@ -15,7 +15,7 @@ export const doRaycast: InputBehaviorType = (actorEntity, inputKey, inputValue):
     return
   }
   console.log('CLICK!!!')
-  const autopilotSystem = getSystem(AutopilotSystem)
+  const autopilotSystem = AutopilotSystem.instance
   const input = getComponent(actorEntity, Input)
   const coords = input.data.get(BaseInput.SCREENXY).value
   console.log('~~~ coords', coords)
@@ -23,7 +23,7 @@ export const doRaycast: InputBehaviorType = (actorEntity, inputKey, inputValue):
   const raycaster = new Raycaster()
   raycaster.setFromCamera({ x: coords[0], y: coords[1] }, Engine.camera)
   const raycasterResults = []
-  const clickResult = autopilotSystem.queryResults.navmeshes?.all.reduce(
+  const clickResult = autopilotSystem.queryResults.navmeshes?.all?.reduce(
     (previousEntry, currentEntity) => {
       const mesh = getComponent(currentEntity, Object3DComponent).value
       raycasterResults.length = 0
