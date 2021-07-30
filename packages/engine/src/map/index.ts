@@ -3,13 +3,13 @@ import { MapboxTileLoader } from './MapboxTileLoader'
 import { fetchFeatures, buildMesh } from './MeshBuilder'
 import { MapProps } from './MapProps'
 
-const useNew = false
+const useNew = true
 
 export const addMap = async function (scene: THREE.Scene, renderer: THREE.WebGLRenderer, args: MapProps) {
   console.log('addmap called with args:', args)
   if (useNew) {
     // TODO use object
-    const center = [args.startLongitude, args.startLatitude]
+    const center = [args.startLongitude || -84.388, args.startLatitude || 33.749]
     const features = await fetchFeatures(center)
     const mesh = buildMesh(features, center, renderer)
     scene.add(mesh)

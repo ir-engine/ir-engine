@@ -144,12 +144,12 @@ export class MapboxTileLoader {
     this.opts.layers = this.opts.layers || [
       'building',
       'road',
-      'road_label',
+      // 'road_label',
       // 'barrier_line'
       // 'contour',
       // 'landuse',
       // 'motorway_junction',
-      'poi_label'
+      // 'poi_label'
     ]
     console.log('args.scale is', args.scale)
     this.scale = args.scale
