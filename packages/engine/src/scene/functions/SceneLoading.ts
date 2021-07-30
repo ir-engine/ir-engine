@@ -35,6 +35,7 @@ import { configureCSM, handleRendererSettings } from '../behaviors/handleRendere
 import { createDirectionalLight } from '../behaviors/createDirectionalLight'
 import { loadGLTFModel } from '../behaviors/loadGLTFModel'
 import { loadModelAnimation } from '../behaviors/loadModelAnimation'
+import { Clouds } from '../classes/Clouds'
 import { Interactable } from '../../interaction/components/Interactable'
 import { ShadowComponent } from '../components/ShadowComponent'
 
@@ -273,6 +274,10 @@ export class WorldScene {
 
       case 'particle-emitter':
         createParticleEmitterObject(entity, component.data)
+        break
+
+      case 'cloud':
+        addObject3DComponent(entity, new Clouds(), component.data)
         break
 
       case 'postprocessing':
