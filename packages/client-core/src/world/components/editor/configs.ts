@@ -27,5 +27,6 @@ get(configs, 'SENTRY_DSN', process.env.VITE_SENTRY_DSN)
 ;(configs as any).SERVER_URL = Config.publicRuntimeConfig.apiServer
 ;(configs as any).APP_URL = Config.publicRuntimeConfig.appServer
 ;(configs as any).FEATHERS_STORE_KEY = Config.publicRuntimeConfig.feathersStoreKey
+;(configs as any).ROOT_REDIRECT = Config.publicRuntimeConfig.rootRedirect
 
 export default configs
