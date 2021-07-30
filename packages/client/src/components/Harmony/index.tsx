@@ -204,10 +204,10 @@ const initialRefreshModalValues = {
   open: false,
   title: '',
   body: '',
-  action: async () => {},
+  action: async () => { },
   parameters: [],
   timeout: 10000,
-  closeAction: async () => {}
+  closeAction: async () => { }
 }
 
 const Harmony = (props: Props): any => {
@@ -329,8 +329,8 @@ const Harmony = (props: Props): any => {
     isHarmonyPage === true
       ? true
       : currentLocation.locationSettings
-      ? currentLocation.locationSettings.videoEnabled
-      : false
+        ? currentLocation.locationSettings.videoEnabled
+        : false
   const isCamVideoEnabled = mediastream.get('isCamVideoEnabled')
   const isCamAudioEnabled = mediastream.get('isCamAudioEnabled')
 
@@ -427,14 +427,14 @@ const Harmony = (props: Props): any => {
   useEffect(() => {
     chatStateRef.current = chatState
     if (messageScrollInit === true && messageEl != null && (messageEl as any).scrollTop != null) {
-      ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
+      ; (messageEl as any).scrollTop = (messageEl as any).scrollHeight
       updateMessageScrollInit(false)
       setMessageScrollUpdate(false)
     }
     if (messageScrollUpdate === true) {
       setMessageScrollUpdate(false)
       if (messageEl != null && (messageEl as any).scrollTop != null) {
-        ;(messageEl as any).scrollTop = (topMessage as any).offsetTop
+        ; (messageEl as any).scrollTop = (topMessage as any).offsetTop
       }
     }
   }, [chatState])
@@ -453,11 +453,11 @@ const Harmony = (props: Props): any => {
           channel.id === targetChannelId &&
           messageEl != null &&
           (messageEl as any).scrollHeight -
-            (messageEl as any).scrollTop -
-            (messageEl as any).firstElementChild?.offsetHeight <=
-            (messageEl as any).clientHeight + 20
+          (messageEl as any).scrollTop -
+          (messageEl as any).firstElementChild?.offsetHeight <=
+          (messageEl as any).clientHeight + 20
         ) {
-          ;(messageEl as any).scrollTop = (messageEl as any).scrollHeight
+          ; (messageEl as any).scrollTop = (messageEl as any).scrollHeight
         }
       }
       if (channel.updateNeeded === true) {
@@ -477,32 +477,48 @@ const Harmony = (props: Props): any => {
   useEffect(() => {
     if (noGameserverProvision === true) {
       const newValues = {
+        ...warningRefreshModalValues,
         open: true,
         title: 'No Available Servers',
         body: "There aren't any servers available to handle this request. Attempting to re-connect in",
-        action: provisionChannelServer,
+        action: async () => { provisionChannelServer() },
         parameters: [null, targetChannelId],
         timeout: 10000,
         closeAction: endCall
       }
-      //@ts-ignore
       setWarningRefreshModalValues(newValues)
       setNoGameserverProvision(false)
     }
   }, [noGameserverProvision])
 
+  // If user if on Firefox in Private Browsing mode, throw error, since they can't use db storage currently
+  useEffect(() => {
+    var db = indexedDB.open("test")
+    db.onerror = function () {
+      const newValues = {
+        ...warningRefreshModalValues,
+        open: true,
+        title: "Browser Error",
+        body: 'Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode. ',
+        noCountdown: true
+      }
+      setWarningRefreshModalValues(newValues)
+      setInstanceDisconnected(false)
+    }
+  }, [])
+
   useEffect(() => {
     if (channelDisconnected === true) {
       const newValues = {
+        ...warningRefreshModalValues,
         open: true,
         title: 'Call disconnected',
         body: "You've lost your connection to this call. We'll try to reconnect before the following time runs out, otherwise you'll hang up",
-        action: endCall,
+        action: async () => endCall(),
         parameters: [],
         timeout: 30000,
         closeAction: endCall
       }
-      //@ts-ignore
       setWarningRefreshModalValues(newValues)
       setChannelDisconnected(false)
     }
@@ -670,8 +686,8 @@ const Harmony = (props: Props): any => {
       const msAudioPaused = MediaStreamSystem.instance?.toggleAudioPaused()
       setAudioPaused(
         MediaStreamSystem.instance?.mediaStream === null ||
-          MediaStreamSystem.instance?.camAudioProducer == null ||
-          MediaStreamSystem.instance?.audioPaused === true
+        MediaStreamSystem.instance?.camAudioProducer == null ||
+        MediaStreamSystem.instance?.audioPaused === true
       )
       if (msAudioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer)
       else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer)
@@ -691,8 +707,8 @@ const Harmony = (props: Props): any => {
       const msVideoPaused = MediaStreamSystem.instance?.toggleVideoPaused()
       setVideoPaused(
         MediaStreamSystem.instance?.mediaStream === null ||
-          MediaStreamSystem.instance?.camVideoProducer == null ||
-          MediaStreamSystem.instance?.videoPaused === true
+        MediaStreamSystem.instance?.camVideoProducer == null ||
+        MediaStreamSystem.instance?.videoPaused === true
       )
       if (msVideoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer)
       else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer)
@@ -740,8 +756,8 @@ const Harmony = (props: Props): any => {
       const audioPaused = MediaStreamSystem.instance?.toggleAudioPaused()
       setAudioPaused(
         MediaStreamSystem.instance?.mediaStream === null ||
-          MediaStreamSystem.instance?.camAudioProducer == null ||
-          MediaStreamSystem.instance?.audioPaused === true
+        MediaStreamSystem.instance?.camAudioProducer == null ||
+        MediaStreamSystem.instance?.audioPaused === true
       )
       if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer)
       else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer)
@@ -756,8 +772,8 @@ const Harmony = (props: Props): any => {
       const videoPaused = MediaStreamSystem.instance?.toggleVideoPaused()
       setVideoPaused(
         MediaStreamSystem.instance?.mediaStream === null ||
-          MediaStreamSystem.instance?.camVideoProducer == null ||
-          MediaStreamSystem.instance?.videoPaused === true
+        MediaStreamSystem.instance?.camVideoProducer == null ||
+        MediaStreamSystem.instance?.videoPaused === true
       )
       if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer)
       else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer)
@@ -869,10 +885,10 @@ const Harmony = (props: Props): any => {
       channelType === 'instance'
         ? channelEntries.find((entry) => entry[1].instanceId === targetObjectId)
         : channelType === 'group'
-        ? channelEntries.find((entry) => entry[1].groupId === targetObjectId)
-        : channelType === 'friend'
-        ? channelEntries.find((entry) => entry[1].userId1 === targetObjectId || entry[1].userId2 === targetObjectId)
-        : channelEntries.find((entry) => entry[1].partyId === targetObjectId)
+          ? channelEntries.find((entry) => entry[1].groupId === targetObjectId)
+          : channelType === 'friend'
+            ? channelEntries.find((entry) => entry[1].userId1 === targetObjectId || entry[1].userId2 === targetObjectId)
+            : channelEntries.find((entry) => entry[1].partyId === targetObjectId)
     return channelMatch != null && channelMatch[0] === targetChannelId
   }
 
@@ -882,10 +898,10 @@ const Harmony = (props: Props): any => {
       channelType === 'instance'
         ? channelEntries.find((entry) => entry[1].instanceId === targetObjectId)
         : channelType === 'group'
-        ? channelEntries.find((entry) => entry[1].groupId === targetObjectId)
-        : channelType === 'friend'
-        ? channelEntries.find((entry) => entry[1].userId1 === targetObjectId || entry[1].userId2 === targetObjectId)
-        : channelEntries.find((entry) => entry[1].partyId === targetObjectId)
+          ? channelEntries.find((entry) => entry[1].groupId === targetObjectId)
+          : channelType === 'friend'
+            ? channelEntries.find((entry) => entry[1].userId1 === targetObjectId || entry[1].userId2 === targetObjectId)
+            : channelEntries.find((entry) => entry[1].partyId === targetObjectId)
     return channelMatch != null && channelMatch[0] === activeAVChannelId
   }
 
@@ -1431,8 +1447,8 @@ const Harmony = (props: Props): any => {
                 {targetObjectType === 'user' || targetObjectType === 'group'
                   ? targetObject.name
                   : targetObjectType === 'instance'
-                  ? 'your current layer'
-                  : 'your current party'}
+                    ? 'your current layer'
+                    : 'your current party'}
               </div>
             )}
           </List>

@@ -30,7 +30,7 @@ const EVENTS = {
  * @author Josh Field <github.com/HexaField>
  */
 export class EngineEvents {
-  static readonly instance: EngineEvents = new EngineEvents()
+  public static instance: EngineEvents = new EngineEvents()
   static EVENTS = EVENTS
   _listeners = {}
   public reset(): void {
