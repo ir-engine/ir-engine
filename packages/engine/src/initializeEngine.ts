@@ -34,7 +34,7 @@ import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkI
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem'
 import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem'
 import { SceneObjectSystem } from './scene/systems/SceneObjectSystem'
-import { ActiveSystems, System, SystemConstructor } from './ecs/classes/System'
+import { ActiveSystems } from './ecs/classes/System'
 import { AudioSystem } from './audio/systems/AudioSystem'
 import { setupBotHooks } from './bot/functions/botHookFunctions'
 import { AnimationSystem } from './character/AnimationSystem'
