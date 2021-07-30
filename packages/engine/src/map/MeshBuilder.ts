@@ -9,9 +9,7 @@ import {
   BufferAttribute,
   Color,
   CanvasTexture,
-  ImageBitmapLoader,
-  PlaneGeometry,
-  Matrix4
+  Group
 } from 'three'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { VectorTile } from '@mapbox/vector-tile'
@@ -30,25 +28,19 @@ const METERS_PER_DEGREE_LL = 111139
 function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position): Position {
   return [(lng - lngCenter) * METERS_PER_DEGREE_LL, (lat - latCenter) * METERS_PER_DEGREE_LL]
 }
-function tile2long(x: number, zoom: number) {
-  return (x / Math.pow(2, zoom)) * 360 - 180
-}
-function tile2lat(y: number, zoom: number) {
-  var n = Math.PI - (2 * Math.PI * y) / Math.pow(2, zoom)
-  return (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)))
-}
 
 const NUMBER_OF_TILES_PER_DIMENSION = 3
 const WHOLE_NUMBER_OF_TILES_FROM_CENTER = Math.floor(NUMBER_OF_TILES_PER_DIMENSION / 2)
 const NUMBER_OF_TILES_IS_ODD = NUMBER_OF_TILES_PER_DIMENSION % 2
 
-function buildBuildingGeometry(feature: Feature, llCenter: Position): BufferGeometry | null {
+function buildBuildingGeometry(feature: Feature, llCenter: Position): BufferGeometry {
   const shape = new Shape()
   const styles = DEFAULT_FEATURE_STYLES.building
 
   let geometry: Geometry
 
   let coords: Position[]
+
   // Buffer the linestrings (e.g. roads) so they have some thickness
   if (
     feature.geometry.type === 'LineString' ||
@@ -218,80 +210,115 @@ export function buildBuildingsMesh(features: Feature[], llCenter: Position, rend
   return mesh
 }
 
-function drawRoads(ctx: CanvasRenderingContext2D, features: Feature[], llCenter: Position) {
-  ctx.lineWidth = 5
-  features.forEach(({ geometry }) => {
-    switch (geometry.type) {
-      case 'LineString':
-        const coords = geometry.coordinates.map((coords) => llToScene(coords, llCenter))
-        const start = coords[0]
-        ctx.beginPath()
-        ctx.moveTo(start[0], start[1])
-        coords.slice(1).forEach(([x, y]) => {
-          ctx.lineTo(x, y)
-        })
-        ctx.closePath()
-        ctx.stroke()
-        break
-    }
-  })
+function getRoadWidth(feature: Feature): number {
+  switch (feature.properties.class) {
+    case 'motorway':
+    case 'motorway_link':
+      return 10
+    case 'trunk':
+    case 'trunk_link':
+      return 9
+    case 'primary':
+    case 'primary_link':
+      return 8
+    case 'secondary':
+    case 'secondary_link':
+      return 7
+    case 'tertiary':
+    case 'tertiary_link':
+      return 6
+    case 'street':
+    case 'turning_circle':
+    case 'construction':
+      return 5
+    case 'street_limited':
+    case 'turning_loop':
+    case 'mini_roundabout':
+      return 4
+    case 'pedestrian':
+    case 'path':
+    case 'track':
+    case 'major_rail':
+    case 'minor_rail':
+      return 3
+    default:
+      return 1
+  }
 }
 
-export function buildGroundMesh(tiles: TileFeaturesByLayer[], llCenter: Position) {
-  const startLongitude = tile2long(
-    long2tile(llCenter[0], TILE_ZOOM) - NUMBER_OF_TILES_PER_DIMENSION / 2,
-    TILE_ZOOM
-  )
-  const endLongitude = tile2long(
-    long2tile(llCenter[0], TILE_ZOOM) + NUMBER_OF_TILES_PER_DIMENSION / 2,
-    TILE_ZOOM
-  )
-  const startLatitude = tile2lat(
-    lat2tile(llCenter[1], TILE_ZOOM) - NUMBER_OF_TILES_PER_DIMENSION / 2,
-    TILE_ZOOM
-  )
-  const endLatitude = tile2lat(
-    lat2tile(llCenter[1], TILE_ZOOM) + NUMBER_OF_TILES_PER_DIMENSION / 2,
-    TILE_ZOOM
-  )
-  const diffLongitude = endLongitude - startLongitude
-  const diffLatitude = endLatitude - startLatitude
-  const geometry = new PlaneGeometry(diffLongitude * METERS_PER_DEGREE_LL, Math.abs(diffLatitude) * METERS_PER_DEGREE_LL)
+function buildRoadGeometry(feature: Feature, llCenter: Position): BufferGeometry {
+  const shape = new Shape()
 
-  const canvasSize = 128 * NUMBER_OF_TILES_PER_DIMENSION
-  const canvasContext = createCanvasRenderingContext2D(canvasSize, canvasSize)
+  let geometry: Geometry
 
-  tiles.forEach((tile) => {
-    drawRoads(canvasContext, tile.road, llCenter)
+  let coords: Position[]
+  // Buffer the linestrings (e.g. roads) so they have some thickness
+  if (
+    feature.geometry.type === 'LineString' ||
+    feature.geometry.type === 'Point' ||
+    feature.geometry.type === 'MultiLineString'
+  ) {
+    const buf = turf_buffer(feature, getRoadWidth(feature), {
+      units: 'meters'
+    })
+    geometry = buf.geometry
+  } else {
+    geometry = feature.geometry
+  }
+
+  // TODO switch statement
+  if (geometry.type === 'MultiPolygon') {
+    coords = geometry.coordinates[0][0] // TODO: add all multipolygon coords.
+  } else if (geometry.type === 'Polygon') {
+    coords = geometry.coordinates[0] // TODO: handle interior rings
+  } else if (geometry.type === 'MultiPoint') {
+    // TODO is this a bug?
+    coords = geometry.coordinates[0] as any
+  } else {
+    // TODO handle feature.geometry.type === 'GeometryCollection'?
+  }
+
+  var point = llToScene(coords[0], llCenter)
+  shape.moveTo(point[0], point[1])
+
+  coords.slice(1).forEach((coord: Position) => {
+    point = llToScene(coord, llCenter)
+    shape.lineTo(point[0], point[1])
   })
+  point = llToScene(coords[0], llCenter)
+  shape.lineTo(point[0], point[1])
 
-  const texture = new CanvasTexture(canvasContext.canvas)
+  const threejsGeometry = new ShapeGeometry(shape)
 
+  threejsGeometry.rotateX(-Math.PI / 2)
+
+  return threejsGeometry
+}
+
+export function buildRoadMesh(feature: Feature, llCenter: Position) {
   const material = new MeshLambertMaterial({
-    // enable renderOrder
-    depthTest: false,
-    map: texture
+    color: 0x202020
   })
+
+  const geometry = buildRoadGeometry(feature, llCenter)
 
   return new Mesh(geometry, material)
 }
 
-export function buildMesh(tiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Mesh {
+export function buildMesh(tiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
+  const group = new Group()
   const buildingFeatures = tiles.reduce((acc, tile) => acc.concat(tile.building), [])
+  const roadFeatures = tiles.reduce((acc, tile) => acc.concat(tile.road), [])
   const buildingsMesh = buildBuildingsMesh(buildingFeatures, llCenter, renderer)
-  const groundMesh = buildGroundMesh(tiles, llCenter)
 
-  // prevent shimmer/z-fighting
-  buildingsMesh.renderOrder = 1
-  groundMesh.renderOrder = 0
+  // TODO(optimize): use @turf/union to combine some/all roads in to one Feature before converting to a Mesh
+  roadFeatures.forEach((feature) => {
+    group.add(buildRoadMesh(feature, llCenter))
+  })
 
-  groundMesh.rotateX(-Math.PI / 2)
-  // buildingsMesh.geometry.computeBoundingBox()
-  // buildingsMesh.geometry.boundingBox.getCenter(groundMesh.position)
-  // groundMesh.position.y = 0
-  buildingsMesh.add(groundMesh)
+  group.add(buildingsMesh)
 
-  return buildingsMesh
+  return group
 }
 
 /**
@@ -342,7 +369,7 @@ interface TileFeaturesByLayer {
   road: Feature[]
 }
 async function fetchTileFeatures(tileX: number, tileY: number): Promise<TileFeaturesByLayer> {
-  const url = getMapBoxUrl('mapbox.mapbox-streets-v8' /* or v8? */, tileX, tileY, 'vector.pbf')
+  const url = getMapBoxUrl('mapbox.mapbox-streets-v8', tileX, tileY, 'vector.pbf')
 
   const response = await fetch(url)
   const blob = await response.blob()
@@ -360,8 +387,8 @@ function forEachSurroundingTile(llCenter: Position, callback: (tileX: number, ti
   const endIndex = NUMBER_OF_TILES_IS_ODD ? WHOLE_NUMBER_OF_TILES_FROM_CENTER : WHOLE_NUMBER_OF_TILES_FROM_CENTER - 1
   for (let i = startIndex; i <= endIndex; i++) {
     for (let j = startIndex; j <= endIndex; j++) {
-      const tileX = tileX0 + i
-      const tileY = tileY0 + j
+      const tileX = tileX0 + j
+      const tileY = tileY0 + i
       callback(tileX, tileY)
     }
   }
