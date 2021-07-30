@@ -23,13 +23,7 @@ export const getPortalDetails = async (configs) => {
           } catch (e) {}
         })
         .then((res) => {
-          if (res)
-            setRemoteLocationDetail(
-              portal,
-              res.entity.collection.location.slugifiedName,
-              res.data.spawnPosition,
-              res.data.spawnRotation
-            )
+          if (res) setRemoteLocationDetail(portal, res.data.spawnPosition, res.data.spawnRotation)
         })
     })
   )

@@ -54,6 +54,9 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]): void 
   const subFocusedArray = raycastList
     .map((entityIn): RaycastResult => {
       const boundingBox = getComponent(entityIn, BoundingBoxComponent)
+      if (!boundingBox.box) {
+        return [entityIn, false, 0]
+      }
       if (boundingBox.boxArray.length) {
         // TO DO: static group object
 

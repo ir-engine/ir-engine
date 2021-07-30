@@ -1,11 +1,9 @@
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { System } from '../../ecs/classes/System'
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { BodyType, PhysXConfig, PhysXInstance } from 'three-physx'
-import { Vector3 } from 'three'
 import { NetworkObject } from '../../networking/components/NetworkObject'
 import { Network } from '../../networking/classes/Network'
 import { Engine } from '../../ecs/classes/Engine'
@@ -14,8 +12,6 @@ import { Engine } from '../../ecs/classes/Engine'
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
  */
-
-const vec3 = new Vector3()
 
 export class PhysicsSystem extends System {
   static EVENTS = {

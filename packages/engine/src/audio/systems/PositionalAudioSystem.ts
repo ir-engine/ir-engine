@@ -7,11 +7,8 @@ import { MediaStreamSystem } from '../../networking/systems/MediaStreamSystem'
 import { CharacterComponent } from '../../character/components/CharacterComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
-import { isClient } from '../../common/functions/isClient'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { Entity } from '../../ecs/classes/Entity'
-import { AudioListener, PositionalAudio } from 'three'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { PositionalAudio } from 'three'
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== 'undefined' && /chrome/i.test(navigator.userAgent)
 function createSilentAudioEl(streamsLive) {

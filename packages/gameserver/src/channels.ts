@@ -162,13 +162,7 @@ export default (app: Application): void => {
                     await Promise.all(
                       portals.map(async (portal: PortalComponent): Promise<void> => {
                         return getPortalByEntityId(app, portal.linkedPortalId).then((res) => {
-                          if (res)
-                            setRemoteLocationDetail(
-                              portal,
-                              res.entity.collection.location.slugifiedName,
-                              res.data.spawnPosition,
-                              res.data.spawnRotation
-                            )
+                          if (res) setRemoteLocationDetail(portal, res.data.spawnPosition, res.data.spawnRotation)
                         })
                       })
                     )

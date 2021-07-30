@@ -9,6 +9,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
 
   mesh: Mesh
   linkedPortalId: string
+  locationName: string
   displayText: string
   spawnPosition: Vector3 = new Vector3()
   spawnRotation: Euler = new Euler()
@@ -22,6 +23,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       node.linkedPortalId = portalComponent.props.linkedPortalId
       node.displayText = portalComponent.props.displayText
       node.spawnPosition = new Vector3()
+      node.locationName = portalComponent.props.locationName
       if (portalComponent.props.spawnPosition)
         node.spawnPosition.set(
           portalComponent.props.spawnPosition.x - node.position.x, // Have to convert from global space to local space
@@ -85,6 +87,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
 
     const components = {
       portal: {
+        locationName: this.locationName,
         linkedPortalId: this.linkedPortalId,
         displayText: this.displayText,
         spawnPosition: this.spawnPosition.add(this.position), // Have to convert from local space to global space
@@ -105,6 +108,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
     }
 
     this.addGLTFComponent('portal', {
+      locationName: this.locationName,
       linkedPortalId: this.linkedPortalId,
       displayText: this.displayText,
       spawnPosition: this.spawnPosition.add(this.position), // Have to convert from local space to global space

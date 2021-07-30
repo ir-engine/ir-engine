@@ -16,13 +16,7 @@ export const getAllPortals = (app: any): any => {
           include: [
             {
               model: models.collection,
-              attributes: ['id', 'sid'],
-              include: [
-                {
-                  model: models.location,
-                  attributes: ['id', 'sceneId', 'name', 'slugifiedName']
-                }
-              ]
+              attributes: ['id', 'sid', 'name']
             }
           ]
         }
@@ -58,13 +52,7 @@ export const getPortalByEntityId = async (app, entityId: string) => {
         include: [
           {
             model: models.collection,
-            attributes: ['id', 'sid'],
-            include: [
-              {
-                model: models.location,
-                attributes: ['id', 'sceneId', 'name', 'slugifiedName']
-              }
-            ]
+            attributes: ['id', 'sid']
           }
         ]
       }
