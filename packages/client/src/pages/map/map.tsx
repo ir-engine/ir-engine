@@ -28,7 +28,12 @@ import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPl
 import { awaitEngaged, Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { processLocationChange, resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
-import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import {
+  addComponent,
+  getComponent,
+  getMutableComponent,
+  removeComponent
+} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
@@ -57,6 +62,10 @@ import {
   resetInstanceServer
 } from '../../reducers/instanceConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { CharacterInputSchema } from '../../../../engine/src/character/CharacterInputSchema'
+import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
+import { AutopilotSystem } from '../../../../engine/src/navigation/systems/AutopilotSystem'
+import { doRaycast } from '../../../../engine/src/navigation/behaviors/doRaycast'
 
 const store = Store.store
 
@@ -422,8 +431,16 @@ export const EnginePage = (props: Props) => {
         physics: {
           simulationEnabled: false,
           physxWorker: new Worker('/scripts/loadPhysXClassic.js')
-        }
+        },
+        systems: [
+          {
+            system: AutopilotSystem,
+            args: {}
+          }
+        ]
       }
+
+      CharacterInputSchema.behaviorMap.set(BaseInput.PRIMARY, doRaycast)
 
       await initializeEngine(initializationOptions)
 
