@@ -51,7 +51,7 @@ const followCameraBehavior = (entity: Entity) => {
     FollowCameraComponent
   ) as FollowCameraComponent
 
-  if(CameraSystem.instance.updateCameraMode) {
+  if (CameraSystem.instance.updateCameraMode) {
     let index = 0
     for (const key of Object.keys(CameraModes)) {
       if (index === CameraSystem.instance.cameraModeIndex && CameraSystem.instance.updateCameraMode) {
