@@ -6,7 +6,7 @@ import React from 'react'
 import {
   ReflectionProbeRefreshTypes,
   ReflectionProbeTypes
-} from '../../../../../../engine/src/editor/nodes/ReflectionProbeNode'
+} from '@xrengine/engine/src/editor/nodes/ReflectionProbeNode'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'

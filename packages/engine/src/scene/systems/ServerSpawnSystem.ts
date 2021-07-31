@@ -15,15 +15,8 @@ const randomPositionCentered = (area: Vector3) => {
 }
 
 export class ServerSpawnSystem extends System {
-  spawnPoints: Entity[] = []
-  lastSpawnIndex = 0
-
-  static instance: ServerSpawnSystem
-
-  constructor() {
-    super()
-    ServerSpawnSystem.instance = this
-  }
+  private spawnPoints: Entity[] = []
+  private lastSpawnIndex = 0
 
   getRandomSpawnPoint(): { position: Vector3; rotation: Quaternion } {
     const spawnTransform = getComponent(this.spawnPoints[this.lastSpawnIndex], TransformComponent)

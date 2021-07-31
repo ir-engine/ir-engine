@@ -1,6 +1,6 @@
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
@@ -15,7 +15,7 @@ export async function createDataProducer(
   networkTransport = Network.instance.transport as any
   const sendTransport =
     channel === 'instance' ? networkTransport.instanceSendTransport : networkTransport.channelSendTransport
-  // else if (MediaStreamSystem.instance.dataProducers.get(channel)) return Promise.reject(new Error('Data channel already exists!'))
+  // else if (MediaStreams.instance.dataProducers.get(channel)) return Promise.reject(new Error('Data channel already exists!'))
   const dataProducer = await sendTransport.produceData({
     appData: { data: customInitInfo },
     ordered: false,
@@ -91,8 +91,8 @@ export async function createTransport(direction: string, channelType?: string, c
           // aren't checked, for each media type. not very clean code, here
           // but, you know, this isn't a real application.)
           let paused = false
-          if (appData.mediaTag === 'cam-video') paused = MediaStreamSystem.instance.videoPaused
-          else if (appData.mediaTag === 'cam-audio') paused = MediaStreamSystem.instance.audioPaused
+          if (appData.mediaTag === 'cam-video') paused = MediaStreams.instance.videoPaused
+          else if (appData.mediaTag === 'cam-audio') paused = MediaStreams.instance.audioPaused
 
           // tell the server what it needs to know from us in order to set
           // up a server-side producer object, and get back a
@@ -208,11 +208,11 @@ export async function initRouter(channelType: string, channelId?: string): Promi
 export async function configureMediaTransports(channelType, channelId?: string): Promise<boolean> {
   networkTransport = Network.instance.transport as any
 
-  if (MediaStreamSystem.instance.mediaStream == null) {
-    await MediaStreamSystem.instance.startCamera()
+  if (MediaStreams.instance.mediaStream == null) {
+    await MediaStreams.instance.startCamera()
   }
 
-  if (MediaStreamSystem.instance.mediaStream == null) {
+  if (MediaStreams.instance.mediaStream == null) {
     console.warn('Media stream is null, camera must have failed')
     return false
   }
@@ -230,19 +230,19 @@ export async function configureMediaTransports(channelType, channelId?: string):
 }
 
 export async function createCamVideoProducer(channelType: string, channelId?: string): Promise<void> {
-  if (MediaStreamSystem.instance.mediaStream !== null && networkTransport.videoEnabled === true) {
+  if (MediaStreams.instance.mediaStream !== null && networkTransport.videoEnabled === true) {
     const transport =
       channelType === 'instance' ? networkTransport.instanceSendTransport : networkTransport.channelSendTransport
     if (transport != null) {
       try {
-        MediaStreamSystem.instance.camVideoProducer = await transport.produce({
-          track: MediaStreamSystem.instance.mediaStream.getVideoTracks()[0],
+        MediaStreams.instance.camVideoProducer = await transport.produce({
+          track: MediaStreams.instance.mediaStream.getVideoTracks()[0],
           encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
           appData: { mediaTag: 'cam-video', channelType: channelType, channelId: channelId }
         })
 
-        if (MediaStreamSystem.instance.videoPaused) await MediaStreamSystem.instance?.camVideoProducer.pause()
-        else await resumeProducer(MediaStreamSystem.instance.camVideoProducer)
+        if (MediaStreams.instance.videoPaused) await MediaStreams.instance?.camVideoProducer.pause()
+        else await resumeProducer(MediaStreams.instance.camVideoProducer)
       } catch (err) {
         console.log('error producing video', err)
       }
@@ -251,19 +251,19 @@ export async function createCamVideoProducer(channelType: string, channelId?: st
 }
 
 export async function createCamAudioProducer(channelType: string, channelId?: string): Promise<void> {
-  if (MediaStreamSystem.instance.mediaStream !== null) {
+  if (MediaStreams.instance.mediaStream !== null) {
     //To control the producer audio volume, we need to clone the audio track and connect a Gain to it.
     //This Gain is saved on MediaStreamSystem so it can be accessed from the user's component and controlled.
-    const audioTrack = MediaStreamSystem.instance.mediaStream.getAudioTracks()[0]
+    const audioTrack = MediaStreams.instance.mediaStream.getAudioTracks()[0]
     const ctx = new AudioContext()
     const src = ctx.createMediaStreamSource(new MediaStream([audioTrack]))
     const dst = ctx.createMediaStreamDestination()
     const gainNode = ctx.createGain()
     gainNode.gain.value = 1
     ;[src, gainNode, dst].reduce((a, b) => a && (a.connect(b) as any))
-    MediaStreamSystem.instance.audioGainNode = gainNode
-    MediaStreamSystem.instance.mediaStream.removeTrack(audioTrack)
-    MediaStreamSystem.instance.mediaStream.addTrack(dst.stream.getAudioTracks()[0])
+    MediaStreams.instance.audioGainNode = gainNode
+    MediaStreams.instance.mediaStream.removeTrack(audioTrack)
+    MediaStreams.instance.mediaStream.addTrack(dst.stream.getAudioTracks()[0])
     // same thing for audio, but we can use our already-created
     const transport =
       channelType === 'instance' ? networkTransport.instanceSendTransport : networkTransport.channelSendTransport
@@ -271,13 +271,13 @@ export async function createCamAudioProducer(channelType: string, channelId?: st
     if (transport != null) {
       try {
         // Create a new transport for audio and start producing
-        MediaStreamSystem.instance.camAudioProducer = await transport.produce({
-          track: MediaStreamSystem.instance.mediaStream.getAudioTracks()[0],
+        MediaStreams.instance.camAudioProducer = await transport.produce({
+          track: MediaStreams.instance.mediaStream.getAudioTracks()[0],
           appData: { mediaTag: 'cam-audio', channelType: channelType, channelId: channelId }
         })
 
-        if (MediaStreamSystem.instance.audioPaused) MediaStreamSystem.instance?.camAudioProducer.pause()
-        else await resumeProducer(MediaStreamSystem.instance.camAudioProducer)
+        if (MediaStreams.instance.audioPaused) MediaStreams.instance?.camAudioProducer.pause()
+        else await resumeProducer(MediaStreams.instance.camAudioProducer)
       } catch (err) {
         console.log('error producing audio', err)
       }
@@ -298,39 +298,39 @@ export async function endVideoChat(options: { leftParty?: boolean; endConsumers?
         networkTransport.channelId.length > 0
       const request = isInstanceMedia ? networkTransport.instanceRequest : networkTransport.channelRequest
       const socket = isInstanceMedia === true ? networkTransport.instanceSocket : networkTransport.channelSocket
-      if (MediaStreamSystem.instance?.camVideoProducer) {
+      if (MediaStreams.instance?.camVideoProducer) {
         if (socket.connected === true && typeof request === 'function')
           await request(MessageTypes.WebRTCCloseProducer.toString(), {
-            producerId: MediaStreamSystem.instance?.camVideoProducer.id
+            producerId: MediaStreams.instance?.camVideoProducer.id
           })
-        await MediaStreamSystem.instance?.camVideoProducer?.close()
+        await MediaStreams.instance?.camVideoProducer?.close()
       }
 
-      if (MediaStreamSystem.instance?.camAudioProducer) {
+      if (MediaStreams.instance?.camAudioProducer) {
         if (socket.connected === true && typeof request === 'function')
           await request(MessageTypes.WebRTCCloseProducer.toString(), {
-            producerId: MediaStreamSystem.instance?.camAudioProducer.id
+            producerId: MediaStreams.instance?.camAudioProducer.id
           })
-        await MediaStreamSystem.instance?.camAudioProducer?.close()
+        await MediaStreams.instance?.camAudioProducer?.close()
       }
 
-      if (MediaStreamSystem.instance?.screenVideoProducer) {
+      if (MediaStreams.instance?.screenVideoProducer) {
         if (socket.connected === true && typeof request === 'function')
           await request(MessageTypes.WebRTCCloseProducer.toString(), {
-            producerId: MediaStreamSystem.instance.screenVideoProducer.id
+            producerId: MediaStreams.instance.screenVideoProducer.id
           })
-        await MediaStreamSystem.instance.screenVideoProducer?.close()
+        await MediaStreams.instance.screenVideoProducer?.close()
       }
-      if (MediaStreamSystem.instance?.screenAudioProducer) {
+      if (MediaStreams.instance?.screenAudioProducer) {
         if (socket.connected === true && typeof request === 'function')
           await request(MessageTypes.WebRTCCloseProducer.toString(), {
-            producerId: MediaStreamSystem.instance.screenAudioProducer.id
+            producerId: MediaStreams.instance.screenAudioProducer.id
           })
-        await MediaStreamSystem.instance.screenAudioProducer?.close()
+        await MediaStreams.instance.screenAudioProducer?.close()
       }
 
       if (options?.endConsumers === true) {
-        MediaStreamSystem.instance?.consumers.map(async (c) => {
+        MediaStreams.instance?.consumers.map(async (c) => {
           if (request && typeof request === 'function')
             await request(MessageTypes.WebRTCCloseConsumer.toString(), {
               consumerId: c.id
@@ -356,18 +356,18 @@ export async function endVideoChat(options: { leftParty?: boolean; endConsumers?
 }
 
 export function resetProducer(): void {
-  if (MediaStreamSystem) {
-    if (MediaStreamSystem?.instance?.mediaStream != null) {
-      const tracks = MediaStreamSystem.instance.mediaStream.getTracks()
+  if (MediaStreams) {
+    if (MediaStreams?.instance?.mediaStream != null) {
+      const tracks = MediaStreams.instance.mediaStream.getTracks()
       tracks.forEach((track) => track.stop())
     }
-    MediaStreamSystem.instance.camVideoProducer = null
-    MediaStreamSystem.instance.camAudioProducer = null
-    MediaStreamSystem.instance.screenVideoProducer = null
-    MediaStreamSystem.instance.screenAudioProducer = null
-    MediaStreamSystem.instance.mediaStream = null
-    MediaStreamSystem.instance.localScreen = null
-    // MediaStreamSystem.instance.instance?.consumers = [];
+    MediaStreams.instance.camVideoProducer = null
+    MediaStreams.instance.camAudioProducer = null
+    MediaStreams.instance.screenVideoProducer = null
+    MediaStreams.instance.screenAudioProducer = null
+    MediaStreams.instance.mediaStream = null
+    MediaStreams.instance.localScreen = null
+    // MediaStreams.instance.instance?.consumers = [];
   }
 }
 
@@ -383,7 +383,7 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, channel
 
   if (request != null) {
     // if we do already have a consumer, we shouldn't have called this method
-    let consumer = MediaStreamSystem.instance?.consumers.find(
+    let consumer = MediaStreams.instance?.consumers.find(
       (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag
     )
 
@@ -408,12 +408,12 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, channel
     })
 
     if (
-      MediaStreamSystem.instance?.consumers?.find(
+      MediaStreams.instance?.consumers?.find(
         (c) => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag
       ) == null
     ) {
-      MediaStreamSystem.instance?.consumers.push(consumer)
-      EngineEvents.instance.dispatchEvent({ type: MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS })
+      MediaStreams.instance?.consumers.push(consumer)
+      EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS })
 
       // okay, we're ready. let's ask the peer to send us media
       await resumeConsumer(consumer)
@@ -422,7 +422,7 @@ export async function subscribeToTrack(peerId: string, mediaTag: string, channel
 }
 
 export async function unsubscribeFromTrack(peerId: any, mediaTag: any) {
-  const consumer = MediaStreamSystem.instance?.consumers.find(
+  const consumer = MediaStreams.instance?.consumers.find(
     (c) => c.appData.peerId === peerId && c.appData.mediaTag === mediaTag
   )
   await closeConsumer(consumer)
@@ -549,7 +549,7 @@ export async function closeConsumer(consumer: any) {
     await networkTransport.channelRequest(MessageTypes.WebRTCCloseConsumer.toString(), { consumerId: consumer.id })
   await consumer.close()
 
-  MediaStreamSystem.instance.consumers = MediaStreamSystem.instance?.consumers.filter(
+  MediaStreams.instance.consumers = MediaStreams.instance?.consumers.filter(
     (c: any) => !(c.id === consumer.id)
   ) as any[]
 }
@@ -588,18 +588,18 @@ export async function leave(instance: boolean, kicked?: boolean): Promise<boolea
         networkTransport.channelSendTransport = null
       }
       networkTransport.lastPollSyncData = {}
-      if (MediaStreamSystem) {
-        if (MediaStreamSystem?.instance?.mediaStream != null) {
-          const tracks = MediaStreamSystem.instance.mediaStream.getTracks()
+      if (MediaStreams) {
+        if (MediaStreams?.instance?.mediaStream != null) {
+          const tracks = MediaStreams.instance.mediaStream.getTracks()
           tracks.forEach((track) => track.stop())
         }
-        MediaStreamSystem.instance.camVideoProducer = null
-        MediaStreamSystem.instance.camAudioProducer = null
-        MediaStreamSystem.instance.screenVideoProducer = null
-        MediaStreamSystem.instance.screenAudioProducer = null
-        MediaStreamSystem.instance.mediaStream = null
-        MediaStreamSystem.instance.localScreen = null
-        MediaStreamSystem.instance.consumers = []
+        MediaStreams.instance.camVideoProducer = null
+        MediaStreams.instance.camAudioProducer = null
+        MediaStreams.instance.screenVideoProducer = null
+        MediaStreams.instance.screenAudioProducer = null
+        MediaStreams.instance.mediaStream = null
+        MediaStreams.instance.localScreen = null
+        MediaStreams.instance.consumers = []
       }
 
       if (socket && socket.close) socket.close()

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import styles from './Me.module.scss'
 import PartyParticipantWindow from '../PartyParticipantWindow'
 import { ChevronRight } from '@material-ui/icons'
-import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 
 const Me = () => {
   const [expanded, setExpanded] = useState(true)
@@ -40,7 +40,7 @@ const Me = () => {
             }}
             peerId={'me_cam'}
           />
-          {(MediaStreamSystem.instance?.screenVideoProducer || MediaStreamSystem.instance?.screenAudioProducer) && (
+          {(MediaStreams.instance?.screenVideoProducer || MediaStreams.instance?.screenAudioProducer) && (
             <PartyParticipantWindow
               containerProportions={{
                 height: 135,

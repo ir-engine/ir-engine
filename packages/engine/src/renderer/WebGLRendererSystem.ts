@@ -90,7 +90,7 @@ let lastRenderTime = 0
 let renderTimeCounter = 0
 let renderTimeAccumulator = 0
 
-export class WebGLRendererSystem extends System {
+export class EngineRenderer {
   static EVENTS = {
     QUALITY_CHANGED: 'WEBGL_RENDERER_SYSTEM_EVENT_QUALITY_CHANGE',
     SET_RESOLUTION: 'WEBGL_RENDERER_SYSTEM_EVENT_SET_RESOLUTION',
@@ -98,6 +98,8 @@ export class WebGLRendererSystem extends System {
     SET_POST_PROCESSING: 'WEBGL_RENDERER_SYSTEM_EVENT_SET_POST_PROCESSING',
     SET_USE_AUTOMATIC: 'WEBGL_RENDERER_SYSTEM_EVENT_SET_USE_AUTOMATIC'
   }
+
+  static instance: EngineRenderer
 
   /** Is resize needed? */
   needsResize: boolean
@@ -134,7 +136,7 @@ export class WebGLRendererSystem extends System {
 
   /** Constructs WebGL Renderer System. */
   constructor(attributes: { canvas: HTMLCanvasElement }) {
-    super(attributes)
+    EngineRenderer.instance = this
 
     this.onResize = this.onResize.bind(this)
 
@@ -166,16 +168,16 @@ export class WebGLRendererSystem extends System {
 
     Engine.effectComposer = new EffectComposer(Engine.renderer)
 
-    EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_POST_PROCESSING, (ev: any) => {
+    EngineEvents.instance.addEventListener(EngineRenderer.EVENTS.SET_POST_PROCESSING, (ev: any) => {
       this.setUsePostProcessing(this.supportWebGL2 && ev.payload)
     })
-    EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_RESOLUTION, (ev: any) => {
+    EngineEvents.instance.addEventListener(EngineRenderer.EVENTS.SET_RESOLUTION, (ev: any) => {
       this.setResolution(ev.payload)
     })
-    EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.USE_SHADOWS, (ev: any) => {
+    EngineEvents.instance.addEventListener(EngineRenderer.EVENTS.USE_SHADOWS, (ev: any) => {
       this.setShadowQuality(ev.payload)
     })
-    EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC, (ev: any) => {
+    EngineEvents.instance.addEventListener(EngineRenderer.EVENTS.SET_USE_AUTOMATIC, (ev: any) => {
       this.setUseAutomatic(ev.payload)
     })
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
@@ -185,27 +187,9 @@ export class WebGLRendererSystem extends System {
     })
   }
 
-  async initialize() {
-    super.initialize()
-    await this.loadGraphicsSettingsFromStorage()
-    this.dispatchSettingsChangeEvent()
-  }
-
   /** Called on resize, sets resize flag. */
   onResize(): void {
     this.needsResize = true
-  }
-
-  /** Removes resize listener. */
-  dispose(): void {
-    super.dispose()
-    Engine.effectComposer?.dispose()
-    window.removeEventListener('resize', this.onResize)
-    EngineEvents.instance.removeAllListenersForEvent(WebGLRendererSystem.EVENTS.SET_POST_PROCESSING)
-    EngineEvents.instance.removeAllListenersForEvent(WebGLRendererSystem.EVENTS.SET_RESOLUTION)
-    EngineEvents.instance.removeAllListenersForEvent(WebGLRendererSystem.EVENTS.USE_SHADOWS)
-    EngineEvents.instance.removeAllListenersForEvent(WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC)
-    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.ENABLE_SCENE)
   }
 
   /**
@@ -376,7 +360,7 @@ export class WebGLRendererSystem extends System {
 
   dispatchSettingsChangeEvent() {
     EngineEvents.instance.dispatchEvent({
-      type: WebGLRendererSystem.EVENTS.QUALITY_CHANGED,
+      type: EngineRenderer.EVENTS.QUALITY_CHANGED,
       shadows: this.useShadows,
       resolution: this.scaleFactor,
       postProcessing: this.usePostProcessing,
@@ -421,4 +405,30 @@ export class WebGLRendererSystem extends System {
   }
 }
 
-WebGLRendererSystem.queries = {}
+export class WebGLRendererSystem extends System {
+  constructor(attributes) {
+    super()
+    new EngineRenderer(attributes)
+  }
+
+  async initialize() {
+    super.initialize()
+    await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
+    EngineRenderer.instance.dispatchSettingsChangeEvent()
+  }
+
+  execute(delta: number) {
+    EngineRenderer.instance.execute(delta)
+  }
+
+  dispose(): void {
+    super.dispose()
+    Engine.effectComposer?.dispose()
+    window.removeEventListener('resize', EngineRenderer.instance.onResize)
+    EngineEvents.instance.removeAllListenersForEvent(EngineRenderer.EVENTS.SET_POST_PROCESSING)
+    EngineEvents.instance.removeAllListenersForEvent(EngineRenderer.EVENTS.SET_RESOLUTION)
+    EngineEvents.instance.removeAllListenersForEvent(EngineRenderer.EVENTS.USE_SHADOWS)
+    EngineEvents.instance.removeAllListenersForEvent(EngineRenderer.EVENTS.SET_USE_AUTOMATIC)
+    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.ENABLE_SCENE)
+  }
+}

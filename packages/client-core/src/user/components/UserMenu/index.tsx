@@ -7,7 +7,7 @@ import SettingsIcon from '@material-ui/icons/Settings'
 // import { provisionInstanceServer } from "@xrengine/client-networking/src/reducers/instanceConnection/service";
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
-import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
@@ -96,10 +96,10 @@ const UserMenu = (props: UserMenuProps): any => {
   const [graphics, setGraphicsSetting] = useState({})
 
   useEffect(() => {
-    EngineEvents.instance?.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphicsSettings)
+    EngineEvents.instance?.addEventListener(EngineRenderer.EVENTS.QUALITY_CHANGED, updateGraphicsSettings)
 
     return () => {
-      EngineEvents.instance?.removeEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphicsSettings)
+      EngineEvents.instance?.removeEventListener(EngineRenderer.EVENTS.QUALITY_CHANGED, updateGraphicsSettings)
     }
   }, [])
   const onEngineLoaded = () => {

@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 
-import { PerspectiveCamera, Scene, WebGLRenderer, XRSession } from 'three'
+import { PerspectiveCamera, Scene, WebGLRenderer, XRFrame, XRSession } from 'three'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EngineOptions } from '../interfaces/EngineOptions'
 import { Entity } from './Entity'
@@ -229,6 +229,11 @@ export class Engine {
   static simpleMaterials = false
 
   static hasEngaged = false
+  static mouseInputEnabled = true
+  static keyboardInputEnabled = true
+
+  static xrFrame: XRFrame
+  static spatialAudio = false
 }
 
 export const awaitEngineLoaded = (): Promise<void> => {

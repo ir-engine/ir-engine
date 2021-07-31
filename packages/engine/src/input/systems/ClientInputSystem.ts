@@ -40,15 +40,8 @@ export class ClientInputSystem extends System {
     PROCESS_INPUT: 'CLIENT_INPUT_SYSTEM_PROCESS_EVENT'
   }
 
-  static instance: ClientInputSystem
-
-  mouseInputEnabled = true
-  keyboardInputEnabled = true
-
   constructor() {
     super()
-
-    ClientInputSystem.instance = this
 
     EngineEvents.instance.addEventListener(WEBCAM_INPUT_EVENTS.FACE_INPUT, ({ detection }) => {
       faceToInput(Network.instance.localClientEntity, detection)
@@ -59,8 +52,8 @@ export class ClientInputSystem extends System {
     })
 
     EngineEvents.instance.addEventListener(ClientInputSystem.EVENTS.ENABLE_INPUT, ({ keyboard, mouse }) => {
-      if (typeof keyboard !== 'undefined') ClientInputSystem.instance.keyboardInputEnabled = keyboard
-      if (typeof mouse !== 'undefined') ClientInputSystem.instance.mouseInputEnabled = mouse
+      if (typeof keyboard !== 'undefined') Engine.keyboardInputEnabled = keyboard
+      if (typeof mouse !== 'undefined') Engine.mouseInputEnabled = mouse
     })
   }
 

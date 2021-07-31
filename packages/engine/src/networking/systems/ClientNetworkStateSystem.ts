@@ -121,20 +121,9 @@ const forwardVector = new Vector3(0, 0, 1)
 
 /** System class for network system of client. */
 export class ClientNetworkStateSystem extends System {
-  static instance: ClientNetworkStateSystem
-
   static EVENTS = {
     CONNECT: 'CLIENT_NETWORK_SYSTEM_CONNECT',
     CONNECTION_LOST: 'CORE_CONNECTION_LOST'
-  }
-
-  /**
-   * Constructs the system. Adds Network Components, initializes transport and initializes server.
-   * @param attributes SystemAttributes to be passed to super class constructor.
-   */
-  constructor() {
-    super()
-    ClientNetworkStateSystem.instance = this
   }
 
   dispose() {

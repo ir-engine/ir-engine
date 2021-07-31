@@ -1,4 +1,4 @@
-import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
@@ -272,15 +272,15 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         MessageTypes.WebRTCCreateProducer.toString(),
         async (socketId, mediaTag, producerId, channelType, channelId) => {
           const selfProducerIds = [
-            MediaStreamSystem.instance?.camVideoProducer?.id,
-            MediaStreamSystem.instance?.camAudioProducer?.id
+            MediaStreams.instance?.camVideoProducer?.id,
+            MediaStreams.instance?.camAudioProducer?.id
           ]
           if (
             // (MediaStreamSystem.mediaStream !== null) &&
             producerId != null &&
             channelType === self.channelType &&
             selfProducerIds.indexOf(producerId) < 0
-            // (MediaStreamSystem.instance?.consumers?.find(
+            // (MediaStreams.instance?.consumers?.find(
             //   c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
             // ) == null /*&&
             //   (channelType === 'instance' ? this.channelType === 'instance' : this.channelType === channelType && this.channelId === channelId)*/)
@@ -292,11 +292,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       )
 
       socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (consumerId) => {
-        if (MediaStreamSystem.instance)
-          MediaStreamSystem.instance.consumers = MediaStreamSystem.instance?.consumers.filter(
-            (c) => c.id !== consumerId
-          )
-        EngineEvents.instance.dispatchEvent({ type: MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS })
+        if (MediaStreams.instance)
+          MediaStreams.instance.consumers = MediaStreams.instance?.consumers.filter((c) => c.id !== consumerId)
+        EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS })
       })
 
       // Init Receive and Send Transports initially since we need them for unreliable message consumption and production
@@ -319,11 +317,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         })
       })
 
-      EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.UPDATE_NEARBY_LAYER_USERS, async () => {
+      EngineEvents.instance.addEventListener(MediaStreams.EVENTS.UPDATE_NEARBY_LAYER_USERS, async () => {
         await request(MessageTypes.WebRTCRequestCurrentProducers.toString(), { channelType: 'instance' })
         triggerUpdateNearbyLayerUsers()
       })
-      EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.CLOSE_CONSUMER, (consumer) => {
+      EngineEvents.instance.addEventListener(MediaStreams.EVENTS.CLOSE_CONSUMER, (consumer) => {
         console.log('closeConsumer', consumer)
         closeConsumer(consumer.consumer)
       })

@@ -29,16 +29,11 @@ export class XRSystem extends System {
     XR_END: 'WEBXR_RENDERER_SYSTEM_XR_END'
   }
 
-  xrFrame: XRFrame
-
   referenceSpaceType: XRReferenceSpaceType = 'local-floor'
   referenceSpace: XRReferenceSpace
-  static instance: XRSystem
 
   constructor() {
     super()
-
-    XRSystem.instance = this
 
     // TEMPORARY - precache controller model
     // TODO: remove this when IK system is in
@@ -80,7 +75,7 @@ export class XRSystem extends System {
    */
   execute(delta: number): void {
     if (Engine.xrRenderer?.isPresenting) {
-      const session = this.xrFrame.session
+      const session = Engine.xrFrame.session
       for (const source of session.inputSources) {
         if (source.gamepad) {
           const mapping = gamepadMapping[source.gamepad.mapping || 'xr-standard'][source.handedness]

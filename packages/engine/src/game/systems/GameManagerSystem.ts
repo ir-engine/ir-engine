@@ -37,6 +37,12 @@ function isPlayerInGameArea(entity, gameArea) {
   return { entity, inGameArea }
 }
 
+export class ActiveGames {
+  static instance = new ActiveGames()
+  currentGames: Map<string, Game> = new Map<string, Game>()
+  gameEntities: Entity[] = []
+}
+
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -45,25 +51,10 @@ export class GameManagerSystem extends System {
 
   updateNewPlayersRate: number
   updateLastTime: number
-  currentGames: Map<string, Game>
-  gameEntities: Entity[]
-
-  constructor() {
-    super()
-    GameManagerSystem.instance = this
-    this.reset()
-  }
 
   reset(): void {
     this.updateNewPlayersRate = 60 * 5
     this.updateLastTime = 0
-    this.currentGames = new Map<string, Game>()
-    this.gameEntities = []
-  }
-
-  dispose(): void {
-    super.dispose()
-    this.reset()
   }
 
   execute(delta: number, time: number): void {
@@ -73,9 +64,9 @@ export class GameManagerSystem extends System {
       gameSchema.preparePlayersRole(gameSchema, game.maxPlayers)
       game.priority = gameSchema.priority // DOTO: set its from editor
       initState(game, gameSchema)
-      this.gameEntities.push(entity)
+      ActiveGames.instance.gameEntities.push(entity)
       // its for client, to get game entity whan came Action Message with only name of Game
-      this.currentGames.set(game.name, game)
+      ActiveGames.instance.currentGames.set(game.name, game)
       // TODO: add start & stop functions to be able to start and end games
       gameSchema.onGameStart(entity)
       console.log('CREATE GAME')

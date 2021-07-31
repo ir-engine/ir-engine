@@ -2,7 +2,7 @@ import { isClient } from '../../common/functions/isClient'
 import { Component } from '../../ecs/classes/Component'
 import { Entity } from '../../ecs/classes/Entity'
 import { Network } from '../../networking/classes/Network'
-import { GameManagerSystem } from '../../game/systems/GameManagerSystem'
+import { ActiveGames, GameManagerSystem } from '../../game/systems/GameManagerSystem'
 import {
   addComponent,
   getComponent,
@@ -29,12 +29,12 @@ export const isOwnedLocalPlayer = (entity: Entity): boolean => {
 
 export const getGameEntityFromName = (name: string): Entity => {
   if (name === undefined) return
-  return GameManagerSystem.instance.gameEntities.find((entity) => getComponent(entity, Game).name === name)
+  return ActiveGames.instance.gameEntities.find((entity) => getComponent(entity, Game).name === name)
 }
 
 export const getGameFromName = (name: string): Game => {
   if (name === undefined) return
-  return GameManagerSystem.instance.currentGames.get(name)
+  return ActiveGames.instance.currentGames.get(name)
 }
 
 export const getEntityFromRoleUuid = (game: Game, role: string, uuid: string): Entity =>

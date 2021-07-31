@@ -9,13 +9,13 @@ import { startLivestreamOnServer } from '../functions/startLivestreamOnServer'
 import LivestreamComponent from '../../scene/components/LivestreamComponent'
 
 /** System class for media streaming. */
-export class MediaStreamSystem extends System {
+export class MediaStreams {
   static EVENTS = {
     TRIGGER_UPDATE_CONSUMERS: 'NETWORK_TRANSPORT_EVENT_UPDATE_CONSUMERS',
     CLOSE_CONSUMER: 'NETWORK_TRANSPORT_EVENT_CLOSE_CONSUMER',
     UPDATE_NEARBY_LAYER_USERS: 'NETWORK_TRANSPORT_EVENT_UPDATE_NEARBY_LAYER_USERS'
   }
-  public static instance = null
+  public static instance = new MediaStreams()
 
   /** Whether the video is paused or not. */
   public videoPaused = false
@@ -46,20 +46,10 @@ export class MediaStreamSystem extends System {
   public screenShareVideoPaused = false
   /** Indication of whether the audio while screen sharing is paused or not. */
   public screenShareAudioPaused = false
-
-  public executeInProgress = false
-
   /** Whether the component is initialized or not. */
   public initialized = false
 
-  private nearbyAvatarTick = 0
-
   public nearbyLayerUsers = [] as NearbyUser[]
-
-  constructor() {
-    super()
-    MediaStreamSystem.instance = this
-  }
 
   /**
    * Set face tracking state.
@@ -148,50 +138,6 @@ export class MediaStreamSystem extends System {
   public toggleScreenShareAudioPaused(): boolean {
     this.screenShareAudioPaused = !this.screenShareAudioPaused
     return this.screenShareAudioPaused
-  }
-
-  /** Execute the media stream system. */
-  public execute = async (): Promise<void> => {
-    this.nearbyAvatarTick++
-
-    if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && this.executeInProgress === false) {
-      this.executeInProgress = true
-      const buffer = Network.instance.mediasoupOperationQueue.pop() as any
-      if (buffer.object && buffer.object.closed !== true && buffer.object._closed !== true) {
-        try {
-          if (buffer.action === 'resume') await buffer.object.resume()
-          else if (buffer.action === 'pause') await buffer.object.pause()
-          this.executeInProgress = false
-        } catch (err) {
-          this.executeInProgress = false
-          console.log('Pause or resume error')
-          console.log(err)
-          console.log(buffer.object)
-        }
-      } else {
-        this.executeInProgress = false
-      }
-    }
-
-    if (this.nearbyAvatarTick > 500) {
-      this.nearbyAvatarTick = 0
-      if (isClient) {
-        this.nearbyLayerUsers = getNearbyUsers(Network.instance.userId)
-        const nearbyUserIds = this.nearbyLayerUsers.map((user) => user.id)
-        EngineEvents.instance.dispatchEvent({ type: MediaStreamSystem.EVENTS.UPDATE_NEARBY_LAYER_USERS })
-        this.consumers.forEach((consumer) => {
-          if (!nearbyUserIds.includes(consumer._appData.peerId)) {
-            EngineEvents.instance.dispatchEvent({ type: MediaStreamSystem.EVENTS.CLOSE_CONSUMER, consumer })
-          }
-        })
-      }
-    }
-    for (const entity of this.queryResults.livestreamProxy.added) {
-      startLivestreamOnServer(entity)
-    }
-    for (const entity of this.queryResults.livestreamClient.added) {
-      // startLivestreamOnClient(entity)
-    }
   }
 
   /**
@@ -377,9 +323,57 @@ export class MediaStreamSystem extends System {
       console.log(err)
     }
   }
+}
 
+export class MediaStreamSystem extends System {
+  private nearbyAvatarTick = 0
+  private executeInProgress = false
+
+  /** Execute the media stream system. */
+  public execute = async (): Promise<void> => {
+    this.nearbyAvatarTick++
+
+    if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && this.executeInProgress === false) {
+      this.executeInProgress = true
+      const buffer = Network.instance.mediasoupOperationQueue.pop() as any
+      if (buffer.object && buffer.object.closed !== true && buffer.object._closed !== true) {
+        try {
+          if (buffer.action === 'resume') await buffer.object.resume()
+          else if (buffer.action === 'pause') await buffer.object.pause()
+          this.executeInProgress = false
+        } catch (err) {
+          this.executeInProgress = false
+          console.log('Pause or resume error')
+          console.log(err)
+          console.log(buffer.object)
+        }
+      } else {
+        this.executeInProgress = false
+      }
+    }
+
+    if (this.nearbyAvatarTick > 500) {
+      this.nearbyAvatarTick = 0
+      if (isClient) {
+        MediaStreams.instance.nearbyLayerUsers = getNearbyUsers(Network.instance.userId)
+        const nearbyUserIds = MediaStreams.instance.nearbyLayerUsers.map((user) => user.id)
+        EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.UPDATE_NEARBY_LAYER_USERS })
+        MediaStreams.instance.consumers.forEach((consumer) => {
+          if (!nearbyUserIds.includes(consumer._appData.peerId)) {
+            EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.CLOSE_CONSUMER, consumer })
+          }
+        })
+      }
+    }
+    for (const entity of this.queryResults.livestreamProxy.added) {
+      startLivestreamOnServer(entity)
+    }
+    for (const entity of this.queryResults.livestreamClient.added) {
+      // startLivestreamOnClient(entity)
+    }
+  }
   dispose() {
-    EngineEvents.instance.removeAllListenersForEvent(MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS)
+    EngineEvents.instance.removeAllListenersForEvent(MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS)
   }
 }
 

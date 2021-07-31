@@ -2,8 +2,6 @@ import { DirectionalLight, LinearToneMapping, PCFSoftShadowMap, ShadowMapType, T
 import { isClient } from '../../common/functions/isClient'
 import { CSM } from '../../assets/csm/CSM'
 import { Engine } from '../../ecs/classes/Engine'
-import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
-import { isMobile } from '../../common/functions/isMobile'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 

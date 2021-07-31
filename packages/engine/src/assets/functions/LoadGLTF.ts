@@ -1,6 +1,6 @@
 import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight, Group, Mesh } from 'three'
 import { isClient } from '../../common/functions/isClient'
-import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
+import { Engine } from '../../ecs/classes/Engine'
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
 import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
 

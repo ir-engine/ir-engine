@@ -3,7 +3,7 @@ import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reduce
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
@@ -58,8 +58,8 @@ const MediaIconsBox = (props) => {
 
   const checkEndVideoChat = async () => {
     if (
-      (MediaStreamSystem.instance.audioPaused || MediaStreamSystem.instance?.camAudioProducer == null) &&
-      (MediaStreamSystem.instance.videoPaused || MediaStreamSystem.instance?.camVideoProducer == null)
+      (MediaStreams.instance.audioPaused || MediaStreams.instance?.camAudioProducer == null) &&
+      (MediaStreams.instance.videoPaused || MediaStreams.instance?.camVideoProducer == null)
     ) {
       await endVideoChat({})
       if ((Network.instance.transport as any).channelSocket?.connected === true) await leave(false)
@@ -68,11 +68,11 @@ const MediaIconsBox = (props) => {
   const handleMicClick = async () => {
     const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId
     if (await checkMediaStream(partyId)) {
-      if (MediaStreamSystem.instance?.camAudioProducer == null) await createCamAudioProducer(partyId)
+      if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer(partyId)
       else {
-        const audioPaused = MediaStreamSystem.instance.toggleAudioPaused()
-        if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer)
-        else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer)
+        const audioPaused = MediaStreams.instance.toggleAudioPaused()
+        if (audioPaused === true) await pauseProducer(MediaStreams.instance?.camAudioProducer)
+        else await resumeProducer(MediaStreams.instance?.camAudioProducer)
         checkEndVideoChat()
       }
       updateCamAudioState()
@@ -82,11 +82,11 @@ const MediaIconsBox = (props) => {
   const handleCamClick = async () => {
     const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId
     if (await checkMediaStream(partyId)) {
-      if (MediaStreamSystem.instance?.camVideoProducer == null) await createCamVideoProducer(partyId)
+      if (MediaStreams.instance?.camVideoProducer == null) await createCamVideoProducer(partyId)
       else {
-        const videoPaused = MediaStreamSystem.instance.toggleVideoPaused()
-        if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer)
-        else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer)
+        const videoPaused = MediaStreams.instance.toggleVideoPaused()
+        if (videoPaused === true) await pauseProducer(MediaStreams.instance?.camVideoProducer)
+        else await resumeProducer(MediaStreams.instance?.camVideoProducer)
         checkEndVideoChat()
       }
 

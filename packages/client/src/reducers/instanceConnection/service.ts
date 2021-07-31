@@ -2,7 +2,7 @@ import { client } from '@xrengine/client-core/src/feathers'
 import Store from '@xrengine/client-core/src/store'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { Config } from '@xrengine/client-core/src/helper'
 import { Dispatch } from 'redux'
 import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunctions'
@@ -64,9 +64,9 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
       const currentLocation = locationState.get('currentLocation').get('location')
       const sceneId = currentLocation.sceneId
       const videoActive =
-        MediaStreamSystem !== null &&
-        MediaStreamSystem !== undefined &&
-        (MediaStreamSystem.instance?.camVideoProducer != null || MediaStreamSystem.instance?.camAudioProducer != null)
+        MediaStreams !== null &&
+        MediaStreams !== undefined &&
+        (MediaStreams.instance?.camVideoProducer != null || MediaStreams.instance?.camAudioProducer != null)
       // TODO: Disconnected
       if (Network.instance !== undefined && Network.instance !== null) {
         await endVideoChat({ endConsumers: true })
@@ -97,7 +97,7 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
         console.error('Network transport could not initialize, transport is: ', Network.instance.transport)
       }
 
-      EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers)
+      EngineEvents.instance.addEventListener(MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers)
 
       dispatch(instanceServerConnected())
     } catch (err) {

@@ -23,7 +23,6 @@ import ScenePreviewCameraTagComponent from '../components/ScenePreviewCamera'
 import { SpawnPointComponent } from '../components/SpawnPointComponent'
 import WalkableTagComponent from '../components/Walkable'
 import Image from '../classes/Image'
-import { setPostProcessing } from '../behaviors/setPostProcessing'
 import { CopyTransformComponent } from '../../transform/components/CopyTransformComponent'
 import { setEnvMap } from '../behaviors/setEnvMap'
 import { PersistTagComponent } from '../components/PersistTagComponent'
@@ -36,6 +35,7 @@ import { loadModelAnimation } from '../behaviors/loadModelAnimation'
 import { Clouds } from '../classes/Clouds'
 import { Interactable } from '../../interaction/components/Interactable'
 import { ShadowComponent } from '../components/ShadowComponent'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -275,7 +275,7 @@ export class WorldScene {
         break
 
       case 'postprocessing':
-        setPostProcessing(entity, component.data)
+        EngineRenderer.instance?.configurePostProcessing(component.data.options)
         break
 
       case 'envmap':

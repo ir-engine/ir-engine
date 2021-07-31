@@ -1,7 +1,7 @@
 import * as Comlink from 'comlink'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import { MediaStreamSystem } from '../../networking/systems/MediaStreamSystem'
+import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
 import { Input } from '../components/Input'
 import { WEBCAM_INPUT_EVENTS } from '../constants/InputConstants'
 import { CameraInput } from '../enums/InputEnums'
@@ -63,7 +63,7 @@ export const startFaceTracking = async () => {
     faceTrackingTimers.push(interval)
   })
 
-  faceVideo.srcObject = MediaStreamSystem.instance.mediaStream
+  faceVideo.srcObject = MediaStreams.instance.mediaStream
   faceVideo.muted = true
   faceVideo.play()
 }
@@ -127,7 +127,7 @@ export const startLipsyncTracking = () => {
   userSpeechAnalyzer.smoothingTimeConstant = 0.5
   userSpeechAnalyzer.fftSize = FFT_SIZE
 
-  const inputStream = audioContext.createMediaStreamSource(MediaStreamSystem.instance.mediaStream)
+  const inputStream = audioContext.createMediaStreamSource(MediaStreams.instance.mediaStream)
   inputStream.connect(userSpeechAnalyzer)
 
   const audioProcessor = audioContext.createScriptProcessor(FFT_SIZE * 2, 1, 1)

@@ -1,5 +1,5 @@
 import { Vector3 } from 'three'
-import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
+import { Engine } from '../../ecs/classes/Engine'
 
 export const setSkyDirection = (direction: Vector3) => {
   Engine.csm?.lightDirection.copy(direction).multiplyScalar(-1)

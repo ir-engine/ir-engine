@@ -3,7 +3,7 @@ import { System } from '../../ecs/classes/System'
 import { getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
 import { NetworkObject } from '../../networking/components/NetworkObject'
-import { MediaStreamSystem } from '../../networking/systems/MediaStreamSystem'
+import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
 import { CharacterComponent } from '../../character/components/CharacterComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
@@ -22,19 +22,13 @@ function createSilentAudioEl(streamsLive) {
 
 /** System class which provides methods for Positional Audio system. */
 export class PositionalAudioSystem extends System {
-  /** Static instance for positional audio. */
-  public static instance: PositionalAudioSystem = null
-
   characterAudioStream: Map<Entity, any>
-  audioInitialised: boolean
 
   /** Constructs Positional Audio System. */
   constructor() {
     super()
-    PositionalAudioSystem.instance = this
     Engine.useAudioSystem = true
-    // not needed to reset, only for initial load of page
-    this.audioInitialised = false
+    Engine.spatialAudio = true
     this.reset()
   }
 
@@ -63,7 +57,7 @@ export class PositionalAudioSystem extends System {
       const entityNetworkObject = getComponent(entity, NetworkObject)
       if (entityNetworkObject) {
         const peerId = entityNetworkObject.ownerId
-        const consumer = MediaStreamSystem.instance?.consumers.find(
+        const consumer = MediaStreams.instance?.consumers.find(
           (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'
         )
         if (consumer == null && this.characterAudioStream.get(entity) != null) {
@@ -81,7 +75,7 @@ export class PositionalAudioSystem extends System {
       let consumer
       if (entityNetworkObject != null) {
         const peerId = entityNetworkObject.ownerId
-        consumer = MediaStreamSystem.instance?.consumers.find(
+        consumer = MediaStreams.instance?.consumers.find(
           (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'
         )
       }
@@ -136,22 +130,6 @@ export class PositionalAudioSystem extends System {
       const positionalAudio = getComponent(entity, PositionalAudioComponent, true)
 
       if (positionalAudio != null) Engine.scene.remove(positionalAudio.value)
-    }
-  }
-
-  /** Suspend positional audio components. */
-  suspend(): void {
-    for (const entity of this.queryResults.character_audio.all) {
-      const positionalAudio = getComponent(entity, PositionalAudioComponent)
-      positionalAudio.value?.context?.suspend()
-    }
-  }
-
-  /** Resume positional audio components. */
-  resume(): void {
-    for (const entity of this.queryResults.character_audio.all) {
-      const positionalAudio = getComponent(entity, PositionalAudioComponent)
-      positionalAudio.value?.context?.resume()
     }
   }
 }

@@ -6,10 +6,9 @@ import Slider from '@material-ui/core/Slider'
 import Typography from '@material-ui/core/Typography'
 // @ts-ignore
 import styles from '../UserMenu.module.scss'
-import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { useTranslation } from 'react-i18next'
-import { isMobile } from '../../../../../../engine/src/common/functions/isMobile'
 
 const SettingMenu = (props: any): JSX.Element => {
   const { t } = useTranslation()
@@ -71,9 +70,9 @@ const SettingMenu = (props: any): JSX.Element => {
                   resolution: value,
                   automatic: false
                 })
-                EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_RESOLUTION, payload: value })
+                EngineEvents.instance.dispatchEvent({ type: EngineRenderer.EVENTS.SET_RESOLUTION, payload: value })
                 EngineEvents.instance.dispatchEvent({
-                  type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC,
+                  type: EngineRenderer.EVENTS.SET_USE_AUTOMATIC,
                   payload: false
                 })
               }}
@@ -94,11 +93,11 @@ const SettingMenu = (props: any): JSX.Element => {
                   automatic: false
                 })
                 EngineEvents.instance.dispatchEvent({
-                  type: WebGLRendererSystem.EVENTS.SET_POST_PROCESSING,
+                  type: EngineRenderer.EVENTS.SET_POST_PROCESSING,
                   payload: value
                 })
                 EngineEvents.instance.dispatchEvent({
-                  type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC,
+                  type: EngineRenderer.EVENTS.SET_USE_AUTOMATIC,
                   payload: false
                 })
               }}
@@ -122,7 +121,7 @@ const SettingMenu = (props: any): JSX.Element => {
                   pbr: value
                 })
                 EngineEvents.instance.dispatchEvent({
-                  type: WebGLRendererSystem.EVENTS.USE_SHADOWS,
+                  type: EngineRenderer.EVENTS.USE_SHADOWS,
                   payload: value
                 })
               }}
@@ -139,7 +138,7 @@ const SettingMenu = (props: any): JSX.Element => {
                   automatic: value
                 })
                 EngineEvents.instance.dispatchEvent({
-                  type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC,
+                  type: EngineRenderer.EVENTS.SET_USE_AUTOMATIC,
                   payload: value
                 })
               }}
