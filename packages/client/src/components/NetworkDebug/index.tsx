@@ -6,6 +6,8 @@ import JSONTree from 'react-json-tree'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { Downgraded } from '@hookstate/core'
+import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 
 export const NetworkDebug = ({ reinit }) => {
   const [isShowing, setShowing] = useState(false)
@@ -13,6 +15,8 @@ export const NetworkDebug = ({ reinit }) => {
   const [avatarDebug, setAvatarDebug] = useState(false)
 
   const showingStateRef = useRef(isShowing)
+
+  const userState = useUserState().attach(Downgraded).value
 
   function setupListener() {
     window.addEventListener('keydown', downHandler)
@@ -155,6 +159,10 @@ export const NetworkDebug = ({ reinit }) => {
             <div>
               <h1>Engine Components</h1>
               <JSONTree data={renderComps()} />
+            </div>
+            <div>
+              <h1>Store</h1>
+              <JSONTree data={userState} />
             </div>
           </div>
         )}

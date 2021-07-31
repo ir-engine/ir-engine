@@ -92,7 +92,7 @@ import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/Media
 import classNames from 'classnames'
 import moment from 'moment'
 import React, { useEffect, useRef, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectMediastreamState } from '../../reducers/mediastream/selector'
 import { updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service'
@@ -247,6 +247,7 @@ const Harmony = (props: Props): any => {
     harmonyHidden
   } = props
 
+  const dispatch = useDispatch()
   const userState = useUserState()
 
   const messageRef = React.useRef()
@@ -390,12 +391,12 @@ const Harmony = (props: Props): any => {
     }
   }, [])
 
-  const layerUsersUpdateNeeded = userState.layerUsersUpdateNeeded.attach(Downgraded).value
-  const channelLayerUsersUpdateNeeded = userState.layerUsersUpdateNeeded.attach(Downgraded).value
   useEffect(() => {
-    if (selfUser.instanceId != null && layerUsersUpdateNeeded === true) UserService.getLayerUsers(true)
-    if (selfUser.channelInstanceId != null && channelLayerUsersUpdateNeeded === true) UserService.getLayerUsers(false)
-  }, [layerUsersUpdateNeeded, channelLayerUsersUpdateNeeded])
+    if (selfUser?.instanceId != null && userState.layerUsersUpdateNeeded.value === true)
+      dispatch(UserService.getLayerUsers(true))
+    if (selfUser?.channelInstanceId != null && userState.channelLayerUsersUpdateNeeded.value === true)
+      dispatch(UserService.getLayerUsers(false))
+  }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
   useEffect(() => {
     if ((Network.instance?.transport as any)?.channelType === 'instance') {
