@@ -16,7 +16,16 @@ import {
   MathUtils,
   Euler
 } from 'three'
-import { Body, BodyType, ColliderHitEvent, ShapeType, RaycastQuery, SceneQueryType, SHAPES } from 'three-physx'
+import {
+  Body,
+  BodyType,
+  ColliderHitEvent,
+  ShapeType,
+  RaycastQuery,
+  SceneQueryType,
+  SHAPES,
+  PhysXInstance
+} from 'three-physx'
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups'
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem'
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent'
@@ -261,7 +270,7 @@ export const initializeGolfClub = (entityClub: Entity) => {
 
   const color = GolfColours[ownerPlayerNumber]
 
-  golfClubComponent.raycast = PhysicsSystem.instance.addRaycastQuery(
+  golfClubComponent.raycast = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
       origin: new Vector3(),
@@ -270,7 +279,7 @@ export const initializeGolfClub = (entityClub: Entity) => {
       collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
     })
   )
-  golfClubComponent.raycast1 = PhysicsSystem.instance.addRaycastQuery(
+  golfClubComponent.raycast1 = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
       origin: new Vector3(),
@@ -322,7 +331,7 @@ export const initializeGolfClub = (entityClub: Entity) => {
     }
   }
 
-  const body = PhysicsSystem.instance.addBody(
+  const body = PhysXInstance.instance.addBody(
     new Body({
       shapes: [shapeHead],
       type: BodyType.KINEMATIC,

@@ -19,7 +19,7 @@ import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { CameraModes } from '../types/CameraModes'
 import { Entity } from '../../ecs/classes/Entity'
 import { PhysicsSystem } from '../../physics/systems/PhysicsSystem'
-import { RaycastQuery, SceneQueryType } from 'three-physx'
+import { PhysXInstance, RaycastQuery, SceneQueryType } from 'three-physx'
 import { Not } from '../../ecs/functions/ComponentFunctions'
 import { Input } from '../../input/components/Input'
 import { BaseInput } from '../../input/enums/BaseInput'
@@ -63,7 +63,7 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
 const followCameraBehavior = (entity: Entity, portCamera?: boolean) => {
   if (!entity) return
 
-  const cameraDesiredTransform = getMutableComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) // Camera
+  const cameraDesiredTransform = getMutableComponent(Engine.activeCameraEntity, DesiredTransformComponent) // Camera
 
   if (!cameraDesiredTransform && !portCamera) return
 
@@ -110,7 +110,7 @@ const followCameraBehavior = (entity: Entity, portCamera?: boolean) => {
   vec3.add(actorTransform.position)
 
   // Raycast for camera
-  const cameraTransform = getMutableComponent(CameraSystem.instance.activeCamera, TransformComponent)
+  const cameraTransform = getMutableComponent(Engine.activeCameraEntity, TransformComponent)
   const raycastDirection = new Vector3().subVectors(cameraTransform.position, vec3).normalize()
   followCamera.raycastQuery.origin.copy(vec3)
   followCamera.raycastQuery.direction.copy(raycastDirection)
@@ -154,10 +154,10 @@ const followCameraBehavior = (entity: Entity, portCamera?: boolean) => {
 }
 
 export const resetFollowCamera = () => {
-  const transform = getComponent(CameraSystem.instance.activeCamera, TransformComponent)
-  const desiredTransform = getComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent)
+  const transform = getComponent(Engine.activeCameraEntity, TransformComponent)
+  const desiredTransform = getComponent(Engine.activeCameraEntity, DesiredTransformComponent)
   if (transform && desiredTransform) {
-    followCameraBehavior(getMutableComponent(CameraSystem.instance.activeCamera, CameraComponent).followTarget)
+    followCameraBehavior(getMutableComponent(Engine.activeCameraEntity, CameraComponent).followTarget)
     transform.position.copy(desiredTransform.position)
     transform.rotation.copy(desiredTransform.rotation)
   }
@@ -165,9 +165,6 @@ export const resetFollowCamera = () => {
 
 /** System class which provides methods for Camera system. */
 export class CameraSystem extends System {
-  static instance: CameraSystem
-
-  activeCamera: Entity
   prevState = [0, 0] as NumericalType
 
   portCamera: boolean = false
@@ -175,14 +172,13 @@ export class CameraSystem extends System {
   /** Constructs camera system. */
   constructor() {
     super()
-    CameraSystem.instance = this
 
     const cameraEntity = createEntity()
     addComponent(cameraEntity, CameraComponent)
     addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })
     addComponent(cameraEntity, TransformComponent)
     addComponent(cameraEntity, PersistTagComponent)
-    CameraSystem.instance.activeCamera = cameraEntity
+    Engine.activeCameraEntity = cameraEntity
 
     // If we lose focus on the window, and regain it, copy our desired transform to avoid strange transform behavior and clipping
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.WINDOW_FOCUS, ({ focused }) => {
@@ -201,7 +197,7 @@ export class CameraSystem extends System {
   execute(delta: number): void {
     for (const entity of this.queryResults.followCameraComponent.added) {
       const cameraFollow = getMutableComponent(entity, FollowCameraComponent)
-      cameraFollow.raycastQuery = PhysicsSystem.instance.addRaycastQuery(
+      cameraFollow.raycastQuery = PhysXInstance.instance.addRaycastQuery(
         new RaycastQuery({
           type: SceneQueryType.Closest,
           origin: new Vector3(),
@@ -210,12 +206,12 @@ export class CameraSystem extends System {
           collisionMask: cameraFollow.collisionMask
         })
       )
-      const activeCameraComponent = getMutableComponent(CameraSystem.instance.activeCamera, CameraComponent)
+      const activeCameraComponent = getMutableComponent(Engine.activeCameraEntity, CameraComponent)
       activeCameraComponent.followTarget = entity
-      if (hasComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent)) {
-        removeComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent)
+      if (hasComponent(Engine.activeCameraEntity, DesiredTransformComponent)) {
+        removeComponent(Engine.activeCameraEntity, DesiredTransformComponent)
       }
-      addComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent, {
+      addComponent(Engine.activeCameraEntity, DesiredTransformComponent, {
         lockRotationAxis: [false, true, false],
         rotationRate: isMobile ? 5 : 3.5,
         positionRate: isMobile ? 3.5 : 2
@@ -225,11 +221,11 @@ export class CameraSystem extends System {
 
     for (const entity of this.queryResults.followCameraComponent.removed) {
       const cameraFollow = getComponent(entity, FollowCameraComponent, true)
-      if (cameraFollow) PhysicsSystem.instance.removeRaycastQuery(cameraFollow.raycastQuery)
-      const activeCameraComponent = getMutableComponent(CameraSystem.instance.activeCamera, CameraComponent)
+      if (cameraFollow) PhysXInstance.instance.removeRaycastQuery(cameraFollow.raycastQuery)
+      const activeCameraComponent = getMutableComponent(Engine.activeCameraEntity, CameraComponent)
       if (activeCameraComponent) {
         activeCameraComponent.followTarget = null
-        removeComponent(CameraSystem.instance.activeCamera, DesiredTransformComponent) as DesiredTransformComponent
+        removeComponent(Engine.activeCameraEntity, DesiredTransformComponent) as DesiredTransformComponent
       }
     }
 

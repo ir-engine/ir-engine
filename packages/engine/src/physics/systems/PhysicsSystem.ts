@@ -17,26 +17,12 @@ export class PhysicsSystem extends System {
   static EVENTS = {
     PORTAL_REDIRECT_EVENT: 'PHYSICS_SYSTEM_PORTAL_REDIRECT'
   }
-  static instance: PhysicsSystem
-
-  physicsWorldConfig: PhysXConfig
-  worker: Worker
 
   simulationEnabled: boolean
 
   constructor(attributes: { worker?: Worker; simulationEnabled?: boolean } = {}) {
     super(attributes)
-    PhysicsSystem.instance = this
-    this.physicsWorldConfig = {
-      bounceThresholdVelocity: 0.5,
-      maximumDelta: 1000 / 20, // limits physics maximum delta so no huge jumps can be made
-      start: false,
-      lengthScale: 1,
-      verbose: false,
-      substeps: 1,
-      gravity: { x: 0, y: -9.81, z: 0 }
-    }
-    this.worker = attributes.worker
+    Engine.physxWorker = attributes.worker
 
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
       if (typeof ev.physics !== 'undefined') {
@@ -53,8 +39,8 @@ export class PhysicsSystem extends System {
 
   async initialize() {
     super.initialize()
-    await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig)
-    Engine.workers.push(this.worker)
+    await PhysXInstance.instance.initPhysX(Engine.physxWorker, Engine.initOptions.physics.settings)
+    Engine.workers.push(Engine.physxWorker)
   }
 
   reset(): void {
@@ -111,14 +97,6 @@ export class PhysicsSystem extends System {
     }
 
     PhysXInstance.instance.update()
-  }
-
-  get gravity() {
-    return { x: 0, y: -9.81, z: 0 }
-  }
-
-  set gravity(value: { x: number; y: number; z: number }) {
-    // todo
   }
 
   addRaycastQuery(query) {

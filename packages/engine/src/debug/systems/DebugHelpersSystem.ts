@@ -37,7 +37,6 @@ export class DebugHelpersSystem extends System {
   private helpersByEntity: Record<ComponentHelpers, Map<Entity, any>>
 
   physicsDebugRenderer: DebugRenderer
-  static instance: DebugHelpersSystem
   static EVENTS = {
     TOGGLE_PHYSICS: 'DEBUG_HELPERS_SYSTEM_TOGGLE_PHYSICS',
     TOGGLE_AVATAR: 'DEBUG_HELPERS_SYSTEM_TOGGLE_AVATAR'
@@ -47,7 +46,6 @@ export class DebugHelpersSystem extends System {
 
   constructor() {
     super()
-    DebugHelpersSystem.instance = this
     this.physicsDebugRenderer = new DebugRenderer(Engine.scene)
 
     this.helpersByEntity = {

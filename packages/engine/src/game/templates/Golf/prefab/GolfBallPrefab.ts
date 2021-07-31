@@ -1,5 +1,5 @@
 import { Color, Group, MathUtils, Mesh, MeshPhongMaterial, Vector3, Vector4 } from 'three'
-import { Body, BodyType, ShapeType, SHAPES, RaycastQuery, SceneQueryType } from 'three-physx'
+import { Body, BodyType, ShapeType, SHAPES, RaycastQuery, SceneQueryType, PhysXInstance } from 'three-physx'
 import { AssetLoader } from '../../../../assets/classes/AssetLoader'
 import { isClient } from '../../../../common/functions/isClient'
 import { Behavior } from '../../../../common/interfaces/Behavior'
@@ -190,7 +190,7 @@ export const initializeGolfBall = (ballEntity: Entity) => {
     }
   }
 
-  const body = PhysicsSystem.instance.addBody(
+  const body = PhysXInstance.instance.addBody(
     new Body({
       shapes: [shape],
       type: BodyType.DYNAMIC,
@@ -207,7 +207,7 @@ export const initializeGolfBall = (ballEntity: Entity) => {
   const ballPosition = getComponent(ballEntity, ColliderComponent).body.transform.translation
 
   // for track ground
-  golfBallComponent.groundRaycast = PhysicsSystem.instance.addRaycastQuery(
+  golfBallComponent.groundRaycast = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
       origin: ballPosition,
@@ -218,7 +218,7 @@ export const initializeGolfBall = (ballEntity: Entity) => {
   )
 
   // for track wall
-  golfBallComponent.wallRaycast = PhysicsSystem.instance.addRaycastQuery(
+  golfBallComponent.wallRaycast = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
       origin: ballPosition,

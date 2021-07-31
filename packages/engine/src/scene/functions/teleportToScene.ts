@@ -8,19 +8,19 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
-import { PhysicsSystem } from '../../physics/systems/PhysicsSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PortalComponent } from '../components/PortalComponent'
 import { PortalEffect } from '../classes/PortalEffect'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { delay } from '../../common/functions/delay'
+import { PhysXInstance } from 'three-physx'
 
 export const teleportToScene = async (portalComponent: PortalComponent, handleNewScene: () => void) => {
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
   Engine.hasJoinedWorld = false
 
   // remove controller since physics world will be destroyed and we don't want it moving
-  PhysicsSystem.instance.removeController(
+  PhysXInstance.instance.removeController(
     getComponent(Network.instance.localClientEntity, ControllerColliderComponent).controller
   )
   removeComponent(Network.instance.localClientEntity, ControllerColliderComponent)
@@ -74,7 +74,7 @@ export const teleportToScene = async (portalComponent: PortalComponent, handleNe
 
   await handleNewScene()
 
-  CameraSystem.instance.portCamera = true
+  Engine.portCamera = true
 
   await new Promise<void>((resolve) => {
     Engine.scene.background = null
@@ -118,7 +118,7 @@ export const teleportToScene = async (portalComponent: PortalComponent, handleNe
 
   clearInterval(hyperSpaceUpdateInterval)
 
-  CameraSystem.instance.portCamera = false
+  Engine.portCamera = false
 
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: true })
 }

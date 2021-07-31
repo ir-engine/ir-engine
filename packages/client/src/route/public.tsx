@@ -60,8 +60,8 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
           <Route path="/micon" component={Chatmicon} />
           <Route path="/micoff" component={Chatmicoff} />
           <Route path="/joinparty" component={Joinparty} />
-          <Route path ="/profileedit"component={Profileedit}/>
-           <Route path ="/profileediting"component={Profileediting}/>
+          <Route path="/profileedit" component={Profileedit} />
+          <Route path="/profileediting" component={Profileediting} />
           <Route path="/login" component={React.lazy(() => import('../pages/login'))} />
 
           {/* Admin Routes*/}

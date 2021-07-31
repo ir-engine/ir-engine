@@ -21,20 +21,20 @@ type BPCEMProps = {
   probePositionOffset: Vector3
 }
 
-export class SceneObjectSystem extends System {
-  static instance: SceneObjectSystem
-
-  bpcemOptions: BPCEMProps
+export class SceneOptions {
+  static instance: SceneOptions
+  bpcemOptions: BPCEMProps = {
+    probeScale: new Vector3(1, 1, 1),
+    probePositionOffset: new Vector3()
+  }
   envMapIntensity = 1
   boxProjection = false
+}
 
+export class SceneObjectSystem extends System {
   constructor() {
     super()
-    this.bpcemOptions = {
-      probeScale: new Vector3(1, 1, 1),
-      probePositionOffset: new Vector3()
-    }
-    SceneObjectSystem.instance = this
+    SceneOptions.instance = new SceneOptions()
   }
 
   /** Executes the system. */
@@ -73,14 +73,14 @@ export class SceneObjectSystem extends System {
           const material = obj.material as Material
           if (typeof material !== 'undefined') {
             // BPCEM
-            if (SceneObjectSystem.instance.boxProjection)
+            if (SceneOptions.instance.boxProjection)
               material.onBeforeCompile = beforeMaterialCompile(
-                this.bpcemOptions.probeScale,
-                this.bpcemOptions.probePositionOffset
+                SceneOptions.instance.bpcemOptions.probeScale,
+                SceneOptions.instance.bpcemOptions.probePositionOffset
               )
-            ;(material as any).envMapIntensity = SceneObjectSystem.instance.envMapIntensity
+            ;(material as any).envMapIntensity = SceneOptions.instance.envMapIntensity
             if (obj.receiveShadow) {
-              WebGLRendererSystem.instance.csm?.setupMaterial(material)
+              Engine.csm?.setupMaterial(material)
             }
           }
         }

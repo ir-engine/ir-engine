@@ -12,7 +12,7 @@ import {
 } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NavMeshComponent } from '../component/NavMeshComponent'
-import { Vector3 } from 'three'
+import { Raycaster, Vector3 } from 'three'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { InputType } from '../../input/enums/InputType'
@@ -20,6 +20,8 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { GamepadAxis } from '../../input/enums/InputEnums'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { CharacterComponent } from '../../character/components/CharacterComponent'
+import { AutoPilotClickRequestComponent } from '../component/AutoPilotClickRequestComponent'
+import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
 
 const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3): Path => {
   const points = navMesh.findPath(new YukaVector3(from.x, from.y, from.z), new YukaVector3(to.x, to.y, to.z))
@@ -32,25 +34,49 @@ const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3): Path => {
 }
 
 export class AutopilotSystem extends System {
-  updateType = SystemUpdateType.Free
-  entityManager: EntityManager
-  static instance: AutopilotSystem
-
-  constructor() {
-    super()
-    AutopilotSystem.instance = this
-    this.entityManager = new EntityManager()
-    this.reset()
-  }
-
-  reset(): void {}
-
-  dispose(): void {
-    super.dispose()
-    this.reset()
-  }
+  raycaster = new Raycaster()
 
   execute(delta: number, time: number): void {
+    for (const entity of this.queryResults.navClick.added) {
+      const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
+      console.log('~~~ coords', coords)
+      this.raycaster.setFromCamera(coords, Engine.camera)
+
+      const raycasterResults = []
+      const clickResult = this.queryResults.navmeshes?.all?.reduce(
+        (previousEntry, currentEntity) => {
+          const mesh = getComponent(currentEntity, Object3DComponent).value
+          raycasterResults.length = 0
+          this.raycaster.intersectObject(mesh, true, raycasterResults)
+          if (!raycasterResults.length) {
+            return previousEntry
+          }
+
+          if (raycasterResults[0].distance < previousEntry.distance) {
+            return {
+              distance: raycasterResults[0].distance,
+              point: raycasterResults[0].point,
+              entity: currentEntity
+            }
+          }
+
+          return previousEntry
+        },
+        { distance: Infinity, point: null, entity: null }
+      )
+      console.log('~~~ clickResult', clickResult)
+
+      if (clickResult.point) {
+        console.log('ADD AutoPilotRequestComponent')
+        addComponent(entity, AutoPilotRequestComponent, {
+          point: clickResult.point,
+          navEntity: clickResult.entity
+        })
+      }
+
+      removeComponent(entity, AutoPilotClickRequestComponent)
+    }
+
     // requests
     // generate path from target.graph and create new AutoPilotComponent (or reuse existing)
     for (const entity of this.queryResults.requests.added) {
@@ -148,6 +174,13 @@ export class AutopilotSystem extends System {
     },
     ongoing: {
       components: [AutoPilotComponent],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    navClick: {
+      components: [LocalInputReceiver, AutoPilotClickRequestComponent],
       listen: {
         added: true,
         removed: true

@@ -3,7 +3,7 @@ import { Entity } from '../ecs/classes/Entity'
 import { addComponent, getComponent } from '../ecs/functions/EntityFunctions'
 import { Input } from '../input/components/Input'
 import { BaseInput } from '../input/enums/BaseInput'
-import { Material, Mesh, Quaternion, Vector3 } from 'three'
+import { Material, Mesh, Quaternion, Vector2, Vector3 } from 'three'
 import { SkinnedMesh } from 'three/src/objects/SkinnedMesh'
 import { CameraModes } from '../camera/types/CameraModes'
 import { LifecycleValue } from '../common/enums/LifecycleValue'
@@ -13,7 +13,6 @@ import { CameraInput, GamepadButtons, MouseInput, TouchInputs } from '../input/e
 import { InputType } from '../input/enums/InputType'
 import { InputBehaviorType, InputSchema } from '../input/interfaces/InputSchema'
 import { InputAlias } from '../input/types/InputAlias'
-import { Interactable } from '../interaction/components/Interactable'
 import { Interactor } from '../interaction/components/Interactor'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { CharacterComponent } from './components/CharacterComponent'
@@ -23,9 +22,8 @@ import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings'
 import { ParityValue } from '../common/enums/ParityValue'
 import { InputValue } from '../input/interfaces/InputValue'
 import { NumericalType } from '../common/types/NumericalTypes'
-import { EngineEvents } from '../ecs/classes/EngineEvents'
-import { InteractiveSystem } from '../interaction/systems/InteractiveSystem'
 import { InteractedComponent } from '../interaction/components/InteractedComponent'
+import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -455,6 +453,15 @@ const lookByInputAxis: InputBehaviorType = (
   }
 }
 
+export const clickNavMesh: InputBehaviorType = (actorEntity, inputKey, inputValue): void => {
+  if (inputValue.lifecycleState !== LifecycleValue.STARTED) {
+    return
+  }
+  const input = getComponent(actorEntity, Input)
+  const coords = input.data.get(BaseInput.SCREENXY).value
+  addComponent(actorEntity, AutoPilotClickRequestComponent, { coords: new Vector2(coords[0], coords[1]) })
+}
+
 // what do we want this to look like?
 // instead of assigning a hardware input to a base input, we want to map them
 
@@ -554,6 +561,8 @@ export const createBehaviorMap = () => {
   map.set(BaseInput.GAMEPAD_STICK_RIGHT, lookByInputAxis)
   map.set(BaseInput.XR_AXIS_LOOK, lookFromXRInputs)
   map.set(BaseInput.XR_AXIS_MOVE, moveFromXRInputs)
+
+  map.set(BaseInput.PRIMARY, clickNavMesh)
 
   return map
 }

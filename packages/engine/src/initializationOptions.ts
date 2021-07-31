@@ -45,6 +45,7 @@ export type InitializeOptions = {
   publicPath?: string
   physics?: {
     simulationEnabled?: boolean
+    settings?: PhysXConfig
     physxWorker?: any
   }
   systems?: SystemInitializeType<System, any>[]
@@ -73,6 +74,15 @@ export const DefaultInitializationOptions: Partial<InitializeOptions> = {
     [DefaultGameMode.name]: DefaultGameMode
   },
   physics: {
+    settings: {
+      bounceThresholdVelocity: 0.5,
+      maximumDelta: 1000 / 20, // limits physics maximum delta so no huge jumps can be made
+      start: false,
+      lengthScale: 1,
+      verbose: false,
+      substeps: 1,
+      gravity: { x: 0, y: -9.81, z: 0 }
+    },
     simulationEnabled: true // start the engine with the physics simulation running
   },
   systems: []

@@ -42,20 +42,7 @@ export class InteractiveSystem extends System {
     OBJECT_ACTIVATION: 'INTERACTIVE_SYSTEM_OBJECT_ACTIVATION'
   }
 
-  previousEntity: Entity
-  previousEntity2DPosition: Vector3
-
   interactTextEntity: Entity
-
-  constructor() {
-    super()
-    this.reset()
-  }
-
-  reset(): void {
-    this.previousEntity = null
-    this.previousEntity2DPosition = null
-  }
 
   dispose(): void {
     super.dispose()
@@ -193,7 +180,7 @@ export class InteractiveSystem extends System {
       const interactTextObject = getComponent(this.interactTextEntity, Object3DComponent).value
       interactTextObject.children[0].position.y = Math.sin(time * 1.8) * 0.05
 
-      const activeCameraComponent = getMutableComponent(CameraSystem.instance.activeCamera, CameraComponent)
+      const activeCameraComponent = getMutableComponent(Engine.activeCameraEntity, CameraComponent)
       if (
         activeCameraComponent.followTarget &&
         hasComponent(activeCameraComponent.followTarget, FollowCameraComponent)

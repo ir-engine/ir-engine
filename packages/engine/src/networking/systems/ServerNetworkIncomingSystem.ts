@@ -28,18 +28,7 @@ export function cancelAllInputs(entity) {
     value.lifecycleState = LifecycleValue.ENDED
   })
 }
-
-/** System class to handle incoming messages. */
 export class ServerNetworkIncomingSystem extends System {
-  /**
-   * Constructs the system.
-   * @param attributes Attributes to be passed to super class constructor.
-   */
-  constructor(attributes) {
-    super(attributes)
-  }
-
-  /** Call execution on server */
   execute = (delta: number): void => {
     // Create a new worldstate frame for next tick
     Network.instance.tick++

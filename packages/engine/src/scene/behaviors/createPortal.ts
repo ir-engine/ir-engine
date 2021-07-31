@@ -1,5 +1,5 @@
 import { BufferGeometry, Euler, ExtrudeGeometry, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from 'three'
-import { Body, BodyType, ShapeType, SHAPES } from 'three-physx'
+import { Body, BodyType, ShapeType, SHAPES, PhysXInstance } from 'three-physx'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { isClient } from '../../common/functions/isClient'
@@ -58,7 +58,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
       }
     }
 
-    const portalBody = PhysicsSystem.instance.addBody(
+    const portalBody = PhysXInstance.instance.addBody(
       new Body({
         shapes: [portalShape],
         type: BodyType.STATIC,
@@ -69,7 +69,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
       })
     )
 
-    PhysicsSystem.instance.addBody(portalBody)
+    PhysXInstance.instance.addBody(portalBody)
 
     portalBody.userData = entity
 

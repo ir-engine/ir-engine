@@ -234,8 +234,8 @@ export class WorldScene {
 
       case 'scene-preview-camera':
         addComponent(entity, ScenePreviewCameraTagComponent)
-        if (isClient && CameraSystem.instance.activeCamera) {
-          addComponent(CameraSystem.instance.activeCamera, CopyTransformComponent, { input: entity })
+        if (isClient && Engine.activeCameraEntity) {
+          addComponent(Engine.activeCameraEntity, CopyTransformComponent, { input: entity })
         }
         break
 

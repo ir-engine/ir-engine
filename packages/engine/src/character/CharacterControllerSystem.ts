@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from 'three'
-import { Controller, ControllerHitEvent, RaycastQuery, SceneQueryType } from 'three-physx'
+import { Controller, ControllerHitEvent, PhysXInstance, RaycastQuery, SceneQueryType } from 'three-physx'
 import { isClient } from '../common/functions/isClient'
 import { System } from '../ecs/classes/System'
 import { Not } from '../ecs/functions/ComponentFunctions'
@@ -29,22 +29,13 @@ const quat2 = new Quaternion()
 const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
 export class CharacterControllerSystem extends System {
-  /** Removes resize listener. */
-  dispose(): void {
-    super.dispose()
-  }
-
-  /**
-   * Executes the system. Called each frame by default from the Engine.
-   * @param delta Time since last frame.
-   */
   execute(delta: number): void {
     for (const entity of this.queryResults.controller.added) {
       const playerCollider = getMutableComponent(entity, ControllerColliderComponent)
       const actor = getMutableComponent(entity, CharacterComponent)
       const transform = getComponent(entity, TransformComponent)
 
-      playerCollider.controller = PhysicsSystem.instance.createController(
+      playerCollider.controller = PhysXInstance.instance.createController(
         new Controller({
           isCapsule: true,
           collisionLayer: CollisionGroups.Characters,
@@ -65,7 +56,7 @@ export class CharacterControllerSystem extends System {
         })
       )
 
-      playerCollider.raycastQuery = PhysicsSystem.instance.addRaycastQuery(
+      playerCollider.raycastQuery = PhysXInstance.instance.addRaycastQuery(
         new RaycastQuery({
           type: SceneQueryType.Closest,
           origin: new Vector3(0, actor.actorHalfHeight, 0),
@@ -79,8 +70,8 @@ export class CharacterControllerSystem extends System {
     for (const entity of this.queryResults.controller.removed) {
       const collider = getRemovedComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
       if (collider) {
-        PhysicsSystem.instance.removeController(collider.controller)
-        PhysicsSystem.instance.removeRaycastQuery(collider.raycastQuery)
+        PhysXInstance.instance.removeController(collider.controller)
+        PhysXInstance.instance.removeRaycastQuery(collider.raycastQuery)
       }
 
       const actor = getMutableComponent(entity, CharacterComponent)

@@ -20,16 +20,16 @@ export const configureCSM = (directionalLights: DirectionalLight[], remove?: boo
   if (!isClient || !Engine.renderer.shadowMap.enabled) return
 
   if (remove || !directionalLights.length) {
-    if (!WebGLRendererSystem.instance.csm) return
+    if (!Engine.csm) return
 
-    WebGLRendererSystem.instance.csm.remove()
-    WebGLRendererSystem.instance.csm.dispose()
-    WebGLRendererSystem.instance.csm = undefined
+    Engine.csm.remove()
+    Engine.csm.dispose()
+    Engine.csm = undefined
 
     return
   }
 
-  if (Engine.isHMD || WebGLRendererSystem.instance.csm) return
+  if (Engine.isHMD || Engine.csm) return
 
   const csm = new CSM({
     camera: Engine.camera,
@@ -38,7 +38,7 @@ export const configureCSM = (directionalLights: DirectionalLight[], remove?: boo
   })
 
   csm.fade = true
-  WebGLRendererSystem.instance.csm = csm
+  Engine.csm = csm
 }
 
 export const handleRendererSettings = (args: RenderSettingsProps, reset?: boolean): void => {

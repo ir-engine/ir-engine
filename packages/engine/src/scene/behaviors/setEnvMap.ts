@@ -84,8 +84,8 @@ export const setEnvMap = (entity, args: EnvMapProps) => {
     case EnvMapSourceType.Default:
       const options = args.envMapReflectionProbe
       if (!options) return
-      SceneObjectSystem.instance.bpcemOptions.probeScale = options.probeScale
-      SceneObjectSystem.instance.bpcemOptions.probePositionOffset = options.probePositionOffset
+      SceneOptions.instance.bpcemOptions.probeScale = options.probeScale
+      SceneOptions.instance.bpcemOptions.probePositionOffset = options.probePositionOffset
 
       EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
         switch (options.reflectionType) {
@@ -105,13 +105,13 @@ export const setEnvMap = (entity, args: EnvMapProps) => {
       })
       const offset = args.envMapReflectionProbe.probePositionOffset
       const position = new Vector3(offset.x, offset.y, offset.z)
-      SceneObjectSystem.instance.boxProjection = args.envMapReflectionProbe.boxProjection
-      SceneObjectSystem.instance.bpcemOptions.probePositionOffset = position
-      SceneObjectSystem.instance.bpcemOptions.probeScale = args.envMapReflectionProbe.probeScale
+      SceneOptions.instance.boxProjection = args.envMapReflectionProbe.boxProjection
+      SceneOptions.instance.bpcemOptions.probePositionOffset = position
+      SceneOptions.instance.bpcemOptions.probeScale = args.envMapReflectionProbe.probeScale
       break
   }
 
   pmremGenerator.dispose()
 
-  SceneObjectSystem.instance.envMapIntensity = args.envMapIntensity
+  SceneOptions.instance.envMapIntensity = args.envMapIntensity
 }

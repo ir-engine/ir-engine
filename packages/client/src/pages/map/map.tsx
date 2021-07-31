@@ -29,7 +29,6 @@ import { processLocationChange } from '@xrengine/engine/src/ecs/functions/Engine
 import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine, shutdownEngine } from '@xrengine/engine/src/initializeEngine'
-import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
 import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
@@ -44,8 +43,6 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
 import { CameraLayers } from '../../../../engine/src/camera/constants/CameraLayers'
-import { CharacterInputSchema } from '../../../../engine/src/character/CharacterInputSchema'
-import { doRaycast } from '../../../../engine/src/navigation/behaviors/doRaycast'
 import WarningRefreshModal from '../../components/AlertModals/WarningRetryModal'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import {
@@ -55,6 +52,7 @@ import {
 } from '../../reducers/instanceConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import MediaIconsBox from './MapMediaIconsBox'
+import { PhysXInstance } from 'three-physx'
 
 const store = Store.store
 
@@ -450,8 +448,6 @@ export const EnginePage = (props: Props) => {
         }
       }
 
-      CharacterInputSchema.behaviorMap.set(BaseInput.PRIMARY, doRaycast)
-
       await initializeEngine(initializationOptions)
 
       document.dispatchEvent(new CustomEvent('ENGINE_LOADED')) // this is the only time we should use document events. would be good to replace this with react state
@@ -534,7 +530,7 @@ export const EnginePage = (props: Props) => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
 
     // remove controller since physics world will be destroyed and we don't want it moving
-    PhysicsSystem.instance.removeController(
+    PhysXInstance.instance.removeController(
       getComponent(Network.instance.localClientEntity, ControllerColliderComponent).controller
     )
     removeComponent(Network.instance.localClientEntity, ControllerColliderComponent)

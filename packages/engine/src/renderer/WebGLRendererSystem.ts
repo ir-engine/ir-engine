@@ -50,7 +50,7 @@ export enum RENDERER_SETTINGS {
 
 const databasePrefix = 'graphics-settings-'
 
-interface EffectComposerWithSchema extends EffectComposer {
+export interface EffectComposerWithSchema extends EffectComposer {
   // TODO: 'postprocessing' needs typing, we could create a '@types/postprocessing' package?
   renderer: WebGLRenderer
   inputBuffer: WebGLRenderTarget
@@ -99,13 +99,6 @@ export class WebGLRendererSystem extends System {
     SET_USE_AUTOMATIC: 'WEBGL_RENDERER_SYSTEM_EVENT_SET_USE_AUTOMATIC'
   }
 
-  updateType = SystemUpdateType.Free
-
-  /** Is system Initialized. */
-  static instance: WebGLRendererSystem
-  csm: CSM
-
-  composer: EffectComposerWithSchema
   /** Is resize needed? */
   needsResize: boolean
 
@@ -142,7 +135,6 @@ export class WebGLRendererSystem extends System {
   /** Constructs WebGL Renderer System. */
   constructor(attributes: { canvas: HTMLCanvasElement }) {
     super(attributes)
-    WebGLRendererSystem.instance = this
 
     this.onResize = this.onResize.bind(this)
 
@@ -172,7 +164,7 @@ export class WebGLRendererSystem extends System {
     this.needsResize = true
     Engine.renderer.autoClear = true
 
-    this.composer = new EffectComposer(Engine.renderer)
+    Engine.effectComposer = new EffectComposer(Engine.renderer)
 
     EngineEvents.instance.addEventListener(WebGLRendererSystem.EVENTS.SET_POST_PROCESSING, (ev: any) => {
       this.setUsePostProcessing(this.supportWebGL2 && ev.payload)
@@ -207,7 +199,7 @@ export class WebGLRendererSystem extends System {
   /** Removes resize listener. */
   dispose(): void {
     super.dispose()
-    this.composer?.dispose()
+    Engine.effectComposer?.dispose()
     window.removeEventListener('resize', this.onResize)
     EngineEvents.instance.removeAllListenersForEvent(WebGLRendererSystem.EVENTS.SET_POST_PROCESSING)
     EngineEvents.instance.removeAllListenersForEvent(WebGLRendererSystem.EVENTS.SET_RESOLUTION)
@@ -226,7 +218,7 @@ export class WebGLRendererSystem extends System {
     this.renderPass = new RenderPass(Engine.scene, Engine.camera)
     this.renderPass.scene = Engine.scene
     this.renderPass.camera = Engine.camera
-    this.composer.addPass(this.renderPass)
+    Engine.effectComposer.addPass(this.renderPass)
     // This sets up the render
     const passes: any[] = []
     this.normalPass = new NormalPass(this.renderPass.scene, this.renderPass.camera, {
@@ -249,19 +241,19 @@ export class WebGLRendererSystem extends System {
       if (pass.isActive)
         if (effect === SSAOEffect) {
           const eff = new effect(Engine.camera, this.normalPass.texture, { ...pass, normalDepthBuffer })
-          this.composer[key] = eff
+          Engine.effectComposer[key] = eff
           passes.push(eff)
         } else if (effect === DepthOfFieldEffect) {
           const eff = new effect(Engine.camera, pass)
-          this.composer[key] = eff
+          Engine.effectComposer[key] = eff
           passes.push(eff)
         } else if (effect === OutlineEffect) {
           const eff = new effect(Engine.scene, Engine.camera, pass)
-          this.composer[key] = eff
+          Engine.effectComposer[key] = eff
           passes.push(eff)
         } else {
           const eff = new effect(pass)
-          this.composer[key] = eff
+          Engine.effectComposer[key] = eff
           passes.push(eff)
         }
     })
@@ -270,11 +262,11 @@ export class WebGLRendererSystem extends System {
       texture: depthDownsamplingPass.texture
     })
     if (passes.length) {
-      this.composer.addPass(depthDownsamplingPass)
-      this.composer.addPass(new EffectPass(Engine.camera, ...passes, textureEffect))
+      Engine.effectComposer.addPass(depthDownsamplingPass)
+      Engine.effectComposer.addPass(new EffectPass(Engine.camera, ...passes, textureEffect))
     }
     // const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
-    // this.composer.addPass(gammaCorrectionPass);
+    // this.effectComposer.addPass(gammaCorrectionPass);
   }
 
   /**
@@ -283,7 +275,7 @@ export class WebGLRendererSystem extends System {
    */
   execute(delta: number): void {
     if (Engine.xrRenderer.isPresenting) {
-      this.csm?.update()
+      Engine.csm?.update()
       Engine.renderer.render(Engine.scene, Engine.camera)
     } else {
       if (this.rendereringEnabled) {
@@ -302,15 +294,15 @@ export class WebGLRendererSystem extends System {
             cam.updateProjectionMatrix()
           }
 
-          this.qualityLevel > 0 && this.csm?.updateFrustums()
+          this.qualityLevel > 0 && Engine.csm?.updateFrustums()
           Engine.renderer.setSize(width, height, false)
-          this.composer.setSize(width, height, false)
+          Engine.effectComposer.setSize(width, height, false)
           this.needsResize = false
         }
 
-        this.qualityLevel > 0 && this.csm?.update()
+        this.qualityLevel > 0 && Engine.csm?.update()
         if (this.usePostProcessing && this.postProcessingSchema) {
-          this.composer.render(delta)
+          Engine.effectComposer.render(delta)
         } else {
           Engine.renderer.autoClear = true
           Engine.renderer.render(Engine.scene, Engine.camera)

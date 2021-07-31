@@ -128,7 +128,7 @@ const _shadow = (light, lightData) => {
 }
 
 const _directional = (obj) => {
-  if (!WebGLRendererSystem.instance.csm) return // currently this breaks CSM
+  if (!Engine.csm) return // currently this breaks CSM
   const lightData = obj.userData.gltfExtensions.MOZ_hubs_components['directional-light']
   const light = new DirectionalLight(lightData.color, lightData.intensity)
   _shadow(light, lightData)

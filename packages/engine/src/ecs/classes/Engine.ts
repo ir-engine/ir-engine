@@ -19,6 +19,8 @@ import { GameMode } from '../../game/types/GameMode'
 import { EngineEvents } from './EngineEvents'
 import { ActiveSystems, System } from './System'
 import { InitializeOptions } from '../../initializationOptions'
+import { CSM } from '../../assets/csm/CSM'
+import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
 
 /**
  * This is the base class which holds all the data related to the scene, camera,system etc.
@@ -51,6 +53,7 @@ export class Engine {
    * @default 60
    */
   public static physicsFrameRate = 60
+  public static physxWorker: Worker = null
 
   /**
    * Frame rate for network system.
@@ -72,10 +75,11 @@ export class Engine {
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static renderer: WebGLRenderer = null
+  static effectComposer: EffectComposerWithSchema = null
   static xrRenderer = null
   static xrSession: XRSession = null
   static context = null
-
+  static csm: CSM = null
   /**
    * Reference to the three.js scene object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
@@ -88,6 +92,7 @@ export class Engine {
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static camera: PerspectiveCamera = null
+  static activeCameraEntity: Entity
 
   /**
    * Reference to the Transform component of the three.js camera object.

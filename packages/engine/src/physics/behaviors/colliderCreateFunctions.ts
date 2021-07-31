@@ -1,6 +1,6 @@
 import { PhysicsSystem } from '../systems/PhysicsSystem'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
-import { ShapeType, SHAPES, Body, BodyType } from 'three-physx'
+import { ShapeType, SHAPES, Body, BodyType, PhysXInstance } from 'three-physx'
 import { Entity } from '../../ecs/classes/Entity'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
@@ -161,7 +161,7 @@ export function addColliderWithoutEntity(
     }
   })
 
-  PhysicsSystem.instance.addBody(body)
+  PhysXInstance.instance.addBody(body)
 
   return body
 }

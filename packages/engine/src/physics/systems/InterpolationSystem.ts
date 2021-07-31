@@ -28,17 +28,6 @@ import { rigidbodyCorrectionBehavior } from '../behaviors/rigidbodyCorrectionBeh
 const vec3 = new Vector3()
 
 export class InterpolationSystem extends System {
-  static instance: InterpolationSystem
-
-  constructor() {
-    super()
-    InterpolationSystem.instance = this
-  }
-
-  dispose(): void {
-    super.dispose()
-  }
-
   execute(delta: number): void {
     if (!Network.instance?.snapshot) return
 
