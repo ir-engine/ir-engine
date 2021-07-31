@@ -26,13 +26,9 @@ export class Instance extends Service {
     const skip = params.query?.$skip ? params.query.$skip : 0
     const limit = params.query?.$limit ? params.query.$limit : 10
 
-    console.log(action)
-
     if (action === 'admin') {
-      const loggedInUser = extractLoggedInUserFromParams(params)
-      console.log(loggedInUser)
-
       //TODO: uncomment here
+      // const loggedInUser = extractLoggedInUserFromParams(params)
       // const user = await super.get(loggedInUser.userId);
       // console.log(user);
       // if (user.userRole !== 'admin') throw new Forbidden ('Must be system admin to execute this action');
