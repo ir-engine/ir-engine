@@ -41,7 +41,6 @@ const PartyVideoWindows = (props: Props): JSX.Element => {
   const channelLayerUsers = userState.channelLayerUsers
 
   useEffect(() => {
-    console.log('EFFECT:\n' + JSON.stringify(userState) + '\n\n selfUser:\n' + JSON.stringify(selfUser))
     if (selfUser?.instanceId != null && userState.layerUsersUpdateNeeded === true)
       dispatch(UserService.getLayerUsers(true))
     if (selfUser?.channelInstanceId != null && userState.channelLayerUsersUpdateNeeded === true)
