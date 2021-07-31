@@ -8,6 +8,7 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { Downgraded } from '@hookstate/core'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
+import Store from '@xrengine/client-core/src/store'
 
 export const NetworkDebug = ({ reinit }) => {
   const [isShowing, setShowing] = useState(false)
@@ -15,6 +16,8 @@ export const NetworkDebug = ({ reinit }) => {
   const [avatarDebug, setAvatarDebug] = useState(false)
 
   const showingStateRef = useRef(isShowing)
+
+  const storeStates = Store.store.getState()
 
   const userState = useUserState().attach(Downgraded).value
 
@@ -161,8 +164,8 @@ export const NetworkDebug = ({ reinit }) => {
               <JSONTree data={renderComps()} />
             </div>
             <div>
-              <h1>Store</h1>
-              <JSONTree data={userState} />
+              <h1>Store States</h1>
+              <JSONTree data={storeStates} />
             </div>
           </div>
         )}
