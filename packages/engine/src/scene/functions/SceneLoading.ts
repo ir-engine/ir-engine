@@ -309,6 +309,14 @@ export class WorldScene {
         setPostProcessing(entity, component.data)
         break
 
+      case 'cameraproperties':
+        let data = component.data
+        let cameraTypeIndex = data.options.CameraType.CameraMode
+        if (CameraSystem.instance.activeCamera) {
+          CameraSystem.instance.updateCameraType(cameraTypeIndex)
+        }
+        break
+
       case 'envmap':
         setEnvMap(entity, component.data)
         break

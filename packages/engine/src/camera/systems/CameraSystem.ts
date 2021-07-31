@@ -51,6 +51,17 @@ const followCameraBehavior = (entity: Entity) => {
     FollowCameraComponent
   ) as FollowCameraComponent
 
+  if(CameraSystem.instance.updateCameraMode) {
+    let index = 0
+    for (const key of Object.keys(CameraModes)) {
+      if (index === CameraSystem.instance.cameraModeIndex && CameraSystem.instance.updateCameraMode) {
+        followCamera.mode = CameraModes[key]
+      }
+      index++
+    }
+    CameraSystem.instance.updateCameraMode = false
+  }
+
   const inputComponent = getComponent(entity, Input) as Input
 
   // this is for future integration of MMO style pointer lock controls
@@ -154,6 +165,9 @@ export class CameraSystem extends System {
   activeCamera: Entity
   prevState = [0, 0] as NumericalType
 
+  cameraModeIndex: number
+  updateCameraMode: boolean
+
   /** Constructs camera system. */
   constructor(attributes: SystemAttributes = {}) {
     super(attributes)
@@ -173,6 +187,16 @@ export class CameraSystem extends System {
         resetFollowCamera()
       }
     })
+  }
+
+  /**
+   * Update the camera type of the active camera on next frame.
+   *
+   * @param index of mode to use from CameraModes
+   */
+  updateCameraType(cameraModeIndex: number) {
+    this.cameraModeIndex = cameraModeIndex
+    this.updateCameraMode = true
   }
 
   /**
