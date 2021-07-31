@@ -6,7 +6,6 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { delay } from '../../ecs/functions/EngineFunctions'
 import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import { removeCollidersFromModel } from '../../physics/behaviors/parseModelColliders'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -16,6 +15,7 @@ import { parseGeometry } from '../../map/parseGeometry'
 import * as YUKA from 'yuka'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
+import { delay } from '../../common/functions/delay'
 
 export const loadGLTFModel = (
   sceneLoader: WorldScene,

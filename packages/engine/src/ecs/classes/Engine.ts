@@ -18,6 +18,7 @@ import { InputValue } from '../../input/interfaces/InputValue'
 import { GameMode } from '../../game/types/GameMode'
 import { EngineEvents } from './EngineEvents'
 import { ActiveSystems, System } from './System'
+import { InitializeOptions } from '../../initializationOptions'
 
 /**
  * This is the base class which holds all the data related to the scene, camera,system etc.
@@ -26,6 +27,7 @@ import { ActiveSystems, System } from './System'
  * @author Shaw, Josh, Vyacheslav and the XREngine Team
  */
 export class Engine {
+  public static initOptions: InitializeOptions
   public static engineTimer: { start: Function; stop: Function; clear: Function } = null
 
   public static gameModes: { [key: string]: GameMode }

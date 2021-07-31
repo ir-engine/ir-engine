@@ -20,37 +20,25 @@ import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
-import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { FollowCameraComponent } from '@xrengine/engine/src/camera/components/FollowCameraComponent'
-import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent'
-import { ControllerColliderComponent } from '@xrengine/engine/src/character/components/ControllerColliderComponent'
+import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
 import { awaitEngaged, Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { processLocationChange, resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
-import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
-import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem'
+import { initializeEngine, shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
-import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema'
-import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem'
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
 import querystring from 'querystring'
 import React, { Suspense, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
-import { CameraLayers } from '@xrengine/engine/src/camera/constants/CameraLayers'
 import MediaIconsBox from '../../components/MediaIconsBox'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import {
@@ -198,7 +186,7 @@ export const EnginePage = (props: Props) => {
       )
       EngineEvents.instance.addEventListener(EngineEvents.EVENTS.RESET_ENGINE, async (ev: any) => {
         if (ev.instance === true) {
-          await resetEngine()
+          await shutdownEngine()
           resetInstanceServer()
           const currentLocation = locationState.get('currentLocation').get('location')
           locationId = currentLocation.id
@@ -522,7 +510,7 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     return (): void => {
-      resetEngine()
+      shutdownEngine()
     }
   }, [])
 

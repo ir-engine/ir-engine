@@ -21,19 +21,16 @@ import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/se
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
-import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { processLocationChange, resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
+import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { initializeEngine, shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
-import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema'
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
@@ -59,7 +56,6 @@ import WarningRefreshModal from '../AlertModals/WarningRetryModal'
 import RecordingApp from './../Recorder/RecordingApp'
 import configs from '@xrengine/client-core/src/world/components/editor/configs'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
-import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem'
 
 const store = Store.store
 
@@ -193,7 +189,7 @@ export const EnginePage = (props: Props) => {
       )
       EngineEvents.instance.addEventListener(EngineEvents.EVENTS.RESET_ENGINE, async (ev: any) => {
         if (ev.instance === true) {
-          await resetEngine()
+          await shutdownEngine()
           resetInstanceServer()
           const currentLocation = locationState.get('currentLocation').get('location')
           locationId = currentLocation.id

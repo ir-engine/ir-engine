@@ -1,61 +1,30 @@
-import { Engine } from '../../ecs/classes/Engine'
-import {
-  handleContextMenu,
-  handleKey,
-  handleMouseButton,
-  handleMouseLeave,
-  handleMouseMovement,
-  handleMouseWheel,
-  handleTouch,
-  handleTouchDirectionalPad,
-  handleTouchGamepadButton,
-  handleTouchMove,
-  handleVisibilityChange,
-  handleWindowFocus
-} from '../schema/ClientInputSchema'
+import { LifecycleValue } from '../../common/enums/LifecycleValue'
+import { NumericalType } from '../../common/types/NumericalTypes'
 import { System } from '../../ecs/classes/System'
-import { handleGamepadConnected, handleGamepadDisconnected, handleGamepads } from '../behaviors/GamepadInputBehaviors'
+import { Not } from '../../ecs/functions/ComponentFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { Network } from '../../networking/classes/Network'
+import { NetworkObject } from '../../networking/components/NetworkObject'
+import { Input } from '../components/Input'
+import { LocalInputReceiver } from '../components/LocalInputReceiver'
 import { InputType } from '../enums/InputType'
 import { InputValue } from '../interfaces/InputValue'
-import { NumericalType } from '../../common/types/NumericalTypes'
-import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { InputAlias } from '../types/InputAlias'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { WEBCAM_INPUT_EVENTS } from '../constants/InputConstants'
+import { Engine } from '../../ecs/classes/Engine'
+import { processInput } from '../functions/processInput'
+import { handleGamepads } from '../behaviors/GamepadInputBehaviors'
 
-const supportsPassive = (function () {
-  let supportsPassiveValue = false
-  try {
-    const opts = Object.defineProperty({}, 'passive', {
-      get: function () {
-        supportsPassiveValue = true
-      }
-    })
-    window.addEventListener('testPassive', null, opts)
-    window.removeEventListener('testPassive', null, opts)
-  } catch (error) {}
-  return supportsPassiveValue
-})()
+const isBrowser = new Function('try {return this===window;}catch(e){ return false;}')
 
-const keys = { 37: 1, 38: 1, 39: 1, 40: 1 }
+let faceToInput, lipToInput
 
-function preventDefault(e) {
-  e.preventDefault()
-}
-
-function preventDefaultForScrollKeys(e) {
-  if (keys[e.keyCode]) {
-    preventDefault(e)
-    return false
-  }
-}
-
-// for future api stuff, we should replace ClientInputSchema with a user given option & default to ClientInputSchema
-
-interface ListenerBindingData {
-  domElement: any
-  eventName: string
-  callback: (event) => void
-}
+if (isBrowser())
+  import('../behaviors/WebcamInputBehaviors').then((imported) => {
+    faceToInput = imported.faceToInput
+    lipToInput = imported.lipToInput
+  })
 
 /**
  * Input System
@@ -73,9 +42,6 @@ export class ClientInputSystem extends System {
 
   static instance: ClientInputSystem
 
-  needSend = false
-  switchId = 1
-  boundListeners: ListenerBindingData[] = []
   mouseInputEnabled = true
   keyboardInputEnabled = true
 
@@ -84,73 +50,25 @@ export class ClientInputSystem extends System {
 
     ClientInputSystem.instance = this
 
-    window.addEventListener('DOMMouseScroll', preventDefault, false)
-    window.addEventListener('keydown', preventDefaultForScrollKeys, false)
+    EngineEvents.instance.addEventListener(WEBCAM_INPUT_EVENTS.FACE_INPUT, ({ detection }) => {
+      faceToInput(Network.instance.localClientEntity, detection)
+    })
+
+    EngineEvents.instance.addEventListener(WEBCAM_INPUT_EVENTS.LIP_INPUT, ({ pucker, widen, open }) => {
+      lipToInput(Network.instance.localClientEntity, pucker, widen, open)
+    })
 
     EngineEvents.instance.addEventListener(ClientInputSystem.EVENTS.ENABLE_INPUT, ({ keyboard, mouse }) => {
       if (typeof keyboard !== 'undefined') ClientInputSystem.instance.keyboardInputEnabled = keyboard
       if (typeof mouse !== 'undefined') ClientInputSystem.instance.mouseInputEnabled = mouse
     })
-
-    const addListener = (domElement, eventName, callback, passive = false) => {
-      if (passive && supportsPassive) {
-        domElement.addEventListener(eventName, callback, { passive })
-      } else {
-        domElement.addEventListener(eventName, callback)
-      }
-      this.boundListeners.push({
-        domElement,
-        eventName,
-        callback
-      })
-    }
-
-    const viewportElement = Engine.viewportElement ?? (document as any)
-
-    addListener(viewportElement, 'contextmenu', handleContextMenu)
-
-    addListener(viewportElement, 'mousemove', handleMouseMovement)
-    addListener(viewportElement, 'mouseup', handleMouseButton)
-    addListener(viewportElement, 'mousedown', handleMouseButton)
-    addListener(viewportElement, 'mouseleave', handleMouseLeave)
-    addListener(viewportElement, 'wheel', handleMouseWheel, true)
-
-    addListener(
-      viewportElement,
-      'touchstart',
-      (e) => {
-        handleTouch(e)
-        handleTouchMove(e)
-      },
-      true
-    )
-    addListener(viewportElement, 'touchend', handleTouch, true)
-    addListener(viewportElement, 'touchcancel', handleTouch, true)
-    addListener(viewportElement, 'touchmove', handleTouchMove, true)
-
-    addListener(document, 'keyup', handleKey)
-    addListener(document, 'keydown', handleKey)
-
-    addListener(window, 'focus', handleWindowFocus)
-    addListener(window, 'blur', handleWindowFocus)
-
-    addListener(document, 'visibilitychange', handleVisibilityChange)
-    addListener(document, 'touchstickmove', handleTouchDirectionalPad)
-    addListener(document, 'touchgamepadbuttondown', handleTouchGamepadButton)
-    addListener(document, 'touchgamepadbuttonup', handleTouchGamepadButton)
-
-    addListener(window, 'gamepadconnected', handleGamepadConnected)
-    addListener(window, 'gamepaddisconnected', handleGamepadDisconnected)
   }
 
   dispose(): void {
-    window.removeEventListener('DOMMouseScroll', preventDefault, false)
-    window.removeEventListener('keydown', preventDefaultForScrollKeys, false)
-
-    this.boundListeners.forEach(({ domElement, eventName, callback }) => {
-      domElement.removeEventListener(eventName, callback)
-    })
     EngineEvents.instance.removeAllListenersForEvent(ClientInputSystem.EVENTS.ENABLE_INPUT)
+    EngineEvents.instance.removeAllListenersForEvent(WEBCAM_INPUT_EVENTS.FACE_INPUT)
+    EngineEvents.instance.removeAllListenersForEvent(WEBCAM_INPUT_EVENTS.LIP_INPUT)
+    EngineEvents.instance.removeAllListenersForEvent(ClientInputSystem.EVENTS.PROCESS_INPUT)
   }
 
   /**
@@ -159,11 +77,10 @@ export class ClientInputSystem extends System {
    */
 
   public execute(delta: number): void {
-    // we get XR gamepad input from XRSystem, grabbing from gamepad api again breaks stuff
     if (!Engine.xrSession) {
       handleGamepads()
     }
-    const newState = new Map<InputAlias, InputValue<NumericalType>>()
+
     Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
       if (!Engine.prevInputState.has(key)) {
         return
@@ -193,19 +110,9 @@ export class ClientInputSystem extends System {
           : LifecycleValue.CHANGED
     })
 
-    // deep copy
-    Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
-      if (
-        !(
-          value.lifecycleState === LifecycleValue.UNCHANGED &&
-          Engine.prevInputState.get(key)?.lifecycleState === LifecycleValue.UNCHANGED
-        )
-      ) {
-        newState.set(key, { type: value.type, value: value.value, lifecycleState: value.lifecycleState })
-      }
-    })
-
-    EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.PROCESS_INPUT, data: newState })
+    for (const entity of this.queryResults.localClientInput.all) {
+      processInput(entity, delta)
+    }
 
     Engine.prevInputState.clear()
     Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
@@ -214,5 +121,36 @@ export class ClientInputSystem extends System {
         Engine.inputState.delete(key)
       }
     })
+
+    // Called when input component is added to entity
+    for (const entity of this.queryResults.localClientInput.added) {
+      // Get component reference
+      const input = getComponent(entity, Input)
+      input.schema.onAdded(entity, delta)
+    }
+
+    // Called when input component is removed from entity
+    for (const entity of this.queryResults.localClientInput.removed) {
+      // Get component reference
+      const input = getComponent(entity, Input, true)
+      input.schema.onRemove(entity, delta)
+    }
+  }
+
+  static queries = {
+    networkClientInput: {
+      components: [NetworkObject, Input, Not(LocalInputReceiver)],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    localClientInput: {
+      components: [Input, LocalInputReceiver],
+      listen: {
+        added: true,
+        removed: true
+      }
+    }
   }
 }

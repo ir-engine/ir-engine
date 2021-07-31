@@ -231,23 +231,6 @@ export function stats(): { entities: any; system: any } {
     system: systemStatus
   }
 }
-
-/** Reset the engine and clear all the timers. */
-export async function resetEngine(): Promise<void> {
-  Engine.engineTimer?.clear()
-  Engine.engineTimer = null
-
-  await reset()
-}
-
-export const delay = (delay: number) => {
-  return new Promise<void>((resolve) => {
-    setTimeout(() => {
-      resolve()
-    }, delay)
-  })
-}
-
 export const processLocationChange = async (newPhysicsWorker: Worker): Promise<void> => {
   const entitiesToRemove = []
   const removedEntities = []

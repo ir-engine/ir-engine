@@ -12,7 +12,6 @@ import { Engine } from './ecs/classes/Engine'
 import { EngineEvents } from './ecs/classes/EngineEvents'
 import { getSystem, registerSystem } from './ecs/functions/SystemFunctions'
 import { GameManagerSystem } from './game/systems/GameManagerSystem'
-import { ActionSystem } from './input/systems/ActionSystem'
 import { ClientInputSystem } from './input/systems/ClientInputSystem'
 import { InteractiveSystem } from './interaction/systems/InteractiveSystem'
 import { Network } from './networking/classes/Network'
@@ -27,7 +26,7 @@ import { UISystem } from './xrui/systems/UISystem'
 import { XRSystem } from './xr/systems/XRSystem'
 import { WebGLRendererSystem } from './renderer/WebGLRendererSystem'
 import { Timer } from './common/functions/Timer'
-import { execute } from './ecs/functions/EngineFunctions'
+import { execute, reset } from './ecs/functions/EngineFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem'
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem'
@@ -41,6 +40,7 @@ import { InterpolationSystem } from './physics/systems/InterpolationSystem'
 import { FontManager } from './xrui/classes/FontManager'
 import { EquippableSystem } from './interaction/systems/EquippableSystem'
 import { AutopilotSystem } from './navigation/systems/AutopilotSystem'
+import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -94,6 +94,8 @@ const configureClient = async (options: Required<InitializeOptions>) => {
 
   setupBotHooks()
 
+  addClientInputListeners()
+
   registerClientSystems(options, canvas)
 }
 
@@ -146,7 +148,6 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
 
   // Input Systems
   registerSystem(SystemUpdateType.Fixed, UISystem)
-  registerSystem(SystemUpdateType.Fixed, ActionSystem)
   registerSystem(SystemUpdateType.Fixed, CharacterControllerSystem)
   registerSystem(SystemUpdateType.Fixed, AnimationSystem)
   registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
@@ -218,7 +219,7 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
-
+  Engine.initOptions = options
   Engine.gameModes = options.gameModes
   Engine.offlineMode = typeof options.networking.schema === 'undefined'
   Engine.publicPath = options.publicPath
@@ -313,4 +314,15 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   // Mark engine initialized
   Engine.isInitialized = true
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE })
+}
+
+export const shutdownEngine = async () => {
+  if (Engine.initOptions.type === EngineSystemPresets.CLIENT) {
+    removeClientInputListeners()
+  }
+
+  Engine.engineTimer?.clear()
+  Engine.engineTimer = null
+
+  await reset()
 }

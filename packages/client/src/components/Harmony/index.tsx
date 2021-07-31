@@ -85,7 +85,7 @@ import { Message } from '@xrengine/common/src/interfaces/Message'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { initializeEngine, shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
@@ -111,8 +111,7 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 // @ts-ignore
 import styles from './style.module.scss'
 import WarningRefreshModal from '../AlertModals/WarningRetryModal'
-import { resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
-import { InitializeOptions } from '../../../../engine/src/initializationOptions'
+import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { Downgraded } from '@hookstate/core'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
@@ -360,7 +359,7 @@ const Harmony = (props: Props): any => {
         audio: !audioPaused,
         video: !videoPaused
       })
-      await resetEngine()
+      await shutdownEngine()
       setWarningRefreshModalValues(initialRefreshModalValues)
       await init()
       resetChannelServer()

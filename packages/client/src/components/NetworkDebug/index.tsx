@@ -4,8 +4,8 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import React, { useEffect, useRef, useState } from 'react'
 import JSONTree from 'react-json-tree'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 
 export const NetworkDebug = ({ reinit }) => {
   const [isShowing, setShowing] = useState(false)
@@ -70,7 +70,7 @@ export const NetworkDebug = ({ reinit }) => {
     EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS, enabled: false })
     setPhysicsDebug(false)
 
-    resetEngine()
+    shutdownEngine()
   }
 
   const renderComps = () => {

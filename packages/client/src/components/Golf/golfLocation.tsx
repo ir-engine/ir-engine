@@ -22,9 +22,8 @@ import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { initializeEngine, shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
@@ -183,7 +182,7 @@ export const EnginePage = (props: Props) => {
       )
       EngineEvents.instance.addEventListener(EngineEvents.EVENTS.RESET_ENGINE, async (ev: any) => {
         if (ev.instance === true) {
-          await resetEngine()
+          await shutdownEngine()
           resetInstanceServer()
           const currentLocation = locationState.get('currentLocation').get('location')
           locationId = currentLocation.id
@@ -476,7 +475,7 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     return (): void => {
-      resetEngine()
+      shutdownEngine()
     }
   }, [])
 

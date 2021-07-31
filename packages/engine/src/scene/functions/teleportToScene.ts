@@ -6,7 +6,6 @@ import { CharacterComponent } from '../../character/components/CharacterComponen
 import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { delay } from '../../ecs/functions/EngineFunctions'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { PhysicsSystem } from '../../physics/systems/PhysicsSystem'
@@ -14,6 +13,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { PortalComponent } from '../components/PortalComponent'
 import { PortalEffect } from '../classes/PortalEffect'
 import { Object3DComponent } from '../components/Object3DComponent'
+import { delay } from '../../common/functions/delay'
 
 export const teleportToScene = async (portalComponent: PortalComponent, handleNewScene: () => void) => {
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })

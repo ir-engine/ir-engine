@@ -17,9 +17,8 @@ import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/servic
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { initializeEngine, shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
 import querystring from 'querystring'
@@ -386,7 +385,7 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     return (): void => {
-      resetEngine()
+      shutdownEngine()
     }
   }, [])
 
