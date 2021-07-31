@@ -109,7 +109,7 @@
     "comlink": "4.3.1",
     "config": "3.3.6",
     "cross-env": "7.0.3",
-    "eslint": "7.31.0"
+    "eslint": "7.32.0"
   },
   "license": "ISC"
 }
