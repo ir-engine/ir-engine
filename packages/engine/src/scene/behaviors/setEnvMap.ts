@@ -14,7 +14,7 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { convertEquiToCubemap } from '../../editor/nodes/helper/ImageUtils'
 import { ReflectionProbeTypes } from '../../editor/nodes/ReflectionProbeNode'
 import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
-import { SceneObjectSystem } from '../systems/SceneObjectSystem'
+import { SceneOptions } from '../systems/SceneObjectSystem'
 
 export const setEnvMap = (entity, args: EnvMapProps) => {
   if (!isClient) {

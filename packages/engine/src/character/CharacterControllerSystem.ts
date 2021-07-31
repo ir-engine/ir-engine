@@ -3,25 +3,29 @@ import { Controller, ControllerHitEvent, PhysXInstance, RaycastQuery, SceneQuery
 import { isClient } from '../common/functions/isClient'
 import { System } from '../ecs/classes/System'
 import { Not } from '../ecs/functions/ComponentFunctions'
-import { getMutableComponent, getComponent, getRemovedComponent, hasComponent } from '../ecs/functions/EntityFunctions'
+import {
+  getMutableComponent,
+  getComponent,
+  getRemovedComponent,
+  hasComponent,
+  addComponent,
+  removeComponent
+} from '../ecs/functions/EntityFunctions'
 import { LocalInputReceiver } from '../input/components/LocalInputReceiver'
 import { characterMoveBehavior } from './behaviors/characterMoveBehavior'
 import { ControllerColliderComponent } from './components/ControllerColliderComponent'
 import { InterpolationComponent } from '../physics/components/InterpolationComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../physics/enums/CollisionGroups'
-import { PhysicsSystem } from '../physics/systems/PhysicsSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { CharacterComponent } from './components/CharacterComponent'
 import { Engine } from '../ecs/classes/Engine'
 import { XRInputSourceComponent } from './components/XRInputSourceComponent'
 import { Network } from '../networking/classes/Network'
 import { detectUserInPortal } from './functions/detectUserInPortal'
-import { ServerSpawnSystem } from '../scene/systems/ServerSpawnSystem'
-import { sendClientObjectUpdate } from '../networking/functions/sendClientObjectUpdate'
-import { NetworkObjectUpdateType } from '../networking/templates/NetworkObjectUpdateSchema'
 import { updatePlayerRotationFromViewVector } from './functions/updatePlayerRotationFromViewVector'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
+import { RespawnTagComponent } from '../scene/components/RespawnTagComponent'
 
 const vector3 = new Vector3()
 const quat = new Quaternion()
@@ -105,23 +109,9 @@ export class CharacterControllerSystem extends System {
 
       // TODO: implement scene lower bounds parameter
       if (!isClient && controller.controller.transform.translation.y < -10) {
-        const { position, rotation } = ServerSpawnSystem.instance.getRandomSpawnPoint()
-        const pos = position.clone()
-        pos.y += actor.actorHalfHeight
-        console.log('player has fallen through the floor, teleporting them to', position)
-        controller.controller.updateTransform({
-          translation: pos,
-          rotation
-        })
-        sendClientObjectUpdate(entity, NetworkObjectUpdateType.ForceTransformUpdate, [
-          position.x,
-          position.y,
-          position.z,
-          rotation.x,
-          rotation.y,
-          rotation.z,
-          rotation.w
-        ])
+        if (hasComponent(entity, RespawnTagComponent)) removeComponent(entity, RespawnTagComponent)
+        addComponent(entity, RespawnTagComponent)
+        continue
       }
 
       transform.position.set(

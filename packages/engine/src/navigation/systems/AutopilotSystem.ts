@@ -39,7 +39,7 @@ export class AutopilotSystem extends System {
   execute(delta: number, time: number): void {
     for (const entity of this.queryResults.navClick.added) {
       const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
-      console.log('~~~ coords', coords)
+      // console.log('~~~ coords', coords)
       this.raycaster.setFromCamera(coords, Engine.camera)
 
       const raycasterResults = []
@@ -64,7 +64,7 @@ export class AutopilotSystem extends System {
         },
         { distance: Infinity, point: null, entity: null }
       )
-      console.log('~~~ clickResult', clickResult)
+      // console.log('~~~ clickResult', clickResult)
 
       if (clickResult.point) {
         console.log('ADD AutoPilotRequestComponent')

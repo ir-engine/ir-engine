@@ -2,8 +2,13 @@ import { Entity } from '../../ecs/classes/Entity'
 import { System } from '../../ecs/classes/System'
 import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import SpawnPointComponent from '../components/SpawnPointComponent'
+import { SpawnPointComponent } from '../components/SpawnPointComponent'
 import { Quaternion, Vector3 } from 'three'
+import { RespawnTagComponent } from '../components/RespawnTagComponent'
+import { NetworkObjectUpdateType } from '../../networking/templates/NetworkObjectUpdateSchema'
+import { sendClientObjectUpdate } from '../../networking/functions/sendClientObjectUpdate'
+import { CharacterComponent } from '../../character/components/CharacterComponent'
+import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent'
 
 const randomPositionCentered = (area: Vector3) => {
   return new Vector3((Math.random() - 0.5) * area.x, (Math.random() - 0.5) * area.y, (Math.random() - 0.5) * area.z)
@@ -57,12 +62,47 @@ export class ServerSpawnSystem extends System {
         this.spawnPoints.splice(index)
       }
     }
+
+    // currently hard coded for characters, we should make this work with any entity
+    for (const entity of this.queryResults.respawn.added) {
+      const { position, rotation } = getComponent(entity, RespawnTagComponent).position
+        ? getComponent(entity, RespawnTagComponent)
+        : this.getRandomSpawnPoint()
+      const actor = getComponent(entity, CharacterComponent)
+      const controller = getComponent(entity, ControllerColliderComponent)
+
+      const pos = position.clone()
+      pos.y += actor.actorHalfHeight
+
+      console.log('[Player Respawn]', position)
+
+      controller.controller.updateTransform({
+        translation: pos,
+        rotation
+      })
+      sendClientObjectUpdate(entity, NetworkObjectUpdateType.ForceTransformUpdate, [
+        pos.x,
+        pos.y,
+        pos.z,
+        rotation.x,
+        rotation.y,
+        rotation.z,
+        rotation.w
+      ])
+    }
   }
 }
 
 ServerSpawnSystem.queries = {
   spawnPoint: {
     components: [SpawnPointComponent, TransformComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  respawn: {
+    components: [RespawnTagComponent, CharacterComponent],
     listen: {
       added: true,
       removed: true

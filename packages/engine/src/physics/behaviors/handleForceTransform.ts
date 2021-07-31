@@ -26,9 +26,8 @@ export const handleForceTransform = (editObject: NetworkObjectEditInterface): vo
 
   const controllerComponent = getComponent(entity, ControllerColliderComponent)
   if (controllerComponent) {
-    const actor = getComponent(entity, CharacterComponent)
     controllerComponent.controller?.updateTransform({
-      translation: { x, y: y + actor.actorHalfHeight, z },
+      translation: { x, y, z },
       rotation: { x: qX, y: qY, z: qZ, w: qW }
     })
   }
