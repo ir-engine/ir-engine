@@ -22,7 +22,6 @@ import { getPositionNextPoint } from './behaviors/getPositionNextPoint'
 import { hitBall } from './behaviors/hitBall'
 import { nextTurn } from './behaviors/nextTurn'
 import { saveScore } from './behaviors/saveScore'
-import { setupOfflineDebug } from './behaviors/setupOfflineDebug'
 import { setupPlayerAvatar, setupPlayerAvatarNotInVR, setupPlayerAvatarVR } from './behaviors/setupPlayerAvatar'
 import { setupPlayerInput } from './behaviors/setupPlayerInput'
 import { removeVelocity, teleportObject, updateColliderPosition } from './behaviors/teleportObject'
@@ -356,7 +355,6 @@ export class GolfSystem extends System {
       setupPlayerInput(entity)
       createYourTurnPanel(entity)
       isClient && setupPlayerAvatar(entity)
-      setupOfflineDebug(entity)
 
       // set up game logic
       addRole(entity)

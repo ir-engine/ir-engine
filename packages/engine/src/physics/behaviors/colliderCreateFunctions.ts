@@ -63,7 +63,7 @@ export function addColliderWithoutEntity(
   scale = new Vector3(),
   model: ModelData = {}
 ): Body {
-  // console.log(userData, pos, rot, scale, model)
+  console.log(userData, pos, rot, scale, model)
   if (model.mesh && !model.vertices) {
     const mergedGeom = getGeometry(model.mesh)
     model.vertices = Array.from(mergedGeom.attributes.position.array)

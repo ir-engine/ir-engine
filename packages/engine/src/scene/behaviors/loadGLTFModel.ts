@@ -34,7 +34,6 @@ export const loadGLTFModel = (
           (res) => {
             removeCollidersFromModel(entity, res)
 
-            console.log('LOADED RES', component.data, res)
             // DIRTY HACK TO LOAD NAVMESH
             if (component.data.src.match(/navmesh/)) {
               console.log('generate navmesh')
@@ -51,7 +50,6 @@ export const loadGLTFModel = (
                   }
                 }
               })
-              console.log('polygons', polygons)
               if (polygons.length) {
                 const navMesh = new YUKA.NavMesh()
                 navMesh.fromPolygons(polygons)

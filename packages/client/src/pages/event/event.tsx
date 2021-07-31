@@ -39,7 +39,7 @@ import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema'
-import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem'
+import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem'
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
@@ -430,16 +430,7 @@ export const EnginePage = (props: Props) => {
     if (!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance')
 
     const connectPromise = new Promise<void>((resolve) => {
-      EngineEvents.instance.once(
-        EngineEvents.EVENTS.CONNECT_TO_WORLD,
-        async ({ worldState }: { worldState: WorldStateInterface }) => {
-          const localClient = worldState.clientsConnected.find((client) => {
-            return client.userId === Network.instance.userId
-          })
-          AssetLoader.load({ url: localClient.avatarDetail.avatarURL })
-          resolve()
-        }
-      )
+      EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, resolve)
     })
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
@@ -470,29 +461,25 @@ export const EnginePage = (props: Props) => {
 
     await awaitEngaged()
 
-    const worldState = await new Promise<any>(async (resolve) => {
-      if (Config.publicRuntimeConfig.offlineMode) {
-        EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId })
-        resolve(testWorldState)
-      } else {
-        // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
-        let spawnTransform
-        if (porting) {
-          spawnTransform = { position: newSpawnPos.spawnPosition, rotation: newSpawnPos.spawnRotation }
-        }
-
-        const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
-          MessageTypes.JoinWorld.toString(),
-          { spawnTransform }
-        )
-        resolve(WorldStateModel.fromBuffer(worldState))
+    await new Promise<void>(async (resolve) => {
+      // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
+      let spawnTransform
+      if (porting) {
+        spawnTransform = { position: newSpawnPos.spawnPosition, rotation: newSpawnPos.spawnRotation }
       }
+
+      const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
+        MessageTypes.JoinWorld.toString(),
+        { spawnTransform }
+      )
+      Network.instance.incomingMessageQueueReliable.add(worldState)
+      resolve()
     })
 
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS))
     setPorting(false)
 
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState })
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
   }
 
   const onSceneLoadedEntity = (left: number): void => {

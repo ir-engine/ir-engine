@@ -20,9 +20,6 @@ import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
-import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem'
-import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
 import querystring from 'querystring'
@@ -39,8 +36,8 @@ import {
 import MediaIconsBox from '../../components/MediaIconsBox'
 import NetworkDebug from '../../components/NetworkDebug'
 import { delay } from 'lodash'
+import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem'
 import { Network } from '../../../../engine/src/networking/classes/Network'
-import { ClientNetworkStateSystem } from '../../../../engine/src/networking/systems/ClientNetworkStateSystem'
 
 const store = Store.store
 
@@ -349,7 +346,7 @@ export const EnginePage = (props: Props) => {
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED'))
     addUIEvents()
 
-    EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId })
+    EngineEvents.instance.dispatchEvent({ type: ClientNetworkStateSystem.EVENTS.CONNECT, id: testUserId })
 
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
@@ -367,7 +364,8 @@ export const EnginePage = (props: Props) => {
     })
 
     await new Promise<void>((resolve) => delay(resolve, 1000))
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState: testWorldState })
+    Network.instance.incomingMessageQueueReliable.add(testWorldState)
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
     await new Promise<void>((resolve) => delay(resolve, 1000))
 
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS))

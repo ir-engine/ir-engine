@@ -17,7 +17,6 @@ import { ClientInputSystem } from './input/systems/ClientInputSystem'
 import { InteractiveSystem } from './interaction/systems/InteractiveSystem'
 import { Network } from './networking/classes/Network'
 import { ClientNetworkStateSystem } from './networking/systems/ClientNetworkStateSystem'
-import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem'
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem'
 import { ParticleSystem } from './particles/systems/ParticleSystem'
 import { PhysicsSystem } from './physics/systems/PhysicsSystem'
@@ -84,6 +83,13 @@ const configureClient = async (options: Required<InitializeOptions>) => {
     Engine.scene.add(Engine.camera)
   }
 
+  Network.instance = new Network()
+
+  const { schema } = options.networking
+
+  Network.instance.schema = schema
+  Network.instance.transport = new schema.transport()
+
   await FontManager.instance.getDefaultFont()
 
   setupBotHooks()
@@ -118,6 +124,7 @@ const configureServer = async (options: Required<InitializeOptions>) => {
   }
 
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
+    console.log('joined world')
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: true, physics: true })
     Engine.hasJoinedWorld = true
   })
@@ -127,20 +134,15 @@ const configureServer = async (options: Required<InitializeOptions>) => {
 
 const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTMLCanvasElement) => {
   // Network Systems
-  Network.instance = new Network()
 
-  if (!Engine.offlineMode) {
-    Network.instance.schema = options.networking.schema
-    registerSystem(SystemUpdateType.Fixed, ClientNetworkSystem, { ...options.networking })
-  }
+  !Engine.offlineMode && registerSystem(SystemUpdateType.Fixed, ClientNetworkStateSystem)
 
-  registerSystem(SystemUpdateType.Fixed, ClientNetworkStateSystem)
   registerSystem(SystemUpdateType.Fixed, MediaStreamSystem)
 
   if (options.renderer.disabled) return
 
   // Input Systems
-  registerSystem(SystemUpdateType.Fixed, ClientInputSystem, { useWebXR: Engine.xrSupported })
+  registerSystem(SystemUpdateType.Fixed, ClientInputSystem)
 
   // Input Systems
   registerSystem(SystemUpdateType.Fixed, UISystem)
@@ -300,7 +302,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
       window.addEventListener(type, onUserEngage)
     })
 
-    EngineEvents.instance.once(ClientNetworkSystem.EVENTS.CONNECT, ({ id }) => {
+    EngineEvents.instance.once(ClientNetworkStateSystem.EVENTS.CONNECT, ({ id }) => {
       Network.instance.isInitialized = true
       Network.instance.userId = id
     })

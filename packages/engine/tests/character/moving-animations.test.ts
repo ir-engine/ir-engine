@@ -17,7 +17,7 @@ import { Network } from "../../../src/networking//classes/Network";
 import * as initializeNetworkObjectModule from "../../../src/networking/functions/initializeNetworkObject";
 import { NetworkSchema } from "../../../src/networking/interfaces/NetworkSchema";
 import { NetworkTransport } from "../../../src/networking/interfaces/NetworkTransport";
-import { ClientNetworkSystem } from "../../../src/networking/systems/ClientNetworkSystem";
+import { ClientNetworkStateSystem } from "../../../src/networking/systems/ClientNetworkStateSystem";
 import { PhysicsSystem } from "../../../src/physics/systems/PhysicsSystem";
 import { State } from "../../../src/state/components/State";
 import { StateSystem } from "../../../src/state/systems/StateSystem";
@@ -74,7 +74,7 @@ beforeAll(() => {
 
     Engine.scene = new Scene();
 
-    registerSystem(ClientNetworkSystem, { schema: networkSchema }); // 1
+    registerSystem(ClientNetworkStateSystem, { schema: networkSchema }); // 1
     registerSystem(PhysicsSystem); // 2 - handle hit
     registerSystem(StateSystem); // 3 - process floor hit
 

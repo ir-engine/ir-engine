@@ -285,7 +285,7 @@ export * from './src/networking/schema/clientInputSchema';
 export * from './src/networking/schema/transformStateSchema';
 export * from './src/networking/schema/worldStateSchema';
 export * from './src/networking/systems/ClientNetworkStateSystem';
-export * from './src/networking/systems/ClientNetworkSystem';
+export * from './src/networking/systems/ClientNetworkStateSystem';
 export * from './src/networking/systems/MediaStreamSystem';
 export * from './src/networking/systems/ServerNetworkIncomingSystem';
 export * from './src/networking/systems/ServerNetworkOutgoingSystem';

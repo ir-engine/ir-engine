@@ -9,7 +9,7 @@ import { SkeletonUtils } from '../SkeletonUtils'
 import { AnimationRenderer } from '../animations/AnimationRenderer'
 
 export const loadDefaultActorAvatar = (entity) => {
-  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
+  const actor = getMutableComponent(entity, CharacterComponent)
   const model = SkeletonUtils.clone(AnimationManager.instance._defaultModel)
 
   model.traverse((object) => {
@@ -42,7 +42,7 @@ export const loadActorAvatarFromURL = (entity, avatarURL) => {
     },
     (asset: Group) => {
       const model = SkeletonUtils.clone(asset)
-      const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
+      const actor = getMutableComponent(entity, CharacterComponent)
       const animationComponent = getMutableComponent(entity, AnimationComponent)
 
       animationComponent.mixer.stopAllAction()

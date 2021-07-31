@@ -316,6 +316,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       }
 
       this.model.traverse(parseGroupColliders)
+      this.meshColliders = colliders
       this.editor.renderer.addBatchedObject(this.model)
     }
 

@@ -1,8 +1,6 @@
 import Button from '@material-ui/core/Button'
 import Snackbar from '@material-ui/core/Snackbar'
-import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
-import TooltipContainer from '@xrengine/client-core/src/common/components/TooltipContainer'
 import {
   GeneralStateList,
   setAppLoaded,
@@ -21,23 +19,19 @@ import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
-import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { delay, processLocationChange, resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
+import { resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
-import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema'
-import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
 import querystring from 'querystring'
-import React, { Suspense, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
@@ -51,13 +45,13 @@ import {
 } from '../../reducers/instanceConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import WarningRefreshModal from '../AlertModals/WarningRetryModal'
-import { registerSystem, unregisterSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { unregisterSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { GolfSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
-import { AnimationSystem } from '../../../../engine/src/character/AnimationSystem'
-import { GolfGameMode } from '../../../../engine/src/game/templates/GolfGameMode'
-import { InteractiveSystem } from '../../../../engine/src/interaction/systems/InteractiveSystem'
+import { AnimationSystem } from '@xrengine/engine/src/character/AnimationSystem'
+import { GolfGameMode } from '@xrengine/engine/src/game/templates/GolfGameMode'
+import { registerGolfBotHooks } from '@xrengine/engine/src/game/templates/Golf/functions/registerGolfBotHooks'
+import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
-import { registerGolfBotHooks } from '../../../../engine/src/game/templates/Golf/functions/registerGolfBotHooks'
 
 const store = Store.store
 
@@ -416,7 +410,7 @@ export const EnginePage = (props: Props) => {
         systems: [
           {
             system: GolfSystem,
-            before: InteractiveSystem
+            after: GameManagerSystem
           }
         ]
       }
@@ -434,17 +428,7 @@ export const EnginePage = (props: Props) => {
     if (!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance')
 
     const connectPromise = new Promise<void>((resolve) => {
-      EngineEvents.instance.once(
-        EngineEvents.EVENTS.CONNECT_TO_WORLD,
-        async ({ worldState }: { worldState: WorldStateInterface }) => {
-          const localClient = worldState.clientsConnected.find((client) => {
-            return client.userId === Network.instance.userId
-          })
-          console.log(localClient.avatarDetail.avatarURL)
-          AssetLoader.load({ url: localClient.avatarDetail.avatarURL })
-          resolve()
-        }
-      )
+      EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, resolve)
     })
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
@@ -463,19 +447,16 @@ export const EnginePage = (props: Props) => {
 
     await Promise.all([connectPromise, sceneLoadPromise])
 
-    const worldState = await new Promise<any>(async (resolve) => {
-      if (Config.publicRuntimeConfig.offlineMode) {
-        EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId })
-        resolve(testWorldState)
-      } else {
-        const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
-          MessageTypes.JoinWorld.toString()
-        )
-        resolve(WorldStateModel.fromBuffer(worldState))
-      }
+    await new Promise<void>(async (resolve) => {
+      const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
+        MessageTypes.JoinWorld.toString()
+      )
+
+      Network.instance.incomingMessageQueueReliable.add(worldState)
+      resolve()
     })
 
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState })
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS))
     setPorting(false)
   }
