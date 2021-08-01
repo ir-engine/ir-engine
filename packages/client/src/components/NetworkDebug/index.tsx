@@ -1,5 +1,5 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { DebugHelpersSystem } from '@xrengine/engine/src/debug/systems/DebugHelpersSystem'
+import { DebugHelpers, DebugHelpersSystem } from '@xrengine/engine/src/debug/systems/DebugHelpersSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import React, { useEffect, useRef, useState } from 'react'
 import JSONTree from 'react-json-tree'
@@ -26,8 +26,8 @@ export const NetworkDebug = ({ reinit }) => {
   }
   document.addEventListener('keypress', (ev) => {
     if (ev.key === 'p') {
-      EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS, enabled: !physicsDebug })
-      EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_AVATAR, enabled: !physicsDebug })
+      DebugHelpers.toggleDebugPhysics(!physicsDebug)
+      DebugHelpers.toggleDebugAvatar(!physicsDebug)
       setPhysicsDebug(!physicsDebug)
     }
   })
@@ -55,12 +55,12 @@ export const NetworkDebug = ({ reinit }) => {
   const [remountCount, setRemountCount] = useState(0)
   const refresh = () => setRemountCount(remountCount + 1)
   const togglePhysicsDebug = () => {
-    EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS, enabled: !physicsDebug })
+    DebugHelpers.toggleDebugPhysics(!physicsDebug)
     setPhysicsDebug(!physicsDebug)
   }
 
   const toggleAvatarDebug = () => {
-    EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_AVATAR, enabled: !avatarDebug })
+    DebugHelpers.toggleDebugAvatar(!avatarDebug)
     setAvatarDebug(!avatarDebug)
   }
 
@@ -71,10 +71,10 @@ export const NetworkDebug = ({ reinit }) => {
     if (transport.channelSocket && typeof transport.channelSocket.disconnect === 'function')
       await transport.channelSocket.disconnect()
 
-    EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_AVATAR, enabled: false })
+    DebugHelpers.toggleDebugAvatar(false)
     setAvatarDebug(false)
 
-    EngineEvents.instance.dispatchEvent({ type: DebugHelpersSystem.EVENTS.TOGGLE_PHYSICS, enabled: false })
+    DebugHelpers.toggleDebugPhysics(false)
     setPhysicsDebug(false)
 
     shutdownEngine()

@@ -33,6 +33,7 @@ import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import { InteractedComponent } from '../components/InteractedComponent'
 import MediaComponent from '../../scene/components/MediaComponent'
 import AudioSource from '../../scene/classes/AudioSource'
+import { Engine } from '../../ecs/classes/Engine'
 
 const upVec = new Vector3(0, 1, 0)
 

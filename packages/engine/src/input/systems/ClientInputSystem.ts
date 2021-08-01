@@ -1,75 +1,23 @@
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { System } from '../../ecs/classes/System'
-import { Not } from '../../ecs/functions/ComponentFunctions'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { Network } from '../../networking/classes/Network'
-import { NetworkObject } from '../../networking/components/NetworkObject'
 import { Input } from '../components/Input'
 import { LocalInputReceiver } from '../components/LocalInputReceiver'
 import { InputType } from '../enums/InputType'
 import { InputValue } from '../interfaces/InputValue'
 import { InputAlias } from '../types/InputAlias'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { WEBCAM_INPUT_EVENTS } from '../constants/InputConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { processInput } from '../functions/processInput'
 import { handleGamepads } from '../behaviors/GamepadInputBehaviors'
 
-const isBrowser = new Function('try {return this===window;}catch(e){ return false;}')
-
-let faceToInput, lipToInput
-
-if (isBrowser())
-  import('../behaviors/WebcamInputBehaviors').then((imported) => {
-    faceToInput = imported.faceToInput
-    lipToInput = imported.lipToInput
-  })
-
-/**
- * Input System
- *
- * Property with prefix readonly makes a property as read-only in the class
- * @property {Number} mainControllerId set value 0
- * @property {Number} secondControllerId set value 1
- */
+export const enableInput = ({ keyboard, mouse }: { keyboard?: boolean; mouse?: boolean }) => {
+  if (typeof keyboard !== 'undefined') Engine.keyboardInputEnabled = keyboard
+  if (typeof mouse !== 'undefined') Engine.mouseInputEnabled = mouse
+}
 
 export class ClientInputSystem extends System {
-  static EVENTS = {
-    ENABLE_INPUT: 'CLIENT_INPUT_SYSTEM_ENABLE_INPUT',
-    PROCESS_INPUT: 'CLIENT_INPUT_SYSTEM_PROCESS_EVENT'
-  }
-
-  constructor() {
-    super()
-
-    EngineEvents.instance.addEventListener(WEBCAM_INPUT_EVENTS.FACE_INPUT, ({ detection }) => {
-      faceToInput(Network.instance.localClientEntity, detection)
-    })
-
-    EngineEvents.instance.addEventListener(WEBCAM_INPUT_EVENTS.LIP_INPUT, ({ pucker, widen, open }) => {
-      lipToInput(Network.instance.localClientEntity, pucker, widen, open)
-    })
-
-    EngineEvents.instance.addEventListener(ClientInputSystem.EVENTS.ENABLE_INPUT, ({ keyboard, mouse }) => {
-      if (typeof keyboard !== 'undefined') Engine.keyboardInputEnabled = keyboard
-      if (typeof mouse !== 'undefined') Engine.mouseInputEnabled = mouse
-    })
-  }
-
-  dispose(): void {
-    EngineEvents.instance.removeAllListenersForEvent(ClientInputSystem.EVENTS.ENABLE_INPUT)
-    EngineEvents.instance.removeAllListenersForEvent(WEBCAM_INPUT_EVENTS.FACE_INPUT)
-    EngineEvents.instance.removeAllListenersForEvent(WEBCAM_INPUT_EVENTS.LIP_INPUT)
-    EngineEvents.instance.removeAllListenersForEvent(ClientInputSystem.EVENTS.PROCESS_INPUT)
-  }
-
-  /**
-   *
-   * @param {Number} delta Time since last frame
-   */
-
-  public execute(delta: number): void {
+  execute(delta: number): void {
     if (!Engine.xrSession) {
       handleGamepads()
     }

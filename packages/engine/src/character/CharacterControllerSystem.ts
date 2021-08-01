@@ -22,7 +22,6 @@ import { XRInputSourceComponent } from './components/XRInputSourceComponent'
 import { Network } from '../networking/classes/Network'
 import { detectUserInPortal } from './functions/detectUserInPortal'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
-import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { RespawnTagComponent } from '../scene/components/RespawnTagComponent'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
 

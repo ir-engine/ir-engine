@@ -25,7 +25,7 @@ import { getEntityByID, getMutableComponent } from '../ecs/functions/EntityFunct
 import { AnimationManager } from './AnimationManager'
 import { AnimationSystem } from './AnimationSystem'
 import { CharacterComponent } from './components/CharacterComponent'
-import { loadActorAvatar } from './functions/avatarFunctions'
+import { setActorAvatar } from './functions/avatarFunctions'
 
 type Module = {
   system: System

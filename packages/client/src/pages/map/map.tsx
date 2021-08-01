@@ -19,30 +19,24 @@ import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/se
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
-import { FollowCameraComponent } from '@xrengine/engine/src/camera/components/FollowCameraComponent'
-import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent'
-import { ControllerColliderComponent } from '@xrengine/engine/src/character/components/ControllerColliderComponent'
 import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
 import { awaitEngaged, Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
-import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine, shutdownEngine } from '@xrengine/engine/src/initializeEngine'
-import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
+import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import querystring from 'querystring'
 import React, { Suspense, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
-import { CameraLayers } from '../../../../engine/src/camera/constants/CameraLayers'
 import WarningRefreshModal from '../../components/AlertModals/WarningRetryModal'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import {
@@ -52,7 +46,8 @@ import {
 } from '../../reducers/instanceConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import MediaIconsBox from './MapMediaIconsBox'
-import { PhysXInstance } from 'three-physx'
+import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
+import { teleportToScene } from '../../../../engine/src/scene/functions/teleportToScene'
 
 const store = Store.store
 
@@ -180,7 +175,7 @@ export const EnginePage = (props: Props) => {
   const [instanceKickedMessage, setInstanceKickedMessage] = useState('')
   const [isInputEnabled, setInputEnabled] = useState(true)
   const [porting, setPorting] = useState(false)
-  const [newSpawnPos, setNewSpawnPos] = useState<PortalProps>(null)
+  const [newSpawnPos, setNewSpawnPos] = useState<PortalComponent>(null)
 
   const appLoaded = appState.get('loaded')
   const selfUser = authState.get('user')
@@ -345,6 +340,7 @@ export const EnginePage = (props: Props) => {
     if (noGameserverProvision === true) {
       const currentLocation = locationState.get('currentLocation').get('location')
       const newValues = {
+        ...warningRefreshModalValues,
         open: true,
         title: 'No Available Servers',
         body: "There aren't any servers available for you to connect to. Attempting to re-connect in",
@@ -503,8 +499,7 @@ export const EnginePage = (props: Props) => {
   }
 
   useEffect(() => {
-    EngineEvents.instance.dispatchEvent({
-      type: ClientInputSystem.EVENTS.ENABLE_INPUT,
+    enableInput({
       keyboard: isInputEnabled,
       mouse: isInputEnabled
     })
@@ -514,11 +509,13 @@ export const EnginePage = (props: Props) => {
     setProgressEntity(left || 0)
   }
 
-  const portToLocation = async ({ portalComponent }: { portalComponent: PortalProps }) => {
-    // console.log('portToLocation', slugifiedName, portalComponent);
-
+  const portToLocation = async ({ portalComponent }: { portalComponent: PortalComponent }) => {
     if (slugifiedName === portalComponent.location) {
-      teleportPlayer(Network.instance.localClientEntity, portalComponent.spawnPosition, portalComponent.spawnRotation)
+      teleportPlayer(
+        Network.instance.localClientEntity,
+        portalComponent.remoteSpawnPosition,
+        portalComponent.remoteSpawnRotation
+      )
       return
     }
 
@@ -527,48 +524,13 @@ export const EnginePage = (props: Props) => {
     resetInstanceServer()
     Network.instance.transport.close()
 
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
+    await teleportToScene(portalComponent, async () => {
+      await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'))
 
-    // remove controller since physics world will be destroyed and we don't want it moving
-    PhysXInstance.instance.removeController(
-      getComponent(Network.instance.localClientEntity, ControllerColliderComponent).controller
-    )
-    removeComponent(Network.instance.localClientEntity, ControllerColliderComponent)
-
-    // Handle Camera transition while player is moving
-    // Remove the follow component, and attach the camera to the player, so it moves with them without causing discomfort while in VR
-    removeComponent(Network.instance.localClientEntity, FollowCameraComponent)
-    const camParent = Engine.camera.parent
-    if (camParent) Engine.camera.removeFromParent()
-    Engine.camera.layers.disable(CameraLayers.Scene)
-
-    // change our browser URL
-    history.replace('/location/' + portalComponent.location)
-    setNewSpawnPos(portalComponent)
-
-    await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'))
-
-    getLocationByName(portalComponent.location)
-
-    // add back the collider using previous parameters
-    EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
-      // teleport player to where the portal is
-      const transform = getComponent(Network.instance.localClientEntity, TransformComponent)
-      const actor = getComponent(Network.instance.localClientEntity, CharacterComponent)
-      transform.position.set(
-        portalComponent.spawnPosition.x,
-        portalComponent.spawnPosition.y + actor.actorHalfHeight,
-        portalComponent.spawnPosition.z
-      )
-      transform.rotation.copy(portalComponent.spawnRotation)
-
-      addComponent(Network.instance.localClientEntity, ControllerColliderComponent)
-
-      addComponent(Network.instance.localClientEntity, FollowCameraComponent)
-      if (camParent) camParent.add(Engine.camera)
-      Engine.camera.layers.enable(CameraLayers.Scene)
-
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: true })
+      // change our browser URL
+      history.replace('/location/' + portalComponent.location)
+      setNewSpawnPos(portalComponent)
+      getLocationByName(portalComponent.location)
     })
   }
 
