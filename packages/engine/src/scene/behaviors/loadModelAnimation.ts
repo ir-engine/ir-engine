@@ -19,7 +19,7 @@ export const loadModelAnimation = (entity: Entity, component: SceneDataComponent
           'Tried to load animation without an Object3D Component attached! Are you sure the model has loaded?'
         )
       }
-      addComponent(entity, AnimationComponent, { onlyUpdateMixerTime: true })
+      addComponent(entity, AnimationComponent)
       const animationComponent = getMutableComponent(entity, AnimationComponent)
       if (component.data.hasAvatarAnimations) {
         animationComponent.animations = AnimationManager.instance._animations
@@ -27,14 +27,14 @@ export const loadModelAnimation = (entity: Entity, component: SceneDataComponent
         animationComponent.animations = object3d.value.animations
       }
       animationComponent.mixer = new AnimationMixer(object3d.value)
-      animationComponent.currentState = new AnimationState()
+      const currentState = new AnimationState()
       if (component.data.activeClipIndex >= 0) {
         const clip = animationComponent.animations[component.data.activeClipIndex]
         const action = animationComponent.mixer.clipAction(
           AnimationClip.findByName(animationComponent.animations, clip.name)
         )
         action.setEffectiveWeight(1)
-        animationComponent.currentState.animations = [
+        currentState.animations = [
           {
             name: clip.name,
             weight: 1,
@@ -42,7 +42,7 @@ export const loadModelAnimation = (entity: Entity, component: SceneDataComponent
             action
           }
         ]
-        animationComponent.currentState.animations[0].action.play()
+        currentState.animations[0].action.play()
       }
     })
   }

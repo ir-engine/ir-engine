@@ -102,6 +102,11 @@ export const updateBall: Behavior = (
   time?: number,
   checks?: any
 ): void => {
+  const collider = getComponent(entityBall, ColliderComponent)
+  const ballPosition = collider.body.transform.translation
+  const golfBallComponent = getComponent(entityBall, GolfBallComponent)
+  golfBallComponent.groundRaycast.origin.copy(ballPosition)
+
   if (isClient) {
     const obj = getComponent(entityBall, Object3DComponent)
     if (!obj?.value) return

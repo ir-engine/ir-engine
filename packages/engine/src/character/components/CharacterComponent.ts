@@ -29,6 +29,7 @@ export class CharacterComponent extends Component<CharacterComponent> {
   actorHalfHeight = 1.8 / 2
 
   // === MOVEMENT === //
+  // TODO: move to character controller
 
   movementEnabled = true
   isGrounded: boolean

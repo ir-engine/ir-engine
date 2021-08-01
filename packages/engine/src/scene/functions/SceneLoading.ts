@@ -265,9 +265,7 @@ export class WorldScene {
         createCollider(
           {
             type: 'box',
-            isTrigger: boxColliderProps.isTrigger,
-            collisionLayer: boxColliderProps.collisionLayer,
-            collisionMask: boxColliderProps.collisionMask
+            ...boxColliderProps
           },
           boxColliderProps.position,
           boxColliderProps.quaternion,

@@ -131,13 +131,6 @@ export class ClientInputSystem extends System {
   }
 
   static queries = {
-    networkClientInput: {
-      components: [NetworkObject, Input, Not(LocalInputReceiver)],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
     localClientInput: {
       components: [Input, LocalInputReceiver],
       listen: {

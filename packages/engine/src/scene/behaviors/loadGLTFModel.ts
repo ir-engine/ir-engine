@@ -67,13 +67,12 @@ export const loadGLTFModel = (
             // if the model has animations, we may have custom logic to initiate it. editor animations are loaded from `loop-animation` below
             if (res.animations) {
               // We only have to update the mixer time for this animations on each frame
-              addComponent(entity, AnimationComponent, { onlyUpdateMixerTime: true })
+              addComponent(entity, AnimationComponent)
               const animationComponent = getMutableComponent(entity, AnimationComponent)
               animationComponent.animations = res.animations
               const object3d = getMutableComponent(entity, Object3DComponent)
 
               animationComponent.mixer = new AnimationMixer(object3d.value)
-              animationComponent.currentState = new AnimationState()
             }
 
             if (component.data.textureOverride) {

@@ -1,7 +1,12 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { addComponent, getComponent, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import {
+  addComponent,
+  createEntity,
+  getComponent,
+  removeEntity
+} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { Network } from '@xrengine/engine/src/networking//classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState'
@@ -15,6 +20,7 @@ import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldSta
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { RespawnTagComponent } from '../../engine/src/scene/components/RespawnTagComponent'
 import { Quaternion, Vector3 } from 'three'
+import { SpawnComponent } from '../../engine/src/scene/components/SpawnComponent'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -316,10 +322,13 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
     rotation: new Quaternion().copy(data.spawnTransform.rotation)
   }
 
-  // Create a new default prefab for client
-  const networkObject = createNetworkPlayer({ ownerId: userId, parameters: spawnPos })
+  const newPlayerEntity = createEntity()
+  addComponent(newPlayerEntity, SpawnComponent, { userId })
 
-  addComponent(networkObject.entity, RespawnTagComponent, spawnPos)
+  if (data?.spawnTransform) {
+  } else {
+    addComponent(newPlayerEntity, RespawnTagComponent)
+  }
 
   // Create a new worldState object that we can fill
   const worldState: WorldStateInterface = {

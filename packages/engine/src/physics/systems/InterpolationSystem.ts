@@ -86,10 +86,10 @@ export class InterpolationSystem extends System {
 
 InterpolationSystem.queries = {
   localCharacterInterpolation: {
-    components: [LocalInputReceiver, ControllerColliderComponent, InterpolationComponent, NetworkObject]
+    components: [ControllerColliderComponent, InterpolationComponent, NetworkObject]
   },
   networkClientInterpolation: {
-    components: [Not(LocalInputReceiver), ControllerColliderComponent, InterpolationComponent, NetworkObject]
+    components: [Not(ControllerColliderComponent), CharacterComponent, InterpolationComponent, NetworkObject]
   },
   localObjectInterpolation: {
     components: [
@@ -110,6 +110,6 @@ InterpolationSystem.queries = {
     ]
   },
   correctionFromServer: {
-    components: [Not(InterpolationComponent), NetworkObject]
+    components: [Not(InterpolationComponent), ColliderComponent, NetworkObject]
   }
 }

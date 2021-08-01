@@ -386,14 +386,14 @@ export function getComponent<C extends Component<C>>(
   entity: Entity,
   component: ComponentConstructor<C>,
   includeRemoved?: boolean
-): Readonly<C> {
+): C {
   let _component = entity.components[component._typeId]
 
   if (!_component && includeRemoved) {
     _component = entity.componentsToRemove[component._typeId]
   }
 
-  return process.env.NODE_ENV === 'development' ? wrapImmutableComponent(_component) : <C>_component
+  return <C>_component
 }
 
 /**
