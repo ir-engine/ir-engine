@@ -30,16 +30,7 @@ export function createNetworkRigidBody(args: {
         {
           type: ColliderComponent,
           data: {
-            body: args.parameters.body,
-            bodytype: args.parameters.bodytype,
-            type: args.parameters.type,
-            position: args.parameters.position,
-            quaternion: args.parameters.quaternion,
-            scale: args.parameters.scale,
-            mesh: args.parameters.mesh,
-            vertices: args.parameters.vertices,
-            indices: args.parameters.indices,
-            mass: args.parameters.mass
+            body: args.parameters.body
           }
         }
       ]

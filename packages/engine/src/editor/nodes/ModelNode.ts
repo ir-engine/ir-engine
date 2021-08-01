@@ -274,11 +274,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       const colliders = []
 
       const parseGroupColliders = (group) => {
-        if (
-          group.userData.data === 'physics' ||
-          group.userData.data === 'kinematic' ||
-          group.userData.data === 'dynamic'
-        ) {
+        if (group.userData.data === 'physics') {
           if (group.type == 'Group') {
             for (let i = 0; i < group.children.length; i++) {
               colliders.push(
@@ -324,26 +320,26 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       components[`mesh-collider-${i}`] = this.addEditorParametersToCollider(this.meshColliders[i])
     }
   }
-  addEditorParametersToCollider(collider) {
+  addEditorParametersToCollider(meshCollider) {
     const [position, quaternion, scale] = applyTransform(
-      collider.position,
-      collider.quaternion,
-      collider.scale,
+      meshCollider.position,
+      meshCollider.quaternion,
+      meshCollider.scale,
       this.position,
       this.quaternion,
       this.scale
     )
-    collider.position.x = position.x
-    collider.position.y = position.y
-    collider.position.z = position.z
-    collider.quaternion.x = quaternion.x
-    collider.quaternion.y = quaternion.y
-    collider.quaternion.z = quaternion.z
-    collider.quaternion.w = quaternion.w
-    collider.scale.x = scale.x
-    collider.scale.y = scale.y
-    collider.scale.z = scale.z
-    return collider
+    meshCollider.position.x = position.x
+    meshCollider.position.y = position.y
+    meshCollider.position.z = position.z
+    meshCollider.quaternion.x = quaternion.x
+    meshCollider.quaternion.y = quaternion.y
+    meshCollider.quaternion.z = quaternion.z
+    meshCollider.quaternion.w = quaternion.w
+    meshCollider.scale.x = scale.x
+    meshCollider.scale.y = scale.y
+    meshCollider.scale.z = scale.z
+    return meshCollider
   }
   updateStaticModes() {
     if (!this.model) return

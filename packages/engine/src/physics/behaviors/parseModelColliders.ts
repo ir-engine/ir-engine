@@ -54,13 +54,7 @@ export function applyTransform(posM, queM, scaM, posE, queE, scaE): [Vector3, Qu
 
 export const makeCollidersInvisible = (asset: any) => {
   const parseColliders = (mesh) => {
-    if (
-      mesh.userData.data === 'physics' ||
-      mesh.userData.data === 'kinematic' ||
-      mesh.userData.data === 'dynamic' ||
-      mesh.userData.type === 'trimesh' ||
-      mesh.userData.type === 'sphere'
-    ) {
+    if (mesh.userData.data === 'physics') {
       mesh.visible = false
     }
   }
@@ -75,12 +69,7 @@ export const makeCollidersInvisible = (asset: any) => {
 export const removeCollidersFromModel: Behavior = (entity: Entity, asset: any) => {
   const arr = []
   asset?.traverse((mesh) => {
-    if (
-      mesh.userData.data === 'physics' ||
-      mesh.userData.data === 'kinematic' ||
-      mesh.userData.data === 'dynamic' ||
-      mesh.userData.data === 'vehicle'
-    ) {
+    if (mesh.userData.data === 'physics') {
       // add position from editor to mesh
       applyTransformToMesh(entity, mesh)
       arr.push(mesh)

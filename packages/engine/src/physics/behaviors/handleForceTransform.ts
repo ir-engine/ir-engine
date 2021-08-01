@@ -17,7 +17,7 @@ export const handleForceTransform = (editObject: NetworkObjectEditInterface): vo
 
   const colliderComponent = getComponent(entity, ColliderComponent)
   if (colliderComponent) {
-    colliderComponent.body?.updateTransform({
+    colliderComponent.body.updateTransform({
       translation: { x, y, z },
       rotation: { x: qX, y: qY, z: qZ, w: qW }
     })

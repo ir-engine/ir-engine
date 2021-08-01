@@ -20,6 +20,7 @@ import { ColliderComponent } from '../../../../physics/components/ColliderCompon
 import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent'
 import { LocalInterpolationComponent } from '../../../../physics/components/LocalInterpolationComponent'
 import { RigidBodyComponent } from '../../../../physics/components/RigidBody'
+import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups'
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem'
 import TrailRenderer from '../../../../scene/classes/TrailRenderer'
@@ -290,6 +291,7 @@ export const GolfBallPrefab: NetworkPrefab = {
   networkComponents: [
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
+    { type: VelocityComponent },
     { type: RigidBodyComponent },
     { type: GameObject },
     { type: NetworkObjectOwner },

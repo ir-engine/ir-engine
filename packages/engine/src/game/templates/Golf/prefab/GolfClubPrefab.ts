@@ -27,7 +27,6 @@ import {
   PhysXInstance
 } from 'three-physx'
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups'
-import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem'
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent'
 import { GameObject } from '../../../components/GameObject'
 import { Behavior } from '../../../../common/interfaces/Behavior'
@@ -49,11 +48,11 @@ import { NetworkObjectOwner } from '../../../../networking/components/NetworkObj
 import { Action, State } from '../../../types/GameComponents'
 import { addActionComponent } from '../../../functions/functionsActions'
 import { GamePlayer } from '../../../components/GamePlayer'
-import { XRUserSettings } from '../../../../xr/types/XRUserSettings'
 
 import { ifVelocity } from '../functions/ifVelocity'
 import { ifOwned } from '../../gameDefault/checkers/ifOwned'
 import { isClient } from '../../../../common/functions/isClient'
+import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()
@@ -239,7 +238,7 @@ export const onClubColliderWithBall: GameObjectInteractionBehavior = (
     hasComponent(entityBall, State.Active) &&
     hasComponent(entityClub, State.Active) &&
     ifOwned(entityClub, null, entityBall) &&
-    ifVelocity(entityClub, { component: GolfClubComponent, more: 0.01, less: 1 })
+    ifVelocity(entityClub, { more: 0.01, less: 1 })
   ) {
     addActionComponent(entityBall, Action.GameObjectCollisionTag)
     addActionComponent(entityClub, Action.GameObjectCollisionTag)
@@ -411,6 +410,7 @@ export const GolfClubPrefab: NetworkPrefab = {
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
     { type: RigidBodyComponent },
+    { type: VelocityComponent },
     { type: GameObject },
     { type: GolfClubComponent },
     { type: NetworkObjectOwner }

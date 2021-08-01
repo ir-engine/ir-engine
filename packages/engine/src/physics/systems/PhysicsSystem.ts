@@ -7,6 +7,7 @@ import { BodyType, PhysXConfig, PhysXInstance } from 'three-physx'
 import { NetworkObject } from '../../networking/components/NetworkObject'
 import { Network } from '../../networking/classes/Network'
 import { Engine } from '../../ecs/classes/Engine'
+import { VelocityComponent } from '../components/VelocityComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -56,28 +57,28 @@ export class PhysicsSystem extends System {
 
   execute(delta: number): void {
     for (const entity of this.queryResults.collider.removed) {
-      const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true)
+      const colliderComponent = getComponent(entity, ColliderComponent, true)
       if (colliderComponent) {
-        this.removeBody(colliderComponent.body)
+        PhysXInstance.instance.removeBody(colliderComponent.body)
       }
     }
 
     for (const entity of this.queryResults.collider.all) {
-      const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent)
+      const collider = getMutableComponent(entity, ColliderComponent)
+      const velocity = getMutableComponent(entity, VelocityComponent)
       const transform = getComponent(entity, TransformComponent)
 
       if (collider.body.type === BodyType.KINEMATIC) {
-        collider.velocity.subVectors(collider.body.transform.translation, transform.position)
+        velocity.velocity.subVectors(collider.body.transform.translation, transform.position)
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation })
       } else if (collider.body.type === BodyType.DYNAMIC) {
-        collider.velocity.subVectors(transform.position, collider.body.transform.translation)
+        velocity.velocity.subVectors(transform.position, collider.body.transform.translation)
 
         transform.position.set(
           collider.body.transform.translation.x,
           collider.body.transform.translation.y,
           collider.body.transform.translation.z
         )
-        collider.position.copy(transform.position)
 
         transform.rotation.set(
           collider.body.transform.rotation.x,
@@ -85,7 +86,6 @@ export class PhysicsSystem extends System {
           collider.body.transform.rotation.z,
           collider.body.transform.rotation.w
         )
-        collider.quaternion.copy(transform.rotation)
       }
     }
 
@@ -97,25 +97,6 @@ export class PhysicsSystem extends System {
     }
 
     PhysXInstance.instance.update()
-  }
-
-  addRaycastQuery(query) {
-    return PhysXInstance.instance.addRaycastQuery(query)
-  }
-  removeRaycastQuery(query) {
-    return PhysXInstance.instance.removeRaycastQuery(query)
-  }
-  addBody(args) {
-    return PhysXInstance.instance.addBody(args)
-  }
-  removeBody(body) {
-    return PhysXInstance.instance.removeBody(body)
-  }
-  createController(options) {
-    return PhysXInstance.instance.createController(options)
-  }
-  removeController(id) {
-    return PhysXInstance.instance.removeController(id)
   }
 }
 

@@ -22,6 +22,7 @@ import { GolfClubComponent } from '../components/GolfClubComponent'
 import { hideClub } from '../prefab/GolfClubPrefab'
 import { isClient } from '../../../../common/functions/isClient'
 import { GolfState } from '../GolfGameComponents'
+import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 
 // we need to figure out a better way than polluting an 8 bit namespace :/
 
@@ -108,7 +109,8 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
         const { ownedObjects } = getComponent(entity, GamePlayer)
         const ballEntity = ownedObjects['GolfBall']
         const collider = getMutableComponent(ballEntity, ColliderComponent)
-        collider.velocity.set(0, 0, 0)
+        const velocity = getComponent(ballEntity, VelocityComponent)
+        velocity.velocity.set(0, 0, 0)
         collider.body.updateTransform({
           translation: {
             x: 0,

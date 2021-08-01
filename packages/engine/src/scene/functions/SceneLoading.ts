@@ -1,4 +1,13 @@
-import { AmbientLight, DirectionalLight, HemisphereLight, Object3D, PointLight, SpotLight } from 'three'
+import {
+  AmbientLight,
+  DirectionalLight,
+  HemisphereLight,
+  Object3D,
+  PointLight,
+  Quaternion,
+  SpotLight,
+  Vector3
+} from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
@@ -10,8 +19,8 @@ import { addObject3DComponent } from '../behaviors/addObject3DComponent'
 import { createGame, createGameObject } from '../behaviors/createGame'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
 import { createSkybox } from '../behaviors/createSkybox'
-import { createBoxCollider } from '../behaviors/createBoxCollider'
-import { createMeshCollider } from '../behaviors/createMeshCollider'
+import { BoxColliderProps } from '../interfaces/BoxColliderProps'
+import { MeshColliderProps } from '../interfaces/MeshColliderProps'
 import { createGroup } from '../behaviors/createGroup'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../behaviors/createMedia'
 import { createMap } from '../behaviors/createMap'
@@ -36,6 +45,8 @@ import { Clouds } from '../classes/Clouds'
 import { Interactable } from '../../interaction/components/Interactable'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { createCollider } from '../../physics/behaviors/createCollider'
+import { BodyType } from 'three-physx'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -250,11 +261,30 @@ export class WorldScene {
         break
 
       case 'box-collider':
-        createBoxCollider(entity, component.data)
+        const boxColliderProps: BoxColliderProps = component.data
+        createCollider(
+          {
+            type: 'box',
+            isTrigger: boxColliderProps.isTrigger,
+            collisionLayer: boxColliderProps.collisionLayer,
+            collisionMask: boxColliderProps.collisionMask
+          },
+          boxColliderProps.position,
+          boxColliderProps.quaternion,
+          boxColliderProps.scale
+        )
         break
 
       case 'mesh-collider':
-        createMeshCollider(entity, component.data)
+        const meshColliderProps: MeshColliderProps = component.data
+        if (meshColliderProps.data === 'physics') {
+          createCollider(
+            meshColliderProps,
+            meshColliderProps.position,
+            meshColliderProps.quaternion,
+            meshColliderProps.scale
+          )
+        }
         break
 
       case 'trigger-volume':

@@ -20,8 +20,8 @@ const vec3 = new Vector3()
 export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   const actor: CharacterComponent = getMutableComponent(entity, CharacterComponent as any)
   const transform: TransformComponent = getMutableComponent(entity, TransformComponent as any)
-  const collider = getMutableComponent(entity, ControllerColliderComponent)
-  if (!collider.controller || !actor.movementEnabled) return
+  const controller = getMutableComponent(entity, ControllerColliderComponent)
+  if (!controller.controller || !actor.movementEnabled) return
 
   if (actor.isGrounded) {
     vec3.copy(actor.localMovementDirection).multiplyScalar(deltaTime)
@@ -41,24 +41,24 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
       newVelocity.applyQuaternion(transform.rotation)
     }
 
-    if (collider.closestHit) {
+    if (controller.closestHit) {
       onGroundVelocity.copy(newVelocity).setY(0)
-      vec3.set(collider.closestHit.normal.x, collider.closestHit.normal.y, collider.closestHit.normal.z)
+      vec3.set(controller.closestHit.normal.x, controller.closestHit.normal.y, controller.closestHit.normal.z)
       quat.setFromUnitVectors(upVector, vec3)
       mat4.makeRotationFromQuaternion(quat)
       onGroundVelocity.applyMatrix4(mat4)
     }
 
-    collider.controller.velocity.x = newVelocity.x
-    collider.controller.velocity.y = onGroundVelocity.y
-    collider.controller.velocity.z = newVelocity.z
+    controller.controller.velocity.x = newVelocity.x
+    controller.controller.velocity.y = onGroundVelocity.y
+    controller.controller.velocity.z = newVelocity.z
 
     if (actor.isJumping) {
       actor.isJumping = false
     }
 
     if (actor.localMovementDirection.y > 0 && !actor.isJumping) {
-      collider.controller.velocity.y = actor.jumpHeight * deltaTime
+      controller.controller.velocity.y = actor.jumpHeight * deltaTime
       actor.isJumping = true
       actor.isGrounded = false
     }
@@ -76,10 +76,10 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   }
 
   // apply gravity
-  collider.controller.velocity.y -= 0.2 * deltaTime
+  controller.controller.velocity.y -= 0.2 * deltaTime
 
   // move according to controller's velocity
-  collider.controller.delta.x += collider.controller.velocity.x
-  collider.controller.delta.y += collider.controller.velocity.y
-  collider.controller.delta.z += collider.controller.velocity.z
+  controller.controller.delta.x += controller.controller.velocity.x
+  controller.controller.delta.y += controller.controller.velocity.y
+  controller.controller.delta.z += controller.controller.velocity.z
 }

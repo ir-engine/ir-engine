@@ -172,7 +172,7 @@ Jumping doesn't currently have entry or exit transitions, but does perform the j
 The jumping state is removed by the jumping behavior when the actor's jump time exceeds the jump duration. In a more complex scenario, the user's jumping state might get removed by landing back on ground or transitioning to another state, otherwise the jumping state would transition into falling. In this case, however, when jumping is over, we remove the state.
 ```typescript
 export const jumping: Behavior = (entity: Entity, args, delta: number): void => {
-  transform = getComponent<TransformComponent>(entity, TransformComponent)
+  transform = getComponent(entity, TransformComponent)
   actor = getMutableComponent(entity, CharacterComponent)
   actor.jump.t += delta
   if (actor.jump.t < actor.jump.duration) {

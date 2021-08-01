@@ -66,11 +66,7 @@ export const addHole: Behavior = (
 
   PhysXInstance.instance.addBody(body)
 
-  addComponent(entity, ColliderComponent, {
-    bodytype: BodyType.STATIC,
-    type: 'box',
-    body: body
-  })
+  addComponent(entity, ColliderComponent, { body })
 
   const gameObject = getComponent(entity, GameObject)
   gameObject.collisionBehaviors['GolfBall'] = onHoleCollideWithBall

@@ -72,10 +72,10 @@ export class CharacterControllerSystem extends System {
     }
 
     for (const entity of this.queryResults.controller.removed) {
-      const collider = getRemovedComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
-      if (collider) {
-        PhysXInstance.instance.removeController(collider.controller)
-        PhysXInstance.instance.removeRaycastQuery(collider.raycastQuery)
+      const controller = getRemovedComponent(entity, ControllerColliderComponent)
+      if (controller) {
+        PhysXInstance.instance.removeController(controller.controller)
+        PhysXInstance.instance.removeRaycastQuery(controller.raycastQuery)
       }
 
       const actor = getMutableComponent(entity, CharacterComponent)
@@ -85,18 +85,18 @@ export class CharacterControllerSystem extends System {
     }
 
     for (const entity of this.queryResults.controller.all) {
-      const controller = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
+      const controller = getMutableComponent(entity, ControllerColliderComponent)
 
       // iterate on all collisions since the last update
       controller.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => {})
 
       if (!isClient || (entity && entity === Network.instance.localClientEntity)) detectUserInPortal(controller)
 
-      const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
+      const actor = getMutableComponent(entity, CharacterComponent)
 
       if (!actor.movementEnabled) return
 
-      const transform = getComponent<TransformComponent>(entity, TransformComponent as any)
+      const transform = getComponent(entity, TransformComponent)
 
       // reset if vals are invalid
       if (isNaN(controller.controller.transform.translation.x)) {
@@ -126,8 +126,8 @@ export class CharacterControllerSystem extends System {
     }
 
     for (const entity of this.queryResults.localCharacter.all) {
-      const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
-      const transform = getComponent<TransformComponent>(entity, TransformComponent)
+      const actor = getMutableComponent(entity, CharacterComponent)
+      const transform = getComponent(entity, TransformComponent)
 
       characterMoveBehavior(entity, delta)
 
@@ -170,7 +170,7 @@ export class CharacterControllerSystem extends System {
     for (const entity of this.queryResults.xrInput.all) {
       if (!isEntityLocalClient(entity)) return
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent)
-      const transform = getComponent<TransformComponent>(entity, TransformComponent)
+      const transform = getComponent(entity, TransformComponent)
 
       quat.copy(transform.rotation).invert()
       quat2.copy(Engine.camera.quaternion).premultiply(quat)

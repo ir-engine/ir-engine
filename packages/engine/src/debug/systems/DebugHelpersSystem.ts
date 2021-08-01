@@ -197,10 +197,7 @@ export class DebugHelpersSystem extends System {
       const origin = new Vector3(0, 2, 0)
       const length = 0.5
       const hex = 0xffff00
-      if (!collider || !collider.body) {
-        console.warn('collider.body is null')
-        continue
-      }
+
       const arrowHelper = new ArrowHelper(
         vector3.copy(collider.body.transform.translation).normalize(),
         origin,

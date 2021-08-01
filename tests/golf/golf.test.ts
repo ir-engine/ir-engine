@@ -56,43 +56,29 @@ describe('Golf tests', () => {
       position: [0, 2, 1],
       rotation: eulerToQuaternion(-1.25, 0, 0).toArray()
     })
-    await bot.delay(1000)
-
-    const teePosition = await bot.runHook(GolfBotHooks.GetTeePosition)
-    const holePosition = await bot.runHook(GolfBotHooks.GetHolePosition)
-    console.log(teePosition.x, teePosition.y, teePosition.z)
-    console.log(holePosition.x, holePosition.y, holePosition.z)
-    const angle = new Vector3().copy(teePosition).setY(0).normalize().angleTo(new Vector3().copy(holePosition).setY(0).normalize()) + 90
-    console.log(angle)
-    console.log('====================================')
-    await bot.runHook(BotHooks.RotatePlayer, { angle })
 
     // rotate such that hit direction is in line with the hole
+    const teePosition = await bot.runHook(GolfBotHooks.GetTeePosition)
+    const holePosition = await bot.runHook(GolfBotHooks.GetHolePosition)
+    const angle = new Vector3().copy(teePosition).setY(0).normalize().angleTo(new Vector3().copy(holePosition).setY(0).normalize()) + 90
+    await bot.runHook(BotHooks.RotatePlayer, { angle })
 
     await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)
-  
+    await bot.delay(2000)
+
     // ball should be at spawn position
     expect(
       vector3.copy(await bot.runHook(GolfBotHooks.GetBallPosition)).sub(teePosition).length()
     ).toBeLessThan(0.1)
     
     await bot.delay(1000)
-    // wait for turn, then move to ball position
-    await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)
-    
-    await bot.delay(500)
-
-    // rotate left thumbstick 3 or 4 times to the left
-
     await bot.runHook(GolfBotHooks.SwingClub)
-   
     await bot.delay(3000)
     expect(
       vector3.copy(await bot.runHook(GolfBotHooks.GetBallPosition)).sub(teePosition).length()
     ).toBeGreaterThan(0.5)
     await bot.delay(1000)
   }, maxTimeout)
-
   // 
 
 })

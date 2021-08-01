@@ -45,7 +45,7 @@ export const hitBall: Behavior = (
   vec3.applyAxisAngle(upVector, clubMoveDirection * angleOfIncidence).normalize().multiplyScalar(golfClubComponent.velocity.length());
 */
 
-  vector0.copy(golfClubComponent.velocity).multiplyScalar(args.hitAdvanceFactor).multiplyScalar(0.5)
+  vector0.copy(golfClubComponent.velocity).multiplyScalar(args.hitAdvanceFactor)
   // vector0.copy(vec3).multiplyScalar(hitAdvanceFactor);
   // lock to XZ plane if we disable chip shots
   if (!golfClubComponent.canDoChipShots) {
@@ -69,7 +69,7 @@ export const hitBall: Behavior = (
     })
   }
 
-  vector0.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier).multiplyScalar(0.5)
+  vector0.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier)
   // vector1.copy(vec3).multiplyScalar(velocityMultiplier);
   if (!golfClubComponent.canDoChipShots) {
     vector0.y = 0

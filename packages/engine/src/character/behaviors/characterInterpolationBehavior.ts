@@ -22,13 +22,13 @@ export const characterInterpolationBehavior: Behavior = (
 ): void => {
   const transform = getComponent(entity, TransformComponent)
   const actor = getMutableComponent(entity, CharacterComponent)
-  const collider = getMutableComponent(entity, ControllerColliderComponent)
+  const controller = getMutableComponent(entity, ControllerColliderComponent)
 
   const interpolation = findInterpolationSnapshot(entity, snapshots.interpolation) as StateInterEntity
 
-  if (!collider.controller || !interpolation || isNaN(interpolation.vX)) return
+  if (!controller.controller || !interpolation || isNaN(interpolation.vX)) return
 
-  collider.controller.updateTransform({
+  controller.controller.updateTransform({
     translation: {
       x: interpolation.x,
       y: interpolation.y + actor.actorHalfHeight,

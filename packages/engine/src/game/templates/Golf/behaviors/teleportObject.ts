@@ -13,6 +13,7 @@ import { ColliderComponent } from '../../../../physics/components/ColliderCompon
 import { findInterpolationSnapshot } from '../../../../physics/behaviors/findInterpolationSnapshot'
 import { Network } from '../../../../networking/classes/Network'
 import { State } from '../../../types/GameComponents'
+import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -25,9 +26,10 @@ export const teleportObject: Behavior = (
   time?: number,
   checks?: any
 ): void => {
+  const velocity = getMutableComponent(entity, VelocityComponent)
   const collider = getMutableComponent(entity, ColliderComponent)
 
-  collider.velocity.set(0, 0, 0)
+  velocity.velocity.set(0, 0, 0)
 
   collider.body.setLinearDamping(0.1)
   collider.body.setAngularDamping(0.1)

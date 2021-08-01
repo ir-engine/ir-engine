@@ -75,7 +75,7 @@ export class GameManagerSystem extends System {
     for (const entity of this.queryResults.gameObjectCollisions.all) {
       const collider = getComponent(entity, ColliderComponent)
       const gameObject = getComponent(entity, GameObject)
-      for (const collisionEvent of collider.body?.collisionEvents) {
+      for (const collisionEvent of collider.body.collisionEvents) {
         const otherEntity = collisionEvent.bodyOther.userData as Entity
         if (typeof otherEntity === 'undefined') continue
         const otherGameObject = getComponent<GameObject>(otherEntity, GameObject)
