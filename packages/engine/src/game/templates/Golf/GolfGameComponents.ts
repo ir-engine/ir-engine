@@ -6,8 +6,8 @@ import { Component } from '../../../ecs/classes/Component'
 export enum GolfGameStates {
   Goal = 'Goal',
 
-  AddedHit = 'AddedHit',
   Hit = 'Hit',
+  AlreadyHit = 'AlreadyHit',
 
   BallMoving = 'BallMoving',
   AlmostStopped = 'AlmostStopped',
@@ -17,12 +17,13 @@ export enum GolfGameStates {
   BallVisible = 'BallVisible',
 
   CorrectBallPosition = 'CorrectBallPosition',
-  AlreadyHit = 'AlreadyHit'
+  CheckCourse = 'CheckCourse'
 }
 
 export class Goal extends Component<Goal> {}
-export class AddedHit extends Component<AddedHit> {}
+
 export class Hit extends Component<Hit> {}
+export class AlreadyHit extends Component<AlreadyHit> {}
 
 export class BallMoving extends Component<BallMoving> {}
 export class AlmostStopped extends Component<AlmostStopped> {}
@@ -32,17 +33,17 @@ export class BallHidden extends Component<BallHidden> {}
 export class BallVisible extends Component<BallVisible> {}
 
 export class CorrectBallPosition extends Component<CorrectBallPosition> {}
-export class AlreadyHit extends Component<AlreadyHit> {}
+export class CheckCourse extends Component<CheckCourse> {}
 
 export const GolfState = {
   [GolfGameStates.Goal]: Goal,
-  [GolfGameStates.AddedHit]: AddedHit,
   [GolfGameStates.Hit]: Hit,
+  [GolfGameStates.AlreadyHit]: AlreadyHit,
   [GolfGameStates.BallMoving]: BallMoving,
   [GolfGameStates.AlmostStopped]: AlmostStopped,
   [GolfGameStates.BallStopped]: BallStopped,
   [GolfGameStates.BallHidden]: BallHidden,
   [GolfGameStates.BallVisible]: BallVisible,
   [GolfGameStates.CorrectBallPosition]: CorrectBallPosition,
-  [GolfGameStates.AlreadyHit]: AlreadyHit
+  [GolfGameStates.CheckCourse]: CheckCourse
 }

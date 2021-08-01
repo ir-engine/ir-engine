@@ -21,7 +21,7 @@ import {
  * @author HydraFire <github.com/HydraFire>
  */
 
-const timeAfterClientDesideHeWasgetWrongAction = 1000
+const timeAfterClientDesideHeWasgetWrongAction = 2000
 let gamePredictionCheckList = []
 
 export const addActionComponent = (

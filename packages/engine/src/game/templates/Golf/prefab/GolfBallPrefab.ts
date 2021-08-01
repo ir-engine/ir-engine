@@ -218,7 +218,7 @@ export const initializeGolfBall = (ballEntity: Entity) => {
       type: SceneQueryType.Closest,
       origin: ballPosition,
       direction: new Vector3(0, -1, 0),
-      maxDistance: 0.5,
+      maxDistance: 1,
       collisionMask: GolfCollisionGroups.Course
     })
   )
@@ -249,7 +249,7 @@ export const createGolfBallPrefab = (args: {
   uniqueId: string
   ownerId?: string
 }) => {
-  console.log('createGolfBallPrefab', args)
+ // console.log('createGolfBallPrefab', args)
   initializeNetworkObject({
     prefabType: GolfPrefabTypes.Ball,
     uniqueId: args.uniqueId,
