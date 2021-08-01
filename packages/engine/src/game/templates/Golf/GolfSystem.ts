@@ -160,8 +160,9 @@ export class GolfSystem extends System {
     }
 
     // CHECK If Ball drop out of course
-    for (const entity of this.queryResults.ballStopped.added) {
+    for (const entity of this.queryResults.checkCourse.added) {
       if (ifOutCourse(entity)) {
+        removeComponent(entity, GolfState.CheckCourse)
         teleportObject(entity, getPositionNextPoint(entity, { positionCopyFromRole: 'GolfTee-' }))
       }
     }
@@ -189,6 +190,7 @@ export class GolfSystem extends System {
           : game.gameObjects['GolfHole'][0]
         if (currentHoleEntity) {
           addStateComponent(entityPlayer, GolfState.Goal)
+          removeComponent(ballEntity, GolfState.CheckCourse)
           saveGoalScore(entityPlayer)
           removeComponent(holeEntity, Action.GameObjectCollisionTag)
           removeComponent(ballEntity, Action.GameObjectCollisionTag)
@@ -264,8 +266,12 @@ export class GolfSystem extends System {
     for (const clubEntity of this.queryResults.hit.removed) {
       const playerEntity =
         Network.instance.networkObjects[getComponent(clubEntity, NetworkObjectOwner).networkId]?.component.entity
+      const ballEntity = this.queryResults.golfBall.all.find((e) => ifOwned(clubEntity, null, e))
       saveScore(playerEntity)
       addStateComponent(playerEntity, GolfState.AlreadyHit)
+      if (!hasComponent(ballEntity, GolfState.CheckCourse)) {
+        addStateComponent(ballEntity, GolfState.CheckCourse)
+      }
     }
 
     ///////////////////////////////////////////////////////////
@@ -277,7 +283,6 @@ export class GolfSystem extends System {
     //
     // do ball Active on next Turn
     for (const entity of this.queryResults.yourTurn.added) {
-      console.warn('Yes ITS ADD NORMALL')
       const playerComponent = getComponent(entity, GamePlayer)
       const ballEntity = playerComponent.ownedObjects['GolfBall']
       removeStateComponent(ballEntity, State.Inactive)
@@ -485,6 +490,13 @@ export class GolfSystem extends System {
     },
     ballStopped: {
       components: [GolfBallComponent, GolfState.BallStopped],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    checkCourse: {
+      components: [GolfBallComponent, GolfState.CheckCourse, GolfState.BallStopped],
       listen: {
         added: true,
         removed: true

@@ -113,9 +113,9 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
         velocity.velocity.set(0, 0, 0)
         collider.body.updateTransform({
           translation: {
-            x: 0,
-            y: 10,
-            z: 0
+            x: 2,
+            y: 1,
+            z: -4
           },
           rotation: {
             x: 0,

@@ -11,9 +11,10 @@ import { GolfBallComponent } from '../components/GolfBallComponent'
 
 export const ifOutCourse: Checker = (entity: Entity, args?: any, entityTarget?: Entity): any | undefined => {
   const golfBallComponent = getComponent(entity, GolfBallComponent)
-  if (!golfBallComponent.groundRaycast) return
+  if (!golfBallComponent?.groundRaycast) return
 
-  console.log('OUT OF COURSE', golfBallComponent.groundRaycast.hits[0])
+  //console.log('OUT OF COURSE', golfBallComponent.groundRaycast.hits[0])
+  console.log(typeof golfBallComponent.groundRaycast.hits[0] === 'undefined' ? 'OUT OF COURSE' : 'ON COURSE')
   return typeof golfBallComponent.groundRaycast.hits[0] === 'undefined'
 }
 

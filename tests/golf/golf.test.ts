@@ -33,7 +33,18 @@ describe('Golf tests', () => {
 
   testWebXR(bot)
 
-  test('Can teleport to ball', async () => {
+
+
+
+
+
+
+
+
+
+
+
+  test('Can teleport to Tee', async () => {
     await bot.delay(1000)
 
     // wait for turn, then move to ball position
@@ -50,6 +61,19 @@ describe('Golf tests', () => {
 
   }, maxTimeout)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
   test('Can hit ball', async () => {
 
     await bot.runHook(XRBotHooks.UpdateHead, {
@@ -65,15 +89,17 @@ describe('Golf tests', () => {
 
     await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)
     await bot.delay(2000)
-
+    await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
     // ball should be at spawn position
     expect(
       vector3.copy(await bot.runHook(GolfBotHooks.GetBallPosition)).sub(teePosition).length()
     ).toBeLessThan(0.1)
     
     await bot.delay(1000)
+    
     await bot.runHook(GolfBotHooks.SwingClub)
-    await bot.delay(3000)
+    await bot.delay(1000)
+    await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
     expect(
       vector3.copy(await bot.runHook(GolfBotHooks.GetBallPosition)).sub(teePosition).length()
     ).toBeGreaterThan(0.5)
@@ -81,6 +107,168 @@ describe('Golf tests', () => {
   }, maxTimeout)
   // 
 
+  test('ball moved forward, if faild, force server + value, client - value', async () => {
+    await bot.delay(1000)
+    // rotate such that hit direction is in line with the hole
+    const teePosition = await bot.runHook(GolfBotHooks.GetTeePosition)
+    expect(
+      vector3.copy(await bot.runHook(GolfBotHooks.GetBallPosition)).sub(teePosition).z
+    ).toBeLessThan(-0.5)
+    await bot.delay(1000)
+  }, maxTimeout)
+
+
+
+
+  test('Can reset ball on out of course', async () => {
+    const teePosition = await bot.runHook(GolfBotHooks.GetTeePosition)
+
+    await bot.delay(1000)
+    await bot.keyPress('KeyB', 200)
+    await bot.delay(1000)
+    await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
+    await bot.delay(1000)
+    await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
+
+    expect(
+      vector3.copy(await bot.runHook(GolfBotHooks.GetBallPosition)).sub(teePosition).length()
+    ).toBeLessThan(0.1)
+
+  }, maxTimeout)
+
+
+  test('Can get Hit ', async () => {
+
+
+    await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)
+    // ball should be at spawn position
+    expect(
+      vector3.copy(await bot.runHook(BotHooks.GetPlayerPosition)).sub(await bot.runHook(GolfBotHooks.GetBallPosition)).length()
+    ).toBeLessThan(0.5)
+    
+    await bot.delay(1000)
+    await bot.runHook(GolfBotHooks.SwingClub)
+    await bot.delay(1000)
+    await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
+
+    expect(
+      vector3.copy(await bot.runHook(BotHooks.GetPlayerPosition)).sub(await bot.runHook(GolfBotHooks.GetBallPosition)).length()
+    ).toBeGreaterThan(0.5)
+
+    await bot.delay(1000)
+
+  }, maxTimeout)
+
+
+  test('Can teleport to ball', async () => {
+    await bot.delay(1000)
+
+    // wait for turn, then move to ball position
+    await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)
+    await bot.keyPress('KeyK', 200)
+    await bot.delay(1000)
+    const ballPosition = await bot.runHook(GolfBotHooks.GetBallPosition)
+    await bot.runHook(XRBotHooks.UpdateHead, {
+      position: [ballPosition.x, 2, 1],
+      rotation: eulerToQuaternion(-1.25, 0, 0).toArray()
+    })
+
+    // should be at ball position
+    expect(
+      vector3.copy(await bot.runHook(BotHooks.GetPlayerPosition)).sub(ballPosition).length()
+    ).toBeLessThan(0.1)
+
+  }, maxTimeout)
+
+/*
+
+  test('Can get Hit ', async () => {
+
+
+    await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)
+    // ball should be at spawn position
+    expect(
+      vector3.copy(await bot.runHook(BotHooks.GetPlayerPosition)).sub(await bot.runHook(GolfBotHooks.GetBallPosition)).length()
+    ).toBeLessThan(0.5)
+    
+    await bot.delay(1000)
+    await bot.runHook(GolfBotHooks.SwingClub)
+    await bot.delay(1000)
+    await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
+
+    expect(
+      vector3.copy(await bot.runHook(BotHooks.GetPlayerPosition)).sub(await bot.runHook(GolfBotHooks.GetBallPosition)).length()
+    ).toBeGreaterThan(0.5)
+
+    await bot.delay(1000)
+
+  }, maxTimeout)
+
+
+  
+
+
+  
+  test('Can teleport to ball', async () => {
+    await bot.delay(1000)
+
+    // wait for turn, then move to ball position
+    await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)
+    await bot.keyPress('KeyK', 200)
+    await bot.delay(1000)
+    const ballPosition = await bot.runHook(GolfBotHooks.GetBallPosition)
+    await bot.runHook(XRBotHooks.UpdateHead, {
+      position: [ballPosition.x, 2, 1],
+      rotation: eulerToQuaternion(-1.25, 0, 0).toArray()
+    })
+
+    // should be at ball position
+    expect(
+      vector3.copy(await bot.runHook(BotHooks.GetPlayerPosition)).sub(ballPosition).length()
+    ).toBeLessThan(0.1)
+
+  }, maxTimeout)
+
+
+
+
+
+  test('Can get Hit and get Goal', async () => {
+
+
+    await bot.awaitHookPromise(GolfBotHooks.GetIsYourTurn)
+    // ball should be at spawn position
+    expect(
+      vector3.copy(await bot.runHook(BotHooks.GetPlayerPosition)).sub(await bot.runHook(GolfBotHooks.GetBallPosition)).length()
+    ).toBeLessThan(0.5)
+    
+    await bot.delay(1000)
+    await bot.runHook(GolfBotHooks.SwingClub)
+    await bot.delay(1000)
+    
+    expect(
+      vector3.copy(await bot.runHook(BotHooks.GetPlayerPosition)).sub(await bot.runHook(GolfBotHooks.GetBallPosition)).length()
+    ).toBeGreaterThan(0.1)
+
+    await bot.delay(1000)
+
+  }, maxTimeout)
+
+
+
+
+
+  test('teleport to 2-st hole after Goal', async () => {
+
+    await bot.delay(1000)
+    await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
+
+    expect(
+      vector3.copy(await bot.runHook(BotHooks.GetPlayerPosition)).sub(await bot.runHook(GolfBotHooks.GetTeePosition)).length()
+    ).toBeLessThan(0.5)
+  }, maxTimeout)
+
+  */
 })
 
 

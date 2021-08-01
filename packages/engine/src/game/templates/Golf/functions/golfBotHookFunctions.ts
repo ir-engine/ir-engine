@@ -10,13 +10,36 @@ import { Network } from '../../../../networking/classes/Network'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GolfBotHooks } from './GolfBotHooks'
 import { tweenXRInputSource } from '../../../../bot/functions/xrBotHookFunctions'
+import { GolfState } from '../GolfGameComponents'
+import { Entity } from '../../../../ecs/classes/Entity'
 
 export const GolfBotHookFunctions = {
   [GolfBotHooks.GetBallPosition]: getBallPosition,
   [GolfBotHooks.GetHolePosition]: getHolePosition,
   [GolfBotHooks.GetTeePosition]: getTeePosition,
   [GolfBotHooks.GetIsYourTurn]: getIsYourTurn,
+  [GolfBotHooks.GetIsGoal]: getIsGoal,
+  [GolfBotHooks.GetIsBallStopped]: getIsBallStopped,
+  [GolfBotHooks.GetIsOutOfCourse]: getIsOutOfCourse,
   [GolfBotHooks.SwingClub]: swingClub
+}
+
+function getOwnBall() {
+  if (!Network.instance.localClientEntity) return false
+  const { gameName, role } = getComponent(Network.instance.localClientEntity, GamePlayer)
+  const playerNumber = Number(role.slice(0, 1))
+  if (!gameName) return false
+  const game = getGameFromName(gameName)
+  if (!game) {
+    console.log('Game not found')
+    return false
+  }
+  const ballEntity = game.gameObjects['GolfBall'][playerNumber - 1]
+  if (!ballEntity) {
+    console.log('ball entity not found for player number', playerNumber, role)
+    return
+  }
+  return ballEntity
 }
 
 export function getIsYourTurn() {
@@ -24,11 +47,26 @@ export function getIsYourTurn() {
   return hasComponent(Network.instance.localClientEntity, YourTurn)
 }
 
+export function getIsGoal() {
+  if (!Network.instance.localClientEntity) return false
+  return hasComponent(Network.instance.localClientEntity, GolfState.Goal)
+}
+
+export function getIsOutOfCourse() {
+  const ballEntity = getOwnBall() as Entity
+  return hasComponent(ballEntity, GolfState.CheckCourse)
+}
+
+export function getIsBallStopped() {
+  const ballEntity = getOwnBall() as Entity
+  return hasComponent(ballEntity, GolfState.BallStopped)
+}
+
 export function swingClub() {
   return new Promise<void>((resolve) => {
     tweenXRInputSource({
       objectName: 'rightController',
-      time: 10,
+      time: 17,
       positionFrom: new Vector3(0.5, 1, 0.04),
       positionTo: new Vector3(-0.5, 1, 0.04),
       quaternionFrom: eulerToQuaternion(-1.54, 0, 0),
@@ -61,19 +99,6 @@ export function getHolePosition() {
 }
 
 export function getBallPosition() {
-  const { gameName, role } = getComponent(Network.instance.localClientEntity, GamePlayer)
-  const playerNumber = Number(role.slice(0, 1))
-
-  if (!gameName) return
-  const game = getGameFromName(gameName)
-  if (!game) {
-    console.log('Game not found')
-    return
-  }
-  const ballEntity = game.gameObjects['GolfBall'][playerNumber - 1]
-  if (!ballEntity) {
-    console.log('ball entity not found for player number', playerNumber, role)
-    return
-  }
+  const ballEntity = getOwnBall() as Entity
   return getComponent(ballEntity, TransformComponent)?.position
 }

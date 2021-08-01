@@ -53,6 +53,7 @@
     "cleanup-tests": "node tests/cleanup-tests.js",
     "test": "jest --detectOpenHandles && lerna run test",
     "test:golf": "cross-env TEST_LOCATION_NAME=golftest jest --testPathPattern=tests/golf --detectOpenHandles",
+    "test:golf-basic": "cross-env TEST_LOCATION_NAME=golfbasic jest --testPathPattern=tests/golf --detectOpenHandles",
     "lint": "prettier --check \"packages/*/src/**/*.{ts,tsx}\"",
     "format": "prettier --write \"packages/*/src/**/*.{ts,tsx}\"",
     "version-increment": "lerna version --conventional-commits --yes",
