@@ -81,7 +81,7 @@ export class CharacterControllerSystem extends System {
         controller.controller.transform.translation.z
       )
 
-      actor.isGrounded = Boolean(raycastComponent.raycastQuery.hits.length > 0 || controller.controller.collisions.down)
+      actor.isGrounded = Boolean(raycastComponent.raycastQuery.hits.length > 0) // || controller.controller.collisions.down)
 
       characterMoveBehavior(entity, delta)
     }

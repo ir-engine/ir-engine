@@ -135,16 +135,19 @@ export class AnimationGraph {
     const velocity = getComponent(entity, VelocityComponent)
     const movement: MovementType = {
       velocity: velocity.velocity,
-      distanceFromGround: !actor.isGrounded || Math.abs(velocity.velocity.y) > this.EPSILON ? velocity.velocity.y : 0
+      distanceFromGround: !actor.isGrounded ? velocity.velocity.y : 0
     }
 
     params.movement = movement
 
     characterAnimationStateComponent.currentState.weightParams = params
 
-    if (!actor.isGrounded || Math.abs(velocity.velocity.y) > this.EPSILON) {
+    if (!actor.isGrounded) {
       if (characterAnimationStateComponent.currentState.name !== CharacterStates.JUMP) {
-        characterAnimationStateComponent.animationGraph.transitionState(entity, CharacterStates.JUMP, params)
+        characterAnimationStateComponent.animationGraph.transitionState(entity, CharacterStates.JUMP, {
+          forceTransition: true,
+          ...params
+        })
       }
       // else, idle fall
     } else {

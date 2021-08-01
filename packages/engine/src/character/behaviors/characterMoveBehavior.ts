@@ -32,6 +32,7 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
     actor.velocitySimulator.simulate(deltaTime)
 
     newVelocity.copy(actor.velocitySimulator.position).multiplyScalar(actor.moveSpeed)
+    velocity.velocity.copy(newVelocity)
 
     const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
     if (xrInputSourceComponent) {
@@ -81,7 +82,6 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
 
   // apply gravity
   controller.controller.velocity.y -= 0.2 * deltaTime
-  velocity.velocity.copy(controller.controller.velocity)
 
   // move according to controller's velocity
   controller.controller.delta.x += controller.controller.velocity.x
