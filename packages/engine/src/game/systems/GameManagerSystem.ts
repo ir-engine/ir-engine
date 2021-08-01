@@ -47,16 +47,6 @@ export class ActiveGames {
  * @author HydraFire <github.com/HydraFire>
  */
 export class GameManagerSystem extends System {
-  static instance: GameManagerSystem
-
-  updateNewPlayersRate: number
-  updateLastTime: number
-
-  reset(): void {
-    this.updateNewPlayersRate = 60 * 5
-    this.updateLastTime = 0
-  }
-
   execute(delta: number, time: number): void {
     for (const entity of this.queryResults.game.added) {
       const game = getMutableComponent(entity, Game)
@@ -172,17 +162,9 @@ export class GameManagerSystem extends System {
         gameObjects[getComponent(entity, GameObject).role].push(entity)
       }
     }
-
-    // end of execute
   }
 }
-/*
-for(const entity of this.queryResults.gameObject.removed?.forEach(entity => {
-  removeFromGame(entity);
-  removeFromState(entity);
-  console.warn('ONE OBJECT REMOVED');
-});
-*/
+
 GameManagerSystem.queries = {
   characters: {
     components: [CharacterComponent],

@@ -1,7 +1,7 @@
 import { AnimationMixer, Group } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent, getEntityByID, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import { AnimationManager } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { CharacterComponent } from '../components/CharacterComponent'
@@ -10,7 +10,26 @@ import { AnimationRenderer } from '../animations/AnimationRenderer'
 import { CharacterAnimationStateComponent } from '../components/CharacterAnimationStateComponent'
 import { Entity } from '../../ecs/classes/Entity'
 
-export const loadDefaultActorAvatar = (entity: Entity) => {
+export const setActorAvatar = ({ entityID, avatarId, avatarURL }) => {
+  const entity = getEntityByID(entityID)
+  const actor = getMutableComponent(entity, CharacterComponent)
+  if (actor) {
+    actor.avatarId = avatarId
+    actor.avatarURL = avatarURL
+  }
+}
+
+export const loadActorAvatar = (entity: Entity) => {
+  if (!isClient) return
+  const avatarURL = getComponent(entity, CharacterComponent)?.avatarURL
+  if (avatarURL) {
+    loadActorAvatarFromURL(entity, avatarURL)
+  } else {
+    loadDefaultActorAvatar(entity)
+  }
+}
+
+const loadDefaultActorAvatar = (entity: Entity) => {
   const actor = getMutableComponent(entity, CharacterComponent)
   const model = SkeletonUtils.clone(AnimationManager.instance._defaultModel)
 
@@ -25,17 +44,7 @@ export const loadDefaultActorAvatar = (entity: Entity) => {
   animationComponent.mixer = new AnimationMixer(actor.modelContainer)
 }
 
-export const loadActorAvatar = (entity: Entity) => {
-  if (!isClient) return
-  const avatarURL = getComponent(entity, CharacterComponent)?.avatarURL
-  if (avatarURL) {
-    loadActorAvatarFromURL(entity, avatarURL)
-  } else {
-    loadDefaultActorAvatar(entity)
-  }
-}
-
-export const loadActorAvatarFromURL = (entity: Entity, avatarURL: string) => {
+const loadActorAvatarFromURL = (entity: Entity, avatarURL: string) => {
   AssetLoader.load(
     {
       url: avatarURL,
