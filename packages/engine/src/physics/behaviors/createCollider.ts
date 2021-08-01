@@ -30,16 +30,17 @@ type ColliderData = {
   collisionMask?: number | string
 }
 
-export function createCollider(
-  userData: ColliderData,
-  pos = new Vector3(),
-  rot = new Quaternion(),
-  scale = new Vector3()
-): Body {
+export function createCollider(userData: ColliderData, pos, rot, scale): Body {
   if (!userData.type) return
   if (userData.type === 'trimesh' || userData.type === 'convex') {
     if (!userData.vertices || !userData.indices) return
   }
+
+  // check for case mismatch
+  if (typeof userData.collisionLayer === 'undefined' && typeof (userData as any).collisionlayer !== 'undefined')
+    userData.collisionLayer = (userData as any).collisionlayer
+  if (typeof userData.collisionMask === 'undefined' && typeof (userData as any).collisionmask !== 'undefined')
+    userData.collisionMask = (userData as any).collisionmask
 
   // console.log(userData, pos, rot, scale)
 
@@ -75,12 +76,12 @@ export function createCollider(
         userData.vertices = Array.from(convexGeom.attributes.position.array)
         userData.indices = geom.index ? Array.from(geom.index.array) : Object.keys(userData.vertices).map(Number)
         // TODO - DEBUG CYLINDERS
-        const debugMesh = new Mesh(convexGeom, new MeshNormalMaterial())
-        debugMesh.position.copy(pos)
-        debugMesh.quaternion.copy(rot)
-        debugMesh.scale.copy(scale)
-        console.log(debugMesh)
-        Engine.scene.add(debugMesh)
+        // const debugMesh = new Mesh(convexGeom, new MeshNormalMaterial())
+        // debugMesh.position.copy(pos)
+        // debugMesh.quaternion.copy(rot)
+        // debugMesh.scale.copy(scale)
+        // console.log(debugMesh)
+        // Engine.scene.add(debugMesh)
       }
     // yes, don't break here - use convex for cylinder
     case 'convex':
@@ -92,6 +93,9 @@ export function createCollider(
       shapeArgs.shape = SHAPES.TriangleMesh
       shapeArgs.options = { vertices: [...userData.vertices], indices: [...userData.indices] }
       break
+
+    default:
+      console.error('unknown shape', userData.type)
   }
 
   shapeArgs.config.material = {

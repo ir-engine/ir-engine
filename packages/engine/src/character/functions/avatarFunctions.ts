@@ -7,8 +7,10 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { CharacterComponent } from '../components/CharacterComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
 import { AnimationRenderer } from '../animations/AnimationRenderer'
+import { CharacterAnimationStateComponent } from '../components/CharacterAnimationStateComponent'
+import { Entity } from '../../ecs/classes/Entity'
 
-export const loadDefaultActorAvatar = (entity) => {
+export const loadDefaultActorAvatar = (entity: Entity) => {
   const actor = getMutableComponent(entity, CharacterComponent)
   const model = SkeletonUtils.clone(AnimationManager.instance._defaultModel)
 
@@ -23,7 +25,7 @@ export const loadDefaultActorAvatar = (entity) => {
   animationComponent.mixer = new AnimationMixer(actor.modelContainer)
 }
 
-export const loadActorAvatar = (entity) => {
+export const loadActorAvatar = (entity: Entity) => {
   if (!isClient) return
   const avatarURL = getComponent(entity, CharacterComponent)?.avatarURL
   if (avatarURL) {
@@ -33,7 +35,7 @@ export const loadActorAvatar = (entity) => {
   }
 }
 
-export const loadActorAvatarFromURL = (entity, avatarURL) => {
+export const loadActorAvatarFromURL = (entity: Entity, avatarURL: string) => {
   AssetLoader.load(
     {
       url: avatarURL,
@@ -44,9 +46,9 @@ export const loadActorAvatarFromURL = (entity, avatarURL) => {
       const model = SkeletonUtils.clone(asset)
       const actor = getMutableComponent(entity, CharacterComponent)
       const animationComponent = getMutableComponent(entity, AnimationComponent)
+      const characterAnimationStateComponent = getMutableComponent(entity, CharacterAnimationStateComponent)
 
       animationComponent.mixer.stopAllAction()
-      animationComponent.currentAnimationAction = []
       actor.modelContainer.children.forEach((child) => child.removeFromParent())
 
       model.traverse((object) => {
@@ -58,8 +60,8 @@ export const loadActorAvatarFromURL = (entity, avatarURL) => {
       animationComponent.mixer = new AnimationMixer(actor.modelContainer)
       model.children.forEach((child) => actor.modelContainer.add(child))
 
-      if (animationComponent.currentState) {
-        AnimationRenderer.mountCurrentState(animationComponent)
+      if (characterAnimationStateComponent.currentState) {
+        AnimationRenderer.mountCurrentState(entity)
       }
 
       // advance animation for a frame to eliminate potential t-pose

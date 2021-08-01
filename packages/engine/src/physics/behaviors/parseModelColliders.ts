@@ -56,6 +56,11 @@ export const makeCollidersInvisible = (asset: any) => {
   const parseColliders = (mesh) => {
     if (mesh.userData.data === 'physics') {
       mesh.visible = false
+      // if(mesh.material) {
+      //   mesh.material.wireframe = true
+      //   mesh.material.opacity = 0.2
+      //   mesh.material.transparent = true
+      // }
     }
   }
   asset.scene ? asset.scene.traverse(parseColliders) : asset.traverse(parseColliders)

@@ -5,6 +5,8 @@ import { ControllerColliderComponent } from '../components/ControllerColliderCom
 import { CharacterComponent } from '../components/CharacterComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { RaycastComponent } from '../../physics/components/RaycastComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -18,8 +20,9 @@ const onGroundVelocity = new Vector3()
 const vec3 = new Vector3()
 
 export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
-  const actor: CharacterComponent = getMutableComponent(entity, CharacterComponent as any)
-  const transform: TransformComponent = getMutableComponent(entity, TransformComponent as any)
+  const actor = getMutableComponent(entity, CharacterComponent)
+  const velocity = getMutableComponent(entity, VelocityComponent)
+  const transform = getMutableComponent(entity, TransformComponent)
   const controller = getMutableComponent(entity, ControllerColliderComponent)
   if (!controller.controller || !actor.movementEnabled) return
 
@@ -29,7 +32,6 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
     actor.velocitySimulator.simulate(deltaTime)
 
     newVelocity.copy(actor.velocitySimulator.position).multiplyScalar(actor.moveSpeed)
-    actor.velocity.copy(newVelocity)
 
     const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
     if (xrInputSourceComponent) {
@@ -41,9 +43,12 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
       newVelocity.applyQuaternion(transform.rotation)
     }
 
-    if (controller.closestHit) {
+    const raycast = getMutableComponent(entity, RaycastComponent)
+    const closestHit = raycast.raycastQuery.hits[0]
+
+    if (closestHit) {
       onGroundVelocity.copy(newVelocity).setY(0)
-      vec3.set(controller.closestHit.normal.x, controller.closestHit.normal.y, controller.closestHit.normal.z)
+      vec3.set(closestHit.normal.x, closestHit.normal.y, closestHit.normal.z)
       quat.setFromUnitVectors(upVector, vec3)
       mat4.makeRotationFromQuaternion(quat)
       onGroundVelocity.applyMatrix4(mat4)
@@ -60,7 +65,6 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
     if (actor.localMovementDirection.y > 0 && !actor.isJumping) {
       controller.controller.velocity.y = actor.jumpHeight * deltaTime
       actor.isJumping = true
-      actor.isGrounded = false
     }
 
     // TODO: make a proper resizing function if we ever need it
@@ -77,6 +81,7 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
 
   // apply gravity
   controller.controller.velocity.y -= 0.2 * deltaTime
+  velocity.velocity.copy(controller.controller.velocity)
 
   // move according to controller's velocity
   controller.controller.delta.x += controller.controller.velocity.x

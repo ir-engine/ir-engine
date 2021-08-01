@@ -24,6 +24,7 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { DebugArrowComponent } from '../DebugArrowComponent'
 import { DebugRenderer } from './DebugRenderer'
 import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
 
 type ComponentHelpers = 'viewVector' | 'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box'
 
@@ -128,6 +129,7 @@ export class DebugHelpersSystem extends System {
     for (const entity of this.queryResults.characterDebug?.all) {
       // view vector
       const actor = getComponent(entity, CharacterComponent)
+      const velocity = getComponent(entity, VelocityComponent)
       const transform = getComponent(entity, TransformComponent)
       const arrowHelper = this.helpersByEntity.viewVector.get(entity) as ArrowHelper
 
@@ -139,8 +141,8 @@ export class DebugHelpersSystem extends System {
       // velocity
       const velocityArrowHelper = this.helpersByEntity.velocityArrow.get(entity) as ArrowHelper
       if (velocityArrowHelper != null) {
-        velocityArrowHelper.setDirection(vector3.copy(actor.velocity).normalize())
-        velocityArrowHelper.setLength(actor.velocity.length() * 20)
+        velocityArrowHelper.setDirection(vector3.copy(velocity.velocity).normalize())
+        velocityArrowHelper.setLength(velocity.velocity.length() * 20)
         velocityArrowHelper.position.copy(transform.position).y += actor.actorHalfHeight
       }
     }

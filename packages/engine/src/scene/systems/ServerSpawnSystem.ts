@@ -1,6 +1,6 @@
 import { Entity } from '../../ecs/classes/Entity'
 import { System } from '../../ecs/classes/System'
-import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { SpawnPointComponent } from '../components/SpawnPointComponent'
 import { Quaternion, Vector3 } from 'three'
@@ -9,6 +9,8 @@ import { NetworkObjectUpdateType } from '../../networking/templates/NetworkObjec
 import { sendClientObjectUpdate } from '../../networking/functions/sendClientObjectUpdate'
 import { CharacterComponent } from '../../character/components/CharacterComponent'
 import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent'
+import { SpawnComponent } from '../components/SpawnComponent'
+import { createNetworkPlayer } from '../../character/prefabs/NetworkPlayerCharacter'
 
 const randomPositionCentered = (area: Vector3) => {
   return new Vector3((Math.random() - 0.5) * area.x, (Math.random() - 0.5) * area.y, (Math.random() - 0.5) * area.z)
@@ -56,12 +58,17 @@ export class ServerSpawnSystem extends System {
       }
     }
 
+    for (const entity of this.queryResults.spawnPlayer.added) {
+      const { userId } = getComponent(entity, SpawnComponent)
+      createNetworkPlayer({ entity, ownerId: userId })
+      removeComponent(entity, SpawnComponent)
+    }
+
     // currently hard coded for characters, we should make this work with any entity
     for (const entity of this.queryResults.respawn.added) {
-      const { position, rotation } = getComponent(entity, RespawnTagComponent).position
-        ? getComponent(entity, RespawnTagComponent)
-        : this.getRandomSpawnPoint()
+      const { position, rotation } = this.getRandomSpawnPoint()
       const actor = getComponent(entity, CharacterComponent)
+      const transform = getComponent(entity, TransformComponent)
       const controller = getComponent(entity, ControllerColliderComponent)
 
       const pos = position.clone()
@@ -73,6 +80,10 @@ export class ServerSpawnSystem extends System {
         translation: pos,
         rotation
       })
+
+      transform.position.copy(pos)
+      transform.rotation.copy(rotation)
+
       sendClientObjectUpdate(entity, NetworkObjectUpdateType.ForceTransformUpdate, [
         pos.x,
         pos.y,
@@ -89,6 +100,13 @@ export class ServerSpawnSystem extends System {
 ServerSpawnSystem.queries = {
   spawnPoint: {
     components: [SpawnPointComponent, TransformComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  spawnPlayer: {
+    components: [SpawnComponent],
     listen: {
       added: true,
       removed: true

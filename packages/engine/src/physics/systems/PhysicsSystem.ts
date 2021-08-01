@@ -8,6 +8,9 @@ import { NetworkObject } from '../../networking/components/NetworkObject'
 import { Network } from '../../networking/classes/Network'
 import { Engine } from '../../ecs/classes/Engine'
 import { VelocityComponent } from '../components/VelocityComponent'
+import { CharacterComponent } from '../../character/components/CharacterComponent'
+import { Not } from '../../ecs/functions/ComponentFunctions'
+import { RaycastComponent } from '../components/RaycastComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -63,6 +66,13 @@ export class PhysicsSystem extends System {
       }
     }
 
+    for (const entity of this.queryResults.raycast.removed) {
+      const raycastComponent = getComponent(entity, RaycastComponent, true)
+      if (raycastComponent) {
+        PhysXInstance.instance.removeRaycastQuery(raycastComponent.raycastQuery)
+      }
+    }
+
     for (const entity of this.queryResults.collider.all) {
       const collider = getMutableComponent(entity, ColliderComponent)
       const velocity = getMutableComponent(entity, VelocityComponent)
@@ -103,6 +113,13 @@ export class PhysicsSystem extends System {
 PhysicsSystem.queries = {
   collider: {
     components: [ColliderComponent, TransformComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  raycast: {
+    components: [RaycastComponent],
     listen: {
       added: true,
       removed: true

@@ -1,5 +1,5 @@
 import { Quaternion, Vector3 } from 'three'
-import { Controller, ControllerHitEvent, PhysXInstance, RaycastQuery, SceneQueryType } from 'three-physx'
+import { ControllerHitEvent, PhysXInstance } from 'three-physx'
 import { isClient } from '../common/functions/isClient'
 import { System } from '../ecs/classes/System'
 import { Not } from '../ecs/functions/ComponentFunctions'
@@ -15,17 +15,16 @@ import { LocalInputReceiver } from '../input/components/LocalInputReceiver'
 import { characterMoveBehavior } from './behaviors/characterMoveBehavior'
 import { ControllerColliderComponent } from './components/ControllerColliderComponent'
 import { InterpolationComponent } from '../physics/components/InterpolationComponent'
-import { CollisionGroups, DefaultCollisionMask } from '../physics/enums/CollisionGroups'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { CharacterComponent } from './components/CharacterComponent'
 import { Engine } from '../ecs/classes/Engine'
 import { XRInputSourceComponent } from './components/XRInputSourceComponent'
 import { Network } from '../networking/classes/Network'
 import { detectUserInPortal } from './functions/detectUserInPortal'
-import { updatePlayerRotationFromViewVector } from './functions/updatePlayerRotationFromViewVector'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { RespawnTagComponent } from '../scene/components/RespawnTagComponent'
+import { RaycastComponent } from '../physics/components/RaycastComponent'
 
 const vector3 = new Vector3()
 const quat = new Quaternion()
@@ -34,49 +33,10 @@ const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Mat
 
 export class CharacterControllerSystem extends System {
   execute(delta: number): void {
-    for (const entity of this.queryResults.controller.added) {
-      const playerCollider = getMutableComponent(entity, ControllerColliderComponent)
-      const actor = getMutableComponent(entity, CharacterComponent)
-      const transform = getComponent(entity, TransformComponent)
-
-      playerCollider.controller = PhysXInstance.instance.createController(
-        new Controller({
-          isCapsule: true,
-          collisionLayer: CollisionGroups.Characters,
-          collisionMask: DefaultCollisionMask,
-          height: playerCollider.capsuleHeight,
-          contactOffset: playerCollider.contactOffset,
-          stepOffset: 0.25,
-          slopeLimit: 0,
-          radius: playerCollider.capsuleRadius,
-          position: {
-            x: transform.position.x,
-            y: transform.position.y + actor.actorHalfHeight,
-            z: transform.position.z
-          },
-          material: {
-            dynamicFriction: playerCollider.friction
-          }
-        })
-      )
-
-      playerCollider.raycastQuery = PhysXInstance.instance.addRaycastQuery(
-        new RaycastQuery({
-          type: SceneQueryType.Closest,
-          origin: new Vector3(0, actor.actorHalfHeight, 0),
-          direction: new Vector3(0, -1, 0),
-          maxDistance: actor.actorHalfHeight + 0.05,
-          collisionMask: DefaultCollisionMask | CollisionGroups.Portal
-        })
-      )
-    }
-
     for (const entity of this.queryResults.controller.removed) {
       const controller = getRemovedComponent(entity, ControllerColliderComponent)
-      if (controller) {
-        PhysXInstance.instance.removeController(controller.controller)
-        PhysXInstance.instance.removeRaycastQuery(controller.raycastQuery)
-      }
+
+      PhysXInstance.instance.removeController(controller.controller)
 
       const actor = getMutableComponent(entity, CharacterComponent)
       if (actor) {
@@ -86,11 +46,12 @@ export class CharacterControllerSystem extends System {
 
     for (const entity of this.queryResults.controller.all) {
       const controller = getMutableComponent(entity, ControllerColliderComponent)
+      const raycastComponent = getMutableComponent(entity, RaycastComponent)
 
       // iterate on all collisions since the last update
       controller.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => {})
 
-      if (!isClient || (entity && entity === Network.instance.localClientEntity)) detectUserInPortal(controller)
+      if (!isClient || (entity && entity === Network.instance.localClientEntity)) detectUserInPortal(entity)
 
       const actor = getMutableComponent(entity, CharacterComponent)
 
@@ -120,31 +81,23 @@ export class CharacterControllerSystem extends System {
         controller.controller.transform.translation.z
       )
 
-      controller.raycastQuery.origin.copy(transform.position).y += actor.actorHalfHeight
-      controller.closestHit = controller.raycastQuery.hits[0]
-      actor.isGrounded = controller.raycastQuery.hits.length > 0 || controller.controller.collisions.down
+      actor.isGrounded = Boolean(raycastComponent.raycastQuery.hits.length > 0 || controller.controller.collisions.down)
+
+      characterMoveBehavior(entity, delta)
     }
 
-    for (const entity of this.queryResults.localCharacter.all) {
-      const actor = getMutableComponent(entity, CharacterComponent)
+    for (const entity of this.queryResults.raycast.all) {
+      const raycastComponent = getMutableComponent(entity, RaycastComponent)
       const transform = getComponent(entity, TransformComponent)
-
-      characterMoveBehavior(entity, delta)
-
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      if (xrInputSourceComponent) {
-        actor.viewVector.set(0, 0, 1).applyQuaternion(transform.rotation)
+      const actor = getMutableComponent(entity, CharacterComponent)
+      raycastComponent.raycastQuery.origin.copy(transform.position).y += actor.actorHalfHeight
+      if (!hasComponent(entity, ControllerColliderComponent)) {
+        actor.isGrounded = Boolean(raycastComponent.raycastQuery.hits.length > 0)
       }
-    }
-
-    for (const entity of this.queryResults.characterOnServer.all) {
-      updatePlayerRotationFromViewVector(entity)
-      characterMoveBehavior(entity, delta)
     }
 
     for (const entity of this.queryResults.xrInput.added) {
       const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent)
-      const actor = getMutableComponent(entity, CharacterComponent)
       const object3DComponent = getComponent(entity, Object3DComponent)
 
       xrInputSourceComponent.controllerGroup.add(
@@ -156,21 +109,35 @@ export class CharacterControllerSystem extends System {
 
       xrInputSourceComponent.controllerGroup.applyQuaternion(rotate180onY)
       object3DComponent.value.add(xrInputSourceComponent.controllerGroup, xrInputSourceComponent.head)
-
-      if (isEntityLocalClient(entity)) {
-        // TODO: Temporarily make rig invisible until rig is fixed
-        actor?.modelContainer?.traverse((child) => {
-          if (child.visible) {
-            child.visible = false
-          }
-        })
-      }
     }
 
-    for (const entity of this.queryResults.xrInput.all) {
-      if (!isEntityLocalClient(entity)) return
-      const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent)
+    for (const entity of this.queryResults.localXRInput.added) {
+      const actor = getMutableComponent(entity, CharacterComponent)
+
+      // TODO: Temporarily make rig invisible until rig is fixed
+      actor.modelContainer?.traverse((child) => {
+        if (child.visible) {
+          child.visible = false
+        }
+      })
+    }
+
+    for (const entity of this.queryResults.localXRInput.removed) {
+      const actor = getMutableComponent(entity, CharacterComponent)
+      // TODO: Temporarily make rig invisible until rig is fixed
+      actor?.modelContainer?.traverse((child) => {
+        if (child.visible) {
+          child.visible = true
+        }
+      })
+    }
+
+    for (const entity of this.queryResults.localXRInput.all) {
+      const actor = getMutableComponent(entity, CharacterComponent)
       const transform = getComponent(entity, TransformComponent)
+      actor.viewVector.set(0, 0, 1).applyQuaternion(transform.rotation)
+
+      const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent)
 
       quat.copy(transform.rotation).invert()
       quat2.copy(Engine.camera.quaternion).premultiply(quat)
@@ -180,31 +147,12 @@ export class CharacterControllerSystem extends System {
       vector3.applyQuaternion(quat)
       xrInputSourceComponent.head.position.copy(vector3)
     }
-
-    for (const entity of this.queryResults.xrInput.removed) {
-      const actor = getMutableComponent(entity, CharacterComponent)
-
-      if (isEntityLocalClient(entity))
-        // TODO: Temporarily make rig invisible until rig is fixed
-        actor?.modelContainer?.traverse((child) => {
-          if (child.visible) {
-            child.visible = true
-          }
-        })
-    }
   }
 }
 
 CharacterControllerSystem.queries = {
-  localCharacter: {
-    components: [LocalInputReceiver, ControllerColliderComponent, CharacterComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  character: {
-    components: [CharacterComponent],
+  characterOnServer: {
+    components: [Not(LocalInputReceiver), Not(InterpolationComponent), CharacterComponent, ControllerColliderComponent],
     listen: {
       added: true,
       removed: true
@@ -217,8 +165,15 @@ CharacterControllerSystem.queries = {
       removed: true
     }
   },
-  characterOnServer: {
-    components: [Not(LocalInputReceiver), Not(InterpolationComponent), CharacterComponent, ControllerColliderComponent],
+  raycast: {
+    components: [CharacterComponent, RaycastComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  localXRInput: {
+    components: [LocalInputReceiver, XRInputSourceComponent, ControllerColliderComponent],
     listen: {
       added: true,
       removed: true

@@ -1,22 +1,17 @@
 import { isClient } from '../../common/functions/isClient'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { Entity } from '../../ecs/classes/Entity'
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import { PhysicsSystem } from '../../physics/systems/PhysicsSystem'
 import { PortalComponent } from '../../scene/components/PortalComponent'
-import { ControllerColliderComponent } from '../components/ControllerColliderComponent'
+import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { teleportPlayer } from '../prefabs/NetworkPlayerCharacter'
 
-export const detectUserInPortal = (controller: ControllerColliderComponent): void => {
-  if (
-    !controller ||
-    !controller.raycastQuery ||
-    !controller.raycastQuery.hits[0] ||
-    !controller.raycastQuery.hits[0].body ||
-    !controller.raycastQuery.hits[0].body.userData
-  )
-    return
+export const detectUserInPortal = (entity: Entity): void => {
+  const raycastComponent = getComponent(entity, RaycastComponent)
+  if (!raycastComponent?.raycastQuery?.hits[0]?.body?.userData) return
 
-  const portalEntity = controller.raycastQuery.hits[0].body.userData
+  const portalEntity = raycastComponent.raycastQuery.hits[0].body.userData
   const portalComponent = getMutableComponent(portalEntity, PortalComponent)
 
   if (!portalComponent) return
@@ -27,6 +22,6 @@ export const detectUserInPortal = (controller: ControllerColliderComponent): voi
       portalComponent: portalComponent.toJSON()
     })
   } else {
-    teleportPlayer(controller.entity, portalComponent.remoteSpawnPosition, portalComponent.remoteSpawnRotation)
+    teleportPlayer(entity, portalComponent.remoteSpawnPosition, portalComponent.remoteSpawnRotation)
   }
 }

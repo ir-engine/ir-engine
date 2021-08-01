@@ -5,7 +5,7 @@ import { FollowCameraComponent } from '../../camera/components/FollowCameraCompo
 import { isClient } from '../../common/functions/isClient'
 import { Behavior } from '../../common/interfaces/Behavior'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { Input } from '../../input/components/Input'
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
 import { Interactor } from '../../interaction/components/Interactor'
@@ -26,6 +26,15 @@ import type { NetworkObject } from '../../networking/components/NetworkObject'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { rotateViewVectorXZ } from '../../camera/systems/CameraSystem'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { Body, BodyType, Controller, PhysXInstance, RaycastQuery, SceneQueryType, SHAPES } from 'three-physx'
+import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
+import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { CharacterAnimationStateComponent } from '../components/CharacterAnimationStateComponent'
+import { RaycastComponent } from '../../physics/components/RaycastComponent'
+
+const avatarRadius = 0.25
+const capsuleHeight = 1.3
 
 const initializeCharacter: Behavior = (entity): void => {
   entity.name = 'Player'
@@ -45,13 +54,10 @@ const initializeCharacter: Behavior = (entity): void => {
   actor.frustumCamera.rotateY(Math.PI)
 
   addComponent(entity, AnimationComponent, {
-    mixer: new AnimationMixer(actor.modelContainer),
-    animationVectorSimulator: new VectorSpringSimulator(
-      60,
-      actor.defaultVelocitySimulatorMass,
-      actor.defaultVelocitySimulatorDamping
-    )
+    mixer: new AnimationMixer(actor.modelContainer)
   })
+
+  addComponent(entity, CharacterAnimationStateComponent)
 
   addComponent(entity, Object3DComponent, { value: obj3d })
 
@@ -73,11 +79,70 @@ const initializeCharacter: Behavior = (entity): void => {
 
   actor.viewVector = new Vector3(0, 0, 1)
 
-  addComponent(entity, ControllerColliderComponent)
+  const transform = getComponent(entity, TransformComponent)
+
+  const raycastQuery = PhysXInstance.instance.addRaycastQuery(
+    new RaycastQuery({
+      type: SceneQueryType.Closest,
+      origin: new Vector3(0, actor.actorHalfHeight, 0),
+      direction: new Vector3(0, -1, 0),
+      maxDistance: actor.actorHalfHeight + 0.05,
+      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Portal
+    })
+  )
+  addComponent(entity, RaycastComponent, { raycastQuery })
+
+  if (!isClient || hasComponent(entity, LocalInputReceiver)) {
+    const controller = PhysXInstance.instance.createController(
+      new Controller({
+        isCapsule: true,
+        collisionLayer: CollisionGroups.Characters,
+        collisionMask: DefaultCollisionMask,
+        height: capsuleHeight,
+        contactOffset: 0.01,
+        stepOffset: 0.25,
+        slopeLimit: 0,
+        radius: avatarRadius,
+        position: {
+          x: transform.position.x,
+          y: transform.position.y + actor.actorHalfHeight,
+          z: transform.position.z
+        },
+        material: {
+          dynamicFriction: 0.1
+        }
+      })
+    )
+    addComponent(entity, ControllerColliderComponent, { controller })
+  } else {
+    const body = PhysXInstance.instance.addBody(
+      new Body({
+        shapes: [
+          {
+            shape: SHAPES.Capsule,
+            options: { halfHeight: capsuleHeight / 2, radius: avatarRadius },
+            config: {
+              collisionLayer: CollisionGroups.Characters,
+              collisionMask: DefaultCollisionMask
+            }
+          }
+        ],
+        type: BodyType.STATIC,
+        transform: {
+          translation: {
+            x: transform.position.x,
+            y: transform.position.y + actor.actorHalfHeight,
+            z: transform.position.z
+          }
+        }
+      })
+    )
+    addComponent(entity, ColliderComponent, { body })
+  }
 }
 
 export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation: Quaternion): void => {
-  const playerCollider = getMutableComponent(playerEntity, ControllerColliderComponent)
+  const controller = getMutableComponent(playerEntity, ControllerColliderComponent)
   const actor = getMutableComponent(playerEntity, CharacterComponent)
 
   if (!(rotation instanceof Quaternion)) {
@@ -86,19 +151,19 @@ export const teleportPlayer = (playerEntity: Entity, position: Vector3, rotation
 
   const pos = new Vector3(position.x, position.y, position.z)
   pos.y += actor.actorHalfHeight
-  playerCollider.controller.updateTransform({
+  controller.controller.updateTransform({
     translation: pos,
     rotation
   })
 
   const euler = new Euler().setFromQuaternion(rotation)
   rotateViewVectorXZ(actor.viewVector, euler.y)
-  playerCollider.controller.velocity.setScalar(0)
+  controller.controller.velocity.setScalar(0)
 }
 
 export function createNetworkPlayer(args: {
-  parameters: { position; rotation }
   ownerId: string | number
+  parameters?: { position; rotation }
   networkId?: number
   entity?: Entity
 }): NetworkObject {
@@ -115,6 +180,7 @@ export function createNetworkPlayer(args: {
     )
   }
   const networkComponent = initializeNetworkObject({
+    entity: args.entity,
     ownerId: String(args.ownerId),
     uniqueId: String(args.ownerId),
     networkId: args.networkId,
@@ -158,7 +224,8 @@ export const NetworkPlayerCharacter: NetworkPrefab = {
     { type: TransformComponent },
     // Local player input mapped to behaviors in the input map
     { type: Input, data: { schema: CharacterInputSchema } },
-    { type: PositionalAudioComponent }
+    { type: PositionalAudioComponent },
+    { type: VelocityComponent }
   ],
   // These are only created for the local player who owns this prefab
   localClientComponents: [
