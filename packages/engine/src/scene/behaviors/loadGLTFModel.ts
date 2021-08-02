@@ -33,6 +33,7 @@ export const loadGLTFModel = (
           },
           (res) => {
             removeCollidersFromModel(entity, res)
+            // console.log(res, component)
 
             // DIRTY HACK TO LOAD NAVMESH
             if (component.data.src.match(/navmesh/)) {
@@ -96,6 +97,11 @@ export const loadGLTFModel = (
                   })
               })
             }
+
+            res.traverse((child) => {
+              child.matrixAutoUpdate = component.data.matrixAutoUpdate
+            })
+
             sceneLoader._onModelLoaded()
             resolve()
           },
