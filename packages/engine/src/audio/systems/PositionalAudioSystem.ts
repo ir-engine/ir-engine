@@ -12,6 +12,7 @@ import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { Entity } from '../../ecs/classes/Entity'
 import { AudioListener, PositionalAudio } from 'three'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
+import { applyAudioSettings } from '../../scene/behaviors/handleAudioSettings'
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== 'undefined' && /chrome/i.test(navigator.userAgent)
 function createSilentAudioEl(streamsLive) {
@@ -123,7 +124,7 @@ export class PositionalAudioSystem extends System {
 
     for (const entity of this.queryResults.positional_audio.added) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent)
-
+      applyAudioSettings(positionalAudio.value)
       if (positionalAudio != null) Engine.scene.add(positionalAudio.value)
     }
 

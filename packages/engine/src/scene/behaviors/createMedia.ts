@@ -16,6 +16,8 @@ import Video from '../classes/Video'
 import { Network } from '../../networking/classes/Network'
 import { PrefabType } from '../../networking/templates/PrefabType'
 import { Time } from '../../networking/types/SnapshotDataTypes'
+import { PositionalAudio } from 'three'
+import { applyAudioMediaSettings } from './handleAudioSettings'
 
 const isBrowser = new Function('try {return this===window;}catch(e){ return false;}')
 
@@ -125,7 +127,9 @@ export function createMediaServer(entity, args: { interactable: boolean }): void
 }
 
 export function createAudio(entity, args: AudioProps): void {
-  addObject3DComponent(entity, new Audio(Engine.audioListener), args)
+  // addObject3DComponent(entity, new Audio(Engine.audioListener), args)
+  addObject3DComponent(entity, new PositionalAudio(Engine.audioListener), args)
+  applyAudioMediaSettings(getComponent(entity, Object3DComponent).value)
   if (args.interactable) addInteraction(entity)
 }
 
