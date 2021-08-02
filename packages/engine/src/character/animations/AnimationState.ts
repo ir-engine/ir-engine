@@ -119,6 +119,7 @@ export class JumpState extends AnimationState {
       timeScale: 1,
       loopType: LoopOnce,
       decorateAction: function (action: AnimationAction) {
+        action.reset()
         action.setLoop(this.loopType, this.loopCount)
         action.clampWhenFinished = true
       }

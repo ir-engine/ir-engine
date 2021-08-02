@@ -45,7 +45,7 @@ export const hitBall: Behavior = (
   vec3.applyAxisAngle(upVector, clubMoveDirection * angleOfIncidence).normalize().multiplyScalar(golfClubComponent.velocity.length());
 */
 
-/*
+  /*
 // This part alllow to passed tests before we find solution
   if (golfClubComponent.velocity.z > 0) {
     golfClubComponent.velocity.z *= -1
