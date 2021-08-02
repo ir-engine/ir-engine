@@ -8,7 +8,6 @@ import { addComponent, getComponent, getMutableComponent } from '../../ecs/funct
 import Video from '../classes/Video'
 import MediaComponent from '../components/MediaComponent'
 import AudioSource from '../classes/AudioSource'
-import CommonSlider from '../../../../client-core/src/common/components/Slider'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 import { applyAudioMediaSettings } from './handleAudioSettings'
 
