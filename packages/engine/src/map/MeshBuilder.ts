@@ -13,7 +13,7 @@ import {
 } from 'three'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { VectorTile } from '@mapbox/vector-tile'
-import { DEFAULT_FEATURE_STYLES } from './styles'
+import { DEFAULT_FEATURE_STYLES, getFeatureStyles } from './styles'
 import turfBuffer from '@turf/buffer'
 import { Feature, Geometry, Position } from 'geojson'
 import { toIndexed } from './toIndexed'
@@ -196,42 +196,6 @@ export function buildBuildingsMesh(features: Feature[], llCenter: Position, rend
   return mesh
 }
 
-function getRoadWidth(feature: Feature): number {
-  switch (feature.properties.class) {
-    case 'motorway':
-    case 'motorway_link':
-      return 10
-    case 'trunk':
-    case 'trunk_link':
-      return 9
-    case 'primary':
-    case 'primary_link':
-      return 8
-    case 'secondary':
-    case 'secondary_link':
-      return 7
-    case 'tertiary':
-    case 'tertiary_link':
-      return 6
-    case 'street':
-    case 'turning_circle':
-    case 'construction':
-      return 5
-    case 'street_limited':
-    case 'turning_loop':
-    case 'mini_roundabout':
-      return 4
-    case 'pedestrian':
-    case 'path':
-    case 'track':
-    case 'major_rail':
-    case 'minor_rail':
-      return 3
-    default:
-      return 1
-  }
-}
-
 function maybeBuffer(feature: Feature, width: number): Geometry {
   // Buffer the linestrings so they have some thickness
   if (
@@ -249,7 +213,8 @@ function maybeBuffer(feature: Feature, width: number): Geometry {
 }
 
 function buildRoadGeometry(feature: Feature, llCenter: Position): BufferGeometry {
-  const geometry = maybeBuffer(feature, getRoadWidth(feature))
+  const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, 'road', feature.properties.class)
+  const geometry = maybeBuffer(feature, styles.width)
 
   let coords: Position[]
   const shape = new Shape()

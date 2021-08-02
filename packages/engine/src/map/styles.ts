@@ -77,7 +77,7 @@ viewpoint:2
 waste_basket:2
 */
 
-export interface IFeatureStyles {
+export interface IStyles {
   color?: number
   height?: 'a' | number
   height_scale?: number
@@ -85,6 +85,11 @@ export interface IFeatureStyles {
   extrude?: string
   offy?: number
   opacity?: number
+}
+export interface IFeatureStyles extends IStyles {
+  classOverride?: {
+    [className: string]: IStyles
+  }
 }
 
 export interface IFeatureStylesByLayerName {
@@ -122,7 +127,73 @@ export const DEFAULT_FEATURE_STYLES: IFeatureStylesByLayerName = {
   road: {
     color: 0x333333,
     offy: 0.2,
-    extrude: 'flat'
+    extrude: 'flat',
+    width: 2,
+    classOverride: {
+      motorway: {
+        width: 10
+      },
+      motorway_link: {
+        width: 10
+      },
+      trunk: {
+        width: 9
+      },
+      trunk_link: {
+        width: 9
+      },
+      primary: {
+        width: 8
+      },
+      primary_link: {
+        width: 8
+      },
+      secondary: {
+        width: 7
+      },
+      secondary_link: {
+        width: 7
+      },
+      tertiary: {
+        width: 6
+      },
+      tertiary_link: {
+        width: 6
+      },
+      street: {
+        width: 5
+      },
+      turning_circle: {
+        width: 5
+      },
+      construction: {
+        width: 5
+      },
+      street_limited: {
+        width: 4
+      },
+      turning_loop: {
+        width: 4
+      },
+      mini_roundabout: {
+        width: 4
+      },
+      pedestrian: {
+        width: 3
+      },
+      path: {
+        width: 3
+      },
+      track: {
+        width: 3
+      },
+      major_rail: {
+        width: 3
+      },
+      minor_rail: {
+        width: 3
+      }
+    }
   },
 
   poi: {
@@ -186,7 +257,7 @@ export const DEFAULT_FEATURE_STYLES: IFeatureStylesByLayerName = {
   park: {
     color: 0x008800,
     opacity: 0.33,
-    exrude: 'flat',
+    extrude: 'flat',
     offy: -0.4
   },
   forest: {
@@ -232,4 +303,9 @@ export const DEFAULT_FEATURE_STYLES: IFeatureStylesByLayerName = {
   school: {
     color: 0xddaaaa
   }
+}
+
+export function getFeatureStyles(stylesByLayerName: IFeatureStylesByLayerName, layerName: string, className?: string) {
+  const layerStyles = stylesByLayerName[layerName]
+  return className && layerStyles.classOverride[className] ? layerStyles.classOverride[className] : layerStyles
 }
