@@ -49,7 +49,7 @@ export class Config {
       vrRoomGrid: {
         scenes: []
       }
-    },
+    }
   }
 }
 

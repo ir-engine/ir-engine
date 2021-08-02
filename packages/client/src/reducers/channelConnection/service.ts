@@ -72,23 +72,28 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
         await leave(false)
       }
 
-      await Network.instance.transport.initialize(instance.get('ipAddress'), instance.get('port'), false, {
-        locationId: locationId,
-        token: token,
-        user: user,
-        sceneId: sceneId,
-        startVideo: videoActive,
-        channelType: 'channel',
-        channelId: channelId,
-        videoEnabled:
-          currentLocation?.locationSettings?.videoEnabled === true ||
-          !(
-            currentLocation?.locationSettings?.locationType === 'showroom' &&
-            user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation.id) == null
-          ),
-        isHarmonyPage: isHarmonyPage
-      })
+      try {
+        await Network.instance.transport.initialize(instance.get('ipAddress'), instance.get('port'), false, {
+          locationId: locationId,
+          token: token,
+          user: user,
+          sceneId: sceneId,
+          startVideo: videoActive,
+          channelType: 'channel',
+          channelId: channelId,
+          videoEnabled:
+            currentLocation?.locationSettings?.videoEnabled === true ||
+            !(
+              currentLocation?.locationSettings?.locationType === 'showroom' &&
+              user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation.id) == null
+            ),
+          isHarmonyPage: isHarmonyPage
+        })
+      } catch (error) {
+        console.error('Network transport could not initialize, transport is: ', Network.instance.transport)
+      }
 
+      ;(Network.instance.transport as SocketWebRTCClientTransport).left = false
       EngineEvents.instance.addEventListener(MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers)
 
       dispatch(channelServerConnected())
