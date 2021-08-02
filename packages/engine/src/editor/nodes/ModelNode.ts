@@ -93,6 +93,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   boundingSphere = new Sphere()
   gltfJson = null
   isValidURL = false
+  isUpdateDataMatrix = true
 
   constructor(editor) {
     super(editor)
@@ -367,7 +368,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       'gltf-model': {
         src: this._canonicalUrl,
         envMapOverride: this.envMapOverride !== '' ? this.envMapOverride : undefined,
-        textureOverride: this.textureOverride
+        textureOverride: this.textureOverride,
+        matrixAutoUpdate: this.isUpdateDataMatrix
       },
       shadow: {
         cast: this.castShadow,
