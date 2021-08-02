@@ -13,7 +13,7 @@ import {
 } from 'three'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { VectorTile } from '@mapbox/vector-tile'
-import { DEFAULT_FEATURE_STYLES, getFeatureStyles } from './styles'
+import { DEFAULT_FEATURE_STYLES, getFeatureStyles, IStyles } from './styles'
 import turfBuffer from '@turf/buffer'
 import { Feature, Geometry, Position } from 'geojson'
 import { toIndexed } from './toIndexed'
@@ -33,11 +33,9 @@ const NUMBER_OF_TILES_PER_DIMENSION = 3
 const WHOLE_NUMBER_OF_TILES_FROM_CENTER = Math.floor(NUMBER_OF_TILES_PER_DIMENSION / 2)
 const NUMBER_OF_TILES_IS_ODD = NUMBER_OF_TILES_PER_DIMENSION % 2
 
-function buildBuildingGeometry(feature: Feature, llCenter: Position): BufferGeometry {
+function buildGeometry(feature: Feature, llCenter: Position, styles: IStyles): BufferGeometry {
   const shape = new Shape()
-  const styles = DEFAULT_FEATURE_STYLES.building
 
-  // not sure why buildings would have linestrings...
   const geometry = maybeBuffer(feature, styles.width)
 
   let coords: Position[]
@@ -111,6 +109,13 @@ function buildBuildingGeometry(feature: Feature, llCenter: Position): BufferGeom
 
   return threejsGeometry
 }
+function buildGeometries(features: Feature[], llCenter: Position, styles: IStyles): BufferGeometry[] {
+  const geometries = features.map((feature) => buildGeometry(feature, llCenter, styles))
+
+  if(styles.extrude !== 'flat') {
+  } else {
+  }
+}
 
 function createCanvasRenderingContext2D(width: number, height: number) {
   const canvas = document.createElement('canvas')
@@ -176,12 +181,7 @@ function colorVertices(geometry: BufferGeometry, baseColor: Color) {
  * TODO adapt code from https://raw.githubusercontent.com/jeromeetienne/threex.proceduralcity/master/threex.proceduralcity.js
  */
 export function buildBuildingsMesh(features: Feature[], llCenter: Position, renderer: WebGLRenderer): Mesh {
-  const geometries = features
-    .map((feature) => buildBuildingGeometry(feature, llCenter))
-    .filter((geometry) => geometry)
-    .map((geometry) => toIndexed(geometry))
-
-  const mergedGeometry = mergeBufferGeometries(geometries)
+  const geometries = buildGeometries(features, llCenter, styles))
 
   const texture = new CanvasTexture(generateTextureCanvas())
   texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
