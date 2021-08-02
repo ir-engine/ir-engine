@@ -167,6 +167,11 @@ function getRandomBuildingColor() {
   return new Color().setRGB(value + Math.random() * 0.1, value, value + Math.random() * 0.1)
 }
 
+function getRandomRoadColor() {
+  const value = 0.1 + Math.random() * 0.1
+  return new Color().setRGB(value, value, value)
+}
+
 function colorVertices(geometry: BufferGeometry, baseColor: Color) {
   const normals = geometry.attributes.normal
   const light = new Color(0xffffff)
@@ -297,7 +302,7 @@ function buildRoadGeometry(feature: Feature, llCenter: Position): BufferGeometry
 
 export function buildRoadMesh(feature: Feature, llCenter: Position) {
   const material = new MeshLambertMaterial({
-    color: 0x202020
+    color: getRandomRoadColor()
   })
 
   const geometry = buildRoadGeometry(feature, llCenter)
