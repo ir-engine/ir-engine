@@ -14,7 +14,7 @@ import {
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { VectorTile } from '@mapbox/vector-tile'
 import { DEFAULT_FEATURE_STYLES } from './styles'
-import turf_buffer from '@turf/buffer'
+import turfBuffer from '@turf/buffer'
 import { Feature, Geometry, Position } from 'geojson'
 import { toIndexed } from './toIndexed'
 import { Config } from '@xrengine/client-core/src/helper'
@@ -37,24 +37,10 @@ function buildBuildingGeometry(feature: Feature, llCenter: Position): BufferGeom
   const shape = new Shape()
   const styles = DEFAULT_FEATURE_STYLES.building
 
-  let geometry: Geometry
+  // not sure why buildings would have linestrings...
+  const geometry = maybeBuffer(feature, styles.width)
 
   let coords: Position[]
-
-  // Buffer the linestrings (e.g. roads) so they have some thickness
-  if (
-    feature.geometry.type === 'LineString' ||
-    feature.geometry.type === 'Point' ||
-    feature.geometry.type === 'MultiLineString'
-  ) {
-    const width = styles.width || 1
-    const buf = turf_buffer(feature, width, {
-      units: 'meters'
-    })
-    geometry = buf.geometry
-  } else {
-    geometry = feature.geometry
-  }
 
   // TODO switch statement
   if (geometry.type === 'MultiPolygon') {
@@ -167,11 +153,6 @@ function getRandomBuildingColor() {
   return new Color().setRGB(value + Math.random() * 0.1, value, value + Math.random() * 0.1)
 }
 
-function getRandomRoadColor() {
-  const value = 0.1 + Math.random() * 0.1
-  return new Color().setRGB(value, value, value)
-}
-
 function colorVertices(geometry: BufferGeometry, baseColor: Color) {
   const normals = geometry.attributes.normal
   const light = new Color(0xffffff)
@@ -251,36 +232,34 @@ function getRoadWidth(feature: Feature): number {
   }
 }
 
-function buildRoadGeometry(feature: Feature, llCenter: Position): BufferGeometry {
-  const shape = new Shape()
-
-  let geometry: Geometry
-
-  let coords: Position[]
-  // Buffer the linestrings (e.g. roads) so they have some thickness
+function maybeBuffer(feature: Feature, width: number): Geometry {
+  // Buffer the linestrings so they have some thickness
   if (
     feature.geometry.type === 'LineString' ||
     feature.geometry.type === 'Point' ||
     feature.geometry.type === 'MultiLineString'
   ) {
-    const buf = turf_buffer(feature, getRoadWidth(feature), {
+    const buf = turfBuffer(feature, width, {
       units: 'meters'
     })
-    geometry = buf.geometry
-  } else {
-    geometry = feature.geometry
+    return buf.geometry
   }
 
+  return feature.geometry
+}
+
+function buildRoadGeometry(feature: Feature, llCenter: Position): BufferGeometry {
+  const geometry = maybeBuffer(feature, getRoadWidth(feature))
+
+  let coords: Position[]
+  const shape = new Shape()
   // TODO switch statement
   if (geometry.type === 'MultiPolygon') {
     coords = geometry.coordinates[0][0] // TODO: add all multipolygon coords.
   } else if (geometry.type === 'Polygon') {
     coords = geometry.coordinates[0] // TODO: handle interior rings
-  } else if (geometry.type === 'MultiPoint') {
-    // TODO is this a bug?
-    coords = geometry.coordinates[0] as any
   } else {
-    // TODO handle feature.geometry.type === 'GeometryCollection'?
+    console.warn('Unexpected geometry type', geometry.type)
   }
 
   var point = llToScene(coords[0], llCenter)
@@ -302,7 +281,7 @@ function buildRoadGeometry(feature: Feature, llCenter: Position): BufferGeometry
 
 export function buildRoadMesh(feature: Feature, llCenter: Position) {
   const material = new MeshLambertMaterial({
-    color: getRandomRoadColor()
+    color: 0x202020
   })
 
   const geometry = buildRoadGeometry(feature, llCenter)
@@ -316,7 +295,6 @@ export function buildMesh(tiles: TileFeaturesByLayer[], llCenter: Position, rend
   const roadFeatures = tiles.reduce((acc, tile) => acc.concat(tile.road), [])
   const buildingsMesh = buildBuildingsMesh(buildingFeatures, llCenter, renderer)
 
-  // TODO(optimize): use @turf/union to combine some/all roads in to one Feature before converting to a Mesh
   roadFeatures.forEach((feature) => {
     group.add(buildRoadMesh(feature, llCenter))
   })
