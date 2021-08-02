@@ -118,8 +118,5 @@
     "puppeteer": "9.1.1",
     "supertest": "6.1.4",
     "yuka": "0.7.6"
-  },
-  "dependencies": {
-    "three-stdlib": "2.4.0"
   }
 }
