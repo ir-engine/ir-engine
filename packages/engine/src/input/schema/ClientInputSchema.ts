@@ -29,7 +29,7 @@ export const usingThumbstick = () => {
 }
 
 export const handleTouchMove = (event: TouchEvent): void => {
-  if (!ClientInputSystem.instance.mouseInputEnabled) {
+  if (!Engine.mouseInputEnabled) {
     return
   }
 
@@ -153,7 +153,7 @@ export const handleTouchMove = (event: TouchEvent): void => {
  * @param args is argument object
  */
 export const handleTouch = (event: TouchEvent): void => {
-  if (!ClientInputSystem.instance.mouseInputEnabled) {
+  if (!Engine.mouseInputEnabled) {
     return
   }
   if (event.targetTouches.length) {
@@ -318,7 +318,7 @@ export function handleTouchGamepadButton(event: CustomEvent): any {
  */
 
 export const handleMouseWheel = (event: WheelEvent): void => {
-  if (!ClientInputSystem.instance.mouseInputEnabled) {
+  if (!Engine.mouseInputEnabled) {
     return
   }
 
@@ -377,7 +377,7 @@ function normalizeMouseMovement(
  */
 
 export const handleMouseMovement = (event: MouseEvent): void => {
-  if (!ClientInputSystem.instance.mouseInputEnabled) {
+  if (!Engine.mouseInputEnabled) {
     return
   }
 
@@ -440,7 +440,7 @@ export const handleMouseButton = (event: MouseEvent): void => {
   const mousedown = event.type === 'mousedown'
 
   // For if mouse is over UI, disable button clicks for engine
-  if (mousedown && !ClientInputSystem.instance.mouseInputEnabled) {
+  if (mousedown && !Engine.mouseInputEnabled) {
     return
   }
 
@@ -499,7 +499,7 @@ export const handleKey = (event: KeyboardEvent): any => {
   const keydown = event.type === 'keydown'
 
   // For if mouse is over UI, disable button clicks for engine
-  if (keydown && !ClientInputSystem.instance.keyboardInputEnabled) {
+  if (keydown && !Engine.keyboardInputEnabled) {
     return
   }
 

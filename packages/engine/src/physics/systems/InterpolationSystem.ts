@@ -19,6 +19,7 @@ import { rigidbodyInterpolationBehavior } from '../behaviors/rigidbodyInterpolat
 import { LocalInterpolationComponent } from '../components/LocalInterpolationComponent'
 import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent'
 import { rigidbodyCorrectionBehavior } from '../behaviors/rigidbodyCorrectionBehavior'
+import { VelocityComponent } from '../components/VelocityComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -28,17 +29,6 @@ import { rigidbodyCorrectionBehavior } from '../behaviors/rigidbodyCorrectionBeh
 const vec3 = new Vector3()
 
 export class InterpolationSystem extends System {
-  static instance: InterpolationSystem
-
-  constructor() {
-    super()
-    InterpolationSystem.instance = this
-  }
-
-  dispose(): void {
-    super.dispose()
-  }
-
   execute(delta: number): void {
     if (!Network.instance?.snapshot) return
 
@@ -65,7 +55,6 @@ export class InterpolationSystem extends System {
 
     for (const entity of this.queryResults.localObjectInterpolation.all) {
       rigidbodyCorrectionBehavior(entity, snapshots, delta)
-      // experementalRigidbodyCorrectionBehavior(entity, snapshots, delta);
     }
 
     // If a networked entity does not have an interpolation component, just copy the data
@@ -73,9 +62,10 @@ export class InterpolationSystem extends System {
       const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
       if (snapshot == null) continue
       const collider = getMutableComponent(entity, ColliderComponent)
+      const velocity = getMutableComponent(entity, VelocityComponent)
       // dynamic objects should be interpolated, kinematic objects should not
-      if (collider && collider.body.type !== BodyType.KINEMATIC) {
-        collider.velocity.subVectors(collider.body.transform.translation, vec3.set(snapshot.x, snapshot.y, snapshot.z))
+      if (velocity && collider.body.type !== BodyType.KINEMATIC) {
+        velocity.velocity.subVectors(collider.body.transform.translation, vec3.set(snapshot.x, snapshot.y, snapshot.z))
         collider.body.updateTransform({
           translation: {
             x: snapshot.x,
@@ -96,10 +86,10 @@ export class InterpolationSystem extends System {
 
 InterpolationSystem.queries = {
   localCharacterInterpolation: {
-    components: [LocalInputReceiver, ControllerColliderComponent, InterpolationComponent, NetworkObject]
+    components: [ControllerColliderComponent, InterpolationComponent, NetworkObject]
   },
   networkClientInterpolation: {
-    components: [Not(LocalInputReceiver), ControllerColliderComponent, InterpolationComponent, NetworkObject]
+    components: [Not(ControllerColliderComponent), CharacterComponent, InterpolationComponent, NetworkObject]
   },
   localObjectInterpolation: {
     components: [
@@ -120,6 +110,6 @@ InterpolationSystem.queries = {
     ]
   },
   correctionFromServer: {
-    components: [Not(InterpolationComponent), NetworkObject]
+    components: [Not(InterpolationComponent), ColliderComponent, NetworkObject]
   }
 }

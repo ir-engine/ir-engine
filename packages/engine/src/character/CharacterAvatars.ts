@@ -1,5 +1,5 @@
 import { CharacterAnimations } from './CharacterAnimations'
-import { AnimationActionLoopStyles, LoopOnce } from 'three'
+import { AnimationActionLoopStyles } from 'three'
 
 export interface CharacterAvatarData {
   id: string
@@ -30,11 +30,6 @@ export const defaultAvatarAnimations: { [key: number]: AnimationConfigInterface 
   [CharacterAnimations.WALK_BACKWARD]: { name: 'walk_backward' },
   [CharacterAnimations.WALK_STRAFE_RIGHT]: { name: 'walk_right' },
   [CharacterAnimations.WALK_STRAFE_LEFT]: { name: 'walk_left' },
-  [CharacterAnimations.DRIVING]: { name: 'driving' },
-  [CharacterAnimations.ENTERING_VEHICLE_DRIVER]: { name: 'vehicle_enter_driver', loop: LoopOnce },
-  [CharacterAnimations.EXITING_VEHICLE_DRIVER]: { name: 'vehicle_exit_driver', loop: LoopOnce },
-  [CharacterAnimations.ENTERING_VEHICLE_PASSENGER]: { name: 'vehicle_enter_passenger', loop: LoopOnce },
-  [CharacterAnimations.EXITING_VEHICLE_PASSENGER]: { name: 'vehicle_exit_passenger', loop: LoopOnce },
 
   // TODO: These aren't in the animation file currently
   [CharacterAnimations.FALLING]: { name: 'falling' },

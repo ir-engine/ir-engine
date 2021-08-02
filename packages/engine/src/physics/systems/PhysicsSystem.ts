@@ -1,46 +1,30 @@
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { System } from '../../ecs/classes/System'
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
-import { BodyType, PhysXConfig, PhysXInstance } from 'three-physx'
-import { Vector3 } from 'three'
+import { BodyType, PhysXInstance } from 'three-physx'
 import { NetworkObject } from '../../networking/components/NetworkObject'
 import { Network } from '../../networking/classes/Network'
 import { Engine } from '../../ecs/classes/Engine'
+import { VelocityComponent } from '../components/VelocityComponent'
+import { RaycastComponent } from '../components/RaycastComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
  */
 
-const vec3 = new Vector3()
-
 export class PhysicsSystem extends System {
   static EVENTS = {
     PORTAL_REDIRECT_EVENT: 'PHYSICS_SYSTEM_PORTAL_REDIRECT'
   }
-  static instance: PhysicsSystem
-
-  physicsWorldConfig: PhysXConfig
-  worker: Worker
 
   simulationEnabled: boolean
 
   constructor(attributes: { worker?: Worker; simulationEnabled?: boolean } = {}) {
     super(attributes)
-    PhysicsSystem.instance = this
-    this.physicsWorldConfig = {
-      bounceThresholdVelocity: 0.5,
-      maximumDelta: 1000 / 20, // limits physics maximum delta so no huge jumps can be made
-      start: false,
-      lengthScale: 1,
-      verbose: false,
-      substeps: 1,
-      gravity: { x: 0, y: -9.81, z: 0 }
-    }
-    this.worker = attributes.worker
+    Engine.physxWorker = attributes.worker
 
     EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
       if (typeof ev.physics !== 'undefined') {
@@ -57,8 +41,8 @@ export class PhysicsSystem extends System {
 
   async initialize() {
     super.initialize()
-    await PhysXInstance.instance.initPhysX(this.worker, this.physicsWorldConfig)
-    Engine.workers.push(this.worker)
+    await PhysXInstance.instance.initPhysX(Engine.physxWorker, Engine.initOptions.physics.settings)
+    Engine.workers.push(Engine.physxWorker)
   }
 
   reset(): void {
@@ -74,28 +58,35 @@ export class PhysicsSystem extends System {
 
   execute(delta: number): void {
     for (const entity of this.queryResults.collider.removed) {
-      const colliderComponent = getComponent<ColliderComponent>(entity, ColliderComponent, true)
+      const colliderComponent = getComponent(entity, ColliderComponent, true)
       if (colliderComponent) {
-        this.removeBody(colliderComponent.body)
+        PhysXInstance.instance.removeBody(colliderComponent.body)
+      }
+    }
+
+    for (const entity of this.queryResults.raycast.removed) {
+      const raycastComponent = getComponent(entity, RaycastComponent, true)
+      if (raycastComponent) {
+        PhysXInstance.instance.removeRaycastQuery(raycastComponent.raycastQuery)
       }
     }
 
     for (const entity of this.queryResults.collider.all) {
-      const collider = getMutableComponent<ColliderComponent>(entity, ColliderComponent)
+      const collider = getMutableComponent(entity, ColliderComponent)
+      const velocity = getMutableComponent(entity, VelocityComponent)
       const transform = getComponent(entity, TransformComponent)
 
       if (collider.body.type === BodyType.KINEMATIC) {
-        collider.velocity.subVectors(collider.body.transform.translation, transform.position)
+        velocity.velocity.subVectors(collider.body.transform.translation, transform.position)
         collider.body.updateTransform({ translation: transform.position, rotation: transform.rotation })
       } else if (collider.body.type === BodyType.DYNAMIC) {
-        collider.velocity.subVectors(transform.position, collider.body.transform.translation)
+        velocity.velocity.subVectors(transform.position, collider.body.transform.translation)
 
         transform.position.set(
           collider.body.transform.translation.x,
           collider.body.transform.translation.y,
           collider.body.transform.translation.z
         )
-        collider.position.copy(transform.position)
 
         transform.rotation.set(
           collider.body.transform.rotation.x,
@@ -103,7 +94,6 @@ export class PhysicsSystem extends System {
           collider.body.transform.rotation.z,
           collider.body.transform.rotation.w
         )
-        collider.quaternion.copy(transform.rotation)
       }
     }
 
@@ -116,38 +106,18 @@ export class PhysicsSystem extends System {
 
     PhysXInstance.instance.update()
   }
-
-  get gravity() {
-    return { x: 0, y: -9.81, z: 0 }
-  }
-
-  set gravity(value: { x: number; y: number; z: number }) {
-    // todo
-  }
-
-  addRaycastQuery(query) {
-    return PhysXInstance.instance.addRaycastQuery(query)
-  }
-  removeRaycastQuery(query) {
-    return PhysXInstance.instance.removeRaycastQuery(query)
-  }
-  addBody(args) {
-    return PhysXInstance.instance.addBody(args)
-  }
-  removeBody(body) {
-    return PhysXInstance.instance.removeBody(body)
-  }
-  createController(options) {
-    return PhysXInstance.instance.createController(options)
-  }
-  removeController(id) {
-    return PhysXInstance.instance.removeController(id)
-  }
 }
 
 PhysicsSystem.queries = {
   collider: {
     components: [ColliderComponent, TransformComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  raycast: {
+    components: [RaycastComponent],
     listen: {
       added: true,
       removed: true

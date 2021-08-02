@@ -10,9 +10,9 @@ const EVENTS = {
   // INITALIZATION
   RESET_ENGINE: 'CORE_RESET_ENGINE',
   INITIALIZED_ENGINE: 'CORE_INITIALIZED_ENGINE', // { }
-  CONNECT_TO_WORLD: 'CORE_CONNECT_TO_WORLD', // { worldState: WorldStateInterface }
+  CONNECT_TO_WORLD: 'CORE_CONNECT_TO_WORLD', // { }
   CONNECT_TO_WORLD_TIMEOUT: 'CORE_CONNECT_TO_WORLD_TIMEOUT', // { }
-  JOINED_WORLD: 'CORE_JOINED_WORLD', // { worldState: WorldStateInterface }
+  JOINED_WORLD: 'CORE_JOINED_WORLD', // { }
   LEAVE_WORLD: 'CORE_LEAVE_WORLD', // { }
   SCENE_LOADED: 'CORE_SCENE_LOADED', // { }
 
@@ -30,7 +30,7 @@ const EVENTS = {
  * @author Josh Field <github.com/HexaField>
  */
 export class EngineEvents {
-  static readonly instance: EngineEvents = new EngineEvents()
+  public static instance: EngineEvents = new EngineEvents()
   static EVENTS = EVENTS
   _listeners = {}
   public reset(): void {

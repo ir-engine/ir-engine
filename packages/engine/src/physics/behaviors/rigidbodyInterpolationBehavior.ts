@@ -22,7 +22,7 @@ export const rigidbodyInterpolationBehavior: Behavior = (entity: Entity, snapsho
 
   if (interpolationSnapshot == null) return
 
-  collider.body?.updateTransform({
+  collider.body.updateTransform({
     translation: {
       x: interpolationSnapshot.x,
       y: interpolationSnapshot.y,

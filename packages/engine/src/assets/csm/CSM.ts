@@ -74,7 +74,7 @@ export class CSM {
     this.cascades = data.cascades || 3
     this.maxFar = data.maxFar || 100
     this.mode = data.mode || CSMModes.PRACTICAL
-    this.shadowMapSize = data.shadowMapSize || 2048
+    this.shadowMapSize = data.shadowMapSize || 512
     this.shadowBias = data.shadowBias || 0.05
     this.lightDirection = data.lightDirection || new Vector3(1, -1, 1).normalize()
     this.lightIntensity = data.lightIntensity || 1
@@ -93,24 +93,6 @@ export class CSM {
     this.createLights(data.lights)
     this.updateFrustums()
     this.injectInclude()
-  }
-
-  setShadowMapSize(newSize: number): void {
-    if (this.shadowMapSize === newSize) {
-      return
-    }
-
-    this.shadowMapSize = newSize
-    for (const light of this.lights) {
-      for (let i = 0; i < this.cascades; i++) {
-        light[i].shadow.mapSize.width = newSize
-        light[i].shadow.mapSize.height = newSize
-        if (light[i].shadow.map) {
-          ;(light[i].shadow.map as WebGLRenderTarget).dispose()
-          light[i].shadow.map = null
-        }
-      }
-    }
   }
 
   createLights(lights?: DirectionalLight[]): void {

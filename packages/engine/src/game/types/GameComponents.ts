@@ -9,12 +9,9 @@ import { Closed } from '../templates/gameDefault/components/ClosedTagComponent'
 import { Open } from '../templates/gameDefault/components/OpenTagComponent'
 import { PanelDown } from '../templates/gameDefault/components/PanelDownTagComponent'
 import { PanelUp } from '../templates/gameDefault/components/PanelUpTagComponent'
-import { YourTurn } from '../templates/Golf/components/YourTurnTagComponent'
-import { Goal } from '../templates/Golf/components/GoalTagComponent'
 import { Active } from '../templates/gameDefault/components/ActiveTagComponent'
 import { Inactive } from '../templates/gameDefault/components/InactiveTagComponent'
-import { Ready } from '../templates/Golf/components/ReadyTagComponent'
-import { NotReady } from '../templates/Golf/components/NotReadyTagComponent'
+import { YourTurn } from '../templates/gameDefault/components/YourTurnTagComponent'
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -39,46 +36,14 @@ export enum gameStates {
   YourTurn = 'YourTurn',
   WaitTurn = 'WaitTurn',
 
-  addedGoal = 'addedGoal',
-  Goal = 'Goal',
-
-  addedHit = 'addedHit',
-  Hit = 'Hit',
-
   SpawnedObject = 'SpawnedObject',
 
-  BallMoving = 'BallMoving',
-  AlmostStopped = 'AlmostStopped',
-  BallStopped = 'BallStopped',
-
   Active = 'Active',
-  Inactive = 'Inactive',
-
-  Ready = 'Ready',
-  NotReady = 'NotReady',
-
-  BallHidden = 'BallHidden',
-  BallVisible = 'BallVisible',
-
-  CorrectBallPosition = 'CorrectBallPosition',
-  alreadyHit = 'alreadyHit'
+  Inactive = 'Inactive'
 }
 
 export class Waiting extends Component<any> {}
 export class WaitTurn extends Component<any> {}
-export class addedGoal extends Component<any> {}
-export class addedHit extends Component<any> {}
-export class Hit extends Component<any> {}
-
-export class BallMoving extends Component<any> {}
-export class AlmostStopped extends Component<any> {}
-export class BallStopped extends Component<any> {}
-
-export class BallHidden extends Component<any> {}
-export class BallVisible extends Component<any> {}
-
-export class CorrectBallPosition extends Component<any> {}
-export class alreadyHit extends Component<any> {}
 
 export const State = {
   [gameStates.Active]: Active,
@@ -92,18 +57,5 @@ export const State = {
   [gameStates.Waiting]: Waiting,
   [gameStates.YourTurn]: YourTurn,
   [gameStates.WaitTurn]: WaitTurn,
-  [gameStates.addedGoal]: addedGoal,
-  [gameStates.Goal]: Goal,
-  [gameStates.addedHit]: addedHit,
-  [gameStates.Hit]: Hit,
-  [gameStates.SpawnedObject]: SpawnedObject,
-  [gameStates.BallMoving]: BallMoving,
-  [gameStates.AlmostStopped]: AlmostStopped,
-  [gameStates.BallStopped]: BallStopped,
-  [gameStates.Ready]: Ready,
-  [gameStates.NotReady]: NotReady,
-  [gameStates.BallHidden]: BallHidden,
-  [gameStates.BallVisible]: BallVisible,
-  [gameStates.CorrectBallPosition]: CorrectBallPosition,
-  [gameStates.alreadyHit]: alreadyHit
+  [gameStates.SpawnedObject]: SpawnedObject
 }

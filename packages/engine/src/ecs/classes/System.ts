@@ -134,7 +134,6 @@ export abstract class System {
    *
    * @author Fernando Serrano, Robert Long
    */
-  static instance: System
   static queries: SystemQueries = {}
 
   static isSystem: true

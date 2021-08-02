@@ -1,7 +1,7 @@
 import { TouchApp } from '@styled-icons/material/TouchApp'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { GamepadAxis, GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
-import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
+import { ClientInputSystem, enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import nipplejs from 'nipplejs'
 import React, { FunctionComponent, useEffect, useRef } from 'react'
 // @ts-ignore
@@ -55,10 +55,10 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
     })
     const targetElement = stickLeft[0].ui.el
     targetElement.addEventListener('touchstart', (ev) => {
-      EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: false })
+      enableInput({ mouse: false })
     })
     targetElement.addEventListener('touchend', (ev) => {
-      EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: true })
+      enableInput({ mouse: true })
     })
 
     stickLeft.on('move', (e, data) => {

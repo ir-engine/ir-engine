@@ -87,24 +87,21 @@ IKRigSystem.queries = {
     components: [IKRig],
     listen: {
       added: true,
-      removed: true,
-      changed: true
+      removed: true
     }
   },
   ikpose: {
     components: [IKPose],
     listen: {
       added: true,
-      removed: true,
-      changed: true
+      removed: true
     }
   },
   debug: {
     components: [DebugComponent],
     listen: {
       added: true,
-      removed: true,
-      changed: true
+      removed: true
     }
   }
 }

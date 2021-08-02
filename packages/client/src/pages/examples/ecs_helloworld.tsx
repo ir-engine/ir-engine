@@ -49,8 +49,7 @@ NameSystem.queries = {
     components: [NameComponent],
     listen: {
       added: true,
-      removed: true,
-      changed: true
+      removed: true
     }
   }
 }

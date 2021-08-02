@@ -4,16 +4,17 @@ import Radio from '@material-ui/core/Radio'
 import RadioGroup from '@material-ui/core/RadioGroup'
 import Slider from '@material-ui/core/Slider'
 import Typography from '@material-ui/core/Typography'
-import { Image, Mic, VolumeUp } from '@material-ui/icons'
+import { Image, Mic, SurroundSound, VolumeUp } from '@material-ui/icons'
 import { selectAuthState } from '../../reducers/auth/selector'
 import { updateUserSettings } from '../../reducers/auth/service'
-import { PositionalAudioSystem } from '@xrengine/engine/src/audio/systems/PositionalAudioSystem'
+// import { PositionalAudioSystem } from '@xrengine/engine/src/audio/systems/PositionalAudioSystem'
 import React, { ChangeEvent, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { useTranslation } from 'react-i18next'
 // @ts-ignore
 import styles from './Profile.module.scss'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 interface Props {
   authState?: any
@@ -66,9 +67,10 @@ const UserSettings = (props: Props): JSX.Element => {
     updateUserSettings(selfUser.user_setting.id, {
       spatialAudioEnabled: newValue
     })
-    if (PositionalAudioSystem.instance != null) {
-      if (newValue === true) PositionalAudioSystem.instance.resume()
-      else if (newValue === false) PositionalAudioSystem.instance.suspend()
+    if (Engine.spatialAudio) {
+      // TODO
+      // if (newValue === true) PositionalAudioSystem.instance.resume()
+      // else if (newValue === false) PositionalAudioSystem.instance.suspend()
     }
   }
 
@@ -112,9 +114,9 @@ const UserSettings = (props: Props): JSX.Element => {
         </span>
       </section>
       <section className={styles.settingRow}>
-        {/*<SurroundSound color="primary" />*/}
+        <SurroundSound color="primary" />
         <FormControlLabel
-          control={<Checkbox checked={useSpatialAudio} onChange={handleSpatialAudioChange} />}
+          control={<Checkbox checked={true} onChange={handleSpatialAudioChange} />}
           label={t('user:profile.userSettings.spatialAudio')}
         />
       </section>

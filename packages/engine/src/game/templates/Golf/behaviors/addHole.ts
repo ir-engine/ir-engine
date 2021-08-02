@@ -1,6 +1,6 @@
 import { Behavior } from '../../../../common/interfaces/Behavior'
 import { Entity } from '../../../../ecs/classes/Entity'
-import { Body, BodyType, ColliderHitEvent, ShapeType, SHAPES, Transform } from 'three-physx'
+import { Body, BodyType, ColliderHitEvent, ShapeType, SHAPES, Transform, PhysXInstance } from 'three-physx'
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem'
 
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../../ecs/functions/EntityFunctions'
@@ -64,13 +64,9 @@ export const addHole: Behavior = (
     })
   })
 
-  PhysicsSystem.instance.addBody(body)
+  PhysXInstance.instance.addBody(body)
 
-  addComponent(entity, ColliderComponent, {
-    bodytype: BodyType.STATIC,
-    type: 'box',
-    body: body
-  })
+  addComponent(entity, ColliderComponent, { body })
 
   const gameObject = getComponent(entity, GameObject)
   gameObject.collisionBehaviors['GolfBall'] = onHoleCollideWithBall

@@ -85,14 +85,14 @@ import { Message } from '@xrengine/common/src/interfaces/Message'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
+import { initializeEngine, shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
-import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import classNames from 'classnames'
 import moment from 'moment'
 import React, { useEffect, useRef, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import { selectMediastreamState } from '../../reducers/mediastream/selector'
 import { updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service'
@@ -111,8 +111,7 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 // @ts-ignore
 import styles from './style.module.scss'
 import WarningRefreshModal from '../AlertModals/WarningRetryModal'
-import { resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
-import { InitializeOptions } from '../../../../engine/src/initializationOptions'
+import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { Downgraded } from '@hookstate/core'
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
@@ -247,6 +246,7 @@ const Harmony = (props: Props): any => {
     harmonyHidden
   } = props
 
+  const dispatch = useDispatch()
   const userState = useUserState()
 
   const messageRef = React.useRef()
@@ -360,7 +360,7 @@ const Harmony = (props: Props): any => {
         audio: !audioPaused,
         video: !videoPaused
       })
-      await resetEngine()
+      await shutdownEngine()
       setWarningRefreshModalValues(initialRefreshModalValues)
       await init()
       resetChannelServer()
@@ -390,12 +390,12 @@ const Harmony = (props: Props): any => {
     }
   }, [])
 
-  const layerUsersUpdateNeeded = userState.layerUsersUpdateNeeded.attach(Downgraded).value
-  const channelLayerUsersUpdateNeeded = userState.layerUsersUpdateNeeded.attach(Downgraded).value
   useEffect(() => {
-    if (selfUser.instanceId != null && layerUsersUpdateNeeded === true) UserService.getLayerUsers(true)
-    if (selfUser.channelInstanceId != null && channelLayerUsersUpdateNeeded === true) UserService.getLayerUsers(false)
-  }, [layerUsersUpdateNeeded, channelLayerUsersUpdateNeeded])
+    if (selfUser?.instanceId != null && userState.layerUsersUpdateNeeded.value === true)
+      dispatch(UserService.getLayerUsers(true))
+    if (selfUser?.channelInstanceId != null && userState.channelLayerUsersUpdateNeeded.value === true)
+      dispatch(UserService.getLayerUsers(false))
+  }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
   useEffect(() => {
     if ((Network.instance?.transport as any)?.channelType === 'instance') {
@@ -403,7 +403,7 @@ const Harmony = (props: Props): any => {
       const instanceChannel = channelEntries.find((entry) => entry[1].instanceId != null)
       if (
         instanceChannel != null &&
-        (MediaStreamSystem.instance.camAudioProducer != null || MediaStreamSystem.instance.camVideoProducer != null)
+        (MediaStreams.instance.camAudioProducer != null || MediaStreams.instance.camVideoProducer != null)
       )
         setActiveAVChannelId(instanceChannel[0])
     } else {
@@ -477,32 +477,50 @@ const Harmony = (props: Props): any => {
   useEffect(() => {
     if (noGameserverProvision === true) {
       const newValues = {
+        ...warningRefreshModalValues,
         open: true,
         title: 'No Available Servers',
         body: "There aren't any servers available to handle this request. Attempting to re-connect in",
-        action: provisionChannelServer,
+        action: async () => {
+          provisionChannelServer()
+        },
         parameters: [null, targetChannelId],
         timeout: 10000,
         closeAction: endCall
       }
-      //@ts-ignore
       setWarningRefreshModalValues(newValues)
       setNoGameserverProvision(false)
     }
   }, [noGameserverProvision])
 
+  // If user if on Firefox in Private Browsing mode, throw error, since they can't use db storage currently
+  useEffect(() => {
+    var db = indexedDB.open('test')
+    db.onerror = function () {
+      const newValues = {
+        ...warningRefreshModalValues,
+        open: true,
+        title: 'Browser Error',
+        body: 'Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode. ',
+        noCountdown: true
+      }
+      setWarningRefreshModalValues(newValues)
+      setInstanceDisconnected(false)
+    }
+  }, [])
+
   useEffect(() => {
     if (channelDisconnected === true) {
       const newValues = {
+        ...warningRefreshModalValues,
         open: true,
         title: 'Call disconnected',
         body: "You've lost your connection to this call. We'll try to reconnect before the following time runs out, otherwise you'll hang up",
-        action: endCall,
+        action: async () => endCall(),
         parameters: [],
         timeout: 30000,
         closeAction: endCall
       }
-      //@ts-ignore
       setWarningRefreshModalValues(newValues)
       setChannelDisconnected(false)
     }
@@ -652,7 +670,7 @@ const Harmony = (props: Props): any => {
   }
 
   const checkMediaStream = async (channelType: string, channelId?: string) => {
-    if (!MediaStreamSystem.instance?.mediaStream) {
+    if (!MediaStreams.instance?.mediaStream) {
       console.log('Configuring media transports', channelType, channelId)
       await configureMediaTransports(channelType, channelId)
     }
@@ -660,42 +678,42 @@ const Harmony = (props: Props): any => {
 
   const handleMicClick = async (e: any) => {
     e.stopPropagation()
-    if (MediaStreamSystem.instance?.camAudioProducer == null) {
+    if (MediaStreams.instance?.camAudioProducer == null) {
       const channel = channels.get(targetChannelId)
       if (channel.instanceId == null) await createCamAudioProducer('channel', targetChannelId)
       else await createCamAudioProducer('instance')
       setAudioPaused(false)
-      await resumeProducer(MediaStreamSystem.instance?.camAudioProducer)
+      await resumeProducer(MediaStreams.instance?.camAudioProducer)
     } else {
-      const msAudioPaused = MediaStreamSystem.instance?.toggleAudioPaused()
+      const msAudioPaused = MediaStreams.instance?.toggleAudioPaused()
       setAudioPaused(
-        MediaStreamSystem.instance?.mediaStream === null ||
-          MediaStreamSystem.instance?.camAudioProducer == null ||
-          MediaStreamSystem.instance?.audioPaused === true
+        MediaStreams.instance?.mediaStream === null ||
+          MediaStreams.instance?.camAudioProducer == null ||
+          MediaStreams.instance?.audioPaused === true
       )
-      if (msAudioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer)
-      else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer)
+      if (msAudioPaused === true) await pauseProducer(MediaStreams.instance?.camAudioProducer)
+      else await resumeProducer(MediaStreams.instance?.camAudioProducer)
     }
     updateCamAudioState()
   }
 
   const handleCamClick = async (e: any) => {
     e.stopPropagation()
-    if (MediaStreamSystem.instance?.camVideoProducer == null) {
+    if (MediaStreams.instance?.camVideoProducer == null) {
       const channel = channels.get(targetChannelId)
       if (channel.instanceId == null) await createCamVideoProducer('channel', targetChannelId)
       else await createCamVideoProducer('instance')
       setVideoPaused(false)
-      await resumeProducer(MediaStreamSystem.instance?.camVideoProducer)
+      await resumeProducer(MediaStreams.instance?.camVideoProducer)
     } else {
-      const msVideoPaused = MediaStreamSystem.instance?.toggleVideoPaused()
+      const msVideoPaused = MediaStreams.instance?.toggleVideoPaused()
       setVideoPaused(
-        MediaStreamSystem.instance?.mediaStream === null ||
-          MediaStreamSystem.instance?.camVideoProducer == null ||
-          MediaStreamSystem.instance?.videoPaused === true
+        MediaStreams.instance?.mediaStream === null ||
+          MediaStreams.instance?.camVideoProducer == null ||
+          MediaStreams.instance?.videoPaused === true
       )
-      if (msVideoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer)
-      else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer)
+      if (msVideoPaused === true) await pauseProducer(MediaStreams.instance?.camVideoProducer)
+      else await resumeProducer(MediaStreams.instance?.camVideoProducer)
     }
     updateCamVideoState()
   }
@@ -735,32 +753,32 @@ const Harmony = (props: Props): any => {
     console.log('toggleAudio')
     await checkMediaStream('channel', channelId)
 
-    if (MediaStreamSystem.instance?.camAudioProducer == null) await createCamAudioProducer('channel', channelId)
+    if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer('channel', channelId)
     else {
-      const audioPaused = MediaStreamSystem.instance?.toggleAudioPaused()
+      const audioPaused = MediaStreams.instance?.toggleAudioPaused()
       setAudioPaused(
-        MediaStreamSystem.instance?.mediaStream === null ||
-          MediaStreamSystem.instance?.camAudioProducer == null ||
-          MediaStreamSystem.instance?.audioPaused === true
+        MediaStreams.instance?.mediaStream === null ||
+          MediaStreams.instance?.camAudioProducer == null ||
+          MediaStreams.instance?.audioPaused === true
       )
-      if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer)
-      else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer)
+      if (audioPaused === true) await pauseProducer(MediaStreams.instance?.camAudioProducer)
+      else await resumeProducer(MediaStreams.instance?.camAudioProducer)
     }
   }
 
   const toggleVideo = async (channelId) => {
     console.log('toggleVideo')
     await checkMediaStream('channel', channelId)
-    if (MediaStreamSystem.instance?.camVideoProducer == null) await createCamVideoProducer('channel', channelId)
+    if (MediaStreams.instance?.camVideoProducer == null) await createCamVideoProducer('channel', channelId)
     else {
-      const videoPaused = MediaStreamSystem.instance?.toggleVideoPaused()
+      const videoPaused = MediaStreams.instance?.toggleVideoPaused()
       setVideoPaused(
-        MediaStreamSystem.instance?.mediaStream === null ||
-          MediaStreamSystem.instance?.camVideoProducer == null ||
-          MediaStreamSystem.instance?.videoPaused === true
+        MediaStreams.instance?.mediaStream === null ||
+          MediaStreams.instance?.camVideoProducer == null ||
+          MediaStreams.instance?.videoPaused === true
       )
-      if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer)
-      else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer)
+      if (videoPaused === true) await pauseProducer(MediaStreams.instance?.camVideoProducer)
+      else await resumeProducer(MediaStreams.instance?.camVideoProducer)
     }
   }
 

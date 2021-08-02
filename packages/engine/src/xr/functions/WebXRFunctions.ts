@@ -1,36 +1,13 @@
 import { Engine } from '../../ecs/classes/Engine'
-import {
-  AdditiveBlending,
-  BufferGeometry,
-  Float32BufferAttribute,
-  Group,
-  Line,
-  LineBasicMaterial,
-  Mesh,
-  MeshBasicMaterial,
-  MeshPhongMaterial,
-  Object3D,
-  Quaternion,
-  RingGeometry,
-  Vector3
-} from 'three'
-import { getLoader } from '../../assets/functions/LoadGLTF'
+import { Group, Object3D, Quaternion, Vector3 } from 'three'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
-import { CameraModes } from '../../camera/types/CameraModes'
-import {
-  addComponent,
-  getComponent,
-  getMutableComponent,
-  hasComponent,
-  removeComponent
-} from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { CharacterComponent } from '../../character/components/CharacterComponent'
 import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { ParityValue } from '../../common/enums/ParityValue'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AnimationComponent } from '../../character/components/AnimationComponent'
 
 /**
  * @author Josh Field <github.com/HexaField>

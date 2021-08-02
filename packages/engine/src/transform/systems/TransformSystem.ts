@@ -21,14 +21,14 @@ export class TransformSystem extends System {
   execute(delta: number, time: number) {
     for (const entity of this.queryResults.parent.all) {
       const parentTransform = getMutableComponent(entity, TransformComponent)
-      const parentingComponent = getComponent<TransformParentComponent>(entity, TransformParentComponent)
+      const parentingComponent = getComponent(entity, TransformParentComponent)
       for (const child of parentingComponent.children) {
         if (!hasComponent(child, Object3DComponent)) {
           continue
         }
         const {
           value: { position: childPosition, quaternion: childQuaternion }
-        } = getMutableComponent<Object3DComponent>(child, Object3DComponent)
+        } = getMutableComponent(child, Object3DComponent)
         const childTransformComponent = getComponent(child, TransformComponent)
         // reset to "local"
         if (childTransformComponent) {

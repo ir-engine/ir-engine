@@ -268,11 +268,9 @@ export default class AudioSource extends Object3D {
     return this
   }
   play() {
-    console.log('play')
     this.el.play()
   }
   pause() {
-    console.log('pause')
     this.el.pause()
   }
   toggle() {

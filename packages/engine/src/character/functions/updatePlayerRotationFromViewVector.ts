@@ -14,8 +14,9 @@ const vector3 = new Vector3()
  * @author Josh Field <github.com/HexaField>
  */
 
-export const updatePlayerRotationFromViewVector = (entity: Entity): void => {
+export const updatePlayerRotationFromViewVector = (entity: Entity, viewVector: Vector3): void => {
   const actor = getComponent(entity, CharacterComponent)
+  actor.viewVector.copy(viewVector)
   const transform = getComponent(entity, TransformComponent)
   vector3.copy(actor.viewVector).setY(0).normalize()
   applyVectorMatrixXZ(vector3, forwardVector)

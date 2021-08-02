@@ -10,9 +10,11 @@ import { endXR, startXR } from '../functions/WebXRFunctions'
 import { XRFrame, XRReferenceSpace, XRReferenceSpaceType, XRWebGLLayer } from '../../input/types/WebXR'
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
 import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import { addControllerModels } from '../functions/addControllerModels'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { Input } from '../../input/components/Input'
+import { BaseInput } from '../../input/enums/BaseInput'
 
 /**
  * System for XR session and input handling
@@ -27,16 +29,11 @@ export class XRSystem extends System {
     XR_END: 'WEBXR_RENDERER_SYSTEM_XR_END'
   }
 
-  xrFrame: XRFrame
-
   referenceSpaceType: XRReferenceSpaceType = 'local-floor'
   referenceSpace: XRReferenceSpace
-  static instance: XRSystem
 
   constructor() {
     super()
-
-    XRSystem.instance = this
 
     // TEMPORARY - precache controller model
     // TODO: remove this when IK system is in
@@ -78,7 +75,7 @@ export class XRSystem extends System {
    */
   execute(delta: number): void {
     if (Engine.xrRenderer?.isPresenting) {
-      const session = this.xrFrame.session
+      const session = Engine.xrFrame.session
       for (const source of session.inputSources) {
         if (source.gamepad) {
           const mapping = gamepadMapping[source.gamepad.mapping || 'xr-standard'][source.handedness]
@@ -111,13 +108,57 @@ export class XRSystem extends System {
     for (const entity of this.queryResults.localXRController.added) {
       addControllerModels(entity)
     }
+
+    for (const entity of this.queryResults.localXRController.all) {
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+      const input = getMutableComponent(entity, Input)
+      input.data.set(BaseInput.XR_HEAD, {
+        type: InputType.SIXDOF,
+        value: {
+          x: xrInputSourceComponent.head.position.x,
+          y: xrInputSourceComponent.head.position.y,
+          z: xrInputSourceComponent.head.position.z,
+          qW: xrInputSourceComponent.head.quaternion.w,
+          qX: xrInputSourceComponent.head.quaternion.x,
+          qY: xrInputSourceComponent.head.quaternion.y,
+          qZ: xrInputSourceComponent.head.quaternion.z
+        },
+        lifecycleState: LifecycleValue.CHANGED
+      })
+      input.data.set(BaseInput.XR_CONTROLLER_LEFT_HAND, {
+        type: InputType.SIXDOF,
+        value: {
+          x: xrInputSourceComponent.controllerLeft.position.x,
+          y: xrInputSourceComponent.controllerLeft.position.y,
+          z: xrInputSourceComponent.controllerLeft.position.z,
+          qW: xrInputSourceComponent.controllerLeft.quaternion.w,
+          qX: xrInputSourceComponent.controllerLeft.quaternion.x,
+          qY: xrInputSourceComponent.controllerLeft.quaternion.y,
+          qZ: xrInputSourceComponent.controllerLeft.quaternion.z
+        },
+        lifecycleState: LifecycleValue.CHANGED
+      })
+      input.data.set(BaseInput.XR_CONTROLLER_RIGHT_HAND, {
+        type: InputType.SIXDOF,
+        value: {
+          x: xrInputSourceComponent.controllerRight.position.x,
+          y: xrInputSourceComponent.controllerRight.position.y,
+          z: xrInputSourceComponent.controllerRight.position.z,
+          qW: xrInputSourceComponent.controllerRight.quaternion.w,
+          qX: xrInputSourceComponent.controllerRight.quaternion.x,
+          qY: xrInputSourceComponent.controllerRight.quaternion.y,
+          qZ: xrInputSourceComponent.controllerRight.quaternion.z
+        },
+        lifecycleState: LifecycleValue.CHANGED
+      })
+    }
   }
   // TODO: add and remove controller models from grips
 }
 
 XRSystem.queries = {
   localXRController: {
-    components: [LocalInputReceiver, XRInputSourceComponent],
+    components: [Input, LocalInputReceiver, XRInputSourceComponent],
     listen: {
       added: true,
       removed: true

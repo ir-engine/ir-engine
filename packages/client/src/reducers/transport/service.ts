@@ -1,9 +1,9 @@
 import { Dispatch } from 'redux'
-import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { setChannelTypeState } from './actions'
 
 export const updateChannelTypeState = () => {
-  const ms = MediaStreamSystem.instance
+  const ms = MediaStreams.instance
   if (!ms) changeChannelTypeState('', '')
 
   return changeChannelTypeState((ms as any).channelType, (ms as any).channelId)

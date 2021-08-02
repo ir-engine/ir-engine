@@ -6,8 +6,8 @@ import SettingsIcon from '@material-ui/icons/Settings'
 // TODO: Reenable me! Disabled because we don't want the client-networking dep in client-core, need to fix this
 // import { provisionInstanceServer } from "@xrengine/client-networking/src/reducers/instanceConnection/service";
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
-import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import React, { useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
@@ -96,10 +96,10 @@ const UserMenu = (props: UserMenuProps): any => {
   const [graphics, setGraphicsSetting] = useState({})
 
   useEffect(() => {
-    EngineEvents.instance?.addEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphicsSettings)
+    EngineEvents.instance?.addEventListener(EngineRenderer.EVENTS.QUALITY_CHANGED, updateGraphicsSettings)
 
     return () => {
-      EngineEvents.instance?.removeEventListener(WebGLRendererSystem.EVENTS.QUALITY_CHANGED, updateGraphicsSettings)
+      EngineEvents.instance?.removeEventListener(EngineRenderer.EVENTS.QUALITY_CHANGED, updateGraphicsSettings)
     }
   }, [])
   const onEngineLoaded = () => {
@@ -130,10 +130,9 @@ const UserMenu = (props: UserMenuProps): any => {
     const enabled = Boolean(currentActiveMenu && currentActiveMenu.id === identity[0])
     setCurrentActiveMenu(enabled ? null : menus[identity[1]])
     if (EngineEvents.instance)
-      EngineEvents.instance.dispatchEvent({
-        type: ClientInputSystem.EVENTS.ENABLE_INPUT,
-        mouse: enabled,
-        keyboard: enabled
+      enableInput({
+        keyboard: enabled,
+        mouse: enabled
       })
   }
 
@@ -141,10 +140,9 @@ const UserMenu = (props: UserMenuProps): any => {
     if (currentActiveMenu !== null) {
       const enabled = Boolean(menu)
       if (EngineEvents.instance)
-        EngineEvents.instance.dispatchEvent({
-          type: ClientInputSystem.EVENTS.ENABLE_INPUT,
-          mouse: !enabled,
-          keyboard: !enabled
+        enableInput({
+          keyboard: !enabled,
+          mouse: !enabled
         })
     }
     setCurrentActiveMenu(menu ? { id: menu } : null)

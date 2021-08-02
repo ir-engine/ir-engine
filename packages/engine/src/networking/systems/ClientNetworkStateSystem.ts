@@ -12,24 +12,20 @@ import { NetworkObjectUpdateSchema } from '../templates/NetworkObjectUpdateSchem
 import { Network } from '../classes/Network'
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions'
 import { TransformStateInterface, WorldStateInterface } from '../interfaces/WorldState'
-import { StateEntity, StateEntityIK } from '../types/SnapshotDataTypes'
 import { PrefabType } from '../templates/PrefabType'
-import { GameStateActionMessage, GameStateUpdateMessage } from '../../game/types/GameMessage'
 import { applyActionComponent } from '../../game/functions/functionsActions'
 import { applyStateToClient } from '../../game/functions/functionsState'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
-import { System, SystemAttributes } from '../../ecs/classes/System'
+import { System } from '../../ecs/classes/System'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { ClientNetworkSystem } from './ClientNetworkSystem'
 import { ClientInputModel } from '../schema/clientInputSchema'
-import { Input } from '../../input/components/Input'
-import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
 import { Vault } from '../classes/Vault'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Quaternion, Vector3 } from 'three'
 import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ'
 import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent'
+import { WorldStateModel } from '../schema/worldStateSchema'
+import { TransformStateModel } from '../schema/transformStateSchema'
 
 /**
  * Apply State received over the network to the client.
@@ -125,44 +121,12 @@ const forwardVector = new Vector3(0, 0, 1)
 
 /** System class for network system of client. */
 export class ClientNetworkStateSystem extends System {
-  /** Update type of this system. **Default** to
-   * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type. */
-  updateType = SystemUpdateType.Fixed
-  receivedServerWorldState: WorldStateInterface[] = []
-  receivedServerTransformState: TransformStateInterface[] = []
-  static instance: ClientNetworkStateSystem
-
-  /**
-   * Constructs the system. Adds Network Components, initializes transport and initializes server.
-   * @param attributes SystemAttributes to be passed to super class constructor.
-   */
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
-    ClientNetworkStateSystem.instance = this
-
-    EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, ({ worldState }) => {
-      this.receivedServerWorldState.push(worldState)
-    })
-    EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, ({ worldState }) => {
-      this.receivedServerWorldState.push(worldState)
-    })
-    EngineEvents.instance.addEventListener(
-      ClientNetworkSystem.EVENTS.RECEIVE_DATA_RELIABLE,
-      ({ worldState, delta }) => {
-        this.receivedServerWorldState.push(worldState)
-      }
-    )
-    EngineEvents.instance.addEventListener(
-      ClientNetworkSystem.EVENTS.RECEIVE_DATA_UNRELIABLE,
-      ({ transformState, delta }) => {
-        this.receivedServerTransformState.push(transformState)
-      }
-    )
+  static EVENTS = {
+    CONNECT: 'CLIENT_NETWORK_SYSTEM_CONNECT',
+    CONNECTION_LOST: 'CORE_CONNECTION_LOST'
   }
 
   dispose() {
-    EngineEvents.instance.removeAllListenersForEvent(ClientNetworkSystem.EVENTS.RECEIVE_DATA_RELIABLE)
-    EngineEvents.instance.removeAllListenersForEvent(ClientNetworkSystem.EVENTS.RECEIVE_DATA_UNRELIABLE)
     EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.CONNECT_TO_WORLD)
     EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.JOINED_WORLD)
   }
@@ -174,10 +138,14 @@ export class ClientNetworkStateSystem extends System {
    * @param delta Time since last frame.
    */
   execute = (delta: number): void => {
-    if (this.receivedServerWorldState.length > 0) {
-      const receivedWorldState = [...this.receivedServerWorldState]
-      this.receivedServerWorldState = []
-      for (const worldState of receivedWorldState) {
+    // Client logic
+    const reliableQueue = Network.instance.incomingMessageQueueReliable
+    // For each message, handle and process
+    while (reliableQueue.getBufferLength() > 0) {
+      const buffer = reliableQueue.pop()
+      try {
+        const worldState = WorldStateModel.fromBuffer(buffer)
+        if (!worldState) throw new Error("Couldn't deserialize buffer, probably still reading the wrong one")
         // Handle all clients that connected this frame
         for (const connectingClient in worldState.clientsConnected) {
           // Add them to our client list
@@ -318,13 +286,18 @@ export class ClientNetworkStateSystem extends System {
           // Remove network object from list
           delete Network.instance.networkObjects[networkId]
         }
+      } catch (e) {
+        console.log(e)
       }
     }
 
-    if (this.receivedServerTransformState.length > 0) {
-      const receivedTransformState = [...this.receivedServerTransformState]
-      this.receivedServerTransformState = []
-      for (const transformState of receivedTransformState) {
+    const unreliableQueue = Network.instance.incomingMessageQueueUnreliable
+    while (unreliableQueue.getBufferLength() > 0) {
+      const buffer = unreliableQueue.pop()
+      try {
+        const transformState = TransformStateModel.fromBuffer(buffer)
+        if (!transformState) throw new Error("Couldn't deserialize buffer, probably still reading the wrong one")
+
         if (Network.instance.tick < transformState.tick - 1) {
           // we dropped packets
           // Check how many
@@ -394,6 +367,8 @@ export class ClientNetworkStateSystem extends System {
           xrInputSourceComponent.controllerRight.position.set(right.x, right.y, right.z)
           xrInputSourceComponent.controllerRight.quaternion.set(right.qX, right.qY, right.qZ, right.qW)
         }
+      } catch (e) {
+        console.log(e)
       }
     }
 
@@ -409,7 +384,7 @@ export class ClientNetworkStateSystem extends System {
     const inputSnapshot = Vault.instance?.get()
     if (inputSnapshot !== undefined) {
       const buffer = ClientInputModel.toBuffer(Network.instance.clientInputState)
-      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.SEND_DATA, buffer }, false, [buffer])
+      Network.instance.transport.sendReliableData(buffer)
       Network.instance.clientInputState = {
         networkId: Network.instance.localAvatarNetworkId,
         snapShotTime: inputSnapshot.time - Network.instance.timeSnaphotCorrection ?? 0,

@@ -40,7 +40,7 @@ import { User } from '@xrengine/common/src/interfaces/User'
 import classNames from 'classnames'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 // @ts-ignore
 import styles from './Left.module.scss'
@@ -179,6 +179,7 @@ const LeftDrawer = (props: Props): any => {
       setSelectedGroup
     } = props
 
+    const dispatch = useDispatch()
     const userState = useUserState()
     const user = authState.get('user') as User
     const friendSubState = friendState.get('friends')
@@ -232,12 +233,12 @@ const LeftDrawer = (props: Props): any => {
       }
     }, [partyState])
 
-    const layerUsersUpdateNeeded = userState.layerUsersUpdateNeeded.attach(Downgraded).value
-    const channelLayerUsersUpdateNeeded = userState.layerUsersUpdateNeeded.attach(Downgraded).value
     useEffect(() => {
-      if (user.instanceId != null && layerUsersUpdateNeeded === true) UserService.getLayerUsers(true)
-      if (user.channelInstanceId != null && channelLayerUsersUpdateNeeded === true) UserService.getLayerUsers(false)
-    }, [user, layerUsersUpdateNeeded, channelLayerUsersUpdateNeeded])
+      if (user.instanceId != null && userState.layerUsersUpdateNeeded.value === true)
+        dispatch(UserService.getLayerUsers(true))
+      if (user.channelInstanceId != null && userState.channelLayerUsersUpdateNeeded.value === true)
+        dispatch(UserService.getLayerUsers(false))
+    }, [user, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
     const showFriendDeleteConfirm = (e, friendId) => {
       e.preventDefault()

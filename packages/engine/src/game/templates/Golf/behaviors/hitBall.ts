@@ -45,7 +45,13 @@ export const hitBall: Behavior = (
   vec3.applyAxisAngle(upVector, clubMoveDirection * angleOfIncidence).normalize().multiplyScalar(golfClubComponent.velocity.length());
 */
 
-  vector0.copy(golfClubComponent.velocity).multiplyScalar(args.hitAdvanceFactor).multiplyScalar(0.5)
+/*
+// This part alllow to passed tests before we find solution
+  if (golfClubComponent.velocity.z > 0) {
+    golfClubComponent.velocity.z *= -1
+  }
+*/
+  vector0.copy(golfClubComponent.velocity).multiplyScalar(args.hitAdvanceFactor)
   // vector0.copy(vec3).multiplyScalar(hitAdvanceFactor);
   // lock to XZ plane if we disable chip shots
   if (!golfClubComponent.canDoChipShots) {
@@ -69,11 +75,11 @@ export const hitBall: Behavior = (
     })
   }
 
-  vector0.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier).multiplyScalar(0.5)
+  vector0.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier)
   // vector1.copy(vec3).multiplyScalar(velocityMultiplier);
   if (!golfClubComponent.canDoChipShots) {
     vector0.y = 0
   }
-
+  console.log('HIT FORCE:', vector0.x, vector0.z)
   collider.body.addForce(vector0)
 }

@@ -21,7 +21,7 @@ import {
  * @author HydraFire <github.com/HydraFire>
  */
 
-const timeAfterClientDesideHeWasgetWrongAction = 1000
+const timeAfterClientDesideHeWasgetWrongAction = 2000
 let gamePredictionCheckList = []
 
 export const addActionComponent = (
@@ -31,10 +31,6 @@ export const addActionComponent = (
 ): void => {
   if (hasComponent(entity, component) || !(hasComponent(entity, GameObject) || hasComponent(entity, GamePlayer))) return
   const game = getGame(entity)
-  //const role = getRole(entity)
-  //if (role != 'GolfBall') {
-
-  //}
   //// Clients dont apply self actions, only in not Global mode
   if (isClient && !game.isGlobal) {
     addComponent(entity, component, componentArgs)

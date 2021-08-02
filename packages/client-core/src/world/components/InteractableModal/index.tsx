@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next'
 import { OpenLink } from '../OpenLink'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem'
-import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
+import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 
 const ModelView = React.lazy(() => import('./modelView'))
 
@@ -29,8 +29,7 @@ export const InteractableModal: FunctionComponent = () => {
   const [isInputEnabled, setInputEnabled] = useState(true)
 
   useEffect(() => {
-    EngineEvents.instance.dispatchEvent({
-      type: ClientInputSystem.EVENTS.ENABLE_INPUT,
+    enableInput({
       keyboard: isInputEnabled,
       mouse: isInputEnabled
     })

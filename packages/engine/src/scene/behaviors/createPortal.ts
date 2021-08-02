@@ -1,9 +1,8 @@
 import { BufferGeometry, Euler, ExtrudeGeometry, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from 'three'
-import { Body, BodyType, ShapeType, SHAPES } from 'three-physx'
+import { Body, BodyType, ShapeType, SHAPES, PhysXInstance } from 'three-physx'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { isClient } from '../../common/functions/isClient'
-import { Behavior } from '../../common/interfaces/Behavior'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
@@ -16,7 +15,8 @@ import { Object3DComponent } from '../components/Object3DComponent'
 import { PortalComponent } from '../components/PortalComponent'
 
 export type PortalProps = {
-  location: string
+  locationName: string
+  linkedPortalId: string
   displayText: string
   spawnPosition: Vector3
   spawnRotation: Quaternion
@@ -25,8 +25,9 @@ export type PortalProps = {
 
 const vec3 = new Vector3()
 
-export const createPortal = (entity: Entity, args: PortalProps) => {
-  const { location, displayText, spawnPosition } = args
+export const createPortal = async (entity: Entity, args: PortalProps) => {
+  console.log(args)
+  const { locationName, linkedPortalId, displayText, spawnPosition } = args
 
   const spawnEuler = new Euler(args.spawnRotation.x, args.spawnRotation.y, args.spawnRotation.z, 'XYZ')
   const spawnRotation = new Quaternion().setFromEuler(spawnEuler)
@@ -57,7 +58,7 @@ export const createPortal = (entity: Entity, args: PortalProps) => {
       }
     }
 
-    const portalBody = PhysicsSystem.instance.addBody(
+    const portalBody = PhysXInstance.instance.addBody(
       new Body({
         shapes: [portalShape],
         type: BodyType.STATIC,
@@ -68,7 +69,7 @@ export const createPortal = (entity: Entity, args: PortalProps) => {
       })
     )
 
-    PhysicsSystem.instance.addBody(portalBody)
+    PhysXInstance.instance.addBody(portalBody)
 
     portalBody.userData = entity
 
@@ -112,10 +113,21 @@ export const createPortal = (entity: Entity, args: PortalProps) => {
   })
 
   addComponent(entity, PortalComponent, {
-    location,
+    location: locationName,
+    linkedPortalId,
     displayText,
     spawnPosition,
     spawnRotation,
     spawnEuler
   })
+}
+
+export const setRemoteLocationDetail = (
+  portal: PortalComponent,
+  spawnPosition: Vector3,
+  spawnRotation: Euler
+): void => {
+  portal.remoteSpawnPosition = new Vector3(spawnPosition.x, spawnPosition.y, spawnPosition.z)
+  portal.remoteSpawnEuler = new Euler(spawnRotation.x, spawnRotation.y, spawnRotation.z, 'XYZ')
+  portal.remoteSpawnRotation = new Quaternion().setFromEuler(portal.remoteSpawnEuler)
 }

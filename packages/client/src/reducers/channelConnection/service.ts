@@ -1,7 +1,7 @@
 import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunctions'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { Config } from '@xrengine/client-core/src/helper'
 import { Dispatch } from 'redux'
 import { client } from '@xrengine/client-core/src/feathers'
@@ -63,9 +63,9 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
       const currentLocation = locationState.get('currentLocation').get('location')
       const sceneId = currentLocation.sceneId
       const videoActive =
-        MediaStreamSystem !== null &&
-        MediaStreamSystem !== undefined &&
-        (MediaStreamSystem.instance?.camVideoProducer != null || MediaStreamSystem.instance?.camAudioProducer != null)
+        MediaStreams !== null &&
+        MediaStreams !== undefined &&
+        (MediaStreams.instance?.camVideoProducer != null || MediaStreams.instance?.camAudioProducer != null)
       // TODO: Disconnected
       if (Network.instance !== undefined && Network.instance !== null) {
         await endVideoChat({ endConsumers: true })
@@ -89,7 +89,7 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
         isHarmonyPage: isHarmonyPage
       })
 
-      EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers)
+      EngineEvents.instance.addEventListener(MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers)
 
       dispatch(channelServerConnected())
     } catch (err) {

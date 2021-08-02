@@ -6,14 +6,10 @@ import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import config from '@xrengine/server-core/src/appconfig'
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
-import {
-  DefaultInitializationOptions,
-  EngineSystemPresets,
-  InitializeOptions
-} from '@xrengine/engine/src/initializationOptions'
-import { GolfSystem } from '../../engine/src/game/templates/Golf/GolfSystem'
-import _ from 'lodash'
-import { GolfGameMode } from '../../engine/src/game/templates/GolfGameMode'
+import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
+import { GolfSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
+import { GolfGameMode } from '@xrengine/engine/src/game/templates/GolfGameMode'
+import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem'
 ;(globalThis as any).XMLHttpRequest = XMLHttpRequest
 
 const currentPath = (process.platform === 'win32' ? 'file:///' : '') + path.dirname(__filename)
@@ -39,7 +35,7 @@ export class WebRTCGameServer {
       // TODO: we need to register this here still as this is not currently set up to work in deploy
       {
         system: GolfSystem,
-        args: { priority: 6 }
+        after: GameManagerSystem
       }
     ]
   }

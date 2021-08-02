@@ -1,4 +1,13 @@
-import { AmbientLight, DirectionalLight, HemisphereLight, Object3D, PointLight, SpotLight } from 'three'
+import {
+  AmbientLight,
+  DirectionalLight,
+  HemisphereLight,
+  Object3D,
+  PointLight,
+  Quaternion,
+  SpotLight,
+  Vector3
+} from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
@@ -8,12 +17,10 @@ import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { addObject3DComponent } from '../behaviors/addObject3DComponent'
 import { createGame, createGameObject } from '../behaviors/createGame'
-import { createVehicleFromSceneData } from '../../vehicle/prefabs/NetworkVehicle'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
 import { createSkybox } from '../behaviors/createSkybox'
-import { createBoxCollider } from '../behaviors/createBoxCollider'
-import { createMeshCollider } from '../behaviors/createMeshCollider'
-import { createCommonInteractive } from '../behaviors/createCommonInteractive'
+import { BoxColliderProps } from '../interfaces/BoxColliderProps'
+import { MeshColliderProps } from '../interfaces/MeshColliderProps'
 import { createGroup } from '../behaviors/createGroup'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../behaviors/createMedia'
 import { createMap } from '../behaviors/createMap'
@@ -22,11 +29,9 @@ import { createTriggerVolume } from '../behaviors/createTriggerVolume'
 import { handleAudioSettings } from '../behaviors/handleAudioSettings'
 import { setFog } from '../behaviors/setFog'
 import ScenePreviewCameraTagComponent from '../components/ScenePreviewCamera'
-import SpawnPointComponent from '../components/SpawnPointComponent'
+import { SpawnPointComponent } from '../components/SpawnPointComponent'
 import WalkableTagComponent from '../components/Walkable'
 import Image from '../classes/Image'
-import { setPostProcessing } from '../behaviors/setPostProcessing'
-import { CameraSystem } from '../../camera/systems/CameraSystem'
 import { CopyTransformComponent } from '../../transform/components/CopyTransformComponent'
 import { setEnvMap } from '../behaviors/setEnvMap'
 import { PersistTagComponent } from '../components/PersistTagComponent'
@@ -36,8 +41,12 @@ import { configureCSM, handleRendererSettings } from '../behaviors/handleRendere
 import { createDirectionalLight } from '../behaviors/createDirectionalLight'
 import { loadGLTFModel } from '../behaviors/loadGLTFModel'
 import { loadModelAnimation } from '../behaviors/loadModelAnimation'
+import { Clouds } from '../classes/Clouds'
 import { Interactable } from '../../interaction/components/Interactable'
 import { ShadowComponent } from '../components/ShadowComponent'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { createCollider } from '../../physics/behaviors/createCollider'
+import { BodyType } from 'three-physx'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -160,7 +169,7 @@ export class WorldScene {
         break
 
       case 'interact':
-        createCommonInteractive(entity, component.data)
+        if (component.data.interactable) addComponent(entity, Interactable, { data: component.data })
         break
 
       case 'ground-plane':
@@ -235,8 +244,8 @@ export class WorldScene {
 
       case 'scene-preview-camera':
         addComponent(entity, ScenePreviewCameraTagComponent)
-        if (isClient && CameraSystem.instance.activeCamera) {
-          addComponent(CameraSystem.instance.activeCamera, CopyTransformComponent, { input: entity })
+        if (isClient && Engine.activeCameraEntity) {
+          addComponent(Engine.activeCameraEntity, CopyTransformComponent, { input: entity })
         }
         break
 
@@ -252,15 +261,28 @@ export class WorldScene {
         break
 
       case 'box-collider':
-        createBoxCollider(entity, component.data)
+        const boxColliderProps: BoxColliderProps = component.data
+        createCollider(
+          {
+            type: 'box',
+            ...boxColliderProps
+          },
+          boxColliderProps.position,
+          boxColliderProps.quaternion,
+          boxColliderProps.scale
+        )
         break
 
       case 'mesh-collider':
-        createMeshCollider(entity, component.data)
-        break
-
-      case 'vehicle-saved-in-scene':
-        createVehicleFromSceneData(entity, component.data)
+        const meshColliderProps: MeshColliderProps = component.data
+        if (meshColliderProps.data === 'physics') {
+          createCollider(
+            meshColliderProps,
+            meshColliderProps.position,
+            meshColliderProps.quaternion,
+            meshColliderProps.scale
+          )
+        }
         break
 
       case 'trigger-volume':
@@ -276,8 +298,12 @@ export class WorldScene {
         createParticleEmitterObject(entity, component.data)
         break
 
+      case 'cloud':
+        addObject3DComponent(entity, new Clouds(), component.data)
+        break
+
       case 'postprocessing':
-        setPostProcessing(entity, component.data)
+        EngineRenderer.instance?.configurePostProcessing(component.data.options)
         break
 
       case 'envmap':

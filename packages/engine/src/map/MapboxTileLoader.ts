@@ -4,6 +4,7 @@ import { vectors } from './vectors'
 import turf_buffer from '@turf/buffer'
 import { VectorTile, VectorTileFeature } from '@mapbox/vector-tile'
 import { isClient } from '../common/functions/isClient'
+import { Object3D, Vector3 } from 'three'
 
 function getRandomGreyColor(minValue, maxValue) {
   var colorValue = Math.floor(Math.random() * maxValue + minValue)
@@ -13,6 +14,11 @@ function getRandomGreyColor(minValue, maxValue) {
 function getRandomGreyColorString(minValue, maxValue) {
   const color = getRandomGreyColor(minValue, maxValue)
   return `#${color.getHexString()}`
+}
+
+function rescale(object3D: Object3D, scaleFactor: number) {
+  object3D.position.multiplyScalar(scaleFactor)
+  object3D.scale.multiplyScalar(scaleFactor)
 }
 
 // Generate a building canvas with the given width and height and return it
@@ -109,6 +115,7 @@ interface IOpts {
   lat?: number
   lng?: number
   layers?: string[]
+  scale?: Vector3
 
   /** draw superimposed lines along the edges of all meshes */
   enableEdgeLines?: boolean
@@ -119,6 +126,7 @@ export class MapboxTileLoader {
   private opts: IOpts
   private names: Object
   private kinds: Object
+  private scale: Vector3
   private kind_details: Object
   private center: {
     lat?: number
@@ -130,9 +138,9 @@ export class MapboxTileLoader {
   private feature_styles: IFeatureStylesByLayerName
   private meshes_by_layer: Object
 
-  constructor(scene: THREE.Scene, opts: IOpts) {
+  constructor(scene: THREE.Scene, args: IOpts) {
     this.scene = scene
-    this.opts = opts = opts || {}
+    this.opts = args = args || {}
     this.opts.layers = this.opts.layers || [
       'building',
       'road'
@@ -141,8 +149,11 @@ export class MapboxTileLoader {
       // 'contour',
       // 'landuse',
       // 'motorway_junction',
-      // 'poi_label',
+      // 'poi_label'
     ]
+    console.log('args.scale is', args.scale)
+    this.scale = args.scale
+    console.log('scale is', this.scale)
 
     // tally feature tags.
     this.names = {}
@@ -151,11 +162,11 @@ export class MapboxTileLoader {
 
     this.center = {}
 
-    if (opts.lat) {
-      this.center.lat = opts.lat
+    if (args.lat) {
+      this.center.lat = args.lat
     }
-    if (opts.lng) {
-      this.center.lng = opts.lng
+    if (args.lng) {
+      this.center.lng = args.lng
     }
 
     // keep a reference to everything we add to the scene from map data.
@@ -388,8 +399,11 @@ export class MapboxTileLoader {
     if (this.opts.enableEdgeLines) {
       const edges = new THREE.EdgesGeometry(mesh.geometry, 30)
       const lineSegments = new THREE.LineSegments(edges, lineMaterial)
+      rescale(lineSegments, this.scale.x)
+
       this.scene.add(lineSegments)
     }
+    rescale(mesh, this.scale.x)
 
     this.scene.add(mesh)
     this.feature_meshes.push(mesh)

@@ -1,4 +1,4 @@
-import { Object3D, BoxBufferGeometry, Material } from 'three'
+import { Object3D, BoxBufferGeometry, Material, Vector3 } from 'three'
 import { addMap } from '../../map'
 import EditorNodeMixin from './EditorNodeMixin'
 
@@ -9,32 +9,41 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   static _material = new Material()
 
   static async deserialize(editor, json) {
-    console.log('Deserializing The MapNode')
     const node = await super.deserialize(editor, json)
     const {
       isGlobal,
       name,
-      // style,
-      // useTimeOfDay,
-      // useDirectionalShadows,
+      useTimeOfDay,
+      useDirectionalShadows,
       useStartCoordinates,
       startLatitude,
-      startLongitude
+      startLongitude,
+      scale
     } = json.components.find((c) => c.name === 'map').props
     node.isGlobal = isGlobal
-    // node.style = style;
-    // node.useTimeOfDay = useTimeOfDay;
-    // node.useDirectionalShadows = useDirectionalShadows;
+    node.useTimeOfDay = useTimeOfDay
+    node.useDirectionalShadows = useDirectionalShadows
     node.useStartCoordinates = useStartCoordinates
     node.startLatitude = startLatitude
     node.startLongitude = startLongitude
     node.name = name
+    console.log('setting node.scale, which is', node.scale)
+    node.scale.set(scale.x, scale.y, scale.z)
     return node
   }
   constructor(editor) {
     super(editor)
     console.log('creating map')
-    addMap(editor.scene as any, editor.renderer.renderer)
+    addMap(editor.scene as any, editor.renderer.renderer, {
+      name: this.name,
+      isGlobal: this.isGlobal,
+      scale: this.scale,
+      useTimeOfDay: this.useTimeOfDay,
+      useDirectionalShadows: this.useDirectionalShadows,
+      useStartCoordinates: this.useStartCoordinates,
+      startLatitude: this.startLatitude,
+      startLongitude: this.startLongitude
+    })
   }
   copy(source, recursive = true) {
     super.copy(source, recursive)
@@ -48,10 +57,10 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
       map: {
         id: this.id,
         name: this.name,
+        scale: this.scale,
         isGlobal: this.isGlobal,
-        // style: this.style,
-        // useTimeOfDay: this.useTimeOfDay,
-        // useDirectionalShadows: this.useDirectionalShadows,
+        useTimeOfDay: this.useTimeOfDay,
+        useDirectionalShadows: this.useDirectionalShadows,
         useStartCoordinates: this.useStartCoordinates,
         startLatitude: this.startLatitude,
         startLongitude: this.startLongitude

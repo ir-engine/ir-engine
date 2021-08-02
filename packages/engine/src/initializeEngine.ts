@@ -12,12 +12,10 @@ import { Engine } from './ecs/classes/Engine'
 import { EngineEvents } from './ecs/classes/EngineEvents'
 import { getSystem, registerSystem } from './ecs/functions/SystemFunctions'
 import { GameManagerSystem } from './game/systems/GameManagerSystem'
-import { ActionSystem } from './input/systems/ActionSystem'
 import { ClientInputSystem } from './input/systems/ClientInputSystem'
 import { InteractiveSystem } from './interaction/systems/InteractiveSystem'
 import { Network } from './networking/classes/Network'
 import { ClientNetworkStateSystem } from './networking/systems/ClientNetworkStateSystem'
-import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem'
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem'
 import { ParticleSystem } from './particles/systems/ParticleSystem'
 import { PhysicsSystem } from './physics/systems/PhysicsSystem'
@@ -28,18 +26,21 @@ import { UISystem } from './xrui/systems/UISystem'
 import { XRSystem } from './xr/systems/XRSystem'
 import { WebGLRendererSystem } from './renderer/WebGLRendererSystem'
 import { Timer } from './common/functions/Timer'
-import { execute } from './ecs/functions/EngineFunctions'
+import { execute, reset } from './ecs/functions/EngineFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem'
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem'
 import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem'
 import { SceneObjectSystem } from './scene/systems/SceneObjectSystem'
-import { ActiveSystems, System, SystemConstructor } from './ecs/classes/System'
+import { ActiveSystems } from './ecs/classes/System'
 import { AudioSystem } from './audio/systems/AudioSystem'
 import { setupBotHooks } from './bot/functions/botHookFunctions'
 import { AnimationSystem } from './character/AnimationSystem'
 import { InterpolationSystem } from './physics/systems/InterpolationSystem'
 import { FontManager } from './xrui/classes/FontManager'
+import { EquippableSystem } from './interaction/systems/EquippableSystem'
+import { AutopilotSystem } from './navigation/systems/AutopilotSystem'
+import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -82,9 +83,18 @@ const configureClient = async (options: Required<InitializeOptions>) => {
     Engine.scene.add(Engine.camera)
   }
 
+  Network.instance = new Network()
+
+  const { schema } = options.networking
+
+  Network.instance.schema = schema
+  Network.instance.transport = new schema.transport()
+
   await FontManager.instance.getDefaultFont()
 
   setupBotHooks()
+
+  addClientInputListeners()
 
   registerClientSystems(options, canvas)
 }
@@ -116,6 +126,7 @@ const configureServer = async (options: Required<InitializeOptions>) => {
   }
 
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
+    console.log('joined world')
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: true, physics: true })
     Engine.hasJoinedWorld = true
   })
@@ -125,29 +136,25 @@ const configureServer = async (options: Required<InitializeOptions>) => {
 
 const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTMLCanvasElement) => {
   // Network Systems
-  Network.instance = new Network()
 
-  if (!Engine.offlineMode) {
-    Network.instance.schema = options.networking.schema
-    registerSystem(SystemUpdateType.Fixed, ClientNetworkSystem, { ...options.networking })
-  }
+  !Engine.offlineMode && registerSystem(SystemUpdateType.Fixed, ClientNetworkStateSystem)
 
-  registerSystem(SystemUpdateType.Fixed, ClientNetworkStateSystem)
   registerSystem(SystemUpdateType.Fixed, MediaStreamSystem)
 
   if (options.renderer.disabled) return
 
   // Input Systems
-  registerSystem(SystemUpdateType.Fixed, ClientInputSystem, { useWebXR: Engine.xrSupported })
+  registerSystem(SystemUpdateType.Fixed, ClientInputSystem)
 
   // Input Systems
   registerSystem(SystemUpdateType.Fixed, UISystem)
-  registerSystem(SystemUpdateType.Fixed, ActionSystem)
   registerSystem(SystemUpdateType.Fixed, CharacterControllerSystem)
   registerSystem(SystemUpdateType.Fixed, AnimationSystem)
+  registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
 
   // Scene Systems
   registerSystem(SystemUpdateType.Fixed, InteractiveSystem)
+  registerSystem(SystemUpdateType.Fixed, EquippableSystem)
   registerSystem(SystemUpdateType.Fixed, GameManagerSystem)
   registerSystem(SystemUpdateType.Fixed, TransformSystem)
   registerSystem(SystemUpdateType.Fixed, InterpolationSystem)
@@ -191,9 +198,11 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
 
   // Input Systems
   registerSystem(SystemUpdateType.Fixed, CharacterControllerSystem)
+  registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
 
   // Scene Systems
   registerSystem(SystemUpdateType.Fixed, InteractiveSystem)
+  registerSystem(SystemUpdateType.Fixed, EquippableSystem)
   registerSystem(SystemUpdateType.Fixed, GameManagerSystem)
   registerSystem(SystemUpdateType.Fixed, TransformSystem)
   registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
@@ -210,7 +219,7 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
-
+  Engine.initOptions = options
   Engine.gameModes = options.gameModes
   Engine.offlineMode = typeof options.networking.schema === 'undefined'
   Engine.publicPath = options.publicPath
@@ -294,7 +303,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
       window.addEventListener(type, onUserEngage)
     })
 
-    EngineEvents.instance.once(ClientNetworkSystem.EVENTS.CONNECT, ({ id }) => {
+    EngineEvents.instance.once(ClientNetworkStateSystem.EVENTS.CONNECT, ({ id }) => {
       Network.instance.isInitialized = true
       Network.instance.userId = id
     })
@@ -305,4 +314,15 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   // Mark engine initialized
   Engine.isInitialized = true
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE })
+}
+
+export const shutdownEngine = async () => {
+  if (Engine.initOptions.type === EngineSystemPresets.CLIENT) {
+    removeClientInputListeners()
+  }
+
+  Engine.engineTimer?.clear()
+  Engine.engineTimer = null
+
+  await reset()
 }

@@ -10,7 +10,11 @@ import { decode } from 'jsonwebtoken'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import path from 'path'
 import Worker from 'web-worker'
-import { processLocationChange } from '../../engine/src/ecs/functions/EngineFunctions'
+import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
+import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
+import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/behaviors/createPortal'
+import { getAllMutableComponentOfType } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 
 export default (app: Application): void => {
   if (typeof app.channel !== 'function') {
@@ -145,7 +149,7 @@ export default (app: Application): void => {
 
                 WorldScene.load(
                   result,
-                  () => {
+                  async () => {
                     console.log('Scene loaded!')
                     clearInterval(loadingInterval)
                     EngineEvents.instance.dispatchEvent({
@@ -153,6 +157,15 @@ export default (app: Application): void => {
                       renderer: true,
                       physics: true
                     })
+
+                    const portals = getAllMutableComponentOfType(PortalComponent)
+                    await Promise.all(
+                      portals.map(async (portal: PortalComponent): Promise<void> => {
+                        return getPortalByEntityId(app, portal.linkedPortalId).then((res) => {
+                          if (res) setRemoteLocationDetail(portal, res.data.spawnPosition, res.data.spawnRotation)
+                        })
+                      })
+                    )
                   },
                   (left) => {
                     entitiesLeft = left

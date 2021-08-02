@@ -2,11 +2,11 @@ import type { Behavior } from '../../common/interfaces/Behavior'
 import type { Entity } from '../../ecs/classes/Entity'
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import { findInterpolationSnapshot } from '../../physics/behaviors/findInterpolationSnapshot'
-import { ControllerColliderComponent } from '../components/ControllerColliderComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CharacterComponent } from '../components/CharacterComponent'
 import type { SnapshotData, StateInterEntity } from '../../networking/types/SnapshotDataTypes'
-import { AnimationComponent } from '../components/AnimationComponent'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { ColliderComponent } from '../../physics/components/ColliderComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -21,22 +21,31 @@ export const characterInterpolationBehavior: Behavior = (
   snapshots: SnapshotData,
   delta: number
 ): void => {
-  const transform = getComponent<TransformComponent>(entity, TransformComponent)
-  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
-  const collider: any = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
-
   const interpolation = findInterpolationSnapshot(entity, snapshots.interpolation) as StateInterEntity
 
-  if (!collider.controller || !interpolation || isNaN(interpolation.vX)) return
+  if (!interpolation || isNaN(interpolation.vX)) return
 
-  collider.controller.updateTransform({
+  const transform = getComponent(entity, TransformComponent)
+  const velocity = getComponent(entity, VelocityComponent)
+  const actor = getMutableComponent(entity, CharacterComponent)
+  const collider = getMutableComponent(entity, ColliderComponent)
+
+  collider.body.updateTransform({
     translation: {
       x: interpolation.x,
       y: interpolation.y + actor.actorHalfHeight,
       z: interpolation.z
+    },
+    rotation: {
+      x: interpolation.qX,
+      y: interpolation.qY,
+      z: interpolation.qZ,
+      w: interpolation.qW
     }
   })
 
+  transform.position.set(interpolation.x, interpolation.y, interpolation.z)
   transform.rotation.set(interpolation.qX, interpolation.qY, interpolation.qZ, interpolation.qW)
-  actor.velocity.set(interpolation.vX, interpolation.vY, interpolation.vZ)
+
+  velocity.velocity.set(interpolation.vX, interpolation.vY, interpolation.vZ)
 }

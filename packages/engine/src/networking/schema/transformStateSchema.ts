@@ -70,7 +70,7 @@ export class TransformStateModel {
   }
 
   /** Read from buffer. */
-  static fromBuffer(buffer: any): WorldStateInterface {
+  static fromBuffer(buffer: any): TransformStateInterface {
     try {
       const state = Network.instance.packetCompression ? TransformStateModel.model.fromBuffer(buffer) : buffer
 

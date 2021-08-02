@@ -1,15 +1,10 @@
 import { start } from './start'
+import { WebRTCGameServer } from './WebRTCGameServer'
+import { AutopilotSystem } from '@xrengine/engine/src/navigation/systems/AutopilotSystem'
 
-/**
- * Do any registering of custom components, settings, systems etc here
- * Example:
- *
- * WebRTCGameServer.options.systems.push(
- *   {
- *     system: MyCustomSystem,
- *     args: { mySettings }
- *   },
- * )
- */
+// WebRTCGameServer.options.systems.push({
+//   system: AutopilotSystem,
+//   args: {}
+// })
 
 start()

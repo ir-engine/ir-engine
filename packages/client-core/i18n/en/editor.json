@@ -278,6 +278,17 @@
             "info-lifetimeRandomness": "The amount of variation between particle lifetimes.",
             "info-sizeRandomness": "The amount of variation between particle starting sizes."
         },
+        "clouds": {
+            "description": "Sprite based cloud volume.",
+            "lbl-image": "Sprite Image",
+            "lbl-wroldScale": "World Scale",
+            "lbl-dimensions": "Dimensions",
+            "lbl-noiseZoom": "Noise Zoom",
+            "lbl-noiseOffset": "Noise Offset",
+            "lbl-spriteScale": "Sprite Scale",
+            "lbl-fogColor": "Fog Color",
+            "lbl-fogRange": "Fog Range"
+        },
         "pointLight": {
             "description": "A light which emits in all directions from a single point.",
             "lbl-color": "Color",
@@ -394,6 +405,13 @@
         "spline": {
             "description": "Dynamically create and customize curves.",
             "lbl-addNode": "Add node to curve."
+        },
+        "portal": {
+            "description": "A Portat to teleport players to specified location",
+            "location": "Location",
+            "displayText": "Display Text",
+            "spawnPosition": "Spawn position",
+            "spawnRotation": "Spawn Rotation"
         }
     },
     "projects": {

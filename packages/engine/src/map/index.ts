@@ -1,29 +1,27 @@
 import * as THREE from 'three'
 import { MapboxTileLoader } from './MapboxTileLoader'
 import { fetchTiles, buildMesh } from './MeshBuilder'
+import { MapProps } from './MapProps'
 
 const useNew = true
 
-export const addMap = async function (scene: THREE.Scene, renderer: THREE.WebGLRenderer) {
+export const addMap = async function (scene: THREE.Scene, renderer: THREE.WebGLRenderer, args: MapProps) {
+  console.log('addmap called with args:', args)
   if (useNew) {
     // TODO use object
-    const center = [-84.388, 33.79]
-    const tiles = await fetchTiles(center)
-    const mesh = buildMesh(tiles, center, renderer)
+    const center = [parseFloat(args.startLongitude) || -84.388, parseFloat(args.startLatitude) || 33.749]
+    const features = await fetchTiles(center)
+    const mesh = buildMesh(features, center, renderer)
+    mesh.position.multiplyScalar(args.scale.x)
+    mesh.scale.multiplyScalar(args.scale.x)
+
     scene.add(mesh)
   } else {
     new MapboxTileLoader(scene, {
-      // NYC
-      // latitude: 40.707,
-      // longitude: -74.01
-
-      // SF
-      // lat: 37.7749,
-      // lng: -122.4194
-
-      // ATL
-      lat: 33.749,
-      lng: -84.388
+      ...args,
+      // default ATL if none provided
+      lat: parseFloat(args.startLatitude) || 33.749,
+      lng: parseFloat(args.startLongitude) || -84.388
     })
   }
 }

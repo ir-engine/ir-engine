@@ -1,21 +1,11 @@
 import * as Comlink from 'comlink'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import { MediaStreamSystem } from '../../networking/systems/MediaStreamSystem'
+import { Network } from '../../networking/classes/Network'
+import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
 import { Input } from '../components/Input'
-import { WEBCAM_INPUT_EVENTS } from '../constants/InputConstants'
 import { CameraInput } from '../enums/InputEnums'
 import { InputType } from '../enums/InputType'
-
-const isBrowser = new Function('try {return this===window;}catch(e){ return false;}')
-
-let Worker
-
-if (isBrowser())
-  //@ts-ignore
-  import('./WebcamInputWorker?worker').then((worker) => {
-    Worker = worker.default
-  })
 
 const EXPRESSION_THRESHOLD = 0.1
 
@@ -41,6 +31,8 @@ export const stopLipsyncTracking = () => {
 
 export const startFaceTracking = async () => {
   if (!faceWorker) {
+    // @ts-ignore
+    const { Worker } = await import('./WebcamInputWorker?worker')
     faceWorker = Comlink.wrap(new Worker())
     await faceWorker.initialise()
   }
@@ -57,13 +49,13 @@ export const startFaceTracking = async () => {
       const pixels = imageData.data.buffer
       const detection = await faceWorker.detect(Comlink.transfer(pixels, [pixels]))
       if (detection) {
-        EngineEvents.instance.dispatchEvent({ type: WEBCAM_INPUT_EVENTS.FACE_INPUT, detection })
+        faceToInput(Network.instance.localClientEntity, detection)
       }
     }, 100)
     faceTrackingTimers.push(interval)
   })
 
-  faceVideo.srcObject = MediaStreamSystem.instance.mediaStream
+  faceVideo.srcObject = MediaStreams.instance.mediaStream
   faceVideo.muted = true
   faceVideo.play()
 }
@@ -127,7 +119,7 @@ export const startLipsyncTracking = () => {
   userSpeechAnalyzer.smoothingTimeConstant = 0.5
   userSpeechAnalyzer.fftSize = FFT_SIZE
 
-  const inputStream = audioContext.createMediaStreamSource(MediaStreamSystem.instance.mediaStream)
+  const inputStream = audioContext.createMediaStreamSource(MediaStreams.instance.mediaStream)
   inputStream.connect(userSpeechAnalyzer)
 
   const audioProcessor = audioContext.createScriptProcessor(FFT_SIZE * 2, 1, 1)
@@ -173,7 +165,7 @@ export const startLipsyncTracking = () => {
     const widen = 3 * Math.max(EnergyBinMasc[3], EnergyBinFem[3])
     const open = 0.8 * (Math.max(EnergyBinMasc[1], EnergyBinFem[1]) - Math.max(EnergyBinMasc[3], EnergyBinFem[3]))
 
-    EngineEvents.instance.dispatchEvent({ type: WEBCAM_INPUT_EVENTS.LIP_INPUT, pucker, widen, open })
+    lipToInput(Network.instance.localClientEntity, pucker, widen, open)
   }
 }
 

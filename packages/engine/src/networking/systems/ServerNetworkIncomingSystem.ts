@@ -19,27 +19,17 @@ import { sendSpawnGameObjects, sendState } from '../../game/functions/functionsS
 import { getGameFromName } from '../../game/functions/functions'
 import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
-import { Quaternion } from 'three'
+import { Quaternion, Vector3 } from 'three'
 import { executeCommands } from '../functions/executeCommands'
 import { ClientActionToServer } from '../../game/templates/DefaultGameStateAction'
+import { updatePlayerRotationFromViewVector } from '../../character/functions/updatePlayerRotationFromViewVector'
 
 export function cancelAllInputs(entity) {
   getMutableComponent(entity, Input)?.data.forEach((value) => {
     value.lifecycleState = LifecycleValue.ENDED
   })
 }
-
-/** System class to handle incoming messages. */
 export class ServerNetworkIncomingSystem extends System {
-  /**
-   * Constructs the system.
-   * @param attributes Attributes to be passed to super class constructor.
-   */
-  constructor(attributes) {
-    super(attributes)
-  }
-
-  /** Call execution on server */
   execute = (delta: number): void => {
     // Create a new worldstate frame for next tick
     Network.instance.tick++
@@ -106,7 +96,7 @@ export class ServerNetworkIncomingSystem extends System {
       const actor = getMutableComponent(entity, CharacterComponent)
 
       if (actor) {
-        actor.viewVector.set(clientInput.viewVector.x, clientInput.viewVector.y, clientInput.viewVector.z)
+        updatePlayerRotationFromViewVector(entity, clientInput.viewVector as Vector3)
       } else {
         console.log('input but no actor...', clientInput.networkId)
       }

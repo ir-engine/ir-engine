@@ -2,7 +2,6 @@ import { dispatchAlertError, dispatchAlertSuccess } from '../../../common/reduce
 import { resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { resolveUser, resolveWalletUser } from '@xrengine/common/src/interfaces/User'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 // TODO: Decouple this
@@ -39,7 +38,7 @@ import {
   usernameUpdated,
   userUpdated
 } from './actions'
-import { AnimationSystem } from '@xrengine/engine/src/character/AnimationSystem'
+import { setActorAvatar } from '@xrengine/engine/src/character/functions/avatarFunctions'
 
 const store = Store.store
 
@@ -807,8 +806,7 @@ const loadAvatarForUpdatedUser = async (user) => {
       for (let key of Object.keys(Network.instance.networkObjects)) {
         const obj = Network.instance.networkObjects[key]
         if (obj?.ownerId === user.id) {
-          EngineEvents.instance.dispatchEvent({
-            type: AnimationSystem.EVENTS.LOAD_AVATAR,
+          setActorAvatar({
             entityID: obj.component.entity.id,
             avatarId: user.avatarId,
             avatarURL
@@ -845,8 +843,7 @@ const loadXRAvatarForUpdatedUser = async (user) => {
     for (let key of Object.keys(Network.instance.networkObjects)) {
       const obj = Network.instance.networkObjects[key]
       if (obj?.ownerId === user.id) {
-        EngineEvents.instance.dispatchEvent({
-          type: AnimationSystem.EVENTS.LOAD_AVATAR,
+        setActorAvatar({
           entityID: obj.component.entity.id,
           avatarId: user.avatarId,
           avatarURL

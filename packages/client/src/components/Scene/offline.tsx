@@ -17,12 +17,8 @@ import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/servic
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
-import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem'
-import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem'
+import { initializeEngine, shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
 import querystring from 'querystring'
@@ -39,8 +35,8 @@ import {
 import MediaIconsBox from '../../components/MediaIconsBox'
 import NetworkDebug from '../../components/NetworkDebug'
 import { delay } from 'lodash'
+import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem'
 import { Network } from '../../../../engine/src/networking/classes/Network'
-import { ClientNetworkStateSystem } from '../../../../engine/src/networking/systems/ClientNetworkStateSystem'
 
 const store = Store.store
 
@@ -246,18 +242,36 @@ export const EnginePage = (props: Props) => {
     }
   }, [appState])
 
+  // If user if on Firefox in Private Browsing mode, throw error, since they can't use db storage currently
+  useEffect(() => {
+    var db = indexedDB.open('test')
+    db.onerror = function () {
+      const newValues = {
+        ...warningRefreshModalValues,
+        open: true,
+        title: 'Browser Error',
+        body: 'Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode. ',
+        noCountdown: true
+      }
+      setWarningRefreshModalValues(newValues)
+      setInstanceDisconnected(false)
+    }
+  }, [])
+
   useEffect(() => {
     if (noGameserverProvision === true) {
       const currentLocation = locationState.get('currentLocation').get('location')
       const newValues = {
+        ...warningRefreshModalValues,
         open: true,
         title: 'No Available Servers',
         body: "There aren't any servers available for you to connect to. Attempting to re-connect in",
-        action: provisionInstanceServer,
+        action: async () => {
+          provisionInstanceServer()
+        },
         parameters: [currentLocation.id, instanceId, currentLocation.sceneId],
         timeout: 10000
       }
-      //@ts-ignore
       setWarningRefreshModalValues(newValues)
       setNoGameserverProvision(false)
     }
@@ -266,14 +280,14 @@ export const EnginePage = (props: Props) => {
   useEffect(() => {
     if (instanceDisconnected === true) {
       const newValues = {
+        ...warningRefreshModalValues,
         open: true,
         title: 'World disconnected',
         body: "You've lost your connection with the world. We'll try to reconnect before the following time runs out, otherwise you'll be forwarded to a different instance.",
-        action: window.location.reload,
+        action: async () => window.location.reload(),
         parameters: [],
         timeout: 30000
       }
-      //@ts-ignore
       setWarningRefreshModalValues(newValues)
       setInstanceDisconnected(false)
     }
@@ -282,12 +296,12 @@ export const EnginePage = (props: Props) => {
   useEffect(() => {
     if (instanceKicked === true) {
       const newValues = {
+        ...warningRefreshModalValues,
         open: true,
         title: "You've been kicked from the world",
         body: 'You were kicked from this world for the following reason: ' + instanceKickedMessage,
         noCountdown: true
       }
-      //@ts-ignore
       setWarningRefreshModalValues(newValues)
       setInstanceDisconnected(false)
     }
@@ -331,7 +345,7 @@ export const EnginePage = (props: Props) => {
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED'))
     addUIEvents()
 
-    EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId })
+    EngineEvents.instance.dispatchEvent({ type: ClientNetworkStateSystem.EVENTS.CONNECT, id: testUserId })
 
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
@@ -349,7 +363,8 @@ export const EnginePage = (props: Props) => {
     })
 
     await new Promise<void>((resolve) => delay(resolve, 1000))
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState: testWorldState })
+    Network.instance.incomingMessageQueueReliable.add(testWorldState)
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
     await new Promise<void>((resolve) => delay(resolve, 1000))
 
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS))
@@ -370,7 +385,7 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     return (): void => {
-      resetEngine()
+      shutdownEngine()
     }
   }, [])
 

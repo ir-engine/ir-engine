@@ -26,7 +26,6 @@ export default class Video extends AudioSource {
   _projection: string
   hls: Hls
   dash: any
-
   startTime: number
 
   constructor(audioListener, id: string) {
@@ -40,7 +39,7 @@ export default class Video extends AudioSource {
     material.side = DoubleSide
     this._mesh = new Mesh(geometry, material)
     this._mesh.name = 'VideoMesh'
-    ;(this as any).add(this._mesh)
+    this.add(this._mesh)
     this._projection = 'flat'
     this.hls = null
     this.el.addEventListener('play', () => {
@@ -115,6 +114,7 @@ export default class Video extends AudioSource {
         this.el.addEventListener('loadeddata', onLoadedMetadata)
         this.el.addEventListener('error', onError)
       }
+      if (this.autoPlay) this.play()
     })
   }
   get projection() {
@@ -146,13 +146,10 @@ export default class Video extends AudioSource {
       nextMesh.parent = this
     }
     this._mesh = nextMesh
-    this.onResize()
   }
   async load() {
     if (!this.src) return this
     await this.loadVideo()
-    console.log('loaded', this.src, this._mesh)
-    this.onResize()
     if (Engine.useAudioSystem) {
       this.audioSource = this.audioListener.context.createMediaElementSource(this.el)
       this.audio.setNodeSource(this.audioSource)
@@ -163,14 +160,6 @@ export default class Video extends AudioSource {
     ;(this._mesh.material as MeshBasicMaterial).map = this._texture
     ;(this._mesh.material as MeshBasicMaterial).needsUpdate = true
     return this
-  }
-  onResize() {
-    if (this.projection === VideoProjection.Flat) {
-      const ratio = (this.el.videoHeight || 1.0) / (this.el.videoWidth || 1.0)
-      const width = Math.min(1.0, 1.0 / ratio)
-      const height = Math.min(1.0, ratio)
-      this._mesh.scale.set(width, height, 1)
-    }
   }
   clone(recursive) {
     return new (this.constructor as any)(this.audioListener).copy(this, recursive)

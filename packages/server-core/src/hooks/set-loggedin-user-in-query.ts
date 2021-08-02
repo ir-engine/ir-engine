@@ -9,7 +9,7 @@ export default (propertyName: string) => {
     const loggedInUser = extractLoggedInUserFromParams(context.params)
     context.params.query = {
       ...context.params.query,
-      [propertyName]: loggedInUser.userId
+      [propertyName]: loggedInUser?.userId || null
     }
 
     return context

@@ -18,6 +18,7 @@ import { GameObject } from '../components/GameObject'
 import { GamePlayer } from '../components/GamePlayer'
 import { ClientActionToServer } from '../templates/DefaultGameStateAction'
 import { SpawnedObject } from '../templates/gameDefault/components/SpawnedObjectTagComponent'
+import { GolfState } from '../templates/Golf/GolfGameComponents'
 
 import { State } from '../types/GameComponents'
 import { ClientGameActionMessage, GameStateUpdateMessage } from '../types/GameMessage'
@@ -162,7 +163,7 @@ export const applyState = (game: Game): void => {
             Network.instance.networkObjects[Network.instance.localAvatarNetworkId].ownerId ===
               getComponent(entity, NetworkObject).ownerId
           ) {
-            addComponent(entity, State.CorrectBallPosition)
+            addComponent(entity, GolfState.CorrectBallPosition)
           }
         } else {
           // console.log('Local object dont have state, v.uuid != uuid')
@@ -201,13 +202,6 @@ export const addStateComponent = (entity: Entity, component: ComponentConstructo
   const uuid = getUuid(entity)
   const role = getRole(entity)
   const game = getGame(entity)
-  /*
-  if (role != 'GolfBall') {
-    console.warn(role,' add ', component.name)
-  } else {
-    console.log(role,' add ', component.name)
-  }
-  */
 
   if (uuid === undefined || role === undefined || game === undefined) {
     console.warn('addStateComponent cant add State, looks like Object or Player leave game')
@@ -235,14 +229,7 @@ export const removeStateComponent = (entity: Entity, component: ComponentConstru
   if (entity === undefined || !hasComponent(entity, component)) return
   const uuid = getUuid(entity)
   const game = getGame(entity)
-  /*
-  const role = getRole(entity)
-  if (role != 'GolfBall') {
-   console.warn(role,' remove ', component.name)
-  } else {
-    console.log(role,' remove ', component.name)
-  }
-  */
+
   removeComponent(entity, component)
 
   const objectState = game.state.find((v) => v.uuid === uuid)

@@ -1,12 +1,12 @@
 import { Dispatch } from 'redux'
-import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { setCamAudioState, setCamVideoState, setFaceTrackingState, setConsumers, setNearbyLayerUsers } from './actions'
 import Store from '@xrengine/client-core/src/store'
 
 const store = Store.store
 
 export const updateCamVideoState = () => {
-  const ms = MediaStreamSystem.instance
+  const ms = MediaStreams.instance
   if (!ms) changeCamVideoState(false)
 
   store.dispatch(setCamVideoState(ms != null && ms.camVideoProducer != null && !ms.videoPaused))
@@ -19,7 +19,7 @@ export const changeCamVideoState = (isEnable: boolean) => {
 }
 
 export const triggerUpdateConsumers = () => {
-  const ms = MediaStreamSystem.instance
+  const ms = MediaStreams.instance
   if (!ms) updateConsumers([])
 
   store.dispatch(setConsumers(ms != null ? ms.consumers : []))
@@ -32,7 +32,7 @@ export const updateConsumers = (consumers: any[]) => {
 }
 
 export const triggerUpdateNearbyLayerUsers = () => {
-  const ms = MediaStreamSystem.instance
+  const ms = MediaStreams.instance
   if (!ms) updateNearbyLayerUsers([])
 
   store.dispatch(setNearbyLayerUsers(ms != null ? ms.nearbyLayerUsers : []))
@@ -45,7 +45,7 @@ export const updateNearbyLayerUsers = (users: any[]) => {
 }
 
 export const updateCamAudioState = () => {
-  const ms = MediaStreamSystem.instance
+  const ms = MediaStreams.instance
   if (!ms) changeCamAudioState(false)
 
   store.dispatch(setCamAudioState(ms != null && ms.camAudioProducer != null && !ms.audioPaused))
@@ -58,7 +58,7 @@ export const changeCamAudioState = (isEnable: boolean) => {
 }
 
 export const updateFaceTrackingState = () => {
-  const ms = MediaStreamSystem.instance
+  const ms = MediaStreams.instance
   store.dispatch(setFaceTrackingState(ms && ms.faceTracking))
 }
 

@@ -7,7 +7,7 @@ import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/se
 import { selectMediastreamState } from '../../reducers/mediastream/selector'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { UserService } from '@xrengine/client-core/src/user/store/UserService'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { bindActionCreators, Dispatch } from 'redux'
 import { AnyNsRecord } from 'dns'
@@ -30,6 +30,8 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({})
 
 const PartyVideoWindows = (props: Props): JSX.Element => {
   const { authState, mediaStreamState } = props
+
+  const dispatch = useDispatch()
   const userState = useUserState().attach(Downgraded).value
 
   const [displayedUsers, setDisplayedUsers] = useState([] as User[])
@@ -37,6 +39,13 @@ const PartyVideoWindows = (props: Props): JSX.Element => {
   const nearbyLayerUsers = mediaStreamState.get('nearbyLayerUsers') ?? []
   const layerUsers = userState.layerUsers
   const channelLayerUsers = userState.channelLayerUsers
+
+  useEffect(() => {
+    if (selfUser?.instanceId != null && userState.layerUsersUpdateNeeded === true)
+      dispatch(UserService.getLayerUsers(true))
+    if (selfUser?.channelInstanceId != null && userState.channelLayerUsersUpdateNeeded === true)
+      dispatch(UserService.getLayerUsers(false))
+  }, [selfUser, userState.layerUsersUpdateNeeded, userState.channelLayerUsersUpdateNeeded])
 
   useEffect(() => {
     if ((Network.instance?.transport as any)?.channelType === 'channel')
@@ -57,12 +66,6 @@ const PartyVideoWindows = (props: Props): JSX.Element => {
       window.removeEventListener('resize', handleResize)
     }
   }) as any)
-
-  useEffect(() => {
-    if (selfUser.instanceId != null && userState.layerUsersUpdateNeeded === true) UserService.getLayerUsers(true)
-    if (selfUser.channelInstanceId != null && userState.channelLayerUsersUpdateNeeded === true)
-      UserService.getLayerUsers(false)
-  }, [userState.layerUsersUpdateNeeded, userState.channelLayerUsersUpdateNeeded])
 
   const toggleExpanded = () => setExpanded(!expanded)
 

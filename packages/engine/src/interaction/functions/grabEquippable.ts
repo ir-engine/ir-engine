@@ -10,6 +10,7 @@ import { getComponent } from '../../ecs/functions/EntityFunctions'
 
 /**
  * @author Josh Field <github.com/HexaField>
+ * TODO: needs refactoring
  */
 
 export const grabEquippable: Behavior = (

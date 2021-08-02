@@ -3,7 +3,7 @@ import { Prefab } from "../src/common/interfaces/Prefab";
 import { Component } from "../src/ecs/classes/Component";
 import { Engine } from "../src/ecs/classes/Engine";
 import { Entity } from "../src/ecs/classes/Entity";
-import { execute, resetEngine } from "../src/ecs/functions/EngineFunctions";
+import { execute, shutdownEngine } from "../src/ecs/functions/EngineFunctions";
 import { addComponent, createEntity } from "../src/ecs/functions/EntityFunctions";
 // import { initializeEngine } from "../src/initialize"; // TODO: this file has been moved to client-core
 import { Input } from "../src/input/components/Input";
@@ -97,7 +97,7 @@ test.skip("Engine reset should work", () => {
 
   jest.spyOn(Engine.eventDispatcher, 'reset')
 
-  resetEngine()
+  shutdownEngine()
 
   expect(Engine.renderer).toBeNull()
   expect(Engine.scene).toBeNull()

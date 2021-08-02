@@ -20,37 +20,25 @@ import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
-import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { FollowCameraComponent } from '@xrengine/engine/src/camera/components/FollowCameraComponent'
-import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent'
-import { ControllerColliderComponent } from '@xrengine/engine/src/character/components/ControllerColliderComponent'
+import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
 import { awaitEngaged, Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { processLocationChange, resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
-import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
-import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem'
+import { initializeEngine, shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
-import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema'
-import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem'
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
 import querystring from 'querystring'
 import React, { Suspense, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
-import { CameraLayers } from '@xrengine/engine/src/camera/constants/CameraLayers'
 import MediaIconsBox from '../../components/MediaIconsBox'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import {
@@ -198,7 +186,7 @@ export const EnginePage = (props: Props) => {
       )
       EngineEvents.instance.addEventListener(EngineEvents.EVENTS.RESET_ENGINE, async (ev: any) => {
         if (ev.instance === true) {
-          await resetEngine()
+          await shutdownEngine()
           resetInstanceServer()
           const currentLocation = locationState.get('currentLocation').get('location')
           locationId = currentLocation.id
@@ -313,18 +301,36 @@ export const EnginePage = (props: Props) => {
     }
   }, [appState])
 
+  // If user if on Firefox in Private Browsing mode, throw error, since they can't use db storage currently
+  useEffect(() => {
+    var db = indexedDB.open('test')
+    db.onerror = function () {
+      const newValues = {
+        ...warningRefreshModalValues,
+        open: true,
+        title: 'Browser Error',
+        body: 'Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode. ',
+        noCountdown: true
+      }
+      setWarningRefreshModalValues(newValues)
+      setInstanceDisconnected(false)
+    }
+  }, [])
+
   useEffect(() => {
     if (noGameserverProvision === true) {
       const currentLocation = locationState.get('currentLocation').get('location')
       const newValues = {
+        ...warningRefreshModalValues,
         open: true,
         title: 'No Available Servers',
         body: "There aren't any servers available for you to connect to. Attempting to re-connect in",
-        action: provisionInstanceServer,
+        action: async () => {
+          provisionInstanceServer()
+        },
         parameters: [currentLocation.id, instanceId, currentLocation.sceneId],
         timeout: 10000
       }
-      //@ts-ignore
       setWarningRefreshModalValues(newValues)
       setNoGameserverProvision(false)
     }
@@ -333,14 +339,14 @@ export const EnginePage = (props: Props) => {
   useEffect(() => {
     if (instanceDisconnected === true && !porting) {
       const newValues = {
+        ...warningRefreshModalValues,
         open: true,
         title: 'World disconnected',
         body: "You've lost your connection with the world. We'll try to reconnect before the following time runs out, otherwise you'll be forwarded to a different instance.",
-        action: window.location.reload,
+        action: async () => window.location.reload(),
         parameters: [],
         timeout: 30000
       }
-      //@ts-ignore
       setWarningRefreshModalValues(newValues)
       setInstanceDisconnected(false)
     }
@@ -349,12 +355,12 @@ export const EnginePage = (props: Props) => {
   useEffect(() => {
     if (instanceKicked === true) {
       const newValues = {
+        ...warningRefreshModalValues,
         open: true,
         title: "You've been kicked from the world",
         body: 'You were kicked from this world for the following reason: ' + instanceKickedMessage,
         noCountdown: true
       }
-      //@ts-ignore
       setWarningRefreshModalValues(newValues)
       setInstanceDisconnected(false)
     }
@@ -412,16 +418,7 @@ export const EnginePage = (props: Props) => {
     if (!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance')
 
     const connectPromise = new Promise<void>((resolve) => {
-      EngineEvents.instance.once(
-        EngineEvents.EVENTS.CONNECT_TO_WORLD,
-        async ({ worldState }: { worldState: WorldStateInterface }) => {
-          const localClient = worldState.clientsConnected.find((client) => {
-            return client.userId === Network.instance.userId
-          })
-          AssetLoader.load({ url: localClient.avatarDetail.avatarURL })
-          resolve()
-        }
-      )
+      EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, resolve)
     })
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
@@ -452,29 +449,25 @@ export const EnginePage = (props: Props) => {
 
     await awaitEngaged()
 
-    const worldState = await new Promise<any>(async (resolve) => {
-      if (Config.publicRuntimeConfig.offlineMode) {
-        EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId })
-        resolve(testWorldState)
-      } else {
-        // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
-        let spawnTransform
-        if (porting) {
-          spawnTransform = { position: newSpawnPos.spawnPosition, rotation: newSpawnPos.spawnRotation }
-        }
-
-        const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
-          MessageTypes.JoinWorld.toString(),
-          { spawnTransform }
-        )
-        resolve(WorldStateModel.fromBuffer(worldState))
+    await new Promise<void>(async (resolve) => {
+      // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
+      let spawnTransform
+      if (porting) {
+        spawnTransform = { position: newSpawnPos.spawnPosition, rotation: newSpawnPos.spawnRotation }
       }
+
+      const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
+        MessageTypes.JoinWorld.toString(),
+        { spawnTransform }
+      )
+      Network.instance.incomingMessageQueueReliable.add(worldState)
+      resolve()
     })
 
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS))
     setPorting(false)
 
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState })
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
   }
 
   const onSceneLoadedEntity = (left: number): void => {
@@ -517,7 +510,7 @@ export const EnginePage = (props: Props) => {
 
   useEffect(() => {
     return (): void => {
-      resetEngine()
+      shutdownEngine()
     }
   }, [])
 

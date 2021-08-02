@@ -6,10 +6,9 @@ import Slider from '@material-ui/core/Slider'
 import Typography from '@material-ui/core/Typography'
 // @ts-ignore
 import styles from '../UserMenu.module.scss'
-import { WebGLRendererSystem } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { useTranslation } from 'react-i18next'
-import { isMobile } from '../../../../../../engine/src/common/functions/isMobile'
 
 const SettingMenu = (props: any): JSX.Element => {
   const { t } = useTranslation()
@@ -71,9 +70,9 @@ const SettingMenu = (props: any): JSX.Element => {
                   resolution: value,
                   automatic: false
                 })
-                EngineEvents.instance.dispatchEvent({ type: WebGLRendererSystem.EVENTS.SET_RESOLUTION, payload: value })
+                EngineEvents.instance.dispatchEvent({ type: EngineRenderer.EVENTS.SET_RESOLUTION, payload: value })
                 EngineEvents.instance.dispatchEvent({
-                  type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC,
+                  type: EngineRenderer.EVENTS.SET_USE_AUTOMATIC,
                   payload: false
                 })
               }}
@@ -83,37 +82,6 @@ const SettingMenu = (props: any): JSX.Element => {
               step={0.125}
             />
           </div>
-          {isMobile ? (
-            <></>
-          ) : (
-            <div className={styles.row}>
-              <span className={styles.materialIconBlock}>
-                <CropOriginal color="primary" />
-              </span>
-              <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-shadow')}</span>
-              <Slider
-                value={props.graphics.shadows}
-                onChange={(_, value) => {
-                  props.setGraphicsSettings({
-                    shadows: value,
-                    automatic: false
-                  })
-                  EngineEvents.instance.dispatchEvent({
-                    type: WebGLRendererSystem.EVENTS.SET_SHADOW_QUALITY,
-                    payload: value
-                  })
-                  EngineEvents.instance.dispatchEvent({
-                    type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC,
-                    payload: false
-                  })
-                }}
-                className={styles.slider}
-                min={2}
-                max={5}
-                step={1}
-              />
-            </div>
-          )}
           <div className={`${styles.row} ${styles.flexWrap}`}>
             <FormControlLabel
               className={styles.checkboxBlock}
@@ -125,22 +93,36 @@ const SettingMenu = (props: any): JSX.Element => {
                   automatic: false
                 })
                 EngineEvents.instance.dispatchEvent({
-                  type: WebGLRendererSystem.EVENTS.SET_POST_PROCESSING,
+                  type: EngineRenderer.EVENTS.SET_POST_PROCESSING,
                   payload: value
                 })
                 EngineEvents.instance.dispatchEvent({
-                  type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC,
+                  type: EngineRenderer.EVENTS.SET_USE_AUTOMATIC,
                   payload: false
                 })
               }}
             />
-            <FormControlLabel
+            {/* <FormControlLabel
               className={styles.checkboxBlock}
               control={<Checkbox checked={props.graphics.pbr} size="small" />}
               label={t('user:usermenu.setting.lbl-pbr')}
               onChange={(_, value) => {
                 props.setGraphicsSettings({
                   pbr: value
+                })
+              }}
+            /> */}
+            <FormControlLabel
+              className={styles.checkboxBlock}
+              control={<Checkbox checked={props.graphics.pbr} size="small" />}
+              label={t('user:usermenu.setting.lbl-shadow')}
+              onChange={(_, value) => {
+                props.setGraphicsSettings({
+                  pbr: value
+                })
+                EngineEvents.instance.dispatchEvent({
+                  type: EngineRenderer.EVENTS.USE_SHADOWS,
+                  payload: value
                 })
               }}
             />
@@ -156,7 +138,7 @@ const SettingMenu = (props: any): JSX.Element => {
                   automatic: value
                 })
                 EngineEvents.instance.dispatchEvent({
-                  type: WebGLRendererSystem.EVENTS.SET_USE_AUTOMATIC,
+                  type: EngineRenderer.EVENTS.SET_USE_AUTOMATIC,
                   payload: value
                 })
               }}
