@@ -4,10 +4,13 @@ import { addObject3DComponent } from './addObject3DComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Interactable } from '../../interaction/components/Interactable'
 import VolumetricComponent from '../components/VolumetricComponent'
-import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import Video from '../classes/Video'
 import MediaComponent from '../components/MediaComponent'
 import AudioSource from '../classes/AudioSource'
+import CommonSlider from '../../../../client-core/src/common/components/Slider'
+import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
+import { applyAudioMediaSettings } from './handleAudioSettings'
 
 const isBrowser = new Function('try {return this===window;}catch(e){ return false;}')
 
@@ -54,6 +57,8 @@ export function createAudio(entity, args: AudioProps): void {
   addObject3DComponent(entity, audio, args)
   audio.load()
   addComponent(entity, MediaComponent)
+  addComponent(entity, PositionalAudioComponent)
+  applyAudioMediaSettings(getComponent(entity, PositionalAudioComponent).value)
   if (args.interactable) addComponent(entity, Interactable)
 }
 
