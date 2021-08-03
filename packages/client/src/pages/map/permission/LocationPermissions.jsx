@@ -1,5 +1,5 @@
 import React from 'react'
-import './LocationPermissions.css';
+import "./LocationPermissions.scss";
 import { ReactComponent as MapSvg } from './MapSvg.svg';
 
 const handleOpenMap = () => {
