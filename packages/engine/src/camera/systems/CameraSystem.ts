@@ -72,7 +72,18 @@ const followCameraBehavior = (entity: Entity, portCamera?: boolean) => {
 
   const followCamera = getMutableComponent(entity, FollowCameraComponent)
 
-  const inputComponent = getComponent(entity, Input)
+  if (CameraSystem.instance.updateCameraMode) {
+    let index = 0
+    for (const key of Object.keys(CameraModes)) {
+      if (index === CameraSystem.instance.cameraModeIndex && CameraSystem.instance.updateCameraMode) {
+        followCamera.mode = CameraModes[key]
+      }
+      index++
+    }
+    CameraSystem.instance.updateCameraMode = false
+  }
+
+  const inputComponent = getComponent(entity, Input) as Input
 
   // this is for future integration of MMO style pointer lock controls
   // const inputAxes = followCamera.mode === CameraModes.FirstPerson ? BaseInput.MOUSE_MOVEMENT : BaseInput.LOOKTURN_PLAYERONE
@@ -86,26 +97,35 @@ const followCameraBehavior = (entity: Entity, portCamera?: boolean) => {
     followCamera.theta = (theta * 180) / Math.PI + 180
   }
 
-  followCamera.theta -= inputValue[0] * (isMobile ? 60 : 100)
-  followCamera.theta %= 360
+  if (followCamera.mode !== CameraModes.Isometric) {
+    followCamera.theta -= inputValue[0] * (isMobile ? 60 : 100)
+    followCamera.theta %= 360
 
-  followCamera.phi -= inputValue[1] * (isMobile ? 60 : 100)
-  followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi))
+    followCamera.phi -= inputValue[1] * (isMobile ? 60 : 100)
+    followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi))
+  }
 
   let camDist = followCamera.distance
   if (followCamera.mode === CameraModes.FirstPerson) camDist = 0.01
   else if (followCamera.mode === CameraModes.ShoulderCam) camDist = followCamera.minDistance
   else if (followCamera.mode === CameraModes.TopDown) camDist = followCamera.maxDistance
 
-  const phi = followCamera.mode === CameraModes.TopDown ? 85 : followCamera.phi
+  let phi = followCamera.mode === CameraModes.TopDown ? 85 : followCamera.phi
+  phi = followCamera.mode === CameraModes.Isometric ? 150 : phi
+  const theta = followCamera.mode === CameraModes.Isometric ? 180 : followCamera.theta
 
-  const shoulderOffset = followCamera.shoulderSide ? -0.2 : 0.2
+  // Replaced code with this
+  const camInitialHeight =
+    followCamera.mode === CameraModes.Isometric ? actor.actorHeight * 2 : actor.actorHeight + 0.25
+  const camInitialZOffset = followCamera.mode === CameraModes.Isometric ? -3 : 0
+  vec3.set(followCamera.shoulderSide ? -0.2 : 0.2, camInitialHeight, camInitialZOffset)
+  // const shoulderOffset = followCamera.shoulderSide ? -0.2 : 0.2
 
-  if (followCamera.mode === CameraModes.FirstPerson) {
-    vec3.set(0, actor.actorHeight, 0)
-  } else {
-    vec3.set(shoulderOffset, actor.actorHeight + 0.25, 0)
-  }
+  // if (followCamera.mode === CameraModes.FirstPerson) {
+  //   vec3.set(0, actor.actorHeight, 0)
+  // } else {
+  //   vec3.set(shoulderOffset, actor.actorHeight + 0.25, 0)
+  // }
   vec3.applyQuaternion(actorTransform.rotation)
   vec3.add(actorTransform.position)
 
@@ -118,7 +138,12 @@ const followCameraBehavior = (entity: Entity, portCamera?: boolean) => {
   const closestHit = followCamera.raycastQuery.hits[0]
   followCamera.rayHasHit = typeof closestHit !== 'undefined'
 
-  if (followCamera.mode !== CameraModes.FirstPerson && followCamera.rayHasHit && closestHit.distance < camDist) {
+  if (
+    followCamera.mode !== CameraModes.FirstPerson &&
+    followCamera.mode !== CameraModes.Isometric &&
+    followCamera.rayHasHit &&
+    closestHit.distance < camDist
+  ) {
     if (closestHit.distance < 0.5) {
       camDist = closestHit.distance
     } else {
@@ -127,9 +152,9 @@ const followCameraBehavior = (entity: Entity, portCamera?: boolean) => {
   }
 
   cameraDesiredTransform.position.set(
-    vec3.x + camDist * Math.sin(followCamera.theta * PI_2Deg) * Math.cos(phi * PI_2Deg),
+    vec3.x + camDist * Math.sin(theta * PI_2Deg) * Math.cos(phi * PI_2Deg),
     vec3.y + camDist * Math.sin(phi * PI_2Deg),
-    vec3.z + camDist * Math.cos(followCamera.theta * PI_2Deg) * Math.cos(phi * PI_2Deg)
+    vec3.z + camDist * Math.cos(theta * PI_2Deg) * Math.cos(phi * PI_2Deg)
   )
 
   direction.copy(cameraDesiredTransform.position).sub(vec3).normalize()
@@ -167,6 +192,8 @@ export const resetFollowCamera = () => {
 export class CameraSystem extends System {
   prevState = [0, 0] as NumericalType
 
+  cameraModeIndex: number
+  updateCameraMode: boolean
   portCamera: boolean = false
 
   /** Constructs camera system. */
@@ -186,6 +213,16 @@ export class CameraSystem extends System {
         resetFollowCamera()
       }
     })
+  }
+
+  /**
+   * Update the camera type of the active camera on next frame.
+   *
+   * @param index of mode to use from CameraModes
+   */
+  updateCameraType(cameraModeIndex: number) {
+    this.cameraModeIndex = cameraModeIndex
+    this.updateCameraMode = true
   }
 
   /**

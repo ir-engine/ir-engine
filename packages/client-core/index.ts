@@ -688,6 +688,7 @@ export { default as srcWorldComponentsEditorPropertiesParticleEmitterNodeEditor 
 export { default as srcWorldComponentsEditorPropertiesPointLightNodeEditor } from './src/world/components/editor/properties/PointLightNodeEditor';
 export { default as srcWorldComponentsEditorPropertiesPortalNodeEditor } from './src/world/components/editor/properties/PortalNodeEditor';
 export { default as srcWorldComponentsEditorPropertiesPostProcessingNodeEditor } from './src/world/components/editor/properties/PostProcessingNodeEditor';
+export { default as srcWorldComponentsEditorPropertiesCameraPropertiesNodeEditor } from './src/world/components/editor/properties/CameraPropertiesNodeEditor';
 export { default as srcWorldComponentsEditorPropertiesPropertiesPanelContainer } from './src/world/components/editor/properties/PropertiesPanelContainer';
 export { default as srcWorldComponentsEditorPropertiesPropertyGroup } from './src/world/components/editor/properties/PropertyGroup';
 export { default as srcWorldComponentsEditorPropertiesReflectionProbeNodeEditor } from './src/world/components/editor/properties/ReflectionProbeNodeEditor';
