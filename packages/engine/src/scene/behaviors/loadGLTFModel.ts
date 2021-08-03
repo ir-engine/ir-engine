@@ -98,9 +98,11 @@ export const loadGLTFModel = (
               })
             }
 
-            res.traverse((child) => {
-              child.matrixAutoUpdate = component.data.matrixAutoUpdate
-            })
+            if (typeof component.data.matrixAutoUpdate !== 'undefined' && component.data.matrixAutoUpdate === false) {
+              res.traverse((child) => {
+                child.matrixAutoUpdate = component.data.matrixAutoUpdate
+              })
+            }
 
             sceneLoader._onModelLoaded()
             resolve()
