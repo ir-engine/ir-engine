@@ -51,7 +51,7 @@ export function Timer(
   let updateInterval
 
   function xrAnimationLoop(time, xrFrame) {
-    XRSystem.instance.xrFrame = xrFrame
+    Engine.xrFrame = xrFrame
     if (lastAnimTime !== null) {
       frameDelta = (time - lastAnimTime) / 1000
       accumulated = accumulated + frameDelta

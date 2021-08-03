@@ -48,8 +48,6 @@ export default function (app: Application): void {
           userId: user.id
         }
       })
-      console.log('Banned party-user')
-      console.log(partyUser)
       if (partyUser.total > 0) {
         const { query, ...paramsCopy } = params as any
         paramsCopy.skipAuth = true

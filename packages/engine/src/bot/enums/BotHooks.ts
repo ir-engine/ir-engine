@@ -1,7 +1,8 @@
 export enum BotHooks {
   InitializeBot = 'BotHooks_InitializeBot',
   LocationLoaded = 'BotHooks_LocationLoaded',
-  GetPlayerPosition = 'BotHooks_GetPlayerPosition'
+  GetPlayerPosition = 'BotHooks_GetPlayerPosition',
+  RotatePlayer = 'BotHooks_RotatePlayer'
 }
 
 export enum XRBotHooks {

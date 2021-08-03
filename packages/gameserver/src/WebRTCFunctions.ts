@@ -1,8 +1,8 @@
 import os from 'os'
-import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { Network } from '@xrengine/engine/src/networking//classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import getNearbyUsers from '@xrengine/engine/src/networking/functions/getNearbyUsers'
+import { getNearbyUsers } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
 import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTransportParams'
 import { createWorker } from 'mediasoup'
 import {
@@ -198,8 +198,8 @@ export async function closeProducer(producer): Promise<void> {
   logger.info('closing producer ' + producer.id, producer.appData)
   await producer.close()
 
-  if (MediaStreamSystem.instance)
-    MediaStreamSystem.instance.producers = MediaStreamSystem.instance?.producers.filter((p) => p.id !== producer.id)
+  if (MediaStreams.instance)
+    MediaStreams.instance.producers = MediaStreams.instance?.producers.filter((p) => p.id !== producer.id)
 
   if (Network.instance.clients[producer.appData.peerId])
     delete Network.instance.clients[producer.appData.peerId].media[producer.appData.mediaTag]
@@ -210,17 +210,17 @@ export async function closeProducerAndAllPipeProducers(producer): Promise<void> 
     console.log('closing producer and all pipe producer ' + producer.id, producer.appData)
 
     // remove this producer from our roomState.producers list
-    if (MediaStreamSystem.instance)
-      MediaStreamSystem.instance.producers = MediaStreamSystem.instance?.producers.filter((p) => p.id !== producer.id)
+    if (MediaStreams.instance)
+      MediaStreams.instance.producers = MediaStreams.instance?.producers.filter((p) => p.id !== producer.id)
 
     // finally, close the original producer
     await producer.close()
 
     // remove this producer from our roomState.producers list
-    if (MediaStreamSystem.instance)
-      MediaStreamSystem.instance.producers = MediaStreamSystem.instance?.producers.filter((p) => p.id !== producer.id)
-    if (MediaStreamSystem.instance)
-      MediaStreamSystem.instance.consumers = MediaStreamSystem.instance?.consumers.filter(
+    if (MediaStreams.instance)
+      MediaStreams.instance.producers = MediaStreams.instance?.producers.filter((p) => p.id !== producer.id)
+    if (MediaStreams.instance)
+      MediaStreams.instance.consumers = MediaStreams.instance?.consumers.filter(
         (c) => !(c.appData.mediaTag === producer.appData.mediaTag && c._internal.producerId === producer.id)
       )
 
@@ -233,8 +233,8 @@ export async function closeConsumer(consumer): Promise<void> {
   logger.info('closing consumer', consumer.id)
   await consumer.close()
 
-  if (MediaStreamSystem.instance)
-    MediaStreamSystem.instance.consumers = MediaStreamSystem.instance?.consumers.filter((c) => c.id !== consumer.id)
+  if (MediaStreams.instance)
+    MediaStreams.instance.consumers = MediaStreams.instance?.consumers.filter((c) => c.id !== consumer.id)
   Object.entries(Network.instance.clients).forEach(([, value]) => {
     value.socket.emit(MessageTypes.WebRTCCloseConsumer.toString(), consumer.id)
   })
@@ -470,7 +470,7 @@ export async function handleWebRtcTransportConnect(socket, data, callback): Prom
 
 export async function handleWebRtcCloseProducer(socket, data, callback): Promise<any> {
   const { producerId } = data,
-    producer = MediaStreamSystem.instance?.producers.find((p) => p.id === producerId)
+    producer = MediaStreams.instance?.producers.find((p) => p.id === producerId)
   await closeProducerAndAllPipeProducers(producer).catch((err) => logger.error(err))
   callback({ closed: true })
 }
@@ -509,8 +509,8 @@ export async function handleWebRtcSendTrack(socket, data, callback): Promise<any
 
     producer.on('transportclose', () => closeProducerAndAllPipeProducers(producer))
 
-    if (!MediaStreamSystem.instance?.producers) console.warn('Media stream producers is undefined')
-    MediaStreamSystem.instance?.producers?.push(producer)
+    if (!MediaStreams.instance?.producers) console.warn('Media stream producers is undefined')
+    MediaStreams.instance?.producers?.push(producer)
 
     if (userId != null && Network.instance.clients[userId] != null) {
       Network.instance.clients[userId].media[appData.mediaTag] = {
@@ -546,7 +546,7 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
   networkTransport = Network.instance.transport as any
   const userId = getUserIdFromSocketId(socket.id)
   const { mediaPeerId, mediaTag, rtpCapabilities, channelType, channelId } = data
-  const producer = MediaStreamSystem.instance.producers.find(
+  const producer = MediaStreams.instance.producers.find(
     (p) =>
       p._appData.mediaTag === mediaTag &&
       p._appData.peerId === mediaPeerId &&
@@ -613,7 +613,7 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
       })
 
       // stick this consumer in our list of consumers to keep track of
-      MediaStreamSystem.instance?.consumers.push(consumer)
+      MediaStreams.instance?.consumers.push(consumer)
 
       if (Network.instance.clients[userId] != null)
         Network.instance.clients[userId].consumerLayers[consumer.id] = {
@@ -649,7 +649,7 @@ export async function handleWebRtcReceiveTrack(socket, data, callback): Promise<
 
 export async function handleWebRtcPauseConsumer(socket, data, callback): Promise<any> {
   const { consumerId } = data,
-    consumer = MediaStreamSystem.instance?.consumers.find((c) => c.id === consumerId)
+    consumer = MediaStreams.instance?.consumers.find((c) => c.id === consumerId)
   if (consumer != null) {
     Network.instance.mediasoupOperationQueue.add({
       object: consumer,
@@ -661,7 +661,7 @@ export async function handleWebRtcPauseConsumer(socket, data, callback): Promise
 
 export async function handleWebRtcResumeConsumer(socket, data, callback): Promise<any> {
   const { consumerId } = data,
-    consumer = MediaStreamSystem.instance?.consumers.find((c) => c.id === consumerId)
+    consumer = MediaStreams.instance?.consumers.find((c) => c.id === consumerId)
   if (consumer != null) {
     Network.instance.mediasoupOperationQueue.add({
       object: consumer,
@@ -673,7 +673,7 @@ export async function handleWebRtcResumeConsumer(socket, data, callback): Promis
 
 export async function handleWebRtcCloseConsumer(socket, data, callback): Promise<any> {
   const { consumerId } = data,
-    consumer = MediaStreamSystem.instance?.consumers.find((c) => c.id === consumerId)
+    consumer = MediaStreams.instance?.consumers.find((c) => c.id === consumerId)
   logger.info(`Close Consumer handler: ${consumerId}`)
   if (consumer != null) await closeConsumer(consumer)
   callback({ closed: true })
@@ -681,7 +681,7 @@ export async function handleWebRtcCloseConsumer(socket, data, callback): Promise
 
 export async function handleWebRtcConsumerSetLayers(socket, data, callback): Promise<any> {
   const { consumerId, spatialLayer } = data,
-    consumer = MediaStreamSystem.instance?.consumers.find((c) => c.id === consumerId)
+    consumer = MediaStreams.instance?.consumers.find((c) => c.id === consumerId)
   logger.info('consumer-set-layers: ', spatialLayer, consumer.appData)
   await consumer.setPreferredLayers({ spatialLayer })
   callback({ layersSet: true })
@@ -690,7 +690,7 @@ export async function handleWebRtcConsumerSetLayers(socket, data, callback): Pro
 export async function handleWebRtcResumeProducer(socket, data, callback): Promise<any> {
   const userId = getUserIdFromSocketId(socket.id)
   const { producerId } = data,
-    producer = MediaStreamSystem.instance?.producers.find((p) => p.id === producerId)
+    producer = MediaStreams.instance?.producers.find((p) => p.id === producerId)
   logger.info('resume-producer', producer?.appData)
   if (producer != null) {
     Network.instance.mediasoupOperationQueue.add({
@@ -713,7 +713,7 @@ export async function handleWebRtcResumeProducer(socket, data, callback): Promis
 export async function handleWebRtcPauseProducer(socket, data, callback): Promise<any> {
   const userId = getUserIdFromSocketId(socket.id)
   const { producerId, globalMute } = data,
-    producer = MediaStreamSystem.instance?.producers.find((p) => p.id === producerId)
+    producer = MediaStreams.instance?.producers.find((p) => p.id === producerId)
   if (producer != null) {
     Network.instance.mediasoupOperationQueue.add({
       object: producer,

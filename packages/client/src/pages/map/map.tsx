@@ -15,42 +15,29 @@ import { selectLocationState } from '@xrengine/client-core/src/social/reducers/l
 import { getLobby, getLocationByName } from '@xrengine/client-core/src/social/reducers/location/service'
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
 import Store from '@xrengine/client-core/src/store'
-import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
-import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
-import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { FollowCameraComponent } from '@xrengine/engine/src/camera/components/FollowCameraComponent'
-import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent'
-import { ControllerColliderComponent } from '@xrengine/engine/src/character/components/ControllerColliderComponent'
+import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
 import { awaitEngaged, Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { processLocationChange, resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
-import { addComponent, getComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
+import { initializeEngine, shutdownEngine } from '@xrengine/engine/src/initializeEngine'
+import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
-import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema'
-import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem'
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import querystring from 'querystring'
 import React, { Suspense, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
-import { CameraLayers } from '../../../../engine/src/camera/constants/CameraLayers'
 import WarningRefreshModal from '../../components/AlertModals/WarningRetryModal'
-import MediaIconsBox from './MapMediaIconsBox'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import {
   connectToInstanceServer,
@@ -58,6 +45,9 @@ import {
   resetInstanceServer
 } from '../../reducers/instanceConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
+import MediaIconsBox from './MapMediaIconsBox'
+import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
+import { teleportToScene } from '../../../../engine/src/scene/functions/teleportToScene'
 
 const store = Store.store
 
@@ -112,7 +102,6 @@ if (globalThis.process?.env.NODE_ENV === 'development') {
 interface Props {
   setAppLoaded?: any
   sceneId?: string
-  userState?: any
   deviceState?: any
   locationName: string
   appState?: any
@@ -128,12 +117,11 @@ interface Props {
   resetInstanceServer?: typeof resetInstanceServer
   setCurrentScene?: typeof setCurrentScene
   harmonyOpen?: boolean
-  enableSharing: boolean
+  enableSharing?: boolean
 }
 
 const mapStateToProps = (state: any) => {
   return {
-    userState: selectUserState(state),
     appState: selectAppState(state),
     deviceState: selectDeviceDetectState(state),
     authState: selectAuthState(state),
@@ -161,7 +149,6 @@ export const EnginePage = (props: Props) => {
     authState,
     locationState,
     partyState,
-    userState,
     deviceState,
     instanceConnectionState,
     doLoginAuto,
@@ -177,16 +164,10 @@ export const EnginePage = (props: Props) => {
   } = props
 
   const [userBanned, setUserBannedState] = useState(false)
-  const [openLinkData, setOpenLinkData] = useState(null)
 
   const [progressEntity, setProgressEntity] = useState(99)
-  const [userHovered, setonUserHover] = useState(false)
-  const [userId, setonUserId] = useState(null)
-  const [position, setonUserPosition] = useState(null)
-  const [objectHovered, setObjectHovered] = useState(false)
 
   const [isValidLocation, setIsValidLocation] = useState(true)
-  const [isInXR, setIsInXR] = useState(false)
   const [warningRefreshModalValues, setWarningRefreshModalValues] = useState(initialRefreshModalValues)
   const [noGameserverProvision, setNoGameserverProvision] = useState(false)
   const [instanceDisconnected, setInstanceDisconnected] = useState(false)
@@ -194,7 +175,7 @@ export const EnginePage = (props: Props) => {
   const [instanceKickedMessage, setInstanceKickedMessage] = useState('')
   const [isInputEnabled, setInputEnabled] = useState(true)
   const [porting, setPorting] = useState(false)
-  const [newSpawnPos, setNewSpawnPos] = useState(null)
+  const [newSpawnPos, setNewSpawnPos] = useState<PortalComponent>(null)
 
   const appLoaded = appState.get('loaded')
   const selfUser = authState.get('user')
@@ -224,7 +205,7 @@ export const EnginePage = (props: Props) => {
       )
       EngineEvents.instance.addEventListener(EngineEvents.EVENTS.RESET_ENGINE, async (ev: any) => {
         if (ev.instance === true) {
-          await resetEngine()
+          await shutdownEngine()
           resetInstanceServer()
           const currentLocation = locationState.get('currentLocation').get('location')
           locationId = currentLocation.id
@@ -339,18 +320,36 @@ export const EnginePage = (props: Props) => {
     }
   }, [appState])
 
+  // If user if on Firefox in Private Browsing mode, throw error, since they can't use db storage currently
+  useEffect(() => {
+    var db = indexedDB.open('test')
+    db.onerror = function () {
+      const newValues = {
+        ...warningRefreshModalValues,
+        open: true,
+        title: 'Browser Error',
+        body: 'Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode. ',
+        noCountdown: true
+      }
+      setWarningRefreshModalValues(newValues)
+      setInstanceDisconnected(false)
+    }
+  }, [])
+
   useEffect(() => {
     if (noGameserverProvision === true) {
       const currentLocation = locationState.get('currentLocation').get('location')
       const newValues = {
+        ...warningRefreshModalValues,
         open: true,
         title: 'No Available Servers',
         body: "There aren't any servers available for you to connect to. Attempting to re-connect in",
-        action: provisionInstanceServer,
+        action: async () => {
+          provisionInstanceServer()
+        },
         parameters: [currentLocation.id, instanceId, currentLocation.sceneId],
         timeout: 10000
       }
-      //@ts-ignore
       setWarningRefreshModalValues(newValues)
       setNoGameserverProvision(false)
     }
@@ -359,28 +358,44 @@ export const EnginePage = (props: Props) => {
   useEffect(() => {
     if (instanceDisconnected === true && !porting) {
       const newValues = {
+        ...warningRefreshModalValues,
         open: true,
         title: 'World disconnected',
         body: "You've lost your connection with the world. We'll try to reconnect before the following time runs out, otherwise you'll be forwarded to a different instance.",
-        action: window.location.reload,
+        action: async () => window.location.reload(),
         parameters: [],
         timeout: 30000
       }
-      //@ts-ignore
       setWarningRefreshModalValues(newValues)
       setInstanceDisconnected(false)
     }
   }, [instanceDisconnected])
 
+  // If user if on Firefox in Private Browsing mode, throw error, since they can't use db storage currently
+  useEffect(() => {
+    var db = indexedDB.open('test')
+    db.onerror = function () {
+      const newValues = {
+        ...warningRefreshModalValues,
+        open: true,
+        title: 'Browser Error',
+        body: 'Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode. ',
+        noCountdown: true
+      }
+      setWarningRefreshModalValues(newValues)
+      setInstanceDisconnected(false)
+    }
+  }, [])
+
   useEffect(() => {
     if (instanceKicked === true) {
       const newValues = {
+        ...warningRefreshModalValues,
         open: true,
         title: "You've been kicked from the world",
         body: 'You were kicked from this world for the following reason: ' + instanceKickedMessage,
         noCountdown: true
       }
-      //@ts-ignore
       setWarningRefreshModalValues(newValues)
       setInstanceDisconnected(false)
     }
@@ -438,16 +453,7 @@ export const EnginePage = (props: Props) => {
     if (!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance')
 
     const connectPromise = new Promise<void>((resolve) => {
-      EngineEvents.instance.once(
-        EngineEvents.EVENTS.CONNECT_TO_WORLD,
-        async ({ worldState }: { worldState: WorldStateInterface }) => {
-          const localClient = worldState.clientsConnected.find((client) => {
-            return client.userId === Network.instance.userId
-          })
-          AssetLoader.load({ url: localClient.avatarDetail.avatarURL })
-          resolve()
-        }
-      )
+      EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, resolve)
     })
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
@@ -466,46 +472,34 @@ export const EnginePage = (props: Props) => {
 
     await Promise.all([connectPromise, sceneLoadPromise])
 
-    try {
-      // event logic hook must be in the form of `export async function [locationName] {}`
-      const event = await import(/* @vite-ignore */ `../Events/${locationName}.tsx`)
-      await event[locationName]()
-    } catch (e) {
-      console.log('could not run event specific logic', locationName, e)
-    }
-
     store.dispatch(setAppSpecificOnBoardingStep(GeneralStateList.AWAITING_INPUT, false))
 
     await awaitEngaged()
 
-    const worldState = await new Promise<any>(async (resolve) => {
-      if (Config.publicRuntimeConfig.offlineMode) {
-        EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId })
-        resolve(testWorldState)
-      } else {
-        // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
-        let spawnTransform
-        if (porting) {
-          spawnTransform = { position: newSpawnPos.spawnPosition, rotation: newSpawnPos.spawnRotation }
-        }
-
-        const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
-          MessageTypes.JoinWorld.toString(),
-          { spawnTransform }
-        )
-        resolve(WorldStateModel.fromBuffer(worldState))
+    await new Promise<void>(async (resolve) => {
+      // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
+      let spawnTransform
+      if (porting) {
+        spawnTransform = { position: newSpawnPos.spawnPosition, rotation: newSpawnPos.spawnRotation }
       }
-    })
 
+      const { worldState } = await (Network.instance.transport as SocketWebRTCClientTransport).instanceRequest(
+        MessageTypes.JoinWorld.toString(),
+        { spawnTransform }
+      )
+      console.log('world state is', worldState)
+      Network.instance.incomingMessageQueueReliable.add(worldState)
+      resolve()
+    })
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS))
     setPorting(false)
 
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState })
+    // WTF IS GOING ON HEREEEE
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
   }
 
   useEffect(() => {
-    EngineEvents.instance.dispatchEvent({
-      type: ClientInputSystem.EVENTS.ENABLE_INPUT,
+    enableInput({
       keyboard: isInputEnabled,
       mouse: isInputEnabled
     })
@@ -515,11 +509,13 @@ export const EnginePage = (props: Props) => {
     setProgressEntity(left || 0)
   }
 
-  const portToLocation = async ({ portalComponent }: { portalComponent: PortalProps }) => {
-    // console.log('portToLocation', slugifiedName, portalComponent);
-
+  const portToLocation = async ({ portalComponent }: { portalComponent: PortalComponent }) => {
     if (slugifiedName === portalComponent.location) {
-      teleportPlayer(Network.instance.localClientEntity, portalComponent.spawnPosition, portalComponent.spawnRotation)
+      teleportPlayer(
+        Network.instance.localClientEntity,
+        portalComponent.remoteSpawnPosition,
+        portalComponent.remoteSpawnRotation
+      )
       return
     }
 
@@ -528,48 +524,13 @@ export const EnginePage = (props: Props) => {
     resetInstanceServer()
     Network.instance.transport.close()
 
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
+    await teleportToScene(portalComponent, async () => {
+      await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'))
 
-    // remove controller since physics world will be destroyed and we don't want it moving
-    PhysicsSystem.instance.removeController(
-      getComponent(Network.instance.localClientEntity, ControllerColliderComponent).controller
-    )
-    removeComponent(Network.instance.localClientEntity, ControllerColliderComponent)
-
-    // Handle Camera transition while player is moving
-    // Remove the follow component, and attach the camera to the player, so it moves with them without causing discomfort while in VR
-    removeComponent(Network.instance.localClientEntity, FollowCameraComponent)
-    const camParent = Engine.camera.parent
-    if (camParent) Engine.camera.removeFromParent()
-    Engine.camera.layers.disable(CameraLayers.Scene)
-
-    // change our browser URL
-    history.replace('/location/' + portalComponent.location)
-    setNewSpawnPos(portalComponent)
-
-    await processLocationChange(new Worker('/scripts/loadPhysXClassic.js'))
-
-    getLocationByName(portalComponent.location)
-
-    // add back the collider using previous parameters
-    EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
-      // teleport player to where the portal is
-      const transform = getComponent(Network.instance.localClientEntity, TransformComponent)
-      const actor = getComponent(Network.instance.localClientEntity, CharacterComponent)
-      transform.position.set(
-        portalComponent.spawnPosition.x,
-        portalComponent.spawnPosition.y + actor.actorHalfHeight,
-        portalComponent.spawnPosition.z
-      )
-      transform.rotation.copy(portalComponent.spawnRotation)
-
-      addComponent(Network.instance.localClientEntity, ControllerColliderComponent)
-
-      addComponent(Network.instance.localClientEntity, FollowCameraComponent)
-      if (camParent) camParent.add(Engine.camera)
-      Engine.camera.layers.enable(CameraLayers.Scene)
-
-      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: true })
+      // change our browser URL
+      history.replace('/location/' + portalComponent.location)
+      setNewSpawnPos(portalComponent)
+      getLocationByName(portalComponent.location)
     })
   }
 
@@ -584,7 +545,7 @@ export const EnginePage = (props: Props) => {
           ;`<p>${log}</p>`
         })
         .join()
-      resetEngine()
+      shutdownEngine()
     }
   }, [])
 

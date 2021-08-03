@@ -86,6 +86,26 @@ export function getComponentTypes(entity: Entity): Array<Component<any>> {
 }
 
 /**
+ * Get all the components of given type currently registered in the engine
+ * @author Nayankumar Patel
+ * @param componentType Type of components to be retrived
+ * @returns all the components of given type
+ */
+export function getAllMutableComponentOfType<C extends Component<C>>(componentType: ComponentConstructor<C>): C[] {
+  const portalComps = []
+
+  Engine.entities.forEach((entity: Entity) => {
+    const portalComponent = getMutableComponent(entity, componentType)
+
+    if (!portalComponent) return
+
+    portalComps.push(portalComponent)
+  })
+
+  return portalComps
+}
+
+/**
  * Add a component to an entity.
  *
  * @author Fernando Serrano, Robert Long
@@ -366,14 +386,14 @@ export function getComponent<C extends Component<C>>(
   entity: Entity,
   component: ComponentConstructor<C>,
   includeRemoved?: boolean
-): Readonly<C> {
+): C {
   let _component = entity.components[component._typeId]
 
   if (!_component && includeRemoved) {
     _component = entity.componentsToRemove[component._typeId]
   }
 
-  return process.env.NODE_ENV !== 'production' ? wrapImmutableComponent(_component) : <C>_component
+  return <C>_component
 }
 
 /**

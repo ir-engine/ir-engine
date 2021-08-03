@@ -1,4 +1,4 @@
-import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkTransport } from '@xrengine/engine/src/networking/interfaces/NetworkTransport'
@@ -15,7 +15,7 @@ import {
   subscribeToTrack
 } from './SocketWebRTCClientFunctions'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem'
+import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem'
 import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema'
 import { closeConsumer } from './SocketWebRTCClientFunctions'
 import { triggerUpdateNearbyLayerUsers } from '../reducers/mediastream/service'
@@ -128,7 +128,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts
     console.log('******* GAMESERVER PORT IS', port)
     Network.instance.accessToken = query.token = token
-    EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: user.id })
+    EngineEvents.instance.dispatchEvent({ type: ClientNetworkStateSystem.EVENTS.CONNECT, id: user.id })
 
     this.mediasoupDevice = new mediasoupClient.Device()
     if (socket && socket.close) socket.close()
@@ -196,7 +196,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         return
       }
       const { worldState, routerRtpCapabilities } = ConnectToWorldResponse as any
-
+      Network.instance.incomingMessageQueueReliable.add(worldState)
       EngineEvents.instance.dispatchEvent({
         type: EngineEvents.EVENTS.CONNECT_TO_WORLD,
         worldState: WorldStateModel.fromBuffer(worldState),
@@ -272,15 +272,15 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         MessageTypes.WebRTCCreateProducer.toString(),
         async (socketId, mediaTag, producerId, channelType, channelId) => {
           const selfProducerIds = [
-            MediaStreamSystem.instance?.camVideoProducer?.id,
-            MediaStreamSystem.instance?.camAudioProducer?.id
+            MediaStreams.instance?.camVideoProducer?.id,
+            MediaStreams.instance?.camAudioProducer?.id
           ]
           if (
             // (MediaStreamSystem.mediaStream !== null) &&
             producerId != null &&
             channelType === self.channelType &&
             selfProducerIds.indexOf(producerId) < 0
-            // (MediaStreamSystem.instance?.consumers?.find(
+            // (MediaStreams.instance?.consumers?.find(
             //   c => c?.appData?.peerId === socketId && c?.appData?.mediaTag === mediaTag
             // ) == null /*&&
             //   (channelType === 'instance' ? this.channelType === 'instance' : this.channelType === channelType && this.channelId === channelId)*/)
@@ -292,11 +292,9 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
       )
 
       socket.on(MessageTypes.WebRTCCloseConsumer.toString(), async (consumerId) => {
-        if (MediaStreamSystem.instance)
-          MediaStreamSystem.instance.consumers = MediaStreamSystem.instance?.consumers.filter(
-            (c) => c.id !== consumerId
-          )
-        EngineEvents.instance.dispatchEvent({ type: MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS })
+        if (MediaStreams.instance)
+          MediaStreams.instance.consumers = MediaStreams.instance?.consumers.filter((c) => c.id !== consumerId)
+        EngineEvents.instance.dispatchEvent({ type: MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS })
       })
 
       // Init Receive and Send Transports initially since we need them for unreliable message consumption and production
@@ -319,11 +317,11 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
         })
       })
 
-      EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.UPDATE_NEARBY_LAYER_USERS, async () => {
+      EngineEvents.instance.addEventListener(MediaStreams.EVENTS.UPDATE_NEARBY_LAYER_USERS, async () => {
         await request(MessageTypes.WebRTCRequestCurrentProducers.toString(), { channelType: 'instance' })
         triggerUpdateNearbyLayerUsers()
       })
-      EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.CLOSE_CONSUMER, (consumer) => {
+      EngineEvents.instance.addEventListener(MediaStreams.EVENTS.CLOSE_CONSUMER, (consumer) => {
         console.log('closeConsumer', consumer)
         closeConsumer(consumer.consumer)
       })

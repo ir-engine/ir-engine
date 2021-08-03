@@ -42,7 +42,7 @@ export default (app: Application): any => {
   ;(entity as any).associate = (models: any): void => {
     ;(entity as any).hasMany(models.component, { foreignKey: 'entityId', required: false, constraints: false })
     // Temporarily remove assocation
-    // (entity as any).belongsTo(models.collection, { foreignKey: 'collectionId', required: false, constraints: false });
+    ;(entity as any).belongsTo(models.collection, { foreignKey: 'collectionId', required: false, constraints: false })
   }
 
   return entity

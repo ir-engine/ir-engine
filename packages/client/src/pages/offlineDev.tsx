@@ -7,11 +7,12 @@ import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
 import Store from '@xrengine/client-core/src/store'
 import { testScenes, testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem'
+import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
 import React, { useEffect, useState } from 'react'
 import { InitializeOptions } from '../../../engine/src/initializationOptions'
+import { Network } from '../../../engine/src/networking/classes/Network'
 
 const canvasStyle = {
   zIndex: 0,
@@ -69,14 +70,15 @@ const DevPage = () => {
       })
     })
 
-    const getWorldState = new Promise<any>((resolve) => {
-      EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId })
-      resolve(testWorldState)
+    const getWorldState = new Promise<void>((resolve) => {
+      EngineEvents.instance.dispatchEvent({ type: ClientNetworkStateSystem.EVENTS.CONNECT, id: testUserId })
+      Network.instance.incomingMessageQueueReliable.add(testWorldState)
+      resolve()
     })
 
-    const [sceneLoaded, worldState] = await Promise.all([loadScene, getWorldState])
+    await Promise.all([loadScene, getWorldState])
 
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState })
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
   }
 
   const addUIEvents = () => {

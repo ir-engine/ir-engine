@@ -13,49 +13,36 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
     audioHelperTexture = await loadTexture('/editor/audio-icon.png')
   }
   static async deserialize(editor, json, loadAsync, onError) {
-    const node = await super.deserialize(editor, json)
-    const {
-      src,
-      controls,
-      autoPlay,
-      synchronize,
-      loop,
-      audioType,
-      volume,
-      distanceModel,
-      rolloffFactor,
-      refDistance,
-      maxDistance,
-      coneInnerAngle,
-      coneOuterAngle,
-      coneOuterGain
-    } = json.components.find((c) => c.name === 'audio').props
+    const node = (await super.deserialize(editor, json)) as AudioNode
+    const props = json.components.find((c) => c.name === 'audio')
     loadAsync(
       (async () => {
-        await node.load(src, onError)
-        node.controls = controls || false
-        node.autoPlay = autoPlay
-        node.synchronize = synchronize
-        node.loop = loop
-        node.audioType = audioType
-        node.volume = volume
-        node.distanceModel = distanceModel
-        node.rolloffFactor = rolloffFactor
-        node.refDistance = refDistance
-        node.maxDistance = maxDistance
-        node.coneInnerAngle = coneInnerAngle
-        node.coneOuterAngle = coneOuterAngle
-        node.coneOuterGain = coneOuterGain
+        node.src = props.src
+        node.interactable = props.interactable
+        node.controls = props.controls || false
+        node.autoPlay = props.autoPlay
+        node.synchronize = props.synchronize
+        node.loop = props.loop
+        node.audioType = props.audioType
+        node.volume = props.volume
+        node.distanceModel = props.distanceModel
+        node.rolloffFactor = props.rolloffFactor
+        node.refDistance = props.refDistance
+        node.maxDistance = props.maxDistance
+        node.coneInnerAngle = props.coneInnerAngle
+        node.coneOuterAngle = props.coneOuterAngle
+        node.coneOuterGain = props.coneOuterGain
       })()
     )
     return node
   }
+  _canonicalUrl: string = ''
+  autoPlay: boolean = true
+  volume: number = 0.5
+  controls: boolean = true
+  helper: Mesh
   constructor(editor) {
     super(editor, editor.audioListener)
-    this._canonicalUrl = ''
-    this._autoPlay = true
-    this.volume = 0.5
-    this.controls = true
     const geometry = new PlaneBufferGeometry()
     const material = new MeshBasicMaterial()
     material.map = audioHelperTexture
@@ -70,12 +57,6 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
   }
   set src(value) {
     this.load(value).catch(console.error)
-  }
-  get autoPlay() {
-    return this._autoPlay
-  }
-  set autoPlay(value) {
-    this._autoPlay = value
   }
   async load(src, onError?) {
     const nextSrc = src || ''
@@ -97,11 +78,7 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
       this.helper.visible = true
     } catch (error) {
       this.showErrorIcon()
-      const audioError = new RethrownError(`Error loading audio ${this._canonicalUrl}`, error)
-      if (onError) {
-        onError(this, audioError)
-      }
-      console.error(audioError)
+      console.log(`Error loading audio ${this._canonicalUrl}`)
     }
     this.editor.emit('objectsChanged', [this])
     this.editor.emit('selectionChanged')
@@ -139,6 +116,7 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
     return await super.serialize(projectID, {
       audio: {
         src: this._canonicalUrl,
+        interactable: this.interactable,
         controls: this.controls,
         autoPlay: this.autoPlay,
         synchronize: this.synchronize,
@@ -160,6 +138,7 @@ export default class AudioNode extends EditorNodeMixin(AudioSource) {
     this.remove(this.helper)
     this.addGLTFComponent('audio', {
       src: this._canonicalUrl,
+      interactable: this.interactable,
       controls: this.controls,
       autoPlay: this.autoPlay,
       synchronize: this.synchronize,

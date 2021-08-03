@@ -21,8 +21,8 @@ import {
  * @author HydraFire <github.com/HydraFire>
  */
 
+const timeAfterClientDesideHeWasgetWrongAction = 2000
 let gamePredictionCheckList = []
-const timeAfterClientDesideHeWasgetWrongAction = 3000
 
 export const addActionComponent = (
   entity: Entity,
@@ -31,10 +31,6 @@ export const addActionComponent = (
 ): void => {
   if (hasComponent(entity, component) || !(hasComponent(entity, GameObject) || hasComponent(entity, GamePlayer))) return
   const game = getGame(entity)
-  //const role = getRole(entity)
-  //if (role != 'GolfBall') {
-
-  //}
   //// Clients dont apply self actions, only in not Global mode
   if (isClient && !game.isGlobal) {
     addComponent(entity, component, componentArgs)
@@ -67,7 +63,7 @@ export const sendActionComponent = (
 }
 
 export const applyActionComponent = (actionMessage: GameStateActionMessage): void => {
-  console.warn('applyActionComponent', actionMessage)
+  //console.warn('applyActionComponent', actionMessage);
   const entityGame = getGameEntityFromName(actionMessage.game)
   if (!entityGame) return
   const game = getComponent(entityGame, Game)
@@ -86,7 +82,7 @@ export const applyActionComponent = (actionMessage: GameStateActionMessage): voi
     componentArgs = JSON.parse(actionMessage.componentArgs.replace(/'/g, '"')) // replace single quotes with double quotes
   } catch (e) {}
 
-  const role = getRole(entity)
+  //const role = getRole(entity)
   //console.log(role,' server action ', component.name)
   addComponent(entity, component, componentArgs)
 }
@@ -108,14 +104,10 @@ const addToCheckList = (
 }
 
 export const checkIsGamePredictionStillRight = (): boolean => {
-  gamePredictionCheckList.length > 0 ? console.log(gamePredictionCheckList) : ''
   return gamePredictionCheckList.some((v) => Date.now() - v.time > timeAfterClientDesideHeWasgetWrongAction)
 }
 
 const ifWasSameBeforeByPrediction = (actionMessage: GameStateActionMessage): boolean => {
-  console.log(actionMessage.component, actionMessage.role)
-  console.log(gamePredictionCheckList[0].componentName, gamePredictionCheckList[0].dataForCheck.role)
-
   return gamePredictionCheckList.some(
     (v) => v.componentName === actionMessage.component && v.dataForCheck.role === actionMessage.role
   )

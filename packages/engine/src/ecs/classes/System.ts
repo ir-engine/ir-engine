@@ -13,15 +13,6 @@ import { Entity } from './Entity'
 import { Query } from './Query'
 import { now } from '../../common/functions/now'
 
-/** Interface for System attributes. */
-export interface SystemAttributes {
-  /** Priority of an Attribute. */
-  priority?: number
-
-  /** Name of the property. */
-  [propName: string]: any
-}
-
 /** Interface for system queries. */
 export interface SystemQueries {
   /** @param queryName name of query. */
@@ -38,9 +29,10 @@ export interface SystemQueries {
 }
 
 /** Interface for system */
-export interface SystemConstructor<T extends System> {
+export interface SystemConstructor<T extends System, A> {
   isSystem: true
-  new (...args: any): T
+  updateType: SystemUpdateType
+  new (attributes: A): T
 }
 
 /**
@@ -73,8 +65,8 @@ export class ActiveSystems {
    * Adds system to active system array based on its update type.
    * @param system System being added.
    */
-  add(system: System) {
-    this[system.updateType].push(system)
+  add(updateType: SystemUpdateType, system: System) {
+    this[updateType].push(system)
   }
 
   /**
@@ -97,8 +89,8 @@ export class ActiveSystems {
    * Removes system from active array.
    * @param system System being removed.
    */
-  remove(system: System) {
-    this[system.updateType].splice(this[system.updateType].indexOf(system), 1)
+  remove(updateType: SystemUpdateType, system: System) {
+    this[updateType].splice(this[updateType].indexOf(system), 1)
   }
 
   /**
@@ -111,7 +103,7 @@ export class ActiveSystems {
     this[updateType].forEach((system) => {
       if (system.initialized && system.enabled) {
         const startTime = now()
-        system.execute(delta, time)
+        system.execute!(delta, time)
         system.executeTime = now() - startTime
         system.clearEventQueues()
       }
@@ -128,23 +120,6 @@ export class ActiveSystems {
     this.execute(delta, time, SystemUpdateType.Fixed)
     this.execute(delta, time, SystemUpdateType.Network)
   }
-
-  /**
-   * Sorts the sytems of provided update type.
-   * @param updateType systems of this update type will be sorted.
-   */
-  sort(updateType: SystemUpdateType) {
-    this[updateType].sort((a, b) => a.priority - b.priority)
-  }
-
-  /**
-   * Sorts all systems of all update type.
-   */
-  sortAll() {
-    this.sort(SystemUpdateType.Free)
-    this.sort(SystemUpdateType.Fixed)
-    this.sort(SystemUpdateType.Network)
-  }
 }
 
 /**
@@ -159,16 +134,15 @@ export abstract class System {
    *
    * @author Fernando Serrano, Robert Long
    */
-  static instance: System
   static queries: SystemQueries = {}
 
   static isSystem: true
+  static updateType: SystemUpdateType
+
   _mandatoryQueries: any
-  priority: number
+
   executeTime: number
   initialized: boolean
-
-  updateType: SystemUpdateType
 
   /**
    * The results of the queries.
@@ -210,9 +184,8 @@ export abstract class System {
    * Initializes system
    *
    * @author Fernando Serrano, Robert Long
-   * @param attributes User defined system attributes.
    */
-  constructor(attributes: SystemAttributes = {}) {
+  constructor(_?: any) {
     const _name = (this.constructor as any).getName()
     const name = _name.substr(0, 1) === '_' ? _name.slice(1) : _name
     this.name = name
@@ -223,14 +196,8 @@ export abstract class System {
     this._queries = {}
     this.queryResults = {}
 
-    this.priority = 0
-
     // Used for stats
     this.executeTime = 0
-
-    if (attributes && attributes.priority) {
-      this.priority = attributes.priority
-    }
 
     this._mandatoryQueries = []
 
@@ -386,7 +353,6 @@ export abstract class System {
       name: this.name,
       enabled: this.enabled,
       executeTime: this.executeTime,
-      priority: this.priority,
       queries: {}
     }
 

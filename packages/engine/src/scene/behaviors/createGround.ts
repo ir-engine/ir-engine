@@ -1,14 +1,16 @@
 import { CircleBufferGeometry, Color, Mesh, MeshStandardMaterial, Quaternion, Vector3 } from 'three'
-import { BodyType } from 'three-physx'
-import { Behavior } from '../../common/interfaces/Behavior'
-import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import { addColliderWithoutEntity } from '../../physics/behaviors/colliderCreateFunctions'
+import { Entity } from '../../ecs/classes/Entity'
+import { addComponent } from '../../ecs/functions/EntityFunctions'
+import { createCollider } from '../../physics/behaviors/createCollider'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { addObject3DComponent } from './addObject3DComponent'
 
-export const createGround: Behavior = (entity, args) => {
+type GroundProps = {
+  color: string
+}
+
+export const createGround = (entity: Entity, args: GroundProps) => {
   const mesh = new Mesh(
     new CircleBufferGeometry(1000, 32).rotateX(-Math.PI / 2),
     new MeshStandardMaterial({
@@ -17,29 +19,18 @@ export const createGround: Behavior = (entity, args) => {
     })
   )
 
-  addObject3DComponent(entity, {
-    obj3d: mesh,
-    objArgs: { receiveShadow: true, 'material.color': args.color }
-  })
+  addObject3DComponent(entity, mesh, { receiveShadow: true, 'material.color': args.color })
 
-  addComponent(entity, ColliderComponent, {
-    bodytype: BodyType.STATIC,
-    type: 'ground',
-    collisionLayer: CollisionGroups.Ground,
-    collisionMask: CollisionGroups.Default,
-    position: new Vector3().copy(mesh.position),
-    quaternion: new Quaternion().copy(mesh.quaternion),
-    scale: new Vector3().copy(mesh.scale)
-  })
-
-  const colliderComponent = getMutableComponent(entity, ColliderComponent)
-
-  const body = addColliderWithoutEntity(
-    { bodytype: colliderComponent.bodytype, type: colliderComponent.type },
-    colliderComponent.position,
-    colliderComponent.quaternion,
-    colliderComponent.scale,
-    { collisionLayer: colliderComponent.collisionLayer, collisionMask: colliderComponent.collisionMask }
+  const body = createCollider(
+    {
+      type: 'ground',
+      collisionLayer: CollisionGroups.Ground,
+      collisionMask: CollisionGroups.Default
+    },
+    new Vector3().copy(mesh.position),
+    new Quaternion().copy(mesh.quaternion),
+    new Vector3().copy(mesh.scale)
   )
-  colliderComponent.body = body
+
+  addComponent(entity, ColliderComponent, { body })
 }

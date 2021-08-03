@@ -1,8 +1,9 @@
 import { Behavior } from '../../../../common/interfaces/Behavior'
 import { Entity } from '../../../../ecs/classes/Entity'
-import { getComponent, getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
+import { getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent'
-import { State } from '../../../types/GameComponents'
+import { GolfState } from '../GolfGameComponents'
+
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -45,9 +46,9 @@ export const applyHideOrVisibleState: Behavior = (
 ): void => {
   const object3D = getMutableComponent(entity, Object3DComponent)?.value
   if (object3D === undefined) return
-  if (hasComponent(entity, State.BallVisible)) {
+  if (hasComponent(entity, GolfState.BallVisible)) {
     unhideBall(entity)
-  } else if (hasComponent(entity, State.BallHidden)) {
+  } else if (hasComponent(entity, GolfState.BallHidden)) {
     hideBall(entity)
   }
 }

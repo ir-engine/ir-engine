@@ -18,12 +18,12 @@ import { selectAppState } from '@xrengine/client-core/src/common/reducers/app/se
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { getAvatarURLFromNetwork } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
-import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector'
+import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service'
 import { PositionalAudioSystem } from '@xrengine/engine/src/audio/systems/PositionalAudioSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import classNames from 'classnames'
 import React, { useEffect, useRef, useState } from 'react'
 import { connect } from 'react-redux'
@@ -40,6 +40,8 @@ import {
 import Draggable from './Draggable'
 // @ts-ignore
 import styles from './PartyParticipantWindow.module.scss'
+import { Downgraded } from '@hookstate/core'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 interface ContainerProportions {
   width: number | string
@@ -53,7 +55,6 @@ interface Props {
   appState?: any
   authState?: any
   locationState?: any
-  userState?: any
   mediastream?: any
 }
 
@@ -62,7 +63,6 @@ const mapStateToProps = (state: any): any => {
     appState: selectAppState(state),
     authState: selectAuthState(state),
     locationState: selectLocationState(state),
-    userState: selectUserState(state),
     mediastream: selectMediastreamState(state)
   }
 }
@@ -82,7 +82,8 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const [videoTrackClones, setVideoTrackClones] = useState([])
   const [toggle, setToggle] = useState(0)
   const [volume, setVolume] = useState(100)
-  const { harmony, peerId, appState, authState, locationState, userState, mediastream } = props
+  const { harmony, peerId, appState, authState, locationState, mediastream } = props
+  const userState = useUserState()
   const videoRef = React.createRef<HTMLVideoElement>()
   const audioRef = React.createRef<HTMLAudioElement>()
   const videoStreamRef = useRef(videoStream)
@@ -94,7 +95,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const enableGlobalMute =
     currentLocation?.locationSettings?.locationType === 'showroom' &&
     selfUser?.locationAdmins?.find((locationAdmin) => currentLocation.id === locationAdmin.locationId) != null
-  const user = userState.get('layerUsers').find((user) => user.id === peerId)
+  const user = userState.layerUsers.find((user) => user.id.value === peerId)?.attach(Downgraded).value
 
   const isCamVideoEnabled = mediastream.get('isCamVideoEnabled')
   const isCamAudioEnabled = mediastream.get('isCamAudioEnabled')
@@ -148,27 +149,27 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
   useEffect(() => {
     if (peerId === 'me_cam') {
-      setVideoStream(MediaStreamSystem.instance?.camVideoProducer)
-      setVideoStreamPaused(MediaStreamSystem.instance?.videoPaused)
-    } else if (peerId === 'me_screen') setVideoStream(MediaStreamSystem.instance?.screenVideoProducer)
+      setVideoStream(MediaStreams.instance?.camVideoProducer)
+      setVideoStreamPaused(MediaStreams.instance?.videoPaused)
+    } else if (peerId === 'me_screen') setVideoStream(MediaStreams.instance?.screenVideoProducer)
   }, [isCamVideoEnabled])
 
   useEffect(() => {
     if (peerId === 'me_cam') {
-      setAudioStream(MediaStreamSystem.instance?.camAudioProducer)
-      setAudioStreamPaused(MediaStreamSystem.instance?.audioPaused)
-    } else if (peerId === 'me_screen') setAudioStream(MediaStreamSystem.instance?.screenAudioProducer)
+      setAudioStream(MediaStreams.instance?.camAudioProducer)
+      setAudioStreamPaused(MediaStreams.instance?.audioPaused)
+    } else if (peerId === 'me_screen') setAudioStream(MediaStreams.instance?.screenAudioProducer)
   }, [isCamAudioEnabled])
 
   useEffect(() => {
     if (peerId !== 'me_cam' && peerId !== 'me_screen') {
       setVideoStream(
-        MediaStreamSystem.instance?.consumers?.find(
+        MediaStreams.instance?.consumers?.find(
           (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-video'
         )
       )
       setAudioStream(
-        MediaStreamSystem.instance?.consumers?.find(
+        MediaStreams.instance?.consumers?.find(
           (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'
         )
       )
@@ -191,7 +192,7 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
       audioRef.current.volume = 0
     else if (
       (selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) &&
-      PositionalAudioSystem.instance != null
+      Engine.spatialAudio
     )
       audioRef.current.volume = volume / 100
   }, [selfUser])
@@ -231,10 +232,10 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
         audioRef.current.volume = 0
       if (
         selfUser?.user_setting?.spatialAudioEnabled === false ||
-        (selfUser?.user_setting?.spatialAudioEnabled === 0 && PositionalAudioSystem.instance != null)
+        (selfUser?.user_setting?.spatialAudioEnabled === 0 && Engine.spatialAudio)
       ) {
         audioRef.current.volume = volume / 100
-        PositionalAudioSystem.instance?.suspend()
+        // PositionalAudioSystem.instance?.suspend()
       }
       setVolume(volume)
     }
@@ -265,36 +266,36 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   }, [videoStream])
 
   useEffect(() => {
-    if (peerId === 'me_cam' || peerId === 'me_screen') setAudioStreamPaused(MediaStreamSystem.instance?.audioPaused)
+    if (peerId === 'me_cam' || peerId === 'me_screen') setAudioStreamPaused(MediaStreams.instance?.audioPaused)
     if (harmony === true && audioStream != null && audioRef.current != null) {
       const newAudioTrack = audioStream.track.clone()
       const updateAudioTrackClones = audioTrackClones.concat(newAudioTrack)
       setAudioTrackClones(updateAudioTrackClones)
       audioRef.current.srcObject = new MediaStream([newAudioTrack])
     }
-  }, [MediaStreamSystem.instance?.audioPaused])
+  }, [MediaStreams.instance?.audioPaused])
 
   useEffect(() => {
-    if (peerId === 'me_cam' || peerId === 'me_screen') setVideoStreamPaused(MediaStreamSystem.instance?.videoPaused)
+    if (peerId === 'me_cam' || peerId === 'me_screen') setVideoStreamPaused(MediaStreams.instance?.videoPaused)
     if (harmony === true && videoStream != null && videoRef.current != null) {
       const newVideoTrack = videoStream.track.clone()
       const updateVideoTrackClones = videoTrackClones.concat(newVideoTrack)
       setVideoTrackClones(updateVideoTrackClones)
       videoRef.current.srcObject = new MediaStream([newVideoTrack])
     }
-  }, [MediaStreamSystem.instance?.videoPaused])
+  }, [MediaStreams.instance?.videoPaused])
 
   const toggleVideo = async (e) => {
     e.stopPropagation()
     if (peerId === 'me_cam') {
-      const videoPaused = MediaStreamSystem.instance.toggleVideoPaused()
-      if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance?.camVideoProducer)
-      else await resumeProducer(MediaStreamSystem.instance?.camVideoProducer)
+      const videoPaused = MediaStreams.instance.toggleVideoPaused()
+      if (videoPaused === true) await pauseProducer(MediaStreams.instance?.camVideoProducer)
+      else await resumeProducer(MediaStreams.instance?.camVideoProducer)
       updateCamVideoState()
     } else if (peerId === 'me_screen') {
-      const videoPaused = MediaStreamSystem.instance.toggleScreenShareVideoPaused()
-      if (videoPaused === true) await pauseProducer(MediaStreamSystem.instance.screenVideoProducer)
-      else await resumeProducer(MediaStreamSystem.instance.screenVideoProducer)
+      const videoPaused = MediaStreams.instance.toggleScreenShareVideoPaused()
+      if (videoPaused === true) await pauseProducer(MediaStreams.instance.screenVideoProducer)
+      else await resumeProducer(MediaStreams.instance.screenVideoProducer)
       setVideoStreamPaused(videoPaused)
     } else {
       if (videoStream.paused === false) await pauseConsumer(videoStream)
@@ -306,14 +307,14 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const toggleAudio = async (e) => {
     e.stopPropagation()
     if (peerId === 'me_cam') {
-      const audioPaused = MediaStreamSystem.instance.toggleAudioPaused()
-      if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance?.camAudioProducer)
-      else await resumeProducer(MediaStreamSystem.instance?.camAudioProducer)
+      const audioPaused = MediaStreams.instance.toggleAudioPaused()
+      if (audioPaused === true) await pauseProducer(MediaStreams.instance?.camAudioProducer)
+      else await resumeProducer(MediaStreams.instance?.camAudioProducer)
       updateCamAudioState()
     } else if (peerId === 'me_screen') {
-      const audioPaused = MediaStreamSystem.instance.toggleScreenShareAudioPaused()
-      if (audioPaused === true) await pauseProducer(MediaStreamSystem.instance.screenAudioProducer)
-      else await resumeProducer(MediaStreamSystem.instance.screenAudioProducer)
+      const audioPaused = MediaStreams.instance.toggleScreenShareAudioPaused()
+      if (audioPaused === true) await pauseProducer(MediaStreams.instance.screenAudioProducer)
+      else await resumeProducer(MediaStreams.instance.screenAudioProducer)
       setAudioStreamPaused(audioPaused)
     } else {
       if (audioStream.paused === false) await pauseConsumer(audioStream)
@@ -335,9 +336,9 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
 
   const adjustVolume = (e, newValue) => {
     if (peerId === 'me_cam' || peerId === 'me_screen') {
-      MediaStreamSystem.instance.audioGainNode.gain.setValueAtTime(
+      MediaStreams.instance.audioGainNode.gain.setValueAtTime(
         newValue / 100,
-        MediaStreamSystem.instance.audioGainNode.context.currentTime + 1
+        MediaStreams.instance.audioGainNode.context.currentTime + 1
       )
     } else {
       audioRef.current.volume = newValue / 100

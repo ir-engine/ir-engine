@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import { detect, detectOS } from 'detect-browser'
-import { AudioListener, BufferGeometry, Mesh, PerspectiveCamera, Quaternion, Scene } from 'three'
+import { AudioListener, BufferGeometry, Euler, Mesh, PerspectiveCamera, Quaternion, Scene } from 'three'
 import { acceleratedRaycast, disposeBoundsTree, computeBoundsTree } from 'three-mesh-bvh'
 import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem'
 import { CameraSystem } from './camera/systems/CameraSystem'
@@ -10,55 +10,62 @@ import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem'
 import { DefaultInitializationOptions, InitializeOptions, EngineSystemPresets } from './initializationOptions'
 import { Engine } from './ecs/classes/Engine'
 import { EngineEvents } from './ecs/classes/EngineEvents'
-import { registerSystem } from './ecs/functions/SystemFunctions'
+import { getSystem, registerSystem } from './ecs/functions/SystemFunctions'
 import { GameManagerSystem } from './game/systems/GameManagerSystem'
-import { ActionSystem } from './input/systems/ActionSystem'
 import { ClientInputSystem } from './input/systems/ClientInputSystem'
 import { InteractiveSystem } from './interaction/systems/InteractiveSystem'
 import { Network } from './networking/classes/Network'
 import { ClientNetworkStateSystem } from './networking/systems/ClientNetworkStateSystem'
-import { ClientNetworkSystem } from './networking/systems/ClientNetworkSystem'
 import { MediaStreamSystem } from './networking/systems/MediaStreamSystem'
 import { ParticleSystem } from './particles/systems/ParticleSystem'
 import { PhysicsSystem } from './physics/systems/PhysicsSystem'
 import { configCanvasElement } from './renderer/functions/canvas'
 import { HighlightSystem } from './renderer/HighlightSystem'
 import { TransformSystem } from './transform/systems/TransformSystem'
-import { UISystem } from './ui/systems/UISystem'
+import { UISystem } from './xrui/systems/UISystem'
 import { XRSystem } from './xr/systems/XRSystem'
 import { WebGLRendererSystem } from './renderer/WebGLRendererSystem'
 import { Timer } from './common/functions/Timer'
-import { execute } from './ecs/functions/EngineFunctions'
+import { execute, reset } from './ecs/functions/EngineFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem'
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem'
 import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem'
 import { SceneObjectSystem } from './scene/systems/SceneObjectSystem'
-import { ActiveSystems, System } from './ecs/classes/System'
+import { ActiveSystems } from './ecs/classes/System'
 import { AudioSystem } from './audio/systems/AudioSystem'
 import { setupBotHooks } from './bot/functions/botHookFunctions'
 import { AnimationSystem } from './character/AnimationSystem'
 import { InterpolationSystem } from './physics/systems/InterpolationSystem'
-import { FontManager } from './ui/classes/FontManager'
+import { FontManager } from './xrui/classes/FontManager'
+import { EquippableSystem } from './interaction/systems/EquippableSystem'
+import { AutopilotSystem } from './navigation/systems/AutopilotSystem'
+import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
   return { x: this._x, y: this._y, z: this._z, w: this._w }
 }
+
+// @ts-ignore
+Euler.prototype.toJSON = function () {
+  return { x: this._x, y: this._y, z: this._z }
+}
+
 Mesh.prototype.raycast = acceleratedRaycast
 BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
 BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
 
-const configureClient = async (options: InitializeOptions) => {
-  const canvas = configCanvasElement(options.renderer.canvasId)
+const configureClient = async (options: Required<InitializeOptions>) => {
+  const canvas = configCanvasElement(options.renderer.canvasId!)
 
   Engine.audioListener = new AudioListener()
 
   Engine.scene = new Scene()
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
     const canvas = document.createElement('canvas')
-    const gl = canvas.getContext('webgl')
-    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
+    const gl = canvas.getContext('webgl')!
+    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')!
     const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
     const enableRenderer = !/SwiftShader/.test(renderer)
     canvas.remove()
@@ -76,14 +83,23 @@ const configureClient = async (options: InitializeOptions) => {
     Engine.scene.add(Engine.camera)
   }
 
+  Network.instance = new Network()
+
+  const { schema } = options.networking
+
+  Network.instance.schema = schema
+  Network.instance.transport = new schema.transport()
+
   await FontManager.instance.getDefaultFont()
 
   setupBotHooks()
 
+  addClientInputListeners()
+
   registerClientSystems(options, canvas)
 }
 
-const configureEditor = async (options: InitializeOptions) => {
+const configureEditor = async (options: Required<InitializeOptions>) => {
   Engine.scene = new Scene()
 
   Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
@@ -93,11 +109,24 @@ const configureEditor = async (options: InitializeOptions) => {
   registerEditorSystems(options)
 }
 
-const configureServer = async (options: InitializeOptions) => {
+const configureServer = async (options: Required<InitializeOptions>) => {
   Engine.scene = new Scene()
   Network.instance = new Network()
 
+  const { schema, app } = options.networking
+  Network.instance.schema = schema
+  Network.instance.transport = new schema.transport(app)
+
+  if (
+    process.env.SERVER_MODE !== undefined &&
+    (process.env.SERVER_MODE === 'realtime' || process.env.SERVER_MODE === 'local')
+  ) {
+    Network.instance.transport.initialize()
+    Network.instance.isInitialized = true
+  }
+
   EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, () => {
+    console.log('joined world')
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: true, physics: true })
     Engine.hasJoinedWorld = true
   })
@@ -105,95 +134,92 @@ const configureServer = async (options: InitializeOptions) => {
   registerServerSystems(options)
 }
 
-const registerClientSystems = (options: InitializeOptions, canvas: HTMLCanvasElement) => {
+const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTMLCanvasElement) => {
   // Network Systems
-  Network.instance = new Network()
 
-  if (!Engine.offlineMode) {
-    Network.instance.schema = options.networking.schema
-    registerSystem(ClientNetworkSystem, { ...options.networking, priority: 0 })
-  }
+  !Engine.offlineMode && registerSystem(SystemUpdateType.Fixed, ClientNetworkStateSystem)
 
-  registerSystem(ClientNetworkStateSystem, { priority: 1 })
-  registerSystem(MediaStreamSystem, { priority: 2 })
+  registerSystem(SystemUpdateType.Fixed, MediaStreamSystem)
 
   if (options.renderer.disabled) return
 
   // Input Systems
-  registerSystem(ClientInputSystem, { useWebXR: Engine.xrSupported, priority: 1 })
-
-  // Render systems
-  registerSystem(XRSystem, { priority: 1 }) // Free
-  registerSystem(CameraSystem, { priority: 2 }) // Free
-  registerSystem(WebGLRendererSystem, { priority: 3, canvas }) // Free
+  registerSystem(SystemUpdateType.Fixed, ClientInputSystem)
 
   // Input Systems
-  registerSystem(UISystem, { priority: 2 }) // Free
-  registerSystem(ActionSystem, { priority: 3 })
-  registerSystem(CharacterControllerSystem, { priority: 4 })
-  registerSystem(AnimationSystem, { priority: 5 })
+  registerSystem(SystemUpdateType.Fixed, UISystem)
+  registerSystem(SystemUpdateType.Fixed, CharacterControllerSystem)
+  registerSystem(SystemUpdateType.Fixed, AnimationSystem)
+  registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
 
   // Scene Systems
-  registerSystem(InteractiveSystem, { priority: 6 })
-  registerSystem(GameManagerSystem, { priority: 7 })
-  registerSystem(TransformSystem, { priority: 8 })
-  registerSystem(InterpolationSystem, { priority: 9 })
-  registerSystem(PhysicsSystem, {
+  registerSystem(SystemUpdateType.Fixed, InteractiveSystem)
+  registerSystem(SystemUpdateType.Fixed, EquippableSystem)
+  registerSystem(SystemUpdateType.Fixed, GameManagerSystem)
+  registerSystem(SystemUpdateType.Fixed, TransformSystem)
+  registerSystem(SystemUpdateType.Fixed, InterpolationSystem)
+  registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
     simulationEnabled: options.physics.simulationEnabled,
-    worker: options.physics.physxWorker,
-    priority: 10
+    worker: options.physics.physxWorker
   })
 
   // Miscellaneous Systems
-  registerSystem(HighlightSystem, { priority: 11 })
-  registerSystem(ParticleSystem, { priority: 12 })
-  registerSystem(DebugHelpersSystem, { priority: 13 })
-  registerSystem(AudioSystem, { priority: 14 })
-  registerSystem(PositionalAudioSystem, { priority: 15 })
-  registerSystem(SceneObjectSystem, { priority: 16 })
+  registerSystem(SystemUpdateType.Fixed, ParticleSystem)
+  registerSystem(SystemUpdateType.Fixed, DebugHelpersSystem)
+  registerSystem(SystemUpdateType.Fixed, AudioSystem)
+  registerSystem(SystemUpdateType.Fixed, PositionalAudioSystem)
+  registerSystem(SystemUpdateType.Fixed, SceneObjectSystem)
+
+  // Free systems
+  registerSystem(SystemUpdateType.Free, XRSystem)
+  registerSystem(SystemUpdateType.Free, CameraSystem)
+  registerSystem(SystemUpdateType.Free, WebGLRendererSystem, { canvas })
+  registerSystem(SystemUpdateType.Free, HighlightSystem)
 }
 
-const registerEditorSystems = (options: InitializeOptions) => {
+const registerEditorSystems = (options: Required<InitializeOptions>) => {
   // Scene Systems
-  registerSystem(GameManagerSystem, { priority: 6 })
-  registerSystem(TransformSystem, { priority: 7 })
-  registerSystem(PhysicsSystem, {
+  registerSystem(SystemUpdateType.Fixed, GameManagerSystem)
+  registerSystem(SystemUpdateType.Fixed, TransformSystem)
+  registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
     simulationEnabled: options.physics.simulationEnabled,
-    worker: options.physics.physxWorker,
-    priority: 8
+    worker: options.physics.physxWorker
   })
 
   // Miscellaneous Systems
-  registerSystem(ParticleSystem, { priority: 10 })
-  registerSystem(DebugHelpersSystem, { priority: 11 })
+  registerSystem(SystemUpdateType.Fixed, ParticleSystem)
+  registerSystem(SystemUpdateType.Fixed, DebugHelpersSystem)
 }
 
-const registerServerSystems = (options: InitializeOptions) => {
-  // Network Systems
-  registerSystem(ServerNetworkIncomingSystem, { ...options.networking, priority: 1 }) // first
-  registerSystem(ServerNetworkOutgoingSystem, { ...options.networking, priority: 100 }) // last
-  registerSystem(MediaStreamSystem, { priority: 3 })
+const registerServerSystems = (options: Required<InitializeOptions>) => {
+  // Network Incoming Systems
+  registerSystem(SystemUpdateType.Fixed, ServerNetworkIncomingSystem, { ...options.networking }) // first
+  registerSystem(SystemUpdateType.Fixed, MediaStreamSystem)
 
   // Input Systems
-  registerSystem(CharacterControllerSystem, { priority: 4 })
+  registerSystem(SystemUpdateType.Fixed, CharacterControllerSystem)
+  registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
 
   // Scene Systems
-  registerSystem(InteractiveSystem, { priority: 5 })
-  registerSystem(GameManagerSystem, { priority: 6 })
-  registerSystem(TransformSystem, { priority: 7 })
-  registerSystem(PhysicsSystem, {
+  registerSystem(SystemUpdateType.Fixed, InteractiveSystem)
+  registerSystem(SystemUpdateType.Fixed, EquippableSystem)
+  registerSystem(SystemUpdateType.Fixed, GameManagerSystem)
+  registerSystem(SystemUpdateType.Fixed, TransformSystem)
+  registerSystem(SystemUpdateType.Fixed, PhysicsSystem, {
     simulationEnabled: options.physics.simulationEnabled,
-    worker: options.physics.physxWorker,
-    priority: 8
+    worker: options.physics.physxWorker
   })
 
   // Miscellaneous Systems
-  registerSystem(ServerSpawnSystem, { priority: 9 })
+  registerSystem(SystemUpdateType.Fixed, ServerSpawnSystem)
+
+  // Network Outgoing Systems
+  registerSystem(SystemUpdateType.Fixed, ServerNetworkOutgoingSystem) // last
 }
 
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {
-  const options: InitializeOptions = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
-
+  const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
+  Engine.initOptions = options
   Engine.gameModes = options.gameModes
   Engine.offlineMode = typeof options.networking.schema === 'undefined'
   Engine.publicPath = options.publicPath
@@ -229,8 +255,22 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     await configureServer(options)
   }
 
-  options.systems?.forEach(({ system, args }) => {
-    registerSystem(system, args)
+  options.systems?.forEach((init) => {
+    const system = new init.system(init.args)
+    Engine.systems.push(system)
+    if ('before' in init) {
+      const BeforeSystem = init.before
+      const updateType = BeforeSystem.updateType
+      const before = getSystem(BeforeSystem)
+      const idx = Engine.activeSystems[updateType].indexOf(before)
+      Engine.activeSystems[updateType].splice(idx, 0, system)
+    } else if ('after' in init) {
+      const AfterSystem = init.after
+      const updateType = AfterSystem.updateType
+      const after = getSystem(AfterSystem)
+      const idx = Engine.activeSystems[updateType].lastIndexOf(after) + 1
+      Engine.activeSystems[updateType].splice(idx, 0, system)
+    }
   })
 
   // Initialize all registered systems
@@ -239,8 +279,8 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   // Set timer
   Engine.engineTimer = Timer(
     {
-      networkUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Network),
-      fixedUpdate: (delta: number, elapsedTime: number) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
+      networkUpdate: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Network),
+      fixedUpdate: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Fixed),
       update: (delta, elapsedTime) => execute(delta, elapsedTime, SystemUpdateType.Free)
     },
     Engine.physicsFrameRate,
@@ -263,7 +303,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
       window.addEventListener(type, onUserEngage)
     })
 
-    EngineEvents.instance.once(ClientNetworkSystem.EVENTS.CONNECT, ({ id }) => {
+    EngineEvents.instance.once(ClientNetworkStateSystem.EVENTS.CONNECT, ({ id }) => {
       Network.instance.isInitialized = true
       Network.instance.userId = id
     })
@@ -274,4 +314,15 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   // Mark engine initialized
   Engine.isInitialized = true
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.INITIALIZED_ENGINE })
+}
+
+export const shutdownEngine = async () => {
+  if (Engine.initOptions.type === EngineSystemPresets.CLIENT) {
+    removeClientInputListeners()
+  }
+
+  Engine.engineTimer?.clear()
+  Engine.engineTimer = null
+
+  await reset()
 }

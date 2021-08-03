@@ -5,7 +5,6 @@ import { setStaticMode, StaticModes } from '../functions/StaticMode'
 import cloneObject3D from '../functions/cloneObject3D'
 import { RethrownError } from '../functions/errors'
 import { makeCollidersInvisible, applyTransform } from '../../physics/behaviors/parseModelColliders'
-import { parseCarModel } from '../../vehicle/prefabs/NetworkVehicle'
 import { getGeometry } from '../../scene/functions/getGeometry'
 import { AnimationManager } from '../../character/AnimationManager'
 
@@ -18,7 +17,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   }
 
   meshColliders = []
-  vehicleObject = []
 
   static async deserialize(editor, json, loadAsync, onError) {
     const node = await super.deserialize(editor, json)
@@ -95,6 +93,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   boundingSphere = new Sphere()
   gltfJson = null
   isValidURL = false
+  isUpdateDataMatrix = true
 
   constructor(editor) {
     super(editor)
@@ -217,28 +216,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   simplyfyFloat(arr) {
     return arr.map((v: number) => parseFloat((Math.round(v * 10000) / 10000).toFixed(4)))
   }
-  parseVehicle(group) {
-    const vehicleCompData = parseCarModel(group, 'editor')
-    const deepColliders = []
-
-    const vehicleSaved = {
-      arrayWheelsPosition: vehicleCompData.arrayWheelsPosition.map((array: any) => this.simplyfyFloat(array)),
-      entrancesArray: vehicleCompData.entrancesArray.map((array: any) => this.simplyfyFloat(array)),
-      seatsArray: vehicleCompData.seatsArray.map((array: any) => this.simplyfyFloat(array)),
-      startPosition: this.simplyfyFloat([this.position.x, this.position.y, this.position.z]),
-      startQuaternion: this.simplyfyFloat([this.quaternion.x, this.quaternion.y, this.quaternion.z, this.quaternion.w]),
-      suspensionRestLength: parseFloat((Math.round(vehicleCompData.suspensionRestLength * 10000) / 10000).toFixed(4)),
-      interactionPartsPosition: vehicleCompData.interactionPartsPosition.map((array: any) => this.simplyfyFloat(array)),
-      mass: vehicleCompData.mass
-    }
-    console.warn(vehicleSaved)
-    vehicleCompData.vehicleSphereColliders.forEach((v) => {
-      deepColliders.push(
-        this.parseColliders(v.userData, 'vehicle', v.userData.type, null, v.position, v.quaternion, v.scale, v)
-      )
-    })
-    return [vehicleSaved, deepColliders]
-  }
 
   parseColliders(
     userData,
@@ -296,15 +273,9 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     if (this.model) {
       // Set up colliders
       const colliders = []
-      const vehicleColliders = []
-      const vehicleMain = []
 
       const parseGroupColliders = (group) => {
-        if (
-          group.userData.data === 'physics' ||
-          group.userData.data === 'kinematic' ||
-          group.userData.data === 'dynamic'
-        ) {
+        if (group.userData.data === 'physics') {
           if (group.type == 'Group') {
             for (let i = 0; i < group.children.length; i++) {
               colliders.push(
@@ -338,50 +309,38 @@ export default class ModelNode extends EditorNodeMixin(Model) {
               )
             )
           }
-        } else if (group.userData.data === 'vehicle') {
-          const [vehicleSaved, deepArrayColliders] = this.parseVehicle(group)
-          vehicleMain.push(vehicleSaved)
-          vehicleColliders.push(deepArrayColliders)
         }
       }
 
       this.model.traverse(parseGroupColliders)
-      this.meshColliders = colliders.concat(...vehicleColliders)
-      this.vehicleObject = vehicleMain
+      this.meshColliders = colliders
       this.editor.renderer.addBatchedObject(this.model)
     }
 
     for (let i = 0; i < this.meshColliders.length; i++) {
       components[`mesh-collider-${i}`] = this.addEditorParametersToCollider(this.meshColliders[i])
     }
-
-    for (let i = 0; i < this.vehicleObject.length; i++) {
-      components[`vehicle-saved-in-scene-${i}`] = this.vehicleObject[i]
-    }
   }
-  addEditorParametersToCollider(collider) {
-    // its for vehicle
-    if (collider.data == 'vehicle') return collider
-
+  addEditorParametersToCollider(meshCollider) {
     const [position, quaternion, scale] = applyTransform(
-      collider.position,
-      collider.quaternion,
-      collider.scale,
+      meshCollider.position,
+      meshCollider.quaternion,
+      meshCollider.scale,
       this.position,
       this.quaternion,
       this.scale
     )
-    collider.position.x = position.x
-    collider.position.y = position.y
-    collider.position.z = position.z
-    collider.quaternion.x = quaternion.x
-    collider.quaternion.y = quaternion.y
-    collider.quaternion.z = quaternion.z
-    collider.quaternion.w = quaternion.w
-    collider.scale.x = scale.x
-    collider.scale.y = scale.y
-    collider.scale.z = scale.z
-    return collider
+    meshCollider.position.x = position.x
+    meshCollider.position.y = position.y
+    meshCollider.position.z = position.z
+    meshCollider.quaternion.x = quaternion.x
+    meshCollider.quaternion.y = quaternion.y
+    meshCollider.quaternion.z = quaternion.z
+    meshCollider.quaternion.w = quaternion.w
+    meshCollider.scale.x = scale.x
+    meshCollider.scale.y = scale.y
+    meshCollider.scale.z = scale.z
+    return meshCollider
   }
   updateStaticModes() {
     if (!this.model) return
@@ -409,7 +368,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       'gltf-model': {
         src: this._canonicalUrl,
         envMapOverride: this.envMapOverride !== '' ? this.envMapOverride : undefined,
-        textureOverride: this.textureOverride
+        textureOverride: this.textureOverride,
+        matrixAutoUpdate: this.isUpdateDataMatrix
       },
       shadow: {
         cast: this.castShadow,

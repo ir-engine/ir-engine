@@ -593,7 +593,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     )
 
     editor.sceneModified = false
-
+    this.props.api.currentProjectID = project.project_id
     this.updateModifiedState(() => {
       this.setState({ creatingProject: true, project }, () => {
         this.props.history.replace(`/editor/projects/${project.project_id}`)
@@ -731,8 +731,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
   }
 
   onExportLegacyProject = async () => {
-    const editor = this.state.editor
-    const projectFile = editor.scene.serialize()
+    const { editor, project } = this.state
+    const projectFile = await editor.scene.serialize(project.project_id)
 
     if (projectFile.metadata) {
       delete projectFile.metadata.sceneUrl

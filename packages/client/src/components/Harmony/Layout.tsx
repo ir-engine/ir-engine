@@ -6,7 +6,7 @@ import { selectAppOnBoardingStep, selectAppState } from '@xrengine/client-core/s
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
-import theme from '@xrengine/client-core/src/theme'
+import { theme } from '@xrengine/client-core/src/theme'
 import { Config } from '@xrengine/client-core/src/helper'
 import { Helmet } from 'react-helmet'
 import React, { Fragment, useEffect, useState } from 'react'

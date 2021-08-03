@@ -34,7 +34,7 @@ import {
   locationRemoved
 } from '../../../social/reducers/location/actions'
 import Store from '../../../store'
-import { loadedUsers } from '../../../user/reducers/user/actions'
+import { UserAction } from '../../../user/store/UserAction'
 import { collectionsFetched } from '../../../world/reducers/scenes/actions'
 
 const store = Store.store
@@ -136,7 +136,7 @@ export function fetchUsersAsAdmin(offset: string) {
             action: 'admin'
           }
         })
-        dispatch(loadedUsers(users))
+        dispatch(UserAction.loadedUsers(users))
       }
     } catch (err) {
       console.error(err)

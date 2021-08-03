@@ -1,7 +1,15 @@
 import { Timer } from '@xrengine/engine/src/common/functions/Timer'
+import { Component } from '@xrengine/engine/src/ecs/classes/Component'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
+import { registerComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { execute } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
+import {
+  addComponent,
+  createEntity,
+  getComponent,
+  getMutableComponent
+} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
@@ -16,26 +24,15 @@ import {
   ConeBufferGeometry,
   DirectionalLight,
   GridHelper,
-  HemisphereLight,
   InstancedMesh,
   Line,
   LineBasicMaterial,
-  LoadingManager,
   MeshBasicMaterial,
   PerspectiveCamera,
   Scene,
   WebGLRenderer
 } from 'three'
 import { CellSpacePartitioning, EntityManager, FollowPathBehavior, NavMeshLoader, Time } from 'yuka'
-import { GLTFLoader } from '@xrengine/engine/src/assets/loaders/gltf/GLTFLoader'
-import { Component } from '@xrengine/engine/src/ecs/classes/Component'
-import {
-  addComponent,
-  createEntity,
-  getComponent,
-  getMutableComponent
-} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { registerComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 class RenderSystem extends System {
   updateType = SystemUpdateType.Fixed
@@ -157,7 +154,7 @@ class NavigationSystem extends System {
    * @param delta time since last frame.
    */
   execute(delta: number): void {
-    this.queryResults.navigation.all?.forEach((entity) => {
+    for (const entity of this.queryResults.navigation.all) {
       const navComponent = getComponent(entity, NavigationComponent)
 
       navComponent.entityManager.update(delta)
@@ -205,7 +202,7 @@ class NavigationSystem extends System {
       }
 
       vehicleMesh.instanceMatrix.needsUpdate = true
-    })
+    }
   }
 }
 

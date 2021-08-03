@@ -28,17 +28,17 @@ class NameSystem extends System {
    * @param delta time since last frame.
    */
   execute(delta: number): void {
-    this.queryResults.names?.added.forEach((entity) => {
+    for (const entity of this.queryResults.names.added) {
       console.log('Added component to entity', entity.id)
       removeComponent(entity, NameComponent)
-    })
+    }
 
-    this.queryResults.names?.removed.forEach((entity) => {
+    for (const entity of this.queryResults.names.removed) {
       console.log('Removed component on entity', entity.id)
       setTimeout(() => {
         addComponent(entity, NameComponent)
       }, 100)
-    })
+    }
   }
 }
 
@@ -49,8 +49,7 @@ NameSystem.queries = {
     components: [NameComponent],
     listen: {
       added: true,
-      removed: true,
-      changed: true
+      removed: true
     }
   }
 }

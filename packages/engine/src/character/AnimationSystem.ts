@@ -1,47 +1,18 @@
-import { Quaternion, Vector3 } from 'three'
-import { EngineEvents } from '../ecs/classes/EngineEvents'
-import { System, SystemAttributes } from '../ecs/classes/System'
+import { Vector3 } from 'three'
+import { System } from '../ecs/classes/System'
 import { getMutableComponent, getEntityByID } from '../ecs/functions/EntityFunctions'
-import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
-import { ControllerColliderComponent } from './components/ControllerColliderComponent'
 import { AnimationComponent } from './components/AnimationComponent'
-import { CharacterComponent } from './components/CharacterComponent'
 import { CharacterAnimationGraph } from './animations/CharacterAnimationGraph'
 import { CharacterStates } from './animations/Util'
 import { AnimationRenderer } from './animations/AnimationRenderer'
 import { loadActorAvatar } from './functions/avatarFunctions'
 import { AnimationManager } from './AnimationManager'
+import { CharacterAnimationStateComponent } from './components/CharacterAnimationStateComponent'
 
 export class AnimationSystem extends System {
-  // Entity
-  static EVENTS = {
-    LOAD_AVATAR: 'ANIMATION_SYSTEM_LOAD_AVATAR'
-  }
-
-  updateType = SystemUpdateType.Fixed
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
-
-    EngineEvents.instance.addEventListener(AnimationSystem.EVENTS.LOAD_AVATAR, ({ entityID, avatarId, avatarURL }) => {
-      const entity = getEntityByID(entityID)
-      const actor = getMutableComponent(entity, CharacterComponent)
-      if (actor) {
-        actor.avatarId = avatarId
-        actor.avatarURL = avatarURL
-      }
-      loadActorAvatar(entity)
-    })
-  }
-
   async initialize(): Promise<void> {
     super.initialize()
     await Promise.all([AnimationManager.instance.getDefaultModel(), AnimationManager.instance.getAnimations()])
-  }
-
-  /** Removes resize listener. */
-  dispose(): void {
-    super.dispose()
-    EngineEvents.instance.removeAllListenersForEvent(AnimationSystem.EVENTS.LOAD_AVATAR)
   }
 
   /**
@@ -49,35 +20,31 @@ export class AnimationSystem extends System {
    * @param delta Time since last frame.
    */
   execute(delta: number): void {
-    this.queryResults.animationCharacter.added?.forEach((entity) => {
-      loadActorAvatar(entity)
-      const animationComponent = getMutableComponent(entity, AnimationComponent)
-      animationComponent.animationGraph = new CharacterAnimationGraph()
-      animationComponent.currentState = animationComponent.animationGraph.states[CharacterStates.IDLE]
-      animationComponent.prevVelocity = new Vector3()
-      animationComponent.prevDistanceFromGround = 0
-      if (animationComponent.currentState) {
-        AnimationRenderer.mountCurrentState(animationComponent)
-      }
-    })
-
-    this.queryResults.animation.all?.forEach((entity) => {
+    for (const entity of this.queryResults.animation.all) {
       const animationComponent = getMutableComponent(entity, AnimationComponent)
       const modifiedDelta = delta * animationComponent.animationSpeed
       animationComponent.mixer.update(modifiedDelta)
-    })
+    }
 
-    this.queryResults.animationCharacter.all?.forEach((entity) => {
-      const actor = getMutableComponent(entity, CharacterComponent)
-      const animationComponent = getMutableComponent(entity, AnimationComponent)
-      animationComponent.animationVelocity.copy(actor.velocity)
-
-      if (!animationComponent.onlyUpdateMixerTime) {
-        const deltaTime = delta * animationComponent.animationSpeed
-        animationComponent.animationGraph.render(actor, animationComponent, deltaTime)
-        AnimationRenderer.render(animationComponent, delta)
+    for (const entity of this.queryResults.animationCharacter.added) {
+      loadActorAvatar(entity)
+      const characterAnimationStateComponent = getMutableComponent(entity, CharacterAnimationStateComponent)
+      characterAnimationStateComponent.animationGraph = new CharacterAnimationGraph()
+      characterAnimationStateComponent.currentState =
+        characterAnimationStateComponent.animationGraph.states[CharacterStates.IDLE]
+      characterAnimationStateComponent.prevVelocity = new Vector3()
+      if (characterAnimationStateComponent.currentState) {
+        AnimationRenderer.mountCurrentState(entity)
       }
-    })
+    }
+
+    for (const entity of this.queryResults.animationCharacter.all) {
+      const animationComponent = getMutableComponent(entity, AnimationComponent)
+      const characterAnimationStateComponent = getMutableComponent(entity, CharacterAnimationStateComponent)
+      const deltaTime = delta * animationComponent.animationSpeed
+      characterAnimationStateComponent.animationGraph.render(entity, deltaTime)
+      AnimationRenderer.render(entity, delta)
+    }
   }
 }
 
@@ -90,7 +57,7 @@ AnimationSystem.queries = {
     }
   },
   animationCharacter: {
-    components: [AnimationComponent, ControllerColliderComponent],
+    components: [AnimationComponent, CharacterAnimationStateComponent],
     listen: {
       added: true,
       removed: true

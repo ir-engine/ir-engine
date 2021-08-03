@@ -1,5 +1,5 @@
 import { registerSystem } from "../../src/ecs/functions/SystemFunctions";
-import { ClientNetworkSystem } from "../../src/networking/systems/ClientNetworkSystem";
+import { ClientNetworkStateSystem } from "../../src/networking/systems/ClientNetworkStateSystem";
 import { NetworkSchema } from "../../src/networking/interfaces/NetworkSchema";
 import { DefaultNetworkSchema, PrefabType } from "../../src/networking/templates/DefaultNetworkSchema";
 import { NetworkTransport } from "../../src/networking/interfaces/NetworkTransport";
@@ -26,7 +26,7 @@ import { NumericalType } from "../../src/common/types/NumericalTypes";
 
 const initializeNetworkObject = jest.spyOn(initializeNetworkObjectModule, 'initializeNetworkObject');
 
-PhysicsSystem.instance.gravity.set(0, 0, 0);
+PhysXInstance.instance.gravity.set(0, 0, 0);
 
 class TestTransport implements NetworkTransport {
   isServer = false;
@@ -62,7 +62,7 @@ beforeAll(() => {
 
   Engine.scene = new Scene();
 
-  registerSystem(ClientNetworkSystem, { schema: networkSchema });
+  registerSystem(ClientNetworkStateSystem, { schema: networkSchema });
   registerSystem(PhysicsSystem);
 });
 

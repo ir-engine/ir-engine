@@ -1,14 +1,14 @@
 import { TouchApp } from '@styled-icons/material/TouchApp'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { GamepadAxis, GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
-import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
+import { ClientInputSystem, enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import nipplejs from 'nipplejs'
 import React, { FunctionComponent, useEffect, useRef } from 'react'
 // @ts-ignore
 import styles from './TouchGamepad.module.scss'
 import { TouchGamepadProps } from './TouchGamepadProps'
 
-export const TouchGamepad: FunctionComponent<TouchGamepadProps> = ({ hovered }: TouchGamepadProps) => {
+export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
   const leftContainer = useRef<HTMLDivElement>()
 
   const triggerButton = (button: GamepadButtons, pressed: boolean): void => {
@@ -29,11 +29,8 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = ({ hovered }: 
       <div
         key={index}
         className={
-          styles.controllButton +
-          ' ' +
-          styles[`gamepadButton_${value.label}`] +
-          ' ' +
-          (hovered ? styles.availableButton : styles.notAvailableButton)
+          styles.controllButton + ' ' + styles[`gamepadButton_${value.label}`] + ' ' + styles.availableButton
+          // (hovered ? styles.availableButton : styles.notAvailableButton)
         }
         onPointerDown={(): void => triggerButton(value.button, true)}
         onPointerUp={(): void => triggerButton(value.button, false)}
@@ -58,10 +55,10 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = ({ hovered }: 
     })
     const targetElement = stickLeft[0].ui.el
     targetElement.addEventListener('touchstart', (ev) => {
-      EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: false })
+      enableInput({ mouse: false })
     })
     targetElement.addEventListener('touchend', (ev) => {
-      EngineEvents.instance.dispatchEvent({ type: ClientInputSystem.EVENTS.ENABLE_INPUT, mouse: true })
+      enableInput({ mouse: true })
     })
 
     stickLeft.on('move', (e, data) => {

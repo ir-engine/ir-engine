@@ -32,14 +32,15 @@ import {
   transferPartyOwner
 } from '@xrengine/client-core/src/social/reducers/party/service'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
-import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector'
-import { getLayerUsers } from '@xrengine/client-core/src/user/reducers/user/service'
+import { Downgraded } from '@hookstate/core'
+import { UserService } from '@xrengine/client-core/src/user/store/UserService'
+import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import { Group as GroupType } from '@xrengine/common/src/interfaces/Group'
 import { User } from '@xrengine/common/src/interfaces/User'
 import classNames from 'classnames'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 // @ts-ignore
 import styles from './Left.module.scss'
@@ -51,8 +52,7 @@ const mapStateToProps = (state: any): any => {
     friendState: selectFriendState(state),
     groupState: selectGroupState(state),
     locationState: selectLocationState(state),
-    partyState: selectPartyState(state),
-    userState: selectUserState(state)
+    partyState: selectPartyState(state)
   }
 }
 
@@ -72,7 +72,6 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateInviteTarget: bindActionCreators(updateInviteTarget, dispatch),
   updateChatTarget: bindActionCreators(updateChatTarget, dispatch),
   updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch),
-  getLayerUsers: bindActionCreators(getLayerUsers, dispatch),
   banUserFromLocation: bindActionCreators(banUserFromLocation, dispatch)
 })
 
@@ -85,7 +84,6 @@ interface Props {
   setRightDrawerOpen: any
   authState?: any
   friendState?: any
-  userState?: any
   getFriends?: any
   unfriend?: any
   groupState?: any
@@ -105,7 +103,6 @@ interface Props {
   updateInviteTarget?: any
   updateChatTarget?: any
   updateMessageScrollInit?: any
-  getLayerUsers?: any
   banUserFromLocation?: any
   detailsType?: string
   setDetailsType?: any
@@ -167,8 +164,6 @@ const LeftDrawer = (props: Props): any => {
       updateInviteTarget,
       updateChatTarget,
       updateMessageScrollInit,
-      userState,
-      getLayerUsers,
       banUserFromLocation,
       detailsType,
       setDetailsType,
@@ -184,6 +179,8 @@ const LeftDrawer = (props: Props): any => {
       setSelectedGroup
     } = props
 
+    const dispatch = useDispatch()
+    const userState = useUserState()
     const user = authState.get('user') as User
     const friendSubState = friendState.get('friends')
     const friends = friendSubState.get('friends')
@@ -206,7 +203,6 @@ const LeftDrawer = (props: Props): any => {
     const partyUsers = party && party.partyUsers ? party.partyUsers : []
     const selfPartyUser =
       party && party.partyUsers ? party.partyUsers.find((partyUser) => partyUser.userId === user.id) : {}
-    const layerUsers = userState.get('layerUsers') ?? []
     const currentLocation = locationState.get('currentLocation').get('location')
     const isLocationAdmin =
       user.locationAdmins?.find((locationAdmin) => currentLocation.id === locationAdmin.locationId) != null
@@ -238,10 +234,11 @@ const LeftDrawer = (props: Props): any => {
     }, [partyState])
 
     useEffect(() => {
-      if (user.instanceId != null && userState.get('layerUsersUpdateNeeded') === true) getLayerUsers(true)
-      if (user.channelInstanceId != null && userState.get('channelLayerUsersUpdateNeeded') === true)
-        getLayerUsers(false)
-    }, [user, userState])
+      if (user.instanceId != null && userState.layerUsersUpdateNeeded.value === true)
+        dispatch(UserService.getLayerUsers(true))
+      if (user.channelInstanceId != null && userState.channelLayerUsersUpdateNeeded.value === true)
+        dispatch(UserService.getLayerUsers(false))
+    }, [user, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
     const showFriendDeleteConfirm = (e, friendId) => {
       e.preventDefault()

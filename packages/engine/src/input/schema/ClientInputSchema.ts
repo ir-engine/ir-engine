@@ -2,11 +2,7 @@ import { Vector2 } from 'three'
 import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { GamepadAxis } from '../enums/InputEnums'
-import { isClient } from '../../common/functions/isClient'
-import { BinaryType } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
-import { handleGamepadConnected, handleGamepadDisconnected } from '../behaviors/GamepadInputBehaviors'
-// import { BaseInput } from "../enums/BaseInput";
 import { InputType } from '../enums/InputType'
 import { MouseInput, GamepadButtons, TouchInputs } from '../enums/InputEnums'
 import { ClientInputSystem } from '../systems/ClientInputSystem'
@@ -23,7 +19,7 @@ const tapLength = 200 // 100ms between doubletaps
  * @param args is argument object
  */
 
-const usingThumbstick = () => {
+export const usingThumbstick = () => {
   return Boolean(
     Engine.inputState.get(GamepadAxis.Left)?.value[0] ||
       Engine.inputState.get(GamepadAxis.Left)?.value[1] ||
@@ -32,20 +28,20 @@ const usingThumbstick = () => {
   )
 }
 
-const handleTouchMove = (args: { event: TouchEvent }): void => {
-  if (!ClientInputSystem.instance.mouseInputEnabled) {
+export const handleTouchMove = (event: TouchEvent): void => {
+  if (!Engine.mouseInputEnabled) {
     return
   }
 
   const normalizedPosition = normalizeMouseCoordinates(
-    args.event.touches[0].clientX,
-    args.event.touches[0].clientY,
+    event.touches[0].clientX,
+    event.touches[0].clientY,
     window.innerWidth,
     window.innerHeight
   )
   const touchPosition: [number, number] = [normalizedPosition.x, normalizedPosition.y]
 
-  if (args.event.touches.length == 1) {
+  if (event.touches.length == 1) {
     const mappedPositionInput = TouchInputs.Touch1Position
     const hasData = Engine.inputState.has(mappedPositionInput)
 
@@ -55,7 +51,7 @@ const handleTouchMove = (args: { event: TouchEvent }): void => {
       lifecycleState: hasData ? LifecycleValue.CHANGED : LifecycleValue.STARTED
     })
 
-    const movementStart = args.event.type === 'touchstart'
+    const movementStart = event.type === 'touchstart'
     const mappedMovementInput = TouchInputs.Touch1Movement
 
     const touchMovement: [number, number] = [0, 0]
@@ -71,10 +67,10 @@ const handleTouchMove = (args: { event: TouchEvent }): void => {
       value: touchMovement,
       lifecycleState: Engine.inputState.has(mappedMovementInput) ? LifecycleValue.CHANGED : LifecycleValue.STARTED
     })
-  } else if (args.event.touches.length >= 2) {
+  } else if (event.touches.length >= 2) {
     const normalizedPosition2 = normalizeMouseCoordinates(
-      args.event.touches[1].clientX,
-      args.event.touches[1].clientY,
+      event.touches[1].clientX,
+      event.touches[1].clientY,
       window.innerWidth,
       window.innerHeight
     )
@@ -110,7 +106,7 @@ const handleTouchMove = (args: { event: TouchEvent }): void => {
 
     const lastTouchcontrollerPositionLeftArray = Engine.prevInputState.get(TouchInputs.Touch1Position)?.value
     const lastTouchPosition2Array = Engine.prevInputState.get(TouchInputs.Touch2Position)?.value
-    if (args.event.type === 'touchstart' || !lastTouchcontrollerPositionLeftArray || !lastTouchPosition2Array) {
+    if (event.type === 'touchstart' || !lastTouchcontrollerPositionLeftArray || !lastTouchPosition2Array) {
       // skip if it's just start of gesture or there are no previous data yet
       return
     }
@@ -156,13 +152,13 @@ const handleTouchMove = (args: { event: TouchEvent }): void => {
  *
  * @param args is argument object
  */
-const handleTouch = ({ event, value }: { event: TouchEvent; value: BinaryType }): void => {
-  if (!ClientInputSystem.instance.mouseInputEnabled) {
+export const handleTouch = (event: TouchEvent): void => {
+  if (!Engine.mouseInputEnabled) {
     return
   }
   if (event.targetTouches.length) {
     const mappedInputKey = TouchInputs.Touch
-    if (value === BinaryValue.ON) {
+    if (event.type === 'touchstart') {
       if (event.targetTouches.length == 1) {
         const timeNow = Date.now()
         const doubleTapInput = TouchInputs.DoubleTouch
@@ -193,11 +189,11 @@ const handleTouch = ({ event, value }: { event: TouchEvent; value: BinaryType })
       }
 
       // If the key is in the map but it's in the same state as now, let's skip it (debounce)
-      if (Engine.inputState.has(mappedInputKey) && Engine.inputState.get(mappedInputKey).value === value) {
+      if (Engine.inputState.has(mappedInputKey) && Engine.inputState.get(mappedInputKey).value === BinaryValue.ON) {
         if (Engine.inputState.get(mappedInputKey).lifecycleState !== LifecycleValue.CONTINUED) {
           Engine.inputState.set(mappedInputKey, {
             type: InputType.BUTTON,
-            value: value,
+            value: BinaryValue.ON,
             lifecycleState: LifecycleValue.CONTINUED
           })
         }
@@ -207,13 +203,13 @@ const handleTouch = ({ event, value }: { event: TouchEvent; value: BinaryType })
       // Set type to BUTTON (up/down discrete state) and value to up or down, depending on what the value is set to
       Engine.inputState.set(mappedInputKey, {
         type: InputType.BUTTON,
-        value: value,
+        value: BinaryValue.ON,
         lifecycleState: LifecycleValue.STARTED
       })
     } else {
       Engine.inputState.set(mappedInputKey, {
         type: InputType.BUTTON,
-        value: value,
+        value: BinaryValue.ON,
         lifecycleState: LifecycleValue.ENDED
       })
     }
@@ -242,9 +238,9 @@ const handleTouch = ({ event, value }: { event: TouchEvent; value: BinaryType })
  * @param args is argument object. Events that occur due to the user interacting with a pointing device (such as a mouse).
  */
 
-const handleTouchDirectionalPad = (args: { event: CustomEvent }): void => {
+export const handleTouchDirectionalPad = (event: CustomEvent): void => {
   // TODO: move this types to types and interfaces
-  const { stick, value }: { stick: GamepadAxis; value: { x: number; y: number; angleRad: number } } = args.event.detail
+  const { stick, value }: { stick: GamepadAxis; value: { x: number; y: number; angleRad: number } } = event.detail
   if (!stick) {
     return
   }
@@ -284,16 +280,17 @@ const handleTouchDirectionalPad = (args: { event: CustomEvent }): void => {
  * @param args is argument object
  */
 
-function handleTouchGamepadButton(args: { event: CustomEvent; value: BinaryType }): any {
-  const key = args.event.detail.button as GamepadButtons // this is a custom event, hence why it is our own enum type
+export function handleTouchGamepadButton(event: CustomEvent): any {
+  const value = event.type === 'touchgamepadbuttondown'
+  const key = event.detail.button as GamepadButtons // this is a custom event, hence why it is our own enum type
 
-  if (args.value === BinaryValue.ON) {
+  if (value) {
     // If the key is in the map but it's in the same state as now, let's skip it (debounce)
-    if (Engine.inputState.has(key) && Engine.inputState.get(key).value === args.value) {
+    if (Engine.inputState.has(key) && Engine.inputState.get(key).value === BinaryValue.ON) {
       if (Engine.inputState.get(key).lifecycleState !== LifecycleValue.CONTINUED) {
         Engine.inputState.set(key, {
           type: InputType.BUTTON,
-          value: args.value,
+          value: BinaryValue.ON,
           lifecycleState: LifecycleValue.CONTINUED
         })
       }
@@ -302,13 +299,13 @@ function handleTouchGamepadButton(args: { event: CustomEvent; value: BinaryType 
     // Set type to BUTTON (up/down discrete state) and value to up or down, depending on what the value is set to
     Engine.inputState.set(key, {
       type: InputType.BUTTON,
-      value: args.value,
+      value: BinaryValue.ON,
       lifecycleState: LifecycleValue.STARTED
     })
   } else {
     Engine.inputState.set(key, {
       type: InputType.BUTTON,
-      value: args.value,
+      value: BinaryValue.OFF,
       lifecycleState: LifecycleValue.ENDED
     })
   }
@@ -320,14 +317,14 @@ function handleTouchGamepadButton(args: { event: CustomEvent; value: BinaryType 
  * @param args is argument object. Events that occur due to the user interacting with a pointing device (such as a mouse).
  */
 
-const handleMouseWheel = (args: { event: WheelEvent }): void => {
-  if (!ClientInputSystem.instance.mouseInputEnabled) {
+export const handleMouseWheel = (event: WheelEvent): void => {
+  if (!Engine.mouseInputEnabled) {
     return
   }
 
-  if ((args.event?.target as any).id !== Engine.options.canvasId) return
+  if ((event?.target as any).id !== Engine.options.canvasId) return
 
-  const value = args.event?.deltaY
+  const value = event?.deltaY
 
   if (!Engine.inputState.has(MouseInput.MouseScroll)) {
     Engine.inputState.set(MouseInput.MouseScroll, {
@@ -379,14 +376,14 @@ function normalizeMouseMovement(
  * @param args is argument object. Events that occur due to the user interacting with a pointing device (such as a mouse).
  */
 
-const handleMouseMovement = (args: { event: MouseEvent }): void => {
-  if (!ClientInputSystem.instance.mouseInputEnabled) {
+export const handleMouseMovement = (event: MouseEvent): void => {
+  if (!Engine.mouseInputEnabled) {
     return
   }
 
   const normalizedPosition = normalizeMouseCoordinates(
-    args.event.clientX,
-    args.event.clientY,
+    event.clientX,
+    event.clientY,
     window.innerWidth,
     window.innerHeight
   )
@@ -403,8 +400,8 @@ const handleMouseMovement = (args: { event: MouseEvent }): void => {
   })
 
   const normalizedMovement = normalizeMouseMovement(
-    args.event.movementX,
-    args.event.movementY,
+    event.movementX,
+    event.movementY,
     window.innerWidth,
     window.innerHeight
   )
@@ -439,22 +436,24 @@ const handleMouseMovement = (args: { event: MouseEvent }): void => {
  * @param args is argument object with event and value properties. Value set 0 | 1
  */
 
-const handleMouseButton = (args: { event: MouseEvent; value: BinaryType }): void => {
+export const handleMouseButton = (event: MouseEvent): void => {
+  const mousedown = event.type === 'mousedown'
+
   // For if mouse is over UI, disable button clicks for engine
-  if (args.value === BinaryValue.ON && !ClientInputSystem.instance.mouseInputEnabled) {
+  if (mousedown && !Engine.mouseInputEnabled) {
     return
   }
 
   const mousePosition: [number, number] = [0, 0]
-  mousePosition[0] = (args.event.clientX / window.innerWidth) * 2 - 1
-  mousePosition[1] = (args.event.clientY / window.innerHeight) * -2 + 1
+  mousePosition[0] = (event.clientX / window.innerWidth) * 2 - 1
+  mousePosition[1] = (event.clientY / window.innerHeight) * -2 + 1
 
   // Set type to BUTTON (up/down discrete state) and value to up or down, as called by the DOM mouse events
-  if (args.value === BinaryValue.ON) {
+  if (mousedown) {
     // Set type to BUTTON and value to up or down
-    Engine.inputState.set(args.event.button, {
+    Engine.inputState.set(event.button, {
       type: InputType.BUTTON,
-      value: args.value,
+      value: BinaryValue.ON,
       lifecycleState: LifecycleValue.STARTED
     })
 
@@ -467,9 +466,9 @@ const handleMouseButton = (args: { event: MouseEvent; value: BinaryType }): void
     })
   } else {
     // Removed mouse Engine.inputState data
-    Engine.inputState.set(args.event.button, {
+    Engine.inputState.set(event.button, {
       type: InputType.BUTTON,
-      value: args.value,
+      value: BinaryValue.OFF,
       lifecycleState: LifecycleValue.ENDED
     })
     Engine.inputState.set(MouseInput.MouseClickDownPosition, {
@@ -487,9 +486,6 @@ const handleMouseButton = (args: { event: MouseEvent; value: BinaryType }): void
       value: [0, 0],
       lifecycleState: LifecycleValue.ENDED
     })
-    // Engine.inputState.delete(args.event.button);
-    // Engine.inputState.delete(MouseInput.MouseClickDownPosition);
-    // Engine.inputState.delete(MouseInput.MouseClickDownTransformRotation);
   }
 }
 
@@ -499,27 +495,29 @@ const handleMouseButton = (args: { event: MouseEvent; value: BinaryType }): void
  * @param args is argument object
  */
 
-const handleKey = (args: { event: KeyboardEvent; value: BinaryType }): any => {
+export const handleKey = (event: KeyboardEvent): any => {
+  const keydown = event.type === 'keydown'
+
   // For if mouse is over UI, disable button clicks for engine
-  if (args.value === BinaryValue.ON && !ClientInputSystem.instance.keyboardInputEnabled) {
+  if (keydown && !Engine.keyboardInputEnabled) {
     return
   }
 
-  const element = args.event.target as HTMLElement
+  const element = event.target as HTMLElement
   // Сheck which excludes the possibility of controlling the character (car, etc.) when typing a text
   if (element?.tagName === 'INPUT' || element?.tagName === 'SELECT' || element?.tagName === 'TEXTAREA') {
     return
   }
   // const mappedKey = Engine.inputState.schema.keyboardInputMap[];
-  const key = args.event.key.toLowerCase()
+  const key = event.key.toLowerCase()
 
-  if (args.value === BinaryValue.ON) {
+  if (keydown) {
     // If the key is in the map but it's in the same state as now, let's skip it (debounce)
-    if (Engine.inputState.has(key) && Engine.inputState.get(key).value === args.value) {
+    if (Engine.inputState.has(key) && Engine.inputState.get(key).value === BinaryValue.ON) {
       if (Engine.inputState.get(key).lifecycleState !== LifecycleValue.CONTINUED) {
         Engine.inputState.set(key, {
           type: InputType.BUTTON,
-          value: args.value,
+          value: BinaryValue.ON,
           lifecycleState: LifecycleValue.CONTINUED
         })
       }
@@ -528,20 +526,20 @@ const handleKey = (args: { event: KeyboardEvent; value: BinaryType }): any => {
     // Set type to BUTTON (up/down discrete state) and value to up or down, depending on what the value is set to
     Engine.inputState.set(key, {
       type: InputType.BUTTON,
-      value: args.value,
+      value: BinaryValue.ON,
       lifecycleState: LifecycleValue.STARTED
     })
   } else {
     Engine.inputState.set(key, {
       type: InputType.BUTTON,
-      value: args.value,
+      value: BinaryValue.OFF,
       lifecycleState: LifecycleValue.ENDED
     })
   }
 }
 
-const handleWindowFocus = (args: { event: FocusEvent; value: BinaryType }) => {
-  if (args.value === BinaryValue.OFF)
+export const handleWindowFocus = (event: FocusEvent) => {
+  if (event.type === 'focus')
     Engine.inputState.forEach((value, key) => {
       if (value.type === InputType.BUTTON && value.value === BinaryValue.ON) {
         Engine.inputState.set(key, {
@@ -553,7 +551,7 @@ const handleWindowFocus = (args: { event: FocusEvent; value: BinaryType }) => {
     })
 }
 
-const handleVisibilityChange = (args: { event: Event }) => {
+export const handleVisibilityChange = (event: Event) => {
   if (document.visibilityState === 'hidden') {
     Engine.inputState.forEach((value, key) => {
       if (value.type === InputType.BUTTON && value.value === BinaryValue.ON) {
@@ -577,8 +575,8 @@ const handleVisibilityChange = (args: { event: Event }) => {
  * @param args is argument object. Events that occur due to the user interacting with a pointing device (such as a mouse).
  */
 
-const handleContextMenu = (args: { event: MouseEvent }): void => {
-  args.event.preventDefault()
+export const handleContextMenu = (event: MouseEvent): void => {
+  event.preventDefault()
 }
 
 /**
@@ -587,7 +585,7 @@ const handleContextMenu = (args: { event: MouseEvent }): void => {
  * @param args is argument object. Events that occur due to the user interacting with a pointing device (such as a mouse).
  */
 
-const handleMouseLeave = (args: { event: MouseEvent }): void => {
+export const handleMouseLeave = (event: MouseEvent): void => {
   ;[MouseInput.LeftButton, MouseInput.MiddleButton, MouseInput.RightButton].forEach((button) => {
     if (!Engine.inputState.has(button)) {
       return
@@ -622,19 +620,6 @@ const handleMouseLeave = (args: { event: MouseEvent }): void => {
   }
 }
 
-const keys = { 37: 1, 38: 1, 39: 1, 40: 1 }
-
-function preventDefault(e) {
-  e.preventDefault()
-}
-
-function preventDefaultForScrollKeys(e) {
-  if (keys[e.keyCode]) {
-    preventDefault(e)
-    return false
-  }
-}
-
 /**
  * Normalize coordinates and set the range of coordinates between -1 to 1.
  * @param x
@@ -643,7 +628,7 @@ function preventDefaultForScrollKeys(e) {
  * @param elementHeight
  * @returns Normalized Mouse coordinates (x, y) where x and y are between -1 to 1 inclusively.
  */
-function normalizeMouseCoordinates(
+export function normalizeMouseCoordinates(
   x: number,
   y: number,
   elementWidth: number,
@@ -652,197 +637,5 @@ function normalizeMouseCoordinates(
   return {
     x: (x / elementWidth) * 2 - 1,
     y: (y / elementHeight) * -2 + 1
-  }
-}
-
-/** Disable the scroll */
-function disableScroll(): void {
-  if (!isClient) return
-  window.addEventListener('DOMMouseScroll', preventDefault, false) // older FF
-  // window.addEventListener(wheelEvent, preventDefault, wheelOpt) // modern desktop
-  // window.addEventListener('touchmove', preventDefault, wheelOpt); // mobile
-  window.addEventListener('keydown', preventDefaultForScrollKeys, false)
-}
-
-/** Enable the scroll */
-function enableScroll(): void {
-  if (!isClient) return
-  window.removeEventListener('DOMMouseScroll', preventDefault, false)
-  // window.removeEventListener(wheelEvent, preventDefault)
-  // window.removeEventListener('touchmove', preventDefault);
-  window.removeEventListener('keydown', preventDefaultForScrollKeys, false)
-}
-
-export const ClientInputSchema = {
-  // When an Input component is added, the system will call this array of behaviors
-  onAdded: [
-    {
-      behavior: disableScroll
-    }
-  ],
-  // When an Input component is removed, the system will call this array of behaviors
-  onRemoved: [
-    {
-      behavior: enableScroll
-    }
-  ],
-  eventBindings: {
-    // Mouse
-    contextmenu: [
-      {
-        behavior: handleContextMenu
-      }
-    ],
-    mousemove: [
-      {
-        behavior: handleMouseMovement
-      }
-    ],
-    mouseup: [
-      {
-        behavior: handleMouseButton,
-        args: {
-          value: BinaryValue.OFF
-        }
-      }
-    ],
-    mousedown: [
-      {
-        behavior: handleMouseButton,
-        args: {
-          value: BinaryValue.ON
-        }
-      }
-    ],
-    wheel: [
-      {
-        behavior: handleMouseWheel,
-        passive: true
-      }
-    ],
-    mouseleave: [
-      {
-        behavior: handleMouseLeave
-      }
-    ],
-    // Touch
-    touchstart: [
-      {
-        behavior: handleTouch,
-        passive: true,
-        args: {
-          value: BinaryValue.ON
-        }
-      },
-      {
-        behavior: handleTouchMove,
-        passive: true
-      }
-    ],
-    touchend: [
-      {
-        behavior: handleTouch,
-        passive: true,
-        args: {
-          value: BinaryValue.OFF
-        }
-      }
-    ],
-    touchcancel: [
-      {
-        behavior: handleTouch,
-        passive: true,
-        args: {
-          value: BinaryValue.OFF
-        }
-      }
-    ],
-    touchmove: [
-      {
-        behavior: handleTouchMove,
-        passive: true
-      }
-    ],
-    // Keys
-    keyup: [
-      {
-        behavior: handleKey,
-        element: 'document',
-        args: {
-          value: BinaryValue.OFF
-        }
-      }
-    ],
-    keydown: [
-      {
-        behavior: handleKey,
-        element: 'document',
-        args: {
-          value: BinaryValue.ON
-        }
-      }
-    ],
-    focus: [
-      {
-        behavior: handleWindowFocus,
-        element: 'window',
-        args: {
-          value: BinaryValue.ON
-        }
-      }
-    ],
-    blur: [
-      {
-        behavior: handleWindowFocus,
-        element: 'window',
-        args: {
-          value: BinaryValue.OFF
-        }
-      }
-    ],
-    visibilitychange: [
-      {
-        behavior: handleVisibilityChange,
-        element: 'document'
-      }
-    ],
-    // Gamepad
-    gamepadconnected: [
-      {
-        behavior: handleGamepadConnected,
-        element: 'window'
-      }
-    ],
-    gamepaddisconnected: [
-      {
-        behavior: handleGamepadDisconnected,
-        element: 'window'
-      }
-    ],
-    // Touch gamepad
-    touchstickmove: [
-      {
-        behavior: handleTouchDirectionalPad,
-        element: 'document'
-      }
-    ],
-    touchgamepadbuttondown: [
-      {
-        behavior: handleTouchGamepadButton,
-        element: 'document',
-        args: {
-          value: BinaryValue.ON
-        }
-      }
-    ],
-    touchgamepadbuttonup: [
-      {
-        behavior: handleTouchGamepadButton,
-        element: 'document',
-        args: {
-          value: BinaryValue.OFF
-        }
-      }
-    ]
   }
 }

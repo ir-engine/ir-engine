@@ -182,6 +182,13 @@ export default class ReflectionProbeNode extends EditorNodeMixin(Object3D) {
   onRemove() {
     this.currentEnvMap?.dispose()
     this.editor.scene.unregisterEnvironmentMapNode(this)
+    const api = this.editor.api
+    const fileID = api.filesToUpload[this.ownedFileIdentifier]
+    if (fileID) {
+      const id = fileID['file_id']
+      if (id) api.deleteAsset(id, api.currentProjectID, this.ownedFileIdentifier)
+      delete api.filesToUpload[this.ownedFileIdentifier]
+    }
   }
 
   async uploadBakeToServer(projectID: any) {

@@ -1,4 +1,5 @@
 {
+  "name": "@xrengine/engine",
   "author": {
     "name": "XREngine",
     "email": "shawmakesmagic@gmail.com",
@@ -7,11 +8,12 @@
   "bugs": {
     "url": "https://github.com/XRFoundation/XREngine/issues"
   },
-  "name": "@xrengine/engine",
   "publishConfig": {
     "access": "public"
   },
-  "jest": "ts-jest",
+  "jest": {
+    "preset": "ts-jest"
+  },
   "description": "A declarative way to build 3D/VR/AR/XR apps that scale. Built with tooling web developers will love, using conventions that game developers and creative coders will find straightforward familiar.",
   "homepage": "https://github.com/XRFoundation/XREngine#readme",
   "license": "MIT",
@@ -38,18 +40,23 @@
     "@typescript-eslint/parser": "^4.4.1"
   },
   "dependencies": {
+    "@hookstate/core": "^3.0.8",
+    "@mapbox/geojson-rewind": "^0.5.1",
     "@mapbox/vector-tile": "^1.3.1",
     "@pixiv/three-vrm": "^0.6.4",
-    "@tweenjs/tween.js": "^18.6.4",
     "@turf/buffer": "^6.5.0",
+    "@tweenjs/tween.js": "^18.6.4",
     "@xrengine/bot": "^0.3.31",
     "@xrengine/common": "^0.3.31",
+    "bitecs": "0.3.16-3-alpha",
     "browserfs": "^1.4.3",
+    "cross-env": "^7.0.3",
     "cross-fetch": "^3.0.6",
     "ctix": "^0.3.1",
     "dashjs": "^4.0.0-npm",
     "detect-browser": "^5.2.0",
     "draco3dgltf": "^1.4.1",
+    "earcut": "^2.2.3",
     "ethereal": "^2.0.4",
     "hls.js": "^1.0.7",
     "idb-keyval": "^5.0.5",
@@ -58,32 +65,37 @@
     "pbf": "^3.2.1",
     "postprocessing": "^6.21.5",
     "react": "17.0.2",
+    "simplex-noise": "^2.4.0",
     "socket.io": "4.1.3",
     "styled-components": "5.3.0",
-    "three": "^0.130.0",
+    "three": "^0.131.0",
     "three-mesh-bvh": "^0.3.7",
     "three-physx": "^0.0.33",
     "twitch-m3u8": "^1.1.4",
-    "vite": "2.4.3",
+    "vite": "2.4.4",
     "volumetric": "0.2.27"
   },
   "devDependencies": {
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-node-resolve": "13.0.4",
     "@rollup/plugin-replace": "3.0.0",
-    "@rollup/plugin-typescript": "8.2.3",
+    "@rollup/plugin-typescript": "8.2.5",
+    "@types/earcut": "2.1.1",
     "@types/expect-puppeteer": "4.4.6",
+    "@types/geojson": "7946.0.8",
     "@types/jest": "26.0.24",
     "@types/jest-environment-puppeteer": "4.4.1",
     "@types/puppeteer": "5.4.4",
     "@types/three": "0.130.1",
-    "esbuild": "0.12.15",
-    "eslint": "7.31.0",
-    "rollup": "2.53.3",
+    "@types/yuka": "0.7.1",
+    "cross-env": "7.0.3",
+    "esbuild": "0.12.17",
+    "eslint": "7.32.0",
+    "rollup": "2.55.1",
     "rollup-plugin-node-polyfills": "0.2.1",
     "rollup-plugin-scss": "3.0.0",
     "ts-jest": "27.0.4",
-    "typedoc": "0.21.4",
+    "typedoc": "0.21.5",
     "typescript": "4.3.5"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"

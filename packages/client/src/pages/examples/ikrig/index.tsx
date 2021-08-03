@@ -33,8 +33,6 @@ class AnimationComponent extends Component<AnimationComponent> {
   animations: AnimationClip[] = []
 }
 class AnimationSystem extends System {
-  updateType = SystemUpdateType.Fixed
-
   /**
    * Execute the camera system for different events of queries.\
    * Called each frame by default.
@@ -42,10 +40,10 @@ class AnimationSystem extends System {
    * @param delta time since last frame.
    */
   execute(delta: number): void {
-    this.queryResults.animation.all?.forEach((entity) => {
+    for (const entity of this.queryResults.animation.all) {
       let ac = getMutableComponent(entity, AnimationComponent)
       ac.mixer.update(delta)
-    })
+    }
   }
 }
 
@@ -54,8 +52,7 @@ AnimationSystem.queries = {
     components: [AnimationComponent],
     listen: {
       added: true,
-      removed: true,
-      changed: true
+      removed: true
     }
   }
 }

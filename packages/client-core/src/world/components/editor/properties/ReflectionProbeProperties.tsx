@@ -6,12 +6,10 @@ import React from 'react'
 import {
   ReflectionProbeRefreshTypes,
   ReflectionProbeTypes
-} from '../../../../../../engine/src/editor/nodes/ReflectionProbeNode'
+} from '@xrengine/engine/src/editor/nodes/ReflectionProbeNode'
 import BooleanInput from '../inputs/BooleanInput'
-import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
-import { ControlledStringInput } from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import { ReflectionPropertyTypes } from './ReflectionProbeNodeEditor'
 
@@ -86,8 +84,8 @@ export const ReflectionProbeProperties = (props: ReflectionProbePropertyEditorPr
       )
       break
     case ReflectionPropertyTypes.ReflectionProbeType:
-      /* @ts-ignore */
       renderVal = (
+        /* @ts-ignore */
         <SelectInput
           options={reflectionProbeSelectTypes}
           onChange={(id) => {
@@ -99,8 +97,8 @@ export const ReflectionProbeProperties = (props: ReflectionProbePropertyEditorPr
       break
 
     case ReflectionPropertyTypes.RefreshMode:
-      /* @ts-ignore */
       renderVal = (
+        /* @ts-ignore */
         <SelectInput
           options={reflectionProbeRefreshSelectTypes}
           onChange={(id) => {
@@ -112,8 +110,8 @@ export const ReflectionProbeProperties = (props: ReflectionProbePropertyEditorPr
       break
 
     case ReflectionPropertyTypes.Resolution:
-      /* @ts-ignore */
       renderVal = (
+        /* @ts-ignore */
         <SelectInput
           options={reflectionResolutionTypes}
           onChange={(id) => {

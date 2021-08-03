@@ -1,35 +1,29 @@
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
-import { Behavior } from '../common/interfaces/Behavior'
 import { Entity } from '../ecs/classes/Entity'
-import { getComponent } from '../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../ecs/functions/EntityFunctions'
 import { Input } from '../input/components/Input'
 import { BaseInput } from '../input/enums/BaseInput'
-import { Camera, Material, Mesh, Quaternion, Vector3 } from 'three'
+import { Camera, Material, Mesh, Quaternion, Vector3, Vector2 } from 'three'
 import { SkinnedMesh } from 'three/src/objects/SkinnedMesh'
 import { CameraModes } from '../camera/types/CameraModes'
 import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { GamepadAxis, XRAxes } from '../input/enums/InputEnums'
-import { getMutableComponent, hasComponent } from '../ecs/functions/EntityFunctions'
+import { getMutableComponent } from '../ecs/functions/EntityFunctions'
 import { CameraInput, GamepadButtons, MouseInput, TouchInputs } from '../input/enums/InputEnums'
 import { InputType } from '../input/enums/InputType'
 import { InputBehaviorType, InputSchema } from '../input/interfaces/InputSchema'
 import { InputAlias } from '../input/types/InputAlias'
-import { Interactable } from '../interaction/components/Interactable'
 import { Interactor } from '../interaction/components/Interactor'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
-import { interactOnServer } from '../interaction/systems/InteractiveSystem'
 import { CharacterComponent } from './components/CharacterComponent'
-import { isClient } from '../common/functions/isClient'
-import { VehicleComponent } from '../vehicle/components/VehicleComponent'
 import { isMobile } from '../common/functions/isMobile'
-import { EquipperComponent } from '../interaction/components/EquipperComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings'
-import { BinaryValue } from '../common/enums/BinaryValue'
 import { ParityValue } from '../common/enums/ParityValue'
-import { XRInputSourceComponent } from './components/XRInputSourceComponent'
 import { InputValue } from '../input/interfaces/InputValue'
 import { NumericalType } from '../common/types/NumericalTypes'
+import { InteractedComponent } from '../interaction/components/InteractedComponent'
+import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -51,61 +45,12 @@ const getParityFromInputValue = (key: InputAlias): ParityValue => {
 
 const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number): void => {
   if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
-
   const parityValue = getParityFromInputValue(inputKey)
 
-  if (!isClient) {
-    //TODO: all this function needs to re-think
-    interactOnServer(entity, parityValue) //TODO: figure out all this cases
-    return
-  }
+  const interactor = getComponent(entity, Interactor)
+  if (!interactor?.focusedInteractive) return
 
-  const equipperComponent = getComponent(entity, EquipperComponent)
-  if (equipperComponent) {
-    return
-  }
-
-  if (!hasComponent(entity, Interactor)) {
-    console.error('Attempted to call interact behavior, but actor does not have Interactor component')
-    return
-  }
-
-  const { focusedInteractive: focusedEntity } = getComponent(entity, Interactor)
-  const input = getComponent(entity, Input)
-  const mouseScreenPosition = input.data.get(BaseInput.SCREENXY)
-
-  // TODO this might be for mobile controls, but breaks non mobile interact
-  // if (mouseScreenPosition && args.phase === LifecycleValue.STARTED ){
-  //   startedPosition.set(entity,mouseScreenPosition.value);
-  //   return;
-  // }
-
-  if (!focusedEntity) {
-    console.log('no focused entity')
-    // no available interactive object is focused right now
-    return
-  }
-
-  if (!hasComponent(focusedEntity, Interactable)) {
-    console.error('Attempted to call interact behavior, but target does not have Interactive component')
-    return
-  }
-
-  const interactive = getComponent(focusedEntity, Interactable)
-  const intPosition = getComponent(focusedEntity, TransformComponent).position
-
-  // TODO: use the aabb of the object instead of the transform to get the accurate position
-  // if (getInteractiveIsInReachDistance(entity, intPosition, args.side)) {
-  if (interactive && typeof interactive.onInteraction === 'function') {
-    if (!hasComponent(focusedEntity, VehicleComponent)) {
-      interactive.onInteraction(entity, { side: parityValue }, delta, focusedEntity)
-    } else {
-      console.log('Interaction with cars must work only from server')
-    }
-  } else {
-    console.warn('onInteraction is not a function')
-  }
-  // }
+  addComponent(interactor.focusedInteractive, InteractedComponent, { interactor: entity, parity: parityValue })
 }
 
 /**
@@ -177,7 +122,13 @@ const setVisible = (entity: Entity, visible: boolean): void => {
     object3DComponent.value.traverse((obj) => {
       const mat = (obj as SkinnedMesh).material
       if (mat) {
-        ;(mat as Material).visible = visible
+        if (visible) {
+          ;(mat as Material).opacity = 1
+          ;(mat as Material).transparent = false
+        } else {
+          ;(mat as Material).opacity = 0
+          ;(mat as Material).transparent = true
+        }
       }
     })
   }
@@ -358,7 +309,7 @@ const moveByInputAxis: InputBehaviorType = (
   delta: number
 ): void => {
   const actor = getMutableComponent(entity, CharacterComponent)
-  const input = getComponent<Input>(entity, Input as any)
+  const input = getComponent(entity, Input)
 
   const data = input.data.get(inputKey)
 
@@ -417,7 +368,7 @@ const moveFromXRInputs: InputBehaviorType = (
   delta: number
 ): void => {
   const actor = getMutableComponent(entity, CharacterComponent)
-  const input = getComponent<Input>(entity, Input as any)
+  const input = getComponent(entity, Input)
   const values = input.data.get(BaseInput.XR_AXIS_MOVE)?.value
   if (!values) return
 
@@ -437,7 +388,7 @@ const lookFromXRInputs: InputBehaviorType = (
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
-  const input = getComponent<Input>(entity, Input as any)
+  const input = getComponent(entity, Input)
   const values = input.data.get(BaseInput.XR_AXIS_LOOK)?.value
   const rotationAngle = XRUserSettings.rotationAngle
   let newAngleDiff = 0
@@ -472,7 +423,7 @@ const lookByInputAxis: InputBehaviorType = (
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
-  const input = getMutableComponent<Input>(entity, Input)
+  const input = getMutableComponent(entity, Input)
   const data = input.data.get(BaseInput.GAMEPAD_STICK_RIGHT)
   const multiplier = 0.1
   // adding very small noise to trigger same value to be "changed"
@@ -500,6 +451,15 @@ const lookByInputAxis: InputBehaviorType = (
       })
     }
   }
+}
+
+export const clickNavMesh: InputBehaviorType = (actorEntity, inputKey, inputValue): void => {
+  if (inputValue.lifecycleState !== LifecycleValue.STARTED) {
+    return
+  }
+  const input = getComponent(actorEntity, Input)
+  const coords = input.data.get(BaseInput.SCREENXY).value
+  addComponent(actorEntity, AutoPilotClickRequestComponent, { coords: new Vector2(coords[0], coords[1]) })
 }
 
 // what do we want this to look like?
@@ -601,6 +561,8 @@ export const createBehaviorMap = () => {
   map.set(BaseInput.GAMEPAD_STICK_RIGHT, lookByInputAxis)
   map.set(BaseInput.XR_AXIS_LOOK, lookFromXRInputs)
   map.set(BaseInput.XR_AXIS_MOVE, moveFromXRInputs)
+
+  map.set(BaseInput.PRIMARY, clickNavMesh)
 
   return map
 }

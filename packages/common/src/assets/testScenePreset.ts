@@ -285,30 +285,6 @@ export const testScenePreset = {
       updatedAt: '2021-04-02T00:35:15.000Z',
       components: [
         {
-          name: 'box-collider',
-          props: {
-            type: 'ground',
-            position: {
-              x: 0,
-              y: 0,
-              z: 0
-            }
-          },
-          data: {
-            type: 'ground',
-            position: {
-              x: 0,
-              y: 0,
-              z: 0
-            }
-          },
-          id: '08cc03b0-24e9-11eb-bc2e-e7e742fb069f',
-          entityId: '1B698482-C15A-4CEC-9247-03873520DF70',
-          createdAt: '2020-11-12T02:14:45.000Z',
-          updatedAt: '2021-04-02T00:35:15.000Z',
-          type: 'box-collider'
-        },
-        {
           name: 'transform',
           props: {
             position: {

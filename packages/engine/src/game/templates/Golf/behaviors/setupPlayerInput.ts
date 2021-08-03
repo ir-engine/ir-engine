@@ -14,13 +14,15 @@ import { ColliderComponent } from '../../../../physics/components/ColliderCompon
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GamePlayer } from '../../../components/GamePlayer'
 import { getGameFromName } from '../../../functions/functions'
-import { addStateComponent } from '../../../functions/functionsState'
+import { addStateComponent, removeStateComponent } from '../../../functions/functionsState'
 import { getStorage } from '../../../functions/functionsStorage'
 import { State } from '../../../types/GameComponents'
 import { teleportObject } from './teleportObject'
 import { GolfClubComponent } from '../components/GolfClubComponent'
 import { hideClub } from '../prefab/GolfClubPrefab'
 import { isClient } from '../../../../common/functions/isClient'
+import { GolfState } from '../GolfGameComponents'
+import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 
 // we need to figure out a better way than polluting an 8 bit namespace :/
 
@@ -40,9 +42,9 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
     GolfInput.TELEPORT,
     (entity: Entity, inputKey: InputAlias, inputValue: InputValue<NumericalType>, delta: number) => {
       if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
-      const { gameName, ownedObjects } = getComponent(entity, GamePlayer)
-      const game = getGameFromName(gameName)
+      const { ownedObjects } = getComponent(entity, GamePlayer)
       const ballEntity = ownedObjects['GolfBall']
+      if (!ballEntity) return
       const ballTransform = getComponent(ballEntity, TransformComponent)
       const position = ballTransform.position
       console.log('teleporting to', position.x, position.y, position.z)
@@ -87,10 +89,14 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
         const gameScore = getStorage(entity, { name: 'GameScore' })
         const holeEntity = game.gameObjects['GolfHole'][gameScore.score.goal]
         const ballEntity = ownedObjects['GolfBall']
+        removeStateComponent(ballEntity, State.Active)
         addStateComponent(ballEntity, State.Inactive)
-        addStateComponent(ballEntity, State.BallMoving)
+        removeStateComponent(ballEntity, GolfState.BallStopped)
+        removeStateComponent(ballEntity, GolfState.AlmostStopped)
+        addStateComponent(ballEntity, GolfState.BallMoving)
+        addStateComponent(entity, GolfState.AlreadyHit)
         const position = new Vector3().copy(getComponent(holeEntity, TransformComponent).position)
-        position.y += 1.5
+        position.y += 0.5
         teleportObject(ballEntity, { position })
       }
     )
@@ -103,12 +109,13 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
         const { ownedObjects } = getComponent(entity, GamePlayer)
         const ballEntity = ownedObjects['GolfBall']
         const collider = getMutableComponent(ballEntity, ColliderComponent)
-        collider.velocity.set(0, 0, 0)
+        const velocity = getComponent(ballEntity, VelocityComponent)
+        velocity.velocity.set(0, 0, 0)
         collider.body.updateTransform({
           translation: {
-            x: 0,
-            y: 10,
-            z: 0
+            x: 2,
+            y: 1,
+            z: -4
           },
           rotation: {
             x: 0,

@@ -2,7 +2,6 @@ import { dispatchAlertError, dispatchAlertSuccess } from '../../../common/reduce
 import { resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { IdentityProvider } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { resolveUser, resolveWalletUser } from '@xrengine/common/src/interfaces/User'
-import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 // TODO: Decouple this
@@ -14,17 +13,9 @@ import { Dispatch } from 'redux'
 import { v1 } from 'uuid'
 import { client } from '../../../feathers'
 import { validateEmail, validatePhoneNumber } from '../../../helper'
-import { getStoredState } from '../../../persisted.store'
+import { getStoredAuthState } from '../../../persisted.store'
 import Store from '../../../store'
-import {
-  addedChannelLayerUser,
-  addedLayerUser,
-  clearChannelLayerUsers,
-  clearLayerUsers,
-  displayUserToast,
-  removedChannelLayerUser,
-  removedLayerUser
-} from '../user/actions'
+import { UserAction } from '../../store/UserAction'
 import {
   actionProcessing,
   avatarUpdated,
@@ -47,14 +38,14 @@ import {
   usernameUpdated,
   userUpdated
 } from './actions'
-import { AnimationSystem } from '@xrengine/engine/src/character/AnimationSystem'
+import { setActorAvatar } from '@xrengine/engine/src/character/functions/avatarFunctions'
 
 const store = Store.store
 
 export function doLoginAuto(allowGuest?: boolean, forceClientAuthReset?: boolean) {
   return async (dispatch: Dispatch): Promise<any> => {
     try {
-      const authData = getStoredState('auth')
+      const authData = getStoredAuthState()
       let accessToken =
         forceClientAuthReset !== true && authData && authData.authUser ? authData.authUser.accessToken : undefined
 
@@ -815,8 +806,7 @@ const loadAvatarForUpdatedUser = async (user) => {
       for (let key of Object.keys(Network.instance.networkObjects)) {
         const obj = Network.instance.networkObjects[key]
         if (obj?.ownerId === user.id) {
-          EngineEvents.instance.dispatchEvent({
-            type: AnimationSystem.EVENTS.LOAD_AVATAR,
+          setActorAvatar({
             entityID: obj.component.entity.id,
             avatarId: user.avatarId,
             avatarURL
@@ -853,8 +843,7 @@ const loadXRAvatarForUpdatedUser = async (user) => {
     for (let key of Object.keys(Network.instance.networkObjects)) {
       const obj = Network.instance.networkObjects[key]
       if (obj?.ownerId === user.id) {
-        EngineEvents.instance.dispatchEvent({
-          type: AnimationSystem.EVENTS.LOAD_AVATAR,
+        setActorAvatar({
           entityID: obj.component.entity.id,
           avatarId: user.avatarId,
           avatarURL
@@ -875,8 +864,8 @@ if (!Config.publicRuntimeConfig.offlineMode) {
     if (Network.instance != null) await loadAvatarForUpdatedUser(user)
 
     if (selfUser.id === user.id) {
-      if (selfUser.instanceId !== user.instanceId) store.dispatch(clearLayerUsers())
-      if (selfUser.channelInstanceId !== user.channelInstanceId) store.dispatch(clearChannelLayerUsers())
+      if (selfUser.instanceId !== user.instanceId) store.dispatch(UserAction.clearLayerUsers())
+      if (selfUser.channelInstanceId !== user.channelInstanceId) store.dispatch(UserAction.clearChannelLayerUsers())
       store.dispatch(userUpdated(user))
       if (user.partyId) {
         // setRelationship('party', user.partyId);
@@ -892,16 +881,17 @@ if (!Config.publicRuntimeConfig.offlineMode) {
       }
     } else {
       if (user.channelInstanceId != null && user.channelInstanceId === selfUser.channelInstanceId)
-        store.dispatch(addedChannelLayerUser(user))
+        store.dispatch(UserAction.addedChannelLayerUser(user))
       if (user.instanceId != null && user.instanceId === selfUser.instanceId) {
-        store.dispatch(addedLayerUser(user))
-        store.dispatch(displayUserToast(user, { userAdded: true }))
+        store.dispatch(UserAction.addedLayerUser(user))
+        store.dispatch(UserAction.displayUserToast(user, { userAdded: true }))
       }
       if (user.instanceId !== selfUser.instanceId) {
-        store.dispatch(removedLayerUser(user))
-        store.dispatch(displayUserToast(user, { userRemoved: true }))
+        store.dispatch(UserAction.removedLayerUser(user))
+        store.dispatch(UserAction.displayUserToast(user, { userRemoved: true }))
       }
-      if (user.channelInstanceId !== selfUser.channelInstanceId) store.dispatch(removedChannelLayerUser(user))
+      if (user.channelInstanceId !== selfUser.channelInstanceId)
+        store.dispatch(UserAction.removedChannelLayerUser(user))
     }
   })
   client.service('location-ban').on('created', async (params) => {

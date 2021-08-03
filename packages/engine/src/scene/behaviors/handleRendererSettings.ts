@@ -1,11 +1,12 @@
-import { DirectionalLight, LinearToneMapping, PCFSoftShadowMap, ShadowMapType, ToneMapping } from 'three'
+import { DirectionalLight, LinearToneMapping, PCFSoftShadowMap, ShadowMapType, ToneMapping, Vector3 } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { CSM } from '../../assets/csm/CSM'
 import { Engine } from '../../ecs/classes/Engine'
-import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
-import { isMobile } from '../../common/functions/isMobile'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 
 export type RenderSettingsProps = {
+  LODs: Vector3
   overrideRendererSettings: boolean
   csm: boolean
   toneMapping: ToneMapping
@@ -17,16 +18,16 @@ export const configureCSM = (directionalLights: DirectionalLight[], remove?: boo
   if (!isClient || !Engine.renderer.shadowMap.enabled) return
 
   if (remove || !directionalLights.length) {
-    if (!WebGLRendererSystem.instance.csm) return
+    if (!Engine.csm) return
 
-    WebGLRendererSystem.instance.csm.remove()
-    WebGLRendererSystem.instance.csm.dispose()
-    WebGLRendererSystem.instance.csm = undefined
+    Engine.csm.remove()
+    Engine.csm.dispose()
+    Engine.csm = undefined
 
     return
   }
 
-  if (Engine.isHMD || WebGLRendererSystem.instance.csm) return
+  if (Engine.isHMD || Engine.csm) return
 
   const csm = new CSM({
     camera: Engine.camera,
@@ -35,7 +36,7 @@ export const configureCSM = (directionalLights: DirectionalLight[], remove?: boo
   })
 
   csm.fade = true
-  WebGLRendererSystem.instance.csm = csm
+  Engine.csm = csm
 }
 
 export const handleRendererSettings = (args: RenderSettingsProps, reset?: boolean): void => {
@@ -49,11 +50,14 @@ export const handleRendererSettings = (args: RenderSettingsProps, reset?: boolea
     Engine.renderer.toneMapping = LinearToneMapping
     Engine.renderer.toneMappingExposure = 0.8
 
+    AssetLoader.LOD_DISTANCES = Object.assign({}, DEFAULT_LOD_DISTANCES)
     return
   }
 
   Engine.renderer.toneMapping = args.toneMapping
   Engine.renderer.toneMappingExposure = args.toneMappingExposure
+
+  if (args.LODs) AssetLoader.LOD_DISTANCES = { '0': args.LODs.x, '1': args.LODs.y, '2': args.LODs.y }
 
   if (typeof args.shadowMapType === 'undefined') {
     Engine.renderer.shadowMap.enabled = false

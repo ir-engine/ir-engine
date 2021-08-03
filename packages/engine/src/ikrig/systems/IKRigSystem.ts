@@ -25,12 +25,12 @@ export class IKRigSystem extends System {
 
   execute(deltaTime) {
     // DEBUG
-    this.queryResults.debug.all?.forEach((entity) => {
+    for (const entity of this.queryResults.debug.all) {
       const d = getMutableComponent(entity, DebugComponent)
       d.reset() // For this example, Lets reset visual debug for every compute.
-    })
+    }
     // RUN
-    this.queryResults.ikpose.all?.forEach((entity) => {
+    for (const entity of this.queryResults.ikpose.all) {
       const ikPose = getMutableComponent(entity, IKPose)
       const rig = getMutableComponent(entity, IKRig)
 
@@ -79,7 +79,7 @@ export class IKRigSystem extends System {
       // applyLookTwist(entity, rig.points.head, ikPose.head, FORWARD, UP);
 
       // rig.pose.apply();
-    })
+    }
   }
 }
 IKRigSystem.queries = {
@@ -87,24 +87,21 @@ IKRigSystem.queries = {
     components: [IKRig],
     listen: {
       added: true,
-      removed: true,
-      changed: true
+      removed: true
     }
   },
   ikpose: {
     components: [IKPose],
     listen: {
       added: true,
-      removed: true,
-      changed: true
+      removed: true
     }
   },
   debug: {
     components: [DebugComponent],
     listen: {
       added: true,
-      removed: true,
-      changed: true
+      removed: true
     }
   }
 }

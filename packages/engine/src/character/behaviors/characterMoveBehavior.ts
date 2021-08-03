@@ -5,6 +5,8 @@ import { ControllerColliderComponent } from '../components/ControllerColliderCom
 import { CharacterComponent } from '../components/CharacterComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { RaycastComponent } from '../../physics/components/RaycastComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -18,10 +20,11 @@ const onGroundVelocity = new Vector3()
 const vec3 = new Vector3()
 
 export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
-  const actor: CharacterComponent = getMutableComponent<CharacterComponent>(entity, CharacterComponent as any)
-  const transform: TransformComponent = getMutableComponent<TransformComponent>(entity, TransformComponent as any)
-  const collider = getMutableComponent<ControllerColliderComponent>(entity, ControllerColliderComponent)
-  if (!collider.controller || !actor.movementEnabled) return
+  const actor = getMutableComponent(entity, CharacterComponent)
+  const velocity = getMutableComponent(entity, VelocityComponent)
+  const transform = getMutableComponent(entity, TransformComponent)
+  const controller = getMutableComponent(entity, ControllerColliderComponent)
+  if (!controller.controller || !actor.movementEnabled) return
 
   if (actor.isGrounded) {
     vec3.copy(actor.localMovementDirection).multiplyScalar(deltaTime)
@@ -29,7 +32,7 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
     actor.velocitySimulator.simulate(deltaTime)
 
     newVelocity.copy(actor.velocitySimulator.position).multiplyScalar(actor.moveSpeed)
-    actor.velocity.copy(newVelocity)
+    velocity.velocity.copy(newVelocity)
 
     const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
     if (xrInputSourceComponent) {
@@ -41,26 +44,28 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
       newVelocity.applyQuaternion(transform.rotation)
     }
 
-    if (collider.closestHit) {
+    const raycast = getMutableComponent(entity, RaycastComponent)
+    const closestHit = raycast.raycastQuery.hits[0]
+
+    if (closestHit) {
       onGroundVelocity.copy(newVelocity).setY(0)
-      vec3.set(collider.closestHit.normal.x, collider.closestHit.normal.y, collider.closestHit.normal.z)
+      vec3.set(closestHit.normal.x, closestHit.normal.y, closestHit.normal.z)
       quat.setFromUnitVectors(upVector, vec3)
       mat4.makeRotationFromQuaternion(quat)
       onGroundVelocity.applyMatrix4(mat4)
     }
 
-    collider.controller.velocity.x = newVelocity.x
-    collider.controller.velocity.y = onGroundVelocity.y
-    collider.controller.velocity.z = newVelocity.z
+    controller.controller.velocity.x = newVelocity.x
+    controller.controller.velocity.y = onGroundVelocity.y
+    controller.controller.velocity.z = newVelocity.z
 
     if (actor.isJumping) {
       actor.isJumping = false
     }
 
     if (actor.localMovementDirection.y > 0 && !actor.isJumping) {
-      collider.controller.velocity.y = actor.jumpHeight * deltaTime
+      controller.controller.velocity.y = actor.jumpHeight * deltaTime
       actor.isJumping = true
-      actor.isGrounded = false
     }
 
     // TODO: make a proper resizing function if we ever need it
@@ -76,10 +81,10 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
   }
 
   // apply gravity
-  collider.controller.velocity.y -= 0.2 * deltaTime
+  controller.controller.velocity.y -= 0.2 * deltaTime
 
   // move according to controller's velocity
-  collider.controller.delta.x += collider.controller.velocity.x
-  collider.controller.delta.y += collider.controller.velocity.y
-  collider.controller.delta.z += collider.controller.velocity.z
+  controller.controller.delta.x += controller.controller.velocity.x
+  controller.controller.delta.y += controller.controller.velocity.y
+  controller.controller.delta.z += controller.controller.velocity.z
 }

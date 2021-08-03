@@ -1,7 +1,12 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getComponent, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import {
+  addComponent,
+  createEntity,
+  getComponent,
+  removeEntity
+} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { Network } from '@xrengine/engine/src/networking//classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState'
@@ -12,9 +17,10 @@ import config from '@xrengine/server-core/src/appconfig'
 import { closeTransport } from './WebRTCFunctions'
 import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem'
 import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema'
-import { CharacterComponent } from '@xrengine/engine/src/character/components/CharacterComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType'
+import { RespawnTagComponent } from '../../engine/src/scene/components/RespawnTagComponent'
+import { Quaternion, Vector3 } from 'three'
+import { SpawnComponent } from '../../engine/src/scene/components/SpawnComponent'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -311,16 +317,18 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
   const transport = Network.instance.transport as any
 
   // TEMPORARY data?.spawnTransform  - just so portals work for now - will be removed in favor of gameserver-gameserver communication
-  const spawnPos = data?.spawnTransform ?? ServerSpawnSystem.instance.getRandomSpawnPoint()
+  const spawnPos = data?.spawnTransform && {
+    position: new Vector3().copy(data.spawnTransform.position),
+    rotation: new Quaternion().copy(data.spawnTransform.rotation)
+  }
 
-  // Create a new default prefab for client
-  const networkObject = createNetworkPlayer({ ownerId: userId, parameters: spawnPos })
+  const newPlayerEntity = createEntity()
+  addComponent(newPlayerEntity, SpawnComponent, { userId })
 
-  const actor = getComponent(networkObject.entity, CharacterComponent)
-
-  const transform = getComponent(networkObject.entity, TransformComponent)
-  transform.position.copy(spawnPos.position)
-  transform.rotation.copy(spawnPos.rotation)
+  if (data?.spawnTransform) {
+  } else {
+    addComponent(newPlayerEntity, RespawnTagComponent)
+  }
 
   // Create a new worldState object that we can fill
   const worldState: WorldStateInterface = {

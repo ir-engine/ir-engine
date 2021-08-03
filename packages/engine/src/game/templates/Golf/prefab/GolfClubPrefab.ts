@@ -16,9 +16,17 @@ import {
   MathUtils,
   Euler
 } from 'three'
-import { Body, BodyType, ColliderHitEvent, ShapeType, RaycastQuery, SceneQueryType, SHAPES } from 'three-physx'
+import {
+  Body,
+  BodyType,
+  ColliderHitEvent,
+  ShapeType,
+  RaycastQuery,
+  SceneQueryType,
+  SHAPES,
+  PhysXInstance
+} from 'three-physx'
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups'
-import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem'
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent'
 import { GameObject } from '../../../components/GameObject'
 import { Behavior } from '../../../../common/interfaces/Behavior'
@@ -40,11 +48,11 @@ import { NetworkObjectOwner } from '../../../../networking/components/NetworkObj
 import { Action, State } from '../../../types/GameComponents'
 import { addActionComponent } from '../../../functions/functionsActions'
 import { GamePlayer } from '../../../components/GamePlayer'
-import { XRUserSettings } from '../../../../xr/types/XRUserSettings'
 
-import { ifVelocity } from '../../gameDefault/checkers/ifVelocity'
+import { ifVelocity } from '../functions/ifVelocity'
 import { ifOwned } from '../../gameDefault/checkers/ifOwned'
 import { isClient } from '../../../../common/functions/isClient'
+import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()
@@ -96,7 +104,7 @@ export const spawnClub: Behavior = (
 
 export const setClubOpacity = (golfClubComponent: GolfClubComponent, opacity: number): void => {
   //@ts-ignore
-  golfClubComponent?.meshGroup.traverse((obj: Mesh) => {
+  golfClubComponent?.meshGroup?.traverse((obj: Mesh) => {
     if (obj.material) {
       ;(obj.material as Material).opacity = opacity
     }
@@ -150,8 +158,7 @@ export const updateClub: Behavior = (
 
   const hit = golfClubComponent.raycast.hits[0]
 
-  const headDistance =
-    XRUserSettings.staticLengthGolfClub || !hit?.distance ? clubLength : Math.min(hit.distance, clubLength)
+  const headDistance = !hit?.distance ? clubLength : Math.min(hit.distance, clubLength)
 
   // update position of club
   golfClubComponent.headGroup.position.setZ(-(headDistance - clubPutterLength * 0.5))
@@ -231,7 +238,7 @@ export const onClubColliderWithBall: GameObjectInteractionBehavior = (
     hasComponent(entityBall, State.Active) &&
     hasComponent(entityClub, State.Active) &&
     ifOwned(entityClub, null, entityBall) &&
-    ifVelocity(entityClub, { component: GolfClubComponent, more: 0.01, less: 1 })
+    ifVelocity(entityClub, { more: 0.01, less: 1 })
   ) {
     addActionComponent(entityBall, Action.GameObjectCollisionTag)
     addActionComponent(entityClub, Action.GameObjectCollisionTag)
@@ -245,23 +252,24 @@ export const onClubColliderWithBall: GameObjectInteractionBehavior = (
  * @author Josh Field <github.com/HexaField>
  */
 
-const clubHalfWidth = 0.05
+const clubHalfWidth = 0.03
 const clubPutterLength = 0.1
 const clubColliderSize = new Vector3(clubHalfWidth * 0.5, clubHalfWidth * 0.5, clubPutterLength)
-const clubLength = 1.2
+const clubLength = 1.5
 const rayLength = clubLength * 1.1
 
 export const initializeGolfClub = (entityClub: Entity) => {
   const transform = getComponent(entityClub, TransformComponent)
   const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
 
-  const ownerNetworkId = getComponent(entityClub, NetworkObjectOwner).networkId
+  const ownerNetworkId = getComponent(entityClub, NetworkObjectOwner)?.networkId
+  if (ownerNetworkId === undefined) return
   const ownerEntity = Network.instance.networkObjects[ownerNetworkId].component.entity
   const ownerPlayerNumber = Number(getComponent(ownerEntity, GamePlayer).role.substr(0, 1)) - 1
 
   const color = GolfColours[ownerPlayerNumber]
 
-  golfClubComponent.raycast = PhysicsSystem.instance.addRaycastQuery(
+  golfClubComponent.raycast = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
       origin: new Vector3(),
@@ -270,7 +278,7 @@ export const initializeGolfClub = (entityClub: Entity) => {
       collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
     })
   )
-  golfClubComponent.raycast1 = PhysicsSystem.instance.addRaycastQuery(
+  golfClubComponent.raycast1 = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
       origin: new Vector3(),
@@ -322,7 +330,7 @@ export const initializeGolfClub = (entityClub: Entity) => {
     }
   }
 
-  const body = PhysicsSystem.instance.addBody(
+  const body = PhysXInstance.instance.addBody(
     new Body({
       shapes: [shapeHead],
       type: BodyType.KINEMATIC,
@@ -365,7 +373,7 @@ export const createGolfClubPrefab = (args: {
   uniqueId: string
   ownerId?: string
 }) => {
-  console.log('createGolfClubPrefab', args)
+  //console.log('createGolfClubPrefab', args)
   initializeNetworkObject({
     prefabType: GolfPrefabTypes.Club,
     uniqueId: args.uniqueId,
@@ -402,6 +410,7 @@ export const GolfClubPrefab: NetworkPrefab = {
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
     { type: RigidBodyComponent },
+    { type: VelocityComponent },
     { type: GameObject },
     { type: GolfClubComponent },
     { type: NetworkObjectOwner }

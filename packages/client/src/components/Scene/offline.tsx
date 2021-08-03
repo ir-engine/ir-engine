@@ -14,16 +14,11 @@ import { selectPartyState } from '@xrengine/client-core/src/social/reducers/part
 import Store from '@xrengine/client-core/src/store'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
-import { selectUserState } from '@xrengine/client-core/src/user/reducers/user/selector'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { resetEngine } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
-import { initializeEngine } from '@xrengine/engine/src/initializeEngine'
-import { ClientInputSystem } from '@xrengine/engine/src/input/systems/ClientInputSystem'
-import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem'
-import { ClientNetworkSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkSystem'
+import { initializeEngine, shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
 import querystring from 'querystring'
@@ -40,8 +35,8 @@ import {
 import MediaIconsBox from '../../components/MediaIconsBox'
 import NetworkDebug from '../../components/NetworkDebug'
 import { delay } from 'lodash'
+import { ClientNetworkStateSystem } from '@xrengine/engine/src/networking/systems/ClientNetworkStateSystem'
 import { Network } from '../../../../engine/src/networking/classes/Network'
-import { ClientNetworkStateSystem } from '../../../../engine/src/networking/systems/ClientNetworkStateSystem'
 
 const store = Store.store
 
@@ -70,7 +65,6 @@ const canvasStyle = {
 interface Props {
   setAppLoaded?: any
   sceneId?: string
-  userState?: any
   deviceState?: any
   locationName: string
   appState?: any
@@ -90,7 +84,6 @@ interface Props {
 
 const mapStateToProps = (state: any) => {
   return {
-    userState: selectUserState(state),
     appState: selectAppState(state),
     deviceState: selectDeviceDetectState(state),
     authState: selectAuthState(state),
@@ -118,7 +111,6 @@ export const EnginePage = (props: Props) => {
     authState,
     locationState,
     partyState,
-    userState,
     deviceState,
     instanceConnectionState,
     doLoginAuto,
@@ -134,17 +126,8 @@ export const EnginePage = (props: Props) => {
   } = props
 
   const currentUser = authState.get('user')
-  const [hoveredLabel, setHoveredLabel] = useState('')
-  const [infoBoxData, setModalData] = useState(null)
   const [userBanned, setUserBannedState] = useState(false)
-  const [openLinkData, setOpenLinkData] = useState(null)
-
   const [progressEntity, setProgressEntity] = useState(99)
-  const [userHovered, setonUserHover] = useState(false)
-  const [userId, setonUserId] = useState(null)
-  const [position, setonUserPosition] = useState(null)
-  const [objectActivated, setObjectActivated] = useState(false)
-  const [objectHovered, setObjectHovered] = useState(false)
 
   const [isValidLocation, setIsValidLocation] = useState(true)
   const [isInXR, setIsInXR] = useState(false)
@@ -153,9 +136,6 @@ export const EnginePage = (props: Props) => {
   const [instanceDisconnected, setInstanceDisconnected] = useState(false)
   const [instanceKicked, setInstanceKicked] = useState(false)
   const [instanceKickedMessage, setInstanceKickedMessage] = useState('')
-  const [isInputEnabled, setInputEnabled] = useState(true)
-  const [porting, setPorting] = useState(false)
-  const [newSpawnPos, setNewSpawnPos] = useState(null)
 
   const appLoaded = appState.get('loaded')
   const selfUser = authState.get('user')
@@ -262,34 +242,52 @@ export const EnginePage = (props: Props) => {
     }
   }, [appState])
 
+  // If user if on Firefox in Private Browsing mode, throw error, since they can't use db storage currently
+  useEffect(() => {
+    var db = indexedDB.open('test')
+    db.onerror = function () {
+      const newValues = {
+        ...warningRefreshModalValues,
+        open: true,
+        title: 'Browser Error',
+        body: 'Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode. ',
+        noCountdown: true
+      }
+      setWarningRefreshModalValues(newValues)
+      setInstanceDisconnected(false)
+    }
+  }, [])
+
   useEffect(() => {
     if (noGameserverProvision === true) {
       const currentLocation = locationState.get('currentLocation').get('location')
       const newValues = {
+        ...warningRefreshModalValues,
         open: true,
         title: 'No Available Servers',
         body: "There aren't any servers available for you to connect to. Attempting to re-connect in",
-        action: provisionInstanceServer,
+        action: async () => {
+          provisionInstanceServer()
+        },
         parameters: [currentLocation.id, instanceId, currentLocation.sceneId],
         timeout: 10000
       }
-      //@ts-ignore
       setWarningRefreshModalValues(newValues)
       setNoGameserverProvision(false)
     }
   }, [noGameserverProvision])
 
   useEffect(() => {
-    if (instanceDisconnected === true && !porting) {
+    if (instanceDisconnected === true) {
       const newValues = {
+        ...warningRefreshModalValues,
         open: true,
         title: 'World disconnected',
         body: "You've lost your connection with the world. We'll try to reconnect before the following time runs out, otherwise you'll be forwarded to a different instance.",
-        action: window.location.reload,
+        action: async () => window.location.reload(),
         parameters: [],
         timeout: 30000
       }
-      //@ts-ignore
       setWarningRefreshModalValues(newValues)
       setInstanceDisconnected(false)
     }
@@ -298,12 +296,12 @@ export const EnginePage = (props: Props) => {
   useEffect(() => {
     if (instanceKicked === true) {
       const newValues = {
+        ...warningRefreshModalValues,
         open: true,
         title: "You've been kicked from the world",
         body: 'You were kicked from this world for the following reason: ' + instanceKickedMessage,
         noCountdown: true
       }
-      //@ts-ignore
       setWarningRefreshModalValues(newValues)
       setInstanceDisconnected(false)
     }
@@ -347,7 +345,7 @@ export const EnginePage = (props: Props) => {
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED'))
     addUIEvents()
 
-    EngineEvents.instance.dispatchEvent({ type: ClientNetworkSystem.EVENTS.CONNECT, id: testUserId })
+    EngineEvents.instance.dispatchEvent({ type: ClientNetworkStateSystem.EVENTS.CONNECT, id: testUserId })
 
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
@@ -365,44 +363,18 @@ export const EnginePage = (props: Props) => {
     })
 
     await new Promise<void>((resolve) => delay(resolve, 1000))
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD, worldState: testWorldState })
+    Network.instance.incomingMessageQueueReliable.add(testWorldState)
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
     await new Promise<void>((resolve) => delay(resolve, 1000))
 
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS))
   }
 
-  useEffect(() => {
-    EngineEvents.instance.dispatchEvent({
-      type: ClientInputSystem.EVENTS.ENABLE_INPUT,
-      keyboard: isInputEnabled,
-      mouse: isInputEnabled
-    })
-  }, [isInputEnabled])
-
   const onSceneLoadedEntity = (left: number): void => {
     setProgressEntity(left || 0)
   }
 
-  const onObjectHover = ({ focused, interactionText }: { focused: boolean; interactionText: string }): void => {
-    setObjectHovered(focused)
-    let displayText = interactionText
-    const length = interactionText && interactionText.length
-    if (length > 110) {
-      displayText = interactionText.substring(0, 110) + '...'
-    }
-    setHoveredLabel(displayText)
-  }
-
-  const onUserHover = ({ focused, userId, position }): void => {
-    setonUserHover(focused)
-    setonUserId(focused ? userId : null)
-    setonUserPosition(focused ? position : null)
-  }
-
   const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.USER_HOVER, onUserHover)
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation)
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover)
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async () => {
       setIsInXR(true)
     })
@@ -411,27 +383,9 @@ export const EnginePage = (props: Props) => {
     })
   }
 
-  const onObjectActivation = (interactionData): void => {
-    switch (interactionData.interactionType) {
-      case 'link':
-        setOpenLinkData(interactionData)
-        setInputEnabled(false)
-        setObjectActivated(true)
-        break
-      case 'infoBox':
-      case 'mediaSource':
-        setModalData(interactionData)
-        setInputEnabled(false)
-        setObjectActivated(true)
-        break
-      default:
-        break
-    }
-  }
-
   useEffect(() => {
     return (): void => {
-      resetEngine()
+      shutdownEngine()
     }
   }, [])
 

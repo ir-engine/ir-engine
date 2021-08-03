@@ -3,7 +3,19 @@ import { Route, Switch, Redirect } from 'react-router-dom'
 import { Config } from '@xrengine/client-core/src/helper'
 import ProtectedRoute from './protected'
 import homePage from '../pages/index'
+import LOADER from '../pages/map/loader/Loading'
+import Microphone from '../pages/map/microphone/Mic'
+import Usermsg from '../pages/map/user/UserMessage'
+import Chatmicon from '../pages/map/chatmicon/MicOn'
+import Chatmicoff from '../pages/map/chatmicoff/Chat'
+import Joinparty from '../pages/map/blockparty/JoinParty'
+import Profileedit from '../pages/map/profileedit/ProfileEdit'
+import Profileediting from '../pages/map/profileediting/ProfileEditing'
 import CircularProgress from '@material-ui/core/CircularProgress'
+
+if (typeof globalThis.process === 'undefined') {
+  ;(globalThis as any).process = { env: {} }
+}
 
 class RouterComp extends React.Component<{}, { hasError: boolean }> {
   static getDerivedStateFromError() {
@@ -42,6 +54,14 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
       >
         <Switch>
           <Route path="/" component={homePage} exact />
+          <Route path="/loading" component={LOADER} />
+          <Route path="/microphone" component={Microphone} />
+          <Route path="/usermessage" component={Usermsg} />
+          <Route path="/micon" component={Chatmicon} />
+          <Route path="/micoff" component={Chatmicoff} />
+          <Route path="/joinparty" component={Joinparty} />
+          <Route path="/profileedit" component={Profileedit} />
+          <Route path="/profileediting" component={Profileediting} />
           <Route path="/login" component={React.lazy(() => import('../pages/login'))} />
 
           {/* Admin Routes*/}

@@ -5,7 +5,7 @@
  * @packageDocumentation
  */
 
-import { PerspectiveCamera, Scene, WebGLRenderer, XRSession } from 'three'
+import { PerspectiveCamera, Scene, WebGLRenderer, XRFrame, XRSession } from 'three'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EngineOptions } from '../interfaces/EngineOptions'
 import { Entity } from './Entity'
@@ -18,6 +18,9 @@ import { InputValue } from '../../input/interfaces/InputValue'
 import { GameMode } from '../../game/types/GameMode'
 import { EngineEvents } from './EngineEvents'
 import { ActiveSystems, System } from './System'
+import { InitializeOptions } from '../../initializationOptions'
+import { CSM } from '../../assets/csm/CSM'
+import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
 
 /**
  * This is the base class which holds all the data related to the scene, camera,system etc.
@@ -26,6 +29,7 @@ import { ActiveSystems, System } from './System'
  * @author Shaw, Josh, Vyacheslav and the XREngine Team
  */
 export class Engine {
+  public static initOptions: InitializeOptions
   public static engineTimer: { start: Function; stop: Function; clear: Function } = null
 
   public static gameModes: { [key: string]: GameMode }
@@ -49,6 +53,7 @@ export class Engine {
    * @default 60
    */
   public static physicsFrameRate = 60
+  public static physxWorker: Worker = null
 
   /**
    * Frame rate for network system.
@@ -70,10 +75,11 @@ export class Engine {
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static renderer: WebGLRenderer = null
+  static effectComposer: EffectComposerWithSchema = null
   static xrRenderer = null
   static xrSession: XRSession = null
   static context = null
-
+  static csm: CSM = null
   /**
    * Reference to the three.js scene object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
@@ -86,6 +92,7 @@ export class Engine {
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
   static camera: PerspectiveCamera = null
+  static activeCameraEntity: Entity
 
   /**
    * Reference to the Transform component of the three.js camera object.
@@ -199,7 +206,6 @@ export class Engine {
    * @author Fernando Serrano, Robert Long
    */
   static activeSystems: ActiveSystems = null
-  static vehicles: any
   static lastTime: number
 
   static tick = 0
@@ -223,6 +229,11 @@ export class Engine {
   static simpleMaterials = false
 
   static hasEngaged = false
+  static mouseInputEnabled = true
+  static keyboardInputEnabled = true
+
+  static xrFrame: XRFrame
+  static spatialAudio = false
 }
 
 export const awaitEngineLoaded = (): Promise<void> => {

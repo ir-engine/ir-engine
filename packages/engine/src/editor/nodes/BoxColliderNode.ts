@@ -56,7 +56,7 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
   async serialize(projectID) {
     const components = {
       'box-collider': {
-        type: this.target === undefined ? 'box' : 'game-object',
+        type: 'box',
         isTrigger: this.isTrigger,
         mass: 0,
         position: this.position,
@@ -88,7 +88,7 @@ export default class BoxColliderNode extends EditorNodeMixin(Object3D) {
     this.remove(this.helper)
     this.addGLTFComponent('box-collider', {
       // TODO: Remove exporting these properties. They are already included in the transform props.
-      type: this.target === undefined ? 'box' : 'game-object',
+      type: 'box',
       isTrigger: this.isTrigger,
       position: this.position,
       rotation: {

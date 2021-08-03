@@ -1,7 +1,7 @@
 import { endVideoChat, leave } from '../../transports/SocketWebRTCClientFunctions'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
-import { MediaStreamSystem } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { Config } from '@xrengine/client-core/src/helper'
 import { Dispatch } from 'redux'
 import { client } from '@xrengine/client-core/src/feathers'
@@ -63,33 +63,38 @@ export function connectToChannelServer(channelId: string, isHarmonyPage?: boolea
       const currentLocation = locationState.get('currentLocation').get('location')
       const sceneId = currentLocation.sceneId
       const videoActive =
-        MediaStreamSystem !== null &&
-        MediaStreamSystem !== undefined &&
-        (MediaStreamSystem.instance?.camVideoProducer != null || MediaStreamSystem.instance?.camAudioProducer != null)
+        MediaStreams !== null &&
+        MediaStreams !== undefined &&
+        (MediaStreams.instance?.camVideoProducer != null || MediaStreams.instance?.camAudioProducer != null)
       // TODO: Disconnected
       if (Network.instance !== undefined && Network.instance !== null) {
         await endVideoChat({ endConsumers: true })
         await leave(false)
       }
 
-      await Network.instance.transport.initialize(instance.get('ipAddress'), instance.get('port'), false, {
-        locationId: locationId,
-        token: token,
-        user: user,
-        sceneId: sceneId,
-        startVideo: videoActive,
-        channelType: 'channel',
-        channelId: channelId,
-        videoEnabled:
-          currentLocation?.locationSettings?.videoEnabled === true ||
-          !(
-            currentLocation?.locationSettings?.locationType === 'showroom' &&
-            user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation.id) == null
-          ),
-        isHarmonyPage: isHarmonyPage
-      })
+      try {
+        await Network.instance.transport.initialize(instance.get('ipAddress'), instance.get('port'), false, {
+          locationId: locationId,
+          token: token,
+          user: user,
+          sceneId: sceneId,
+          startVideo: videoActive,
+          channelType: 'channel',
+          channelId: channelId,
+          videoEnabled:
+            currentLocation?.locationSettings?.videoEnabled === true ||
+            !(
+              currentLocation?.locationSettings?.locationType === 'showroom' &&
+              user.locationAdmins?.find((locationAdmin) => locationAdmin.locationId === currentLocation.id) == null
+            ),
+          isHarmonyPage: isHarmonyPage
+        })
+      } catch (error) {
+        console.error('Network transport could not initialize, transport is: ', Network.instance.transport)
+      }
 
-      EngineEvents.instance.addEventListener(MediaStreamSystem.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers)
+      ;(Network.instance.transport as SocketWebRTCClientTransport).left = false
+      EngineEvents.instance.addEventListener(MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers)
 
       dispatch(channelServerConnected())
     } catch (err) {

@@ -1,5 +1,5 @@
 import { Color, Group, MathUtils, Mesh, MeshPhongMaterial, Vector3, Vector4 } from 'three'
-import { Body, BodyType, ShapeType, SHAPES, RaycastQuery, SceneQueryType } from 'three-physx'
+import { Body, BodyType, ShapeType, SHAPES, RaycastQuery, SceneQueryType, PhysXInstance } from 'three-physx'
 import { AssetLoader } from '../../../../assets/classes/AssetLoader'
 import { isClient } from '../../../../common/functions/isClient'
 import { Behavior } from '../../../../common/interfaces/Behavior'
@@ -20,6 +20,7 @@ import { ColliderComponent } from '../../../../physics/components/ColliderCompon
 import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent'
 import { LocalInterpolationComponent } from '../../../../physics/components/LocalInterpolationComponent'
 import { RigidBodyComponent } from '../../../../physics/components/RigidBody'
+import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups'
 import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem'
 import TrailRenderer from '../../../../scene/classes/TrailRenderer'
@@ -101,6 +102,11 @@ export const updateBall: Behavior = (
   time?: number,
   checks?: any
 ): void => {
+  const collider = getComponent(entityBall, ColliderComponent)
+  const ballPosition = collider.body.transform.translation
+  const golfBallComponent = getComponent(entityBall, GolfBallComponent)
+  golfBallComponent.groundRaycast.origin.copy(ballPosition)
+
   if (isClient) {
     const obj = getComponent(entityBall, Object3DComponent)
     if (!obj?.value) return
@@ -190,7 +196,7 @@ export const initializeGolfBall = (ballEntity: Entity) => {
     }
   }
 
-  const body = PhysicsSystem.instance.addBody(
+  const body = PhysXInstance.instance.addBody(
     new Body({
       shapes: [shape],
       type: BodyType.DYNAMIC,
@@ -207,18 +213,18 @@ export const initializeGolfBall = (ballEntity: Entity) => {
   const ballPosition = getComponent(ballEntity, ColliderComponent).body.transform.translation
 
   // for track ground
-  golfBallComponent.groundRaycast = PhysicsSystem.instance.addRaycastQuery(
+  golfBallComponent.groundRaycast = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
       origin: ballPosition,
       direction: new Vector3(0, -1, 0),
-      maxDistance: 0.5,
+      maxDistance: 1,
       collisionMask: GolfCollisionGroups.Course
     })
   )
 
   // for track wall
-  golfBallComponent.wallRaycast = PhysicsSystem.instance.addRaycastQuery(
+  golfBallComponent.wallRaycast = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
       origin: ballPosition,
@@ -243,7 +249,7 @@ export const createGolfBallPrefab = (args: {
   uniqueId: string
   ownerId?: string
 }) => {
-  console.log('createGolfBallPrefab', args)
+  // console.log('createGolfBallPrefab', args)
   initializeNetworkObject({
     prefabType: GolfPrefabTypes.Ball,
     uniqueId: args.uniqueId,
@@ -290,6 +296,7 @@ export const GolfBallPrefab: NetworkPrefab = {
   networkComponents: [
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
+    { type: VelocityComponent },
     { type: RigidBodyComponent },
     { type: GameObject },
     { type: NetworkObjectOwner },

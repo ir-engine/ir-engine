@@ -44,15 +44,16 @@
     "check-errors": "lerna run check-errors --ignore @xrengine/server --ignore @xrengine/server-core --parallel",
     "start": "npm run dev",
     "dev": "npm run dev-docker && concurrently npm:dev-agones npm:dev-server npm:dev-client",
-    "dev-docker": "cd scripts && sudo docker-compose up -d",
+    "dev-docker": "cd scripts && docker-compose up -d",
     "dev-agones": "cd scripts && ./start-agones.sh",
     "dev-server": "cd packages/server && npm run dev",
     "dev-client": "cd packages/client && npm run dev",
     "dev-reinit": "cd packages/server && npm run dev-reinit-db",
     "dev-nginx": "",
-    "test": "jest --detectOpenHandles",
     "cleanup-tests": "node tests/cleanup-tests.js",
-    "test:golf": "jest --testPathPattern=tests/golf --detectOpenHandles",
+    "test": "jest --detectOpenHandles && lerna run test",
+    "test:golf": "cross-env TEST_LOCATION_NAME=golftest jest --testPathPattern=tests/golf --detectOpenHandles",
+    "test:golf-basic": "cross-env TEST_LOCATION_NAME=golfbasic jest --testPathPattern=tests/golf --detectOpenHandles",
     "lint": "prettier --check \"packages/*/src/**/*.{ts,tsx}\"",
     "format": "prettier --write \"packages/*/src/**/*.{ts,tsx}\"",
     "version-increment": "lerna version --conventional-commits --yes",
@@ -76,8 +77,8 @@
   "resolutions": {
     "socket.io": "4.1.3",
     "terser": "^5.6.1",
-    "@typescript-eslint/eslint-plugin": "4.28.4",
-    "@typescript-eslint/parser": "4.28.4"
+    "@typescript-eslint/eslint-plugin": "4.29.0",
+    "@typescript-eslint/parser": "4.29.0"
   },
   "peerDependencies": {
     "@feathersjs/authentication": "^5.0.0-pre.3",
@@ -101,11 +102,11 @@
     "terser": "^5.6.1"
   },
   "devDependencies": {
-    "@typescript-eslint/parser": "4.28.4",
+    "@typescript-eslint/parser": "4.29.0",
     "bcrypt": "5.0.1",
     "cli": "1.0.1",
     "concurrently": "6.2.0",
-    "esbuild": "0.12.15",
+    "esbuild": "0.12.17",
     "esbuild-plugin-sass": "0.5.2",
     "jest": "27.0.6",
     "jest-puppeteer": "5.0.4",
@@ -117,8 +118,5 @@
     "puppeteer": "9.1.1",
     "supertest": "6.1.4",
     "yuka": "0.7.6"
-  },
-  "dependencies": {
-    "three-stdlib": "2.3.1"
   }
 }

@@ -1,36 +1,25 @@
 import { Object3DComponent } from '../scene/components/Object3DComponent'
-import { System, SystemAttributes } from '../ecs/classes/System'
+import { System } from '../ecs/classes/System'
 import { getComponent } from '../ecs/functions/EntityFunctions'
-import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
-import { WebGLRendererSystem } from './WebGLRendererSystem'
 import { HighlightComponent } from './components/HighlightComponent'
+import { Engine } from '../ecs/classes/Engine'
 
 /** System Class for Highlight system.\
  * This system will highlight the entity with {@link effects/components/HighlightComponent.HighlightComponent | Highlight} Component attached.
  */
 export class HighlightSystem extends System {
-  /** Update type of the system. **Default** value is
-   * {@link ecs/functions/SystemUpdateType.SystemUpdateType.Fixed | Fixed} type.
-   */
-  updateType = SystemUpdateType.Free
-
-  /** Constructs Highlight system. */
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
-  }
-
   /** Executes the system. */
   execute(deltaTime, time): void {
-    if (!WebGLRendererSystem.instance.composer.OutlineEffect) return
+    if (!Engine.effectComposer.OutlineEffect) return
     for (const entity of this.queryResults.highlights.added) {
       const highlightedObject = getComponent(entity, Object3DComponent)
       const compHL = getComponent(entity, HighlightComponent)
-      if (!compHL) return
+      if (!compHL) continue
       highlightedObject?.value?.traverse((obj) => {
         if (obj !== undefined) {
-          WebGLRendererSystem.instance.composer.OutlineEffect.selection.add(obj)
-          WebGLRendererSystem.instance.composer.OutlineEffect.visibleEdgeColor = compHL.color
-          WebGLRendererSystem.instance.composer.OutlineEffect.hiddenEdgeColor = compHL.hiddenColor
+          Engine.effectComposer.OutlineEffect.selection.add(obj)
+          Engine.effectComposer.OutlineEffect.visibleEdgeColor = compHL.color
+          Engine.effectComposer.OutlineEffect.hiddenEdgeColor = compHL.hiddenColor
         }
       })
     }
@@ -38,7 +27,7 @@ export class HighlightSystem extends System {
       const highlightedObject = getComponent(entity, Object3DComponent, true)
       highlightedObject?.value?.traverse((obj) => {
         if (obj !== undefined) {
-          WebGLRendererSystem.instance.composer.OutlineEffect.selection.delete(obj)
+          Engine.effectComposer.OutlineEffect.selection.delete(obj)
         }
       })
     }

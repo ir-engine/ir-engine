@@ -2,7 +2,6 @@ import {
   Color,
   CubeTextureLoader,
   DataTexture,
-  Material,
   PMREMGenerator,
   RGBFormat,
   sRGBEncoding,
@@ -10,23 +9,14 @@ import {
   Vector3
 } from 'three'
 import { isClient } from '../../common/functions/isClient'
-import { Behavior } from '../../common/interfaces/Behavior'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import CubemapCapturer from '../../editor/nodes/helper/CubemapCapturer'
 import { convertEquiToCubemap } from '../../editor/nodes/helper/ImageUtils'
-import { ReflectionProbeSettings, ReflectionProbeTypes } from '../../editor/nodes/ReflectionProbeNode'
-import { WebGLRendererSystem } from '../../renderer/WebGLRendererSystem'
-import { ScaleComponent } from '../../transform/components/ScaleComponent'
-import { Sky } from '../classes/Sky'
-import { Object3DComponent } from '../components/Object3DComponent'
+import { ReflectionProbeTypes } from '../../editor/nodes/ReflectionProbeNode'
 import { EnvMapProps, EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
-import { SCENE_ASSET_TYPES, WorldScene } from '../functions/SceneLoading'
-import { SceneObjectSystem } from '../systems/SceneObjectSystem'
-import { addObject3DComponent } from './addObject3DComponent'
+import { SceneOptions } from '../systems/SceneObjectSystem'
 
-export const setEnvMap: Behavior = (entity, args: EnvMapProps) => {
+export const setEnvMap = (entity, args: EnvMapProps) => {
   if (!isClient) {
     return
   }
@@ -94,8 +84,8 @@ export const setEnvMap: Behavior = (entity, args: EnvMapProps) => {
     case EnvMapSourceType.Default:
       const options = args.envMapReflectionProbe
       if (!options) return
-      SceneObjectSystem.instance.bpcemOptions.probeScale = options.probeScale
-      SceneObjectSystem.instance.bpcemOptions.probePositionOffset = options.probePositionOffset
+      SceneOptions.instance.bpcemOptions.probeScale = options.probeScale
+      SceneOptions.instance.bpcemOptions.probePositionOffset = options.probePositionOffset
 
       EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
         switch (options.reflectionType) {
@@ -115,13 +105,13 @@ export const setEnvMap: Behavior = (entity, args: EnvMapProps) => {
       })
       const offset = args.envMapReflectionProbe.probePositionOffset
       const position = new Vector3(offset.x, offset.y, offset.z)
-      SceneObjectSystem.instance.boxProjection = args.envMapReflectionProbe.boxProjection
-      SceneObjectSystem.instance.bpcemOptions.probePositionOffset = position
-      SceneObjectSystem.instance.bpcemOptions.probeScale = args.envMapReflectionProbe.probeScale
+      SceneOptions.instance.boxProjection = args.envMapReflectionProbe.boxProjection
+      SceneOptions.instance.bpcemOptions.probePositionOffset = position
+      SceneOptions.instance.bpcemOptions.probeScale = args.envMapReflectionProbe.probeScale
       break
   }
 
   pmremGenerator.dispose()
 
-  SceneObjectSystem.instance.envMapIntensity = args.envMapIntensity
+  SceneOptions.instance.envMapIntensity = args.envMapIntensity
 }

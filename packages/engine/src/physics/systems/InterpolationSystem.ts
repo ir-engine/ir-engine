@@ -1,7 +1,6 @@
 import { Not } from '../../ecs/functions/ComponentFunctions'
-import { System, SystemAttributes } from '../../ecs/classes/System'
+import { System } from '../../ecs/classes/System'
 import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
 import { Network } from '../../networking/classes/Network'
 import { Vault } from '../../networking/classes/Vault'
@@ -20,6 +19,7 @@ import { rigidbodyInterpolationBehavior } from '../behaviors/rigidbodyInterpolat
 import { LocalInterpolationComponent } from '../components/LocalInterpolationComponent'
 import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent'
 import { rigidbodyCorrectionBehavior } from '../behaviors/rigidbodyCorrectionBehavior'
+import { VelocityComponent } from '../components/VelocityComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -29,18 +29,6 @@ import { rigidbodyCorrectionBehavior } from '../behaviors/rigidbodyCorrectionBeh
 const vec3 = new Vector3()
 
 export class InterpolationSystem extends System {
-  static instance: InterpolationSystem
-  updateType = SystemUpdateType.Fixed
-
-  constructor(attributes: SystemAttributes = {}) {
-    super(attributes)
-    InterpolationSystem.instance = this
-  }
-
-  dispose(): void {
-    super.dispose()
-  }
-
   execute(delta: number): void {
     if (!Network.instance?.snapshot) return
 
@@ -53,31 +41,31 @@ export class InterpolationSystem extends System {
     // Create new snapshot position for next frame server correction
     Vault.instance.add(createSnapshot(snapshots.new))
 
-    this.queryResults.localCharacterInterpolation.all?.forEach((entity) => {
+    for (const entity of this.queryResults.localCharacterInterpolation.all) {
       characterCorrectionBehavior(entity, snapshots, delta)
-    })
+    }
 
-    this.queryResults.networkClientInterpolation.all?.forEach((entity) => {
+    for (const entity of this.queryResults.networkClientInterpolation.all) {
       characterInterpolationBehavior(entity, snapshots, delta)
-    })
+    }
 
-    this.queryResults.networkObjectInterpolation.all?.forEach((entity) => {
+    for (const entity of this.queryResults.networkObjectInterpolation.all) {
       rigidbodyInterpolationBehavior(entity, snapshots, delta)
-    })
+    }
 
-    this.queryResults.localObjectInterpolation.all?.forEach((entity) => {
+    for (const entity of this.queryResults.localObjectInterpolation.all) {
       rigidbodyCorrectionBehavior(entity, snapshots, delta)
-      // experementalRigidbodyCorrectionBehavior(entity, snapshots, delta);
-    })
+    }
 
     // If a networked entity does not have an interpolation component, just copy the data
-    this.queryResults.correctionFromServer.all?.forEach((entity) => {
+    for (const entity of this.queryResults.correctionFromServer.all) {
       const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
-      if (snapshot == null) return
+      if (snapshot == null) continue
       const collider = getMutableComponent(entity, ColliderComponent)
+      const velocity = getMutableComponent(entity, VelocityComponent)
       // dynamic objects should be interpolated, kinematic objects should not
-      if (collider && collider.body.type !== BodyType.KINEMATIC) {
-        collider.velocity.subVectors(collider.body.transform.translation, vec3.set(snapshot.x, snapshot.y, snapshot.z))
+      if (velocity && collider.body.type !== BodyType.KINEMATIC) {
+        velocity.velocity.subVectors(collider.body.transform.translation, vec3.set(snapshot.x, snapshot.y, snapshot.z))
         collider.body.updateTransform({
           translation: {
             x: snapshot.x,
@@ -92,16 +80,16 @@ export class InterpolationSystem extends System {
           }
         })
       }
-    })
+    }
   }
 }
 
 InterpolationSystem.queries = {
   localCharacterInterpolation: {
-    components: [LocalInputReceiver, ControllerColliderComponent, InterpolationComponent, NetworkObject]
+    components: [ControllerColliderComponent, InterpolationComponent, NetworkObject]
   },
   networkClientInterpolation: {
-    components: [Not(LocalInputReceiver), ControllerColliderComponent, InterpolationComponent, NetworkObject]
+    components: [Not(ControllerColliderComponent), CharacterComponent, InterpolationComponent, NetworkObject]
   },
   localObjectInterpolation: {
     components: [
@@ -122,6 +110,6 @@ InterpolationSystem.queries = {
     ]
   },
   correctionFromServer: {
-    components: [Not(InterpolationComponent), NetworkObject]
+    components: [Not(InterpolationComponent), ColliderComponent, NetworkObject]
   }
 }

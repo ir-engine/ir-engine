@@ -1,16 +1,36 @@
 import { AnimationMixer, Group } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import { createShadow } from '../../scene/behaviors/createShadow'
+import { getComponent, getEntityByID, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import { AnimationManager } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { CharacterComponent } from '../components/CharacterComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
 import { AnimationRenderer } from '../animations/AnimationRenderer'
+import { CharacterAnimationStateComponent } from '../components/CharacterAnimationStateComponent'
+import { Entity } from '../../ecs/classes/Entity'
 
-export const loadDefaultActorAvatar = (entity) => {
-  const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
+export const setActorAvatar = ({ entityID, avatarId, avatarURL }) => {
+  const entity = getEntityByID(entityID)
+  const actor = getMutableComponent(entity, CharacterComponent)
+  if (actor) {
+    actor.avatarId = avatarId
+    actor.avatarURL = avatarURL
+  }
+}
+
+export const loadActorAvatar = (entity: Entity) => {
+  if (!isClient) return
+  const avatarURL = getComponent(entity, CharacterComponent)?.avatarURL
+  if (avatarURL) {
+    loadActorAvatarFromURL(entity, avatarURL)
+  } else {
+    loadDefaultActorAvatar(entity)
+  }
+}
+
+const loadDefaultActorAvatar = (entity: Entity) => {
+  const actor = getMutableComponent(entity, CharacterComponent)
   const model = SkeletonUtils.clone(AnimationManager.instance._defaultModel)
 
   model.traverse((object) => {
@@ -24,19 +44,7 @@ export const loadDefaultActorAvatar = (entity) => {
   animationComponent.mixer = new AnimationMixer(actor.modelContainer)
 }
 
-export const loadActorAvatar = (entity) => {
-  if (!isClient) return
-  const avatarURL = getComponent(entity, CharacterComponent)?.avatarURL
-  if (avatarURL) {
-    loadActorAvatarFromURL(entity, avatarURL)
-  } else {
-    loadDefaultActorAvatar(entity)
-  }
-}
-
-export const loadActorAvatarFromURL = (entity, avatarURL) => {
-  createShadow(entity, { castShadow: true, receiveShadow: true })
-
+const loadActorAvatarFromURL = (entity: Entity, avatarURL: string) => {
   AssetLoader.load(
     {
       url: avatarURL,
@@ -45,15 +53,15 @@ export const loadActorAvatarFromURL = (entity, avatarURL) => {
     },
     (asset: Group) => {
       const model = SkeletonUtils.clone(asset)
-      const actor = getMutableComponent<CharacterComponent>(entity, CharacterComponent)
+      const actor = getMutableComponent(entity, CharacterComponent)
       const animationComponent = getMutableComponent(entity, AnimationComponent)
+      const characterAnimationStateComponent = getMutableComponent(entity, CharacterAnimationStateComponent)
 
       animationComponent.mixer.stopAllAction()
-      animationComponent.currentAnimationAction = []
       actor.modelContainer.children.forEach((child) => child.removeFromParent())
 
       model.traverse((object) => {
-        if (object.isMesh || object.isSkinnedMesh) {
+        if (typeof object.material !== 'undefined') {
           object.material = object.material.clone()
         }
       })
@@ -61,8 +69,8 @@ export const loadActorAvatarFromURL = (entity, avatarURL) => {
       animationComponent.mixer = new AnimationMixer(actor.modelContainer)
       model.children.forEach((child) => actor.modelContainer.add(child))
 
-      if (animationComponent.currentState) {
-        AnimationRenderer.mountCurrentState(animationComponent)
+      if (characterAnimationStateComponent.currentState) {
+        AnimationRenderer.mountCurrentState(entity)
       }
 
       // advance animation for a frame to eliminate potential t-pose

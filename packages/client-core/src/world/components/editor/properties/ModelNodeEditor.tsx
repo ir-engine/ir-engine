@@ -12,6 +12,7 @@ import NodeEditor from './NodeEditor'
 import dompurify from 'dompurify'
 import { Object3D } from 'three'
 import NumericInputGroup from '../inputs/NumericInputGroup'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 /**
  * Array containing options for InteractableOption.
@@ -141,6 +142,11 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
     ;(this.props.editor as any).setPropertySelected('interactable', interactable)
   }
 
+  // function to handle change in isUpdateDataMatrix property
+  onChangeUpdateDataMatrix = (matrixAutoUpdate) => {
+    ;(this.props.editor as any).setPropertySelected('isUpdateDataMatrix', matrixAutoUpdate)
+  }
+
   // function to handle changes in interactionType property
   onChangeInteractionType = (interactionType) => {
     ;(this.props.editor as any).setPropertySelected('interactionType', interactionType)
@@ -189,8 +195,8 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
   // function to handle changes in payloadHtmlContent
   onChangePayloadHtmlContent = (payloadHtmlContent) => {
     const sanitizedHTML = dompurify.sanitize(payloadHtmlContent)
-    if (sanitizedHTML !== payloadHtmlContent);
-    console.warn("Code has been sanitized, don't try anything sneaky please...")
+    if (sanitizedHTML !== payloadHtmlContent)
+      console.warn("Code has been sanitized, don't try anything sneaky please...")
     ;(this.props.editor as any).setPropertySelected('payloadHtmlContent', sanitizedHTML)
   }
 
@@ -214,7 +220,7 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
       const nodeTarget = this.props.editor.nodes.find((node) => node.uuid === target)
 
       if (nodeTarget) {
-        const gameMode = this.props.editor.Engine.supportedGameModes[nodeTarget.gameMode]
+        const gameMode = Engine.gameModes[nodeTarget.gameMode]
 
         const gameObjectRoles = Object.keys(gameMode.gameObjectRoles)
 
@@ -425,6 +431,10 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
         {/* @ts-ignore */}
         <InputGroup name="Interactable" label={this.props.t('editor:properties.model.lbl-interactable')}>
           <BooleanInput value={node.interactable} onChange={this.onChangeInteractable} />
+        </InputGroup>
+        {/* @ts-ignore */}
+        <InputGroup name="MatrixAutoUpdate" label={this.props.t('editor:properties.model.lbl-matrixAutoUpdate')}>
+          <BooleanInput value={node.isUpdateDataMatrix} onChange={this.onChangeUpdateDataMatrix} />
         </InputGroup>
         {this.renderInteractableDependantFields(node)}
       </NodeEditor>

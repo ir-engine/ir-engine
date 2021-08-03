@@ -1,8 +1,6 @@
 import { Euler, Quaternion } from 'three'
-import { Engine } from '../../ecs/classes/Engine'
 import { System } from '../../ecs/classes/System'
 import { getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { CopyTransformComponent } from '../components/CopyTransformComponent'
 import { DesiredTransformComponent } from '../components/DesiredTransformComponent'
@@ -20,19 +18,17 @@ euler2YXZ.order = 'YXZ'
 const quat = new Quaternion()
 
 export class TransformSystem extends System {
-  updateType = SystemUpdateType.Fixed
-
   execute(delta: number, time: number) {
-    this.queryResults.parent.all?.forEach((entity) => {
+    for (const entity of this.queryResults.parent.all) {
       const parentTransform = getMutableComponent(entity, TransformComponent)
-      const parentingComponent = getComponent<TransformParentComponent>(entity, TransformParentComponent)
-      parentingComponent.children.forEach((child) => {
+      const parentingComponent = getComponent(entity, TransformParentComponent)
+      for (const child of parentingComponent.children) {
         if (!hasComponent(child, Object3DComponent)) {
-          return
+          continue
         }
         const {
           value: { position: childPosition, quaternion: childQuaternion }
-        } = getMutableComponent<Object3DComponent>(child, Object3DComponent)
+        } = getMutableComponent(child, Object3DComponent)
         const childTransformComponent = getComponent(child, TransformComponent)
         // reset to "local"
         if (childTransformComponent) {
@@ -45,10 +41,10 @@ export class TransformSystem extends System {
         // add parent
         childPosition.add(parentTransform.position)
         childQuaternion.multiply(parentTransform.rotation)
-      })
-    })
+      }
+    }
 
-    this.queryResults.child.all?.forEach((entity) => {
+    for (const entity of this.queryResults.child.all) {
       const childComponent = getComponent(entity, TransformChildComponent)
       const parent = childComponent.parent
       const parentTransform = getMutableComponent(parent, TransformComponent)
@@ -60,26 +56,25 @@ export class TransformSystem extends System {
           .multiply(parentTransform.rotation)
           .multiply(childComponent.offsetQuaternion)
       }
-    })
+    }
 
-    this.queryResults.copyTransform.all?.forEach((entity) => {
+    for (const entity of this.queryResults.copyTransform.all) {
       const inputEntity = getMutableComponent(entity, CopyTransformComponent)?.input
       const outputTransform = getMutableComponent(entity, TransformComponent)
       const inputTransform = getComponent(inputEntity, TransformComponent)
 
       if (!inputTransform || !outputTransform) {
         // wait for both transforms to appear?
-        return
+        continue
       }
 
       outputTransform.position.copy(inputTransform.position)
       outputTransform.rotation.copy(inputTransform.rotation)
-      outputTransform.velocity.copy(inputTransform.velocity)
 
       removeComponent(entity, CopyTransformComponent)
-    })
+    }
 
-    this.queryResults.desiredTransforms.all?.forEach((entity) => {
+    for (const entity of this.queryResults.desiredTransforms.all) {
       const transform = getComponent(entity, TransformComponent)
       const desiredTransform = getComponent(entity, DesiredTransformComponent)
 
@@ -87,7 +82,7 @@ export class TransformSystem extends System {
       const rotationIsSame = desiredTransform.rotation === null || transform.rotation.equals(desiredTransform.rotation)
 
       if (positionIsSame && rotationIsSame) {
-        return
+        continue
       }
 
       if (!positionIsSame) {
@@ -130,38 +125,29 @@ export class TransformSystem extends System {
           mutableTransform.rotation.setFromEuler(euler2YXZ)
         }
       }
-    })
+    }
 
-    this.queryResults.tweens.all?.forEach((entity) => {
+    for (const entity of this.queryResults.tweens.all) {
       const tween = getComponent(entity, TweenComponent)
       tween.tween.update()
-    })
+    }
 
-    this.queryResults.transforms.all?.forEach((entity) => {
+    for (const entity of this.queryResults.obj3d.all) {
       const transform = getMutableComponent(entity, TransformComponent)
+      const object3DComponent = getMutableComponent(entity, Object3DComponent)
 
-      transform.position.addScaledVector(transform.velocity, delta)
-
-      const object3DComponent = getMutableComponent<Object3DComponent>(entity, Object3DComponent)
-      if (!object3DComponent) {
-        // this breake a
-        //removeComponent(entity, TransformComponent);
-        return //console.warn("Object is not an object3d", entity.id);
+      if (!object3DComponent.value) {
+        console.warn('object3D component on entity', entity.id, ' is undefined')
+        continue
       }
 
-      if (!object3DComponent.value) return console.warn('object3D component on entity', entity.id, ' is undefined')
-
-      // if(!object3DComponent.value.position){
-      //   return console.warn("object3D has no position");
-      // }
-
       object3DComponent.value.position.copy(transform.position)
-      object3DComponent.value.rotation.setFromQuaternion(transform.rotation)
+      object3DComponent.value.quaternion.copy(transform.rotation)
       if (transform.scale && transform.scale.length() > 0) {
         object3DComponent.value.scale.copy(transform.scale)
       }
       object3DComponent.value.updateMatrixWorld()
-    })
+    }
   }
 }
 
@@ -172,12 +158,8 @@ TransformSystem.queries = {
   child: {
     components: [TransformChildComponent, TransformComponent]
   },
-  transforms: {
-    components: [TransformComponent],
-    listen: {
-      added: true,
-      changed: true
-    }
+  obj3d: {
+    components: [TransformComponent, Object3DComponent]
   },
   desiredTransforms: {
     components: [DesiredTransformComponent]

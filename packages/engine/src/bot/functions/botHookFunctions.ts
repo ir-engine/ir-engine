@@ -1,3 +1,4 @@
+import { MathUtils, Quaternion, Vector3 } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { System } from '../../ecs/classes/System'
@@ -16,7 +17,7 @@ import {
   updateHead,
   xrInitialized,
   xrSupported
-} from './setupXRBotHooks'
+} from './xrBotHookFunctions'
 
 export const setupBotHooks = (): void => {
   globalThis.botHooks = BotHookFunctions
@@ -32,6 +33,7 @@ export const BotHookFunctions = {
   [BotHooks.InitializeBot]: initializeBot,
   [BotHooks.LocationLoaded]: locationLoaded,
   [BotHooks.GetPlayerPosition]: getPlayerPosition,
+  [BotHooks.RotatePlayer]: rotatePlayer,
   [XRBotHooks.OverrideXR]: overrideXR,
   [XRBotHooks.XRSupported]: xrSupported,
   [XRBotHooks.XRInitialized]: xrInitialized,
@@ -56,4 +58,14 @@ export function locationLoaded() {
 
 export function getPlayerPosition() {
   return getComponent(Network.instance.localClientEntity, TransformComponent)?.position
+}
+
+/**
+ * @param {object} args
+ * @param {number} args.angle in degrees
+ */
+export function rotatePlayer({ angle }) {
+  console.log('===============rotatePlayer', angle)
+  const transform = getComponent(Network.instance.localClientEntity, TransformComponent)
+  transform.rotation.multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), MathUtils.degToRad(angle)))
 }

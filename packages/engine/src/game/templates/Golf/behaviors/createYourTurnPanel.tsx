@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { Network } from '../../../../networking/classes/Network'
-import { createUI } from '../../../../ui/functions/createUI'
+import { createUI } from '../../../../xrui/functions/createUI'
 import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunctions'
 import { TransformChildComponent } from '../../../../transform/components/TransformChildComponent'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
@@ -13,7 +13,7 @@ export const Panel = styled.div`
   background: #ffffff55;
   border-radius: 3px;
   border: 2px solid palevioletred;
-  color: palevioletred;
+  /* color: () => {palette.info.main}; */
   margin: 0.5em 1em;
   padding: 0.25em 1em;
 `
@@ -24,8 +24,8 @@ export const YourTurnPanel = () => {
 
 export async function createYourTurnPanel(player: Entity) {
   if (player === Network.instance.localClientEntity) {
-    const uiEntity = await createUI(YourTurnPanel)
-    addComponent(uiEntity, TransformComponent)
-    addComponent(uiEntity, TransformChildComponent, { parent: player, offsetPosition: new Vector3(0, 0, 1) })
+    const ui = createUI(YourTurnPanel, {})
+    addComponent(ui.entity, TransformComponent)
+    addComponent(ui.entity, TransformChildComponent, { parent: player, offsetPosition: new Vector3(0, 0, 1) })
   }
 }

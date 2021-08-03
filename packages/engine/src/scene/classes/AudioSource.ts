@@ -1,24 +1,31 @@
 import { Object3D, Audio, PositionalAudio } from 'three'
 import { Engine } from '../../ecs/classes/Engine'
-import { RethrownError } from '../../editor/functions/errors'
 
 export const AudioType = {
   Stereo: 'stereo',
   PannerNode: 'pannernode'
 }
+
 export const DistanceModelType = {
   Linear: 'linear',
   Inverse: 'inverse',
   Exponential: 'exponential'
 }
+
 export const AudioTypeOptions = Object.values(AudioType).map((v) => ({
   label: v,
   value: v
 }))
+
 export const DistanceModelOptions = Object.values(DistanceModelType).map((v) => ({
   label: v,
   value: v
 }))
+
+const elementPlaying = (element: HTMLMediaElement): boolean => {
+  return element && !!(element.currentTime > 0 && !element.paused && !element.ended && element.readyState > 2)
+}
+
 export default class AudioSource extends Object3D {
   el: any
   src: string
@@ -28,11 +35,11 @@ export default class AudioSource extends Object3D {
   audio: any
   audioSource: any
   isSynced: boolean
-  constructor(audioListener, elTag = 'audio', id: string) {
+  constructor(audioListener, elTag = 'audio', id?: string) {
     super()
 
     let el: HTMLVideoElement | HTMLAudioElement = null
-    if (elTag === 'video') {
+    if (elTag === 'video' && id) {
       const videoElement = document.getElementById(id) as HTMLVideoElement
       if (videoElement) {
         el = videoElement
@@ -53,12 +60,10 @@ export default class AudioSource extends Object3D {
     }
 
     this.el = el
-    this.src = ''
     this.audioListener = audioListener
     this.controls = true
     this.audioType = AudioType.PannerNode
     this.volume = 1
-    // console.log('audiosource create', this)
   }
   get duration() {
     return this.el.duration
@@ -202,9 +207,9 @@ export default class AudioSource extends Object3D {
       this.audio.panner.coneOuterGain = value
     }
   }
-  loadMedia(src): Promise<void> {
+  loadMedia(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.el.src = src
+      this.el.src = this.src
 
       // If media source requires to be synchronized then pause it for now.
       if (this.isSynced) {
@@ -218,7 +223,8 @@ export default class AudioSource extends Object3D {
       }
       const onError = (error) => {
         cleanup()
-        reject(new RethrownError(`Error loading video "${this.el.src}"`, error))
+        console.log(`Error loading video "${this.el.src}"`)
+        resolve()
       }
       cleanup = () => {
         this.el.removeEventListener('loadeddata', onLoadedData)
@@ -228,8 +234,8 @@ export default class AudioSource extends Object3D {
       this.el.addEventListener('error', onError)
     })
   }
-  async load(src, contentType?) {
-    await this.loadMedia(src)
+  async load() {
+    await this.loadMedia()
     if (!Engine.useAudioSystem) return this
     this.audioSource = this.audioListener.context.createMediaElementSource(this.el)
     this.audio.setNodeSource(this.audioSource)
@@ -266,5 +272,12 @@ export default class AudioSource extends Object3D {
   }
   pause() {
     this.el.pause()
+  }
+  toggle() {
+    if (elementPlaying(this.el)) {
+      this.pause()
+    } else {
+      this.play()
+    }
   }
 }

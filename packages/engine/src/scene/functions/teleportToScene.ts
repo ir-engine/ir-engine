@@ -1,73 +1,83 @@
+import { AmbientLight, PerspectiveCamera } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
-import { resetFollowCamera } from '../../camera/systems/CameraSystem'
+import { CameraSystem, rotateViewVectorXZ } from '../../camera/systems/CameraSystem'
 import { CharacterComponent } from '../../character/components/CharacterComponent'
 import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent'
-import { lerp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { delay } from '../../ecs/functions/EngineFunctions'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
-import { PhysicsSystem } from '../../physics/systems/PhysicsSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { PortalProps } from '../behaviors/createPortal'
+import { PortalComponent } from '../components/PortalComponent'
 import { PortalEffect } from '../classes/PortalEffect'
 import { Object3DComponent } from '../components/Object3DComponent'
+import { delay } from '../../common/functions/delay'
+import { PhysXInstance } from 'three-physx'
 
-export const teleportToScene = async (portalComponent: PortalProps, handleNewScene: () => void) => {
+export const teleportToScene = async (portalComponent: PortalComponent, handleNewScene: () => void) => {
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
   Engine.hasJoinedWorld = false
 
   // remove controller since physics world will be destroyed and we don't want it moving
-  PhysicsSystem.instance.removeController(
+  PhysXInstance.instance.removeController(
     getComponent(Network.instance.localClientEntity, ControllerColliderComponent).controller
   )
   removeComponent(Network.instance.localClientEntity, ControllerColliderComponent)
 
   const playerObj = getComponent(Network.instance.localClientEntity, Object3DComponent)
-  const texture = await AssetLoader.loadAsync({
-    url: '/hdr/galaxyTexture.jpg'
-  })
+  const texture = await AssetLoader.loadAsync({ url: '/hdr/galaxyTexture.jpg' })
+
   const hyperspaceEffect = new PortalEffect(texture)
   hyperspaceEffect.scale.set(10, 10, 10)
   hyperspaceEffect.traverse((obj) => {
     obj.layers.enable(CameraLayers.Portal)
+    obj.layers.disable(CameraLayers.Scene)
   })
-  Engine.scene.add(hyperspaceEffect)
   hyperspaceEffect.position.copy(playerObj.value.position)
   hyperspaceEffect.quaternion.copy(playerObj.value.quaternion)
 
-  // TODO add an ECS thing somewhere to update this properly
-  const hyperSpaceUpdateInterval = setInterval(() => {
-    hyperspaceEffect.update(1 / 60)
-  }, 1000 / 60)
+  const light = new AmbientLight('#aaa')
+  light.layers.enable(CameraLayers.Portal)
+  Engine.scene.add(light)
 
+  Engine.scene.add(hyperspaceEffect)
+
+  // TODO add an ECS thing somewhere to update this properly
+  const delta = 1 / 60
+  const camera = Engine.scene.getObjectByProperty('isPerspectiveCamera', true as any) as PerspectiveCamera
+  camera.zoom = 1.5
+  const hyperSpaceUpdateInterval = setInterval(() => {
+    hyperspaceEffect.update(delta)
+
+    hyperspaceEffect.position.copy(playerObj.value.position)
+    hyperspaceEffect.quaternion.copy(playerObj.value.quaternion)
+
+    if (camera.zoom > 0.75) {
+      camera.zoom -= delta
+      camera.updateProjectionMatrix()
+    }
+  }, delta * 1000)
+
+  Engine.scene.background = null
   Engine.camera.layers.enable(CameraLayers.Portal)
+  Engine.camera.layers.enable(CameraLayers.Avatar)
   Engine.camera.layers.disable(CameraLayers.Scene)
 
   playerObj.value.traverse((obj) => {
-    obj.layers.enable(CameraLayers.Portal)
+    obj.layers.enable(CameraLayers.Avatar)
     obj.layers.disable(CameraLayers.Scene)
   })
 
-  hyperspaceEffect.fadeIn()
-
   // TODO: add BPCEM of old and new scenes and fade them in and out too
-
-  await new Promise<void>((resolve) => {
-    const portalFadeInInterval = setInterval(() => {
-      hyperspaceEffect.tubeMesh.position.z = lerp(20, -5, hyperspaceEffect.tubeMaterial.opacity)
-      if (!hyperspaceEffect.fadingIn) {
-        clearInterval(portalFadeInInterval)
-        resolve()
-      }
-    }, 1000 / 60)
-  })
+  await hyperspaceEffect.fadeIn(delta)
 
   await handleNewScene()
 
+  Engine.portCamera = true
+
   await new Promise<void>((resolve) => {
+    Engine.scene.background = null
     Engine.hasJoinedWorld = true
     EngineEvents.instance.once(EngineEvents.EVENTS.JOINED_WORLD, resolve)
   })
@@ -76,51 +86,39 @@ export const teleportToScene = async (portalComponent: PortalProps, handleNewSce
 
   // teleport player to where the portal is
   const transform = getComponent(Network.instance.localClientEntity, TransformComponent)
-  const actor = getComponent(Network.instance.localClientEntity, CharacterComponent)
   transform.position.set(
-    portalComponent.spawnPosition.x,
-    portalComponent.spawnPosition.y + actor.actorHalfHeight,
-    portalComponent.spawnPosition.z
+    portalComponent.remoteSpawnPosition.x,
+    portalComponent.remoteSpawnPosition.y,
+    portalComponent.remoteSpawnPosition.z
   )
-  transform.rotation.copy(portalComponent.spawnRotation)
 
-  resetFollowCamera()
-
-  await delay(100)
-
-  hyperspaceEffect.position.copy(playerObj.value.position)
-  hyperspaceEffect.quaternion.copy(playerObj.value.quaternion)
+  const actor = getComponent(Network.instance.localClientEntity, CharacterComponent)
+  rotateViewVectorXZ(actor.viewVector, portalComponent.remoteSpawnEuler.y)
 
   addComponent(Network.instance.localClientEntity, ControllerColliderComponent)
 
-  hyperspaceEffect.fadeOut()
+  const fadeOut = hyperspaceEffect.fadeOut(delta)
 
   await delay(250)
 
-  await new Promise<void>((resolve) => {
-    const portalFadeOutInterval = setInterval(() => {
-      hyperspaceEffect.tubeMesh.position.z = lerp(-5, -200, 1 - hyperspaceEffect.tubeMaterial.opacity)
-      if (!hyperspaceEffect.fadingOut) {
-        clearInterval(portalFadeOutInterval)
-        resolve()
-      }
-    }, 1000 / 60)
-  })
-
   Engine.camera.layers.enable(CameraLayers.Scene)
+  light.removeFromParent()
+
+  await fadeOut
 
   playerObj.value.traverse((obj) => {
     obj.layers.enable(CameraLayers.Scene)
+    obj.layers.disable(CameraLayers.Avatar)
   })
 
   Engine.camera.layers.disable(CameraLayers.Portal)
-  playerObj.value.traverse((obj) => {
-    obj.layers.disable(CameraLayers.Portal)
-  })
+  Engine.camera.layers.disable(CameraLayers.Avatar)
 
   hyperspaceEffect.removeFromParent()
 
   clearInterval(hyperSpaceUpdateInterval)
+
+  Engine.portCamera = false
 
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: true })
 }

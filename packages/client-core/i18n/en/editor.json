@@ -217,6 +217,7 @@
             "lbl-castShadow": "Cast Shadow",
             "lbl-receiveShadow": "Receive Shadow",
             "lbl-interactable": "Interactable",
+            "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
             "lbl-name": "Name",
             "lbl-url": "Model Url",
             "lbl-buy": "Buy Url",
@@ -278,6 +279,17 @@
             "info-lifetimeRandomness": "The amount of variation between particle lifetimes.",
             "info-sizeRandomness": "The amount of variation between particle starting sizes."
         },
+        "clouds": {
+            "description": "Sprite based cloud volume.",
+            "lbl-image": "Sprite Image",
+            "lbl-wroldScale": "World Scale",
+            "lbl-dimensions": "Dimensions",
+            "lbl-noiseZoom": "Noise Zoom",
+            "lbl-noiseOffset": "Noise Offset",
+            "lbl-spriteScale": "Sprite Scale",
+            "lbl-fogColor": "Fog Color",
+            "lbl-fogRange": "Fog Range"
+        },
         "pointLight": {
             "description": "A light which emits in all directions from a single point.",
             "lbl-color": "Color",
@@ -319,6 +331,8 @@
             "info-mediaConeOuterAngle": "A double value describing the angle, in degrees, of a cone outside of which the volume will be reduced by a constant value, defined by the coneOuterGain attribute.",
             "info-mediaConeOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard.",
             "lbl-simpleMaterials": "Use Simple Materials",
+            "lbl-lods": "LODs",
+            "info-lods": "Sets the distances at which levels of detail change.",
             "info-simpleMaterials": "Converts all expensive materials to simpler ones to take the load off scene rendering.",
             "lbl-rendererSettings": "Override Renderer Settings",
             "lbl-csm": "Cascading Shadow Maps",
@@ -326,9 +340,9 @@
             "lbl-toneMapping": "Tone Mapping",
             "info-toneMapping": "Enables tone mapping on the scene renderer. Has no effect when a post processing is enabled.",
             "lbl-toneMappingExposure": "Tone Mapping Exposure",
+            "info-toneMappingExposure": "Specifies the tone mapping exposure on the scene renderer. Has no effect when a post processing is enabled.",
             "lbl-shadowMapType": "Shadow Map Type",
-            "info-shadowMapType": "Type of shadow map",
-            "info-toneMappingExposure": "Specifies the tone mapping exposure on the scene renderer. Has no effect when a post processing is enabled."
+            "info-shadowMapType": "Type of shadow map"
         },
         "sceneCamera": {
             "description": "The camera used to generate the thumbnail for your scene and the starting position for the preview camera in Hubs.",
@@ -392,6 +406,15 @@
         "spline": {
             "description": "Dynamically create and customize curves.",
             "lbl-addNode": "Add node to curve."
+        },
+        "portal": {
+            "lbl-portal": "Linked Portal",
+            "description": "A Portat to teleport players to specified location",
+            "lbl-locationName": "Location",
+            "lbl-displayText": "Display Text",
+            "lbl-reflectionProbe": "Reflection Probe",
+            "lbl-spawnPosition": "Spawn position",
+            "lbl-spawnRotation": "Spawn Rotation"
         }
     },
     "projects": {

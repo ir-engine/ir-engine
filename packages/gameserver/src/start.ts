@@ -77,6 +77,7 @@ export const start = async (): Promise<void> => {
   if (useSSL === true) app.setup(server)
 
   if (config.gameserver.locationName != null) {
+    console.log('PRELOADING WORLD WITH LOCATION NAME', config.gameserver.locationName)
     preloadLocation(config.gameserver.locationName, app)
   }
 

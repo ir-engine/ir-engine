@@ -19,7 +19,7 @@
       "header": {
         "typ": "access"
       },
-      "audience": "https://myxr.chat",
+      "audience": "https://127.0.0.1",
       "issuer": "feathers",
       "algorithm": "HS256",
       "expiresIn": "1d"
