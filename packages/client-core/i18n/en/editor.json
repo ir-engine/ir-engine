@@ -408,11 +408,13 @@
             "lbl-addNode": "Add node to curve."
         },
         "portal": {
+            "lbl-portal": "Linked Portal",
             "description": "A Portat to teleport players to specified location",
-            "location": "Location",
-            "displayText": "Display Text",
-            "spawnPosition": "Spawn position",
-            "spawnRotation": "Spawn Rotation"
+            "lbl-locationName": "Location",
+            "lbl-displayText": "Display Text",
+            "lbl-reflectionProbe": "Reflection Probe",
+            "lbl-spawnPosition": "Spawn position",
+            "lbl-spawnRotation": "Spawn Rotation"
         }
     },
     "projects": {
