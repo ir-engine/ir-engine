@@ -1,5 +1,6 @@
 import React from 'react'
-import './MarkerPin.css';
+// import styles from './MarkerPin.scss';
+import "./MarkerPin.scss";
 import { ReactComponent as Close } from './close.svg';
 
 export default function MarkerPin() {
