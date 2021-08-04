@@ -15,8 +15,8 @@ export const addMap = async function (scene: THREE.Scene, renderer: THREE.WebGLR
     const center = [parseFloat(args.startLongitude) || -84.388, parseFloat(args.startLatitude) || 33.749]
     const features = await fetchTiles(center)
     const mesh = buildMesh(features, center, renderer)
-    mesh.position.multiplyScalar(args.scale ? args.scale.x : .1)
-    mesh.scale.multiplyScalar(args.scale ? args.scale.x : .1)
+    mesh.position.multiplyScalar(args.scale ? args.scale.x : 0.1)
+    mesh.scale.multiplyScalar(args.scale ? args.scale.x : 0.1)
 
     scene.add(mesh)
   } else {

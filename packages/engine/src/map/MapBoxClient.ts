@@ -1,4 +1,4 @@
-import {ILayerName, TileFeaturesByLayer} from './types'
+import { ILayerName, TileFeaturesByLayer } from './types'
 import { VectorTile } from '@mapbox/vector-tile'
 import { Feature, Position } from 'geojson'
 import { Config } from '@xrengine/client-core/src/helper'
