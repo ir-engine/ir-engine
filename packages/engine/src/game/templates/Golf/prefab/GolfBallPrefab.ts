@@ -249,7 +249,7 @@ export const createGolfBallPrefab = (args: {
   uniqueId: string
   ownerId?: string
 }) => {
- // console.log('createGolfBallPrefab', args)
+  // console.log('createGolfBallPrefab', args)
   initializeNetworkObject({
     prefabType: GolfPrefabTypes.Ball,
     uniqueId: args.uniqueId,

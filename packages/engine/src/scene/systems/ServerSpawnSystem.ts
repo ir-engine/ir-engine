@@ -93,6 +93,7 @@ export class ServerSpawnSystem extends System {
         rotation.z,
         rotation.w
       ])
+      removeComponent(entity, RespawnTagComponent)
     }
   }
 }

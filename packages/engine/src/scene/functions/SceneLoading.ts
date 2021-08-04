@@ -20,7 +20,6 @@ import { createGame, createGameObject } from '../behaviors/createGame'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
 import { createSkybox } from '../behaviors/createSkybox'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
-import { MeshColliderProps } from '../interfaces/MeshColliderProps'
 import { createGroup } from '../behaviors/createGroup'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../behaviors/createMedia'
 import { createMap } from '../behaviors/createMap'
@@ -47,6 +46,7 @@ import { ShadowComponent } from '../components/ShadowComponent'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { createCollider } from '../../physics/behaviors/createCollider'
 import { BodyType } from 'three-physx'
+import { CameraSystem } from '../../camera/systems/CameraSystem'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -264,25 +264,15 @@ export class WorldScene {
         const boxColliderProps: BoxColliderProps = component.data
         createCollider(
           {
-            type: 'box',
-            ...boxColliderProps
+            userData: {
+              type: 'box',
+              ...boxColliderProps
+            }
           },
           boxColliderProps.position,
           boxColliderProps.quaternion,
           boxColliderProps.scale
         )
-        break
-
-      case 'mesh-collider':
-        const meshColliderProps: MeshColliderProps = component.data
-        if (meshColliderProps.data === 'physics') {
-          createCollider(
-            meshColliderProps,
-            meshColliderProps.position,
-            meshColliderProps.quaternion,
-            meshColliderProps.scale
-          )
-        }
         break
 
       case 'trigger-volume':
@@ -306,6 +296,15 @@ export class WorldScene {
         EngineRenderer.instance?.configurePostProcessing(component.data.options)
         break
 
+      case 'cameraproperties':
+        if (!isClient) return
+        let data = component.data
+        let cameraTypeIndex = data.options.CameraType.CameraMode
+        if (CameraSystem.instance.activeCamera) {
+          CameraSystem.instance.updateCameraType(cameraTypeIndex)
+        }
+        break
+
       case 'envmap':
         setEnvMap(entity, component.data)
         break
@@ -318,10 +317,14 @@ export class WorldScene {
         createPortal(entity, component.data)
         break
 
+      /* intentionally empty - these are only for the editor */
       case 'reflectionprobestatic':
       case 'reflectionprobe':
       case 'visible':
-        // intentionally empty - these are only for the editor
+        break
+
+      /* deprecated */
+      case 'mesh-collider':
         break
 
       default:

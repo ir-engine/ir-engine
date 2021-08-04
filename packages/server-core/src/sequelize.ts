@@ -5,6 +5,8 @@ import { setTimeout } from 'timers'
 import { Application } from '../declarations'
 import seederConfig from './seeder-config'
 
+const urlRegex = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_.~#?&//=]*)$/
+
 export default (app: Application): void => {
   try {
     const { performDryRun } = config.server
@@ -87,8 +89,24 @@ export default (app: Application): void => {
         })
         .then((sync) => {
           app.set('sequelizeSync', sync)
-          promiseResolve()
           return sequelize.query('SET FOREIGN_KEY_CHECKS = 1')
+        })
+        .then(async () => {
+          if (forceRefresh === true && urlRegex.test(config.server.defaultContentPackURL)) {
+            try {
+              await app.service('content-pack').update(null, {
+                manifestUrl: config.server.defaultContentPackURL
+              })
+            } catch (err) {
+              console.log('Error downloading initial content pack')
+              console.error(err)
+            }
+            promiseResolve()
+            return Promise.resolve()
+          } else {
+            promiseResolve()
+            return Promise.resolve()
+          }
         })
         .catch((err) => {
           console.log('Sequelize sync error')

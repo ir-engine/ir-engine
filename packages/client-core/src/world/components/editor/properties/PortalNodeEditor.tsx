@@ -11,6 +11,8 @@ import EulerInput from '../inputs/EulerInput'
 import SelectInput from '../inputs/SelectInput'
 import type PortalNode from '@xrengine/engine/src/editor/nodes/PortalNode'
 import configs from '../configs'
+import { Object3D } from 'three'
+import ReflectionProbeNode from '@xrengine/engine/src/editor/nodes/ReflectionProbeNode'
 
 type PortalNodeEditorProps = {
   editor?: Editor
@@ -76,6 +78,10 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
     this.props.editor.setPropertySelected('spawnRotation', spawnRotation)
   }
 
+  onChangeReflectionProbe = (reflectionProbeId) => {
+    this.props.editor.setPropertySelected('reflectionProbeId', reflectionProbeId)
+  }
+
   componentDidUpdate() {
     if ((this.props.node as any).entityId !== this.state.entityId) {
       this.setState({ entityId: (this.props.node as any).entityId })
@@ -118,12 +124,12 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
       /* @ts-ignore */
       <NodeEditor description={PortalNodeEditor.description} {...this.props}>
         {/* @ts-ignore */}
-        <InputGroup name="Location" label={this.props.t('editor:properties.portal.locationName')}>
+        <InputGroup name="Location" label={this.props.t('editor:properties.portal.lbl-locationName')}>
           {/* @ts-ignore */}
           <ControlledStringInput value={node.locationName} onChange={this.onChangeLocationName} />
         </InputGroup>
         {/* @ts-ignore */}
-        <InputGroup name="Portal" label={this.props.t('editor:properties.portal.portal')}>
+        <InputGroup name="Portal" label={this.props.t('editor:properties.portal.lbl-portal')}>
           {/* @ts-ignore */}
           <SelectInput
             options={this.state.portals}
@@ -136,16 +142,34 @@ export class PortalNodeEditor extends Component<PortalNodeEditorProps, PortalNod
           />
         </InputGroup>
         {/* @ts-ignore */}
-        <InputGroup name="Display Text" label={this.props.t('editor:properties.portal.displayText')}>
+        <InputGroup name="Display Text" label={this.props.t('editor:properties.portal.lbl-displayText')}>
           {/* @ts-ignore */}
           <ControlledStringInput value={node.displayText} onChange={this.onChangeDisplayText} />
         </InputGroup>
         {/* @ts-ignore */}
-        <InputGroup name="Spawn Position" label={this.props.t('editor:properties.portal.spawnPosition')}>
+        <InputGroup name="Texture Override" label={this.props.t('editor:properties.portal.lbl-reflectionProbe')}>
+          {/* @ts-ignore */}
+          <SelectInput
+            options={this.props.editor.scene.children
+              .filter((obj: Object3D) => {
+                return (obj as any).nodeName === ReflectionProbeNode.nodeName
+              })
+              .map((obj: Object3D) => {
+                return {
+                  label: obj.name,
+                  value: obj.uuid
+                }
+              })}
+            value={node.reflectionProbeId}
+            onChange={this.onChangeReflectionProbe}
+          />
+        </InputGroup>
+        {/* @ts-ignore */}
+        <InputGroup name="Spawn Position" label={this.props.t('editor:properties.portal.lbl-spawnPosition')}>
           <Vector3Input value={node.spawnPosition} onChange={this.onChangeSpawnPosition} />
         </InputGroup>
         {/* @ts-ignore */}
-        <InputGroup name="Spawn Rotation" label={this.props.t('editor:properties.portal.spawnRotation')}>
+        <InputGroup name="Spawn Rotation" label={this.props.t('editor:properties.portal.lbl-spawnRotation')}>
           <EulerInput value={node.spawnRotation} onChange={this.onChangeSpawnRotation} />
         </InputGroup>
       </NodeEditor>

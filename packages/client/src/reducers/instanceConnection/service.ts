@@ -97,6 +97,7 @@ export function connectToInstanceServer(channelType: string, channelId?: string)
         console.error('Network transport could not initialize, transport is: ', Network.instance.transport)
       }
 
+      ;(Network.instance.transport as SocketWebRTCClientTransport).left = false
       EngineEvents.instance.addEventListener(MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS, triggerUpdateConsumers)
 
       dispatch(instanceServerConnected())

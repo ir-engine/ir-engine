@@ -41,6 +41,7 @@ import { FontManager } from './xrui/classes/FontManager'
 import { EquippableSystem } from './interaction/systems/EquippableSystem'
 import { AutopilotSystem } from './navigation/systems/AutopilotSystem'
 import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
+import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -130,6 +131,8 @@ const configureServer = async (options: Required<InitializeOptions>) => {
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, renderer: true, physics: true })
     Engine.hasJoinedWorld = true
   })
+
+  await loadDRACODecoder()
 
   registerServerSystems(options)
 }

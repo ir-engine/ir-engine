@@ -1,6 +1,8 @@
 import { AmbientLight, AnimationClip, DirectionalLight, Object3D, PointLight, Group, Mesh } from 'three'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
+import { GLTFRemoveMaterialsExtension } from '../classes/GLTFRemoveMaterialsExtension'
+import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 import { DRACOLoader } from '../loaders/gltf/DRACOLoader'
 import { GLTFLoader } from '../loaders/gltf/GLTFLoader'
 
@@ -15,13 +17,18 @@ export interface LoadGLTFResultInterface {
 }
 
 const loader = new GLTFLoader()
-const dracoLoader = new DRACOLoader()
+
+if (!isClient) {
+  loader.register((parser) => new GLTFRemoveMaterialsExtension(parser))
+}
+
+const dracoLoader: any = isClient ? new DRACOLoader() : new NodeDRACOLoader()
 
 if (isClient) {
   dracoLoader.setDecoderPath('/loader_decoders/')
 } else {
-  ;(dracoLoader as any).getDecoderModule = () => {}
-  ;(dracoLoader as any).preload = () => {}
+  dracoLoader.getDecoderModule = () => {}
+  dracoLoader.preload = () => {}
 }
 ;(loader as any).setDRACOLoader(dracoLoader)
 
@@ -49,6 +56,7 @@ export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
       },
       null,
       (e) => {
+        console.log(e)
         reject(e)
       }
     )

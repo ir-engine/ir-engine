@@ -24,6 +24,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       node.displayText = portalComponent.props.displayText
       node.spawnPosition = new Vector3()
       node.locationName = portalComponent.props.locationName
+      node.reflectionProbeId = portalComponent.props.reflectionProbeId
       if (portalComponent.props.spawnPosition)
         node.spawnPosition.set(
           portalComponent.props.spawnPosition.x - node.position.x, // Have to convert from global space to local space
@@ -90,6 +91,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
         locationName: this.locationName,
         linkedPortalId: this.linkedPortalId,
         displayText: this.displayText,
+        reflectionProbeId: this.reflectionProbeId,
         spawnPosition: this.spawnPosition.add(this.position), // Have to convert from local space to global space
         spawnRotation: rotation
       }
@@ -111,6 +113,7 @@ export default class PortalNode extends EditorNodeMixin(Model) {
       locationName: this.locationName,
       linkedPortalId: this.linkedPortalId,
       displayText: this.displayText,
+      reflectionProbeId: this.reflectionProbeId,
       spawnPosition: this.spawnPosition.add(this.position), // Have to convert from local space to global space
       spawnRotation: rotation
     })
