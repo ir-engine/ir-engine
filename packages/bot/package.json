@@ -19,12 +19,10 @@
   },
   "dependencies": {
     "@google-cloud/agones-sdk": "1.16.0",
-    "@turf/helpers": "^6.5.0",
     "chai": "4.3.4",
     "cross-env": "7.0.3",
     "jest": "27.0.6",
     "jest-puppeteer": "5.0.4",
-    "polygon-clipping": "^0.15.3",
     "puppeteer": "9.1.1",
     "ts-jest": "27.0.4"
   },
