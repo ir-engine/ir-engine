@@ -441,7 +441,7 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
     const sceneJson = {
       version: 4,
       root: this.uuid,
-      metadata: JSON.parse(JSON.stringify(this.metadata)),
+      metadata: this.parseMetadataToObject(this.metadata),
       entities: {
         [this.uuid]: {
           name: this.name,
@@ -633,6 +633,9 @@ export default class SceneNode extends EditorNodeMixin(Scene) {
   }
   setMetadata(newMetadata) {
     const existingMetadata = this.metadata || {}
-    this.metadata = Object.assign(existingMetadata, newMetadata)
+    this.metadata = Object.assign(this.parseMetadataToObject(existingMetadata), newMetadata)
+  }
+  parseMetadataToObject(metadata) {
+    return typeof metadata === 'string' ? this.parseMetadataToObject(JSON.parse(metadata)) : metadata
   }
 }
