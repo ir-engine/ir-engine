@@ -23,9 +23,11 @@ export const createGround = (entity: Entity, args: GroundProps) => {
 
   const body = createCollider(
     {
-      type: 'ground',
-      collisionLayer: CollisionGroups.Ground,
-      collisionMask: CollisionGroups.Default
+      userData: {
+        type: 'ground',
+        collisionLayer: CollisionGroups.Ground,
+        collisionMask: CollisionGroups.Default
+      }
     },
     new Vector3().copy(mesh.position),
     new Quaternion().copy(mesh.quaternion),
