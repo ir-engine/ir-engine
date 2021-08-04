@@ -19,7 +19,8 @@ import turfBuffer from '@turf/buffer'
 import { Feature, Geometry, Position } from 'geojson'
 import { toIndexed } from './toIndexed'
 import { ILayerName, TileFeaturesByLayer } from './types'
-import { NUMBER_OF_TILES_PER_DIMENSION } from './MapBoxClient';
+import { NUMBER_OF_TILES_PER_DIMENSION } from './MapBoxClient'
+import { unifyFeatures } from './GeoJSONFns'
 
 // TODO free resources used by canvases, bitmaps etc
 
@@ -222,7 +223,7 @@ function maybeBuffer(feature: Feature, width: number): Geometry {
 
 export function buildMesh(tiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
   const group = new Group()
-  const buildingFeatures = tiles.reduce((acc, tile) => acc.concat(tile.building), [])
+  const buildingFeatures = unifyFeatures(tiles.reduce((acc, tile) => acc.concat(tile.building), []))
   const roadFeatures = tiles.reduce((acc, tile) => acc.concat(tile.road), [])
   const objects3d = [
     ...buildObjects3D('building', buildingFeatures, llCenter, renderer),
@@ -235,4 +236,3 @@ export function buildMesh(tiles: TileFeaturesByLayer[], llCenter: Position, rend
 
   return group
 }
-
