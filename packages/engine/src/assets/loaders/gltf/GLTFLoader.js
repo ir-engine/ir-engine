@@ -357,7 +357,7 @@ class GLTFLoader extends Loader {
 
 		parser.setExtensions( extensions );
 		parser.setPlugins( plugins );
-		parser.parse( onLoad, onError );
+    parser.parse( onLoad, onError );
 
 	}
 
@@ -2257,7 +2257,7 @@ class GLTFParser {
 					break;
 
 				case 'texture':
-					dependency = this._invokeOne( function ( ext ) {
+          dependency = this._invokeOne( function ( ext ) {
 
 						return ext.loadTexture && ext.loadTexture( index );
 

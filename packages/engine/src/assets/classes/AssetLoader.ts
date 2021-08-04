@@ -235,7 +235,7 @@ export class AssetLoader {
 
   static async loadAsync(params: AssetLoaderParamType) {
     return new Promise<any>((resolve, reject) => {
-      new AssetLoader(params, resolve, () => {}, reject)
+      new AssetLoader(params, resolve, () => {}, resolve)
     })
   }
 }
