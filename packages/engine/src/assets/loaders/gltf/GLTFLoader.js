@@ -357,7 +357,7 @@ class GLTFLoader extends Loader {
 
 		parser.setExtensions( extensions );
 		parser.setPlugins( plugins );
-		parser.parse( onLoad, onError );
+    parser.parse( onLoad, onError );
 
 	}
 
@@ -2257,7 +2257,7 @@ class GLTFParser {
 					break;
 
 				case 'texture':
-					dependency = this._invokeOne( function ( ext ) {
+          dependency = this._invokeOne( function ( ext ) {
 
 						return ext.loadTexture && ext.loadTexture( index );
 
@@ -2346,7 +2346,7 @@ class GLTFParser {
 
 			loader.load( resolveURL( bufferDef.uri, options.path ), resolve, undefined, function () {
 
-				reject( new Error( 'THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".' ) );
+				resolve( new Error( 'THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".' ) );
 
 			} );
 
@@ -2608,7 +2608,7 @@ class GLTFParser {
 
 				}
 
-				loader.load( resolveURL( sourceURI, options.path ), onLoad, undefined, reject );
+				loader.load( resolveURL( sourceURI, options.path ), onLoad, undefined, resolve );
 
 			} );
 

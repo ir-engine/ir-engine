@@ -11,6 +11,7 @@ import { GolfSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
 import { GolfGameMode } from '@xrengine/engine/src/game/templates/GolfGameMode'
 import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem'
 ;(globalThis as any).XMLHttpRequest = XMLHttpRequest
+;(globalThis as any).self = globalThis
 
 const currentPath = (process.platform === 'win32' ? 'file:///' : '') + path.dirname(__filename)
 

@@ -20,7 +20,6 @@ import { createGame, createGameObject } from '../behaviors/createGame'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
 import { createSkybox } from '../behaviors/createSkybox'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
-import { MeshColliderProps } from '../interfaces/MeshColliderProps'
 import { createGroup } from '../behaviors/createGroup'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../behaviors/createMedia'
 import { createMap } from '../behaviors/createMap'
@@ -273,18 +272,6 @@ export class WorldScene {
         )
         break
 
-      case 'mesh-collider':
-        const meshColliderProps: MeshColliderProps = component.data
-        if (meshColliderProps.data === 'physics') {
-          createCollider(
-            meshColliderProps,
-            meshColliderProps.position,
-            meshColliderProps.quaternion,
-            meshColliderProps.scale
-          )
-        }
-        break
-
       case 'trigger-volume':
         createTriggerVolume(entity, component.data)
         break
@@ -326,10 +313,14 @@ export class WorldScene {
         createPortal(entity, component.data)
         break
 
+      /* intentionally empty - these are only for the editor */
       case 'reflectionprobestatic':
       case 'reflectionprobe':
       case 'visible':
-        // intentionally empty - these are only for the editor
+        break
+
+      /* deprecated */
+      case 'mesh-collider':
         break
 
       default:
