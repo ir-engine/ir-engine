@@ -91,7 +91,7 @@ const followCameraBehavior = (entity: Entity, portCamera?: boolean) => {
 
   const inputValue = inputComponent.data.get(inputAxes)?.value ?? ([0, 0] as Vector2Type)
 
-  const theta = Math.atan2(actor.viewVector.x, actor.viewVector.z)
+  let theta = Math.atan2(actor.viewVector.x, actor.viewVector.z)
 
   if (followCamera.locked) {
     followCamera.theta = (theta * 180) / Math.PI + 180
@@ -112,7 +112,9 @@ const followCameraBehavior = (entity: Entity, portCamera?: boolean) => {
 
   let phi = followCamera.mode === CameraModes.TopDown ? 85 : followCamera.phi
   phi = followCamera.mode === CameraModes.Isometric ? 150 : phi
-  const theta = followCamera.mode === CameraModes.Isometric ? 180 : followCamera.theta
+
+  // bug
+  theta = followCamera.mode === CameraModes.Isometric ? 180 : followCamera.theta
 
   // Replaced code with this
   const camInitialHeight =
@@ -191,7 +193,7 @@ export const resetFollowCamera = () => {
 /** System class which provides methods for Camera system. */
 export class CameraSystem extends System {
   prevState = [0, 0] as NumericalType
-
+  static instance;
   cameraModeIndex: number
   updateCameraMode: boolean
   portCamera: boolean = false
@@ -199,7 +201,7 @@ export class CameraSystem extends System {
   /** Constructs camera system. */
   constructor() {
     super()
-
+    CameraSystem.instance = this;
     const cameraEntity = createEntity()
     addComponent(cameraEntity, CameraComponent)
     addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })
