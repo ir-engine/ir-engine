@@ -9,7 +9,8 @@ import {
   BufferAttribute,
   Color,
   CanvasTexture,
-  Group
+  Group,
+  Object3D
 } from 'three'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { VectorTile } from '@mapbox/vector-tile'
@@ -18,8 +19,7 @@ import turfBuffer from '@turf/buffer'
 import { Feature, Geometry, Position } from 'geojson'
 import { toIndexed } from './toIndexed'
 import { Config } from '@xrengine/client-core/src/helper'
-
-type ILayerName = 'building' | 'road'
+import { ILayerName } from './types'
 
 // TODO free resources used by canvases, bitmaps etc
 
@@ -33,11 +33,10 @@ const NUMBER_OF_TILES_PER_DIMENSION = 3
 const WHOLE_NUMBER_OF_TILES_FROM_CENTER = Math.floor(NUMBER_OF_TILES_PER_DIMENSION / 2)
 const NUMBER_OF_TILES_IS_ODD = NUMBER_OF_TILES_PER_DIMENSION % 2
 
-function buildBuildingGeometry(feature: Feature, llCenter: Position): BufferGeometry {
+function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Position): BufferGeometry {
   const shape = new Shape()
-  const styles = DEFAULT_FEATURE_STYLES.building
+  const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, feature.properties.class)
 
-  // not sure why buildings would have linestrings...
   const geometry = maybeBuffer(feature, styles.width)
 
   let coords: Position[]
@@ -107,9 +106,23 @@ function buildBuildingGeometry(feature: Feature, llCenter: Position): BufferGeom
 
   threejsGeometry.rotateX(-Math.PI / 2)
 
-  colorVertices(threejsGeometry, getRandomBuildingColor())
+  if (styles.color && styles.color.builtin_function === 'purple_haze') {
+    colorVertices(threejsGeometry, getRandomBuildingColor())
+  }
 
   return threejsGeometry
+}
+
+function buildGeometries(layerName: ILayerName, features: Feature[], llCenter: Position): BufferGeometry[] {
+  const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName)
+  const geometries = features.map((feature) => buildGeometry(layerName, feature, llCenter))
+
+  // the current method of merging produces strange results with flat geometries
+  if (styles.extrude !== 'flat') {
+    return [mergeBufferGeometries(geometries.map((g) => toIndexed(g)))]
+  } else {
+    return geometries
+  }
 }
 
 function createCanvasRenderingContext2D(width: number, height: number) {
@@ -175,25 +188,24 @@ function colorVertices(geometry: BufferGeometry, baseColor: Color) {
 /**
  * TODO adapt code from https://raw.githubusercontent.com/jeromeetienne/threex.proceduralcity/master/threex.proceduralcity.js
  */
-export function buildBuildingsMesh(features: Feature[], llCenter: Position, renderer: WebGLRenderer): Mesh {
-  const geometries = features
-    .map((feature) => buildBuildingGeometry(feature, llCenter))
-    .filter((geometry) => geometry)
-    .map((geometry) => toIndexed(geometry))
-
-  const mergedGeometry = mergeBufferGeometries(geometries)
+export function buildObjects3D(
+  layerName: ILayerName,
+  features: Feature[],
+  llCenter: Position,
+  renderer: WebGLRenderer
+): Object3D[] {
+  const geometries = buildGeometries(layerName, features, llCenter)
 
   const texture = new CanvasTexture(generateTextureCanvas())
   texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
   texture.needsUpdate = true
 
+  const color = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName).color
   const material = new MeshLambertMaterial({
-    map: texture,
-    vertexColors: true
+    color: color.constant,
+    vertexColors: color.builtin_function === 'purple_haze' ? true : false
   })
-  const mesh = new Mesh(mergedGeometry, material)
-
-  return mesh
+  return geometries.map((g) => new Mesh(g, material))
 }
 
 function maybeBuffer(feature: Feature, width: number): Geometry {
@@ -212,59 +224,18 @@ function maybeBuffer(feature: Feature, width: number): Geometry {
   return feature.geometry
 }
 
-function buildRoadGeometry(feature: Feature, llCenter: Position): BufferGeometry {
-  const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, 'road', feature.properties.class)
-  const geometry = maybeBuffer(feature, styles.width)
-
-  let coords: Position[]
-  const shape = new Shape()
-  // TODO switch statement
-  if (geometry.type === 'MultiPolygon') {
-    coords = geometry.coordinates[0][0] // TODO: add all multipolygon coords.
-  } else if (geometry.type === 'Polygon') {
-    coords = geometry.coordinates[0] // TODO: handle interior rings
-  } else {
-    console.warn('Unexpected geometry type', geometry.type)
-  }
-
-  var point = llToScene(coords[0], llCenter)
-  shape.moveTo(point[0], point[1])
-
-  coords.slice(1).forEach((coord: Position) => {
-    point = llToScene(coord, llCenter)
-    shape.lineTo(point[0], point[1])
-  })
-  point = llToScene(coords[0], llCenter)
-  shape.lineTo(point[0], point[1])
-
-  const threejsGeometry = new ShapeGeometry(shape)
-
-  threejsGeometry.rotateX(-Math.PI / 2)
-
-  return threejsGeometry
-}
-
-export function buildRoadMesh(feature: Feature, llCenter: Position) {
-  const material = new MeshLambertMaterial({
-    color: 0x202020
-  })
-
-  const geometry = buildRoadGeometry(feature, llCenter)
-
-  return new Mesh(geometry, material)
-}
-
 export function buildMesh(tiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
   const group = new Group()
   const buildingFeatures = tiles.reduce((acc, tile) => acc.concat(tile.building), [])
   const roadFeatures = tiles.reduce((acc, tile) => acc.concat(tile.road), [])
-  const buildingsMesh = buildBuildingsMesh(buildingFeatures, llCenter, renderer)
+  const objects3d = [
+    ...buildObjects3D('building', buildingFeatures, llCenter, renderer),
+    ...buildObjects3D('road', roadFeatures, llCenter, renderer)
+  ]
 
-  roadFeatures.forEach((feature) => {
-    group.add(buildRoadMesh(feature, llCenter))
+  objects3d.forEach((o) => {
+    group.add(o)
   })
-
-  group.add(buildingsMesh)
 
   return group
 }
