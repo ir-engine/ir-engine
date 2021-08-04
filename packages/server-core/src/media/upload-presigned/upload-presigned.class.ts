@@ -10,6 +10,8 @@ import {
 } from '@xrengine/common/src/constants/AvatarConstants'
 import config from '../../appconfig'
 
+const s3: any = new S3Provider()
+
 interface Data {}
 
 interface ServiceOptions {}
@@ -37,14 +39,42 @@ export class UploadPresigned implements ServiceMethods<Data> {
   }
 
   async get(id: Id, params?: Params): Promise<Data> {
+    const key = this.getKeyForFilename(
+      params['identity-provider'].userId,
+      params.query.fileName,
+      params.query.isPublicAvatar
+    )
     const url = await this.s3.getSignedUrl(
-      this.getKeyForFilename(params['identity-provider'].userId + '/' + params.query.fileName),
+      key,
       PRESIGNED_URL_EXPIRATION_DURATION || 3600, // Expiration duration in Seconds
       [
         { acl: 'public-read' },
         ['content-length-range', MIN_AVATAR_FILE_SIZE, MAX_AVATAR_FILE_SIZE] // Max size 15 MB
       ]
     )
+    url.cloudfrontDomain = config.aws.cloudfront.domain
+    await new Promise((resolve, reject) => {
+      s3.cloudfront.createInvalidation(
+        {
+          DistributionId: config.aws.cloudfront.distributionId,
+          InvalidationBatch: {
+            CallerReference: Date.now().toString(),
+            Paths: {
+              Quantity: 1,
+              Items: [`/${key}`]
+            }
+          }
+        },
+        (err, data) => {
+          if (err) {
+            console.error(err)
+            reject(err)
+          } else {
+            resolve(data)
+          }
+        }
+      )
+    })
     return url
   }
 
@@ -72,7 +102,11 @@ export class UploadPresigned implements ServiceMethods<Data> {
     return { data }
   }
 
-  getKeyForFilename = (key: string): string => {
-    return `${config.aws.s3.avatarDir}${config.aws.s3.s3DevMode ? '/' + config.aws.s3.s3DevMode : ''}/${key}`
+  getKeyForFilename = (userId: string, fileName: string, isPublicAvatar?: boolean): string => {
+    return isPublicAvatar === true
+      ? `${config.aws.s3.avatarDir}/${fileName}`
+      : `${config.aws.s3.avatarDir}${
+          config.aws.s3.s3DevMode ? '/' + config.aws.s3.s3DevMode : ''
+        }/${userId}/${fileName}`
   }
 }

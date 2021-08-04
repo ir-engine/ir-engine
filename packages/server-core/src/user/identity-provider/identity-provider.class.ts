@@ -81,7 +81,7 @@ export class IdentityProvider extends Service {
           type
         }
         break
-      case 'linkedin2':
+      case 'linkedin':
         identityProvider = {
           token: token,
           type
