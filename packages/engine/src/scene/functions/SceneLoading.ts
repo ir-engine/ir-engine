@@ -264,8 +264,10 @@ export class WorldScene {
         const boxColliderProps: BoxColliderProps = component.data
         createCollider(
           {
-            type: 'box',
-            ...boxColliderProps
+            userData: {
+              type: 'box',
+              ...boxColliderProps
+            }
           },
           boxColliderProps.position,
           boxColliderProps.quaternion,
