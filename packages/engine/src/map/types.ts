@@ -1,4 +1,3 @@
-
 import { Feature } from 'geojson'
 
 export type ILayerName = 'building' | 'road'
