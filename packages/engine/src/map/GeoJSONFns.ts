@@ -87,17 +87,22 @@ export function unifyFeatures(features: Feature[]): Feature[] {
 
   return featuresByIdArray.map((features) => {
     if (features.length > 1) {
-      let unifiedCoords = getCoords(features[0])
-      let unifiedProperties = features[0].properties
+      const allCoords = features.map(getCoords)
 
-      features.slice(1).forEach((feature) => {
-        unifiedCoords = polygonClipping.union(unifiedCoords, getCoords(feature))
-        if (unifiedProperties.height && feature.properties.height) {
-          unifiedProperties.height = Math.max(unifiedProperties.height, feature.properties.height)
-        }
+      const unifiedCoords = polygonClipping.union.apply(null, allCoords)
+      let maxHeight = 0
+
+      features.forEach((f) => {
+        maxHeight = f.properties.height ? Math.max(f.properties.height) : maxHeight
       })
+      const unifiedProperties = {
+        ...features[0].properties,
+        height: maxHeight
+      }
 
-      return unifiedCoords.length === 1 ? polygon(unifiedCoords[0] as any, unifiedProperties) : multiPolygon(unifiedCoords as any, unifiedProperties)
+      return unifiedCoords.length === 1
+        ? polygon(unifiedCoords[0] as any, unifiedProperties)
+        : multiPolygon(unifiedCoords as any, unifiedProperties)
     } else {
       return features[0]
     }
