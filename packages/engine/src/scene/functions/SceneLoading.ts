@@ -47,6 +47,7 @@ import { ShadowComponent } from '../components/ShadowComponent'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { createCollider } from '../../physics/behaviors/createCollider'
 import { BodyType } from 'three-physx'
+import { CameraSystem } from '../../camera/systems/CameraSystem'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -307,6 +308,7 @@ export class WorldScene {
         break
 
       case 'cameraproperties':
+        if(!isClient) return;
         let data = component.data
         let cameraTypeIndex = data.options.CameraType.CameraMode
         if (CameraSystem.instance.activeCamera) {
