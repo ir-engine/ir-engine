@@ -57,8 +57,7 @@ export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
       null,
       (e) => {
         console.log(e)
-        resolve(null)
-        // reject(e)
+        reject(e)
       }
     )
   })

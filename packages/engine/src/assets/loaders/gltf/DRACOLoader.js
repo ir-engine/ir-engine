@@ -163,7 +163,7 @@ class DRACOLoader extends Loader {
 
 				return new Promise( ( resolve, reject ) => {
 
-					worker._callbacks[ taskID ] = { resolve, reject: resolve };
+					worker._callbacks[ taskID ] = { resolve, reject };
 
 					worker.postMessage( { type: 'decode', id: taskID, taskConfig, buffer }, [ buffer ] );
 
@@ -236,7 +236,7 @@ class DRACOLoader extends Loader {
 
 		return new Promise( ( resolve, reject ) => {
 
-			loader.load( url, resolve, undefined, resolve );
+			loader.load( url, resolve, undefined, reject );
 
 		} );
 

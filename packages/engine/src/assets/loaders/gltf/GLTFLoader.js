@@ -2346,7 +2346,7 @@ class GLTFParser {
 
 			loader.load( resolveURL( bufferDef.uri, options.path ), resolve, undefined, function () {
 
-				resolve( new Error( 'THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".' ) );
+				reject( new Error( 'THREE.GLTFLoader: Failed to load buffer "' + bufferDef.uri + '".' ) );
 
 			} );
 
@@ -2608,7 +2608,7 @@ class GLTFParser {
 
 				}
 
-				loader.load( resolveURL( sourceURI, options.path ), onLoad, undefined, resolve );
+				loader.load( resolveURL( sourceURI, options.path ), onLoad, undefined, reject );
 
 			} );
 

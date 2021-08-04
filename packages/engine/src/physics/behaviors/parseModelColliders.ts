@@ -76,7 +76,7 @@ export const createCollidersFromModel = (entity: Entity, asset: any) => {
     }
   })
 
-  // remove all physics assets so their colliders aren't added to the world
+  // remove physics assets so their models aren't added to the world
   colliders.forEach((mesh) => {
     mesh.removeFromParent()
   })

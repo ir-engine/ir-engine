@@ -22,7 +22,7 @@ export const loadGLTFModel = (
   sceneProperty: ScenePropertyType
 ) => {
   sceneLoader.loaders.push(
-    new Promise<void>((resolve) => {
+    new Promise<void>((resolve, reject) => {
       AssetLoader.load(
         {
           url: component.data.src,
@@ -107,7 +107,7 @@ export const loadGLTFModel = (
         (err) => {
           console.log('[SCENE-LOADING]:', err)
           sceneLoader._onModelLoaded()
-          resolve()
+          reject(err)
         }
       )
     })
