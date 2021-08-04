@@ -23,7 +23,7 @@ export default (app: Application): void => {
   authentication.register('google', new GoogleStrategy(app))
   authentication.register('facebook', new FacebookStrategy(app))
   authentication.register('github', new GithubStrategy(app))
-  authentication.register('linkedin2', new LinkedInStrategy(app))
+  authentication.register('linkedin', new LinkedInStrategy(app))
   authentication.register('twitter', new TwitterStrategy(app))
 
   app.use('/authentication', authentication)

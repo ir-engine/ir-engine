@@ -135,7 +135,7 @@ const authentication = {
   service: 'identity-provider',
   entity: 'identity-provider',
   secret: process.env.AUTH_SECRET,
-  authStrategies: ['jwt', 'local', 'facebook', 'github', 'google', 'linkedin2', 'twitter'],
+  authStrategies: ['jwt', 'local', 'facebook', 'github', 'google', 'linkedin', 'twitter'],
   local: {
     usernameField: 'email',
     passwordField: 'password'
@@ -150,7 +150,7 @@ const authentication = {
     facebook: process.env.FACEBOOK_CALLBACK_URL || `${client.url}/auth/oauth/facebook`,
     github: process.env.GITHUB_CALLBACK_URL || `${client.url}/auth/oauth/github`,
     google: process.env.GOOGLE_CALLBACK_URL || `${client.url}/auth/oauth/google`,
-    linkedin2: process.env.LINKEDIN_CALLBACK_URL || `${client.url}/auth/oauth/linkedin2`,
+    linkedin: process.env.LINKEDIN_CALLBACK_URL || `${client.url}/auth/oauth/linkedin`,
     twitter: process.env.TWITTER_CALLBACK_URL || `${client.url}/auth/oauth/twitter`
   },
   oauth: {
@@ -174,7 +174,7 @@ const authentication = {
       secret: process.env.GOOGLE_CLIENT_SECRET,
       scope: ['profile', 'email']
     },
-    linkedin2: {
+    linkedin: {
       key: process.env.LINKEDIN_CLIENT_ID,
       secret: process.env.LINKEDIN_CLIENT_SECRET,
       scope: ['r_liteprofile', 'r_emailaddress']
