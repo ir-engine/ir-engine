@@ -308,7 +308,7 @@ export class WorldScene {
         break
 
       case 'cameraproperties':
-        if(!isClient) return;
+        if (!isClient) return
         let data = component.data
         let cameraTypeIndex = data.options.CameraType.CameraMode
         if (CameraSystem.instance.activeCamera) {
