@@ -592,15 +592,21 @@ export function uploadAvatar(data: any) {
   }
 }
 
-export function uploadAvatarModel(model: any, thumbnail: any) {
+export function uploadAvatarModel(model: any, thumbnail: any, isPublicAvatar?: boolean) {
   return async (dispatch: Dispatch, getState: any) => {
     const name = model.name.substring(0, model.name.lastIndexOf('.'))
     const [modelURL, thumbnailURL] = await Promise.all([
-      client
-        .service('upload-presigned')
-        .get('', { query: { type: 'avatar', fileName: model.name, fileSize: model.size } }),
       client.service('upload-presigned').get('', {
-        query: { type: 'user-thumbnail', fileName: name + '.png', fileSize: thumbnail.size, mimeType: thumbnail.type }
+        query: { type: 'avatar', fileName: model.name, fileSize: model.size, isPublicAvatar: isPublicAvatar }
+      }),
+      client.service('upload-presigned').get('', {
+        query: {
+          type: 'user-thumbnail',
+          fileName: name + '.png',
+          fileSize: thumbnail.size,
+          mimeType: thumbnail.type,
+          isPublicAvatar: isPublicAvatar
+        }
       })
     ])
 
@@ -610,57 +616,84 @@ export function uploadAvatarModel(model: any, thumbnail: any) {
     modelData.append('file', model)
 
     // Upload Model file to S3
-    axios
+    return axios
       .post(modelURL.url, modelData)
-      .then((res) => {
+      .then(async (res) => {
         const thumbnailData = new FormData()
         Object.keys(thumbnailURL.fields).forEach((key) => thumbnailData.append(key, thumbnailURL.fields[key]))
         thumbnailData.append('acl', 'public-read')
         thumbnailData.append('file', thumbnail)
 
+        const modelCloudfrontURL = `https://${modelURL.cloudfrontDomain}/${modelURL.fields.Key}`
+        const thumbnailCloudfrontURL = `https://${thumbnailURL.cloudfrontDomain}/${thumbnailURL.fields.Key}`
+        const selfUser = (store.getState() as any).get('auth').get('user')
+        const existingModel = await client.service('static-resource').find({
+          query: {
+            name: name,
+            staticResourceType: 'avatar',
+            userId: isPublicAvatar ? null : selfUser.id
+          }
+        })
+        const existingThumbnail = await client.service('static-resource').find({
+          query: {
+            name: name,
+            staticResourceType: 'user-thumbnail',
+            userId: isPublicAvatar ? null : selfUser.id
+          }
+        })
         // Upload Thumbnail file to S3
         axios
           .post(thumbnailURL.url, thumbnailData)
           .then((res) => {
-            const selfUser = (store.getState() as any).get('auth').get('user')
-            const modelS3URL = modelURL.url + '/' + modelURL.fields.Key
-            const thumbnailS3URL = thumbnailURL.url + '/' + thumbnailURL.fields.Key
             // Save URLs to backend
             Promise.all([
-              client.service('static-resource').create({
-                name,
-                staticResourceType: 'avatar',
-                url: modelS3URL,
-                key: modelURL.fields.Key,
-                userId: selfUser.id
-              }),
-              client.service('static-resource').create({
-                name,
-                staticResourceType: 'user-thumbnail',
-                url: thumbnailS3URL,
-                mimeType: 'image/png',
-                key: thumbnailURL.fields.Key,
-                userId: selfUser.id
-              })
+              existingModel.total > 0
+                ? client.service('static-resource').patch(existingModel.data[0].id, {
+                    url: modelCloudfrontURL,
+                    key: modelURL.fields.Key
+                  })
+                : client.service('static-resource').create({
+                    name,
+                    staticResourceType: 'avatar',
+                    url: modelCloudfrontURL,
+                    key: modelURL.fields.Key,
+                    userId: isPublicAvatar ? null : selfUser.id
+                  }),
+              existingThumbnail.total > 0
+                ? client.service('static-resource').patch(existingThumbnail.data[0].id, {
+                    url: thumbnailCloudfrontURL,
+                    key: thumbnailURL.fields.Key
+                  })
+                : client.service('static-resource').create({
+                    name,
+                    staticResourceType: 'user-thumbnail',
+                    url: thumbnailCloudfrontURL,
+                    mimeType: 'image/png',
+                    key: thumbnailURL.fields.Key,
+                    userId: isPublicAvatar ? null : selfUser.id
+                  })
             ])
               .then((_) => {
-                dispatch(userAvatarIdUpdated(res))
-                client
-                  .service('user')
-                  .patch(selfUser.id, { avatarId: name })
-                  .then((_) => {
-                    dispatchAlertSuccess(dispatch, 'Avatar Uploaded Successfully.')
-                    ;(Network.instance.transport as any).sendNetworkStatUpdateMessage({
-                      type: MessageTypes.AvatarUpdated,
-                      userId: selfUser.id,
-                      avatarId: name,
-                      avatarURL: modelS3URL,
-                      thumbnailURL: thumbnailS3URL
+                if (isPublicAvatar !== true) {
+                  dispatch(userAvatarIdUpdated(res))
+                  client
+                    .service('user')
+                    .patch(selfUser.id, { avatarId: name })
+                    .then((_) => {
+                      dispatchAlertSuccess(dispatch, 'Avatar Uploaded Successfully.')
+                      if (Network?.instance?.transport)
+                        (Network.instance.transport as any).sendNetworkStatUpdateMessage({
+                          type: MessageTypes.AvatarUpdated,
+                          userId: selfUser.id,
+                          avatarId: name,
+                          avatarURL: modelCloudfrontURL,
+                          thumbnailURL: thumbnailCloudfrontURL
+                        })
                     })
-                  })
+                }
               })
               .catch((err) => {
-                console.error('Error occured while saving Avatar.', err)
+                console.error('Error occurred while saving Avatar.', err)
 
                 // IF error occurs then removed Model and thumbnail from S3
                 client
@@ -669,14 +702,14 @@ export function uploadAvatarModel(model: any, thumbnail: any) {
               })
           })
           .catch((err) => {
-            console.error('Error occured while uploading thumbnail.', err)
+            console.error('Error occurred while uploading thumbnail.', err)
 
             // IF error occurs then removed Model and thumbnail from S3
             client.service('upload-presigned').remove('', { query: { keys: [modelURL.fields.Key] } })
           })
       })
       .catch((err) => {
-        console.error('Error occured while uploading model.', err)
+        console.error('Error occurred while uploading model.', err)
       })
   }
 }
@@ -736,13 +769,14 @@ export function updateUserAvatarId(userId: string, avatarId: string, avatarURL: 
       .then((res: any) => {
         // dispatchAlertSuccess(dispatch, 'User Avatar updated');
         dispatch(userAvatarIdUpdated(res))
-        ;(Network.instance.transport as any).sendNetworkStatUpdateMessage({
-          type: MessageTypes.AvatarUpdated,
-          userId,
-          avatarId,
-          avatarURL,
-          thumbnailURL
-        })
+        if (Network?.instance?.transport)
+          (Network.instance.transport as any).sendNetworkStatUpdateMessage({
+            type: MessageTypes.AvatarUpdated,
+            userId,
+            avatarId,
+            avatarURL,
+            thumbnailURL
+          })
       })
   }
 }
