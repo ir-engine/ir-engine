@@ -45,7 +45,7 @@
     "@styled-icons/fa-solid": "10.34.0",
     "@types/react-redux": "7.1.18",
     "@types/redux-immutable": "4.0.1",
-    "@types/styled-components": "5.1.11",
+    "@types/styled-components": "5.1.12",
     "@xrengine/client-core": "^0.3.31",
     "axios": "0.21.1",
     "browserfs": "1.4.3",
