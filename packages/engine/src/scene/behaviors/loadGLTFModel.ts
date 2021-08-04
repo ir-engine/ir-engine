@@ -1,11 +1,11 @@
-import { AnimationMixer, BufferGeometry } from 'three'
+import { AnimationMixer, BufferGeometry, Object3D } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AnimationComponent } from '../../character/components/AnimationComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import { createCollidersFromModel } from '../../physics/behaviors/parseModelColliders'
+import { applyTransformToMesh, createCollidersFromModel } from '../../physics/behaviors/parseModelColliders'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ScenePropertyType, WorldScene } from '../functions/SceneLoading'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
@@ -94,8 +94,10 @@ export const loadGLTFModel = (
           }
 
           if (typeof component.data.matrixAutoUpdate !== 'undefined' && component.data.matrixAutoUpdate === false) {
+            applyTransformToMesh(entity, res)
             res.traverse((child) => {
-              child.matrixAutoUpdate = component.data.matrixAutoUpdate
+              child.updateMatrixWorld(true)
+              child.matrixAutoUpdate = false
             })
           }
 
