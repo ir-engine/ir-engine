@@ -36,7 +36,7 @@ export const loadGLTFModel = (
             console.log('generate navmesh')
             let polygons = []
             res.traverse((child) => {
-              child.visible = false
+              child.visible = false;
               if (typeof child.geometry !== 'undefined' && child.geometry instanceof BufferGeometry) {
                 const childPolygons = parseGeometry({
                   position: child.geometry.attributes.position.array,
@@ -50,9 +50,8 @@ export const loadGLTFModel = (
             if (polygons.length) {
               const navMesh = new YUKA.NavMesh()
               navMesh.fromPolygons(polygons)
-
-              const helper = createConvexRegionHelper(navMesh)
-              Engine.scene.add(helper)
+              // const helper = createConvexRegionHelper(navMesh)
+              // Engine.scene.add(helper)
 
               console.log('navMesh', navMesh)
               addComponent(entity, NavMeshComponent, {
