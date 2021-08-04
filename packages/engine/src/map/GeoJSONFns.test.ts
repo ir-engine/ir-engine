@@ -69,7 +69,6 @@ describe('computeBoundingBox', () => {
 })
 
 describe('unifyFeatures', () => {
-  // Useful for when a feature is split across multiple vector tiles
   it('unifies polygons belonging to the same feature', () => {
     const input: Feature[] = [
       {
@@ -125,7 +124,34 @@ describe('unifyFeatures', () => {
     expect(output[1].geometry).toBe(input[3].geometry)
   })
 
-  // it('merges properties intelligently')
+  it('unifies properties intelligently', () => {
+    const input: Feature[] = [
+      {
+        type: 'Feature',
+        id: 1,
+        geometry: {
+          type: 'Polygon',
+          coordinates: [scalePolygon(boxCoords, 5, 5)]
+        },
+        properties: {
+          height: 42
+        }
+      },
+      {
+        type: 'Feature',
+        id: 1,
+        geometry: {
+          type: 'Polygon',
+          coordinates: [scalePolygon(boxCoords, 5, 5)]
+        },
+        properties: {}
+      }
+    ]
+
+    const output = unifyFeatures(input)
+
+    expect(output[0].properties.height).toEqual(42)
+  })
 
   // it('handles multipolygons')
 })

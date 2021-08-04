@@ -79,6 +79,7 @@ export function copy(self: Polygon): Polygon {
   }
 }
 
+/** Useful for when a feature is split across multiple vector tiles */
 export function unifyFeatures(features: Feature[]): Feature[] {
   const featuresById = groupBy(features, 'id')
 
@@ -89,14 +90,18 @@ export function unifyFeatures(features: Feature[]): Feature[] {
     // const bbox = features[0].bbox;
 
     if (features.length > 1) {
-      let unioned = getCoords(features[0])
+      let unifiedCoords = getCoords(features[0])
+      let unifiedProperties = features[0].properties
 
       // Array.prototype.reduce is just too confusing
       features.slice(1).forEach((feature) => {
-        unioned = polygonClipping.union(unioned, getCoords(feature))
+        unifiedCoords = polygonClipping.union(unifiedCoords, getCoords(feature))
+        if (unifiedProperties.height && feature.properties.height) {
+          unifiedProperties.height = Math.max(unifiedProperties.height, feature.properties.height)
+        }
       })
 
-      return polygon(unioned[0] as any)
+      return polygon(unifiedCoords[0] as any, unifiedProperties)
     } else {
       return features[0]
     }
