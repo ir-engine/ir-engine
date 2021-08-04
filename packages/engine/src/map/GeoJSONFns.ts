@@ -2,7 +2,7 @@ import { Polygon, MultiPolygon, Position, Feature } from 'geojson'
 import rewind from '@mapbox/geojson-rewind'
 import { groupBy } from 'lodash'
 import polygonClipping from 'polygon-clipping'
-import { polygon } from '@turf/helpers'
+import { multiPolygon, polygon } from '@turf/helpers'
 
 /**
  * Assumptions:
@@ -86,14 +86,10 @@ export function unifyFeatures(features: Feature[]): Feature[] {
   const featuresByIdArray = Object.values(featuresById)
 
   return featuresByIdArray.map((features) => {
-    // const properties = features[0].properties;
-    // const bbox = features[0].bbox;
-
     if (features.length > 1) {
       let unifiedCoords = getCoords(features[0])
       let unifiedProperties = features[0].properties
 
-      // Array.prototype.reduce is just too confusing
       features.slice(1).forEach((feature) => {
         unifiedCoords = polygonClipping.union(unifiedCoords, getCoords(feature))
         if (unifiedProperties.height && feature.properties.height) {
@@ -101,7 +97,7 @@ export function unifyFeatures(features: Feature[]): Feature[] {
         }
       })
 
-      return polygon(unifiedCoords[0] as any, unifiedProperties)
+      return unifiedCoords.length === 1 ? polygon(unifiedCoords[0] as any, unifiedProperties) : multiPolygon(unifiedCoords as any, unifiedProperties)
     } else {
       return features[0]
     }
