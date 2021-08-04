@@ -10,8 +10,6 @@
     "cross-env": "7.0.3"
   },
   "dependencies": {
-    "@turf/helpers": "^6.5.0",
-    "cross-env": "7.0.3",
-    "polygon-clipping": "^0.15.3"
+    "cross-env": "7.0.3"
   }
 }
