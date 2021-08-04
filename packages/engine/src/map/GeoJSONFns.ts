@@ -1,5 +1,8 @@
-import { Polygon, MultiPolygon, Position } from 'geojson'
+import { Polygon, MultiPolygon, Position, Feature } from 'geojson'
 import rewind from '@mapbox/geojson-rewind'
+import { groupBy } from 'lodash'
+import polygonClipping from 'polygon-clipping'
+import { polygon } from '@turf/helpers'
 
 /**
  * Assumptions:
@@ -73,5 +76,33 @@ export function copy(self: Polygon): Polygon {
   return {
     type: 'Polygon',
     coordinates: self.coordinates.slice()
+  }
+}
+
+export function unifyFeatures(features: Feature[]): Feature[] {
+  const featuresById = groupBy(features, 'id')
+
+  const featuresByIdArray = Object.values(featuresById)
+
+  return featuresByIdArray.map((features) => {
+    // const properties = features[0].properties;
+    // const bbox = features[0].bbox;
+
+    if (features.length > 1) {
+      let unioned = getCoords(features[0])
+
+      // Array.prototype.reduce is just too confusing
+      features.slice(1).forEach((feature) => {
+        unioned = polygonClipping.union(unioned, getCoords(feature))
+      })
+
+      return polygon(unioned[0] as any)
+    } else {
+      return features[0]
+    }
+  })
+
+  function getCoords(f: Feature): polygonClipping.Polygon | polygonClipping.MultiPolygon {
+    return (f.geometry as Polygon).coordinates as any
   }
 }
