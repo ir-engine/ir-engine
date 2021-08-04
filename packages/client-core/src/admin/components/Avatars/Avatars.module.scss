@@ -73,12 +73,10 @@
   .trow {
     .tcell {
       color: lighten(white, 0.80);
-      background-color: black;
+      background-color: #343b41;
     }
 
     .tcellSelectable {
-
-
        .currentUser{
         color: lighten(white, 0.80);
         background-color: #4267B2;
@@ -103,15 +101,13 @@
 }
 
 .tableContainer {
-  overflow-y: auto;
+  flex-grow: 1;
+  width: 100%;
+  background-color: #43484F;
+  //color: #f1f1f1 !important;
 
-  [class*='MuiTableSortLabel-root'] {
-    &[class*='MuiTableSortLabel-active'] {
-      color: rgb(56, 178, 56);
-    }
-    &:hover {
-      color: lighten(rgb(56, 178, 56), 10%);
-    }
+  * {
+    color: #f1f1f1 !important;
   }
 }
 .tablePagination {
@@ -122,7 +118,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: black !important;
+  background-color: #15171B !important;
   color: #fff !important;
 }
 
@@ -156,8 +152,11 @@
 }
 
 .tableFooter {
-  display: flex;
-  justify-content: space-between;
+  background-color: #343b41;
+
+  * {
+    color: #f1f1f1 !important;
+  }
 }
 .createLocation {
   height: 50px;
@@ -200,8 +199,13 @@
 }
 
 .open-modal {
-  position: fixed;
-  left: 45%;
-  z-index: 1300;
-  top: 10px;
+  height: 50px;
+  margin: auto 5px;
+  width: 100%;
+  background: rgb(58, 65, 73);
+  color: #f1f1f1 !important;
+}
+
+.marginBottom {
+  margin-bottom: 10px;
 }

@@ -193,7 +193,7 @@ export const resetFollowCamera = () => {
 /** System class which provides methods for Camera system. */
 export class CameraSystem extends System {
   prevState = [0, 0] as NumericalType
-  static instance;
+  static instance
   cameraModeIndex: number
   updateCameraMode: boolean
   portCamera: boolean = false
@@ -201,7 +201,7 @@ export class CameraSystem extends System {
   /** Constructs camera system. */
   constructor() {
     super()
-    CameraSystem.instance = this;
+    CameraSystem.instance = this
     const cameraEntity = createEntity()
     addComponent(cameraEntity, CameraComponent)
     addComponent(cameraEntity, Object3DComponent, { value: Engine.camera })

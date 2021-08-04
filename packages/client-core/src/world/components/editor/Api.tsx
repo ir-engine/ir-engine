@@ -974,7 +974,6 @@ export class Api extends EventEmitter {
    * @return {Promise}
    */
   async upload(blob, onUploadProgress, signal?, fileIdentifier?, projectId?): Promise<void> {
-    let host, port
     const token = this.getToken()
 
     return await new Promise((resolve, reject) => {
