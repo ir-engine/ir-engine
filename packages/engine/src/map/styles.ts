@@ -1,3 +1,4 @@
+import { ILayerName } from './types'
 /*
 address:44
 alcohol:5
@@ -78,7 +79,12 @@ waste_basket:2
 */
 
 export interface IStyles {
-  color?: number
+  color?: {
+    /** use same color on all surfaces */
+    constant?: number
+    /** Only way to use complex coloring for now, e.g. vertex colors. Takes precedence over constant */
+    builtin_function?: string
+  }
   height?: 'a' | number
   height_scale?: number
   width?: number
@@ -120,12 +126,16 @@ export const DEFAULT_FEATURE_STYLES: IFeatureStylesByLayerName = {
           +"  gl_Position = projectionMatrix * mvPosition;\n"
           +"}\n"*/
 
-    color: 0x999999,
+    color: {
+      builtin_function: 'purple_haze'
+    },
     height: 'a'
   },
 
   road: {
-    color: 0x333333,
+    color: {
+      constant: 0x333333
+    },
     offy: 0.2,
     extrude: 'flat',
     width: 2,
@@ -197,25 +207,33 @@ export const DEFAULT_FEATURE_STYLES: IFeatureStylesByLayerName = {
   },
 
   poi: {
-    color: 0xff0000,
+    color: {
+      constant: 0xff0000
+    },
     height: 20
   },
 
   landuse: {
-    color: 0xffff00,
+    color: {
+      constant: 0xffff00
+    },
     opacity: 1,
     extrude: 'flat',
     offy: -0.2
   },
 
   landcover: {
-    color: 0x6688ff,
+    color: {
+      constant: 0x6688ff
+    },
     extrude: 'flat',
     offy: -0.4
   },
 
   address: {
-    color: 0xffffff
+    color: {
+      constant: 0xffffff
+    }
   },
   path: {
     width: 3
@@ -234,78 +252,123 @@ export const DEFAULT_FEATURE_STYLES: IFeatureStylesByLayerName = {
   },
 
   pedestrian: {
-    color: 0xffffff
+    color: {
+      constant: 0xffffff
+    }
   },
   playground: {
     height: 10,
-    color: 0xffff00,
+    color: {
+      constant: 0xffff00
+    },
     opacity: 0.5
   },
   tree: {
-    color: 0x00ff00,
+    color: {
+      constant: 0x00ff00
+    },
     height: 40,
     width: 3
   },
   grass: {
-    color: 0x00ff00,
+    color: {
+      constant: 0x00ff00
+    },
     height: 0.7
   },
   hedge: {
-    color: 0x006600,
+    color: {
+      constant: 0x006600
+    },
     height: 8
   },
   park: {
-    color: 0x008800,
+    color: {
+      constant: 0x008800
+    },
     opacity: 0.33,
     extrude: 'flat',
     offy: -0.4
   },
   forest: {
-    color: 0x008800,
+    color: {
+      constant: 0x008800
+    },
     opacity: 0.8,
     offy: -0.4
   },
   pitch: {
-    color: 0x88ff88
+    color: {
+      constant: 0x88ff88
+    }
   },
   parking: {
-    color: 0x555555,
+    color: {
+      constant: 0x555555
+    },
     opacity: 0.8,
     offy: 0
   },
   fence: {
-    color: 0xff0000,
+    color: {
+      constant: 0xff0000
+    },
     height: 9
   },
   railway: {
-    color: 0x888800,
+    color: {
+      constant: 0x888800
+    },
     height: 1.5
   },
   retail: {
     height: 0.8,
-    color: 0xcc44cc
+    color: {
+      constant: 0xcc44cc
+    }
   },
   military: {
-    color: 0x448800
+    color: {
+      constant: 0x448800
+    }
   },
   place_of_worship: {
-    color: 0x000000
+    color: {
+      constant: 0x000000
+    }
   },
   residential: {
-    color: 0xcc8800
+    color: {
+      constant: 0xcc8800
+    }
   },
   commercial: {
-    color: 0x880088
+    color: {
+      constant: 0x880088
+    }
   },
   cemetery: {
     offy: -0.1
   },
   school: {
-    color: 0xddaaaa
+    color: {
+      constant: 0xddaaaa
+    }
   }
 }
 
-export function getFeatureStyles(stylesByLayerName: IFeatureStylesByLayerName, layerName: string, className?: string) {
+export function getFeatureStyles(
+  stylesByLayerName: IFeatureStylesByLayerName,
+  layerName: ILayerName,
+  className?: string
+): IStyles {
   const layerStyles = stylesByLayerName[layerName]
-  return className && layerStyles.classOverride[className] ? layerStyles.classOverride[className] : layerStyles
+
+  const overrides = layerStyles.classOverride && className ? layerStyles.classOverride[className] : {}
+
+  const combinedStyles = { ...layerStyles, ...overrides }
+
+  delete combinedStyles.classOverride
+
+  return combinedStyles
 }

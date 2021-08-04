@@ -3,6 +3,8 @@ import { MapboxTileLoader } from './MapboxTileLoader'
 import { fetchTiles, buildMesh } from './MeshBuilder'
 import { MapProps } from './MapProps'
 
+type ILayerName = 'building' | 'road'
+
 const useNew = true
 
 export const addMap = async function (scene: THREE.Scene, renderer: THREE.WebGLRenderer, args: MapProps) {
