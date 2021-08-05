@@ -2,7 +2,7 @@ import { Polygon, MultiPolygon, Position, Feature } from 'geojson'
 import rewind from '@mapbox/geojson-rewind'
 import { groupBy } from 'lodash'
 import polygonClipping from 'polygon-clipping'
-import { multiPolygon, polygon, booleanOverlap } from '@turf/turf'
+import { multiPolygon, polygon } from '@turf/turf'
 
 /**
  * Assumptions:
@@ -111,18 +111,4 @@ export function unifyFeatures(features: Feature[]): Feature[] {
   function getCoords(f: Feature): polygonClipping.Polygon | polygonClipping.MultiPolygon {
     return (f.geometry as Polygon).coordinates as any
   }
-}
-
-/** make sure all overlapping features have the same .properties.type
- * modifies features in place!
- * TODO: optimize
- */
-export function reconcileTypes(features: Feature[]): void {
-  features.forEach((fOuter) => {
-    features.forEach((fInner) => {
-      if (fInner !== fOuter && booleanOverlap(fOuter, fInner)) {
-        fInner.properties.type = fOuter.properties.type
-      }
-    })
-  })
 }
