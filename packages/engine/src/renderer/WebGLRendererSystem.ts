@@ -38,7 +38,6 @@ import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
 import WebGL from './THREE.WebGL'
 import { FXAAEffect } from './effects/FXAAEffect'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
-import { isMobile } from '../common/functions/isMobile'
 
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',

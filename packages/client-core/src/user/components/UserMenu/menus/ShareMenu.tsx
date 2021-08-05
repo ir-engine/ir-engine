@@ -4,8 +4,7 @@ import InputAdornment from '@material-ui/core/InputAdornment'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import { Send, FileCopy } from '@material-ui/icons'
-import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
-//@ts-ignore
+import { isShareAvailable } from '../../../../../../engine/src/common/functions/DetectFeatures'
 // @ts-ignore
 import styles from '../UserMenu.module.scss'
 import { sendInvite } from '../../../../social/reducers/invite/service'
@@ -46,7 +45,6 @@ const ShareMenu = (props: Props): any => {
   }
 
   const shareOnApps = () => {
-    if (!navigator.share) return
     navigator
       .share({
         title: `${postTitle} | ${siteTitle}`,
@@ -108,7 +106,7 @@ const ShareMenu = (props: Props): any => {
             )
           }}
         />
-        {isMobile && navigator.share ? (
+        {isShareAvailable ? (
           <div className={styles.shareBtnContainer}>
             <Button className={styles.shareBtn} onClick={shareOnApps}>
               {t('user:usermenu.share.lbl-share')}
