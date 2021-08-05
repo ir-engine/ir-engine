@@ -1,77 +1,56 @@
 import React from 'react'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Button from '@material-ui/core/Button'
-import { useStyle, useStyles } from './styles'
-import { columns, Data } from './Variables'
+import { useStyle } from './styles'
+import { getAdminFeeds } from '../../../reducers/admin/Social/feeds/service'
+import { connect } from 'react-redux'
+import { bindActionCreators, Dispatch } from 'redux'
+import { selectAdminFeedsState } from '../../../reducers/admin/Social/feeds/selector'
+import { selectAuthState } from '../../../../user/reducers/auth/selector'
+import Grid from '@material-ui/core/Grid'
+import CardData from './CardData'
 
-const FeedTable = () => {
-  const classex = useStyle()
-  const classes = useStyles()
+interface Props {
+  getAdminFeeds?: () => void
+  feedState?: any
+  authState?: any
+}
 
-  const createData = (
-    id: any,
-    featured: string,
-    preview: string,
-    video: string,
-    creator: string,
-    created: string
-  ): Data => {
-    return {
-      id,
-      featured,
-      preview,
-      video,
-      creator,
-      created,
-      action: (
-        <>
-          <a href="#h" className={classes.actionStyle}>
-            <span className={classes.spanWhite}>View</span>
-          </a>
-          <a
-            href="#h"
-            className={classes.actionStyle}
-            // onClick={() => {
-            //   setPopConfirmOpen(true)
-            //   setUserId(id)
-            // }}
-          >
-            {' '}
-            <span className={classes.spanDange}>Delete</span>{' '}
-          </a>
-        </>
-      )
-    }
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+  getAdminFeeds: bindActionCreators(getAdminFeeds, dispatch)
+})
+
+const mapStateToProps = (state: any): any => {
+  return {
+    authState: selectAuthState(state),
+    feedState: selectAdminFeedsState(state)
   }
+}
+
+const FeedTable = (props: Props) => {
+  const { getAdminFeeds, authState, feedState } = props
+  const classex = useStyle()
+
+  const user = authState.get('user')
+  const feeds = feedState.get('feeds')
+  const adminFeeds = feeds.get('feeds')
+  console.log(adminFeeds)
+
+  React.useEffect(() => {
+    if (user.id && feeds.get('updateNeeded')) {
+      getAdminFeeds()
+    }
+  }, [user, getAdminFeeds])
+
+  const rows = adminFeeds.map((feed, index) => {
+    return <CardData feed={feed} key={feed.id} />
+  })
 
   return (
     <div className={classex.root}>
-      <TableContainer className={classex.container}>
-        <Table stickyHeader aria-label="sticky table">
-          <TableHead>
-            <TableRow>
-              {columns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  align={column.align}
-                  style={{ minWidth: column.minWidth }}
-                  className={classes.tableCellHeader}
-                >
-                  {column.label}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody></TableBody>
-        </Table>
-      </TableContainer>
+      <Grid container spacing={3}>
+        {rows}
+      </Grid>
     </div>
   )
 }
 
-export default FeedTable
+export default connect(mapStateToProps, mapDispatchToProps)(FeedTable)

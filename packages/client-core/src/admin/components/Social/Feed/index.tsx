@@ -4,9 +4,27 @@ import Button from '@material-ui/core/Button'
 import { useStyle, useStyles } from './styles'
 import SearchFeed from './SearchFeed'
 import FeedTable from './FeedTable'
+import FeedModel from './CreateFeed'
 
 const Feed = () => {
   const classes = useStyles()
+  const [mediaModalOpen, setMediaModalOpen] = React.useState(false)
+
+  const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    if (
+      event.type === 'keydown' &&
+      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
+    ) {
+      return
+    }
+
+    setMediaModalOpen(open)
+  }
+
+  const closeViewModel = (open: boolean) => {
+    setMediaModalOpen(open)
+  }
+
   return (
     <React.Fragment>
       <div>
@@ -15,13 +33,18 @@ const Feed = () => {
             <SearchFeed />
           </Grid>
           <Grid item xs={12} sm={3}>
-            <Button className={classes.createBtn} type="submit" variant="contained">
+            <Button className={classes.createBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
               Create Feed
             </Button>
           </Grid>
         </Grid>
       </div>
-      <FeedTable />
+      <div className={classes.rootTable}>
+        <FeedTable />
+      </div>
+      {mediaModalOpen && (
+        <FeedModel open={mediaModalOpen} handleClose={openModalCreate} closeViewModel={closeViewModel} />
+      )}
     </React.Fragment>
   )
 }
