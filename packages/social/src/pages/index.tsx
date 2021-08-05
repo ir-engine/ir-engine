@@ -75,6 +75,7 @@ const Home = ({
 
   const [onborded, setOnborded] = useState(true)
   const [feedOnborded, setFeedOnborded] = useState(true)
+  const [splashTimeout, setSplashTimeout] = useState(true)
   const [feedHintsOnborded, setFeedHintsOnborded] = useState(true)
 
   const currentCreator = creatorsState.get('currentCreator')
@@ -96,7 +97,14 @@ const Home = ({
   const platformClass = isIOS ? styles.isIos : ''
   const hideContentOnRecord = webxrRecorderActivity ? styles.hideContentOnRecord : ''
 
-  if (!currentCreator || currentCreator === null) return <Splash />
+  if ((!currentCreator || currentCreator === null) || splashTimeout) {
+    //add additional duration Splash after initialized user
+    const splash = setTimeout(()=>{
+      setSplashTimeout(false);
+      clearTimeout(splash);
+    }, 5000)
+    return <Splash />
+  }
 
   if (!onborded) return <Onboard setOnborded={changeOnboarding} image={image} mockupIPhone={mockupIPhone} />
 
@@ -104,7 +112,7 @@ const Home = ({
     <div className={platformClass + ' ' + hideContentOnRecord}>
       {!feedOnborded && <FeedOnboarding setFeedOnborded={setFeedOnborded} />}
       <div className={webxrRecorderActivity ? styles.hideContent + ' ' + styles.viewport : styles.viewport}>
-        <AppHeader logo="/assets/logoBlack.png" />
+        <AppHeader />
         {/* <Stories stories={stories} /> */}
         <FeedMenu />
         <AppFooter />

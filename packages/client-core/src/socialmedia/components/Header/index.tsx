@@ -29,11 +29,10 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
 interface Props {
   creatorState?: any
   getLoggedCreator?: any
-  logo?: string
   authState?: any
   updateCreatorFormState?: typeof updateCreatorFormState
 }
-const AppHeader = ({ creatorState, getLoggedCreator, logo, authState, updateCreatorFormState }: Props) => {
+const AppHeader = ({ creatorState, getLoggedCreator, authState, updateCreatorFormState }: Props) => {
   const { t } = useTranslation()
   useEffect(() => getLoggedCreator(), [])
   const creator =
@@ -43,7 +42,7 @@ const AppHeader = ({ creatorState, getLoggedCreator, logo, authState, updateCrea
 
   return (
     <nav className={styles.headerContainer}>
-      {logo && <img src={logo} className="header-logo" alt="ARC" />}
+      <img src="/assets/LogoColored.png" className={styles.headerLogo} alt="ARC" />
       {creator &&
         {
           /*!checkGuest*/

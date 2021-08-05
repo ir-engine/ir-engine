@@ -13,7 +13,7 @@ export default function FeedPage() {
   const feedId = new URLSearchParams(useLocation().search).get('feedId').toString()
   return (
     <div className={styles.viewport}>
-      <AppHeader logo="/assets/logoBlack.png" />
+      <AppHeader />
       <Feed feedId={feedId} />
       <AppFooter />
     </div>
