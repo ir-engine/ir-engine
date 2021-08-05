@@ -135,16 +135,18 @@ const setVisible = (entity: Entity, visible: boolean): void => {
 }
 
 let changeTimeout = undefined
-const switchCameraMode = (entity: Entity, args: any = { pointerLock: false, mode: CameraModes.ThirdPerson }): void => {
+export const switchCameraMode = (
+  entity: Entity,
+  args: any = { pointerLock: false, mode: CameraModes.ThirdPerson }
+): void => {
   if (changeTimeout !== undefined) return
   changeTimeout = setTimeout(() => {
     clearTimeout(changeTimeout)
     changeTimeout = undefined
   }, 250)
 
-  const actor = getMutableComponent(entity, CharacterComponent)
-
   const cameraFollow = getMutableComponent(entity, FollowCameraComponent)
+  console.log('switchCameraMode', cameraFollow.mode, args.mode)
   cameraFollow.mode = args.mode
 
   switch (args.mode) {

@@ -47,6 +47,9 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { createCollider } from '../../physics/behaviors/createCollider'
 import { BodyType } from 'three-physx'
 import { CameraSystem } from '../../camera/systems/CameraSystem'
+import { switchCameraMode } from '../../character/CharacterInputSchema'
+import { Network } from '../../networking/classes/Network'
+import { CameraModes } from '../../camera/types/CameraModes'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -297,11 +300,12 @@ export class WorldScene {
         break
 
       case 'cameraproperties':
-        if (!isClient) return
-        let data = component.data
-        let cameraTypeIndex = data.options.CameraType.CameraMode
-        if (CameraSystem.instance.activeCamera) {
-          CameraSystem.instance.updateCameraType(cameraTypeIndex)
+        if (isClient) {
+          EngineEvents.instance.once(EngineEvents.EVENTS.LOCAL_CLIENT_USER_LOADED, async () => {
+            switchCameraMode(Network.instance.localClientEntity, {
+              mode: Object.values(CameraModes)[component.data.options.CameraType.CameraMode]
+            })
+          })
         }
         break
 
