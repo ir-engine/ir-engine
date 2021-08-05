@@ -11,7 +11,9 @@ import {
   CanvasTexture,
   Group,
   Object3D,
-  Vector3
+  Vector3,
+  MaterialParameters,
+  Material
 } from 'three'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { VectorTile } from '@mapbox/vector-tile'
@@ -208,6 +210,21 @@ function colorVertices(geometry: BufferGeometry, baseColor: Color, light: Color,
   }
 }
 
+const materialsByParams = new Map<MaterialParameters, Material>()
+
+function getOrCreateMaterial(params: MaterialParameters) {
+  let material: Material
+
+  if (!materialsByParams.get(params)) {
+    material = new MeshLambertMaterial(params)
+    materialsByParams.set(params, material)
+  } else {
+    material = materialsByParams.get(params)
+  }
+
+  return material
+}
+
 /**
  * TODO adapt code from https://raw.githubusercontent.com/jeromeetienne/threex.proceduralcity/master/threex.proceduralcity.js
  */
@@ -224,10 +241,13 @@ export function buildObjects3D(
   texture.needsUpdate = true
 
   const color = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName).color
-  const material = new MeshLambertMaterial({
+  const materialParams = {
     color: color.constant,
     vertexColors: color.builtin_function === 'purple_haze' ? true : false
-  })
+  }
+
+  const material = getOrCreateMaterial(materialParams)
+
   return geometries.map((g) => new Mesh(g, material))
 }
 
