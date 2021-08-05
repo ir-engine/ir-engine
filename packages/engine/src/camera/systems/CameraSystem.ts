@@ -110,6 +110,7 @@ const followCameraBehavior = (entity: Entity) => {
       camDist = followCamera.maxDistance
       phi = 85
     }
+    theta = followCamera.theta
 
     const shoulderOffset = followCamera.shoulderSide ? -0.2 : 0.2
     vec3.set(shoulderOffset, actor.actorHeight + 0.25, 0)
