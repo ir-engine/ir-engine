@@ -55,25 +55,29 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
         {
           body: <img src="/static/Dance1.svg" alt="Dance 1" />,
           containerProps: {
-            onClick: () => this.runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_1 })
+            onClick: () =>
+              this.runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_1 })
           }
         },
         {
           body: <img src="/static/Dance2.svg" alt="Dance 2" />,
           containerProps: {
-            onClick: () => this.runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_2 })
+            onClick: () =>
+              this.runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_2 })
           }
         },
         {
           body: <img src="/static/Dance3.svg" alt="Dance 3" />,
           containerProps: {
-            onClick: () => this.runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_3 })
+            onClick: () =>
+              this.runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_3 })
           }
         },
         {
           body: <img src="/static/Dance4.svg" alt="Dance 4" />,
           containerProps: {
-            onClick: () => this.runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_4 })
+            onClick: () =>
+              this.runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_4 })
           }
         }
       ] as any
@@ -85,7 +89,10 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
   }
 
   calculateMenuRadius = (): number => {
-    return Math.max(Math.min(this.props.radius || (Math.min(window.innerWidth, window.innerHeight) * 0.6) / 2), MIN_MENU_RADIUS)
+    return Math.max(
+      Math.min(this.props.radius || (Math.min(window.innerWidth, window.innerHeight) * 0.6) / 2),
+      MIN_MENU_RADIUS
+    )
   }
 
   componentDidMount() {
@@ -101,14 +108,14 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
   }
 
   handleWindowResize = () => {
-    this.setState({ menuRadius: this.calculateMenuRadius()}, this.calculateOtherValues)
+    this.setState({ menuRadius: this.calculateMenuRadius() }, this.calculateOtherValues)
   }
 
   calculateOtherValues = (): void => {
     this.menuPadding = this.state.menuRadius > 170 ? 20 : 40
     this.menuItemWidth = this.state.menuThickness - this.menuPadding
     this.menuItemRadius = this.menuItemWidth / 2
-    this.effectiveRadius = this.state.menuRadius - this.menuItemRadius - (this.menuPadding / 2)
+    this.effectiveRadius = this.state.menuRadius - this.menuItemRadius - this.menuPadding / 2
   }
 
   runAnimation = (animationName: string, params: WeightsParameterType) => {
@@ -120,7 +127,7 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
   }
 
   render() {
-    const angle = 360 / this.state.items.length;
+    const angle = 360 / this.state.items.length
     return (
       <>
         <section className={styles.emoteMenu + ' ' + (!this.state.isOpen ? styles.hideMenu : '')}>
@@ -137,13 +144,13 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
                 className={styles.menuItemBlock}
                 style={{
                   width: this.menuItemRadius,
-                  height: this.menuItemRadius,
+                  height: this.menuItemRadius
                 }}
               >
                 {this.state.items.map((item, index) => {
-                  const itemAngle = angle * index + 270;
-                  const x = this.effectiveRadius * Math.cos(itemAngle * Math.PI / 180)
-                  const y = this.effectiveRadius * Math.sin(itemAngle * Math.PI / 180)
+                  const itemAngle = angle * index + 270
+                  const x = this.effectiveRadius * Math.cos((itemAngle * Math.PI) / 180)
+                  const y = this.effectiveRadius * Math.sin((itemAngle * Math.PI) / 180)
                   return (
                     <Button
                       className={styles.menuItem}
@@ -151,13 +158,13 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
                       style={{
                         width: this.menuItemWidth,
                         height: this.menuItemWidth,
-                        transform: 'translate(' + x + 'px, ' + y + 'px)',
+                        transform: 'translate(' + x + 'px, ' + y + 'px)'
                       }}
                       {...item.containerProps}
                     >
                       {item.body}
                     </Button>
-                  );
+                  )
                 })}
                 <div className={styles.joyStick} ref={this.nippleRef}></div>
               </div>
@@ -166,9 +173,9 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
         </section>
         <section className={styles.emoteMenuSidebar}>
           <ScrollableElement height={400}>
-              <Button className={styles.menuItem} onClick={this.openEmoteMenu}>
-                E
-              </Button>
+            <Button className={styles.menuItem} onClick={this.openEmoteMenu}>
+              E
+            </Button>
           </ScrollableElement>
           {/* <div className={styles.jumpContainer}>
               <Button
@@ -180,7 +187,7 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
               </Button>
             </div> */}
         </section>
-     </>
+      </>
     )
   }
 }
