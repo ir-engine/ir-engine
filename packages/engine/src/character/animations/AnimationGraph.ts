@@ -140,7 +140,9 @@ export class AnimationGraph {
 
     params.movement = movement
 
-    characterAnimationStateComponent.currentState.weightParams = params
+    if (characterAnimationStateComponent.currentState.type === AnimationType.VELOCITY_BASED) {
+      characterAnimationStateComponent.currentState.weightParams = params
+    }
 
     if (!actor.isGrounded) {
       if (characterAnimationStateComponent.currentState.name !== CharacterStates.JUMP) {
@@ -164,8 +166,10 @@ export class AnimationGraph {
       }
     }
 
-    // update weights based on velocity of the character
-    characterAnimationStateComponent.currentState.updateWeights()
+    if (characterAnimationStateComponent.currentState.type === AnimationType.VELOCITY_BASED) {
+      // update weights based on velocity of the character
+      characterAnimationStateComponent.currentState.updateWeights()
+    }
 
     // Set velocity as prev velocity
     characterAnimationStateComponent.prevVelocity.copy(movement.velocity)

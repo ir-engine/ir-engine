@@ -80,7 +80,7 @@ export class AnimationRenderer {
 
         // Sync Actions if state requires
         if (currState.syncActions) {
-          for(let i = 0; i < currState.animations.length; i++) {
+          for (let i = 0; i < currState.animations.length; i++) {
             if (currState.animations[i].action?.isRunning) {
               animation.action.syncWith(currState.animations[i].action)
               break
