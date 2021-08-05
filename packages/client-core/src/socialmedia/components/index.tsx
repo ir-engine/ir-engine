@@ -31,7 +31,7 @@ import image from '/static/images/image.jpg'
 import mockupIPhone from '/static/images/mockupIPhone.jpg'
 import Splash from '@xrengine/client-core/src/socialmedia/components/Splash'
 import { isIOS } from '@xrengine/client-core/src/util/platformCheck'
-import TermsAndPolicy from '../../../client-core/src/socialmedia/components/TermsandPolicy'
+import TermsAndPolicy from '@xrengine/client-core/src/socialmedia/components/TermsandPolicy'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -107,8 +107,8 @@ const Home = ({
         <AppHeader logo="/assets/logoBlack.png" />
         {/* <Stories stories={stories} /> */}
         <FeedMenu />
-        <AppFooter />
         <TermsAndPolicy />
+        <AppFooter />
         <ArMediaPopup />
         <WebXRStart
           feedHintsOnborded={feedHintsOnborded}

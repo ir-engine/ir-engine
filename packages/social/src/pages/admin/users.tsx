@@ -8,6 +8,7 @@ import { connect } from 'react-redux'
 import { selectCreatorsState } from '@xrengine/client-core/src/socialmedia/reducers/creator/selector'
 import { getCreators } from '@xrengine/client-core/src/socialmedia/reducers/creator/service'
 import Dashboard from '@xrengine/client-core/src/socialmedia/components/Dashboard'
+import { doLoginAuto } from '../../../../client-core/src/user/reducers/auth/service'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -24,17 +25,16 @@ interface Props {
   getCreators?: any
 }
 
-interface Props {
-  creatorsState?: any
-  getCreators?: any
-}
-
 const UsersPage = ({ creatorsState, getCreators }: Props) => {
   useEffect(() => getCreators(), [creatorsState.get('currentCreator')])
-  const creators =
-    creatorsState && creatorsState.get('fetching') === false && creatorsState.get('creators')
-      ? creatorsState.get('creators')
-      : null
+  useEffect(() => {
+    doLoginAuto(true, true)
+  }, [])
+  const creators = creatorsState.get('creators')
+    // creatorsState && creatorsState.get('fetching') === false && creatorsState.get('creators')
+    //   ? creatorsState.get('creators')
+    //   : null
+      console.log(creatorsState.get('creators'))
   return (
     <>
       <div>

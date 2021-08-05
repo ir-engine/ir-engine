@@ -8,6 +8,7 @@ import tipsAndTricksReducer from './tips_and_tricks/reducers'
 import thefeedsReducer from './thefeeds/reducers'
 import thefeedsFiresReducer from './thefeedsFires/reducers'
 import webxrnativeReducer from './webxr_native/reducers'
+import reportsReducer from './reports/reducers'
 
 export default {
   creators: creatorReducer,
@@ -19,5 +20,6 @@ export default {
   tips_and_tricks: tipsAndTricksReducer,
   thefeeds: thefeedsReducer,
   thefeedsFires: thefeedsFiresReducer,
-  webxrnative: webxrnativeReducer
+  webxrnative: webxrnativeReducer,
+  reports: reportsReducer
 }

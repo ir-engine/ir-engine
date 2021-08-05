@@ -9,6 +9,7 @@ import ArMedia from './ar-media/ar-media.service'
 import TipsAndTricks from './tips-and-tricks/tips-and-tricks.service'
 import TheFeeds from './feeds/feeds.service'
 import TheFeedsFires from './feeds-fires/feeds-fires.service'
+import Reports from './reports/reports.service'
 // import TheFeedsBookmark from './feeds-bookmark/feeds-bookmark.service';
 
 export default [
@@ -22,6 +23,6 @@ export default [
   ArMedia,
   TipsAndTricks,
   TheFeeds,
-  TheFeedsFires
-  //   TheFeedsBookmark
+  TheFeedsFires,
+  Reports
 ]

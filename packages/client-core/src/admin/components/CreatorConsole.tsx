@@ -205,7 +205,7 @@ const CreatorConsole = (props: Props) => {
                       key={row.id}
                     >
                       <TableCell className={styles.tcell} align="center">
-                        <Avatar src={row.avatar.toString()} />
+                        {/* <Avatar src={row.avatar.toString()} /> */}
                       </TableCell>
                       <TableCell className={styles.tcell} align="center">
                         <VerifiedUserIcon

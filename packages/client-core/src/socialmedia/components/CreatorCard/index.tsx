@@ -118,6 +118,10 @@ const CreatorCard = ({
     </Button>
   )
 
+  const handleReportUser = () => {
+    alert('Uesr Reported')
+  }
+
   return creator ? (
     <>
       <Card className={styles.creatorCard} elevation={0} key={creator.username} square={false}>
@@ -150,6 +154,7 @@ const CreatorCard = ({
           <Typography className={styles.titleContainer}>{creator.name}</Typography>
           <Typography className={styles.tags}>{creator.tags}</Typography>
           <Typography>{creator.bio}</Typography>
+          {isMe ? ' ' : <Button onClick={handleReportUser}>REPORT USER</Button>}
 
           {/* {!isMe && creator.followed === false && <Button variant={'contained'} color='primary' className={styles.followButton} 
                             onClick={()=>handleFollowCreator(creator.id)}>Follow</Button>}

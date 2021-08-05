@@ -32,6 +32,7 @@ import { getLoggedCreator } from '../../reducers/creator/service'
 import Featured from '../Featured'
 import { Plugins } from '@capacitor/core'
 import { useTranslation } from 'react-i18next'
+import {createReportsNew} from "../../reducers/reports/service";
 
 const { Share } = Plugins
 
@@ -95,6 +96,18 @@ const TheFeedsCard = (props: Props): any => {
     setFired(!!thefeedsFiresCreators?.data.find((i) => i.id === creatorId))
   }, [thefeedsFiresCreators])
 
+  const createReport = () => {
+  	console.log('createReport');
+	  console.log('feedfeed', feed)
+  	const data = {
+			title: "Report title",
+			// @ts-ignore
+			feedId: feed.id,
+			description: "Report description"
+    }
+    createReportsNew(data);
+  }
+
   return feed ? (
     <>
       <Card className={styles.tipItem} square={false} elevation={0} key={feed.id}>
@@ -134,6 +147,9 @@ const TheFeedsCard = (props: Props): any => {
                 />
               )}
               <TelegramIcon onClick={shareVia} />
+			  <TelegramIcon onClick={()=>{
+				  createReport()
+			  }} />
             </section>
           </section>
           <Typography variant="subtitle2">{firedCount} flames</Typography>
