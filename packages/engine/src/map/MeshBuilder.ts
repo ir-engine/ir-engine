@@ -11,17 +11,15 @@ import {
   CanvasTexture,
   Group,
   Object3D,
-  ColorRepresentation,
-  Material
+  Vector3
 } from 'three'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { VectorTile } from '@mapbox/vector-tile'
 import { DEFAULT_FEATURE_STYLES, getFeatureStyles } from './styles'
-import turfBuffer from '@turf/buffer'
+import { centerOfMass, buffer } from '@turf/turf'
 import { Feature, Geometry, Position } from 'geojson'
 import { toIndexed } from './toIndexed'
 import { ILayerName, TileFeaturesByLayer } from './types'
-import { NUMBER_OF_TILES_PER_DIMENSION } from './MapBoxClient'
 import { unifyFeatures } from './GeoJSONFns'
 import { Text } from 'troika-three-text'
 
@@ -122,10 +120,7 @@ function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Positi
 
 function buildGeometries(layerName: ILayerName, features: Feature[], llCenter: Position): BufferGeometry[] {
   const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName)
-  const geometries = features
-    .filter((f) => f.properties.underground)
-    .filter((f) => !featuresExcludedById[f.id])
-    .map((feature) => buildGeometry(layerName, feature, llCenter))
+  const geometries = features.map((feature) => buildGeometry(layerName, feature, llCenter))
 
   // the current method of merging produces strange results with flat geometries
   if (styles.extrude !== 'flat') {
@@ -175,10 +170,9 @@ const baseColorByFeatureId = {
   3616704: 0xccaacc
 }
 
-const featuresExcludedById = {
-  883956342: true,
-  883956343: true
-}
+// some IDs of overlapping building parts for future use
+//   883956342: true
+//   883956343: true
 
 function getBuildingColor(featureId: number) {
   // const value = 1 - Math.random() * Math.random()
@@ -191,8 +185,10 @@ function getBuildingColor(featureId: number) {
   return new Color(specialColor || 0xdddddd)
 }
 
+const geometrySize = new Vector3()
 function colorVertices(geometry: BufferGeometry, baseColor: Color, light: Color, shadow: Color) {
   const normals = geometry.attributes.normal
+  const positions = geometry.attributes.position
   const topColor = baseColor.clone().multiply(light)
   const bottomColor = baseColor.clone().multiply(shadow)
 
@@ -201,9 +197,13 @@ function colorVertices(geometry: BufferGeometry, baseColor: Color, light: Color,
   const colors = geometry.attributes.color
 
   geometry.computeVertexNormals()
+  geometry.computeBoundingBox()
+  geometry.boundingBox.getSize(geometrySize)
+  const alpha = 1 - Math.min(1, geometrySize.y / 200)
+  const lerpedTopColor = topColor.lerp(bottomColor, alpha)
 
   for (let i = 0; i < normals.count; i++) {
-    const color = normals.getY(i) === 1 ? topColor : bottomColor
+    const color = normals.getY(i) === 1 ? lerpedTopColor : bottomColor
     colors.setXYZ(i, color.r, color.g, color.b)
   }
 }
@@ -238,7 +238,7 @@ function maybeBuffer(feature: Feature, width: number): Geometry {
     feature.geometry.type === 'Point' ||
     feature.geometry.type === 'MultiLineString'
   ) {
-    const buf = turfBuffer(feature, width, {
+    const buf = buffer(feature, width, {
       units: 'meters'
     })
     return buf.geometry
@@ -251,31 +251,16 @@ function buildDebuggingLabels(features: Feature[], llCenter: Position): Object3D
   return features.map((f) => {
     const myText = new Text()
 
-    const geometry = f.geometry
-
-    let coords: Position[]
-
-    // TODO switch statement
-    if (geometry.type === 'MultiPolygon') {
-      coords = geometry.coordinates[0][0] // TODO: add all multipolygon coords.
-    } else if (geometry.type === 'Polygon') {
-      coords = geometry.coordinates[0] // TODO: handle interior rings
-    } else if (geometry.type === 'MultiPoint') {
-      // TODO is this a bug?
-      coords = geometry.coordinates[0] as any
-    } else {
-      // TODO handle feature.geometry.type === 'GeometryCollection'?
-    }
-    const point = llToScene(coords[0], llCenter)
+    const point = llToScene(centerOfMass(f).geometry.coordinates, llCenter)
 
     // Set properties to configure:
     myText.text = f.id
-    myText.fontSize = 8
-    myText.position.y = (f.properties.height || 1) + 10
+    myText.fontSize = 5
+    myText.position.y = (f.properties.height || 1) + 50
     myText.position.x = point[0]
     myText.position.z = point[1]
     myText.color = 0x000000
-    ;(myText.material as Material).depthTest = false
+    // ;(myText.material as Material).depthTest = false
 
     // Update the rendering:
     myText.sync()
@@ -290,8 +275,8 @@ export function buildMesh(tiles: TileFeaturesByLayer[], llCenter: Position, rend
   const roadFeatures = tiles.reduce((acc, tile) => acc.concat(tile.road), [])
   const objects3d = [
     ...buildObjects3D('building', buildingFeatures, llCenter, renderer),
-    ...buildObjects3D('road', roadFeatures, llCenter, renderer)
-    // ...buildDebuggingLabels(buildingFeatures, llCenter)
+    ...buildObjects3D('road', roadFeatures, llCenter, renderer),
+    ...buildDebuggingLabels(buildingFeatures, llCenter)
   ]
 
   objects3d.forEach((o) => {
