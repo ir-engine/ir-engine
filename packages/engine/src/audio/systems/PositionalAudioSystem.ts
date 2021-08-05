@@ -96,7 +96,6 @@ export class PositionalAudioSystem extends System {
       const consumerLive = consumer.track
       this.characterAudioStream.set(entity, consumerLive)
       const positionalAudio = getComponent(entity, PositionalAudioComponent)
-      console.log(positionalAudio.value.getRefDistance())
       const streamsLive = new MediaStream([consumerLive.clone()])
 
       if (SHOULD_CREATE_SILENT_AUDIO_ELS) {
