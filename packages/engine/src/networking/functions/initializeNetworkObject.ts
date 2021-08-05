@@ -1,5 +1,6 @@
 import { isClient } from '../../common/functions/isClient'
 import { Component } from '../../ecs/classes/Component'
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import { GameObject } from '../../game/components/GameObject'
@@ -189,9 +190,18 @@ export function initializeNetworkObject(args: {
 
   // TODO: move this to network system
   if (prefabType === PrefabType.Player && ownerId === Network.instance.userId) {
-    // console.log('Give Player Id by Server', networkId, args.networkId, typeof networkId, typeof args.networkId, ownerId, Network.instance.userId);
+    console.log(
+      'Give Player Id by Server',
+      networkId,
+      args.networkId,
+      typeof networkId,
+      typeof args.networkId,
+      ownerId,
+      Network.instance.userId
+    )
     Network.instance.localAvatarNetworkId = networkId
     Network.instance.localClientEntity = networkEntity
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.LOCAL_CLIENT_USER_LOADED })
   }
 
   return networkObject
