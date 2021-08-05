@@ -592,12 +592,12 @@ export function uploadAvatar(data: any) {
   }
 }
 
-export function uploadAvatarModel(model: any, thumbnail: any, isPublicAvatar?: boolean) {
+export function uploadAvatarModel(model: any, thumbnail: any, avatarName?: string, isPublicAvatar?: boolean) {
   return async (dispatch: Dispatch, getState: any) => {
-    const name = model.name.substring(0, model.name.lastIndexOf('.'))
+    const name = avatarName ? avatarName : model.name.substring(0, model.name.lastIndexOf('.'))
     const [modelURL, thumbnailURL] = await Promise.all([
       client.service('upload-presigned').get('', {
-        query: { type: 'avatar', fileName: model.name, fileSize: model.size, isPublicAvatar: isPublicAvatar }
+        query: { type: 'avatar', fileName: name + '.glb', fileSize: model.size, isPublicAvatar: isPublicAvatar }
       }),
       client.service('upload-presigned').get('', {
         query: {
