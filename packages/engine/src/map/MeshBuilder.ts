@@ -109,12 +109,7 @@ function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Positi
   if (styles.color && styles.color.builtin_function === 'purple_haze') {
     const light = new Color(0xa0c0a0)
     const shadow = new Color(0x303050)
-    colorVertices(
-      threejsGeometry,
-      getBuildingColor(feature.id as any),
-      light,
-      feature.properties.extrude ? shadow : light
-    )
+    colorVertices(threejsGeometry, getBuildingColor(feature), light, feature.properties.extrude ? shadow : light)
   }
 
   return threejsGeometry
@@ -168,23 +163,25 @@ function generateTextureCanvas() {
   return contextLarge.canvas
 }
 
-const baseColorByFeatureId = {
-  3616704: 0xccaacc
+const baseColorByFeatureType = {
+  university: 0xf5e0a0,
+  school: 0xffd4be,
+  apartments: 0xd1a1d1,
+  parking: 0xa0a7af,
+  civic: 0xe0e0e0,
+  commercial: 0x8fb0d8,
+  retail: 0xd8d8b2
 }
 
-// some IDs of overlapping building parts for future use
-//   883956342: true
-//   883956343: true
-
-function getBuildingColor(featureId: number) {
+function getBuildingColor(feature: Feature) {
   // const value = 1 - Math.random() * Math.random()
   // return new Color().setRGB(value + Math.random() * 0.1, value, value + Math.random() * 0.1)
   //
   // Workaround until we can clean up geojson data on the fly, ensuring that there aren't overlapping
   // polygons
   // return new Color(baseColorByFeatureId[featureId] || 0xdddddd)
-  const specialColor = baseColorByFeatureId[featureId]
-  return new Color(specialColor || 0xdddddd)
+  const specialColor = baseColorByFeatureType[feature.properties.type]
+  return new Color(specialColor || 0xcacaca)
 }
 
 const geometrySize = new Vector3()
@@ -274,13 +271,12 @@ function buildDebuggingLabels(features: Feature[], llCenter: Position): Object3D
     const point = llToScene(centerOfMass(f).geometry.coordinates, llCenter)
 
     // Set properties to configure:
-    myText.text = f.id
+    myText.text = f.properties.type
     myText.fontSize = 5
     myText.position.y = (f.properties.height || 1) + 50
     myText.position.x = point[0]
     myText.position.z = point[1]
     myText.color = 0x000000
-    // ;(myText.material as Material).depthTest = false
 
     // Update the rendering:
     myText.sync()
