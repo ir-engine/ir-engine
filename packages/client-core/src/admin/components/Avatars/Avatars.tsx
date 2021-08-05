@@ -24,7 +24,7 @@ import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import { selectAdminAvatarState } from '../../reducers/admin/avatar/selector'
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
-import { removeAvatar, uploadAvatarModel } from '../../../user/reducers/auth/service'
+import { uploadAvatarModel } from '../../../user/reducers/auth/service'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any

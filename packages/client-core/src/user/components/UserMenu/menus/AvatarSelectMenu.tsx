@@ -29,6 +29,7 @@ interface Props {
 interface State {
   selectedFile: any
   selectedThumbnail: any
+  avatarName: string
   // imgFile: any;
   error: string
   obj: any
@@ -41,6 +42,7 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
     this.state = {
       selectedFile: null,
       selectedThumbnail: null,
+      avatarName: null,
       // imgFile: null,
       error: '',
       obj: null
@@ -174,6 +176,10 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
     }
   }
 
+  handleAvatarNameChange = (e) => {
+    this.setState({ avatarName: e.target.value })
+  }
+
   handleThumbnailChange = (e) => {
     if (e.target.files[0].size < MIN_AVATAR_FILE_SIZE || e.target.files[0].size > MAX_AVATAR_FILE_SIZE) {
       this.setState({
@@ -235,11 +241,21 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
 
     if (this.state.selectedThumbnail == null)
       canvas.toBlob(async (blob) => {
-        await this.props.uploadAvatarModel(this.state.selectedFile, blob, this.props.isPublicAvatar)
+        await this.props.uploadAvatarModel(
+          this.state.selectedFile,
+          blob,
+          this.state.avatarName,
+          this.props.isPublicAvatar
+        )
         this.props.changeActiveMenu(Views.Profile)
       })
     else {
-      this.props.uploadAvatarModel(this.state.selectedFile, this.state.selectedThumbnail, this.props.isPublicAvatar)
+      this.props.uploadAvatarModel(
+        this.state.selectedFile,
+        this.state.selectedThumbnail,
+        this.state.avatarName,
+        this.props.isPublicAvatar
+      )
       this.props.changeActiveMenu(Views.Profile)
     }
   }
@@ -280,6 +296,15 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
             />
           </div>
         )}
+        <div className={styles.avatarNameContainer}>
+          <input
+            type="text"
+            id="avatarName"
+            className={styles.avatarNameInput}
+            onChange={this.handleAvatarNameChange}
+            placeholder="Avatar Name"
+          />
+        </div>
         <div className={styles.selectLabelContainer}>
           <div className={styles.avatarSelectLabel + ' ' + (this.state.error ? styles.avatarSelectError : '')}>
             {this.state.error
