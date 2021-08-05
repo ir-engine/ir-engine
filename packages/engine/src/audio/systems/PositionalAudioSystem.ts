@@ -9,7 +9,8 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { PositionalAudio } from 'three'
-import { applyAudioSettings } from '../../scene/behaviors/handleAudioSettings'
+import { applyAvatarAudioSettings, applyMediaAudioSettings } from '../../scene/behaviors/handleAudioSettings'
+import MediaComponent from '../../scene/components/MediaComponent'
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== 'undefined' && /chrome/i.test(navigator.userAgent)
 function createSilentAudioEl(streamsLive) {
@@ -71,7 +72,6 @@ export class PositionalAudioSystem extends System {
       if (hasComponent(entity, LocalInputReceiver)) {
         continue
       }
-
       const entityNetworkObject = getComponent(entity, NetworkObject)
       let consumer
       if (entityNetworkObject != null) {
@@ -96,6 +96,7 @@ export class PositionalAudioSystem extends System {
       const consumerLive = consumer.track
       this.characterAudioStream.set(entity, consumerLive)
       const positionalAudio = getComponent(entity, PositionalAudioComponent)
+      console.log(positionalAudio.value.getRefDistance())
       const streamsLive = new MediaStream([consumerLive.clone()])
 
       if (SHOULD_CREATE_SILENT_AUDIO_ELS) {
@@ -107,13 +108,25 @@ export class PositionalAudioSystem extends System {
 
       positionalAudio.value.setNodeSource(audioStreamSource as unknown as AudioBufferSourceNode)
     }
+
+    for (const entity of this.queryResults.character_audio.added) {
+      const positionalAudio = getComponent(entity, PositionalAudioComponent)
+      applyAvatarAudioSettings(positionalAudio.value)
+      if (positionalAudio != null) Engine.scene.add(positionalAudio.value)
+    }
+
     for (const entity of this.queryResults.character_audio.removed) {
       this.characterAudioStream.delete(entity)
     }
 
+    for (const entity of this.queryResults.media.added) {
+      const positionalAudio = getComponent(entity, PositionalAudioComponent)
+      applyMediaAudioSettings(positionalAudio.value)
+      if (positionalAudio != null) Engine.scene.add(positionalAudio.value)
+    }
+
     for (const entity of this.queryResults.positional_audio.added) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent)
-
       if (positionalAudio != null) Engine.scene.add(positionalAudio.value)
     }
 
@@ -129,7 +142,6 @@ export class PositionalAudioSystem extends System {
 
     for (const entity of this.queryResults.positional_audio.removed) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent, true)
-      applyAudioSettings(positionalAudio.value)
       if (positionalAudio != null) Engine.scene.remove(positionalAudio.value)
     }
   }
@@ -154,6 +166,13 @@ PositionalAudioSystem.queries = {
   },
   audio: {
     components: [PositionalAudioComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  media: {
+    components: [PositionalAudioComponent, MediaComponent],
     listen: {
       added: true,
       removed: true

@@ -10,7 +10,6 @@ import MediaComponent from '../components/MediaComponent'
 import AudioSource from '../classes/AudioSource'
 import CommonSlider from '../../../../client-core/src/common/components/Slider'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
-import { applyAudioMediaSettings } from './handleAudioSettings'
 
 const isBrowser = new Function('try {return this===window;}catch(e){ return false;}')
 
@@ -58,7 +57,6 @@ export function createAudio(entity, args: AudioProps): void {
   audio.load()
   addComponent(entity, MediaComponent)
   addComponent(entity, PositionalAudioComponent)
-  applyAudioMediaSettings(getComponent(entity, PositionalAudioComponent).value)
   if (args.interactable) addComponent(entity, Interactable)
 }
 
