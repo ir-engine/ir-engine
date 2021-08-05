@@ -10,7 +10,9 @@ import {
   Color,
   CanvasTexture,
   Group,
-  Object3D
+  Object3D,
+  ColorRepresentation,
+  Material
 } from 'three'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { VectorTile } from '@mapbox/vector-tile'
@@ -21,6 +23,7 @@ import { toIndexed } from './toIndexed'
 import { ILayerName, TileFeaturesByLayer } from './types'
 import { NUMBER_OF_TILES_PER_DIMENSION } from './MapBoxClient'
 import { unifyFeatures } from './GeoJSONFns'
+import { Text } from 'troika-three-text'
 
 // TODO free resources used by canvases, bitmaps etc
 
@@ -104,7 +107,14 @@ function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Positi
   threejsGeometry.rotateX(-Math.PI / 2)
 
   if (styles.color && styles.color.builtin_function === 'purple_haze') {
-    colorVertices(threejsGeometry, getRandomBuildingColor())
+    const light = new Color(0xa0c0a0)
+    const shadow = new Color(0x303050)
+    colorVertices(
+      threejsGeometry,
+      getBuildingColor(feature.id as any),
+      light,
+      feature.properties.extrude ? shadow : light
+    )
   }
 
   return threejsGeometry
@@ -112,7 +122,10 @@ function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Positi
 
 function buildGeometries(layerName: ILayerName, features: Feature[], llCenter: Position): BufferGeometry[] {
   const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName)
-  const geometries = features.map((feature) => buildGeometry(layerName, feature, llCenter))
+  const geometries = features
+    .filter((f) => f.properties.underground)
+    .filter((f) => !featuresExcludedById[f.id])
+    .map((feature) => buildGeometry(layerName, feature, llCenter))
 
   // the current method of merging produces strange results with flat geometries
   if (styles.extrude !== 'flat') {
@@ -158,15 +171,28 @@ function generateTextureCanvas() {
   return contextLarge.canvas
 }
 
-function getRandomBuildingColor() {
-  const value = 1 - Math.random() * Math.random()
-  return new Color().setRGB(value + Math.random() * 0.1, value, value + Math.random() * 0.1)
+const baseColorByFeatureId = {
+  3616704: 0xccaacc
 }
 
-function colorVertices(geometry: BufferGeometry, baseColor: Color) {
+const featuresExcludedById = {
+  883956342: true,
+  883956343: true
+}
+
+function getBuildingColor(featureId: number) {
+  // const value = 1 - Math.random() * Math.random()
+  // return new Color().setRGB(value + Math.random() * 0.1, value, value + Math.random() * 0.1)
+  //
+  // Workaround until we can clean up geojson data on the fly, ensuring that there aren't overlapping
+  // polygons
+  // return new Color(baseColorByFeatureId[featureId] || 0xdddddd)
+  const specialColor = baseColorByFeatureId[featureId]
+  return new Color(specialColor || 0xdddddd)
+}
+
+function colorVertices(geometry: BufferGeometry, baseColor: Color, light: Color, shadow: Color) {
   const normals = geometry.attributes.normal
-  const light = new Color(0xffffff)
-  const shadow = new Color(0x303050)
   const topColor = baseColor.clone().multiply(light)
   const bottomColor = baseColor.clone().multiply(shadow)
 
@@ -221,6 +247,43 @@ function maybeBuffer(feature: Feature, width: number): Geometry {
   return feature.geometry
 }
 
+function buildDebuggingLabels(features: Feature[], llCenter: Position): Object3D[] {
+  return features.map((f) => {
+    const myText = new Text()
+
+    const geometry = f.geometry
+
+    let coords: Position[]
+
+    // TODO switch statement
+    if (geometry.type === 'MultiPolygon') {
+      coords = geometry.coordinates[0][0] // TODO: add all multipolygon coords.
+    } else if (geometry.type === 'Polygon') {
+      coords = geometry.coordinates[0] // TODO: handle interior rings
+    } else if (geometry.type === 'MultiPoint') {
+      // TODO is this a bug?
+      coords = geometry.coordinates[0] as any
+    } else {
+      // TODO handle feature.geometry.type === 'GeometryCollection'?
+    }
+    const point = llToScene(coords[0], llCenter)
+
+    // Set properties to configure:
+    myText.text = f.id
+    myText.fontSize = 8
+    myText.position.y = (f.properties.height || 1) + 10
+    myText.position.x = point[0]
+    myText.position.z = point[1]
+    myText.color = 0x000000
+    ;(myText.material as Material).depthTest = false
+
+    // Update the rendering:
+    myText.sync()
+
+    return myText
+  })
+}
+
 export function buildMesh(tiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
   const group = new Group()
   const buildingFeatures = unifyFeatures(tiles.reduce((acc, tile) => acc.concat(tile.building), []))
@@ -228,6 +291,7 @@ export function buildMesh(tiles: TileFeaturesByLayer[], llCenter: Position, rend
   const objects3d = [
     ...buildObjects3D('building', buildingFeatures, llCenter, renderer),
     ...buildObjects3D('road', roadFeatures, llCenter, renderer)
+    // ...buildDebuggingLabels(buildingFeatures, llCenter)
   ]
 
   objects3d.forEach((o) => {
