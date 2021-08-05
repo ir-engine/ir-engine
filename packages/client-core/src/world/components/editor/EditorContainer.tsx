@@ -223,7 +223,8 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
       this.setState({
         queryParams
       })
-      const projectId = queryParams.get('projectId')
+      const pathParams = this.state.pathParams
+      const projectId = pathParams.get('projectId')
       let templateUrl = null
 
       if (projectId === 'new' && !queryParams.has('sceneId')) {
@@ -626,11 +627,14 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
     await new Promise((resolve) => setTimeout(resolve, 5))
     try {
       const editor = this.state.editor
-      await this.createProject()
+      const newProject = await this.createProject()
       editor.sceneModified = false
       this.updateModifiedState()
 
       this.hideDialog()
+      const pathParams = this.state.pathParams
+      pathParams.set('projectId', newProject.project_id)
+      this.setState({ pathParams: pathParams })
     } catch (error) {
       console.error(error)
 
@@ -778,6 +782,9 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
         )
 
         this.setState({ project: newProject })
+        const pathParams = this.state.pathParams
+        pathParams.set('projectId', newProject.project_id)
+        this.setState({ pathParams: pathParams })
       } else {
         await this.createProject()
       }
