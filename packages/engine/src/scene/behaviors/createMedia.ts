@@ -68,6 +68,7 @@ export function createVideo(entity, args: VideoProps): void {
   addObject3DComponent(entity, video, args)
   video.load()
   addComponent(entity, MediaComponent)
+  addComponent(entity, PositionalAudioComponent)
   if (args.interactable) addComponent(entity, Interactable)
 }
 
