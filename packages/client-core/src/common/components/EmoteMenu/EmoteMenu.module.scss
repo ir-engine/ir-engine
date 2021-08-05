@@ -1,4 +1,4 @@
-.emoteMenu {
+.emoteMenuSidebar {
     position: fixed;
     top: 0;
     right: 10px;
@@ -23,7 +23,7 @@
     .jumpContainer { display: none; margin-top: 20px; }
 
     .menuItem {
-        background: transparent;
+        background: rgba(0, 0, 0, 0.2);
         border-radius: 50%;
         margin: 5px;
         height: 50px;
@@ -47,4 +47,55 @@
             width: 40px;
         }
     }
+}
+
+.emoteMenu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.1s ease-out;
+
+    .itemContainer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        border: solid 100px #0007;
+
+        .menuItemBlock {
+            position: relative;
+        }
+
+        .menuItem {
+            border-radius: 50%;
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            margin: 0;
+            padding: 0;
+            min-width: 0;
+
+            &:hover { transform: scale(1.2); }
+            img {
+                display: block;
+                width: 100%;
+            }
+        }
+
+        .joyStick {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+        }
+    }
+}
+
+.hideMenu {
+    transform: scale(0);
 }

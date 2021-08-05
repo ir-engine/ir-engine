@@ -505,7 +505,6 @@ const Harmony = (props: Props): any => {
         noCountdown: true
       }
       setWarningRefreshModalValues(newValues)
-      setInstanceDisconnected(false)
     }
   }, [])
 
