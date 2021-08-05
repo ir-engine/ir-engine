@@ -4,7 +4,7 @@ import { addObject3DComponent } from './addObject3DComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Interactable } from '../../interaction/components/Interactable'
 import VolumetricComponent from '../components/VolumetricComponent'
-import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import Video from '../classes/Video'
 import MediaComponent from '../components/MediaComponent'
 import AudioSource from '../classes/AudioSource'
@@ -68,7 +68,6 @@ export function createVideo(entity, args: VideoProps): void {
   addObject3DComponent(entity, video, args)
   video.load()
   addComponent(entity, MediaComponent)
-  addComponent(entity, PositionalAudioComponent)
   if (args.interactable) addComponent(entity, Interactable)
 }
 
