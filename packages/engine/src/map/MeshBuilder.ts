@@ -27,6 +27,8 @@ import { Text } from 'troika-three-text'
 
 // TODO free resources used by canvases, bitmaps etc
 
+const ENABLE_DEBUG = false
+
 const METERS_PER_DEGREE_LL = 111139
 
 function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position): Position {
@@ -292,7 +294,7 @@ export function buildMesh(tiles: TileFeaturesByLayer[], llCenter: Position, rend
   const objects3d = [
     ...buildObjects3D('building', buildingFeatures, llCenter, renderer),
     ...buildObjects3D('road', roadFeatures, llCenter, renderer),
-    ...buildDebuggingLabels(buildingFeatures, llCenter)
+    ...(ENABLE_DEBUG ? buildDebuggingLabels(buildingFeatures, llCenter) : [])
   ]
 
   objects3d.forEach((o) => {
