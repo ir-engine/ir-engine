@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { MapboxTileLoader } from './MapboxTileLoader'
-import { fetchTiles, buildMesh } from './MeshBuilder'
+import { buildMesh } from './MeshBuilder'
+import { fetchTiles } from './MapBoxClient'
 import { MapProps } from './MapProps'
 
 type ILayerName = 'building' | 'road'
