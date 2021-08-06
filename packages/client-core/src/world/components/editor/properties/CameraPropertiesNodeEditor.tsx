@@ -1,7 +1,5 @@
 import { Camera } from '@styled-icons/fa-solid'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import i18n from 'i18next'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { withTranslation } from 'react-i18next'
 import { CameraModes } from '../../../../../../engine/src/camera/types/CameraModes'
 import InputGroup from '../inputs/InputGroup'
@@ -174,32 +172,30 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         default={100}
         value={(node as any).cameraFarClip ?? 100}
       />
-      {(cameraMode == CameraModes.Dynamic || cameraMode == CameraModes.ThirdPerson) &&
-        /* @ts-ignore */
-        <NumericInputGroup name="thirdPersonCameraDistance"
-          label={"Third Person Camera Distance"}
-          onChange={(value) => onChangePayload("thirdPersonCameraDistance", value)}
+        {/* @ts-ignore */}
+        <NumericInputGroup name="minCameraDistance"
+          label={"Min Camera Distance"}
+          onChange={(value) => onChangePayload("minCameraDistance", value)}
           min={0.001}
           smallStep={0.001}
           mediumStep={0.01}
           largeStep={0.1}
           default={20}
-          value={(node as any).thirdPersonCameraDistance}
+          value={(node as any).minCameraDistance ?? 1}
         />
-      }
-      {(cameraMode == CameraModes.Dynamic || cameraMode == CameraModes.ShoulderCam) &&
-        /* @ts-ignore */
-        <NumericInputGroup name="shoulderCameraDistance"
-          label={"Shoulder Camera Distance"}
-          onChange={(value) => onChangePayload("shoulderCameraDistance", value)}
+      
+        {/* @ts-ignore */}
+        <NumericInputGroup name="maxCameraDistance"
+          label={"Max Camera Distance"}
+          onChange={(value) => onChangePayload("maxCameraDistance", value)}
           min={0.001}
           smallStep={0.001}
           mediumStep={0.01}
           largeStep={0.1}
           default={5}
-          value={(node as any).shoulderCameraDistance}
+          value={(node as any).maxCameraDistance ?? 50}
         />
-      }
+      
     </NodeEditor>
   )
 }

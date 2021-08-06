@@ -47,7 +47,7 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { createCollider } from '../../physics/behaviors/createCollider'
 import { BodyType } from 'three-physx'
 import { CameraSystem } from '../../camera/systems/CameraSystem'
-import { switchCameraMode } from '../../character/CharacterInputSchema'
+import { setCameraProperties } from '../../character/CharacterInputSchema'
 import { Network } from '../../networking/classes/Network'
 import { CameraModes } from '../../camera/types/CameraModes'
 
@@ -302,7 +302,7 @@ export class WorldScene {
       case 'cameraproperties':
         if (isClient) {
           EngineEvents.instance.once(EngineEvents.EVENTS.CLIENT_USER_LOADED, async () => {
-            switchCameraMode(Network.instance.localClientEntity, component.data)
+            setCameraProperties(Network.instance.localClientEntity, component.data, true)
           })
         }
         break

@@ -71,17 +71,17 @@ const cycleCameraMode = (
 
   switch (cameraFollow?.mode) {
     case CameraModes.FirstPerson:
-      switchCameraMode(entity, { mode: CameraModes.ShoulderCam })
+      setCameraProperties(entity, { mode: CameraModes.ShoulderCam })
       break
     case CameraModes.ShoulderCam:
-      switchCameraMode(entity, { mode: CameraModes.ThirdPerson })
+      setCameraProperties(entity, { mode: CameraModes.ThirdPerson })
       cameraFollow.distance = cameraFollow.minDistance + 1
       break
     case CameraModes.ThirdPerson:
-      switchCameraMode(entity, { mode: CameraModes.TopDown })
+      setCameraProperties(entity, { mode: CameraModes.TopDown })
       break
     case CameraModes.TopDown:
-      switchCameraMode(entity, { mode: CameraModes.FirstPerson })
+      setCameraProperties(entity, { mode: CameraModes.FirstPerson })
       break
     default:
       break
@@ -126,11 +126,11 @@ const setVisible = (entity: Entity, visible: boolean): void => {
       const mat = (obj as SkinnedMesh).material
       if (mat) {
         if (visible) {
-          ;(mat as Material).opacity = 1
-          ;(mat as Material).transparent = false
+          (mat as Material).opacity = 1
+            ; (mat as Material).transparent = false
         } else {
-          ;(mat as Material).opacity = 0
-          ;(mat as Material).transparent = true
+          (mat as Material).opacity = 0
+            ; (mat as Material).transparent = true
         }
       }
     })
@@ -138,9 +138,10 @@ const setVisible = (entity: Entity, visible: boolean): void => {
 }
 
 // let changeTimeout = undefined
-export const switchCameraMode = (
+export const setCameraProperties = (
   entity: Entity,
-  args: any = { pointerLock: false, cameraMode: CameraModes.ThirdPerson, distance: 3,  }
+  args: any = { pointerLock: false, cameraMode: CameraModes.ThirdPerson },
+  setAllProperties = false
 ): void => {
   // if (changeTimeout !== undefined) return
   // changeTimeout = setTimeout(() => {
@@ -150,21 +151,23 @@ export const switchCameraMode = (
 
   const cameraFollow = getMutableComponent(entity, FollowCameraComponent)
   console.log('args', args)
-  getMutableComponent(Engine.activeCameraEntity, CameraComponent)
-  if(args.projectionType && args.projectionType != ProjectionTypes.Perspective){
-    console.log("**** Setting orthographic camera");
-    Engine.camera = new OrthographicCamera( args.fov / - 2, args.fov / 2, args.fov / 2, args.fov / - 2, args.cameraNearClip, args.cameraFarClip );
-  } else
-  if(args.fov){
-  (Engine.camera as PerspectiveCamera).fov = args.fov;
-  Engine.camera.near = args.cameraNearClip
-  Engine.camera.far = args.cameraFarClip
-}
-Engine.camera.updateProjectionMatrix ();
+  if (setAllProperties) {
+    if (args.projectionType && args.projectionType != ProjectionTypes.Perspective) {
+      console.log("**** Setting orthographic camera")
+      Engine.camera = new OrthographicCamera(args.fov / - 2, args.fov / 2, args.fov / 2, args.fov / - 2, args.cameraNearClip, args.cameraFarClip)
+    } else
+      if ((Engine.camera as PerspectiveCamera).fov) { (Engine.camera as PerspectiveCamera).fov = args.fov }
+    Engine.camera.near = args.cameraNearClip
+    Engine.camera.far = args.cameraFarClip
+    cameraFollow.minDistance = args.minCameraDistance
+    cameraFollow.maxDistance = args.maxCameraDistance
+    cameraFollow.distance = args.startCameraDistance
+    Engine.camera.updateProjectionMatrix()
+  }
 
   cameraFollow.mode = args.cameraMode
   console.log("entity")
-  console.log(entity);
+  console.log(entity)
   switch (args.cameraMode) {
     case CameraModes.FirstPerson:
       {
@@ -219,7 +222,7 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
   }
 
   const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent)
-  if (cameraFollow === undefined || cameraFollow.mode === CameraModes.Strategic) return //console.warn("cameraFollow is undefined");
+  if (cameraFollow === undefined || cameraFollow.mode === CameraModes.Strategic) return //console.warn("cameraFollow is undefined")
 
   const inputPrevValue = (inputComponent.prevData.get(inputKey)?.value as number) ?? 0
   const value = inputValue.value as number
@@ -234,16 +237,16 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
   switch (cameraFollow.mode) {
     case CameraModes.FirstPerson:
       if (scrollDelta > 0) {
-        switchCameraMode(entity, { mode: CameraModes.ShoulderCam })
+        setCameraProperties(entity, { mode: CameraModes.ShoulderCam })
       }
       break
     case CameraModes.ShoulderCam:
       if (scrollDelta > 0) {
-        switchCameraMode(entity, { mode: CameraModes.ThirdPerson })
+        setCameraProperties(entity, { mode: CameraModes.ThirdPerson })
         cameraFollow.distance = cameraFollow.minDistance + 1
       }
       if (scrollDelta < 0) {
-        switchCameraMode(entity, { mode: CameraModes.FirstPerson })
+        setCameraProperties(entity, { mode: CameraModes.FirstPerson })
       }
       break
     default:
@@ -253,18 +256,18 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
 
       if (cameraFollow.distance >= cameraFollow.maxDistance) {
         if (scrollDelta > 0) {
-          switchCameraMode(entity, { mode: CameraModes.TopDown })
+          setCameraProperties(entity, { mode: CameraModes.TopDown })
         }
       } else if (cameraFollow.distance <= cameraFollow.minDistance) {
         if (scrollDelta < 0) {
-          switchCameraMode(entity, { mode: CameraModes.ShoulderCam })
+          setCameraProperties(entity, { mode: CameraModes.ShoulderCam })
         }
       }
 
       break
     case CameraModes.TopDown:
       if (scrollDelta < 0) {
-        switchCameraMode(entity, { mode: CameraModes.ThirdPerson })
+        setCameraProperties(entity, { mode: CameraModes.ThirdPerson })
       }
       break
   }
@@ -289,7 +292,7 @@ const setCharacterExpression: InputBehaviorType = (
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
-  // console.log('setCharacterExpression', args.input, morphNameByInput[args.input]);
+  // console.log('setCharacterExpression', args.input, morphNameByInput[args.input])
   const object: Object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent)
   const body = object.value?.getObjectByName('Body') as Mesh
 
@@ -309,7 +312,7 @@ const setCharacterExpression: InputBehaviorType = (
     return
   }
 
-  // console.warn(args.input + ": " + morphName + ":" + morphIndex + " = " + morphValue);
+  // console.warn(args.input + ": " + morphName + ":" + morphIndex + " = " + morphValue)
   if (morphName && morphValue !== null) {
     if (typeof morphValue === 'number') {
       body.morphTargetInfluences[morphIndex] = morphValue // 0.0 - 1.0
@@ -593,8 +596,8 @@ export const createBehaviorMap = () => {
 }
 
 export const CharacterInputSchema: InputSchema = {
-  onAdded: () => {},
-  onRemove: () => {},
+  onAdded: () => { },
+  onRemove: () => { },
   inputMap: createCharacterInput(),
   behaviorMap: createBehaviorMap()
 }

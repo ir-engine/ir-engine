@@ -1,7 +1,3 @@
-
-
-
-
 import { Object3D } from 'three'
 import EditorNodeMixin from './EditorNodeMixin'
 export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
@@ -9,9 +5,8 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
   static nodeName = 'Camera Properties'
 
   static async deserialize(editor, json) {
-    console.log('Deserializing The GameNode')
     const node = await super.deserialize(editor, json)
-    const { name, fov, cameraNearClip, cameraFarClip, projectionType, shoulderCameraDistance, thirdPersonCameraDistance, cameraMode, cameraModeDefault } = json.components.find(
+    const { name, fov, cameraNearClip, cameraFarClip, projectionType, maxCameraDistance, startCameraDistance, minCameraDistance, cameraMode, cameraModeDefault } = json.components.find(
       (c) => c.name === CameraPropertiesNode.legacyComponentName
     ).props
     node.name = name
@@ -19,8 +14,9 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
     node.cameraNearClip = cameraNearClip ?? .1
     node.cameraFarClip = cameraFarClip ?? 100
     node.projectionType = projectionType
-    node.thirdPersonCameraDistance = thirdPersonCameraDistance ?? 20
-    node.shoulderCameraDistance = shoulderCameraDistance ?? 6
+    node.minCameraDistance = minCameraDistance ?? 20
+    node.maxCameraDistance = maxCameraDistance ?? 6
+    node.startCameraDistance = startCameraDistance ?? 12
 
     node.cameraMode = cameraMode
     node.cameraModeDefault = cameraModeDefault
@@ -41,8 +37,9 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
         cameraNearClip: this.cameraNearClip,
         cameraFarClip: this.cameraFarClip,
         projectionType: this.projectionType,
-        thirdPersonCameraDistance: this.thirdPersonCameraDistance,
-        shoulderCameraDistance: this.shoulderCameraDistance,
+        minCameraDistance: this.minCameraDistance,
+        maxCameraDistance: this.maxCameraDistance,
+        startCameraDistance: this.startCameraDistance,
         cameraMode: this.cameraMode,
         cameraModeDefault: this.cameraModeDefault
       }
