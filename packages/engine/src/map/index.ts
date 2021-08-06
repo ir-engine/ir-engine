@@ -1,10 +1,8 @@
 import * as THREE from 'three'
 import { MapboxTileLoader } from './MapboxTileLoader'
 import { buildMesh } from './MeshBuilder'
-import { fetchTiles } from './MapBoxClient'
+import { fetchVectorTiles, fetchRasterTiles } from './MapBoxClient'
 import { MapProps } from './MapProps'
-
-type ILayerName = 'building' | 'road'
 
 const useNew = true
 
@@ -13,10 +11,11 @@ export const addMap = async function (scene: THREE.Scene, renderer: THREE.WebGLR
   if (useNew) {
     // TODO use object
     const center = [parseFloat(args.startLongitude) || -84.388, parseFloat(args.startLatitude) || 33.749]
-    const features = await fetchTiles(center)
-    const mesh = buildMesh(features, center, renderer)
-    mesh.position.multiplyScalar(args.scale ? args.scale.x : 0.1)
-    mesh.scale.multiplyScalar(args.scale ? args.scale.x : 0.1)
+    const vectorTiles = await fetchVectorTiles(center)
+    const rasterTiles = await fetchRasterTiles(center)
+    const mesh = buildMesh(vectorTiles, rasterTiles, center, renderer)
+    mesh.position.multiplyScalar(args.scale.x)
+    mesh.scale.multiplyScalar(args.scale.x)
 
     scene.add(mesh)
   } else {

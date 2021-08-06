@@ -2,6 +2,7 @@ import { ILayerName, TileFeaturesByLayer } from './types'
 import { VectorTile } from '@mapbox/vector-tile'
 import { Feature, Position } from 'geojson'
 import { Config } from '@xrengine/client-core/src/helper'
+import { vectors } from './vectors'
 
 const TILE_ZOOM = 16
 const LAYERS: ILayerName[] = ['building', 'road']
@@ -9,7 +10,8 @@ export const NUMBER_OF_TILES_PER_DIMENSION = 3
 const WHOLE_NUMBER_OF_TILES_FROM_CENTER = Math.floor(NUMBER_OF_TILES_PER_DIMENSION / 2)
 const NUMBER_OF_TILES_IS_ODD = NUMBER_OF_TILES_PER_DIMENSION % 2
 
-import { vectors } from './vectors'
+export const RASTER_TILE_SIZE_HDPI = 256
+
 function long2tile(lon: number, zoom: number) {
   return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom))
 }
@@ -19,6 +21,17 @@ function lat2tile(lat: number, zoom: number) {
     ((1 - Math.log(Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180)) / Math.PI) / 2) *
       Math.pow(2, zoom)
   )
+}
+
+const METERS_PER_PIXEL_AT_EQUATOR = 156543.03
+export function calcMetersPerPixelLatitudinal(latitude: number) {
+  // TODO why is this off slightly (without the small fudge factor)?
+  const fudge = 1.21
+  return Math.abs((METERS_PER_PIXEL_AT_EQUATOR * Math.cos(latitude)) / Math.pow(2, TILE_ZOOM)) * fudge
+}
+export function calcMetersPerPixelLongitudinal(latitude: number) {
+  const fudge = 1.015
+  return Math.abs(METERS_PER_PIXEL_AT_EQUATOR / Math.pow(2, TILE_ZOOM)) * fudge
 }
 
 /**
@@ -42,8 +55,13 @@ function vectorTile2GeoJSON(tile: VectorTile, [tileX, tileY]: Position): TileFea
   return result
 }
 
-function getMapBoxUrl(layerId: string, tileX: number, tileY: number, format: string) {
-  return `https://api.mapbox.com/v4/${layerId}/${TILE_ZOOM}/${tileX}/${tileY}.${format}?access_token=${Config.publicRuntimeConfig.MAPBOX_API_KEY}`
+/**
+ * @param highDpi only applicable to raster tiles
+ */
+function getMapBoxUrl(layerId: string, tileX: number, tileY: number, format: string, highDpi = false) {
+  return `https://api.mapbox.com/v4/${layerId}/${TILE_ZOOM}/${tileX}/${tileY}${
+    highDpi ? '@2x' : ''
+  }.${format}?access_token=${Config.publicRuntimeConfig.MAPBOX_API_KEY}`
 }
 
 async function fetchTileFeatures(tileX: number, tileY: number): Promise<TileFeaturesByLayer> {
@@ -56,6 +74,14 @@ async function fetchTileFeatures(tileX: number, tileY: number): Promise<TileFeat
       resolve(vectorTile2GeoJSON(tile, [tileX, tileY]))
     })
   })
+}
+
+async function fetchRasterTile(tileX: number, tileY: number): Promise<ImageBitmap> {
+  const url = getMapBoxUrl('mapbox.satellite', tileX, tileY, 'png')
+
+  const response = await fetch(url)
+  const blob = await response.blob()
+  return createImageBitmap(blob)
 }
 
 function forEachSurroundingTile(llCenter: Position, callback: (tileX: number, tileY: number) => void) {
@@ -75,12 +101,17 @@ function forEachSurroundingTile(llCenter: Position, callback: (tileX: number, ti
 /**
  * @returns promise resolving to array containing one array of features per tile
  */
-function fetchSurroundingTiles(llCenter: Position): Promise<TileFeaturesByLayer[]> {
+export function fetchVectorTiles(llCenter: Position): Promise<TileFeaturesByLayer[]> {
   const promises = []
   forEachSurroundingTile(llCenter, (tileX, tileY) => promises.push(fetchTileFeatures(tileX, tileY)))
   return Promise.all(promises)
 }
 
-export function fetchTiles(llCenter: Position): Promise<TileFeaturesByLayer[]> {
-  return fetchSurroundingTiles(llCenter)
+/**
+ * @returns promise resolving to array of...
+ */
+export function fetchRasterTiles(llCenter: Position): Promise<TileFeaturesByLayer[]> {
+  const promises = []
+  forEachSurroundingTile(llCenter, (tileX, tileY) => promises.push(fetchRasterTile(tileX, tileY)))
+  return Promise.all(promises)
 }

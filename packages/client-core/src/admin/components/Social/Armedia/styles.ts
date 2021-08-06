@@ -104,10 +104,6 @@ export const useStyles = makeStyles((theme: Theme) =>
     mt20: {
       marginTop: '20%'
     },
-    center: {
-      margin: '4rem auto 0 auto',
-      textAlign: 'center'
-    },
     cardHolder: {
       display: 'flex',
       flexDirection: 'column',
@@ -211,6 +207,10 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     containerFile: {
       marginTop: '.7rem'
+    },
+    center: {
+      margin: '4rem auto 0 auto',
+      textAlign: 'center'
     }
   })
 )
