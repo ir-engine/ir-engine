@@ -10,7 +10,6 @@ import { PositionalAudioComponent } from '../components/PositionalAudioComponent
 import { Entity } from '../../ecs/classes/Entity'
 import { PositionalAudio } from 'three'
 import { applyAvatarAudioSettings, applyMediaAudioSettings } from '../../scene/behaviors/handleAudioSettings'
-import MediaComponent from '../../scene/components/MediaComponent'
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== 'undefined' && /chrome/i.test(navigator.userAgent)
 function createSilentAudioEl(streamsLive) {
@@ -118,14 +117,9 @@ export class PositionalAudioSystem extends System {
       this.characterAudioStream.delete(entity)
     }
 
-    for (const entity of this.queryResults.media.added) {
+    for (const entity of this.queryResults.positional_audio.added) {      
       const positionalAudio = getComponent(entity, PositionalAudioComponent)
       applyMediaAudioSettings(positionalAudio.value)
-      if (positionalAudio != null) Engine.scene.add(positionalAudio.value)
-    }
-
-    for (const entity of this.queryResults.positional_audio.added) {
-      const positionalAudio = getComponent(entity, PositionalAudioComponent)
       if (positionalAudio != null) Engine.scene.add(positionalAudio.value)
     }
 
@@ -165,13 +159,6 @@ PositionalAudioSystem.queries = {
   },
   audio: {
     components: [PositionalAudioComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  media: {
-    components: [PositionalAudioComponent, MediaComponent],
     listen: {
       added: true,
       removed: true

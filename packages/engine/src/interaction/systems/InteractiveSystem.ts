@@ -27,11 +27,11 @@ import { hideInteractText, showInteractText } from '../functions/interactText'
 import { CameraComponent } from '../../camera/components/CameraComponent'
 import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import { InteractedComponent } from '../components/InteractedComponent'
-import MediaComponent from '../../scene/components/MediaComponent'
 import AudioSource from '../../scene/classes/AudioSource'
 import { Engine } from '../../ecs/classes/Engine'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { BodyType } from 'three-physx'
+import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 
 const upVec = new Vector3(0, 1, 0)
 
@@ -160,7 +160,7 @@ export class InteractiveSystem extends System {
 
     for (const entity of this.queryResults.interacted.added) {
       const interactiveComponent = getComponent(entity, Interactable)
-      if (hasComponent(entity, MediaComponent)) {
+      if (hasComponent(entity, PositionalAudioComponent)) {
         const mediaObject = getComponent(entity, Object3DComponent).value as AudioSource
         mediaObject?.toggle()
       } else {
