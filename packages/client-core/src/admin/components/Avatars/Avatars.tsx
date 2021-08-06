@@ -22,7 +22,6 @@ import { fetchAdminAvatars } from '../../reducers/admin/avatar/service'
 import styles from './Avatars.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import { selectAdminAvatarState } from '../../reducers/admin/avatar/selector'
-import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
 import { uploadAvatarModel } from '../../../user/reducers/auth/service'
 
@@ -36,6 +35,7 @@ interface Props {
   fetchAdminAvatars?: any
   fetchLocationTypes?: any
   adminAvatarState?: any
+  uploadAvatarModel?: Function
 }
 
 const mapStateToProps = (state: any): any => {
@@ -148,6 +148,10 @@ const Avatars = (props: Props) => {
   const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
   const [selectedAvatars, setSelectedAvatars] = useState([])
   const [avatarSelectMenuOpen, setAvatarSelectMenuOpen] = useState(false)
+  const [dimensions, setDimensions] = useState({
+    height: window.innerHeight,
+    width: window.innerWidth
+  })
 
   const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -213,6 +217,21 @@ const Avatars = (props: Props) => {
     setRefetch(false)
   }, [authState, adminAvatarState, refetch])
 
+  useEffect(() => {
+    window.addEventListener('resize', handleWindowResize)
+
+    return () => {
+      window.removeEventListener('resize', handleWindowResize)
+    }
+  }, [])
+
+  const handleWindowResize = () => {
+    setDimensions({
+      height: window.innerHeight,
+      width: window.innerWidth
+    })
+  }
+
   return (
     <div>
       <Paper className={styles.adminRoot}>
@@ -236,7 +255,7 @@ const Avatars = (props: Props) => {
               color="primary"
               onClick={() => setAddToContentPackModalOpen(true)}
             >
-              {isMobile === true ? '+ Pack' : 'Add to Content Pack'}
+              {dimensions.width <= 768 ? '+ Pack' : 'Add to Content Pack'}
             </Button>
           </Grid>
         </Grid>
