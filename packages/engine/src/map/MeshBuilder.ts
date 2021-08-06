@@ -1,8 +1,22 @@
 import { buffer, centerOfMass } from '@turf/turf'
 import { Feature, Geometry, Position } from 'geojson'
+import { MeshBasicMaterial } from 'three'
 import {
-  BufferAttribute, BufferGeometry, CanvasTexture, Color, ExtrudeGeometry, Group, Material, MaterialParameters, Mesh, MeshBasicMaterial, MeshLambertMaterial, Object3D, PlaneGeometry, Shape,
-  ShapeGeometry, Vector3, WebGLRenderer
+  MeshLambertMaterial,
+  BufferGeometry,
+  Mesh,
+  Shape,
+  ShapeGeometry,
+  ExtrudeGeometry,
+  WebGLRenderer,
+  BufferAttribute,
+  Color,
+  CanvasTexture,
+  Group,
+  Object3D,
+  Vector3,
+  PlaneGeometry,
+  MeshLambertMaterialParameters
 } from 'three'
 import { Text } from 'troika-three-text'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
@@ -215,13 +229,13 @@ function colorVertices(geometry: BufferGeometry, baseColor: Color, light: Color,
   }
 }
 
-const materialsByParams = new Map<MaterialParameters, Material>()
+const materialsByParams = new Map<MeshLambertMaterialParameters, MeshLambertMaterial>()
 
-function getOrCreateMaterial(params: MaterialParameters) {
-  let material: Material
+function getOrCreateMaterial(Material: any, params: MeshLambertMaterialParameters): MeshLambertMaterial {
+  let material: any
 
   if (!materialsByParams.get(params)) {
-    material = new MeshLambertMaterial(params)
+    material = new Material(params)
     materialsByParams.set(params, material)
   } else {
     material = materialsByParams.get(params)
@@ -251,7 +265,7 @@ export function buildObjects3D(
     vertexColors: color.builtin_function === 'purple_haze' ? true : false
   }
 
-  const material = getOrCreateMaterial(materialParams)
+  const material = getOrCreateMaterial(MeshLambertMaterial, materialParams)
 
   return geometries.map((g) => new Mesh(g, material))
 }
@@ -293,14 +307,23 @@ function buildDebuggingLabels(features: Feature[], llCenter: Position): Object3D
   })
 }
 
-function buildGroundMesh(rasterTiles: ImageBitmap[], latitude: number): Object3D {
+export function createGround(rasterTiles: ImageBitmap[], latitude: number): Object3D {
   const sizeInPx = NUMBER_OF_TILES_PER_DIMENSION * RASTER_TILE_SIZE_HDPI
   const width = sizeInPx * calcMetersPerPixelLongitudinal(latitude)
   const height = sizeInPx * calcMetersPerPixelLatitudinal(latitude)
   const geometry = new PlaneGeometry(width, height)
-  const material = new MeshBasicMaterial({
-    map: new CanvasTexture(generateRasterTileCanvas(rasterTiles))
-  })
+  const texture = rasterTiles.length > 0 ? new CanvasTexture(generateRasterTileCanvas(rasterTiles)) : null
+
+  const material = getOrCreateMaterial(
+    MeshBasicMaterial,
+    texture
+      ? {
+          map: texture
+        }
+      : {
+          color: 0x81925c
+        }
+  )
   const mesh = new Mesh(geometry, material)
 
   // prevent z-fighting with vector roads
@@ -317,24 +340,25 @@ function buildGroundMesh(rasterTiles: ImageBitmap[], latitude: number): Object3D
   return mesh
 }
 
-export function buildMesh(
+export function createBuildings(
   vectorTiles: TileFeaturesByLayer[],
-  rasterTiles: ImageBitmap[],
   llCenter: Position,
   renderer: WebGLRenderer
-): Group {
+): Object3D {
+  const features = unifyFeatures(vectorTiles.reduce((acc, tile) => acc.concat(tile.building), []))
+  const objects3d = buildObjects3D('building', features, llCenter, renderer)
+
+  return objects3d[0]
+}
+
+export function createRoads(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
   const group = new Group()
-  const buildingFeatures = unifyFeatures(vectorTiles.reduce((acc, tile) => acc.concat(tile.building), []))
-  const roadFeatures = vectorTiles.reduce((acc, tile) => acc.concat(tile.road), [])
-  const objects3d = [
-    ...buildObjects3D('building', buildingFeatures, llCenter, renderer),
-    ...buildObjects3D('road', roadFeatures, llCenter, renderer),
-    buildGroundMesh(rasterTiles, llCenter[1]),
-    ...(ENABLE_DEBUG ? buildDebuggingLabels(buildingFeatures, llCenter) : [])
-  ]
+  const features = vectorTiles.reduce((acc, tile) => acc.concat(tile.road), [])
+  const objects3d = buildObjects3D('road', features, llCenter, renderer)
 
   objects3d.forEach((o) => {
     group.add(o)
   })
+
   return group
 }
