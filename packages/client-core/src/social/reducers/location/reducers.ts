@@ -22,7 +22,8 @@ export const initialLocationState = {
   },
   updateNeeded: true,
   currentLocationUpdateNeeded: true,
-  fetchingCurrentLocation: false
+  fetchingCurrentLocation: false,
+  invalidLocation: false
 }
 
 const immutableState = Immutable.fromJS(initialLocationState)
@@ -73,6 +74,7 @@ const locationReducer = (state = immutableState, action: LocationsAction): any =
         .set('currentLocation', updateMap)
         .set('currentLocationUpdateNeeded', false)
         .set('fetchingCurrentLocation', false)
+        .set('invalidLocation', true)
 
     case LOCATION_BAN_CREATED:
       return state.set('currentLocationUpdateNeeded', true)

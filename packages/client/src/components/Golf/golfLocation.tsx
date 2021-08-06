@@ -158,6 +158,7 @@ export const EnginePage = (props: Props) => {
   const selfUser = authState.get('user')
   const party = partyState.get('party')
   const instanceId = selfUser?.instanceId ?? party?.instanceId
+  const invalidLocation = locationState.get('invalidLocation')
   let sceneId = null
   let locationId = null
 
@@ -361,6 +362,19 @@ export const EnginePage = (props: Props) => {
       setInstanceDisconnected(false)
     }
   }, [instanceKicked])
+
+  useEffect(() => {
+    if (invalidLocation === true) {
+      const newValues = {
+        ...warningRefreshModalValues,
+        open: true,
+        title: 'Invalid location',
+        body: `We can't find the location '${locationName}'. It may be misspelled, or it may not exist.`,
+        noCountdown: true
+      }
+      setWarningRefreshModalValues(newValues)
+    }
+  }, [invalidLocation])
 
   const reinit = () => {
     const currentLocation = locationState.get('currentLocation').get('location')
