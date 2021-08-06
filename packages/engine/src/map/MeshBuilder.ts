@@ -23,7 +23,8 @@ import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { unifyFeatures } from './GeoJSONFns'
 import {
   calcMetersPerPixelLatitudinal,
-  calcMetersPerPixelLongitudinal, NUMBER_OF_TILES_PER_DIMENSION,
+  calcMetersPerPixelLongitudinal,
+  NUMBER_OF_TILES_PER_DIMENSION,
   RASTER_TILE_SIZE_HDPI
 } from './MapBoxClient'
 import { DEFAULT_FEATURE_STYLES, getFeatureStyles } from './styles'
