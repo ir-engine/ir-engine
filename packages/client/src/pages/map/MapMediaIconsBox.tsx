@@ -7,6 +7,13 @@ import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStrea
 import React from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
+import THREE, { Vector3 } from 'three'
+import { PI } from '../../../../engine/src/common/constants/MathConstants'
+import { Engine } from '../../../../engine/src/ecs/classes/Engine'
+import { getComponent } from '../../../../engine/src/ecs/functions/EntityFunctions'
+import { updateMap } from '../../../../engine/src/map'
+import { llToScene } from '../../../../engine/src/map/MeshBuilder'
+import { Object3DComponent } from '../../../../engine/src/scene/components/Object3DComponent'
 import { changeFaceTrackingState, updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service'
 import {
   configureMediaTransports,
@@ -94,6 +101,33 @@ const MediaIconsBox = (props) => {
     }
   }
 
+  const handleUpdateMappa = async () => {
+    const position = getComponent(Network.instance.localClientEntity, Object3DComponent).value.position
+    console.log(position)
+    const startLat = 33.749
+    const startLong = -84.388
+    const latitude = position.z / (Math.cos((startLat * PI) / 180) * 111134.861111) + startLat
+    const longtitude = -position.x / 111134.861111 + startLong
+    console.log(latitude)
+    console.log(longtitude)
+
+    await updateMap(
+      Engine.scene,
+      Engine.renderer,
+      {
+        name: 'MAPAPA',
+        isGlobal: true
+      },
+      longtitude,
+      latitude,
+      position
+    )
+
+    const remObj = Engine.scene.getObjectByName('Mappa')
+    console.log('Map is ', remObj)
+    remObj.removeFromParent()
+  }
+
   const VideocamIcon = isCamVideoEnabled ? Videocam : VideocamOff
   const MicIcon = isCamAudioEnabled ? Mic : MicOff
 
@@ -121,6 +155,7 @@ const MediaIconsBox = (props) => {
           </button>
         </>
       ) : null}
+      <button onClick={handleUpdateMappa}>Update MAPPA</button>
     </section>
   )
 }

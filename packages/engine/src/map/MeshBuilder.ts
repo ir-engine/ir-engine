@@ -25,7 +25,7 @@ type ILayerName = 'building' | 'road'
 
 const METERS_PER_DEGREE_LL = 111139
 
-function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position): Position {
+export function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position): Position {
   return [(lng - lngCenter) * METERS_PER_DEGREE_LL, (lat - latCenter) * METERS_PER_DEGREE_LL]
 }
 
@@ -319,6 +319,8 @@ interface TileFeaturesByLayer {
 async function fetchTileFeatures(tileX: number, tileY: number): Promise<TileFeaturesByLayer> {
   const url = getMapBoxUrl('mapbox.mapbox-streets-v8', tileX, tileY, 'vector.pbf')
 
+  console.log('fetch Tile', tileX)
+  console.log(tileY)
   const response = await fetch(url)
   const blob = await response.blob()
   return new Promise((resolve) => {
@@ -331,6 +333,8 @@ async function fetchTileFeatures(tileX: number, tileY: number): Promise<TileFeat
 function forEachSurroundingTile(llCenter: Position, callback: (tileX: number, tileY: number) => void) {
   const tileX0 = long2tile(llCenter[0], TILE_ZOOM)
   const tileY0 = lat2tile(llCenter[1], TILE_ZOOM)
+  console.log(tileX0)
+  console.log(tileY0)
   const startIndex = -WHOLE_NUMBER_OF_TILES_FROM_CENTER
   const endIndex = NUMBER_OF_TILES_IS_ODD ? WHOLE_NUMBER_OF_TILES_FROM_CENTER : WHOLE_NUMBER_OF_TILES_FROM_CENTER - 1
   for (let i = startIndex; i <= endIndex; i++) {

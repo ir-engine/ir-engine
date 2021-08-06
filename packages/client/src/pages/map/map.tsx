@@ -19,7 +19,7 @@ import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/se
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
-import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
+import { NetworkPlayerCharacter, teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
 import { awaitEngaged, Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
@@ -48,6 +48,11 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import MediaIconsBox from './MapMediaIconsBox'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { teleportToScene } from '../../../../engine/src/scene/functions/teleportToScene'
+import { getComponent, hasComponent } from '../../../../engine/src/ecs/functions/EntityFunctions'
+import { LocalInputReceiver } from '../../../../engine/src/input/components/LocalInputReceiver'
+import { Object3DComponent } from '../../../../engine/src/scene/components/Object3DComponent'
+import { getObjectComponents } from '../../../../engine/src/assets/loaders/gltf/ComponentData'
+import { updateMap } from '../../../../engine/src/map'
 
 const store = Store.store
 
@@ -445,7 +450,6 @@ export const EnginePage = (props: Props) => {
       }
 
       await initializeEngine(initializationOptions)
-
       document.dispatchEvent(new CustomEvent('ENGINE_LOADED')) // this is the only time we should use document events. would be good to replace this with react state
       addUIEvents()
     }
@@ -493,7 +497,6 @@ export const EnginePage = (props: Props) => {
     })
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS))
     setPorting(false)
-
     // WTF IS GOING ON HEREEEE
     EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
   }
