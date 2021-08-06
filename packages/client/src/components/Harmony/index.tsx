@@ -1181,7 +1181,7 @@ const Harmony = (props: Props): any => {
                 }
             `}
       </style>
-      {(dimensions.width <= 768) && (
+      {dimensions.width <= 768 && (
         <SwipeableDrawer
           className={classNames({
             [styles['flex-column']]: true,
@@ -1206,7 +1206,7 @@ const Harmony = (props: Props): any => {
       {dimensions.width > 768 && chatSelectors}
       <div className={styles['chat-window']}>
         <div className={styles['harmony-header']}>
-          {(dimensions.width <= 768) && (
+          {dimensions.width <= 768 && (
             <div
               className={classNames({
                 [styles['chat-toggle']]: true,
