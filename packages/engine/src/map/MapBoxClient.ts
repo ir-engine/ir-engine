@@ -108,9 +108,9 @@ export function fetchVectorTiles(llCenter: Position): Promise<TileFeaturesByLaye
 }
 
 /**
- * @returns promise resolving to array of...
+ * @returns promise resolving to array of raster tiles
  */
-export function fetchRasterTiles(llCenter: Position): Promise<TileFeaturesByLayer[]> {
+export function fetchRasterTiles(llCenter: Position): Promise<ImageBitmap[]> {
   const promises = []
   forEachSurroundingTile(llCenter, (tileX, tileY) => promises.push(fetchRasterTile(tileX, tileY)))
   return Promise.all(promises)

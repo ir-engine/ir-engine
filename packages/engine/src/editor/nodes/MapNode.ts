@@ -1,5 +1,6 @@
 import { Object3D, BoxBufferGeometry, Material, Vector3 } from 'three'
-import { addMap } from '../../map'
+import { createBuildings, createRoads, createGround } from '../../map/MeshBuilder'
+import { fetchVectorTiles, fetchRasterTiles } from '../../map/MapBoxClient'
 import EditorNodeMixin from './EditorNodeMixin'
 
 export default class MapNode extends EditorNodeMixin(Object3D) {
@@ -35,26 +36,52 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   }
   constructor(editor) {
     super(editor)
+  }
+  getStartLongLat() {
+    return [parseFloat(this.startLongitude) || -84.388, parseFloat(this.startLatitude) || 33.749]
+  }
+  async addMap(editor) {
     console.log('creating map')
-    addMap(editor.scene as any, editor.renderer.renderer, {
-      name: this.name,
-      isGlobal: this.isGlobal,
-      scale: this.scale,
-      useTimeOfDay: this.useTimeOfDay,
-      useDirectionalShadows: this.useDirectionalShadows,
-      useStartCoordinates: this.useStartCoordinates,
-      startLatitude: this.startLatitude,
-      startLongitude: this.startLongitude,
-      showRasterTiles: this.showRasterTiles
+    const renderer = editor.renderer.renderer
+    const center = this.getStartLongLat()
+    const vectorTiles = await fetchVectorTiles(center)
+    const rasterTiles = this.showRasterTiles ? await fetchRasterTiles(center) : []
+
+    this.sceneNodes = [
+      createBuildings(vectorTiles, center, renderer),
+
+      createRoads(vectorTiles, center, renderer),
+
+      createGround(rasterTiles, center[1])
+    ]
+
+    this.sceneNodes.forEach((node) => {
+      node.position.multiplyScalar(this.scale.x)
+      node.scale.multiplyScalar(this.scale.x)
+      this.add(node)
     })
+  }
+  async refreshGroundNode() {
+    const center = this.getStartLongLat()
+    const rasterTiles = this.showRasterTiles ? await fetchRasterTiles(center) : []
+    this.sceneNodes[1] = createGround(rasterTiles, center[1])
+    this.add(this.sceneNodes[1])
   }
   copy(source, recursive = true) {
     super.copy(source, recursive)
     return this
   }
-  onUpdate(delta: number, time: number) {
-    // this.map.renderSync(time);
+  onChange(prop?: string) {
+    if (prop) {
+      if (prop === 'showRasterTiles') {
+        this.sceneNodes[1].removeFromParent()
+        this.refreshGroundNode()
+      }
+    } else {
+      this.addMap(this.editor)
+    }
   }
+  onUpdate(delta: number, time: number) {}
   serialize(projectID) {
     const components = {
       map: {

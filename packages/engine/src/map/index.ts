@@ -1,29 +1,25 @@
 import * as THREE from 'three'
-import { MapboxTileLoader } from './MapboxTileLoader'
-import { buildMesh } from './MeshBuilder'
+import { createRoads, createGround, createBuildings } from './MeshBuilder'
 import { fetchVectorTiles, fetchRasterTiles } from './MapBoxClient'
 import { MapProps } from './MapProps'
+import { Group } from 'three'
 
-const useNew = true
-
-export const addMap = async function (scene: THREE.Scene, renderer: THREE.WebGLRenderer, args: MapProps) {
+export const create = async function (renderer: THREE.WebGLRenderer, args: MapProps) {
   console.log('addmap called with args:', args)
-  if (useNew) {
-    // TODO use object
-    const center = [parseFloat(args.startLongitude) || -84.388, parseFloat(args.startLatitude) || 33.749]
-    const vectorTiles = await fetchVectorTiles(center)
-    const rasterTiles = args.showRasterTiles ? await fetchRasterTiles(center) : null
-    const mesh = buildMesh(vectorTiles, rasterTiles, center, renderer)
-    mesh.position.multiplyScalar(args.scale.x)
-    mesh.scale.multiplyScalar(args.scale.x)
+  const center = [parseFloat(args.startLongitude) || -84.388, parseFloat(args.startLatitude) || 33.749]
+  const vectorTiles = await fetchVectorTiles(center)
+  const rasterTiles = args.showRasterTiles ? await fetchRasterTiles(center) : []
 
-    scene.add(mesh)
-  } else {
-    new MapboxTileLoader(scene, {
-      ...args,
-      // default ATL if none provided
-      lat: parseFloat(args.startLatitude) || 33.749,
-      lng: parseFloat(args.startLongitude) || -84.388
-    })
-  }
+  const group = new Group()
+
+  group.add(createBuildings(vectorTiles, center, renderer))
+
+  group.add(createRoads(vectorTiles, center, renderer))
+
+  group.add(createGround(rasterTiles, center[1]))
+
+  group.position.multiplyScalar(args.scale.x)
+  group.scale.multiplyScalar(args.scale.x)
+
+  return group
 }

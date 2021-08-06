@@ -12,9 +12,8 @@ import {
   Group,
   Object3D,
   Vector3,
-  MaterialParameters,
-  Material,
-  PlaneGeometry
+  PlaneGeometry,
+  MeshLambertMaterialParameters
 } from 'three'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { VectorTile } from '@mapbox/vector-tile'
@@ -231,10 +230,10 @@ function colorVertices(geometry: BufferGeometry, baseColor: Color, light: Color,
   }
 }
 
-const materialsByParams = new Map<MaterialParameters, Material>()
+const materialsByParams = new Map<MeshLambertMaterialParameters, MeshLambertMaterial>()
 
-function getOrCreateMaterial(params: MaterialParameters) {
-  let material: Material
+function getOrCreateMaterial(params: MeshLambertMaterialParameters): MeshLambertMaterial {
+  let material: MeshLambertMaterial
 
   if (!materialsByParams.get(params)) {
     material = new MeshLambertMaterial(params)
@@ -309,14 +308,22 @@ function buildDebuggingLabels(features: Feature[], llCenter: Position): Object3D
   })
 }
 
-function buildGroundMesh(rasterTiles: ImageBitmap[], latitude: number): Object3D {
+export function createGround(rasterTiles: ImageBitmap[], latitude: number): Object3D {
   const sizeInPx = NUMBER_OF_TILES_PER_DIMENSION * RASTER_TILE_SIZE_HDPI
   const width = sizeInPx * calcMetersPerPixelLongitudinal(latitude)
   const height = sizeInPx * calcMetersPerPixelLatitudinal(latitude)
   const geometry = new PlaneGeometry(width, height)
-  const material = new MeshLambertMaterial({
-    map: new CanvasTexture(generateRasterTileCanvas(rasterTiles))
-  })
+  const texture = rasterTiles.length > 0 ? new CanvasTexture(generateRasterTileCanvas(rasterTiles)) : null
+
+  const material = getOrCreateMaterial(
+    texture
+      ? {
+          map: texture
+        }
+      : {
+          color: 0x81925c
+        }
+  )
   const mesh = new Mesh(geometry, material)
 
   // prevent z-fighting with vector roads
@@ -333,28 +340,25 @@ function buildGroundMesh(rasterTiles: ImageBitmap[], latitude: number): Object3D
   return mesh
 }
 
-export function buildMesh(
+export function createBuildings(
   vectorTiles: TileFeaturesByLayer[],
-  rasterTiles: ImageBitmap[] | null,
   llCenter: Position,
   renderer: WebGLRenderer
-): Group {
+): Object3D {
+  const features = unifyFeatures(vectorTiles.reduce((acc, tile) => acc.concat(tile.building), []))
+  const objects3d = buildObjects3D('building', features, llCenter, renderer)
+
+  return objects3d[0]
+}
+
+export function createRoads(vectorTiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
   const group = new Group()
-  const buildingFeatures = unifyFeatures(vectorTiles.reduce((acc, tile) => acc.concat(tile.building), []))
-  const roadFeatures = vectorTiles.reduce((acc, tile) => acc.concat(tile.road), [])
-  const objects3d = [
-    ...buildObjects3D('building', buildingFeatures, llCenter, renderer),
-    ...buildObjects3D('road', roadFeatures, llCenter, renderer),
-    ...(ENABLE_DEBUG ? buildDebuggingLabels(buildingFeatures, llCenter) : [])
-  ]
+  const features = vectorTiles.reduce((acc, tile) => acc.concat(tile.road), [])
+  const objects3d = buildObjects3D('road', features, llCenter, renderer)
 
   objects3d.forEach((o) => {
     group.add(o)
   })
-
-  if (rasterTiles) {
-    group.add(buildGroundMesh(rasterTiles, llCenter[1]))
-  }
 
   return group
 }
