@@ -65,7 +65,7 @@ const WorkspaceContainer = (styled as any).div`
   display: flex;
   flex: 1;
   overflow: hidden;
-  margin: 6px;
+  margin: 0px;
 `
 
 /**
@@ -951,7 +951,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                   <DockContainer>
                     <DockLayout
                       defaultLayout={defaultLayout}
-                      style={{ pointerEvents: 'none', position: 'absolute', left: 6, top: 74, right: 6, bottom: 6 }}
+                      style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 46, right: 0, bottom: 6 }}
                     />
                   </DockContainer>
                 </WorkspaceContainer>
