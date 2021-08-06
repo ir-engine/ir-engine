@@ -214,3 +214,4 @@ process.on('unhandledRejection', (reason, p) => {
   console.log(p)
   process.exit()
 })
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0" // Avoids DEPTH_ZERO_SELF_SIGNED_CERT error for self-signed certs

@@ -1,3 +1,5 @@
+import { buffer, centerOfMass } from '@turf/turf'
+import { Feature, Geometry, Position } from 'geojson'
 import {
   MeshLambertMaterial,
   BufferGeometry,
@@ -15,21 +17,17 @@ import {
   PlaneGeometry,
   MeshLambertMaterialParameters
 } from 'three'
+import { Text } from 'troika-three-text'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
-import { VectorTile } from '@mapbox/vector-tile'
+import { unifyFeatures } from './GeoJSONFns'
+import {
+  calcMetersPerPixelLatitudinal,
+  calcMetersPerPixelLongitudinal, NUMBER_OF_TILES_PER_DIMENSION,
+  RASTER_TILE_SIZE_HDPI
+} from './MapBoxClient'
 import { DEFAULT_FEATURE_STYLES, getFeatureStyles } from './styles'
-import { centerOfMass, buffer } from '@turf/turf'
-import { Feature, Geometry, Position } from 'geojson'
 import { toIndexed } from './toIndexed'
 import { ILayerName, TileFeaturesByLayer } from './types'
-import { unifyFeatures } from './GeoJSONFns'
-import { Text } from 'troika-three-text'
-import {
-  NUMBER_OF_TILES_PER_DIMENSION,
-  RASTER_TILE_SIZE_HDPI,
-  calcMetersPerPixelLatitudinal,
-  calcMetersPerPixelLongitudinal
-} from './MapBoxClient'
 
 // TODO free resources used by canvases, bitmaps etc
 
