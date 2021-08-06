@@ -119,6 +119,7 @@
     "yuka": "0.7.6"
   },
   "dependencies": {
+    "react-step-wizard": "^5.3.9",
     "three-stdlib": "2.4.0"
   }
 }

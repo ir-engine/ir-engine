@@ -16,6 +16,7 @@ import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { selectPopupsState } from '../../reducers/popupsState/selector'
 import { Box, CardMedia, makeStyles, Typography } from '@material-ui/core'
 import { useTranslation } from 'react-i18next'
+import StepWizard from 'react-step-wizard'
 // import { Plugins } from '@capacitor/core';
 //
 // const {XRPlugin} = Plugins;
@@ -62,6 +63,93 @@ export const ViewMode = ({ updateArMediaState }: Props) => {
     setOpen(false)
   }
 
+  const Greatings = (props) => {
+    const update = (e) => {
+      props.update(e.target.name, e.target.value)
+    }
+    return (
+      <div>
+        <p>
+          Welcome to ARC!  Make personal videos with one of our holograms and post it to your social media channels!
+        </p>
+      </div>
+    )
+  }
+  const First = (props) => {
+    const update = (e) => {
+      props.update(e.target.name, e.target.value)
+    }
+
+    return (
+      <div>
+        <h3 className="text-center">STEP 1</h3>
+        <p>Choose a hologram from the library.</p>
+      </div>
+    )
+  }
+
+  const Two = (props) => {
+    const update = (e) => {
+      props.update(e.target.name, e.target.value)
+    }
+
+    return (
+      <div>
+        <h3 className="text-center">STEP 2</h3>
+        <p>
+          This is Augmented Reality, so scan the space with your camera from side to side  for 3-5 seconds where you
+          want the hologram performance to be.
+        </p>
+      </div>
+    )
+  }
+
+  const Tree = (props) => {
+    const update = (e) => {
+      props.update(e.target.name, e.target.value)
+    }
+
+    return (
+      <div>
+        <h3 className="text-center">STEP 3</h3>
+        <p>Tap screen once on location where you want the hologram anchored.  </p>
+        <p>TIP!  Tap once elsewhere to move the hologram to another position.   </p>
+        <p>TIP!  You can resize the hologram by pinching or expanding the screen with your thumb and index finger.  </p>
+      </div>
+    )
+  }
+
+  const Four = (props) => {
+    const update = (e) => {
+      props.update(e.target.name, e.target.value)
+    }
+
+    return (
+      <div>
+        <h3 className="text-center">STEP 4</h3>
+        <p>Double tap red record button to START your video recording.</p>
+        <p>Double tap red record button to STOP.</p>
+      </div>
+    )
+  }
+  const Nav = (props) => {
+    const dots = []
+    for (let i = 1; i <= props.totalSteps; i += 1) {
+      const isActive = props.currentStep === i
+      dots.push(
+        <span
+          key={`step-${i}`}
+          className={`${classes.dot} ${isActive ? classes.active : ''}`}
+          onClick={() => props.goToStep(i)}
+        >
+          &bull;
+        </span>
+      )
+    }
+
+    return <div className={classes.nav}>{dots}</div>
+  }
+
   const handleOpenNewFeedPage = () => {
     setOpen(false)
     updateArMediaState(true)
@@ -91,33 +179,14 @@ export const ViewMode = ({ updateArMediaState }: Props) => {
           <Button onClick={handleClose} color="primary" className={classes.btn_cancel}>
             {t('social:view.cancel')}
           </Button>
-          <Box className={classes.box} borderTop={1} style={{ color: '#e6e5eb', height: '2px' }} />
-          <h3 className={classes.title}>{'Remember!'} </h3>
-          <Typography style={{ textAlign: 'center', paddingTop: '8pt', color: 'rgba(60 60 67, 0.6)' }}>
-            {t('social:view.choice')}
-          </Typography>
-          <div className={classes.horizontalMode}>
-            <div>
-              <CardMedia
-                className={classes.media}
-                image="https://cdn.zeplin.io/601d63dc422d9dad3473e3ab/assets/C9623B05-AC7F-4D88-B8EC-2D1951CE2767.svg"
-                title="Arc"
-              />
-              <Typography style={{ textAlign: 'center', color: 'rgba(60 60 67, 0.6)' }}>
-                {t('social:view.verticalMode')}
-              </Typography>
-            </div>
-            <Box className={classes.box} borderTop={1} style={{ color: '#e6e5eb', height: '2px' }} />
-            <div>
-              <CardMedia
-                className={classes.media2}
-                image="https://cdn.zeplin.io/601d63dc422d9dad3473e3ab/assets/802EB928-4227-4940-BA8E-0A8119FE4CDF.svg"
-                title="Arc"
-              />
-              <Typography style={{ textAlign: 'center', color: 'rgba(60 60 67, 0.6)' }}>
-                {t('social:view.horizontalMode')}
-              </Typography>
-            </div>
+          <div>
+            <StepWizard nav={<Nav />}>
+              <Greatings />
+              <First />
+              <Two />
+              <Tree />
+              <Four />
+            </StepWizard>
           </div>
           <Button
             onClick={() => {
