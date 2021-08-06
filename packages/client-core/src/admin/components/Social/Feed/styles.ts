@@ -152,6 +152,53 @@ export const useStyles = makeStyles((theme: Theme) =>
       fontSize: '1.2rem',
       paddingTop: '20px',
       paddingLeft: '20px'
+    },
+    center: {
+      margin: '4rem auto 0 auto',
+      textAlign: 'center'
+    },
+    mt5: {
+      marginTop: '6%'
+    },
+    space: {
+      padding: '1.2rem'
+    },
+    cardHolder: {
+      display: 'flex',
+      flexDirection: 'column',
+      backgroundColor: '#343b41'
+    },
+    Card: {
+      marginTop: '10px'
+    },
+    image: {
+      height: '18rem',
+      width: '100%'
+    },
+    containerMargin: {
+      marginTop: '.7rem'
+    },
+    wrapper: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center'
+    },
+    view: {
+      display: 'flex',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      fontSize: '1.2rem',
+      marginRight: '40px'
+    },
+    Bottom: {
+      marginBottom: '20px'
+    },
+    alert: {
+      background: '#343b41',
+      color: '#f1f1f1'
+    },
+    spanNone: {
+      color: '#808080'
     }
   })
 )

@@ -14,22 +14,26 @@ import Chip from '@material-ui/core/Chip'
 import Paper from '@material-ui/core/Paper'
 import MoreVertIcon from '@material-ui/icons/MoreVert'
 import IconButton from '@material-ui/core/IconButton'
-import Button from '@material-ui/core/Button'
 import ClickAwayListener from '@material-ui/core/ClickAwayListener'
 import Grow from '@material-ui/core/Grow'
 import Popper from '@material-ui/core/Popper'
 import MenuItem from '@material-ui/core/MenuItem'
 import MenuList from '@material-ui/core/MenuList'
-import { useStyle, useStyles } from './styles'
+import { useStyles } from './styles'
 
-const CardData = ({ feed }) => {
+interface Props {
+  feed: any
+  openViewModal: any
+  deleteFeed: any
+}
+
+const CardData = (props: Props) => {
+  const { feed, openViewModal, deleteFeed } = props
   const classes = useStyles()
   const anchorRef = React.useRef(null)
   const [open, setOpen] = React.useState(false)
 
   const handleToggle = (e) => {
-    console.log(e.target)
-
     setOpen((prevOpen) => !prevOpen)
   }
 
@@ -37,8 +41,17 @@ const CardData = ({ feed }) => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
       return
     }
-
     setOpen(false)
+  }
+
+  const handleCloseAndView = (event, feed) => {
+    handleClose(event)
+    openViewModal(true, feed)
+  }
+
+  const handleCloseAndDelete = (event, feedId) => {
+    handleClose(event)
+    deleteFeed(feedId)
   }
 
   function handleListKeyDown(event) {
@@ -47,19 +60,21 @@ const CardData = ({ feed }) => {
       setOpen(false)
     }
   }
-
   return (
     <Grid item xs={12} sm={6} md={3}>
       <Card className={classes.rootCard}>
-        <CardActionArea>
-          <div className={classes.featuredBadge}>
-            <Chip
-              avatar={<TagsIcon className={classes.span} />}
-              label="Featured"
-              className={classes.feature}
-              // onClick={handleClick}
-            />
-          </div>
+        <CardActionArea onClick={(e) => handleCloseAndView(e, feed)}>
+          {feed.featured === 1 && (
+            <div className={classes.featuredBadge}>
+              <Chip
+                avatar={<TagsIcon className={classes.span} />}
+                label="Featured"
+                className={classes.feature}
+                // onClick={handleClick}
+              />
+            </div>
+          )}
+
           <CardMedia className={classes.feed} image={`${feed.previewUrl}`} title="Contemplative Reptile" />
           <CardContent>
             <Typography gutterBottom variant="h5" component="h2" className={classes.title}>
@@ -71,17 +86,21 @@ const CardData = ({ feed }) => {
             </Typography>
 
             <div className={classes.chip}>
-              <Chip
-                avatar={<BookmarkIcon className={classes.span} />}
-                label="Book Mark"
-                // onClick={handleClick}
-              />
-              <Chip
-                avatar={<WhatshotIcon className={classes.spanDange} />}
-                label="Fire"
-                className={classes.chipRoot}
-                // onClick={handleClick}
-              />
+              {feed.bookmarks === 1 && (
+                <Chip
+                  avatar={<BookmarkIcon className={classes.span} />}
+                  label="Book Mark"
+                  // onClick={handleClick}
+                />
+              )}
+              {feed.fires === 1 && (
+                <Chip
+                  avatar={<WhatshotIcon className={classes.spanDange} />}
+                  label="Fire"
+                  className={classes.chipRoot}
+                  // onClick={handleClick}
+                />
+              )}
             </div>
           </CardContent>
         </CardActionArea>
@@ -113,8 +132,8 @@ const CardData = ({ feed }) => {
                       <Paper>
                         <ClickAwayListener onClickAway={handleClose}>
                           <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
-                            <MenuItem onClick={handleClose}>View</MenuItem>
-                            <MenuItem onClick={handleClose} className={classes.spanDange}>
+                            <MenuItem onClick={(e) => handleCloseAndView(e, feed)}>View</MenuItem>
+                            <MenuItem onClick={(e) => handleCloseAndDelete(e, feed.id)} className={classes.spanDange}>
                               Delete
                             </MenuItem>
                           </MenuList>

@@ -10,13 +10,9 @@ import DialogTitle from '@material-ui/core/DialogTitle'
 import { useStyles, useStyle } from './styles'
 import Paper from '@material-ui/core/Paper'
 import InputBase from '@material-ui/core/InputBase'
-import MenuItem from '@material-ui/core/MenuItem'
-import FormControl from '@material-ui/core/FormControl'
-import Select from '@material-ui/core/Select'
 import PhotoCamera from '@material-ui/icons/PhotoCamera'
 import { formValid } from './validation'
 import { createFeed } from '../../../reducers/admin/Social/feeds/service'
-import { any } from 'prop-types'
 
 interface Props {
   open: boolean
@@ -82,26 +78,27 @@ const CreateFeeds = (props: Props) => {
       temp.video = 'Video is required'
     }
     if (!state.preview) {
-      temp.preview = 'Manifest is required'
+      temp.preview = 'Image is required'
     }
     setState({ ...state, formErrors: temp })
     if (formValid(state, state.formErrors)) {
       createFeed({ title: state.title, description: state.description, video: state.video, preview: state.preview })
-      // createArMedia({ type, title }, { manifest, audio, dracosis, preview })
-      // closeViewModel(false)
-      // setState({
-      //   ...state,
-      //   title: '',
-      //   type: '',
-      //   audio: '',
-      //   manifest: '',
-      //   dracosis: '',
-      //   preview: ''
-      // })
+      setState({
+        ...state,
+        title: '',
+        description: '',
+        video: '',
+        preview: '',
+        formErrors: {
+          ...state.formErrors,
+          title: '',
+          description: '',
+          video: '',
+          preview: ''
+        }
+      })
     }
   }
-
-  console.log(state)
 
   return (
     <React.Fragment>
