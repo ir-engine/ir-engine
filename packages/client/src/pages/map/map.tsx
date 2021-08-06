@@ -20,7 +20,6 @@ import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/servic
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { teleportPlayer } from '@xrengine/engine/src/character/functions/teleportPlayer'
-import { NetworkPlayerCharacter } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
 import { awaitEngaged, Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
@@ -31,13 +30,14 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
-import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal'
+import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import querystring from 'querystring'
 import React, { Suspense, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
+import { teleportToScene } from '../../../../engine/src/scene/functions/teleportToScene'
 import WarningRefreshModal from '../../components/AlertModals/WarningRetryModal'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import {
@@ -47,23 +47,6 @@ import {
 } from '../../reducers/instanceConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import MediaIconsBox from './MapMediaIconsBox'
-import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import { teleportToScene } from '../../../../engine/src/scene/functions/teleportToScene'
-import { getComponent, hasComponent } from '../../../../engine/src/ecs/functions/EntityFunctions'
-import { LocalInputReceiver } from '../../../../engine/src/input/components/LocalInputReceiver'
-import { Object3DComponent } from '../../../../engine/src/scene/components/Object3DComponent'
-
-NetworkPlayerCharacter.onAfterCreate.push({
-  behavior: (entity): void => {
-    console.log('created', entity, hasComponent(entity, LocalInputReceiver))
-    if (hasComponent(entity, LocalInputReceiver) == true) {
-      // TODO: Move this stuff to scene load
-      Engine.audioListener.removeFromParent()
-      getComponent(entity, Object3DComponent).value.add(Engine.audioListener)
-    }
-  },
-  networked: false
-})
 
 const store = Store.store
 
