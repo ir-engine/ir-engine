@@ -15,6 +15,7 @@ export const processInput = (entity, delta) => {
   // key is the input type enu, value is the input value
   Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
     if (input.schema.inputMap.has(key)) {
+      value.inputAction = key
       input.data.set(input.schema.inputMap.get(key), value)
     }
   })

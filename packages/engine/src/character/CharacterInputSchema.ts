@@ -201,7 +201,8 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
   const inputPrevValue = (inputComponent.prevData.get(inputKey)?.value as number) ?? 0
   const value = inputValue.value as number
 
-  const scrollDelta = Math.min(1, Math.max(-1, value - inputPrevValue)) * (window?.innerWidth <= 768 ? 0.25 : 1)
+  const scrollDelta =
+    Math.min(1, Math.max(-1, value - inputPrevValue)) * (inputValue.inputAction === TouchInputs.Scale ? 0.25 : 1)
   if (cameraFollow.mode !== CameraModes.ThirdPerson && scrollDelta === lastScrollDelta) {
     return
   }
@@ -426,7 +427,7 @@ const lookByInputAxis: InputBehaviorType = (
 ): void => {
   const input = getMutableComponent(entity, Input)
   const data = input.data.get(BaseInput.GAMEPAD_STICK_RIGHT)
-  const multiplier = 0.1 * (window?.innerWidth <= 768 ? 60 : 100)
+  const multiplier = 0.1
   // adding very small noise to trigger same value to be "changed"
   // till axis values is not zero, look input should be treated as changed
   const noise = (Math.random() > 0.5 ? 1 : -1) * 0.00001
