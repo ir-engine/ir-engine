@@ -71,7 +71,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     const rasterTiles = this.showRasterTiles ? await fetchRasterTiles(center) : []
     this.mapLayers.ground = createGround(rasterTiles, center[1])
     this.applyScale(this.mapLayers.ground)
-    this.editor.scene.add(this.mapLayers.ground)
+    this.add(this.mapLayers.ground)
   }
   copy(source, recursive = true) {
     super.copy(source, recursive)
