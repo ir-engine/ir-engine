@@ -39,12 +39,14 @@ const onGolfGameLoading = (entity: Entity) => {
 }
 
 const beforeGolfPlayerLeave = (entity: Entity) => {
+  console.log('beforeGolfPlayerLeave')
   if (getComponent(entity, State.YourTurn, true) || getComponent(entity, State.Waiting, true)) {
     nextTurn(entity)
   }
 }
 
 const onGolfPlayerLeave = (entity: Entity, playerComponent, game) => {
+  console.log('onGolfPlayerLeave')
   //  const entityArray = getEntityOwnedObjects(entity)
   //  entityArray.forEach(entityObjects => removeSpawnedObject(entityObjects));
   removeSpawnedObjects(entity, playerComponent, game)

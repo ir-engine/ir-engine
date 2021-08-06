@@ -37,6 +37,8 @@ import { hideBall, unhideBall } from './behaviors/hideUnhideBall'
 import { GolfState } from './GolfGameComponents'
 import { Quaternion } from 'three'
 import { teleportPlayer } from '../../../character/functions/teleportPlayer'
+import { GolfBallTagComponent, GolfClubTagComponent } from './prefab/GolfGamePrefabs'
+import { SpawnNetworkObjectComponent } from '../../../scene/components/SpawnNetworkObjectComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -50,6 +52,30 @@ export class GolfSystem extends System {
    */
   execute(delta: number, time: number): void {
     // DO ALL STATE LOGIC HERE (all queries)
+
+    for (const entity of this.queryResults.spawnGolfBall.all) {
+      const { ownerId } = getComponent(entity, NetworkObject)
+      const ownerEntity = this.queryResults.player.all.find((player) => {
+        return getComponent(player, NetworkObject).uniqueId === ownerId
+      })
+      if (ownerEntity) {
+        const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
+        removeComponent(entity, GolfBallTagComponent)
+        initializeGolfBall(entity, parameters)
+      }
+    }
+
+    for (const entity of this.queryResults.spawnGolfClub.all) {
+      const { ownerId } = getComponent(entity, NetworkObject)
+      const ownerEntity = this.queryResults.player.all.find((player) => {
+        return getComponent(player, NetworkObject).uniqueId === ownerId
+      })
+      if (ownerEntity) {
+        const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
+        removeComponent(entity, GolfClubTagComponent)
+        initializeGolfClub(entity, parameters)
+      }
+    }
 
     for (const entity of this.queryResults.player.all) {
       if (!hasComponent(entity, State.Active)) continue
@@ -65,7 +91,6 @@ export class GolfSystem extends System {
         if (club) {
           console.log('club')
           playerComponent.ownedObjects['GolfClub'] = club
-          initializeGolfClub(club)
           addStateComponent(club, State.SpawnedObject)
         }
       }
@@ -77,11 +102,10 @@ export class GolfSystem extends System {
         if (ball) {
           console.log('ball')
           playerComponent.ownedObjects['GolfBall'] = ball
-          initializeGolfBall(ball)
           addStateComponent(ball, State.SpawnedObject)
-        }
-        if (getComponent(entity, GamePlayer).role === '1-Player') {
-          addTurn(entity)
+          if (getComponent(entity, GamePlayer).role === '1-Player') {
+            addTurn(entity)
+          }
         }
       }
     }
@@ -414,6 +438,20 @@ export class GolfSystem extends System {
   }
 
   static queries = {
+    spawnGolfBall: {
+      components: [SpawnNetworkObjectComponent, GolfBallTagComponent],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    spawnGolfClub: {
+      components: [SpawnNetworkObjectComponent, GolfClubTagComponent],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
     player: {
       components: [GamePlayer],
       listen: {
