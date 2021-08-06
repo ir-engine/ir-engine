@@ -13,7 +13,8 @@ import {
   Object3D,
   Vector3,
   MaterialParameters,
-  Material
+  Material,
+  PlaneGeometry
 } from 'three'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { VectorTile } from '@mapbox/vector-tile'
@@ -24,6 +25,12 @@ import { toIndexed } from './toIndexed'
 import { ILayerName, TileFeaturesByLayer } from './types'
 import { unifyFeatures } from './GeoJSONFns'
 import { Text } from 'troika-three-text'
+import {
+  NUMBER_OF_TILES_PER_DIMENSION,
+  RASTER_TILE_SIZE_HDPI,
+  calcMetersPerPixelLatitudinal,
+  calcMetersPerPixelLongitudinal
+} from './MapBoxClient'
 
 // TODO free resources used by canvases, bitmaps etc
 
@@ -165,6 +172,21 @@ function generateTextureCanvas() {
   return contextLarge.canvas
 }
 
+function generateRasterTileCanvas(rasterTiles: ImageBitmap[]) {
+  const size = RASTER_TILE_SIZE_HDPI * NUMBER_OF_TILES_PER_DIMENSION
+  const context = createCanvasRenderingContext2D(size, size)
+
+  for (let tileY = 0; tileY < NUMBER_OF_TILES_PER_DIMENSION; tileY++) {
+    for (let tileX = 0; tileX < NUMBER_OF_TILES_PER_DIMENSION; tileX++) {
+      const tileIndex = tileY * NUMBER_OF_TILES_PER_DIMENSION + tileX
+      context.drawImage(rasterTiles[tileIndex], tileX * RASTER_TILE_SIZE_HDPI, tileY * RASTER_TILE_SIZE_HDPI)
+    }
+  }
+
+  return context.canvas
+}
+
+// TODO integrate with ./styles.ts
 const baseColorByFeatureType = {
   university: 0xf5e0a0,
   school: 0xffd4be,
@@ -287,19 +309,48 @@ function buildDebuggingLabels(features: Feature[], llCenter: Position): Object3D
   })
 }
 
-export function buildMesh(tiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
+function buildGroundMesh(rasterTiles: ImageBitmap[], latitude: number): Object3D {
+  const sizeInPx = NUMBER_OF_TILES_PER_DIMENSION * RASTER_TILE_SIZE_HDPI
+  const width = sizeInPx * calcMetersPerPixelLongitudinal(latitude)
+  const height = sizeInPx * calcMetersPerPixelLatitudinal(latitude)
+  const geometry = new PlaneGeometry(width, height)
+  const material = new MeshLambertMaterial({
+    map: new CanvasTexture(generateRasterTileCanvas(rasterTiles))
+  })
+  const mesh = new Mesh(geometry, material)
+
+  // prevent z-fighting with vector roads
+  material.depthTest = false
+  mesh.renderOrder = -1
+
+  // rotate to face up
+  mesh.rotateX(-Math.PI / 2)
+
+  // TODO why do the vector tiles and the raster tiles not line up?
+  mesh.position.x -= 80
+  mesh.position.z -= 50
+
+  return mesh
+}
+
+export function buildMesh(
+  vectorTiles: TileFeaturesByLayer[],
+  rasterTiles: ImageBitmap[],
+  llCenter: Position,
+  renderer: WebGLRenderer
+): Group {
   const group = new Group()
-  const buildingFeatures = unifyFeatures(tiles.reduce((acc, tile) => acc.concat(tile.building), []))
-  const roadFeatures = tiles.reduce((acc, tile) => acc.concat(tile.road), [])
+  const buildingFeatures = unifyFeatures(vectorTiles.reduce((acc, tile) => acc.concat(tile.building), []))
+  const roadFeatures = vectorTiles.reduce((acc, tile) => acc.concat(tile.road), [])
   const objects3d = [
     ...buildObjects3D('building', buildingFeatures, llCenter, renderer),
     ...buildObjects3D('road', roadFeatures, llCenter, renderer),
+    buildGroundMesh(rasterTiles, llCenter[1]),
     ...(ENABLE_DEBUG ? buildDebuggingLabels(buildingFeatures, llCenter) : [])
   ]
 
   objects3d.forEach((o) => {
     group.add(o)
   })
-
   return group
 }
