@@ -4,6 +4,19 @@
 //.dialogWindow{
 //    max-width: 311pt;
 //}
+.bottomBox{
+    width: 100%;
+    background-color: #e6e5eb;
+    text-align: center;
+    padding: 10px;
+
+    button{
+        margin: 10px 0 0 0;
+        background-color: #000;
+        color: #fff;
+    }
+}
+
 .popup{
     //position: fixed;
     //top: 0;

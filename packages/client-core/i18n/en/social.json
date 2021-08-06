@@ -19,6 +19,7 @@
     "ara": "Ara",
     "follow": "Follow",
     "flames": "Flames",
+    "continue": "Continue",
     "arMedia": {
         "back": "Back",
         "clip": "Clip",
@@ -166,5 +167,9 @@
     },
     "video": {
         "back": "Back"
+    },
+    "terms":{
+        "confirmTerms": "I agree to <b>Terms of Service</b>",
+        "confirmPolicy": "I agree to <b>Privacy Policy</b>"
     }
 }
