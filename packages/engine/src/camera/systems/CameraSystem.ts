@@ -1,6 +1,5 @@
 import { Matrix4, Vector3 } from 'three'
-import { isMobile } from '../../common/functions/isMobile'
-import { NumericalType, Vector2Type } from '../../common/types/NumericalTypes'
+import { Vector2Type } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
 import { System } from '../../ecs/classes/System'
 import {
@@ -18,9 +17,7 @@ import { CameraComponent } from '../components/CameraComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { CameraModes } from '../types/CameraModes'
 import { Entity } from '../../ecs/classes/Entity'
-import { PhysicsSystem } from '../../physics/systems/PhysicsSystem'
 import { PhysXInstance, RaycastQuery, SceneQueryType } from 'three-physx'
-import { Not } from '../../ecs/functions/ComponentFunctions'
 import { Input } from '../../input/components/Input'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
@@ -89,10 +86,10 @@ const followCameraBehavior = (entity: Entity) => {
   }
 
   if (followCamera.mode !== CameraModes.Isometric) {
-    followCamera.theta -= inputValue[0] * (isMobile ? 60 : 100)
+    followCamera.theta -= inputValue[0]
     followCamera.theta %= 360
 
-    followCamera.phi -= inputValue[1] * (isMobile ? 60 : 100)
+    followCamera.phi -= inputValue[1]
     followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi))
   }
 
@@ -224,8 +221,8 @@ export class CameraSystem extends System {
       }
       addComponent(Engine.activeCameraEntity, DesiredTransformComponent, {
         lockRotationAxis: [false, true, false],
-        rotationRate: isMobile ? 5 : 3.5,
-        positionRate: isMobile ? 3.5 : 2
+        rotationRate: window?.innerWidth <= 768 ? 3.5 : 5,
+        positionRate: window?.innerWidth <= 768 ? 2 : 3.5
       })
       resetFollowCamera()
     }

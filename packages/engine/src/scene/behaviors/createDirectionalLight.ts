@@ -1,6 +1,5 @@
 import { DirectionalLight, Vector2 } from 'three'
 import { isClient } from '../../common/functions/isClient'
-import { isMobile } from '../../common/functions/isMobile'
 import { Entity } from '../../ecs/classes/Entity'
 import { ScenePropertyType } from '../functions/SceneLoading'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
@@ -16,7 +15,7 @@ export const createDirectionalLight = (
 
   const mapSize = new Vector2().fromArray(component.data.shadowMapResolution)
 
-  if (isMobile) {
+  if (window?.innerWidth <= 768) {
     mapSize.set(512, 512)
   }
 
