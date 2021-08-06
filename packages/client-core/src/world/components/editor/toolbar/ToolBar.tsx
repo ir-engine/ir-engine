@@ -698,13 +698,6 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
           />
         </ToolToggles>
         <Spacer />
-        {!queryParams ? (
-          button
-        ) : (
-          <Button color="primary" disabled={true} className="mr-4 mt-2 mb-2 pl-5 pr-5">
-            Published
-          </Button>
-        )}
         {this.state.showStats && <StatsFuc />}
         <ContextMenu id="menu">
           {(this.props as any).menu.map((menu) => {
