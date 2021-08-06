@@ -1,5 +1,5 @@
 import { Matrix4, Vector3 } from 'three'
-import { Vector2Type } from '../../common/types/NumericalTypes'
+import { NumericalType, Vector2Type } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
 import { System } from '../../ecs/classes/System'
 import {
@@ -23,6 +23,8 @@ import { BaseInput } from '../../input/enums/BaseInput'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { TouchInputs } from '../../input/enums/InputEnums'
+import { InputValue } from '../../input/interfaces/InputValue'
 
 const direction = new Vector3()
 const upVector = new Vector3(0, 1, 0)
@@ -57,12 +59,18 @@ export const rotateViewVectorXZ = (viewVector: Vector3, angle: number, isDegree?
   return viewVector
 }
 
+const getPositionRate = () => (window?.innerWidth <= 768 ? 3.5 : 2)
+const getRotationRate = () => (window?.innerWidth <= 768 ? 5 : 3.5)
+
 const followCameraBehavior = (entity: Entity) => {
   if (!entity) return
 
   const cameraDesiredTransform = getMutableComponent(Engine.activeCameraEntity, DesiredTransformComponent) // Camera
 
   if (!cameraDesiredTransform && !Engine.portCamera) return
+
+  cameraDesiredTransform.rotationRate = getRotationRate()
+  cameraDesiredTransform.positionRate = getPositionRate()
 
   const actor = getMutableComponent(entity, CharacterComponent)
   const actorTransform = getMutableComponent(entity, TransformComponent)
@@ -75,7 +83,12 @@ const followCameraBehavior = (entity: Entity) => {
   // const inputAxes = followCamera.mode === CameraModes.FirstPerson ? BaseInput.MOUSE_MOVEMENT : BaseInput.LOOKTURN_PLAYERONE
   const inputAxes = BaseInput.LOOKTURN_PLAYERONE
 
-  const inputValue = inputComponent.data.get(inputAxes)?.value ?? ([0, 0] as Vector2Type)
+  let inputValue =
+    inputComponent.data.get(inputAxes) ||
+    ({
+      type: 0,
+      value: [0, 0] as Vector2Type
+    } as InputValue<NumericalType>)
 
   let theta = Math.atan2(actor.viewVector.x, actor.viewVector.z)
   let camDist = followCamera.distance
@@ -86,10 +99,10 @@ const followCameraBehavior = (entity: Entity) => {
   }
 
   if (followCamera.mode !== CameraModes.Strategic) {
-    followCamera.theta -= inputValue[0]
+    followCamera.theta -= inputValue.value[0] * (inputValue.inputAction === TouchInputs.Touch1Movement ? 60 : 100)
     followCamera.theta %= 360
 
-    followCamera.phi -= inputValue[1]
+    followCamera.phi -= inputValue.value[1] * (inputValue.inputAction === TouchInputs.Touch1Movement ? 100 : 60)
     followCamera.phi = Math.min(85, Math.max(-70, followCamera.phi))
   }
 
@@ -221,8 +234,8 @@ export class CameraSystem extends System {
       }
       addComponent(Engine.activeCameraEntity, DesiredTransformComponent, {
         lockRotationAxis: [false, true, false],
-        rotationRate: window?.innerWidth <= 768 ? 3.5 : 5,
-        positionRate: window?.innerWidth <= 768 ? 2 : 3.5
+        rotationRate: getRotationRate(),
+        positionRate: getPositionRate()
       })
       resetFollowCamera()
     }

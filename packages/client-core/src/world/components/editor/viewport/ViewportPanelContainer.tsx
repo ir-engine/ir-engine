@@ -359,12 +359,12 @@ export function ViewportPanelContainer() {
     //   icon={WindowMaximize}
     //   // toolbarContent={<ViewportToolbar onToggleStats={setShowStats} showStats={showStats} />}
     // >
-      <ViewportContainer error={isOver && !canDrop} canDrop={isOver && canDrop} ref={dropRef}>
-        <Viewport ref={canvasRef} tabIndex="-1" />
-        <ControlsText>{controlsText}</ControlsText>
-        {/* {showStats && <Stats editor={editor} />} */}
-        <AssetDropZone afterUpload={onAfterUploadAssets} />
-      </ViewportContainer>
+    <ViewportContainer error={isOver && !canDrop} canDrop={isOver && canDrop} ref={dropRef}>
+      <Viewport ref={canvasRef} tabIndex="-1" />
+      <ControlsText>{controlsText}</ControlsText>
+      {/* {showStats && <Stats editor={editor} />} */}
+      <AssetDropZone afterUpload={onAfterUploadAssets} />
+    </ViewportContainer>
     // </Panel>
   )
 }

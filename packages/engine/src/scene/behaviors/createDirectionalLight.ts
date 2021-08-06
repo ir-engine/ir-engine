@@ -15,10 +15,6 @@ export const createDirectionalLight = (
 
   const mapSize = new Vector2().fromArray(component.data.shadowMapResolution)
 
-  if (window?.innerWidth <= 768) {
-    mapSize.set(512, 512)
-  }
-
   const args = {
     'shadow.mapSize': mapSize,
     'shadow.bias': component.data.shadowBias,
