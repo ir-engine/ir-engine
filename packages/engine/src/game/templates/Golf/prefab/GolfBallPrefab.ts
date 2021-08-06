@@ -19,10 +19,8 @@ import { NetworkPrefab } from '../../../../networking/interfaces/NetworkPrefab'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
 import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent'
 import { LocalInterpolationComponent } from '../../../../physics/components/LocalInterpolationComponent'
-import { RigidBodyComponent } from '../../../../physics/components/RigidBody'
 import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups'
-import { PhysicsSystem } from '../../../../physics/systems/PhysicsSystem'
 import TrailRenderer from '../../../../scene/classes/TrailRenderer'
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
@@ -249,7 +247,7 @@ export const createGolfBallPrefab = (args: {
   uniqueId: string
   ownerId?: string
 }) => {
-  // console.log('createGolfBallPrefab', args)
+  console.log('createGolfBallPrefab', args)
   initializeNetworkObject({
     prefabType: GolfPrefabTypes.Ball,
     uniqueId: args.uniqueId,
@@ -297,7 +295,6 @@ export const GolfBallPrefab: NetworkPrefab = {
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
     { type: VelocityComponent },
-    { type: RigidBodyComponent },
     { type: GameObject },
     { type: NetworkObjectOwner },
     { type: GolfBallComponent }

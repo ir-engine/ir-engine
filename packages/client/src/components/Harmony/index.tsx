@@ -83,7 +83,6 @@ import {
 import { Group as GroupType } from '@xrengine/common/src/interfaces/Group'
 import { Message } from '@xrengine/common/src/interfaces/Message'
 import { User } from '@xrengine/common/src/interfaces/User'
-import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { initializeEngine, shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
@@ -339,12 +338,7 @@ const Harmony = (props: Props): any => {
       setEngineInitialized(true)
       createEngineListeners()
     }
-    window.addEventListener('resize', () => {
-      setDimensions({
-        height: window.innerHeight,
-        width: window.innerWidth
-      })
-    })
+    window.addEventListener('resize', handleWindowResize)
 
     EngineEvents.instance.addEventListener(
       SocketWebRTCClientTransport.EVENTS.PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE,
@@ -381,12 +375,7 @@ const Harmony = (props: Props): any => {
         })
       }
 
-      window.removeEventListener('resize', () => {
-        setDimensions({
-          height: window.innerHeight,
-          width: window.innerWidth
-        })
-      })
+      window.removeEventListener('resize', handleWindowResize)
     }
   }, [])
 
@@ -505,7 +494,6 @@ const Harmony = (props: Props): any => {
         noCountdown: true
       }
       setWarningRefreshModalValues(newValues)
-      setInstanceDisconnected(false)
     }
   }, [])
 
@@ -525,6 +513,13 @@ const Harmony = (props: Props): any => {
       setChannelDisconnected(false)
     }
   }, [channelDisconnected])
+
+  const handleWindowResize = () => {
+    setDimensions({
+      height: window.innerHeight,
+      width: window.innerWidth
+    })
+  }
 
   const handleComposingMessageChange = (event: any): void => {
     const message = event.target.value
@@ -948,7 +943,7 @@ const Harmony = (props: Props): any => {
           onClick={(e) => {
             if (party != null) {
               setActiveChat('party', party)
-              if (isMobile === true || dimensions.width <= 768) setSelectorsOpen(false)
+              if (dimensions.width <= 768) setSelectorsOpen(false)
             } else openDetails(e, 'party', party)
           }}
         >
@@ -975,7 +970,7 @@ const Harmony = (props: Props): any => {
               setActiveChat('instance', {
                 id: selfUser.instanceId
               })
-              if (isMobile === true || dimensions.width <= 768) setSelectorsOpen(false)
+              if (dimensions.width <= 768) setSelectorsOpen(false)
             }}
           >
             <Grain className={styles['icon-margin-right']} />
@@ -1019,7 +1014,7 @@ const Harmony = (props: Props): any => {
                           })}
                           onClick={() => {
                             setActiveChat('user', friend)
-                            if (isMobile === true || dimensions.width <= 768) setSelectorsOpen(false)
+                            if (dimensions.width <= 768) setSelectorsOpen(false)
                           }}
                         >
                           <ListItemAvatar>
@@ -1074,7 +1069,7 @@ const Harmony = (props: Props): any => {
                           })}
                           onClick={() => {
                             setActiveChat('group', group)
-                            if (isMobile === true || dimensions.width <= 768) setSelectorsOpen(false)
+                            if (dimensions.width <= 768) setSelectorsOpen(false)
                           }}
                         >
                           <ListItemText primary={group.name} />
@@ -1186,7 +1181,7 @@ const Harmony = (props: Props): any => {
                 }
             `}
       </style>
-      {(isMobile === true || dimensions.width <= 768) && (
+      {dimensions.width <= 768 && (
         <SwipeableDrawer
           className={classNames({
             [styles['flex-column']]: true,
@@ -1208,10 +1203,10 @@ const Harmony = (props: Props): any => {
           {chatSelectors}
         </SwipeableDrawer>
       )}
-      {isMobile !== true && dimensions.width > 768 && chatSelectors}
+      {dimensions.width > 768 && chatSelectors}
       <div className={styles['chat-window']}>
         <div className={styles['harmony-header']}>
-          {(isMobile === true || dimensions.width <= 768) && (
+          {dimensions.width <= 768 && (
             <div
               className={classNames({
                 [styles['chat-toggle']]: true,

@@ -30,7 +30,7 @@ import { execute, reset } from './ecs/functions/EngineFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem'
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem'
-import { ServerSpawnSystem } from './scene/systems/ServerSpawnSystem'
+import { ServerAvatarSpawnSystem, SpawnPoints } from './character/ServerAvatarSpawnSystem'
 import { SceneObjectSystem } from './scene/systems/SceneObjectSystem'
 import { ActiveSystems } from './ecs/classes/System'
 import { AudioSystem } from './audio/systems/AudioSystem'
@@ -41,6 +41,8 @@ import { FontManager } from './xrui/classes/FontManager'
 import { EquippableSystem } from './interaction/systems/EquippableSystem'
 import { AutopilotSystem } from './navigation/systems/AutopilotSystem'
 import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
+import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
+import { ClientAvatarSpawnSystem } from './character/ClientAvatarSpawnSystem'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -131,6 +133,10 @@ const configureServer = async (options: Required<InitializeOptions>) => {
     Engine.hasJoinedWorld = true
   })
 
+  await loadDRACODecoder()
+
+  new SpawnPoints()
+
   registerServerSystems(options)
 }
 
@@ -169,6 +175,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
   registerSystem(SystemUpdateType.Fixed, AudioSystem)
   registerSystem(SystemUpdateType.Fixed, PositionalAudioSystem)
   registerSystem(SystemUpdateType.Fixed, SceneObjectSystem)
+  registerSystem(SystemUpdateType.Fixed, ClientAvatarSpawnSystem)
 
   // Free systems
   registerSystem(SystemUpdateType.Free, XRSystem)
@@ -201,7 +208,6 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
 
   // Scene Systems
-  registerSystem(SystemUpdateType.Fixed, InteractiveSystem)
   registerSystem(SystemUpdateType.Fixed, EquippableSystem)
   registerSystem(SystemUpdateType.Fixed, GameManagerSystem)
   registerSystem(SystemUpdateType.Fixed, TransformSystem)
@@ -211,7 +217,7 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
   })
 
   // Miscellaneous Systems
-  registerSystem(SystemUpdateType.Fixed, ServerSpawnSystem)
+  registerSystem(SystemUpdateType.Fixed, ServerAvatarSpawnSystem)
 
   // Network Outgoing Systems
   registerSystem(SystemUpdateType.Fixed, ServerNetworkOutgoingSystem) // last

@@ -34,7 +34,7 @@ const onGolfGameStart = (entity: Entity) => {}
 const onGolfGameLoading = (entity: Entity) => {
   // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
   Object.entries(GolfPrefabs).forEach(([prefabType, prefab]) => {
-    Network.instance.schema.prefabs[prefabType] = prefab
+    Network.instance.schema.prefabs.set(Number(prefabType), prefab)
   })
 }
 

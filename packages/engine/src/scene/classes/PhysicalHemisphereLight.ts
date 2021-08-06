@@ -1,4 +1,4 @@
-import { Object3D, HemisphereLight } from 'three'
+import { Object3D, HemisphereLight, Color } from 'three'
 export default class PhysicalHemisphereLight extends HemisphereLight {
   constructor() {
     super()
@@ -6,6 +6,9 @@ export default class PhysicalHemisphereLight extends HemisphereLight {
   }
   get skyColor() {
     return this.color
+  }
+  set skyColor(color: Color) {
+    this.color = color
   }
   copy(source, recursive = true) {
     // Override HemisphereLight's copy method and pass the recursive parameter so we can avoid cloning children.

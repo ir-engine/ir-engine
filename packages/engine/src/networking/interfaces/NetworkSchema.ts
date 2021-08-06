@@ -1,4 +1,4 @@
-import { NetworkPrefab } from './NetworkPrefab'
+import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
 
 /** Interface for Network schema. */
 export interface NetworkSchema {
@@ -11,7 +11,5 @@ export interface NetworkSchema {
   /** Default prefab for the client. */
   defaultClientPrefab: number
   /** Prefabs for the schema. */
-  prefabs: {
-    [key: string]: NetworkPrefab
-  }
+  prefabs: Map<number, ComponentConstructor<any>>
 }

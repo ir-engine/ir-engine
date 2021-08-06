@@ -352,20 +352,20 @@ export function ViewportPanelContainer() {
   }
 
   return (
-    <Panel
-      /* @ts-ignore */
-      id="viewport-panel"
-      title={t('editor:viewport.title')}
-      icon={WindowMaximize}
-      // toolbarContent={<ViewportToolbar onToggleStats={setShowStats} showStats={showStats} />}
-    >
+    // <Panel
+    //   /* @ts-ignore */
+    //   id="viewport-panel"
+    //   title={t('editor:viewport.title')}
+    //   icon={WindowMaximize}
+    //   // toolbarContent={<ViewportToolbar onToggleStats={setShowStats} showStats={showStats} />}
+    // >
       <ViewportContainer error={isOver && !canDrop} canDrop={isOver && canDrop} ref={dropRef}>
         <Viewport ref={canvasRef} tabIndex="-1" />
         <ControlsText>{controlsText}</ControlsText>
         {/* {showStats && <Stats editor={editor} />} */}
         <AssetDropZone afterUpload={onAfterUploadAssets} />
       </ViewportContainer>
-    </Panel>
+    // </Panel>
   )
 }
 export default ViewportPanelContainer

@@ -23,6 +23,8 @@ import { EventEmitter } from 'events'
 import services from '@xrengine/server-core/src/services'
 import sequelize from '@xrengine/server-core/src/sequelize'
 import { awaitEngineLoaded } from '@xrengine/engine/src/ecs/classes/Engine'
+import { register } from 'trace-unhandled'
+register()
 
 export const createApp = (): Application => {
   const emitter = new EventEmitter()

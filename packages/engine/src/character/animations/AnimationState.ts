@@ -30,6 +30,9 @@ export class AnimationState {
   /** Parameters to update the weights of the animation in the state */
   weightParams: WeightsParameterType
 
+  /** Plays the animations as soon as the state is mounted to keep animations in sync with each other */
+  syncActions: boolean
+
   /** Updates the weight of all the animations in the state based on the params provided
    * @param params Params which will be used to calculate wieghts
    */
@@ -134,6 +137,7 @@ export class JumpState extends AnimationState {
 export class WalkState extends AnimationState {
   name = CharacterStates.WALK
   type = AnimationType.VELOCITY_BASED
+  syncActions = true
   animations: Animation[] = [
     { name: CharacterAnimations.WALK_FORWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
     { name: CharacterAnimations.WALK_BACKWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
@@ -179,6 +183,7 @@ export class WalkState extends AnimationState {
 export class RunState extends AnimationState {
   name = CharacterStates.RUN
   type = AnimationType.VELOCITY_BASED
+  syncActions = true
   animations: Animation[] = [
     { name: CharacterAnimations.RUN_FORWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
     { name: CharacterAnimations.RUN_BACKWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },

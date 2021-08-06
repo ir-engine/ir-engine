@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 
 import { Network } from '../../../../networking/classes/Network'
-import { createUI } from '../../../../xrui/functions/createUI'
+import { createXRUI } from '../../../../xrui/functions/createXRUI'
 import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunctions'
 import { TransformChildComponent } from '../../../../transform/components/TransformChildComponent'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
@@ -24,7 +24,7 @@ export const YourTurnPanel = () => {
 
 export async function createYourTurnPanel(player: Entity) {
   if (player === Network.instance.localClientEntity) {
-    const ui = createUI(YourTurnPanel, {})
+    const ui = createXRUI(YourTurnPanel, {})
     addComponent(ui.entity, TransformComponent)
     addComponent(ui.entity, TransformChildComponent, { parent: player, offsetPosition: new Vector3(0, 0, 1) })
   }

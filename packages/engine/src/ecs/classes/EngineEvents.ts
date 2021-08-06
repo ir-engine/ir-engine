@@ -15,6 +15,7 @@ const EVENTS = {
   JOINED_WORLD: 'CORE_JOINED_WORLD', // { }
   LEAVE_WORLD: 'CORE_LEAVE_WORLD', // { }
   SCENE_LOADED: 'CORE_SCENE_LOADED', // { }
+  CLIENT_USER_LOADED: 'CORE_CLIENT_USER_LOADED', // { }
 
   // Start or stop client side physics & rendering
   ENABLE_SCENE: 'CORE_ENABLE_SCENE', // { renderer: boolean, physics: boolean }

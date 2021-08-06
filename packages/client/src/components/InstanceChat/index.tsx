@@ -18,7 +18,6 @@ import {
 } from '@xrengine/client-core/src/social/reducers/chat/service'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { User } from '@xrengine/common/src/interfaces/User'
-import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
@@ -129,6 +128,10 @@ const InstanceChat = (props: Props): any => {
     setOpenMessageContainer(!openMessageContainer)
     openMessageContainer && setUnreadMessages(false)
   }
+  const [dimensions, setDimensions] = useState({
+    height: window.innerHeight,
+    width: window.innerWidth
+  })
 
   const getMessageUser = (message): string => {
     let returned = message.sender?.name
@@ -150,6 +153,21 @@ const InstanceChat = (props: Props): any => {
       ;(messageRef.current as HTMLInputElement).selectionStart = cursorPosition + 1
     }
   }, [isMultiline])
+
+  useEffect(() => {
+    window.addEventListener('resize', handleWindowResize)
+
+    return () => {
+      window.removeEventListener('resize', handleWindowResize)
+    }
+  }, [])
+
+  const handleWindowResize = () => {
+    setDimensions({
+      height: window.innerHeight,
+      width: window.innerWidth
+    })
+  }
 
   return (
     <>
@@ -181,7 +199,7 @@ const InstanceChat = (props: Props): any => {
                         key={message.id}
                       >
                         <div>
-                          {!isMobile && (
+                          {dimensions.width > 768 && (
                             <ListItemAvatar>
                               <Avatar src={message.sender?.avatarUrl} />
                             </ListItemAvatar>

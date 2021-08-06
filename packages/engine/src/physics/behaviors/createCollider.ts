@@ -5,6 +5,7 @@ import { ConvexGeometry } from '../../assets/threejs-various/ConvexGeometry'
 import { ColliderTypes } from '../types/PhysicsTypes'
 import { arrayOfPointsToArrayOfVector3 } from '../../scene/functions/arrayOfPointsToArrayOfVector3'
 import { Engine } from '../../ecs/classes/Engine'
+import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -30,10 +31,20 @@ type ColliderData = {
   collisionMask?: number | string
 }
 
-export function createCollider(userData: ColliderData, pos, rot, scale): Body {
+export function createCollider(mesh: Mesh | any, pos, rot, scale): Body {
+  const userData = mesh.userData as ColliderData
+  // console.log(userData, pos, rot, scale)
+
   if (!userData.type) return
   if (userData.type === 'trimesh' || userData.type === 'convex') {
-    if (!userData.vertices || !userData.indices) return
+    // if no mesh data, ignore
+    if (!mesh.geometry && (!userData.vertices || !userData.indices)) return
+
+    // clone the geometry and apply the scale, as a PhysX body or mesh shape cannot be scaled generically
+    const geometry = mergeBufferGeometries([mesh.geometry])
+    geometry.scale(scale.x, scale.y, scale.z)
+    userData.vertices = Array.from(geometry.attributes.position.array)
+    userData.indices = Array.from(geometry.index.array)
   }
 
   // check for case mismatch
@@ -41,8 +52,6 @@ export function createCollider(userData: ColliderData, pos, rot, scale): Body {
     userData.collisionLayer = (userData as any).collisionlayer
   if (typeof userData.collisionMask === 'undefined' && typeof (userData as any).collisionmask !== 'undefined')
     userData.collisionMask = (userData as any).collisionmask
-
-  // console.log(userData, pos, rot, scale)
 
   const shapeArgs: ShapeType = { config: {} }
   switch (userData.type) {
@@ -132,7 +141,7 @@ export function createCollider(userData: ColliderData, pos, rot, scale): Body {
     transform: {
       translation: { x: pos.x, y: pos.y, z: pos.z },
       rotation: { x: rot.x, y: rot.y, z: rot.z, w: rot.w },
-      scale: { x: scale.x, y: scale.y, z: scale.z },
+      // scale: { x: scale.x, y: scale.y, z: scale.z }, // this actually does nothing, physx doesn't have a scale param apparently...
       linearVelocity: { x: 0, y: 0, z: 0 },
       angularVelocity: { x: 0, y: 0, z: 0 }
     }

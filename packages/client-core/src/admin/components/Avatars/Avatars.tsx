@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import Checkbox from '@material-ui/core/Checkbox'
 import Table from '@material-ui/core/Table'
@@ -21,6 +22,8 @@ import { fetchAdminAvatars } from '../../reducers/admin/avatar/service'
 import styles from './Avatars.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import { selectAdminAvatarState } from '../../reducers/admin/avatar/selector'
+import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
+import { uploadAvatarModel } from '../../../user/reducers/auth/service'
 
 if (!global.setImmediate) {
   global.setImmediate = setTimeout as any
@@ -32,6 +35,7 @@ interface Props {
   fetchAdminAvatars?: any
   fetchLocationTypes?: any
   adminAvatarState?: any
+  uploadAvatarModel?: Function
 }
 
 const mapStateToProps = (state: any): any => {
@@ -44,16 +48,17 @@ const mapStateToProps = (state: any): any => {
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
   fetchAdminAvatars: bindActionCreators(fetchAdminAvatars, dispatch),
-  fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch)
+  fetchLocationTypes: bindActionCreators(fetchLocationTypes, dispatch),
+  uploadAvatarModel: bindActionCreators(uploadAvatarModel, dispatch)
 })
 
 const Avatars = (props: Props) => {
-  const { authState, fetchAdminAvatars, adminAvatarState } = props
+  const { authState, fetchAdminAvatars, adminAvatarState, uploadAvatarModel } = props
 
   const user = authState.get('user')
   const adminAvatars = adminAvatarState.get('avatars').get('avatars')
   const adminThumbnails = adminAvatarState.get('avatars').get('thumbnails')
-  const adminAvatarCount = adminAvatarState.get('avatars').get('total')
+  const adminAvatarCount = adminAvatarState.get('avatars').get('total') / 2
 
   const headCell = [
     { id: 'sid', numeric: false, disablePadding: true, label: 'ID' },
@@ -142,6 +147,11 @@ const Avatars = (props: Props) => {
   const [refetch, setRefetch] = useState(false)
   const [addToContentPackModalOpen, setAddToContentPackModalOpen] = useState(false)
   const [selectedAvatars, setSelectedAvatars] = useState([])
+  const [avatarSelectMenuOpen, setAvatarSelectMenuOpen] = useState(false)
+  const [dimensions, setDimensions] = useState({
+    height: window.innerHeight,
+    width: window.innerWidth
+  })
 
   const handleRequestSort = (event: React.MouseEvent<unknown>, property) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -192,6 +202,10 @@ const Avatars = (props: Props) => {
     }, 5000)
   }
 
+  const closeAvatarSelectModal = () => {
+    setAvatarSelectMenuOpen(false)
+  }
+
   useEffect(() => {
     fetchTick()
   }, [])
@@ -203,9 +217,48 @@ const Avatars = (props: Props) => {
     setRefetch(false)
   }, [authState, adminAvatarState, refetch])
 
+  useEffect(() => {
+    window.addEventListener('resize', handleWindowResize)
+
+    return () => {
+      window.removeEventListener('resize', handleWindowResize)
+    }
+  }, [])
+
+  const handleWindowResize = () => {
+    setDimensions({
+      height: window.innerHeight,
+      width: window.innerWidth
+    })
+  }
+
   return (
     <div>
       <Paper className={styles.adminRoot}>
+        <Grid container spacing={3} className={styles.marginBottom}>
+          <Grid item xs={6}>
+            <Button
+              className={styles['open-modal']}
+              type="button"
+              variant="contained"
+              color="primary"
+              onClick={() => setAvatarSelectMenuOpen(true)}
+            >
+              Upload Avatar
+            </Button>
+          </Grid>
+          <Grid item xs={6}>
+            <Button
+              className={styles['open-modal']}
+              type="button"
+              variant="contained"
+              color="primary"
+              onClick={() => setAddToContentPackModalOpen(true)}
+            >
+              {dimensions.width <= 768 ? '+ Pack' : 'Add to Content Pack'}
+            </Button>
+          </Grid>
+        </Grid>
         <TableContainer className={styles.tableContainer}>
           <Table stickyHeader aria-labelledby="tableTitle" size={'medium'} aria-label="enhanced table">
             <EnhancedTableHead
@@ -215,9 +268,9 @@ const Avatars = (props: Props) => {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={adminAvatarCount || 0}
+              rowCount={adminAvatarCount / 2 || 0}
             />
-            <TableBody className={styles.thead}>
+            <TableBody>
               {stableSort(
                 adminAvatars.filter((item) => item.staticResourceType === 'avatar'),
                 getComparator(order, orderBy)
@@ -283,16 +336,14 @@ const Avatars = (props: Props) => {
           avatars={selectedAvatars}
           handleClose={() => setAddToContentPackModalOpen(false)}
         />
+        {avatarSelectMenuOpen && (
+          <AvatarSelectMenu
+            changeActiveMenu={() => setAvatarSelectMenuOpen(false)}
+            uploadAvatarModel={uploadAvatarModel}
+            isPublicAvatar={true}
+          />
+        )}
       </Paper>
-      <Button
-        className={styles['open-modal']}
-        type="button"
-        variant="contained"
-        color="primary"
-        onClick={() => setAddToContentPackModalOpen(true)}
-      >
-        Add to Content Pack
-      </Button>
     </div>
   )
 }
