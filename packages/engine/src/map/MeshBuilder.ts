@@ -313,7 +313,6 @@ function buildGroundMesh(rasterTiles: ImageBitmap[], latitude: number): Object3D
   const sizeInPx = NUMBER_OF_TILES_PER_DIMENSION * RASTER_TILE_SIZE_HDPI
   const width = sizeInPx * calcMetersPerPixelLongitudinal(latitude)
   const height = sizeInPx * calcMetersPerPixelLatitudinal(latitude)
-  console.log({ width, height })
   const geometry = new PlaneGeometry(width, height)
   const material = new MeshLambertMaterial({
     map: new CanvasTexture(generateRasterTileCanvas(rasterTiles))
