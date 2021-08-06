@@ -65,7 +65,7 @@ export class GolfSystem extends System {
       }
     }
 
-    for (const entity of this.queryResults.spawnGolfClub.added) {
+    for (const entity of this.queryResults.spawnGolfClub.all) {
       const { ownerId } = getComponent(entity, NetworkObject)
       const ownerEntity = this.queryResults.player.all.find((player) => {
         return getComponent(player, NetworkObject).uniqueId === ownerId
