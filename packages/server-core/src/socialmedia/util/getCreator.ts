@@ -10,7 +10,7 @@ export const getCreatorByUserId = async (userId, app) => {
       raw: true,
       replacements: { userId }
     })
-    return creator.id || null
+    return creator?.id || null
   }
   return null
 }

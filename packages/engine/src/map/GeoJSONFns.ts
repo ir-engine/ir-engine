@@ -2,7 +2,7 @@ import { Polygon, MultiPolygon, Position, Feature } from 'geojson'
 import rewind from '@mapbox/geojson-rewind'
 import { groupBy } from 'lodash'
 import polygonClipping from 'polygon-clipping'
-import { multiPolygon, polygon } from '@turf/helpers'
+import { multiPolygon, polygon } from '@turf/turf'
 
 /**
  * Assumptions:

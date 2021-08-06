@@ -98,6 +98,7 @@ const followCameraBehavior = (entity: Entity) => {
 
   if (followCamera.mode === CameraModes.FirstPerson) {
     camDist = 0.01
+    theta = followCamera.theta
     vec3.set(0, actor.actorHeight, 0)
   } else if (followCamera.mode === CameraModes.Isometric) {
     vec3.set(0, actor.actorHeight * 2, -3)
@@ -110,6 +111,7 @@ const followCameraBehavior = (entity: Entity) => {
       camDist = followCamera.maxDistance
       phi = 85
     }
+    theta = followCamera.theta
 
     const shoulderOffset = followCamera.shoulderSide ? -0.2 : 0.2
     vec3.set(shoulderOffset, actor.actorHeight + 0.25, 0)

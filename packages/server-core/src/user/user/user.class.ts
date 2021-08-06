@@ -30,7 +30,6 @@ export class User extends Service {
     const skip = params.query?.$skip ? params.query.$skip : 0
     const limit = params.query?.$limit ? params.query.$limit : 10
     const searchUser = params.query?.data
-
     if (action === 'withRelation') {
       const userId = params.query?.userId
       const search = params.query?.search as string

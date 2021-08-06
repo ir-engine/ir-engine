@@ -20,7 +20,7 @@ import {
   Settings,
   SupervisorAccount
 } from '@material-ui/icons'
-import { Link } from 'react-router-dom'
+import { Link, withRouter } from 'react-router-dom'
 import { useStylesForDashboard } from './styles'
 import ListSubheader from '@material-ui/core/ListSubheader'
 import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue'
@@ -30,7 +30,7 @@ import SettingsSystemDaydreamIcon from '@material-ui/icons/SettingsSystemDaydrea
 import GradientIcon from '@material-ui/icons/Gradient'
 import SuperviosorAccount from '@material-ui/icons/SupervisorAccount'
 
-const SideMenuItem = () => {
+const SideMenuItem = ({ location: { pathname } }) => {
   const classes = useStylesForDashboard()
   const { t } = useTranslation()
   return (
@@ -38,7 +38,12 @@ const SideMenuItem = () => {
       <Divider />
       <List>
         <Link to="/admin" className={classes.textLink}>
-          <ListItem style={{ color: 'white' }} button>
+          <ListItem
+            classes={{ selected: classes.selected }}
+            style={{ color: 'white' }}
+            selected={'/admin' === pathname}
+            button
+          >
             <ListItemIcon>
               <DashboardIcon style={{ color: 'white' }} />
             </ListItemIcon>
@@ -46,7 +51,12 @@ const SideMenuItem = () => {
           </ListItem>
         </Link>
         <Link to="/admin/users" className={classes.textLink}>
-          <ListItem style={{ color: 'white' }} button>
+          <ListItem
+            style={{ color: 'white' }}
+            classes={{ selected: classes.selected }}
+            selected={'/admin/users' === pathname}
+            button
+          >
             <ListItemIcon>
               <SupervisorAccount style={{ color: 'white' }} />
             </ListItemIcon>
@@ -54,7 +64,12 @@ const SideMenuItem = () => {
           </ListItem>
         </Link>
         <Link to="/admin/instance" className={classes.textLink}>
-          <ListItem style={{ color: 'white' }} button>
+          <ListItem
+            classes={{ selected: classes.selected }}
+            selected={'/admin/instance' === pathname}
+            style={{ color: 'white' }}
+            button
+          >
             <ListItemIcon>
               <DirectionsRun style={{ color: 'white' }} />
             </ListItemIcon>
@@ -62,7 +77,12 @@ const SideMenuItem = () => {
           </ListItem>
         </Link>
         <Link to="/admin/locations" className={classes.textLink}>
-          <ListItem style={{ color: 'white' }} button>
+          <ListItem
+            classes={{ selected: classes.selected }}
+            selected={'/admin/locations' === pathname}
+            style={{ color: 'white' }}
+            button
+          >
             <ListItemIcon>
               <NearMe style={{ color: 'white' }} />
             </ListItemIcon>
@@ -70,7 +90,12 @@ const SideMenuItem = () => {
           </ListItem>
         </Link>
         <Link to="/admin/invites" className={classes.textLink}>
-          <ListItem style={{ color: 'white' }} button>
+          <ListItem
+            classes={{ selected: classes.selected }}
+            selected={'/admin/invites' === pathname}
+            style={{ color: 'white' }}
+            button
+          >
             <ListItemIcon>
               <PersonAdd style={{ color: 'white' }} />
             </ListItemIcon>
@@ -86,7 +111,12 @@ const SideMenuItem = () => {
           </ListItem>
         </Link> */}
         <Link to="/admin/groups" className={classes.textLink}>
-          <ListItem style={{ color: 'white' }} button>
+          <ListItem
+            classes={{ selected: classes.selected }}
+            selected={'/admin/groups' === pathname}
+            style={{ color: 'white' }}
+            button
+          >
             <ListItemIcon>
               <GroupAdd style={{ color: 'white' }} />
             </ListItemIcon>
@@ -94,7 +124,12 @@ const SideMenuItem = () => {
           </ListItem>
         </Link>
         <Link to="/admin/parties" className={classes.textLink}>
-          <ListItem style={{ color: 'white' }} button>
+          <ListItem
+            classes={{ selected: classes.selected }}
+            selected={'/admin/parties' === pathname}
+            style={{ color: 'white' }}
+            button
+          >
             <ListItemIcon>
               <CalendarViewDay style={{ color: 'white' }} />
             </ListItemIcon>
@@ -110,7 +145,12 @@ const SideMenuItem = () => {
           </ListItem>
         </Link> */}
         <Link to="/admin/content-packs" className={classes.textLink}>
-          <ListItem style={{ color: 'white' }} button>
+          <ListItem
+            classes={{ selected: classes.selected }}
+            selected={'/admin/content-packs' === pathname}
+            style={{ color: 'white' }}
+            button
+          >
             <ListItemIcon>
               <PhotoAlbum style={{ color: 'white' }} />
             </ListItemIcon>
@@ -118,7 +158,12 @@ const SideMenuItem = () => {
           </ListItem>
         </Link>
         <Link to="/admin/scenes" className={classes.textLink}>
-          <ListItem style={{ color: 'white' }} button>
+          <ListItem
+            classes={{ selected: classes.selected }}
+            selected={'/admin/scenes' === pathname}
+            style={{ color: 'white' }}
+            button
+          >
             <ListItemIcon>
               <PhotoLibrary style={{ color: 'white' }} />
             </ListItemIcon>
@@ -126,7 +171,12 @@ const SideMenuItem = () => {
           </ListItem>
         </Link>
         <Link to="/admin/avatars" className={classes.textLink}>
-          <ListItem style={{ color: 'white' }} button>
+          <ListItem
+            classes={{ selected: classes.selected }}
+            selected={'/admin/avatars' === pathname}
+            style={{ color: 'white' }}
+            button
+          >
             <ListItemIcon>
               <Accessibility style={{ color: 'white' }} />
             </ListItemIcon>
@@ -134,7 +184,12 @@ const SideMenuItem = () => {
           </ListItem>
         </Link>
         <Link to="/admin/bots" className={classes.textLink}>
-          <ListItem style={{ color: 'white' }} button>
+          <ListItem
+            classes={{ selected: classes.selected }}
+            selected={'/admin/admin/bots' === pathname}
+            style={{ color: 'white' }}
+            button
+          >
             <ListItemIcon>
               <Settings style={{ color: 'white' }} />
             </ListItemIcon>
@@ -152,6 +207,8 @@ const SideMenuItem = () => {
             <ListItem
               style={{ color: 'white' }}
               //  onClick={changeComponent}
+              classes={{ selected: classes.selected }}
+              selected={'/admin/feeds' === pathname}
               button
             >
               <ListItemIcon>
@@ -164,6 +221,8 @@ const SideMenuItem = () => {
             <ListItem
               style={{ color: 'white' }}
               //  onClick={changeComponent}
+              classes={{ selected: classes.selected }}
+              selected={'/admin/armedia' === pathname}
               button
             >
               <ListItemIcon>
@@ -176,6 +235,8 @@ const SideMenuItem = () => {
             <ListItem
               style={{ color: 'white' }}
               //   onClick={changeComponent}
+              classes={{ selected: classes.selected }}
+              selected={'/admin/tips-and-tricks' === pathname}
               button
             >
               <ListItemIcon>
@@ -185,16 +246,18 @@ const SideMenuItem = () => {
             </ListItem>
           </Link>
 
-          <Link style={{ textDecoration: 'none' }} to="/admin/thefeeds">
+          <Link style={{ textDecoration: 'none' }} to="/admin/creator">
             <ListItem
               style={{ color: 'white' }}
               // onClick={changeComponent}
+              classes={{ selected: classes.selected }}
+              selected={'/admin/creator' === pathname}
               button
             >
               <ListItemIcon>
                 <RemoveFromQueueIcon style={{ color: 'white' }} />
               </ListItemIcon>
-              <ListItemText primary="Feeds" />
+              <ListItemText primary="Creator" />
             </ListItem>
           </Link>
         </List>
@@ -203,4 +266,4 @@ const SideMenuItem = () => {
   )
 }
 
-export default SideMenuItem
+export default withRouter(SideMenuItem)

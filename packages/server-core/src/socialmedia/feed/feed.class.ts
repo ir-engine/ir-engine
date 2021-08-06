@@ -32,7 +32,6 @@ export class Feed extends Service {
     const action = params.query?.action
     const skip = params.query?.$skip ? params.query.$skip : 0
     const limit = params.query?.$limit ? params.query.$limit : 100
-
     console.log('action', action)
 
     const queryParamsReplacements = {
@@ -62,6 +61,25 @@ export class Feed extends Service {
         replacements: { ...queryParamsReplacements }
       })
 
+      // const test = await (this.app.service('feed') as any).Model.findAll({
+      //   include: [
+      //     {
+      //       model: (this.app.service('static_resource') as any).Model,
+      //       as: "sr1",
+      //       attributes: [],
+      //       required: false
+      //     },
+      //     {
+      //       model: (this.app.service('creator') as any).Model,
+      //       required: false
+      //     }
+      //   ],
+      //   raw: true,
+      //   nest: true
+      // })
+      // console.log(test);
+
+      console.log(feeds)
       return {
         data: feeds,
         skip,

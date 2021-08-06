@@ -1,4 +1,5 @@
-import React, { useEffect, useState as useStateReact } from 'react'
+import React, { useEffect, useContext } from 'react'
+import { State, useState as useHookState, Downgraded } from '@hookstate/core'
 import { StyleSheetManager, ThemeProvider } from 'styled-components'
 
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions'
@@ -7,20 +8,24 @@ import { UIComponent } from '../components/UIComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { Engine } from '../../ecs/classes/Engine'
+import { XRUIStateContext } from '../XRUIStateContext'
 
 let depsLoaded: Promise<[typeof import('ethereal'), typeof import('react-dom')]>
 
-async function createUIRootLayer<S extends unknown>(UIFunc: React.FC<{ state: S }>, state: S, theme: any) {
+async function createUIRootLayer<S extends State<any>>(UIFunc: React.FC, state: S, theme: any) {
   const [Ethereal, ReactDOM] = await (depsLoaded = depsLoaded || Promise.all([import('ethereal'), import('react-dom')]))
 
   const UI = () => (
-    <ThemeProvider theme={theme}>
-      <UIFunc state={state} />
-    </ThemeProvider>
+    <XRUIStateContext.Provider value={state}>
+      <ThemeProvider theme={theme}>
+        <UIFunc />
+      </ThemeProvider>
+    </XRUIStateContext.Provider>
   )
 
   const GenerateStyles = (props: { children: (props: { styles: string }) => JSX.Element }) => {
-    const [styles, setStyles] = useStateReact('')
+    const styles = useHookState('')
+    useHookState(useContext(XRUIStateContext)).attach(Downgraded).value
     useEffect(() => {
       const target = document.createElement('div')
       ReactDOM.render(
@@ -28,13 +33,10 @@ async function createUIRootLayer<S extends unknown>(UIFunc: React.FC<{ state: S 
           <UI />
         </StyleSheetManager>,
         document.createElement('div'),
-        () => {
-          const newStyles = target.innerHTML
-          if (styles !== newStyles) setStyles(newStyles)
-        }
+        () => styles.set(target.innerHTML)
       )
-    })
-    return props.children({ styles })
+    }, [state.value])
+    return props.children({ styles: styles.value })
   }
 
   const containerElement = document.createElement('div')
@@ -67,7 +69,7 @@ async function createUIRootLayer<S extends unknown>(UIFunc: React.FC<{ state: S 
   return uiRoot
 }
 
-export function createUI<S>(UIFunc: React.FC<{ state: S }>, state: S, theme = {}): XRUI<S> {
+export function createXRUI<S extends State<any>>(UIFunc: React.FC, state: S, theme = {}): XRUI<S> {
   const entity = createEntity()
   createUIRootLayer(UIFunc, state, theme).then((uiRoot) => {
     // Make sure entity still exists, since we are adding these components asynchronously,

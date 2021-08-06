@@ -10,19 +10,24 @@ import {
   Color,
   CanvasTexture,
   Group,
-  Object3D
+  Object3D,
+  Vector3,
+  MaterialParameters,
+  Material
 } from 'three'
 import { mergeBufferGeometries } from '../common/classes/BufferGeometryUtils'
 import { VectorTile } from '@mapbox/vector-tile'
 import { DEFAULT_FEATURE_STYLES, getFeatureStyles } from './styles'
-import turfBuffer from '@turf/buffer'
+import { centerOfMass, buffer } from '@turf/turf'
 import { Feature, Geometry, Position } from 'geojson'
 import { toIndexed } from './toIndexed'
 import { ILayerName, TileFeaturesByLayer } from './types'
-import { NUMBER_OF_TILES_PER_DIMENSION } from './MapBoxClient'
 import { unifyFeatures } from './GeoJSONFns'
+import { Text } from 'troika-three-text'
 
 // TODO free resources used by canvases, bitmaps etc
+
+const ENABLE_DEBUG = false
 
 const METERS_PER_DEGREE_LL = 111139
 
@@ -104,7 +109,9 @@ function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Positi
   threejsGeometry.rotateX(-Math.PI / 2)
 
   if (styles.color && styles.color.builtin_function === 'purple_haze') {
-    colorVertices(threejsGeometry, getRandomBuildingColor())
+    const light = new Color(0xa0c0a0)
+    const shadow = new Color(0x303050)
+    colorVertices(threejsGeometry, getBuildingColor(feature), light, feature.properties.extrude ? shadow : light)
   }
 
   return threejsGeometry
@@ -158,15 +165,31 @@ function generateTextureCanvas() {
   return contextLarge.canvas
 }
 
-function getRandomBuildingColor() {
-  const value = 1 - Math.random() * Math.random()
-  return new Color().setRGB(value + Math.random() * 0.1, value, value + Math.random() * 0.1)
+const baseColorByFeatureType = {
+  university: 0xf5e0a0,
+  school: 0xffd4be,
+  apartments: 0xd1a1d1,
+  parking: 0xa0a7af,
+  civic: 0xe0e0e0,
+  commercial: 0x8fb0d8,
+  retail: 0xd8d8b2
 }
 
-function colorVertices(geometry: BufferGeometry, baseColor: Color) {
+function getBuildingColor(feature: Feature) {
+  // const value = 1 - Math.random() * Math.random()
+  // return new Color().setRGB(value + Math.random() * 0.1, value, value + Math.random() * 0.1)
+  //
+  // Workaround until we can clean up geojson data on the fly, ensuring that there aren't overlapping
+  // polygons
+  // return new Color(baseColorByFeatureId[featureId] || 0xdddddd)
+  const specialColor = baseColorByFeatureType[feature.properties.type]
+  return new Color(specialColor || 0xcacaca)
+}
+
+const geometrySize = new Vector3()
+function colorVertices(geometry: BufferGeometry, baseColor: Color, light: Color, shadow: Color) {
   const normals = geometry.attributes.normal
-  const light = new Color(0xffffff)
-  const shadow = new Color(0x303050)
+  const positions = geometry.attributes.position
   const topColor = baseColor.clone().multiply(light)
   const bottomColor = baseColor.clone().multiply(shadow)
 
@@ -175,11 +198,30 @@ function colorVertices(geometry: BufferGeometry, baseColor: Color) {
   const colors = geometry.attributes.color
 
   geometry.computeVertexNormals()
+  geometry.computeBoundingBox()
+  geometry.boundingBox.getSize(geometrySize)
+  const alpha = 1 - Math.min(1, geometrySize.y / 200)
+  const lerpedTopColor = topColor.lerp(bottomColor, alpha)
 
   for (let i = 0; i < normals.count; i++) {
-    const color = normals.getY(i) === 1 ? topColor : bottomColor
+    const color = normals.getY(i) === 1 ? lerpedTopColor : bottomColor
     colors.setXYZ(i, color.r, color.g, color.b)
   }
+}
+
+const materialsByParams = new Map<MaterialParameters, Material>()
+
+function getOrCreateMaterial(params: MaterialParameters) {
+  let material: Material
+
+  if (!materialsByParams.get(params)) {
+    material = new MeshLambertMaterial(params)
+    materialsByParams.set(params, material)
+  } else {
+    material = materialsByParams.get(params)
+  }
+
+  return material
 }
 
 /**
@@ -198,10 +240,13 @@ export function buildObjects3D(
   texture.needsUpdate = true
 
   const color = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName).color
-  const material = new MeshLambertMaterial({
+  const materialParams = {
     color: color.constant,
     vertexColors: color.builtin_function === 'purple_haze' ? true : false
-  })
+  }
+
+  const material = getOrCreateMaterial(materialParams)
+
   return geometries.map((g) => new Mesh(g, material))
 }
 
@@ -212,7 +257,7 @@ function maybeBuffer(feature: Feature, width: number): Geometry {
     feature.geometry.type === 'Point' ||
     feature.geometry.type === 'MultiLineString'
   ) {
-    const buf = turfBuffer(feature, width, {
+    const buf = buffer(feature, width, {
       units: 'meters'
     })
     return buf.geometry
@@ -221,13 +266,35 @@ function maybeBuffer(feature: Feature, width: number): Geometry {
   return feature.geometry
 }
 
+function buildDebuggingLabels(features: Feature[], llCenter: Position): Object3D[] {
+  return features.map((f) => {
+    const myText = new Text()
+
+    const point = llToScene(centerOfMass(f).geometry.coordinates, llCenter)
+
+    // Set properties to configure:
+    myText.text = f.properties.type
+    myText.fontSize = 5
+    myText.position.y = (f.properties.height || 1) + 50
+    myText.position.x = point[0]
+    myText.position.z = point[1]
+    myText.color = 0x000000
+
+    // Update the rendering:
+    myText.sync()
+
+    return myText
+  })
+}
+
 export function buildMesh(tiles: TileFeaturesByLayer[], llCenter: Position, renderer: WebGLRenderer): Group {
   const group = new Group()
   const buildingFeatures = unifyFeatures(tiles.reduce((acc, tile) => acc.concat(tile.building), []))
   const roadFeatures = tiles.reduce((acc, tile) => acc.concat(tile.road), [])
   const objects3d = [
     ...buildObjects3D('building', buildingFeatures, llCenter, renderer),
-    ...buildObjects3D('road', roadFeatures, llCenter, renderer)
+    ...buildObjects3D('road', roadFeatures, llCenter, renderer),
+    ...(ENABLE_DEBUG ? buildDebuggingLabels(buildingFeatures, llCenter) : [])
   ]
 
   objects3d.forEach((o) => {
