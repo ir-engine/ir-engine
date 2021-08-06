@@ -951,7 +951,7 @@ class EditorContainer extends Component<EditorContainerProps, EditorContainerSta
                   <DockContainer>
                     <DockLayout
                       defaultLayout={defaultLayout}
-                      style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 46, right: 0, bottom: 6 }}
+                      style={{ pointerEvents: 'none', position: 'absolute', left: 0, top: 5, right: 5, bottom: 5 }}
                     />
                   </DockContainer>
                 </WorkspaceContainer>

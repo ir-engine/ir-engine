@@ -74,7 +74,7 @@ const ViewportContainer = (styled as any).div`
  */
 const ControlsText = (styled as any).div`
   position: absolute;
-  top: 0;
+  bottom:0px;
   left: 0;
   pointer-events: none;
   color: white;

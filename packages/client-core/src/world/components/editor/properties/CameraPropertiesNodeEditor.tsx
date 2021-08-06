@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import SelectInput from '../inputs/SelectInput'
 import InputGroup from '../inputs/InputGroup'
 import NodeEditor from './NodeEditor'
+import { NumericInputGroup } from '../inputs/NumericInputGroup'
 
 /**
  * [propTypes Defining properties for CameraProperties component]
@@ -14,11 +15,14 @@ type CamerarPropertiesNodeEditorPropTypes = {
 }
 
 export enum CameraPropertyTypes {
-  CameraType
+  cameraMode,
+  projectionType,
+  fov,
+
 }
 
 /** Types copied from Camera Modes of engine. */
-const CameraTypeSelect = [
+const cameraModeSelect = [
   {
     label: 'First Person',
     value: 0
@@ -34,14 +38,23 @@ const CameraTypeSelect = [
   {
     label: 'Top Down',
     value: 3
+  }
+]
+
+/** Types copied from Camera Modes of engine. */
+const projectionTypeSelect = [
+  {
+    label: 'Perspective',
+    value: 0
   },
   {
-    label: 'Isometric',
-    value: 4
+    label: 'Orthographic',
+    value: 1
   }
 ]
 
 interface Props {
+  node?: any,
   value?: any
   onChangeFunction?: any
   op?: any
@@ -52,7 +65,7 @@ interface Props {
  * @author Hamza Musthaq <hamzamushtaq34@hotmail.com>
  */
 export const CameraProperties = (props: Props) => {
-  const { value, op, onChangeFunction, getProp } = props
+  const { value, node, op, onChangeFunction, getProp } = props
   const onPropertyValueChanged = (event) => {
     let address = ''
     op.forEach((element, id) => {
@@ -81,14 +94,41 @@ export const CameraProperties = (props: Props) => {
   }
 
   switch (value.propertyType) {
-    case CameraPropertyTypes.CameraType:
+    case CameraPropertyTypes.cameraMode:
       renderVal = (
         <>
           {/* @ts-ignore */}
-          <SelectInput options={CameraTypeSelect} onChange={onPropertyValueChanged} value={getPropertyValue()} />
+          <SelectInput options={cameraModeSelect} onChange={onPropertyValueChanged} value={getPropertyValue()} />
         </>
       )
       break
+    case CameraPropertyTypes.projectionType:
+      renderVal = (
+        <>
+          {/* @ts-ignore */}
+          <SelectInput options={projectionTypeSelect} onChange={onPropertyValueChanged} value={getPropertyValue()} />
+        </>
+      )
+      break
+      case CameraPropertyTypes.fov:
+        renderVal = (
+          <>
+          {/*ts-ignore*/}
+            <NumericInputGroup
+              name="Field Of View"
+              // label={t('editor:properties.directionalLight.lbl-intensity')}
+              min={1}
+              max={180}
+              smallStep={0.001}
+              mediumStep={0.01}
+              largeStep={0.1}
+              value={getPropertyValue()}
+              onChange={onPropertyValueChanged}
+              unit="cd"
+            />
+          </>
+        )
+        break
     default:
       renderVal = <>Can't Determine type of property</>
   }
@@ -110,11 +150,19 @@ export const CameraProperties = (props: Props) => {
 }
 
 const CameraOptions = {
-  CameraType: {
-    CameraMode: {
-      propertyType: CameraPropertyTypes.CameraType,
-      name: 'Camera Type'
+  cameraMode: {
+    cameraMode: {
+      propertyType: CameraPropertyTypes.cameraMode,
+      name: 'Camera Mode'
     }
+  },
+  projectionType: {
+    propertyType: CameraPropertyTypes.projectionType,
+    name: 'Projection Type'
+  },
+  fov: {
+    propertyType: CameraPropertyTypes.fov,
+    name: 'Field Of View'
   }
 }
 
@@ -124,14 +172,14 @@ const CameraOptions = {
 export const CameraPropertiesNodeEditor = (props: CamerarPropertiesNodeEditorPropTypes) => {
   const onChangeNodeSetting = (key, op) => {
     const val = props.editor as any
-    ;(props.editor as any).setObjectProperty('cameraOptions.' + key, op)
+      ; (props.editor as any).setObjectProperty('cameraOptions.' + key, op)
   }
 
   const getPropertyValue = (arr: []) => {
     return (props.node as any).getPropertyValue(arr)
   }
 
-  const cameraPropertiesTypes = (id) => {
+  const cameraPropertiesTypes = (id, node) => {
     const cameraOptions = CameraOptions[id]
     const item = Object.values(cameraOptions).map((value, index) => {
       const op = [id, Object.keys(cameraOptions)[index]]
@@ -140,6 +188,7 @@ export const CameraPropertiesNodeEditor = (props: CamerarPropertiesNodeEditorPro
           key={id + index}
           value={value}
           op={op}
+          node={node}
           onChangeFunction={onChangeNodeSetting}
           getProp={getPropertyValue}
         />
@@ -153,7 +202,7 @@ export const CameraPropertiesNodeEditor = (props: CamerarPropertiesNodeEditorPro
       return (
         <div key={key}>
           {key}
-          {<div>{cameraPropertiesTypes(key)}</div>}
+          {<div>{cameraPropertiesTypes(key, node)}</div>}
         </div>
       )
     })

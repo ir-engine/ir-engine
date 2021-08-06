@@ -33,7 +33,9 @@ const StyledToolbar = (styled as any).div`
   display: flex;
   flex-direction: row;
   height: 40px;
-  background-color: ${(props) => props.theme.toolbar};
+  width:100%;
+  position: fixed;
+  z-index:10000;
   user-select: none;
 `
 

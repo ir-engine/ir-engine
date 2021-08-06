@@ -303,7 +303,7 @@ export class WorldScene {
         if (isClient) {
           EngineEvents.instance.once(EngineEvents.EVENTS.CLIENT_USER_LOADED, async () => {
             switchCameraMode(Network.instance.localClientEntity, {
-              mode: Object.values(CameraModes)[component.data.options.CameraType.CameraMode]
+              mode: Object.values(CameraModes)[component.data.options.cameraMode]
             })
           })
         }

@@ -1,6 +1,7 @@
 import { CameraModes } from '../../camera/types/CameraModes'
 import EditorNodeMixin from './EditorNodeMixin'
 import { Object3D } from 'three'
+import { ProjectionTypes } from '../../camera/types/ProjectionTypes'
 
 /**
  * @author Hamza Musthaq <hamzamushtaq34@hotmail.com>
@@ -16,8 +17,26 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
   constructor(editor) {
     super(editor)
     this.cameraOptions = {
-      CameraType: {
-        CameraMode: CameraModes.ThirdPerson
+      fov: {
+        fov: 60
+      },
+      minProjectionDistance: {
+        minProjectionDistance: .1
+      },
+      maxProjectionDistance: {
+        maxProjectionDistance: 100
+      },
+      projectionType: {
+        projectionType: ProjectionTypes.Perspective
+      },
+      cameraDistance: {
+        cameraDistance: 10
+      },
+      cameraMode: {
+        cameraMode: CameraModes.Dynamic
+      },
+      cameraModeDefault: {
+        cameraModeDefault: CameraModes.ThirdPerson
       }
     }
     //CameraPropertiesNode.cameraModeChangedCallback(this)
@@ -55,14 +74,6 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
       options: this.cameraOptions
     }
     return super.serialize(projectID, { cameraproperties: data })
-  }
-
-  onChange() {
-    //CameraPropertiesNode.cameraModeChangedCallback(this)
-  }
-
-  onRemove() {
-    //CameraPropertiesNode.cameraModeChangedCallback(this, true)
   }
 
   prepareForExport() {
