@@ -18,7 +18,7 @@ export const createGround = (entity: Entity, args: GroundProps) => {
       roughness: 0
     })
   )
-
+    if(!(args as any).visible) mesh.visible = false;
   addObject3DComponent(entity, mesh, { receiveShadow: true, 'material.color': args.color })
 
   const body = createCollider(

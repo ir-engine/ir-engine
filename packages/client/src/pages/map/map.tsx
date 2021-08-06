@@ -57,6 +57,7 @@ NetworkPlayerCharacter.onAfterCreate.push({
   behavior: (entity): void => {
     console.log('created', entity, hasComponent(entity, LocalInputReceiver))
     if (hasComponent(entity, LocalInputReceiver) == true) {
+      // TODO: Move this stuff to scene load
       Engine.audioListener.removeFromParent()
       getComponent(entity, Object3DComponent).value.add(Engine.audioListener)
     }
