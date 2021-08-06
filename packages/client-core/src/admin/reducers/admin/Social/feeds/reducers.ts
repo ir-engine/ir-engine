@@ -1,6 +1,6 @@
 import Immutable from 'immutable'
 import { FeedsRetrievedAction } from './actions'
-import { FEEDS_ADMIN_RETRIEVED, ADMIN_FEEDS_FETCH, ADD_AS_ADMIN_FEED } from '../../../actions'
+import { FEEDS_ADMIN_RETRIEVED, ADMIN_FEEDS_FETCH, ADD_AS_ADMIN_FEED, REMOVE_FEED } from '../../../actions'
 import { UserSeed } from '@xrengine/common/src/interfaces/User'
 import { IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { AuthUserSeed } from '@xrengine/common/src/interfaces/AuthUser'
@@ -38,7 +38,18 @@ const feedsReducer = (state = immutableState, action: any): any => {
       updateMap.set('updateNeeded', false)
       updateMap.set('lastFetched', new Date())
       return state.set('feeds', updateMap)
+
+    case ADD_AS_ADMIN_FEED:
+      updateMap = new Map(state.get('feeds'))
+      updateMap.set('updateNeeded', true)
+      return state.set('feeds', updateMap)
+
+    case REMOVE_FEED:
+      const feedData = new Map(state.get('feeds'))
+      feedData.set('updateNeeded', true)
+      return state.set('feeds', feedData)
   }
+
   return state
 }
 

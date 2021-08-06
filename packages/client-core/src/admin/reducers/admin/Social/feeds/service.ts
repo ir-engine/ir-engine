@@ -1,7 +1,7 @@
 import { Dispatch } from 'redux'
 import { dispatchAlertError } from '../../../../../common/reducers/alert/service'
 import { client } from '../../../../../feathers'
-import { fetchingAdminFeeds, feedsAdminRetrieved, addFeed } from './actions'
+import { fetchingAdminFeeds, feedsAdminRetrieved, addFeed, removeFeed } from './actions'
 import Api from '../../../../../world/components/editor/Api'
 
 export const getAdminFeeds =
@@ -39,10 +39,8 @@ export function createFeed({ title, description, video, preview }: any) {
           title,
           description,
           videoId: storedVideo.file_id,
-          previewId: storedPreview.file_id,
-          featuredByAdmin: true
+          previewId: storedPreview.file_id
         })
-        console.log(feed)
         dispatch(addFeed(feed))
         //@ts-ignore
         const mediaLinks = { video: storedVideo.origin, preview: storedPreview.origin }
@@ -51,6 +49,17 @@ export function createFeed({ title, description, video, preview }: any) {
     } catch (err) {
       console.log(err)
       dispatchAlertError(dispatch, err.message)
+    }
+  }
+}
+
+export function deleteFeed(feedId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
+      await client.service('feed').remove(feedId)
+      dispatch(removeFeed(feedId))
+    } catch (err) {
+      console.log(err)
     }
   }
 }
