@@ -1,5 +1,6 @@
 import { isClient } from '../../common/functions/isClient'
 import { Component } from '../../ecs/classes/Component'
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import { GameObject } from '../../game/components/GameObject'
@@ -128,7 +129,7 @@ function initComponents(entity: Entity, components: Array<{ type: any; data?: an
   })
 }
 
-function checkIfIdHavePrepair(uniqueId) {
+export function checkIfIdHavePrepair(uniqueId) {
   return (
     Object.keys(Network.instance.networkObjects)
       .map(Number)
@@ -178,21 +179,6 @@ export function initializeNetworkObject(args: {
   )
 
   const networkObject = getMutableComponent(networkEntity, NetworkObject)
-
-  Network.instance.networkObjects[networkId] = {
-    ownerId,
-    prefabType,
-    component: networkObject,
-    uniqueId,
-    parameters
-  }
-
-  // TODO: move this to network system
-  if (prefabType === PrefabType.Player && ownerId === Network.instance.userId) {
-    // console.log('Give Player Id by Server', networkId, args.networkId, typeof networkId, typeof args.networkId, ownerId, Network.instance.userId);
-    Network.instance.localAvatarNetworkId = networkId
-    Network.instance.localClientEntity = networkEntity
-  }
 
   return networkObject
 }

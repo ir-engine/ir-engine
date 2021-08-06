@@ -22,7 +22,7 @@
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {
-    "@types/react": "17.0.15",
+    "@types/react": "17.0.16",
     "react": "17.0.2"
   },
   "peerDependencies": {
@@ -44,6 +44,7 @@
     "@styled-icons/material": "10.34.0",
     "@types/react-infinite-scroller": "1.2.2",
     "@types/react-redux": "7.1.18",
+    "@types/react-router-dom": "5.1.8",
     "@types/styled-components": "5.1.12",
     "@typescript-eslint/eslint-plugin": "4.29.0",
     "@typescript-eslint/parser": "4.29.0",
@@ -102,6 +103,7 @@
     "use-debounce": "7.0.0",
     "use-http": "1.0.22",
     "uuid": "8.3.2",
+    "video-react": "0.14.1",
     "volumetric": "0.2.27",
     "yup": "0.32.9"
   },
@@ -110,14 +112,14 @@
     "@rollup/plugin-node-resolve": "13.0.4",
     "@rollup/plugin-replace": "3.0.0",
     "@types/node": "14.17.9",
-    "@types/react": "17.0.15",
+    "@types/react": "17.0.16",
     "@types/react-dom": "17.0.9",
     "@types/three": "0.130.1",
     "cross-env": "7.0.3",
-    "esbuild": "0.12.17",
+    "esbuild": "0.12.18",
     "eslint": "7.32.0",
     "rimraf": "3.0.2",
-    "rollup": "2.55.1",
+    "rollup": "2.56.0",
     "rollup-plugin-livereload": "2.0.5",
     "rollup-plugin-node-polyfills": "0.2.1",
     "rollup-plugin-scss": "3.0.0",

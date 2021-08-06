@@ -1,75 +1,62 @@
-import { CameraModes } from '../../camera/types/CameraModes'
-import EditorNodeMixin from './EditorNodeMixin'
 import { Object3D } from 'three'
-
-/**
- * @author Hamza Musthaq <hamzamushtaq34@hotmail.com>
- */
+import EditorNodeMixin from './EditorNodeMixin'
 export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
-  static nodeName = 'Camera Properties'
   static legacyComponentName = 'cameraproperties'
-  static disableTransform = true
-  static ignoreRaycast = true
-  static haveStaticTags = false
-  static cameraModeChangedCallback: (node, isRemoved?) => void
-
-  constructor(editor) {
-    super(editor)
-    this.cameraOptions = {
-      CameraType: {
-        CameraMode: CameraModes.ThirdPerson
-      }
-    }
-    //CameraPropertiesNode.cameraModeChangedCallback(this)
-  }
-
-  getPropertyValue = (arr: []): any => {
-    if (arr.length < 1) return null
-    let value = this.cameraOptions
-    arr.forEach((element) => {
-      if (value[element] === '') return null
-      value = value[element]
-    })
-    return value
-  }
-
-  static canAddNode(editor) {
-    return editor.scene.findNodeByType(CameraPropertiesNode) === null
-  }
+  static nodeName = 'Camera Properties'
 
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json)
-    const cameraOptions = json.components.find((c) => c.name === this.legacyComponentName)
-    const { options } = cameraOptions.props
-    node.cameraOptions = options
+    const {
+      name,
+      fov,
+      cameraNearClip,
+      cameraFarClip,
+      projectionType,
+      maxCameraDistance,
+      startCameraDistance,
+      minCameraDistance,
+      cameraMode,
+      cameraModeDefault
+    } = json.components.find((c) => c.name === CameraPropertiesNode.legacyComponentName).props
+    node.name = name
+    node.fov = fov ?? 50
+    node.cameraNearClip = cameraNearClip ?? 0.1
+    node.cameraFarClip = cameraFarClip ?? 100
+    node.projectionType = projectionType
+    node.minCameraDistance = minCameraDistance ?? 20
+    node.maxCameraDistance = maxCameraDistance ?? 6
+    node.startCameraDistance = startCameraDistance ?? 12
+
+    node.cameraMode = cameraMode
+    node.cameraModeDefault = cameraModeDefault
     return node
   }
-
-  onRendererChanged() {
-    //CameraPropertiesNode.cameraModeChangedCallback(this)
+  constructor(editor) {
+    super(editor)
   }
-
-  serialize(projectID) {
-    let data: any = {}
-    data = {
-      options: this.cameraOptions
-    }
-    return super.serialize(projectID, { cameraproperties: data })
+  copy(source) {
+    super.copy(source)
+    return this
   }
-
-  onChange() {
-    //CameraPropertiesNode.cameraModeChangedCallback(this)
+  async serialize(projectID) {
+    const components = {
+      cameraproperties: {
+        name: this.name,
+        fov: this.fov,
+        cameraNearClip: this.cameraNearClip,
+        cameraFarClip: this.cameraFarClip,
+        projectionType: this.projectionType,
+        minCameraDistance: this.minCameraDistance,
+        maxCameraDistance: this.maxCameraDistance,
+        startCameraDistance: this.startCameraDistance,
+        cameraMode: this.cameraMode,
+        cameraModeDefault: this.cameraModeDefault
+      }
+    } as any
+    return await super.serialize(projectID, components)
   }
-
-  onRemove() {
-    //CameraPropertiesNode.cameraModeChangedCallback(this, true)
-  }
-
   prepareForExport() {
     super.prepareForExport()
-    this.addGLTFComponent('cameraOptions', {
-      options: this.cameraOptions
-    })
-    this.replaceObject()
+    this.remove(this.helper)
   }
 }

@@ -22,8 +22,11 @@ import { XRInputSourceComponent } from './components/XRInputSourceComponent'
 import { Network } from '../networking/classes/Network'
 import { detectUserInPortal } from './functions/detectUserInPortal'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
-import { RespawnTagComponent } from '../scene/components/RespawnTagComponent'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
+import { sendClientObjectUpdate } from '../networking/functions/sendClientObjectUpdate'
+import { teleportPlayer } from './functions/teleportPlayer'
+import { NetworkObjectUpdateType } from '../networking/templates/NetworkObjectUpdateSchema'
+import { SpawnPoints } from './ServerAvatarSpawnSystem'
 
 const vector3 = new Vector3()
 const quat = new Quaternion()
@@ -69,8 +72,19 @@ export class CharacterControllerSystem extends System {
 
       // TODO: implement scene lower bounds parameter
       if (!isClient && controller.controller.transform.translation.y < -10) {
-        if (hasComponent(entity, RespawnTagComponent)) removeComponent(entity, RespawnTagComponent)
-        addComponent(entity, RespawnTagComponent)
+        const { position, rotation } = SpawnPoints.instance.getRandomSpawnPoint()
+
+        teleportPlayer(entity, position, rotation)
+
+        sendClientObjectUpdate(entity, NetworkObjectUpdateType.ForceTransformUpdate, [
+          position.x,
+          position.y,
+          position.z,
+          rotation.x,
+          rotation.y,
+          rotation.z,
+          rotation.w
+        ])
         continue
       }
 

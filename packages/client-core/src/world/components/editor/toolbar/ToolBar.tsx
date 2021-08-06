@@ -33,7 +33,9 @@ const StyledToolbar = (styled as any).div`
   display: flex;
   flex-direction: row;
   height: 40px;
-  background-color: ${(props) => props.theme.toolbar};
+  width:100%;
+  position: fixed;
+  z-index:10000;
   user-select: none;
 `
 
@@ -458,14 +460,6 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
     }
   }
 
-  openModalCreate = () => {
-    this.setState({ locationModalOpen: true })
-  }
-
-  handleLocationClose = (e: any): void => {
-    this.setState({ locationModalOpen: false })
-  }
-
   onEditorInitialized = () => {
     const editor = (this.props as any).editor
     editor.editorControls.addListener('transformModeChanged', this.onForceUpdate)
@@ -591,18 +585,6 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
 
     const queryParams = (this.props as any).queryParams
 
-    //@ts-ignore
-    const button = (
-      <Button
-        type="submit"
-        color="primary"
-        onClick={this.openModalCreate}
-        // className="mr-4 mt-2 mb-2 pl-5 pr-5"
-      >
-        Publish
-      </Button>
-    )
-
     return (
       <StyledToolbar>
         <ToolButtons>
@@ -718,19 +700,6 @@ export class ToolBar extends Component<ToolBarProps, ToolBarState> {
           />
         </ToolToggles>
         <Spacer />
-        {!queryParams ? (
-          button
-        ) : (
-          <Button color="primary" disabled={true} className="mr-4 mt-2 mb-2 pl-5 pr-5">
-            Published
-          </Button>
-        )}
-        <PublishModel
-          editing={this.state.locationEditing}
-          open={this.state.locationModalOpen}
-          handleClose={this.handleLocationClose}
-          location={this.state.selectedLocation}
-        />
         {this.state.showStats && <StatsFuc />}
         <ContextMenu id="menu">
           {(this.props as any).menu.map((menu) => {

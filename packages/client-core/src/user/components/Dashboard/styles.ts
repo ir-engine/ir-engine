@@ -87,6 +87,9 @@ export const useStylesForDashboard = makeStyles((theme: Theme) =>
     avatarPosition: {
       display: 'flex',
       marginLeft: '80%'
+    },
+    selected: {
+      background: '#15171B !important'
     }
   })
 )
