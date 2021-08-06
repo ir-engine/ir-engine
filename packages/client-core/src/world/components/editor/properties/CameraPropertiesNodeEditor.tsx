@@ -1,43 +1,72 @@
-import { Rainbow } from '@styled-icons/fa-solid/Rainbow'
-import React, { Component } from 'react'
-import SelectInput from '../inputs/SelectInput'
+import { Camera } from '@styled-icons/fa-solid'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import i18n from 'i18next'
+import React, { useEffect, useState } from 'react'
+import { withTranslation } from 'react-i18next'
+import { CameraModes } from '../../../../../../engine/src/camera/types/CameraModes'
 import InputGroup from '../inputs/InputGroup'
-import NodeEditor from './NodeEditor'
 import { NumericInputGroup } from '../inputs/NumericInputGroup'
+import SelectInput from '../inputs/SelectInput'
+import NodeEditor from './NodeEditor'
 
 /**
  * [propTypes Defining properties for CameraProperties component]
  * @type {Object}
  */
-type CamerarPropertiesNodeEditorPropTypes = {
-  editor?: object
-  node?: object
+type CameraPropertiesNodeEditorPropTypes = {
+  editor?: any
+  node?: any
+  t?: any
 }
 
-export enum CameraPropertyTypes {
-  cameraMode,
-  projectionType,
-  fov,
-
+interface Props {
+  node?: any,
+  value?: any
+  onChangeFunction?: any
+  op?: any
+  getProp?: any
 }
 
 /** Types copied from Camera Modes of engine. */
 const cameraModeSelect = [
   {
     label: 'First Person',
-    value: 0
+    value: CameraModes.FirstPerson
   },
   {
     label: 'Shoulder Cam',
-    value: 1
+    value: CameraModes.ShoulderCam
   },
   {
     label: 'Third Person',
-    value: 2
+    value: CameraModes.ThirdPerson
   },
   {
     label: 'Top Down',
-    value: 3
+    value: CameraModes.TopDown
+  },
+  {
+    label: 'Dynamic',
+    value: CameraModes.Dynamic
+  }
+]
+
+const defaultCameraModeSelect = [
+  {
+    label: 'First Person',
+    value: CameraModes.FirstPerson
+  },
+  {
+    label: 'Shoulder Cam',
+    value: CameraModes.ShoulderCam
+  },
+  {
+    label: 'Third Person',
+    value: CameraModes.ThirdPerson
+  },
+  {
+    label: 'Top Down',
+    value: CameraModes.TopDown
   }
 ]
 
@@ -53,170 +82,125 @@ const projectionTypeSelect = [
   }
 ]
 
-interface Props {
-  node?: any,
-  value?: any
-  onChangeFunction?: any
-  op?: any
-  getProp?: any
-}
-
 /**
- * @author Hamza Musthaq <hamzamushtaq34@hotmail.com>
+ * [BoxColliderNodeEditor is used to provide properties to customize box collider element]
+ * @type {[component class]}
  */
-export const CameraProperties = (props: Props) => {
-  const { value, node, op, onChangeFunction, getProp } = props
-  const onPropertyValueChanged = (event) => {
-    let address = ''
-    op.forEach((element, id) => {
-      if (id < op.length - 1) address += element + '.'
-      else address += element
-    })
-    {
-      /* @ts-ignore */
-    }
-    onChangeFunction(address, event)
+
+export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorPropTypes) {
+  const { node, editor, t } = props
+  const [cameraMode, setCameraMode] = useState(node.cameraMode) as any;
+
+  // function to handle changes in payloadName property
+  const onChangePayload = (propName, prop) => {
+    editor.setPropertySelected(propName, prop)
   }
 
-  const getPropertyValue = () => {
-    const val = getProp(op)
-    return val
-  }
-
-  {
-    /* @ts-ignore */
-  }
-  if (value.keys === '') return <></>
-
-  let renderVal = <></>
-  {
-    /* @ts-ignore */
-  }
-
-  switch (value.propertyType) {
-    case CameraPropertyTypes.cameraMode:
-      renderVal = (
-        <>
-          {/* @ts-ignore */}
-          <SelectInput options={cameraModeSelect} onChange={onPropertyValueChanged} value={getPropertyValue()} />
-        </>
-      )
-      break
-    case CameraPropertyTypes.projectionType:
-      renderVal = (
-        <>
-          {/* @ts-ignore */}
-          <SelectInput options={projectionTypeSelect} onChange={onPropertyValueChanged} value={getPropertyValue()} />
-        </>
-      )
-      break
-      case CameraPropertyTypes.fov:
-        renderVal = (
-          <>
-          {/*ts-ignore*/}
-            <NumericInputGroup
-              name="Field Of View"
-              // label={t('editor:properties.directionalLight.lbl-intensity')}
-              min={1}
-              max={180}
-              smallStep={0.001}
-              mediumStep={0.01}
-              largeStep={0.1}
-              value={getPropertyValue()}
-              onChange={onPropertyValueChanged}
-              unit="cd"
-            />
-          </>
-        )
-        break
-    default:
-      renderVal = <>Can't Determine type of property</>
-  }
-
+  //defining description and shows this description in NodeEditor  with title of elementt,
+  // available to add in scene in assets.
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-      }}
-    >
+    <NodeEditor {...props} description={"Properties that will affect the player camera"}>
       {/* @ts-ignore */}
-      <InputGroup name={value.name} label={value.name}>
-        {renderVal}
-      </InputGroup>
-    </div>
-  )
-}
-
-const CameraOptions = {
-  cameraMode: {
-    cameraMode: {
-      propertyType: CameraPropertyTypes.cameraMode,
-      name: 'Camera Mode'
-    }
-  },
-  projectionType: {
-    propertyType: CameraPropertyTypes.projectionType,
-    name: 'Projection Type'
-  },
-  fov: {
-    propertyType: CameraPropertyTypes.fov,
-    name: 'Field Of View'
-  }
-}
-
-/**
- * @author Hamza Musthaq <hamzamushtaq34@hotmail.com>
- */
-export const CameraPropertiesNodeEditor = (props: CamerarPropertiesNodeEditorPropTypes) => {
-  const onChangeNodeSetting = (key, op) => {
-    const val = props.editor as any
-      ; (props.editor as any).setObjectProperty('cameraOptions.' + key, op)
-  }
-
-  const getPropertyValue = (arr: []) => {
-    return (props.node as any).getPropertyValue(arr)
-  }
-
-  const cameraPropertiesTypes = (id, node) => {
-    const cameraOptions = CameraOptions[id]
-    const item = Object.values(cameraOptions).map((value, index) => {
-      const op = [id, Object.keys(cameraOptions)[index]]
-      return (
-        <CameraProperties
-          key={id + index}
-          value={value}
-          op={op}
-          node={node}
-          onChangeFunction={onChangeNodeSetting}
-          getProp={getPropertyValue}
+      <InputGroup name="Projection Type" label={"Projection Type"}>
+        {/* @ts-ignore */}
+        <SelectInput
+          placeholder={projectionTypeSelect[0].label}
+          value={node.projectionType}
+          onChange={(value) => onChangePayload("projectionType", value)}
+          options={projectionTypeSelect}
         />
-      )
-    })
-    return <>{item}</>
-  }
-
-  const cameraProperties = (node) => {
-    const items = Object.keys(CameraOptions).map((key) => {
-      return (
-        <div key={key}>
-          {key}
-          {<div>{cameraPropertiesTypes(key, node)}</div>}
-        </div>
-      )
-    })
-    return <div>{items}</div>
-  }
-
-  const node = props.node
-  return (
-    <NodeEditor description={CameraPropertiesNodeEditor.description} {...props}>
-      {cameraProperties(node)}
+      </InputGroup>
       {/* @ts-ignore */}
+      <InputGroup name="Camera Mode" label={"Camera Mode"}>
+        {/* @ts-ignore */}
+        <SelectInput
+          placeholder={cameraModeSelect[0].label}
+          value={node.cameraMode}
+          onChange={(value) => { onChangePayload("cameraMode", value); setCameraMode(value) }}
+          options={cameraModeSelect}
+        />
+      </InputGroup>
+
+      {cameraMode == CameraModes.Dynamic &&
+        /* @ts-ignore */
+        <InputGroup name="Default Camera Mode" label={"Default Camera Mode"}>
+          {/* @ts-ignore */}
+          <SelectInput
+            placeholder={defaultCameraModeSelect[0].label}
+            value={node.defaultCameraMode}
+            onChange={(value) => onChangePayload("defaultCameraMode", value)}
+            options={defaultCameraModeSelect}
+          />
+        </InputGroup>
+      }
+      {/* @ts-ignore */}
+
+      <NumericInputGroup name="Field Of View"
+        label={"FOV"}
+        onChange={(value) => onChangePayload("fov", value)}
+        min={1}
+        max={180}
+        default={50}
+        smallStep={0.001}
+        mediumStep={0.01}
+        largeStep={0.1}
+        value={(node as any).fov ?? 50}
+      />
+
+      {/* @ts-ignore */}
+      <NumericInputGroup name="minProjectionDistance"
+        label={"Min Projection Distance"}
+        onChange={(value) => onChangePayload("minProjectionDistance", value)}
+        min={0.001}
+        smallStep={0.001}
+        mediumStep={0.01}
+        largeStep={0.1}
+        default={0.1}
+        value={(node as any).minProjectionDistance ?? .1}
+      />
+
+      {/* @ts-ignore */}
+      <NumericInputGroup name="maxProjectionDistance"
+        label={"Max Projection Distance"}
+        onChange={(value) => onChangePayload("maxProjectionDistance", value)}
+        min={0.001}
+        smallStep={0.001}
+        mediumStep={0.01}
+        largeStep={0.1}
+        default={100}
+        value={(node as any).maxProjectionDistance ?? 100}
+      />
+      {(cameraMode == CameraModes.Dynamic || cameraMode == CameraModes.ThirdPerson) &&
+        /* @ts-ignore */
+        <NumericInputGroup name="thirdPersonCameraDistance"
+          label={"Third Person Camera Distance"}
+          onChange={(value) => onChangePayload("thirdPersonCameraDistance", value)}
+          min={0.001}
+          smallStep={0.001}
+          mediumStep={0.01}
+          largeStep={0.1}
+          default={20}
+          value={(node as any).thirdPersonCameraDistance}
+        />
+      }
+      {(cameraMode == CameraModes.Dynamic || cameraMode == CameraModes.ShoulderCam) &&
+        /* @ts-ignore */
+        <NumericInputGroup name="shoulderCameraDistance"
+          label={"Shoulder Camera Distance"}
+          onChange={(value) => onChangePayload("shoulderCameraDistance", value)}
+          min={0.001}
+          smallStep={0.001}
+          mediumStep={0.01}
+          largeStep={0.1}
+          default={5}
+          value={(node as any).shoulderCameraDistance}
+        />
+      }
     </NodeEditor>
   )
 }
-CameraPropertiesNodeEditor.iconComponent = Rainbow
+
+CameraPropertiesNodeEditor.iconComponent = Camera
 CameraPropertiesNodeEditor.description = 'For changing scene camera properties'
-export default CameraPropertiesNodeEditor
+
+export default withTranslation()(CameraPropertiesNodeEditor)
