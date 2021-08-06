@@ -25,7 +25,6 @@ import { saveScore } from './behaviors/saveScore'
 import { setupPlayerAvatar, setupPlayerAvatarNotInVR, setupPlayerAvatarVR } from './behaviors/setupPlayerAvatar'
 import { setupPlayerInput } from './behaviors/setupPlayerInput'
 import { removeVelocity, teleportObject, updateColliderPosition } from './behaviors/teleportObject'
-import { teleportPlayerBehavior } from './behaviors/teleportPlayer'
 import { GolfBallComponent } from './components/GolfBallComponent'
 import { GolfClubComponent } from './components/GolfClubComponent'
 import { GolfHoleComponent } from './components/GolfHoleComponent'
@@ -36,6 +35,8 @@ import { ifOutCourse } from './functions/ifOutCourse'
 import { XRInputSourceComponent } from '../../../character/components/XRInputSourceComponent'
 import { hideBall, unhideBall } from './behaviors/hideUnhideBall'
 import { GolfState } from './GolfGameComponents'
+import { Quaternion } from 'three'
+import { teleportPlayer } from '../../../character/functions/teleportPlayer'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -217,7 +218,7 @@ export class GolfSystem extends System {
     for (const entity of this.queryResults.goal.added) {
       const playerComponent = getComponent(entity, GamePlayer)
       const ballEntity = playerComponent.ownedObjects['GolfBall']
-      teleportPlayerBehavior(entity, getPositionNextPoint(entity, { positionCopyFromRole: 'GolfTee-' }))
+      teleportPlayer(entity, getPositionNextPoint(entity, { positionCopyFromRole: 'GolfTee-' }), new Quaternion())
       teleportObject(ballEntity, getPositionNextPoint(entity, { positionCopyFromRole: 'GolfTee-' }))
       removeStateComponent(entity, GolfState.Goal)
     }
