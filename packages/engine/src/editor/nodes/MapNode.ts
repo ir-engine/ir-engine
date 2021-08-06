@@ -9,6 +9,8 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   static _geometry = new BoxBufferGeometry()
   static _material = new Material()
 
+  mapLayers: { [name: string]: Object3D }
+
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json)
     const {
@@ -40,6 +42,10 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   getStartLongLat() {
     return [parseFloat(this.startLongitude) || -84.388, parseFloat(this.startLatitude) || 33.749]
   }
+  applyScale(object3d: Object3D) {
+    object3d.position.multiplyScalar(this.scale.x)
+    object3d.scale.multiplyScalar(this.scale.x)
+  }
   async addMap(editor) {
     console.log('creating map')
     const renderer = editor.renderer.renderer
@@ -47,25 +53,25 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     const vectorTiles = await fetchVectorTiles(center)
     const rasterTiles = this.showRasterTiles ? await fetchRasterTiles(center) : []
 
-    this.sceneNodes = [
-      createBuildings(vectorTiles, center, renderer),
+    this.mapLayers = {
+      building: createBuildings(vectorTiles, center, renderer),
 
-      createRoads(vectorTiles, center, renderer),
+      roads: createRoads(vectorTiles, center, renderer),
 
-      createGround(rasterTiles, center[1])
-    ]
+      ground: createGround(rasterTiles, center[1])
+    }
 
-    this.sceneNodes.forEach((node) => {
-      node.position.multiplyScalar(this.scale.x)
-      node.scale.multiplyScalar(this.scale.x)
-      this.add(node)
+    Object.values(this.mapLayers).forEach((layer) => {
+      this.applyScale(layer)
+      this.add(layer)
     })
   }
-  async refreshGroundNode() {
+  async refreshGroundLayer() {
     const center = this.getStartLongLat()
     const rasterTiles = this.showRasterTiles ? await fetchRasterTiles(center) : []
-    this.sceneNodes[1] = createGround(rasterTiles, center[1])
-    this.add(this.sceneNodes[1])
+    this.mapLayers.ground = createGround(rasterTiles, center[1])
+    this.applyScale(this.mapLayers.ground)
+    this.editor.scene.add(this.mapLayers.ground)
   }
   copy(source, recursive = true) {
     super.copy(source, recursive)
@@ -74,8 +80,8 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   onChange(prop?: string) {
     if (prop) {
       if (prop === 'showRasterTiles') {
-        this.sceneNodes[1].removeFromParent()
-        this.refreshGroundNode()
+        this.mapLayers.ground.removeFromParent()
+        this.refreshGroundLayer()
       }
     } else {
       this.addMap(this.editor)
