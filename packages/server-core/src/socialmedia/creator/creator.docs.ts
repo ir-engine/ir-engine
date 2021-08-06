@@ -28,6 +28,12 @@ export default {
         },
         email: {
           type: 'string'
+        },
+        terms: {
+          type: 'boolean'
+        },
+        policy: {
+          type: 'boolean'
         }
       }
     },

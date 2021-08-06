@@ -22,6 +22,14 @@ export default (app: Application): any => {
         type: DataTypes.BOOLEAN,
         defaultValue: (): boolean => false
       },
+      terms: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: (): boolean => false
+      },
+      policy: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: (): boolean => false
+      },
       name: {
         type: DataTypes.STRING,
         defaultValue: (): string => '',

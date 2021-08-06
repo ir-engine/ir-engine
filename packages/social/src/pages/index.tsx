@@ -116,7 +116,7 @@ const Home = ({
         {/* <Stories stories={stories} /> */}
         <FeedMenu />
         <AppFooter />
-        <TermsAndPolicy />
+        {currentCreator && (!!!currentCreator.terms || !!!currentCreator.policy) && <TermsAndPolicy />}
         <ArMediaPopup />
         <WebXRStart
           feedHintsOnborded={feedHintsOnborded}

@@ -11,6 +11,10 @@ import DialogContentText from '@material-ui/core/DialogContentText/DialogContent
 import termsText from './terms'
 import policyText from './policy'
 import Button from '@material-ui/core/Button'
+import { bindActionCreators, Dispatch } from 'redux'
+import { updateCreator } from '../../reducers/creator/service'
+import { connect } from 'react-redux'
+import { selectCreatorsState } from '../../reducers/creator/selector'
 
 const Transition = React.forwardRef(
   (props: TransitionProps & { children?: React.ReactElement<any, any> }, ref: React.Ref<unknown>) => {
@@ -18,9 +22,21 @@ const Transition = React.forwardRef(
   }
 )
 
-export const TermsAndPolicy = () => {
-  const [open, setOpen] = useState(true)
-  const [openPP, setOpenPP] = useState(false)
+const mapStateToProps = (state: any): any => {
+  return {
+    creatorsState: selectCreatorsState(state),
+  }
+}
+
+const mapDispatchToProps = (dispatch: Dispatch): any => ({
+  updateCreator: bindActionCreators(updateCreator, dispatch)
+})
+
+export const TermsAndPolicy = ({creatorsState, updateCreator} : any) => {
+  const currentCreator = creatorsState.get('currentCreator')
+
+  const [openTerms, setOpenTerms] = useState(!!!currentCreator.terms)
+  const [openPolicy, setOpenPolicy] = useState(!!!currentCreator.terms ? false : !!!currentCreator.policy)
   const { t } = useTranslation()
   const [agree, setAgree] = useState(false)
   const [agreePP, setAgreePP] = useState(false)
@@ -39,20 +55,21 @@ export const TermsAndPolicy = () => {
     // Don't miss the exclamation mark
   }
 
-  // When the button is clicked
-  const btnHandler = () => {
-    setOpen(false)
-    setOpenPP(true)
+  const handleTermsAccept = () => {
+    setOpenTerms(false)
+    updateCreator({ id:  creatorsState.get('currentCreator').id, terms: true })
+    !!!currentCreator.policy && setOpenPolicy(true);
   }
 
-  const btnHandlerPP = () => {
-    setOpenPP(false)
+  const handlePolicyAccept = () => {
+    updateCreator({ id:  creatorsState.get('currentCreator').id, policy: true })
+    setOpenPolicy(false)
   }
 
   return (
     <div className={styles.mainBlock}>
       <Dialog
-        open={open}
+        open={openTerms}
         TransitionComponent={Transition}
         keepMounted
         aria-labelledby="alert-dialog-slide-title"
@@ -76,17 +93,20 @@ export const TermsAndPolicy = () => {
           <div>
             <div>
               <input type="checkbox" id="agree" onChange={checkboxHandler} />
-              <label htmlFor="agree">{t('social:terms.confirmTerms')}</label>
+              <label htmlFor="agree">
+                {' '}
+                {t('social:terms.confirmTerms')}
+              </label>
             </div>
             {/* Don't miss the exclamation mark* */}
-            <Button variant="contained" disabled={!agree} onClick={btnHandler}>
+            <Button variant="contained" disabled={!agree} onClick={handleTermsAccept}>
               {t('social:continue')}
             </Button>
           </div>
         </div>
       </Dialog>
       <Dialog
-        open={openPP}
+        open={openPolicy}
         TransitionComponent={Transition}
         keepMounted
         aria-labelledby="alert-dialog-slide-title"
@@ -110,10 +130,13 @@ export const TermsAndPolicy = () => {
           <div>
             <div>
               <input type="checkbox" id="agreePP" onChange={checkboxHandlerPP} />
-              <label htmlFor="agree">{t('social:terms.confirmPolicy')}</label>
+              <label htmlFor="agree">
+                {' '}
+                {t('social:terms.confirmPolicy')}
+              </label>
             </div>
             {/* Don't miss the exclamation mark* */}
-            <Button variant="contained" disabled={!agreePP} className="btn" onClick={btnHandlerPP}>
+            <Button variant="contained" disabled={!agreePP} className="btn" onClick={handlePolicyAccept}>
               {t('social:continue')}
             </Button>
           </div>
@@ -123,4 +146,4 @@ export const TermsAndPolicy = () => {
   )
 }
 
-export default TermsAndPolicy
+export default connect(mapStateToProps, mapDispatchToProps)(TermsAndPolicy)

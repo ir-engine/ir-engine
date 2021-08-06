@@ -169,7 +169,7 @@
         "back": "Back"
     },
     "terms":{
-        "confirmTerms": "I agree to <b>Terms of Service</b>",
-        "confirmPolicy": "I agree to <b>Privacy Policy</b>"
+        "confirmTerms": "I agree to Terms of Service",
+        "confirmPolicy": "I agree to Privacy Policy"
     }
 }
