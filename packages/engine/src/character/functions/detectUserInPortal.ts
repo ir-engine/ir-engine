@@ -5,7 +5,7 @@ import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFun
 import { PhysicsSystem } from '../../physics/systems/PhysicsSystem'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
-import { teleportPlayer } from '../prefabs/NetworkPlayerCharacter'
+import { teleportPlayer } from './teleportPlayer'
 
 export const detectUserInPortal = (entity: Entity): void => {
   const raycastComponent = getComponent(entity, RaycastComponent)

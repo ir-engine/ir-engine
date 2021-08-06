@@ -2,7 +2,6 @@ import { Entity } from '../../../../ecs/classes/Entity'
 import { NetworkPrefab } from '../../../../networking/interfaces/NetworkPrefab'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
-import { RigidBodyComponent } from '../../../../physics/components/RigidBody'
 import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject'
 import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameConstants'
 import {
@@ -409,7 +408,6 @@ export const GolfClubPrefab: NetworkPrefab = {
   networkComponents: [
     // Transform system applies values from transform component to three.js object (position, rotation, etc)
     { type: TransformComponent },
-    { type: RigidBodyComponent },
     { type: VelocityComponent },
     { type: GameObject },
     { type: GolfClubComponent },

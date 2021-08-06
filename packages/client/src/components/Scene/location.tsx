@@ -22,7 +22,7 @@ import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/servic
 import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
-import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
+import { teleportPlayer } from '@xrengine/engine/src/character/functions/teleportPlayer'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'

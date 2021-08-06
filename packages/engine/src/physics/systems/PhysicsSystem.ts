@@ -1,6 +1,6 @@
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { System } from '../../ecs/classes/System'
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { BodyType, PhysXInstance } from 'three-physx'
@@ -9,6 +9,12 @@ import { Network } from '../../networking/classes/Network'
 import { Engine } from '../../ecs/classes/Engine'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
+import { SpawnNetworkObjectComponent } from '../../scene/components/SpawnNetworkObjectComponent'
+import { RigidBodyTagComponent } from '../components/RigidBodyTagComponent'
+import { Quaternion, Vector3 } from 'three'
+import { InterpolationComponent } from '../components/InterpolationComponent'
+import { isClient } from '../../common/functions/isClient'
+import { PrefabType } from '../../networking/templates/PrefabType'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -57,6 +63,29 @@ export class PhysicsSystem extends System {
   }
 
   execute(delta: number): void {
+    for (const entity of this.queryResults.spawnNetworkObject.added) {
+      const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
+
+      addComponent(entity, TransformComponent, {
+        position: new Vector3().copy(parameters.position),
+        rotation: new Quaternion().copy(parameters.rotation)
+      })
+
+      addComponent(entity, ColliderComponent)
+
+      if (isClient) {
+        addComponent(entity, InterpolationComponent)
+      } else {
+        Network.instance.worldState.createObjects.push({
+          networkId: networkId,
+          ownerId: uniqueId,
+          prefabType: PrefabType.RigidBody,
+          uniqueId,
+          parameters: parameters
+        })
+      }
+    }
+
     for (const entity of this.queryResults.collider.removed) {
       const colliderComponent = getComponent(entity, ColliderComponent, true)
       if (colliderComponent) {
@@ -109,6 +138,13 @@ export class PhysicsSystem extends System {
 }
 
 PhysicsSystem.queries = {
+  spawnNetworkObject: {
+    components: [SpawnNetworkObjectComponent, RigidBodyTagComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
   collider: {
     components: [ColliderComponent, TransformComponent],
     listen: {
