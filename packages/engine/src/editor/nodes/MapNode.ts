@@ -18,7 +18,8 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
       useStartCoordinates,
       startLatitude,
       startLongitude,
-      scale
+      scale,
+      showRasterTiles
     } = json.components.find((c) => c.name === 'map').props
     node.isGlobal = isGlobal
     node.useTimeOfDay = useTimeOfDay
@@ -27,6 +28,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     node.startLatitude = startLatitude
     node.startLongitude = startLongitude
     node.name = name
+    node.showRasterTiles = showRasterTiles
     console.log('setting node.scale, which is', node.scale)
     node.scale.set(scale.x, scale.y, scale.z)
     return node
@@ -42,7 +44,8 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
       useDirectionalShadows: this.useDirectionalShadows,
       useStartCoordinates: this.useStartCoordinates,
       startLatitude: this.startLatitude,
-      startLongitude: this.startLongitude
+      startLongitude: this.startLongitude,
+      showRasterTiles: this.showRasterTiles
     })
   }
   copy(source, recursive = true) {
@@ -63,7 +66,8 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
         useDirectionalShadows: this.useDirectionalShadows,
         useStartCoordinates: this.useStartCoordinates,
         startLatitude: this.startLatitude,
-        startLongitude: this.startLongitude
+        startLongitude: this.startLongitude,
+        showRasterTiles: this.showRasterTiles
       }
     } as any
     return super.serialize(projectID, components)

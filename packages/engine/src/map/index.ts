@@ -12,7 +12,7 @@ export const addMap = async function (scene: THREE.Scene, renderer: THREE.WebGLR
     // TODO use object
     const center = [parseFloat(args.startLongitude) || -84.388, parseFloat(args.startLatitude) || 33.749]
     const vectorTiles = await fetchVectorTiles(center)
-    const rasterTiles = await fetchRasterTiles(center)
+    const rasterTiles = args.showRasterTiles ? await fetchRasterTiles(center) : null
     const mesh = buildMesh(vectorTiles, rasterTiles, center, renderer)
     mesh.position.multiplyScalar(args.scale.x)
     mesh.scale.multiplyScalar(args.scale.x)

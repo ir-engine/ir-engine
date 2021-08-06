@@ -335,7 +335,7 @@ function buildGroundMesh(rasterTiles: ImageBitmap[], latitude: number): Object3D
 
 export function buildMesh(
   vectorTiles: TileFeaturesByLayer[],
-  rasterTiles: ImageBitmap[],
+  rasterTiles: ImageBitmap[] | null,
   llCenter: Position,
   renderer: WebGLRenderer
 ): Group {
@@ -345,12 +345,16 @@ export function buildMesh(
   const objects3d = [
     ...buildObjects3D('building', buildingFeatures, llCenter, renderer),
     ...buildObjects3D('road', roadFeatures, llCenter, renderer),
-    buildGroundMesh(rasterTiles, llCenter[1]),
     ...(ENABLE_DEBUG ? buildDebuggingLabels(buildingFeatures, llCenter) : [])
   ]
 
   objects3d.forEach((o) => {
     group.add(o)
   })
+
+  if (rasterTiles) {
+    group.add(buildGroundMesh(rasterTiles, llCenter[1]))
+  }
+
   return group
 }

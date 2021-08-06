@@ -31,6 +31,10 @@ export function MapNodeEditor(props: { editor?: any; node?: any; t: any }) {
     editor.setPropertySelected('useStartCoordinates', payload)
   }
 
+  const onChangeShowRasterTiles = (payload) => {
+    editor.setPropertySelected('showRasterTiles', payload)
+  }
+
   //defining description and shows this description in NodeEditor  with title of elementt,
   // available to add in scene in assets.
   const description = i18n.t('editor:properties.map.description')
@@ -68,6 +72,13 @@ export function MapNodeEditor(props: { editor?: any; node?: any; t: any }) {
           value={node.startLongitude}
           onChange={onChangeStartLongitude}
         />
+      </InputGroup>
+      <InputGroup
+        name="Show Raster Tiles?"
+        label={t('editor:properties.map.lbl-showRasterTiles')}
+        info={t('editor:properties.map.info-showRasterTiles')}
+      >
+        <BooleanInput value={node.showRasterTiles} onChange={onChangeShowRasterTiles} />
       </InputGroup>
     </NodeEditor>
   )
