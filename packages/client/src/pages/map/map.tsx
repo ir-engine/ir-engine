@@ -20,6 +20,7 @@ import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/servic
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { teleportPlayer } from '@xrengine/engine/src/character/functions/teleportPlayer'
+import { NetworkPlayerCharacter } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
 import { awaitEngaged, Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
@@ -48,6 +49,20 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import MediaIconsBox from './MapMediaIconsBox'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { teleportToScene } from '../../../../engine/src/scene/functions/teleportToScene'
+import { getComponent, hasComponent } from '../../../../engine/src/ecs/functions/EntityFunctions'
+import { LocalInputReceiver } from '../../../../engine/src/input/components/LocalInputReceiver'
+import { Object3DComponent } from '../../../../engine/src/scene/components/Object3DComponent'
+
+NetworkPlayerCharacter.onAfterCreate.push({
+  behavior: (entity): void => {
+    console.log('created', entity, hasComponent(entity, LocalInputReceiver))
+    if (hasComponent(entity, LocalInputReceiver) == true) {
+      Engine.audioListener.removeFromParent()
+      getComponent(entity, Object3DComponent).value.add(Engine.audioListener)
+    }
+  },
+  networked: false
+})
 
 const store = Store.store
 

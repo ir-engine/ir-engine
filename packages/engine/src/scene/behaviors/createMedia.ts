@@ -8,6 +8,7 @@ import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFun
 import Video from '../classes/Video'
 import MediaComponent from '../components/MediaComponent'
 import AudioSource from '../classes/AudioSource'
+import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 
 const isBrowser = new Function('try {return this===window;}catch(e){ return false;}')
 
@@ -54,6 +55,7 @@ export function createAudio(entity, args: AudioProps): void {
   addObject3DComponent(entity, audio, args)
   audio.load()
   addComponent(entity, MediaComponent)
+  addComponent(entity, PositionalAudioComponent)
   if (args.interactable) addComponent(entity, Interactable)
 }
 
