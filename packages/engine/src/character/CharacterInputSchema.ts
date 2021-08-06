@@ -3,7 +3,7 @@ import { Entity } from '../ecs/classes/Entity'
 import { addComponent, getComponent } from '../ecs/functions/EntityFunctions'
 import { Input } from '../input/components/Input'
 import { BaseInput } from '../input/enums/BaseInput'
-import { Camera, Material, Mesh, Quaternion, Vector3, Vector2 } from 'three'
+import { Camera, Material, Mesh, Quaternion, Vector3, Vector2, PerspectiveCamera } from 'three'
 import { SkinnedMesh } from 'three/src/objects/SkinnedMesh'
 import { CameraModes } from '../camera/types/CameraModes'
 import { LifecycleValue } from '../common/enums/LifecycleValue'
@@ -23,6 +23,10 @@ import { InputValue } from '../input/interfaces/InputValue'
 import { NumericalType } from '../common/types/NumericalTypes'
 import { InteractedComponent } from '../interaction/components/InteractedComponent'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
+import { Engine } from '../ecs/classes/Engine'
+import { CameraComponent } from '../camera/components/CameraComponent'
+import { ProjectionTypes } from '../camera/types/ProjectionTypes'
+import { OrthographicCamera } from 'three'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -133,22 +137,35 @@ const setVisible = (entity: Entity, visible: boolean): void => {
   }
 }
 
-let changeTimeout = undefined
+// let changeTimeout = undefined
 export const switchCameraMode = (
   entity: Entity,
-  args: any = { pointerLock: false, mode: CameraModes.ThirdPerson }
+  args: any = { pointerLock: false, cameraMode: CameraModes.ThirdPerson, distance: 3,  }
 ): void => {
-  if (changeTimeout !== undefined) return
-  changeTimeout = setTimeout(() => {
-    clearTimeout(changeTimeout)
-    changeTimeout = undefined
-  }, 250)
+  // if (changeTimeout !== undefined) return
+  // changeTimeout = setTimeout(() => {
+  //   clearTimeout(changeTimeout)
+  //   changeTimeout = undefined
+  // }, 250)
 
   const cameraFollow = getMutableComponent(entity, FollowCameraComponent)
-  console.log('switchCameraMode', cameraFollow.mode, args.mode)
-  cameraFollow.mode = args.mode
+  console.log('args', args)
+  getMutableComponent(Engine.activeCameraEntity, CameraComponent)
+  if(args.projectionType && args.projectionType != ProjectionTypes.Perspective){
+    console.log("**** Setting orthographic camera");
+    Engine.camera = new OrthographicCamera( args.fov / - 2, args.fov / 2, args.fov / 2, args.fov / - 2, args.cameraNearClip, args.cameraFarClip );
+  } else
+  if(args.fov){
+  (Engine.camera as PerspectiveCamera).fov = args.fov;
+  Engine.camera.near = args.cameraNearClip
+  Engine.camera.far = args.cameraFarClip
+}
+Engine.camera.updateProjectionMatrix ();
 
-  switch (args.mode) {
+  cameraFollow.mode = args.cameraMode
+  console.log("entity")
+  console.log(entity);
+  switch (args.cameraMode) {
     case CameraModes.FirstPerson:
       {
         cameraFollow.phi = 0
@@ -162,7 +179,6 @@ export const switchCameraMode = (
         setVisible(entity, true)
       }
       break
-
     default:
     case CameraModes.ThirdPerson:
       {
@@ -175,7 +191,14 @@ export const switchCameraMode = (
         setVisible(entity, true)
       }
       break
+    case CameraModes.Strategic:
+      {
+        setVisible(entity, true)
+      }
+      break
   }
+
+
 }
 
 let lastScrollDelta = 0
@@ -196,7 +219,7 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
   }
 
   const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent)
-  if (cameraFollow === undefined || cameraFollow.mode === CameraModes.Isometric) return //console.warn("cameraFollow is undefined");
+  if (cameraFollow === undefined || cameraFollow.mode === CameraModes.Strategic) return //console.warn("cameraFollow is undefined");
 
   const inputPrevValue = (inputComponent.prevData.get(inputKey)?.value as number) ?? 0
   const value = inputValue.value as number

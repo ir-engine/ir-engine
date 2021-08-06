@@ -85,7 +85,7 @@ const followCameraBehavior = (entity: Entity) => {
     followCamera.theta = (theta * 180) / Math.PI + 180
   }
 
-  if (followCamera.mode !== CameraModes.Isometric) {
+  if (followCamera.mode !== CameraModes.Strategic) {
     followCamera.theta -= inputValue[0]
     followCamera.theta %= 360
 
@@ -97,7 +97,7 @@ const followCameraBehavior = (entity: Entity) => {
     camDist = 0.01
     theta = followCamera.theta
     vec3.set(0, actor.actorHeight, 0)
-  } else if (followCamera.mode === CameraModes.Isometric) {
+  } else if (followCamera.mode === CameraModes.Strategic) {
     vec3.set(0, actor.actorHeight * 2, -3)
     theta = 180
     phi = 150
@@ -128,7 +128,7 @@ const followCameraBehavior = (entity: Entity) => {
 
   if (
     followCamera.mode !== CameraModes.FirstPerson &&
-    followCamera.mode !== CameraModes.Isometric &&
+    followCamera.mode !== CameraModes.Strategic &&
     followCamera.rayHasHit &&
     closestHit.distance < camDist
   ) {

@@ -11,13 +11,13 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
   static async deserialize(editor, json) {
     console.log('Deserializing The GameNode')
     const node = await super.deserialize(editor, json)
-    const { name, fov, minProjectionDistance, maxProjectionDistance, projectionType, shoulderCameraDistance, thirdPersonCameraDistance, cameraMode, cameraModeDefault } = json.components.find(
+    const { name, fov, cameraNearClip, cameraFarClip, projectionType, shoulderCameraDistance, thirdPersonCameraDistance, cameraMode, cameraModeDefault } = json.components.find(
       (c) => c.name === CameraPropertiesNode.legacyComponentName
     ).props
     node.name = name
     node.fov = fov ?? 50
-    node.minProjectionDistance = minProjectionDistance ?? .1
-    node.maxProjectionDistance = maxProjectionDistance ?? 100
+    node.cameraNearClip = cameraNearClip ?? .1
+    node.cameraFarClip = cameraFarClip ?? 100
     node.projectionType = projectionType
     node.thirdPersonCameraDistance = thirdPersonCameraDistance ?? 20
     node.shoulderCameraDistance = shoulderCameraDistance ?? 6
@@ -38,8 +38,8 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
       cameraproperties: {
         name: this.name,
         fov: this.fov,
-        minProjectionDistance: this.minProjectionDistance,
-        maxProjectionDistance: this.maxProjectionDistance,
+        cameraNearClip: this.cameraNearClip,
+        cameraFarClip: this.cameraFarClip,
         projectionType: this.projectionType,
         thirdPersonCameraDistance: this.thirdPersonCameraDistance,
         shoulderCameraDistance: this.shoulderCameraDistance,

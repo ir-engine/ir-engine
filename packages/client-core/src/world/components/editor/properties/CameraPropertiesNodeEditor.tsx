@@ -46,6 +46,10 @@ const cameraModeSelect = [
     value: CameraModes.TopDown
   },
   {
+    label: 'Strategic',
+    value: CameraModes.Strategic
+  },
+  {
     label: 'Dynamic',
     value: CameraModes.Dynamic
   }
@@ -148,27 +152,27 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
       />
 
       {/* @ts-ignore */}
-      <NumericInputGroup name="minProjectionDistance"
+      <NumericInputGroup name="cameraNearClip"
         label={"Min Projection Distance"}
-        onChange={(value) => onChangePayload("minProjectionDistance", value)}
+        onChange={(value) => onChangePayload("cameraNearClip", value)}
         min={0.001}
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
         default={0.1}
-        value={(node as any).minProjectionDistance ?? .1}
+        value={(node as any).cameraNearClip ?? .1}
       />
 
       {/* @ts-ignore */}
-      <NumericInputGroup name="maxProjectionDistance"
+      <NumericInputGroup name="cameraFarClip"
         label={"Max Projection Distance"}
-        onChange={(value) => onChangePayload("maxProjectionDistance", value)}
+        onChange={(value) => onChangePayload("cameraFarClip", value)}
         min={0.001}
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
         default={100}
-        value={(node as any).maxProjectionDistance ?? 100}
+        value={(node as any).cameraFarClip ?? 100}
       />
       {(cameraMode == CameraModes.Dynamic || cameraMode == CameraModes.ThirdPerson) &&
         /* @ts-ignore */

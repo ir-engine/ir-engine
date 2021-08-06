@@ -4,5 +4,6 @@ export const CameraModes = {
   ShoulderCam: 'shoulderCam',
   ThirdPerson: 'thirdPerson',
   TopDown: 'topDown',
+  Strategic: 'strategic',
   Dynamic: 'dynamic'
 }
