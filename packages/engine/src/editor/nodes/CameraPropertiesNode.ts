@@ -6,12 +6,21 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
 
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json)
-    const { name, fov, cameraNearClip, cameraFarClip, projectionType, maxCameraDistance, startCameraDistance, minCameraDistance, cameraMode, cameraModeDefault } = json.components.find(
-      (c) => c.name === CameraPropertiesNode.legacyComponentName
-    ).props
+    const {
+      name,
+      fov,
+      cameraNearClip,
+      cameraFarClip,
+      projectionType,
+      maxCameraDistance,
+      startCameraDistance,
+      minCameraDistance,
+      cameraMode,
+      cameraModeDefault
+    } = json.components.find((c) => c.name === CameraPropertiesNode.legacyComponentName).props
     node.name = name
     node.fov = fov ?? 50
-    node.cameraNearClip = cameraNearClip ?? .1
+    node.cameraNearClip = cameraNearClip ?? 0.1
     node.cameraFarClip = cameraFarClip ?? 100
     node.projectionType = projectionType
     node.minCameraDistance = minCameraDistance ?? 20

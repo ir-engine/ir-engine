@@ -117,7 +117,7 @@ export class PositionalAudioSystem extends System {
       this.characterAudioStream.delete(entity)
     }
 
-    for (const entity of this.queryResults.positional_audio.added) {      
+    for (const entity of this.queryResults.positional_audio.added) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent)
       applyMediaAudioSettings(positionalAudio.value)
       if (positionalAudio != null) Engine.scene.add(positionalAudio.value)

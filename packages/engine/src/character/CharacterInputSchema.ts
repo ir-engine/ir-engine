@@ -126,11 +126,11 @@ const setVisible = (entity: Entity, visible: boolean): void => {
       const mat = (obj as SkinnedMesh).material
       if (mat) {
         if (visible) {
-          (mat as Material).opacity = 1
-            ; (mat as Material).transparent = false
+          ;(mat as Material).opacity = 1
+          ;(mat as Material).transparent = false
         } else {
-          (mat as Material).opacity = 0
-            ; (mat as Material).transparent = true
+          ;(mat as Material).opacity = 0
+          ;(mat as Material).transparent = true
         }
       }
     })
@@ -153,10 +153,18 @@ export const setCameraProperties = (
   console.log('args', args)
   if (setAllProperties) {
     if (args.projectionType && args.projectionType != ProjectionTypes.Perspective) {
-      console.log("**** Setting orthographic camera")
-      Engine.camera = new OrthographicCamera(args.fov / - 2, args.fov / 2, args.fov / 2, args.fov / - 2, args.cameraNearClip, args.cameraFarClip)
-    } else
-      if ((Engine.camera as PerspectiveCamera).fov) { (Engine.camera as PerspectiveCamera).fov = args.fov }
+      console.log('**** Setting orthographic camera')
+      Engine.camera = new OrthographicCamera(
+        args.fov / -2,
+        args.fov / 2,
+        args.fov / 2,
+        args.fov / -2,
+        args.cameraNearClip,
+        args.cameraFarClip
+      )
+    } else if ((Engine.camera as PerspectiveCamera).fov) {
+      ;(Engine.camera as PerspectiveCamera).fov = args.fov
+    }
     Engine.camera.near = args.cameraNearClip
     Engine.camera.far = args.cameraFarClip
     cameraFollow.minDistance = args.minCameraDistance
@@ -166,7 +174,7 @@ export const setCameraProperties = (
   }
 
   cameraFollow.mode = args.cameraMode
-  console.log("entity")
+  console.log('entity')
   console.log(entity)
   switch (args.cameraMode) {
     case CameraModes.FirstPerson:
@@ -200,8 +208,6 @@ export const setCameraProperties = (
       }
       break
   }
-
-
 }
 
 let lastScrollDelta = 0
@@ -596,8 +602,8 @@ export const createBehaviorMap = () => {
 }
 
 export const CharacterInputSchema: InputSchema = {
-  onAdded: () => { },
-  onRemove: () => { },
+  onAdded: () => {},
+  onRemove: () => {},
   inputMap: createCharacterInput(),
   behaviorMap: createBehaviorMap()
 }

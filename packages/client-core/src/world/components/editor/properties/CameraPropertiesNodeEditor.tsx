@@ -18,7 +18,7 @@ type CameraPropertiesNodeEditorPropTypes = {
 }
 
 interface Props {
-  node?: any,
+  node?: any
   value?: any
   onChangeFunction?: any
   op?: any
@@ -91,7 +91,7 @@ const projectionTypeSelect = [
 
 export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorPropTypes) {
   const { node, editor, t } = props
-  const [cameraMode, setCameraMode] = useState(node.cameraMode) as any;
+  const [cameraMode, setCameraMode] = useState(node.cameraMode) as any
 
   // function to handle changes in payloadName property
   const onChangePayload = (propName, prop) => {
@@ -101,45 +101,49 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
   //defining description and shows this description in NodeEditor  with title of elementt,
   // available to add in scene in assets.
   return (
-    <NodeEditor {...props} description={"Properties that will affect the player camera"}>
+    <NodeEditor {...props} description={'Properties that will affect the player camera'}>
       {/* @ts-ignore */}
-      <InputGroup name="Projection Type" label={"Projection Type"}>
+      <InputGroup name="Projection Type" label={'Projection Type'}>
         {/* @ts-ignore */}
         <SelectInput
           placeholder={projectionTypeSelect[0].label}
           value={node.projectionType}
-          onChange={(value) => onChangePayload("projectionType", value)}
+          onChange={(value) => onChangePayload('projectionType', value)}
           options={projectionTypeSelect}
         />
       </InputGroup>
       {/* @ts-ignore */}
-      <InputGroup name="Camera Mode" label={"Camera Mode"}>
+      <InputGroup name="Camera Mode" label={'Camera Mode'}>
         {/* @ts-ignore */}
         <SelectInput
           placeholder={cameraModeSelect[0].label}
           value={node.cameraMode}
-          onChange={(value) => { onChangePayload("cameraMode", value); setCameraMode(value) }}
+          onChange={(value) => {
+            onChangePayload('cameraMode', value)
+            setCameraMode(value)
+          }}
           options={cameraModeSelect}
         />
       </InputGroup>
 
-      {cameraMode == CameraModes.Dynamic &&
+      {cameraMode == CameraModes.Dynamic && (
         /* @ts-ignore */
-        <InputGroup name="Default Camera Mode" label={"Default Camera Mode"}>
+        <InputGroup name="Default Camera Mode" label={'Default Camera Mode'}>
           {/* @ts-ignore */}
           <SelectInput
             placeholder={defaultCameraModeSelect[0].label}
             value={node.defaultCameraMode}
-            onChange={(value) => onChangePayload("defaultCameraMode", value)}
+            onChange={(value) => onChangePayload('defaultCameraMode', value)}
             options={defaultCameraModeSelect}
           />
         </InputGroup>
-      }
+      )}
       {/* @ts-ignore */}
 
-      <NumericInputGroup name="Field Of View"
-        label={"FOV"}
-        onChange={(value) => onChangePayload("fov", value)}
+      <NumericInputGroup
+        name="Field Of View"
+        label={'FOV'}
+        onChange={(value) => onChangePayload('fov', value)}
         min={1}
         max={180}
         default={50}
@@ -150,21 +154,23 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
       />
 
       {/* @ts-ignore */}
-      <NumericInputGroup name="cameraNearClip"
-        label={"Min Projection Distance"}
-        onChange={(value) => onChangePayload("cameraNearClip", value)}
+      <NumericInputGroup
+        name="cameraNearClip"
+        label={'Min Projection Distance'}
+        onChange={(value) => onChangePayload('cameraNearClip', value)}
         min={0.001}
         smallStep={0.001}
         mediumStep={0.01}
         largeStep={0.1}
         default={0.1}
-        value={(node as any).cameraNearClip ?? .1}
+        value={(node as any).cameraNearClip ?? 0.1}
       />
 
       {/* @ts-ignore */}
-      <NumericInputGroup name="cameraFarClip"
-        label={"Max Projection Distance"}
-        onChange={(value) => onChangePayload("cameraFarClip", value)}
+      <NumericInputGroup
+        name="cameraFarClip"
+        label={'Max Projection Distance'}
+        onChange={(value) => onChangePayload('cameraFarClip', value)}
         min={0.001}
         smallStep={0.001}
         mediumStep={0.01}
@@ -172,30 +178,31 @@ export function CameraPropertiesNodeEditor(props: CameraPropertiesNodeEditorProp
         default={100}
         value={(node as any).cameraFarClip ?? 100}
       />
-        {/* @ts-ignore */}
-        <NumericInputGroup name="minCameraDistance"
-          label={"Min Camera Distance"}
-          onChange={(value) => onChangePayload("minCameraDistance", value)}
-          min={0.001}
-          smallStep={0.001}
-          mediumStep={0.01}
-          largeStep={0.1}
-          default={20}
-          value={(node as any).minCameraDistance ?? 1}
-        />
-      
-        {/* @ts-ignore */}
-        <NumericInputGroup name="maxCameraDistance"
-          label={"Max Camera Distance"}
-          onChange={(value) => onChangePayload("maxCameraDistance", value)}
-          min={0.001}
-          smallStep={0.001}
-          mediumStep={0.01}
-          largeStep={0.1}
-          default={5}
-          value={(node as any).maxCameraDistance ?? 50}
-        />
-      
+      {/* @ts-ignore */}
+      <NumericInputGroup
+        name="minCameraDistance"
+        label={'Min Camera Distance'}
+        onChange={(value) => onChangePayload('minCameraDistance', value)}
+        min={0.001}
+        smallStep={0.001}
+        mediumStep={0.01}
+        largeStep={0.1}
+        default={20}
+        value={(node as any).minCameraDistance ?? 1}
+      />
+
+      {/* @ts-ignore */}
+      <NumericInputGroup
+        name="maxCameraDistance"
+        label={'Max Camera Distance'}
+        onChange={(value) => onChangePayload('maxCameraDistance', value)}
+        min={0.001}
+        smallStep={0.001}
+        mediumStep={0.01}
+        largeStep={0.1}
+        default={5}
+        value={(node as any).maxCameraDistance ?? 50}
+      />
     </NodeEditor>
   )
 }
