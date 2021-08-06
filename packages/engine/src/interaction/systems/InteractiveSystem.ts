@@ -57,6 +57,7 @@ export class InteractiveSystem extends System {
     this.interactTextEntity = createEntity()
     const textGroup = new Group().add(text)
     addComponent(this.interactTextEntity, Object3DComponent, { value: textGroup })
+    Engine.scene.add(textGroup)
     const transformComponent = addComponent(this.interactTextEntity, TransformComponent)
     transformComponent.scale.setScalar(0)
     textGroup.visible = false
@@ -174,23 +175,21 @@ export class InteractiveSystem extends System {
 
     for (const entity of this.queryResults.local_user.all) {
       // animate the interact text up and down if it's visible
-      if (this.interactTextEntity && hasComponent(this.interactTextEntity, Object3DComponent)) {
-        const interactTextObject = getComponent(this.interactTextEntity, Object3DComponent).value
-        interactTextObject.children[0].position.y = Math.sin(time * 1.8) * 0.05
-
-        const activeCameraComponent = getMutableComponent(Engine.activeCameraEntity, CameraComponent)
-        if (
-          activeCameraComponent.followTarget &&
-          hasComponent(activeCameraComponent.followTarget, FollowCameraComponent)
-        ) {
-          interactTextObject.children[0].setRotationFromAxisAngle(
-            upVec,
-            MathUtils.degToRad(getComponent(activeCameraComponent.followTarget, FollowCameraComponent).theta)
-          )
-        } else {
-          const { x, z } = getComponent(entity, TransformComponent).position
-          interactTextObject.lookAt(x, interactTextObject.position.y, z)
-        }
+      const interactTextObject = getComponent(this.interactTextEntity, Object3DComponent).value
+      if (!interactTextObject.visible) continue
+      interactTextObject.children[0].position.y = Math.sin(time * 1.8) * 0.05
+      const activeCameraComponent = getMutableComponent(Engine.activeCameraEntity, CameraComponent)
+      if (
+        activeCameraComponent.followTarget &&
+        hasComponent(activeCameraComponent.followTarget, FollowCameraComponent)
+      ) {
+        interactTextObject.children[0].setRotationFromAxisAngle(
+          upVec,
+          MathUtils.degToRad(getComponent(activeCameraComponent.followTarget, FollowCameraComponent).theta)
+        )
+      } else {
+        const { x, z } = getComponent(entity, TransformComponent).position
+        interactTextObject.lookAt(x, interactTextObject.position.y, z)
       }
     }
   }

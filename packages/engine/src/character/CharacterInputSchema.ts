@@ -23,10 +23,7 @@ import { InputValue } from '../input/interfaces/InputValue'
 import { NumericalType } from '../common/types/NumericalTypes'
 import { InteractedComponent } from '../interaction/components/InteractedComponent'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
-import { Engine } from '../ecs/classes/Engine'
-import { CameraComponent } from '../camera/components/CameraComponent'
-import { ProjectionTypes } from '../camera/types/ProjectionTypes'
-import { OrthographicCamera } from 'three'
+import { switchCameraMode } from './functions/switchCameraMode'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -71,17 +68,17 @@ const cycleCameraMode = (
 
   switch (cameraFollow?.mode) {
     case CameraModes.FirstPerson:
-      setCameraProperties(entity, { mode: CameraModes.ShoulderCam })
+      switchCameraMode(entity, { cameraMode: CameraModes.ShoulderCam })
       break
     case CameraModes.ShoulderCam:
-      setCameraProperties(entity, { mode: CameraModes.ThirdPerson })
+      switchCameraMode(entity, { cameraMode: CameraModes.ThirdPerson })
       cameraFollow.distance = cameraFollow.minDistance + 1
       break
     case CameraModes.ThirdPerson:
-      setCameraProperties(entity, { mode: CameraModes.TopDown })
+      switchCameraMode(entity, { cameraMode: CameraModes.TopDown })
       break
     case CameraModes.TopDown:
-      setCameraProperties(entity, { mode: CameraModes.FirstPerson })
+      switchCameraMode(entity, { cameraMode: CameraModes.FirstPerson })
       break
     default:
       break
@@ -114,99 +111,6 @@ const switchShoulderSide: InputBehaviorType = (
   const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent)
   if (cameraFollow) {
     cameraFollow.shoulderSide = !cameraFollow.shoulderSide
-  }
-}
-
-const setVisible = (entity: Entity, visible: boolean): void => {
-  const actor = getMutableComponent(entity, CharacterComponent)
-  const object3DComponent = getComponent(entity, Object3DComponent)
-  if (actor.visible !== visible) {
-    actor.visible = visible
-    object3DComponent.value.traverse((obj) => {
-      const mat = (obj as SkinnedMesh).material
-      if (mat) {
-        if (visible) {
-          ;(mat as Material).opacity = 1
-          ;(mat as Material).transparent = false
-        } else {
-          ;(mat as Material).opacity = 0
-          ;(mat as Material).transparent = true
-        }
-      }
-    })
-  }
-}
-
-// let changeTimeout = undefined
-export const setCameraProperties = (
-  entity: Entity,
-  args: any = { pointerLock: false, cameraMode: CameraModes.ThirdPerson },
-  setAllProperties = false
-): void => {
-  // if (changeTimeout !== undefined) return
-  // changeTimeout = setTimeout(() => {
-  //   clearTimeout(changeTimeout)
-  //   changeTimeout = undefined
-  // }, 250)
-
-  const cameraFollow = getMutableComponent(entity, FollowCameraComponent)
-  console.log('args', args)
-  if (setAllProperties) {
-    if (args.projectionType && args.projectionType != ProjectionTypes.Perspective) {
-      console.log('**** Setting orthographic camera')
-      Engine.camera = new OrthographicCamera(
-        args.fov / -2,
-        args.fov / 2,
-        args.fov / 2,
-        args.fov / -2,
-        args.cameraNearClip,
-        args.cameraFarClip
-      )
-    } else if ((Engine.camera as PerspectiveCamera).fov) {
-      ;(Engine.camera as PerspectiveCamera).fov = args.fov
-    }
-    Engine.camera.near = args.cameraNearClip
-    Engine.camera.far = args.cameraFarClip
-    cameraFollow.minDistance = args.minCameraDistance
-    cameraFollow.maxDistance = args.maxCameraDistance
-    cameraFollow.distance = args.startCameraDistance
-    Engine.camera.updateProjectionMatrix()
-  }
-
-  cameraFollow.mode = args.cameraMode
-  console.log('entity')
-  console.log(entity)
-  switch (args.cameraMode) {
-    case CameraModes.FirstPerson:
-      {
-        cameraFollow.phi = 0
-        cameraFollow.locked = true
-        setVisible(entity, false)
-      }
-      break
-
-    case CameraModes.ShoulderCam:
-      {
-        setVisible(entity, true)
-      }
-      break
-    default:
-    case CameraModes.ThirdPerson:
-      {
-        setVisible(entity, true)
-      }
-      break
-
-    case CameraModes.TopDown:
-      {
-        setVisible(entity, true)
-      }
-      break
-    case CameraModes.Strategic:
-      {
-        setVisible(entity, true)
-      }
-      break
   }
 }
 
@@ -243,16 +147,16 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
   switch (cameraFollow.mode) {
     case CameraModes.FirstPerson:
       if (scrollDelta > 0) {
-        setCameraProperties(entity, { mode: CameraModes.ShoulderCam })
+        switchCameraMode(entity, { cameraMode: CameraModes.ShoulderCam })
       }
       break
     case CameraModes.ShoulderCam:
       if (scrollDelta > 0) {
-        setCameraProperties(entity, { mode: CameraModes.ThirdPerson })
+        switchCameraMode(entity, { cameraMode: CameraModes.ThirdPerson })
         cameraFollow.distance = cameraFollow.minDistance + 1
       }
       if (scrollDelta < 0) {
-        setCameraProperties(entity, { mode: CameraModes.FirstPerson })
+        switchCameraMode(entity, { cameraMode: CameraModes.FirstPerson })
       }
       break
     default:
@@ -262,18 +166,18 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
 
       if (cameraFollow.distance >= cameraFollow.maxDistance) {
         if (scrollDelta > 0) {
-          setCameraProperties(entity, { mode: CameraModes.TopDown })
+          switchCameraMode(entity, { cameraMode: CameraModes.TopDown })
         }
       } else if (cameraFollow.distance <= cameraFollow.minDistance) {
         if (scrollDelta < 0) {
-          setCameraProperties(entity, { mode: CameraModes.ShoulderCam })
+          switchCameraMode(entity, { cameraMode: CameraModes.ShoulderCam })
         }
       }
 
       break
     case CameraModes.TopDown:
       if (scrollDelta < 0) {
-        setCameraProperties(entity, { mode: CameraModes.ThirdPerson })
+        switchCameraMode(entity, { cameraMode: CameraModes.ThirdPerson })
       }
       break
   }

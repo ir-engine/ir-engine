@@ -45,11 +45,9 @@ import { Interactable } from '../../interaction/components/Interactable'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { createCollider } from '../../physics/behaviors/createCollider'
-import { BodyType } from 'three-physx'
-import { CameraSystem } from '../../camera/systems/CameraSystem'
-import { setCameraProperties } from '../../character/CharacterInputSchema'
 import { Network } from '../../networking/classes/Network'
-import { CameraModes } from '../../camera/types/CameraModes'
+import { setCameraProperties } from '../behaviors/setCameraProperties'
+import { switchCameraMode } from '../../character/functions/switchCameraMode'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -302,7 +300,8 @@ export class WorldScene {
       case 'cameraproperties':
         if (isClient) {
           EngineEvents.instance.once(EngineEvents.EVENTS.CLIENT_USER_LOADED, async () => {
-            setCameraProperties(Network.instance.localClientEntity, component.data, true)
+            setCameraProperties(Network.instance.localClientEntity, component.data)
+            switchCameraMode(Network.instance.localClientEntity, component.data, true)
           })
         }
         break
