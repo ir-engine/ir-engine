@@ -351,7 +351,7 @@ export const EnginePage = (props: Props) => {
         parameters: [currentLocation.id, instanceId, currentLocation.sceneId],
         timeout: 10000
       }
-      noCountdown:true
+      noCountdown: true
       setWarningRefreshModalValues(newValues)
       setNoGameserverProvision(false)
     }
