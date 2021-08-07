@@ -19,7 +19,7 @@ import { InputType } from '../../input/enums/InputType'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { GamepadAxis } from '../../input/enums/InputEnums'
 import { NumericalType } from '../../common/types/NumericalTypes'
-import { CharacterComponent } from '../../character/components/CharacterComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AutoPilotClickRequestComponent } from '../component/AutoPilotClickRequestComponent'
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
 
@@ -109,8 +109,8 @@ export class AutopilotSystem extends System {
       const stick = GamepadAxis.Left
       this.queryResults.ongoing.all.forEach((entity) => {
         const autopilot = getComponent(entity, AutoPilotComponent)
-        const { position: actorPosition } = getComponent(entity, TransformComponent)
-        if (autopilot.path.current().distanceTo(actorPosition as any) < 0.2) {
+        const { position: avatarPosition } = getComponent(entity, TransformComponent)
+        if (autopilot.path.current().distanceTo(avatarPosition as any) < 0.2) {
           if (autopilot.path.finished()) {
             // Path is finished!
             Engine.inputState.set(stick, {
@@ -126,13 +126,13 @@ export class AutopilotSystem extends System {
           autopilot.path.advance()
         }
 
-        const actor = getComponent(entity, CharacterComponent)
-        const actorViewRotation = Math.atan2(actor.viewVector.x, actor.viewVector.z)
+        const avatar = getComponent(entity, AvatarComponent)
+        const avatarViewRotation = Math.atan2(avatar.viewVector.x, avatar.viewVector.z)
 
         const targetPosition = new Vector3(autopilot.path.current().x, 0, autopilot.path.current().z)
         const direction = targetPosition
-          .sub(actorPosition.clone().setY(0))
-          .applyAxisAngle(new Vector3(0, -1, 0), actorViewRotation)
+          .sub(avatarPosition.clone().setY(0))
+          .applyAxisAngle(new Vector3(0, -1, 0), avatarViewRotation)
           .normalize()
         // .multiplyScalar(0.6) // speed
 

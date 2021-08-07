@@ -12,7 +12,7 @@ import {
 } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { getLoader } from '../../assets/functions/LoadGLTF'
-import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent'
+import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 

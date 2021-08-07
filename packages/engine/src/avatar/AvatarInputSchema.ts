@@ -15,7 +15,7 @@ import { InputBehaviorType, InputSchema } from '../input/interfaces/InputSchema'
 import { InputAlias } from '../input/types/InputAlias'
 import { Interactor } from '../interaction/components/Interactor'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
-import { CharacterComponent } from './components/CharacterComponent'
+import { AvatarComponent } from './components/AvatarComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRUserSettings, XR_ROTATION_MODE } from '../xr/types/XRUserSettings'
 import { ParityValue } from '../common/enums/ParityValue'
@@ -24,6 +24,7 @@ import { NumericalType } from '../common/types/NumericalTypes'
 import { InteractedComponent } from '../interaction/components/InteractedComponent'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 import { switchCameraMode } from './functions/switchCameraMode'
+import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 
 const getParityFromInputValue = (key: InputAlias): ParityValue => {
   switch (key) {
@@ -85,10 +86,10 @@ const cycleCameraMode = (
   }
 }
 /**
- * Fix camera behind the character to follow the character.
+ * Fix camera behind the avatar to follow the avatar.
  * @param entity Entity on which camera will be fixed.
  */
-const fixedCameraBehindCharacter: InputBehaviorType = (
+const fixedCameraBehindAvatar: InputBehaviorType = (
   entity: Entity,
   inputKey: InputAlias,
   inputValue: InputValue<NumericalType>,
@@ -196,13 +197,12 @@ const morphNameByInput = {
   [CameraInput.Open]: 'Happy'
 }
 
-const setCharacterExpression: InputBehaviorType = (
+const setAvatarExpression: InputBehaviorType = (
   entity: Entity,
   inputKey: InputAlias,
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
-  // console.log('setCharacterExpression', args.input, morphNameByInput[args.input])
   const object: Object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent)
   const body = object.value?.getObjectByName('Body') as Mesh
 
@@ -246,18 +246,18 @@ const moveByInputAxis: InputBehaviorType = (
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
-  const actor = getMutableComponent(entity, CharacterComponent)
+  const controller = getMutableComponent(entity, AvatarControllerComponent)
   const input = getComponent(entity, Input)
 
   const data = input.data.get(inputKey)
 
   if (data.type === InputType.TWODIM) {
-    actor.localMovementDirection.z = data.value[0]
-    actor.localMovementDirection.x = data.value[1]
+    controller.localMovementDirection.z = data.value[0]
+    controller.localMovementDirection.x = data.value[1]
   } else if (data.type === InputType.THREEDIM) {
     // TODO: check if this mapping correct
-    actor.localMovementDirection.z = data.value[2]
-    actor.localMovementDirection.x = data.value[0]
+    controller.localMovementDirection.z = data.value[2]
+    controller.localMovementDirection.x = data.value[0]
   }
 }
 const setWalking: InputBehaviorType = (
@@ -266,9 +266,9 @@ const setWalking: InputBehaviorType = (
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
-  const actor = getMutableComponent(entity, CharacterComponent)
-  actor.isWalking = inputValue.lifecycleState !== LifecycleValue.ENDED
-  actor.moveSpeed = actor.isWalking ? actor.walkSpeed : actor.runSpeed
+  const controller = getMutableComponent(entity, AvatarControllerComponent)
+  controller.isWalking = inputValue.lifecycleState !== LifecycleValue.ENDED
+  controller.moveSpeed = controller.isWalking ? controller.walkSpeed : controller.runSpeed
 }
 
 const setLocalMovementDirection: InputBehaviorType = (
@@ -277,26 +277,26 @@ const setLocalMovementDirection: InputBehaviorType = (
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
-  const actor = getMutableComponent(entity, CharacterComponent)
+  const controller = getMutableComponent(entity, AvatarControllerComponent)
   const hasEnded = inputValue.lifecycleState === LifecycleValue.ENDED
   switch (inputKey) {
     case BaseInput.JUMP:
-      actor.localMovementDirection.y = hasEnded ? 0 : 1
+      controller.localMovementDirection.y = hasEnded ? 0 : 1
       break
     case BaseInput.FORWARD:
-      actor.localMovementDirection.z = hasEnded ? 0 : 1
+      controller.localMovementDirection.z = hasEnded ? 0 : 1
       break
     case BaseInput.BACKWARD:
-      actor.localMovementDirection.z = hasEnded ? 0 : -1
+      controller.localMovementDirection.z = hasEnded ? 0 : -1
       break
     case BaseInput.LEFT:
-      actor.localMovementDirection.x = hasEnded ? 0 : 1
+      controller.localMovementDirection.x = hasEnded ? 0 : 1
       break
     case BaseInput.RIGHT:
-      actor.localMovementDirection.x = hasEnded ? 0 : -1
+      controller.localMovementDirection.x = hasEnded ? 0 : -1
       break
   }
-  actor.localMovementDirection.normalize()
+  controller.localMovementDirection.normalize()
 }
 
 const moveFromXRInputs: InputBehaviorType = (
@@ -305,14 +305,14 @@ const moveFromXRInputs: InputBehaviorType = (
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
-  const actor = getMutableComponent(entity, CharacterComponent)
+  const controller = getMutableComponent(entity, AvatarControllerComponent)
   const input = getComponent(entity, Input)
   const values = input.data.get(BaseInput.XR_AXIS_MOVE)?.value
   if (!values) return
 
-  actor.localMovementDirection.x = values[0] ?? actor.localMovementDirection.x
-  actor.localMovementDirection.z = values[1] ?? actor.localMovementDirection.z
-  actor.localMovementDirection.normalize()
+  controller.localMovementDirection.x = values[0] ?? controller.localMovementDirection.x
+  controller.localMovementDirection.z = values[1] ?? controller.localMovementDirection.z
+  controller.localMovementDirection.normalize()
 }
 
 let switchChangedToZero = true
@@ -403,7 +403,7 @@ export const clickNavMesh: InputBehaviorType = (actorEntity, inputKey, inputValu
 // what do we want this to look like?
 // instead of assigning a hardware input to a base input, we want to map them
 
-export const createCharacterInput = () => {
+export const createAvatarInput = () => {
   const map: Map<InputAlias, InputAlias> = new Map()
 
   map.set(MouseInput.LeftButton, BaseInput.PRIMARY)
@@ -474,7 +474,7 @@ export const createBehaviorMap = () => {
   // BUTTON
 
   map.set(BaseInput.SWITCH_CAMERA, cycleCameraMode)
-  map.set(BaseInput.LOCKING_CAMERA, fixedCameraBehindCharacter)
+  map.set(BaseInput.LOCKING_CAMERA, fixedCameraBehindAvatar)
   map.set(BaseInput.SWITCH_SHOULDER_SIDE, switchShoulderSide)
 
   map.set(BaseInput.INTERACT, interact)
@@ -490,8 +490,8 @@ export const createBehaviorMap = () => {
 
   // AXIS
 
-  map.set(CameraInput.Happy, setCharacterExpression)
-  map.set(CameraInput.Sad, setCharacterExpression)
+  map.set(CameraInput.Happy, setAvatarExpression)
+  map.set(CameraInput.Sad, setAvatarExpression)
 
   map.set(BaseInput.CAMERA_SCROLL, changeCameraDistanceByDelta)
   map.set(BaseInput.MOVEMENT_PLAYERONE, moveByInputAxis)
@@ -505,9 +505,9 @@ export const createBehaviorMap = () => {
   return map
 }
 
-export const CharacterInputSchema: InputSchema = {
+export const AvatarInputSchema: InputSchema = {
   onAdded: () => {},
   onRemove: () => {},
-  inputMap: createCharacterInput(),
+  inputMap: createAvatarInput(),
   behaviorMap: createBehaviorMap()
 }

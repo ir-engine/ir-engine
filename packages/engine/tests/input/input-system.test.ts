@@ -3,7 +3,7 @@ import { InputSystem } from "../../src/input/systems/ClientInputSystem";
 import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { addComponent, createEntity, removeComponent } from "../../src/ecs/functions/EntityFunctions";
 import { Input } from "../../src/input/components/Input";
-import { CharacterInputSchema } from "../../src/character/CharacterInputSchema";
+import { AvatarInputSchema } from "../../src/avatar/AvatarInputSchema";
 import { LocalInputReceiver } from "../../src/input/components/LocalInputReceiver";
 import { normalizeMouseCoordinates } from "../../src/common/functions/normalizeMouseCoordinates";
 import { normalizeMouseMovement } from "../../src/common/functions/normalizeMouseMovement";
@@ -14,7 +14,7 @@ test.skip("cleanup event listeners", () => {
 
   registerSystem(InputSystem, { useWebXR: false });
   const entity = createEntity();
-  addComponent(entity, Input, { schema: CharacterInputSchema });
+  addComponent(entity, Input, { schema: AvatarInputSchema });
   addComponent(entity, LocalInputReceiver);
   execute();
 

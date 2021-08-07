@@ -4,33 +4,33 @@ import { isClient } from '../../common/functions/isClient'
 import { getComponent, getEntityByID, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import { AnimationManager } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
-import { CharacterComponent } from '../components/CharacterComponent'
+import { AvatarComponent } from '../components/AvatarComponent'
 import { SkeletonUtils } from '../SkeletonUtils'
 import { AnimationRenderer } from '../animations/AnimationRenderer'
-import { CharacterAnimationStateComponent } from '../components/CharacterAnimationStateComponent'
+import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { Entity } from '../../ecs/classes/Entity'
 
-export const setActorAvatar = ({ entityID, avatarId, avatarURL }) => {
+export const setAvatar = ({ entityID, avatarId, avatarURL }) => {
   const entity = getEntityByID(entityID)
-  const actor = getMutableComponent(entity, CharacterComponent)
-  if (actor) {
-    actor.avatarId = avatarId
-    actor.avatarURL = avatarURL
+  const avatar = getMutableComponent(entity, AvatarComponent)
+  if (avatar) {
+    avatar.avatarId = avatarId
+    avatar.avatarURL = avatarURL
   }
 }
 
-export const loadActorAvatar = (entity: Entity) => {
+export const loadAvatar = (entity: Entity) => {
   if (!isClient) return
-  const avatarURL = getComponent(entity, CharacterComponent)?.avatarURL
+  const avatarURL = getComponent(entity, AvatarComponent)?.avatarURL
   if (avatarURL) {
-    loadActorAvatarFromURL(entity, avatarURL)
+    loadAvatarFromURL(entity, avatarURL)
   } else {
-    loadDefaultActorAvatar(entity)
+    loadDefaultAvatar(entity)
   }
 }
 
-const loadDefaultActorAvatar = (entity: Entity) => {
-  const actor = getMutableComponent(entity, CharacterComponent)
+const loadDefaultAvatar = (entity: Entity) => {
+  const avatar = getMutableComponent(entity, AvatarComponent)
   const model = SkeletonUtils.clone(AnimationManager.instance._defaultModel)
 
   model.traverse((object) => {
@@ -38,13 +38,13 @@ const loadDefaultActorAvatar = (entity: Entity) => {
       object.material = object.material.clone()
     }
   })
-  model.children.forEach((child) => actor.modelContainer.add(child))
+  model.children.forEach((child) => avatar.modelContainer.add(child))
 
   const animationComponent = getMutableComponent(entity, AnimationComponent)
-  animationComponent.mixer = new AnimationMixer(actor.modelContainer)
+  animationComponent.mixer = new AnimationMixer(avatar.modelContainer)
 }
 
-const loadActorAvatarFromURL = (entity: Entity, avatarURL: string) => {
+const loadAvatarFromURL = (entity: Entity, avatarURL: string) => {
   AssetLoader.load(
     {
       url: avatarURL,
@@ -53,12 +53,12 @@ const loadActorAvatarFromURL = (entity: Entity, avatarURL: string) => {
     },
     (asset: Group) => {
       const model = SkeletonUtils.clone(asset)
-      const actor = getMutableComponent(entity, CharacterComponent)
+      const avatar = getMutableComponent(entity, AvatarComponent)
       const animationComponent = getMutableComponent(entity, AnimationComponent)
-      const characterAnimationStateComponent = getMutableComponent(entity, CharacterAnimationStateComponent)
+      const avatarAnimationComponent = getMutableComponent(entity, AvatarAnimationComponent)
 
       animationComponent.mixer.stopAllAction()
-      actor.modelContainer.children.forEach((child) => child.removeFromParent())
+      avatar.modelContainer.children.forEach((child) => child.removeFromParent())
 
       model.traverse((object) => {
         if (typeof object.material !== 'undefined') {
@@ -66,10 +66,10 @@ const loadActorAvatarFromURL = (entity: Entity, avatarURL: string) => {
         }
       })
 
-      animationComponent.mixer = new AnimationMixer(actor.modelContainer)
-      model.children.forEach((child) => actor.modelContainer.add(child))
+      animationComponent.mixer = new AnimationMixer(avatar.modelContainer)
+      model.children.forEach((child) => avatar.modelContainer.add(child))
 
-      if (characterAnimationStateComponent.currentState) {
+      if (avatarAnimationComponent.currentState) {
         AnimationRenderer.mountCurrentState(entity)
       }
 

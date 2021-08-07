@@ -1,9 +1,9 @@
 import { AnimationGraph } from './AnimationGraph'
 import { IdleState, LoopableEmoteState, RunState, WalkState, JumpState } from './AnimationState'
-import { CharacterStates } from './Util'
+import { AvatarStates } from './Util'
 
-/** Class to hold the animation graph for player entity. Every character entity will have their saperate graph. */
-export class CharacterAnimationGraph extends AnimationGraph {
+/** Class to hold the animation graph for player entity. Every avatar entity will have their saperate graph. */
+export class AvatarAnimationGraph extends AnimationGraph {
   constructor() {
     super()
 
@@ -21,11 +21,11 @@ export class CharacterAnimationGraph extends AnimationGraph {
     jumpState.nextStates.push(IdleState, WalkState, RunState)
 
     // Add states to the graph
-    this.states[CharacterStates.IDLE] = idleState
-    this.states[CharacterStates.WALK] = walkState
-    this.states[CharacterStates.RUN] = runState
-    this.states[CharacterStates.JUMP] = jumpState
-    this.states[CharacterStates.LOOPABLE_EMOTE] = loopableEmoteState
-    this.defaultState = this.states[CharacterStates.IDLE]
+    this.states[AvatarStates.IDLE] = idleState
+    this.states[AvatarStates.WALK] = walkState
+    this.states[AvatarStates.RUN] = runState
+    this.states[AvatarStates.JUMP] = jumpState
+    this.states[AvatarStates.LOOPABLE_EMOTE] = loopableEmoteState
+    this.defaultState = this.states[AvatarStates.IDLE]
   }
 }

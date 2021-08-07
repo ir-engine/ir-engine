@@ -2,13 +2,14 @@ import { Box3, Frustum, Matrix4, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { CharacterComponent } from '../../character/components/CharacterComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBox'
 import { Interactable } from '../components/Interactable'
 import { Interactor } from '../components/Interactor'
-import { interactiveReachDistance } from '../../character/functions/getInteractiveIsInReachDistance'
+import { interactiveReachDistance } from '../../avatar/functions/getInteractiveIsInReachDistance'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
+import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 
 const mat4 = new Matrix4()
 const projectionMatrix = new Matrix4().makePerspective(
@@ -39,16 +40,16 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]): void 
   }
 
   const transform = getComponent(entity, TransformComponent)
-  const actor = getComponent(entity, CharacterComponent)
+  const controller = getComponent(entity, AvatarControllerComponent)
 
   if (!raycastList.length) {
     return
   }
 
-  actor.frustumCamera.updateMatrixWorld()
-  actor.frustumCamera.matrixWorldInverse.copy(actor.frustumCamera.matrixWorld).invert()
+  controller.frustumCamera.updateMatrixWorld()
+  controller.frustumCamera.matrixWorldInverse.copy(controller.frustumCamera.matrixWorld).invert()
 
-  mat4.multiplyMatrices(projectionMatrix, actor.frustumCamera.matrixWorldInverse)
+  mat4.multiplyMatrices(projectionMatrix, controller.frustumCamera.matrixWorldInverse)
   frustum.setFromProjectionMatrix(mat4)
 
   const subFocusedArray = raycastList

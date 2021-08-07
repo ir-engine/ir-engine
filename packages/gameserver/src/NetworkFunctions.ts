@@ -14,7 +14,7 @@ import { Quaternion, Vector3 } from 'three'
 import { checkIfIdHavePrepair } from '@xrengine/engine/src/networking/functions/initializeNetworkObject'
 import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType'
 import { spawnPrefab } from '@xrengine/engine/src/networking/functions/spawnPrefab'
-import { SpawnPoints } from '@xrengine/engine/src/character/ServerAvatarSpawnSystem'
+import { SpawnPoints } from '@xrengine/engine/src/avatar/ServerAvatarSpawnSystem'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 

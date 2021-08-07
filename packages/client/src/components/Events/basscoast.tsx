@@ -1,5 +1,5 @@
 import { addComponent, getEntityByName, getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { AnimationComponent } from '@xrengine/engine/src/character/components/AnimationComponent'
+import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import Video from '@xrengine/engine/src/scene/classes/Video'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'

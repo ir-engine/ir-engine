@@ -1,4 +1,4 @@
-import { AvatarTagComponent } from '../../character/components/AvatarTagComponent'
+import { AvatarTagComponent } from '../../avatar/components/AvatarTagComponent'
 import { RigidBodyTagComponent } from '../../physics/components/RigidBodyTagComponent'
 import { MessageTypes } from '../enums/MessageTypes'
 import { NetworkSchema } from '../interfaces/NetworkSchema'

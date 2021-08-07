@@ -1,8 +1,8 @@
 import { Vector3, Matrix4, Quaternion } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import { ControllerColliderComponent } from '../components/ControllerColliderComponent'
-import { CharacterComponent } from '../components/CharacterComponent'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
+import { AvatarComponent } from '../components/AvatarComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
@@ -19,19 +19,20 @@ const newVelocity = new Vector3()
 const onGroundVelocity = new Vector3()
 const vec3 = new Vector3()
 
-export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
-  const actor = getMutableComponent(entity, CharacterComponent)
+export const avatarMoveBehavior = (entity: Entity, deltaTime): void => {
+  const avatar = getMutableComponent(entity, AvatarComponent)
   const velocity = getMutableComponent(entity, VelocityComponent)
   const transform = getMutableComponent(entity, TransformComponent)
-  const controller = getMutableComponent(entity, ControllerColliderComponent)
-  if (!controller.controller || !actor.movementEnabled) return
+  const controller = getMutableComponent(entity, AvatarControllerComponent)
 
-  if (actor.isGrounded) {
-    vec3.copy(actor.localMovementDirection).multiplyScalar(deltaTime)
-    actor.velocitySimulator.target.copy(vec3)
-    actor.velocitySimulator.simulate(deltaTime)
+  if (!controller.movementEnabled) return
 
-    newVelocity.copy(actor.velocitySimulator.position).multiplyScalar(actor.moveSpeed)
+  if (avatar.isGrounded) {
+    vec3.copy(controller.localMovementDirection).multiplyScalar(deltaTime)
+    controller.velocitySimulator.target.copy(vec3)
+    controller.velocitySimulator.simulate(deltaTime)
+
+    newVelocity.copy(controller.velocitySimulator.position).multiplyScalar(controller.moveSpeed)
     velocity.velocity.copy(newVelocity)
 
     const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
@@ -40,7 +41,7 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
       xrInputSourceComponent.head.getWorldQuaternion(quat)
       newVelocity.applyQuaternion(quat)
     } else {
-      // otherwise ppply direction from character orientation
+      // otherwise ppply direction from avatar orientation
       newVelocity.applyQuaternion(transform.rotation)
     }
 
@@ -59,23 +60,23 @@ export const characterMoveBehavior = (entity: Entity, deltaTime): void => {
     controller.controller.velocity.y = onGroundVelocity.y
     controller.controller.velocity.z = newVelocity.z
 
-    if (actor.isJumping) {
-      actor.isJumping = false
+    if (controller.isJumping) {
+      controller.isJumping = false
     }
 
-    if (actor.localMovementDirection.y > 0 && !actor.isJumping) {
-      controller.controller.velocity.y = actor.jumpHeight * deltaTime
-      actor.isJumping = true
+    if (controller.localMovementDirection.y > 0 && !controller.isJumping) {
+      controller.controller.velocity.y = controller.jumpHeight * deltaTime
+      controller.isJumping = true
     }
 
     // TODO: make a proper resizing function if we ever need it
-    //  collider.controller.resize(actor.BODY_SIZE);
+    //  collider.controller.resize(avatar.BODY_SIZE);
 
     // TODO - Move on top of moving objects
     // physx has a feature for this, we should integrate both
-    // if (actor.rayResult.body.mass > 0) {
+    // if (avatar.rayResult.body.mass > 0) {
     // 	const pointVelocity = new Vector3();
-    // 	actor.rayResult.body.getVelocityAtWorldPoint(actor.rayResult.hitPointWorld, pointVelocity);
+    // 	avatar.rayResult.body.getVelocityAtWorldPoint(avatar.rayResult.hitPointWorld, pointVelocity);
     // 	newVelocity.add(threeFromCannonVector(pointVelocity));
     // }
   }

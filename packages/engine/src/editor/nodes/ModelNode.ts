@@ -5,7 +5,7 @@ import { setStaticMode, StaticModes } from '../functions/StaticMode'
 import cloneObject3D from '../functions/cloneObject3D'
 import { RethrownError } from '../functions/errors'
 import { makeCollidersInvisible } from '../../physics/behaviors/parseModelColliders'
-import { AnimationManager } from '../../character/AnimationManager'
+import { AnimationManager } from '../../avatar/AnimationManager'
 
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = 'Model'

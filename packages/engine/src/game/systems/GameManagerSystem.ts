@@ -21,7 +21,7 @@ import { GameMode } from '../types/GameMode'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { isClient } from '../../common/functions/isClient'
 import { checkIsGamePredictionStillRight, clearPredictionCheckList } from '../functions/functionsActions'
-import { CharacterComponent } from '../../character/components/CharacterComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 
 // TODO: add game areas back
@@ -92,7 +92,7 @@ export class GameManagerSystem extends System {
         )
       }
 
-      for (const entity of this.queryResults.characters.added) {
+      for (const entity of this.queryResults.avatars.added) {
         console.log('new player')
         const gamePlayerComp = addComponent(entity, GamePlayer, {
           gameName: game.name,
@@ -166,8 +166,8 @@ export class GameManagerSystem extends System {
 }
 
 GameManagerSystem.queries = {
-  characters: {
-    components: [CharacterComponent],
+  avatars: {
+    components: [AvatarComponent],
     listen: {
       added: true,
       removed: true

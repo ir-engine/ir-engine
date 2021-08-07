@@ -6,7 +6,7 @@ import {
   hasComponent,
   removeEntity
 } from '../../ecs/functions/EntityFunctions'
-import { CharacterComponent } from '../../character/components/CharacterComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { NetworkObjectUpdateSchema } from '../templates/NetworkObjectUpdateSchema'
 import { Network } from '../classes/Network'
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions'
@@ -21,7 +21,7 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Quaternion, Vector3 } from 'three'
 import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ'
-import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent'
+import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { WorldStateModel } from '../schema/worldStateSchema'
 import { TransformStateModel } from '../schema/transformStateSchema'
 import { spawnPrefab } from '../functions/spawnPrefab'
@@ -194,7 +194,7 @@ export class ClientNetworkStateSystem extends System {
             // change network component id
             Network.instance.networkObjects[objectToCreate.networkId].component.networkId = objectToCreate.networkId
 
-            // if it's the local actor
+            // if it's the local avatar
             if (objectToCreate.networkId === Network.instance.localAvatarNetworkId) {
               Network.instance.localAvatarNetworkId = objectToCreate.networkId
             }
@@ -290,15 +290,15 @@ export class ClientNetworkStateSystem extends System {
             if (
               networkObject &&
               networkObject.component &&
-              hasComponent(networkObject.component.entity, CharacterComponent)
+              hasComponent(networkObject.component.entity, AvatarComponent)
             ) {
               vector3_0.set(transform.qX, transform.qY, transform.qZ)
               vector3_1.copy(vector3_0).setY(0).normalize()
               quat.setFromUnitVectors(forwardVector, applyVectorMatrixXZ(vector3_1, forwardVector).setY(0))
               // we don't want to override our own avatar
               if (networkObject.component.entity !== Network.instance.localClientEntity) {
-                const actor = getMutableComponent(networkObject.component.entity, CharacterComponent)
-                actor.viewVector.copy(vector3_0)
+                const avatar = getMutableComponent(networkObject.component.entity, AvatarComponent)
+                avatar.viewVector.copy(vector3_0)
               }
               // put the transform rotation on the transform to deal with later
               transform.qX = quat.x

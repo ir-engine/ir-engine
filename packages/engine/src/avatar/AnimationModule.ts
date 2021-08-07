@@ -24,8 +24,8 @@ import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { getEntityByID, getMutableComponent } from '../ecs/functions/EntityFunctions'
 import { AnimationManager } from './AnimationManager'
 import { AnimationSystem } from './AnimationSystem'
-import { CharacterComponent } from './components/CharacterComponent'
-import { setActorAvatar } from './functions/avatarFunctions'
+import { AvatarComponent } from './components/AvatarComponent'
+import { setAvatar } from './functions/avatarFunctions'
 
 type Module = {
   system: System

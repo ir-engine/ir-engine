@@ -1,5 +1,5 @@
 import { AnimationAction, LoopOnce, LoopRepeat, MathUtils } from 'three'
-import { Animation, AnimationType, WeightsParameterType, CharacterAnimations, CharacterStates } from './Util'
+import { Animation, AnimationType, WeightsParameterType, AvatarAnimations, AvatarStates } from './Util'
 
 /** Class to hold state of an animation for entity */
 export class AnimationState {
@@ -48,29 +48,29 @@ export class AnimationState {
 }
 
 export class LoopableEmoteState extends AnimationState {
-  name = CharacterStates.LOOPABLE_EMOTE
+  name = AvatarStates.LOOPABLE_EMOTE
   type = AnimationType.STATIC
   animations: Animation[] = [
     {
-      name: CharacterAnimations.DANCING_1,
+      name: AvatarAnimations.DANCING_1,
       weight: 0,
       timeScale: 1,
       loopType: LoopRepeat
     },
     {
-      name: CharacterAnimations.DANCING_2,
+      name: AvatarAnimations.DANCING_2,
       weight: 0,
       timeScale: 1,
       loopType: LoopRepeat
     },
     {
-      name: CharacterAnimations.DANCING_3,
+      name: AvatarAnimations.DANCING_3,
       weight: 0,
       timeScale: 1,
       loopType: LoopRepeat
     },
     {
-      name: CharacterAnimations.DANCING_4,
+      name: AvatarAnimations.DANCING_4,
       weight: 0,
       timeScale: 1,
       loopType: LoopRepeat
@@ -97,11 +97,11 @@ export class LoopableEmoteState extends AnimationState {
 }
 
 export class IdleState extends AnimationState {
-  name = CharacterStates.IDLE
+  name = AvatarStates.IDLE
   type = AnimationType.VELOCITY_BASED
   transitionDuration = 0.5
   animations: Animation[] = [
-    { name: CharacterAnimations.IDLE, weight: 1, timeScale: 1, loopType: LoopRepeat, loopCount: Infinity }
+    { name: AvatarAnimations.IDLE, weight: 1, timeScale: 1, loopType: LoopRepeat, loopCount: Infinity }
   ]
 
   updateWeights = (): void => {
@@ -112,12 +112,12 @@ export class IdleState extends AnimationState {
 }
 
 export class JumpState extends AnimationState {
-  name = CharacterStates.JUMP
+  name = AvatarStates.JUMP
   type = AnimationType.VELOCITY_BASED
   transitionDuration = 0.2
   animations: Animation[] = [
     {
-      name: CharacterAnimations.JUMP,
+      name: AvatarAnimations.JUMP,
       weight: 1,
       timeScale: 1,
       loopType: LoopOnce,
@@ -135,21 +135,21 @@ export class JumpState extends AnimationState {
 }
 
 export class WalkState extends AnimationState {
-  name = CharacterStates.WALK
+  name = AvatarStates.WALK
   type = AnimationType.VELOCITY_BASED
   syncActions = true
   animations: Animation[] = [
-    { name: CharacterAnimations.WALK_FORWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
-    { name: CharacterAnimations.WALK_BACKWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
+    { name: AvatarAnimations.WALK_FORWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
+    { name: AvatarAnimations.WALK_BACKWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
     {
-      name: CharacterAnimations.WALK_STRAFE_LEFT,
+      name: AvatarAnimations.WALK_STRAFE_LEFT,
       weight: 0,
       timeScale: 1.2,
       loopType: LoopRepeat,
       loopCount: Infinity
     },
     {
-      name: CharacterAnimations.WALK_STRAFE_RIGHT,
+      name: AvatarAnimations.WALK_STRAFE_RIGHT,
       weight: 0,
       timeScale: 1.2,
       loopType: LoopRepeat,
@@ -181,14 +181,14 @@ export class WalkState extends AnimationState {
 }
 
 export class RunState extends AnimationState {
-  name = CharacterStates.RUN
+  name = AvatarStates.RUN
   type = AnimationType.VELOCITY_BASED
   syncActions = true
   animations: Animation[] = [
-    { name: CharacterAnimations.RUN_FORWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
-    { name: CharacterAnimations.RUN_BACKWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
-    { name: CharacterAnimations.RUN_STRAFE_LEFT, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
-    { name: CharacterAnimations.RUN_STRAFE_RIGHT, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity }
+    { name: AvatarAnimations.RUN_FORWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
+    { name: AvatarAnimations.RUN_BACKWARD, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
+    { name: AvatarAnimations.RUN_STRAFE_LEFT, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity },
+    { name: AvatarAnimations.RUN_STRAFE_RIGHT, weight: 0, timeScale: 1.2, loopType: LoopRepeat, loopCount: Infinity }
   ]
 
   updateWeights = (): void => {

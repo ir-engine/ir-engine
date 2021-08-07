@@ -1,4 +1,4 @@
-import { handleAnimationStateChange } from '../../character/behaviors/handleAnimationStateChange'
+import { handleAnimationStateChange } from '../../avatar/behaviors/handleAnimationStateChange'
 import { handleObjectEquipped } from '../../interaction/functions/handleObjectEquipped'
 import { handleForceTransform } from '../../physics/behaviors/handleForceTransform'
 

@@ -1,11 +1,10 @@
-import { AnimationClip, AnimationMixer, Vector3 } from 'three'
+import { Vector3 } from 'three'
 import { Component } from '../../ecs/classes/Component'
 import { Types } from '../../ecs/types/Types'
-import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator'
 import { AnimationGraph } from '../animations/AnimationGraph'
 import { AnimationState } from '../animations/AnimationState'
 
-export class CharacterAnimationStateComponent extends Component<CharacterAnimationStateComponent> {
+export class AvatarAnimationComponent extends Component<AvatarAnimationComponent> {
   /** Animaiton graph of this entity */
   animationGraph: AnimationGraph
 
@@ -19,6 +18,6 @@ export class CharacterAnimationStateComponent extends Component<CharacterAnimati
   prevVelocity: Vector3
 }
 
-CharacterAnimationStateComponent._schema = {
+AvatarAnimationComponent._schema = {
   mixer: { type: Types.Ref, default: null }
 }
