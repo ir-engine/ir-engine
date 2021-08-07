@@ -16,7 +16,7 @@ import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { addObject3DComponent } from '../behaviors/addObject3DComponent'
-import { createGame, createGameObject } from '../behaviors/createGame'
+import { createGame } from '../behaviors/createGame'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
 import { createSkybox } from '../behaviors/createSkybox'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
@@ -45,11 +45,10 @@ import { Interactable } from '../../interaction/components/Interactable'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { createCollider } from '../../physics/behaviors/createCollider'
-import { BodyType } from 'three-physx'
-import { CameraSystem } from '../../camera/systems/CameraSystem'
-import { switchCameraMode } from '../../character/CharacterInputSchema'
 import { Network } from '../../networking/classes/Network'
-import { CameraModes } from '../../camera/types/CameraModes'
+import { setCameraProperties } from '../behaviors/setCameraProperties'
+import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
+import { GameObject } from '../../game/components/GameObject'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -133,7 +132,11 @@ export class WorldScene {
         break
 
       case 'game-object':
-        createGameObject(entity, component.data)
+        addComponent(entity, GameObject, {
+          gameName: component.data.gameName,
+          role: component.data.role,
+          uuid: component.data.sceneEntityId
+        })
         break
 
       case 'ambient-light':
@@ -301,10 +304,9 @@ export class WorldScene {
 
       case 'cameraproperties':
         if (isClient) {
-          EngineEvents.instance.once(EngineEvents.EVENTS.LOCAL_CLIENT_USER_LOADED, async () => {
-            switchCameraMode(Network.instance.localClientEntity, {
-              mode: Object.values(CameraModes)[component.data.options.CameraType.CameraMode]
-            })
+          EngineEvents.instance.once(EngineEvents.EVENTS.CLIENT_USER_LOADED, async () => {
+            setCameraProperties(Network.instance.localClientEntity, component.data)
+            switchCameraMode(Network.instance.localClientEntity, component.data, true)
           })
         }
         break

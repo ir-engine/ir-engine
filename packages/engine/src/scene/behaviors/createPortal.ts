@@ -55,7 +55,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
       config: {
         isTrigger: true,
         collisionLayer: CollisionGroups.Portal,
-        collisionMask: CollisionGroups.Characters
+        collisionMask: CollisionGroups.Avatars
       }
     }
 

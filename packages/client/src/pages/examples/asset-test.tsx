@@ -20,7 +20,7 @@ import {
 import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 import { getLoader } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 import { FileDrop } from 'react-file-drop'
-import { SkeletonUtils } from '@xrengine/engine/src/character/SkeletonUtils'
+import { SkeletonUtils } from '@xrengine/engine/src/avatar/SkeletonUtils'
 
 const canvasStyle = {
   zIndex: 0,

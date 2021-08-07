@@ -38,23 +38,6 @@ export const createGame = (entity, args: GameDataProps) => {
 
   addComponent(entity, Game, gameData)
   // register spawn objects prefabs
-  const gameSchema = Engine.gameModes[args.gameMode]
+  const gameSchema = Engine.gameModes.get(args.gameMode)
   gameSchema.onGameLoading(entity)
-}
-
-export const createGameObject = (entity, args: GameDataProps) => {
-  if (args.sceneEntityId === undefined) {
-    console.warn('DONT SAVE COLLIDER FOR GAME OBJECT')
-  }
-
-  // if (!isClient && !args.isGlobal) {
-  //   removeEntity(entity);
-  //   return;
-  // }
-
-  addComponent(entity, GameObject, {
-    gameName: args.gameName,
-    role: args.role,
-    uuid: args.sceneEntityId
-  })
 }

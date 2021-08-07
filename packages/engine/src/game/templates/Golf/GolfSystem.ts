@@ -7,7 +7,7 @@ import { NetworkObjectOwner } from '../../../networking/components/NetworkObject
 import { GameObject } from '../../components/GameObject'
 import { GamePlayer } from '../../components/GamePlayer'
 import { getGame, getUuid } from '../../functions/functions'
-import { addStateComponent, removeStateComponent } from '../../functions/functionsState'
+import { addStateComponent, removeStateComponent, sendVelocity } from '../../functions/functionsState'
 import { getStorage, setStorage } from '../../functions/functionsStorage'
 import { Action, State } from '../../types/GameComponents'
 import { ifGetOut } from '../gameDefault/checkers/ifGetOut'
@@ -25,7 +25,6 @@ import { saveScore } from './behaviors/saveScore'
 import { setupPlayerAvatar, setupPlayerAvatarNotInVR, setupPlayerAvatarVR } from './behaviors/setupPlayerAvatar'
 import { setupPlayerInput } from './behaviors/setupPlayerInput'
 import { removeVelocity, teleportObject, updateColliderPosition } from './behaviors/teleportObject'
-import { teleportPlayerBehavior } from './behaviors/teleportPlayer'
 import { GolfBallComponent } from './components/GolfBallComponent'
 import { GolfClubComponent } from './components/GolfClubComponent'
 import { GolfHoleComponent } from './components/GolfHoleComponent'
@@ -33,9 +32,15 @@ import { GolfTeeComponent } from './components/GolfTeeComponent'
 import { initializeGolfBall, spawnBall, updateBall } from './prefab/GolfBallPrefab'
 import { initializeGolfClub, spawnClub, updateClub, hideClub, enableClub } from './prefab/GolfClubPrefab'
 import { ifOutCourse } from './functions/ifOutCourse'
-import { XRInputSourceComponent } from '../../../character/components/XRInputSourceComponent'
+import { XRInputSourceComponent } from '../../../avatar/components/XRInputSourceComponent'
 import { hideBall, unhideBall } from './behaviors/hideUnhideBall'
 import { GolfState } from './GolfGameComponents'
+import { Quaternion } from 'three'
+import { teleportPlayer } from '../../../avatar/functions/teleportPlayer'
+import { GolfBallTagComponent, GolfClubTagComponent, GolfPrefabs } from './prefab/GolfGamePrefabs'
+import { SpawnNetworkObjectComponent } from '../../../scene/components/SpawnNetworkObjectComponent'
+import { Engine } from '../../../ecs/classes/Engine'
+import { GolfGameMode } from '../GolfGameMode'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -47,8 +52,42 @@ export class GolfSystem extends System {
    * Executes the system. Called each frame by default from the Engine.
    * @param delta Time since last frame.
    */
+  constructor() {
+    super()
+    Engine.gameModes.set(GolfGameMode.name, GolfGameMode)
+
+    // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
+    Object.entries(GolfPrefabs).forEach(([prefabType, prefab]) => {
+      Network.instance.schema.prefabs.set(Number(prefabType), prefab)
+    })
+  }
+
   execute(delta: number, time: number): void {
     // DO ALL STATE LOGIC HERE (all queries)
+
+    for (const entity of this.queryResults.spawnGolfBall.all) {
+      const { ownerId } = getComponent(entity, NetworkObject)
+      const ownerEntity = this.queryResults.player.all.find((player) => {
+        return getComponent(player, NetworkObject).uniqueId === ownerId
+      })
+      if (ownerEntity) {
+        const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
+        removeComponent(entity, GolfBallTagComponent)
+        initializeGolfBall(entity, parameters)
+      }
+    }
+
+    for (const entity of this.queryResults.spawnGolfClub.all) {
+      const { ownerId } = getComponent(entity, NetworkObject)
+      const ownerEntity = this.queryResults.player.all.find((player) => {
+        return getComponent(player, NetworkObject).uniqueId === ownerId
+      })
+      if (ownerEntity) {
+        const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
+        removeComponent(entity, GolfClubTagComponent)
+        initializeGolfClub(entity, parameters)
+      }
+    }
 
     for (const entity of this.queryResults.player.all) {
       if (!hasComponent(entity, State.Active)) continue
@@ -64,7 +103,6 @@ export class GolfSystem extends System {
         if (club) {
           console.log('club')
           playerComponent.ownedObjects['GolfClub'] = club
-          initializeGolfClub(club)
           addStateComponent(club, State.SpawnedObject)
         }
       }
@@ -76,11 +114,10 @@ export class GolfSystem extends System {
         if (ball) {
           console.log('ball')
           playerComponent.ownedObjects['GolfBall'] = ball
-          initializeGolfBall(ball)
           addStateComponent(ball, State.SpawnedObject)
-        }
-        if (getComponent(entity, GamePlayer).role === '1-Player') {
-          addTurn(entity)
+          if (getComponent(entity, GamePlayer).role === '1-Player') {
+            addTurn(entity)
+          }
         }
       }
     }
@@ -217,7 +254,7 @@ export class GolfSystem extends System {
     for (const entity of this.queryResults.goal.added) {
       const playerComponent = getComponent(entity, GamePlayer)
       const ballEntity = playerComponent.ownedObjects['GolfBall']
-      teleportPlayerBehavior(entity, getPositionNextPoint(entity, { positionCopyFromRole: 'GolfTee-' }))
+      teleportPlayer(entity, getPositionNextPoint(entity, { positionCopyFromRole: 'GolfTee-' }), new Quaternion())
       teleportObject(ballEntity, getPositionNextPoint(entity, { positionCopyFromRole: 'GolfTee-' }))
       removeStateComponent(entity, GolfState.Goal)
     }
@@ -225,15 +262,12 @@ export class GolfSystem extends System {
     ///////////////////////////////////////////////////////////
     /////////////////////// CLUB //////////////////////////////
     ///////////////////////////////////////////////////////////
-    for (const entity of this.queryResults.golfClub.all) {
-      if (!hasComponent(entity, State.SpawnedObject)) continue
-      updateClub(entity, null, delta)
-    }
 
     for (const clubEntity of this.queryResults.clubHit.added) {
       for (const ballEntity of this.queryResults.ballHit.added) {
         if (hasComponent(ballEntity, GolfState.BallStopped) && hasComponent(ballEntity, State.Active)) {
           addStateComponent(clubEntity, GolfState.Hit)
+          sendVelocity(clubEntity)
         } else if (isClient) {
           // this case when other player hit ball but you still waiting yours ball to stop
           // but you need waite because you use interpolation correction bevavior, other player not and server not
@@ -273,7 +307,10 @@ export class GolfSystem extends System {
         addStateComponent(ballEntity, GolfState.CheckCourse)
       }
     }
-
+    for (const entity of this.queryResults.golfClub.all) {
+      if (!hasComponent(entity, State.SpawnedObject)) continue
+      updateClub(entity, null, delta)
+    }
     ///////////////////////////////////////////////////////////
     ////////////////////    Turn reuired quary     ////////////
     ///////////////////////////////////////////////////////////
@@ -413,6 +450,20 @@ export class GolfSystem extends System {
   }
 
   static queries = {
+    spawnGolfBall: {
+      components: [SpawnNetworkObjectComponent, GolfBallTagComponent],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
+    spawnGolfClub: {
+      components: [SpawnNetworkObjectComponent, GolfClubTagComponent],
+      listen: {
+        added: true,
+        removed: true
+      }
+    },
     player: {
       components: [GamePlayer],
       listen: {

@@ -6,7 +6,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { EquipperComponent } from '../components/EquipperComponent'
 import { EquippedStateUpdateSchema } from '../enums/EquippedEnums'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { NetworkObjectUpdateType } from '../../networking/templates/NetworkObjectUpdateSchema'
+import { NetworkObjectUpdateType } from '../../networking/templates/NetworkObjectUpdates'
 import { sendClientObjectUpdate } from '../../networking/functions/sendClientObjectUpdate'
 import { BodyType } from 'three-physx'
 import { BinaryValue } from '../../common/enums/BinaryValue'

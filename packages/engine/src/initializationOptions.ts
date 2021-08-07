@@ -1,4 +1,4 @@
-import { CharacterInputSchema } from './character/CharacterInputSchema'
+import { AvatarInputSchema } from './avatar/AvatarInputSchema'
 import { DefaultGameMode } from './game/templates/DefaultGameMode'
 import { DefaultNetworkSchema } from './networking/templates/DefaultNetworkSchema'
 import { InputSchema } from './input/interfaces/InputSchema'
@@ -39,9 +39,6 @@ export type InitializeOptions = {
     canvasId?: string
     postProcessing?: boolean
   }
-  gameModes?: {
-    [key: string]: GameMode
-  }
   publicPath?: string
   physics?: {
     simulationEnabled?: boolean
@@ -61,7 +58,7 @@ export const DefaultInitializationOptions: Partial<InitializeOptions> = {
   type: EngineSystemPresets.CLIENT,
   publicPath: '',
   input: {
-    schemas: [CharacterInputSchema]
+    schemas: [AvatarInputSchema]
   },
   networking: {
     schema: DefaultNetworkSchema
@@ -69,9 +66,6 @@ export const DefaultInitializationOptions: Partial<InitializeOptions> = {
   renderer: {
     disabled: false,
     postProcessing: true
-  },
-  gameModes: {
-    [DefaultGameMode.name]: DefaultGameMode
   },
   physics: {
     settings: {

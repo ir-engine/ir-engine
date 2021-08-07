@@ -10,4 +10,5 @@ export interface MapProps {
   useStartCoordinates?: boolean
   startLatitude?: string
   startLongitude?: string
+  showRasterTiles?: boolean
 }

@@ -220,7 +220,7 @@ export class ModelNodeEditor extends Component<ModelNodeEditorProps, ModelNodeEd
       const nodeTarget = this.props.editor.nodes.find((node) => node.uuid === target)
 
       if (nodeTarget) {
-        const gameMode = Engine.gameModes[nodeTarget.gameMode]
+        const gameMode = Engine.gameModes.get(nodeTarget.gameMode)
 
         const gameObjectRoles = Object.keys(gameMode.gameObjectRoles)
 

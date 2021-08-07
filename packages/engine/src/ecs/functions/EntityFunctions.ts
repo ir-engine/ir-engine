@@ -182,7 +182,7 @@ export function removeComponent<C extends Component<C>>(
   entity: Entity,
   Component: ComponentConstructor<C>,
   forceImmediate?: boolean
-): Component<C> {
+): C {
   const index = entity.componentTypes.indexOf(Component)
   if (!~index) return
   const component = entity.components[Component._typeId]

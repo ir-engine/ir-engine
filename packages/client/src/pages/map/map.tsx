@@ -20,7 +20,7 @@ import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/servic
 // import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { SceneAction } from '@xrengine/client-core'
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
-import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
+import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPlayer'
 import { awaitEngaged, Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
@@ -31,13 +31,14 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
-import { PortalProps } from '@xrengine/engine/src/scene/behaviors/createPortal'
+import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import querystring from 'querystring'
 import React, { Suspense, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
+import { teleportToScene } from '../../../../engine/src/scene/functions/teleportToScene'
 import WarningRefreshModal from '../../components/AlertModals/WarningRetryModal'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import {
@@ -47,8 +48,6 @@ import {
 } from '../../reducers/instanceConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import MediaIconsBox from './MapMediaIconsBox'
-import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import { teleportToScene } from '../../../../engine/src/scene/functions/teleportToScene'
 
 const store = Store.store
 
@@ -182,6 +181,7 @@ export const EnginePage = (props: Props) => {
   const selfUser = authState.get('user')
   const party = partyState.get('party')
   const instanceId = selfUser?.instanceId ?? party?.instanceId
+  const invalidLocation = locationState.get('invalidLocation')
   let sceneId = null
   let locationId = null
 
@@ -402,6 +402,19 @@ export const EnginePage = (props: Props) => {
       setInstanceDisconnected(false)
     }
   }, [instanceKicked])
+
+  useEffect(() => {
+    if (invalidLocation === true) {
+      const newValues = {
+        ...warningRefreshModalValues,
+        open: true,
+        title: 'Invalid location',
+        body: `We can't find the location '${locationName}'. It may be misspelled, or it may not exist.`,
+        noCountdown: true
+      }
+      setWarningRefreshModalValues(newValues)
+    }
+  }, [invalidLocation])
 
   const reinit = () => {
     const currentLocation = locationState.get('currentLocation').get('location')

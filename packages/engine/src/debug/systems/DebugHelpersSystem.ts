@@ -1,5 +1,4 @@
 import { System } from '../../ecs/classes/System'
-import { CharacterComponent } from '../../character/components/CharacterComponent'
 import {
   ArrowHelper,
   Box3,
@@ -19,12 +18,12 @@ import { Entity } from '../../ecs/classes/Entity'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBox'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { DebugArrowComponent } from '../DebugArrowComponent'
 import { DebugRenderer } from './DebugRenderer'
-import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent'
+import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
 type ComponentHelpers = 'viewVector' | 'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box'
 
@@ -80,18 +79,18 @@ export class DebugHelpersSystem extends System {
   execute(delta: number, time: number): void {
     // ===== AVATAR ===== //
 
-    for (const entity of this.queryResults.characterDebug?.added) {
-      const actor = getComponent(entity, CharacterComponent)
+    for (const entity of this.queryResults.avatarDebug?.added) {
+      const avatar = getComponent(entity, AvatarComponent)
 
       // view vector
       const origin = new Vector3(0, 2, 0)
       const length = 0.5
       const hex = 0xffff00
-      if (!actor || !actor.viewVector) {
-        console.warn('actor.viewVector is null')
+      if (!avatar || !avatar.viewVector) {
+        console.warn('avatar.viewVector is null')
         continue
       }
-      const arrowHelper = new ArrowHelper(actor.viewVector.clone().normalize(), origin, length, hex)
+      const arrowHelper = new ArrowHelper(avatar.viewVector.clone().normalize(), origin, length, hex)
       arrowHelper.visible = DebugHelpers.avatarDebugEnabled
       Engine.scene.add(arrowHelper)
       DebugHelpers.helpersByEntity.viewVector.set(entity, arrowHelper)
@@ -104,7 +103,7 @@ export class DebugHelpersSystem extends System {
       DebugHelpers.helpersByEntity.velocityArrow.set(entity, velocityArrowHelper)
     }
 
-    for (const entity of this.queryResults.characterDebug?.removed) {
+    for (const entity of this.queryResults.avatarDebug?.removed) {
       // view vector
       const arrowHelper = DebugHelpers.helpersByEntity.viewVector.get(entity) as Object3D
       Engine.scene.remove(arrowHelper)
@@ -116,16 +115,16 @@ export class DebugHelpersSystem extends System {
       DebugHelpers.helpersByEntity.velocityArrow.delete(entity)
     }
 
-    for (const entity of this.queryResults.characterDebug?.all) {
+    for (const entity of this.queryResults.avatarDebug?.all) {
       // view vector
-      const actor = getComponent(entity, CharacterComponent)
+      const avatar = getComponent(entity, AvatarComponent)
       const velocity = getComponent(entity, VelocityComponent)
       const transform = getComponent(entity, TransformComponent)
       const arrowHelper = DebugHelpers.helpersByEntity.viewVector.get(entity) as ArrowHelper
 
       if (arrowHelper != null) {
-        arrowHelper.setDirection(vector3.copy(actor.viewVector).setY(0).normalize())
-        arrowHelper.position.copy(transform.position).y += actor.actorHalfHeight
+        arrowHelper.setDirection(vector3.copy(avatar.viewVector).setY(0).normalize())
+        arrowHelper.position.copy(transform.position).y += avatar.avatarHalfHeight
       }
 
       // velocity
@@ -133,7 +132,7 @@ export class DebugHelpersSystem extends System {
       if (velocityArrowHelper != null) {
         velocityArrowHelper.setDirection(vector3.copy(velocity.velocity).normalize())
         velocityArrowHelper.setLength(velocity.velocity.length() * 20)
-        velocityArrowHelper.position.copy(transform.position).y += actor.actorHalfHeight
+        velocityArrowHelper.position.copy(transform.position).y += avatar.avatarHalfHeight
       }
     }
 
@@ -234,27 +233,16 @@ export class DebugHelpersSystem extends System {
     for (const entity of this.queryResults.boundingBoxComponent?.added) {
       DebugHelpers.helpersByEntity.box.set(entity, [])
       const boundingBox = getComponent(entity, BoundingBoxComponent)
-      if (boundingBox.boxArray.length) {
-        if (boundingBox.dynamic) {
-          boundingBox.boxArray.forEach((object3D, index) => {
-            const helper = new BoxHelper(object3D)
-            helper.visible = DebugHelpers.physicsDebugEnabled
-            Engine.scene.add(helper)
-            ;(DebugHelpers.helpersByEntity.box.get(entity) as Object3D[]).push(helper)
-          })
-        }
-      } else {
-        const box3 = new Box3()
-        box3.copy(boundingBox.box)
-        if (boundingBox.dynamic) {
-          const object3D = getComponent(entity, Object3DComponent)
-          box3.applyMatrix4(object3D.value.matrixWorld)
-        }
-        const helper = new Box3Helper(box3)
-        helper.visible = DebugHelpers.physicsDebugEnabled
-        Engine.scene.add(helper)
-        ;(DebugHelpers.helpersByEntity.box.get(entity) as Object3D[]).push(helper)
+      const box3 = new Box3()
+      box3.copy(boundingBox.box)
+      if (boundingBox.dynamic) {
+        const object3D = getComponent(entity, Object3DComponent)
+        box3.applyMatrix4(object3D.value.matrixWorld)
       }
+      const helper = new Box3Helper(box3)
+      helper.visible = DebugHelpers.physicsDebugEnabled
+      Engine.scene.add(helper)
+      ;(DebugHelpers.helpersByEntity.box.get(entity) as Object3D[]).push(helper)
     }
 
     for (const entity of this.queryResults.boundingBoxComponent?.removed) {
@@ -296,8 +284,8 @@ export class DebugHelpersSystem extends System {
 }
 
 DebugHelpersSystem.queries = {
-  characterDebug: {
-    components: [CharacterComponent],
+  avatarDebug: {
+    components: [AvatarComponent],
     listen: {
       added: true,
       removed: true

@@ -7,22 +7,21 @@ import { Input } from '../../input/components/Input'
 import { InputType } from '../../input/enums/InputType'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { InputAlias } from '../../input/types/InputAlias'
-import { CharacterComponent } from '../../character/components/CharacterComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Network } from '../classes/Network'
 import { NetworkObject } from '../components/NetworkObject'
-import { NetworkSchema } from '../interfaces/NetworkSchema'
 import { NetworkClientInputInterface } from '../interfaces/WorldState'
 import { ClientInputModel } from '../schema/clientInputSchema'
 import { WorldStateModel } from '../schema/worldStateSchema'
 import { GamePlayer } from '../../game/components/GamePlayer'
-import { sendSpawnGameObjects, sendState } from '../../game/functions/functionsState'
+import { applyVelocity, sendSpawnGameObjects, sendState } from '../../game/functions/functionsState'
 import { getGameFromName } from '../../game/functions/functions'
-import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent'
+import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
-import { Quaternion, Vector3 } from 'three'
+import { Vector3 } from 'three'
 import { executeCommands } from '../functions/executeCommands'
 import { ClientActionToServer } from '../../game/templates/DefaultGameStateAction'
-import { updatePlayerRotationFromViewVector } from '../../character/functions/updatePlayerRotationFromViewVector'
+import { updatePlayerRotationFromViewVector } from '../../avatar/functions/updatePlayerRotationFromViewVector'
 
 export function cancelAllInputs(entity) {
   getMutableComponent(entity, Input)?.data.forEach((value) => {
@@ -85,6 +84,8 @@ export class ServerNetworkIncomingSystem extends System {
             sendState(getGameFromName(playerComp.gameName), playerComp)
           } else if (action.type === ClientActionToServer[1]) {
             sendSpawnGameObjects(getGameFromName(playerComp.gameName), action.uuid)
+          } else if (action.type === ClientActionToServer[2]) {
+            applyVelocity(playerComp, action.velocity)
           }
         })
       }
@@ -93,12 +94,12 @@ export class ServerNetworkIncomingSystem extends System {
         executeCommands(entity, clientInput.commands)
       }
 
-      const actor = getMutableComponent(entity, CharacterComponent)
+      const avatar = getMutableComponent(entity, AvatarComponent)
 
-      if (actor) {
+      if (avatar) {
         updatePlayerRotationFromViewVector(entity, clientInput.viewVector as Vector3)
       } else {
-        console.log('input but no actor...', clientInput.networkId)
+        console.log('input but no avatar...', clientInput.networkId)
       }
 
       const userNetworkObject = getMutableComponent(entity, NetworkObject)
@@ -164,7 +165,7 @@ export class ServerNetworkIncomingSystem extends System {
 
     // Apply input for local user input onto client
     for (const entity of this.queryResults.networkObjectsWithInput.all) {
-      //  const actor = getMutableComponent(entity, CharacterComponent);
+      //  const avatar = getMutableComponent(entity, AvatarComponent);
       const input = getMutableComponent(entity, Input)
 
       input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {

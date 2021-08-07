@@ -1,7 +1,7 @@
 import { Entity } from '../../ecs/classes/Entity'
 import { Commands } from '../enums/Commands'
 import { CommandType } from '../interfaces/WorldState'
-import { NetworkObjectUpdateType } from '../templates/NetworkObjectUpdateSchema'
+import { NetworkObjectUpdateType } from '../templates/NetworkObjectUpdates'
 import { sendClientObjectUpdate } from './sendClientObjectUpdate'
 
 export const executeCommands = (entity: Entity, commands: CommandType[]): void => {

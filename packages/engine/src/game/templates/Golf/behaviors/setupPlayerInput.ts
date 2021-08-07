@@ -1,5 +1,5 @@
 import { Material, Mesh, Quaternion, Vector3 } from 'three'
-import { teleportPlayer } from '../../../../character/prefabs/NetworkPlayerCharacter'
+import { teleportPlayer } from '../../../../avatar/functions/teleportPlayer'
 import { LifecycleValue } from '../../../../common/enums/LifecycleValue'
 import { isDev } from '../../../../common/functions/isDev'
 import { NumericalType } from '../../../../common/types/NumericalTypes'

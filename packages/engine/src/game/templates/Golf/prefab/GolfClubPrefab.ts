@@ -2,7 +2,6 @@ import { Entity } from '../../../../ecs/classes/Entity'
 import { NetworkPrefab } from '../../../../networking/interfaces/NetworkPrefab'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
-import { RigidBodyComponent } from '../../../../physics/components/RigidBody'
 import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject'
 import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameConstants'
 import {
@@ -53,6 +52,7 @@ import { ifVelocity } from '../functions/ifVelocity'
 import { ifOwned } from '../../gameDefault/checkers/ifOwned'
 import { isClient } from '../../../../common/functions/isClient'
 import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
+import { spawnPrefab } from '../../../../networking/functions/spawnPrefab'
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()
@@ -85,12 +85,7 @@ export const spawnClub: Behavior = (
   }
 
   // this spawns the club on the server
-  createGolfClubPrefab({
-    networkId,
-    uniqueId: uuid,
-    ownerId: playerNetworkObject.ownerId,
-    parameters
-  })
+  spawnPrefab(GolfPrefabTypes.Club, playerNetworkObject.ownerId, uuid, networkId, parameters)
 
   // this sends the club to the clients
   Network.instance.worldState.createObjects.push({
@@ -197,7 +192,9 @@ export const updateClub: Behavior = (
     vector0.add(vector1.subVectors(golfClubComponent.lastPositions[i], golfClubComponent.lastPositions[i + 1]))
   }
   vector0.multiplyScalar(1 / (golfClubComponent.velocityPositionsToCalculate + 1))
+
   golfClubComponent.velocity.copy(vector0)
+
   collider.body.transform.linearVelocity.x = vector0.x
   collider.body.transform.linearVelocity.y = vector0.y
   collider.body.transform.linearVelocity.z = vector0.z
@@ -258,12 +255,27 @@ const clubColliderSize = new Vector3(clubHalfWidth * 0.5, clubHalfWidth * 0.5, c
 const clubLength = 1.5
 const rayLength = clubLength * 1.1
 
-export const initializeGolfClub = (entityClub: Entity) => {
-  const transform = getComponent(entityClub, TransformComponent)
-  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
+type GolfClubSpawnParameters = {
+  gameName: string
+  role: string
+  uuid: string
+  ownerNetworkId: number
+}
 
-  const ownerNetworkId = getComponent(entityClub, NetworkObjectOwner)?.networkId
-  if (ownerNetworkId === undefined) return
+export const initializeGolfClub = (entityClub: Entity, parameters: GolfClubSpawnParameters) => {
+  const { gameName, role, uuid, ownerNetworkId } = parameters
+
+  const transform = addComponent(entityClub, TransformComponent)
+  addComponent(entityClub, VelocityComponent)
+  const gameObject = addComponent(entityClub, GameObject, {
+    gameName,
+    role,
+    uuid
+  })
+  addComponent(entityClub, NetworkObjectOwner, { networkId: ownerNetworkId })
+
+  const golfClubComponent = addComponent(entityClub, GolfClubComponent)
+
   const ownerEntity = Network.instance.networkObjects[ownerNetworkId].component.entity
   const ownerPlayerNumber = Number(getComponent(ownerEntity, GamePlayer).role.substr(0, 1)) - 1
 
@@ -348,7 +360,6 @@ export const initializeGolfClub = (entityClub: Entity) => {
   golfClubComponent.velocity = new Vector3()
   addComponent(entityClub, DebugArrowComponent)
 
-  const gameObject = getComponent(entityClub, GameObject)
   gameObject.collisionBehaviors['GolfBall'] = onClubColliderWithBall
 
   if (isClient) {
@@ -358,69 +369,4 @@ export const initializeGolfClub = (entityClub: Entity) => {
       enableClub(entityClub, false)
     }
   }
-}
-
-type GolfClubSpawnParameters = {
-  gameName: string
-  role: string
-  uuid: string
-  ownerNetworkId: number
-}
-
-export const createGolfClubPrefab = (args: {
-  parameters?: GolfClubSpawnParameters
-  networkId?: number
-  uniqueId: string
-  ownerId?: string
-}) => {
-  //console.log('createGolfClubPrefab', args)
-  initializeNetworkObject({
-    prefabType: GolfPrefabTypes.Club,
-    uniqueId: args.uniqueId,
-    ownerId: args.ownerId,
-    networkId: args.networkId,
-    parameters: args.parameters,
-    override: {
-      networkComponents: [
-        {
-          type: GameObject,
-          data: {
-            gameName: args.parameters.gameName,
-            role: args.parameters.role,
-            uuid: args.parameters.uuid
-          }
-        },
-        {
-          type: NetworkObjectOwner,
-          data: {
-            networkId: args.parameters.ownerNetworkId
-          }
-        }
-      ]
-    }
-  })
-}
-
-// Prefab is a pattern for creating an entity and component collection as a prototype
-export const GolfClubPrefab: NetworkPrefab = {
-  //@ts-ignore
-  initialize: createGolfClubPrefab,
-  // These will be created for all players on the network
-  networkComponents: [
-    // Transform system applies values from transform component to three.js object (position, rotation, etc)
-    { type: TransformComponent },
-    { type: RigidBodyComponent },
-    { type: VelocityComponent },
-    { type: GameObject },
-    { type: GolfClubComponent },
-    { type: NetworkObjectOwner }
-    // Local player input mapped to behaviors in the input map
-  ],
-  // These are only created for the local player who owns this prefab
-  localClientComponents: [],
-  //clientComponents: [{ type: InterpolationComponent, data: { } }],
-  clientComponents: [],
-  serverComponents: [],
-  onAfterCreate: [],
-  onBeforeDestroy: []
 }

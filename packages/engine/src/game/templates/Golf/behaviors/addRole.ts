@@ -31,7 +31,7 @@ export const addRole: Behavior = (
   checks?: any
 ): void => {
   const game = getGame(entity)
-  const gameSchema = Engine.gameModes[game.gameMode]
+  const gameSchema = Engine.gameModes.get(game.gameMode)
   const [availableRole] = Object.entries(game.gamePlayers).find(([key, entities]) => {
     return entities.length === 0
   })

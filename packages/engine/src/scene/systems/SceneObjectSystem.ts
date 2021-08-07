@@ -87,7 +87,7 @@ export class SceneObjectSystem extends System {
     }
 
     for (const entity of this.queryResults.sceneObject.removed) {
-      const object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent, true)
+      const object3DComponent = getComponent(entity, Object3DComponent, true)
 
       // Remove from scene
       if (object3DComponent && Engine.scene.children.includes(object3DComponent.value)) {

@@ -21,7 +21,7 @@ import { GameMode } from '../types/GameMode'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { isClient } from '../../common/functions/isClient'
 import { checkIsGamePredictionStillRight, clearPredictionCheckList } from '../functions/functionsActions'
-import { CharacterComponent } from '../../character/components/CharacterComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 
 // TODO: add game areas back
@@ -50,7 +50,7 @@ export class GameManagerSystem extends System {
   execute(delta: number, time: number): void {
     for (const entity of this.queryResults.game.added) {
       const game = getMutableComponent(entity, Game)
-      const gameSchema = Engine.gameModes[game.gameMode] as GameMode
+      const gameSchema = Engine.gameModes.get(game.gameMode) as GameMode
       gameSchema.preparePlayersRole(gameSchema, game.maxPlayers)
       game.priority = gameSchema.priority // DOTO: set its from editor
       initState(game, gameSchema)
@@ -92,7 +92,7 @@ export class GameManagerSystem extends System {
         )
       }
 
-      for (const entity of this.queryResults.characters.added) {
+      for (const entity of this.queryResults.avatars.added) {
         console.log('new player')
         const gamePlayerComp = addComponent(entity, GamePlayer, {
           gameName: game.name,
@@ -109,7 +109,7 @@ export class GameManagerSystem extends System {
         const game = getComponent(entityGame, Game)
         const gamePlayer = getComponent(entity, GamePlayer, true)
         if (gamePlayer === undefined || gamePlayer.gameName != game.name) continue
-        const gameSchema = Engine.gameModes[game.gameMode]
+        const gameSchema = Engine.gameModes.get(game.gameMode)
         gameSchema.beforePlayerLeave(entity)
         console.log('removeEntityFromState', gamePlayer.role)
         removeEntityFromState(gamePlayer, game)
@@ -166,8 +166,8 @@ export class GameManagerSystem extends System {
 }
 
 GameManagerSystem.queries = {
-  characters: {
-    components: [CharacterComponent],
+  avatars: {
+    components: [AvatarComponent],
     listen: {
       added: true,
       removed: true
