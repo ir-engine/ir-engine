@@ -3,7 +3,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { AnimationManager } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
-import { CharacterAnimationStateComponent } from '../components/CharacterAnimationStateComponent'
+import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { Animation } from './Util'
 
 /** Class to handle rendering of an animation and smoothout the transition of the animation from one state to another */
@@ -23,12 +23,12 @@ export class AnimationRenderer {
    * @param {Entity} entity
    */
   static mountCurrentState = (entity: Entity) => {
-    const characterAnimationStateComponent = getComponent(entity, CharacterAnimationStateComponent)
+    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
     const animationComponent = getComponent(entity, AnimationComponent)
     // Reset update time
-    characterAnimationStateComponent.currentState.timeElapsedSinceUpdate = 0
+    avatarAnimationComponent.currentState.timeElapsedSinceUpdate = 0
 
-    characterAnimationStateComponent.currentState.animations.forEach((animation) => {
+    avatarAnimationComponent.currentState.animations.forEach((animation) => {
       // Take the clip from the loaded animations
       if (!animation.clip) {
         animation.clip = AnimationClip.findByName(AnimationManager.instance._animations, animation.name)
@@ -46,14 +46,14 @@ export class AnimationRenderer {
 
   /**
    * Updates animation of current state and apply interpolation if required to make smooth transition for animations
-   * @param characterAnimationStateComponent Animation component which holds animation details
+   * @param avatarAnimationComponent Animation component which holds animation details
    * @param delta Time since last frame
    * @returns Total weights of currently mounted state's animations
    */
   static updateCurrentState = (entity: Entity, delta: number): number => {
-    const characterAnimationStateComponent = getComponent(entity, CharacterAnimationStateComponent)
+    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
     let currentStateWeight = 0
-    const currState = characterAnimationStateComponent.currentState
+    const currState = avatarAnimationComponent.currentState
 
     // Advances the elapsed time
     currState.timeElapsedSinceUpdate += delta
@@ -100,29 +100,29 @@ export class AnimationRenderer {
 
   /**
    * Unmounts previoust state if any
-   * @param characterAnimationStateComponent Animation component which holds animation details
+   * @param avatarAnimationComponent Animation component which holds animation details
    * @param delta Time since last frame
    * @param stopImmediately Whether to stop immediately without smooth transition
    * @returns Total weight of previous state's animations
    */
   static unmountPreviousState = (entity: Entity, delta: number, stopImmediately?: boolean): number => {
-    const characterAnimationStateComponent = getComponent(entity, CharacterAnimationStateComponent)
+    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
     let prevStateWeight = 0
 
-    if (!characterAnimationStateComponent.prevState) {
+    if (!avatarAnimationComponent.prevState) {
       return prevStateWeight
     }
 
     // Advances the elapsed time
-    characterAnimationStateComponent.prevState.timeElapsedSinceUpdate += delta
+    avatarAnimationComponent.prevState.timeElapsedSinceUpdate += delta
 
-    characterAnimationStateComponent.prevState.animations.forEach((animation) => {
+    avatarAnimationComponent.prevState.animations.forEach((animation) => {
       // Get the interpolated weight and apply to the action
       animation.weight = stopImmediately
         ? 0
         : this.interpolateWeight(
-            characterAnimationStateComponent.prevState.timeElapsedSinceUpdate,
-            characterAnimationStateComponent.prevState.transitionDuration,
+            avatarAnimationComponent.prevState.timeElapsedSinceUpdate,
+            avatarAnimationComponent.prevState.transitionDuration,
             animation.transitionStartWeight,
             animation.transitionEndWeight
           )
@@ -141,10 +141,7 @@ export class AnimationRenderer {
       }
     })
 
-    if (
-      characterAnimationStateComponent.prevState.name !==
-      characterAnimationStateComponent.animationGraph.defaultState.name
-    ) {
+    if (avatarAnimationComponent.prevState.name !== avatarAnimationComponent.animationGraph.defaultState.name) {
       // If there is no weight in the prevState animations then remove it.
       if (prevStateWeight <= 0) {
         this.resetPreviousState(entity, true)
@@ -156,20 +153,17 @@ export class AnimationRenderer {
 
   /**
    * Renders idle weight with default animation to prevent T pose being rendered
-   * @param characterAnimationStateComponent Animation component which holds animation details
+   * @param avatarAnimationComponent Animation component which holds animation details
    * @param currentStateWeight Weight of the current state
    * @param prevStateWeight Weight of the previous state
    */
   static renderIdleWeight = (entity: Entity, currentStateWeight: number, prevStateWeight: number) => {
-    const characterAnimationStateComponent = getComponent(entity, CharacterAnimationStateComponent)
-    const defaultState = characterAnimationStateComponent.animationGraph.defaultState
+    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+    const defaultState = avatarAnimationComponent.animationGraph.defaultState
     defaultState.animations[0].weight = Math.max(1 - (prevStateWeight + currentStateWeight), 0)
 
     // If curren state is default state then assign all the weight to it to prevent partial T pose
-    if (
-      characterAnimationStateComponent.currentState.name === defaultState.name &&
-      defaultState.animations[0].weight < 1
-    ) {
+    if (avatarAnimationComponent.currentState.name === defaultState.name && defaultState.animations[0].weight < 1) {
       defaultState.animations[0].weight = 1
     }
 
@@ -201,15 +195,15 @@ export class AnimationRenderer {
    * @param {boolean} emptyPrevState Wheterh to make previous state null after reset
    */
   static resetPreviousState = (entity: Entity, emptyPrevState?: boolean): void => {
-    const characterAnimationStateComponent = getComponent(entity, CharacterAnimationStateComponent)
-    characterAnimationStateComponent.prevState.timeElapsedSinceUpdate = 0
-    characterAnimationStateComponent.prevState.animations.forEach((a) => {
+    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+    avatarAnimationComponent.prevState.timeElapsedSinceUpdate = 0
+    avatarAnimationComponent.prevState.animations.forEach((a) => {
       a.transitionStartWeight = a.weight
       a.transitionEndWeight = 0
     })
 
     if (emptyPrevState) {
-      characterAnimationStateComponent.prevState = null
+      avatarAnimationComponent.prevState = null
     }
   }
 }

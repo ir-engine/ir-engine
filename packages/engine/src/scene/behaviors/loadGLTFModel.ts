@@ -1,6 +1,6 @@
 import { AnimationMixer, BufferGeometry, Object3D } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AnimationComponent } from '../../character/components/AnimationComponent'
+import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'

@@ -1,7 +1,7 @@
 import { AnimationAction, AnimationActionLoopStyles, AnimationClip, Vector3 } from 'three'
 
-/** State of the character animation */
-export const CharacterStates = {
+/** State of the avatar animation */
+export const AvatarStates = {
   DEFAULT: 'DEFAULT',
   IDLE: 'IDLE',
   WALK: 'WALK',
@@ -12,7 +12,7 @@ export const CharacterStates = {
   LOOPABLE_EMOTE: 'LOOPABLE_EMOTE'
 }
 
-export const CharacterAnimations = {
+export const AvatarAnimations = {
   // Jump and falling
   JUMP: 'jump',
   FALLING: 'falling',
@@ -44,12 +44,12 @@ export const CharacterAnimations = {
   // WAVE_RIGHT: 'wave_right',
 }
 
-/** Type of movement of the character in any given frame */
+/** Type of movement of the avatar in any given frame */
 export type MovementType = {
-  /** Velocity of the character */
+  /** Velocity of the avatar */
   velocity: Vector3
 
-  /** Distance from the ground of the character */
+  /** Distance from the ground of the avatar */
   distanceFromGround: number
 }
 
@@ -58,13 +58,13 @@ export enum AnimationType {
   /** Static will be rendered on demand */
   STATIC,
 
-  /** This type of animation will be rendred based on the velocity of the character */
+  /** This type of animation will be rendred based on the velocity of the avatar */
   VELOCITY_BASED
 }
 
 /** Type of calculate weights method parameters */
 export type WeightsParameterType = {
-  /** Movement of the character in the frame */
+  /** Movement of the avatar in the frame */
   movement?: MovementType
 
   /** Whether reset currrent playing animation. Useful while intra state transition */

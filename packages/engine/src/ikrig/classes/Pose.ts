@@ -1,5 +1,5 @@
 import { Object3D, Quaternion, Skeleton, Vector3 } from 'three'
-import { SkeletonUtils } from '../../character/SkeletonUtils'
+import { SkeletonUtils } from '../../avatar/SkeletonUtils'
 import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import Obj from '../components/Obj'
 import { DOWN, LEFT, RIGHT } from '../constants/Vector3Constants'

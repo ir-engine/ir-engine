@@ -15,7 +15,7 @@ import {
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { CharacterComponent } from '../../character/components/CharacterComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBox'
 import { Interactable } from '../components/Interactable'
@@ -225,7 +225,7 @@ export class InteractiveSystem extends System {
       }
     },
     local_user: {
-      components: [LocalInputReceiver, CharacterComponent],
+      components: [LocalInputReceiver, AvatarComponent],
       listen: {
         added: true,
         removed: true

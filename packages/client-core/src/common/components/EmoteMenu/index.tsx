@@ -7,12 +7,8 @@ import styles from './EmoteMenu.module.scss'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { LocalInputReceiver } from '@xrengine/engine/src/input/components/LocalInputReceiver'
-import {
-  WeightsParameterType,
-  CharacterAnimations,
-  CharacterStates
-} from '@xrengine/engine/src/character/animations/Util'
-import { AnimationGraph } from '@xrengine/engine/src/character/animations/AnimationGraph'
+import { WeightsParameterType, AvatarAnimations, AvatarStates } from '@xrengine/engine/src/avatar/animations/Util'
+import { AnimationGraph } from '@xrengine/engine/src/avatar/animations/AnimationGraph'
 
 type MenuItemType = {
   body: any
@@ -55,29 +51,25 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
         {
           body: <img src="/static/Dance1.svg" alt="Dance 1" />,
           containerProps: {
-            onClick: () =>
-              this.runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_1 })
+            onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_1 })
           }
         },
         {
           body: <img src="/static/Dance2.svg" alt="Dance 2" />,
           containerProps: {
-            onClick: () =>
-              this.runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_2 })
+            onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_2 })
           }
         },
         {
           body: <img src="/static/Dance3.svg" alt="Dance 3" />,
           containerProps: {
-            onClick: () =>
-              this.runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_3 })
+            onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_3 })
           }
         },
         {
           body: <img src="/static/Dance4.svg" alt="Dance 4" />,
           containerProps: {
-            onClick: () =>
-              this.runAnimation(CharacterStates.LOOPABLE_EMOTE, { animationName: CharacterAnimations.DANCING_4 })
+            onClick: () => this.runAnimation(AvatarStates.LOOPABLE_EMOTE, { animationName: AvatarAnimations.DANCING_4 })
           }
         }
       ] as any

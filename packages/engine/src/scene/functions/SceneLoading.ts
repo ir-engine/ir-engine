@@ -47,7 +47,7 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { createCollider } from '../../physics/behaviors/createCollider'
 import { Network } from '../../networking/classes/Network'
 import { setCameraProperties } from '../behaviors/setCameraProperties'
-import { switchCameraMode } from '../../character/functions/switchCameraMode'
+import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP

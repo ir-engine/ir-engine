@@ -10,7 +10,7 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/EntityFunctions'
-import { CharacterComponent } from '../../character/components/CharacterComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraComponent } from '../components/CameraComponent'
@@ -72,8 +72,8 @@ const followCameraBehavior = (entity: Entity) => {
   cameraDesiredTransform.rotationRate = getRotationRate()
   cameraDesiredTransform.positionRate = getPositionRate()
 
-  const actor = getMutableComponent(entity, CharacterComponent)
-  const actorTransform = getMutableComponent(entity, TransformComponent)
+  const avatar = getMutableComponent(entity, AvatarComponent)
+  const avatarTransform = getMutableComponent(entity, TransformComponent)
 
   const followCamera = getMutableComponent(entity, FollowCameraComponent)
 
@@ -90,7 +90,7 @@ const followCameraBehavior = (entity: Entity) => {
       value: [0, 0] as Vector2Type
     } as InputValue<NumericalType>)
 
-  let theta = Math.atan2(actor.viewVector.x, actor.viewVector.z)
+  let theta = Math.atan2(avatar.viewVector.x, avatar.viewVector.z)
   let camDist = followCamera.distance
   let phi = followCamera.phi
 
@@ -109,9 +109,9 @@ const followCameraBehavior = (entity: Entity) => {
   if (followCamera.mode === CameraModes.FirstPerson) {
     camDist = 0.01
     theta = followCamera.theta
-    vec3.set(0, actor.actorHeight, 0)
+    vec3.set(0, avatar.avatarHeight, 0)
   } else if (followCamera.mode === CameraModes.Strategic) {
-    vec3.set(0, actor.actorHeight * 2, -3)
+    vec3.set(0, avatar.avatarHeight * 2, -3)
     theta = 180
     phi = 150
   } else {
@@ -124,11 +124,11 @@ const followCameraBehavior = (entity: Entity) => {
     theta = followCamera.theta
 
     const shoulderOffset = followCamera.shoulderSide ? -0.2 : 0.2
-    vec3.set(shoulderOffset, actor.actorHeight + 0.25, 0)
+    vec3.set(shoulderOffset, avatar.avatarHeight + 0.25, 0)
   }
 
-  vec3.applyQuaternion(actorTransform.rotation)
-  vec3.add(actorTransform.position)
+  vec3.applyQuaternion(avatarTransform.rotation)
+  vec3.add(avatarTransform.position)
 
   // Raycast for camera
   const cameraTransform = getMutableComponent(Engine.activeCameraEntity, TransformComponent)
@@ -172,10 +172,10 @@ const followCameraBehavior = (entity: Entity) => {
     const newTheta = ((followCamera.theta - 180) * Math.PI) / 180
 
     // Rotate actor
-    actorTransform.rotation.setFromAxisAngle(upVector, newTheta)
+    avatarTransform.rotation.setFromAxisAngle(upVector, newTheta)
 
     // Update the view vector
-    rotateViewVectorXZ(actor.viewVector, newTheta)
+    rotateViewVectorXZ(avatar.viewVector, newTheta)
   }
 }
 
@@ -262,7 +262,7 @@ export class CameraSystem extends System {
  */
 CameraSystem.queries = {
   followCameraComponent: {
-    components: [FollowCameraComponent, TransformComponent, CharacterComponent],
+    components: [FollowCameraComponent, TransformComponent, AvatarComponent],
     listen: {
       added: true,
       removed: true

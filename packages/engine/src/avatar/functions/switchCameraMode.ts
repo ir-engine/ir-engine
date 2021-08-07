@@ -4,26 +4,22 @@ import { CameraModes } from '../../camera/types/CameraModes'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { CharacterComponent } from '../components/CharacterComponent'
+import { AvatarComponent } from '../components/AvatarComponent'
 
 const setVisible = (entity: Entity, visible: boolean): void => {
-  const actor = getMutableComponent(entity, CharacterComponent)
   const object3DComponent = getComponent(entity, Object3DComponent)
-  if (actor.visible !== visible) {
-    actor.visible = visible
-    object3DComponent.value.traverse((obj) => {
-      const mat = (obj as SkinnedMesh).material
-      if (mat) {
-        if (visible) {
-          ;(mat as Material).opacity = 1
-          ;(mat as Material).transparent = false
-        } else {
-          ;(mat as Material).opacity = 0
-          ;(mat as Material).transparent = true
-        }
+  object3DComponent.value.traverse((obj) => {
+    const mat = (obj as SkinnedMesh).material
+    if (mat) {
+      if (visible) {
+        ;(mat as Material).opacity = 1
+        ;(mat as Material).transparent = false
+      } else {
+        ;(mat as Material).opacity = 0
+        ;(mat as Material).transparent = true
       }
-    })
-  }
+    }
+  })
 }
 
 type SwitchCameraModeProps = {

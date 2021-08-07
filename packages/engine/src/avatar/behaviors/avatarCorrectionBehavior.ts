@@ -8,10 +8,10 @@ import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObject } from '../../networking/components/NetworkObject'
 import { findInterpolationSnapshot } from '../../physics/behaviors/findInterpolationSnapshot'
-import { ControllerColliderComponent } from '../components/ControllerColliderComponent'
+import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { SnapshotData } from '../../networking/types/SnapshotDataTypes'
 import { Vector3 } from 'three'
-import { CharacterComponent } from '../components/CharacterComponent'
+import { AvatarComponent } from '../components/AvatarComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -24,14 +24,14 @@ import { CharacterComponent } from '../components/CharacterComponent'
 const vec3 = new Vector3()
 
 export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots: SnapshotData, delta: number): void => {
-  const controller = getComponent(entity, ControllerColliderComponent)
-  const actor = getComponent(entity, CharacterComponent)
+  const controller = getComponent(entity, AvatarControllerComponent)
+  const avatar = getComponent(entity, AvatarComponent)
   const networkId = getComponent(entity, NetworkObject).networkId
 
   snapshots.new.push({
     networkId,
     x: controller.controller.transform.translation.x,
-    y: controller.controller.transform.translation.y - actor.actorHalfHeight,
+    y: controller.controller.transform.translation.y - avatar.avatarHalfHeight,
     z: controller.controller.transform.translation.z,
     qX: 0, // physx controllers dont have rotation
     qY: 0,
@@ -53,7 +53,7 @@ export const characterCorrectionBehavior: Behavior = (entity: Entity, snapshots:
     controller.controller.updateTransform({
       translation: {
         x: currentSnapshot.x,
-        y: currentSnapshot.y + actor.actorHalfHeight,
+        y: currentSnapshot.y + avatar.avatarHalfHeight,
         z: currentSnapshot.z
       }
     })

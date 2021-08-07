@@ -4,7 +4,7 @@ import { AudioListener, BufferGeometry, Euler, Mesh, PerspectiveCamera, Quaterni
 import { acceleratedRaycast, disposeBoundsTree, computeBoundsTree } from 'three-mesh-bvh'
 import { PositionalAudioSystem } from './audio/systems/PositionalAudioSystem'
 import { CameraSystem } from './camera/systems/CameraSystem'
-import { CharacterControllerSystem } from './character/CharacterControllerSystem'
+import { AvatarControllerSystem } from './avatar/AvatarControllerSystem'
 import { now } from './common/functions/now'
 import { DebugHelpersSystem } from './debug/systems/DebugHelpersSystem'
 import { DefaultInitializationOptions, InitializeOptions, EngineSystemPresets } from './initializationOptions'
@@ -30,19 +30,19 @@ import { execute, reset } from './ecs/functions/EngineFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { ServerNetworkIncomingSystem } from './networking/systems/ServerNetworkIncomingSystem'
 import { ServerNetworkOutgoingSystem } from './networking/systems/ServerNetworkOutgoingSystem'
-import { ServerAvatarSpawnSystem, SpawnPoints } from './character/ServerAvatarSpawnSystem'
+import { ServerAvatarSpawnSystem, SpawnPoints } from './avatar/ServerAvatarSpawnSystem'
 import { SceneObjectSystem } from './scene/systems/SceneObjectSystem'
 import { ActiveSystems } from './ecs/classes/System'
 import { AudioSystem } from './audio/systems/AudioSystem'
 import { setupBotHooks } from './bot/functions/botHookFunctions'
-import { AnimationSystem } from './character/AnimationSystem'
+import { AnimationSystem } from './avatar/AnimationSystem'
 import { InterpolationSystem } from './physics/systems/InterpolationSystem'
 import { FontManager } from './xrui/classes/FontManager'
 import { EquippableSystem } from './interaction/systems/EquippableSystem'
 import { AutopilotSystem } from './navigation/systems/AutopilotSystem'
 import { addClientInputListeners, removeClientInputListeners } from './input/functions/clientInputListeners'
 import { loadDRACODecoder } from './assets/loaders/gltf/NodeDracoLoader'
-import { ClientAvatarSpawnSystem } from './character/ClientAvatarSpawnSystem'
+import { ClientAvatarSpawnSystem } from './avatar/ClientAvatarSpawnSystem'
 
 // @ts-ignore
 Quaternion.prototype.toJSON = function () {
@@ -154,7 +154,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
 
   // Input Systems
   registerSystem(SystemUpdateType.Fixed, UISystem)
-  registerSystem(SystemUpdateType.Fixed, CharacterControllerSystem)
+  registerSystem(SystemUpdateType.Fixed, AvatarControllerSystem)
   registerSystem(SystemUpdateType.Fixed, AnimationSystem)
   registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
 
@@ -204,7 +204,7 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
   registerSystem(SystemUpdateType.Fixed, MediaStreamSystem)
 
   // Input Systems
-  registerSystem(SystemUpdateType.Fixed, CharacterControllerSystem)
+  registerSystem(SystemUpdateType.Fixed, AvatarControllerSystem)
   registerSystem(SystemUpdateType.Fixed, AutopilotSystem)
 
   // Scene Systems

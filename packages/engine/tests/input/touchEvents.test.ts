@@ -3,7 +3,7 @@ import { InputSystem } from "../../src/input/systems/ClientInputSystem";
 import { execute } from "../../src/ecs/functions/EngineFunctions";
 import { addComponent, createEntity, removeComponent, removeEntity } from "../../src/ecs/functions/EntityFunctions";
 import { Input } from "../../src/input/components/Input";
-import { CharacterInputSchema } from "../../src/character/CharacterInputSchema";
+import { AvatarInputSchema } from "../../src/avatar/AvatarInputSchema";
 import { LocalInputReceiver } from "../../src/input/components/LocalInputReceiver";
 import { InputSchema } from "../../src/input/interfaces/InputSchema";
 import { TouchInputs } from "../../src/input/enums/InputEnums";

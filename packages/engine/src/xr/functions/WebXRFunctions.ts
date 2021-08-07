@@ -3,8 +3,8 @@ import { Group, Object3D, Quaternion, Vector3 } from 'three'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
-import { CharacterComponent } from '../../character/components/CharacterComponent'
-import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { ParityValue } from '../../common/enums/ParityValue'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -72,7 +72,7 @@ const forward = new Vector3(0, 0, -1)
  */
 
 export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.NONE): Vector3 => {
-  const actor = getComponent(entity, CharacterComponent)
+  const avatar = getComponent(entity, AvatarComponent)
   const transform = getComponent(entity, TransformComponent)
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {
@@ -95,7 +95,7 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
  */
 
 export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.NONE): Quaternion => {
-  const actor = getComponent(entity, CharacterComponent)
+  const avatar = getComponent(entity, AvatarComponent)
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {
     const rigHand: Object3D =
@@ -104,7 +104,7 @@ export const getHandRotation = (entity: Entity, hand: ParityValue = ParityValue.
       return rigHand.getWorldQuaternion(quat)
     }
   }
-  return quat.setFromUnitVectors(forward, actor.viewVector)
+  return quat.setFromUnitVectors(forward, avatar.viewVector)
 }
 
 /**
@@ -119,7 +119,7 @@ export const getHandTransform = (
   entity: Entity,
   hand: ParityValue = ParityValue.NONE
 ): { position: Vector3; rotation: Quaternion } => {
-  const actor = getComponent(entity, CharacterComponent)
+  const avatar = getComponent(entity, AvatarComponent)
   const transform = getComponent(entity, TransformComponent)
   const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
   if (xrInputSourceComponent) {
@@ -135,6 +135,6 @@ export const getHandTransform = (
   return {
     // TODO: replace (-0.5, 0, 0) with animation hand position once new animation rig is in
     position: vec3.set(-0.35, 1, 0).applyQuaternion(transform.rotation).add(transform.position),
-    rotation: quat.setFromUnitVectors(forward, actor.viewVector)
+    rotation: quat.setFromUnitVectors(forward, avatar.viewVector)
   }
 }

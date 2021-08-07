@@ -1,4 +1,4 @@
-import { CharacterInputSchema } from './character/CharacterInputSchema'
+import { AvatarInputSchema } from './avatar/AvatarInputSchema'
 import { DefaultGameMode } from './game/templates/DefaultGameMode'
 import { DefaultNetworkSchema } from './networking/templates/DefaultNetworkSchema'
 import { InputSchema } from './input/interfaces/InputSchema'
@@ -61,7 +61,7 @@ export const DefaultInitializationOptions: Partial<InitializeOptions> = {
   type: EngineSystemPresets.CLIENT,
   publicPath: '',
   input: {
-    schemas: [CharacterInputSchema]
+    schemas: [AvatarInputSchema]
   },
   networking: {
     schema: DefaultNetworkSchema

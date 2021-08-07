@@ -46,7 +46,7 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import WarningRefreshModal from '../AlertModals/WarningRetryModal'
 import { unregisterSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { GolfSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
-import { AnimationSystem } from '@xrengine/engine/src/character/AnimationSystem'
+import { AnimationSystem } from '@xrengine/engine/src/avatar/AnimationSystem'
 import { GolfGameMode } from '@xrengine/engine/src/game/templates/GolfGameMode'
 import { registerGolfBotHooks } from '@xrengine/engine/src/game/templates/Golf/functions/registerGolfBotHooks'
 import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem'

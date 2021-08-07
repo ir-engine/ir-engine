@@ -38,7 +38,7 @@ import {
   usernameUpdated,
   userUpdated
 } from './actions'
-import { setActorAvatar } from '@xrengine/engine/src/character/functions/avatarFunctions'
+import { setAvatar } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 
 const store = Store.store
 
@@ -840,7 +840,7 @@ const loadAvatarForUpdatedUser = async (user) => {
       for (let key of Object.keys(Network.instance.networkObjects)) {
         const obj = Network.instance.networkObjects[key]
         if (obj?.ownerId === user.id) {
-          setActorAvatar({
+          setAvatar({
             entityID: obj.component.entity.id,
             avatarId: user.avatarId,
             avatarURL
@@ -877,7 +877,7 @@ const loadXRAvatarForUpdatedUser = async (user) => {
     for (let key of Object.keys(Network.instance.networkObjects)) {
       const obj = Network.instance.networkObjects[key]
       if (obj?.ownerId === user.id) {
-        setActorAvatar({
+        setAvatar({
           entityID: obj.component.entity.id,
           avatarId: user.avatarId,
           avatarURL
