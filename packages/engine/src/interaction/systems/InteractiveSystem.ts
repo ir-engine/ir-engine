@@ -1,9 +1,8 @@
-import { Box3, Group, MathUtils, Mesh, MeshPhongMaterial, Vector3 } from 'three'
+import { Group, MathUtils, Mesh, MeshPhongMaterial, Vector3 } from 'three'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { System } from '../../ecs/classes/System'
-import { Not } from '../../ecs/functions/ComponentFunctions'
 import {
   addComponent,
   createEntity,
@@ -29,9 +28,8 @@ import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import { InteractedComponent } from '../components/InteractedComponent'
 import AudioSource from '../../scene/classes/AudioSource'
 import { Engine } from '../../ecs/classes/Engine'
-import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { BodyType } from 'three-physx'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
+import { createBoxComponent } from '../functions/createBoxComponent'
 
 const upVec = new Vector3(0, 1, 0)
 
@@ -74,12 +72,7 @@ export class InteractiveSystem extends System {
   execute(delta: number, time: number): void {
     for (const entity of this.queryResults.interactive.added) {
       if (!hasComponent(entity, BoundingBoxComponent) && hasComponent(entity, Object3DComponent)) {
-        const dynamic =
-          hasComponent(entity, ColliderComponent) &&
-          getComponent(entity, ColliderComponent).body.type !== BodyType.STATIC
-        addComponent(entity, BoundingBoxComponent, {
-          dynamic
-        })
+        createBoxComponent(entity)
       }
     }
 
@@ -109,40 +102,6 @@ export class InteractiveSystem extends System {
       }
     }
 
-    for (const entity of this.queryResults.boundingBox.added) {
-      const calcBoundingBox = getMutableComponent(entity, BoundingBoxComponent)
-
-      const object3D = getMutableComponent(entity, Object3DComponent).value
-      const transform = getComponent(entity, TransformComponent)
-
-      object3D.position.copy(transform.position)
-      object3D.rotation.setFromQuaternion(transform.rotation)
-      if (!calcBoundingBox.dynamic) object3D.updateMatrixWorld()
-
-      let hasBoxExpanded = false
-
-      // expand bounding box to
-      object3D.traverse((obj3d: Mesh) => {
-        if (obj3d instanceof Mesh) {
-          if (!obj3d.geometry.boundingBox) obj3d.geometry.computeBoundingBox()
-          const aabb = new Box3().copy(obj3d.geometry.boundingBox)
-          if (!calcBoundingBox.dynamic) aabb.applyMatrix4(obj3d.matrixWorld)
-          if (hasBoxExpanded) {
-            calcBoundingBox.box.union(aabb)
-          } else {
-            calcBoundingBox.box = aabb
-            hasBoxExpanded = true
-          }
-        }
-      })
-      // if no meshes, create a small bb so interactables still detect it
-      if (!hasBoxExpanded) {
-        calcBoundingBox.box = new Box3(
-          new Vector3(-0.05, -0.05, -0.05).add(transform.position),
-          new Vector3(0.05, 0.05, 0.05).add(transform.position)
-        )
-      }
-    }
     // removal is the first because the hint must first be deleted, and then a new one appears
     for (const entity of this.queryResults.focus.removed) {
       hideInteractText(this.interactTextEntity)

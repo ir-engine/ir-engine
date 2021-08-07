@@ -226,7 +226,6 @@ const registerServerSystems = (options: Required<InitializeOptions>) => {
 export const initializeEngine = async (initOptions: InitializeOptions = {}): Promise<void> => {
   const options: Required<InitializeOptions> = _.defaultsDeep({}, initOptions, DefaultInitializationOptions)
   Engine.initOptions = options
-  Engine.gameModes = options.gameModes
   Engine.offlineMode = typeof options.networking.schema === 'undefined'
   Engine.publicPath = options.publicPath
   Engine.lastTime = now() / 1000

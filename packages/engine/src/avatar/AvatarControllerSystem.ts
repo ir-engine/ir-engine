@@ -17,7 +17,7 @@ import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
 import { sendClientObjectUpdate } from '../networking/functions/sendClientObjectUpdate'
 import { teleportPlayer } from './functions/teleportPlayer'
-import { NetworkObjectUpdateType } from '../networking/templates/NetworkObjectUpdateSchema'
+import { NetworkObjectUpdateType } from '../networking/templates/NetworkObjectUpdates'
 import { SpawnPoints } from './ServerAvatarSpawnSystem'
 
 const vector3 = new Vector3()

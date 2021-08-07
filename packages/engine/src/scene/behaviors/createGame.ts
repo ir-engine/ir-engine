@@ -41,20 +41,3 @@ export const createGame = (entity, args: GameDataProps) => {
   const gameSchema = Engine.gameModes[args.gameMode]
   gameSchema.onGameLoading(entity)
 }
-
-export const createGameObject = (entity, args: GameDataProps) => {
-  if (args.sceneEntityId === undefined) {
-    console.warn('DONT SAVE COLLIDER FOR GAME OBJECT')
-  }
-
-  // if (!isClient && !args.isGlobal) {
-  //   removeEntity(entity);
-  //   return;
-  // }
-
-  addComponent(entity, GameObject, {
-    gameName: args.gameName,
-    role: args.role,
-    uuid: args.sceneEntityId
-  })
-}

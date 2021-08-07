@@ -16,7 +16,7 @@ import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { addObject3DComponent } from '../behaviors/addObject3DComponent'
-import { createGame, createGameObject } from '../behaviors/createGame'
+import { createGame } from '../behaviors/createGame'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
 import { createSkybox } from '../behaviors/createSkybox'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
@@ -48,6 +48,7 @@ import { createCollider } from '../../physics/behaviors/createCollider'
 import { Network } from '../../networking/classes/Network'
 import { setCameraProperties } from '../behaviors/setCameraProperties'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
+import { GameObject } from '../../game/components/GameObject'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -131,7 +132,11 @@ export class WorldScene {
         break
 
       case 'game-object':
-        createGameObject(entity, component.data)
+        addComponent(entity, GameObject, {
+          gameName: component.data.gameName,
+          role: component.data.role,
+          uuid: component.data.sceneEntityId
+        })
         break
 
       case 'ambient-light':

@@ -410,9 +410,6 @@ export const EnginePage = (props: Props) => {
             transport: SocketWebRTCClientTransport
           } as NetworkSchema
         },
-        gameModes: {
-          [GolfGameMode.name]: GolfGameMode
-        },
         renderer: {
           canvasId: engineRendererCanvasId
         },

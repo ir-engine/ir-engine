@@ -8,7 +8,6 @@ import config from '@xrengine/server-core/src/appconfig'
 import { SocketWebRTCServerTransport } from './SocketWebRTCServerTransport'
 import { EngineSystemPresets, InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { GolfSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
-import { GolfGameMode } from '@xrengine/engine/src/game/templates/GolfGameMode'
 import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem'
 ;(globalThis as any).XMLHttpRequest = XMLHttpRequest
 ;(globalThis as any).self = globalThis
@@ -24,9 +23,6 @@ export class WebRTCGameServer {
       schema: {
         transport: SocketWebRTCServerTransport
       } as NetworkSchema
-    },
-    gameModes: {
-      [GolfGameMode.name]: GolfGameMode
     },
     publicPath: config.client.url,
     physics: {

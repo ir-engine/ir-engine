@@ -33,7 +33,7 @@ export class Engine {
   public static initOptions: InitializeOptions
   public static engineTimer: { start: Function; stop: Function; clear: Function } = null
 
-  public static gameModes: { [key: string]: GameMode }
+  public static gameModes: Map<string, GameMode> = new Map()
 
   public static xrSupported = false
   public static isBot = false

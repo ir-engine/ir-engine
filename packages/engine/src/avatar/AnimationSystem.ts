@@ -1,6 +1,6 @@
 import { Vector3 } from 'three'
 import { System } from '../ecs/classes/System'
-import { getMutableComponent, getEntityByID } from '../ecs/functions/EntityFunctions'
+import { getMutableComponent } from '../ecs/functions/EntityFunctions'
 import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationGraph } from './animations/AvatarAnimationGraph'
 import { AvatarStates } from './animations/Util'

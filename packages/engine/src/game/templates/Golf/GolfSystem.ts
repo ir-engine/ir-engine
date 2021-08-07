@@ -37,8 +37,10 @@ import { hideBall, unhideBall } from './behaviors/hideUnhideBall'
 import { GolfState } from './GolfGameComponents'
 import { Quaternion } from 'three'
 import { teleportPlayer } from '../../../avatar/functions/teleportPlayer'
-import { GolfBallTagComponent, GolfClubTagComponent } from './prefab/GolfGamePrefabs'
+import { GolfBallTagComponent, GolfClubTagComponent, GolfPrefabs } from './prefab/GolfGamePrefabs'
 import { SpawnNetworkObjectComponent } from '../../../scene/components/SpawnNetworkObjectComponent'
+import { Engine } from '../../../ecs/classes/Engine'
+import { GolfGameMode } from '../GolfGameMode'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -50,6 +52,16 @@ export class GolfSystem extends System {
    * Executes the system. Called each frame by default from the Engine.
    * @param delta Time since last frame.
    */
+  constructor() {
+    super()
+    Engine.gameModes.set(GolfGameMode.name, GolfGameMode)
+
+    // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
+    Object.entries(GolfPrefabs).forEach(([prefabType, prefab]) => {
+      Network.instance.schema.prefabs.set(Number(prefabType), prefab)
+    })
+  }
+
   execute(delta: number, time: number): void {
     // DO ALL STATE LOGIC HERE (all queries)
 

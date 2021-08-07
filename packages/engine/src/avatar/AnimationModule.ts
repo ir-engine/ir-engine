@@ -3,6 +3,7 @@ import {
   addEntity,
   removeEntity,
   IWorld,
+  ComponentType,
   defineComponent,
   addComponent,
   removeComponent,
@@ -14,28 +15,28 @@ import {
   exitQuery,
   defineSystem,
   System,
+  ISchema,
   defineSerializer,
   defineDeserializer,
   pipe,
   Types
 } from 'bitecs'
 
-import { EngineEvents } from '../ecs/classes/EngineEvents'
-import { getEntityByID, getMutableComponent } from '../ecs/functions/EntityFunctions'
 import { AnimationManager } from './AnimationManager'
-import { AnimationSystem } from './AnimationSystem'
-import { AvatarComponent } from './components/AvatarComponent'
-import { setAvatar } from './functions/avatarFunctions'
 
-type Module = {
-  system: System
-  cleanup: () => void
-}
+// const AnimationComponent = defineComponent(...)
+// const animationQuery = defineQuery([AnimationComponent])
 
-export const AnimationModule = async (): Promise<System> => {
-  await Promise.all([AnimationManager.instance.getDefaultModel(), AnimationManager.instance.getAnimations()])
+// export const AnimationModule = async (): Promise<System> => {
 
-  return defineSystem((world: IWorld) => {
-    return world
-  })
-}
+//   await Promise.all([AnimationManager.instance.getDefaultModel(), AnimationManager.instance.getAnimations()])
+
+//   return defineSystem((world: IWorld, delta: number) => {
+
+//     for (const entity of animationQuery(world)) {
+//       AnimationComponent.mixer[entity].update(delta)
+//     }
+
+//     return world
+//   })
+// }

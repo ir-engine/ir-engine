@@ -10,7 +10,7 @@ export class TransformComponent extends Component<TransformComponent> {
   static _schema = {
     position: { type: Types.Vector3Type, default: new Vector3() },
     rotation: { type: Types.QuaternionType, default: new Quaternion() },
-    scale: { type: Types.Vector3Type, default: new Vector3() }
+    scale: { type: Types.Vector3Type, default: new Vector3(1, 1, 1) }
   }
 
   constructor() {

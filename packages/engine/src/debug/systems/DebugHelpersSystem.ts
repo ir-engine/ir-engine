@@ -233,27 +233,16 @@ export class DebugHelpersSystem extends System {
     for (const entity of this.queryResults.boundingBoxComponent?.added) {
       DebugHelpers.helpersByEntity.box.set(entity, [])
       const boundingBox = getComponent(entity, BoundingBoxComponent)
-      if (boundingBox.boxArray.length) {
-        if (boundingBox.dynamic) {
-          boundingBox.boxArray.forEach((object3D, index) => {
-            const helper = new BoxHelper(object3D)
-            helper.visible = DebugHelpers.physicsDebugEnabled
-            Engine.scene.add(helper)
-            ;(DebugHelpers.helpersByEntity.box.get(entity) as Object3D[]).push(helper)
-          })
-        }
-      } else {
-        const box3 = new Box3()
-        box3.copy(boundingBox.box)
-        if (boundingBox.dynamic) {
-          const object3D = getComponent(entity, Object3DComponent)
-          box3.applyMatrix4(object3D.value.matrixWorld)
-        }
-        const helper = new Box3Helper(box3)
-        helper.visible = DebugHelpers.physicsDebugEnabled
-        Engine.scene.add(helper)
-        ;(DebugHelpers.helpersByEntity.box.get(entity) as Object3D[]).push(helper)
+      const box3 = new Box3()
+      box3.copy(boundingBox.box)
+      if (boundingBox.dynamic) {
+        const object3D = getComponent(entity, Object3DComponent)
+        box3.applyMatrix4(object3D.value.matrixWorld)
       }
+      const helper = new Box3Helper(box3)
+      helper.visible = DebugHelpers.physicsDebugEnabled
+      Engine.scene.add(helper)
+      ;(DebugHelpers.helpersByEntity.box.get(entity) as Object3D[]).push(helper)
     }
 
     for (const entity of this.queryResults.boundingBoxComponent?.removed) {

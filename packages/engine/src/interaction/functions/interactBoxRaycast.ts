@@ -58,35 +58,14 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]): void 
       if (!boundingBox.box) {
         return [entityIn, false, 0]
       }
-      if (boundingBox.boxArray.length) {
-        // TO DO: static group object
-
-        if (boundingBox.dynamic) {
-          const arr = boundingBox.boxArray
-            .map((object3D, index): RaycastResult => {
-              const aabb = new Box3()
-              aabb.setFromObject(object3D)
-              return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position), index]
-            })
-            .filter((value) => value[1])
-            .sort((a: any, b: any) => a[2] - b[2])
-
-          if (arr.length) {
-            return arr[0]
-          } else {
-            return [null, false]
-          }
-        }
+      if (boundingBox.dynamic) {
+        const object3D = getComponent(entityIn, Object3DComponent)
+        const aabb = new Box3()
+        aabb.copy(boundingBox.box)
+        aabb.applyMatrix4(object3D.value.matrixWorld)
+        return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position)]
       } else {
-        if (boundingBox.dynamic) {
-          const object3D = getComponent(entityIn, Object3DComponent)
-          const aabb = new Box3()
-          aabb.copy(boundingBox.box)
-          aabb.applyMatrix4(object3D.value.matrixWorld)
-          return [entityIn, frustum.intersectsBox(aabb), aabb.distanceToPoint(transform.position)]
-        } else {
-          return [entityIn, frustum.intersectsBox(boundingBox.box), boundingBox.box.distanceToPoint(transform.position)]
-        }
+        return [entityIn, frustum.intersectsBox(boundingBox.box), boundingBox.box.distanceToPoint(transform.position)]
       }
     })
     .filter((value) => value[1])

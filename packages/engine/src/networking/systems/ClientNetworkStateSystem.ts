@@ -7,7 +7,7 @@ import {
   removeEntity
 } from '../../ecs/functions/EntityFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { NetworkObjectUpdateSchema } from '../templates/NetworkObjectUpdateSchema'
+import { NetworkObjectUpdateMap } from '../templates/NetworkObjectUpdates'
 import { Network } from '../classes/Network'
 import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFunctions'
 import { PrefabType } from '../templates/PrefabType'
@@ -220,7 +220,7 @@ export class ClientNetworkStateSystem extends System {
         syncNetworkObjectsTest(worldState.createObjects)
 
         for (const editObject of worldState.editObjects) {
-          NetworkObjectUpdateSchema[editObject.type](editObject)
+          NetworkObjectUpdateMap.get(editObject.type)(editObject)
         }
 
         // Game Manager Messages, must be after create object functions
