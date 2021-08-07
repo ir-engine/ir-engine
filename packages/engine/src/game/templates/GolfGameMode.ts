@@ -10,23 +10,11 @@ import { removeSpawnedObjects } from '../functions/functions'
  * @author HydraFire
  */
 
-function somePrepareFunction(gameRules: GameMode) {
-  gameRules.registerActionTagComponents = registerAllActions() //TO DO: registerActionsOnlyUsedInThisMode();
-  gameRules.registerStateTagComponents = registerAllStates() //TO DO: registerStatesOnlyUsedInThisMode();
-  return gameRules
-}
 
 function preparePlayerRoles(gameRules: GameMode, maxPlayerCount = 1) {
   for (let playerNumber = 1; playerNumber <= maxPlayerCount; playerNumber++) {
     gameRules.gamePlayerRoles.push(playerNumber + '-Player')
   }
-}
-
-function registerAllActions() {
-  return Object.keys(Action).map((key) => Action[key])
-}
-function registerAllStates() {
-  return Object.keys(State).map((key) => State[key])
 }
 
 const onGolfGameStart = (entity: Entity) => {}
@@ -56,7 +44,7 @@ const createTeeRoles = (count: number) => {
   return arr
 }
 
-export const GolfGameMode: GameMode = somePrepareFunction({
+export const GolfGameMode: GameMode = {
   name: 'Golf',
   priority: 1,
   preparePlayersRole: preparePlayerRoles,
@@ -68,4 +56,4 @@ export const GolfGameMode: GameMode = somePrepareFunction({
   registerStateTagComponents: [],
   gamePlayerRoles: [],
   gameObjectRoles: ['GolfBall', ...createTeeRoles(18), 'GolfHole', 'GolfClub']
-})
+}

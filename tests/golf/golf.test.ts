@@ -124,11 +124,12 @@ describe('Golf tests', () => {
     const teePosition = await bot.runHook(GolfBotHooks.GetTeePosition)
 
     await bot.delay(1000)
+    await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
+    await bot.delay(1000)
     await bot.keyPress('KeyB', 200)
     await bot.delay(1000)
     await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
     await bot.delay(1000)
-    await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
 
     expect(
       vector3.copy(await bot.runHook(GolfBotHooks.GetBallPosition)).sub(teePosition).length()
@@ -145,7 +146,7 @@ describe('Golf tests', () => {
     expect(
       vector3.copy(await bot.runHook(BotHooks.GetPlayerPosition)).sub(await bot.runHook(GolfBotHooks.GetBallPosition)).length()
     ).toBeLessThan(0.5)
-    
+    await bot.awaitHookPromise(GolfBotHooks.GetIsBallStopped)
     await bot.delay(1000)
     await bot.runHook(GolfBotHooks.SwingClub)
     await bot.delay(1000)
@@ -180,7 +181,6 @@ describe('Golf tests', () => {
 
   }, maxTimeout)
 
-/*
 
   test('Can get Hit ', async () => {
 
@@ -206,7 +206,7 @@ describe('Golf tests', () => {
 
 
   
-
+/*
 
   
   test('Can teleport to ball', async () => {

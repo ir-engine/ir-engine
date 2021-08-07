@@ -7,7 +7,7 @@ import { NetworkObjectOwner } from '../../../networking/components/NetworkObject
 import { GameObject } from '../../components/GameObject'
 import { GamePlayer } from '../../components/GamePlayer'
 import { getGame, getUuid } from '../../functions/functions'
-import { addStateComponent, removeStateComponent } from '../../functions/functionsState'
+import { addStateComponent, removeStateComponent, sendVelocity } from '../../functions/functionsState'
 import { getStorage, setStorage } from '../../functions/functionsStorage'
 import { Action, State } from '../../types/GameComponents'
 import { ifGetOut } from '../gameDefault/checkers/ifGetOut'
@@ -262,15 +262,13 @@ export class GolfSystem extends System {
     ///////////////////////////////////////////////////////////
     /////////////////////// CLUB //////////////////////////////
     ///////////////////////////////////////////////////////////
-    for (const entity of this.queryResults.golfClub.all) {
-      if (!hasComponent(entity, State.SpawnedObject)) continue
-      updateClub(entity, null, delta)
-    }
+   
 
     for (const clubEntity of this.queryResults.clubHit.added) {
       for (const ballEntity of this.queryResults.ballHit.added) {
         if (hasComponent(ballEntity, GolfState.BallStopped) && hasComponent(ballEntity, State.Active)) {
           addStateComponent(clubEntity, GolfState.Hit)
+          sendVelocity(clubEntity)
         } else if (isClient) {
           // this case when other player hit ball but you still waiting yours ball to stop
           // but you need waite because you use interpolation correction bevavior, other player not and server not
@@ -310,7 +308,10 @@ export class GolfSystem extends System {
         addStateComponent(ballEntity, GolfState.CheckCourse)
       }
     }
-
+    for (const entity of this.queryResults.golfClub.all) {
+      if (!hasComponent(entity, State.SpawnedObject)) continue
+      updateClub(entity, null, delta)
+    }
     ///////////////////////////////////////////////////////////
     ////////////////////    Turn reuired quary     ////////////
     ///////////////////////////////////////////////////////////
