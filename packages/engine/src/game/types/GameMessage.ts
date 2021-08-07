@@ -5,6 +5,7 @@
 export interface ClientGameActionMessage {
   type: string
   game: string
+  velocity: {x:number,y:number,z:number}
   ownerId: string
   uuid: string
 }

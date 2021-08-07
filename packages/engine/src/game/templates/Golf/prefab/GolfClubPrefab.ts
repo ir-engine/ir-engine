@@ -197,7 +197,9 @@ export const updateClub: Behavior = (
     vector0.add(vector1.subVectors(golfClubComponent.lastPositions[i], golfClubComponent.lastPositions[i + 1]))
   }
   vector0.multiplyScalar(1 / (golfClubComponent.velocityPositionsToCalculate + 1))
+
   golfClubComponent.velocity.copy(vector0)
+  
   collider.body.transform.linearVelocity.x = vector0.x
   collider.body.transform.linearVelocity.y = vector0.y
   collider.body.transform.linearVelocity.z = vector0.z
@@ -223,6 +225,7 @@ export const updateClub: Behavior = (
     },
     rotation: golfClubComponent.headGroup.quaternion
   }
+  
 }
 
 // https://github.com/PersoSirEduard/OculusQuest-Godot-MiniGolfGame/blob/master/Scripts/GolfClub/GolfClub.gd#L18

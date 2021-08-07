@@ -18,6 +18,7 @@ import { GameObject } from '../components/GameObject'
 import { GamePlayer } from '../components/GamePlayer'
 import { ClientActionToServer } from '../templates/DefaultGameStateAction'
 import { SpawnedObject } from '../templates/gameDefault/components/SpawnedObjectTagComponent'
+import { GolfClubComponent } from '../templates/Golf/components/GolfClubComponent'
 import { GolfState } from '../templates/Golf/GolfGameComponents'
 
 import { State } from '../types/GameComponents'
@@ -77,6 +78,7 @@ export const requireState = (game: Game, playerComp: GamePlayer): void => {
     const message: ClientGameActionMessage = {
       type: ClientActionToServer[0],
       game: game.name,
+      velocity: { x:0, y:0, z:0},
       ownerId: playerComp.uuid,
       uuid: ''
     }
@@ -86,9 +88,23 @@ export const requireState = (game: Game, playerComp: GamePlayer): void => {
 
 export const requireSpawnObjects = (game: Game, uuid): void => {
   if (isClient && game.isGlobal) {
-    const message: ClientGameActionMessage = { type: ClientActionToServer[1], game: game.name, ownerId: '', uuid: uuid }
+    const message: ClientGameActionMessage = { type: ClientActionToServer[1], game: game.name, velocity: { x:0, y:0, z:0}, ownerId: '', uuid: uuid }
     Network.instance.clientGameAction.push(message)
   }
+}
+
+export const sendVelocity = (entity): void => {
+  if (isClient) {
+    const gameName = getComponent(entity, GameObject).gameName
+    const velocity = getComponent(entity, GolfClubComponent).velocity
+    const message: ClientGameActionMessage = { type: ClientActionToServer[2], game: gameName, velocity: {x:velocity.x, y:velocity.y,z:velocity.z}, ownerId: '', uuid: getUuid(entity) }
+    Network.instance.clientGameAction.push(message)
+  }
+}
+
+export const applyVelocity = (playerComponent, velocity): void => {
+  const clubEntity = playerComponent.ownedObjects['GolfClub']
+  getMutableComponent(clubEntity, GolfClubComponent).velocityServer.set(velocity.x,velocity.y,velocity.z)
 }
 
 export const applyStateToClient = (stateMessage: GameStateUpdateMessage): void => {
@@ -154,7 +170,11 @@ export const applyState = (game: Game): void => {
 
         if (stateObject != undefined) {
           stateObject.components.forEach((componentName: string) => {
-            if (State[componentName]) addComponent(entity, State[componentName])
+            if (State[componentName]) {
+              addComponent(entity, State[componentName]) 
+            } else if (GolfState[componentName]) {
+              addComponent(entity, GolfState[componentName]) 
+            }
             else console.warn("Couldn't find component", componentName)
           })
           // get ball server position
