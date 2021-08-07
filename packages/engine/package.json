@@ -91,7 +91,7 @@
     "@types/three": "0.130.1",
     "@types/yuka": "0.7.1",
     "cross-env": "7.0.3",
-    "esbuild": "0.12.18",
+    "esbuild": "0.12.19",
     "eslint": "7.32.0",
     "rollup": "2.56.0",
     "rollup-plugin-node-polyfills": "0.2.1",
