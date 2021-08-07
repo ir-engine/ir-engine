@@ -17,6 +17,7 @@ export const setAvatar = ({ entityID, avatarId, avatarURL }) => {
     avatar.avatarId = avatarId
     avatar.avatarURL = avatarURL
   }
+  loadAvatar(entity)
 }
 
 export const loadAvatar = (entity: Entity) => {

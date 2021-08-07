@@ -1,11 +1,11 @@
 /**
  * @author HydraFire <github.com/HydraFire>
  */
- export interface Velocity {
-    x:number
-    y:number
-    z:number
- }
+export interface Velocity {
+  x: number
+  y: number
+  z: number
+}
 export interface ClientGameActionMessage {
   type: string
   game: string

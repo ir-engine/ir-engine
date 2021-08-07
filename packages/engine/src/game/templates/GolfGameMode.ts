@@ -10,7 +10,6 @@ import { removeSpawnedObjects } from '../functions/functions'
  * @author HydraFire
  */
 
-
 function preparePlayerRoles(gameRules: GameMode, maxPlayerCount = 1) {
   for (let playerNumber = 1; playerNumber <= maxPlayerCount; playerNumber++) {
     gameRules.gamePlayerRoles.push(playerNumber + '-Player')

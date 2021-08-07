@@ -47,9 +47,7 @@ export const hitBall: Behavior = (
   vec3.applyAxisAngle(upVector, clubMoveDirection * angleOfIncidence).normalize().multiplyScalar(golfClubComponent.velocity.length());
 */
 
-
-
-  if(isClient) {
+  if (isClient) {
     vector0.copy(golfClubComponent.velocity).multiplyScalar(args.hitAdvanceFactor)
   } else {
     vector0.copy(golfClubComponent.velocityServer).multiplyScalar(args.hitAdvanceFactor)
@@ -62,7 +60,7 @@ export const hitBall: Behavior = (
 
   // block teleport ball if distance to wall less length of what we want to teleport
   golfBallComponent.wallRaycast.origin.copy(collider.body.transform.translation)
-  if(isClient) {
+  if (isClient) {
     golfBallComponent.wallRaycast.direction.copy(golfClubComponent.velocity).normalize()
   } else {
     golfBallComponent.wallRaycast.direction.copy(golfClubComponent.velocityServer).normalize()
@@ -80,7 +78,7 @@ export const hitBall: Behavior = (
     })
   }
 
-  if(isClient) {
+  if (isClient) {
     vector0.copy(golfClubComponent.velocity).multiplyScalar(velocityMultiplier)
   } else {
     vector0.copy(golfClubComponent.velocityServer).multiplyScalar(velocityMultiplier)
