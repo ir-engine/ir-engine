@@ -38,6 +38,6 @@ export const createGame = (entity, args: GameDataProps) => {
 
   addComponent(entity, Game, gameData)
   // register spawn objects prefabs
-  const gameSchema = Engine.gameModes[args.gameMode]
+  const gameSchema = Engine.gameModes.get(args.gameMode)
   gameSchema.onGameLoading(entity)
 }

@@ -49,7 +49,11 @@ const onGolfPlayerLeave = (entity: Entity, playerComponent, game) => {
 }
 
 const createTeeRoles = (count: number) => {
-  return new Array(count).map((val, i) => `GolfTee-${i}`)
+  const arr = []
+  for (let i = 0; i < count; i++) {
+    arr.push(`GolfTee-${i}`)
+  }
+  return arr
 }
 
 export const GolfGameMode: GameMode = somePrepareFunction({

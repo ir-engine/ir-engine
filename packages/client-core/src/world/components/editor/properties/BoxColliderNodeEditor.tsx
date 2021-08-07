@@ -81,7 +81,7 @@ export class BoxColliderNodeEditor extends Component<BoxColliderNodeEditorProps,
       if (nodeTarget) {
         console.log('nodeTarget', nodeTarget)
 
-        const gameMode = Engine.gameModes[nodeTarget.gameMode]
+        const gameMode = Engine.gameModes.get(nodeTarget.gameMode)
 
         const gameObjectRoles = Object.keys(gameMode.gameObjectRoles)
 

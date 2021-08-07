@@ -101,7 +101,7 @@ export const applyStateToClient = (stateMessage: GameStateUpdateMessage): void =
 }
 
 export const applyState = (game: Game): void => {
-  const gameSchema = Engine.gameModes[game.gameMode]
+  const gameSchema = Engine.gameModes.get(game.gameMode)
   // clean all states
   Object.keys(game.gamePlayers)
     .concat(Object.keys(game.gameObjects))

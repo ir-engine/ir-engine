@@ -14,7 +14,7 @@ export const giveGoalState: Behavior = (
   checks?: any
 ): void => {
   const game = getGame(entity)
-  const gameSchema = Engine.gameModes[game.gameMode]
+  const gameSchema = Engine.gameModes.get(game.gameMode)
   const nameObject = getComponent(entityTarget, Interactable).data.interactionText ?? '1'
 
   // TODO: check this is right

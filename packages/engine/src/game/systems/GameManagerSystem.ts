@@ -50,7 +50,7 @@ export class GameManagerSystem extends System {
   execute(delta: number, time: number): void {
     for (const entity of this.queryResults.game.added) {
       const game = getMutableComponent(entity, Game)
-      const gameSchema = Engine.gameModes[game.gameMode] as GameMode
+      const gameSchema = Engine.gameModes.get(game.gameMode) as GameMode
       gameSchema.preparePlayersRole(gameSchema, game.maxPlayers)
       game.priority = gameSchema.priority // DOTO: set its from editor
       initState(game, gameSchema)
@@ -109,7 +109,7 @@ export class GameManagerSystem extends System {
         const game = getComponent(entityGame, Game)
         const gamePlayer = getComponent(entity, GamePlayer, true)
         if (gamePlayer === undefined || gamePlayer.gameName != game.name) continue
-        const gameSchema = Engine.gameModes[game.gameMode]
+        const gameSchema = Engine.gameModes.get(game.gameMode)
         gameSchema.beforePlayerLeave(entity)
         console.log('removeEntityFromState', gamePlayer.role)
         removeEntityFromState(gamePlayer, game)
