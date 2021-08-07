@@ -68,7 +68,8 @@ const server = {
   certPath: appRootPath.path.toString() + '/' + process.env.CERT,
   keyPath: appRootPath.path.toString() + '/' + process.env.KEY,
   local: process.env.LOCAL === 'true',
-  releaseName: process.env.RELEASE_NAME
+  releaseName: process.env.RELEASE_NAME,
+  defaultContentPackURL: process.env.DEFAULT_CONTENT_PACK_URL
 }
 const obj = kubernetesEnabled ? { protocol: 'https', hostname: server.hostname } : { protocol: 'https', ...server }
 server.url = process.env.SERVER_URL || url.format(obj)
@@ -135,7 +136,7 @@ const authentication = {
   service: 'identity-provider',
   entity: 'identity-provider',
   secret: process.env.AUTH_SECRET,
-  authStrategies: ['jwt', 'local', 'facebook', 'github', 'google', 'linkedin2', 'twitter'],
+  authStrategies: ['jwt', 'local', 'facebook', 'github', 'google', 'linkedin', 'twitter'],
   local: {
     usernameField: 'email',
     passwordField: 'password'
@@ -150,7 +151,7 @@ const authentication = {
     facebook: process.env.FACEBOOK_CALLBACK_URL || `${client.url}/auth/oauth/facebook`,
     github: process.env.GITHUB_CALLBACK_URL || `${client.url}/auth/oauth/github`,
     google: process.env.GOOGLE_CALLBACK_URL || `${client.url}/auth/oauth/google`,
-    linkedin2: process.env.LINKEDIN_CALLBACK_URL || `${client.url}/auth/oauth/linkedin2`,
+    linkedin: process.env.LINKEDIN_CALLBACK_URL || `${client.url}/auth/oauth/linkedin`,
     twitter: process.env.TWITTER_CALLBACK_URL || `${client.url}/auth/oauth/twitter`
   },
   oauth: {
@@ -174,7 +175,7 @@ const authentication = {
       secret: process.env.GOOGLE_CLIENT_SECRET,
       scope: ['profile', 'email']
     },
-    linkedin2: {
+    linkedin: {
       key: process.env.LINKEDIN_CLIENT_ID,
       secret: process.env.LINKEDIN_CLIENT_SECRET,
       scope: ['r_liteprofile', 'r_emailaddress']
@@ -260,7 +261,5 @@ chargebeeInst.configure({
   site: process.env.CHARGEBEE_SITE,
   api_key: config.chargebee.apiKey
 })
-
-if (process.env.LOCAL === 'true') process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 export default config

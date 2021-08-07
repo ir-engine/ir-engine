@@ -59,3 +59,29 @@ export const getPortalByEntityId = async (app, entityId: string) => {
     ]
   })
 }
+
+export const getReflectionProbe = (app: any): any => {
+  return async (req: express.Request, res: express.Response) => {
+    const reflectionProbe = await getReflectionProbeById(app, req.params.entityId)
+
+    res.json(reflectionProbe)
+  }
+}
+
+export const getReflectionProbeById = async (app, entityId: string) => {
+  const models = app.get('sequelizeClient').models
+
+  return models.component.findOne({
+    where: {
+      type: 'reflectionprobe',
+      '$entity.entityId$': entityId
+    },
+    include: [
+      {
+        model: models.entity,
+        attributes: ['collectionId', 'name', 'entityId'],
+        as: 'entity'
+      }
+    ]
+  })
+}

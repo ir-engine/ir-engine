@@ -14,6 +14,7 @@ import ModelNode from '@xrengine/engine/src/editor/nodes/ModelNode'
 import ParticleEmitterNode from '@xrengine/engine/src/editor/nodes/ParticleEmitterNode'
 import PointLightNode from '@xrengine/engine/src/editor/nodes/PointLightNode'
 import PostProcessingNode from '@xrengine/engine/src/editor/nodes/PostProcessingNode'
+import CameraPropertiesNode from '../../../../../engine/src/editor/nodes/CameraPropertiesNode'
 import SceneNode from '@xrengine/engine/src/editor/nodes/SceneNode'
 import ScenePreviewCameraNode from '@xrengine/engine/src/editor/nodes/ScenePreviewCameraNode'
 import SkyboxNode from '@xrengine/engine/src/editor/nodes/SkyboxNode'
@@ -44,6 +45,7 @@ import ModelNodeEditor from './properties/ModelNodeEditor'
 import ParticleEmitterNodeEditor from './properties/ParticleEmitterNodeEditor'
 import PointLightNodeEditor from './properties/PointLightNodeEditor'
 import PostProcessingNodeEditor from './properties/PostProcessingNodeEditor'
+import CameraPropertiesNodeEditor from './properties/CameraPropertiesNodeEditor'
 import ReflectionProbeNodeEditor from './properties/ReflectionProbeNodeEditor'
 import SceneNodeEditor from './properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from './properties/ScenePreviewCameraNodeEditor'
@@ -87,6 +89,7 @@ export function createEditor(api, settings, Engine) {
   editor.registerNode(VolumetricNode, VolumetricNodeEditor)
   editor.registerNode(AudioNode, AudioNodeEditor)
   editor.registerNode(PostProcessingNode, PostProcessingNodeEditor)
+  editor.registerNode(CameraPropertiesNode, CameraPropertiesNodeEditor)
   editor.registerNode(TriggerVolumeNode, TriggerVolumeNodeEditor)
   editor.registerNode(LinkNode, LinkNodeEditor)
   editor.registerNode(ScenePreviewCameraNode, ScenePreviewCameraNodeEditor)

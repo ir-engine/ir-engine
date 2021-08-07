@@ -54,7 +54,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
       config: {
         isTrigger: true,
         collisionLayer: CollisionGroups.Portal,
-        collisionMask: CollisionGroups.Characters
+        collisionMask: CollisionGroups.Avatars
       }
     }
 
@@ -130,4 +130,16 @@ export const setRemoteLocationDetail = (
   portal.remoteSpawnPosition = new Vector3(spawnPosition.x, spawnPosition.y, spawnPosition.z)
   portal.remoteSpawnEuler = new Euler(spawnRotation.x, spawnRotation.y, spawnRotation.z, 'XYZ')
   portal.remoteSpawnRotation = new Quaternion().setFromEuler(portal.remoteSpawnEuler)
+}
+
+export const findProjectionScreen = (entity: Entity): any => {
+  const obj = getComponent(entity, Object3DComponent)
+
+  if (!obj || !obj.value) return null
+
+  const mesh = obj.value
+
+  const screen = mesh.getObjectByName('portalnextscenepreview')
+
+  return screen
 }

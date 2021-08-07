@@ -1,12 +1,11 @@
-import { Box3, Sphere, PropertyBinding, BufferGeometry, MathUtils, Matrix4, Quaternion, Vector3, Object3D } from 'three'
+import { Box3, Sphere, PropertyBinding } from 'three'
 import Model from '../../scene/classes/Model'
 import EditorNodeMixin from './EditorNodeMixin'
 import { setStaticMode, StaticModes } from '../functions/StaticMode'
 import cloneObject3D from '../functions/cloneObject3D'
 import { RethrownError } from '../functions/errors'
-import { makeCollidersInvisible, applyTransform } from '../../physics/behaviors/parseModelColliders'
-import { getGeometry } from '../../scene/functions/getGeometry'
-import { AnimationManager } from '../../character/AnimationManager'
+import { makeCollidersInvisible } from '../../physics/behaviors/parseModelColliders'
+import { AnimationManager } from '../../avatar/AnimationManager'
 
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = 'Model'
@@ -63,19 +62,19 @@ export default class ModelNode extends EditorNodeMixin(Model) {
           node.castShadow = shadowComponent.props.cast
           node.receiveShadow = shadowComponent.props.receive
         }
-        const ineractableComponent = json.components.find((c) => c.name === 'interact')
+        const interactableComponent = json.components.find((c) => c.name === 'interact')
 
-        if (ineractableComponent) {
-          node.interactable = ineractableComponent.props.interactable
-          node.interactionType = ineractableComponent.props.interactionType
-          node.interactionText = ineractableComponent.props.interactionText
-          node.interactionDistance = ineractableComponent.props.interactionDistance
-          node.payloadName = ineractableComponent.props.payloadName
-          node.payloadUrl = ineractableComponent.props.payloadUrl
-          node.payloadBuyUrl = ineractableComponent.props.payloadBuyUrl
-          node.payloadLearnMoreUrl = ineractableComponent.props.payloadLearnMoreUrl
-          node.payloadHtmlContent = ineractableComponent.props.payloadHtmlContent
-          node.payloadUrl = ineractableComponent.props.payloadUrl
+        if (interactableComponent) {
+          node.interactable = interactableComponent.props.interactable
+          node.interactionType = interactableComponent.props.interactionType
+          node.interactionText = interactableComponent.props.interactionText
+          node.interactionDistance = interactableComponent.props.interactionDistance
+          node.payloadName = interactableComponent.props.payloadName
+          node.payloadUrl = interactableComponent.props.payloadUrl
+          node.payloadBuyUrl = interactableComponent.props.payloadBuyUrl
+          node.payloadLearnMoreUrl = interactableComponent.props.payloadLearnMoreUrl
+          node.payloadHtmlContent = interactableComponent.props.payloadHtmlContent
+          node.payloadUrl = interactableComponent.props.payloadUrl
         }
       })()
     )
@@ -93,6 +92,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   boundingSphere = new Sphere()
   gltfJson = null
   isValidURL = false
+  isUpdateDataMatrix = true
 
   constructor(editor) {
     super(editor)
@@ -216,131 +216,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
     return arr.map((v: number) => parseFloat((Math.round(v * 10000) / 10000).toFixed(4)))
   }
 
-  parseColliders(
-    userData,
-    data,
-    type,
-    mass,
-    position,
-    quaternion,
-    scale,
-    mesh,
-    collisionLayer = undefined,
-    collisionMask = undefined
-  ) {
-    let geometry = null
-    if (type == 'trimesh') {
-      geometry = getGeometry(mesh)
-    }
-
-    const meshCollider = {
-      ...userData,
-      data: data,
-      type: type,
-      mass: mass ? mass : 1,
-      position: {
-        x: position.x,
-        y: position.y,
-        z: position.z
-      },
-      quaternion: {
-        x: quaternion.x,
-        y: quaternion.y,
-        z: quaternion.z,
-        w: quaternion.w
-      },
-      scale: {
-        x: scale.x,
-        y: scale.y,
-        z: scale.z
-      },
-      vertices:
-        geometry != null
-          ? Array.from(geometry.attributes.position.array).map((v: number) =>
-              parseFloat((Math.round(v * 10000) / 10000).toFixed(4))
-            )
-          : null,
-      indices: geometry != null && geometry.index ? Array.from(geometry.index.array) : null,
-      collisionLayer,
-      collisionMask
-    }
-
-    return meshCollider
-  }
-
-  parseAndSaveColliders(components) {
-    if (this.model) {
-      // Set up colliders
-      const colliders = []
-
-      const parseGroupColliders = (group) => {
-        if (group.userData.data === 'physics') {
-          if (group.type == 'Group') {
-            for (let i = 0; i < group.children.length; i++) {
-              colliders.push(
-                this.parseColliders(
-                  group.userData,
-                  group.userData.data,
-                  group.userData.type,
-                  group.userData.mass,
-                  group.position,
-                  group.quaternion,
-                  group.scale,
-                  group.children[i],
-                  group.userData.collisionLayer,
-                  group.userData.collisionMask
-                )
-              )
-            }
-          } else if (group.type == 'Mesh') {
-            colliders.push(
-              this.parseColliders(
-                group.userData,
-                group.userData.data,
-                group.userData.type,
-                group.userData.mass,
-                group.position,
-                group.quaternion,
-                group.scale,
-                group,
-                group.userData.collisionLayer,
-                group.userData.collisionMask
-              )
-            )
-          }
-        }
-      }
-
-      this.model.traverse(parseGroupColliders)
-      this.meshColliders = colliders
-      this.editor.renderer.addBatchedObject(this.model)
-    }
-
-    for (let i = 0; i < this.meshColliders.length; i++) {
-      components[`mesh-collider-${i}`] = this.addEditorParametersToCollider(this.meshColliders[i])
-    }
-  }
-  addEditorParametersToCollider(meshCollider) {
-    const [position, quaternion, scale] = applyTransform(
-      meshCollider.position,
-      meshCollider.quaternion,
-      meshCollider.scale,
-      this.position,
-      this.quaternion,
-      this.scale
-    )
-    meshCollider.position.x = position.x
-    meshCollider.position.y = position.y
-    meshCollider.position.z = position.z
-    meshCollider.quaternion.x = quaternion.x
-    meshCollider.quaternion.y = quaternion.y
-    meshCollider.quaternion.z = quaternion.z
-    meshCollider.quaternion.w = quaternion.w
-    meshCollider.scale.x = scale.x
-    meshCollider.scale.y = scale.y
-    meshCollider.scale.z = scale.z
-    return meshCollider
-  }
   updateStaticModes() {
     if (!this.model) return
     setStaticMode(this.model, StaticModes.Static)
@@ -367,7 +242,8 @@ export default class ModelNode extends EditorNodeMixin(Model) {
       'gltf-model': {
         src: this._canonicalUrl,
         envMapOverride: this.envMapOverride !== '' ? this.envMapOverride : undefined,
-        textureOverride: this.textureOverride
+        textureOverride: this.textureOverride,
+        matrixAutoUpdate: this.isUpdateDataMatrix
       },
       shadow: {
         cast: this.castShadow,
@@ -394,8 +270,6 @@ export default class ModelNode extends EditorNodeMixin(Model) {
         target: this.target
       }
     }
-
-    this.parseAndSaveColliders(components)
 
     if (this.activeClipIndex !== -1) {
       components['loop-animation'] = {

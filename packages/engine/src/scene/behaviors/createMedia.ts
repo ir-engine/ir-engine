@@ -6,8 +6,8 @@ import { Interactable } from '../../interaction/components/Interactable'
 import VolumetricComponent from '../components/VolumetricComponent'
 import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import Video from '../classes/Video'
-import MediaComponent from '../components/MediaComponent'
 import AudioSource from '../classes/AudioSource'
+import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
 
 const isBrowser = new Function('try {return this===window;}catch(e){ return false;}')
 
@@ -53,7 +53,7 @@ export function createAudio(entity, args: AudioProps): void {
   const audio = new AudioSource(Engine.audioListener)
   addObject3DComponent(entity, audio, args)
   audio.load()
-  addComponent(entity, MediaComponent)
+  addComponent(entity, PositionalAudioComponent)
   if (args.interactable) addComponent(entity, Interactable)
 }
 
@@ -65,7 +65,6 @@ export function createVideo(entity, args: VideoProps): void {
   }
   addObject3DComponent(entity, video, args)
   video.load()
-  addComponent(entity, MediaComponent)
   if (args.interactable) addComponent(entity, Interactable)
 }
 

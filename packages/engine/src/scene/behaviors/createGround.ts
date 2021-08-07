@@ -18,14 +18,16 @@ export const createGround = (entity: Entity, args: GroundProps) => {
       roughness: 0
     })
   )
-
+  if (!(args as any).visible) mesh.visible = false
   addObject3DComponent(entity, mesh, { receiveShadow: true, 'material.color': args.color })
 
   const body = createCollider(
     {
-      type: 'ground',
-      collisionLayer: CollisionGroups.Ground,
-      collisionMask: CollisionGroups.Default
+      userData: {
+        type: 'ground',
+        collisionLayer: CollisionGroups.Ground,
+        collisionMask: CollisionGroups.Default
+      }
     },
     new Vector3().copy(mesh.position),
     new Quaternion().copy(mesh.quaternion),

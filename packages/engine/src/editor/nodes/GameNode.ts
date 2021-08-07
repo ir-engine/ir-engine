@@ -78,15 +78,5 @@ export default class GameNode extends EditorNodeMixin(Object3D) {
   prepareForExport() {
     super.prepareForExport()
     this.remove(this.helper)
-    // this.addGLTFComponent("game", {
-    //   // TODO: Remove exporting these properties. They are already included in the transform props.
-    //   position: this.position,
-    //   rotation: {
-    //     x: this.rotation.x,
-    //     y: this.rotation.y,
-    //     z: this.rotation.z
-    //   },
-    //   scale: this.scale
-    // });
   }
 }

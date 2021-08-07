@@ -21,6 +21,7 @@ import { ActiveSystems, System } from './System'
 import { InitializeOptions } from '../../initializationOptions'
 import { CSM } from '../../assets/csm/CSM'
 import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
+import { OrthographicCamera } from 'three'
 
 /**
  * This is the base class which holds all the data related to the scene, camera,system etc.
@@ -32,7 +33,7 @@ export class Engine {
   public static initOptions: InitializeOptions
   public static engineTimer: { start: Function; stop: Function; clear: Function } = null
 
-  public static gameModes: { [key: string]: GameMode }
+  public static gameModes: Map<string, GameMode> = new Map()
 
   public static xrSupported = false
   public static isBot = false
@@ -91,7 +92,7 @@ export class Engine {
    * Reference to the three.js perspective camera object.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
-  static camera: PerspectiveCamera = null
+  static camera: PerspectiveCamera | OrthographicCamera = null
   static activeCameraEntity: Entity
 
   /**
@@ -234,6 +235,7 @@ export class Engine {
 
   static xrFrame: XRFrame
   static spatialAudio = false
+  static portCamera: boolean
 }
 
 export const awaitEngineLoaded = (): Promise<void> => {

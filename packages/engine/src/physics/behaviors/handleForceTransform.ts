@@ -1,5 +1,5 @@
-import { CharacterComponent } from '../../character/components/CharacterComponent'
-import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
@@ -24,10 +24,11 @@ export const handleForceTransform = (editObject: NetworkObjectEditInterface): vo
     return
   }
 
-  const controllerComponent = getComponent(entity, ControllerColliderComponent)
+  const controllerComponent = getComponent(entity, AvatarControllerComponent)
   if (controllerComponent) {
+    const avatar = getComponent(entity, AvatarComponent)
     controllerComponent.controller?.updateTransform({
-      translation: { x, y, z },
+      translation: { x, y: y + avatar.avatarHalfHeight, z },
       rotation: { x: qX, y: qY, z: qZ, w: qW }
     })
   }

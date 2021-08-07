@@ -1,7 +1,6 @@
-import { CharacterComponent } from '../../character/components/CharacterComponent'
-import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { SIXDOFType } from '../../common/types/NumericalTypes'
-import { Entity } from '../../ecs/classes/Entity'
 import { System } from '../../ecs/classes/System'
 import { Not } from '../../ecs/functions/ComponentFunctions'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
@@ -48,9 +47,9 @@ export class ServerNetworkOutgoingSystem extends System {
       })
     }
 
-    for (const entity of this.queryResults.characterTransforms.all) {
+    for (const entity of this.queryResults.avatarTransforms.all) {
       const transformComponent = getComponent(entity, TransformComponent)
-      const actor = getComponent(entity, CharacterComponent)
+      const avatar = getComponent(entity, AvatarComponent)
       const networkObject = getComponent(entity, NetworkObject)
       const currentPosition = transformComponent.position
       const snapShotTime = networkObject.snapShotTime
@@ -61,9 +60,9 @@ export class ServerNetworkOutgoingSystem extends System {
         x: currentPosition.x,
         y: currentPosition.y,
         z: currentPosition.z,
-        qX: actor.viewVector.x,
-        qY: actor.viewVector.y,
-        qZ: actor.viewVector.z,
+        qX: avatar.viewVector.x,
+        qY: avatar.viewVector.y,
+        qZ: avatar.viewVector.z,
         qW: 0 // TODO: reduce quaternions over network to three components
       })
     }
@@ -133,10 +132,10 @@ export class ServerNetworkOutgoingSystem extends System {
   /** System queries. */
   static queries: any = {
     networkTransforms: {
-      components: [Not(CharacterComponent), NetworkObject, TransformComponent]
+      components: [Not(AvatarComponent), NetworkObject, TransformComponent]
     },
-    characterTransforms: {
-      components: [CharacterComponent, NetworkObject, TransformComponent]
+    avatarTransforms: {
+      components: [AvatarComponent, NetworkObject, TransformComponent]
     },
     ikTransforms: {
       components: [XRInputSourceComponent, NetworkObject, TransformComponent]

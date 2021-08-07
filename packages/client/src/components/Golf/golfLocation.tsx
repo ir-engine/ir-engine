@@ -46,7 +46,7 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 import WarningRefreshModal from '../AlertModals/WarningRetryModal'
 import { unregisterSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { GolfSystem } from '@xrengine/engine/src/game/templates/Golf/GolfSystem'
-import { AnimationSystem } from '@xrengine/engine/src/character/AnimationSystem'
+import { AnimationSystem } from '@xrengine/engine/src/avatar/AnimationSystem'
 import { GolfGameMode } from '@xrengine/engine/src/game/templates/GolfGameMode'
 import { registerGolfBotHooks } from '@xrengine/engine/src/game/templates/Golf/functions/registerGolfBotHooks'
 import { GameManagerSystem } from '@xrengine/engine/src/game/systems/GameManagerSystem'
@@ -158,6 +158,7 @@ export const EnginePage = (props: Props) => {
   const selfUser = authState.get('user')
   const party = partyState.get('party')
   const instanceId = selfUser?.instanceId ?? party?.instanceId
+  const invalidLocation = locationState.get('invalidLocation')
   let sceneId = null
   let locationId = null
 
@@ -362,6 +363,19 @@ export const EnginePage = (props: Props) => {
     }
   }, [instanceKicked])
 
+  useEffect(() => {
+    if (invalidLocation === true) {
+      const newValues = {
+        ...warningRefreshModalValues,
+        open: true,
+        title: 'Invalid location',
+        body: `We can't find the location '${locationName}'. It may be misspelled, or it may not exist.`,
+        noCountdown: true
+      }
+      setWarningRefreshModalValues(newValues)
+    }
+  }, [invalidLocation])
+
   const reinit = () => {
     const currentLocation = locationState.get('currentLocation').get('location')
     if (sceneId === null && currentLocation.sceneId !== null) {
@@ -395,9 +409,6 @@ export const EnginePage = (props: Props) => {
           schema: {
             transport: SocketWebRTCClientTransport
           } as NetworkSchema
-        },
-        gameModes: {
-          [GolfGameMode.name]: GolfGameMode
         },
         renderer: {
           canvasId: engineRendererCanvasId

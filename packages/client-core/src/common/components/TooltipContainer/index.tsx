@@ -1,7 +1,7 @@
 import React from 'react'
 // @ts-ignore
 import styles from './ToolTipContainer.module.scss'
-import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
+import { isTouchAvailable } from '../../../../../engine/src/common/functions/DetectFeatures'
 import Snackbar from '@material-ui/core/Snackbar'
 import { connect } from 'react-redux'
 import TouchApp from '@material-ui/icons/TouchApp'
@@ -18,7 +18,7 @@ const mapStateToProps = (state: any): any => {
 }
 
 const TooltipContainer = (props: Props) => {
-  const interactTip = isMobile ? <TouchApp /> : 'E'
+  const interactTip = isTouchAvailable ? <TouchApp /> : 'E'
   const { t } = useTranslation()
   return props.message ? (
     <Snackbar

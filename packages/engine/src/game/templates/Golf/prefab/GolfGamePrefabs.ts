@@ -1,8 +1,10 @@
 import { GolfPrefabTypes } from '../GolfGameConstants'
-import { GolfBallPrefab } from './GolfBallPrefab'
-import { GolfClubPrefab } from './GolfClubPrefab'
+import { Component } from '../../../../ecs/classes/Component'
+
+export class GolfBallTagComponent extends Component<GolfBallTagComponent> {}
+export class GolfClubTagComponent extends Component<GolfClubTagComponent> {}
 
 export const GolfPrefabs = {
-  [GolfPrefabTypes.Ball]: GolfBallPrefab,
-  [GolfPrefabTypes.Club]: GolfClubPrefab
+  [GolfPrefabTypes.Ball]: GolfBallTagComponent,
+  [GolfPrefabTypes.Club]: GolfClubTagComponent
 }

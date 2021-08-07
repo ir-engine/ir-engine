@@ -143,9 +143,7 @@ export class TransformSystem extends System {
 
       object3DComponent.value.position.copy(transform.position)
       object3DComponent.value.quaternion.copy(transform.rotation)
-      if (transform.scale && transform.scale.length() > 0) {
-        object3DComponent.value.scale.copy(transform.scale)
-      }
+      object3DComponent.value.scale.copy(transform.scale)
       object3DComponent.value.updateMatrixWorld()
     }
   }

@@ -1,6 +1,6 @@
 import React from 'react'
 import * as THREE from 'three'
-import { ArrowBack, CloudUpload, SystemUpdateAlt, Help } from '@material-ui/icons'
+import { AccountCircle, ArrowBack, CloudUpload, SystemUpdateAlt, Help } from '@material-ui/icons'
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
 import { getLoader, loadExtentions } from '@xrengine/engine/src/assets/functions/LoadGLTF'
 import { FBXLoader } from '@xrengine/engine/src/assets/loaders/fbx/FBXLoader'
@@ -14,6 +14,7 @@ import {
   MAX_AVATAR_FILE_SIZE,
   MIN_AVATAR_FILE_SIZE,
   MAX_ALLOWED_TRIANGLES,
+  THUMBNAIL_FILE_ALLOWED_EXTENSIONS,
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
@@ -22,10 +23,13 @@ interface Props {
   changeActiveMenu: Function
   uploadAvatarModel: Function
   t: any
+  isPublicAvatar?: boolean
 }
 
 interface State {
   selectedFile: any
+  selectedThumbnail: any
+  avatarName: string
   // imgFile: any;
   error: string
   obj: any
@@ -37,6 +41,8 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
 
     this.state = {
       selectedFile: null,
+      selectedThumbnail: null,
+      avatarName: null,
       // imgFile: null,
       error: '',
       obj: null
@@ -92,6 +98,7 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
   scene = null
   renderer = null
   fileSelected = false
+  thumbnailSelected = false
   maxBB = new THREE.Vector3(2, 2, 2)
 
   t: any
@@ -112,6 +119,10 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
 
   handleBrowse = () => {
     document.getElementById('avatarSelect').click()
+  }
+
+  handleThumbnail = () => {
+    document.getElementById('thumbnailSelect').click()
   }
 
   handleAvatarChange = (e) => {
@@ -165,6 +176,30 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
     }
   }
 
+  handleAvatarNameChange = (e) => {
+    this.setState({ avatarName: e.target.value })
+  }
+
+  handleThumbnailChange = (e) => {
+    if (e.target.files[0].size < MIN_AVATAR_FILE_SIZE || e.target.files[0].size > MAX_AVATAR_FILE_SIZE) {
+      this.setState({
+        error: this.t('user:usermenu.thumbnail.fileOversized', {
+          minSize: MIN_AVATAR_FILE_SIZE / 1048576,
+          maxSize: MAX_AVATAR_FILE_SIZE / 1048576
+        })
+      })
+      return
+    }
+
+    try {
+      this.thumbnailSelected = true
+      this.setState({ selectedThumbnail: e.target.files[0] })
+    } catch (error) {
+      console.error(e)
+      this.setState({ error: this.t('user:usermenu.avatar.selectValidThumbnail') })
+    }
+  }
+
   validate = (scene) => {
     const objBoundingBox = new THREE.Box3().setFromObject(scene)
     if (this.renderer.info.render.triangles > MAX_ALLOWED_TRIANGLES)
@@ -204,9 +239,25 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
     const newContext = canvas.getContext('2d')
     newContext.drawImage(this.renderer.domElement, 0, 0)
 
-    canvas.toBlob((blob) => {
-      this.props.uploadAvatarModel(this.state.selectedFile, blob)
-    })
+    if (this.state.selectedThumbnail == null)
+      canvas.toBlob(async (blob) => {
+        await this.props.uploadAvatarModel(
+          this.state.selectedFile,
+          blob,
+          this.state.avatarName,
+          this.props.isPublicAvatar
+        )
+        this.props.changeActiveMenu(Views.Profile)
+      })
+    else {
+      this.props.uploadAvatarModel(
+        this.state.selectedFile,
+        this.state.selectedThumbnail,
+        this.state.avatarName,
+        this.props.isPublicAvatar
+      )
+      this.props.changeActiveMenu(Views.Profile)
+    }
   }
 
   render() {
@@ -236,12 +287,39 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
             </div>
           </div>
         </div>
-        <div className={styles.avatarSelectLabel + ' ' + (this.state.error ? styles.avatarSelectError : '')}>
-          {this.state.error
-            ? this.state.error
-            : this.fileSelected
-            ? this.state.selectedFile.name
-            : this.t('user:usermenu.avatar.selectAvatar')}
+        {this.state.selectedThumbnail != null && (
+          <div className={styles.thumbnailContainer}>
+            <img
+              src={URL.createObjectURL(this.state.selectedThumbnail)}
+              alt={this.state.selectedThumbnail.name}
+              className={styles.thumbnailPreview}
+            />
+          </div>
+        )}
+        <div className={styles.avatarNameContainer}>
+          <input
+            type="text"
+            id="avatarName"
+            className={styles.avatarNameInput}
+            onChange={this.handleAvatarNameChange}
+            placeholder="Avatar Name"
+          />
+        </div>
+        <div className={styles.selectLabelContainer}>
+          <div className={styles.avatarSelectLabel + ' ' + (this.state.error ? styles.avatarSelectError : '')}>
+            {this.state.error
+              ? this.state.error
+              : this.fileSelected
+              ? this.state.selectedFile.name
+              : this.t('user:usermenu.avatar.selectAvatar')}
+          </div>
+          <div className={styles.thumbnailSelectLabel + ' ' + (this.state.error ? styles.thumbnailSelectError : '')}>
+            {this.state.error
+              ? this.state.error
+              : this.thumbnailSelected
+              ? this.state.selectedThumbnail.name
+              : this.t('user:usermenu.avatar.selectThumbnail')}
+          </div>
         </div>
         <input
           type="file"
@@ -250,11 +328,24 @@ export class AvatarSelectMenu extends React.Component<Props, State> {
           hidden
           onChange={this.handleAvatarChange}
         />
+        <input
+          type="file"
+          id="thumbnailSelect"
+          accept={THUMBNAIL_FILE_ALLOWED_EXTENSIONS}
+          hidden
+          onChange={this.handleThumbnailChange}
+        />
         <div className={styles.controlContainer}>
-          <button type="button" className={styles.browseBtn} onClick={this.handleBrowse}>
-            {this.t('user:usermenu.avatar.lbl-browse')}
-            <SystemUpdateAlt />
-          </button>
+          <div className={styles.selectBtns}>
+            <button type="button" className={styles.browseBtn} onClick={this.handleBrowse}>
+              {this.t('user:usermenu.avatar.lbl-browse')}
+              <SystemUpdateAlt />
+            </button>
+            <button type="button" className={styles.thumbnailBtn} onClick={this.handleThumbnail}>
+              {this.t('user:usermenu.avatar.lbl-thumbnail')}
+              <AccountCircle />
+            </button>
+          </div>
           <button
             type="button"
             className={styles.uploadBtn}

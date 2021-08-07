@@ -16,11 +16,10 @@ import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 import { addObject3DComponent } from '../behaviors/addObject3DComponent'
-import { createGame, createGameObject } from '../behaviors/createGame'
+import { createGame } from '../behaviors/createGame'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
 import { createSkybox } from '../behaviors/createSkybox'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
-import { MeshColliderProps } from '../interfaces/MeshColliderProps'
 import { createGroup } from '../behaviors/createGroup'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../behaviors/createMedia'
 import { createMap } from '../behaviors/createMap'
@@ -46,7 +45,10 @@ import { Interactable } from '../../interaction/components/Interactable'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { createCollider } from '../../physics/behaviors/createCollider'
-import { BodyType } from 'three-physx'
+import { Network } from '../../networking/classes/Network'
+import { setCameraProperties } from '../behaviors/setCameraProperties'
+import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
+import { GameObject } from '../../game/components/GameObject'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -130,7 +132,11 @@ export class WorldScene {
         break
 
       case 'game-object':
-        createGameObject(entity, component.data)
+        addComponent(entity, GameObject, {
+          gameName: component.data.gameName,
+          role: component.data.role,
+          uuid: component.data.sceneEntityId
+        })
         break
 
       case 'ambient-light':
@@ -264,25 +270,15 @@ export class WorldScene {
         const boxColliderProps: BoxColliderProps = component.data
         createCollider(
           {
-            type: 'box',
-            ...boxColliderProps
+            userData: {
+              type: 'box',
+              ...boxColliderProps
+            }
           },
           boxColliderProps.position,
           boxColliderProps.quaternion,
           boxColliderProps.scale
         )
-        break
-
-      case 'mesh-collider':
-        const meshColliderProps: MeshColliderProps = component.data
-        if (meshColliderProps.data === 'physics') {
-          createCollider(
-            meshColliderProps,
-            meshColliderProps.position,
-            meshColliderProps.quaternion,
-            meshColliderProps.scale
-          )
-        }
         break
 
       case 'trigger-volume':
@@ -306,6 +302,15 @@ export class WorldScene {
         EngineRenderer.instance?.configurePostProcessing(component.data.options)
         break
 
+      case 'cameraproperties':
+        if (isClient) {
+          EngineEvents.instance.once(EngineEvents.EVENTS.CLIENT_USER_LOADED, async () => {
+            setCameraProperties(Network.instance.localClientEntity, component.data)
+            switchCameraMode(Network.instance.localClientEntity, component.data, true)
+          })
+        }
+        break
+
       case 'envmap':
         setEnvMap(entity, component.data)
         break
@@ -318,10 +323,14 @@ export class WorldScene {
         createPortal(entity, component.data)
         break
 
+      /* intentionally empty - these are only for the editor */
       case 'reflectionprobestatic':
       case 'reflectionprobe':
       case 'visible':
-        // intentionally empty - these are only for the editor
+        break
+
+      /* deprecated */
+      case 'mesh-collider':
         break
 
       default:

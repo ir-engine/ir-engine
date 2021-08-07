@@ -23,6 +23,8 @@ import { EventEmitter } from 'events'
 import services from '@xrengine/server-core/src/services'
 import sequelize from '@xrengine/server-core/src/sequelize'
 import { awaitEngineLoaded } from '@xrengine/engine/src/ecs/classes/Engine'
+import { register } from 'trace-unhandled'
+register()
 
 export const createApp = (): Application => {
   const emitter = new EventEmitter()
@@ -212,3 +214,4 @@ process.on('unhandledRejection', (reason, p) => {
   console.log(p)
   process.exit()
 })
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0' // Avoids DEPTH_ZERO_SELF_SIGNED_CERT error for self-signed certs

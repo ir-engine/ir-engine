@@ -4,7 +4,7 @@ import { Component } from './component.class'
 import createModel from './component.model'
 import hooks from './component.hooks'
 import componentDocs from './component.docs'
-import { getAllPortals, getPortal } from './portal.controller'
+import { getAllPortals, getPortal, getReflectionProbe } from './portal.controller'
 
 declare module '../../../declarations' {
   interface ServiceTypes {
@@ -30,6 +30,7 @@ export default (app: Application): any => {
 
   app.get('/portal/list', getAllPortals(app))
   app.get('/portal/:entityId', getPortal(app))
+  app.get('/relectionProebe/:entityId', getReflectionProbe(app))
 
   const service = app.service('component')
 

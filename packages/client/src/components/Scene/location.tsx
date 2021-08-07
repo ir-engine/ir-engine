@@ -22,7 +22,7 @@ import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/servic
 import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
-import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
+import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPlayer'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
@@ -165,6 +165,7 @@ export const EnginePage = (props: Props) => {
   const selfUser = authState.get('user')
   const party = partyState.get('party')
   const instanceId = selfUser?.instanceId ?? party?.instanceId
+  const invalidLocation = locationState.get('invalidLocation')
   let sceneId = null
   let locationId = null
 
@@ -368,6 +369,19 @@ export const EnginePage = (props: Props) => {
       setInstanceDisconnected(false)
     }
   }, [instanceKicked])
+
+  useEffect(() => {
+    if (invalidLocation === true) {
+      const newValues = {
+        ...warningRefreshModalValues,
+        open: true,
+        title: 'Invalid location',
+        body: `We can't find the location '${locationName}'. It may be misspelled, or it may not exist.`,
+        noCountdown: true
+      }
+      setWarningRefreshModalValues(newValues)
+    }
+  }, [invalidLocation])
 
   const reinit = () => {
     const currentLocation = locationState.get('currentLocation').get('location')

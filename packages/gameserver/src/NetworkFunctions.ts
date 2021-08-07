@@ -1,26 +1,20 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import {
-  addComponent,
-  createEntity,
-  getComponent,
-  removeEntity
-} from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { Network } from '@xrengine/engine/src/networking//classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { WorldStateInterface } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { createNetworkPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
 import { DataConsumer, DataProducer } from 'mediasoup/lib/types'
 import logger from '@xrengine/server-core/src/logger'
 import config from '@xrengine/server-core/src/appconfig'
 import { closeTransport } from './WebRTCFunctions'
-import { ServerSpawnSystem } from '@xrengine/engine/src/scene/systems/ServerSpawnSystem'
 import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { RespawnTagComponent } from '../../engine/src/scene/components/RespawnTagComponent'
 import { Quaternion, Vector3 } from 'three'
-import { SpawnComponent } from '../../engine/src/scene/components/SpawnComponent'
+import { checkIfIdHavePrepair } from '@xrengine/engine/src/networking/functions/initializeNetworkObject'
+import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType'
+import { spawnPrefab } from '@xrengine/engine/src/networking/functions/spawnPrefab'
+import { SpawnPoints } from '@xrengine/engine/src/avatar/ServerAvatarSpawnSystem'
 
 const gsNameRegex = /gameserver-([a-zA-Z0-9]{5}-[a-zA-Z0-9]{5})/
 
@@ -317,18 +311,12 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
   const transport = Network.instance.transport as any
 
   // TEMPORARY data?.spawnTransform  - just so portals work for now - will be removed in favor of gameserver-gameserver communication
-  const spawnPos = data?.spawnTransform && {
-    position: new Vector3().copy(data.spawnTransform.position),
-    rotation: new Quaternion().copy(data.spawnTransform.rotation)
-  }
-
-  const newPlayerEntity = createEntity()
-  addComponent(newPlayerEntity, SpawnComponent, { userId })
-
-  if (data?.spawnTransform) {
-  } else {
-    addComponent(newPlayerEntity, RespawnTagComponent)
-  }
+  const spawnPos = data?.spawnTransform
+    ? {
+        position: new Vector3().copy(data.spawnTransform.position),
+        rotation: new Quaternion().copy(data.spawnTransform.rotation)
+      }
+    : SpawnPoints.instance.getRandomSpawnPoint()
 
   // Create a new worldState object that we can fill
   const worldState: WorldStateInterface = {
@@ -350,6 +338,19 @@ export async function handleJoinWorld(socket, data, callback, userId, user): Pro
       uniqueId: Network.instance.networkObjects[networkId].uniqueId,
       parameters: Network.instance.networkObjects[networkId].parameters
     })
+  })
+
+  const networkId = checkIfIdHavePrepair(userId)
+  spawnPrefab(PrefabType.Player, userId, userId, networkId, spawnPos)
+
+  await new Promise<void>((resolve) => {
+    const listener = ({ uniqueId }) => {
+      if (uniqueId === userId) {
+        resolve()
+        EngineEvents.instance.removeEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
+      }
+    }
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.CLIENT_USER_LOADED, listener)
   })
 
   // Get all clients and add to clientsConnected and push to world state frame

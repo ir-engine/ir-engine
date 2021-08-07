@@ -182,7 +182,6 @@ describe('Golf tests', () => {
   }, maxTimeout)
 
 
-
   test('Can get Hit ', async () => {
 
 

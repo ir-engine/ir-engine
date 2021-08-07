@@ -1,11 +1,9 @@
 import { AssetLoader } from '../../../../assets/classes/AssetLoader'
-import { Model } from '../../../../assets/superbuffer'
-import { CharacterComponent } from '../../../../character/components/CharacterComponent'
-import { XRInputSourceComponent } from '../../../../character/components/XRInputSourceComponent'
-import { SkeletonUtils } from '../../../../character/SkeletonUtils'
+import { AvatarComponent } from '../../../../avatar/components/AvatarComponent'
+import { XRInputSourceComponent } from '../../../../avatar/components/XRInputSourceComponent'
+import { SkeletonUtils } from '../../../../avatar/SkeletonUtils'
 import { Entity } from '../../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../../ecs/functions/EntityFunctions'
-import { Network } from '../../../../networking/classes/Network'
+import { addComponent, getComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
 import { GolfAvatarComponent } from '../components/GolfAvatarComponent'
 
 const avatarScale = 1.3
@@ -68,8 +66,8 @@ export const setupPlayerAvatarNotInVR = (entityPlayer: Entity) => {
   golfAvatarComponent.rightHandModel.position.set(-0.35, 1, 0)
   golfAvatarComponent.torsoModel.position.set(0, 1.25, 0)
 
-  const actor = getComponent(entityPlayer, CharacterComponent)
-  actor.modelContainer.add(
+  const avatar = getComponent(entityPlayer, AvatarComponent)
+  avatar.modelContainer.add(
     golfAvatarComponent.headModel,
     golfAvatarComponent.leftHandModel,
     golfAvatarComponent.rightHandModel,

@@ -3,5 +3,7 @@ export const CameraModes = {
   FirstPerson: 'firstPerson',
   ShoulderCam: 'shoulderCam',
   ThirdPerson: 'thirdPerson',
-  TopDown: 'topDown'
+  TopDown: 'topDown',
+  Strategic: 'strategic',
+  Dynamic: 'dynamic'
 }

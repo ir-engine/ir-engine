@@ -1,6 +1,6 @@
 import { AnimationMixer, Object3D } from 'three'
 import { LoadGLTF } from '../../assets/functions/LoadGLTF'
-import { AnimationManager } from '../../character/AnimationManager'
+import { AnimationManager } from '../../avatar/AnimationManager'
 import cloneObject3D from '../../editor/functions/cloneObject3D'
 export default class Model extends Object3D {
   model: any

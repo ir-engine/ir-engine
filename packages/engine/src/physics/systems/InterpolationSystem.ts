@@ -12,12 +12,12 @@ import { BodyType } from 'three-physx'
 import { findInterpolationSnapshot } from '../behaviors/findInterpolationSnapshot'
 import { Vector3 } from 'three'
 import { SnapshotData } from '../../networking/types/SnapshotDataTypes'
-import { characterCorrectionBehavior } from '../../character/behaviors/characterCorrectionBehavior'
-import { CharacterComponent } from '../../character/components/CharacterComponent'
-import { characterInterpolationBehavior } from '../../character/behaviors/characterInterpolationBehavior'
+import { characterCorrectionBehavior } from '../../avatar/behaviors/avatarCorrectionBehavior'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { avatarInterpolationBehavior } from '../../avatar/behaviors/avatarInterpolationBehavior'
 import { rigidbodyInterpolationBehavior } from '../behaviors/rigidbodyInterpolationBehavior'
 import { LocalInterpolationComponent } from '../components/LocalInterpolationComponent'
-import { ControllerColliderComponent } from '../../character/components/ControllerColliderComponent'
+import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { rigidbodyCorrectionBehavior } from '../behaviors/rigidbodyCorrectionBehavior'
 import { VelocityComponent } from '../components/VelocityComponent'
 
@@ -46,7 +46,7 @@ export class InterpolationSystem extends System {
     }
 
     for (const entity of this.queryResults.networkClientInterpolation.all) {
-      characterInterpolationBehavior(entity, snapshots, delta)
+      avatarInterpolationBehavior(entity, snapshots, delta)
     }
 
     for (const entity of this.queryResults.networkObjectInterpolation.all) {
@@ -86,14 +86,14 @@ export class InterpolationSystem extends System {
 
 InterpolationSystem.queries = {
   localCharacterInterpolation: {
-    components: [ControllerColliderComponent, InterpolationComponent, NetworkObject]
+    components: [AvatarControllerComponent, InterpolationComponent, NetworkObject]
   },
   networkClientInterpolation: {
-    components: [Not(ControllerColliderComponent), CharacterComponent, InterpolationComponent, NetworkObject]
+    components: [Not(AvatarControllerComponent), AvatarComponent, InterpolationComponent, NetworkObject]
   },
   localObjectInterpolation: {
     components: [
-      Not(CharacterComponent),
+      Not(AvatarComponent),
       LocalInterpolationComponent,
       InterpolationComponent,
       ColliderComponent,
@@ -102,7 +102,7 @@ InterpolationSystem.queries = {
   },
   networkObjectInterpolation: {
     components: [
-      Not(CharacterComponent),
+      Not(AvatarComponent),
       Not(LocalInterpolationComponent),
       InterpolationComponent,
       ColliderComponent,

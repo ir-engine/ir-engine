@@ -47,18 +47,11 @@ export const hitBall: Behavior = (
   vec3.applyAxisAngle(upVector, clubMoveDirection * angleOfIncidence).normalize().multiplyScalar(golfClubComponent.velocity.length());
 */
 
-/*
-// This part alllow to passed tests before we find solution
-  if (golfClubComponent.velocity.z > 0) {
-    golfClubComponent.velocity.z *= -1
-  }
-*/
+
 
   if(isClient) {
-    console.warn('HIT FORCE:', golfClubComponent.velocity)
     vector0.copy(golfClubComponent.velocity).multiplyScalar(args.hitAdvanceFactor)
   } else {
-    console.warn('HIT FORCE:', golfClubComponent.velocity)
     vector0.copy(golfClubComponent.velocityServer).multiplyScalar(args.hitAdvanceFactor)
   }
   // vector0.copy(vec3).multiplyScalar(hitAdvanceFactor);
@@ -96,6 +89,6 @@ export const hitBall: Behavior = (
   if (!golfClubComponent.canDoChipShots) {
     vector0.y = 0
   }
-  console.warn('HIT FORCE:', vector0.x, vector0.z)
+  console.log('HIT FORCE:', vector0.x, vector0.z)
   collider.body.addForce(vector0)
 }

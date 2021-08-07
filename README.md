@@ -4,6 +4,8 @@
 #### [Join our Discord](https://discord.gg/Tb4MT4TTjH)  
 [![Discord Chat](https://img.shields.io/discord/692672143053422678.svg)](https://discord.gg/Tb4MT4TTjH)  
 
+![Sponsorhip](https://opencollective.com/xrengine/tiers/badge.svg)
+
 [![Build Status](https://travis-ci.org/xrengine/xrengine.svg?branch=dev)](https://travis-ci.org/xrengine/xrengine)  
 
 ## [Link to Full Documentation](https://xrfoundation.github.io/xrengine-docs/docs/)
