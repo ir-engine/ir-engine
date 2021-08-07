@@ -20,7 +20,10 @@ import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
 import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
-import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
+import { SceneService } from '@xrengine/client-core/src/world/store/SceneService'
+import { useSceneState } from '@xrengine/client-core/src/world/store/SceneState'
+import { SceneAction } from '@xrengine/client-core/src/world/store/SceneAction'
+// import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -101,7 +104,7 @@ interface Props {
   connectToInstanceServer?: typeof connectToInstanceServer
   provisionInstanceServer?: typeof provisionInstanceServer
   resetInstanceServer?: typeof resetInstanceServer
-  setCurrentScene?: typeof setCurrentScene
+  setCurrentScene?: typeof SceneAction.setCurrentScene
   harmonyOpen?: boolean
 }
 
@@ -123,7 +126,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   connectToInstanceServer: bindActionCreators(connectToInstanceServer, dispatch),
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
   resetInstanceServer: bindActionCreators(resetInstanceServer, dispatch),
-  setCurrentScene: bindActionCreators(setCurrentScene, dispatch)
+  setCurrentScene: bindActionCreators(SceneAction.setCurrentScene, dispatch)
 })
 
 let slugifiedName = null

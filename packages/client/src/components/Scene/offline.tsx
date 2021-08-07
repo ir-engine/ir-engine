@@ -14,7 +14,8 @@ import { selectPartyState } from '@xrengine/client-core/src/social/reducers/part
 import Store from '@xrengine/client-core/src/store'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
-import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
+// import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
+import { SceneAction } from '@xrengine/client-core/src/world/store/SceneAction'
 import { testUserId, testWorldState } from '@xrengine/common/src/assets/testScenes'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
@@ -78,7 +79,7 @@ interface Props {
   connectToInstanceServer?: typeof connectToInstanceServer
   provisionInstanceServer?: typeof provisionInstanceServer
   resetInstanceServer?: typeof resetInstanceServer
-  setCurrentScene?: typeof setCurrentScene
+  setCurrentScene?: typeof SceneAction.setCurrentScene
   harmonyOpen?: boolean
 }
 
@@ -100,7 +101,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   connectToInstanceServer: bindActionCreators(connectToInstanceServer, dispatch),
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
   resetInstanceServer: bindActionCreators(resetInstanceServer, dispatch),
-  setCurrentScene: bindActionCreators(setCurrentScene, dispatch)
+  setCurrentScene: bindActionCreators(SceneAction.setCurrentScene, dispatch)
 })
 
 let slugifiedName = null

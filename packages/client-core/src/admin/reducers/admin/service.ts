@@ -8,7 +8,7 @@ import {
   locationTypesRetrieved,
   instancesRetrievedAction,
   instanceRemovedAction,
-  instanceCreated,
+  // instanceCreated,
   instanceRemoved,
   userRoleRetrieved,
   userRoleCreated,
@@ -35,7 +35,8 @@ import {
 } from '../../../social/reducers/location/actions'
 import Store from '../../../store'
 import { UserAction } from '../../../user/store/UserAction'
-import { collectionsFetched } from '../../../world/reducers/scenes/actions'
+// import { collectionsFetched } from '../../../world/reducers/scenes/actions'
+import { SceneAction } from '../../../world/store/SceneAction'
 
 const store = Store.store
 
@@ -244,7 +245,7 @@ export function fetchAdminScenes() {
         }
       }
     })
-    dispatch(collectionsFetched(scenes))
+    dispatch(SceneAction.collectionsFetched(scenes))
   }
 }
 

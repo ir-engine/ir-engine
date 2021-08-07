@@ -17,7 +17,8 @@ import { selectPartyState } from '@xrengine/client-core/src/social/reducers/part
 import Store from '@xrengine/client-core/src/store'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
-import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
+// import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
+import { SceneAction } from '@xrengine/client-core'
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { teleportPlayer } from '@xrengine/engine/src/character/prefabs/NetworkPlayerCharacter'
 import { awaitEngaged, Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -115,7 +116,7 @@ interface Props {
   connectToInstanceServer?: typeof connectToInstanceServer
   provisionInstanceServer?: typeof provisionInstanceServer
   resetInstanceServer?: typeof resetInstanceServer
-  setCurrentScene?: typeof setCurrentScene
+  setCurrentScene?: typeof SceneAction.setCurrentScene
   harmonyOpen?: boolean
   enableSharing?: boolean
 }
@@ -138,7 +139,7 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   connectToInstanceServer: bindActionCreators(connectToInstanceServer, dispatch),
   provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
   resetInstanceServer: bindActionCreators(resetInstanceServer, dispatch),
-  setCurrentScene: bindActionCreators(setCurrentScene, dispatch)
+  setCurrentScene: bindActionCreators(SceneAction.setCurrentScene, dispatch)
 })
 
 let slugifiedName = null
@@ -350,6 +351,7 @@ export const EnginePage = (props: Props) => {
         parameters: [currentLocation.id, instanceId, currentLocation.sceneId],
         timeout: 10000
       }
+      noCountdown:true
       setWarningRefreshModalValues(newValues)
       setNoGameserverProvision(false)
     }

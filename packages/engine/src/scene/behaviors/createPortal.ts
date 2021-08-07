@@ -21,6 +21,7 @@ export type PortalProps = {
   spawnPosition: Vector3
   spawnRotation: Quaternion
   spawnEuler: Euler
+  location:string
 }
 
 const vec3 = new Vector3()
