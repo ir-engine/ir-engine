@@ -93,7 +93,7 @@
     "cross-env": "7.0.3",
     "esbuild": "0.12.19",
     "eslint": "7.32.0",
-    "rollup": "2.56.0",
+    "rollup": "2.56.1",
     "rollup-plugin-node-polyfills": "0.2.1",
     "rollup-plugin-scss": "3.0.0",
     "ts-jest": "27.0.4",
