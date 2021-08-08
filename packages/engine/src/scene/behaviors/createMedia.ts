@@ -1,4 +1,4 @@
-import { Object3D } from 'three'
+import { Object3D, PositionalAudio } from 'three'
 
 import { addObject3DComponent } from './addObject3DComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -53,7 +53,7 @@ export function createAudio(entity, args: AudioProps): void {
   const audio = new AudioSource(Engine.audioListener)
   addObject3DComponent(entity, audio, args)
   audio.load()
-  addComponent(entity, PositionalAudioComponent)
+  addComponent(entity, PositionalAudioComponent, { value: new PositionalAudio(Engine.audioListener) })
   if (args.interactable) addComponent(entity, Interactable)
 }
 
