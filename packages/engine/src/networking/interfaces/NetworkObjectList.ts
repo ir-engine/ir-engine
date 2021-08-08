@@ -1,4 +1,4 @@
-import { NetworkObject } from '../components/NetworkObject'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 /** Interface for holding Network Object. */
 export interface NetworkObjectList {

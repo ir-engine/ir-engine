@@ -1,13 +1,9 @@
-// TODO: Change camera properties to object and use setter that updates camera
-
-import { Component } from '../../ecs/classes/Component'
 import { Entity } from '../../ecs/classes/Entity'
-import { Types } from '../../ecs/types/Types'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-/** Component class for Camera. */
-export class CameraComponent extends Component<any> {
+type CameraComponentType = {
   /** Reference to the object that should be followed. */
-  followTarget: any = null
+  followTarget: Entity
   /** Field of view. */
   fov: number
   /** Aspect Ration - Width / Height */
@@ -21,25 +17,7 @@ export class CameraComponent extends Component<any> {
   /** Should the camera resize if the window does? */
   handleResize: boolean
   /** Entity object for this component. */
-  entity: Entity = null
-
-  /** Constructs Camera Component. */
-  constructor() {
-    super()
-  }
-
-  /** Dispose the component. */
-  dispose(): void {
-    super.dispose()
-  }
+  entity: Entity
 }
 
-/**
- * Set the default values of a component.
- * The type field must be set for each property.
- */
-CameraComponent._schema = {
-  entity: { type: Types.Ref, default: null },
-  // camera: { type: Types.Ref, default: null },
-  followTarget: { type: Types.Ref, default: null }
-}
+export const CameraComponent = createMappedComponent<CameraComponentType>()

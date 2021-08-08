@@ -2,7 +2,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { System } from '../../ecs/classes/System'
 import { Network } from '../../networking/classes/Network'
 
-import { NetworkObject } from '../../networking/components/NetworkObject'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Game } from '../components/Game'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { GameObject } from '../components/GameObject'
@@ -97,7 +97,7 @@ export class GameManagerSystem extends System {
         const gamePlayerComp = addComponent(entity, GamePlayer, {
           gameName: game.name,
           role: 'newPlayer',
-          uuid: getComponent(entity, NetworkObject).ownerId
+          uuid: getComponent(entity, NetworkObjectComponent).ownerId
         })
         requireState(game, gamePlayerComp)
       }

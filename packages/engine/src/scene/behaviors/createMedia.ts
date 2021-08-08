@@ -2,7 +2,7 @@ import { Object3D, PositionalAudio } from 'three'
 
 import { addObject3DComponent } from './addObject3DComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { Interactable } from '../../interaction/components/Interactable'
+import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import VolumetricComponent from '../components/VolumetricComponent'
 import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
 import Video from '../classes/Video'
@@ -46,7 +46,7 @@ export interface VideoProps extends AudioProps {
 
 export function createMediaServer(entity, args: { interactable: boolean }): void {
   addObject3DComponent(entity, new Object3D(), args)
-  if (args.interactable) addComponent(entity, Interactable)
+  if (args.interactable) addComponent(entity, InteractableComponent)
 }
 
 export function createAudio(entity, args: AudioProps): void {
@@ -54,7 +54,7 @@ export function createAudio(entity, args: AudioProps): void {
   addObject3DComponent(entity, audio, args)
   audio.load()
   addComponent(entity, PositionalAudioComponent, { value: new PositionalAudio(Engine.audioListener) })
-  if (args.interactable) addComponent(entity, Interactable)
+  if (args.interactable) addComponent(entity, InteractableComponent)
 }
 
 export function createVideo(entity, args: VideoProps): void {
@@ -65,7 +65,7 @@ export function createVideo(entity, args: VideoProps): void {
   }
   addObject3DComponent(entity, video, args)
   video.load()
-  if (args.interactable) addComponent(entity, Interactable)
+  if (args.interactable) addComponent(entity, InteractableComponent)
 }
 
 interface VolumetricProps {
@@ -95,5 +95,5 @@ export const createVolumetric = (entity, args: VolumetricProps) => {
   })
   volumetricComponent.player = DracosisSequence
   addObject3DComponent(entity, container, args)
-  if (args.interactable) addComponent(entity, Interactable)
+  if (args.interactable) addComponent(entity, InteractableComponent)
 }

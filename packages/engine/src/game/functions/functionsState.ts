@@ -11,7 +11,7 @@ import {
 } from '../../ecs/functions/EntityFunctions'
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
 import { Network } from '../../networking/classes/Network'
-import { NetworkObject } from '../../networking/components/NetworkObject'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 
 import { Game } from '../components/Game'
 import { GameObject } from '../components/GameObject'
@@ -192,7 +192,7 @@ export const applyState = (game: Game): void => {
           if (
             role === 'GolfBall' &&
             Network.instance.networkObjects[Network.instance.localAvatarNetworkId].ownerId ===
-              getComponent(entity, NetworkObject).ownerId
+              getComponent(entity, NetworkObjectComponent).ownerId
           ) {
             addComponent(entity, GolfState.CorrectBallPosition)
           }

@@ -21,7 +21,7 @@ import { GamepadAxis } from '../../input/enums/InputEnums'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AutoPilotClickRequestComponent } from '../component/AutoPilotClickRequestComponent'
-import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
+import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
 
 const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3): Path => {
   const points = navMesh.findPath(new YukaVector3(from.x, from.y, from.z), new YukaVector3(to.x, to.y, to.z))
@@ -180,7 +180,7 @@ export class AutopilotSystem extends System {
       }
     },
     navClick: {
-      components: [LocalInputReceiver, AutoPilotClickRequestComponent],
+      components: [LocalInputReceiverComponent, AutoPilotClickRequestComponent],
       listen: {
         added: true,
         removed: true

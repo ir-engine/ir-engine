@@ -4,7 +4,7 @@ import { addComponent, getComponent, removeComponent } from '../../ecs/functions
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { BodyType, PhysXInstance } from 'three-physx'
-import { NetworkObject } from '../../networking/components/NetworkObject'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Network } from '../../networking/classes/Network'
 import { Engine } from '../../ecs/classes/Engine'
 import { VelocityComponent } from '../components/VelocityComponent'
@@ -128,7 +128,7 @@ export class PhysicsSystem extends System {
 
     // TODO: this is temporary - we should refactor all our network entity handling to be on the ECS
     for (const entity of this.queryResults.networkObject.removed) {
-      const networkObject = getComponent(entity, NetworkObject, true)
+      const networkObject = getComponent(entity, NetworkObjectComponent, true)
       delete Network.instance.networkObjects[networkObject.networkId]
       console.log('removed prefab with id', networkObject.networkId)
     }
@@ -160,7 +160,7 @@ PhysicsSystem.queries = {
     }
   },
   networkObject: {
-    components: [NetworkObject],
+    components: [NetworkObjectComponent],
     listen: {
       added: true,
       removed: true

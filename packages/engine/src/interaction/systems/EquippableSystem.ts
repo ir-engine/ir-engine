@@ -1,7 +1,7 @@
 import { isClient } from '../../common/functions/isClient'
 import { System } from '../../ecs/classes/System'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { NetworkObject } from '../../networking/components/NetworkObject'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { EquippedStateUpdateSchema } from '../enums/EquippedEnums'
@@ -25,7 +25,7 @@ export class EquippableSystem extends System {
       if (collider) collider.body.type = BodyType.KINEMATIC
       // send equip to clients
       if (!isClient) {
-        const networkObject = getComponent(equippedEntity, NetworkObject)
+        const networkObject = getComponent(equippedEntity, NetworkObjectComponent)
         sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [
           BinaryValue.TRUE,
           networkObject.networkId
@@ -42,7 +42,7 @@ export class EquippableSystem extends System {
       equippableTransform.rotation.copy(rotation)
       if (!isClient) {
         for (const userEntity of this.queryResults.network_user.added) {
-          const networkObject = getComponent(equipperComponent.equippedEntity, NetworkObject)
+          const networkObject = getComponent(equipperComponent.equippedEntity, NetworkObjectComponent)
           sendClientObjectUpdate(entity, NetworkObjectUpdateType.ObjectEquipped, [
             BinaryValue.TRUE,
             networkObject.networkId

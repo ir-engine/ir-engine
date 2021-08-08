@@ -11,7 +11,7 @@ import {
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { TweenComponent } from '../../transform/components/TweenComponent'
-import { BoundingBoxComponent } from '../components/BoundingBox'
+import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 
 export const showInteractText = (interactTextEntity: Entity, focusEntity: Entity) => {
   const transform = getComponent(interactTextEntity, TransformComponent)

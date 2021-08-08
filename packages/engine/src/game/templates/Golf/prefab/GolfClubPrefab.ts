@@ -38,12 +38,12 @@ import {
 } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
 import { getGame } from '../../../functions/functions'
-import { NetworkObject } from '../../../../networking/components/NetworkObject'
+import { NetworkObjectComponent } from '../../../../networking/components/NetworkObjectComponent'
 import { GolfClubComponent } from '../components/GolfClubComponent'
 import { getHandTransform } from '../../../../xr/functions/WebXRFunctions'
 import { DebugArrowComponent } from '../../../../debug/DebugArrowComponent'
 import { GameObjectInteractionBehavior } from '../../../interfaces/GameObjectPrefab'
-import { NetworkObjectOwner } from '../../../../networking/components/NetworkObjectOwner'
+import { NetworkObjectComponentOwner } from '../../../../networking/components/NetworkObjectComponentOwner'
 import { Action, State } from '../../../types/GameComponents'
 import { addActionComponent } from '../../../functions/functionsActions'
 import { GamePlayer } from '../../../components/GamePlayer'
@@ -72,7 +72,7 @@ export const spawnClub: Behavior = (
   checks?: any
 ): void => {
   const game = getGame(entityPlayer)
-  const playerNetworkObject = getComponent(entityPlayer, NetworkObject)
+  const playerNetworkObject = getComponent(entityPlayer, NetworkObjectComponent)
 
   const networkId = Network.getNetworkId()
   const uuid = MathUtils.generateUUID()
@@ -131,7 +131,7 @@ export const updateClub: Behavior = (
   time?: number,
   checks?: any
 ): void => {
-  const ownerNetworkId = getComponent(entityClub, NetworkObjectOwner).networkId
+  const ownerNetworkId = getComponent(entityClub, NetworkObjectComponentOwner).networkId
   const ownerEntity = Network.instance.networkObjects[ownerNetworkId]?.component.entity
 
   if (!ownerEntity) return
@@ -272,7 +272,7 @@ export const initializeGolfClub = (entityClub: Entity, parameters: GolfClubSpawn
     role,
     uuid
   })
-  addComponent(entityClub, NetworkObjectOwner, { networkId: ownerNetworkId })
+  addComponent(entityClub, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
 
   const golfClubComponent = addComponent(entityClub, GolfClubComponent)
 

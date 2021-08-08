@@ -4,7 +4,7 @@ import { isClient } from '../common/functions/isClient'
 import { System } from '../ecs/classes/System'
 import { Not } from '../ecs/functions/ComponentFunctions'
 import { getComponent, hasComponent } from '../ecs/functions/EntityFunctions'
-import { LocalInputReceiver } from '../input/components/LocalInputReceiver'
+import { LocalInputReceiverComponent } from '../input/components/LocalInputReceiverComponent'
 import { avatarMoveBehavior } from './behaviors/avatarMoveBehavior'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { InterpolationComponent } from '../physics/components/InterpolationComponent'
@@ -154,7 +154,7 @@ export class AvatarControllerSystem extends System {
 
 AvatarControllerSystem.queries = {
   characterOnServer: {
-    components: [Not(LocalInputReceiver), Not(InterpolationComponent), AvatarComponent, AvatarControllerComponent],
+    components: [Not(LocalInputReceiverComponent), Not(InterpolationComponent), AvatarComponent, AvatarControllerComponent],
     listen: {
       added: true,
       removed: true
@@ -175,7 +175,7 @@ AvatarControllerSystem.queries = {
     }
   },
   localXRInput: {
-    components: [LocalInputReceiver, XRInputSourceComponent, AvatarControllerComponent],
+    components: [LocalInputReceiverComponent, XRInputSourceComponent, AvatarControllerComponent],
     listen: {
       added: true,
       removed: true

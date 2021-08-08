@@ -4,12 +4,12 @@ import { SIXDOFType } from '../../common/types/NumericalTypes'
 import { System } from '../../ecs/classes/System'
 import { Not } from '../../ecs/functions/ComponentFunctions'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { Input } from '../../input/components/Input'
+import { InputComponent } from '../../input/components/InputComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Network } from '../classes/Network'
-import { NetworkObject } from '../components/NetworkObject'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { TransformStateInterface } from '../interfaces/WorldState'
 import { TransformStateModel } from '../schema/transformStateSchema'
 import { WorldStateModel } from '../schema/worldStateSchema'
@@ -29,7 +29,7 @@ export class ServerNetworkOutgoingSystem extends System {
     // note: onChanged needs to currently be handled outside of fixedExecute
     for (const entity of this.queryResults.networkTransforms.all) {
       const transformComponent = getComponent(entity, TransformComponent)
-      const networkObject = getComponent(entity, NetworkObject)
+      const networkObject = getComponent(entity, NetworkObjectComponent)
       const currentPosition = transformComponent.position
       const snapShotTime = networkObject.snapShotTime
 
@@ -50,7 +50,7 @@ export class ServerNetworkOutgoingSystem extends System {
     for (const entity of this.queryResults.avatarTransforms.all) {
       const transformComponent = getComponent(entity, TransformComponent)
       const avatar = getComponent(entity, AvatarComponent)
-      const networkObject = getComponent(entity, NetworkObject)
+      const networkObject = getComponent(entity, NetworkObjectComponent)
       const currentPosition = transformComponent.position
       const snapShotTime = networkObject.snapShotTime
 
@@ -68,10 +68,10 @@ export class ServerNetworkOutgoingSystem extends System {
     }
 
     for (const entity of this.queryResults.ikTransforms.all) {
-      const networkObject = getComponent(entity, NetworkObject)
+      const networkObject = getComponent(entity, NetworkObjectComponent)
       const snapShotTime = networkObject.snapShotTime
 
-      const input = getComponent(entity, Input)
+      const input = getComponent(entity, InputComponent)
 
       const hmd = input.data.get(BaseInput.XR_HEAD) as InputValue<SIXDOFType>
       const left = input.data.get(BaseInput.XR_CONTROLLER_LEFT_HAND) as InputValue<SIXDOFType>
@@ -132,13 +132,13 @@ export class ServerNetworkOutgoingSystem extends System {
   /** System queries. */
   static queries: any = {
     networkTransforms: {
-      components: [Not(AvatarComponent), NetworkObject, TransformComponent]
+      components: [Not(AvatarComponent), NetworkObjectComponent, TransformComponent]
     },
     avatarTransforms: {
-      components: [AvatarComponent, NetworkObject, TransformComponent]
+      components: [AvatarComponent, NetworkObjectComponent, TransformComponent]
     },
     ikTransforms: {
-      components: [XRInputSourceComponent, NetworkObject, TransformComponent]
+      components: [XRInputSourceComponent, NetworkObjectComponent, TransformComponent]
     }
   }
 }

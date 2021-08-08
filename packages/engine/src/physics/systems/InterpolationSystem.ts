@@ -1,10 +1,10 @@
 import { Not } from '../../ecs/functions/ComponentFunctions'
 import { System } from '../../ecs/classes/System'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
+import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
 import { Network } from '../../networking/classes/Network'
 import { Vault } from '../../networking/classes/Vault'
-import { NetworkObject } from '../../networking/components/NetworkObject'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { calculateInterpolation, createSnapshot } from '../../networking/functions/NetworkInterpolationFunctions'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { InterpolationComponent } from '../components/InterpolationComponent'
@@ -86,10 +86,10 @@ export class InterpolationSystem extends System {
 
 InterpolationSystem.queries = {
   localCharacterInterpolation: {
-    components: [AvatarControllerComponent, InterpolationComponent, NetworkObject]
+    components: [AvatarControllerComponent, InterpolationComponent, NetworkObjectComponent]
   },
   networkClientInterpolation: {
-    components: [Not(AvatarControllerComponent), AvatarComponent, InterpolationComponent, NetworkObject]
+    components: [Not(AvatarControllerComponent), AvatarComponent, InterpolationComponent, NetworkObjectComponent]
   },
   localObjectInterpolation: {
     components: [
@@ -97,7 +97,7 @@ InterpolationSystem.queries = {
       LocalInterpolationComponent,
       InterpolationComponent,
       ColliderComponent,
-      NetworkObject
+      NetworkObjectComponent
     ]
   },
   networkObjectInterpolation: {
@@ -106,10 +106,10 @@ InterpolationSystem.queries = {
       Not(LocalInterpolationComponent),
       InterpolationComponent,
       ColliderComponent,
-      NetworkObject
+      NetworkObjectComponent
     ]
   },
   correctionFromServer: {
-    components: [Not(InterpolationComponent), ColliderComponent, NetworkObject]
+    components: [Not(InterpolationComponent), ColliderComponent, NetworkObjectComponent]
   }
 }

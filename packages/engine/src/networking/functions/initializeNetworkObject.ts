@@ -6,7 +6,7 @@ import { addComponent, createEntity, getComponent } from '../../ecs/functions/En
 import { GameObject } from '../../game/components/GameObject'
 import { PrefabType } from '../../networking/templates/PrefabType'
 import { Network } from '../classes/Network'
-import { NetworkObject } from '../components/NetworkObject'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkPrefab } from '../interfaces/NetworkPrefab'
 /**
  * Create network object from prefab.
@@ -26,7 +26,7 @@ function createNetworkPrefab(
   uniqueId: string
 ): Entity {
   // Add a NetworkObject component to the entity, this will store information about changing state
-  addComponent(entity, NetworkObject, { ownerId, networkId, uniqueId })
+  addComponent(entity, NetworkObjectComponent, { ownerId, networkId, uniqueId })
 
   // Call each create action
   prefab.onBeforeCreate?.forEach((action) => {
@@ -178,7 +178,7 @@ export function initializeNetworkObject(args: {
     uniqueId
   )
 
-  const networkObject = getComponent(networkEntity, NetworkObject)
+  const networkObject = getComponent(networkEntity, NetworkObjectComponent)
 
   return networkObject
 }

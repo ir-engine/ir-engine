@@ -1,7 +1,7 @@
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions'
 import { SpawnNetworkObjectComponent } from '../../scene/components/SpawnNetworkObjectComponent'
 import { Network } from '../classes/Network'
-import { NetworkObject } from '../components/NetworkObject'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
 export const spawnPrefab = (
   prefabType: number,
@@ -16,7 +16,7 @@ export const spawnPrefab = (
   Network.instance.networkObjects[networkId] = {
     ownerId,
     prefabType,
-    component: addComponent(entity, NetworkObject, { ownerId, networkId, uniqueId }),
+    component: addComponent(entity, NetworkObjectComponent, { ownerId, networkId, uniqueId }),
     uniqueId,
     parameters
   }

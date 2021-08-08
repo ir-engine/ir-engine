@@ -2,8 +2,8 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { System } from '../../ecs/classes/System'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { Input } from '../components/Input'
-import { LocalInputReceiver } from '../components/LocalInputReceiver'
+import { InputComponent } from '../components/InputComponent'
+import { LocalInputReceiverComponent } from '../components/LocalInputReceiverComponent'
 import { InputType } from '../enums/InputType'
 import { InputValue } from '../interfaces/InputValue'
 import { InputAlias } from '../types/InputAlias'
@@ -66,21 +66,21 @@ export class ClientInputSystem extends System {
     // Called when input component is added to entity
     for (const entity of this.queryResults.localClientInput.added) {
       // Get component reference
-      const input = getComponent(entity, Input)
+      const input = getComponent(entity, InputComponent)
       input.schema.onAdded(entity, delta)
     }
 
     // Called when input component is removed from entity
     for (const entity of this.queryResults.localClientInput.removed) {
       // Get component reference
-      const input = getComponent(entity, Input, true)
+      const input = getComponent(entity, InputComponent, true)
       input.schema.onRemove(entity, delta)
     }
   }
 
   static queries = {
     localClientInput: {
-      components: [Input, LocalInputReceiver],
+      components: [InputComponent, LocalInputReceiverComponent],
       listen: {
         added: true,
         removed: true

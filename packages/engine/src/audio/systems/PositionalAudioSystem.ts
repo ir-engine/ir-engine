@@ -1,8 +1,8 @@
 import { Engine } from '../../ecs/classes/Engine'
 import { System } from '../../ecs/classes/System'
 import { getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
-import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
-import { NetworkObject } from '../../networking/components/NetworkObject'
+import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -40,7 +40,7 @@ export class PositionalAudioSystem extends System {
     }
 
     for (const entity of this.queryResults.avatar_audio.changed) {
-      const entityNetworkObject = getComponent(entity, NetworkObject)
+      const entityNetworkObject = getComponent(entity, NetworkObjectComponent)
       if (entityNetworkObject) {
         const peerId = entityNetworkObject.ownerId
         const consumer = MediaStreams.instance?.consumers.find(
@@ -53,10 +53,10 @@ export class PositionalAudioSystem extends System {
     }
 
     for (const entity of this.queryResults.avatar_audio.all) {
-      if (hasComponent(entity, LocalInputReceiver)) {
+      if (hasComponent(entity, LocalInputReceiverComponent)) {
         continue
       }
-      const entityNetworkObject = getComponent(entity, NetworkObject)
+      const entityNetworkObject = getComponent(entity, NetworkObjectComponent)
       let consumer
       if (entityNetworkObject != null) {
         const peerId = entityNetworkObject.ownerId

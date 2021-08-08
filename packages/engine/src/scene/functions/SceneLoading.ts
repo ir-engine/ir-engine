@@ -41,7 +41,7 @@ import { createDirectionalLight } from '../behaviors/createDirectionalLight'
 import { loadGLTFModel } from '../behaviors/loadGLTFModel'
 import { loadModelAnimation } from '../behaviors/loadModelAnimation'
 import { Clouds } from '../classes/Clouds'
-import { Interactable } from '../../interaction/components/Interactable'
+import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { createCollider } from '../../physics/behaviors/createCollider'
@@ -175,7 +175,7 @@ export class WorldScene {
         break
 
       case 'interact':
-        if (component.data.interactable) addComponent(entity, Interactable, { data: component.data })
+        if (component.data.interactable) addComponent(entity, InteractableComponent, { data: component.data })
         break
 
       case 'ground-plane':
@@ -287,7 +287,7 @@ export class WorldScene {
 
       case 'link':
         addObject3DComponent(entity, new Object3D(), component.data)
-        addComponent(entity, Interactable, { data: { action: 'link' } })
+        addComponent(entity, InteractableComponent, { data: { action: 'link' } })
         break
 
       case 'particle-emitter':

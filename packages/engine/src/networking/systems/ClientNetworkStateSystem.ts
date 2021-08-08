@@ -1,4 +1,4 @@
-import { NetworkObject } from '../components/NetworkObject'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import {
   addComponent,
   getComponent,
@@ -73,10 +73,10 @@ function syncNetworkObjectsTest(createObjects) {
           const tempMistake = Network.instance.networkObjects[objectToCreate.networkId]
           Network.instance.networkObjects[key] = tempMistake
           Network.instance.networkObjects[objectToCreate.networkId] = tempCorrect
-          getComponent(Network.instance.networkObjects[key].component.entity, NetworkObject).networkId = key
+          getComponent(Network.instance.networkObjects[key].component.entity, NetworkObjectComponent).networkId = key
           getComponent(
             Network.instance.networkObjects[objectToCreate.networkId].component.entity,
-            NetworkObject
+            NetworkObjectComponent
           ).networkId = objectToCreate.networkId
         }
       })
@@ -97,7 +97,7 @@ function syncPhysicsObjects(objectToCreate) {
           Network.instance.networkObjects[key] = undefined
           const newId = Network.getNetworkId()
           Network.instance.networkObjects[newId] = tempCorrect
-          getComponent(Network.instance.networkObjects[newId].component.entity, NetworkObject).networkId = newId
+          getComponent(Network.instance.networkObjects[newId].component.entity, NetworkObjectComponent).networkId = newId
         }
       })
   }

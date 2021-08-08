@@ -12,8 +12,8 @@ import {
   hasComponent
 } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
-import { NetworkObject } from '../../../../networking/components/NetworkObject'
-import { NetworkObjectOwner } from '../../../../networking/components/NetworkObjectOwner'
+import { NetworkObjectComponent } from '../../../../networking/components/NetworkObjectComponent'
+import { NetworkObjectComponentOwner } from '../../../../networking/components/NetworkObjectComponentOwner'
 import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject'
 import { spawnPrefab } from '../../../../networking/functions/spawnPrefab'
 import { NetworkPrefab } from '../../../../networking/interfaces/NetworkPrefab'
@@ -49,7 +49,7 @@ export const spawnBall: Behavior = (
   console.warn('SpawnBall')
 
   const game = getGame(entityPlayer)
-  const playerNetworkObject = getComponent(entityPlayer, NetworkObject)
+  const playerNetworkObject = getComponent(entityPlayer, NetworkObjectComponent)
 
   const networkId = Network.getNetworkId()
   const uuid = MathUtils.generateUUID()
@@ -130,7 +130,7 @@ const golfBallRadius = 0.03
 const golfBallColliderExpansion = 0.01
 
 function assetLoadCallback(group: Group, ballEntity: Entity) {
-  const ownerNetworkId = getComponent(ballEntity, NetworkObjectOwner).networkId
+  const ownerNetworkId = getComponent(ballEntity, NetworkObjectComponentOwner).networkId
   const ownerEntity = Network.instance.networkObjects[ownerNetworkId].component.entity
   const ownerPlayerNumber = Number(getComponent(ownerEntity, GamePlayer).role.substr(0, 1)) - 1
 
@@ -186,7 +186,7 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
     role,
     uuid
   })
-  addComponent(ballEntity, NetworkObjectOwner, { networkId: ownerNetworkId })
+  addComponent(ballEntity, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
   addComponent(ballEntity, GolfBallComponent)
   addComponent(ballEntity, TransformComponent)
 

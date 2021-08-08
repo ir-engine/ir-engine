@@ -15,15 +15,15 @@ import {
 import { Game } from '../components/Game'
 import { GameObject } from '../components/GameObject'
 import { GamePlayer } from '../components/GamePlayer'
-import { NetworkObject } from '../../networking/components/NetworkObject'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 
 export const isOwnedLocalPlayer = (entity: Entity): boolean => {
-  if (!hasComponent(entity, NetworkObject)) return false
+  if (!hasComponent(entity, NetworkObjectComponent)) return false
   const localPlayerOwnerId = Network.instance.networkObjects[Network.instance.localAvatarNetworkId].component.ownerId
-  const objectOwnerId = getComponent(entity, NetworkObject).ownerId
+  const objectOwnerId = getComponent(entity, NetworkObjectComponent).ownerId
   return localPlayerOwnerId === objectOwnerId
 }
 

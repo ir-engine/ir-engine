@@ -8,12 +8,12 @@ import { gamepadMapping } from '../../input/behaviors/GamepadInputBehaviors'
 import { InputType } from '../../input/enums/InputType'
 import { endXR, startXR } from '../functions/WebXRFunctions'
 import { XRFrame, XRReferenceSpace, XRReferenceSpaceType, XRWebGLLayer } from '../../input/types/WebXR'
-import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
+import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { addControllerModels } from '../functions/addControllerModels'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { Input } from '../../input/components/Input'
+import { InputComponent } from '../../input/components/InputComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 
 /**
@@ -111,7 +111,7 @@ export class XRSystem extends System {
 
     for (const entity of this.queryResults.localXRController.all) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      const input = getComponent(entity, Input)
+      const input = getComponent(entity, InputComponent)
       input.data.set(BaseInput.XR_HEAD, {
         type: InputType.SIXDOF,
         value: {
@@ -158,7 +158,7 @@ export class XRSystem extends System {
 
 XRSystem.queries = {
   localXRController: {
-    components: [Input, LocalInputReceiver, XRInputSourceComponent],
+    components: [InputComponent, LocalInputReceiverComponent, XRInputSourceComponent],
     listen: {
       added: true,
       removed: true

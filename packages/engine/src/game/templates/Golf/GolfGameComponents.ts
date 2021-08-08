@@ -1,4 +1,4 @@
-import { Component } from '../../../ecs/classes/Component'
+import { createMappedComponent } from '../../../ecs/functions/EntityFunctions'
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -20,20 +20,20 @@ export enum GolfGameStates {
   CheckCourse = 'CheckCourse'
 }
 
-export class Goal extends Component<Goal> {}
+export const Goal = createMappedComponent<{}>()
 
-export class Hit extends Component<Hit> {}
-export class AlreadyHit extends Component<AlreadyHit> {}
+export const Hit = createMappedComponent<{}>()
+export const AlreadyHit = createMappedComponent<{}>()
 
-export class BallMoving extends Component<BallMoving> {}
-export class AlmostStopped extends Component<AlmostStopped> {}
-export class BallStopped extends Component<BallStopped> {}
+export const BallMoving = createMappedComponent<{}>()
+export const AlmostStopped = createMappedComponent<{}>()
+export const BallStopped = createMappedComponent<{}>()
 
-export class BallHidden extends Component<BallHidden> {}
-export class BallVisible extends Component<BallVisible> {}
+export const BallHidden = createMappedComponent<{}>()
+export const BallVisible = createMappedComponent<{}>()
 
-export class CorrectBallPosition extends Component<CorrectBallPosition> {}
-export class CheckCourse extends Component<CheckCourse> {}
+export const CorrectBallPosition = createMappedComponent<{}>()
+export const CheckCourse = createMappedComponent<{}>()
 
 export const GolfState = {
   [GolfGameStates.Goal]: Goal,

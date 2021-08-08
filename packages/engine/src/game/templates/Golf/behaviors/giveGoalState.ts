@@ -1,7 +1,7 @@
 import { Behavior } from '../../../../common/interfaces/Behavior'
 import { Entity } from '../../../../ecs/classes/Entity'
 import { getComponent } from '../../../../ecs/functions/EntityFunctions'
-import { Interactable } from '../../../../interaction/components/Interactable'
+import { InteractableComponent } from '../../../../interaction/components/InteractableComponent'
 import { getGame } from '../../../../game/functions/functions'
 import { Engine } from '../../../../ecs/classes/Engine'
 
@@ -15,7 +15,7 @@ export const giveGoalState: Behavior = (
 ): void => {
   const game = getGame(entity)
   const gameSchema = Engine.gameModes.get(game.gameMode)
-  const nameObject = getComponent(entityTarget, Interactable).data.interactionText ?? '1'
+  const nameObject = getComponent(entityTarget, InteractableComponent).data.interactionText ?? '1'
 
   // TODO: check this is right
   const entityPlayer = game.gamePlayers[gameSchema.gamePlayerRoles[nameObject]][0]

@@ -2,8 +2,8 @@ import { isClient } from '../../../common/functions/isClient'
 import { System } from '../../../ecs/classes/System'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../networking/classes/Network'
-import { NetworkObject } from '../../../networking/components/NetworkObject'
-import { NetworkObjectOwner } from '../../../networking/components/NetworkObjectOwner'
+import { NetworkObjectComponent } from '../../../networking/components/NetworkObjectComponent'
+import { NetworkObjectComponentOwner } from '../../../networking/components/NetworkObjectComponentOwner'
 import { GameObject } from '../../components/GameObject'
 import { GamePlayer } from '../../components/GamePlayer'
 import { getGame, getUuid } from '../../functions/functions'
@@ -66,9 +66,9 @@ export class GolfSystem extends System {
     // DO ALL STATE LOGIC HERE (all queries)
 
     for (const entity of this.queryResults.spawnGolfBall.all) {
-      const { ownerId } = getComponent(entity, NetworkObject)
+      const { ownerId } = getComponent(entity, NetworkObjectComponent)
       const ownerEntity = this.queryResults.player.all.find((player) => {
-        return getComponent(player, NetworkObject).uniqueId === ownerId
+        return getComponent(player, NetworkObjectComponent).uniqueId === ownerId
       })
       if (ownerEntity) {
         const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
@@ -78,9 +78,9 @@ export class GolfSystem extends System {
     }
 
     for (const entity of this.queryResults.spawnGolfClub.all) {
-      const { ownerId } = getComponent(entity, NetworkObject)
+      const { ownerId } = getComponent(entity, NetworkObjectComponent)
       const ownerEntity = this.queryResults.player.all.find((player) => {
-        return getComponent(player, NetworkObject).uniqueId === ownerId
+        return getComponent(player, NetworkObjectComponent).uniqueId === ownerId
       })
       if (ownerEntity) {
         const { parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
@@ -98,7 +98,7 @@ export class GolfSystem extends System {
 
       if (!playerComponent.ownedObjects['GolfClub']) {
         const club = game.gameObjects['GolfClub'].find(
-          (entity) => getComponent(entity, NetworkObject)?.ownerId === ownerId
+          (entity) => getComponent(entity, NetworkObjectComponent)?.ownerId === ownerId
         )
         if (club) {
           console.log('club')
@@ -109,7 +109,7 @@ export class GolfSystem extends System {
 
       if (!playerComponent.ownedObjects['GolfBall']) {
         const ball = game.gameObjects['GolfBall'].find(
-          (entity) => getComponent(entity, NetworkObject)?.ownerId === ownerId
+          (entity) => getComponent(entity, NetworkObjectComponent)?.ownerId === ownerId
         )
         if (ball) {
           console.log('ball')
@@ -219,7 +219,7 @@ export class GolfSystem extends System {
     for (const holeEntity of this.queryResults.holeHit.added) {
       for (const ballEntity of this.queryResults.ballHit.all) {
         const entityPlayer =
-          Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectOwner).networkId]?.component.entity
+          Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectComponentOwner).networkId]?.component.entity
         const gameScore = getStorage(entityPlayer, { name: 'GameScore' })
         const game = getGame(entityPlayer)
         const currentHoleEntity = gameScore.score
@@ -273,14 +273,14 @@ export class GolfSystem extends System {
           // but you need waite because you use interpolation correction bevavior, other player not and server not
           if (
             Network.instance.networkObjects[Network.instance.localAvatarNetworkId].ownerId !=
-            Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectOwner).networkId].ownerId
+            Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectComponentOwner).networkId].ownerId
           ) {
             const entityYourPlayer =
               Network.instance.networkObjects[Network.instance.localAvatarNetworkId]?.component.entity
             removeStateComponent(entityYourPlayer, State.Waiting)
             addStateComponent(entityYourPlayer, State.WaitTurn)
             const entityPlayer =
-              Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectOwner).networkId]?.component.entity
+              Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectComponentOwner).networkId]?.component.entity
             addStateComponent(entityPlayer, State.YourTurn)
             addStateComponent(clubEntity, GolfState.Hit)
           }
@@ -299,7 +299,7 @@ export class GolfSystem extends System {
 
     for (const clubEntity of this.queryResults.hit.removed) {
       const playerEntity =
-        Network.instance.networkObjects[getComponent(clubEntity, NetworkObjectOwner).networkId]?.component.entity
+        Network.instance.networkObjects[getComponent(clubEntity, NetworkObjectComponentOwner).networkId]?.component.entity
       const ballEntity = this.queryResults.golfBall.all.find((e) => ifOwned(clubEntity, null, e))
       saveScore(playerEntity)
       addStateComponent(playerEntity, GolfState.AlreadyHit)

@@ -3,7 +3,7 @@ import { applyThreshold } from '../../common/functions/applyThreshold'
 import { InputType } from '../enums/InputType'
 import { GamepadButtons, GamepadAxis, XRAxes } from '../enums/InputEnums'
 import { InputAlias } from '../types/InputAlias'
-import { Input } from '../components/Input'
+import { InputComponent } from '../components/InputComponent'
 import { BaseInput } from '../enums/BaseInput'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
@@ -19,7 +19,7 @@ const gamepadButtons: BinaryValue[] = []
 const gamepadInput: number[] = []
 
 const inputPerGamepad = 2
-let input: Input
+let input: InputComponent
 let gamepads: Gamepad[]
 let gamepad: Gamepad
 let inputBase: number

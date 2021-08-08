@@ -5,7 +5,7 @@ import { isInXR } from '../../xr/functions/WebXRFunctions'
 import { isClient } from '../../common/functions/isClient'
 import { ParityValue } from '../../common/enums/ParityValue'
 import { EquippableAttachmentPoint } from '../enums/EquippedEnums'
-import { NetworkObject } from '../../networking/components/NetworkObject'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 
 /**

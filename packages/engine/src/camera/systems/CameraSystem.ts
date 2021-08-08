@@ -18,7 +18,7 @@ import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { CameraModes } from '../types/CameraModes'
 import { Entity } from '../../ecs/classes/Entity'
 import { PhysXInstance, RaycastQuery, SceneQueryType } from 'three-physx'
-import { Input } from '../../input/components/Input'
+import { InputComponent } from '../../input/components/InputComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
@@ -77,7 +77,7 @@ const followCameraBehavior = (entity: Entity) => {
 
   const followCamera = getComponent(entity, FollowCameraComponent)
 
-  const inputComponent = getComponent(entity, Input)
+  const inputComponent = getComponent(entity, InputComponent)
 
   // this is for future integration of MMO style pointer lock controls
   // const inputAxes = followCamera.mode === CameraModes.FirstPerson ? BaseInput.MOUSE_MOVEMENT : BaseInput.LOOKTURN_PLAYERONE

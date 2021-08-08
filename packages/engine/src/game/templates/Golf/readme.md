@@ -111,7 +111,7 @@ State Game Tag Component - this is the simple component ECS:
 
 
  
-  class Example extends Component<any> {}
+  class Example = createMappedComponent<{}>()
  
   const State = {
     ...
@@ -215,7 +215,7 @@ Action Game Component - this is the simple component ECS:
 
 
  
-  class GameObjectCollisionTag extends Component<any> {}
+  class GameObjectCollisionTag = createMappedComponent<{}>()
  
   export const Action = {
     [gameActions.HasHadInteraction]: HasHadInteraction,

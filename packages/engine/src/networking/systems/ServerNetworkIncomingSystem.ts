@@ -2,14 +2,14 @@ import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType, SIXDOFType } from '../../common/types/NumericalTypes'
 import { System } from '../../ecs/classes/System'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
-import { DelegatedInputReceiver } from '../../input/components/DelegatedInputReceiver'
-import { Input } from '../../input/components/Input'
+import { DelegatedInputReceiverComponent } from '../../input/components/DelegatedInputReceiverComponent'
+import { InputComponent } from '../../input/components/InputComponent'
 import { InputType } from '../../input/enums/InputType'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { InputAlias } from '../../input/types/InputAlias'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Network } from '../classes/Network'
-import { NetworkObject } from '../components/NetworkObject'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkClientInputInterface } from '../interfaces/WorldState'
 import { ClientInputModel } from '../schema/clientInputSchema'
 import { WorldStateModel } from '../schema/worldStateSchema'
@@ -24,7 +24,7 @@ import { ClientActionToServer } from '../../game/templates/DefaultGameStateActio
 import { updatePlayerRotationFromViewVector } from '../../avatar/functions/updatePlayerRotationFromViewVector'
 
 export function cancelAllInputs(entity) {
-  getComponent(entity, Input)?.data.forEach((value) => {
+  getComponent(entity, InputComponent)?.data.forEach((value) => {
     value.lifecycleState = LifecycleValue.ENDED
   })
 }
@@ -70,7 +70,7 @@ export class ServerNetworkIncomingSystem extends System {
 
       const delegatedInputReceiver = getComponent(
         Network.instance.networkObjects[clientInput.networkId].component.entity,
-        DelegatedInputReceiver
+        DelegatedInputReceiverComponent
       )
       const inputClientNetworkId = delegatedInputReceiver ? delegatedInputReceiver.networkId : clientInput.networkId
       const entity = Network.instance.networkObjects[clientInput.networkId].component.entity
@@ -102,7 +102,7 @@ export class ServerNetworkIncomingSystem extends System {
         console.log('input but no avatar...', clientInput.networkId)
       }
 
-      const userNetworkObject = getComponent(entity, NetworkObject)
+      const userNetworkObject = getComponent(entity, NetworkObjectComponent)
       if (userNetworkObject != null) {
         userNetworkObject.snapShotTime = clientInput.snapShotTime
         if (userNetworkObject.snapShotTime > clientInput.snapShotTime) continue
@@ -111,7 +111,7 @@ export class ServerNetworkIncomingSystem extends System {
       // this snapShotTime which will be sent bac k to the client, so that he knows exactly what inputs led to the change and when it was.
 
       // Get input component
-      const input = getComponent(entityInputReceiver, Input)
+      const input = getComponent(entityInputReceiver, InputComponent)
       if (!input) {
         continue
       }
@@ -166,7 +166,7 @@ export class ServerNetworkIncomingSystem extends System {
     // Apply input for local user input onto client
     for (const entity of this.queryResults.networkObjectsWithInput.all) {
       //  const avatar = getComponent(entity, AvatarComponent);
-      const input = getComponent(entity, Input)
+      const input = getComponent(entity, InputComponent)
 
       input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
         // If the input is a button
@@ -180,17 +180,17 @@ export class ServerNetworkIncomingSystem extends System {
     }
 
     for (const entity of this.queryResults.networkObjectsWithInput.added) {
-      const input = getComponent(entity, Input)
+      const input = getComponent(entity, InputComponent)
       input.schema.onAdded(entity, delta)
     }
 
     for (const entity of this.queryResults.networkObjectsWithInput.removed) {
-      const input = getComponent(entity, Input, true)
+      const input = getComponent(entity, InputComponent, true)
       input.schema.onRemove(entity, delta)
     }
 
     for (const entity of this.queryResults.delegatedInputRouting.added) {
-      const networkId = getComponent(entity, DelegatedInputReceiver).networkId
+      const networkId = getComponent(entity, DelegatedInputReceiverComponent).networkId
       if (Network.instance.networkObjects[networkId]) {
         cancelAllInputs(Network.instance.networkObjects[networkId].component.entity)
       }
@@ -204,7 +204,7 @@ export class ServerNetworkIncomingSystem extends System {
     for (const entity of this.queryResults.networkClientInputXR.all) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
 
-      const inputs = getComponent(entity, Input)
+      const inputs = getComponent(entity, InputComponent)
 
       if (!inputs.data.has(BaseInput.XR_HEAD)) continue
 
@@ -226,21 +226,21 @@ export class ServerNetworkIncomingSystem extends System {
   /** Queries of the system. */
   static queries: any = {
     delegatedInputRouting: {
-      components: [DelegatedInputReceiver],
+      components: [DelegatedInputReceiverComponent],
       listen: {
         added: true,
         removed: true
       }
     },
     networkObjectsWithInput: {
-      components: [NetworkObject, Input],
+      components: [NetworkObjectComponent, InputComponent],
       listen: {
         added: true,
         removed: true
       }
     },
     networkClientInputXR: {
-      components: [Input, XRInputSourceComponent],
+      components: [InputComponent, XRInputSourceComponent],
       listen: {
         added: true,
         removed: true

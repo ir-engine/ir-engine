@@ -3,7 +3,7 @@ import { getComponent, hasComponent } from '../../../../ecs/functions/EntityFunc
 import { Checker } from '../../../../game/types/Checker'
 import { GamePlayer } from '../../../../game/components/GamePlayer'
 import { GameObject } from '../../../../game/components/GameObject'
-import { NetworkObject } from '../../../../networking/components/NetworkObject'
+import { NetworkObjectComponent } from '../../../../networking/components/NetworkObjectComponent'
 import { getGame, getTargetEntity } from '../../../../game/functions/functions'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
 import { Game } from '../../../components/Game'

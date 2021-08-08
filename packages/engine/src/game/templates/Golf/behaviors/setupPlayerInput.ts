@@ -5,11 +5,11 @@ import { isDev } from '../../../../common/functions/isDev'
 import { NumericalType } from '../../../../common/types/NumericalTypes'
 import { Entity } from '../../../../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
-import { Input } from '../../../../input/components/Input'
+import { InputComponent } from '../../../../input/components/InputComponent'
 import { GamepadButtons } from '../../../../input/enums/InputEnums'
 import { InputValue } from '../../../../input/interfaces/InputValue'
 import { InputAlias } from '../../../../input/types/InputAlias'
-import { NetworkObject } from '../../../../networking/components/NetworkObject'
+import { NetworkObjectComponent } from '../../../../networking/components/NetworkObjectComponent'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GamePlayer } from '../../../components/GamePlayer'
@@ -32,7 +32,7 @@ export enum GolfInput {
 }
 
 export const setupPlayerInput = (entityPlayer: Entity) => {
-  const inputs = getComponent(entityPlayer, Input)
+  const inputs = getComponent(entityPlayer, InputComponent)
 
   // override the default mapping and behavior of input schema and interact
   inputs.schema.inputMap.set('k', GolfInput.TELEPORT)

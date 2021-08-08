@@ -1,7 +1,7 @@
 import { Component } from '../../ecs/classes/Component'
 import { Types } from '../../ecs/types/Types'
 
-class Obj extends Component<Obj> {
+class Obj extends Component <Obj> {
   ref: any = null
 
   dispose() {

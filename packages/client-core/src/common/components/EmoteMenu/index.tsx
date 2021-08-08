@@ -6,7 +6,7 @@ import ScrollableElement from '../ScrollableElement'
 import styles from './EmoteMenu.module.scss'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { LocalInputReceiver } from '@xrengine/engine/src/input/components/LocalInputReceiver'
+import { LocalInputReceiverComponent } from '@xrengine/engine/src/input/components/LocalInputReceiver'
 import { WeightsParameterType, AvatarAnimations, AvatarStates } from '@xrengine/engine/src/avatar/animations/Util'
 import { AnimationGraph } from '@xrengine/engine/src/avatar/animations/AnimationGraph'
 
@@ -111,7 +111,7 @@ class EmoteMenuCore extends React.Component<EmoteMenuPropsType, EmoteMenuStateTy
   }
 
   runAnimation = (animationName: string, params: WeightsParameterType) => {
-    const entity = Engine.entities.find((e) => e.name === 'Player' && hasComponent(e, LocalInputReceiver))
+    const entity = Engine.entities.find((e) => e.name === 'Player' && hasComponent(e, LocalInputReceiverComponent))
 
     AnimationGraph.forceUpdateAnimationState(entity, animationName, params)
 

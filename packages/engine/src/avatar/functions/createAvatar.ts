@@ -2,7 +2,7 @@ import { DEFAULT_AVATAR_ID } from '@xrengine/common/src/constants/AvatarConstant
 import { AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
-import { Input } from '../../input/components/Input'
+import { InputComponent } from '../../input/components/InputComponent'
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarInputSchema } from '../AvatarInputSchema'
@@ -17,7 +17,7 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { Network } from '../../networking/classes/Network'
-import { NetworkObject } from '../../networking/components/NetworkObject'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 
 const avatarRadius = 0.25
 const capsuleHeight = 1.3
@@ -42,11 +42,11 @@ export const createAvatar = (
   })
 
   const actor = addComponent(entity, AvatarComponent, {
-    ...(Network.instance.clients[getComponent(entity, NetworkObject).uniqueId]?.avatarDetail || {
+    ...(Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.avatarDetail || {
       avatarId: DEFAULT_AVATAR_ID
     })
   })
-  addComponent(entity, Input, { schema: AvatarInputSchema })
+  addComponent(entity, InputComponent, { schema: AvatarInputSchema })
   addComponent(entity, VelocityComponent)
 
   // The visuals group is centered for easy actor tilting

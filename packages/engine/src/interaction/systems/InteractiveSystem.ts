@@ -11,16 +11,16 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/EntityFunctions'
-import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
+import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { BoundingBoxComponent } from '../components/BoundingBox'
-import { Interactable } from '../components/Interactable'
-import { InteractiveFocused } from '../components/InteractiveFocused'
-import { Interactor } from '../components/Interactor'
-import { SubFocused } from '../components/SubFocused'
+import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
+import { InteractableComponent } from '../components/InteractableComponent'
+import { InteractiveFocusedComponent } from '../components/InteractiveFocusedComponent'
+import { InteractorComponent } from '../components/InteractorComponent'
+import { SubFocused } from '../components/SubFocusedComponent'
 import { FontManager } from '../../xrui/classes/FontManager'
 import { hideInteractText, showInteractText } from '../functions/interactText'
 import { CameraComponent } from '../../camera/components/CameraComponent'
@@ -79,17 +79,17 @@ export class InteractiveSystem extends System {
     for (const entity of this.queryResults.interactors.all) {
       if (this.queryResults.interactive.all.length) {
         interactBoxRaycast(entity, this.queryResults.boundingBox.all)
-        const interacts = getComponent(entity, Interactor)
+        const interacts = getComponent(entity, InteractorComponent)
         if (interacts.focusedInteractive) {
-          if (!hasComponent(interacts.focusedInteractive, InteractiveFocused)) {
-            addComponent(interacts.focusedInteractive, InteractiveFocused, { interacts: entity })
+          if (!hasComponent(interacts.focusedInteractive, InteractiveFocusedComponent)) {
+            addComponent(interacts.focusedInteractive, InteractiveFocusedComponent, { interacts: entity })
           }
         }
 
         // unmark all unfocused
         for (const entityInter of this.queryResults.interactive.all) {
-          if (entityInter !== interacts.focusedInteractive && hasComponent(entityInter, InteractiveFocused)) {
-            removeComponent(entityInter, InteractiveFocused)
+          if (entityInter !== interacts.focusedInteractive && hasComponent(entityInter, InteractiveFocusedComponent)) {
+            removeComponent(entityInter, InteractiveFocusedComponent)
           }
           if (interacts.subFocusedArray.some((v) => v[0].entity === entityInter)) {
             if (!hasComponent(entityInter, SubFocused)) {
@@ -119,7 +119,7 @@ export class InteractiveSystem extends System {
     }
 
     for (const entity of this.queryResults.interacted.added) {
-      const interactiveComponent = getComponent(entity, Interactable)
+      const interactiveComponent = getComponent(entity, InteractableComponent)
       if (hasComponent(entity, PositionalAudioComponent)) {
         const mediaObject = getComponent(entity, Object3DComponent).value as AudioSource
         mediaObject?.toggle()
@@ -154,9 +154,9 @@ export class InteractiveSystem extends System {
   }
 
   static queries = {
-    interactors: { components: [Interactor] },
+    interactors: { components: [InteractorComponent] },
     interactive: {
-      components: [Interactable],
+      components: [InteractableComponent],
       listen: {
         added: true,
         removed: true
@@ -170,21 +170,21 @@ export class InteractiveSystem extends System {
       }
     },
     focus: {
-      components: [Interactable, InteractiveFocused],
+      components: [InteractableComponent, InteractiveFocusedComponent],
       listen: {
         added: true,
         removed: true
       }
     },
     subfocus: {
-      components: [Interactable, SubFocused],
+      components: [InteractableComponent, SubFocused],
       listen: {
         added: true,
         removed: true
       }
     },
     local_user: {
-      components: [LocalInputReceiver, AvatarComponent],
+      components: [LocalInputReceiverComponent, AvatarComponent],
       listen: {
         added: true,
         removed: true

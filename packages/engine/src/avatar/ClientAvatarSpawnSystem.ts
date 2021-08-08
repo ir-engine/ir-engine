@@ -2,8 +2,8 @@ import { FollowCameraComponent } from '../camera/components/FollowCameraComponen
 import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { System } from '../ecs/classes/System'
 import { addComponent, removeComponent } from '../ecs/functions/EntityFunctions'
-import { LocalInputReceiver } from '../input/components/LocalInputReceiver'
-import { Interactor } from '../interaction/components/Interactor'
+import { LocalInputReceiverComponent } from '../input/components/LocalInputReceiverComponent'
+import { InteractorComponent } from '../interaction/components/InteractorComponent'
 import { Network } from '../networking/classes/Network'
 import { InterpolationComponent } from '../physics/components/InterpolationComponent'
 import { PersistTagComponent } from '../scene/components/PersistTagComponent'
@@ -24,9 +24,9 @@ export class ClientAvatarSpawnSystem extends System {
       addComponent(entity, ShadowComponent)
 
       if (isLocalPlayer) {
-        addComponent(entity, LocalInputReceiver)
+        addComponent(entity, LocalInputReceiverComponent)
         addComponent(entity, FollowCameraComponent)
-        addComponent(entity, Interactor)
+        addComponent(entity, InteractorComponent)
         addComponent(entity, PersistTagComponent)
 
         Network.instance.localAvatarNetworkId = networkId
