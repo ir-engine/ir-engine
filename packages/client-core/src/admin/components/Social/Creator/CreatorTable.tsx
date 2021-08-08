@@ -36,7 +36,8 @@ const CreatorTable = (props: Props) => {
   const classx = useStyles()
   const classes = useStyle()
   const user = authState.get('user')
-  const creator = creatorState.get('creator').get('creator')
+  const creator = creatorState.get('creator')
+  const creatorData = creator.get('creator')
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(12)
 
@@ -49,7 +50,11 @@ const CreatorTable = (props: Props) => {
     setPage(0)
   }
 
-  console.log(creator)
+  React.useEffect(() => {
+    if (creator.get('updateNeeded')) {
+      fetchCreatorAsAdmin()
+    }
+  }, [creator])
 
   React.useEffect(() => {
     if (user.id) {
@@ -90,7 +95,7 @@ const CreatorTable = (props: Props) => {
     }
   }
 
-  const rows = creator.map((el) => {
+  const rows = creatorData.map((el) => {
     return createData(
       el.id,
       el.name || <span className={classes.spanNone}>None</span>,
