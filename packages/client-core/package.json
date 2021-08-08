@@ -61,7 +61,7 @@
     "device-detector-js": "2.2.10",
     "dompurify": "2.3.0",
     "emailjs-com": "3.2.0",
-    "esbuild-plugin-sass": "0.5.2",
+    "esbuild-plugin-sass": "0.6.0",
     "eventemitter3": "4.0.7",
     "formik": "2.2.9",
     "fuse.js": "6.4.6",
