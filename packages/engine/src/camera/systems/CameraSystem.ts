@@ -263,9 +263,6 @@ export class CameraSystem extends System {
 CameraSystem.queries = {
   followCameraComponent: {
     components: [FollowCameraComponent, TransformComponent, AvatarComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   }
 }

@@ -3,7 +3,7 @@ import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 import { AnimationGraph } from '../animations/AnimationGraph'
 import { AnimationState } from '../animations/AnimationState'
 
-type AvatarAnimationComponentType = {
+export type AvatarAnimationComponentType = {
   /** Animaiton graph of this entity */
   animationGraph: AnimationGraph
 

@@ -5,7 +5,7 @@ import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
  * @author HydraFire <github.com/HydraFire>
  */
 
-type VelocityComponentType = {
+ export type VelocityComponentType = {
   velocity: Vector3
 }
 

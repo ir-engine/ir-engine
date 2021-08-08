@@ -1,6 +1,6 @@
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-type TransformParentComponentType = {
+export type TransformParentComponentType = {
   children: any[]
 }
 

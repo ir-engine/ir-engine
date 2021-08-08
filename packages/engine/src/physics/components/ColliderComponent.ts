@@ -5,7 +5,7 @@ import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
  * @author HydraFire <github.com/HydraFire>
  */
 
-type ColliderComponentType = {
+ export type ColliderComponentType = {
   body: Body
 }
 

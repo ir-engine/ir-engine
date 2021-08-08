@@ -1,7 +1,7 @@
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 import { InteractionData } from '../types/InteractionTypes'
 
-type InteractableComponentType = {
+export type InteractableComponentType = {
   data: InteractionData
 }
 

@@ -1,7 +1,7 @@
 import { Vector3, Quaternion } from 'three'
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-type DesiredTransformComponentType = {
+export type DesiredTransformComponentType = {
   position: Vector3
   rotation: Quaternion
   positionRate: number

@@ -13,7 +13,7 @@ import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 
-import { Game } from '../components/Game'
+import { GameComponent } from '../components/Game'
 import { GameObject } from '../components/GameObject'
 import { GamePlayer } from '../components/GamePlayer'
 import { ClientActionToServer } from '../templates/DefaultGameStateAction'
@@ -35,7 +35,7 @@ export const initState = (game: Game, gameSchema: GameMode): void => {
 }
 
 export const saveInitStateCopy = (entity: Entity): void => {
-  const game = getComponent(entity, Game)
+  const game = getComponent(entity, GameComponent)
   game.initState = JSON.stringify(game.state)
 }
 
@@ -121,7 +121,7 @@ export const applyVelocity = (playerComponent, velocity): void => {
 
 export const applyStateToClient = (stateMessage: GameStateUpdateMessage): void => {
   const entity = getGameEntityFromName(stateMessage.game)
-  const game = getComponent(entity, Game)
+  const game = getComponent(entity, GameComponent)
   game.state = stateMessage.state
   console.warn('applyStateToClient', game.state)
   console.warn('Game Objects Entity', game.gameObjects)

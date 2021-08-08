@@ -1,6 +1,6 @@
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-type SoundEffectType = {
+export type SoundEffectType = {
   /** Audio track container. */
   audio: any
   /** Source of the audio track. */

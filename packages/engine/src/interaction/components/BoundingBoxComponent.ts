@@ -5,7 +5,7 @@ import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
  * @author HydraFire <github.com/HydraFire>
  */
 
-type BoundingBoxComponentType = {
+ export type BoundingBoxComponentType = {
   box: Box3
   dynamic: boolean
 }

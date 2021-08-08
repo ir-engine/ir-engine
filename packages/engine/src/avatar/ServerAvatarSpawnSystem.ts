@@ -91,16 +91,10 @@ export class ServerAvatarSpawnSystem extends System {
 ServerAvatarSpawnSystem.queries = {
   spawnPoint: {
     components: [SpawnPointComponent, TransformComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   },
   spawnPlayer: {
     components: [SpawnNetworkObjectComponent, AvatarTagComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   }
 }

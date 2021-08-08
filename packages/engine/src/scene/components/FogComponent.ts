@@ -1,6 +1,6 @@
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-type FogComponentType = {
+export type FogComponentType = {
   type: string
   color: string
   density: number

@@ -5,7 +5,7 @@ import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
  * @author HydraFire <github.com/HydraFire>
  */
 
-type SubFocusedType = {
+ export type SubFocusedType = {
   subInteracts: Entity
 }
 

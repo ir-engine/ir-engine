@@ -1,6 +1,6 @@
 import { Behavior } from '../../common/interfaces/Behavior'
 import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
-import { Game } from '../../game/components/Game'
+import { GameComponent } from '../../game/components/Game'
 import { GameObject } from '../../game/components/GameObject'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -36,7 +36,7 @@ export const createGame = (entity, args: GameDataProps) => {
     gameArea: { min, max }
   }
 
-  addComponent(entity, Game, gameData)
+  addComponent(entity, GameComponent, gameData)
   // register spawn objects prefabs
   const gameSchema = Engine.gameModes.get(args.gameMode)
   gameSchema.onGameLoading(entity)

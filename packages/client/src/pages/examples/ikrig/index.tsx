@@ -50,10 +50,7 @@ class AnimationSystem extends System {
 AnimationSystem.queries = {
   animation: {
     components: [AnimationComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   }
 }
 

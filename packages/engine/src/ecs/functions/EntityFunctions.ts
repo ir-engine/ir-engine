@@ -46,18 +46,18 @@ export const createMappedComponent = <T>(args: { [x: string]: Type } = {}) => {
   return component
 }
 
-type MappedComponent<T> = IComponent & { 
+export type MappedComponent<T> = IComponent & { 
   get: (entity: number) => T,
   set: (entity: number, value: T) => Map<number, T>,
   delete: (entity: number) => void,
 }
 
-export const getComponent = <T extends any>(entity: Entity, component: MappedComponent<T>, getRemoved = false, world = World.defaultWorld.ecsWorld) => {
-  if(getRemoved) return world.removedComponents.get(entity) ?? component.get(entity)
+export const getComponent = <T extends any>(entity: Entity, component: MappedComponent<T>, getRemoved = false, world = World.defaultWorld.ecsWorld): T => {
+  if(getRemoved) return world._removedComponents.get(entity) ?? component.get(entity)
   return component.get(entity)
 }
 
-export const addComponent = <T extends any>(entity: Entity, component: MappedComponent<T>, args: any, world = World.defaultWorld.ecsWorld) => {
+export const addComponent = <T extends any>(entity: Entity, component: MappedComponent<T>, args: T, world = World.defaultWorld.ecsWorld) => {
   _addComponent(world, component, entity)
   component.set(entity, args)
   return component.get(entity)
@@ -69,7 +69,7 @@ export const hasComponent = <T extends any>(entity: Entity, component: MappedCom
 
 export const removeComponent = <T extends any>(entity: Entity, component: MappedComponent<T>, world = World.defaultWorld.ecsWorld) => {
   const componentRef = component.get(entity)
-  world.removedComponents.set(entity, componentRef)
+  world._removedComponents.set(entity, componentRef)
   _removeComponent(world, component, entity)
   return componentRef
 }

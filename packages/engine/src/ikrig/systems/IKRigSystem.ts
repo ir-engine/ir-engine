@@ -85,23 +85,14 @@ export class IKRigSystem extends System {
 IKRigSystem.queries = {
   ikrigs: {
     components: [IKRig],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   },
   ikpose: {
     components: [IKPose],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   },
   debug: {
     components: [DebugComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   }
 }

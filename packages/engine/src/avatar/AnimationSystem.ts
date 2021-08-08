@@ -1,5 +1,4 @@
 import { Vector3 } from 'three'
-import { System } from '../ecs/classes/System'
 import { getComponent } from '../ecs/functions/EntityFunctions'
 import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationGraph } from './animations/AvatarAnimationGraph'
@@ -8,25 +7,29 @@ import { AnimationRenderer } from './animations/AnimationRenderer'
 import { loadAvatar } from './functions/avatarFunctions'
 import { AnimationManager } from './AnimationManager'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
+import { ECSWorld } from '../ecs/classes/World'
+import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
 
-export class AnimationSystem extends System {
-  async initialize(): Promise<void> {
-    super.initialize()
-    await Promise.all([AnimationManager.instance.getDefaultModel(), AnimationManager.instance.getAnimations()])
-  }
 
-  /**
-   * Executes the system. Called each frame by default from the Engine.
-   * @param delta Time since last frame.
-   */
-  execute(delta: number): void {
-    for (const entity of this.queryResults.animation.all) {
+export const AnimationSystem = async (): Promise<System> => {
+
+  const animationQuery = defineQuery([AnimationComponent])
+  const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
+  const avatarAnimationAddQuery = enterQuery(avatarAnimationQuery)
+  
+  await Promise.all([AnimationManager.instance.getDefaultModel(), AnimationManager.instance.getAnimations()])
+
+  return defineSystem((world: ECSWorld) => {
+
+    const { delta } = world
+
+    for (const entity of animationQuery(world)) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const modifiedDelta = delta * animationComponent.animationSpeed
       animationComponent.mixer.update(modifiedDelta)
     }
 
-    for (const entity of this.queryResults.avatarAnimation.added) {
+    for (const entity of avatarAnimationAddQuery(world)) {
       loadAvatar(entity)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       avatarAnimationComponent.animationGraph = new AvatarAnimationGraph()
@@ -37,29 +40,14 @@ export class AnimationSystem extends System {
       }
     }
 
-    for (const entity of this.queryResults.avatarAnimation.all) {
+    for (const entity of avatarAnimationQuery(world)) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       const deltaTime = delta * animationComponent.animationSpeed
       avatarAnimationComponent.animationGraph.render(entity, deltaTime)
       AnimationRenderer.render(entity, delta)
     }
-  }
-}
 
-AnimationSystem.queries = {
-  animation: {
-    components: [AnimationComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  avatarAnimation: {
-    components: [AnimationComponent, AvatarAnimationComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  }
+    return world
+  })
 }

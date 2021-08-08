@@ -5,7 +5,7 @@ import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
  * @author xiani_zp <github.com/xiani>
  */
 
-type NavMeshComponentType = {
+export type NavMeshComponentType = {
   yukaNavMesh: NavMesh
 }
 

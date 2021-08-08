@@ -1,7 +1,7 @@
 import { RaycastQuery } from 'three-physx'
 import { createMappedComponent } from '../../../../ecs/functions/EntityFunctions'
 
-type GolfBallComponentType = {
+export type GolfBallComponentType = {
   groundRaycast: RaycastQuery
   wallRaycast: RaycastQuery
 }

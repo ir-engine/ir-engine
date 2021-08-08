@@ -5,7 +5,7 @@ import { GameObjectInteractionSchema } from '../interfaces/GameObjectPrefab'
  * @author HydraFire <github.com/HydraFire>
  */
 
-type GameObjectType = {
+export type GameObjectType = {
   gameName: string
   role: string
   uuid: string

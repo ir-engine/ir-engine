@@ -12,7 +12,7 @@ import {
   removeEntity
 } from '../../ecs/functions/EntityFunctions'
 
-import { Game } from '../components/Game'
+import { GameComponent } from '../components/Game'
 import { GameObject } from '../components/GameObject'
 import { GamePlayer } from '../components/GamePlayer'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -29,7 +29,7 @@ export const isOwnedLocalPlayer = (entity: Entity): boolean => {
 
 export const getGameEntityFromName = (name: string): Entity => {
   if (name === undefined) return
-  return ActiveGames.instance.gameEntities.find((entity) => getComponent(entity, Game).name === name)
+  return ActiveGames.instance.gameEntities.find((entity) => getComponent(entity, GameComponent).name === name)
 }
 
 export const getGameFromName = (name: string): Game => {

@@ -1,6 +1,6 @@
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-type SpawnNetworkObjectComponentType = {
+export type SpawnNetworkObjectComponentType = {
   ownerId: string
   uniqueId: string
   networkId: number

@@ -140,30 +140,18 @@ export class PhysicsSystem extends System {
 PhysicsSystem.queries = {
   spawnNetworkObject: {
     components: [SpawnNetworkObjectComponent, RigidBodyTagComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   },
   collider: {
     components: [ColliderComponent, TransformComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   },
   raycast: {
     components: [RaycastComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   },
   networkObject: {
     components: [NetworkObjectComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   }
 }

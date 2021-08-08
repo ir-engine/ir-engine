@@ -4,7 +4,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
 import { Network } from '../../networking/classes/Network'
-import { Game } from '../components/Game'
+import { GameComponent } from '../components/Game'
 import { GameObject } from '../components/GameObject'
 import { GamePlayer } from '../components/GamePlayer'
 import { Action } from '../types/GameComponents'
@@ -66,7 +66,7 @@ export const applyActionComponent = (actionMessage: GameStateActionMessage): voi
   //console.warn('applyActionComponent', actionMessage);
   const entityGame = getGameEntityFromName(actionMessage.game)
   if (!entityGame) return
-  const game = getComponent(entityGame, Game)
+  const game = getComponent(entityGame, GameComponent)
   //  console.warn(game);
   const entity = getEntityFromRoleUuid(game, actionMessage.role, actionMessage.uuid)
   if (!entity) return

@@ -6,7 +6,7 @@ import { GameObject } from '../../../../game/components/GameObject'
 import { NetworkObjectComponent } from '../../../../networking/components/NetworkObjectComponent'
 import { getGame, getTargetEntity } from '../../../../game/functions/functions'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
-import { Game } from '../../../components/Game'
+import { GameComponent } from '../../../components/Game'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { CollisionEvents } from 'three-physx'
 

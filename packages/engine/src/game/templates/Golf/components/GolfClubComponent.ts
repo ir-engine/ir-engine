@@ -2,7 +2,7 @@ import { Group, Mesh, Vector3 } from 'three'
 import { RaycastQuery } from 'three-physx'
 import { createMappedComponent } from '../../../../ecs/functions/EntityFunctions'
 
-type GolfClubComponentType = {
+export type GolfClubComponentType = {
   canDoChipShots: boolean
   neckObject: Mesh
   handleObject: Mesh

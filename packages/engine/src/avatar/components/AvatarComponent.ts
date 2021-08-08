@@ -1,7 +1,7 @@
 import { Group, Vector3 } from 'three'
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-type AvatarComponentType = {
+export type AvatarComponentType = {
   /**
    * @property {Group} modelContainer is a group that holds the model such that the animations & IK can move seperate from the transform & collider
    * It's center is at the center of the collider, except with y sitting at the bottom of the collider, flush with the ground

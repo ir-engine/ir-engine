@@ -1,7 +1,7 @@
 import { RaycastQuery } from 'three-physx'
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-type RaycastComponentType = {
+export type RaycastComponentType = {
   raycastQuery: RaycastQuery
 }
 

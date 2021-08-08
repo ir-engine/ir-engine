@@ -1,7 +1,7 @@
 import { Entity } from '../../ecs/classes/Entity'
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-type CameraComponentType = {
+export type CameraComponentType = {
   /** Reference to the object that should be followed. */
   followTarget: Entity
   /** Field of view. */

@@ -26,9 +26,6 @@ export class ParticleSystem extends System {
 ParticleSystem.queries = {
   emitters: {
     components: [ParticleEmitterComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   }
 }

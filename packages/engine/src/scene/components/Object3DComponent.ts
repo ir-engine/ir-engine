@@ -3,7 +3,7 @@ import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
 /** Component Class for Object3D type from three.js.  */
 
-type Object3DComponentType = {
+export type Object3DComponentType = {
   value: Object3D
 }
 

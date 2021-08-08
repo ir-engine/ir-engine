@@ -1,6 +1,6 @@
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-type ShadowComponentType = {
+export type ShadowComponentType = {
   castShadow: boolean
   receiveShadow: boolean
 }

@@ -48,9 +48,6 @@ export class CharacterUISystem extends System {
 CharacterUISystem.queries = {
   networkUser: {
     components: [Not(LocalInputReceiverComponent), AvatarComponent, TransformComponent, NetworkObject],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   }
 }

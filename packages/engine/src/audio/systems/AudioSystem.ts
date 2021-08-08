@@ -150,10 +150,7 @@ AudioSystem.queries = {
   },
   music: {
     components: [BackgroundMusic],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   },
   play: {
     components: [SoundEffect, PlaySoundEffect],

@@ -2,7 +2,7 @@ import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { RaycastQuery } from 'three-physx'
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-type FollowCameraComponentType = {
+export type FollowCameraComponentType = {
   /** * **Default** value is ```'thirdPerson'```. */
   mode: string
   /** * **Default** value is 3. */

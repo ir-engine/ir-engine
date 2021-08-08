@@ -1,7 +1,7 @@
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 import { Sky } from '../../scene/classes/Sky'
 
-type SkyboxComponentType = {
+export type SkyboxComponentType = {
   value: Sky
 }
 

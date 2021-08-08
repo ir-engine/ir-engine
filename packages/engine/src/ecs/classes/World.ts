@@ -5,9 +5,10 @@ import {
 
 import { Entity } from './Entity'
 
-export interface ECSWorld extends IWorld {
-  removedComponents: Map<Entity, any>
+export interface ECSWorld {
+  _removedComponents: Map<Entity, any>
   delta: number
+  time: number
 }
 
 let worldIds = 0
@@ -20,6 +21,6 @@ export class World {
     if(!World.defaultWorld) World.defaultWorld = this
     World.worlds.set(worldIds++, this)
     this.ecsWorld = createWorld() as ECSWorld
-    this.ecsWorld.removedComponents = new Map()
+    this.ecsWorld._removedComponents = new Map()
   }
 }

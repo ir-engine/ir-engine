@@ -144,9 +144,6 @@ PositionalAudioSystem.queries = {
   },
   audio: {
     components: [PositionalAudioComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   }
 }

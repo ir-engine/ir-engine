@@ -380,16 +380,10 @@ export class MediaStreamSystem extends System {
 MediaStreamSystem.queries = {
   livestreamClient: {
     components: [LivestreamComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   },
   livestreamProxy: {
     components: [LivestreamProxyComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   }
 }

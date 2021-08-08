@@ -1,7 +1,7 @@
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 import { ParticleEmitterMesh } from '../functions/ParticleEmitterMesh'
 
-type ParticleEmitterComponentType = {
+export type ParticleEmitterComponentType = {
   particleEmitterMesh: ParticleEmitterMesh
   // particleMesh: Mesh
   // src: string;

@@ -1,6 +1,6 @@
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-type HighlightComponentType = {
+export type HighlightComponentType = {
   color: number
   hiddenColor: number
   edgeStrength: number

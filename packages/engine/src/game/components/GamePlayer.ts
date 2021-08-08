@@ -9,7 +9,7 @@ type OwnedObjects = {
   [role: string]: Entity
 }
 
-type GamePlayerType = {
+export type GamePlayerType = {
   gameName: string
   role: string
   uuid: string

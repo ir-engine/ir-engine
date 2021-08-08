@@ -2,7 +2,7 @@ import { Behavior } from '../../../../common/interfaces/Behavior'
 import { Entity } from '../../../../ecs/classes/Entity'
 import { changeRole } from '../../../../game/functions/functionsState'
 import { getGame } from '../../../functions/functions'
-import { Game } from '../../../components/Game'
+import { GameComponent } from '../../../components/Game'
 import { GameMode } from '../../../types/GameMode'
 import { Engine } from '../../../../ecs/classes/Engine'
 /**

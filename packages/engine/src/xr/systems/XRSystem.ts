@@ -159,9 +159,6 @@ export class XRSystem extends System {
 XRSystem.queries = {
   localXRController: {
     components: [InputComponent, LocalInputReceiverComponent, XRInputSourceComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   }
 }

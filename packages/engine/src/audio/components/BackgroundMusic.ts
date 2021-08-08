@@ -1,7 +1,7 @@
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
 /** Component class for background music. */
-type BackgroundMusicType = {
+export type BackgroundMusicType = {
   /** Audio track container. */
   audio: any
   /** Source of the audio track. */

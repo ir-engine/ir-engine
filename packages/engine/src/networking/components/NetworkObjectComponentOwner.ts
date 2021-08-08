@@ -1,6 +1,6 @@
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-type NetworkObjectOwnerComponentType = {
+export type NetworkObjectOwnerComponentType = {
   networkId: number
 }
 

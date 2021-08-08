@@ -1,7 +1,7 @@
 import { Tween } from '@tweenjs/tween.js'
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-type TweenComponentType = {
+export type TweenComponentType = {
   tween: Tween<any>
 }
 

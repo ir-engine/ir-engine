@@ -6,7 +6,7 @@ import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
  * @author xiani_zp <github.com/xiani>
  */
 
-type AutoPilotComponentType = {
+ export type AutoPilotComponentType = {
   navEntity: Entity
   path: Path
 }

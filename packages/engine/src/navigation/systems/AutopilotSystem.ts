@@ -1,15 +1,7 @@
-import { System } from '../../ecs/classes/System'
-import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
-import { EntityManager, NavMesh, Vector3 as YukaVector3, Path } from 'yuka'
+import { NavMesh, Vector3 as YukaVector3, Path } from 'yuka'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
 import { AutoPilotComponent } from '../component/AutoPilotComponent'
-import {
-  addComponent,
-  getComponent,
-  getComponent,
-  hasComponent,
-  removeComponent
-} from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { NavMeshComponent } from '../component/NavMeshComponent'
 import { Raycaster, Vector3 } from 'three'
@@ -22,6 +14,8 @@ import { NumericalType } from '../../common/types/NumericalTypes'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AutoPilotClickRequestComponent } from '../component/AutoPilotClickRequestComponent'
 import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
+import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
+import { ECSWorld } from '../../ecs/classes/World'
 
 const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3): Path => {
   const points = navMesh.findPath(new YukaVector3(from.x, from.y, from.z), new YukaVector3(to.x, to.y, to.z))
@@ -33,21 +27,35 @@ const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3): Path => {
   return path
 }
 
-export class AutopilotSystem extends System {
-  raycaster = new Raycaster()
+export const AutopilotSystem = async (): Promise<System> => {
+  const raycaster = new Raycaster()
 
-  execute(delta: number, time: number): void {
-    for (const entity of this.queryResults.navClick.added) {
+  const navmeshesQuery = defineQuery([NavMeshComponent, Object3DComponent])
+  const navmeshesAddQuery = enterQuery(navmeshesQuery)
+  
+  const requestsQuery = defineQuery([AutoPilotRequestComponent])
+  const requestsAddQuery = enterQuery(requestsQuery)
+  
+  const ongoingQuery = defineQuery([AutoPilotComponent])
+  
+  const navClickQuery = defineQuery([LocalInputReceiverComponent, AutoPilotClickRequestComponent])
+  const navClickAddQuery = enterQuery(navClickQuery)
+  
+  return defineSystem((world: ECSWorld) => {
+
+    const { delta } = world
+
+    for (const entity of navClickAddQuery(world)) {
       const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
       // console.log('~~~ coords', coords)
-      this.raycaster.setFromCamera(coords, Engine.camera)
+      raycaster.setFromCamera(coords, Engine.camera)
 
       const raycasterResults = []
-      const clickResult = this.queryResults.navmeshes?.all?.reduce(
+      const clickResult = navmeshesQuery(world).reduce(
         (previousEntry, currentEntity) => {
           const mesh = getComponent(currentEntity, Object3DComponent).value
           raycasterResults.length = 0
-          this.raycaster.intersectObject(mesh, true, raycasterResults)
+          raycaster.intersectObject(mesh, true, raycasterResults)
           if (!raycasterResults.length) {
             return previousEntry
           }
@@ -79,35 +87,35 @@ export class AutopilotSystem extends System {
 
     // requests
     // generate path from target.graph and create new AutoPilotComponent (or reuse existing)
-    for (const entity of this.queryResults.requests.added) {
+    for (const entity of requestsAddQuery(world)) {
       const request = getComponent(entity, AutoPilotRequestComponent)
       const navMeshComponent = getComponent(request.navEntity, NavMeshComponent)
       if (!navMeshComponent) {
         console.error('AutopilotSystem unable to process request - navigation entity does not have NavMeshComponent')
       }
+      const { position } = getComponent(entity, TransformComponent)
 
-      let autopilotComponent: AutoPilotComponent
+      let autopilotComponent
       if (hasComponent(entity, AutoPilotComponent)) {
         // reuse component
         autopilotComponent = getComponent(entity, AutoPilotComponent)
       } else {
-        autopilotComponent = addComponent(entity, AutoPilotComponent)
+        const path = findPath(navMeshComponent.yukaNavMesh, position, request.point)
+        autopilotComponent = addComponent(entity, AutoPilotComponent, { path, navEntity: request.navEntity })
       }
-      autopilotComponent.navEntity = request.navEntity
-
-      const { position } = getComponent(entity, TransformComponent)
-      autopilotComponent.path = findPath(navMeshComponent.yukaNavMesh, position, request.point)
 
       // TODO: "mount" player? disable movement, etc.
 
       removeComponent(entity, AutoPilotRequestComponent)
     }
 
+    const allOngoing = ongoingQuery(world)
+
     // ongoing
-    if (this.queryResults.ongoing.all.length) {
+    if (allOngoing.length) {
       // update our entity transform from vehicle
       const stick = GamepadAxis.Left
-      this.queryResults.ongoing.all.forEach((entity) => {
+      for (const entity of allOngoing) {
         const autopilot = getComponent(entity, AutoPilotComponent)
         const { position: avatarPosition } = getComponent(entity, TransformComponent)
         if (autopilot.path.current().distanceTo(avatarPosition as any) < 0.2) {
@@ -121,7 +129,7 @@ export class AutopilotSystem extends System {
 
             // Path is finished - remove component
             removeComponent(entity, AutoPilotComponent)
-            return
+            continue
           }
           autopilot.path.advance()
         }
@@ -158,33 +166,8 @@ export class AutopilotSystem extends System {
             })
           }
         }
-      })
-    }
-  }
-
-  static queries: any = {
-    navmeshes: {
-      components: [NavMeshComponent, Object3DComponent]
-    },
-    requests: {
-      components: [AutoPilotRequestComponent],
-      listen: {
-        added: true
-      }
-    },
-    ongoing: {
-      components: [AutoPilotComponent],
-      listen: {
-        added: true,
-        removed: true
-      }
-    },
-    navClick: {
-      components: [LocalInputReceiverComponent, AutoPilotClickRequestComponent],
-      listen: {
-        added: true,
-        removed: true
       }
     }
-  }
+    return world
+  })
 }

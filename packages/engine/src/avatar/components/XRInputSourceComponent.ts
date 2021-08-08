@@ -1,7 +1,7 @@
 import { Group } from 'three'
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-type XRInputSourceComponentType = {
+export type XRInputSourceComponentType = {
   /**
    * @property {Group} controllerLeft
    * @property {Group} controllerRight

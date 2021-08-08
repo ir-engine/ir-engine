@@ -286,37 +286,22 @@ export class DebugHelpersSystem extends System {
 DebugHelpersSystem.queries = {
   avatarDebug: {
     components: [AvatarComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   },
   boundingBoxComponent: {
     components: [BoundingBoxComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   },
   colliderComponent: {
     components: [ColliderComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   },
   arrowHelper: {
     components: [DebugArrowComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   },
   ikAvatar: {
     components: [XRInputSourceComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   }
 }

@@ -167,9 +167,6 @@ TransformSystem.queries = {
   },
   tweens: {
     components: [TweenComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
+
   }
 }

@@ -4,7 +4,7 @@ import { InputSchema } from '../interfaces/InputSchema'
 import { InputValue } from '../interfaces/InputValue'
 import { InputAlias } from '../types/InputAlias'
 
-type InputComponentType = {
+export type InputComponentType = {
   prevData: Map<InputAlias, InputValue<NumericalType>>
   data: Map<InputAlias, InputValue<NumericalType>>
   schema: InputSchema

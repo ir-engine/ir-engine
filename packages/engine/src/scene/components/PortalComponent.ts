@@ -1,7 +1,7 @@
 import { Quaternion, Vector3, Euler } from 'three'
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-type PortalComponentType = {
+export type PortalComponentType = {
   location: string
   linkedPortalId: string
   displayText: string

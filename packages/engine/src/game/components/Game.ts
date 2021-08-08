@@ -6,7 +6,8 @@ import { StateObject } from '../types/GameMode'
  * @author HydraFire <github.com/HydraFire>
  */
 
-type GameType = {
+export type GameComponentType = {
+  name: string
   gameMode: string // GameMode|GameType, its string key to DefaultGamesSchema to get GameSchema of your game
   isGlobal: boolean // switch Server and Client work or Only in Your Client (All games have this two work modes by architect solution)
   priority: number // when player stand in two game areas in one time, he add to one of them, most prioritized
@@ -31,4 +32,4 @@ type GameType = {
   state: StateObject[] // now will be send to player when he adding to game, in future will be correct players latesy bugs
 }
 
-export const Game = createMappedComponent<GameType>()
+export const GameComponent = createMappedComponent<GameComponentType>()

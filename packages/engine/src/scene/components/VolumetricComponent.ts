@@ -1,6 +1,6 @@
 import { createMappedComponent } from "../../ecs/functions/EntityFunctions"
 
-type VolumetricVideoComponentType = {
+export type VolumetricVideoComponentType = {
   player: any
 }
 

@@ -3,7 +3,7 @@ import { PerspectiveCamera, Vector3 } from 'three'
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator'
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-type AvatarControllerComponentType = {
+export type AvatarControllerComponentType = {
   controller: Controller
   frustumCamera: PerspectiveCamera
   movementEnabled: boolean

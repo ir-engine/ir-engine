@@ -1,11 +1,10 @@
 import { Entity } from '../../ecs/classes/Entity'
-import { System } from '../../ecs/classes/System'
 import { Network } from '../../networking/classes/Network'
 
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { Game } from '../components/Game'
+import { GameComponent, GameComponentType } from '../components/Game'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { GameObject } from '../components/GameObject'
+import { GameObject, GameObjectType } from '../components/GameObject'
 import { GamePlayer } from '../components/GamePlayer'
 
 import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
@@ -23,6 +22,7 @@ import { isClient } from '../../common/functions/isClient'
 import { checkIsGamePredictionStillRight, clearPredictionCheckList } from '../functions/functionsActions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
+import { Component, ComponentType, defineQuery, defineSystem, enterQuery, IComponent, System } from 'bitecs'
 
 // TODO: add game areas back
 function isPlayerInGameArea(entity, gameArea) {
@@ -39,17 +39,33 @@ function isPlayerInGameArea(entity, gameArea) {
 
 export class ActiveGames {
   static instance = new ActiveGames()
-  currentGames: Map<string, Game> = new Map<string, Game>()
+  currentGames: Map<string, ReturnType<typeof GameComponent.get>> = new Map()
   gameEntities: Entity[] = []
 }
 
 /**
  * @author HydraFire <github.com/HydraFire>
  */
-export class GameManagerSystem extends System {
-  execute(delta: number, time: number): void {
-    for (const entity of this.queryResults.game.added) {
-      const game = getComponent(entity, Game)
+export const GameManagerSystem = async (): Promise<System> => {
+
+  const avatarsQuery = defineQuery([AvatarComponent])
+  const avatarsAddQuery = enterQuery(avatarsQuery)
+  
+  const gameQuery = defineQuery([GameComponent])
+  
+  const gameObjectQuery = defineQuery([GameObject])
+  const gameObjectAddQuery = enterQuery(gameObjectQuery)
+
+  const gameObjectCollisionsQuery = defineQuery([GameObject, ColliderComponent])
+  
+  const gamePlayerQuery = defineQuery([GamePlayer])
+
+  return defineSystem((world: ECSWorld) => {
+
+    const { delta } = world
+
+    for (const entity of gameObjectAddQuery(world)) {
+      const game = getComponent(entity, GameComponent)
       const gameSchema = Engine.gameModes.get(game.gameMode) as GameMode
       gameSchema.preparePlayersRole(gameSchema, game.maxPlayers)
       game.priority = gameSchema.priority // DOTO: set its from editor
@@ -62,13 +78,13 @@ export class GameManagerSystem extends System {
       console.log('CREATE GAME')
     }
 
-    for (const entity of this.queryResults.gameObjectCollisions.all) {
+    for (const entity of gameObjectCollisionsQuery(world)) {
       const collider = getComponent(entity, ColliderComponent)
       const gameObject = getComponent(entity, GameObject)
       for (const collisionEvent of collider.body.collisionEvents) {
         const otherEntity = collisionEvent.bodyOther.userData as Entity
         if (typeof otherEntity === 'undefined') continue
-        const otherGameObject = getComponent<GameObject>(otherEntity, GameObject)
+        const otherGameObject = getComponent(otherEntity, GameObject)
         if (!otherGameObject) continue
         Object.keys(gameObject.collisionBehaviors).forEach((role) => {
           if (role === otherGameObject.role) {
@@ -78,8 +94,8 @@ export class GameManagerSystem extends System {
       }
     }
 
-    for (const entityGame of this.queryResults.game.all) {
-      const game = getComponent(entityGame, Game)
+    for (const entityGame of gameQuery(world)) {
+      const game = getComponent(entityGame, GameComponent)
       // this part about check if client get same actions as server send him.
       if (isClient && game.isGlobal && checkIsGamePredictionStillRight()) {
         clearPredictionCheckList()
@@ -92,7 +108,7 @@ export class GameManagerSystem extends System {
         )
       }
 
-      for (const entity of this.queryResults.avatars.added) {
+      for (const entity of avatarsAddQuery(world)) {
         console.log('new player')
         const gamePlayerComp = addComponent(entity, GamePlayer, {
           gameName: game.name,
@@ -106,7 +122,7 @@ export class GameManagerSystem extends System {
     // PLAYERS REMOVE
     for (const entity of this.queryResults.gamePlayer.removed) {
       for (const entityGame of this.queryResults.game.all) {
-        const game = getComponent(entityGame, Game)
+        const game = getComponent(entityGame, GameComponent)
         const gamePlayer = getComponent(entity, GamePlayer, true)
         if (gamePlayer === undefined || gamePlayer.gameName != game.name) continue
         const gameSchema = Engine.gameModes.get(game.gameMode)
@@ -122,7 +138,7 @@ export class GameManagerSystem extends System {
     // OBJECTS REMOVE
     for (const entity of this.queryResults.gameObject.removed) {
       for (const entityGame of this.queryResults.game.all) {
-        const game = getComponent(entityGame, Game)
+        const game = getComponent(entityGame, GameComponent)
         const gameObject = getComponent(entity, GameObject, true)
         if (gameObject === undefined || gameObject.gameName != game.name) continue
         console.log('removeEntityFromState', gameObject.role)
@@ -134,7 +150,7 @@ export class GameManagerSystem extends System {
     // PLAYERS ADDIND
     for (const entity of this.queryResults.gamePlayer.added) {
       for (const entityGame of this.queryResults.game.all) {
-        const game = getComponent(entityGame, Game)
+        const game = getComponent(entityGame, GameComponent)
         const gamePlayer = getComponent(entity, GamePlayer)
         if (gamePlayer.gameName != game.name) continue
 
@@ -154,7 +170,7 @@ export class GameManagerSystem extends System {
     // its needet for allow dynamicly adding objects and exept errors when enitor gives object without created game
     for (const entity of this.queryResults.gameObject.added) {
       for (const entityGame of this.queryResults.game.all) {
-        const game = getComponent(entityGame, Game)
+        const game = getComponent(entityGame, GameComponent)
         if (getComponent(entity, GameObject).gameName != game.name) continue
 
         const gameObjects = game.gameObjects
@@ -166,35 +182,4 @@ export class GameManagerSystem extends System {
 }
 
 GameManagerSystem.queries = {
-  avatars: {
-    components: [AvatarComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  game: {
-    components: [Game],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  gameObject: {
-    components: [GameObject],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  gameObjectCollisions: {
-    components: [GameObject, ColliderComponent]
-  },
-  gamePlayer: {
-    components: [GamePlayer],
-    listen: {
-      added: true,
-      removed: true
-    }
-  }
 }

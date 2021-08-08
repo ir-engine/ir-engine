@@ -1,7 +1,7 @@
 import { WebLayer3DContent } from 'ethereal'
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-type UIRootComponentType = {
+export type UIRootComponentType = {
   layer: WebLayer3DContent
 }
 

@@ -1,7 +1,7 @@
 import { Group } from 'three'
 import { createMappedComponent } from '../../../../ecs/functions/EntityFunctions'
 
-type GolfAvatarComponentType = {
+export type GolfAvatarComponentType = {
   headModel: Group
   leftHandModel: Group
   rightHandModel: Group
