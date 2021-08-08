@@ -2,7 +2,7 @@ import { isClient } from '../../common/functions/isClient'
 import { Component } from '../../ecs/classes/Component'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, createEntity, getComponent } from '../../ecs/functions/EntityFunctions'
 import { GameObject } from '../../game/components/GameObject'
 import { PrefabType } from '../../networking/templates/PrefabType'
 import { Network } from '../classes/Network'
@@ -118,7 +118,7 @@ function initComponents(entity: Entity, components: Array<{ type: any; data?: an
     // // If the component has no initialization data, return
     // if (typeof initData !== 'object' || Object.keys(initData).length === 0) return;
     // // Get a mutable reference to the component
-    // const addedComponent = getMutableComponent(entity, component.type);
+    // const addedComponent = getComponent(entity, component.type);
 
     // return;
     // // Set initialization data for each key
@@ -178,7 +178,7 @@ export function initializeNetworkObject(args: {
     uniqueId
   )
 
-  const networkObject = getMutableComponent(networkEntity, NetworkObject)
+  const networkObject = getComponent(networkEntity, NetworkObject)
 
   return networkObject
 }

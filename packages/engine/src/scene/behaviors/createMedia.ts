@@ -4,7 +4,7 @@ import { addObject3DComponent } from './addObject3DComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Interactable } from '../../interaction/components/Interactable'
 import VolumetricComponent from '../components/VolumetricComponent'
-import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
 import Video from '../classes/Video'
 import AudioSource from '../classes/AudioSource'
 import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
@@ -77,7 +77,7 @@ interface VolumetricProps {
 
 export const createVolumetric = (entity, args: VolumetricProps) => {
   addComponent(entity, VolumetricComponent)
-  const volumetricComponent = getMutableComponent(entity, VolumetricComponent)
+  const volumetricComponent = getComponent(entity, VolumetricComponent)
   const container = new Object3D()
 
   // const worker = new PlayerWorker();

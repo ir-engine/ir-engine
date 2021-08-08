@@ -4,7 +4,7 @@ import { LifecycleValue } from '../../../../common/enums/LifecycleValue'
 import { isDev } from '../../../../common/functions/isDev'
 import { NumericalType } from '../../../../common/types/NumericalTypes'
 import { Entity } from '../../../../ecs/classes/Entity'
-import { getComponent, getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
 import { Input } from '../../../../input/components/Input'
 import { GamepadButtons } from '../../../../input/enums/InputEnums'
 import { InputValue } from '../../../../input/interfaces/InputValue'
@@ -63,7 +63,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
 
       const { ownedObjects } = getComponent(entity, GamePlayer)
       const clubEntity = ownedObjects['GolfClub']
-      const golfClubComponent = getMutableComponent(clubEntity, GolfClubComponent)
+      const golfClubComponent = getComponent(clubEntity, GolfClubComponent)
       golfClubComponent.hidden = !golfClubComponent.hidden
 
       if (isClient) {
@@ -108,7 +108,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
         if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
         const { ownedObjects } = getComponent(entity, GamePlayer)
         const ballEntity = ownedObjects['GolfBall']
-        const collider = getMutableComponent(ballEntity, ColliderComponent)
+        const collider = getComponent(ballEntity, ColliderComponent)
         const velocity = getComponent(ballEntity, VelocityComponent)
         velocity.velocity.set(0, 0, 0)
         collider.body.updateTransform({

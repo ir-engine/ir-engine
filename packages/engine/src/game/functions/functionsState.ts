@@ -5,7 +5,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
-  getMutableComponent,
+  getComponent,
   hasComponent,
   removeComponent
 } from '../../ecs/functions/EntityFunctions'
@@ -35,7 +35,7 @@ export const initState = (game: Game, gameSchema: GameMode): void => {
 }
 
 export const saveInitStateCopy = (entity: Entity): void => {
-  const game = getMutableComponent(entity, Game)
+  const game = getComponent(entity, Game)
   game.initState = JSON.stringify(game.state)
 }
 
@@ -116,12 +116,12 @@ export const sendVelocity = (entity): void => {
 
 export const applyVelocity = (playerComponent, velocity): void => {
   const clubEntity = playerComponent.ownedObjects['GolfClub']
-  getMutableComponent(clubEntity, GolfClubComponent).velocityServer.set(velocity.x, velocity.y, velocity.z)
+  getComponent(clubEntity, GolfClubComponent).velocityServer.set(velocity.x, velocity.y, velocity.z)
 }
 
 export const applyStateToClient = (stateMessage: GameStateUpdateMessage): void => {
   const entity = getGameEntityFromName(stateMessage.game)
-  const game = getMutableComponent(entity, Game)
+  const game = getComponent(entity, Game)
   game.state = stateMessage.state
   console.warn('applyStateToClient', game.state)
   console.warn('Game Objects Entity', game.gameObjects)

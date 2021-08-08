@@ -1,6 +1,6 @@
 import { Not } from '../../ecs/functions/ComponentFunctions'
 import { System } from '../../ecs/classes/System'
-import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
 import { Network } from '../../networking/classes/Network'
 import { Vault } from '../../networking/classes/Vault'
@@ -61,8 +61,8 @@ export class InterpolationSystem extends System {
     for (const entity of this.queryResults.correctionFromServer.all) {
       const snapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
       if (snapshot == null) continue
-      const collider = getMutableComponent(entity, ColliderComponent)
-      const velocity = getMutableComponent(entity, VelocityComponent)
+      const collider = getComponent(entity, ColliderComponent)
+      const velocity = getComponent(entity, VelocityComponent)
       // dynamic objects should be interpolated, kinematic objects should not
       if (velocity && collider.body.type !== BodyType.KINEMATIC) {
         velocity.velocity.subVectors(collider.body.transform.translation, vec3.set(snapshot.x, snapshot.y, snapshot.z))

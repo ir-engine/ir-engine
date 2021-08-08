@@ -4,7 +4,7 @@ import { Component } from '@xrengine/engine/src/ecs/classes/Component'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { System } from '@xrengine/engine/src/ecs/classes/System'
 import { execute } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
-import { addComponent, createEntity, getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addComponent, createEntity, getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import Pose from '@xrengine/engine/src/ikrig/classes/Pose'
@@ -41,7 +41,7 @@ class AnimationSystem extends System {
    */
   execute(delta: number): void {
     for (const entity of this.queryResults.animation.all) {
-      let ac = getMutableComponent(entity, AnimationComponent)
+      let ac = getComponent(entity, AnimationComponent)
       ac.mixer.update(delta)
     }
   }
@@ -122,18 +122,18 @@ const Page = () => {
       addComponent(sourceEntity, IKPose)
       addComponent(sourceEntity, IKRig)
 
-      const rig = getMutableComponent(sourceEntity, IKRig)
-      const sourcePose = getMutableComponent(sourceEntity, IKPose)
+      const rig = getComponent(sourceEntity, IKRig)
+      const sourcePose = getComponent(sourceEntity, IKPose)
 
       rig.sourceRig = rig
-      rig.sourcePose = getMutableComponent(sourceEntity, IKPose)
+      rig.sourcePose = getComponent(sourceEntity, IKPose)
 
       // Set up the Object3D
-      let obj = getMutableComponent(sourceEntity, Obj)
+      let obj = getComponent(sourceEntity, Obj)
       obj.setReference(skinnedMesh)
 
       // Set up animations
-      let ac = getMutableComponent(sourceEntity, AnimationComponent)
+      let ac = getComponent(sourceEntity, AnimationComponent)
       const mixer = new AnimationMixer(obj.ref)
       const clips = model.animations
       ac.mixer = mixer
@@ -150,7 +150,7 @@ const Page = () => {
       // dealing with specific skeletons, like Mixamo stuff.
       // Need to do this to render things correctly
       // TODO: Verify the numbers of this vs the original
-      let objRoot = getMutableComponent(sourceEntity, Obj).ref // Obj is a ThreeJS Component
+      let objRoot = getComponent(sourceEntity, Obj).ref // Obj is a ThreeJS Component
       rig.pose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale)
       rig.tpose.setOffset(objRoot.quaternion, objRoot.position, objRoot.scale)
 
@@ -183,13 +183,13 @@ const Page = () => {
       addComponent(targetEntity, Obj)
       addComponent(targetEntity, IKRig)
 
-      let targetRig = getMutableComponent(targetEntity, IKRig)
+      let targetRig = getComponent(targetEntity, IKRig)
 
       targetRig.sourceRig = targetRig
-      targetRig.sourcePose = getMutableComponent(sourceEntity, IKPose)
+      targetRig.sourcePose = getComponent(sourceEntity, IKPose)
 
       // Set the skinned mesh reference
-      let targetObj = getMutableComponent(targetEntity, Obj)
+      let targetObj = getComponent(targetEntity, Obj)
       targetObj.setReference(targetSkinnedMesh)
 
       targetRig.pose = new Pose(targetEntity, false)

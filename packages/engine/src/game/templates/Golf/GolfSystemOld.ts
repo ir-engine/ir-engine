@@ -6,7 +6,7 @@ import {
   getComponent,
   hasComponent,
   removeComponent,
-  getMutableComponent
+  getComponent
 } from '../../../ecs/functions/EntityFunctions'
 import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
 import { Network } from '../../../networking/classes/Network'
@@ -412,7 +412,7 @@ export class GolfSystem extends System {
       // TODO: Undefined at first run
       if (!clubEntity) return
 
-      const golfClubComponent = getMutableComponent(clubEntity, GolfClubComponent)
+      const golfClubComponent = getComponent(clubEntity, GolfClubComponent)
       golfClubComponent.hidden = false
 
       if (isClient) {

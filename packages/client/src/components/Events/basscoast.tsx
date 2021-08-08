@@ -1,4 +1,4 @@
-import { addComponent, getEntityByName, getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { addComponent, getEntityByName, getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import Video from '@xrengine/engine/src/scene/classes/Video'
@@ -13,7 +13,7 @@ export const basscoast = async () => {
   EngineEvents.instance.addEventListener(EngineEvents.EVENTS.JOINED_WORLD, async () => {
     const djEntity = getEntityByName(DJModelName)
 
-    const animationComponent = getMutableComponent(djEntity, AnimationComponent)
+    const animationComponent = getComponent(djEntity, AnimationComponent)
 
     const action = animationComponent.mixer.clipAction(
       AnimationClip.findByName(animationComponent.animations, DJAnimationName)
@@ -31,7 +31,7 @@ export const basscoast = async () => {
     const entity = getEntityByName('video')
 
     // Get Object 3d component to get the video element
-    const videoComp = getMutableComponent(entity, Object3DComponent)
+    const videoComp = getComponent(entity, Object3DComponent)
     const video = videoComp.value as Video
 
     // Wait untill user made some engagement with the platform
@@ -52,7 +52,7 @@ export const basscoast = async () => {
       const djEntity = getEntityByName(DJModelName)
 
       if (djEntity) {
-        const animationComponent = getMutableComponent(djEntity, AnimationComponent)
+        const animationComponent = getComponent(djEntity, AnimationComponent)
 
         animationComponent.currentState.animations[0].action.play()
         animationComponent.mixer.update(videoElement.currentTime)

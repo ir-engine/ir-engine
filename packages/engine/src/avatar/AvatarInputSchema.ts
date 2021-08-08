@@ -8,7 +8,7 @@ import { SkinnedMesh } from 'three/src/objects/SkinnedMesh'
 import { CameraModes } from '../camera/types/CameraModes'
 import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { GamepadAxis, XRAxes } from '../input/enums/InputEnums'
-import { getMutableComponent } from '../ecs/functions/EntityFunctions'
+import { getComponent } from '../ecs/functions/EntityFunctions'
 import { CameraInput, GamepadButtons, MouseInput, TouchInputs } from '../input/enums/InputEnums'
 import { InputType } from '../input/enums/InputType'
 import { InputBehaviorType, InputSchema } from '../input/interfaces/InputSchema'
@@ -65,7 +65,7 @@ const cycleCameraMode = (
   delta: number
 ): void => {
   if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
-  const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent)
+  const cameraFollow = getComponent<FollowCameraComponent>(entity, FollowCameraComponent)
 
   switch (cameraFollow?.mode) {
     case CameraModes.FirstPerson:
@@ -96,7 +96,7 @@ const fixedCameraBehindAvatar: InputBehaviorType = (
   delta: number
 ): void => {
   if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
-  const follower = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent)
+  const follower = getComponent<FollowCameraComponent>(entity, FollowCameraComponent)
   if (follower && follower.mode !== CameraModes.FirstPerson) {
     follower.locked = !follower.locked
   }
@@ -109,7 +109,7 @@ const switchShoulderSide: InputBehaviorType = (
   delta: number
 ): void => {
   if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
-  const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent)
+  const cameraFollow = getComponent<FollowCameraComponent>(entity, FollowCameraComponent)
   if (cameraFollow) {
     cameraFollow.shoulderSide = !cameraFollow.shoulderSide
   }
@@ -132,7 +132,7 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
     return
   }
 
-  const cameraFollow = getMutableComponent<FollowCameraComponent>(entity, FollowCameraComponent)
+  const cameraFollow = getComponent<FollowCameraComponent>(entity, FollowCameraComponent)
   if (cameraFollow === undefined || cameraFollow.mode === CameraModes.Strategic) return //console.warn("cameraFollow is undefined")
 
   const inputPrevValue = (inputComponent.prevData.get(inputKey)?.value as number) ?? 0
@@ -246,7 +246,7 @@ const moveByInputAxis: InputBehaviorType = (
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
-  const controller = getMutableComponent(entity, AvatarControllerComponent)
+  const controller = getComponent(entity, AvatarControllerComponent)
   const input = getComponent(entity, Input)
 
   const data = input.data.get(inputKey)
@@ -266,7 +266,7 @@ const setWalking: InputBehaviorType = (
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
-  const controller = getMutableComponent(entity, AvatarControllerComponent)
+  const controller = getComponent(entity, AvatarControllerComponent)
   controller.isWalking = inputValue.lifecycleState !== LifecycleValue.ENDED
   controller.moveSpeed = controller.isWalking ? controller.walkSpeed : controller.runSpeed
 }
@@ -277,7 +277,7 @@ const setLocalMovementDirection: InputBehaviorType = (
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
-  const controller = getMutableComponent(entity, AvatarControllerComponent)
+  const controller = getComponent(entity, AvatarControllerComponent)
   const hasEnded = inputValue.lifecycleState === LifecycleValue.ENDED
   switch (inputKey) {
     case BaseInput.JUMP:
@@ -305,7 +305,7 @@ const moveFromXRInputs: InputBehaviorType = (
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
-  const controller = getMutableComponent(entity, AvatarControllerComponent)
+  const controller = getComponent(entity, AvatarControllerComponent)
   const input = getComponent(entity, Input)
   const values = input.data.get(BaseInput.XR_AXIS_MOVE)?.value
   if (!values) return
@@ -361,7 +361,7 @@ const lookByInputAxis: InputBehaviorType = (
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
-  const input = getMutableComponent(entity, Input)
+  const input = getComponent(entity, Input)
   const data = input.data.get(BaseInput.GAMEPAD_STICK_RIGHT)
   const multiplier = 0.1
   // adding very small noise to trigger same value to be "changed"

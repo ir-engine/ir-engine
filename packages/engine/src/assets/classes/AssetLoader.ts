@@ -7,7 +7,7 @@ import {
   addComponent,
   createEntity,
   getComponent,
-  getMutableComponent,
+  getComponent,
   hasComponent
 } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -158,8 +158,8 @@ export class AssetLoader {
     } else if (this.params.entity) {
       if (hasComponent(this.params.entity, Object3DComponent)) {
         if (getComponent<Object3DComponent>(this.params.entity, Object3DComponent).value !== undefined)
-          getMutableComponent<Object3DComponent>(this.params.entity, Object3DComponent).value.add(asset)
-        else getMutableComponent<Object3DComponent>(this.params.entity, Object3DComponent).value = asset
+          getComponent<Object3DComponent>(this.params.entity, Object3DComponent).value.add(asset)
+        else getComponent<Object3DComponent>(this.params.entity, Object3DComponent).value = asset
       } else {
         addComponent(this.params.entity, Object3DComponent, { value: asset })
       }

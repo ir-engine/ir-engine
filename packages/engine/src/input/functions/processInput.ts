@@ -2,7 +2,7 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { Input } from '../components/Input'
 import { InputType } from '../enums/InputType'
@@ -10,7 +10,7 @@ import { InputValue } from '../interfaces/InputValue'
 import { InputAlias } from '../types/InputAlias'
 
 export const processInput = (entity, delta) => {
-  const input = getMutableComponent(entity, Input)
+  const input = getComponent(entity, Input)
 
   // key is the input type enu, value is the input value
   Engine.inputState.forEach((value: InputValue<NumericalType>, key: InputAlias) => {

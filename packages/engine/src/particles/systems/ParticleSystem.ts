@@ -1,5 +1,5 @@
 import { ParticleEmitterComponent } from '../components/ParticleEmitter'
-import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { applyTransform } from '../functions/particleHelpers'
 import { System } from '../../ecs/classes/System'
 
@@ -8,12 +8,12 @@ export class ParticleSystem extends System {
   /** Executes the system. */
   execute(deltaTime, time): void {
     for (const entity of this.queryResults.emitters.added) {
-      const emitter = getMutableComponent(entity, ParticleEmitterComponent)
+      const emitter = getComponent(entity, ParticleEmitterComponent)
       this.clearEventQueues()
     }
 
     for (const entity of this.queryResults.emitters.all) {
-      const emitter = getMutableComponent(entity, ParticleEmitterComponent)
+      const emitter = getComponent(entity, ParticleEmitterComponent)
       applyTransform(entity, emitter)
       emitter.particleEmitterMesh?.update(deltaTime)
     }

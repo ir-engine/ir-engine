@@ -1,6 +1,6 @@
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { System } from '../../ecs/classes/System'
-import { addComponent, getComponent, getMutableComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { BodyType, PhysXInstance } from 'three-physx'
@@ -101,8 +101,8 @@ export class PhysicsSystem extends System {
     }
 
     for (const entity of this.queryResults.collider.all) {
-      const collider = getMutableComponent(entity, ColliderComponent)
-      const velocity = getMutableComponent(entity, VelocityComponent)
+      const collider = getComponent(entity, ColliderComponent)
+      const velocity = getComponent(entity, VelocityComponent)
       const transform = getComponent(entity, TransformComponent)
 
       if (collider.body.type === BodyType.KINEMATIC) {

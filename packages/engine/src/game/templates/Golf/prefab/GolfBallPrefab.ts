@@ -8,7 +8,7 @@ import { Entity } from '../../../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
-  getMutableComponent,
+  getComponent,
   hasComponent
 } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
@@ -231,7 +231,7 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
 
   addComponent(ballEntity, ColliderComponent, { body })
 
-  const golfBallComponent = getMutableComponent(ballEntity, GolfBallComponent)
+  const golfBallComponent = getComponent(ballEntity, GolfBallComponent)
 
   // for track ground
   golfBallComponent.groundRaycast = PhysXInstance.instance.addRaycastQuery(

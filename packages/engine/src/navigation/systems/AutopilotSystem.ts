@@ -6,7 +6,7 @@ import { AutoPilotComponent } from '../component/AutoPilotComponent'
 import {
   addComponent,
   getComponent,
-  getMutableComponent,
+  getComponent,
   hasComponent,
   removeComponent
 } from '../../ecs/functions/EntityFunctions'
@@ -89,7 +89,7 @@ export class AutopilotSystem extends System {
       let autopilotComponent: AutoPilotComponent
       if (hasComponent(entity, AutoPilotComponent)) {
         // reuse component
-        autopilotComponent = getMutableComponent(entity, AutoPilotComponent)
+        autopilotComponent = getComponent(entity, AutoPilotComponent)
       } else {
         autopilotComponent = addComponent(entity, AutoPilotComponent)
       }

@@ -4,7 +4,7 @@ import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
 import { applyTransformToMesh, createCollidersFromModel } from '../../physics/behaviors/parseModelColliders'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ScenePropertyType, WorldScene } from '../functions/SceneLoading'
@@ -64,9 +64,9 @@ export const loadGLTFModel = (
           if (res.animations) {
             // We only have to update the mixer time for this animations on each frame
             addComponent(entity, AnimationComponent)
-            const animationComponent = getMutableComponent(entity, AnimationComponent)
+            const animationComponent = getComponent(entity, AnimationComponent)
             animationComponent.animations = res.animations
-            const object3d = getMutableComponent(entity, Object3DComponent)
+            const object3d = getComponent(entity, Object3DComponent)
 
             animationComponent.mixer = new AnimationMixer(object3d.value)
           }

@@ -6,7 +6,7 @@ import { ActiveGames, GameManagerSystem } from '../../game/systems/GameManagerSy
 import {
   addComponent,
   getComponent,
-  getMutableComponent,
+  getComponent,
   hasComponent,
   removeComponent,
   removeEntity
@@ -52,9 +52,9 @@ export const getRole = (entity: Entity) => {
 }
 export const setRole = (entity: Entity, newGameRole: string) => {
   return hasComponent(entity, GameObject)
-    ? (getMutableComponent(entity, GameObject).role = newGameRole)
+    ? (getComponent(entity, GameObject).role = newGameRole)
     : hasComponent(entity, GamePlayer)
-    ? (getMutableComponent(entity, GamePlayer).role = newGameRole)
+    ? (getComponent(entity, GamePlayer).role = newGameRole)
     : undefined
 }
 

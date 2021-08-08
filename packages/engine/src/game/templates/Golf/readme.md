@@ -259,7 +259,7 @@ This method used to get values just like getComponent()
 
 
 setStorage
-This method is used to set values just like getMutableComponent() but need to ...
+This method is used to set values just like getComponent() but need to ...
  
   setStorage(entity, { name: 'GameScore' }, { score: { hits: 0, goal: 0 }});
  

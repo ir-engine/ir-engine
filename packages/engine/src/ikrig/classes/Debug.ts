@@ -1,5 +1,5 @@
 import Lines from '../components/Lines'
-import { addComponent, createEntity, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, createEntity, getComponent } from '../../ecs/functions/EntityFunctions'
 import PointsComponent from '../components/Points'
 import Obj from '../components/Obj'
 import { Component } from '../../ecs/classes/Component'
@@ -15,11 +15,11 @@ class DebugComponent extends Component<DebugComponent> {
     addComponent(entity, PointsComponent)
     addComponent(entity, DebugComponent)
 
-    this.points = getMutableComponent(entity, PointsComponent)
+    this.points = getComponent(entity, PointsComponent)
     this.points.init()
 
     addComponent(entity, Lines)
-    this.lines = getMutableComponent(entity, Lines)
+    this.lines = getComponent(entity, Lines)
     this.lines.init()
     return this
   }

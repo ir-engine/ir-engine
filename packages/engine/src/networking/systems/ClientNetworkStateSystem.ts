@@ -2,7 +2,7 @@ import { NetworkObject } from '../components/NetworkObject'
 import {
   addComponent,
   getComponent,
-  getMutableComponent,
+  getComponent,
   hasComponent,
   removeEntity
 } from '../../ecs/functions/EntityFunctions'
@@ -73,8 +73,8 @@ function syncNetworkObjectsTest(createObjects) {
           const tempMistake = Network.instance.networkObjects[objectToCreate.networkId]
           Network.instance.networkObjects[key] = tempMistake
           Network.instance.networkObjects[objectToCreate.networkId] = tempCorrect
-          getMutableComponent(Network.instance.networkObjects[key].component.entity, NetworkObject).networkId = key
-          getMutableComponent(
+          getComponent(Network.instance.networkObjects[key].component.entity, NetworkObject).networkId = key
+          getComponent(
             Network.instance.networkObjects[objectToCreate.networkId].component.entity,
             NetworkObject
           ).networkId = objectToCreate.networkId
@@ -97,7 +97,7 @@ function syncPhysicsObjects(objectToCreate) {
           Network.instance.networkObjects[key] = undefined
           const newId = Network.getNetworkId()
           Network.instance.networkObjects[newId] = tempCorrect
-          getMutableComponent(Network.instance.networkObjects[newId].component.entity, NetworkObject).networkId = newId
+          getComponent(Network.instance.networkObjects[newId].component.entity, NetworkObject).networkId = newId
         }
       })
   }
@@ -297,7 +297,7 @@ export class ClientNetworkStateSystem extends System {
               quat.setFromUnitVectors(forwardVector, applyVectorMatrixXZ(vector3_1, forwardVector).setY(0))
               // we don't want to override our own avatar
               if (networkObject.component.entity !== Network.instance.localClientEntity) {
-                const avatar = getMutableComponent(networkObject.component.entity, AvatarComponent)
+                const avatar = getComponent(networkObject.component.entity, AvatarComponent)
                 avatar.viewVector.copy(vector3_0)
               }
               // put the transform rotation on the transform to deal with later

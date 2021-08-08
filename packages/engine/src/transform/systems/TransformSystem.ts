@@ -1,6 +1,6 @@
 import { Euler, Quaternion } from 'three'
 import { System } from '../../ecs/classes/System'
-import { getComponent, getMutableComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { CopyTransformComponent } from '../components/CopyTransformComponent'
 import { DesiredTransformComponent } from '../components/DesiredTransformComponent'
@@ -20,7 +20,7 @@ const quat = new Quaternion()
 export class TransformSystem extends System {
   execute(delta: number, time: number) {
     for (const entity of this.queryResults.parent.all) {
-      const parentTransform = getMutableComponent(entity, TransformComponent)
+      const parentTransform = getComponent(entity, TransformComponent)
       const parentingComponent = getComponent(entity, TransformParentComponent)
       for (const child of parentingComponent.children) {
         if (!hasComponent(child, Object3DComponent)) {
@@ -28,7 +28,7 @@ export class TransformSystem extends System {
         }
         const {
           value: { position: childPosition, quaternion: childQuaternion }
-        } = getMutableComponent(child, Object3DComponent)
+        } = getComponent(child, Object3DComponent)
         const childTransformComponent = getComponent(child, TransformComponent)
         // reset to "local"
         if (childTransformComponent) {
@@ -47,7 +47,7 @@ export class TransformSystem extends System {
     for (const entity of this.queryResults.child.all) {
       const childComponent = getComponent(entity, TransformChildComponent)
       const parent = childComponent.parent
-      const parentTransform = getMutableComponent(parent, TransformComponent)
+      const parentTransform = getComponent(parent, TransformComponent)
       const childTransformComponent = getComponent(entity, TransformComponent)
       if (childTransformComponent && parentTransform) {
         childTransformComponent.position.setScalar(0).add(parentTransform.position).add(childComponent.offsetPosition)
@@ -59,8 +59,8 @@ export class TransformSystem extends System {
     }
 
     for (const entity of this.queryResults.copyTransform.all) {
-      const inputEntity = getMutableComponent(entity, CopyTransformComponent)?.input
-      const outputTransform = getMutableComponent(entity, TransformComponent)
+      const inputEntity = getComponent(entity, CopyTransformComponent)?.input
+      const outputTransform = getComponent(entity, TransformComponent)
       const inputTransform = getComponent(inputEntity, TransformComponent)
 
       if (!inputTransform || !outputTransform) {
@@ -86,7 +86,7 @@ export class TransformSystem extends System {
       }
 
       if (!positionIsSame) {
-        const mutableTransform = getMutableComponent(entity, TransformComponent)
+        const mutableTransform = getComponent(entity, TransformComponent)
         if (transform.position.distanceTo(desiredTransform.position) <= MAX_IGNORED_DISTANCE) {
           // position is too near, no need to move closer - just copy it
           mutableTransform.position.copy(desiredTransform.position)
@@ -100,7 +100,7 @@ export class TransformSystem extends System {
       }
 
       if (!rotationIsSame) {
-        const mutableTransform = getMutableComponent(entity, TransformComponent)
+        const mutableTransform = getComponent(entity, TransformComponent)
         if (transform.rotation.angleTo(desiredTransform.rotation) <= MAX_IGNORED_ANGLE) {
           // value is close enough, just copy it
           mutableTransform.rotation.copy(desiredTransform.rotation)
@@ -133,8 +133,8 @@ export class TransformSystem extends System {
     }
 
     for (const entity of this.queryResults.obj3d.all) {
-      const transform = getMutableComponent(entity, TransformComponent)
-      const object3DComponent = getMutableComponent(entity, Object3DComponent)
+      const transform = getComponent(entity, TransformComponent)
+      const object3DComponent = getComponent(entity, Object3DComponent)
 
       if (!object3DComponent.value) {
         console.warn('object3D component on entity', entity.id, ' is undefined')

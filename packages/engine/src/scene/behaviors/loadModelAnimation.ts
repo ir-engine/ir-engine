@@ -5,7 +5,7 @@ import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { isClient } from '../../common/functions/isClient'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 
@@ -13,14 +13,14 @@ export const loadModelAnimation = (entity: Entity, component: SceneDataComponent
   if (isClient) {
     EngineEvents.instance.once(EngineEvents.EVENTS.SCENE_LOADED, async () => {
       // We only have to update the mixer time for this animations on each frame
-      const object3d = getMutableComponent(entity, Object3DComponent)
+      const object3d = getComponent(entity, Object3DComponent)
       if (!object3d) {
         console.warn(
           'Tried to load animation without an Object3D Component attached! Are you sure the model has loaded?'
         )
       }
       addComponent(entity, AnimationComponent)
-      const animationComponent = getMutableComponent(entity, AnimationComponent)
+      const animationComponent = getComponent(entity, AnimationComponent)
       if (component.data.hasAvatarAnimations) {
         animationComponent.animations = AnimationManager.instance._animations
       } else {

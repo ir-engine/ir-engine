@@ -7,7 +7,7 @@ import {
   addComponent,
   createEntity,
   getComponent,
-  getMutableComponent,
+  getComponent,
   hasComponent,
   removeComponent
 } from '../../ecs/functions/EntityFunctions'
@@ -137,7 +137,7 @@ export class InteractiveSystem extends System {
       const interactTextObject = getComponent(this.interactTextEntity, Object3DComponent).value
       if (!interactTextObject.visible) continue
       interactTextObject.children[0].position.y = Math.sin(time * 1.8) * 0.05
-      const activeCameraComponent = getMutableComponent(Engine.activeCameraEntity, CameraComponent)
+      const activeCameraComponent = getComponent(Engine.activeCameraEntity, CameraComponent)
       if (
         activeCameraComponent.followTarget &&
         hasComponent(activeCameraComponent.followTarget, FollowCameraComponent)

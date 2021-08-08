@@ -3,7 +3,7 @@ import { ControllerHitEvent, PhysXInstance } from 'three-physx'
 import { isClient } from '../common/functions/isClient'
 import { System } from '../ecs/classes/System'
 import { Not } from '../ecs/functions/ComponentFunctions'
-import { getMutableComponent, getComponent, getRemovedComponent, hasComponent } from '../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent } from '../ecs/functions/EntityFunctions'
 import { LocalInputReceiver } from '../input/components/LocalInputReceiver'
 import { avatarMoveBehavior } from './behaviors/avatarMoveBehavior'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
@@ -28,26 +28,26 @@ const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Mat
 export class AvatarControllerSystem extends System {
   execute(delta: number): void {
     for (const entity of this.queryResults.controller.removed) {
-      const controller = getRemovedComponent(entity, AvatarControllerComponent)
+      const controller = getComponent(entity, AvatarControllerComponent, true)
 
       PhysXInstance.instance.removeController(controller.controller)
 
-      const avatar = getMutableComponent(entity, AvatarComponent)
+      const avatar = getComponent(entity, AvatarComponent)
       if (avatar) {
         avatar.isGrounded = false
       }
     }
 
     for (const entity of this.queryResults.controller.all) {
-      const controller = getMutableComponent(entity, AvatarControllerComponent)
-      const raycastComponent = getMutableComponent(entity, RaycastComponent)
+      const controller = getComponent(entity, AvatarControllerComponent)
+      const raycastComponent = getComponent(entity, RaycastComponent)
 
       // iterate on all collisions since the last update
       controller.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => {})
 
       detectUserInPortal(entity)
 
-      const avatar = getMutableComponent(entity, AvatarComponent)
+      const avatar = getComponent(entity, AvatarComponent)
       const transform = getComponent(entity, TransformComponent)
 
       // reset if vals are invalid
@@ -89,9 +89,9 @@ export class AvatarControllerSystem extends System {
     }
 
     for (const entity of this.queryResults.raycast.all) {
-      const raycastComponent = getMutableComponent(entity, RaycastComponent)
+      const raycastComponent = getComponent(entity, RaycastComponent)
       const transform = getComponent(entity, TransformComponent)
-      const avatar = getMutableComponent(entity, AvatarComponent)
+      const avatar = getComponent(entity, AvatarComponent)
       raycastComponent.raycastQuery.origin.copy(transform.position).y += avatar.avatarHalfHeight
       if (!hasComponent(entity, AvatarControllerComponent)) {
         avatar.isGrounded = Boolean(raycastComponent.raycastQuery.hits.length > 0)
@@ -99,7 +99,7 @@ export class AvatarControllerSystem extends System {
     }
 
     for (const entity of this.queryResults.xrInput.added) {
-      const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent)
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
       const object3DComponent = getComponent(entity, Object3DComponent)
 
       xrInputSourceComponent.controllerGroup.add(
@@ -114,7 +114,7 @@ export class AvatarControllerSystem extends System {
     }
 
     for (const entity of this.queryResults.localXRInput.added) {
-      const avatar = getMutableComponent(entity, AvatarComponent)
+      const avatar = getComponent(entity, AvatarComponent)
 
       // TODO: Temporarily make rig invisible until rig is fixed
       avatar.modelContainer?.traverse((child) => {
@@ -125,7 +125,7 @@ export class AvatarControllerSystem extends System {
     }
 
     for (const entity of this.queryResults.localXRInput.removed) {
-      const avatar = getMutableComponent(entity, AvatarComponent)
+      const avatar = getComponent(entity, AvatarComponent)
       // TODO: Temporarily make rig invisible until rig is fixed
       avatar?.modelContainer?.traverse((child) => {
         if (child.visible) {
@@ -135,11 +135,11 @@ export class AvatarControllerSystem extends System {
     }
 
     for (const entity of this.queryResults.localXRInput.all) {
-      const avatar = getMutableComponent(entity, AvatarComponent)
+      const avatar = getComponent(entity, AvatarComponent)
       const transform = getComponent(entity, TransformComponent)
       avatar.viewVector.set(0, 0, 1).applyQuaternion(transform.rotation)
 
-      const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent)
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
 
       quat.copy(transform.rotation).invert()
       quat2.copy(Engine.camera.quaternion).premultiply(quat)

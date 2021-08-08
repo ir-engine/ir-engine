@@ -10,7 +10,7 @@ import { endXR, startXR } from '../functions/WebXRFunctions'
 import { XRFrame, XRReferenceSpace, XRReferenceSpaceType, XRWebGLLayer } from '../../input/types/WebXR'
 import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { addControllerModels } from '../functions/addControllerModels'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Input } from '../../input/components/Input'
@@ -111,7 +111,7 @@ export class XRSystem extends System {
 
     for (const entity of this.queryResults.localXRController.all) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      const input = getMutableComponent(entity, Input)
+      const input = getComponent(entity, Input)
       input.data.set(BaseInput.XR_HEAD, {
         type: InputType.SIXDOF,
         value: {

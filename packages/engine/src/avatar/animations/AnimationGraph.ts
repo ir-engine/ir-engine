@@ -1,6 +1,6 @@
 import { Vector2 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { Commands } from '../../networking/enums/Commands'
 import { convertObjToBufferSupportedString } from '../../networking/functions/jsonSerialize'
@@ -210,7 +210,7 @@ export class AnimationGraph {
    * @param {WeightsParameterType} params Parameters to be passed onver network
    */
   static forceUpdateAnimationState = (entity: Entity, newStateName: string, params: WeightsParameterType) => {
-    const avatarAnimationComponent = getMutableComponent(entity, AvatarAnimationComponent)
+    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
     const animationState = avatarAnimationComponent.animationGraph.states[newStateName]
 

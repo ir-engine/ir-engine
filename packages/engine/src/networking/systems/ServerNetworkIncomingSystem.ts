@@ -1,7 +1,7 @@
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType, SIXDOFType } from '../../common/types/NumericalTypes'
 import { System } from '../../ecs/classes/System'
-import { addComponent, getComponent, getMutableComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { DelegatedInputReceiver } from '../../input/components/DelegatedInputReceiver'
 import { Input } from '../../input/components/Input'
 import { InputType } from '../../input/enums/InputType'
@@ -24,7 +24,7 @@ import { ClientActionToServer } from '../../game/templates/DefaultGameStateActio
 import { updatePlayerRotationFromViewVector } from '../../avatar/functions/updatePlayerRotationFromViewVector'
 
 export function cancelAllInputs(entity) {
-  getMutableComponent(entity, Input)?.data.forEach((value) => {
+  getComponent(entity, Input)?.data.forEach((value) => {
     value.lifecycleState = LifecycleValue.ENDED
   })
 }
@@ -94,7 +94,7 @@ export class ServerNetworkIncomingSystem extends System {
         executeCommands(entity, clientInput.commands)
       }
 
-      const avatar = getMutableComponent(entity, AvatarComponent)
+      const avatar = getComponent(entity, AvatarComponent)
 
       if (avatar) {
         updatePlayerRotationFromViewVector(entity, clientInput.viewVector as Vector3)
@@ -102,7 +102,7 @@ export class ServerNetworkIncomingSystem extends System {
         console.log('input but no avatar...', clientInput.networkId)
       }
 
-      const userNetworkObject = getMutableComponent(entity, NetworkObject)
+      const userNetworkObject = getComponent(entity, NetworkObject)
       if (userNetworkObject != null) {
         userNetworkObject.snapShotTime = clientInput.snapShotTime
         if (userNetworkObject.snapShotTime > clientInput.snapShotTime) continue
@@ -111,7 +111,7 @@ export class ServerNetworkIncomingSystem extends System {
       // this snapShotTime which will be sent bac k to the client, so that he knows exactly what inputs led to the change and when it was.
 
       // Get input component
-      const input = getMutableComponent(entityInputReceiver, Input)
+      const input = getComponent(entityInputReceiver, Input)
       if (!input) {
         continue
       }
@@ -165,8 +165,8 @@ export class ServerNetworkIncomingSystem extends System {
 
     // Apply input for local user input onto client
     for (const entity of this.queryResults.networkObjectsWithInput.all) {
-      //  const avatar = getMutableComponent(entity, AvatarComponent);
-      const input = getMutableComponent(entity, Input)
+      //  const avatar = getComponent(entity, AvatarComponent);
+      const input = getComponent(entity, Input)
 
       input.data.forEach((value: InputValue<NumericalType>, key: InputAlias) => {
         // If the input is a button
@@ -202,9 +202,9 @@ export class ServerNetworkIncomingSystem extends System {
 
     // Handle server input from client
     for (const entity of this.queryResults.networkClientInputXR.all) {
-      const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent)
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
 
-      const inputs = getMutableComponent(entity, Input)
+      const inputs = getComponent(entity, Input)
 
       if (!inputs.data.has(BaseInput.XR_HEAD)) continue
 

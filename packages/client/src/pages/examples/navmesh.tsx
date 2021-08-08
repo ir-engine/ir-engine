@@ -8,7 +8,7 @@ import {
   addComponent,
   createEntity,
   getComponent,
-  getMutableComponent
+  getComponent
 } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { registerSystem } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
@@ -101,7 +101,7 @@ const loadNavMesh = async (navigationMesh, navigationComponent) => {
 }
 
 async function startDemo(entity) {
-  const navigationComponent = getMutableComponent(entity, NavigationComponent)
+  const navigationComponent = getComponent(entity, NavigationComponent)
   await loadNavMeshFromUrl(meshUrl, navigationComponent)
 
   vehicleMesh.frustumCulled = false

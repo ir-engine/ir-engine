@@ -1,5 +1,5 @@
 import { System } from '@xrengine/engine/src/ecs/classes/System'
-import { getMutableComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import IKRig from '@xrengine/engine/src/ikrig/components/IKRig'
 import { SystemUpdateType } from '../../ecs/functions/SystemUpdateType'
 import DebugComponent from '../classes/Debug'
@@ -26,13 +26,13 @@ export class IKRigSystem extends System {
   execute(deltaTime) {
     // DEBUG
     for (const entity of this.queryResults.debug.all) {
-      const d = getMutableComponent(entity, DebugComponent)
+      const d = getComponent(entity, DebugComponent)
       d.reset() // For this example, Lets reset visual debug for every compute.
     }
     // RUN
     for (const entity of this.queryResults.ikpose.all) {
-      const ikPose = getMutableComponent(entity, IKPose)
-      const rig = getMutableComponent(entity, IKRig)
+      const ikPose = getComponent(entity, IKPose)
+      const rig = getComponent(entity, IKRig)
 
       // // COMPUTE
       computeHip(rig, ikPose)

@@ -3,7 +3,7 @@ import { System } from '@xrengine/engine/src/ecs/classes/System'
 import {
   addComponent,
   getComponent,
-  getMutableComponent,
+  getComponent,
   hasComponent,
   removeEntity
 } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
@@ -30,8 +30,8 @@ export class CharacterUISystem extends System {
     for (const userEntity of this.queryResults.networkUser.all!) {
       const ui = CharacterUI.get(userEntity)!
       const { avatarHeight } = getComponent(userEntity, AvatarComponent)
-      const userTransform = getMutableComponent(userEntity, TransformComponent)
-      const transform = getMutableComponent(ui.entity, TransformComponent)
+      const userTransform = getComponent(userEntity, TransformComponent)
+      const transform = getComponent(ui.entity, TransformComponent)
       transform.scale.setScalar(Math.max(1, Engine.camera.position.distanceTo(userTransform.position) / 3))
       transform.position.copy(userTransform.position)
       transform.position.y += avatarHeight + 0.3

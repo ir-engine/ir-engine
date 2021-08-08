@@ -2,7 +2,7 @@ import { System } from '../../ecs/classes/System'
 import { SoundEffect } from '../components/SoundEffect'
 import { BackgroundMusic } from '../components/BackgroundMusic'
 import { PlaySoundEffect } from '../components/PlaySoundEffect'
-import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 
 /** System class which provides methods for Audio system. */
 export class AudioSystem extends System {
@@ -44,7 +44,7 @@ export class AudioSystem extends System {
    */
   execute(delta, time): void {
     for (const entity of this.queryResults.sound_effects.added) {
-      const effect = getMutableComponent(entity, SoundEffect)
+      const effect = getComponent(entity, SoundEffect)
       if (effect.src && !this.audio) {
         effect.audio = new Audio()
         effect.audio.addEventListener('loadeddata', () => {

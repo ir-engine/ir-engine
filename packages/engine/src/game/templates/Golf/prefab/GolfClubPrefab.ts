@@ -33,7 +33,7 @@ import {
   hasComponent,
   addComponent,
   getComponent,
-  getMutableComponent,
+  getComponent,
   removeComponent
 } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
@@ -107,14 +107,14 @@ export const setClubOpacity = (golfClubComponent: GolfClubComponent, opacity: nu
 }
 
 export const enableClub = (entityClub: Entity, enable: boolean): void => {
-  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
+  const golfClubComponent = getComponent(entityClub, GolfClubComponent)
   if (golfClubComponent === undefined) return
   golfClubComponent.canHitBall = enable
   setClubOpacity(golfClubComponent, enable ? 1 : golfClubComponent.disabledOpacity)
 }
 
 export const hideClub = (entityClub: Entity, hide: boolean, yourTurn: boolean): void => {
-  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
+  const golfClubComponent = getComponent(entityClub, GolfClubComponent)
   const maxOpacity = yourTurn ? 1 : golfClubComponent.disabledOpacity
   setClubOpacity(golfClubComponent, hide ? 0 : maxOpacity)
 }
@@ -136,11 +136,11 @@ export const updateClub: Behavior = (
 
   if (!ownerEntity) return
 
-  const golfClubComponent = getMutableComponent(entityClub, GolfClubComponent)
+  const golfClubComponent = getComponent(entityClub, GolfClubComponent)
   if (!golfClubComponent.raycast) return
 
-  const transformClub = getMutableComponent(entityClub, TransformComponent)
-  const collider = getMutableComponent(entityClub, ColliderComponent)
+  const transformClub = getComponent(entityClub, TransformComponent)
+  const collider = getComponent(entityClub, ColliderComponent)
 
   const handTransform = getHandTransform(ownerEntity)
   const { position, rotation } = handTransform

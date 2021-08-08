@@ -5,7 +5,7 @@ import { Entity } from '../../../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
-  getMutableComponent,
+  getComponent,
   hasComponent,
   removeComponent
 } from '../../../../ecs/functions/EntityFunctions'
@@ -26,8 +26,8 @@ export const teleportObject: Behavior = (
   time?: number,
   checks?: any
 ): void => {
-  const velocity = getMutableComponent(entity, VelocityComponent)
-  const collider = getMutableComponent(entity, ColliderComponent)
+  const velocity = getComponent(entity, VelocityComponent)
+  const collider = getComponent(entity, ColliderComponent)
 
   velocity.velocity.set(0, 0, 0)
 
@@ -66,7 +66,7 @@ export const removeVelocity: Behavior = (
   checks?: any
 ): void => {
   console.log(' --- removeVelocity')
-  const collider = getMutableComponent(entity, ColliderComponent)
+  const collider = getComponent(entity, ColliderComponent)
   if (!collider) return
   //collider.velocity.set(0,0,0);
   collider.body.setLinearDamping(10)
@@ -90,7 +90,7 @@ export const updateColliderPosition: Behavior = (
 ): void => {
   console.log('CORRECT BALL FROM SERVER')
 
-  const collider = getMutableComponent(entity, ColliderComponent)
+  const collider = getComponent(entity, ColliderComponent)
   const currentSnapshot = findInterpolationSnapshot(entity, Network.instance.snapshot)
   if (currentSnapshot === undefined || collider === undefined) return
 

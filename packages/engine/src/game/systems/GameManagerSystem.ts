@@ -8,7 +8,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { GameObject } from '../components/GameObject'
 import { GamePlayer } from '../components/GamePlayer'
 
-import { addComponent, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
 import {
   initState,
   removeEntityFromState,
@@ -49,7 +49,7 @@ export class ActiveGames {
 export class GameManagerSystem extends System {
   execute(delta: number, time: number): void {
     for (const entity of this.queryResults.game.added) {
-      const game = getMutableComponent(entity, Game)
+      const game = getComponent(entity, Game)
       const gameSchema = Engine.gameModes.get(game.gameMode) as GameMode
       gameSchema.preparePlayersRole(gameSchema, game.maxPlayers)
       game.priority = gameSchema.priority // DOTO: set its from editor

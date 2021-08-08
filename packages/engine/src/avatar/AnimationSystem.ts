@@ -1,6 +1,6 @@
 import { Vector3 } from 'three'
 import { System } from '../ecs/classes/System'
-import { getMutableComponent } from '../ecs/functions/EntityFunctions'
+import { getComponent } from '../ecs/functions/EntityFunctions'
 import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationGraph } from './animations/AvatarAnimationGraph'
 import { AvatarStates } from './animations/Util'
@@ -21,14 +21,14 @@ export class AnimationSystem extends System {
    */
   execute(delta: number): void {
     for (const entity of this.queryResults.animation.all) {
-      const animationComponent = getMutableComponent(entity, AnimationComponent)
+      const animationComponent = getComponent(entity, AnimationComponent)
       const modifiedDelta = delta * animationComponent.animationSpeed
       animationComponent.mixer.update(modifiedDelta)
     }
 
     for (const entity of this.queryResults.avatarAnimation.added) {
       loadAvatar(entity)
-      const avatarAnimationComponent = getMutableComponent(entity, AvatarAnimationComponent)
+      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       avatarAnimationComponent.animationGraph = new AvatarAnimationGraph()
       avatarAnimationComponent.currentState = avatarAnimationComponent.animationGraph.states[AvatarStates.IDLE]
       avatarAnimationComponent.prevVelocity = new Vector3()
@@ -38,8 +38,8 @@ export class AnimationSystem extends System {
     }
 
     for (const entity of this.queryResults.avatarAnimation.all) {
-      const animationComponent = getMutableComponent(entity, AnimationComponent)
-      const avatarAnimationComponent = getMutableComponent(entity, AvatarAnimationComponent)
+      const animationComponent = getComponent(entity, AnimationComponent)
+      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       const deltaTime = delta * animationComponent.animationSpeed
       avatarAnimationComponent.animationGraph.render(entity, deltaTime)
       AnimationRenderer.render(entity, delta)

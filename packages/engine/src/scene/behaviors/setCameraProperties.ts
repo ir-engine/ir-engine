@@ -3,7 +3,7 @@ import { FollowCameraComponent } from '../../camera/components/FollowCameraCompo
 import { ProjectionTypes } from '../../camera/types/ProjectionTypes'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 
 type SetCameraProps = {
   projectionType?: string
@@ -16,7 +16,7 @@ type SetCameraProps = {
 }
 
 export const setCameraProperties = (entity: Entity, args: SetCameraProps): void => {
-  const cameraFollow = getMutableComponent(entity, FollowCameraComponent)
+  const cameraFollow = getComponent(entity, FollowCameraComponent)
   if (args.projectionType !== ProjectionTypes.Perspective) {
     Engine.camera = new OrthographicCamera(
       args.fov / -2,

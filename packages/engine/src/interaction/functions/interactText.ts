@@ -4,7 +4,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
   getComponent,
-  getMutableComponent,
+  getComponent,
   hasComponent,
   removeComponent
 } from '../../ecs/functions/EntityFunctions'
@@ -14,8 +14,8 @@ import { TweenComponent } from '../../transform/components/TweenComponent'
 import { BoundingBoxComponent } from '../components/BoundingBox'
 
 export const showInteractText = (interactTextEntity: Entity, focusEntity: Entity) => {
-  const transform = getMutableComponent(interactTextEntity, TransformComponent)
-  const { value } = getMutableComponent(interactTextEntity, Object3DComponent)
+  const transform = getComponent(interactTextEntity, TransformComponent)
+  const { value } = getComponent(interactTextEntity, Object3DComponent)
   let yTarget = 0
 
   const bb = getComponent(focusEntity, BoundingBoxComponent)
@@ -60,8 +60,8 @@ export const showInteractText = (interactTextEntity: Entity, focusEntity: Entity
 }
 
 export const hideInteractText = (interactTextEntity: Entity) => {
-  const transform = getMutableComponent(interactTextEntity, TransformComponent)
-  const { value } = getMutableComponent(interactTextEntity, Object3DComponent)
+  const transform = getComponent(interactTextEntity, TransformComponent)
+  const { value } = getComponent(interactTextEntity, Object3DComponent)
 
   if (hasComponent(interactTextEntity, TweenComponent)) {
     getComponent(interactTextEntity, TweenComponent).tween.stop() // doesn't trigger onComplete
