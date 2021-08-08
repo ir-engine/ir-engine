@@ -107,7 +107,7 @@
     "cli": "1.0.1",
     "concurrently": "6.2.0",
     "esbuild": "0.12.18",
-    "esbuild-plugin-sass": "0.5.2",
+    "esbuild-plugin-sass": "0.6.0",
     "jest": "27.0.6",
     "jest-puppeteer": "5.0.4",
     "kill-port": "1.6.1",
