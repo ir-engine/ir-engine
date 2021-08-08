@@ -105,7 +105,7 @@
     "@typescript-eslint/parser": "4.29.0",
     "bcrypt": "5.0.1",
     "cli": "1.0.1",
-    "concurrently": "6.2.0",
+    "concurrently": "6.2.1",
     "esbuild": "0.12.19",
     "esbuild-plugin-sass": "0.6.0",
     "jest": "27.0.6",
