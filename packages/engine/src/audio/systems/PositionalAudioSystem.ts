@@ -34,7 +34,6 @@ export class PositionalAudioSystem extends System {
 
   /** Execute the positional audio system for different events of queries. */
   execute(): void {
-
     for (const entity of this.queryResults.audio.removed) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent, true)
       if (positionalAudio?.value?.source) positionalAudio.value.disconnect()
