@@ -14,7 +14,7 @@ export class VisibilitySystem extends System {
     for (const entity of this.queryResults.visible.added) {
       const obj = getComponent(entity, Object3DComponent)
       const visibleComponent = getComponent(entity, VisibleComponent)
-      obj.value.visible = visibleComponent.value;
+      obj.value.visible = visibleComponent.value
     }
   }
 }

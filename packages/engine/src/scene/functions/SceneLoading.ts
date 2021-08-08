@@ -1,10 +1,4 @@
-import {
-  AmbientLight,
-  DirectionalLight,
-  HemisphereLight,
-  Object3D,
-  PointLight, SpotLight
-} from 'three'
+import { AmbientLight, DirectionalLight, HemisphereLight, Object3D, PointLight, SpotLight } from 'three'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
@@ -123,7 +117,7 @@ export class WorldScene {
   loadComponent = (entity: Entity, component: SceneDataComponent, sceneProperty: ScenePropertyType): void => {
     // remove '-1', '-2' etc suffixes
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
-    console.log("LOADING COMPONENT", component);
+    console.log('LOADING COMPONENT', component)
     switch (name) {
       case 'game':
         createGame(entity, component.data)
@@ -327,10 +321,10 @@ export class WorldScene {
         break
 
       case 'visible':
-        if (isClient){
-           addComponent(entity, VisibleComponent, { value: component.data.visible });
-          }
-           break
+        if (isClient) {
+          addComponent(entity, VisibleComponent, { value: component.data.visible })
+        }
+        break
 
       /* deprecated */
       case 'mesh-collider':
