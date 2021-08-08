@@ -3,52 +3,50 @@ import {
   DirectionalLight,
   HemisphereLight,
   Object3D,
-  PointLight,
-  Quaternion,
-  SpotLight,
-  Vector3
+  PointLight, SpotLight
 } from 'three'
+import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, createEntity } from '../../ecs/functions/EntityFunctions'
-import { SceneData } from '../interfaces/SceneData'
-import { SceneDataComponent } from '../interfaces/SceneDataComponent'
-import { addObject3DComponent } from '../behaviors/addObject3DComponent'
-import { createGame } from '../behaviors/createGame'
+import { GameObject } from '../../game/components/GameObject'
+import { Interactable } from '../../interaction/components/Interactable'
+import { Network } from '../../networking/classes/Network'
 import { createParticleEmitterObject } from '../../particles/functions/particleHelpers'
-import { createSkybox } from '../behaviors/createSkybox'
-import { BoxColliderProps } from '../interfaces/BoxColliderProps'
+import { createCollider } from '../../physics/behaviors/createCollider'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { CopyTransformComponent } from '../../transform/components/CopyTransformComponent'
+import { addObject3DComponent } from '../behaviors/addObject3DComponent'
+import { createDirectionalLight } from '../behaviors/createDirectionalLight'
+import { createGame } from '../behaviors/createGame'
+import { createGround } from '../behaviors/createGround'
 import { createGroup } from '../behaviors/createGroup'
-import { createAudio, createMediaServer, createVideo, createVolumetric } from '../behaviors/createMedia'
 import { createMap } from '../behaviors/createMap'
+import { createAudio, createMediaServer, createVideo, createVolumetric } from '../behaviors/createMedia'
+import { createPortal } from '../behaviors/createPortal'
+import { createSkybox } from '../behaviors/createSkybox'
 import { createTransformComponent } from '../behaviors/createTransformComponent'
 import { createTriggerVolume } from '../behaviors/createTriggerVolume'
 import { handleAudioSettings } from '../behaviors/handleAudioSettings'
-import { setFog } from '../behaviors/setFog'
-import ScenePreviewCameraTagComponent from '../components/ScenePreviewCamera'
-import { SpawnPointComponent } from '../components/SpawnPointComponent'
-import WalkableTagComponent from '../components/Walkable'
-import Image from '../classes/Image'
-import { CopyTransformComponent } from '../../transform/components/CopyTransformComponent'
-import { setEnvMap } from '../behaviors/setEnvMap'
-import { PersistTagComponent } from '../components/PersistTagComponent'
-import { createPortal } from '../behaviors/createPortal'
-import { createGround } from '../behaviors/createGround'
 import { configureCSM, handleRendererSettings } from '../behaviors/handleRendererSettings'
-import { createDirectionalLight } from '../behaviors/createDirectionalLight'
 import { loadGLTFModel } from '../behaviors/loadGLTFModel'
 import { loadModelAnimation } from '../behaviors/loadModelAnimation'
-import { Clouds } from '../classes/Clouds'
-import { Interactable } from '../../interaction/components/Interactable'
-import { ShadowComponent } from '../components/ShadowComponent'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { createCollider } from '../../physics/behaviors/createCollider'
-import { Network } from '../../networking/classes/Network'
 import { setCameraProperties } from '../behaviors/setCameraProperties'
-import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
-import { GameObject } from '../../game/components/GameObject'
+import { setEnvMap } from '../behaviors/setEnvMap'
+import { setFog } from '../behaviors/setFog'
+import { Clouds } from '../classes/Clouds'
+import Image from '../classes/Image'
+import { PersistTagComponent } from '../components/PersistTagComponent'
+import ScenePreviewCameraTagComponent from '../components/ScenePreviewCamera'
+import { ShadowComponent } from '../components/ShadowComponent'
+import { SpawnPointComponent } from '../components/SpawnPointComponent'
+import { VisibleComponent } from '../components/VisibleComponent'
+import WalkableTagComponent from '../components/Walkable'
+import { BoxColliderProps } from '../interfaces/BoxColliderProps'
+import { SceneData } from '../interfaces/SceneData'
+import { SceneDataComponent } from '../interfaces/SceneDataComponent'
 
 export enum SCENE_ASSET_TYPES {
   ENVMAP
@@ -125,7 +123,7 @@ export class WorldScene {
   loadComponent = (entity: Entity, component: SceneDataComponent, sceneProperty: ScenePropertyType): void => {
     // remove '-1', '-2' etc suffixes
     const name = component.name.replace(/(-\d+)|(\s)/g, '')
-
+    console.log("LOADING COMPONENT", component);
     switch (name) {
       case 'game':
         createGame(entity, component.data)
@@ -326,8 +324,13 @@ export class WorldScene {
       /* intentionally empty - these are only for the editor */
       case 'reflectionprobestatic':
       case 'reflectionprobe':
-      case 'visible':
         break
+
+      case 'visible':
+        if (isClient){
+           addComponent(entity, VisibleComponent, { value: component.data.visible });
+          }
+           break
 
       /* deprecated */
       case 'mesh-collider':
