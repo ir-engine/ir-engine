@@ -30,7 +30,7 @@
     "react": "^17.0.0"
   },
   "dependencies": {
-    "@feathersjs/client": "5.0.0-pre.4",
+    "@feathersjs/client": "5.0.0-pre.6",
     "@google/model-viewer": "1.7.2",
     "@material-ui/core": "4.12.3",
     "@material-ui/icons": "4.11.2",
@@ -61,7 +61,7 @@
     "device-detector-js": "2.2.10",
     "dompurify": "2.3.0",
     "emailjs-com": "3.2.0",
-    "esbuild-plugin-sass": "0.5.2",
+    "esbuild-plugin-sass": "0.6.0",
     "eventemitter3": "4.0.7",
     "formik": "2.2.9",
     "fuse.js": "6.4.6",
