@@ -1,4 +1,4 @@
-import { Vector3, Quaternion, Matrix4, Mesh } from 'three'
+import { Vector3, Quaternion, Matrix4, Mesh, Object3D } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -82,6 +82,8 @@ export const makeCollidersInvisible = (asset: any) => {
   asset.scene ? asset.scene.traverse(parseColliders) : asset.traverse(parseColliders)
 }
 
+const EPSILON = 1e-6
+
 export const createCollidersFromModel = (entity: Entity, asset: any) => {
   const colliders = []
   const transform = getComponent(entity, TransformComponent)
@@ -93,8 +95,14 @@ export const createCollidersFromModel = (entity: Entity, asset: any) => {
   })
 
   // remove physics assets so their models aren't added to the world
-  colliders.forEach((mesh) => {
+  colliders.forEach((mesh: Object3D) => {
     mesh.updateMatrixWorld(true)
+
+    if (mesh.scale) {
+      if (mesh.scale.x === 0) mesh.scale.x = EPSILON
+      if (mesh.scale.y === 0) mesh.scale.y = EPSILON
+      if (mesh.scale.z === 0) mesh.scale.z = EPSILON
+    }
     const [position, quaternion, scale] = getTransform(
       mesh.getWorldPosition(new Vector3()),
       mesh.getWorldQuaternion(new Quaternion()),
@@ -103,6 +111,7 @@ export const createCollidersFromModel = (entity: Entity, asset: any) => {
       transform.rotation,
       transform.scale
     )
+    // console.log('IS NAN', mesh.scale)
     createCollider(mesh, position, quaternion, scale)
     mesh.removeFromParent()
   })
