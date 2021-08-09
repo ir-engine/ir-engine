@@ -126,7 +126,7 @@ function buildGeometries(layerName: ILayerName, features: Feature[], llCenter: P
   const geometries = features.map((feature) => buildGeometry(layerName, feature, llCenter))
 
   // the current method of merging produces strange results with flat geometries
-  if (styles.extrude !== 'flat') {
+  if (styles.extrude !== 'flat' && geometries.length > 1) {
     return [mergeBufferGeometries(geometries.filter((g) => g).map((g) => toIndexed(g)))]
   } else {
     return geometries
@@ -366,8 +366,8 @@ export function setGroundScaleAndPosition(groundMesh: Mesh, buildingMesh: Mesh) 
   groundMesh.position.y = 0
 }
 
-export function safelySetGroundScaleAndPosition(ground: Object3D, building: Object3D) {
-  if (ground.type === 'Mesh' && building.type === 'Mesh') {
+export function safelySetGroundScaleAndPosition(ground: Object3D | undefined, building: Object3D | undefined) {
+  if (ground?.type === 'Mesh' && building?.type === 'Mesh') {
     setGroundScaleAndPosition(ground as Mesh, building as Mesh)
   } else {
     console.warn('safelySetGroundScaleAndPosition: both ground and building mush be Meshes!')

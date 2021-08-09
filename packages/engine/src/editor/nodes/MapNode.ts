@@ -10,7 +10,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
   static _geometry = new BoxBufferGeometry()
   static _material = new Material()
 
-  mapLayers: { [name: string]: Object3D }
+  mapLayers: { [name: string]: Object3D | undefined }
 
   static async deserialize(editor, json) {
     const node = await super.deserialize(editor, json)
@@ -63,10 +63,12 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     }
 
     Object.values(this.mapLayers).forEach((layer) => {
-      this.applyScale(layer)
-      safelySetGroundScaleAndPosition(this.mapLayers.ground, this.mapLayers.building)
-      this.add(layer)
+      if (layer) {
+        this.applyScale(layer)
+        this.add(layer)
+      }
     })
+    safelySetGroundScaleAndPosition(this.mapLayers.ground, this.mapLayers.building)
   }
   async refreshGroundLayer() {
     const center = this.getStartLongLat()
@@ -80,7 +82,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
 
   debounceAndRefreshAllLayers = debounce(() => {
     Object.values(this.mapLayers).forEach((layer) => {
-      layer.removeFromParent()
+      layer?.removeFromParent()
     })
     this.addMap(this.editor)
   }, 3000)
