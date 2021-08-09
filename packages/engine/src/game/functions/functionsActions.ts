@@ -1,8 +1,6 @@
 import { isClient } from '../../common/functions/isClient'
-import { Component } from '../../ecs/classes/Component'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
-import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
+import { addComponent, ComponentConstructor, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { GameComponent } from '../components/Game'
 import { GameObject } from '../components/GameObject'
@@ -26,7 +24,7 @@ let gamePredictionCheckList = []
 
 export const addActionComponent = (
   entity: Entity,
-  component: ComponentConstructor<Component<any>>,
+  component: ComponentConstructor<any, any>,
   componentArgs: any = {}
 ): void => {
   if (hasComponent(entity, component) || !(hasComponent(entity, GameObject) || hasComponent(entity, GamePlayer))) return
@@ -48,7 +46,7 @@ export const addActionComponent = (
 
 export const sendActionComponent = (
   entity: Entity,
-  component: ComponentConstructor<Component<any>>,
+  component: ComponentConstructor<any, any>,
   componentArgs: any = {}
 ): void => {
   const actionMessage: GameStateActionMessage = {
@@ -89,7 +87,7 @@ export const applyActionComponent = (actionMessage: GameStateActionMessage): voi
 
 const addToCheckList = (
   entity: Entity,
-  component: ComponentConstructor<Component<any>>,
+  component: ComponentConstructor<any, any>,
   componentArgs: any = {}
 ): void => {
   const actionOnWhyRole = getRole(entity)

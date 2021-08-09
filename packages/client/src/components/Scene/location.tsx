@@ -56,6 +56,7 @@ import WarningRefreshModal from '../AlertModals/WarningRetryModal'
 import RecordingApp from './../Recorder/RecordingApp'
 import configs from '@xrengine/client-core/src/world/components/editor/configs'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
+import { SystemUpdateType } from '../../../../engine/src/ecs/functions/SystemUpdateType'
 
 const store = Store.store
 
@@ -159,7 +160,7 @@ export const EnginePage = (props: Props) => {
   const [instanceKicked, setInstanceKicked] = useState(false)
   const [instanceKickedMessage, setInstanceKickedMessage] = useState('')
   const [porting, setPorting] = useState(false)
-  const [newSpawnPos, setNewSpawnPos] = useState<PortalComponent>(null)
+  const [newSpawnPos, setNewSpawnPos] = useState(null)
 
   const appLoaded = appState.get('loaded')
   const selfUser = authState.get('user')
@@ -426,6 +427,7 @@ export const EnginePage = (props: Props) => {
         },
         systems: [
           {
+            type: SystemUpdateType.Fixed,
             system: CharacterUISystem,
             after: UISystem
           }
@@ -485,7 +487,7 @@ export const EnginePage = (props: Props) => {
     setProgressEntity(left || 0)
   }
 
-  const portToLocation = async ({ portalComponent }: { portalComponent: PortalComponent }) => {
+  const portToLocation = async ({ portalComponent }: { portalComponent: ReturnType<typeof PortalComponent.get> }) => {
     if (slugifiedName === portalComponent.location) {
       teleportPlayer(
         Network.instance.localClientEntity,

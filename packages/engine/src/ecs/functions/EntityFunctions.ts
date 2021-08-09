@@ -25,6 +25,10 @@ export const createMappedComponent = <T extends {}, S extends ISchema = {}>(sche
     value: defaultValues
   })
   
+  Object.defineProperty(component, '_map', {
+    value: componentMap
+  })
+  
   Object.defineProperty(component, 'get', {
     value: function (eid: number) {
       // return componentMap[eid]
@@ -114,6 +118,10 @@ export const removeComponent = <T extends any, S extends ISchema>(entity: Entity
   world._removedComponents.set(entity, componentRef)
   _removeComponent(world, component, entity)
   return componentRef
+}
+
+export const getAllComponentsOfType = <T extends any, S extends ISchema>(component: MappedComponent<T, S>, world = World.defaultWorld.ecsWorld): T[] => {
+  return (component as any)._map.values()
 }
 
 export const removeAllComponents = (entity: Entity, world = World.defaultWorld.ecsWorld) => {

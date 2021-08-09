@@ -23,9 +23,13 @@ const pipelines: {
   [SystemUpdateType.Network]: [],
 }
 
-
 export const registerSystem = <A>(type: SystemUpdateType, system: CreateSystemFunctionType<A>, args?: A) => {
   pipelines[type].push({ type, system, args })
+}
+
+export const unregisterSystem = <A>(type: SystemUpdateType, system: CreateSystemFunctionType<A>, args?: A) => {
+  const idx = pipelines[type].findIndex((i) => { return i.system === system })
+  pipelines[type].splice(idx, 1)
 }
 
 export const injectSystem = <A>(init: SystemInitializeType<A>) => {

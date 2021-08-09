@@ -170,7 +170,7 @@ This function does addComponent(), but with adding to game.state data about whic
 
 Yeah, game state is just a simple ECS Component without any data in it.
 Constructor:
-   addStateComponent(entity: Entity, component:  ComponentConstructor<Component<any>>): void
+   addStateComponent(entity: Entity, component:  ComponentConstructor<any, any>): void
 Examples:
  
 // Next Turn for Players
@@ -188,7 +188,7 @@ This function does removeComponent(), but with removing in game.state data about
 
 Yeah, game state is just a simple ECS Component without any data in it.
 Constructor:
-   removeStateComponent(entity: Entity, component:  ComponentConstructor<Component<any>>): void
+   removeStateComponent(entity: Entity, component:  ComponentConstructor<any, any>): void
 Examples:
  
 // Next Turn for Players

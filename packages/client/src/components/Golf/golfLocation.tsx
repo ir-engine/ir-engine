@@ -419,6 +419,7 @@ export const EnginePage = (props: Props) => {
         },
         systems: [
           {
+            type: SystemUpdateType.Fixed,
             system: GolfSystem,
             after: GameManagerSystem
           }

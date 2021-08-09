@@ -1,4 +1,4 @@
-import { getAllMutableComponentOfType } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { getAllComponentsOfType } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { findProjectionScreen, setRemoteLocationDetail } from '@xrengine/engine/src/scene/behaviors/createPortal'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { DoubleSide, EquirectangularRefractionMapping, MeshLambertMaterial, TextureLoader } from 'three'
@@ -13,10 +13,11 @@ export const getPortalDetails = async (configs) => {
     }
   }
 
-  const portals = getAllMutableComponentOfType(PortalComponent)
+  // @TODO make a global ref to all portals instead of getting all components
+  const portals = getAllComponentsOfType(PortalComponent)
 
   await Promise.all(
-    portals.map(async (portal: PortalComponent): Promise<void> => {
+    portals.map(async (portal: ReturnType<typeof PortalComponent.get>): Promise<void> => {
       return fetch(`${SERVER_URL}/portal/${portal.linkedPortalId}`, options)
         .then((res) => {
           try {
