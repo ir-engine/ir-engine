@@ -27,6 +27,15 @@ export type CreatorAction =
   | CreatorRetrievedAction
   | FetchingCreatorItemAction
   | CreatorOneAction
+export interface CreatorRetrievedAction {
+  type: string
+  creator: Creator
+}
+
+export interface FetchingCreatorItemAction {
+  type: string
+  id: string
+}
 
 export function creatorLoggedRetrieved(creator: Creator): CreatorRetrievedAction {
   return {
