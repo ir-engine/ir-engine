@@ -30,7 +30,6 @@ export class AnimationManager {
             if (child.type === 'SkinnedMesh' && !this._defaultSkeleton) {
               this._defaultSkeleton = child
             }
-
           })
 
           this._animations = gltf.animations
