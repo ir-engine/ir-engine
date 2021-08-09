@@ -1,11 +1,9 @@
+import { PhysXConfig } from 'three-physx'
 import { AvatarInputSchema } from './avatar/AvatarInputSchema'
-import { DefaultGameMode } from './game/templates/DefaultGameMode'
-import { DefaultNetworkSchema } from './networking/templates/DefaultNetworkSchema'
+import { System, SystemConstructor } from './ecs/classes/System'
 import { InputSchema } from './input/interfaces/InputSchema'
 import { NetworkSchema } from './networking/interfaces/NetworkSchema'
-import { GameMode } from './game/types/GameMode'
-import { PhysXConfig } from 'three-physx'
-import { System, SystemConstructor } from './ecs/classes/System'
+import { DefaultNetworkSchema } from './networking/templates/DefaultNetworkSchema'
 
 export enum EngineSystemPresets {
   CLIENT,

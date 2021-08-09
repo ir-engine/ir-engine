@@ -44,7 +44,6 @@ target: any
 
   addComponent(entity, ColliderComponent, { body })
 
-
   // TODO: this is wrong
   // how do we capture the trigger target?
   const t = args.target
