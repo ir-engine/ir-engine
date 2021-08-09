@@ -1,6 +1,6 @@
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { System } from '../../ecs/classes/System'
-import { localMediaConstraints } from '../constants/VideoConstants'
+import { localAudioConstraints, localVideoConstraints } from '../constants/VideoConstants'
 import { Network } from '../classes/Network'
 import { isClient } from '../../common/functions/isClient'
 import { getNearbyUsers, NearbyUser } from '../functions/getNearbyUsers'
@@ -23,8 +23,10 @@ export class MediaStreams {
   public audioPaused = false
   /** Whether the face tracking is enabled or not. */
   public faceTracking = false
-  /** Media stream for streaming data. */
-  public mediaStream: MediaStream = null
+  /** Video stream for streaming data. */
+  public videoStream: MediaStream = null
+  /** Video stream for streaming data. */
+  public audioStream: MediaStream = null
   /** Audio Gain to be applied on media stream. */
   public audioGainNode: GainNode = null
 
@@ -145,8 +147,14 @@ export class MediaStreams {
    * @returns Whether the camera is started or not. */
   async startCamera(): Promise<boolean> {
     console.log('start camera')
-    if (this.mediaStream) return false
-    return await this.getMediaStream()
+    if (this.videoStream) return false
+    return await this.getVideoStream()
+  }
+
+  async startMic(): Promise<boolean> {
+    console.log('start Mic')
+    if (this.audioStream) return false
+    return await this.getAudioStream()
   }
 
   /**
@@ -161,7 +169,7 @@ export class MediaStreams {
     console.log('cycle camera')
 
     // find "next" device in device list
-    const deviceId = await this.getCurrentDeviceId()
+    const deviceId = await this.getCurrentDeviceId('video')
     const allDevices = await navigator.mediaDevices.enumerateDevices()
     const vidDevices = allDevices.filter((d) => d.kind === 'videoinput')
     if (!(vidDevices.length > 1)) {
@@ -177,17 +185,13 @@ export class MediaStreams {
     // from the same device when possible (though they don't seem to,
     // currently)
     console.log('getting a video stream from new device', vidDevices[index].label)
-    this.mediaStream = await navigator.mediaDevices.getUserMedia({
-      video: { deviceId: { exact: vidDevices[index].deviceId } },
-      audio: true
+    this.videoStream = await navigator.mediaDevices.getUserMedia({
+      video: { deviceId: { exact: vidDevices[index].deviceId } }
     })
 
     // replace the tracks we are sending
     await this.camVideoProducer.replaceTrack({
-      track: this.mediaStream.getVideoTracks()[0]
-    })
-    await this.camAudioProducer.replaceTrack({
-      track: this.mediaStream.getAudioTracks()[0]
+      track: this.videoStream.getVideoTracks()[0]
     })
     return true
   }
@@ -218,108 +222,74 @@ export class MediaStreams {
     })
   }
 
-  /**
-   * Add video and audio node to the consumer.
-   * @param mediaStream Video and/or audio media stream to be added in element.
-   * @param peerId ID to be used to find peer element in which media stream will be added.
-   */
-  static addVideoAudio(mediaStream: { track: { clone: () => MediaStreamTrack }; kind: string }, peerId: any): void {
-    if (!(mediaStream && mediaStream.track)) {
-      return
-    }
-    const elementID = `${peerId}_${mediaStream.kind}`
-    let el = document.getElementById(elementID) as any
-
-    // set some attributes on our audio and video elements to make
-    // mobile Safari happy. note that for audio to play you need to be
-    // capturing from the mic/camera
-    if (mediaStream.kind === 'video') {
-      if (el === null) {
-        el = document.createElement('video')
-        el.id = `${peerId}_${mediaStream.kind}`
-        el.autoplay = true
-        document.body.appendChild(el)
-        el.setAttribute('playsinline', 'true')
-      }
-
-      // TODO: do i need to update video width and height? or is that based on stream...?
-      el.srcObject = new MediaStream([mediaStream.track.clone()])
-      el.mediaStream = mediaStream
-
-      // let's "yield" and return before playing, rather than awaiting on
-      // play() succeeding. play() will not succeed on a producer-paused
-      // track until the producer unpauses.
-      try {
-        el.play()
-          .then(() => console.log('Playing video'))
-          .catch((e: any) => {
-            console.log(`Play video error: ${e}`)
-            console.error(e)
-          })
-      } catch (err) {
-        console.log('video play error')
-        console.log(err)
-      }
-    } else {
-      // Positional Audio Works in Firefox:
-      // Global Audio:
-      if (el === null) {
-        el = document.createElement('audio')
-        el.id = `${peerId}_${mediaStream.kind}`
-        document.body.appendChild(el)
-        el.setAttribute('playsinline', 'true')
-        el.setAttribute('autoplay', 'true')
-      }
-
-      el.srcObject = new MediaStream([mediaStream.track.clone()])
-      el.mediaStream = mediaStream
-      el.volume = 0 // start at 0 and let the three.js scene take over from here...
-      // this.worldScene.createOrUpdatePositionalAudio(peerId)
-
-      // let's "yield" and return before playing, rather than awaiting on
-      // play() succeeding. play() will not succeed on a producer-paused
-      // track until the producer unpauses.
-      el.play().catch((e: any) => {
-        console.log(`Play audio error: ${e}`)
-        console.error(e)
-      })
-    }
-  }
-
   /** Get device ID of device which is currently streaming media. */
-  async getCurrentDeviceId(): Promise<string | null> {
-    if (!this.camVideoProducer) return null
+  async getCurrentDeviceId(streamType: string): Promise<string | null> {
+    if (streamType === 'video') {
+      if (!this.camVideoProducer) return null
 
-    const { deviceId } = this.camVideoProducer.track.getSettings()
-    if (deviceId) return deviceId
-    // Firefox doesn't have deviceId in MediaTrackSettings object
-    const track = this.mediaStream && this.mediaStream.getVideoTracks()[0]
-    if (!track) return null
-    const devices = await navigator.mediaDevices.enumerateDevices()
-    const deviceInfo = devices.find((d) => d.label.startsWith(track.label))
-    return deviceInfo.deviceId
+      const { deviceId } = this.camVideoProducer.track.getSettings()
+      if (deviceId) return deviceId
+      // Firefox doesn't have deviceId in MediaTrackSettings object
+      const track = this.videoStream && this.videoStream.getVideoTracks()[0]
+      if (!track) return null
+      const devices = await navigator.mediaDevices.enumerateDevices()
+      const deviceInfo = devices.find((d) => d.label.startsWith(track.label))
+      return deviceInfo.deviceId
+    }
+    if (streamType === 'audio') {
+      if (!this.camAudioProducer) return null
+
+      const { deviceId } = this.camAudioProducer.track.getSettings()
+      if (deviceId) return deviceId
+      // Firefox doesn't have deviceId in MediaTrackSettings object
+      const track = this.audioStream && this.audioStream.getAudioTracks()[0]
+      if (!track) return null
+      const devices = await navigator.mediaDevices.enumerateDevices()
+      const deviceInfo = devices.find((d) => d.label.startsWith(track.label))
+      return deviceInfo.deviceId
+    }
   }
 
   /**
-   * Get user media stream.
+   * Get user video stream.
    * @returns Whether stream is active or not.
    */
-  public async getMediaStream(): Promise<boolean> {
+  public async getVideoStream(): Promise<boolean> {
     try {
-      console.log('Getting media stream')
-      console.log(localMediaConstraints)
-      this.mediaStream = await navigator.mediaDevices.getUserMedia(localMediaConstraints)
-      console.log(this.mediaStream)
-      if (this.mediaStream.active) {
-        this.audioPaused = false
+      console.log('Getting video stream')
+      console.log(localVideoConstraints)
+      this.videoStream = await navigator.mediaDevices.getUserMedia(localVideoConstraints)
+      console.log(this.videoStream)
+      if (this.videoStream.active) {
         this.videoPaused = false
         return true
       }
-      this.audioPaused = true
       this.videoPaused = true
       return false
     } catch (err) {
-      console.log('failed to get media stream')
+      console.log('failed to get video stream')
+      console.log(err)
+    }
+  }
+
+  /**
+   * Get user video stream.
+   * @returns Whether stream is active or not.
+   */
+  public async getAudioStream(): Promise<boolean> {
+    try {
+      console.log('Getting audio stream')
+      console.log(localAudioConstraints)
+      this.audioStream = await navigator.mediaDevices.getUserMedia(localAudioConstraints)
+      console.log(this.audioStream)
+      if (this.audioStream.active) {
+        this.audioPaused = false
+        return true
+      }
+      this.audioPaused = true
+      return false
+    } catch (err) {
+      console.log('failed to get audio stream')
       console.log(err)
     }
   }
