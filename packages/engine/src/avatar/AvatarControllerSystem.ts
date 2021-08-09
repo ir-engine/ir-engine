@@ -12,7 +12,7 @@ import { TransformComponent } from '../transform/components/TransformComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 import { Engine } from '../ecs/classes/Engine'
 import { XRInputSourceComponent } from './components/XRInputSourceComponent'
-import { detectUserInPortal } from './functions/detectUserInPortal'
+import { detectUserInTrigger } from './functions/detectUserInTrigger'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
 import { sendClientObjectUpdate } from '../networking/functions/sendClientObjectUpdate'
@@ -45,7 +45,7 @@ export class AvatarControllerSystem extends System {
       // iterate on all collisions since the last update
       controller.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => {})
 
-      detectUserInPortal(entity)
+      detectUserInTrigger(entity)
 
       const avatar = getMutableComponent(entity, AvatarComponent)
       const transform = getComponent(entity, TransformComponent)

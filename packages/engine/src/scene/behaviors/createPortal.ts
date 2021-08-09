@@ -47,7 +47,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
     previewMesh.geometry.computeBoundingBox()
     previewMesh.geometry.boundingBox.getSize(vec3).multiplyScalar(0.5).setZ(0.1)
 
-    const portalShape: ShapeType = {
+    const shape: ShapeType = {
       shape: SHAPES.Box,
       options: { boxExtents: vec3 },
       transform: { translation: previewMesh.position },
@@ -58,9 +58,9 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
       }
     }
 
-    const portalBody = PhysXInstance.instance.addBody(
+    const body = PhysXInstance.instance.addBody(
       new Body({
-        shapes: [portalShape],
+        shapes: [shape],
         type: BodyType.STATIC,
         transform: {
           translation: transform.position,
@@ -69,11 +69,11 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
       })
     )
 
-    PhysXInstance.instance.addBody(portalBody)
+    PhysXInstance.instance.addBody(body)
 
-    portalBody.userData = entity
+    body.userData = entity
 
-    addComponent(entity, ColliderComponent, { body: portalBody })
+    addComponent(entity, ColliderComponent, { body })
 
     if (isClient) {
       FontManager.instance.getDefaultFont().then((font) => {

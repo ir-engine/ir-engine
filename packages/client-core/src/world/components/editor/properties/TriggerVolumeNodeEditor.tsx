@@ -26,6 +26,20 @@ const componentOptions = [
     ]
   },
   {
+    label: 'volumetric',
+    value: 'volumetric',
+    nodeNames: ['Volumetric'],
+    propertyOptions: [
+      {
+        label: 'paused',
+        value: 'paused',
+        component: 'volumetric',
+        input: BooleanInput,
+        default: false
+      }
+    ]
+  },
+  {
     label: 'loop-animation',
     value: 'loop-animation',
     nodeNames: ['Model'],

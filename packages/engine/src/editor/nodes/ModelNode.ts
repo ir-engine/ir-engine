@@ -1,11 +1,11 @@
-import { Box3, Sphere, PropertyBinding } from 'three'
+import { Box3, PropertyBinding, Sphere } from 'three'
+import { AnimationManager } from '../../avatar/AnimationManager'
+import { makeCollidersInvisible } from '../../physics/behaviors/parseModelColliders'
 import Model from '../../scene/classes/Model'
-import EditorNodeMixin from './EditorNodeMixin'
-import { setStaticMode, StaticModes } from '../functions/StaticMode'
 import cloneObject3D from '../functions/cloneObject3D'
 import { RethrownError } from '../functions/errors'
-import { makeCollidersInvisible } from '../../physics/behaviors/parseModelColliders'
-import { AnimationManager } from '../../avatar/AnimationManager'
+import { setStaticMode, StaticModes } from '../functions/StaticMode'
+import EditorNodeMixin from './EditorNodeMixin'
 
 export default class ModelNode extends EditorNodeMixin(Model) {
   static nodeName = 'Model'
@@ -93,6 +93,7 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   gltfJson = null
   isValidURL = false
   isUpdateDataMatrix = true
+  animations = []
 
   constructor(editor) {
     super(editor)
@@ -112,9 +113,11 @@ export default class ModelNode extends EditorNodeMixin(Model) {
   // Overrides Model's loadGLTF method and uses the Editor's gltf cache.
   async loadGLTF(src) {
     const loadPromise = this.editor.gltfCache.get(src)
-    const { scene, json } = await loadPromise
+    const { scene, json, animations } = await loadPromise
     this.gltfJson = json
     const clonedScene = cloneObject3D(scene)
+    clonedScene.animations = animations
+
     return clonedScene
   }
   // Overrides Model's load method and resolves the src url before loading.
