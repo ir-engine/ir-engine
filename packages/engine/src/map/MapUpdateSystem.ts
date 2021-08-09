@@ -1,6 +1,8 @@
-import { getCoord, getTile } from '.'
+import { Vector3 } from 'three'
+import { getCoord, getTile, updateMap } from '.'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { PI } from '../common/constants/MathConstants'
+import { Engine } from '../ecs/classes/Engine'
 import { System } from '../ecs/classes/System'
 import { getComponent } from '../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
@@ -15,8 +17,8 @@ export class MapUpdateSystem extends System {
       //Calculate new move coords
       const startLong = centrCoord[0]
       const startLat = centrCoord[1]
-      const latitude = position.z / (Math.cos((startLat * PI) / 180) * 111134.861111) + startLat
       const longtitude = -position.x / 111134.861111 + startLong
+      const latitude = position.z / (Math.cos((startLat * PI) / 180) * 111134.861111) + startLat
 
       //get Current Tile
       const startTile = getTile()
@@ -30,14 +32,20 @@ export class MapUpdateSystem extends System {
       } else {
         alert('Need to update')
         //UPdate Map
-        // updateMap(Engine.renderer, {
-        //   isGlobal:true,
-        //   scale: new Vector3(1,1,1)
-        // }, newCoord, position)
+        updateMap(
+          Engine.renderer,
+          {
+            isGlobal: true,
+            scale: new Vector3(1, 1, 1)
+          },
+          longtitude,
+          latitude,
+          position
+        )
 
-        // const remObj = Engine.scene.getObjectByName("Mappa")
-        // console.log(remObj)
-        // remObj.removeFromParent()
+        const remObj = Engine.scene.getObjectByName('Mappa')
+        console.log(remObj)
+        remObj.removeFromParent()
       }
     }
   }

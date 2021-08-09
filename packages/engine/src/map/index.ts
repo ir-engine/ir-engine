@@ -31,9 +31,15 @@ export const create = async function (renderer: THREE.WebGLRenderer, args: MapPr
   return group
 }
 
-export const updateMap = async function (renderer: THREE.WebGLRenderer, args: MapProps, newCoord, position) {
+export const updateMap = async function (
+  renderer: THREE.WebGLRenderer,
+  args: MapProps,
+  longtitude,
+  latitude,
+  position
+) {
   console.log('addmap called with args:', args)
-  const center = newCoord
+  const center = [longtitude, latitude]
   const vectorTiles = await fetchVectorTiles(center)
   const rasterTiles = (args as any).showRasterTiles ? await fetchRasterTiles(center) : []
 
