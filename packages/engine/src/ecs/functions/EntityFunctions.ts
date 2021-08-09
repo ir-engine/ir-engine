@@ -13,11 +13,11 @@ import { Entity } from '../classes/Entity'
 import { World } from '../classes/World'
 
 // TODO: benchmark map vs array for componentMap
-export const createMappedComponent = <T>(args: { [x: string]: Type }) => {
+export const createMappedComponent = <T, S extends ISchema>(schema?: S) => {
   
-  const componentMap = new Map<number, T & { [K in keyof typeof args]: typeof component[K] }>()
+  const component = defineComponent(schema)
+  const componentMap = new Map<number, T & { [K in keyof S]: typeof component[K] }>()
   // const componentMap = []
-  const component = defineComponent(args)
 
   Object.defineProperty(component, 'get', {
     value: function (eid: number) {
@@ -28,8 +28,8 @@ export const createMappedComponent = <T>(args: { [x: string]: Type }) => {
   
   Object.defineProperty(component, 'set', {
     value: function(eid: number, value: any) {
-      if(args) {
-        Object.defineProperties(value, Object.keys(args).reduce((a,k) => {
+      if(schema) {
+        Object.defineProperties(value, Object.keys(schema).reduce((a,k) => {
           a[k] = {
             get() {
               return component[k][eid]
@@ -71,28 +71,30 @@ export const createMappedComponent = <T>(args: { [x: string]: Type }) => {
 
 // export type MappedComponent = ReturnType<typeof createMappedComponent>
 
-export type MappedComponent<T, A> = ComponentType<A> & { 
-  get: (entity: number) => T & { [K in keyof A]: A[K] },
-  set: (entity: number, value: T) => Map<number, T & { [K in keyof A]: A[K] }>,
+export type SoAProxy<S extends ISchema> = { [K in keyof S]: ComponentType<S>[K] }
+
+export type MappedComponent<T, S extends ISchema> = ComponentType<S> & { 
+  get: (entity: number) => T & SoAProxy<S>,
+  set: (entity: number, value: T) => void,
   delete: (entity: number) => void,
 }
 
-export const getComponent = <T extends any, A>(entity: Entity, component: MappedComponent<T, A>, getRemoved = false, world = World.defaultWorld.ecsWorld): T & { [K in keyof A]: A[K] } => {
+export const getComponent = <T extends any, S extends ISchema>(entity: Entity, component: MappedComponent<T, S>, getRemoved = false, world = World.defaultWorld.ecsWorld): T & SoAProxy<S> => {
   if(getRemoved) return world._removedComponents.get(entity) ?? component.get(entity)
   return component.get(entity)
 }
 
-export const addComponent = <T extends any, A>(entity: Entity, component: MappedComponent<T, A>, args: T, world = World.defaultWorld.ecsWorld) => {
+export const addComponent = <T extends any, S extends ISchema>(entity: Entity, component: MappedComponent<T, S>, args: T, world = World.defaultWorld.ecsWorld) => {
   _addComponent(world, component, entity)
   component.set(entity, args)
   return component.get(entity)
 }
 
-export const hasComponent = <T extends any, A>(entity: Entity, component: MappedComponent<T, A>, world = World.defaultWorld.ecsWorld) => {
+export const hasComponent = <T extends any, S extends ISchema>(entity: Entity, component: MappedComponent<T, S>, world = World.defaultWorld.ecsWorld) => {
   return _hasComponent(world, component, entity)
 }
 
-export const removeComponent = <T extends any, A>(entity: Entity, component: MappedComponent<T, A>, world = World.defaultWorld.ecsWorld) => {
+export const removeComponent = <T extends any, S extends ISchema>(entity: Entity, component: MappedComponent<T, S>, world = World.defaultWorld.ecsWorld) => {
   const componentRef = component.get(entity)
   world._removedComponents.set(entity, componentRef)
   _removeComponent(world, component, entity)
