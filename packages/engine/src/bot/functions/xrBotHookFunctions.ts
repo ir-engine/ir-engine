@@ -65,7 +65,7 @@ export function xrInitialized() {
 }
 
 export function startXR() {
-  EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_START })
+  EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_START })
   window.dispatchEvent(
     new CustomEvent('webxr-pose', {
       detail: {

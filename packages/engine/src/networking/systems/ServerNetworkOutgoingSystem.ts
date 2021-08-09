@@ -1,8 +1,8 @@
+import { defineQuery, defineSystem, Not, System } from 'bitecs'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { SIXDOFType } from '../../common/types/NumericalTypes'
-import { System } from '../../ecs/classes/System'
-import { Not } from '../../ecs/functions/ComponentFunctions'
+import { ECSWorld } from '../../ecs/classes/World'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
@@ -14,10 +14,14 @@ import { TransformStateInterface } from '../interfaces/WorldState'
 import { TransformStateModel } from '../schema/transformStateSchema'
 import { WorldStateModel } from '../schema/worldStateSchema'
 
-/** System class to handle outgoing messages. */
-export class ServerNetworkOutgoingSystem extends System {
-  /** Call execution on server */
-  execute = (delta: number): void => {
+export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
+  
+  const networkTransformsQuery = defineQuery([Not(AvatarComponent), NetworkObjectComponent, TransformComponent])
+  const avatarTransformsQuery = defineQuery([AvatarComponent, NetworkObjectComponent, TransformComponent])
+  const ikTransformsQuery = defineQuery([XRInputSourceComponent, NetworkObjectComponent, TransformComponent])
+
+  return defineSystem((world: ECSWorld) => {
+
     const transformState: TransformStateInterface = {
       tick: Network.instance.tick,
       time: Date.now(),
@@ -27,7 +31,7 @@ export class ServerNetworkOutgoingSystem extends System {
 
     // Transforms that are updated are automatically collected
     // note: onChanged needs to currently be handled outside of fixedExecute
-    for (const entity of this.queryResults.networkTransforms.all) {
+    for (const entity of networkTransformsQuery(world)) {
       const transformComponent = getComponent(entity, TransformComponent)
       const networkObject = getComponent(entity, NetworkObjectComponent)
       const currentPosition = transformComponent.position
@@ -47,7 +51,7 @@ export class ServerNetworkOutgoingSystem extends System {
       })
     }
 
-    for (const entity of this.queryResults.avatarTransforms.all) {
+    for (const entity of avatarTransformsQuery(world)) {
       const transformComponent = getComponent(entity, TransformComponent)
       const avatar = getComponent(entity, AvatarComponent)
       const networkObject = getComponent(entity, NetworkObjectComponent)
@@ -67,7 +71,7 @@ export class ServerNetworkOutgoingSystem extends System {
       })
     }
 
-    for (const entity of this.queryResults.ikTransforms.all) {
+    for (const entity of ikTransformsQuery(world)) {
       const networkObject = getComponent(entity, NetworkObjectComponent)
       const snapShotTime = networkObject.snapShotTime
 
@@ -127,18 +131,7 @@ export class ServerNetworkOutgoingSystem extends System {
     } catch (e) {
       console.error(Network.instance.worldState)
     }
-  }
 
-  /** System queries. */
-  static queries: any = {
-    networkTransforms: {
-      components: [Not(AvatarComponent), NetworkObjectComponent, TransformComponent]
-    },
-    avatarTransforms: {
-      components: [AvatarComponent, NetworkObjectComponent, TransformComponent]
-    },
-    ikTransforms: {
-      components: [XRInputSourceComponent, NetworkObjectComponent, TransformComponent]
-    }
-  }
+    return world
+  })
 }

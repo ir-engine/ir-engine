@@ -512,10 +512,10 @@ export const EnginePage = (props: Props) => {
 
   const addUIEvents = () => {
     EngineEvents.instance.addEventListener(EngineEvenets.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async () => {
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async () => {
       setIsInXR(true)
     })
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async () => {
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_END, async () => {
       setIsInXR(false)
     })
   }

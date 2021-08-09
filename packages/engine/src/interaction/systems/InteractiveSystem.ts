@@ -20,7 +20,6 @@ import { InteractorComponent } from '../components/InteractorComponent'
 import { SubFocusedComponent } from '../components/SubFocusedComponent'
 import { FontManager } from '../../xrui/classes/FontManager'
 import { hideInteractText, showInteractText } from '../functions/interactText'
-import { CameraComponent } from '../../camera/components/CameraComponent'
 import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import { InteractedComponent } from '../components/InteractedComponent'
 import AudioSource from '../../scene/classes/AudioSource'
@@ -147,14 +146,13 @@ export const InteractiveSystem = async (): Promise<System> => {
       const interactTextObject = getComponent(interactTextEntity, Object3DComponent).value
       if (!interactTextObject.visible) continue
       interactTextObject.children[0].position.y = Math.sin(time * 1.8) * 0.05
-      const activeCameraComponent = getComponent(Engine.activeCameraEntity, CameraComponent)
       if (
-        activeCameraComponent.followTarget &&
-        hasComponent(activeCameraComponent.followTarget, FollowCameraComponent)
+        Engine.activeCameraFollowTarget &&
+        hasComponent(Engine.activeCameraFollowTarget, FollowCameraComponent)
       ) {
         interactTextObject.children[0].setRotationFromAxisAngle(
           upVec,
-          MathUtils.degToRad(getComponent(activeCameraComponent.followTarget, FollowCameraComponent).theta)
+          MathUtils.degToRad(getComponent(Engine.activeCameraFollowTarget, FollowCameraComponent).theta)
         )
       } else {
         const { x, z } = getComponent(entity, TransformComponent).position

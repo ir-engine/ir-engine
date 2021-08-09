@@ -128,7 +128,7 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
     const { token, user, startVideo, videoEnabled, channelType, isHarmonyPage, ...query } = opts
     console.log('******* GAMESERVER PORT IS', port)
     Network.instance.accessToken = query.token = token
-    EngineEvents.instance.dispatchEvent({ type: ClientNetworkStateSystem.EVENTS.CONNECT, id: user.id })
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT, id: user.id })
 
     this.mediasoupDevice = new mediasoupClient.Device()
     if (socket && socket.close) socket.close()

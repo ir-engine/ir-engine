@@ -2,20 +2,19 @@ import {
   addComponent as _addComponent,
   removeComponent as _removeComponent,
   hasComponent as _hasComponent,
+  removeEntity as _removeEntity,
   defineComponent,
   ComponentType,
-  IComponent,
   ISchema,
   Type,
-  ArrayByType,
-  Types
+  addEntity
 } from 'bitecs'
 
 import { Entity } from '../classes/Entity'
 import { World } from '../classes/World'
 
 // TODO: benchmark map vs array for componentMap
-export const createMappedComponent = <T, S extends ISchema = {}>(schema?: S) => {
+export const createMappedComponent = <T extends {}, S extends ISchema = {}>(schema?: S) => {
   
   const component = defineComponent(schema)
   const componentMap = new Map<number, T & SoAProxy<S>>()
@@ -77,6 +76,14 @@ export type MappedComponent<T, S extends ISchema> = ComponentType<S> & {
   get: (entity: number) => T & SoAProxy<S>,
   set: (entity: number, value: T) => void,
   delete: (entity: number) => void,
+}
+
+export const createEntity = (world = World.defaultWorld.ecsWorld): Entity => {
+  return addEntity(world)
+}
+
+export const removeEntity = (entity: Entity, world = World.defaultWorld.ecsWorld) => {
+  _removeEntity(world, entity)
 }
 
 export const getComponent = <T extends any, S extends ISchema>(entity: Entity, component: MappedComponent<T, S>, getRemoved = false, world = World.defaultWorld.ecsWorld): T & SoAProxy<S> => {

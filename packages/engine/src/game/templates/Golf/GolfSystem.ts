@@ -127,7 +127,7 @@ export class GolfSystem extends System {
     ///////////////////////////////////////////////////////////
     // NEXT TURN
     for (const entity of this.queryResults.waiting.all) {
-      if (this.queryResults.waiting.added.some((addedEntity) => addedEntity.id === entity.id)) continue
+      if (this.queryResults.waiting.added.some((addedEntity) => addedEntity === entity)) continue
       const playerComponent = getComponent(entity, GamePlayer)
       const ballEntity = playerComponent.ownedObjects['GolfBall']
       if (!ballEntity) continue
@@ -138,7 +138,7 @@ export class GolfSystem extends System {
 
     // ADD WAITING
     for (const entity of this.queryResults.yourTurn.all) {
-      if (this.queryResults.yourTurn.added.some((addedEntity) => addedEntity.id === entity.id)) continue
+      if (this.queryResults.yourTurn.added.some((addedEntity) => addedEntity === entity)) continue
       const playerComponent = getComponent(entity, GamePlayer)
       const ballEntity = playerComponent.ownedObjects['GolfBall']
       if (!ballEntity) continue

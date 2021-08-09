@@ -2,7 +2,6 @@ import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import {
   addComponent,
   getComponent,
-  getComponent,
   hasComponent,
   removeEntity
 } from '../../ecs/functions/EntityFunctions'
@@ -13,18 +12,16 @@ import { addSnapshot, createSnapshot } from '../functions/NetworkInterpolationFu
 import { PrefabType } from '../templates/PrefabType'
 import { applyActionComponent } from '../../game/functions/functionsActions'
 import { applyStateToClient } from '../../game/functions/functionsState'
-import { System } from '../../ecs/classes/System'
-import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { ClientInputModel } from '../schema/clientInputSchema'
 import { Vault } from '../classes/Vault'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import { Quaternion, Vector3 } from 'three'
+import { Group, Quaternion, Vector3 } from 'three'
 import { applyVectorMatrixXZ } from '../../common/functions/applyVectorMatrixXZ'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { WorldStateModel } from '../schema/worldStateSchema'
 import { TransformStateModel } from '../schema/transformStateSchema'
 import { spawnPrefab } from '../functions/spawnPrefab'
+import { defineSystem, System } from 'bitecs'
+import { ECSWorld } from '../../ecs/classes/World'
 
 /**
  * Apply State received over the network to the client.
@@ -108,25 +105,10 @@ const vector3_1 = new Vector3()
 const quat = new Quaternion()
 const forwardVector = new Vector3(0, 0, 1)
 
-/** System class for network system of client. */
-export class ClientNetworkStateSystem extends System {
-  static EVENTS = {
-    CONNECT: 'CLIENT_NETWORK_SYSTEM_CONNECT',
-    CONNECTION_LOST: 'CORE_CONNECTION_LOST'
-  }
+export const ClientNetworkStateSystem = async (): Promise<System> => {
 
-  dispose() {
-    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.CONNECT_TO_WORLD)
-    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.JOINED_WORLD)
-  }
+  return defineSystem((world: ECSWorld) => {
 
-  /**
-   * Executes the system.
-   * Call logic based on whether system is on the server or on the client.
-   *
-   * @param delta Time since last frame.
-   */
-  execute = (delta: number): void => {
     // Client logic
     const reliableQueue = Network.instance.incomingMessageQueueReliable
     // For each message, handle and process
@@ -328,7 +310,14 @@ export class ClientNetworkStateSystem extends System {
           // ignore our own transform
           if (entity === Network.instance.localClientEntity) continue
           if (!hasComponent(entity, XRInputSourceComponent)) {
-            addComponent(entity, XRInputSourceComponent)
+            addComponent(entity, XRInputSourceComponent, {
+              controllerLeft: new Group(),
+              controllerRight: new Group(),
+              controllerGripLeft: new Group(),
+              controllerGripRight: new Group(),
+              controllerGroup: new Group(),
+              head: new Group()
+            })
           }
           const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
           const { hmd, left, right } = ikTransform
@@ -369,8 +358,7 @@ export class ClientNetworkStateSystem extends System {
         commands: []
       }
     }
-  }
 
-  /** Queries for the system. */
-  static queries: any = {}
+    return world
+  })
 }

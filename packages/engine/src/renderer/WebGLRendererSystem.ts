@@ -16,9 +16,7 @@ import {
   ToneMappingEffect
 } from 'postprocessing'
 import {
-  LinearToneMapping,
   NearestFilter,
-  PCFSoftShadowMap,
   PerspectiveCamera,
   RGBFormat,
   sRGBEncoding,
@@ -26,18 +24,17 @@ import {
   WebGLRenderer,
   WebGLRenderTarget
 } from 'three'
-import { CSM } from '../assets/csm/CSM'
 import { ClientStorage } from '../common/classes/ClientStorage'
 import { now } from '../common/functions/now'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
-import { System } from '../ecs/classes/System'
 import { defaultPostProcessingSchema, effectType } from '../scene/classes/PostProcessing'
 import { PostProcessingSchema } from './interfaces/PostProcessingSchema'
-import { SystemUpdateType } from '../ecs/functions/SystemUpdateType'
 import WebGL from './THREE.WebGL'
 import { FXAAEffect } from './effects/FXAAEffect'
 import { LinearTosRGBEffect } from './effects/LinearTosRGBEffect'
+import { defineSystem, System } from 'bitecs'
+import { ECSWorld } from '../ecs/classes/World'
 
 export enum RENDERER_SETTINGS {
   AUTOMATIC = 'automatic',
@@ -89,6 +86,10 @@ let lastRenderTime = 0
 let renderTimeCounter = 0
 let renderTimeAccumulator = 0
 
+type EngineRendererProps = {
+  canvas: HTMLCanvasElement
+}
+
 export class EngineRenderer {
   static EVENTS = {
     QUALITY_CHANGED: 'WEBGL_RENDERER_SYSTEM_EVENT_QUALITY_CHANGE',
@@ -134,7 +135,7 @@ export class EngineRenderer {
   rendereringEnabled = true
 
   /** Constructs WebGL Renderer System. */
-  constructor(attributes: { canvas: HTMLCanvasElement }) {
+  constructor(attributes: EngineRendererProps) {
     EngineRenderer.instance = this
 
     this.onResize = this.onResize.bind(this)
@@ -404,30 +405,18 @@ export class EngineRenderer {
   }
 }
 
-export class WebGLRendererSystem extends System {
-  constructor(attributes) {
-    super()
-    new EngineRenderer(attributes)
-  }
+export const WebGLRendererSystem = async (props: EngineRendererProps): Promise<System> => {
+  new EngineRenderer(props)
 
-  async initialize() {
-    super.initialize()
-    await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
-    EngineRenderer.instance.dispatchSettingsChangeEvent()
-  }
+  await EngineRenderer.instance.loadGraphicsSettingsFromStorage()
+  EngineRenderer.instance.dispatchSettingsChangeEvent()
 
-  execute(delta: number) {
+  return defineSystem((world: ECSWorld) => {
+
+    const { delta } = world
+    
     EngineRenderer.instance.execute(delta)
-  }
 
-  dispose(): void {
-    super.dispose()
-    Engine.effectComposer?.dispose()
-    window.removeEventListener('resize', EngineRenderer.instance.onResize)
-    EngineEvents.instance.removeAllListenersForEvent(EngineRenderer.EVENTS.SET_POST_PROCESSING)
-    EngineEvents.instance.removeAllListenersForEvent(EngineRenderer.EVENTS.SET_RESOLUTION)
-    EngineEvents.instance.removeAllListenersForEvent(EngineRenderer.EVENTS.USE_SHADOWS)
-    EngineEvents.instance.removeAllListenersForEvent(EngineRenderer.EVENTS.SET_USE_AUTOMATIC)
-    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.ENABLE_SCENE)
-  }
+    return world
+  })
 }

@@ -1,31 +1,23 @@
 import { ParticleEmitterComponent } from '../components/ParticleEmitter'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { applyTransform } from '../functions/particleHelpers'
-import { System } from '../../ecs/classes/System'
+import { ECSWorld } from '../../ecs/classes/World'
+import { defineQuery, defineSystem, System } from 'bitecs'
 
-/** System class for particle system. */
-export class ParticleSystem extends System {
-  /** Executes the system. */
-  execute(deltaTime, time): void {
-    for (const entity of this.queryResults.emitters.added) {
-      const emitter = getComponent(entity, ParticleEmitterComponent)
-      this.clearEventQueues()
-    }
+export const ParticleSystem = async (): Promise<System> => {
+  
+  const emitterQuery = defineQuery([ParticleEmitterComponent])
 
-    for (const entity of this.queryResults.emitters.all) {
+  return defineSystem((world: ECSWorld) => {
+
+    const { delta } = world
+
+    for (const entity of emitterQuery(world)) {
       const emitter = getComponent(entity, ParticleEmitterComponent)
       applyTransform(entity, emitter)
-      emitter.particleEmitterMesh?.update(deltaTime)
+      emitter.particleEmitterMesh?.update(delta)
     }
 
-    for (const entity of this.queryResults.emitters.removed) {
-    }
-  }
-}
-
-ParticleSystem.queries = {
-  emitters: {
-    components: [ParticleEmitterComponent],
-
-  }
+    return world
+  })
 }

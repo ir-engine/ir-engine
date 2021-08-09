@@ -14,7 +14,7 @@ import { Quaternion, Vector3 } from 'three'
 import { InterpolationComponent } from '../components/InterpolationComponent'
 import { isClient } from '../../common/functions/isClient'
 import { PrefabType } from '../../networking/templates/PrefabType'
-import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 
 /**
@@ -27,7 +27,9 @@ export const PhysicsSystem = async (attributes: { worker?: Worker; simulationEna
   const spawnNetworkObjectQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
   const spawnNetworkObjectAddQuery = enterQuery(spawnNetworkObjectQuery)
   const colliderQuery = defineQuery([ColliderComponent, TransformComponent])
+  const colliderRemoveQuery = exitQuery(colliderQuery)
   const raycastQuery = defineQuery([RaycastComponent])
+  const raycastRemoveQuery = exitQuery(raycastQuery)
   const networkObjectQuery = defineQuery([NetworkObjectComponent])
 
   let simulationEnabled = false
@@ -62,10 +64,10 @@ export const PhysicsSystem = async (attributes: { worker?: Worker; simulationEna
         scale: new Vector3(1, 1, 1)
       })
 
-      addComponent(entity, ColliderComponent)
+      // TODO: figure out how we are going to spawn the body
 
       if (isClient) {
-        addComponent(entity, InterpolationComponent)
+        addComponent(entity, InterpolationComponent, null)
       } else {
         Network.instance.worldState.createObjects.push({
           networkId: networkId,
@@ -77,21 +79,21 @@ export const PhysicsSystem = async (attributes: { worker?: Worker; simulationEna
       }
     }
 
-    for (const entity of this.queryResults.collider.removed) {
+    for (const entity of colliderRemoveQuery(world)) {
       const colliderComponent = getComponent(entity, ColliderComponent, true)
       if (colliderComponent) {
         PhysXInstance.instance.removeBody(colliderComponent.body)
       }
     }
 
-    for (const entity of this.queryResults.raycast.removed) {
+    for (const entity of raycastRemoveQuery(world)) {
       const raycastComponent = getComponent(entity, RaycastComponent, true)
       if (raycastComponent) {
         PhysXInstance.instance.removeRaycastQuery(raycastComponent.raycastQuery)
       }
     }
 
-    for (const entity of this.queryResults.collider.all) {
+    for (const entity of colliderQuery(world)) {
       const collider = getComponent(entity, ColliderComponent)
       const velocity = getComponent(entity, VelocityComponent)
       const transform = getComponent(entity, TransformComponent)
@@ -118,12 +120,13 @@ export const PhysicsSystem = async (attributes: { worker?: Worker; simulationEna
     }
 
     // TODO: this is temporary - we should refactor all our network entity handling to be on the ECS
-    for (const entity of this.queryResults.networkObject.removed) {
+    for (const entity of networkObjectQuery(world)) {
       const networkObject = getComponent(entity, NetworkObjectComponent, true)
       delete Network.instance.networkObjects[networkObject.networkId]
       console.log('removed prefab with id', networkObject.networkId)
     }
 
     PhysXInstance.instance.update()
-  }
+    return world
+  })
 }

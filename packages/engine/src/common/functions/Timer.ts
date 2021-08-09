@@ -68,13 +68,13 @@ export function Timer(
     lastAnimTime = time
   }
 
-  EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => {
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async (ev: any) => {
     stop()
   })
-  EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_SESSION, async (ev: any) => {
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_SESSION, async (ev: any) => {
     Engine.xrRenderer.setAnimationLoop(xrAnimationLoop)
   })
-  EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async (ev: any) => {
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_END, async (ev: any) => {
     start()
   })
 
@@ -264,9 +264,9 @@ export function Timer(
 
   function clear() {
     cancelAnimationFrame(frameId)
-    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_START)
-    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_SESSION)
-    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_END)
+    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.XR_START)
+    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.XR_SESSION)
+    EngineEvents.instance.removeAllListenersForEvent(EngineEvents.EVENTS.XR_END)
     delete this.fixedRunner
     delete this.networkRunner
   }

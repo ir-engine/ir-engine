@@ -308,7 +308,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
       window.addEventListener(type, onUserEngage)
     })
 
-    EngineEvents.instance.once(ClientNetworkStateSystem.EVENTS.CONNECT, ({ id }) => {
+    EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT, ({ id }) => {
       Network.instance.isInitialized = true
       Network.instance.userId = id
     })
