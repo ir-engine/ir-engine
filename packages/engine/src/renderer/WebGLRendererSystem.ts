@@ -85,8 +85,6 @@ export interface EffectComposerWithSchema extends EffectComposer {
 }
 
 let lastRenderTime = 0
-let renderTimeCounter = 0
-let renderTimeAccumulator = 0
 
 export class EngineRenderer {
   static EVENTS = {
@@ -105,8 +103,6 @@ export class EngineRenderer {
   /** Postprocessing schema. */
   postProcessingSchema: PostProcessingSchema
 
-  downgradeTimer = 0
-  upgradeTimer = 0
   /** Maximum Quality level of the rendered. **Default** value is 4. */
   maxQualityLevel = 5
   /** Current quality level. */
@@ -132,9 +128,7 @@ export class EngineRenderer {
   supportWebGL2: boolean = WebGL.isWebGL2Available()
   rendereringEnabled = true
 
-  MAX_SAMPLES = 10
   averageFrameTime = 17
-
   timeSamples = [17, 17, 17, 17, 17, 17, 17, 17, 17, 17]
   index = 0
 
