@@ -499,7 +499,7 @@ export const EnginePage = (props: Props) => {
   }
 
   const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
+    EngineEvents.instance.addEventListener(EngineEvenets.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
     EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async () => {
       setIsInXR(true)
     })

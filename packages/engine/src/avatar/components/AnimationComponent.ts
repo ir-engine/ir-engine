@@ -12,9 +12,3 @@ const AnimationSchema = {
 }
 
 export const AnimationComponent = createMappedComponent<AnimationComponentType, typeof AnimationSchema>(AnimationSchema)
-
-const anim = getComponent(0, AnimationComponent)
-anim.mixer.update(42)
-anim.animationSpeed // Ta-Da
-
-AnimationComponent.animationSpeed[0] // also Ta-Da

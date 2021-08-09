@@ -1,5 +1,6 @@
+import { defineQuery, defineSystem, System } from 'bitecs'
 import { Euler, Quaternion } from 'three'
-import { System } from '../../ecs/classes/System'
+import { ECSWorld } from '../../ecs/classes/World'
 import { getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { CopyTransformComponent } from '../components/CopyTransformComponent'
@@ -15,11 +16,21 @@ const euler1YXZ = new Euler()
 euler1YXZ.order = 'YXZ'
 const euler2YXZ = new Euler()
 euler2YXZ.order = 'YXZ'
-const quat = new Quaternion()
 
-export class TransformSystem extends System {
-  execute(delta: number, time: number) {
-    for (const entity of this.queryResults.parent.all) {
+export const TransformSystem = async (): Promise<System> => {
+
+  const parentQuery = defineQuery([TransformParentComponent, TransformComponent])
+  const childQuery = defineQuery([TransformChildComponent, TransformComponent])
+  const copyTransformQuery = defineQuery([CopyTransformComponent])
+  const desiredTransformQuery = defineQuery([DesiredTransformComponent])
+  const tweenQuery = defineQuery([TweenComponent])
+  const obj3dQuery = defineQuery([TransformComponent, Object3DComponent])
+  
+  return defineSystem((world: ECSWorld) => {    
+    
+    const { delta } = world
+
+    for (const entity of parentQuery(world)) {
       const parentTransform = getComponent(entity, TransformComponent)
       const parentingComponent = getComponent(entity, TransformParentComponent)
       for (const child of parentingComponent.children) {
@@ -44,7 +55,7 @@ export class TransformSystem extends System {
       }
     }
 
-    for (const entity of this.queryResults.child.all) {
+    for (const entity of childQuery(world)) {
       const childComponent = getComponent(entity, TransformChildComponent)
       const parent = childComponent.parent
       const parentTransform = getComponent(parent, TransformComponent)
@@ -58,7 +69,7 @@ export class TransformSystem extends System {
       }
     }
 
-    for (const entity of this.queryResults.copyTransform.all) {
+    for (const entity of copyTransformQuery(world)) {
       const inputEntity = getComponent(entity, CopyTransformComponent)?.input
       const outputTransform = getComponent(entity, TransformComponent)
       const inputTransform = getComponent(inputEntity, TransformComponent)
@@ -74,7 +85,7 @@ export class TransformSystem extends System {
       removeComponent(entity, CopyTransformComponent)
     }
 
-    for (const entity of this.queryResults.desiredTransforms.all) {
+    for (const entity of desiredTransformQuery(world)) {
       const transform = getComponent(entity, TransformComponent)
       const desiredTransform = getComponent(entity, DesiredTransformComponent)
 
@@ -127,17 +138,17 @@ export class TransformSystem extends System {
       }
     }
 
-    for (const entity of this.queryResults.tweens.all) {
+    for (const entity of tweenQuery(world)) {
       const tween = getComponent(entity, TweenComponent)
       tween.tween.update()
     }
 
-    for (const entity of this.queryResults.obj3d.all) {
+    for (const entity of obj3dQuery(world)) {
       const transform = getComponent(entity, TransformComponent)
       const object3DComponent = getComponent(entity, Object3DComponent)
 
       if (!object3DComponent.value) {
-        console.warn('object3D component on entity', entity.id, ' is undefined')
+        console.warn('object3D component on entity', entity, ' is undefined')
         continue
       }
 
@@ -146,27 +157,6 @@ export class TransformSystem extends System {
       object3DComponent.value.scale.copy(transform.scale)
       object3DComponent.value.updateMatrixWorld()
     }
-  }
-}
-
-TransformSystem.queries = {
-  parent: {
-    components: [TransformParentComponent, TransformComponent]
-  },
-  child: {
-    components: [TransformChildComponent, TransformComponent]
-  },
-  obj3d: {
-    components: [TransformComponent, Object3DComponent]
-  },
-  desiredTransforms: {
-    components: [DesiredTransformComponent]
-  },
-  copyTransform: {
-    components: [CopyTransformComponent]
-  },
-  tweens: {
-    components: [TweenComponent],
-
-  }
+    return world
+  })
 }

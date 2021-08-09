@@ -1,5 +1,4 @@
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { System } from '../../ecs/classes/System'
 import { addComponent, getComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ColliderComponent } from '../components/ColliderComponent'
@@ -15,60 +14,52 @@ import { Quaternion, Vector3 } from 'three'
 import { InterpolationComponent } from '../components/InterpolationComponent'
 import { isClient } from '../../common/functions/isClient'
 import { PrefabType } from '../../networking/templates/PrefabType'
+import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
+import { ECSWorld } from '../../ecs/classes/World'
 
 /**
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
  */
 
-export class PhysicsSystem extends System {
-  static EVENTS = {
-    PORTAL_REDIRECT_EVENT: 'PHYSICS_SYSTEM_PORTAL_REDIRECT'
-  }
+export const PhysicsSystem = async (attributes: { worker?: Worker; simulationEnabled?: boolean } = {}): Promise<System> => {
 
-  simulationEnabled: boolean
+  const spawnNetworkObjectQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
+  const spawnNetworkObjectAddQuery = enterQuery(spawnNetworkObjectQuery)
+  const colliderQuery = defineQuery([ColliderComponent, TransformComponent])
+  const raycastQuery = defineQuery([RaycastComponent])
+  const networkObjectQuery = defineQuery([NetworkObjectComponent])
 
-  constructor(attributes: { worker?: Worker; simulationEnabled?: boolean } = {}) {
-    super(attributes)
-    Engine.physxWorker = attributes.worker
+  let simulationEnabled = false
 
-    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
-      if (typeof ev.physics !== 'undefined') {
-        this.simulationEnabled = ev.physics
-      }
-    })
+  Engine.physxWorker = attributes.worker
 
-    if (!PhysXInstance.instance) {
-      PhysXInstance.instance = new PhysXInstance()
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.ENABLE_SCENE, (ev: any) => {
+    if (typeof ev.physics !== 'undefined') {
+      simulationEnabled = ev.physics
     }
+  })
 
-    this.simulationEnabled = attributes.simulationEnabled ?? true
+  if (!PhysXInstance.instance) {
+    PhysXInstance.instance = new PhysXInstance()
   }
 
-  async initialize() {
-    super.initialize()
-    await PhysXInstance.instance.initPhysX(Engine.physxWorker, Engine.initOptions.physics.settings)
-    Engine.workers.push(Engine.physxWorker)
-  }
+  simulationEnabled = attributes.simulationEnabled ?? true
 
-  reset(): void {
-    // TODO: PhysXInstance.instance.reset();
-  }
+  await PhysXInstance.instance.initPhysX(Engine.physxWorker, Engine.initOptions.physics.settings)
+  Engine.workers.push(Engine.physxWorker)
 
-  dispose(): void {
-    super.dispose()
-    this.reset()
-    PhysXInstance.instance.dispose()
-    EngineEvents.instance.removeAllListenersForEvent(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT)
-  }
+  return defineSystem((world: ECSWorld) => {
 
-  execute(delta: number): void {
-    for (const entity of this.queryResults.spawnNetworkObject.added) {
+    const { delta } = world
+
+    for (const entity of spawnNetworkObjectAddQuery(world)) {
       const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
 
       addComponent(entity, TransformComponent, {
         position: new Vector3().copy(parameters.position),
-        rotation: new Quaternion().copy(parameters.rotation)
+        rotation: new Quaternion().copy(parameters.rotation),
+        scale: new Vector3(1, 1, 1)
       })
 
       addComponent(entity, ColliderComponent)
@@ -134,24 +125,5 @@ export class PhysicsSystem extends System {
     }
 
     PhysXInstance.instance.update()
-  }
-}
-
-PhysicsSystem.queries = {
-  spawnNetworkObject: {
-    components: [SpawnNetworkObjectComponent, RigidBodyTagComponent],
-
-  },
-  collider: {
-    components: [ColliderComponent, TransformComponent],
-
-  },
-  raycast: {
-    components: [RaycastComponent],
-
-  },
-  networkObject: {
-    components: [NetworkObjectComponent],
-
   }
 }

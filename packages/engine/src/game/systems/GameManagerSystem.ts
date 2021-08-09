@@ -22,7 +22,8 @@ import { isClient } from '../../common/functions/isClient'
 import { checkIsGamePredictionStillRight, clearPredictionCheckList } from '../functions/functionsActions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { Component, ComponentType, defineQuery, defineSystem, enterQuery, IComponent, System } from 'bitecs'
+import { Component, ComponentType, defineQuery, defineSystem, enterQuery, exitQuery, IComponent, System } from 'bitecs'
+import { ECSWorld } from '../../ecs/classes/World'
 
 // TODO: add game areas back
 function isPlayerInGameArea(entity, gameArea) {
@@ -55,14 +56,19 @@ export const GameManagerSystem = async (): Promise<System> => {
   
   const gameObjectQuery = defineQuery([GameObject])
   const gameObjectAddQuery = enterQuery(gameObjectQuery)
+  const gameObjectRemoveQuery = exitQuery(gameObjectQuery)
 
   const gameObjectCollisionsQuery = defineQuery([GameObject, ColliderComponent])
   
   const gamePlayerQuery = defineQuery([GamePlayer])
+  const gamePlayerAddQuery = enterQuery(gamePlayerQuery)
+  const gamePlayerRemoveQuery = exitQuery(gamePlayerQuery)
 
   return defineSystem((world: ECSWorld) => {
 
     const { delta } = world
+
+    const gameQueryResults = gameQuery(world)
 
     for (const entity of gameObjectAddQuery(world)) {
       const game = getComponent(entity, GameComponent)
@@ -94,7 +100,7 @@ export const GameManagerSystem = async (): Promise<System> => {
       }
     }
 
-    for (const entityGame of gameQuery(world)) {
+    for (const entityGame of gameQueryResults) {
       const game = getComponent(entityGame, GameComponent)
       // this part about check if client get same actions as server send him.
       if (isClient && game.isGlobal && checkIsGamePredictionStillRight()) {
@@ -113,15 +119,16 @@ export const GameManagerSystem = async (): Promise<System> => {
         const gamePlayerComp = addComponent(entity, GamePlayer, {
           gameName: game.name,
           role: 'newPlayer',
-          uuid: getComponent(entity, NetworkObjectComponent).ownerId
+          uuid: getComponent(entity, NetworkObjectComponent).ownerId,
+          ownedObjects: {}
         })
         requireState(game, gamePlayerComp)
       }
     }
 
     // PLAYERS REMOVE
-    for (const entity of this.queryResults.gamePlayer.removed) {
-      for (const entityGame of this.queryResults.game.all) {
+    for (const entity of gamePlayerRemoveQuery(world)) {
+      for (const entityGame of gameQueryResults) {
         const game = getComponent(entityGame, GameComponent)
         const gamePlayer = getComponent(entity, GamePlayer, true)
         if (gamePlayer === undefined || gamePlayer.gameName != game.name) continue
@@ -136,8 +143,8 @@ export const GameManagerSystem = async (): Promise<System> => {
     }
 
     // OBJECTS REMOVE
-    for (const entity of this.queryResults.gameObject.removed) {
-      for (const entityGame of this.queryResults.game.all) {
+    for (const entity of gameObjectRemoveQuery(world)) {
+      for (const entityGame of gameQueryResults) {
         const game = getComponent(entityGame, GameComponent)
         const gameObject = getComponent(entity, GameObject, true)
         if (gameObject === undefined || gameObject.gameName != game.name) continue
@@ -148,8 +155,8 @@ export const GameManagerSystem = async (): Promise<System> => {
     }
 
     // PLAYERS ADDIND
-    for (const entity of this.queryResults.gamePlayer.added) {
-      for (const entityGame of this.queryResults.game.all) {
+    for (const entity of gamePlayerAddQuery(world)) {
+      for (const entityGame of gameQueryResults) {
         const game = getComponent(entityGame, GameComponent)
         const gamePlayer = getComponent(entity, GamePlayer)
         if (gamePlayer.gameName != game.name) continue
@@ -168,8 +175,8 @@ export const GameManagerSystem = async (): Promise<System> => {
 
     // OBJECTS ADDIND
     // its needet for allow dynamicly adding objects and exept errors when enitor gives object without created game
-    for (const entity of this.queryResults.gameObject.added) {
-      for (const entityGame of this.queryResults.game.all) {
+    for (const entity of gameObjectAddQuery(world)) {
+      for (const entityGame of gameQueryResults) {
         const game = getComponent(entityGame, GameComponent)
         if (getComponent(entity, GameObject).gameName != game.name) continue
 
@@ -178,8 +185,6 @@ export const GameManagerSystem = async (): Promise<System> => {
         gameObjects[getComponent(entity, GameObject).role].push(entity)
       }
     }
-  }
-}
-
-GameManagerSystem.queries = {
+    return world
+  })
 }

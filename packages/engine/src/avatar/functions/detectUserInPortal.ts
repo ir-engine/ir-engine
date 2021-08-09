@@ -18,7 +18,7 @@ export const detectUserInPortal = (entity: Entity): void => {
 
   if (isClient) {
     EngineEvents.instance.dispatchEvent({
-      type: PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT,
+      type: EngineEvenets.EVENTS.PORTAL_REDIRECT_EVENT,
       portalComponent: portalComponent.toJSON()
     })
   } else {
