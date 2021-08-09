@@ -17,8 +17,6 @@ import { dispatchAlertError } from '../../../../common/reducers/alert/service'
 export function fetchUsersAsAdmin(offset: string) {
   return async (dispatch: Dispatch, getState: any): Promise<any> => {
     const user = getState().get('auth').get('user')
-    console.log(user)
-
     const skip = getState().get('adminUser').get('users').get('skip')
     const limit = getState().get('adminUser').get('users').get('limit')
     try {

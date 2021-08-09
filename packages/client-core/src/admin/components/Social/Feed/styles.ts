@@ -199,7 +199,18 @@ export const useStyles = makeStyles((theme: Theme) =>
     },
     spanNone: {
       color: '#808080'
+    },
+    mgBtn: {
+      marginBottom: '25px'
+    },
+    contSize: {
+      marginTop: '3%',
+      width: '373px'
+    },
+    margin:{
+      marginTop: '70px'
     }
+
   })
 )
 

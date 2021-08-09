@@ -90,13 +90,13 @@ const CreateCreator = (props: Props) => {
     if (formValid(state, state.formErrors)) {
       createCreator(data)
       // closeViewModel(false)
-      // setState({
-      //   ...state,
-      //   name: '',
-      //   username: '',
-      //   email: '',
-      //   twitter: ''
-      // })
+      setState({
+        ...state,
+        name: '',
+        username: '',
+        email: '',
+        twitter: ''
+      })
     } else {
       setError('Please fill all required field')
     }

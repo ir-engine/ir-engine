@@ -5,23 +5,32 @@ import TableCell from '@material-ui/core/TableCell'
 import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
+import Button from '@material-ui/core/Button'
+import Dialog from '@material-ui/core/Dialog'
+import DialogActions from '@material-ui/core/DialogActions'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogContentText from '@material-ui/core/DialogContentText'
+import DialogTitle from '@material-ui/core/DialogTitle'
 import { useStyles, useStyle } from './styles'
 import { columns, Data } from './Variables'
-import { fetchCreatorAsAdmin } from '../../../reducers/admin/Social/creator/service'
+import { fetchCreatorAsAdmin, deleteCreator } from '../../../reducers/admin/Social/creator/service'
 import { bindActionCreators, Dispatch } from 'redux'
 import { connect } from 'react-redux'
 import { selectAuthState } from '../../../../user/reducers/auth/selector'
 import { selectCreatorsState } from '../../../reducers/admin/Social/creator/selector'
 import TablePagination from '@material-ui/core/TablePagination'
+import ViewCreator from './ViewCreator'
 
 interface Props {
   fetchCreatorAsAdmin?: () => void
   authState?: any
   creatorState?: any
+  deleteCreator?: any
 }
 
 const mapDispatchToProps = (dispatch: Dispatch): any => ({
-  fetchCreatorAsAdmin: bindActionCreators(fetchCreatorAsAdmin, dispatch)
+  fetchCreatorAsAdmin: bindActionCreators(fetchCreatorAsAdmin, dispatch),
+  deleteCreator: bindActionCreators(deleteCreator, dispatch)
 })
 
 const mapStateToProps = (state: any): any => {
@@ -32,12 +41,16 @@ const mapStateToProps = (state: any): any => {
 }
 
 const CreatorTable = (props: Props) => {
-  const { fetchCreatorAsAdmin, authState, creatorState } = props
+  const { fetchCreatorAsAdmin, deleteCreator, authState, creatorState } = props
   const classx = useStyles()
   const classes = useStyle()
   const user = authState.get('user')
   const creator = creatorState.get('creator')
   const creatorData = creator.get('creator')
+  const [singleCreator, setSingleCreator] = React.useState('')
+  const [open, setOpen] = React.useState(false)
+  const [showWarning, setShowWarning] = React.useState(false)
+  const [creatorId, setCreatorId] = React.useState('')
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowsPerPage] = React.useState(12)
 
@@ -45,22 +58,40 @@ const CreatorTable = (props: Props) => {
     setPage(newPage)
   }
 
+  const handleClose = (open: boolean) =>{
+    setOpen(open)
+}
+
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value)
     setPage(0)
   }
 
-  React.useEffect(() => {
-    if (creator.get('updateNeeded')) {
-      fetchCreatorAsAdmin()
-    }
-  }, [creator])
+  const deleteCreatorHandler = () => {
+    setShowWarning(false)
+    deleteCreator(creatorId)
+  }
+
+  const handleCloseWarning = () => {
+    setShowWarning(false)
+  }
+
+  const handleShowWarning = (id: string) => {
+    setCreatorId(id)
+    setShowWarning(true)
+  }
+
+  const handleViewCreator = (id: string) => {
+    const creator = creatorData.find((creator) => creator.id === id)
+    setSingleCreator(creator)
+    setOpen(true)
+  }
 
   React.useEffect(() => {
-    if (user.id) {
+    if (user.id && creator.get('updateNeeded')) {
       fetchCreatorAsAdmin()
     }
-  }, [user])
+  }, [user, creator])
 
   const createData = (
     id: string,
@@ -83,10 +114,10 @@ const CreatorTable = (props: Props) => {
       socialMedia,
       action: (
         <>
-          <a href="#h" className={classes.actionStyle}>
+          <a href="#h" className={classes.actionStyle} onClick={() => handleViewCreator(id)}>
             <span className={classes.spanWhite}>View</span>
           </a>
-          <a href="#h" className={classes.actionStyle}>
+          <a href="#h" className={classes.actionStyle} onClick={() => handleShowWarning(id)}>
             {' '}
             <span className={classes.spanDange}>Delete</span>{' '}
           </a>
@@ -156,6 +187,30 @@ const CreatorTable = (props: Props) => {
         onRowsPerPageChange={handleRowsPerPageChange}
         className={classx.tableFooter}
       />
+      <Dialog
+        open={showWarning}
+        onClose={handleCloseWarning}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle className={classes.alert} id="alert-dialog-title">
+          {'Confirm to delete this creator!'}
+        </DialogTitle>
+        <DialogContent className={classes.alert}>
+          <DialogContentText className={classes.alert} id="alert-dialog-description">
+            Deleting creator can not be recovered!
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions className={classes.alert}>
+          <Button onClick={handleCloseWarning} className={classes.spanNone}>
+            Cancel
+          </Button>
+          <Button className={classes.spanDange} onClick={deleteCreatorHandler} autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+      {singleCreator && <ViewCreator adminCreator={singleCreator} viewModal={open}  closeViewModal={handleClose}/>}
     </div>
   )
 }

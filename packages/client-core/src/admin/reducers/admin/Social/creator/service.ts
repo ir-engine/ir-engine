@@ -1,10 +1,11 @@
 import { Dispatch } from 'redux'
-import { creatorLoggedRetrieved } from './actions'
+import { creatorLoggedRetrieved, add_creator, removeCreator } from './actions'
 import { client } from '../../../../../feathers'
 
 export const fetchCreatorAsAdmin =
   () =>
-  async (dispatch: Dispatch): Promise<any> => {
+  async (dispatch: Dispatch, getState: any): Promise<any> => {
+    const user = getState().get('auth').get('user')
     try {
       const result = await client.service('creator').find({
         query: {
@@ -25,11 +26,21 @@ export function createCreator() {
       const creator = await client
         .service('creator')
         .create({ name: 'User' + userNumber, username: 'user_' + userNumber })
-      console.log(creator)
-      // dispatch(creatorLoggedRetrieved(creator))
+      dispatch(add_creator(creator))
     } catch (err) {
       console.log(err)
       // dispatchAlertError(dispatch, err.message)
+    }
+  }
+}
+
+export function deleteCreator(creatorId: string){
+  return async (dispatch: Dispatch): Promise<any> =>{
+    try{
+      await client.service('creator').remove(creatorId)
+      dispatch(removeCreator(creatorId))
+    }catch(err){
+      console.log(err)
     }
   }
 }

@@ -13,6 +13,7 @@ import Grid from '@material-ui/core/Grid'
 import './PlayerStyles.css' // import css
 import { Player } from 'video-react'
 import { useStyle, useStyles } from './styles'
+import EditFeed from './EditFeed'
 
 interface Props {
   openModal: boolean
@@ -22,12 +23,15 @@ interface Props {
 
 const ViewFeed = (props: Props) => {
   const { openModal, viewFeed, closeViewModel } = props
+  const [editMode, setEditMode] = React.useState(false)
   const classex = useStyle()
   const classes = useStyles()
 
   return (
     <Drawer anchor="right" open={openModal} onClose={() => closeViewModel(false)} classes={{ paper: classex.paper }}>
-      <Paper elevation={3} className={classes.paperHeight}>
+      {editMode ? <EditFeed adminFeed={viewFeed} closeEdit={() => setEditMode(false)}/>: (
+        <React.Fragment>
+          <Paper elevation={3} className={classes.paperHeight}>
         <Container maxWidth="sm">
           <div className={classes.center}>
             <Typography variant="h4" component="span" className={classes.typo}>
@@ -69,12 +73,14 @@ const ViewFeed = (props: Props) => {
       </Container>
       <DialogActions className={classes.mt5}>
         <div>
-          <Button className={classex.saveBtn}>EDIT</Button>
+          <Button className={classex.saveBtn} onClick={() => setEditMode(true)} >EDIT</Button>
           <Button onClick={() => closeViewModel(false)} className={classex.saveBtn}>
             CANCEL
           </Button>
         </div>
       </DialogActions>
+        </React.Fragment>
+      )}
     </Drawer>
   )
 }
