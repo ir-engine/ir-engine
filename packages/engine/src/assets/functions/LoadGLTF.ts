@@ -51,6 +51,11 @@ export async function LoadGLTF(url: string): Promise<LoadGLTFResultInterface> {
     getLoader().load(
       url,
       (gltf) => {
+        // TODO: Remove me when we add retargeting
+        gltf.scene.traverse((o) => {
+          o.name = o.name.replace('mixamorig', '')
+        })
+
         loadExtentions(gltf)
         resolve({ animations: gltf.animations, scene: gltf.scene, json: {}, stats: {} })
       },

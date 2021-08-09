@@ -4,7 +4,7 @@ import { selectLocationState } from '@xrengine/client-core/src/social/reducers/l
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { changeFaceTrackingState, updateCamAudioState, updateCamVideoState } from '../../reducers/mediastream/service'
@@ -35,6 +35,8 @@ const mapDispatchToProps = (dispatch): any => ({
 
 const MediaIconsBox = (props) => {
   const { authState, locationState, mediastream } = props
+  const [hasAudioDevice, setHasAudioDevice] = useState(false)
+  const [hasVideoDevice, setHasVideoDevice] = useState(false)
 
   const user = authState.get('user')
   const currentLocation = locationState.get('currentLocation').get('location')
@@ -47,14 +49,22 @@ const MediaIconsBox = (props) => {
   const isCamVideoEnabled = mediastream.get('isCamVideoEnabled')
   const isCamAudioEnabled = mediastream.get('isCamAudioEnabled')
 
+  useEffect(() => {
+    navigator.mediaDevices
+      .enumerateDevices()
+      .then((devices) => {
+        devices.forEach((device) => {
+          if (device.kind === 'audioinput') setHasAudioDevice(true)
+          if (device.kind === 'videoinput') setHasVideoDevice(true)
+        })
+      })
+      .catch((err) => console.log('could not get media devices', err))
+  }, [])
+
   const onEngineLoaded = () => {
     document.removeEventListener('ENGINE_LOADED', onEngineLoaded)
   }
   document.addEventListener('ENGINE_LOADED', onEngineLoaded)
-
-  const checkMediaStream = async (partyId: string): Promise<boolean> => {
-    return await configureMediaTransports(partyId)
-  }
 
   const checkEndVideoChat = async () => {
     if (
@@ -67,7 +77,7 @@ const MediaIconsBox = (props) => {
   }
   const handleMicClick = async () => {
     const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId
-    if (await checkMediaStream(partyId)) {
+    if (await configureMediaTransports(['audio'], partyId)) {
       if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer(partyId)
       else {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()
@@ -81,7 +91,7 @@ const MediaIconsBox = (props) => {
 
   const handleCamClick = async () => {
     const partyId = currentLocation?.locationSettings?.instanceMediaChatEnabled === true ? 'instance' : user.partyId
-    if (await checkMediaStream(partyId)) {
+    if (await configureMediaTransports(['video'], partyId)) {
       if (MediaStreams.instance?.camVideoProducer == null) await createCamVideoProducer(partyId)
       else {
         const videoPaused = MediaStreams.instance.toggleVideoPaused()
@@ -99,7 +109,7 @@ const MediaIconsBox = (props) => {
 
   return (
     <section className={styles.drawerBox}>
-      {instanceMediaChatEnabled ? (
+      {instanceMediaChatEnabled && hasAudioDevice ? (
         <button
           type="button"
           id="UserAudio"
@@ -109,7 +119,7 @@ const MediaIconsBox = (props) => {
           <MicIcon />
         </button>
       ) : null}
-      {videoEnabled ? (
+      {videoEnabled && hasVideoDevice ? (
         <>
           <button
             type="button"

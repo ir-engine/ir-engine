@@ -8,10 +8,12 @@ export default (app: Application): void => {
   }
 
   app.on('login', (authResult: any, { connection }: any) => {
-    if (connection) app.channel(`userIds/${connection['identity-provider']?.userId as string}`).join(connection)
+    const identityProvider = authResult['identity-provider'] || connection['identity-provider']
+    if (identityProvider) app.channel(`userIds/${identityProvider.userId as string}`).join(connection)
   })
 
   app.on('logout', (authResult: any, { connection }: any) => {
-    if (connection) app.channel(`userIds/${connection['identity-provider']?.userId as string}`).leave(connection)
+    const identityProvider = authResult['identity-provider'] || connection['identity-provider']
+    if (identityProvider) app.channel(`userIds/${identityProvider.userId as string}`).leave(connection)
   })
 }
