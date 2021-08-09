@@ -25,8 +25,10 @@ import { DebugArrowComponent } from '../DebugArrowComponent'
 import { DebugRenderer } from './DebugRenderer'
 import { XRInputSourceComponent } from '../../character/components/XRInputSourceComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
+import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
 
-type ComponentHelpers = 'viewVector' | 'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box'
+type ComponentHelpers = 'viewVector' | 'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box' | 'navmesh'
 
 const vector3 = new Vector3()
 const quat = new Quaternion()
@@ -40,7 +42,8 @@ export class DebugHelpers {
     ikExtents: new Map(),
     box: new Map(),
     helperArrow: new Map(),
-    velocityArrow: new Map()
+    velocityArrow: new Map(),
+    navmesh: new Map()
   }
 
   static physicsDebugRenderer: DebugRenderer
@@ -291,6 +294,27 @@ export class DebugHelpersSystem extends System {
       }
     }
 
+    // ===== NAVMESH Helper ===== //
+    for (const entity of this.queryResults.navmesh?.added) {
+      console.log('add mesh helper!')
+      const navMesh = getComponent(entity, NavMeshComponent)?.yukaNavMesh
+      const helper = createConvexRegionHelper(navMesh)
+      Engine.scene.add(helper)
+      DebugHelpers.helpersByEntity.navmesh.set(entity, helper)
+    }
+    for (const entity of this.queryResults.navmesh?.all) {
+      // update
+      const helper = DebugHelpers.helpersByEntity.navmesh.get(entity) as Object3D
+      const transform = getComponent(entity, TransformComponent)
+      helper.position.copy(transform.position)
+      helper.quaternion.copy(transform.rotation)
+    }
+    for (const entity of this.queryResults.navmesh?.removed) {
+      const helper = DebugHelpers.helpersByEntity.navmesh.get(entity) as Object3D
+      Engine.scene.remove(helper)
+      DebugHelpers.helpersByEntity.navmesh.delete(entity)
+    }
+
     DebugHelpers.physicsDebugRenderer.update()
   }
 }
@@ -326,6 +350,13 @@ DebugHelpersSystem.queries = {
   },
   ikAvatar: {
     components: [XRInputSourceComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  navmesh: {
+    components: [NavMeshComponent],
     listen: {
       added: true,
       removed: true
