@@ -86,8 +86,8 @@
     height: 486pt;
     .btn_cancel,
     .btn_start {
-      font-size: 14pt;
-      padding: 8pt;
+      font-size: 13pt;
+      padding: 6pt;
       border-radius: 10px;
     }
     p {
@@ -193,17 +193,106 @@
 .dot {
   color: black;
   cursor: pointer;
-  font-size: 36px;
+  font-size: 40px;
   line-height: 1;
   margin: 0 15px;
-  opacity: 0.4;
+  opacity: 0.5;
   text-shadow: none;
   transition: opacity 1s ease, text-shadow 1s ease;
   will-change: opacity, text-shadow;
 }
 
 .active {
-  color: var(--blue);
+  color: blue;
   opacity: 1;
-  text-shadow: 0 0px 8px;
+  text-shadow: 0 0px 10px;
+}
+
+.animated {
+  animation-duration: 0.8192s;
+  animation-fill-mode: backwards;
+  transform-style: preserve-3d;
+}
+
+/** intro */
+@keyframes intro {
+  from {
+    opacity: 0;
+    transform: perspective(500px) translate3d(0, 0, -50px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.intro {
+  animation: intro 1s ease-out;
+}
+
+/** enterRight */
+@keyframes enterRight {
+  from {
+    opacity: 0;
+    transform: perspective(500px) translate3d(20%, 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.enterRight {
+  animation-name: enterRight;
+}
+
+/** enterLeft */
+@keyframes enterLeft {
+  from {
+    opacity: 0;
+    transform: perspective(500px) translate3d(-20%, 0, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.enterLeft {
+  animation-name: enterLeft;
+}
+
+/** exitRight */
+@keyframes exitRight {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    transform: perspective(500px) translate3d(100%, 0, -100px);
+  }
+}
+
+.exitRight {
+  animation-name: exitRight;
+}
+
+/** exitLeft */
+@keyframes exitLeft {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    transform: perspective(500px) translate3d(-100%, 0, -100px);
+  }
+}
+
+.exitLeft {
+  animation-name: exitLeft;
 }

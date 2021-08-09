@@ -143,7 +143,7 @@ export class MapboxTileLoader {
     this.opts = args = args || {}
     this.opts.layers = this.opts.layers || [
       'building',
-      'road',
+      'road'
       // 'road_label',
       // 'barrier_line'
       // 'contour',

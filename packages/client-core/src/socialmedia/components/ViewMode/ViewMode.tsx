@@ -149,6 +149,16 @@ export const ViewMode = ({ updateArMediaState }: Props) => {
 
     return <div className={classes.nav}>{dots}</div>
   }
+  const [state] = useState({
+    form: {},
+    transitions: {
+      enterRight: `${classes.animated} ${classes.enterRight}`,
+      enterLeft: `${classes.animated} ${classes.enterLeft}`,
+      exitRight: `${classes.animated} ${classes.exitRight}`,
+      exitLeft: `${classes.animated} ${classes.exitLeft}`,
+      intro: `${classes.animated} ${classes.intro}`
+    }
+  })
 
   const handleOpenNewFeedPage = () => {
     setOpen(false)
@@ -180,7 +190,7 @@ export const ViewMode = ({ updateArMediaState }: Props) => {
             {t('social:view.cancel')}
           </Button>
           <div>
-            <StepWizard nav={<Nav />}>
+            <StepWizard nav={<Nav />} transitions={state.transitions}>
               <Greatings />
               <First />
               <Two />
