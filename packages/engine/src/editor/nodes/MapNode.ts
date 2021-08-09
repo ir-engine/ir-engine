@@ -1,5 +1,5 @@
-import { Object3D, BoxBufferGeometry, Material, Vector3 } from 'three'
-import { createBuildings, createRoads, createGround } from '../../map/MeshBuilder'
+import { Mesh, Object3D, BoxBufferGeometry, Material } from 'three'
+import { createBuildings, createRoads, createGround, safelySetGroundScaleAndPosition } from '../../map/MeshBuilder'
 import { fetchVectorTiles, fetchRasterTiles } from '../../map/MapBoxClient'
 import EditorNodeMixin from './EditorNodeMixin'
 
@@ -56,13 +56,14 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     this.mapLayers = {
       building: createBuildings(vectorTiles, center, renderer),
 
-      roads: createRoads(vectorTiles, center, renderer),
+      road: createRoads(vectorTiles, center, renderer),
 
       ground: createGround(rasterTiles, center[1])
     }
 
     Object.values(this.mapLayers).forEach((layer) => {
       this.applyScale(layer)
+      safelySetGroundScaleAndPosition(this.mapLayers.ground, this.mapLayers.building)
       this.add(layer)
     })
   }
@@ -71,6 +72,7 @@ export default class MapNode extends EditorNodeMixin(Object3D) {
     const rasterTiles = this.showRasterTiles ? await fetchRasterTiles(center) : []
     this.mapLayers.ground = createGround(rasterTiles, center[1])
     this.applyScale(this.mapLayers.ground)
+    safelySetGroundScaleAndPosition(this.mapLayers.ground, this.mapLayers.building)
     this.add(this.mapLayers.ground)
   }
   copy(source, recursive = true) {
