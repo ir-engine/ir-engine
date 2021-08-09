@@ -12,4 +12,4 @@ export enum CollisionGroups {
   Trigger = 1 << 5
 }
 
-export const DefaultCollisionMask = CollisionGroups.Default | CollisionGroups.Avatars | CollisionGroups.Ground | CollisionGroups.Trigger
+export const DefaultCollisionMask = CollisionGroups.Default | CollisionGroups.Avatars | CollisionGroups.Ground

@@ -12,6 +12,8 @@ target: any
   // console.warn("TODO: create trigger volume, args are", args);
   const triggerVolume = addComponent(entity, TriggerVolumeComponent);
 
+  console.log("args are", args);
+
   const transform = getComponent(entity, TransformComponent)
   const pos = transform.position ?? { x: 0, y: 0, z: 0 }
   const rot = transform.rotation ?? { x: 0, y: 0, z: 0, w: 1 }

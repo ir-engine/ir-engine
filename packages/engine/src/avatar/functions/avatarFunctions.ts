@@ -57,7 +57,6 @@ const loadAvatarFromURL = (entity: Entity, avatarURL: string) => {
         // TODO: Remove me when we add retargeting
         if (o.name.includes('mixamorig')) {
           o.name = o.name.replace('mixamorig', '')
-          console.log(o.name)
         }
       })
 
