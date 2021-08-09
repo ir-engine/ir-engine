@@ -195,9 +195,8 @@ const EditFeed = (props: Props) => {
                 <ClearIcon style={{ fontWeight: 'bold' }} />
               </IconButton>
             }
-          >
-          </Badge>
-        <Player  playsInline poster={adminFeed.previewUrl} src={adminFeed.videoUrl} />
+          ></Badge>
+          <Player playsInline poster={adminFeed.previewUrl} src={adminFeed.videoUrl} />
         </div>
       )}
 

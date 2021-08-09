@@ -207,10 +207,9 @@ export const useStyles = makeStyles((theme: Theme) =>
       marginTop: '3%',
       width: '373px'
     },
-    margin:{
+    margin: {
       marginTop: '70px'
     }
-
   })
 )
 

@@ -1,4 +1,9 @@
-import { RETRIEVE_CREATOR_AS_ADMIN, CREATE_CREATOR_AS_ADMIN, ADD_CREATOR_AS_ADMIN, REMOVE_CREATOR } from '../../../actions'
+import {
+  RETRIEVE_CREATOR_AS_ADMIN,
+  CREATE_CREATOR_AS_ADMIN,
+  ADD_CREATOR_AS_ADMIN,
+  REMOVE_CREATOR
+} from '../../../actions'
 
 import { Creator, CreatorShort } from '@xrengine/common/src/interfaces/Creator'
 
@@ -39,7 +44,6 @@ export function add_creator(creator: Creator): CreatorRetrievedAction {
     creator
   }
 }
-
 
 export function removeCreator(id: string): FetchingCreatorItemAction {
   return {

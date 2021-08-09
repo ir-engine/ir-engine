@@ -34,12 +34,12 @@ export function createCreator() {
   }
 }
 
-export function deleteCreator(creatorId: string){
-  return async (dispatch: Dispatch): Promise<any> =>{
-    try{
+export function deleteCreator(creatorId: string) {
+  return async (dispatch: Dispatch): Promise<any> => {
+    try {
       await client.service('creator').remove(creatorId)
       dispatch(removeCreator(creatorId))
-    }catch(err){
+    } catch (err) {
       console.log(err)
     }
   }

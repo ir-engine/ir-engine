@@ -58,9 +58,9 @@ const CreatorTable = (props: Props) => {
     setPage(newPage)
   }
 
-  const handleClose = (open: boolean) =>{
+  const handleClose = (open: boolean) => {
     setOpen(open)
-}
+  }
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value)
@@ -210,7 +210,7 @@ const CreatorTable = (props: Props) => {
           </Button>
         </DialogActions>
       </Dialog>
-      {singleCreator && <ViewCreator adminCreator={singleCreator} viewModal={open}  closeViewModal={handleClose}/>}
+      {singleCreator && <ViewCreator adminCreator={singleCreator} viewModal={open} closeViewModal={handleClose} />}
     </div>
   )
 }

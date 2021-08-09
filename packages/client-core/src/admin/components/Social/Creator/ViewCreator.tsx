@@ -23,23 +23,24 @@ const ViewCreator = (props: Props) => {
   return (
     <React.Fragment>
       <Drawer classes={{ paper: classesx.paper }} anchor="right" open={viewModal} onClose={() => closeViewModal(false)}>
-      {editMode ? <EditCreator onCloseEdit={() => setEditMode(false)} /> : ( 
-         <React.Fragment>
-
-        <Paper elevation={3} className={classes.paperHeight}>
-          <Container maxWidth="sm">
-            <div className={classes.center}>
-              <Typography variant="h4" component="span" className={classes.typo}>
-                {adminCreator.name}
+        {editMode ? (
+          <EditCreator onCloseEdit={() => setEditMode(false)} />
+        ) : (
+          <React.Fragment>
+            <Paper elevation={3} className={classes.paperHeight}>
+              <Container maxWidth="sm">
+                <div className={classes.center}>
+                  <Typography variant="h4" component="span" className={classes.typo}>
+                    {adminCreator.name}
+                  </Typography>
+                </div>
+              </Container>
+            </Paper>
+            <Container maxWidth="sm" className={classes.marginTop}>
+              <Typography variant="h4" component="h4" className={classes.mb40px}>
+                Creator Information
               </Typography>
-            </div>
-          </Container>
-          </Paper>
-          <Container maxWidth="sm" className={classes.marginTop}>
-          <Typography variant="h4" component="h4" className={classes.mb40px}>
-                  Creator Information
-                </Typography>
-          <Grid container spacing={3}>
+              <Grid container spacing={3}>
                 <Grid item xs={6}>
                   <Typography variant="h5" component="h5" className={classes.mb10}>
                     Email:
@@ -75,15 +76,17 @@ const ViewCreator = (props: Props) => {
                   </Typography>
                 </Grid>
               </Grid>
-            <DialogActions className={classes.marginTp}>
-              <Button onClick={() => setEditMode(true)} className={classesx.saveBtn}>Edit</Button>
-              <Button onClick={() => closeViewModal(false)} className={classesx.saveBtn}>
-                Cancel
-              </Button>
-            </DialogActions>
-          </Container>
-         </React.Fragment>
-      )}
+              <DialogActions className={classes.marginTp}>
+                <Button onClick={() => setEditMode(true)} className={classesx.saveBtn}>
+                  Edit
+                </Button>
+                <Button onClick={() => closeViewModal(false)} className={classesx.saveBtn}>
+                  Cancel
+                </Button>
+              </DialogActions>
+            </Container>
+          </React.Fragment>
+        )}
       </Drawer>
     </React.Fragment>
   )
