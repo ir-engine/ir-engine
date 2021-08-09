@@ -8,7 +8,6 @@
 import { PerspectiveCamera, Scene, WebGLRenderer, XRFrame, XRSession } from 'three'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Entity } from './Entity'
-import { createElement } from '../functions/createElement'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { GameMode } from '../../game/types/GameMode'
@@ -17,7 +16,6 @@ import { InitializeOptions } from '../../initializationOptions'
 import { CSM } from '../../assets/csm/CSM'
 import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
 import { OrthographicCamera } from 'three'
-import { System } from 'bitecs'
 
 /**
  * This is the base class which holds all the data related to the scene, camera,system etc.
@@ -117,8 +115,6 @@ export class Engine {
   static tick = 0
   /** HTML Element in which Engine renders. */
   static viewportElement: HTMLElement
-
-  static createElement: any = createElement
 
   static useAudioSystem = false
 

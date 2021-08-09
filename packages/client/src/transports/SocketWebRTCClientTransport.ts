@@ -276,7 +276,6 @@ export class SocketWebRTCClientTransport implements NetworkTransport {
             MediaStreams.instance?.camAudioProducer?.id
           ]
           if (
-            // (MediaStreamSystem.mediaStream !== null) &&
             producerId != null &&
             channelType === self.channelType &&
             selfProducerIds.indexOf(producerId) < 0

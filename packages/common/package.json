@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/common",
-  "version": "0.3.31",
+  "version": "0.3.32",
   "main": "index.ts",
   "module": "dist/common.es.js",
   "publishConfig": {
