@@ -93,7 +93,7 @@ export const getComponent = <T extends any, S extends ISchema>(entity: Entity, c
 
 export const addComponent = <T extends any, S extends ISchema>(entity: Entity, component: MappedComponent<T, S>, args: T, world = World.defaultWorld.ecsWorld) => {
   _addComponent(world, component, entity)
-  component.set(entity, args)
+  component.set(entity, args ?? <T>{})
   return component.get(entity)
 }
 
