@@ -53,6 +53,14 @@ const loadAvatarFromURL = (entity: Entity, avatarURL: string) => {
       receiveShadow: true
     },
     (asset: Group) => {
+      asset.traverse(o => {
+        // TODO: Remove me when we add retargeting
+        if(o.name.includes('mixamorig')) {
+          o.name = o.name.replace('mixamorig', '')
+          console.log(o.name)
+        }
+      })
+      
       const model = SkeletonUtils.clone(asset)
       const avatar = getMutableComponent(entity, AvatarComponent)
       const animationComponent = getMutableComponent(entity, AnimationComponent)

@@ -23,8 +23,8 @@ export default class CameraPropertiesNode extends EditorNodeMixin(Object3D) {
     node.cameraNearClip = cameraNearClip ?? 0.1
     node.cameraFarClip = cameraFarClip ?? 100
     node.projectionType = projectionType
-    node.minCameraDistance = minCameraDistance ?? 20
-    node.maxCameraDistance = maxCameraDistance ?? 6
+    node.minCameraDistance = minCameraDistance ?? 6
+    node.maxCameraDistance = maxCameraDistance ?? 20
     node.startCameraDistance = startCameraDistance ?? 12
 
     node.cameraMode = cameraMode
