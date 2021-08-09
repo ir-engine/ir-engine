@@ -55,7 +55,7 @@ export const startFaceTracking = async () => {
     faceTrackingTimers.push(interval)
   })
 
-  faceVideo.srcObject = MediaStreams.instance.mediaStream
+  faceVideo.srcObject = MediaStreams.instance.videoStream
   faceVideo.muted = true
   faceVideo.play()
 }
@@ -119,7 +119,7 @@ export const startLipsyncTracking = () => {
   userSpeechAnalyzer.smoothingTimeConstant = 0.5
   userSpeechAnalyzer.fftSize = FFT_SIZE
 
-  const inputStream = audioContext.createMediaStreamSource(MediaStreams.instance.mediaStream)
+  const inputStream = audioContext.createMediaStreamSource(MediaStreams.instance.audioStream)
   inputStream.connect(userSpeechAnalyzer)
 
   const audioProcessor = audioContext.createScriptProcessor(FFT_SIZE * 2, 1, 1)
