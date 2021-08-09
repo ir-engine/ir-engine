@@ -11,7 +11,7 @@ import config from '@xrengine/server-core/src/appconfig'
 import { closeTransport } from './WebRTCFunctions'
 import { WorldStateModel } from '@xrengine/engine/src/networking/schema/worldStateSchema'
 import { Quaternion, Vector3 } from 'three'
-import { checkIfIdHavePrepair } from '@xrengine/engine/src/networking/functions/initializeNetworkObject'
+import { checkIfIdHavePrepair } from "@xrengine/engine/src/networking/functions/checkIfIdHavePrepair"
 import { PrefabType } from '@xrengine/engine/src/networking/templates/PrefabType'
 import { spawnPrefab } from '@xrengine/engine/src/networking/functions/spawnPrefab'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/ServerAvatarSpawnSystem'

@@ -16,7 +16,6 @@ import { addObject3DComponent } from '../behaviors/addObject3DComponent'
 import { createDirectionalLight } from '../behaviors/createDirectionalLight'
 import { createGame } from '../behaviors/createGame'
 import { createGround } from '../behaviors/createGround'
-import { createGroup } from '../behaviors/createGroup'
 import { createMap } from '../behaviors/createMap'
 import { createAudio, createMediaServer, createVideo, createVolumetric } from '../behaviors/createMedia'
 import { createPortal } from '../behaviors/createPortal'
@@ -41,7 +40,6 @@ import WalkableTagComponent from '../components/Walkable'
 import { BoxColliderProps } from '../interfaces/BoxColliderProps'
 import { SceneData } from '../interfaces/SceneData'
 import { SceneDataComponent } from '../interfaces/SceneDataComponent'
-
 export enum SCENE_ASSET_TYPES {
   ENVMAP
 }
@@ -253,10 +251,6 @@ export class WorldScene {
         })
         break
 
-      case 'group':
-        createGroup(entity, component.data)
-        break
-
       case 'box-collider':
         const boxColliderProps: BoxColliderProps = component.data
         createCollider(
@@ -317,6 +311,7 @@ export class WorldScene {
       /* intentionally empty - these are only for the editor */
       case 'reflectionprobestatic':
       case 'reflectionprobe':
+      case 'group':
         break
 
       case 'visible':
