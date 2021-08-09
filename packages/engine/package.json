@@ -88,7 +88,7 @@
     "@types/jest": "26.0.24",
     "@types/jest-environment-puppeteer": "4.4.1",
     "@types/puppeteer": "5.4.4",
-    "@types/three": "0.130.1",
+    "@types/three": "0.130.2",
     "@types/yuka": "0.7.1",
     "cross-env": "7.0.3",
     "esbuild": "0.12.19",
