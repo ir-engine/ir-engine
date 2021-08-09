@@ -8,14 +8,9 @@ import { VisibleComponent } from '../scene/components/VisibleComponent'
 /** System Class for Highlight system.\
  * This system will highlight the entity with {@link effects/components/HighlightComponent.HighlightComponent | Highlight} Component attached.
  */
-export class VisibilitySystem extends System {
+export const VisibilitySystem = async (): Promise<System> => {
   /** Executes the system. */
   execute(deltaTime, time): void {
-    for (const entity of this.queryResults.visible.added) {
-      const obj = getComponent(entity, Object3DComponent)
-      const visibleComponent = getComponent(entity, VisibleComponent)
-      obj.value.visible = visibleComponent.value
-    }
   }
 }
 

@@ -7,21 +7,17 @@
 
 import { PerspectiveCamera, Scene, WebGLRenderer, XRFrame, XRSession } from 'three'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { EngineOptions } from '../interfaces/EngineOptions'
 import { Entity } from './Entity'
-import { EntityPool } from './EntityPool'
-import { EntityEventDispatcher } from './EntityEventDispatcher'
-import { Query } from './Query'
 import { createElement } from '../functions/createElement'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { GameMode } from '../../game/types/GameMode'
 import { EngineEvents } from './EngineEvents'
-import { ActiveSystems, System } from './System'
 import { InitializeOptions } from '../../initializationOptions'
 import { CSM } from '../../assets/csm/CSM'
 import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
 import { OrthographicCamera } from 'three'
+import { System } from 'bitecs'
 
 /**
  * This is the base class which holds all the data related to the scene, camera,system etc.
@@ -116,18 +112,6 @@ export class Engine {
    */
   static enabled = true
 
-  /**
-   * List of registered systems.
-   */
-  static systems: System[] = []
-
-  /**
-   * List of systems to execute this frame.
-   * @todo replace with a ring buffer and set buffer size in default options
-   *
-   * @author Fernando Serrano, Robert Long
-   */
-  static activeSystems: ActiveSystems = null
   static lastTime: number
 
   static tick = 0

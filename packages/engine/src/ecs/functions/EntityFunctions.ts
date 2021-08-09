@@ -7,7 +7,8 @@ import {
   ComponentType,
   ISchema,
   Type,
-  addEntity
+  addEntity,
+  getEntityComponents
 } from 'bitecs'
 
 import { Entity } from '../classes/Entity'
@@ -84,6 +85,7 @@ export const createEntity = (world = World.defaultWorld.ecsWorld): Entity => {
 
 export const removeEntity = (entity: Entity, world = World.defaultWorld.ecsWorld) => {
   _removeEntity(world, entity)
+  // TODO: remove mapped component data
 }
 
 export const getComponent = <T extends any, S extends ISchema>(entity: Entity, component: MappedComponent<T, S>, getRemoved = false, world = World.defaultWorld.ecsWorld): T & SoAProxy<S> => {
@@ -106,4 +108,15 @@ export const removeComponent = <T extends any, S extends ISchema>(entity: Entity
   world._removedComponents.set(entity, componentRef)
   _removeComponent(world, component, entity)
   return componentRef
+}
+
+export const removeAllComponents = (entity: Entity, world = World.defaultWorld.ecsWorld) => {
+  for(const component of getEntityComponents(world, entity)) {
+    _removeComponent(world, component, entity)
+    // TODO: remove mapped component data
+  }
+}
+
+export const removeAllEntities = (world = World.defaultWorld.ecsWorld) => {
+ // TODO
 }

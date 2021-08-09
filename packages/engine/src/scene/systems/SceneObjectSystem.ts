@@ -8,6 +8,7 @@ import { beforeMaterialCompile } from '../../editor/nodes/helper/BPCEMShader'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
+import { VisibleComponent } from '../components/VisibleComponent'
 
 /**
  * @author Josh Field <github.com/HexaField>
@@ -39,6 +40,9 @@ export const SceneObjectSystem = async (): Promise<System> => {
 
   const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
   const persistAddQuery = enterQuery(persistQuery)
+
+  const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
+  const visibleAddQuery = enterQuery(visibleQuery)
 
   SceneOptions.instance = new SceneOptions()
 
@@ -109,6 +113,12 @@ export const SceneObjectSystem = async (): Promise<System> => {
       object3DComponent?.value?.traverse((obj) => {
         obj.layers.enable(CameraLayers.Portal)
       })
+    }
+
+    for (const entity of visibleAddQuery(world)) {
+      const obj = getComponent(entity, Object3DComponent)
+      const visibleComponent = getComponent(entity, VisibleComponent)
+      obj.value.visible = visibleComponent.value
     }
 
     return world

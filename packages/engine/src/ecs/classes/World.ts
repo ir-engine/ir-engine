@@ -1,8 +1,4 @@
-import { 
-  IWorld,
-  createWorld
-} from 'bitecs'
-
+import { createWorld } from 'bitecs'
 import { Entity } from './Entity'
 
 export interface ECSWorld {
