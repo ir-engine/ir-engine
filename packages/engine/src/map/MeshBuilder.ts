@@ -37,7 +37,7 @@ function llToScene([lng, lat]: Position, [lngCenter, latCenter]: Position): Posi
   return [(lng - lngCenter) * METERS_PER_DEGREE_LL, (lat - latCenter) * METERS_PER_DEGREE_LL]
 }
 
-function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Position): BufferGeometry {
+function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Position): BufferGeometry | null {
   const shape = new Shape()
   const styles = getFeatureStyles(DEFAULT_FEATURE_STYLES, layerName, feature.properties.class)
 
@@ -87,7 +87,7 @@ function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Positi
     height = styles.height || 4
   }
 
-  let threejsGeometry: BufferGeometry | null
+  let threejsGeometry: BufferGeometry | null = null
 
   if (styles.extrude === 'flat') {
     threejsGeometry = new ShapeGeometry(shape)
@@ -108,7 +108,9 @@ function buildGeometry(layerName: ILayerName, feature: Feature, llCenter: Positi
     })
   }
 
-  threejsGeometry.rotateX(-Math.PI / 2)
+  if (threejsGeometry) {
+    threejsGeometry.rotateX(-Math.PI / 2)
+  }
 
   if (styles.color && styles.color.builtin_function === 'purple_haze') {
     const light = new Color(0xa0c0a0)
@@ -125,7 +127,7 @@ function buildGeometries(layerName: ILayerName, features: Feature[], llCenter: P
 
   // the current method of merging produces strange results with flat geometries
   if (styles.extrude !== 'flat') {
-    return [mergeBufferGeometries(geometries.map((g) => toIndexed(g)))]
+    return [mergeBufferGeometries(geometries.filter((g) => g).map((g) => toIndexed(g)))]
   } else {
     return geometries
   }
