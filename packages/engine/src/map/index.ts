@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { createRoads, createGround, createBuildings } from './MeshBuilder'
+import { createRoads, createGround, createBuildings, setGroundScaleAndPosition } from './MeshBuilder'
 import { fetchVectorTiles, fetchRasterTiles } from './MapBoxClient'
 import { MapProps } from './MapProps'
 import { Group } from 'three'
@@ -11,12 +11,16 @@ export const create = async function (renderer: THREE.WebGLRenderer, args: MapPr
   const rasterTiles = (args as any).showRasterTiles ? await fetchRasterTiles(center) : []
 
   const group = new Group()
+  const buildingMesh = createBuildings(vectorTiles, center, renderer)
+  const groundMesh = createGround(rasterTiles as any, center[1])
 
-  group.add(createBuildings(vectorTiles, center, renderer))
+  setGroundScaleAndPosition(groundMesh, buildingMesh)
+
+  group.add(buildingMesh)
 
   group.add(createRoads(vectorTiles, center, renderer))
 
-  group.add(createGround(rasterTiles as any, center[1]))
+  group.add(groundMesh)
 
   group.position.multiplyScalar(args.scale.x)
   group.scale.multiplyScalar(args.scale.x)
