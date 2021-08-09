@@ -13,7 +13,8 @@ import {
   MeshStandardMaterial,
   Vector3,
   MathUtils,
-  Euler
+  Euler,
+  Quaternion
 } from 'three'
 import {
   Body,
@@ -29,13 +30,7 @@ import { CollisionGroups } from '../../../../physics/enums/CollisionGroups'
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent'
 import { GameObject } from '../../../components/GameObject'
 import { Behavior } from '../../../../common/interfaces/Behavior'
-import {
-  hasComponent,
-  addComponent,
-  getComponent,
-  getComponent,
-  removeComponent
-} from '../../../../ecs/functions/EntityFunctions'
+import { hasComponent, addComponent, getComponent, removeComponent } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
 import { getGame } from '../../../functions/functions'
 import { NetworkObjectComponent } from '../../../../networking/components/NetworkObjectComponent'
@@ -97,7 +92,7 @@ export const spawnClub: Behavior = (
   })
 }
 
-export const setClubOpacity = (golfClubComponent: GolfClubComponent, opacity: number): void => {
+export const setClubOpacity = (golfClubComponent: ReturnType<typeof GolfClubComponent.get>, opacity: number): void => {
   //@ts-ignore
   golfClubComponent?.meshGroup?.traverse((obj: Mesh) => {
     if (obj.material) {
@@ -265,23 +260,26 @@ type GolfClubSpawnParameters = {
 export const initializeGolfClub = (entityClub: Entity, parameters: GolfClubSpawnParameters) => {
   const { gameName, role, uuid, ownerNetworkId } = parameters
 
-  const transform = addComponent(entityClub, TransformComponent)
-  addComponent(entityClub, VelocityComponent)
+  const transform = addComponent(entityClub, TransformComponent, {
+    position: new Vector3(),
+    rotation: new Quaternion(),
+    scale: new Vector3(1, 1, 1)
+  })
+  addComponent(entityClub, VelocityComponent, { velocity: new Vector3() })
   const gameObject = addComponent(entityClub, GameObject, {
     gameName,
     role,
-    uuid
+    uuid,
+    collisionBehaviors: {}
   })
   addComponent(entityClub, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
-
-  const golfClubComponent = addComponent(entityClub, GolfClubComponent)
 
   const ownerEntity = Network.instance.networkObjects[ownerNetworkId].component.entity
   const ownerPlayerNumber = Number(getComponent(ownerEntity, GamePlayer).role.substr(0, 1)) - 1
 
   const color = GolfColours[ownerPlayerNumber]
 
-  golfClubComponent.raycast = PhysXInstance.instance.addRaycastQuery(
+  const raycast = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
       origin: new Vector3(),
@@ -290,7 +288,7 @@ export const initializeGolfClub = (entityClub: Entity, parameters: GolfClubSpawn
       collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
     })
   )
-  golfClubComponent.raycast1 = PhysXInstance.instance.addRaycastQuery(
+  const raycast1 = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
       origin: new Vector3(),
@@ -304,7 +302,6 @@ export const initializeGolfClub = (entityClub: Entity, parameters: GolfClubSpawn
     new BoxBufferGeometry(clubHalfWidth, clubHalfWidth, 0.25),
     new MeshStandardMaterial({ color, transparent: true })
   )
-  golfClubComponent.handleObject = handleObject
 
   const headGroup = new Group()
   const headObject = new Mesh(
@@ -314,17 +311,14 @@ export const initializeGolfClub = (entityClub: Entity, parameters: GolfClubSpawn
   // raise the club by half it's height and move it out by half it's length so it's flush to ground and attached at end
   headObject.position.set(0, clubHalfWidth, -(clubPutterLength * 0.5))
   headGroup.add(headObject)
-  golfClubComponent.headGroup = headGroup
 
   const neckObject = new Mesh(
     new BoxBufferGeometry(clubHalfWidth * 0.5, clubHalfWidth * 0.5, -1.75),
     new MeshStandardMaterial({ color: 0x736e63, transparent: true, side: DoubleSide })
   )
-  golfClubComponent.neckObject = neckObject
 
   const meshGroup = new Group()
   meshGroup.add(handleObject, headGroup, neckObject)
-  golfClubComponent.meshGroup = meshGroup
 
   meshGroup.traverse((obj) => {
     obj.castShadow = true
@@ -354,12 +348,35 @@ export const initializeGolfClub = (entityClub: Entity, parameters: GolfClubSpawn
 
   addComponent(entityClub, ColliderComponent, { body })
 
+  const velocity = new Vector3()
+  addComponent(entityClub, DebugArrowComponent, {
+    color: 0xff00ff,
+    direction: new Vector3(),
+    position: new Vector3(),
+  })
+
+  const golfClubComponent = addComponent(entityClub, GolfClubComponent, { 
+    canDoChipShots: false,
+    neckObject,
+    handleObject,
+    headGroup,
+    meshGroup,
+    raycast,
+    raycast1,
+    canHitBall: false, 
+    hasHitBall: false,
+    velocityPositionsToCalculate: 4,
+    lastPositions: [],
+    velocity: new Vector3(),
+    velocityServer: new Vector3(),
+    swingVelocity: 0,
+    hidden: false,
+    disabledOpacity: 0.3,
+  })
+
   for (let i = 0; i < golfClubComponent.velocityPositionsToCalculate; i++) {
     golfClubComponent.lastPositions[i] = new Vector3()
   }
-  golfClubComponent.velocity = new Vector3()
-  addComponent(entityClub, DebugArrowComponent)
-
   gameObject.collisionBehaviors['GolfBall'] = onClubColliderWithBall
 
   if (isClient) {

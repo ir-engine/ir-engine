@@ -15,12 +15,16 @@ import { Entity } from '../classes/Entity'
 import { World } from '../classes/World'
 
 // TODO: benchmark map vs array for componentMap
-export const createMappedComponent = <T extends {}, S extends ISchema = {}>(schema?: S) => {
+export const createMappedComponent = <T extends {}, S extends ISchema = {}>(schema?: S, defaultValues = {}) => {
   
   const component = defineComponent(schema)
   const componentMap = new Map<number, T & SoAProxy<S>>()
   // const componentMap = []
 
+  Object.defineProperty(component, '_default', {
+    value: defaultValues
+  })
+  
   Object.defineProperty(component, 'get', {
     value: function (eid: number) {
       // return componentMap[eid]
@@ -88,6 +92,8 @@ export const removeEntity = (entity: Entity, world = World.defaultWorld.ecsWorld
   // TODO: remove mapped component data
 }
 
+export type ComponentConstructor<T, S extends ISchema> = MappedComponent<T, S>
+
 export const getComponent = <T extends any, S extends ISchema>(entity: Entity, component: MappedComponent<T, S>, getRemoved = false, world = World.defaultWorld.ecsWorld): T & SoAProxy<S> => {
   if(getRemoved) return world._removedComponents.get(entity) ?? component.get(entity)
   return component.get(entity)
@@ -95,7 +101,7 @@ export const getComponent = <T extends any, S extends ISchema>(entity: Entity, c
 
 export const addComponent = <T extends any, S extends ISchema>(entity: Entity, component: MappedComponent<T, S>, args: T, world = World.defaultWorld.ecsWorld) => {
   _addComponent(world, component, entity)
-  component.set(entity, args ?? <T>{})
+  component.set(entity, Object.assign({}, args, component._default))
   return component.get(entity)
 }
 

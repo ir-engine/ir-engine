@@ -3,7 +3,7 @@ import { Object3D, PositionalAudio } from 'three'
 import { addObject3DComponent } from './addObject3DComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { InteractableComponent } from '../../interaction/components/InteractableComponent'
-import VolumetricComponent from '../components/VolumetricComponent'
+import { VolumetricComponent } from '../components/VolumetricComponent'
 import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
 import Video from '../classes/Video'
 import AudioSource from '../classes/AudioSource'
@@ -46,7 +46,7 @@ export interface VideoProps extends AudioProps {
 
 export function createMediaServer(entity, args: { interactable: boolean }): void {
   addObject3DComponent(entity, new Object3D(), args)
-  if (args.interactable) addComponent(entity, InteractableComponent)
+  if (args.interactable) addComponent(entity, InteractableComponent, { data: args })
 }
 
 export function createAudio(entity, args: AudioProps): void {
@@ -54,7 +54,7 @@ export function createAudio(entity, args: AudioProps): void {
   addObject3DComponent(entity, audio, args)
   audio.load()
   addComponent(entity, PositionalAudioComponent, { value: new PositionalAudio(Engine.audioListener) })
-  if (args.interactable) addComponent(entity, InteractableComponent)
+  if (args.interactable) addComponent(entity, InteractableComponent, { data: args })
 }
 
 export function createVideo(entity, args: VideoProps): void {
@@ -65,7 +65,7 @@ export function createVideo(entity, args: VideoProps): void {
   }
   addObject3DComponent(entity, video, args)
   video.load()
-  if (args.interactable) addComponent(entity, InteractableComponent)
+  if (args.interactable) addComponent(entity, InteractableComponent, { data: args })
 }
 
 interface VolumetricProps {
@@ -76,8 +76,6 @@ interface VolumetricProps {
 }
 
 export const createVolumetric = (entity, args: VolumetricProps) => {
-  addComponent(entity, VolumetricComponent)
-  const volumetricComponent = getComponent(entity, VolumetricComponent)
   const container = new Object3D()
 
   // const worker = new PlayerWorker();
@@ -93,7 +91,11 @@ export const createVolumetric = (entity, args: VolumetricProps) => {
     scale: 1,
     frameRate: 25
   })
-  volumetricComponent.player = DracosisSequence
+
+  addComponent(entity, VolumetricComponent, { 
+    player: DracosisSequence
+  })
+
   addObject3DComponent(entity, container, args)
-  if (args.interactable) addComponent(entity, InteractableComponent)
+  if (args.interactable) addComponent(entity, InteractableComponent, { data: args })
 }

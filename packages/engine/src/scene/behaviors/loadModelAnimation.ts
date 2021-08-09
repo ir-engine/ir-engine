@@ -19,14 +19,14 @@ export const loadModelAnimation = (entity: Entity, component: SceneDataComponent
           'Tried to load animation without an Object3D Component attached! Are you sure the model has loaded?'
         )
       }
-      addComponent(entity, AnimationComponent)
-      const animationComponent = getComponent(entity, AnimationComponent)
-      if (component.data.hasAvatarAnimations) {
-        animationComponent.animations = AnimationManager.instance._animations
-      } else {
-        animationComponent.animations = object3d.value.animations
-      }
-      animationComponent.mixer = new AnimationMixer(object3d.value)
+      const animations = component.data.hasAvatarAnimations ? AnimationManager.instance._animations : object3d.value.animations
+      const mixer = new AnimationMixer(object3d.value)
+
+      const animationComponent = addComponent(entity, AnimationComponent, {
+        animations,
+        mixer,
+        animationSpeed: 1
+      })
       const currentState = new AnimationState()
       if (component.data.activeClipIndex >= 0) {
         const clip = animationComponent.animations[component.data.activeClipIndex]

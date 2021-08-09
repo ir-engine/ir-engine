@@ -6,9 +6,7 @@ import { ActiveGames, GameManagerSystem } from '../../game/systems/GameManagerSy
 import {
   addComponent,
   getComponent,
-  getComponent,
   hasComponent,
-  removeComponent,
   removeEntity
 } from '../../ecs/functions/EntityFunctions'
 
@@ -16,6 +14,7 @@ import { GameComponent } from '../components/Game'
 import { GameObject } from '../components/GameObject'
 import { GamePlayer } from '../components/GamePlayer'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -32,15 +31,15 @@ export const getGameEntityFromName = (name: string): Entity => {
   return ActiveGames.instance.gameEntities.find((entity) => getComponent(entity, GameComponent).name === name)
 }
 
-export const getGameFromName = (name: string): Game => {
+export const getGameFromName = (name: string) => {
   if (name === undefined) return
   return ActiveGames.instance.currentGames.get(name)
 }
 
-export const getEntityFromRoleUuid = (game: Game, role: string, uuid: string): Entity =>
+export const getEntityFromRoleUuid = (game, role: string, uuid: string): Entity =>
   (game.gameObjects[role] || game.gamePlayers[role]).find((entity) => getUuid(entity) === uuid)
 
-export const getEntityArrFromRole = (game: Game, role: string): Array<Entity> =>
+export const getEntityArrFromRole = (game, role: string): Array<Entity> =>
   game.gameObjects[role] || game.gamePlayers[role]
 
 export const getRole = (entity: Entity) => {
@@ -58,7 +57,7 @@ export const setRole = (entity: Entity, newGameRole: string) => {
     : undefined
 }
 
-export const getGame = (entity: Entity): Game => {
+export const getGame = (entity: Entity) => {
   const name = hasComponent(entity, GameObject)
     ? getComponent(entity, GameObject).gameName
     : hasComponent(entity, GamePlayer)

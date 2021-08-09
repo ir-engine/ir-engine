@@ -1,6 +1,7 @@
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { RaycastQuery } from 'three-physx'
 import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+import { CameraModes } from '../types/CameraModes'
 
 export type FollowCameraComponentType = {
   /** * **Default** value is ```'thirdPerson'```. */
@@ -26,4 +27,18 @@ export type FollowCameraComponentType = {
   collisionMask: CollisionGroups
 }
 
-export const FollowCameraComponent = createMappedComponent<FollowCameraComponentType>()
+export const FollowCameraDefaultValues: FollowCameraComponentType = {
+  mode: CameraModes.ThirdPerson,
+  distance: 3,
+  minDistance: 2,
+  maxDistance: 7,
+  theta: 0,
+  phi: 0,
+  shoulderSide: true,
+  locked: true,
+  raycastQuery: null,
+  rayHasHit: false,
+  collisionMask: CollisionGroups.Default
+}
+
+export const FollowCameraComponent = createMappedComponent<FollowCameraComponentType>(undefined, FollowCameraDefaultValues)

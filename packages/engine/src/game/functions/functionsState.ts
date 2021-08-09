@@ -1,35 +1,33 @@
 import { isClient } from '../../common/functions/isClient'
-import { Component } from '../../ecs/classes/Component'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
-  getComponent,
+  ComponentConstructor,
   getComponent,
   hasComponent,
   removeComponent
 } from '../../ecs/functions/EntityFunctions'
-import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 
+import { GamePlayer } from '../components/GamePlayer'
 import { GameComponent } from '../components/Game'
 import { GameObject } from '../components/GameObject'
-import { GamePlayer } from '../components/GamePlayer'
 import { ClientActionToServer } from '../templates/DefaultGameStateAction'
-import { SpawnedObject } from '../templates/gameDefault/components/SpawnedObjectTagComponent'
 import { GolfClubComponent } from '../templates/Golf/components/GolfClubComponent'
 import { GolfState } from '../templates/Golf/GolfGameComponents'
 
-import { State } from '../types/GameComponents'
+import { SpawnedObject, State } from '../types/GameComponents'
 import { ClientGameActionMessage, GameStateUpdateMessage } from '../types/GameMessage'
 import { GameMode, StateObject } from '../types/GameMode'
 import { getGame, getGameEntityFromName, getRole, setRole, getUuid } from './functions'
+
 /**
  * @author HydraFire <github.com/HydraFire>
  */
 
-export const initState = (game: Game, gameSchema: GameMode): void => {
+export const initState = (game: ReturnType<typeof GameComponent.get>, gameSchema: GameMode): void => {
   gameSchema.gameObjectRoles.forEach((role) => (game.gameObjects[role] = []))
   gameSchema.gamePlayerRoles.forEach((role) => (game.gamePlayers[role] = []))
 }
@@ -39,13 +37,13 @@ export const saveInitStateCopy = (entity: Entity): void => {
   game.initState = JSON.stringify(game.state)
 }
 
-export const reInitState = (game: Game): void => {
+export const reInitState = (game: ReturnType<typeof GameComponent.get>): void => {
   game.state = JSON.parse(game.initState)
   applyState(game)
   //console.warn('reInitState', applyStateToClient);
 }
 
-export const sendState = (game: Game, playerComp: GamePlayer): void => {
+export const sendState = (game: ReturnType<typeof GameComponent.get>, playerComp: ReturnType<typeof GamePlayer.get>): void => {
   if (!isClient && game.isGlobal) {
     const message: GameStateUpdateMessage = { game: game.name, ownerId: playerComp.uuid, state: game.state }
     //  console.warn('sendState', message);
@@ -53,7 +51,7 @@ export const sendState = (game: Game, playerComp: GamePlayer): void => {
   }
 }
 
-export const sendSpawnGameObjects = (game: Game, uuid): void => {
+export const sendSpawnGameObjects = (game: ReturnType<typeof GameComponent.get>, uuid): void => {
   if (!isClient && game.isGlobal) {
     Object.keys(Network.instance.networkObjects).forEach((networkId) => {
       // in this if we filter and send only spawnded objects
@@ -73,7 +71,7 @@ export const sendSpawnGameObjects = (game: Game, uuid): void => {
   }
 }
 
-export const requireState = (game: Game, playerComp: GamePlayer): void => {
+export const requireState = (game: ReturnType<typeof GameComponent.get>, playerComp: ReturnType<typeof GamePlayer.get>): void => {
   if (isClient && game.isGlobal && playerComp.uuid === Network.instance.userId) {
     const message: ClientGameActionMessage = {
       type: ClientActionToServer[0],
@@ -86,7 +84,7 @@ export const requireState = (game: Game, playerComp: GamePlayer): void => {
   }
 }
 
-export const requireSpawnObjects = (game: Game, uuid): void => {
+export const requireSpawnObjects = (game: ReturnType<typeof GameComponent.get>, uuid): void => {
   if (isClient && game.isGlobal) {
     const message: ClientGameActionMessage = {
       type: ClientActionToServer[1],
@@ -128,7 +126,7 @@ export const applyStateToClient = (stateMessage: GameStateUpdateMessage): void =
   applyState(game)
 }
 
-export const applyState = (game: Game): void => {
+export const applyState = (game: ReturnType<typeof GameComponent.get>): void => {
   const gameSchema = Engine.gameModes.get(game.gameMode)
   // clean all states
   Object.keys(game.gamePlayers)
@@ -183,9 +181,9 @@ export const applyState = (game: Game): void => {
         if (stateObject != undefined) {
           stateObject.components.forEach((componentName: string) => {
             if (State[componentName]) {
-              addComponent(entity, State[componentName])
+              addComponent(entity, State[componentName], null)
             } else if (GolfState[componentName]) {
-              addComponent(entity, GolfState[componentName])
+              addComponent(entity, GolfState[componentName], null)
             } else console.warn("Couldn't find component", componentName)
           })
           // get ball server position
@@ -194,7 +192,7 @@ export const applyState = (game: Game): void => {
             Network.instance.networkObjects[Network.instance.localAvatarNetworkId].ownerId ===
               getComponent(entity, NetworkObjectComponent).ownerId
           ) {
-            addComponent(entity, GolfState.CorrectBallPosition)
+            addComponent(entity, GolfState.CorrectBallPosition, null)
           }
         } else {
           // console.log('Local object dont have state, v.uuid != uuid')
@@ -227,7 +225,7 @@ export const clearRemovedEntitysFromGame = (game): void => {
   })
 }
 
-export const addStateComponent = (entity: Entity, component: ComponentConstructor<Component<any>>): void => {
+export const addStateComponent = (entity: Entity, component: ComponentConstructor<any, any>): void => {
   if (entity === undefined || hasComponent(entity, component)) return
 
   const uuid = getUuid(entity)
@@ -239,7 +237,7 @@ export const addStateComponent = (entity: Entity, component: ComponentConstructo
     return
   }
 
-  addComponent(entity, component)
+  addComponent(entity, component, null)
 
   let objectState = game.state.find((v) => v.uuid === uuid)
 
@@ -256,7 +254,7 @@ export const addStateComponent = (entity: Entity, component: ComponentConstructo
   }
 }
 
-export const removeStateComponent = (entity: Entity, component: ComponentConstructor<Component<any>>): void => {
+export const removeStateComponent = (entity: Entity, component: ComponentConstructor<any, any>): void => {
   if (entity === undefined || !hasComponent(entity, component)) return
   const uuid = getUuid(entity)
   const game = getGame(entity)

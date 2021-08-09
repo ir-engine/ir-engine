@@ -1,7 +1,5 @@
-import { Behavior } from '../../common/interfaces/Behavior'
 import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
 import { GameComponent } from '../../game/components/Game'
-import { GameObject } from '../../game/components/GameObject'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Engine } from '../../ecs/classes/Engine'
 

@@ -17,7 +17,7 @@ export const equipEntity = (
     hasComponent(equippedEntity, NetworkObjectComponent) &&
     !hasComponent(equippedEntity, EquippedComponent)
   ) {
-    addComponent(equipperEntity, EquipperComponent, { equippedEntity })
+    addComponent(equipperEntity, EquipperComponent, { equippedEntity, data: {} })
     addComponent(equippedEntity, EquippedComponent, { equipperEntity, attachmentPoint })
   }
 }

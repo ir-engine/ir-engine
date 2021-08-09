@@ -12,6 +12,7 @@ import disposeScene from '../../renderer/functions/disposeScene'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { WorldScene } from '../../scene/functions/SceneLoading'
 import { Engine } from '../classes/Engine'
+import { World } from '../classes/World'
 import { hasComponent, removeAllComponents, removeAllEntities, removeEntity } from './EntityFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 
@@ -29,7 +30,7 @@ export async function reset(): Promise<void> {
 
   // clear all entities components
   await new Promise<void>((resolve) => {
-    Engine.entities.forEach((entity) => {
+    World.defaultWorld.entities.forEach((entity) => {
       removeAllComponents(entity, false)
     })
     setTimeout(() => {
@@ -47,16 +48,16 @@ export async function reset(): Promise<void> {
     }, 500)
   })
 
-  if (Engine.entities.length) {
-    console.log('Engine.entities.length', Engine.entities.length)
-    throw new Error('Engine.entities cleanup not complete')
+  if (World.defaultWorld.entities.length) {
+    console.log('World.defaultWorld.entities.length', World.defaultWorld.entities.length)
+    throw new Error('World.defaultWorld.entities cleanup not complete')
   }
 
   Engine.tick = 0
 
-  Engine.entities.length = 0
-  Engine.entitiesToRemove.length = 0
-  Engine.entitiesWithComponentsToRemove.length = 0
+  World.defaultWorld.entities.length = 0
+  World.defaultWorld.entitiesToRemove.length = 0
+  World.defaultWorld.entitiesWithComponentsToRemove.length = 0
   Engine.nextEntityId = 0
 
   // cleanup/unregister components
@@ -111,11 +112,11 @@ export const processLocationChange = async (newPhysicsWorker: Worker): Promise<v
   const removedEntities = []
   const sceneObjectsToRemove = []
 
-  Engine.entities.forEach((entity) => {
+  World.defaultWorld.entities.forEach((entity) => {
     if (!hasComponent(entity, PersistTagComponent)) {
-      removeAllComponents(entity, false)
+      removeAllComponents(entity)
       entitiesToRemove.push(entity)
-      removedEntities.push(entity.id)
+      removedEntities.push(entity)
     }
   })
 
@@ -126,7 +127,7 @@ export const processLocationChange = async (newPhysicsWorker: Worker): Promise<v
 
   Engine.scene.traverse((o: any) => {
     if (!o.entity) return
-    if (!removedEntities.includes(o.entity.id)) return
+    if (!removedEntities.includes(o.entity)) return
 
     sceneObjectsToRemove.push(o)
   })
@@ -134,14 +135,10 @@ export const processLocationChange = async (newPhysicsWorker: Worker): Promise<v
   sceneObjectsToRemove.forEach((o) => Engine.scene.remove(o))
 
   entitiesToRemove.forEach((entity) => {
-    removeEntity(entity, false)
+    removeEntity(entity)
   })
 
   executeSystemBeforeReset()
-
-  Engine.systems.forEach((system: System) => {
-    system.reset()
-  })
 
   await resetPhysics(newPhysicsWorker)
 }

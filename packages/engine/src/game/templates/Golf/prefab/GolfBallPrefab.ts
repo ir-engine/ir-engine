@@ -1,25 +1,17 @@
-import { Color, Group, MathUtils, Mesh, MeshPhongMaterial, Vector3, Vector4 } from 'three'
+import { Color, Group, MathUtils, Mesh, Quaternion, Vector3, Vector4 } from 'three'
 import { Body, BodyType, ShapeType, SHAPES, RaycastQuery, SceneQueryType, PhysXInstance } from 'three-physx'
 import { AssetLoader } from '../../../../assets/classes/AssetLoader'
 import { isClient } from '../../../../common/functions/isClient'
 import { Behavior } from '../../../../common/interfaces/Behavior'
 import { Engine } from '../../../../ecs/classes/Engine'
 import { Entity } from '../../../../ecs/classes/Entity'
-import {
-  addComponent,
-  getComponent,
-  getComponent,
-  hasComponent
-} from '../../../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../../../networking/components/NetworkObjectComponent'
 import { NetworkObjectComponentOwner } from '../../../../networking/components/NetworkObjectComponentOwner'
-import { initializeNetworkObject } from '../../../../networking/functions/initializeNetworkObject'
 import { spawnPrefab } from '../../../../networking/functions/spawnPrefab'
-import { NetworkPrefab } from '../../../../networking/interfaces/NetworkPrefab'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
 import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent'
-import { LocalInterpolationComponent } from '../../../../physics/components/LocalInterpolationComponent'
 import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups'
 import TrailRenderer from '../../../../scene/classes/TrailRenderer'
@@ -178,20 +170,20 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
 
   const transform = addComponent(ballEntity, TransformComponent, {
     position: new Vector3(spawnPosition.x, spawnPosition.y + golfBallRadius, spawnPosition.z),
+    rotation: new Quaternion(),
     scale: new Vector3().setScalar(golfBallRadius)
   })
-  addComponent(ballEntity, VelocityComponent)
+  addComponent(ballEntity, VelocityComponent, { velocity: new Vector3() })
   addComponent(ballEntity, GameObject, {
     gameName,
     role,
-    uuid
+    uuid,
+    collisionBehaviors: {}
   })
   addComponent(ballEntity, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
-  addComponent(ballEntity, GolfBallComponent)
-  addComponent(ballEntity, TransformComponent)
 
   if (isClient) {
-    addComponent(ballEntity, InterpolationComponent)
+    addComponent(ballEntity, InterpolationComponent, null)
     AssetLoader.load(
       {
         url: Engine.publicPath + '/models/golf/golf_ball.glb'
@@ -231,10 +223,9 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
 
   addComponent(ballEntity, ColliderComponent, { body })
 
-  const golfBallComponent = getComponent(ballEntity, GolfBallComponent)
 
   // for track ground
-  golfBallComponent.groundRaycast = PhysXInstance.instance.addRaycastQuery(
+  const groundRaycast = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
       origin: transform.position,
@@ -245,7 +236,7 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
   )
 
   // for track wall
-  golfBallComponent.wallRaycast = PhysXInstance.instance.addRaycastQuery(
+  const wallRaycast = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
       origin: transform.position,
@@ -254,4 +245,7 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
       collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
     })
   )
+
+  addComponent(ballEntity, GolfBallComponent, { groundRaycast, wallRaycast })
+
 }

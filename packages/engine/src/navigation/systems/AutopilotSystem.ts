@@ -31,7 +31,6 @@ export const AutopilotSystem = async (): Promise<System> => {
   const raycaster = new Raycaster()
 
   const navmeshesQuery = defineQuery([NavMeshComponent, Object3DComponent])
-  const navmeshesAddQuery = enterQuery(navmeshesQuery)
   
   const requestsQuery = defineQuery([AutoPilotRequestComponent])
   const requestsAddQuery = enterQuery(requestsQuery)

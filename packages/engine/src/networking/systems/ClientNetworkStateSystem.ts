@@ -1,10 +1,5 @@
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import {
-  addComponent,
-  getComponent,
-  hasComponent,
-  removeEntity
-} from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { NetworkObjectUpdateMap } from '../templates/NetworkObjectUpdates'
 import { Network } from '../classes/Network'

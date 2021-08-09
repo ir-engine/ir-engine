@@ -12,6 +12,7 @@ export class World {
   static worlds: Map<number, World> = new Map<number, World>()
   static defaultWorld: World
   ecsWorld: ECSWorld
+  entities: Entity[]
 
   constructor() {
     if(!World.defaultWorld) World.defaultWorld = this

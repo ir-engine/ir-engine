@@ -8,7 +8,6 @@ import { SkinnedMesh } from 'three/src/objects/SkinnedMesh'
 import { CameraModes } from '../camera/types/CameraModes'
 import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { GamepadAxis, XRAxes } from '../input/enums/InputEnums'
-import { getComponent } from '../ecs/functions/EntityFunctions'
 import { CameraInput, GamepadButtons, MouseInput, TouchInputs } from '../input/enums/InputEnums'
 import { InputType } from '../input/enums/InputType'
 import { InputBehaviorType, InputSchema } from '../input/interfaces/InputSchema'
@@ -65,7 +64,7 @@ const cycleCameraMode = (
   delta: number
 ): void => {
   if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
-  const cameraFollow = getComponent<FollowCameraComponent>(entity, FollowCameraComponent)
+  const cameraFollow = getComponent(entity, FollowCameraComponent)
 
   switch (cameraFollow?.mode) {
     case CameraModes.FirstPerson:
@@ -96,7 +95,7 @@ const fixedCameraBehindAvatar: InputBehaviorType = (
   delta: number
 ): void => {
   if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
-  const follower = getComponent<FollowCameraComponent>(entity, FollowCameraComponent)
+  const follower = getComponent(entity, FollowCameraComponent)
   if (follower && follower.mode !== CameraModes.FirstPerson) {
     follower.locked = !follower.locked
   }
@@ -109,7 +108,7 @@ const switchShoulderSide: InputBehaviorType = (
   delta: number
 ): void => {
   if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
-  const cameraFollow = getComponent<FollowCameraComponent>(entity, FollowCameraComponent)
+  const cameraFollow = getComponent(entity, FollowCameraComponent)
   if (cameraFollow) {
     cameraFollow.shoulderSide = !cameraFollow.shoulderSide
   }
@@ -126,13 +125,13 @@ const changeCameraDistanceByDelta: InputBehaviorType = (
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
-  const inputComponent = getComponent(entity, InputComponent) as InputComponent
+  const inputComponent = getComponent(entity, InputComponent)
 
   if (!inputComponent.data.has(inputKey)) {
     return
   }
 
-  const cameraFollow = getComponent<FollowCameraComponent>(entity, FollowCameraComponent)
+  const cameraFollow = getComponent(entity, FollowCameraComponent)
   if (cameraFollow === undefined || cameraFollow.mode === CameraModes.Strategic) return //console.warn("cameraFollow is undefined")
 
   const inputPrevValue = (inputComponent.prevData.get(inputKey)?.value as number) ?? 0
@@ -203,14 +202,14 @@ const setAvatarExpression: InputBehaviorType = (
   inputValue: InputValue<NumericalType>,
   delta: number
 ): void => {
-  const object: Object3DComponent = getComponent<Object3DComponent>(entity, Object3DComponent)
+  const object = getComponent(entity, Object3DComponent)
   const body = object.value?.getObjectByName('Body') as Mesh
 
   if (!body?.isMesh) {
     return
   }
 
-  const input: InputComponent = getComponent(entity, InputComponent)
+  const input = getComponent(entity, InputComponent)
   const inputData = input?.data.get(inputKey)
   if (!inputData) {
     return

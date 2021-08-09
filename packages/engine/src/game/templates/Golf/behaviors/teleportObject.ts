@@ -2,13 +2,7 @@ import { Vector3 } from 'three'
 import { isClient } from '../../../../common/functions/isClient'
 import { Behavior } from '../../../../common/interfaces/Behavior'
 import { Entity } from '../../../../ecs/classes/Entity'
-import {
-  addComponent,
-  getComponent,
-  getComponent,
-  hasComponent,
-  removeComponent
-} from '../../../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../../../ecs/functions/EntityFunctions'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
 import { findInterpolationSnapshot } from '../../../../physics/behaviors/findInterpolationSnapshot'
 import { Network } from '../../../../networking/classes/Network'
