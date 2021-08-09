@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client",
-  "version": "0.3.31",
+  "version": "0.3.32",
   "private": true,
   "repository": {
     "type": "git",
@@ -46,7 +46,7 @@
     "@types/react-redux": "7.1.18",
     "@types/redux-immutable": "4.0.1",
     "@types/styled-components": "5.1.12",
-    "@xrengine/client-core": "^0.3.31",
+    "@xrengine/client-core": "^0.3.32",
     "axios": "0.21.1",
     "browserfs": "1.4.3",
     "classnames": "2.3.1",
