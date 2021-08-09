@@ -6,17 +6,19 @@ import {
   ComponentType,
   IComponent,
   ISchema,
-  Type
+  Type,
+  ArrayByType,
+  Types
 } from 'bitecs'
 
 import { Entity } from '../classes/Entity'
 import { World } from '../classes/World'
 
 // TODO: benchmark map vs array for componentMap
-export const createMappedComponent = <T, S extends ISchema>(schema?: S) => {
+export const createMappedComponent = <T, S extends ISchema = {}>(schema?: S) => {
   
   const component = defineComponent(schema)
-  const componentMap = new Map<number, T & { [K in keyof S]: typeof component[K] }>()
+  const componentMap = new Map<number, T & SoAProxy<S>>()
   // const componentMap = []
 
   Object.defineProperty(component, 'get', {
@@ -60,18 +62,16 @@ export const createMappedComponent = <T, S extends ISchema>(schema?: S) => {
   }
 }
 
-
-// interface createMappedComponent<T, A extends ISchema>{
-//   (args: A): ComponentType<A> & { 
-//       get: (entity: number) => T & { [K in keyof A]: A[K] },
-//       set: (entity: number, value: T) => Map<number, T & { [K in keyof A]: A[K] }>,
-//       delete: (entity: number) => void
-//   }
-// }
-
-// export type MappedComponent = ReturnType<typeof createMappedComponent>
-
-export type SoAProxy<S extends ISchema> = { [K in keyof S]: ComponentType<S>[K] }
+export type SoAProxy<S extends ISchema> = { [key in keyof S]: 
+  S[key] extends Type ? number
+    : S[key] extends [infer RT, number]
+    ? RT extends Type
+      ? Array<number>
+      : unknown
+    : S[key] extends ISchema
+    ? SoAProxy<S[key]>
+    : unknown;
+}
 
 export type MappedComponent<T, S extends ISchema> = ComponentType<S> & { 
   get: (entity: number) => T & SoAProxy<S>,
