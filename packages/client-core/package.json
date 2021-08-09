@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/client-core",
-  "version": "0.3.31",
+  "version": "0.3.32",
   "module": "dist/client-core.es.js",
   "repository": {
     "type": "git",
@@ -48,8 +48,8 @@
     "@types/styled-components": "5.1.12",
     "@typescript-eslint/eslint-plugin": "4.29.1",
     "@typescript-eslint/parser": "4.29.1",
-    "@xrengine/common": "^0.3.31",
-    "@xrengine/engine": "^0.3.31",
+    "@xrengine/common": "^0.3.32",
+    "@xrengine/engine": "^0.3.32",
     "app-root-path": "3.0.0",
     "autobind-decorator": "2.4.0",
     "autoprefixer": "10.3.1",
