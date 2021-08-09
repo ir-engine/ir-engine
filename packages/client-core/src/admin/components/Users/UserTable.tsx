@@ -115,7 +115,7 @@ const UserTable = (props: Props) => {
   }
 
   const rows = adminUsers.map((el) => {
-    const loc = el.party.id ? el.party.location : null
+    const loc = el.party?.id ? el.party.location : null
     const loca = loc ? (
       loc.name || <span className={classes.spanNone}>None</span>
     ) : (

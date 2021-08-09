@@ -217,7 +217,6 @@ export const useStyles = makeStyles((theme: Theme) =>
       top: '-15px',
       right: '0'
     }
-
   })
 )
 
