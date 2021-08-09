@@ -10,7 +10,7 @@ import WhatshotIcon from '@material-ui/icons/Whatshot'
 import VisibilityIcon from '@material-ui/icons/Visibility'
 import DialogActions from '@material-ui/core/DialogActions'
 import Grid from '@material-ui/core/Grid'
-import '../../../../../../../node_modules/video-react/dist/video-react.css' // import css
+import './PlayerStyles.css' // import css
 import { Player } from 'video-react'
 import { useStyle, useStyles } from './styles'
 
