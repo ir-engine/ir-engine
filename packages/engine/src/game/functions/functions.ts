@@ -85,10 +85,6 @@ export const getTargetEntitys = (entity: Entity, entityTarget: Entity, args: any
   }
 }
 
-export const getTargetEntity = (entity: Entity, entityTarget: Entity, args: any): Entity => {
-  return args?.on === 'target' ? entityTarget : entity
-}
-
 export const checkRolesNames = (entity: Entity, str: string) => {
   const game = getGame(entity)
   return Object.keys(game.gameObjects)

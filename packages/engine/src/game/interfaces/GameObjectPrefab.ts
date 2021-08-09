@@ -9,8 +9,7 @@ export interface GameObjectPrefab {
 
 export type GameObjectInteractionBehavior = (
   entity: Entity,
-  delta: number,
-  args: { hitEvent: ColliderHitEvent },
+  hitEvent: ColliderHitEvent,
   entityOther: Entity
 ) => any
 

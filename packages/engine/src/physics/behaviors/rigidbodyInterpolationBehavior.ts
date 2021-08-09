@@ -1,4 +1,3 @@
-import { Behavior } from '../../common/interfaces/Behavior'
 import { Entity } from '../../ecs/classes/Entity'
 import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
@@ -14,7 +13,7 @@ import { findInterpolationSnapshot } from './findInterpolationSnapshot'
  * @param {number} delta the delta of this frame
  */
 
-export const rigidbodyInterpolationBehavior: Behavior = (entity: Entity, snapshots: SnapshotData, delta): void => {
+export const rigidbodyInterpolationBehavior = (entity: Entity, snapshots: SnapshotData, delta): void => {
   const collider = getMutableComponent(entity, ColliderComponent)
   const interpolationSnapshot =
     findInterpolationSnapshot(entity, snapshots.interpolation) ??

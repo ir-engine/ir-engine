@@ -84,7 +84,7 @@ export function getPlayerNumber() {
 }
 
 export function getTeePosition() {
-  const { position } = getPositionNextPoint(Network.instance.localClientEntity, { positionCopyFromRole: 'GolfTee-' })
+  const position = getPositionNextPoint(Network.instance.localClientEntity, 'GolfTee-')
   console.log(position)
   return position
 }

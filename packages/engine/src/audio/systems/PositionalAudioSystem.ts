@@ -10,6 +10,7 @@ import { PositionalAudioComponent } from '../components/PositionalAudioComponent
 import { Entity } from '../../ecs/classes/Entity'
 import { PositionalAudio } from 'three'
 import { applyAvatarAudioSettings, applyMediaAudioSettings } from '../../scene/behaviors/handleAudioSettings'
+import PositionalAudioSettingsComponent from '../../scene/components/AudioSettingsComponent'
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== 'undefined' && /chrome/i.test(navigator.userAgent)
 function createSilentAudioEl(streamsLive) {
@@ -23,6 +24,7 @@ function createSilentAudioEl(streamsLive) {
 
 /** System class which provides methods for Positional Audio system. */
 export class PositionalAudioSystem extends System {
+  static settingsEntity: any = null
   avatarAudioStream: Map<Entity, any>
 
   /** Constructs Positional Audio System. */
@@ -45,6 +47,10 @@ export class PositionalAudioSystem extends System {
   /** Execute the positional audio system for different events of queries. */
   execute(): void {
     for (const entity of this.queryResults.audio.added) {
+      PositionalAudioSystem.settingsEntity = entity
+    }
+
+    for (const entity of this.queryResults.settings.added) {
       const positionalAudio = getMutableComponent(entity, PositionalAudioComponent)
       if (positionalAudio != null) positionalAudio.value = new PositionalAudio(Engine.audioListener)
     }
@@ -109,7 +115,8 @@ export class PositionalAudioSystem extends System {
 
     for (const entity of this.queryResults.avatar_audio.added) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent)
-      applyAvatarAudioSettings(positionalAudio.value)
+      const settings = getMutableComponent(PositionalAudioSystem.settingsEntity, PositionalAudioSettingsComponent);
+      applyAvatarAudioSettings(positionalAudio.value, settings)
       if (positionalAudio != null) Engine.scene.add(positionalAudio.value)
     }
 
@@ -119,7 +126,8 @@ export class PositionalAudioSystem extends System {
 
     for (const entity of this.queryResults.positional_audio.added) {
       const positionalAudio = getComponent(entity, PositionalAudioComponent)
-      applyMediaAudioSettings(positionalAudio.value)
+      const settings = getMutableComponent(PositionalAudioSystem.settingsEntity, PositionalAudioSettingsComponent);
+      applyMediaAudioSettings(positionalAudio.value, settings)
       if (positionalAudio != null) Engine.scene.add(positionalAudio.value)
     }
 
@@ -162,6 +170,12 @@ PositionalAudioSystem.queries = {
     listen: {
       added: true,
       removed: true
+    }
+  },
+  settings: {
+    components: [PositionalAudioSettingsComponent],
+    listen: {
+      added: true
     }
   }
 }

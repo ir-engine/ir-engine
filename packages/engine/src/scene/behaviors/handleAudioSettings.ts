@@ -1,10 +1,8 @@
-import { Behavior } from '../../common/interfaces/Behavior'
+import { addComponent } from "../../ecs/functions/EntityFunctions"
+import PositionalAudioSettingsComponent from "../components/AudioSettingsComponent"
 
-let audioArgs: any = {}
-
-export const handleAudioSettings: Behavior = (
-  entity,
-  args: {
+interface AudioSettings
+  {
     avatarDistanceModel: string
     avatarMaxDistance: number
     avatarRefDistance: number
@@ -19,30 +17,61 @@ export const handleAudioSettings: Behavior = (
     mediaVolume: number
     overrideAudioSettings: boolean
   }
+
+export const handleAudioSettings = (
+  entity,
+  {
+    avatarDistanceModel,
+    avatarMaxDistance,
+    avatarRefDistance,
+    avatarRolloffFactor,
+    mediaConeInnerAngle,
+    mediaConeOuterAngle,
+    mediaConeOuterGain,
+    mediaDistanceModel,
+    mediaMaxDistance,
+    mediaRefDistance,
+    mediaRolloffFactor,
+    mediaVolume,
+    overrideAudioSettings
+  }: AudioSettings
 ) => {
-  // console.warn("TODO: handle audio settings, args are", args);
-  audioArgs = Object.assign(args)
+  addComponent(entity, PositionalAudioSettingsComponent, {
+    avatarDistanceModel,
+    avatarMaxDistance,
+    avatarRefDistance,
+    avatarRolloffFactor,
+    mediaConeInnerAngle,
+    mediaConeOuterAngle,
+    mediaConeOuterGain,
+    mediaDistanceModel,
+    mediaMaxDistance,
+    mediaRefDistance,
+    mediaRolloffFactor,
+    mediaVolume,
+    overrideAudioSettings
+  })
 }
 
-export const applyAvatarAudioSettings = (positionalAudio) => {
-  if (audioArgs.overrideAudioSettings == false) {
+export const applyAvatarAudioSettings = (positionalAudio, positionalAudioSettings) => {
+  if (positionalAudioSettings.overrideAudioSettings == false) {
     console.log('Default settings')
     return
   }
-  positionalAudio.setDistanceModel(audioArgs.avatarDistanceModel)
-  positionalAudio.setMaxDistance(audioArgs.avatarMaxDistance)
-  positionalAudio.setRefDistance(audioArgs.avatarRefDistance)
-  positionalAudio.setRolloffFactor(audioArgs.avatarRolloffFactor)
+  positionalAudio.setDistanceModel(positionalAudioSettings.avatarDistanceModel)
+  positionalAudio.setMaxDistance(positionalAudioSettings.avatarMaxDistance)
+  positionalAudio.setRefDistance(positionalAudioSettings.avatarRefDistance)
+  positionalAudio.setRolloffFactor(positionalAudioSettings.avatarRolloffFactor)
 }
 
-export const applyMediaAudioSettings = (positionalAudio) => {
-  if (audioArgs.overrideAudioSettings == false) {
+export const applyMediaAudioSettings = (positionalAudio, positionalAudioSettings) => {
+  if (positionalAudioSettings.overrideAudioSettings == false) {
     console.log('Default settings')
     return
   }
-  positionalAudio.setDistanceModel(audioArgs.mediaDistanceModel)
-  positionalAudio.setMaxDistance(audioArgs.mediaMaxDistance)
-  positionalAudio.setRefDistance(audioArgs.mediaRefDistance)
-  positionalAudio.setRolloffFactor(audioArgs.mediaRolloffFactor)
-  positionalAudio.setVolume(audioArgs.mediaVolume)
+  positionalAudio.setDistanceModel(positionalAudioSettings.mediaDistanceModel)
+  positionalAudio.setMaxDistance(positionalAudioSettings.mediaMaxDistance)
+  positionalAudio.setRefDistance(positionalAudioSettings.mediaRefDistance)
+  positionalAudio.setRolloffFactor(positionalAudioSettings.mediaRolloffFactor)
+  positionalAudio.setVolume(positionalAudioSettings.mediaVolume)
 }

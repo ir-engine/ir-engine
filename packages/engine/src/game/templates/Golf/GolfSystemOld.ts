@@ -29,7 +29,7 @@ import { saveGoalScore } from './behaviors/displayScore'
 import { getPositionNextPoint } from './behaviors/getPositionNextPoint'
 import { hitBall } from './behaviors/hitBall'
 import { nextTurn } from './behaviors/nextTurn'
-import { initScore, saveScore } from './behaviors/saveScore'
+import { saveScore } from './behaviors/saveScore'
 import { setupOfflineDebug } from './behaviors/setupOfflineDebug'
 import { setupPlayerAvatar, setupPlayerAvatarNotInVR, setupPlayerAvatarVR } from './behaviors/setupPlayerAvatar'
 import { setupPlayerInput } from './behaviors/setupPlayerInput'
@@ -43,7 +43,6 @@ import { NewPlayerTagComponent } from './components/GolfTagComponents'
 import { GolfTeeComponent } from './components/GolfTeeComponent'
 import { initializeGolfBall, spawnBall, updateBall } from './prefab/GolfBallPrefab'
 import { initializeGolfClub, spawnClub, updateClub, hideClub, enableClub } from './prefab/GolfClubPrefab'
-import { initBallRaycast } from './behaviors/initBallRaycast'
 import { ifFirstHit, ifOutCourse } from '../gameDefault/checkers/ifOutCourse'
 import { registerGolfBotHooks } from './functions/registerGolfBotHooks'
 import { XRInputSourceComponent } from '../../../character/components/XRInputSourceComponent'
@@ -221,7 +220,7 @@ export class GolfSystem extends System {
       if (ownerEntity === undefined) return
 
       behaviorsToExecute.push(() => {
-        updateBall(entity, {}, delta)
+        updateBall(entity)
       })
 
       if (ifGetOut(entity, { area: 'GameArea' })) {
@@ -307,7 +306,7 @@ export class GolfSystem extends System {
         })
         if (ballEntity) {
           behaviorsToExecute.push(() => {
-            hitBall(entity, { clubPowerMultiplier: 5, hitAdvanceFactor: 4 }, delta, ballEntity)
+            hitBall(entity, 5, 5, ballEntity)
           })
         }
         behaviorsToExecute.push(() => {
@@ -315,7 +314,7 @@ export class GolfSystem extends System {
           addStateComponent(entity, State.Hit)
         })
         const playerEntity = this.queryResults.player.all.find((e) => {
-          return ifOwned(e, undefined, entity)
+          return ifOwned(e, entity)
         })
         behaviorsToExecute.push(() => {
           saveScore(playerEntity)
@@ -349,7 +348,7 @@ export class GolfSystem extends System {
       }
       if (!isClient) {
         spawnClub(entity)
-        spawnBall(entity, { positionCopyFromRole: 'GolfTee-0', offsetY: 1 })
+        spawnBall(entity, 'GolfTee-0', 1 })
       }
 
       addStateComponent(entity, State.Active)
