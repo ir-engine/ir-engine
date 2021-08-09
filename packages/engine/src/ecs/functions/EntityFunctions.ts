@@ -13,7 +13,7 @@ import { Entity } from '../classes/Entity'
 import { World } from '../classes/World'
 
 // TODO: benchmark map vs array for componentMap
-export const createMappedComponent = <T, S extends ISchema>(schema?: S) => {
+export const createMappedComponent = <T, S extends ISchema = {}>(schema?: S) => {
   
   const component = defineComponent(schema)
   const componentMap = new Map<number, T & { [K in keyof S]: typeof component[K] }>()
