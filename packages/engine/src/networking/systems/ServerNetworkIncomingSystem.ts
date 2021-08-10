@@ -179,15 +179,15 @@ export class ServerNetworkIncomingSystem extends System {
       })
     }
 
-    for (const entity of this.queryResults.networkObjectsWithInput.added) {
-      const input = getComponent(entity, Input)
-      input.schema.onAdded(entity, delta)
-    }
+    // for (const entity of this.queryResults.networkObjectsWithInput.added) {
+    //   const input = getComponent(entity, Input)
+    //   input.schema.onAdded(entity, delta)
+    // }
 
-    for (const entity of this.queryResults.networkObjectsWithInput.removed) {
-      const input = getComponent(entity, Input, true)
-      input.schema.onRemove(entity, delta)
-    }
+    // for (const entity of this.queryResults.networkObjectsWithInput.removed) {
+    //   const input = getComponent(entity, Input, true)
+    //   input.schema.onRemove(entity, delta)
+    // }
 
     for (const entity of this.queryResults.delegatedInputRouting.added) {
       const networkId = getComponent(entity, DelegatedInputReceiver).networkId
