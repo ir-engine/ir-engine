@@ -112,3 +112,23 @@ export function unifyFeatures(features: Feature[]): Feature[] {
     return (f.geometry as Polygon).coordinates as any
   }
 }
+
+export function scaleAndTranslatePosition(position: Position, llCenter: Position, scale = 1) {
+  return [(position[0] - llCenter[0]) * scale, (position[1] - llCenter[1]) * scale]
+}
+
+export function scaleAndTranslatePolygon(coords: Position[][], llCenter: Position, scale = 1) {
+  return [coords[0].map((position) => scaleAndTranslatePosition(position, llCenter, scale))]
+}
+export function scaleAndTranslate(geometry: Polygon | MultiPolygon, llCenter: [number, number], scale = 1) {
+  switch (geometry.type) {
+    case 'MultiPolygon':
+      geometry.coordinates = geometry.coordinates.map((coords) => scaleAndTranslatePolygon(coords, llCenter, scale))
+      break
+    case 'Polygon':
+      geometry.coordinates = scaleAndTranslatePolygon(geometry.coordinates, llCenter, scale)
+      break
+  }
+
+  return geometry
+}

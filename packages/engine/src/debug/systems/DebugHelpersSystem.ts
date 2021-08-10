@@ -324,7 +324,7 @@ export const DebugHelpersSystem = async (): Promise<System> => {
       const helper = new Group()
       helper.add(convexHelper)
       helper.add(graphHelper)
-
+      helper.visible = true
       Engine.scene.add(helper)
       DebugHelpers.helpersByEntity.navmesh.set(entity, helper)
     }
