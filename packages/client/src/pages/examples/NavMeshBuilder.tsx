@@ -35,9 +35,8 @@ import { ECSWorld, World } from '@xrengine/engine/src/ecs/classes/World'
 import { NavMeshBuilder } from '../../../../engine/src/map/NavMeshBuilder'
 import { fetchVectorTiles } from '../../../../engine/src/map/MapBoxClient'
 import { Position, Polygon, MultiPolygon } from 'geojson'
-import * as turf from '@turf/turf'
 import pc from 'polygon-clipping'
-import { computeBoundingBox, subtract } from '../../../../engine/src/map/GeoJSONFns'
+import { computeBoundingBox } from '../../../../engine/src/map/GeoJSONFns'
 
 type NavigationComponentType = {
   pathPlanner: PathPlanner
