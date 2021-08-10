@@ -84,6 +84,7 @@ const configureClient = async (options: Required<InitializeOptions>) => {
     Engine.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
     Engine.camera.layers.enableAll()
     Engine.scene.add(Engine.camera)
+    Engine.camera.add(Engine.audioListener)
   }
 
   Network.instance = new Network()
