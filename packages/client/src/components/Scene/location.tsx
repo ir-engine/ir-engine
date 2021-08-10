@@ -38,7 +38,7 @@ import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
 import { UISystem } from '@xrengine/engine/src/xrui/systems/UISystem'
 import querystring from 'querystring'
 import React, { Suspense, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
 import { CharacterUISystem } from '@xrengine/client-core/src/systems/CharacterUISystem'
@@ -56,6 +56,8 @@ import WarningRefreshModal from '../AlertModals/WarningRetryModal'
 import RecordingApp from './../Recorder/RecordingApp'
 import configs from '@xrengine/client-core/src/world/components/editor/configs'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
+import { UserService } from '@xrengine/client-core/src/user/store/UserService'
+import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 
 const store = Store.store
 
@@ -168,6 +170,16 @@ export const EnginePage = (props: Props) => {
   const invalidLocation = locationState.get('invalidLocation')
   let sceneId = null
   let locationId = null
+
+  const userState = useUserState()
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    if (selfUser?.instanceId != null && userState.layerUsersUpdateNeeded.value === true)
+      dispatch(UserService.getLayerUsers(true))
+    if (selfUser?.channelInstanceId != null && userState.channelLayerUsersUpdateNeeded.value === true)
+      dispatch(UserService.getLayerUsers(false))
+  }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
   useEffect(() => {
     if (Config.publicRuntimeConfig.offlineMode) {
