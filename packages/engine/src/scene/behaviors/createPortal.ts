@@ -122,7 +122,7 @@ export const createPortal = async (entity: Entity, args: PortalProps) => {
     isPlayerInPortal: false,
     remoteSpawnPosition: new Vector3(),
     remoteSpawnRotation: new Quaternion(),
-    remoteSpawnEuler: new Euler(),
+    remoteSpawnEuler: new Euler()
   })
 }
 

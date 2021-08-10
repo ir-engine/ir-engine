@@ -7,7 +7,7 @@ import Obj from './Obj'
 const DASH_SEG = 1 / 0.07
 const DASH_DIV = 0.4
 
-class Lines extends Component <Lines> {
+class Lines extends Component<Lines> {
   cnt = 0
   buf_pos: BufferAttribute
   buf_clr: BufferAttribute

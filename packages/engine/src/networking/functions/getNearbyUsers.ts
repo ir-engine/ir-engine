@@ -23,14 +23,14 @@ export function getNearbyUsers(userId: string, maxMediaUsers = 8): Array<NearbyU
     if (userPosition != null) {
       const userDistances = [] as Array<{ id: string; distance: number }>
       for (const avatar of otherAvatars) {
-        if(typeof avatar !== 'undefined') {
+        if (typeof avatar !== 'undefined') {
           const component = getComponent(avatar.entity, Object3DComponent)
           const position = component?.value?.position
           if (position != null)
-          userDistances.push({
-            id: avatar.uniqueId,
-            distance: position.distanceTo(userPosition)
-          })
+            userDistances.push({
+              id: avatar.uniqueId,
+              distance: position.distanceTo(userPosition)
+            })
         }
       }
       return userDistances.sort(compareDistance).slice(0, maxMediaUsers)

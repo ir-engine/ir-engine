@@ -1,7 +1,7 @@
-import { Entity } from "../../ecs/classes/Entity"
-import { getComponent } from "../../ecs/functions/EntityFunctions"
-import { ColliderComponent } from "../../physics/components/ColliderComponent"
-import { getGame } from "./functions"
+import { Entity } from '../../ecs/classes/Entity'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { getGame } from './functions'
 
 /**
  * @author HydraFire <github.com/HydraFire>

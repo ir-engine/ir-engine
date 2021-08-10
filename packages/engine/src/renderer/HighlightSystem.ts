@@ -6,13 +6,11 @@ import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs
 import { ECSWorld } from '../ecs/classes/World'
 
 export const HighlightSystem = async (): Promise<System> => {
-
   const highlightsQuery = defineQuery([Object3DComponent, HighlightComponent])
   const highlightsAddQuery = enterQuery(highlightsQuery)
   const highlightsRemoveQuery = exitQuery(highlightsQuery)
 
   return defineSystem((world: ECSWorld) => {
-
     if (!Engine.effectComposer.OutlineEffect) return
 
     for (const entity of highlightsAddQuery(world)) {

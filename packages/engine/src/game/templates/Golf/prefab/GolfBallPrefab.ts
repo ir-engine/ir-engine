@@ -204,7 +204,6 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
 
   addComponent(ballEntity, ColliderComponent, { body })
 
-
   // for track ground
   const groundRaycast = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
@@ -228,5 +227,4 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
   )
 
   addComponent(ballEntity, GolfBallComponent, { groundRaycast, wallRaycast })
-
 }

@@ -277,7 +277,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
   }
 
   const world = World.defaultWorld
-  
+
   // TODO: support multiple worlds
   // TODO: wrap timer in the world or the world in the timer, abstract all this away into a function call
 
@@ -285,7 +285,7 @@ export const initializeEngine = async (initOptions: InitializeOptions = {}): Pro
     {
       networkUpdate: executePipeline(world, networkPipeline),
       fixedUpdate: executePipeline(world, fixedPipeline),
-      update: executePipeline(world, freePipeline),
+      update: executePipeline(world, freePipeline)
     },
     Engine.physicsFrameRate,
     Engine.networkFramerate

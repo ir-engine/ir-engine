@@ -31,7 +31,6 @@ export function cancelAllInputs(entity) {
 }
 
 export const ServerNetworkIncomingSystem = async (): Promise<System> => {
-
   const delegatedInputRoutingQuery = defineQuery([DelegatedInputReceiverComponent])
   const delegatedInputRoutingAddQuery = enterQuery(delegatedInputRoutingQuery)
   const delegatedInputRoutingRemoveQuery = exitQuery(delegatedInputRoutingQuery)
@@ -43,7 +42,6 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
   const networkClientInputXRQuery = defineQuery([DelegatedInputReceiverComponent])
 
   return defineSystem((world: ECSWorld) => {
-
     const { delta } = world
 
     // Create a new worldstate frame for next tick
@@ -201,7 +199,6 @@ export const ServerNetworkIncomingSystem = async (): Promise<System> => {
         }
       })
     }
-
 
     for (const entity of networkObjectsWithInputAddQuery(world)) {
       const input = getComponent(entity, InputComponent)

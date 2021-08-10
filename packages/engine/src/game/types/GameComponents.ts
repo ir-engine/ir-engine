@@ -2,7 +2,7 @@
  * @author HydraFire <github.com/HydraFire>
  */
 
-import { createMappedComponent } from "../../ecs/functions/EntityFunctions"
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
 // its for adding new Action in State in One Plase, please don't splite this
 export enum gameActions {

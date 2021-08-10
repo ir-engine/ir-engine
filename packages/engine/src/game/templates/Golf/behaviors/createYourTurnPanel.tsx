@@ -26,10 +26,15 @@ export async function createYourTurnPanel(player: Entity) {
   if (player === Network.instance.localClientEntity) {
     const ui = createXRUI(YourTurnPanel, {})
     addComponent(ui.entity, TransformComponent, null)
-    addComponent(ui.entity, TransformChildComponent, { 
-      parent: player,
-      offsetPosition: new Vector3(0, 0, 1),
-      offsetQuaternion: new Quaternion()
-    }, null)
+    addComponent(
+      ui.entity,
+      TransformChildComponent,
+      {
+        parent: player,
+        offsetPosition: new Vector3(0, 0, 1),
+        offsetQuaternion: new Quaternion()
+      },
+      null
+    )
   }
 }

@@ -18,13 +18,11 @@ export const enableInput = ({ keyboard, mouse }: { keyboard?: boolean; mouse?: b
 }
 
 export const ClientInputSystem = async (): Promise<System> => {
-
   const localClientInputQuery = defineQuery([InputComponent, LocalInputReceiverComponent])
   const localClientInputAddQuery = enterQuery(localClientInputQuery)
   const localClientInputRemoveQuery = exitQuery(localClientInputQuery)
 
   return defineSystem((world: ECSWorld) => {
-
     const { delta } = world
 
     if (!Engine.xrSession) {
@@ -85,8 +83,7 @@ export const ClientInputSystem = async (): Promise<System> => {
       const input = getComponent(entity, InputComponent, true)
       input.schema.onRemove(entity, delta)
     }
-    
+
     return world
   })
-
 }

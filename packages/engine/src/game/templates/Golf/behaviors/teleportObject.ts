@@ -9,7 +9,7 @@ import { VelocityComponent } from '../../../../physics/components/VelocityCompon
  * @author HydraFire <github.com/HydraFire>
  */
 
-  export const teleportObject = (entity: Entity, position?: any): void => {
+export const teleportObject = (entity: Entity, position?: any): void => {
   const velocity = getComponent(entity, VelocityComponent)
   const collider = getComponent(entity, ColliderComponent)
 

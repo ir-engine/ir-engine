@@ -101,9 +101,7 @@ const quat = new Quaternion()
 const forwardVector = new Vector3(0, 0, 1)
 
 export const ClientNetworkStateSystem = async (): Promise<System> => {
-
   return defineSystem((world: ECSWorld) => {
-
     // Client logic
     const reliableQueue = Network.instance.incomingMessageQueueReliable
     // For each message, handle and process
@@ -143,8 +141,7 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
 
           const isIdFull = Network.instance.networkObjects[objectToCreate.networkId] != undefined
           const isSameUniqueId =
-            isIdFull &&
-            Network.instance.networkObjects[objectToCreate.networkId].uniqueId === objectToCreate.uniqueId
+            isIdFull && Network.instance.networkObjects[objectToCreate.networkId].uniqueId === objectToCreate.uniqueId
 
           const entityExistsInAnotherId = searchSameInAnotherId(objectToCreate)
 
@@ -169,7 +166,10 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
             delete Network.instance.networkObjects[entityExistsInAnotherId]
 
             // change network component id
-            getComponent(Network.instance.networkObjects[objectToCreate.networkId].entity, NetworkObjectComponent).networkId = objectToCreate.networkId
+            getComponent(
+              Network.instance.networkObjects[objectToCreate.networkId].entity,
+              NetworkObjectComponent
+            ).networkId = objectToCreate.networkId
 
             // if it's the local avatar
             if (objectToCreate.networkId === Network.instance.localAvatarNetworkId) {

@@ -43,7 +43,10 @@ export const reInitState = (game: ReturnType<typeof GameComponent.get>): void =>
   //console.warn('reInitState', applyStateToClient);
 }
 
-export const sendState = (game: ReturnType<typeof GameComponent.get>, playerComp: ReturnType<typeof GamePlayer.get>): void => {
+export const sendState = (
+  game: ReturnType<typeof GameComponent.get>,
+  playerComp: ReturnType<typeof GamePlayer.get>
+): void => {
   if (!isClient && game.isGlobal) {
     const message: GameStateUpdateMessage = { game: game.name, ownerId: playerComp.uuid, state: game.state }
     //  console.warn('sendState', message);
@@ -72,7 +75,10 @@ export const sendSpawnGameObjects = (game: ReturnType<typeof GameComponent.get>,
   }
 }
 
-export const requireState = (game: ReturnType<typeof GameComponent.get>, playerComp: ReturnType<typeof GamePlayer.get>): void => {
+export const requireState = (
+  game: ReturnType<typeof GameComponent.get>,
+  playerComp: ReturnType<typeof GamePlayer.get>
+): void => {
   if (isClient && game.isGlobal && playerComp.uuid === Network.instance.userId) {
     const message: ClientGameActionMessage = {
       type: ClientActionToServer[0],

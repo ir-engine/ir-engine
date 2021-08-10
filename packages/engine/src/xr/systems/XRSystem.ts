@@ -24,7 +24,6 @@ import { ECSWorld } from '../../ecs/classes/World'
  */
 
 export const XRSystem = async (): Promise<System> => {
-
   const referenceSpaceType: XRReferenceSpaceType = 'local-floor'
 
   const localXRControllerQuery = defineQuery([InputComponent, LocalInputReceiverComponent, XRInputSourceComponent])
@@ -57,7 +56,6 @@ export const XRSystem = async (): Promise<System> => {
   })
 
   return defineSystem((world: ECSWorld) => {
-
     if (Engine.xrRenderer?.isPresenting) {
       const session = Engine.xrFrame.session
       for (const source of session.inputSources) {

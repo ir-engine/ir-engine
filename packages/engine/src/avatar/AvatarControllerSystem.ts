@@ -21,20 +21,28 @@ import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from 'b
 import { ECSWorld } from '../ecs/classes/World'
 
 export const AvatarControllerSystem = async (): Promise<System> => {
-
   const vector3 = new Vector3()
   const quat = new Quaternion()
   const quat2 = new Quaternion()
-  const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)  
+  const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
-  const characterOnServerQuery = defineQuery([Not(LocalInputReceiverComponent), Not(InterpolationComponent), AvatarComponent, AvatarControllerComponent])
+  const characterOnServerQuery = defineQuery([
+    Not(LocalInputReceiverComponent),
+    Not(InterpolationComponent),
+    AvatarComponent,
+    AvatarControllerComponent
+  ])
   const characterOnServerRemovedQuery = exitQuery(characterOnServerQuery)
 
   const controllerQuery = defineQuery([AvatarControllerComponent])
 
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
 
-  const localXRInputQuery = defineQuery([LocalInputReceiverComponent, XRInputSourceComponent, AvatarControllerComponent])
+  const localXRInputQuery = defineQuery([
+    LocalInputReceiverComponent,
+    XRInputSourceComponent,
+    AvatarControllerComponent
+  ])
   const localXRInputQueryAddQuery = enterQuery(localXRInputQuery)
   const localXRInputQueryRemoveQuery = exitQuery(localXRInputQuery)
 
@@ -42,9 +50,8 @@ export const AvatarControllerSystem = async (): Promise<System> => {
   const xrInputQueryAddQuery = enterQuery(xrInputQuery)
 
   return defineSystem((world: ECSWorld) => {
-
     const { delta } = world
-    
+
     // for (const entity of characterOnServerRemovedQuery(world)) {
     //   console.log('removed character')
     //   console.log(
@@ -52,7 +59,7 @@ export const AvatarControllerSystem = async (): Promise<System> => {
     //     hasComponent(entity, InterpolationComponent),
     //     hasComponent(entity, AvatarComponent),
     //     hasComponent(entity, AvatarControllerComponent),
-        
+
     //     )
     //   const controller = getComponent(entity, AvatarControllerComponent, true)
 

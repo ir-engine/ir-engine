@@ -85,11 +85,7 @@ export const applyActionComponent = (actionMessage: GameStateActionMessage): voi
   addComponent(entity, component, componentArgs)
 }
 
-const addToCheckList = (
-  entity: Entity,
-  component: ComponentConstructor<any, any>,
-  componentArgs: any = {}
-): void => {
+const addToCheckList = (entity: Entity, component: ComponentConstructor<any, any>, componentArgs: any = {}): void => {
   const actionOnWhyRole = getRole(entity)
 
   gamePredictionCheckList.push({

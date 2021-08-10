@@ -19,7 +19,9 @@ export const loadModelAnimation = (entity: Entity, component: SceneDataComponent
           'Tried to load animation without an Object3D Component attached! Are you sure the model has loaded?'
         )
       }
-      const animations = component.data.hasAvatarAnimations ? AnimationManager.instance._animations : object3d.value.animations
+      const animations = component.data.hasAvatarAnimations
+        ? AnimationManager.instance._animations
+        : object3d.value.animations
       const mixer = new AnimationMixer(object3d.value)
 
       const animationComponent = addComponent(entity, AnimationComponent, {

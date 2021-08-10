@@ -10,7 +10,6 @@ import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { getCenterTile } from './MapBoxClient'
 
 export const MapUpdateSystem = async (): Promise<System> => {
-
   const moveQuery = defineQuery([Object3DComponent, AvatarComponent])
 
   return defineSystem((world: ECSWorld) => {

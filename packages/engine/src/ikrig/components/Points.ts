@@ -4,7 +4,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
 import Obj from './Obj'
 
-class PointsComponent extends Component <PointsComponent> {
+class PointsComponent extends Component<PointsComponent> {
   cnt = 0
   use_size = 10
   use_shape = 1

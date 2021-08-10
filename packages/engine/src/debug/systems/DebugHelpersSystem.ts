@@ -76,7 +76,6 @@ export class DebugHelpers {
 }
 
 export const DebugHelpersSystem = async (): Promise<System> => {
-
   DebugHelpers.physicsDebugRenderer = new DebugRenderer(Engine.scene)
 
   const avatarDebugQuery = defineQuery([AvatarComponent])
@@ -98,13 +97,12 @@ export const DebugHelpersSystem = async (): Promise<System> => {
   const ikAvatarQuery = defineQuery([XRInputSourceComponent])
   const ikAvatarAddQuery = enterQuery(ikAvatarQuery)
   const ikAvatarRemoveQuery = exitQuery(ikAvatarQuery)
-  
+
   const navmeshQuery = defineQuery([NavMeshComponent])
   const navmeshAddQuery = enterQuery(navmeshQuery)
   const navmeshRemoveQuery = exitQuery(navmeshQuery)
-  
-  return defineSystem((world: ECSWorld) => {
 
+  return defineSystem((world: ECSWorld) => {
     const { delta } = world
     // ===== AVATAR ===== //
 

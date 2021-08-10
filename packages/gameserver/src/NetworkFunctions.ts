@@ -390,12 +390,7 @@ export async function handleDisconnect(socket): Promise<any> {
       // Validate that the object belonged to disconnecting user
       if (networkObject.ownerId !== userId) return
 
-      logger.info(
-        'Culling object:',
-        key,
-        'owned by disconnecting client',
-        networkObject.ownerId
-      )
+      logger.info('Culling object:', key, 'owned by disconnecting client', networkObject.ownerId)
 
       // If it does, tell clients to destroy it
       Network.instance.worldState.destroyObjects.push({ networkId: Number(key) })

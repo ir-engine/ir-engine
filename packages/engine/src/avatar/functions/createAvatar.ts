@@ -38,15 +38,13 @@ export const createAvatar = (
   spawnTransform: { position: Vector3; rotation: Quaternion },
   isRemotePlayer = false
 ): void => {
-
   const transform = addComponent(entity, TransformComponent, {
     position: new Vector3().copy(spawnTransform.position),
     rotation: new Quaternion().copy(spawnTransform.rotation),
     scale: new Vector3(1, 1, 1)
   })
 
-  
-  addComponent(entity, InputComponent, { 
+  addComponent(entity, InputComponent, {
     schema: AvatarInputSchema,
     data: new Map(),
     prevData: new Map()
@@ -67,7 +65,7 @@ export const createAvatar = (
 
   addComponent(entity, AvatarComponent, {
     ...(Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.avatarDetail || {
-      avatarId: DEFAULT_AVATAR_ID,
+      avatarId: DEFAULT_AVATAR_ID
     }),
     avatarHalfHeight,
     avatarHeight,
@@ -162,7 +160,7 @@ export const createAvatarController = (entity: Entity) => {
 
   value.add(frustumCamera)
 
-  addComponent(entity, AvatarControllerComponent, { 
+  addComponent(entity, AvatarControllerComponent, {
     controller,
     frustumCamera,
     movementEnabled: true,

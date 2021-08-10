@@ -4,7 +4,7 @@ import PointsComponent from '../components/Points'
 import Obj from '../components/Obj'
 import { Component } from '../../ecs/classes/Component'
 
-class DebugComponent extends Component <DebugComponent> {
+class DebugComponent extends Component<DebugComponent> {
   static points = null
   static lines = null
 

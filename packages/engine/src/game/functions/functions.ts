@@ -2,11 +2,7 @@ import { isClient } from '../../common/functions/isClient'
 import { Entity } from '../../ecs/classes/Entity'
 import { Network } from '../../networking/classes/Network'
 import { ActiveGames } from '../../game/systems/GameManagerSystem'
-import {
-  getComponent,
-  hasComponent,
-  removeEntity
-} from '../../ecs/functions/EntityFunctions'
+import { getComponent, hasComponent, removeEntity } from '../../ecs/functions/EntityFunctions'
 
 import { GameComponent } from '../components/Game'
 import { GameObject } from '../components/GameObject'

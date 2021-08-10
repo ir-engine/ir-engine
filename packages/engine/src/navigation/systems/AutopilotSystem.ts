@@ -5,12 +5,7 @@ import { updatePlayerRotationFromViewVector } from '../../avatar/functions/updat
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
-import {
-  addComponent,
-  getComponent,
-  hasComponent,
-  removeComponent
-} from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { GamepadAxis } from '../../input/enums/InputEnums'
 import { InputType } from '../../input/enums/InputType'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -37,17 +32,16 @@ export const AutopilotSystem = async (): Promise<System> => {
   const raycaster = new Raycaster()
 
   const navmeshesQuery = defineQuery([NavMeshComponent, Object3DComponent])
-  
+
   const requestsQuery = defineQuery([AutoPilotRequestComponent])
   const requestsAddQuery = enterQuery(requestsQuery)
-  
+
   const ongoingQuery = defineQuery([AutoPilotComponent])
-  
+
   const navClickQuery = defineQuery([LocalInputReceiverComponent, AutoPilotClickRequestComponent])
   const navClickAddQuery = enterQuery(navClickQuery)
-  
-  return defineSystem((world: ECSWorld) => {
 
+  return defineSystem((world: ECSWorld) => {
     const { delta } = world
 
     for (const entity of navClickAddQuery(world)) {

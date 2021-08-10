@@ -13,7 +13,7 @@ import { findInterpolationSnapshot } from './findInterpolationSnapshot'
  * @param {number} delta the delta of this frame
  */
 
-  export const rigidbodyInterpolationBehavior = (entity: Entity, snapshots: SnapshotData, delta): void => {
+export const rigidbodyInterpolationBehavior = (entity: Entity, snapshots: SnapshotData, delta): void => {
   const collider = getComponent(entity, ColliderComponent)
   const interpolationSnapshot =
     findInterpolationSnapshot(entity, snapshots.interpolation) ??

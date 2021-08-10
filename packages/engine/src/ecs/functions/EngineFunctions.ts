@@ -16,11 +16,9 @@ import { World } from '../classes/World'
 import { hasComponent, removeAllComponents, removeAllEntities, removeEntity } from './EntityFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 
-
 /** Reset the engine and remove everything from memory. */
-export async function reset(): Promise<void> {
-}
-  /*
+export async function reset(): Promise<void> {}
+/*
   console.log('RESETTING ENGINE')
   // Stop all running workers
   Engine.workers.forEach((w) => w.terminate())

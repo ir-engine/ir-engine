@@ -49,14 +49,13 @@ import { ECSWorld } from '../../../ecs/classes/World'
  */
 
 export const GolfSystem = async (): Promise<System> => {
-  
   Engine.gameModes.set(GolfGameMode.name, GolfGameMode)
 
   // add our prefabs - TODO: find a better way of doing this that doesn't pollute prefab namespace
   Object.entries(GolfPrefabs).forEach(([prefabType, prefab]) => {
     Network.instance.schema.prefabs.set(Number(prefabType), prefab)
   })
-  
+
   const spawnGolfBallQuery = defineQuery([SpawnNetworkObjectComponent, GolfBallTagComponent])
 
   const spawnGolfClubQuery = defineQuery([SpawnNetworkObjectComponent, GolfClubTagComponent])
@@ -131,7 +130,6 @@ export const GolfSystem = async (): Promise<System> => {
   const goalAddQuery = enterQuery(goalQuery)
 
   return defineSystem((world: ECSWorld) => {
-
     const { delta } = world
 
     for (const entity of spawnGolfBallQuery(world)) {
@@ -303,8 +301,7 @@ export const GolfSystem = async (): Promise<System> => {
         }
 
         if (isClient) {
-          const entityYourPlayer =
-            Network.instance.networkObjects[Network.instance.localAvatarNetworkId]?.entity
+          const entityYourPlayer = Network.instance.networkObjects[Network.instance.localAvatarNetworkId]?.entity
           if (!hasComponent(entityYourPlayer, GolfState.Goal) && !hasComponent(entityYourPlayer, State.YourTurn)) {
             // this case when other player hit ball but you still waiting yours ball to stop
             // but you need waite because you use interpolation correction bevavior, other player not and server not
@@ -344,8 +341,7 @@ export const GolfSystem = async (): Promise<System> => {
             Network.instance.networkObjects[Network.instance.localAvatarNetworkId].ownerId !=
             Network.instance.networkObjects[getComponent(ballEntity, NetworkObjectComponentOwner).networkId].ownerId
           ) {
-            const entityYourPlayer =
-              Network.instance.networkObjects[Network.instance.localAvatarNetworkId]?.entity
+            const entityYourPlayer = Network.instance.networkObjects[Network.instance.localAvatarNetworkId]?.entity
             removeStateComponent(entityYourPlayer, State.Waiting)
             addStateComponent(entityYourPlayer, State.WaitTurn)
             const entityPlayer =
@@ -517,7 +513,7 @@ export const GolfSystem = async (): Promise<System> => {
         setupPlayerAvatarNotInVR(entity)
       }
     }
-    
+
     return world
   })
 }

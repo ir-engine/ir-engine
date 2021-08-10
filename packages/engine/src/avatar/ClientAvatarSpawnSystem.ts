@@ -19,12 +19,10 @@ import { AvatarTagComponent } from './components/AvatarTagComponent'
 import { createAvatar } from './functions/createAvatar'
 
 export const ClientAvatarSpawnSystem = async (): Promise<System> => {
-  
   const spawnQuery = defineQuery([SpawnNetworkObjectComponent, AvatarTagComponent])
   const spawnAddQuery = enterQuery(spawnQuery)
 
   return defineSystem((world: ECSWorld) => {
-
     for (const entity of spawnAddQuery(world)) {
       const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
 

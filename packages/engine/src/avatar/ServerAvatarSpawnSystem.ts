@@ -27,14 +27,10 @@ export class SpawnPoints {
   }
 
   getRandomSpawnPoint(): { position: Vector3; rotation: Quaternion } {
-    const spawnTransform = getComponent(
-      this.spawnPoints[this.lastSpawnIndex],
-      TransformComponent
-    )
+    const spawnTransform = getComponent(this.spawnPoints[this.lastSpawnIndex], TransformComponent)
     if (spawnTransform && this.spawnPoints.length > 0) {
       // Get new spawn point (round robin)
-      this.lastSpawnIndex =
-        (this.lastSpawnIndex + 1) % this.spawnPoints.length
+      this.lastSpawnIndex = (this.lastSpawnIndex + 1) % this.spawnPoints.length
       return {
         position: spawnTransform.position
           .clone()
@@ -52,9 +48,7 @@ export class SpawnPoints {
   }
 }
 
-
 export const ServerAvatarSpawnSystem = async (): Promise<System> => {
-
   const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
   const spawnPointAddQuery = enterQuery(spawnPointQuery)
   const spawnPointRemoveQuery = exitQuery(spawnPointQuery)
@@ -62,7 +56,6 @@ export const ServerAvatarSpawnSystem = async (): Promise<System> => {
   const spawnPlayerAddQuery = enterQuery(spawnPlayerQuery)
 
   return defineSystem((world: ECSWorld) => {
-
     // Keep a list of spawn points so we can send our user to one
     for (const entity of spawnPointAddQuery(world)) {
       if (!hasComponent(entity, TransformComponent)) {
@@ -80,7 +73,6 @@ export const ServerAvatarSpawnSystem = async (): Promise<System> => {
     }
 
     for (const entity of spawnPlayerAddQuery(world)) {
-
       console.log('SPAWNED PLAYER ON SERVER', entity)
       const { uniqueId, networkId, parameters } = removeComponent(entity, SpawnNetworkObjectComponent)
       createAvatar(entity, parameters)

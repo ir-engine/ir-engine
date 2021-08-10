@@ -65,10 +65,10 @@ export const loadGLTFModel = (
             // We only have to update the mixer time for this animations on each frame
             const object3d = getComponent(entity, Object3DComponent)
             const mixer = new AnimationMixer(object3d.value)
-            
+
             addComponent(entity, AnimationComponent, {
-              mixer, 
-              animationSpeed: 1, 
+              mixer,
+              animationSpeed: 1,
               animations: res.animations
             })
           }

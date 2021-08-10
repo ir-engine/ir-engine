@@ -6,7 +6,7 @@ import { Chain } from './Chain'
 import { IKPose } from './IKPose'
 import Obj from './Obj'
 
-class IKRig extends Component <IKRig> {
+class IKRig extends Component<IKRig> {
   tpose: Pose = null // Base pose to calculate math from
   pose: Pose = null // Working pose to apply math to and copy back to bones
   chains: any = {} // IK Chains

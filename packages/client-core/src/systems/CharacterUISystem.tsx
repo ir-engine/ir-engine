@@ -14,13 +14,16 @@ import { ECSWorld } from '@xrengine/engine/src/ecs/classes/World'
 export const CharacterUI = new Map<Entity, ReturnType<typeof createCharacterDetailView>>()
 
 export const CharacterUISystem = async (): Promise<System> => {
-  
-  const networkUserQuery = defineQuery([Not(LocalInputReceiverComponent), AvatarComponent, TransformComponent, NetworkObjectComponent])
+  const networkUserQuery = defineQuery([
+    Not(LocalInputReceiverComponent),
+    AvatarComponent,
+    TransformComponent,
+    NetworkObjectComponent
+  ])
   const networkUserAddQuery = enterQuery(networkUserQuery)
   const networkUserRemoveQuery = exitQuery(networkUserQuery)
 
   return defineSystem((world: ECSWorld) => {
-
     for (const userEntity of networkUserAddQuery(world)) {
       const userId = getComponent(userEntity, NetworkObjectComponent).ownerId
       const ui = createCharacterDetailView(userId)

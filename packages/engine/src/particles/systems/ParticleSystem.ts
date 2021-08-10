@@ -5,11 +5,9 @@ import { ECSWorld } from '../../ecs/classes/World'
 import { defineQuery, defineSystem, System } from 'bitecs'
 
 export const ParticleSystem = async (): Promise<System> => {
-  
   const emitterQuery = defineQuery([ParticleEmitterComponent])
 
   return defineSystem((world: ECSWorld) => {
-
     const { delta } = world
 
     for (const entity of emitterQuery(world)) {

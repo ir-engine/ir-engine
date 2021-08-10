@@ -1,3 +1,3 @@
-import { createMappedComponent } from "../../ecs/functions/EntityFunctions";
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
 export const LocalInputReceiverComponent = createMappedComponent<{}>()

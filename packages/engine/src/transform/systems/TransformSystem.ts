@@ -18,16 +18,14 @@ const euler2YXZ = new Euler()
 euler2YXZ.order = 'YXZ'
 
 export const TransformSystem = async (): Promise<System> => {
-
   const parentQuery = defineQuery([TransformParentComponent, TransformComponent])
   const childQuery = defineQuery([TransformChildComponent, TransformComponent])
   const copyTransformQuery = defineQuery([CopyTransformComponent])
   const desiredTransformQuery = defineQuery([DesiredTransformComponent])
   const tweenQuery = defineQuery([TweenComponent])
   const obj3dQuery = defineQuery([TransformComponent, Object3DComponent])
-  
-  return defineSystem((world: ECSWorld) => {    
-    
+
+  return defineSystem((world: ECSWorld) => {
     const { delta } = world
 
     for (const entity of parentQuery(world)) {

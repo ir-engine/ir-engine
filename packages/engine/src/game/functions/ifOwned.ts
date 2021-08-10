@@ -12,6 +12,8 @@ export const ifOwned: Checker = (entity: Entity, entityTarget?: Entity): any | u
   if (hasComponent(entity, GamePlayer)) {
     return getComponent(entity, GamePlayer).uuid == getComponent(entityTarget, NetworkObjectComponent).ownerId
   } else {
-    return getComponent(entity, NetworkObjectComponent).ownerId == getComponent(entityTarget, NetworkObjectComponent).ownerId
+    return (
+      getComponent(entity, NetworkObjectComponent).ownerId == getComponent(entityTarget, NetworkObjectComponent).ownerId
+    )
   }
 }

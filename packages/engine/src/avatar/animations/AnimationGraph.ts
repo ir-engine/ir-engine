@@ -190,10 +190,7 @@ export class AnimationGraph {
   updateNetwork = (entity: Entity, newStateName: string, params: WeightsParameterType): void => {
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
     // Send change animation commnad over network for the local client entity
-    if (
-      isEntityLocalClient(entity) &&
-      avatarAnimationComponent.currentState.type === AnimationType.STATIC
-    ) {
+    if (isEntityLocalClient(entity) && avatarAnimationComponent.currentState.type === AnimationType.STATIC) {
       Network.instance.clientInputState.commands.push({
         type: Commands.CHANGE_ANIMATION_STATE,
         args: convertObjToBufferSupportedString({

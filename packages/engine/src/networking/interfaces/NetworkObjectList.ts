@@ -1,4 +1,4 @@
-import { Entity } from '../../ecs/classes/Entity';
+import { Entity } from '../../ecs/classes/Entity'
 
 /** Interface for holding Network Object. */
 export interface NetworkObjectList {

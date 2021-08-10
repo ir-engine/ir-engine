@@ -92,7 +92,7 @@ export const createVolumetric = (entity, props: VolumetricProps) => {
     frameRate: 25
   })
 
-  addComponent(entity, VolumetricComponent, { 
+  addComponent(entity, VolumetricComponent, {
     player: DracosisSequence
   })
 

@@ -32,18 +32,17 @@ import { ECSWorld } from '../../ecs/classes/World'
 const upVec = new Vector3(0, 1, 0)
 
 export const InteractiveSystem = async (): Promise<System> => {
-
   const interactorsQuery = defineQuery([InteractorComponent])
 
   const interactiveQuery = defineQuery([InteractableComponent])
   const interactiveAddQuery = enterQuery(interactiveQuery)
-  
+
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
-  
+
   const focusQuery = defineQuery([InteractableComponent, InteractiveFocusedComponent])
   const focusAddQuery = enterQuery(focusQuery)
   const focusRemoveQuery = enterQuery(focusQuery)
-  
+
   const subfocusQuery = defineQuery([InteractableComponent, SubFocusedComponent])
   const subfocusAddQuery = enterQuery(subfocusQuery)
   const subfocusRemoveQuery = enterQuery(subfocusQuery)
@@ -55,26 +54,22 @@ export const InteractiveSystem = async (): Promise<System> => {
   const geometry = FontManager.instance.create3dText('INTERACT', new Vector3(0.8, 1, 0.2))
 
   const textSize = 0.1
-  const text = new Mesh(
-    geometry,
-    new MeshPhongMaterial({ color: 0xd4af37, emissive: 0xd4af37, emissiveIntensity: 1 })
-  )
+  const text = new Mesh(geometry, new MeshPhongMaterial({ color: 0xd4af37, emissive: 0xd4af37, emissiveIntensity: 1 }))
   text.scale.setScalar(textSize)
 
   const interactTextEntity = createEntity()
   const textGroup = new Group().add(text)
   addComponent(interactTextEntity, Object3DComponent, { value: textGroup })
   Engine.scene.add(textGroup)
-  const transformComponent = addComponent(interactTextEntity, TransformComponent, { 
-    position: new Vector3(), 
+  const transformComponent = addComponent(interactTextEntity, TransformComponent, {
+    position: new Vector3(),
     rotation: new Quaternion(),
-    scale: new Vector3(1, 1, 1) 
+    scale: new Vector3(1, 1, 1)
   })
   transformComponent.scale.setScalar(0)
   textGroup.visible = false
 
   return defineSystem((world: ECSWorld) => {
-
     const { time } = world
 
     for (const entity of interactiveAddQuery(world)) {
@@ -146,10 +141,7 @@ export const InteractiveSystem = async (): Promise<System> => {
       const interactTextObject = getComponent(interactTextEntity, Object3DComponent).value
       if (!interactTextObject.visible) continue
       interactTextObject.children[0].position.y = Math.sin(time * 1.8) * 0.05
-      if (
-        Engine.activeCameraFollowTarget &&
-        hasComponent(Engine.activeCameraFollowTarget, FollowCameraComponent)
-      ) {
+      if (Engine.activeCameraFollowTarget && hasComponent(Engine.activeCameraFollowTarget, FollowCameraComponent)) {
         interactTextObject.children[0].setRotationFromAxisAngle(
           upVec,
           MathUtils.degToRad(getComponent(Engine.activeCameraFollowTarget, FollowCameraComponent).theta)

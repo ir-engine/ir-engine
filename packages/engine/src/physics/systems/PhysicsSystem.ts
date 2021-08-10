@@ -22,8 +22,9 @@ import { ECSWorld } from '../../ecs/classes/World'
  * @author Josh Field <github.com/HexaField>
  */
 
-export const PhysicsSystem = async (attributes: { worker?: Worker; simulationEnabled?: boolean } = {}): Promise<System> => {
-
+export const PhysicsSystem = async (
+  attributes: { worker?: Worker; simulationEnabled?: boolean } = {}
+): Promise<System> => {
   const spawnNetworkObjectQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
   const spawnNetworkObjectAddQuery = enterQuery(spawnNetworkObjectQuery)
   const colliderQuery = defineQuery([ColliderComponent, TransformComponent])
@@ -53,7 +54,6 @@ export const PhysicsSystem = async (attributes: { worker?: Worker; simulationEna
   Engine.workers.push(Engine.physxWorker)
 
   return defineSystem((world: ECSWorld) => {
-
     const { delta } = world
 
     for (const entity of spawnNetworkObjectAddQuery(world)) {

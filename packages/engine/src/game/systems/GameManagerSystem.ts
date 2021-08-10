@@ -8,12 +8,7 @@ import { GameObject, GameObjectType } from '../components/GameObject'
 import { GamePlayer } from '../components/GamePlayer'
 
 import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
-import {
-  initState,
-  removeEntityFromState,
-  saveInitStateCopy,
-  requireState
-} from '../functions/functionsState'
+import { initState, removeEntityFromState, saveInitStateCopy, requireState } from '../functions/functionsState'
 
 import { GameMode } from '../types/GameMode'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
@@ -47,25 +42,23 @@ export class ActiveGames {
  * @author HydraFire <github.com/HydraFire>
  */
 export const GameManagerSystem = async (): Promise<System> => {
-
   const avatarsQuery = defineQuery([AvatarComponent])
   const avatarsAddQuery = enterQuery(avatarsQuery)
-  
+
   const gameQuery = defineQuery([GameComponent])
   const gameAddQuery = enterQuery(gameQuery)
-  
+
   const gameObjectQuery = defineQuery([GameObject])
   const gameObjectAddQuery = enterQuery(gameObjectQuery)
   const gameObjectRemoveQuery = exitQuery(gameObjectQuery)
 
   const gameObjectCollisionsQuery = defineQuery([GameObject, ColliderComponent])
-  
+
   const gamePlayerQuery = defineQuery([GamePlayer])
   const gamePlayerAddQuery = enterQuery(gamePlayerQuery)
   const gamePlayerRemoveQuery = exitQuery(gamePlayerQuery)
 
   return defineSystem((world: ECSWorld) => {
-
     const { delta } = world
 
     const gameQueryResults = gameQuery(world)
@@ -107,10 +100,7 @@ export const GameManagerSystem = async (): Promise<System> => {
         clearPredictionCheckList()
         requireState(
           game,
-          getComponent(
-            Network.instance.networkObjects[Network.instance.localAvatarNetworkId].entity,
-            GamePlayer
-          )
+          getComponent(Network.instance.networkObjects[Network.instance.localAvatarNetworkId].entity, GamePlayer)
         )
       }
 

@@ -407,9 +407,8 @@ export const WebGLRendererSystem = async (props: EngineRendererProps): Promise<S
   EngineRenderer.instance.dispatchSettingsChangeEvent()
 
   return defineSystem((world: ECSWorld) => {
-
     const { delta } = world
-    
+
     EngineRenderer.instance.execute(delta)
 
     return world

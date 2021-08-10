@@ -87,9 +87,7 @@ export const NetworkDebug = ({ reinit }) => {
     entity.forEach((e) => {
       // getAllC e.componentTypes.forEach((ct) => {
       //   const name = ct.prototype.constructor.name
-
       //   if (!comps[name]) comps[name] = {}
-
       //   if (e.name) {
       //     comps[name][e.name + '-' + e.id] = e
       //   } else {

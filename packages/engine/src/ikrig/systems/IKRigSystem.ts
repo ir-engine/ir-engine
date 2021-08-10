@@ -84,15 +84,12 @@ export class IKRigSystem extends System {
 }
 IKRigSystem.queries = {
   ikrigs: {
-    components: [IKRig],
-
+    components: [IKRig]
   },
   ikpose: {
-    components: [IKPose],
-
+    components: [IKPose]
   },
   debug: {
-    components: [DebugComponent],
-
+    components: [DebugComponent]
   }
 }

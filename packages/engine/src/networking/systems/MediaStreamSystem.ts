@@ -296,12 +296,10 @@ export class MediaStreams {
 }
 
 export const MediaStreamSystem = async (): Promise<System> => {
-
   let nearbyAvatarTick = 0
   let executeInProgress = false
 
   return defineSystem((world: ECSWorld) => {
-
     nearbyAvatarTick++
 
     if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && executeInProgress === false) {

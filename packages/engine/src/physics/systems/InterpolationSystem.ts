@@ -28,9 +28,17 @@ import { ECSWorld } from '../../ecs/classes/World'
 const vec3 = new Vector3()
 
 export const InterpolationSystem = async (): Promise<System> => {
-
-  const localCharacterInterpolationQuery = defineQuery([AvatarControllerComponent, InterpolationComponent, NetworkObjectComponent])
-  const networkClientInterpolationQuery = defineQuery([Not(AvatarControllerComponent), AvatarComponent, InterpolationComponent, NetworkObjectComponent])
+  const localCharacterInterpolationQuery = defineQuery([
+    AvatarControllerComponent,
+    InterpolationComponent,
+    NetworkObjectComponent
+  ])
+  const networkClientInterpolationQuery = defineQuery([
+    Not(AvatarControllerComponent),
+    AvatarComponent,
+    InterpolationComponent,
+    NetworkObjectComponent
+  ])
   const localObjectInterpolationQuery = defineQuery([
     Not(AvatarComponent),
     LocalInterpolationComponent,
@@ -46,12 +54,12 @@ export const InterpolationSystem = async (): Promise<System> => {
     NetworkObjectComponent
   ])
   const correctionFromServerQuery = defineQuery([
-    Not(InterpolationComponent), ColliderComponent, NetworkObjectComponent
+    Not(InterpolationComponent),
+    ColliderComponent,
+    NetworkObjectComponent
   ])
 
-
   return defineSystem((world: ECSWorld) => {
-
     const { delta } = world
 
     if (!Network.instance?.snapshot) return

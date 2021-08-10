@@ -37,7 +37,6 @@ export const applyMediaAudioSettings = (positionalAudio, positionalAudioSettings
 /** System class which provides methods for Positional Audio system. */
 
 export const PositionalAudioSystem = async (): Promise<System> => {
-
   const positionalAudioQuery = defineQuery([PositionalAudioComponent, TransformComponent])
   const positionalAudioAddQuery = enterQuery(positionalAudioQuery)
   const positionalAudioRemoveQuery = exitQuery(positionalAudioQuery)
@@ -66,15 +65,14 @@ export const PositionalAudioSystem = async (): Promise<System> => {
   })
 
   return defineSystem((world: ECSWorld) => {
-
-    if(startSuspendedContexts) {
+    if (startSuspendedContexts) {
       for (const entity of positionalAudioQuery(world)) {
         const positionalAudio = getComponent(entity, PositionalAudioComponent)
         if (positionalAudio?.value?.context?.state === 'suspended') positionalAudio.value.context.resume()
       }
     }
 
-    for(const entity of settingsAddQuery(world)) {
+    for (const entity of settingsAddQuery(world)) {
       settingsEntity = entity
     }
 
@@ -101,11 +99,7 @@ export const PositionalAudioSystem = async (): Promise<System> => {
         )
       }
 
-      if (
-        avatarAudioStream.has(entity) &&
-        consumer != null &&
-        consumer.id === avatarAudioStream.get(entity).id
-      ) {
+      if (avatarAudioStream.has(entity) && consumer != null && consumer.id === avatarAudioStream.get(entity).id) {
         continue
       }
 

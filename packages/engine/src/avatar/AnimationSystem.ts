@@ -11,15 +11,13 @@ import { ECSWorld } from '../ecs/classes/World'
 import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
 
 export const AnimationSystem = async (): Promise<System> => {
-
   const animationQuery = defineQuery([AnimationComponent])
   const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
   const avatarAnimationAddQuery = enterQuery(avatarAnimationQuery)
-  
+
   await Promise.all([AnimationManager.instance.getDefaultModel(), AnimationManager.instance.getAnimations()])
 
   return defineSystem((world: ECSWorld) => {
-
     const { delta } = world
 
     for (const entity of animationQuery(world)) {

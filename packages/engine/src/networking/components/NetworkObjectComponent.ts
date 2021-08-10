@@ -1,4 +1,4 @@
-import { createMappedComponent } from "../../ecs/functions/EntityFunctions"
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
 export type NetworkObjectComponentType = {
   /** Network id of the object. */

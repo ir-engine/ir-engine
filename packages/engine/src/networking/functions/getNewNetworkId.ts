@@ -1,4 +1,4 @@
-import { Network } from "../classes/Network";
+import { Network } from '../classes/Network'
 
 export function getNewNetworkId(uniqueId) {
   return (

@@ -7,7 +7,6 @@ import { ECSWorld } from '../../ecs/classes/World'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 
 export const AudioSystem = async (): Promise<System> => {
-
   const soundEffectQuery = defineQuery([SoundEffect])
   const soundEffectAddQuery = enterQuery(soundEffectQuery)
 
@@ -27,12 +26,11 @@ export const AudioSystem = async (): Promise<System> => {
   /** Audio Context. */
   let context: AudioContext
 
-
   /**
    * Call the callbacks when system is ready or push callbacks in array otherwise.
    * @param cb Callback to be called when system is ready.
    */
-   const whenReady = (cb): void => {
+  const whenReady = (cb): void => {
     if (audioReady) {
       cb()
     } else {
@@ -112,7 +110,6 @@ export const AudioSystem = async (): Promise<System> => {
   window.addEventListener('click', startAudio, true)
 
   return defineSystem((world: ECSWorld) => {
-
     for (const entity of soundEffectAddQuery(world)) {
       const effect = getComponent(entity, SoundEffect)
       if (effect.src && !audio) {
@@ -135,7 +132,7 @@ export const AudioSystem = async (): Promise<System> => {
     for (const entity of playAddQuery(world)) {
       whenReady(() => playSoundEffect(entity))
     }
-    
+
     return world
   })
 }

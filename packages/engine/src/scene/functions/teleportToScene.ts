@@ -16,7 +16,10 @@ import { delay } from '../../common/functions/delay'
 import { PhysXInstance } from 'three-physx'
 import { createAvatarController } from '../../avatar/functions/createAvatar'
 
-export const teleportToScene = async (portalComponent: ReturnType<typeof PortalComponent.get>, handleNewScene: () => void) => {
+export const teleportToScene = async (
+  portalComponent: ReturnType<typeof PortalComponent.get>,
+  handleNewScene: () => void
+) => {
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.ENABLE_SCENE, physics: false })
   Engine.hasJoinedWorld = false
 

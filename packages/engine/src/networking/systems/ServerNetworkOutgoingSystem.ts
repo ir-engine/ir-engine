@@ -15,13 +15,11 @@ import { TransformStateModel } from '../schema/transformStateSchema'
 import { WorldStateModel } from '../schema/worldStateSchema'
 
 export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
-  
   const networkTransformsQuery = defineQuery([Not(AvatarComponent), NetworkObjectComponent, TransformComponent])
   const avatarTransformsQuery = defineQuery([AvatarComponent, NetworkObjectComponent, TransformComponent])
   const ikTransformsQuery = defineQuery([XRInputSourceComponent, NetworkObjectComponent, TransformComponent])
 
   return defineSystem((world: ECSWorld) => {
-
     const transformState: TransformStateInterface = {
       tick: Network.instance.tick,
       time: Date.now(),
@@ -110,7 +108,6 @@ export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
           if (Network.instance.transport && typeof Network.instance.transport.sendReliableData === 'function')
             Network.instance.transport.sendReliableData(bufferReliable)
         }
-
       }
 
       const bufferUnreliable = TransformStateModel.toBuffer(transformState)

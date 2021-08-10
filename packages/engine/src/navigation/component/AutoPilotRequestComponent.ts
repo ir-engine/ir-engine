@@ -6,7 +6,7 @@ import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
  * @author xiani_zp <github.com/xiani>
  */
 
- export type AutoPilotRequestComponentType = {
+export type AutoPilotRequestComponentType = {
   navEntity: Entity
   point: Vector3
 }

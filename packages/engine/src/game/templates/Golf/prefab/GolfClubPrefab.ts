@@ -333,10 +333,10 @@ export const initializeGolfClub = (entityClub: Entity, parameters: GolfClubSpawn
   addComponent(entityClub, DebugArrowComponent, {
     color: 0xff00ff,
     direction: new Vector3(),
-    position: new Vector3(),
+    position: new Vector3()
   })
 
-  const golfClubComponent = addComponent(entityClub, GolfClubComponent, { 
+  const golfClubComponent = addComponent(entityClub, GolfClubComponent, {
     canDoChipShots: false,
     neckObject,
     handleObject,
@@ -344,7 +344,7 @@ export const initializeGolfClub = (entityClub: Entity, parameters: GolfClubSpawn
     meshGroup,
     raycast,
     raycast1,
-    canHitBall: false, 
+    canHitBall: false,
     hasHitBall: false,
     velocityPositionsToCalculate: 4,
     lastPositions: [],
@@ -352,7 +352,7 @@ export const initializeGolfClub = (entityClub: Entity, parameters: GolfClubSpawn
     velocityServer: new Vector3(),
     swingVelocity: 0,
     hidden: false,
-    disabledOpacity: 0.3,
+    disabledOpacity: 0.3
   })
 
   for (let i = 0; i < golfClubComponent.velocityPositionsToCalculate; i++) {

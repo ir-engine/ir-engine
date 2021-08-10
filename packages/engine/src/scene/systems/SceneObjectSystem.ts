@@ -33,7 +33,6 @@ export class SceneOptions {
 }
 
 export const SceneObjectSystem = async (): Promise<System> => {
-
   const sceneObjectQuery = defineQuery([Object3DComponent])
   const sceneObjectAddQuery = enterQuery(sceneObjectQuery)
   const sceneObjectRemoveQuery = exitQuery(sceneObjectQuery)
@@ -47,7 +46,6 @@ export const SceneObjectSystem = async (): Promise<System> => {
   SceneOptions.instance = new SceneOptions()
 
   return defineSystem((world: ECSWorld) => {
-
     for (const entity of sceneObjectAddQuery(world)) {
       const object3DComponent = getComponent(entity, Object3DComponent)
       const shadowComponent = getComponent(entity, ShadowComponent)

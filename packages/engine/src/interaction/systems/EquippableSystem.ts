@@ -19,8 +19,7 @@ import { ECSWorld } from '../../ecs/classes/World'
  * @author Josh Field <github.com/HexaField>
  */
 
- export const EquippableSystem = async (): Promise<System> => {
-   
+export const EquippableSystem = async (): Promise<System> => {
   const networkUserQuery = defineQuery([Not(LocalInputReceiverComponent), AvatarComponent, TransformComponent])
   const networkUserAddQuery = enterQuery(networkUserQuery)
 
@@ -29,7 +28,6 @@ import { ECSWorld } from '../../ecs/classes/World'
   const equippableRemoveQuery = exitQuery(equippableQuery)
 
   return defineSystem((world: ECSWorld) => {
-
     for (const entity of equippableAddQuery(world)) {
       const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity
       // all equippables must have a collider to grab by in VR

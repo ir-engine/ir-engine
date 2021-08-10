@@ -56,7 +56,7 @@ class RouterComp extends React.Component<{}, { hasError: boolean }> {
           <Route path="/" component={homePage} exact />
           <Route path="/loading" component={LOADER} />
           <Route path="/microphone" component={Microphone} />
-          <Route path="/usermessage" component={Usermsg} /> 
+          <Route path="/usermessage" component={Usermsg} />
           <Route path="/micon" component={Chatmicon} />
           <Route path="/micoff" component={Chatmicoff} />
           <Route path="/joinparty" component={Joinparty} />

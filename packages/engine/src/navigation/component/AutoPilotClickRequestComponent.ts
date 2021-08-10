@@ -5,7 +5,7 @@ import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
  * @author Josh Field <github.com/HexaField>
  */
 
- export type AutoPilotClickRequestComponentType = {
+export type AutoPilotClickRequestComponentType = {
   coords: Vector2
 }
 
