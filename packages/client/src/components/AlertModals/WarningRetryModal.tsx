@@ -9,38 +9,45 @@ import Modal from '@material-ui/core/Modal'
 import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
 
-interface Props {
+export interface WarningRetryModalProps {
   open: boolean
   title: string
   body: string
-  handleClose: any
-  action: any
-  parameters: any[]
-  timeout: number
-  closeEffect?: any
+  handleClose?: (event?: any, reason?: 'backdropClick' | 'escapeKeyDown' | 'closeButtonClicked' | 'timeout') => void
+  action?: (...params: any[]) => void
+  parameters?: any[]
+  timeout?: number
+  closeEffect?: () => void
   noCountdown?: boolean
 }
 
-const mapStateToProps = (state: any): any => {
-  return {}
-}
-
-const mapDispatchToProps = (dispatch: Dispatch): any => ({})
-
-const WarningRetryModal = (props: Props): any => {
-  const { open, title, body, noCountdown, action, parameters, timeout, handleClose, closeEffect } = props
-
+const WarningRetryModal = ({
+  open = false,
+  title = '',
+  body = '',
+  noCountdown = false,
+  action,
+  parameters = [],
+  timeout = 10000,
+  handleClose,
+  closeEffect
+}: WarningRetryModalProps): any => {
   const [countdown, setCountdown] = useState(null)
   const [timeRemaining, setTimeRemaining] = useState(0)
 
-  const handleCloseButtonClick = () => {
-    handleClose()
-    if (closeEffect != null) closeEffect()
+  const handleCloseButtonClick = (e: any) => {
+    if (typeof handleClose === 'function') {
+      handleClose(e, 'closeButtonClicked')
+    }
+
+    if (typeof closeEffect === 'function') {
+      closeEffect()
+    }
   }
 
   useEffect(() => {
-    if (open === true && noCountdown !== true) {
-      setTimeRemaining(timeout / 1000)
+    if (open && !noCountdown) {
+      setTimeRemaining((timeout || 10000) / 1000)
     } else {
       clearInterval(countdown as any)
     }
@@ -48,13 +55,18 @@ const WarningRetryModal = (props: Props): any => {
 
   useEffect(() => {
     if (timeRemaining === 0) {
-      action(...parameters)
-      handleClose()
+      if (typeof action === 'function') {
+        action(...(parameters || []))
+      }
+
+      if (typeof handleClose === 'function') {
+        handleClose({}, 'timeout')
+      }
     }
 
     if (timeRemaining !== 0) {
       setCountdown(
-        setInterval(() => {
+        setTimeout(() => {
           setTimeRemaining(timeRemaining - 1)
         }, 1000)
       )
@@ -71,8 +83,8 @@ const WarningRetryModal = (props: Props): any => {
         className={styles.modal}
         open={open}
         onClose={(event, reason) => {
-          if (reason === 'backdropClick' && closeEffect != null) closeEffect()
-          else handleClose(event, reason)
+          if (reason === 'backdropClick' && typeof closeEffect === 'function') closeEffect()
+          else if (typeof handleClose === 'function') handleClose(event, reason)
         }}
         closeAfterTransition
         BackdropComponent={Backdrop}
@@ -80,7 +92,7 @@ const WarningRetryModal = (props: Props): any => {
           timeout: 500
         }}
       >
-        <Fade in={props.open}>
+        <Fade in={open}>
           <div
             className={classNames({
               [styles.paper]: true,
@@ -96,9 +108,11 @@ const WarningRetryModal = (props: Props): any => {
             </div>
             <div className={styles['modal-body']}>
               {body}
-              {noCountdown !== true && <div>{timeRemaining} seconds</div>}
-              {noCountdown !== true && (
-                <div className={styles.footer}>Closing this modal will cancel the countdown</div>
+              {!noCountdown && (
+                <>
+                  <div>{timeRemaining} seconds</div>
+                  <div className={styles.footer}>Closing this modal will cancel the countdown</div>
+                </>
               )}
             </div>
           </div>
@@ -108,4 +122,4 @@ const WarningRetryModal = (props: Props): any => {
   )
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(WarningRetryModal)
+export default WarningRetryModal
