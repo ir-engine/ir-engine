@@ -70,7 +70,7 @@ export default class OceanNode extends EditorNodeMixin(Ocean) {
   set normalMapPath(value) {
     this.load(value)
       .then((map) => {
-        this.setNormalMap(map)
+        map && this.setNormalMap(map)
       })
       .catch(console.error)
   }
@@ -82,7 +82,7 @@ export default class OceanNode extends EditorNodeMixin(Ocean) {
   set distortionMapPath(value) {
     this.load(value)
       .then((map) => {
-        this.setDistortionMap(map)
+        map && this.setDistortionMap(map)
       })
       .catch(console.error)
   }

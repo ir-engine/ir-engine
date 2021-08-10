@@ -1,4 +1,5 @@
 import {
+  RepeatWrapping,
   Mesh,
   PlaneBufferGeometry,
   Vector3,
@@ -6,16 +7,18 @@ import {
   Color,
   MeshPhongMaterial,
   AddOperation,
-  ShaderChunk,
   WebGLRenderTarget,
   DepthTexture,
   RGBFormat,
   NearestFilter,
   DepthFormat,
-  UnsignedShortType
+  UnsignedShortType,
+  Texture
 } from 'three'
-import { Engine } from '../../ecs/classes/Engine'
+
+// import { Engine } from '../../ecs/classes/Engine'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import DebugRenderTarget from './DebugRT'
 
 // Vertex Uniforms
 const vertexUniforms = `uniform float time;
@@ -85,6 +88,9 @@ vec3 foam( const in vec3 waterColor )
 }
 `
 
+const pixelData =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII='
+
 function insertBeforeString(source, searchTerm, addition) {
   const position = source.indexOf(searchTerm)
   return [source.slice(0, position), addition, source.slice(position)].join('\n')
@@ -100,13 +106,50 @@ function insertAfterString(source, searchTerm, addition) {
 export class Ocean extends Mesh {
   depthMap: WebGLRenderTarget
   shouldResize: boolean
+  createRtd: boolean
 
   constructor() {
-    const planeGeometry = new PlaneBufferGeometry(1, 1, 100, 100)
+    const planeGeometry = new PlaneBufferGeometry(10, 10, 100, 100)
+    super(planeGeometry, new MeshPhongMaterial())
 
-    const material = new MeshPhongMaterial({
-      normalMap: null,
-      envMap: null,
+    this.setupMaterial()
+
+    this.rotation.x = -Math.PI * 0.5
+    this.shouldResize = true
+
+    window.addEventListener('resize', () => {
+      this.shouldResize = true
+    })
+
+    this.createRtd = true
+
+    // const script = document.createElement('script')
+    // script.onload = () => {
+    //   this.createRti = true
+    // }
+    // script.src = `https://cdn.jsdelivr.net/gh/Fyrestar/THREE.RenderTargetInspector/RenderTargetInspector.js`
+
+    // document.head.appendChild(script)
+    //this.frustumCulled = false
+  }
+
+  addImageProcess(src: string): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+      let img = new Image()
+      img.onload = () => resolve(img)
+      img.onerror = reject
+      img.src = src
+    })
+  }
+
+  async setupMaterial() {
+    // To make the shader compiler insert vUv varying
+    const pixel = await this.addImageProcess(pixelData)
+    const tempTexture = new Texture(pixel)
+
+    this.material = new MeshPhongMaterial({
+      normalMap: tempTexture,
+      // envMap: null,
       color: new Color(0.158628, 0.465673, 0.869792), // Deep water color
       shininess: 40,
       reflectivity: 0.25,
@@ -114,29 +157,14 @@ export class Ocean extends Mesh {
       transparent: true,
       combine: AddOperation
     })
-
-    super(planeGeometry, material)
-
-    //this.setupMaterial()
-
-    this.rotation.x = -Math.PI * 0.5
-
-    window.addEventListener('resize', () => {
-      this.shouldResize = true
-    })
-    //this.frustumCulled = false
-  }
-
-  setupMaterial() {
     ;(this.material as MeshPhongMaterial).onBeforeCompile = (shader) => {
-      const viewportSize = new Vector2()
-      Engine.renderer.getSize(viewportSize)
+      const viewportSize = new Vector2(window.innerWidth, window.innerHeight)
 
       shader.uniforms.time = { value: 0 }
       shader.uniforms.distortionMap = { value: null }
       shader.uniforms.depthMap = { value: null }
       shader.uniforms.viewportSize = { value: viewportSize }
-      shader.uniforms.cameraNearFar = { value: new Vector2(Engine.camera.near, Engine.camera.far) }
+      shader.uniforms.cameraNearFar = { value: new Vector2(0.1, 100) }
       shader.uniforms.shallowWaterColor = { value: new Vector3(0.190569, 0.765519, 0.869792) }
       shader.uniforms.opacityRange = { value: new Vector2(0.6, 0.9) }
 
@@ -168,37 +196,44 @@ export class Ocean extends Mesh {
       shader.fragmentShader = insertBeforeString(shader.fragmentShader, 'uniform vec3 diffuse;', fragUniforms)
       shader.fragmentShader = insertBeforeString(shader.fragmentShader, 'void main()', fragmentFunctions)
 
+      // shader.fragmentShader = insertAfterString(
+      //   shader.fragmentShader,
+      //   'vec4 diffuseColor = vec4( diffuse, opacity );',
+      //   `float colorFade = depthFade(1.2);
+      // diffuseColor.rgb = mix(shallowWaterColor, diffuse, colorFade);
+      // diffuseColor.rgb = foam(diffuseColor.rgb);
+      // float opacityFade = depthFade(1.0);
+      // diffuseColor.a = clamp(opacityFade, opacityRange.x, opacityRange.y);
+      // `
+      // )
+
       shader.fragmentShader = insertAfterString(
         shader.fragmentShader,
         'vec4 diffuseColor = vec4( diffuse, opacity );',
-        `float colorFade = depthFade(1.2);
-      diffuseColor.rgb = mix(shallowWaterColor, diffuse, colorFade);
-      diffuseColor.rgb = foam(diffuseColor.rgb);
-      float opacityFade = depthFade(1.0);
-      diffuseColor.a = clamp(opacityFade, opacityRange.x, opacityRange.y);
+        `diffuseColor.rgb = texture2D(depthMap, vUv).rgb;
       `
       )
 
       // Small wave normal map
-      let normal_fragment_maps = ShaderChunk.normal_fragment_maps
-      normal_fragment_maps = normal_fragment_maps.replace(
-        'vec3 mapN = texture2D( normalMap, vUv ).xyz * 2.0 - 1.0;',
-        `float waveDist = texture( distortionMap, panner( 7.0 * vUv, time, vec2(0.08) ) ).y * 0.05;
-      vec3 mapN = texture( normalMap, panner( 12.0 * vUv, time, vec2(0.08, 0.0) ) + waveDist ).xyz * 2.0 - 1.0;
-      `
-      )
+      // let normal_fragment_maps = ShaderChunk.normal_fragment_maps
+      // normal_fragment_maps = normal_fragment_maps.replace(
+      //   'vec3 mapN = texture2D( normalMap, vUv ).xyz * 2.0 - 1.0;',
+      //   `float waveDist = texture( distortionMap, panner( 7.0 * vUv, time, vec2(0.08) ) ).y * 0.05;
+      // vec3 mapN = texture( normalMap, panner( 12.0 * vUv, time, vec2(0.08, 0.0) ) + waveDist ).xyz * 2.0 - 1.0;
+      // `
+      // )
 
-      shader.fragmentShader = shader.fragmentShader.replace('#include <normal_fragment_maps>', normal_fragment_maps)
+      // shader.fragmentShader = shader.fragmentShader.replace('#include <normal_fragment_maps>', normal_fragment_maps)
       ;(this.material as any).userData.shader = shader
     }
   }
 
-  setupRenderTarget() {
-    const size = new Vector2()
-    Engine.renderer.getSize(size)
+  setupRenderTarget(rt: WebGLRenderTarget) {
+    const size = new Vector2(window.innerWidth, window.innerHeight)
+    // Engine.renderer.getSize(size)
     this.depthMap = new WebGLRenderTarget(size.x, size.y)
 
-    this.depthMap.texture.format = RGBFormat
+    this.depthMap.texture.format = rt.texture.format
     this.depthMap.texture.minFilter = NearestFilter
     this.depthMap.texture.magFilter = NearestFilter
     this.depthMap.texture.generateMipmaps = false
@@ -206,14 +241,15 @@ export class Ocean extends Mesh {
     this.depthMap.depthBuffer = true
     this.depthMap.depthTexture = new DepthTexture(size.x, size.y)
     this.depthMap.depthTexture.format = DepthFormat
-    this.depthMap.depthTexture.type = UnsignedShortType
-
-    EngineRenderer.instance.addRenderTarget(this.depthMap)
+    this.depthMap.depthTexture.type = rt.depthTexture.type // UnsignedShortType
+    // EngineRenderer.instance.addRenderTarget(this.depthMap)
   }
 
-  setDistortionMap(texture) {
+  setDistortionMap(texture: Texture) {
     const shader = (this.material as any).userData.shader
     if (!shader) return
+    texture.wrapS = RepeatWrapping
+    texture.wrapT = RepeatWrapping
     shader.uniforms.distortionMap.value = texture
   }
 
@@ -221,44 +257,53 @@ export class Ocean extends Mesh {
     ;(this.material as MeshPhongMaterial).envMap = texture
   }
 
-  setNormalMap(texture) {
+  setNormalMap(texture: Texture) {
+    texture.wrapS = RepeatWrapping
+    texture.wrapT = RepeatWrapping
     ;(this.material as MeshPhongMaterial).normalMap = texture
   }
 
-  // Depth texture update
   onBeforeRender = (renderer, scene, camera) => {
+    const shader = (this.material as any).userData.shader
+
+    if (!this.depthMap) {
+      this.setupRenderTarget(renderer.getRenderTarget())
+    }
+
     if (this.shouldResize) {
-      const shader = (this.material as any).userData.shader
-      shader && Engine.renderer.getSize(shader.uniforms.viewportSize.value)
+      shader?.uniforms.viewportSize.value.set(window.innerWidth, window.innerHeight)
+
+      const dpr = renderer.getPixelRatio()
+      this.depthMap.setSize(window.innerWidth * dpr, window.innerHeight * dpr)
+
       this.shouldResize = false
     }
 
-    if (!Engine.renderer) {
-      console.log('Renderer not available')
-      return
-    }
-
-    if (!this.depthMap) {
-      this.setupRenderTarget()
-    }
+    shader?.uniforms.cameraNearFar.value.set(camera.near, camera.far)
 
     this.visible = false
     const currentRenderTarget = renderer.getRenderTarget()
 
     // render scene into target
+    // Depth texture update
     renderer.setRenderTarget(this.depthMap)
     renderer.render(scene, camera)
 
     renderer.setRenderTarget(currentRenderTarget)
 
     this.visible = true
+
+    if (this.createRtd) {
+      DebugRenderTarget.downloadAsImage(renderer, this.depthMap, 'rt_image')
+      this.createRtd = false
+    }
   }
 
   update(dt: number) {
     const shader = (this.material as any).userData.shader
     if (!shader) return
 
-    shader.uniforms.depthMap.value = this.depthMap
+    shader.uniforms.depthMap.value = this.depthMap.texture
     shader.uniforms.time.value += dt
   }
 
