@@ -26,6 +26,7 @@ import { addClientInputListeners, removeClientInputListeners } from './input/fun
 import { ClientInputSystem } from './input/systems/ClientInputSystem'
 import { EquippableSystem } from './interaction/systems/EquippableSystem'
 import { InteractiveSystem } from './interaction/systems/InteractiveSystem'
+import { MapUpdateSystem } from './map/MapUpdateSystem'
 import { AutopilotSystem } from './navigation/systems/AutopilotSystem'
 import { Network } from './networking/classes/Network'
 import { ClientNetworkStateSystem } from './networking/systems/ClientNetworkStateSystem'
@@ -169,6 +170,7 @@ const registerClientSystems = (options: Required<InitializeOptions>, canvas: HTM
     simulationEnabled: options.physics.simulationEnabled,
     worker: options.physics.physxWorker
   })
+  registerSystem(SystemUpdateType.Fixed, MapUpdateSystem)
 
   // Miscellaneous Systems
   registerSystem(SystemUpdateType.Fixed, ParticleSystem)
