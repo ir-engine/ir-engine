@@ -23,17 +23,6 @@ function lat2tile(lat: number, zoom: number) {
   )
 }
 
-const METERS_PER_PIXEL_AT_EQUATOR = 156543.03
-export function calcMetersPerPixelLatitudinal(latitude: number) {
-  // TODO why is this off slightly (without the small fudge factor)?
-  const fudge = 1.21
-  return Math.abs((METERS_PER_PIXEL_AT_EQUATOR * Math.cos(latitude)) / Math.pow(2, TILE_ZOOM)) * fudge
-}
-export function calcMetersPerPixelLongitudinal(latitude: number) {
-  const fudge = 1.015
-  return Math.abs(METERS_PER_PIXEL_AT_EQUATOR / Math.pow(2, TILE_ZOOM)) * fudge
-}
-
 /**
  * Return the features we care about from a tiles
  */
