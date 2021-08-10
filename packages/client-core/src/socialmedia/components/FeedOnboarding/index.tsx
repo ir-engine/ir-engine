@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-// @ts-ignore
 import styles from './FeedOnboarding.module.scss'
 import { isIOS } from '../../../util/platformCheck'
 

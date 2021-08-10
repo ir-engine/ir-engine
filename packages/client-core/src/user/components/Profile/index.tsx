@@ -6,7 +6,6 @@ import Tabs from '@material-ui/core/Tabs'
 import { AccountCircle, Settings } from '@material-ui/icons'
 import classNames from 'classnames'
 import React, { Fragment, useState } from 'react'
-// @ts-ignore
 import styles from './Profile.module.scss'
 import UserProfile from './UserIcon'
 import UserSettings from './UserSettings'

@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react'
-// @ts-ignore
 import styles from './Videos.module.scss'
 import Button from '@material-ui/core/Button'
 import { connect } from 'react-redux'

@@ -11,7 +11,6 @@ import TextField from '@material-ui/core/TextField'
 import { FormControl, InputLabel, MenuItem, Select, Typography, Card } from '@material-ui/core'
 import BackupIcon from '@material-ui/icons/Backup'
 
-// @ts-ignore
 import styles from './ArMediaForm.module.scss'
 
 import { selectCreatorsState } from '../../reducers/creator/selector'

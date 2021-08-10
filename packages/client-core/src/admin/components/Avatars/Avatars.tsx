@@ -18,7 +18,6 @@ import { selectAuthState } from '../../../user/reducers/auth/selector'
 import { PAGE_LIMIT } from '../../reducers/admin/reducers'
 import { fetchLocationTypes } from '../../reducers/admin/location/service'
 import { fetchAdminAvatars } from '../../reducers/admin/avatar/service'
-// @ts-ignore
 import styles from './Avatars.module.scss'
 import AddToContentPackModal from '../ContentPack/AddToContentPackModal'
 import { selectAdminAvatarState } from '../../reducers/admin/avatar/selector'

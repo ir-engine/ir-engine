@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, JSXElementConstructor } from 'react'
-// @ts-ignore
 import styles from './ScrollableElement.module.scss'
 
 type ScrollableElementPropsType = {

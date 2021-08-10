@@ -8,7 +8,6 @@ import TableRow from '@material-ui/core/TableRow'
 import TableSortLabel from '@material-ui/core/TableSortLabel'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles'
 import React from 'react'
-// @ts-ignore
 import styles from './Admin.module.scss'
 
 const useStyles = makeStyles((theme: Theme) =>

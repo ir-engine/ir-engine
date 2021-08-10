@@ -17,7 +17,6 @@ import {
   pauseProducer,
   resumeProducer
 } from '../../transports/SocketWebRTCClientFunctions'
-// @ts-ignore
 import styles from './MapMediaIconsBox.module.scss'
 
 const mapStateToProps = (state: any): any => {

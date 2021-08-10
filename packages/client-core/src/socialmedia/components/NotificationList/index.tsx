@@ -11,7 +11,6 @@ import { getCreatorNotificationList } from '../../reducers/creator/service'
 import NotificationCard from '../NotificationCard'
 import { useTranslation } from 'react-i18next'
 
-// @ts-ignore
 import styles from './NotificationList.module.scss'
 
 const mapStateToProps = (state: any): any => {

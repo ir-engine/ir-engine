@@ -38,7 +38,6 @@ import {
   resumeProducer
 } from '../../transports/SocketWebRTCClientFunctions'
 import Draggable from './Draggable'
-// @ts-ignore
 import styles from './PartyParticipantWindow.module.scss'
 import { Downgraded } from '@hookstate/core'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
