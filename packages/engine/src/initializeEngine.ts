@@ -90,8 +90,10 @@ const configureClient = async (options: Required<InitializeOptions>) => {
 
   const { schema } = options.networking
 
+  if(schema){
   Network.instance.schema = schema
-  Network.instance.transport = new schema.transport()
+  if(schema.transport) Network.instance.transport = new schema.transport()
+  }
 
   await FontManager.instance.getDefaultFont()
 

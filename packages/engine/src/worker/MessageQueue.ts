@@ -202,13 +202,15 @@ export class MessageQueue extends EventDispatcherProxy {
       eventTarget,
       eventListener
     })
-    this.messagePort = messagePort
     this.eventTarget = eventTarget
     this.queue = []
     this.remoteDocumentObjects = new Map<string, DocumentElementProxy>()
-
-    this.messagePort.onmessage = (message: any) => {
-      this.receiveQueue(message.data as object[])
+    
+    if(messagePort){
+      this.messagePort = messagePort
+      this.messagePort.onmessage = (message: any) => {
+        this.receiveQueue(message.data as object[])
+      }
     }
     this.interval = setInterval(() => {
       this.sendQueue()
