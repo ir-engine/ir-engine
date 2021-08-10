@@ -16,9 +16,8 @@ import {
   ToneMappingEffect
 } from 'postprocessing'
 import {
-  LinearToneMapping,
+  MathUtils,
   NearestFilter,
-  PCFSoftShadowMap,
   PerspectiveCamera,
   RGBFormat,
   sRGBEncoding,
@@ -86,8 +85,6 @@ export interface EffectComposerWithSchema extends EffectComposer {
 }
 
 let lastRenderTime = 0
-let renderTimeCounter = 0
-let renderTimeAccumulator = 0
 
 export class EngineRenderer {
   static EVENTS = {
@@ -106,8 +103,6 @@ export class EngineRenderer {
   /** Postprocessing schema. */
   postProcessingSchema: PostProcessingSchema
 
-  downgradeTimer = 0
-  upgradeTimer = 0
   /** Maximum Quality level of the rendered. **Default** value is 4. */
   maxQualityLevel = 5
   /** Current quality level. */
@@ -132,6 +127,10 @@ export class EngineRenderer {
 
   supportWebGL2: boolean = WebGL.isWebGL2Available()
   rendereringEnabled = true
+
+  averageFrameTime = 17
+  timeSamples = [17, 17, 17, 17, 17, 17, 17, 17, 17, 17]
+  index = 0
 
   /** Constructs WebGL Renderer System. */
   constructor(attributes: { canvas: HTMLCanvasElement }) {
@@ -261,6 +260,8 @@ export class EngineRenderer {
       Engine.csm?.update()
       Engine.renderer.render(Engine.scene, Engine.camera)
     } else {
+      this.changeQualityLevel()
+
       if (this.rendereringEnabled) {
         if (this.needsResize) {
           const curPixelRatio = Engine.renderer.getPixelRatio()
@@ -295,8 +296,17 @@ export class EngineRenderer {
           this.rendereringEnabled = false
         }
       }
-      this.changeQualityLevel()
     }
+  }
+
+  calculateMovingAverage = (delta: number): number => {
+    this.averageFrameTime =
+      (this.averageFrameTime * this.timeSamples.length + delta - this.timeSamples[this.index]) / this.timeSamples.length
+
+    this.timeSamples[this.index] = delta
+    this.index = (this.index + 1) % this.timeSamples.length
+
+    return this.averageFrameTime
   }
 
   /**
@@ -304,44 +314,21 @@ export class EngineRenderer {
    */
   changeQualityLevel(): void {
     const time = now()
-    const deltaRender = time - lastRenderTime
+    const delta = time - lastRenderTime
     lastRenderTime = time
-    renderTimeAccumulator += deltaRender
-    renderTimeCounter++
-
-    if (renderTimeCounter < 60) return
-
-    const delta = renderTimeAccumulator / 60
-
-    renderTimeCounter = 0
-    renderTimeAccumulator = 0
 
     if (!this.automatic) return
 
-    if (delta >= this.maxRenderDelta && this.qualityLevel > 1) {
-      this.downgradeTimer++
+    const averageDelta = this.calculateMovingAverage(delta)
 
-      if (this.downgradeTimer > 3) {
-        this.qualityLevel--
-        console.log('quality automatically scaled down', this.qualityLevel)
-      } else {
-        return
-      }
-    } else if (delta <= this.minRenderDelta && this.qualityLevel < this.maxQualityLevel) {
-      this.upgradeTimer++
-
-      if (this.upgradeTimer > 3) {
-        this.qualityLevel++
-
-        console.log('quality automatically scaled up', this.qualityLevel)
-      } else {
-        return
-      }
-    } else {
-      return
-    }
-    this.downgradeTimer = 0
-    this.upgradeTimer = 0
+    this.qualityLevel = MathUtils.mapLinear(
+      averageDelta,
+      this.minRenderDelta,
+      this.maxRenderDelta,
+      this.maxQualityLevel,
+      1
+    )
+    this.qualityLevel = Math.round(MathUtils.clamp(this.qualityLevel, 1, this.maxQualityLevel))
 
     // set resolution scale
     if (this.prevQualityLevel !== this.qualityLevel) {
@@ -384,12 +371,16 @@ export class EngineRenderer {
   }
 
   setShadowQuality(useShadows) {
+    if (this.useShadows === useShadows) return
+
     this.useShadows = useShadows
     Engine.renderer.shadowMap.enabled = useShadows
     ClientStorage.set(databasePrefix + RENDERER_SETTINGS.SHADOW_QUALITY, this.useShadows)
   }
 
   setUsePostProcessing(usePostProcessing) {
+    if (this.usePostProcessing === usePostProcessing) return
+
     this.usePostProcessing = this.supportWebGL2 && usePostProcessing
     ClientStorage.set(databasePrefix + RENDERER_SETTINGS.POST_PROCESSING, this.usePostProcessing)
   }
