@@ -1,4 +1,7 @@
+import { PositionalAudio } from 'three'
+import { PositionalAudioComponent } from '../audio/components/PositionalAudioComponent'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
+import { Engine } from '../ecs/classes/Engine'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { System } from '../ecs/classes/System'
 import { addComponent, removeComponent } from '../ecs/functions/EntityFunctions'
@@ -20,6 +23,7 @@ export class ClientAvatarSpawnSystem extends System {
       const isLocalPlayer = uniqueId === Network.instance.userId
       createAvatar(entity, parameters, !isLocalPlayer)
 
+      addComponent(entity, PositionalAudioComponent, { value: new PositionalAudio(Engine.audioListener) })
       addComponent(entity, InterpolationComponent)
       addComponent(entity, ShadowComponent)
 
