@@ -1,11 +1,8 @@
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
 import { Tween } from '@tweenjs/tween.js'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-export class TweenComponent extends Component<TweenComponent> {
+export type TweenComponentType = {
   tween: Tween<any>
-
-  static _schema = {
-    tween: { default: null, type: Types.Ref }
-  }
 }
+
+export const TweenComponent = createMappedComponent<TweenComponentType>()

@@ -14,6 +14,7 @@ import {
   handleVisibilityChange,
   handleWindowFocus
 } from '../schema/ClientInputSchema'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 
 const supportsPassive = (function () {
   let supportsPassiveValue = false
@@ -50,7 +51,7 @@ interface ListenerBindingData {
 
 const boundListeners: ListenerBindingData[] = []
 
-export const addClientInputListeners = () => {
+export const addClientInputListeners = (canvas: HTMLCanvasElement) => {
   window.addEventListener('DOMMouseScroll', preventDefault, false)
   window.addEventListener('keydown', preventDefaultForScrollKeys, false)
 
@@ -67,18 +68,16 @@ export const addClientInputListeners = () => {
     })
   }
 
-  const viewportElement = Engine.viewportElement ?? (document as any)
+  addListener(canvas, 'contextmenu', handleContextMenu)
 
-  addListener(viewportElement, 'contextmenu', handleContextMenu)
-
-  addListener(viewportElement, 'mousemove', handleMouseMovement)
-  addListener(viewportElement, 'mouseup', handleMouseButton)
-  addListener(viewportElement, 'mousedown', handleMouseButton)
-  addListener(viewportElement, 'mouseleave', handleMouseLeave)
-  addListener(viewportElement, 'wheel', handleMouseWheel, true)
+  addListener(canvas, 'mousemove', handleMouseMovement)
+  addListener(canvas, 'mouseup', handleMouseButton)
+  addListener(canvas, 'mousedown', handleMouseButton)
+  addListener(canvas, 'mouseleave', handleMouseLeave)
+  addListener(canvas, 'wheel', handleMouseWheel, true)
 
   addListener(
-    viewportElement,
+    canvas,
     'touchstart',
     (e) => {
       handleTouch(e)
@@ -86,9 +85,9 @@ export const addClientInputListeners = () => {
     },
     true
   )
-  addListener(viewportElement, 'touchend', handleTouch, true)
-  addListener(viewportElement, 'touchcancel', handleTouch, true)
-  addListener(viewportElement, 'touchmove', handleTouchMove, true)
+  addListener(canvas, 'touchend', handleTouch, true)
+  addListener(canvas, 'touchcancel', handleTouch, true)
+  addListener(canvas, 'touchmove', handleTouchMove, true)
 
   addListener(document, 'keyup', handleKey)
   addListener(document, 'keydown', handleKey)

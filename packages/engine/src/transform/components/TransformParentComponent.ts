@@ -1,9 +1,7 @@
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-export class TransformParentComponent extends Component<TransformParentComponent> {
-  children: any[] = []
+export type TransformParentComponentType = {
+  children: any[]
 }
-TransformParentComponent._schema = {
-  children: { default: [], type: Types.Array }
-}
+
+export const TransformParentComponent = createMappedComponent<TransformParentComponentType>()

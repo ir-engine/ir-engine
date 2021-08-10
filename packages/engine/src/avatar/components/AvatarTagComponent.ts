@@ -1,2 +1,2 @@
-import { Component } from '../../ecs/classes/Component'
-export class AvatarTagComponent extends Component<AvatarTagComponent> {}
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+export const AvatarTagComponent = createMappedComponent<{}>()

@@ -3,13 +3,7 @@ import { getLoader as getGLTFLoader, loadExtentions } from '../functions/LoadGLT
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import { AssetType } from '../enum/AssetType'
 import { AssetClass } from '../enum/AssetClass'
-import {
-  addComponent,
-  createEntity,
-  getComponent,
-  getMutableComponent,
-  hasComponent
-} from '../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
@@ -75,7 +69,7 @@ export class AssetLoader {
 
     // Add or overwrites the loader for an entity.
     if (this.params.entity) {
-      AssetLoader.loaders.set(this.params.entity.id, this)
+      AssetLoader.loaders.set(this.params.entity, this)
     }
   }
 
@@ -157,9 +151,9 @@ export class AssetLoader {
       this.params.parent.add(asset)
     } else if (this.params.entity) {
       if (hasComponent(this.params.entity, Object3DComponent)) {
-        if (getComponent<Object3DComponent>(this.params.entity, Object3DComponent).value !== undefined)
-          getMutableComponent<Object3DComponent>(this.params.entity, Object3DComponent).value.add(asset)
-        else getMutableComponent<Object3DComponent>(this.params.entity, Object3DComponent).value = asset
+        if (getComponent(this.params.entity, Object3DComponent).value !== undefined)
+          getComponent(this.params.entity, Object3DComponent).value.add(asset)
+        else getComponent(this.params.entity, Object3DComponent).value = asset
       } else {
         addComponent(this.params.entity, Object3DComponent, { value: asset })
       }

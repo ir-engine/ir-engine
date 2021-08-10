@@ -1,16 +1,19 @@
+import { defineQuery, defineSystem, enterQuery, System } from '../ecs/bitecs'
 import { Vector3 } from 'three'
 import { getCoord, getTile, updateMap } from '.'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { PI } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
-import { System } from '../ecs/classes/System'
+import { ECSWorld } from '../ecs/classes/World'
 import { getComponent } from '../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { getCenterTile } from './MapBoxClient'
 
-export class MapUpdateSystem extends System {
-  execute(delta: number, time: number): void {
-    for (const entity of this.queryResults.move.changed) {
+export const MapUpdateSystem = async (): Promise<System> => {
+  const moveQuery = defineQuery([Object3DComponent, AvatarComponent])
+
+  return defineSystem((world: ECSWorld) => {
+    for (const entity of moveQuery(world)) {
       const position = getComponent(entity, Object3DComponent).value.position
       const centrCoord = getCoord()
 
@@ -27,7 +30,7 @@ export class MapUpdateSystem extends System {
       if (startTile[0] == moveTile[0] && startTile[1] == moveTile[1]) {
         console.log('in center')
       } else {
-        alert('Need to update')
+        // alert('Need to update')
         //UPdate Map
         updateMap(
           Engine.renderer,
@@ -45,15 +48,6 @@ export class MapUpdateSystem extends System {
         remObj.removeFromParent()
       }
     }
-  }
-
-  static queries: any = {
-    move: {
-      components: [Object3DComponent, AvatarComponent],
-      listen: {
-        added: true,
-        changed: true
-      }
-    }
-  }
+    return world
+  })
 }

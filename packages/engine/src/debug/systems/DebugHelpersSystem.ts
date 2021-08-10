@@ -14,9 +14,8 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { System } from '../../ecs/classes/System'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { BoundingBoxComponent } from '../../interaction/components/BoundingBox'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
@@ -25,6 +24,8 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { DebugArrowComponent } from '../DebugArrowComponent'
 import { DebugRenderer } from './DebugRenderer'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
+import { ECSWorld } from '../../ecs/classes/World'
 
 type ComponentHelpers = 'viewVector' | 'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box' | 'navmesh'
 
@@ -73,15 +74,39 @@ export class DebugHelpers {
     })
   }
 }
-export class DebugHelpersSystem extends System {
-  constructor() {
-    super()
-    DebugHelpers.physicsDebugRenderer = new DebugRenderer(Engine.scene)
-  }
-  execute(delta: number, time: number): void {
+
+export const DebugHelpersSystem = async (): Promise<System> => {
+  DebugHelpers.physicsDebugRenderer = new DebugRenderer(Engine.scene)
+
+  const avatarDebugQuery = defineQuery([AvatarComponent])
+  const avatarDebugAddQuery = enterQuery(avatarDebugQuery)
+  const avatarDebugRemoveQuery = exitQuery(avatarDebugQuery)
+
+  const boundingBoxQuery = defineQuery([BoundingBoxComponent])
+  const boundingBoxAddQuery = enterQuery(boundingBoxQuery)
+  const boundingBoxRemoveQuery = exitQuery(boundingBoxQuery)
+
+  const colliderQuery = defineQuery([ColliderComponent])
+  const colliderAddQuery = enterQuery(colliderQuery)
+  const colliderRemoveQuery = exitQuery(colliderQuery)
+
+  const arrowHelperQuery = defineQuery([DebugArrowComponent])
+  const arrowHelperAddQuery = enterQuery(arrowHelperQuery)
+  const arrowHelperRemoveQuery = exitQuery(arrowHelperQuery)
+
+  const ikAvatarQuery = defineQuery([XRInputSourceComponent])
+  const ikAvatarAddQuery = enterQuery(ikAvatarQuery)
+  const ikAvatarRemoveQuery = exitQuery(ikAvatarQuery)
+
+  const navmeshQuery = defineQuery([NavMeshComponent])
+  const navmeshAddQuery = enterQuery(navmeshQuery)
+  const navmeshRemoveQuery = exitQuery(navmeshQuery)
+
+  return defineSystem((world: ECSWorld) => {
+    const { delta } = world
     // ===== AVATAR ===== //
 
-    for (const entity of this.queryResults.avatarDebug?.added) {
+    for (const entity of avatarDebugAddQuery(world)) {
       const avatar = getComponent(entity, AvatarComponent)
 
       // view vector
@@ -105,7 +130,7 @@ export class DebugHelpersSystem extends System {
       DebugHelpers.helpersByEntity.velocityArrow.set(entity, velocityArrowHelper)
     }
 
-    for (const entity of this.queryResults.avatarDebug?.removed) {
+    for (const entity of avatarDebugRemoveQuery(world)) {
       // view vector
       const arrowHelper = DebugHelpers.helpersByEntity.viewVector.get(entity) as Object3D
       Engine.scene.remove(arrowHelper)
@@ -117,7 +142,7 @@ export class DebugHelpersSystem extends System {
       DebugHelpers.helpersByEntity.velocityArrow.delete(entity)
     }
 
-    for (const entity of this.queryResults.avatarDebug?.all) {
+    for (const entity of avatarDebugQuery(world)) {
       // view vector
       const avatar = getComponent(entity, AvatarComponent)
       const velocity = getComponent(entity, VelocityComponent)
@@ -138,7 +163,7 @@ export class DebugHelpersSystem extends System {
       }
     }
 
-    for (const entity of this.queryResults.ikAvatar.added) {
+    for (const entity of ikAvatarAddQuery(world)) {
       const debugHead = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('red') }))
       const debugLeft = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('yellow') }))
       const debugRight = new Mesh(cubeGeometry, new MeshBasicMaterial({ color: new Color('blue') }))
@@ -151,7 +176,7 @@ export class DebugHelpersSystem extends System {
       DebugHelpers.helpersByEntity.ikExtents.set(entity, [debugHead, debugLeft, debugRight])
     }
 
-    for (const entity of this.queryResults.ikAvatar.all) {
+    for (const entity of ikAvatarQuery(world)) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
       const [debugHead, debugLeft, debugRight] = DebugHelpers.helpersByEntity.ikExtents.get(entity) as Object3D[]
       debugHead.position.copy(xrInputSourceComponent.head.getWorldPosition(vector3))
@@ -162,7 +187,7 @@ export class DebugHelpersSystem extends System {
       debugRight.quaternion.copy(xrInputSourceComponent.controllerRight.getWorldQuaternion(quat))
     }
 
-    for (const entity of this.queryResults.ikAvatar.removed) {
+    for (const entity of ikAvatarRemoveQuery(world)) {
       ;(DebugHelpers.helpersByEntity.ikExtents.get(entity) as Object3D[]).forEach((obj: Object3D) => {
         obj.removeFromParent()
       })
@@ -171,7 +196,7 @@ export class DebugHelpersSystem extends System {
 
     // ===== COLLIDERS ===== //
 
-    for (const entity of this.queryResults.colliderComponent.removed) {
+    for (const entity of colliderRemoveQuery(world)) {
       // view vector
       const arrowHelper = DebugHelpers.helpersByEntity.viewVector.get(entity) as Object3D
       Engine.scene.remove(arrowHelper)
@@ -183,7 +208,7 @@ export class DebugHelpersSystem extends System {
       DebugHelpers.helpersByEntity.velocityArrow.delete(entity)
     }
 
-    for (const entity of this.queryResults.colliderComponent.added) {
+    for (const entity of colliderAddQuery(world)) {
       const collider = getComponent(entity, ColliderComponent)
 
       // view vector
@@ -209,7 +234,7 @@ export class DebugHelpersSystem extends System {
       DebugHelpers.helpersByEntity.velocityArrow.set(entity, velocityArrowHelper)
     }
 
-    for (const entity of this.queryResults.colliderComponent.all) {
+    for (const entity of colliderQuery(world)) {
       // view vector
       const collider = getComponent(entity, ColliderComponent)
       const transform = getComponent(entity, TransformComponent)
@@ -232,7 +257,7 @@ export class DebugHelpersSystem extends System {
     // ===== INTERACTABLES ===== //
 
     // bounding box
-    for (const entity of this.queryResults.boundingBoxComponent?.added) {
+    for (const entity of boundingBoxAddQuery(world)) {
       DebugHelpers.helpersByEntity.box.set(entity, [])
       const boundingBox = getComponent(entity, BoundingBoxComponent)
       const box3 = new Box3()
@@ -247,7 +272,7 @@ export class DebugHelpersSystem extends System {
       ;(DebugHelpers.helpersByEntity.box.get(entity) as Object3D[]).push(helper)
     }
 
-    for (const entity of this.queryResults.boundingBoxComponent?.removed) {
+    for (const entity of boundingBoxRemoveQuery(world)) {
       const boxes = DebugHelpers.helpersByEntity.box.get(entity) as Object3D[]
       boxes.forEach((box) => {
         Engine.scene.remove(box)
@@ -257,7 +282,7 @@ export class DebugHelpersSystem extends System {
 
     // ===== CUSTOM ===== //
 
-    for (const entity of this.queryResults.arrowHelper?.added) {
+    for (const entity of arrowHelperAddQuery(world)) {
       const arrow = getComponent(entity, DebugArrowComponent)
       const arrowHelper = new ArrowHelper(new Vector3(), new Vector3(0, 0, 0), 0.5, arrow.color)
       arrowHelper.visible = DebugHelpers.physicsDebugEnabled
@@ -265,13 +290,13 @@ export class DebugHelpersSystem extends System {
       DebugHelpers.helpersByEntity.helperArrow.set(entity, arrowHelper)
     }
 
-    for (const entity of this.queryResults.arrowHelper?.removed) {
+    for (const entity of arrowHelperRemoveQuery(world)) {
       const arrowHelper = DebugHelpers.helpersByEntity.helperArrow.get(entity) as Object3D
       Engine.scene.remove(arrowHelper)
       DebugHelpers.helpersByEntity.helperArrow.delete(entity)
     }
 
-    for (const entity of this.queryResults.arrowHelper?.all) {
+    for (const entity of arrowHelperQuery(world)) {
       const arrow = getComponent(entity, DebugArrowComponent)
       const arrowHelper = DebugHelpers.helpersByEntity.helperArrow.get(entity) as ArrowHelper
       if (arrowHelper != null) {
@@ -282,7 +307,7 @@ export class DebugHelpersSystem extends System {
     }
 
     // ===== NAVMESH Helper ===== //
-    for (const entity of this.queryResults.navmesh?.added) {
+    for (const entity of navmeshAddQuery(world)) {
       console.log('add mesh helper!')
       const navMesh = getComponent(entity, NavMeshComponent)?.yukaNavMesh
       const helper = createConvexRegionHelper(navMesh)
@@ -290,64 +315,20 @@ export class DebugHelpersSystem extends System {
       Engine.scene.add(helper)
       DebugHelpers.helpersByEntity.navmesh.set(entity, helper)
     }
-    for (const entity of this.queryResults.navmesh?.all) {
+    for (const entity of navmeshQuery(world)) {
       // update
       const helper = DebugHelpers.helpersByEntity.navmesh.get(entity) as Object3D
       const transform = getComponent(entity, TransformComponent)
       helper.position.copy(transform.position)
       helper.quaternion.copy(transform.rotation)
     }
-    for (const entity of this.queryResults.navmesh?.removed) {
+    for (const entity of navmeshRemoveQuery(world)) {
       const helper = DebugHelpers.helpersByEntity.navmesh.get(entity) as Object3D
       Engine.scene.remove(helper)
       DebugHelpers.helpersByEntity.navmesh.delete(entity)
     }
 
     DebugHelpers.physicsDebugRenderer.update()
-  }
-}
-
-DebugHelpersSystem.queries = {
-  avatarDebug: {
-    components: [AvatarComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  boundingBoxComponent: {
-    components: [BoundingBoxComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  colliderComponent: {
-    components: [ColliderComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  arrowHelper: {
-    components: [DebugArrowComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  ikAvatar: {
-    components: [XRInputSourceComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  navmesh: {
-    components: [NavMeshComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  }
+    return world
+  })
 }

@@ -1,6 +1,6 @@
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
-import { NetworkObject } from '../../networking/components/NetworkObject'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { EquippableAttachmentPoint, EquippedStateUpdateSchema } from '../enums/EquippedEnums'
@@ -14,10 +14,10 @@ export const equipEntity = (
 ): void => {
   if (
     !hasComponent(equipperEntity, EquipperComponent) &&
-    hasComponent(equippedEntity, NetworkObject) &&
+    hasComponent(equippedEntity, NetworkObjectComponent) &&
     !hasComponent(equippedEntity, EquippedComponent)
   ) {
-    addComponent(equipperEntity, EquipperComponent, { equippedEntity })
+    addComponent(equipperEntity, EquipperComponent, { equippedEntity, data: {} })
     addComponent(equippedEntity, EquippedComponent, { equipperEntity, attachmentPoint })
   }
 }

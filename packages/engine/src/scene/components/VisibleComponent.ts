@@ -1,10 +1,7 @@
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-export class VisibleComponent extends Component<VisibleComponent> {
+export type VisibleComponentType = {
   value: boolean
-
-  static _schema = {
-    value: { type: Types.Boolean, default: true }
-  }
 }
+
+export const VisibleComponent = createMappedComponent<VisibleComponentType>()

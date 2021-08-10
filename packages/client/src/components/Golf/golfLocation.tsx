@@ -431,6 +431,7 @@ export const EnginePage = (props: Props) => {
         },
         systems: [
           {
+            type: SystemUpdateType.Fixed,
             system: GolfSystem,
             after: GameManagerSystem
           }
@@ -441,7 +442,7 @@ export const EnginePage = (props: Props) => {
       registerGolfBotHooks()
 
       // TODO: find a better way to do this
-      unregisterSystem(SystemUpdateType.Fixed, AnimationSystem)
+      // unregisterSystem(SystemUpdateType.Fixed, AnimationSystem)
 
       document.dispatchEvent(new CustomEvent('ENGINE_LOADED')) // this is the only time we should use document events. would be good to replace this with react state
       addUIEvents()
@@ -488,10 +489,10 @@ export const EnginePage = (props: Props) => {
   }
 
   const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async () => {
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async () => {
       setIsInXR(true)
     })
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async () => {
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_END, async () => {
       setIsInXR(false)
     })
   }

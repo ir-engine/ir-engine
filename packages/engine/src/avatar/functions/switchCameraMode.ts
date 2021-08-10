@@ -2,7 +2,7 @@ import { Material, SkinnedMesh } from 'three'
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { CameraModes } from '../../camera/types/CameraModes'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 
@@ -41,7 +41,7 @@ export const switchCameraMode = (
     }, 250)
   }
 
-  const cameraFollow = getMutableComponent(entity, FollowCameraComponent)
+  const cameraFollow = getComponent(entity, FollowCameraComponent)
   cameraFollow.mode = args.cameraMode
 
   switch (args.cameraMode) {

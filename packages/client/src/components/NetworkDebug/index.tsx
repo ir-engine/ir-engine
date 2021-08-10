@@ -9,6 +9,7 @@ import { shutdownEngine } from '@xrengine/engine/src/initializeEngine'
 import { Downgraded } from '@hookstate/core'
 import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 import Store from '@xrengine/client-core/src/store'
+import { World } from '../../../../engine/src/ecs/classes/World'
 
 export const NetworkDebug = ({ reinit }) => {
   const [isShowing, setShowing] = useState(false)
@@ -81,20 +82,18 @@ export const NetworkDebug = ({ reinit }) => {
   }
 
   const renderComps = () => {
-    const entity = Engine.entities
+    const entity = World.defaultWorld.entities
     const comps = {}
     entity.forEach((e) => {
-      e.componentTypes.forEach((ct) => {
-        const name = ct.prototype.constructor.name
-
-        if (!comps[name]) comps[name] = {}
-
-        if (e.name) {
-          comps[name][e.name + '-' + e.id] = e
-        } else {
-          comps[name][e.id] = e
-        }
-      })
+      // getAllC e.componentTypes.forEach((ct) => {
+      //   const name = ct.prototype.constructor.name
+      //   if (!comps[name]) comps[name] = {}
+      //   if (e.name) {
+      //     comps[name][e.name + '-' + e.id] = e
+      //   } else {
+      //     comps[name][e.id] = e
+      //   }
+      // })
     })
 
     return comps
@@ -102,12 +101,8 @@ export const NetworkDebug = ({ reinit }) => {
 
   const renderEntities = () => {
     const map = {}
-    Engine.entities.forEach((e) => {
-      if (e.name) {
-        map[e.name + '-' + e.id] = e
-      } else {
-        map[e.id] = e
-      }
+    World.defaultWorld.entities.forEach((e) => {
+      map[e] = e
     })
     return map
   }

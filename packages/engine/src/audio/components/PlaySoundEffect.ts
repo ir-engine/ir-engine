@@ -1,4 +1,2 @@
-import { Component } from '../../ecs/classes/Component'
-
-/** Component class for Sound Effects to play.  */
-export class PlaySoundEffect extends Component<PlaySoundEffect> {}
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+export const PlaySoundEffect = createMappedComponent<{}>()

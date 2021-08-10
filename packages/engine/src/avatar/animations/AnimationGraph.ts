@@ -1,8 +1,9 @@
 import { Vector2 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { Commands } from '../../networking/enums/Commands'
+import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { convertObjToBufferSupportedString } from '../../networking/functions/jsonSerialize'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -189,10 +190,7 @@ export class AnimationGraph {
   updateNetwork = (entity: Entity, newStateName: string, params: WeightsParameterType): void => {
     const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
     // Send change animation commnad over network for the local client entity
-    if (
-      Network.instance.localClientEntity?.id === avatarAnimationComponent.entity.id &&
-      avatarAnimationComponent.currentState.type === AnimationType.STATIC
-    ) {
+    if (isEntityLocalClient(entity) && avatarAnimationComponent.currentState.type === AnimationType.STATIC) {
       Network.instance.clientInputState.commands.push({
         type: Commands.CHANGE_ANIMATION_STATE,
         args: convertObjToBufferSupportedString({
@@ -210,7 +208,7 @@ export class AnimationGraph {
    * @param {WeightsParameterType} params Parameters to be passed onver network
    */
   static forceUpdateAnimationState = (entity: Entity, newStateName: string, params: WeightsParameterType) => {
-    const avatarAnimationComponent = getMutableComponent(entity, AvatarAnimationComponent)
+    const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
     const animationState = avatarAnimationComponent.animationGraph.states[newStateName]
 

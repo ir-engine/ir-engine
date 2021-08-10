@@ -1,10 +1,8 @@
 import { isClient } from '../../common/functions/isClient'
-import { Component } from '../../ecs/classes/Component'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
-import { ComponentConstructor } from '../../ecs/interfaces/ComponentInterfaces'
+import { addComponent, ComponentConstructor, getComponent, hasComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
-import { Game } from '../components/Game'
+import { GameComponent } from '../components/Game'
 import { GameObject } from '../components/GameObject'
 import { GamePlayer } from '../components/GamePlayer'
 import { Action } from '../types/GameComponents'
@@ -26,7 +24,7 @@ let gamePredictionCheckList = []
 
 export const addActionComponent = (
   entity: Entity,
-  component: ComponentConstructor<Component<any>>,
+  component: ComponentConstructor<any, any>,
   componentArgs: any = {}
 ): void => {
   if (hasComponent(entity, component) || !(hasComponent(entity, GameObject) || hasComponent(entity, GamePlayer))) return
@@ -48,7 +46,7 @@ export const addActionComponent = (
 
 export const sendActionComponent = (
   entity: Entity,
-  component: ComponentConstructor<Component<any>>,
+  component: ComponentConstructor<any, any>,
   componentArgs: any = {}
 ): void => {
   const actionMessage: GameStateActionMessage = {
@@ -66,7 +64,7 @@ export const applyActionComponent = (actionMessage: GameStateActionMessage): voi
   //console.warn('applyActionComponent', actionMessage);
   const entityGame = getGameEntityFromName(actionMessage.game)
   if (!entityGame) return
-  const game = getComponent(entityGame, Game)
+  const game = getComponent(entityGame, GameComponent)
   //  console.warn(game);
   const entity = getEntityFromRoleUuid(game, actionMessage.role, actionMessage.uuid)
   if (!entity) return
@@ -87,11 +85,7 @@ export const applyActionComponent = (actionMessage: GameStateActionMessage): voi
   addComponent(entity, component, componentArgs)
 }
 
-const addToCheckList = (
-  entity: Entity,
-  component: ComponentConstructor<Component<any>>,
-  componentArgs: any = {}
-): void => {
+const addToCheckList = (entity: Entity, component: ComponentConstructor<any, any>, componentArgs: any = {}): void => {
   const actionOnWhyRole = getRole(entity)
 
   gamePredictionCheckList.push({

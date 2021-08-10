@@ -1,12 +1,9 @@
-import { Vector3 } from 'three'
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
-import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { RaycastQuery } from 'three-physx'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 import { CameraModes } from '../types/CameraModes'
 
-/** The component is added to any entity and hangs the camera watching it. */
-export class FollowCameraComponent extends Component<FollowCameraComponent> {
+export type FollowCameraComponentType = {
   /** * **Default** value is ```'thirdPerson'```. */
   mode: string
   /** * **Default** value is 3. */
@@ -26,20 +23,25 @@ export class FollowCameraComponent extends Component<FollowCameraComponent> {
   /** Camera physics raycast data */
   raycastQuery: RaycastQuery
   /** Camera physics raycast has hit */
-  rayHasHit = false
+  rayHasHit: boolean
   collisionMask: CollisionGroups
 }
 
-FollowCameraComponent._schema = {
-  mode: { type: Types.String, default: CameraModes.ShoulderCam },
-  distance: { type: Types.Number, default: 3 },
-  minDistance: { type: Types.Number, default: 1 },
-  maxDistance: { type: Types.Number, default: 10 },
-  theta: { type: Types.Number, default: 0 },
-  phi: { type: Types.Number, default: 0 },
-  shoulderSide: { type: Types.Boolean, default: true },
-  locked: { type: Types.Boolean, default: true },
-  raycastQuery: { type: Types.Ref, default: null },
-  rayHasHit: { type: Types.Boolean, default: false },
-  collisionMask: { type: Types.Number, default: DefaultCollisionMask }
+export const FollowCameraDefaultValues: FollowCameraComponentType = {
+  mode: CameraModes.ThirdPerson,
+  distance: 3,
+  minDistance: 2,
+  maxDistance: 7,
+  theta: 0,
+  phi: 0,
+  shoulderSide: true,
+  locked: true,
+  raycastQuery: null,
+  rayHasHit: false,
+  collisionMask: CollisionGroups.Default
 }
+
+export const FollowCameraComponent = createMappedComponent<FollowCameraComponentType>(
+  undefined,
+  FollowCameraDefaultValues
+)

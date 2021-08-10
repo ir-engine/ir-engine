@@ -1,13 +1,7 @@
 import { Group } from 'three'
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-/**
- *
- * @author Josh Field <github.com/HexaField>
- */
-
-export class XRInputSourceComponent extends Component<XRInputSourceComponent> {
+export type XRInputSourceComponentType = {
   /**
    * @property {Group} controllerLeft
    * @property {Group} controllerRight
@@ -34,13 +28,6 @@ export class XRInputSourceComponent extends Component<XRInputSourceComponent> {
    * @property {Group} head
    */
   head: Group
-
-  static _schema = {
-    head: { type: Types.Ref, default: new Group() },
-    controllerGroup: { type: Types.Ref, default: new Group() },
-    controllerLeft: { type: Types.Ref, default: new Group() },
-    controllerRight: { type: Types.Ref, default: new Group() },
-    controllerGripLeft: { type: Types.Ref, default: new Group() },
-    controllerGripRight: { type: Types.Ref, default: new Group() }
-  }
 }
+
+export const XRInputSourceComponent = createMappedComponent<XRInputSourceComponentType>()

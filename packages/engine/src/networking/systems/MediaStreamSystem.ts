@@ -1,12 +1,12 @@
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { System } from '../../ecs/classes/System'
 import { localAudioConstraints, localVideoConstraints } from '../constants/VideoConstants'
 import { Network } from '../classes/Network'
 import { isClient } from '../../common/functions/isClient'
 import { getNearbyUsers, NearbyUser } from '../functions/getNearbyUsers'
-import LivestreamProxyComponent from '../../scene/components/LivestreamProxyComponent'
 import { startLivestreamOnServer } from '../functions/startLivestreamOnServer'
-import LivestreamComponent from '../../scene/components/LivestreamComponent'
+import { ECSWorld } from '../../ecs/classes/World'
+import { defineSystem, System } from '../../ecs/bitecs'
+import { CreateSystemFunctionType } from '../../ecs/functions/SystemFunctions'
 
 /** System class for media streaming. */
 export class MediaStreams {
@@ -295,35 +295,34 @@ export class MediaStreams {
   }
 }
 
-export class MediaStreamSystem extends System {
-  private nearbyAvatarTick = 0
-  private executeInProgress = false
+export const MediaStreamSystem = async (): Promise<System> => {
+  let nearbyAvatarTick = 0
+  let executeInProgress = false
 
-  /** Execute the media stream system. */
-  public execute = async (): Promise<void> => {
-    this.nearbyAvatarTick++
+  return defineSystem((world: ECSWorld) => {
+    nearbyAvatarTick++
 
-    if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && this.executeInProgress === false) {
-      this.executeInProgress = true
+    if (Network.instance.mediasoupOperationQueue.getBufferLength() > 0 && executeInProgress === false) {
+      executeInProgress = true
       const buffer = Network.instance.mediasoupOperationQueue.pop() as any
       if (buffer.object && buffer.object.closed !== true && buffer.object._closed !== true) {
         try {
-          if (buffer.action === 'resume') await buffer.object.resume()
-          else if (buffer.action === 'pause') await buffer.object.pause()
-          this.executeInProgress = false
+          if (buffer.action === 'resume') buffer.object.resume()
+          else if (buffer.action === 'pause') buffer.object.pause()
+          executeInProgress = false
         } catch (err) {
-          this.executeInProgress = false
+          executeInProgress = false
           console.log('Pause or resume error')
           console.log(err)
           console.log(buffer.object)
         }
       } else {
-        this.executeInProgress = false
+        executeInProgress = false
       }
     }
 
-    if (this.nearbyAvatarTick > 500) {
-      this.nearbyAvatarTick = 0
+    if (nearbyAvatarTick > 500) {
+      nearbyAvatarTick = 0
       if (isClient) {
         MediaStreams.instance.nearbyLayerUsers = getNearbyUsers(Network.instance.userId)
         const nearbyUserIds = MediaStreams.instance.nearbyLayerUsers.map((user) => user.id)
@@ -335,31 +334,7 @@ export class MediaStreamSystem extends System {
         })
       }
     }
-    for (const entity of this.queryResults.livestreamProxy.added) {
-      startLivestreamOnServer(entity)
-    }
-    for (const entity of this.queryResults.livestreamClient.added) {
-      // startLivestreamOnClient(entity)
-    }
-  }
-  dispose() {
-    EngineEvents.instance.removeAllListenersForEvent(MediaStreams.EVENTS.TRIGGER_UPDATE_CONSUMERS)
-  }
-}
 
-MediaStreamSystem.queries = {
-  livestreamClient: {
-    components: [LivestreamComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  livestreamProxy: {
-    components: [LivestreamProxyComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  }
+    return world
+  })
 }

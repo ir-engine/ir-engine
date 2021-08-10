@@ -11,7 +11,6 @@ import CloseIcon from '@material-ui/icons/Close'
 import { useTranslation } from 'react-i18next'
 import { OpenLink } from '../OpenLink'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
-import { InteractiveSystem } from '@xrengine/engine/src/interaction/systems/InteractiveSystem'
 import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 
 const ModelView = React.lazy(() => import('./modelView'))
@@ -51,8 +50,8 @@ export const InteractableModal: FunctionComponent = () => {
   }
 
   const onEngineLoaded = () => {
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_ACTIVATION, onObjectActivation)
-    EngineEvents.instance.addEventListener(InteractiveSystem.EVENTS.OBJECT_HOVER, onObjectHover)
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.OBJECT_ACTIVATION, onObjectActivation)
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.OBJECT_HOVER, onObjectHover)
     document.removeEventListener('ENGINE_LOADED', onEngineLoaded)
   }
   document.addEventListener('ENGINE_LOADED', onEngineLoaded)

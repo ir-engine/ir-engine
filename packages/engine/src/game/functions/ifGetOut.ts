@@ -1,8 +1,7 @@
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { getGame } from './functions'
-import { Checker } from '../types/Checker'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { getGame } from './functions'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -11,7 +10,7 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent'
 const updateNewPlayersRate: number = 60 * 2
 let updateLastTime = 60
 
-export const ifGetOut: Checker = (entity: Entity, args?: any, entityTarget?: Entity): any | undefined => {
+export const ifGetOut = (entity: Entity, args?: any, entityTarget?: Entity): any | undefined => {
   if (updateLastTime > updateNewPlayersRate) {
     const game = getGame(entity)
     if (game === undefined) return false

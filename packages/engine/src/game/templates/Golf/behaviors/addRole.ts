@@ -1,13 +1,12 @@
 import { Engine } from '../../../../ecs/classes/Engine'
 import { Entity } from '../../../../ecs/classes/Entity'
 import { changeRole } from '../../../../game/functions/functionsState'
-import { Game } from '../../../components/Game'
 import { getGame } from '../../../functions/functions'
 import { GameMode } from '../../../types/GameMode'
 /**
  * @author HydraFire <github.com/HydraFire>
  */
-function recurseSearchEmptyRole(game: Game, gameSchema: GameMode, newPlayerNumber: number, allowInOneRole: number = 1) {
+function recurseSearchEmptyRole(game, gameSchema: GameMode, newPlayerNumber: number, allowInOneRole: number = 1) {
   if (newPlayerNumber < 1) {
     return null
   } else if (

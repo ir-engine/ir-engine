@@ -1,10 +1,8 @@
 import { Quaternion, Vector3 } from 'three'
 import { ControllerHitEvent, PhysXInstance } from 'three-physx'
 import { isClient } from '../common/functions/isClient'
-import { System } from '../ecs/classes/System'
-import { Not } from '../ecs/functions/ComponentFunctions'
-import { getMutableComponent, getComponent, getRemovedComponent, hasComponent } from '../ecs/functions/EntityFunctions'
-import { LocalInputReceiver } from '../input/components/LocalInputReceiver'
+import { getComponent, hasComponent } from '../ecs/functions/EntityFunctions'
+import { LocalInputReceiverComponent } from '../input/components/LocalInputReceiverComponent'
 import { avatarMoveBehavior } from './behaviors/avatarMoveBehavior'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { InterpolationComponent } from '../physics/components/InterpolationComponent'
@@ -19,35 +17,70 @@ import { sendClientObjectUpdate } from '../networking/functions/sendClientObject
 import { teleportPlayer } from './functions/teleportPlayer'
 import { NetworkObjectUpdateType } from '../networking/templates/NetworkObjectUpdates'
 import { SpawnPoints } from './ServerAvatarSpawnSystem'
+import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../ecs/bitecs'
+import { ECSWorld } from '../ecs/classes/World'
 
-const vector3 = new Vector3()
-const quat = new Quaternion()
-const quat2 = new Quaternion()
-const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
+export const AvatarControllerSystem = async (): Promise<System> => {
+  const vector3 = new Vector3()
+  const quat = new Quaternion()
+  const quat2 = new Quaternion()
+  const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
-export class AvatarControllerSystem extends System {
-  execute(delta: number): void {
-    for (const entity of this.queryResults.controller.removed) {
-      const controller = getRemovedComponent(entity, AvatarControllerComponent)
+  const characterOnServerQuery = defineQuery([
+    Not(LocalInputReceiverComponent),
+    Not(InterpolationComponent),
+    AvatarComponent,
+    AvatarControllerComponent
+  ])
+  const characterOnServerRemovedQuery = exitQuery(characterOnServerQuery)
 
-      PhysXInstance.instance.removeController(controller.controller)
+  const controllerQuery = defineQuery([AvatarControllerComponent])
 
-      const avatar = getMutableComponent(entity, AvatarComponent)
-      if (avatar) {
-        avatar.isGrounded = false
-      }
-    }
+  const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
 
-    for (const entity of this.queryResults.controller.all) {
-      const controller = getMutableComponent(entity, AvatarControllerComponent)
-      const raycastComponent = getMutableComponent(entity, RaycastComponent)
+  const localXRInputQuery = defineQuery([
+    LocalInputReceiverComponent,
+    XRInputSourceComponent,
+    AvatarControllerComponent
+  ])
+  const localXRInputQueryAddQuery = enterQuery(localXRInputQuery)
+  const localXRInputQueryRemoveQuery = exitQuery(localXRInputQuery)
+
+  const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent])
+  const xrInputQueryAddQuery = enterQuery(xrInputQuery)
+
+  return defineSystem((world: ECSWorld) => {
+    const { delta } = world
+
+    // for (const entity of characterOnServerRemovedQuery(world)) {
+    //   console.log('removed character')
+    //   console.log(
+    //     hasComponent(entity, LocalInputReceiverComponent),
+    //     hasComponent(entity, InterpolationComponent),
+    //     hasComponent(entity, AvatarComponent),
+    //     hasComponent(entity, AvatarControllerComponent),
+
+    //     )
+    //   const controller = getComponent(entity, AvatarControllerComponent, true)
+
+    //   PhysXInstance.instance.removeController(controller.controller)
+
+    //   const avatar = getComponent(entity, AvatarComponent)
+    //   if (avatar) {
+    //     avatar.isGrounded = false
+    //   }
+    // }
+
+    for (const entity of controllerQuery(world)) {
+      const controller = getComponent(entity, AvatarControllerComponent)
+      const raycastComponent = getComponent(entity, RaycastComponent)
 
       // iterate on all collisions since the last update
       controller.controller.controllerCollisionEvents?.forEach((event: ControllerHitEvent) => {})
 
       detectUserInPortal(entity)
 
-      const avatar = getMutableComponent(entity, AvatarComponent)
+      const avatar = getComponent(entity, AvatarComponent)
       const transform = getComponent(entity, TransformComponent)
 
       // reset if vals are invalid
@@ -88,18 +121,18 @@ export class AvatarControllerSystem extends System {
       avatarMoveBehavior(entity, delta)
     }
 
-    for (const entity of this.queryResults.raycast.all) {
-      const raycastComponent = getMutableComponent(entity, RaycastComponent)
+    for (const entity of raycastQuery(world)) {
+      const raycastComponent = getComponent(entity, RaycastComponent)
       const transform = getComponent(entity, TransformComponent)
-      const avatar = getMutableComponent(entity, AvatarComponent)
+      const avatar = getComponent(entity, AvatarComponent)
       raycastComponent.raycastQuery.origin.copy(transform.position).y += avatar.avatarHalfHeight
       if (!hasComponent(entity, AvatarControllerComponent)) {
         avatar.isGrounded = Boolean(raycastComponent.raycastQuery.hits.length > 0)
       }
     }
 
-    for (const entity of this.queryResults.xrInput.added) {
-      const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent)
+    for (const entity of xrInputQueryAddQuery(world)) {
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
       const object3DComponent = getComponent(entity, Object3DComponent)
 
       xrInputSourceComponent.controllerGroup.add(
@@ -113,8 +146,8 @@ export class AvatarControllerSystem extends System {
       object3DComponent.value.add(xrInputSourceComponent.controllerGroup, xrInputSourceComponent.head)
     }
 
-    for (const entity of this.queryResults.localXRInput.added) {
-      const avatar = getMutableComponent(entity, AvatarComponent)
+    for (const entity of localXRInputQueryAddQuery(world)) {
+      const avatar = getComponent(entity, AvatarComponent)
 
       // TODO: Temporarily make rig invisible until rig is fixed
       avatar.modelContainer?.traverse((child) => {
@@ -124,8 +157,8 @@ export class AvatarControllerSystem extends System {
       })
     }
 
-    for (const entity of this.queryResults.localXRInput.removed) {
-      const avatar = getMutableComponent(entity, AvatarComponent)
+    for (const entity of localXRInputQueryRemoveQuery(world)) {
+      const avatar = getComponent(entity, AvatarComponent)
       // TODO: Temporarily make rig invisible until rig is fixed
       avatar?.modelContainer?.traverse((child) => {
         if (child.visible) {
@@ -134,12 +167,12 @@ export class AvatarControllerSystem extends System {
       })
     }
 
-    for (const entity of this.queryResults.localXRInput.all) {
-      const avatar = getMutableComponent(entity, AvatarComponent)
+    for (const entity of localXRInputQuery(world)) {
+      const avatar = getComponent(entity, AvatarComponent)
       const transform = getComponent(entity, TransformComponent)
       avatar.viewVector.set(0, 0, 1).applyQuaternion(transform.rotation)
 
-      const xrInputSourceComponent = getMutableComponent(entity, XRInputSourceComponent)
+      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
 
       quat.copy(transform.rotation).invert()
       quat2.copy(Engine.camera.quaternion).premultiply(quat)
@@ -149,43 +182,6 @@ export class AvatarControllerSystem extends System {
       vector3.applyQuaternion(quat)
       xrInputSourceComponent.head.position.copy(vector3)
     }
-  }
-}
-
-AvatarControllerSystem.queries = {
-  characterOnServer: {
-    components: [Not(LocalInputReceiver), Not(InterpolationComponent), AvatarComponent, AvatarControllerComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  controller: {
-    components: [AvatarControllerComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  raycast: {
-    components: [AvatarComponent, RaycastComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  localXRInput: {
-    components: [LocalInputReceiver, XRInputSourceComponent, AvatarControllerComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  },
-  xrInput: {
-    components: [AvatarComponent, XRInputSourceComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  }
+    return world
+  })
 }

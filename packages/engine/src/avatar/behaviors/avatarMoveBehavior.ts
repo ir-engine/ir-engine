@@ -1,6 +1,6 @@
 import { Vector3, Matrix4, Quaternion } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -20,10 +20,10 @@ const onGroundVelocity = new Vector3()
 const vec3 = new Vector3()
 
 export const avatarMoveBehavior = (entity: Entity, deltaTime): void => {
-  const avatar = getMutableComponent(entity, AvatarComponent)
-  const velocity = getMutableComponent(entity, VelocityComponent)
-  const transform = getMutableComponent(entity, TransformComponent)
-  const controller = getMutableComponent(entity, AvatarControllerComponent)
+  const avatar = getComponent(entity, AvatarComponent)
+  const velocity = getComponent(entity, VelocityComponent)
+  const transform = getComponent(entity, TransformComponent)
+  const controller = getComponent(entity, AvatarControllerComponent)
 
   if (!controller.movementEnabled) return
 
@@ -45,7 +45,7 @@ export const avatarMoveBehavior = (entity: Entity, deltaTime): void => {
       newVelocity.applyQuaternion(transform.rotation)
     }
 
-    const raycast = getMutableComponent(entity, RaycastComponent)
+    const raycast = getComponent(entity, RaycastComponent)
     const closestHit = raycast.raycastQuery.hits[0]
 
     if (closestHit) {

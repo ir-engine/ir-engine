@@ -1,13 +1,13 @@
-import { Color, Group, MathUtils, Mesh, Vector3, Vector4 } from 'three'
-import { Body, BodyType, PhysXInstance, RaycastQuery, SceneQueryType, SHAPES, ShapeType } from 'three-physx'
+import { Color, Group, MathUtils, Mesh, Quaternion, Vector3, Vector4 } from 'three'
+import { Body, BodyType, ShapeType, SHAPES, RaycastQuery, SceneQueryType, PhysXInstance } from 'three-physx'
 import { AssetLoader } from '../../../../assets/classes/AssetLoader'
 import { isClient } from '../../../../common/functions/isClient'
 import { Engine } from '../../../../ecs/classes/Engine'
 import { Entity } from '../../../../ecs/classes/Entity'
-import { addComponent, getComponent, getMutableComponent } from '../../../../ecs/functions/EntityFunctions'
+import { addComponent, getComponent } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
-import { NetworkObject } from '../../../../networking/components/NetworkObject'
-import { NetworkObjectOwner } from '../../../../networking/components/NetworkObjectOwner'
+import { NetworkObjectComponent } from '../../../../networking/components/NetworkObjectComponent'
+import { NetworkObjectComponentOwner } from '../../../../networking/components/NetworkObjectComponentOwner'
 import { spawnPrefab } from '../../../../networking/functions/spawnPrefab'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
 import { InterpolationComponent } from '../../../../physics/components/InterpolationComponent'
@@ -33,7 +33,7 @@ export const spawnBall = (entityPlayer: Entity, positionCopyFromRole?: any, offs
   console.warn('SpawnBall')
 
   const game = getGame(entityPlayer)
-  const playerNetworkObject = getComponent(entityPlayer, NetworkObject)
+  const playerNetworkObject = getComponent(entityPlayer, NetworkObjectComponent)
 
   const networkId = Network.getNetworkId()
   const uuid = MathUtils.generateUUID()
@@ -103,8 +103,8 @@ const golfBallRadius = 0.03
 const golfBallColliderExpansion = 0.01
 
 function assetLoadCallback(group: Group, ballEntity: Entity) {
-  const ownerNetworkId = getComponent(ballEntity, NetworkObjectOwner).networkId
-  const ownerEntity = Network.instance.networkObjects[ownerNetworkId].component.entity
+  const ownerNetworkId = getComponent(ballEntity, NetworkObjectComponentOwner).networkId
+  const ownerEntity = Network.instance.networkObjects[ownerNetworkId].entity
   const ownerPlayerNumber = Number(getComponent(ownerEntity, GamePlayer).role.substr(0, 1)) - 1
 
   const color = GolfColours[ownerPlayerNumber]
@@ -151,20 +151,20 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
 
   const transform = addComponent(ballEntity, TransformComponent, {
     position: new Vector3(spawnPosition.x, spawnPosition.y + golfBallRadius, spawnPosition.z),
+    rotation: new Quaternion(),
     scale: new Vector3().setScalar(golfBallRadius)
   })
-  addComponent(ballEntity, VelocityComponent)
+  addComponent(ballEntity, VelocityComponent, { velocity: new Vector3() })
   addComponent(ballEntity, GameObject, {
     gameName,
     role,
-    uuid
+    uuid,
+    collisionBehaviors: {}
   })
-  addComponent(ballEntity, NetworkObjectOwner, { networkId: ownerNetworkId })
-  addComponent(ballEntity, GolfBallComponent)
-  addComponent(ballEntity, TransformComponent)
+  addComponent(ballEntity, NetworkObjectComponentOwner, { networkId: ownerNetworkId })
 
   if (isClient) {
-    addComponent(ballEntity, InterpolationComponent)
+    addComponent(ballEntity, InterpolationComponent, null)
     AssetLoader.load(
       {
         url: Engine.publicPath + '/models/golf/golf_ball.glb'
@@ -204,10 +204,8 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
 
   addComponent(ballEntity, ColliderComponent, { body })
 
-  const golfBallComponent = getMutableComponent(ballEntity, GolfBallComponent)
-
   // for track ground
-  golfBallComponent.groundRaycast = PhysXInstance.instance.addRaycastQuery(
+  const groundRaycast = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
       origin: transform.position,
@@ -218,7 +216,7 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
   )
 
   // for track wall
-  golfBallComponent.wallRaycast = PhysXInstance.instance.addRaycastQuery(
+  const wallRaycast = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
       origin: transform.position,
@@ -227,4 +225,6 @@ export const initializeGolfBall = (ballEntity: Entity, parameters: GolfBallSpawn
       collisionMask: CollisionGroups.Default | CollisionGroups.Ground | GolfCollisionGroups.Course
     })
   )
+
+  addComponent(ballEntity, GolfBallComponent, { groundRaycast, wallRaycast })
 }

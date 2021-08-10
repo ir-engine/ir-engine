@@ -9,6 +9,7 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { Entity } from '../../ecs/classes/Entity'
 import { Engine } from '../../ecs/classes/Engine'
 import { XRUIStateContext } from '../XRUIStateContext'
+import { World } from '../../ecs/classes/World'
 
 let depsLoaded: Promise<[typeof import('ethereal'), typeof import('react-dom')]>
 
@@ -75,7 +76,7 @@ export function createXRUI<S extends State<any>>(UIFunc: React.FC, state: S, the
     // Make sure entity still exists, since we are adding these components asynchronously,
     // and bad things might happen if we add these components after entity has been removed
     // TODO: revise this pattern after refactor
-    if (Engine.entities.indexOf(entity) === -1) return
+    if (World.defaultWorld.entities.indexOf(entity) === -1) return
     addComponent(entity, Object3DComponent, { value: uiRoot })
     addComponent(entity, UIRootComponent, { layer: uiRoot })
   })

@@ -1,18 +1,14 @@
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
 import { Entity } from '../../ecs/classes/Entity'
 import { Path } from 'yuka'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
 /**
  * @author xiani_zp <github.com/xiani>
  */
 
-export class AutoPilotComponent extends Component<AutoPilotComponent> {
-  public navEntity: Entity
-  public path: Path
-
-  static _schema = {
-    navEntity: { type: Types.Ref, default: null },
-    path: { type: Types.Ref, default: null }
-  }
+export type AutoPilotComponentType = {
+  navEntity: Entity
+  path: Path
 }
+
+export const AutoPilotComponent = createMappedComponent<AutoPilotComponentType>()

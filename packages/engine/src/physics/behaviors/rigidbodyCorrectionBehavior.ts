@@ -1,7 +1,7 @@
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
-import { NetworkObject } from '../../networking/components/NetworkObject'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { SnapshotData } from '../../networking/types/SnapshotDataTypes'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { findInterpolationSnapshot } from './findInterpolationSnapshot'
@@ -14,8 +14,10 @@ import { findInterpolationSnapshot } from './findInterpolationSnapshot'
  * @param {number} delta the delta of this frame
  */
 
+const offsetMaxDistanceSq = 1
+
 export const rigidbodyCorrectionBehavior = (entity: Entity, snapshots: SnapshotData, delta): void => {
-  const networkId = getComponent(entity, NetworkObject).networkId
+  const networkId = getComponent(entity, NetworkObjectComponent).networkId
   const collider = getComponent(entity, ColliderComponent)
 
   snapshots.new.push({
