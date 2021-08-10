@@ -26,6 +26,7 @@ import { bindActionCreators, Dispatch } from 'redux'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 // @ts-ignore
 import styles from './InstanceChat.module.scss'
+import Chat from '../../pages/map/svg/Chat.svg'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -205,7 +206,7 @@ const InstanceChat = (props: Props): any => {
           <Card className={styles['flex-center']}>
             <CardContent className={styles['chat-box']}>
               <div className={styles.iconContainer}>
-                <MessageIcon onClick={() => hideShowMessagesContainer()} />
+                <img onClick={() => hideShowMessagesContainer()} src={Chat} alt="cha"></img>
               </div>
               <TextField
                 className={styles.messageFieldContainer}
@@ -213,7 +214,7 @@ const InstanceChat = (props: Props): any => {
                 multiline={isMultiline}
                 fullWidth
                 id="newMessage"
-                label="World Chat..."
+                label="say something..."
                 name="newMessage"
                 autoFocus
                 value={composingMessage}
@@ -262,10 +263,15 @@ const InstanceChat = (props: Props): any => {
             invisible={!unreadMessages}
             anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
           >
-            <Fab className="openChat" color="primary" onClick={() => hideShowMessagesContainer()}>
+            <span onClick={() => hideShowMessagesContainer()}>
+              {' '}
+              <img src={Chat} alt="" className="openChat"></img>
+            </span>
+            {/* <Fab className="openChat" color="primary" onClick={() => hideShowMessagesContainer()}>
               <MessageIcon />
+              <img src={Chat} alt=""></img>
               Chat
-            </Fab>
+            </Fab> */}
           </Badge>
         </div>
       )}
