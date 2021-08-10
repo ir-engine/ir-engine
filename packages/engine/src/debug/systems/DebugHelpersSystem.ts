@@ -1,10 +1,7 @@
-import { System } from '../../ecs/classes/System'
 import {
   ArrowHelper,
   Box3,
-  Box3Helper,
-  BoxHelper,
-  Color,
+  Box3Helper, Color,
   ConeBufferGeometry,
   Mesh,
   MeshBasicMaterial,
@@ -12,20 +9,23 @@ import {
   Quaternion,
   Vector3
 } from 'three'
-import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { System } from '../../ecs/classes/System'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBox'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
+import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { DebugArrowComponent } from '../DebugArrowComponent'
 import { DebugRenderer } from './DebugRenderer'
-import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 
-type ComponentHelpers = 'viewVector' | 'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box'
+type ComponentHelpers = 'viewVector' | 'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box' | 'navmesh'
 
 const vector3 = new Vector3()
 const quat = new Quaternion()
@@ -39,7 +39,8 @@ export class DebugHelpers {
     ikExtents: new Map(),
     box: new Map(),
     helperArrow: new Map(),
-    velocityArrow: new Map()
+    velocityArrow: new Map(),
+    navmesh: new Map()
   }
 
   static physicsDebugRenderer: DebugRenderer
@@ -279,6 +280,27 @@ export class DebugHelpersSystem extends System {
       }
     }
 
+    // ===== NAVMESH Helper ===== //
+    for (const entity of this.queryResults.navmesh?.added) {
+      console.log('add mesh helper!')
+      const navMesh = getComponent(entity, NavMeshComponent)?.yukaNavMesh
+      const helper = createConvexRegionHelper(navMesh)
+      Engine.scene.add(helper)
+      DebugHelpers.helpersByEntity.navmesh.set(entity, helper)
+    }
+    for (const entity of this.queryResults.navmesh?.all) {
+      // update
+      const helper = DebugHelpers.helpersByEntity.navmesh.get(entity) as Object3D
+      const transform = getComponent(entity, TransformComponent)
+      helper.position.copy(transform.position)
+      helper.quaternion.copy(transform.rotation)
+    }
+    for (const entity of this.queryResults.navmesh?.removed) {
+      const helper = DebugHelpers.helpersByEntity.navmesh.get(entity) as Object3D
+      Engine.scene.remove(helper)
+      DebugHelpers.helpersByEntity.navmesh.delete(entity)
+    }
+
     DebugHelpers.physicsDebugRenderer.update()
   }
 }
@@ -314,6 +336,13 @@ DebugHelpersSystem.queries = {
   },
   ikAvatar: {
     components: [XRInputSourceComponent],
+    listen: {
+      added: true,
+      removed: true
+    }
+  },
+  navmesh: {
+    components: [NavMeshComponent],
     listen: {
       added: true,
       removed: true
