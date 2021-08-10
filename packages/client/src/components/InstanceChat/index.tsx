@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
   input: {
     color: "#000",
   },
-}));
+}))
 
 interface Props {
   authState?: any
