@@ -1,7 +1,8 @@
 import {
   ArrowHelper,
   Box3,
-  Box3Helper, Color,
+  Box3Helper,
+  Color,
   ConeBufferGeometry,
   Mesh,
   MeshBasicMaterial,

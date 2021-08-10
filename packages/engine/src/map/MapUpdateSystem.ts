@@ -43,7 +43,7 @@ export class MapUpdateSystem extends System {
           position
         )
 
-        const remObj = Engine.scene.getObjectByName('Mappa')
+        const remObj = Engine.scene.getObjectByName('MapObject')
         console.log(remObj)
         remObj.removeFromParent()
       }

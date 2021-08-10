@@ -29,7 +29,7 @@ export const create = async function (renderer: THREE.WebGLRenderer, args: MapPr
 
   group.position.multiplyScalar(args.scale.x)
   group.scale.multiplyScalar(args.scale.x)
-  group.name = 'Mappa'
+  group.name = 'MapObject'
   centerCoord = Object.assign(center)
   centerTile = Object.assign(getCenterTile(center))
 
@@ -58,7 +58,7 @@ export const updateMap = async function (
 
   group.position.multiplyScalar(args.scale.x)
   group.scale.multiplyScalar(args.scale.x)
-  group.name = 'Mappa'
+  group.name = 'MapObject'
   group.position.set(-position.x, 0, -position.z)
   console.log(group.position)
   centerCoord = Object.assign(center)
