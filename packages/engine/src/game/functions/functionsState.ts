@@ -188,9 +188,9 @@ export const applyState = (game: ReturnType<typeof GameComponent.get>): void => 
         if (stateObject != undefined) {
           stateObject.components.forEach((componentName: string) => {
             if (State[componentName]) {
-              addComponent(entity, State[componentName], null)
+              addComponent(entity, State[componentName], {})
             } else if (GolfState[componentName]) {
-              addComponent(entity, GolfState[componentName], null)
+              addComponent(entity, GolfState[componentName], {})
             } else console.warn("Couldn't find component", componentName)
           })
           // get ball server position
@@ -199,7 +199,7 @@ export const applyState = (game: ReturnType<typeof GameComponent.get>): void => 
             Network.instance.networkObjects[Network.instance.localAvatarNetworkId].ownerId ===
               getComponent(entity, NetworkObjectComponent).ownerId
           ) {
-            addComponent(entity, GolfState.CorrectBallPosition, null)
+            addComponent(entity, GolfState.CorrectBallPosition, {})
           }
         } else {
           // console.log('Local object dont have state, v.uuid != uuid')
@@ -244,7 +244,7 @@ export const addStateComponent = (entity: Entity, component: ComponentConstructo
     return
   }
 
-  addComponent(entity, component, null)
+  addComponent(entity, component, {})
 
   let objectState = game.state.find((v) => v.uuid === uuid)
 

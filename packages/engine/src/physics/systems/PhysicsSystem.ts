@@ -16,6 +16,7 @@ import { isClient } from '../../common/functions/isClient'
 import { PrefabType } from '../../networking/templates/PrefabType'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
+import { ClientAuthoritativeTagComponent } from '../components/ClientAuthoritativeTagComponent'
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -27,12 +28,21 @@ export const PhysicsSystem = async (
 ): Promise<System> => {
   const spawnNetworkObjectQuery = defineQuery([SpawnNetworkObjectComponent, RigidBodyTagComponent])
   const spawnNetworkObjectAddQuery = enterQuery(spawnNetworkObjectQuery)
+
   const colliderQuery = defineQuery([ColliderComponent, TransformComponent])
   const colliderRemoveQuery = exitQuery(colliderQuery)
+
   const raycastQuery = defineQuery([RaycastComponent])
   const raycastRemoveQuery = exitQuery(raycastQuery)
+
   const networkObjectQuery = defineQuery([NetworkObjectComponent])
   const networkObjectRemoveQuery = exitQuery(networkObjectQuery)
+
+  const clientAuthoritativeQuery = defineQuery([
+    NetworkObjectComponent,
+    ClientAuthoritativeTagComponent,
+    ColliderComponent
+  ])
 
   let simulationEnabled = false
 
@@ -68,7 +78,7 @@ export const PhysicsSystem = async (
       // TODO: figure out how we are going to spawn the body
 
       if (isClient) {
-        addComponent(entity, InterpolationComponent, null)
+        addComponent(entity, InterpolationComponent, {})
       } else {
         Network.instance.worldState.createObjects.push({
           networkId: networkId,
@@ -117,6 +127,23 @@ export const PhysicsSystem = async (
           collider.body.transform.rotation.z,
           collider.body.transform.rotation.w
         )
+      }
+    }
+
+    for (const entity of clientAuthoritativeQuery(world)) {
+      const networkObject = getComponent(entity, NetworkObjectComponent)
+      const collider = getComponent(entity, ColliderComponent)
+      if (isClient) {
+        Network.instance.clientInputState.transforms.push({
+          networkId: networkObject.networkId,
+          x: collider.body.transform.translation.x,
+          y: collider.body.transform.translation.y,
+          z: collider.body.transform.translation.z,
+          qX: collider.body.transform.rotation.x,
+          qY: collider.body.transform.rotation.y,
+          qZ: collider.body.transform.rotation.z,
+          qW: collider.body.transform.rotation.w
+        })
       }
     }
 

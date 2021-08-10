@@ -346,7 +346,8 @@ export const ClientNetworkStateSystem = async (): Promise<System> => {
         axes6DOF: [],
         viewVector: Network.instance.clientInputState.viewVector,
         clientGameAction: getClientGameActions(), // Network.instance.clientGameAction,
-        commands: []
+        commands: [],
+        transforms: []
       }
     }
 

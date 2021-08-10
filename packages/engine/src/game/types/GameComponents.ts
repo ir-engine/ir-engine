@@ -10,6 +10,7 @@ export enum gameActions {
 }
 
 export const GameObjectCollisionTag = createMappedComponent<{}>()
+;(GameObjectCollisionTag as any).name = 'GameObjectCollisionTag'
 
 export const Action = {
   [gameActions.GameObjectCollisionTag]: GameObjectCollisionTag
@@ -35,17 +36,29 @@ export enum gameStates {
 }
 
 export const Open = createMappedComponent<{}>()
+;(Open as any).name = 'Open'
 export const Closed = createMappedComponent<{}>()
+;(Closed as any).name = 'Closed'
 export const ButtonUp = createMappedComponent<{}>()
+;(ButtonUp as any).name = 'ButtonUp'
 export const ButtonDown = createMappedComponent<{}>()
+;(ButtonDown as any).name = 'ButtonDown'
 export const PanelUp = createMappedComponent<{}>()
+;(PanelUp as any).name = 'PanelUp'
 export const PanelDown = createMappedComponent<{}>()
+;(PanelDown as any).name = 'PanelDown'
 export const Waiting = createMappedComponent<{}>()
+;(Waiting as any).name = 'Waiting'
 export const YourTurn = createMappedComponent<{}>()
+;(YourTurn as any).name = 'YourTurn'
 export const WaitTurn = createMappedComponent<{}>()
+;(WaitTurn as any).name = 'WaitTurn'
 export const SpawnedObject = createMappedComponent<{}>()
+;(SpawnedObject as any).name = 'SpawnedObject'
 export const Active = createMappedComponent<{}>()
+;(Active as any).name = 'Active'
 export const Inactive = createMappedComponent<{}>()
+;(Inactive as any).name = 'Inactive'
 
 export const State = {
   [gameStates.Active]: Active,
