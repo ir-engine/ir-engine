@@ -27,6 +27,7 @@ import { selectInstanceConnectionState } from '../../reducers/instanceConnection
 // @ts-ignore
 import styles from './InstanceChat.module.scss'
 import Chat from '../../pages/map/svg/Chat.svg'
+import MessageSvg from '../../pages/map/svg/MessageSvg.svg'
 
 const mapStateToProps = (state: any): any => {
   return {
@@ -206,7 +207,10 @@ const InstanceChat = (props: Props): any => {
           <Card className={styles['flex-center']}>
             <CardContent className={styles['chat-box']}>
               <div className={styles.iconContainer}>
-                <img onClick={() => hideShowMessagesContainer()} src={Chat} alt="cha"></img>
+                {/* <MessageIcon onClick={() => hideShowMessagesContainer()}  /> */}
+                <span onClick={() => hideShowMessagesContainer()}>
+                  <img src={Chat} alt="message"></img>
+                </span>
               </div>
               <TextField
                 className={styles.messageFieldContainer}
@@ -216,6 +220,7 @@ const InstanceChat = (props: Props): any => {
                 id="newMessage"
                 label="say something..."
                 name="newMessage"
+                color="secondary"
                 autoFocus
                 value={composingMessage}
                 inputProps={{

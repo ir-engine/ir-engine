@@ -61,7 +61,7 @@
       right: 0;
       height: inherit;
       align-items: center;
-      padding: 3px 4px;
+      padding: 2px 4px;
       &:hover {
         cursor: pointer;
       }
@@ -72,9 +72,8 @@
     }
     .messageFieldContainer{
       margin:0px;
-      background-color: #fff;
       label{
-        color:#C4C4C4;
+        color:black;
         padding-left: 2px;
       }
       .PrivateNotchedOutline-root-1{
@@ -105,13 +104,13 @@
     
     :global(.MuiButton-root).iconContainerSend{
       display: flex;
-      height: 42px;
+     height:38px;  
       align-items: center;
       padding:0 2px;
-      width: 48px;
+      width: 52px;
       margin: 7px;
       min-width: 0px;
-      border-radius: 40px;
+      border-radius: 35px;
       &:hover {
         cursor: pointer;
       }
@@ -175,7 +174,7 @@
     flex-direction: column;
     justify-content: flex-end;
     height: 100%;
-    // background: transparent;
+    background: transparent;
     .first-message-placeholder {
       font-size: 2em;
       margin: auto;
