@@ -379,7 +379,7 @@ export const GolfSystem = async (): Promise<System> => {
     }
     for (const entity of golfClubQuery(world)) {
       if (!hasComponent(entity, State.SpawnedObject)) continue
-      updateClub(entity, null, delta)
+      updateClub(entity)
     }
     ///////////////////////////////////////////////////////////
     ////////////////////    Turn reuired quary     ////////////
