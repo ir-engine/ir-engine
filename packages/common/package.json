@@ -1,7 +1,7 @@
 {
   "name": "@xrengine/common",
   "version": "0.3.32",
-  "main": "index.ts",
+  "main": "dist/common.umd.js",
   "module": "dist/common.es.js",
   "publishConfig": {
     "access": "public"
@@ -9,7 +9,7 @@
   "description": "Shared types for other XREngine packages",
   "scripts": {
     "check-errors": "tsc --noemit",
-    "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
+    "build-publish": "rimraf dist && cross-env NODE_ENV=production rollup -c",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "repository": "http://github.com/XRFoundation/XREngine",
@@ -20,7 +20,6 @@
     "@rollup/plugin-node-resolve": "13.0.4",
     "@rollup/plugin-replace": "3.0.0",
     "cross-env": "7.0.3",
-    "ctix": "0.3.1",
     "lodash.camelcase": "4.3.0",
     "rimraf": "3.0.2",
     "rollup": "2.56.1",
