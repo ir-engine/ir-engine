@@ -1,5 +1,6 @@
 import Button from '@material-ui/core/Button'
 import Snackbar from '@material-ui/core/Snackbar'
+import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
 import LoadingScreen from '@xrengine/client-core/src/common/components/Loader'
 import {
   GeneralStateList,
@@ -15,30 +16,34 @@ import { selectLocationState } from '@xrengine/client-core/src/social/reducers/l
 import { getLobby, getLocationByName } from '@xrengine/client-core/src/social/reducers/location/service'
 import { selectPartyState } from '@xrengine/client-core/src/social/reducers/party/selector'
 import Store from '@xrengine/client-core/src/store'
+import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
 import { doLoginAuto } from '@xrengine/client-core/src/user/reducers/auth/service'
+import { InteractableModal } from '@xrengine/client-core/src/world/components/InteractableModal'
 import { setCurrentScene } from '@xrengine/client-core/src/world/reducers/scenes/actions'
 import { testScenes } from '@xrengine/common/src/assets/testScenes'
 import { teleportPlayer } from '@xrengine/engine/src/avatar/functions/teleportPlayer'
-import { awaitEngaged, Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineEvents } from '@xrengine/engine/src/ecs/classes/EngineEvents'
 import { processLocationChange } from '@xrengine/engine/src/ecs/functions/EngineFunctions'
 import { InitializeOptions } from '@xrengine/engine/src/initializationOptions'
 import { initializeEngine, shutdownEngine } from '@xrengine/engine/src/initializeEngine'
-import { enableInput } from '@xrengine/engine/src/input/systems/ClientInputSystem'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkSchema } from '@xrengine/engine/src/networking/interfaces/NetworkSchema'
 import { PhysicsSystem } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
 import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { XRSystem } from '@xrengine/engine/src/xr/systems/XRSystem'
+import { UISystem } from '@xrengine/engine/src/xrui/systems/UISystem'
 import querystring from 'querystring'
 import React, { Suspense, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
+import { connect, useDispatch } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import url from 'url'
-import { teleportToScene } from '../../../../engine/src/scene/functions/teleportToScene'
-import WarningRefreshModal from '../../components/AlertModals/WarningRetryModal'
+import { CharacterUISystem } from '@xrengine/client-core/src/systems/CharacterUISystem'
+import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
+import NetworkDebug from '../NetworkDebug'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
 import {
   connectToInstanceServer,
@@ -46,7 +51,12 @@ import {
   resetInstanceServer
 } from '../../reducers/instanceConnection/service'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
-import MediaIconsBox from './MapMediaIconsBox'
+import WarningRefreshModal from '../AlertModals/WarningRetryModal'
+import RecordingApp from '../Recorder/RecordingApp'
+import configs from '@xrengine/client-core/src/world/components/editor/configs'
+import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
+import { UserService } from '@xrengine/client-core/src/user/store/UserService'
+import { useUserState } from '@xrengine/client-core/src/user/store/UserState'
 
 const store = Store.store
 
@@ -76,33 +86,12 @@ const canvasStyle = {
   userSelect: 'none'
 } as React.CSSProperties
 
-// debug for contexts where devtools may be unavailable
-const consoleLog = []
-if (globalThis.process?.env.NODE_ENV === 'development') {
-  const consolelog = console.log
-  console.log = (...args) => {
-    consolelog(...args)
-    consoleLog.push('Log: ' + args.join(' '))
-  }
-
-  const consolewarn = console.warn
-  console.warn = (...args) => {
-    consolewarn(...args)
-    consoleLog.push('Warn: ' + args.join(' '))
-  }
-
-  const consoleerror = console.error
-  console.error = (...args) => {
-    consoleerror(...args)
-    consoleLog.push('Error: ' + args.join(' '))
-  }
-}
-
 interface Props {
   setAppLoaded?: any
   sceneId?: string
   deviceState?: any
   locationName: string
+  showDebug?: boolean
   appState?: any
   authState?: any
   locationState?: any
@@ -116,7 +105,7 @@ interface Props {
   resetInstanceServer?: typeof resetInstanceServer
   setCurrentScene?: typeof setCurrentScene
   harmonyOpen?: boolean
-  enableSharing?: boolean
+  children?: any
 }
 
 const mapStateToProps = (state: any) => {
@@ -158,21 +147,21 @@ export const EnginePage = (props: Props) => {
     setCurrentScene,
     setAppLoaded,
     locationName,
-    history,
-    enableSharing
+    showDebug=false,
+    harmonyOpen,
+    history
   } = props
 
   const [userBanned, setUserBannedState] = useState(false)
-
   const [progressEntity, setProgressEntity] = useState(99)
 
   const [isValidLocation, setIsValidLocation] = useState(true)
+  const [isInXR, setIsInXR] = useState(false)
   const [warningRefreshModalValues, setWarningRefreshModalValues] = useState(initialRefreshModalValues)
   const [noGameserverProvision, setNoGameserverProvision] = useState(false)
   const [instanceDisconnected, setInstanceDisconnected] = useState(false)
   const [instanceKicked, setInstanceKicked] = useState(false)
   const [instanceKickedMessage, setInstanceKickedMessage] = useState('')
-  const [isInputEnabled, setInputEnabled] = useState(true)
   const [porting, setPorting] = useState(false)
   const [newSpawnPos, setNewSpawnPos] = useState<PortalComponent>(null)
 
@@ -183,6 +172,16 @@ export const EnginePage = (props: Props) => {
   const invalidLocation = locationState.get('invalidLocation')
   let sceneId = null
   let locationId = null
+
+  const userState = useUserState()
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    if (selfUser?.instanceId != null && userState.layerUsersUpdateNeeded.value === true)
+      dispatch(UserService.getLayerUsers(true))
+    if (selfUser?.channelInstanceId != null && userState.channelLayerUsersUpdateNeeded.value === true)
+      dispatch(UserService.getLayerUsers(false))
+  }, [selfUser, userState.layerUsersUpdateNeeded.value, userState.channelLayerUsersUpdateNeeded.value])
 
   useEffect(() => {
     if (Config.publicRuntimeConfig.offlineMode) {
@@ -371,22 +370,6 @@ export const EnginePage = (props: Props) => {
     }
   }, [instanceDisconnected])
 
-  // If user if on Firefox in Private Browsing mode, throw error, since they can't use db storage currently
-  useEffect(() => {
-    var db = indexedDB.open('test')
-    db.onerror = function () {
-      const newValues = {
-        ...warningRefreshModalValues,
-        open: true,
-        title: 'Browser Error',
-        body: 'Your browser does not support storage in private browsing mode. Either try another browser, or exit private browsing mode. ',
-        noCountdown: true
-      }
-      setWarningRefreshModalValues(newValues)
-      setInstanceDisconnected(false)
-    }
-  }, [])
-
   useEffect(() => {
     if (instanceKicked === true) {
       const newValues = {
@@ -454,13 +437,25 @@ export const EnginePage = (props: Props) => {
         physics: {
           simulationEnabled: false,
           physxWorker: new Worker('/scripts/loadPhysXClassic.js')
-        }
+        },
+        systems: [
+          {
+            system: CharacterUISystem,
+            after: UISystem
+          }
+        ]
       }
 
       await initializeEngine(initializationOptions)
 
       document.dispatchEvent(new CustomEvent('ENGINE_LOADED')) // this is the only time we should use document events. would be good to replace this with react state
-      addUIEvents()
+        EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
+        EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async () => {
+          setIsInXR(true)
+        })
+        EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async () => {
+          setIsInXR(false)
+        })
     }
 
     if (!Config.publicRuntimeConfig.offlineMode) await connectToInstanceServer('instance')
@@ -473,8 +468,9 @@ export const EnginePage = (props: Props) => {
     const sceneLoadPromise = new Promise<void>((resolve) => {
       WorldScene.load(
         sceneData,
-        () => {
+        async () => {
           setProgressEntity(0)
+          getPortalDetails(configs)
           store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADED))
           setAppLoaded(true)
           resolve()
@@ -484,10 +480,6 @@ export const EnginePage = (props: Props) => {
     })
 
     await Promise.all([connectPromise, sceneLoadPromise])
-
-    store.dispatch(setAppSpecificOnBoardingStep(GeneralStateList.AWAITING_INPUT, false))
-
-    await awaitEngaged()
 
     await new Promise<void>(async (resolve) => {
       // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
@@ -500,23 +492,14 @@ export const EnginePage = (props: Props) => {
         MessageTypes.JoinWorld.toString(),
         { spawnTransform }
       )
-      console.log('world state is', worldState)
       Network.instance.incomingMessageQueueReliable.add(worldState)
       resolve()
     })
+
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS))
     setPorting(false)
-
-    // WTF IS GOING ON HEREEEE
-    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
   }
-
-  useEffect(() => {
-    enableInput({
-      keyboard: isInputEnabled,
-      mouse: isInputEnabled
-    })
-  }, [isInputEnabled])
 
   const onSceneLoadedEntity = (left: number): void => {
     setProgressEntity(left || 0)
@@ -547,23 +530,12 @@ export const EnginePage = (props: Props) => {
     })
   }
 
-  const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(PhysicsSystem.EVENTS.PORTAL_REDIRECT_EVENT, portToLocation)
-  }
-
   useEffect(() => {
-    return (): void => {
-      document.body.innerHTML = consoleLog
-        .map((log) => {
-          ;`<p>${log}</p>`
-        })
-        .join()
-      shutdownEngine()
-    }
+    return (): void => {}
   }, [])
 
   //touch gamepad
-  const touchGamepadProps = { hovered: false, layout: 'default' }
+  const touchGamepadProps = { layout: 'default' }
   const touchGamepad = deviceState.get('content')?.touchDetected ? (
     <Suspense fallback={<></>}>
       <TouchGamepad {...touchGamepadProps} />
@@ -571,7 +543,9 @@ export const EnginePage = (props: Props) => {
   ) : null
 
   if (userBanned) return <div className="banned">You have been banned from this location</div>
-  return (
+  return isInXR ? (
+    <></>
+  ) : (
     <>
       <Snackbar
         open={!isValidLocation}
@@ -585,8 +559,10 @@ export const EnginePage = (props: Props) => {
           <Button onClick={goHome}>Return Home</Button>
         </>
       </Snackbar>
+
+      {showDebug && <NetworkDebug reinit={reinit} />}
       <LoadingScreen objectsToLoad={progressEntity} />
-      <MediaIconsBox />
+
       <canvas id={engineRendererCanvasId} style={canvasStyle} />
       {touchGamepad}
       <WarningRefreshModal
@@ -601,6 +577,8 @@ export const EnginePage = (props: Props) => {
         timeout={warningRefreshModalValues.timeout}
         noCountdown={warningRefreshModalValues.noCountdown}
       />
+      <EmoteMenu />
+      {props.children}
     </>
   )
 }
