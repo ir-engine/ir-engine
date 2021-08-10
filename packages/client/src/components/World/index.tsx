@@ -577,7 +577,6 @@ export const EnginePage = (props: Props) => {
         timeout={warningRefreshModalValues.timeout}
         noCountdown={warningRefreshModalValues.noCountdown}
       />
-      <EmoteMenu />
       {props.children}
     </>
   )

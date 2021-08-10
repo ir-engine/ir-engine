@@ -1,28 +1,29 @@
-import { useTranslation } from 'react-i18next'
-import UserMenu from '../../../../client-core/src/user/components/UserMenu'
-import World from '../../components/World'
-import MapMediaIconsBox from './MapMediaIconsBox'
 import { FullscreenExit, ZoomOutMap } from '@material-ui/icons'
 import { ThemeProvider } from '@material-ui/styles'
 import { Alerts } from '@xrengine/client-core/src/common/components/Alerts'
 import { UIDialog } from '@xrengine/client-core/src/common/components/Dialog/Dialog'
+import EmoteMenu from '@xrengine/client-core/src/common/components/EmoteMenu'
 import NavMenu from '@xrengine/client-core/src/common/components/NavMenu'
 import { setUserHasInteracted } from '@xrengine/client-core/src/common/reducers/app/actions'
 import { selectAppOnBoardingStep, selectAppState } from '@xrengine/client-core/src/common/reducers/app/selector'
 import { Config } from '@xrengine/client-core/src/helper'
 import { selectLocationState } from '@xrengine/client-core/src/social/reducers/location/selector'
 import { theme } from '@xrengine/client-core/src/theme'
+import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { selectAuthState } from '@xrengine/client-core/src/user/reducers/auth/selector'
-import React, { Fragment, useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 import { Helmet } from 'react-helmet'
+import { useTranslation } from 'react-i18next'
 import { connect } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import { bindActionCreators, Dispatch } from 'redux'
 import InstanceChat from '../../components/InstanceChat'
-// @ts-ignore
-import styles from './MapLayout.module.scss'
+import World from '../../components/World'
+import emoteMenuStyles from './MapEmoteMenu.module.scss'
 import instanceChatStyles from './MapInstanceChat.module.scss'
+import styles from './MapLayout.module.scss'
+import MapMediaIconsBox from './MapMediaIconsBox'
 
 const siteTitle: string = Config.publicRuntimeConfig.siteTitle
 
@@ -105,14 +106,13 @@ const Layout = (props: Props): any => {
                 <ZoomOutMap />
               </button>
             )}
-            <Fragment>
               <UIDialog />
               <Alerts />
               <World locationName={props.match.params.locationName} history={props.history} >
                 <MapMediaIconsBox />
                 <UserMenu />
+                <EmoteMenu styles={emoteMenuStyles} />
               </World>
-            </Fragment>
             <footer>
               {locationState.get('currentLocation')?.get('location')?.id &&
                 authState.get('authUser') != null &&

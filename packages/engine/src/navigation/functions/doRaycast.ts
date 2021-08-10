@@ -14,11 +14,10 @@ export const doRaycast: InputBehaviorType = (actorEntity, inputKey, inputValue):
   if (inputValue.lifecycleState !== LifecycleValue.STARTED) {
     return
   }
-  console.log('CLICK!!!')
+
   const autopilotSystem = getSystem(AutopilotSystem)
   const input = getComponent(actorEntity, Input)
   const coords = input.data.get(BaseInput.SCREENXY)?.value
-  console.log('~~~ coords', coords)
 
   const raycaster = new Raycaster()
   raycaster.setFromCamera({ x: coords[0], y: coords[1] }, Engine.camera)

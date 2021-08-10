@@ -6,6 +6,7 @@ import { InteractableModal } from '../../../../client-core/src/world/components/
 import RecordingApp from '../../components/Recorder/RecordingApp'
 import MediaIconsBox from '../../components/MediaIconsBox'
 import UserMenu from '../../../../client-core/src/user/components/UserMenu'
+import EmoteMenu from '../../../../client-core/src/common/components/EmoteMenu'
 
 const LocationPage = (props) => {
   const { t } = useTranslation()
@@ -16,6 +17,7 @@ const LocationPage = (props) => {
         <RecordingApp />
         <MediaIconsBox />
         <UserMenu />
+        <EmoteMenu />
       </World>
     </Layout>
   )
