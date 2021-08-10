@@ -1,3 +1,4 @@
+import { makeStyles } from '@material-ui/core'
 import Avatar from '@material-ui/core/Avatar'
 import Badge from '@material-ui/core/Badge'
 import Button from '@material-ui/core/Button'
@@ -43,6 +44,12 @@ const mapDispatchToProps = (dispatch: Dispatch): any => ({
   updateChatTarget: bindActionCreators(updateChatTarget, dispatch),
   updateMessageScrollInit: bindActionCreators(updateMessageScrollInit, dispatch)
 })
+
+const useStyles = makeStyles((theme) => ({
+  input: {
+    color: "#000",
+  },
+}));
 
 interface Props {
   authState?: any
@@ -124,6 +131,7 @@ const InstanceChat = (props: Props): any => {
     setComposingMessage('')
   }
 
+  const classes = useStyles();
   const [openMessageContainer, setOpenMessageContainer] = React.useState(false)
   const [isMultiline, setIsMultiline] = React.useState(false)
   const [cursorPosition, setCursorPosition] = React.useState(0)
@@ -224,8 +232,9 @@ const InstanceChat = (props: Props): any => {
                 autoFocus
                 value={composingMessage}
                 inputProps={{
-                  maxLength: 1000,
-                  'aria-label': 'naked'
+//                   maxLength: 1000,
+//                   'aria-label': 'naked'
+                     className: classes.input
                 }}
                 InputLabelProps={{ shrink: false }}
                 onChange={handleComposingMessageChange}
