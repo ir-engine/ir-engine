@@ -17,7 +17,7 @@ import { LocalInterpolationComponent } from '../components/LocalInterpolationCom
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { rigidbodyCorrectionBehavior } from '../behaviors/rigidbodyCorrectionBehavior'
 import { VelocityComponent } from '../components/VelocityComponent'
-import { defineQuery, defineSystem, Not, System } from 'bitecs'
+import { defineQuery, defineSystem, Not, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 
 /**

@@ -16,7 +16,16 @@ import { isClient } from '../../common/functions/isClient'
 import { checkIsGamePredictionStillRight, clearPredictionCheckList } from '../functions/functionsActions'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { Component, ComponentType, defineQuery, defineSystem, enterQuery, exitQuery, IComponent, System } from 'bitecs'
+import {
+  Component,
+  ComponentType,
+  defineQuery,
+  defineSystem,
+  enterQuery,
+  exitQuery,
+  IComponent,
+  System
+} from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 
 // TODO: add game areas back
@@ -87,7 +96,7 @@ export const GameManagerSystem = async (): Promise<System> => {
         if (!otherGameObject) continue
         Object.keys(gameObject.collisionBehaviors).forEach((role) => {
           if (role === otherGameObject.role) {
-            gameObject.collisionBehaviors[role](entity, delta, { hitEvent: collisionEvent }, otherEntity)
+            gameObject.collisionBehaviors[role](entity, collisionEvent, otherEntity)
           }
         })
       }

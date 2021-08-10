@@ -9,7 +9,7 @@ import { Network } from '../networking/classes/Network'
 import { PrefabType } from '../networking/templates/PrefabType'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { AvatarTagComponent } from './components/AvatarTagComponent'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../ecs/bitecs'
 import { ECSWorld } from '../ecs/classes/World'
 
 const randomPositionCentered = (area: Vector3) => {

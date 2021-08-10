@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem, System } from 'bitecs'
+import { defineQuery, defineSystem, System } from '../../ecs/bitecs'
 import { Euler, Quaternion } from 'three'
 import { ECSWorld } from '../../ecs/classes/World'
 import { getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'

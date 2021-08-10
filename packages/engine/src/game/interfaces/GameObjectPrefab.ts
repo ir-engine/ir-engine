@@ -3,7 +3,7 @@ import type { Entity } from '../../ecs/classes/Entity'
 import type { GameObject } from '../components/GameObject'
 
 export interface GameObjectPrefab {
-  create: () => GameObject
+  create: () => ReturnType<typeof GameObject.get>
   destroy: () => void
 }
 

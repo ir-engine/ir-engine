@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
+import { defineQuery, defineSystem, enterQuery, System } from '../ecs/bitecs'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { CameraModes } from '../camera/types/CameraModes'
 import { PositionalAudio } from 'three'

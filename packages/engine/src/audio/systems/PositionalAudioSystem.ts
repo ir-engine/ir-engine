@@ -10,7 +10,7 @@ import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
 import { PositionalAudioSettingsComponent } from '../../scene/components/AudioSettingsComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PositionalAudioComponent } from '../components/PositionalAudioComponent'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== 'undefined' && /chrome/i.test(navigator.userAgent)

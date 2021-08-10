@@ -2,7 +2,7 @@ import { SoundEffect } from '../components/SoundEffect'
 import { BackgroundMusic } from '../components/BackgroundMusic'
 import { PlaySoundEffect } from '../components/PlaySoundEffect'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
 

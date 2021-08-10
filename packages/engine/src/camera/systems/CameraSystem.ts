@@ -23,7 +23,7 @@ import { EngineEvents } from '../../ecs/classes/EngineEvents'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TouchInputs } from '../../input/enums/InputEnums'
 import { InputValue } from '../../input/interfaces/InputValue'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 
 const direction = new Vector3()

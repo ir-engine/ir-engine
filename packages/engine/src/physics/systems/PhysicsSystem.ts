@@ -14,7 +14,7 @@ import { Quaternion, Vector3 } from 'three'
 import { InterpolationComponent } from '../components/InterpolationComponent'
 import { isClient } from '../../common/functions/isClient'
 import { PrefabType } from '../../networking/templates/PrefabType'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 
 /**

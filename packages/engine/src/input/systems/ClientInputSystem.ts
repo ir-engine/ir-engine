@@ -9,7 +9,7 @@ import { InputAlias } from '../types/InputAlias'
 import { Engine } from '../../ecs/classes/Engine'
 import { processInput } from '../functions/processInput'
 import { handleGamepads } from '../behaviors/GamepadInputBehaviors'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 
 export const enableInput = ({ keyboard, mouse }: { keyboard?: boolean; mouse?: boolean }) => {

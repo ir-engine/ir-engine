@@ -1,4 +1,4 @@
-import { Types } from 'bitecs'
+import { Types } from '../../ecs/bitecs'
 import { AnimationClip, AnimationMixer } from 'three'
 import { createMappedComponent, getComponent } from '../../ecs/functions/EntityFunctions'
 

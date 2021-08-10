@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
+import { defineQuery, defineSystem, enterQuery, System } from '../ecs/bitecs'
 import { Vector3 } from 'three'
 import { getCoord, getTile, updateMap } from '.'
 import { AvatarComponent } from '../avatar/components/AvatarComponent'

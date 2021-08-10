@@ -21,7 +21,7 @@ import { Group, Vector3 } from 'three'
 import { executeCommands } from '../functions/executeCommands'
 import { ClientActionToServer } from '../../game/templates/DefaultGameStateAction'
 import { updatePlayerRotationFromViewVector } from '../../avatar/functions/updatePlayerRotationFromViewVector'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 
 export function cancelAllInputs(entity) {

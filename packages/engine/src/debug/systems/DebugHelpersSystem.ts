@@ -24,7 +24,7 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { DebugArrowComponent } from '../DebugArrowComponent'
 import { DebugRenderer } from './DebugRenderer'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 
 type ComponentHelpers = 'viewVector' | 'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box' | 'navmesh'

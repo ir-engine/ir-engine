@@ -40,7 +40,7 @@ import { enableClub, initializeGolfClub, spawnClub, updateClub } from './prefab/
 import { GolfBallTagComponent, GolfClubTagComponent, GolfPrefabs } from './prefab/GolfGamePrefabs'
 import { SpawnNetworkObjectComponent } from '../../../scene/components/SpawnNetworkObjectComponent'
 import { Engine } from '../../../ecs/classes/Engine'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../../ecs/bitecs'
 import { ECSWorld } from '../../../ecs/classes/World'
 
 /**

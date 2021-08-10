@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem, Not, System } from 'bitecs'
+import { defineQuery, defineSystem, Not, System } from '../../ecs/bitecs'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
 import { SIXDOFType } from '../../common/types/NumericalTypes'

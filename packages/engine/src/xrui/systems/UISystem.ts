@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem, System } from 'bitecs'
+import { defineQuery, defineSystem, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { UIRootComponent } from '../components/UIRootComponent'

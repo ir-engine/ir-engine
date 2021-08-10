@@ -1,4 +1,4 @@
-import { createWorld } from 'bitecs'
+import { createWorld } from '../../ecs/bitecs'
 import { Entity } from './Entity'
 
 export interface ECSWorld {

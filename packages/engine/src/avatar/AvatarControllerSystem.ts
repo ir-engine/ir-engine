@@ -17,7 +17,7 @@ import { sendClientObjectUpdate } from '../networking/functions/sendClientObject
 import { teleportPlayer } from './functions/teleportPlayer'
 import { NetworkObjectUpdateType } from '../networking/templates/NetworkObjectUpdates'
 import { SpawnPoints } from './ServerAvatarSpawnSystem'
-import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from 'bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../ecs/bitecs'
 import { ECSWorld } from '../ecs/classes/World'
 
 export const AvatarControllerSystem = async (): Promise<System> => {

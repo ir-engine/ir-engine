@@ -2,7 +2,7 @@ import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { getComponent } from '../ecs/functions/EntityFunctions'
 import { HighlightComponent } from './components/HighlightComponent'
 import { Engine } from '../ecs/classes/Engine'
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../ecs/bitecs'
 import { ECSWorld } from '../ecs/classes/World'
 
 export const HighlightSystem = async (): Promise<System> => {

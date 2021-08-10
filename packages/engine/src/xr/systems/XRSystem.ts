@@ -14,7 +14,7 @@ import { addControllerModels } from '../functions/addControllerModels'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { InputComponent } from '../../input/components/InputComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
-import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
+import { defineQuery, defineSystem, enterQuery, System } from '../../ecs/bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
 
 /**

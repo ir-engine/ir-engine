@@ -10,7 +10,7 @@ import {
   addEntity,
   getEntityComponents,
   defineQuery
-} from 'bitecs'
+} from '../../ecs/bitecs'
 
 import { Entity } from '../classes/Entity'
 import { World } from '../classes/World'

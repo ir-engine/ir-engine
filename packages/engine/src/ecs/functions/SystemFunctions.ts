@@ -1,7 +1,7 @@
 /** Functions to provide system level functionalities. */
 
 import { SystemUpdateType } from '../functions/SystemUpdateType'
-import { pipe, System } from 'bitecs'
+import { pipe, System } from '../../ecs/bitecs'
 
 export type CreateSystemFunctionType<A extends any> = (props: A) => Promise<System>
 

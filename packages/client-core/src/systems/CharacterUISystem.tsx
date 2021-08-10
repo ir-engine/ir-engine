@@ -6,7 +6,7 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { createCharacterDetailView } from './ui/CharacterDetailView'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Not, defineQuery, enterQuery, defineSystem, System, exitQuery } from 'bitecs'
+import { Not, defineQuery, enterQuery, defineSystem, System, exitQuery } from '@xrengine/engine/src/ecs/bitecs'
 import { Quaternion, Vector3 } from 'three'
 import { ECSWorld } from '@xrengine/engine/src/ecs/classes/World'
 

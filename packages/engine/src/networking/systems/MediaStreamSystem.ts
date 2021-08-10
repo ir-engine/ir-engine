@@ -5,7 +5,7 @@ import { isClient } from '../../common/functions/isClient'
 import { getNearbyUsers, NearbyUser } from '../functions/getNearbyUsers'
 import { startLivestreamOnServer } from '../functions/startLivestreamOnServer'
 import { ECSWorld } from '../../ecs/classes/World'
-import { defineSystem, System } from 'bitecs'
+import { defineSystem, System } from '../../ecs/bitecs'
 import { CreateSystemFunctionType } from '../../ecs/functions/SystemFunctions'
 
 /** System class for media streaming. */

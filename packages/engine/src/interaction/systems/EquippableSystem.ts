@@ -10,7 +10,7 @@ import { sendClientObjectUpdate } from '../../networking/functions/sendClientObj
 import { BodyType } from 'three-physx'
 import { BinaryValue } from '../../common/enums/BinaryValue'
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
-import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from 'bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, Not, System } from '../../ecs/bitecs'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
 import { ECSWorld } from '../../ecs/classes/World'

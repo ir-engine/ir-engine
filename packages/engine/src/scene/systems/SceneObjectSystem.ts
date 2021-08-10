@@ -1,4 +1,4 @@
-import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
 import { Material, Mesh, MeshBasicMaterial, MeshPhongMaterial, MeshStandardMaterial, Vector3 } from 'three'
 import { CameraLayers } from '../../camera/constants/CameraLayers'
 import { Engine } from '../../ecs/classes/Engine'
