@@ -286,6 +286,7 @@ export class DebugHelpersSystem extends System {
       console.log('add mesh helper!')
       const navMesh = getComponent(entity, NavMeshComponent)?.yukaNavMesh
       const helper = createConvexRegionHelper(navMesh)
+      helper.visible = false;
       Engine.scene.add(helper)
       DebugHelpers.helpersByEntity.navmesh.set(entity, helper)
     }
