@@ -1,6 +1,9 @@
 import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { CameraModes } from '../camera/types/CameraModes'
+import { PositionalAudio } from 'three'
+import { PositionalAudioComponent } from '../audio/components/PositionalAudioComponent'
+import { Engine } from '../ecs/classes/Engine'
 import { EngineEvents } from '../ecs/classes/EngineEvents'
 import { ECSWorld } from '../ecs/classes/World'
 import { addComponent, removeComponent } from '../ecs/functions/EntityFunctions'
@@ -28,6 +31,7 @@ export const ClientAvatarSpawnSystem = async (): Promise<System> => {
       const isLocalPlayer = uniqueId === Network.instance.userId
       createAvatar(entity, parameters, !isLocalPlayer)
 
+      addComponent(entity, PositionalAudioComponent, { value: new PositionalAudio(Engine.audioListener) })
       addComponent(entity, InterpolationComponent, null)
       addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
 
