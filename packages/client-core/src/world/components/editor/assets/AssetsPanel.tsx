@@ -4,7 +4,6 @@ import styled from 'styled-components'
 import { Column, Row } from '../layout/Flex'
 import { EditorContext } from '../contexts/EditorContext'
 import AssetDropZone from './AssetDropZone'
-// @ts-ignore
 import styles from './styles.module.scss'
 
 /**

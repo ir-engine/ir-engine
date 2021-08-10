@@ -1,6 +1,5 @@
 import React, { useEffect, useState, FunctionComponent, Suspense } from 'react'
 import { CommonInteractiveData } from '@xrengine/engine/src/interaction/interfaces/CommonInteractiveData'
-// @ts-ignore
 import styles from './style.module.scss'
 import Dialog from '@material-ui/core/Dialog'
 import DialogContent from '@material-ui/core/DialogContent'

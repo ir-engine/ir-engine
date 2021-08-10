@@ -12,7 +12,6 @@ import { selectTheFeedsState } from '@xrengine/client-core/src/socialmedia/reduc
 
 import TheFeedsCard from '../TheFeedsCard'
 
-// @ts-ignore
 import styles from './TheFeed.module.scss'
 
 const mapStateToProps = (state: any): any => {

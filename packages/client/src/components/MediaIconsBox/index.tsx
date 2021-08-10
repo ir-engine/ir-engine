@@ -4,7 +4,6 @@ import FaceIcon from '@material-ui/icons/Face'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { selectAppOnBoardingStep } from '@xrengine/client-core/src/common/reducers/app/selector'
-// @ts-ignore
 import styles from './MediaIconsBox.module.scss'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import {

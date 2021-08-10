@@ -20,7 +20,6 @@ import { connect } from 'react-redux'
 import { bindActionCreators, Dispatch } from 'redux'
 import LeftDrawer from '../Drawer/Left'
 import RightDrawer from '../Drawer/Right'
-// @ts-ignore
 import styles from './Layout.module.scss'
 import { Config } from '@xrengine/client-core/src/helper'
 import { useLocation } from 'react-router-dom'

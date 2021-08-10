@@ -7,7 +7,6 @@ import { FBXLoader } from '@xrengine/engine/src/assets/loaders/fbx/FBXLoader'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import { Views } from '../util'
 import { withTranslation } from 'react-i18next'
-// @ts-ignore
 import styles from '../UserMenu.module.scss'
 import {
   AVATAR_FILE_ALLOWED_EXTENSIONS,

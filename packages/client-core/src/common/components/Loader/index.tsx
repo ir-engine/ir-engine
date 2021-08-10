@@ -5,7 +5,6 @@ import { selectAppOnBoardingStep } from '../../reducers/app/selector'
 import { selectCurrentScene } from '../../../world/reducers/scenes/selector'
 import Loader from './SquareLoader'
 import { useTranslation } from 'react-i18next'
-// @ts-ignore
 import styles from './Loader.module.scss'
 interface Props {
   objectsToLoad?: number

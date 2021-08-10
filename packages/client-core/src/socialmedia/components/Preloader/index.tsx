@@ -2,7 +2,6 @@
  * @author Gleb Ordinsky <glebordinsky@gmail.com>
  */
 import React from 'react'
-// @ts-ignore
 import styles from './Preloader.module.scss'
 interface Props {
   text?: any

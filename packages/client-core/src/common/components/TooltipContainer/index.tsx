@@ -1,5 +1,4 @@
 import React from 'react'
-// @ts-ignore
 import styles from './ToolTipContainer.module.scss'
 import { isTouchAvailable } from '../../../../../engine/src/common/functions/DetectFeatures'
 import Snackbar from '@material-ui/core/Snackbar'
