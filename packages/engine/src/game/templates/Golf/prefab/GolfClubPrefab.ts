@@ -5,47 +5,45 @@ import { GolfCollisionGroups, GolfColours, GolfPrefabTypes } from '../GolfGameCo
 import {
   BoxBufferGeometry,
   DoubleSide,
+  Euler,
   Group,
   Material,
+  MathUtils,
   Mesh,
   MeshStandardMaterial,
   Vector3,
-  MathUtils,
-  Euler,
   Quaternion
 } from 'three'
 import {
   Body,
   BodyType,
   ColliderHitEvent,
-  ShapeType,
+  PhysXInstance,
   RaycastQuery,
   SceneQueryType,
   SHAPES,
-  PhysXInstance
+  ShapeType
 } from 'three-physx'
 import { CollisionGroups } from '../../../../physics/enums/CollisionGroups'
 import { Object3DComponent } from '../../../../scene/components/Object3DComponent'
-import { GameObject } from '../../../components/GameObject'
-import { Behavior } from '../../../../common/interfaces/Behavior'
 import { hasComponent, addComponent, getComponent, removeComponent } from '../../../../ecs/functions/EntityFunctions'
 import { Network } from '../../../../networking/classes/Network'
-import { getGame } from '../../../functions/functions'
 import { NetworkObjectComponent } from '../../../../networking/components/NetworkObjectComponent'
 import { GolfClubComponent } from '../components/GolfClubComponent'
 import { getHandTransform } from '../../../../xr/functions/WebXRFunctions'
-import { DebugArrowComponent } from '../../../../debug/DebugArrowComponent'
+import { GameObject } from '../../../components/GameObject'
+import { GamePlayer } from '../../../components/GamePlayer'
+import { getGame } from '../../../functions/functions'
+import { addActionComponent } from '../../../functions/functionsActions'
+import { ifOwned } from '../../../functions/ifOwned'
 import { GameObjectInteractionBehavior } from '../../../interfaces/GameObjectPrefab'
 import { NetworkObjectComponentOwner } from '../../../../networking/components/NetworkObjectComponentOwner'
 import { Action, State } from '../../../types/GameComponents'
-import { addActionComponent } from '../../../functions/functionsActions'
-import { GamePlayer } from '../../../components/GamePlayer'
-
 import { ifVelocity } from '../functions/ifVelocity'
-import { ifOwned } from '../../gameDefault/checkers/ifOwned'
-import { isClient } from '../../../../common/functions/isClient'
-import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
 import { spawnPrefab } from '../../../../networking/functions/spawnPrefab'
+import { VelocityComponent } from '../../../../physics/components/VelocityComponent'
+import { DebugArrowComponent } from '../../../../debug/DebugArrowComponent'
+import { isClient } from '../../../../common/functions/isClient'
 
 const vector0 = new Vector3()
 const vector1 = new Vector3()
@@ -56,14 +54,7 @@ const eulerX90 = new Euler(Math.PI * 0.5, 0, 0)
  * @author Josh Field <github.com/HexaField>
  */
 
-export const spawnClub: Behavior = (
-  entityPlayer: Entity,
-  args?: any,
-  delta?: number,
-  entityTarget?: Entity,
-  time?: number,
-  checks?: any
-): void => {
+export const spawnClub = (entityPlayer: Entity): void => {
   const game = getGame(entityPlayer)
   const playerNetworkObject = getComponent(entityPlayer, NetworkObjectComponent)
 
@@ -116,14 +107,7 @@ export const hideClub = (entityClub: Entity, hide: boolean, yourTurn: boolean): 
  * @author Josh Field <github.com/HexaField>
  */
 
-export const updateClub: Behavior = (
-  entityClub: Entity,
-  args?: any,
-  delta?: number,
-  entityTarget?: Entity,
-  time?: number,
-  checks?: any
-): void => {
+export const updateClub = (entityClub: Entity): void => {
   const ownerNetworkId = getComponent(entityClub, NetworkObjectComponentOwner).networkId
   const ownerEntity = Network.instance.networkObjects[ownerNetworkId]?.entity
 
@@ -219,20 +203,19 @@ export const updateClub: Behavior = (
 
 export const onClubColliderWithBall: GameObjectInteractionBehavior = (
   entityClub: Entity,
-  delta: number,
-  args: { hitEvent: ColliderHitEvent },
+  hitEvent: ColliderHitEvent,
   entityBall: Entity
 ) => {
   if (
-    args.hitEvent.type === 'TRIGGER_START' &&
+    hitEvent.type === 'TRIGGER_START' &&
     hasComponent(entityBall, State.Active) &&
     hasComponent(entityClub, State.Active) &&
-    ifOwned(entityClub, null, entityBall) &&
+    ifOwned(entityClub, entityBall) &&
     ifVelocity(entityClub, { more: 0.01, less: 1 })
   ) {
     addActionComponent(entityBall, Action.GameObjectCollisionTag)
     addActionComponent(entityClub, Action.GameObjectCollisionTag)
-  } else if (args.hitEvent.type === 'TRIGGER_END') {
+  } else if (hitEvent.type === 'TRIGGER_END') {
     removeComponent(entityBall, Action.GameObjectCollisionTag)
     removeComponent(entityClub, Action.GameObjectCollisionTag)
   }

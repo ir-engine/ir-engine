@@ -1,21 +1,27 @@
-import { NavMesh, Vector3 as YukaVector3, Path } from 'yuka'
-import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
-import { AutoPilotComponent } from '../component/AutoPilotComponent'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
-import { NavMeshComponent } from '../component/NavMeshComponent'
 import { Raycaster, Vector3 } from 'three'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import { InputType } from '../../input/enums/InputType'
-import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { GamepadAxis } from '../../input/enums/InputEnums'
-import { NumericalType } from '../../common/types/NumericalTypes'
+import { NavMesh, Path, Vector3 as YukaVector3 } from 'yuka'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { updatePlayerRotationFromViewVector } from '../../avatar/functions/updatePlayerRotationFromViewVector'
+import { LifecycleValue } from '../../common/enums/LifecycleValue'
+import { NumericalType } from '../../common/types/NumericalTypes'
+import { Engine } from '../../ecs/classes/Engine'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '../../ecs/functions/EntityFunctions'
+import { GamepadAxis } from '../../input/enums/InputEnums'
+import { InputType } from '../../input/enums/InputType'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AutoPilotClickRequestComponent } from '../component/AutoPilotClickRequestComponent'
 import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
 import { defineQuery, defineSystem, enterQuery, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
+import { AutoPilotComponent } from '../component/AutoPilotComponent'
+import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
+import { NavMeshComponent } from '../component/NavMeshComponent'
 
 const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3): Path => {
   const points = navMesh.findPath(new YukaVector3(from.x, from.y, from.z), new YukaVector3(to.x, to.y, to.z))
@@ -102,6 +108,10 @@ export const AutopilotSystem = async (): Promise<System> => {
         const path = findPath(navMeshComponent.yukaNavMesh, position, request.point)
         autopilotComponent = addComponent(entity, AutoPilotComponent, { path, navEntity: request.navEntity })
       }
+      autopilotComponent.navEntity = request.navEntity
+
+      autopilotComponent.path = findPath(navMeshComponent.yukaNavMesh, position, request.point)
+      console.log('autopilotComponent.path', autopilotComponent.path)
 
       // TODO: "mount" player? disable movement, etc.
 
@@ -113,11 +123,17 @@ export const AutopilotSystem = async (): Promise<System> => {
     // ongoing
     if (allOngoing.length) {
       // update our entity transform from vehicle
+      const ROTATION_SPEED = 0.1 // angle per step in radians
+      const ARRIVING_DISTANCE = 1
+      const ARRIVED_DISTANCE = 0.1
+      const MIN_SPEED = 0.2
       const stick = GamepadAxis.Left
       for (const entity of allOngoing) {
         const autopilot = getComponent(entity, AutoPilotComponent)
-        const { position: avatarPosition } = getComponent(entity, TransformComponent)
-        if (autopilot.path.current().distanceTo(avatarPosition as any) < 0.2) {
+        const { position: actorPosition } = getComponent(entity, TransformComponent)
+        const targetFlatPosition = new Vector3(autopilot.path.current().x, 0, autopilot.path.current().z)
+        const targetFlatDistance = targetFlatPosition.distanceTo(actorPosition.clone().setY(0))
+        if (targetFlatDistance < ARRIVED_DISTANCE) {
           if (autopilot.path.finished()) {
             // Path is finished!
             Engine.inputState.set(stick, {
@@ -131,19 +147,24 @@ export const AutopilotSystem = async (): Promise<System> => {
             continue
           }
           autopilot.path.advance()
+          return
         }
 
         const avatar = getComponent(entity, AvatarComponent)
         const avatarViewRotation = Math.atan2(avatar.viewVector.x, avatar.viewVector.z)
-
-        const targetPosition = new Vector3(autopilot.path.current().x, 0, autopilot.path.current().z)
-        const direction = targetPosition
-          .sub(avatarPosition.clone().setY(0))
+        const speedModifier = Math.min(
+          1,
+          Math.max(MIN_SPEED, targetFlatDistance < ARRIVING_DISTANCE ? targetFlatDistance / ARRIVING_DISTANCE : 1)
+        )
+        const direction = targetFlatPosition
+          .clone()
+          .sub(actorPosition.clone().setY(0))
           .applyAxisAngle(new Vector3(0, -1, 0), avatarViewRotation)
           .normalize()
-        // .multiplyScalar(0.6) // speed
+        const targetAngle = Math.atan2(direction.x, direction.z)
+        const stickValue = direction.clone().multiplyScalar(speedModifier) // speed
 
-        const stickPosition: NumericalType = [direction.z, direction.x, Math.atan2(direction.x, direction.z)]
+        const stickPosition: NumericalType = [stickValue.z, stickValue.x, targetAngle]
         // If position not set, set it with lifecycle started
         if (!Engine.inputState.has(stick)) {
           Engine.inputState.set(stick, {
@@ -165,8 +186,26 @@ export const AutopilotSystem = async (): Promise<System> => {
             })
           }
         }
+
+        // rotation
+        const targetDirection = targetFlatPosition.clone().sub(actorPosition).setY(0).normalize()
+        // {
+        //   // way 1
+        //   const transform = getComponent(entity, TransformComponent)
+        //   const forwardVector = new Vector3(0, 0, 1)
+        //   applyVectorMatrixXZ(targetDirection, forwardVector)
+        //   const targetQuaternion = new Quaternion().setFromUnitVectors(forwardVector, targetDirection)
+        //   transform.rotation.rotateTowards(targetQuaternion, ROTATION_SPEED)
+        //   // actor.viewVector.copy(targetDirection)
+        //   actor.viewVector.copy(forwardVector).applyQuaternion(transform.rotation)
+        // }
+        {
+          // way 2
+          updatePlayerRotationFromViewVector(entity, targetDirection)
+        }
       }
     }
+
     return world
   })
 }

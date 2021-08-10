@@ -16,7 +16,7 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent'
  * @param {number} delta the delta of this frame
  */
 
-export const avatarInterpolationBehavior: Behavior = (entity: Entity, snapshots: SnapshotData, delta: number): void => {
+export const avatarInterpolationBehavior = (entity: Entity, snapshots: SnapshotData, delta: number): void => {
   const interpolation = findInterpolationSnapshot(entity, snapshots.interpolation) as StateInterEntity
 
   if (!interpolation || isNaN(interpolation.vX)) return

@@ -4,6 +4,7 @@ import { PlaySoundEffect } from '../components/PlaySoundEffect'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { defineQuery, defineSystem, enterQuery, exitQuery, System } from 'bitecs'
 import { ECSWorld } from '../../ecs/classes/World'
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
 
 export const AudioSystem = async (): Promise<System> => {
 
@@ -16,7 +17,6 @@ export const AudioSystem = async (): Promise<System> => {
 
   const playQuery = defineQuery([SoundEffect, PlaySoundEffect])
   const playAddQuery = enterQuery(playQuery)
-
 
   /** Indicates whether the system is ready or not. */
   let audioReady = false
@@ -45,6 +45,9 @@ export const AudioSystem = async (): Promise<System> => {
     if (audioReady) return
     console.log('starting audio')
     audioReady = true
+    EngineEvents.instance.dispatchEvent({
+      type: EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS
+    })
     window.AudioContext = window.AudioContext || (window as any).webkitAudioContext
     if (window.AudioContext) {
       context = new window.AudioContext()

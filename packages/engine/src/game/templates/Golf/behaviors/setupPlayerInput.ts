@@ -97,7 +97,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
         addStateComponent(entity, GolfState.AlreadyHit)
         const position = new Vector3().copy(getComponent(holeEntity, TransformComponent).position)
         position.y += 0.5
-        teleportObject(ballEntity, { position })
+        teleportObject(ballEntity, position)
       }
     )
 

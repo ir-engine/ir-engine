@@ -1,6 +1,6 @@
-import { Checker } from '../../game/types/Checker'
 import { Entity } from '../../ecs/classes/Entity'
 import { ComponentConstructor } from '../../ecs/functions/EntityFunctions'
+import { Checker } from '../../game/types/Checker'
 /**
  * @author HydraFire <github.com/HydraFire>
  */
@@ -36,4 +36,38 @@ export interface GameMode {
   registerStateTagComponents: ComponentConstructor<any, any>[]
   gamePlayerRoles: string[]
   gameObjectRoles: string[]
+}
+
+export interface RoleBehaviorWithTarget {
+  sortMethod?: any
+  targetsRole: {
+    [key: string]: {
+      watchers?: ComponentConstructor<any, any>[][]
+      checkers?: Array<{
+        function: Checker
+        args?: any
+      }>
+      args?: any
+    }
+  }
+}
+
+export type RoleBehaviorTarget = (entity: Entity) => Entity
+
+export interface RoleBehaviors {
+  [key: string]: Array<{
+    behavior: any
+    prepareArgs?: any
+    args?: any | ((entity: Entity) => void)
+    watchers?: ComponentConstructor<any, any>[][]
+    checkers?: Array<{
+      function: Checker
+      args?: any
+    }>
+    takeEffectOn?: RoleBehaviorWithTarget | RoleBehaviorTarget
+  }>
+}
+
+export interface GameRolesInterface {
+  [key: string]: RoleBehaviors
 }

@@ -11,7 +11,7 @@
     "access": "public"
   },
   "main": "dist/server-core.umd.js",
-  "module": "dist/server-core.js",
+  "module": "dist/server-core.es.js",
   "types": "dist/server-core/index.d.ts",
   "keywords": [
     "three",
@@ -41,7 +41,7 @@
     "dev": "cross-env NODE_ENV=development vite",
     "dev-reinit-db": "cross-env NODE_ENV=development FORCE_DB_REFRESH=true vite",
     "test": "echo \"TODO: no test specified\" && exit 0",
-    "build-publish": "rimraf dist && ctix entrypoint ./src && cross-env NODE_ENV=production rollup -c",
+    "build-publish": "rimraf dist && cross-env NODE_ENV=production rollup -c",
     "localbuild": "cross-env LOCAL_BUILD=true npm run start",
     "validate": "npm run build && npm run test",
     "precommit": "no-master-commits -b master,dev",

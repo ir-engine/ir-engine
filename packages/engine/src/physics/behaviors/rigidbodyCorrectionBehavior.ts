@@ -1,9 +1,8 @@
-import { Behavior } from '../../common/interfaces/Behavior'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { SnapshotData, StateInterEntity } from '../../networking/types/SnapshotDataTypes'
+import { SnapshotData } from '../../networking/types/SnapshotDataTypes'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { findInterpolationSnapshot } from './findInterpolationSnapshot'
 
@@ -17,7 +16,7 @@ import { findInterpolationSnapshot } from './findInterpolationSnapshot'
 
 const offsetMaxDistanceSq = 1
 
-export const rigidbodyCorrectionBehavior: Behavior = (entity: Entity, snapshots: SnapshotData, delta): void => {
+export const rigidbodyCorrectionBehavior = (entity: Entity, snapshots: SnapshotData, delta): void => {
   const networkId = getComponent(entity, NetworkObjectComponent).networkId
   const collider = getComponent(entity, ColliderComponent)
 

@@ -11,13 +11,13 @@ const UserToast = () => {
   const { t } = useTranslation()
   const msgs = toastMessages
     ? Array.from(toastMessages).map((m) => {
-        if (m.args.userAdded)
+        if (m.userAdded)
           return (
             <span>
               <span className={styles.userAdded}>{m.user.name}</span> {t('common:toast.joined')}
             </span>
           )
-        else if (m.args.userRemoved)
+        else if (m.userRemoved)
           return (
             <span>
               <span className={styles.userRemoved}>{m.user.name}</span> {t('common:toast.left')}
