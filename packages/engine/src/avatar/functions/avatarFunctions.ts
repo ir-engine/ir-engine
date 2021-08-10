@@ -1,7 +1,7 @@
 import { AnimationMixer, Group } from 'three'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isClient } from '../../common/functions/isClient'
-import { getComponent, getEntityByID, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { AnimationManager } from '../AnimationManager'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -10,9 +10,8 @@ import { AnimationRenderer } from '../animations/AnimationRenderer'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { Entity } from '../../ecs/classes/Entity'
 
-export const setAvatar = ({ entityID, avatarId, avatarURL }) => {
-  const entity = getEntityByID(entityID)
-  const avatar = getMutableComponent(entity, AvatarComponent)
+export const setAvatar = (entity, avatarId, avatarURL) => {
+  const avatar = getComponent(entity, AvatarComponent)
   if (avatar) {
     avatar.avatarId = avatarId
     avatar.avatarURL = avatarURL
@@ -31,7 +30,7 @@ export const loadAvatar = (entity: Entity) => {
 }
 
 const loadDefaultAvatar = (entity: Entity) => {
-  const avatar = getMutableComponent(entity, AvatarComponent)
+  const avatar = getComponent(entity, AvatarComponent)
   const model = SkeletonUtils.clone(AnimationManager.instance._defaultModel)
 
   model.traverse((object) => {
@@ -41,7 +40,7 @@ const loadDefaultAvatar = (entity: Entity) => {
   })
   model.children.forEach((child) => avatar.modelContainer.add(child))
 
-  const animationComponent = getMutableComponent(entity, AnimationComponent)
+  const animationComponent = getComponent(entity, AnimationComponent)
   animationComponent.mixer = new AnimationMixer(avatar.modelContainer)
 }
 
@@ -53,10 +52,17 @@ const loadAvatarFromURL = (entity: Entity, avatarURL: string) => {
       receiveShadow: true
     },
     (asset: Group) => {
+      asset.traverse((o) => {
+        // TODO: Remove me when we add retargeting
+        if (o.name.includes('mixamorig')) {
+          o.name = o.name.replace('mixamorig', '')
+        }
+      })
+
       const model = SkeletonUtils.clone(asset)
-      const avatar = getMutableComponent(entity, AvatarComponent)
-      const animationComponent = getMutableComponent(entity, AnimationComponent)
-      const avatarAnimationComponent = getMutableComponent(entity, AvatarAnimationComponent)
+      const avatar = getComponent(entity, AvatarComponent)
+      const animationComponent = getComponent(entity, AnimationComponent)
+      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
       animationComponent.mixer.stopAllAction()
       avatar.modelContainer.children.forEach((child) => child.removeFromParent())

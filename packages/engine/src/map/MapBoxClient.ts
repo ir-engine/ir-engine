@@ -23,17 +23,6 @@ function lat2tile(lat: number, zoom: number) {
   )
 }
 
-const METERS_PER_PIXEL_AT_EQUATOR = 156543.03
-export function calcMetersPerPixelLatitudinal(latitude: number) {
-  // TODO why is this off slightly (without the small fudge factor)?
-  const fudge = 1.21
-  return Math.abs((METERS_PER_PIXEL_AT_EQUATOR * Math.cos(latitude)) / Math.pow(2, TILE_ZOOM)) * fudge
-}
-export function calcMetersPerPixelLongitudinal(latitude: number) {
-  const fudge = 1.015
-  return Math.abs(METERS_PER_PIXEL_AT_EQUATOR / Math.pow(2, TILE_ZOOM)) * fudge
-}
-
 /**
  * Return the features we care about from a tiles
  */
@@ -66,7 +55,6 @@ function getMapBoxUrl(layerId: string, tileX: number, tileY: number, format: str
 
 async function fetchTileFeatures(tileX: number, tileY: number): Promise<TileFeaturesByLayer> {
   const url = getMapBoxUrl('mapbox.mapbox-streets-v8', tileX, tileY, 'vector.pbf')
-
   const response = await fetch(url)
   const blob = await response.blob()
   return new Promise((resolve) => {
@@ -96,6 +84,12 @@ function forEachSurroundingTile(llCenter: Position, callback: (tileX: number, ti
       callback(tileX, tileY)
     }
   }
+}
+
+export function getCenterTile(llCenter: Position) {
+  const tileX0 = long2tile(llCenter[0], TILE_ZOOM)
+  const tileY0 = lat2tile(llCenter[1], TILE_ZOOM)
+  return [tileX0, tileY0]
 }
 
 /**

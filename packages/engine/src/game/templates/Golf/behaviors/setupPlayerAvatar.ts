@@ -4,11 +4,17 @@ import { XRInputSourceComponent } from '../../../../avatar/components/XRInputSou
 import { SkeletonUtils } from '../../../../avatar/SkeletonUtils'
 import { Entity } from '../../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
+import { Object3DComponent } from '../../../../scene/components/Object3DComponent'
 import { GolfAvatarComponent } from '../components/GolfAvatarComponent'
 
 const avatarScale = 1.3
 
 export const setupPlayerAvatar = async (entityPlayer: Entity) => {
+  const avatarComponent = getComponent(entityPlayer, AvatarComponent)
+  const { value } = getComponent(entityPlayer, Object3DComponent)
+  value.remove(avatarComponent.modelContainer)
+  avatarComponent.modelContainer.children.forEach((child) => child.removeFromParent())
+
   const headGLTF = await AssetLoader.loadAsync({ url: '/models/golf/avatars/avatar_head.glb' })
   const handGLTF = await AssetLoader.loadAsync({ url: '/models/golf/avatars/avatar_hands.glb' })
   const torsoGLTF = await AssetLoader.loadAsync({ url: '/models/golf/avatars/avatar_torso.glb' })
@@ -66,8 +72,9 @@ export const setupPlayerAvatarNotInVR = (entityPlayer: Entity) => {
   golfAvatarComponent.rightHandModel.position.set(-0.35, 1, 0)
   golfAvatarComponent.torsoModel.position.set(0, 1.25, 0)
 
-  const avatar = getComponent(entityPlayer, AvatarComponent)
-  avatar.modelContainer.add(
+  const { value } = getComponent(entityPlayer, Object3DComponent)
+
+  value.add(
     golfAvatarComponent.headModel,
     golfAvatarComponent.leftHandModel,
     golfAvatarComponent.rightHandModel,

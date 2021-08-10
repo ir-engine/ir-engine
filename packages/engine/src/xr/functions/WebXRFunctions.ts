@@ -1,6 +1,6 @@
 import { Engine } from '../../ecs/classes/Engine'
 import { Group, Object3D, Quaternion, Vector3 } from 'three'
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
+import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/EntityFunctions'
 import { Network } from '../../networking/classes/Network'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -46,7 +46,7 @@ export const endXR = (): void => {
   Engine.xrSession.end()
   Engine.xrSession = null
   Engine.scene.add(Engine.camera)
-  addComponent(Network.instance.localClientEntity, FollowCameraComponent)
+  addComponent(Network.instance.localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
   removeComponent(Network.instance.localClientEntity, XRInputSourceComponent)
 }
 

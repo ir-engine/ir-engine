@@ -1,9 +1,7 @@
-import { Types } from '../../ecs//types/Types'
-import { Component } from '../../ecs/classes/Component'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 import { ParticleEmitterMesh } from '../functions/ParticleEmitterMesh'
 
-/** Class component for particle emitter. */
-export class ParticleEmitterComponent extends Component<ParticleEmitterComponent> {
+export type ParticleEmitterComponentType = {
   particleEmitterMesh: ParticleEmitterMesh
   // particleMesh: Mesh
   // src: string;
@@ -42,34 +40,4 @@ export class ParticleEmitterComponent extends Component<ParticleEmitterComponent
   // colors: any[];
 }
 
-ParticleEmitterComponent._schema = {
-  ...ParticleEmitterComponent._schema,
-  particleEmitterMesh: { type: Types.Ref, default: null }
-  // particleMesh: { type: Types.Ref, default: new Mesh() },
-  // src: { type: Types.String, default: null },
-
-  // particleCount: { type: Types.Number, default: 100 },
-
-  // startColor: { type: Types.Ref, default: new Color() },
-  // middleColor: { type: Types.Ref, default: new Color() },
-  // endColor: { type: Types.Ref, default: new Color() },
-  // colorCurve: { type: Types.String, default: 'linear' },
-
-  // startOpacity: { type: Types.Number, default: 1 },
-  // middleOpacity: { type: Types.Number, default: 1 },
-  // endOpacity: { type: Types.Number, default: 1 },
-
-  // startSize: { type: Types.Number, default: 0.25 },
-  // endSize: { type: Types.Number, default: 0.25 },
-  // sizeCurve: { type: Types.String, default: 'linear' },
-  // sizeRandomness: { type: Types.Number, default: 0 },
-
-  // ageRandomness: { type: Types.Number, default: 10 },
-  // lifetime: { type: Types.Number, default: 5 },
-  // lifetimeRandomness: { type: Types.Number, default: 5 },
-
-  // startVelocity: { type: Types.Ref, default: new Vector3(0, 0, 0.5)},
-  // endVelocity: { type: Types.Ref, default: new Vector3(0, 0, 0.5)},
-  // angularVelocity: { type: Types.String, default: 0 },
-  // velocityCurve: { type: Types.String, default: 'linear' },
-}
+export const ParticleEmitterComponent = createMappedComponent<ParticleEmitterComponentType>()

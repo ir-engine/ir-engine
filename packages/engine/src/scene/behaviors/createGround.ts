@@ -4,25 +4,22 @@ import { addComponent } from '../../ecs/functions/EntityFunctions'
 import { createCollider } from '../../physics/behaviors/createCollider'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
-import { Object3DComponent } from '../components/Object3DComponent'
+import { addObject3DComponent } from './addObject3DComponent'
 
 type GroundProps = {
   color: string
-  visible: boolean
 }
 
 export const createGround = (entity: Entity, args: GroundProps) => {
   const mesh = new Mesh(
     new CircleBufferGeometry(1000, 32).rotateX(-Math.PI / 2),
     new MeshStandardMaterial({
-      color: new Color(args.color),
+      color: new Color(0.313410553336143494, 0.31341053336143494, 0.30206481294706464),
       roughness: 0
     })
   )
-  mesh.receiveShadow = true
 
-  if (typeof args.visible !== 'undefined' && args.visible) mesh.visible = false
-  addComponent(entity, Object3DComponent, { value: mesh })
+  addObject3DComponent(entity, mesh, { receiveShadow: true, 'material.color': args.color })
 
   const body = createCollider(
     {

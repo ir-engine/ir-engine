@@ -287,6 +287,8 @@ const Harmony = (props: Props): any => {
   const [warningRefreshModalValues, setWarningRefreshModalValues] = useState(initialRefreshModalValues)
   const [noGameserverProvision, setNoGameserverProvision] = useState(false)
   const [channelDisconnected, setChannelDisconnected] = useState(false)
+  const [hasAudioDevice, setHasAudioDevice] = useState(false)
+  const [hasVideoDevice, setHasVideoDevice] = useState(false)
 
   const instanceLayerUsers = userState.layerUsers.value
   const channelLayerUsers = userState.channelLayerUsers.value
@@ -332,6 +334,18 @@ const Harmony = (props: Props): any => {
       : false
   const isCamVideoEnabled = mediastream.get('isCamVideoEnabled')
   const isCamAudioEnabled = mediastream.get('isCamAudioEnabled')
+
+  useEffect(() => {
+    navigator.mediaDevices
+      .enumerateDevices()
+      .then((devices) => {
+        devices.forEach((device) => {
+          if (device.kind === 'audioinput') setHasAudioDevice(true)
+          if (device.kind === 'videoinput') setHasVideoDevice(true)
+        })
+      })
+      .catch((err) => console.log('could not get media devices', err))
+  }, [])
 
   useEffect(() => {
     if (EngineEvents.instance != null) {
@@ -664,10 +678,14 @@ const Harmony = (props: Props): any => {
     }
   }
 
-  const checkMediaStream = async (channelType: string, channelId?: string) => {
-    if (!MediaStreams.instance?.mediaStream) {
-      console.log('Configuring media transports', channelType, channelId)
-      await configureMediaTransports(channelType, channelId)
+  const checkMediaStream = async (streamType: string, channelType: string, channelId?: string) => {
+    if (streamType === 'video' && !MediaStreams.instance?.videoStream) {
+      console.log('Configuring video transport', channelType, channelId)
+      await configureMediaTransports(['video'], channelType, channelId)
+    }
+    if (streamType === 'audio' && !MediaStreams.instance?.audioStream) {
+      console.log('Configuring audio transport', channelType, channelId)
+      await configureMediaTransports(['audio'], channelType, channelId)
     }
   }
 
@@ -682,7 +700,7 @@ const Harmony = (props: Props): any => {
     } else {
       const msAudioPaused = MediaStreams.instance?.toggleAudioPaused()
       setAudioPaused(
-        MediaStreams.instance?.mediaStream === null ||
+        MediaStreams.instance?.audioStream === null ||
           MediaStreams.instance?.camAudioProducer == null ||
           MediaStreams.instance?.audioPaused === true
       )
@@ -703,7 +721,7 @@ const Harmony = (props: Props): any => {
     } else {
       const msVideoPaused = MediaStreams.instance?.toggleVideoPaused()
       setVideoPaused(
-        MediaStreams.instance?.mediaStream === null ||
+        MediaStreams.instance?.videoStream === null ||
           MediaStreams.instance?.camVideoProducer == null ||
           MediaStreams.instance?.videoPaused === true
       )
@@ -723,9 +741,10 @@ const Harmony = (props: Props): any => {
     setActiveAVChannelId(targetChannelId)
     if (channel.instanceId == null) provisionChannelServer(null, targetChannelId)
     else {
-      await checkMediaStream('instance')
-      await createCamVideoProducer('instance')
-      await createCamAudioProducer('instance')
+      const audioConfigured = await checkMediaStream('audio', 'instance')
+      const videoConfigured = await checkMediaStream('video', 'instance')
+      if (videoConfigured === true) await createCamVideoProducer('instance')
+      if (audioConfigured === true) await createCamAudioProducer('instance')
       updateCamVideoState()
       updateCamAudioState()
     }
@@ -746,13 +765,13 @@ const Harmony = (props: Props): any => {
 
   const toggleAudio = async (channelId) => {
     console.log('toggleAudio')
-    await checkMediaStream('channel', channelId)
+    await checkMediaStream('audio', 'channel', channelId)
 
     if (MediaStreams.instance?.camAudioProducer == null) await createCamAudioProducer('channel', channelId)
     else {
       const audioPaused = MediaStreams.instance?.toggleAudioPaused()
       setAudioPaused(
-        MediaStreams.instance?.mediaStream === null ||
+        MediaStreams.instance?.audioStream === null ||
           MediaStreams.instance?.camAudioProducer == null ||
           MediaStreams.instance?.audioPaused === true
       )
@@ -763,12 +782,12 @@ const Harmony = (props: Props): any => {
 
   const toggleVideo = async (channelId) => {
     console.log('toggleVideo')
-    await checkMediaStream('channel', channelId)
+    await checkMediaStream('video', 'channel', channelId)
     if (MediaStreams.instance?.camVideoProducer == null) await createCamVideoProducer('channel', channelId)
     else {
       const videoPaused = MediaStreams.instance?.toggleVideoPaused()
       setVideoPaused(
-        MediaStreams.instance?.mediaStream === null ||
+        MediaStreams.instance?.videoStream === null ||
           MediaStreams.instance?.camVideoProducer == null ||
           MediaStreams.instance?.videoPaused === true
       )
@@ -1241,11 +1260,13 @@ const Harmony = (props: Props): any => {
                   >
                     <CallEnd />
                   </div>
-                  <div className={styles.iconContainer + ' ' + (audioPaused ? styles.off : styles.on)}>
-                    <Mic id="micOff" className={styles.offIcon} onClick={(e) => handleMicClick(e)} />
-                    <Mic id="micOn" className={styles.onIcon} onClick={(e) => handleMicClick(e)} />
-                  </div>
-                  {videoEnabled && (
+                  {hasAudioDevice && (
+                    <div className={styles.iconContainer + ' ' + (audioPaused ? styles.off : styles.on)}>
+                      <Mic id="micOff" className={styles.offIcon} onClick={(e) => handleMicClick(e)} />
+                      <Mic id="micOn" className={styles.onIcon} onClick={(e) => handleMicClick(e)} />
+                    </div>
+                  )}
+                  {videoEnabled && hasVideoDevice && (
                     <div className={styles.iconContainer + ' ' + (videoPaused ? styles.off : styles.on)}>
                       <Videocam id="videoOff" className={styles.offIcon} onClick={(e) => handleCamClick(e)} />
                       <Videocam id="videoOn" className={styles.onIcon} onClick={(e) => handleCamClick(e)} />

@@ -7,8 +7,11 @@ export const VIDEO_CONSTRAINTS = {
 }
 
 /** localMediaConstraints is passed to the getUserMedia object to request a lower video quality than the maximum. */
-export const localMediaConstraints = {
-  audio: true,
+export const localAudioConstraints = {
+  audio: true
+}
+
+export const localVideoConstraints = {
   video: {
     width: VIDEO_CONSTRAINTS.hd.width,
     height: VIDEO_CONSTRAINTS.hd.height,

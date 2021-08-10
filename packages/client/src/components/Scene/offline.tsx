@@ -346,7 +346,7 @@ export const EnginePage = (props: Props) => {
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED'))
     addUIEvents()
 
-    EngineEvents.instance.dispatchEvent({ type: ClientNetworkStateSystem.EVENTS.CONNECT, id: testUserId })
+    EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CONNECT, id: testUserId })
 
     store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
 
@@ -376,10 +376,10 @@ export const EnginePage = (props: Props) => {
   }
 
   const addUIEvents = () => {
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async () => {
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async () => {
       setIsInXR(true)
     })
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_END, async () => {
+    EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_END, async () => {
       setIsInXR(false)
     })
   }

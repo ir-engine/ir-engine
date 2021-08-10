@@ -1,3 +1,2 @@
-import { Component } from '../../ecs/classes/Component'
-
-export class PersistTagComponent extends Component<any> {}
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+export const PersistTagComponent = createMappedComponent<{}>()

@@ -111,7 +111,7 @@ State Game Tag Component - this is the simple component ECS:
 
 
  
-  class Example extends Component<any> {}
+  class Example = createMappedComponent<{}>()
  
   const State = {
     ...
@@ -170,7 +170,7 @@ This function does addComponent(), but with adding to game.state data about whic
 
 Yeah, game state is just a simple ECS Component without any data in it.
 Constructor:
-   addStateComponent(entity: Entity, component:  ComponentConstructor<Component<any>>): void
+   addStateComponent(entity: Entity, component:  ComponentConstructor<any, any>): void
 Examples:
  
 // Next Turn for Players
@@ -188,7 +188,7 @@ This function does removeComponent(), but with removing in game.state data about
 
 Yeah, game state is just a simple ECS Component without any data in it.
 Constructor:
-   removeStateComponent(entity: Entity, component:  ComponentConstructor<Component<any>>): void
+   removeStateComponent(entity: Entity, component:  ComponentConstructor<any, any>): void
 Examples:
  
 // Next Turn for Players
@@ -215,7 +215,7 @@ Action Game Component - this is the simple component ECS:
 
 
  
-  class GameObjectCollisionTag extends Component<any> {}
+  class GameObjectCollisionTag = createMappedComponent<{}>()
  
   export const Action = {
     [gameActions.HasHadInteraction]: HasHadInteraction,
@@ -259,7 +259,7 @@ This method used to get values just like getComponent()
 
 
 setStorage
-This method is used to set values just like getMutableComponent() but need to ...
+This method is used to set values just like getComponent() but need to ...
  
   setStorage(entity, { name: 'GameScore' }, { score: { hits: 0, goal: 0 }});
  

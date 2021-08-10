@@ -31,7 +31,12 @@ type ColliderData = {
   collisionMask?: number | string
 }
 
-export function createCollider(mesh: Mesh | any, pos, rot, scale): Body {
+export function createCollider(
+  mesh: Mesh | any,
+  pos = new Vector3(),
+  rot = new Quaternion(),
+  scale = new Vector3(1, 1, 1)
+): Body {
   const userData = mesh.userData as ColliderData
   // console.log(userData, pos, rot, scale)
 

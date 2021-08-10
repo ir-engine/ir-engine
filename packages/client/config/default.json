@@ -1,6 +1,8 @@
 {
   "publicRuntimeConfig": {
     "title": "The Overlay",
+    "siteTitle": "The Overlay",
+    "siteDescription": "Connected Worlds for Everyone",
     "dev": false,
     "loginDisabled": false,
     "logo": "./logo.svg",
@@ -10,8 +12,6 @@
     "gameserver": "https://${VITE_GAMESERVER_HOST}:${VITE_GAMESERVER_PORT}",
     "mediatorServer": "${VITE_MEDIATOR_SERVER}",
     "wasmUrl": "https://${VITE_APP_HOST}:${VITE_APP_PORT}/recast/recast.wasm",
-    "siteTitle": "The Overlay",
-    "siteDescription": "Connected Worlds for Everyone",
     "feathersStoreKey": "TheOverlay-Auth-Store",
     "localStorageKey": "theoverlay-client-store-key-v1",
     "lobbyLocationName": "lobby",

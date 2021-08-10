@@ -1,20 +1,21 @@
-import { Group, sRGBEncoding, Vector3 } from 'three'
+import { sRGBEncoding } from 'three'
 import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineEvents } from '../../ecs/classes/EngineEvents'
-import { System } from '../../ecs/classes/System'
 import { gamepadMapping } from '../../input/behaviors/GamepadInputBehaviors'
 import { InputType } from '../../input/enums/InputType'
 import { endXR, startXR } from '../functions/WebXRFunctions'
-import { XRFrame, XRReferenceSpace, XRReferenceSpaceType, XRWebGLLayer } from '../../input/types/WebXR'
-import { LocalInputReceiver } from '../../input/components/LocalInputReceiver'
+import { XRReferenceSpace, XRReferenceSpaceType } from '../../input/types/WebXR'
+import { LocalInputReceiverComponent } from '../../input/components/LocalInputReceiverComponent'
 import { XRInputSourceComponent } from '../../avatar/components/XRInputSourceComponent'
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { addControllerModels } from '../functions/addControllerModels'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { Input } from '../../input/components/Input'
+import { InputComponent } from '../../input/components/InputComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
+import { defineQuery, defineSystem, enterQuery, System } from '../../ecs/bitecs'
+import { ECSWorld } from '../../ecs/classes/World'
 
 /**
  * System for XR session and input handling
@@ -22,58 +23,39 @@ import { BaseInput } from '../../input/enums/BaseInput'
  * @author Josh Field <github.com/hexafield>
  */
 
-export class XRSystem extends System {
-  static EVENTS = {
-    XR_START: 'WEBXR_RENDERER_SYSTEM_XR_START',
-    XR_SESSION: 'WEBXR_RENDERER_SYSTEM_XR_SESSION',
-    XR_END: 'WEBXR_RENDERER_SYSTEM_XR_END'
-  }
+export const XRSystem = async (): Promise<System> => {
+  const referenceSpaceType: XRReferenceSpaceType = 'local-floor'
 
-  referenceSpaceType: XRReferenceSpaceType = 'local-floor'
-  referenceSpace: XRReferenceSpace
+  const localXRControllerQuery = defineQuery([InputComponent, LocalInputReceiverComponent, XRInputSourceComponent])
+  const localXRControllerAddQuery = enterQuery(localXRControllerQuery)
 
-  constructor() {
-    super()
+  // TEMPORARY - precache controller model
+  // TODO: remove this when IK system is in
+  AssetLoader.loadAsync({ url: '/models/webxr/controllers/valve_controller_knu_1_0_right.glb' })
 
-    // TEMPORARY - precache controller model
-    // TODO: remove this when IK system is in
-    AssetLoader.loadAsync({ url: '/models/webxr/controllers/valve_controller_knu_1_0_right.glb' })
+  EngineEvents.instance.addEventListener(EngineEvents.EVENTS.XR_START, async (ev: any) => {
+    Engine.renderer.outputEncoding = sRGBEncoding
+    const sessionInit = { optionalFeatures: [referenceSpaceType] }
+    try {
+      const session = await (navigator as any).xr.requestSession('immersive-vr', sessionInit)
 
-    EngineEvents.instance.addEventListener(XRSystem.EVENTS.XR_START, async (ev: any) => {
-      Engine.renderer.outputEncoding = sRGBEncoding
-      const sessionInit = { optionalFeatures: [this.referenceSpaceType] }
-      try {
-        const session = await (navigator as any).xr.requestSession('immersive-vr', sessionInit)
+      Engine.xrSession = session
+      Engine.xrRenderer.setReferenceSpaceType(referenceSpaceType)
+      Engine.xrRenderer.setSession(session)
+      EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_SESSION })
 
-        Engine.xrSession = session
-        Engine.xrRenderer.setReferenceSpaceType(this.referenceSpaceType)
-        Engine.xrRenderer.setSession(session)
-        EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_SESSION })
+      Engine.xrRenderer.addEventListener('sessionend', async () => {
+        endXR()
+        EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.XR_END })
+      })
 
-        Engine.xrRenderer.addEventListener('sessionend', async () => {
-          endXR()
-          EngineEvents.instance.dispatchEvent({ type: XRSystem.EVENTS.XR_END })
-        })
+      startXR()
+    } catch (e) {
+      console.log('Failed to create XR Session', e)
+    }
+  })
 
-        startXR()
-      } catch (e) {
-        console.log('Failed to create XR Session', e)
-      }
-    })
-  }
-
-  /** Removes resize listener. */
-  dispose(): void {
-    super.dispose()
-    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_START)
-    EngineEvents.instance.removeAllListenersForEvent(XRSystem.EVENTS.XR_END)
-  }
-
-  /**
-   * Executes the system. Called each frame by default from the Engine.
-   * @param delta Time since last frame.
-   */
-  execute(delta: number): void {
+  return defineSystem((world: ECSWorld) => {
     if (Engine.xrRenderer?.isPresenting) {
       const session = Engine.xrFrame.session
       for (const source of session.inputSources) {
@@ -105,13 +87,13 @@ export class XRSystem extends System {
       }
     }
 
-    for (const entity of this.queryResults.localXRController.added) {
+    for (const entity of localXRControllerAddQuery(world)) {
       addControllerModels(entity)
     }
 
-    for (const entity of this.queryResults.localXRController.all) {
+    for (const entity of localXRControllerQuery(world)) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      const input = getMutableComponent(entity, Input)
+      const input = getComponent(entity, InputComponent)
       input.data.set(BaseInput.XR_HEAD, {
         type: InputType.SIXDOF,
         value: {
@@ -152,16 +134,8 @@ export class XRSystem extends System {
         lifecycleState: LifecycleValue.CHANGED
       })
     }
-  }
-  // TODO: add and remove controller models from grips
-}
 
-XRSystem.queries = {
-  localXRController: {
-    components: [Input, LocalInputReceiver, XRInputSourceComponent],
-    listen: {
-      added: true,
-      removed: true
-    }
-  }
+    return world
+  })
+  // TODO: add and remove controller models from grips
 }

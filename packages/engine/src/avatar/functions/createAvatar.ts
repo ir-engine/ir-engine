@@ -1,10 +1,8 @@
 import { DEFAULT_AVATAR_ID } from '@xrengine/common/src/constants/AvatarConstants'
-import { AnimationMixer, Euler, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
-import { PositionalAudioComponent } from '../../audio/components/PositionalAudioComponent'
+import { AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, createEntity, getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
-import { Input } from '../../input/components/Input'
-import { RelativeSpringSimulator } from '../../physics/classes/SpringSimulator'
+import { addComponent, getComponent } from '../../ecs/functions/EntityFunctions'
+import { InputComponent } from '../../input/components/InputComponent'
 import { VectorSpringSimulator } from '../../physics/classes/VectorSpringSimulator'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarInputSchema } from '../AvatarInputSchema'
@@ -12,7 +10,6 @@ import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { rotateViewVectorXZ } from '../../camera/systems/CameraSystem'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { Body, BodyType, Controller, PhysXInstance, RaycastQuery, SceneQueryType, SHAPES } from 'three-physx'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
@@ -20,10 +17,14 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { Network } from '../../networking/classes/Network'
-import { NetworkObject } from '../../networking/components/NetworkObject'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { AnimationGraph } from '../animations/AnimationGraph'
+import { AnimationState } from '../animations/AnimationState'
 
 const avatarRadius = 0.25
 const capsuleHeight = 1.3
+const avatarHeight = 1.8
+const avatarHalfHeight = 0.9
 
 /**
  *
@@ -37,48 +38,63 @@ export const createAvatar = (
   spawnTransform: { position: Vector3; rotation: Quaternion },
   isRemotePlayer = false
 ): void => {
-  entity.name = 'Player'
-
   const transform = addComponent(entity, TransformComponent, {
     position: new Vector3().copy(spawnTransform.position),
-    rotation: new Quaternion().copy(spawnTransform.rotation)
+    rotation: new Quaternion().copy(spawnTransform.rotation),
+    scale: new Vector3(1, 1, 1)
   })
 
-  const actor = addComponent(entity, AvatarComponent, {
-    ...(Network.instance.clients[getComponent(entity, NetworkObject).uniqueId]?.avatarDetail || {
-      avatarId: DEFAULT_AVATAR_ID
-    })
+  addComponent(entity, InputComponent, {
+    schema: AvatarInputSchema,
+    data: new Map(),
+    prevData: new Map()
   })
-  addComponent(entity, Input, { schema: AvatarInputSchema })
-  addComponent(entity, PositionalAudioComponent)
-  addComponent(entity, VelocityComponent)
+  addComponent(entity, VelocityComponent, {
+    velocity: new Vector3()
+  })
 
   // The visuals group is centered for easy actor tilting
   const tiltContainer = new Group()
-  tiltContainer.name = 'Actor (tiltContainer)' + entity.id
-  tiltContainer.position.setY(actor.avatarHalfHeight)
+  tiltContainer.name = 'Actor (tiltContainer)' + entity
+  tiltContainer.position.setY(avatarHalfHeight)
 
   // // Model container is used to reliably ground the actor, as animation can alter the position of the model itself
-  actor.modelContainer = new Group()
-  actor.modelContainer.name = 'Actor (modelContainer)' + entity.id
-  tiltContainer.add(actor.modelContainer)
+  const modelContainer = new Group()
+  modelContainer.name = 'Actor (modelContainer)' + entity
+  tiltContainer.add(modelContainer)
 
-  addComponent(entity, AnimationComponent, {
-    mixer: new AnimationMixer(actor.modelContainer)
+  addComponent(entity, AvatarComponent, {
+    ...(Network.instance.clients[getComponent(entity, NetworkObjectComponent).uniqueId]?.avatarDetail || {
+      avatarId: DEFAULT_AVATAR_ID
+    }),
+    avatarHalfHeight,
+    avatarHeight,
+    modelContainer,
+    isGrounded: false,
+    viewVector: new Vector3(0, 0, 1)
   })
 
-  addComponent(entity, AvatarAnimationComponent)
+  addComponent(entity, AnimationComponent, {
+    mixer: new AnimationMixer(modelContainer),
+    animations: [],
+    animationSpeed: 1
+  })
+
+  addComponent(entity, AvatarAnimationComponent, {
+    animationGraph: new AnimationGraph(),
+    currentState: new AnimationState(),
+    prevState: new AnimationState(),
+    prevVelocity: new Vector3()
+  })
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })
-
-  actor.viewVector = new Vector3(0, 0, 1)
 
   const raycastQuery = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
       type: SceneQueryType.Closest,
-      origin: new Vector3(0, actor.avatarHalfHeight, 0),
+      origin: new Vector3(0, avatarHalfHeight, 0),
       direction: new Vector3(0, -1, 0),
-      maxDistance: actor.avatarHalfHeight + 0.05,
+      maxDistance: avatarHalfHeight + 0.05,
       collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Portal
     })
   )
@@ -101,7 +117,7 @@ export const createAvatar = (
         transform: {
           translation: {
             x: transform.position.x,
-            y: transform.position.y + actor.avatarHalfHeight,
+            y: transform.position.y + avatarHalfHeight,
             z: transform.position.z
           }
         }
@@ -109,31 +125,52 @@ export const createAvatar = (
     )
     addComponent(entity, ColliderComponent, { body })
   } else {
-    const controller = PhysXInstance.instance.createController(
-      new Controller({
-        isCapsule: true,
-        collisionLayer: CollisionGroups.Avatars,
-        collisionMask: DefaultCollisionMask,
-        height: capsuleHeight,
-        contactOffset: 0.01,
-        stepOffset: 0.25,
-        slopeLimit: 0,
-        radius: avatarRadius,
-        position: {
-          x: transform.position.x,
-          y: transform.position.y + actor.avatarHalfHeight,
-          z: transform.position.z
-        },
-        material: {
-          dynamicFriction: 0.1
-        }
-      })
-    )
-    const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
-    const frustumCamera = new PerspectiveCamera(60, 2, 0.1, 3)
-    frustumCamera.position.setY(actor.avatarHalfHeight)
-    frustumCamera.rotateY(Math.PI)
-    tiltContainer.add(frustumCamera)
-    addComponent(entity, AvatarControllerComponent, { controller, velocitySimulator, frustumCamera })
+    createAvatarController(entity)
   }
+}
+
+export const createAvatarController = (entity: Entity) => {
+  const { position } = getComponent(entity, TransformComponent)
+  const { value } = getComponent(entity, Object3DComponent)
+
+  const controller = PhysXInstance.instance.createController(
+    new Controller({
+      isCapsule: true,
+      collisionLayer: CollisionGroups.Avatars,
+      collisionMask: DefaultCollisionMask,
+      height: capsuleHeight,
+      contactOffset: 0.01,
+      stepOffset: 0.25,
+      slopeLimit: 0,
+      radius: avatarRadius,
+      position: {
+        x: position.x,
+        y: position.y + avatarHalfHeight,
+        z: position.z
+      },
+      material: {
+        dynamicFriction: 0.1
+      }
+    })
+  )
+  const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
+  const frustumCamera = new PerspectiveCamera(60, 2, 0.1, 3)
+  frustumCamera.position.setY(avatarHalfHeight)
+  frustumCamera.rotateY(Math.PI)
+
+  value.add(frustumCamera)
+
+  addComponent(entity, AvatarControllerComponent, {
+    controller,
+    frustumCamera,
+    movementEnabled: true,
+    isJumping: false,
+    isWalking: false,
+    walkSpeed: 1.5,
+    runSpeed: 5,
+    moveSpeed: 5,
+    jumpHeight: 4,
+    localMovementDirection: new Vector3(),
+    velocitySimulator
+  })
 }

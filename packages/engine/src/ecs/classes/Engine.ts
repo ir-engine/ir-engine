@@ -7,17 +7,11 @@
 
 import { PerspectiveCamera, Scene, WebGLRenderer, XRFrame, XRSession } from 'three'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { EngineOptions } from '../interfaces/EngineOptions'
 import { Entity } from './Entity'
-import { EntityPool } from './EntityPool'
-import { EntityEventDispatcher } from './EntityEventDispatcher'
-import { Query } from './Query'
-import { createElement } from '../functions/createElement'
 import { NumericalType } from '../../common/types/NumericalTypes'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { GameMode } from '../../game/types/GameMode'
 import { EngineEvents } from './EngineEvents'
-import { ActiveSystems, System } from './System'
 import { InitializeOptions } from '../../initializationOptions'
 import { CSM } from '../../assets/csm/CSM'
 import { EffectComposerWithSchema } from '../../renderer/WebGLRendererSystem'
@@ -94,13 +88,14 @@ export class Engine {
    */
   static camera: PerspectiveCamera | OrthographicCamera = null
   static activeCameraEntity: Entity
+  static activeCameraFollowTarget: Entity
 
   /**
    * Reference to the Transform component of the three.js camera object.
    * This holds data related to camera position, angle etc.
    * This is set in {@link initialize.initializeEngine | initializeEngine()}.
    */
-  static cameraTransform: TransformComponent = null
+  static cameraTransform: typeof TransformComponent
 
   /**
    * Reference to the audioListener.
@@ -109,111 +104,15 @@ export class Engine {
   static audioListener: any = null
 
   /**
-   * Event dispatcher manages sending events which can be interpreted by devtools.
-   */
-  static eventDispatcher = new EntityEventDispatcher()
-
-  /**
-   * Initialization options.
-   */
-  static options: { /** @default 0 */ entityPoolSize: number } & EngineOptions = {
-    entityPoolSize: 0
-  }
-
-  /**
    * Controls whether engine should execute this frame.
    * Engine can be paused by setting enabled to false.
    * @default true
    */
   static enabled = true
 
-  /**
-   * Controls whether components should be removed immediately or after all systems execute.
-   * @default true
-   */
-  static deferredRemovalEnabled = true
-
-  /**
-   * List of registered systems.
-   */
-  static systems: System[] = []
-
-  /**
-   * List of registered entities.
-   */
-  static entities: Entity[] = []
-
-  /**
-   * Map of registered entities by ID
-   */
-  static entityMap: Map<string, Entity> = new Map<string, Entity>()
-
-  /**
-   * List of registered queries.
-   */
-  static queries: Query[] = []
-
-  /**
-   * List of registered components.
-   */
-  static components: any[] = []
-
-  /**
-   * Next entity created will have this ID.
-   */
-  static nextEntityId = 0
-
-  /**
-   * Next component created will have this ID.
-   */
-  static nextComponentId = 0
-
-  /**
-   * Pool of available entities.
-   */
-  static entityPool: EntityPool = new EntityPool(Entity)
-
-  /**
-   * Map of component classes to their type ID.
-   */
-  static componentsMap: {} = {}
-
-  /**
-   * List of component pools, one for each component class.
-   */
-  static componentPool: {} = {}
-
-  /**
-   * Stores a count for each component type.
-   */
-  static numComponents: {} = {}
-
-  /**
-   * List of entities with components that will be removed at the end of this frame.
-   * @todo replace with a ring buffer and set buffer size in default options
-   */
-  static entitiesWithComponentsToRemove: any[] = []
-
-  /**
-   * List of entities that will be removed at the end of this frame.
-   * @todo replace with a ring buffer and set buffer size in default options
-   */
-  static entitiesToRemove: any[] = []
-
-  /**
-   * List of systems to execute this frame.
-   * @todo replace with a ring buffer and set buffer size in default options
-   *
-   * @author Fernando Serrano, Robert Long
-   */
-  static activeSystems: ActiveSystems = null
   static lastTime: number
 
   static tick = 0
-  /** HTML Element in which Engine renders. */
-  static viewportElement: HTMLElement
-
-  static createElement: any = createElement
 
   static useAudioSystem = false
 

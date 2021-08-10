@@ -1,12 +1,12 @@
 import { Box3, Frustum, Matrix4, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { BoundingBoxComponent } from '../components/BoundingBox'
-import { Interactable } from '../components/Interactable'
-import { Interactor } from '../components/Interactor'
+import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
+import { InteractableComponent } from '../components/InteractableComponent'
+import { InteractorComponent } from '../components/InteractorComponent'
 import { interactiveReachDistance } from '../../avatar/functions/getInteractiveIsInReachDistance'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
@@ -32,7 +32,7 @@ type RaycastResult = [Entity, boolean, number?, number?]
  */
 
 export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]): void => {
-  const interacts = getMutableComponent(entity, Interactor)
+  const interacts = getComponent(entity, InteractorComponent)
   if (!isEntityLocalClient(entity)) {
     interacts.subFocusedArray = []
     interacts.focusedInteractive = null
@@ -82,7 +82,7 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]): void 
     (a: any, b: any) => a[2] - b[2]
   )[0]
 
-  const interactable = getComponent(entityInteractable, Interactable)
+  const interactable = getComponent(entityInteractable, InteractableComponent)
   const distance = interactable.data?.interactionDistance ?? interactiveReachDistance
 
   const resultIsCloseEnough = distanceToPlayer < distance

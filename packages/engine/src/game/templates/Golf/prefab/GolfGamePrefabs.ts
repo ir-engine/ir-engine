@@ -1,8 +1,8 @@
 import { GolfPrefabTypes } from '../GolfGameConstants'
-import { Component } from '../../../../ecs/classes/Component'
+import { createMappedComponent } from '../../../../ecs/functions/EntityFunctions'
 
-export class GolfBallTagComponent extends Component<GolfBallTagComponent> {}
-export class GolfClubTagComponent extends Component<GolfClubTagComponent> {}
+export const GolfBallTagComponent = createMappedComponent<{}>()
+export const GolfClubTagComponent = createMappedComponent<{}>()
 
 export const GolfPrefabs = {
   [GolfPrefabTypes.Ball]: GolfBallTagComponent,

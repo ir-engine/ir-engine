@@ -1,95 +1,60 @@
-import { System } from '../../ecs/classes/System'
 import { SoundEffect } from '../components/SoundEffect'
 import { BackgroundMusic } from '../components/BackgroundMusic'
 import { PlaySoundEffect } from '../components/PlaySoundEffect'
-import { getMutableComponent } from '../../ecs/functions/EntityFunctions'
+import { getComponent } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, defineSystem, enterQuery, exitQuery, System } from '../../ecs/bitecs'
+import { ECSWorld } from '../../ecs/classes/World'
+import { EngineEvents } from '../../ecs/classes/EngineEvents'
 
-/** System class which provides methods for Audio system. */
-export class AudioSystem extends System {
+export const AudioSystem = async (): Promise<System> => {
+  const soundEffectQuery = defineQuery([SoundEffect])
+  const soundEffectAddQuery = enterQuery(soundEffectQuery)
+
+  const musicQuery = defineQuery([BackgroundMusic])
+  const musicAddQuery = enterQuery(musicQuery)
+  const musicRemoveQuery = exitQuery(musicQuery)
+
+  const playQuery = defineQuery([SoundEffect, PlaySoundEffect])
+  const playAddQuery = enterQuery(playQuery)
+
   /** Indicates whether the system is ready or not. */
-  audioReady: boolean
+  let audioReady = false
   /** Callbacks to be called after system is ready. */
-  callbacks: any[]
-  /** Queries for different events related to Audio System. */
-  queries: any
+  let callbacks: any[] = []
   /** Audio Element. */
-  audio: any
+  let audio: any
   /** Audio Context. */
-  context: AudioContext
-
-  /** Constructs Audio System. */
-  constructor() {
-    super()
-    this.startAudio = this.startAudio.bind(this)
-    this.audioReady = false
-    this.callbacks = []
-    window.addEventListener('touchstart', this.startAudio, true)
-    window.addEventListener('touchend', this.startAudio, true)
-    window.addEventListener('click', this.startAudio, true)
-  }
-
-  /** Dispose audio system and remove event listeners. */
-  dispose(): void {
-    this.audioReady = false
-    this.callbacks = []
-    window.removeEventListener('touchstart', this.startAudio, true)
-    window.removeEventListener('touchend', this.startAudio, true)
-    window.removeEventListener('click', this.startAudio, true)
-  }
-
-  /**
-   * Execute the audio system for different events of queries.
-   * @param delta time since last frame.
-   * @param time current time.
-   */
-  execute(delta, time): void {
-    for (const entity of this.queryResults.sound_effects.added) {
-      const effect = getMutableComponent(entity, SoundEffect)
-      if (effect.src && !this.audio) {
-        effect.audio = new Audio()
-        effect.audio.addEventListener('loadeddata', () => {
-          effect.audio.volume = effect.volume
-        })
-        effect.audio.src = effect.src
-      }
-    }
-    for (const entity of this.queryResults.music.added) {
-      this.whenReady(() => this.startBackgroundMusic(entity))
-    }
-    for (const entity of this.queryResults.music.removed) {
-      this.stopBackgroundMusic(entity)
-    }
-    for (const entity of this.queryResults.play.added) {
-      this.whenReady(() => this.playSoundEffect(entity))
-    }
-  }
+  let context: AudioContext
 
   /**
    * Call the callbacks when system is ready or push callbacks in array otherwise.
    * @param cb Callback to be called when system is ready.
    */
-  whenReady(cb): void {
-    if (this.audioReady) {
+  const whenReady = (cb): void => {
+    if (audioReady) {
       cb()
     } else {
-      this.callbacks.push(cb)
+      callbacks.push(cb)
     }
   }
 
   /** Enable and start audio system. */
-  startAudio(): void {
-    if (this.audioReady) return
+  const startAudio = (): void => {
+    if (audioReady) return
     console.log('starting audio')
-    this.audioReady = true
+    audioReady = true
+    EngineEvents.instance.dispatchEvent({
+      type: EngineEvents.EVENTS.START_SUSPENDED_CONTEXTS
+    })
     window.AudioContext = window.AudioContext || (window as any).webkitAudioContext
     if (window.AudioContext) {
-      this.context = new window.AudioContext()
+      context = new window.AudioContext()
       // Create empty buffer
-      const buffer = this.context.createBuffer(1, 1, 22050)
-      const source = this.context.createBufferSource()
+      const buffer = context.createBuffer(1, 1, 22050)
+      const source = context.createBufferSource()
       source.buffer = buffer
       // Connect to output (speakers)
-      source.connect(this.context.destination)
+      source.connect(context.destination)
       // Play sound
       if (source.start) {
         source.start(0)
@@ -98,17 +63,17 @@ export class AudioSystem extends System {
       }
     }
 
-    this.callbacks.forEach((cb) => cb())
-    this.callbacks = null
+    callbacks.forEach((cb) => cb())
+    callbacks = null
   }
 
   /**
    * Start Background music if available.
    * @param ent Entity to get the {@link audio/components/BackgroundMusic.BackgroundMusic | BackgroundMusic} Component.
    */
-  startBackgroundMusic(ent): void {
+  const startBackgroundMusic = (ent): void => {
     const music = ent.getComponent(BackgroundMusic)
-    if (music.src && !this.audio) {
+    if (music.src && !audio) {
       music.audio = new Audio()
       music.audio.loop = true
       music.audio.volume = music.volume
@@ -123,7 +88,7 @@ export class AudioSystem extends System {
    * Stop Background Music.
    * @param ent Entity to get the {@link audio/components/BackgroundMusic.BackgroundMusic | BackgroundMusic} Component.
    */
-  stopBackgroundMusic(ent): void {
+  const stopBackgroundMusic = (ent): void => {
     const music = ent.getComponent(BackgroundMusic)
     if (music && music.audio) {
       music.audio.pause()
@@ -134,31 +99,40 @@ export class AudioSystem extends System {
    * Play sound effect.
    * @param ent Entity to get the {@link audio/components/PlaySoundEffect.PlaySoundEffect | PlaySoundEffect} Component.
    */
-  playSoundEffect(ent): void {
+  const playSoundEffect = (ent): void => {
     const sound = ent.getComponent(SoundEffect)
     sound.audio.play()
     ent.removeComponent(PlaySoundEffect)
   }
-}
 
-AudioSystem.queries = {
-  sound_effects: {
-    components: [SoundEffect],
-    listen: {
-      added: true
+  window.addEventListener('touchstart', startAudio, true)
+  window.addEventListener('touchend', startAudio, true)
+  window.addEventListener('click', startAudio, true)
+
+  return defineSystem((world: ECSWorld) => {
+    for (const entity of soundEffectAddQuery(world)) {
+      const effect = getComponent(entity, SoundEffect)
+      if (effect.src && !audio) {
+        effect.audio = new Audio()
+        effect.audio.addEventListener('loadeddata', () => {
+          effect.audio.volume = effect.volume
+        })
+        effect.audio.src = effect.src
+      }
     }
-  },
-  music: {
-    components: [BackgroundMusic],
-    listen: {
-      added: true,
-      removed: true
+
+    for (const entity of musicAddQuery(world)) {
+      whenReady(() => startBackgroundMusic(entity))
     }
-  },
-  play: {
-    components: [SoundEffect, PlaySoundEffect],
-    listen: {
-      added: true
+
+    for (const entity of musicRemoveQuery(world)) {
+      stopBackgroundMusic(entity)
     }
-  }
+
+    for (const entity of playAddQuery(world)) {
+      whenReady(() => playSoundEffect(entity))
+    }
+
+    return world
+  })
 }

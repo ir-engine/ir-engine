@@ -4,12 +4,12 @@ import { LifecycleValue } from '../../../../common/enums/LifecycleValue'
 import { isDev } from '../../../../common/functions/isDev'
 import { NumericalType } from '../../../../common/types/NumericalTypes'
 import { Entity } from '../../../../ecs/classes/Entity'
-import { getComponent, getMutableComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
-import { Input } from '../../../../input/components/Input'
+import { getComponent, hasComponent } from '../../../../ecs/functions/EntityFunctions'
+import { InputComponent } from '../../../../input/components/InputComponent'
 import { GamepadButtons } from '../../../../input/enums/InputEnums'
 import { InputValue } from '../../../../input/interfaces/InputValue'
 import { InputAlias } from '../../../../input/types/InputAlias'
-import { NetworkObject } from '../../../../networking/components/NetworkObject'
+import { NetworkObjectComponent } from '../../../../networking/components/NetworkObjectComponent'
 import { ColliderComponent } from '../../../../physics/components/ColliderComponent'
 import { TransformComponent } from '../../../../transform/components/TransformComponent'
 import { GamePlayer } from '../../../components/GamePlayer'
@@ -32,7 +32,7 @@ export enum GolfInput {
 }
 
 export const setupPlayerInput = (entityPlayer: Entity) => {
-  const inputs = getComponent(entityPlayer, Input)
+  const inputs = getComponent(entityPlayer, InputComponent)
 
   // override the default mapping and behavior of input schema and interact
   inputs.schema.inputMap.set('k', GolfInput.TELEPORT)
@@ -63,7 +63,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
 
       const { ownedObjects } = getComponent(entity, GamePlayer)
       const clubEntity = ownedObjects['GolfClub']
-      const golfClubComponent = getMutableComponent(clubEntity, GolfClubComponent)
+      const golfClubComponent = getComponent(clubEntity, GolfClubComponent)
       golfClubComponent.hidden = !golfClubComponent.hidden
 
       if (isClient) {
@@ -97,7 +97,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
         addStateComponent(entity, GolfState.AlreadyHit)
         const position = new Vector3().copy(getComponent(holeEntity, TransformComponent).position)
         position.y += 0.5
-        teleportObject(ballEntity, { position })
+        teleportObject(ballEntity, position)
       }
     )
 
@@ -108,7 +108,7 @@ export const setupPlayerInput = (entityPlayer: Entity) => {
         if (inputValue.lifecycleState !== LifecycleValue.STARTED) return
         const { ownedObjects } = getComponent(entity, GamePlayer)
         const ballEntity = ownedObjects['GolfBall']
-        const collider = getMutableComponent(ballEntity, ColliderComponent)
+        const collider = getComponent(ballEntity, ColliderComponent)
         const velocity = getComponent(ballEntity, VelocityComponent)
         velocity.velocity.set(0, 0, 0)
         collider.body.updateTransform({

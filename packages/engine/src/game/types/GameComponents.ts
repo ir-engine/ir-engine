@@ -1,28 +1,20 @@
-import { Component } from '../../ecs/classes/Component'
-// Action Components
-import { GameObjectCollisionTag } from '../actions/GameObjectCollisionTag'
-// State TagComponents
-import { SpawnedObject } from '../templates/gameDefault/components/SpawnedObjectTagComponent'
-import { ButtonDown } from '../templates/gameDefault/components/ButtonDownTagComponent'
-import { ButtonUp } from '../templates/gameDefault/components/ButtonUpTagComponent'
-import { Closed } from '../templates/gameDefault/components/ClosedTagComponent'
-import { Open } from '../templates/gameDefault/components/OpenTagComponent'
-import { PanelDown } from '../templates/gameDefault/components/PanelDownTagComponent'
-import { PanelUp } from '../templates/gameDefault/components/PanelUpTagComponent'
-import { Active } from '../templates/gameDefault/components/ActiveTagComponent'
-import { Inactive } from '../templates/gameDefault/components/InactiveTagComponent'
-import { YourTurn } from '../templates/gameDefault/components/YourTurnTagComponent'
 /**
  * @author HydraFire <github.com/HydraFire>
  */
+
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
+
 // its for adding new Action in State in One Plase, please don't splite this
 export enum gameActions {
   GameObjectCollisionTag = 'GameObjectCollisionTag'
 }
 
+export const GameObjectCollisionTag = createMappedComponent<{}>()
+
 export const Action = {
   [gameActions.GameObjectCollisionTag]: GameObjectCollisionTag
 }
+
 // its for adding new Action in State in One Plase, please don't splite this
 export enum gameStates {
   Open = 'Open',
@@ -42,8 +34,18 @@ export enum gameStates {
   Inactive = 'Inactive'
 }
 
-export class Waiting extends Component<any> {}
-export class WaitTurn extends Component<any> {}
+export const Open = createMappedComponent<{}>()
+export const Closed = createMappedComponent<{}>()
+export const ButtonUp = createMappedComponent<{}>()
+export const ButtonDown = createMappedComponent<{}>()
+export const PanelUp = createMappedComponent<{}>()
+export const PanelDown = createMappedComponent<{}>()
+export const Waiting = createMappedComponent<{}>()
+export const YourTurn = createMappedComponent<{}>()
+export const WaitTurn = createMappedComponent<{}>()
+export const SpawnedObject = createMappedComponent<{}>()
+export const Active = createMappedComponent<{}>()
+export const Inactive = createMappedComponent<{}>()
 
 export const State = {
   [gameStates.Active]: Active,

@@ -1,11 +1,8 @@
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 import { Sky } from '../../scene/classes/Sky'
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
 
-export class SkyboxComponent extends Component<SkyboxComponent> {
+export type SkyboxComponentType = {
   value: Sky
 }
 
-SkyboxComponent._schema = {
-  value: { type: Types.Ref, default: null }
-}
+export const SkyboxComponent = createMappedComponent<SkyboxComponentType>()

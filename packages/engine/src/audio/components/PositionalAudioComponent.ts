@@ -1,13 +1,8 @@
 import { PositionalAudio } from 'three'
-import { Component } from '../../ecs/classes/Component'
-import { Types } from '../../ecs/types/Types'
+import { createMappedComponent } from '../../ecs/functions/EntityFunctions'
 
-/** Component wrapper class fro {@link https://threejs.org/docs/index.html#api/en/audio/PositionalAudio | PositionalAudio } from three.js. */
-export class PositionalAudioComponent extends Component<PositionalAudioComponent> {
-  /** Position audio container. */
+export type PositionalAudioComponentType = {
   value: PositionalAudio
 }
 
-PositionalAudioComponent._schema = {
-  value: { type: Types.Ref, default: null }
-}
+export const PositionalAudioComponent = createMappedComponent<PositionalAudioComponentType>()

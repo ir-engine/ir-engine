@@ -3,7 +3,7 @@ import { applyThreshold } from '../../common/functions/applyThreshold'
 import { InputType } from '../enums/InputType'
 import { GamepadButtons, GamepadAxis, XRAxes } from '../enums/InputEnums'
 import { InputAlias } from '../types/InputAlias'
-import { Input } from '../components/Input'
+import { InputComponent } from '../components/InputComponent'
 import { BaseInput } from '../enums/BaseInput'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
@@ -19,7 +19,7 @@ const gamepadButtons: BinaryValue[] = []
 const gamepadInput: number[] = []
 
 const inputPerGamepad = 2
-let input: Input
+let input: InputComponent
 let gamepads: Gamepad[]
 let gamepad: Gamepad
 let inputBase: number
@@ -51,20 +51,12 @@ export const handleGamepads = () => {
     if (gamepad.axes) {
       // GamePad 0 Left Stick XY
       if (gamepad.axes.length >= inputPerGamepad) {
-        handleGamepadAxis({
-          gamepad: gamepad,
-          inputIndex: 0,
-          mappedInputValue: GamepadAxis.Left
-        })
+        handleGamepadAxis(gamepad, 0, GamepadAxis.Left)
       }
 
       // GamePad 1 Right Stick XY
       if (gamepad.axes.length >= inputPerGamepad * 2) {
-        handleGamepadAxis({
-          gamepad,
-          inputIndex: 1,
-          mappedInputValue: GamepadAxis.Right
-        })
+        handleGamepadAxis(gamepad, 1, GamepadAxis.Right)
       }
     }
 
@@ -73,11 +65,7 @@ export const handleGamepads = () => {
 
     // Otherwise, loop through gamepad buttons
     for (_index = 0; _index < gamepad.buttons.length; _index++) {
-      handleGamepadButton({
-        gamepad,
-        index: _index,
-        mappedInputValue: _index
-      })
+      handleGamepadButton(gamepad, _index)
     }
   }
 }
@@ -88,15 +76,15 @@ export const handleGamepads = () => {
  * @param {Entity} entity The entity
  * @param args is argument object
  */
-const handleGamepadButton = (args: { gamepad: Gamepad; index: number; mappedInputValue: InputAlias }) => {
-  if (gamepad.buttons[args.index].touched === (gamepadButtons[args.index] === BinaryValue.ON)) return
+const handleGamepadButton = (gamepad: Gamepad, index: number) => {
+  if (gamepad.buttons[index].touched === (gamepadButtons[index] === BinaryValue.ON)) return
   // Set input data
-  input.data.set(gamepadMapping[args.gamepad.mapping || 'standard'][args.index], {
+  input.data.set(gamepadMapping[gamepad.mapping || 'standard'][index], {
     type: InputType.BUTTON,
-    value: gamepad.buttons[args.index].touched ? BinaryValue.ON : BinaryValue.OFF,
-    lifecycleState: gamepad.buttons[args.index].touched ? LifecycleValue.STARTED : LifecycleValue.ENDED
+    value: gamepad.buttons[index].touched ? BinaryValue.ON : BinaryValue.OFF,
+    lifecycleState: gamepad.buttons[index].touched ? LifecycleValue.STARTED : LifecycleValue.ENDED
   })
-  gamepadButtons[args.index] = gamepad.buttons[args.index].touched ? 1 : 0
+  gamepadButtons[index] = gamepad.buttons[index].touched ? 1 : 0
 }
 
 /**
@@ -105,14 +93,14 @@ const handleGamepadButton = (args: { gamepad: Gamepad; index: number; mappedInpu
  * @param {Entity} entity The entity
  * @param args is argument object
  */
-export const handleGamepadAxis = (args: { gamepad: Gamepad; inputIndex: number; mappedInputValue: InputAlias }) => {
-  inputBase = args.inputIndex * 2
+export const handleGamepadAxis = (gamepad: Gamepad, inputIndex: number, mappedInputValue: InputAlias) => {
+  inputBase = inputIndex * 2
   const xIndex = inputBase
   const yIndex = inputBase + 1
 
   x = applyThreshold(gamepad.axes[xIndex], gamepadThreshold)
   y = applyThreshold(gamepad.axes[yIndex], gamepadThreshold)
-  if (args.mappedInputValue === BaseInput.MOVEMENT_PLAYERONE) {
+  if (mappedInputValue === BaseInput.MOVEMENT_PLAYERONE) {
     const tmpX = x
     x = -y
     y = -tmpX
@@ -123,7 +111,7 @@ export const handleGamepadAxis = (args: { gamepad: Gamepad; inputIndex: number; 
 
   // Axis has changed, so get mutable reference to Input and set data
   if (x !== prevLeftX || y !== prevLeftY) {
-    Engine.inputState.set(args.mappedInputValue, {
+    Engine.inputState.set(mappedInputValue, {
       type: InputType.TWODIM,
       value: [x, y]
     })

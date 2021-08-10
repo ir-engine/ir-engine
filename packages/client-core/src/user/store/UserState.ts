@@ -11,7 +11,7 @@ const state = createState({
   layerUsersUpdateNeeded: true,
   channelLayerUsers: [] as Array<User>,
   channelLayerUsersUpdateNeeded: true,
-  toastMessages: [] as Array<{ user: User; args: { userAdded?: boolean; userRemoved?: boolean } }>
+  toastMessages: [] as Array<{ user: User; userAdded?: boolean; userRemoved?: boolean }>
 })
 
 export const userReducer = (_, action: UserActionType) => {
