@@ -47,6 +47,7 @@ export const sendState = (game: ReturnType<typeof GameComponent.get>, playerComp
   if (!isClient && game.isGlobal) {
     const message: GameStateUpdateMessage = { game: game.name, ownerId: playerComp.uuid, state: game.state }
     //  console.warn('sendState', message);
+    console.log(game.state)
     Network.instance.worldState.gameState.push(message)
   }
 }
@@ -162,9 +163,9 @@ export const applyState = (game: ReturnType<typeof GameComponent.get>): void => 
         console.log('require to spawn object', v)
         requireSpawnObjects(game, v.uuid)
       } else {
-        console.warn('////////////////////////////////////////////////////////////////')
-        console.warn('  WE HAVE A PROBLEM')
-        console.warn('////////////////////////////////////////////////////////////////')
+        // console.warn('////////////////////////////////////////////////////////////////')
+        // console.warn('  WE HAVE A PROBLEM')
+        // console.warn('////////////////////////////////////////////////////////////////')
       }
     }
   })
@@ -216,14 +217,14 @@ export const removeEntityFromState = (objectOrPlayerComponent, game): void => {
   }
 }
 
-export const clearRemovedEntitysFromGame = (game): void => {
-  Object.keys(game.gamePlayers).forEach((role) => {
-    game.gamePlayers[role] = game.gamePlayers[role].filter((entity) => entity.queries.length != 0)
-  })
-  Object.keys(game.gameObjects).forEach((role) => {
-    game.gameObjects[role] = game.gameObjects[role].filter((entity) => entity.queries.length != 0)
-  })
-}
+// export const clearRemovedEntitysFromGame = (game): void => {
+//   Object.keys(game.gamePlayers).forEach((role) => {
+//     game.gamePlayers[role] = game.gamePlayers[role].filter((entity) => entity.queries.length != 0)
+//   })
+//   Object.keys(game.gameObjects).forEach((role) => {
+//     game.gameObjects[role] = game.gameObjects[role].filter((entity) => entity.queries.length != 0)
+//   })
+// }
 
 export const addStateComponent = (entity: Entity, component: ComponentConstructor<any, any>): void => {
   if (entity === undefined || hasComponent(entity, component)) return

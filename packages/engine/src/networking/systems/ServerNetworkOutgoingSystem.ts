@@ -105,19 +105,12 @@ export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
         const bufferReliable = WorldStateModel.toBuffer(Network.instance.worldState)
         if (!bufferReliable) {
           console.warn('World state buffer is null')
-          console.warn(Network.instance.worldState)
+          // console.warn(Network.instance.worldState)
         } else {
           if (Network.instance.transport && typeof Network.instance.transport.sendReliableData === 'function')
             Network.instance.transport.sendReliableData(bufferReliable)
         }
 
-        Network.instance.worldState.clientsConnected = []
-        Network.instance.worldState.clientsDisconnected = []
-        Network.instance.worldState.createObjects = []
-        Network.instance.worldState.editObjects = []
-        Network.instance.worldState.destroyObjects = []
-        Network.instance.worldState.gameState = []
-        Network.instance.worldState.gameStateActions = []
       }
 
       const bufferUnreliable = TransformStateModel.toBuffer(transformState)
@@ -129,8 +122,17 @@ export const ServerNetworkOutgoingSystem = async (): Promise<System> => {
           Network.instance.transport.sendData(bufferUnreliable)
       }
     } catch (e) {
-      console.error(Network.instance.worldState)
+      console.error(e, Network.instance.worldState.gameState)
+      // console.error(Network.instance.worldState)
     }
+
+    Network.instance.worldState.clientsConnected = []
+    Network.instance.worldState.clientsDisconnected = []
+    Network.instance.worldState.createObjects = []
+    Network.instance.worldState.editObjects = []
+    Network.instance.worldState.destroyObjects = []
+    Network.instance.worldState.gameState = []
+    Network.instance.worldState.gameStateActions = []
 
     return world
   })

@@ -22,9 +22,17 @@ export const createMappedComponent = <T extends {}, S extends ISchema = {}>(sche
   const componentMap = new Map<number, T & SoAProxy<S>>()
   // const componentMap = []
 
-  Object.defineProperty(component, '_default', {
-    value: defaultValues
-  })
+  if(defaultValues) {
+    Object.defineProperty(component, '_default', {
+      value: defaultValues
+    })
+  }
+
+  if(schema) {
+    Object.defineProperty(component, '_schema', {
+      value: schema
+    })
+  }
   
   Object.defineProperty(component, '_map', {
     value: componentMap
@@ -109,6 +117,11 @@ export const getComponent = <T extends any, S extends ISchema>(entity: Entity, c
 
 export const addComponent = <T extends any, S extends ISchema>(entity: Entity, component: MappedComponent<T, S>, args: T, world = World.defaultWorld.ecsWorld) => {
   _addComponent(world, component, entity)
+  if(component._schema) {
+    for(const [key] of Object.entries(component._schema)) {
+      component[key][entity] = args[key]
+    }
+  }
   component.set(entity, Object.assign({}, args, component._default))
   return component.get(entity)
 }
@@ -144,5 +157,5 @@ export const removeAllComponents = (entity: Entity, world = World.defaultWorld.e
 
 export const removeAllEntities = (world = World.defaultWorld.ecsWorld) => {
  // TODO
-  getEntityComponents
+  // getEntityComponents
 }

@@ -12,8 +12,7 @@ import {
   initState,
   removeEntityFromState,
   saveInitStateCopy,
-  requireState,
-  clearRemovedEntitysFromGame
+  requireState
 } from '../functions/functionsState'
 
 import { GameMode } from '../types/GameMode'
@@ -53,6 +52,7 @@ export const GameManagerSystem = async (): Promise<System> => {
   const avatarsAddQuery = enterQuery(avatarsQuery)
   
   const gameQuery = defineQuery([GameComponent])
+  const gameAddQuery = enterQuery(gameQuery)
   
   const gameObjectQuery = defineQuery([GameObject])
   const gameObjectAddQuery = enterQuery(gameObjectQuery)
@@ -70,9 +70,9 @@ export const GameManagerSystem = async (): Promise<System> => {
 
     const gameQueryResults = gameQuery(world)
 
-    for (const entity of gameObjectAddQuery(world)) {
+    for (const entity of gameAddQuery(world)) {
       const game = getComponent(entity, GameComponent)
-      const gameSchema = Engine.gameModes.get(game.gameMode) as GameMode
+      const gameSchema = Engine.gameModes.get(game.gameMode)
       gameSchema.preparePlayersRole(gameSchema, game.maxPlayers)
       game.priority = gameSchema.priority // DOTO: set its from editor
       initState(game, gameSchema)
@@ -136,7 +136,7 @@ export const GameManagerSystem = async (): Promise<System> => {
         gameSchema.beforePlayerLeave(entity)
         console.log('removeEntityFromState', gamePlayer.role)
         removeEntityFromState(gamePlayer, game)
-        clearRemovedEntitysFromGame(game)
+        // clearRemovedEntitysFromGame(game)
         game.gamePlayers[gamePlayer.role] = []
         gameSchema.onPlayerLeave(entity, gamePlayer, game)
       }

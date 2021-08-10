@@ -442,7 +442,7 @@ export const EnginePage = (props: Props) => {
       registerGolfBotHooks()
 
       // TODO: find a better way to do this
-      unregisterSystem(SystemUpdateType.Fixed, AnimationSystem)
+      // unregisterSystem(SystemUpdateType.Fixed, AnimationSystem)
 
       document.dispatchEvent(new CustomEvent('ENGINE_LOADED')) // this is the only time we should use document events. would be good to replace this with react state
       addUIEvents()

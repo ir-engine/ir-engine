@@ -45,24 +45,24 @@ export const AvatarControllerSystem = async (): Promise<System> => {
 
     const { delta } = world
     
-    for (const entity of characterOnServerRemovedQuery(world)) {
-      console.log('removed character')
-      console.log(
-        hasComponent(entity, LocalInputReceiverComponent),
-        hasComponent(entity, InterpolationComponent),
-        hasComponent(entity, AvatarComponent),
-        hasComponent(entity, AvatarControllerComponent),
+    // for (const entity of characterOnServerRemovedQuery(world)) {
+    //   console.log('removed character')
+    //   console.log(
+    //     hasComponent(entity, LocalInputReceiverComponent),
+    //     hasComponent(entity, InterpolationComponent),
+    //     hasComponent(entity, AvatarComponent),
+    //     hasComponent(entity, AvatarControllerComponent),
         
-        )
-      const controller = getComponent(entity, AvatarControllerComponent, true)
+    //     )
+    //   const controller = getComponent(entity, AvatarControllerComponent, true)
 
-      PhysXInstance.instance.removeController(controller.controller)
+    //   PhysXInstance.instance.removeController(controller.controller)
 
-      const avatar = getComponent(entity, AvatarComponent)
-      if (avatar) {
-        avatar.isGrounded = false
-      }
-    }
+    //   const avatar = getComponent(entity, AvatarComponent)
+    //   if (avatar) {
+    //     avatar.isGrounded = false
+    //   }
+    // }
 
     for (const entity of controllerQuery(world)) {
       const controller = getComponent(entity, AvatarControllerComponent)

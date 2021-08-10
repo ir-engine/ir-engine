@@ -95,6 +95,8 @@ export const ServerAvatarSpawnSystem = async (): Promise<System> => {
         parameters: { position: transform.position, rotation: transform.rotation }
       })
 
+      console.log(JSON.stringify({ position: transform.position, rotation: transform.rotation }))
+
       EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.CLIENT_USER_LOADED, networkId, uniqueId })
     }
 

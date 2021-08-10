@@ -464,7 +464,7 @@ export const GolfSystem = async (): Promise<System> => {
     for (const entity of playerAddQuery(world)) {
       // set up client side stuff
       setupPlayerInput(entity)
-      createYourTurnPanel(entity)
+      // createYourTurnPanel(entity) // TODO
       isClient && setupPlayerAvatar(entity)
 
       // set up game logic

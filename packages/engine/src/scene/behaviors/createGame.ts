@@ -25,16 +25,20 @@ export const createGame = (entity, args: GameDataProps) => {
   const min = { x: -s.x + p.x, y: -s.y + p.y, z: -s.z + p.z }
   const max = { x: s.x + p.x, y: s.y + p.y, z: s.z + p.z }
 
-  const gameData = {
+  addComponent(entity, GameComponent, {
     name: args.name,
+    gameMode: args.gameMode,
     isGlobal: args.isGlobal,
+    priority: 0,
     minPlayers: args.minPlayers,
     maxPlayers: args.maxPlayers,
-    gameMode: args.gameMode,
-    gameArea: { min, max }
-  }
+    gameArea: { min, max },
+    gamePlayers: {},
+    gameObjects: {},
+    initState: '[]',
+    state: []
+  })
 
-  addComponent(entity, GameComponent, gameData)
   // register spawn objects prefabs
   const gameSchema = Engine.gameModes.get(args.gameMode)
   gameSchema.onGameLoading(entity)

@@ -72,7 +72,6 @@ export const createAvatar = (
     avatarHalfHeight,
     avatarHeight,
     modelContainer,
-    tiltContainer,
     isGrounded: false,
     viewVector: new Vector3(0, 0, 1)
   })
@@ -90,7 +89,7 @@ export const createAvatar = (
     prevVelocity: new Vector3()
   })
 
-  addComponent(entity, Object3DComponent, { value: modelContainer })
+  addComponent(entity, Object3DComponent, { value: tiltContainer })
 
   const raycastQuery = PhysXInstance.instance.addRaycastQuery(
     new RaycastQuery({
@@ -134,7 +133,7 @@ export const createAvatar = (
 
 export const createAvatarController = (entity: Entity) => {
   const { position } = getComponent(entity, TransformComponent)
-  const { tiltContainer } = getComponent(entity, AvatarComponent)
+  const { value } = getComponent(entity, Object3DComponent)
 
   const controller = PhysXInstance.instance.createController(
     new Controller({
@@ -161,7 +160,7 @@ export const createAvatarController = (entity: Entity) => {
   frustumCamera.position.setY(avatarHalfHeight)
   frustumCamera.rotateY(Math.PI)
 
-  tiltContainer.add(frustumCamera)
+  value.add(frustumCamera)
 
   addComponent(entity, AvatarControllerComponent, { 
     controller,
