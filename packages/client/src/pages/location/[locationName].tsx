@@ -10,7 +10,6 @@ import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClient
 
 const engineRendererCanvasId = 'engine-renderer-canvas'
 
-
 const LocationPage = (props) => {
   const { t } = useTranslation()
 

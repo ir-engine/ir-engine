@@ -22,7 +22,6 @@ import configs from '@xrengine/client-core/src/world/components/editor/configs'
 import { SocketWebRTCClientTransport } from '../../transports/SocketWebRTCClientTransport'
 import { connectToInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
 
-
 const projectRegex = /\/([A-Za-z0-9]+)\/([a-f0-9-]+)$/
 
 export const retriveLocationByName = (authState: any, locationName: string, history: any) => {
@@ -78,14 +77,12 @@ export const initEngine = async (
     document.dispatchEvent(new CustomEvent('ENGINE_LOADED')) // this is the only time we should use document events. would be good to replace this with react state
   }
 
-
   // Connect to server
   if (!Config.publicRuntimeConfig.offlineMode) await Store.store.dispatch(connectToInstanceServer('instance'))
 
   const connectPromise = new Promise<void>((resolve) => {
     EngineEvents.instance.once(EngineEvents.EVENTS.CONNECT_TO_WORLD, resolve)
   })
-
 
   // Start scene loading
   Store.store.dispatch(setAppOnBoardingStep(GeneralStateList.SCENE_LOADING))
@@ -105,7 +102,6 @@ export const initEngine = async (
 
   await Promise.all([connectPromise, sceneLoadPromise])
 
-
   // Joing to new world
   await new Promise<void>(async (resolve) => {
     // TEMPORARY - just so portals work for now - will be removed in favor of gameserver-gameserver communication
@@ -124,12 +120,15 @@ export const initEngine = async (
 
   EngineEvents.instance.dispatchEvent({ type: EngineEvents.EVENTS.JOINED_WORLD })
 
-
   // Dispatch success
   Store.store.dispatch(setAppOnBoardingStep(GeneralStateList.SUCCESS))
 }
 
-export const teleportToLocation = async (portalComponent: PortalComponent, slugifiedNameOfCurrentLocation: string, onTeleport: Function ) => {
+export const teleportToLocation = async (
+  portalComponent: PortalComponent,
+  slugifiedNameOfCurrentLocation: string,
+  onTeleport: Function
+) => {
   if (slugifiedNameOfCurrentLocation === portalComponent.location) {
     teleportPlayer(
       Network.instance.localClientEntity,

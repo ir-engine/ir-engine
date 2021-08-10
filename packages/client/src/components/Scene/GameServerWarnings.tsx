@@ -9,17 +9,17 @@ import { selectLocationState } from '@xrengine/client-core/src/social/reducers/l
 import { provisionInstanceServer } from '../../reducers/instanceConnection/service'
 
 type GameServerWarningsProps = {
-  isTeleporting: boolean,
-  instanceId: string,
-  locationState: any,
-  locationName: string,
+  isTeleporting: boolean
+  instanceId: string
+  locationState: any
+  locationName: string
   provisionInstanceServer: typeof provisionInstanceServer
 }
 
 const initialModalValues: WarningRetryModalProps = {
   open: false,
   title: '',
-  body: '',
+  body: ''
 }
 
 enum WarningModalTypes {
@@ -32,16 +32,16 @@ enum WarningModalTypes {
 
 const mapStateToProps = (state: any) => {
   return {
-    locationState: selectLocationState(state),
+    locationState: selectLocationState(state)
   }
 }
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
-  provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch),
+  provisionInstanceServer: bindActionCreators(provisionInstanceServer, dispatch)
 })
 
 const GameServerWarnings = (props: GameServerWarningsProps) => {
-  const [ modalValues, setModalValues ] = useState(initialModalValues)
+  const [modalValues, setModalValues] = useState(initialModalValues)
 
   useEffect(() => {
     EngineEvents.instance.addEventListener(
@@ -49,14 +49,12 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
       () => updateWarningModal(WarningModalTypes.NO_GAME_SERVER_PROVISIONED)
     )
 
-    EngineEvents.instance.addEventListener(
-      SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED,
-      () => updateWarningModal(WarningModalTypes.INSTANCE_DISCONNECTED)
+    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_DISCONNECTED, () =>
+      updateWarningModal(WarningModalTypes.INSTANCE_DISCONNECTED)
     )
 
-    EngineEvents.instance.addEventListener(
-      SocketWebRTCClientTransport.EVENTS.INSTANCE_KICKED,
-      ({ message }) => () => updateWarningModal(WarningModalTypes.USER_KICKED, message)
+    EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_KICKED, ({ message }) =>
+      updateWarningModal(WarningModalTypes.USER_KICKED, message)
     )
 
     EngineEvents.instance.addEventListener(SocketWebRTCClientTransport.EVENTS.INSTANCE_RECONNECTED, reset)
@@ -75,7 +73,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
   }, [props.locationState.invalidLocation])
 
   const updateWarningModal = (type: WarningModalTypes, message?: any) => {
-    switch(type) {
+    switch (type) {
       case WarningModalTypes.INDEXED_DB_NOT_SUPPORTED:
         setModalValues({
           open: true,
@@ -92,7 +90,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
           title: 'No Available Servers',
           body: "There aren't any servers available for you to connect to. Attempting to re-connect in",
           action: async () => provisionInstanceServer(),
-          parameters: [currentLocation.id, props.instanceId, currentLocation.sceneId],
+          parameters: [currentLocation.id, props.instanceId, currentLocation.sceneId]
         })
         break
 
@@ -134,13 +132,7 @@ const GameServerWarnings = (props: GameServerWarningsProps) => {
     setModalValues(initialModalValues)
   }
 
-  return (
-    <WarningRefreshModal
-      {...modalValues}
-      open={modalValues.open && !props.isTeleporting}
-      handleClose={reset}
-    />
-  )
+  return <WarningRefreshModal {...modalValues} open={modalValues.open && !props.isTeleporting} handleClose={reset} />
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(GameServerWarnings)

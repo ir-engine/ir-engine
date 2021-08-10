@@ -28,10 +28,7 @@ import url from 'url'
 import MediaIconsBox from '../../components/MediaIconsBox'
 import NetworkDebug from '../../components/NetworkDebug'
 import { selectInstanceConnectionState } from '../../reducers/instanceConnection/selector'
-import {
-  provisionInstanceServer,
-  resetInstanceServer
-} from '../../reducers/instanceConnection/service'
+import { provisionInstanceServer, resetInstanceServer } from '../../reducers/instanceConnection/service'
 import RecordingApp from './../Recorder/RecordingApp'
 import GameServerWarnings from './GameServerWarnings'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
@@ -172,7 +169,7 @@ export const EnginePage = (props: Props) => {
     if (
       props.instanceConnectionState.get('instanceProvisioned') &&
       props.instanceConnectionState.get('updateNeeded') &&
-      !props.instanceConnectionState.get('instanceServerConnecting')&&
+      !props.instanceConnectionState.get('instanceServerConnecting') &&
       !props.instanceConnectionState.get('connected')
     ) {
       reinit()
@@ -243,17 +240,13 @@ export const EnginePage = (props: Props) => {
   const portToLocation = async ({ portalComponent }: { portalComponent: PortalComponent }) => {
     const slugifiedName = props.locationState.get('currentLocation').get('location').slugifiedName
 
-    teleportToLocation(
-      portalComponent,
-      slugifiedName,
-      () => {
-        setIsTeleporting(true)
+    teleportToLocation(portalComponent, slugifiedName, () => {
+      setIsTeleporting(true)
 
-        // change our browser URL
-        props.history.replace('/location/' + portalComponent.location)
-        setNewSpawnPos(portalComponent)
-      }
-    )
+      // change our browser URL
+      props.history.replace('/location/' + portalComponent.location)
+      setNewSpawnPos(portalComponent)
+    })
   }
 
   const addUIEvents = () => {
@@ -272,9 +265,10 @@ export const EnginePage = (props: Props) => {
 
   return (
     <>
-      {isValidLocation
-        ? <UserMenu />
-        : <Snackbar
+      {isValidLocation ? (
+        <UserMenu />
+      ) : (
+        <Snackbar
           open
           anchorOrigin={{
             vertical: 'top',
@@ -286,7 +280,7 @@ export const EnginePage = (props: Props) => {
             <Button onClick={goHome}>Return Home</Button>
           </>
         </Snackbar>
-      }
+      )}
 
       <NetworkDebug reinit={reinit} />
 

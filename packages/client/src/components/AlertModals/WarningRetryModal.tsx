@@ -32,7 +32,6 @@ const WarningRetryModal = ({
   handleClose,
   closeEffect
 }: WarningRetryModalProps): any => {
-
   const [countdown, setCountdown] = useState(null)
   const [timeRemaining, setTimeRemaining] = useState(0)
 
